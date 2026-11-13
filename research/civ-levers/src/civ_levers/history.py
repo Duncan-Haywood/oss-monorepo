@@ -21,18 +21,21 @@ S0 = A
 
 def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho=0.02,
         elite_cap=None, welfare=0.0, n0=0.5, e0f=0.05, seed=0, noise=0.0, lag=0.0, plag=0.0,
-        collapse_thr=None, collapse_elite=0.5, collapse_pop=0.2, refractory=50, psi_reset=1.0):
+        collapse_thr=None, collapse_elite=0.5, collapse_pop=0.2, refractory=50, psi_reset=1.0,
+        a=A, collapse_fiscal=0.1):
     """Returns arrays t, N, E, S, psi sampled each year. Levers: elite_cap (max elite
     number, a ceiling on recruitment), welfare (share of rent paid to peasants as a transfer).
     collapse_thr: if set, a state collapse fires when instability psi reaches it (and at least
     `refractory` years since the last): elites lose the fraction collapse_elite, peasants
     collapse_pop, fiscal strength resets to a tenth, and stress memory (plag > 0) resets to
-    psi_reset (1.0, the default, is where psi = 0.5; None keeps the memory). Returns the same
+    psi_reset (1.0, the default, is where psi = 0.5; None keeps the memory). a is the labour
+    share of output (subsistence s0 = a keeps N* = 1); collapse_fiscal is the factor fiscal
+    strength is cut to at a collapse (0.1; 1.0 keeps S). Returns the same
     five arrays; collapse years are in run.collapses (list) of the last call."""
     run.collapses = []
     last = -10 ** 9
     rng = np.random.default_rng(seed)
-    R_star = (1 - A)                       # rent at N = 1
+    R_star = (1 - a)                       # rent at N = 1
     Estar = e0f                            # elite number at equilibrium by definition of e0
     e0 = (1 - tau) * R_star / Estar        # aspiration: income per elite at N = 1, E = E*
     N, E = n0, Estar
@@ -42,9 +45,9 @@ def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho
     steps = int(years / dt)
     out = np.empty((steps, 4))
     for i in range(steps):
-        w = A * N ** (A - 1) + welfare * (1 - A) * N ** A / N
-        R = (1 - A) * N ** A * (1 - welfare)
-        PSI = (E / Estar) * (S0 / w) / S
+        w = a * N ** (a - 1) + welfare * (1 - a) * N ** a / N
+        R = (1 - a) * N ** a * (1 - welfare)
+        PSI = (E / Estar) * (a / w) / S
         if plag > 0:
             PSI_s += dt * (PSI - PSI_s) / plag
             PSI = PSI_s
@@ -53,7 +56,7 @@ def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho
         if lag > 0:
             ei_s += dt * (ei - ei_s) / lag
             ei = ei_s
-        dN = r * N * (w / S0 - 1) - m * psi * N
+        dN = r * N * (w / a - 1) - m * psi * N
         dE = rho * E * (ei / e0 - 1) - me * psi * E
         if elite_cap is not None and E >= elite_cap and dE > 0:
             dE = 0.0
@@ -63,7 +66,7 @@ def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho
             run.collapses.append(last)
             E *= 1 - collapse_elite
             N *= 1 - collapse_pop
-            S *= 0.1
+            S *= collapse_fiscal
             if psi_reset is not None:
                 PSI_s = psi_reset
             ei_s = e0
@@ -91,3 +94,23 @@ def summary(t, N, E, S, psi, burn=500):
                 break
     return {"psi_mean": float(p.mean()), "unrest_share": float((p > 0.5).mean()),
             "n_min": float(n.min()), "n_cv": float(n.std() / n.mean()), "period": period}
+
+
+def stress_terms(N, E, S, tau=0.3, g=1.0, e0f=0.05, a=A, welfare=0.0):
+    """Exact split of log PSI (sixth run, LOG.md 2026-11-13). With S_ss = tau R / (g E) the
+    target fiscal strength, log PSI = 2 log(E/E*) + (1 - 2a) log N + log(S_ss/S) + offset,
+    offset = log(g E* / (tau (1 - a))) + log(a / ((a + welfare (1 - a)) (1 - welfare))).
+    Returns an array (..., 4): elite, population, fiscal lag, offset."""
+    N, E, S = (np.asarray(x, float) for x in (N, E, S))
+    R = (1 - a) * N ** a * (1 - welfare)
+    s_ss = tau * R / (g * E)
+    off = np.log(g * e0f / (tau * (1 - a))) + np.log(a / ((a + welfare * (1 - a)) * (1 - welfare)))
+    return np.stack([2 * np.log(E / e0f), (1 - 2 * a) * np.log(N), np.log(s_ss / S),
+                     np.full(N.shape, off)], axis=-1)
+
+
+def log_psi(N, E, S, e0f=0.05, a=A, welfare=0.0):
+    """log PSI computed directly from its definition (E/E*)(s0/w)/S, s0 = a."""
+    N, E, S = (np.asarray(x, float) for x in (N, E, S))
+    w = a * N ** (a - 1) + welfare * (1 - a) * N ** a / N
+    return np.log((E / e0f) * (a / w) / S)
