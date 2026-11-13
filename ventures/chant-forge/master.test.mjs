@@ -81,3 +81,49 @@ test('platform playback gain: turn-down everywhere, turn-up only where the servi
   const r = analyze({ rate: 48000, channels: [s, s] });
   assert.equal(r.platforms.length, 6);
 });
+
+// The pre-2026-11-13 truePeak, kept verbatim: the fast one (unchecked interior loop,
+// windows that cannot raise the peak skipped) must return the same double.
+function truePeakReference(x, factor = 4, half = 16) {
+  const taps = [];
+  for (let p = 0; p < factor; p++) {
+    const t = [];
+    for (let k = -half + 1; k <= half; k++) {
+      const d = k - p / factor;
+      const sinc = d === 0 ? 1 : Math.sin(Math.PI * d) / (Math.PI * d);
+      t.push(sinc * (0.5 + 0.5 * Math.cos(Math.PI * d / half)));
+    }
+    taps.push(t);
+  }
+  let peak = 0;
+  for (let i = 0; i < x.length; i++) {
+    peak = Math.max(peak, Math.abs(x[i]));
+    for (let p = 1; p < factor; p++) {
+      let s = 0;
+      for (let k = -half + 1, j = 0; k <= half; k++, j++) { const idx = i + k; if (idx >= 0 && idx < x.length) s += x[idx] * taps[p][j]; }
+      peak = Math.max(peak, Math.abs(s));
+    }
+  }
+  return peak;
+}
+
+test('truePeak returns the reference value bit for bit: random, bursty, short, clipped and NaN signals', () => {
+  let s = 7;
+  const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296) * 2 - 1;
+  const signals = [[], [0.5], [1, -1], new Float64Array(31).fill(0.3), new Float64Array(33).fill(-0.7)];
+  for (const n of [5, 31, 32, 33, 64, 65, 100, 1000, 4097]) {
+    signals.push(Float64Array.from({ length: n }, rnd));
+    // quiet bed with rare loud bursts: most windows are skipped, the bursts are not
+    signals.push(Float64Array.from({ length: n }, (_, i) => (i % 97 < 3 ? rnd() : rnd() * 0.01)));
+    // alternating full-scale samples: inter-sample peaks well above the sample peak
+    signals.push(Float64Array.from({ length: n }, (_, i) => (i % 2 ? 1 : -1) * (0.9 + 0.1 * Math.abs(rnd()))));
+    // a sine near Nyquist/2 with a phase that puts the true peak between samples
+    signals.push(Float64Array.from({ length: n }, (_, i) => 0.8 * Math.sin(Math.PI * (i + 0.5) / 2.03)));
+  }
+  const withNaN = Float64Array.from({ length: 200 }, rnd); withNaN[150] = NaN; signals.push(withNaN);
+  for (const x of signals) {
+    for (const [factor, half] of [[4, 16], [2, 8], [8, 4]]) {
+      assert.ok(Object.is(truePeak(x, factor, half), truePeakReference(x, factor, half)), `n=${x.length} factor=${factor} half=${half}`);
+    }
+  }
+});

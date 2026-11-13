@@ -244,3 +244,18 @@ def test_no_load_line_recovers_intercept_speed_slope_and_marginal_rate():
     f1 = breakeven_rest_rate(20, 5, 98, 1.2, 0.2332, 0.818)
     f2 = breakeven_rest_rate(20, 5, 98, 1.2, 0.30, 0.818)
     assert abs(f2 / f1 - 0.30 / 0.2332) < 1e-12
+
+
+def test_asabe_fuel_reproduces_the_factsheet_worked_example():
+    """Milestone 6f: Grisso et al. 2010 (VCE 442-073) table 2 gives 7.236 gal/h for the
+    JD7610 (115.96 hp rated PTO) at full load and full throttle from eqs 2 and 3, and
+    6.162 / 5.397 gal/h at 75% pull full / reduced throttle (X 0.787, the equivalent PTO
+    power ratio of its appendix A, and N = 1665/2190)."""
+    from heavy_hydraulics.measured import asabe_fuel_lph, GAL_L, HP_KW
+    p_kw = 115.96 * HP_KW
+    assert asabe_fuel_lph(1.0, 1.0, p_kw) / GAL_L == pytest.approx(7.236, abs=0.002)
+    x = 0.787
+    assert asabe_fuel_lph(x, 1.0, p_kw) / GAL_L == pytest.approx(6.162, abs=0.005)
+    assert asabe_fuel_lph(x, 1665 / 2190, p_kw) / GAL_L == pytest.approx(5.397, abs=0.01)
+    # no load at full throttle: 0.019 gal/h per rated hp
+    assert asabe_fuel_lph(0.0, 1.0, HP_KW) == pytest.approx(0.019 * GAL_L)

@@ -110,9 +110,13 @@ function pooled(items: string[], people: { rows: RatingRow[]; w: number }[]) {
   for (const p of people) {
     if (p.w <= 0) continue;
     const scale = 1 / Math.sqrt(Math.max(p.w, 0.05));
-    for (const r of p.rows) rows.push({ ...r, rd: Math.min(r.rd * scale, 349) });
+    // Never-answered rows (rd 350) are left out here, and down-weighted rows keep
+    // their scaled rd: the old cap at 349 let the never-answered rows in as
+    // real ones and capped every weight near 0.7 (docs/INFORMATION-GAIN-SELECTOR.md,
+    // "The sparse long-list overclaim was the harness").
+    for (const r of p.rows) if (r.rd < DEFAULT_GLICKO_STATE.rd - 1e-9) rows.push({ ...r, rd: r.rd * scale });
   }
-  return groupRanking(items.map((id) => ({ id, label: id })), rows);
+  return groupRanking(items.map((id) => ({ id, label: id })), rows, "overlap", { answeredOnly: true });
 }
 
 function score(items: string[], truth: number[], salience: number[], ranked: ReturnType<typeof groupRanking>) {
@@ -239,7 +243,7 @@ for (const pattern of patterns) {
               add("median", medianScore(ids, target, salience, people));
               add("oracle-drop", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.careless ? 0 : 1 })))));
             }
-            const cell: Record<string, unknown> = { pattern, q, items, perItem: k, respondents: nResp, careless: share, surveys: nSurveys };
+            const cell: Record<string, unknown> = { selector: selectorName === "staged" && switchAtArg !== undefined ? `staged@${switchAtArg}` : selectorName, pattern, q, items, perItem: k, respondents: nResp, careless: share, surveys: nSurveys };
             for (const [name, a] of Object.entries(acc)) {
               const clear = a.clear.reduce((x, y) => x + y, 0);
               const wrong = a.wrong.reduce((x, y) => x + y, 0);
