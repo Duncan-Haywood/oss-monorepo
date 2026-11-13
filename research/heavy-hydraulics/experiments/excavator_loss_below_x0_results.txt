@@ -1,0 +1,73 @@
+Milestone 6i: excavator break-even with the pump loss continued below 12 cm3/r, and g on the motion trace
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; efficiency: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY, digitised)
+central: 60 C, margin 20.0 bar, p 129.6 bar (outlet 149.6 bar), b 0.2203 L/kWh; x0 = 0.2667
+
+60 C fits: full range k0 7.858 kp -0.00758 kl 5.258e-04 kc 0.03495; 12-25 cm3/r k0 7.755 kp 0.01136 kl 6.342e-04 kc -0.05767
+  efficiency at 149.6 bar by mode (x: flat / anchored / model / small):
+    x 0.000: 0.000 / 0.000 / 0.000 / 0.000   (loss at x: 18.09 bar anchored)
+    x 0.050: 0.672 / 0.290 / 0.285 / 0.244   (loss at x: 18.35 bar anchored)
+    x 0.100: 0.672 / 0.446 / 0.440 / 0.396   (loss at x: 18.61 bar anchored)
+    x 0.150: 0.672 / 0.543 / 0.538 / 0.501   (loss at x: 18.87 bar anchored)
+    x 0.200: 0.672 / 0.610 / 0.605 / 0.577   (loss at x: 19.14 bar anchored)
+    x 0.267: 0.672 / 0.672 / 0.670 / 0.665   (loss at x: 19.49 bar anchored)
+  anchored zero-stroke loss A_eff = L_meas(x0) - kc p x0 = 19.49 - 1.39 = 18.09 bar (6h's full-range A: 18.49)
+25 C fits: full range k0 10.548 kp -0.00988 kl 3.496e-04 kc 0.04124; 12-25 cm3/r k0 9.864 kp 0.01511 kl 3.595e-04 kc -0.01076
+  efficiency at 149.6 bar by mode (x: flat / anchored / model / small):
+    x 0.000: 0.000 / 0.000 / 0.000 / 0.000   (loss at x: 17.04 bar anchored)
+    x 0.050: 0.681 / 0.301 / 0.303 / 0.271   (loss at x: 17.35 bar anchored)
+    x 0.100: 0.681 / 0.459 / 0.461 / 0.428   (loss at x: 17.66 bar anchored)
+    x 0.150: 0.681 / 0.555 / 0.557 / 0.530   (loss at x: 17.97 bar anchored)
+    x 0.200: 0.681 / 0.621 / 0.623 / 0.601   (loss at x: 18.28 bar anchored)
+    x 0.267: 0.681 / 0.681 / 0.682 / 0.677   (loss at x: 18.69 bar anchored)
+  anchored zero-stroke loss A_eff = L_meas(x0) - kc p x0 = 18.69 - 1.64 = 17.04 bar (6h's full-range A: 16.89)
+
+Stroke shortfall below x0 over moving time (x = min(q, 219)/219):
+  central geometry: g 0.0142, s 0.0655 (stdlib check: g 0.0142, s 0.0655)
+  over 384 geometries: g min 0.0065, p10 0.0436, median 0.1293, p90 0.3109, max 0.4457; s median 0.4455 (0.0322 to 0.9103)
+
+Central geometry (levers 1/1/1, bucket +1, swing 0.5), 60 C:
+  check: flat mode f_t,max 5.495 L/h at q_p 101.0 (6g committed 5.495); eta_LS 0.76941 on the 1e-4 loss grid, 0.76941 by 6g's exact per-sample loop (6g committed 0.7694)
+  flat    : eta_LS 0.7694, f_t,max 5.495 L/h at q_p 101.0 L/min (tau 1.144), rise over flat +0.000
+  anchored: eta_LS 0.7672, f_t,max 5.635 L/h at q_p 101.0 L/min (tau 1.144), rise over flat +0.140
+  model   : eta_LS 0.7670, f_t,max 5.650 L/h at q_p 101.0 L/min (tau 1.144), rise over flat +0.154
+  small   : eta_LS 0.7657, f_t,max 5.732 L/h at q_p 101.5 L/min (tau 1.141), rise over flat +0.236
+  6h bound at the measured g: 10.36 x 0.0142 = 0.147 L/h; anchored rise at 6g's maximising pump 0.140, at the new maximum 0.140 (ratio to bound 0.951)
+  25 C: flat 5.936, anchored 6.079 L/h (rise +0.143)
+  f_t*(q_p) at 60 C, flat -> anchored, L/h:
+    q_p   60.0: 2.061 -> 2.091
+    q_p   80.0: 3.989 -> 4.054
+    q_p  100.0: 5.493 -> 5.628
+    q_p  120.0: 2.562 -> 2.819
+    q_p  140.0: 0.000 -> 0.000
+    q_p  160.0: 0.000 -> 0.000
+    q_p  180.0: 0.000 -> 0.000
+    q_p  200.0: 0.000 -> 0.000
+
+Over the 384 geometries, 60 C, central parameters:
+  flat    : eta_LS median 0.734 (0.681 to 0.791); f_t,max min 1.42, p10 2.07, median 3.32, p90 5.84, max 9.37 L/h; beats 3.986: 32.8%, 5.056: 17.2%; stock-pump gap min +3.086 (open-centre loses in 100.0%)
+  anchored: eta_LS median 0.707 (0.552 to 0.789); f_t,max min 2.64, p10 3.36, median 4.63, p90 8.69, max 14.29 L/h; beats 3.986: 66.7%, 5.056: 44.3%; stock-pump gap min +3.077 (open-centre loses in 100.0%)
+  model   : eta_LS median 0.705 (0.548 to 0.789); f_t,max min 2.69, p10 3.45, median 4.77, p90 9.00, max 15.16 L/h; beats 3.986: 70.3%, 5.056: 45.1%; stock-pump gap min +3.076 (open-centre loses in 100.0%)
+  small   : eta_LS median 0.695 (0.512 to 0.788); f_t,max min 3.02, p10 3.95, median 5.29, p90 11.50, max 23.75 L/h; beats 3.986: 88.8%, 5.056: 53.9%; stock-pump gap min +3.060 (open-centre loses in 100.0%)
+Over the 384 geometries, 25 C, central parameters:
+  flat    : eta_LS median 0.741 (0.689 to 0.798); f_t,max min 1.53, p10 2.20, median 3.57, p90 6.31, max 10.12 L/h; beats 3.986: 39.1%, 5.056: 22.4%; stock-pump gap min +2.904 (open-centre loses in 100.0%)
+  anchored: eta_LS median 0.714 (0.564 to 0.795); f_t,max min 2.73, p10 3.51, median 4.80, p90 8.94, max 14.41 L/h; beats 3.986: 77.6%, 5.056: 48.2%; stock-pump gap min +2.895 (open-centre loses in 100.0%)
+  model   : eta_LS median 0.715 (0.565 to 0.795); f_t,max min 2.70, p10 3.49, median 4.79, p90 8.82, max 14.19 L/h; beats 3.986: 76.6%, 5.056: 47.4%; stock-pump gap min +2.895 (open-centre loses in 100.0%)
+  small   : eta_LS median 0.706 (0.540 to 0.794); f_t,max min 3.06, p10 3.91, median 5.43, p90 10.48, max 18.83 L/h; beats 3.986: 87.8%, 5.056: 53.1%; stock-pump gap min +2.891 (open-centre loses in 100.0%)
+  anchored rise over flat, 60 C: min 0.065, median 1.111, max 10.899 L/h; corr(rise, g) 0.821
+
+Fixed-pump efficiency at which load-sensing wins back (60 C, anchored), as a multiple of the curve's full-stroke value (0.840 at 150 bar):
+  at 3.986 L/h: central geometry 0.9591 (eta_OC 0.806); over the 256 geometries where a fixed pump wins: median 0.9496, min 0.8210, max 0.9998
+  at 5.056 L/h: central geometry 0.9864 (eta_OC 0.829); over the 170 geometries where a fixed pump wins: median 0.9602, min 0.8513, max 0.9990
+Sweep at 60 C, anchored (4 margins x 3 pressures x 3 b): f_t,max 1.61 to 30.32 L/h
+  at 3.986 L/h: fixed pump wins under every set in 25.5%, under at least one in 100.0% of geometries
+  at 5.056 L/h: fixed pump wins under every set in 13.3%, under at least one in 97.7% of geometries
+
+Predictions (LOG.md 6i):
+  I1 central g in 0.05-0.20: refuted (0.0142)
+  I2 central f_t,max rises >= 1.0 L/h over 6g's 5.50: refuted (5.635, +0.140)
+  I3 share above 3.986 L/h >= 45%: held (66.7%)
+  I4 central rise >= bound and within 20% of it: refuted (rise 0.140 at 6g's pump, bound 0.147)
+  I5 stock pump: open-centre loses in every geometry: held (100.0%)
+  I6 central win-back scale at 3.986 <= 0.95: refuted (0.9591; 6g 0.9622)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0), digitised.
