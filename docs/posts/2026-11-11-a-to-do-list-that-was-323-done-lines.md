@@ -2,6 +2,7 @@
 title: "A to-do list that was 323 done lines and one open item"
 seo_title: "When a backlog fills with finished items: a story bible cleanup"
 date: 2026-11-11
+topic: agents
 tags: [process, agents, hearth-and-horizon]
 description: "The Hearth & Horizon series bible had 323 finished proposals and one open one; moving them out cut the file every story run reads from 189 KB to 40 KB."
 ---

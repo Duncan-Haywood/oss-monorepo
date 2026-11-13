@@ -154,6 +154,27 @@ test('topics: front matter wins, else the first rule the tags match; a bad topic
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-podcast.md': post('X', '2026-10-01') })), /section of the blog/);
 });
 
+test('topics: a tag naming a research/ project files the post under research, a ventures/ one under tools', async () => {
+  const { topicOf, projectSlugs } = await import('./writing.mjs');
+  const projects = { research: new Set(['marine-hull']), ventures: new Set(['sales-agent']) };
+  assert.equal(topicOf(['marine-hull', 'simulation']), 'tools', 'without the project list the old fallback stands');
+  assert.equal(topicOf(['marine-hull', 'simulation'], '', projects), 'research');
+  assert.equal(topicOf(['sales-agent', 'ai-agents'], '', projects), 'tools');
+  assert.equal(topicOf(['ai-agents'], '', projects), 'agents');
+  assert.equal(topicOf(['start-here', 'marine-hull'], '', projects), 'start');
+  assert.equal(topicOf(['marine-hull'], 'agents', projects), 'agents');
+  // loadPosts reads the folders of the repo it is given.
+  const root = repoWith({ '2026-10-01-x.md': post('X', '2026-10-01').replace(/^tags:.*$/m, 'tags: [marine-hull]') });
+  mkdirSync(path.join(root, 'research', 'marine-hull'), { recursive: true });
+  writeFileSync(path.join(root, 'research', 'marine-hull', 'README.md'), '# m\n');
+  assert.deepEqual([...projectSlugs(root).research], ['marine-hull']);
+  assert.equal(loadPosts(root)[0].topic, 'research');
+  // And on the real repository: every post that names a research project is a research finding unless it says otherwise.
+  const real = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+  const slugs = projectSlugs(real);
+  assert.ok(slugs.research.has('marine-hull') && slugs.ventures.has('ai-bookkeeper'));
+});
+
 test('the index can be searched and filtered: finder, card data, full-text index, topic and tag links on posts', async () => {
   const root = repoWith({
     '2026-10-01-older.md': post('Older', '2026-10-01', 'topic: research\n').replace('Body text', 'Zlib level nine. Body text'),
