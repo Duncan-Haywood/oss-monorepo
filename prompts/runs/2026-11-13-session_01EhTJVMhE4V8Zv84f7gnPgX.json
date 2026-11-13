@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVMhE4V8Zv84f7gnPgX",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T04:25:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 (clothing-design-studio): sew the sleeves into the virtual drape, with arms under them",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 15366,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First sleeve run: torso yoke 14% stretched; traced to the garment sliding 10 cm down the arms (arm joint too low) and to cap/armhole fraction matching over uncovered spans. Fixed by deltoid cap, higher joint, span-rescaled pairing, 45-degree pose.",
+    "Pattern fix broke two nest tests: greedy nester was longer turnable than one-way (194 vs 182 cm); fixed by trying orders unturned as well. 'One tee beats rectangles' no longer holds (tie, 99.5 vs 99 cm) and the test now says so."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-arms-in-the-drape-found-the-sleeve.md"
+  ],
+  "goal": "Website request R-0005 (top open request) over the allocator's einvoice-preflight row: CLAUDE.md puts open website requests before flagships.",
+  "notes": "Drape now sews the drafted sleeves round arms (45-degree A pose). It caught pattern.mjs drawing the flat bicep as the full sleeve width (24 cm round at M, 37-45% stretched round a 31 cm arm) and measuring sleeve length from the underarm instead of the shoulder point (a cap height too long); both fixed, bicepCm override added. eval/drape-sleeves.mjs: old width 27-60% bicep stretch, drafted 0-1% on fitting sizes, all seams <0.35 cm, none inside, all settled. Open: residual 6.7% neckline stretch with sleeves (pose artifact, disclosed on page and README). Verification: run_venture_tests.py clothing-design-studio passes (all node tests); writing.test.mjs 37/37; requests.test.mjs 3/3; headless Chromium of drape.html: no console errors, no sideways scroll at 390 px, narrow-bicep override shows 45% stretch; venture-preflight run in background (result appended below if it finished before merge).",
+  "corrections": [],
+  "redteam": null
+}
