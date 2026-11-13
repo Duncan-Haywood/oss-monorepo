@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T08:18:11Z",
   "ended": "2026-11-13T08:31:51Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 15.8,
+  "tokens_in": 14762040,
+  "tokens_out": 53793,
+  "cost_usd": 5.3704,
+  "tool_calls": 102,
   "task": "Deepen flagship 8 (quick-pick-survey), item (e): the staged selector's switch rule above 120 items, then the default there",
   "projects": [
     "quick-pick-survey"
@@ -52,5 +54,81 @@
   "goal": "Deepen a flagship: land a measured, tested change to the survey's default question order on long lists",
   "notes": "Measured with scripts/long-list-switch-sweep.ts (new; 150/220/300/500 items, 30-600 answers, lapse 0 and 0.2, 60 paired seeds): information selector from the first answer vs the 120-answer warm-up -0.001 to +0.021 up to 120 answers, -0.015 to +0.014 after; ahead of shipped in 54 of 56 cells; couple bar 35 answers vs 38-40. Pooled (150 items, panels 20/60, careless random/salience): level or ahead of standard in 15/16 cells. Shipped: hybridSwitchAt 0 and defaultPairSelector staged at every length; survey builder labels and docs updated. New tests fail on the old rule (4 in pairing.test.ts, checked by restoring the old pairing.ts). Found: pooled 'clearly above' pairs wrong 5.4-14.3% on sparse 150-item lists under both selectors (vs ~0.5% on 15-30 items); recorded as next item (f) in flagships.yaml. Verification output: see the PR body and the commit that adds this record.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "87b7ab20-3fca-5c41-9a60-a13ab0eed6b9",
+    "transcripts": 1,
+    "first": "2026-11-13T08:18:11Z",
+    "last": "2026-11-13T08:33:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 106,
+        "input": 217,
+        "output": 53793,
+        "thinking": 13841,
+        "cache_read": 14589855,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171968,
+        "api_equivalent_usd": 5.3704,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 106,
+      "input": 217,
+      "output": 53793,
+      "thinking": 13841,
+      "cache_read": 14589855,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171968,
+      "api_equivalent_usd": 5.3704,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 96,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.8,
+      "active_minutes": 10.99,
+      "model_minutes": 8.96,
+      "tool_minutes": 2.03,
+      "waiting_on_human_minutes": 4.8,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior data scientist: design and run a paired simulation sweep over 4 list lengths and a pooled panel grid, change the default with tests, write up (about two days)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 297.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
