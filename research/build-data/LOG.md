@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 84, 2026-11-13: the per-city class selector scored on the labels a deployment would see (pre-registered; outcome below)
+
+Why: session 83's selector scored the target city's year Y-1 on complete labels from today's pull. A model shipped on 1 January of the test year sees only the Y-1 permits already completed by then, which removes the long builds that carry Austin's q0.9 advantage for the plain permit type (sessions 77 and 78). Its "Next" asked whether the picks survive that truncation.
+- New: `transfer.run(select=True)` also returns the held-out city's year Y-2 (`_select2`; the transfer model trains on the sources' years <= Y-2 and never reads the target), and both selection years now carry labels and issue days. `src/select_deploy.py` scores six selection sets with session 83's two rules (argmin; gated, which keeps cascade2 unless a candidate wins with a 95% week-block interval below zero): full1 and full2 (years Y-1 and Y-2, every row; oracles, as in session 83), cc1 and cc2 (only rows completed by the decision date D = 1 January Y, unweighted), ipcw1 and ipcw2 (the same rows weighted 1/G(y), floor 0.05). G(t) is the share of that year's rows issued at least t days before D, read from every row's issue day: at D the feed lists every issued permit, completed or not, so this uses no future information (rows never completed by today are absent, a small gap). Test year scored on all rows (the reference), regret as session 83. 5 tests (one in `test_transfer.py`).
+Design (fixed before any run): candidates cascade2, type, cascade2_minsupdrop1000 (as session 83); `python3.13 src/select_deploy.py DIR --held H --test-year Y` for H = austin, sf, seattle and Y = 2021, 2022; q0.5 and q0.9: 12 cells. Fresh pull of all three cities.
+Predictions (written before any run):
+- (P1) Austin q0.9: cc1's argmin fails to pick type in at least one of 2021 and 2022 (truncation hides the long builds that carry type's advantage).
+- (P2) ipcw1's argmin has lower mean regret over the 12 cells than cc1's.
+- (P3) cc2's and ipcw2's argmin each have mean regret <= 1 day and below always cascade2's.
+- (P4) ipcw2's gated rule has mean regret <= 1 day (the rule to ship).
+- (P5) full1's argmin repeats session 83's argmin pick in at least 10 of the 12 cells (pull drift check).
+Refuted if any part fails.
+
 ## Session 83, 2026-11-13: choosing the class configuration per target city from the target's own previous year lands within 0.65 days of the best of three candidates in all 12 city-year-quantile cells (mean regret 0.07 days vs 1.7 to 6.6 for any fixed choice; S1 to S5 held)
 
 Why: session 82 closed with "the class configuration has to be chosen per target city" after three source-count fold rules failed. Its "Next" asked for a choice made from the target city's own history, fixed before the test year.
