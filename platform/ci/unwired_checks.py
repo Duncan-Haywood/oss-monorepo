@@ -22,6 +22,14 @@ one more (test_browser_checks.py) only by a nightly; two were red on main
 unseen (test_doc_index.py: 44 untagged reports; test_browser_checks.py: four
 browser checks added without registering). Together they take about 15 s at
 six at a time.
+
+Two more fixes (2026-11-13, PR #15548). Until then run_venture_tests.py, the
+CI caller, still ran only the checks, so no pull request ran the suites. On
+the CI runner's Python 3.12 the 15 plain pytest-function suites run 0 tests
+under unittest and exit 5; Python 3.11, in cloud sessions, calls that OK. A
+suite with no TestCase now runs under pytest, and a suite that needs pytest or
+a package the interpreter lacks (yaml on the runner) is a named skip, never a
+pass. `doc_index.py check` (EXTRA) runs too, while no workflow names it.
 """
 import argparse
 import re
@@ -31,6 +39,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import main_health
+
+# Tree checks outside check_*.py that no workflow runs: (script, args).
+EXTRA = [("doc_index.py", "check")]
 
 HERE = Path(__file__).resolve().parent
 WORKFLOWS = HERE.parents[1] / ".github" / "workflows"
@@ -91,23 +102,71 @@ def unwired_tests(here=HERE, workflows=WORKFLOWS):
     return [p for p in sorted(here.glob("test_*.py")) if p.stem not in text]
 
 
+SKIPPED = "SKIP:"
+
+
+def has_module(name, python=sys.executable):
+    return subprocess.run([python, "-c", f"import {name}"], capture_output=True).returncode == 0
+
+
+def missing_module(out, here=HERE):
+    """The third-party module a run failed to import, or None. A module the
+    repository holds (a sibling .py file) is a real break, not a missing package."""
+    m = re.search(r"ModuleNotFoundError: No module named '([\w.]+)'", out)
+    if not m:
+        return None
+    top = m.group(1).split(".")[0]
+    return None if (here / f"{top}.py").exists() or (here / top).is_dir() else top
+
+
 def run_suite(path, timeout=main_health.TIMEOUT):
-    """(name, rc, output) for one unittest module, run from its own directory
-    so its `import <sibling>` lines resolve the way they do under discover."""
+    """(name, rc, output) for one test module, run from its own directory so its
+    `import <sibling>` lines resolve the way they do under discover. unittest
+    for a TestCase module, pytest for plain test functions; a missing pytest or
+    third-party package is a SKIPPED result with rc 0."""
     path = Path(path)
+    plain = "TestCase" not in path.read_text(encoding="utf-8", errors="replace")
+    if plain and not has_module("pytest"):
+        return path.name, 0, f"{SKIPPED} pytest-style suite and no pytest here"
+    cmd = ["-m", "pytest", "-q", "-p", "no:cacheprovider", path.name] if plain \
+        else ["-m", "unittest", path.stem]
     try:
-        r = subprocess.run([sys.executable, "-m", "unittest", path.stem], cwd=path.parent,
+        r = subprocess.run([sys.executable, *cmd], cwd=path.parent,
                            capture_output=True, text=True, timeout=timeout)
-        return path.name, r.returncode, (r.stdout + r.stderr).strip()
     except subprocess.TimeoutExpired:
         return path.name, main_health.TIMED_OUT, f"timed out after {timeout} s"
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode != 0 and (mod := missing_module(out, path.parent)):
+        return path.name, 0, f"{SKIPPED} needs {mod}, not installed here"
+    return path.name, r.returncode, out
+
+
+def skipped(results):
+    return [(n, out) for n, rc, out in results if rc == 0 and out.startswith(SKIPPED)]
+
+
+def unwired_extra(here=HERE, workflows=WORKFLOWS):
+    """EXTRA's (path, *args) jobs whose script no workflow names."""
+    text = workflow_text(workflows)
+    return [(here / name, *args) for name, *args in EXTRA if name not in text]
+
+
+def run_everything(checks_only=False):
+    """Checks, then (unless checks_only) suites and EXTRA: one sorted result list."""
+    results = run_all(unwired())
+    if not checks_only:
+        results += run_all(unwired_tests(), runner=run_suite)
+        results += run_all(unwired_extra(), runner=lambda p, *a: main_health.run(p, *a))
+    return sorted(results)
 
 
 def run_all(paths, runner=main_health.run, jobs=6, log=print):
-    """[(name, rc, output)] sorted by name; timeouts get one solo re-run."""
+    """[(name, rc, output)] sorted by name; timeouts get one solo re-run. An
+    item of `paths` is a path or a (path, *args) tuple."""
+    work = [p if isinstance(p, tuple) else (p,) for p in paths]
     with ThreadPoolExecutor(max_workers=jobs) as pool:
-        results = [f.result() for f in as_completed([pool.submit(runner, p) for p in paths])]
-    return sorted(main_health.rerun_timeouts([(p,) for p in paths], results, runner))
+        results = [f.result() for f in as_completed([pool.submit(runner, *j) for j in work])]
+    return sorted(main_health.rerun_timeouts(work, results, runner))
 
 
 def report(results):
@@ -125,27 +184,37 @@ TAIL = 8
 
 def reproduce(name):
     if name.startswith("test_"):
-        return f"cd platform/ci && python3 -m unittest {name[:-3]}"
-    return f"python3 platform/ci/{name}"
+        return f"cd platform/ci && python3 -m unittest {name[:-3]}  (or pytest {name})"
+    args = dict((n, a) for n, *a in EXTRA).get(name, [])
+    return " ".join(["python3", f"platform/ci/{name}", *args])
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--list", action="store_true", help="name the unwired checks and exit")
+    ap.add_argument("--checks-only", action="store_true",
+                    help="only the check_*.py scripts, not the suites and EXTRA")
     args = ap.parse_args(argv)
-    paths, suites = unwired(), unwired_tests()
     if args.list:
+        paths, suites, extra = unwired(), unwired_tests(), unwired_extra()
         for p in paths + suites:
             print(p.name)
+        for p, *a in extra:
+            print(" ".join([p.name, *a]))
         print(f"{len(paths)} check(s) no workflow names, "
-              f"{len(suites)} test suite(s) no pull-request workflow names")
+              f"{len(suites)} test suite(s) no pull-request workflow names, "
+              f"{len(extra)} other check(s)")
         return 0
-    results = sorted(run_all(paths) + run_all(suites, runner=run_suite))
+    results = run_everything(args.checks_only)
     bad = report(results)
     if bad:
         print(bad)
     failed = sum(rc != 0 for _, rc, _ in results)
-    print(f"{len(results) - failed}/{len(results)} unwired checks and suites pass")
+    skips = skipped(results)
+    for name, why in skips:
+        print(f"skip {name}: {why[len(SKIPPED):].strip()}")
+    print(f"{len(results) - failed - len(skips)}/{len(results)} unwired checks and suites pass"
+          + (f", {len(skips)} skipped" if skips else ""))
     return 1 if failed else 0
 
 

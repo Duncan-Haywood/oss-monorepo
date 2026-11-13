@@ -43,7 +43,8 @@ class Unwired(unittest.TestCase):
             with self.subTest(case), \
                     mock.patch.object(u, "unwired", return_value=[]), \
                     mock.patch.object(u, "unwired_tests", return_value=[]), \
-                    mock.patch.object(u, "run_all", side_effect=[results, []]), \
+                    mock.patch.object(u, "unwired_extra", return_value=[]), \
+                    mock.patch.object(u, "run_all", side_effect=[results, [], []]), \
                     redirect_stdout(io.StringIO()) as out:
                 rc = u.main([])
             self.assertEqual(rc, 0 if case == "green" else 1, case)
@@ -115,6 +116,43 @@ class PullRequestTrigger(unittest.TestCase):
 
     def test_the_real_tree_has_no_nightly_only_suite_counted_as_wired(self):
         self.assertIn("test_browser_checks.py", [p.name for p in u.unwired_tests()])
+
+
+    def test_extra_drops_out_once_a_workflow_names_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            here, wf = Path(d) / "ci", Path(d) / "wf"
+            here.mkdir(); wf.mkdir()
+            (wf / "x.yml").write_text("run: echo\n")
+            self.assertEqual(u.unwired_extra(here, wf), [(here / "doc_index.py", "check")])
+            (wf / "x.yml").write_text("run: python3 platform/ci/doc_index.py check\n")
+            self.assertEqual(u.unwired_extra(here, wf), [])
+        self.assertEqual(u.reproduce("doc_index.py"), "python3 platform/ci/doc_index.py check")
+
+    def test_a_missing_package_is_a_skip_but_a_missing_sibling_is_a_failure(self):
+        # The CI runner has no yaml: test_soc2_controls and test_doctrine_review.
+        with tempfile.TemporaryDirectory() as d:
+            here = Path(d)
+            (here / "localmod.py").write_text("")
+            self.assertEqual(u.missing_module("ModuleNotFoundError: No module named 'yaml'", here), "yaml")
+            self.assertIsNone(u.missing_module("ModuleNotFoundError: No module named 'localmod'", here))
+            self.assertIsNone(u.missing_module("AssertionError", here))
+            t = here / "test_needs.py"
+            t.write_text("import unittest\nimport no_such_pkg_xyz\nclass T(unittest.TestCase):\n"
+                         "    def test_x(self): pass\n")
+            name, rc, out = u.run_suite(t)
+            self.assertEqual(rc, 0)
+            self.assertEqual(u.skipped([(name, rc, out)]), [(name, out)])
+
+    def test_a_plain_function_suite_never_passes_as_zero_unittest_tests(self):
+        # Python 3.11 calls 0 unittest tests OK; 3.12 exits 5. Neither is a pass.
+        with tempfile.TemporaryDirectory() as d:
+            t = Path(d) / "test_plain.py"
+            t.write_text("def test_x():\n    assert 1 == 2\n")
+            name, rc, out = u.run_suite(t)
+            if u.has_module("pytest"):
+                self.assertNotEqual(rc, 0)
+            else:
+                self.assertTrue(out.startswith(u.SKIPPED))
 
 
 if __name__ == "__main__":

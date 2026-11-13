@@ -1,3 +1,9 @@
+---
+kind: note
+topics: [guidance-system]
+date: 2026-11-13
+tagged: auto
+---
 # Stalled green PRs, 2026-11-13 (process run)
 
 For the next run that drains `platform/ci/orphan_prs.py`.

@@ -1,3 +1,9 @@
+---
+kind: polish
+subjects: [uk-sole-trader-vs-limited-company-calculator]
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: answer-first lead on uk-sole-trader-vs-limited-company-calculator, and a salary bug
 
 **Why.** Item 3 of "Still weakest" in `polish-2026-11-13-last-intro-walls.md`: answer leads are still

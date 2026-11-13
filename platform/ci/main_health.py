@@ -25,14 +25,17 @@ ROOT = HERE.parents[1]
 NEEDS_SITE = {"check_pages_links.py", "check_built_site.py"}
 # Checks outside platform/ci/check_*.py that no PR workflow runs (2026-11-08: a post
 # went over the title budget on main unseen). Each is (script path, args).
-EXTRA = [("platform/pages/propose_seo_titles.py", "--check")]
+# 2026-11-13: doc_index.py check had been red for days (43 report-tag problems).
+EXTRA = [("platform/pages/propose_seo_titles.py", "--check"), ("platform/ci/doc_index.py", "check")]
 
 
 def label(path):
     """Bare name for platform/ci scripts; repo-relative path for the others, so a red
     line says where the script lives (runs lost time looking for propose_seo_titles.py)."""
     p = Path(path).resolve()
-    return p.name if p.parent == HERE else str(p.relative_to(ROOT))
+    if p.parent == HERE or not p.is_relative_to(ROOT):
+        return p.name
+    return str(p.relative_to(ROOT))
 
 
 TIMED_OUT = 124
