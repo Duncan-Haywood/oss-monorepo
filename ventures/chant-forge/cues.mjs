@@ -116,7 +116,7 @@ export function cueSheet(events, opts = {}) {
     const g = guides.get(i);
     if (g) lines.push(`-- ${g.section}, bar ${g.bar}, ${g.seconds.toFixed(2)} s: ${g.text}`);
     lines.push(
-      [String(r.bar).padStart(3), String(r.beat).padStart(5), r.seconds.toFixed(2).padStart(8), r.note.padStart(5), String(r.beats).padStart(6), ...(split ? [WHO[r.voice].padStart(4)] : []), '  ' + r.syllable].join(' '),
+      [String(r.bar).padStart(3), String(r.beat).padStart(5), r.seconds.toFixed(2).padStart(8), r.note.padStart(5), String(r.beats).padStart(6), ...(split ? [(Object.hasOwn(WHO, r.voice) ? WHO[r.voice] : '?').padStart(4)] : []), '  ' + r.syllable].join(' '),
     );
   });
   return lines.join('\n') + '\n';

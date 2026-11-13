@@ -86,6 +86,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   writer, 4 tests); `eval/browser-e2e.mjs` (89 checks) finds the MIDI equal to `--markers` and the stems equal to
   `render-cli.mjs --stems`, summing to the preview within 2 steps of 32,767.
 
+- 2026-11-13, latest: `--split-voices` (tenors and basses by phrase; studio page option too). 7 of the 67 corpus files
+  span 17 semitones, one more than the C3-E4 band both sections reach; each splits with one phrase for one section
+  and 85-98% of the notes for the full choir (README "Tenors and basses by phrase"). Not tried with singers.
+
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
