@@ -3,7 +3,7 @@ title: "Giving a six-verse chant a breakdown: what the arranger changes before t
 seo_title: "Breakdown and riser for chant-based dance tracks, in MIDI from code"
 date: 2026-11-13
 tags: [ventures, chant-forge, music]
-description: "Chant Forge now turns the verse before the last drop of a long hymn into a breakdown and gives every build an approach chord and a riser. Measured levels, and what still needs an ear."
+description: "Chant Forge turns the verse before the last drop of a long hymn into a breakdown and gives each build an approach chord and riser. Levels measured."
 ---
 
 Chant Forge turns Gregorian chant into gym tracks: a men's choir line over
