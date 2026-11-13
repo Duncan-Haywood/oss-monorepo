@@ -202,8 +202,12 @@ answer where a person turned much quicker than everyone else at the same point i
 comparison is with everyone at that point, so the slow first pairs and the speed-up everyone shows
 are not mistaken for a block. It then leaves out that person's answers from there on. In simulation
 it recovered all of what leaving out exactly the careless answers would when the block was at 0.4x
-pace, against 64-82% for the per-answer cut, and cost at most 0.0004 Spearman in any cell. A
-comparison for now (same file, "Carelessness that starts mid-session").
+pace, against 64-82% for the per-answer cut, and cost at most 0.0004 Spearman in any cell. Since
+2026-11-13 "everyone at that point" means the upper quarter of the panel's times there, not the
+median, so a large group turning quick at once cannot drag the comparison down with them: with 40%
+of the panel turning at 0.6x pace it finds 72-80% of them instead of 31-60%. A comparison for now
+(same file, "Carelessness that starts mid-session" and "A panel curve the careless cannot drag
+down").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once
