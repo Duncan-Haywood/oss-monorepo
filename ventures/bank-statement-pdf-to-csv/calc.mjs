@@ -110,7 +110,12 @@ function leadingDates(words) {
   return { dates, used: i };
 }
 
-const validDmy = (d, m) => m >= 1 && m <= 12 && d >= 1 && d <= 31;
+// Days in each month; February allows the 29th until the year is known.
+const MONTH_DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const validDmy = (d, m) => m >= 1 && m <= 12 && d >= 1 && d <= MONTH_DAYS[m - 1];
+const leapYear = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+// 29 February exists only in a leap year; a missing year is not checked here.
+const realDay = (y, m, d) => validDmy(d, m) && !(m === 2 && d === 29 && y && !leapYear(y));
 
 // --- Input: lines of word-items ---------------------------------------------
 
@@ -479,6 +484,7 @@ function parseStatementInner(lines, opts) {
       else if (years.length === 1) y = years[0];
       else if (years.length >= 2) y = m >= 7 ? years[0] : years[years.length - 1];
     }
+    if (!realDay(y, m, day)) return { ok: false, y: y || null, m, d: day };
     return { ok: true, y, m, d: day, inferred: !d.y };
   };
 
@@ -570,13 +576,17 @@ function parseStatementInner(lines, opts) {
   }
 
   // 5. Findings.
-  const noDates = tx.filter((t) => !t.date || !t.date.ok);
-  if (noDates.length) note('error', `${noDates.length} date${noDates.length === 1 ? '' : 's'} could not be read`, `Not a real calendar day-month with the order used (${order || 'n/a'}): lines ${noDates.slice(0, 8).map((t) => t.line).join(', ')}${noDates.length > 8 ? ', …' : ''}. Try the other date order.`, noDates[0].line);
+  // Dates with no year anywhere take this year; 29 February is re-checked
+  // against it before the unreadable dates are counted.
   const noYear = tx.filter((t) => t.date && t.date.ok && !t.date.y);
   const yearFallback = new Date().getFullYear();
+  const fillYear = (d, y) => { d.y = y; if (!realDay(d.y, d.m, d.d)) d.ok = false; };
+  for (const t of noYear) fillYear(t.date, yearFallback);
+  // A value date printed without a year takes its row's year.
+  for (const t of tx) if (t.postDate && t.postDate.ok && !t.postDate.y) fillYear(t.postDate, (t.date && t.date.y) || yearFallback);
+  const noDates = tx.filter((t) => !t.date || !t.date.ok);
+  if (noDates.length) note('error', `${noDates.length} date${noDates.length === 1 ? '' : 's'} could not be read`, `Not a real calendar day-month with the order used (${order || 'n/a'}): lines ${noDates.slice(0, 8).map((t) => t.line).join(', ')}${noDates.length > 8 ? ', …' : ''}. Try the other date order.`, noDates[0].line);
   if (noYear.length) {
-    for (const t of noYear) t.date.y = yearFallback;
-    for (const t of tx) if (t.postDate && t.postDate.ok && !t.postDate.y) t.postDate.y = yearFallback;
     note('warning', 'The statement year was not found', `${noYear.length} date${noYear.length === 1 ? ' has' : 's have'} no year and no statement period was found to take it from, so ${yearFallback} was used. Enter the year below if that is wrong.`);
   } else if (tx.some((t) => t.date && t.date.inferred)) {
     note('info', 'Year taken from the statement period', `Dates printed without a year were given the year of the statement period (${years.join('–') || String(defaultYear)}).`);

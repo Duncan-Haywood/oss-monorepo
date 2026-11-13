@@ -151,3 +151,19 @@ test("the kept start moves a posted person up to the caller's longer clashing sh
   assert.deepEqual([owner(false)[a], owner(false)[b], owner(false)[c]], [0, -1, 1]);
   assert.deepEqual([owner(true)[a], owner(true)[b], owner(true)[c]], [-1, 0, 1]);
 });
+
+test("the kept start gives up two clashing shifts to take the caller's shift when no single drop makes room", () => {
+  // Cal is posted 6-14 Wednesday; Ana holds Tuesday 15-23 and Wednesday 9-17. Cal calls out. Only Ana may work Wednesday 6-14,
+  // and it clashes with both of hers (7 h rest after Tuesday's close; overlap with 9-17), so dropping either one alone makes no
+  // room and the one-shift eject leaves 8 h open. Giving up both moves Ana to 6-14 and Bo onto her two shifts: nothing open.
+  const staff = parseStaff("Ana, 15, 40, 0, Tue 15-23; Wed 6-17\nBo, 15, 40, 0, Tue 15-23; Wed 9-17\nCal, 15, 40, 0, Thu 6-14, off: Wed").staff;
+  const slots = parseShifts("Tue, 15, 23, 1\nWed, 9, 17, 1\nWed, 6, 14, 1").slots;
+  const csv = "day,start,end,label,role,person\nTue,15:00,23:00,,,Ana\nWed,09:00,17:00,,,Ana\nWed,06:00,14:00,,,Cal\n";
+  const { keptStart } = _internals;
+  const ctxOf = (keptEject2) => buildContext(staff, slots, { keep: keepFromCsv(csv), keepShift: 1, keptEject2 });
+  const at = (s, e) => slots.findIndex((x) => x.startMin === s * 60 && x.endMin === e * 60);
+  const [a, b, c] = [at(15, 23), at(9, 17), at(6, 14)];
+  const off = keptStart(ctxOf(false)), on = keptStart(ctxOf(true));
+  assert.deepEqual([off[a], off[b], off[c]], [0, 0, -1]);
+  assert.deepEqual([on[a], on[b], on[c]], [1, 1, 0]);
+});
