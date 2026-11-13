@@ -29,7 +29,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 40,
+  "tests_added": 42,
   "outcome": "success",
   "errors": [
     {
@@ -39,6 +39,10 @@
     {
       "what": "CLI defaulted to the last numeric column (NOAA's deseasonalized column) instead of the first.",
       "fix": "Default is now the first numeric non-date column; caught by running the CLI on the example."
+    },
+    {
+      "what": "Local sweep found three real failures: stl-decomposition had no sibling page linking it (siblings budget 0), parseDate accepted impossible days such as 2026-02-30, and the CSV export had no formula-injection guard.",
+      "fix": "Linked it from changepoint-detector's footer (with a test), round-tripped the day, and added csvCell with tests."
     }
   ],
   "integrity_issues": [],

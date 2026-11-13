@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { stl, analyze, parseDate, inferPeriod, defaultTrend, defaultLowPass, strengths, PAPERS, DEFAULTS } from "./engine.mjs";
+import { stl, analyze, csvCell, parseDate, inferPeriod, defaultTrend, defaultLowPass, strengths, PAPERS, DEFAULTS } from "./engine.mjs";
 
 const ref = JSON.parse(readFileSync(new URL("./eval/reference.json", import.meta.url), "utf8"));
 const KEYS = { period: "period", seasonal: "seasonal", trend: "trend", low_pass: "lowPass", seasonal_deg: "seasonalDeg", trend_deg: "trendDeg", low_pass_deg: "lowPassDeg", seasonal_jump: "seasonalJump", trend_jump: "trendJump", low_pass_jump: "lowPassJump", robust: "robust" };
@@ -87,6 +87,9 @@ test("dates parse in the common shapes", () => {
   assert.equal(parseDate("3/5/2024"), Date.UTC(2024, 2, 5));
   assert.equal(parseDate("2024-W01"), Date.UTC(2024, 0, 1));
   assert.equal(parseDate("2024-13"), null);
+  assert.equal(parseDate("2026-02-30"), null);
+  assert.equal(parseDate("2/30/2026"), null);
+  assert.equal(parseDate("2024-02-29"), Date.UTC(2024, 1, 29));
   assert.equal(parseDate("hello"), null);
 });
 
@@ -187,4 +190,12 @@ test("PAPERS cite STL, loess and the strength measures", () => {
   assert.equal(PAPERS.length, 3);
   assert.match(PAPERS[0].title, /STL/);
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.title} ${k}`);
+});
+
+test("CSV cells are guarded against spreadsheet formulas, numbers are not", () => {
+  assert.equal(csvCell("=HYPERLINK(1)"), "'=HYPERLINK(1)");
+  assert.equal(csvCell("@x"), "'@x");
+  assert.equal(csvCell(-1.5), "-1.5");
+  assert.equal(csvCell(-2e-7), "-2e-7");
+  assert.equal(csvCell('a,"b"'), '"a,""b"""');
 });

@@ -370,7 +370,8 @@ export function parseDate(s) {
   let m;
   if ((m = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T ](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(t))) {
     const v = Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
-    return +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31 ? v : null;
+    // Round-trip the day so 2026-02-30 is refused rather than rolled into March.
+    return +m[2] >= 1 && +m[2] <= 12 && new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDate() === +m[3] ? v : null;
   }
   if ((m = /^(\d{4})[-/.](\d{1,2})$/.exec(t))) return +m[2] >= 1 && +m[2] <= 12 ? Date.UTC(+m[1], +m[2] - 1, 1) : null;
   if ((m = /^(\d{4})\s*-?\s*Q([1-4])$/i.exec(t))) return Date.UTC(+m[1], (+m[2] - 1) * 3, 1);
@@ -379,7 +380,7 @@ export function parseDate(s) {
     const dow = (new Date(jan4).getUTCDay() + 6) % 7;
     return jan4 - dow * DAY + (+m[2] - 1) * 7 * DAY;
   }
-  if ((m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t))) return Date.UTC(+m[3], +m[1] - 1, +m[2]);
+  if ((m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t))) return +m[1] >= 1 && +m[1] <= 12 && new Date(Date.UTC(+m[3], +m[1] - 1, +m[2])).getUTCDate() === +m[2] ? Date.UTC(+m[3], +m[1] - 1, +m[2]) : null;
   return null;
 }
 
@@ -463,6 +464,13 @@ export const fmt = (v, digits = 3) => {
   if (a !== 0 && (a >= 1e6 || a < 1e-3)) return v.toExponential(2);
   return Number(v.toPrecision(Math.max(digits, Math.ceil(Math.log10(a + 1)) + 1))).toLocaleString("en-US", { maximumFractionDigits: 6 });
 };
+
+/** One CSV cell, with a spreadsheet formula-injection guard on text that starts with = + - @ tab or CR. */
+export function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 
 const toInt = (v) => (v === undefined || v === null || v === "" ? undefined : Number(v));
 

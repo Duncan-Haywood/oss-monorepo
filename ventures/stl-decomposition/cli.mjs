@@ -2,7 +2,7 @@
 // STL decomposition from the command line. Zero dependencies; same engine as the page.
 //   node cli.mjs sales.csv --column sales [--period 12] [--robust] [--json | --csv]
 import { readFileSync } from "node:fs";
-import { analyze, PAPERS, fmt } from "./engine.mjs";
+import { analyze, PAPERS, fmt, csvCell } from "./engine.mjs";
 
 export const HELP = `stl-decomposition: split a time series into trend, seasonal and remainder (STL, Cleveland et al. 1990)
 
@@ -81,12 +81,11 @@ export function parseArgs(argv) {
   return o;
 }
 
-const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
-
+// Every cell goes through csvCell (engine.mjs), the spreadsheet formula-injection guard.
 export function toCsv(r) {
   const lines = ["date,observed,trend,seasonal,remainder,seasonally_adjusted,robustness_weight,interpolated"];
   const filled = new Set(r.filled);
-  for (let i = 0; i < r.n; i++) lines.push([q(r.dates[i]), r.observed[i], r.trend[i], r.seasonal[i], r.resid[i], r.adjusted[i], r.weights[i], filled.has(i) ? 1 : 0].join(","));
+  for (let i = 0; i < r.n; i++) lines.push([r.dates[i], r.observed[i], r.trend[i], r.seasonal[i], r.resid[i], r.adjusted[i], r.weights[i], filled.has(i) ? 1 : 0].map(csvCell).join(","));
   return lines.join("\n") + "\n";
 }
 
