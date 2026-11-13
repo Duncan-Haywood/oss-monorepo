@@ -105,11 +105,11 @@ export async function POST(req: NextRequest) {
 
     const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
-    // "staged": the information score from the first answer on lists up to
-    // 120 items, after 120 answers on longer ones (hybridSwitchAt,
-    // docs/INFORMATION-GAIN-SELECTOR.md). The survey's own setting wins, then
-    // PAIR_SELECTOR; with neither, staged up to 120 items and standard above
-    // (defaultPairSelector, since 2026-11-12).
+    // "staged": the information score from the first answer at every list
+    // length (hybridSwitchAt, docs/INFORMATION-GAIN-SELECTOR.md, "Lists over
+    // 120 items"). The survey's own setting wins, then PAIR_SELECTOR; with
+    // neither, staged (defaultPairSelector: since 2026-11-13 at every length,
+    // from 2026-11-12 up to 120 items only).
     const { selector, ignored } = resolvePairSelector(participant.survey.pairSelector, process.env.PAIR_SELECTOR, items.length);
     if (ignored.length) console.warn(`trials/next: ignored unknown pair selector ${ignored.map((v) => JSON.stringify(v)).join(", ")}`);
     const choosePair = selector === "staged" ? selectNextPairHybrid : selectNextPair;

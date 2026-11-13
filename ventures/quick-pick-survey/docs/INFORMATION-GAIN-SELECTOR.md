@@ -1,12 +1,14 @@
-# Information-gain pair selector (the default up to 120 items since 2026-11-12)
+# Information-gain pair selector (the default at every list length since 2026-11-13)
 
 `selectNextPairByInformation` in `src/lib/pairing.ts` picks the pair whose one
 answer is expected to shrink the two items' rating variance most under the
 Glicko model (`expectedVarianceReduction`: Fisher information
-`g(phi_opp)^2 p(1-p)` per side). The shipped `selectNextPair` stays the app's
-policy for lists over 120 items; since 2026-11-12 the staged selector (this
+`g(phi_opp)^2 p(1-p)` per side). Since 2026-11-12 the staged selector (this
 one from the first answer) is the server default up to 120 items ("Staged as
-the default up to 120 items", the last section).
+the default up to 120 items"), and since 2026-11-13 at every length, with no
+120-answer warm-up on longer lists ("Lists over 120 items: the switch rule",
+the last section). The shipped `selectNextPair` stays available as
+"standard" and as the first-option fallback.
 
 ## Measurement
 
@@ -88,9 +90,10 @@ toggle).
 `PAIR_SELECTOR=staged` in the deployment's environment makes
 `/api/trials/next` use `selectNextPairHybrid`, and `PAIR_SELECTOR=standard`
 the shipped selector, on every survey that has not chosen. Unset, since
-2026-11-12, a survey of up to 120 items gets staged and a longer one standard
-(`defaultPairSelector`, `resolvePairSelector` in `pairing.ts`); before that,
-unset meant standard everywhere. Any other value is ignored with a warning in
+2026-11-13, every survey gets staged (`defaultPairSelector`,
+`resolvePairSelector` in `pairing.ts`); from 2026-11-12 a survey of up to 120
+items got staged and a longer one standard, and before that, unset meant
+standard everywhere. Any other value is ignored with a warning in
 the log, not read as either.
 
 ## Choosing it per survey
@@ -101,11 +104,12 @@ the log, not read as either.
 uses the survey's value when set, otherwise the `PAIR_SELECTOR` environment
 variable, otherwise the length default above. A survey that never chose, on a
 deployment with the variable unset, moved to staged on 2026-11-12 if it has
-120 items or fewer; set its menu to Standard to keep the old order. `staged` helps
-long lists answered at length (see above). Since 2026-11-10 it uses the
-information selector from the first answer on lists up to 120 items ("A
-switch point that depends on list length", below); before that it equalled
-the standard selector for the first 120 answers whatever the list length.
+120 items or fewer, and on 2026-11-13 if it has more; set its menu to
+Standard to keep the old order. Since 2026-11-10 staged uses the information
+selector from the first answer on lists up to 120 items ("A switch point that
+depends on list length", below), and since 2026-11-13 on every list ("Lists
+over 120 items: the switch rule"); before 2026-11-10 it equalled the standard
+selector for the first 120 answers whatever the list length.
 
 ## Latency at long lists
 
@@ -860,7 +864,8 @@ uses it unless a caller passes `switchAt`. The first-option fallback is
 unchanged: after 30 decided answers (`FIRST_OPTION_MIN_DECIDED`, now exported
 and used by both the route and the simulator), a share at or beyond 0.7 still
 gets the shipped selector. Lists over 120 items keep the 120-answer switch
-because they were not measured here.
+because they were not measured here (until 2026-11-13: "Lists over 120 items:
+the switch rule" drops the warm-up there too).
 
 **Simulator change.** `infoGainSim.ts` passed the first-option share from the
 first answer, while the route waits for 30. With a switch at 120 that never
@@ -2084,7 +2089,8 @@ to +5 points of pairs ordered.
 **Decision.** Staged is the server default for lists up to 120 items
 (`defaultPairSelector`), lists above 120 keep standard (the 120-answer
 warm-up and the switch rule there are item (e) of the plan, not measured
-here), and a survey's own setting or `PAIR_SELECTOR` still wins. The gain is
+here; measured 2026-11-13, "Lists over 120 items: the switch rule", and staged
+is now the default at every length), and a survey's own setting or `PAIR_SELECTOR` still wins. The gain is
 the insights card's clear pick and a slightly better pooled ranking on real
 people; the cost is up to 0.025 of pooled Spearman when half of a small panel
 are whole-session coin flippers, a panel the agreement note already flags.
@@ -2718,3 +2724,113 @@ lapse from the first answer; one seed base (1000), 40 respondents per panel;
 a 7-point lapse grid; importance-sampled evidence whose e > 0 terms carry
 about 0.1-0.4 nats of noise per person at 30 items (the ridge rows move by
 more than that between phi points only where the table says they do).
+
+
+## Lists over 120 items: the switch rule (2026-11-13; shipped)
+
+Item (e) of the plan. Since 2026-11-10 the staged selector used the
+information selector from the first answer on lists up to 120 items, and on
+longer lists ran the shipped selector for the first 120 answers before
+handing over. Since 2026-11-12 staged was the server default only up to 120
+items. Both rules for long lists rested on two cells from 2026-10-21 (220
+items at 90 and 300 answers) and on the rd 150 bar, which no screen uses.
+This run measured the long lists directly.
+
+`scripts/long-list-switch-sweep.ts` (synthetic respondent of
+`infoGainSim.ts`, 60 seeds per cell, the same seeds for every selector, so
+the differences below are paired; mean ± standard error). Rank accuracy is
+Spearman over every item, so a selector that leaves items untouched is not
+flattered. Raw rows: `docs/long-list-switch-2026-11-13.jsonl` (with each
+seed's rank) and, with the insights card's clear pick on the refit (30 seeds,
+150 to 300 items), `docs/long-list-switch-refit-2026-11-13.jsonl`.
+
+| items | answers | shipped | staged, 120-answer warm-up | staged from the first answer | first answer − warm-up | first answer − shipped |
+|---:|---:|---:|---:|---:|---:|---:|
+| 150 | 60 | 0.169 | 0.169 | 0.171 | +0.001 ± 0.006 | same |
+| 150 | 120 | 0.247 | 0.247 | 0.269 | **+0.021 ± 0.006** | same |
+| 150 | 300 | 0.475 | 0.504 | 0.502 | -0.002 ± 0.005 | +0.027 ± 0.006 |
+| 150 | 600 | 0.725 | 0.776 | 0.766 | **-0.010 ± 0.005** | +0.041 ± 0.005 |
+| 220 | 60 | 0.108 | 0.108 | 0.121 | **+0.013 ± 0.004** | same |
+| 220 | 120 | 0.174 | 0.174 | 0.189 | **+0.015 ± 0.004** | same |
+| 220 | 200 | 0.250 | 0.259 | 0.273 | **+0.014 ± 0.004** | +0.022 ± 0.004 |
+| 220 | 600 | 0.551 | 0.597 | 0.603 | +0.006 ± 0.005 | +0.052 ± 0.004 |
+| 300 | 120 | 0.121 | 0.121 | 0.130 | **+0.009 ± 0.003** | same |
+| 300 | 600 | 0.430 | 0.466 | 0.466 | +0.001 ± 0.005 | +0.036 ± 0.004 |
+| 500 | 120 | 0.076 | 0.076 | 0.085 | **+0.009 ± 0.002** | same |
+| 500 | 600 | 0.275 | 0.300 | 0.301 | +0.001 ± 0.003 | +0.026 ± 0.003 |
+
+The full grid is 4 lengths (150, 220, 300, 500) x 7 budgets (30 to 600) x
+two lapse rates (0 and 0.2, a fifth of answers at random). Over its 56 cells:
+
+- **From the first answer is ahead of the warm-up up to 120 answers**
+  (-0.001 to +0.021 in the 32 such cells, ahead by more than two standard
+  errors in 14; up to 120 answers the warm-up *is* the shipped selector), and is level with it from 200 answers on (-0.015 to
+  +0.014). It is behind by more than two standard errors in two cells, both
+  at 600 answers, which is 2.7 to 4 answers per item: 150 items without lapse
+  (-0.010 ± 0.005) and 220 items with lapse (-0.015 ± 0.007). Most people
+  on a long list answer far fewer than 600.
+- **It is ahead of the shipped selector in 54 of 56 cells**, by +0.002 to
+  +0.052; the other two are 30 answers with lapse (150 items -0.001 ± 0.007,
+  500 items -0.000 ± 0.002).
+- **The couple screen's bar** (8 items under rd 200, `couples.ts`) comes at a
+  median 35 answers at every length, against 38 to 40 for the shipped
+  selector and the warm-up.
+- **The hand-over costs items under rd 150 again** ("Switching part way costs
+  both", above): at 200 answers the warm-up has 12.5 to 15.3 items under rd
+  150, the shipped selector 21 to 22 and from-the-first-answer 46 to 47.
+  Before about 90 answers the shipped selector leads on that bar (3.8 to 4.7
+  items against 0.9 to 1.0 at 90), as on short lists; no screen reads it.
+- **Items under rd 200 stop at 133 for both staged variants** at 600 answers
+  on every length, against 105 for shipped: the information selector works
+  through admitted stages (`activeItems`), so it settles a subset well rather
+  than touching everything once.
+- **The insights card does not name a clear favourite on long lists under
+  either selector** (0 of 3,360 refits from 150 to 300 items at up to 600
+  answers; the true favourite was ranked first in 0 to 7%). The card's claim
+  is honest there by staying silent; the "it's between" set carries the
+  message. Above `REFIT_MAX_ITEMS` (300) there is no refit at all.
+
+**Pooled across a panel** (`careless-pattern-sweep.ts --items 150 --switch-at
+0 --no-self`, new flags; 30 surveys a cell, panels of 20 and 60, half an
+answer to one answer per item per person, a quarter or 40% of people careless
+at random or by a shared salience; raw rows
+`docs/long-list-pooled-2026-11-13.jsonl`): the pool's Spearman with the common
+truth is level with standard or ahead in 15 of 16 cells (-0.0005 to +0.0064;
+the coin-flip cost seen on short lists is gone at this sparsity), and the
+salience leak is the same within 0.015.
+
+**What the pooled run found that is not about the selector.** On these
+sparse long lists the pooled ranking's 95% intervals overclaim: of the item
+pairs whose intervals do not overlap ("clearly above", `groupRanking.ts`),
+5.4 to 14.3% are the wrong way round with no one careless (20 people at one
+answer per item: 5.4% standard, 6.5% staged; 60 people at half an answer:
+13.0% and 14.3%), against 0.5-0.6% on 15 and 30 items ("Staged as the default
+up to 120 items"). Staged calls 18-70% more pairs clear at a 0.4 to 1.9 point
+higher wrong share. Both selectors share the fault, so it does not argue
+against the switch, but it is the most valuable next item: a pooled rank range
+that says "clearly above" one time in ten is not honest. Suspects, none
+tested yet: per-person Glicko ratings from one or two answers per item are
+not on a common scale (an item's rating depends on who it met while both were
+near 1500), and the DerSimonian-Laird spread is estimated from as few as one
+or two people per item (`THIN_RESPONDENTS` flags those under 3 but they still
+get ranges).
+
+**Decision.** `hybridSwitchAt` returns 0 at every length and
+`defaultPairSelector` returns "staged" at every length; a survey's own
+"Question order" setting and `PAIR_SELECTOR` still win, and
+`HYBRID_SWITCH_ANSWERS` stays as an explicit `switchAt` for anyone who wants
+the old warm-up. Latency: the information selector scores the admitted pool,
+capped at `INFO_POOL_CAP` (400), so the worst case stays near the 66 ms
+measured at 500 items ("Latency at long lists").
+
+Tests: `pairing.test.ts` (the rule at 121, 220 and 5,000 items; a 200-item
+list gets the information selector's pair at 50 answers; an explicit
+`HYBRID_SWITCH_ANSWERS` still gives the warm-up; the default at 500 items;
+four tests fail on the old rule), `infoGainPairing.simulation.test.ts` (the
+couple bar now also at 220 items, where the old default equalled shipped; the
+rd 150 assertion holds at 300 answers, not at 90).
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; no real
+panel with more than 15 items exists here (REAL-RANKINGS.md), so the long
+lists are untested on people; one lapse pattern (constant random) per
+respondent in the per-person grid.

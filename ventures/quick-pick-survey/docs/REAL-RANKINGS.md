@@ -139,7 +139,9 @@ What it shows:
    order" menu now says so. Since 2026-11-12 staged is the server default
    for lists up to 120 items, after the careless, position-bias and
    answer-time sweeps were re-run under both selectors
-   (INFORMATION-GAIN-SELECTOR.md, "Staged as the default up to 120 items").
+   (INFORMATION-GAIN-SELECTOR.md, "Staged as the default up to 120 items"),
+   and since 2026-11-13 for longer lists ("Lists over 120 items: the switch
+   rule"; synthetic, as no real panel here has more than 15 items).
 
 
 ## Summary tables (shipped selector, no lapse)
