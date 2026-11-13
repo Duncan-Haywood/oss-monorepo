@@ -3,7 +3,7 @@ title: "Charging a manager for slack the team already had"
 seo_title: "Measuring call-out risk in a staff schedule without over-counting"
 date: 2026-11-13
 tags: [shift-roster-builder, product, measurement]
-description: "A quick call-out risk check flagged 846 hours on a 60-person week where a stricter one finds 292. Counting hand-over chains raised precision from 53% to 67% and stopped 21 trades that bought nothing."
+description: "A quick call-out risk check over-counted badly. Counting hand-over chains raised its precision from 53% to 67% and stopped 21 trades that bought nothing."
 ---
 
 [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) gained a setting this morning called *Pay for call-out slack*. You set a price per hour at risk, and the builder will give up some pay or fairness to make the week easier to cover when someone calls in sick. On the retail template, one shift changing hands cost $5.82 and removed every open hour a week of sick call-outs left behind ([this morning's post](2026-11-13-shift-roster-which-tied-roster-holds-up.md) has the run-up).
