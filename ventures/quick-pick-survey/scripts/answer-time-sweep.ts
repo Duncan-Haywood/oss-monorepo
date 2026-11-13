@@ -76,7 +76,12 @@
  *                  own start, so a shared warm-up looks like a block.
  *   shift-drop     what ships (groupRanking.ts fastBlockStarts): the same split,
  *                  with its fixed constants, on each answer's log time minus the
- *                  panel's median log time at that position (running median of 5)
+ *                  panel's log time at that position (the FAST_BLOCK_CURVE_Q
+ *                  quantile, 0.5 until 2026-11-13 and 0.75 since; running median of 5)
+ *   shift-drop-qNN `--curve-q 0.NN`: the same against the 0.NN quantile
+ *
+ * `--onset-spread s` (2026-11-13): each careless person's onset is drawn
+ * uniform on onset +- s (clamped to 0.05-0.95), as real ones may be spread out.
  *   shift-or-fast  the union of shift-drop and answer-drop
  *
  *   npx tsx scripts/answer-time-sweep.ts [--onset 0] [--drift 0] [--warmup 0] [--min-seg 8] [--shift-min 0.5] [--shift-t 4] [--q 1] [--fast-at 0.5] [--share-min 0.3] [--items 15,30] [--per-item 4] [--respondents 20] [--careless 0.25,0.4,0.5] [--patterns salience,random,dissent] [--ratio 1,0.6,0.4] [--gamma 0.6] [--careless-gamma 0] [--person-sd 0.4] [--pace-min 0.6] [--slope-min 0.05] [--surveys 20] [--seed-base 4000] [--selector staged|standard]

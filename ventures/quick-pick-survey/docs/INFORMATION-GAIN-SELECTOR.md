@@ -3234,3 +3234,87 @@ seed in `ranking.integration.test.ts` was re-picked too. Against a local
 top slot 11 times in 40, and five of the file's tests failed, although CI
 passed with it. Why the two differ is not known. Under the new seed, both
 pass.
+
+## A panel curve the careless cannot drag down (2026-11-13; shipped)
+
+Item (d2) on the flagship list. `?drop=fast-blocks` reads each answer against
+the panel's time at the same point in the session. Until now that was the
+panel's median. When 40% of a panel turn quick at the same point, at a modest
+0.6x pace, they pull the median down with them, so their own residuals barely
+move. Three passes (each rebuilding the curve without the blocks the last pass
+found) helped, but the rule still found only 27-60% of them.
+
+**Change.** `fastBlockStarts` now reads against an upper quantile of the
+panel's log times at each position, `FAST_BLOCK_CURVE_Q = 0.75`, still smoothed
+by a running median over five positions and still with three passes. The
+reason it is safe is simple. A change point compares the mean residual before
+a split with the mean after it, so a constant offset in the curve cancels. Only
+the curve's shape over positions matters. With nobody careless, the 0.75
+quantile has the same shape as the median, plus a little more noise. With a
+share c of the panel well below the honest times, the 0.75 quantile of the
+mixture sits near the (0.75 - c)/(1 - c) quantile of the honest people. For
+c = 0.4 that is about the honest median, which is exactly the curve we wanted.
+
+**Setup.** `scripts/answer-time-sweep.ts` takes `--curve-q 0.6,0.7,...`, which
+adds a `shift-drop-qNN` scheme per quantile next to the shipped `shift-drop`,
+and `--onset-spread s`, which draws each careless person's onset uniform on
+onset +- s instead of everyone turning at the same answer. Both default to
+off, so earlier rows reproduce. Grid: salience and random patterns, 25% and
+40% careless at 0.4x and 0.6x pace, onsets 0.25, 0.5 and 0.75. Each was run
+with no warm-up, a five-answer warm-up, a 0.7 learning curve, both, and
+spread-out onsets (+-0.2) with and without both. Cost cells: nobody careless,
+careless but no faster (1x), and a 25-40% camp with a second taste. Stress
+cells: 60 people, pace spread 0.6, warm-up. Panels of 20 on 15 and 30 items at
+4 answers per item, 40 surveys per cell (30 for stress). Raw rows:
+`docs/fast-blocks-curve-q-2026-11-13.jsonl`, 133 cells. In that file
+`shift-drop` is the median curve, the default when it ran (`shiftDropCurveQ`).
+
+Shares are of `oracle-answers` (the ceiling), in cells where it is above
+0.003. "Found" is the share of careless people flagged.
+
+| case (cells) | median curve (old) | 0.75 quantile (shipped) | found: median / 0.75 |
+|---|---|---|---|
+| salience, 0.6x, 40% careless, same onset (12) | 34-90% | **76-110%** | 0.31-0.60 / **0.72-0.80** |
+| salience, 0.6x, 40%, onsets spread +-0.2 (4) | 63-85% | **89-90%** | 0.64-0.76 / 0.86-0.87 |
+| salience, 0.6x, 40%, stress (1) | 60% | 81% | 0.49 / 0.76 |
+| random, 0.6x, 40% careless (4) | 2-39% | 64-72% | 0.31-0.55 / 0.72-0.80 |
+| salience, 0.6x, 25% careless (16) | 88-101% | 91-102% | 0.81-0.96 / 0.83-0.96 |
+| random, 0.6x, 25% (4) | 81-89% | 78-107% | 0.81-0.94 / 0.83-0.94 |
+| any pattern, 0.4x, 25-40% (35) | 95-104% | 96-109% | 1.00 / 1.00 |
+| nobody careless (cost, 14) | -0.0002 to 0 | -0.0002 to 0 | |
+| a 25-40% camp with a second taste (cost, 25) | -0.0003 to +0.0001 | -0.0002 to 0 | |
+| careless but no faster, 1x (9) | -0.0003 to +0.0001 | -0.0003 to 0 | |
+
+The other quantiles tried, averaged over the 0.6x cells with a shared onset:
+at 40% careless, 0.6 recovers 66% of the ceiling, and 0.7, 0.75, 0.8 and 0.9
+all recover 81-82% (the median: 49%). At 25%, 0.7 and 0.75 average 97%, while
+0.8 and 0.9 fall to 91%, with single cells as low as 57% and 67%. With
+spread-out onsets at 40%, 0.6-0.75 recover 90-92% and 0.8-0.9 recover 81-84%.
+0.7 and 0.75 are level, and 0.75 ships because it has more room when the
+careless share is above 40%. At most 0.2% of honest respondents were flagged
+under any curve.
+
+What it shows:
+
+- **The weak spot named last time is mostly closed.** Where 40% of the panel
+  turned quick at once at 0.6x, the share of careless people found rose from
+  31-60% to 72-80%. The share of the ceiling recovered rose from 34-90% to
+  76-110% for the salience pattern, and from 2-39% to 64-72% for random
+  clicking, with no new cost.
+- **Spread-out onsets help both curves**, as expected, because the median is
+  dragged down less when people turn at different answers. Even then the 0.75
+  quantile recovers more (89-90% against 63-85%).
+- **One cell went down**: random pattern, 0.6x, 25% careless, 15 items,
+  onset 0.5, from 89% to 78% of a 0.005 ceiling. That is a difference of 0.0006
+  Spearman, inside the noise of a 40-survey cell. In the same cell the
+  quantile found the same share of careless people (0.92 against 0.94).
+- **What is still missed**: a block that is not quick (1x), and, at 0.6x,
+  40% careless, about a fifth of the people. These are the slowest turns, with
+  the gap closest to the 0.5 log threshold.
+
+**Decision.** `FAST_BLOCK_CURVE_Q = 0.75` ships as the curve for
+`?drop=fast-blocks`. A unit test pins the case that motivated it: four of ten
+people at 0.55x from answer 20. The median curve finds none of them, the 0.75
+quantile finds all four, and it flags no honest person. That test fails on the
+old default. The view stays a comparison, not the default ranking, until a
+real panel's times exist (item c).

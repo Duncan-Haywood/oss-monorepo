@@ -374,6 +374,7 @@ describe("fastBlockStarts", () => {
     const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p < 4 && i >= 20 ? 0.55 : 1);
     expect(fastBlockStarts(panel(10, 40, ms), 0.5).size).toBe(0);
     expect([...fastBlockStarts(panel(10, 40, ms), 0.75)].sort()).toEqual([["p0", 20], ["p1", 20], ["p2", 20], ["p3", 20]]);
+    expect(fastBlockStarts(panel(10, 40, ms)).size).toBe(4); // the shipped default
     expect(() => fastBlockStarts(panel(10, 40, ms), 1)).toThrow();
   });
   it("needs AGREEMENT_MIN_RESPONDENTS people with enough timed answers", () => {
