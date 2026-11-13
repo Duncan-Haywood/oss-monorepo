@@ -1190,18 +1190,29 @@ function polishPay(ctx, owner0, seed, iterations) {
   return owner;
 }
 
+// Hand-over passes the risk check allows per shift (2026-11-13 later, eval/cover-risk-joint.mjs): on the five templates and
+// three seeded 20-person weeks, 202 person-days of which calloutExposure finds 48 open a call-out, the check flagged 91 with no
+// chains (52.7% of them really open), 75 with one pass (64.0%), 72 with two (66.7%) and 72 with three; none missed a day
+// exposure finds open, and two passes cost about 2 ms a check. `coverChain` on the build options sets it (0 = the old check).
+const COVER_CHAIN = 2;
+// Most checks the chain search makes for one person-day before it gives up and counts the day at risk (null from
+// coverDayJoint, `capped` on coverRisk). Giving up only ever adds risk, so risk hours stay an upper bound. On the seeded
+// 40-60 person weeks a day nobody can cover reads 38-39 of 40 people's lists two passes deep, and the priced pass re-runs
+// those searches for every candidate move: 5-16 s a build uncapped (eval/cover-chain-cost.mjs).
+const COVER_BUDGET = 500;
+const COVER_STOP = { coverStop: true };
 // Call-out risk, the cheap stand-in for calloutExposure (2026-11-13). `calloutExposure` rebuilds the week once per
 // person-day, which is far too slow to sit inside a search. This counts the same cases and asks only the quickest of its
 // questions: if this person called out for this day, could someone else take each of their shifts that day with every hard
 // rule holding and nobody else moved? If not, the day is "at risk" and its hours are counted. The hand-over chains and the
 // rebuilds exposure also tries are left out, so risk hours are an upper bound on what one call-out opens, not a forecast
 // (`eval/cover-price.mjs` measures how closely the two move together).
-export function coverRisk(ctx, owner, { fromDay = 1 } = {}) {
+export function coverRisk(ctx, owner, { fromDay = 1, joint = true, chain = COVER_CHAIN, budget = COVER_BUDGET } = {}) {
   const lists = Array.from({ length: ctx.P }, () => []);
   owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
   lists.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
   const cases = [];
-  let hours = 0, personDays = 0;
+  let hours = 0, personDays = 0, chained = 0, capped = 0;
   for (let p = 0; p < ctx.P; p++) {
     const byDay = new Map();
     for (const i of lists[p]) {
@@ -1213,19 +1224,79 @@ export function coverRisk(ctx, owner, { fromDay = 1 } = {}) {
     for (const [day, mine] of byDay) {
       personDays++;
       const h = mine.reduce((t, i) => t + (ctx.slots[i].end - ctx.slots[i].start) / 60, 0);
-      let covered = true;
-      for (const i of mine) {
-        let fit = false;
-        for (let q = 0; q < ctx.P && !fit; q++) {
-          if (q === p || !ctx.elig[q][i]) continue;
-          if (validList(ctx, q, insertSorted(ctx, lists[q], i))) fit = true;
-        }
-        if (!fit) { covered = false; break; }
-      }
-      if (!covered) { hours += h; cases.push({ person: p, day, hours: h, slots: mine.slice() }); }
+      const how = joint || chain > 0 ? coverDayJoint(ctx, lists, p, day, mine, chain, budget) : coverDayEach(ctx, lists, p, mine);
+      if (how === "chain") chained++;
+      if (how === null) capped++;
+      if (!how) { hours += h; cases.push({ person: p, day, hours: h, slots: mine.slice() }); }
     }
   }
-  return { hours, personDays, riskyDays: cases.length, cases };
+  return { hours, personDays, riskyDays: cases.length, cases, chained, capped };
+}
+
+// The first form of the check (2026-11-13 morning): each of the day's shifts on its own. A person-day with two shifts that
+// only one other person could take, and not both, passed it. Kept for the comparison in eval/cover-risk-joint.mjs.
+function coverDayEach(ctx, lists, p, mine) {
+  for (const i of mine) {
+    let fit = false;
+    for (let q = 0; q < ctx.P && !fit; q++) {
+      if (q === p || !ctx.elig[q][i]) continue;
+      if (validList(ctx, q, insertSorted(ctx, lists[q], i))) fit = true;
+    }
+    if (!fit) return false;
+  }
+  return "direct";
+}
+
+// All of the day's shifts covered at once (2026-11-13 later): a small depth-first search that hands the shifts out one by one
+// on the lists as they stand after the earlier hand-overs, so one stand-in is never counted for two shifts they could not both
+// work. With `chain` n > 0, a shift nobody can take outright may still go to someone who passes one of their own shifts, on
+// the call-out day or later (earlier ones have been worked by then), to a third person, and so on up to n passes per shift:
+// the hand-over chains calloutExposure tries before a rebuild. The caller never takes a shift back. Outright cover is tried
+// first for the whole day, so "chain" means no outright cover existed. Returns "direct", "chain" or false; lists are restored.
+function coverDayJoint(ctx, lists, p, day, mine, chain, budget = Infinity) {
+  let left = budget;
+  // People eligible for each shift, built once per ctx: the chain search asks this for every shift it touches, and on sparse
+  // availability most of the P people are not eligible. Checks go through validWith, which builds no list unless it passes.
+  const by = ctx.eligBy || (ctx.eligBy = Array.from({ length: ctx.S }, (_, i) => { const out = []; for (let q = 0; q < ctx.P; q++) if (ctx.elig[q][i]) out.push(q); return out; }));
+  // Put shift i on someone (not p) with at most `depth` passes, then run `rest()`; true when rest() succeeded.
+  const place = (i, depth, rest) => {
+    const who = by[i];
+    for (let k = 0; k < who.length; k++) {
+      const q = who[k];
+      if (q === p) continue;
+      if (--left < 0) throw COVER_STOP;
+      const Lq = lists[q];
+      if (!validWith(ctx, q, Lq, i)) continue;
+      lists[q] = insertSorted(ctx, Lq, i);
+      const ok = rest();
+      lists[q] = Lq;
+      if (ok) return true;
+    }
+    if (depth <= 0) return false;
+    for (let k = 0; k < who.length; k++) {
+      const q = who[k];
+      if (q === p) continue;
+      const Lq = lists[q];
+      for (const j of Lq) {
+        if (ctx.slots[j].day < day) continue;
+        if (--left < 0) throw COVER_STOP;
+        if (!validWith(ctx, q, Lq, i, j)) continue;
+        lists[q] = insertSorted(ctx, Lq.filter((x) => x !== j), i);
+        const ok = place(j, depth - 1, rest);
+        lists[q] = Lq;
+        if (ok) return true;
+      }
+    }
+    return false;
+  };
+  const all = (k, depth) => (k === mine.length ? true : place(mine[k], depth, () => all(k + 1, depth)));
+  if (all(0, 0)) return "direct";
+  if (chain <= 0) return false;
+  // Each branch puts its list back when it returns; a throw past the budget skips those restores, so the lists are saved
+  // here and put back when it lands.
+  const saved = lists.slice();
+  try { return all(0, chain) ? "chain" : false; }
+  catch (e) { if (e !== COVER_STOP) throw e; for (let q = 0; q < lists.length; q++) lists[q] = saved[q]; return null; }
 }
 
 // Exposure priced inside the roster (2026-11-13). `--steady` chooses among rosters that already tie at the best score, so it
@@ -1234,20 +1305,29 @@ export function coverRisk(ctx, owner, { fromDay = 1 } = {}) {
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1 }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET }) {
   let owner = owner0.slice();
   let score = scoreOwner(ctx, owner).total;
-  let risk = coverRisk(ctx, owner, { fromDay });
+  let risk = coverRisk(ctx, owner, { fromDay, chain, budget });
+  // The budget makes the screening check cheap but can count a day at risk that a full search would cover, and a move that
+  // only frees a capped search "clears" risk no call-out would see (4 such trades on the 60-person week, eval/cover-chain-
+  // cost.mjs). So a move is kept only when the same check without the budget agrees it pays; that runs once per move that
+  // passes the screen, a handful per build. Reported risk is the unbudgeted count.
+  const full = (own) => (budget === Infinity ? null : coverRisk(ctx, own, { fromDay, chain, budget: Infinity }));
+  let strict = full(owner);
+  const before = strict || risk;
   let moves = 0, tried = 0;
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
   const take = (cand) => {
     tried++;
     if (!ownerValid(ctx, cand)) return false;
     const s2 = scoreOwner(ctx, cand).total;
-    if (s2 - score >= price * risk.hours - 1e-9) return false; // cannot pay for itself even if it cleared every risky hour
-    const r2 = coverRisk(ctx, cand, { fromDay });
+    if (s2 - score >= price * (strict || risk).hours - 1e-9) return false; // cannot pay for itself even if it cleared every risky hour
+    const r2 = coverRisk(ctx, cand, { fromDay, chain, budget });
     if (s2 + price * r2.hours >= score + price * risk.hours - 1e-9) return false;
-    owner = cand; score = s2; risk = r2; moves++;
+    const f2 = full(cand);
+    if (f2 && s2 + price * f2.hours >= score + price * strict.hours - 1e-9) return false;
+    owner = cand; score = s2; risk = r2; strict = f2; moves++;
     return true;
   };
   for (let round = 0; round < rounds; round++) {
@@ -1273,7 +1353,7 @@ function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1 }) {
     }
     if (!improved) break;
   }
-  return { owner, score, risk, moves, tried };
+  return { owner, score, risk: strict || risk, before, moves, tried };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -2560,8 +2640,9 @@ function buildRosterOnce(staff, slots, options = {}) {
   // Measured cost of the pass itself: 0-11 ms on the five templates, 22-158 ms on seeded 20- and 40-person weeks (81-149
   // copies) and 1.06 s on the 60-person week 0 (245 copies), so it is capped at 250 copies; `coverPriceSlots` moves the cap.
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
-    const before = coverRisk(ctx, best.owner);
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice });
+    const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget });
+    const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
       riskyDaysBefore: before.riskyDays, riskyDays: out.risk.riskyDays, personDays: before.personDays,
