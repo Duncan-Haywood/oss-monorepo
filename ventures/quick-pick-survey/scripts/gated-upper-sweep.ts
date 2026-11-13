@@ -125,7 +125,15 @@ for (const items of itemCounts) {
         const budget = k * items;
         const pool = panelOf(sel, items, budget, 100000, share);
         const evalPanel = panelOf(sel, items, budget, 0, share);
-        const upperOf = (who: Person[]) => (who.length === 0 ? { phi: REFIT_PRIOR_PHI, upper: REFIT_PRIOR_PHI } : pooledPriorPhiUpper(who));
+        // Gates that pass the same respondents share one pooled search (it dominates the run time).
+        const memo = new Map<string, { phi: number; upper: number }>();
+        const upperOf = (who: Person[]) => {
+          if (who.length === 0) return { phi: REFIT_PRIOR_PHI, upper: REFIT_PRIOR_PHI };
+          const key = who.map((p) => pool.indexOf(p)).join(",");
+          let r = memo.get(key);
+          if (!r) memo.set(key, (r = pooledPriorPhiUpper(who)));
+          return r;
+        };
         const all = upperOf(pool);
         const own = upperOf(pool.filter((p) => p.eOwn < tau));
         const pooled = upperOf(pool.filter((p) => p.ePool < tau));
