@@ -285,3 +285,58 @@ test("two sales on one day keep file order (FIFO lots go to the earlier line)", 
   const r = evaluate(csv("2025-01-02,A,buy,10,100,Taxable", "2025-02-03,A,buy,10,50,Taxable", "2025-08-01,A,sell,10,80,Taxable", "2025-08-01,A,sell,10,80,Taxable"));
   assert.deepEqual(r.sales.map((s) => [s.line, s.gain]), [[4, -200], [5, 300]]);
 });
+
+// Red-team 2026-11-13: broker exports put other columns whose names contain "date", "type" or "security" ahead of the
+// ones the rule needs. Each used to be picked by header order and gave a silently wrong answer.
+test("the trade date wins over a settlement date that comes first (31 days apart by trade date: no wash)", () => {
+  const r = evaluate(["Settlement Date,Trade Date,Action,Symbol,Quantity,Price", "2025-01-06,2025-01-02,Buy,ABC,10,100",
+    "2025-02-04,2025-01-31,Sell,ABC,10,80", "2025-03-05,2025-03-03,Buy,ABC,10,70"].join("\n"));
+  assert.equal(r.summary.grossLoss, 200);
+  assert.equal(r.summary.disallowed, 0);
+});
+
+test("a Security Type column before Symbol is not read as the symbol or as the action", () => {
+  const r = evaluate(["Date,Security Type,Symbol,Action,Quantity,Price", "2025-01-02,Stock,ABC,Buy,10,100",
+    "2025-02-01,Stock,ABC,Sell,10,80", "2025-02-10,Stock,ABC,Buy,10,70"].join("\n"));
+  assert.equal(r.summary.sales, 1);
+  assert.equal(r.summary.disallowed, 200);
+  assert.equal(r.sales[0].sym, "ABC");
+});
+
+test("an Account Type column before Action is not read as the action", () => {
+  const p = parseTrades(["Date,Account Type,Action,Symbol,Quantity,Price", "2025-01-02,Taxable,Buy,ABC,10,100",
+    "2025-02-01,Taxable,Sell,ABC,10,80"].join("\n"));
+  assert.deepEqual(p.errors, []);
+  assert.deepEqual(p.trades.map((t) => t.side), ["buy", "sell"]);
+});
+
+test("an action word that merely starts with sto, stc, bto or btc is not a trade side", () => {
+  const p = parseTrades(csv("2025-01-02,ABC,Stock split,10,100,Taxable", "2025-01-02,ABC,STO,1,2,Taxable"));
+  assert.equal(p.trades.length, 1);
+  assert.equal(p.trades[0].side, "sell");
+  assert.match(p.errors[0], /Line 2: action/);
+});
+
+test("a Robinhood export (Activity Date, Instrument, Trans Code) is read", () => {
+  const r = evaluate(["Activity Date,Process Date,Settle Date,Instrument,Description,Trans Code,Quantity,Price,Amount",
+    "1/2/2025,1/2/2025,1/3/2025,ABC,x,Buy,10,$100.00,($1000.00)", "2/3/2025,2/3/2025,2/4/2025,ABC,x,Sell,10,$80.00,$800.00",
+    "2/10/2025,2/10/2025,2/11/2025,ABC,x,Buy,10,$70.00,($700.00)"].join("\n"));
+  assert.equal(r.summary.disallowed, 200);
+});
+
+test("a three-digit month is refused rather than read as a two-digit one", () => {
+  assert.equal(parseDate("012/01/2025"), null);
+});
+
+test("Fidelity and Schwab history exports are read with their own headers", () => {
+  const fid = evaluate(["Run Date,Account,Action,Symbol,Security Description,Security Type,Quantity,Price ($),Commission ($),Fees ($),Accrued Interest ($),Amount ($),Settlement Date",
+    "01/02/2025,Individual Z40123456,YOU BOUGHT ABC CORP,ABC,ABC CORP,Cash,10,100,,,,-1000,01/03/2025",
+    "02/03/2025,Individual Z40123456,YOU SOLD ABC CORP,ABC,ABC CORP,Cash,-10,80,,,,800,02/04/2025",
+    "02/10/2025,ROTH IRA 123,YOU BOUGHT ABC CORP,ABC,ABC CORP,Cash,10,70,,,,-700,02/11/2025"].join("\n"));
+  assert.deepEqual([fid.summary.disallowed, fid.summary.permanent], [200, 200]);
+  const sch = evaluate(['"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount"',
+    '"01/02/2025","Buy","ABC","ABC CORP","10","$100.00","","-$1,000.00"',
+    '"02/03/2025 as of 02/01/2025","Sell","ABC","ABC CORP","10","$80.00","","$800.00"',
+    '"02/10/2025","Buy","ABC","ABC CORP","10","$70.00","","-$700.00"'].join("\n"));
+  assert.equal(sch.summary.disallowed, 200);
+});
