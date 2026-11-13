@@ -1029,6 +1029,9 @@ export function boundedKnapsack(weights, values, bounds, cap) {
   return boundedKnapsackMulti(weights, values, bounds, [cap])[0];
 }
 
+// Scratch for boundedKnapsackMulti's keep rows (see there); grows, never shrinks.
+let keepScratch = new Uint8Array(0);
+
 /**
  * The same knapsack for several capacities at once: one table filled to the largest
  * capacity holds the best value for every smaller one (best[c] is the best within c),
@@ -1055,18 +1058,27 @@ export function boundedKnapsackMulti(weights, values, bounds, caps) {
     }
   });
   const best = new Float64Array(top + 1);
-  // A chunk with no positive value never improves best[], so it gets no keep row.
-  const keep = chunks.map((ch) => (ch.v > 0 ? new Uint8Array(top + 1) : null));
+  // The keep rows live in one shared scratch buffer, row k at k * (top + 1), reused across
+  // calls and never cleared: the fill writes every cell c >= w of a row (1 if it improved
+  // best[c], else 0) and the walk back reads only those cells, so stale bytes are never
+  // read. A fresh zeroed Uint8Array per chunk was a third of this function's time.
+  // A chunk with no positive value never improves best[], so it has no row (has[k] = 0).
+  const stride = top + 1;
+  if (keepScratch.length < chunks.length * stride) keepScratch = new Uint8Array(Math.max(chunks.length * stride, keepScratch.length * 2));
+  const keep = keepScratch;
+  const has = chunks.map((ch) => ch.v > 0);
   for (let k = 0; k < chunks.length; k++) {
-    const row = keep[k];
-    if (!row) continue;
+    if (!has[k]) continue;
+    const base = k * stride;
     const w = chunks[k].w;
     const v = chunks[k].v;
     for (let c = top; c >= w; c--) {
       const cand = best[c - w] + v;
       if (cand > best[c] + 1e-12) {
         best[c] = cand;
-        row[c] = 1;
+        keep[base + c] = 1;
+      } else {
+        keep[base + c] = 0;
       }
     }
   }
@@ -1074,7 +1086,7 @@ export function boundedKnapsackMulti(weights, values, bounds, caps) {
     const counts = new Array(weights.length).fill(0);
     let c = cap;
     for (let k = chunks.length - 1; k >= 0; k--) {
-      if (keep[k] && keep[k][c]) {
+      if (has[k] && c >= chunks[k].w && keep[k * stride + c]) {
         counts[chunks[k].i] += chunks[k].n;
         c -= chunks[k].w;
       }
