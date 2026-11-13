@@ -2,6 +2,13 @@
 
 Follow-up to `osrobot-mjfeed` (track 9, open-source purpose-built robots), run under the "run the numbers" rule: `osrobot-mjfeed` used an assumed lip stiffness (800 N/m) and an assumed 2 N "comfort" limit. This project replaces both with a cited figure where one exists and sweeps the rest. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Needs `pip install mujoco` (3.16.0 used). Simulation only; no robot was built or tested with anyone, and **this is not a safety case** (ISO 13482 and an owner risk assessment come first).
 
+**Correction (2026-11-13).** The quality audit [`portfolio/quality/audits/2026-11-13-osrobot-mjface.json`](../../portfolio/quality/audits/2026-11-13-osrobot-mjface.json) found a units error that changes the results below. `run.py` passes the face stiffness and damping to MuJoCo's direct `solref="-k -b"`, which MuJoCo reads per kilogram of effective mass (a reference acceleration), not as N/m and N·s/m. With the 0.30 kg tip, the simulated face is 22,500 N/m, not 75,000 N/m, and every damping value is 0.3× its label. A near-undamped impact shows this: the peak scales with the mass, not with its square root. Re-run with `k / M_TIP` and `b / M_TIP`:
+- the blocked-arm peak at 0.10 m/s is 11.86 N, not 7.56 N. The standard's own spring-impact formula, F = v·√(k·μ), gives 14.5 N;
+- at b = 1000 the camera arm at 0.20 m/s stays within 65 N in only 0.48 of trials, with a worst peak of about 204 N;
+- the low-damping rows (b = 4 and 100) still stay under 65 N.
+
+So "nowhere near unsafe" and "1.00 in every row" do not hold as stated, and the critical damping in the units used is 2√k ≈ 548, not 300. The comparison should also be against the √94 ≈ 9.7× a spring impact predicts, not against 94×. The numbers below are from the original run and are kept until a corrected re-run lands.
+
 **Live page:** https://marisstella.app/research/osrobot-mjface/
 
 ![Peak contact force of a blocked arm against approach speed](experiments/peak_force.svg)

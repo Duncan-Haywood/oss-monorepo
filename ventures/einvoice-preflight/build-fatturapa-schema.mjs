@@ -9,7 +9,9 @@
 // (phax/ph-fatturapa, LucaCappelletti94/fatturapa, amusarra/dontesta-fisco-hub;
 // two more, invopop/gobl.it.sdi and deved-it/fattura-elettronica, differ only in
 // the xmldsig import path, documentation text and, in deved's FPR12-only copy,
-// the FPA12 code). The XSD is not copied into the tree: the data module holds
+// the FPA12 code). On 2026-11-13 agenziaentrate.gov.it answered a cloud session and
+// its own Schema_VFPR12_v1.2.3.xsd (/portale/documents/d/guest/schema_vfpr12_v1-2-3)
+// hashed to the same pin, so the pin is the Agenzia's file. The XSD is not copied into the tree: the data module holds
 // only facts read from it (element order, occurrence counts, facets, code lists,
 // and the codes the schema's own comments say are no longer valid).
 import { createHash } from "node:crypto";

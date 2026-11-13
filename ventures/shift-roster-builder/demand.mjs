@@ -13,12 +13,25 @@
 // No forecast model: it is the average of what you sold, so a holiday or a rainy week in the file moves it. Read on
 // two real POS exports (a Korean bakery's orders, a French bakery's item lines; eval/); other column names are matched by
 // synonym, written from memory. Nothing leaves the machine.
-import { splitCsvRow } from "./import-staff.mjs";
+import { splitCsvRow, csvLines } from "./import-staff.mjs";
 import { DAYS, parseDaySpec } from "./calc.mjs";
 
 // camelCase headers split into words first ("InvoiceDate" is "invoice date", "UnitPrice" "unit price"; 2026-11-11, the
 // UCI Online Retail export could not be read before).
 const norm = (s) => String(s || "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+// "Sat 16:00-17:00 (people 4-28)": the same hour left short for 25 heads was 25 entries on one real export.
+function droppedList(dropped) {
+  const by = new Map();
+  for (const { at, k } of dropped) { if (!by.has(at)) by.set(at, []); by.get(at).push(k); }
+  return [...by].map(([at, ks]) => {
+    ks.sort((a, b) => a - b);
+    const runs = []; let a = ks[0], b = ks[0];
+    for (const k of ks.slice(1)) { if (k === b + 1) b = k; else { runs.push([a, b]); a = b = k; } }
+    runs.push([a, b]);
+    const txt = runs.map(([x, y]) => (x === y ? `${x}` : `${x}-${y}`)).join(", ");
+    return `${at} (${ks.length === 1 ? "person" : "people"} ${txt})`;
+  }).join(", ");
+}
 const SYN = {
   stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "invoice date", "time stamp", "paid at", "closed", "check closed", "payment time"],
   day: ["day", "weekday", "day of week", "dow"],
@@ -117,15 +130,58 @@ function readStamp(tok, dayTok, dayFirst = false) {
   return { day: (t.getUTCDay() + 6) % 7, hour: hr, key: `${y}-${mo}-${d}` };
 }
 
+// Several exports pasted or loaded together (a POS exports one date range at a time; one real shop's 11 weeks of Square
+// item sales came as 17 files whose ranges overlap, and Square added two columns part-way, so the files have two header
+// layouts). A later header row starts the next file: its columns are matched to the first header's by name, so a column
+// added or moved does not shift the sales into the wrong cell. A row that repeats a row of an earlier file in every
+// column all the files share is that file's overlap, counted once. Repeats inside one file are kept (two identical lines
+// can be two sales). Notes say how many of each were dropped.
+function pastedFiles(lines, sep, out) {
+  const nm = (x) => norm(String(x).replace(/[(\[][^)\]]*[)\]]/g, " "));
+  const first = splitCsvRow(lines[0], sep).map(nm), firstSet = new Set(first.filter(Boolean));
+  const isHeader = (c) => {
+    const names = c.map(nm).filter(Boolean);
+    const hit = names.filter((n) => firstSet.has(n)).length;
+    return hit >= 2 && hit >= 0.8 * names.length && hit >= 0.5 * firstSet.size;
+  };
+  const files = [{ head: first, same: true, rows: [] }];
+  for (const l of lines.slice(1)) {
+    const c = splitCsvRow(l, sep);
+    if (isHeader(c)) { const h = c.map(nm); files.push({ head: h, same: h.join("|") === first.join("|"), rows: [] }); continue; }
+    files[files.length - 1].rows.push({ l, c });
+  }
+  if (files.length === 1) return lines;
+  const common = first.filter((n) => n && files.every((f) => f.head.includes(n)));
+  const q = (x) => (/["\n]/.test(x) || x.includes(sep) ? `"${String(x).replace(/"/g, '""')}"` : x);
+  const earlier = new Set(), kept = [lines[0]];
+  let repeats = 0, moved = 0;
+  for (const f of files) {
+    const at = (c, n) => String(c[f.head.indexOf(n)] ?? "").trim();
+    const mine = new Set();
+    for (const { l, c } of f.rows) {
+      const k = common.map((n) => at(c, n)).join("\u0001");
+      if (earlier.has(k)) { repeats++; continue; }
+      mine.add(k);
+      if (f.same) kept.push(l); else { moved++; kept.push(first.map((n) => q(n && f.head.includes(n) ? at(c, n) : "")).join(sep)); }
+    }
+    for (const k of mine) earlier.add(k);
+  }
+  const differ = files.filter((f) => !f.same).length;
+  out.notes.push(`${files.length} files pasted together (the header row came ${files.length} times; the copies are not read as sales)${differ ? `; ${differ} of them ${differ === 1 ? "has" : "have"} a different header row, so their columns were matched to the first file's by name` : ""}.`);
+  if (repeats) out.notes.push(`${repeats} row${repeats === 1 ? "" : "s"} repeat${repeats === 1 ? "s" : ""} a row of an earlier file (overlapping date ranges) and ${repeats === 1 ? "is" : "are"} counted once.`);
+  return kept;
+}
+
 // Read the export into dated (or weekday-only) sales entries, before any averaging.
 // Returns { entries: [{day, hour, key, amount}], rows, skipped, notes, blank, undated, dayFirst, ambiguous, skippedDays }.
 export function readSales(text, o = {}) {
   const skip = new Set((o.skipDates || []).map(isoKey));
   // Excel writes "sep=," as a first line when it saves a CSV for another locale; it is not a header.
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
+  let lines = csvLines(text).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
   const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set(), refunds: { n: 0, amount: 0 }, voids: { n: 0, amount: 0 } };
   if (lines.length < 2) { out.notes.push("Needs a header row and at least one row of sales."); return out; }
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
+  lines = pastedFiles(lines, sep, out);
   // "Net Sales (USD)" and "Sales [GBP]" are the column "Net Sales": a bracketed unit is dropped from a header.
   const head = splitCsvRow(lines[0], sep).map((h) => norm(String(h).replace(/[(\[][^)\]]*[)\]]/g, " ")));
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
@@ -837,11 +893,11 @@ export function demandShifts(text, o = {}) {
   const dropped = [];
   const days = prof.map((p, d) => {
     const shifts = cutShifts(p, minShift, maxShift, cutCost(d));
-    for (const [a, b, k] of shifts.dropped || []) dropped.push(`${DAYS[d]} ${clock(a)}-${clock(b)} (person ${k})`);
+    for (const [a, b, k] of shifts.dropped || []) dropped.push({ at: `${DAYS[d]} ${clock(a)}-${clock(b)}`, k });
     const needed = p.reduce((a, b) => a + b, 0);
     return { day: DAYS[d], needed, scheduled: shifts.reduce((a, [x, y]) => a + (y - x), 0), shifts: [...shifts], sales: s.avg[d].reduce((a, b) => a + b, 0) };
   });
-  if (dropped.length) s.notes.push(`Left unstaffed: ${dropped.length} run${dropped.length === 1 ? "" : "s"} shorter than the shortest shift, where a ${minShift}-hour shift would cost more in spare hours than the short hours it saves at short cost ${rCut}${o.shortCost === undefined ? " (short and spare hours weighed the same)" : ""}: ${dropped.join(", ")}.`);
+  if (dropped.length) s.notes.push(`Left unstaffed: ${dropped.length} run${dropped.length === 1 ? "" : "s"} shorter than the shortest shift, where a ${minShift}-hour shift would cost more in spare hours than the short hours it saves at short cost ${rCut}${o.shortCost === undefined ? " (short and spare hours weighed the same)" : ""}: ${droppedList(dropped)}.`);
   // Group identical shift lists across days: "Mon/Tue/Wed, 11:00, 15:00, 2".
   const lines = new Map();
   days.forEach((dd, d) => {

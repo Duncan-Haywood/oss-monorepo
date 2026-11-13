@@ -5,7 +5,7 @@
 // past what was ever scheduled). Column names are matched by synonym and were written from memory,
 // not from real exports: unknown columns are listed and unreadable rows are skipped with a reason.
 // Nothing leaves the browser.
-import { splitCsvRow } from "./import-staff.mjs";
+import { splitCsvRow, csvLines } from "./import-staff.mjs";
 import { parseTime, DAYS, dayIndex } from "./calc.mjs";
 
 const SYN = {
@@ -50,7 +50,7 @@ function splitStamp(tok) {
 }
 
 export function importShiftsCsv(text) {
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = csvLines(text).filter((l) => l.trim());
   const notes = [], skipped = [];
   const fail = (msg, unknown = []) => ({ shiftsText: "", rows: 0, shifts: 0, notes: [msg], skipped, unknown });
   if (lines.length < 2) return fail("Needs a header row and at least one scheduled shift.");
