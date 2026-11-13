@@ -1,5 +1,12 @@
 # water-leaks research log
 
+## 2026-11-13 · Step 9 outcome: three of six verdicts flip with the matching rule; no pair of detectors separable on 19 leaks
+- **Ran as planned.** All six regenerated alarm lists equal their steps' `alarms.tsv`; the 30-day cells reproduce step 8's table exactly (and step 8 reran byte-identical). No code changed after the first run; `harness.evaluate` and `null_metrics` gained a `window` argument whose default keeps the 30 days.
+- **Rules with P &lt; 0.05 of six** (14/30/60 d &times; &phi; 0/1): D1-F 2 (14 d and 60 d ungated: 0.030, 0.011), LILA-auto 6 (Holm across the six detectors: 2, both at 14 d), M1 4, M2 0, M3 3 (all gated: 0.012, 0.001, 0.006; Holm: 2), M4 0. Location (pressure detectors) P &lt; 0.001 under all six. Chance medians rise with the window: 7 to 9, 10 to 12, 11 to 13 leaks.
+- **Predictions.** (a) M3 gated below 0.05 at every window: **held**. (b) D1-F never below 0.05: **failed** at 14 and 60 d ungated (at 60 d D1-F scores 15 of 19 with 0 false alarms; the longer window credits more of its late alarms). (c) No pair separable at Holm 0.05: **held**, smallest adjusted P 0.586 (M2 vs M3, 1 vs 8 discordant). (d) Chance medians non-decreasing in w: **held**.
+- **Paired at the primary rule.** D1-F vs M3: 1 vs 5 discordant leaks, P = 0.219; bootstrap TP(M3) &minus; TP(D1-F) +4 (95% 0 to +8). LILA vs D1-F +2 (&minus;3 to +7). p762 missed by all six; p331, p455, p514, p800 found by all six.
+- **For the paper.** The protocol claim is now concrete: report the window and gate, the chance level under that rule, a correction across the methods compared, and a paired test. On BattLeDIM 2019 alone the paired test has little power (19 leaks), so pooling more leaks (2018 under cross-fitted tuning, or simulated leak years) is the next statistics step, beside re-selecting thresholds under each rule.
+
 ## 2026-11-13 · Step 9 plan (matching-window ablation and paired tests), written before any windowed or paired score was computed
 - **Why.** Step 8 found the detection-only verdict turns on two or three leaks and on the matching rule. The proposal's ablation list has the window (14, 30, 60 days), and step 8's "Next" asked for a paired test between detectors. Both are scoring-only: no detector, threshold or alarm changes.
 - **Seen before writing this.** Everything in step 8's `results.txt` (30-day window at &phi; &isin; {0, 0.5, 1, 2, 5}). No score under a 14- or 60-day window has been computed, nor any paired statistic.

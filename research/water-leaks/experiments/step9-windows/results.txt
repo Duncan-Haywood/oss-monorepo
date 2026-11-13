@@ -1,0 +1,112 @@
+# water-leaks step 9: match window (14, 30, 60 d) x flow gate (0, 1 m3/h), and paired tests
+# detectors at their own steps' 2018 settings, not re-tuned; chance: 1,000 draws, seed 0, 14-day spacing
+# primary rule: window 30 d, phi = 1 m3/h (step 8's)
+
+# regenerated alarm lists against the earlier steps
+  D1-F       alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  LILA-auto  alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  M1         alarms  25 (2019: 16); 2019 alarms equal the step's alarms.tsv: yes
+  M2         alarms  15 (2019: 8); 2019 alarms equal the step's alarms.tsv: yes
+  M3         alarms  29 (2019: 18); 2019 alarms equal the step's alarms.tsv: yes
+  M4         alarms  25 (2019: 14); 2019 alarms equal the step's alarms.tsv: yes
+
+## window 14 d, phi = 0 m3/h
+  detector    alarms | 2019 TP  FP | chance median (95%) | P(TP)  Holm(6) | TP<=300m P
+  D1-F           26 |  12/19   3 |      8 (5 to 12)      | 0.030  0.150  |  5 0.000
+  LILA-auto      26 |  14/19   1 |      8 (5 to 12)      | 0.000  0.000  |  7 0.000
+  M1             25 |   7/19   9 |      8 (5 to 11)      | 0.825  0.825  |    -    
+  M2             15 |   7/19   1 |      5 (2 to 8)      | 0.137  0.548  |    -    
+  M3             29 |  11/19   7 |      9 (6 to 13)      | 0.261  0.558  |    -    
+  M4             25 |  10/19   4 |      8 (5 to 11)      | 0.186  0.558  |    -    
+
+## window 30 d, phi = 0 m3/h (steps 1-7's rule)
+  detector    alarms | 2019 TP  FP | chance median (95%) | P(TP)  Holm(6) | TP<=300m P
+  D1-F           26 |  13/19   2 |     11 (8 to 13)      | 0.105  0.525  |  5 0.000
+  LILA-auto      26 |  14/19   1 |     11 (8 to 13)      | 0.019  0.114  |  7 0.000
+  M1             25 |  10/19   6 |     11 (8 to 13)      | 0.796  1.000  |    -    
+  M2             15 |   7/19   1 |      7 (4 to 9)      | 0.570  1.000  |    -    
+  M3             29 |  13/19   5 |     12 (9 to 14)      | 0.317  1.000  |    -    
+  M4             25 |  10/19   4 |     11 (8 to 13)      | 0.796  1.000  |    -    
+
+## window 60 d, phi = 0 m3/h
+  detector    alarms | 2019 TP  FP | chance median (95%) | P(TP)  Holm(6) | TP<=300m P
+  D1-F           26 |  15/19   0 |     12 (10 to 14)      | 0.011  0.066  |  5 0.000
+  LILA-auto      26 |  15/19   0 |     12 (10 to 14)      | 0.011  0.066  |  7 0.000
+  M1             25 |  14/19   2 |     11 (9 to 14)      | 0.048  0.192  |    -    
+  M2             15 |   8/19   0 |      7 (4 to 10)      | 0.395  0.426  |    -    
+  M3             29 |  15/19   3 |     13 (11 to 15)      | 0.130  0.390  |    -    
+  M4             25 |  13/19   1 |     11 (9 to 14)      | 0.213  0.426  |    -    
+
+## window 14 d, phi = 1 m3/h
+  detector    alarms | 2019 TP  FP | chance median (95%) | P(TP)  Holm(6) | TP<=300m P
+  D1-F           26 |  10/19   5 |      7 (5 to 10)      | 0.060  0.180  |  5 0.000
+  LILA-auto      26 |  12/19   3 |      7 (5 to 10)      | 0.001  0.006  |  7 0.000
+  M1             25 |  10/19   6 |      7 (4 to 10)      | 0.045  0.180  |    -    
+  M2             15 |   7/19   1 |      4 (2 to 7)      | 0.052  0.180  |    -    
+  M3             29 |  12/19   6 |      8 (5 to 11)      | 0.012  0.060  |    -    
+  M4             25 |   9/19   5 |      7 (4 to 10)      | 0.174  0.180  |    -    
+
+## window 30 d, phi = 1 m3/h (primary)
+  detector    alarms | 2019 TP  FP | chance median (95%) | P(TP)  Holm(6) | TP<=300m P
+  D1-F           26 |  11/19   4 |     10 (7 to 12)      | 0.319  0.319  |  6 0.000
+  LILA-auto      26 |  13/19   2 |     10 (7 to 12)      | 0.013  0.065  |  7 0.000
+  M1             25 |  13/19   3 |     10 (7 to 12)      | 0.013  0.065  |    -    
+  M2             15 |   8/19   0 |      6 (3 to 9)      | 0.131  0.262  |    -    
+  M3             29 |  15/19   3 |     11 (8 to 13)      | 0.001  0.006  |    -    
+  M4             25 |  12/19   2 |     10 (7 to 12)      | 0.058  0.174  |    -    
+
+## window 60 d, phi = 1 m3/h
+  detector    alarms | 2019 TP  FP | chance median (95%) | P(TP)  Holm(6) | TP<=300m P
+  D1-F           26 |  12/19   3 |     11 (9 to 14)      | 0.437  0.654  |  6 0.000
+  LILA-auto      26 |  14/19   1 |     11 (9 to 14)      | 0.030  0.120  |  7 0.000
+  M1             25 |  14/19   2 |     11 (8 to 13)      | 0.013  0.065  |    -    
+  M2             15 |   8/19   0 |      7 (4 to 10)      | 0.327  0.654  |    -    
+  M3             29 |  16/19   2 |     12 (10 to 15)      | 0.006  0.036  |    -    
+  M4             25 |  13/19   1 |     11 (8 to 13)      | 0.084  0.252  |    -    
+
+## paired tests, window 30 d, phi = 1: per-leak detection on the 19 new 2019 leaks
+  per-leak detections (1 = detected):
+   pipe      D1-F LILA-auto        M1        M2        M3        M4
+   p123         0         1         1         0         0         0
+   p142         1         0         1         1         1         1
+   p193         0         1         0         0         0         0
+   p277         0         0         1         0         1         1
+   p280         1         1         1         0         1         1
+   p331         1         1         1         1         1         1
+   p426         0         0         1         1         1         1
+   p455         1         1         1         1         1         1
+   p514         1         1         1         1         1         1
+   p523         1         1         0         1         0         1
+   p586         0         1         0         0         1         1
+   p653         0         0         1         0         1         0
+   p680         1         1         0         1         1         0
+   p710         0         1         0         0         1         1
+   p721         1         1         1         0         1         1
+   p762         0         0         0         0         0         0
+   p800         1         1         1         1         1         1
+   p827         1         1         1         0         1         0
+   p879         1         0         1         0         1         0
+  pair                   A only  B only  exact sign P  Holm(15)
+  D1-F vs LILA-auto           2       4         0.688     1.000
+  D1-F vs M1                  2       4         0.688     1.000
+  D1-F vs M2                  4       1         0.375     1.000
+  D1-F vs M3                  1       5         0.219     1.000
+  D1-F vs M4                  3       4         1.000     1.000
+  LILA-auto vs M1             5       5         1.000     1.000
+  LILA-auto vs M2             7       2         0.180     1.000
+  LILA-auto vs M3             3       5         0.727     1.000
+  LILA-auto vs M4             4       3         1.000     1.000
+  M1 vs M2                    7       2         0.180     1.000
+  M1 vs M3                    1       3         0.625     1.000
+  M1 vs M4                    4       3         1.000     1.000
+  M2 vs M3                    1       8         0.039     0.586
+  M2 vs M4                    1       5         0.219     1.000
+  M3 vs M4                    4       1         0.375     1.000
+  bootstrap over leaks (2,000, seed 9), TP(M3) - TP(D1-F): +4 (95%: +0 to +8)
+  bootstrap over leaks (2,000, seed 9), TP(LILA-auto) - TP(D1-F): +2 (95%: -3 to +7)
+
+## pre-registered predictions (LOG.md, step 9 plan)
+  (a) M3 P < 0.05 at phi = 1 for every window: 14 d 0.012, 30 d 0.001, 60 d 0.006: HELD
+  (b) D1-F P >= 0.05 in all six cells: 14/0 0.030, 30/0 0.105, 60/0 0.011, 14/1 0.060, 30/1 0.319, 60/1 0.437: FAILED
+  (c) no pair differs at Holm-adjusted 0.05 (smallest adjusted P 0.586): HELD
+  (d) chance medians non-decreasing in the window for every detector and phi: HELD
