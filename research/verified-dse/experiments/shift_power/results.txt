@@ -1,0 +1,20 @@
+# Milestone 120: the structural shifter guard on a second blind test (wider normalisers, an alignment shifter, and a barrel written without a shift operator)
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 120.
+
+## Seen cells (148 cells, 74 designs; not a test)
+
+SWC 1.96%, SWS(64) 1.32%, SWG 1.32%, random 2.57%
+seen designs SWG adds to SWS(64): barrel16, barrel32, sbox
+
+## Blind designs' features (computed before the flow run)
+
+design | cells | mux_share | shift_width | SWS(64) flags | SWG flags
+alignsh128 | 2053 | 0.375 | 128 | True | True
+alignsh64 | 942 | 0.341 | 64 | True | True
+lzcnorm128 | 2191 | 0.351 | 128 | True | True
+lzcnorm96 | 1743 | 0.461 | 96 | True | True
+muxshl128 | 1800 | 0.854 | 0 | False | True
+muxshl64 | 775 | 0.828 | 0 | False | True
+
+## Blind test: no table yet
