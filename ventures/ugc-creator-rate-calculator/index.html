@@ -106,7 +106,7 @@
     const ids = ["tier", "format", "niche", "videos", "usage", "whitelist", "exclusivity", "rawFootage", "rush", "extraHooks", "extraRevisions", "productCost"];
     const read = () => Object.fromEntries(ids.map((id) => [id, $(id).value]));
     const money = (n) => {
-      const format = (n) => `$${n.toLocaleString()}`;
+      const format = (n) => `$${n.toLocaleString('en-US')}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };

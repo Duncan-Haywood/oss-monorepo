@@ -161,7 +161,7 @@
     };
 
     function money(n) {
-      const format = (n) => `$${n.toLocaleString()}`;
+      const format = (n) => `$${n.toLocaleString('en-US')}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -188,7 +188,7 @@
 
       const result = computeRates({ downloads, niche, readType });
 
-      els.stats.textContent = `${downloads.toLocaleString()} downloads per episode, at the numbers entered above.`;
+      els.stats.textContent = `${downloads.toLocaleString('en-US')} downloads per episode, at the numbers entered above.`;
       els.ratesBody.innerHTML = PLACEMENTS.map((placement) => {
         const r = result.rates[placement];
         return `<tr><td>${PLACEMENT_LABELS[placement]}</td><td class="price">${money(r.low)} – ${money(r.high)}</td></tr>`;

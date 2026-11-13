@@ -24,7 +24,7 @@ Charing knew what a degree heating week was. Everyone in the association knew, b
 
 "Why does the bulletin say zero?"
 
-"Because of the full degree," said Tala. "That's the one I want you to see. The satellite looks at a square of sea five kilometres on a side, and almost all of our square is open water outside the reef. Our tables are inside, in the lee of the reef flat, where the water is shallow and slow. The lagoon runs warm. This year it has been running about six tenths of a degree warmer than the satellite's square. So on the days the tables are a degree and a half over their line, the satellite sees nine tenths over its own line. And nine tenths does not count. The rule counts from one. Everything below one is thrown away."
+"Because of the full degree," said Tala. "That's the one I want you to see. The satellite looks at a square of sea five kilometres on a side, and almost all of our square is open water outside the reef. Our tables are inside, in the lee of the reef flat, where the water is shallow and slow. The lagoon runs warm. This year it has been running about six tenths of a degree warmer than the satellite's square, and the satellite's line is only two tenths lower than ours. So on the days the tables are a degree and three tenths over their line, the satellite sees nine tenths over its own line. And nine tenths does not count. The rule counts from one. Everything below one is thrown away."
 
 Charing looked at the water for a while.
 
@@ -40,7 +40,7 @@ Charing looked at the water for a while.
 
 There was a second rule, and it was not written on any whiteboard. It belonged to Dr. Marivic Santos of the lab in Dumaguete, who came over on the ferry every April for the spawning with two students and a car full of plastic cones and tubs. Her rule was that nobody handled the corals in the five days before they spawned. She said it plainly every year, standing on the platform with her sunglasses pushed up: a colony that is ready to spawn is carrying its whole year in its polyps, and if you knock it about in the last days you can lose the lot. She called it a rule of thumb. She had never seen a paper that gave the number five, she said; she had seen what happened when people ignored it.
 
-So the corals had to be moved before Monday the fourth of April, if the spawning came on the ninth. And they could not be moved at all, by the association's own rule, until the ninth.
+So the corals had to be moved by Monday the fourth of April, if the spawning came on the ninth. And they could not be moved at all, by the association's own rule, until the ninth.
 
 Charing went down again that afternoon with a pair of side-cutters and a bucket, and on six tables she snapped off the tip of one branch, as small as a fingernail, and broke it open on the platform. Inside, packed in among the white tissue, were the eggs: tiny beads, and pink, every one.
 

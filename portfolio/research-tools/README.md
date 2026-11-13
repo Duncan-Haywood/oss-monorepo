@@ -76,6 +76,7 @@ for the browser-extension, iOS and Android packagers.
 | [`synthetic-control`](../../ventures/synthetic-control/) | Abadie & Gardeazabal 2003; Abadie, Diamond & Hainmueller 2010, 2015; Abadie 2021 | Did this intervention change one unit's outcome, by how much, and is the gap unusual against placebo runs on every donor? |
 | [`stl-decomposition`](../../ventures/stl-decomposition/) | Cleveland, Cleveland, McRae & Terpenning 1990; Cleveland 1979; Wang, Smith & Hyndman 2006 | Is it the season or the trend: what are this series' trend, seasonal pattern and remainder, and which points stand out from both? |
 | [`fuzzy-dedupe`](../../ventures/fuzzy-dedupe/) | Fellegi & Sunter 1969; Winkler 1988, 1990; Jaro 1989 | Which rows of this contact or customer file are the same person, even spelled differently, and what does the merged file look like? |
+| [`spc-control-charts`](../../ventures/spc-control-charts/) | Shewhart 1931; Nelson 1984; Tippett 1925; Bissell 1990; Rigdon, Cruthis & Champ 1994 | Has this process changed or is it noise: which points break which run rule, are the subgroups hiding batch-to-batch variation, and is Cpk worth quoting? |
 | [`isolation-forest`](../../ventures/isolation-forest/) | Liu, Ting & Zhou 2008, 2012 | Which rows of this table are unusual across all their numeric columns at once, how unusual, and which columns make each one stand out? |
 
 The site files them under "Research algorithms & ML"

@@ -119,7 +119,7 @@ export function occupancyTable(input) {
   });
 }
 
-const money = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
 export function occupancySummary(input) {
   const result = calculateClassroom(input);

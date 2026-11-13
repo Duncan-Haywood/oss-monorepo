@@ -222,7 +222,7 @@
     budgetInput.value = loadBudget();
 
     const money = (n) =>
-      n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+      n.toLocaleString('en-US', { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>"']/g, (c) =>

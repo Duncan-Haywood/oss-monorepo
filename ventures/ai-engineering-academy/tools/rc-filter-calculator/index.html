@@ -383,9 +383,9 @@
     result.innerHTML = `
       <dl>
         <dt>Cutoff frequency (&minus;3 dB)</dt>
-        <dd><strong>${formatFrequency(r.cutoffHz)}</strong> (${r.cutoffHz.toLocaleString()} Hz)</dd>
+        <dd><strong>${formatFrequency(r.cutoffHz)}</strong> (${r.cutoffHz.toLocaleString('en-US')} Hz)</dd>
         <dt>Angular cutoff, ω<sub>c</sub></dt>
-        <dd>${r.angularCutoffRadPerSec.toLocaleString()} rad/s</dd>
+        <dd>${r.angularCutoffRadPerSec.toLocaleString('en-US')} rad/s</dd>
         <dt>Time constant, τ</dt>
         <dd>${formatTime(r.timeConstantSeconds)}</dd>
       </dl>

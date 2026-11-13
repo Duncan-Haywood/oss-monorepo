@@ -136,7 +136,7 @@
     import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-    const money = (n) => "$" + Math.round(n).toLocaleString();
+    const money = (n) => "$" + Math.round(n).toLocaleString('en-US');
     const STORE = "card-bonus-planner-data";
     const blank = () => ({ owned: [], wishlist: [], spent: {}, monthly: 2000 });
     let state = blank(), lastPlan = null;

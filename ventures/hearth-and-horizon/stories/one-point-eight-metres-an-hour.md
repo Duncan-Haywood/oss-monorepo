@@ -40,7 +40,7 @@ It was Tuesday.
 
 * * *
 
-The bell began its climb at five past five, fifteen minutes winched through the dark at the end of the main lift wire, with the gas hissing and Kofi talking to him the whole way up about nothing, about football, about the curry the cook was sending in tonight, the way you talk to a man who is somewhere else.
+The bell began its climb at five past five, twenty minutes winched through the dark at the end of the main lift wire, with the gas hissing and Kofi talking to him the whole way up about nothing, about football, about the curry the cook was sending in tonight, the way you talk to a man who is somewhere else.
 
 The bell came out of the water through the moon pool in the middle of the ship at twenty-five past five in the evening. The deck crew swung it onto its trunk, and at twenty to six it mated with a clunk Ines felt through the floor of Dive Control. The three men in it were still at the pressure of the seabed, nearly twelve times the pressure of the air outside, in a steel ball on a rail in a hangar on the deck of a ship. Lars brought the bell's own pressure back from the work depth to the storage depth, the last few metres of the excursion, and then they would pass through the trunk into the transfer chamber and shower and eat and sleep, and the next bell team would go down, and nothing would change about the pressure except at the very end, on the table.
 
@@ -183,7 +183,7 @@ Haldis looked at him. Ines looked at him.
 
 "Fiona will kill you," Ines said.
 
-"Fiona will kill me anyway." He took his hands out of his pockets and looked at them. "Two thousand and thirty-one, my father died. I was in the Brent field at a hundred and forty metres. He went on a Monday. They told me on the Monday. I got out on the Friday night. They'd held the funeral for me, but I didn't see him." He shrugged, a big slow shrug. "I'm not saying it to make anybody feel anything. I'm saying it because I know what the boy's sums look like. Press me in."
+"Fiona will kill me anyway." He took his hands out of his pockets and looked at them. "Two thousand and thirty-one, my father died. I was in the Brent field at a hundred and forty metres. He went on a Monday. They told me on the Monday. I got out on the Sunday night. They'd held the funeral for me, but I didn't see him." He shrugged, a big slow shrug. "I'm not saying it to make anybody feel anything. I'm saying it because I know what the boy's sums look like. Press me in."
 
 "You'd miss the nativity," Haldis said.
 

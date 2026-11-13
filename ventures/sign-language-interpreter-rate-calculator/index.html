@@ -228,7 +228,7 @@
     };
 
     function money(n) {
-      const format = (n) => `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      const format = (n) => `$${n.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -259,7 +259,7 @@
         mileageRate: Number(els.mileageRate.value),
       };
       const result = computeAssignmentQuote(input);
-      els.stats.textContent = `${result.billableHours.toLocaleString()} billable hour(s) at ${SETTING_LABELS[input.setting] ?? "General / business / community"}.`;
+      els.stats.textContent = `${result.billableHours.toLocaleString('en-US')} billable hour(s) at ${SETTING_LABELS[input.setting] ?? "General / business / community"}.`;
       els.resultBody.innerHTML = `
         <tr><th scope="row">Interpreting fee</th><td class="price">${money(result.interpretingFee)}</td></tr>
         <tr><th scope="row">Travel time fee</th><td class="price">${money(result.travelTimeFee)}</td></tr>

@@ -154,7 +154,7 @@ Peigi looked faintly pleased and then annoyed at being pleased.
 
 The kettle had not quite boiled when it spoke again.
 
-"With the corrected line, July had two blight runs. The first: Sunday the eleventh, Monday the twelfth and Tuesday the thirteenth, each with a lowest temperature above ten degrees and between seven and fifteen hours at ninety per cent or more. That is two Hutton periods back to back. The second began on Sunday the eighteenth and has not ended. Sunday had nine hours at ninety or more, Monday thirteen, and today has had six already, before five in the morning. Both runs should have sent warnings. I sent none."
+"With the corrected line, July had two blight runs. The first: Sunday the eleventh, Monday the twelfth and Tuesday the thirteenth, each with a lowest temperature above ten degrees and between seven and fifteen hours at ninety per cent or more. That is two Hutton periods back to back. The second began on Sunday the eighteenth and has not ended. Sunday had nine hours at ninety or more and Monday thirteen before you took the sensor down; I cannot count last night, because the sensor has been in your lunch box. Both runs should have sent warnings. I sent none."
 
 Peigi took off her glasses.
 
@@ -162,7 +162,7 @@ Peigi took off her glasses.
 
 "And the leaves," said Peigi.
 
-"The leaves fit, which is the part I trust most. The books give about three to five days in warm weather from a spore landing on a leaf to a patch you can see, and a few more days to the white ring. Spores that landed on the twelfth or thirteenth would make patches you could see by about the seventeenth and white rings by about the nineteenth. You found white rings on the twentieth, in the part of your strip where the leaves stay wet longest. If the first run had not happened, I would not expect that. The rule I could not see and the plants you could see are telling the same story."
+"The leaves fit, which is the part I trust most. The books give about three to five days in warm weather from a spore landing on a leaf to a patch you can see, and a few more days to the white ring. Spores that landed on the twelfth or thirteenth would make patches you could see by about the seventeenth and white rings by about the nineteenth. You found white rings on the nineteenth, in the part of your strip where the leaves stay wet longest. If the first run had not happened, I would not expect that. The rule I could not see and the plants you could see are telling the same story."
 
 The kettle clicked off. Nobody moved to it.
 

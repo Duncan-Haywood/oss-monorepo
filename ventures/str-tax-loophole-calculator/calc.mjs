@@ -67,7 +67,7 @@ function num(v) {
 export function money(n) {
   const value = Number(n) || 0;
   const format = (v) =>
-    `$${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
@@ -214,7 +214,7 @@ export function strTaxOutcome(input = {}) {
     findings.push({ severity: "medium", title: "Only the facts-and-circumstances test might apply", detail: "You have more than 100 hours but do not meet tests 1-3. Test 7 (regular, continuous and substantial basis) is judged on all the facts and is weakened when a paid manager or another individual does more of the managing. It is not counted as met here." });
   }
   if (usedAsHome) {
-    findings.push({ severity: "high", title: "Personal use makes the property a residence under Section 280A", detail: `Your ${personalDays.toLocaleString()} personal-use days exceed the greater of 14 days or 10% of ${rentalDays.toLocaleString()} rental days. Deductions are then limited to rental income, so no loss is allowed this year in the figures below.` });
+    findings.push({ severity: "high", title: "Personal use makes the property a residence under Section 280A", detail: `Your ${personalDays.toLocaleString('en-US')} personal-use days exceed the greater of 14 days or 10% of ${rentalDays.toLocaleString('en-US')} rental days. Deductions are then limited to rental income, so no loss is allowed this year in the figures below.` });
   }
   if (tooFewDays) {
     findings.push({ severity: "high", title: "Rented fewer than 15 days", detail: "A home rented fewer than 15 days a year has its rental income excluded and its rental expenses not deductible, so there is no loss to use." });

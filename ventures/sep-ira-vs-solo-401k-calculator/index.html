@@ -148,7 +148,7 @@
     };
     const dollars = (n) => {
         if (n == null) return "never below $2,000,000";
-        const text = `$${Math.abs(n).toLocaleString()}`;
+        const text = `$${Math.abs(n).toLocaleString('en-US')}`;
         return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
       };
 

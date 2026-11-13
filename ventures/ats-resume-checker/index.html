@@ -218,8 +218,8 @@ Reach me at jordan.rivera@example.com`;
       els.headline.className = `headline ${level}`;
       els.headline.textContent = headline;
       els.stats.innerHTML = `
-        <span>${result.stats.characters.toLocaleString()} characters</span>
-        <span>${result.stats.lines.toLocaleString()} lines</span>
+        <span>${result.stats.characters.toLocaleString('en-US')} characters</span>
+        <span>${result.stats.lines.toLocaleString('en-US')} lines</span>
         <span>${result.stats.highCount} high · ${result.stats.mediumCount} medium · ${result.stats.lowCount} low</span>`;
       renderFindings(result.findings);
       els.reportCard.hidden = false;
