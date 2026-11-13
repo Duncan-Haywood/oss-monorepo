@@ -10,6 +10,16 @@ from pathlib import Path
 P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
+    ("R<sup>2</sup> 0.595", "excavator_threshold_screening_results.txt", "in-sample R^2 on ln f_t,max: 0.595"),
+    ("slope &minus;1.08", "excavator_threshold_screening_results.txt", "+0.7520, -1.0816"),
+    ("15.555 (r &minus; 1)<sup>&minus;0.916</sup> (p99/mean)<sup>&minus;2.374</sup>", "excavator_threshold_screening_results.txt", "15.555 x (r219 - 1)^-0.916 x (p99/mean)^-2.374"),
+    ("in-sample R<sup>2</sup> 0.749", "excavator_threshold_screening_results.txt", "in-sample R^2 on ln f_t,max: 0.749"),
+    ("median relative error of 17.3% (p90 41.0%)", "excavator_threshold_screening_results.txt", "median 0.173, p90 0.410"),
+    ("in 88.0% of cases", "excavator_threshold_screening_results.txt", "338/384 = 88.0%"),
+    ("it gives 1.72 L/h", "excavator_threshold_screening_results.txt", "r219 2.175, p99/mean 2.376: 1.720 L/h"),
+    ("0.0%, 18.2% and 72.1%", "excavator_threshold_screening_results.txt", "1.48           0.0         18.2          72.1"),
+    ("by a factor of 5.90", "excavator_threshold_screening_results.txt", "0.89 to 5.24 L/h (x5.90)"),
+    ("geometries move it by 9.21", "excavator_threshold_screening_results.txt", "0.33 to 3.00 L/h (x9.21)"),
     ("f_t,max 2.462 L/h at 87.5 L/min", "excavator_breakeven_geometry_results.txt", "f_t,max 2.462 L/h at q_p 87.5 L/min"),
     ("median of 1.00 L/h (p10 0.42, p90 1.71, range 0.33 to 3.00)", "excavator_breakeven_geometry_results.txt", "f_t,max min 0.33, p10 0.42, median 1.00, p90 1.71, max 3.00 L/h"),
     ("in 18.2% of cases", "excavator_breakeven_geometry_results.txt", "low rate 1.48 L/h: 18.2%"),

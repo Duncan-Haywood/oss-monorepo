@@ -1,6 +1,6 @@
 # Which open hydraulic circuit gets a small excavator closest to stock energy use for the least money?
 
-**Status: open research programme. Milestones 1 to 5 have landed in steps (2a to 5x); a measured excavator pressure trace (5y) and a flow trace from joint motion (5z) now exist, but no excavator fuel record, so H4 is still open; the paper draft (milestone 6, [`paper/draft.md`](paper/draft.md)) is current to 6c.** The first step was a stdlib energy model
+**Status: open research programme. Milestones 1 to 5 have landed in steps (2a to 5x); a measured excavator pressure trace (5y) and a flow trace from joint motion (5z) now exist, but no excavator fuel record, so H4 is still open; the paper draft (milestone 6, [`paper/draft.md`](paper/draft.md)) is current to 6d.** The first step was a stdlib energy model
 of three excavator hydraulic circuits (fixed open-centre, load-sensing, ideal independent
 metering) over a work cycle (`src/heavy_hydraulics/`, 6 tests) and a first sweep of 2,916 cases
 on an illustrative cycle: load-sensing uses a median **47%** of open-centre pump-shaft energy
@@ -11,7 +11,11 @@ See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
 **Paper (milestone 6, 2026-11-12):** the draft now leads with the measured loader: no fixed open-centre pump from 25 to 63 cc matches load-sensing fuel per unit of work (best 53.5 cc, 11.5% more), and the break-even margin is the volume ratio times the surplus-flow pressure (99.5 bar), not the working pressure. Rerun from the Zenodo record, 5t to 5x reproduce their committed results byte for byte. Sections 3.7 and 3.7b add the two excavator results (5y pressure, 5z volume ratio), which together put the break-even margin near 139 bar, and `python3 paper/check_numbers.py` checks every quoted number (183) against the results file it cites. Since 2026-11-12 `python3 paper/build_tex.py --pdf` builds the draft as a 10-page two-column LaTeX paper with numbered references from [`paper/refs.bib`](paper/refs.bib) with all 21 sources the draft names (theses, valve and pump manuals, the XCMG brochure, Reece) as numbered references (the 10 non-DOI ones noting whether each was opened), and each of the four figures numbered once with its own caption (the journal's own template and the author line are still to do; [`LOG.md`](LOG.md)).
 
-**Latest (6c, 2026-11-13): across cylinder geometries, the excavator fuel threshold is about 1 L/h, not 2.5.** 6b found that a smaller fixed open-centre pump beats load-sensing on fuel only if the rest of the machine burns under 2.46 L/h over the extra working time, but it worked from the central geometry's committed numbers only. Rerun exactly from the raw folder-75 motion over all 384 lever, bucket-sign and swing assumptions, the threshold is a **median 1.00 L/h** (0.33 to 3.00); the central geometry's 2.46 (reproduced: 2.462) sits at the **99th percentile**. It passes the loader's lowest measured fuel rate (1.48 L/h) in 18% of cases and the loader's rest-of-machine rate (5.15 L/h) in none at central parameters, 0.1% of all 41,472 geometry-parameter combinations (max 6.67). So on most readings of the machine, load-sensing keeps the fuel lead unless the engine idles unusually lean. Predictions D1, D3, D6 held; D2, D4, D5 refuted. See "Milestone 6c" below.
+**Latest (6d, 2026-11-13): can a builder tell from their own machine whether a smaller fixed pump beats load-sensing on fuel? Roughly, from two numbers; exactly, not without the engine's own figures.** Over 6c's 384 geometry cases, the stock pump's oversupply r alone explains R² 0.60 of the (log) fuel threshold; with demand peakiness added, f<sub>t,max</sub> ≈ 15.6 (r − 1)<sup>−0.92</sup> (p99/mean)<sup>−2.37</sup> L/h predicts held-out geometries to a median 17% and makes the right call at 1.48 L/h in 88% of them (E2 and E3, set at 15% and 90%, were narrowly refuted). The decision curve below is the practical answer: at 1.48 L/h a fixed pump wins in 18% of geometries at central parameters, in 72% under at least one of the 108 parameter sets, and in none under all of them. The borrowed fuel slope and pump efficiency move the answer about as much as the cylinder geometry does (×5.9 against ×9.2). See "Milestone 6d" below.
+
+![Share of geometry cases in which a smaller fixed pump beats load-sensing on fuel](experiments/threshold_decision_curve.svg)
+
+**Previous (6c, 2026-11-13): across cylinder geometries, the excavator fuel threshold is about 1 L/h, not 2.5.** 6b found that a smaller fixed open-centre pump beats load-sensing on fuel only if the rest of the machine burns under 2.46 L/h over the extra working time, but it worked from the central geometry's committed numbers only. Rerun exactly from the raw folder-75 motion over all 384 lever, bucket-sign and swing assumptions, the threshold is a **median 1.00 L/h** (0.33 to 3.00); the central geometry's 2.46 (reproduced: 2.462) sits at the **99th percentile**. It passes the loader's lowest measured fuel rate (1.48 L/h) in 18% of cases and the loader's rest-of-machine rate (5.15 L/h) in none at central parameters, 0.1% of all 41,472 geometry-parameter combinations (max 6.67). So on most readings of the machine, load-sensing keeps the fuel lead unless the engine idles unusually lean. Predictions D1, D3, D6 held; D2, D4, D5 refuted. See "Milestone 6c" below.
 
 ![Break-even rest-of-machine fuel rate over 384 geometry cases](experiments/breakeven_geometry.svg)
 
@@ -79,6 +83,22 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
+
+## Milestone 6d: a two-number screening rule for the excavator fuel threshold, and the decision curve
+
+6c gave the break-even rest-of-machine fuel rate f<sub>t,max</sub> for each of 384 readings of the excavator's cylinder geometry. 6d asks whether a builder can get it without that computation, from two numbers they can read off one logged day of their own machine's flow: the stock pump's volume ratio r (pumped over used oil) and demand peakiness (p99 over mean). It fits ln f<sub>t,max</sub> by least squares and scores it with 16-fold cross-validation, each fold holding out one boom-and-arm lever pair ([`experiments/excavator_threshold_screening.py`](experiments/excavator_threshold_screening.py), [results](experiments/excavator_threshold_screening_results.txt), stdlib, under 1 s, input only 6c's committed [384-case table](experiments/excavator_breakeven_geometry_cases.csv); E1 to E5 registered first in [`LOG.md`](LOG.md)). huggingface.co and the PEMS paper hosts were unreachable from this session, so 6c's planned next steps waited.
+
+| rule | in-sample R² | held-out median error (p90) | right call at 1.48 L/h |
+|---|---|---|---|
+| A: r only | 0.595 | 25.3% (52.1%) | 82.0% |
+| B: r and p99/mean | 0.749 | 17.3% (41.0%) | 88.0% |
+| C: B plus a no-swing flag (added after B, not registered) | 0.831 | 15.8% (35.5%) | 87.5% |
+
+Rule B in a builder's units: f<sub>t,max</sub> ≈ 15.555 (r − 1)<sup>−0.916</sup> (p99/mean)<sup>−2.374</sup> L/h. It is worst at the most favourable geometry (1.72 L/h against an exact 2.462). E1, E4 and E5 held; E2 (median error under 15%) and E3 (at least 90% right calls) were refuted narrowly.
+
+Parameters against geometry: at the central geometry the 108 sets of margin, pressure, fuel slope and pump efficiency move f<sub>t,max</sub> from 0.89 to 5.24 L/h (×5.90; per case ×5.13 to ×9.24); at central parameters the 384 geometries move it from 0.33 to 3.00 L/h (×9.21). The two sources of doubt are the same size. At 1.48 L/h the call is open in 72.1% of cases, closed for load-sensing in 27.9% and closed for a fixed pump in none.
+
+Reading: below about 0.5 L/h of rest-of-machine fuel a smaller fixed pump wins on most readings; above about 2.5 L/h it loses on almost all; in between, a builder needs both their own linkage and their own engine and pump figures. Limits as 6c: all of this sits on one 7.5 t class machine's motion, the loader's break-even rule, fuel slope and pump efficiency, and pressure from another machine.
 
 ## Milestone 6c: over 384 cylinder geometries the excavator fuel threshold is a median 1.0 L/h
 

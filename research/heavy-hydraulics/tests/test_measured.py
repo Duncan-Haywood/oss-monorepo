@@ -211,3 +211,20 @@ def test_geometry_breakeven_table_matches_results():
     assert abs(float(cen["ft_max_central_lph"]) - 2.462) < 0.001
     for r in rows:     # each case's central value lies inside its own 108-point sweep
         assert float(r["ft_max_sweep_min_lph"]) <= float(r["ft_max_central_lph"]) <= float(r["ft_max_sweep_max_lph"])
+
+
+def test_screening_ols_recovers_exact_plane_and_cv_is_out_of_sample():
+    from heavy_hydraulics.screening import ols, grouped_cv, r_squared
+    rows = [(x1, x2) for x1 in range(5) for x2 in (0.5, 1.5, 3.0)]
+    ys = [2.0 - 0.7 * a + 1.3 * b for a, b in rows]
+    coef = ols(rows, ys)
+    assert coef == pytest.approx([2.0, -0.7, 1.3])
+    assert r_squared(coef, rows, ys) == pytest.approx(1.0)
+    # an exact plane is predicted exactly even out of sample
+    groups = [a for a, _ in rows]
+    assert grouped_cv(rows, ys, groups) == pytest.approx(ys)
+    # a point that sits off the plane is not used to predict itself
+    ys2 = list(ys); ys2[0] += 5.0
+    cv = grouped_cv(rows, ys2, list(range(len(rows))))
+    assert cv[0] == pytest.approx(ys[0] + 0.0, abs=1.5)
+    assert abs(cv[0] - ys2[0]) > 3.0
