@@ -1,5 +1,13 @@
 # sensing-selfcal research log
 
+## 2026-11-13 · Milestone 7: first full paper draft, every number tied to a stored result
+
+- **What.** [`paper/draft.md`](paper/draft.md), an RA-L-shaped draft (abstract, ten sections, a results table) that pulls milestones 1–6b into one argument: target-free BA matches Zhang to 0.15–0.24%, its reported σ is 2× small, a view jackknife makes the update test quiet (1.7–2.5% false alarms), the half-width end squares bias two of three corner localisers, and on unbiased 5×5 corners the f-alone test catches a 2% focal change in 61% of splits. [`paper/references.bib`](paper/references.bib) holds the 16 works cited, all marked unchecked (the DOI and arXiv hosts refused this session's proxy).
+- **Checked.** [`paper/check_numbers.py`](paper/check_numbers.py) (stdlib) ties 82 quoted figures to the experiments' `summary.json` files (56) or, where a figure was printed but not stored, to this log's result entries (26); each check also requires the figure to appear in the draft. 82 of 82 pass.
+- **Corrections found while drafting.** None to the results. One wording slip in the draft's own first pass (the principal-point shifts are 2, 5 and 10 px, not "5–20 px") was caught against `m4b_viewcov/analyse.py` before commit.
+- **What the draft says a submission still needs** (its Section 10): a second camera and board with a physically changed lens and enough views per unit to estimate each unit's own tail on views the test never touches (milestone 6, owner step); natural-feature correspondences (milestone 3b); a pre-registered rerun of the 5×5 test on fresh splits with a pooled threshold; checked citations; cutting to 8 pages.
+- **Looked at and set aside.** OpenCV's `opencv_extra` test data was checked for a larger pinhole calibration set to test a per-unit threshold: its biggest stereo set (`fisheye/calib-3_stereo_from_JY`, 34 pairs) is a fisheye rig the k<sub>1</sub> pinhole model does not fit, and the rest are 6–15 views. Not used.
+
 ## 2026-11-13 · Milestone 4d result: unbiased 5×5 corners nearly double the f-alone test's power for a 2% focal change (61% against 34–35%), but the sibling's threshold stops travelling (11% false alarms on the left camera)
 
 - **Runs.** 4,290 solves on 5×5-window corners (milestone 4b's 2,145 view sets per camera), 1 not converged (a 3-view set); re-solving the all-view set on 11×11 and SB corners reproduced milestone 4b's stored f, c<sub>x</sub>, c<sub>y</sub> and k1 exactly (difference 0.0 on all four fits, OpenCV 5.0.0). Scored with milestone 4c's `score()` (factored out of its `main`, output byte-identical), 4,680 decisions on 5×5 corners, k ≥ 4.
