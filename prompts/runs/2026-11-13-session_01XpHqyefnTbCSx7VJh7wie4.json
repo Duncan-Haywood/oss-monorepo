@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 10,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "venture preflight failed on the new post's description (208 > 160 chars)",
       "fix": "shortened and reran"
+    },
+    {
+      "what": "CI validate failed: photo-editing next: in flagships.yaml was 2325 characters (cap 2000) after this run's addition",
+      "fix": "trimmed the addition to one line pointing at the eval note; portfolio/router/validate.py passes locally"
     }
   ],
   "integrity_issues": [],
@@ -54,6 +58,10 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "photo-editing next: said the DJI DNG's name was unknown without a directory listing; a blobless `git clone --filter=blob:none --no-checkout` lists the repository from a cloud session even when api.github.com answers 403 (now noted there)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The 2000-character cap on next: is enforced only by portfolio/router/validate.py in CI; venture-preflight.mjs and run_venture_tests.py both passed without catching it. Running validate.py after editing flagships.yaml would have saved a CI round."
     }
   ],
   "deviations": [
