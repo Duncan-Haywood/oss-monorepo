@@ -1,4 +1,4 @@
-# chip-sharesign: does letting Yosys share a common `a + b` make adders smaller across ABC scripts? (yes in cells, 55 of 55 runs but one; often deeper; stylised, 11 designs, Yosys 0.33)
+# chip-sharesign: does letting Yosys share a common `a + b` make adders smaller across ABC scripts? (yes in cells, 54 of 55 runs; in cells x depth shared is larger in 3 of 11 designs under dch_map and resyn2_map; stylised, 11 designs, Yosys 0.33)
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). `chip-abc-orderpass` found that `opt_merge` shares `a + b` between two chains only for some operand orders, and that in one 16-bit carry-select adder the shared netlist was *larger* under two ABC scripts. This project asks whether that sign flip is typical. It builds 11 small designs whose outputs all contain `a + b` (with constants, with inputs, and with a mux), writes each once so `opt_merge` shares the sum and once so it cannot, and scores both under five ABC scripts. Chosen over another operand-order variant of `csel4` because that chain had reached micro-variants of one adder. Produced with AI assistance (Claude). Preliminary: one tool version, a generic-gate library, no place and route.
 
@@ -22,11 +22,13 @@ python3 experiments/figure.py
 
 ## Results (from `experiments/results.txt`)
 - **Sharing gives fewer cells in 54 of 55 (design, script) pairs**, never more except one: `strash_map` on one design (ratio 1.05). The cells ratio shared/unshared has median 0.76 to 0.85 per script, range 0.60 to 1.05.
-- **The sign flip of `chip-abc-orderpass` does not generalise to these designs.** There, sharing was larger under `dch_map` and `resyn2_map` for one carry-select adder whose unshared variants differ in where the constant enters an `$alu`. Here no design shows it under those scripts. What differs is not isolated.
+- **In cells the sign flip of `chip-abc-orderpass` does not appear; in cells x depth, the metric orderpass used, it does.** There, sharing was larger under `dch_map` and `resyn2_map` for one carry-select adder (1.20x and 1.28x in cells x depth). Here, in cells x depth, shared is larger in 3 of 11 designs under both scripts: `addconst 16 2` (1.16x `dch_map`, 1.03x `resyn2_map`), `addvar 8 2` (1.08x, 1.10x) and `addvar 16 2` (1.20x, 1.27x). The flip is driven by depth, not cells. (Corrected 2026-11-13 after the quality audit, `portfolio/quality/audits/2026-11-13-chip-sharesign.json`; an earlier version said no design showed it.)
 - **Sharing costs depth more often than not**: shared is deeper in 9, 8, 9, 7 and 6 of 11 designs (in the order above). Under cells x depth shared is still smaller in 9, 7, 9, 8, 8 of 11, so the area win mostly outweighs the depth loss, but 2 to 4 designs per script go the other way. Which direction wins therefore depends on the metric.
 - Figure: `experiments/sharesign.svg`.
 
 ## Limitations
+- The depth gap may be a structure artefact: the unshared text lets Yosys build carry-save `$macc` cells while the shared one is a chain of `$alu` adders; the audit found that with `synth -noalumacc` the depths match (22 vs 22 on `addvar 16 2`). For k = 4 the unshared variant still shares `a + b` between `y0` and `y2`. Both are open (audit file above).
+- Prior work on common-subexpression elimination and resource sharing (De Micheli 1994, Hosangadi, Fallah and Kastner 2004-05) and carry-save multi-operand addition is not yet cited or compared against.
 - Generic-gate cells x depth after ABC, not um&sup2; or ns; one Yosys/ABC version (0.33). The depth metric is topological, not timed.
 - 11 designs, all adder-shaped. Products (`a * b + c_i`) were dropped: association changes cannot unshare a multiplier, so no clean unshared variant was built.
 - Unshared variants are one specific rewrite; other unsharing rewrites may behave differently (`chip-abc-orderpass` found several orders).

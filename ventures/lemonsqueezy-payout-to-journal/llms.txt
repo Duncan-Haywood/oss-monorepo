@@ -2,6 +2,8 @@
 
 > Free Lemon Squeezy payout to journal converter: proves the orders add up to your payout, splits product sales income, shipping, tax you collected, Lemon Squeezy platform and processing fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
 
+Known gap (quality audit, 2026-11-13): Lemon Squeezy's documented Orders export (amounts in cents, no fee or net columns) is not read yet; the tool needs a CSV with per-order subtotal, fee and net columns in dollars.
+
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
