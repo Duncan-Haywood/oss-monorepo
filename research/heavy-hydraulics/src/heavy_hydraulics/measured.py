@@ -252,3 +252,15 @@ def breakeven_rest_rate(m, m_star, q_ls_mean, tau, b, eta):
     if m_star >= m or tau <= 1:
         return None
     return b * (m - m_star) * q_ls_mean / (600.0 * eta * (tau - 1))
+
+
+def no_load_line(fuel_lph, rpm, power_kw, n_ref):
+    """Willans line with an engine-speed term (milestone 6e).
+
+    Least squares fuel = a + c (n - n_ref) + b P, with P the pump-side shaft power
+    (kW). Returns (a, c, b): a is the fuel rate at zero pump load at n_ref (L/h),
+    c its slope with speed (L/h per rpm), b the marginal fuel per shaft kWh (L/kWh)."""
+    from heavy_hydraulics.screening import ols
+    rows = [(n - n_ref, p) for n, p in zip(rpm, power_kw)]
+    a, c, b = ols(rows, fuel_lph)
+    return a, c, b
