@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVLwfwk246yPYHJLF5G",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T11:07:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality audit round 64 (sample mode)",
+  "projects": [
+    "ventures/search-api-pricing-calculator",
+    "ventures/redirect-map-check",
+    "research/energy-lcos-sourced",
+    "research/sensing-bak2wide"
+  ],
+  "pr": 15469,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "vendor documentation hosts (algolia.com, elastic.co, httpd.apache.org, docs.netlify.com) and marisstella.app all 403 through the proxy, so rate-card and served-page checks fell back to web search or memory; the audit files say which"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-64.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-13-j, round 64, mode sample. Subjects: ventures/search-api-pricing-calculator, ventures/redirect-map-check, research/energy-lcos-sourced, research/sensing-bak2wide (no flagship or platform drawn: all recently audited). Share at bar: 0 of 4 (sampled total 31 of 270, Wilson 8-16%). Seeded bugs caught 12 of 21. Fix PR: #15469 (all four: Apache anchored RedirectMatch + 302->301 disclosure; search-api throughput limit stated, 'dated' overclaim removed, Algolia rate card pinned; energy-lcos Known gaps + PSH spread test; sensing-bak2wide prior work cited + radius-table test). Spot-checks rerun by me: Algolia $1,155 at 500K/2M; Apache export on 4-row map; LCOS 120.60/114.14/142.57 and upstream 'Round trip efficiency DC' label; rig_radius_stats(2.0) p95 0.616 n 3676. Local verification: quality_audit validate 310/0; venture tests both suites ok (43, 28); pytest 11 and 5 pass; research homepage build ok; post front matter/links ok; md links ok. Mutation of sensing p95->p50 now caught (quality_mutate).",
+  "corrections": [],
+  "redteam": null
+}
