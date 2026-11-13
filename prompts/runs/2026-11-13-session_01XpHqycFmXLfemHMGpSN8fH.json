@@ -55,7 +55,7 @@
     "docs/posts/2026-11-13-united-airlines-is-not-rent.md"
   ],
   "goal": null,
-  "notes": "Three campaigns (visit-keeper/usage.mjs, rental-property-schedule-e-categorizer/calc.mjs, crypto-cost-basis-calculator/calc.mjs), 8 mutants each: 18 of 24 caught (78% of the 23 non-equivalent). Of the 6 escapes, 1 is equivalent and 5 are gaps (rerun: all caught_after_fix true). One real defect was found by reading the code and patched. Checked locally: node --test in all three ventures (44, 129, 43 pass) and run_workflow_locally.py --for-changes.",
+  "notes": "Three campaigns (visit-keeper/usage.mjs, rental-property-schedule-e-categorizer/calc.mjs, crypto-cost-basis-calculator/calc.mjs), 8 mutants each: 18 of 24 caught (78% of the 23 non-equivalent). Of the 6 escapes, 1 is equivalent and 5 are gaps (rerun: all caught_after_fix true). One real defect was found by reading the code and patched. Checked locally: node --test in all three ventures (44, 129, 43 pass) and run_workflow_locally.py --for-changes. platform/pages suite run locally after the post fix: 1616 pass, 1 fail ('an identical build produces an identical cache name', build.test.mjs:3437). It passes alone (--test-name-pattern), so it depends on order or concurrency in a full parallel run and is unrelated to this diff. The test job in CI was green.",
   "corrections": [
     "First count in the PR body and post said 19 of 24 caught; the tally says 18 of 24 (7+5+6). Corrected before merge."
   ],
