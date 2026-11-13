@@ -1683,7 +1683,7 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("2020 corner bracket with M5 screws and T-nuts (lift)", 2, "lift strut to the spine and the hopper post"),
         ("M3 x 8 screw (lift)", 4, "lift gearmotor's face to the boot"),
         ("8 mm axle, 60 mm, + two 608 bearings + e-clips", 1, "lift's top pulley in the head"),
-        ("M3 x 10 screw + nyloc nut (flights)", 2 * p.lift_design()["flights"], "flights through the belt, between its cords"),
+        ("PU cleat welding by the belt supplier (flights)", p.lift_design()["flights"], "cleats on the belt's back at the flight pitch (lift_belt spec)"),
         ("UHMW-PE tape, 25 mm wide, self-adhesive", 1, f"both 20 mm faces of the lift spine ({2 * (p.lift_z_top - p.lift_z_bottom) / 1000:.1f} m)"),
         ("Logic-level N-MOSFET module, 24 V 5 A, + flyback diode", 1, "lift gearmotor from GPIO 16"),
     ]
