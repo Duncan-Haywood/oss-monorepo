@@ -44,6 +44,10 @@
     {
       "file": "ventures/open-tennis-robots/cad/otr_cad/package.py",
       "issue": "FEEDER_README's 'NOT IN THIS PACKAGE YET' line is hand-maintained text inside the generated package, so changing it forces a second 10-minute rebuild; it could be derived from the parts list."
+    },
+    {
+      "file": ".github/workflows/open-tennis-robots-ci.yml",
+      "issue": "The cad job took 19 min of its 20 min timeout on this PR (17:45:19 to 18:04:18 UTC); filed as prompts/process/backlog/P066 since the workflow is control plane."
     }
   ],
   "deviations": [],
@@ -52,7 +56,7 @@
     "ventures/open-tennis-robots/cad/README.md (Hopper agitator section)"
   ],
   "goal": null,
-  "notes": "Explore idea: take the open-tennis-robots flagship's unclaimed buildable item, the hopper agitator. Geometry first (bridging balls over a 75 mm outlet are floor balls with centres at 33.5 mm), so two printed arms sweep at that height on a shaft normal to the tub floor from a 25 mm gearmotor under the shelf, placed clear of the sleeve socket flange and take-up spring. Eleven design checks (each with a failing-value test), firmware AgitatorRun on GPIO 17 while balls are wanted plus 3 s, tub envelope made an open box. Feeder package rebuilt: design rules pass, no collisions in the elevation, azimuth, feed-stroke and cable sweeps. Local checks: open-tennis-robots python suite (76 tests) and node tests (21) pass; CAD unittest run against the rebuilt package.",
+  "notes": "Explore idea: take the open-tennis-robots flagship's unclaimed buildable item, the hopper agitator. Geometry first (bridging balls over a 75 mm outlet are floor balls with centres at 33.5 mm), so two printed arms sweep at that height on a shaft normal to the tub floor from a 25 mm gearmotor under the shelf, placed clear of the sleeve socket flange and take-up spring. Eleven design checks (each with a failing-value test), firmware AgitatorRun on GPIO 17 while balls are wanted plus 3 s, tub envelope made an open box. Feeder package rebuilt: design rules pass, no collisions in the elevation, azimuth, feed-stroke and cable sweeps. Local checks: open-tennis-robots python suite (76 tests) and node tests (21) pass; cad/tests unittest: 80 tests OK in 1637 s, including the committed-package freshness test. CI all green, cad job 19 min.",
   "corrections": [],
   "redteam": null,
   "usage": {
