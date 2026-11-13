@@ -5,7 +5,7 @@
 // no DOM, no network, no randomness except a fixed-seed generator, so the same
 // input always gives the same roster.
 
-import { branchAndPriceOpen, columnGenerationOpen } from "./bnp.mjs";
+import { branchAndPriceOpen, columnGenerationOpen, solveLP } from "./bnp.mjs";
 
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const ALIASES = {
@@ -1893,6 +1893,92 @@ function earlyOpenFloor(ctx, incumbentScore, o = {}) {
   if (!(floor > (cov.rootLP ?? 0) + 1e-6) || floor > incOpen + 1e-9) return null;
   return { floor, rootLP: cov.rootLP, ms: Date.now() - t0 };
 }
+// Open-hours floor from a compact LP with clique rows (2026-11-13). Variables x[p,s] (person p holds shift copy s) and open[s];
+//   each shift copy: sum_p x[p,s] + open[s] = 1;   each person: sum_s hours[s] x[p,s] <= max hours;   each person and day: the
+//   daily cap likewise;   each person and clique: sum x[p,s] <= 1, where a clique is a set of shifts that pairwise break the rest
+//   rule (two shifts clash when the later starts before the earlier ends plus the rest gap, validList), i.e. shifts whose
+//   intervals [start, end + rest) share a point. Those intervals form an interval graph, so the clique rows at each start point
+//   describe exactly which sets of shifts a person can hold when hours are ignored; the pairwise rows of eval/ilp-check.py are
+//   much weaker as an LP. Minimise open hours.
+// Why: on the 60 x 168 week 0 of eval/end-to-end.mjs the engine held 300 open hours and reported a floor of 275 (the whole-score
+// column generation's root, not converged after 34 s); HiGHS proved 300 optimal in 5 s, with 300 as its root bound after presolve
+// merged the pairwise conflicts into cliques, and this LP is 300.0 (eval/clique-floor.mjs). Every rule it drops (days in a row,
+// keep sets, pay) only lowers it, so it is a floor for every roster. The value used is a dual bound, sum of row duals plus each
+// column's negative reduced cost (every variable lies in [0, 1] here), so it holds whatever rounding the simplex leaves.
+// Returns { floor, lp, rows, cols, pivots, ms } or null (nothing to bound, or the LP failed). `floor` is lifted to the next sum
+// of whole shift lengths at or above the dual bound (openSumLift) when the lengths are quarter hours.
+export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {}) {
+  const t0 = Date.now();
+  const { P, S, slots, elig, staff, restMin } = ctx;
+  if (!S) return null;
+  const len = slots.map((s) => (s.end - s.start) / 60);
+  const cols = [], cost = [], vals = [], init = [];
+  // rows 0..S-1: shift copies. Further rows are appended as they are made; each gets a slack column (cost 0) that starts the basis.
+  let m = S;
+  const holds = Array.from({ length: S }, () => []); // per shift: column ids of x[., s], filled below
+  const xcol = [];                                    // column id -> [p, s]
+  const pending = []; // [colId, row, coefficient] entries added after each x column exists
+  for (let p = 0; p < P; p++) {
+    const ss = [];
+    for (let i = 0; i < S; i++) if (elig[p][i] && validList(ctx, p, [i])) ss.push(i);
+    if (!ss.length) continue;
+    const ids = new Map();
+    for (const i of ss) { const j = cols.length; cols.push([i]); vals.push([1]); cost.push(0); ids.set(i, j); holds[i].push(j); xcol.push([p, i]); }
+    const knap = (list, capMin) => {
+      const tot = list.reduce((a, i) => a + slots[i].end - slots[i].start, 0);
+      if (!(capMin < tot - 1e-9)) return;
+      const r = m++;
+      for (const i of list) pending.push([ids.get(i), r, (slots[i].end - slots[i].start) / capMin]);
+    };
+    knap(ss, Math.max(1e-6, staff[p].maxHours * 60));
+    const dcap = dailyCapMin(ctx, p);
+    if (dcap !== Infinity) {
+      const byDay = new Map();
+      for (const i of ss) (byDay.get(slots[i].day) || byDay.set(slots[i].day, []).get(slots[i].day)).push(i);
+      for (const list of byDay.values()) knap(list, dcap);
+    }
+    // Maximal cliques of the intervals [start, end + rest): the set alive at each start point, kept when no later start point's
+    // set contains it (sets alive at successive starts only gain members by starts, so a set is maximal iff the next start point
+    // does not drop any member, i.e. some member ends before the next start).
+    const order = ss.slice().sort((a, b) => slots[a].start - slots[b].start || a - b);
+    const starts = [...new Set(order.map((i) => slots[i].start))];
+    for (let k = 0; k < starts.length; k++) {
+      const t = starts[k];
+      const alive = order.filter((i) => slots[i].start <= t && t < slots[i].end + restMin);
+      if (alive.length < 2) continue;
+      const nt = starts[k + 1];
+      if (nt !== undefined && alive.every((i) => nt < slots[i].end + restMin)) continue; // the next point's set contains it
+      const r = m++;
+      for (const i of alive) pending.push([ids.get(i), r, 1]);
+    }
+  }
+  for (const [j, r, a] of pending) { cols[j].push(r); vals[j].push(a); }
+  const nx = cols.length;
+  // open[s]
+  for (let i = 0; i < S; i++) { init[i] = cols.length; cols.push([i]); vals.push([1]); cost.push(len[i]); }
+  for (let r = S; r < m; r++) { init[r] = cols.length; cols.push([r]); vals.push([1]); cost.push(0); }
+  for (let j = 0; j < cols.length; j++) {
+    // Rows in increasing order with their coefficients; a column of ones is passed as plain rows.
+    const ord = cols[j].map((r, t) => [r, vals[j][t]]).sort((a, b) => a[0] - b[0]);
+    cols[j] = ord.map((e) => e[0]);
+    vals[j] = ord.every((e) => e[1] === 1) ? null : ord.map((e) => e[1]);
+  }
+  let res;
+  try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM: 1e6 }); } catch { return null; }
+  if (res.infeasible) return null;
+  // Dual bound: for any y, sum_r y_r + sum_j min(0, c_j - y.A_j) <= the LP's least value, because every column is at most 1.
+  let bound = 0;
+  for (let r = 0; r < m; r++) bound += res.y[r];
+  for (let j = 0; j < cols.length; j++) {
+    let rc = cost[j];
+    const v = vals[j], rows = cols[j];
+    for (let t = 0; t < rows.length; t++) rc -= res.y[rows[t]] * (v ? v[t] : 1);
+    if (rc < 0) bound += rc;
+  }
+  bound = Math.max(0, bound - 1e-7);
+  const floor = Number.isFinite(upTo) ? openSumLift(len, upTo + 1)(bound) : bound;
+  return { floor, lp: res.obj, bound, rows: m, cols: cols.length, people: nx, pivots: res.pivots, ms: Date.now() - t0 };
+}
 function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, chainBound = true, ...cfg } = {}) {
   const len = ctx.slots.map((s) => (s.end - s.start) / 60);
   const pricer = makeScorePricer(ctx, { maxNodes, chainBound });
@@ -2272,7 +2358,26 @@ function buildRosterOnce(staff, slots, options = {}) {
   const exactOn = o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS && !(o.openShiftWeight > 0));
   const bigExact = ctx.S > EXACT_TREE_SLOTS && o.exactTree !== true;
   const deferCover = exactOn && bigExact && o.scoreCG !== false && o.deferCover !== false;
-  if (!deferCover) coverPasses();
+  // The clique LP's open-hours floor (cliqueOpenFloor, 2026-11-13), before the cover passes so the plateau walk can stop at it.
+  // About 1.2 s on a 60-person week (245 copies), where it proves the 300 open hours the engine holds (the column generation's
+  // root had reached 275 after 34 s). It is not given to the whole-score column generation as its open-hours row by default: on
+  // the 60-person week 1 that row slowed the LP so much the pay proof it made in 8 s without the row was not made in the budget
+  // (README "The 60-person week's 300 open hours are the least"). `cliqueFloor: false` turns it off.
+  // On big weeks (cover passes deferred) it runs after the whole-score column generation, and only if that did not prove the
+  // roster: with a time budget column generation gets half of what is left, and the LP's 1.4 s taken first cost the 60-person
+  // week 1 its pay proof.
+  let clique = null;
+  const runClique = () => {
+    if (!exactOn || o.cliqueFloor === false || over()) return;
+    // Under a time budget, skip it unless the time left covers its expected cost: 1.6 s x (copies / 245)^4.5, fitted to one machine's
+    // 1.2-1.7 s at 238-245 copies, 4.5-6.3 s at 304-326 and 13-15 s at 400 (eval/clique-floor.out.txt). `cliqueFloor: true` runs it anyway.
+    if (budgetMs > 0 && o.cliqueFloor !== true && budgetMs - (Date.now() - tStart) < 1600 * Math.pow(ctx.S / 245, 4.5)) return;
+    // `openSums: false` (no lift to whole shift sums) applies here too: the floor is then the dual bound alone.
+    clique = cliqueOpenFloor(ctx, { upTo: o.openSums === false ? Infinity : Math.floor(best.score / BIG + 1e-9) });
+    if (clique) ctx.openFloor = Math.max(ctx.openFloor ?? openHoursFloor(ctx), clique.floor);
+    mark("cliqueFloor");
+  };
+  if (!deferCover) { runClique(); coverPasses(); }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
   if (exactOn && !over()) {
@@ -2305,6 +2410,7 @@ function buildRosterOnce(staff, slots, options = {}) {
     }
     // Not proven (or the solver failed): now run the passes deferred above; the bound column generation reached still holds.
     if (deferCover && !cg?.proven) {
+      runClique();
       coverPasses();
       if (cg && best.score <= cg.floor + o.exactTolerance + 1e-9) cg.proven = true;
     }
@@ -2329,6 +2435,14 @@ function buildRosterOnce(staff, slots, options = {}) {
       : exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance, onFloor: cg && o.openRow !== false ? openRow : null });
     mark("exactSearch");
     if (cg && !cg.proven) ex.rootBound = Math.max(ex.rootBound, cg.floor);
+    // The clique floor is on open hours alone: it raises the open-hours floor (and so coverage proven) but not the score bound.
+    // Pay and penalties are never negative, so BIG x the floor also bounds the score, unless prefer: windows or kept shifts give
+    // bonuses (slotBonus), which can take a roster's score below its open hours' share.
+    if (clique && !ex.proven) {
+      ex.coverOpen = Math.max(ex.coverOpen, Math.floor(clique.floor + 1e-9));
+      const bonuses = ctx.staff.some((q) => q.prefer) || (ctx.keep && ctx.keep.some((k) => k && k.size));
+      if (!bonuses) ex.rootBound = Math.max(ex.rootBound, BIG * clique.floor);
+    }
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
     optimality = {
@@ -2339,6 +2453,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes, treeSkipped: !!ex.skipped,
       scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
       earlyFloor: early,
+      cliqueFloor: clique ? { floor: clique.floor, lp: clique.lp, rows: clique.rows, columns: clique.cols, pivots: clique.pivots, ms: clique.ms } : null,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
@@ -3770,7 +3885,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, keptStart, BIG };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, keptStart, BIG };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

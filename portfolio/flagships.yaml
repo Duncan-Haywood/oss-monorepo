@@ -185,9 +185,8 @@ flagships:
       (README "Is 91 the least?" to "Giving up two clashing shifts"); a whole week at the Deputy file's rates (README "A whole
       week of call-outs at a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent
       both ways. Next: whether a real manager would set keepShift
-      above 1; close the 100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person
-      pay week ($1.22 open); the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a floor above 60 copies needs
-      something stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the
+      above 1; close the 100-person gaps (tree, not bound: README same section); cuts or branching that move the score LP on the 60-person
+      pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13, README "The 60-person week's 300 open hours"); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
       "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); call-out exposure as a priced term inside the search (tie-break at each reissue: 0 of 983 changed, README "How many rosters really tie?"); `--steady` speed lies in the call-out rebuilds, not the builds; a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the

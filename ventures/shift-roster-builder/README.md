@@ -1159,3 +1159,28 @@ What planning the sites together costs, on a made-up fortnight (`eval/two-site-d
 Checked: 10 tests (`locations.test.mjs`) on the real Square and Toast header rows with made-up rows: the list and note, picking by name with case and punctuation ignored, an unknown site, separate hours per site (Harbour has no Monday and no 7am), the backtest and labour standard filtered, Toast's leading Location column, one site with no note, the shifted row, no location column, and the CLI's `--location`, `--each-location` and the clash between them; `page-sales.test.mjs` checks the picker's wiring, and a headless-Chromium run of the two-site fortnight on the page listed both sites, gave Harbour alone `Fri/Sat/Sun, 11:00, 19:00, 1`, kept the pick, and raised no page errors. The four real files read as before, plus their location counts (diff in the PR).
 
 Not claimed: no real export with two or more sites has been read (all four real files are one shop each); sites are planned separately, with no shared staff between them (the roster builder still takes one staff list per run); location names are matched exactly after normalising, so "Main St" and "Main Street" are two sites.
+
+## The 60-person week's 300 open hours are the least (2026-11-13)
+
+The flagship's next list carried "the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held)" as a gap to close, alongside the 100-person ones. It was not an integrality gap. HiGHS (`eval/ilp-check.py` on the same week, dumped without a build by `NOBUILD=1 node eval/ilp-export.mjs 60 168 2`) proved 300 h optimal in 4.9 s at its first node: after presolve merged the 131,000 pairwise "these two shifts break the rest rule" rows into cliques, its root bound was already 300. The 275.2 h was the whole-score column generation's root, not converged after 34 s of pricing. The Dantzig-Wolfe LP the engine solves is at least as strong as HiGHS's root, so given enough rounds it would have got there; it does not in the time a page has.
+
+**What landed:** `cliqueOpenFloor` (calc.mjs) solves the compact LP directly with the engine's own simplex (`bnp.mjs solveLP`): x[p,s] and open[s]; one row per shift copy (held once or open); per person, the weekly hour cap and each daily cap as knapsack rows; and per person, one row per maximal clique of the intervals [start, end + rest gap), so at most one of the shifts that pairwise clash. Those intervals form an interval graph, so the clique rows describe exactly the shift sets a person can hold when hours are ignored, which is what makes this LP tight where the pairwise one is not. The floor taken is a dual bound (sum of row duals plus each column's negative reduced cost, every variable lying in [0, 1]), so it holds whatever rounding the simplex leaves, then lifted to the next sum of whole shift lengths (`openSumLift`, off with `openSums: false`). Every rule it leaves out (days in a row, keep sets, pay) only lowers it.
+
+| week (eval/clique-floor.out.txt) | clique LP | engine before |
+|---|---|---|
+| 60 x 168 week 0 (245 copies) | **300 h in 1.3 s** | 300 h held, floor 275 h, unproven |
+| 60 x 168 week 1 (238) | 308 h in 1.1 s | 308 h, proven by column generation |
+| 80 x 224, three weeks (304-326) | 257, 331, 281 h in 4.5-6.3 s | the same, proven in 42-86 s |
+| 100 x 280, two weeks (400) | 358 and 344 h in 13-15 s | 359 and 347 h held over the same roots |
+
+**In `buildRoster`** (exact check on; `cliqueFloor: false` turns it off): on weeks up to 60 copies it runs before the cover passes (milliseconds); on bigger weeks it runs after the whole-score column generation and only if that did not prove the roster, so it never takes time from a pay proof, and under a time budget only when the time left covers its expected cost (1.6 s x (copies / 245)^4.5, fitted to the table). It raises the open-hours floor (`forcedOpenHours`, `coverageProven`), lets the coverage walk stop at it, and, when no `prefer:` window or kept shift gives a bonus, bounds the score by 100,000 x the floor. `optimality.cliqueFloor` reports it.
+
+| 60 x 168, `eval/end-to-end.mjs` | before | after |
+|---|---|---|
+| week 0, 20 s budget | 21.1 s, coverage **not proven**, score gap $2.5 M | 15.7 s, coverage **proven** at 300 h, gap $20,010 (the week's pay and penalties: only the pay part is open now) |
+| week 0, no budget | 59.3 s, not proven | 38.7 s, coverage proven |
+| week 1, 20 s budget | 8.5 s, proven | 10.5 s, proven, same roster (the clique LP is not run) |
+
+Tried and dropped: giving the floor to the whole-score column generation as its open-hours row (`openFloor`). On week 0 its root then reached only 212 h in the budget, and on week 1 it lost the pay proof the LP made without the row. HiGHS on the clique model (rather than pairwise rows) for the 100-person weeks: 300 s each, rosters of 368 and 367 h over the same 358 and 344 h bounds, worse than the engine's 359 and 347. So the 100-person gaps are in the search and the tree, not the bound, as the next list said.
+
+Tests: `clique-floor.test.mjs` (on 240 seeded three-person weeks with rest gaps of 0-12 h, daily caps and last week's late finishes, the floor is never above the brute-force least open hours and meets it on 174 of the 223 weeks that must leave hours open; the 60 x 168 week 0 gives 300; the build reports it and `cliqueFloor: false` turns it off). The full suite passes. Not claimed: seeded synthetic weeks and one cloud machine (the 80- and 100-person timings ran beside other benches); the pay half of week 0 is still unproven ($20,010 is a loose bound that counts all pay as open, not a measured gap); the clique LP is not run on 100-person weeks under the default budget.
