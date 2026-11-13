@@ -398,6 +398,14 @@ def run(slug, elsewhere=False):
     return slug, ok, "\n".join(outs), time.monotonic() - start
 
 
+def normalize_slug(arg):
+    """`ventures/foo/`, `./ventures/foo` or a path inside it -> `foo`."""
+    parts = [p for p in Path(arg).parts if p not in (".", "/")]
+    if "ventures" in parts and parts.index("ventures") + 1 < len(parts):
+        return parts[parts.index("ventures") + 1]
+    return parts[0] if parts else arg
+
+
 def skip_note(slug):
     """Why a venture someone named has no suite here, and where it runs."""
     if not (VENTURES / slug).is_dir():
@@ -457,7 +465,10 @@ def main(argv):
     elif args.changed:
         slugs = changed_slugs()
     elif args.slugs:
-        slugs = args.slugs
+        # `ventures/<slug>/` (what tab completion types) means `<slug>`: it
+        # printed "no such venture" and "0 suites run, 0 failed", exit 0, which
+        # read as a pass (doc friction 2026-11-13).
+        slugs = [normalize_slug(s) for s in args.slugs]
     else:
         slugs = sorted(d.name for d in VENTURES.iterdir() if d.is_dir())
     # Longest suites first: with a fixed worker pool, starting the biggest
@@ -477,6 +488,7 @@ def main(argv):
         for slug in slugs:
             if slug not in runs_here:
                 print(skip_note(slug), flush=True)
+    lint_slugs_named = list(slugs)
     lint_slugs = [s for s in slugs if (VENTURES / s).is_dir()]
     slugs = sorted(runs_here, key=lambda s: (-suite_weight(s), s))
 
@@ -500,6 +512,9 @@ def main(argv):
         print(slowest_table(times, args.slowest))
     print(f"{len(slugs)} suites run, {len(failed)} failed"
           + (f": {' '.join(sorted(failed))}" if failed else ""))
+    unknown = [s for s in (lint_slugs_named if args.slugs else []) if not (VENTURES / s).is_dir()]
+    if unknown:
+        print(f"error: no such venture: {' '.join(unknown)} (pass the folder name under ventures/)")
     # A choice looked up in a plain object map by the user's text: "constructor"
     # finds Object.prototype (inherited_keys.py). Only lookups newer than the
     # baseline fail, so a venture PR is held to it from the day it lands.
@@ -525,7 +540,7 @@ def main(argv):
                     if rc:
                         print(f"::error title=unwired check failed::platform/ci/{name} (exit {rc})")
         print(f"{sum(rc == 0 for _, rc, _ in results)}/{len(results)} unwired tree checks pass")
-    return 1 if failed or lint or unwired_red else 0
+    return 1 if failed or lint or unwired_red or unknown else 0
 
 
 if __name__ == "__main__":
