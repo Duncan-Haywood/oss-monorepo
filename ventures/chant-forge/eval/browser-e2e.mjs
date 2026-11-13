@@ -161,6 +161,18 @@ await page.click("#go");
   ok(fs.readFileSync(await dwc.path(), "utf8") === fs.readFileSync(path.join(tmp, "w.txt"), "utf8"), "split-at-a-word cue sheet equals the CLI's --split-words --cues");
   const [dwm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
   ok(fs.readFileSync(await dwm.path()).equals(fs.readFileSync(path.join(tmp, "w.mid"))), "split-at-a-word MIDI equals the CLI's");
+  // three sections: equals the CLI's --baritones
+  await page.selectOption("#final", "split3");
+  await page.click("#go");
+  const t3 = await out();
+  ok(/tenors and baritones together on phrase 54 \(13 notes\); final F3\. The MIDI has a Tenors, a Baritones and a Basses track/.test(t3), "three-section summary on the Dies irae");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--split-voices", "--baritones", "--fit", "8", "--stretch", "-o", path.join(tmp, "b.mid"), "--cues", path.join(tmp, "b.txt")]);
+  const [dbc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  const sheet3 = fs.readFileSync(await dbc.path(), "utf8");
+  ok(sheet3 === fs.readFileSync(path.join(tmp, "b.txt"), "utf8") && /T\+Bar/.test(sheet3), "three-section cue sheet equals the CLI's --baritones --cues (T+Bar rows)");
+  const [dbm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  const mid3 = fs.readFileSync(await dbm.path());
+  ok(mid3.equals(fs.readFileSync(path.join(tmp, "b.mid"))) && mid3.includes("Baritones"), `three-section MIDI equals the CLI's (${mid3.length} bytes, Baritones track)`);
   await page.selectOption("#final", "auto");
   // back to the state the next check expects
   await page.selectOption("#genre", "edm"); await page.selectOption("#sections", "1");
