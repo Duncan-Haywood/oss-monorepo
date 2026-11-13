@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyf4c9CEmTfPvtF2DsC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:39:07Z",
+  "ended": "2026-11-13T18:57:19Z",
+  "wall_minutes": 18.43,
+  "tokens_in": 5738628,
+  "tokens_out": 40817,
+  "cost_usd": 2.9483,
+  "tool_calls": 52,
+  "task": "research programme llm-coding-inference, milestone 7ap (7ao's next step, options a and c)",
+  "projects": [
+    "research/llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15578",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": false,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "A 30-draw smoke test on one cell ran before the prediction commit (to check the code), disclosed in LOG.md; the docstring's P3 said '45 GoEmotions cells' where the set holds 39, disclosed in LOG.md and the summary tests all 39. The no_info gate was found and tested post hoc, labelled exploratory, and decides nothing."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to run pyenv.py and use \"$PY\"; here the fastest path was /usr/bin/python3.13, which already had numpy and pytest (pyenv.py returned it). Fine, but plain python3 lacking numpy cost one failed import first."
+    },
+    {
+      "file": "research/llm-coding-inference/LOG.md",
+      "issue": "The programme is 40+ micro-milestones deep on one audit rule; nothing in PROGRAMMES.md or the proposal says when a line of milestones should close and turn into a paper section, so each run picks the previous 'Next' list by default."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-the-fallback-line-closes.md",
+    "research/llm-coding-inference/LOG.md (7ap entry)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered 7ap: priced second-phase floor (gtp2p) and neg-only two-phase fallback (gtn2p). P0-P2 and P5 supported; P4 refuted for both (2.727 and 2.712 vs shipped 2.760); defaults unchanged. Post hoc: predicted_ratio's 'no information' 1.0 passes the margin-0 gate for a pilot with one coder-agreeing positive (3x pooled width); new no_info option, off by default; with it gtp2q 2.747, still below shipped; shipped identical. Verification: test_llmci.py 37 passed (python3.13); research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; check_post_frontmatter, check_post_links, post_similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c284137-44b1-532f-b1c7-eed63acb1bb8",
+    "transcripts": 1,
+    "first": "2026-11-13T18:39:07Z",
+    "last": "2026-11-13T18:57:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 94,
+        "output": 40817,
+        "thinking": 10166,
+        "cache_read": 5612393,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126141,
+        "api_equivalent_usd": 2.9483,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 94,
+      "output": 40817,
+      "thinking": 10166,
+      "cache_read": 5612393,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126141,
+      "api_equivalent_usd": 2.9483,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.43,
+      "active_minutes": 18.43,
+      "model_minutes": 6.58,
+      "tool_minutes": 11.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician implementing two estimator variants, a 51-cell simulation, a bug diagnosis and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 203.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
