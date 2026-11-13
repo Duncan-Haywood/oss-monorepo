@@ -1,6 +1,8 @@
 """Read PGLib-OPF MATPOWER (.m) case files into a PYPOWER case dict, and read PGLib's
 published PowerModels.jl baseline objectives (BASELINE.md) for validation."""
+import copy
 import re
+import zlib
 from pathlib import Path
 
 import numpy as np
@@ -38,6 +40,18 @@ def load_m(path):
         gen = np.hstack([gen, np.zeros((gen.shape[0], 21 - gen.shape[1]))])
     ppc["gen"] = gen
     return ppc
+
+
+def perturb(ppc, name, kind, seed, lo=0.9, hi=1.1):
+    """Load-perturbed copy (milestone 5 of research/grid-linopf): every bus's PD and QD scaled by its
+    own factor ~ U[lo, hi] (same factor for P and Q). The draw depends only on (seed, name, kind).
+    Returns (copy, factors)."""
+    rng = np.random.default_rng([seed, zlib.crc32(f"{name}/{kind}".encode())])
+    p = copy.deepcopy(ppc)
+    f = rng.uniform(lo, hi, p["bus"].shape[0])
+    p["bus"][:, 2] *= f  # PD
+    p["bus"][:, 3] *= f  # QD
+    return p, f
 
 
 def case_path(name, kind="typ"):

@@ -46,3 +46,20 @@ def test_powermodels_dc_convention_reproduces_published_dc_and_matpower_does_not
     pub = baseline()[("case14_ieee", "api")][0]
     assert rundcopf(pm_convention(p), Q)["f"] == pytest.approx(pub, rel=1e-4)
     assert abs(rundcopf(p, Q)["f"] / pub - 1) > 0.02  # MATPOWER's 1/(x tap) B matrix: 4664 vs 4798
+
+
+def test_perturb_is_deterministic_bounded_and_keeps_power_factor():
+    """Milestone 5: load-perturbed copies are reproducible per (seed, case, kind), scale every bus's
+    PD and QD by the same factor in [0.9, 1.1], and leave the original case untouched."""
+    from infra_dcopf.pglib import perturb
+    ppc = load_m(case_path("case30_ieee", "api"))
+    pd0, qd0 = ppc["bus"][:, 2].copy(), ppc["bus"][:, 3].copy()
+    a, fa = perturb(ppc, "case30_ieee", "api", 3)
+    b, fb = perturb(ppc, "case30_ieee", "api", 3)
+    c, fc = perturb(ppc, "case30_ieee", "api", 4)
+    _, fd = perturb(ppc, "case30_ieee", "sad", 3)
+    assert np.array_equal(fa, fb) and not np.array_equal(fa, fc) and not np.array_equal(fa, fd)
+    assert fa.min() >= 0.9 and fa.max() <= 1.1 and len(fa) == ppc["bus"].shape[0]
+    assert np.allclose(a["bus"][:, 2], pd0 * fa) and np.allclose(a["bus"][:, 3], qd0 * fa)
+    assert np.array_equal(ppc["bus"][:, 2], pd0) and np.array_equal(ppc["bus"][:, 3], qd0)
+    assert np.array_equal(a["branch"], ppc["branch"]) and np.array_equal(a["gen"], ppc["gen"])
