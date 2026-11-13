@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
@@ -55,14 +55,21 @@
       "issue": "pick_track.py printed 'milestones: 2/10, next free: heavy-digtwin' alongside the open-programme default; the two pointers compete and the prompt does not say which wins beyond 'prefer its next step'."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Work stays inside research/ by default, but main was red on two unrelated checks (isolation-forest % rounding, fixed on main by #15448 and merged in; Bulgaria post front matter from #15454, over its limits) that fail every PR's front-matter step.",
+      "did": "Merged main in; trimmed the Bulgaria post's title and description in this PR (wording otherwise unchanged).",
+      "result": "post front-matter check and percent-float test pass locally"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-13-tractor-tests-price-an-idle-excavator.md",
     "research/heavy-hydraulics/LOG.md (6f entry)",
     "research/heavy-hydraulics/paper/draft.md section 3.7g"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research/0 by draw; pick_track drew track 25, open programme heavy-hydraulics. Found the Grisso et al. 2010 VCE 442-073 factsheet (vtechworks, open) with the ASABE D497.6 general fuel model and NTTL test 1725's varying-power table. Results: no-load 0.0965 L/h per rated kW (model), 0.0892 measured on 1725; XE80E 3.99-5.06 L/h at 2100 rpm; fixed pump wins 0% at central parameters, 1.6-9.4% under some parameter set. Local checks: 60 tests pass, check_numbers 231/0 missing, build_tex 0 problems, homepage build ok, live links and md links ok, cite_check ok (new DOI resolved).",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research/0 by draw; pick_track drew track 25, open programme heavy-hydraulics. Found the Grisso et al. 2010 VCE 442-073 factsheet (vtechworks, open) with the ASABE D497.6 general fuel model and NTTL test 1725's varying-power table. Results: no-load 0.0965 L/h per rated kW (model), 0.0892 measured on 1725; XE80E 3.99-5.06 L/h at 2100 rpm; fixed pump wins 0% at central parameters, 1.6-9.4% under some parameter set. Local checks: 60 tests pass, check_numbers 231/0 missing, build_tex 0 problems, homepage build ok, live links and md links ok, cite_check ok (new DOI resolved). No CI check runs registered on the PR (runner starvation); merged on local verification: research-ci 3/3, portfolio-pages all run steps pass after merging main (percent-float 2/2), front matter ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
