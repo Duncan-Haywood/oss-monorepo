@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Forgot that ventures/open-house-plans vendors wall-framing-takeoff/engine.mjs; the local ventures-tests run caught the stale copy (vendor-framing.mjs --check), re-vendored in the same PR; open-house-plans 39/39 pass."
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
@@ -38,7 +40,7 @@
     "docs/history/ci-perf-2026-11-13-wall-framing-keep-scratch-and-cli-sweep.md"
   ],
   "goal": null,
-  "notes": "Metric: wall-framing-takeoff test wall time. cli-sweep.test.mjs alone 12.3 s -> 4.0/4.2 s; takeoff(samplePlan()) mean of 50 warm 11.6 -> 9.8 ms; mutation-sweep outputs loop alone 8.93 -> 8.05 s; full suite node --test '*.test.mjs' 24.8/25.1 s -> 22.3/23.6 s (bash date stamps, 4-core container, node 22.23, before = git stash of the two files). Same answers: 0 diffs on 20,000 random boundedKnapsackMulti instances old vs new; mutation sweep 2,420 outputs sha256 47072532e0aa7a9d both. cli-sweep mutations (raw error on --gutters, hang on --hvac) both caught. Suite 1202 pass, 0 fail, 1 skipped. Not run: CI (waiting at merge time per check runs).",
+  "notes": "Metric: wall-framing-takeoff test wall time. cli-sweep.test.mjs alone 12.3 s -> 4.0/4.2 s; takeoff(samplePlan()) mean of 50 warm 11.6 -> 9.8 ms; mutation-sweep outputs loop alone 8.93 -> 8.05 s; full suite node --test '*.test.mjs' 24.8/25.1 s -> 22.3/23.6 s (bash date stamps, 4-core container, node 22.23, before = git stash of the two files). Same answers: 0 diffs on 20,000 random boundedKnapsackMulti instances old vs new; mutation sweep 2,420 outputs sha256 47072532e0aa7a9d both. cli-sweep mutations (raw error on --gutters, hang on --hvac) both caught. Suite 1202 pass, 0 fail, 1 skipped. Not run: CI (waiting at merge time per check runs). Local run_workflow_locally --for-changes: ventures-tests first red on the stale open-house-plans vendored copy, fixed; pages.yml no verdict (build step has an expression it cannot evaluate), one workflow out of budget.",
   "corrections": [],
   "redteam": null,
   "usage": {
