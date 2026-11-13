@@ -25,6 +25,10 @@ Rules (all non-pooled: tau 0.1, guard 0, width_margin 0, neg_guard 3):
     gtp2q30       gtp2p30 with no_info=inf (7ap's post hoc fix, here pre-registered)
 Every draw also records whether its pilot passed the 3-miss guard, so coverage is reported among guard-pass cells draws
 and among guard-fail (fallback) cells draws, as 7ao and 7ap did.
+A draw whose plan is pooled uses the full n/2 pilot plus the same second draw as `pooled` (common random numbers; the
+decision saw only the first round(s n) items, and the extra items are a random extension, so the audit is still a simple
+random sample of n). This was added after a 20-draw smoke test of one cell showed pooled draws at share 0.3 differing
+from `pooled` by sampling noise alone; no prediction was changed.
 
     python3 experiments/h7aq_pilot_share.py draws [reps]   # -> h7aq_pilot_share_draws.txt
     python3 experiments/h7aq_pilot_share.py summary        # decision rule -> h7aq_pilot_share.txt
@@ -93,6 +97,12 @@ def run(c, reps):
             plan = A.plan_audit(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=0.0, pseudo=0.0,
                                 fallback_pseudo=fb, two_phase=False, fallback_two_phase=ftp, price_floor=pf,
                                 no_info=ni)
+            if plan["design"] == "pooled" and k < len(pilots[d]):
+                # Common random numbers (added after a 20-draw smoke test, before the full run): a pooled audit is a
+                # simple random sample of n whatever the pilot share, and the decision used only pilots[d][:k], so
+                # its sample is the full n/2 pilot plus the same second draw as `pooled`. Same distribution, less noise.
+                labels = {i: h[i] for i in pilots[d]}
+                plan = dict(plan, to_label=[n - len(labels)])
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb.sample([i for i in cell if i not in labels], t):
                     labels[i] = h[i]
