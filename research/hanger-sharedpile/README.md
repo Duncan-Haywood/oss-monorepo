@@ -1,6 +1,6 @@
 # hanger-sharedpile: what does it cost two laundry-hanging arms to empty the same dryer pile?
 
-**In the stylised model, two arms working one pile and waiting for each other whenever their grasps are closer than a clearance `sep` lose little with look-then-aim picking (201 garments hung or folded per hour with no blocking, 191 at 0.30 m clearance, 5.7 dryers) but a lot with blind pinching (179 falling to 148, 5.4 to 4.5 dryers), because pinching keeps the arms busy so they meet more (about 18 blocked picks per 25-garment load against 10).** With three arms and aiming, a third arm adds only 3 to 5 garments an hour at any clearance: the fold table is the limit. `hanger-cellpick` flattered multi-arm cells by never letting arms meet; this puts the meeting in. Produced with AI assistance (Claude). **Stylised: the clearance, the downstream time that spaces the arms and every station time are assumed; nothing here is a measurement of a robot.**
+**In the stylised model, two arms working one pile and waiting for each other whenever their grasps are closer than a clearance `sep` lose little with look-then-aim picking (201 garments hung or folded per hour with no blocking, 191 at 0.30 m clearance, 5.7 dryers) but a lot with blind pinching (179 falling to 151, 5.4 to 4.5 dryers), because pinching keeps the arms busy so they meet more (about 16 blocked picks per 25-garment load against 10).** With three arms and aiming, a third arm adds only 3 to 8 garments an hour (8 at 0.15 m, 3 to 5 elsewhere): the fold table is the limit. `hanger-cellpick` flattered multi-arm cells by never letting arms meet; this puts the meeting in. Produced with AI assistance (Claude). **Stylised: the clearance, the downstream time that spaces the arms and every station time are assumed; nothing here is a measurement of a robot.**
 
 **Live page:** https://marisstella.app/research/hanger-sharedpile/
 
@@ -26,6 +26,8 @@ Checks: with `sep = 0` the result matches `hanger-cellpick` (179 pinch, 201 see 
 - **C. Spacing.** At 0.30 m, a downstream time of 5 s gives 185 and 60 s gives 196: the shorter the time away from the pile, the more arms meet.
 
 ## Limitations
+
+- **Known gaps (quality audit, round 63, [`2026-11-13-hanger-sharedpile.json`](../../portfolio/quality/audits/2026-11-13-hanger-sharedpile.json)):** the tests let 4 of 5 seeded bugs through, including deleting the waiting cost (`src/hanger_sharedpile/shared.py`); blocking is scheduled on a separate timeline and then re-timed by `hanger-cell` (section C shows the assumption moves output by as much as the effect); prior work on multi-robot interference (Lerman and Galstyan 2002; Gerkey and Mataric 2004; Rosenfeld et al. 2008) is not compared against; and `run.py` reads results from `hanger-insert` and `hanger-fold`.
 
 - Blocking is a centre-distance rule with an assumed clearance; real grippers have shape, reach and cable limits. Waiting is the only response; a planner that picks a free garment instead would lose less.
 - Arms' cycles in the pile model use a fixed `downstream`, not the cell's real queues, so the timing of meetings is approximate (section C shows the size of that error).

@@ -1,0 +1,103 @@
+# water-leaks step 8: every detector so far rescored under a flow-gated match
+# an alarm counts for a leak only from its gate (first hour its hourly-mean flow >= phi m3/h) to 30 days after it; greedy, latest gate first; phi = 0 is steps 1-7's rule
+# primary phi = 1 m3/h; detectors at their own steps' 2018 settings, not re-tuned
+
+# regenerated alarm lists against the earlier steps
+  D1-F       alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  LILA-auto  alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  M1         alarms  25 (2019: 16); 2019 alarms equal the step's alarms.tsv: yes
+  M2         alarms  15 (2019: 8); 2019 alarms equal the step's alarms.tsv: yes
+  M3         alarms  29 (2019: 18); 2019 alarms equal the step's alarms.tsv: yes
+  M4         alarms  25 (2019: 14); 2019 alarms equal the step's alarms.tsv: yes
+
+# hours from onset to gate, 2019 new leaks ('-' = never reaches phi)
+   pipe   peak  phi 0.5    phi 1    phi 2    phi 5
+   p123   9.19      391      573      825     1331
+   p142  27.04        0        0        0        1
+   p193  10.36      317      463      673     1083
+   p277   7.36      411      603      870     1398
+   p280   5.26        0        0        0        1
+   p331  10.93        0        0        0        0
+   p426  13.56        0        0        0        0
+   p455  11.05      338      497      716     1153
+   p514  15.58        0        0        0        0
+   p523  28.39        0        0        0        0
+   p586  20.52      112      163      235      379
+   p653  18.28      177      258      374      601
+   p680   5.37        0        0        1        1
+   p710   5.58        0        0        0        1
+   p721  13.18      221      324      468      755
+   p762  15.71      210      307      447      716
+   p800  21.95       73      107      154      247
+   p827  26.46        0        0        0        0
+   p879  10.93      192      280      404      654
+
+## phi = 0 m3/h (steps 1-7's rule)
+  leaks dropped (never reach phi): none
+  detector    alarms | 2019 new TP  FP | chance TP median (95%)  P(TP)  | TP<=72h P | TP<=300m P | small TP
+  D1-F           26 |    13/19   2 |        11 (8 to 13)     0.105 |  4 0.145 |  5 0.000 | 7/9
+  LILA-auto      26 |    14/19   1 |        11 (8 to 13)     0.019 |  3 0.341 |  7 0.000 | 7/9
+  M1             25 |    10/19   6 |        11 (8 to 13)     0.796 |  3 0.308 |    -     | 3/9
+  M2             15 |     7/19   1 |         7 (4 to 9)     0.570 |  3 0.094 |    -     | 2/9
+  M3             29 |    13/19   5 |        12 (9 to 14)     0.317 |  4 0.179 |    -     | 6/9
+  M4             25 |    10/19   4 |        11 (8 to 13)     0.796 |  3 0.308 |    -     | 3/9
+
+## phi = 0.5 m3/h
+  leaks dropped (never reach phi): none
+  detector    alarms | 2019 new TP  FP | chance TP median (95%)  P(TP)  | TP<=72h P | TP<=300m P | small TP
+  D1-F           26 |    12/19   3 |        10 (8 to 13)     0.160 |  4 0.141 |  5 0.000 | 5/9
+  LILA-auto      26 |    15/19   0 |        10 (8 to 13)     0.000 |  3 0.339 |  7 0.000 | 8/9
+  M1             25 |    13/19   3 |        10 (7 to 12)     0.015 |  5 0.034 |    -     | 5/9
+  M2             15 |     7/19   1 |         6 (4 to 9)     0.441 |  3 0.094 |    -     | 2/9
+  M3             29 |    15/19   3 |        11 (9 to 14)     0.003 |  3 0.369 |    -     | 7/9
+  M4             25 |    13/19   1 |        10 (7 to 12)     0.015 |  4 0.110 |    -     | 6/9
+
+## phi = 1 m3/h (primary)
+  leaks dropped (never reach phi): none
+  detector    alarms | 2019 new TP  FP | chance TP median (95%)  P(TP)  | TP<=72h P | TP<=300m P | small TP
+  D1-F           26 |    11/19   4 |        10 (7 to 12)     0.319 |  4 0.123 |  6 0.000 | 5/9
+  LILA-auto      26 |    13/19   2 |        10 (7 to 12)     0.013 |  2 0.609 |  7 0.000 | 7/9
+  M1             25 |    13/19   3 |        10 (7 to 12)     0.013 |  3 0.307 |    -     | 6/9
+  M2             15 |     8/19   0 |         6 (3 to 9)     0.131 |  3 0.076 |    -     | 3/9
+  M3             29 |    15/19   3 |        11 (8 to 13)     0.001 |  5 0.052 |    -     | 7/9
+  M4             25 |    12/19   2 |        10 (7 to 12)     0.058 |  3 0.307 |    -     | 5/9
+
+## phi = 2 m3/h
+  leaks dropped (never reach phi): none
+  detector    alarms | 2019 new TP  FP | chance TP median (95%)  P(TP)  | TP<=72h P | TP<=300m P | small TP
+  D1-F           26 |    10/19   5 |         9 (7 to 12)     0.498 |  4 0.132 |  7 0.000 | 3/9
+  LILA-auto      26 |    12/19   3 |         9 (7 to 12)     0.057 |  6 0.006 |  7 0.000 | 6/9
+  M1             25 |    12/19   4 |         9 (7 to 12)     0.031 |  4 0.099 |    -     | 5/9
+  M2             15 |     8/19   0 |         6 (3 to 8)     0.110 |  3 0.083 |    -     | 3/9
+  M3             29 |    15/19   3 |        10 (8 to 13)     0.001 |  5 0.049 |    -     | 7/9
+  M4             25 |    12/19   2 |         9 (7 to 12)     0.031 |  4 0.099 |    -     | 5/9
+
+## phi = 5 m3/h
+  leaks dropped (never reach phi): none
+  detector    alarms | 2019 new TP  FP | chance TP median (95%)  P(TP)  | TP<=72h P | TP<=300m P | small TP
+  D1-F           26 |    12/19   3 |        10 (7 to 12)     0.072 |  3 0.339 |  7 0.000 | 4/9
+  LILA-auto      26 |    12/19   3 |        10 (7 to 12)     0.072 |  3 0.339 |  8 0.000 | 6/9
+  M1             25 |    11/19   5 |         9 (7 to 12)     0.189 |  5 0.032 |    -     | 5/9
+  M2             15 |     8/19   0 |         6 (3 to 9)     0.110 |  4 0.016 |    -     | 3/9
+  M3             29 |    15/19   3 |        11 (8 to 13)     0.002 |  6 0.016 |    -     | 7/9
+  M4             25 |    12/19   2 |         9 (7 to 12)     0.051 |  4 0.104 |    -     | 6/9
+
+## H4 under the gate (phi = 1): 2019 new leaks with peak < 12 m3/h, delay from the gate, misses infinite
+   pipe   peak gate lag       D1-F  LILA-auto         M1         M2         M3         M4
+   p123   9.19      573     missed      322 h      234 h     missed     missed     missed
+   p193  10.36      463     missed       77 h     missed     missed     missed     missed
+   p277   7.36      603     missed     missed      248 h     missed       56 h      176 h
+   p280   5.26        0      104 h      134 h      497 h     missed      473 h      689 h
+   p331  10.93        0       71 h      142 h       20 h       68 h      188 h      116 h
+   p455  11.05      497      115 h      255 h      202 h       58 h       10 h       34 h
+   p680   5.37        0       11 h        2 h     missed       94 h       94 h     missed
+   p710   5.58        0     missed       73 h     missed     missed      160 h       64 h
+   p879  10.93      280       61 h     missed      125 h     missed      125 h     missed
+  median delay from gate: D1-F 115 h, LILA-auto 142 h, M1 248 h, M2 missed, M3 160 h, M4 689 h
+  paired M4 vs D1-F: earlier on 3, later on 4, tied on 2; bootstrap (2,000, seed 6) M4 median below D1-F's in 0.239
+  H4 under the gate (M4 median below D1-F's): REFUTED
+
+## pre-registered predictions (LOG.md, step 8 plan)
+  (a) D1-F and LILA-auto small-leak detections fall to 5 or fewer: D1-F 7 -> 5, LILA-auto 7 -> 7: FAILED
+  (b) LILA-auto detection count not below chance at P < 0.05 under the gate: P = 0.013 (ungated 0.019): FAILED
+  (c) H4 still refuted under the gate: HELD

@@ -1382,6 +1382,48 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
   const tooLong = items.find((it) => !boards.some((b) => b.cap >= it.w));
   if (tooLong) throw new Error(`a ${formatInches(tooLong.length)} piece is longer than every board listed`);
 
+  const core = solveStockMemo(items, boards);
+  const { bars, method, exactCost, firstBound, lpCost, ffdCost } = core;
+  const cost = costOf(bars, boards);
+  // Ceiling of the LP bound when every price is a whole number: a real order cannot cost less.
+  const bound = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(firstBound - 1e-6) : firstBound;
+  const refsLeft = items.map((it) => [...it.refs]);
+  const out = bars.map((b) => {
+    const bd = boards[b.board];
+    const cuts = b.pieces.map((i) => ({ length: items[i].length, ref: refsLeft[i].shift() })).sort((x, y) => y.length - x.length);
+    const used = cuts.reduce((s, c) => s + c.length + kerf, 0);
+    return { length: bd.length, price: bd.price, label: bd.label, cuts, offcut: Math.max(0, bd.length - used) };
+  });
+  out.sort((a, b) => b.length - a.length || b.cuts.length - a.cuts.length);
+  return { bars: out, cost, bound: exactCost !== null ? exactCost : bound, lpBound: firstBound, proven: exactCost !== null || cost <= bound + 1e-9, method, ffdCost, lpCost };
+}
+
+// The solver below reads only each item's integer width `w` and demand `d` and each board's
+// integer capacity `cap` and `price`, in order, so its answer (which board each bar is and
+// which item indices it holds) is a pure function of those numbers. A takeoff re-solves the
+// same problem whenever an edit leaves a lumber size's cut list alone (the page recomputes
+// on every keystroke; the mutation sweep test runs ~800 takeoffs of one plan), so recent
+// answers are kept. Entries are frozen and read-only; labels, refs and lengths are mapped
+// on afterwards by the caller. (perf, 2026-11-13)
+const STOCK_MEMO_MAX = 128;
+const stockMemo = new Map();
+function solveStockMemo(items, boards) {
+  const key = `${items.map((it) => `${it.w}x${it.d}`).join(",")}|${boards.map((b) => `${b.cap}@${b.price}`).join(",")}`;
+  const hit = stockMemo.get(key);
+  if (hit) {
+    stockMemo.delete(key);
+    stockMemo.set(key, hit);
+    return hit;
+  }
+  const res = solveStock(items, boards);
+  res.bars.forEach((b) => Object.freeze(b.pieces));
+  Object.freeze(res.bars);
+  stockMemo.set(key, Object.freeze(res));
+  if (stockMemo.size > STOCK_MEMO_MAX) stockMemo.delete(stockMemo.keys().next().value);
+  return res;
+}
+
+function solveStock(items, boards) {
   const first = columnGeneration(items, boards);
   // Sequential rounding: take the whole part of the LP, re-solve what is left.
   const demand = items.map((it) => it.d);
@@ -1444,18 +1486,14 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
     bars = exact.bars.map((b) => shrink(b, boards));
     method = "exact";
   }
-  const cost = costOf(bars, boards);
-  // Ceiling of the LP bound when every price is a whole number: a real order cannot cost less.
-  const bound = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(first.bound - 1e-6) : first.bound;
-  const refsLeft = items.map((it) => [...it.refs]);
-  const out = bars.map((b) => {
-    const bd = boards[b.board];
-    const cuts = b.pieces.map((i) => ({ length: items[i].length, ref: refsLeft[i].shift() })).sort((x, y) => y.length - x.length);
-    const used = cuts.reduce((s, c) => s + c.length + kerf, 0);
-    return { length: bd.length, price: bd.price, label: bd.label, cuts, offcut: Math.max(0, bd.length - used) };
-  });
-  out.sort((a, b) => b.length - a.length || b.cuts.length - a.cuts.length);
-  return { bars: out, cost, bound: exact ? exact.cost : bound, lpBound: first.bound, proven: Boolean(exact) || cost <= bound + 1e-9, method, ffdCost, lpCost };
+  return {
+    bars: bars.map((b) => ({ board: b.board, pieces: [...b.pieces] })),
+    method,
+    exactCost: exact ? exact.cost : null,
+    firstBound: first.bound,
+    lpCost,
+    ffdCost,
+  };
 }
 
 /**

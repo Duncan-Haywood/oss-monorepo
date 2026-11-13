@@ -604,6 +604,62 @@ class ThreadedTileDecodeTests(unittest.TestCase):
                     list(rd._decode_chunks(bytes(broken), spans, 7, 16, 1, lambda i: (16, 8), reader.end, threads=threads))
 
 
+class TilePlacingTests(unittest.TestCase):
+    """``rd._blit`` places a chunk the same way on its numpy, array-slice and list paths (edge tiles clipped)."""
+
+    def _place_all(self, mode, typecode, spp, src_kind):
+        from array import array
+        from unittest import mock
+
+        width, height, cw, ch = 23, 13, 8, 5
+        dst = array(typecode, bytes(array(typecode).itemsize * width * height * spp))
+        across, down = -(-width // cw), -(-height // ch)
+        numpy_state = rd._NUMPY_MISSING if mode != "numpy" else rd._blit_numpy()
+        if mode == "numpy" and numpy_state is None:
+            self.skipTest("numpy not installed")
+        with mock.patch.object(rd, "_numpy_module", numpy_state):
+            for i in range(across * down):
+                ty, tx = divmod(i, across)
+                vals = [(i * 1009 + k * 7) % (65536 if typecode == "H" else 1 << 20) for k in range(cw * ch * spp)]
+                src = array(typecode, vals) if src_kind == "array" else vals
+                rd._blit(dst, width, height, spp, src, cw, ch, tx * cw, ty * ch)
+        return dst.tolist()
+
+    def test_every_path_places_the_same_samples(self):
+        for typecode in ("H", "I"):
+            for spp in (1, 3):
+                with self.subTest(typecode=typecode, spp=spp):
+                    want = self._place_all("pure", typecode, spp, "list")
+                    self.assertEqual(self._place_all("pure", typecode, spp, "array"), want)
+                    try:
+                        import numpy  # noqa: F401
+                    except ImportError:
+                        continue
+                    self.assertEqual(self._place_all("numpy", typecode, spp, "array"), want)
+                    self.assertEqual(self._place_all("numpy", typecode, spp, "list"), want)
+
+    def test_a_list_value_too_big_for_the_plane_is_refused(self):
+        from array import array
+
+        dst = array("H", bytes(2 * 4 * 4))
+        with self.assertRaises(OverflowError):
+            rd._blit(dst, 4, 4, 1, [70000] * 16, 4, 4, 0, 0)
+
+    def test_tiles_placed_on_the_pool_match_serial_placing(self):
+        import os
+        from unittest import mock
+
+        sensor = patch_sensor(70, 37)
+        blob = make_dng(sensor, 70, 37, compression=7, tiles=(16, 8))
+        for numpy_state in (None, rd._NUMPY_MISSING):
+            for threads in ("1", "4"):
+                with self.subTest(numpy=numpy_state is None, threads=threads):
+                    with mock.patch.dict(os.environ, {"SHOOTFLOW_THREADS": threads}), mock.patch.object(
+                        rd, "_numpy_module", numpy_state
+                    ):
+                        self.assertEqual(rd.parse_raw(blob).values.tolist(), sensor)
+
+
 class LosslessJpegInteropTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg not installed")
     def test_decodes_ffmpeg_ljpeg_streams(self):

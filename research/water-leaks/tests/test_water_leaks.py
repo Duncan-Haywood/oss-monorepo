@@ -207,3 +207,26 @@ def test_mnf_weekday_offsets_use_training_nights_only():
     m = np.full(len(days), 50.0)
     m[~train] += 100.0 * ((days[~train].astype(int) + 3) % 7 == 4)  # a Friday spike after training
     assert np.allclose(mnf.weekday_offsets(m, days, train), 0.0)
+
+
+def test_gate_events_moves_onset_to_first_hour_at_phi_and_drops_small():
+    hrs = np.arange("2019-01-01T00", "2019-01-01T10", dtype="datetime64[h]")
+    ramp = np.array([0, 0.2, 0.5, 0.9, 1.0, 1.5, 2, 2, 2, 2])
+    tiny = np.array([0, 0, 0.1, 0.2, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3])
+    flows = {"pa": ramp, "pb": tiny}
+    on = np.datetime64("2019-01-01T01:10")
+    ev = [("pa", on, hrs[-1], 2.0, 1.0), ("pb", on, hrs[-1], 0.3, 1.0)]
+    g, car, onsets, dropped = score.gate_events(ev, {1}, lambda p: (hrs, flows[p]), 1.0)
+    assert dropped == ["pb"] and len(g) == 1 and car == set()
+    assert g[0][1] == np.datetime64("2019-01-01T04:00") and onsets == [on]
+    g0, car0, _, d0 = score.gate_events(ev, {1}, lambda p: (hrs, flows[p]), 0.0)
+    assert [e[1] for e in g0] == [on, on] and car0 == {1} and d0 == []
+
+
+def test_gated_match_rejects_an_alarm_before_the_gate():
+    on, gate = np.datetime64("2019-01-01T00:00"), np.datetime64("2019-01-05T00:00")
+    ev = [("pa", gate, np.datetime64("2019-03-01T00:00"), 5.0, 1.0)]
+    m, fp = score.match([np.datetime64("2019-01-02T00", "h")], ev)
+    assert m == {} and len(fp) == 1
+    m, fp = score.match([np.datetime64("2019-01-06T00", "h")], ev)
+    assert 0 in m and fp == []
