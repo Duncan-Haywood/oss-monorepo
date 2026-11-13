@@ -280,5 +280,65 @@ class LongerHint(unittest.TestCase):
         self.assertEqual(wait_for.longer(540), "")
 
 
+class Restart(unittest.TestCase):
+    """A container restart killed three background jobs in one run (2026-11-13),
+    each read as a hang; a log older than the boot, with no marker, is a dead job."""
+
+    def fake(self):
+        t = [0.0]
+        return t, (lambda: t[0]), (lambda s: t.__setitem__(0, t[0] + s))
+
+    def test_log_older_than_boot_ends_the_wait_after_the_grace(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("Published 11 showcase file(s)\n")
+            t, clock, nap = self.fake()
+            ok, lines = wait(p, timeout=540, clock=clock, nap=nap, boot=os.stat(p).st_mtime + 5, grace=20)
+            self.assertIsNone(ok)
+            self.assertEqual(lines[-1], "Published 11 showcase file(s)")
+            self.assertGreaterEqual(t[0], 20)
+            self.assertLess(t[0], 30)
+
+    def test_log_written_after_boot_or_finished_is_not_a_restart(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("working\n")
+            _, clock, nap = self.fake()
+            ok, _ = wait(p, timeout=30, clock=clock, nap=nap, boot=os.stat(p).st_mtime - 5)
+            self.assertFalse(ok)
+            self.assertIsNotNone(ok)
+            open(p, "w").write("DONE\n")
+            ok, _ = wait(p, timeout=30, clock=clock, nap=nap, boot=os.stat(p).st_mtime + 5)
+            self.assertTrue(ok)
+
+    def test_main_exits_2_and_says_to_rerun(self):
+        import wait_for
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("half a li")
+            os.utime(p, (1000.0, 1000.0))
+            err = io.StringIO()
+            real = wait_for.boot_time
+            wait_for.boot_time = lambda: 2000.0
+            try:
+                with contextlib.redirect_stderr(err):
+                    code = main([p, "--timeout", "0"])
+                self.assertEqual(code, 2)
+                self.assertIn("container restarted", err.getvalue())
+                self.assertIn("Start it again", err.getvalue())
+                with contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(main([p, "--timeout", "0", "--ignore-restart"]), 1)
+            finally:
+                wait_for.boot_time = real
+
+    def test_boot_time_reads_btime(self):
+        from wait_for import boot_time
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "stat")
+            open(p, "w").write("cpu 1 2 3\nbtime 1794568279\nprocesses 9\n")
+            self.assertEqual(boot_time(p), 1794568279.0)
+            self.assertIsNone(boot_time(os.path.join(d, "missing")))
+
+
 if __name__ == "__main__":
     unittest.main()
