@@ -627,17 +627,56 @@ class Feeder:
     trough_w: float = 125.0           # half-round gutter, inside diameter (a 5 in half-round class)
     trough_wall: float = 1.8          # gutter wall (vinyl class; measure yours)
     trough_x0: float = 30.0           # gutter's back edge, in front of the net plane (net at x 0..25)
-    trough_end_z: float = 190.0       # gutter's inside bottom at the outer ends (|y| = net_w / 2)
+    trough_end_z: float = 204.0       # gutter's inside bottom at the longer run's outer end (y = -net_w / 2); 190 until
+                                      # the lift (2026-11-13) moved the sump off centre and raised its outlet
     trough_slope_deg: float = 3.0     # each run falls this much toward the sump
     trough_crr: float = 0.03          # rolling resistance, felt ball on a smooth gutter (assumption: measure it)
     trough_slope_factor: float = 1.5  # slope's tangent over trough_crr, so a ball that stops on the run starts again
     ball_inertia_k: float = 0.6       # I / (m r^2) of a ball: a thin shell is 2/3, solid 2/5 (assumption)
     sump_half: float = 60.0           # runs end this far either side of y = 0; balls drop into the sump between them
     sump_wall: float = 4.0
-    sump_out_z: float = 50.0          # outlet's bottom (a ball rolls out on it) above the court
-    trough_hanger_y: tuple = (300.0, 800.0, 1300.0)  # hanger pairs at +- these y
+    sump_out_z: float = 80.0          # outlet's bottom (a ball rolls out on it) above the court; 50 until 2026-11-13: the
+                                      # lift's boot needs the height for its flights to turn under the floor
+    trough_hanger_y: tuple = (-1300.0, -850.0, -400.0, 50.0, 500.0, 950.0, 1350.0)  # one hanger at each y (signed)
     ground_min_mm: float = 40.0       # nothing in the trough path closer to the court than this
     tub_drop_clear_mm: float = 30.0   # a returning ball must clear the tub's rim by this much
+
+    # Ball lift (2026-11-13): closes the loop from the sump to the tub, 2.3 m up. A cleated belt (a flight elevator, as
+    # golf-range ball elevators are): an AT5 timing belt runs over a pulley at each end of a vertical 2040 spine; pairs
+    # of short printed fingers on it carry one ball each up a channel whose front is a rod (`lift_design`). The sump
+    # sits off centre at the lift's foot, so its outlet turns straight into the boot with no duct under the deck. The
+    # column stands between the mast rails at y = lift_y, outside the head's turning circle; the gearmotor drives the
+    # bottom pulley; at the top the balls ride over the pulley under a hood and roll down a chute into the tub.
+    # Belt, finger and motor figures are assumptions: measure the first build.
+    lift_x: float = -90.0             # ball channel's centre (x): between the mast rails (front at -40..-20, rear at -200..-180)
+    lift_y: float = 300.0             # ball line (y): the head's turning parts stay inside about 260 mm of the axis
+    lift_gap: float = 3.0             # channel depth (belt face to the front rod) and width, over the ball diameter
+    lift_pulley_teeth: int = 16       # AT5 pulley: pitch diameter 25.5 mm (small, so the flights turn low in the boot)
+    lift_belt_pitch: float = 5.0      # AT5 polyurethane timing belt, welded endless to length
+    lift_belt_t: float = 2.7          # its total thickness
+    lift_belt_back: float = 1.5       # back face outside the pitch line on a pulley (assumption: read your belt's sheet)
+    lift_belt_w: float = 25.0
+    lift_finger_l: float = 16.0       # flight fingers stick out this far from the belt's back
+    lift_finger_t: float = 5.0        # finger thickness (along the belt)
+    lift_finger_w: float = 30.0       # a flight's two fingers span this across the belt
+    lift_flight_pitch: float = 150.0  # target spacing; rounded so a whole number of flights fit the belt
+    lift_flight_base: float = 30.0    # a flight's base plate along the belt (it takes the finger's moment on the spine)
+    lift_finger_clear: float = 1.5    # a finger's top passes this far under the boot floor before it meets a ball
+    lift_ground_mm: float = 30.0      # boot's underside above the court (the wheel brackets come down to 30)
+    lift_wall: float = 3.0            # printed walls of the boot and head
+    lift_motor_rpm: float = 200.0     # the base drive's 37 mm gearmotor class at 24 V (assumption: read yours)
+    lift_motor_nm: float = 0.6        # its rated torque (assumption)
+    lift_torque_factor: float = 2.0   # rated torque over the largest needed (every flight loaded)
+    lift_mu_back: float = 0.2         # belt's tooth side sliding on a UHMW strip on the spine (assumption)
+    lift_crr_wall: float = 0.05       # ball rolling up the front rod while a finger pushes it there (assumption)
+    lift_rate_min: float = 36.0       # balls a minute the lift must take (a 1.7 s feed interval)
+    lift_rod_d: float = 10.0          # aluminium rods: the channel's front and sides above the boot
+    lift_clip_max_mm: float = 500.0   # rod clips at most this far apart
+    lift_hood_deg: float = 115.0      # the hood guides a ball over the top pulley to this angle past the top
+    lift_drop_deg: float = 30.0       # the head's drop floor, where a finger following the ball pushes it off
+    chute_slope_deg: float = 8.0      # chute from the head to the tub (a bought tube, the take-up sleeve's size)
+    chute_target: tuple = (-360.0, 120.0)  # plan point over the tub where the chute ends
+    lift_strut_z: float = 1700.0      # 2020 strut from the spine to the +y front hopper post
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -1085,6 +1124,7 @@ class Feeder:
         bad += self.check_az_stops()
         bad += self.check_cables()
         bad += self.check_trough()
+        bad += self.check_lift()
         return bad
 
     # ---- azimuth drive (2026-11-10) -------------------------------------------
@@ -1921,14 +1961,33 @@ class Feeder:
 
     # ---- catch trough (2026-11-13) ---------------------------------------------
     @property
+    def sump_y(self) -> float:
+        """Sump's centre along the net: its outlet runs straight back under the beam and turns +y into the lift's boot
+        on an arc whose end meets the channel's -y wall (`lift_turn_r`)."""
+        return self.lift_y - (self.ball_d + self.lift_gap) / 2 - self.lift_turn_r
+
+    @property
+    def trough_runs(self) -> tuple[float, float]:
+        """Plan lengths of the -y and +y runs, sump edge to the outer end."""
+        return (self.net_w / 2 + self.sump_y - self.sump_half, self.net_w / 2 - self.sump_y - self.sump_half)
+
+    @property
     def trough_run_len(self) -> float:
-        """Plan length of one run, sump edge to the outer end."""
-        return self.net_w / 2 - self.sump_half
+        """Plan length of the longer run."""
+        return max(self.trough_runs)
+
+    @property
+    def trough_low_z(self) -> float:
+        """Gutter's inside bottom at the sump's edges (both runs end there)."""
+        return self.trough_end_z - self.trough_run_len * math.tan(math.radians(self.trough_slope_deg))
+
+    def trough_z_at(self, d: float) -> float:
+        """Gutter's inside bottom at distance d along the net from the sump's centre."""
+        return self.trough_low_z + (max(abs(d), self.sump_half) - self.sump_half) * math.tan(math.radians(self.trough_slope_deg))
 
     def trough_bottom_z(self, y: float) -> float:
-        """Gutter's inside bottom at |y| (sump edge to the outer end)."""
-        t = math.tan(math.radians(self.trough_slope_deg))
-        return self.trough_end_z - (self.net_w / 2 - max(abs(y), self.sump_half)) * t
+        """Gutter's inside bottom at y."""
+        return self.trough_z_at(y - self.sump_y)
 
     @property
     def tub_rim_z(self) -> tuple[float, float]:
@@ -1945,21 +2004,21 @@ class Feeder:
 
         A ball rolling from rest at the outer end down a run of length L falling at angle a, against rolling
         resistance crr, reaches v^2 = 2 g L (sin a - crr cos a) / (1 + k), with k = I / (m r^2). The time is that of
-        uniform acceleration. `lift_mm` is the height the ball must then gain, from the sump outlet's floor to clear
-        the tub's lower rim: the feeder-catcher note's "rolls into the hopper" needs this lift, which nothing in the
-        design provides yet.
+        uniform acceleration, on the longer run. `lift_mm` is the height the ball must then gain, from the sump outlet's
+        floor to clear the tub's lower rim: the feeder-catcher note's "rolls into the hopper" needs this lift, which
+        `lift_design` provides.
         """
         a = math.radians(self.trough_slope_deg)
         L = self.trough_run_len / math.cos(a) / 1000
         acc = 9.81 * (math.sin(a) - self.trough_crr * math.cos(a)) / (1 + self.ball_inertia_k)
         v = math.sqrt(2 * acc * L) if acc > 0 else 0.0
         t = math.sqrt(2 * L / acc) if acc > 0 else math.inf
-        low = self.trough_bottom_z(self.sump_half)
+        low = self.trough_low_z
         rim_low, rim_high = self.tub_rim_z
         return {
-            "run_len_mm": self.trough_run_len, "drop_mm": self.trough_end_z - low, "low_z": low,
+            "run_len_mm": self.trough_run_len, "runs_mm": self.trough_runs, "drop_mm": self.trough_end_z - low, "low_z": low,
             "end_speed_m_s": v, "run_time_s": t, "accel_m_s2": acc,
-            "queue_balls": int(2 * self.trough_run_len // self.ball_d),
+            "queue_balls": int(sum(self.trough_runs) // self.ball_d),
             "outlet_floor_z": self.sump_out_z, "tub_rim_low_z": rim_low, "tub_rim_high_z": rim_high,
             "lift_mm": rim_low + self.tub_drop_clear_mm - self.sump_out_z,
         }
@@ -1978,16 +2037,248 @@ class Feeder:
                        f"{self.trough_slope_factor * self.trough_crr:.3f} to start again")
         if self.trough_x0 < 25.0 + 3.0:
             bad.append("gutter's back edge is in the net plane")
-        if self.trough_bottom_z(self.sump_half) - self.trough_wall < self.ground_min_mm:
+        if self.trough_low_z - self.trough_wall < self.ground_min_mm:
             bad.append("gutter's low end is too near the court")
-        if self.trough_bottom_z(self.sump_half) - self.sump_wall < self.sump_out_z + self.ball_d / 2:
+        if self.trough_low_z - self.sump_wall < self.sump_out_z + self.ball_d / 2:
             bad.append("sump floor cannot fall from the gutter to the outlet")
         if self.sump_out_z < self.ground_min_mm:
             bad.append("sump outlet is too near the court")
-        if self.sump_out_z + self.ball_d + 3 + self.sump_wall > self.rail_z:
+        if self.lift_inlet_top_at_beam() > self.rail_z - 0.5:
             bad.append("sump outlet is too high to pass a ball under the net beam")
-        if any(not self.sump_half + 40 <= y <= self.net_w / 2 - 60 for y in self.trough_hanger_y):
+        if any(not (self.sump_half + 40 <= abs(y - self.sump_y) and abs(y) <= self.net_w / 2 - 60)
+               for y in self.trough_hanger_y):
             bad.append("a trough hanger is off the gutter run")
+        return bad
+
+    # ---- ball lift (2026-11-13) --------------------------------------------------
+    @property
+    def lift_pd(self) -> float:
+        """Pulley pitch diameter."""
+        return self.lift_belt_pitch * self.lift_pulley_teeth / math.pi
+
+    @property
+    def lift_r_out(self) -> float:
+        """Radius of the belt's back face on a pulley."""
+        return self.lift_pd / 2 + self.lift_belt_back
+
+    @property
+    def lift_r_in(self) -> float:
+        """Radius of the belt's tooth tips on a pulley: the pulleys and the spine stay inside it."""
+        return self.lift_r_out - self.lift_belt_t
+
+    @property
+    def lift_r_sweep(self) -> float:
+        """Radius the finger tips sweep round a pulley."""
+        return self.lift_r_out + self.lift_finger_l
+
+    @property
+    def lift_depth(self) -> float:
+        """Channel depth (belt's back to the front rod) and width."""
+        return self.ball_d + self.lift_gap
+
+    @property
+    def lift_x_belt(self) -> float:
+        """x of the up-going belt's back face (the balls ride in front of it, +x)."""
+        return self.lift_x - self.lift_depth / 2
+
+    @property
+    def lift_x_front(self) -> float:
+        return self.lift_x + self.lift_depth / 2
+
+    @property
+    def lift_x_pulley(self) -> float:
+        return self.lift_x_belt - self.lift_r_out
+
+    @property
+    def lift_turn_r(self) -> float:
+        """Plan radius of the inlet's turn: from the sump's straight outlet (ending at the beam's rear face) to a ball
+        rolling +y against the belt."""
+        return -self.rail_w - (self.lift_x_belt + self.ball_d / 2)
+
+    @property
+    def lift_z_bottom(self) -> float:
+        """Bottom pulley's axis: low enough that the fingers turn under the floor, high enough that the boot clears the
+        court."""
+        return self.lift_ground_mm + self.lift_wall + self.lift_r_sweep
+
+    @property
+    def lift_floor_z(self) -> float:
+        """Boot floor where a ball waits against the belt: a finger turning onto the straight passes under it."""
+        return self.lift_z_bottom + self.lift_finger_t / 2 + self.lift_finger_clear
+
+    @property
+    def lift_inlet_len(self) -> float:
+        """Ball-centre path from the sump's rear wall to where it waits: the straight outlet under the beam, the turn,
+        and across the channel to its +y wall."""
+        stub = self.trough_x0 + self.sump_wall + self.rail_w
+        return stub + math.pi / 2 * self.lift_turn_r + self.lift_depth / 2 + self.lift_gap / 2
+
+    @property
+    def lift_inlet_slope(self) -> float:
+        """Tangent of the inlet floor's fall, sump outlet to the boot floor (uniform)."""
+        return (self.sump_out_z - self.lift_floor_z) / self.lift_inlet_len
+
+    def lift_inlet_top_at_beam(self) -> float:
+        """Top of the outlet stub where it enters under the net beam (x = 0), the highest point under it."""
+        x_a = self.trough_x0 + self.sump_wall
+        return self.sump_out_z - self.lift_inlet_slope * x_a + self.hose_id + self.sump_wall
+
+    def tub_rim_at(self, x: float) -> float:
+        """World z of the tub's top rim at x (it falls toward the net with the shelf)."""
+        s = math.radians(self.shelf_slope_deg)
+        ox, _ = self.shelf_origin
+        h = self.plate_t + self.tub_h
+        x_front = ox + self.tub_l / 2 * math.cos(s) + h * math.sin(s)
+        return self.tub_rim_z[0] + (x_front - x) * math.tan(s)
+
+    def tub_opening_x(self) -> tuple[float, float]:
+        """x span of the tub's top opening (inside the walls)."""
+        s = math.radians(self.shelf_slope_deg)
+        ox, _ = self.shelf_origin
+        h = self.plate_t + self.tub_h
+        xf = ox + self.tub_l / 2 * math.cos(s) + h * math.sin(s)
+        xr = ox - self.tub_l / 2 * math.cos(s) + h * math.sin(s)
+        return xr + self.tub_wall, xf - self.tub_wall
+
+    def lift_release(self) -> tuple[float, float, float]:
+        """(x, z of the ball's centre, radius) where the hood lets it go, relative to the top pulley's axis."""
+        rc = self.lift_r_out + self.ball_d / 2
+        a = math.radians(self.lift_hood_deg)
+        return -rc * math.sin(a), rc * math.cos(a), rc
+
+    LIFT_THROAT = 40.0   # drop floor's plan length, from outside the finger path to the chute's socket
+
+    @property
+    def lift_drop_edge(self) -> tuple[float, float]:
+        """Plan point where the head's drop floor starts: just outside the returning fingers' path."""
+        return self.lift_x_pulley - self.lift_r_sweep - 1.5, self.lift_y
+
+    def lift_chute_dir(self) -> tuple[float, float]:
+        """Plan unit vector from the drop floor's edge to `chute_target`: the drop floor falls this way, then the chute."""
+        (x0, y0), (xt, yt) = self.lift_drop_edge, self.chute_target
+        ln = math.hypot(xt - x0, yt - y0)
+        return (xt - x0) / ln, (yt - y0) / ln
+
+    def lift_chute_plan(self) -> tuple[tuple[float, float], tuple[float, float], float]:
+        """(start, end, plan length) of the chute's bore: from its socket at the drop floor's far end to `chute_target`."""
+        (x0, y0), (ux, uy) = self.lift_drop_edge, self.lift_chute_dir()
+        start, end = (x0 + ux * self.LIFT_THROAT, y0 + uy * self.LIFT_THROAT), tuple(self.chute_target)
+        return start, end, math.hypot(end[0] - start[0], end[1] - start[1])
+
+    @property
+    def lift_z_top(self) -> float:
+        """Top pulley's axis: set so the chute's end clears the tub's rim (`tub_drop_clear_mm`) with the ball's bottom.
+        Going down from the axis: the ball's centre at release, its radius and 1 mm to the drop floor, the drop floor's
+        fall, then the chute's fall."""
+        _, zr, _ = self.lift_release()
+        _, (xt, _), lc = self.lift_chute_plan()
+        need = self.tub_rim_at(xt) + self.tub_drop_clear_mm + self.sump_wall
+        fall = (self.LIFT_THROAT * math.tan(math.radians(self.lift_drop_deg))
+                + lc * math.tan(math.radians(self.chute_slope_deg)))
+        return need + fall + self.ball_d / 2 + 1.0 - zr
+
+    def lift_clip_z(self) -> list[float]:
+        """Rod clips' bottom faces: one on the base plate, then evenly up to just under the head."""
+        z0 = self.rail_top + self.plate_t
+        z1 = self.lift_head_z0 - 12.0
+        n = max(1, math.ceil((z1 - z0) / self.lift_clip_max_mm))
+        return [z0 + k * (z1 - z0) / n for k in range(n + 1)]
+
+    @property
+    def lift_head_z0(self) -> float:
+        """Underside of the printed head: the chute's socket and drop floor sit in it."""
+        start, _, _ = self.lift_chute_plan()
+        _, zr, _ = self.lift_release()
+        z_socket = self.lift_z_top + zr - self.ball_d / 2 - 1.0 - self.LIFT_THROAT * math.tan(math.radians(self.lift_drop_deg))
+        return z_socket - self.sump_wall - 12.0
+
+    def lift_design(self) -> dict:
+        """Belt, speed, capacity and drive of the lift.
+
+        Capacity: a ball waits on the boot floor against the belt; the next one can roll in only once that one has
+        been lifted a ball's height, and it then rolls a ball's diameter from rest down the inlet's slope (uniform
+        acceleration with rolling resistance and a rolling ball's inertia, as on the trough). It is picked up by the
+        first flight to pass after that, so the rate is one ball per whole number of flight intervals.
+
+        Load: every flight on the up strand carrying a ball (the belt runs on after a burst). Per ball: its weight;
+        rolling up the front rod, which the finger pushes it against (the finger holds the ball off centre, so the rod
+        takes weight x offset / height of the contact); and the belt's sliding on the spine's strip, where the finger's
+        moment is taken as a couple over the flight's base plate.
+        """
+        r = self.ball_d / 2
+        w = self.ball_g / 1000 * 9.81
+        c = self.lift_z_top - self.lift_z_bottom
+        teeth = round((2 * c + math.pi * self.lift_pd) / self.lift_belt_pitch)
+        belt = teeth * self.lift_belt_pitch
+        n_fl = max(1, round(belt / self.lift_flight_pitch))
+        pitch = belt / n_fl
+        v = math.pi * self.lift_pd * self.lift_motor_rpm / 60000
+        t_fl = pitch / 1000 / v
+        a = math.atan(self.lift_inlet_slope)
+        acc = 9.81 * (math.sin(a) - self.trough_crr * math.cos(a)) / (1 + self.ball_inertia_k)
+        t_roll = math.sqrt(2 * self.ball_d / 1000 / acc) if acc > 0 else math.inf
+        t_clear = self.ball_d / 1000 / v
+        k = math.ceil((t_roll + t_clear) / t_fl) if math.isfinite(t_roll) else math.inf
+        rate = 60 / (k * t_fl) if math.isfinite(k) else 0.0
+        off = self.lift_gap + r - self.lift_finger_l
+        dz = math.sqrt(max(r * r - off * off, 1e-9))
+        n_wall = off / dz
+        per_ball = w * (1 + self.lift_crr_wall * n_wall + self.lift_mu_back * 2 * self.lift_finger_l / self.lift_flight_base)
+        up = int(c // pitch)
+        pull = up * per_ball
+        torque = pull * self.lift_pd / 2 / 1000
+        (xs, ys), (xt, yt), lc = self.lift_chute_plan()
+        _, zr, _ = self.lift_release()
+        z_socket = self.lift_z_top + zr - r - 1.0 - self.LIFT_THROAT * math.tan(math.radians(self.lift_drop_deg))
+        z_end = z_socket - lc * math.tan(math.radians(self.chute_slope_deg))
+        transit = c / 1000 / v
+        return {
+            "centre_mm": c, "belt_teeth": teeth, "belt_mm": belt, "flights": n_fl, "flight_pitch_mm": pitch,
+            "speed_m_s": v, "transit_s": transit, "flight_interval_s": t_fl, "roll_in_s": t_roll, "clear_s": t_clear,
+            "flights_per_ball": k, "rate_per_min": rate, "inlet_slope_deg": math.degrees(a), "inlet_mm": self.lift_inlet_len,
+            "finger_offset_mm": off, "rod_load_ratio": n_wall, "per_ball_n": per_ball, "balls_up": up, "pull_n": pull,
+            "torque_nm": torque, "torque_margin": self.lift_motor_nm / torque if torque > 0 else math.inf,
+            "power_w": pull * v, "z_bottom": self.lift_z_bottom, "z_top": self.lift_z_top, "floor_z": self.lift_floor_z,
+            "boot_bottom_z": self.lift_z_bottom - self.lift_r_sweep - self.lift_wall,
+            "chute_plan_mm": lc, "chute_mm": lc / math.cos(math.radians(self.chute_slope_deg)),
+            "chute_start": (xs, ys, z_socket), "chute_end": (xt, yt, z_end), "rim_at_end_z": self.tub_rim_at(xt),
+            "head_top_z": self.lift_z_top + self.lift_r_out + self.lift_depth + self.lift_wall,
+            # balls still on their way when the last one is fed: the far end of the trough plus the lift
+            "run_on_s": self.trough_design()["run_time_s"] + transit + 2.0,
+        }
+
+    def check_lift(self) -> list[str]:
+        bad = []
+        d = self.lift_design()
+        r = self.ball_d / 2
+        if self.lift_inlet_slope < self.trough_slope_factor * self.trough_crr:
+            bad.append(f"lift inlet falls only {d['inlet_slope_deg']:.1f} deg from the sump to the boot floor; a stopped ball "
+                       f"needs tan {self.trough_slope_factor * self.trough_crr:.3f} to start again")
+        if not 0.0 < d["finger_offset_mm"] < 0.8 * r:
+            bad.append(f"lift fingers ({self.lift_finger_l:g} mm) do not hold a ball against the front rod "
+                       f"(offset {d['finger_offset_mm']:.1f} mm of a {r:g} mm radius)")
+        if d["rate_per_min"] < self.lift_rate_min:
+            bad.append(f"lift takes about {d['rate_per_min']:.0f} balls a minute, under the {self.lift_rate_min:g} wanted")
+        if d["torque_margin"] < self.lift_torque_factor:
+            bad.append(f"lift motor's {self.lift_motor_nm:g} N m is {d['torque_margin']:.1f}x the {d['torque_nm']:.2f} N m "
+                       f"needed with every flight loaded; {self.lift_torque_factor:g}x wanted")
+        front_rail = self.head_x + self.post_dx - self.rail_w / 2
+        rear_rail = self.head_x - self.post_dx + self.rail_w / 2
+        if self.lift_x_front + self.lift_wall > front_rail - 2.0:
+            bad.append("lift boot's front wall meets the front mast rail")
+        if self.lift_x_pulley - self.lift_r_sweep < rear_rail + 3.0:
+            bad.append("lift's returning fingers meet the rear mast rail")
+        xr, xf = self.tub_opening_x()
+        (xt, yt) = self.chute_target
+        ro = self.hose_id / 2 + self.sump_wall
+        if not (xr + ro <= xt <= xf - ro and abs(yt) + ro <= self.tub_w / 2 - self.tub_wall):
+            bad.append("chute does not end over the tub's opening")
+        if not 90.0 < self.lift_hood_deg < 150.0:
+            bad.append("lift hood must let the ball go between 90 and 150 deg past the top")
+        if self.lift_drop_deg < 20.0:
+            bad.append("lift head's drop floor is too flat to turn a finger's push toward the chute")
+        if self.chute_slope_deg < math.degrees(math.atan(self.trough_slope_factor * self.trough_crr)):
+            bad.append("chute is too flat for a stopped ball to start again")
         return bad
 
     def check_feed(self) -> list[str]:
