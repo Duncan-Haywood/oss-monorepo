@@ -228,7 +228,7 @@
         ? `Larger 2026 deduction: <strong>${winner}</strong>, ${money(r.bestTotal)} (est. tax value ${money(r.taxSavingsBest)}).`
         : "Enter your business miles to compare the two methods.";
       els.resultTable.innerHTML = [
-        `<tr><th scope="row">Business miles</th><td>${r.businessMiles.toLocaleString()}</td></tr>`,
+        `<tr><th scope="row">Business miles</th><td>${r.businessMiles.toLocaleString('en-US')}</td></tr>`,
         `<tr><th scope="row">Business-use share of the car</th><td>${(r.businessUse * 100).toFixed(1)}%</td></tr>`,
         `<tr><th scope="row">Standard mileage deduction (72.5c / 76c)</th><td>${money(r.standard)}</td></tr>`,
         `<tr><th scope="row">Actual-expense deduction (business share)</th><td>${money(r.actual)}</td></tr>`,

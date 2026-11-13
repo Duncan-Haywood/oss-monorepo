@@ -209,8 +209,8 @@
       for (let i = 0; i <= 4; i++) {
         const yv = ym * i / 4, xv = xm * i / 4;
         svg.append(svgEl('line', { x1: L, x2: W - R, y1: Y(yv), y2: Y(yv), stroke: '#e3dfd7' }));
-        svg.append(svgEl('text', { x: L - 6, y: Y(yv) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#555c63' }, Math.round(yv).toLocaleString()));
-        svg.append(svgEl('text', { x: X(xv), y: H - B + 16, 'text-anchor': 'middle', 'font-size': 11, fill: '#555c63' }, Math.round(xv).toLocaleString()));
+        svg.append(svgEl('text', { x: L - 6, y: Y(yv) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#555c63' }, Math.round(yv).toLocaleString('en-US')));
+        svg.append(svgEl('text', { x: X(xv), y: H - B + 16, 'text-anchor': 'middle', 'font-size': 11, fill: '#555c63' }, Math.round(xv).toLocaleString('en-US')));
       }
       svg.append(svgEl('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', 'font-size': 12, fill: '#1d2125' }, xLabel));
       svg.append(svgEl('text', { x: 12, y: (T + H - B) / 2, 'text-anchor': 'middle', 'font-size': 12, fill: '#1d2125', transform: `rotate(-90 12 ${(T + H - B) / 2})` }, yLabel));
@@ -257,15 +257,15 @@
         const c = text('div', null, { class: 'card' + (s.name === result.governing && result.sensors.length > 1 ? ' gov' : '') });
         const h = text('h3', s.name + (s.name === result.governing && result.sensors.length > 1 ? ' (lowest)' : ''));
         h.style.color = COLORS[i % COLORS.length];
-        c.append(h, text('p', `${Math.round(s.strengthNow).toLocaleString()} ${unit}`, { class: 'big' }));
+        c.append(h, text('p', `${Math.round(s.strengthNow).toLocaleString('en-US')} ${unit}`, { class: 'big' }));
         const row = text('div', null, { class: 'row' });
-        row.append(text('span', `Maturity ${Math.round(s.maturityNow).toLocaleString()} ${iu}`), text('span', `${fmtH(s.spanHours)} logged`), text('span', `${s.minC.toFixed(1)} to ${s.maxC.toFixed(1)} °C`));
+        row.append(text('span', `Maturity ${Math.round(s.maturityNow).toLocaleString('en-US')} ${iu}`), text('span', `${fmtH(s.spanHours)} logged`), text('span', `${s.minC.toFixed(1)} to ${s.maxC.toFixed(1)} °C`));
         c.append(row);
         let t = null;
-        if (s.reached?.status === 'reached') t = `Reached ${target.toLocaleString()} ${unit} about ${fmtH(s.reached.hour)} after the first reading.`;
-        else if (s.reached?.status === 'unreachable') t = `The fitted curve levels off below ${target.toLocaleString()} ${unit}.`;
-        else if (s.projected?.status === 'projected') t = `Not yet at ${target.toLocaleString()} ${unit}: about ${fmtH(s.projected.hoursMore)} more if it stays near ${s.projected.assumedC.toFixed(1)} °C.`;
-        else if (s.projected?.status === 'stalled') t = `Not yet at ${target.toLocaleString()} ${unit}, and no maturity is gained at ${s.projected.assumedC.toFixed(1)} °C.`;
+        if (s.reached?.status === 'reached') t = `Reached ${target.toLocaleString('en-US')} ${unit} about ${fmtH(s.reached.hour)} after the first reading.`;
+        else if (s.reached?.status === 'unreachable') t = `The fitted curve levels off below ${target.toLocaleString('en-US')} ${unit}.`;
+        else if (s.projected?.status === 'projected') t = `Not yet at ${target.toLocaleString('en-US')} ${unit}: about ${fmtH(s.projected.hoursMore)} more if it stays near ${s.projected.assumedC.toFixed(1)} °C.`;
+        else if (s.projected?.status === 'stalled') t = `Not yet at ${target.toLocaleString('en-US')} ${unit}, and no maturity is gained at ${s.projected.assumedC.toFixed(1)} °C.`;
         if (t) c.append(text('p', t, { class: 'muted' }));
         for (const w of s.warnings) c.append(text('p', w, { class: 'warn' }));
         cards.append(c);
@@ -275,7 +275,7 @@
       const maxS = Math.max(target || 0, ...result.sensors.map(s => s.strengthNow)) * 1.1;
       plot(el('chart'), result.sensors.map(s => ({ name: s.name, pts: s.curve.map(p => [p.hour, p.strength]) })), {
         xLabel: 'Hours since first reading', yLabel: `Strength (${unit})`, xMax: maxH, yMax: maxS,
-        hLine: target > 0 ? { y: target, label: `Target ${target.toLocaleString()}` } : null,
+        hLine: target > 0 ? { y: target, label: `Target ${target.toLocaleString('en-US')}` } : null,
       });
 
       const xs = []; const xMax = Math.max(fit.range.max, ...result.sensors.map(s => s.maturityNow)) * 1.05;
@@ -291,7 +291,7 @@
         else { tr.append(text('td', f.label)); const td = text('td', f.reason); td.colSpan = 3; tr.append(td); }
         tb.append(tr);
       }
-      el('fitNote').textContent = `${fit.n} specimens, maturity ${Math.round(fit.range.min).toLocaleString()} to ${Math.round(fit.range.max).toLocaleString()} ${iu}. Lower AICc is better; it penalises the three-parameter curves for their extra freedom.`;
+      el('fitNote').textContent = `${fit.n} specimens, maturity ${Math.round(fit.range.min).toLocaleString('en-US')} to ${Math.round(fit.range.max).toLocaleString('en-US')} ${iu}. Lower AICc is better; it penalises the three-parameter curves for their extra freedom.`;
     }
 
     el('loggerFile').addEventListener('change', async e => {

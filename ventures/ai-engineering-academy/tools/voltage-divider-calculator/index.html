@@ -284,7 +284,7 @@
       targetResult.innerHTML = `
         <dl>
           <dt>Exact R2 needed</dt>
-          <dd>${formatResistance(s.exactR2)} (${s.exactR2.toLocaleString()} Ω)</dd>
+          <dd>${formatResistance(s.exactR2)} (${s.exactR2.toLocaleString('en-US')} Ω)</dd>
           <dt>Nearest standard (E24) R2</dt>
           <dd><strong>${formatResistance(s.nearestR2)}</strong> → actual V<sub>out</sub> = ${s.actualVout.toFixed(4)} V (${s.errorPercent > 0 ? "+" : ""}${s.errorPercent.toFixed(2)}% off target)</dd>
         </dl>

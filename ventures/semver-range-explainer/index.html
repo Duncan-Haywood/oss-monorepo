@@ -163,7 +163,7 @@
       const t = last.totals;
       status.textContent = `Checked ${t.versions} version${t.versions === 1 ? "" : "s"} against ${r.sets.length} branch${r.sets.length === 1 ? "" : "es"}.`;
       $("#totals").innerHTML = [["Versions", t.versions], ["Match", t.matching], ["Skipped prereleases", t.blocked], ["npm installs", last.max ?? "none"]]
-        .map(([k, v]) => `<div><strong>${esc(typeof v === "number" ? v.toLocaleString() : v)}</strong>${k}</div>`).join("");
+        .map(([k, v]) => `<div><strong>${esc(typeof v === "number" ? v.toLocaleString('en-US') : v)}</strong>${k}</div>`).join("");
       $("#sets").innerHTML = setsHtml(r, "What the range means");
       const c = last.comparison;
       $("#compare").innerHTML = !c ? "" : !c.valid ? `<h3>Comparison</h3><p class="yes">${esc(c.error)}</p>` :

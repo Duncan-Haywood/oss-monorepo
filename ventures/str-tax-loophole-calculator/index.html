@@ -291,7 +291,7 @@
       });
       const pathName = r.path === "nonpassive" ? "non-passive: the loss can offset other income" : "passive: the loss is limited";
       const avg = r.status.known ? r.status.avg.toFixed(1) + " days" : "not entered";
-      els.stats.innerHTML = `Average stay <strong>${avg}</strong>; ${r.participation.met ? "material participation shown" : "material participation not shown"} (${r.participation.hours.toLocaleString()} hours). Your path: <strong>${pathName}</strong>. A cost segregation study adds <strong>${money(r.extraDepreciation)}</strong> of first-year depreciation and about <strong>${money(r.extraSavings)}</strong> of tax savings (${money(r.netCostSegBenefit)} after the study).`;
+      els.stats.innerHTML = `Average stay <strong>${avg}</strong>; ${r.participation.met ? "material participation shown" : "material participation not shown"} (${r.participation.hours.toLocaleString('en-US')} hours). Your path: <strong>${pathName}</strong>. A cost segregation study adds <strong>${money(r.extraDepreciation)}</strong> of first-year depreciation and about <strong>${money(r.extraSavings)}</strong> of tax savings (${money(r.netCostSegBenefit)} after the study).`;
       const row = (label, a, b, bold) => `<tr><th scope="row">${bold ? "<strong>" + label + "</strong>" : label}</th><td>${bold ? "<strong>" + a + "</strong>" : a}</td><td>${bold ? "<strong>" + b + "</strong>" : b}</td></tr>`;
       const A = r.base, B = r.seg;
       els.resultTable.innerHTML = [

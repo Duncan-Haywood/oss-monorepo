@@ -81,7 +81,7 @@ import { runSchedule, firstShortfallYear, minimumContributionToAvoidShortfall, p
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
 const el = id => document.getElementById(id);
 const money = (n) => {
-  const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const format = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };

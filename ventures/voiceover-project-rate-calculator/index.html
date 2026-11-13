@@ -220,7 +220,7 @@
     };
 
     function money(n) {
-      const format = (n) => `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      const format = (n) => `$${n.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -256,7 +256,7 @@
         extraRevisionFee: Number(els.extraRevisionFee.value),
       };
       const result = computeProjectQuote(input);
-      els.stats.textContent = `${result.finishedMinutes.toLocaleString()} estimated finished minute(s) of audio at the read pace entered above.`;
+      els.stats.textContent = `${result.finishedMinutes.toLocaleString('en-US')} estimated finished minute(s) of audio at the read pace entered above.`;
       els.resultBody.innerHTML = `
         <tr><th scope="row">Base fee (before usage term)</th><td class="price">${money(result.baseFee)}</td></tr>
         <tr><th scope="row">Usage term (${USAGE_TERM_LABELS[input.usageTerm] ?? "Web / unrestricted digital use"})</th><td class="price">×${result.usageMultiplier}</td></tr>
@@ -274,7 +274,7 @@
         epmRatePerFinishedHour: Number(els.epmRate.value),
       };
       const result = computeAudiobookQuote(input);
-      els.stats.textContent = `${result.finishedHours.toLocaleString()} estimated finished hour(s), at the words-per-finished-hour conversion entered above.`;
+      els.stats.textContent = `${result.finishedHours.toLocaleString('en-US')} estimated finished hour(s), at the words-per-finished-hour conversion entered above.`;
       els.resultBody.innerHTML = `
         <tr><th scope="row">Narration fee (finished hours × your rate)</th><td class="price">${money(result.narrationFee)}</td></tr>
         <tr><th scope="row">Editing / proofing / mastering fee</th><td class="price">${money(result.epmFee)}</td></tr>

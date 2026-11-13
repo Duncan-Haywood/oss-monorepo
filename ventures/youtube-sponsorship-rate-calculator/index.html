@@ -157,7 +157,7 @@
     const DEFAULTS = { niche: "general", format: "integration", usage: "none", exclusivity: "none" };
 
     const money = (n) => {
-      const format = (n) => `$${n.toLocaleString()}`;
+      const format = (n) => `$${n.toLocaleString('en-US')}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
@@ -181,7 +181,7 @@
     // nobody asked for.
     function runCalculate({ scroll = true } = {}) {
       const r = computeRate(currentInput());
-      els.stats.textContent = `${r.views.toLocaleString()} median views · CPM $${r.cpmLow.toFixed(0)}–$${r.cpmHigh.toFixed(0)} per 1,000 views for this format.`;
+      els.stats.textContent = `${r.views.toLocaleString('en-US')} median views · CPM $${r.cpmLow.toFixed(0)}–$${r.cpmHigh.toFixed(0)} per 1,000 views for this format.`;
       const rows = [["Base sponsorship fee", range(r.baseLow, r.baseHigh)]];
       if (r.usageHigh > 0) rows.push(["+ Paid usage / whitelisting", range(r.usageLow, r.usageHigh)]);
       if (r.exclusivityHigh > 0) rows.push(["+ Category exclusivity", range(r.exclusivityLow, r.exclusivityHigh)]);
