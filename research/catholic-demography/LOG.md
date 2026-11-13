@@ -3,6 +3,43 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-13 · Milestone 5b, tenth GSS-only step: the post-2018 fall in the immigrant contribution is mostly the web slice
+
+Run: `experiments/m5k_inperson/run.py` (output `results.txt`, table `t31`; 500-draw stratified PSU bootstrap over the whole
+file, seed 1, every variant on the same draw so contrasts are paired). Data from `data/download_gssr.sh` (gss.norc.org
+returned 403 through the proxy; the gssr copy passed its checksums). **Order of events:** the script, with predictions P1-P4
+in its docstring, was committed (bbf16fc78) and pushed before its first run. It ran once, without changes.
+
+Question. m5h's last period said immigrants' contribution to the adult Catholic share fell from 3.37 points (2010-18) to 1.98
+(2021-24), change -1.38 [-2.05, -0.72], the largest part of the recent drop. 2021 was all web and 2022-24 mostly web, and
+m5f-m5j showed web respondents are a different slice. The m5h main specification was rerun with the 2021-24 slot replaced by
+V1 2022+24 all modes (n 6,274), V2 in person (2,482), V3 face-to-face-first arm (2,772), V4 web-first arm (3,502), V5 web
+(3,137); V0 is m5h as published (9,843). Earlier periods and rho are unchanged.
+
+- **P1 (in person gives a larger immigrant contribution) not refuted, weak.** Level, first generation: V1 2.50, V2 **2.92
+  [2.04, 3.76]**, V2 - V1 +0.42 [-0.17, +1.02]. The underlying composition difference is clear: foreign-born share of
+  Catholics 28.9% in person vs 20.9% web (+8.0 [+3.6, +12.5]); of all adults 18.5% vs 15.2% (+3.3 [+0.6, +5.8]).
+- **P2 supported.** The randomised arm contrast for the immigrant contribution is +0.32 [-0.62, +1.32], against +1.49 [+0.41,
+  +2.60] by completed mode. The arms are balanced on nativity (foreign-born share of Catholics -0.2 [-4.0, +3.6]). So the gap
+  is who completes by web, as for attendance (m3b, m5i) and upbringing (m5g).
+- **P3 supported.** The fertility contribution moves by at most 0.10 points across V1-V5 (level 0.61-0.72; change from 2010-18
+  -0.09 to -0.19).
+- **P4 refuted.** In person, the 2010-18 -> 2021-24 change in the immigrant contribution is **-0.44 [-1.38, +0.49]** (F2F-first
+  arm -0.63 [-1.46, +0.21]); both intervals include zero, and immigration minus fertility is -0.25 [-1.16, +0.72]. So m5h's
+  "immigration fell by 1.38, the larger channel in the recent drop" does not survive. About a third of the -1.38 is the 2021
+  wave alone (V1 - V0 +0.51 [+0.14, +0.85]) and the rest of the gap to in person is the 2022-24 web completers (V5: -1.93).
+- **Side result, borderline.** The adult Catholic share itself is 23.7% in the F2F-first arm and 21.8% in the web-first arm,
+  +1.98 [-0.13, +4.09]; m3b's design-based check on a slightly different sample gave +1.0 [-1.9, +3.9]. Not established.
+- **What stands.** H4 is decided on 1990-99 -> 2010-18, which has no web interviews, and is unaffected. Over 1990-99 ->
+  2022-24 in person, immigration contributes +0.63 [-0.39, +1.52] and fertility -0.56 [-0.90, -0.20].
+- **Corrections made.** README (m5h section) and the 2026-11-11 post now say the -1.38 is an all-mode figure and give the
+  in-person one.
+- **Limits.** In-person 2022-24 respondents are themselves selected (they answered the face-to-face attempt), and the in-person
+  sample is a quarter of V0, so the intervals are about 40% wider. The arms are intention-to-treat. The 2021-24 slot here is
+  2022+2024 only.
+- **Next.** An outside nativity check: the ACS foreign-born share of adults against V1-V5,
+  when census.gov is reachable; then H5 or milestone 2.
+
 ## 2026-11-11 · Milestone 5b, ninth GSS-only step: reweighting on demographics removes about 40% of the web selection, and none of it among Catholics
 
 Run: `experiments/m5j_reweight/run.py` (output `results.txt`, tables `t29`, `t30`; 300-draw stratified PSU bootstrap, seed 1,
