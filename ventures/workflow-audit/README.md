@@ -47,8 +47,8 @@ editing above a finding does not bring it back. A second copy of an accepted lin
 reported. A missing or unreadable baseline is an error, never a silent pass. To silence one finding
 for a stated reason, comment its line or the line above:
 `# workflow-audit: ignore[unpinned-third-party-action]` (or a bare `# workflow-audit: ignore`).
-Reports say how many findings were suppressed. On this monorepo the scan finds 1,182; the baseline
-is what makes `fail-on` usable there.
+Reports say how many findings were suppressed. On a large repository with a long history of findings, the
+baseline is what makes `fail-on` usable (on 2026-11-13 this monorepo's 129 workflows gave 13).
 
 ## What it runs
 
