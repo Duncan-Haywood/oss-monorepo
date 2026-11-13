@@ -1,0 +1,236 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/fog-twin",
+ "stratum": "research",
+ "seed": "2026-11-13-m",
+ "drawn_by": "sample",
+ "round": 67,
+ "auditor": "agent session (Claude), independent quality auditor subagent",
+ "status": "audited",
+ "professional": "an automotive lidar / atmospheric-optics researcher who works on lidar performance and simulation in adverse weather (fog extinction, MOR, lidar range equation); first checks: the range equation and visibility convention against the lidar-in-fog literature, whether the nearest prior lidar fog simulators are cited, and whether the headline numbers reproduce",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran 'PYTHONPATH=src python3 experiments/run.py' (4.4 s): output byte-identical to experiments/results.txt. Independent script /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/recompute.py (no fog_twin imports: bisection on r*exp(a r)=r0 instead of Halley Lambert W, statistics.NormalDist instead of the package's bisection ppf/erfc cdf, quadratic formula for safe speed, analytic elasticity a r/(1+a r) from implicit differentiation) reproduces every checked number to the printed precision: uniform ranges 92.98/74.67/43.07/30.42/14.70 m and overstatement factors; elasticities 0.068..0.657; mis-set alpha +32.7%/+64.3%; E[alpha] policy 55.18 m, 21.12 m/s, P=0.3446; q05 range 35.50 m, P=0.0500, speed cost 43.5%; bank alpha_eff 0.01596/0.00190 and the bank error table (-22.0/-28.9/-31.4/-24.1/-10.7/+13.2; -3.6/-5.3/0.0/+18.9/+61.2/+168.0). W(1) by bisection 0.5671432904097837 matches the Omega constant (Corless et al. 1996). The physics (extended Lambertian return P0 rho e^{-2 tau}/r^2, threshold) is the standard lidar equation. Capped at 3 because several results are true by construction (the q05 policy's 5% violation rate is the definition of a quantile).",
+  "completeness": "All four README results are produced by run.py and match; 15 tests as stated, pass in 0.64 s; figure.py and fog_range.svg present; live page linked. Gaps: README runtime 'about 20 s' is stale (4.4 s measured). No stubs or TODOs found.",
+  "verification": "'PYTHONPATH=src python3 -m unittest discover -s tests': Ran 15 tests, OK. Four seeded mutations via platform/ci/quality_mutate.py: Koschmieder 3.912->2.996 caught; lognormal quantile sigma x1.03 caught; p_unsafe sigma x1.05 caught; range_bank fog-bank start b->0.5b (model.py:63) SURVIVED. The bank tests (tests/test_model.py:49-56) only check the b=0 and b>r0 limits and that the bank range lies between the uniform and clear ranges, so the function behind headline result (4) is not pinned to any value. No test pins any results.txt number.",
+  "craft": "Read src/fog_twin/model.py (110 lines), experiments/run.py, experiments/figure.py, tests/test_model.py. Clean, small, dependency-free; Lambert W by Halley with sensible initial guess; bisection norm ppf adequate. Defects: range_uniform silently returns r0 for alpha<=0 including negative alpha (model.py:38), no validation of r0>0 / r>0 in alpha_from_range (ZeroDivision/log domain errors), _norm_ppf by 200-step bisection where statistics.NormalDist exists. Minor.",
+  "claims": "Checked claims against results.txt: the whitepaper title (paper/whitepaper.md:1) says 'a policy trained on the mean fog is unsafe half the time' but results.txt gives 0.3446 for the mean-alpha policy; the 0.5000 is the median-alpha policy. README.md:3 says a bright-calibrated extinction 'underestimates a dark target's range by up to 29%' but results.txt shows -31.4% at r0=45 (whitepaper:16 also omits it). README.md:3 and whitepaper.md:15 claim closed forms match Monte Carlo to +-0.001, but the median row is 0.5000 vs 0.5012 (0.0012). README.md:10 'about 20 s' vs 4.4 s measured. Limits are stated (stylised, no lidar data) and correct for the rest.",
+  "fitness": "A researcher building a lidar sim-to-real study could reuse the closed form and the calibration-transfer observation, but the nearest prior work is not cited: Bijelic et al. 2018 'A Benchmark for Lidar Sensors in Fog' (IV) and Hahner et al. 2021 'Fog Simulation on Real LiDAR Point Clouds for 3D Object Detection in Adverse Weather' (ICCV), which simulate exactly a fog-attenuated lidar from clear-air data with a physical model including backscatter; Kim, McArthur & Korevaar 2001 (SPIE) for NIR fog extinction. The Lambert W solution of a range equation with exponential loss is textbook (the rain-twin sibling uses the same form). Results (1)-(3) are direct algebra from the model; only (4) is a non-obvious observation, and it is a single geometry. Not near a publishable contribution under research/CLAUDE.md's PhD+ bar.",
+  "domain": "Range equation for an extended Lambertian target (1/r^2, two-way Beer-Lambert) is right. Departures a lidar/fog practitioner would flag: (a) alpha = 3.912/V is Koschmieder's 2% threshold, while 'meteorological visibility' in WMO practice and in the lidar fog benchmarks is MOR at 5% contrast, alpha = ln(20)/MOR ~ 2.996/MOR, a 31% different extinction for the same V (model.py:8, README); (b) visible-band extinction applied unchanged at 905/1550 nm with no Kim/Kruse wavelength term and no mention in Limitations; (c) the dominant real fog failure of lidar, near-range backscatter clutter and pulse broadening, is excluded (stated); (d) lognormal episode fog and its sigma are not tied to any visibility climatology. Acceptable as a stylised note, not sign-off grade."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Uniform-fog detection range and clear-air overstatement at V = 5000/1000/200/100/30 m (r0 = 100 m)",
+   "method": "independent bisection on r exp(alpha r) = r0 with alpha = 3.912/V, no Lambert W, no package import",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/recompute.py",
+   "expected": "92.98/74.67/43.07/30.42/14.70 m; x1.075/1.339/2.322/3.287/6.802",
+   "observed": "92.98/74.67/43.07/30.42/14.70 m; x1.075/1.339/2.322/3.287/6.802",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Elasticity -dln r/dln alpha at the same visibilities",
+   "method": "implicit differentiation of ln r + alpha r = ln r0: alpha r/(1+alpha r), evaluated on the bisection root",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/recompute.py",
+   "expected": "0.068/0.226/0.457/0.543/0.657",
+   "observed": "0.068/0.226/0.457/0.543/0.657",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Violation probability of the E[alpha] and q05 policies, sigma 0.8, median alpha at V=500 m, braking 5 m/s^2, reaction 0.5 s; q05 speed cost",
+   "method": "statistics.NormalDist cdf/inv_cdf, quadratic-formula safe speed, P(alpha > ln(r0/d)/d)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/recompute.py",
+   "expected": "E[alpha]: 55.18 m, 21.12 m/s, 0.3446; q05: 35.50 m, 0.0500, 43.5% slower",
+   "observed": "55.18 m, 21.12 m/s, 0.3446; 35.50 m, 0.0500, 43.5%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fog-bank calibration transfer table (bank at 40 m, alpha_b 0.05)",
+   "method": "independent bisection on ln(r/r0)+alpha_b (r-b)+ = 0 and log inversion",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/recompute.py",
+   "expected": "alpha_eff 0.01596/0.00190; -22.0/-28.9/-31.4/-24.1/-10.7/+13.2 and -3.6/-5.3/0.0/+18.9/+61.2/+168.0 %",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "W(1) (Omega constant) used in test_lambertw_known",
+   "method": "bisection on w e^w = 1 vs published Omega constant 0.567143290409784 (Corless et al. 1996)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/recompute.py",
+   "expected": "0.5671432904097838",
+   "observed": "0.5671432904097837",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Experiment rerun reproduces committed results",
+   "method": "rerun and diff",
+   "command": "cd research/fog-twin && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/results.txt && diff /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/fog-twin/results.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "IDENTICAL (4.4 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite runs and count matches README",
+   "method": "run",
+   "command": "cd research/fog-twin && PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "15 tests OK",
+   "observed": "Ran 15 tests in 0.643s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Whitepaper title: policy on the mean fog is unsafe half the time",
+   "method": "compare with results.txt section 3",
+   "command": "grep -n 'E\\[alpha\\]\\|median-alpha' research/fog-twin/experiments/results.txt",
+   "expected": "mean-alpha policy P = 0.5",
+   "observed": "mean-alpha 0.3446; 0.5000 belongs to the median-alpha policy",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README: bright-calibrated extinction underestimates a dark target's range 'by up to 29%'",
+   "method": "compare with results.txt section 4",
+   "command": "sed -n '/== 4/,$p' research/fog-twin/experiments/results.txt",
+   "expected": "max underestimate 29%",
+   "observed": "-31.4% at r0 = 45 m",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Closed forms match Monte Carlo to +-0.001",
+   "method": "compare closed form and MC columns",
+   "command": "grep median-alpha research/fog-twin/experiments/results.txt",
+   "expected": "|diff| <= 0.001",
+   "observed": "0.5000 vs 0.5012 (0.0012); others within 0.0006",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README runtime 'about 20 s' for run.py",
+   "method": "time the rerun",
+   "command": "time PYTHONPATH=src python3 experiments/run.py",
+   "expected": "about 20 s",
+   "observed": "4.4 s",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Visibility-to-extinction convention",
+   "method": "WMO MOR definition (5% contrast, alpha = ln 20 / MOR) as used in lidar fog benchmarks (Bijelic 2018, Hahner 2021) vs Koschmieder 2% (3.912/V)",
+   "command": "grep -n KOSCHMIEDER research/fog-twin/src/fog_twin/model.py",
+   "expected": "MOR convention or an explicit note of the 31% difference",
+   "observed": "3.912/V labelled 'meteorological visibility', no note",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited",
+   "method": "reference list vs lidar-fog simulation literature",
+   "command": "sed -n '/References/,$p' research/fog-twin/paper/whitepaper.md",
+   "expected": "Bijelic et al. 2018; Hahner et al. 2021; Kim et al. 2001",
+   "observed": "none of them; Koschmieder, Corless, Rasshofer, Zhao survey only",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/fog_twin/model.py:63",
+   "change": "alpha_b * (m - bank_start) > 0 -> alpha_b * (m - 0.5 * bank_start) > 0",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/fog_twin/model.py:12",
+   "change": "KOSCHMIEDER = 3.912 -> KOSCHMIEDER = 2.996",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/fog_twin/model.py:72",
+   "change": "median * math.exp(sigma * _norm_ppf(q)) -> median * math.exp(1.03 * sigma * _norm_ppf(q))",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/fog_twin/model.py:110",
+   "change": "/ sigma) -> / (1.05 * sigma)) in p_unsafe",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Whitepaper title says a policy trained on the mean fog is unsafe half the time; results.txt gives 0.345 for the mean-alpha policy and 0.500 for the median-alpha one",
+   "where": "research/fog-twin/paper/whitepaper.md:1",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "range_bank (headline result 4) is not pinned by any test: halving the bank start leaves all 15 tests green",
+   "where": "research/fog-twin/tests/test_model.py:49",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited: Bijelic et al. 2018 lidar fog benchmark, Hahner et al. 2021 lidar fog simulation (ICCV), Kim et al. 2001 NIR fog extinction; Lambert W range solution presented as a result though textbook",
+   "where": "research/fog-twin/paper/whitepaper.md:24",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README says bright-calibrated extinction underestimates dark targets 'by up to 29%'; results.txt shows -31.4% at r0 = 45 m",
+   "where": "research/fog-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "'Closed forms match Monte Carlo to +-0.001' but median row differs by 0.0012",
+   "where": "research/fog-twin/paper/whitepaper.md:15",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "alpha = 3.912/V (Koschmieder 2%) labelled meteorological visibility; WMO MOR and the lidar fog literature use 5% (ln 20/MOR = 2.996/MOR), 31% lower extinction; NIR wavelength dependence of fog extinction not modelled or listed in Limitations",
+   "where": "research/fog-twin/src/fog_twin/model.py:8",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README runtime 'about 20 s' for run.py; measured 4.4 s",
+   "where": "research/fog-twin/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "range_uniform silently returns the clear-air range for negative extinction instead of raising",
+   "where": "research/fog-twin/src/fog_twin/model.py:38",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15534"
+ ],
+ "verdict": "Does not meet the bar (verification 2, claims 2, median 2). The arithmetic is right: every number checked (uniform ranges, elasticities, violation probabilities, speed cost, the fog-bank table) reproduces exactly from an independent bisection/NormalDist script, and the experiment reruns byte-identical. But the paper's title misattributes the 50% violation rate to the mean-fog policy (it is the median; the mean gives 34.5%), two README/paper figures are misquoted (29% vs 31.4%, +-0.001 vs 0.0012), the fog-bank function behind the only non-obvious result survives a seeded bug, and a lidar-in-fog researcher would note the uncited nearest work (Bijelic 2018, Hahner 2021), the Koschmieder-2% vs WMO-MOR-5% convention and the missing NIR wavelength term. A correct, clean stylised note, well short of the PhD+ research bar."
+}
