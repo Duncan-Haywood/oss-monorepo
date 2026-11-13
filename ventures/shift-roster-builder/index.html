@@ -302,6 +302,7 @@
     import { importStaffCsv } from "./import-staff.mjs";
     import { importShiftsCsv } from "./import-shifts.mjs";
     import { import7shifts } from "./import-7shifts.mjs";
+    import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -749,8 +750,8 @@
     const runShiftsImport = () => {
       if (!shiftsFile) return;
       const loc = $("#import-shifts-loc").value, use = $("#import-shifts-use").value;
-      // Saved 7shifts API responses are JSON; everything else is read as a CSV export.
-      const r = shiftsFile.json ? import7shifts(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
+      // Saved When I Work or 7shifts API responses are JSON (told apart by their fields); everything else is read as a CSV export.
+      const r = shiftsFile.json ? (looksLikeWhenIWork(shiftsFile.texts) ? importWhenIWork : import7shifts)(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
       if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); }
       status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${shiftsFile.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
       return r;

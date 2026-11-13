@@ -23,6 +23,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import { import7shifts, fetch7shifts, within } from "./import-7shifts.mjs";
+import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays } from "./demand.mjs";
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
@@ -84,6 +85,10 @@ Options:
                       repeat the flag for more files) to shift lines; --location and --tz <IANA zone> as above; --no-drafts leaves out unpublished shifts
   --fetch-7shifts --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from api.7shifts.com with your own token in SEVENSHIFTS_ACCESS_TOKEN
                       (and SEVENSHIFTS_COMPANY_ID when the token reaches several companies); --save <file> keeps the responses
+  --import-wheniwork <json> convert saved When I Work API responses (GET /2/shifts, plus /2/positions and /2/locations for names;
+                      repeat the flag for more files) to shift lines; --location and --no-drafts as above (times are read on the shift's own clock)
+  --fetch-wheniwork --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from api.wheniwork.com with your own token in WHENIWORK_TOKEN
+                      (and WHENIWORK_USER_ID when your login reaches several workplaces); --save <file> keeps the responses
   --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
                       the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
@@ -169,6 +174,8 @@ export function parseArgs(argv) {
     else if (a === "--use") { o.importUse = argv[++i]; if (!["schedule", "final", "initial", "timesheet", "plain"].includes(o.importUse)) throw new Error("--use takes schedule, final, initial, timesheet or plain"); }
     else if (a === "--import-7shifts") { const f = argv[++i]; if (!f) throw new Error("--import-7shifts needs a JSON file"); (o.import7 ||= []).push(f); }
     else if (a === "--fetch-7shifts") o.fetch7 = true;
+    else if (a === "--import-wheniwork") { const f = argv[++i]; if (!f) throw new Error("--import-wheniwork needs a JSON file"); (o.importWiw ||= []).push(f); }
+    else if (a === "--fetch-wheniwork") o.fetchWiw = true;
     else if (a === "--from") { o.from7 = argv[++i]; if (!o.from7) throw new Error("--from needs a date like 2026-11-02"); }
     else if (a === "--to") { o.to7 = argv[++i]; if (!o.to7) throw new Error("--to needs a date like 2026-11-15"); }
     else if (a === "--tz") { o.tz7 = argv[++i]; if (!o.tz7) throw new Error("--tz needs a time zone like America/Toronto"); }
@@ -595,6 +602,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         inputs = within(got.responses, got.from, got.to, o.tz7);
       } else inputs = await Promise.all(o.import7.map((f) => readFile(f, "utf8")));
       const r = import7shifts(inputs, { timeZone: o.tz7, location: o.importLocation, drafts: o.noDrafts7 ? false : undefined });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.importWiw || o.fetchWiw) {
+      let inputs;
+      if (o.fetchWiw) {
+        const got = await fetchWhenIWork({ token: process.env.WHENIWORK_TOKEN, userId: process.env.WHENIWORK_USER_ID, from: o.from7, to: o.to7 });
+        if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
+        inputs = withinWiw(got.responses, got.from, got.to);
+      } else inputs = await Promise.all(o.importWiw.map((f) => readFile(f, "utf8")));
+      const r = importWhenIWork(inputs, { location: o.importLocation, drafts: o.noDrafts7 ? false : undefined });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
