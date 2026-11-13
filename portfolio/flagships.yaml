@@ -167,8 +167,9 @@ flagships:
       environment, the cCredPres table, a real SEFAZ rejection for a
       cClassTrib; national NFS-e landed 2026-11-12 (README): open: a
       national-system rejection compared, municipal rates; ABRASF municipal
-      NFS-e 2.03/2.04 landed 2026-11-13 (README): open: ISS retained on a real
-      file, city variants (ISSNet, GINFES, Betha), 2.01/2.02 schemas; refresh
+      NFS-e 2.00-2.04 landed 2026-11-13 (README; provider extensions named):
+      open: ISS retained on a real file, the providers' own XSDs (ISSNet,
+      WebISS, Fiorilli, GINFES in OpenAC.Net.NFSe) chosen by city; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
