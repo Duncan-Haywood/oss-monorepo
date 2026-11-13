@@ -1930,6 +1930,23 @@ it never made.
 
 Not in CI, for the same reason as the four above.
 
+### Checking nothing hugs the site band
+
+`band-gap.mjs` measures the space between the bottom of the site band and the
+first text or box below it, on every tool page that carries the band, and fails
+under 8px. The chrome zeroes each venture body's top padding so the band meets
+the top edge; on 2026-11-13 that left 120 pages with an eyebrow or `h1` 0 to 2px
+under the band or 3px into it. The build now gives a band over a padded body a
+16px margin (`bodyTopPadded` in `build.mjs`, `data-pfs-gap`); this check finds the
+next page that hugs it some other way. About 4.5 minutes for both widths here.
+
+```bash
+node platform/pages/band-gap.mjs               # 1280 and 390, MIN=8; same BASE_URL / PLAYWRIGHT / DIST env vars
+WIDTH=390 MIN=12 SLUGS=status-keeper node platform/pages/band-gap.mjs
+```
+
+Not in CI, for the same reason as the others.
+
 ### Checking no page scrolls sideways on a phone
 
 `sideways.mjs` asks the question the other five pass straight through: **is the
