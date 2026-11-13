@@ -1,0 +1,44 @@
+Milestone 7d post hoc: tilt-command clip widened (integrator and feed-forward clips at their defaults), lever 0, 64 held-out episodes.
+dead = diverged episodes per design (of 64); pos = median episode position RMS (m); att = mean roll/pitch tracking RMS (deg);
+tilt = median share of alive steps with the tilt command at its clip.
+
+[bolted]
+  clip   20 deg,  6 s: dead [7, 8, 10, 20, 11, 28] (total 84); pos 0.179; att 24.93; tilt 0.728
+  clip   20 deg, 18 s: dead [7, 10, 8, 20, 11, 20] (total 76); pos 0.146; att 25.34; tilt 0.747
+  clip   30 deg,  6 s: dead [64, 63, 41, 64, 64, 64] (total 360); pos 4.697; att 54.25; tilt 0.623
+  clip   30 deg, 18 s: dead [64, 64, 43, 64, 64, 64] (total 363); pos 4.899; att 56.78; tilt 0.610
+  clip   45 deg,  6 s: dead [64, 64, 64, 64, 64, 64] (total 384); pos 4.832; att 58.04; tilt 0.277
+  clip   45 deg, 18 s: dead [64, 64, 64, 64, 64, 64] (total 384); pos 4.944; att 59.30; tilt 0.210
+  clip   59 deg,  6 s: dead [64, 64, 64, 64, 64, 64] (total 384); pos 4.838; att 58.17; tilt 0.000
+  clip   59 deg, 18 s: dead [64, 64, 64, 64, 64, 64] (total 384); pos 4.946; att 59.35; tilt 0.000
+
+[1.25x]
+  clip   20 deg,  6 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.110; att 8.73; tilt 0.129
+  clip   20 deg, 18 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.084; att 9.97; tilt 0.218
+  clip   30 deg,  6 s: dead [0, 1, 2, 0, 0, 1] (total 4); pos 0.124; att 12.25; tilt 0.089
+  clip   30 deg, 18 s: dead [0, 2, 4, 0, 0, 0] (total 6); pos 0.102; att 15.34; tilt 0.275
+  clip   45 deg,  6 s: dead [28, 25, 26, 26, 37, 24] (total 166); pos 0.171; att 25.28; tilt 0.048
+  clip   45 deg, 18 s: dead [57, 54, 49, 59, 58, 41] (total 318); pos 4.291; att 44.88; tilt 0.097
+  clip   59 deg,  6 s: dead [27, 32, 34, 37, 41, 41] (total 212); pos 2.486; att 29.61; tilt 0.000
+  clip   59 deg, 18 s: dead [57, 55, 49, 59, 59, 60] (total 339); pos 4.410; att 47.48; tilt 0.001
+
+[0.8x]
+  clip   20 deg,  6 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.103; att 3.63; tilt 0.020
+  clip   20 deg, 18 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.072; att 2.60; tilt 0.003
+  clip   30 deg,  6 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.102; att 4.00; tilt 0.000
+  clip   30 deg, 18 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.071; att 2.80; tilt 0.000
+  clip   45 deg,  6 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.102; att 4.04; tilt 0.000
+  clip   45 deg, 18 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.071; att 2.84; tilt 0.000
+  clip   59 deg,  6 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.102; att 4.04; tilt 0.000
+  clip   59 deg, 18 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.071; att 2.84; tilt 0.000
+
+[retrained]
+  clip   20 deg,  6 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.101; att 3.23; tilt 0.019
+  clip   20 deg, 18 s: dead [0, 0, 0, 0, 0, 0] (total 0); pos 0.073; att 2.36; tilt 0.003
+  clip   30 deg,  6 s: dead [0, 0, 0, 0, 0, 2] (total 2); pos 0.099; att 3.93; tilt 0.000
+  clip   30 deg, 18 s: dead [0, 0, 1, 0, 0, 3] (total 4); pos 0.072; att 3.18; tilt 0.000
+  clip   45 deg,  6 s: dead [1, 1, 2, 1, 1, 7] (total 13); pos 0.099; att 5.57; tilt 0.000
+  clip   45 deg, 18 s: dead [2, 2, 2, 2, 2, 5] (total 15); pos 0.072; att 4.86; tilt 0.000
+  clip   59 deg,  6 s: dead [1, 1, 2, 1, 1, 7] (total 13); pos 0.099; att 5.57; tilt 0.000
+  clip   59 deg, 18 s: dead [2, 2, 2, 2, 2, 5] (total 15); pos 0.072; att 4.86; tilt 0.000
+

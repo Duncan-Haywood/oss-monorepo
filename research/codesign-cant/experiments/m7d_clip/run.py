@@ -9,7 +9,8 @@ episodes (seed 9999) under
   clip arm   base  (integrator clip 0.3, feed-forward clip 1: milestones 6-7c)
              noint (integrator clip removed, feed-forward clip 1)
              none  (both removed)
-  horizon    6 s (milestones 6-7c) and 18 s (same seed: the first draws and the four yaw signs are kept, segments are 4.5 s)
+  horizon    6 s (milestones 6-7c) and 18 s (same seed and plants; the four yaw signs are kept, segments 4.5 s, but the gust,
+             noise, offsets and wind signs are drawn afresh, so the 18 s episodes are new flights on the same 64 plants)
   lever      0 and 1
 recording divergence, the step of divergence and the share of alive steps each saturation is active (`poshold.rollout(diag=...)`).
 Separately, the linear model itself is iterated from each episode's initial offset alone (no gust, wind or noise), and the first
@@ -58,8 +59,9 @@ def job(arg):
     diag = {}
     o = P.rollout(sz, g, kap, TEST_EP, TEST_SEED, dist_sign=P.cop_signs(1.0), lever_scale=lev, ff=1.0, ff_mode="integ",
                   integ_clip=ic, ffi_clip=fc, steps=HORIZONS[hz], diag=diag)
-    return dict(clip=clip, hz=hz, lev=lev, dead=o["dead_ep"].astype(int).tolist(), pos=o["pos_ep"].tolist(),
-                t_dead=(diag["t_dead"] * A.DT).tolist(), **{k: diag[k].tolist() for k in DIAG_KEYS})
+    r4 = lambda a: np.round(np.asarray(a, float), 4).tolist()                # 4 decimals keep results.json small
+    return dict(clip=clip, hz=hz, lev=lev, dead=o["dead_ep"].astype(int).tolist(), pos=r4(o["pos_ep"]),
+                t_dead=r4(diag["t_dead"] * A.DT), **{k: r4(diag[k]) for k in DIAG_KEYS})
 
 
 def linear_death(conds, t_max=18.0):
