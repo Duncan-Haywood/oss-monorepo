@@ -1,5 +1,20 @@
 # Research log
 
+## 2026-11-13 · Milestone 5: load-perturbed copies. The counts hold on feasible copies; 101 of 360 copies have no AC optimum
+- 360 copies of the 36 PGLib cases (seeds 0 to 9, every bus's load x U[0.9, 1.1], constant power factor), frozen arms, pre-registered (plan and outcome in `research/infra-dcopf/LOG.md`; numbers in `research/infra-dcopf/experiments/results_perturb.txt`).
+- On the 244 scored copies of the 34 base cases: J-m-a fully clean **0.660** (cluster bootstrap over base cases 0.52 to 0.79; nominal 0.62), with the reactive stage **0.906** (0.83 to 0.97; nominal 0.91). Nominal verdict = majority verdict on 30 of 34 cases. J+R beats the reactive stage on the plain DC dispatch on 29 cases and loses none (sign test P = 3.7e-9). Mean cost of clean points +0.08 / +0.23 / +0.69 % (TYP / API / SAD). All five predictions held.
+- **Caveat:** PIPS finds no AC optimum on 101 copies, 71 of the 120 API ones (31 of those with less total load than nominal). Running the arms on them anyway (a declared after-the-run diagnostic) finds a feasible point on only 4, so most are probably infeasible, but the API intervals rest on 42 copies.
+- Fragility sits in the round budget: nominal finishers at round 8 or later stay clean on 0.68 of copies, earlier finishers on 0.97.
+- Next: milestone 6 (held-out 500 to 2,000-bus cases), the post-feasibility cost phase, a round-budget sweep, the rest of milestone 4.
+
+## 2026-11-13 · Milestone 4a: LPAC as a one-shot baseline. Fully feasible on 0 of 34; no solution on 9
+- LPAC-C (Coffrin and Van Hentenryck 2014, the conic form of PowerModels' `LPACCPowerModel`), built in `infra-dcopf/src/infra_dcopf/lpac.py` and solved by Clarabel with SCS as a second opinion, then its P and voltages run through one AC power flow. Pre-registered (plan in `research/infra-dcopf/LOG.md`).
+- **H3 held, strongly:** the one-shot LPAC dispatch is fully feasible on **0 of 34** PGLib cases (bar: at most 10; J-m-a: 21). On the 25 cases it solves, the AC power flow breaks Q limits on 21 and voltage limits on 20, and 376 of 1,000 units get a setpoint exactly on a voltage bound; P-clean on 4 (DC: 3). With the reactive stage after it, 8 of 34 (J-m-a+R: 31).
+- **LPAC-C has no solution on 9 of 34**, 7 of the 11 SAD cases among them (SCS agrees on 8, inconclusive on 1). After-the-run diagnostic: removing the angle limits makes 8 of the 9 solvable.
+- **As a warm start for the frozen repair:** 17 of the 25 LPAC-solvable cases fully clean against 15 from the DC start (5 gained, 3 lost, sign test P = 0.73); 24 against 23 with the reactive stage; finishes earlier on 7 of the 12 both finish.
+- P1, P2, P3 refuted (P-clean 4 against a bar of 10; objective within 1 % on 16 against 27; with the reactive stage 8 against 15); P4 refuted as written (17 of 34, since 9 cases have no start). Numbers: `research/infra-dcopf/experiments/results_lpac.txt`, `results_lpac_infeasible.txt`.
+- Next in milestone 4: LPAC-W (warm start, needs an AC base point) and the polyhedral LP form, then the one-shot optimised linearisation (Misra et al. 2018 or Chen and Singh 2025).
+
 ## 2026-11-13 · Milestone 2b: is the repair's QP solved correctly? PIPS fails on solvable elastic QPs; Clarabel adopted
 - Every QP J-m-a poses on the 34 PGLib cases (347: 248 hard, 99 elastic) re-solved by Clarabel 0.11 as a referee and by a screened (constraint-generation) PIPS solve. Wherever PIPS reports success, its objective matches Clarabel's within 1e-6 (236 of 236), so finished repairs and their costs stand; screening is exact (228 of 228) on 7.8 % of the rows.
 - PIPS's hard-QP failures are mostly real (Clarabel solves 5 of 75). Its elastic failures are not: 36 of 99, of which Clarabel solves 26. The repair had treated them as rejected steps.

@@ -14,8 +14,34 @@ M1, M2, M3, M3B, M4, M5, M6, M7, M6B = (E + d + "/results.txt" for d in (
     "m1_gap_placement", "m2_asbuilt_studs", "m3_ledger", "m3b_humanoid",
     "m4_tack_measure", "m5_cycle", "m6_drake", "m7_cost", "m6b_bowed_edge"))
 M9 = E + "m9_straighten/results.txt"
+M10 = E + "m10_ceiling/results.txt"
+M11 = E + "m11_measured/results.txt"
 
 CHECKS = [
+    # 5.10 measured studs (milestone 11)
+    (M11, "median |bow| at 8 ft 0.106 in, largest 0.283 in", "of 0.106 in and a largest of 0.283 in"),
+    (M11, "RMS residual [0.9, 0.66, 0.59, 0.94] mm", "0.59–0.94 mm RMS remains"),
+    (M11, "a perfect parabola still leaves 0.27 mm RMS", "against 0.27 mm that the"),
+    (M11, "R^2 [0.21, 0.64, 0.74, 0.79]", "explains 64–79% of the shape"),
+    (M11, "carries 48% of the residual variance, against 9%", "(48% of its variance, against 9%"),
+    (M11, "[0.53, 0.42, 0.35, 0.32, 0.6, 0.31] mm", "leaves 0.31–0.60 mm"),
+    (M11, "2x    three measured (110 mm mean)           clean 0.4253", "give 0.425 clean sheets"),
+    (M11, "2x    three measured, common part removed    clean 0.4707", "(0.471 with the common"),
+    (M11, "2x    three parabola at each stud's own bow  clean 0.5792", "against 0.579 for parabolas"),
+    (M11, "2x2x  three measured (110 mm mean)           clean 1.0000", "Doubled joints give 1.000 on the measured studs"),
+    # 5.9 the straight-stud ceiling (milestone 10)
+    (M10, "three-foot: clean with all six 0.7370", "reach 0.7370 clean sheets"),
+    (M10, "smooth (Drake): clean with all six 0.8107", "and 0.8107 (smooth rock)"),
+    (M10, "tool 44.6%", "carries 44.6% and 46.9%"),
+    (M10, "tool 46.9%", "carries 44.6% and 46.9%"),
+    (M10, "pose (slide + ledger + panel) 43.5%", "43.5% and 38.6%"),
+    (M10, "pose (slide + ledger + panel) 38.6%", "43.5% and 38.6%"),
+    (M10, "closed form 0.9833; Monte Carlo 0.9838", "gives 0.9838 clean, matching the closed form 0.9833"),
+    (M10, "interaction: pose alone 0.9952 clean, tool and reads alone 0.9573", "the pose alone gives 0.9952"),
+    (M10, "three-foot straight slide+shim 0.5 mm 0.9180", "lift straight studs to 0.9180"),
+    (M10, "three-foot low, mid push slide+shim 0.5 mm 0.8932", "low-warp studs (section 5.8) to 0.8932"),
+    (M10, "three-foot straight slide+shim 0.5 mm 0.839", "held to 0.839 mm"),
+    (M10, "three-foot low, mid push slide+shim 0.5 mm 0.794", "or\n0.794 mm"),
     # 5.8 straightening the joint stud (milestone 9)
     (M9, "pinned 48.000 48.0 0.07407 0.07407 0.1667", "c = 48.000 and 192.000"),
     (M9, "fixed 192.000 192.0 0.29630 0.29630 0.1667", "0.07407 b and 0.29630 b at u = 1/6"),

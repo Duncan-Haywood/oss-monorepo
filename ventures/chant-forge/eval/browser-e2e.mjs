@@ -133,6 +133,29 @@ await page.click("#go");
   ok(stems.every((b) => b.length === mix.length) && worst <= names.length, `stems sum to the preview mix within ${worst} of 32767 (rounding)`);
   await page.selectOption("#markers", "");
 }
+// split voices: the full Dies irae, tenors and basses by phrase; cue sheet and MIDI equal the CLI's --split-voices
+{
+  await page.selectOption("#genre", ""); await page.selectOption("#sections", "");
+  await page.selectOption("#acap", ""); await page.selectOption("#lift", "0");
+  await page.selectOption("#piece", "Dies irae");
+  await page.waitForFunction(() => document.querySelector("#src").value.includes("Dies irae;"));
+  await page.selectOption("#final", "split");
+  await page.click("#go");
+  const t = await out();
+  ok(/Voices: full choir on 600 of 613 notes \(C3-E4\); tenors alone on phrase 54 \(13 notes\); final F3/.test(t), "split voices summary on the Dies irae");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "split-"));
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--split-voices", "--fit", "8", "--stretch", "-o", path.join(tmp, "s.mid"), "--cues", path.join(tmp, "s.txt")]);
+  const [dc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  const sheet = fs.readFileSync(await dc.path(), "utf8");
+  ok(sheet === fs.readFileSync(path.join(tmp, "s.txt"), "utf8") && /who/.test(sheet.split("\n")[0]), "split cue sheet equals the CLI's --split-voices --cues");
+  const [dm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  const mid = fs.readFileSync(await dm.path());
+  ok(mid.equals(fs.readFileSync(path.join(tmp, "s.mid"))) && mid.includes("Tenors") && mid.includes("Basses"), `split MIDI equals the CLI's (${mid.length} bytes, Tenors and Basses tracks)`);
+  await page.selectOption("#final", "auto");
+  // back to the state the next check expects
+  await page.selectOption("#genre", "edm"); await page.selectOption("#sections", "1");
+  await page.selectOption("#acap", "1"); await page.selectOption("#lift", "2");
+}
 // one-section piece: the options are left out with a note, not an error
 await page.selectOption("#piece", "Pange lingua");
 await page.waitForFunction(() => document.querySelector("#src").value.length < 2000);

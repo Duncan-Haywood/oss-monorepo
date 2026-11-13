@@ -1,0 +1,98 @@
+# water-leaks step 10: cross-fitted thresholds (forward: tune 2018, test 2019; reverse: tune 2019, test 2018)
+# selection (both folds): most tuning-year detections at <= 2 tuning-year false alarms, ungated 30-day rule;
+#   ties to fewer false alarms, then the larger parameter(s)
+# scoring rules: window 30 d, phi in [1.0, 0.0] m3/h (primary 1); chance 1000 draws per fold, 14-day spacing, forward seed 0, reverse seed 1, summed draw by draw
+
+# forward-fold alarm lists against the earlier steps
+  D1-F       alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  LILA-auto  alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  M1         alarms  25 (2019: 16); 2019 alarms equal the step's alarms.tsv: yes
+  M2         alarms  15 (2019: 8); 2019 alarms equal the step's alarms.tsv: yes
+  M3         alarms  29 (2019: 18); 2019 alarms equal the step's alarms.tsv: yes
+  M4         alarms  25 (2019: 14); 2019 alarms equal the step's alarms.tsv: yes
+
+# reverse-fold grid, ungated 30-day rule (2018 shown for reference; selection reads 2019 only)
+  D1-F       forward setting (240,) -> reverse setting (240,) (26 alarms over 2018-19; 2019 TP 13, FP 2)
+  LILA-auto  forward setting (1.0, 20) -> reverse setting (2.0, 10) (31 alarms over 2018-19; 2019 TP 16, FP 2)
+  M1         forward setting (3,) -> reverse setting (5,) (22 alarms over 2018-19; 2019 TP 11, FP 2)
+  M2         forward setting (12,) -> reverse setting (3,) (26 alarms over 2018-19; 2019 TP 14, FP 2)
+  M3         forward setting (3,) -> reverse setting (8,) (22 alarms over 2018-19; 2019 TP 12, FP 2)
+  M4         forward setting (3,) -> reverse setting (30,) (13 alarms over 2018-19; 2019 TP 9, FP 2)
+
+## phi = 1 m3/h (primary)
+  detector   | fwd 2019 TP  FP | rev 2018 TP  FP | pooled TP | chance median (95%) | P(TP)  Holm(6)
+  D1-F       |    11/19   4 |     8/13   2 |   19/32 |     18 (14 to 21)      | 0.307  0.921
+  LILA-auto  |    13/19   2 |     9/13   3 |   22/32 |     19 (15 to 22)      | 0.049  0.270
+  M1         |    13/19   3 |     6/13   2 |   19/32 |     16 (13 to 20)      | 0.099  0.396
+  M2         |     8/19   0 |     7/13   2 |   15/32 |     14 (10 to 17)      | 0.337  0.921
+  M3         |    15/19   3 |     6/13   1 |   21/32 |     17 (14 to 21)      | 0.045  0.270
+  M4         |    12/19   2 |     2/13   0 |   14/32 |     14 (10 to 17)      | 0.504  0.921
+
+## phi = 0 m3/h (steps 1-7's rule)
+  detector   | fwd 2019 TP  FP | rev 2018 TP  FP | pooled TP | chance median (95%) | P(TP)  Holm(6)
+  D1-F       |    13/19   2 |     9/13   1 |   22/32 |     18 (14 to 21)      | 0.023  0.115
+  LILA-auto  |    14/19   1 |    10/13   2 |   24/32 |     19 (15 to 22)      | 0.004  0.024
+  M1         |    10/19   6 |     7/13   1 |   17/32 |     16 (13 to 20)      | 0.451  1.000
+  M2         |     7/19   1 |     7/13   2 |   14/32 |     14 (10 to 17)      | 0.506  1.000
+  M3         |    13/19   5 |     7/13   0 |   20/32 |     18 (14 to 21)      | 0.145  0.580
+  M4         |    10/19   4 |     2/13   0 |   12/32 |     14 (10 to 17)      | 0.916  1.000
+
+## paired tests on the 32 pooled leaks, phi = 1
+  per-leak detections (1 = detected):
+  fold  pipe      D1-F LILA-auto        M1        M2        M3        M4
+   fwd  p123         0         1         1         0         0         0
+   fwd  p142         1         0         1         1         1         1
+   fwd  p193         0         1         0         0         0         0
+   fwd  p277         0         0         1         0         1         1
+   fwd  p280         1         1         1         0         1         1
+   fwd  p331         1         1         1         1         1         1
+   fwd  p426         0         0         1         1         1         1
+   fwd  p455         1         1         1         1         1         1
+   fwd  p514         1         1         1         1         1         1
+   fwd  p523         1         1         0         1         0         1
+   fwd  p586         0         1         0         0         1         1
+   fwd  p653         0         0         1         0         1         0
+   fwd  p680         1         1         0         1         1         0
+   fwd  p710         0         1         0         0         1         1
+   fwd  p721         1         1         1         0         1         1
+   fwd  p762         0         0         0         0         0         0
+   fwd  p800         1         1         1         1         1         1
+   fwd  p827         1         1         1         0         1         0
+   fwd  p879         1         0         1         0         1         0
+   rev  p158         1         1         1         1         1         0
+   rev  p183         1         1         0         0         1         0
+   rev  p232         0         0         1         1         0         0
+   rev   p31         1         1         1         1         1         0
+   rev  p369         1         0         0         0         0         0
+   rev  p427         0         0         0         0         0         0
+   rev  p461         1         1         0         1         1         0
+   rev  p538         0         1         1         0         1         0
+   rev  p628         1         1         1         1         1         1
+   rev  p654         0         0         0         0         0         0
+   rev  p673         1         1         1         1         0         1
+   rev  p810         0         1         0         1         0         0
+   rev  p866         1         1         0         0         0         0
+  pair                   A only  B only  exact sign P  Holm(15)
+  D1-F vs LILA-auto           3       6         0.508     1.000
+  D1-F vs M1                  6       6         1.000     1.000
+  D1-F vs M2                  7       3         0.344     1.000
+  D1-F vs M3                  4       6         0.754     1.000
+  D1-F vs M4                  9       4         0.267     1.000
+  LILA-auto vs M1             9       6         0.607     1.000
+  LILA-auto vs M2            10       3         0.092     1.000
+  LILA-auto vs M3             6       5         1.000     1.000
+  LILA-auto vs M4            11       3         0.057     0.861
+  M1 vs M2                    8       4         0.388     1.000
+  M1 vs M3                    3       5         0.727     1.000
+  M1 vs M4                    8       3         0.227     1.000
+  M2 vs M3                    4      10         0.180     1.000
+  M2 vs M4                    6       5         1.000     1.000
+  M3 vs M4                    9       2         0.065     0.916
+  bootstrap over pooled leaks (2,000, seed 9), TP(M3) - TP(D1-F): +2 (95%: -4 to +8)
+  bootstrap over pooled leaks (2,000, seed 9), TP(LILA-auto) - TP(D1-F): +3 (95%: -3 to +9)
+
+## pre-registered predictions (LOG.md, step 10 plan)
+  (a) M3 pooled beats chance at Holm 0.05, phi = 1: Holm P 0.270: FAILED
+  (b) D1-F pooled P >= 0.05, phi = 1: P 0.307: HELD
+  (c) no pair separable at Holm 0.05 (smallest adjusted P 0.861): HELD
+  (d) reverse setting differs from forward for >= 3 of 6 detectors: 5 of 6: HELD

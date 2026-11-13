@@ -2090,7 +2090,7 @@ export function threeRoundDeals(opp, rs, cap = 20000) {
  * Returns the shape squeezeSingleRounds does, plus { floor, leastProved, floorPriced: true }, or null
  * when no balanced choice was found for any kept timetable.
  */
-export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3 } = {}) {
+export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3, balanced = true, balancedBudget = 50000 } = {}) {
   if (!Number.isInteger(n) || n < 4 || n > 25) throw new Error("A floor-priced season needs 4 to 25 teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
@@ -2098,8 +2098,19 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
   const opp = oppFromRounds(start.rounds, N, n);
   const table = floorTable(opp, n);
   const costOf = (c, f) => c + over * Math.max(0, f - maxBreaks);
+  // the breaks a timetable is priced on: its floor, or, when the floor is within the cap and
+  // `balanced` is on, its least balanced host choice if that is within the cap too, else the cap + 2
+  // (the floor ignores the balance rule, and searches priced on it alone ended 1 to 3 over the cap:
+  // README "Pricing the balanced least"). The walk reuses the table of the last trial.
+  let walks = 0;
+  const priced = (f) => {
+    if (!balanced || f > maxBreaks) return f;
+    walks++;
+    const b = table.balanced(maxBreaks, { seed, budget: balancedBudget });
+    return b.least != null ? b.least : maxBreaks + 2;
+  };
   const rand = mulberry32((seed * 3266489917 + 7) >>> 0);
-  let coe = coeOf(opp, n, false), fl = table.floor, cur = costOf(coe, fl);
+  let coe = coeOf(opp, n, false), fl = priced(table.floor), cur = costOf(coe, fl);
   // the best `keep` distinct timetables within the cap, least carry-over first
   const kept = [];
   const remember = () => {
@@ -2142,7 +2153,7 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
       let take = null;
       for (const c of scored.slice(0, dealFloors)) {
         put(c.d);
-        const nf = table.trial(lo); floors++;
+        const nf = priced(table.trial(lo)); floors++;
         const v = costOf(c.nc, nf);
         if (v <= line && (!take || v < take.v)) take = { ...c, nf, v };
         put(was);
@@ -2179,7 +2190,7 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
     const line = cur - T * Math.log(rand() || 1e-12);
     const nc = coeOf(opp, n, false);
     if (nc > line) { undo(); continue; }
-    const nf = table.trial(lo); floors++;
+    const nf = priced(table.trial(lo)); floors++;
     const v = costOf(nc, nf);
     if (v <= line) {
       cur = v; coe = nc; fl = nf; table.commit();
@@ -2213,7 +2224,7 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
   });
   let breaks = 0;
   for (let t = 0; t < n; t++) breaks += teamBreaks(x.venues, c.opp, t, n);
-  return { rounds, coe: c.coe, circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, floor: x.floor, leastProved: x.proved, maxBreaks, iterations: it, floors, dealt, floorPriced: true };
+  return { rounds, coe: c.coe, circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, floor: x.floor, leastProved: x.proved, maxBreaks, iterations: it, floors, walks, dealt, floorPriced: true };
 }
 
 /** Floor-priced seasons the page adds after its regrounded ones, at most (carryOverFloorPriced). */
@@ -2236,7 +2247,7 @@ export const CARRY_OVER_DEALS = 0.15;
  * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
  * season or when the frontier has no such gap.
  */
-export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS } = {}) {
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true } = {}) {
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   const base = [...results].sort((a, b) => a.index - b.index);
   if (n < 6 || n > 21 || !count || base.some((t) => t.rounds.length !== R)) return [];
@@ -2257,7 +2268,7 @@ export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_
     // both neighbourhoods at this cap, the better kept: swaps alone, and swaps with three-round
     // re-deals (README "Re-dealing three rounds at once"; each wins on some sizes and seeds)
     const two = [0, deals].filter((d, i, a) => a.indexOf(d) === i)
-      .map((d) => floorPricedSingleRounds(n, base[top.i], { seed: carryOverTrySeed(seed, top.i), maxBreaks: cap, iterations, deals: d }))
+      .map((d) => floorPricedSingleRounds(n, base[top.i], { seed: carryOverTrySeed(seed, top.i), maxBreaks: cap, iterations, deals: d, balanced }))
       .filter(Boolean);
     const within = two.filter((r) => r.breaks <= cap);
     let s = null;

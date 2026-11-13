@@ -1597,6 +1597,80 @@ come back with 13 breaks against the start's 12).
   every pair still meets once; a re-dealt floor-priced season at 12 teams is valid, balanced,
   seeded, and its breaks and carry-over match a recount.
 
+## Pricing the balanced least: floor-priced searches that land inside their cap (2026-11-13, latest)
+
+The floor-priced search (two sections up) prices a timetable on its **break floor**, the fewest breaks
+any host choice allows. The floor ignores the tool's balance rule (each team's home and away games
+within one), and the grounds the page finally picks must keep it, so a timetable at the floor can need
+1 to 3 more breaks once it is balanced. That is why several searches ended over the cap they were
+given: 17 teams at a cap of 28 came back at 29, 30 and 31 breaks on seeds 1 to 3 (floors 27-28); at 20
+teams the step sometimes kept a cap-46 search that came back at 48.
+
+**The fix: price the balanced least once the floor is in reach.** When a move's floor is within the
+cap, the search now walks the floor programme's own table for the least *balanced* host choice within
+the cap (`floorTable(...).balanced(cap)`, the same seeded depth-first walk `leastBreaks` uses, moved
+into `balancedWalk` so both share it). The forward table is already there from the floor, so no
+programme is rerun: the walk is the only extra cost. A timetable with a balanced choice inside the cap
+is priced at it (no penalty); one without, or whose walk runs out of its 50,000 steps, is priced as the
+cap + 2. The best timetables are only remembered while they are balanced inside the cap, so the
+six the search keeps for the end are ones that can actually be used. `floorPricedSingleRounds(n, start,
+{ balanced })` (default on; `balanced: false` is the old floor-only pricing) and `carryOverFloorPriced`
+pass it through; the result reports `walks`.
+
+**What it changes on the page** (`node eval/floor-priced.mjs <teams> <seed> --page` with and without
+`--floor-only`, same cached lists, 16 to 20 teams, seeds 1 to 3, `eval/balanced-priced.txt`):
+
+| Teams, seed | floor alone | balanced least priced | cut inside the gap |
+|---|---|---|---|
+| 17, s1 | 347 / 29 (cap 28) | 367 / 30, **391 / 27** | 22.2% -> **32.3%** |
+| 17, s2 | 385 / 29 (cap 28) | 369 / 30, **381 / 28** | 17.1% -> **24.3%** |
+| 17, s3 | 369 / 30 (cap 28) | **371 / 28** | 13.6% -> **27.0%** |
+| 18, s1 | 366 / 36, 418 / 34 | 366 / 36, **408 / 34** | 4.4% -> 5.0% |
+| 18, s2 | 370 / 36, 428 / 34 | **366 / 36**, 428 / 34 | 4.0% -> 4.3% |
+| 18, s3 | 408 / 36 | **404 / 36** | 1.4% -> 1.7% |
+| 20, s1 | 382 / 48, 528 / 46 | 382 / 48, **444 / 46** | 4.8% -> **7.0%** |
+| 20, s2 | 414 / 48, 434 / 46 | **384 / 48**, 460 / 46 | 11.6% -> 11.8% |
+| 20, s3 | 374 / 48, 460 / 46 | 374 / 48, **458 / 46** | 16.1% -> 16.2% |
+| 16 s1-s3, 19 s1-s3 | | unchanged (nothing joins in either mode but 16 s3's 348 / 22) | |
+
+- **No run's cut inside the gap got worse; 9 of 15 rose, 6 held.** Mean cut inside the gap 6.3% ->
+  **8.6%**; mean cut in the least carry-over at a break budget over the whole frontier 1.8% -> 2.5%.
+  Seasons joining the frontier: 15 -> 17.
+- **Every season the step adds is now within its cap for balance's sake.** Floor-only pricing returned
+  4 seasons over their cap; with the balanced least priced the only one left is 16 teams seed 3's 348 /
+  22 at a cap of 20, whose *floor* is 22 in both modes (the search found no timetable with a floor
+  under the cap at all, a different limit).
+- **The cost is worker time:** 20 s a run on average before, 32 s now (304 s -> 479 s over the 15
+  runs). The worst is 19 teams, 4 to 5 s before and 35 to 46 s now, adding nothing either way: odd
+  leagues near the cap often have no balanced choice inside it, and each such walk spends its budget
+  before giving up. A smaller budget (10,000 steps) did not help 19 teams (37 s) and lost seasons at
+  17 (32.3% -> 26.4% inside the gap), so 50,000 stays. The step still runs after the squeezes with
+  the page usable throughout.
+- Tests (`floor-priced.test.mjs`, now 16): `floorTable.balanced` returns `leastBreaks`' proved balanced
+  least at and above it, null and proved one break under it and under the floor, and reads a trial's
+  table rather than the committed one (30 timetables at 8, 9, 12, 13 and 14 teams); at 17 teams from
+  343 / 32 with a cap of 28 the floor-only search returns 371 / 32 and the balanced-priced one 391 /
+  28, recounted.
+
+**Two things that did not work, for the home-and-away floor** (the `next:` item "an exact or tighter
+floor for home and away"):
+
+- **A Lagrangian floor cannot beat the relaxed one, by symmetry.** Pricing each pair's tie (host in
+  leg one = away in leg two) with a multiplier and running the programme over both legs looked like
+  the cheap way to tighten the 74 MaxSAT beats with 85 (19 teams, 1,311 timetable). It returned 74
+  after 225 steps, on both the 1,311 and 1,517 timetables, with and without the leg-one balance
+  priced too. The reason is exact, not a tuning matter: flipping every host of a season keeps every
+  break, and the average of any host choice and its flip meets every pair's tie (a_e + b_e = 1 on
+  average), so the Lagrangian dual, which is the linear relaxation over the programme's paths, always
+  has a solution at the relaxed floor. A tighter floor has to break that symmetry, for example by
+  branching, not by pricing.
+- **Exact block descent finds nothing to improve.** Trying every host choice of the pairs of one or
+  two rounds at a time (one leg-one round, one leg-two round, adjacent rounds, the seam, and each
+  leg-one round joined with each leg-two round: up to 18 pairs, 262,144 choices) leaves the page's 87
+  and 84 at 87 and 84 (`eval/double-blocks.mjs`, `eval/double-blocks.txt`, 26 to 43 s each). The page's
+  grounds are already optimal over every such block, so the 2 breaks MaxSAT saves on the 1,311
+  timetable need a change spread over more than two rounds' pairs.
+
 ## Team sheets and a duty rota for a one-division league (2026-11-13, latest)
 
 Most leagues are one division, and until now the snack stand / scoreboard rota and the printable team

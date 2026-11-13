@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtJePZKJat7YVo7kZ1p",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T15:06:52Z",
+  "ended": "2026-11-13T15:32:26Z",
+  "wall_minutes": 29.03,
+  "tokens_in": 8799416,
+  "tokens_out": 49028,
+  "cost_usd": 3.9286,
+  "tool_calls": 71,
+  "task": "Deepen flagship 9 (league-schedule-generator): price the balanced least rather than the floor in floor-priced searches; try a tighter home-and-away break floor",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15519",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/orient-maxsat.py on fresh home-and-away dumps (10-16 teams) crashed inside least_breaks after pip install python-sat",
+      "impact": "no new MaxSAT ground truth for home-and-away; the negative results use the two existing 19-team proofs",
+      "resolved": false
+    },
+    {
+      "what": "first venture-preflight run failed: the post's description was 185 characters (cap 160)",
+      "impact": "shortened and reran",
+      "resolved": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "a backgrounded `cd X && (...) &` moves the cd into the background job, so the next git command ran in the wrong directory; worth a line in cloud-session.md next to the pkill note"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator next: suggested 'a Lagrangian on the pair ties' for the home-and-away floor; it provably cannot beat the relaxed floor (host-flip symmetry), which cost about a third of the run to find. The item is now rewritten."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-league-schedule-pricing-the-balanced-least.md",
+    "ventures/league-schedule-generator/README.md (Pricing the balanced least)"
+  ],
+  "goal": null,
+  "notes": "Lagrangian floor (subgradient over pair-tie multipliers, with and without leg-one balance prices) returned exactly the relaxed floor 74 at 19 teams; the proof is that a host choice and its global flip average to a feasible point of every tie. Exact block descent (eval/double-blocks.mjs) left 87/84 at 87/84. Shipped instead: floorTable.balanced + balanced pricing in floorPricedSingleRounds. eval/balanced-priced.txt: 15 page runs 16-20 teams seeds 1-3; gap cut mean 6.35% -> 8.64%, 9 rise 6 hold, joined 15 -> 17, over-cap 4 -> 1 (the one has floor > cap), time 304 -> 479 s total. Venture tests: run_venture_tests.py league-schedule-generator ok (199.2 s). venture-preflight: clean (after shortening the post description).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3d3df5ff-b5b4-5116-9f0c-a255bab8eec1",
+    "transcripts": 1,
+    "first": "2026-11-13T15:06:52Z",
+    "last": "2026-11-13T15:35:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 131,
+        "output": 49028,
+        "thinking": 14018,
+        "cache_read": 8647016,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152269,
+        "api_equivalent_usd": 3.9286,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 131,
+      "output": 49028,
+      "thinking": 14018,
+      "cache_read": 8647016,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152269,
+      "api_equivalent_usd": 3.9286,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.03,
+      "active_minutes": 29.03,
+      "model_minutes": 9.88,
+      "tool_minutes": 19.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an algorithms engineer: two dead-end relaxations tried and proved/measured, walk refactor, pricing change, 30 eval runs, tests, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 254.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

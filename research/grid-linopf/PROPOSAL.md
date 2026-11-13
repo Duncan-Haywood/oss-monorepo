@@ -124,7 +124,8 @@ versus non-oracle voltage schedule.
 3. A voltage schedule not taken from the AC optimum; re-run TYP, API, SAD (2026-11-12, `infra-dcopf`, `results_vsched.txt`: at 1.0 pu the repair is clean on 2 of 11 API and SAD, 6 and 7 at the oracle schedule).
 3b. Generator voltage setpoints as decision variables in the linearisation, from the case-file start (2026-11-12, `infra-dcopf`, `results_vlin.txt`, `results_vlin_margin.txt`: as planned 5 of 34 fully clean; with interior margins, a post-hoc variant, 18 of 34, and 28 of 34 with the reactive stage, at +0.17 to +0.34 % mean cost; held-out check owed).
 4. LPAC and a one-shot optimised linearisation as baselines on all three sets.
-5. Load-perturbed copies for intervals; paired tests.
+4a. LPAC-C (conic PowerModels form) one-shot on all three sets (2026-11-13, `infra-dcopf`, `results_lpac.txt`, `results_lpac_infeasible.txt`: fully clean on 0 of 34, no solution on 9 (7 SAD), 8 of 34 with the reactive stage; as a warm start for J-m-a 17 against 15 on the 25 it solves). Still open: LPAC-W, the polyhedral LP form, the optimised linearisation.
+5. Load-perturbed copies for intervals; paired tests (2026-11-13, `infra-dcopf`, `results_perturb.txt`, `results_perturb_noref.txt`: on 244 scored copies J-m-a fully clean 0.66, cluster 95 % 0.52 to 0.79, and 0.91 with the reactive stage, 0.83 to 0.97; nominal verdict = majority on 30 of 34; J+R beats the no-repair reactive stage 29 to 0, P = 3.7e-9; 101 of 360 copies, 71 of 120 API, have no PIPS AC optimum and are excluded, and the arms find a feasible point on only 4 of them).
 6. Larger PGLib cases (500 to 2,000 buses) as the second held-out set.
 7. The convergence statement (H4), checked against observed rounds.
 8. `paper/`: an 8-page IEEE Transactions draft with one command per figure.

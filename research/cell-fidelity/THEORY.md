@@ -174,3 +174,43 @@ noiseless count and Monte Carlo in `tests/test_location.py`).
 **Limits (part 2b).** One parameter set, the same 128 designs as every earlier part, overlapping pools. The
 argument is a scaling argument, checked only by which registered form fits best. The pilots see true f on 16 designs
 and the formula sees the pool's true f, as in part 2a.
+
+## Part 3: SPMe's salt flag in closed form (milestone 5i, 2026-11-13)
+
+Plan and H64 to H69 were logged before the numbers they test (`LOG.md`, milestone 5i). Results are in
+`experiments/sand/results.txt`.
+
+**Steady state with constant diffusivity (`r_ss`).** SPMe's electrolyte sees one uniform reaction rate per
+electrode. Under a constant current density i, the salt flux through the separator is q = (1 - t+) i / F; it is
+produced uniformly across the negative electrode (discharge) and consumed uniformly across the positive. With
+effective diffusivity D_k = D_e eps_k^b_k in region k and zero flux at both current collectors, the steady profile
+relative to x = 0 is
+
+- negative, 0 <= x <= L_n: u(x) = -q x^2 / (2 L_n D_n);
+- separator: u(x) = u(L_n) - q (x - L_n) / D_s;
+- positive, x' = x - L_n - L_s in [0, L_p]: u = u(L_n + L_s) - q (x' - x'^2 / (2 L_p)) / D_p,
+
+and c = c0 + u - <u>, with <u> the porosity-weighted mean, since salt is conserved. The discharge minimum sits at
+the positive collector; a charge at the same current mirrors the profile about c0 and puts the minimum at the
+negative collector. So r_ss = min(1 + (u(L) - <u>)/c0, 1 + <u>/c0) = 1 - I / I_ss. The cell empties its
+electrolyte at a current set by thicknesses, porosities, Bruggeman exponents, D_e and t+ alone. The relaxation
+time to this state, (sum eps L)(sum L / D) / pi^2, is 4 to 740 s on the committed designs, against nominal discharge
+times of 0.15 to 6 hours (at least 6 relaxation times on every design), so the transient barely matters at these
+currents.
+
+**With D_e(c) (`r_kt`).** Most parameter sets fit D_e as a function of c that rises as the salt empties (D_e(0)/D_e(c0) is 2.7 in
+`Chen2020` and `OKane2022`, 2.5 in `NCA_Kim2011`, 1.9 in `Ai2020` and `Marquis2019`, 20 in `Ecker2015`; `Mohtat2020`
+and `Ramadass2004` use a constant D_e, so there r_kt equals r_ss). Put Phi(c) = int_0^c D_e(c') dc' (the Kirchhoff transform). The steady flux
+-eps^b D_e(c) dc/dx = -eps^b dPhi/dx is linear in Phi, so Phi has the profile above with eps_k^b in place of D_k,
+up to one additive constant. Mass is conserved in c, not Phi, so that constant comes from one monotone
+one-dimensional root (bisection) on int eps Phi^{-1}(Phi_ref + w(x)) dx = c0 sum eps L. Below c = 0, Phi is
+extended linearly so that a design that empties its electrolyte still gets an ordered, negative value. t+ stays at
+its value at c0. Cost: about 0.05 s per design in pure Python after a one-off 400-point table of D_e per parameter
+set, against 1 to 30 s for an SPMe run and 5 to 60 s for DFN.
+
+**Why it works, and what it does not say.** This is not a model of the cell. It is a model of SPMe's electrolyte,
+which in PyBaMM's SPMe is the same diffusion problem with a uniform reaction. That is why it reproduces SPMe's
+r_min so closely. It inherits SPMe's blind spot: DFN's reaction moves towards the separator where the salt runs
+out, so DFN's own minimum is higher where SPMe empties. The flag was always a statement about SPMe. The
+practical consequence is that the trust test of milestones 1 to 5h, and 5g's gate input, can be computed for a
+whole pool before any simulation runs.

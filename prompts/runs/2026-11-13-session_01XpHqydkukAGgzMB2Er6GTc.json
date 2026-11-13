@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydkukAGgzMB2Er6GTc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T15:15:00Z",
+  "ended": "2026-11-13T15:29:54Z",
+  "wall_minutes": 15.11,
+  "tokens_in": 10873745,
+  "tokens_out": 74804,
+  "cost_usd": 5.1627,
+  "tool_calls": 81,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15526",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "The paper's bibliography had Adel et al. 2024 author first names wrong (Wes, Saeed for Wesley, Salma) and no DOI; fixed from the NSF public-access record.",
+    "The data set's AdaptivePose.csv does not reproduce the source paper's Table 1 (mean 1.956 vs 0.401 mm); recorded and not used. BenchmarkPose.csv reproduces it exactly."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Data hosts: the Princeton Data Commons landing page is behind a bot challenge, but its catalog .json endpoint lists Globus direct-download URLs that work through the proxy; worth a line under 'Outbound hosts'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Harness blocks 'sleep N; cat file' waits; pyenv.py background job plus the task-notification was the working pattern (already documented, cost one retry)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 11 plan)",
+      "why": "H52 was registered on 'the measured shapes'; the raw slices carry 2 mm scan quantisation, so the headline uses a 110 mm running mean and a post hoc variant with the cross-member common part removed, both reported beside the raw result.",
+      "did": "Reported raw, smoothed and common-removed variants; scored H52 on the smoothed one as the closest to the registered intent.",
+      "result": "H52 refuted in every variant (11-20 points), so the choice does not change the verdict."
+    },
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 11 plan)",
+      "why": "Plate profiles were planned as 'also reported'; the plates' inner edge is coplanar with the stud ends so a slice cannot separate them.",
+      "did": "Dropped plate profiles and said why in extract.py.",
+      "result": "No effect on the hypotheses."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-real-studs-are-not-parabolas-sheathing-robot.md",
+    "research/buildbot-sheathing/LOG.md (milestone 11 plan and result)",
+    "research/buildbot-sheathing/paper/draft.md section 5.10"
+  ],
+  "goal": null,
+  "notes": "Research track, programme buildbot-sheathing, milestone 11: first measured studs, from the Adel et al. 2024 laser scan of a robot-built 2x4 wall (CC BY 4.0). Pre-registered H49-H52: H50 held, H49/H51/H52 refuted. Single 2x on measured shapes 0.425-0.471 vs 0.579 for parabolas at the same bows; doubled joints 1.000. Local checks: pytest 59 passed 8 skipped; paper/check_numbers.py 113/113; research/_homepage/build.py ok; check_md_links ok; cite_check ok (both Adel DOIs); post frontmatter ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d3fa2b0b-eb8b-5793-89b5-d7f128591d39",
+    "transcripts": 1,
+    "first": "2026-11-13T15:15:00Z",
+    "last": "2026-11-13T15:30:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 150,
+        "output": 74804,
+        "thinking": 23674,
+        "cache_read": 10682407,
+        "cache_write_5m": 0,
+        "cache_write_1h": 191188,
+        "api_equivalent_usd": 5.1627,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 150,
+      "output": 74804,
+      "thinking": 23674,
+      "cache_read": 10682407,
+      "cache_write_5m": 0,
+      "cache_write_1h": 191188,
+      "api_equivalent_usd": 5.1627,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 72,
+      "Read": 3,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.11,
+      "active_minutes": 15.11,
+      "model_minutes": 12.19,
+      "tool_minutes": 2.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher locating the data set, writing the point-cloud extractor and calibration, rerunning the Monte Carlo and writing it up: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 309.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

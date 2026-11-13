@@ -1,0 +1,59 @@
+Milestone 6h: stroke-linear pump loss model fitted to Kauranne (2022) Fig. 13, and the flat-hold bound
+model: L = x p (1/eta - 1) = k0 + kp p + kl p^2 + kc x p  (L in bar of full-stroke flow, p in bar)
+
+60 C: k0 7.858 bar, kp -0.00758, kl 5.258e-04 1/bar, kc 0.03495
+  fit to all 60 cells: RMS efficiency residual 0.0156, max |residual| 0.0428
+  residual by stroke (cm3/r: mean over pressures): 12: -0.0083, 15: -0.0007, 20: -0.0058, 23: -0.0106, 25: -0.0128, 30: -0.0085, 33: -0.0038, 35: +0.0007, 40: +0.0110, 45: +0.0211
+  holdout: fit on strokes >= 15 cm3/r, predict 12 cm3/r (model - digitised): 25 bar -0.0422, 50 bar -0.0322, 100 bar -0.0093, 150 bar +0.0036, 200 bar +0.0220, 250 bar +0.0462
+  at 150 bar: stroke-independent loss A 18.55 bar, full-stroke loss A + B 23.79 bar, A share 0.780
+  zero-stroke drag at 150 bar carried to the XE80E pump: A Q_max / 600 = 6.77 kW, 1.492 L/h at b 0.2203
+  without the 25 bar row: k0 8.176, kp -0.01152, kl 5.384e-04, kc 0.03440; A at 150 bar 18.56
+  efficiency at 150 bar, model vs 6g's table (flat below 0.267):
+    x 0.050: model 0.285, table 0.672
+    x 0.100: model 0.440, table 0.672
+    x 0.150: model 0.538, table 0.672
+    x 0.200: model 0.605, table 0.672
+    x 0.267: model 0.667, table 0.672
+    x 0.400: model 0.744, table 0.743
+    x 0.600: model 0.806, table 0.817
+    x 1.000: model 0.863, table 0.840
+
+25 C: k0 10.548 bar, kp -0.00988, kl 3.496e-04 1/bar, kc 0.04124
+  fit to all 60 cells: RMS efficiency residual 0.0104, max |residual| 0.0286
+  residual by stroke (cm3/r: mean over pressures): 12: -0.0061, 15: +0.0036, 20: -0.0004, 23: -0.0056, 25: -0.0076, 30: -0.0065, 33: -0.0030, 35: -0.0004, 40: +0.0069, 45: +0.0137
+  holdout: fit on strokes >= 15 cm3/r, predict 12 cm3/r (model - digitised): 25 bar -0.0295, 50 bar -0.0289, 100 bar -0.0057, 150 bar +0.0057, 200 bar +0.0136, 250 bar +0.0228
+  at 150 bar: stroke-independent loss A 16.93 bar, full-stroke loss A + B 23.12 bar, A share 0.732
+  zero-stroke drag at 150 bar carried to the XE80E pump: A Q_max / 600 = 6.18 kW, 1.361 L/h at b 0.2203
+  without the 25 bar row: k0 10.581, kp -0.01001, kl 3.509e-04, kc 0.04071; A at 150 bar 16.98
+  efficiency at 150 bar, model vs 6g's table (flat below 0.267):
+    x 0.050: model 0.303, table 0.681
+    x 0.100: model 0.461, table 0.681
+    x 0.150: model 0.557, table 0.681
+    x 0.200: model 0.623, table 0.681
+    x 0.267: model 0.683, table 0.681
+    x 0.400: model 0.756, table 0.746
+    x 0.600: model 0.813, table 0.822
+    x 1.000: model 0.866, table 0.856
+
+Flat-hold shortfall on the central geometry's f_t* (60 C, A 18.55 bar, b 0.2203, Q_max 219, tau 1.144): rise = 10.359 x g L/h
+  g 0.02: f_t* rises by at least 0.207 L/h (6g central 5.495 -> at least 5.702)
+  g 0.05: f_t* rises by at least 0.518 L/h (6g central 5.495 -> at least 6.013)
+  g 0.10: f_t* rises by at least 1.036 L/h (6g central 5.495 -> at least 6.531)
+  g 0.15: f_t* rises by at least 1.554 L/h (6g central 5.495 -> at least 7.049)
+  g 0.20: f_t* rises by at least 2.072 L/h (6g central 5.495 -> at least 7.567)
+  g at which the rise is 1 L/h: 0.097
+  (g = E[(1 - x/x0)+] over moving samples, x = q/219; g <= s, the time share with demand under 58.4 L/min. It needs the motion trace, not reachable from this session.)
+
+Post hoc (added after the first run showed residuals that curve with stroke, so A from the whole range may be
+biased): A at 150 bar from the small strokes only, where the extrapolation starts.
+  60 C: 4-term fit on strokes 12-25 cm3/r: A 23.73 bar (full-range 18.55); line on the 150 bar row, strokes 12-25: A 20.09 bar, B -0.16; rise per unit g at the central geometry 13.25 and 11.22 L/h
+  25 C: 4-term fit on strokes 12-25 cm3/r: A 20.22 bar (full-range 16.93); line on the 150 bar row, strokes 12-25: A 19.39 bar, B 0.41; rise per unit g at the central geometry 11.29 and 10.83 L/h
+
+Predictions (LOG.md 6h):
+  K1 RMS residual <= 0.015 at both temperatures: refuted (60 C 0.0156, 25 C 0.0104)
+  K2 holdout 12 cm3/r within 0.02 at 50-250 bar, 60 C: refuted (max |error| 0.0462)
+  K3 A share of full-stroke loss at 150 bar in 0.30-0.70: refuted (0.780)
+  K4 rise > 1 L/h at g 0.10: held (1.036 L/h)
+  K5 model eta at x 0.10, 150 bar, 60 C below 0.55: held (0.440)
+
+Source: Kauranne 2022, Energies 15:4030, doi:10.3390/en15114030, Fig. 13 (CC BY 4.0), digitised.

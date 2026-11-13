@@ -460,6 +460,7 @@ class FeederParamsTest(unittest.TestCase):
         self.assertAlmostEqual(y30, p.feed_col_x * math.sin(math.radians(30.0)), places=6)
         self.assertAlmostEqual(math.hypot(*u30), 1.0)
 
+    @unittest.skipUnless(HAVE_CAD, "build123d not installed")   # builds solids, unlike the rest of this class
     def test_take_up_parts_match_the_design(self):
         from otr_cad.feeder import _sleeve_d, take_up_parts
         p = Feeder()

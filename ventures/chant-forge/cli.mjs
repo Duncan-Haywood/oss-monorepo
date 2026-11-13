@@ -6,12 +6,12 @@ import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize
 import { eventsToMidi } from './midi.mjs';
 import { lrc } from './lrc.mjs';
 import { cueSheet } from './cues.mjs';
-import { suggestFinal, MENS_RANGE } from './voicefit.mjs';
+import { suggestFinal, splitVoices, MENS_RANGE, TENOR_RANGE, BASS_RANGE } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 import { sectionPlan, liftEvents } from './sections.mjs';
 import { noteName } from './gabc.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--outro N] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--split-voices] [--tenor LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
@@ -19,6 +19,8 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --a-cappella  with --sections: the first verse is the choir alone (no backing); the band comes in on its build bar
   --key-lift  with --sections: raise the last drop (and the outro) N semitones, 2 = a whole tone; refused if the lifted line leaves the singing range
   --range   singing range as MIDI numbers LOW-HIGH for --suggest-final, --auto-final and the --key-lift check (default 40-64, E2-E4)
+  --split-voices  tenors and basses take turns by phrase: the full choir sings every phrase both sections can reach, the rest go to the section that can; picks the final itself unless --final is given; the MIDI gets a Tenors and a Basses track and the cue sheet a who-sings column
+  --tenor, --bass  section ranges for --split-voices as MIDI numbers LOW-HIGH (defaults 48-69, C3-A4, and 40-64, E2-E4)
   --outro   N bars after the chant (the backing winds down under them; with --sections it ends on a held chord)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)
@@ -54,6 +56,9 @@ export function run(argv) {
     else if (a === '--a-cappella') args.acappella = true;
     else if (a === '--key-lift') args.keyLift = Number(argv[++i]);
     else if (a === '--range') args.range = argv[++i];
+    else if (a === '--split-voices') args.split = true;
+    else if (a === '--tenor') args.tenor = argv[++i];
+    else if (a === '--bass') args.bass = argv[++i];
     else if (a === '--outro') args.outro = Number(argv[++i]);
     else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
@@ -82,6 +87,18 @@ export function run(argv) {
     if (!m || Number(m[1]) >= Number(m[2]) || Number(m[2]) > 127) return { code: 2, text: '--range must be two MIDI numbers LOW-HIGH, low first (40-64 is E2-E4)' };
     range = { low: Number(m[1]), high: Number(m[2]) };
   }
+  const rangeArg = (v, flag, d) => {
+    if (v === undefined) return d;
+    const m = /^(\d{1,3})-(\d{1,3})$/.exec(v || '');
+    if (!m || Number(m[1]) >= Number(m[2]) || Number(m[2]) > 127) return null;
+    return { low: Number(m[1]), high: Number(m[2]) };
+  };
+  const tenor = rangeArg(args.tenor, '--tenor', TENOR_RANGE);
+  const bass = rangeArg(args.bass, '--bass', BASS_RANGE);
+  if (!tenor || !bass) return { code: 2, text: '--tenor and --bass must be two MIDI numbers LOW-HIGH, low first (48-69 is C3-A4)' };
+  if ((args.tenor !== undefined || args.bass !== undefined) && !args.split) return { code: 2, text: '--tenor and --bass need --split-voices' };
+  if (args.split && args.auto) return { code: 2, text: '--split-voices picks the final itself; drop --auto-final' };
+  if (args.split && args.suggest) return { code: 2, text: '--suggest-final checks one unison range; drop --split-voices' };
   if (args.auto && args.final !== null) return { code: 2, text: '--auto-final and --final both set the final; use one' };
   if (args.fills && !args.genre) return { code: 2, text: '--fills needs --genre' };
   if (args.sections && !args.genre) return { code: 2, text: '--sections needs --genre' };
@@ -126,7 +143,7 @@ export function run(argv) {
       return { code: 0, text: JSON.stringify(r, null, 2) };
     }
     const withLift = lift ? ` with the last drop lifted ${lift}` : '';
-    if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones${withLift} is ${r.over} wider than ${r.range.join('-')}; split between voices or accept a falsetto/low pedal` };
+    if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones${withLift} is ${r.over} wider than ${r.range.join('-')}; try --split-voices (tenors and basses by phrase) or accept a falsetto/low pedal` };
     return { code: 0, text: `finals that fit ${r.range.join('-')}${withLift}: ${noteName(r.finals.lowest - lift)} to ${noteName(r.finals.highest - lift)}; recommended --final ${keyOf(r.recommended)} (${noteName(keyOf(r.recommended))})` };
   }
   if (args.auto) {
@@ -134,8 +151,19 @@ export function run(argv) {
     if (!r.fits) return { code: 1, text: `--auto-final: ambitus ${r.ambitus} semitones${lift ? ` with the last drop lifted ${lift}` : ''} is ${r.over} wider than ${r.range.join('-')}; use --final to choose` };
     args.final = keyOf(r.recommended);
   }
-  if (args.final !== null && hasNotes) events = transposeToFinal(events, args.final + lift);
-  if (lift) {
+  let split = null;
+  if (args.split && hasNotes) {
+    const fin = events.filter((e) => e.type === 'note').at(-1).midi;
+    try {
+      split = splitVoices(events, { tenor, bass, shift: args.final !== null ? args.final + lift - fin : null });
+    } catch (err) {
+      return { code: 2, text: err.message };
+    }
+    if (!split.fits) return { code: 1, text: `--split-voices: no phrase-by-phrase split fits tenors ${noteName(tenor.low)}-${noteName(tenor.high)} and basses ${noteName(bass.low)}-${noteName(bass.high)}: ${split.reason}${args.final !== null ? '; drop --final to let it choose' : ''}` };
+    events = split.events;
+    args.final = split.final - lift;
+  } else if (args.final !== null && hasNotes) events = transposeToFinal(events, args.final + lift);
+  if (lift && !split) {
     // the lift is the part this option adds, so check it: the lifted notes must stay in range
     const lifted = events.filter((e) => e.type === 'note' && e.lifted).map((e) => e.midi);
     const top = Math.max(...lifted);
@@ -147,6 +175,21 @@ export function run(argv) {
   if (args.outro) events = [...events, { type: 'bar', kind: 'full', pulses: chantBars * ppb - chantPulses + ppb * args.outro }];
   if (args.intro) events = [{ type: 'bar', kind: 'full', pulses: 8 * args.intro }, ...events];
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
+  // the mode check is about the transcription, so judge the final as written, before --final moves it
+  if ('modeFinalMatches' in summary) summary.modeFinalMatches = summarize(parsed).modeFinalMatches;
+  if (split) {
+    const who = (v) => split.phrases.map((p, k) => (p.voice === v ? k + 1 : 0)).filter(Boolean);
+    summary.voices = {
+      final: split.finalName,
+      unison: split.unison.join('-'),
+      allNotes: split.allNotes,
+      tenorNotes: split.tenorNotes,
+      bassNotes: split.bassNotes,
+      tenorPhrases: who('tenor'),
+      bassPhrases: who('bass'),
+      changes: split.changes,
+    };
+  }
   if (args.cues) {
     writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8, plan }));
     summary.cues = args.cues;
@@ -181,6 +224,9 @@ export function run(argv) {
         `${summary.name || args.file}: ${summary.notes} notes, ${summary.lowest}-${summary.highest} (ambitus ${summary.ambitus} semitones), final ${summary.final}`,
         `mode ${summary.mode ?? 'not given'}${summary.modeFinalMatches === false ? ' (final does not match the mode: check the transcription)' : ''}`,
         `${summary.bars.toFixed(2)} bars, ${summary.seconds.toFixed(1)} s at ${args.bpm} BPM`,
+        ...(summary.voices ? [summary.voices.tenorNotes + summary.voices.bassNotes === 0
+          ? `voices: the whole chant fits ${summary.voices.unison}, so the full choir sings every phrase (final ${summary.voices.final})`
+          : `voices: full choir on ${summary.voices.allNotes} of ${summary.notes} notes (${summary.voices.unison}); ${[summary.voices.tenorPhrases.length ? `tenors alone on phrase ${summary.voices.tenorPhrases.join(', ')} (${summary.voices.tenorNotes} notes)` : '', summary.voices.bassPhrases.length ? `basses alone on phrase ${summary.voices.bassPhrases.join(', ')} (${summary.voices.bassNotes} notes)` : ''].filter(Boolean).join('; ')}; final ${summary.voices.final}`] : []),
         ...(summary.sections ? [`sections: ${summary.sections.join('; ')}`] : []),
         ...summary.warnings.map((w) => `warning: ${w}`),
         ...(summary.wrote ? [`wrote ${summary.wrote}`] : []),
