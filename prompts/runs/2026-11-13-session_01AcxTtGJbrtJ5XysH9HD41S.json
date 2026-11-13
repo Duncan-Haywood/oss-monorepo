@@ -47,7 +47,7 @@
     "research/heavy-hydraulics/paper/draft.md section 3.7j"
   ],
   "goal": null,
-  "notes": "Milestone 6i of heavy-hydraulics. huggingface.co reachable again (6h's blocker); motion cache refilled, 6g reproduced byte for byte. Predictions I1-I6 committed before any case ran (commit 95189b811). Result: g 0.014 at central geometry, median 0.129; fixed pump beats 3.99 L/h no-load rate in 66.7% of 384 geometries (6g 32.8%). Local checks: 63 tests pass, build.py ok, check_numbers 263 claims 0 missing, research_live_links, check_md_links, cite_check ok, run_workflow_locally research-ci 3/3 run steps (checkout/setup-python uses: steps not run locally).",
+  "notes": "Milestone 6i of heavy-hydraulics. huggingface.co reachable again (6h's blocker); motion cache refilled, 6g reproduced byte for byte. Predictions I1-I6 committed before any case ran (commit 95189b811). Result: g 0.014 at central geometry, median 0.129; fixed pump beats 3.99 L/h no-load rate in 66.7% of 384 geometries (6g 32.8%). Local checks: 63 tests pass, build.py ok, check_numbers 253 claims 0 missing, research_live_links, check_md_links, cite_check ok, run_workflow_locally research-ci 3/3 run steps (checkout/setup-python uses: steps not run locally).",
   "corrections": [],
   "redteam": null,
   "usage": {
