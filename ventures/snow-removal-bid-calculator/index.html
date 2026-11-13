@@ -194,8 +194,8 @@
       <dl>
         <dt>Per-push price (one snow event)</dt><dd id="perPush"></dd>
         <dt>Per ice-event price</dt><dd id="perIce"></dd>
-        <dt>Per-site seasonal</dt><dd id="perSiteSeasonal"></dd>
-        <dt>Per-site per-push</dt><dd id="perSitePush"></dd>
+        <dt>Average per stop, seasonal (each stop&rsquo;s own price is in the split below)</dt><dd id="perSiteSeasonal"></dd>
+        <dt>Average per stop, per push</dt><dd id="perSitePush"></dd>
         <dt>Minutes per snow pass</dt><dd id="minutes"></dd>
         <dt>Billed hours this winter</dt><dd id="hours"></dd>
         <dt>Loaded hourly (operator + truck)</dt><dd id="loaded"></dd>
@@ -468,7 +468,7 @@
       el('split').innerHTML = worked.length === 0
         ? '<li class="empty">No stop has minutes yet — set plow or sidewalk time above.</li>'
         : worked
-          .map(site => `<li><span>${site.name}</span><span>${site.minutesShare.toFixed(0)}% of the pass</span>
+          .map(site => `<li><span>${site.name}</span><span>${site.minutesShare.toFixed(0)}% of the pass · its own price ${money(site.ownSeasonal)} seasonal, ${money(site.ownPerPush)} per push</span>
             <span class="bar"><span style="width:${site.minutesShare.toFixed(1)}%"></span></span></li>`)
           .join('');
 
@@ -506,7 +506,8 @@
         `Seasonal for the entered winter: ${money(result.seasonalPrice)}`,
         `Per-push (one snow event): ${money(result.pricePerPush)}`,
         `Per ice event: ${money(result.pricePerIce)}`,
-        `Per-site seasonal: ${result.pricePerSiteSeasonal === null ? 'n/a' : money(result.pricePerSiteSeasonal)}`,
+        `Average per stop, seasonal: ${result.pricePerSiteSeasonal === null ? 'n/a' : money(result.pricePerSiteSeasonal)}`,
+        ...result.sites.map(site => `  ${site.name}: ${money(site.ownSeasonal)} seasonal, ${money(site.ownPerPush)} per push`),
         `Assumed winter: ${result.expectedSnowEvents} snow events, ${result.expectedIceEvents} ice events, ${result.passesPerSnowEvent} pass(es) per snow`,
         `Route time per snow pass: ${result.plowMinutesPerPass.toFixed(0)} minutes`,
         `Walk-away seasonal: ${money(result.walkAwaySeasonal)}`,
