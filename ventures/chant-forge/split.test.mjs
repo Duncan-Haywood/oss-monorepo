@@ -5,7 +5,7 @@ import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { parseGabc } from './gabc.mjs';
-import { splitVoices, phrasesOf, wordsOf, TENOR_RANGE, BASS_RANGE } from './voicefit.mjs';
+import { splitVoices, describeSplit, phrasesOf, wordsOf, TENOR_RANGE, BASS_RANGE } from './voicefit.mjs';
 import { parseMidi } from './render.mjs';
 import { run } from './cli.mjs';
 
@@ -214,4 +214,72 @@ test('CLI: --split-words hands phrase 54 of the Dies irae over at a word', () =>
   assert.equal(run([f, '--split-words']).code, 2);
   assert.equal(run([f, '--split-voices', '--word-cost', '3']).code, 2);
   assert.equal(run([f, '--split-voices', '--split-words', '--word-cost', 'x']).code, 2);
+});
+
+// words: groups of MIDI numbers, each group one word of one phrase
+const wordsEv = (...ws) => ws.flatMap((w, k) => w.map((m, j) => ({ type: 'note', midi: m, pulses: 1, wordStart: j === 0, syllable: j === 0 ? `w${k + 1}` : '' })));
+const OCT = { tenor: { low: 52, high: 64 }, bass: { low: 45, high: 57 }, shift: 0 };
+
+test('overlap: the incoming section joins on the last note when it is in both ranges', () => {
+  const plain = splitVoices(wordsEv([62, 56], [50, 48]), OCT);
+  assert.equal(plain.overlaps, undefined);
+  assert.deepEqual(plain.events.map((e) => e.voice), ['tenor', 'tenor', 'bass', 'bass']);
+  const r = splitVoices(wordsEv([62, 56], [50, 48]), { ...OCT, overlap: true });
+  assert.deepEqual(r.events.map((e) => e.voice), ['tenor', 'all', 'bass', 'bass']);
+  assert.deepEqual(r.overlaps.map((o) => [o.from, o.to, o.how, o.note]), [['tenor', 'bass', 'joins early', 'Ab3']]);
+  assert.equal(r.breaks, 0);
+  assert.deepEqual([r.allNotes, r.tenorNotes, r.bassNotes], [1, 1, 2]);
+  assert.match(describeSplit(r), /phrase 1: basses join tenors on Ab3 and take over/);
+});
+
+test('overlap: else the outgoing section holds on for the first note; else the line breaks', () => {
+  const r = splitVoices(wordsEv([62, 63], [55, 48]), { ...OCT, overlap: true });
+  assert.deepEqual(r.events.map((e) => e.voice), ['tenor', 'tenor', 'all', 'bass']);
+  assert.equal(r.overlaps[0].how, 'holds on');
+  assert.equal(r.overlaps[0].syllable, 'w2');
+  assert.match(describeSplit(r), /phrase 1: tenors hold on with basses for G3 \("w2"\)/);
+  const b = splitVoices(wordsEv([62, 63], [50, 48]), { ...OCT, overlap: true });
+  assert.deepEqual(b.events.map((e) => e.voice), ['tenor', 'tenor', 'bass', 'bass']);
+  assert.equal(b.overlaps.length, 0);
+  assert.equal(b.breaks, 1);
+  assert.match(describeSplit(b), /1 handoff with no note both sections can sing \(the line breaks there\)/);
+});
+
+test('overlap: no overlap across a bar or next to the full choir', () => {
+  const ev2 = [...wordsEv([62, 56]), { type: 'bar', kind: 'full', pulses: 1 }, ...wordsEv([50, 48])];
+  const r = splitVoices(ev2, { ...OCT, overlap: true });
+  assert.equal(r.overlaps.length + r.breaks, 0);
+  const s = splitVoices(wordsEv([62, 63], [55, 54], [50, 48]), { ...OCT, words: 'prefer', wordCost: 0, overlap: true });
+  assert.deepEqual(s.events.map((e) => e.voice), ['tenor', 'tenor', 'all', 'all', 'bass', 'bass']);
+  assert.equal(s.overlaps.length + s.breaks, 0);
+});
+
+test('overlap on the corpus, octave sections: every direct swap overlaps, every note in range', () => {
+  const tenor = { low: 52, high: 64 }, bass = { low: 45, high: 57 };
+  const inBoth = { low: 52, high: 57 };
+  let swaps = 0;
+  for (const f of files) {
+    const r = splitVoices(load(f), { tenor, bass, words: 'prefer', overlap: true });
+    if (!r.fits) continue;
+    swaps += r.overlaps.length;
+    assert.equal(r.breaks, 0, f);
+    assert.equal(r.allNotes + r.tenorNotes + r.bassNotes, r.notes);
+    for (const e of r.events.filter((x) => x.type === 'note')) {
+      const range = e.voice === 'all' ? inBoth : e.voice === 'tenor' ? tenor : bass;
+      assert.ok(e.midi >= range.low && e.midi <= range.high, `${f}: ${e.midi} for ${e.voice}`);
+    }
+  }
+  assert.equal(swaps, 13); // eval/overlap-report.md
+});
+
+test('CLI: --overlap reports overlaps and breaks; needs --split-voices', () => {
+  const f = join(corpus, 'gregobase-1908', '3408.gabc');
+  const r = run([f, '--split-voices', '--split-words', '--overlap', '--tenor', '52-64', '--bass', '45-57', '--json']);
+  assert.equal(r.code, 0, r.text);
+  const v = JSON.parse(r.text).voices;
+  assert.equal(v.overlaps, 1);
+  assert.equal(v.breaks, 0);
+  assert.match(v.line, /basses join|tenors join|hold on with/);
+  assert.equal(JSON.parse(run([f, '--split-voices', '--split-words', '--tenor', '52-64', '--bass', '45-57', '--json']).text).voices.overlaps, undefined);
+  assert.equal(run([f, '--overlap']).code, 2);
 });
