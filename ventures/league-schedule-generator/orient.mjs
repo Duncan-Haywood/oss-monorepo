@@ -25,7 +25,9 @@
 //
 // A home-and-away season keeps one host per pair (at home in leg one, away in leg two), which ties
 // rounds far apart, so the programme cannot model it exactly; run over both legs with every match
-// free it gives a valid floor (`relaxed: true`). Pure functions, no DOM, seeded.
+// free it gives a valid floor (relaxedBreakFloor). pairLeastBreaks prices the pair and balance rules
+// back in and branches on pairs (README "Fewest breaks of a home-and-away season, proved"). Pure
+// functions, no DOM, seeded.
 
 import { mulberry32 } from "./calc.mjs";
 
