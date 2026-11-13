@@ -3,7 +3,7 @@ title: "A peak meter that skips the quiet parts, and gets the same answer"
 seo_title: "Faster true-peak metering in JavaScript without changing the result"
 date: 2026-11-13
 tags: [chant-forge, performance, audio, loudness]
-description: "Chant Forge's true-peak meter was 28 of the 45 seconds a mastered render took. A bound on each window let it skip most of the signal, and the output stayed the same to the bit."
+description: "True-peak metering was 28 of the 45 s a Chant Forge master took. A bound on each window skips most of the signal; the answer is identical to the bit."
 ---
 
 Streaming services ask for a master whose *true peak* stays under -1 dBTP.
