@@ -112,8 +112,13 @@ Anonymous traffic is capped too.
 - Routes: `POST /anthropic/v1/messages` and `POST /openai/v1/chat/completions`
   (also the bare `/v1/...` paths). Streams pass through byte for byte. They
   are settled from the usage they report: OpenAI streams get
-  `stream_options.include_usage` switched on. A stream that ends early is
+  `stream_options.include_usage` switched on. A stream that ends early, or
+  closes without the provider's end marker (`message_stop`, `[DONE]`), is
   charged at its hold.
+- OpenAI `n` greater than 1 is refused (400, `n-unsupported`): the hold
+  covers one choice and the provider bills every one.
+- A price for `gpt-5` also prices its dated snapshots (`gpt-5-2025-08-07`)
+  and `-latest`, never a variant such as `gpt-5-pro` or `gpt-5-mini`.
 - Scope headers: `x-guard-user`, `x-guard-feature`, `x-guard-run`.
 - Refusals use the provider's own error shape. **402** means a budget is
   spent (SDKs do not retry it). **429 + Retry-After** means a breaker is

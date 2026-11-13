@@ -149,7 +149,11 @@ export function priceFor(policy, model) {
   if (policy.prices[model]) return policy.prices[model];
   let best = null;
   for (const name of Object.keys(policy.prices)) {
-    if (model.startsWith(name) && (!best || name.length > best.length)) best = name;
+    // Only a dated snapshot ("-20250929", "-2024-08-06") or "-latest" inherits a
+    // price: "gpt-5-pro" or "gpt-5-mini" is a different model at a different
+    // price, so it falls through to the fallback (or is refused).
+    const rest = model.slice(name.length);
+    if (model.startsWith(name) && /^(-\d|-latest$)/.test(rest) && (!best || name.length > best.length)) best = name;
   }
   return best ? policy.prices[best] : policy.fallbackPrice;
 }

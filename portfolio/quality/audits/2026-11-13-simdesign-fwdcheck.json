@@ -1,0 +1,249 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/simdesign-fwdcheck",
+ "stratum": "research",
+ "seed": "2026-11-13-h",
+ "drawn_by": "sample",
+ "round": 62,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior mechanical design / FE analysis engineer who signs off sheet-metal brackets (the brief suggested a simulation-study methodologist, but this subject is not a Monte Carlo methods study: it is a finite-element structural check of one L-bracket, so ADEMP/rsimsum do not apply). Such an engineer would check first how the peak stress is recovered (centroid vs outer fibre vs extrapolated), how the sharp re-entrant corner singularity is treated, whether FE agrees with beam theory away from the corner, and whether buckling and deflection converge",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran everything. `/usr/bin/python3.13 experiments/run.py` in a private copy (/tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/copy, 7 m 39 s) reproduces experiments/results.txt in every number; only the wall-clock 'seconds' column differs (158/97/105 vs 114/104/101). Independent checks (/tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/indep.py, imports nothing from the subject): beam-theory outer-fibre stress F/(wb)+F(L-w/2)/(bw^2/6) = 57.3/162.8/402.3/845.9 MPa (matches); plan-area mass (wH+(L-w)w) b rho = 36.4/27.5/20.5/15.8 g (matches); Castigliano frame deflection (cantilever + vertical-arm rotation + axial + shear) 0.156/0.986/4.562/15.724 mm vs FE 0.142/0.944/4.451/15.457 (within 9%, 4%, 2.5%, 1.7%, beam theory high as expected from the rigid corner block). Forward buckling factor converges (/tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/fwdmesh.py): 4.666 -> 4.641 (finer in-plane) / 4.584 (2 layers) at b=3.0, 5.608 -> 5.507 / 5.601 at b=1.5, so 'factor >= 4.7' is about right (4.58 at 2 layers) and 'never binds' holds. Not 3: the headline FE 'peak stress' columns are not peak stresses. /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/probe.py shows the reported element-centroid von Mises at mid-height of the vertical arm, far from any corner, is exactly the beam stress sampled at the element centroid: 83.5 (coarse, nw=2, centroid w/4 from the outer fibre: predicted 4.2+0.5*158.6=83.5), 123.1 (nw=4, predicted 123.1), 142.9 (nw=8, predicted 143.0) against the true 162.8 at b=2.0; same at b=1.5 (30.1/43.5/50.0 -> 57.3). The 'peak' element sits just above the inner corner and keeps rising (b=2.0: 95.7/144.9/190.7; max over quadrature points 282.6/399.3/459.3). So the coarse 95.7 MPa 'pass' is an under-resolution artefact, and every FE column understates even the unconcentrated stress.",
+  "completeness": "README claims: 3 tests about 35 s (ran: 3 passed in 52 s), run.py about 7 min (7 m 39 s), plot.py writes stress.png (present, parses results.txt), results table = results.txt (matches to the printed digits, including the rounding of 5.608->5.61, 15.457->15.5). Builds-on imports resolve (simdesign-lbuckle, simdesign-revwidth via sys.path). Next steps (fillet, third mesh, combined search) honestly listed as not done. Live page https://marisstella.app/research/simdesign-fwdcheck/ could not be loaded: the session proxy refused the CONNECT (403), so it is unverified, not failed.",
+  "verification": "`cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q -x tests`: 3 passed in 47-52 s. Tests: a hand-checked nominal stress (good), von Mises of a uniaxial state (cannot see the shear term), and 'wider is less stressed and stiffer' (monotonicity only). No test pins any FE stress, deflection, buckling factor, the clamp-zone exclusion, the ROOTS table or a pass/fail verdict. Five mutants via platform/ci/quality_mutate.py: 1 caught (bending lever arm L-w/2 -> L-w), 4 survived (von Mises shear coefficient 3 -> 2; clamp-zone exclusion removed; ROOTS 2.0: 11.84 -> 13.84; Lame lambda denominator (1-2nu) -> (1-nu) in the stress recovery). Survival 4/5.",
+  "craft": "Read src/simdesign_fwdcheck/check.py (62 lines), tests/test_fwdcheck.py, experiments/run.py, experiments/plot.py, and simdesign-lbuckle/src/simdesign_lbuckle/lbracket.py and simdesign-revwidth sweep.py that it imports. Short and readable. Defects: STRESS_LIMIT, TIP_LIMIT and MIN_WALL (check.py:20-22) are declared and never used, so every pass/fail verdict lives only in README prose; static() recomputes the stress tensor that lb.build already computes (copied constitutive code, check.py:40-46) and assembles the geometric stiffness it discards; imports of sibling projects by sys.path insertion, not declared in pyproject.toml (which also omits matplotlib and pytest); results.txt carries a wall-clock column, so it can never be diffed for reproducibility; static's docstring says 'peak von Mises' for what is a centroid average.",
+  "claims": "Backed: forward factor 4.7-5.6 (results.txt and my mesh study, 4.58 at 2 layers), deflections 0.14/0.94/4.45/15.5 mm (my beam check), the 2.5 and 3.0 mm designs failing stress and deflection (nominal 402/846 MPa, deflection 4.45/15.5 mm), masses, min wall 1.2 mm met (min(b,w)=1.5). Unbacked or contradicted: (1) README.md:37 and research/README.md:560 'the 2.0 mm design passes only on the coarse mesh ... its verdict depends on the mesh': the coarse 95.7 MPa is the stress w/4 inside the outer fibre (mid-arm coarse value 83.5 vs 162.8 converged), so it is a recovery artefact, not a credible pass. (2) README.md:42 'peak stresses ... probably overstate what a real filleted part sees': every reported FE peak (36.7-676.0) is below the beam-theory stress with no concentration (57.3-845.9), so they understate it. (3) README.md:39 'finer-mesh peaks about 1.5x the coarse ones' is presented as a corner-singularity effect; 1.5 = 0.75/0.5, the ratio of centroid positions for nw=4 vs nw=2. (4) README.md:38 '1.5 mm passes every check ... stress 37 to 57 MPa': the nominal 57.3 passes, but the corner value rises to 74.1 at nw=8 and is still climbing, so a real fillet (Peterson Kt about 1.5-2.5 for small r) could exceed 100 MPa: not established either way. The headline verdict (only 1.5 mm survives) is right because the nominal stress alone decides it. 'Stylised and preliminary', 'assumed limits' and the AI-assistance note are present.",
+  "fitness": "Could a researcher build on it? Little. It is one step in a cluster of 58 simdesign-* directories that research/PROGRAMMES.md:8-17 itself names as the fragmentation problem ('over 20 simdesign-* projects probe the mesh behaviour of one laser-cut bracket'). Nearest prior work, none cited: Williams (1952) for the re-entrant-corner stress singularity (why a sharp-corner peak has no converged value); Peterson's Stress Concentration Factors (Pilkey & Pilkey, 3rd ed. 2008) for the filleted corner it defers; Zienkiewicz & Zhu (1992) superconvergent patch recovery and NAFEMS benchmark practice for stress recovery; Timoshenko & Gere for lateral-torsional buckling of the narrow arm. The result (beam theory says only the widest design meets 100 MPa) follows from a one-line hand calculation; the FE adds a buckling confirmation but its stress numbers would mislead a reader.",
+  "domain": "Against standard FE stress-assessment practice (evaluate stress at the outer fibre by nodal extrapolation or superconvergent recovery, check FE against beam theory away from discontinuities, treat a sharp re-entrant corner as singular and assess with a nominal/hot-spot stress or a modelled fillet with Kt): the beam-theory check and the converged buckling are right, and the author correctly flags sharp-corner mesh dependence. Departures: element-centroid averages on 2 and 4 elements across a bending section reported as 'peak stress'; the mesh-dependent rise attributed to the corner when most of it is sampling position; a pass declared on a mesh that misses half the bending stress; the 100 MPa working stress with no steel grade, yield or safety factor stated. A senior FE engineer would reject the stress columns as is and sign off only on the nominal-stress verdict."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "beam-theory nominal stress for the four designs",
+   "method": "hand formula sigma = F/(wb) + F(L-w/2)/(b w^2/6) (Timoshenko & Gere, Mechanics of Materials, combined axial and bending), independent script",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/indep.py",
+   "expected": "57.3 162.8 402.3 845.9 (results.txt nominal_MPa)",
+   "observed": "57.3 162.8 402.3 845.9",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "end-face deflection of the L frame",
+   "method": "Castigliano / unit-load method on the centreline frame: F a^3/(3EI) + F a^2 h/(EI) + F h/(EA) + F a/(kGA), a=h=80-w/2, I=b w^3/12",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/indep.py",
+   "expected": "FE coarse 0.142 0.944 4.451 15.457 mm",
+   "observed": "beam 0.156 0.986 4.562 15.724 mm (FE within 1.7-9%, beam theory high from the rigid corner block, gap shrinking with w)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "plate mass",
+   "method": "plan area wH + (L-w)w times b times 7.85 g/cm^3",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/indep.py",
+   "expected": "36.4 27.5 20.5 15.8 g",
+   "observed": "36.43 27.54 20.47 15.80 g",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE 'peak stress' is a converged stress measure",
+   "method": "probe element-centroid von Mises at mid-height of the vertical arm (no corner) on nw=2,4,8 against beam theory sampled at the centroid, sigma_ax + sigma_b(1-1/nw)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign && /usr/bin/python3.13 probe.py /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/copy/simdesign-fwdcheck/src 2.0 11.84",
+   "expected": "mid-arm values near the 162.8 MPa outer-fibre stress if the reported FE stresses were resolved",
+   "observed": "83.5 / 123.1 / 142.9 MPa = predicted 83.5 / 123.1 / 143.0; corner-element 'peak' 95.7 / 144.9 / 190.7, still rising; quadrature-point max 282.6 / 399.3 / 459.3",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "forward buckling factor mesh convergence",
+   "method": "rerun forward_factor on finer in-plane mesh (4,36,28,1) and two through-thickness layers",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign && /usr/bin/python3.13 fwdmesh.py /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/copy/simdesign-fwdcheck/src",
+   "expected": "within a few % of 4.666 (b=3.0) and 5.608 (b=1.5)",
+   "observed": "b=3.0: 4.641 / 4.584; b=1.5: 5.507 / 5.601",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce committed results",
+   "method": "run run.py in a private copy and diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/copy/simdesign-fwdcheck && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/simdesign-fwdcheck/experiments/results.txt",
+   "expected": "identical",
+   "observed": "all numbers identical; only the wall-clock seconds column differs (158/97/105 vs 114/104/101); 7 m 39 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run the documented command",
+   "command": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q -x tests",
+   "expected": "3 tests, about 35 s (README)",
+   "observed": "3 passed in 47-52 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the 2.0 mm design ... verdict depends on the mesh; coarse mesh gives 95.7 MPa (pass)' (README.md:37, research/README.md:560)",
+   "method": "compare with the mid-arm probe: the coarse mesh reports 83.5 MPa where beam theory and the refined FE give about 163",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign && /usr/bin/python3.13 probe.py /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/copy/simdesign-fwdcheck/src 2.0 11.84",
+   "expected": "coarse-mesh value a credible stress estimate if the claim held",
+   "observed": "coarse value is the bending stress at w/4 inside the fibre; not a pass on any resolved measure",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'peak stresses are mesh-dependent and probably overstate what a real filleted part sees' (README.md:42)",
+   "method": "compare every FE peak in results.txt with the concentration-free nominal stress",
+   "command": "grep '^[0-9]' research/simdesign-fwdcheck/experiments/results.txt",
+   "expected": "FE peaks above nominal if they overstate",
+   "observed": "FE peaks 36.7-676.0 all below nominal 57.3-845.9 (ratios 0.55-0.80)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'The 1.5 mm design passes every check here' (README.md:38, headline README.md:3)",
+   "method": "nominal stress plus corner probe at nw=8",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign && /usr/bin/python3.13 probe.py /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/copy/simdesign-fwdcheck/src 1.5 22.5",
+   "expected": "all stress measures under 100 MPa",
+   "observed": "nominal 57.3 passes; corner centroid 36.7 / 54.7 / 74.1 and rising, quadrature max 108.5 / 156.0 / 194.2; a filleted Kt would decide it",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "forward buckling never binds (factor >= 4.7)",
+   "method": "results.txt plus the mesh study above",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign && /usr/bin/python3.13 fwdmesh.py /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/simdesign/copy/simdesign-fwdcheck/src",
+   "expected": ">= 3 everywhere",
+   "observed": "4.58-5.61 across meshes",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "load the served page",
+   "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/simdesign-fwdcheck/",
+   "expected": "200",
+   "observed": "curl: (56) CONNECT tunnel failed, response 403 (session proxy); unverified",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work cited",
+   "method": "search README for Williams 1952, Peterson/Pilkey, Zienkiewicz-Zhu, NAFEMS",
+   "command": "grep -n 'Peterson\\|Zienkiewicz\\|NAFEMS\\|Williams' research/simdesign-fwdcheck/README.md",
+   "expected": "at least the corner-singularity and stress-concentration references",
+   "observed": "no matches; only in-repo simdesign-* projects cited",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/simdesign_fwdcheck/check.py:32",
+   "change": "+ 3 * (s[0, 1] -> + 2 * (s[0, 1]",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "src/simdesign_fwdcheck/check.py:49",
+   "change": "out = vm[cy < H - w] -> out = vm[cy < H]",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "src/simdesign_fwdcheck/check.py:62",
+   "change": "F * (L - w / 2) * (w / 2) -> F * (L - w) * (w / 2)",
+   "caught": true,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "src/simdesign_fwdcheck/check.py:25",
+   "change": "2.0: 11.84, -> 2.0: 13.84,",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q -x tests"
+  },
+  {
+   "where": "src/simdesign_fwdcheck/check.py:43",
+   "change": "lam = E * nu / ((1 + nu) * (1 - 2 * nu)) -> lam = E * nu / ((1 + nu) * (1 - nu))",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q -x tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Reported FE 'peak stress' is the element-centroid average on 2 and 4 elements across a bending section, so it captures only 50% and 75% of the outer-fibre bending stress; the coarse 95.7 MPa 'pass' of the 2.0 mm design and the '1.5x rise with refinement' are recovery artefacts, not corner effects (mid-arm coarse 83.5 vs true 162.8 MPa)",
+   "where": "research/simdesign-fwdcheck/src/simdesign_fwdcheck/check.py:47",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "README says the 2.0 mm verdict 'depends on the mesh' and the coarse mesh 'passes'; the same claim is in the research index",
+   "where": "research/simdesign-fwdcheck/README.md:37",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Limitation says sharp-corner peaks 'probably overstate what a real filleted part sees'; every reported FE peak is below the concentration-free nominal stress, so they understate",
+   "where": "research/simdesign-fwdcheck/README.md:42",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "'1.5 mm passes every check' rests on the nominal stress; the corner value is unresolved (74.1 MPa at nw=8 and rising) and no fillet Kt is applied, so the pass is not established",
+   "where": "research/simdesign-fwdcheck/README.md:38",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 5 seeded mutants survive: no test pins any FE stress, deflection, buckling factor, the clamp exclusion or the ROOTS table",
+   "where": "research/simdesign-fwdcheck/tests/test_fwdcheck.py:17",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "STRESS_LIMIT, TIP_LIMIT, MIN_WALL are declared and never used; pass/fail verdicts exist only in prose",
+   "where": "research/simdesign-fwdcheck/src/simdesign_fwdcheck/check.py:20",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "results.txt includes a wall-clock column, so a rerun can never diff clean",
+   "where": "research/simdesign-fwdcheck/experiments/run.py:17",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "No prior work outside the repo cited (Williams 1952 corner singularity, Peterson/Pilkey stress concentration factors, stress-recovery practice)",
+   "where": "research/simdesign-fwdcheck/README.md:5",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "pyproject.toml omits matplotlib, pytest and the sibling simdesign-lbuckle / simdesign-revwidth packages imported by sys.path",
+   "where": "research/simdesign-fwdcheck/pyproject.toml:9",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15416"
+ ],
+ "verdict": "Does not meet the bar. The arithmetic is honest and reproducible: run.py regenerates every number in results.txt; nominal stress, mass and deflection match my independent beam-theory and Castigliano checks; the forward buckling factor holds within 2% under refinement. The headline verdict (only the 1.5 mm design survives) is also right, because the nominal stress alone decides it. But the finite-element stress columns are centroid averages on 2 and 4 elements across a bending section, so they recover 50% and 75% of the outer-fibre stress. The README reads them as a sharp-corner effect, declares the 2.0 mm design a coarse-mesh pass and says the peaks overstate a filleted part, when they understate even the stress with no concentration. 4 of 5 seeded mutants survive the 3 tests, no outside prior work is cited, and the project is one more step in the simdesign cluster that PROGRAMMES.md names as fragmentation."
+}

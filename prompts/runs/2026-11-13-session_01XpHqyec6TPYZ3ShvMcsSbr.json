@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyec6TPYZ3ShvMcsSbr",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T06:39:10Z",
+  "ended": "2026-11-13T07:40:23Z",
+  "wall_minutes": 61.33,
+  "tokens_in": 5503478,
+  "tokens_out": 30212,
+  "cost_usd": 2.6708,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15404",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py silently drops a version pin (asked for pybamm==26.10.1.1, it installed plain pybamm); it happened to resolve to the same version, but the pin is not honoured."
+    },
+    {
+      "file": "research/cell-fidelity/experiments/gate/run.py",
+      "issue": "_write uses ThreadPoolExecutor.map, so the bench log prints in submission order and looks stalled for minutes while runs finish; count bench.jsonl lines to see progress."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-the-battery-fix-that-was-not-needed.md",
+    "research/cell-fidelity/LOG.md (5h plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "cell-fidelity milestone 5h: band stop pre-registered (H56-H60) after a development replay on 13 committed conditions; 788 PyBaMM runs on six new conditions. H56, H57, H59, H60 supported; H58 refuted (the iterate step never missed on fresh designs). Tests: 100 passed; homepage build ok; check_md_links ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0cc36ced-e425-57fa-8cc2-0a9fa8b42f88",
+    "transcripts": 1,
+    "first": "2026-11-13T06:39:10Z",
+    "last": "2026-11-13T07:40:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 101,
+        "output": 30212,
+        "thinking": 5644,
+        "cache_read": 5379596,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123781,
+        "api_equivalent_usd": 2.6708,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 101,
+      "output": 30212,
+      "thinking": 5644,
+      "cache_read": 5379596,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123781,
+      "api_equivalent_usd": 2.6708,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 61.33,
+      "active_minutes": 8.19,
+      "model_minutes": 5.11,
+      "tool_minutes": 3.08,
+      "waiting_on_human_minutes": 53.13,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

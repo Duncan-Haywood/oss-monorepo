@@ -1,0 +1,178 @@
+Unweighted adults in the 2021-24 slot, by variant
+  V0 2021-24 all modes: n=9843
+  V1 2022+24 all modes: n=6274
+  V2 2022+24 in person: n=2482
+  V3 2022+24 F2F-first arm: n=2772
+  V4 2022+24 web-first arm: n=3502
+  V5 2022+24 web: n=3137
+
+Percentage points (shares in percent); 95% stratified PSU bootstrap, B=500, seed 1; contrasts paired
+
+level 2021-24: S
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes 22.22 21.20 23.18
+                            V1 2022+24 all modes 22.27 21.15 23.52
+                            V2 2022+24 in person 22.86 21.00 24.70
+                        V3 2022+24 F2F-first arm 23.74 22.06 25.50
+                        V4 2022+24 web-first arm 21.76 20.29 23.18
+                                  V5 2022+24 web 21.33 19.96 22.82
+                V2 - V1 (in person vs all modes)  0.60 -0.60  1.86
+      V2 - V5 (completed mode: in person vs web)  1.54 -0.61  3.81
+V3 - V4 (randomised arm: F2F-first vs web-first)  1.98 -0.13  4.09
+            V1 - V0 (dropping the 2021 web wave)  0.05 -0.71  0.83
+
+level 2021-24: fertility
+                                          sample   est    lo   hi
+                            V0 2021-24 all modes  0.66  0.43 0.86
+                            V1 2022+24 all modes  0.64  0.40 0.84
+                            V2 2022+24 in person  0.62  0.37 0.82
+                        V3 2022+24 F2F-first arm  0.72  0.46 0.94
+                        V4 2022+24 web-first arm  0.61  0.38 0.82
+                                  V5 2022+24 web  0.66  0.41 0.85
+                V2 - V1 (in person vs all modes) -0.03 -0.07 0.02
+      V2 - V5 (completed mode: in person vs web) -0.04 -0.13 0.05
+V3 - V4 (randomised arm: F2F-first vs web-first)  0.10  0.01 0.21
+            V1 - V0 (dropping the 2021 web wave) -0.02 -0.05 0.02
+
+level 2021-24: immigration (1st gen)
+                                          sample  est    lo   hi
+                            V0 2021-24 all modes 1.98  1.53 2.51
+                            V1 2022+24 all modes 2.50  1.95 3.01
+                            V2 2022+24 in person 2.92  2.04 3.76
+                        V3 2022+24 F2F-first arm 2.74  2.01 3.41
+                        V4 2022+24 web-first arm 2.42  1.73 3.13
+                                  V5 2022+24 web 1.44  0.64 2.24
+                V2 - V1 (in person vs all modes) 0.42 -0.17 1.02
+      V2 - V5 (completed mode: in person vs web) 1.49  0.41 2.60
+V3 - V4 (randomised arm: F2F-first vs web-first) 0.32 -0.62 1.32
+            V1 - V0 (dropping the 2021 web wave) 0.51  0.14 0.85
+
+level 2021-24: immigration (1st+2nd gen)
+                                          sample  est    lo   hi
+                            V0 2021-24 all modes 3.96  3.30 4.65
+                            V1 2022+24 all modes 4.60  3.80 5.44
+                            V2 2022+24 in person 5.35  4.10 6.76
+                        V3 2022+24 F2F-first arm 4.84  4.02 5.67
+                        V4 2022+24 web-first arm 4.51  3.53 5.57
+                                  V5 2022+24 web 3.29  2.25 4.26
+                V2 - V1 (in person vs all modes) 0.75 -0.08 1.61
+      V2 - V5 (completed mode: in person vs web) 2.06  0.61 3.71
+V3 - V4 (randomised arm: F2F-first vs web-first) 0.33 -0.91 1.49
+            V1 - V0 (dropping the 2021 web wave) 0.64  0.10 1.20
+
+level 2021-24: first-gen share of adults
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes 16.32 15.28 17.29
+                            V1 2022+24 all modes 17.01 15.69 18.35
+                            V2 2022+24 in person 18.46 16.36 20.51
+                        V3 2022+24 F2F-first arm 16.57 15.38 17.97
+                        V4 2022+24 web-first arm 17.16 15.63 18.77
+                                  V5 2022+24 web 15.15 13.45 16.87
+                V2 - V1 (in person vs all modes)  1.46  0.05  2.88
+      V2 - V5 (completed mode: in person vs web)  3.31  0.61  5.81
+V3 - V4 (randomised arm: F2F-first vs web-first) -0.60 -2.32  1.06
+            V1 - V0 (dropping the 2021 web wave)  0.69 -0.13  1.45
+
+level 2021-24: first-gen share of Catholics
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes 23.79 21.73 26.03
+                            V1 2022+24 all modes 26.32 23.92 28.67
+                            V2 2022+24 in person 28.89 24.93 32.39
+                        V3 2022+24 F2F-first arm 26.19 23.07 29.09
+                        V4 2022+24 web-first arm 26.37 23.49 29.50
+                                  V5 2022+24 web 20.86 17.68 24.42
+                V2 - V1 (in person vs all modes)  2.57  0.31  4.89
+      V2 - V5 (completed mode: in person vs web)  8.03  3.56 12.47
+V3 - V4 (randomised arm: F2F-first vs web-first) -0.18 -4.00  3.56
+            V1 - V0 (dropping the 2021 web wave)  2.53  0.78  4.13
+
+change 2010-18 -> 2021-24: dS
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes -2.76 -4.13 -1.44
+                            V1 2022+24 all modes -2.71 -4.21 -1.16
+                            V2 2022+24 in person -2.11 -4.14 -0.04
+                        V3 2022+24 F2F-first arm -1.24 -3.30  0.76
+                        V4 2022+24 web-first arm -3.22 -4.91 -1.56
+                                  V5 2022+24 web -3.65 -5.48 -1.82
+                V2 - V1 (in person vs all modes)  0.60 -0.60  1.86
+      V2 - V5 (completed mode: in person vs web)  1.54 -0.61  3.81
+V3 - V4 (randomised arm: F2F-first vs web-first)  1.98 -0.13  4.09
+            V1 - V0 (dropping the 2021 web wave)  0.05 -0.71  0.83
+
+change 2010-18 -> 2021-24: fertility
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes -0.15 -0.28 -0.03
+                            V1 2022+24 all modes -0.16 -0.32 -0.02
+                            V2 2022+24 in person -0.19 -0.37 -0.03
+                        V3 2022+24 F2F-first arm -0.09 -0.25  0.06
+                        V4 2022+24 web-first arm -0.19 -0.35 -0.04
+                                  V5 2022+24 web -0.15 -0.32  0.01
+                V2 - V1 (in person vs all modes) -0.03 -0.07  0.02
+      V2 - V5 (completed mode: in person vs web) -0.04 -0.13  0.05
+V3 - V4 (randomised arm: F2F-first vs web-first)  0.10  0.01  0.21
+            V1 - V0 (dropping the 2021 web wave) -0.02 -0.05  0.02
+
+change 2010-18 -> 2021-24: immigration (1st gen)
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes -1.38 -2.05 -0.72
+                            V1 2022+24 all modes -0.87 -1.61 -0.12
+                            V2 2022+24 in person -0.44 -1.38  0.49
+                        V3 2022+24 F2F-first arm -0.63 -1.46  0.21
+                        V4 2022+24 web-first arm -0.95 -1.73 -0.12
+                                  V5 2022+24 web -1.93 -2.85 -1.02
+                V2 - V1 (in person vs all modes)  0.42 -0.17  1.02
+      V2 - V5 (completed mode: in person vs web)  1.49  0.41  2.60
+V3 - V4 (randomised arm: F2F-first vs web-first)  0.32 -0.62  1.32
+            V1 - V0 (dropping the 2021 web wave)  0.51  0.14  0.85
+
+change 2010-18 -> 2021-24: immigration(1st) minus fertility
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes -1.23 -1.90 -0.56
+                            V1 2022+24 all modes -0.70 -1.44  0.03
+                            V2 2022+24 in person -0.25 -1.16  0.72
+                        V3 2022+24 F2F-first arm -0.54 -1.38  0.39
+                        V4 2022+24 web-first arm -0.75 -1.55  0.07
+                                  V5 2022+24 web -1.78 -2.70 -0.87
+                V2 - V1 (in person vs all modes)  0.45 -0.16  1.05
+      V2 - V5 (completed mode: in person vs web)  1.53  0.43  2.68
+V3 - V4 (randomised arm: F2F-first vs web-first)  0.22 -0.75  1.20
+            V1 - V0 (dropping the 2021 web wave)  0.53  0.15  0.87
+
+change 1990-99 -> 2021-24: dS
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes -4.15 -5.34 -2.90
+                            V1 2022+24 all modes -4.10 -5.52 -2.61
+                            V2 2022+24 in person -3.50 -5.56 -1.40
+                        V3 2022+24 F2F-first arm -2.63 -4.50 -0.70
+                        V4 2022+24 web-first arm -4.61 -6.20 -2.89
+                                  V5 2022+24 web -5.04 -6.60 -3.28
+                V2 - V1 (in person vs all modes)  0.60 -0.60  1.86
+      V2 - V5 (completed mode: in person vs web)  1.54 -0.61  3.81
+V3 - V4 (randomised arm: F2F-first vs web-first)  1.98 -0.13  4.09
+            V1 - V0 (dropping the 2021 web wave)  0.05 -0.71  0.83
+
+change 1990-99 -> 2021-24: fertility
+                                          sample   est    lo    hi
+                            V0 2021-24 all modes -0.51 -0.84 -0.19
+                            V1 2022+24 all modes -0.53 -0.87 -0.20
+                            V2 2022+24 in person -0.56 -0.90 -0.20
+                        V3 2022+24 F2F-first arm -0.46 -0.80 -0.12
+                        V4 2022+24 web-first arm -0.56 -0.91 -0.23
+                                  V5 2022+24 web -0.52 -0.88 -0.19
+                V2 - V1 (in person vs all modes) -0.03 -0.07  0.02
+      V2 - V5 (completed mode: in person vs web) -0.04 -0.13  0.05
+V3 - V4 (randomised arm: F2F-first vs web-first)  0.10  0.01  0.21
+            V1 - V0 (dropping the 2021 web wave) -0.02 -0.05  0.02
+
+change 1990-99 -> 2021-24: immigration (1st gen)
+                                          sample   est    lo   hi
+                            V0 2021-24 all modes -0.31 -0.93 0.28
+                            V1 2022+24 all modes  0.20 -0.51 0.82
+                            V2 2022+24 in person  0.63 -0.39 1.52
+                        V3 2022+24 F2F-first arm  0.44 -0.38 1.21
+                        V4 2022+24 web-first arm  0.12 -0.67 0.88
+                                  V5 2022+24 web -0.86 -1.66 0.02
+                V2 - V1 (in person vs all modes)  0.42 -0.17 1.02
+      V2 - V5 (completed mode: in person vs web)  1.49  0.41 2.60
+V3 - V4 (randomised arm: F2F-first vs web-first)  0.32 -0.62 1.32
+            V1 - V0 (dropping the 2021 web wave)  0.51  0.14 0.85

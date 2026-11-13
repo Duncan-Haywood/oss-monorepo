@@ -1,0 +1,153 @@
+{
+ "date": "2026-11-13",
+ "session": "https://claude.ai/code/session_01E5sJKneZfvDn2jf9sgFvBi",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-11-13T07:18:28Z",
+ "ended": "2026-11-13T07:30:28Z",
+ "wall_minutes": 12.42,
+ "tokens_in": 4230246,
+ "tokens_out": 21509,
+ "cost_usd": 2.0851,
+ "tool_calls": 47,
+ "task": "research programme catholic-demography, milestone 5b tenth GSS-only step (m5k): m5h fertility vs immigration accounting rerun with 2021-24 restricted to in-person, randomised-arm and web samples",
+ "projects": [
+  "research/catholic-demography"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15418",
+ "repo": "Duncan-Haywood/oss-monorepo",
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": true,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 0,
+ "outcome": "success",
+ "errors": [
+  {
+   "what": "gss.norc.org returned 403 through the proxy",
+   "fix": "data/download_gssr.sh fallback; checksums passed"
+  },
+  {
+   "what": "new post description was 181 chars; check_post_frontmatter and 168 site-builder tests failed on it in run_workflow_locally",
+   "fix": "shortened to under 160 and re-ran"
+  }
+ ],
+ "integrity_issues": [
+  {
+   "what": "The 2026-11-11 m5h README section and post said immigration's contribution fell by 1.38 points after 2018, the larger channel in the recent drop; m5k shows that is mostly the web slice (in person -0.44 [-1.38, +0.49])",
+   "fix": "corrected in README, project.json summary and the 2026-11-11 post, with a link to the new post"
+  }
+ ],
+ "doc_friction": [
+  {
+   "file": "research/catholic-demography/experiments/m5h_fertility/run.py",
+   "issue": "reads the NORC .dta with pd.read_stata directly instead of recode.load, so it fails when only the gssr fallback is available; m5k loads it via importlib and uses recode.load"
+  },
+  {
+   "file": "platform/ci/run_workflow_locally.py",
+   "issue": "one over-long post description surfaces as 172 site-builder test failures; the summary does point at the shared cause, which helped"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "Deep-tech direction: this programme is social science, drawn by pick_track at the owner's request (as in earlier runs)",
+   "did": "advanced the drawn programme",
+   "result": "one milestone step landed with a correction to an earlier claim"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-13-catholic-immigrant-share-web-interviews.md",
+  "research/catholic-demography/LOG.md (2026-11-13 entry)"
+ ],
+ "goal": null,
+ "notes": "Predictions P1-P4 committed in bbf16fc78 before the first run; one run, no changes. P1 not refuted (weak), P2 and P3 supported, P4 refuted. Local checks: test_cathdem.py 14 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_post_frontmatter ok after fix; run_workflow_locally --for-changes: research-ci 3/3, portfolio-validate 99/100 (the frontmatter failure, since fixed), site builder tests re-run after the fix: 1597 pass, 1 fail (cache-name determinism), which passed alone; it failed because the run record was edited while the suite ran. No agent doc in docs/reports: the LOG entry is where the next run of this programme looks.",
+ "corrections": [
+  "catholic-demography m5h: post-2018 fall in the immigrant contribution (-1.38) is an all-mode figure; in person -0.44 [-1.38, +0.49]"
+ ],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "f74ec9b6-809a-5f30-8b93-f5ebefd4bf95",
+  "transcripts": 1,
+  "first": "2026-11-13T07:18:28Z",
+  "last": "2026-11-13T07:30:53Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 44,
+    "input": 87,
+    "output": 21509,
+    "thinking": 4280,
+    "cache_read": 4126500,
+    "cache_write_5m": 0,
+    "cache_write_1h": 103659,
+    "api_equivalent_usd": 2.0851,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 44,
+   "input": 87,
+   "output": 21509,
+   "thinking": 4280,
+   "cache_read": 4126500,
+   "cache_write_5m": 0,
+   "cache_write_1h": 103659,
+   "api_equivalent_usd": 2.0851,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.975,
+  "tool_calls": 47,
+  "tools": {
+   "Bash": 44,
+   "ToolSearch": 1,
+   "Write": 1,
+   "mcp__github__create_pull_request": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 12.42,
+   "active_minutes": 12.42,
+   "model_minutes": 4.01,
+   "tool_minutes": 8.41,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 1,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 6.0,
+   "basis": "rerun of an existing survey accounting on 6 samples, bootstrap, write-up and corrections",
+   "rate_usd_per_hour": 100.0,
+   "usd": 600.0
+  },
+  "leverage": 287.8,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
+}

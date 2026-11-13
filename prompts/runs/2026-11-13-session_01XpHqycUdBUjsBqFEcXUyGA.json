@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqycUdBUjsBqFEcXUyGA",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T07:38:07Z",
+  "ended": "2026-11-13T07:45:25Z",
+  "wall_minutes": 7.54,
+  "tokens_in": 4597476,
+  "tokens_out": 26458,
+  "cost_usd": 2.3412,
+  "tool_calls": 43,
+  "task": "aerolog-scaling milestone 11j: census residents and jobs as the paper weights' destination density",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15420",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Recommends `PY=$(python3 platform/ci/pyenv.py pytest numpy)` and warns it can take 2+ minutes; here it returned /usr/local/bin/python3 at once although plain `python3 -m pytest` had just failed with 'No module named pytest' (pyenv appears to have installed it quickly). No harm; the warning was conservative."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 asks to work through open research PRs before building. #15418 (catholic-demography) and #15404 (cell-fidelity) were updated 20-60 min before this run started, so their sessions were probably still active; I left them alone.",
+      "did": "Advanced the drawn programme instead.",
+      "result": "No collision; both remain with their own sessions."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-drone-layers-census-jobs.md",
+    "research/aerolog-scaling/LOG.md (11j entry)"
+  ],
+  "goal": "PhD-level programme step on real public data (Census CenPop 2020, LODES 2022)",
+  "notes": "Predictions committed and pushed (1d979d41c) before the run. 4 of 9 predictions held. Census jobs weights: pair-weight r vs simulator 0.990 (land mask 0.964), totals 1.01x cf; split median excess 1.2% (17/24 within 5%); residents+jobs median 1.000, 18/24 (post hoc sign test vs jobs p=0.031). Checks run locally: project tests 78 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check ok; post front matter, links and similarity ok; run_workflow_locally --for-changes: research-ci run: steps 3/3 passed, agent-review and pages deploy jobs not run locally. No agent doc in docs/reports: the LOG entry carries the next step (robust top-k split selection).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c9edfde5-01dd-5e1f-a0cd-4efbc7bd4643",
+    "transcripts": 1,
+    "first": "2026-11-13T07:38:07Z",
+    "last": "2026-11-13T07:45:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 84,
+        "output": 26458,
+        "thinking": 3761,
+        "cache_read": 4483001,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114391,
+        "api_equivalent_usd": 2.3412,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 84,
+      "output": 26458,
+      "thinking": 3761,
+      "cache_read": 4483001,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114391,
+      "api_equivalent_usd": 2.3412,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.54,
+      "active_minutes": 7.54,
+      "model_minutes": 4.15,
+      "tool_minutes": 3.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher sourcing two Census datasets, gridding them, extending the gas-weight experiment with pre-registered predictions, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 256.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

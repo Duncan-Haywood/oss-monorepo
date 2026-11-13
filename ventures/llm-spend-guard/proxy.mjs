@@ -99,13 +99,12 @@ export function createHandler({ guard, upstreams = {}, proxyTokens = [], adminTo
       return send(res, e.status ?? 400, { error: e.status ? e.message : 'request body is not JSON' });
     }
 
-    const d0 = describeRequest(provider, body);
-    // OpenAI bills completion tokens for every one of n choices, and the hold
-    // covers one; refuse n > 1 rather than let a call cost n times its hold.
-    if (provider === 'openai' && body && body.n != null && body.n !== 1) {
-      log({ type: 'refused', provider, model: d0.model, status: 400, reasons: ['multiple-choices'] });
-      return send(res, 400, blockedBody(provider, { reasons: [{ code: 'multiple-choices', message: 'n other than 1 is not supported: the hold covers one choice, and OpenAI bills output for each' }] }), { 'x-guard-blocked': 'multiple-choices' });
+    // OpenAI bills every one of `n` choices; the hold covers one. Refuse rather
+    // than let n multiply spend past the cap (quality audit 2026-11-13).
+    if (provider === 'openai' && body && Number(body.n) > 1) {
+      return send(res, 400, blockedBody(provider, { reasons: [{ code: 'n-unsupported', message: 'n > 1 multiplies output past the held amount; send n: 1 and repeat the call' }] }));
     }
+    const d0 = describeRequest(provider, body);
     const scope = {
       user: req.headers['x-guard-user'],
       feature: req.headers['x-guard-feature'],
@@ -190,7 +189,9 @@ export function createHandler({ guard, upstreams = {}, proxyTokens = [], adminTo
         reader.push(decoder.decode(chunk, { stream: true }));
         if (!res.write(chunk)) await new Promise((r) => { res.once('drain', r); res.once('close', r); });
       }
-      complete = !res.destroyed;
+      // A stream that closed without the provider's end marker was cut short:
+      // its partial usage can undercount, so it is charged at its hold.
+      complete = !res.destroyed && reader.done();
     } catch {
       /* the client or the provider went away; finish() charges the hold */
     }
