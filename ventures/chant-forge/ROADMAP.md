@@ -89,6 +89,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-13, latest: `--split-voices` (tenors and basses by phrase; studio page option too). 7 of the 67 corpus files
   span 17 semitones, one more than the C3-E4 band both sections reach; each splits with one phrase for one section
   and 85-98% of the notes for the full choir (README "Tenors and basses by phrase"). Not tried with singers.
+- 2026-11-13, later: hand over inside a phrase at a word (README "Handing over at a word"): by default only where
+  no whole-phrase split fits (identical results on textbook ranges; with octave-wide sections 56 of 67 files fit
+  instead of 50), and with `--split-words` whenever a handoff wins more than `--word-cost` notes (amateur ranges:
+  74.6% to 82.2% full choir). Exact DP, brute-force checked. Not tried with singers.
 
 ## Next
 
