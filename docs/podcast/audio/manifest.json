@@ -243,5 +243,26 @@
     "sha256": "479c0959c294bcdc8ac8c976579fa3bd4f8f888d9e510d9457da7240065545e9",
     "script_sha256": "290232cd2a0d76ed066dfcbcbf67790f16d689e4c1ea9556586b79c736aa6d06",
     "voice": "kokoro-82m-af_heart"
+  },
+  "2026-10-27-what-is-a-ton-of-coal-worth-when-nobody-sells-coal": {
+    "bytes": 772262,
+    "seconds": 128.63,
+    "sha256": "fa99bb0112f7fd07f784bc24273248dfef2e7f69ee6e6ef285ea3b9f96213578",
+    "script_sha256": "3a2871f520e07b5f6964fc0f0f7ac17349f0e689de03ff6613e86696c789c386",
+    "voice": "kokoro-82m-af_heart"
+  },
+  "2026-10-27-when-the-water-level-falls-twice-as-fast": {
+    "bytes": 943971,
+    "seconds": 157.25,
+    "sha256": "dc0f9cfa5c4d7a0224b6941c2598bbc59d900aa59245642962ebf83b1082c271",
+    "script_sha256": "7e4d5c8e4ce107a68155ccfdb5223bb96fa1f5966de999a58f3222de1f8e324f",
+    "voice": "kokoro-82m-af_heart"
+  },
+  "2026-11-13-why-asteroid-odds-rise-before-they-fall": {
+    "bytes": 1480519,
+    "seconds": 246.67,
+    "sha256": "6d8069bfe93919b0fed4358953057783144d523c1b68dce9f9996b266638add7",
+    "script_sha256": "1fff26d3dd2ef84a4c4a36c17bfe8d19d945f32b2498d7b5998c982c0040d750",
+    "voice": "kokoro-82m-af_heart"
   }
 }
