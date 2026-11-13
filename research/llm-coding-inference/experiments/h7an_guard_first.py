@@ -23,6 +23,8 @@ subsample, n 1,000 only), love never. Rules: pooled; shipped (neg_guard 3, pseud
 
     python3 experiments/h7an_guard_first.py draws [reps]  # -> h7an_guard_first_draws.txt
     python3 experiments/h7an_guard_first.py summary       # applies the decision rule -> h7an_guard_first.txt
+    python3 experiments/h7an_guard_first.py conditional   # post hoc (added after the summary): gf2 coverage split by
+                                                          # fallback and guard-pass draws -> h7an_conditional.txt
 
 Arithmetic, before any draw: on the GoEmotions cells the pilots and per-draw streams are shared across rules, so in
 each draw gf2 gives exactly the shipped rule's interval when the guard passes and exactly a2's when it fails. Where the
@@ -98,16 +100,16 @@ def committed():
     return got
 
 
-def run(c, reps):
+def run(c, reps, rules=RULES):
     """7am's draw loop with fallback_pseudo added (goemo: common pilots, then a per-draw stream; naija: one stream per
-    rule)."""
+    rule). Each draw also records the audited coder-negative positives and the estimate."""
     h, f, n = c["h"], c["f"], c["n"]
     N, truth = len(h), sum(h) / len(h)
     res = {}
     if c["part"] == "goemo":
         rr = random.Random(c["seed"] + 5)
         pilots = [rr.sample(range(N), n // 2) for _ in range(reps)]
-    for name, ng, a, fb in RULES:
+    for name, ng, a, fb in rules:
         out = []
         if c["part"] != "goemo":
             rr = random.Random(c["seed"])
@@ -123,8 +125,9 @@ def run(c, reps):
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb.sample([i for i in cell if i not in labels], t):
                     labels[i] = h[i]
-            _, lo, hi = A.audit_interval(plan, f, labels)
-            out.append(((hi - lo) / 2, lo <= truth <= hi, plan["design"] == "cells", bool(plan.get("fallback"))))
+            est, lo, hi = A.audit_interval(plan, f, labels)
+            out.append(((hi - lo) / 2, lo <= truth <= hi, plan["design"] == "cells", bool(plan.get("fallback")),
+                        est - truth, hi < truth))
         res[name] = out
     return res
 
@@ -207,10 +210,45 @@ def summary():
     text = "\n".join(out); print(text); (HERE / "h7an_guard_first.txt").write_text(text + "\n")
 
 
+def one_conditional(args):
+    c, reps = args
+    if c["part"] != "goemo":  # one stream per rule: gf2's draws are not paired with shipped's, so no split is read
+        return None
+    r = run(c, reps, [x for x in RULES if x[0] == "gf2"])["gf2"]
+    fb = [x for x in r if x[3]]
+    ok = [x for x in r if not x[3]]
+    if not fb:
+        return None
+
+    def cov(xs):
+        return 100 * sum(x[1] for x in xs) / len(xs) if xs else float("nan")
+    fc = [x for x in fb if x[2]]
+    line = (f"{c['label']} | {c['n']} | {c['J']:.3f} | {100 * len(fb) / reps:.1f} | {cov(fb):.1f} | "
+            f"{100 * len(fc) / max(1, len(fb)):.1f} | {cov(fc):.1f} | "
+            f"{100 * sum(x[5] for x in fc) / max(1, len(fc)):.1f} | "
+            f"{100 * sum(x[4] for x in fc) / max(1, len(fc)):+.3f} | {cov(ok):.1f}")
+    print(line, flush=True)
+    return line
+
+
+def conditional(reps):
+    """Post hoc, added after the pre-registered summary was read: where gf2 undercovers, is it the fallback draws?"""
+    cs = list(cells())
+    with Pool(4) as p:
+        got = p.map(one_conditional, [(c, reps) for c in cs], chunksize=1)
+    head = ("cell | n | J | fallback % of draws | coverage in fallback draws % | cells % of fallback draws | coverage "
+            "in fallback cells draws % | interval below truth in fallback cells draws % | mean estimate - truth in "
+            "fallback cells draws (pts) | coverage in guard-pass draws %")
+    text = "\n".join([head] + [g for g in got if g]) + "\n"
+    (HERE / "h7an_conditional.txt").write_text(text)
+
+
 def main():
     mode = ARGS[0] if ARGS else "summary"
     if mode == "summary":
         summary()
+    elif mode == "conditional":
+        conditional(int(ARGS[1]) if len(ARGS) > 1 else 1000)
     else:
         draws(int(ARGS[1]) if len(ARGS) > 1 else 1000)
 
