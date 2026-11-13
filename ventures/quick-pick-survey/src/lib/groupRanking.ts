@@ -551,12 +551,12 @@ export const FAST_BLOCK_CURVE_Q = 0.75;
 export const FAST_BLOCK_PASSES = 3;
 
 /**
- * Where a sequence of log-time residuals turns faster: the single split with
- * the largest t between the earlier and later means (each side at least
- * `minSeg` long), returned when the later side is at least `minLog` faster
- * and t >= `tMin`; otherwise null.
+ * The split of a sequence of log-time residuals with the largest t between the
+ * earlier and later means (each side at least `minSeg` long): where it is, its
+ * t, and the gap (earlier mean minus later mean, so positive when the later
+ * side is faster). Null when the sequence is too short for two sides.
  */
-export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T): number | null {
+export function bestFastSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG): { at: number; t: number; gap: number } | null {
   const n = x.length;
   if (n < 2 * minSeg) return null;
   const pre = [0], pre2 = [0];
@@ -568,7 +568,40 @@ export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog 
     const t = (m1 - m2) / Math.sqrt(Math.max(ss / (n - 2), 1e-12) * (1 / k + 1 / (n - k)));
     if (!best || t > best.t) best = { t, at: k, gap: m1 - m2 };
   }
+  return best;
+}
+
+/**
+ * Where a sequence of log-time residuals turns faster: the single split with
+ * the largest t between the earlier and later means (each side at least
+ * `minSeg` long), returned when the later side is at least `minLog` faster
+ * and t >= `tMin`; otherwise null.
+ */
+export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T): number | null {
+  const best = bestFastSplit(x, minSeg);
   return best && best.t >= tMin && best.gap >= minLog ? best.at : null;
+}
+
+/** The lowest per-survey gap threshold FAST_BLOCK_AUTO may pick (on the log scale; 0.3 is 26% quicker). */
+export const FAST_BLOCK_AUTO_FLOOR = 0.3;
+/** Which quantile of the panel's mirrored (slow-turn) gaps FAST_BLOCK_AUTO reads. */
+export const FAST_BLOCK_AUTO_Q = 0.9;
+
+/**
+ * A per-survey gap threshold for fastBlockSplit, from the panel's own residual
+ * spread. Nobody careless turns slow partway through, so each respondent's
+ * best *slow* turn (the same split search on the negated residuals) shows how
+ * big a turn honest noise alone makes in this survey. The threshold is the
+ * `q` quantile of those mirrored gaps, kept between `floor` and
+ * FAST_BLOCK_MIN_LOG: a quiet panel lets the detector see a 0.6x block whose
+ * gap sits near 0.5, and a noisy one (people who change pace on their own)
+ * keeps the fixed 0.5. Null when fewer than AGREEMENT_MIN_RESPONDENTS
+ * sequences are long enough.
+ */
+export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q, floor = FAST_BLOCK_AUTO_FLOOR, cap = FAST_BLOCK_MIN_LOG): number | null {
+  const gaps = residuals.map((x) => bestFastSplit(x.map((v) => -v))).filter((b) => b !== null).map((b) => Math.max(0, b!.gap));
+  if (gaps.length < AGREEMENT_MIN_RESPONDENTS) return null;
+  return Math.min(cap, Math.max(floor, quantileOf(gaps, q)));
 }
 
 /**
@@ -600,8 +633,9 @@ export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog 
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = FAST_BLOCK_MIN_LOG): Map<string, number> {
   if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
+  if (minLog !== "auto" && !(minLog > 0)) throw new Error(`minLog must be a positive number or "auto", got ${minLog}`);
   const by = new Map<string, { index: number; ms: number }[]>();
   const seen = new Map<string, number>();
   for (const a of answers) {
@@ -624,11 +658,13 @@ export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE
       atPos.push(v.length ? quantileOf(v, curveQ) : NaN);
     }
     const curve = atPos.map((_, i) => medianOf(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
+    const residuals = people.map(([, list]) => list.map((x, i) => Math.log(x.ms) - curve[i]));
+    const gapMin = minLog === "auto" ? (autoFastBlockMinLog(residuals) ?? FAST_BLOCK_MIN_LOG) : minLog;
     const next = new Map<string, number>();
-    for (const [participantId, list] of people) {
-      const split = fastBlockSplit(list.map((x, i) => Math.log(x.ms) - curve[i]));
+    people.forEach(([participantId], j) => {
+      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin);
       if (split !== null) next.set(participantId, split);
-    }
+    });
     const same = next.size === splits.size && [...next].every(([id, k]) => splits.get(id) === k);
     splits.clear();
     for (const [id, k] of next) splits.set(id, k);

@@ -89,7 +89,7 @@
 import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE, applyComparison, type GlickoState } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
-import { fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
+import { autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
@@ -119,10 +119,49 @@ const shiftMin = Number(opt("--shift-min", "0.5"));
 const shiftT = Number(opt("--shift-t", "4"));
 const curveQs = nums(opt("--curve-q", "")).filter((x) => x > 0 && x < 1);
 const onsetSpread = Number(opt("--onset-spread", "0"));
+// `--auto q:floor,...` (2026-11-13, flagship item d2): a shift-drop-auto-qNN-fNN scheme per pair, reading fastBlockStarts with a
+// per-survey gap threshold (autoFastBlockMinLog: the q quantile of the panel's mirrored slow-turn gaps, at least floor, at most 0.5).
+const autos = opt("--auto", "").split(",").filter(Boolean).map((x) => {
+  const [q, f] = x.split(":").map(Number);
+  if (!(q > 0 && q < 1) || !(f > 0)) throw new Error(`--auto takes q:floor pairs, got ${x}`);
+  return { q, f, key: `shift-drop-auto-q${Math.round(q * 100)}-f${Math.round(f * 100)}` };
+});
+// `--person-drift sd`: each person also speeds up or slows down on their own over the session, by exp(-d x progress) with
+// d ~ N(0, sd) per person (a stream of its own; 0 draws nothing). The panel curve cannot remove it; a fixed gap guards against it.
+const personDrift = Number(opt("--person-drift", "0"));
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
 const ownBlockStart = (ms: number[]) => fastBlockSplit(ms.map((v) => Math.log(v)), minSeg, shiftMin, shiftT);
+
+const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key)];
+
+/**
+ * fastBlockStarts with a per-survey gap threshold, for people who all answered in order with every answer timed (as
+ * here): the same curve, smoothing and passes, with each pass's threshold from autoFastBlockMinLog. Kept beside the
+ * library's own "auto" so the sweep can try other q and floor values; with the shipped ones the two agree (checked below).
+ */
+function autoBlockStarts(seqs: number[][], q: number, floor: number): { at: (number | null)[]; minLog: number } {
+  const longest = Math.max(...seqs.map((s) => s.length));
+  const splits: (number | null)[] = seqs.map(() => null);
+  let minLog = FAST_BLOCK_MIN_LOG;
+  for (let pass = 0; pass < 3; pass++) {
+    const atPos: number[] = [];
+    for (let i = 0; i < longest; i++) {
+      const v = seqs.filter((s, j) => s.length > i && i < (splits[j] ?? Infinity)).map((s) => Math.log(s[i])).sort((a, b) => a - b);
+      const h = (v.length - 1) * FAST_BLOCK_CURVE_Q, lo = Math.floor(h);
+      atPos.push(v.length ? (lo + 1 < v.length ? v[lo] + (h - lo) * (v[lo + 1] - v[lo]) : v[lo]) : NaN);
+    }
+    const curve = atPos.map((_, i) => median(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
+    const res = seqs.map((s) => s.map((ms, i) => Math.log(ms) - curve[i]));
+    minLog = autoFastBlockMinLog(res, q, floor) ?? FAST_BLOCK_MIN_LOG;
+    const next = res.map((x) => fastBlockSplit(x, 8, minLog));
+    const same = next.every((k, j) => k === splits[j]);
+    next.forEach((k, j) => (splits[j] = k));
+    if (same) break;
+  }
+  return { at: splits, minLog };
+}
 
 const mean = (v: number[]) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN);
 const median = (v: number[]) => {
@@ -217,6 +256,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
               let replayMismatch = 0;
               const blocks = { h: [] as boolean[], c: [] as boolean[] };
               const qBlocks: Record<string, { h: boolean[]; c: boolean[] }> = {};
+              const autoMinLogs: Record<string, number[]> = {};
               const answerFlags: Record<string, { h: number; hn: number; c: number; cn: number }> = {};
               const flags: Record<string, { h: boolean[]; c: boolean[] }> = {};
               for (let sv = 0; sv < nSurveys; sv++) {
@@ -237,6 +277,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                   const isCareless = careless && pattern !== "dissent";
                   const own = (careless && pattern === "dissent" ? camp : common).map((m) => m + spread * normal(pr));
                   const base = 2500 * Math.exp(personSd * normal(tr));
+                  const myDrift = personDrift > 0 ? personDrift * normal(mulberry32(seed ^ 0x68e31da4)) : 0;
                   const shown: Shown[] = [];
                   const pick: Chooser | undefined = !isCareless
                     ? undefined
@@ -262,7 +303,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                     }
                     const progress = budget > 1 ? shown.length / (budget - 1) : 0;
                     const warm = shown.length < warmup ? 2 : 1; // the first `--warmup` answers take twice as long (reading the instructions)
-                    shown.push({ a, b, ms: warm * ms * Math.exp(0.35 * normal(tr) - drift * progress), careless: out !== undefined });
+                    shown.push({ a, b, ms: warm * ms * Math.exp(0.35 * normal(tr) - (drift + myDrift) * progress), careless: out !== undefined });
                     return out;
                   };
                   const res = simulate(routeStaged, items, budget, seed, 0, 0, 0, false, undefined, 0, undefined, (i) => own[i], chooser);
@@ -284,6 +325,16 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 for (const cq of curveQs) {
                   const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-q${Math.round(cq * 100)}`] = st.get(`p${i}`) ?? null));
+                }
+                for (const a of autos) {
+                  const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f);
+                  people.forEach((p, i) => (p.qBlockAt[a.key] = st.at[i]));
+                  (autoMinLogs[a.key] ??= []).push(st.minLog);
+                  if (a.q === FAST_BLOCK_AUTO_Q && a.f === FAST_BLOCK_AUTO_FLOOR) {
+                    // With the shipped q and floor, this must agree with the library's own "auto" reading.
+                    const lib = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto");
+                    if (people.some((_, i) => (lib.get(`p${i}`) ?? null) !== st.at[i])) throw new Error(`autoBlockStarts disagrees with fastBlockStarts(..., "auto") in survey ${sv}`);
+                  }
                 }
                 const panelPace = median(medians);
                 for (let i = 0; i < people.length; i++) {
@@ -322,13 +373,11 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                   "shift-or-fast": (p, s) => s.ms < fastAt * panelPace || (p.blockAt !== null && p.shown.indexOf(s) >= p.blockAt),
                   "oracle-answers": (_p, s) => s.careless,
                 };
-                for (const cq of curveQs) {
-                  const key = `shift-drop-q${Math.round(cq * 100)}`;
+                for (const key of variantKeys) {
                   answerRules[key] = (p, s) => p.qBlockAt[key] != null && p.shown.indexOf(s) >= p.qBlockAt[key]!;
                 }
                 for (const p of people) (p.careless ? blocks.c : blocks.h).push(p.blockAt !== null);
-                for (const cq of curveQs) {
-                  const key = `shift-drop-q${Math.round(cq * 100)}`;
+                for (const key of variantKeys) {
                   const b = (qBlocks[key] ??= { h: [], c: [] });
                   for (const p of people) (p.careless ? b.c : b.h).push(p.qBlockAt[key] != null);
                 }
@@ -355,7 +404,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 }
               }
               if (replayMismatch) throw new Error(`replay did not reproduce simulate's states (${replayMismatch} people)`);
-              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, ...(onsetSpread > 0 ? { onsetSpread } : {}), drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
+              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, ...(onsetSpread > 0 ? { onsetSpread } : {}), ...(personDrift > 0 ? { personDrift } : {}), drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
               const base = acc["shipped"].rho;
               for (const [name, a] of Object.entries(acc)) {
                 const d = a.rho.map((x, i) => x - base[i]);
@@ -378,6 +427,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 blockFoundHonest: share(blocks.h),
                 blockFoundCareless: share(blocks.c),
                 ...Object.fromEntries(Object.entries(qBlocks).flatMap(([k, b]) => [[`${k}FoundHonest`, share(b.h)], [`${k}FoundCareless`, share(b.c)]])),
+                ...Object.fromEntries(Object.entries(autoMinLogs).map(([k, v]) => [`${k}MinLog`, { median: Number(median(v).toFixed(3)), min: Number(Math.min(...v).toFixed(3)), max: Number(Math.max(...v).toFixed(3)) }])),
                 fastShareAuc: Number(auc(sig.shareC, sig.shareH).toFixed(3)),
                 selfFastShareAuc: Number(auc(sig.selfC, sig.selfH).toFixed(3)),
                 fastShareHonestMedian: Number(median(sig.shareH).toFixed(3)),

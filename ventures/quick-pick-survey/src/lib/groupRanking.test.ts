@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -348,6 +348,21 @@ describe("fastBlockSplit", () => {
   });
 });
 
+describe("autoFastBlockMinLog", () => {
+  const seq = (k: number) => Array.from({ length: 30 }, (_, i) => (i % 2 ? 0.05 : -0.05) * (1 + k / 10));
+  it("sits at the floor for a quiet panel, at FAST_BLOCK_MIN_LOG for one whose people slow down by 0.5 or more, and in between otherwise", () => {
+    expect(autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k)))).toBe(FAST_BLOCK_AUTO_FLOOR);
+    expect(autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k).map((v, i) => (i >= 15 ? v + 0.8 : v))))).toBe(FAST_BLOCK_MIN_LOG);
+    const mid = autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k).map((v, i) => (i >= 15 ? v + 0.4 : v))))!;
+    expect(mid).toBeGreaterThan(FAST_BLOCK_AUTO_FLOOR);
+    expect(mid).toBeLessThan(FAST_BLOCK_MIN_LOG);
+  });
+  it("is not moved by people who turn quick (only slow turns count), and needs AGREEMENT_MIN_RESPONDENTS sequences", () => {
+    expect(autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k).map((v, i) => (k < 4 && i >= 15 ? v - 1 : v))))).toBe(FAST_BLOCK_AUTO_FLOOR);
+    expect(autoFastBlockMinLog(Array.from({ length: 4 }, (_, k) => seq(k)))).toBeNull();
+  });
+});
+
 describe("fastBlockStarts", () => {
   // Deterministic jitter so the t statistic is finite.
   const jitter = (i: number, p: number) => Math.exp(0.15 * Math.sin(i * 1.7 + p * 2.3));
@@ -376,6 +391,19 @@ describe("fastBlockStarts", () => {
     expect([...fastBlockStarts(panel(10, 40, ms), 0.75)].sort()).toEqual([["p0", 20], ["p1", 20], ["p2", 20], ["p3", 20]]);
     expect(fastBlockStarts(panel(10, 40, ms)).size).toBe(4); // the shipped default
     expect(() => fastBlockStarts(panel(10, 40, ms), 1)).toThrow();
+  });
+  it("with a per-survey threshold, finds a slower block a quiet panel's noise cannot make, and only there", () => {
+    // One of eight turns 0.7x quicker (a log gap of 0.36) from answer 20: under the fixed 0.5 nobody is flagged; the
+    // quiet panel's own slow turns are tiny, so "auto" drops the threshold to its floor and finds them.
+    const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.7 : 1);
+    expect(fastBlockStarts(panel(8, 40, ms)).size).toBe(0);
+    expect([...fastBlockStarts(panel(8, 40, ms), undefined, "auto")]).toEqual([["p0", 20]]);
+    // The same panel, but two honest people also slow down to twice their time on their own (one from answer 10,
+    // one from 28, so the panel's curve barely moves at 20): the mirrored gaps now show turns that big are what this
+    // panel's people do, so "auto" keeps the fixed 0.5 and the 0.36 block is no longer told apart from them.
+    const noisy = (p: number, i: number) => ms(p, i) * ((p === 5 && i >= 10) || (p === 6 && i >= 28) ? 2 : 1);
+    expect(fastBlockStarts(panel(8, 40, noisy), undefined, "auto").size).toBe(0);
+    expect(() => fastBlockStarts(panel(8, 40, ms), undefined, 0)).toThrow();
   });
   it("needs AGREEMENT_MIN_RESPONDENTS people with enough timed answers", () => {
     expect(fastBlockStarts(panel(4, 40, (p, i) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.4 : 1))).size).toBe(0);
