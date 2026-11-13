@@ -180,7 +180,7 @@ flagships:
       Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price and column generation
       prove 20-80 person weeks; the exact check is on by default at every size. Forecast side (--from-sales, four real
       files): backtest, closure score, half-life auto, priced cut, tickets, labour standard, shut-door work (README,
-      2026-11-12 sections). Planner: worker, week reuse, keeps usual shifts. Posted weeks: a call-out reissue holds
+      2026-11-12 sections). Posted weeks: a call-out reissue holds
       started shifts and keeps posted ones; a change-count ILP shows it is the least on 41/41 café call-outs when the
       caller's changes count (README "Is 91 the least?"); a kept start holds big-week reissues near the posted roster
       (README "The reissue on the templates and 20-60 person weeks"). The change-count ILP at 20-60 people found a
@@ -193,7 +193,7 @@ flagships:
       open); the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a floor above 60 copies needs something
       stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the keep-usual-shifts
       sweep on real dated leave records; a manager's read on whether the steadier plan is the
-      one they would post; a real Square or Toast item export; a real published-schedule export for --import-shifts;
+      one they would post; a real Square or Toast item export; a real published-schedule export;
       whether the priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
