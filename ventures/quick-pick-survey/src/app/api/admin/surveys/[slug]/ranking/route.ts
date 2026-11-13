@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { agreementSummary, coverage, fastAnswerers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, respondentPace, slotClickerAdvice, slotClickers } from "@/lib/groupRanking";
+import { agreementSummary, coverage, fastAnswerCutMs, fastAnswerers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, respondentPace, slotClickerAdvice, slotClickers } from "@/lib/groupRanking";
 import { CHECKOUT_URL, VALIDATE_URL } from "@/lib/checkout";
 import { reportGate } from "@/lib/reportAccess";
 import { resultsReportHtml } from "@/lib/resultsReport";
@@ -10,6 +10,8 @@ import { resultsReportHtml } from "@/lib/resultsReport";
 /**
  * A survey's pooled ranking with 95% intervals and rank ranges. `?format=csv` downloads it.
  * `?drop=fast` leaves out respondents who answered in under half the typical time per pick, for comparison.
+ * `?drop=fast-answers` keeps everyone and leaves out each answer given in under half the typical time,
+ * rebuilding each person's ratings from the answers kept (groupRanking.ts, ratingsWithoutFastAnswers).
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const store = await cookies();
@@ -18,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   }
   const { slug } = await params;
   const drop = parseDrop(req.nextUrl.searchParams.get("drop"));
-  if (!drop.ok) return NextResponse.json({ error: 'drop must be "fast" or absent' }, { status: 400 });
+  if (!drop.ok) return NextResponse.json({ error: 'drop must be "fast", "fast-answers" or absent' }, { status: 400 });
   try {
     const survey = await prisma.survey.findUnique({
       where: { slug },
@@ -50,23 +52,36 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const clickers = slotClickers([...bySlot.values()]);
     const unclicked = clickers.size ? ratings.filter((r) => !clickers.has(r.participantId)) : ratings;
     // Time per pick: a note beside agreement (groupRanking.ts, paceSummary), and the ranking without the fast answerers on ?drop=fast.
+    // In answer order, so ?drop=fast-answers can replay each person's ratings exactly as the answer route built them.
     const times = await prisma.trial.findMany({
-      where: { result: { not: null }, participant: { survey: { slug } } },
-      select: { participantId: true, msToAnswer: true },
+      where: { result: { in: ["A", "B", "EQUAL"] }, participant: { survey: { slug } } },
+      select: { participantId: true, msToAnswer: true, itemAId: true, itemBId: true, result: true },
+      orderBy: [{ answeredAt: "asc" }, { id: "asc" }],
       take: 200000,
     });
     const paces = respondentPace(times.filter((t) => !clickers.has(t.participantId)).map((t) => ({ participantId: t.participantId, ms: t.msToAnswer })));
     const fast = fastAnswerers(paces);
     const agreements = respondentAgreement(unclicked);
     const pace = paceSummary(paces, agreements);
-    const kept = drop.fast && fast.size ? unclicked.filter((r) => !fast.has(r.participantId)) : unclicked;
+    const cut = drop.fastAnswers ? fastAnswerCutMs(paces) : null;
+    const replayed = cut === null
+      ? null
+      : ratingsWithoutFastAnswers(
+          times.filter((t) => !clickers.has(t.participantId)).map((t) => ({ participantId: t.participantId, itemAId: t.itemAId, itemBId: t.itemBId, result: t.result!, ms: t.msToAnswer })),
+          cut
+        );
+    const kept = replayed ? replayed.rows : drop.fast && fast.size ? unclicked.filter((r) => !fast.has(r.participantId)) : unclicked;
     const ranked = groupRanking(survey.items, kept);
     const leftOut = {
       slotClickers: clickers.size,
       fast: drop.fast ? fast.size : 0,
+      fastAnswers: replayed ? replayed.dropped : 0,
       advice: [
         slotClickerAdvice(clickers.size, survey._count.participants),
         drop.fast && fast.size ? `${fast.size} fast ${fast.size === 1 ? "answerer is" : "answerers are"} left out of this ranking, as asked.` : "",
+        replayed && replayed.dropped
+          ? `${replayed.dropped} ${replayed.dropped === 1 ? "answer" : "answers"} given in under ${Math.round(cut! / 100) / 10} s (half the typical time per pick), from ${replayed.people} ${replayed.people === 1 ? "respondent" : "respondents"}, ${replayed.dropped === 1 ? "is" : "are"} left out of this ranking, as asked; everyone's other answers count.`
+          : drop.fastAnswers && cut === null ? "Too few respondents have timed answers to judge a typical time per pick, so no answers are left out." : "",
       ].filter(Boolean).join(" "),
     };
     // A data-quality note only: the ranking above counts everyone else equally (groupRanking.ts, agreementSummary).

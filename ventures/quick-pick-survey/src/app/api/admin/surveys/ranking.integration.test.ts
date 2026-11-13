@@ -112,7 +112,7 @@ describe("admin survey ranking", () => {
     expect(rho).toBeGreaterThan(0.8);
     // Every participant answered ANSWERS_EACH pairs, and the route reads that from answered trials.
     expect(body.coverage.options).toBe(n);
-    expect(body.leftOut).toEqual({ slotClickers: 0, fast: 0, advice: "" });
+    expect(body.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, advice: "" });
     expect(body.agreement.advice).toBe("");
   });
 
@@ -143,7 +143,7 @@ describe("admin survey ranking", () => {
     const all = await (await get(SURVEY)).json();
     expect(all.pace).toMatchObject({ checked: 7, fast: 2, lowAndFast: 2, typicalSeconds: 3 });
     expect(all.pace.advice).toMatch(/^2 respondents of 7 answered in under half the typical time per pick/);
-    expect(all.leftOut).toEqual({ slotClickers: 0, fast: 0, advice: "" });
+    expect(all.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, advice: "" });
     expect(Math.max(...all.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
 
     const without = await (await get(SURVEY, "?drop=fast")).json();
@@ -156,6 +156,53 @@ describe("admin survey ranking", () => {
     expect(1 - (6 * d2) / (n * (n * n - 1))).toBeGreaterThan(0.8);
 
     expect((await get(SURVEY, "?drop=slow")).status).toBe(400);
+    expect((await get(SURVEY, "?drop=fast-answer")).status).toBe(400);
+  });
+
+  it("?drop=fast-answers replays the stored ratings exactly when no answer is fast", async () => {
+    const ids = await runRespondents(5, ANSWERS_EACH);
+    for (const id of ids) await prisma.trial.updateMany({ where: { participantId: id }, data: { msToAnswer: 3000 } });
+    setCookie(ADMIN_COOKIE_NAME, createSessionToken());
+    const all = await (await get(SURVEY)).json();
+    const replayed = await (await get(SURVEY, "?drop=fast-answers")).json();
+    expect(replayed.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, advice: "" });
+    // Same answers, replayed in answer order through the same update: the same ranking (the pool sums rows in another order, so to 1e-6, not the last bit).
+    type Row = { itemId: string; rank: number; bestRank: number; worstRank: number; respondents: number; rating: number; low: number; high: number };
+    const shape = (r: Row[]) => r.map(({ itemId, rank, bestRank, worstRank, respondents }) => ({ itemId, rank, bestRank, worstRank, respondents }));
+    expect(shape(replayed.ranking)).toEqual(shape(all.ranking));
+    (replayed.ranking as Row[]).forEach((r, i) => {
+      for (const k of ["rating", "low", "high"] as const) expect(r[k]).toBeCloseTo(all.ranking[i][k], 6);
+    });
+  });
+
+  it("?drop=fast-answers leaves out the quick answers of people careless on half their picks, whom ?drop=fast misses", async () => {
+    await runRespondents(5, ANSWERS_EACH);
+    // Two respondents who pick the reverse of everyone's order on every other answer, quickly, and honestly at a normal pace otherwise.
+    let turn = 0;
+    const half = await runRespondents(2, ANSWERS_EACH, (a, b) => (turn++ % 2 === 0 ? (a < b ? "B" : "A") : a < b ? "A" : "B"));
+    await prisma.trial.updateMany({ where: { participantId: { notIn: half } }, data: { msToAnswer: 3000 } });
+    for (const id of half) {
+      const trials = await prisma.trial.findMany({ where: { participantId: id }, orderBy: [{ answeredAt: "asc" }, { id: "asc" }], select: { id: true } });
+      for (const [i, t] of trials.entries()) await prisma.trial.update({ where: { id: t.id }, data: { msToAnswer: i % 2 === 0 ? 750 : 3000 } });
+    }
+    setCookie(ADMIN_COOKIE_NAME, createSessionToken());
+
+    // Their median time is (750 + 3000) / 2: not under half the typical 3 s, so nobody is a fast answerer.
+    const all = await (await get(SURVEY)).json();
+    expect(all.pace).toMatchObject({ checked: 7, fast: 0 });
+    expect((await (await get(SURVEY, "?drop=fast")).json()).leftOut.fast).toBe(0);
+
+    const without = await (await get(SURVEY, "?drop=fast-answers")).json();
+    expect(without.leftOut.fastAnswers).toBe(ANSWERS_EACH);
+    expect(without.leftOut.advice).toMatch(/^40 answers given in under 1\.5 s \(half the typical time per pick\), from 2 respondents, are left out of this ranking/);
+    // Everyone still counts: the two keep their honest answers.
+    expect(Math.max(...without.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
+    const rho = (ranked: { itemId: string }[]) => {
+      const n = ranked.length;
+      return 1 - (6 * ranked.reduce((t, r, i) => t + (i - order.get(r.itemId)!) ** 2, 0)) / (n * (n * n - 1));
+    };
+    expect(rho(without.ranking)).toBeGreaterThanOrEqual(rho(all.ranking));
+    expect(rho(without.ranking)).toBeGreaterThan(0.8);
   });
 
   it("downloads the same ranking as CSV, one row per option", async () => {

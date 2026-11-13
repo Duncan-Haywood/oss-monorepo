@@ -189,6 +189,13 @@ without the fast answerers" button) returns the ranking without them for compari
 default ranking still counts them, because dropping fast people cost up to 0.019 Spearman in
 the sweep's widest-spread panels where careless people were no faster than anyone else
 (docs/INFORMATION-GAIN-SELECTOR.md, "Answer times: telling a careless block from a camp").
+Someone careless on only half their picks keeps a near-normal median, so `?drop=fast` misses
+them; `?drop=fast-answers` (the builder's "Rank without the fast answers" button) keeps everyone
+and leaves out each answer given in under half the typical time, replaying each person's ratings
+from the rest. In simulation it recovered 55-75% of what leaving out exactly the careless answers
+would when those answers were quick (0.4x pace), against 0-35% for leaving out fast people, and
+cost up to 0.006 with nobody careless and up to 0.019 against a camp with a second taste, so it
+too is a comparison, not the default (same file, "Half-time carelessness and answer times").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once

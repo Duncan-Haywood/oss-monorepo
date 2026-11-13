@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, FAST_PACE, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, type ParticipantRatingRow } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, FAST_PACE, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
 function mulberry(seed: number) {
@@ -282,10 +283,52 @@ describe("paceSummary", () => {
 });
 
 describe("parseDrop", () => {
-  it("accepts only absent or exactly \"fast\"", () => {
-    expect(parseDrop(null)).toEqual({ ok: true, fast: false });
-    expect(parseDrop("fast")).toEqual({ ok: true, fast: true });
-    for (const bad of ["", "Fast", "slot", "fast,slot"]) expect(parseDrop(bad)).toEqual({ ok: false });
+  it("accepts only absent, exactly \"fast\" or exactly \"fast-answers\"", () => {
+    expect(parseDrop(null)).toEqual({ ok: true, fast: false, fastAnswers: false });
+    expect(parseDrop("fast")).toEqual({ ok: true, fast: true, fastAnswers: false });
+    expect(parseDrop("fast-answers")).toEqual({ ok: true, fast: false, fastAnswers: true });
+    for (const bad of ["", "Fast", "slot", "fast,slot", "fast-answer", "fast,fast-answers"]) expect(parseDrop(bad)).toEqual({ ok: false });
+  });
+});
+
+describe("fastAnswerCutMs", () => {
+  it("is FAST_PACE times the panel's median of medians, null when no pace was judged", () => {
+    const paces = respondentPace(["a", "b", "c", "d", "e"].flatMap((id, i) => Array.from({ length: PACE_MIN_TIMED }, () => ({ participantId: id, ms: 2000 + i * 500 }))));
+    expect(fastAnswerCutMs(paces)).toBeCloseTo(3000 * FAST_PACE, 6);
+    expect(fastAnswerCutMs(respondentPace([{ participantId: "a", ms: 3000 }]))).toBeNull();
+  });
+});
+
+describe("ratingsWithoutFastAnswers", () => {
+  const ans = (participantId: string, itemAId: string, itemBId: string, result: string, ms: number | null): ReplayAnswer => ({ participantId, itemAId, itemBId, result, ms });
+  const answers = [
+    ans("p", "x", "y", "A", 3000), ans("p", "y", "z", "B", 400), ans("p", "x", "z", "EQUAL", null),
+    ans("q", "x", "y", "B", 2500), ans("q", "x", "z", "A", 1500), ans("q", "y", "z", "A", 1499),
+  ];
+  // The answer route's own update, one answer at a time from the default state.
+  function byHand(list: ReplayAnswer[]) {
+    const st = new Map<string, GlickoState>();
+    for (const a of list) {
+      const k = (i: string) => `${a.participantId}/${i}`;
+      const out = applyComparison(st.get(k(a.itemAId)) ?? DEFAULT_GLICKO_STATE, st.get(k(a.itemBId)) ?? DEFAULT_GLICKO_STATE, a.result as "A" | "B" | "EQUAL");
+      st.set(k(a.itemAId), out.a);
+      st.set(k(a.itemBId), out.b);
+    }
+    return new Map([...st].map(([k, v]) => [k, { rating: v.rating, rd: v.rd }]));
+  }
+  const keyed = (rows: ParticipantRatingRow[]) => new Map(rows.map((r) => [`${r.participantId}/${r.itemId}`, { rating: r.rating, rd: r.rd }]));
+  it("reproduces the stored ratings exactly when nothing is under the cut", () => {
+    const out = ratingsWithoutFastAnswers(answers, 1);
+    expect(out.dropped).toBe(0);
+    expect(keyed(out.rows)).toEqual(byHand(answers));
+  });
+  it("leaves out answers under the cut, keeps untimed ones and ones exactly at it", () => {
+    const out = ratingsWithoutFastAnswers(answers, 1500);
+    expect(out).toMatchObject({ dropped: 2, people: 2 });
+    expect(keyed(out.rows)).toEqual(byHand(answers.filter((a) => a.ms === null || a.ms >= 1500)));
+  });
+  it("refuses a result that is not A, B or EQUAL rather than guessing", () => {
+    expect(() => ratingsWithoutFastAnswers([ans("p", "x", "y", "a", 3000)], 1)).toThrow(/A, B or EQUAL/);
   });
 });
 
