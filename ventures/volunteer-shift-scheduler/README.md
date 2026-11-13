@@ -2,7 +2,7 @@
 
 Free, browser-only volunteer schedule maker for church, school PTA, food bank,
 youth sports and event coordinators. Paste the volunteers (days they can do,
-maximum shifts, roles they cannot do), list the shifts (date, slot, role, how
+maximum shifts, roles they cannot do, dates they are away), list the shifts (date, slot, role, how
 many people), and it builds a roster that never double-books anyone, never
 exceeds a maximum and respects availability and excluded roles. Unfilled places
 are listed with the reason, and over- or under-loaded volunteers are flagged.
