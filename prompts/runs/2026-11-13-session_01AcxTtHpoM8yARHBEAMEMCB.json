@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHpoM8yARHBEAMEMCB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T13:34:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: `--steady` speed lies in the call-out rebuilds",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15505",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "At session start git fetch/push returned 503 (credential service temporarily unavailable) and the GitHub MCP server failed to connect; both recovered about 20 minutes in, so the draft PR was opened late."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Its 'open your draft PR before you read further' claim step cannot be done when GitHub is down at start; another session claimed the same row (#15504, empty) a minute before my PR could be opened."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "claim_check said YIELD to #15504, an empty claim PR opened 1 min before mine while GitHub had been unreachable for my session; my slice was already built and measured.",
+      "did": "Landed my slice (a perf item, calloutExposure only) instead of closing it as superseded; #15504 can still take any other item on the row.",
+      "result": "Merged; no file overlap with #15504 at merge time (it had no files)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-walk-that-never-arrived.md",
+    "ventures/shift-roster-builder/README.md (section 'Call-out rebuilds, column generation first')"
+  ],
+  "goal": null,
+  "notes": "Profiled the call-out check's rebuilds: on the caf\u00e9, 2.2 s of 4.4 s was coverPass's twelve full runs on rebuilds where column generation proves the 15-hour optimum in 10-50 ms. calloutExposure now passes deferCover: true (buildRoster accepts it at any size). eval/callout-rebuild-order.mjs: 570 call-out cases, 0 open-hour mismatches, 70.9 s -> 31.5 s; whole --steady pick same roster and exposure on all five teams, retail 10.0 -> 1.5 s, caf\u00e9 21.0 -> 14.4 s. Fresh builds and posted reissues unchanged (33 same-score roster differences would change a posted week). No agent doc in docs/reports: the README section and flagships next: carry what the next run needs. Tests: run_venture_tests.py shift-roster-builder, see PR.",
+  "corrections": [],
+  "redteam": null
+}
