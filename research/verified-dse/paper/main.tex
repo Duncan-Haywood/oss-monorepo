@@ -916,6 +916,31 @@ whose amount comes straight from an input, which are wire-dominated, not
 to shift operators as such. A normaliser's amount comes out of a
 priority encoder, and the mapped rung sees that logic.
 
+\textbf{A guard on the shift amount's source (milestone 121; flow run).}
+We counted \texttt{amount\_\allowbreak{}depth}, the longest chain of word-level cells
+from a module input to the amount port of a design's widest shift, with
+one Yosys elaboration. Every seen wide shifter has depth 0 except the
+normalisers (190 to 382), so the seen cells cannot place a threshold
+between 1 and 287. We fixed SWD(1) (route randomly on a 64-bit-plus
+shifter whose amount comes from pins) as primary and SWD(8) alongside,
+with seven predictions, then ran three families no table had run (1,440
+flow runs, \texttt{experiments/\allowbreak{}amount\_\allowbreak{}depth/\allowbreak{}}):
+\texttt{x\ \textgreater{}\textgreater{}\ (a\ +\ b)} (depth 1), a
+floating-point alignment step
+\texttt{x\ \textgreater{}\textgreater{}\ \textbar{}ea\ -\ eb\textbar{}}
+(depth 2) and \texttt{x\ \textless{}\textless{}\ popcount(m)} (depth 63
+and 127). Four predictions held and three failed. The popcount shifter
+replicates the normaliser: the clipped ladder reaches 0.00\% in all four
+cells against 0.92\% to 1.81\% for random routing. The shallow families
+do not: the ladder loses on the adder-driven shifter (8.60\% against
+1.69\%) and on the alignment step (13.29\% against 6.98\%). Blind mean
+regret is 7.30\% for SWD(1) (equal to the unguarded rule here), 3.34\%
+for SWS(64) and random routing, and 2.89\% for SWD(8), which is better
+than random in 4 cells and worse in none (sign p = 0.125). The source of
+the amount is the right axis, but a few word-level cells in front of it
+leave a shifter wire-dominated; where the cut lies between depth 2 and
+63 is untested.
+
 \textbf{Pilot-side certificate and its limits} (milestones 35 to 43,
 moved here from the to-do list). A proof or counterexample for the
 top-vs-all coverage, or a conformal pilot statistic with a theorem
@@ -1046,13 +1071,12 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  A structural guard that separates the two kinds of shifter. Milestone
-  120 found that the RTL operator check misses a hand-built barrel and
-  wrongly flags a leading-zero normaliser, where the ladder wins. The
-  next candidate is the logic depth in front of the shift amount. It
-  should be chosen on the 160 cells seen so far and tested blind on a
-  barrel whose amount comes from an adder and on a normaliser whose
-  amount is an input.
+  Where the amount-depth cut lies. Milestone 121 found that the ladder
+  wins on shifters whose amount comes from deep logic (normalisers, a
+  popcount, depth 63 and more) and loses when one adder or an exponent
+  difference (depth 1 to 2) feeds the amount. The guard SWD(8) should be
+  tested blind on amounts 4 to 32 word-level cells deep, with a
+  gate-level depth alongside the word-level count.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point

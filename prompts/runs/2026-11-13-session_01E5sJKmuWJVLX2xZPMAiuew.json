@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKmuWJVLX2xZPMAiuew",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T23:10:00Z",
+  "ended": "2026-11-13T23:16:03Z",
+  "wall_minutes": 26.51,
+  "tokens_in": 6954840,
+  "tokens_out": 37401,
+  "cost_usd": 3.1318,
+  "tool_calls": 62,
+  "task": "verified-dse milestone 121: guard on the shift amount's source, three new shifter families run blind",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15649",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 which first reported 'No module named pytest'; a second call installed it. Harmless, but the first foreground pytest call failed."
+    },
+    {
+      "file": "research/verified-dse/paper/build.sh",
+      "issue": "main.tex regenerates with pandoc but main.pdf needs pdflatex (absent); the PDF in the tree is now one milestone behind main.tex."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "the Stop hook asked to commit untracked files while the flow was still writing results.jsonl",
+      "did": "committed only finished files and kept waiting in the foreground until the flow ended",
+      "result": "the table was committed once, complete"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-verified-dse-shift-amount-source.md",
+    "research/verified-dse/LOG.md (milestone 121)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered in 2cc75ee62 before any flow run. 1,440 Yosys 0.70 / OpenROAD 26Q3 runs (~55 min, 4 cores). Predictions (1),(2),(4),(7) held; (3),(5),(6) refuted. Blind regret: SWD(1)=SWC 7.30%, SWDG 4.99%, SWS(64)=random 3.34%, SWD(8) 2.89% (4 better, 0 worse). Local checks: tests/test_amount_depth.py 6 passed; homepage build ok; research_live_links and check_md_links ok; post front matter/links/similarity ok. Full verified-dse suite: 104 passed, 1 skipped (167 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e2fe39f3-403b-5846-b229-8c4c0562878a",
+    "transcripts": 1,
+    "first": "2026-11-13T23:10:00Z",
+    "last": "2026-11-13T23:36:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 117,
+        "output": 37401,
+        "thinking": 8639,
+        "cache_read": 6827500,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127223,
+        "api_equivalent_usd": 3.1318,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 117,
+      "output": 37401,
+      "thinking": 8639,
+      "cache_read": 6827500,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127223,
+      "api_equivalent_usd": 3.1318,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 58,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.51,
+      "active_minutes": 26.51,
+      "model_minutes": 6.15,
+      "tool_minutes": 20.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "design three RTL families, pre-register guards, run and analyse a 1,440-point P&R sweep, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 383.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
