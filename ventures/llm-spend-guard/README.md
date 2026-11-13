@@ -50,8 +50,7 @@ What this does differently:
    ones sent by URL or file id), server-side tool fees such as web search,
    and long-context or one-hour-cache price tiers are not in the estimate,
    so a call carrying them can cost more than its hold (quality audit
-   round 62, `portfolio/quality/audits/2026-11-13-llm-spend-guard.json`).
-   OpenAI `n` above 1 is refused, since output is billed per choice.
+   round 62, `portfolio/quality/blind-pairs/2026-11-13-h/llm-spend-guard.json`).
 2. **Per-run breakers for agents.** The guard catches the same request
    repeated *n* times in a window, calls or dollars per minute over a limit,
    and a per-run step cap. A stuck tool-call loop stops in seconds, not when

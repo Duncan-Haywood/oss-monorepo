@@ -123,7 +123,7 @@ test("hand-computed break-even, effective fee and break-even sale chance", () =>
   assert.equal(Math.round(expectedProfit(110, input, { pSell: 0.7, salvagePerTicket: 40 }).breakEvenPSell * 100) / 100, 0.86);
 });
 
-// Quality audit round 62 (portfolio/quality/audits/2026-11-13-ticket-resale-profit-calculator.json):
+// Quality audit round 62, second blind audit (portfolio/quality/blind-pairs/2026-11-13-h/ticket-resale-profit-calculator.json):
 // figures worked by hand, each one killed a seeded bug the suite let through.
 test("break-even counts the per-ticket fee and delivery: (2*120 + 2*1 + 5) / (2 * 0.9)", () => {
   assert.equal(breakEvenList({ qty: 2, costPerTicket: 120, feePct: 10, flatFeePerTicket: 1, deliveryPerOrder: 5 }), 137.22);

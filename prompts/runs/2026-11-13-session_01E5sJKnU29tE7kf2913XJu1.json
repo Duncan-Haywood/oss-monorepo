@@ -47,14 +47,26 @@
     {
       "file": "ventures/*/VENTURE.yaml",
       "issue": "No documented vocabulary for hypothesis status; I found supported/refuted/untested by grepping 2,500 entries and used 'refuted'."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`sample` skips seeds used by open `quality: round N (seed S)` PRs, but two sessions that draw within minutes of each other both see none and pick the same seed (second time on 2026-11-13: rounds 59 and 62). A claim that lands before drawing (e.g. a branch or a file pushed at draw time, checked again just before opening the PR) would close the race."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "PR #15416 (another session) drew the same seed 2026-11-13-h and merged its round-62 audits of the same four subjects while this run was finishing; my claim PR opened at about the same time, so `sample` could not see it.",
+      "did": "Followed the round-59 precedent: moved this session's audits to portfolio/quality/blind-pairs/2026-11-13-h/ (outside audits/ so summary counts each subject once), merged main keeping #15416's fixes, added the fixes only this audit's findings called for, and turned the round post into a blind-pair post.",
+      "result": "Second blind inter-rater sample: 23/28 scores identical, 28/28 within one, 4/4 verdicts; pooled with round 59, 44/56 (Wilson 66%-87%). The PDF-by-URL hold bypass and the unquoted-comma ROI bug were found only by this audit."
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-13-quality-audit-round-62.md"
+    "docs/posts/2026-11-13-quality-audit-round-62-blind-pair.md",
+    "portfolio/quality/blind-pairs/2026-11-13-h/README.md"
   ],
   "goal": null,
-  "notes": "Seed 2026-11-13-h, round 62, mode sample. Subjects: ventures/llm-spend-guard, ventures/ticket-resale-profit-calculator, research/simdesign-fwdcheck, research/categorical-scores (no flagship/platform eligible). Share meeting the bar: 0 of 4 (all-time sampled 31 of 262, Wilson 8%-16%). Seeded bugs caught by the original suites: 11 of 23. Fix PR: #15417 (listed in all four audits' fix_prs). Spot-checks I ran myself: ticket-resale comma row (cost 1, ROI 19800%), break-even 137.22 by hand, PDF-by-URL estimate 59 tokens, fwdcheck nominal stress 162.8 MPa by hand, categorical E4 log 0.151 and Brier rho^2 K/(K-1) by hand, original ticket suite passes the salvage mutant (31/31). Mutants killed after the fixes (quality_mutate rows): ticket engine.mjs:77, :60, :191 caught; categorical model.py:49, :33, :29 caught; llm-spend-guard proxy.mjs:183 (complete ? usage : null) caught, new n>1 guard mutant caught; simdesign check.py:32 shear 3->1 caught. Still surviving: llm-spend-guard bytes/3 ratio (guard.mjs:173); simdesign load sign, clamp exclusion, deflection mean (FE solves too slow for quick tests). Local checks: node suites 47/47 and 35/35, run_venture_tests ok, categorical unittest 8 OK, fwdcheck fast tests 4 passed, test_quality_mutate 12 OK, quality_audit validate 302/0, research homepage build ok, check_md_links ok, post front matter/links ok.",
+  "notes": "Seed 2026-11-13-h, round 62, mode sample. Subjects: ventures/llm-spend-guard, ventures/ticket-resale-profit-calculator, research/simdesign-fwdcheck, research/categorical-scores (no flagship/platform eligible). Became a blind pair with PR #15416 (same seed, merged first). Share meeting the bar: 0 of 4 (both audits) (all-time sampled 31 of 262, Wilson 8%-16%). Seeded bugs caught by the original suites: 11 of 23. Fix PR: #15417 (listed in all four audits' fix_prs). Spot-checks I ran myself: ticket-resale comma row (cost 1, ROI 19800%), break-even 137.22 by hand, PDF-by-URL estimate 59 tokens, fwdcheck nominal stress 162.8 MPa by hand, categorical E4 log 0.151 and Brier rho^2 K/(K-1) by hand, original ticket suite passes the salvage mutant (31/31). Mutants killed after the fixes (quality_mutate rows): ticket engine.mjs:77, :60, :191 caught; categorical model.py:49, :33, :29 caught; llm-spend-guard proxy.mjs:183 (complete ? usage : null) caught, new n>1 guard mutant caught; simdesign check.py:32 shear 3->1 caught. Still surviving: llm-spend-guard bytes/3 ratio (guard.mjs:173); simdesign load sign, clamp exclusion, deflection mean (FE solves too slow for quick tests). Local checks: node suites 47/47 and 35/35, run_venture_tests ok, categorical unittest 8 OK, fwdcheck fast tests 4 passed, test_quality_mutate 12 OK, quality_audit validate 302/0, research homepage build ok, check_md_links ok, post front matter/links ok. After merging main: llm-spend-guard 48/48, ticket-resale 39/39, categorical OK, simdesign fast tests 4 passed, homepage build ok, md links ok, versions --check current, validate 302/0. Blind pair agreement 23/28 exact, 28/28 within one, 4/4 verdict; second audit higher on all 5 disagreements (round 59 pair: lower on all 7).",
   "corrections": [],
   "redteam": null,
   "usage": {

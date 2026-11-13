@@ -103,7 +103,7 @@
     },
     "llm-spend-guard": {
       "version": "0.1.4",
-      "hash": "sha256-5feacd31f33e84104c038fde82858c32204326e8b47a905f10c4abb78a713387"
+      "hash": "sha256-369290e8e93bbb0ac2548288b1b994480bec3ec238c69a5e89ee959d59f047a2"
     },
     "llms-txt-generator": {
       "version": "0.1.2",
