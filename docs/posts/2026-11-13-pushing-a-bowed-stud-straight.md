@@ -1,9 +1,9 @@
 ---
 title: "A robot can push a bowed stud straight with 28 newtons. It still doesn't get to 95%"
-seo_title: "How much force to straighten a bowed stud? 28–126 N, and what it buys a nailing robot"
+seo_title: "How much force to straighten a bowed stud? 28–126 N"
 date: 2026-11-13
 tags: [research, buildbot-sheathing, robotics, construction]
-description: "Pushing a bowed joint stud onto its line takes a median 28 N and 126 N at the 99th percentile, inside a stock G1's 81–88 N sideways push. It lifts single-2x joints from 56% to 71% clean sheets, and then stops at the straight-stud ceiling."
+description: "Pushing a bowed joint stud onto its line takes 28–126 N, inside a stock G1's reach. It lifts single-2x joints to 71% clean sheets, then hits a ceiling."
 ---
 
 The [buildbot-sheathing](https://marisstella.app/research/buildbot-sheathing/)
