@@ -20,7 +20,9 @@ compared with the PIPS run like --screen).
 With --screen (milestone 2b, plan in LOG.md 2026-11-13) every QP is solved by constraint generation
 over the rows near their bounds (vlin.solve(screen=True)); outputs get the suffix _screen and a
 case-by-case comparison with the unscreened run of the same variant.
-Usage: run_vlin.py [--margin] [--analytic] [--screen | --clarabel] [case ...]; OMP_NUM_THREADS=1 recommended (4 worker processes)."""
+With --screen --clarabel (milestone 6) the screened constraint generation runs on Clarabel, compared
+with the full-QP Clarabel run of the same variant (suffix _screen_clarabel).
+Usage: run_vlin.py [--margin] [--analytic] [--screen] [--clarabel] [case ...]; OMP_NUM_THREADS=1 recommended (4 worker processes)."""
 import copy
 import json
 import sys
@@ -179,14 +181,16 @@ def compare_screen(rows, L):
     """Milestone 2b: screened-QP run against the unscreened run of the same variant."""
     P = L.append
     tag = ("results_vlin_margin" if MARGIN else "results_vlin") + ("_analytic" if ANALYTIC else "")
-    path = HERE / f"{tag}.json"
+    both = SCREEN and SOLVER == "clarabel"  # milestone 6: screened Clarabel against full Clarabel
+    path = HERE / f"{tag}{'_clarabel' if both else ''}.json"
     if not path.exists():
         return
     full = {(r["case"], r["kind"]): r for r in json.loads(path.read_text())}
     P("")
-    lab = "Clarabel (C)" if SOLVER == "clarabel" else "Screened QP (S)"
-    P(f"{lab} against PIPS on the full QP (U), same variant ({path.name}); S/C columns are this run:")
-    a = "C" if SOLVER == "clarabel" else "S"
+    lab = "Screened Clarabel (S)" if both else "Clarabel (C)" if SOLVER == "clarabel" else "Screened QP (S)"
+    ref = "Clarabel" if both else "PIPS"
+    P(f"{lab} against {ref} on the full QP (U), same variant ({path.name}); S/C columns are this run:")
+    a = "C" if SOLVER == "clarabel" and not both else "S"
     P(f"{'case':18s} {'kind':4s} {'U':>6s} {a:>6s} {'U+R':>6s} {a + '+R':>6s} {'same path':>9s} {'dCost pp':>9s} "
       f"{'U s':>7s} {a + ' s':>7s} {'speedup':>7s} {'rows':>6s} {'used':>6s} {'pass':>5s} {'fb':>3s}")
     agg = {"u": 0, "s": 0, "ur": 0, "sr": 0, "same": 0, "path": 0, "n": 0, "us": 0.0, "ss": 0.0,

@@ -102,10 +102,14 @@ _UNTRUSTED_SUFFIXES = frozenset(
     {"body", "default_branch", "email", "head_ref", "label", "message", "name", "page_name", "ref", "title"}
 )
 
+# A PR's merge commit and its refs/pull/<n>/merge and /head refs hold the fork's
+# code just as head.sha does, so each is the same pwn request.
 _CHECKOUT_UNTRUSTED_REF_RE = re.compile(
     r"github\.event\.pull_request\.head\.(?:sha|ref|label)"
+    r"|github\.event\.pull_request\.merge_commit_sha\b"
     r"|github\.head_ref\b"
-    r"|github\.event\.workflow_run\.head_(?:sha|branch)\b"
+    r"|github\.event\.workflow_run\.head_(?:sha|branch|commit\.id)\b"
+    r"|\brefs/pull/"
 )
 
 

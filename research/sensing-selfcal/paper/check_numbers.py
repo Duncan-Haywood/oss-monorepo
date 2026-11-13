@@ -122,6 +122,17 @@ CHECKS = [
     ("log", "±1% in 28% / 18%", "1% focal change in 18–28%"),
     ("log", "±4% in 98% / 97%", "4% in 97–98%"),
     ("log", "own 99th percentile of z<sub>f</sub>² is 3.56, the right's 1.03", "3.56 and 1.03"),
+    # Section 7, milestone 4e (per-unit split-half scale)
+    ("json", "m4e_selfscale/summary.json", "hypotheses/H43/left/rate", 0.6, 1, pct, "(0.6% / 0.0% false alarms)"),
+    ("json", "m4e_selfscale/summary.json", "hypotheses/H44/pooled/rate", 0.8, 1, pct, "in 0.8% of splits"),
+    ("json", "m4e_selfscale/summary.json", "hypotheses/H45/left/pred_sd_pct", 1.94, 2, None, "predicted sd 1.94% / 2.62%"),
+    ("json", "m4e_selfscale/summary.json", "hypotheses/H45/right/pred_sd_pct", 2.62, 2, None, "predicted sd 1.94% / 2.62%"),
+    ("json", "m4e_selfscale/summary.json", "hypotheses/H45/left/real_sd_pct", 0.67, 2, None, "real 0.67% / 0.50%"),
+    ("json", "m4e_selfscale/summary.json", "hypotheses/H45/right/real_sd_pct", 0.50, 2, None, "real 0.67% / 0.50%"),
+    ("json", "m4e_selfscale/summary.json", "spread_by_n_post_hoc/subpix5/left/3/per_view_pct", 3.29, 2, None, "3.29% / 5.21% at 3 views"),
+    ("json", "m4e_selfscale/summary.json", "spread_by_n_post_hoc/subpix5/right/3/per_view_pct", 5.21, 2, None, "3.29% / 5.21% at 3 views"),
+    ("json", "m4e_selfscale/summary.json", "spread_by_n_post_hoc/subpix5/left/7/per_view_pct", 1.55, 2, None, "1.55% / 0.95% at 7"),
+    ("json", "m4e_selfscale/summary.json", "spread_by_n_post_hoc/subpix5/right/7/per_view_pct", 0.95, 2, None, "1.55% / 0.95% at 7"),
 ]
 
 

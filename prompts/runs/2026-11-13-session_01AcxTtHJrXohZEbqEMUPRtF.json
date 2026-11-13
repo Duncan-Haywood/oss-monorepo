@@ -1,0 +1,483 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHJrXohZEbqEMUPRtF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T19:07:02Z",
+  "ended": "2026-11-13T19:07:50Z",
+  "wall_minutes": 16.02,
+  "tokens_in": 5860108,
+  "tokens_out": 28383,
+  "cost_usd": 2.4611,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15590",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First local --for-changes sweep failed on my own post's seo_title (78 > 70 chars) and a stale portfolio/distribution/versions.json; both fixed before the commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets | grep wash-sale` found nothing although calc.mjs is guarded; the list printed only ~19 venture lines of 5235, so grepping the listing is not a reliable way to check a target is guarded (suite_for via python worked)."
+    },
+    {
+      "file": "platform/ci/test_no_dead_pages_base.py",
+      "issue": "rglob over platform/ read the gitignored platform/pages/dist left by run_workflow_locally's site build and failed every later local sweep; fixed in this PR (git ls-files)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0: all 10 open entries are control-plane workflow edits, and most already have owner-gated PRs; the open list does not show the PR, so each run has to search for it again."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix the open entries first; all 10 are .github/workflows edits needing owner approval, and most already have open control-plane PRs (#14808, #15248, #14877, #15561, #14612, #15201).",
+      "did": "Left them open without duplicate PRs; spent the run on two campaigns and two real defects.",
+      "result": "2 real defects patched, catch rate 40% -> 100% on non-equivalent mutants."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-redteam-the-merge-ref-pwn-request-and-reinvested-dividends.md"
+  ],
+  "goal": null,
+  "notes": "Guards added (4b): node/python parity test BrowserParity in actions-injection-check/test_check.py (fails on the pre-fix classify.mjs); workflow-audit's vendored-copy drift test carries the fix into the self-audit workflow, whose run over our own tree stays clean. test_no_dead_pages_base now immune to local build output. Venture suites: run_venture_tests.py wash-sale-checker actions-injection-check workflow-audit -> 3 suites run, 0 failed. Local run_workflow_locally --for-changes (after fixes): 13/14 selected workflows passed (portfolio-validate 100/100, ventures-tests 5/5, distribution-versions 3/3, workflow-self-audit 2/2, actions-injection-check-ci 3/3); portfolio-pages 'Test the site builder' hit the 300 s local budget (first sweep ran it in 42 s and failed only on this post's seo_title, since fixed); pytest-only steps unrun here.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 1061476480,
+        "commit": "5903db0a7",
+        "sites": 207,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 10,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "const DAY = 86400000;",
+            "after": "const DAY = 86400001;",
+            "line_text": "const DAY = 86400000;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "DAY is only used for the +/-30-day window and safeRebuyDate; every parsed date is UTC midnight, so a 30 ms shift moves no boundary and isoDate drops it."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 14,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "let m = t.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})/);",
+            "after": "let m = t.match(/^(\\d{4})-(\\d{1,3})-(\\d{1,2})/);",
+            "line_text": "  let m = t.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})/);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "3-digit month '2025-001-15' was accepted; test added."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 19,
+            "col": 28,
+            "operator": "minus-to-plus",
+            "before": "const ms = Date.UTC(y, mo - 1, d);",
+            "after": "const ms = Date.UTC(y, mo + 1, d);",
+            "line_text": "  const ms = Date.UTC(y, mo - 1, d);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 21,
+            "col": 27,
+            "operator": "neq-flip",
+            "before": "if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "after": "if (chk.getUTCFullYear() === y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "line_text": "  if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 21,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "after": "if (chk.getUTCFullYear() !== y && chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "line_text": "  if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Date.UTC maps years 0-99 to 1900+y, so only the year check refuses '0050-01-01'; test added."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 66,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "if (c.price < 0 && c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "after": "if (c.price < 0 || c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "line_text": "  if (c.price < 0 && c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 78,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (!(price >= 0) && amount >= 0 && qty > 0) price = amount / qty;",
+            "after": "if (!(price >= 1) && amount >= 0 && qty > 0) price = amount / qty;",
+            "line_text": "    if (!(price >= 0) && amount >= 0 && qty > 0) price = amount / qty;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "price < $1 with a fee-inclusive amount column: mutant replaced price by amount/qty; penny-stock test added."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 83,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (!(price >= 0)) return errors.push(`Line ${ln}: price or amount missing.`);",
+            "after": "if (!(price >= 1)) return errors.push(`Line ${ln}: price or amount missing.`);",
+            "line_text": "    if (!(price >= 0)) return errors.push(`Line ${ln}: price or amount missing.`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "price < $1 refused as missing; penny-stock test added."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 110,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "while (rest > 1e-9 && lot.carried && lot.carried.length) {",
+            "after": "while (rest > 1e-9 || lot.carried && lot.carried.length) {",
+            "line_text": "      while (rest > 1e-9 && lot.carried && lot.carried.length) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 145,
+            "col": 18,
+            "operator": "gt-to-ge",
+            "before": "if (matched > 0) {",
+            "after": "if (matched >= 0) {",
+            "line_text": "      if (matched > 0) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "matched == 0 means sale.replacements is empty, so the loop body never runs."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 157,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "const losses = sales.filter((x) => x.gain < 0);",
+            "after": "const losses = sales.filter((x) => x.gain < 1);",
+            "line_text": "  const losses = sales.filter((x) => x.gain < 0);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a sale with a gain between 0 and 1 counted as a loss sale; test added."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 178,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 1) * DAY;",
+            "after": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 2) * DAY;",
+            "line_text": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 1) * DAY;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/actions-injection-check/check.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check  (in ventures/actions-injection-check)",
+        "seed": 1030993856,
+        "commit": "5903db0a7",
+        "sites": 37,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 113,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "after": "if len(value) >= 3 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "line_text": "    if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "strip_quotes had no direct test; the quoted ref reached the finding detail unstripped. StripQuotes tests added."
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 113,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "after": "if len(value) >= 2 and value[1] == value[-1] and value[0] in \"\\\"'\":",
+            "line_text": "    if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "strip_quotes had no direct test; the quoted ref reached the finding detail unstripped. StripQuotes tests added."
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 113,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "after": "if len(value) >= 2 and value[0] == value[-2] and value[0] in \"\\\"'\":",
+            "line_text": "    if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "strip_quotes had no direct test; the quoted ref reached the finding detail unstripped. StripQuotes tests added."
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 113,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "after": "if len(value) >= 2 and value[0] == value[-1] and value[1] in \"\\\"'\":",
+            "line_text": "    if len(value) >= 2 and value[0] == value[-1] and value[0] in \"\\\"'\":",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "strip_quotes had no direct test; the quoted ref reached the finding detail unstripped. StripQuotes tests added."
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 114,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "return value[1:-1]",
+            "after": "return value[2:-1]",
+            "line_text": "        return value[1:-1]",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "strip_quotes had no direct test; the quoted ref reached the finding detail unstripped. StripQuotes tests added."
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 114,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "return value[1:-1]",
+            "after": "return value[1:-2]",
+            "line_text": "        return value[1:-1]",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "strip_quotes had no direct test; the quoted ref reached the finding detail unstripped. StripQuotes tests added."
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 160,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "for lineno, line in enumerate(lines, start=1):",
+            "after": "for lineno, line in enumerate(lines, start=2):",
+            "line_text": "    for lineno, line in enumerate(lines, start=1):",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 234,
+            "col": 43,
+            "operator": "div-to-times",
+            "before": "workflows_dir = Path(root) / \".github\" / \"workflows\"",
+            "after": "workflows_dir = Path(root) / \".github\" * \"workflows\"",
+            "line_text": "    workflows_dir = Path(root) / \".github\" / \"workflows\"",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 352,
+            "col": 44,
+            "operator": "eq-flip",
+            "before": "pwn = [f for f in findings if f[\"type\"] == PWN_REQUEST_CHECKOUT]",
+            "after": "pwn = [f for f in findings if f[\"type\"] != PWN_REQUEST_CHECKOUT]",
+            "line_text": "    pwn = [f for f in findings if f[\"type\"] == PWN_REQUEST_CHECKOUT]",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "render_text was never tested with a pwn finding; text-output test added."
+          },
+          {
+            "file": "ventures/actions-injection-check/check.py",
+            "line": 399,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs",
+        "issue": "Dividend-reinvestment rows ('Reinvest Shares', 'REINVESTMENT ...') and Fidelity's 'YOU BOUGHT'/'YOU SOLD' actions were refused as 'action must be buy or sell', so a reinvested purchase inside the 61-day window never washed the loss: disallowed loss under-reported (a DRIP purchase is an acquisition, Pub. 550). Reproduced with evaluate() before the fix: error row, disallowed 0 instead of 20.",
+        "patched": true
+      },
+      {
+        "file": "ventures/actions-injection-check/check.py",
+        "issue": "Pwn-request false negatives: under pull_request_target or workflow_run, a checkout of refs/pull/${{ github.event.pull_request.number }}/merge (or /head, or the format() form), github.event.pull_request.merge_commit_sha or github.event.workflow_run.head_commit.id was not flagged, though each checks out the fork's code (the merge ref is the shape GitHub Security Lab's pwn-request write-up uses). Same regex in classify.mjs (the page) and the vendored workflow-audit/checks/injection.py. Fixed in all three, with a node/python parity test.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0985d098-3c85-51d0-a23b-7c576c3813ea",
+    "transcripts": 1,
+    "first": "2026-11-13T19:07:02Z",
+    "last": "2026-11-13T19:23:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 28383,
+        "thinking": 7220,
+        "cache_read": 5767556,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92428,
+        "api_equivalent_usd": 2.4611,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 28383,
+      "thinking": 7220,
+      "cache_read": 5767556,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92428,
+      "api_equivalent_usd": 2.4611,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 64,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.02,
+      "active_minutes": 16.02,
+      "model_minutes": 7.27,
+      "tool_minutes": 8.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "two mutation campaigns triaged, two real defects fixed with tests across CLI, page and vendored copy, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 203.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

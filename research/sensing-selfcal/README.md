@@ -106,6 +106,15 @@ swap in 79%. But **the borrowed threshold stops travelling**: the left camera's 
 11% (the right's 0%), because the jackknife now overstates the spread 1.5× on one camera and 2.8×
 on the other. Four of five pre-registered predictions held.
 
+**Milestone 4e headline** (3,168 more solves; can a camera set its own update-test threshold?):
+splitting the old calibration's 7 views into 4 + 3 in all 35 ways and scaling the halves'
+focal-length spread by 1/n gives a test with nothing borrowed that is **quiet (0.6% / 0.0% false
+alarms) but deaf (a 2% focal change caught in 0.8% of splits)**: the halves overstate the real
+spread 2.9× and 5.2×. The reason, found after the fact: **f's spread does not shrink as 1/n below 5
+views** (per view 3.3–5.2% at 3 views, 2.2% at 4, 1.0–1.7% at 5–7), so a per-unit threshold needs
+halves of at least 5 views, about 10 views in the old set. Two of five pre-registered predictions
+held, both only because the test stays silent.
+
 **Milestone 6b headline** (which corner localiser is right; 26 renders of the real views from a
 known camera, 1,200 fits): **the printed board's end squares are only half as wide as the rest**
 (they reach 0.49–0.53 of the corner spacing past the last corner, against 0.94–0.97 on the other

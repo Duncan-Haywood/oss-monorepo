@@ -84,3 +84,22 @@ test("a healthy instance is fine; summary and empty input", () => {
   assert.equal(summarize(analyze(parseInstances(text))).status, "warn");
   assert.equal(summarize(analyze(parseInstances("nothing"))).status, "none");
 });
+
+test("the AWS CLI's None for an absent Iops is read as blank, not a skipped row", () => {
+  const p = parseInstances("x\tdb.m5.large\tpostgres\tTrue\tgp2\t100\tNone\n");
+  assert.equal(p.rows.length, 1);
+  assert.equal(p.skipped, 0);
+  assert.equal(p.rows[0].iops, null);
+});
+
+test("staging Multi-AZ saving is exact: half the bill, then Graviton on the single-AZ remainder (no double count)", () => {
+  const staging = by(analyze(parseInstances(text)))["staging-orders"];
+  // (0.342*730 + 300*0.115) * 2 = 568.32; half = 284.16; Graviton (0.342-0.304)*730 = 27.74
+  assert.ok(Math.abs(staging.current - 568.32) < 0.005);
+  assert.ok(Math.abs(staging.saving - 311.90) < 0.005);
+});
+
+test("io1 at exactly 400 GB gets the 12,000 IOPS gp3 baseline", () => {
+  const r = analyze(parseInstances("A,db.m5.large,mysql,no,io1,400,12000,50,prod"));
+  assert.ok(r.findings.some((x) => x.rule === "io1-to-gp3"));
+});

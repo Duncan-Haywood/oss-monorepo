@@ -2696,7 +2696,7 @@
     {
      "slug": "garment-learning",
      "title": "How many home-sewn coats before the labour cost per coat settles?",
-     "summary": "Applies a Wright learning curve (unit time falls by a fixed share per doubling of output) to the replica trench coat of <code>garment-teardown</code> ($43 materials, 76 experienced-operator minutes). With an assumed first coat 4&times; experienced time and an 85% rate it takes 20 coats to get within 2&times; of experienced time; with 8&times; and 90% it takes about 9,100, so the answer is set by the two assumed parameters. The first coat stays under $50 only if the sewer&rsquo;s time is valued at $1.45/h or less ($4.28/h for the 100th). In a factory run the learning surcharge is under 8% after 200 coats. Stylised: learning rates are assumed, not measured."
+     "summary": "Applies a Wright learning curve (unit time falls by a fixed share per doubling of output) to the replica trench coat of <code>garment-teardown</code> ($43 materials, 76 experienced-operator minutes). With an assumed first coat 4&times; experienced time and an 85% rate it takes 20 coats to get within 2&times; of experienced time; with 8&times; and 90% it takes about 9,100, so the answer is set by the two assumed parameters. The first coat stays under $50 only if the sewer&rsquo;s time is valued at $1.45/h or less ($4.28/h for the 100th). In a factory run the learning surcharge is about 8.2% after 200 coats. Stylised: learning rates are assumed, not measured."
     },
     {
      "slug": "garment-costperwear",
