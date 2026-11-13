@@ -16,6 +16,8 @@ const BIG = 100000; // dollars per uncovered hour: covering a shift always beats
 const MAX_SLOTS = 400;
 const MAX_STAFF = 60;
 const BIG_WEEK = 150; // shifts; above this the improvement passes run on a time budget
+// Default wall-clock budget for the improvement passes: 20 s for a week strictly above BIG_WEEK shifts, none at or below it.
+export const defaultBudgetMs = (shifts) => (shifts > BIG_WEEK ? 20000 : 0);
 
 export function dayIndex(tok) {
   const v = ALIASES[String(tok).trim().toLowerCase()];
@@ -2590,7 +2592,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   // Wall-clock budget for the improvement passes. A week near the 400-shift cap with 60 people ran past two minutes with no output
   // (measured 2026-11-04), so big weeks stop improving after `timeBudgetMs` (default 20 s above BIG_WEEK shifts, none below, so the
   // seeded small weeks and the guide pages are unchanged). Pass 0 for no budget. The roster so far is kept and `budgetHit` says so.
-  const budgetMs = o.timeBudgetMs !== undefined ? o.timeBudgetMs : ctx.S > BIG_WEEK ? 20000 : 0;
+  const budgetMs = o.timeBudgetMs !== undefined ? o.timeBudgetMs : defaultBudgetMs(ctx.S);
   const tStart = Date.now();
   let budgetHit = false;
   const over = () => { if (budgetMs > 0 && Date.now() - tStart > budgetMs) { budgetHit = true; return true; } return false; };

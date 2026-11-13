@@ -8,6 +8,10 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/wash-sale-checker/)
 
+## Input
+
+A CSV or pasted range with a header row: date, symbol, action (buy/sell), quantity, price or amount; optional account and cost basis. Headers are matched by name, not position: a trade date wins over a settlement date, and Schwab, Fidelity and Robinhood exports are read as downloaded.
+
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wash-sale-checker): MIT licensed.
