@@ -25,9 +25,17 @@ node --test ventures/law-firm-realization-rate-calculator/
 
 - `index.html`: the tool's page.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
-- `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
+- `usage.mjs`: anonymous usage counters, kept only in your browser, on unless
+  you opt out or send Do Not Track / Global Privacy Control (see
   `portfolio/usage/README.md` in the monorepo).
 - `*.test.mjs`: tests for the logic and the page.
+
+## Known gaps
+
+From the [2026-11-13 quality audit](../../portfolio/quality/audits/2026-11-13-law-firm-realization-rate-calculator.json):
+
+- A timekeeper whose collected amount exceeds billed is refused (`calc.mjs`, row validation). On period reports, where cash received in the period is set against bills issued in it, that is normal when older receivables are paid. It should compute a collection rate over 100% with a warning.
+- The "hours exceed available" check is not pinned by a test (a seeded 50% loosening survived).
 
 ## License
 
