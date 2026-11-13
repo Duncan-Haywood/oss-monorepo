@@ -50,6 +50,8 @@
       <div><label for="drone">Drone</label><select id="drone"><option value="">No</option><option value="1">Organ drone on the final</option></select></div>
       <div><label for="markers">Phrase markers</label><select id="markers"><option value="">No</option><option value="1">A DAW locator at each phrase</option></select></div>
     </div>
+    <label for="singers">Or your choir's own range test (optional CSV: one row per singer, columns name, section, low, high; section may be left out and the singers are divided by range)</label>
+    <textarea id="singers" spellcheck="false" rows="4" placeholder="name,section,low,high&#10;Singer A,T,D3,G4&#10;Singer B,B,A2,D4"></textarea>
     <button id="go" type="submit">Convert</button>
     <button id="play" type="button" disabled>Play preview</button>
     <button id="stop" type="button" disabled>Stop</button>
@@ -97,6 +99,7 @@
     import { sectionPlan, liftEvents } from "./sections.mjs";
     import { cueSheet, sectionCues } from "./cues.mjs";
     import { lrc } from "./lrc.mjs";
+    import { parseSingers, singersChoir, fewestSectionsForSingers, SECTION_LABEL } from "./singers.mjs";
     import { wavBytes, zipStored } from "./files.mjs";
 
     const $ = (id) => document.getElementById(id);
@@ -153,14 +156,26 @@ mode: 1;
         if (lift) events = liftEvents(events, plan, { intro: 2 });
       }
       // a named choir sets the section ranges and the unison band every section reaches
-      const choirName = $("choir").value;
-      const choir = CHOIRS[choirName] || null;
-      const sec = choir || { tenor: TENOR_RANGE, tenor2: TENOR2_RANGE, baritone: BARITONE_RANGE, bass: BASS_RANGE };
-      if ($("final").value === "auto") {
-        const r = suggestFinal(events, choir ? choirUnison(choir) : undefined);
+      // a pasted range test wins over the named presets: each section sings the notes all its singers reach
+      const fv = $("final").value;
+      let singers = null, sc = null;
+      if ($("singers").value.trim()) {
+        singers = parseSingers($("singers").value);
+        const want = ["tenor", "bass", ...(fv === "split3" || fv === "split4" ? ["baritone"] : []), ...(fv === "split4" ? ["tenor2"] : [])];
+        sc = singersChoir(singers, want);
+        if (singers.sectioned && fv.startsWith("split")) for (const s of want) if (!sc.choir[s]) throw new Error(`This voicing needs ${SECTION_LABEL[s]}, and the range test names none.`);
+        lines.push("Range test: " + Object.entries(sc.report).reverse().map(([s, r]) => `${SECTION_LABEL[s]} ${r.range} (${r.singers.length})`).join(", ") + `; unison ${sc.unisonReport.empty ? "none" : sc.unisonReport.range}${sc.assigned ? " (singers divided by range)" : ""}.`);
+      }
+      const choirName = singers ? "" : $("choir").value;
+      const choir = sc ? sc.choir : CHOIRS[choirName] || null;
+      const sec = { tenor: TENOR_RANGE, tenor2: TENOR2_RANGE, baritone: BARITONE_RANGE, bass: BASS_RANGE, ...(choir || {}) };
+      if (fv === "auto") {
+        if (sc && !sc.unison) throw new Error("No note every singer reaches, so the choir cannot sing in unison: pick a split under Final note.");
+        const r = suggestFinal(events, sc ? sc.unison : choir ? choirUnison(choir) : undefined);
         const withLift = lift ? ", the lifted last drop included" : "";
-        const v = choir && !r.fits ? fewestSections(events, choir) : null;
-        const hint = v ? (v.sections ? ` The ${choirName} choir can sing it as ${v.name}: pick that under Final note.` : ` No split into up to four sections of the ${choirName} choir fits it either.`) : " Split it between voices or accept a falsetto or a low pedal.";
+        const v = !r.fits && singers ? fewestSectionsForSingers(events, singers) : choir && !r.fits ? fewestSections(events, choir) : null;
+        const who = singers ? "Your singers" : `The ${choirName} choir`;
+        const hint = v ? (v.sections ? ` ${who} can sing it as ${v.name}: pick that under Final note.` : ` No split into up to four sections of ${singers ? "your singers" : `the ${choirName} choir`} fits it either.`) : " Split it between voices or accept a falsetto or a low pedal.";
         if (!r.fits) lines.push(`Note: the chant spans ${r.ambitus} semitones${withLift}, ${r.over} more than ${r.range.join("-")}; left as written.${hint}`);
         else { events = transposeToFinal(events, r.recommended.final); lines.push(`Moved so the final is MIDI ${r.recommended.final - lift}${lift ? ` (${r.recommended.final} after the lift)` : ""}, which keeps it inside ${r.range.join("-")}${withLift}.`); }
       }

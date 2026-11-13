@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtLfpSKUijePNPD8ygC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:06:39Z",
+  "ended": "2026-11-13T19:17:00Z",
+  "wall_minutes": 175.55,
+  "tokens_in": 9950432,
+  "tokens_out": 40745,
+  "cost_usd": 3.8943,
+  "tool_calls": 85,
+  "task": "research track draw (track 20, buildbot-sheathing/build-data both claimed in the last hours); per 'land before you build', adopted stalled draft PR #15442 (hanger-codesign milestone 3c, predictions committed, never run) and executed it",
+  "projects": [
+    "research/hanger-codesign"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15572",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First full run launched with run_in_background (2 h cap) would have been killed at ~130 min; noticed after 20 min, killed and relaunched detached with setsid nohup from scratch (same code).",
+    "tests/test_m3c.py first failed under the full suite: other test files put their own 'run' module in sys.modules, so m3c's 'import run as m3' got the wrong module; fixed by binding 3a's run.py explicitly while loading."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says start multi-minute jobs with run_in_background, but that tool caps a job at 2 h; a pre-registered experiment documented as 'about two hours' needs setsid nohup (or a split) to survive. Worth one line on jobs over ~100 min."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Its draw pointed at two programmes both touched within the last hours (one with an open PR), and did not list stalled research draft PRs such as #15442, which prompt-0's 'Land before you build' asks to handle first; found it only by listing open PRs by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Pushed to my own session branch instead of the stalled PR's branch (session rule: push only to the assigned branch); cherry-picked its one commit unchanged so the pre-registration timestamp survives in history.",
+      "did": "New PR #15572 carrying #15442's commit; #15442 closed as superseded.",
+      "result": "worked; predictions executed unchanged."
+    },
+    {
+      "file": "research/hanger-codesign/experiments/m3c_branches/run.py",
+      "why": "Its docstring says the predictions are also in LOG.md, but the original session never wrote that LOG entry; the run.py commit is the pre-registration record.",
+      "did": "LOG entry written after the run, quoting the predictions and naming the commit and PR they came from.",
+      "result": "disclosed in LOG.md"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-hanger-drape-lowest-fold-holds.md",
+    "research/hanger-codesign/LOG.md (milestone 3c entry)",
+    "research/hanger-codesign/README.md (milestone 3c section)"
+  ],
+  "goal": "advance the hanger-codesign programme's critical path (milestone 3, top-tier cloth solver acceptance)",
+  "notes": "Verification: hanger-codesign unittest discover 46 tests OK (5 new); research/_homepage/build.py ok; research_live_links --write and check_md_links ok. Experiment: 98/98 part-1 stages and 8/8 part-2 solves converged, 7742 s on 4 cores; B1, B4, B5 held; B2, B3 (by 0.0025), B6 (2 of 106) refuted. Post hoc (labelled, not registered): saddle check of the two negative-eigenvalue states (one genuine saddle, one flat direction) and the lowest-energy-seed DC change (0.001-0.009) vs seed mean (0.020-0.033).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "eadf7da5-3d8b-5ec2-a4d5-e06303b2d177",
+    "transcripts": 1,
+    "first": "2026-11-13T18:06:39Z",
+    "last": "2026-11-13T21:02:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 164,
+        "output": 40745,
+        "thinking": 7324,
+        "cache_read": 9810692,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139576,
+        "api_equivalent_usd": 3.8943,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 164,
+      "output": 40745,
+      "thinking": 7324,
+      "cache_read": 9810692,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139576,
+      "api_equivalent_usd": 3.8943,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 74,
+      "Write": 4,
+      "mcp__github__pull_request_read": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 175.55,
+      "active_minutes": 175.55,
+      "model_minutes": 9.14,
+      "tool_minutes": 166.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "re-running a 2 h pre-registered FEM sweep, a saddle check, tests, figure and write-up: about a day and a half for a grad student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 256.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

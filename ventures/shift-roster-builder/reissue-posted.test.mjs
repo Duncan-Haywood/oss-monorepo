@@ -167,3 +167,21 @@ test("the kept start gives up two clashing shifts to take the caller's shift whe
   assert.deepEqual([off[a], off[b], off[c]], [0, 0, -1]);
   assert.deepEqual([on[a], on[b], on[c]], [1, 1, 0]);
 });
+
+test("a posted reissue runs column generation first by default, at the same score as the old order (README 'Posted reissues, column generation first')", () => {
+  // eval/reissue-order.mjs: cafe seed 1, Fay off Wednesday is one of the 33 reissues where the two orders post different rosters at one score.
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const O = { minRestHours: 10 };
+  const posted = buildRoster(staff, slots, { ...O, seed: 1 });
+  const csv = rosterCsv(posted), keep = keepFromCsv(csv);
+  const d = 2, pinned = pinStarted(slots, csv, d * 1440 - 420).slots;
+  const st = staff.map((q) => (q.name === "Fay" ? { ...q, days: q.days.map((w, k) => (k === d ? [] : w)) } : q));
+  const def = buildRoster(st, pinned, { ...O, keep, keepShift: 1 });
+  const cgFirst = buildRoster(st, pinned, { ...O, keep, keepShift: 1, deferCover: true });
+  const old = buildRoster(st, pinned, { ...O, keep, keepShift: 1, deferCover: false });
+  assert.equal(rosterCsv(def), rosterCsv(cgFirst));
+  assert.notEqual(rosterCsv(def), rosterCsv(old)); // a different posted week, a tie on every measured count
+  assert.ok(Math.abs(def.score - old.score) < 1e-6);
+  assert.equal(def.unfilledHours, old.unfilledHours);
+  for (const r of [def, old]) assert.ok(["optimal", "improved"].includes(r.optimality?.status));
+});

@@ -82,3 +82,11 @@ test("the ABRASF municipal NFS-e check is on the page and its sample draws exact
   assert.deepEqual(checkAbrasf(sample).findings.map((f) => f.rule).sort(), ["ABR-010", "ABR-011", "ABR-022"]);
   assert.doesNotMatch(html, /does not read municipal/);
 });
+
+test("the DSF municipal NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\{checkDsf\}from"\.\/dsf\.mjs"/);
+  assert.match(html, /id="dsf-file"/);
+  const { checkDsf } = await import("./dsf.mjs");
+  const sample = html.match(/const SAMPLE_DSF=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkDsf(sample).findings.map((f) => f.rule).sort(), ["DSF-010", "DSF-011", "DSF-020"]);
+});

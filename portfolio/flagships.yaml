@@ -158,16 +158,14 @@ flagships:
       file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP
       payload; primary-source mandate dates (IL, DK, CZ, LV, LU); Nigeria,
       Thailand, Taiwan, Oman, Pakistan and Jordan pages (excerpts; Taiwan,
-      Oman dates disagree); Mexico CFDI 4.0, complements and Carta Porte 3.1
-      landed (README): open: SAT's CP error matrix to map MX-070..080 to CP
+      Oman dates disagree); Mexico CFDI 4.0, complements, Carta Porte 3.1 landed: open: SAT's CP error matrix to map MX-070..080 to CP
       codes (omawww blocked), a real payroll or export file, a PAC rejection
       compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
       PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
       2026-11-13) landed (README); open: a real reform NF-e from a SEFAZ test
       environment, the cCredPres table, a real SEFAZ rejection for a
-      cClassTrib; national NFS-e landed 2026-11-12 (README): open: a
-      national-system rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
-      open: ISS retained on a real file, city provider schemas and Ginfes/WebISS/ISSNet/Betha 1.00 sets landed (README): open: IPM 1.01, ISSDSF 1.00, a real Ginfes or Betha reply; refresh
+      cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
+      open: ISS retained on a real file, city provider schemas, Ginfes/WebISS/ISSNet/Betha 1.00 sets and DSF (Assinatura, header totals, TOM codes) landed (README): open: SimplISS/DBSeller 1.00, a real Ginfes, Betha or DSF reply; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
@@ -188,7 +186,7 @@ flagships:
       pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; column generation first for posted reissues too (README "Call-out rebuilds, column generation first"); a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
+      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; column generation first for fresh builds, guide pages re-derived (README "Posted reissues, column generation first"); a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
@@ -253,29 +251,29 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
-      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
-      staged-by-default at every list length, the closed pooled-prior work, the
-      sparse long-list overclaim (f), the uncapped weighted schemes (g),
-      half-time salience (b) and mid-session blocks (d) are written up there.
-      Latest (2026-11-13, "A panel curve the careless cannot drag down";
-      docs/fast-blocks-curve-q-2026-11-13.jsonl): ?drop=fast-blocks (a change
-      point read against the panel's time at the same point) now reads against
-      the panel's 0.75 quantile, not its median: with 40% turning quick at once
-      at 0.6x it finds 72-80% of them (was 31-60%) and recovers 64-110% of the
-      ceiling (was 2-90%), at no measurable cost. Not the default ranking yet.
-      Next, most valuable first: (c) the first real survey's answers:
-      msToAnswer against the answer-time model, whether real people have
-      warm-ups, blocks or spread-out carelessness and how quick each is (decides
-      whether ?drop=fast-blocks, the cheapest view, or ?drop=fast-answers should
-      become the default), and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d2) the slowest blocks
-      (about a fifth of people at 0.6x, 40% careless, gap near the 0.5 log
-      threshold) are still missed: a per-survey threshold from the panel's
-      own residual spread is the next try; (d3) position bias that starts mid-session (a first-slot
-      block is found by time only when it is quick); (h) share-drop beat both
-      pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real
-      panel's times.
+      History and every measurement: README,
+      docs/INFORMATION-GAIN-SELECTOR.md, docs/CONVERGENCE.md and
+      docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list
+      length, the closed pooled-prior work, the sparse long-list overclaim
+      (f), the uncapped weighted schemes (g), half-time salience (b),
+      mid-session blocks (d) and the upper-quantile panel curve are written up
+      there. Latest (2026-11-13, "A threshold from the panel's own slow
+      turns"; docs/fast-blocks-trend-2026-11-13.jsonl): ?drop=fast-blocks sets
+      its gap per survey from the panel's mirrored slow turns (0.4-0.5) and
+      needs a step, not a line (stepOverTrend): 40% turning quick at 0.6x now
+      99%/95% of the ceiling (salience/random, was 86%/64%); with each
+      person's own pace drifting 0.6 log, honest flags 26% to 9%. Next, most
+      valuable first: (c) the first real survey's answers: msToAnswer against
+      the answer-time model, the spread of each person's own log-time slope
+      (decides step test alone vs the shipped pair: at drift 0.3 the pair
+      flags 4.9% of honest people, the step test alone 2.1%), whether real
+      people have warm-ups, blocks or spread-out carelessness, and how noisy
+      real pairwise answers are (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d4) a curve that spread growing over the session
+      cannot lift (the 0.75 quantile doubles honest flags under personal
+      drift: 11% at the median, 21-26%); (d3) position bias that starts
+      mid-session; (h) share-drop beat both pace cuts at q = 1 but taxes a
+      camp by up to 0.030: decide on a real panel's times.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
@@ -286,7 +284,7 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
       duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor, three-round re-deals,
-      balanced least priced, faster break floor (22 teams in the page): README 2026-11-11 to 2026-11-13
+      balanced least priced, faster break floor (22 teams in the page), exact home-and-away breaks: README 2026-11-11 to 2026-11-13
       sections). 2026-11-13 latest: blackout fit on both pages (README "Blackout fit" and "Blackout fit on
       the multi-division page"): teams take the round-robin places that suit their blackout dates; one
       league, 640 random leagues: makeups -28%; several divisions, 192 random leagues: matches moved -30%
@@ -295,8 +293,9 @@ flagships:
       four-round re-deals or a longer run, now 3.8x cheaper; or a starter family climbed with the floor
       as its score); 24 and 25 teams in the page (152-426 s: the step is still 87 s of a 24-team run and
       the walk's 4,096-state predecessor scan 37 s; a backward table so a move reruns only its own span);
-      a tighter home-and-away floor that breaks the flip symmetry (branch on a few pairs, or the
-      mirrored-leg DP when leg two repeats leg one); a lower bound or a timetable below 136 at 12
+      home-and-away breaks exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT;
+      eval/pair-exact.txt): next, a floor-priced home-and-away timetable search on it, and its cost at
+      18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; a lower bound or a timetable below 136 at 12
       (eval/carryover-sat.py); close 24-40 (tabu, the literature's starters); a real league's travel and
       blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
@@ -339,4 +338,4 @@ flagships:
       men's-choir lines with Latin lyrics, then genre templates, voices,
       mastering checks and a release kit for streaming distribution.
     next: >-
-      History and every measurement: README and ROADMAP.md (studio page, CLI options, scan-checked corpus with 1,492 notes read by eye, strophic hymns, song sections, breakdown and riser; --a-cappella first verse and a range-checked --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-13 latest: the studio page downloads the cue sheet, LRC, markers MIDI and a stems ZIP, byte-equal to the CLI's, eval/browser-e2e.mjs). Open checks that need a person: listen to the studio page, the options (--stretch, --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella verse and whether the key lift sounds like a lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit against a distributor's real form; master-cli against EBU test files; the per-service playback targets (from memory) against the services' pages; the Te Deum correction. Next: read te-deum.gabc (1908 Roman tone) by eye and teach scan.mjs quilismas and liquescents (both need archive.org scans, 403 from cloud sessions on 2026-11-13); --split-voices (by phrase or at a word, --split-words, eval/word-split-report.md) and --overlap (both sections sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase handoff against a whole phrase and of a one-note overlap against a clean handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; eval/three-sections-, entrance-cost- and four-sections-report.md: octave-wide, one-section notes 89.4% to 29.9% to 13.7%, changes of singer 166 to 484 to 569) need the same check. --choir presets landed (README "A choir by name"). Next: section ranges from a choir's own range test (--singers CSV, each singer's low and high).
+      History and every measurement: README and ROADMAP.md (studio page, CLI options, scan-checked corpus with 1,492 notes read by eye, strophic hymns, song sections, breakdown and riser; --a-cappella first verse and a range-checked --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-13 latest: the studio page downloads the cue sheet, LRC, markers MIDI and a stems ZIP, byte-equal to the CLI's, eval/browser-e2e.mjs). Open checks that need a person: listen to the studio page, the options (--stretch, --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella verse and whether the key lift sounds like a lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit against a distributor's real form; master-cli against EBU test files; the per-service playback targets (from memory) against the services' pages; the Te Deum correction. Next: read te-deum.gabc (1908 Roman tone) by eye and teach scan.mjs quilismas and liquescents (both need archive.org scans, 403 from cloud sessions on 2026-11-13); --split-voices (by phrase or at a word, --split-words, eval/word-split-report.md) and --overlap (both sections sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase handoff against a whole phrase and of a one-note overlap against a clean handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; eval/three-sections-, entrance-cost- and four-sections-report.md: octave-wide, one-section notes 89.4% to 29.9% to 13.7%, changes of singer 166 to 484 to 569) need the same check. --choir presets and --singers (a choir's own range test CSV, README "Your own choir") landed. Next: a real choir's range test through --singers, and a --sit-out N option (a section's range kept by all but N singers) once a director says how strict that should be.

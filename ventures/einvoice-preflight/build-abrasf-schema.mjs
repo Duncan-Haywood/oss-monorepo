@@ -34,8 +34,8 @@ async function load(rel, root = MIRROR) {
   return res.text();
 }
 
-const UNSUPPORTED = new Set(["any", "group", "list", "union", "key", "unique", "keyref", "attributeGroup", "anyAttribute", "complexContent", "simpleContent"]);
-const BUILTIN = new Set(["string", "normalizedString", "token", "decimal", "integer", "nonNegativeInteger", "positiveInteger", "byte", "unsignedByte", "short", "int", "long", "date", "dateTime", "boolean", "base64Binary", "anyURI"]);
+const UNSUPPORTED = new Set(["any", "group", "list", "key", "unique", "keyref", "attributeGroup", "anyAttribute", "complexContent", "simpleContent"]);
+const BUILTIN = new Set(["string", "normalizedString", "token", "decimal", "integer", "nonNegativeInteger", "positiveInteger", "byte", "unsignedByte", "short", "int", "long", "unsignedInt", "date", "dateTime", "boolean", "base64Binary", "anyURI"]);
 
 // Compile one or more XSD files into one table. A single file is an ABRASF layout (or a
 // provider's single-file copy). Several files are a multi-file provider layout (Ginfes 1.00,
@@ -73,6 +73,13 @@ function compileFiles(texts, home) {
     if (schemas.length === 1 && !qualified) throw new Error(`${tns}: elementFormDefault is not qualified`);
     const nsField = !qualified ? { ns: "" } : tns && tns !== home ? { ns: tns } : {};
     const simpleDef = (node) => {
+      // A union of named member types (DSF's "value or empty" types, e.g. tpCEPNulo =
+      // tpCEP | nulo): a value is valid when any member accepts it.
+      const u = node.children.find((c) => c.name === "union");
+      if (u) {
+        if (u.children.some((c) => c.name === "simpleType") || !u.attrs.memberTypes) throw new Error("<xs:union> with inline member types is not modelled");
+        return { union: u.attrs.memberTypes.trim().split(/\s+/).map(local) };
+      }
       const r = node.children.find((c) => c.name === "restriction");
       const s = { base: local(r.attrs.base) };
       const patterns = [], enums = [];
@@ -102,7 +109,10 @@ function compileFiles(texts, home) {
         const is = node.children.find((c) => c.name === "simpleType");
         if (ic) { type = `#${path}/${node.attrs.name}`; complexDef(ic, type); }
         else if (is) { type = `#${path}/${node.attrs.name}`; put(simple, type, simpleDef(is)); }
-        return { k: "e", name: node.attrs.name, type: type ?? "string", ...nsField, ...occurs(node) };
+        // An empty element takes its default (or fixed) value (DSF's transacao, xs:boolean
+        // default "true", is sent as <transacao></transacao>).
+        const dflt = node.attrs.default ?? node.attrs.fixed;
+        return { k: "e", name: node.attrs.name, type: type ?? "string", ...nsField, ...occurs(node), ...(dflt !== undefined ? { d: dflt } : {}) };
       }
       if (node.name === "sequence" || node.name === "choice") {
         const items = node.children.filter((c) => ["element", "sequence", "choice"].includes(c.name)).map((c) => particle(c, path));
@@ -155,7 +165,7 @@ function compileFiles(texts, home) {
     } else p.items.forEach(walk);
   };
   for (const d of Object.values(complex)) { walk(d.model); d.attrs.forEach((a) => see(a.type)); }
-  for (const s of Object.values(simple)) { see(s.base); for (const p of s.pattern ?? []) new RegExp(`^(?:${p})$`, "u"); }
+  for (const s of Object.values(simple)) { if (s.union) { s.union.forEach(see); continue; } see(s.base); for (const p of s.pattern ?? []) new RegExp(`^(?:${p})$`, "u"); }
   if (missing.size) throw new Error(`unknown types: ${[...missing].join(", ")}`);
   const out = { namespace: home, roots: globals, complex, simple };
   if (Object.keys(globalNs).length) out.rootNs = globalNs;
@@ -219,7 +229,14 @@ const MULTI_FILES = {
   "WebISS 1.00": { dir: "WebISS/1.00", home: "tipos_complexos.xsd", files: /^(tipos_.*|servico_.*)\.xsd$/ },
   "ISSNet 1.00": { dir: "ISSNet/1.00", home: "tipos_complexos.xsd", files: /^(tipos_.*|servico_.*)\.xsd$/ },
   "Betha 1.00": { dir: "Betha/1.00", home: "TiposNFe_v01.xsd", files: /^(TiposNFe_v01|servico_.*_envio_v01)\.xsd$/ },
+  // DSF's own layout (ISSDSF, "WsNFe2"), not an ABRASF model: Campinas, Sorocaba, Belém,
+  // Campo Grande, Teresina, Uberlândia, ... Every message is in http://localhost:8080/WsNFe2/lote
+  // (the address is DSF's as published), the shared types in .../tp, local elements
+  // unqualified. 1.01 adds CodigoServico to the RPS. dsf.mjs reads these files.
+  "ISSDSF 1.00": { dir: "ISSDSF/1.00", home: "Tipos.xsd" },
+  "ISSDSF 1.01": { dir: "ISSDSF/1.01", home: "Tipos.xsd" },
 };
+const DSF_FILES = ["Tipos.xsd", "ConsultaSeqRps.xsd", "RetornoConsultaSeqRps.xsd", ...["CancelamentoNFSe", "ConsultaLote", "ConsultaNFSeRPS", "ConsultaNotas"].flatMap((m) => [`Req${m}.xsd`, `Retorno${m}.xsd`]), "ReqEnvioLoteRPS.xsd", "RetornoEnvioLoteRPS.xsd"];
 // The file lists, as at the pinned commit (the mirror has no directory listing).
 const MULTI_LIST = {
   "WebISS 1.00": ["tipos_complexos.xsd", "tipos_simples.xsd", ...["cancelar_nfse", "consultar_lote_rps", "consultar_nfse", "consultar_nfse_rps", "consultar_situacao_lote_rps", "enviar_lote_rps", "gerar_nfse"].flatMap((m) => [`servico_${m}_envio.xsd`, `servico_${m}_resposta.xsd`])],
@@ -228,6 +245,8 @@ const MULTI_LIST = {
   // tcMensagemRetorno, tsSituacaoLoteRps, ...), so xmllint cannot load them either: only the
   // six request schemas, the files a sender writes, are read.
   "Betha 1.00": ["TiposNFe_v01.xsd", ...["cancelar_nfse", "consultar_lote_rps", "consultar_nfse", "consultar_nfse_rps", "consultar_situacao_lote_rps", "enviar_lote_rps"].map((m) => `servico_${m}_envio_v01.xsd`)],
+  "ISSDSF 1.00": DSF_FILES,
+  "ISSDSF 1.01": DSF_FILES,
   "Ginfes 1.00": ["tipos_v03.xsd", ...["cancelar_nfse", "consultar_lote_rps", "consultar_nfse", "consultar_nfse_rps", "consultar_situacao_lote_rps", "enviar_lote_rps"].flatMap((m) => [`servico_${m}_envio_v03.xsd`, `servico_${m}_resposta_v03.xsd`])],
 };
 for (const [key, spec] of Object.entries(MULTI_FILES)) {

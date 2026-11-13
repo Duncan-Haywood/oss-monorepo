@@ -200,6 +200,23 @@ await page.click("#go");
   await page.click("#go");
   ok(/more than E3-A3; left as written\. The octave choir can sing it as tenors, baritones and basses/.test(await out()), "octave choir, unison: names the fewest sections");
   await page.selectOption("#choir", "");
+  // a pasted range test (sections in the file) wins over the presets; equals the CLI's --singers
+  const rt = path.join(root, "examples/range-test-sections.csv");
+  await page.fill("#singers", fs.readFileSync(rt, "utf8"));
+  await page.selectOption("#final", "split3");
+  await page.click("#go");
+  ok(/Range test: tenors Eb3-F4 \(3\), baritones C3-E4 \(3\), basses Bb2-C4 \(3\); unison Eb3-C4\./.test(await out()), "range test: section report on the page");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--singers", rt, "--split-voices", "--fit", "8", "--stretch", "-o", path.join(tmp, "s.mid"), "--cues", path.join(tmp, "s.txt")]);
+  const [dsc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  ok(fs.readFileSync(await dsc.path(), "utf8") === fs.readFileSync(path.join(tmp, "s.txt"), "utf8"), "range-test cue sheet equals the CLI's --singers --split-voices --cues");
+  const [dsm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  ok(fs.readFileSync(await dsm.path()).equals(fs.readFileSync(path.join(tmp, "s.mid"))), "range-test MIDI equals the CLI's");
+  // unsectioned: unison does not fit, the note names what does
+  await page.fill("#singers", fs.readFileSync(path.join(root, "examples/range-test.csv"), "utf8"));
+  await page.selectOption("#final", "auto");
+  await page.click("#go");
+  ok(/singers divided by range[\s\S]*Your singers can sing it as tenors and basses/.test(await out()), "range test, unison: names the fewest sections");
+  await page.fill("#singers", "");
   // back to the state the next check expects
   await page.selectOption("#genre", "edm"); await page.selectOption("#sections", "1");
   await page.selectOption("#acap", "1"); await page.selectOption("#lift", "2");

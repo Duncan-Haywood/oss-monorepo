@@ -1160,6 +1160,27 @@ On the page this is the "Post the one a call-out hurts least" setting: retail's 
 
 Not claimed: one machine, timings from runs one at a time; the equivalence is measured on these five teams, not proven: where column generation proves nothing the walk still runs after it, so such a rebuild now costs one column-generation pass more than before. Not done: the same order for posted reissues and fresh builds. Those post the roster, and the 33 same-score differences above would show as a different posted week, so it needs its own check of what managers see.
 
+## Posted reissues, column generation first (2026-11-13 later)
+
+The section above moved the call-out check's rebuilds to column generation first and left posted reissues on the old order, because a reissue is posted: a different roster at the same score is a different week on the wall. `node eval/reissue-order.mjs` (`eval/reissue-order.out.txt`) makes that check. Same 570 cases (the five teams of "A whole week of call-outs" x seeds 1-6, every person-day worked Tue-Sun calling out at 5pm the evening before, started shifts pinned, the posted roster kept with keepShift 1, the CLI's `--changes` default). Each reissue is built both ways and priced against the posted week by `scheduleChanges` (336 h window, 1 hour of pay per change, the caller exempt), as `eval/reissue-posted.mjs` does.
+
+| 570 posted reissues | old order | column generation first |
+|---|---|---|
+| proven best | 570 | 570 |
+| open hours, score | - | same on all 570 |
+| changes to other people | 1,069 | 1,069 (same on every case) |
+| premiums | $19,163 | $19,163 |
+| payroll | $1,731,325 | $1,731,325 |
+| time | 72.2 s | **32.5 s** (2.2x) |
+
+Per team: café 21.7 s to 10.2 s, spare-part-timer café 30.2 s to 12.6 s, retail 11.6 s to 2.4 s, salon and clinic about the same. **What managers would see:** on 33 reissues (15 café, 18 spare, none on the salon, retail or clinic) the roster differs. Every one of the 33 has the same score to 1e-6, the same open hours, the same number of changes to other people, the same premium and the same payroll; both are proven best, so they are ties the search can return either way, as "How many rosters really tie?" found for fresh weeks. Neither order is better on any count the tool reports, and for a given input each order is deterministic.
+
+**What changed.** `buildRoster` now takes column generation first whenever `keepShift` > 0 (a posted week's reissue: CLI `--changes`, and the page's "Changes since you posted it"), as it already did on big weeks and in the call-out check; `deferCover: false` keeps the old order. Test (`reissue-posted.test.mjs`): on the café, seed 1, Fay off Wednesday (one of the 33), the default reissue equals the explicit column-generation-first one, differs from the old order's roster, and ties it on score and open hours, both proven.
+
+**Fresh builds, measured, not changed.** The same script builds each of the 30 team-seed weeks both ways: same score on all 30, all proven, 8.6 s to 2.7 s, a different roster on 6. Fresh builds keep the old order for now: the guide pages and their tests quote specific fresh rosters (who works which shift), and `--steady` already picks among ties by call-out exposure, so switching would rewrite posted examples for a speed gain on weeks that already take under a second each on average. A run that wants it should re-derive the guide pages with it on.
+
+Not claimed: five invented teams on one machine, runs one after another; the equivalence is measured on these 570 cases, not proven; where column generation proves nothing the walk still runs after it.
+
 ## Reading When I Work directly (2026-11-13)
 
 When I Work was the next scheduler named in "What you use today" with no reader: no public CSV export of its schedule has turned up, and the staff importer's When I Work columns are from memory. Its API is documented in a public OpenAPI file, so the shifts can come from there, as for 7shifts. `import-wheniwork.mjs` reads When I Work's own API responses (v2: `GET /2/shifts`, `/2/positions`, `/2/locations`) and hands them to the same counting as `--import-shifts`. Every field it uses is in `eval/wheniwork-api-format-2026-11-13.md`, read from When I Work's published definition (OpenAPI 3.1.0, `apidocs.wheniwork.com/external/monolith/docs-master.json`, SHA-256 recorded there).
