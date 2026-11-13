@@ -28,6 +28,7 @@ import {
   DAYS, fmtClock, money, num,
   keepFromCsv,
   pinStarted,
+  steadyRoster,
 } from "./calc.mjs";
 
 const USAGE = `Build a weekly roster that respects availability, hour limits and rest, covers as many shifts as it can, and avoids overtime.
@@ -55,6 +56,8 @@ Options:
   --open-post                a group message for the shifts left open and who could take each (empty when none)
   --open-shift-hours <h>  when shifts must stay open, count each open shift as <h> hours: 0 leaves the fewest hours open, 100 the fewest shifts
                       (runs the slower exact repair; the plain build leaves it out)
+  --steady           among the rosters that tie at the best score, post the one a single call-out hurts least (each person-day
+                      worked Tue-Sun played as a 5pm-before call-out and a kept rebuild); same score and payroll, slower
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
@@ -258,6 +261,7 @@ export function parseArgs(argv) {
     else if (a === "--diff-when") { o.options.diffWhen = argv[++i]; if (!o.options.diffWhen) throw new Error('--diff-when needs windows like "Sat-Sun; 10pm-6am"'); }
     else if (a === "--prove") o.options.exact = true;
     else if (a === "--no-prove") o.options.exact = false;
+    else if (a === "--steady") o.steady = true;
     else if (a === "--weeks") {
       const v = Number(argv[++i]);
       if (!Number.isInteger(v) || v < 1 || v > 8) throw new Error("--weeks needs a whole number from 1 to 8");
@@ -410,7 +414,8 @@ export function run(staffText, shiftsText, opts = {}) {
     if (kp > 0) bopts = { ...bopts, keep: keepFromCsv(opts.postedCsv), keepShift: kp };
     if (opts.changedAt && opts.weekStart) { pin = pinStarted(sh.slots, opts.postedCsv, minutesSinceMonday(opts.weekStart, opts.changedAt)); slots = pin.slots; }
   }
-  const r = buildRoster(st.staff, slots, bopts);
+  // --steady (2026-11-13): a fresh week only; a reissue already keeps the posted roster (eval/steady-for-callouts.mjs).
+  const r = opts.steady && !opts.postedCsv ? steadyRoster(st.staff, slots, bopts) : buildRoster(st.staff, slots, bopts);
   if (pin) r.pinnedStarted = pin;
   if (r.error) return { code: 2, out: r.error + "\n" };
   const open = r.unfilledSlots > 0;
@@ -452,11 +457,19 @@ export function run(staffText, shiftsText, opts = {}) {
         assignments: r.assignments.map((a) => ({ day: DAYS[a.slot.day], start: fmtClock(a.slot.startMin), end: fmtClock(a.slot.endMin), label: a.slot.label || "", role: a.slot.role || "", person: a.person })),
         people: r.people.map((p) => ({ name: p.name, hours: p.hours, short: p.short })),
         unfilled: r.unfilled.map((u) => ({ day: DAYS[u.slot.day], start: fmtClock(u.slot.startMin), end: fmtClock(u.slot.endMin), why: u.text })),
-        critical: r.critical, warnings: r.warnings, optimality: r.optimality || undefined,
+        critical: r.critical, warnings: r.warnings, optimality: r.optimality || undefined, steady: r.steady || undefined,
       }, null, 2) + "\n",
     };
   }
-  return { code, out: reportText(r) };
+  return { code, out: reportText(r) + (r.steady ? steadyText(r.steady) : "") };
+}
+
+function steadyText(s) {
+  const others = s.tied.filter((t) => t.seed !== s.chosenSeed).map((t) => num(t.exposure));
+  const head = s.tied.length < 2 ? "Call-out check: only one roster ties at the best score, so there was nothing to choose between."
+    : `Call-out check: ${s.tied.length} rosters tie at the best score; this one adds the fewest open hours if someone calls out (${num(s.exposure)} h summed over ${s.personDays} person-days, the others ${others.join(", ")} h).`;
+  const worst = s.worst.slice().sort((a, b) => b.added - a.added).slice(0, 5).map((c) => `${c.person} on ${DAYS[c.day]} (+${num(c.added)} h)`);
+  return `\n${head}\n${worst.length ? `Call-outs that would still leave hours open: ${worst.join(", ")}${s.worst.length > 5 ? ` and ${s.worst.length - 5} more` : ""}.\n` : "No single call-out Tue-Sun leaves an hour open.\n"}`;
 }
 
 // --cover "Tue 17:00[-22:00]": find the shift, then who can take it outright (coverOptions) or, failing that, the shortest hand-over chains (coverChain).

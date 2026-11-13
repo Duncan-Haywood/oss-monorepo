@@ -3797,3 +3797,53 @@ export function splitCells(line) {
   out.push(cur.trim());
   return out;
 }
+
+// Call-out exposure (2026-11-13). A roster is proven at the least open hours for the week as given, but several rosters
+// often tie at the best score (on four of the five templates six seeds gave five or six different rosters, same score and
+// payroll, eval/steady-for-callouts.out.txt), and they do not hold up equally when someone calls out. For every person-day
+// worked from `fromDay` on, `calloutExposure` plays that one call-out the way the product handles it: the person is off
+// that day, it is announced `noticeMin` minutes before the day starts (default 5pm the evening before), every shift that has
+// started by then is pinned (pinStarted), and the week is rebuilt with the roster kept (keepShift 1). `added` is the open
+// hours that leaves beyond the roster's own. The sum over the cases is the exposure; times a per-person-day call-out rate
+// it is the expected open hours one week of independent call-outs adds, to first order. One rebuild per case.
+export function calloutExposure(staff, slots, roster, options = {}, { fromDay = 1, noticeMin = 420 } = {}) {
+  if (!roster || !roster.assignments) return { error: "Build a roster first." };
+  const csv = rosterCsv(roster);
+  const keep = keepFromCsv(csv);
+  const cases = [];
+  for (let d = fromDay; d < 7; d++) {
+    const working = [...new Set(roster.assignments.filter((a) => a.person && a.slot.day === d).map((a) => a.person))].sort();
+    if (!working.length) continue;
+    const { slots: pinned } = pinStarted(slots, csv, d * 1440 - noticeMin);
+    for (const name of working) {
+      const st = staff.map((p) => (p.name === name ? { ...p, days: p.days.map((w, k) => (k === d ? [] : w)) } : p));
+      const r = buildRoster(st, pinned, { ...options, keep, keepShift: 1 });
+      if (r.error) return { error: r.error };
+      cases.push({ person: name, day: d, openAfter: r.unfilledHours, added: Math.max(0, r.unfilledHours - roster.unfilledHours) });
+    }
+  }
+  return { cases, exposure: cases.reduce((t, c) => t + c.added, 0), personDays: cases.length };
+}
+
+// Among the rosters that tie at the best score over `seeds` (the search's seed is the only thing varied, so every candidate
+// has the same score, the managers' own settings untouched), post the one with the least call-out exposure. Costs nothing
+// in the score by construction; costs one calloutExposure per distinct tied roster in time. The first seed's roster wins
+// ties, so a week with one best roster is unchanged. `steady` on the result says what was compared.
+export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 5, 6], fromDay = 1, noticeMin = 420 } = {}) {
+  const base = options.seed ?? 1;
+  const list = [...new Set([base, ...seeds])];
+  const built = list.map((seed) => ({ seed, r: buildRoster(staff, slots, { ...options, seed }) }));
+  if (built[0].r.error) return built[0].r;
+  const best = Math.min(...built.map((b) => b.r.score));
+  const seen = new Map();
+  for (const b of built) {
+    if (b.r.error || b.r.score > best + 1e-6) continue;
+    const k = rosterCsv(b.r);
+    if (!seen.has(k)) seen.set(k, b);
+  }
+  const cands = [...seen.values()].map((b) => ({ ...b, x: calloutExposure(staff, slots, b.r, options, { fromDay, noticeMin }) }));
+  cands.sort((a, b) => a.x.exposure - b.x.exposure || list.indexOf(a.seed) - list.indexOf(b.seed));
+  const pick = cands[0];
+  const first = cands.find((c) => c.seed === base);
+  return { ...pick.r, steady: { chosenSeed: pick.seed, exposure: pick.x.exposure, firstSeedExposure: first ? first.x.exposure : null, personDays: pick.x.personDays, tied: cands.map((c) => ({ seed: c.seed, exposure: c.x.exposure })), worst: pick.x.cases.filter((c) => c.added > 0) } };
+}
