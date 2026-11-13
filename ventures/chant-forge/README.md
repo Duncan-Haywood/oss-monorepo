@@ -144,6 +144,44 @@ Chromium through Playwright: all 6 samples times all 5 backings convert, the MID
 bad input and a zero tempo give messages, and there is no sideways scroll at 375 px.
 38 checks, no page error. It cannot hear anything: a person still has to listen.
 
+## Corpus read against the printed book (2026-11-13)
+
+```sh
+node ventures/chant-forge/eval/scan-check.mjs     # needs curl and ffmpeg; about 1 min the first time
+```
+
+`scan.mjs` reads square notation off a page scan with no dependencies: it finds the
+four-line staves, takes the lines out, finds the heads (squares, rhombi, the two ends of
+a porrectus stroke, stacked notes read bottom-up), places each relative to the clef line,
+and lines the sequence up with the GABC by edit distance. `eval/scan-check.mjs` does this
+for every piece in `eval/scan-pages.json` against public-domain scans on archive.org
+(Graduale Romanum, Vatican 1908; Antiphonale Romanum, Vatican 1912) and writes
+`eval/scan-check-report.md`. What looking at each flagged spot said is in
+`eval/scan-check-verdicts.md`. Results:
+
+| piece | book | notes read | agree with the GABC |
+|---|---|---|---|
+| Dies irae | Graduale 1908, pp. 83*-86* | 604 | 604 |
+| Veni Creator (verse 1) | Graduale 1908, p. 121* | 43 | 43 |
+| Pange lingua (verse 1) | Graduale 1908, p. 123* | 53 | 53 |
+| Te Deum (1908 Roman tone) | Graduale 1908, pp. 118*-121* | 631 | 630 after one correction (the other is a reader error) |
+| Salve Regina (1961 file) | Antiphonale 1912, pp. 56-57 | 214 | 214 |
+| 7 off-final Graduale pieces | Graduale 1908 | 972 | 971 (the other is a reader error) |
+
+- **One transcription error found:** GregoBase 3656 (the 1908 Te Deum) has `si(f)ne`
+  where the book prints e. Corrected in `corpus/te-deum.gabc`.
+- **The Te Deum changed source.** The old corpus file (Solesmes 1974) is a different tone
+  from the 1908 book's (75 notes differ, 85 extra); the corpus now carries the 1908
+  "juxta morem Romanum" tone. **The Salve Regina** (1961 file) matches the 1912
+  Antiphonale, so it now has a pre-1929 source.
+- **Control:** moving one agreeing GABC note a step (200 seeded trials per piece) is
+  flagged 189-200 times in 200. Notes the reader cannot see (some rhombi, quilismas,
+  liquescents, ledger-line notes: 4-17 per piece) are not checked; those spots on two
+  Salve Regina staves were looked at by eye and agree.
+- **Tuning:** thresholds were set on the Dies irae and Te Deum pages; the Salve Regina
+  and the off-final pieces ran afterwards with nothing changed. 8 tests on drawn pages
+  (`scan.test.mjs`). Only Vatican-edition printing has been tried.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
@@ -154,10 +192,11 @@ bad input and a zero tempo give messages, and there is no sideways scroll at 375
   `node eval/batch-check.mjs`, `batch.test.mjs`). Checked: no crash, no warning,
   pitches 36-84, no markup left in lyrics, valid MIDI, communions, tracts, hymns
   and sequences end on their mode final. Not checked: the notes against the page
-  scans, or by ear. 11 of the 59 end off the mode final (introits, graduals,
-  alleluias and offertories finish on a psalm-tone differentia or a verse); that
-  is read from the files, not confirmed against the book. `node eval/offfinal-report.mjs` lists them with last notes and syllables
-  (`eval/offfinal-report.md`); 5 are introits ending on "euouae".
+  scans (except the ones below), or by ear. 11 of the 59 end off the mode final (introits, graduals,
+  alleluias and offertories finish on a psalm-tone differentia or a verse). `node eval/offfinal-report.mjs` lists them with last notes and syllables
+  (`eval/offfinal-report.md`); 5 are introits ending on "euouae". Seven of the
+  11 were read against the 1908 scan on 2026-11-13 (next section): their
+  endings are the book's.
 - `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
   MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
