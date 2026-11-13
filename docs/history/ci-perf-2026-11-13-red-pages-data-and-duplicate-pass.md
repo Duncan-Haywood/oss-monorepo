@@ -35,6 +35,12 @@ example-data.mjs` finds only `el.dataset`). mime-db has no `.data` entry, so a
 visitor who opens one directly downloads it, which is harmless for a fixture.
 The same reasoning admitted `.service` on 2026-11-11 after PR #14794.
 
+A second failure from the same PR showed up once the build was green:
+`percent-float.test.mjs` flagged `${p.contamination * 100}%` in
+`ventures/isolation-forest/index.html`. It printed correctly for today's
+options (1, 2, 5, 10%), but it now rounds as the rule asks:
+`${+(p.contamination * 100).toFixed(4)}%`.
+
 ## Verification
 
 - `checkServedExtensions(['isolation-forest/data/breast-cancer-wisconsin.data', 'a/x.foo'])`
