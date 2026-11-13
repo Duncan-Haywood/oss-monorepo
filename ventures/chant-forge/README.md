@@ -181,6 +181,14 @@ for every piece in `eval/scan-pages.json` against public-domain scans on archive
 - **Tuning:** thresholds were set on the Dies irae and Te Deum pages; the Salve Regina
   and the off-final pieces ran afterwards with nothing changed. 8 tests on drawn pages
   (`scan.test.mjs`). Only Vatican-edition printing has been tried.
+- **Read by eye as well:** a separate reading by eye covered every note of the five pieces,
+  including the ones the reader cannot see, and found no differences in 1,492 notes
+  (`eval/scan-read-by-eye/README.md`, `scan-read-by-eye.test.mjs`). The earlier
+  Solesmes 1974 Te Deum is kept as `corpus/te-deum-simple.gabc`. It is the 1913 Liber
+  Usualis *tonus simplex*, note for note.
+- **Full hymns:** `corpus/pange-lingua-full.gabc` (6 verses, 85.6 s at 124 BPM) and
+  `corpus/veni-creator-full.gabc` (7 verses, 83.0 s) set every verse printed in the 1908
+  Graduale to the checked first verse (`eval/scan-read-by-eye/build-hymns.mjs`).
 
 ## Not checked yet
 

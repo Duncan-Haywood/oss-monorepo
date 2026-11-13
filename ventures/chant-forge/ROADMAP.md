@@ -53,6 +53,13 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   tone (GregoBase 3656) with one transcription error corrected from the scan; seven of the
   11 off-final Graduale endings are the book's. Planted one-step errors caught 189-200 of 200.
   Verdicts: `eval/scan-check-verdicts.md`.
+- 2026-11-13: an independent reading by eye (`eval/scan-read-by-eye/`, `corpus/scan-read-by-eye.json`,
+  `scan-read-by-eye.test.mjs`, 5 tests), covering every note including rhombi, quilismas and
+  liquescents. Dies irae, Veni Creator and Pange lingua against the 1908 Graduale, the Salve
+  Regina and the earlier Te Deum file (now `corpus/te-deum-simple.gabc`) against the 1913 Liber
+  Usualis: 1,492 notes, 0 differences. The 1974 Te Deum is the 1913 *tonus simplex*. Strophic
+  hymns landed: `pange-lingua-full.gabc` (6 verses) and `veni-creator-full.gabc` (7 verses),
+  texts from the 1908 pages, by `eval/scan-read-by-eye/build-hymns.mjs`.
 
 ## Next
 

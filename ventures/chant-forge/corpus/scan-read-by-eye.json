@@ -1,0 +1,43 @@
+{
+  "about": "Corpus files read note by note against public-domain page scans on archive.org (2026-11-13). sha256 is the first 16 hex digits of the file as read; a changed file needs a fresh read. eval/scan-read-by-eye/README.md has the method and the readings.",
+  "checks": [
+    {
+      "file": "dies-irae.gabc", "sha256": "d708f009b6ae4e5b", "notes": 613, "scope": "every note",
+      "witness": "Graduale Romanum, Vatican edition, 1908, pp. 83*-86*",
+      "scan": "https://archive.org/details/graduale-romanum-1908/page/n874", "leaves": "874-877",
+      "result": "match", "differences": 0
+    },
+    {
+      "file": "veni-creator.gabc", "sha256": "f429055f22e31551", "notes": 43, "scope": "every note",
+      "witness": "Graduale Romanum, Vatican edition, 1908, p. 121*",
+      "scan": "https://archive.org/details/graduale-romanum-1908/page/n912", "leaves": "912",
+      "result": "match", "differences": 0
+    },
+    {
+      "file": "pange-lingua.gabc", "sha256": "1b8b9f2899327afb", "notes": 53, "scope": "every note",
+      "witness": "Graduale Romanum, Vatican edition, 1908, p. 123*",
+      "scan": "https://archive.org/details/graduale-romanum-1908/page/n914", "leaves": "914",
+      "result": "match", "differences": 0
+    },
+    {
+      "file": "salve-regina.gabc", "sha256": "c21418fc89ff28b9", "notes": 231, "scope": "every note",
+      "witness": "Liber Usualis, 1913 (Desclée), pp. 62-63, Dominica ad Completorium, solemn tone, mode 1",
+      "scan": "https://archive.org/details/liber-usualis-1913/page/n70", "leaves": "70-71",
+      "result": "match", "differences": 0
+    },
+    {
+      "file": "te-deum-simple.gabc", "sha256": "585e145f94333936", "notes": 552, "scope": "every note",
+      "witness": "Liber Usualis, 1913 (Desclée), pp. 25*-28*, Pro gratiarum actione, tonus simplex",
+      "scan": "https://archive.org/details/liber-usualis-1913/page/n603", "leaves": "603-606",
+      "result": "match", "differences": 0,
+      "note": "The file is the simple tone. The solemn tone on pp. 22*-25* differs from the first half-verse's second half on (te Dóminum confitémur: e gh h h g hi ivHG g against the simple tone's h h h g h i h g)."
+    },
+    {
+      "file": "gregobase-1908/3407.gabc", "sha256": "0ccefdf8ea84258d", "notes": 219, "scope": "ending only",
+      "witness": "Graduale Romanum, Vatican edition, 1908, p. 396",
+      "scan": "https://archive.org/details/graduale-romanum-1908/page/n419", "leaves": "419",
+      "result": "match", "differences": 0,
+      "note": "The verse ends on D (d-e-d after 'bellum') in the book as in the file; the Alleluia before it ends on E, the mode-3 final."
+    }
+  ]
+}
