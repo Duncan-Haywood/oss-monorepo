@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVKynfbnx7XpqitZ6C5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T23:25:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quick-pick-survey flagship item (d5): per-person test so one person's own pace drift stops raising fast-block flags",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": 15642,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "blog post description over 160 chars and tag spelled change-point instead of changepoint",
+      "fix": "shortened, respelled; check_post_frontmatter.py passes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-quick-pick-survey-a-step-on-top-of-a-line.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md#a-step-net-of-the-persons-own-trend"
+  ],
+  "goal": "Deepen flagship 8 (quick-pick-survey) per allocate.py's Start-here row",
+  "notes": "Shipped FAST_BLOCK_NET_SHARE = 1 (stepNetOfTrend): a fast block must leave a step >= the gap threshold after fitting the person's own line. 204-cell answer-time sweep (docs/fast-blocks-net-step-2026-11-13.jsonl): drift 0.6 honest flags 5.4% -> 2.0% (cost cells 4.9% -> 1.6%), ceiling share 65% -> 66%; drift 0 ceiling 99% -> 97%. New --person-walk model: walk 0.04 honest flags 10.4% -> 5.5%; walk 0.08 still ~20% flagged under every setting (reported as open item d6). Red-green: the new unit test fails with FAST_BLOCK_NET_SHARE = 0. Local checks: npm run verify (typecheck, lint, unit tests, next build) exit 0; platform/pages node --test 1617 pass 0 fail; check_post_frontmatter ok; run_workflow_locally --for-changes: the only other failures were the venture's Integration tests and Migrations-match-schema steps, which need Postgres at 127.0.0.1:5432 (not available in this container; no schema or route change in this diff).",
+  "corrections": [],
+  "redteam": null
+}
