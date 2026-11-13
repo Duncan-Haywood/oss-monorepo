@@ -113,3 +113,41 @@ test("the page offers the price, passes it to the build and shows what it bought
   assert.match(html, /coverSlackText\(r\.coverSlack, st\.staff\)/);
   assert.match(html, /cover_price_used/); // usage event
 });
+
+// 2026-11-13 later (eval/cover-risk-joint.mjs): the day's shifts are covered all at once, and hand-over chains count.
+test("one stand-in is not counted for two shifts they cannot both work", () => {
+  const staffText = "name, wage, max hours, min hours, availability\nAna, 20, 60, 0, any\nBo, 20, 4, 0, any";
+  const shiftsText = "Tue, 9:00, 13:00, 1\nTue, 14:00, 18:00, 1";
+  const ctx = ctxOf(staffText, shiftsText);
+  const owner = [0, 0]; // Ana works both; Bo could take either on its own, not both (4 h a week)
+  const each = coverRisk(ctx, owner, { joint: false, chain: 0 });
+  assert.equal(each.hours, 0); // the first form passed this day
+  const joint = coverRisk(ctx, owner, { chain: 0 });
+  assert.equal(joint.riskyDays, 1);
+  assert.equal(joint.hours, 8);
+});
+
+test("a hand-over chain covers a day nobody can take outright, and only from the call-out day on", () => {
+  const staffText = "name, wage, max hours, min hours, availability\nAna, 20, 60, 0, any\nBo, 20, 4, 0, any\nCy, 20, 40, 0, Wed";
+  const shiftsText = "Tue, 9:00, 13:00, 1\nWed, 9:00, 13:00, 1";
+  const ctx = ctxOf(staffText, shiftsText);
+  const owner = [0, 1]; // Ana Tue, Bo Wed. If Ana calls out: Bo is full, Cy only works Wednesdays
+  const none = coverRisk(ctx, owner, { chain: 0 });
+  assert.deepEqual(none.cases.map((c) => [c.person, c.day]), [[0, 1]]);
+  const one = coverRisk(ctx, owner, { chain: 1 });
+  assert.equal(one.riskyDays, 0); // Bo takes Tuesday and passes Wednesday to Cy
+  assert.equal(one.chained, 1);
+  assert.equal(coverRisk(ctx, owner).riskyDays, 0); // two passes is the default
+  // A shift already worked cannot be passed: with Bo's shift on Monday, before the call-out day, no chain exists.
+  const ctx2 = ctxOf(staffText.replace("Cy, 20, 40, 0, Wed", "Cy, 20, 40, 0, Mon"), "Tue, 9:00, 13:00, 1\nMon, 9:00, 13:00, 1");
+  const slots2 = parseShifts("Tue, 9:00, 13:00, 1\nMon, 9:00, 13:00, 1").slots;
+  const tueIdx = slots2.findIndex((s) => s.day === 1), monIdx = slots2.findIndex((s) => s.day === 0);
+  const own2 = []; own2[tueIdx] = 0; own2[monIdx] = 1;
+  assert.equal(coverRisk(ctx2, own2, { chain: 2 }).riskyDays, 1);
+});
+
+test("CLI --cover-chain sets the passes and rejects out-of-range values", () => {
+  assert.equal(parseArgs(["--cover-chain", "0", "a", "b"]).options.coverChain, 0);
+  assert.equal(parseArgs(["--cover-chain", "3", "a", "b"]).options.coverChain, 3);
+  assert.throws(() => parseArgs(["--cover-chain", "4"]), /--cover-chain needs a whole number/);
+});

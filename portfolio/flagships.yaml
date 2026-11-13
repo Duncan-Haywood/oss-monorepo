@@ -188,7 +188,7 @@ flagships:
       pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); priced call-out slack landed 2026-11-13 (--cover-price, README "Paying for call-out slack": retail exposure 24 h to 0 for $5.82, no move paid on 3 of 5 teams); next on it, moving two shifts together and a per-day risk count; column generation first for posted reissues too (README "Call-out rebuilds, column generation first"); a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
+      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price risk counts hand-over chains (README "Counting call-out risk with hand-over chains", 2026-11-13); next on it, moving two shifts together, café's 23 flagged vs 11 open days; column generation first for posted reissues too (README "Call-out rebuilds, column generation first"); a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
@@ -253,28 +253,29 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      History and every measurement: README,
-      docs/INFORMATION-GAIN-SELECTOR.md, docs/CONVERGENCE.md and
-      docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list
-      length, the closed pooled-prior work, the sparse long-list overclaim (f,
-      the harness), the uncapped weighted schemes (g) and half-time salience
-      (b) are written up there. Latest (2026-11-13, "Half-time carelessness
-      and answer times"; docs/half-time-answer-time-2026-11-13.jsonl):
-      per-person pace misses people careless on half their picks (0-35% of
-      the ceiling); a per-answer cut recovers 55-75% when their answers are
-      quick, shipped as ?drop=fast-answers and a builder button, not the
-      default (costs up to 0.006 with nobody careless, 0.019 against a
-      camp). Next, most valuable first: (c) the first real survey's answers:
-      msToAnswer against the answer-time model, whether careless answers are
-      in fact quick (decides whether ?drop=fast-answers should ever be the
-      default, and gives the pooled prior a careless signal), and how noisy
-      real pairwise answers are, which decides the self-consistency gate
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d) position bias or
-      carelessness that starts mid-session (a block, which the q sweep does
-      not model); (h) share-drop (leave out people with 30%+ fast answers)
-      beat both pace cuts at q = 1 (+0.034 to +0.229 against +0.027 to
-      +0.151) but taxes a camp by up to 0.030 at a wide pace spread: decide
-      on a real panel's times.
+      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
+      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
+      staged-by-default at every list length, the closed pooled-prior work, the
+      sparse long-list overclaim (f), the uncapped weighted schemes (g),
+      half-time salience (b) and mid-session blocks (d) are written up there.
+      Latest (2026-11-13, "Carelessness that starts mid-session";
+      docs/fast-blocks-2026-11-13.jsonl): a person who turns quick partway
+      through is found by a change point read against the panel's time at the
+      same point (a person-relative split cost up to 0.40 under a shared
+      warm-up); it recovers 98-105% of the ceiling at 0.4x pace for at most
+      0.0004 cost, shipped as ?drop=fast-blocks and a builder button, not the
+      default. Next, most valuable first: (c) the first real survey's answers:
+      msToAnswer against the answer-time model, whether real people have
+      warm-ups, blocks or spread-out carelessness and how quick each is (decides
+      whether ?drop=fast-blocks, the cheapest view, or ?drop=fast-answers should
+      become the default), and how noisy real pairwise answers are
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d2) a block at 0.6x pace
+      when 40% of the panel turn at once is found 27-60% of the time: a robust
+      panel curve (an upper quantile, or onsets spread out as real ones may be)
+      is the next try; (d3) position bias that starts mid-session (a first-slot
+      block is found by time only when it is quick); (h) share-drop beat both
+      pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real
+      panel's times.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
