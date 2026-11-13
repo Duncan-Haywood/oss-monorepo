@@ -146,6 +146,25 @@ test('completeShareTags points at the page card and fills the twitter: and size 
   assert.equal(completeShareTags(out, { card: `${BASE}research/energy-tou/share-card.png`, toRoot: '../../' }), out);
 });
 
+test('the data: icon strip takes the whitespace before each link, as the one-regex form did', () => {
+  // The form before 2026-11-13 (docs/history/pages-build-perf-2026-11-13-share-data-icon-scan.md).
+  const before = /\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi;
+  const icon = '<link rel="icon" href="data:image/svg+xml,%3Csvg%3E">';
+  const heads = [
+    `<head>\n  ${icon}\n</head>`,
+    `<head>${icon}${icon}</head>`,
+    `<head>\n${icon}\n \t${icon.replace('icon"', 'shortcut icon"')}\n</head>`,
+    `<head>  \n${icon.toUpperCase().replace('DATA:', 'data:')}</head>`,
+    `${icon}<head></head>`,
+    `<head><link rel="stylesheet" href="data:text/css,a"> <meta name="x" content="data:"></head>`,
+  ];
+  for (const head of heads) {
+    const html = `<!doctype html><html>${head}<body>data:</body></html>`;
+    const opts = { toRoot: '../' };
+    assert.equal(completeShareTags(html, opts), completeShareTags(html.replace(before, ''), opts), head);
+  }
+});
+
 test("a page's own relative og:image is kept, made absolute, and copied to twitter:image", () => {
   const html = page({ image: 'renders/og-8x12-share.jpg' });
   const url = `${BASE}ventures/shed-designer/`;
