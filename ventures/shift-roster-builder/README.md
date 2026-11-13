@@ -1014,11 +1014,11 @@ Not claimed: the rates come from one security firm's five weeks, applied to inve
 
 ## Which of the tied best rosters holds up to a call-out? (2026-11-13)
 
-"A whole week of call-outs" (above) left open whether a schedule could keep slack for later call-outs. A first try handed future shifts to other people whenever that left someone free behind them, at a price per change. It moved nothing: on the sample café nearly every shift Tuesday to Sunday had nobody free to take it single-handed, so there was no slack to make. The slack is in a choice the search already makes blindly. Several rosters often tie at the best score: seeds 1-6 gave 6 distinct rosters on the café, retail and clinic templates and 5 on the salon, every one with the same score and the same payroll. The search hands back whichever it meets first.
+"A whole week of call-outs" (above) left open whether a schedule could keep slack for later call-outs. A first try handed future shifts to other people whenever that left someone free behind them, at a price per change. It moved nothing: on the sample café nearly every shift Tuesday to Sunday had nobody free to take it single-handed, so there was no slack to make. The slack is in a choice the search already makes blindly. Several rosters often tie at the best score: seeds 1-6 gave 6 distinct rosters on the café, retail and clinic templates and 5 on the salon (3 once rows are compared as a schedule, "How many rosters really tie?" below), every one with the same score and the same payroll. The search hands back whichever it meets first.
 
 `calloutExposure(staff, slots, roster)` scores a roster by playing every person-day worked Tuesday to Sunday as one call-out, handled the way the product handles a reissue: announced 5pm the evening before, started shifts pinned (`pinStarted`), the rest rebuilt with the roster kept (`keepShift 1`). The open hours each adds, summed, are the exposure; times a per-person-day call-out rate it is, to first order, the open hours a week of call-outs costs. `steadyRoster` (CLI `--steady`, `--json` carries `steady`) builds seeds 1-6, keeps the rosters at the best score and posts the least exposed. Score, payroll and the manager's settings do not move by construction. The cost is time: one rebuild per person-day per tied roster (café 34 s, retail 10 s, clinic 15 s, salon 3 s on one cloud core).
 
-Exposure by seed on the templates: café 92 / 100 / 100 / 116 / 132 / 140 h; retail 24 / 24 / 24 / 30 / 30 / 30; clinic 30 / 30 / 30 / 30 / 45 / 45; salon 56 on all five; the spare-part-timer café has one best roster. Seed 1 is already the least exposed on every template, so nothing changes there; on someone's own week it need not be.
+Exposure by seed on the templates: café 92 / 100 / 100 / 116 / 132 / 140 h; retail 24 / 24 / 24 / 30 / 30 / 30; clinic 30 / 30 / 30 / 30 / 45 / 45; salon 56 on all five (three distinct rosters); the spare-part-timer café has one best roster. Seed 1 is already the least exposed on every template, so nothing changes there; on someone's own week it need not be.
 
 **Does exposure predict real loss?** `node eval/steady-for-callouts.mjs` (`eval/steady-for-callouts.out.txt`) posts each tied roster and plays the 40 seeded weeks of "A whole week of call-outs" against it, same draws, kept reissues, at the four rate settings (call-outs 1.0% or 8.4% per person-day, extra copies 0 or 10.9%). Open hours the week's events add (final open hours minus posted), 40 weeks per cell:
 
@@ -1038,7 +1038,7 @@ Exposure by seed on the templates: café 92 / 100 / 100 / 116 / 132 / 140 h; ret
 | clinic, 8.4% + extras | **313** | 324.7 | 348 | 72 / 58 / 31 |
 | total | **3,304** | 3,423 | 3,595 | 970 / 837 / 624 |
 
-The least-exposed roster added fewer open hours than the average tie on 10 of the 12 cells, the same on 1 and more on 1 (the café with extra shifts, where the extra copies swamp the call-outs). In total it cut added open hours by 3.5% against a random pick among the ties and 8.1% against the worst one. The first-order forecast holds on the café at the sick-only rate: exposure 92 x 0.01 x 40 weeks predicts 37 h, played 32; exposure 140 predicts 56, played 56. The salon is a control: five tied rosters, equal exposure, identical results in every cell.
+The least-exposed roster added fewer open hours than the average tie on 10 of the 12 cells, the same on 1 and more on 1 (the café with extra shifts, where the extra copies swamp the call-outs). In total it cut added open hours by 3.5% against a random pick among the ties and 8.1% against the worst one. The first-order forecast holds on the café at the sick-only rate: exposure 92 x 0.01 x 40 weeks predicts 37 h, played 32; exposure 140 predicts 56, played 56. The salon is a control: five tied rosters (three distinct), equal exposure, identical results in every cell.
 
 **The trade is changes.** The steadier roster leaves people free where a call-out lands, and the kept reissue then uses them, so it tells more people of a change: 970 changes to others in total against 837 for the average tie (+16%) and 624 for the most exposed. At 1 hour of pay per change that is the manager's call, which is why `--steady` is opt-in and the report says which call-outs would still leave hours open.
 
@@ -1065,9 +1065,42 @@ Checked case by case against rebuilding every case on the five teams x six seeds
 | clinic | 15.2 s | 6.8 s | 72 to 37 | yes |
 | total | 66.7 s | 45.5 s | 419 to 243 | |
 
-What is left is mostly the six builds themselves (each runs the exact check). `eval/steady-for-callouts.mjs` passes `prune: false` so its every-tie readings stay as they were.
+What is left was put down here to the six builds themselves; measured later the same day it is not ("How many rosters really tie?" below): on the café the six builds take about 6 s of 17.6 s, the 101 call-out rebuilds the rest. `eval/steady-for-callouts.mjs` passes `prune: false` so its every-tie readings stay as they were.
 
 On the page, "When several rosters tie at the best score" now offers "Post the one a call-out hurts least". It runs in the build worker with progress ("roster 2 of 6, call-out 14 of 23") and the Stop button, and the call-out check's two lines lead the notices. Like the CLI it applies to a fresh week, not a reissue of a posted one, which already keeps the posted roster. Tests: `steady.test.mjs` (retail case by case with both short cuts firing; stopAt; the pruned pick equals the full one on café seeds 1-3; the worker runs the check and posts progress; the page has the setting and shows the text).
 
 Not claimed: the timings are one machine; a phone will be slower (the café's 20 s could be a minute). The chain search is capped at 3 hand-overs, so a case that needs more falls back to a rebuild, which is correct, only slower.
 
+
+## How many rosters really tie? And the call-out check at every reissue (2026-11-13 later)
+
+`--steady` posts the least-exposed of the rosters that tie at the best score, on a fresh week. Two questions were left: does it help to make the same pick at every reissue of a posted week, and was the "fewer builds" speed-up worth chasing (the paragraph above put the café's time down to its six builds)?
+
+**A counting bug first.** `steadyRoster` dropped duplicate ties by comparing `rosterCsv` text. That lists shift copies in the order the search placed them, so when two identical copies of one shift (two Tuesday 3pm-9pm closes) are held by Ruth and Sam in one build and by Sam and Ruth in another, the files differ and the schedule does not. The new `rosterKey` sorts the rows, and `steadyRoster` now counts each schedule once. `node eval/distinct-ties.mjs` (`eval/distinct-ties.out.txt`), seeds 1-6:
+
+| team | seeds at the best score | distinct by file order (before) | distinct as schedules (now) | exposures | `--steady` now |
+|---|---|---|---|---|---|
+| café | 6 | 6 | 6 | 92, 100, 140, 116, 132, 100 | 17.6 s, 101 rebuilds |
+| spare | 6 | 1 | 1 | 54 | 5.6 s |
+| salon | 6 | 5 | **3** | 56, 56, 56 | 1.8 s, 30 rebuilds (was 50) |
+| retail | 6 | 6 | 6 | 24, 30, 30, 24, 24, 30 | 8.2 s |
+| clinic | 6 | 6 | 6 | 30, 30, 45, 30, 45, 30 | 6.0 s |
+
+So on a fresh post only the salon was over-counted: the page said "5 rosters tie" where 3 do. At a reissue it was worse: in the first probe on the retail template, every reissue "tie" checked (8 of 8, 2 to 6 rosters each) was the same schedule printed in a different order. The pick itself never changed (a duplicate has the same exposure, and ties go to the earlier seed), so the posted rosters and every reading above stand. Only the tie counts and some wasted rebuilds were wrong.
+
+**Where the time goes.** With the exact check on, one café build takes 0.9-1.2 s, so six builds are about 6 s of the 17.6 s. The 101 call-out rebuilds are the rest. Building seeds 2-6 without the exact check is not a safe cut: on the café every such build lands on a worse score (1,903,693 against the proven 1,503,759) and would drop out of the ties. Any speed-up has to come from the call-out cases, not the builds.
+
+**The pick at every reissue.** `node eval/steady-reissue.mjs` (`eval/steady-reissue.out.txt`) plays the same 40 seeded weeks per setting as "A whole week of call-outs" on the café, the spare-part-timer café, retail and the clinic. There are three policies on the same draws: the seed-1 roster posted with seed-1 kept reissues (the default); the least-exposed roster posted with seed-1 kept reissues (`--steady` today); and the least-exposed roster posted, with every reissue Monday to Friday also run through `steadyRoster` (current roster kept, exposure counted from the next day on).
+
+| 16 cells (4 teams x 4 rate settings) | disrupted weeks | reissues | reissues with distinct ties | rosters changed by the pick | open hours added | changes to others | time |
+|---|---|---|---|---|---|---|---|
+| default / `--steady` posted | 510 | 983 | - | - | 5,033 | 1,835 | 192 s |
+| `--steady` at every reissue | 510 | 983 | 170 | **0** | 5,033 | 1,835 | 2,696 s (14x) |
+
+Every one of the 510 weeks came out the same, hour for hour and change for change. (The first two policies are also identical here, because seed 1 is already the least-exposed posted roster on all four templates, as "Which of the tied best rosters holds up" found.) Real ties do occur at reissues, 170 of 983, mostly with extra shifts on retail (70) and the spare café (71). Seed 1 was never beaten: in each one its exposure was the lowest or tied. On retail at the sick-only rate with extra copies, 26 of 40 such ties differ only in which person holds the copy labelled "extra" and which holds the same hours labelled "close". `rosterKey` keeps labels, because a label is a line a manager wrote and may mean something. Why the real ties never differ is plain once you see it: with the posted roster kept at an hour's pay per shift, a reissue's choices are confined to the day being patched, and the call-outs still to come land on shifts every tie holds the same way.
+
+So `--steady` stays a fresh-week setting (CLI and page), now on evidence rather than by assumption. The open question it leaves is the one "A whole week of call-outs" raised: a reissue that leaves slack for later call-outs has to give up score (an extra kept shift, a change, some payroll), not choose among ties.
+
+Tests (`steady.test.mjs`): two identical copies swapped between two people give one `rosterKey`, a real swap gives two; on the salon template the six seeds give three schedules and `steadyRoster` compares three.
+
+Not claimed: four invented teams with rates from one firm's file (as above); seeds 1-6 are the only ties searched; a reissue on someone's own week may have ties that differ further ahead; the timings come from four runs side by side on one 4-core machine.

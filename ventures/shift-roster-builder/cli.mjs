@@ -415,7 +415,8 @@ export function run(staffText, shiftsText, opts = {}) {
     if (kp > 0) bopts = { ...bopts, keep: keepFromCsv(opts.postedCsv), keepShift: kp };
     if (opts.changedAt && opts.weekStart) { pin = pinStarted(sh.slots, opts.postedCsv, minutesSinceMonday(opts.weekStart, opts.changedAt)); slots = pin.slots; }
   }
-  // --steady (2026-11-13): a fresh week only; a reissue already keeps the posted roster (eval/steady-for-callouts.mjs).
+  // --steady (2026-11-13): a fresh week only; a reissue already keeps the posted roster (eval/steady-for-callouts.mjs), and
+  // the tie-break at every reissue changed nothing in 983 reissues at 14x the time (eval/steady-reissue.mjs).
   const r = opts.steady && !opts.postedCsv ? steadyRoster(st.staff, slots, bopts) : buildRoster(st.staff, slots, bopts);
   if (pin) r.pinnedStarted = pin;
   if (r.error) return { code: 2, out: r.error + "\n" };
