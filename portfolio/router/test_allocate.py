@@ -886,6 +886,15 @@ class VentureReportTests(unittest.TestCase):
         self.assertLess(out.index("#9 "), out.index("#7 "))  # newest first
         self.assertIn("open PRs naming it: 2", out)
 
+    def test_flagship_next_shows_its_length_against_validates_cap(self):
+        import validate
+        import allocate
+        self.assertEqual(allocate.FLAGSHIP_NEXT_MAX, validate.FLAGSHIP_NEXT_MAX)
+        deep = make("deep")
+        deep.flagship_rank, deep.flagship_next = 0, "y" * 1990
+        self.assertIn("1990 of 2000 characters", venture_report("deep", [deep]))
+        self.assertIn("now 1990 of 2000 characters", next_task(deep))
+
     def test_non_flagship_shows_its_task_and_unknowns_say_so(self):
         out = venture_report("tiny-csv-check", [make("tiny-csv-check")])
         self.assertIn("task: ", out)

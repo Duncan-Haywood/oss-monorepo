@@ -214,6 +214,29 @@ one-section chant gets a note instead of an error); `eval/browser-e2e.mjs`: 82 c
 tone sounds like a lift or a lurch at these tempos, and whether singers can hold the lifted last verse after five
 others, are questions for a person and a choir.
 
+### Singer guidance in the cue sheet (2026-11-13)
+
+A singer learning the line against the guide track loses the pitch in three places: an a cappella verse with
+nothing under it, a breakdown where the drums and bass drop out, and the key change into the last drop. With
+`--sections`, `--cues FILE` now writes a guidance line above the first note of each section (`cues.mjs`
+`sectionCues`): what the band does under it, the first note and its interval from the last note sung, when the band
+comes in after an a cappella verse or comes back after a breakdown, and, for the lifted drop, the new key's first
+note next to the one it would have been. Without `--sections` the sheet is byte-for-byte what it was.
+
+```
+node cli.mjs corpus/pange-lingua-full.gabc --auto-final --fit 8 --stretch --genre deep-house --sections --intro 2 --outro 2 --a-cappella --key-lift 2 --cues cues.txt
+-- Verse 1 (a cappella), bar 3, 3.87 s: Choir alone, no backing. Come in after the 2-bar intro; first note B2 on "Pan": take it from a pitch pipe or the guide track. The band comes in on the build at bar 11 (19.35 s): hold your pitch, it will not move.
+-- Breakdown, bar 39, 73.55 s: Drums and bass drop out; you carry it over a held chord. First note B2 on "Tan", the same as your last note. The band is back at bar 48 (90.97 s).
+-- Drop 3, bar 48, 90.97 s: Full band, key up 2 semitones. First note C#3 on "Ge", a whole tone up from your last note (B2). In the old key it would be B2; the build bar before it plays the approach into the new key, so pitch from that.
+```
+
+The whole sheet is `eval/cues-sections-pange-lingua.txt` (318 note rows, 6 guidance lines). A section's line goes
+on the first note after the double bar that opens it, the same note `liftEvents` starts the lift on, so the last note
+of a verse that shares a bar with the next section stays under its own verse. `cues.test.mjs` (4 new tests, 8 in
+all): interval names, an unchanged sheet without a plan, one line per sung section with the drop's line on exactly
+the first lifted note, and the CLI sheet's rows unchanged in count with the line above bar 48. Whether singers find
+the lines useful, or would rather see them in a separate column, is for a choir to say.
+
 ## Mix and master check
 
 ```sh

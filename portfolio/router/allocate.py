@@ -475,6 +475,16 @@ MAINTAIN_TASK = (
 NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
 NO_HYPOTHESIS_ROWS = 3
 FLAGSHIP_NEXT_CHARS = 500
+# validate.py's FLAGSHIP_NEXT_MAX (test_allocate pins the two together). The
+# task line prints the current length against it: nothing a flagship run read
+# named the cap, and runs that appended to a full `next:` learned it from CI
+# (three run records on 2026-11-13).
+FLAGSHIP_NEXT_MAX = 2000
+
+
+def next_budget(v: "Venture") -> str:
+    """'1986 of 2000 characters' for a flagship's `next:`."""
+    return f"{len(v.flagship_next or '')} of {FLAGSHIP_NEXT_MAX} characters"
 
 
 def next_task(v: Venture) -> str:
@@ -497,7 +507,8 @@ def next_task(v: Venture) -> str:
             milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
-            "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml."
+            "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
+            f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append)."
         )
     if not v.measured:
         claim = v.untested_hypothesis
@@ -903,7 +914,8 @@ def venture_report(name: str, ventures: list[Venture],
                      + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
-        lines.append("next:")
+        lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
+                     "so replace the item you land rather than appending)")
         lines.append(v.flagship_next or "(none written)")
     else:
         lines.append("task: " + next_task(v))
