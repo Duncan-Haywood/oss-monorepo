@@ -272,13 +272,24 @@ flagships:
       docs/careless-pattern-uncapped-panels-2026-11-13.jsonl): loo-w's gains
       and camp tax both about double, and at 60 people it makes a 25-40%
       camp's pool call 0.9-1.7% of clear pairs wrong; agreement stays a note.
-      Next, most valuable first: (b) half-time salience (q = 0.5 still
-      leaks +0.12 to +0.29: does pace see them?); (c) the first real survey's
+      Half-time salience (b) is answered (2026-11-13, doc section
+      "Half-time carelessness and answer times";
+      docs/half-time-answer-time-2026-11-13.jsonl): per-person pace misses
+      them (0-35% of the ceiling), per-answer cuts recover 55-75% when
+      their answers are quick; shipped as ?drop=fast-answers and a builder
+      button, not the default (costs up to 0.006 honest, 0.019 against a
+      camp). Next, most valuable first: (c) the first real survey's
       answers: msToAnswer against the answer-time model (and as a careless
       detector for the pooled prior), and how noisy real pairwise answers
       are, which decides the self-consistency gate
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d) position bias that
-      starts mid-session.
+      (scripts/coin-flip-gate-real.ts --honest-lapse), and whether careless
+      answers are in fact quick, which decides whether ?drop=fast-answers
+      should ever be the default; (d) position bias that starts mid-session
+      (careless answers arriving as a block, which the q sweep does not
+      model); (h) share-drop (leave out people with 30%+ fast answers) beat
+      both pace cuts at q = 1 (+0.034 to +0.229 against +0.027 to +0.151)
+      but taxes a camp by up to 0.030 at a wide pace spread: decide on a
+      real panel's times.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

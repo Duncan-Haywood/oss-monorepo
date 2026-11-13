@@ -12,6 +12,8 @@
  * intervals overlap share a range instead of being ordered by noise.
  */
 
+import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/glicko2";
+
 export const DEFAULT_RD = 350;
 
 export type RatingRow = { itemId: string; rating: number; rd: number };
@@ -437,8 +439,66 @@ export function paceSummary(paces: RespondentPace[], agreements: RespondentAgree
   return { ...base, advice };
 }
 
-/** The ranking route's `drop` parameter: absent, or "fast". Anything else is refused, not ignored. */
-export function parseDrop(value: string | null): { ok: true; fast: boolean } | { ok: false } {
-  if (value === null) return { ok: true, fast: false };
-  return value === "fast" ? { ok: true, fast: true } : { ok: false };
+/**
+ * The ranking route's `drop` parameter: absent, "fast" (leave out fast
+ * respondents) or "fast-answers" (keep everyone, leave out their fast answers).
+ * Anything else is refused, not ignored.
+ */
+export function parseDrop(value: string | null): { ok: true; fast: boolean; fastAnswers: boolean } | { ok: false } {
+  if (value === null) return { ok: true, fast: false, fastAnswers: false };
+  if (value === "fast") return { ok: true, fast: true, fastAnswers: false };
+  if (value === "fast-answers") return { ok: true, fast: false, fastAnswers: true };
+  return { ok: false };
+}
+
+/** One answered trial, in the order it was answered. */
+export type ReplayAnswer = { participantId: string; itemAId: string; itemBId: string; result: string; ms: number | null };
+
+/**
+ * The time under which one answer counts as fast: FAST_PACE times the panel's
+ * typical (median of medians) time per pick, or null when the panel's pace
+ * could not be judged (under AGREEMENT_MIN_RESPONDENTS timed respondents).
+ */
+export function fastAnswerCutMs(paces: RespondentPace[]): number | null {
+  const judged = paces.find((p) => p.pace !== null && p.pace > 0);
+  return judged ? (judged.medianMs! / judged.pace!) * FAST_PACE : null;
+}
+
+/**
+ * Each respondent's ratings rebuilt from their answers, in order, leaving out
+ * every answer under `cutMs` (answers with no usable time are kept). With
+ * nothing left out it reproduces what the answer route stored, update for
+ * update. An answer whose result is not A, B or EQUAL is refused.
+ *
+ * Why answers and not people: someone who picks carelessly on half their
+ * answers keeps a near-normal median time, so the person-level `?drop=fast`
+ * misses them, while their quick answers still fall under the cut. In the
+ * answer-time sweep (docs/INFORMATION-GAIN-SELECTOR.md, "Half-time
+ * carelessness and answer times") against half-time salience pickers this
+ * recovered 55-75% of what leaving out exactly their careless answers would
+ * when those answers took 0.4x the honest time (20-42% at 0.6x), where leaving
+ * out fast people recovered 0-35%. It is a comparison, not the default: when
+ * nobody is careless it costs 0.000-0.006 Spearman, and a camp with a genuine
+ * second taste 0.002-0.019, the price of the honest answers it also drops.
+ */
+export function ratingsWithoutFastAnswers(answers: ReplayAnswer[], cutMs: number): { rows: ParticipantRatingRow[]; dropped: number; people: number } {
+  const states = new Map<string, Map<string, GlickoState>>();
+  const touched = new Set<string>();
+  let dropped = 0;
+  for (const a of answers) {
+    if (a.result !== "A" && a.result !== "B" && a.result !== "EQUAL") throw new Error(`answer result must be A, B or EQUAL, got ${JSON.stringify(a.result)}`);
+    if (a.ms !== null && Number.isFinite(a.ms) && a.ms > 0 && a.ms < cutMs) {
+      dropped++;
+      touched.add(a.participantId);
+      continue;
+    }
+    const mine = states.get(a.participantId) ?? states.set(a.participantId, new Map()).get(a.participantId)!;
+    const before = { a: mine.get(a.itemAId) ?? DEFAULT_GLICKO_STATE, b: mine.get(a.itemBId) ?? DEFAULT_GLICKO_STATE };
+    const after = applyComparison(before.a, before.b, a.result);
+    mine.set(a.itemAId, after.a);
+    mine.set(a.itemBId, after.b);
+  }
+  const rows: ParticipantRatingRow[] = [];
+  for (const [participantId, mine] of states) for (const [itemId, st] of mine) rows.push({ participantId, itemId, rating: st.rating, rd: st.rd });
+  return { rows, dropped, people: touched.size };
 }

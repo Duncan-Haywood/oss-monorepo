@@ -5,7 +5,8 @@ import type { AgreementSummary, Coverage, PaceSummary, RankedItem } from "@/lib/
 import { CHECKOUT_URL } from "@/lib/checkout";
 import { buyLink } from "@/lib/licence";
 
-type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; pace?: PaceSummary; leftOut?: { slotClickers: number; fast?: number; advice: string } };
+type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; pace?: PaceSummary; leftOut?: { slotClickers: number; fast?: number; fastAnswers?: number; advice: string } };
+type Drop = "" | "fast" | "fast-answers";
 
 const INPUT =
   "rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-neutral-700 dark:bg-neutral-900";
@@ -55,19 +56,19 @@ export function SurveyBuilder() {
     setBusy(false);
   }
 
-  const [dropFast, setDropFast] = useState(false);
+  const [drop, setDrop] = useState<Drop>("");
 
-  async function showRanking(slug: string, withoutFast = false) {
+  async function showRanking(slug: string, without: Drop = "") {
     setResultError(null);
     try {
-      const res = await fetch(`/api/admin/surveys/${slug}/ranking${withoutFast ? "?drop=fast" : ""}`);
+      const res = await fetch(`/api/admin/surveys/${slug}/ranking${without ? `?drop=${without}` : ""}`);
       if (!res.ok) {
         setResult(null);
         setResultError("Couldn't load the ranking.");
         return;
       }
       setResult(await res.json());
-      setDropFast(withoutFast);
+      setDrop(without);
     } catch {
       setResult(null);
       setResultError("Couldn't reach the server.");
@@ -114,8 +115,14 @@ export function SurveyBuilder() {
           <code className="font-mono text-xs">{created.url}</code>
           <button type="button" onClick={() => showRanking(created.slug)} className="font-semibold underline underline-offset-2">Show ranking</button>
           {result && (result.pace?.fast ?? 0) > 0 && (
-            <button type="button" aria-pressed={dropFast} onClick={() => showRanking(created.slug, !dropFast)} className="font-semibold underline underline-offset-2">
-              {dropFast ? "Rank everyone again" : "Rank without the fast answerers"}
+            <button type="button" aria-pressed={drop === "fast"} onClick={() => showRanking(created.slug, drop === "fast" ? "" : "fast")} className="font-semibold underline underline-offset-2">
+              {drop === "fast" ? "Rank everyone again" : "Rank without the fast answerers"}
+            </button>
+          )}
+          {result && (result.pace?.checked ?? 0) >= 5 && (
+            // Answers, not people: someone careless on only some picks keeps a normal typical time but not on those picks.
+            <button type="button" aria-pressed={drop === "fast-answers"} onClick={() => showRanking(created.slug, drop === "fast-answers" ? "" : "fast-answers")} className="font-semibold underline underline-offset-2">
+              {drop === "fast-answers" ? "Count every answer again" : "Rank without the fast answers"}
             </button>
           )}
           <a href={`/api/admin/surveys/${created.slug}/ranking?format=csv`} className="font-semibold underline underline-offset-2">↓ CSV</a>

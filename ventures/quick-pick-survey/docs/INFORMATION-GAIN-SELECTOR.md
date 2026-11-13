@@ -1436,6 +1436,8 @@ What it shows:
   panel, +0.27 to +0.29 at half), but only 5-13% of them fall under 0.2
   agreement, so the note will rarely fire for them; `loo-w` would recover a
   third to a half of oracle-drop (+0.005 to +0.034).
+  (Answer times see them when they are quick, but only read per answer:
+  "Half-time carelessness and answer times", 2026-11-13.)
 - **The median pool is no defence**: slightly worse than shipped on honest
   panels (-0.003 to -0.016) and against slot clickers (-0.07), a little better
   against salience (+0.015 to +0.047).
@@ -3032,3 +3034,105 @@ Caveats: the same synthetic Bradley-Terry panels as the two sections it
 re-runs (uniform truth, person spread 0.25, one salience trait at taste's
 strength); 40 surveys a cell; the 60-person grid skips 10% for first,
 favourite and salience and 0% except under random.
+
+
+## Half-time carelessness and answer times (2026-11-13, last; shipped as a comparison)
+
+Item (b) on the flagship list. The careless-pattern section found that
+people who pick by salience on half their answers (q = 0.5) still pull the
+pool toward salience, and that agreement rarely flags them. The answer-time
+section shipped a pace note and `?drop=fast`, both judged on each person's
+*median* time per pick. This section asks whether answer times see the
+half-time pickers too. Someone careless on half their picks has a median
+that moves only part of the way toward fast, so the question is whether
+the signal has to be read per answer rather than per person.
+
+**Setup.** `scripts/answer-time-sweep.ts` now takes `--q`. A careless person
+answers by their pattern on a share q of picks and honestly on the rest,
+using the same answer streams as the careless-pattern sweep's `--q`, and
+q = 1 reproduces the 2026-11-12 rows exactly. Careless answers are timed at
+`ratio` x the person's own pace and honest ones as an honest person's. Its
+other new signals and schemes:
+
+- `fastShare`: the share of a person's answers under 0.5x the panel's median
+  of medians; `share-drop` leaves out people whose share is 0.3 or more;
+- `answer-drop`: keep every person, leave out each *answer* under 0.5x the
+  panel's median of medians, and replay that person's Glicko states from the
+  answers kept (the script checks that a full replay reproduces the
+  simulator's own states);
+- `self-answer-drop`: the same against each person's own median;
+- `oracle-answers`: leave out exactly the careless answers, the ceiling.
+
+The person-level threshold is the shipped `FAST_PACE` (`--pace-min 0.5`).
+Each pattern (salience, random, and dissent, the honest camp) was run at
+0, 25, 40 and 50% of a 20-person panel, on 15 and 30 items, with 4 answers
+per item and 40 surveys per cell. Stress cells used a person pace spread of
+0.6, 20 and 60 people, and 30 surveys per cell. Raw rows:
+`docs/half-time-answer-time-2026-11-13.jsonl`, 132 cells (the q = 1 comparison cells included).
+
+| case | oracle-answers | pace-drop (shipped `?drop=fast`) | answer-drop | share of ceiling: pace / answers |
+|---|---|---|---|---|
+| salience q = 0.5, careless at 0.4x pace, spread 0.4 | +0.020 to +0.076 | +0.000 to +0.017 | **+0.014 to +0.049** | 0-35% / **55-75%** |
+| same, spread 0.6, 20 and 60 people | +0.019 to +0.079 | +0.002 to +0.021 | **+0.011 to +0.048** | 9-34% / **55-66%** |
+| salience q = 0.5, careless at 0.6x pace | +0.019 to +0.079 | -0.002 to +0.014 | +0.004 to +0.031 | 0-25% / 20-42% |
+| salience q = 0.5, careless no faster | +0.019 to +0.079 | -0.005 to +0.003 | -0.006 to +0.004 | none |
+| random q = 0.5, 0.4-0.6x pace | +0.008 to +0.020 | +0.000 to +0.004 | +0.001 to +0.011 | small either way |
+| nobody careless (cost) | 0 | -0.003 to -0.000 | **-0.006 to -0.000** | |
+| a 25-50% camp with a second taste (cost) | n/a | -0.013 to -0.001 | **-0.019 to -0.002** | |
+
+Detection, half-time salience with quicker careless answers: the
+person-level pace scores AUC 0.65-0.87. The share of fast answers scores
+0.69-0.96, and it beats pace in every one of those cells.
+Against a camp both score 0.48-0.56, so neither has a view on taste.
+`answer-drop` leaves out 50-72% of the careless answers at 0.4x and 27-45%
+at 0.6x. It also leaves out 3-9% of honest answers at spread 0.4 and
+7-16% at spread 0.6, and those honest answers are where its cost comes from.
+
+What it shows:
+
+- **Pace, read per person, mostly misses half-time pickers.** Their median
+  sits at 0.6-0.9 of the panel's, above the 0.5 cut, so `?drop=fast` leaves
+  out 7-34% of them and recovers at most a third of the ceiling.
+- **Read per answer, the same signal recovers most of it** when the careless
+  answers are quick: 55-75% of `oracle-answers` at 0.4x pace. Leaving out
+  only those answers also beats leaving out the people: `oracle-answers`
+  is 0.001-0.015 above `oracle-drop`, because the half-time pickers' honest
+  answers are information.
+- **It has no view when careless answers are no faster.** The pool still
+  leaks salience there (oracle-answers +0.020 to +0.076), and nothing timed
+  can see it.
+- **Against each person's own median it is weaker.** `self-answer-drop`
+  recovers a tenth to two-thirds as much as the panel-relative cut: a
+  half-time picker's own median is already pulled down.
+- **At q = 1 the answer cut matches the person cut** (salience +0.027 to
+  +0.158 against +0.027 to +0.151). `share-drop` beats both there (+0.034
+  to +0.229), but it taxes a camp at a 0.6 spread by up to 0.030. Not
+  shipped; noted for a real panel.
+- **The cost is the honest answers it drops.** Nobody careless: up to 0.006.
+  A camp: up to 0.019, about 1.5x what `pace-drop` costs, because it trims
+  everyone's fastest answers instead of a few whole people.
+
+**Decision.** Ship it as a comparison, the same footing as `?drop=fast`:
+
+1. `ratingsWithoutFastAnswers` and `fastAnswerCutMs` in `groupRanking.ts`.
+   The ranking route's `?drop=fast-answers` reads every answered trial in
+   answer order (`answeredAt`, then id). It leaves out each answer under half
+   the panel's typical time per pick and replays each person's Glicko states
+   from the rest, so everyone still counts. It returns `leftOut.fastAnswers`
+   and a sentence saying how many answers, from how many people, under what
+   time. With nothing under the cut, the replay reproduces the stored ranking
+   (integration test). A result that is not A, B or EQUAL is refused.
+2. The builder's "Rank without the fast answers" button, shown once 5+
+   respondents are timed. It sits beside "Rank without the fast answerers",
+   which still appears only when someone is fast as a whole.
+
+The default ranking still counts every answer. The gain depends on careless
+answers being quick, which nobody has measured on this product, and the
+cost when they are not is real.
+
+Caveats: the timing model is invented, as in the answer-time section. Each
+cell has one salience trait at taste's strength; careless answers arrive at
+random through the session rather than in a block (item d, position bias
+that starts mid-session, is the block case); the panels have 20 to 60
+people and 15 to 30 items. The first real survey's `msToAnswer` (item c)
+decides whether any of this applies.
