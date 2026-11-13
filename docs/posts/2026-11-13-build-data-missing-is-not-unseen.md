@@ -1,8 +1,8 @@
 ---
-title: "A missing category is not an unseen one: why folding rare permit classes to NaN gave back Austin's build-time tail"
-seo_title: "LightGBM missing vs unseen categories in cross-city permit duration transfer"
+title: "A missing category is not an unseen one: folding rare permit classes to NaN"
+seo_title: "LightGBM missing vs unseen categories in permit transfer"
 date: 2026-11-13
-description: "Folding thin work-type classes to missing removed Austin's median cost but lost the q0.9 gain. Dropping the source rows recovered the tail, but the plain permit type still won."
+description: "Folding thin work-type classes to missing removed Austin's median cost but lost the q0.9 gain; dropping the source rows recovered the tail."
 tags: [research, build-data, construction, transfer-learning, lightgbm]
 ---
 

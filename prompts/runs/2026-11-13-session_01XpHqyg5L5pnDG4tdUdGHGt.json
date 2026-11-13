@@ -1,0 +1,65 @@
+{
+ "date": "2026-11-13",
+ "session": "https://claude.ai/code/session_01XpHqyg5L5pnDG4tdUdGHGt",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md (scheduled run)",
+ "input_sha256": "b7b5cf5e92a113876a1118a2679b32161eecdecd0c39cdea069f25749060c80f",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": "2026-11-13T11:30:00Z",
+ "ended": "2026-11-13T13:26:46Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "research/build-data session 82: does folding thin work-type classes to a missing category (instead of \"other\") keep the cross-city build-time tail gain and remove the median cost?",
+ "projects": [
+  "research/build-data"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15482",
+ "repo": "Duncan-Haywood/oss-monorepo",
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 4,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "says to use `PY=$(python3 platform/ci/pyenv.py ...)`, but for this project the quickest route was `/usr/bin/python3.13 -m pip install --break-system-packages lightgbm pandas scipy numpy` (about 40 s); pyenv.py was not tried, so this is a note, not a fault."
+  },
+  {
+   "file": "research/build-data/tests",
+   "issue": "`python3 -m unittest discover -s tests` fails to import test_baselines, test_neural and test_paired_boot (missing optional deps) even on an unchanged tree, so a whole-suite run cannot be used as the project's gate; named modules have to be run instead. Worth a skipIf guard in those three files."
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "issue": "`platform/ci/wait_for.py --timeout 540` is capped well below the length of these runs (each censored_eval city-year is 5 to 10 minutes, the full driver 90 minutes), so a long job needs repeated wait calls; the advice to end the job with `; echo DONE` and poll is right but the per-call ceiling is worth stating."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "The pre-registered comparison (N1 to N5) was answered half way through the run and its answer raised an obvious mechanism question (why the tail gain vanished).",
+   "did": "Added a post-hoc configuration (cascade2_minsupdrop) with its own predictions D1 to D3, written after seeing one Austin year and labelled post hoc in LOG.md, the README and the paper.",
+   "result": "D1 held and confirmed the mechanism; the extra runs cost about 35 minutes and turned a negative result into an explained one."
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-13-build-data-missing-is-not-unseen.md",
+  "research/build-data/LOG.md (session 82)",
+  "research/build-data/paper/paper.md (4.4, sessions 80 to 82)"
+ ],
+ "goal": "advance the build-data programme by one pre-registered step and land it on main",
+ "notes": "Pre-registered N1 to N5 before any run (LOG.md); N4 and N5 held, N1 to N3 refuted. Folding thin classes to a missing category removes Austin's median cost (+8.5/+4.4 -> +1.0/-1.8 days) but gives back the q0.9 gain (-9.3/-4.6 -> -1.2/+1.1), because the sources' 721 to 752 thin-class rows still train the branch LightGBM shares between missing and never-seen categories. A post-hoc variant that drops those source rows (D1 to D3, predictions written after seeing Austin 2021 only and marked post hoc) recovers the tail (-13.0/-5.4) and brings the median cost back; D1 held, D2 and D3 refuted. Across all four treatments the plain permit-type class still beats every fold rule in Austin, so the class configuration must be chosen per target city. Verification run here: 12 censored_eval runs on a fresh 2026-11-13 pull of the SF, Austin and Seattle feeds (SF 1,298,215 and Austin 2,385,068 rows as session 81; Seattle 194,248, 7 more), each type-minus-cascade2 and minsup-minus-cascade2 contrast reproducing session 81 to the printed digit; tests.test_transfer and tests.test_censored_eval OK (/usr/bin/python3.13); research/_homepage/build.py ok (1078 projects); research_live_links.py and check_md_links.py clean.",
+ "corrections": [],
+ "redteam": null
+}
