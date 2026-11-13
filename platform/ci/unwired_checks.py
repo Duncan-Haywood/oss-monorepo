@@ -15,8 +15,17 @@ covered from the PR that adds it.
 
 Checks that need a built site (main_health.NEEDS_SITE) are left out. A check
 wired into a workflow later drops out of this set by itself.
+
+It also runs every `platform/ci/test_*.py` suite that no pull-request
+workflow names. On 2026-11-13, 71 of 121 suites were named by no workflow and
+one more (test_browser_checks.py) only by a nightly; two were red on main
+unseen (test_doc_index.py: 44 untagged reports; test_browser_checks.py: four
+browser checks added without registering). Together they take about 15 s at
+six at a time.
 """
 import argparse
+import re
+import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -39,6 +48,61 @@ def unwired(here=HERE, workflows=WORKFLOWS):
             if p.name not in main_health.NEEDS_SITE and p.name not in text]
 
 
+def pr_workflow_text(workflows=WORKFLOWS):
+    """The text of the workflows a pull request can trigger. A suite named only
+    by a nightly or a dispatch-only workflow is as unseen at merge as one named
+    by none (test_browser_checks.py, 2026-11-13)."""
+    return "\n".join(t for t in (p.read_text(encoding="utf-8", errors="replace")
+                                 for p in sorted(workflows.glob("*.y*ml")))
+                     if triggers_on_pull_request(t))
+
+
+_ON = re.compile(r'^(?:on|"on"|\'on\'|true):(.*)$')
+_PR = re.compile(r"\bpull_request(?:_target)?\b")
+
+
+def triggers_on_pull_request(text):
+    """Whether a workflow's top-level `on:` names pull_request(_target).
+
+    Reads only the `on:` block, so the word in a comment or in a
+    `github.event.pull_request` expression does not count
+    (browser-checks-ci.yml has both and runs nightly only)."""
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        m = _ON.match(line)
+        if not m:
+            continue
+        inline = m.group(1).split("#", 1)[0]
+        if _PR.search(inline):
+            return True
+        for body in lines[i + 1:]:
+            if body.strip() and not body[0].isspace() and not body.startswith("#"):
+                break
+            if _PR.search(body.split("#", 1)[0]):
+                return True
+        return False
+    return False
+
+
+def unwired_tests(here=HERE, workflows=WORKFLOWS):
+    """The test_*.py suites under `here` that no pull-request workflow names,
+    by file name or by module name (`python3 -m unittest test_x`)."""
+    text = pr_workflow_text(workflows)
+    return [p for p in sorted(here.glob("test_*.py")) if p.stem not in text]
+
+
+def run_suite(path, timeout=main_health.TIMEOUT):
+    """(name, rc, output) for one unittest module, run from its own directory
+    so its `import <sibling>` lines resolve the way they do under discover."""
+    path = Path(path)
+    try:
+        r = subprocess.run([sys.executable, "-m", "unittest", path.stem], cwd=path.parent,
+                           capture_output=True, text=True, timeout=timeout)
+        return path.name, r.returncode, (r.stdout + r.stderr).strip()
+    except subprocess.TimeoutExpired:
+        return path.name, main_health.TIMED_OUT, f"timed out after {timeout} s"
+
+
 def run_all(paths, runner=main_health.run, jobs=6, log=print):
     """[(name, rc, output)] sorted by name; timeouts get one solo re-run."""
     with ThreadPoolExecutor(max_workers=jobs) as pool:
@@ -49,27 +113,39 @@ def run_all(paths, runner=main_health.run, jobs=6, log=print):
 def report(results):
     """The failure text for each red result, or "" when all pass."""
     return "\n".join(
-        f"{main_health.status(rc)} {name} (exit {rc}; no workflow runs it, so "
-        f"`python3 platform/ci/{name}` reproduces this)\n" + "\n".join(out.splitlines()[-8:])
+        f"{main_health.status(rc)} {name} (exit {rc}; no pull-request workflow runs it, so "
+        f"`{reproduce(name)}` reproduces this)\n" + "\n".join(out.splitlines()[-TAIL:])
         for name, rc, out in results if rc != 0)
+
+
+# Lines of a red check's output the report keeps: enough for a unittest
+# traceback's assertion line and summary, short enough to read in a CI log.
+TAIL = 8
+
+
+def reproduce(name):
+    if name.startswith("test_"):
+        return f"cd platform/ci && python3 -m unittest {name[:-3]}"
+    return f"python3 platform/ci/{name}"
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--list", action="store_true", help="name the unwired checks and exit")
     args = ap.parse_args(argv)
-    paths = unwired()
+    paths, suites = unwired(), unwired_tests()
     if args.list:
-        for p in paths:
+        for p in paths + suites:
             print(p.name)
-        print(f"{len(paths)} check(s) no workflow names")
+        print(f"{len(paths)} check(s) no workflow names, "
+              f"{len(suites)} test suite(s) no pull-request workflow names")
         return 0
-    results = run_all(paths)
+    results = sorted(run_all(paths) + run_all(suites, runner=run_suite))
     bad = report(results)
     if bad:
         print(bad)
     failed = sum(rc != 0 for _, rc, _ in results)
-    print(f"{len(results) - failed}/{len(results)} unwired checks pass")
+    print(f"{len(results) - failed}/{len(results)} unwired checks and suites pass")
     return 1 if failed else 0
 
 

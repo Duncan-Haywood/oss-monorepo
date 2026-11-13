@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: shop-rates and saved-bids bars aligned with each page's heading
 
 **Why this item.** Screenshots of the hub, the top flagship (wall-framing-takeoff), research,

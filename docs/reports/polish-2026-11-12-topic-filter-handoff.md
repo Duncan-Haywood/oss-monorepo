@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: topic filter's empty state hands off to the index search
 
 **Why this item.** I started on the same item as PR #15149 (topic pages 68,158 px on a phone) from

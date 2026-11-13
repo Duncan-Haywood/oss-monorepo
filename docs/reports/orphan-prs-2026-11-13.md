@@ -1,6 +1,6 @@
 ---
 kind: note
-topics: [process, landing]
+topics: [landing]
 date: 2026-11-13
 ---
 # Orphan PRs: the queue no gate holds (process run, 2026-11-13)

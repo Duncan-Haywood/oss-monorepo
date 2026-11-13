@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: nothing hugs the site band any more (120 pages to 0)
 
 **Why.** Item 1 of "Still weakest" in `polish-2026-11-12-bars-under-heading.md`: the band's 26px

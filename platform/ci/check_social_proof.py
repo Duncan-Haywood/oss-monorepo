@@ -27,14 +27,16 @@ CLAIM = re.compile(
     r"|[★⭐]{3,}|\b\d(\.\d)?\s*(/\s*5|out of 5) stars"
     r"|\b\d(\.\d)?-star (rated|rating|average)"
     r"|\bas (seen|featured) (on|in)\b"
-    r"|\b(award[- ]winning|#1 (rated|choice)|best[- ]selling)\b)", re.I)
+    r"|\b(award[- ]winning|#1 (rated|choice)|best[- ]selling)\b"
+    r"|\bloved by (over |more than )?\d"
+    r"|\bjoin (the )?(hundreds|thousands|millions) of\b)", re.I)
 # Cheap superset of CLAIM: every alternative above contains one of these
 # literals (or slash, optional space, 5), so a lowercased line without one
 # cannot match. Plain `in` tests are far faster than CLAIM, whose leading
 # `[\d,]+` alternatives cost ~9 s over the 67 MB tree (now ~1 s).
 PREFILTER_KEYS = ("trusted by", "join ", "joined ", "happy ", "satisfied ", "rated ",
                   "★", "⭐", "out of 5", "-star ", "as seen ", "as featured ",
-                  "award", "#1 ", "best-selling", "best selling")
+                  "award", "#1 ", "best-selling", "best selling", "loved by ")
 SLASH5 = re.compile(r"/\s*5")
 
 
@@ -45,7 +47,12 @@ def maybe_claim(lowered):
 # The claim belongs to a named third party, or is a format example.
 ATTRIBUTED = re.compile(
     r"\b(says|said|claims?|claimed|advertis\w+|its own marketing|own marketing"
-    r"|marketing says|according to|sample|example|e\.g\.|such as|seen in a third)\b|<code>", re.I)
+    r"|marketing says|according to|e\.g\.|seen in a third)\b|<code>", re.I)
+# Words that mark a format example only when they introduce the claim
+# ("phrases such as 'trusted by'"). After it they are ordinary copy: "Trusted
+# by teams such as Acme and Globex" and "Trusted by 2,000 firms. Download a
+# sample invoice" both passed before 2026-11-13 (red-team run).
+LEADING = re.compile(r"\b(sample|example|such as)\b", re.I)
 # Attribution counts only this close to the claim: on a minified page one line
 # is the whole page, and a "for example" in its footer excused every claim on it.
 NEAR = 120
@@ -70,7 +77,8 @@ def check(text):
         if not maybe_claim(line.lower()):
             continue
         m = CLAIM.search(line)
-        if m and not ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR]):
+        if m and not (ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR])
+                      or LEADING.search(line[max(0, m.start() - NEAR):m.start()])):
             out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))
     return out
 

@@ -1,3 +1,9 @@
+---
+kind: polish
+subjects: [clothing-design-studio]
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: clothing-design-studio's header stops being the link hub
 
 Follows `polish-2026-11-13-intro-walls.md`, whose "still weakest" list put the

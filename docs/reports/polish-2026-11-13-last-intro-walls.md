@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: the last four intro link walls
 
 **Why.** Item 3 of "Still weakest" in `polish-2026-11-13-bookkeeper-guides.md`: the pages left in

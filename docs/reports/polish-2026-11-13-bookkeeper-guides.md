@@ -1,3 +1,9 @@
+---
+kind: polish
+subjects: [ai-bookkeeper]
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: ai-bookkeeper's 33-link header note and 15-link footer line, now one Guides section
 
 **Why.** Item 1 of "Still weakest" in `polish-2026-11-13-studio-header.md`: "ai-bookkeeper (33 links
