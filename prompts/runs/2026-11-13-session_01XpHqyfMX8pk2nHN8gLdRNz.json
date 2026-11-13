@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyfMX8pk2nHN8gLdRNz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T09:39:08Z",
+  "ended": "2026-11-13T09:57:55Z",
+  "wall_minutes": 19.05,
+  "tokens_in": 7911459,
+  "tokens_out": 38575,
+  "cost_usd": 3.3783,
+  "tool_calls": 68,
+  "task": "Deepen flagship 9 (league-schedule-generator): exact fewest-breaks orientation of a fixed timetable in the browser",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15452",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/page.test.mjs",
+      "issue": "the import whitelist for carryover.mjs (only ./calc.mjs) failed the suite when carryover.mjs imported a new sibling module; the failure message prints the whole module source, which costs a while to read. Widened to ./orient.mjs and added the same check for orient.mjs."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: suggested 'a fast lower bound in JS, e.g. odd-cycle or per-team counts, then MaxSAT on the pool'; the round-by-round structure of a single round robin admits an exact DP instead, which made the bound and the MaxSAT step unnecessary for single round robins. Rewritten."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight failed on another venture's unrounded percentage (isolation-forest index.html, landed in #15447), not on this venture",
+      "did": "fixed the one line in this PR (+(x*100).toFixed(4)) instead of a separate PR",
+      "result": "percent-float.test.mjs passes; preflight clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-league-schedule-exact-breaks-in-the-browser.md",
+    "ventures/league-schedule-generator/README.md (section 'The fewest breaks of a timetable, exactly, in the page')",
+    "portfolio/flagships.yaml next: rewritten (serves as the agent doc for the next run)"
+  ],
+  "goal": null,
+  "notes": "orient.mjs leastBreaks: DP over rounds (state = one round's hosts, xor+popcount transitions) gives the free floor; a slack-bounded DFS traceback finds the least balanced host choice and proves it. eval/orient-dp.txt: 105 of 106 MaxSAT-proved tries agree (22/3 out of budget at 16 s), two tries MaxSAT did not prove in 240 s proved here (22 teams 440: 58, page had 66). polishSeasonVenues uses it for single round robins: eval/polish-frontier-exact.txt, 12-20 teams 21 runs: 15 seasons join the frontier in 9 runs (was 5 in 2), mean cut 0.76% (was 0.18%); 18 teams 348/38 and 20 teams 360/50 now reached on every seed; 22 teams 440/66->58, 692/52->42, but 6.8-11.7 s polish there. Home-and-away relaxed floor is loose (74 vs MaxSAT 85 at 19), not wired in. No separate docs/reports file: the flagships next: and README section carry the hand-off. Verification: run_venture_tests.py league-schedule-generator ok (114 s); orient.test.mjs + polish.test.mjs 12/12; venture-preflight.mjs league-schedule-generator clean (after the isolation-forest fix); promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "97a24afa-4bd5-5a06-8e1a-645d9d85abb3",
+    "transcripts": 1,
+    "first": "2026-11-13T09:39:08Z",
+    "last": "2026-11-13T09:58:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 133,
+        "output": 38575,
+        "thinking": 10483,
+        "cache_read": 7780038,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131288,
+        "api_equivalent_usd": 3.3783,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 133,
+      "output": 38575,
+      "thinking": 10483,
+      "cache_read": 7780038,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131288,
+      "api_equivalent_usd": 3.3783,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 62,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.05,
+      "active_minutes": 19.05,
+      "model_minutes": 6.34,
+      "tool_minutes": 12.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an optimisation engineer designing, validating against MaxSAT and wiring an exact DP orientation solver, plus evals and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 473.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
