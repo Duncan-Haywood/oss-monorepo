@@ -59,24 +59,48 @@ def tailfold_map(frames, held, test_year, min_n=TAILFOLD_MIN_N, n_boot=2000, see
 MINSUP_GRID = (100, 1000, 10000)  # session 81: k values tried on the validation year
 
 
-def minsup_map(frames, held, test_year, k):
+def minsup_map(frames, held, test_year, k, into="other"):
     """Session 81, the minimum-support rule, decided from the sources' training rows only.
 
     A class with fewer than k source training rows (cities other than `held`, issue years <= Y-2,
     the rows the transfer model is fitted on) is folded into "other" in every city, so the transfer
     model never learns a class from a handful of borrowed rows. Session 80 found Austin's trade
     classes taught by 42 to 466 slow Seattle rows. The held-out city's rows are never read.
+    Session 82: into=MISSING folds them to a missing class instead (NaN in the model's categorical
+    feature), which LightGBM routes like a category it never saw, as the plain permit-type class
+    leaves Austin's trade permits.
     Returns (fold dict, source row count per class)."""
     src = [c for c in CITIES if c != held and c in frames]
     tr = pd.concat([frames[c][frames[c].year <= test_year - 2] for c in src])
     n = {c: int((tr.cls == c).sum()) for c in CLASSES}
-    return {c: "other" for c in CLASSES if c != "other" and n[c] < k}, n
+    return {c: into for c in CLASSES if c != "other" and n[c] < k}, n
+
+
+MISSING = "_missing"  # session 82: a label outside CLASSES, so feats() codes it NaN
+
+
+def minsup_spec(name):
+    """'cascade2_minsup1000' -> (1000, 'other'); 'cascade2_minsupna1000' and 'cascade2_minsupdrop1000'
+    -> (1000, MISSING); else None. The drop variant (minsup_drop) also removes the folded rows from the
+    source cities, so the missing branch is trained on no thin-class row."""
+    m = re.fullmatch(r"cascade2_minsup(na|drop)?(\d+)", name)
+    return (int(m.group(2)), MISSING if m.group(1) else "other") if m else None
+
+
+def minsup_drop(name):
+    """Session 82, post hoc: True for 'cascade2_minsupdrop<k>'."""
+    return re.fullmatch(r"cascade2_minsupdrop\d+", name) is not None
+
+
+def drop_source_rows(frames, held, label=MISSING):
+    """Copy of frames with rows labelled `label` removed from every city but `held`."""
+    return {c: (d if c == held else d[d.cls != label]) for c, d in frames.items()}
 
 
 def minsup_k(name):
-    """'cascade2_minsup1000' -> 1000; None for any other configuration name."""
-    m = re.fullmatch(r"cascade2_minsup(\d+)", name)
-    return int(m.group(1)) if m else None
+    """'cascade2_minsup1000' (or 'cascade2_minsupna1000') -> 1000; None for any other configuration name."""
+    s = minsup_spec(name)
+    return s[0] if s else None
 
 
 def apply_fold(frames, fold):
@@ -112,7 +136,7 @@ def frame(path, target, classes="type"):
 
 def feats(d):
     x = d[["log_cost", "desc_len", "month", "dow"]].copy()
-    x["cls"] = pd.Categorical(d["cls"], categories=CLASSES)
+    x["cls"] = pd.Categorical(d["cls"].where(d["cls"].isin(CLASSES)), categories=CLASSES)  # outside CLASSES (MISSING): NaN
     return x
 
 

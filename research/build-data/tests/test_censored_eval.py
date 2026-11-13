@@ -54,6 +54,14 @@ class IPCW(unittest.TestCase):
         self.assertEqual(float(d["transfer:b-a"][0.9][0]), 10.0)
         self.assertEqual(float(d["a:transfer-own_baseline"][0.5][0]), 1.0)
 
+    def test_minsupna_is_also_compared_with_minsup(self):
+        L = lambda v: {"loss": {m: {t: np.full(2, v) for t in ce.TAUS}
+                                for m in ("own_baseline", "transfer", "own_boosted")}}
+        cfg = ["cascade2", "cascade2_minsup1000", "cascade2_minsupna1000"]
+        d = ce.contrasts(dict(zip(cfg, (L(1.0), L(2.0), L(5.0)))), cfg)
+        self.assertEqual(float(d["transfer:cascade2_minsupna1000-cascade2_minsup1000"][0.9][0]), 3.0)
+        self.assertEqual(float(d["transfer:cascade2_minsupna1000-cascade2"][0.9][0]), 4.0)
+
     def test_class_split_contributions_add_up_to_the_mean(self):
         d = {"transfer:b-a": {0.9: np.array([1.0, 3.0, -2.0, 6.0])},
              "a:transfer-own_baseline": {0.9: np.zeros(4)}}

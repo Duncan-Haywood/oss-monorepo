@@ -1,5 +1,49 @@
 # build-data log
 
+## Session 82, 2026-11-13: folding thin classes to missing removes Austin's median cost but gives back its build-time tail, because the sources' thin rows still train the missing branch; dropping them recovers the tail, yet the plain permit type still wins in Austin (N4, N5, D1 held; N1, N2, N3, D2, D3 refuted)
+
+Why: session 81's minimum-support rule (k = 1000) won back half of Austin's build-time q0.9 transfer cost but cost Austin 4 to 9 days at the median, likely because the folded trade permits joined the sources' "other" rows instead of staying unseen. Its "Next" asked for a fold to missing.
+- New: configuration `cascade2_minsupna<k>` (`transfer.minsup_spec`, `transfer.MISSING`): the same source-only count rule as session 81, but a thin class becomes a missing value (NaN) of the model's categorical class feature in every city. LightGBM sends a missing category down the same branch as a category it never saw in training (a test checks the two predictions are equal), so the held-out city's thin-class rows are treated as the plain permit-type class treats Austin's trade permits, while every well-supported class keeps its cascade2 label. 3 tests.
+Design (fixed before any run): k = 1000, carried from session 81 (no new tuning; 2020 stays the validation year and is not rerun). `python3.13 src/censored_eval.py validate DIR --pull-date 2026-11-13 --held H --test-year Y --pseudo-pull Y+2-11-13 --classes cascade2 type cascade2_minsup1000 cascade2_minsupna1000` for H = austin, sf, seattle and Y = 2021, 2022. All contrasts on all rows (reference); "X minus cascade2" < 0 means X helps.
+Predictions (written before any run):
+- (N1) Austin 2021 and 2022: q0.9 minsupna minus cascade2 < 0 with a 95% interval below zero.
+- (N2) Austin 2021 and 2022: the median cost goes: q0.5 minsupna minus cascade2 < 1 day (session 81's minsup: +8.50 and +4.42).
+- (N3) Austin 2021 and 2022: minsupna beats minsup at q0.5 (minsupna minus minsup < 0, interval below zero) and is no worse than minsup at q0.9 (minsupna minus minsup <= +1 day).
+- (N4) SF 2021 and 2022: |minsupna minus cascade2| <= 0.1 x (type minus cascade2) at q0.9.
+- (N5) Seattle 2021 and 2022: |minsupna minus cascade2| < 1 day at q0.9 and q0.5.
+Refuted if any part fails in either year.
+
+Post hoc (added at 12:10 UTC after seeing Austin 2021 only, before any other result): Austin 2021's minsupna removed the median cost but kept little of the q0.9 gain. The guess is that the sources' 721 thin-class rows, now NaN, still train the branch that missing and unseen values share in LightGBM. So the missing class is not the same as being unseen. Check: configuration `cascade2_minsupdrop1000` (`transfer.minsup_drop`, `transfer.drop_source_rows`) folds to missing as minsupna does and also drops the folded rows from the source cities' training and early-stopping data. The held-out city's rows are untouched, so every configuration scores the same test rows. Run `--classes cascade2 cascade2_minsupna1000 cascade2_minsupdrop1000` for the same six city-years.
+- (D1) Austin 2021 and 2022: q0.9 drop minus minsupna < 0 with the interval below zero (dropping the rows recovers tail gain).
+- (D2) Austin 2021 and 2022: q0.9 drop minus cascade2 is within 3 days of type minus cascade2 (drop behaves like the plain permit-type class in the tail).
+- (D3) Austin 2021 and 2022: q0.5 drop minus cascade2 < 3 days (the median cost stays gone).
+
+Outcome. Fresh pull 2026-11-13 11:38 to 11:53 UTC: SF 1,298,215 and Austin 2,385,068 rows (as session 81), Seattle 194,248 (7 more). Runs one after another with `/usr/bin/python3.13`, 5 to 10 minutes each, 11:53 to 13:25 UTC. Every type-minus-cascade2 and minsup-minus-cascade2 contrast reproduces session 81 to the printed digit, and minsupna minus cascade2 is identical in the main and the drop runs (fixed seeds). Outputs: `results/censored_eval_validate_{austin,sf,seattle}_i2c_{2021_pp2023,2022_pp2024}_cascade2-type-cascade2_minsup1000-cascade2_minsupna1000.json`, `..._cascade2-cascade2_minsupna1000-cascade2_minsupdrop1000.json`, `results/minsupna_summary.json` (`src/summarise_minsupna.py`, which checks N1 to N5 and D1 to D3 mechanically).
+- Transfer contrasts on all rows (reference), days of mean pinball loss against cascade2 [95% week-block interval]; negative = better than cascade2. Folded classes as in session 81 (Austin electrical, mechanical, plumbing, fire: 75.5% and 76.8% of test rows; SF sign, fire: 1.1%; Seattle fire: 0.0%).
+
+| held, year | q | type | minsup ("other") | minsupna (missing) | minsupdrop (post hoc) | minsupna minus minsup |
+|---|---|---|---|---|---|---|
+| Austin 2021 | 0.9 | -15.34 | -9.33 | -1.22 [-1.36, -1.08] | **-13.00 [-13.94, -12.05]** | +8.11 [7.42, 8.78] |
+| Austin 2021 | 0.5 | +2.59 | +8.50 | **+1.01 [0.78, 1.26]** | +4.64 [3.99, 5.30] | -7.49 [-8.23, -6.79] |
+| Austin 2022 | 0.9 | -9.79 | -4.59 | +1.08 [0.73, 1.38] | **-5.44 [-7.43, -3.04]** | +5.67 [4.20, 6.95] |
+| Austin 2022 | 0.5 | -3.14 | +4.42 | **-1.80 [-2.29, -1.35]** | +5.55 [4.20, 6.77] | -6.21 [-7.30, -5.10] |
+| SF 2021 | 0.9 | +15.74 | -0.20 | -0.22 [-0.32, -0.13] | -0.38 [-0.56, -0.21] | -0.02 [-0.17, 0.14] |
+| SF 2022 | 0.9 | +22.65 | -0.25 | -0.23 [-0.35, -0.12] | -0.24 [-0.40, -0.08] | +0.01 [-0.10, 0.13] |
+| Seattle 2021 | 0.9 | +6.25 | -0.01 | 0.00 (no row changes) | -0.13 [-0.67, 0.42] | +0.01 |
+| Seattle 2022 | 0.9 | +6.31 | 0.00 | 0.00 (no row changes) | -0.05 [-0.27, 0.19] | 0.00 |
+
+- (N1) Refuted: minsupna lowers Austin's q0.9 by 1.2 days in 2021 but raises it by 1.1 in 2022.
+- (N2) Refuted, narrowly: the median cost falls from +8.5 to +1.01 days in 2021 (bar: under 1) and turns into a 1.8-day gain in 2022.
+- (N3) Refuted: minsupna beats minsup at q0.5 by 7.5 and 6.2 days, but is 8.1 and 5.7 days worse at q0.9.
+- (N4) Held: SF moves by at most 0.23 days at q0.9 (bar: 1.6 and 2.3).
+- (N5) Held: in Seattle the fold changes no test row and no Seattle-held fit, both years.
+- Why the tail gain went: a missing category is not unseen while training rows carry it. The sources' 721 (2021) and 752 (2022) thin-class rows, slow Seattle trade permits, become NaN and train the branch on which LightGBM routes both missing and never-seen categories, so Austin's trade permits again inherit their durations, now without the "other" rows that diluted them under minsup.
+- Post hoc check (D1 to D3, predictions written after Austin 2021's minsupna result only): dropping those source rows gives back the tail. (D1) Held: drop minus minsupna is -11.8 and -6.5 days at q0.9, both intervals below zero. (D2) Refuted: drop is within 2.3 days of type in 2021 but 4.3 days short in 2022. (D3) Refuted: the median cost returns, +4.6 and +5.6 days. Elsewhere drop costs nothing (SF -0.24 to -0.38 days at q0.9).
+- What this means. Across four treatments of Austin's thin trade classes ("other", missing, missing with the sources' rows dropped, and none at all via the plain permit-type class), the plain permit-type class beats every fold rule in Austin at both quantiles in both years. So what the work-type class costs Austin is not only its thin classes: it also changes which source rows sit beside Austin's other quarter of permits, and the median moves with them. A rule read from source counts alone has now failed three ways. The class configuration has to be chosen per target city.
+- Practical note for LightGBM users: to make a rare category behave as unseen, drop its training rows; setting it to NaN keeps them on the missing branch. `tests/test_transfer.py` checks that missing and unseen predictions are equal.
+- Limits: 3 seeds; one threshold (k = 1000, carried from session 81); D1 to D3 are post hoc; reference cohorts truncated at 1,412 to 2,142 days; no interval on the per-class split.
+Next: choose the class configuration per target city from its own history (years <= Y-2, e.g. type vs cascade2 by own-boosted or a held-out source year), fixed before the test year, and check whether that choice carries across 2021 and 2022; then write sessions 79 to 82 into the paper's 4.4 as one "which class transfers" subsection.
+
 ## Session 81, 2026-11-13: a minimum-support rule (k = 1000, chosen on 2020) wins back 47 to 64% of Austin's build-time q0.9 transfer cost and keeps SF's and Seattle's gains, but costs Austin 4 to 9 days at the median (M1, M2, M4, M5 held; M3 refuted)
 
 Why: session 80 found Austin's 15-day transfer q0.9 cost from the cascade2 work-type class comes from 42 to 466 slow Seattle rows behind its trade classes, and SF's gain from 271,672 close source rows behind alteration. Its "Next" asked for a minimum-support rule fixed in advance.
