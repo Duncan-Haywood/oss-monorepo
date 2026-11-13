@@ -333,3 +333,54 @@ def breakeven_rest_rate_two_eta(m, m_star, p, q_ls_mean, tau, b, eta_ls, eta_oc)
     if gap <= 0 or tau <= 1:
         return None
     return b * gap * q_ls_mean / (600.0 * (tau - 1))
+
+
+def fit_pump_loss(table, min_fraction=0.0):
+    """Least-squares fit of a stroke-linear loss model to an efficiency table (milestone 6h).
+
+    table: (fractions, pressures, grid) as from eta_table. The loss in bar of full-stroke flow,
+    L = x p (1/eta - 1), is fitted as L = k0 + kp p + kl p^2 + kc x p on the cells with
+    x >= min_fraction. Returns (k0, kp, kl, kc)."""
+    fr, ps, grid = table
+    rows, ys = [], []
+    for i, p in enumerate(ps):
+        for j, x in enumerate(fr):
+            if x + 1e-12 < min_fraction:
+                continue
+            e = grid[i][j]
+            rows.append((1.0, p, p * p, x * p))
+            ys.append(x * p * (1.0 / e - 1.0))
+    n = 4
+    ata = [[sum(r[a] * r[b] for r in rows) for b in range(n)] for a in range(n)]
+    aty = [sum(r[a] * y for r, y in zip(rows, ys)) for a in range(n)]
+    # Gaussian elimination with partial pivoting
+    m = [ata[a][:] + [aty[a]] for a in range(n)]
+    for c in range(n):
+        piv = max(range(c, n), key=lambda r: abs(m[r][c]))
+        m[c], m[piv] = m[piv], m[c]
+        for r in range(n):
+            if r != c:
+                f = m[r][c] / m[c][c]
+                m[r] = [m[r][k] - f * m[c][k] for k in range(n + 1)]
+    return tuple(m[a][n] / m[a][a] for a in range(n))
+
+
+def loss_model_eta(coef, x, p):
+    """Total efficiency x p / (x p + L) under fit_pump_loss coefficients; 0 at x <= 0 (6h)."""
+    k0, kp, kl, kc = coef
+    if x <= 0:
+        return 0.0
+    loss = k0 + kp * p + kl * p * p + kc * x * p
+    return x * p / (x * p + loss)
+
+
+def flat_hold_shortfall(coef, p, q_max, b, g, tau):
+    """Rise in the break-even rest-of-machine fuel rate f_t* (L/h) that holding efficiency flat below
+    the smallest measured stroke hides (6h). With L = A + B x, the flat hold charges x L(x0)/x0 below x0,
+    short by A (1 - x/x0); g = E[(1 - x/x0)+] over the moving samples. Per hour of load-sensing work the
+    uncharged fuel is (b / 600) q_max A g, and f_t* rises by that over (tau - 1)."""
+    if tau <= 1:
+        raise ValueError("tau must exceed 1")
+    k0, kp, kl, _ = coef
+    a = k0 + kp * p + kl * p * p
+    return b * q_max * a * g / (600.0 * (tau - 1.0))

@@ -36,6 +36,12 @@ CHECKS = [
     ("&minus;0.589 with p99", "excavator_breakeven_geometry_results.txt", "Spearman(peakiness, f_t,max) -0.589"),
     ("0.207 to 0.470 of each", "excavator_breakeven_geometry_results.txt", "min 0.207, median 0.316, max 0.470"),
     ("within 0.0012", "excavator_fuel_breakeven_results.txt", "max |diff| 0.0012 over 20 rows"),
+    # milestone 6h: section 3.7i
+    ("RMS efficiency residual 0.0156 at 60 C", "pump_loss_model_results.txt", "60 C 0.0156"),
+    ("efficiency at 0.1 of stroke is 0.440", "pump_loss_model_results.txt", "x 0.100: model 0.440, table 0.672"),
+    ("0.78 of the full-stroke loss", "pump_loss_model_results.txt", "A share 0.780"),
+    ("here 10.36 g L/h", "pump_loss_model_results.txt", "rise = 10.359 x g L/h"),
+    ("within 0.004 at 150 bar", "pump_loss_model_results.txt", "150 bar +0.0036"),
     # milestone 6f: section 3.7g
     ("fits 7.714 + 0.2116 P L/h, 0.0892 L/h per rated kW", "asabe_no_load_fuel_results.txt", "OLS fuel = 7.714 + 0.2116 P  (L/h, P in kW); intercept per rated kW 0.0892 L/h/kW"),
     ("Q = (0.2203 X + 0.0965) P<sub>rated</sub>", "asabe_no_load_fuel_results.txt", "Q_F = 0.2203 X P + 0.0965 P L/h"),
