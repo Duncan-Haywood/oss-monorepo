@@ -80,7 +80,7 @@ It was on the shelf over the press, behind the sample jars, in a plastic bag tha
 
 "Not that French," said Agathe, but she gave it back to him.
 
-Most of it was numbers. Dates, the weather, the number of buckets and later the number of taps, the gallons of sap, the gallons of syrup, the grade, the price the packer paid. Some years had notes in the margin. *Grosse coulée.* *La petite est née* (that was Rémi's mother, 1989). *Tubing in the upper bush, never again buckets, Dieu merci.* And on the inside of the back cover, in black marker, in capitals that had been gone over more than once, there was a list:
+Most of it was numbers. Dates, the weather, the number of buckets and later the number of taps, the gallons of sap, the gallons of syrup, the grade, the price the packer paid. Some years had notes in the margin. *Grosse coulée.* *La petite est née* (that was Rémi's mother, 2009). *Tubing in the upper bush, never again buckets, Dieu merci.* And on the inside of the back cover, in black marker, in capitals that had been gone over more than once, there was a list:
 
 *1. ZERO IS THE SAP. Read the thermometer when the pan first boils every morning. That is your water today. Write it down.*
 *2. Draw at zero plus 7. Not 219. Not yesterday's.*
