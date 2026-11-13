@@ -1,6 +1,6 @@
 ---
 title: "Minimum night flow misses the small leaks on BattLeDIM"
-seo_title: "Minimum night flow (MNF) leak detection on BattLeDIM L-Town against pressure CUSUM"
+seo_title: "Minimum night flow vs pressure CUSUM for leaks on BattLeDIM"
 date: 2026-11-13
 description: "On BattLeDIM, minimum night flow finds 3 of 9 small leaks where pressure CUSUM finds 7. Its night-to-night swing, about 11 m³/h, is as big as the leaks."
 tags: [research, water-leaks, leak-detection, BattLeDIM, minimum-night-flow, water-distribution, water-loss]
