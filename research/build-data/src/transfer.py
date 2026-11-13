@@ -80,9 +80,21 @@ MISSING = "_missing"  # session 82: a label outside CLASSES, so feats() codes it
 
 
 def minsup_spec(name):
-    """'cascade2_minsup1000' -> (1000, 'other'); 'cascade2_minsupna1000' -> (1000, MISSING); else None."""
-    m = re.fullmatch(r"cascade2_minsup(na)?(\d+)", name)
+    """'cascade2_minsup1000' -> (1000, 'other'); 'cascade2_minsupna1000' and 'cascade2_minsupdrop1000'
+    -> (1000, MISSING); else None. The drop variant (minsup_drop) also removes the folded rows from the
+    source cities, so the missing branch is trained on no thin-class row."""
+    m = re.fullmatch(r"cascade2_minsup(na|drop)?(\d+)", name)
     return (int(m.group(2)), MISSING if m.group(1) else "other") if m else None
+
+
+def minsup_drop(name):
+    """Session 82, post hoc: True for 'cascade2_minsupdrop<k>'."""
+    return re.fullmatch(r"cascade2_minsupdrop\d+", name) is not None
+
+
+def drop_source_rows(frames, held, label=MISSING):
+    """Copy of frames with rows labelled `label` removed from every city but `held`."""
+    return {c: (d if c == held else d[d.cls != label]) for c, d in frames.items()}
 
 
 def minsup_k(name):

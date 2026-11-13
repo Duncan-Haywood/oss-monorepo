@@ -214,3 +214,18 @@ class MinSupportMissing(unittest.TestCase):
         te = pd.DataFrame(dict(cls=pd.Categorical([None, "plumbing"], categories=transfer.CLASSES), z=[0.1, 0.1]))
         p = m.predict(te)
         self.assertAlmostEqual(p[0], p[1], places=9)
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class MinSupportDrop(unittest.TestCase):
+    """Session 82, post hoc: the drop variant removes the sources' folded rows and keeps the held city's."""
+
+    def test_drop(self):
+        import pandas as pd
+        self.assertTrue(transfer.minsup_drop("cascade2_minsupdrop1000"))
+        self.assertFalse(transfer.minsup_drop("cascade2_minsupna1000"))
+        self.assertEqual(transfer.minsup_spec("cascade2_minsupdrop1000"), (1000, transfer.MISSING))
+        d = pd.DataFrame(dict(cls=["alteration", transfer.MISSING, transfer.MISSING]))
+        out = transfer.drop_source_rows({"sf": d, "austin": d}, "austin")
+        self.assertEqual(len(out["sf"]), 1)
+        self.assertEqual(len(out["austin"]), 3)
