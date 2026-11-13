@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydq6mH1mgLdjfLpPpV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T12:37:48Z",
+  "ended": "2026-11-13T12:42:12Z",
+  "wall_minutes": 4.6,
+  "tokens_in": 2828177,
+  "tokens_out": 15122,
+  "cost_usd": 1.5045,
+  "tool_calls": 35,
+  "task": "Deepen flagship 11 (chant-forge): cue-sheet guidance on the studio page",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15497",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "git checkout -b failed because the session branch already existed locally; harmless, the claim commit landed on it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge's buildable item 'a split-voice option for chants wider than the range' has no wide piece to test on: all 8 corpus files fit E2-E4 (--suggest-final), so the next run must first find wide pieces in the Graduale batch; noted in the rewritten next:"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Aim at ~300h projects / hard problems: this slice is a modest UI + cross-check item, chosen because it was the flagship's listed buildable item and the split-voice item had no test material in the corpus",
+      "did": "shipped the studio-page downloads with a page-vs-CLI byte-equality check, left split-voice for a run that first finds wide chants",
+      "result": "one clean, verified slice; split-voice refined in next:"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-chant-forge-cue-sheet-in-the-browser.md",
+    "ventures/chant-forge/README.md (Cue sheet and timed lyrics on the studio page)"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test '*.test.mjs' in ventures/chant-forge: 126/126 pass. node eval/browser-e2e.mjs: all 86 checks pass, including page cue sheet and LRC byte-equal to cli.mjs --cues/--lrc. venture-preflight chant-forge run in background (result in PR). post front matter, links and similarity checks pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "25ff3189-02bd-52b7-aee9-09bcd123e94c",
+    "transcripts": 1,
+    "first": "2026-11-13T12:37:48Z",
+    "last": "2026-11-13T12:42:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 62,
+        "output": 15122,
+        "thinking": 1879,
+        "cache_read": 2746550,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81565,
+        "api_equivalent_usd": 1.5045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 62,
+      "output": 15122,
+      "thinking": 1879,
+      "cache_read": 2746550,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81565,
+      "api_equivalent_usd": 1.5045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.6,
+      "active_minutes": 4.6,
+      "model_minutes": 2.42,
+      "tool_minutes": 2.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "UI wiring, e2e cross-check against CLI, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 265.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

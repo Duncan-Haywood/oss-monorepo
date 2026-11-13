@@ -237,6 +237,19 @@ all): interval names, an unchanged sheet without a plan, one line per sung secti
 the first lifted note, and the CLI sheet's rows unchanged in count with the line above bar 48. Whether singers find
 the lines useful, or would rather see them in a separate column, is for a choir to say.
 
+### Cue sheet and timed lyrics on the studio page (2026-11-13)
+
+The studio page (`index.html`) now has "Download singer's cue sheet" and "Download timed lyrics (LRC)" beside the
+MIDI and WAV buttons, and with song sections on it prints the per-section guidance lines under the summary, so a
+singer sees where the band drops out and where the key moves without opening the sheet. Both downloads are built
+from the same events as the page's MIDI (the two intro and outro bars included), with `cues.mjs` and `lrc.mjs`, the
+modules the CLI uses. `eval/browser-e2e.mjs` (86 checks, all pass) downloads them in headless Chromium for the
+six-verse Pange lingua over EDM with an a cappella first verse and a whole-tone lift, runs
+`cli.mjs ... --sections --intro 2 --outro 2 --a-cappella --key-lift 2 --cues --lrc` on the same file, and finds both
+files byte-for-byte equal (324 lines with 6 guidance lines; 37 LRC lines). Without sections the downloaded sheet has
+note rows only. `browser-safe.test.mjs` checks both modules run without `Buffer`. Whether singers use the sheet is
+still for a choir to say.
+
 ## Mix and master check
 
 ```sh

@@ -79,6 +79,9 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   from the last one sung, when the band comes in after the a cappella verse or back after the breakdown, and the
   lifted drop's first note beside the old key's. 4 new tests; sample sheet `eval/cues-sections-pange-lingua.txt`.
   Not tried with singers.
+- 2026-11-13, last: the studio page offers the cue sheet and timed lyrics (LRC) as downloads beside MIDI/WAV and
+  shows the section guidance lines under the summary; `eval/browser-e2e.mjs` (86 checks) finds the page's files
+  byte-for-byte equal to the CLI's `--cues`/`--lrc` for the same options.
 
 ## Next
 
