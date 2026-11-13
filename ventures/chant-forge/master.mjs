@@ -84,23 +84,50 @@ export function integratedLufs(channels, fs) {
 // True peak by 4x oversampling with a Hann-windowed sinc (accurate to a few
 // hundredths of a dB on music; BS.1770 Annex 2 specifies a similar 4x FIR).
 export function truePeak(x, factor = 4, half = 16) {
-  const taps = [];
+  const width = 2 * half, taps = [];
   for (let p = 0; p < factor; p++) {
-    const t = [];
-    for (let k = -half + 1; k <= half; k++) {
+    const t = new Float64Array(width);
+    for (let k = -half + 1, j = 0; k <= half; k++, j++) {
       const d = k - p / factor;
       const sinc = d === 0 ? 1 : Math.sin(Math.PI * d) / (Math.PI * d);
-      t.push(sinc * (0.5 + 0.5 * Math.cos(Math.PI * d / half)));
+      t[j] = sinc * (0.5 + 0.5 * Math.cos(Math.PI * d / half));
     }
     taps.push(t);
   }
+  // The answer is the larger of the sample peak and every interpolated value, so
+  // start from the sample peak. An interpolated value is at most sum|taps| times the
+  // largest |sample| in its window; a window whose bound is below the peak so far
+  // cannot raise it and is skipped. The margin covers rounding in the sum, and NaN
+  // fails every comparison, so it still reaches the result.
+  const n = x.length, first = half - 1, last = n - half;
   let peak = 0;
-  for (let i = 0; i < x.length; i++) {
-    peak = Math.max(peak, Math.abs(x[i]));
-    for (let p = 1; p < factor; p++) {
-      let s = 0;
-      for (let k = -half + 1, j = 0; k <= half; k++, j++) { const idx = i + k; if (idx >= 0 && idx < x.length) s += x[idx] * taps[p][j]; }
-      peak = Math.max(peak, Math.abs(s));
+  for (let i = 0; i < n; i++) peak = Math.max(peak, Math.abs(x[i]));
+  let gain = 0;
+  for (let p = 1; p < factor; p++) { let a = 0; for (let j = 0; j < width; j++) a += Math.abs(taps[p][j]); gain = Math.max(gain, a); }
+  gain *= 1 + 1e-9;
+  const blocks = Math.ceil(n / width), bmax = new Float64Array(blocks + 1);
+  for (let b = 0; b < blocks; b++) {
+    let m = 0;
+    for (let i = b * width, e = Math.min(n, i + width); i < e; i++) m = Math.max(m, Math.abs(x[i]));
+    bmax[b] = m;
+  }
+  for (let i = 0; i < n; i++) {
+    if (i >= first && i < last) {
+      const base = i - half + 1, b = (base / width) | 0; // the window spans blocks b and b+1
+      if (gain * Math.max(bmax[b], bmax[b + 1]) < peak) continue;
+      // inside x: the same products in the same order as the checked loop below
+      for (let p = 1; p < factor; p++) {
+        const t = taps[p];
+        let s = 0;
+        for (let j = 0; j < width; j++) s += x[base + j] * t[j];
+        peak = Math.max(peak, Math.abs(s));
+      }
+    } else {
+      for (let p = 1; p < factor; p++) {
+        let s = 0;
+        for (let k = -half + 1, j = 0; k <= half; k++, j++) { const idx = i + k; if (idx >= 0 && idx < n) s += x[idx] * taps[p][j]; }
+        peak = Math.max(peak, Math.abs(s));
+      }
     }
   }
   return peak;
