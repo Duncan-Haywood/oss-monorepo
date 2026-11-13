@@ -413,14 +413,30 @@ nailing rather than nail by nail.
 Straightening removes most of what bow costs. On the best single-2x pipeline (ledger, three reads,
 lower warp) first-pass clean sheets rise from 0.5602 to 0.7095, and at the higher warp from 0.3071
 to 0.6773 — 15 and 37 points. It does not reach 95%, because the same pipeline on perfectly
-straight studs gives 0.7370: with bow removed, the sheet's own pose on the ledger is what closes
-the window. The three push policies land within 0.4 points of each other, while fixed ends cost up
+straight studs gives 0.7370: with bow removed, the tool's scatter and the sheet's pose together
+close the window (section 5.9). The three push policies land within 0.4 points of each other, while fixed ends cost up
 to 5 points at the higher warp, since they leave four times the residual. In dollars (G1 on a lift
 base, 100 houses a year) straightening costs about what it saves at the lower warp — cheaper than
 not pushing in 10% of draws — and pays at the higher (92%), and the median draw favours it over the
 extra stud until about 925 s of pushing a sheet. Doubled joint studs therefore remain the only
 route to 95% first-pass clean sheets; the push is the cheap fallback for a robot that cannot get
 one, and it reframes the single-2x question as a placement question rather than a lumber question.
+
+### 5.9 What the straight-stud ceiling is made of (milestone 10)
+
+With every error source switched on, single-2x joints on straight studs reach 0.7370 clean sheets
+(three-foot rock) and 0.8107 (smooth rock). Splitting −ln(clean) by exact Shapley values over all 64
+subsets of six sources, the tool's 0.9 mm scatter carries 44.6% and 46.9%, the sheet's pose (the
+slide, the ledger's slope and the panel's geometry) 43.5% and 38.6%, and the stud and edge reads
+the rest. Tool scatter alone gives 0.9838 clean, matching the closed form 0.9833. The sources
+interact: the pose alone gives 0.9952 clean and the tool and reads alone 0.9573, yet together
+0.7370, because each millimetre the sheet sits off its intended place narrows one side of the
+±3.14 mm joint window by half a millimetre. Two placement steps before tacking address the pose:
+sliding the sheet along the ledger to centre its gap on the read studs, and shimming the low corner
+until the edge reads plumb. With 0.5 mm residuals both lift straight studs to 0.9180, and pushed
+low-warp studs (section 5.8) to 0.8932; 95% then needs a tool held to 0.839 mm (straight) or
+0.794 mm (pushed) at 1σ. Single 2x can therefore reach 95% only with a pose fix and a tool about
+10% tighter than the one assumed; doubled joints reach it with neither.
 
 ## 6. Discussion
 

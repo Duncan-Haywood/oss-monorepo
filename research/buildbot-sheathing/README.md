@@ -198,6 +198,25 @@ always cheaper than the doubled stud.
 
 ![Shape a push leaves along the stud; push force against what a G1 and H1 can push sideways; clean sheets with and without straightening against doubled joints](experiments/m9_straighten/figure.png)
 
+**Milestone 10: what caps single-2x joints once the studs are straight? The nail gun as much as
+the sheet, and the two only hurt together.** Milestone 9 left single-2x joints at **0.74–0.81**
+clean sheets on straight studs and read the gap as the sheet's pose. Switching each of the six
+remaining error sources on and off (all 64 subsets, 20,000 sheets each) says otherwise: by
+Shapley share of −ln(clean), the tool's 0.9 mm scatter carries **45–47%**, the stud and edge reads
+**12–15%**, and the pose (slide, ledger slope, panel geometry) **39–44%**. Neither group misses on
+its own: a perfect tool on the real pose gives 0.995–1.000, a perfect pose with the real tool and
+reads 0.957. The joint window is ±3.14 mm and every millimetre the sheet sits off shrinks one
+side's half by half a millimetre, so the tool's tail and the pose's offset fail *together*. Two
+placement fixes before tacking, sliding the sheet along the ledger to centre its gap on the read
+studs and shimming the low corner until the edge reads plumb, lift straight studs from 0.74–0.81
+to **0.92** (0.5 mm residuals) and **0.94** (0.25 mm), and pushed low-warp studs to **0.89–0.92**.
+That is still short of 95%. Reaching it needs both fixes *and* a tool held to **0.79–0.84 mm**
+(1σ) instead of `buildbot-fasten`'s 0.9 mm; without them the tool would need 0.41–0.66 mm.
+Doubled joints remain the simple route; for single 2x the order of work is slide, shim, push,
+then a tighter tool.
+
+![Shapley shares of the straight-stud ceiling by error source; clean sheets under the slide and shim remedies](experiments/m10_ceiling/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -455,11 +474,28 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 | Push tolerance | 0.5 mm (0.25 and 1 mm reported) | **not sourced**: about one read's scatter |
 | Push time | 10–40 s a sheet | **not sourced** |
 
+## Milestone 10 method (`src/buildbot_sheathing/ceiling.py`)
+- **Sources.** Milestone 5's ledger pipeline (single 2x, three stud reads, edge aim, recoil none,
+  20,000 sheets, seed 7) on straight studs, with six switches: *tool* (0.9 mm a nail,
+  `buildbot-fasten`), *stud* (0.5 mm a read), *edge* (0.5 mm), *slide* (1 mm translation left
+  after the slide), *ledger* (laser rating and 0.5 mm at each corner) and *panel* (PS 2 squareness
+  and the bottom-edge rock, three-foot or milestone 6b's smooth-bow seats). All sources on
+  reproduces milestone 9's 0.7370 exactly.
+- **Shapley shares** of −ln(clean) over all 64 subsets (exact, not sampled). −ln(clean) is close to
+  the expected number of misses when misses are rare, so the shares split the misses, with each
+  interaction shared equally between the sources in it.
+- **Slide** (after seating, before tacking): the robot reads both edges against its stud estimates
+  and slides the sheet to centre the gap; translation left = √((0.5 mm)²/2 + s_slide²).
+  **Shim**: it reads the left edge at the end joint-nail heights (2.39 m apart) and lifts the low
+  corner until plumb; tilt left = √2 × 0.5 mm / 2.39 m plus s_shim / 1.22 m. s_slide and s_shim
+  are swept 0.25–1 mm (not sourced: no shim or slide accuracy was found).
+- **Tool scatter needed** for 95%: bisection on s_robot (12 steps, fixed seed).
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 69 test functions (70 cases); one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
+python -m pytest -q tests                                    # 74 test functions (75 cases); one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -483,6 +519,8 @@ python experiments/m6b_bowed_edge/envelope.py > experiments/m6b_bowed_edge/envel
 python experiments/m6b_bowed_edge/figure.py
 python experiments/m9_straighten/run.py > experiments/m9_straighten/results.txt       # ~1 min (MuJoCo for section C); seeds 5, 7, 11, 23
 python experiments/m9_straighten/figure.py
+python experiments/m10_ceiling/run.py > experiments/m10_ceiling/results.txt           # ~1 min, seed 7; reads m6b's results.json
+python experiments/m10_ceiling/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -703,6 +741,26 @@ python paper/check_numbers.py                                # every number the 
   bar 0.95: straightening stops at the straight-stud ceiling); H44 held (100% of draws, bar 90%),
   though milestone 7 had already found doubled joints never pay in dollars, so the bar was low.
 
+## Milestone 10 results (`experiments/m10_ceiling/results.txt`)
+- **A. Closed form.** Tool scatter alone, perfect pose and reads: 0.9838 in Monte Carlo against
+  0.9833 for the product of the 62 nails' normal probabilities.
+- **B. Shapley shares** of −ln(clean) on straight studs (three-foot rock, clean 0.737 / smooth
+  rock, 0.811): tool 44.6% / 46.9%, stud read 7.0 / 8.4, edge read 5.0 / 6.1, slide 17.5 / 21.7,
+  ledger 4.1 / 5.9, panel 21.9 / 11.0; pose together 43.5% / 38.6%. Alone, every source but the
+  tool gives 1.000 clean and the tool 0.984; pose alone 0.995 / 1.000; tool and reads alone 0.957;
+  tool and pose 0.805 / 0.874.
+- **C. Remedies** (clean, three-foot / smooth rock). Straight studs: none 0.737 / 0.811; slide
+  0.5 mm 0.798 / 0.869; shim 0.5 mm 0.865 (both); slide and shim 0.5 mm 0.918, 0.25 mm 0.938, 1 mm
+  0.822; slide and shim 0.5 mm with dense reads 0.937. Pushed studs (mid, pinned), slide and shim
+  0.5 mm: low warp 0.893, high 0.866 (0.25 mm: 0.916, 0.888; dense reads: 0.922, 0.901). A slide
+  that leaves 1 mm is no better than none. With the shim the rock model no longer matters.
+- **D. Tool scatter for 95%** (1σ): straight studs 0.48 mm (three-foot) and 0.66 mm (smooth)
+  without remedies, 0.84 mm with slide and shim 0.5 mm; low-warp pushed studs 0.41 / 0.60 mm
+  without, 0.79 mm with.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H45 held (|diff| 0.0005, bar 0.003);
+  **H46 refuted** (pose 43.5% and 38.6%, bar 50%: milestone 9's reading was half right); H47 held
+  (+6.1 and +5.8 points, bar 5); **H48 refuted** (0.893, bar 0.95).
+
 ## Limitations
 - **Gaussian, independent, swept.** Stud, edge, gauge and width errors are swept, not measured;
   real errors have bias and heavy tails. The stud estimate includes the layout scatter
@@ -748,6 +806,11 @@ python paper/check_numbers.py                                # every number the 
   the stud's spring-back is not modelled. E is a design reference value with an assumed
   lognormal spread, not measured studs. The humanoid capacity is milestone 3b's static check
   with both hands on the stud; a one-hand push while the other hand nails would have less.
+- **Ceiling split (milestone 10).** Shapley shares depend on the scale (−ln clean) and share
+  interactions equally; "alone" and "all but" values are reported beside them. The slide and shim
+  are modelled by their residuals, not as mechanisms: whether a robot can shim a 22 kg sheet on a
+  ledger, and to what, is not known; the shim residual's effect on the ledger seat is not
+  simulated. The tool scatter is one Gaussian, so the 0.79–0.84 mm target is a 1σ figure.
 - **Plate nails** see only the tool scatter: the sheet's vertical placement is not modelled.
 - **Strict pass/fail.** One nail outside its window fails the sheet; the nails missed are
   reported beside it, and real practice may accept a near miss or re-drive it.
@@ -769,8 +832,11 @@ widest sweeps. Milestone 6 found the ledger results hold on Drake; how far a bow
 rocks the sheet depends on the contact model (0.11–0.15°), so a flexible sheet and a measured rock
 on a mock-up would pin it. Milestone 8, the paper draft, is done ([`paper/`](paper/)); before submission it needs the Elsevier LaTeX template, the unconfirmed citations checked and authorship decided. Milestone 9 found that pushing a bowed joint stud onto its line
 removes the bow's cost at 28–232 N but leaves single 2x at the straight-stud ceiling of 0.74–0.81,
-so the next step for single-2x joints is the sheet pose itself (a ledger with a fence, or a
-measured panel) and a mock-up push on real studs to pin the end restraint. A measured sample of
+and milestone 10 split that ceiling: the tool's scatter carries about half of it, the pose the
+rest, and a slide and a shim before tacking lift it to 0.92–0.94, still short of 95% without a
+tool held to about 0.8 mm. Next for single 2x: a measured scatter for a nailer on an arm (the
+0.9 mm is one source), a mock-up of the slide and shim, and a mock-up push on real studs to pin
+the end restraint. A measured sample of
 real panels' squareness and edge bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
