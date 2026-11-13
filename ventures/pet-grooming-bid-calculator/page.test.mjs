@@ -68,7 +68,11 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('the structural guards actually fail on a swallowed document', () => {
-  const broken = html.replace('</style>', '');
+  // Delete the last </style>, not the first: with a second <style> block in
+  // <head>, deleting the first lets the later </style> close it and nothing
+  // is swallowed (janitorial and retainage hit this on 2026-11-13).
+  const at = html.lastIndexOf('</style>');
+  const broken = at < 0 ? html : html.slice(0, at) + html.slice(at + '</style>'.length);
   assert.notEqual(broken, html, 'index.html no longer contains </style>; this case needs updating');
   const d = derive(broken);
   assert.equal(d.unclosed, 'style', 'an unclosed <style> was not detected');

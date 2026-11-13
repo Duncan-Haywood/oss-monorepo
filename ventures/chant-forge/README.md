@@ -302,18 +302,81 @@ voices: full choir on 600 of 613 notes (C3-E4); tenors alone on phrase 54 (13 no
 
 In every one of the seven, a single phrase goes to one section and the full choir sings the rest (two changes of
 singer). The more common fix, a falsetto top note or a basses-only low note inside a phrase, is not what this does:
-the split is always at a bar, where singers breathe. Not checked: the ranges are textbook ranges, not measured on
+by default the split is at a bar, where singers breathe (see "Handing over at a word" below for when it is not). Not checked: the ranges are textbook ranges, not measured on
 real singers, and the preview renderer sums unison notes from both tracks, so full-choir phrases sound about 6 dB
 louder than solo-section ones in the preview WAV. Real sections would add about 3 dB.
 `split.test.mjs` (7 tests): every note of all 67 files is in its singers' range and exactly 7 files split; a
 synthetic line gives a high phrase to tenors and a low one to basses; a phrase wider than both sections and an out-of-reach
 `--final` are refused; phrases are cut at every bar kind; the Dies irae MIDI has 613 tenor and 600 bass notes; the cue
 sheet's who column counts 13 T and 600 all; without the flag the choir line is unchanged. `eval/browser-e2e.mjs`
-(92 checks) finds the page's split MIDI and cue sheet byte-equal to the CLI's.
+(95 checks since the word split) finds the page's split MIDI and cue sheet byte-equal to the CLI's, with and without `--split-words`.
 
 **Fixed on the way:** the CLI judged "final matches the mode" after `--final` or `--auto-final` had moved the line,
 so a Dies irae moved to F3 said "check the transcription". It now judges the final as written, as the studio page
 already did.
+
+## Handing over at a word (2026-11-13, later)
+
+A phrase is the smallest unit `--split-voices` used to hand over. That fails when one phrase is wider than either
+section can sing, and it gives a whole phrase to one section when only one word in it is out of the shared band.
+`splitVoices` now walks **words** (a new word starts at a syllable that begins one) and can hand over between two words
+of a phrase, never inside a word. Three settings, each an exact minimum over every split at word boundaries and every
+final (a dynamic programme; `split.test.mjs` checks it against brute force on 300 random lines):
+
+- **default:** hand over inside a phrase only when no whole-phrase split fits, and then as few times as possible. On
+  the textbook ranges this gives byte-identical results to the bar-only split on all 67 files (tested).
+- **`--split-words`:** also hand over at a word when each handoff wins the full choir **more than** `--word-cost`
+  notes (default 3; a section taking one word and handing back is two handoffs, so it must win more than 6).
+- `words: 'never'` in the API keeps the bar-only behaviour.
+
+The Dies irae's phrase 54 needed the tenors only for its first word:
+
+```
+node cli.mjs corpus/dies-irae.gabc --split-voices --split-words -o dies.mid
+voices: full choir on 607 of 613 notes (C3-E4); tenors alone on part of one shared phrase (6 notes); phrase 54 handed over at a word: tenors "Judicándus", all "homo reus:"; final F3
+```
+
+`eval/word-split.mjs` (report: `eval/word-split-report.md`) runs the corpus under three pairs of section ranges. The
+ranges are assumptions, not measured singers:
+
+| ranges | bar-only: files that fit | default: files that fit (handoffs) | full choir, bars / `--split-words` |
+|---|---|---|---|
+| textbook, T C3-A4, B E2-E4 | 67 | 67 (0) | 99.1% / 99.2% |
+| amateur, T D3-F4, B G2-C4 | 67 | 67 (0) | 74.6% / 82.2% (129 handoffs in 43 files) |
+| octave, T E3-E4, B A2-A3 | 50 | 56 (7 handoffs in 6 files) | 12.3%* / 27.0% |
+
+\* over the 50 files that fit at bars; the 56 that fit with words give 10.5% by default. The corpus's widest phrase is
+14 semitones, so with real men's sections (21 and 24 semitones) the default never needs a word; words matter for
+narrow or beginner sections, and `--split-words` matters most for the amateur pair, where 7.6 points more of the notes
+go to the full choir for about three handoffs per file. Whether a handoff between two words sounds better to a
+congregation than a whole phrase sung by one section is a question for singers, not this measurement. A word wider than
+both ranges, or one that straddles the gap between them at every final, is still refused, and the message names the
+widest word. The cue sheet's `who` column and the two MIDI tracks already work note by note, so they needed no change.
+
+## Overlapped handoffs (2026-11-13, latest)
+
+A handoff inside a phrase from the tenors straight to the basses (or back) leaves a gap in the line between two words:
+one section stops and the other has to find its first note cold. `--overlap` (with `--split-voices`) closes it where
+it can: if the outgoing section's last note before the seam is in both ranges, the incoming section **joins early** and
+sings it too, taking its pitch from the singers it relieves; otherwise, if the incoming section's first note is in both
+ranges, the outgoing section **holds on** for it. That note is tagged `all`, so the MIDI puts it on both tracks and the
+cue sheet's `who` column says `all`. A handoff to or from the full choir never breaks the line, and a seam at a bar is a
+breath, so neither is touched. Where neither seam note is in both ranges the summary says how many handoffs break.
+
+```
+node cli.mjs corpus/gregobase-1908/3408.gabc --split-voices --split-words --overlap --tenor 52-64 --bass 45-57 --cues q.txt
+voices: ...; phrase 12 handed over at a word: basses "nem", tenors "tuam"; phrase 12: tenors join basses on F#3 ("nem") and take over; final F#3
+```
+
+`eval/overlap-check.mjs` (report: `eval/overlap-report.md`) runs the corpus under the same three range pairs as the
+word split. The finding: **direct swaps are rare, and every one in the corpus can overlap.** With textbook or amateur
+ranges the shared band is wide enough that the split always passes through the full choir (0 direct swaps, so
+`--overlap` changes nothing); only octave-wide sections (shared band E3-A3) produce them: 7 with the default
+setting, 13 with `--split-words`, 9 with `--word-cost 0`, and in every case a seam note is in both ranges (0 breaks;
+about two in three join early). The full-choir share moves by 0.1 point. The option is off by default because whether
+a one-note overlap sounds better than a clean handoff is for singers to judge; the studio page uses the textbook
+ranges, where it never fires, so it has no switch there. `split.test.mjs` covers join, hold, break, bars and full-choir
+neighbours, and checks every overlapped note against both ranges on the corpus.
 
 ## Mix and master check
 

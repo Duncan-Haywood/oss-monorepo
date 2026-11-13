@@ -135,7 +135,7 @@ function checker(schema) {
   function info(typeName) {
     let i = infoCache.get(typeName);
     if (i) return i;
-    const types = new Map(), max = new Map();
+    const types = new Map(), max = new Map(), nsOf = new Map();
     const mentions = (p, present) => (p.k === "e" ? present.has(p.name) : p.items.some((it) => mentions(it, present)));
     const required = (p, forced, present, out) => {
       if (!p) return;
@@ -146,7 +146,7 @@ function checker(schema) {
     };
     const walk = (p, mult) => {
       if (p.k === "e") {
-        if (!types.has(p.name)) types.set(p.name, p.type);
+        if (!types.has(p.name)) { types.set(p.name, p.type); nsOf.set(p.name, p.ns ?? schema.namespace); }
         const m = mult < 0 || p.max < 0 ? -1 : mult * p.max;
         const prev = max.get(p.name);
         max.set(p.name, prev === undefined ? m : prev < 0 || m < 0 ? -1 : Math.max(prev, m));
@@ -156,13 +156,13 @@ function checker(schema) {
     };
     const def = schema.complex[typeName];
     if (def.model) walk(def.model, 1);
-    i = { types, max, def, required: (present) => { const out = new Set(); required(def.model, true, present, out); return out; } };
+    i = { types, max, nsOf, def, required: (present) => { const out = new Set(); required(def.model, true, present, out); return out; } };
     infoCache.set(typeName, i);
     return i;
   }
 
   function checkNode(node, typeName, path, out) {
-    const { types, max, def, required } = info(typeName);
+    const { types, max, nsOf, def, required } = info(typeName);
     const known = new Set(def.attrs.map((a) => a.name));
     for (const a of def.attrs) {
       const got = node.attrs?.[a.name];
@@ -187,10 +187,12 @@ function checker(schema) {
     let structural = false;
     for (const c of kids) {
       const t = types.get(c.name);
-      if (!t || (t !== "#any" && c.ns !== ABRASF_NS)) {
+      const want = t && nsOf.get(c.name);
+      if (!t || (t !== "#any" && c.ns !== want)) {
         structural = true;
-        out.push(finding("ABR-002", t ? `${c.name} inside ${node.name} is not in the ABRASF namespace (${ABRASF_NS}).` : `${c.name} is not allowed inside ${node.name}.`,
-          t ? "Declare xmlns=\"http://www.abrasf.org.br/nfse.xsd\" so every element is in it (a default namespace dropped on a child is the usual cause)." : `Remove ${c.name}, or check its spelling (element names are case-sensitive) and where the schema puts it.${PROVIDER_EXTRA[`${node.name}/${c.name}`] ? ` ${PROVIDER_EXTRA[`${node.name}/${c.name}`]}` : ""}`, `${path}/${c.name}`));
+        const abrasf = want === ABRASF_NS;
+        out.push(finding("ABR-002", t ? (abrasf ? `${c.name} inside ${node.name} is not in the ABRASF namespace (${ABRASF_NS}).` : `${c.name} inside ${node.name} is in ${c.ns ? `namespace ${c.ns}` : "no namespace"}, but the schema puts it in ${want}.`) : `${c.name} is not allowed inside ${node.name}.`,
+          t ? (abrasf ? "Declare xmlns=\"http://www.abrasf.org.br/nfse.xsd\" so every element is in it (a default namespace dropped on a child is the usual cause)." : `Put ${c.name} in ${want} (in this provider's layout the message's own elements and the shared types sit in different namespaces, so a prefix such as tipos: matters).`) : `Remove ${c.name}, or check its spelling (element names are case-sensitive) and where the schema puts it.${PROVIDER_EXTRA[`${node.name}/${c.name}`] ? ` ${PROVIDER_EXTRA[`${node.name}/${c.name}`]}` : ""}`, `${path}/${c.name}`));
         continue;
       }
       const n = (count.get(c.name) ?? 0) + 1;
@@ -262,6 +264,7 @@ function layoutOf(key) {
   const p = data.providers[key];
   if (p === undefined) return null;
   if (typeof p === "string") return (resolved[key] = data.versions[p]);
+  if (p.full) return (resolved[key] = p);
   const b = data.versions[p.base];
   const drop = new Set(p.drop);
   const keep = (o) => Object.fromEntries(Object.entries(o).filter(([n]) => !drop.has(n)));
@@ -270,6 +273,13 @@ function layoutOf(key) {
 
 const checkers = {};
 const get = (v) => (checkers[v] ||= checker(layoutOf(v)));
+
+/** A multi-file provider layout (Ginfes 1.00, WebISS 1.00): { files, namespace } or null. */
+export const providerMulti = (key) => (data.providers[key]?.full ? { files: data.providers[key].files, namespace: data.providers[key].namespace } : null);
+/** The namespace a layout puts root element `name` in. */
+export const rootNamespace = (version, name) => layoutOf(version)?.rootNs?.[name] ?? layoutOf(version)?.namespace;
+/** Multi-file provider keys whose layout declares `name` as a root in namespace `ns`. */
+export const multiFor = (name, ns) => PROVIDER_LAYOUTS.filter((k) => data.providers[k]?.full && data.providers[k].roots[name] && rootNamespace(k, name) === ns);
 
 /** Root element names a layout (or provider copy) declares (GerarNfseEnvio, CompNfse, ...). */
 export const rootsOf = (version) => Object.keys(layoutOf(version)?.roots ?? {});

@@ -1,0 +1,16 @@
+cell-fidelity milestone 5j: r_kt as a pre-screen (DFN for r_kt <= 0.10 with no SPMe run; 5e rule and 5h band stop on the rest)
+
+Probe (baseline design, 2 cycles): OKane2022@1.25x ok, Chen2020@1.5x ok
+
+OKane2022@1.25x: n 64; suspect share 0.38, pre-flagged share 0.38 (pre-flagged but SPMe-sound 0, SPMe-suspect not pre-flagged 0); mis-scored 18
+  pre-screen: gap 0.0000 at 28 DFN calls, recall 1.00, wall / all-DFN 0.60, / band 1.12 (SPMe saved 53 s, r_kt 3.8 s)
+  band (5h): gap 0.0000 at 22 calls, wall / all-DFN 0.53; iterate (5g): gap 0.0000, wall / all-DFN 0.53
+  DFN best's r_kt +0.03 (flagged; pool -0.42 to +0.58); discarding flagged designs misses by 0.0186; flag agrees with SPMe's suspect label on 1.000
+  dropped (DFN did not reach 100 cycles): []
+Chen2020@1.5x: n 64; suspect share 0.61, pre-flagged share 0.61 (pre-flagged but SPMe-sound 0, SPMe-suspect not pre-flagged 0); mis-scored 30
+  pre-screen: gap 0.0000 at 42 DFN calls, recall 1.00, wall / all-DFN 0.93, / band 0.90 (SPMe saved 86 s, r_kt 2.6 s)
+  band (5h): gap 0.0454 at 36 calls, wall / all-DFN 1.04; iterate (5g): gap 0.0454, wall / all-DFN 1.04
+  DFN best's r_kt +0.08 (flagged; pool -0.65 to +0.51); discarding flagged designs misses by 0.0646; flag agrees with SPMe's suspect label on 1.000
+  dropped (DFN did not reach 100 cycles): []
+
+Verdicts: H70 supported, H71 mixed, H72 supported, H73 supported

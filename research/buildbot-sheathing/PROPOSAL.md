@@ -246,6 +246,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    single-2x pipeline gives 0.43–0.47 clean sheets against 0.58 for parabolas at the same bows.
    Doubled joints stay at 1.000. Still open: a population of framer-built walls scanned along
    the studs.
+12. **The single-2x remedies on measured studs** (done 2026-11-13, `experiments/m12_remedies/`):
+   reading each stud at every nail height recovers most of milestone 11's loss (0.425 to 0.530;
+   waviness costs 4.7 points instead of 15.4), a mid push measured from the end chord still adds
+   12.6 points, and per-nail reads, push and a slide and shim together reach 0.771 (0.860 on the
+   same studs' parabolas). 95% then needs a tool held to 0.61 mm. Doubled joints stay at 1.000.
+   Still open: a line-laser stud read on a robot, timed.
 
 ## Target venue
 

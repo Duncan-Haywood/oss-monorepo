@@ -40,7 +40,7 @@
     <div class="grid">
       <div><label for="bpm">Tempo (BPM)</label><input id="bpm" type="number" value="124" min="40" max="220"></div>
       <div><label for="genre">Genre backing</label><select id="genre"><option value="">None (choir line only)</option></select></div>
-      <div><label for="final">Final note</label><select id="final"><option value="auto" selected>Fit E2-E4 for me</option><option value="split">Tenors and basses by phrase (wide chants)</option><option value="">Keep as written</option></select></div>
+      <div><label for="final">Final note</label><select id="final"><option value="auto" selected>Fit E2-E4 for me</option><option value="split">Tenors and basses by phrase (wide chants)</option><option value="splitwords">Tenors and basses, handing over at a word too</option><option value="">Keep as written</option></select></div>
       <div><label for="stretch">Bar fit</label><select id="stretch"><option value="stretch" selected>Lengthen long notes to fill bars</option><option value="pad">Pad with rests</option><option value="none">No fitting</option></select></div>
       <div><label for="half">Chant speed</label><select id="half"><option value="">Normal</option><option value="1">Half-time over the backing (metal)</option></select></div>
       <div><label for="sections">Song sections</label><select id="sections"><option value="">One groove all the way</option><option value="1">Intro, verses, builds, breakdown and drops (from the double bars)</option></select></div>
@@ -90,7 +90,7 @@
   <script type="module">
     import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize } from "./gabc.mjs";
     import { eventsToMidi } from "./midi.mjs";
-    import { suggestFinal, splitVoices } from "./voicefit.mjs";
+    import { suggestFinal, splitVoices, describeSplit } from "./voicefit.mjs";
     import { arrange, barsFor, bpmRange, GENRE_NAMES } from "./genre.mjs";
     import { renderMidi } from "./render.mjs";
     import { sectionPlan, liftEvents } from "./sections.mjs";
@@ -157,15 +157,11 @@ mode: 1;
         if (!r.fits) lines.push(`Note: the chant spans ${r.ambitus} semitones${withLift}, ${r.over} more than ${r.range.join("-")}; left as written. Split it between voices or accept a falsetto or a low pedal.`);
         else { events = transposeToFinal(events, r.recommended.final); lines.push(`Moved so the final is MIDI ${r.recommended.final - lift}${lift ? ` (${r.recommended.final} after the lift)` : ""}, which keeps it inside ${r.range.join("-")}${withLift}.`); }
       }
-      if ($("final").value === "split") {
-        const r = splitVoices(events);
-        if (!r.fits) throw new Error(`No phrase-by-phrase split fits tenors C3-A4 and basses E2-E4: ${r.reason}.`);
+      if ($("final").value === "split" || $("final").value === "splitwords") {
+        const r = splitVoices(events, { words: $("final").value === "splitwords" ? "prefer" : "needed" });
+        if (!r.fits) throw new Error(`No split at bars or words fits tenors C3-A4 and basses E2-E4: ${r.reason}.`);
         events = r.events;
-        const who = (v) => r.phrases.map((p, k) => (p.voice === v ? k + 1 : 0)).filter(Boolean);
-        const t = who("tenor"), b = who("bass");
-        lines.push(r.split
-          ? `Voices: full choir on ${r.allNotes} of ${r.notes} notes (${r.unison.join("-")})${t.length ? `; tenors alone on phrase ${t.join(", ")} (${r.tenorNotes} notes)` : ""}${b.length ? `; basses alone on phrase ${b.join(", ")} (${r.bassNotes} notes)` : ""}; final ${r.finalName}. The MIDI has a Tenors and a Basses track; the cue sheet says who sings each note.`
-          : `Voices: the whole chant fits ${r.unison.join("-")}, so the full choir sings every phrase (final ${r.finalName}).`);
+        lines.push(`Voices: ${describeSplit(r)}.${r.split ? " The MIDI has a Tenors and a Basses track; the cue sheet says who sings each note." : ""}`);
       }
       const sum = summarize({ ...parsed, events }, { bpm, pulsesPerBar: 8 });
       let backing = null;
