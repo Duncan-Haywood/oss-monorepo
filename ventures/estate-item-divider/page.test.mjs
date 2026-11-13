@@ -85,3 +85,7 @@ test("the guide's three worked tables are the engine's answers", () => {
     assert.ok(html.includes(`<tr><td>${it}</td>${sampleInput().heirs.map((h) => `<td>${money(h.values[j])}</td>`).join("")}</tr>`), it);
   }
 });
+
+test("footer links the roommate rent splitter, its fair-division sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/roommate-rent-splitter\/"/);
+});
