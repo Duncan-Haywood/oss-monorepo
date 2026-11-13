@@ -54,7 +54,7 @@ export type RefitResult = {
 };
 
 /** Lower-triangular Cholesky factor of a symmetric positive definite matrix (row-major). */
-function cholesky(a: Float64Array, n: number): Float64Array {
+export function cholesky(a: Float64Array, n: number): Float64Array {
   const l = new Float64Array(n * n);
   for (let i = 0; i < n; i++) {
     for (let j = 0; j <= i; j++) {
@@ -72,7 +72,7 @@ function cholesky(a: Float64Array, n: number): Float64Array {
 }
 
 /** Solves (L L^T) x = b in place of a copy of b. */
-function cholSolve(l: Float64Array, n: number, b: number[]): number[] {
+export function cholSolve(l: Float64Array, n: number, b: number[]): number[] {
   const y = b.slice();
   for (let i = 0; i < n; i++) {
     let s = y[i];
@@ -88,7 +88,7 @@ function cholSolve(l: Float64Array, n: number, b: number[]): number[] {
 }
 
 /** Inverse of L L^T, row-major. */
-function cholInverse(l: Float64Array, n: number): Float64Array {
+export function cholInverse(l: Float64Array, n: number): Float64Array {
   const inv = new Float64Array(n * n);
   for (let c = 0; c < n; c++) {
     const e = new Array<number>(n).fill(0);
