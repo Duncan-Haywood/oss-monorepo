@@ -3,7 +3,7 @@ title: "Two thousand arrays of zeros per lumber order"
 seo_title: "Reusing a scratch buffer in a cutting-stock knapsack"
 date: 2026-11-13
 tags: [wall-framing-takeoff, performance, javascript]
-description: "Each takeoff in our wall framing tool built about 2,000 zeroed typed arrays it threw away. One reused buffer cut a sample takeoff from 11.6 to 9.8 ms, same answers."
+description: "Each takeoff in our framing tool built about 2,000 zeroed typed arrays and threw them away. One reused buffer: 11.6 to 9.8 ms, same answers."
 ---
 
 The [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/)
