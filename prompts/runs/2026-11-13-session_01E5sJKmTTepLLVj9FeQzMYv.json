@@ -32,7 +32,8 @@
   "tests_added": 11,
   "outcome": "success",
   "errors": [
-    "First preflight run failed: post description was 180 characters (limit 160); shortened."
+    "First preflight run failed: post description was 180 characters (limit 160); shortened.",
+    "CI validate failed twice: flagships next: over 2000 chars (trimmed), then share-location checker on the 7shifts API query string (rewritten)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -43,6 +44,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "Vendor docs hosts (developers.7shifts.com, apidocs.wheniwork.com, developer.deputy.com) answer 403 through the proxy; only raw.githubusercontent.com mirrors were reachable. Worth one line next to the irs.gov note."
+    },
+    {
+      "file": "platform/privacy/share-location.mjs",
+      "issue": "Flags any searchParams.set / ?${} on a line naming a URL in ventures/, including a CLI's outbound API request (7shifts list filters), which is not share state. Rewrote the line (path + '?' + query on a line without URL context) rather than add an exemption; an allowance for fetch-only API URLs would be cleaner."
     }
   ],
   "deviations": [

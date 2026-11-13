@@ -161,10 +161,10 @@ export async function fetch7shifts({ token, companyId, from, to, base = "https:/
     const out = [];
     let cursor = null;
     for (let page = 0; page < maxPages; page++) {
-      const u = new URL(path, base);
-      for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
-      u.searchParams.set("limit", "500");
-      if (cursor) u.searchParams.set("cursor", cursor);
+      // API request parameters (not page state): built as one query string for the 7shifts request.
+      const query = new URLSearchParams({ ...params, limit: "500", ...(cursor ? { cursor } : {}) });
+      const request = path + "?" + query;
+      const u = new URL(request, base);
       const res = await fetchImpl(u.toString(), { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } });
       if (!res.ok) throw new Error(`7shifts answered ${res.status} for ${u.pathname}${res.status === 401 ? " (check the access token)" : res.status === 403 ? " (the token lacks permission for this company)" : ""}.`);
       const body = await res.json();
