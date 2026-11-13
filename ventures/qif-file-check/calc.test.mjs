@@ -119,3 +119,22 @@ test("findings export as CSV with quoting", () => {
 test("Windows-1252 bytes decode instead of becoming replacement characters", () => {
   assert.equal(decodeBuffer(new Uint8Array([0x43, 0x61, 0x66, 0xe9]).buffer), "Café");
 });
+
+test("a full Quicken export: list sections are not checked as transactions", () => {
+  // !Type:Cat and !Account records have N/D/T lines that mean name, description and account type,
+  // not payee, date and amount. Before the fix this file gave 4 errors and 3 "transactions"
+  // (audit portfolio/quality/audits/2026-11-13-qif-file-check.json).
+  const text = "!Type:Cat\nNGroceries\nDFood and household\nE\n^\n!Option:AutoSwitch\n!Account\nNChecking\nTBank\n^\n!Type:Bank\nD01/13/2024\nT-42.10\nPCORNER GROCERY\n^\n";
+  const r = validate(text, { now: new Date("2024-06-01") });
+  assert.equal(r.summary.errors, 0);
+  assert.equal(r.summary.transactions, 1);
+  const p = parseQif(text);
+  assert.equal(p.lists.length, 2);
+  assert.equal(repair(text).changes.length, 0);
+});
+
+test("normalizeAmount never strips stray letters as if they were a currency", () => {
+  assert.equal(normalizeAmount("l2.50"), null); // a lower-case L typed for 1 is not 2.50
+  assert.equal(normalizeAmount("DR12.50"), null); // a debit marker must not silently drop the sign
+  assert.equal(normalizeAmount("USD 12.50").value, 12.5);
+});
