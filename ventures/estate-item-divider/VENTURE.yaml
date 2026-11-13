@@ -1,0 +1,61 @@
+name: estate-item-divider
+description: >-
+  Free browser tool for executors and heirs dividing an estate's personal
+  property: each heir privately values every item; the tool gives items to the
+  highest bidder and sets envy-free cash payments (Knaster with unequal shares),
+  or finds a proven maximum-Nash-welfare items-only split that is envy-free up
+  to one item. Bid sheet CSV, copy as text, save and load. Nothing leaves the
+  browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-13 in an explore session. duplicate_check.py: no row above
+# 0.10 for dividing estate belongings between heirs; screened-out.md has no row
+# for it. The nearest neighbour, roommate-rent-splitter, is the same fairness
+# family for rooms and rent (one item each, money fixed), not many items per heir.
+#
+# Why this niche: dividing a parent's belongings is one of the most common
+# sources of family conflict after a death, and "how to divide personal property
+# among heirs" and "dividing heirlooms fairly" are steady searches. The usual
+# answers are taking turns or appraisal value, which ignore who cares about
+# what. Sealed-bid and Nash-welfare methods are the known fixes; the public
+# implementation most people cite (Spliddit) is a research site with a fixed
+# form. Inspiration, not a copy: the code and methods here are our own.
+#
+# First visitor: executors and siblings in r/inheritance, r/legaladvice and
+# r/personalfinance threads about splitting belongings; estate mediators and
+# estate sale companies who could hand it to families. Volume not measured with
+# an external tool.
+#
+# Liability boundary: arithmetic on user-typed values. Not legal, tax or
+# appraisal advice; says so on every page. No payments, accounts or storage.
+#
+# Path to revenue (payment rails stay off): lead magnet for estate mediators and
+# estate-sale firms (a white-label or "mediator report" PDF is the obvious paid
+# tier); donations meanwhile.
+
+hypotheses:
+  - claim: >-
+      Executors or heirs will collect private item values from each heir and use
+      the resulting division (either method) as the basis for an agreement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a cash division where an heir would prefer another heir's items and cash, or payments that do not add up to zero.
+
+links:
+  production: https://marisstella.app/estate-item-divider/
+  analytics: null

@@ -1,0 +1,14 @@
+# Divide an estate's belongings between heirs fairly
+
+> Free estate item divider for executors and families. Each heir privately values every item; the tool gives each item to whoever values it most and computes cash payments so no heir would swap piles (envy-free), or finds the fairest items-only division with no cash (maximum Nash welfare, envy-free up to one item). Unequal shares supported. Private, in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/estate-item-divider/)
+- [How to divide personal property among heirs, with a worked example](https://marisstella.app/estate-item-divider/how-to-divide-personal-property-among-heirs.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estate-item-divider): MIT licensed.
