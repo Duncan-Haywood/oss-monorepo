@@ -1,6 +1,6 @@
 ---
 title: "The Winters in the Ground: a borehole field that remembers every winter"
-seo_title: "Short story: a ground-source heat pump field that gets colder each year"
+seo_title: "Short story: a ground-source heat field that gets colder every year"
 date: 2026-11-13
 description: "New hopeful science fiction: a Saskatchewan priory's heat pumps trip at minus six in 2049, and seven winters of logs show the ground getting colder."
 tags: [hearth-and-horizon, fiction, energy]
