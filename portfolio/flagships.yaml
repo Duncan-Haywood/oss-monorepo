@@ -183,10 +183,9 @@ flagships:
       2026-11-12 sections). Planner: worker, week reuse, keeps usual shifts. Posted weeks: a call-out reissue holds
       started shifts and keeps posted ones; a change-count ILP shows it is the least on 41/41 café call-outs when the
       caller's changes count (README "Is 91 the least?"); a kept start holds big-week reissues near the posted roster
-      (README "The reissue on the templates and 20-60 person weeks"). The change-count ILP at 20-60 people found a
-      search miss; an eject move in the kept start took 60-person reissues to 26 changes against a least of 24 and
-      40-person ones to 37 against 33, and every reissue still above the least is a score trade, not a miss (README
-      "Are the big-week reissues' changes needed?", eval/reissue-ilp-score.mjs). A two-shift eject (2026-11-13) was
+      (README "The reissue on the templates and 20-60 person weeks"). At 20-60 people an eject move brought reissues
+      within 2-4 changes of the least, each remaining gap a score trade (README "Are the big-week reissues' changes
+      needed?"). A two-shift eject (2026-11-13) was
       possible 2-40 times a reissue set and never worth making, and the keep-usual-shifts sweep re-run with the kept
       start matched the first on all 80 rows (README "Giving up two clashing shifts"). Next: whether a real manager would set keepShift above 1 (fewer changes for a little pay); close the
       100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22
