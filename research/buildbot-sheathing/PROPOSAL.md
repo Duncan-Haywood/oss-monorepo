@@ -252,6 +252,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    12.6 points, and per-nail reads, push and a slide and shim together reach 0.771 (0.860 on the
    same studs' parabolas). 95% then needs a tool held to 0.61 mm. Doubled joints stay at 1.000.
    Still open: a line-laser stud read on a robot, timed.
+13. **What the remedies cost** (done 2026-11-13, `experiments/m13_price/`): with each remedy's
+   seconds charged in milestone 7's cost model, the full single-2x stack costs $7.42 per clean sheet
+   at 100 houses a year against $7.10 for three reads (0.771 against 0.425 first-pass clean); the
+   doubled joint stud ($12.17, 1.000 clean) loses in every draw and pays only if a missed nail costs
+   about $5.51 more than its re-drive. Still open: the cost and detection rate of a missed nail at
+   inspection, and measured remedy times.
 
 ## Target venue
 

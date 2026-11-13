@@ -1,0 +1,5 @@
+Post hoc (after the 5k verdicts): the zero-SPMe front against 5j's pre-screen and 5h's band procedure on the fresh pools
+
+Ecker2015@1.5x: front L1 gap 0.0091 at 18 DFN calls, no SPMe; pre-screen gap 0.0000 at 36 DFN calls, wall / all-DFN 0.78; band gap 0.0000 at 25 calls, wall / all-DFN 0.68
+Mohtat2020@3x: front L1 gap 0.0471 at 14 DFN calls, no SPMe; pre-screen gap 0.0000 at 18 DFN calls, wall / all-DFN 0.63; band gap 0.0000 at 15 calls, wall / all-DFN 0.60
+Ai2020@0.375x: front L1 gap 0.0268 at 11 DFN calls, no SPMe; pre-screen gap 0.0000 at 40 DFN calls, wall / all-DFN 0.76; band gap 0.0000 at 40 calls, wall / all-DFN 0.77

@@ -1201,6 +1201,10 @@ const COVER_CHAIN = 2;
 // those searches for every candidate move: 5-16 s a build uncapped (eval/cover-chain-cost.mjs).
 const COVER_BUDGET = 500;
 const COVER_STOP = { coverStop: true };
+// Largest week (shift copies) the priced pass tries two-shift moves on by default (eval/cover-pairs.mjs): on the 40-person
+// weeks (148-162 copies) they add 0.2-1.7 s to the pass; on the 60-person week (245 copies) 3.4 s became 14.3 s with no
+// move found. `coverPairsSlots` moves the cap, `coverPairs: false` turns them off.
+const COVER_PAIRS_SLOTS = 200;
 // Call-out risk, the cheap stand-in for calloutExposure (2026-11-13). `calloutExposure` rebuilds the week once per
 // person-day, which is far too slow to sit inside a search. This counts the same cases and asks only the quickest of its
 // questions: if this person called out for this day, could someone else take each of their shifts that day with every hard
@@ -1305,7 +1309,7 @@ function coverDayJoint(ctx, lists, p, day, mine, chain, budget = Infinity) {
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000 }) {
   let owner = owner0.slice();
   let score = scoreOwner(ctx, owner).total;
   let risk = coverRisk(ctx, owner, { fromDay, chain, budget });
@@ -1316,16 +1320,18 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
   const full = (own) => (budget === Infinity ? null : coverRisk(ctx, own, { fromDay, chain, budget: Infinity }));
   let strict = full(owner);
   const before = strict || risk;
-  let moves = 0, tried = 0;
+  let moves = 0, tried = 0, pairMoves = 0, relieves = 0, trades = 0, pairTried = 0;
   const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
-  const take = (cand) => {
+  const take = (cand, needLess = false) => {
     tried++;
     if (!ownerValid(ctx, cand)) return false;
     const s2 = scoreOwner(ctx, cand).total;
     if (s2 - score >= price * (strict || risk).hours - 1e-9) return false; // cannot pay for itself even if it cleared every risky hour
     const r2 = coverRisk(ctx, cand, { fromDay, chain, budget });
+    if (needLess && r2.hours >= risk.hours - 1e-9) return false;
     if (s2 + price * r2.hours >= score + price * risk.hours - 1e-9) return false;
     const f2 = full(cand);
+    if (needLess && f2 && f2.hours >= strict.hours - 1e-9) return false;
     if (f2 && s2 + price * f2.hours >= score + price * strict.hours - 1e-9) return false;
     owner = cand; score = s2; risk = r2; strict = f2; moves++;
     return true;
@@ -1351,9 +1357,84 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
       }
       if (improved) break;
     }
+    // Two shifts moved together (2026-11-13 later, eval/cover-pairs.mjs). A risky shift i is one nobody can take, even through
+    // coverRisk's chains, so a stand-in q eligible for it is blocked by their own list (hours cap, rest, a clash). The single
+    // moves above only touch the risky person's shifts. Here, for every such q and each shift j of q's (any day: a chain may
+    // only pass on shifts not yet worked, a move made now has no such limit), and every r eligible for j:
+    //   relief: j -> r, so q has room to stand in and the risky person keeps i;
+    //   trade:  j -> r and one of r's shifts k -> q, two shifts changing hands at once (q and r swap);
+    //   relay:  i -> q and j -> r.
+    // Every candidate goes through the same priced test as the single moves; at most `pairCap` are tried a round.
+    if (!improved && pairs) {
+      const by = ctx.eligBy || (ctx.eligBy = Array.from({ length: ctx.S }, (_, i) => { const out = []; for (let q = 0; q < ctx.P; q++) if (ctx.elig[q][i]) out.push(q); return out; }));
+      const lists = Array.from({ length: ctx.P }, () => []);
+      owner.forEach((q, k) => { if (q >= 0) lists[q].push(k); });
+      lists.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
+      const seen = new Set();
+      let budgetLeft = pairCap;
+      // Screened by aim: a candidate goes to the priced test only when it covers some day now at risk that one of the people
+      // it moves (q, r) could stand in on, chains included: a few coverDayJoint calls instead of a whole coverRisk. Without
+      // the screen the pass took 38 s on the 60-person week (22,234 candidates, most of them score swaps that cleared no
+      // risk). Asking only about the day each candidate was built for was tried first and lost every gain on the seeded
+      // 20-person week 2 (189 -> 107 risk hours unscreened, none screened): a stand-in freed there covers other days.
+      const coversSome = (cand, movers) => {
+        const L = Array.from({ length: ctx.P }, () => []);
+        cand.forEach((q, k) => { if (q >= 0) L[q].push(k); });
+        L.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
+        for (const c of risk.cases) {
+          if (!c.slots.some((k) => movers.some((m) => ctx.elig[m][k]))) continue;
+          const mine = L[c.person].filter((k) => ctx.slots[k].day === c.day);
+          if (!mine.length || coverDayJoint(ctx, L, c.person, c.day, mine, chain, budget)) return true;
+        }
+        return false;
+      };
+      const tryCand = (key, cand, kind, movers) => {
+        if (seen.has(key)) return false;
+        seen.add(key);
+        if (--budgetLeft < 0) throw COVER_STOP;
+        pairTried++;
+        if (!ownerValid(ctx, cand) || !coversSome(cand, movers)) return false;
+        // A two-shift move must clear risk, not only score: on the spare-part-timer team a relief that left risk at 194 h
+        // and saved $5 of score was taken without this, and the posted week's measured exposure rose from 54 h to 66 h.
+        if (!take(cand, true)) return false;
+        if (kind === "relief") relieves++; else if (kind === "trade") trades++; else pairMoves++;
+        return true;
+      };
+      try {
+        outer: for (const c of risk.cases) {
+          if (owner[c.slots[0]] !== c.person) continue;
+          for (const i of c.slots) {
+            for (const q of by[i]) {
+              if (q === c.person) continue;
+              const Lq = lists[q];
+              for (const j of Lq) {
+                for (const r of by[j]) {
+                  if (r === q || r === c.person) continue;
+                  const Lr = lists[r];
+                  if (validWith(ctx, r, Lr, j)) {
+                    const rel = owner.slice(); rel[j] = r;
+                    if (tryCand(`r${j}>${r}`, rel, "relief", [q, r])) { improved = true; break outer; }
+                    if (validWith(ctx, q, Lq, i, j)) {
+                      const relay = owner.slice(); relay[i] = q; relay[j] = r;
+                      if (tryCand(`y${i}>${q},${j}>${r}`, relay, "relay", [q, r])) { improved = true; break outer; }
+                    }
+                  }
+                  for (const k of Lr) {
+                    if (!ctx.elig[q][k] || !validWith(ctx, q, Lq, k, j) || !validWith(ctx, r, Lr, j, k)) continue;
+                    const lo = Math.min(j, k), hi = Math.max(j, k);
+                    const tr = owner.slice(); tr[j] = r; tr[k] = q;
+                    if (tryCand(`t${lo},${hi}`, tr, "trade", [q, r])) { improved = true; break outer; }
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (e) { if (e !== COVER_STOP) throw e; }
+    }
     if (!improved) break;
   }
-  return { owner, score, risk: strict || risk, before, moves, tried };
+  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -2678,12 +2759,13 @@ function buildRosterOnce(staff, slots, options = {}) {
   // copies) and 1.06 s on the 60-person week 0 (245 copies), so it is capped at 250 copies; `coverPriceSlots` moves the cap.
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
     const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget });
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS) });
     const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
       riskyDaysBefore: before.riskyDays, riskyDays: out.risk.riskyDays, personDays: before.personDays,
       scoreBefore: best.score, scoreAfter: out.score, moves: out.moves, candidates: out.tried,
+      pairMoves: out.pairMoves, relieves: out.relieves, trades: out.trades,
       cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
     };
     if (out.moves > 0) {
@@ -4271,7 +4353,16 @@ export function coverSlackText(cs, staff = null) {
     ? `${num(cs.riskHours)} h on ${cs.riskyDays} of ${cs.personDays} person-days are still at risk${cs.cases && staff ? ` (${cs.cases.slice(0, 5).map(risky).join(", ")}${cs.cases.length > 5 ? ` and ${cs.cases.length - 5} more` : ""})` : ""}.`
     : "No single call-out leaves a shift nobody else can take.";
   if (!cs.moves) return `Call-out slack: priced at ${money2(cs.price)} an hour at risk, no hand-over or swap paid for itself, so the best-scoring roster stands. ${left}`;
-  return `Call-out slack: ${cs.moves} shift${cs.moves === 1 ? "" : "s"} changed hands to cut the hours at risk from ${num(cs.riskHoursBefore)} to ${num(cs.riskHours)}, at ${money2(cs.scoreAfter - cs.scoreBefore)} of score (pay plus penalties) at your price of ${money2(cs.price)} an hour at risk. ${left}`;
+  // Moves that free a stand-in (a relief, a two-shift trade, a relay) are named, since they change shifts of people who
+  // are not themselves at risk.
+  const two = [cs.relieves ? `${cs.relieves} freed a stand-in by moving one of their shifts` : "", cs.trades ? `${cs.trades} swapped two shifts between others so a stand-in had room` : "", cs.pairMoves ? `${cs.pairMoves} moved a shift and one of the stand-in's together` : ""].filter(Boolean);
+  const how = two.length ? ` (${two.join("; ")})` : "";
+  // A move can also lower the score: on a week the search did not prove, a trade between two people may find pay the search
+  // left (seeded 40-person week 2, eval/cover-pairs.out.txt). Say so rather than print a negative cost.
+  const give = cs.scoreAfter - cs.scoreBefore;
+  const paid = give < -0.005 ? `and saved ${money2(-give)} of score (pay plus penalties) the search had left` : `at ${money2(give)} of score (pay plus penalties)`;
+  const head = two.length ? `${cs.moves} move${cs.moves === 1 ? "" : "s"} cut` : `${cs.moves} shift${cs.moves === 1 ? "" : "s"} changed hands to cut`;
+  return `Call-out slack: ${head} the hours at risk from ${num(cs.riskHoursBefore)} to ${num(cs.riskHours)}${how}, ${paid} at your price of ${money2(cs.price)} an hour at risk. ${left}`;
 }
 
 // The call-out check in words (CLI --steady and the page).

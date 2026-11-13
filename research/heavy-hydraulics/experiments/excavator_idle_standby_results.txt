@@ -1,0 +1,70 @@
+Milestone 6j: excavator break-even with idle and still time charged to both pumps
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; efficiency: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY, digitised; idle share: Moore 2020, Construction Equipment, manufacturer telematics)
+central: 60 C, margin 20.0 bar (= standby pressure), p 129.6 bar, b 0.2203 L/kWh, moving part as 6i (anchored); idle: PVG32 neutral, standby flow 2.0 L/min, idle pump speed ratio 1.0
+loss fit 60 C (6h): L = 7.858 + -0.00758 p + 5.258e-04 p^2 + 0.03495 x p bar of full-stroke flow
+
+Idle pump power, kW (standby flow 2 L/min, working speed; load-sensing at 20 bar standby):
+  PVG32       : open-centre q_p 60: 2.00, q_p 80: 2.81, q_p 100: 3.70, q_p 120: 4.66, q_p 160: 6.81, q_p 219: 10.53; load-sensing 2.96; equal at q_p 83.4 L/min; stock 219 L/min / load-sensing = 3.56; p_n(101) 13.91 bar, p_n(219) 20.23 bar
+  Salami-text : open-centre q_p 60: 1.25, q_p 80: 2.14, q_p 100: 3.45, q_p 120: 5.29, q_p 160: 10.97, q_p 219: 25.93; load-sensing 2.96; equal at q_p 93.2 L/min; stock 219 L/min / load-sensing = 8.77; p_n(101) 12.69 bar, p_n(219) 59.68 bar
+  Salami-curve: open-centre q_p 60: 1.29, q_p 80: 2.26, q_p 100: 3.68, q_p 120: 5.67, q_p 160: 11.89, q_p 219: 28.37; load-sensing 2.96; equal at q_p 90.8 L/min; stock 219 L/min / load-sensing = 9.60; p_n(101) 13.99 bar, p_n(219) 65.80 bar
+  PVG32 at idle speed ratio 0.5: open-centre q_p 100: 1.62, 219: 4.15; load-sensing 1.51
+
+check: with idle power zeroed the break-even equals 6i's anchored f_t*(q_p) on every pump size and geometry (max |diff| 3.55e-15 L/h); central f_t,max 5.635 (6i committed 5.635); share above 3.986 L/h 66.7% (6i 66.7%)
+record still share s0 = t_still / t_ls: central 0.0252; over geometries 0.0251 to 0.0253 (the still samples do not depend on geometry; t_ls does, through slowing at 219 L/min)
+
+check: vectorised break-even equals measured.breakeven_rest_rate_idle on the central geometry at S 0.38 (max |diff| 0.0e+00)
+
+Central setting (PVG32 neutral, standby 2 L/min, working speed), f_t,max over the 384 geometries:
+  record only (S = s0): central 5.605 L/h at q_p 101.0; median 4.66 (p10 3.38, p90 8.74); beats 3.986: 66.9%, 5.056: 44.5%; median maximising q_p 76.0
+  S = 0.20: central 5.367 L/h at q_p 99.0; median 4.84 (p10 3.48, p90 9.16); beats 3.986: 69.5%, 5.056: 44.3%; median maximising q_p 75.0
+  S = 0.30: central 5.209 L/h at q_p 97.5; median 4.77 (p10 3.49, p90 9.55); beats 3.986: 72.1%, 5.056: 47.1%; median maximising q_p 74.8
+  S = 0.38: central 5.070 L/h at q_p 96.0; median 4.79 (p10 3.52, p90 9.88); beats 3.986: 74.0%, 5.056: 47.9%; median maximising q_p 74.5
+  S = 0.40: central 5.034 L/h at q_p 95.5; median 4.82 (p10 3.53, p90 10.02); beats 3.986: 74.7%, 5.056: 47.4%; median maximising q_p 74.5
+  S = 0.50: central 4.843 L/h at q_p 93.0; median 4.97 (p10 3.54, p90 10.85); beats 3.986: 78.4%, 5.056: 48.4%; median maximising q_p 73.5
+  central geometry f_t*(q_p), record only -> S = 0.38, L/h:
+    q_p  50.0: 1.449 -> 1.619
+    q_p  60.0: 2.099 -> 2.278
+    q_p  70.0: 2.994 -> 3.149
+    q_p  80.0: 4.057 -> 4.116
+    q_p  90.0: 5.074 -> 4.901
+    q_p 100.0: 5.600 -> 4.970
+    q_p 110.0: 5.062 -> 3.626
+    q_p 120.0: 2.698 -> 0.000
+
+All settings at S = 0.38 (reading, standby flow L/min, idle speed ratio):
+  PVG32        q_sb 2 n_r 1.0: central 5.070 L/h at q_p 96.0; median 4.79 (p10 3.52, p90 9.88); beats 3.986: 74.0%, 5.056: 47.9%; median maximising q_p 74.5
+  PVG32        q_sb 0 n_r 1.0: central 5.019 L/h at q_p 95.5; median 4.73 (p10 3.48, p90 9.74); beats 3.986: 71.4%, 5.056: 46.9%; median maximising q_p 74.0
+  PVG32        q_sb 0 n_r 0.5: central 5.479 L/h at q_p 99.0; median 4.95 (p10 3.57, p90 9.44); beats 3.986: 74.0%, 5.056: 47.1%; median maximising q_p 75.5
+  PVG32        q_sb 2 n_r 0.5: central 5.536 L/h at q_p 99.5; median 5.00 (p10 3.61, p90 9.59); beats 3.986: 75.8%, 5.056: 48.7%; median maximising q_p 75.5
+  PVG32        q_sb 5 n_r 1.0: central 5.147 L/h at q_p 96.0; median 4.87 (p10 3.58, p90 10.09); beats 3.986: 76.3%, 5.056: 47.9%; median maximising q_p 74.5
+  PVG32        q_sb 5 n_r 0.5: central 5.624 L/h at q_p 99.5; median 5.09 (p10 3.68, p90 9.80); beats 3.986: 77.6%, 5.056: 50.3%; median maximising q_p 76.0
+  Salami-text  q_sb 0 n_r 1.0: central 5.306 L/h at q_p 95.0; median 5.26 (p10 3.83, p90 11.45); beats 3.986: 87.0%, 5.056: 53.9%; median maximising q_p 75.5
+  Salami-text  q_sb 0 n_r 0.5: central 6.103 L/h at q_p 101.5; median 5.49 (p10 3.96, p90 10.61); beats 3.986: 88.8%, 5.056: 53.9%; median maximising q_p 78.0
+  Salami-text  q_sb 2 n_r 1.0: central 5.355 L/h at q_p 95.0; median 5.32 (p10 3.87, p90 11.58); beats 3.986: 88.0%, 5.056: 55.5%; median maximising q_p 75.5
+  Salami-text  q_sb 2 n_r 0.5: central 6.165 L/h at q_p 101.5; median 5.55 (p10 4.01, p90 10.78); beats 3.986: 90.4%, 5.056: 54.7%; median maximising q_p 78.0
+  Salami-text  q_sb 5 n_r 1.0: central 5.430 L/h at q_p 95.0; median 5.41 (p10 3.93, p90 11.78); beats 3.986: 89.6%, 5.056: 56.5%; median maximising q_p 76.0
+  Salami-text  q_sb 5 n_r 0.5: central 6.259 L/h at q_p 102.0; median 5.64 (p10 4.08, p90 11.02); beats 3.986: 91.1%, 5.056: 56.2%; median maximising q_p 78.5
+  Salami-curve q_sb 0 n_r 1.0: central 5.170 L/h at q_p 94.0; median 5.17 (p10 3.75, p90 11.30); beats 3.986: 84.1%, 5.056: 53.1%; median maximising q_p 75.0
+  Salami-curve q_sb 0 n_r 0.5: central 6.076 L/h at q_p 101.0; median 5.47 (p10 3.95, p90 10.58); beats 3.986: 88.5%, 5.056: 53.6%; median maximising q_p 78.0
+  Salami-curve q_sb 2 n_r 1.0: central 5.218 L/h at q_p 94.0; median 5.22 (p10 3.79, p90 11.43); beats 3.986: 85.4%, 5.056: 53.9%; median maximising q_p 75.2
+  Salami-curve q_sb 2 n_r 0.5: central 6.138 L/h at q_p 101.5; median 5.53 (p10 4.00, p90 10.75); beats 3.986: 90.4%, 5.056: 54.4%; median maximising q_p 78.0
+  Salami-curve q_sb 5 n_r 1.0: central 5.291 L/h at q_p 94.5; median 5.30 (p10 3.85, p90 11.63); beats 3.986: 87.8%, 5.056: 55.5%; median maximising q_p 75.5
+  Salami-curve q_sb 5 n_r 0.5: central 6.231 L/h at q_p 101.5; median 5.63 (p10 4.07, p90 10.99); beats 3.986: 91.1%, 5.056: 56.0%; median maximising q_p 78.2
+
+No-function share at which the fixed pump stops beating 3.986 L/h (central setting; bisection on S):
+  central geometry: above 0.95
+  geometries: 127 never win on the record alone, 257 still win at S 0.95, 0 cross in between
+
+Stock 219 L/min fixed pump against load-sensing, pump fuel per hour of load-sensing record (L/h, positive: open-centre burns more), central setting:
+  record only: min +3.119, median +5.167, max +6.713; open-centre burns more in 100.0%
+  S = 0.38: min +4.075, median +6.122, max +7.668; open-centre burns more in 100.0%
+
+Predictions (LOG.md 6j):
+  J1 record still time moves central f_t,max < 0.1 L/h: held (5.635 -> 5.605, -0.031)
+  J2 idle-power crossover q_p in 50-120 L/min: held (83.4)
+  J3 stock pump idles >= 3x load-sensing standby: held (3.56x)
+  J4 share above 3.986 L/h at S 0.38 < 50%: refuted (74.0%)
+  J5 central maximising q_p at S 0.38 < 101: held (96.0)
+  J6 Salami-text at S 0.38 raises the median f_t,max over 6i's: held (5.32 vs 4.63)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0), digitised; Danfoss PVG 32 and Salami VD8A neutral curves (2n, 2i); Moore 2020 (idle shares).

@@ -23,9 +23,11 @@ test("Example 3: line 1a is 4,000 then 3,000 in columns (b) to (d), and line 1b 
   assert.deepEqual(d.paidBy, []); // "Do not enter any payment on line 1b, column (d)"
   // Example 4: line 3, column (a) is "15" (04/15 to 04/30) and "61" (04/15 to 06/15).
   assert.deepEqual(a.lines[0].days, [15, 61]);
-  // Hand check of the worksheet at 7%: amount x days / 365 x 0.07, each line rounded to the cent.
+  // Hand check of the worksheet at 7%: amount x days / 365 x 0.07, each entry rounded to the cent.
   const amt = (cents, n) => Math.round((cents * n * 0.07) / 365);
-  assert.equal(a.penalty, Math.round((D(2000) * 15 * 0.07) / 365 + (D(2000) * 61 * 0.07) / 365));
+  assert.equal(a.penalty, amt(D(2000), 15) + amt(D(2000), 61)); // one rounded entry per payment (line 4)
+  // Line 1a of each column is Section A line 17 (Example 3: 4,000 then 3,000).
+  assert.deepEqual(r.worksheet.map((col) => col.underpayment), [D(4000), D(3000), D(3000), D(3000)]);
   assert.equal(b.penalty, amt(D(3000), 15) + amt(D(3000), 77));
   assert.equal(c.penalty, amt(D(3000), 15) + amt(D(3000), 92) + amt(D(3000), 15));
   assert.equal(d.penalty, amt(D(3000), 90));
@@ -69,4 +71,19 @@ test("2026 uses the IRS quarterly rates (6% in Q2) and flags the 2027 Q1 rate th
 test("a payment after April 15 of the next year stops the count at April 15", () => {
   const w = penaltyWorksheet(2025, [D(1000), 0, 0, 0], [{ date: "2026-06-01", cents: D(1000) }]);
   assert.deepEqual(w.columns[0].lines.map((l) => l.days[0]), [76, 92, 92, 105]);
+});
+
+test("2024 (a leap year): the worksheet divides 2024's periods by 366 and rounds each payment's entry (Example 5)", () => {
+  // Instructions for Form 2210 (2024), irs.gov/pub/irs-prior/i2210--2024.pdf, read 2026-11-13: Example 3's
+  // facts with 2024 dates; Example 5 enters "$6.56" ($2,000 x (15 / 366) x 0.08) and "$26.67"
+  // ($2,000 x (61 / 366) x 0.08) on line 4, column (a). Rate Period 4 (Jan 1 - Apr 15, 2025) is "/ 365 x 0.07".
+  const payments = [{ date: "2024-04-30", cents: D(2000) }, { date: "2024-06-15", cents: D(3000) }, { date: "2024-09-15", cents: D(4000) }, { date: "2025-01-15", cents: D(4000) }];
+  const r = form2210Penalty(2024, [D(4000), D(4000), D(4000), D(4000)], { payments });
+  assert.deepEqual(r.worksheet[0].lines[0].days, [15, 61]);
+  assert.equal(r.worksheet[0].lines[0].cents, 656 + 2667);
+  assert.deepEqual(r.rates.map((p) => p.yearDays), [366, 366, 366, 365]);
+  assert.equal(r.warnings.length, 0);
+  // Nothing paid: Table 2's days (the same 76, 92, 92, 105 as 2025) at 8% / 366, then 7% / 365.
+  const w = penaltyWorksheet(2024, [D(1000), 0, 0, 0], []);
+  assert.deepEqual(w.columns[0].lines.map((l) => l.cents), [76, 92, 92].map((n) => Math.round((D(1000) * n * 0.08) / 366)).concat(Math.round((D(1000) * 105 * 0.07) / 365)));
 });

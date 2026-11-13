@@ -1352,3 +1352,64 @@ On the templates the budget never binds (the capped and uncapped counts agree on
 Not claimed: five invented templates and seven seeded weeks; exposure is itself a model (5pm notice, kept rebuild), not a
 real week; the café's gap between flagged and open days is left; moving two shifts together is still not tried; the
 60-person pass is 3x slower than the old check's (3.5 s against 1.1 s), within the 250-copy cap.
+
+## Moving two shifts together (2026-11-13 later)
+
+Both sections above closed on the same gap: the priced pass (`--cover-price`) only ever moved the at-risk person's own
+shift, one hand-over or one swap at a time. Once the risk check learned hand-over chains, that left nothing to try on a day
+it still flags: everyone who could stand in is blocked by their own week (an hours cap, a rest gap, a clash), and a chain
+cannot help because the shift blocking them was worked before the call-out, or nobody can take it outright.
+
+So the pass now also moves **a stand-in's** shifts. For every person q eligible for a risky shift i, every shift j on q's
+week (any day: a move made now is not limited to shifts not yet worked, as a chain is), and every r eligible for j:
+
+- **relief**: j goes to r, so q has room to stand in; the at-risk person keeps i;
+- **trade**: j goes to r and one of r's shifts k goes to q, two shifts changing hands at once;
+- **relay**: i goes to q and j to r.
+
+Each candidate is screened first (it must leave some day now at risk coverable, chains included, on a day q or r could
+stand in on: a few chain searches, not a whole risk count), then goes through the same priced test as the single moves,
+and is kept only if it **cuts risk hours** as well as paying for itself. That last rule came from the first run: on the
+spare-part-timer café a relief that left risk at 194 h and saved $5 of score was taken, and the posted week's measured
+exposure rose from 54 h to 66 h. On by default up to 200 shift copies; `--no-cover-pairs` (`coverPairs: false`) turns it
+off, `coverPairsSlots` moves the cap.
+
+`node eval/cover-pairs.mjs` (`eval/cover-pairs.out.txt`) runs the pass with and without them from the same roster ($25 and
+$100 an hour at risk gave the same moves everywhere):
+
+| week | single moves only | with two-shift moves | pass time, off / on |
+|---|---|---|---|
+| café, salon, clinic templates | none | none | +0-4 candidates |
+| spare-part-timer café | 2 moves, 200 → 194 h, +$18.34 | the same roster | 156 ms |
+| retail | 1 move, 45 → 0 h, +$5.82 | the same roster | 22 ms |
+| 20 x 56 week 0, week 1 | none | none | 106 / 173 ms, 309 / 497 ms |
+| **20 x 56 week 2** | none (189 h) | **4 moves (2 single, 1 relief, 1 trade): 189 → 107 h, +$35.27** | 64 / 280 ms |
+| 40 x 112 week 0 | none (435 h) | 1 trade: 435 → 427 h, +$4.47 | 0.9 / 2.7 s |
+| 40 x 112 week 1, week 2 | none | none | 1.4 / 2.9 s, 0.3 / 0.4 s |
+| 60 x 168 week 0 (over the cap) | none | none | 3.9 / 13.9 s |
+
+The two single moves on the 20-person week come after the relief and trade: freeing one stand-in made hand-overs pay that
+did not before.
+
+**Does it show in the slow measurement?** `node eval/cover-pairs-exposure.mjs` (`eval/cover-pairs-exposure.out.txt`) runs
+`calloutExposure` (every person-day Tuesday to Sunday as a 5pm-before call-out and a kept rebuild) on the rosters each
+setting posts:
+
+| week | default | single moves only | with two-shift moves |
+|---|---|---|---|
+| **20 x 56 week 2** | 113 h | 113 h | **68 h** (open 48 h either way) |
+| 40 x 112 week 0 | 328 h | 328 h | 322 h (open 169 h either way) |
+
+On the 20-person week four moves, $35.27 of score, took the open hours one call-out could leave, summed over all 56
+person-days, from 113 to 68: 40% less. The single moves found nothing there at any price. On the 40-person week the one trade, $4.47, took 6 h off 328.
+
+Tests (`cover-price.test.mjs`): a three-person week where only a relief helps (Bo, capped at 4 h, holds Monday, which no
+chain can pass on by Tuesday; Cy takes Monday) clears Ana's Tuesday, and `calloutExposure` agrees (4 h to 0); $5 an hour
+buys nothing there; the spare café posts the single-move roster (the cut-risk rule); on the seeded 20-person week the
+pairs clear risk the single moves cannot, with no shift opened and the reported risk equal to the unbudgeted count; the CLI
+flag.
+
+Not claimed: invented teams and seeded weeks; exposure is a model (5pm notice, kept rebuild), not a real week; moves of
+three or more shifts are not tried; the café's 23 flagged days over 11 that open are untouched (4 candidates passed the
+screen there and none paid: the café is short-staffed, 15 h open, so there is little room to free); the pass is 2-3x slower with the pairs on
+the 40-person weeks and they stay off above 200 copies, where the one week measured found nothing for 10 s more.

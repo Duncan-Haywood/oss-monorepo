@@ -1,0 +1,79 @@
+# Milestone 13: what the single-2x remedies cost per clean sheet on measured studs (buildbot-sheathing)
+G1 on a drive-and-lift base (milestone 7), 4,000 cost draws (seed 11); every missed nail found and re-driven; clean sheets and missed nails from milestone 12 (20,000 sheets, seed 7)
+seconds added (seed 29, unsourced, swept): mid push U(10, 40) s; slide and shim U(5, 30) s + 2 edge reads; line-laser sweep 3 x 2.353 m / v, v log-uniform 0.05-0.5 m/s; point reads t_read U(1, 3) s each (three 9, dense 51, local 31 a sheet, + 2 edge)
+
+## A. measured studs: median $ per clean sheet [5%, 95% at 100 houses/yr], median seconds a sheet
+pipeline (estimate hw push placement)   clean   missed  seconds |   $100 houses [5-95%]    $300   $1000 | cheapest share @100
+three point -    ledger                0.4253  1.095     198 |   7.10 [ 4.56,  11.13]    3.54   2.27 | 0.521
+three point -    slide+shim            0.5418  0.726     206 |   7.14 [ 4.60,  11.17]    3.59   2.33 | 0.139
+three point push ledger                0.5516  0.803     212 |   7.18 [ 4.62,  11.21]    3.63   2.36 | 0.031
+three point push slide+shim            0.6556  0.531     223 |   7.24 [ 4.66,  11.27]    3.70   2.44 | 0.002
+dense point -    ledger                0.4742  0.967     277 |   7.55 [ 4.87,  11.67]    4.00   2.85 | 0.000
+dense line  -    ledger                0.4742  0.967     227 |   7.28 [ 4.68,  11.38]    3.73   2.47 | 0.000
+dense point -    slide+shim            0.5909  0.661     288 |   7.62 [ 4.90,  11.73]    4.06   2.92 | 0.000
+dense line  -    slide+shim            0.5909  0.661     237 |   7.35 [ 4.72,  11.46]    3.79   2.55 | 0.000
+dense point push ledger                0.5786  0.684     292 |   7.63 [ 4.91,  11.75]    4.09   2.95 | 0.000
+dense line  push ledger                0.5786  0.684     242 |   7.37 [ 4.73,  11.50]    3.81   2.58 | 0.000
+dense point push slide+shim            0.7013  0.422     304 |   7.70 [ 4.95,  11.85]    4.15   3.04 | 0.000
+dense line  push slide+shim            0.7013  0.422     253 |   7.44 [ 4.78,  11.55]    3.88   2.66 | 0.000
+local point -    ledger                0.5303  0.765     230 |   7.28 [ 4.69,  11.32]    3.73   2.48 | 0.000
+local line  -    ledger                0.5303  0.765     220 |   7.25 [ 4.66,  11.35]    3.69   2.42 | 0.263
+local point -    slide+shim            0.6632  0.453     240 |   7.33 [ 4.73,  11.41]    3.79   2.56 | 0.000
+local line  -    slide+shim            0.6632  0.453     229 |   7.30 [ 4.69,  11.39]    3.75   2.49 | 0.041
+local point push ledger                0.6495  0.549     246 |   7.37 [ 4.75,  11.45]    3.84   2.61 | 0.000
+local line  push ledger                0.6495  0.549     237 |   7.34 [ 4.71,  11.47]    3.78   2.54 | 0.004
+local point push slide+shim            0.7707  0.301     259 |   7.44 [ 4.79,  11.53]    3.90   2.69 | 0.000
+local line  push slide+shim            0.7707  0.301     248 |   7.42 [ 4.76,  11.53]    3.85   2.63 | 0.000
+2x2x  point -    ledger                1.0000  0.000     145 |  12.17 [ 9.44,  16.34]    8.69   7.42 | 0.000
+
+## A. measured, common removed studs: median $ per clean sheet [5%, 95% at 100 houses/yr], median seconds a sheet
+pipeline (estimate hw push placement)   clean   missed  seconds |   $100 houses [5-95%]    $300   $1000 | cheapest share @100
+three point -    ledger                0.4707  0.990     194 |   7.07 [ 4.54,  11.10]    3.52   2.25 | 0.595
+three point -    slide+shim            0.5958  0.664     204 |   7.13 [ 4.59,  11.15]    3.57   2.31 | 0.101
+three point push ledger                0.6086  0.663     206 |   7.15 [ 4.60,  11.16]    3.60   2.33 | 0.062
+three point push slide+shim            0.7183  0.410     219 |   7.21 [ 4.64,  11.23]    3.67   2.41 | 0.008
+dense point -    ledger                0.5027  0.874     274 |   7.53 [ 4.85,  11.64]    3.98   2.82 | 0.000
+dense line  -    ledger                0.5027  0.874     224 |   7.27 [ 4.67,  11.36]    3.71   2.45 | 0.000
+dense point -    slide+shim            0.6274  0.576     285 |   7.60 [ 4.89,  11.72]    4.04   2.89 | 0.000
+dense line  -    slide+shim            0.6274  0.576     234 |   7.33 [ 4.70,  11.43]    3.77   2.52 | 0.000
+dense point push ledger                0.6334  0.580     288 |   7.61 [ 4.90,  11.73]    4.06   2.92 | 0.000
+dense line  push ledger                0.6334  0.580     238 |   7.35 [ 4.72,  11.48]    3.78   2.55 | 0.000
+dense point push slide+shim            0.7549  0.343     301 |   7.69 [ 4.94,  11.83]    4.14   3.01 | 0.000
+dense line  push slide+shim            0.7549  0.343     250 |   7.43 [ 4.77,  11.54]    3.86   2.64 | 0.000
+local point -    ledger                0.5272  0.778     230 |   7.28 [ 4.69,  11.33]    3.73   2.49 | 0.000
+local line  -    ledger                0.5272  0.778     220 |   7.25 [ 4.66,  11.35]    3.69   2.43 | 0.197
+local point -    slide+shim            0.6562  0.484     241 |   7.34 [ 4.73,  11.42]    3.79   2.56 | 0.000
+local line  -    slide+shim            0.6562  0.484     230 |   7.31 [ 4.70,  11.41]    3.76   2.50 | 0.024
+local point push ledger                0.6701  0.501     244 |   7.36 [ 4.75,  11.44]    3.83   2.59 | 0.000
+local line  push ledger                0.6701  0.501     235 |   7.33 [ 4.70,  11.45]    3.77   2.52 | 0.013
+local point push slide+shim            0.7960  0.266     258 |   7.43 [ 4.79,  11.53]    3.90   2.68 | 0.000
+local line  push slide+shim            0.7960  0.266     247 |   7.41 [ 4.75,  11.51]    3.84   2.62 | 0.001
+2x2x  point -    ledger                1.0000  0.000     145 |  12.17 [ 9.44,  16.34]    8.69   7.42 | 0.000
+
+## B. Hypotheses (registered in LOG.md before this run)
+H57: base, 100 houses/yr, measured studs: the per-draw cheapest single-2x pipeline beats doubled joints in 1.0000 of draws (bar 0.90), median saving $5.13 a sheet -> held
+     measured: share single 2x cheaper at 100/300/1000 houses = 1.000 / 1.000 / 1.000; median saving $ 5.13 / 5.13 / 5.12
+     measured, common removed: share single 2x cheaper at 100/300/1000 houses = 1.000 / 1.000 / 1.000; median saving $ 5.14 / 5.14 / 5.14
+H58: full stack (local, line laser, push, slide+shim; clean 0.7707) median $7.42 a clean sheet vs the lowest-median single-2x pipeline [three point - ledger] $7.10; full stack cheapest in 0.000 of draws -> held (held if it costs more)
+H59: extra cost a missed nail must carry, beyond its re-drive, for doubled joints to tie the per-draw cheapest single-2x pipeline: median $5.51 [5-95%: 3.91, 8.55] (8.8 loaded person-minutes; bar below $5.00; milestone 7 $6.51) -> refuted
+     common part removed: median $5.83 [4.30, 9.17]; missed nails of the chosen pipeline, median 1.095 (measured)
+
+## E. The price of first-pass quality (measured studs, 100 houses/yr): the lowest-median pipeline reaching each clean-sheet level
+  clean >= 0.40: three point - ledger               clean 0.4253  $7.10  198 s
+  clean >= 0.50: three point - slide+shim           clean 0.5418  $7.14  206 s
+  clean >= 0.60: three point push slide+shim        clean 0.6556  $7.24  223 s
+  clean >= 0.65: three point push slide+shim        clean 0.6556  $7.24  223 s
+  clean >= 0.70: local line push slide+shim         clean 0.7707  $7.42  248 s
+  clean >= 0.75: local line push slide+shim         clean 0.7707  $7.42  248 s
+  clean >= 0.99: 2x2x point - ledger                clean 1.0000  $12.17  145 s
+
+## F. Line-laser speed at which per-nail reads tie three point reads (measured, ledger, no push, median draw of the cost difference, 100 houses/yr)
+  local by line laser beats three point reads in the median draw above v = 0.2344 m/s (searched 0.01-1 m/s); at 0.25 m/s the median difference is $-0.010
+  local by point reads (31 + 2 a sheet) vs three point reads: median $+0.154 a clean sheet, +31 s
+
+## G. Where the dollars go (measured, 100 houses/yr, median shares): ownership, people (supervision + carry), stud
+  three point - ledger               own 76%  people 24%  stud 0%
+  local line push slide+shim         own 73%  people 27%  stud 0%
+  2x2x point - ledger                own 44%  people 11%  stud 44%
+
+wall time 5 s
