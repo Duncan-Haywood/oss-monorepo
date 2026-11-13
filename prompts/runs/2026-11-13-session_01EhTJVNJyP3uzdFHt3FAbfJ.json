@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVNJyP3uzdFHt3FAbfJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T14:08:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 9 (league-schedule-generator): a bigger timetable neighbourhood for the floor-priced carry-over search",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 15502,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-re-dealing-three-rounds-of-a-league-at-once.md"
+  ],
+  "goal": "Close the 20-team break gap the floor-priced search left (40 to 48 breaks at ~516-550 carry-over).",
+  "notes": "threeRoundDeals(opp,[r,s,t]) lists every legal re-deal of three rounds' matches (every proper 3-edge-colouring of their cubic graph: each perfect matching times 2^cycles; ~117 deals, 0.7 ms at 20 teams), and floorPricedSingleRounds takes deals=0.15 of its moves there, scoring all deals on carry-over and pricing only the 3 cheapest on the proved break floor. Sweep at 20 teams, seeds 1-3, same cached lists, 3,000 moves (eval/floor-priced.txt): least carry-over at 48 breaks 410/408/426 -> 384/374/384; seed 1 joins 5 frontier seasons instead of 3 (456/46 where nothing was under 534, 516/44, 524/42) and the mean cut inside the gap goes 5.97 -> 8.58% (s2 10.14 -> 10.78, s3 11.15 -> 13.70); 1.2-1.5x the time. Run alone the re-deal search lost seasons on some 17- and 18-team seeds (a different random walk), so carryOverFloorPriced now searches each cap twice, swaps alone and with re-deals, and keeps the better: over 9 page runs (17, 18, 20 teams, seeds 1-3) the cut inside the gap rises in 4 and holds in 5, none falls; 13-42 s on the worker against 4-21 s. Also fixed: a search now keeps the season it started from as a candidate, so it can never return more breaks than its start (13 teams returned 13 against the start's 12). Verified here: node --test floor-priced.test.mjs 14/14, python3 platform/ci/run_venture_tests.py league-schedule-generator ok (192.6s), venture-preflight.",
+  "corrections": [],
+  "redteam": null
+}
