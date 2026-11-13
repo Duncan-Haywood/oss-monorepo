@@ -225,6 +225,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
 8. **Paper draft** (done 2026-11-12, `paper/draft.md`): the article for *Automation in Construction*
    in its structure, with `paper/check_numbers.py` tying each quoted figure to its results file.
    Still open: the Elsevier LaTeX template, the unconfirmed citations and authorship.
+9. **Straighten the joint stud instead of doubling it** (planned 2026-11-13, `experiments/m9_straighten/`):
+   push a bowed single-2x joint stud onto its line, once at mid-height or nail by nail, and score
+   the force (a Stud-grade beam), the clean sheets (milestone 5's pipeline) and the dollars
+   (milestone 7's) against doubled joints.
 
 ## Target venue
 
