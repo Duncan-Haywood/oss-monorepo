@@ -280,3 +280,56 @@ def asabe_fuel_lph(x, n_ratio, p_rated_kw, a=0.0434, b=0.019, c=0.45, d=0.877):
     HP_KW and multiplying by GAL_L gives L/h per rated kW, so p_rated_kw is in kW."""
     q_f = (a * x + b) * (p_rated_kw / HP_KW) * GAL_L
     return q_f * (1.0 - (n_ratio - 1.0) * (c * x - d))
+
+
+def eta_table(rows, temp):
+    """Total pump efficiency table from the digitised Kauranne (2022) Figure 13 rows (milestone 6g).
+
+    rows: dicts with 'temperature_c', 'pressure_bar' and 'cap_<V>' columns (cm3/r, 45 the maximum).
+    Returns (fractions, pressures, grid) with grid[i][j] the efficiency at pressures[i], fractions[j]."""
+    sel = [r for r in rows if float(r["temperature_c"]) == float(temp)]
+    if not sel:
+        raise ValueError("no rows at that temperature")
+    caps = sorted(float(k[4:]) for k in sel[0] if k.startswith("cap_"))
+    fr = [c / max(caps) for c in caps]
+    sel.sort(key=lambda r: float(r["pressure_bar"]))
+    ps = [float(r["pressure_bar"]) for r in sel]
+    grid = [[float(r[f"cap_{c:g}"]) for c in caps] for r in sel]
+    return fr, ps, grid
+
+
+def part_stroke_eta(table, x, p):
+    """Efficiency at displacement fraction x and pressure p (bar), bilinear in the table (6g).
+
+    Below the smallest measured fraction the value is held (this flatters a part-stroke pump, whose
+    efficiency keeps falling towards zero stroke); x above 1 is taken as 1; p is clipped to the table."""
+    fr, ps, grid = table
+
+    def interp(xs, ys, v):
+        if v <= xs[0]:
+            return ys[0]
+        if v >= xs[-1]:
+            return ys[-1]
+        for k in range(1, len(xs)):
+            if v <= xs[k]:
+                t = (v - xs[k - 1]) / (xs[k] - xs[k - 1])
+                return ys[k - 1] + t * (ys[k] - ys[k - 1])
+
+    by_p = [interp(fr, row, min(max(x, 0.0), 1.0)) for row in grid]
+    return interp(ps, by_p, p)
+
+
+def breakeven_rest_rate_two_eta(m, m_star, p, q_ls_mean, tau, b, eta_ls, eta_oc):
+    """6b's break-even rest-of-machine fuel rate with each circuit's own pump efficiency (6g).
+
+    Per hour of load-sensing work the fuel gap is (b / 600) Q [(p + m*) / eta_oc - (p + m) / eta_ls]
+    + f_t (tau - 1): load-sensing delivers Q at p + m, the fixed pump the same work plus the
+    volume-ratio loss, (p + m*). With eta_ls == eta_oc it equals breakeven_rest_rate. Returns None
+    where open-centre burns no less pump fuel or loses no time."""
+    for e in (eta_ls, eta_oc):
+        if not 0 < e <= 1:
+            raise ValueError("efficiencies must be in (0, 1]")
+    gap = (p + m) / eta_ls - (p + m_star) / eta_oc
+    if gap <= 0 or tau <= 1:
+        return None
+    return b * gap * q_ls_mean / (600.0 * (tau - 1))

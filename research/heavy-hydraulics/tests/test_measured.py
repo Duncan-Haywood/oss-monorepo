@@ -259,3 +259,27 @@ def test_asabe_fuel_reproduces_the_factsheet_worked_example():
     assert asabe_fuel_lph(x, 1665 / 2190, p_kw) / GAL_L == pytest.approx(5.397, abs=0.01)
     # no load at full throttle: 0.019 gal/h per rated hp
     assert asabe_fuel_lph(0.0, 1.0, HP_KW) == pytest.approx(0.019 * GAL_L)
+
+
+def test_part_stroke_eta_and_two_eta_breakeven():
+    """Milestone 6g: bilinear efficiency table and the two-efficiency break-even."""
+    from heavy_hydraulics.measured import (eta_table, part_stroke_eta, breakeven_rest_rate,
+                                           breakeven_rest_rate_two_eta)
+    rows = [{"temperature_c": "60", "pressure_bar": "100", "cap_12": "0.6", "cap_45": "0.8"},
+            {"temperature_c": "60", "pressure_bar": "200", "cap_12": "0.5", "cap_45": "0.9"},
+            {"temperature_c": "25", "pressure_bar": "100", "cap_12": "0.1", "cap_45": "0.2"}]
+    t = eta_table(rows, 60)
+    assert t[0] == pytest.approx([12 / 45, 1.0]) and t[1] == [100.0, 200.0]
+    assert part_stroke_eta(t, 1.0, 100) == pytest.approx(0.8)
+    assert part_stroke_eta(t, 1.0, 150) == pytest.approx(0.85)
+    assert part_stroke_eta(t, 0.05, 100) == pytest.approx(0.6)       # held below the smallest stroke
+    x = (12 / 45 + 1) / 2
+    assert part_stroke_eta(t, x, 200) == pytest.approx(0.7)
+    assert part_stroke_eta(t, 1.3, 400) == pytest.approx(0.9)        # clipped
+    # equal efficiencies reduce to 6b's formula, with m* = m* and p cancelling
+    a = breakeven_rest_rate(20, 5, 98, 1.2, 0.2332, 0.818)
+    b = breakeven_rest_rate_two_eta(20, 5, 130, 98, 1.2, 0.2332, 0.818, 0.818)
+    assert b == pytest.approx(a, rel=1e-12)
+    # a part-stroke penalty on load-sensing raises the threshold; none if open-centre burns more
+    assert breakeven_rest_rate_two_eta(20, 5, 130, 98, 1.2, 0.2332, 0.75, 0.84) > a
+    assert breakeven_rest_rate_two_eta(20, 60, 130, 98, 1.2, 0.2332, 0.84, 0.84) is None
