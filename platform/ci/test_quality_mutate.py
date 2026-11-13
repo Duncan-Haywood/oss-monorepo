@@ -115,6 +115,18 @@ class MainTest(Fixture):
         code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")
         assert code == 2
 
+    def test_a_baseline_that_ran_no_tests_is_refused(self):
+        # unittest discovering nothing exits 0 with "Ran 0 tests": not a suite to grade with
+        (self.repo / "ventures/a/test_calc.py").rename(self.repo / "ventures/a/calc_cases.py")
+        code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")
+        assert code == 2
+
+    def test_no_tests_patterns(self):
+        assert qm.ran_no_tests("# tests 0\n# pass 0\n")
+        assert qm.ran_no_tests("Ran 0 tests in 0.000s\n\nOK")
+        assert not qm.ran_no_tests("# tests 10\n# pass 10\n")
+        assert not qm.ran_no_tests("Ran 10 tests in 0.1s")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -40,6 +40,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -132,6 +133,17 @@ def run(cmd: list[str], cwd: Path, timeout: int) -> tuple[str, float, str]:
     return ("pass" if p.returncode == 0 else "fail"), time.monotonic() - start, out[-1500:]
 
 
+# A runner that found no tests still exits 0 under node (`# tests 0`) and
+# unittest (`Ran 0 tests`), so every mutant "survives" an empty suite. Round 62
+# lost a set of rows to `node --test "'*.test.mjs'"`: a glob passed with its
+# shell quotes intact matched nothing.
+NO_TESTS = re.compile(r"^# tests 0\s*$|^Ran 0 tests\b|\bno tests ran\b|\bcollected 0 items\b", re.M)
+
+
+def ran_no_tests(output: str) -> bool:
+    return bool(NO_TESTS.search(output))
+
+
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -194,6 +206,11 @@ def main(argv: list[str] | None = None) -> int:
         if not args.no_baseline:
             state, secs, tail = run(cmd, shadow_cwd, args.timeout)
             say(f"baseline (unmutated copy): {state} in {secs:.1f} s")
+            if state == "pass" and ran_no_tests(tail):
+                print(tail, file=sys.stderr)
+                print("baseline ran no tests, so no mutant could be caught. Check the test "
+                      "command (a quoted glob passed without a shell matches nothing).", file=sys.stderr)
+                return 2
             if state != "pass":
                 print(tail, file=sys.stderr)
                 print("baseline failed: the suite is red without the mutant, so it cannot "
