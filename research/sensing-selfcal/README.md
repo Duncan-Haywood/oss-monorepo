@@ -92,6 +92,15 @@ f against the **99th percentile measured on the other camera** detects a **2% fo
 of splits and 4% in 78–85%** with 6 new views (0–5% false alarms), nearly what the oracle gets.
 Four of five pre-registered predictions held; the f-only power figure was not pre-registered.
 
+**Milestone 4d headline** (4,290 more solves; the update test on the 5×5-window corners milestone 6b
+found unbiased): with corners the board's half-width end squares cannot pull, **the focal-length
+spread between disjoint view sets falls from 0.86–1.02% to 0.59%**, and the f-alone jackknife test
+with a sibling's threshold **detects a 2% focal change in 61% of splits (34–35% on the biased
+corners) and a 1% change in 18–28%** (4–12% before), with 6 new views. It catches the real unit
+swap in 79%. But **the borrowed threshold stops travelling**: the left camera's false alarms reach
+11% (the right's 0%), because the jackknife now overstates the spread 1.5× on one camera and 2.8×
+on the other. Four of five pre-registered predictions held.
+
 **Milestone 6b headline** (which corner localiser is right; 26 renders of the real views from a
 known camera, 1,200 fits): **the printed board's end squares are only half as wide as the rest**
 (they reach 0.49–0.53 of the corner spacing past the last corner, against 0.94–0.97 on the other
@@ -102,6 +111,8 @@ biases Zhang's f by +0.4% to +1.5%** (real images: +0.64% / +0.91% against the 5
 **`findChessboardCornersSB` is biased the other way, −0.3% to −0.4%** (real: −0.12% / −0.39%).
 The **5×5 window is unaffected**, so its focal lengths (532.9 / 536.2 px) are the best estimates
 here. One of five pre-registered predictions held; the cause was found after the first failed.
+
+![share of splits where the jackknife update test fires against the focal change, three corner localisers: f alone against the other camera's threshold, and the three-parameter test](experiments/m4d_window/power.png)
 
 ![focal-length bias by corner localiser on renders with full and half-width end squares, against the real images; outer-ring corner error](experiments/m6b_render/render.png)
 
@@ -470,6 +481,52 @@ and the sensor's own noise; the ablation fixes the end-square reach at 0.5 where
 varies; the reach measurement and the ablation were not pre-registered. The truth camera is the
 11×11 fit only to place the board; any camera near it would do.
 
+## Milestone 4d: the update test on unbiased 5×5-window corners
+
+Pre-registered in `LOG.md` (2026-11-13) before any solve. Code: `experiments/m4d_window/run.py`
+(milestone 4b's 2,145 view sets per camera re-solved on `cornerSubPix` 5×5-window corners, same
+solver, references and start; it first re-solves the all-view set on 11×11 and SB corners and
+reproduced milestone 4b's stored solutions exactly) and `experiments/m4d_window/analyse.py`
+(milestone 4c's statistics and references, unchanged, via `score()` in `m4c_reference/analyse.py`).
+Milestone 6b showed the 5×5 window is the one localiser this board's half-width end squares do
+not bias, and the bias depends on each view's pose, so it should add to the set-to-set offset.
+
+**Hypotheses** (`experiments/m4d_window/summary.json`; 95% Wilson intervals; k ≥ 4 unless stated):
+
+| | prediction | result | |
+|---|---|---|---|
+| H38 | J with χ²<sub>3</sub>: false alarms ≤ 3% pooled, ≤ 5% each camera | 1.7% (0.8–3.6); 2.2 / 1.1% | held |
+| H39 | spread of f<sub>new</sub> − f<sub>old</sub> at k = 6 smaller than both other localisers | 0.59% vs 1.02% (11×11), 0.86% (SB) | held |
+| H40 | f alone vs the other camera's 99th pct: ±2% at k = 6 in ≥ 40% | 61.3% (55–67) vs 34.2 / 35.4% | held |
+| H41 | that threshold: false alarms ≤ 5% each camera | 11.1% left (7.3–16.5), 0.0% right | refuted |
+| H42 | J with χ²<sub>3</sub> detects the unit swap in ≥ 50% | 79.4% (75–83) vs 30.3 / 74.7% | held |
+
+**Power, 6 new views** (share of 120 splits; −/+ for focal changes):
+
+| change | f vs E 11×11 | f vs E SB | f vs E 5×5 | f vs O 5×5 (oracle) | W χ² 5×5 |
+|---|---|---|---|---|---|
+| none (k ≥ 4, false alarm) | 1.4% | 2.5% | 5.6% | 1.1% | 1.7% |
+| focal −1% / +1% | 4 / 10% | 12 / 7% | 28 / 18% | 26 / 24% | 4 / 8% |
+| focal −2% / +2% | 41 / 28% | 40 / 31% | 64 / 58% | 66 / 62% | 20 / 25% |
+| focal −4% / +4% | 83 / 79% | 85 / 78% | 98 / 97% | 96 / 93% | 78 / 71% |
+| principal point +10 px | 2% | 3% | 6% | 0% | 27% |
+| swap to the other unit | 4% | 2% | 4% | 3% | 87% |
+
+**Reading.** Removing the localiser bias removes a large share of the per-view-set offset that
+milestones 4–4c found: the f spread between disjoint sets drops by a third to two fifths and the
+f-alone test's power for a 2% change nearly doubles, so 1% changes come within reach about a
+quarter of the time. The jackknife covariance shrinks less than the real spread, and unequally
+(the jackknife σ of the difference is 1.23% / 1.17% of f against a real spread of 0.67% /
+0.51%), so the two cameras' tails now differ 3.5× (99th percentiles of z<sub>f</sub>² 3.56 and 1.03)
+and the right camera's threshold makes the left camera alarm on 11% of unchanged splits. That
+explanation was computed after H41 failed. The all-view target-free f on 5×5 corners, 534.3 /
+535.8 px, sits +0.27% / −0.08% from Zhang on the same corners.
+
+**What it means for a robot.** Find corners with a window smaller than the board's shortest end
+square: it matters as much as the statistics. The focal-length test is then sharp enough to be
+useful at 2%, but its threshold has to come from more than one sibling unit (or a per-unit tail
+estimate) before its false-alarm rate can be trusted.
+
 ## Milestone 4c: the jackknife test's reference distribution
 
 Pre-registered in `LOG.md` (2026-11-12) before any number was computed. Code:
@@ -645,6 +702,8 @@ python3 experiments/m4_accept/analyse.py   # summary.json, power.png
 OMP_NUM_THREADS=1 python3 experiments/m4b_viewcov/run.py  # ~25 min on 4 cores; results.json.gz
 python3 experiments/m4b_viewcov/analyse.py  # summary.json, power.png
 python3 experiments/m4c_reference/analyse.py  # seconds, no new solve; summary.json, power.png
+OMP_NUM_THREADS=1 python3 experiments/m4d_window/run.py   # ~40 min on 4 cores, resumable; results.json.gz
+python3 experiments/m4d_window/analyse.py      # seconds; summary.json, power.png
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -696,7 +755,7 @@ After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on S
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
 right (done in milestone 6b: the 5×5 window; the board's half-width end squares bias the other two). After
-milestone 6b: redo the milestone 4c threshold test and milestone 3's jackknife on 5×5 corners, and
+milestone 6b: redo the milestone 4c threshold test (done in milestone 4d: power nearly doubles, the borrowed threshold fails on one camera) and milestone 3's jackknife on 5×5 corners; after 4d, pool the f-alone threshold over several sibling units or estimate each unit's tail, and
 render the bend and the clipboard into the twin to see how much of the 2× σ gap they explain. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
 calibration of the same camera (H5). After milestone 4b (done: SB corners and a jackknife Σ): calibrate the test's threshold to the
 jackknife's heavier tails (done in milestone 4c: an F reference is too strict; a sibling unit's 99th percentile on f alone works);
