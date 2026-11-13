@@ -1,0 +1,26 @@
+# Benford Audit: Benford's-law tests on a ledger, expense or invoice CSV
+
+> Free private browser tool (and Node CLI) that runs Mark Nigrini's Benford's-law digit tests on the amounts in a CSV, plus a just-under-approval-limit test and a per-vendor or per-employee ranking corrected for group size and multiple testing, and returns a ranked list of records to review.
+
+Free and open source (MIT). Results are statistical screens of the user's own data, not legal, tax, financial, accounting or audit advice, and never a finding that anything is fraudulent.
+
+## What it computes
+
+- First-digit, second-digit and first-two-digits tests: per-digit Z statistic with continuity correction, mean absolute deviation (MAD) with Nigrini's 2012 conformity bands, chi-square and p-value.
+- Last-two-digits test (cents, or whole-number digits of amounts of 100 and over), summation test, number-duplication test, round-number shares.
+- Just-under-threshold test: amounts within 10% below vs above each limit, against the 1/x (Benford) density's expected share below (about 52.5%), exact binomial tail; flagged at p < 0.01 with 10+ amounts in the window.
+- Per-group first-digit test: excess MAD (observed minus the MAD expected from sampling noise at that size), chi-square p, Benjamini-Hochberg q; flagged at q < 0.05.
+- Applicability notes: sample size, orders of magnitude spanned, right skew.
+
+## Pages
+
+- [The tool](https://marisstella.app/benford-audit/)
+- [For internal auditors, fraud examiners and bookkeepers: a worked example and when to use something else](https://marisstella.app/benford-audit/for-auditors.html)
+
+## Command line
+
+`node cli.mjs ledger.csv [--amount COL] [--group COL] [--sign positive|negative|both] [--min 10] [--threshold 5000,10000] [--group-min 50] [--json] [--flagged out.csv]`
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/benford-audit): MIT licensed.

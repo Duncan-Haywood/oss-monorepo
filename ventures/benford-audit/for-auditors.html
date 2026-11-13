@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2317324d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E1%3C/text%3E%3C/svg%3E">
+  <title>Benford's Law Testing for Internal Auditors, Fraud Examiners and Bookkeepers</title>
+  <meta name="description" content="Who a free browser Benford's-law test is for, a worked example on a 2,565-row expense ledger with three planted problems, and when an audit analytics suite or a different test is the better choice.">
+  <meta property="og:title" content="Benford's law testing for auditors"><meta property="og:description" content="A worked example of Nigrini's digit tests, a just-under-limit test and a per-vendor ranking on an expense ledger, run free in the browser.">
+  <link rel="canonical" href="./for-auditors.html">
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.55}body{max-width:780px;margin:auto;padding:2rem 1rem}h1{color:#17324d;line-height:1.1;font-size:clamp(1.8rem,5vw,2.8rem)}h2{color:#17324d;margin-top:2rem}
+    table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{text-align:left;border-bottom:1px solid #ddd;padding:.4rem}td.num{text-align:right;font-variant-numeric:tabular-nums}
+    .cta{display:inline-block;background:#af6035;color:#fff;padding:.7rem 1rem;border-radius:8px;font-weight:700;text-decoration:none}.tablewrap{overflow-x:auto}footer{margin-top:2rem;font-size:.9rem;color:#4d5963}
+  </style>
+</head>
+<body>
+  <p><a href="./">Benford Audit</a></p>
+  <h1>Benford's-law testing for people who review other people's numbers</h1>
+  <p>You have a year of expense claims, a vendor payment history or a general-ledger export, and too many rows to read. You want to know which handful to pull first. Benford's law gives a principled place to start: in most honest financial data, about 30% of amounts begin with a 1 and under 5% begin with a 9, and invented or manipulated figures tend not to follow that pattern.</p>
+  <p><a class="cta" href="./">Run the tests on your CSV</a></p>
+
+  <h2>Who it is for</h2>
+  <ul>
+    <li><strong>Internal auditors</strong> scoping a payables, T&amp;E or purchasing-card review who want a risk-ranked sample rather than a random one.</li>
+    <li><strong>Fraud examiners and forensic accountants</strong> who need a quick first look at a client's export before deciding whether a full engagement in their usual tools is warranted.</li>
+    <li><strong>Bookkeepers, controllers and small-business owners</strong> who approve expenses and want to check whether anyone's claims look made up or are held just under the limit that would need a second approval.</li>
+    <li><strong>Students and teachers</strong> of auditing and data analytics who want to see Nigrini's tests on data without a licence.</li>
+  </ul>
+
+  <h2>What it runs</h2>
+  <p>The tests and their verdict bands follow Mark Nigrini's <cite>Benford's Law: Applications for Forensic Accounting, Auditing, and Fraud Detection</cite> (Wiley, 2012):</p>
+  <ul>
+    <li><strong>First-digit, second-digit and first-two-digits tests</strong>, each with a Z statistic per digit, the mean absolute deviation (MAD) and Nigrini's conformity verdict, plus chi-square and its p-value.</li>
+    <li><strong>Last-two-digits test</strong> (on the cents, or on whole numbers of 100 and over), which picks up rounding and invented figures.</li>
+    <li><strong>Summation test</strong>, which finds first-two-digit bins carried by a few very large amounts.</li>
+    <li><strong>Number-duplication test</strong>: the exact amounts that repeat most, and who they were paid to.</li>
+  </ul>
+  <p>Two additions that are not in the standard suite:</p>
+  <ul>
+    <li><strong>Just under an approval limit.</strong> You enter your limits (say 5,000 and 10,000). For each, the page counts amounts within 10% below and 10% above. Under a smooth Benford-shaped distribution about 52.5% of that window falls below the limit (the share is ln(1/0.9) / (ln(1/0.9) + ln 1.1)), so a large excess below, tested with an exact binomial tail, is the pattern split purchases and limit-shaving leave.</li>
+    <li><strong>A per-group ranking.</strong> The first-digit test is run for every vendor, employee or card with enough amounts. Small groups always look worse on MAD because of sampling noise alone, so the ranking subtracts the MAD expected at each group's size, and the p-values are corrected for testing dozens of groups at once (Benjamini-Hochberg). That keeps the one honest vendor with 52 invoices from topping the list by chance.</li>
+  </ul>
+
+  <h2>A worked example</h2>
+  <p>The page's example button loads a made-up expense ledger: 2,400 amounts drawn from a distribution that follows Benford's law, spread over 40 vendors, plus three planted problems. A vendor with 60 invoices between 4,500 and 4,999 under a 5,000 approval limit; 25 copies of the same 1,250.00 reimbursement; and an employee whose 80 claims were made up by hand, mostly starting with 5 to 8. Here is what the tests report on it.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Test</th><th>Result</th><th>What it found</th></tr>
+    <tr><td>First digit, whole file</td><td>MAD 0.0031, close conformity</td><td>Nothing. 165 bad rows in 2,565 barely move the whole-file first digit.</td></tr>
+    <tr><td>First two digits, whole file</td><td>MAD 0.0019, marginally acceptable</td><td>A hint something is off, without saying what.</td></tr>
+    <tr><td>Just under 5,000</td><td>84 under vs 30 over; 59.9 expected under; p = 2.9 &times; 10<sup>-6</sup></td><td>The limit-shaving vendor.</td></tr>
+    <tr><td>Just under 10,000</td><td>25 under vs 37 over; p = 0.98</td><td>Nothing, correctly.</td></tr>
+    <tr><td>Number duplication</td><td>1,250.00 appears 25 times</td><td>The repeated reimbursement.</td></tr>
+    <tr><td>Per-group ranking (39 groups of 50+)</td><td>2 groups with q &lt; 0.05</td><td>Exactly the shaving vendor and the invented-claims employee; no honest vendor passes the correction.</td></tr>
+    <tr><td>Last two digits</td><td>chi-square 281.7 on 99 df</td><td>Too many .00, .25 and .50 endings: rounding from the repeated and invented amounts.</td></tr>
+  </table></div>
+  <p>The lesson is the usual one in Benford work: the whole-file first-digit test is a blunt instrument. The tests that look at a specific mechanism (a limit, a repeat, one person's numbers) are the ones that point to records.</p>
+
+  <h2>When to use something else</h2>
+  <ul>
+    <li><strong>Your data should not follow Benford's law.</strong> Assigned numbers (invoice, check or employee numbers), amounts bounded by policy (a per-diem, a meal cap), prices from a list, or anything spanning less than about two orders of magnitude. The page warns when the range or skew of a file looks wrong, but the judgment is yours.</li>
+    <li><strong>You have fewer than about 300 amounts.</strong> The tests have little power. Read the records instead.</li>
+    <li><strong>You need a documented, repeatable audit trail across many tests and data sources.</strong> Audit analytics suites such as IDEA, Diligent (formerly ACL) and Arbutus include Benford functions alongside joins, sampling, scripting and logging that this page does not try to replicate.</li>
+    <li><strong>You are looking for the same bill paid twice.</strong> That is a matching problem, not a digit problem: use the <a href="../duplicate-payment-audit/">duplicate payment audit</a>.</li>
+  </ul>
+
+  <h2>Privacy</h2>
+  <p>The CSV is read by the page in your browser and is never uploaded. A command-line version reads the same files with the same code (<code>node cli.mjs ledger.csv --threshold 5000,10000</code>) for anyone who would rather keep the data off a browser entirely or script the check.</p>
+
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, financial, accounting or audit advice. It does not determine that any record is fraudulent, wrong or improper; many honest data sets do not follow Benford's law. You are responsible for verifying its output against source documents before drawing any conclusion about anyone. Everything runs in your browser; files are never uploaded. <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</footer>
+</body>
+</html>
