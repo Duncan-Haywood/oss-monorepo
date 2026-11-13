@@ -1,0 +1,54 @@
+Milestone 7f: centre of pressure above; integrator feed-forward designs trained with ki <= ceiling / M as a constraint (both axes, 8 plant corners).
+6 seeds, best of 2 CMA-ES starts x 3200 evaluations on 16 episodes; held-out 64 episodes (seed 9999), side force on.
+unconstrained = milestone 7b's `integ retrained`; M=1.25 = milestone 7e's constrained designs; both re-scored here.
+ceil = ki_ceiling multiple; dead = held-out episodes diverged, summed over seeds (per-seed in brackets); cap = tilt-command limit.
+
+[unconstrained] cant 33.7 deg; hover W 470.9; ki/kp 4.42, 4.10, 3.74, 3.96, 4.00, 3.96; ceil 1.04, 1.00, 1.01, 1.05, 1.11, 0.88
+  cap 20, lever 0: J -1.560; minus unconstrained +0.000 (se 0.000, better in 0 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.583; minus unconstrained +0.000 (se 0.000, better in 0 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.494; minus unconstrained +0.000 (se 0.000, better in 0 of 6); pos 0.203 m; dead 15 [1, 2, 4, 5, 2, 1]
+  cap 45, lever 0: J -2.964; minus unconstrained +0.000 (se 0.000, better in 0 of 6); pos 0.257 m; dead 13 [1, 1, 2, 1, 1, 7]
+  cap 45, lever 1: J -3.029; minus unconstrained +0.000 (se 0.000, better in 0 of 6); pos 0.259 m; dead 13 [0, 1, 4, 0, 0, 8]
+  cap 45, lever 2: J -5.883; minus unconstrained +0.000 (se 0.000, better in 0 of 6); pos 0.554 m; dead 45 [3, 5, 10, 10, 5, 12]
+
+[M=1.00] cant 33.6 deg; hover W 475.4; ki/kp 4.32, 4.24, 3.87, 3.84, 3.87, 3.59; ceil 1.03, 1.02, 1.07, 1.05, 1.07, 1.00; rejected 0.11 of training candidates
+  cap 20, lever 0: J -1.561; minus unconstrained -0.001 (se 0.004, better in 3 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.583; minus unconstrained +0.000 (se 0.003, better in 3 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.255; minus unconstrained +0.239 (se 0.128, better in 5 of 6); pos 0.179 m; dead 12 [1, 1, 4, 4, 1, 1]
+  cap 45, lever 0: J -2.550; minus unconstrained +0.414 (se 0.359, better in 5 of 6); pos 0.213 m; dead 9 [1, 0, 1, 2, 1, 4]
+  cap 45, lever 1: J -2.591; minus unconstrained +0.438 (se 0.847, better in 4 of 6); pos 0.214 m; dead 9 [0, 0, 0, 4, 1, 4]
+  cap 45, lever 2: J -4.595; minus unconstrained +1.288 (se 0.611, better in 5 of 6); pos 0.424 m; dead 32 [3, 3, 6, 9, 4, 7]
+
+[M=1.11] cant 32.4 deg; hover W 478.8; ki/kp 4.14, 4.13, 0.03, 3.64, 4.31, 3.59; ceil 1.14, 1.12, 4.00, 1.12, 1.14, 1.12; rejected 0.10 of training candidates
+  cap 20, lever 0: J -1.572; minus unconstrained -0.012 (se 0.010, better in 2 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.603; minus unconstrained -0.020 (se 0.017, better in 1 of 6); pos 0.109 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.143; minus unconstrained +0.351 (se 0.204, better in 4 of 6); pos 0.166 m; dead 9 [1, 1, 0, 4, 1, 2]
+  cap 45, lever 0: J -1.882; minus unconstrained +1.081 (se 0.614, better in 4 of 6); pos 0.140 m; dead 3 [1, 0, 0, 1, 0, 1]
+  cap 45, lever 1: J -1.793; minus unconstrained +1.237 (se 0.775, better in 3 of 6); pos 0.129 m; dead 2 [0, 0, 1, 0, 0, 1]
+  cap 45, lever 2: J -3.613; minus unconstrained +2.270 (se 0.798, better in 6 of 6); pos 0.323 m; dead 22 [3, 3, 2, 7, 2, 5]
+
+[M=1.25] cant 31.0 deg; hover W 486.1; ki/kp 3.84, 3.81, 3.30, 3.52, 3.93, 3.50; ceil 1.27, 1.28, 1.30, 1.28, 1.26, 1.30
+  cap 20, lever 0: J -1.571; minus unconstrained -0.011 (se 0.003, better in 0 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.592; minus unconstrained -0.009 (se 0.003, better in 1 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -1.896; minus unconstrained +0.598 (se 0.218, better in 6 of 6); pos 0.139 m; dead 4 [0, 1, 1, 1, 1, 0]
+  cap 45, lever 0: J -1.561; minus unconstrained +1.403 (se 0.652, better in 6 of 6); pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.582; minus unconstrained +1.447 (se 0.895, better in 4 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.629; minus unconstrained +3.254 (se 1.006, better in 6 of 6); pos 0.221 m; dead 12 [1, 2, 2, 4, 2, 1]
+
+[M=1.43] cant 32.8 deg; hover W 477.0; ki/kp 3.10, 2.95, 2.87, 2.89, 3.33, 2.76; ceil 1.43, 1.53, 1.43, 1.44, 1.45, 1.48; rejected 0.14 of training candidates
+  cap 20, lever 0: J -1.570; minus unconstrained -0.010 (se 0.003, better in 0 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.593; minus unconstrained -0.009 (se 0.002, better in 0 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -1.916; minus unconstrained +0.578 (se 0.241, better in 5 of 6); pos 0.141 m; dead 4 [1, 0, 1, 1, 1, 0]
+  cap 45, lever 0: J -1.560; minus unconstrained +1.404 (se 0.649, better in 6 of 6); pos 0.104 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.582; minus unconstrained +1.447 (se 0.893, better in 3 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.595; minus unconstrained +3.288 (se 1.101, better in 6 of 6); pos 0.216 m; dead 13 [2, 2, 4, 3, 2, 0]
+
+[M=1.67] cant 31.7 deg; hover W 480.4; ki/kp 3.24, 2.81, 2.58, 2.64, 2.58, 2.35; ceil 1.69, 1.70, 1.74, 1.72, 1.67, 1.67; rejected 0.15 of training candidates
+  cap 20, lever 0: J -1.572; minus unconstrained -0.012 (se 0.006, better in 2 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.597; minus unconstrained -0.014 (se 0.005, better in 0 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -1.887; minus unconstrained +0.607 (se 0.187, better in 6 of 6); pos 0.138 m; dead 4 [0, 1, 1, 2, 0, 0]
+  cap 45, lever 0: J -1.565; minus unconstrained +1.399 (se 0.654, better in 6 of 6); pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.589; minus unconstrained +1.441 (se 0.896, better in 4 of 6); pos 0.106 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.586; minus unconstrained +3.297 (se 0.996, better in 6 of 6); pos 0.216 m; dead 12 [1, 2, 2, 4, 2, 1]
+
+wall time 4055 s
