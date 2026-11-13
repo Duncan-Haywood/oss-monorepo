@@ -55,7 +55,7 @@ Narrowly: claim 1 is new for this benchmark as far as the papers we could read g
 - **H1 (scoring).** On BattLeDIM 2019, a detection-only true-positive count under a 30-day matching window is within the 95% chance range for any detector that raises 20 or more alarms over 2018-19; location-aware counts are not. *Refuted* if a reimplemented published method (LILA or SICAMS) scores a detection-only count with P(chance ≥) < 0.05 at 20 or more alarms, or if our location-aware count falls inside the chance range. Step 1: D1 is consistent with H1 (P = 0.105 and P < 0.001). Step 2: refuted as written by LILA-auto (P = 0.019 at 26 alarms), thinly (2 of 13 grid settings with ≥ 20 alarms below 0.05; P = 0.265 under a norm tie-break); the location clause held in all 27 settings. To restate as a margin claim.
 - **H2 (certified rate).** An e-process-calibrated residual detector keeps its false alarms on simulated leak-free L-Town years at or below the nominal rate α (e.g. one per 90 days) and still detects at least 80% of 2019's abrupt leaks above 10 m³/h peak within 24 h. *Refuted* if the simulated false-alarm rate exceeds 2α or abrupt detection within 24 h falls below 80%.
 - **H3 (localisation).** Data-driven detection followed by sensitivity-based localisation on the nominal `L-TOWN.inp` puts at least half of the detected 2019 leaks within 300 m. *Refuted* below 30%.
-- **H4 (incipient leaks).** For incipient leaks (peak under about 12 m³/h), a minimum-night-flow statistic on the three inlet flows detects with a shorter median delay than pressure CUSUM. *Refuted* if its median delay is not shorter on the 2019 incipient leaks.
+- **H4 (incipient leaks).** For incipient leaks (peak under about 12 m³/h), a minimum-night-flow statistic on the three inlet flows detects with a shorter median delay than pressure CUSUM. *Refuted* if its median delay is not shorter on the 2019 incipient leaks. Step 6: refuted (M1: 3 of 9 detected, median a miss, against D1's 154 h; leaks defined by peak < 12 m³/h).
 
 ## Method
 
@@ -78,7 +78,7 @@ Narrowly: claim 1 is new for this benchmark as far as the papers we could read g
 3. **Localisation** by WNTR sensitivities on the nominal model; the 300 m confusion matrix as BattLeDIM scored it (H3).
 4. **Leak-free simulated years** from `L-TOWN_Real.inp` (177 MB, with real demands) for measuring false-alarm rates.
 5. **E-process detector** and its measured false-alarm rate against α (H2).
-6. **Minimum-night-flow** and the incipient leaks (H4).
+6. **Minimum-night-flow** and the incipient leaks (H4). First run done 2026-11-13: M1 detects 3 of the 9 leaks under 12 m³/h against D1's 7, earlier on 1 of 9; H4 refuted; the nightly minimum's robust sd (10.7 m³/h) is the size of the leaks. Open: a weekday baseline and an AMR-net night balance.
 7. **Ablations and statistics**; one command per figure.
 8. **Paper** in the venue's format; submission is an owner step.
 

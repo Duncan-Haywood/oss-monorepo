@@ -1,0 +1,134 @@
+# water-leaks step 6: minimum night flow (M1) on BattLeDIM's water balance; trailing window W=14 d, g=7 d, re-anchored (min 7 d), CUSUM k=0.5; night 00:00-06:00, alarm at 06:00
+# tune on 2018 (leaks starting from 2018-01-15), test on 2019; matching as step 1 (30-day window)
+# D1-F and LILA-auto delays read from steps 1 and 2's results.txt
+
+# M1: night minimum of p227 + p235 - A_T1 dL/dt
+  nightly minimum, 2018: median 82.1 m3/h, 5-95% 50.3 to 120.5; 2019: median 136.6
+  14-day robust sd of the nightly minimum in 2018: median 10.69 m3/h (5-95% 5.62 to 20.48)
+  h   1: alarms  32 | 2018 TP 9/13 FP  3 | 2019 new TP 15/19 FP  4
+  h   2: alarms  27 | 2018 TP 8/13 FP  1 | 2019 new TP 13/19 FP  4
+  h   3: alarms  25 | 2018 TP 8/13 FP  0 | 2019 new TP 10/19 FP  6
+  h   5: alarms  22 | 2018 TP 7/13 FP  1 | 2019 new TP 11/19 FP  2
+  h   8: alarms  19 | 2018 TP 7/13 FP  0 | 2019 new TP 10/19 FP  1
+  h  12: alarms  16 | 2018 TP 6/13 FP  0 | 2019 new TP 8/19 FP  2
+  h  20: alarms  12 | 2018 TP 4/13 FP  0 | 2019 new TP 7/19 FP  1
+  h  30: alarms  10 | 2018 TP 4/13 FP  0 | 2019 new TP 6/19 FP  0
+  h  50: alarms   7 | 2018 TP 2/13 FP  0 | 2019 new TP 5/19 FP  0
+  selection on 2018 only: most 2018 TP with at most 2 2018 FP (ties: fewer FP, larger h)
+
+## M1: h = 3
+2018: TP 8/13, FP 0
+2019: TP 10/19 new leaks, FP 6; carried leaks found in 2018: 3/4
+chance level: the same 25 alarms over 2018-19 at random hours (14 d apart), 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP              10      11 (8 to 13)              0.801
+  FP               6       2 (0 to 4)              0.003
+  TP<=72h          3       2 (0 to 5)              0.316
+   p123 onset 2019-09-15T15:40 peak  9.19 m3/h  missed
+   p142 onset 2019-06-12T19:55 peak 27.04 m3/h  detected +  59 h
+   p193 onset 2019-05-20T21:55 peak 10.36 m3/h  missed
+   p277 onset 2019-06-01T19:40 peak  7.36 m3/h  missed
+   p280 onset 2019-02-10T13:05 peak  5.26 m3/h  detected + 497 h
+   p331 onset 2019-04-20T10:10 peak 10.93 m3/h  detected +  20 h
+   p426 onset 2019-10-25T13:25 peak 13.56 m3/h  detected + 209 h
+   p455 onset 2019-10-05T03:35 peak 11.05 m3/h  missed
+   p514 onset 2019-04-02T20:40 peak 15.58 m3/h  detected +  82 h
+   p523 onset 2019-01-15T23:00 peak 28.39 m3/h  missed
+   p586 onset 2019-07-27T02:55 peak 20.52 m3/h  missed
+   p653 onset 2019-03-04T08:40 peak 18.28 m3/h  detected + 454 h
+   p680 onset 2019-07-10T08:45 peak  5.37 m3/h  missed
+   p710 onset 2019-03-24T14:15 peak  5.58 m3/h  missed
+   p721 onset 2019-08-03T03:20 peak 13.18 m3/h  missed
+   p762 onset 2019-10-10T09:40 peak 15.71 m3/h  detected + 213 h
+   p800 onset 2019-08-16T22:05 peak 21.95 m3/h  detected + 104 h
+   p827 onset 2019-01-24T18:30 peak 26.46 m3/h  detected +  60 h
+   p879 onset 2019-11-21T09:15 peak 10.93 m3/h  detected + 405 h
+  false alarm 2019-01-13T06
+  false alarm 2019-05-05T06
+  false alarm 2019-05-19T06
+  false alarm 2019-07-07T06
+  false alarm 2019-09-05T06
+  false alarm 2019-11-17T06
+
+## H4 (M1): 2019 new leaks with peak < 12 m3/h, misses as infinite delay
+   pipe   peak       M1     D1-F     LILA
+   p123   9.19   missed    154 h   missed
+   p193  10.36   missed    197 h   missed
+   p277   7.36   missed   missed    254 h
+   p280   5.26    497 h    104 h    134 h
+   p331  10.93     20 h     71 h    142 h
+   p455  11.05   missed     35 h     23 h
+   p680   5.37   missed     11 h      2 h
+   p710   5.58   missed   missed     73 h
+   p879  10.93    405 h    341 h    193 h
+  median delay: M1 missed, D1-F 154 h, LILA-auto 142 h; detected 3, 7, 7 of 9
+  paired with D1-F: M1 earlier on 1, later on 6, tied on 2
+  paired with LILA-auto: M1 earlier on 1, later on 6, tied on 2
+  bootstrap over the 9 leaks (2,000 resamples): M1 median below D1-F's in 0.003
+  H4 (median below D1-F's 154 h): REFUTED
+  leaks of 12 m3/h and above (10): median delay M1 211 h, D1-F 134 h, LILA-auto 229 h; detected 7, 6, 7
+
+# ablation declared in the plan: no tank term
+
+# M1-nt: night minimum of p227 + p235 (no tank term)
+  nightly minimum, 2018: median 79.8 m3/h, 5-95% 45.9 to 122.3; 2019: median 143.8
+  14-day robust sd of the nightly minimum in 2018: median 13.86 m3/h (5-95% 5.14 to 26.25)
+  h   1: alarms  32 | 2018 TP 9/13 FP  5 | 2019 new TP 13/19 FP  4
+  h   2: alarms  25 | 2018 TP 8/13 FP  5 | 2019 new TP 10/19 FP  2
+  h   3: alarms  19 | 2018 TP 6/13 FP  2 | 2019 new TP 8/19 FP  3
+  h   5: alarms  17 | 2018 TP 6/13 FP  1 | 2019 new TP 7/19 FP  3
+  h   8: alarms  13 | 2018 TP 4/13 FP  1 | 2019 new TP 6/19 FP  2
+  h  12: alarms   9 | 2018 TP 4/13 FP  0 | 2019 new TP 5/19 FP  0
+  h  20: alarms   6 | 2018 TP 3/13 FP  0 | 2019 new TP 3/19 FP  0
+  h  30: alarms   5 | 2018 TP 3/13 FP  0 | 2019 new TP 2/19 FP  0
+  h  50: alarms   3 | 2018 TP 2/13 FP  0 | 2019 new TP 1/19 FP  0
+  selection on 2018 only: most 2018 TP with at most 2 2018 FP (ties: fewer FP, larger h)
+
+## M1-nt: h = 5
+2018: TP 6/13, FP 1
+2019: TP 7/19 new leaks, FP 3; carried leaks found in 2018: 2/4
+chance level: the same 17 alarms over 2018-19 at random hours (14 d apart), 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP               7       8 (5 to 10)              0.782
+  FP               3       1 (0 to 3)              0.071
+  TP<=72h          4       1 (0 to 4)              0.033
+   p123 onset 2019-09-15T15:40 peak  9.19 m3/h  missed
+   p142 onset 2019-06-12T19:55 peak 27.04 m3/h  detected +  59 h
+   p193 onset 2019-05-20T21:55 peak 10.36 m3/h  missed
+   p277 onset 2019-06-01T19:40 peak  7.36 m3/h  missed
+   p280 onset 2019-02-10T13:05 peak  5.26 m3/h  detected + 497 h
+   p331 onset 2019-04-20T10:10 peak 10.93 m3/h  detected +  20 h
+   p426 onset 2019-10-25T13:25 peak 13.56 m3/h  missed
+   p455 onset 2019-10-05T03:35 peak 11.05 m3/h  missed
+   p514 onset 2019-04-02T20:40 peak 15.58 m3/h  detected +  58 h
+   p523 onset 2019-01-15T23:00 peak 28.39 m3/h  detected + 127 h
+   p586 onset 2019-07-27T02:55 peak 20.52 m3/h  missed
+   p653 onset 2019-03-04T08:40 peak 18.28 m3/h  missed
+   p680 onset 2019-07-10T08:45 peak  5.37 m3/h  missed
+   p710 onset 2019-03-24T14:15 peak  5.58 m3/h  missed
+   p721 onset 2019-08-03T03:20 peak 13.18 m3/h  missed
+   p762 onset 2019-10-10T09:40 peak 15.71 m3/h  missed
+   p800 onset 2019-08-16T22:05 peak 21.95 m3/h  detected + 152 h
+   p827 onset 2019-01-24T18:30 peak 26.46 m3/h  missed
+   p879 onset 2019-11-21T09:15 peak 10.93 m3/h  detected +  69 h
+  false alarm 2019-01-07T06
+  false alarm 2019-09-07T06
+  false alarm 2019-12-08T06
+
+## H4 (M1-nt): 2019 new leaks with peak < 12 m3/h, misses as infinite delay
+   pipe   peak    M1-nt     D1-F     LILA
+   p123   9.19   missed    154 h   missed
+   p193  10.36   missed    197 h   missed
+   p277   7.36   missed   missed    254 h
+   p280   5.26    497 h    104 h    134 h
+   p331  10.93     20 h     71 h    142 h
+   p455  11.05   missed     35 h     23 h
+   p680   5.37   missed     11 h      2 h
+   p710   5.58   missed   missed     73 h
+   p879  10.93     69 h    341 h    193 h
+  median delay: M1-nt missed, D1-F 154 h, LILA-auto 142 h; detected 3, 7, 7 of 9
+  paired with D1-F: M1-nt earlier on 2, later on 5, tied on 2
+  paired with LILA-auto: M1-nt earlier on 2, later on 5, tied on 2
+  bootstrap over the 9 leaks (2,000 resamples): M1-nt median below D1-F's in 0.033
+  H4 (median below D1-F's 154 h): REFUTED
+  leaks of 12 m3/h and above (10): median delay M1-nt missed, D1-F 134 h, LILA-auto 229 h; detected 4, 6, 7

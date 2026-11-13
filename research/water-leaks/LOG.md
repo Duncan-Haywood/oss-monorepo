@@ -1,5 +1,13 @@
 # water-leaks research log
 
+## 2026-11-13 · Step 6 outcome: minimum night flow misses the small leaks; H4 refuted
+- **Chosen on 2018:** M1 with h = 3 (8 of 13, no false alarm; 25 alarms over both years). Code as planned; the only edits after the first run were output (a `night.tsv` series for the figure), and the rerun was byte-identical.
+- **H4, on the 9 new 2019 leaks under 12 m³/h:** M1 detects 3 (p280 at +497 h, p331 at +20 h, p879 at +405 h), D1-F 7, LILA-auto 7. Median delay with misses infinite: M1 missed, D1-F 154 h, LILA-auto 142 h. Paired with D1-F, M1 is earlier on 1 leak, later on 6, both missed on 2; a bootstrap over the 9 leaks puts M1's median below D1-F's in 0.3% of resamples. **H4 refuted.**
+- **All 19 new leaks:** 10 detected, 6 false alarms; chance with 25 alarms has median 11 (8 to 13), P = 0.80 on the count, and its false alarms are above chance's (P = 0.003). Leaks of 12 m³/h and up: M1 7 of 10 (median 211 h), D1-F 6 (134 h), LILA 7 (229 h).
+- **Ablation M1-nt (no tank term):** spread 13.9 m³/h instead of 10.7, h = 5, 7 of 19 with 3 false alarms, the same 3 small leaks.
+- **Why.** The nightly minimum's two-week robust sd is 10.7 m³/h at the median in 2018 (5 to 95%: 5.6 to 20.5), the size of the leaks in question. Post-hoc diagnostic, after the 2019 scores (`experiments/step6-mnf/weekly.py`, 2018 only): Friday and Saturday early mornings sit +9.6 and +14.6 m³/h above a 7-night running median; removing weekday means cuts the spread from 10.1 to 7.1 m³/h.
+- **What it changes.** For the paper, the small-leak signal on L-Town is in the pressure sensors, not the district meter; H4 as stated is refuted. Two MNF variants deserve one pre-registered run each before H4 is closed: a weekday baseline, and the night balance net of the 82 AMR demands (BattLeDIM's `*_SCADA_Demands.csv`, not yet loaded). Both will be scored on a 2019 already seen through M1, which the paper must say.
+
 ## 2026-11-13 · Step 6 plan (minimum night flow, H4), written before any night-flow statistic was computed
 - **Why now.** H4 needs only the three inlet flows and the tank level, which step 1 already loads, and it is the one hypothesis about the leaks every published entry mostly misses. Milestones 3 to 5 need WNTR and the 177 MB `L-TOWN_Real.inp`; this step does not.
 - **What was seen before writing this.** The first two data rows of `2019_SCADA_Flows.csv` and `2019_SCADA_Levels.csv` (column names), and the 2019 per-leak delays of D1 and LILA-auto already in their `results.txt`. No night-flow series, for either year, has been computed.
