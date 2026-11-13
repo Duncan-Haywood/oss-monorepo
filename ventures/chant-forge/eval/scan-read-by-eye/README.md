@@ -21,12 +21,21 @@ and `scan-read-by-eye.test.mjs` fails if a checked file changes without a fresh 
 | `pange-lingua.gabc` | 53 | Graduale Romanum, Vatican, 1908, p. 123* | [914](https://archive.org/details/graduale-romanum-1908/page/n914) | 0 |
 | `salve-regina.gabc` | 231 | Liber Usualis, Desclée, 1913, pp. 62-63 (solemn tone, mode 1) | [70-71](https://archive.org/details/liber-usualis-1913/page/n70) | 0 |
 | `te-deum-simple.gabc` (the pre-15377 `te-deum.gabc`) | 552 | Liber Usualis, Desclée, 1913, pp. 25*-28* (*tonus simplex*) | [603-606](https://archive.org/details/liber-usualis-1913/page/n603) | 0 |
+| `te-deum.gabc` (1908 Roman tone, read later the same day) | 637 | Graduale Romanum, Vatican, 1908, pp. 118*-121* (*juxta morem Romanum*) | [909-912](https://archive.org/details/graduale-romanum-1908/page/n909) | 0 |
 | `gregobase-1908/3407.gabc` (ending only) | 219 | Graduale Romanum, Vatican, 1908, p. 396 | [419](https://archive.org/details/graduale-romanum-1908/page/n419) | 0 |
 
 "Notes" counts the individual pitches the parser reads, so a three-note neume
 counts three.
 
 ## What the reading turned up
+
+- **The 1908 Te Deum now has a reading by eye too** (added later on 2026-11-13).
+  The file PR 15377 brought in (GregoBase 3656, with its one scan correction, *si-ne*
+  on e) was read system by system against leaves 909-912. All 637 notes match,
+  including the seven quilismas, 18 rhombi and three liquescent podatus (*ergo*,
+  *laudámus*, *quemádmodum*) that `scan.mjs` does not check. The scans were
+  reachable again that afternoon after returning 403 to cloud sessions in the
+  morning.
 
 - **The Te Deum and Salve Regina now have a pre-1929 witness.** Both files,
   unchanged, match the 1913 Liber Usualis note for note. The melodies are in

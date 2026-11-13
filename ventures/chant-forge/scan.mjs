@@ -8,7 +8,8 @@
 // the GABC's (an edit distance with free ends in the GABC), so a page that
 // shows only part of a piece is placed where it belongs.
 //
-// A porrectus stroke is read as its two ends. What it does not read: the clef's type (c or f is taken from the GABC), accidentals, rhythmic
+// A porrectus stroke is read as its two ends. Each head is also called a
+// rhombus or a square (headShape). What it does not read: the clef's type (c or f is taken from the GABC), accidentals, rhythmic
 // signs and the text. Those come out as gaps in the alignment, which is why
 // the report gives the disagreements to look at by eye rather than a verdict.
 // No dependencies: the page comes in as a binary PGM (ffmpeg or ImageMagick
@@ -198,8 +199,8 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     // follow the last column's centre, so a slanted porrectus stroke stays
     // one piece while it descends
     let h = open.find((o) => o.lastX >= r.x - 1 && o.lastX < r.x && Math.abs(o.cLast - c) < 0.2 * s);
-    if (!h) { h = { x0: r.x, lastX: r.x, cs: [] }; open.push(h); heads.push(h); }
-    h.lastX = r.x; h.cLast = c; h.cs.push(c);
+    if (!h) { h = { x0: r.x, lastX: r.x, cs: [], runs: [] }; open.push(h); heads.push(h); }
+    h.lastX = r.x; h.cLast = c; h.cs.push(c); h.runs.push(r);
     for (let i = open.length - 1; i >= 0; i--) if (open[i].lastX < r.x - 1) open.splice(i, 1);
   }
   const out = [];
@@ -210,7 +211,7 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     if (w < 0.25 * s) continue; // rhombi keep only a few full-height columns
     if (w <= 1.2 * s) {
       const c = mean(h.cs);
-      out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c) });
+      out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c), feat: headFeatures(isInk, h.x0, h.lastX, c, s, y0, y1) });
       continue;
     }
     // a porrectus stroke: wide, and its ends a step or more apart. Its
@@ -233,6 +234,52 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     i = j;
   }
   return ordered;
+}
+
+// Shape measurements of one head, in staff spaces: the ink column through
+// the head's centre in each of its columns (top a, bottom b), widened a
+// column each side so the slanted edges of a rhombus are seen.
+export function headFeatures(isInk, x0, x1, c, s, y0, y1) {
+  const cols = [];
+  const cy = Math.round(c);
+  for (let x = x0 - 1; x <= x1 + 1; x++) {
+    let y = cy;
+    if (!isInk(x, y)) {
+      let found = false;
+      for (let d = 1; d <= 0.3 * s && !found; d++) {
+        if (y - d >= y0 && isInk(x, y - d)) { y -= d; found = true; } else if (y + d <= y1 && isInk(x, y + d)) { y += d; found = true; }
+      }
+      if (!found) continue;
+    }
+    let a = y, b = y;
+    while (a - 1 >= y0 && isInk(x, a - 1) && cy - a < 1.2 * s) a--;
+    while (b + 1 <= y1 && isInk(x, b + 1) && b - cy < 1.2 * s) b++;
+    cols.push({ x, a, b });
+  }
+  if (!cols.length) return null;
+  const hs = cols.map((q) => q.b - q.a + 1);
+  const hMax = Math.max(...hs);
+  const mid = hs.slice(Math.floor(hs.length / 3), Math.ceil((2 * hs.length) / 3));
+  const ends = [...hs.slice(0, Math.max(1, Math.floor(hs.length / 4))), ...hs.slice(-Math.max(1, Math.floor(hs.length / 4)))];
+  const avg = (v) => v.reduce((p, q) => p + q, 0) / v.length;
+  return {
+    w: cols.length / s,
+    h: hMax / s,
+    fill: avg(hs) / hMax, // 1 for a square, about 0.5 for a rhombus
+    taper: avg(ends) / Math.max(1, avg(mid)),
+  };
+}
+
+// A rhombus (punctum inclinatum) is narrow, about a third of a staff space
+// against a square's half, and tapers to points at both ends. Thresholds
+// set on Dies irae, Veni Creator, Pange lingua, Te Deum and the Salve
+// (68 of 68 rhombi; 0 of 1,380 squares called rhombi) and checked on the
+// seven held-out GregoBase pieces (118 of 118 rhombi with measurements; 1
+// of 951 squares): eval/shape-check-report.md. Quilismas and liquescents
+// are not told apart from squares (same report), so they come back 'square'.
+export function headShape(f) {
+  if (!f) return null;
+  return f.w < 0.42 && f.taper < 0.8 ? 'rhombus' : 'square';
 }
 
 // The clef is the first glyph on the staff: its two blocks sit either side
@@ -285,7 +332,7 @@ export function readPage(img, opts = {}) {
       top: staff.top,
       space: staff.space,
       clefPos: clef ? clef.pos : null,
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null })),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null, shape: headShape(h.feat) })),
     };
   });
 }
@@ -319,10 +366,27 @@ export function gabcSteps(src) {
       // skip letters that are not pitches: custos (x+), accidentals (fx fy f#)
       if (g[i + 1] === '+') continue;
       if (g[i + 1] && 'xy#'.includes(g[i + 1])) { i++; continue; }
-      out.push({ rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2] });
+      out.push({ rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2], shape: gabcShape(g, i) });
     }
   }
   return out;
+}
+
+// The printed shape GABC asks for at note letter g[i]: an upper-case letter
+// is a rhombus (punctum inclinatum); a following w a quilisma, ~ < > a
+// liquescent, v (or V) a virga, o an oriscus, s a stropha. Plain squares
+// are 'punctum'.
+export function gabcShape(g, i) {
+  if (g[i] !== g[i].toLowerCase()) return 'rhombus';
+  for (let k = i + 1; k < g.length && !/[a-mA-M\/!, ]/.test(g[k]); k++) {
+    const ch = g[k];
+    if (ch === 'w') return 'quilisma';
+    if (ch === '~' || ch === '<' || ch === '>') return 'liquescent';
+    if (ch === 'v' || ch === 'V') return 'virga';
+    if (ch === 'o' || ch === 'O') return 'oriscus';
+    if (ch === 's') return 'stropha';
+  }
+  return 'punctum';
 }
 
 // Align scan values (a) to GABC values (b), ends of b free: Levenshtein
