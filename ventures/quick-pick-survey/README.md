@@ -221,3 +221,9 @@ at fault (20000 draws agree to 0.4 nats). The upper end of the evidence's likeli
 (`pooledPriorPhiUpper`, tested, unwired) holds 95.5-95.7% pairwise coverage for honest respondents at
 about 15% less width than the fixed prior, but careless answers drop it to 0.72-0.76 in the worst cells,
 so the intervals keep the fixed prior: docs/INFORMATION-GAIN-SELECTOR.md, "Why the pooled sd collapsed".
+Giving the upper end only to respondents a lapse estimate calls honest (2026-11-13, later) would
+work with a perfect detector (honest coverage 0.957-0.961 at 10-12% less width, careless people
+pooled out), but the estimates the answers give tell careless from honest at AUC 0.58-0.69 under
+the staged selector, and a careless half of the panel drags everyone's upper end down (staged worst
+cell 0.68). A rank gate (the more consistent half) is safe but only 1-4% narrower than the fixed
+prior, so nothing is wired: docs/INFORMATION-GAIN-SELECTOR.md, "A lapse gate for the upper end".

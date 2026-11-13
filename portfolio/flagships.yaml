@@ -268,10 +268,16 @@ flagships:
       1.2 over 40 people vs 281 shipped), not the sampler; the likelihood
       interval's upper end (pooledPriorPhiUpper, unwired) holds 0.955 honest
       coverage at 15% less width than fixed, but 0.72-0.76 worst with
-      careless answers ("Why the pooled sd collapsed"). Next, most valuable
-      first: (a) the upper end for respondents lapseEstimate calls honest
-      only: store it beside setPriorPhi and sweep a mixed honest/careless
-      panel, then wire it into the pairwise intervals if it holds; (b)
+      careless answers ("Why the pooled sd collapsed"). 2026-11-13 later, not
+      shipped: a lapse gate for that upper end ("A lapse gate for the upper
+      end", scripts/gated-upper-sweep.ts): a perfect detector would hold
+      honest coverage 0.957-0.961 at 10-12% less width, but the answers'
+      lapse estimates tell careless from honest at AUC 0.58-0.69 under staged
+      (0.65-0.80 shipped), a careless half of the panel drags the pooled upper
+      end down for everyone (staged worst 0.68), and a rank gate is safe but
+      only 1-4% narrower. Next, most valuable first: (a) a better careless
+      detector to revive the gate: anchor pairs or msToAnswer, measured as
+      AUC in the gated sweep; (b)
       half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
       them?); (c) the first real survey's answers: msToAnswer against the
       answer-time model, and how noisy real pairwise answers are, which
