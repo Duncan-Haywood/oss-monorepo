@@ -2,7 +2,7 @@
 // The solver is checked against closed-form answers before any garment test.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { gridMesh, buildCloth, simulate, cylinderBody, bodyModel, girthAt, clearance, triangleStrain, drapeGarment, drapeSvg, strainColour, G } from "./drape.mjs";
+import { gridMesh, buildCloth, simulate, cylinderBody, bodyModel, girthAt, clearance, triangleStrain, drapeGarment, drapeSvg, strainColour, armContact, armRadiusAt, pairEdges, onPolyline, G } from "./drape.mjs";
 
 test("a strip hanging under its own weight stretches by rho g L^2 / (2 Kt)", () => {
   const W = 0.1, L = 0.5, fab = { gsm: 180, ktNPerM: 5 };
@@ -74,14 +74,72 @@ test("body model: girths match the tape measurements, missing ones are assumed a
   assert.equal(girthAt(b, 2.0), 0);
   assert.ok(clearance(b, 0, 1.3, 0) < 0 && clearance(b, 0.5, 1.3, 0) > 0.2);
   const a = bodyModel({ chest: 100 });
-  assert.deepEqual(a.assumed, ["height 175 cm", "waist 90 cm", "hip 98 cm"]);
+  assert.deepEqual(a.assumed, ["height 175 cm", "waist 90 cm", "hip 98 cm", "upper arm 31 cm", "wrist 16.5 cm"]);
   assert.equal(bodyModel({ chest: 20 }).ok, false);
+});
+
+test("arms: the upper arm and wrist girths are the ones entered, the arms hang outward and down, and contact is measured from the surface", () => {
+  const b = bodyModel({ chest: 100, height: 180, upperArm: 33, wrist: 17 }, { armAngleDeg: 30 });
+  assert.equal(b.arms.length, 2);
+  for (const arm of b.arms) {
+    assert.ok(Math.abs(2 * Math.PI * armRadiusAt(arm, 0) - 0.33) < 1e-9);
+    assert.ok(Math.abs(2 * Math.PI * armRadiusAt(arm, arm.wristAt) - 0.17) < 1e-9);
+    assert.ok(Math.sign(arm.d[0]) === arm.side && arm.d[1] < 0);
+    assert.ok(Math.abs(Math.atan2(Math.abs(arm.d[0]), -arm.d[1]) * 180 / Math.PI - 30) < 1e-9);
+    // a point 1 cm off the arm's surface, straight out from the axis half way to the elbow
+    const s = arm.elbowAt / 2, r = armRadiusAt(arm, s);
+    const c = armContact(b, arm.p0[0] + s * arm.d[0], arm.p0[1] + s * arm.d[1], r + 0.01);
+    assert.ok(Math.abs(c.dist - 0.01) < 1e-4, String(c.dist));
+  }
+});
+
+test("sewing two edges of unequal spacing joins every vertex on both, at matching fractions", () => {
+  const A = [0, 0.25, 0.5, 0.75, 1].map((f, i) => ({ i, f })), B = [0, 0.5, 1].map((f, k) => ({ i: 10 + k, f }));
+  const pairs = pairEdges(A, B);
+  for (const a of A) assert.ok(pairs.some(([i]) => i === a.i));
+  for (const b of B) assert.ok(pairs.some(([, j]) => j === b.i));
+  assert.ok(pairs.some(([i, j]) => i === 4 && j === 12) && pairs.some(([i, j]) => i === 0 && j === 10));
+  assert.equal(new Set(pairs.map(p => p.join())).size, pairs.length);
+  const p = onPolyline([[0, 0], [1, 0], [1, 1]], 1.2, 0.5);
+  assert.ok(Math.abs(p.f - 0.75) < 1e-12 && Math.abs(p.d - 0.2) < 1e-12);
+});
+
+test("sleeves: sewn into the armholes they skim the arm, and the old half-width sleeve is caught stretched round it", () => {
+  const me = { chest: 100, waist: 88, hip: 98, height: 178 };
+  const r = drapeGarment(me, { garment: "tee", size: "M" });
+  assert.equal(r.ok, true);
+  assert.equal(r.sleeves.length, 2);
+  assert.equal(r.checks.verticesInsideBody, 0);
+  assert.ok(r.checks.seamGapCm < 1, `seam gap ${r.checks.seamGapCm}`);
+  assert.equal(r.checks.settled, true);
+  for (const s of r.sleeves) {
+    const bicep = s.levels.find(l => l.where === "bicep");
+    assert.ok(bicep.hoopStrainPct < 3, JSON.stringify(bicep));
+    // a 22 cm tee sleeve (shoulder point to cuff) ends well above the elbow
+    assert.ok(s.cuffAboveElbowCm > 5, String(s.cuffAboveElbowCm));
+  }
+  // the pre-2026-11-13 sleeve: the flat bicep (about 12 cm at M) drawn as the full width
+  const old = drapeGarment(me, { garment: "tee", size: "M", pattern: { bicepCm: 12 } });
+  const oldBicep = old.sleeves[0].levels.find(l => l.where === "bicep");
+  assert.ok(oldBicep.hoopStrainPct > 15 && oldBicep.touchingPct === 100, JSON.stringify(oldBicep));
+  assert.match(old.notes.join(" "), /sleeve is stretched more than 8% round the bicep/);
+  // a tight tee with the arms held out pulls harder across the chest than the bare panels did
+  const xs = drapeGarment(me, { garment: "tee", size: "XS", fit: "slim" });
+  assert.equal(xs.checks.settled, true);
+  assert.equal(xs.checks.verticesInsideBody, 0);
+  assert.ok(xs.levels.find(l => l.where === "chest").hoopStrainPct > 8);
+  assert.ok(xs.sleeves[0].levels.find(l => l.where === "bicep").hoopStrainPct > 8);
+  // body panels only, as before sleeves: no arms, no sleeve numbers
+  const bare = drapeGarment(me, { garment: "tee", size: "M", sleeves: false, gridCm: 3.5 });
+  assert.equal(bare.sleeves.length, 0);
+  assert.equal(bare.body.arms, null);
 });
 
 test("garment drape: a regular tee hangs free, a slim size down pulls tight, and nothing goes through the body", () => {
   const me = { chest: 100, waist: 88, hip: 98, height: 178 };
-  const loose = drapeGarment(me, { size: "M", fit: "regular" });
-  const tight = drapeGarment(me, { size: "XS", fit: "slim" });
+  // body panels only: the tape arithmetic (garment chest against body chest) holds without arms
+  const loose = drapeGarment(me, { size: "M", fit: "regular", sleeves: false });
+  const tight = drapeGarment(me, { size: "XS", fit: "slim", sleeves: false });
   for (const r of [loose, tight]) {
     assert.equal(r.ok, true);
     assert.equal(r.checks.verticesInsideBody, 0);
@@ -97,7 +155,7 @@ test("garment drape: a regular tee hangs free, a slim size down pulls tight, and
   assert.ok(Math.abs(chest(tight).simPressurePa / chest(tight).pressurePa - 1) < 0.35, "solver contact force near Laplace");
   assert.match(tight.notes.join(" "), /Stretched more than 8% round the chest/);
   // a stiffer stretch-free fabric presses harder for the same strain
-  const stiff = drapeGarment(me, { size: "XS", fit: "slim", fabric: { gsm: 160, ktNPerM: 120 } });
+  const stiff = drapeGarment(me, { size: "XS", fit: "slim", fabric: { gsm: 160, ktNPerM: 120 }, sleeves: false });
   assert.ok(chest(stiff).pressurePa > 1.5 * chest(tight).pressurePa);
 });
 

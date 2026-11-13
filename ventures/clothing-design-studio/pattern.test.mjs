@@ -30,6 +30,30 @@ test("the sleeve cap is as long as the armhole plus the ease, front and back sep
   }
 });
 
+test("the sleeve is a whole sleeve: its width is the full bicep girth and its length runs from the shoulder point", () => {
+  // Until 2026-11-13 a flat (half) bicep was drawn as the full width (24 cm round at M) and the
+  // length ran from the underarm, so sleeves came out a cap height too long. spec.mjs and
+  // tryon.mjs measure the sleeve shoulder point to cuff: tee 22, long sleeve 62 by default here.
+  for (const [g, want] of [["tee", 22], ["longsleeve", 62], ["crewneck", 62], ["hoodie", 63]]) for (const size of ["XS", "M", "XXL"]) {
+    const d = draft(g, size);
+    assert.ok(d.ok, `${g} ${size}`);
+    const sl = d.pieces.find(p => p.name === "sleeve");
+    const ys = sl.stitch.map(p => p[1]), xs = sl.stitch.map(p => p[0]);
+    assert.ok(Math.abs(Math.max(...ys) - Math.min(...ys) - want) < 0.05, `${g} ${size}: stitch line cap top to hem ${Math.max(...ys) - Math.min(...ys)}`);
+    assert.ok(Math.abs(d.checks.sleeveLengthCm - want) < 0.05);
+    assert.ok(Math.abs(Math.max(...xs) - Math.min(...xs) - d.checks.sleeveBicepGirthCm) < 0.05);
+  }
+  // an M regular tee: a flat bicep of about 19 cm (38 round), more than a typical 31 cm upper arm, and a 9 to 12 cm cap
+  const m = draft("tee", "M").checks;
+  assert.ok(m.sleeveBicepGirthCm > 35 && m.sleeveBicepGirthCm < 42, String(m.sleeveBicepGirthCm));
+  assert.ok(m.capHeightCm > 9 && m.capHeightCm < 12, String(m.capHeightCm));
+  // the designer's own flat bicep wins; a wider sleeve has a lower cap
+  const wide = draft("tee", "M", { bicepCm: 22 }).checks;
+  assert.equal(wide.sleeveBicepGirthCm, 44);
+  assert.ok(wide.capHeightCm < m.capHeightCm);
+  assert.equal(draft("tee", "M", { sleeveLenCm: { tee: 8 } }).ok, false);
+});
+
 test("an independent walk along the piece outlines agrees with the reported armhole", () => {
   const d = draft("tee", "M");
   const sleeve = d.pieces.find(p => p.name === "sleeve");
