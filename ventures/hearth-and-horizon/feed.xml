@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Second Gas</title>
+      <link>https://example.invalid/hearth-and-horizon/the-second-gas.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-second-gas.html</guid>
+      <pubDate>Fri, 13 Nov 2026 12:00:00 GMT</pubDate>
+      <description>On a gale night in 2051 the only recompression chamber in the Faroes holds a salmon-farm diver four hours into a five-hour treatment for the bends when a seven-year-old girl arrives with carbon monoxide poisoning from a generator under her bedroom. The helicopter cannot fly and the next chamber is more than five hundred kilometres away. The chamber's log system can count every minute of oxygen and nitrogen in the room, but it cannot say which minutes matter more. A story about one gas that pushes out two others, an extension a sick man needed anyway, and a mother who goes in with her ears hurting. Setting: The hospital at Gjógv á Ytstoy (invented), an island at the south end of the Faroe Islands, the night of Saturday 21 to Sunday 22 October 2051. Read the full text at https://example.invalid/hearth-and-horizon/the-second-gas.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>On a gale night in 2051 the only recompression chamber in the Faroes holds a salmon-farm diver four hours into a five-hour treatment for the bends when a seven-year-old girl arrives with carbon monoxide poisoning from a generator under her bedroom. The helicopter cannot fly and the next chamber is more than five hundred kilometres away. The chamber's log system can count every minute of oxygen and nitrogen in the room, but it cannot say which minutes matter more. A story about one gas that pushes out two others, an extension a sick man needed anyway, and a mother who goes in with her ears hurting.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>A Week Behind in Two Languages</title>
       <link>https://example.invalid/hearth-and-horizon/a-week-behind-in-two-languages.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/a-week-behind-in-two-languages.html</guid>

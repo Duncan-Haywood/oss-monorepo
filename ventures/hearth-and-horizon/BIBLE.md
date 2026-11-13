@@ -117,6 +117,7 @@ introduces a dated fact.
 | 2041 | A typhoon takes down the tower of the San Isidro church in Batangas; its bell is recast | *Slowest Bell* |
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
+| 2051 | The only recompression chamber in the Faroes (invented hospital at Gjógv á Ytstoy, built 2039) treats a salmon-farm diver and a seven-year-old with carbon monoxide poisoning together on a gale night; its log system is called Vakt | *The Second Gas* |
 | 2060 | Holy Year (25 July is a Sunday); heatwave on the Castilian Meseta; Fraternity of the Way (invented) runs water caches and a logistics AI, Aljibe; Valdeceniza (invented village) rings its harvest bell at 03:30 for pilgrims | *The Bell at Half Past Three* |
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
@@ -275,7 +276,7 @@ until it has. An empty shelf below means: write a proposal.
 
 **Hearth & Horizon**
 
-- *Proposal: The Second Gas* (2026-11-12): a hyperbaric chamber at a small island hospital (Orkney, the Hebrides or the Faroes) is the only one for 300 km, and two patients need it on the same night: a scallop diver with decompression sickness and a child with carbon monoxide poisoning from a faulty heater. Work out the US Navy Treatment Table 6 timing (about 4 h 45 at 18 m and 9 m with air breaks) against a carbon monoxide protocol, whether both can share the chamber at one pressure, and who the inside attendant is. Check every protocol figure against a primary source before drafting; mark any as from memory.
+- *Proposal: The Cold Chain* (2026-11-13): a vaccine fridge at a district health post on an island in Vanuatu or Kiribati, run on a solar direct-drive fridge, loses its ice lining in a week of cloud before a measles catch-up campaign. Work out the fridge's hold-over time against WHO PQS figures for solar direct-drive refrigerators (days of autonomy at 43 °C ambient), the vials' vaccine vial monitor stages, and how many doses a boat run to the provincial store can carry in a cold box. The plot turns on whether to use doses whose monitors are near the discard point; check every WHO figure against its source before drafting.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
 
