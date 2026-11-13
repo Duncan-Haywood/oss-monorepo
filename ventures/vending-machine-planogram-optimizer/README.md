@@ -14,7 +14,7 @@ After using this, you can **stop filling coils evenly by habit**: move coils fro
 - The recommended split and today's layout (or an even split if none is given) are then run on the same 3,000 simulated restock intervals (common random numbers). A share of each sold-out product's unmet demand switches to products still in stock, in proportion to their weekly sales. The gain is the mean of paired differences, with its standard error.
 - The restocking table re-optimises the coils for each gap of 2 to 14 days and subtracts the visit cost.
 
-Not modelled: which products fit which coil type, shelf-life limits beyond the perishable flag, location commissions, card-reader fees, price changes, visibility effects of facings, day-of-week or seasonal swings. The optimiser itself ignores substitution, so it can only understate the value of the layout.
+Not modelled: which products fit which coil type, shelf-life limits beyond the perishable flag, location commissions, card-reader fees, price changes, visibility effects of facings, day-of-week or seasonal swings. The optimiser itself ignores substitution, so with switching on another layout can sometimes earn more; the comparison with today's layout (run with substitution) shows when it does.
 
 ## Run
 

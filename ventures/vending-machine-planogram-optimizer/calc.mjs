@@ -90,7 +90,7 @@ export function normalize(rows, shared) {
     if (price <= cost) warnings.push(`${name}: price is not above cost, so every sale loses money and it will only get coils if you set a minimum.`);
     const minCoils = Math.max(0, Math.floor(num(r.minCoils) ?? 0));
     const maxRaw = num(r.maxCoils);
-    const maxCoils = Math.min(s.coils || 0, Math.max(minCoils, maxRaw === null ? 8 : Math.floor(maxRaw)));
+    const maxCoils = Math.min(s.coils || 0, Math.max(minCoils, maxRaw === null ? (s.coils || 0) : Math.floor(maxRaw)));
     products.push({ name, price, cost, weekly, perCoil, perishable: yes(r.perishable), minCoils, maxCoils, now: Math.max(0, Math.floor(num(r.now) ?? 0)) });
   });
   if (products.length < 1 && warnings.length === 0) warnings.push("Enter at least one product with a price, cost and weekly sales.");
