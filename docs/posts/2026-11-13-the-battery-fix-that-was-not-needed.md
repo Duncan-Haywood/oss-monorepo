@@ -2,8 +2,8 @@
 title: "We built a fix for the cheap battery model's bias. On fresh designs, the old method never needed it"
 date: 2026-11-13
 tags: [cell-fidelity, batteries, simulation, multi-fidelity, pybamm, pre-registration]
-seo_title: "Picking the best battery design when SPMe scores too low: a pre-registered test"
-description: A gap-aware stop always found the best battery design with DFN, but the simpler step it was meant to fix never missed on fresh designs either. Six new conditions, 788 PyBaMM runs.
+seo_title: "Best battery design when SPMe scores low: a pre-registered test"
+description: A gap-aware stop always found the best battery design, but the simpler rule it was built to fix never missed on fresh designs. 788 PyBaMM runs.
 ---
 
 The `cell-fidelity` programme asks when a lithium-ion electrode design search can trust PyBaMM's SPMe, a cheap reduced battery model, instead of the full DFN model. Our current method runs SPMe on every candidate design. It then checks the suspicious ones with DFN, and names a winner by checking whichever design leads until the leader is one DFN has confirmed.
