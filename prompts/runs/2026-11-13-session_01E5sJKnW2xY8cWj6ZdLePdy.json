@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnW2xY8cWj6ZdLePdy",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T15:45:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: slowest venture suite (changepoint-detector)",
+  "projects": [
+    "changepoint-detector",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15524",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First 'after' timing used --test-force-exit and reported 587 of 641 tests: the comparison was invalid until re-run through the fixed runner."
+  ],
+  "integrity_issues": [
+    "Since 2026-11-12, run_venture_tests.py passed --test-force-exit, which on Node 22.23 runner mode ends files early with exit 0: green 'ventures tests' jobs may have run only part of long test files (changepoint engine.test.mjs: 38 to 94 of 94). Fixed in this PR; the owner was notified."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated again; the prompt already says so, which saved time."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes selected 10 workflows / 142 steps for a small diff, and the cheap ones (doc-refs, control-plane-guard, checklist-coverage) refuse to run without --force, so local verification fell back to PR CI."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "The perf run turned up a correctness hole (silently dropped tests) larger than the speed-up it was looking for.",
+      "did": "Fixed the runner in the same PR, kept fail-fast for red suites by other means, and sent the owner a notification.",
+      "result": "changepoint 641/641 through the fixed runner; runner unit tests 31/31."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-green-suite-that-ran-half-its-tests.md",
+    "docs/history/ci-perf-2026-11-13-changepoint-engine-test-split.md"
+  ],
+  "goal": null,
+  "notes": "Metric: changepoint-detector suite wall time on a 4-core sandbox, `node --test` in the venture directory. Before 255 s (641/641 tests, main). After 214 s (641/641, through run_venture_tests.run with the fixed runner). The file split is engine.test.mjs 166 s -> 85 + 4 + 5 tests in three files. Pool reading: ci_profile --runs 300, ventures tests 50.2 job-min of 315.9. The all-ventures run without the flag is pending; see the follow-up below.",
+  "corrections": [],
+  "redteam": null
+}
