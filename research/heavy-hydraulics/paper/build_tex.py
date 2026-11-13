@@ -73,6 +73,7 @@ CITES: list[tuple[str, str]] = [
     (r"doi:10\.47191/ijcsrr/V8-i11-43", C("halim2025")),
     (r"doi:10\.5281/zenodo\.10639199", C("linjama2024")),
     (r"doi:10\.17221/77/2021-RAE", C("juza2023")),
+    (r"doi:10\.3390/en15114030", C("kauranne2022")),
 ]
 
 TOKEN = re.compile(r"(?:doi:|arXiv:)\S+")

@@ -10,6 +10,13 @@ from pathlib import Path
 P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
+    ("averages 0.769 at the central geometry (0.681 to 0.791", "excavator_part_stroke_eta_results.txt", "eta_LS 0.681 to 0.791"),
+    ("rises from 2.33 to 5.50 L/h", "excavator_part_stroke_eta_results.txt", "f_t,max 5.495 L/h at q_p 101.0"),
+    ("from 0.95 to 3.32 L/h", "excavator_part_stroke_eta_results.txt", "median 3.32, p90 5.84"),
+    ("in 17.2 to 32.8% of geometries", "excavator_part_stroke_eta_results.txt", "3.986 L/h: 32.8%; 4.022 L/h: 32.8%; 4.298 L/h: 28.9%; 4.689 L/h: 23.7%; 4.731 L/h: 22.1%; 5.056 L/h: 17.2%"),
+    ("(22.4 to 39.1% at 25 C)", "excavator_part_stroke_eta_results.txt", "3.986 L/h: 39.1%"),
+    ("0.808 instead of 0.840 (0.962 of the curve)", "excavator_part_stroke_eta_results.txt", "central geometry 0.9622 (eta_OC 0.808)"),
+    ("median break-even is 0.968 of the curve", "excavator_part_stroke_eta_results.txt", "median 0.9681"),
     ("R<sup>2</sup> 0.595", "excavator_threshold_screening_results.txt", "in-sample R^2 on ln f_t,max: 0.595"),
     ("slope &minus;1.08", "excavator_threshold_screening_results.txt", "+0.7520, -1.0816"),
     ("15.555 (r &minus; 1)<sup>&minus;0.916</sup> (p99/mean)<sup>&minus;2.374</sup>", "excavator_threshold_screening_results.txt", "15.555 x (r219 - 1)^-0.916 x (p99/mean)^-2.374"),

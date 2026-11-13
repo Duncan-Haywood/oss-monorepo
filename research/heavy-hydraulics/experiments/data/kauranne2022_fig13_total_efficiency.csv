@@ -1,0 +1,25 @@
+temperature_c,pressure_bar,cap_12,cap_15,cap_20,cap_23,cap_25,cap_30,cap_33,cap_35,cap_40,cap_45
+25,25,0.4095,0.4493,0.5114,0.5437,0.5620,0.5980,0.6137,0.6233,0.6441,0.6634
+25,50,0.5660,0.6027,0.6597,0.6891,0.7048,0.7328,0.7450,0.7513,0.7654,0.7773
+25,100,0.6613,0.6945,0.7476,0.7742,0.7880,0.8116,0.8203,0.8250,0.8337,0.8400
+25,150,0.6811,0.7111,0.7688,0.7974,0.8124,0.8368,0.8443,0.8486,0.8542,0.8561
+25,200,0.6744,0.7111,0.7688,0.7974,0.8124,0.8368,0.8443,0.8486,0.8542,0.8561
+25,250,0.6539,0.6945,0.7577,0.7890,0.8057,0.8313,0.8400,0.8439,0.8486,0.8506
+60,25,0.4903,0.5274,0.5858,0.6147,0.6309,0.6614,0.6744,0.6827,0.6992,0.7150
+60,50,0.6247,0.6594,0.7152,0.7387,0.7521,0.7730,0.7797,0.7840,0.7927,0.7994
+60,100,0.6823,0.7166,0.7664,0.7935,0.8084,0.8215,0.8309,0.8301,0.8384,0.8352
+60,150,0.6717,0.7087,0.7664,0.7935,0.8084,0.8309,0.8372,0.8400,0.8384,0.8400
+60,200,0.6338,0.6779,0.7450,0.7778,0.7949,0.8215,0.8309,0.8341,0.8384,0.8400
+60,250,0.5833,0.6361,0.7152,0.7538,0.7744,0.8065,0.8163,0.8203,0.8265,0.8278
+# 25C 25 bar: 0% of columns hidden; 0% placed on the covering curve, the rest interpolated
+# 25C 50 bar: 1% of columns hidden; 0% placed on the covering curve, the rest interpolated
+# 25C 100 bar: 9% of columns hidden; 9% placed on the covering curve, the rest interpolated
+# 25C 150 bar: 93% of columns hidden; 93% placed on the covering curve, the rest interpolated
+# 25C 200 bar: 0% of columns hidden; 0% placed on the covering curve, the rest interpolated
+# 25C 250 bar: 0% of columns hidden; 0% placed on the covering curve, the rest interpolated
+# 60C 25 bar: 0% of columns hidden; 0% placed on the covering curve, the rest interpolated
+# 60C 50 bar: 6% of columns hidden; 5% placed on the covering curve, the rest interpolated
+# 60C 100 bar: 47% of columns hidden; 47% placed on the covering curve, the rest interpolated
+# 60C 150 bar: 26% of columns hidden; 26% placed on the covering curve, the rest interpolated
+# 60C 200 bar: 0% of columns hidden; 0% placed on the covering curve, the rest interpolated
+# 60C 250 bar: 0% of columns hidden; 0% placed on the covering curve, the rest interpolated
