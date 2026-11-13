@@ -87,3 +87,8 @@ the unchanged sizes. The memo holds at most 128 small answers.
 4. From the earlier list: the top four suites (changepoint-detector,
    shift-roster-builder, shed-designer, league-schedule-generator) remain most
    of the sweep; P063 and P064 remain owner-gated.
+
+Note for the next engine change: `ventures/open-house-plans/wft-engine.mjs` is a
+vendored copy of `engine.mjs`; re-run `node ventures/open-house-plans/vendor-framing.mjs`
+after editing the engine or open-house-plans' tests go red (they did on this PR's
+first push).
