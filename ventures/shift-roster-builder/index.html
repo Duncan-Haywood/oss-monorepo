@@ -90,6 +90,7 @@
     <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
     <label for="import-shifts-file">…or convert a published-schedule export from another scheduler (one row per shift: date, start, end, position)</label>
     <input id="import-shifts-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <p id="import-shifts-pick" class="note" hidden><label for="import-shifts-loc">Location</label> <select id="import-shifts-loc"></select> <label for="import-shifts-use">Read</label> <select id="import-shifts-use"></select></p>
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it.</p>
     <label for="file">…or upload a staff CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
@@ -716,12 +717,40 @@
       rd.onload = () => { const r = importStaffCsv(String(rd.result)); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
       rd.readAsText(f);
     });
+    // A schedule export with several locations, or with planned and worked (or first and final) shifts side by side,
+    // gets two pickers; the file stays in memory only, so changing a picker re-reads it without another upload.
+    let shiftsFile = null;
+    const famLabel = { schedule: "rostered shifts", final: "final shifts", "": "shifts", initial: "first-published shifts", timesheet: "worked times (timesheets)" };
+    const runShiftsImport = () => {
+      if (!shiftsFile) return;
+      const loc = $("#import-shifts-loc").value, use = $("#import-shifts-use").value;
+      const r = importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
+      if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); }
+      status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${shiftsFile.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
+      return r;
+    };
+    const fillPick = (sel, items, keep) => {
+      sel.replaceChildren(...items.map(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; return o; }));
+      if (items.some(([v]) => v === keep)) sel.value = keep;
+    };
     $("#import-shifts-file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
-      rd.onload = () => { const r = importShiftsCsv(String(rd.result)); if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); } status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
+      rd.onload = () => {
+        shiftsFile = { name: f.name, text: String(rd.result) };
+        $("#import-shifts-loc").value = ""; $("#import-shifts-use").value = "";
+        fillPick($("#import-shifts-loc"), [], ""); fillPick($("#import-shifts-use"), [], "");
+        const r = runShiftsImport();
+        fillPick($("#import-shifts-loc"), [["", `All ${r.locations.length} locations as one`], ...r.locations.map((l) => [l.name, `${l.name} (${l.rows} rows)`])], "");
+        fillPick($("#import-shifts-use"), r.families.map((x, i) => [i === 0 ? "" : x === "" ? "plain" : x, famLabel[x]]), "");
+        $("#import-shifts-loc").hidden = $("#import-shifts-loc").previousElementSibling.hidden = r.locations.length < 2;
+        $("#import-shifts-use").hidden = $("#import-shifts-use").previousElementSibling.hidden = r.families.length < 2;
+        $("#import-shifts-pick").hidden = r.locations.length < 2 && r.families.length < 2;
+      };
       rd.readAsText(f);
     });
+    $("#import-shifts-loc").addEventListener("change", runShiftsImport);
+    $("#import-shifts-use").addEventListener("change", runShiftsImport);
     $("#setup-file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();

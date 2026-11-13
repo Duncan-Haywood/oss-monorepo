@@ -262,3 +262,9 @@ test("the cover finder offers hand-over chains when nobody can take the shift ou
   assert.match(html, /coverChain\(lastIn\.staff, lastIn\.slots, last/);
   assert.match(html, /Or hand shifts over/);
 });
+
+test("page: a schedule export with several locations or shift versions gets pickers that re-read the file (2026-11-13)", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  for (const id of ["import-shifts-pick", "import-shifts-loc", "import-shifts-use"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /importShiftsCsv\(shiftsFile\.text, \{ location: loc \|\| undefined/);
+});
