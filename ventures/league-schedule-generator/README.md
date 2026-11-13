@@ -1587,7 +1587,12 @@ saw; a link that stores only the frontier index of a floor-priced season (the se
 path) and was made between the two changes of 2026-11-13 can rebuild a different season of the same
 list.
 
-- Tests: `floor-priced.test.mjs`, now 13: `threeRoundDeals` lists each deal once, every team keeps
+A search that finds nothing better than the season it started from now returns **that** season,
+regrounded: the start's own timetable competes with the ones the search kept, so a result can never
+carry more breaks than its start (`floor-priced.test.mjs`; at 13 teams a re-dealt search used to
+come back with 13 breaks against the start's 12).
+
+- Tests: `floor-priced.test.mjs`, now 14: `threeRoundDeals` lists each deal once, every team keeps
   its three opponents one per round, the rounds as they stand are among them, the cap holds, and
   every pair still meets once; a re-dealt floor-priced season at 12 teams is valid, balanced,
   seeded, and its breaks and carry-over match a recount.
