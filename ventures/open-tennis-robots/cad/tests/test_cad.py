@@ -14,7 +14,7 @@ try:
 except ImportError:  # pragma: no cover
     HAVE_CAD = False
 
-from otr_cad.params import Collector, Feeder
+from otr_cad.params import AWG_OHM_PER_M, Collector, Feeder
 
 HERE = Path(__file__).resolve().parent
 COMMITTED = HERE.parent.parent / "manufacturing" / "collector-package.zip"
@@ -146,6 +146,70 @@ class FeederParamsTest(unittest.TestCase):
         p = Feeder()
         self.assertEqual(p.check(), [])
         self.assertGreater(p.turntable_top, p.mast_top_z)
+
+    def test_cable_loop_fits_every_pose_of_the_actuator_travel(self):
+        # 2026-11-13: one cut length must make a loop from the turntable gland to the head clip at every elevation the
+        # actuator can reach, its own limits included (beyond the -15..+45 deg the drills use)
+        p = Feeder()
+        ext, ret = p.elev_act_limits()
+        self.assertAlmostEqual(p.elev_act_len(ext), p.elev_act_closed + p.elev_act_stroke, places=3)
+        self.assertAlmostEqual(p.elev_act_len(ret), p.elev_act_closed, places=3)
+        self.assertLess(ext, p.elev_min)
+        self.assertGreater(ret, p.elev_max)
+        d = p.cable_loop_design()
+        lo, hi = d["window"]
+        self.assertGreater(hi - lo, 20.0)                      # room for a cutting and tying error
+        for e, (rlo, rhi) in d["ranges"].items():
+            self.assertLessEqual(rlo, d["cut_mm"])
+            self.assertGreaterEqual(rhi, d["cut_mm"])
+        self.assertLess(d["fit_err_mm"], 2.0)                  # each pose's drawn curve is the cut length
+        self.assertEqual(d["r_min"], 30.0)                     # 10 x the 3 mm phase wire
+        self.assertGreater(d["lowest_z"], p.turntable_top + d["rb"] - 1e-6)
+
+    def test_cable_loop_rules_catch_bad_changes(self):
+        # a clip directly under the pivot: the bundle has no room to loop between the turntable and the bolt
+        d = Feeder(cable_clip_x=0.0, cable_clip_z=-222.0, cable_clip_dir_deg=-90.0).cable_loop_design()
+        self.assertTrue(d is None or d["window"] is None)
+        if d:   # the shortest bundle that fits grows by about 13 mm from 0 deg to the retract limit
+            self.assertGreater(max(r[0] for r in d["ranges"].values()) - min(r[0] for r in d["ranges"].values()), 10.0)
+        # stiffer wire (15 x its diameter) no longer fits, nor does a clip 30 mm higher on the standoff
+        for kw in ({"cable_bend_factor": 15.0}, {"cable_clip_z": -150.0}):
+            d = Feeder(**kw).cable_loop_design()
+            self.assertTrue(d is None or d["window"] is None, kw)
+            self.assertTrue(any("no single cable length" in r for r in Feeder(**kw).check_cables()), kw)
+        # a clamp just under the stepper leaves too short a run for the twist
+        self.assertTrue(any("twists" in r for r in Feeder(cable_clamp_z=560.0).check_cables()))
+
+    def test_cable_twist_run(self):
+        p = Feeder()
+        t = p.cable_twist()
+        self.assertAlmostEqual(t["rate_deg_m"], p.az_reach_deg / (t["run_mm"] / 1000))
+        self.assertLessEqual(t["rate_deg_m"], p.cable_twist_deg_m)
+        self.assertGreater(t["hole_gap_mm"], 2.0)
+        self.assertLess(t["helix_strain"], 1e-3)               # the outer wire barely stretches at that twist
+        self.assertGreater(t["clamp_below_stepper_mm"], 10.0)
+
+    def test_servo_supply_droop_and_ground_shift(self):
+        # 2026-11-13: the buck is on the deck, so the servo's return shares the ESP32's ground; at stall the leads'
+        # drop lowers the servo's voltage and lifts its ground under the 3.3 V signal
+        p = Feeder()
+        s = p.servo_supply(0.8, 380.0)
+        r_motor = p.servo_supply_v / p.servo_stall_a
+        for awg, row in s["awg"].items():
+            r_lead = s["run_m"] * AWG_OHM_PER_M[awg]
+            self.assertAlmostEqual(row["v_term"] + 2 * row["ground_shift_v"], p.servo_supply_v, places=9)
+            self.assertAlmostEqual(row["v_term"] / r_motor, row["ground_shift_v"] / r_lead, places=6)
+        thin, chosen = s["awg"][26], s["chosen"]
+        self.assertLess(thin["v_term"], chosen["v_term"])
+        self.assertLess(thin["signal_high_v"], p.servo_vih + 0.4)   # a stock 26 AWG lead leaves little signal margin
+        self.assertGreater(chosen["signal_high_v"], p.servo_vih + 0.6)
+        self.assertGreaterEqual(chosen["torque_margin"], p.servo_torque_factor)
+        self.assertGreater(s["run_m"], 1.3)
+        self.assertLess(s["run_m"], 2.2)
+        bad = Feeder(servo_lead_awg=26, servo_vih=2.6).check_cables(0.8)
+        self.assertTrue(any("ground rises" in r for r in bad), bad)
+        bad = Feeder(servo_stall_nm=1.0).check_cables(0.8)
+        self.assertTrue(any("torque it needs" in r for r in bad), bad)
 
     def test_elevation_drive_sizing(self):
         p = Feeder()
@@ -522,7 +586,8 @@ class FeederGeometryTest(unittest.TestCase):
     def test_elevation_sweep_can_fail(self):
         from otr_cad.package import elevation_sweep
         bad = Feeder(mast_top_z=700.0)  # turntable raised into the head's path
-        self.assertEqual(bad.check(), [])
+        # the rules see only that the cable loop no longer fits under the head (2026-11-13); the sweep sees the clash
+        self.assertEqual([r for r in bad.check() if "cable length" not in r], [])
         self.assertTrue(any("turntable" in c for c in elevation_sweep(bad, steps=2)))
 
     def test_head_gravity_moment_from_the_cad_is_a_rigid_rotation(self):
@@ -860,6 +925,52 @@ class ElevationStopTest(unittest.TestCase):
         g = {e: 0.0 for e in (-15.0, 45.0)}
         self.assertEqual(p.check_elevation(g), [])
 
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class CableGeometryTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F
+        cls.p = Feeder()
+        cls.parts = F.all_parts(cls.p)
+
+    def test_cable_loop_is_clear_and_the_sweep_can_fail(self):
+        from build123d import Location
+        from otr_cad import feeder as F
+        from otr_cad import package
+        p = self.p
+        self.assertEqual(package.cable_sweep(p), [])
+        # the drawn loop is the cut length
+        d = p.cable_loop_design()
+        for e in (p.elev_min, p.elev_max):
+            segs = F.cable_loop_solids(p, e)
+            self.assertEqual(len(segs), 12)
+            length = sum(s.volume for s in segs) / (math.pi * (p.bundle_od(p.head_wires) / 2) ** 2)
+            self.assertAlmostEqual(length, d["cut_mm"], delta=6.0)
+        # moved 40 mm sideways, the same loop runs into the motor plate
+        real = F.cable_loop_solids
+        try:
+            F.cable_loop_solids = lambda q, e, segs=12: [s.moved(Location((0, 40, 0))) for s in real(q, e, segs)]
+            bad = package.cable_sweep(p)
+        finally:
+            F.cable_loop_solids = real
+        self.assertTrue(bad and any("head_motor_plate" in c for c in bad), bad[:3])
+
+    def test_cable_parts_sit_where_the_loop_design_puts_them(self):
+        p = self.p
+        gland = next(x for x in self.parts if x.name == "cable_gland").placed()[0].bounding_box()
+        self.assertAlmostEqual(gland.max.Z, p.turntable_top + p.cable_gland_h, places=3)
+        self.assertAlmostEqual((gland.min.X + gland.max.X) / 2, p.head_x, places=3)
+        clip = next(x for x in self.parts if x.name == "cable_clip").placed()[0].bounding_box()
+        self.assertAlmostEqual(clip.min.Z, p.launch_z + p.cable_clip_z - 20.0, places=3)   # channel's foot
+        clamp = next(x for x in self.parts if x.name == "cable_clamp").placed()[0].bounding_box()
+        self.assertAlmostEqual((clamp.min.Z + clamp.max.Z) / 2, p.cable_clamp_z, places=3)
+        self.assertLess(clamp.max.Z, p.mast_top_z - p.stepper_body_mm)
+        # the grommet hole sits in the motor plate under the clip, clear of the plate's bottom edge
+        from otr_cad.feeder import CABLE_HOLE_D, CABLE_HOLE_Z
+        self.assertGreater(CABLE_HOLE_Z - CABLE_HOLE_D / 2 - p.head_z0, 8.0)
+        self.assertLess(CABLE_HOLE_Z, p.cable_clip_z - 20.0)
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class FeederPackageTest(unittest.TestCase):

@@ -13,7 +13,7 @@ independently of any software.
                       | 5 V 5 A buck                            +-----+-----------+-----+
                       |                                               |           |
  24 V LiFePO4 --[fuse]--[e-stop contactor]--+-- ESCs / H-bridges -----+           |
-                                            +-- servos (via 6-7.4 V BEC) ---------+
+                                            +-- shuttle servo (via 6 V buck) -----+
 ```
 
 The e-stop is a normally-closed mushroom switch in series with the
@@ -75,6 +75,18 @@ tachometer modules drive them directly. Avoid the strapping pins (0, 2,
 Measure your build with an inline power meter and update this table.
 
 ## Wiring notes
+
+- **Cables to the head (2026-11-13):** every driver stays on the deck, and
+  the head's wires rise on the turntable axis, twist there, and make one
+  free loop to a clip on the head's rear lower standoff. Cut the loop to the
+  manifest's `cable_cut_mm` (376 mm), keep it loose in a spiral wrap, and
+  keep ties off the run between the axis clamp and the gland
+  (`cad/README.md`, "Cables to the head").
+- **Servo supply:** a 6 V 5 A buck on the deck, with 20 AWG supply and
+  return to the servo. A stock 26 AWG servo extension over the 1.7 m run
+  lifts the servo's ground about 0.56 V at stall, which leaves a 3.3 V
+  signal little margin. Standard-size servos of this class are rated to about
+  6.8 V, so do not run them from a 7.4 V BEC.
 
 - Fuse the battery positive within 15 cm of the terminal (feeder ~30 A,
   collector ~15 A).

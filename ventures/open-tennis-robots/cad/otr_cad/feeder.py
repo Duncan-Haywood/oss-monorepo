@@ -54,6 +54,11 @@ AZ_BOSS_D = 23.0       # NEMA 17 pilot boss is 22 mm across
 AZ_MOTOR_PITCH = 31.0  # NEMA 17 M3 square
 SERVO_LEGS = [(-130.0, -55.0), (-10.0, -55.0), (-10.0, 60.0)]  # head-frame (x, z) of the servo bracket's legs: clear of
 #   the crank's disc, the rod's sweep and the launcher motors (2026-11-11)
+CABLE_HOLE_Z = -207.0  # head-frame z of the wires' grommet hole in the motor plate, under the standoff clip (2026-11-13)
+CABLE_HOLE_D = 14.0    # a 14 mm hole with a snap-in grommet (10 mm bore) for the head's wires
+CLIP_W = 20.0          # standoff clip and its bundle channel, along y
+CLIP_CHANNEL_H = 20.0  # the channel the bundle is tied in, below the clip point
+CABLE_BAR_X = -190.0   # (= head_x - post_dx) the 2020 crossbar between the rear mast posts, for the axis clamp
 SPIGOT_BOLT_R = 64.0  # M4 ring of the sleeve socket under the shelf (48 until 2026-11-10; the sleeve's wall now sits there)
 
 
@@ -82,6 +87,7 @@ def _head_plate_sketch(p: Feeder, *, motors: bool):
             with Locations(((x0 + x1) / 2, p.shuttle_zc)):
                 SlotOverall(x1 - x0 + p.shuttle_pin_d + 0.6, p.shuttle_pin_d + 0.6, mode=Mode.SUBTRACT)  # shuttle pin
             _holes(SERVO_LEGS, 4.4)               # M4 into the servo bracket's legs
+            _holes([(p.cable_clip_x, CABLE_HOLE_Z)], CABLE_HOLE_D)  # the head's wires, out to the motors and servo (grommet)
         if not motors:
             _holes([(p.elev_pin_x, p.elev_pin_z)], 6.4)  # elevation actuator's pin (M6), guard side
         _holes(_feed_screws(p), 4.4)             # M4 into the feed floor and roof
@@ -927,12 +933,89 @@ def envelopes(p: Feeder) -> list[Part]:
     return out
 
 
+# ---------------------------------------------------------------- cables (2026-11-13)
+
+def cable_clip(p: Feeder) -> Part:
+    """Printed clip on the head's rear lower standoff: a ring round the standoff and a channel below-front of it that
+    the bundle is tied in, its top at the loop's head end (`cable_clip_x`, `cable_clip_z`). Head frame, y = 0."""
+    sx, sz = -215.0, -150.0                       # feeder._standoffs, rear lower
+    cx, cz = p.cable_clip_x, p.cable_clip_z
+    bore = p.bundle_od(p.head_wires) + 1.0
+    wall = 3.0
+    ring = Cylinder(5.0 + wall, CLIP_W).moved(Location((sx, 0, sz), ROT_Y_AXIS))
+    chan = Box(bore + 2 * wall, CLIP_W, CLIP_CHANNEL_H).moved(Location((cx, 0, cz - CLIP_CHANNEL_H / 2)))
+    ax, az = (sx + cx) / 2, (sz + cz - CLIP_CHANNEL_H / 2) / 2
+    ln = math.hypot(cx - sx, cz - CLIP_CHANNEL_H / 2 - sz)
+    ang = math.degrees(math.atan2(cx - sx, cz - CLIP_CHANNEL_H / 2 - sz))
+    web = Box(8.0, CLIP_W, ln).moved(Location((ax, 0, az), (0, ang, 0)))
+    blk = ring + chan + web
+    blk = blk - Cylinder(5.2, CLIP_W + 2).moved(Location((sx, 0, sz), ROT_Y_AXIS))
+    blk = blk - Cylinder(bore / 2, CLIP_CHANNEL_H + 2).moved(Location((cx, 0, cz - CLIP_CHANNEL_H / 2)))
+    blk = blk - Box(4.0, CLIP_W + 2, 2.5).moved(Location((cx, 0, cz - CLIP_CHANNEL_H / 2)))   # zip-tie slot
+    return Part("cable_clip", "print", "PETG", 1, blk, [_head_loc(p)],
+                notes="Slides onto the rear lower head standoff before it is bolted in. Tie the bundle in its channel "
+                      "with the loop's cut length above it (manifest: cable_cut_mm); below it the wires turn +y through "
+                      "the motor plate's grommet hole to the motors, tachometers and servo.")
+
+
+def cable_gland(p: Feeder) -> Part:
+    """Printed gland in the turntable plate's 40 mm centre hole: the bundle leaves it straight up on the axis."""
+    bore = p.bundle_od(p.head_wires + p.turntable_wires) + 1.0
+    flange = Cylinder(24.0, 3.0).moved(Location((0, 0, 1.5)))
+    neck = Cylinder(19.6, p.plate_t).moved(Location((0, 0, -p.plate_t / 2)))
+    boss = Cylinder(bore / 2 + 3.0, p.cable_gland_h).moved(Location((0, 0, p.cable_gland_h / 2)))
+    blk = flange + neck + boss
+    blk = blk - Cylinder(bore / 2, p.cable_gland_h + p.plate_t + 2).moved(Location((0, 0, (p.cable_gland_h - p.plate_t) / 2)))
+    blk = blk - Box(2.5, 60, 4.0).moved(Location((0, 0, p.cable_gland_h - 4.0)))   # zip-tie slot through the boss
+    return Part("cable_gland", "print", "PETG", 1, blk, [Location((p.head_x, 0, p.turntable_top))],
+                notes="Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the "
+                      "bundle through its slot: the loop above it and the twisting run below it start here. The "
+                      "elevation actuator's wires leave the bundle here.")
+
+
+def cable_clamp(p: Feeder) -> Part:
+    """Printed arm from the crossbar between the rear mast posts to the turntable axis, holding the bundle on the axis
+    at `cable_clamp_z`: the fixed end of the twisting run."""
+    bore = p.bundle_od(p.head_wires + p.turntable_wires) + 1.0
+    x0, x1 = CABLE_BAR_X + 10.0, p.head_x + bore / 2 + 4.0
+    arm = Box(x1 - x0, 20.0, 20.0).moved(Location(((x0 + x1) / 2, 0, p.cable_clamp_z)))
+    arm = arm - Cylinder(bore / 2, 22).moved(Location((p.head_x, 0, p.cable_clamp_z)))
+    arm = arm - Cylinder(2.75, x1 - x0 - 2 * bore).moved(Location((x0 + (x1 - x0 - 2 * bore) / 2, 0, p.cable_clamp_z), (0, 90, 0)))  # M5 to the bar
+    arm = arm - Box(2.5, 22, 4.0).moved(Location((p.head_x - bore / 2 - 2.0, 0, p.cable_clamp_z)))
+    return Part("cable_clamp", "print", "PETG", 1, arm, [Location((0, 0, 0))],
+                notes="M5 and a T-nut into the cable crossbar's front slot. Zip-tie the bundle at the bore: the run "
+                      "from here up to the gland twists as the head turns, so keep it free of ties.")
+
+
+def cable_bar(p: Feeder) -> Part:
+    ln = 2 * (p.post_half_y - 20.0)
+    return Part("cable_crossbar", "stock", "aluminium extrusion", 1, Box(20, ln, 20),
+                [Location((CABLE_BAR_X, 0, p.cable_clamp_z))], spec=f"2020 T-slot, cut {ln:g} mm",
+                notes="Between the two rear mast posts' inner faces (corner brackets, M5): carries the axis cable clamp.")
+
+
+def cable_loop_solids(p: Feeder, elev_deg: float, segs: int = 12) -> list:
+    """The free loop drawn as a chain of cylinders (the bundle's diameter, no clearance) along the curve it takes at
+    the cut length with the head at `elev_deg` (one of `p.cable_loop_poses()`), world frame, turntable at 0."""
+    d = p.cable_loop_design()
+    ctrl = d["curves"][min(d["curves"], key=lambda e: abs(e - elev_deg))][1]
+    def at(t):
+        u = 1 - t
+        return tuple(u ** 3 * ctrl[0][m] + 3 * u * u * t * ctrl[1][m] + 3 * u * t * t * ctrl[2][m] + t ** 3 * ctrl[3][m]
+                     for m in (0, 1))
+    r = p.bundle_od(p.head_wires) / 2
+    pts = [at(k / segs) for k in range(segs + 1)]
+    pts = [(p.head_x + x, p.pivot_z + z) for x, z in pts]
+    return [_seg(r, pts[k], pts[k + 1], 0.0) for k in range(segs)]
+
+
 def all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), az_stop_block(p), az_stop_pads(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
-            *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p)]
+            *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p),
+            cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p)]
 
 
 # ---------------------------------------------------------------- elevation actuator
@@ -991,7 +1074,7 @@ def elev_actuator_parts(p: Feeder) -> list[Part]:
 
 HEAD_PARTS = {"head_motor_plate", "head_guard_plate", "launcher_wheel", "launcher_motor", "head_standoff",
               "feed_floor", "feed_roof_column", "feed_shuttle", "elev_pin",
-              "shuttle_rod", "shuttle_crank", "shuttle_servo_bracket", "shuttle_servo"}
+              "shuttle_rod", "shuttle_crank", "shuttle_servo_bracket", "shuttle_servo", "cable_clip"}
 
 
 def swept_solids(p: Feeder, elev_deg: float) -> list[tuple[str, object]]:
@@ -1024,7 +1107,7 @@ def feed_stroke_solids(p: Feeder, elev_deg: float, theta_deg: float) -> tuple[li
 
 
 TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
-                                 "elev_anchor_bolt", *ELEV_ACT_PARTS}
+                                 "elev_anchor_bolt", "cable_gland", *ELEV_ACT_PARTS}
 HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar", "take_up_spring"}  # the hose bends; checked by the take-up model
 COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015,
                 "elev_actuator": 0.60, "shuttle_servo": 0.06}  # assumptions: weigh yours
@@ -1153,7 +1236,10 @@ COTS_EXTRA = [
     ("ESP32 dev board (ESP32-WROOM-32)", 1, "firmware/esp32, feeder role"),
     ("50 A+ BLDC ESC, servo-pulse input", 2, "launcher wheels"),
     ("Dual DC motor driver, 10 A/ch", 1, "base drive"),
-    ("5-6 V 5 A buck converter (servo supply)", 1, "shuttle servo: its stall current is a few amps"),
+    ("6 V 5 A buck converter (servo supply)", 1, "shuttle servo, on the deck beside the ESP32: 20 AWG supply and return to the servo (manifest cables line)"),
+    ("Spiral wrap, 10 mm, 1 m", 1, "the head's wires in the free loop: loose, so each wire bends on its own"),
+    ("Snap-in grommet for a 14 mm hole", 1, "the head's wires through the motor plate"),
+    ("Zip ties, 2.5 mm", 10, "cable gland, clamp and clip"),
     ("Storage tub, about 440 x 340 x 250 mm", 1, "hopper; see the part notes for the cut"),
     ("Stepper driver, 2 A class (TMC2209 or A4988), 24 V", 1, "azimuth stepper"),
     ("TCRT5000 reflective sensor", 2, "wheel tachometers"),
@@ -1186,6 +1272,26 @@ def shuttle_line(p: Feeder) -> str:
             f"{b['stroke_s']:.2f} s back ({d['no_load_stroke_s']:.2f} s unloaded), cycle {d['cycle_s']:.2f} s with the "
             f"{p.feed_dwell_s:g} s dwell and {d['drop_s']:.2f} s for the next ball to drop: {d['balls_per_min']:.0f} balls a "
             f"minute at most (a {p.elev_act_speed_mm_s:g} mm/s linear actuator would take {d['actuator_cycle_s']:.1f} s)")
+
+
+def cable_line(p: Feeder) -> str:
+    t = p.cable_twist()
+    d = p.cable_loop_design()
+    s = p.servo_supply(p.shuttle_drive(shuttle_kg(p))["peak_torque_nm"], d["cut_mm"] if d and d["window"] else None)
+    c = s["chosen"]
+    a26 = s["awg"][26]
+    ext, ret = p.elev_act_limits()
+    loop = ("no single length fits" if not d or not d["window"] else
+            f"cut {d['cut_mm']:.0f} mm, fits every pose from {d['window'][0]:.0f} to {d['window'][1]:.0f} mm, reaches "
+            f"{d['reach_mm']:.0f} mm behind the axis, lowest {d['lowest_z'] - p.turntable_top:.0f} mm over the turntable")
+    return (f"cables: ESCs, ESP32 and a {p.servo_supply_v:g} V buck on the deck; the head's {sum(n for _, n, _ in p.head_wires)} "
+            f"wires ({t['od_mm']:.1f} mm bundle with the actuator's) rise on the turntable axis from a clamp {t['run_mm']:.0f} mm "
+            f"below the gland, twisting {t['rate_deg_m']:.0f} deg/m at the {p.az_reach_deg:.1f} deg reach ({p.cable_twist_deg_m:g} "
+            f"allowed); free loop from the gland to the rear standoff clip, bend radius at least {d['r_min']:.0f} mm, over the "
+            f"actuator's whole travel ({ext:+.1f} to {ret:+.1f} deg): {loop}. Servo supply over {s['run_m']:.2f} m of "
+            f"{p.servo_lead_awg} AWG: {c['v_term']:.2f} V at the {p.servo_stall_a:g} A stall, ground up {c['ground_shift_v']:.2f} V "
+            f"(signal high {c['signal_high_v']:.2f} V against an assumed {p.servo_vih:g} V threshold); a stock 26 AWG lead "
+            f"would give {a26['v_term']:.2f} V and {a26['signal_high_v']:.2f} V")
 
 
 def structure_kg(p: Feeder, mass_g: float) -> float:
@@ -1311,6 +1417,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     if gravity is not None:
         checks.insert(-3, elevation_line(p, gravity))
         checks.insert(-3, shuttle_line(p))
+        checks.insert(-3, cable_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
@@ -1339,4 +1446,11 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         derived.update({"shuttle_torque_nm": round(sd["peak_torque_nm"], 3), "shuttle_torque_margin": round(sd["torque_margin"], 2),
                         "shuttle_stroke_s": [round(sd["fwd"]["stroke_s"], 3), round(sd["back"]["stroke_s"], 3)],
                         "shuttle_cycle_s": round(sd["cycle_s"], 3), "shuttle_jam_offset_mm": round(sd["jam_offset_mm"], 1)})
+        cd = p.cable_loop_design()
+        ct = p.cable_twist()
+        cs = p.servo_supply(sd["peak_torque_nm"], cd["cut_mm"])["chosen"]
+        derived.update({"cable_cut_mm": round(cd["cut_mm"]), "cable_window_mm": [round(v) for v in cd["window"]],
+                        "cable_bundle_od_mm": round(ct["od_mm"], 1), "cable_twist_deg_m": round(ct["rate_deg_m"]),
+                        "cable_loop_reach_mm": round(cd["reach_mm"]), "servo_stall_v": round(cs["v_term"], 2),
+                        "servo_ground_shift_v": round(cs["ground_shift_v"], 2)})
     return checks, derived
