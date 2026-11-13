@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "preflight: new post's description 182 chars and seo_title 82 chars over the limits",
       "fix": "shortened"
+    },
+    {
+      "what": "CI validate: flagships.yaml changepoint-detector next: was 2252 characters (cap 2000) after my item replacement",
+      "fix": "shortened the item; portfolio/router/validate.py passes"
     }
   ],
   "integrity_issues": [],
