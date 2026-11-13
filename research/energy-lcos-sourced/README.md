@@ -13,7 +13,7 @@ Re-run of `energy-lcos` and `energy-lcos-mc` (track 16) with every cost, efficie
 ## Parameters (`data/techdata.csv`, `data/atb.csv`; fetched by `data/fetch_params.py`)
 | Input | Source | Used as |
 |---|---|---|
-| Li-ion | technology-data `battery storage` (EUR 190/kWh) and `battery inverter` (EUR 214/kW, 96% one way), Danish Energy Agency; cost years 2020, 2030, 2050 | base 2030; range 2020 to 2050 |
+| Li-ion | technology-data `battery storage` (EUR 190/kWh) and `battery inverter` (EUR 214/kW, efficiency 0.96, which the upstream row labels "Round trip efficiency DC"; the model treats it as one way and squares it to 0.92, about $1.3/MWh on Li-ion: see Known gaps), Danish Energy Agency; cost years 2020, 2030, 2050 | base 2030; range 2020 to 2050 |
 | Li-ion spread | NREL ATB 2024 v4.0.0 `Utility-Scale Battery Storage`, overnight capital cost at 2, 4, 6, 8, 10 h, Advanced / Moderate / Conservative, 2024 and 2030 | linear fit p + e&middot;h per scenario; widens the range |
 | Vanadium flow | `Vanadium-Redox-Flow-bicharger` and `-store`, Viswanathan 2022 (EUR 162/kW, EUR 324/kWh, 12 y, efficiency 0.806 one way) | base 2030; 2020 to 2050 |
 | Pumped hydro | `Pumped-Storage-Hydro-bicharger` and `-store`, Viswanathan 2022 (EUR 1,757/kW, EUR 71.8/kWh, 60 y, 0.894 one way) | base |
@@ -24,10 +24,16 @@ Re-run of `energy-lcos` and `energy-lcos-mc` (track 16) with every cost, efficie
 
 Round-trip efficiency is the table's one-way efficiency squared (0.8944<sup>2</sup> = 0.80 for pumped hydro, 0.50 &times; 0.622 for hydrogen). Each block's life is the capital-weighted mean of its blocks' lives at the duration being priced; fixed O&M is the sum of each block's fraction times its cost. The technology-data files are GPL-3.0 code with per-row sources, ATB is CC BY 4.0: only the ~900 rows used are committed, with attribution. Pinned: technology-data commit `65244b4c`, ATB `2024/v4.0.0`.
 
+## Known gaps (quality audit, 2026-11-13)
+From [`portfolio/quality/audits/2026-11-13-energy-lcos-sourced.json`](../../portfolio/quality/audits/2026-11-13-energy-lcos-sourced.json):
+- **No replacements.** A block that wears out before the project (the 10-year Li-ion inverter, the 10-year fuel cell) is not replaced; project life is the capital-weighted mean of block lives. Replacing the inverter at year 10 raises Li-ion 4 h from about $121 to $130/MWh; costing each block over its own life raises hydrogen 500 h from $425 to $496. The cheapest technology per duration does not change, but Monte Carlo shares at 4 to 10 h lean toward Li-ion.
+- **Inverter efficiency** is squared although the source labels it round trip (above).
+- **Prior work** with the same cheapest-by-duration map is not compared: Schmidt et al. 2019 (*Joule* 3, 81-100) and PNNL's 2022 Grid Energy Storage Technology Cost and Performance Assessment.
+
 ## Reproduce
 ```bash
 cd research/energy-lcos-sourced
-python -m pytest -q tests            # 9 tests, uses ../energy-lcos/src
+python -m pytest -q tests            # 11 tests, uses ../energy-lcos/src
 python experiments/run.py            # about 10 s; writes experiments/results.txt
 python experiments/figure.py         # experiments/winshare.svg
 python experiments/run_price.py      # result I: charging price from real day-ahead prices; results_price.txt
