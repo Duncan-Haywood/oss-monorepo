@@ -1,0 +1,73 @@
+  cafe Ana off 2026-12-01, Ben off 2026-12-04: open h old | cg | look-ahead: plain 15/15/17/15 | 15/15/20/15 | 15/15/17/15; keep 0.1 15/15/17/15 | 15/15/17/15 | 15/15/17/15
+  cafe Ana off 2026-11-27: open h old | cg | look-ahead: plain 15/17/15/15 | 15/17/15/15 | 15/17/15/15; keep 0.1 15/17/15/15 | 15/17/15/15 | 15/17/15/15
+  cafe Eli off 2026-12-05: open h old | cg | look-ahead: plain 15/15/25/15 | 15/15/25/15 | 15/15/25/15; keep 0.1 15/15/25/15 | 15/15/25/15 | 15/15/25/15
+  cafe Ana off 2026-11-25: open h old | cg | look-ahead: plain 15/15/15/15 | 15/15/15/15 | 15/15/15/15; keep 0.1 15/15/15/15 | 15/15/15/15 | 15/15/15/15
+  cafe Ana off 2026-11-23: open h old | cg | look-ahead: plain 15/17/15/15 | 15/17/15/15 | 15/17/15/15; keep 0.1 15/17/15/15 | 15/17/15/15 | 15/17/15/15
+  cafe Ben off 2026-11-23: open h old | cg | look-ahead: plain 15/17/15/15 | 15/17/15/15 | 15/17/15/15; keep 0.1 15/17/15/15 | 15/17/15/15 | 15/17/15/15
+  cafe Ana off 2026-11-28: open h old | cg | look-ahead: plain 15/15/15/15 | 15/15/15/15 | 15/15/15/15; keep 0.1 15/15/15/15 | 15/15/15/15 | 15/15/15/15
+  cafe Dev off 2026-11-28, Fay off 2026-11-27: open h old | cg | look-ahead: plain 15/15/15/15 | 15/15/15/15 | 15/15/15/15; keep 0.1 15/15/15/15 | 15/15/15/15 | 15/15/15/15
+  cafe Cleo off 2026-11-24: open h old | cg | look-ahead: plain 15/15/15/15 | 15/15/15/15 | 15/15/15/15; keep 0.1 15/15/15/15 | 15/15/15/15 | 15/15/15/15
+  cafe Cleo off 2026-12-04, Gus off 2026-11-30: open h old | cg | look-ahead: plain 15/15/17/17 | 15/15/17/17 | 15/15/17/17 [tie check: wk3 earlier week's next 17->17 (relaxed 15)]; keep 0.1 15/15/17/15 | 15/15/17/15 | 15/15/17/15
+  cafe Ben off 2026-11-27: open h old | cg | look-ahead: plain 15/17/15/15 | 15/17/15/15 | 15/17/15/15; keep 0.1 15/17/15/15 | 15/17/15/15 | 15/17/15/15
+  cafe Fay off 2026-11-29: open h old | cg | look-ahead: plain 15/15/15/15 | 15/15/15/15 | 15/15/15/15; keep 0.1 15/15/15/15 | 15/15/15/15 | 15/15/15/15
+  cafe Eli off 2026-12-04, Fay off 2026-11-28: open h old | cg | look-ahead: plain 15/15/15/15 | 15/15/15/15 | 15/15/15/15; keep 0.1 15/15/15/15 | 15/15/15/15 | 15/15/15/15
+  spare Eli off 2026-12-05: open h old | cg | look-ahead: plain 0/0/3/0 | 0/0/3/0 | 0/0/3/0; keep 0.1 0/0/3/0 | 0/0/3/0 | 0/0/3/0
+  spare Gus off 2026-11-28, Ben off 2026-11-30: open h old | cg | look-ahead: plain 0/0/3/0 | 0/0/3/0 | 0/0/3/0; keep 0.1 0/0/3/0 | 0/0/3/0 | 0/0/3/0
+  spare Ben off 2026-12-05, Fay off 2026-11-23: open h old | cg | look-ahead: plain 0/3/0/0 | 0/3/0/0 | 0/3/0/0; keep 0.1 0/3/0/0 | 0/3/0/0 | 0/3/0/0
+  spare Eli off 2026-11-26: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  spare Eli off 2026-11-27: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  spare Ana off 2026-11-27, Hal off 2026-12-05: open h old | cg | look-ahead: plain 0/3/0/0 | 0/3/0/0 | 0/3/0/0; keep 0.1 0/3/0/0 | 0/3/0/0 | 0/3/0/0
+  spare Cleo off 2026-11-24: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  spare Ben off 2026-12-05, Fay off 2026-12-02: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  spare Fay off 2026-11-30, Ben off 2026-11-26: open h old | cg | look-ahead: plain 0/0/3/0 | 0/0/3/0 | 0/0/3/0; keep 0.1 0/0/3/0 | 0/0/3/0 | 0/0/3/0
+  spare Gus off 2026-11-25, Gus off 2026-11-28: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  spare Eli off 2026-11-29, Hal off 2026-12-02: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  spare Hal off 2026-11-26, Hal off 2026-11-28: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Paz off 2026-11-29: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Noah off 2026-12-06, Quin off 2026-11-24: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Quin off 2026-12-02, Orla off 2026-11-28: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Orla off 2026-11-23: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Quin off 2026-12-05, Quin off 2026-12-01: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Quin off 2026-11-23: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Mia off 2026-12-05: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Orla off 2026-11-23: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Noah off 2026-12-02: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Mia off 2026-12-06, Mia off 2026-12-03: open h old | cg | look-ahead: plain 0/0/5/0 | 0/0/5/0 | 0/0/5/0; keep 0.1 0/0/5/0 | 0/0/5/0 | 0/0/5/0
+  salon Mia off 2026-12-06, Orla off 2026-11-28: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  salon Noah off 2026-11-27: open h old | cg | look-ahead: plain 0/5/0/0 | 0/5/0/0 | 0/5/0/0; keep 0.1 0/5/0/0 | 0/5/0/0 | 0/5/0/0
+  retail Ruth off 2026-11-26: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Tess off 2026-11-26, Vic off 2026-11-30: open h old | cg | look-ahead: plain 0/0/6/0 | 0/0/6/0 | 0/0/6/0; keep 0.1 0/0/6/0 | 0/0/6/0 | 0/0/6/0
+  retail Vic off 2026-11-28: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Tess off 2026-12-06: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Vic off 2026-11-30, Tess off 2026-12-04: open h old | cg | look-ahead: plain 0/0/6/0 | 0/0/6/0 | 0/0/6/0; keep 0.1 0/0/6/0 | 0/0/6/0 | 0/0/6/0
+  retail Tess off 2026-11-25: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Tess off 2026-12-04, Sam off 2026-12-01: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Vic off 2026-12-05, Tess off 2026-11-25: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Uma off 2026-11-23, Tess off 2026-11-27: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Uma off 2026-11-27: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Uma off 2026-11-29: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  retail Ruth off 2026-12-02: open h old | cg | look-ahead: plain 0/0/0/0 | 0/0/0/0 | 0/0/0/0; keep 0.1 0/0/0/0 | 0/0/0/0 | 0/0/0/0
+  clinic Yan off 2026-12-03, Yan off 2026-11-30: open h old | cg | look-ahead: plain 5/5/10/5 | 5/5/10/5 | 5/5/10/5; keep 0.1 5/5/10/5 | 5/5/10/5 | 5/5/10/5
+  clinic Yan off 2026-12-01, Zed off 2026-11-24: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Xia off 2026-12-05: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Zed off 2026-12-01, Zed off 2026-11-24: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Abe off 2026-11-23: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Zed off 2026-11-25: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Zed off 2026-11-30: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Zed off 2026-12-06: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Xia off 2026-11-26, Yan off 2026-11-29: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Abe off 2026-12-02, Zed off 2026-11-25: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Abe off 2026-12-04, Yan off 2026-11-29: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+  clinic Zed off 2026-11-23: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
+
+plain: 61 four-week plans
+  old  open 1086 h, pay $713903, 53.5 s, 1587 person-shift changes week to week
+  cg   open 1089 h, pay $713846, 16.4 s, 1793 person-shift changes week to week (more open than old on 1, fewer on 0)
+  look open 1086 h, pay $713903, 30.9 s, 465 person-shift changes week to week (more open than old on 0, fewer on 0)
+
+keep usual shifts 0.1: 61 four-week plans
+  old  open 1084 h, pay $713982, 37.5 s, 394 person-shift changes week to week
+  cg   open 1084 h, pay $713982, 37.6 s, 394 person-shift changes week to week (more open than old on 0, fewer on 0)
+  look open 1084 h, pay $713982, 37.3 s, 394 person-shift changes week to week (more open than old on 0, fewer on 0)
+
+look-ahead: 171 weeks looked ahead, 1 rebuilt in the old order (next week short of its relaxation), 0 posted a different tie; 70 weeks posted an earlier week's tie (or one closer to it) over column generation's; 1 plans also built in the old order (a week still short after its look-ahead), 0 returned it

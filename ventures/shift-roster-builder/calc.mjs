@@ -773,6 +773,19 @@ function ownerValid(ctx, owner) {
   return lists.every((l, p) => { l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b); return validList(ctx, p, l); });
 }
 
+// A built roster's score under another week's staff (the planner's tie checks, 2026-11-13 later): people are matched by name and
+// shifts by slot index, so the slots must be the same list. `valid` false when a person is missing, not eligible or breaks a
+// rule there (rest gap, streak, hours). Bonuses (keep, prefer) count as the options say.
+export function rosterScoreUnder(staff, slots, options, roster) {
+  const ctx = buildContext(staff, slots, options);
+  const idx = new Map(staff.map((q, k) => [String(q.name).toLowerCase(), k]));
+  const asg = (roster && roster.assignments) || [];
+  if (asg.length !== ctx.S) return { valid: false };
+  const owner = asg.map((a) => (a.person ? idx.get(String(a.person).toLowerCase()) ?? -2 : -1));
+  if (owner.some((q) => q === -2) || !ownerValid(ctx, owner)) return { valid: false };
+  return { valid: true, score: scoreOwner(ctx, owner).total };
+}
+
 function anneal(ctx, seed, iterations, jitter) {
   const { P, S, slots, elig } = ctx;
   const rng = mulberry32(seed);
@@ -3474,14 +3487,36 @@ export function keepFromCsv(csv) {
   return keep;
 }
 
-export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, reuse = true, ...given } = {}) {
+export function planWeeks(staffText, shiftsText, options = {}) {
+  const plan = planWeeksOnce(staffText, shiftsText, options);
+  // The fallback: when a week's look-ahead found no roster that leaves the next week at its relaxation, the shortfall can come
+  // from a choice two or more weeks back, which a one-week look cannot reach (eval/plan-lookahead.mjs: 1 of 122 plans, 2 open
+  // hours). Then the whole plan is also built in the old order and the one with fewer open hours is returned (the new one on a
+  // tie), so a plan never leaves more hours open than the old order did. Measured: 2 of 342 looked-ahead weeks set it off.
+  if (!plan.ok || !plan.lookahead || !plan.weeks.some((w) => w.tiePick && w.tiePick.nextOpenHours > w.tiePick.relaxedNextOpenHours + 1e-9)) return plan;
+  const old = planWeeksOnce(staffText, shiftsText, { ...options, onWeek: null, deferCover: false });
+  if (old.ok && old.totalOpenHours < plan.totalOpenHours - 1e-9) return { ...old, lookahead: { ...plan.lookahead, fellBack: true, openHoursAhead: plan.totalOpenHours } };
+  return { ...plan, lookahead: { ...plan.lookahead, fellBack: false, openHoursOld: old.ok ? old.totalOpenHours : null } };
+}
+
+function planWeeksOnce(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, reuse = true, lookahead = true, tieSeeds = null, steadyTies = true, ...given } = {}) {
   const n = Math.max(1, Math.min(8, Math.floor(weeks) || 1));
-  // The planner keeps the old order (plateau walk first) unless the caller sets `deferCover`. Each week's last shifts carry
-  // into the next week's rest gaps and streaks, so which tied best roster a week posts changes what the next can do; with
-  // column generation first (fresh single-week builds since 2026-11-13) 2 of 122 four-week plans ended 2-3 open hours worse,
-  // the guide page's own plan among them (Ana off Tue 1 Dec, Ben off Fri 4 Dec: week 3 20 h, not 17), and none better, for
-  // a 3-5x faster plan (eval/plan-order.mjs, README "Fresh builds, column generation first").
-  const options = given.deferCover === undefined ? { ...given, deferCover: false } : given;
+  // Order and ties (2026-11-13 later, README "The planner picks a week's tie by what it leaves the next"). Each week's last
+  // shifts carry into the next week's rest gaps and streaks, so which tied best roster a week posts changes what the next can
+  // do. Column generation first (fresh builds' order since 2026-11-13) lands on one tie whatever the seed; on its own it left
+  // 2 of 122 four-week plans 2-3 open hours worse than the old order (plateau walk first). So with the new order the planner
+  // looks one week ahead: it builds the next week from the posted tie and from a relaxation of it (the same staff with the
+  // carried rest gaps and streaks left out, which can only allow more). When the two match, no other tie of this week can
+  // leave the next week better, and nothing more is built. When they differ, the week is built again in the old order
+  // (`tieSeeds`, default the caller's seed), and among the rosters with this week's open hours the one whose two weeks
+  // together leave the fewest open hours, then the least summed score, is posted (`tiePick` on that week). So a roster a few
+  // points worse this week is taken when it leaves next week an open shift fewer, never one that opens an hour this week. `deferCover: false` keeps
+  // the old order with no look-ahead; `lookahead: false` keeps the new order without it.
+  // keepValue > 0 ("keep people on their usual shifts") stays on the old order unless the caller sets `deferCover`: on the leave
+  // sweep (eval/steady-plan.steady-ties.txt) column generation first moved 4-20% more shifts week to week there, and steadiness
+  // is that setting's whole point.
+  const options = given.deferCover === undefined && Number(given.keepValue) > 0 ? { ...given, deferCover: false } : given;
+  const look = lookahead !== false && options.deferCover !== false && options.exact !== false && n > 1;
   const sh = parseShifts(shiftsText);
   if (sh.errors.length) return { error: sh.errors[0] };
   let text = String(staffText || "");
@@ -3506,38 +3541,135 @@ export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, 
       }
     }
   }
-  const built = new Map();
+  // keepValue > 0 ("keep people on their usual shifts"): every week is built with the usual rota as `keep`, so a dated day off
+  // moves the shifts it has to, the rest stay where people usually have them, and the week after goes back to the usual.
+  // Anchoring on the week before instead (measured 2026-11-12, café sample, Ana and Ben off in week 3) carried week 3's
+  // reshuffle into week 4: 16 changes over the plan against 30 with no bonus, but 5 of them were week 4 not going back.
+  const keep = anchor;
+  const weekOpts = keep ? { ...options, keep } : options;
+  // Builds are kept by (staff, order); `posted` maps staff to the week that first posted that roster (for `sameAs`).
+  const cache = new Map(), posted = new Map();
+  let builds = 0, looks = 0, picks = 0, steadied = 0;
+  const weekFrom = (txt, k, order = null) => {
+    const st = parseStaff(txt, { weekStart: addWeeks(weekStart, k) });
+    if (st.errors.length) return { error: st.errors[0] };
+    const key = JSON.stringify([toughCounts ? st.staff : st.staff.map((p) => ({ ...p, toughBefore: 0 })), keep]);
+    const ck = key + "|" + (order ?? "");
+    let roster = reuse ? cache.get(ck) : null;
+    if (!roster) {
+      roster = buildRoster(st.staff, sh.slots, order === null ? weekOpts : { ...weekOpts, deferCover: false, ...(order === "walk" ? {} : { seed: order }) });
+      builds++;
+      if (roster.error) return { error: roster.error };
+      if (reuse) cache.set(ck, roster);
+    }
+    return { key, roster };
+  };
+  const nextText = (txt, csv) => {
+    const worked = lastShiftEnds(csv);
+    const cleaned = txt.split(/\r?\n/).map((raw) => {
+      const line = raw.trim();
+      if (!line || line.startsWith("#")) return raw;
+      const cells = splitLine(line);
+      if (worked.has((cells[0] || "").toLowerCase())) return raw;
+      const kept = cells.filter((x) => !PREV_CELL.test(x) && !STREAK_CELL.test(x));
+      return kept.length === cells.length ? raw : kept.join(line.includes("\t") ? "\t" : ", ");
+    }).join("\n");
+    return carryOverStaff(cleaned, csv).text;
+  };
+  const noCarry = (txt) => txt.split(/\r?\n/).map((raw) => {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) return raw;
+    const cells = splitLine(line);
+    const kept = cells.filter((x) => !PREV_CELL.test(x) && !STREAK_CELL.test(x));
+    return kept.length === cells.length ? raw : kept.join(line.includes("\t") ? "\t" : ", ");
+  }).join("\n");
+  const better = (a, b) => a.unfilledHours < b.unfilledHours - 1e-9 || (Math.abs(a.unfilledHours - b.unfilledHours) < 1e-9 && a.score < b.score - 1e-6);
+  const shape = (r) => JSON.stringify(keepFrom(r));
   for (let k = 0; k < n; k++) {
     const ws = addWeeks(weekStart, k);
-    const st = parseStaff(text, { weekStart: ws });
-    if (st.errors.length) return { error: st.errors[0] };
-    // keepValue > 0 ("keep people on their usual shifts"): every week is built with the usual rota as `keep`, so a dated day off
-    // moves the shifts it has to, the rest stay where people usually have them, and the week after goes back to the usual.
-    // Anchoring on the week before instead (measured 2026-11-12, café sample, Ana and Ben off in week 3) carried week 3's
-    // reshuffle into week 4: 16 changes over the plan against 30 with no bonus, but 5 of them were week 4 not going back.
-    const keep = anchor;
-    const key = JSON.stringify([toughCounts ? st.staff : st.staff.map((p) => ({ ...p, toughBefore: 0 })), keep]);
-    const prior = reuse ? built.get(key) : null;
-    const roster = prior ? { ...prior.roster } : buildRoster(st.staff, sh.slots, keep ? { ...options, keep } : options);
-    if (roster.error) return { error: roster.error };
-    if (!prior) built.set(key, { week: k + 1, roster });
-    const csv = rosterCsv(roster);
-    out.push({ week: k + 1, weekStart: ws, roster, csv, ...(prior ? { sameAs: prior.week } : {}) });
-    if (typeof onWeek === "function") onWeek(k + 1, n);
-    if (k < n - 1) {
-      const worked = lastShiftEnds(csv);
-      const cleaned = text.split(/\r?\n/).map((raw) => {
-        const line = raw.trim();
-        if (!line || line.startsWith("#")) return raw;
-        const cells = splitLine(line);
-        if (worked.has((cells[0] || "").toLowerCase())) return raw;
-        const kept = cells.filter((x) => !PREV_CELL.test(x) && !STREAK_CELL.test(x));
-        return kept.length === cells.length ? raw : kept.join(line.includes("\t") ? "\t" : ", ");
-      }).join("\n");
-      text = carryOverStaff(cleaned, csv).text;
+    let cur = weekFrom(text, k);
+    if (cur.error) return { error: cur.error };
+    const was = reuse ? posted.get(cur.key) : null;
+    let tiePick = null, kept = null;
+    if (!was) {
+      // Candidates in order of preference; the first is posted unless the look-ahead finds a later one leaves next week better.
+      const cands = [{ c: cur, order: "default" }];
+      // Steady ties: column generation lands on one tie per week, but a carried-over rest gap can move it to another tie of the
+      // same score, so a plan with nothing changing reshuffled people week to week (the sample café cycled through three tied
+      // rosters). When an earlier week's roster is still allowed this week and scores the same, the week is built again with a
+      // small per-shift bonus for that roster's shifts (keepShift 0.01, starting from it), and that build is posted if its score
+      // without the bonus ties. Not with keepValue > 0, whose usual rota already anchors every week.
+      // Earlier weeks are tried newest first, so after a week with someone off the plan can go back to the rota before it. Only
+      // weeks with no dated day off are copied: copying one carried its reshuffle into later weeks (the leave sweep's distance
+      // from the usual rota rose 6-44% before this was added).
+      if (look && steadyTies !== false && !steady && k > 0 && !out.some((w) => shape(w.roster) === shape(cur.roster)) && out.some((w) => !w.leave)) {
+        const st = parseStaff(text, { weekStart: ws });
+        const curSc = rosterScoreUnder(st.staff, sh.slots, weekOpts, cur.roster);
+        const tried = new Set();
+        for (let j = k - 1; j >= 0 && curSc.valid; j--) {
+          if (out[j].leave) continue;
+          const last = out[j].roster;
+          if (tried.has(shape(last))) continue;
+          tried.add(shape(last));
+          const lastSc = rosterScoreUnder(st.staff, sh.slots, weekOpts, last);
+          // A roster this week's rules no longer allow whole (someone off, a carried rest gap) is still built toward, once, for the
+          // newest leave-free week only: the bonus keeps as much of it as a tie allows.
+          if (lastSc.valid ? lastSc.score > curSc.score + 1e-6 : tried.size > 1) continue;
+          const r = buildRoster(st.staff, sh.slots, { ...weekOpts, keep: keepFrom(last), keepShift: 0.01, keepValue: 0 });
+          builds++;
+          const sc = r.error ? null : rosterScoreUnder(st.staff, sh.slots, weekOpts, r);
+          if (sc && sc.valid && sc.score <= curSc.score + 1e-6) {
+            cands.unshift({ c: { key: cur.key, roster: { ...r, score: cur.roster.score + (sc.score - curSc.score), steadyBonus: r.score } }, order: "earlier week's" });
+            kept = shape(r) === shape(last) ? `same as week ${j + 1}` : `closer to week ${j + 1}`;
+            steadied++;
+            break;
+          }
+        }
+      }
+      if (look && k < n - 1) {
+        const nextOf = (c) => weekFrom(nextText(text, rosterCsv(c.roster)), k + 1);
+        const nx = nextOf(cands[0].c);
+        if (nx.error) return { error: nx.error };
+        const relaxed = weekFrom(noCarry(nextText(text, rosterCsv(cands[0].c.roster))), k + 1);
+        if (relaxed.error) return { error: relaxed.error };
+        looks++;
+        if (better(relaxed.roster, nx.roster)) {
+          const seen = new Set([shape(cands[0].c.roster)]);
+          // Two weeks together: open hours first (this week's are equal by construction), then the two weeks' scores summed.
+          const pair = (c, nr) => ({ unfilledHours: c.roster.unfilledHours + nr.unfilledHours, score: c.roster.score + nr.score });
+          let best = { ...cands[0], next: nx.roster };
+          const seeds = tieSeeds && tieSeeds.length ? tieSeeds : ["walk"];
+          const more = [...cands.slice(1), ...seeds.map((sd) => ({ sd }))];
+          for (const m of more) {
+            let c = m.c, order = m.order;
+            if (!c) {
+              c = weekFrom(text, k, m.sd);
+              if (c.error) return { error: c.error };
+              order = m.sd === "walk" ? "walk" : `walk, seed ${m.sd}`;
+              if (Math.abs(c.roster.unfilledHours - cur.roster.unfilledHours) > 1e-9) continue;
+            }
+            if (seen.has(shape(c.roster))) continue;
+            seen.add(shape(c.roster));
+            const an = nextOf(c);
+            if (an.error) return { error: an.error };
+            if (better(pair(c, an.roster), pair(best.c, best.next))) best = { c, order, next: an.roster };
+          }
+          tiePick = { order: best.order, nextOpenHours: best.next.unfilledHours, defaultNextOpenHours: nx.roster.unfilledHours, relaxedNextOpenHours: relaxed.roster.unfilledHours, tried: seen.size };
+          if (best.c !== cands[0].c) { picks++; if (best.order !== "earlier week's") kept = null; }
+          cur = best.c;
+        } else cur = cands[0].c;
+      } else cur = cands[0].c;
     }
+    const roster = was ? { ...was.roster } : { ...cur.roster };
+    if (!was && reuse) posted.set(cur.key, { week: k + 1, roster: cur.roster });
+    const csv = rosterCsv(roster);
+    const bare = noCarry(text);
+    const leave = !!weekStart && JSON.stringify(parseStaff(bare, { weekStart: ws }).staff) !== JSON.stringify(parseStaff(bare).staff);
+    out.push({ week: k + 1, weekStart: ws, roster, csv, ...(was ? { sameAs: was.week } : {}), ...(tiePick ? { tiePick } : {}), ...(kept ? { steadied: kept } : {}), ...(leave ? { leave: true } : {}) });
+    if (typeof onWeek === "function") onWeek(k + 1, n);
+    if (k < n - 1) text = nextText(text, csv);
   }
-  return { ok: true, weeks: out, totalCost: out.reduce((t, w) => t + w.roster.cost, 0), totalOpenHours: out.reduce((t, w) => t + w.roster.unfilledHours, 0) };
+  return { ok: true, weeks: out, totalCost: out.reduce((t, w) => t + w.roster.cost, 0), totalOpenHours: out.reduce((t, w) => t + w.roster.unfilledHours, 0), lookahead: look ? { builds, looks, picks, steadied } : null };
 }
 
 // Fairness over a whole plan: the per-week fairnessReport counts added up per person across every planned week, so

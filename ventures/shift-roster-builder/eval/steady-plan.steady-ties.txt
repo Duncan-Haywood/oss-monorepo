@@ -1,0 +1,50 @@
+cafe-sample  leave 0     keep 0    weeks 20 reused 10 proven 20 open  300 h pay $ 73800.00 churn    0 (forced   0) off usual    0 347 ms
+cafe-sample  leave 0     keep 0.1  weeks 20 reused 10 proven 20 open  300 h pay $ 73800.00 churn    0 (forced   0) off usual    0 288 ms
+cafe         leave 0     keep 0    weeks 20 reused 10 proven 20 open  300 h pay $ 73800.00 churn    0 (forced   0) off usual    0 22 ms
+cafe         leave 0     keep 0.1  weeks 20 reused 10 proven 20 open  300 h pay $ 73800.00 churn    0 (forced   0) off usual    0 17 ms
+salon        leave 0     keep 0    weeks 20 reused 10 proven 20 open    0 h pay $ 41080.00 churn    0 (forced   0) off usual    0 22 ms
+salon        leave 0     keep 0.1  weeks 20 reused 10 proven 20 open    0 h pay $ 41080.00 churn    0 (forced   0) off usual    0 24 ms
+retail       leave 0     keep 0    weeks 20 reused 10 proven 20 open    0 h pay $ 45000.00 churn    0 (forced   0) off usual    0 30 ms
+retail       leave 0     keep 0.1  weeks 20 reused 10 proven 20 open    0 h pay $ 45000.00 churn    0 (forced   0) off usual    0 35 ms
+clinic       leave 0     keep 0    weeks 20 reused 10 proven 20 open  100 h pay $ 54160.00 churn    0 (forced   0) off usual    0 68 ms
+clinic       leave 0     keep 0.1  weeks 20 reused 10 proven 20 open  100 h pay $ 54160.00 churn    0 (forced   0) off usual    0 68 ms
+cafe-sample  leave 0.02  keep 0    weeks 20 reused  1 proven 20 open  314 h pay $ 73590.00 churn  157 (forced   5) off usual  216 5510 ms
+cafe-sample  leave 0.02  keep 0.1  weeks 20 reused  2 proven 20 open  314 h pay $ 73596.00 churn   62 (forced   6) off usual   49 8966 ms
+cafe         leave 0.02  keep 0    weeks 20 reused  4 proven 20 open  312 h pay $ 73600.00 churn   56 (forced   4) off usual  143 4730 ms
+cafe         leave 0.02  keep 0.1  weeks 20 reused  5 proven 20 open  312 h pay $ 73612.00 churn   18 (forced   3) off usual   11 4553 ms
+salon        leave 0.02  keep 0    weeks 20 reused  0 proven 20 open   43 h pay $ 40430.00 churn   43 (forced   9) off usual   36 1221 ms
+salon        leave 0.02  keep 0.1  weeks 20 reused  1 proven 20 open   43 h pay $ 40382.00 churn   29 (forced  10) off usual   20 589 ms
+retail       leave 0.02  keep 0    weeks 20 reused  4 proven 20 open    6 h pay $ 44901.00 churn   83 (forced   5) off usual   61 569 ms
+retail       leave 0.02  keep 0.1  weeks 20 reused  4 proven 20 open    6 h pay $ 44907.00 churn   41 (forced   5) off usual   27 312 ms
+clinic       leave 0.02  keep 0    weeks 20 reused  6 proven 20 open  110 h pay $ 54016.00 churn   28 (forced   2) off usual   20 457 ms
+clinic       leave 0.02  keep 0.1  weeks 20 reused  6 proven 20 open  110 h pay $ 53926.00 churn   20 (forced   2) off usual   12 342 ms
+cafe-sample  leave 0.04  keep 0    weeks 20 reused  0 proven 20 open  364 h pay $ 72860.00 churn  290 (forced  14) off usual  338 5223 ms
+cafe-sample  leave 0.04  keep 0.1  weeks 20 reused  0 proven 20 open  364 h pay $ 72872.00 churn  104 (forced  14) off usual   80 11414 ms
+cafe         leave 0.04  keep 0    weeks 20 reused  0 proven 20 open  388 h pay $ 72362.00 churn  327 (forced  20) off usual  372 5108 ms
+cafe         leave 0.04  keep 0.1  weeks 20 reused  0 proven 20 open  388 h pay $ 72384.00 churn  123 (forced  22) off usual   96 8520 ms
+salon        leave 0.04  keep 0    weeks 20 reused  2 proven 20 open   41 h pay $ 40568.00 churn   45 (forced   7) off usual   39 1091 ms
+salon        leave 0.04  keep 0.1  weeks 20 reused  2 proven 20 open   41 h pay $ 40568.00 churn   25 (forced   7) off usual   21 603 ms
+retail       leave 0.04  keep 0    weeks 20 reused  1 proven 20 open   24 h pay $ 44574.00 churn  190 (forced  15) off usual  224 858 ms
+retail       leave 0.04  keep 0.1  weeks 20 reused  1 proven 20 open   24 h pay $ 44577.00 churn   86 (forced  12) off usual   70 606 ms
+clinic       leave 0.04  keep 0    weeks 20 reused  1 proven 20 open  135 h pay $ 53369.00 churn  128 (forced   9) off usual  125 1681 ms
+clinic       leave 0.04  keep 0.1  weeks 20 reused  1 proven 20 open  135 h pay $ 53141.00 churn   40 (forced   9) off usual   31 1055 ms
+cafe-sample  leave 0.08  keep 0    weeks 20 reused  0 proven 20 open  441 h pay $ 71411.00 churn  404 (forced  22) off usual  379 6369 ms
+cafe-sample  leave 0.08  keep 0.1  weeks 20 reused  0 proven 20 open  441 h pay $ 71417.00 churn  164 (forced  22) off usual  127 9554 ms
+cafe         leave 0.08  keep 0    weeks 20 reused  0 proven 20 open  393 h pay $ 72214.00 churn  350 (forced  25) off usual  361 4208 ms
+cafe         leave 0.08  keep 0.1  weeks 20 reused  0 proven 20 open  393 h pay $ 72255.00 churn  150 (forced  25) off usual  145 8233 ms
+salon        leave 0.08  keep 0    weeks 20 reused  0 proven 20 open   74 h pay $ 39898.00 churn   98 (forced  18) off usual  113 1301 ms
+salon        leave 0.08  keep 0.1  weeks 20 reused  0 proven 20 open   74 h pay $ 39898.00 churn   50 (forced  18) off usual   43 742 ms
+retail       leave 0.08  keep 0    weeks 20 reused  0 proven 20 open   54 h pay $ 44103.00 churn  205 (forced  23) off usual  257 1411 ms
+retail       leave 0.08  keep 0.1  weeks 20 reused  0 proven 20 open   54 h pay $ 44094.00 churn  109 (forced  24) off usual   81 884 ms
+clinic       leave 0.08  keep 0    weeks 20 reused  0 proven 20 open  185 h pay $ 52416.00 churn  161 (forced  18) off usual  161 1894 ms
+clinic       leave 0.08  keep 0.1  weeks 20 reused  0 proven 20 open  185 h pay $ 51832.00 churn   63 (forced  18) off usual   43 1215 ms
+
+all 5 cases, 5 seeds, 4 weeks, exact auto
+leave 0     keep 0    weeks 100 reused 50 proven 100 open  700 h pay $287840.00 churn    0 (forced   0) off usual    0 489 ms
+leave 0     keep 0.1  weeks 100 reused 50 proven 100 open  700 h pay $287840.00 churn    0 (forced   0) off usual    0 432 ms
+leave 0.02  keep 0    weeks 100 reused 15 proven 100 open  785 h pay $286537.00 churn  367 (forced  25) off usual  476 12487 ms
+leave 0.02  keep 0.1  weeks 100 reused 18 proven 100 open  785 h pay $286423.00 churn  170 (forced  26) off usual  119 14762 ms
+leave 0.04  keep 0    weeks 100 reused  4 proven 100 open  952 h pay $283733.00 churn  980 (forced  65) off usual 1098 13961 ms
+leave 0.04  keep 0.1  weeks 100 reused  4 proven 100 open  952 h pay $283542.00 churn  378 (forced  64) off usual  298 22198 ms
+leave 0.08  keep 0    weeks 100 reused  0 proven 100 open 1147 h pay $280042.00 churn 1218 (forced 106) off usual 1271 15183 ms
+leave 0.08  keep 0.1  weeks 100 reused  0 proven 100 open 1147 h pay $279496.00 churn  536 (forced 107) off usual  439 20628 ms

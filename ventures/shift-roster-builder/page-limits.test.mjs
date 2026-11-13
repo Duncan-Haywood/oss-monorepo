@@ -35,7 +35,7 @@ test("rotation page's eight-week table is what the engine returns for six identi
   const { sampleShifts, planWeeks, planFairness } = await import("./calc.mjs");
   const staff = ["name, wage, max hours, min hours, availability", ..."Ana Ben Cleo Dev Eli Fay".split(" ").map((n) => `${n}, 15, 40, 0, any`)].join("\n");
   const html = page("how-to-rotate-closing-and-weekend-shifts-fairly.html");
-  for (const [t, most, least, gap] of [[0, 37, 34, 3], [10, 36, 36, 0], [30, 36, 36, 0]]) {
+  for (const [t, most, least, gap] of [[0, 40, 32, 8], [10, 36, 36, 0], [30, 36, 36, 0]]) {
     const p = planWeeks(staff, sampleShifts(), { weeks: 8, weekStart: "2026-11-02", toughBalance: t });
     for (const w of p.weeks) proven(w.roster);
     const f = planFairness(p);

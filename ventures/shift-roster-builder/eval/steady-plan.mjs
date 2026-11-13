@@ -5,13 +5,13 @@
 // proven, open hours, pay, and churn = person-shift pairs that differ between week k-1 and week k (k >= 2; adds plus drops).
 // "forced" counts the drops whose holder is off that day in week k: those must move whatever the setting. "off usual" counts,
 // over every week, the person-shift pairs that differ from the usual rota (the week built with the dated days off left out).
-//   node eval/steady-plan.mjs [seeds=3] [weeks=4]       RATES=0,0.01,0.02,0.04  KEEP=0.1,0.25  EXACT=auto|off
+//   node eval/steady-plan.mjs [seeds=3] [weeks=4]       RATES=0,0.01,0.02,0.04  KEEP=0.1,0.25  EXACT=auto|off  ORDER=walk
 import { planWeeks, buildRoster, parseStaff, parseShifts, TEMPLATES, sampleStaff, sampleShifts, slotKey } from "../calc.mjs";
 const seeds = Number(process.argv[2] || 3), weeks = Number(process.argv[3] || 4);
 const rates = (process.env.RATES || "0,0.01,0.02,0.04").split(",").map(Number);
 const keeps = [0, ...(process.env.KEEP || "0.1,0.25").split(",").map(Number)];
 const exact = process.env.EXACT === "off" ? false : "auto";
-const page = { minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0, otAfter: 40, otMult: 1.5, burdenPct: 0, balance: 25, toughBalance: 0, exact, exactMs: 4000 };
+const page = { minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0, otAfter: 40, otMult: 1.5, burdenPct: 0, balance: 25, toughBalance: 0, exact, exactMs: 4000, ...(process.env.ORDER === "walk" ? { deferCover: false } : {}) }; // ORDER=walk: the planner before 2026-11-13 later
 const weekStart = "2026-11-16";
 const iso = (k) => new Date(Date.UTC(2026, 10, 16 + k)).toISOString().slice(0, 10);
 const proven = (r) => r.optimality?.status === "optimal" || r.optimality?.status === "improved";
@@ -58,8 +58,10 @@ for (const rate of rates) for (const [name, st, sh] of cases) {
   const row = new Map(keeps.map((kv) => [kv, blank()]));
   for (let sd = 0; sd < seeds; sd++) {
     const { text, offByName } = withLeave(st, rate, 1000 * sd + Math.round(rate * 1000) + name.length);
-    const usual = pairs(buildRoster(parseStaff(st).staff, parseShifts(sh).slots, page));
+    // The usual week: the planner's own first week with no dated leave, same settings (2026-11-13 later). It was a fresh
+    // buildRoster; since fresh builds run column generation first, that is a different tie from the planner's.
     for (const kv of keeps) {
+      const usual = pairs(planWeeks(st, sh, { ...page, weeks: 1, weekStart, keepValue: kv }).weeks[0].roster);
       const t0 = Date.now();
       const p = planWeeks(text, sh, { ...page, weeks, weekStart, keepValue: kv });
       if (p.error) { console.log(`${name} rate ${rate} seed ${sd}: ${p.error}`); continue; }

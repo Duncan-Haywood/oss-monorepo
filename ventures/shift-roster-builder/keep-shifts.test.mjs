@@ -103,9 +103,11 @@ test("the planner keeps people on their usual shifts: a day off moves fewer othe
   assert.ok(on.ok && off.ok);
   assert.equal(on.totalOpenHours, off.totalOpenHours);
   assert.ok(on.weeks.every((w) => ["optimal", "improved"].includes(w.roster.optimality?.status)));
-  // README "Keep people on their usual shifts": 15 changes into week 3 and 15 back without the bonus, 11 and 11 with it.
-  assert.deepEqual(churn(off), [0, 15, 15]);
+  // README "The planner picks a week's tie by what it leaves the next": 5 changes into week 3 and 5 back without the bonus
+  // (15/15 before the planner built toward the last leave-free week's roster), 11 and 11 with it (the old order, unchanged).
+  assert.deepEqual(churn(off), [0, 5, 5]);
   assert.deepEqual(churn(on), [0, 11, 11]);
+  assert.equal(diff(pairs(off.weeks[3].roster), pairs(off.weeks[1].roster)), 0, "plain plan: week 4 is the usual rota again");
   assert.equal(diff(pairs(on.weeks[3].roster), pairs(on.weeks[1].roster)), 0, "week 4 is the usual rota again");
   // The guide page quotes this plan.
   const html = readFileSync(new URL("./keep-a-consistent-schedule-when-someone-is-off.html", import.meta.url), "utf8");
@@ -118,9 +120,10 @@ test("the planner keeps people on their usual shifts: a day off moves fewer othe
   assert.deepEqual(cells("Hours left uncovered, whole month"), [String(off.totalOpenHours), String(on.totalOpenHours)]);
   assert.deepEqual(cells("Payroll, whole month"), [`$${off.totalCost.toLocaleString("en-US")}`, `$${on.totalCost.toLocaleString("en-US")}`]);
   for (const f of ["sitemap.xml", "index.html"]) assert.match(readFileSync(new URL(`./${f}`, import.meta.url), "utf8"), /keep-a-consistent-schedule-when-someone-is-off\.html/);
-  // With no time off, the bonus changes nothing and the planner reuses the same weeks.
+  // With no time off, the bonus changes nothing and the planner reuses the same weeks. A keep plan runs in the old order
+  // (README "The planner picks a week's tie by what it leaves the next"), so it is compared with a plain plan in that order.
   const plain = planWeeks(sampleStaff(), sampleShifts(), { ...o, keepValue: 0.25, weeks: 5 });
-  const base = planWeeks(sampleStaff(), sampleShifts(), { ...o, weeks: 5 });
+  const base = planWeeks(sampleStaff(), sampleShifts(), { ...o, weeks: 5, deferCover: false });
   assert.deepEqual(plain.weeks.map((w) => w.sameAs ?? null), [null, null, 2, 2, 2]);
   plain.weeks.forEach((w, k) => {
     assert.equal(diff(pairs(w.roster), pairs(base.weeks[k].roster)), 0, `week ${k + 1}: same people on the same shifts`);
