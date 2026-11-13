@@ -383,6 +383,36 @@ class FirmwareTest(unittest.TestCase):
         self.assertGreaterEqual(config.LIFT_RUN_ON_MS, need)
         self.assertLess(config.LIFT_RUN_ON_MS, need + 5000)    # not running a minute for nothing
 
+    def test_agitator_stirs_while_balls_are_wanted_and_stops_with_everything(self):
+        agit = controller.AgitatorRun(3000)
+        self.assertEqual(agit.update(0, False), 0.0)          # off from power-up
+        self.assertEqual(agit.update(1000, True), 1.0)        # a ball queued
+        self.assertEqual(agit.update(9000, True), 1.0)        # still feeding
+        self.assertEqual(agit.update(11999, False), 1.0)      # run-on after the last ball left
+        self.assertEqual(agit.update(12000, False), 0.0)
+        agit.update(20000, True)
+        agit.stop()                                           # e-stop or watchdog
+        self.assertEqual(agit.update(20001, False), 0.0)
+
+    def test_agitator_run_on_covers_two_passes(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
+        import config
+        from otr_cad.params import Feeder  # pure dataclass, no CAD kernel needed
+        p = Feeder()
+        self.assertEqual(p.check_agitator(), [])
+        per_pass_ms = 60000 / p.agitator_design()["passes_per_min"]
+        self.assertGreaterEqual(config.AGIT_RUN_ON_MS, 2 * per_pass_ms)
+        self.assertLess(config.AGIT_RUN_ON_MS, 10000)
+
+    def test_agitator_checks_catch_a_bad_design(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
+        from otr_cad.params import Feeder
+        self.assertTrue(any("past the outlet" in b for b in Feeder(agit_arm_l=100.0).check_agitator()))
+        self.assertTrue(any("tub's wall" in b for b in Feeder(agit_arm_l=140.0).check_agitator()))
+        self.assertTrue(any("times a minute" in b for b in Feeder(agit_motor_rpm=10.0).check_agitator()))
+        self.assertTrue(any("MPa" in b for b in Feeder(agit_arm_w=8.0).check_agitator()))
+        self.assertTrue(any("N m is" in b for b in Feeder(agit_motor_nm=0.5).check_agitator()))
+
     def _elev(self, mode, **kw):
         return controller.LinearAxis(mode, controller.ElevationGeometry(), 246.0, 150.0, -15.0, 45.0, 18.0, 22.0, **kw)
 
