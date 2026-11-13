@@ -302,7 +302,9 @@ flagships:
       order, or a Lagrangian on the pair ties); a faster floor at 22-25 teams (one search 22-86 s; the 22
       team gap 440/58..690/48 gains 6-7% when run); a lower bound or a timetable below 136 at 12
       (eval/carryover-sat.py); close 24-40 (tabu, longer runs, the literature's starters); a real
-      league's travel and blackout dates; a print check.
+      league's travel and blackout dates; printed sheets on a real printer and paper (the PDF print check,
+      eval/print-check.mjs, landed 2026-11-13: README "Print check"); team sheets and duty rota pages
+      for one-division leagues.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
