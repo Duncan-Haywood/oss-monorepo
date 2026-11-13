@@ -1,9 +1,9 @@
 ---
-title: "Run the years backwards: the solar boat's speed rule keeps its settings, and its margin depends on the climatology"
+title: "Run the years backwards: the solar boat's speed rule keeps its settings, not its margin"
 seo_title: "Solar USV speed rule on held-out years: settings hold, margin slips"
 date: 2026-11-13
 tags: [research, marine-hull]
-description: "Tuned on 2020 to 2024 and flown on 2015 to 2019, a solar survey boat's blended speed rule picks the same settings and goes 11 to 16% further, but overspends where the climatology runs 1% sunny."
+description: "Tuned on 2020 to 2024 and flown on 2015 to 2019, a solar boat's blended speed rule keeps its settings and range but overspends where the climatology runs sunny."
 ---
 
 The [last step](2026-11-13-marine-hull-solar-boat-blend-weight-across-oceans.md) ended with a rule we had read off the results rather than tested. A small deck-solar survey boat whose 50 W payload draws more than the deck harvests on an average day plans each day's speed from a mix of two sun estimates: the average sun for that day of the year, and its own last 7 days of harvest. It closes any battery error over a set number of days. The rule scaled with the battery: half and half with a 60-day correction for a 2.5 kWh pack, half and half with 30 days for 5 kWh, and three-eighths last-week with 30 days for 10 and 20 kWh. On the years we read it from (2020 to 2024) it beat the plain 7-day rule on both distance and payload downtime in 12 of 12 cases. That is an in-sample result.
