@@ -636,3 +636,14 @@ fn guarded_json_reports_folded_and_fully_guarded_totals() {
     ));
     assert!(j.ends_with("}}"));
 }
+
+#[test]
+fn line_numbers_survive_backslash_newline_in_strings() {
+    // Quality audit 2026-11-13: a `"""\` docstring or a backslash-newline in
+    // a template literal used to swallow a line, so every later token was
+    // reported one line early.
+    let py = tokenize(b"H = \"\"\"\\\nusage\n\"\"\"\nx = 1\n", CommentStyle::Hash);
+    assert_eq!(py.last().unwrap().line, 4);
+    let js = tokenize(b"const t = `a\\\nb`;\nlet y = 2;\n", CommentStyle::CLike);
+    assert_eq!(js.last().unwrap().line, 3);
+}
