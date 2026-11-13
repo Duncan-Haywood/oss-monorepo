@@ -122,6 +122,9 @@ const decode = (s) => String(s ?? '')
   .replace(/&amp;/g, '&');
 const escapeAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+// An inline data: favicon link (see `completeShareTags`).
+const DATA_ICON = /<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi;
+
 // The whole tag, tolerating a `>` inside a quoted attribute value.
 const META = /<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
 
@@ -131,17 +134,22 @@ let metaTagsFor = null;
 let metaTagsOf = [];
 const metaMatchers = new Map();
 
-function metaContent(html, attr, key) {
-  if (metaTagsFor !== html) {
-    metaTagsOf = html.match(META) ?? [];
-    metaTagsFor = html;
-  }
+function metaMatcher(attr, key) {
   const id = `${attr}\0${key}`;
   let test = metaMatchers.get(id);
   if (!test) {
     test = new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i');
     metaMatchers.set(id, test);
   }
+  return test;
+}
+
+function metaContent(html, attr, key) {
+  if (metaTagsFor !== html) {
+    metaTagsOf = html.match(META) ?? [];
+    metaTagsFor = html;
+  }
+  const test = metaMatcher(attr, key);
   for (const tag of metaTagsOf) {
     if (test.test(tag)) {
       const c = /\bcontent\s*=\s*(["'])([\s\S]*?)\1/i.exec(tag);
@@ -226,14 +234,18 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
   if (!/<\/head>/i.test(html)) return html;
   let next = html;
 
+  // The first matching tag's content, set in place. Stops at that tag: a
+  // `replace` over every tag scanned the rest of the page for nothing and
+  // compiled the matcher once per tag.
   const setContent = (attr, key, value) => {
-    let found = false;
-    next = next.replace(META, (tag) => {
-      if (found || !new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i').test(tag)) return tag;
-      found = true;
-      return tag.replace(/\bcontent\s*=\s*(["'])[\s\S]*?\1/i, () => `content="${escapeAttr(value)}"`);
-    });
-    return found;
+    const test = metaMatcher(attr, key);
+    for (const m of next.matchAll(META)) {
+      if (!test.test(m[0])) continue;
+      const tag = m[0].replace(/\bcontent\s*=\s*(["'])[\s\S]*?\1/i, () => `content="${escapeAttr(value)}"`);
+      next = next.slice(0, m.index) + tag + next.slice(m.index + m[0].length);
+      return true;
+    }
+    return false;
   };
 
   if (card) {
@@ -294,12 +306,22 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
   add('name', 'twitter:description', ogDescription ? tidy(ogDescription) : '');
 
   // One logo everywhere: drop an inline data: favicon (a different mark the
-  // research index used to carry) and make sure the scalable icon is linked.
-  // The pattern needs `data:`, and its leading `\s*` makes the engine try it
-  // from every whitespace run in the page: about 0.9 s over a full build on
-  // pages that have no data: URI at all. The cheap test first; same result.
+  // research index used to carry), with the whitespace before it, and make
+  // sure the scalable icon is linked. The cheap `data:` test first: most pages
+  // have no data: URI at all. The link is matched without a leading `\s*`
+  // (which made the engine try the pattern from every whitespace run, 0.7 s a
+  // build) and the gap before it trimmed by hand: `\s` and `trimEnd` strip the
+  // same characters, and, as with `replace`, a gap never reaches back into the
+  // previous match. Same output
+  // (docs/history/pages-build-perf-2026-11-13-share-data-icon-scan.md).
   if (/data:/i.test(next)) {
-    next = next.replace(/\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi, '');
+    let out = '';
+    let last = 0;
+    for (const m of next.matchAll(DATA_ICON)) {
+      out += next.slice(last, m.index).trimEnd();
+      last = m.index + m[0].length;
+    }
+    if (last) next = out + next.slice(last);
   }
   if (!/<link\b[^>]*rel=["'][^"']*\bicon\b[^"']*["'][^>]*favicon\.svg/i.test(next)) {
     tags.push(`<link rel="icon" href="${toRoot}favicon.svg" type="image/svg+xml">`);
