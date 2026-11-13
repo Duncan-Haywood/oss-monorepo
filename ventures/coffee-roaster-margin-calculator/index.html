@@ -137,6 +137,8 @@ Sumatra Mandheling, 4.40, 83, 17</textarea>
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
     const v = (id) => $("#" + id).value;
+    // Number("2,500") is NaN; the page treated that as 0 (comma sweep 2026-11-13).
+    const nv = (id) => Number(v(id).trim().replace(/^(-?\d{1,3}(?:,\d{3})+)(\.\d*)?$/, (m) => m.replace(/,/g, "")));
     let lastRows = null, lastProfit = null;
 
     function download(name, text, type) {
@@ -154,7 +156,7 @@ Sumatra Mandheling, 4.40, 83, 17</textarea>
         const cost = roastedCostPerLb({ greenPerLb: v("green"), shrinkPct: v("shrink"), laborPerRoastedLb: v("labor"), energyPerRoastedLb: v("energy") });
         const { channels, problems } = parseChannels(v("channels"));
         if (!channels.length) throw new Error("Add at least one channel line, like: Online store, 16, 2.9, 0.30");
-        const t = channelTable({ costPerRoastedLb: cost.total, bagOz: v("bagoz"), packagingPerBag: v("pack"), retailPrice: v("retail"), channels, roastedLbPerHour: Number(v("lbhr")) || 0 });
+        const t = channelTable({ costPerRoastedLb: cost.total, bagOz: v("bagoz"), packagingPerBag: v("pack"), retailPrice: v("retail"), channels, roastedLbPerHour: nv("lbhr") || 0 });
         lastRows = t.rows;
         lastProfit = t.rows.find((r) => r.name === t.bestChannel)?.profit ?? null;
         const hr = t.rows[0].profitPerRoastingHour != null;
@@ -171,11 +173,11 @@ Sumatra Mandheling, 4.40, 83, 17</textarea>
     $("#blend").addEventListener("click", () => {
       const out = $("#blendout");
       try {
-        const { lots, problems } = parseLots(v("lots"), { shrinkPct: v("shrink").trim() === "" ? 15 : Number(v("shrink")) });
+        const { lots, problems } = parseLots(v("lots"), { shrinkPct: v("shrink").trim() === "" ? 15 : nv("shrink") });
         if (problems.length) throw new Error(problems[0]);
-        const r = optimizeBlend({ lots, targetScore: v("target"), batchRoastedLb: Number(v("batch")) || 100 });
+        const r = optimizeBlend({ lots, targetScore: v("target"), batchRoastedLb: nv("batch") || 100 });
         if (!r.best) { out.innerHTML = `<div class="warn">No blend reaches ${esc(v("target"))} with those limits. The best any blend can do is ${r.reachableScore} (before pounds-available limits), so lower the target or add a coffee.</div>`; return; }
-        const f = costOfScoreFrontier({ lots, batchRoastedLb: Number(v("batch")) || 100, stepScore: 1 }).filter((x) => x.greenCostPerRoastedLb != null);
+        const f = costOfScoreFrontier({ lots, batchRoastedLb: nv("batch") || 100, stepScore: 1 }).filter((x) => x.greenCostPerRoastedLb != null);
         out.innerHTML = `<div class="big"><div><strong>${r.best.score}</strong>blend cup score</div><div><strong>${usd(r.best.greenCostPerRoastedLb)}</strong>green cost per roasted lb</div><div><strong>${r.savingVsSingleOrigin == null ? "n/a" : usd(r.savingVsSingleOrigin)}</strong>saved per lb vs cheapest single origin${r.cheapestSingleOrigin ? " (" + esc(r.cheapestSingleOrigin.name) + ")" : ""}</div></div>`
           + `<div class="scroll"><table><thead><tr><th>Coffee</th><th class="n">Share</th><th class="n">Roasted lb</th><th class="n">Green lb to weigh out</th></tr></thead><tbody>`
           + r.best.shares.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${s.pct}%</td><td class="n">${s.roastedLb}</td><td class="n">${s.greenLb}</td></tr>`).join("") + `</tbody></table></div>`
@@ -194,7 +196,7 @@ Sumatra Mandheling, 4.40, 83, 17</textarea>
         const p = weeklyPlan({ skus: skus.map((s) => ({ bags: s[0], bagOz: s[1] })), shrinkPct: v("shrink"), batchGreenLb: v("batchgreen"), minutesPerBatch: v("mins"), greenOnHandLb: v("onhand"), targetWeeksCover: v("cover"), sackLb: v("sack") });
         const be = lastProfit == null ? null : breakEven({ fixedMonthly: v("fixed"), profitPerBag: lastProfit, bagOz: v("bagoz") });
         out.innerHTML = `<div class="big"><div><strong>${p.roastedLb} lb</strong>to roast</div><div><strong>${p.greenLb} lb</strong>green needed</div><div><strong>${p.batches}</strong>batches (${p.roastingHours} h)</div><div><strong>${p.weeksCover ?? "n/a"} wk</strong>cover on hand</div><div><strong>${p.sacksToOrder}</strong>sacks to order (${p.orderLb} lb)</div></div>`
-          + (be ? (be.bagsPerMonth == null ? `<div class="warn">${esc(be.note)}</div>` : `<p>At the best channel's profit per bag, <strong>${be.bagsPerMonth} bags a month</strong> (about ${be.bagsPerWeek} a week, ${be.roastedLbPerMonth} roasted lb) cover ${usd(Number(v("fixed")))} of fixed costs.</p>`) : `<p class="note">Press "Show my margins" first to get a break-even from your best channel.</p>`);
+          + (be ? (be.bagsPerMonth == null ? `<div class="warn">${esc(be.note)}</div>` : `<p>At the best channel's profit per bag, <strong>${be.bagsPerMonth} bags a month</strong> (about ${be.bagsPerWeek} a week, ${be.roastedLbPerMonth} roasted lb) cover ${usd(nv("fixed"))} of fixed costs.</p>`) : `<p class="note">Press "Show my margins" first to get a break-even from your best channel.</p>`);
         record("plan_made");
       } catch (e) { fail(out, e); }
     });

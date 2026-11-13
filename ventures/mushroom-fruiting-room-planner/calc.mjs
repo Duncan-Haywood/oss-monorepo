@@ -11,7 +11,12 @@ export const DEFAULTS = {
   slots: 200, startsPerWeek: 40, weeklyFixed: 150, weeks: 26,
 };
 
-function numOrNaN(v) { return typeof v === "number" ? v : parseFloat(String(v).trim()); }
+// "2,500" is 2500: parseFloat stopped at the comma and read 2 (comma sweep 2026-11-13).
+function numOrNaN(v) {
+  if (typeof v === "number") return v;
+  const s = String(v).trim().replace(/^(-?\d{1,3}(?:,\d{3})+)(\.\d*)?$/, (m) => m.replace(/,/g, ""));
+  return s === "" ? NaN : Number(s);
+}
 
 export function parseInputs(raw = {}) {
   const errors = [];
