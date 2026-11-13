@@ -97,7 +97,8 @@ export function minPlusStep(fr, A, B) {
   for (let i = 0; i < kA; i++) if (!seen[i]) visit(i);
   // the table's bits, low to high: A's bits not yet eliminated (the next one at bit 0), then B's
   // bits in the order they were met
-  let T = new Int32Array(1 << kA);
+  const Arr = fr.constructor; // Int32Array for whole breaks, Float64Array for priced host bits
+  let T = new Arr(1 << kA);
   for (let x = 0; x < T.length; x++) { let z = 0; for (let p = 0; p < kA; p++) z |= ((x >>> order[p]) & 1) << p; T[z] = fr[x]; }
   const yPos = new Int32Array(kB).fill(-1);
   let Lx = kA, Ly = 0;
@@ -106,7 +107,7 @@ export function minPlusStep(fr, A, B) {
     let add = 0;
     for (const [j] of e) if (yPos[j] < 0) yPos[j] = Ly + add++;
     const lx = Lx - 1, ly = Ly + add, xm = (1 << lx) - 1, ym = (1 << Ly) - 1;
-    const N = new Int32Array(1 << (lx + ly));
+    const N = new Arr(1 << (lx + ly));
     const e0 = e.length > 0 ? yPos[e[0][0]] : -1, f0 = e.length > 0 ? e[0][1] : 0;
     const e1 = e.length > 1 ? yPos[e[1][0]] : -1, f1 = e.length > 1 ? e[1][1] : 0;
     // the bits of z that hold the y bits of this x's edges; a team breaks at x = 0 when its y bit
@@ -124,7 +125,7 @@ export function minPlusStep(fr, A, B) {
   }
   // B's bits no A bit met (a match of two teams that both sat out round r) are free
   for (let j = 0; j < kB; j++) if (yPos[j] < 0) yPos[j] = Ly++;
-  const g = new Int32Array(1 << kB);
+  const g = new Arr(1 << kB);
   for (let y = 0; y < g.length; y++) { let z = 0; for (let j = 0; j < kB; j++) z |= ((y >>> j) & 1) << yPos[j]; g[y] = T[z & (T.length - 1)]; }
   return g;
 }
@@ -313,4 +314,236 @@ export function floorTable(opp, n) {
   const floor = run(0);
   commit();
   return { floor, trial: (lo) => run(lo), commit, balanced };
+}
+/**
+ * A home-and-away season's timetable as the pair model: rounds' matches and home masks as
+ * leastBreaks has them, plus each pair's two games ([first round, k, second round, k]) and, per
+ * round and match, its pair. null when a round has more than maxMatches matches, n > 32, or a pair
+ * does not meet exactly twice.
+ */
+function pairModel(opp, n, maxMatches, span) {
+  if (n > 32) return null;
+  const R = opp.length;
+  const M = roundMatches(opp, n);
+  if (M.some((ms) => ms.length > maxMatches)) return null;
+  const H = M.map(homeMasks);
+  const plays = opp.map((o) => { let p = 0; for (let t = 0; t < n; t++) if (o[t] < n) p |= 1 << t; return p >>> 0; });
+  const pid = new Map(), pairs = [];
+  let bad = false;
+  const mp = M.map((ms, r) => ms.map(([a, b], k) => {
+    const key = a * 64 + b;
+    let p = pid.get(key);
+    if (p == null) { p = pairs.length; pid.set(key, p); pairs.push([r, k, -1, -1]); }
+    else if (pairs[p][2] < 0) { pairs[p][2] = r; pairs[p][3] = k; }
+    else bad = true;
+    return p;
+  }));
+  if (bad || pairs.some((q) => q[2] < 0)) return null;
+  const odd = new Int32Array(n);
+  for (let r = 0; r < span; r++) for (let t = 0; t < n; t++) if (opp[r][t] < n) odd[t] ^= 1;
+  return { R, M, H, plays, mp, pairs, P: pairs.length, odd, span, n };
+}
+
+const BIG = 1e6;
+
+/**
+ * The Lagrangian floor of the pair model with some pairs' hosts fixed (fix[p]: 1 the pair's lower
+ * team hosts its first game, 0 the higher one does, -1 free). The pair rule (each pair's two games at
+ * opposite grounds: h1 + h2 = 1, h = 1 when the lower team hosts) and the balance rule (home minus
+ * away over rounds 0..span-1 within -odd_t..odd_t) are priced: lam per pair, nu per team, updated in
+ * place by a Polyak subgradient. A fixed pair is forced in the programme by a large price on its
+ * other host bit. Each iteration's argmin, its first-game hosts kept and the return games flipped,
+ * gives a season keeping the pair rule; balanced ones bound the answer from above.
+ *
+ * Stops after `iters` iterations, once the floor reaches `stopAt` (nothing below it is wanted), or
+ * when the step dies out. Returns { bound, s (the last argmin's pair violations), pick, upper,
+ * upperX }.
+ */
+function lagrange(m, fix, lam, nu, { iters, stopAt = Infinity, target = Infinity, balance = true }) {
+  const { R, M, H, plays, mp, pairs, P, odd, span, n } = m;
+  const unary = (r) => {
+    const ms = M[r], u = new Float64Array(1 << ms.length), c = new Float64Array(ms.length);
+    let off = 0;
+    for (let k = 0; k < ms.length; k++) {
+      const p = mp[r][k], first = pairs[p][0] === r;
+      if (fix[p] >= 0) {
+        // the bit this game's host takes: fix in the first game, its opposite in the return game
+        const want = first ? fix[p] : fix[p] ^ 1;
+        if (want) { off += BIG; c[k] = -BIG; } else c[k] = BIG;
+      } else c[k] = lam[p];
+      if (balance && r < span) {
+        // the lower team a: 2 bit - 1; the higher b: 1 - 2 bit
+        const [a, b] = ms[k];
+        c[k] += 2 * (nu[a] - nu[b]); off += nu[b] - nu[a];
+      }
+    }
+    u[0] = off;
+    for (let x = 1; x < u.length; x++) { const lo = x & -x; u[x] = u[x ^ lo] + c[31 - Math.clz32(lo)]; }
+    return u;
+  };
+  const solve = () => {
+    const f = [unary(0)];
+    for (let r = 0; r + 1 < R; r++) {
+      const g = minPlusStep(f[r], M[r], M[r + 1]), u = unary(r + 1);
+      for (let y = 0; y < g.length; y++) g[y] += u[y];
+      f.push(g);
+    }
+    const last = f[R - 1];
+    let y = 0;
+    for (let j = 1; j < last.length; j++) if (last[j] < last[y]) y = j;
+    const pick = new Int32Array(R);
+    pick[R - 1] = y;
+    for (let r = R - 1; r > 0; r--) {
+      const A = H[r - 1], both = (plays[r - 1] & plays[r]) >>> 0, fr = f[r - 1], By = H[r][pick[r]];
+      let bx = 0, bv = Infinity;
+      for (let x = 0; x < A.length; x++) { const v = fr[x] + popcount(~(A[x] ^ By) & both); if (v < bv) { bv = v; bx = x; } }
+      pick[r - 1] = bx;
+    }
+    let sl = 0;
+    for (let p = 0; p < P; p++) if (fix[p] < 0) sl += lam[p];
+    if (balance) for (let t = 0; t < n; t++) sl += Math.abs(nu[t]) * odd[t];
+    return { val: last[y] - sl, pick };
+  };
+  const bit = (x, r, k) => (x[r] >>> k) & 1;
+  let best = -Infinity, upper = Infinity, upperX = null, theta = 2, stall = 0, s = null, pick = null;
+  for (let it = 0; it < iters; it++) {
+    const sol = solve();
+    pick = sol.pick;
+    const val = sol.val;
+    if (val > best + 1e-9) { best = val; stall = 0; } else if (++stall >= 15) { theta /= 2; stall = 0; }
+    const rep = repairPairs(m, pick, balance);
+    if (rep.b < upper) { upper = rep.b; upperX = rep.x; }
+    const bound = Math.ceil(best - 1e-6);
+    if (bound >= stopAt || bound >= Math.min(upper, target)) break;
+    s = new Int8Array(P);
+    let norm = 0;
+    for (let p = 0; p < P; p++) {
+      if (fix[p] >= 0) continue;
+      const [r1, k1, r2, k2] = pairs[p];
+      s[p] = bit(pick, r1, k1) + bit(pick, r2, k2) - 1;
+      norm += s[p] * s[p];
+    }
+    const sn = new Float64Array(n);
+    if (balance) {
+      const d = homeDiffs(m, pick);
+      for (let t = 0; t < n; t++) {
+        if (nu[t] === 0 && Math.abs(d[t]) <= odd[t]) continue;
+        const sg = nu[t] > 0 ? 1 : nu[t] < 0 ? -1 : Math.sign(d[t]);
+        sn[t] = d[t] - sg * odd[t];
+        norm += sn[t] * sn[t];
+      }
+    }
+    if (norm === 0) break; // the argmin keeps both rules and the prices are at rest
+    const goal = Math.min(upper, target);
+    const step = theta * Math.max((Number.isFinite(goal) ? goal : val + 4) - val, 0.5) / norm;
+    for (let p = 0; p < P; p++) if (fix[p] < 0) lam[p] += step * s[p];
+    for (let t = 0; t < n; t++) nu[t] += step * sn[t];
+    if (theta < 1e-3) break;
+  }
+  if (!s) {
+    s = new Int8Array(P);
+    for (let p = 0; p < P; p++) if (fix[p] < 0) { const [r1, k1, r2, k2] = pairs[p]; s[p] = bit(pick, r1, k1) + bit(pick, r2, k2) - 1; }
+  }
+  return { bound: Math.ceil(best - 1e-6), s, pick, upper, upperX, lam, nu };
+}
+
+/** Home minus away per team over rounds 0..span-1 for host choices x. */
+function homeDiffs(m, x) {
+  const { H, plays, span, n } = m, d = new Int32Array(n);
+  for (let r = 0; r < span; r++) {
+    const h = H[r][x[r]];
+    for (let t = 0; t < n; t++) if ((plays[r] >>> t) & 1) d[t] += (h >>> t) & 1 ? 1 : -1;
+  }
+  return d;
+}
+
+/** Each pair's first-game hosts from x, the return game at the other ground: { b breaks (Infinity when unbalanced), x }. */
+function repairPairs(m, pick, balance = true) {
+  const { R, H, plays, pairs } = m, x = Array.from(pick);
+  for (const [r1, k1, r2, k2] of pairs) {
+    const want = ((x[r1] >>> k1) & 1) ^ 1;
+    if (((x[r2] >>> k2) & 1) !== want) x[r2] ^= 1 << k2;
+  }
+  let b = 0;
+  for (let r = 0; r + 1 < R; r++) b += popcount(~(H[r][x[r]] ^ H[r + 1][x[r + 1]]) & plays[r] & plays[r + 1]);
+  if (balance && homeDiffs(m, x).some((v) => Math.abs(v) > 1)) b = Infinity;
+  return { b, x };
+}
+
+function venuesOf(m, opp, x) {
+  return opp.map((o, r) => {
+    const v = new Uint8Array(o.length), h = m.H[r][x[r]];
+    for (let t = 0; t < m.n; t++) if (o[t] < m.n) v[t] = (h >>> t) & 1;
+    return v;
+  });
+}
+
+/**
+ * The least breaks of a home-and-away season's timetable under the tool's rules (one host per pair,
+ * at the other ground in the return game; each team's home and away games within one over rounds
+ * 0..span-1, leg one), by branch and bound on pairs with the Lagrangian floor above.
+ *
+ * relaxedBreakFloor runs the programme over both legs with every match free; that floor is loose
+ * (19 teams' 1,311 timetable: 74, MaxSAT 85). Pricing the pair rule back in does nothing on its own:
+ * flipping every host keeps every break and negates each pair's violation h1 + h2 - 1 (and each
+ * team's home minus away), so the priced bound is even in the prices and peaks at zero. Fixing one
+ * pair's hosts (any season can be flipped to it, same breaks, same balance) breaks that symmetry, and
+ * then the priced floor rises (74 -> 78 at that timetable). Branching on the pairs the floor's argmin
+ * breaks closes the rest where the tree stays small; each node starts from its parent's prices.
+ *
+ * `upperHint` (a season's breaks already in hand) prunes from the start; only strictly fewer are
+ * searched for then, and `venues` is null if none exists. Returns { floor (the root's), relaxed,
+ * least, proved, venues, nodes, ms } or null when the model does not fit (pairModel). `least` is
+ * the fewest found (or upperHint), proved when the tree was walked to the end within `maxNodes`
+ * nodes. The budget counts nodes, not time, so a share link rebuilds the same season anywhere.
+ */
+export function pairLeastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = opp.length >> 1, upperHint = Infinity, maxNodes = 400, rootIters = 300, nodeIters = 40, balance = true } = {}) {
+  const m = pairModel(opp, n, maxMatches, span);
+  if (!m) return null;
+  const t0 = Date.now();
+  const relaxed = relaxedBreakFloor(opp, n, { maxMatches });
+  let inc = upperHint, incX = null, nodes = 0, complete = true;
+  const fix0 = new Int8Array(m.P).fill(-1);
+  fix0[0] = 1;
+  const root = lagrange(m, fix0, new Float64Array(m.P), new Float64Array(n), { iters: rootIters, target: inc, balance });
+  const floor = Math.max(relaxed ?? 0, root.bound);
+  if (root.upper < inc) { inc = root.upper; incX = root.upperX; }
+  // depth first; each entry carries its fixes and the prices it starts from
+  const stack = [{ fix: fix0, res: root }];
+  while (stack.length) {
+    if (nodes >= maxNodes) { complete = false; break; }
+    const nd = stack.pop();
+    let res = nd.res;
+    if (!res) {
+      nodes++;
+      res = lagrange(m, nd.fix, nd.lam, nd.nu, { iters: nodeIters, stopAt: inc, target: inc, balance });
+      if (res.upper < inc) { inc = res.upper; incX = res.upperX; }
+    }
+    if (res.bound >= inc) continue;
+    // branch on the free pair the argmin breaks with the largest price; with none broken (the
+    // argmin keeps the pair rule but not the balance), on the first free pair of an unbalanced team
+    let bp = -1, bw = -1;
+    for (let p = 0; p < m.P; p++) if (nd.fix[p] < 0 && res.s[p] !== 0 && Math.abs(res.lam[p]) > bw) { bw = Math.abs(res.lam[p]); bp = p; }
+    if (bp < 0) {
+      const d = homeDiffs(m, res.pick);
+      for (let p = 0; p < m.P && bp < 0; p++) {
+        if (nd.fix[p] >= 0) continue;
+        const [r1, k1] = m.pairs[p], [a, b] = m.M[r1][k1];
+        if (Math.abs(d[a]) > m.odd[a] || Math.abs(d[b]) > m.odd[b]) bp = p;
+      }
+    }
+    if (bp < 0) for (let p = 0; p < m.P && bp < 0; p++) if (nd.fix[p] < 0) bp = p;
+    if (bp < 0) continue; // every pair fixed: the argmin is the season, already counted as upper
+    const [r1, k1] = m.pairs[bp];
+    const first = (res.pick[r1] >>> k1) & 1;
+    // the argmin's side last on the stack, so it is walked first
+    for (const v of [first ^ 1, first]) {
+      const fix = Int8Array.from(nd.fix);
+      fix[bp] = v;
+      stack.push({ fix, lam: Float64Array.from(res.lam), nu: Float64Array.from(res.nu), res: null });
+    }
+  }
+  const proved = complete;
+  const least = Number.isFinite(inc) ? inc : null;
+  return { floor: Math.min(floor, least ?? floor), relaxed, least, proved: proved && least != null, venues: incX ? venuesOf(m, opp, incX) : null, nodes, ms: Date.now() - t0 };
 }
