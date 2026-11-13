@@ -1405,6 +1405,25 @@ collection (DJI Phantom 4 x2, LG Nexus 5X, Leica T, Leica X Vario, Pentax Q-S1) 
 the first develops in 46 s, repairs 9,334 sensels and matches LibRaw to a median 0.012 8-bit steps
 with opcodes off. Details: `eval/opcode-quality-flag-2026-11-13.md`.
 
+## Cubic resampling for the lens warps (2026-11-13)
+
+Every warp (the DNG's WarpRectilinear, WarpRectilinear2 and WarpFisheye, and the lensfun corrections
+from `--lens-db`) maps each output pixel to a point between source pixels and has to sample there.
+Until now that was bilinear, a blend of the four nearest pixels, which softens the image a little
+wherever the point falls between pixels. The DNG specification recommends "a suitable resampling
+kernel, such as a cubic spline" (1.7.1.0, p. 107). `shootflow develop --warp-kernel cubic`
+(`DevelopSettings.warp_kernel="cubic"`) now samples 16 pixels with the Catmull-Rom spline (Keys'
+cubic convolution, a = -0.5), clips the spline's overshoot at hard edges to the plane's range, and
+gives the same bytes on the pure-Python and numpy engines.
+
+Measured (`eval/warp-kernel-cubic-2026-11-13.md`, `tools/warp_kernel_check.py`): under the Leica T's
+own WarpRectilinear, on gratings whose true value at every source point is known, cubic is 2 to 100
+times closer than bilinear (RMS 0.0133 against 0.0550 at 0.25 cycles per pixel). On the real Leica T
+frame, the bilinear warp keeps 73% of the unwarped render's fine detail (mean absolute Laplacian of
+green) and cubic keeps 89%. The cost: the full-size warp takes 14.6 s instead of 5.7 s on the numpy
+engine, so bilinear stays the default until a faster cubic lands. Not checked: the kernel Adobe's
+DNG SDK uses.
+
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
 Five more opcodes now run in `OpcodeList2` and `OpcodeList3`, in list order with the others:
