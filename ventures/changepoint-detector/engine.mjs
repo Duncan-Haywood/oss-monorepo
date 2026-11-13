@@ -17,6 +17,7 @@
 
 import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
+import { hingeTest } from './hinge-test.mjs';
 
 import { groupRamps } from './ramps.mjs';
 import { updateRateChanges, updateRateLines } from './update-rate.mjs';
@@ -2199,6 +2200,7 @@ export function analyze(input = {}) {
     ...(excursions.length ? { excursions } : {}),
     ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
+    ...(o.hingeTest ? { hingeTest: hingeTestReport(values, labels, o.hingeTest) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -2229,6 +2231,28 @@ export function slopeBreakReport(values, labels, opt) {
     critical: r.critical,
     note: 'Sup-Wald test on the differences; the bar is calibrated for 100 or more points, so on fewer it is only a guide. Weak by construction: a miss is not evidence of no break.',
     breaks: r.knots.map((k) => ({ index: k.index + 1, label: labels[k.index + 1] ?? String(k.index + 1), wald: Number(k.wald.toFixed(2)), slopeBefore: Number(k.before.toPrecision(4)), slopeAfter: Number(k.after.toPrecision(4)) })),
+  };
+}
+
+/**
+ * One change of slope tested on the levels (hinge-test.mjs): a sup-F over one continuous hinge with AR(1) noise and a
+ * parametric bootstrap. Far more power than the differences test when the series wanders about a trend rather than
+ * drifting (global temperature 1880-2024: knot 1976, p 0.001, where the differences test gives 0.80), and it refuses
+ * when the residuals about a line look like a unit root (log GDP, productivity), the case the differences test is for.
+ * `opt` is true or { reps, seed }. 30 to 600 points (the bootstrap reruns the whole scan, which is quadratic in n).
+ */
+export function hingeTestReport(values, labels, opt) {
+  const n = values.length;
+  if (n < 30) throw new Error(`The hinge test needs at least 30 points; got ${n}.`);
+  if (n > 600) throw new Error(`The hinge test takes at most 600 points (its bootstrap is quadratic in length); got ${n}. Aggregate first (monthly to yearly).`);
+  const o = typeof opt === 'object' && opt ? opt : {};
+  const h = hingeTest(values, { reps: Number(o.reps) || 499, seed: Number(o.seed) || 1 });
+  const note = 'One change of slope against a straight line, on the levels, assuming AR(1) noise about the trend; the p-value is from a parametric bootstrap. A step can pass for a hinge, and a small p says the straight line is wrong, not that exactly one bend is right.';
+  if (h.refused) return { refused: true, reason: h.reason, note };
+  return {
+    refused: false, index: h.index, label: labels[h.index] ?? String(h.index), f: Number(h.f.toFixed(2)), bar95: Number(h.bar95.toFixed(2)),
+    p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
+    slopeBefore: Number(h.slopeBefore.toPrecision(4)), slopeAfter: Number(h.slopeAfter.toPrecision(4)), significant: h.p <= 0.05, note,
   };
 }
 
