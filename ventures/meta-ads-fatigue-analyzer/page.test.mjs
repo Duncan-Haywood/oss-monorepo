@@ -48,3 +48,7 @@ test("page has the fatigue model and a scale-candidate definition", () => {
   assert.match(html, /Scale candidate/);
   assert.match(html, /attribution windows/);
 });
+
+test("the page picks decimal commas for tab exports too, not only semicolon files", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /decimalComma: detectDecimalComma\(text, delim\)/);
+});

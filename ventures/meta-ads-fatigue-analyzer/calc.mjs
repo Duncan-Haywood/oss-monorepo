@@ -60,6 +60,10 @@ export function parseCsv(text, delim = ",") {
 
 // "1,234.56", "$12", "12.5%", "--", "(3)". Blank is 0. NaN only for text that
 // is not a number at all.
+// Semicolon files use decimal commas; a tab file does when a cell ends in a
+// comma and one or two digits (512,40) rather than a thousands group (1,234).
+export const detectDecimalComma = (text, delim) => delim === ";" || (delim === "\t" && /(^|\t)"?-?[\d.]*\d,\d{1,2}"?(?=\t|\r?$)/m.test(text));
+
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
