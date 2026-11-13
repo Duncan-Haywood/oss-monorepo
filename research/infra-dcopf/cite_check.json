@@ -1,0 +1,42 @@
+{
+ "arxiv:1206.3614": {
+  "checked": "2026-11-13",
+  "title": "A Linear-Programming Approximation of AC Power Flows (2012)"
+ },
+ "arxiv:1908.02788": {
+  "checked": "2026-11-13",
+  "title": "The Power Grid Library for Benchmarking AC Optimal Power Flow Algorithms (2019)"
+ },
+ "arxiv:2405.12762": {
+  "checked": "2026-11-13",
+  "title": "Clarabel: An interior-point solver for conic programs with quadratic objectives (2024)"
+ },
+ "doi:10.1007/BF01582292": {
+  "checked": "2026-11-13",
+  "title": "Nonlinear programming and nonsmooth optimization by successive linear programming (1989)"
+ },
+ "doi:10.1007/s10957-016-0892-3": {
+  "checked": "2026-11-13",
+  "title": "Conic Optimization via Operator Splitting and Homogeneous Self-Dual Embedding (2016)"
+ },
+ "doi:10.1109/TPWRS.2009.2021235": {
+  "checked": "2026-11-13",
+  "title": "DC Power Flow Revisited (2009)"
+ },
+ "doi:10.1109/TPWRS.2010.2051168": {
+  "checked": "2026-11-13",
+  "title": "MATPOWER: Steady-State Operations, Planning, and Analysis Tools for Power Systems Research and Education (2011)"
+ },
+ "doi:10.1109/TPWRS.2018.2829021": {
+  "checked": "2026-11-13",
+  "title": "Pandapower—An Open-Source Python Tool for Convenient Modeling, Analysis, and Optimization of Electric Power Systems (2018)"
+ },
+ "doi:10.1287/ijoc.2014.0594": {
+  "checked": "2026-11-13",
+  "title": "A Linear-Programming Approximation of AC Power Flows (2014)"
+ },
+ "doi:10.23919/PSCC.2018.8442948": {
+  "checked": "2026-11-13",
+  "title": "PowerModels. JL: An Open-Source Framework for Exploring Power Flow Formulations (2018)"
+ }
+}
