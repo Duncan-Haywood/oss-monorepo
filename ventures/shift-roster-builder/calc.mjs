@@ -386,6 +386,7 @@ const DEFAULTS = {
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
   exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, keep: null, keepValue: 0, keepShift: 0, seed: 1, restarts: 4, iterations: 0, longPass: true,
+  coverPrice: 0, // dollars per hour at risk if someone calls out (coverRisk); 0 = off, the roster is built on score alone
 };
 
 function qualified(person, slot) {
@@ -1187,6 +1188,92 @@ function polishPay(ctx, owner0, seed, iterations) {
     }
   }
   return owner;
+}
+
+// Call-out risk, the cheap stand-in for calloutExposure (2026-11-13). `calloutExposure` rebuilds the week once per
+// person-day, which is far too slow to sit inside a search. This counts the same cases and asks only the quickest of its
+// questions: if this person called out for this day, could someone else take each of their shifts that day with every hard
+// rule holding and nobody else moved? If not, the day is "at risk" and its hours are counted. The hand-over chains and the
+// rebuilds exposure also tries are left out, so risk hours are an upper bound on what one call-out opens, not a forecast
+// (`eval/cover-price.mjs` measures how closely the two move together).
+export function coverRisk(ctx, owner, { fromDay = 1 } = {}) {
+  const lists = Array.from({ length: ctx.P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
+  lists.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
+  const cases = [];
+  let hours = 0, personDays = 0;
+  for (let p = 0; p < ctx.P; p++) {
+    const byDay = new Map();
+    for (const i of lists[p]) {
+      const d = ctx.slots[i].day;
+      if (d < fromDay) continue;
+      if (!byDay.has(d)) byDay.set(d, []);
+      byDay.get(d).push(i);
+    }
+    for (const [day, mine] of byDay) {
+      personDays++;
+      const h = mine.reduce((t, i) => t + (ctx.slots[i].end - ctx.slots[i].start) / 60, 0);
+      let covered = true;
+      for (const i of mine) {
+        let fit = false;
+        for (let q = 0; q < ctx.P && !fit; q++) {
+          if (q === p || !ctx.elig[q][i]) continue;
+          if (validList(ctx, q, insertSorted(ctx, lists[q], i))) fit = true;
+        }
+        if (!fit) { covered = false; break; }
+      }
+      if (!covered) { hours += h; cases.push({ person: p, day, hours: h, slots: mine.slice() }); }
+    }
+  }
+  return { hours, personDays, riskyDays: cases.length, cases };
+}
+
+// Exposure priced inside the roster (2026-11-13). `--steady` chooses among rosters that already tie at the best score, so it
+// never gives anything up; the open question it left was what a manager could buy by giving something up. `coverPrice` is
+// dollars per hour at risk (coverRisk above): the pass hill-climbs on score + coverPrice x risk hours, so it will hand a
+// shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
+// Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
+// one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
+function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1 }) {
+  let owner = owner0.slice();
+  let score = scoreOwner(ctx, owner).total;
+  let risk = coverRisk(ctx, owner, { fromDay });
+  let moves = 0, tried = 0;
+  const listOf = (own, p) => own.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);
+  const take = (cand) => {
+    tried++;
+    if (!ownerValid(ctx, cand)) return false;
+    const s2 = scoreOwner(ctx, cand).total;
+    if (s2 - score >= price * risk.hours - 1e-9) return false; // cannot pay for itself even if it cleared every risky hour
+    const r2 = coverRisk(ctx, cand, { fromDay });
+    if (s2 + price * r2.hours >= score + price * risk.hours - 1e-9) return false;
+    owner = cand; score = s2; risk = r2; moves++;
+    return true;
+  };
+  for (let round = 0; round < rounds; round++) {
+    let improved = false;
+    for (const c of risk.cases.slice()) {
+      if (owner[c.slots[0]] !== c.person) continue; // this case has already been changed by an earlier move
+      for (const i of c.slots) {
+        for (let q = 0; q < ctx.P && !improved; q++) {
+          if (q === c.person || !ctx.elig[q][i]) continue;
+          const hand = owner.slice();
+          hand[i] = q;
+          if (take(hand)) { improved = true; break; }
+          for (const j of listOf(owner, q)) {
+            if (!ctx.elig[c.person][j]) continue;
+            const swap = owner.slice();
+            swap[i] = q; swap[j] = c.person;
+            if (take(swap)) { improved = true; break; }
+          }
+        }
+        if (improved) break;
+      }
+      if (improved) break;
+    }
+    if (!improved) break;
+  }
+  return { owner, score, risk, moves, tried };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -2254,6 +2341,13 @@ function whyUnfilled(ctx, owner, i) {
 // One plain sentence for the result of the optional exact check (buildRoster with exact: true).
 export function optimalityText(opt) {
   if (!opt) return "";
+  // With a call-out price set, the posted roster may not be the best-scoring one: say so rather than claim a proof it breaks.
+  if (opt.coverTraded) {
+    const p = opt.status === "optimal" || opt.status === "improved"
+      ? `The best-scoring roster was proven (${money2(opt.coverTraded.provenScore)} of score)`
+      : `The best-scoring roster found scores ${money2(opt.coverTraded.provenScore)}`;
+    return `${p}, and this roster is ${money2(opt.coverTraded.give)} of score above it, traded for call-out slack at the price you set (${num(opt.coverTraded.riskHoursSaved)} fewer hours at risk).`;
+  }
   if (opt.status === "optimal") return `Checked against an exact search: no roster under your rules scores better than this one${opt.tolerance > 0 ? ` by more than ${money2(opt.tolerance)} of score` : ""}.`;
   if (opt.status === "improved") return `Checked against an exact search: the quick search was ${num(opt.gapPct)}% off the best possible, so this roster is the better one the exact search found (proven best${opt.tolerance > 0 ? `, to within ${money2(opt.tolerance)} of score` : ""}).`;
   if (opt.gap < BIG && opt.coverageProven) {
@@ -2457,6 +2551,28 @@ function buildRosterOnce(staff, slots, options = {}) {
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
+  // Call-out slack, priced (2026-11-13). Runs last, on the best roster the search (and any proof) reached, so a week built
+  // without a price is untouched and a proof made above still describes the roster it was made for. When the pass does
+  // trade score for slack, `coverSlack` says what it paid and `optimality.coverTraded` keeps the proven score beside it.
+  let coverSlack = null;
+  // Measured cost of the pass itself: 0-11 ms on the five templates, 22-158 ms on seeded 20- and 40-person weeks (81-149
+  // copies) and 1.06 s on the 60-person week 0 (245 copies), so it is capped at 250 copies; `coverPriceSlots` moves the cap.
+  if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
+    const before = coverRisk(ctx, best.owner);
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice });
+    coverSlack = {
+      price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
+      riskyDaysBefore: before.riskyDays, riskyDays: out.risk.riskyDays, personDays: before.personDays,
+      scoreBefore: best.score, scoreAfter: out.score, moves: out.moves, candidates: out.tried,
+      cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
+    };
+    if (out.moves > 0) {
+      if (optimality) optimality.coverTraded = { give: out.score - best.score, provenScore: best.score, riskHoursSaved: before.hours - out.risk.hours };
+      best = { owner: out.owner, score: out.score };
+    }
+    mark("coverSlack");
+  }
+
   const res = summarise(ctx, best.owner);
   const base = summarise(ctx, listedOrder(ctx));
   mark("summary");
@@ -2531,7 +2647,7 @@ function buildRosterOnce(staff, slots, options = {}) {
     cost: res.cost, hours: res.hours, otHours: res.otHours, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length,
     people: res.people, assignments, grid, unfilled, onlyOne, critical, hireTest, warnings,
     listed: { cost: base.cost, otHours: base.otHours, unfilledHours: base.unfilledHours, unfilledSlots: base.unfilled.length },
-    savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit, timings,
+    savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit, timings, coverSlack,
     filledAll: res.unfilled.length === 0,
   };
 }
@@ -4021,6 +4137,17 @@ export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 
   return { ...pick.r, steady: { chosenSeed: pick.seed, exposure: pick.x.exposure, firstSeedExposure: first && !first.x.stopped ? first.x.exposure : null, personDays: pick.x.personDays,
     tied: cands.map((c) => ({ seed: c.seed, exposure: c.x.exposure, ...(c.x.stopped ? { atLeast: true } : {}) })), rebuilt: cands.reduce((t, c) => t + c.x.rebuilt, 0),
     worst: pick.x.cases.filter((c) => c.added > 0) } };
+}
+
+// The priced call-out slack in words (CLI --cover-price and the page).
+export function coverSlackText(cs, staff = null) {
+  if (!cs) return "";
+  const risky = (c) => `${staff ? staff[c.person].name : "someone"} on ${DAYS[c.day]}`;
+  const left = cs.riskHours > 0
+    ? `${num(cs.riskHours)} h on ${cs.riskyDays} of ${cs.personDays} person-days are still at risk${cs.cases && staff ? ` (${cs.cases.slice(0, 5).map(risky).join(", ")}${cs.cases.length > 5 ? ` and ${cs.cases.length - 5} more` : ""})` : ""}.`
+    : "No single call-out leaves a shift nobody else can take.";
+  if (!cs.moves) return `Call-out slack: priced at ${money2(cs.price)} an hour at risk, no hand-over or swap paid for itself, so the best-scoring roster stands. ${left}`;
+  return `Call-out slack: ${cs.moves} shift${cs.moves === 1 ? "" : "s"} changed hands to cut the hours at risk from ${num(cs.riskHoursBefore)} to ${num(cs.riskHours)}, at ${money2(cs.scoreAfter - cs.scoreBefore)} of score (pay plus penalties) at your price of ${money2(cs.price)} an hour at risk. ${left}`;
 }
 
 // The call-out check in words (CLI --steady and the page).
