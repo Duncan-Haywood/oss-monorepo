@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVKSahCgMxHit5jQiNg",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T16:22:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "AEO: answer-first sourced leads on economic-nexus-threshold-tracker and four OBBBA deduction tools",
+  "projects": [
+    "economic-nexus-threshold-tracker",
+    "no-tax-on-tips-overtime-calculator",
+    "auto-loan-interest-deduction-calculator",
+    "charitable-deduction-calculator",
+    "gambling-loss-deduction-calculator"
+  ],
+  "pr": 15540,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First rebuild failed: the new post's description was 188 chars (limit 160); fixed and rebuilt."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Starting the build before writing a post makes the build read the half-written post; write docs/posts first or note the 160-char description limit up front."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-five-tax-pages-now-answer-first.md",
+    "docs/reports/polish-2026-11-13-answer-leads-nexus-obbba.md"
+  ],
+  "goal": null,
+  "notes": "answer-lead.test.mjs 56/56; run_venture_tests on 5 slugs 0 failed; full build OK; check.mjs: publishable, 9269 pages, no dead links; Playwright at 390/1280: no sideways scroll, lead at 265px top on phone. Statute hosts (law.cornell.edu, uscode.house.gov) unreachable (HTTP 000), so As-of dates are the calc modules' verification dates.",
+  "corrections": [],
+  "redteam": null
+}
