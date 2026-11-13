@@ -178,7 +178,7 @@ flagships:
       server, .ics feeds and availability intake.
     next: >-
       Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price and column generation
-      prove 20-80 person weeks; the exact check is on by default at every size. Forecast side (--from-sales, four real
+      prove 20-80 person weeks; the exact check is on by default at every size. Forecast side (--from-sales, eight real
       files): backtest, closure score, half-life auto, priced cut, tickets, labour standard, shut-door work (README,
       2026-11-12 sections). Posted weeks: a call-out reissue holds
       started shifts and keeps posted ones; a change-count ILP shows it is the least on 41/41 café call-outs when the
@@ -187,12 +187,15 @@ flagships:
       within 2-4 changes of the least, each remaining gap a score trade (README "Are the big-week reissues' changes
       needed?"). A two-shift eject (2026-11-13) was
       possible 2-40 times a reissue set and never worth making, and the keep-usual-shifts sweep re-run with the kept
-      start matched the first on all 80 rows (README "Giving up two clashing shifts"). Next: whether a real manager would set keepShift above 1 (fewer changes for a little pay); close the
+      start matched the first on all 80 rows (README "Giving up two clashing shifts"). Real Square and Toast exports
+      (2026-11-13, public files, eval/real-pos-exports.mjs): multi-line cells, 17 pasted date-range files with two header
+      layouts, grouped unstaffed note (README "Real Square and Toast exports"). Next: whether a real manager would set keepShift above 1 (fewer changes for a little pay); close the
       100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22
       open); the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a floor above 60 copies needs something
       stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the keep-usual-shifts
       sweep on real dated leave records; a manager's read on whether the steadier plan is the
-      one they would post; a real Square or Toast item export; a real published-schedule export;
+      one they would post; a real published-schedule export (7shifts, When I Work, Homebase, Deputy: search public
+      repos as the Square files were found); a real multi-location Square or Toast export (planned as one shop today);
       whether the priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-

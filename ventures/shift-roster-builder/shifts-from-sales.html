@@ -32,7 +32,7 @@
 <body>
 <main>
   <h1>Shifts from your sales</h1>
-  <p>Paste an hourly sales export (a date-time column and a sales column). Each weekday-hour is averaged, heads needed is sales divided by your sales per labor hour (at least your minimum), and each day's headcount is cut into shifts. Copy the result into the <a href="./">roster builder</a>. Square and Toast item exports work as they come: net sales are used, and voided or refunded lines are left out. Nothing is uploaded.</p>
+  <p>Paste an hourly sales export (a date-time column and a sales column). Each weekday-hour is averaged, heads needed is sales divided by your sales per labor hour (at least your minimum), and each day's headcount is cut into shifts. Copy the result into the <a href="./">roster builder</a>. Square and Toast item exports work as they come (checked on real ones): net sales are used, and voided or refunded lines are left out. Square exports one date range at a time, so you can load several files at once: each file's columns are matched by name and a row two files share is counted once. Nothing is uploaded.</p>
   <section class="card">
     <label for="csv">Hourly sales (CSV)</label>
     <textarea id="csv" placeholder="datetime,sales&#10;2026-10-05 09:00,120.50"></textarea>
