@@ -31,6 +31,9 @@ test('price lookup: exact, then longest prefix, then fallback', () => {
   assert.equal(priceFor(p, 'claude-x-20250101').in, 1);
   assert.equal(priceFor(p, 'claude-x-mini-2025').in, 0.1);
   assert.equal(priceFor(p, 'other').in, 9);
+  assert.equal(priceFor(p, 'claude-x-pro').in, 9, 'a variant name is not a snapshot');
+  assert.equal(priceFor(normalisePolicy({ prices: { 'gpt-5': { in: 1.25, out: 10 } } }), 'gpt-5-pro'), null);
+  assert.equal(priceFor(normalisePolicy({ prices: { 'gpt-5': { in: 1.25, out: 10 } } }), 'gpt-5-2025-08-07').in, 1.25);
   assert.equal(priceFor(normalisePolicy({}), 'other'), null);
 });
 
@@ -56,6 +59,7 @@ test('UTC windows and their ends', () => {
 test('input estimate errs high (bytes / 3)', () => {
   assert.equal(estimateInputTokens('abcdef'), 2);
   assert.equal(estimateInputTokens(null), 0);
+  assert.equal(estimateInputTokens('x'.repeat(300)), 100); // 300 bytes / 3 (bytes / 4 would give 75)
   assert.ok(estimateInputTokens({ messages: [{ role: 'user', content: 'hello world' }] }) > 'hello world'.length / 4);
 });
 

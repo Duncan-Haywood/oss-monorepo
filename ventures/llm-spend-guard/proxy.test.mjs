@@ -181,3 +181,30 @@ test('unknown routes and bad bodies', async () => {
     assert.equal(bad.status, 400);
   } finally { h.close(); }
 });
+
+// Quality audit 2026-11-13 (round 62): three n=4 calls under a $0.05 cap spent
+// $0.12, and a stream that closed without its end marker was charged its partial usage.
+test('openai n > 1 is refused before it reaches upstream', async () => {
+  const h = await harness({ budgets: [{ id: 'd', limitUsd: 1 }] }, (body, res) => { res.writeHead(200); res.end('{}'); });
+  try {
+    const res = await post(`${h.base}/openai/v1/chat/completions`, { model: 'gpt-test', n: 4, max_completion_tokens: 10, messages: [] }, { authorization: 'Bearer sk-c' });
+    assert.equal(res.status, 400);
+    assert.match(await res.text(), /n-unsupported/);
+    assert.equal(h.up.seen.length, 0);
+  } finally { h.close(); }
+});
+
+test('an anthropic stream that ends without message_stop is charged at its hold', async () => {
+  const h = await harness({ budgets: [{ id: 'd', limitUsd: 1 }] }, (body, res) => {
+    res.writeHead(200, { 'content-type': 'text/event-stream' });
+    res.end('event: message_start\ndata: {"type":"message_start","message":{"usage":{"input_tokens":10,"output_tokens":1}}}\n\n');
+  });
+  try {
+    const res = await post(`${h.base}/anthropic/v1/messages`, { model: 'claude-test', stream: true, max_tokens: 1000, messages: [{ role: 'user', content: 'x' }] }, { 'x-api-key': 'sk-c' });
+    await res.text();
+    await new Promise((r) => setTimeout(r, 20));
+    const spent = h.guard.status().budgets[0].spentUsd;
+    const partial = (10 * PRICES['claude-test'].in + 1 * PRICES['claude-test'].out) / 1e6;
+    assert.ok(spent > partial * 5, `charged ${spent}, partial usage would be ${partial}`);
+  } finally { h.close(); }
+});
