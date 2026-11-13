@@ -454,3 +454,24 @@ def test_width_margin_sends_a_costly_plan_to_pooled_and_defaults_to_zero():
     open_screen = dict(tau=-1.0, neg_guard=0)  # a screen that admits every coder, so only the margin decides
     assert S.plan_audit(noise, pilot, n, **open_screen)["design"] == "pooled"
     assert S.plan_audit(noise, pilot, n, width_margin=None, **open_screen)["design"] == "cells"
+
+
+def test_pseudo_floor_widens_only_a_thin_coder_negative_cell():
+    # LOG.md 7am: pseudo_var is p~(1 - p~), p~ = (k + a) / (m + 2a); 0 with a = 0. It floors a coder cell whose audit
+    # holds no positive, leaves a cell with plenty untouched, and never touches a pooled plan.
+    from llmci import audit_design as S
+    assert S.pseudo_var([0] * 98, 0) == 0.0
+    assert abs(S.pseudo_var([0] * 98, 1.0) - (1 / 100) * (99 / 100)) < 1e-15
+    assert abs(S.pseudo_var([1] * 2 + [0] * 98, 2.0) - (4 / 104) * (100 / 104)) < 1e-15
+    N = 2000
+    f = [1] * 200 + [0] * 1800
+    h = [1] * 120 + [0] * 80 + [0] * 1800  # coder-negative cell holds no positive at all
+    plan = {"design": "cells", "cells": [list(range(200, N)), list(range(200))]}
+    labels = {i: h[i] for i in list(range(0, 200, 2)) + list(range(200, N, 9))}
+    _, lo0, hi0 = S.audit_interval(dict(plan, pseudo=0.0), f, labels)
+    _, lo2, hi2 = S.audit_interval(dict(plan, pseudo=2.0), f, labels)
+    assert hi2 - lo2 > hi0 - lo0
+    pooled = {"design": "pooled", "cells": [list(range(N))], "pseudo": 2.0}
+    assert S.audit_interval(pooled, f, labels) == S.audit_interval(dict(pooled, pseudo=0.0), f, labels)
+    pilot = {i: h[i] for i in range(0, N, 4)}
+    assert S.plan_audit(f, pilot, 400, neg_guard=0)["pseudo"] == S.PSEUDO
