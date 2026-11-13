@@ -1,0 +1,86 @@
+{
+ "arxiv:1809.08835": {
+  "checked": "2026-11-13",
+  "title": "Crowd-Robot Interaction: Crowd-aware Robot Navigation with Attention-based Deep Reinforcement Learning (2018)"
+ },
+ "doi:10.1007/978-3-642-19457-3_1": {
+  "checked": "2026-11-13",
+  "title": "Reciprocal n-Body Collision Avoidance (2011)"
+ },
+ "doi:10.1016/j.neucom.2012.01.036": {
+  "checked": "2026-11-13",
+  "title": "Collecting pedestrian trajectories (2013)"
+ },
+ "doi:10.1016/j.robot.2013.05.007": {
+  "checked": "2026-11-13",
+  "title": "Human-aware robot navigation: A survey (2013)"
+ },
+ "doi:10.1088/1742-5468/2006/10/P10001": {
+  "checked": "2026-11-13",
+  "title": "Experimental study of pedestrian counterflow in a corridor (2006)"
+ },
+ "doi:10.1088/1742-5468/2012/02/P02002": {
+  "checked": "2026-11-13",
+  "title": "Ordering in bidirectional pedestrian flows and its influence on the fundamental diagram (2012)"
+ },
+ "doi:10.1098/rspb.2009.0405": {
+  "checked": "2026-11-13",
+  "title": "Experimental study of the behavioural mechanisms underlying self-organization in human crowds (2009)"
+ },
+ "doi:10.1103/PhysRevE.51.4282": {
+  "checked": "2026-11-13",
+  "title": "Social force model for pedestrian dynamics (1995)"
+ },
+ "doi:10.1103/PhysRevE.94.032304": {
+  "checked": "2026-11-13",
+  "title": "Empirical analysis of the lane formation process in bidirectional pedestrian flow (2016)"
+ },
+ "doi:10.1103/PhysRevLett.113.238701": {
+  "checked": "2026-11-13",
+  "title": "Universal Power Law Governing Pedestrian Interactions (2014)"
+ },
+ "doi:10.1109/CVPR.2016.110": {
+  "checked": "2026-11-13",
+  "title": "Social LSTM: Human Trajectory Prediction in Crowded Spaces (2016)"
+ },
+ "doi:10.1109/ICCV.2009.5459260": {
+  "checked": "2026-11-13",
+  "title": "You'll never walk alone: Modeling social behavior for multi-target tracking (2009)"
+ },
+ "doi:10.1109/ICRA.2019.8794134": {
+  "checked": "2026-11-13",
+  "title": "Crowd-Robot Interaction: Crowd-Aware Robot Navigation With Attention-Based Deep Reinforcement Learning (2019)"
+ },
+ "doi:10.1109/IROS.2010.5654369": {
+  "checked": "2026-11-13",
+  "title": "Unfreezing the robot: Navigation in dense, interacting crowds (2010)"
+ },
+ "doi:10.1126/sciadv.abe7758": {
+  "checked": "2026-11-13",
+  "title": "Mutual anticipation can contribute to self-organization in human crowds (2021)"
+ },
+ "doi:10.1126/science.aas8827": {
+  "checked": "2026-11-13",
+  "title": "Experimental evidence for tipping points in social convention (2018)"
+ },
+ "doi:10.1145/3583741": {
+  "checked": "2026-11-13",
+  "title": "Core Challenges of Social Robot Navigation: A Survey (2023)"
+ },
+ "doi:10.1145/3586183.3606763": {
+  "checked": "2026-11-13",
+  "title": "Generative Agents: Interactive Simulacra of Human Behavior (2023)"
+ },
+ "doi:10.1177/0278364920917446": {
+  "checked": "2026-11-13",
+  "title": "Human motion trajectory prediction: a survey (2020)"
+ },
+ "doi:10.34735/ped.2009.12": {
+  "checked": "2026-11-13",
+  "title": "Bidirectional flow, free choice of destination (2009)"
+ },
+ "doi:10.34735/ped.2013.5": {
+  "checked": "2026-11-13",
+  "title": "Corridor, bidirectional flow (2013)"
+ }
+}
