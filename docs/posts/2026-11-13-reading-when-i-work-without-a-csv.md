@@ -3,7 +3,7 @@ title: "Reading When I Work's shifts without a CSV, and why its times are easier
 seo_title: "Import When I Work shifts into a free roster builder"
 date: 2026-11-13
 tags: [shift-roster-builder, scheduling, integrations]
-description: "When I Work publishes its API definition. Its shift times carry their own offset, so the wall clock is just the digits. A second scheduler now feeds the free roster builder."
+description: "When I Work publishes its API definition, and its shift times carry their own offset. A second scheduler now feeds the free roster builder."
 ---
 
 The [shift roster builder](https://marisstella.app/shift-roster-builder/) plans

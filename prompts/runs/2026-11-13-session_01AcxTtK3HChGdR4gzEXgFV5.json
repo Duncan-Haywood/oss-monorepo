@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtK3HChGdR4gzEXgFV5",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T11:07:06Z",
+  "ended": "2026-11-13T11:15:16Z",
+  "wall_minutes": 8.75,
+  "tokens_in": 5209714,
+  "tokens_out": 32402,
+  "cost_usd": 2.6194,
+  "tool_calls": 50,
+  "task": "Flagship 6 shift-roster-builder: read When I Work's own API (import-wheniwork.mjs, CLI --import-wheniwork/--fetch-wheniwork, page upload)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15475",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Two of my own tests asserted doesNotMatch /7:00/ on output containing 17:00",
+      "fix": "anchored to /Mon, 7:00/"
+    },
+    {
+      "what": "preflight refused the post: description 173 chars (limit 160)",
+      "fix": "shortened"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder next: said 'look for a mirrored API definition on GitHub' for When I Work; When I Work publishes its OpenAPI file directly (apidocs.wheniwork.com/external/monolith/docs-master.json, the file its Redoc page loads), and session GitHub search reaches only the owner's repos anyway. Checking the vendor's docs page source first was faster."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-reading-when-i-work-without-a-csv.md",
+    "ventures/shift-roster-builder/eval/wheniwork-api-format-2026-11-13.md",
+    "ventures/shift-roster-builder/README.md (Reading When I Work directly)"
+  ],
+  "goal": "Deepen flagship 6: a second paid scheduler's shifts import with no CSV",
+  "notes": "Built from When I Work's published OpenAPI 3.1 file (SHA-256 in eval note). Key difference from 7shifts: RFC 2822 times carry their offset, so the digits are the wall clock; length computed from instants (DST night shift = 8 h). Local: node --test import-wheniwork, import-7shifts, page, cli, import-shifts: 88 pass 0 fail; headless Chromium upload of 3 JSON files filled the shifts box, listed both locations, location pick worked, no page errors. Full venture suite and venture-preflight results in the PR body. Not run on a real When I Work account or recorded response. Homebase API docs answered 401 without an account.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d4e35798-4e0f-5a73-9b8a-c6872204d367",
+    "transcripts": 1,
+    "first": "2026-11-13T11:07:06Z",
+    "last": "2026-11-13T11:15:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 32402,
+        "thinking": 2957,
+        "cache_read": 5090516,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119105,
+        "api_equivalent_usd": 2.6194,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 32402,
+      "thinking": 2957,
+      "cache_read": 5090516,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119105,
+      "api_equivalent_usd": 2.6194,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 46,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.75,
+      "active_minutes": 8.75,
+      "model_minutes": 6.04,
+      "tool_minutes": 2.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "spec reading, importer, 11 tests, CLI/page wiring, docs and post for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 229.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
