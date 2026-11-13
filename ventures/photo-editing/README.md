@@ -1380,9 +1380,33 @@ specification's formula, written out separately in the test, for odd terms, clam
 the division form. An even-only WarpRectilinear2 gives WarpRectilinear's points. The skip rule is
 checked on the specification's three worked examples. numpy and pure Python give the same bytes.
 What is not: no camera- or converter-written file carrying it has been tried. One gap found in
-passing: `plan()` skips any opcode flagged "preview quality" (flag bit 1) in every develop, but the
-specification says a full-quality develop still needs it. That is left for its own change.
+passing: `plan()` skipped any opcode flagged "preview quality" (flag bit 1) in every develop, but the
+specification says a full-quality develop still needs it. Fixed 2026-11-13 (next section).
 Details: `eval/warp-rectilinear2-2026-11-12.md`.
+
+## Preview-quality opcodes run at full quality (2026-11-13)
+
+Each DNG opcode carries two flag bits. Bit 0 marks it optional. Bit 1, in the words of the DNG
+1.7.1.0 specification (chapter 6, read from Adobe's PDF), means "the opcode can be skipped when
+doing 'preview quality' processing, and only needs to be applied when doing 'full quality'
+processing". Until now `dng_opcodes.plan()` read bit 1 as "preview only" and dropped such opcodes
+from every develop, so a file that marked its lens-shading GainMap or its distortion warp this way
+came out with the dark corners or bent lines the opcode exists to fix.
+
+Now they run by default. `develop --preview-quality` (`DevelopSettings.preview_quality`,
+`plan(..., preview=True)`) skips them and the report says how many
+(`OpcodeList2: 1 preview-skippable opcode(s) skipped (preview quality)`). The half-size develop that
+stands in for the embedded preview of a DNG without one (the proxy and scoring path) uses preview
+mode, which is what the flag is for. One interaction with the WarpRectilinear2 skip rule: at full
+quality a preview-flagged optional WarpRectilinear2 runs and the fallback warp after it is dropped;
+in a preview the WarpRectilinear2 is skipped, so the fallback is kept.
+
+What is checked: a preview-flagged GainMap restores a half-darkened scene to within 3 8-bit steps
+at full quality and is skipped (over 40 steps off) in preview mode; the CLI flag; both skip-rule
+cases (`tests/test_dng_opcodes.py`, `tests/test_dng_warp2.py`). What is not: none of the three
+real DNGs at hand sets bit 1 (LG Nexus 5X: four GainMaps, flags 1; Leica T: one WarpRectilinear,
+flags 0; Pentax Q-S1: no opcode lists), so their output is unchanged and no real file carrying the
+flag has been developed yet.
 
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
