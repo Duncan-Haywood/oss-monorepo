@@ -2,7 +2,7 @@
 title: "A schedule risk run that froze for 17 seconds, and the date string behind it"
 seo_title: "Why our Monte Carlo schedule froze for 17 s"
 date: 2026-11-13
-description: "A 1,000-run Monte Carlo over a 40-activity house schedule took 16.6 s. Building a date string for every calendar day was most of it; a memo made it 0.52 s with byte-identical output."
+description: "A 1,000-run Monte Carlo over a 40-activity house schedule took 16.6 s, mostly date strings built per calendar day. A memo made it 0.52 s, same output."
 topic: infrastructure
 tags: [performance, profiling, nodejs, construction, monte-carlo]
 ---
