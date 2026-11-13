@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight 103: Ignatius and the sword left at Montserrat"
-seo_title: "Saint Ignatius of Loyola bedtime story: the cannonball, the mule and the sword"
+seo_title: "Saint Ignatius of Loyola bedtime story: the mule and the sword"
 date: 2026-11-13
 tags: [fiction, saints-by-candlelight, bedtime-story, saints]
 description: "Episode 103 of the bedtime saints podcast: Saint Ignatius of Loyola, from the cannonball at Pamplona to the sword he hung up before Our Lady."
