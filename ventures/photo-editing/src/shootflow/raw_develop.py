@@ -57,6 +57,7 @@ With numpy installed, ``develop`` hands the per-pixel work to
 
 from __future__ import annotations
 
+import os
 import re
 import struct
 import sys
@@ -529,6 +530,16 @@ def _decode_scan(data, pos, width, height, tables, predictor, precision, pt, res
     nf = len(tables)
     diffs = _scan_diffs(data, pos, width * height, tables, restart)
     initial = 1 << (precision - pt - 1)
+    if not pt and DECODE_ENGINE in ("auto", "native") and isinstance(diffs, array):
+        # Differences from the C reader: predict in C too, so a tile's whole decode runs
+        # without the GIL (eval/native-destuff-2026-11-13.md). Same samples as _predict_scan.
+        from shootflow import ljpeg_native
+
+        got = ljpeg_native.predict(diffs, width, height, nf, predictor, initial, restart)
+        if got is not None:
+            return got
+        if DECODE_ENGINE == "native":
+            raise DevelopError("decode engine 'native' needs the C reader (ljpeg_native)")
     if predictor in (1, 2) and (not restart or restart % width == 0):
         np_predict = _numpy_predict_rows()
         if np_predict is not None and width * height >= _NP_PREDICT_MIN:
@@ -549,8 +560,10 @@ def _as_list(diffs):
 # Below about this many pixels the numpy prediction pass costs more in setup
 # than it saves; tests set it to 0 to run the numpy path on small cases.
 _NP_PREDICT_MIN = 1024
-# "auto" uses numpy for the prediction pass when it is importable; "python"
-# keeps the pure path (the reference); "numpy" requires it. Same samples.
+# "auto" predicts in C when the differences came from the C reader (point
+# transform 0), else with numpy when it is importable; "python" keeps the pure
+# path (the reference); "numpy" requires numpy; "native" requires the C pass.
+# Same samples.
 DECODE_ENGINE = "auto"
 
 
@@ -656,8 +669,15 @@ def _native_huffman():
 
 
 def _scan_diffs_native(native, data, pos, mcus_total, tables, restart):
-    """``_scan_diffs`` through the C reader: an ``array('i')``, or None to fall back."""
+    """``_scan_diffs`` through the C reader: an ``array('i')``, or None to fall back.
 
+    The C side reads the scan's bytes directly (de-stuffing and restart
+    intervals included); ``SHOOTFLOW_NATIVE_SCAN=0`` keeps the older path that
+    de-stuffs and packs words here and calls C once per interval.
+    """
+
+    if os.environ.get("SHOOTFLOW_NATIVE_SCAN", "1") != "0" and hasattr(native, "scan_run") and len(tables) <= 4:
+        return native.scan_run(data, pos, mcus_total, tables, restart)
     if not restart:
         words, _ = _segment_words(data, pos, as_list=False)
         return native.huffman_run(words, mcus_total, tables)
