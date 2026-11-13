@@ -228,6 +228,6 @@
    "origin": "build"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"],
  "verdict": "Every number reproduces: my own script from the raw eda-verify log, without importing the subject, matches all twelve policy rows, the 7,414/3,746 CPU-s costs and the 93% (25/27) nearest-line accuracy, and run.py regenerates results.txt byte-identical. It does not meet the bar. The tests catch 2 of 5 seeded bugs. The comparison between predictors depends on how the one-split rule breaks ties: with midpoint cuts it equals 1-NN at 25/27, so 'smoother rules do worse' is not supported. The mechanism the README offers ('deep arithmetic cones') is contradicted by the generated RTL. Line 151 is dead code at P=8, lines 140-145 are benign boundary changes, and the line-123 'undecided' mutants are reset-value changes that register-matched induction cannot prove. So the signal is mutation semantics plus a solver limitation, and a trivial-compiler-equivalence baseline and the mutation-testing prior work are both missing. The README is honest about its limits (one design, 11 distinct lines, no interval). As research it is a pilot that later projects built on, not a result a DAC/ICCAD referee would accept."
 }

@@ -52,6 +52,6 @@
   {"severity": "low", "what": "num() strips every comma, so a decimal-comma price '1,50' is read as 150 with no warning.", "where": "ventures/vending-machine-planogram-optimizer/calc.mjs:32", "category": "input-handling", "origin": "implementation"},
   {"severity": "low", "what": "'30 is typical for snacks' substitution share has no cited source.", "where": "ventures/vending-machine-planogram-optimizer/index.html:68", "category": "source-data", "origin": "spec"}
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"],
  "verdict": "The engine is correct: an independent Python greedy and a brute force over 40 random machines match the dynamic program exactly, and the example's allocation, sell-out rates, restock table and Monte Carlo all recompute to the cent. It does not meet the bar. A blank Max coils field silently caps every product at 8 coils, so a drink machine is told to leave most coils empty while its best seller sells out every visit, with advice that the machine has too many coils; the README's claim that ignoring substitution 'can only understate' is false, and the tool can recommend a split that its own simulation shows earns $70 a week less than the comparison; fresh food cannot be given a par below coil capacity or a shelf-life limit; and six of seven seeded bugs, including one that cuts every weekly dollar figure by 12.5%, pass all 26 tests. Correctness, claims, fitness and domain 2, verification 1, completeness and craft 3."
 }
