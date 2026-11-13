@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnkg1mDi4ARGmgRF3i",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T08:31:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 8 (quick-pick-survey), item (e): the staged selector's switch rule above 120 items, then the default there",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15431",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First sweep launch (40 seeds, budgets to 1000, all lengths in one process) was too slow for the session; killed and rerun as 4 parallel processes with budgets to 600.",
+    "Pooled careless-pattern sweep stalled on long lists because selfConsistency refits each person; added --no-self and reran a narrower grid (150 items only; 300-item pooled cells not run)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/scripts/careless-pattern-sweep.ts",
+      "issue": "Its per-person self-consistency refit makes a 150-item panel run take hours; there was no flag to skip it (added --no-self)."
+    },
+    {
+      "file": "ventures/quick-pick-survey/src/lib/infoGainSim.ts",
+      "issue": "simulate() returns states only at the end, so measuring several budgets meant either re-simulating or replaying history through applyComparison (the sweep replays; verified bit-identical)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-long-lists-ask-the-informative-question-first.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (section 'Lists over 120 items: the switch rule')"
+  ],
+  "goal": "Deepen a flagship: land a measured, tested change to the survey's default question order on long lists",
+  "notes": "Measured with scripts/long-list-switch-sweep.ts (new; 150/220/300/500 items, 30-600 answers, lapse 0 and 0.2, 60 paired seeds): information selector from the first answer vs the 120-answer warm-up -0.001 to +0.021 up to 120 answers, -0.015 to +0.014 after; ahead of shipped in 54 of 56 cells; couple bar 35 answers vs 38-40. Pooled (150 items, panels 20/60, careless random/salience): level or ahead of standard in 15/16 cells. Shipped: hybridSwitchAt 0 and defaultPairSelector staged at every length; survey builder labels and docs updated. New tests fail on the old rule (4 in pairing.test.ts, checked by restoring the old pairing.ts). Found: pooled 'clearly above' pairs wrong 5.4-14.3% on sparse 150-item lists under both selectors (vs ~0.5% on 15-30 items); recorded as next item (f) in flagships.yaml. Verification output: see the PR body and the commit that adds this record.",
+  "corrections": [],
+  "redteam": null
+}
