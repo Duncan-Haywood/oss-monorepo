@@ -162,7 +162,7 @@ function findingFor(result) {
       target: matchedHop(result),
       title: `${result.hostname} is a confirmed dangling CNAME to ${result.provider.name}`,
       detail:
-        `${chainText(result, matchedHop(result))}, and a live GET to https://${result.hostname}/ returned that provider's own ` +
+        `${chainText(result, matchedHop(result))}, and a live GET to ${result.probe?.url ?? `https://${result.hostname}/`} returned that provider's own ` +
         `"nothing is claimed at this name" page. Unless this is intentional (a domain being decommissioned on ` +
         `purpose), remove the DNS record now, or reclaim the name on ${result.provider.name} before anyone else can.`,
       docsUrl: result.provider.docsUrl,
