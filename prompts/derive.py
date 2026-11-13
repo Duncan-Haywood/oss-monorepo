@@ -221,7 +221,9 @@ def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = 
 
 
 def git(*args: str, cwd: Path = REPO_ROOT, check: bool = True) -> str:
-    out = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
+    # errors="replace": one blamed file holding non-UTF-8 bytes (0xfc) killed a
+    # 43-minute build and every row with it (2026-11-13).
+    out = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, errors="replace")
     if check and out.returncode != 0:
         raise RuntimeError(f"git {' '.join(args)}: {out.stderr.strip()}")
     return out.stdout
@@ -300,7 +302,9 @@ def rework(sha: str, number: int, merged_at: str, head: str, cwd: Path = REPO_RO
 
 
 def measured(rec: dict[str, Any], facts: dict[str, Any] | None, cwd: Path,
-             now: datetime | None = None) -> dict[str, Any]:
+             now: datetime | None = None, prior: dict[str, Any] | None = None) -> dict[str, Any]:
+    """`prior` is a closed rework block from the last build: the window's commits
+    never change once it has closed, so it is reused instead of re-blamed."""
     ref = parse_pr(rec)
     if ref is None:
         return {"why": "the record names no pull request"}
@@ -321,21 +325,35 @@ def measured(rec: dict[str, Any], facts: dict[str, Any] | None, cwd: Path,
     if out["merged"] and facts.get("merge_commit_sha"):
         head = lineage_head(ref[0], cwd)
         home = ref[0].lower() == HOME_REPO.lower()
-        out["rework"] = (rework(facts["merge_commit_sha"], ref[1], facts["merged_at"], head, cwd, now,
-                                skip_mirror=home)
-                         if head else {"window": "unavailable", "why": f"no local branch for {ref[0]}"})
+        if prior and prior.get("window") == "closed":
+            out["rework"] = prior
+        else:
+            out["rework"] = (rework(facts["merge_commit_sha"], ref[1], facts["merged_at"], head, cwd, now,
+                                    skip_mirror=home)
+                             if head else {"window": "unavailable", "why": f"no local branch for {ref[0]}"})
     return out
 
 
 def build(root: Path = ROOT, cwd: Path = REPO_ROOT, now: datetime | None = None) -> list[dict[str, Any]]:
     cache = load_json(root / "derived" / "github.json", {})
+    # Closed windows from the last build, by PR: re-blaming them is most of a
+    # rebuild's time (43 min on 4 cores for 3,389 PRs, 2026-11-13), and that cost
+    # is why runs.json went unbuilt from 2026-10-31 to 11-13.
+    closed = {row["pr"]: rw for row in load_json(root / "derived" / "runs.json", {}).get("rows", [])
+              if row.get("pr") and (rw := (row.get("measured") or {}).get("rework") or {}).get("window") == "closed"}
     rows = []
     for path, rec in promptctl.load_runs(root):
         ref = parse_pr(rec)
+        pr = f"{ref[0]}#{ref[1]}" if ref else None
+        try:
+            m = measured(rec, cache.get(key(*ref)) if ref else None, cwd, now, prior=closed.get(pr))
+        except (RuntimeError, OSError, ValueError) as e:  # one bad record must not lose the rest
+            m = {"why": f"build error: {type(e).__name__}: {e}"[:300]}
+        if m.get("rework", {}).get("window") == "closed":
+            closed.setdefault(pr, m["rework"])
         rows.append({"record": path.name, "date": rec.get("date"), "track": rec.get("track"),
                      "prompt_version": rec.get("prompt_version"), "model": rec.get("model"),
-                     "pr": f"{ref[0]}#{ref[1]}" if ref else None,
-                     "measured": measured(rec, cache.get(key(*ref)) if ref else None, cwd, now)})
+                     "pr": pr, "measured": m})
     write_json(root / "derived" / "runs.json",
                {"generated": now_iso(), "window_days": WINDOW_DAYS, "rows": rows})
     return rows

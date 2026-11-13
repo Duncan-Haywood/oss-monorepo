@@ -117,6 +117,16 @@ class ReworkTest(unittest.TestCase):
                           now=datetime(2026, 10, 16, tzinfo=timezone.utc))
         self.assertEqual(r["window"], "open")
 
+    def test_non_utf8_lines_do_not_crash_the_blame(self) -> None:
+        (self.repo / "latin1.txt").write_bytes(b"Gr\xfc\xdfe\n")
+        _git(self.repo, "add", ".")
+        _git(self.repo, "commit", "-qm", "latin-1 file (#8)", when="2026-09-02T00:00:00Z")
+        pr = _git(self.repo, "rev-parse", "HEAD")
+        self.commit("later\n", "after the window", "2026-10-01T00:00:00Z", path="b.py")
+        r = derive.rework(pr, 8, "2026-09-02T00:00:00Z", "main", self.repo,
+                          now=datetime(2026, 10, 16, tzinfo=timezone.utc))
+        self.assertEqual((r["window"], r["lines_added"], r["survival"]), ("closed", 1, 1.0))
+
     def test_excluded_paths(self) -> None:
         self.assertTrue(derive.excluded("gitops/prod/x.yaml"))
         self.assertTrue(derive.excluded("web/package-lock.json"))
@@ -190,6 +200,23 @@ class MeasureFallbackTest(unittest.TestCase):
                               got["2026-10-01-s.json"]["ci_red_commits"]), (False, 3.0, 2))
             self.assertIn("names no pull request", got["2026-10-01-t.json"]["why"])
             self.assertIn("1 closed unmerged", derive.report(root))
+
+    def test_build_reuses_a_closed_window(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "prompts"
+            (root / "runs").mkdir(parents=True)
+            rec = {**promptctl.RECORD_FIELDS, "date": "2026-10-01", "session": "s", "track": "ventures",
+                   "prompt_version": 1, "outcome": "success", "pr": 9}
+            (root / "runs" / "2026-10-01-s.json").write_text(json.dumps(rec))
+            derive.write_json(root / "derived" / "github.json", {derive.key(derive.HOME_REPO, 9): {
+                "state": "closed", "merged": True, "merge_commit_sha": "f" * 40,
+                "created_at": "2026-10-01T00:00:00Z", "merged_at": "2026-10-01T03:00:00Z", "ci": {}}})
+            # No git repo at cwd: only the reuse path can produce a closed window.
+            old = {"window": "closed", "reverted": 0, "followups": 1, "survival": 0.5}
+            derive.write_json(root / "derived" / "runs.json", {"rows": [
+                {"record": "2026-10-01-s.json", "pr": f"{derive.HOME_REPO}#9", "measured": {"rework": old}}]})
+            derive.build(root, cwd=Path(tmp))
+            self.assertEqual(derive.load_measured(root)["2026-10-01-s.json"]["rework"], old)
 
 
 if __name__ == "__main__":
