@@ -66,9 +66,13 @@ from dataclasses import dataclass, field
 from itertools import accumulate
 from operator import add
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from shootflow import dng_colour as dc
 from shootflow import dng_opcodes
+
+if TYPE_CHECKING:  # lens_profiles imports dng_opcodes only; typed here without a runtime import
+    from shootflow.lens_profiles import LensDb
 
 # --------------------------------------------------------------------------
 # TIFF / DNG container
@@ -77,6 +81,8 @@ from shootflow import dng_opcodes
 _TYPE_SIZES = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8, 13: 4, 16: 8}
 _TYPE_FMT = {1: "B", 3: "H", 4: "I", 6: "b", 8: "h", 9: "i", 11: "f", 12: "d", 13: "I", 16: "Q"}
 
+
+TAG_EXIF_IFD = 34665
 TAG_NEW_SUBFILE_TYPE = 254
 TAG_WIDTH = 256
 TAG_HEIGHT = 257
@@ -914,6 +920,7 @@ class RawImage:
     # "dng", or "cr2" for a Canon CR2 read by ``shootflow.cr2`` (DNG-equivalent tags, no colour matrix).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
+    exif: Ifd | None = None  # the EXIF IFD (lens name, focal length), when the file has one
 
 
 def _unpack_bits(chunk: bytes, bits: int, count: int, row_samples: int) -> list[int]:
@@ -1024,7 +1031,19 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
             _blit(values, width, height, spp, strip, width, rows, 0, y0)
     else:
         raise DevelopError("raw IFD has neither strips nor tiles")
-    return RawImage(width, height, spp, values, ifd, ifd0)
+    return RawImage(width, height, spp, values, ifd, ifd0, exif=exif_ifd(reader, ifd0))
+
+
+def exif_ifd(reader: _Reader, ifd0: Ifd) -> Ifd | None:
+    """The EXIF IFD that IFD0's ExifIFD tag points to, or None when there is none or it is unreadable."""
+
+    at = ifd0.one(TAG_EXIF_IFD)
+    if not at:
+        return None
+    try:
+        return reader.read_ifd(int(at))[0]
+    except (DevelopError, struct.error):
+        return None
 
 
 def _blit(dst: array, width, height, spp, src: list[int], cw, ch, x0, y0) -> None:
@@ -1099,6 +1118,15 @@ class DevelopSettings:
     # DNG carries one), WarpRectilinear (lens distortion), FixVignetteRadial
     # and MapPolynomial; other opcodes are named in the report, not run.
     opcodes: bool = True
+    # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
+    # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
+    lens_db: "LensDb | None" = None
+    lens_name: str | None = None
+    lens_focal: float | None = None
+    lens_crop: float | None = None
+    lens_fill: bool = True
+    # Correct the lens's lateral colour (lensfun TCA) with its distortion, per colour plane.
+    lens_tca: bool = True
 
 
 @dataclass
@@ -1581,6 +1609,23 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 vals = dng_opcodes.run_stage1(op_plan.stage1, vals, rw, raw.height, notes)
         elif op_plan.notes:
             notes.append("opcode lists not run (opcodes off)")
+    if settings.lens_db is not None:
+        if any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
+            notes.append("lens database not used: the file carries its own lens warp")
+        else:
+            from shootflow import lens_profiles
+
+            try:
+                corr = lens_profiles.correction_for(
+                    settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif), w, h,
+                    lens_name=settings.lens_name, focal=settings.lens_focal, crop=settings.lens_crop,
+                    fill=settings.lens_fill, tca=settings.lens_tca,
+                )
+            except lens_profiles.LensProfileError as exc:
+                notes.append(f"no lens correction: {exc}")
+            else:
+                warps = list(warps) + [corr.warp]
+                notes.extend(corr.notes)
     # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
     half_f = 0.5 if (settings.half and not linear_raw) else 1.0
     stage3_w, stage3_h = (w // 2, h // 2) if half_f != 1.0 else (w, h)

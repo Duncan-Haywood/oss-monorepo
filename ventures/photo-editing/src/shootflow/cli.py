@@ -718,6 +718,15 @@ def _run_cull_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     stdout.write(json.dumps(out, sort_keys=True) + "\n")
 
 
+def _load_lens_db(path: str):
+    from shootflow import lens_profiles
+
+    try:
+        return lens_profiles.load_db(path)
+    except lens_profiles.LensProfileError as exc:
+        raise DevelopError(str(exc)) from None
+
+
 def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     wb = None
     if args.wb:
@@ -738,7 +747,15 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         default_tone=args.default_tone_curve,
         cfa=args.cfa,
         opcodes=not args.no_opcodes,
+        lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
+        lens_name=args.lens,
+        lens_focal=args.lens_focal,
+        lens_crop=args.lens_crop,
+        lens_fill=not args.no_lens_fill,
+        lens_tca=not args.no_lens_tca,
     )
+    if (args.lens or args.lens_focal or args.lens_crop) and not args.lens_db:
+        raise DevelopError("--lens, --lens-focal and --lens-crop need --lens-db (a folder of lensfun XML files)")
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
     results = []
@@ -1275,6 +1292,29 @@ def _build_parser() -> argparse.ArgumentParser:
             "Skip the DNG's opcode lists (GainMap lens shading as phones write it, WarpRectilinear and WarpRectilinear2 "
             "lens distortion, WarpFisheye, FixVignetteRadial, MapPolynomial); by default they run."
         ),
+    )
+    develop.add_argument(
+        "--lens-db",
+        help=(
+            "Folder of lensfun database XML files (data/db in github.com/lensfun/lensfun, CC BY-SA 3.0). Files whose "
+            "opcode lists carry no lens warp (CR2s, most DNGs) get lensfun's distortion correction for the lens and "
+            "focal length in their EXIF."
+        ),
+    )
+    develop.add_argument("--lens", help="Lens name to look up instead of the EXIF LensModel (needs --lens-db).")
+    develop.add_argument("--lens-focal", type=float, help="Focal length in mm instead of the EXIF one (needs --lens-db).")
+    develop.add_argument(
+        "--lens-crop", type=float, help="Camera crop factor when the camera is not in the database (needs --lens-db)."
+    )
+    develop.add_argument(
+        "--no-lens-fill",
+        action="store_true",
+        help="Keep the corrected picture at the centre's scale instead of zooming so the frame has no empty edge.",
+    )
+    develop.add_argument(
+        "--no-lens-tca",
+        action="store_true",
+        help="Correct the lens's distortion only, not its lateral colour (red and blue fringes toward the corners).",
     )
 
     create_demo = subparsers.add_parser(

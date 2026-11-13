@@ -1521,3 +1521,49 @@ numpy and pure Python identical. What is not: no camera-written DNG with `Opcode
 found yet (the Nexus 5X and Leica T files carry none), and the SDK's own interpolation weights are
 not reproduced, so an Adobe render can differ at the repaired sensels. Details:
 `eval/bad-pixels-2026-11-12.md`.
+
+## Lens correction for raws that carry none: lensfun profiles (2026-11-13)
+
+Most raw files carry no lens correction: every Canon CR2, and most DNGs. `shootflow develop FILE
+--lens-db DIR` now corrects their distortion from lensfun's open database. `DIR` is a folder of its
+`data/db/*.xml`, CC BY-SA 3.0, read at run time and not shipped here. The camera, lens and focal
+length come from the file's EXIF (`--lens`, `--lens-focal` and `--lens-crop` override them). The
+calibration is chosen and interpolated by lensfun's own rules, ported from its source: word
+matching, mount and crop filters, a Hermite spline over focal length, and the crop and aspect
+rescaling. It then becomes an exact `WarpRectilinear2`, which runs through the same warp code as a
+camera's own opcode, so both engines give the same bytes. By default it zooms just enough that no
+edge is smeared or empty (`--no-lens-fill` keeps the centre's scale). A file's own lens warp wins.
+An unknown lens is a note in the report, not an error. A lens name that is only a focal length,
+such as `105mm` (how Canon bodies write third-party lenses), is refused rather than guessed.
+
+Measured: the module's warp lands within 1e-7 px of lensfun's pipeline written out separately (17
+tests, including a camera crop that differs from the calibration's, a portrait frame, poly3 and
+poly5). All 6,500 calibrations in the database build a warp. 1,576 of its 1,580 lenses find their
+own name first, and the other 4 find an alias of themselves. On a real Canon 600D CR2 it found the
+EF100-400mm at 100 mm and developed half size in 9.5 s. On the one real file carrying both a
+maker's correction and a lensfun profile, a Leica X Vario at 46 mm, the two differ by up to 8 px at
+full size once their zooms are matched, more than the camera's own correction of under 4 px. Which
+is right is not settled by that file. Details: `eval/lensfun-correction-2026-11-13.md`.
+
+### Lateral colour too, and Canon lens names from the maker note (2026-11-13)
+
+With `--lens-db`, a lens that lensfun also has a TCA calibration for (909 of its lenses) now gets its
+lateral colour corrected with its distortion: the red and blue fringes that grow toward the corners.
+Lensfun moves red and blue after the distortion, on the distorted point. So each plane's source
+radius is `r f_D(r) f_T(s r f_D(r))`, a polynomial of degree at most 14. That is exactly the 15
+terms a WarpRectilinear2 plane holds, so the three planes carry it with no approximation, and the
+fill zoom keeps all three inside the frame. TCA calibrations are interpolated over focal length as
+lensfun does, with the `v` terms not scaled by focal length (`lens.cpp`, `__parameter_scales`).
+`--no-lens-tca` corrects distortion only. Canon bodies from before EXIF 2.3 (the 5D Mark II, 7D,
+550D) write no `LensModel` tag but name the lens in their maker note (tag 0x0095). The CR2 reader
+now hands that name on, so the real 5D Mark II test file finds `Canon EF 50mm f/1.2L USM` without
+`--lens`.
+
+Measured: every lens with TCA in lensfun's database (909 lenses, 6,257 focal lengths counting
+midpoints) lands within 3e-12 px of lensfun's pipeline written out step by step
+(`tools/lensfun_tca_check.py`). On a 6000 px frame at the calibration's crop, the uncorrected
+corner has red and blue a median 0.56 px apart, over 1 px for 30% of cases and over 2 px for 9%,
+and up to 9.9 px. 12 tests (`tests/test_lens_tca.py`). Four seeded faults each fail 1 or 2 of them:
+TCA before the distortion, `v` scaled by focal length, `b` scaled once, and a fill zoom from green
+alone. Not checked: a real frame with sharp corner edges, to see that the fringes go. Details:
+`eval/lensfun-tca-2026-11-13.md`.

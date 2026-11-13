@@ -1,0 +1,210 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/mimic-featuretransfer",
+ "stratum": "research",
+ "seed": "2026-11-13",
+ "drawn_by": "sample",
+ "round": 55,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior ML researcher in machine-generated-text detection and cross-domain transfer (the kind who reviews for ACL/EMNLP detection tracks). They would check first that the leave-one-family-out numbers reproduce, that no fitted transformer sees test text, that AUROC and its interval are computed correctly, that the feature-attribution claims are backed by an ablation that actually isolates the named feature (content words), and that differences between feature sets are tested with families as the unit, not test items",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Full rerun in a private copy (`cd /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/copy/mimic-featuretransfer && /usr/bin/python3.13 featuretransfer.py`, sklearn 1.9.1, 5m32s) reproduced results.txt byte-for-byte (`diff` empty) and all 159 numeric leaves of results.json with max abs diff 0.0. Independent recomputation (`/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py`): AUROC by hand Mann-Whitney rank sums on the pipeline's word scores equals the reported value in all 8 families (e.g. abstracts 0.9123, recipes 0.8067); length AUROC recomputed with no model at all (raw character-count ranks, sign from the training-family correlation) equals the reported length column in all 8 families (wiki 0.1548, poetry 0.8854); DeLong 95% intervals agree with the 500-sample bootstrap to within 0.002 (abstracts word DeLong [0.8895, 0.9351] vs bootstrap [0.8885, 0.9338]). Counts check: 300+300 per family, 4,200 training items per fold, 318 stop words, 14 format features. Numbers are right; one prose example is wrong (claims).",
+  "completeness": "Everything the README says was done is present and runs: six feature sets, train-only fitting of every vectoriser/scaler (verified by reading featurize and by the test), bootstrap CIs, in-family two-fold reference, results.json/results.txt, reproduce block (5 tests; ~5 min run confirmed as 5m32s on 4 CPUs). The live page https://marisstella.app/research/mimic-featuretransfer/ returns 200 (curl). Next steps (leave-one-generator-out, prompted detector) are listed as not done, not claimed.",
+  "verification": "`cd research/mimic-featuretransfer && /usr/bin/python3.13 -m unittest discover -s tests -v`: 5 tests OK in 0.75 s. Seeded 5 mutants with quality_mutate.py; 4 survived: flipping the label mapping (featuretransfer.py:29), moving the CI lower percentile from 2.5 to 25 (:74), removing the held-out family exclusion so the test family leaks into training (:86), and making the in-family reference train on its own test half (:92). Only negating the AUROC score (:66) was caught. run(), load()'s label mapping and the LOFO split, i.e. everything the headline depends on, are untested; the tests check toy separability and shapes.",
+  "craft": "Read featuretransfer.py (112 lines) and tests/test_featuretransfer.py. Compact and deterministic (fixed bootstrap seed; rerun bit-identical), but dense: nested lambda for func features (:52), several statements per line, unclosed file handles (:28, :110-111), no CLI flags (cannot run one family or set), no seeds/versions recorded in results.json, featurize returns train matrices recomputed twice for func (:53-54). Acceptable for a one-off research script, not for a library someone builds on.",
+  "claims": "Checked 9 README claims against results.json and my recomputations. Backed: all table numbers, mean 0.931/0.916/0.938/0.797/0.687/0.528/0.987, gap 0.049, earlier project 0.934 (mimic-anycontext-detect/README.md:23), format below 0.5 on abstracts and recipes with intervals under 0.5, word-over-char +0.048/+0.054 on abstracts/poetry. Not backed: (1) headline 'Content words carry most of the transfer' (README:23) - the word set contains every stop word; my content-only ablation (same TF-IDF, stop_words='english') averages 0.899, below char 0.916, so the 0.931-vs-0.916 comparison does not isolate content words; (2) README:26 'not always best (recipes 0.867 against 0.855 for characters; reddit 0.953 against 0.939)' cites two families where char+word IS best; it is not best on abstracts, poetry, reviews and wiki; (3) 'Words alone beat characters' as a general statement: 6 of 8 families, exact sign test p = 0.29, no family-level interval on the means. Limitations section is honest and thorough; disclaimer-like 'Stylised and preliminary' is present.",
+  "fitness": "A researcher can rerun it in 5 minutes and extend featurize with a new set, and it fixes a real leakage limitation of mimic-anycontext-detect. But the result a researcher would cite (which features transfer) rests on 8 families, one classifier, one partition, item-level intervals only and no paired comparison between feature sets, so differences of 0.01-0.02 (char+word vs word) cannot be relied on; it is a step inside the mimic track, not a programme result.",
+  "domain": "Nearest prior work: RAID (Dugan et al., ACL 2024) and M4 (Wang et al., EACL 2024) for cross-domain detector transfer; MAGE / 'Deepfake text detection in the wild' (Li et al., ACL 2024) which already reports out-of-domain generalisation of n-gram/PLM detectors; feature-based and stylometric detectors (Froehling & Zubiaga 2021; Kumarage et al. 2023) and function-word stylometry (Mosteller & Wallace; Koppel et al.). None is cited except RAID. The method is sound on leakage (fit on train families only) but departs from practice in comparing feature sets via overlapping unpaired item-level intervals rather than a paired test with family as unit, and in attributing to 'content words' without a content-only ablation. The finding (n-gram TF-IDF transfers ~0.93 LOFO AUROC; length/format flip sign) is consistent with prior work and not new; below the PhD bar of research/CLAUDE.md."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "full LOFO rerun vs committed results",
+   "method": "rerun of the shipped script in a private copy, diff against results.txt and leaf-by-leaf compare of results.json",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/copy/mimic-featuretransfer && /usr/bin/python3.13 featuretransfer.py; diff results.txt research/mimic-featuretransfer/results.txt",
+   "expected": "identical table; 159 numbers",
+   "observed": "diff empty; 159/159 leaves, max abs diff 0.0; runtime 5m32s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "word-set AUROC per family by hand",
+   "method": "Mann-Whitney U from scipy.stats.rankdata (not sklearn roc_auc_score)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py",
+   "expected": "abstracts 0.9123, recipes 0.8067, wiki 0.9081 (results.json)",
+   "observed": "0.9123, 0.8067, 0.9081; all 8 families equal to 4 dp",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "length-only AUROC without any model",
+   "method": "rank AUROC of raw character count, sign taken from the training-family correlation",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py",
+   "expected": "wiki 0.155, poetry 0.885, recipes 0.696 (README table)",
+   "observed": "wiki 0.1548, poetry 0.8854, recipes 0.6960; all 8 equal",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "bootstrap 95% interval for word AUROC",
+   "method": "DeLong (1988) variance, own implementation",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py",
+   "expected": "abstracts [0.8885, 0.9338], recipes [0.7743, 0.8399]",
+   "observed": "DeLong [0.8895, 0.9351], [0.7725, 0.8408]; within 0.002 in all families",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "data counts and feature counts in Method",
+   "method": "count rows of suite.jsonl.gz; len(ENGLISH_STOP_WORDS); len(format_stats)",
+   "command": "python3 -c (Counter of family,label over suite.jsonl.gz); /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py",
+   "expected": "300+300 per family, 318 stop words, 14 format features",
+   "observed": "300/300 x 8 families, 318, 14",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Content words carry most of the transfer' (README:23)",
+   "method": "content-only ablation: word 1-2 gram TF-IDF with stop_words='english', same C=3 LR, same LOFO",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py",
+   "expected": "content-only near word (0.931) and above char (0.916) if content words carry the word set's lead",
+   "observed": "content-only mean 0.899 (recipes 0.751, reddit 0.875), below char 0.916",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'char+word ... not always best (recipes 0.867 against 0.855; reddit 0.953 against 0.939)' (README:26)",
+   "method": "argmax over the six sets per family in results.json",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py",
+   "expected": "recipes and reddit are families where char+word is not best",
+   "observed": "char+word IS best on recipes and reddit; not best on abstracts (-0.016), poetry (-0.013), reviews (-0.003), wiki (-0.013)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Words alone (0.931) beat characters alone (0.916)' as a general finding",
+   "method": "exact two-sided sign test over the 8 families (family is the unit of generalisation, as the Limitations say)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/mimic/indep.py",
+   "expected": "significant if a general claim",
+   "observed": "word > char in 6 of 8 families, p = 0.29; char+word > word in 4 of 8, p = 1.0",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "gap to in-family 0.05 and earlier project's 0.934",
+   "method": "results.json mean and mimic-anycontext-detect/README.md:23",
+   "command": "grep -n 0.934 research/mimic-anycontext-detect/README.md",
+   "expected": "0.987-0.938=0.049; 0.934",
+   "observed": "0.049; '| **mean** | **0.934** |' (earlier recipe also uses sample weights, anyctx.py:49, so 'same recipe' is approximate)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "reproduce block and runtime",
+   "method": "run the README commands",
+   "command": "cd research/mimic-featuretransfer && /usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "5 tests; about 5 minutes",
+   "observed": "5 tests OK; full run 5m32s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "tests catch a leak of the held-out family into training",
+   "method": "quality_mutate.py on featuretransfer.py:86",
+   "command": "python3 platform/ci/quality_mutate.py research/mimic-featuretransfer/featuretransfer.py --old 'if i[\"family\"] != f]; test' --new 'if i[\"family\"] != \"zz\"]; test' -- /usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "a test fails",
+   "observed": "SURVIVED",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page serves",
+   "method": "HTTP GET",
+   "command": "curl -sS https://marisstella.app/research/mimic-featuretransfer/ -w '%{http_code}'",
+   "expected": "200 with the result numbers",
+   "observed": "200; 0.916/0.931/0.938/0.987 present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "featuretransfer.py:29",
+   "change": "int(it[\"label\"] == \"llm\") -> int(it[\"label\"] == \"human\")",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "featuretransfer.py:74",
+   "change": "np.percentile(out, 2.5) -> np.percentile(out, 25)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "featuretransfer.py:86",
+   "change": "if i[\"family\"] != f]; test -> if i[\"family\"] != \"zz\"]; test",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "featuretransfer.py:92",
+   "change": "a, b = test[::2], test[1::2] -> a, b = test, test",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "featuretransfer.py:66",
+   "change": "return float(roc_auc_score(y, s)) -> return float(roc_auc_score(y, -s))",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline 'Content words carry most of the transfer' is not backed: the word set includes all stop words; a content-only ablation (stop words removed) averages 0.899, below characters (0.916), so the word-over-char lead is partly function-word n-grams",
+   "where": "research/mimic-featuretransfer/README.md:23",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests would not catch a held-out-family leak, a label flip, a wrong CI percentile or an in-family reference trained on its test half (4 of 5 seeded mutants survived); run() and load() are untested",
+   "where": "research/mimic-featuretransfer/tests/test_featuretransfer.py:16",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'not always best (recipes 0.867 against 0.855 for characters; reddit 0.953 against 0.939)' cites families where char+word is best; it is not best on abstracts, poetry, reviews and wiki",
+   "where": "research/mimic-featuretransfer/README.md:26",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Feature-set comparisons rest on overlapping unpaired item-level bootstrap intervals; no paired test and no family-level uncertainty on the means (word > char in 6/8 families, sign test p = 0.29)",
+   "where": "research/mimic-featuretransfer/featuretransfer.py:95",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Prior cross-domain and feature-based detection work (M4, MAGE, Froehling & Zubiaga 2021, Kumarage et al. 2023, function-word stylometry) not cited; novelty of the attribution is not positioned",
+   "where": "research/mimic-featuretransfer/README.md:49",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15304"],
+ "verdict": "The numbers are right: a full rerun reproduces results.json and results.txt bit-for-bit, and AUROC (hand Mann-Whitney), the length column (no model, raw ranks) and the intervals (DeLong) all agree with independent recomputation. It does not meet the bar. Verification is weak (4 of 5 seeded core mutants survive, including leaking the held-out family into training), and two claims are wrong or unbacked: the headline credits 'content words' when the word set includes stop words and a content-only ablation scores 0.899, below characters; and the 'char+word not always best' examples name the two families where it is best. Feature-set rankings are not tested with families as the unit (6/8, p = 0.29). A careful, honest, small step that fixes an earlier leakage limitation; not new relative to cross-domain detection work and below the PhD programme bar."
+}

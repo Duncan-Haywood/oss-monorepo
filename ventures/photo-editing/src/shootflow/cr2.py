@@ -61,6 +61,8 @@ from array import array
 from shootflow import raw_develop as rd
 
 TAG_EXIF_IFD = 34665
+TAG_EXIF_LENS_MODEL = 42036
+TAG_CANON_LENS_MODEL = 0x0095  # maker note: the lens's name
 TAG_MAKER_NOTE = 37500
 TAG_MAKE = 271
 TAG_MODEL = 272
@@ -522,4 +524,24 @@ def parse_cr2(data: bytes, cfa: str | None = None) -> rd.RawImage:
         synth.entries[rd.TAG_AS_SHOT_NEUTRAL] = tuple(1.0 / v for v in as_shot)
     head = rd.Ifd(entries=dict(ifd0.entries), byte_order=reader.end)
     head.entries[rd.TAG_UNIQUE_CAMERA_MODEL] = tuple(unique.encode("latin-1")) + (0,)
-    return rd.RawImage(width, height, 1, values, synth, head, source="cr2", notes=notes)
+    return rd.RawImage(width, height, 1, values, synth, head, source="cr2", notes=notes, exif=_exif_with_lens(reader, ifd0))
+
+
+def _exif_with_lens(reader: rd._Reader, ifd0: rd.Ifd) -> rd.Ifd | None:
+    """The EXIF IFD, with the lens name from Canon's maker note (tag 0x0095) as LensModel when EXIF has none.
+
+    Bodies before EXIF 2.3 (the 5D Mark II, 7D, 550D...) write no LensModel tag, but their maker note
+    names the lens ("EF50mm f/1.2L USM"), which is what a lens database matches on.
+    """
+
+    exif = rd.exif_ifd(reader, ifd0)
+    if exif is not None and exif.get(TAG_EXIF_LENS_MODEL):
+        return exif
+    note = _maker_note(reader, ifd0)
+    name = bytes(note.get(TAG_CANON_LENS_MODEL) or b"") if note is not None else b""
+    name = name.split(b"\0", 1)[0].strip()
+    if not name:
+        return exif
+    out = rd.Ifd(entries=dict(exif.entries) if exif is not None else {}, byte_order=reader.end)
+    out.entries[TAG_EXIF_LENS_MODEL] = tuple(name) + (0,)
+    return out

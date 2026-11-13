@@ -37,6 +37,19 @@ class T(unittest.TestCase):
         self.assertIsNotNone(best_base(l, l, 100, pts))
         self.assertIsNone(best_base(l - 10, l - 10, 100, pts))
 
+    def test_pick_height_is_mid_part(self):
+        # Quality audit 2026-11-13: (top - bottom) / 2, not top - bottom / 2.
+        pts = targets()
+        for n, b in GRIPPER.items():
+            if n == "base":
+                continue
+            self.assertAlmostEqual(pts[n]["pick"][2], (b[5] - b[2]) / 2)
+        self.assertEqual(pts["rail_l"]["pick"][2], 8.0)
+
+    def test_elbow60_outside_box(self):
+        # The README's "no arm up to 600 mm at 60 degrees" holds only inside the 400 mm base box (base search, grid 10 mm, 2026-11-13).
+        self.assertTrue(feasible((60, 780), 400, 400, 100, targets(), elbow=(0, math.radians(60))))
+
 
 if __name__ == "__main__":
     unittest.main()
