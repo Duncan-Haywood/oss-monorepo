@@ -346,3 +346,24 @@ def test_idle_pump_power_and_idle_breakeven():
     f1 = breakeven_rest_rate_idle(sm, tau, b, 3.0, 4.0, 0.5)
     assert abs(f1 - (sm - b * 0.5) / 0.2) < 1e-12
     assert breakeven_rest_rate_idle(sm, tau, b, 0.0, 100.0, 1.0) is None
+
+
+def test_gear_pump_point_recovers_a_known_pump():
+    from heavy_hydraulics.measured import gear_pump_point
+    V, c_leak, drag, eta_hm = 50.0, 0.02, 1.5, 0.8          # cm3/r, L/min per bar, kW at 0 bar, constant
+    rows = []
+    for n in (1000, 1100, 2000, 2100, 2200):
+        for p in (20, 230):
+            rows.append((51, "flow", p, n, V * n / 1000 - c_leak * p))
+        for p in (50, 100, 150, 230):
+            rows.append((51, "power", p, n, drag * n / 2000 + V * n / 1000 * p / 600 / eta_hm))
+    flow, power = gear_pump_point(rows, 51, 2150)
+    assert abs(flow(150) - (V * 2.15 - c_leak * 150)) < 1e-9
+    assert abs(power(0) - drag * 2150 / 2000) < 1e-9          # zero-pressure drag by extrapolation
+    assert abs(power(120) - (drag * 1.075 + V * 2.15 * 120 / 600 / eta_hm)) < 1e-9
+    assert abs(power(300) - (drag * 1.075 + V * 2.15 * 300 / 600 / eta_hm)) < 1e-9
+    try:
+        gear_pump_point(rows, 51, 3000)          # power curves are not extended
+        raise AssertionError("expected ValueError")
+    except ValueError:
+        pass

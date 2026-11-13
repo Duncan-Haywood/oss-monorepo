@@ -462,3 +462,41 @@ def breakeven_rest_rate_idle(saving_moving, tau, b, p_ls_idle, p_oc_idle, idle_h
     if s <= 0 or tau <= 1:
         return None
     return s / (tau - 1.0)
+
+
+def gear_pump_point(rows, size, speed):
+    """One catalogue gear pump at one speed (6k), from rows of data/casappa_kp30_curves.csv
+    (size, kind, pressure_bar, speed_rpm, value; strings or numbers).
+
+    Returns (flow, power): flow(p) in L/min, linear in p between the two drawn flow lines (20 bar and
+    the size's maximum), so leakage is proportional to pressure; power(p) in kW, piecewise linear in p
+    through the drawn power curves and continued as the line through the two nearest curves outside
+    them (so power(0) is the zero-pressure drag). Values at `speed` are linear between the 100 r/min
+    samples on either side (flow lines, drawn straight, are extended linearly outside their span;
+    power curves are not)."""
+    def at(kind, pr):
+        pts = sorted((float(r[3]), float(r[4])) for r in rows
+                     if int(r[0]) == size and r[1] == kind and int(float(r[2])) == pr)
+        for (n0, v0), (n1, v1) in zip(pts, pts[1:]):
+            if n0 <= speed <= n1:
+                return v0 + (v1 - v0) * (speed - n0) / (n1 - n0) if n1 > n0 else v0
+        if kind == "flow" and len(pts) >= 2:          # flow lines are drawn straight: extend them
+            (n0, v0), (n1, v1) = pts[0], pts[-1]
+            return v0 + (v1 - v0) * (speed - n0) / (n1 - n0)
+        raise ValueError(f"speed {speed} outside the drawn {kind} curve of size {size} at {pr} bar")
+    press = sorted({int(float(r[2])) for r in rows if int(r[0]) == size and r[1] == "power"})
+    fl = sorted({int(float(r[2])) for r in rows if int(r[0]) == size and r[1] == "flow"})
+    if len(press) < 2 or len(fl) != 2:
+        raise ValueError(f"size {size}: need two flow lines and at least two power curves")
+    (pa, pb), (qa, qb) = fl, (at("flow", fl[0]), at("flow", fl[1]))
+    pw = [(p, at("power", p)) for p in press]
+
+    def flow(p):
+        return qa + (qb - qa) * (p - pa) / (pb - pa)
+
+    def power(p):
+        k = 0 if p <= pw[0][0] else len(pw) - 2 if p >= pw[-1][0] else \
+            next(i for i in range(len(pw) - 1) if pw[i][0] <= p <= pw[i + 1][0])
+        (p0, w0), (p1, w1) = pw[k], pw[k + 1]
+        return w0 + (w1 - w0) * (p - p0) / (p1 - p0)
+    return flow, power
