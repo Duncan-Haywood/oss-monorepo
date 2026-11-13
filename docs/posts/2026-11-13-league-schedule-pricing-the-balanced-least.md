@@ -3,7 +3,7 @@ title: "A floor that ignores a rule will overshoot: pricing the balanced least i
 seo_title: "Balanced home/away breaks in round-robin timetable search"
 date: 2026-11-13
 tags: [ventures, league-schedule-generator, algorithms]
-description: "Pricing a timetable on its fewest balanced breaks, not its raw break floor, keeps every added season inside its break cap and lifts the cut inside the 17-team gap from 13-22% to 24-32%."
+description: "Pricing timetables on their fewest balanced breaks keeps every added season inside its cap and lifts the 17-team gap cut from 13-22% to 24-32%."
 ---
 
 The [league schedule generator](https://marisstella.app/) draws a trade-off
