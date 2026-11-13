@@ -329,6 +329,17 @@ def test_e20_separating_algebras_need_no_frame_condition():
     e20.test_full_semantics_is_separating(); e20.test_trivial_algebra_is_not_separating()
 
 
+
+def test_e21_frame_conditions_for_god_is_essential():
+    """H25 (a) on every model, and no failure at a world the proved sufficient conditions cover."""
+    e21 = _load("e21_frame_characterisation")
+    res = e21.run([(1, 2), (2, 1), (2, 2), (3, 1)])
+    assert res["a_mismatches"] == 0 and res["a_checked"] > 0
+    for st in e21.STAGES:
+        assert res["by_relation"][st]["seen_not_pred"] == 0, st
+        assert res["posthoc"][st]["seen_not_cond"] == 0, st
+    e21.test_closure_cycle(); e21.test_symmetric_and_reflexive_safe()
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
