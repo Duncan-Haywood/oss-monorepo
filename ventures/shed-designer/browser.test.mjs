@@ -309,7 +309,10 @@ describe('the editor in a real browser', { concurrency: CONCURRENCY }, () => {
     assert.match(ridge, /\$[\d,.]+ less/);
     await page.selectOption('#new-design', '8x12 classic');
     await page.click('#design-tabs [data-design="0"]');
-    await page.waitForFunction(() => /Against the one you're editing/.test(document.querySelector('#compare-cards').textContent));
+    // Wait for the cards measured against design 0: adding the design already rendered
+    // "Against the one you're editing" cards measured against the new one, and under
+    // load the tab click's deferred render lands after them (flaky in a full sweep, 2026-11-13).
+    await page.waitForFunction(() => /walls [^→]+ → 8' 0"/.test(document.querySelector('#compare-cards').textContent), null, { timeout: 15000 }).catch(() => {});
     assert.match(await page.textContent('#compare-cards'), /walls [^→]+ → 8' 0"/);
   });
 
