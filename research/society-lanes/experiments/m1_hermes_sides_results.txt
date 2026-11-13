@@ -1,0 +1,43 @@
+Milestone 1: side preference and lane order, HERMES bidirectional corridor (FZJ, 2009)
+seed 20261113, bootstrap 2000, label shuffles 100, lane order every 8 frames at 16 fps, 30 cm bins
+
+Archives read:
+  2009bidirectional_free_trajectories_txt.zip sha256 d92d1e1531c4313469bbfca6993965e5bfe679923619e68ac05e3d9c19184333
+  2009bidirectional_symmetric_trajectories_txt.zip sha256 c540ee12c6f1f9b98bba802ef0a54a5965d39b3f3a88bfa804c46c0c0417e0d7
+  2009bidirectional_asymmetric_trajectories_txt.zip sha256 733889922956acbaf11cbfb28b6e5f3b57b26ef87448e3ef72b9e0774eb5e68a
+
+Per run (share of walkers whose mean offset is on their own right; 95% bootstrap over walkers):
+  free       bo-360-050-050     W=3.6 m  walkers 118  right 0.975 [0.941, 1.000]  offset up +0.437 down +0.471  lane 0.9960 null 0.5218 (p97.5 0.5479)  speed 1.475 m/s
+  free       bo-360-075-075     W=3.6 m  walkers 136  right 0.985 [0.963, 1.000]  offset up +0.426 down +0.444  lane 0.9944 null 0.5198 (p97.5 0.5522)  speed 1.422 m/s
+  free       bo-360-090-090     W=3.6 m  walkers 214  right 1.000 [1.000, 1.000]  offset up +0.447 down +0.480  lane 0.9963 null 0.3869 (p97.5 0.4074)  speed 1.252 m/s
+  free       bo-360-120-120     W=3.6 m  walkers 307  right 0.974 [0.954, 0.990]  offset up +0.409 down +0.503  lane 0.9600 null 0.2659 (p97.5 0.2849)  speed 0.855 m/s
+  free       bo-360-160-160     W=3.6 m  walkers 309  right 0.822 [0.777, 0.864]  offset up +0.322 down +0.315  lane 0.9071 null 0.2541 (p97.5 0.2656)  speed 0.718 m/s
+  symmetric  bot-300-050-050    W=3.0 m  walkers 125  right 0.528 [0.440, 0.624]  offset up -0.017 down +0.035  lane 0.8036 null 0.5265 (p97.5 0.5574)  speed 1.464 m/s
+  symmetric  bot-300-065-065    W=3.0 m  walkers 147  right 0.490 [0.408, 0.571]  offset up -0.020 down +0.038  lane 0.7813 null 0.4619 (p97.5 0.4928)  speed 1.342 m/s
+  symmetric  bot-300-075-075    W=3.0 m  walkers 147  right 0.524 [0.442, 0.605]  offset up +0.030 down +0.088  lane 0.7555 null 0.4056 (p97.5 0.4405)  speed 1.259 m/s
+  symmetric  bot-300-085-085    W=3.0 m  walkers 216  right 0.551 [0.486, 0.616]  offset up -0.007 down +0.031  lane 0.7597 null 0.3127 (p97.5 0.3295)  speed 1.061 m/s
+  symmetric  bot-300-100-100    W=3.0 m  walkers 230  right 0.496 [0.435, 0.561]  offset up +0.072 down +0.065  lane 0.6973 null 0.2754 (p97.5 0.2942)  speed 0.864 m/s
+  symmetric  bot-360-050-050    W=3.6 m  walkers 130  right 0.585 [0.500, 0.669]  offset up +0.069 down +0.122  lane 0.8476 null 0.5845 (p97.5 0.6118)  speed 1.514 m/s
+  symmetric  bot-360-075-075    W=3.6 m  walkers 127  right 0.646 [0.567, 0.732]  offset up +0.105 down +0.124  lane 0.7596 null 0.4830 (p97.5 0.5103)  speed 1.330 m/s
+  symmetric  bot-360-090-090    W=3.6 m  walkers 212  right 0.637 [0.571, 0.698]  offset up +0.148 down +0.096  lane 0.7443 null 0.4041 (p97.5 0.4246)  speed 1.217 m/s
+  symmetric  bot-360-120-120    W=3.6 m  walkers 309  right 0.498 [0.440, 0.553]  offset up -0.013 down -0.024  lane 0.7327 null 0.2704 (p97.5 0.2852)  speed 0.842 m/s
+  symmetric  bot-360-120-120v2  W=3.6 m  walkers 221  right 0.543 [0.475, 0.606]  offset up +0.034 down +0.064  lane 0.6807 null 0.3048 (p97.5 0.3224)  speed 0.907 m/s
+  symmetric  bot-360-160-160    W=3.6 m  walkers 306  right 0.471 [0.415, 0.526]  offset up -0.039 down -0.077  lane 0.6724 null 0.2480 (p97.5 0.2626)  speed 0.615 m/s
+  symmetric  bot-360-200-200    W=3.6 m  walkers 308  right 0.523 [0.464, 0.578]  offset up -0.008 down +0.003  lane 0.5909 null 0.2038 (p97.5 0.2145)  speed 0.540 m/s
+  symmetric  bot-360-250-250    W=3.6 m  walkers 304  right 0.546 [0.487, 0.599]  offset up +0.037 down +0.033  lane 0.5912 null 0.1985 (p97.5 0.2104)  speed 0.549 m/s
+  asymmetric boa-300-050-070    W=3.0 m  walkers 135  right 0.548 [0.467, 0.630]  offset up +0.042 down +0.044  lane 0.7721 null 0.4859 (p97.5 0.5268)  speed 1.339 m/s
+  asymmetric boa-300-050-085    W=3.0 m  walkers 125  right 0.488 [0.400, 0.576]  offset up -0.022 down +0.003  lane 0.6985 null 0.4857 (p97.5 0.5201)  speed 1.255 m/s
+  asymmetric boa-300-055-095    W=3.0 m  walkers 128  right 0.570 [0.484, 0.656]  offset up +0.061 down +0.106  lane 0.7669 null 0.4350 (p97.5 0.4653)  speed 1.279 m/s
+  asymmetric boa-300-065-105    W=3.0 m  walkers 229  right 0.520 [0.454, 0.585]  offset up -0.087 down -0.037  lane 0.7110 null 0.3785 (p97.5 0.4002)  speed 1.098 m/s
+  asymmetric boa-300-080-120    W=3.0 m  walkers 219  right 0.520 [0.457, 0.585]  offset up +0.038 down +0.052  lane 0.6694 null 0.3068 (p97.5 0.3243)  speed 0.984 m/s
+  asymmetric boa-300-frei       W=3.0 m  walkers  50  right 0.500 [0.360, 0.640]  offset up +0.026 down +0.076  lane nan null nan (p97.5 nan)  speed 1.726 m/s
+
+Pooled free: 1016/1084 on own right = 0.937, 95% two-stage bootstrap [0.865, 0.993] (5 runs)
+Pooled symmetric: 1486/2782 on own right = 0.534, 95% two-stage bootstrap [0.503, 0.568] (13 runs)
+Pooled asymmetric: 466/886 on own right = 0.526, 95% two-stage bootstrap [0.487, 0.564] (6 runs)
+
+L1 (free share > 0.5 and interval excludes 0.5): held (0.937 [0.865, 0.993])
+L2 (free share >= 0.65): held (0.937)
+L3 (lane order above shuffled p97.5 in every measurable run): held (23 of 23 measurable runs)
+L4 (Spearman entrance width vs right share, free runs, not negative): refuted (rho = -0.60, n = 5)
+L5 (median free speed in boa-300-frei within 1.1 to 1.5 m/s): refuted (1.726 m/s)
