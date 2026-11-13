@@ -48,7 +48,7 @@
       "file": "prompts/ventures/prompt-1.md",
       "why": "venture-preflight failed on another venture's unrounded percentage (isolation-forest index.html, landed in #15447), not on this venture",
       "did": "fixed the one line in this PR (+(x*100).toFixed(4)) instead of a separate PR",
-      "result": "percent-float.test.mjs passes; preflight clean"
+      "result": "percent-float.test.mjs passed locally; main fixed the same line the same way in #15448 meanwhile, so after merging main this PR carries no isolation-forest change"
     }
   ],
   "writeups": [
