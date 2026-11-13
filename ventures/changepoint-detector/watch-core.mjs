@@ -412,7 +412,7 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
       : `Suggested: Quiet. The more eager settings would have sent more than ${fb} alerts per 100 checks on this history.`)
     : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${fb} alerts per 100 checks on this history.`);
   lines.push(`Budget: ${fb} alert${fb === 1 ? '' : 's'} per 100 checks, ${plainBudgetText(res.budget, every)}.`);
-  lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 15.7 (replayed with the shipped persist 2), and on 6 held-out series it changed nothing.'
+  lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 15.7 (replayed with the shipped persist 2), and on 6 held-out series it changed nothing. On a second labelled set it was not confirmed: on 47 server, traffic, ad and Twitter series from the Numenta Anomaly Benchmark, watched hourly, it reached 49 of 61 later anomaly windows against the default\'s 50 (README "Round 10").'
     + (Math.abs(res.budget - HINT_BUDGET) > 1e-9 ? ` Those numbers are for the tested budget of ${HINT_BUDGET} per 100 (${plainBudgetText(HINT_BUDGET)}); at about 1 a month the same series reached 19 of 31 at 19.3 per 1,000, at about 1 a week 29 of 31 at 74.0 per 1,000.` : ''));
   return lines.join('\n');
 }
