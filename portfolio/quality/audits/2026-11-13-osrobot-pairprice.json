@@ -1,0 +1,232 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/osrobot-pairprice",
+ "stratum": "research",
+ "round": 57,
+ "seed": "2026-11-13-c",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality-audit round 57",
+ "status": "audited",
+ "professional": "an agricultural-robotics / farm-machinery economics researcher who would referee a field-robot cost paper (ASABE D497 machinery-cost practice, Pedersen et al. 2006 and Lowenberg-DeBoer et al. 2020 robot-economics framing). They would check first that every person-hour the system needs is charged (a drone flight needs a remote pilot watching it), that the break-even is single-valued and correctly found, that the comparison is at an efficacy a grower would accept, and that the prices are sourced or swept",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Reproduction: `PYTHONPATH=src python3 experiments/run.py` re-run in full in 2 min 29 s, output identical to the committed results.txt (output /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice/results.txt, see checks for the diff). Independent recomputation with numpy and no subject code (/tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice/recompute.py, `/usr/bin/python3.13 recompute.py`): np.polyfit on the Sweep 1 table gives fly 0.55+56.8a, ground -0.75+91.2a, inline 0.95+227.6a, R2 >= 0.9999 (matches Sweep 2 to rounding); my own cost formula from those fits reproduces every Sweep 3 row (0.045 ha 34.80/85.90/90.18, pair/inl 2.47; 0.72 ha 12.98/12.77/17.33, 0.98; 20 ha 0.68/1.08) and the six Sweep 5 rows quoted in the README (0.54, 2.09, 0.42, 1.44, 0.75, 1.21). By hand at 0.72 ha: inline 164.8 min x 3.0 USD/h + 1.00 + 0.11 = 9.35 USD = 12.98/ha; pair fly 41.5 min -> 2 swaps, scout 47.5 min x 1.5 USD/h = 1.19, treater 64.9 min x 2.1 = 2.27, people 17 min = 5.67, energy 0.07 -> 9.20 = 12.77/ha. The break-even column (Sweep 4) is not right as stated: the pair-minus-inline difference is a sawtooth (each battery swap adds 3 min of labour and scout time), so it crosses zero several times, and E.bisect over [0.005, 200] returns whichever root bisection lands on. Scanning the subject's own econ.py with its printed fits (/tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice/roots.py): scout 2,500 unheld crosses at 0.540, 0.695, 0.698 (pair dearer again between 0.695 and 0.698); 4,000 at 0.627, 0.695, 0.815 (reported 0.81); 6,000 at 1.033 ... 1.766, seven crossings (reported 1.28); 1,000 unheld 0.339, 0.343, 0.474 (reported 0.47); held at 1,500: nine crossings 2.075 to 3.217 (reported 2.65). The first crossing differs from the reported value by up to 0.25 ha (6,000 USD) and 0.57 ha (held, 1,500). The cost arithmetic is right; one headline column is an arbitrary root; 2.",
+  "completeness": "Claimed and checked: 13 tests in about a second (Ran 13 tests in 0.604s, OK); run.py writes results.txt (re-run, see checks); figure.py parses Sweep 3 into usd_per_ha.svg; model.py 'copied unchanged' from osrobot-scoutpair (diff shows only the docstring's first line differs); Sweeps 1 to 5 all present and every README bullet number traced to a row. The project does what its README says; nothing stubbed. Not done: the 'Next steps' (pipelining, sourced prices) are labelled as future. The live page could not be loaded from this container (curl: CONNECT tunnel failed, 403), so the served page was not checked. 3.",
+  "verification": "`PYTHONPATH=src python3 -m unittest discover -s tests -v`: 13 tests OK in 0.6 s. Tests cover swaps, two hand-valued cost cases, interp, fit_line and bisect on a monotone function. Four seeded mutants via platform/ci/quality_mutate.py: removing the treater's hold in held mode (econ.py:43) SURVIVED (the only held test asserts held > unheld); matching inline at 0.9 x the pair's kill (run.py:53) SURVIVED (run.py, which computes every headline, has no test); bisect <= -> < and the swaps off-by-one were caught. Half of the mutants survive, the experiment driver is untested, and no test checks that the break-even is unique, which is the bug the correctness check found; 2.",
+  "craft": "Read econ.py (82 lines), run.py (101), test_econ.py, test_pair.py, figure.py and diffed model.py. econ.py is small and clear with ASSUMED constants named. Defects: model.py is a third-generation verbatim copy (fieldtour -> scoutpair -> pairprice) rather than an import, so a fix upstream does not reach here; run.py model() routes keyword arguments by hand-filtered whitelists and pops an unused 'held_too' key, and calls model() twice per bisection step inside a lambda; bisect() silently returns one root of a function it never checks is monotone; no seed spread or interval is carried from 20 seeds into any cost ratio. 2.",
+  "claims": "Backed: 'every price is an assumed round number' (econ.py ASSUMED block, README limitations); R2 >= 0.9999; every Sweep 3 and Sweep 5 ratio quoted; 'model.py copied unchanged' (docstring only); 'simulation only'. Not backed or wrong: 'The break-even field size is 0.54 ha at 2,500, 0.81 at 4,000 and 1.28 at 6,000' presents single values where the difference crosses zero 3 to 7 times (roots.py); 'it breaks even only for a scout at 1,500 USD or less (2.65 ha)' is extrapolated beyond the 1.62 ha simulated range and not marked so, and has nine crossings from 2.08 ha; the Sweep 5 explanation 'few hours make capital dominate, where the pair's cheaper machines win' names the wrong mechanism: the pair's capital is 6,000 against 5,000, and it wins on capital per hectare (4.83 against 11.38 USD/ha, recompute.py) because each machine is occupied fewer minutes per hectare; README says about 15 min to run; the full re-run took 2 min 29 s (stale). 2.",
+  "fitness": "A researcher building on this gets a clean cost function and a reproducible sim, but the result does not stand as a finding: (1) the scout's 56.8 flight min/ha are not charged as a person's time (econ.py:15 'supervision is not charged'), yet a remote pilot must watch a drone flight under FAA Part 107 (14 CFR 107.31, visual line of sight); charging it at the same 20 USD/h makes the pair 2.46x the inline robot at 0.72 ha and 2.32x at 20 ha, with no break-even at any size (recompute.py) - the headline flips; (2) both architectures kill about 34% of weeds per pass (Sweep 1), far below any efficacy a grower pays for, so 'cost per hectare' is for a job nobody would buy, and the repeated-pass or slower-speed cost at 90% control is not modelled; (3) the inline and treater ground robots run 150-370 min per field with no charging or battery labour while the scout's swaps are charged, an asymmetry favouring the inline robot; (4) no prior work on robot or drone-guided weeding economics is cited (Pedersen et al. 2006 Precision Agriculture 7:295; Lowenberg-DeBoer et al. 2020 Precision Agriculture 21:278; Shockley et al. 2019 on autonomous-machine economics; ASABE D497 for cost coefficients), so novelty is unstated; (5) it is not part of any programme in research/PROGRAMMES.md. 1.",
+  "domain": "Against ASABE EP496/D497 machinery costing: the 30%/yr capital charge is in range (CRF at 8% over 5 years is 0.25, 0.22 with 20% salvage; recompute.py), and charging capital per occupied hour is the standard convention, so the costing skeleton is sound. Departures a farm-machinery economist would hit first: operator/pilot time per machine-hour omitted for the drone (it decides the result); prices are invented round numbers although public ones exist (commercial weeding robots and mapping drones list publicly and differ from 5,000/2,500/3,500 by up to an order of magnitude), against research/CLAUDE.md 'take each parameter that drives a headline result from a datasheet ... When nothing exists, sweep the plausible range' - Sweep 5 sweeps one factor at a time, not jointly; efficacy not held at an agronomic target; single 'break-even' reported for a non-monotone cost difference. 1."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sweep 2 line fits from the Sweep 1 table",
+   "method": "numpy.polyfit and corrcoef (reference library), no subject code",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice && /usr/bin/python3.13 recompute.py",
+   "expected": "fly 0.57+56.8a, ground -0.75+91.2a, inline 0.96+227.6a, R2>=0.9999",
+   "observed": "fly 0.55+56.8a, ground -0.75+91.2a, inline 0.95+227.6a, R2 0.99991-0.99998",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sweep 3 USD/ha and ratios at 0.045, 0.72, 1.62, 20 ha",
+   "method": "own cost formula written from the README method text, applied to numpy fits; 0.72 ha also by hand",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice && /usr/bin/python3.13 recompute.py",
+   "expected": "0.72 ha: 12.98, 12.77, 17.33, 0.98, 1.34; 20 ha 0.68, 1.08",
+   "observed": "0.72 ha: 12.98, 12.77, 17.33, 0.98, 1.34; 20 ha 0.68, 1.08; 0.045 ha 2.47, 2.59",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sweep 5 sensitivity ratios at 0.72 ha (hours 100/2000, labour 0/40, battery 45/10)",
+   "method": "own cost formula on numpy fits",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice && /usr/bin/python3.13 recompute.py",
+   "expected": "0.54, 2.09, 0.42, 1.44, 0.75, 1.21",
+   "observed": "0.54, 2.09, 0.42, 1.44, 0.75, 1.21",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sweep 4 break-even field size is a single, correctly found root",
+   "method": "dense grid scan (0.0005 ha steps to 6 ha) of the subject's own econ.py cost difference at its printed fits, listing every sign change",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice && /usr/bin/python3.13 roots.py",
+   "expected": "one crossing per scout price at 0.47, 0.49, 0.54, 0.81, 1.28 (unheld)",
+   "observed": "1000: 0.339,0.343,0.474; 2500: 0.540,0.695,0.698; 4000: 0.627,0.695,0.815; 6000: seven crossings 1.033-1.766; held 1500: nine crossings 2.075-3.217",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Headline break-even survives charging the drone's flight minutes as a pilot's time",
+   "method": "FAA Part 107 (14 CFR 107.31, visual line of sight: a remote pilot watches the flight), labour at the subject's own 20 USD/h",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice && /usr/bin/python3.13 recompute.py",
+   "expected": "break-even near 0.54 ha at 2,500 USD scout",
+   "observed": "pair/inline 2.46 at 0.72 ha, 2.32 at 20 ha, no break-even",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Experiment reproduces results.txt",
+   "method": "full re-run of experiments/run.py, diff against committed file",
+   "command": "cd research/osrobot-pairprice && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice/results.txt && diff experiments/results.txt /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice/results.txt",
+   "expected": "identical",
+   "observed": "identical (every row; blank lines aside), run time 2 min 29 s against README about 15 min",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "30%/yr capital charge against ASABE D497-style capital recovery",
+   "method": "CRF formula i(1+i)^n/((1+i)^n-1), 8%, 5 years, 20% salvage",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice && /usr/bin/python3.13 recompute.py",
+   "expected": "0.20-0.35 incl. repair and housing",
+   "observed": "CRF 0.2505; 0.2164 with salvage; 0.30 plausible with repair",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'few hours make capital dominate, where the pair's cheaper machines win'",
+   "method": "capital per ha from fits and econ.py constants",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/70bb90b8-d3c5-5c45-9e48-64fa9ddb24f9/scratchpad/pairprice && /usr/bin/python3.13 recompute.py",
+   "expected": "pair machines cheaper",
+   "observed": "pair capital 6,000 vs 5,000; wins on capital per ha 4.83 vs 11.38 USD because it is faster per ha",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'held ... breaks even only for a scout at 1,500 USD or less (2.65 ha)' marked as extrapolated",
+   "method": "compare against simulated range 0.045-1.62 ha in run.py SIZES",
+   "command": "grep -n '2.65' research/osrobot-pairprice/README.md",
+   "expected": "marked extrapolated",
+   "observed": "2.65 ha is beyond 1.62 ha and not marked; also nine crossings",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "13 tests pass",
+   "method": "run the stated command",
+   "command": "cd research/osrobot-pairprice && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "13 tests OK, about a second",
+   "observed": "Ran 13 tests in 0.604s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "model.py copied unchanged from osrobot-scoutpair",
+   "method": "diff",
+   "command": "diff research/osrobot-scoutpair/src/osrobot_scoutpair/model.py research/osrobot-pairprice/src/osrobot_pairprice/model.py",
+   "expected": "identical code",
+   "observed": "only docstring line 1 differs",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "kill share at which costs are compared",
+   "method": "Sweep 1 of results.txt against agronomic efficacy expected of a weeding treatment (commonly 80-95% control)",
+   "command": "sed -n '/Sweep 1/,/Sweep 2/p' research/osrobot-pairprice/experiments/results.txt",
+   "expected": "comparison at an efficacy a grower would pay for",
+   "observed": "kill 0.337-0.345 for every field",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/osrobot_pairprice/econ.py:43",
+   "change": "scout_min = ground_min = scout_min + ground_min -> scout_min = scout_min + ground_min (treater not held)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests'"
+  },
+  {
+   "where": "experiments/run.py:53",
+   "change": "matched(sim[xy]['inline'], p['kill']) -> matched(..., 0.9 * p['kill'])",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests'"
+  },
+  {
+   "where": "src/osrobot_pairprice/econ.py:78",
+   "change": "if flo * fm <= 0: -> if flo * fm < 0:",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests'"
+  },
+  {
+   "where": "src/osrobot_pairprice/econ.py:25",
+   "change": "ceil(...) - 1 -> ceil(...) (swaps off by one)",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The drone's flight time is not charged as a person's time (econ.py: 'supervision is not charged'), though a remote pilot must keep the flight in sight (14 CFR 107.31). Charging the 56.8 flight min/ha at the same 20 USD/h makes the pair 2.46x the inline robot at 0.72 ha and 2.32x at 20 ha with no break-even, reversing the headline; the README does not state the omission",
+   "where": "research/osrobot-pairprice/src/osrobot_pairprice/econ.py:15",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Sweep 4 reports one 'break-even field size' per price, but the cost difference is a sawtooth in battery swaps with 3 to 9 zero crossings; bisect returns an arbitrary one (6,000 USD: first crossing 1.03 ha, reported 1.28; held 1,500: first 2.08, reported 2.65)",
+   "where": "research/osrobot-pairprice/experiments/run.py:89",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Costs compared at about 34% weed kill per pass, an efficacy no grower would pay for; cost at an agronomic control target (repeat passes or slower speed) not modelled",
+   "where": "research/osrobot-pairprice/experiments/results.txt:8",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work on robotic or drone-guided weeding economics cited (Pedersen et al. 2006; Lowenberg-DeBoer et al. 2020; ASABE D497); prices invented although public list prices exist, against research/CLAUDE.md 'take each parameter that drives a headline result from a datasheet'; one-factor sweeps only",
+   "where": "research/osrobot-pairprice/README.md:20",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Ground robots (inline and treater) run up to 370 min per field with no charging or battery labour while the scout's swaps are charged: an asymmetry in the comparison",
+   "where": "research/osrobot-pairprice/src/osrobot_pairprice/econ.py:31",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Sweep 5 explanation names the wrong mechanism ('the pair's cheaper machines win'): the pair's capital is 6,000 against 5,000; it wins on capital per hectare because each machine is occupied fewer minutes",
+   "where": "research/osrobot-pairprice/README.md:12",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Held break-even '2.65 ha' lies beyond the 1.62 ha simulated range and is not marked extrapolated",
+   "where": "research/osrobot-pairprice/README.md:11",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "run.py (all headline numbers) has no test; a mutant that matches inline at 0.9x the pair's kill and one that drops the treater's hold both survive",
+   "where": "research/osrobot-pairprice/tests/test_econ.py:20",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "model.py is a third-generation verbatim copy (fieldtour -> scoutpair -> pairprice) instead of an import",
+   "where": "research/osrobot-pairprice/src/osrobot_pairprice/model.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The cost arithmetic is right: an independent numpy refit of Sweep 1 and my own cost formula reproduce every Sweep 3 and Sweep 5 number, and the experiment re-runs. The finding is not sound. Its one decisive omission is the drone pilot's time: charging the scout's 56.8 flight min/ha at the subject's own 20 USD/h turns 'pair cheaper above 0.54 ha' into 'pair 2.3 to 2.5 times dearer at every size'. The reported break-even sizes are arbitrary roots of a sawtooth cost difference (up to nine crossings), the comparison is at 34% weed kill, prices are invented where public ones exist, and no robot-economics prior work is cited. Tests cover econ.py's helpers but not run.py; 2 of 4 seeded mutants survive. Does not meet the bar (correctness 2, claims 2, verification 2, median 2)."
+}

@@ -179,3 +179,12 @@ test("money() formats negative values with a leading minus, no double sign, and 
   assert.equal(money(0), "$0");
   assert.equal(money(0.15), "$0.15");
 });
+
+test("the non-writing-time finding does not recommend a flat fee when the per-word rate already wins (quality audit 2026-11-13)", () => {
+  const r = writerRateOutcome({
+    wordCount: 1500, writingWordsPerHour: 500, researchHours: 4,
+    revisionRounds: 2, hoursPerRevision: 1, perWordRate: 0.5, flatFee: 400,
+  });
+  assert.equal(r.betterOption, "per-word");
+  assert.ok(!r.findings.some((f) => /research and revisions/.test(f.title)));
+});
