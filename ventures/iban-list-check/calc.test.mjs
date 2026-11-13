@@ -124,3 +124,39 @@ test("national check digits verify public PT, NO and PL examples and flag a reco
     assert.ok(checkOk(forged), forged); assert.equal(nationalCheck(forged), false, forged);
   }
 });
+
+// Round 63 quality audit (portfolio/quality/audits/2026-11-13-iban-list-check.json).
+test("check digits 00, 01 and 99 are never valid, even when mod 97 is 1 (ISO 13616)", () => {
+  for (const s of ["DE01370400440000000042", "DE00370400440000000060", "DE99370400440000000024"]) {
+    assert.equal(mod97(s), 1, s); // the remainder alone would pass these
+    assert.notEqual(classify(s).kind, "ok", s);
+  }
+});
+
+test("SWIFT registry examples for countries added in release 101 are valid", () => {
+  for (const s of ["RU0204452560040702810412345678901", "LY83002048000020100120361", "OM810180000001299123456", "MN121234123456789123",
+    "BI4210000100010000332045181", "DJ2100010000000154000100186", "FK88SC123456789012", "HN88CABF00000000000250005469",
+    "NI79BAMC00000000000003123123", "SD8811123456789012", "SO211000001001000100141", "YE15CBYE0001018861234567891234"]) {
+    assert.equal(classify(s).kind, "ok", s);
+  }
+});
+
+test("--column by header name picks that column, and a missing name is an error, not a fall back", () => {
+  const csv = "payer_iban,payee_iban\nGB82WEST12345698765432,DE89370400440532013001\n";
+  const r = validate(csv, { column: "payee_iban" });
+  assert.equal(r.column, 1);
+  assert.equal(r.summary.errors, 1);
+  assert.equal(validate(csv, { column: "PAYEE_IBAN" }).column, 1);
+  const miss = validate(csv, { column: "beneficiary" });
+  assert.equal(miss.summary.errors, 1);
+  assert.match(miss.findings[0].title, /No column "beneficiary"/);
+  assert.equal(repair(csv, { column: "beneficiary" }).text, csv);
+  assert.equal(validate(csv, { column: "2" }).column, 1);
+});
+
+test("the page passes the groups-of-four option under the name repair reads", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /groups: \$\("#groups"\)\.checked/);
+  assert.equal(repair("iban\nGB82WEST12345698765432\n", { groups: true }).text, "iban\nGB82 WEST 1234 5698 7654 32\n");
+});
