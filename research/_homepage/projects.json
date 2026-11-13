@@ -1358,8 +1358,8 @@
     },
     {
      "slug": "free-secretarymargin",
-     "title": "With noisy scores, does a \"beat the record by a margin\" rule pick the best candidate more often than the best cutoff?",
-     "summary": "Simulation (<em>n</em> = 50 candidates, parameters tuned on 8,000 training trials, scored on 60,000 fresh paired trials) of a two-parameter margin rule: skip <em>r</em>&minus;1 candidates, then take the first whose noisy score beats the earlier maximum by at least <em>d</em>. P(pick the true best) rises from 0.2334 to 0.2444 at noise 0.5 (+0.0111, se 0.0014) and from 0.1429 to 0.1491 at noise 1 (+0.0062, se 0.0015); at noise 2 the gain (+0.0018, se 0.0011) is not distinguishable from zero, and with no noise the tuning picks the plain cutoff. One setting, one seed pair, a coarse grid; the Bayes-optimal policy is not computed."
+     "title": "With noisy scores, how close do a margin rule and the best cutoff come to the Bayes-optimal secretary policy?",
+     "summary": "Simulation, <em>n</em> = 50 candidates, all rules scored on the same 60,000 test trials. A policy that knows the score model and uses the whole history (regression Monte Carlo on two exact posterior summaries) picks the true best with probability 0.589, 0.382, 0.220 and 0.103 at noise &sigma; = 0, 0.5, 1 and 2, against 0.376, 0.244, 0.149 and 0.076 for the tuned margin rule, which itself beats the best cutoff rule by only 0.000 to 0.011; the margin closes 6&ndash;8% of the cutoff-to-Bayes gap. With no noise the policy matches Gilbert and Mosteller&rsquo;s exact full-information optimum (0.5888 vs 0.5893); a clairvoyant bound (0.509, 0.274, 0.122 with noise) brackets the true optimum from above. Robustness cuts the other way: fitted under twice the true noise the Bayes policy falls to 0.111, below the rank-only cutoff rule&rsquo;s 0.143. Gaussian quality and noise, one seed pair, no dual bound."
     },
     {
      "slug": "free-jittertwin",

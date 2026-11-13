@@ -1,0 +1,117 @@
+{
+ "n": 50,
+ "train": 20000,
+ "test": 60000,
+ "rows": [
+  {
+   "sigma": 0.0,
+   "p_cutoff": 0.3756333333333333,
+   "p_margin": 0.3756333333333333,
+   "p_bayes": 0.5887666666666667,
+   "se_bayes": 0.0020088326390280357,
+   "meanp_bayes": 0.5875564808108101,
+   "p_bayes_small": 0.5877166666666667,
+   "p_bayes_rich": 0.5888666666666666,
+   "p_oracle": 1.0,
+   "bayes_minus_margin": 0.21313333333333334,
+   "se_bayes_minus_margin": 0.0025805280726175096,
+   "margin_share_of_cutoff_to_bayes_gap": 0.0,
+   "mean_stop_index": 29.31673333333333,
+   "p_gm_exact": 0.5892833333333334
+  },
+  {
+   "sigma": 0.5,
+   "p_cutoff": 0.23338333333333333,
+   "p_margin": 0.24443333333333334,
+   "p_bayes": 0.38183333333333336,
+   "se_bayes": 0.0019834337771418753,
+   "meanp_bayes": 0.38195511772436114,
+   "p_bayes_small": 0.38238333333333335,
+   "p_bayes_rich": 0.3808,
+   "p_oracle": 0.5086166666666667,
+   "bayes_minus_margin": 0.1374,
+   "se_bayes_minus_margin": 0.0021273056723996506,
+   "margin_share_of_cutoff_to_bayes_gap": 0.07443583698214888,
+   "mean_stop_index": 29.11145,
+   "p_gm_exact": null
+  },
+  {
+   "sigma": 1.0,
+   "p_cutoff": 0.14291666666666666,
+   "p_margin": 0.14906666666666665,
+   "p_bayes": 0.21948333333333334,
+   "se_bayes": 0.001689739895877163,
+   "meanp_bayes": 0.21959225032134597,
+   "p_bayes_small": 0.21993333333333334,
+   "p_bayes_rich": 0.22031666666666666,
+   "p_oracle": 0.27398333333333336,
+   "bayes_minus_margin": 0.07041666666666667,
+   "se_bayes_minus_margin": 0.0016833877558028892,
+   "margin_share_of_cutoff_to_bayes_gap": 0.08032215933826715,
+   "mean_stop_index": 28.81885,
+   "p_gm_exact": null
+  },
+  {
+   "sigma": 2.0,
+   "p_cutoff": 0.07423333333333333,
+   "p_margin": 0.07598333333333333,
+   "p_bayes": 0.10278333333333334,
+   "se_bayes": 0.0012397611109257732,
+   "meanp_bayes": 0.10305614587764361,
+   "p_bayes_small": 0.10268333333333333,
+   "p_bayes_rich": 0.10168333333333333,
+   "p_oracle": 0.12156666666666667,
+   "bayes_minus_margin": 0.0268,
+   "se_bayes_minus_margin": 0.0012488883037992584,
+   "margin_share_of_cutoff_to_bayes_gap": 0.06129597197898428,
+   "mean_stop_index": 27.774716666666666,
+   "p_gm_exact": null
+  }
+ ],
+ "misspecification": [
+  {
+   "world": "noise",
+   "sigma_true": 1.0,
+   "sigma_assumed": 0.5,
+   "mu": 0.0,
+   "scale": 1.0,
+   "p_bayes_misspecified": 0.1911,
+   "p_bayes_correct": 0.21948333333333334,
+   "p_cutoff": 0.14291666666666666,
+   "p_margin": 0.14906666666666665
+  },
+  {
+   "world": "noise",
+   "sigma_true": 1.0,
+   "sigma_assumed": 2.0,
+   "mu": 0.0,
+   "scale": 1.0,
+   "p_bayes_misspecified": 0.11131666666666666,
+   "p_bayes_correct": 0.21948333333333334,
+   "p_cutoff": 0.14291666666666666,
+   "p_margin": 0.14906666666666665
+  },
+  {
+   "world": "prior_shift+0.5",
+   "sigma_true": 1.0,
+   "sigma_assumed": 1.0,
+   "mu": 0.5,
+   "scale": 1.0,
+   "p_bayes_misspecified": 0.19876666666666667,
+   "p_bayes_correct": 0.21948333333333334,
+   "p_cutoff": 0.14291666666666666,
+   "p_margin": 0.14906666666666665
+  },
+  {
+   "world": "prior_spread x2",
+   "sigma_true": 1.0,
+   "sigma_assumed": 1.0,
+   "mu": 0.0,
+   "scale": 2.0,
+   "p_bayes_misspecified": 0.21373333333333333,
+   "p_bayes_correct": 0.38183333333333336,
+   "p_cutoff": 0.23338333333333333,
+   "p_margin": 0.24343333333333333
+  }
+ ]
+}
