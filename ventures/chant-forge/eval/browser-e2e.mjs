@@ -72,6 +72,24 @@ await page.click("#go");
   const t = await out();
   ok(/Drop 2 bar [^;]*; Breakdown bar [^;]*\(build\); Drop 3/.test(t), `six-verse hymn has a breakdown before the last drop: ${(t.match(/Sections: .*/) || ["none"])[0].slice(-90)}`);
 }
+// a cappella first verse and a whole-tone lift into the last drop, fitted to E2-E4 with the lift
+await page.selectOption("#acap", "1");
+await page.selectOption("#lift", "2");
+await page.click("#go");
+{
+  const t = await out();
+  ok(/Verse 1 \(a cappella\) bar [^;]*\(build\)/.test(t) && /Drop 3 bar [^;]*\(key up 2\)/.test(t), `a cappella verse and lifted last drop: ${(t.match(/Sections: .*/) || ["none"])[0].slice(0, 60)}`);
+  ok(/after the lift\), which keeps it inside E2-E4, the lifted last drop included/.test(t), "the E2-E4 fit counts the lifted drop");
+  const [lo, hi] = t.match(/notes, (\S+)-(\S+) \(ambitus/).slice(1);
+  ok(/[23]$/.test(lo) && (/[23]$/.test(hi) || /^(C|C#|D|Eb|E)4$/.test(hi)), `range with the lift inside E2-E4: ${lo}-${hi}`);
+  ok(!(await page.locator("#dlwav").isDisabled()), "lifted arrangement renders");
+}
+// one-section piece: the options are left out with a note, not an error
+await page.selectOption("#piece", "Pange lingua");
+await page.waitForFunction(() => document.querySelector("#src").value.length < 2000);
+await page.click("#go");
+ok(/one section .* left out/.test(await out()) && !(await page.locator("#dlmid").isDisabled()), "one-section chant: options left out with a note");
+await page.selectOption("#acap", ""); await page.selectOption("#lift", "0");
 await page.selectOption("#sections", "");
 // errors
 await page.fill("#src", "hello");

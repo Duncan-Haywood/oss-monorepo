@@ -44,6 +44,8 @@
       <div><label for="stretch">Bar fit</label><select id="stretch"><option value="stretch" selected>Lengthen long notes to fill bars</option><option value="pad">Pad with rests</option><option value="none">No fitting</option></select></div>
       <div><label for="half">Chant speed</label><select id="half"><option value="">Normal</option><option value="1">Half-time over the backing (metal)</option></select></div>
       <div><label for="sections">Song sections</label><select id="sections"><option value="">One groove all the way</option><option value="1">Intro, verses, builds, breakdown and drops (from the double bars)</option></select></div>
+      <div><label for="acap">First verse (with sections)</label><select id="acap"><option value="">With the band</option><option value="1">A cappella: choir alone until the first build</option></select></div>
+      <div><label for="lift">Last drop (with sections)</label><select id="lift"><option value="0">Same key</option><option value="2">Up a whole tone</option><option value="1">Up a semitone</option></select></div>
       <div><label for="drone">Drone</label><select id="drone"><option value="">No</option><option value="1">Organ drone on the final</option></select></div>
     </div>
     <button id="go" type="submit">Convert</button>
@@ -85,7 +87,7 @@
     import { suggestFinal } from "./voicefit.mjs";
     import { arrange, barsFor, bpmRange, GENRE_NAMES } from "./genre.mjs";
     import { renderMidi } from "./render.mjs";
-    import { sectionPlan } from "./sections.mjs";
+    import { sectionPlan, liftEvents } from "./sections.mjs";
 
     const $ = (id) => document.getElementById(id);
     const SAMPLE = `name: Dies irae (first line only);
@@ -128,36 +130,54 @@ mode: 1;
       let events = parsed.events;
       const modeOk = summarize(parsed, { bpm, pulsesPerBar: 8 }).modeFinalMatches; // judged as written, before any move
       if (!events.some((e) => e.type === "note")) throw new Error("No notes found. Check that the text has a %% line, then a clef such as (c4), then syllables with notes in brackets.");
-      if ($("final").value === "auto") {
-        const r = suggestFinal(events);
-        if (!r.fits) lines.push(`Note: the chant spans ${r.ambitus} semitones, ${r.over} more than ${r.range.join("-")}; left as written. Split it between voices or accept a falsetto or a low pedal.`);
-        else { events = transposeToFinal(events, r.recommended.final); lines.push(`Moved so the final is MIDI ${r.recommended.final}, which keeps it inside ${r.range.join("-")}.`); }
-      }
+      // timing first (it never changes a pitch), then the section plan and any key lift, then the
+      // final, so the E2-E4 fit sees the lifted last drop too
       const mode = $("stretch").value;
       if (mode === "stretch") events = fitStretch(events, 8); else if (mode === "pad") events = fitToBars(events, 8);
       if ($("half").value) events = halfTime(events);
+      const g = $("genre").value;
+      const useSections = Boolean(g && $("sections").value);
+      let lift = useSections ? Number($("lift").value) : 0;
+      let plan = null;
+      if (useSections) {
+        const acappella = Boolean($("acap").value);
+        try { plan = sectionPlan({ events, intro: 2, outro: 2, acappella, keyLift: lift }); }
+        catch (err) {
+          // one section (no inner double bar): nothing to lift into or follow, so plain sections
+          if (!acappella && !lift) throw err;
+          plan = sectionPlan({ events, intro: 2, outro: 2 });
+          lines.push("Note: this chant has one section (no inner double bar), so the a cappella verse and the key lift were left out.");
+          lift = 0;
+        }
+        if (lift) events = liftEvents(events, plan, { intro: 2 });
+      }
+      if ($("final").value === "auto") {
+        const r = suggestFinal(events);
+        const withLift = lift ? ", the lifted last drop included" : "";
+        if (!r.fits) lines.push(`Note: the chant spans ${r.ambitus} semitones${withLift}, ${r.over} more than ${r.range.join("-")}; left as written. Split it between voices or accept a falsetto or a low pedal.`);
+        else { events = transposeToFinal(events, r.recommended.final); lines.push(`Moved so the final is MIDI ${r.recommended.final - lift}${lift ? ` (${r.recommended.final} after the lift)` : ""}, which keeps it inside ${r.range.join("-")}${withLift}.`); }
+      }
       const sum = summarize({ ...parsed, events }, { bpm, pulsesPerBar: 8 });
       let backing = null;
-      const g = $("genre").value;
       if (g) {
         const fin = [...events].reverse().find((x) => x.type === "note");
         const m = Number(parsed.header.mode);
         if (!m) throw new Error("A genre backing needs a mode line in the GABC header, for example: mode: 1;");
-        if ($("sections").value) {
+        if (plan) {
           // two bars of intro and outro around the chant, sections from its double bars
           const chantPulses = events.reduce((s, e) => s + e.pulses, 0);
           const chantBars = Math.max(1, Math.ceil(chantPulses / 8 - 1e-9));
-          const plan = sectionPlan({ events, intro: 2, outro: 2 });
           events = [{ type: "bar", kind: "full", pulses: 16 }, ...events, { type: "bar", kind: "full", pulses: chantBars * 8 - chantPulses + 16 }];
-          backing = arrange({ genre: g, mode: m, final: fin.midi, bars: chantBars + 4, sections: plan });
-          lines.push("Sections: " + plan.map((s) => `${s.name} bar ${s.start + 1}-${s.start + s.bars}${s.build ? " (build)" : ""}`).join("; "));
+          backing = arrange({ genre: g, mode: m, final: fin.midi - lift, bars: chantBars + 4, sections: plan });
+          lines.push("Sections: " + plan.map((s) => `${s.name} bar ${s.start + 1}-${s.start + s.bars}${s.build ? " (build)" : ""}${s.lift && s.energy === "drop" ? ` (key up ${s.lift})` : ""}`).join("; "));
         } else backing = arrange({ genre: g, mode: m, final: fin.midi, bars: barsFor(events) });
         const [lo, hi] = bpmRange(g);
         if (bpm < lo || bpm > hi) sum.warnings.push(`${g} usually runs ${lo}-${hi} BPM; you asked for ${bpm}`);
       }
       const len = summarize({ ...parsed, events }, { bpm, pulsesPerBar: 8 }); // with any intro and outro bars
       sum.bars = len.bars; sum.seconds = len.seconds;
-      midi = eventsToMidi(events, { bpm, title: parsed.header.name || "chant", drone: !!$("drone").value, backing });
+      midi = eventsToMidi(events, { bpm, title: parsed.header.name || "chant", drone: !!$("drone").value && !lift, backing });
+      if ($("drone").value && lift) lines.push("Note: the drone holds one note under the whole piece, so it is left out when the last drop changes key.");
       wav = renderMidi(midi);
       lines.unshift(`${sum.name || "Chant"}: ${sum.notes} notes, ${sum.lowest}-${sum.highest} (ambitus ${sum.ambitus} semitones), final ${sum.final}`,
         `Mode ${sum.mode ?? "not given"}${modeOk === false ? " (the final does not match the mode: check the transcription)" : ""}`,
