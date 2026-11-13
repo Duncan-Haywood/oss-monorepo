@@ -1485,6 +1485,39 @@ class CheckoutStability(unittest.TestCase):
         self.assertLess(out.index("workflow(s) passed."),
                         out.index("UNSTABLE CHECKOUT"))
 
+    def two_workflow_sweep(self, prints):
+        real = runner.checkout_fingerprint
+        seq = iter(prints)
+        runner.checkout_fingerprint = lambda: next(seq)
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("first.yml", wf, {"j"}), ("second.yml", wf, {"j"})], [])
+        finally:
+            runner.checkout_fingerprint = real
+        return code, out.getvalue()
+
+    def test_workflows_done_before_the_move_keep_their_verdict(self):
+        # Eleven run records lost a whole sweep for one edit mid-run and
+        # re-ran every workflow; only the ones after the move are void.
+        a, b = ("a" * 40, "d1"), ("a" * 40, "d2")
+        code, out = self.two_workflow_sweep([a, a, b])
+        self.assertEqual(code, 1)
+        self.assertIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("these verdicts stand): first.yml.", out)
+        self.assertIn("run_workflow_locally.py second.yml", out)
+        self.assertNotIn("run_workflow_locally.py first.yml", out)
+
+    def test_a_move_during_the_first_workflow_voids_them_all(self):
+        a, b = ("a" * 40, "d1"), ("a" * 40, "d2")
+        code, out = self.two_workflow_sweep([a, b])
+        self.assertEqual(code, 1)
+        self.assertIn("not a reading of anything", out)
+        self.assertNotIn("verdicts stand", out)
+
     def test_the_real_fingerprint_reads_this_repository(self):
         # Asserts the premise rather than assuming it: the function really
         # does return this checkout's HEAD, so a test suite passing on
@@ -1627,6 +1660,8 @@ class Handoff(unittest.TestCase):
         log = text.split("Log: ", 1)[1].split()[0]
         self.assertTrue(os.path.isfile(log))
         self.assertIn("wait_for.py " + log, text)
+        # Editing mid-sweep voided eleven runs' verdicts: say so while it runs.
+        self.assertIn("do not edit or commit tracked files", text)
 
     def test_the_child_ends_with_a_line_wait_for_accepts(self):
         import wait_for
