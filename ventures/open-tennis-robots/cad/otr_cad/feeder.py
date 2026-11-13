@@ -1487,7 +1487,24 @@ def lift_parts(p: Feeder) -> list[Part]:
             lift_head(p), lift_chute(p), lift_strut(p)]
 
 
+_ALL_PARTS_CACHE: list[tuple[Feeder, list[Part]]] = []
+
+
 def all_parts(p: Feeder) -> list[Part]:
+    """Every part of the feeder for `p`. Building them takes ~18 s, and the sweeps, the inertia and the gravity table
+    ask for them about 60 times per package build, so the last few results are kept (keyed by equal params; Feeder
+    holds a list, so it is not hashable). Callers get a fresh list; nothing here mutates a Part or its shape, since
+    `placed()` and `rotate()` return copies (2026-11-13, P066)."""
+    for q, parts in _ALL_PARTS_CACHE:
+        if q == p:
+            return list(parts)
+    parts = _build_all_parts(p)
+    _ALL_PARTS_CACHE.insert(0, (p, parts))
+    del _ALL_PARTS_CACHE[4:]
+    return list(parts)
+
+
+def _build_all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
