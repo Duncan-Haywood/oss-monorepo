@@ -47,7 +47,7 @@
 export const JUMP_ROW_CSS = `
 .pf-jump{display:flex;flex-wrap:wrap;gap:6px 8px;margin:var(--jump-margin,8px 0 0);padding:0;list-style:none}
 .pf-jump a{display:inline-flex;align-items:center;box-sizing:border-box;min-height:34px;padding:0 12px;
-  border:1px solid #c9d0d8;border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));
+  border:1px solid rgba(128,128,128,.45);border-color:var(--jump-line,color-mix(in srgb,currentColor 28%,transparent));
   border-radius:999px;background:var(--jump-bg,transparent);color:var(--jump-fg,inherit);
   font-size:.87rem;font-weight:600;line-height:1.25;text-decoration:none}
 .pf-jump a:hover{border-color:var(--jump-hover,currentColor)}

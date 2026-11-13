@@ -92,8 +92,14 @@ modifier set on that page only), with its labels checked at 320.
 
 - `node --test platform/pages/jump-row.test.mjs platform/pages/intro-links.test.mjs`: 8 pass.
 - The 58 page, SEO, guide and link test files of the nine ventures: 1,594 pass, 0 fail.
-- Full rebuild, `check.mjs` and `node --test 'platform/pages/*.test.mjs'`: results are in the
-  run record's `notes`.
+- Full rebuild, then `node platform/pages/check.mjs`: "looks publishable: 1349 products, 45
+  category pages, 9200 pages, no dead links."
+- `node --test 'platform/pages/*.test.mjs'`: 1,617 tests, 1 fail, the rest passed or skipped. The
+  failure was "chrome takes its theme from the host page" in `build.test.mjs`: the chrome
+  stylesheet may not hard-code a colour, and my neutral border fallback was `#c9d0d8`. It is now
+  `rgba(128,128,128,.45)`, the chrome's own neutral line. The filled main pill's fill-and-ink pair
+  is allowed the same way the voice button's is. After that fix, `build.test.mjs` +
+  `jump-row.test.mjs`: 317 pass, 0 fail.
 
 ## Still weakest, and what I would do next
 

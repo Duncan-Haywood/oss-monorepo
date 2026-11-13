@@ -3855,14 +3855,17 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // its fill and its ink (white on #1f4e8c, 8.3:1), so no host palette reaches it.
   // The capped result card's scroll hint (sticky-fit.mjs, `STICKY_FIT_CSS`) names
   // #000 only inside a mask gradient, where a colour is read for its alpha and
-  // never painted.
+  // never painted. The shared jump row (jump-row.mjs, `JUMP_ROW_CSS`) takes every
+  // colour from the page's --jump-* properties or its text colour; only its
+  // filled main pill names a fallback pair, fill and ink together (white on
+  // #1f4e8c, 8.3:1), for the same reason as the voice button.
   assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
   assert.ok(style.includes(ASSISTANT_VOICE_CSS), 'the voice button carries its own palette');
   assert.ok(style.includes(STICKY_FIT_CSS), 'the scroll hint rides in the chrome stylesheet');
   assert.ok(!/(?:^|[;{])\s*(?:color|background(?:-color)?|border(?:-color)?|fill|stroke)\s*:/m.test(STICKY_FIT_CSS),
     'the scroll hint paints nothing: it only masks');
   assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
-  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(ASSISTANT_VOICE_CSS, '').replace(STICKY_FIT_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(ASSISTANT_VOICE_CSS, '').replace(STICKY_FIT_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '').replace(/\.pf-jump a\.pf-jump-main\{[^}]*\}/, '');
   assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
     `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
