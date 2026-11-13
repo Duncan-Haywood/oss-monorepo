@@ -173,7 +173,9 @@ be scored and any fall under 0.2, a note says how many (shown in the builder and
 It is a data-quality note, never a weight: careless clicking by something other than the
 question (a familiar name, a short label) moves the pool and makes it confidently wrong, but a
 group with a genuinely different taste scores just as low, and down-weighting would quiet it
-(docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not random").
+(docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not random"; re-run without the
+sweep's weight cap, it costs a 25-40% camp 0.02-0.06 and, at 60 respondents, calls 0.9-1.7% of
+clear pairs the wrong way: "The weighted schemes at 8 and 60 respondents, uncapped").
 On real people's published rankings, 18-46% of respondents fall under 0.2 with nobody careless
 at all, and leaving them out costs the pool up to 0.033; a check on each person's own consistency
 (`src/lib/selfConsistency.ts`) does not tax them but is near a coin under the staged question order,
