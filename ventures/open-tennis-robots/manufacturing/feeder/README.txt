@@ -12,7 +12,7 @@ ORDER
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
-NOT IN THIS PACKAGE YET: the netting, hopper agitator, the deck-side cabling (the trough and the ball lift are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
+NOT IN THIS PACKAGE YET: the netting, the deck-side cabling (the trough, the ball lift and the hopper agitator are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
 bought to the window in the elevation check below (any make whose retracted and
 extended lengths span it).
 
@@ -35,9 +35,10 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - cables: ESCs, ESP32 and a 6 V buck on the deck; the head's 15 wires (11.5 mm bundle with the actuator's) rise on the turntable axis from a clamp 252 mm below the gland, twisting 145 deg/m at the 36.4 deg reach (180 allowed); free loop from the gland to the rear standoff clip, bend radius at least 30 mm, over the actuator's whole travel (-30.3 to +45.8 deg): cut 376 mm, fits every pose from 353 to 398 mm, reaches 203 mm behind the axis, lowest 10 mm over the turntable. Servo supply over 1.71 m of 20 AWG: 5.68 V at the 3 A stall, ground up 0.16 V (signal high 3.14 V against an assumed 2.4 V threshold); a stock 26 AWG lead would give 4.88 V and 2.74 V
 - catch trough: runs of 1634 and 1246 mm of 125 mm half-round gutter fall 3 deg to a sump at y = +193.5; a ball from the far end takes 4.9 s and arrives at 0.67 m/s (rolling resistance 0.03, assumed); the runs hold 42 balls queued; the sump floor falls 12 deg to an outlet 80 mm above the court, under the net beam; the tub's rim is 2265 mm up, 2215 mm above the outlet (0.74 W at 36 balls a minute, no losses): the ball lift closes the loop
 - ball lift: cleated AT5 belt, 959 teeth (4795 mm) over 16-tooth pulleys 2357 mm apart, 32 flights every 149.8 mm at 0.27 m/s (8.8 s up); a ball rolls in down a 3.6 deg inlet in 0.82 s, so one flight in 2 carries a ball: about 53 balls a minute (wanted 36); every flight loaded needs 0.13 N m (4.5x margin on 0.6 N m assumed), 2.8 W; fingers turn 1.5 mm under a 67.2 mm floor with the boot 30 mm off the court; chute ends 34 mm over the tub's rim; firmware runs it 15.7 s after the last ball fed (all friction and motor figures assumed)
+- hopper agitator: two 115 mm arms 27.5-39.5 mm over the tub floor (a floor ball's centre is at 33.5), shaft 103 mm from the outlet's centre, so the tips pass 12 mm beyond it and 12 mm from the tub's walls; at 20 rpm an arm crosses the outlet 40 times a minute (feed rate 36); both arms ploughing a full tub need 0.44 N m (3.4x margin on 1.5 N m assumed), 0.9 W; at the 3 N m stall an arm's root sees 5.9 MPa and a tip pushes 26 N (load, friction and motor figures assumed; one ball freed per pass is an assumption to measure)
 - net: 3000 wide x 2470 mm tall between the poles
 - wind: 69 N on the net at 8 m/s (solidity 0.2, Cd 1.2); ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): 9 kg
-- made-part mass (estimate, excludes bought-in parts): 45.3 kg
+- made-part mass (estimate, excludes bought-in parts): 45.4 kg
 
 STATUS
 Design v0.1, not yet built, and the launcher head throws balls at 30+ m/s:

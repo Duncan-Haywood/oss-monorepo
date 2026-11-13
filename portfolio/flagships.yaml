@@ -286,26 +286,26 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
       duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor, three-round re-deals,
-      balanced least priced: README 2026-11-11 to 2026-11-13 sections). 2026-11-13 latest (README "A
-      faster break floor", eval/faster-floor.txt): minPlusStep computes the floor programme's step by
-      eliminating host bits along their paths and cycles (k x 2^(k+2) instead of 4^k), same table
-      exactly; the page's floor-priced step 485 -> 127 s over 15 runs, same seasons (19 teams 38-134
-      -> 8-18 s); the page now runs it at 22 teams (1-2 seasons on every seed, 4-10% inside the gap,
-      35-64 s). Next, most valuable first: the rest of the 20-team gap (40 to 44 still ~444-550:
+      balanced least priced, faster break floor (22 teams in the page): README 2026-11-11 to 2026-11-13
+      sections). 2026-11-13 latest (README "Blackout fit", eval/blackout-fit.txt): teams are given the
+      round-robin places that suit their blackout dates (seeded hill climb on relabellings, scored by the
+      real placement: displaced, end date, breaks); 640 random leagues: makeups 5,431 -> 3,911 (-28%),
+      season 18.04 -> 17.22 weeks, breaks -27%, 0 invalid; on by default, 0.2-0.5 s at 16-30 teams.
+      Next, most valuable first: the same fit on the multi-division page (it still moves blocked
+      matches after the build, applyDivisionBlackouts), and joint with skip dates and court closures; the rest of the 20-team gap (40 to 44 still ~444-550:
       four-round re-deals or a longer run, now 3.8x cheaper; or a starter family climbed with the floor
       as its score); 24 and 25 teams in the page (152-426 s: the step is still 87 s of a 24-team run and
       the walk's 4,096-state predecessor scan 37 s; a backward table so a move reruns only its own span);
       a tighter home-and-away floor that breaks the flip symmetry (branch on a few pairs, or the
       mirrored-leg DP when leg two repeats leg one); a lower bound or a timetable below 136 at 12
       (eval/carryover-sat.py); close 24-40 (tabu, the literature's starters); a real league's travel and
-      blackout dates; printed sheets on a real printer and paper.
+      blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min): the deck-side cable run from the deck's edge to the
       axis clamp, with the lift motor's lead to the boot and the stepper
-      driver's mount; the hopper agitator (a ball bridging over the tub's
-      outlet: what turns it, where it mounts, its firmware hook); the lift
+      driver's mount; the lift
       flight's own CAD (fingers and base plate as a printed part, M3 through
       the belt between its cords) and the top pulley's belt tensioner.
     why: >-
@@ -320,7 +320,7 @@ flagships:
       balls from the sump (moved off centre to y = +193.5, outlet raised to 80 mm, into the boot through a
       90 deg inlet turn) 2.36 m up and over a hooded top pulley into a chute that ends 34 mm above the tub's
       rim; about 53 balls a minute, 0.13 N m and 2.8 W on assumed figures; checked clear of the head at every
-      pose; firmware LiftRun runs it 16 s after each ball fed. Next, needing a person: build the boot and one
+      pose; firmware LiftRun runs it 16 s after each ball fed. Hopper agitator, 2026-11-13 (cad/README.md "Hopper agitator"): two printed arms at a ball's centre height over the tub outlet on a 25 mm gearmotor under the shelf, 40 passes a minute, run while balls are fed. Next, needing a person: fill the tub over a bare outlet and count how often balls bridge it, motor off and on; build the boot and one
       flight and feed it balls from a gutter (a ball half-in when a finger arrives; the inlet turn's friction);
       tilt a gutter with a ball to measure rolling resistance and count bounce-outs down a net; log a real
       wheel's tach on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head and measure the
@@ -328,7 +328,7 @@ flagships:
       the servo's loaded stroke time and stall current; click the home switch on a printed sector to calibrate
       AZ_HOME_DEG; push a sector into a stop with a scale; hang a real hose from a tube; bend a built cable loop
       through the actuator's travel. Buildable: the deck-side cable run (deck edge to the axis clamp, plus the
-      lift motor's lead) and the stepper driver's mount; the hopper agitator; the flight as a printed part and
+      lift motor's lead) and the stepper driver's mount; the flight as a printed part and
       the top pulley's tensioner.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",

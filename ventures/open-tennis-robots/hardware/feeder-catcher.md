@@ -89,7 +89,10 @@ column on the head. The gate is a printed shuttle between the head plates, not
 a servo gate at the hopper: it holds one ball in a pocket, slides it to the
 wheels with a linear actuator, and its solid back shuts the column meanwhile.
 A pusher is needed because the head tilts up to 45 degrees, where gravity alone
-would not deliver a ball uphill to the wheels. The agitator is not drawn.
+would not deliver a ball uphill to the wheels. *The agitator (2026-11-13):* a
+two-arm printed stirrer on a 25 mm gearmotor under the shelf, its arms sweeping
+over the outlet at a ball's centre height, run by the firmware while balls are
+being fed (`cad/README.md`, "Hopper agitator").
 
 **Catch net.** A frame of fibreglass or aluminium poles (tent-pole style
 sections for transport) holds knotless polyester netting, 25-35 mm mesh,

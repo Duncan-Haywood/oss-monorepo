@@ -486,6 +486,33 @@ class LiftRun:
         return self.duty
 
 
+class AgitatorRun:
+    """When the hopper agitator's gearmotor runs (2026-11-13, cad/README.md "Hopper agitator").
+
+    Balls bridge the tub's outlet when they sit still on it, so the arms stir only while a ball is wanted: whenever a
+    ball is queued to feed or on its way to the wheels, and for `run_on_ms` after, long enough for the arms to cross
+    the outlet twice more and top up the column behind the last ball. Off from power-up and after every stop (e-stop,
+    watchdog). `update(now_ms, wanted)` returns the duty to drive."""
+
+    def __init__(self, run_on_ms, duty=1.0):
+        self.run_on_ms = run_on_ms
+        self.duty = duty
+        self.until = None
+
+    def stop(self):
+        self.until = None
+
+    def update(self, now_ms, wanted):
+        if wanted:
+            self.until = now_ms + self.run_on_ms
+        if self.until is None:
+            return 0.0
+        if now_ms >= self.until:
+            self.until = None
+            return 0.0
+        return self.duty
+
+
 class Controller:
     def __init__(self, hw, role, now_ms):
         if role not in (ROLE_FEEDER, ROLE_COLLECTOR):

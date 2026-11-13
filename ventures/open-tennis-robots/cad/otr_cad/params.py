@@ -678,6 +678,36 @@ class Feeder:
     chute_target: tuple = (-360.0, 120.0)  # plan point over the tub where the chute ends
     lift_strut_z: float = 1700.0      # 2020 strut from the spine to the +y front hopper post
 
+    # Hopper agitator (2026-11-13): balls piled over a 75 mm outlet for 67 mm balls bridge it (two or three on the floor
+    # round the hole, each held in by the others), and the feed column then runs dry. A printed two-arm stirrer turns
+    # over the outlet on a shaft normal to the tub floor, from a small gearmotor under the shelf beside the take-up
+    # sleeve. The arms sweep at a ball's centre height, so they push every floor ball (the ones that make a bridge)
+    # sideways at its equator and never wedge one down against the floor. Motor figures are assumptions: read yours.
+    agit_back: float = 95.0           # shaft up the slope from the outlet's centre (along the shelf)
+    agit_side: float = -40.0          # and across it (y): clear of the spring drum behind the sleeve and of the spigot flange
+    agit_arm_l: float = 115.0         # shaft axis to an arm's tip; two arms, opposite
+    agit_arm_w: float = 16.0          # arm depth in the turning direction (its bending depth)
+    agit_arm_h: float = 12.0          # arm height, centred a ball's radius above the tub floor
+    agit_hub_d: float = 22.0          # hub where the arms join
+    agit_boss_d: float = 16.0         # boss from just over the tub floor up to the arms; grips the shaft's top end
+    agit_floor_hole: float = 12.0     # the shaft's hole in the tub floor (under half a ball, so none sinks in)
+    agit_shelf_hole: float = 10.0     # and in the shelf
+    agit_mount_d: float = 44.0        # printed motor mount under the shelf: the motor's face screws up into it from
+    agit_mount_t: float = 8.0         #   counterbores in its top, then M4 from above through the shelf into its inserts
+    agit_collar_d: float = 13.0       # the gearbox face's raised collar, in the mount's centre hole (assumption)
+    agit_mount_bolt_r: float = 17.0   # its three M4 inserts
+    agit_motor_d: float = 25.0        # concentric planetary gearmotor, 25 mm class (assumption: read yours)
+    agit_motor_len: float = 60.0      # body and gearbox (assumption)
+    agit_motor_pcd: float = 17.0      # its four M3 face holes (assumption: read yours)
+    agit_shaft_d: float = 6.0         # D shaft (assumption)
+    agit_shaft_len: float = 25.0      # out of the gearbox face (assumption: read yours; a shorter one needs a thinner mount)
+    agit_motor_rpm: float = 20.0      # at 24 V (assumption)
+    agit_motor_nm: float = 1.5        # rated torque (assumption)
+    agit_motor_stall_nm: float = 3.0  # stall torque, the most a jammed arm sees (assumption)
+    agit_torque_factor: float = 2.0   # rated torque over the largest needed (both arms ploughing a full tub)
+    agit_wall_clear: float = 10.0     # arm tips clear the tub's inside walls by at least this
+    agit_overshoot: float = 10.0      # arm tips reach at least this far past the outlet's centre
+
     # ---- derived -----------------------------------------------------------
     @property
     def rail_top(self) -> float:
@@ -1125,6 +1155,7 @@ class Feeder:
         bad += self.check_cables()
         bad += self.check_trough()
         bad += self.check_lift()
+        bad += self.check_agitator()
         return bad
 
     # ---- azimuth drive (2026-11-10) -------------------------------------------
@@ -2279,6 +2310,94 @@ class Feeder:
             bad.append("lift head's drop floor is too flat to turn a finger's push toward the chute")
         if self.chute_slope_deg < math.degrees(math.atan(self.trough_slope_factor * self.trough_crr)):
             bad.append("chute is too flat for a stopped ball to start again")
+        return bad
+
+    # ---- hopper agitator (2026-11-13) ------------------------------------------
+    @property
+    def outlet_a(self) -> float:
+        """Outlet centre along the shelf from the shelf's centre (the shelf frame's x)."""
+        return self.shelf_l / 2 - 55.0
+
+    @property
+    def agit_xy(self) -> tuple[float, float]:
+        """Agitator shaft in the shelf frame (x along the shelf from its centre, y across)."""
+        return (self.outlet_a - self.agit_back, self.agit_side)
+
+    def agit_z(self) -> dict:
+        """Heights in the shelf frame (z = 0 at the shelf's underside, normal to it)."""
+        floor = self.plate_t + self.tub_wall
+        arm_c = floor + self.ball_d / 2
+        face = -self.agit_mount_t
+        return {"floor": floor, "arm_bottom": arm_c - self.agit_arm_h / 2, "arm_top": arm_c + self.agit_arm_h / 2,
+                "motor_face": face, "shaft_top": face + self.agit_shaft_len, "boss_bottom": floor + 1.0,
+                "set_screw": face + self.agit_shaft_len - 3.0}
+
+    def agitator_design(self) -> dict:
+        """Reach, clearances, load, rate and strength of the hopper agitator.
+
+        Load (conservative): every arm ploughs a full tub. A floor ball carries the balls stacked over it (the tub's
+        depth at `packing`, no wall support), and the arm shoves it out from under them, so it slides on the floor
+        and under the ball above at `feed_mu_ball`: F = mu (2 W_above + w) per ball, spread along the arm at one ball
+        per diameter, so the torque per arm is F / d times (L^2 - r_hub^2) / 2.
+        Rate: each arm crossing the outlet breaks a bridge, taken as one ball freed a pass (an assumption to
+        measure), so arms x rpm must meet `lift_rate_min`, the feed rate the lift is sized for.
+        Strength: a jammed arm takes the motor's whole stall torque at its root (the hub's edge)."""
+        xs, ys = self.agit_xy
+        r = self.ball_d / 2
+        w = self.ball_g / 1000 * 9.81
+        dist = math.hypot(self.agit_back, self.agit_side)
+        x_in, y_in = self.tub_l / 2 - self.tub_wall, self.tub_w / 2 - self.tub_wall
+        wall = min(x_in - xs, xs + x_in, y_in - ys, ys + y_in) - self.agit_arm_l
+        h_in = self.tub_h - self.tub_wall
+        above = self.packing * h_in * self.ball_d ** 2 / (math.pi / 6 * self.ball_d ** 3) - 1.0
+        per_ball = self.feed_mu_ball * (2 * above * w + w)
+        r_hub = self.agit_hub_d / 2
+        torque = 2 * per_ball / self.ball_d * (self.agit_arm_l ** 2 - r_hub ** 2) / 2 / 1000
+        z_mod = self.agit_arm_h * self.agit_arm_w ** 2 / 6
+        omega = self.agit_motor_rpm * 2 * math.pi / 60
+        z = self.agit_z()
+        return {
+            "shaft_xy": (xs, ys), "outlet_dist_mm": dist, "overshoot_mm": self.agit_arm_l - dist, "wall_clear_mm": wall,
+            "balls_over_one": above, "per_ball_n": per_ball, "torque_nm": torque,
+            "torque_margin": self.agit_motor_nm / torque if torque > 0 else math.inf, "power_w": torque * omega,
+            "passes_per_min": 2 * self.agit_motor_rpm, "tip_speed_m_s": omega * self.agit_arm_l / 1000,
+            "root_stress_mpa": self.agit_motor_stall_nm * 1000 / z_mod,
+            "tip_force_stall_n": self.agit_motor_stall_nm * 1000 / self.agit_arm_l,
+            "arm_band_mm": (z["arm_bottom"] - z["floor"], z["arm_top"] - z["floor"]),
+            "shaft_above_floor_mm": z["shaft_top"] - z["floor"], "ball_r": r,
+        }
+
+    def check_agitator(self) -> list[str]:
+        bad = []
+        d = self.agitator_design()
+        z = self.agit_z()
+        r_out = 75.0 / 2
+        if d["outlet_dist_mm"] - self.agit_hub_d / 2 < r_out:
+            bad.append("agitator hub sits over the outlet hole")
+        if d["overshoot_mm"] < self.agit_overshoot:
+            bad.append(f"agitator arms reach only {d['overshoot_mm']:.0f} mm past the outlet's centre; "
+                       f"{self.agit_overshoot:g} wanted")
+        if d["wall_clear_mm"] < self.agit_wall_clear:
+            bad.append(f"agitator tips pass {d['wall_clear_mm']:.0f} mm from the tub's wall; {self.agit_wall_clear:g} wanted")
+        if self.agit_floor_hole >= self.ball_d / 2:
+            bad.append("agitator's floor hole is wide enough for a ball to sink into")
+        if not self.agit_shaft_d + 2.0 <= self.agit_shelf_hole <= self.agit_floor_hole:
+            bad.append("agitator shaft does not pass the shelf and tub-floor holes with 1 mm all round")
+        if self.agit_boss_d - self.agit_shaft_d < 8.0:
+            bad.append("agitator boss wall under 4 mm round the shaft (room for the set screw's insert)")
+        if z["shaft_top"] - z["boss_bottom"] < 6.0:
+            bad.append(f"agitator hub grips only {z['shaft_top'] - z['boss_bottom']:.1f} mm of the shaft; 6 wanted")
+        if z["set_screw"] < z["boss_bottom"] + 2.0:
+            bad.append("agitator's set screw is below the hub's boss")
+        if d["torque_margin"] < self.agit_torque_factor:
+            bad.append(f"agitator motor's {self.agit_motor_nm:g} N m is {d['torque_margin']:.1f}x the {d['torque_nm']:.2f} N m "
+                       f"needed; {self.agit_torque_factor:g}x wanted")
+        if d["passes_per_min"] < self.lift_rate_min:
+            bad.append(f"agitator crosses the outlet {d['passes_per_min']:.0f} times a minute, under the "
+                       f"{self.lift_rate_min:g} balls a minute fed")
+        if d["root_stress_mpa"] > self.petg_bend_allow_mpa:
+            bad.append(f"agitator arm root at the motor's stall: {d['root_stress_mpa']:.1f} MPa, over "
+                       f"{self.petg_bend_allow_mpa:g} MPa for printed PETG")
         return bad
 
     def check_feed(self) -> list[str]:
