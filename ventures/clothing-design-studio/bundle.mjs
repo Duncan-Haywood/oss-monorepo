@@ -85,7 +85,7 @@ export function setValue(params, opts, singleSharePct) {
   return { ...r, changePerSetOrder: r2(change), pays: change >= -1e-9 };
 }
 
-/** Largest discount % off the list total that a given single-piece share still pays for. */
+/** Largest discount % off the list total (to 0.1, rounded down) that a given single-piece share still pays for. */
 export function maxDiscountPct(params, singleSharePct) {
   const q = check(params);
   const f = num(singleSharePct, "share %", 0, 100) / 100;
@@ -94,7 +94,10 @@ export function maxDiscountPct(params, singleSharePct) {
   const cBmin = f * c1 + (1 - f) * cFull; // contribution the set must keep
   // earn(price) = price(1-fee) - feeFixed - cost - shipBundle = cBmin
   const price = (cBmin + q.feeFixed + cost + q.shipBundle) / (1 - q.feePct / 100);
-  return Math.max(0, r1((1 - price / list) * 100));
+  // Round down, never up: a rounded-up answer is a discount that loses money.
+  // Capped at 99.9%, the most a discount can be (a loss-making single piece
+  // can push the solved price below zero).
+  return Math.min(99.9, Math.max(0, Math.floor((1 - price / list) * 1000 + 1e-6) / 10));
 }
 
 /** The set at 0 to 40% off in steps of 5, with the break-even share each needs. */
