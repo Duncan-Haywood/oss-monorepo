@@ -8,6 +8,10 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on leak 
 
 **Step 6 (2026-11-13): minimum night flow does not catch the small leaks earlier.** The leakage engineer's standard statistic for slow, incipient leaks, the night's minimum district inflow (p227 + p235 less the tank's storage change), tuned on 2018 the same way, **detects only 3 of the 9 leaks of 2019 under 12 m³/h, against 7 for the pressure CUSUM D1 and 7 for LILA**, and is earlier than D1 on 1 of the 9 (pre-registered H4 refuted). The reason is in the data: the nightly minimum moves by a robust sd of about **11 m³/h** from one night to the next, as large as the leaks themselves. It finds 10 of all 19 with 6 false alarms (chance with 25 alarms: median 11, P = 0.80). On L-Town, the 33 pressure sensors carry the small-leak signal; the district meter alone does not.
 
+**Step 7 (2026-11-13): fixing night flow's noise does not fix it, and the small leaks pressure "found" were luck.** Correcting the nightly minimum for its weekday pattern and subtracting the 82 smart (AMR) meters' night use halves its spread, from 10.7 to **5.1 m³/h**, yet the corrected statistic (M4, declared primary) still **detects 3 of the 9 small leaks**, earlier than the pressure CUSUM on 2 (H4 refuted again; the AMR-only variant finds 6 of 9 but with a median delay of 473 h). The ground-truth leak flows say why: **five of the nine are slow ramps that leak under 0.5 m³/h at night for their first week and 1.3 to 6 m³/h by day 30**, below any district-meter statistic inside the 30-day matching window. And the pressure detectors' credited hits on those ramps came when the leak was carrying **0.01 to 0.22 m³/h**: chance matches, not detections. A detection-only score on L-Town should credit an alarm only once the leak's own flow passes a stated level.
+
+![The 9 small 2019 leaks' own flow over their first 30 days, M4's spread and D1's credited hits](experiments/step7-mnf2/small_leaks.svg)
+
 We also found that **the released LILA identification code is not a blind detector**: its notebook writes in, for each known 2019 leak, the pipe, its most affected sensor and the calibration windows, and then dates that one leak (it prints a 0 h delay for p523). Our automatic version runs LILA's identification over a whole year without those inputs; we know of no earlier such run.
 
 ![D1 and automatic LILA against random alarms on the 2019 new leaks](experiments/step2-lila/lila_vs_chance.svg)
@@ -46,8 +50,8 @@ Every L-Town result we could read reports true-positive rates and false-alarm co
 - **Water.** 64% of the 2019 new leaks' volume (285,791 of 444,340 m³) flows after D1's alarms: the share an instant repair on alarm would save. An upper bound on value, since repairs take days.
 - **Pre-registered H1-step1** (at least 9 of 19 with at most 4 false alarms): held, and is uninformative, since chance alone reaches 11. Logged in [`LOG.md`](LOG.md) with the design change made after a first look at 2019.
 
-### Checks (`tests/`, 16)
-Decimal-comma SCADA parsing; leak list from the configuration file; hourly means; weekday/weekend columns; a synthetic 10-sd step on one of three sensors gives residuals below −5 and one alarm within a day (and the old hold-off version alarms twice); CUSUM ignores upward shifts; matching picks the latest onset and closes the 30-day window; carried-over leaks keep their 2018 onset; graph and straight distances on a three-link network. Step 2: pairwise models reconstruct leak-free data and predict each sensor itself exactly; a 1 m drop at one sensor gets every model's vote, while other sensors tie with it in more than half the steps and the norm tie-break finds it every time; automatic LILA raises one alarm for a step, at that sensor, within a day; a sensor rarely the MAS keeps a finite sd. Step 6: the water balance removes the tank's storage change; the night minimum uses hours 00 to 05 only; a 5-sd step in synthetic night minima alarms once within three nights and is then absorbed.
+### Checks (`tests/`, 18)
+Decimal-comma SCADA parsing; leak list from the configuration file; hourly means; weekday/weekend columns; a synthetic 10-sd step on one of three sensors gives residuals below −5 and one alarm within a day (and the old hold-off version alarms twice); CUSUM ignores upward shifts; matching picks the latest onset and closes the 30-day window; carried-over leaks keep their 2018 onset; graph and straight distances on a three-link network. Step 2: pairwise models reconstruct leak-free data and predict each sensor itself exactly; a 1 m drop at one sensor gets every model's vote, while other sensors tie with it in more than half the steps and the norm tie-break finds it every time; automatic LILA raises one alarm for a step, at that sensor, within a day; a sensor rarely the MAS keeps a finite sd. Step 6: the water balance removes the tank's storage change; the night minimum uses hours 00 to 05 only; a 5-sd step in synthetic night minima alarms once within three nights and is then absorbed. Step 7: weekday offsets recover a planted weekly pattern and ignore nights outside the training set.
 
 ## Step 2: LILA, automatic (`src/water_leaks/lila.py`, `experiments/step2-lila/`)
 
@@ -90,18 +94,42 @@ Plan, set before any night-flow series was computed: [`LOG.md`](LOG.md), 2026-11
 
 ![Nightly minimum flow over 2018-19, M1's 2019 alarms and the 2019 leak onsets](experiments/step6-mnf/night_flow.svg)
 
+## Step 7: weekday and AMR-net night flow (`experiments/step7-mnf2/`)
+
+Plan, set before either variant was computed and before any AMR value was read: [`LOG.md`](LOG.md), 2026-11-13 (step 7). It was written after step 6's 2019 scores and its post-hoc weekday diagnostic had been seen; 2019 has now been looked at through four night-flow detectors, and the results say so.
+
+**Method.** Three series, each into step 6's detector, grid and 2018 selection rule unchanged. M2: the nightly minimum less weekday offsets fixed from 2018 (`mnf.weekday_offsets`: each night minus the median of the 7 nights centred on it, averaged by weekday). M3: the night balance net of the 82 AMR demands of `<year>_SCADA_Demands.csv` (hourly means, L/h to m³/h; a units check fixed in the plan: their 2018 median must be below the district balance's, and it is, 17.9 against 216.6 m³/h, 8.2%). M4: both, declared primary. Both Demands files came from Zenodo (reachable this time; the GitHub mirrors do not carry them) and are checked by SHA-256.
+
+**Results** (`experiments/step7-mnf2/results.txt`, deterministic; reran byte-identical apart from one relabelled line).
+
+| | M1 (step 6) | M2 weekday | M3 AMR-net | **M4 both** | D1-F | LILA-auto |
+|---|---|---|---|---|---|---|
+| night-to-night robust sd, 2018 median (m³/h) | 10.7 | 6.43 | 9.48 | **5.13** | | |
+| h chosen on 2018 | 3 | 12 | 3 | 3 | | |
+| 9 leaks < 12 m³/h detected | 3 | 2 | 6 | **3** | 7 | 7 |
+| median delay on the 9 (misses infinite) | missed | missed | 473 h | **missed** | 154 h | 142 h |
+| all 19: detected / false alarms | 10 / 6 | 7 / 1 | 13 / 5 | 10 / 4 | 13 / 2 | 14 / 1 |
+| P(chance ≥ detected) | 0.80 | 0.56 | 0.32 | 0.80 | 0.105 | 0.019 |
+
+- **H4 refuted for all three**, M4 by the pre-registered test (bootstrap: M4's median below D1-F's in 7.4% of resamples). Three tries were made; none held.
+- **Why (post-hoc, `visible.py`, using the leak flows; not a detector).** Five of the nine are incipient ramps (p123, p193, p277, p455, p879): their own night flow is 0.1 to 0.5 m³/h a week in and 1.3 to 6.0 m³/h at day 30, so the largest step a trailing-baseline detector can see inside the 30-day window is 0.07 to 0.39 of M4's local spread. The four abrupt ones (p280, p331, p680, p710, 5.3 to 10.9 m³/h) are 0.3 to 2.4 local spreads; M4 finds two of them, D1-F three, LILA all four.
+- **The comparator's hits on the ramps are luck.** At the hour they were credited, the leak carried 0.10 (p123), 0.22 (p193) and 0.02 m³/h (p455) for D1-F, and 0.21 (p277) and 0.01 (p455) for LILA: far below anything a pressure sensor resolves on a network drawing 200 m³/h. D1-F's 154 h median on the 9 rests on them. Under a 30-day match, the incipient leaks of BattLeDIM reward chance, which is the programme's H1 in miniature.
+
 ## Reproduce
 
 ```bash
 pip install numpy matplotlib pytest
 cd research/water-leaks
-python -m pytest -q tests                                    # 16 tests, no network
+python -m pytest -q tests                                    # 18 tests, no network
 PYTHONPATH=src python experiments/step1-baseline/run.py      # downloads ~75 MB once; about 4 min (the chance draws)
 python experiments/step1-baseline/figure.py                  # experiments/step1-baseline/chance.svg
 PYTHONPATH=src python experiments/step2-lila/run.py          # about 5 min
 python experiments/step2-lila/figure.py                      # experiments/step2-lila/lila_vs_chance.svg
 PYTHONPATH=src python experiments/step6-mnf/run.py           # under a minute
 python experiments/step6-mnf/figure.py                       # experiments/step6-mnf/night_flow.svg
+PYTHONPATH=src python experiments/step7-mnf2/run.py          # downloads the 2 x 56 MB AMR files once (Zenodo); about a minute after
+PYTHONPATH=src python experiments/step7-mnf2/visible.py      # post-hoc: each small leak's visible step and its flow when credited
+PYTHONPATH=src python experiments/step7-mnf2/figure.py       # experiments/step7-mnf2/small_leaks.svg
 ```
 
 ## Limitations
@@ -110,11 +138,11 @@ python experiments/step6-mnf/figure.py                       # experiments/step6
 - Detection only. The 300 m figure uses the alarming sensor (LILA's MAS) as a crude location, not a localisation method; LILA's model-based localisation (LL-1 to LL-3) is not reimplemented yet.
 - LILA-auto is our automation of LILA's identification, not the authors' procedure, which used per-leak inputs; its numbers are not the paper's. Hourly means, not 5-minute data. The paper's own 2019 figures were not read (paywalled), so this step does not check against them.
 - One detector, one tuning rule, one matching window. The chance level depends on the window (14 and 60 days are next) and on the alarm count.
-- MNF (step 6) uses one baseline (two-week median and MAD, no weekday term) and no AMR demands; a utility's MNF practice subtracts metered night use, which BattLeDIM's 82 AMR meters would allow. The H4 comparison is on 9 leaks, defined by peak flow, not the configuration file's leak types.
+- MNF (steps 6 and 7) is tested with a two-week median/MAD baseline, a fixed 2018 weekday profile and the 82 AMR meters; other baselines (seasonal, regression on temperature) are untried. The H4 comparison is on 9 leaks, defined by peak flow, not the configuration file's leak types, and 2019 has now been seen through four night-flow detectors. The step-7 diagnosis of why uses the ground-truth leak flows and was done after the scores.
 - 2019 results were seen once before the re-anchoring fix (`LOG.md`); the fix came from a unit test, and its one new parameter (7-day minimum window) was not tuned.
 
 ## Next steps
 
-Step 6 leaves two MNF variants worth one pre-registered run each, scored once on 2019: a day-of-week baseline for the nightly minimum (the visible weekly swing), and a night balance net of the AMR-metered demand. If neither brings the spread near 5 m³/h, H4 is settled for this network and the small leaks are a pressure-sensor problem. Milestone 2 continues with SICAMS (Melnikov 2025; arXiv was unreachable from this session) and a paired bootstrap between detectors. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a claim about margins: detection counts sit within about one leak of chance's upper range, location-aware counts far above it.
+H4 is closed for this network as stated: the corrected night flow (5.1 m³/h spread) still misses the small leaks, and the ramps among them are invisible to every detector inside a month. Next in the harness: a **flow-gated match** (an alarm credits a leak only once its own flow passes a stated level, such as 1 m³/h; pre-registered, then D1, LILA and M1 to M4 rescored) and the matching-window ablation (14 and 60 days), which turn step 7's diagnosis into the chance-corrected protocol the paper proposes. Milestone 2 continues with SICAMS (Melnikov 2025; arXiv was unreachable from earlier sessions) and a paired bootstrap between detectors. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a claim about margins: detection counts sit within about one leak of chance's upper range, location-aware counts far above it.
 
 AI-assisted research (Claude); no affiliation with the BattLeDIM organisers is implied. Code MIT; BattLeDIM data CC-BY-4.0 (Vrachimis et al.), not redistributed here.

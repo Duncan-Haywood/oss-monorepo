@@ -183,3 +183,27 @@ def test_mnf_detects_a_step_once_and_rearms():
     # re-anchored: the step is absorbed, so it does not alarm again while it settles in
     assert sum(1 for d in days if 50 <= d < 80) == 1
     assert np.isnan(z[:14]).all() and not np.isnan(z[14])  # g + wmin days, as D1
+
+
+def test_mnf_weekday_offsets_recover_a_weekly_pattern():
+    from water_leaks import mnf
+    days = np.arange("2018-01-01", "2018-03-26", dtype="datetime64[D]")  # 12 weeks, starts Monday
+    dow = (days.astype(int) + 3) % 7
+    assert dow[0] == 0
+    pattern = np.array([-3.0, -3.0, -3.0, -3.0, 9.0, 14.0, 0.0])
+    m = 80.0 + pattern[dow]
+    o = mnf.weekday_offsets(m, days, np.ones(len(days), bool))
+    # away from the edge-padded ends, the centred 7-night median of a periodic series is its
+    # median level, so offsets are pattern - median up to the 6 edge nights' share
+    assert np.abs(o - (pattern - np.median(pattern))).max() < 1.5
+    flat = mnf.deweek(m, days, o)
+    assert np.ptp(flat[3:-3]) < 3.0 < np.ptp(m)
+
+
+def test_mnf_weekday_offsets_use_training_nights_only():
+    from water_leaks import mnf
+    days = np.arange("2018-01-01", "2018-03-26", dtype="datetime64[D]")
+    train = days < np.datetime64("2018-02-26")
+    m = np.full(len(days), 50.0)
+    m[~train] += 100.0 * ((days[~train].astype(int) + 3) % 7 == 4)  # a Friday spike after training
+    assert np.allclose(mnf.weekday_offsets(m, days, train), 0.0)

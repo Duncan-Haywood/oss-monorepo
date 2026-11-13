@@ -1,0 +1,26 @@
+# step 7 post-hoc: the step each small 2019 leak shows a night-flow detector, against M4's spread
+# visible(d) = leak night flow on day d - median of it over [d-21, d-7); sd = 1.4826 MAD of M4 over the same window
+   pipe   peak  night d7    d14    d30  max vis at day     sd max vis/sd days > 1 sd
+   p123   9.19      0.13   0.41   1.51     1.08     29  13.97       0.12           0
+   p193  10.36      0.18   0.57   2.19     1.58     29   8.43       0.19           0
+   p277   7.36      0.12   0.37   1.34     0.95     29  13.30       0.07           0
+   p280   5.26      5.25   5.24   5.24     5.25      7  22.27       0.32           0
+   p331  10.93     10.83  10.70  10.83    10.84     11  12.49       2.36          11
+   p455  11.05      0.15   0.49   1.89     1.37     29   7.58       0.21           0
+   p680   5.37      5.37   5.37   5.37     5.37     12  10.56       1.10           3
+   p710   5.58      5.56   5.54   5.55     5.57      8   6.03       0.92           0
+   p879  10.93      0.48   1.56   5.97     4.31     29  11.04       0.39           0
+  median over the 9 of the best visible step in sd units: 0.32
+
+# leak flow (m3/h, hourly mean) at the hour each detector was credited with the leak; '-' = missed
+# the onset hour is the first 5-minute step with flow > 0, so a delay counts from that hour
+   pipe     D1-F     LILA       M3       M4
+   p123     0.10        -        -        -
+   p193     0.22        -        -        -
+   p277        -     0.21     1.20        -
+   p280     5.18     5.16     5.25        -
+   p331    10.43    10.44    10.85    10.77
+   p455     0.02     0.01        -        -
+   p680     5.36     5.36     5.36        -
+   p710        -     5.49     5.55     5.52
+   p879     1.44     0.50     0.09     0.74

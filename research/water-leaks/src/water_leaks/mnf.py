@@ -55,3 +55,21 @@ def detect_mnf(m, W=14, g=7, wmin=7, k=0.5, h=5.0, mad_floor=0.1):
             alarms.append((d * 24 + ALARM_HOUR, 0))
             S, anchor = 0.0, d
     return alarms, z
+
+
+def weekday_offsets(m, days, train):
+    """Step 7 (M2/M4): mean of each night's minimum minus the median of the 7 nights centred on
+    it, by weekday of the night's date (0 = Monday), over the nights where `train` is true.
+    `days` are numpy datetime64[D]. Returns 7 offsets in the units of m (as step 6's weekly.py)."""
+    from numpy.lib.stride_tricks import sliding_window_view
+    m = np.asarray(m, dtype=float)
+    mt = m[train]
+    res = mt - np.median(sliding_window_view(np.pad(mt, 3, mode="edge"), 7), axis=1)
+    dow = (np.asarray(days)[train].astype(int) + 3) % 7
+    return np.array([res[dow == k].mean() for k in range(7)])
+
+
+def deweek(m, days, offsets):
+    """Subtract each night's weekday offset."""
+    dow = (np.asarray(days).astype(int) + 3) % 7
+    return np.asarray(m, dtype=float) - offsets[dow]
