@@ -142,11 +142,11 @@ export function writerRateOutcome({
       });
     }
 
-    if (nonWritingShare >= 0.25) {
+    if (nonWritingShare >= 0.25 && betterOption !== "per-word") {
       findings.push({
         severity: "medium",
         title: `${Math.round(nonWritingShare * 100)}% of the total time is research and revisions, not writing`,
-        detail: "A per-word rate pays for words written, not for research, interviews, outlining, or revision rounds. When non-writing time is this large a share of the job, quoting a flat project fee (which can price the whole job) typically pays a higher effective hourly rate than the same per-word rate -- rate guides describe this switch as the single most reliable way an established writer raises real income without raising their quoted per-word figure.",
+        detail: "A per-word rate pays for words written, not for research, interviews, outlining, or revision rounds. When non-writing time is this large a share of the job, quoting a flat project fee lets you price that time in. Check the flat fee against your target hourly rate below.",
       });
     }
 

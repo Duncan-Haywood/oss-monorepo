@@ -35,6 +35,14 @@ Five fields (30x15 to 180x90 m, same weed density, 20 seeds each, fields shared 
 - Kill is matched only on average; the inline interpolation is linear between six speeds. Scout set-up and swaps are charged as labour, not as scout downtime in the unheld case beyond the swap minutes.
 - Regulation, safety and real costs (insurance, pilot licensing under FAA rules, which is an owner step) are not priced.
 
+## Known gaps (quality audit 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-osrobot-pairprice.json`](../../portfolio/quality/audits/2026-11-13-osrobot-pairprice.json); not yet fixed:
+
+- **Pilot time is not charged** (`src/osrobot_pairprice/econ.py:15`, "supervision is not charged"). FAA Part 107 (14 CFR 107.31) needs a remote pilot to keep the flight in sight. Charging the 56.8 flight min/ha at the project's own 20 USD/h makes the pair 2.46x the inline robot at 0.72 ha and 2.32x at 20 ha, with no break-even. The headline holds only if a pilot is free.
+- **Break-even values pick an arbitrary crossing.** Battery swaps make the cost difference a sawtooth that crosses zero 3 to 9 times; `bisect` returns whichever one it lands on (6,000 USD scout: first crossing 1.03 ha, reported 1.28 ha; held at 1,500 USD: first 2.08 ha, reported 2.65 ha, which is also beyond the simulated range).
+- The comparison is made at about 34% weed kill, no prior work is cited (Pedersen et al. 2006; Lowenberg-DeBoer et al. 2020; ASABE D497), and prices are assumed rather than sourced.
+
 ## Next steps
 Pipeline the stages with one scout serving several fields or treaters, and price that; add a registration error with a treater camera; replace assumed prices with sourced ones for an open drone and an open ground platform.
 

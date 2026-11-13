@@ -66,6 +66,15 @@ All in [`calc.mjs`](calc.mjs), as a pure function with no dependencies:
   for platform-cut math).
 - No client negotiation modeling.
 
+## Known gaps (quality audit 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-freelance-writer-rate-calculator.json`](../../portfolio/quality/audits/2026-11-13-freelance-writer-rate-calculator.json). Fixed in the same PR: the non-writing-time finding no longer recommends a flat fee when the per-word rate already pays more. Still open:
+
+- For one job both prices divide by the same hours, so "which pays more" is always the bigger total; the page and FAQ say more than that.
+- A blank writing speed silently drops all writing time; solved per-word rates are rounded to cents (`$0.0125` shows as `$0.01`).
+- Source wording overstates agreement: the 16-20% ghostwriting premium comes from one 213-writer survey, and not every 2026 guide puts entry level at $0.05-$0.10.
+- Self-employment tax (15.3% on 92.35% of net, about 14.1%) is not shown.
+
 ## Disclaimers
 
 Not financial, legal, or professional advice. This applies the hours and
