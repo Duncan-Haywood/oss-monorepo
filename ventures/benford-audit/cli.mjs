@@ -4,7 +4,7 @@
 //                [--min 10] [--threshold 5000,10000] [--group-min 50] [--json] [--flagged out.csv]
 // COL is a header name or a 0-based column index.
 import fs from 'node:fs';
-import { audit, summarize, formatMoney } from './benford.mjs';
+import { audit, summarize, formatMoney, parseLimitList } from './benford.mjs';
 import { readLedger, flaggedToCsv } from './csv.mjs';
 
 function parseArgs(argv) {
@@ -41,7 +41,7 @@ export function run(argv, out = process.stdout) {
   const result = audit(ledger.records, {
     sign: args.sign || 'positive',
     minAmount: args.min !== undefined ? Number(args.min) : 10,
-    thresholds: args.threshold ? String(args.threshold).split(',').map(Number).filter((x) => x > 0) : [],
+    thresholds: parseLimitList(args.threshold),
     groupMin: args['group-min'] !== undefined ? Number(args['group-min']) : 50,
   });
   if (args.flagged) fs.writeFileSync(args.flagged, flaggedToCsv(result.flagged));

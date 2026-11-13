@@ -3,7 +3,7 @@ import test from 'node:test';
 import {
   expectedFirst, expectedSecond, expectedFirstTwo, parseAmount, significantDigits, firstDigit, secondDigit,
   firstTwoDigits, lastTwoDigits, zStat, chiSquareP, binomialUpper, bhQValues, madVerdict, digitTest, audit,
-  thresholdTest, expectedMad, applicability,
+  thresholdTest, expectedMad, applicability, parseLimitList,
 } from '../benford.mjs';
 import { rng, exampleCsv } from '../example.mjs';
 import { readLedger, parseCsv, flaggedToCsv, sniffDelimiter } from '../csv.mjs';
@@ -166,4 +166,12 @@ test('CSV reader handles quotes, semicolons, BOM and picks columns', () => {
   assert.deepEqual(led.records.map((r) => r.amount), [1234.5, 99]);
   assert.equal(led.records[0].row, 2);
   assert.match(flaggedToCsv([{ row: 2, amount: 1.5, group: 'A, Inc', score: 1, reasons: ['x'] }]), /"A, Inc"/);
+});
+
+test('limit lists keep thousands separators', () => {
+  assert.deepEqual(parseLimitList('5,000, 10,000'), [5000, 10000]);
+  assert.deepEqual(parseLimitList('5000,10000'), [5000, 10000]);
+  assert.deepEqual(parseLimitList('$2,500; $5,000 25000'), [2500, 5000, 25000]);
+  assert.deepEqual(parseLimitList('1,234,567'), [1234567]);
+  assert.deepEqual(parseLimitList(''), []);
 });

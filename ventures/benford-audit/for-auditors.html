@@ -16,6 +16,7 @@
 </head>
 <body>
   <p><a href="./">Benford Audit</a></p>
+  <main>
   <h1>Benford's-law testing for people who review other people's numbers</h1>
   <p>You have a year of expense claims, a vendor payment history or a general-ledger export, and too many rows to read. You want to know which handful to pull first. Benford's law gives a principled place to start: in most honest financial data, about 30% of amounts begin with a 1 and under 5% begin with a 9, and invented or manipulated figures tend not to follow that pattern.</p>
   <p><a class="cta" href="./">Run the tests on your CSV</a></p>
@@ -67,6 +68,7 @@
   <h2>Privacy</h2>
   <p>The CSV is read by the page in your browser and is never uploaded. A command-line version reads the same files with the same code (<code>node cli.mjs ledger.csv --threshold 5000,10000</code>) for anyone who would rather keep the data off a browser entirely or script the check.</p>
 
+  </main>
   <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, financial, accounting or audit advice. It does not determine that any record is fraudulent, wrong or improper; many honest data sets do not follow Benford's law. You are responsible for verifying its output against source documents before drawing any conclusion about anyone. Everything runs in your browser; files are never uploaded. <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</footer>
 </body>
 </html>

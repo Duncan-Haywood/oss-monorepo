@@ -113,6 +113,18 @@ export function parseAmount(raw) {
   return negative ? -n : n;
 }
 
+/**
+ * Read a typed list of limits. "5,000, 10,000", "5000;10000" and "5000 10000"
+ * all give [5000, 10000]: a comma followed by exactly three digits is a
+ * thousands separator, any other comma, semicolon or space separates items.
+ */
+export function parseLimitList(text) {
+  return String(text ?? '')
+    .split(/;|\s+|,(?!\d{3}(?!\d))/)
+    .map((part) => parseAmount(part))
+    .filter((x) => x !== null && x > 0);
+}
+
 // ---------------------------------------------------------------------------
 // Digits
 

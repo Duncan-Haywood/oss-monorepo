@@ -1,4 +1,4 @@
-import { audit, summarize, formatMoney } from './benford.mjs';
+import { audit, summarize, formatMoney, parseLimitList } from './benford.mjs';
 import { readLedger, flaggedToCsv } from './csv.mjs';
 import { exampleCsv } from './example.mjs';
 import { count, enabled, setEnabled } from './usage.mjs';
@@ -62,7 +62,7 @@ function run() {
   const amountColumn = Number($('amountCol').value);
   if (!(amountColumn >= 0)) { $('message').textContent = 'Choose the amount column.'; return; }
   const ledger = readLedger(text, { amountColumn, groupColumn: Number($('groupCol').value) });
-  const thresholds = $('thresholds').value.split(/[,;\s]+/).map((s) => Number(s.replace(/[$€£]/g, ''))).filter((x) => x > 0);
+  const thresholds = parseLimitList($('thresholds').value);
   const result = audit(ledger.records, {
     sign: $('sign').value,
     minAmount: Math.max(0, Number($('minAmount').value) || 0),

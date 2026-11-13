@@ -34,6 +34,7 @@
     <p>Choose a CSV of payments, expense claims, invoices or journal entries. The page runs Mark Nigrini's Benford test suite (first digit, second digit, first two digits, last two digits, summation, number duplication), checks for amounts piling up just under an approval limit, ranks vendors or employees by how far their amounts stray, and gives you a list of records to pull. The file never leaves your device.</p>
   </header>
 
+  <main>
   <section class="card noprint">
     <h2>1. Your data</h2>
     <input id="file" type="file" aria-label="Ledger CSV" accept=".csv,.tsv,.txt,text/csv">
@@ -122,6 +123,8 @@
     <p>No. The CSV is read in your browser and never leaves your device. The optional usage counter stores only that an audit ran, in your own browser, and contains no amounts or names.</p>
     <p>Who this is for, a worked example and when to use something else: <a href="for-auditors.html">Benford's-law testing for internal auditors, fraud examiners and bookkeepers</a>. Looking for the same invoice paid twice rather than unusual digits? The <a href="../duplicate-payment-audit/">duplicate payment audit</a> pairs up likely double vendor payments, also in your browser.</p>
   </section>
+
+  </main>
 
   <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, accounting or audit advice, and it does not replace a qualified professional. It does not determine that any record is fraudulent, wrong or improper: it compares the digits of your own data with a statistical expectation, and many honest data sets do not follow that expectation. <strong>You are responsible for reviewing and verifying its output</strong> against source documents before drawing any conclusion about anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Everything runs in your browser. Files are never uploaded. Anonymous feature counts are local-only, can be disabled here, and contain no financial data. <label><input id="usage" type="checkbox" checked> Count anonymous local usage</label>
     <p>Source, command-line version and method: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/benford-audit" rel="noopener">GitHub</a>.</p>
