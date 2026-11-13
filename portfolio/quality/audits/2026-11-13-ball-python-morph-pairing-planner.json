@@ -1,0 +1,226 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/ball-python-morph-pairing-planner",
+ "stratum": "venture",
+ "seed": "2026-11-13",
+ "drawn_by": "sample",
+ "round": 55,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an experienced ball python breeder who plans pairings for sale (with working reptile-genetics knowledge); they check first that single- and multi-gene Punnett odds match textbook ratios (1:2:1, 9-class dihybrid), then how possible hets ('66% het', '50% het') are handled, then the spider homozygous case, then whether the common allelic complexes (BEL: Lesser/Butter/Mojave; Cinnamon/Black Pastel; Yellow Belly/Gravel/Asphalt) are handled, then whether the money side (fees, raising cost, hatch rate) is arithmetic they would trust",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Wrote an independent checker (/tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs) that models explicit diploid parent genotypes, treats a possible het as a mixture over the parent's genotype (fixed for the whole clutch), and enumerates gametes per genotype pair; ran `node /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs /home/user/oss-monorepo/ventures/ball-python-morph-pairing-planner/calc.mjs`. Per-egg odds match exactly on all five crosses: Pastel het Albino x Pastel het Albino gives the textbook 9 classes (1/4, 4x 1/8, 4x 1/16), Spider x Spider 50/25/25 dead, Super Pastel x Pastel 50/50, Spider het Pied x Clown 66.67% het Pied (Pied 1/6 per egg), and a 24-class trihybrid with a 50% het parent. Economics: Albino x het Albino hand check (8 eggs, 10% fee, $20 raise, $50 overhead -> profit 780) is reproduced in the suite and I agree with it by hand. But the clutch-level 'chance of at least one' (targetChance and each row's atLeastOne) multiplies per-egg odds as if eggs were independent, which is false when a parent is a possible het: its genotype is the same for every egg. Spider het Pied x Clown 66.67% het Pied, 6 eggs, 85% hatch, target Piebald: correct 0.5077, tool 0.6001. Luna (50% het Clown) x Ember (het Clown), target Clown: correct 0.3807, tool 0.4903, 11 points high. Rank-by-target uses this number, so it systematically favours pairings with unproven parents. Expected-value outputs (hatchlings, revenue, profit) are unaffected (linearity). Hence 2.",
+  "completeness": "README/page features exercised in node: gene table with aliases and allelic groups (Hypo->Ghost, Pied->Piebald), animal parsing (visual, het, N% het, Super, Normal), price table with greedy morph-name match ('Super Pastel Yellow Belly'), every female x male pairing, expected hatchlings, revenue after fees, raising cost and overhead, rank by profit and by target chance, allelic refusal (Mojave x Lesser refused with a named message; Mojave x Mojave allowed and gives Super Mojave 25%), verifyPlan, CSV export, guide whose worked table is recomputed by page.test.mjs. All work; no TODOs. Served page https://marisstella.app/ball-python-morph-pairing-planner/ returns 200 (`curl -sS -o /dev/null -w '%{http_code}'`). Not modelled items stated (index.html:113).",
+  "verification": "`cd ventures/ball-python-morph-pairing-planner && node --test '*.test.mjs'`: 40 tests, 40 pass, 0 fail (~330 ms). Five seeded mutations with platform/ci/quality_mutate.py: 4 caught (possible-het gamete share 0.5*share -> share; selling fee dropped; hatch rate dropped from targetChance; raising cost on eggs instead of hatchlings, caught via verifyPlan), 1 survived (hatch rate dropped from each row's atLeastOne, calc.mjs:362). The 'independent gamete-pair oracle' (calc.test.mjs:84) reuses the same per-gamete t abstraction as the code, so it cannot catch the possible-het clutch-correlation error; verifyPlan re-derives targetChance with the same independence formula (calc.mjs:406-408). Not 3: the core clutch-level claim is checked only against a copy of its own assumption.",
+  "craft": "Read calc.mjs (441 lines), calc.test.mjs, page.test.mjs, index.html script (lines ~145-240). Pure functions, no dependencies, output through esc(); clear error messages for every bad input tried ('Super Spider' refused, '0% het' and '120% het' refused, duplicates named, 'poss het Clown' asks for a percentage). Minor: 'Pastel het Albino' without a comma is reported as an unknown gene called 'Pastel het Albino' rather than a hint to use commas; 'pos het Clown' (common spelling) not recognised; '66% het' gives t=0.33 rather than 1/3, so typed 66% is slightly off the 2/3 it stands for.",
+  "claims": "Disclaimer and no-warranty text present (index.html:136), usage counter local-only with opt-out (index.html:140, usage.mjs), not-modelled list stated (index.html:113), served page loads. But the FAQ 'What does 66% het mean?' (index.html:123 and the FAQPage JSON-LD at index.html:12) says a possible het is 'a baby from a het-by-visual or het-by-het pairing' and 'Breeders also write 50% poss het for the baby of a visual and a normal'. Both are wrong genetics: the normal-looking babies of visual x het are 100% het (only het x het makes 66% hets), and visual x normal babies are 100% het; 50% possible hets come from het x normal. A user following that FAQ would enter a proven het as 50% and understate its odds. 'Checked against an independent gamete-by-gamete count' (README:24, index.html:113) is true for per-egg odds but the oracle shares the code's possible-het model.",
+  "fitness": "Walked a breeder's job: three females, three males, rank pairings for a season by profit and by chance of a Piebald. The per-egg odds table and the profit ranking are usable and the CSV is handy. Gaps a breeder hits in the first hour: the BEL complex (Lesser/Butter/Mojave/Mystic/Russo), Cinnamon/Black Pastel and Yellow Belly/Gravel/Asphalt are among the most-bred genes and any pairing mixing them is refused; het and possible-het offspring cannot be priced (prices key on visuals only); offspring of a possible-het parent are shown as split 'het' and 'non-het' classes rather than as the possible-het percentage the breeder would advertise; and the target-chance ranking overstates pairings with unproven parents.",
+  "domain": "Compared against standard Mendelian genetics (Punnett squares, any genetics textbook) and common ball python breeder convention (as used by the World of Ball Pythons and MorphMarket genetic calculators, from knowledge; not fetched). Right: recessive, incomplete-dominant, dominant and Super forms; spider treated as having no viable super (common convention, stated as 'reported'); Pinstripe dominant; allelic groups refused rather than guessed. Departures: clutch-level probability with possible-het parents treated as independent per egg; FAQ misstates where 50% and 66% possible hets come from; allelic complexes not modelled (the reference calculators handle them, e.g. Lesser x Mojave -> 25% BEL); spider wobble not mentioned anywhere although it is the first welfare question breeders raise about spider pairings (welfare is listed as not modelled)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Pastel het Albino x Pastel het Albino, all 9 outcome classes",
+   "method": "textbook dihybrid Punnett (1:2:1 x 1:2:1), recomputed by an independent diploid gamete enumerator",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs /home/user/oss-monorepo/ventures/ball-python-morph-pairing-planner/calc.mjs",
+   "expected": "1/4 Pastel het Albino; 1/8 each Pastel, het Albino, Albino Pastel, Super Pastel het Albino; 1/16 each Normal, Albino, Super Pastel, Albino Super Pastel",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Spider x Spider",
+   "method": "by hand 1:2:1 with the double-copy class non-viable",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs /home/user/oss-monorepo/ventures/ball-python-morph-pairing-planner/calc.mjs",
+   "expected": "Spider 0.50, Normal 0.25, dead 0.25",
+   "observed": "Spider 0.5, Normal 0.25, dead 0.25",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Spider het Piebald x Clown 66.67% het Piebald, per egg",
+   "method": "explicit parent-genotype mixture: P(Pied)=2/3 x 1/4 = 1/6",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs /home/user/oss-monorepo/ventures/ball-python-morph-pairing-planner/calc.mjs",
+   "expected": "Piebald classes 0.0833 + 0.0833",
+   "observed": "0.083333 + 0.083333",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "chance of at least one Piebald in a 6-egg clutch, 85% hatch, Spider het Pied x Clown 66.67% het Pied",
+   "method": "parent genotype fixed for the clutch: 2/3 x (1 - (1 - 0.85 x 0.25)^6)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs /home/user/oss-monorepo/ventures/ball-python-morph-pairing-planner/calc.mjs",
+   "expected": "0.5077",
+   "observed": "0.6001",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "chance of at least one Clown, Luna (Pastel het Albino 50% het Clown) x Ember (Fire het Clown), 6 eggs, 85% hatch",
+   "method": "1/2 x (1 - (1 - 0.85 x 0.25)^6) by hand and by enumerator",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs /home/user/oss-monorepo/ventures/ball-python-morph-pairing-planner/calc.mjs",
+   "expected": "0.3807",
+   "observed": "0.4903",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Albino x het Albino clutch economics (8 eggs, 100% hatch, $200 Albino, $75 default, 10% fee, $20 raise, $50 overhead)",
+   "method": "by hand: 4x200x0.9 + 4x75x0.9 - (8x20+50) = 720+270-210",
+   "command": "cd ventures/ball-python-morph-pairing-planner && node --test '*.test.mjs'",
+   "expected": "profit 780",
+   "observed": "780 (calc.test.mjs 'economics: one hand-checked pairing' passes)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Super Pastel x Pastel",
+   "method": "by hand: 1/2 Super, 1/2 Pastel",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7bd76da-fba0-5582-91c4-a58d419f796f/scratchpad/ball-python-morph-pairing-planner/check.mjs /home/user/oss-monorepo/ventures/ball-python-morph-pairing-planner/calc.mjs",
+   "expected": "0.5 / 0.5",
+   "observed": "0.5 / 0.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/ball-python-morph-pairing-planner && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "40 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ: 66% het comes from 'het-by-visual or het-by-het'; '50% poss het for the baby of a visual and a normal'",
+   "method": "Mendelian genetics: visual x normal -> 100% het; visual x het normals -> 100% het; het x het normals -> 2/3 het; het x normal -> 1/2 het",
+   "command": "grep -n 'visual and a normal' ventures/ball-python-morph-pairing-planner/index.html",
+   "expected": "50% poss het from het x normal; 66% from het x het only",
+   "observed": "index.html:12 and :123 state the wrong origins",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, local-only usage counter, served page",
+   "method": "grep and curl",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/ball-python-morph-pairing-planner/",
+   "expected": "200, disclaimer and opt-out present",
+   "observed": "200; index.html:136 no-warranty; :140 opt-out",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "allelic refusal and same-gene allelic super",
+   "method": "node calls",
+   "command": "node -e \"import('./calc.mjs')...\" (Mojave x Lesser; Mojave x Mojave with 'Super Mojave | 500')",
+   "expected": "Mojave x Lesser refused; Mojave x Mojave gives Super Mojave 25%",
+   "observed": "refused with named message; Super Mojave 0.25 priced 500",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "input variants a breeder types",
+   "method": "node parseAnimal calls",
+   "command": "node -e \"...parseAnimal('Pastel het Albino'), ('pos het Clown'), ('66.6% het Clown')...\"",
+   "expected": "comma-free and 'pos het' forms handled or clearly hinted",
+   "observed": "'Pastel het Albino' -> 'no gene called \"Pastel het Albino\"'; 'pos het Clown' -> unknown gene; 66.6% -> t 0.333",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "allelic complexes (BEL, Cinnamon/Black Pastel, YB/Gravel/Asphalt)",
+   "method": "breeder convention and the World of Ball Pythons / MorphMarket calculators, from knowledge (not fetched)",
+   "command": "grep -n 'allelic' ventures/ball-python-morph-pairing-planner/calc.mjs",
+   "expected": "modelled (e.g. Lesser x Mojave 25% BEL)",
+   "observed": "refused (calc.mjs:279), stated as not modelled",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:128",
+   "change": "t: 0.5 * share -> t: share",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:357",
+   "change": "const net = price * (1 - s.fee / 100) -> const net = price",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:379",
+   "change": "1 - Math.pow(1 - h * pTarget, s.eggs) -> 1 - Math.pow(1 - pTarget, s.eggs)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:362",
+   "change": "atLeastOne: 1 - Math.pow(1 - h * o.p, s.eggs) -> 1 - Math.pow(1 - o.p, s.eggs)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:364",
+   "change": "hatchlings * s.raise -> s.eggs * s.raise",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Clutch 'chance of at least one' (targetChance, used for rank-by-target, and each row's atLeastOne) treats eggs as independent even when a parent is a possible het, whose genotype is fixed for the clutch; overstates by 9 to 11 points on the sample pairings (0.6001 vs 0.5077; 0.4903 vs 0.3807) and ranks unproven-parent pairings too high",
+   "where": "ventures/ball-python-morph-pairing-planner/calc.mjs:379",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "FAQ misstates possible-het origins: says 66% hets come from het-by-visual pairings and 50% poss hets from visual x normal; visual x normal and visual x het normals are 100% het, 50% possible hets come from het x normal",
+   "where": "ventures/ball-python-morph-pairing-planner/index.html:123",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Test oracle and verifyPlan reuse the code's per-gamete t abstraction, so the clutch-correlation error cannot be caught; the atLeastOne row has no test (hatch-rate mutation survived)",
+   "where": "ventures/ball-python-morph-pairing-planner/calc.test.mjs:84",
+   "category": "tests-check-a-copy",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Allelic complexes (BEL Lesser/Butter/Mojave, Cinnamon/Black Pastel, Yellow Belly/Gravel/Asphalt) are refused, though they are among the most-bred genes and reference calculators model them",
+   "where": "ventures/ball-python-morph-pairing-planner/calc.mjs:279",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Possible-het offspring cannot be priced or shown as the possible-het percentage breeders advertise; prices key on visual genes only",
+   "where": "ventures/ball-python-morph-pairing-planner/calc.mjs:338",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'66% het' (the breeder's shorthand for 2/3) becomes t=0.33 instead of 1/3, and the comma-free 'Pastel het Albino' and the spelling 'pos het' are rejected as unknown genes",
+   "where": "ventures/ball-python-morph-pairing-planner/calc.mjs:118",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Per-egg Mendelian odds are right on every cross recomputed independently (dihybrid 9-class, spider lethal, super forms, possible-het per-egg, a 24-class trihybrid), and the money arithmetic is right. It misses the bar on correctness, verification and claims: the clutch-level 'chance of at least one' ignores that a possible-het parent's genotype is shared by every egg, overstating the sample pairings by about 10 points and skewing rank-by-target, and the tests cannot see it because their oracle shares the same model; the FAQ also states the wrong origins for 50% and 66% possible hets. Refusing allelic complexes keeps it honest but leaves out a large share of real pairings."
+}
