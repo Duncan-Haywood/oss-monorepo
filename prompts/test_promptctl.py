@@ -83,6 +83,27 @@ class RouteTest(PromptTestCase):
                 r = promptctl.route(self.fx.root, rng=random.Random(seed))
                 self.assertNotEqual(r["track"], "review")
 
+    def test_a_claimed_review_says_so_in_the_reason(self):
+        from unittest import mock
+        with mock.patch.object(promptctl, "runs_since_review", return_value=999), \
+             mock.patch.object(promptctl, "review_claimed", return_value=True):
+            r = promptctl.route(self.fx.root, rng=random.Random(0))
+        self.assertNotEqual(r["track"], "review")
+        self.assertIn("claimed by an open 'prompts: review' PR", r["reason"])
+        self.assertNotIn("999/", r["reason"])
+
+    def test_stale_review_claims_do_not_count(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 4, 0, tzinfo=timezone.utc)
+        pulls = [
+            {"number": 12367, "title": "prompts: review 2026-11-01", "created_at": "2026-11-01T16:12:00Z"},
+            {"number": 14700, "title": "Prompts: review 2026-11-11", "created_at": "2026-11-11T01:00:00Z"},
+            {"number": 14701, "title": "polish: something", "created_at": "2026-11-11T03:00:00Z"},
+            {"number": 14702, "title": "prompts: review (no date)", "created_at": "garbage"},
+        ]
+        self.assertEqual(promptctl.fresh_review_claims(pulls, now), [14700, 14702])
+        self.assertEqual(promptctl.fresh_review_claims(pulls[:1], now), [])
+
     def test_forced_track_uses_its_champion(self):
         r = promptctl.route(self.fx.root, track="research", rng=random.Random(0))
         self.assertEqual((r["track"], r["version"], r["role"]), ("research", 0, "champion"))
