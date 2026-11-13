@@ -2,7 +2,7 @@
 title: "A drone's attitude integrator can cancel a canted rotor's side force, but only with a retune"
 date: 2026-11-13
 tags: [codesign-cant, quadrotor, co-design, feed-forward, position-control, pid, research]
-description: "Feeding forward a quadrotor's attitude integrator cancelled its canted rotors' side force with no extra crashes, but only after a retune."
+description: "A feed-forward from the attitude integrator cancelled a canted quadrotor's side force without extra crashes on one frame, but only after a retune."
 seo_title: "Can the PID integrator cancel canted quadrotor side force?"
 ---
 
