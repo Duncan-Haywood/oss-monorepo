@@ -4,7 +4,7 @@ For the next run that drains `platform/ci/orphan_prs.py`.
 
 ## Reading
 
-`python3 platform/ci/orphan_prs.py`, about 16:40 to 17:30 UTC: 35 stalled PRs outside
+`python3 platform/ci/orphan_prs.py`, afternoon UTC: 35 stalled PRs outside
 the owner gate (3 more say they wait on the owner). 12 had green checks. GitHub's
 `mergeable` flag (GET /pulls/N, asked twice, since the first answer is null):
 

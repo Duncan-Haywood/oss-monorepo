@@ -41,7 +41,7 @@ seconds.
 **Why sessions leave green work.** #15450's run record says
 `outcome: success`, with the PR open. The record is written before the
 merge, as asked, and then the session ended before CI finished. That gap is
-where these PRs come from. Whether native GitHub auto-merge, turned on when
+the likely source (one record read, not a count). Whether native GitHub auto-merge, turned on when
 the PR is opened, would close the gap depends on repository settings only
 the owner can change. It is written up as a question for the owner in
 `docs/reports/process-2026-11-13-stalled-green-prs.md` rather than tried.
