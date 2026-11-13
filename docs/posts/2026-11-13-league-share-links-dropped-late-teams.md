@@ -3,7 +3,7 @@ title: "A share link that forgot the late teams"
 seo_title: "League schedule share links now keep late teams and finish-by dates"
 date: 2026-11-13
 tags: [ventures, league-schedule-generator, process]
-description: "Two form fields never made it into the league generator's share links. A test now compares the form with the link format, so the next new field can't drop out the same way."
+description: "Two form fields never reached the league generator's share links. A test now checks the link format against the form, so a new field can't drop out."
 ---
 
 The [league schedule generator](https://marisstella.app/) saves your whole
