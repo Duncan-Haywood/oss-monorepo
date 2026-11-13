@@ -1761,6 +1761,68 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
+## A backward table: the floor-priced step 2.1x faster again, same seasons (2026-11-13, latest)
+
+The section below left two costs at 24 teams: the programme's step (87 s of a 152 s run) and the
+balanced walk's predecessor scan (37 s). Both are smaller now, and every search still follows the
+same path to the same season.
+
+**The walk remembers its predecessors.** Walking back from round r with hosts y, the walk scanned
+all 4,096 host choices of round r - 1 for the ones within its slack. Counted on 24 teams seed 1:
+**3.48 million scans over only 16,828 distinct (round, hosts) states**, about 207 scans of each,
+because the walk comes back to the same state at every slack level and from every branch that
+reaches it. `balancedWalk` now scans a state once, keeps the choices within its largest slack (as
+`x | extra << 16`, in x order, at most 4 million entries a walk) and filters that list by the
+current slack. The filtered list is the fresh scan's list in the same order, so the seeded shuffle
+draws the same numbers. After this the walk's share of the profile is about 2 s.
+
+**A move is priced on its own span** (`floorTable(opp, n).trial(lo, hi)`). The table used to rerun
+the programme from the first changed round to the last round of the season. It now also keeps a
+backward table (`bwd[r][x]`: least breaks in rounds r..R-1 with round r's hosts x), runs forward
+only over the changed rounds lo..hi, and takes one more step to meet `bwd[hi + 1]`. A commit leaves
+forward tables after its span and backward tables before it stale; the next trial that needs them
+recomputes them from rounds the move did not touch. A balanced walk still needs the whole forward
+table, so `balanced()` runs the trial's table on to the end (and a commit keeps that). The gain is
+smaller than hoped: the search's moves span **15.2 of 23 rounds on average** (5,845 trials,
+88,730 round steps on 24 teams seed 1). A partial team swap or a three-round re-deal touches rounds
+far apart, and everything between them has to be rerun.
+
+**The step itself, about 1.15x**: the edge test in `minPlusStep`'s inner loop is branch-free, and
+the bit permutations at either end use two 64-entry lookups instead of a loop over bits. A 12-match
+step went from 0.68-0.77 ms to 0.59-0.70 ms (`eval/minplus-bench.mjs`, which also checks the two
+versions return identical tables). Splitting the loop so the edge costs were constants over the x
+bits measured slower at 12 matches (0.81 against 0.72 ms), so it was dropped.
+
+**The page's floor-priced step, old code against new** (`eval/backward-table.txt`, same cached
+lists, run side by side on one 4-CPU machine; `--max-teams 25` so 24 and 25 run):
+
+| Teams, seed | old | new | seasons added (same in both) |
+|---|---|---|---|
+| 20, 1 | 8.7 s | 3.6 s | 382/48, 444/46 |
+| 22, 1 | 31.8 s | 13.9 s | 670/50, 662/48 |
+| 24, 1 | 129.9 s | 80.3 s | 614/62, 640/60 |
+| 24, 2 | 147.1 s | 102.0 s | 620/62, 610/62 |
+| 24, 3 | 283.2 s | 172.7 s | 610/62 |
+| 25, 1 | 123.9 s | 54.0 s | none |
+| 25, 2 | 377.2 s | 183.8 s | 715/47 |
+| 25, 3 | 230.8 s | 114.6 s | none |
+
+**1,533 s to 725 s in all**, with the same results, frontier and floor counts in all eight runs. 22
+teams, which the page runs, now take about 14 s on seed 1. 24 and 25 teams still take 54 to 184 s
+in a worker, so they stay off the page (`maxTeams` stays 22). The cost left at 24 teams is the
+step over wide spans: in a CPU profile of 24 teams seed 1 taken with the walk cache and the
+backward table in (before the step tweak), `minPlusStep` and the trial loop it is inlined into
+were 94% of the time and the walk 2%.
+
+- Tests: `orient.test.mjs` (now 10): walks that keep their lists give the same least, proof, step
+  count and hosts as walks that scan afresh (`nearCache: 0`) and as walks whose cache fills
+  part-way, on 48 shuffled circle timetables of 7 to 16 teams. `floor-priced.test.mjs` (now 18):
+  `trial(lo, hi)` equals the whole programme's floor over 640 moves (two-round swaps and
+  three-round rotations, kept or undone, with balanced walks between them on 6 to 14 teams). Two
+  seeded faults, a backward table left current after a commit and a forward table marked current
+  for the whole season, each fail it. The rest of the suite passes unchanged
+  (`run_venture_tests.py league-schedule-generator`).
+
 ## A faster break floor: 3.8x less worker time, and 22 teams in the page (2026-11-13)
 
 The section above put the 19-team cost (35 to 46 s for nothing) on the balanced walks running out of
