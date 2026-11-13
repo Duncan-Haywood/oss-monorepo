@@ -3,7 +3,7 @@ title: "A smaller corner window nearly doubled our camera-update test's power"
 seo_title: "cornerSubPix window size and a camera self-calibration update test"
 date: 2026-11-13
 tags: [research, sensing, camera-calibration, opencv, checkerboard, robotics]
-description: "On unbiased 5×5-window corners, a jackknife test of a robot camera's focal length catches a 2% change in 61% of splits instead of 34–35%, but a threshold borrowed from a sibling camera stops travelling."
+description: "On unbiased 5×5-window corners a jackknife focal-length test catches a 2% change in 61% of splits (34–35% before), but a borrowed threshold fails."
 ---
 
 The [`sensing-selfcal`](../../research/sensing-selfcal/README.md) programme asks whether a robot
