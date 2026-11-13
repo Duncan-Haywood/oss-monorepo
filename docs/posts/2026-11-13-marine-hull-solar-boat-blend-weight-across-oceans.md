@@ -1,6 +1,6 @@
 ---
 title: "Tuned on the Pacific, tested on the Atlantic: the solar boat's speed rule keeps its weight, not its margin"
-seo_title: "Solar USV speed rule: does the sun-estimate blend transfer across oceans?"
+seo_title: "Solar USV speed rule: does the sun blend transfer across oceans?"
 date: 2026-11-13
 tags: [research, marine-hull]
 description: "The blend of average and last-week sun that fixed a solar boat's heavy payload picks the same weight on either ocean; the payload-downtime margin is what slips."
