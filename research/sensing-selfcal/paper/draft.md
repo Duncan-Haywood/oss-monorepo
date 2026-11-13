@@ -1,6 +1,7 @@
 # Can a field camera trust its own self-calibration? Covariance, corner bias and an update test on real images
 
-*First full draft (milestone 7 of the `sensing-selfcal` programme), 2026-11-13. Target venue: IEEE
+*First full draft (milestone 7 of the `sensing-selfcal` programme), 2026-11-13; revised the same day
+with milestones 4e–4g (set size, every disjoint split, a robust jackknife). Target venue: IEEE
 Robotics and Automation Letters (an aim, not a claim of acceptance). Every number below comes from a
 file under `../experiments/`; `python3 paper/check_numbers.py` checks each one against that file.
 Citations are listed in `references.bib`; their DOIs could not be looked up from the session that
@@ -21,10 +22,13 @@ remaining set-to-set offset to a corner-localisation bias that renders of the re
 exactly: the printed board's end squares are half width, which pulls OpenCV's default 11×11
 `cornerSubPix` window up to 9.6 px off the corner and biases Zhang's focal length by +0.6–0.9%;
 the sector-based `findChessboardCornersSB` is biased the other way (−0.1 to −0.4%) and a 5×5 window
-is unbiased. On unbiased corners, testing the focal length alone against a tail threshold measured
-on a sibling camera detects a 2% focal change from 6 new views in 61% of splits (34–35% on the
-biased corners) and a real swap to the other camera unit in 79%, but the borrowed threshold over-
-alarms on one camera (11%). The practical message for fleet perception is two-sided: a view-level
+is unbiased. On unbiased corners, scored on every one of the 1,716 disjoint splits per camera, the
+focal length alone tested with a robust view jackknife (the MAD of the delete-one estimates) against a
+plain χ²<sub>1</sub> reference detects a 2% focal change from 6 new views in 54% of splits at 2.3%
+false alarms, with nothing borrowed from another unit; a tail threshold borrowed from the sibling
+camera, which looked better on a 60-split sample (61%), reaches 43% on every split. The jackknife's
+overstatement is a small-set effect (7–8× at 4 views, 1.1–1.4× at 10), while the solver's own σ is
+2–6× too small at every size. The practical message for fleet perception is two-sided: a view-level
 jackknife makes in-field self-calibration safe to gate, and the corner localiser, not the solver,
 decides whether the gate can see a 1–2% change.
 
@@ -113,6 +117,20 @@ board column fixes the 2×: nested rms z with k<sub>1</sub> + k<sub>2</sub> is 3
 outlying subsets). The residuals were correlated along one board axis (0.44–0.56 between neighbours
 along a column), which pointed at the corners rather than the lens (Section 6).
 
+**How both error bars depend on the number of views.** On unbiased 5×5 corners (Section 6) we solved
+every subset of 3 to 12 of the 13 views on both cameras (16,172 view sets) and compared each σ with the
+real set-to-set spread of f, measured around the all-view solution (exact if each view adds an
+independent offset) and, up to 6 views, between disjoint sets. The jackknife overstates the real spread
+7.8× (left) and 8.2× (right) at 4 views against disjoint pairs, and against the all-view reference its
+overstatement falls at every step from 4 to 10 views (left 6.7 to 1.1, right 6.7 to 1.4). Most of the
+small-set excess comes from a few delete-one solves that land near the critical set: the median of the
+per-set jackknife variances overstates only 2.4× and 4.1× at 4 views. The solver's own σ is 4–6× too
+small on the left camera at every size from 4 to 10 views, worse than the 2× of Section 4's 11×11
+corners, consistent with Section 6's finding that better corners make σ less honest. Below 6 views
+neither σ is usable as an error bar; from about 10 views the plain jackknife is a mildly conservative
+one. On the right camera the two real references disagree (1.22–1.66 at 4–6 views), so its views do not
+add independent offsets and its figures above 6 views are less certain.
+
 ## 5. An accept/reject test on disjoint view sets
 
 **Protocol.** For k = 3–6, 60 splits per k and camera draw an *old* set of 7 views and a disjoint
@@ -189,26 +207,56 @@ all-view set, it is 3.29% / 5.21% at 3 views, 2.15% / 2.17% at 4 and 1.55% / 0.9
 corners, left / right). A per-unit scale needs halves of at least 5 views, so about 10 views in the
 old calibration.
 
+**Every split, and a robust jackknife.** Because every subset is now solved, every disjoint split can
+be scored, not 60 per k: 1,716 per camera with an old set of 7 and a new set of 6 views, 37,752 per
+camera over k = 4–6. Our code reproduces the table's 61.3% exactly on the original 60 splits with the
+original thresholds (61.25%). On every split, the borrowed-threshold test catches ±2% at k = 6 in only
+43.3% (left 56–61%, right 26–30%), with 4.4% false alarms on the left camera instead of 11.1%. The
+splits were representative; the thresholds were not: re-estimated on every split, the two cameras'
+99th percentiles of z<sub>f</sub>² are 4.62 and 2.02, not 3.56 and 1.03 (with the old thresholds on
+every split, 57.8% and 10.4%). Section 4's set-size result suggests a fix that borrows nothing. If the
+jackknife's excess comes from a few near-critical delete-one solves, a robust jackknife, with
+1.4826 × the MAD of the delete-one focal lengths in place of their standard deviation, should be closer
+to the real spread. It is closer but not honest: at k = 6 the real spread is 0.88× (left) and 0.48×
+(right) of its prediction (plain jackknife: 0.57× and 0.31×). Against a plain χ²<sub>1</sub> at 1%,
+though, it gives the best test we have found:
+
+| f alone, 5×5 corners, every split (k = 6 unless stated) | J, χ²<sub>1</sub> | J, sibling's threshold | robust J, χ²<sub>1</sub> |
+|---|---|---|---|
+| ±2% detected (pooled) | 17.7% | 43.3% | 53.8% |
+| ±2% detected, k = 5 | 8.9% | 27.7% | 32.0% |
+| false alarms, k = 4–6 (pooled) | 0.3% | 2.4% | 2.3% |
+| false alarms, k = 4–6, left / right | | 4.4% / 0.3% | 3.4% / 1.2% |
+
+It needs nothing from another unit, is even across the two cameras (±2%: 50% left, 54–61% right), and
+catches ±4% in 92.7–94.1% of splits. It does not escape the set-size limit: with 4 new views every
+variant catches ±2% in 13% of splits at most, and a larger old set (9 views) does not help.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
    view-clustered sandwich give 36–74% false alarms on an unchanged camera; the jackknife 1.7–2.5%.
-2. **Test the focal length on its own** against an empirical tail threshold; the three-parameter
-   test is information-limited at 4–6 views. Keep W for principal-point moves (the swap lives in
+2. **Test the focal length on its own, with a robust jackknife against χ²<sub>1</sub>.** The MAD of
+   the delete-one focal lengths in place of their standard deviation catches a 2% change from 6 views
+   in 54% of splits at 2.3% false alarms, with no threshold to borrow; the three-parameter test is
+   information-limited at 4–6 views. Keep W for principal-point moves (the swap lives in
    c<sub>x</sub>).
 3. **Check the corners before the statistics.** On a board with cut-short end squares, size the
    sub-pixel window below the shortest end square (here 5×5) or print full end squares with a margin
    of at least one window. The tutorial 11×11 window on this board is worth more focal-length error
    (+0.6–0.9%) than the self-calibration itself (0.15–0.24%).
-4. **Do not borrow one sibling's threshold.** Pool it over several units or estimate each unit's own
-   tail at commissioning; one borrowed unit gave 11% false alarms. A tail from 4 + 3 split-halves
-   of a 7-view old set is not enough: it overstates the spread 3–5×.
+4. **Do not borrow one sibling's threshold.** A 99th percentile from 180 statistics moved the
+   borrowed test from 61% power and 11% false alarms on a sample to 43% and 4.4% on every split. A
+   tail from 4 + 3 split-halves of a 7-view old set is not enough either: it overstates the spread 3–5×.
+5. **Collect at least 6 new views before testing, and about 10 before trusting a jackknife σ.** Below
+   6 views the solver's σ is 4–6× too small and the jackknife's 2–8× too large.
 
 ## 9. Limitations
 
 One stereo rig, one board, one tutorial image set; 13 views per camera, so the splits reuse views
 and the intervals are too narrow, and a 99th percentile from 180 statistics rests on about two of
-them. The focal and principal-point changes are exact model transforms; the swap is the only real
+them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
+splits, not the reuse of views: it says nothing about a fresh set of views. The focal and principal-point changes are exact model transforms; the swap is the only real
 change. The corners are checkerboard corners without mismatches; natural features (SIFT) are not yet
 tested. The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
@@ -221,7 +269,8 @@ were found after a pre-registered prediction failed and are labelled so in the l
   estimate each unit's own tail on views the test never touches.
 - Natural-feature correspondences (milestone 3b) on an openly licensed multi-view set with a target
   calibration of the same camera.
-- A pre-registered rerun of the Section 7 test on fresh splits, and a pooled-threshold variant.
+- The robust-jackknife test (Section 7) pre-registered on a second unit's views; its left-camera
+  false alarms (3.4%) sit just above our 3% bar. Every split of these 13 views is already scored.
 - The citations checked against their DOIs, and the draft cut to 8 pages.
 
 ## Reproducibility
