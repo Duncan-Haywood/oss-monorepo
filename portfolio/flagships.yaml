@@ -186,12 +186,13 @@ flagships:
       (README "The reissue on the templates and 20-60 person weeks"). The change-count ILP at 20-60 people found a
       search miss; an eject move in the kept start took 60-person reissues to 26 changes against a least of 24 and
       40-person ones to 37 against 33, and every reissue still above the least is a score trade, not a miss (README
-      "Are the big-week reissues' changes needed?", eval/reissue-ilp-score.mjs). Next: an eject that gives up two
-      clashing shifts; whether a real manager would set keepShift above 1 (fewer changes for a little pay); close the
+      "Are the big-week reissues' changes needed?", eval/reissue-ilp-score.mjs). A two-shift eject (2026-11-13) was
+      possible 2-40 times a reissue set and never worth making, and the keep-usual-shifts sweep re-run with the kept
+      start matched the first on all 80 rows (README "Giving up two clashing shifts"). Next: whether a real manager would set keepShift above 1 (fewer changes for a little pay); close the
       100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22
       open); the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a floor above 60 copies needs something
       stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the keep-usual-shifts
-      sweep with the kept start, and on real dated leave records; a manager's read on whether the steadier plan is the
+      sweep on real dated leave records; a manager's read on whether the steadier plan is the
       one they would post; a real Square or Toast item export; a real published-schedule export for --import-shifts;
       whether the priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
