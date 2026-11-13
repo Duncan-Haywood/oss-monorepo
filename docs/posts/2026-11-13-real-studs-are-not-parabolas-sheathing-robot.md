@@ -3,7 +3,7 @@ title: "Real studs are not parabolas: a scanned 2x4 wall checks a sheathing robo
 date: 2026-11-13
 tags: [buildbot-sheathing, construction-robotics, point-cloud, lumber, real-data]
 seo_title: "How much do installed 2x4 studs bow? A laser scan of a real wall"
-description: "Six installed 2x4 studs from a public laser scan bow by the published amount but not as parabolas. On their real shapes a sheathing robot gets 43–47% clean sheets on single studs, not 58%."
+description: "Six installed 2x4 studs from a public laser scan bow by the published amount but not as parabolas, which costs a sheathing robot 11–15 points on single studs."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can hang a 4x8 sheet of wall sheathing and land all 62 nails where the code wants them. Ten steps in, every stud in it was a model: a parabola whose size came from two published averages we had only seen in search snippets. Today's step uses measured studs instead.
