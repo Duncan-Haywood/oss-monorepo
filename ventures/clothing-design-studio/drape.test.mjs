@@ -187,3 +187,40 @@ test("drawing: front and side SVGs are finite and escaped-safe", () => {
   assert.equal(strainColour(0), "rgb(120,150,190)");
   assert.equal(strainColour(0.12), "rgb(240,40,30)");
 });
+
+test("arms: setArmAngle swings about the shoulder joint; hangAngleDeg clears the torso below the armpit", async () => {
+  const { setArmAngle, hangAngleDeg, sectionAt } = await import("./drape.mjs");
+  const me = { chest: 100, waist: 88, hip: 98, height: 178 };
+  const b = bodyModel(me);
+  const p0 = b.arms[0].p0.slice(), len = Math.hypot(...b.arms[0].caps[3].b.map((v, k) => v - p0[k]));
+  setArmAngle(b, 20);
+  assert.equal(b.armAngleDeg, 20);
+  assert.deepEqual(b.arms[0].p0, p0); // the joint stays put
+  const hand = b.arms[0].caps[3].b;
+  assert.ok(Math.abs(Math.hypot(...hand.map((v, k) => v - p0[k])) - len) < 1e-9); // rigid
+  assert.ok(Math.abs(Math.atan2(hand[0] - p0[0], p0[1] - hand[1]) * 180 / Math.PI - 20) < 1e-9);
+  assert.ok(b.arms[1].caps[3].b[0] < 0); // the left arm mirrors
+  const deg = hangAngleDeg(bodyModel(me));
+  assert.ok(deg > 5 && deg < 45, String(deg));
+  // at the hang angle the wrist stands clear of the hip; 3 degrees lower it does not clear everywhere
+  const at = d => { const bb = bodyModel(me, { armAngleDeg: d }); const w = bb.arms[0].caps[2]; const s = sectionAt(bb, w.b[1]); return w.b[0] - w.rb - s.a; };
+  assert.ok(at(deg) >= 0.012 - 1e-9, String(at(deg)));
+  assert.ok(hangAngleDeg(bodyModel(me), 0.05) > deg); // a wider gap needs the arms further out
+});
+
+test("garment drape: lowerArms sews at 45 then swings the arms down, sleeves carried with them", () => {
+  const me = { chest: 100, waist: 88, hip: 98, height: 178 };
+  const r = drapeGarment(me, { size: "L", gridCm: 4, lowerArms: true });
+  assert.equal(r.ok, true);
+  assert.equal(r.sewAngleDeg, 45);
+  assert.ok(r.body.armAngleDeg < 35, String(r.body.armAngleDeg));
+  assert.ok(r.checks.seamGapCm < 1, String(r.checks.seamGapCm));
+  // the sleeve came down with the arm: its cuff row sits round the lowered arm, not where the 45-degree arm was
+  const s = r.sleeves[0];
+  assert.ok(s.cuffFromShoulderCm > 15 && s.cuffFromShoulderCm < 40, JSON.stringify(s));
+  assert.ok(s.levels.find(l => l.where === "bicep").clearanceCm < 3);
+  assert.match(r.notes.join(" "), /lowered to \d+/);
+  // a fixed angle can be asked for too
+  const r2 = drapeGarment(me, { size: "L", gridCm: 4, lowerArms: 35, settleTime: 1.2 });
+  assert.equal(r2.body.armAngleDeg, 35);
+});
