@@ -201,12 +201,14 @@ flagships:
     buildable: >-
       The DNG 1.7.1.0 specification PDF is reachable from a cloud session
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
-      memory. Lensfun's TCA (lateral colour; per-plane poly3/linear in its
-      data/db XML, which git clone --sparse reaches from a cloud session) as a
-      per-plane WarpRectilinear2 beside the distortion one landed 2026-11-13
-      (src/shootflow/lens_profiles.py, eval/lensfun-correction-2026-11-13.md),
-      ported from lensfun's mod-subpix.cpp, not memory; Canon's maker-note lens
-      number mapped to a name for CR2s with no LensModel (350D, 7D);
+      memory. Lensfun's vignetting (`pa` model in its data/db XML, which
+      raw.githubusercontent.com serves file by file) as a FixVignetteRadial-style
+      gain, read from lensfun's mod-color.cpp, not memory (distortion and TCA
+      landed 2026-11-13: eval/lensfun-correction-2026-11-13.md,
+      eval/lensfun-tca-2026-11-13.md); Canon's maker-note lens number (CameraSettings
+      index 22) mapped to a name for CR2s whose maker note gives no usable name
+      (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
+      since 2026-11-13);
       the preview-quality flag (opcode flag bit 1): plan() skips such opcodes in
       every develop, though the spec says full quality needs them; a
       cubic-spline resampling kernel for the warps, both engines byte-identical;
@@ -221,8 +223,9 @@ flagships:
       rectilinear lensfun profiles the best even-only fit leaves over 1 px at
       6000 px for 17%, eval/warp-rectilinear2-2026-11-12.md).
       Lensfun lens correction for files with none (--lens-db; Leica X Vario:
-      lensfun vs maker up to 8 px, eval/lensfun-correction-2026-11-13.md).
-      Next, most valuable first: lensfun TCA and vignetting; a second
+      lensfun vs maker up to 8 px, eval/lensfun-correction-2026-11-13.md);
+      its TCA per plane, exact (eval/lensfun-tca-2026-11-13.md).
+      Next, most valuable first: lensfun vignetting; a second
       maker-against-lensfun DNG pair (a zoom at several focal lengths); the
       grade stage reading a workspace lens database; a resampling kernel wider than bilinear; a
       real DNG carrying any opcode

@@ -1125,6 +1125,8 @@ class DevelopSettings:
     lens_focal: float | None = None
     lens_crop: float | None = None
     lens_fill: bool = True
+    # Correct the lens's lateral colour (lensfun TCA) with its distortion, per colour plane.
+    lens_tca: bool = True
 
 
 @dataclass
@@ -1617,7 +1619,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 corr = lens_profiles.correction_for(
                     settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif), w, h,
                     lens_name=settings.lens_name, focal=settings.lens_focal, crop=settings.lens_crop,
-                    fill=settings.lens_fill,
+                    fill=settings.lens_fill, tca=settings.lens_tca,
                 )
             except lens_profiles.LensProfileError as exc:
                 notes.append(f"no lens correction: {exc}")
