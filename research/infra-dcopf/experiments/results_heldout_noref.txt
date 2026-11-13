@@ -1,0 +1,74 @@
+Diagnostic after the main run (declared in LOG.md after it, not pre-registered): the held-out cases
+PIPS found no AC optimum for, run through the same frozen arms; cost reference = PGLib's published
+PowerModels.jl/IPOPT objective, so the 'PIPS vs PGLib' lines below read 0 by construction.
+
+Milestone 6 of research/grid-linopf: held-out PGLib-OPF v23.07 cases, 500 to 2,000 buses, TYP/API/SAD.
+Frozen arms: S = DC dispatch at the file's setpoints; S+R = reactive stage on S; J = J-m-a (margins,
+analytic sensitivities, Clarabel), 20 rounds; J10 = its first 10 rounds; +R = reactive stage on
+the arm's best point. 'Fully clean' = vlin.check: no branch over rating, slack inside limits, angle,
+bus-voltage and unit-Q limits met. None of these cases was run by any earlier milestone.
+
+PIPS AC optimum against PGLib's published PowerModels/IPOPT objective (validation):
+  case1803_snem    typ  1803 buses  PIPS 98335  PGLib 98335  diff +0.000 %  (0 s)
+  case1888_rte     typ  1888 buses  PIPS 1.4025e+06  PGLib 1.4025e+06  diff +0.000 %  (0 s)
+  case1951_rte     typ  1951 buses  PIPS 2.0856e+06  PGLib 2.0856e+06  diff +0.000 %  (0 s)
+  case588_sdet     api   588 buses  PIPS 398760  PGLib 398760  diff +0.000 %  (0 s)
+  case1354_pegase  api  1354 buses  PIPS 1.6082e+06  PGLib 1.6082e+06  diff +0.000 %  (0 s)
+  case1803_snem    api  1803 buses  PIPS 80240  PGLib 80240  diff +0.000 %  (0 s)
+  case1888_rte     api  1888 buses  PIPS 2.0197e+06  PGLib 2.0197e+06  diff +0.000 %  (0 s)
+  case1951_rte     api  1951 buses  PIPS 2.4903e+06  PGLib 2.4903e+06  diff +0.000 %  (0 s)
+  case1803_snem    sad  1803 buses  PIPS 106340  PGLib 106340  diff +0.000 %  (0 s)
+  case1888_rte     sad  1888 buses  PIPS 1.4139e+06  PGLib 1.4139e+06  diff +0.000 %  (0 s)
+  case1951_rte     sad  1951 buses  PIPS 2.0924e+06  PGLib 2.0924e+06  diff +0.000 %  (0 s)
+
+Reference bus with no live unit, moved by PYPOWER's own rule (pglib.fix_ref): case1888_rte/typ bus 1320 -> 46; case1951_rte/typ bus 1320 -> 46; case1888_rte/api bus 1320 -> 46; case1951_rte/api bus 1320 -> 46; case1888_rte/sad bus 1320 -> 46; case1951_rte/sad bus 1320 -> 46.
+Cases: 11; no PIPS AC optimum 0; no DC start 4 (case1803_snem/typ, case1803_snem/api, case1951_rte/api, case1803_snem/sad); scored 7.
+
+case             kind      start    S  S+R   J10     J  J+R  J best: nOv maxLd% slkMW nAng V Q      cost    J s
+case1888_rte     typ      DC+ang    -    -    no    no    -  no checked round                          -      1
+case1951_rte     typ      DC+ang    -    -    no    no    -  no checked round                          -      1
+case588_sdet     api      DC+ang    -    -    no   @15    y    0   99.92    0.0    0   0   0     +0.948%      9
+case1354_pegase  api      DC+ang    -    -    no    no    -    1  119.50    0.0    0   0   0     +0.099%     97
+case1888_rte     api  DC, no ang    -    -    no    no    -  no checked round                          -      1
+case1888_rte     sad      DC+ang    -    -    no    no    -  no checked round                          -      1
+case1951_rte     sad  DC, no ang    -    -    no    no    -  no checked round                          -      1
+
+Fully clean rate over scored cases (Wilson 95 %; cluster bootstrap resamples the 8 base networks):
+  TYP (2 cases):
+    S (DC at file setpoints)         0/2   = 0.000  Wilson [0.000, 0.658]
+    S or S+R                         0/2   = 0.000  Wilson [0.000, 0.658]
+    J, 10 rounds (H2 as written)     0/2   = 0.000  Wilson [0.000, 0.658]
+    J10 or J10+R                     0/2   = 0.000  Wilson [0.000, 0.658]
+    J, 20 rounds (frozen budget)     0/2   = 0.000  Wilson [0.000, 0.658]
+    J or J+R                         0/2   = 0.000  Wilson [0.000, 0.658]
+  API (3 cases):
+    S (DC at file setpoints)         0/3   = 0.000  Wilson [0.000, 0.561]
+    S or S+R                         0/3   = 0.000  Wilson [0.000, 0.561]
+    J, 10 rounds (H2 as written)     0/3   = 0.000  Wilson [0.000, 0.561]
+    J10 or J10+R                     1/3   = 0.333  Wilson [0.061, 0.792]
+    J, 20 rounds (frozen budget)     1/3   = 0.333  Wilson [0.061, 0.792]
+    J or J+R                         1/3   = 0.333  Wilson [0.061, 0.792]
+  SAD (2 cases):
+    S (DC at file setpoints)         0/2   = 0.000  Wilson [0.000, 0.658]
+    S or S+R                         0/2   = 0.000  Wilson [0.000, 0.658]
+    J, 10 rounds (H2 as written)     0/2   = 0.000  Wilson [0.000, 0.658]
+    J10 or J10+R                     0/2   = 0.000  Wilson [0.000, 0.658]
+    J, 20 rounds (frozen budget)     0/2   = 0.000  Wilson [0.000, 0.658]
+    J or J+R                         0/2   = 0.000  Wilson [0.000, 0.658]
+  ALL (7 cases):
+    S (DC at file setpoints)         0/7   = 0.000  Wilson [-0.000, 0.354]  cluster [0.000, 0.000]
+    S or S+R                         0/7   = 0.000  Wilson [-0.000, 0.354]  cluster [0.000, 0.000]
+    J, 10 rounds (H2 as written)     0/7   = 0.000  Wilson [-0.000, 0.354]  cluster [0.000, 0.000]
+    J10 or J10+R                     1/7   = 0.143  Wilson [0.026, 0.513]  cluster [0.000, 0.600]
+    J, 20 rounds (frozen budget)     1/7   = 0.143  Wilson [0.026, 0.513]  cluster [0.000, 0.600]
+    J or J+R                         1/7   = 0.143  Wilson [0.026, 0.513]  cluster [0.000, 0.600]
+
+H1 / P6a: DC dispatch breaks a thermal, slack or angle limit in AC on 2 of 5 scored API and SAD cases (0.400; held >= 0.80, refuted < 0.50).
+H2 as written / P6b: J fully clean within 10 rounds on 0 of 7 (0.000; held >= 0.75, refuted < 0.50).
+P6c: J fully clean within 20 rounds on 1 of 7 (0.143; bar >= 0.75).
+P6d: J or J+R fully clean on 1 of 7 (0.143; bar >= 0.85).
+P6e: J+R vs S+R paired: 1 wins, 0 losses, exact sign test P = 1 (bar: P < 0.05, no more losses than 2).
+P6f: cost of J's fully clean points over the AC optimum: 1 points, mean +0.948 %, median +0.948 %, range +0.948 to +0.948 %; within 0.1 %: 0; bar: mean <= +0.5 %.
+Late finishers (clean in rounds 11 to 20): 1 (case588_sdet/api @15).
+Rounds run: 40; elastic QPs among them: 33.
+Wall time: 276 s summed over cases; J alone 108 s, slowest J 97 s.

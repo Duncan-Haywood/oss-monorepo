@@ -228,7 +228,7 @@ def summary(rows):
     late = [r for r in use if ok(r, "J") and not ok(r, "J10")]
     P(f"Late finishers (clean in rounds 11 to 20): {len(late)}"
       + (" (" + ", ".join(f"{r['case']}/{r['kind']} @{r['J']['clean_at']}" for r in late) + ")" if late else "") + ".")
-    el = sum(q == "elastic" or (q and "elastic" in q) for r in use for q in r["J"]["qp"])
+    el = sum(bool(q and "elastic" in q) for r in use for q in r["J"]["qp"])
     tot = sum(len(r["J"]["qp"]) for r in use)
     P(f"Rounds run: {tot}; elastic QPs among them: {el}.")
     P(f"Wall time: {sum(r['secs'] for r in rows):.0f} s summed over cases; J alone {sum(r.get('J_secs', 0) for r in rows):.0f} s, "
@@ -243,17 +243,21 @@ def run_noref(job):
 def noref_main():
     """After-the-run diagnostic: the cases without a PIPS AC optimum, run through every arm with PGLib's
     published IPOPT objective as the cost reference. Writes results_heldout_noref.json and .txt."""
-    main_rows = json.loads((HERE / "results_heldout.json").read_text())
-    jobs = [(r["case"], r["kind"]) for r in main_rows if not r["ac_ok"]]
-    jobs.sort(key=lambda j: -HELDOUT.index(j[0]))
-    rows = []
-    with Pool(4) as pool:
-        for i, r in enumerate(pool.imap_unordered(run_noref, jobs), 1):
-            print(f"[{i}/{len(jobs)}] {r['case']} {r['kind']} {r['secs']:.0f}s "
-                  f"J={'@' + str(r['J']['clean_at']) if r.get('J') and r['J']['clean_at'] else '-'}", flush=True)
-            rows.append(r)
-    rows.sort(key=lambda r: (KINDS.index(r["kind"]), HELDOUT.index(r["case"])))
-    (HERE / "results_heldout_noref.json").write_text(json.dumps(vlin_jsonable(rows), indent=1))
+    npath = HERE / "results_heldout_noref.json"
+    if "--summary" in sys.argv:
+        rows = json.loads(npath.read_text())
+    else:
+        main_rows = json.loads((HERE / "results_heldout.json").read_text())
+        jobs = [(r["case"], r["kind"]) for r in main_rows if not r["ac_ok"]]
+        jobs.sort(key=lambda j: -HELDOUT.index(j[0]))
+        rows = []
+        with Pool(4) as pool:
+            for i, r in enumerate(pool.imap_unordered(run_noref, jobs), 1):
+                print(f"[{i}/{len(jobs)}] {r['case']} {r['kind']} {r['secs']:.0f}s "
+                      f"J={'@' + str(r['J']['clean_at']) if r.get('J') and r['J']['clean_at'] else '-'}", flush=True)
+                rows.append(r)
+        rows.sort(key=lambda r: (KINDS.index(r["kind"]), HELDOUT.index(r["case"])))
+        npath.write_text(json.dumps(vlin_jsonable(rows), indent=1))
     text = ("Diagnostic after the main run (declared in LOG.md after it, not pre-registered): the held-out cases\n"
             "PIPS found no AC optimum for, run through the same frozen arms; cost reference = PGLib's published\n"
             "PowerModels.jl/IPOPT objective, so the 'PIPS vs PGLib' lines below read 0 by construction.\n\n" + summary(rows))

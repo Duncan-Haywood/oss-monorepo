@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVP2gsySGPC7RaXxrki",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (ventures and research portfolio); routed to research, free-choice draw",
+  "input_sha256": "c0024dda0ca69a9a1712aeea3cec8d4e2e5faa538a4c4e156142b15ab8872557",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T19:37:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research free-choice draw: grid-linopf milestone 6, held-out 500 to 2,000-bus PGLib cases",
+  "projects": [
+    "grid-linopf",
+    "infra-dcopf"
+  ],
+  "pr": 15584,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First held-out launch: full dense Clarabel QP did not finish one 1,354 to 2,000-bus case in 25 min",
+      "fix": "constraint generation on Clarabel (vlin.solve screen=True), gated on 34 dev cases (identical), logged as an amendment before any repair outcome"
+    },
+    {
+      "what": "Second launch crashed at job 19: case500_goc's reference bus has no generator (aclin.slack_gen raised)",
+      "fix": "pglib.fix_ref applies pypower.bustypes's rule; per-case errors no longer stop the pool; second amendment notes 4 verdicts were seen in progress lines"
+    },
+    {
+      "what": "noref summary crashed on a None QP kind",
+      "fix": "bool() in the elastic count; summary rerun from the saved JSON"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "the scheduled prompt asks for venture/revenue work while promptctl routes to research; followed the router as CLAUDE.md says"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/LOG.md",
+      "why": "pre-registered plan used the full QP; it did not scale, so the screened QP replaced it after an equivalence gate",
+      "did": "amendment logged before any repair outcome",
+      "result": "gate identical on 34/34 dev cases, 11x faster; held-out run completed in 20 min"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-grid-repair-on-bigger-grids-needs-twice-the-rounds.md"
+  ],
+  "goal": "advance an open research programme with a held-out test",
+  "notes": "Milestone 6: 24 PGLib cases 500-2000 buses, 12 scored (PIPS no AC optimum on 11, one no DC start). Frozen J-m-a: 0/12 clean within 10 rounds (H2 as written refuted), 6/12 within 20, 8/12 with reactive stage; J+R vs S+R 8-0 P=0.0078; clean points +0.66% mean. Diagnostic on unsolved cases: 5 RTE cases have no AC power flow at the DC start. Local checks: infra-dcopf pytest 61 passed; research/_homepage/build.py ok; research_live_links and check_md_links ok; post frontmatter/links/similarity ok; cite_check ok.",
+  "corrections": [],
+  "redteam": null
+}
