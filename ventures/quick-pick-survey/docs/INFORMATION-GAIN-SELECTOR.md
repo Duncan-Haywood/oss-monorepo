@@ -2799,21 +2799,15 @@ truth is level with standard or ahead in 15 of 16 cells (-0.0005 to +0.0064;
 the coin-flip cost seen on short lists is gone at this sparsity), and the
 salience leak is the same within 0.015.
 
-**What the pooled run found that is not about the selector.** On these
-sparse long lists the pooled ranking's 95% intervals overclaim: of the item
-pairs whose intervals do not overlap ("clearly above", `groupRanking.ts`),
-5.4 to 14.3% are the wrong way round with no one careless (20 people at one
-answer per item: 5.4% standard, 6.5% staged; 60 people at half an answer:
-13.0% and 14.3%), against 0.5-0.6% on 15 and 30 items ("Staged as the default
-up to 120 items"). Staged calls 18-70% more pairs clear at a 0.4 to 1.9 point
-higher wrong share. Both selectors share the fault, so it does not argue
-against the switch, but it is the most valuable next item: a pooled rank range
-that says "clearly above" one time in ten is not honest. Suspects, none
-tested yet: per-person Glicko ratings from one or two answers per item are
-not on a common scale (an item's rating depends on who it met while both were
-near 1500), and the DerSimonian-Laird spread is estimated from as few as one
-or two people per item (`THIN_RESPONDENTS` flags those under 3 but they still
-get ranges).
+**What the pooled run seemed to find that is not about the selector
+(withdrawn the same day).** It reported that on these sparse long lists 5.4 to
+14.3% of the pairs the pooled ranking calls "clearly above" were the wrong way
+round. That was the sweep, not the ranking: `careless-pattern-sweep.ts` capped
+every row's rd at 349 before pooling, which let each person's never-answered
+items (rating 1500, rd 350) into `groupRanking` as real ratings. On the same
+answers the shipped pool calls 0 to 0.4% of its clear pairs the wrong way round
+("The sparse long-list overclaim was the harness", below), and the pooled
+Spearman figures in this section are unchanged by the fix.
 
 **Decision.** `hybridSwitchAt` returns 0 at every length and
 `defaultPairSelector` returns "staged" at every length; a survey's own
@@ -2834,3 +2828,101 @@ Caveats: synthetic Bradley-Terry respondents with uniform truth; no real
 panel with more than 15 items exists here (REAL-RANKINGS.md), so the long
 lists are untested on people; one lapse pattern (constant random) per
 respondent in the per-person grid.
+
+## The sparse long-list overclaim was the harness (2026-11-13, last; no change to the ranking)
+
+The section above reported that on 150-item lists, at half to one answer per
+item per person, 5.4 to 14.3% of the pairs the pooled ranking calls "clearly
+above" were the wrong way round, with no one careless. That would have meant
+the admin ranking's rank ranges were dishonest exactly where a long survey
+needs them. Two suspects were named: per-person Glicko ratings from one or
+two answers per item not being on a common scale, and the DerSimonian-Laird
+spread estimated from one or two people per item.
+
+Neither. The figure came from the sweep. `careless-pattern-sweep.ts` (and
+`anchor-weight-sweep.ts`) pooled with
+
+    rows.push({ ...r, rd: Math.min(r.rd * scale, 349) })
+
+The cap was there so a down-weighted person's rows would not be scaled past
+350 and dropped as "never answered" by `groupRanking`. It also turned every
+never-answered row (rating 1500, rd exactly 350) into a real one. On a 15- or
+30-item list at 4 answers per item everyone answers about every item, so the
+cap changed nothing at equal weights. On a sparse 150-item list most rows are
+never-answered: each item gained a dozen or more phantom raters at 1500, its
+interval narrowed around a value pulled toward the middle, and pairs were
+called clear that the answers do not support.
+
+**Measured** (`scripts/sparse-pool-overclaim.ts`, new; honest panels only, so
+every wrong call is the estimator's; 150 items, 10 surveys a cell, both
+selectors; raw rows `docs/sparse-pool-overclaim-2026-11-13.jsonl`). Clear
+pairs per survey and the share of them that are the wrong way round:
+
+| selector | answers per item | people | raters per item | shipped | sweep's cap | thin items never clear | own-refit pool | joint fit |
+|---|---:|---:|---:|---|---|---|---|---|
+| standard | 0.5 | 20 | 3.6 | 174, 0.00% | 699, **7.14%** | 174, 0.00% | 156, 0.00% | 101, 0.00% |
+| standard | 0.5 | 60 | 10.9 | 252, 0.08% | 1,755, **12.94%** | 252, 0.08% | 237, 0.00% | 126, 0.00% |
+| standard | 1 | 20 | 5.5 | 477, 0.17% | 1,455, **5.15%** | 477, 0.17% | 449, 0.02% | 381, 0.00% |
+| standard | 1 | 60 | 16.6 | 637, 0.39% | 3,137, **11.01%** | 637, 0.39% | 613, 0.11% | 441, 0.00% |
+| staged | 0.5 | 20 | 3.7 | 207, 0.00% | 988, **7.53%** | 207, 0.00% | 196, 0.00% | 111, 0.00% |
+| staged | 0.5 | 60 | 11.2 | 275, 0.07% | 2,190, **14.47%** | 275, 0.07% | 268, 0.00% | 126, 0.00% |
+| staged | 1 | 20 | 5.7 | 566, 0.02% | 2,074, **6.47%** | 566, 0.02% | 553, 0.02% | 405, 0.00% |
+| staged | 1 | 60 | 17.2 | 689, 0.06% | 3,611, **11.61%** | 689, 0.06% | 685, 0.03% | 443, 0.00% |
+
+- **The cap alone reproduces the reported range** (5.2 to 14.5% here, 5.4 to
+  14.3% reported) on the same answers where `groupRanking` as the route calls
+  it says 0 to 0.4%. The ranking route reads `ParticipantItemRating`, which
+  holds a row only once a person has answered about the item (an undo puts
+  back the stored "before" rd, 350 for a first answer, which the filter still
+  drops), so the product never had this fault.
+- **The thin suspect is ruled out.** Never calling a pair clear when either
+  item has fewer than `THIN_RESPONDENTS` raters changes nothing: every clear
+  pair already sits between items with 6 or more raters. The DL spread from
+  one or two people produces intervals too wide to separate anything.
+- **The scale suspect is a small effect.** Pooling each person's own
+  Bradley-Terry refit (`btRefit.ts`) instead of their Glicko states trims the
+  wrong share from 0.39% to 0.11% in the worst cell and calls 0.6-10% fewer
+  pairs, which is the one-game-at-a-time update's known overconfidence
+  ("Per-person intervals from a refit"), not a scale problem.
+- **A joint fit is not an upgrade.** One Bradley-Terry fit of everyone's
+  answers (intervals for each item against the list's mean, model or
+  respondent-clustered sandwich; both the same here) makes no wrong calls but
+  calls 20 to 54% fewer pairs. The shipped pool already sits near 0.1%, so
+  that power is not worth a dense O(n^3) fit of the whole survey on every
+  ranking request.
+
+**The pooled long-list run, re-run with the harness fixed**
+(`careless-pattern-sweep.ts --items 150 --per-item 0.5,1 --respondents 20,60
+--careless 0,0.25,0.4 --patterns random,salience --surveys 30 --no-self`, each
+selector; 48 cells; raw rows `docs/long-list-pooled-uncapped-2026-11-13.jsonl`):
+wrong-way shares among clear pairs are 0.00-0.35% with no one careless and
+0.00-0.16% with a quarter or 40% coin-flippers, where the capped run said
+0.6-14.3%. People sharing a salience still make the pool confidently wrong,
+as on short lists ("Careless patterns that are not random"): 0.40-1.94% at a
+quarter, 2.96-8.13% at 40%. Spearman with the truth moved by at most 0.0005
+in the 32 cells the old file holds, so the selector comparison and the switch
+decision above stand. With the harness fixed, staged calls 4-25% more pairs
+clear than standard (not 18-70%), at -0.27 to +0.62 points of wrong share.
+
+**What the cap did to the weighted schemes.** The same cap stopped any weight
+below about 0.7 from taking effect (a 290 rd scaled past 349), so `loo-w`,
+`gate-w` and `self-w` were weaker than written. Re-run on 15 and 30 items, 20
+people, random, salience and dissent at 0/25/40% (40 surveys,
+`docs/careless-pattern-uncapped-2026-11-13.jsonl`): the shipped pool and
+every drop scheme are identical to the 2026-11-11 and 2026-11-12 rows; `loo-w`
+gains more against salience (+0.049 to +0.118, was +0.044 to +0.091) and
+costs a genuine camp more (-0.029 to -0.057, was -0.018 to -0.027); `gate-w
+z<1` the same way (+0.026 to +0.057 against salience, -0.005 to -0.023 for a
+camp). Each decision that rested on those columns (agreement is a note, not a
+weight; the self-consistency gate is not shipped) holds, and holds more
+strongly on the camp side. The 8- and 60-person cells of the "Careless
+patterns" table were not re-run.
+
+**Fixed.** Both sweeps now leave out never-answered rows themselves and pass
+weighted rows uncapped; `groupRanking` takes `{ answeredOnly: true }` for a
+caller that has done that, so a row scaled past 350 still counts
+(`groupRanking.test.ts`: the uncapped down-weighted row fails on the old
+filter). The route does not pass it.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth and person
+spread 0.25; no real panel with more than 15 items exists here.
