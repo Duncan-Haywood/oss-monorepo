@@ -72,8 +72,13 @@ test("on the 60 x 168 week 0 the clique floor is the 300 open hours HiGHS proved
 
 test("buildRoster reports the clique floor and proves coverage with it; cliqueFloor: false turns it off", () => {
   const { staff, slots } = seededWeek(424242, 3, 7, { daily: true });
-  const on = buildRoster(staff, slots, { exact: true });
-  const off = buildRoster(staff, slots, { exact: true, cliqueFloor: false });
+  // The old order (plateau walk first) runs the clique LP before column generation. Since 2026-11-13 a fresh build runs column
+  // generation first and the clique LP only if that proves nothing; this small week it proves, so the LP is skipped.
+  const on = buildRoster(staff, slots, { exact: true, deferCover: false });
+  const off = buildRoster(staff, slots, { exact: true, cliqueFloor: false, deferCover: false });
+  const now = buildRoster(staff, slots, { exact: true });
+  assert.equal(now.unfilledHours, on.unfilledHours);
+  assert.ok(Math.abs(now.score - on.score) < 1e-6);
   assert.ok(on.optimality.cliqueFloor && on.optimality.cliqueFloor.floor >= 0);
   assert.equal(off.optimality.cliqueFloor, null);
   assert.equal(on.unfilledHours, off.unfilledHours);

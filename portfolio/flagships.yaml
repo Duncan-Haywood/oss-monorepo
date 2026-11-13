@@ -179,16 +179,14 @@ flagships:
       Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price and column generation
       prove 20-80 person weeks; the exact check is on by default at every size. Forecast side (--from-sales, eight real
       files incl. real Square and Toast exports, 2026-11-13: eval/real-pos-exports.mjs): backtest, closure score,
-      half-life auto, priced cut, tickets, labour standard, shut-door work, multi-file pastes. Posted weeks: call-out
-      reissues hold started and posted shifts; change-count ILP and eject moves leave only score trades above the least
-      (README "Is 91 the least?" to "Giving up two clashing shifts"); a whole week at the Deputy file's rates (README "A whole
+      half-life auto, priced cut, tickets, labour standard, shut-door work, multi-file pastes. Posted weeks: reissues hold started and posted shifts (README "Is 91 the least?" to "Giving up two clashing shifts"); a whole week at the Deputy file's rates (README "A whole
       week of call-outs at a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent
       both ways. Next: whether a real manager would set keepShift
       above 1; close the 100-person gaps (tree, not bound: README same section); cuts or branching that move the score LP on the 60-person
       pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; column generation first for fresh builds, guide pages re-derived (README "Posted reissues, column generation first"); a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
+      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; fresh builds column generation first (3.5x; README "Fresh builds, column generation first"); planner still walk-first (2 of 122 plans worse via carry-over ties): pick a week's tie by what it leaves the next; a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-

@@ -236,7 +236,8 @@ test("schedule template page's example grid is what the engine returns for the s
   const html = page("employee-schedule-template.html");
   assert.equal(r.hours, 220);
   assert.equal(r.cost, 3690);
-  assert.equal(r.optimality.status, "optimal");
+  // Proven: "optimal" (the search's roster) or "improved" (column generation's, run first on a fresh build since 2026-11-13).
+  assert.ok(["optimal", "improved"].includes(r.optimality.status), r.optimality.status);
   assert.ok(html.includes("220 of 235 hours covered, payroll $3,690"));
   for (const s of staff) {
     const cells = DAYS.map((_, d) => r.assignments.filter((a) => a.person === s.name && a.slot.day === d).map((a) => fmtClock(a.slot.startMin) + "-" + fmtClock(a.slot.endMin)).join(" ") || "off");

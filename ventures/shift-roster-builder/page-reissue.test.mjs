@@ -17,7 +17,9 @@ test("posted-schedule page's keep-the-posted-shifts table is what eval/reissue-p
     const a = c.out.rebuild, b = c.out.kept;
     proven(a.status); proven(b.status);
     assert.equal(a.open, b.open);
-    assert.equal(a.pay, 3690); assert.equal(b.pay, 3690);
+    // Same payroll in both columns: $3,690, or $3,546 for Ana, whose Wednesday shift nobody can take once Monday and Tuesday
+    // are held (both leave it open, 23 h, on the posted week fresh builds give since they run column generation first, 2026-11-13).
+    assert.equal(a.pay, b.pay); assert.equal(a.pay, c.person === "Ana" ? 3546 : 3690);
     assert.ok(b.owed < a.owed, `${c.person}: kept ${b.owed} vs free ${a.owed}`);
     assert.ok(html.includes(`<tr><td>${c.person}</td><td class="n">${a.changes}</td><td class="n">$${a.owed}</td><td class="n">${b.changes}</td><td class="n">$${b.owed}</td><td class="n">${a.open}</td></tr>`), c.person);
   }

@@ -4,11 +4,11 @@
 // with scheduleChanges. Invented staff and wages. Run: node eval/callout-churn-bench.mjs
 import { parseStaff, parseShifts, buildRoster, rosterCsv, coverOptions, scheduleChanges, sampleStaff, sampleShifts } from "../calc.mjs";
 
-export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), changedAt = 1 * 1440 + 17 * 60, noticeHours = 336, exact = "auto" } = {}) {
+export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), changedAt = 1 * 1440 + 17 * 60, noticeHours = 336, exact = "auto", extra = {} } = {}) {
   const slots = parseShifts(shiftsText).slots;
   const base = (text) => { const p = parseStaff(text); if (p.errors.length) throw new Error(p.errors[0]); return p.staff; };
   const staff = base(staffText);
-  const posted = buildRoster(staff, slots, { exact, minRestHours: 10 });
+  const posted = buildRoster(staff, slots, { exact, minRestHours: 10, ...extra });
   const postedCsv = rosterCsv(posted);
   const wages = Object.fromEntries(staff.map((s) => [s.name, s.wage]));
   const rows = [];
@@ -17,7 +17,7 @@ export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), ch
     if (!idx.length) continue;
     // (a) rebuild the whole week with the person off Wednesday
     const text = staffText.split("\n").map((l, n) => (n === 0 ? l + ", off" : l.startsWith(person + ",") ? l + ", off: Wed" : l)).join("\n");
-    const rebuilt = buildRoster(base(text), slots, { exact, minRestHours: 10 });
+    const rebuilt = buildRoster(base(text), slots, { exact, minRestHours: 10, ...extra });
     const rebuiltCsv = rosterCsv(rebuilt);
     // (b) patch: each of their Wednesday shifts to the cheapest person who fits, else left open
     const owner = posted.owner.slice(); const patched = { ...posted, owner };

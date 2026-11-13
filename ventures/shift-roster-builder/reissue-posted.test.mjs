@@ -97,8 +97,10 @@ test("on the café, a call-out rebuilt with the posted roster kept owes no more 
 test("CLI --changes keeps the posted shifts by default and --keep-posted 0 rebuilds freely", () => {
   const staff = sampleStaff(), shifts = sampleShifts();
   const posted = run(staff, shifts, { mode: "csv" }).out;
-  const off = staff.split("\n").map((l, n) => (n === 0 ? l + ", off" : l.startsWith("Dev,") ? l + ", off: Thu" : l)).join("\n");
-  const base = { postedCsv: posted, weekStart: "2026-11-02", changedAt: "2026-11-04 17:00", exempt: "Dev" };
+  // Fay off Thursday: kept $89 against $118 free. (Dev, the case before fresh builds ran column generation first on
+  // 2026-11-13, now ties at $89 on the new posted roster: keeping posted shifts never costs more, but need not save.)
+  const off = staff.split("\n").map((l, n) => (n === 0 ? l + ", off" : l.startsWith("Fay,") ? l + ", off: Thu" : l)).join("\n");
+  const base = { postedCsv: posted, weekStart: "2026-11-02", changedAt: "2026-11-04 17:00", exempt: "Fay" };
   const kept = run(off, shifts, base).out, free = run(off, shifts, { ...base, keepPosted: 0 }).out;
   assert.match(kept, /Rebuilt keeping posted shifts where it could/);
   assert.match(kept, /15 shift\(s\) that started before the change held as posted/);
@@ -172,7 +174,8 @@ test("a posted reissue runs column generation first by default, at the same scor
   // eval/reissue-order.mjs: cafe seed 1, Fay off Wednesday is one of the 33 reissues where the two orders post different rosters at one score.
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const O = { minRestHours: 10 };
-  const posted = buildRoster(staff, slots, { ...O, seed: 1 });
+  // The posted week as it was measured: the old order's seed-1 roster (fresh builds run column generation first since 2026-11-13).
+  const posted = buildRoster(staff, slots, { ...O, seed: 1, deferCover: false });
   const csv = rosterCsv(posted), keep = keepFromCsv(csv);
   const d = 2, pinned = pinStarted(slots, csv, d * 1440 - 420).slots;
   const st = staff.map((q) => (q.name === "Fay" ? { ...q, days: q.days.map((w, k) => (k === d ? [] : w)) } : q));
