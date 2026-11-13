@@ -445,11 +445,18 @@ export function capability(res, spec) {
 
 // ---------------------------------------------------------------- export
 export function toCsv(res) {
-  const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+  // Labels are pasted text: a cell starting =, +, -, @, tab or CR is prefixed
+  // with an apostrophe so a spreadsheet does not run it as a formula
+  // (plain negative numbers are left alone).
+  const q = (c) => {
+    let s = String(c);
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(s)) s = `'${s}`;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const lines = ["chart,point,label,value,lcl,cl,ucl,excluded,rules"];
   for (const ch of res.charts) for (const p of ch.points) {
     const f = (v) => (v === null || v === undefined || Number.isNaN(v) ? "" : String(+v.toPrecision(10)));
-    lines.push([q(ch.name), p.i + 1, q(p.label), f(p.value), f(p.lcl), f(p.cl), f(p.ucl), p.excluded ? "yes" : "", p.rules.join(" ")].join(","));
+    lines.push([ch.name, p.i + 1, p.label, f(p.value), f(p.lcl), f(p.cl), f(p.ucl), p.excluded ? "yes" : "", p.rules.join(" ")].map(q).join(","));
   }
   return lines.join("\n") + "\n";
 }

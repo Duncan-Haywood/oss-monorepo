@@ -235,6 +235,13 @@ test("analyze: 1-based exclusions, spec limits, errors in words, and every paper
   assert.ok(PAPERS.length >= 4 && PAPERS.every((p) => p.authors && p.title && p.year && p.url && p.implemented));
 });
 
+test("CSV export defuses formula-looking labels and keeps negative numbers", () => {
+  const csv = toCsv(analyze({ text: "=HYPERLINK(1): -1\n@x: 2\nok: -3.5" }));
+  assert.match(csv, /,'=HYPERLINK\(1\),-1,/);
+  assert.match(csv, /,'@x,2,/);
+  assert.match(csv, /,ok,-3\.5,/);
+});
+
 test("parser: labels, comments, separators and bad tokens", () => {
   const { rows, errors } = parseRows("# header\nMon 3 Nov: 1200, 1300\n\n7 8\nx 2");
   assert.deepEqual(rows[0], { line: 2, label: "Mon 3 Nov", values: [1200, 1300] });

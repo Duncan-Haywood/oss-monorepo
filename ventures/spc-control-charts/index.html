@@ -115,7 +115,7 @@
       <h3>The worked example: real wafers, two answers</h3>
       <p>Press <em>Load the NIST wafer example</em>: 450 line-width measurements from a semiconductor lithography process (Sematech, published by NIST), five sites on each of three wafers from thirty cassettes. Charted the textbook way, one wafer per subgroup on an X-bar and R chart, 25 of the 90 wafers fall outside the limits. The page then points out that the wafer averages move about 1.9 times as much from wafer to wafer as the spread across one wafer predicts, because each wafer's range measures site-to-site differences, not wafer-to-wafer ones. Switch the chart to <em>subgroup averages as individuals</em> and only the three wafers of cassette 27 fall outside. Which chart is right depends on whether wafer-to-wafer variation is part of normal running; NIST's own case study makes the same point about batch processes.</p>
       <h3>When to use something else</h3>
-      <p>Autocorrelated data (a tank temperature read every second), very small shifts that matter (use CUSUM or EWMA), many correlated variables (multivariate charts), or a regulated quality system that needs validated software and an audit trail.</p>
+      <p>Autocorrelated data (a tank temperature read every second), very small shifts that matter (use CUSUM or EWMA), many correlated variables (multivariate charts), or a regulated quality system that needs validated software and an audit trail. To ask when a long series changed level or volatility, and how sure that is, without subgroups or limits, try the <a href="../changepoint-detector/">changepoint detector</a>.</p>
     </section>
     <section class="card">
       <h2>Method and citation</h2>
