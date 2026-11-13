@@ -614,6 +614,7 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
             f"the file's lens name {name!r} gives only numbers (a third-party lens, as Canon bodies write them), "
             "which would match any lens of that focal length; pass --lens"
         )
+    lens: Lens | None
     if name:
         hits = find_lenses(db, name, camera, crop)
         if not hits:

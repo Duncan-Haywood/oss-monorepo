@@ -220,10 +220,8 @@ flagships:
       matches the Leica T's preview to 0.18 px; WarpRectilinear2: on 5,411
       rectilinear lensfun profiles the best even-only fit leaves over 1 px at
       6000 px for 17%, eval/warp-rectilinear2-2026-11-12.md).
-      Lens correction from lensfun for files with none (2026-11-13,
-      --lens-db; within 1e-7 px of lensfun's pipeline; all 6,500 calibrations
-      build; a real 600D CR2 corrected; on a Leica X Vario at 46 mm lensfun and
-      the maker's own warp differ by up to 8 px, eval/lensfun-correction-2026-11-13.md).
+      Lensfun lens correction for files with none (--lens-db; Leica X Vario:
+      lensfun vs maker up to 8 px, eval/lensfun-correction-2026-11-13.md).
       Next, most valuable first: lensfun TCA and vignetting; a second
       maker-against-lensfun DNG pair (a zoom at several focal lengths); the
       grade stage reading a workspace lens database; a resampling kernel wider than bilinear; a

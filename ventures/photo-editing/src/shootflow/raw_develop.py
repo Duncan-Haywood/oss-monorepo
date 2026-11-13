@@ -66,9 +66,13 @@ from dataclasses import dataclass, field
 from itertools import accumulate
 from operator import add
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from shootflow import dng_colour as dc
 from shootflow import dng_opcodes
+
+if TYPE_CHECKING:  # lens_profiles imports dng_opcodes only; typed here without a runtime import
+    from shootflow.lens_profiles import LensDb
 
 # --------------------------------------------------------------------------
 # TIFF / DNG container
@@ -76,6 +80,7 @@ from shootflow import dng_opcodes
 
 _TYPE_SIZES = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8, 13: 4, 16: 8}
 _TYPE_FMT = {1: "B", 3: "H", 4: "I", 6: "b", 8: "h", 9: "i", 11: "f", 12: "d", 13: "I", 16: "Q"}
+
 
 TAG_EXIF_IFD = 34665
 TAG_NEW_SUBFILE_TYPE = 254
@@ -1115,7 +1120,7 @@ class DevelopSettings:
     opcodes: bool = True
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
-    lens_db: object | None = None
+    lens_db: "LensDb | None" = None
     lens_name: str | None = None
     lens_focal: float | None = None
     lens_crop: float | None = None
