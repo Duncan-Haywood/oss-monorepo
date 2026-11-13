@@ -13,7 +13,7 @@
 // Pure functions, seeded, no DOM, so the page, the CLI and the tests share it.
 
 import { mulberry32 } from "./calc.mjs";
-import { leastBreaks, floorTable } from "./orient.mjs";
+import { leastBreaks, floorTable, pairLeastBreaks } from "./orient.mjs";
 
 /**
  * Carry-over matrix from each team's opponents in playing order. `opponents[k]` is team k's list of
@@ -1928,7 +1928,7 @@ export function carryOverSqueezes(n, tries, count, { seed = 1, effort = 1, cycle
  * season with the new grounds when it has strictly fewer breaks and passes those checks, else null.
  * Seeded; the timetable and carry-over are untouched.
  */
-export function polishSeasonVenues(n, season, { seed = 1 } = {}) {
+export function polishSeasonVenues(n, season, { seed = 1, pairNodes = PAIR_EXACT_NODES } = {}) {
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   const legs = season?.rounds?.length === 2 * R ? 2 : season?.rounds?.length === R ? 1 : 0;
   if (!legs) throw new Error("season must be a single or home-and-away round robin for this many teams.");
@@ -1947,6 +1947,18 @@ export function polishSeasonVenues(n, season, { seed = 1 } = {}) {
     const host = new Int16Array(N * N).fill(-1);
     for (let r = 0; r < R; r++) for (const [h, a] of season.rounds[r].matches) host[Math.min(h, a) * N + Math.max(h, a)] = h;
     venues = assignVenuesDouble(opp, n, seed, 6, host);
+    // then the exact search on pairs (orient.mjs pairLeastBreaks), bounded by the annealing's own
+    // breaks: it returns grounds only when strictly fewer exist, and proves the least when its tree
+    // is walked to the end within the node budget (counted, not timed, so a share link rebuilds it)
+    if (pairNodes > 0) {
+      let annealed = 0;
+      for (let t = 0; t < n; t++) annealed += teamBreaks(venues, opp, t, n);
+      const exact = pairLeastBreaks(opp, n, { span: R, upperHint: Math.min(annealed, season.breaks), maxNodes: pairNodes });
+      if (exact) {
+        if (exact.venues) venues = exact.venues;
+        proved = exact.proved && exact.least <= annealed;
+      }
+    }
   }
   // the checks the season's own grounds pass: balance (leg one of a season), and a pair's two
   // meetings at opposite grounds
@@ -2012,6 +2024,13 @@ export function carryOverPolish(n, results, { seed = 1, count = CARRY_OVER_POLIS
 
 /** Polished seasons the page adds after its squeezes, at most (carryOverPolish). */
 export const CARRY_OVER_POLISH = 4;
+
+/**
+ * Node budget of the exact home-and-away regrounding (orient.mjs pairLeastBreaks) in
+ * polishSeasonVenues; 0 leaves home and away to the annealing alone (README "Fewest breaks of a
+ * home-and-away season").
+ */
+export const PAIR_EXACT_NODES = 40;
 
 /**
  * Every way to re-deal the matches of rounds rs = [r, s, t] of a single round robin into three

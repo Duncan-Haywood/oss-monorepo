@@ -1,7 +1,7 @@
 // Call-out exposure and the steady pick among tied rosters (2026-11-13, eval/steady-for-callouts.mjs).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseStaff, parseShifts, buildRoster, calloutExposure, steadyRoster, rosterCsv, rosterKey, sampleStaff, sampleShifts, TEMPLATES } from "./calc.mjs";
+import { parseStaff, parseShifts, buildRoster, calloutExposure, steadyRoster, steadyText, rosterCsv, rosterKey, sampleStaff, sampleShifts, TEMPLATES } from "./calc.mjs";
 import { run } from "./cli.mjs";
 
 const O = { minRestHours: 10 };
@@ -30,10 +30,26 @@ test("steadyRoster keeps the best score and payroll and picks the least-exposed 
   assert.ok(Math.abs(s.score - r3.score) < 1e-6);
   assert.equal(s.cost, r3.cost);
   assert.equal(s.unfilledHours, r3.unfilledHours);
-  assert.equal(s.steady.tied.length, 2);
+  // Candidates since fresh builds run column generation first (2026-11-13): the plain seed-3 build (100 h), then seeds 3
+  // and 1 in the old order (walk first), whose seed 1 lands on the 92 h tie.
+  assert.deepEqual(s.steady.tied.map((t) => [t.seed, t.order]).sort(), [[1, "walk"], [3, "default"], [3, "walk"]]);
   assert.equal(s.steady.chosenSeed, 1);
-  assert.ok(s.steady.exposure < s.steady.firstSeedExposure, `${s.steady.exposure} < ${s.steady.firstSeedExposure}`);
-  assert.equal(rosterCsv(s), rosterCsv(buildRoster(staff, slots, { ...O, seed: 1 })));
+  assert.equal(s.steady.chosenOrder, "walk");
+  assert.equal(s.steady.exposure, 92);
+  assert.equal(s.steady.firstSeedExposure, 100);
+  assert.equal(rosterCsv(s), rosterCsv(buildRoster(staff, slots, { ...O, seed: 1, deferCover: false })));
+});
+
+test("fresh builds land on one tied roster whatever the seed, so steadyRoster varies the seed in the old order (sample café, 2026-11-13)", () => {
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const fresh = new Set([1, 2, 3].map((seed) => rosterKey(buildRoster(staff, slots, { ...O, seed }))));
+  const walk = new Set([1, 2, 3].map((seed) => rosterKey(buildRoster(staff, slots, { ...O, seed, deferCover: false }))));
+  assert.equal(fresh.size, 1);
+  assert.ok(walk.size > 1, `${walk.size} walk-first rosters`);
+  // A caller who sets deferCover gets every seed in that order: column generation first leaves nothing to choose.
+  const s = steadyRoster(staff, slots, { ...O, deferCover: true }, { seeds: [1, 2, 3] });
+  assert.equal(s.steady.tied.length, 1);
+  assert.match(steadyText(s.steady), /only one roster ties/);
 });
 
 test("one best roster: steadyRoster hands back the first seed's roster", () => {
@@ -70,18 +86,18 @@ test("the outright and hand-over-chain short cuts give the same exposure case by
 
 test("stopAt stops at a lower bound, and the pruned steady pick matches the full one (sample café, seeds 1-3)", () => {
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
-  const r = buildRoster(staff, slots, { ...O, seed: 3 });
+  const r = buildRoster(staff, slots, { ...O, seed: 3, deferCover: false });
   const stop = calloutExposure(staff, slots, r, O, { stopAt: 1 });
   assert.equal(stop.stopped, true);
   assert.ok(stop.exposure >= 1 && stop.cases.length < stop.personDays);
   const a = steadyRoster(staff, slots, O, { seeds: [1, 2, 3] });
   const b = steadyRoster(staff, slots, O, { seeds: [1, 2, 3], prune: false, outright: false });
-  assert.equal(a.steady.chosenSeed, b.steady.chosenSeed);
+  assert.equal(a.steady.chosen, b.steady.chosen);
   assert.equal(a.steady.exposure, b.steady.exposure);
   assert.equal(rosterCsv(a), rosterCsv(b));
   assert.ok(a.steady.rebuilt < b.steady.rebuilt, `${a.steady.rebuilt} < ${b.steady.rebuilt}`);
   for (const t of a.steady.tied) {
-    const u = b.steady.tied.find((x) => x.seed === t.seed);
+    const u = b.steady.tied.find((x) => x.i === t.i);
     if (t.atLeast) assert.ok(t.exposure <= u.exposure && t.exposure >= a.steady.exposure); else assert.equal(t.exposure, u.exposure);
   }
 });

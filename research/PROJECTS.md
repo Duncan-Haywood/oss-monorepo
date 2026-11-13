@@ -1817,6 +1817,9 @@ generative agents, UIST.
 3. `civ-cascades` (landed in civ-levers 2026-10-28; H1 not testable, H2/H3 half held, quantitative check vs Centola and Macy not done; second run 2026-11-11: Centola et al. 2018's 25% matches a memory of 11 to 13 names, and a clustered committed patch never flips a lattice while random placement does from 10%): Granovetter thresholds and complex contagion on clustered against random
    networks. Where to seed a behaviour (hubs, bridges, clustered patches) and how many seeds it
    takes; check against Centola and Macy (2007) and Centola et al. (2018)'s 25% tipping point.
+   Moved onto real networks by programme `civ-seeding` (opened 2026-11-13: the 43 Banerjee et al.
+   2013 village networks; milestone 1 reproduces their information model's data and counterfactual
+   but lands at qN 0.05, qP 0.30 against the published 0.10, 0.50).
 4. `civ-culture` (first run landed in civ-levers 2026-10-28; fifth run 2026-11-09: weak broadcast homogenises an ordered society, strong fragments, threshold falls with L): Axelrod's culture model with media and migration. Does a common broadcast
    homogenise or fragment culture (Shibanai, Yasuno and Ishiguro 2001)? Reproduce the
    order–disorder transition of Castellano, Marsili and Vespignani (2000) first.

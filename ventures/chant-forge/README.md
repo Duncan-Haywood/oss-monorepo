@@ -528,6 +528,86 @@ the overrides, and that `--choir textbook` with `--split-voices` is byte-identic
 `eval/browser-e2e.mjs` checks the studio page's octave choir against the CLI (cue sheet and MIDI byte-equal) and its
 unison note. Not tried with singers: whether these three presets describe real choirs is the open question.
 
+## Your own choir: `--singers` (2026-11-13, latest)
+
+The presets above are rules of thumb. A director who has run a range test knows their singers, so `--singers
+choir.csv` takes it directly: one row per singer, `low` and `high` (note names such as `D3`, `Eb4`, `F#2`, or MIDI
+numbers), and optionally `name` and `section` (`T`, `T2`, `Bar`, `B` and the usual spellings; comma, semicolon or
+tab separated). It replaces `--choir`, and `--tenor` and the others still override one section.
+
+- **A section sings the notes all its singers reach,** and the unison band is the notes *every* singer reaches.
+  So one singer with a short range sets a whole section's limit, and the report says who, and how far that end
+  moves if that one singer is excused from the extreme notes (or moved, or the final lowered: a director's call).
+- **No section column?** The singers are divided for you, into tenors and basses (with `--baritones` or
+  `--second-tenors`, three or four sections): sorted by the middle of their range and cut into contiguous groups,
+  basses lowest, choosing the cut that makes the narrowest section widest, then the widest total, then the most
+  even group sizes. Every cut is tried. For the "can these singers sing it at all" hint, the singers are divided
+  afresh for two, three and four sections.
+- **A sectioned file sets the voicing:** with `--split-voices`, a file that names baritones brings them in.
+
+Alone, it prints the section report (the two example files are made up; the names are placeholders):
+
+```
+$ node cli.mjs --singers examples/range-test-sections.csv
+9 singers
+tenors Eb3-F4 (3: Singer A, Singer B, Singer C); low set by Singer C (D3 without); high set by Singer C (G4 without)
+baritones C3-E4 (3: Singer D, Singer E, Singer F); low set by Singer D (B2 without); high set by Singer E (F4 without)
+basses Bb2-C4 (3: Singer G, Singer H, Singer I); low set by Singer G (A2 without); high set by Singer I (D4 without)
+unison Eb3-C4; low set by Singer C (D3 without); high set by Singer I (D4 without)
+
+$ node cli.mjs corpus/dies-irae.gabc --singers examples/range-test.csv --suggest-final
+ambitus 17 semitones is 10 wider than Eb3-Bb3; the singers in examples/range-test.csv can sing it as tenors and basses: add --split-voices
+```
+
+The studio page has a "range test" box under the options: paste the CSV and it wins over the "Choir ranges"
+choice, prints the section ranges, and the split options use them.
+
+**Is the contiguous cut good enough?** `eval/singers-check.mjs` (report: `eval/singers-check-report.md`) compared
+the divider with brute force (every assignment of singers to labelled sections) on 290 random choirs of 6 to 12
+singers, two to four sections. These choirs are synthetic, so this checks the algorithm, not singers. The
+narrowest section matched brute force in all 290; the total width matched in 285 (the five misses, all with
+three or four sections, lose 1-2 semitones of total). 200 singers into four sections take about 50 ms.
+
+`singers.test.mjs` (17 tests, 7 for `--sit-out`): note and section parsing, CSV errors with row numbers, who sets each end, the divider
+against brute force on 60 small random choirs, that the voicing `fewestSectionsForSingers` names fits and unison
+does not, the CLI report, JSON and refusals. `eval/browser-e2e.mjs` checks the page's range-test box against the CLI
+(cue sheet and MIDI byte-equal) and its unison hint. **Not tried with a real choir's range test;** whether the
+overlap rule (every singer, every note) is too strict for real sections, which usually let one weak voice drop
+out of an extreme note, is for a director to say.
+
+### Letting a singer sit a note out: `--sit-out N` (2026-11-13, latest)
+
+The rule above makes one short range the limit of a whole section. Real sections usually let a weak voice drop
+out of an extreme note instead, so `--sit-out N` (with `--singers`; also a choice under the studio page's
+range-test box) widens each section to the notes **all but N of its singers** reach, with at least one singer
+left on every note. The unison band takes the same rule over the whole choir. How strict to be is the
+director's choice, so N is theirs to set; 0 (the default) is the old rule exactly.
+
+- **The report says who pays for it:** each section's range, the notes everyone still reaches, and who sits out
+  which notes. With a chant, a `sitting out:` line counts the sung notes each singer misses in the actual
+  arrangement (unison, or the split's who-sings-what), and a warning fires when one singer would sit out a
+  quarter or more of their notes: by then moving them or picking another final is probably the better call.
+- When the passing notes come in two runs (two clusters of singers with a gap), the widest run is the range.
+- Dividing an unsectioned file uses the widened widths too (checked against brute force over the contiguous
+  cuts in `singers.test.mjs`); 200 singers into four sections take about 70 ms.
+
+```
+$ node cli.mjs --singers examples/range-test-sections.csv --sit-out 1
+9 singers; each section's range is the notes all but 1 of its singers reach
+tenors D3-G4 (3: Singer A, Singer B, Singer C); all reach Eb3-F4; Singer C sits out D3 and F#4-G4
+baritones B2-F4 (3: Singer D, Singer E, Singer F); all reach C3-E4; Singer D sits out B2; Singer E sits out F4
+basses A2-D4 (3: Singer G, Singer H, Singer I); all reach Bb2-C4; Singer G sits out A2; Singer I sits out C#4-D4
+unison D3-D4; all reach Eb3-C4; Singer C sits out D3; Singer I sits out C#4-D4
+```
+
+What it trades, on the corpus with the two **made-up** example range tests (`eval/sit-out.mjs`, report
+`eval/sit-out-report.md`): with the 12-singer unsectioned test, the Dies irae split goes from 16 of 613 notes for
+the full choir to 347 with one singer a section sitting out (two singers miss 38 and 36 notes) and 512 with two;
+with two a section, 6 of the 8 chants fit in unison instead of none. The cost is visible too: on the Te Deum one
+singer would sit out 194 of 637 notes (the recitation tone sits above their range), and the warning says so. **Not
+tried with a real choir:** whether N = 1 sounds thinner than a split, and whether a director would rather move
+the singer, is theirs to judge.
+
 ## Mix and master check
 
 ```sh

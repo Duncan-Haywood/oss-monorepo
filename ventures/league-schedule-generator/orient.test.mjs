@@ -1,7 +1,7 @@
 // The exact break programme (orient.mjs): the least breaks a fixed timetable allows, in the page.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { leastBreaks, countBreaks, relaxedBreakFloor, minPlusStep } from "./orient.mjs";
+import { leastBreaks, countBreaks, relaxedBreakFloor, minPlusStep, pairLeastBreaks } from "./orient.mjs";
 import { mulberry32 } from "./calc.mjs";
 import { carryOverTry, polishSeasonVenues, circleOpp } from "./carryover.mjs";
 
@@ -180,4 +180,90 @@ test("the walk's kept predecessor lists change nothing: same least, proof, steps
   }
   assert.equal(cases, 48);
   assert.ok(walked > 1000, `the walks did some work (${walked} steps)`);
+});
+
+// every pair-host choice of a small home-and-away timetable, counted: the pair keeps one host (at
+// home in its first game, away in its return), balance over leg one
+function brutePairs(opp, n) {
+  const first = new Map();
+  opp.forEach((o, r) => { for (let t = 0; t < n; t++) if (o[t] < n && t < o[t] && !first.has(t * 64 + o[t])) first.set(t * 64 + o[t], r); });
+  const keys = [...first.keys()];
+  let least = Infinity;
+  for (let x = 0; x < 1 << keys.length; x++) {
+    const v = opp.map((o) => new Uint8Array(o.length));
+    keys.forEach((key, k) => {
+      const a = key >> 6, b = key & 63, h = (x >>> k) & 1;
+      opp.forEach((o, r) => { if (o[a] === b) { const hh = r === first.get(key) ? h : 1 - h; v[r][a] = hh; v[r][b] = 1 - hh; } });
+    });
+    const b = countBreaks(v, opp, n);
+    if (b < least && balanced(v, opp, n, opp.length / 2)) least = b;
+  }
+  return least;
+}
+function keepsPairs(venues, opp, n) {
+  const seen = new Map();
+  for (let r = 0; r < opp.length; r++) for (let t = 0; t < n; t++) {
+    const u = opp[r][t];
+    if (u >= n || t > u) continue;
+    if (!seen.has(t * 64 + u)) seen.set(t * 64 + u, venues[r][t]);
+    else if (seen.get(t * 64 + u) === venues[r][t]) return false;
+  }
+  return true;
+}
+
+test("pairLeastBreaks agrees with every pair-host choice counted, 4 to 6 teams home and away", () => {
+  let checked = 0;
+  for (const n of [4, 5, 6]) for (let i = 0; i < 6; i++) {
+    const t = carryOverTry(n, i, { seed: 1 + i, weighted: 8, double: true });
+    const opp = oppOf(t.rounds, n);
+    const want = brutePairs(opp, n);
+    const r = pairLeastBreaks(opp, n);
+    assert.ok(r, `${n}/${i}`);
+    assert.equal(r.proved, true, `${n}/${i} proved`);
+    assert.equal(r.least, want, `${n}/${i}: ${r.least} vs brute ${want}`);
+    assert.ok(r.floor <= want && r.relaxed <= r.floor, `${n}/${i} floors ${r.relaxed} <= ${r.floor} <= ${want}`);
+    assert.equal(countBreaks(r.venues, opp, n), want);
+    assert.ok(keepsPairs(r.venues, opp, n) && balanced(r.venues, opp, n, opp.length / 2));
+    checked++;
+  }
+  assert.equal(checked, 18);
+});
+
+test("pairLeastBreaks: 14 teams' 1,014 / 46 needs 44 and 1,118 / 44 needs 42 (the MaxSAT proofs), seeded", () => {
+  for (const [i, coe, before, least] of [[3, 1014, 46, 44], [7, 1118, 44, 42]]) {
+    const t = carryOverTry(14, i, { seed: 1, weighted: 8, double: true });
+    assert.equal(t.coe, coe);
+    assert.equal(t.breaks, before);
+    const opp = oppOf(t.rounds, 14);
+    const r = pairLeastBreaks(opp, 14, { upperHint: t.breaks });
+    assert.equal(r.least, least);
+    assert.equal(r.proved, true);
+    assert.equal(countBreaks(r.venues, opp, 14), least);
+    assert.ok(keepsPairs(r.venues, opp, 14) && balanced(r.venues, opp, 14, opp.length / 2));
+    assert.deepEqual(pairLeastBreaks(opp, 14, { upperHint: t.breaks }).venues, r.venues);
+  }
+});
+
+test("pairLeastBreaks with a season already at its least proves it and returns no grounds", () => {
+  const t = carryOverTry(12, 0, { seed: 1, weighted: 8, double: true }); // 602 / 40, MaxSAT 40
+  const r = pairLeastBreaks(oppOf(t.rounds, 12), 12, { upperHint: t.breaks });
+  assert.equal(r.least, 40);
+  assert.equal(r.proved, true);
+  assert.equal(r.venues, null);
+});
+
+test("pairLeastBreaks out of nodes: not proved, never worse than the hint", () => {
+  const t = carryOverTry(12, 11, { seed: 1, weighted: 8, double: true });
+  const r = pairLeastBreaks(oppOf(t.rounds, 12), 12, { upperHint: t.breaks, maxNodes: 3 });
+  assert.equal(r.proved, false);
+  assert.ok(r.least <= t.breaks);
+});
+
+test("polishSeasonVenues regrounds 14 teams' home-and-away 1,014 / 46 to 44, proved", () => {
+  const t = carryOverTry(14, 3, { seed: 1, weighted: 8, double: true });
+  const p = polishSeasonVenues(14, t, { seed: 1 });
+  assert.ok(p);
+  assert.equal(p.coe, 1014);
+  assert.equal(p.breaks, 44);
+  assert.equal(p.leastProved, true);
 });

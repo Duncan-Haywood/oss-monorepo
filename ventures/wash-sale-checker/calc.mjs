@@ -14,7 +14,7 @@ export function parseDate(s) {
   let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }
+  else if ((m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})(?!\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }
   else return null;
   const ms = Date.UTC(y, mo - 1, d);
   const chk = new Date(ms);
@@ -49,6 +49,10 @@ function splitLine(line, delim) {
   out.push(cur);
   return out.map((x) => x.trim());
 }
+
+// Retirement-account words as whole tokens: "Roth IRA", "SEP-IRA", "401(k)", "ROTH_IRA". A bare substring test read
+// account numbers such as "Z40123456" and names such as "September Growth" as IRAs and dropped their sales.
+const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\s*\(?k\)?)?|403(?:\s*\(?b\)?)?)(?![a-z0-9])/i;
 
 export function parseTrades(text) {
   const lines = String(text).split(/\r?\n/).filter((l) => l.trim());
@@ -85,7 +89,7 @@ export function parseTrades(text) {
     if (!(qty > 0)) return errors.push(`Line ${ln}: quantity must be above zero.`);
     if (!(price >= 0)) return errors.push(`Line ${ln}: price or amount missing.`);
     const basis = c.basis >= 0 && side === "sell" && f[c.basis] !== "" ? Math.abs(num(f[c.basis])) : null;
-    const ira = c.acct >= 0 && /ira|roth|401|403|sep|retire|hsa/i.test(f[c.acct] || "");
+    const ira = c.acct >= 0 && RETIREMENT.test(f[c.acct] || "");
     trades.push({ line: ln, date, sym, side, qty, price, total: r2(price * qty), basis: Number.isFinite(basis) ? basis : null, ira });
   });
   return { trades, errors };
@@ -194,11 +198,19 @@ export function sampleList() {
   ].join("\n");
 }
 
+// One CSV cell: quoted when it holds a comma, quote or newline, and prefixed with an apostrophe when it starts
+// like a spreadsheet formula (CSV injection), since a symbol comes straight from the uploaded file.
+const cell = (v) => {
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s)) s = "'" + s;
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
 export function reportCsv(r) {
   const rows = ["sale date,symbol,shares,proceeds,basis,gain or loss,wash sale disallowed (Form 8949 code W),loss you can claim,replacement purchases"];
   for (const s of r.sales) {
     const reps = s.replacements.map((x) => `${isoDate(x.date)} x${+x.qty.toFixed(4)}${x.ira ? " (IRA: loss permanently lost)" : ""}`).join("; ");
-    rows.push([isoDate(s.date), s.sym, s.qty, s.proceeds.toFixed(2), s.basis.toFixed(2), s.gain.toFixed(2), s.disallowed.toFixed(2), s.gain < 0 ? s.allowed.toFixed(2) : "", `"${reps}"`].join(","));
+    rows.push([isoDate(s.date), s.sym, s.qty, s.proceeds.toFixed(2), s.basis.toFixed(2), s.gain.toFixed(2), s.disallowed.toFixed(2), s.gain < 0 ? s.allowed.toFixed(2) : "", `"${reps}"`].map((v, i) => (i === 8 ? v : cell(v))).join(","));
   }
   return rows.join("\n") + "\n";
 }

@@ -1457,6 +1457,76 @@ a valid but loose floor (19 teams' 1,311 timetable: 74, where MaxSAT proves 85),
 regrounding stays with the annealing. The next step the floor makes cheap is a timetable search that
 scores its moves on the proved break floor (30 ms per timetable at 20 teams).
 
+## Fewest breaks of a home-and-away season, proved: branch and bound on pairs (2026-11-13, latest)
+
+The exact programme above handles a single round robin only. In a home-and-away season each pair
+keeps one host (at home in its first game, away in the return), and that ties rounds far apart, so
+the programme could only give a loose floor with the rule dropped (`relaxedBreakFloor`; 19 teams'
+1,311 timetable: 74, MaxSAT 85). Home-and-away regrounding stayed with the annealing.
+`orient.mjs` `pairLeastBreaks(opp, n, { upperHint, maxNodes })` now solves it exactly where its tree
+stays small, in the browser, with no dependencies.
+
+**How.** The pair rule (h1 + h2 = 1, h = 1 when the pair's lower team hosts) and leg one's balance
+rule are priced back into the same programme (Lagrangian relaxation: a price per pair and per team
+on the host bits, each round's prices added to its states, Float64 min-plus steps, a Polyak
+subgradient on the argmin's violations). Pricing alone does nothing: flipping every host keeps every
+break and negates every violation, so the priced floor is even in the prices and peaks at zero
+(measured: no rise at all). Fixing one pair's hosts first (any season can be flipped to it, same
+breaks, same balance) breaks that symmetry, and the floor rises (19 teams' 1,311: 74 -> 78). That is
+still 7 under the truth, so the search branches on the pair the argmin breaks with the largest
+price, depth first, each node warm-started from its parent's prices and pruned once its floor
+reaches the best season found. Each argmin, its first games kept and its return games flipped,
+gives a season that keeps the pair rule; the balanced ones are the incumbents. The budget counts
+nodes, not time, so a share link rebuilds the same season on any machine.
+
+**Checked against MaxSAT** (`node eval/pair-exact.mjs`, `eval/pair-exact.txt`; the page's 12 tries
+at 8, 10, 12, 14, 16, 18 and 20 teams, seed 1, home and away; proofs in
+`eval/orient-maxsat-double.txt`, `eval/orient-maxsat.py --double`, 120 s each), with the try's own
+breaks as the starting bound and 400 nodes:
+
+| | tries |
+|---|---|
+| timetables | 84 |
+| proved by MaxSAT in 120 s | 80 |
+| proved here | 79 |
+| proved by both, same least | 75 (0 disagree) |
+| proved here, MaxSAT out of time | 4 |
+| fewer breaks than the page's season | 8 |
+
+- **20 teams' 1,460 timetable needs exactly 108 breaks** (tries 0, 4 and 5; the page had 116, 118
+  and 124, the annealing's regrounding 112 to 114; MaxSAT times out). Here the relaxed floor is
+  already 108, so it is proved in 0.3 to 0.5 s with no branching.
+- 18 teams' 1,426 timetable: 88 -> 84, proved in 1 s (MaxSAT out of time). 12 teams 608 / 48 -> 46,
+  14 teams 1,014 / 46 -> 44 and 1,118 / 44 -> 42, each the MaxSAT least.
+- Not proved in 400 nodes: four capped or gap tries at 10 to 14 teams (already at the MaxSAT least)
+  and 18 teams' 1,316 / 98, taken to 92 where MaxSAT proves 90.
+- Time (one process beside three others on 4 cores): 0 to 0.6 s for most tries up to 14 teams, 1 to
+  6 s at 18 and 20, up to 65 s for one hard 20-team try (384 nodes).
+
+**In the page.** `polishSeasonVenues` runs it on a home-and-away season after the annealing, bounded
+by the annealing's breaks, with `PAIR_EXACT_NODES = 40` nodes; a season regrounded at a proved least
+carries `leastProved: true`, as single round robins do. Re-run of `eval/polish-frontier.mjs` on the
+same 10 home-and-away runs at 12, 16, 18, 19 and 20 teams, seeds 1 and 2
+(`eval/polish-frontier-pair.txt`, against `eval/polish-frontier.txt`):
+
+| | annealing alone | annealing, then the pair search |
+|---|---|---|
+| seasons joining the frontier | 2, in 2 runs | 6, in 5 runs |
+| 20 teams' 1,460 season | 112 (s1), 114 (s2) breaks | 108 on both, proved |
+| polish time per run | 1.2 to 4.8 s | 4.7 to 76 s (3 runs at once on 4 cores) |
+
+- New on the frontier: 18 teams s1 1,426 / 84 (was 88), 19 teams s1 4,003 / 52 and 6,297 / 46 (the
+  least carry-over within 46 to 48 breaks down 30%), 19 teams s2 3,491 / 64; mean cut in the least
+  carry-over at a break budget 1.42% and 0.71% -> 2.84% at 20 teams (s1, s2), 0 -> 0.33 to 0.76% at 18 and 19.
+- Nothing at 12 and 16 teams: their frontier seasons are already at their least (the proofs above).
+- The cost is time on the worker, after the squeezes: 26 to 76 s at 18 to 20 teams in this
+  contended run. The list grows while the page is usable, as with the floor-priced searches.
+- Tests: `orient.test.mjs`, 5 new: `pairLeastBreaks` equals every pair-host choice counted by brute
+  force on 18 timetables at 4, 5 and 6 teams (proved, valid, recounted); 14 teams' 46 -> 44 and
+  44 -> 42 (the MaxSAT least), seeded; a season at its least is proved with no grounds returned; out
+  of nodes is not proved and never worse; `polishSeasonVenues` regrounds 14 teams' 1,014 / 46 to 44,
+  `leastProved`.
+
 ## Pricing the break floor: timetables searched on their proved least breaks (2026-11-13, latest)
 
 The last two sections showed that the frontier's widest gaps are in the timetables (20 teams, one
