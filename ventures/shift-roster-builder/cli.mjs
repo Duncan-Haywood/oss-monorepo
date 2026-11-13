@@ -24,7 +24,7 @@ import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import { import7shifts, fetch7shifts, within } from "./import-7shifts.mjs";
 import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
-import { demandShifts, backtestSales, parseStandard, shutMinDays } from "./demand.mjs";
+import { demandShifts, backtestSales, parseStandard, shutMinDays, readSales } from "./demand.mjs";
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
@@ -94,6 +94,9 @@ Options:
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
                       --count tickets plans from distinct ticket/order/receipt numbers per hour instead (--splh is then tickets per labor
                       hour; --count rows counts each row); a file with a ticket column and no sales column is counted by ticket.
+                      A Location (Store, Site, Outlet, Restaurant ...) column with several sites, as Square and Toast exports have:
+                      --location <name> plans that site alone, --each-location prints one plan per site (each under "# Location: name");
+                      with neither, the sites are planned as one shop and a note lists them.
                       --standard "1.5/ticket + 0.02/sale + 0.3/item" plans from a labour standard instead: minutes of work per ticket,
                       per unit of money and per item, blended (any of the three); --splh is then minutes of work per labor hour
                       (default 60, everyone busy every minute; 45 leaves a quarter of each hour for cleaning and restocking).
@@ -171,6 +174,7 @@ export function parseArgs(argv) {
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
     else if (a === "--location") { o.importLocation = argv[++i]; if (!o.importLocation) throw new Error("--location needs a location name from the export"); }
+    else if (a === "--each-location") o.eachLocation = true;
     else if (a === "--use") { o.importUse = argv[++i]; if (!["schedule", "final", "initial", "timesheet", "plain"].includes(o.importUse)) throw new Error("--use takes schedule, final, initial, timesheet or plain"); }
     else if (a === "--import-7shifts") { const f = argv[++i]; if (!f) throw new Error("--import-7shifts needs a JSON file"); (o.import7 ||= []).push(f); }
     else if (a === "--fetch-7shifts") o.fetch7 = true;
@@ -621,17 +625,33 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (o.fromSales) {
       if (!(o.splh > 0) && o.demand?.standard) o.splh = 60;
       if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
-      if (o.backtest) {
-        const b = backtestSales(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh, shifts: true });
-        process.stdout.write(backtestReport(b));
-        process.exit(b.weeks ? 0 : 1);
+      if (o.eachLocation && o.importLocation) throw new Error("--each-location plans every location; leave out --location");
+      const text = await readFile(o.fromSales, "utf8");
+      // --each-location (2026-11-13): one plan per site of a multi-location export, each headed "# Location: name".
+      let sites = [o.importLocation];
+      if (o.eachLocation) {
+        sites = readSales(text, { ...o.demand }).locations.map((l) => l.name);
+        if (!sites.length) { process.stderr.write("--each-location: the file has no location column (Location, Store, Site, Outlet, Restaurant ...), so it is one shop: leave the flag out.\n"); process.exit(1); }
       }
-      const r = demandShifts(await readFile(o.fromSales, "utf8"), { halfLife: o.demand?.window ? undefined : "auto", ...o.demand, splh: o.splh });
-      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
-      if (!r.shiftsText) process.exit(1);
-      const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
-      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week ${r.count === "minutes" ? "minutes of work" : r.count && r.count !== "sales" ? r.count : "sales"} ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
-      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+      let code = 1;
+      for (const site of sites) {
+        const opts = { ...o.demand, location: site };
+        if (o.eachLocation) process.stdout.write(`# Location: ${site}\n`);
+        if (o.backtest) {
+          const b = backtestSales(text, { ...opts, splh: o.splh, shifts: true });
+          process.stdout.write(backtestReport(b));
+          if (b.weeks) code = 0;
+          continue;
+        }
+        const r = demandShifts(text, { halfLife: o.demand?.window ? undefined : "auto", ...opts, splh: o.splh });
+        for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write((o.eachLocation ? `[${site}] ` : "") + n + "\n");
+        if (!r.shiftsText) { if (o.eachLocation) process.stdout.write("# (no shifts: see the notes)\n"); continue; }
+        const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
+        process.stderr.write(`${o.eachLocation ? `[${site}] ` : ""}${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week ${r.count === "minutes" ? "minutes of work" : r.count && r.count !== "sales" ? r.count : "sales"} ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
+        process.stdout.write(r.shiftsText + "\n");
+        code = 0;
+      }
+      process.exit(code);
     }
     if (o.importStaff) {
       const r = importStaffCsv(await readFile(o.importStaff, "utf8"));

@@ -318,18 +318,40 @@ def resolve_head(ref: str, *, fetch: bool = True) -> str:
     condition, since the caller then falls back to guessing.
     """
     if ref.isdigit() and fetch:
-        _git("fetch", "--quiet", "origin", f"refs/pull/{ref}/head", check=False)
-        out = _git("rev-parse", "--verify", "--quiet", "FETCH_HEAD", check=False)
-        if out.strip():
-            return out.strip()
-        raise RuntimeError(
-            f"could not fetch refs/pull/{ref}/head -- is #{ref} a pull request "
-            "in this repository?"
-        )
+        return _fetch_pull_head(ref)
     out = _git("rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}", check=False)
     if not out.strip():
         raise RuntimeError(f"{ref!r} does not resolve to a commit in this clone")
     return out.strip()
+
+
+def _fetch_pull_head(number: str) -> str:
+    """The head commit of pull request `number`, fetched if this clone lacks it.
+
+    Two things here are deliberate (2026-11-13). The commit lands in a ref of
+    its own, not `FETCH_HEAD`, which every other fetch in the clone rewrites: a
+    concurrent fetch made one run report PR #15460's verdict as #12885's. And a
+    shallow clone fetches it with `--depth=1`; unbounded, an old pull request's
+    commit came with its whole 17,802-commit history (a 5.2 GB pack, ten
+    minutes). `_find_merge_base` deepens from there only as far as it must.
+    A commit already present is not refetched, since `--depth` would truncate
+    the history the clone already holds for it.
+    """
+    listed = _git("ls-remote", "origin", f"refs/pull/{number}/head",
+                  check=False).split()
+    if listed and _git("cat-file", "-t", listed[0], check=False).strip() == "commit":
+        return listed[0]
+    local = f"refs/supersede-check/pull/{number}"
+    _git("fetch", "--quiet", *(["--depth=1"] if is_shallow() else []),
+         "origin", f"+refs/pull/{number}/head:{local}", check=False)
+    out = _git("rev-parse", "--verify", "--quiet", f"{local}^{{commit}}",
+               check=False).strip()
+    if out:
+        return out
+    raise RuntimeError(
+        f"could not fetch refs/pull/{number}/head -- is #{number} a pull "
+        "request in this repository?"
+    )
 
 
 def added_lines(merge_base: str, head: str, path: str) -> list[str]:
@@ -644,7 +666,14 @@ def _find_merge_base(
     # to every shallow root in the clone whatever refs are named (measured
     # here on 2026-11-13: an unrelated branch went from 1 commit to 3).
     # 2147483647 is git's own spelling of "the whole history" for `--depth`.
-    for depth in (200, 2000, 2147483647):
+    # `--depth=N` also truncates a tip the clone already holds deeper than N
+    # (a 1,065-deep `main` would drop to 200), so each step counts on from the
+    # deeper of the two histories already here.
+    have = max(
+        int(_git("rev-list", "--count", tip, check=False).strip() or 0)
+        for tip in (base, head)
+    )
+    for depth in (have + 200, have + 2000, 2147483647):
         if depth == 2147483647:
             print("supersede_check: still no merge base; fetching the full "
                   "history of those refs (can take minutes)", file=sys.stderr)
@@ -679,6 +708,33 @@ def merges_to_base(base: str, head: str) -> bool:
     That is the right reading here -- the branch edited a version of the code
     that no longer exists, and reapplying it is re-derivation against the new
     code rather than a merge -- but it is a judgement, so `render` says so.
+
+    Decided by `git merge-tree --write-tree` (git 2.38+), which merges in the
+    object store: no checkout, about 0.1 s. The worktree replay it replaced
+    checked out all ~51k files first and took 136 of a 171 s run on PR #15460
+    (2026-11-13). A path merge-tree reports as conflicted resolves to the
+    base's side, so it equals the base by construction; the trees are then
+    identical exactly when every other path is. Leftovers such as
+    `path~branch` from a file/directory clash are not in the conflict list,
+    so they read as a difference: the safe direction.
+    """
+    tree = subprocess.run(
+        ["git", "merge-tree", "--write-tree", "-X", "theirs", "--name-only",
+         "--no-messages", head, base],
+        capture_output=True, text=True, check=False,
+    )
+    lines = [line for line in tree.stdout.split("\n") if line]
+    if tree.returncode in (0, 1) and lines:
+        merged, *conflicted = lines
+        # check=True: an empty diff from a failed command would read as
+        # "superseded" and greenlight a wrongful close.
+        changed = _git("diff", "--name-only", "--no-renames", merged, base)
+        return not (set(changed.split("\n")) - {""} - set(conflicted))
+    return _replay_in_worktree(base, head)
+
+
+def _replay_in_worktree(base: str, head: str) -> bool:
+    """`merges_to_base` for git older than 2.38: the same merge, checked out.
 
     Runs in a throwaway worktree: the caller's checkout is never touched.
     """
@@ -776,8 +832,8 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
             )
         )
 
-    # Only asked when the cheap scan says work would be dropped: the replay
-    # costs a worktree and a merge, and it cannot change a verdict that is
+    # Only asked when the cheap scan says work would be dropped: it cannot
+    # change a verdict that is
     # already "superseded".
     identical = bool(any(f.unmatched for f in files)) and merges_to_base(base, head)
 

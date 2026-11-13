@@ -27,7 +27,7 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --repeat  play the whole chant N times in a row (a 1-minute chant becomes a 3-minute track; backing and cues follow)
   --final   transpose so the last note is this MIDI number (50 = D3, a low men's choir final)
   --drone   add a held drone on the final, an octave below
-  --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file
+  --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file; with --sections, a guidance line opens each section (backing, first note to pitch from, the band's entry, the lifted key)
   --lrc     write timed lyrics (LRC, one line per phrase) to this file
   --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
   --auto-final  transpose to the recommended final from --suggest-final (a chant wider than E2-E4 is refused)
@@ -148,7 +148,7 @@ export function run(argv) {
   if (args.intro) events = [{ type: 'bar', kind: 'full', pulses: 8 * args.intro }, ...events];
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
   if (args.cues) {
-    writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8 }));
+    writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8, plan }));
     summary.cues = args.cues;
   }
   if (args.lrc) {

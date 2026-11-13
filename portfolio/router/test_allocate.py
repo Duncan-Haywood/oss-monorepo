@@ -886,6 +886,15 @@ class VentureReportTests(unittest.TestCase):
         self.assertLess(out.index("#9 "), out.index("#7 "))  # newest first
         self.assertIn("open PRs naming it: 2", out)
 
+    def test_flagship_next_shows_its_length_against_validates_cap(self):
+        import validate
+        import allocate
+        self.assertEqual(allocate.FLAGSHIP_NEXT_MAX, validate.FLAGSHIP_NEXT_MAX)
+        deep = make("deep")
+        deep.flagship_rank, deep.flagship_next = 0, "y" * 1990
+        self.assertIn("1990 of 2000 characters", venture_report("deep", [deep]))
+        self.assertIn("now 1990 of 2000 characters", next_task(deep))
+
     def test_non_flagship_shows_its_task_and_unknowns_say_so(self):
         out = venture_report("tiny-csv-check", [make("tiny-csv-check")])
         self.assertIn("task: ", out)
@@ -973,3 +982,12 @@ class ClaimCheckTest(unittest.TestCase):
         prs = [self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
         self.assertEqual(self.decide(prs, "x")["verdict"], "YIELD")
         self.assertEqual(self.decide([], "x")["verdict"], "HOLD")
+
+    def test_no_pr_of_mine_prints_the_empty_commit_claim(self):
+        from claim_check import report
+        now = self.NOW
+        lines = report(self.decide([], "x"), "x", now, 24)
+        self.assertTrue(any("--allow-empty" in l and "'x'" in l for l in lines), lines)
+        mine = [self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
+        lines = report(self.decide(mine, "x", mine=3), "x", now, 24)
+        self.assertFalse(any("--allow-empty" in l for l in lines), lines)

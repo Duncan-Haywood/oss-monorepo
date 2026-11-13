@@ -200,12 +200,14 @@ def resolve(ref):
 def fetch_pr_head(pr):
     """Fetch `refs/pull/<pr>/head` and return its sha, or None if unavailable.
 
-    Origin refuses a fetch by bare sha, so the pull request ref is the only
-    handle on a head commit the clone does not already carry.
+    It lands in a ref of its own rather than `FETCH_HEAD`, which any
+    concurrent fetch rewrites (on 2026-11-13 that swapped one pull request's
+    head for another's in `supersede_check.py`).
     """
-    if git("fetch", "--quiet", "origin", f"refs/pull/{pr}/head") is None:
+    local = f"refs/verification-status/pull/{pr}"
+    if git("fetch", "--quiet", "origin", f"+refs/pull/{pr}/head:{local}") is None:
         return None
-    return resolve("FETCH_HEAD")
+    return resolve(local)
 
 
 def deepen():
