@@ -27,13 +27,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "flagships.yaml chant-forge next: over the 2000-char cap",
+      "fix": "trimmed the landed-slice sentence; history is in the README"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "chant-forge breakdown + approach-chord riser. Local: node --test ventures/chant-forge/*.test.mjs 115/115; eval/browser-e2e.mjs 58/58; eval/section-levels.mjs breakdown 11-16 dB under verses. Caught and fixed in my own draft: a post claim that the studio offers the six-verse hymn (it doesn't), and a riser-loudness claim the measurement didn't support.",
+  "notes": "chant-forge breakdown + approach-chord riser. Local: node --test ventures/chant-forge/*.test.mjs 115/115; eval/browser-e2e.mjs 58/58; eval/section-levels.mjs breakdown 11-16 dB under verses. Caught and fixed in my own draft: a post claim that the studio offers the six-verse hymn (it doesn't), and a riser-loudness claim the measurement didn't support. run_workflow_locally --for-changes caught my flagships next: over the 2000-char cap (validate.py, test_allocate); trimmed, both pass now. Its 'no site directory' check is UNRUN-adjacent: the site build step is skipped locally.",
   "corrections": [],
   "redteam": null
 }
