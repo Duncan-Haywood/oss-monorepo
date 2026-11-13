@@ -25,6 +25,7 @@ import {
   researchHighlights,
   addOfflineSupport,
   offlineCacheName,
+  offlineFileDigests,
   annotateNumberInputs,
   stepAllowsDecimals,
   buildSite,
@@ -3690,10 +3691,15 @@ test('changing the worker itself changes the cache name', async () => {
   // Only the name is under test, so it is computed by the same function
   // addOfflineSupport calls, over the shared build, read-only. (This used to
   // copy the whole site and rewrite the copy, about 33 s for one inequality.)
+  // The site is read twice, not three times: once by the name as the build
+  // computes it, once into `digests`, which the second and third names reuse.
+  // Two independent reads agreeing is the purity check; `again` agreeing with
+  // `edited` also pins the `digests` path to the one the build takes.
   const built = await site();
+  const digests = await offlineFileDigests(built.outDir);
   const edited = await offlineCacheName(built.outDir, 'pretend the worker was edited');
-  const again = await offlineCacheName(built.outDir, 'pretend the worker was edited');
-  const other = await offlineCacheName(built.outDir, 'pretend the worker was edited twice');
+  const again = await offlineCacheName(built.outDir, 'pretend the worker was edited', digests);
+  const other = await offlineCacheName(built.outDir, 'pretend the worker was edited twice', digests);
   assert.equal(edited, again, 'the cache name must be a pure function of the build');
   assert.notEqual(edited, other);
   assert.notEqual(edited, built.offline.cacheName);
