@@ -3,7 +3,7 @@ title: "Seven seeds per drape: the cloth model's mesh miss is which fold it find
 seo_title: "Cloth FEM Cusick drape: seed spread, fold branches and energy"
 date: 2026-11-13
 tags: [research, robotics, cloth-simulation, laundry-robot, digital-twin, finite-elements]
-description: "Seven seeded drapes per case: the suiting's mesh change comes from finer meshes trapping stiffer, higher-energy fold patterns. The lowest-energy pattern barely moves."
+description: "Seven seeded drapes per case: finer meshes trap the suiting in stiffer, higher-energy fold patterns; the lowest-energy pattern barely moves."
 ---
 
 The [`hanger-codesign`](../../research/hanger-codesign/) programme is building
