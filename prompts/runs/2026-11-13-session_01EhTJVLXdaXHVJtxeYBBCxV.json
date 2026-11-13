@@ -44,6 +44,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The stop hook asks for uncommitted files to be committed while a long simulation is still appending to its output in the tree; I hid the growing file with git update-index --assume-unchanged / .git/info/exclude until it finished. Writing sweep output to the scratchpad and copying it in at the end would avoid this; worth saying in cloud-session.md."
+    },
+    {
+      "file": "platform/pages/percent-float.test.mjs",
+      "issue": "Scans ventures/*/.next build output (gitignored) when it exists locally, so running a Next venture's npm run verify before venture-preflight fails the preflight on minified CSS widths; it should skip .next."
     }
   ],
   "deviations": [
@@ -59,7 +63,7 @@
     "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (A threshold from the panel's own slow turns)"
   ],
   "goal": null,
-  "notes": "Local verification: npm run verify in ventures/quick-pick-survey passed (typecheck, eslint, vitest 65 files / 543 tests, next build). Integration tests (DB) run in quick-pick-survey-ci.yml. Sweep: 708 cells over three jsonl files; the sweep checks that its own auto reading matches the library's fastBlockStarts default in every survey where the shipped parameters are used (it throws otherwise) and the shipped scheme equalled the auto+tf variant to 4 decimals in a spot check. node platform/pages/venture-preflight.mjs quick-pick-survey: see PR body for its result.",
+  "notes": "Local verification: npm run verify in ventures/quick-pick-survey passed (typecheck, eslint, vitest 65 files / 543 tests, next build). Integration tests (DB) run in quick-pick-survey-ci.yml. Sweep: 708 cells over three jsonl files; the sweep checks that its own auto reading matches the library's fastBlockStarts default in every survey where the shipped parameters are used (it throws otherwise) and the shipped scheme equalled the auto+tf variant to 4 decimals in a spot check. node platform/pages/venture-preflight.mjs quick-pick-survey: clean on the third run (first: post seo_title over 70, fixed; second: percent-float.test.mjs flagged the local, gitignored .next build output left by npm run verify, a CSS width, not shipped; removed .next and reran).",
   "corrections": [],
   "redteam": null
 }
