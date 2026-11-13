@@ -1,0 +1,220 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/garment-wearwrong",
+ "stratum": "research",
+ "seed": "2026-11-13-f",
+ "drawn_by": "sample",
+ "round": 60,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a thermal-comfort and clothing-behaviour researcher who reviews for Building and Environment / Energy and Buildings (ASHRAE 55 / ISO 7730 practice), with a behavioural-economics co-reviewer for the choice-error model. They would check first that the expected-benefit arithmetic and the wardrobe search reproduce, whether the error model is grounded in any observed clothing-choice data or a standard noisy-choice model (logit / random utility, quantal response), and whether the headline sentences match the tables",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every number recomputed matches. Rerun in a scratch copy (run.py overwrites results.txt, so the tree was not touched): `cd /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/research/garment-wearwrong && /usr/bin/python3.13 experiments/run.py` (4.0 s) is byte-identical to the committed experiments/results.txt (diff empty); figure.py regenerates errgain.svg byte-identically. Independent re-implementation /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/scripts/indep.py (own option set deduplicated by benefit vector, own expectation, own brute force with itertools.product, imports only the upstream scen_benefit/added_retail physics) reproduces sections A and F exactly: uniform $50 e=0/0.3/0.5 37/55/59 of 66, +0.009/+0.184/+0.329; uniform $100 54/65/65, +0.547/+0.569/+0.729; worst $100 54/47/39, +0.547/+0.094/+0.025. Hand closed form (/tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/scripts/hand.py): pair (white, low_emissivity+white+thick) in sun only, e=0.3: uniform 0.7*3.57378+0.3*(0+3.53279)/2 = 3.031562 = code; worst 0.7*3.57378 = 2.501644 = code; single LEWT in cool room 0.7*6.46232 = 4.523625 = code. Worst-mode $100 break-even: 54 mixes, median 0.72 (statistics.median also 0.72), min 0.04, as stated. Capped at 3: the comfort index itself is inherited and unvalidated upstream.",
+  "completeness": "Claimed and checked: 6 tests (6 passed, 0.55 s); run.py 'seconds; deterministic' (4.0 s, byte-identical rerun); figure.py redraws errgain.svg from results.txt (identical, needs research/_shared/linefig.py, not mentioned); sections A-F all present; live page https://marisstella.app/research/garment-wearwrong/ returns 200. The Reproduce step 'pip install numpy scipy pytest' is needed (scipy was missing in the container and collection failed until installed). No stubs or TODOs. wearpair's README line 44 does ask for 'a wrong-garment penalty', as claimed.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 6 passed. Four mutants seeded with platform/ci/quality_mutate.py in core logic of src/garment_wearwrong/wrong.py; all four SURVIVED: uniform average -> max of wrong options (line 26), error loss halved (line 26), break-even tolerance -1e-9 -> +0.05 (line 53), and removing the duplicate-collapse (line 20). Tests are property checks only (error never helps, worst <= uniform, break-even in [0,1]); no test pins a number from results.txt or a hand-computed expectation, so a wrong formula that preserves the inequalities passes. The duplicate-dilution test (tests/test_wrong.py:25) cannot fail: with only {nothing, A} distinct values, two copies of A never change the mean of the wrong options, and the tie rule already counts both copies right.",
+  "craft": "Read src/garment_wearwrong/wrong.py (55 lines), tests/test_wrong.py, experiments/run.py, experiments/figure.py. Small, readable, deterministic, docstrings accurate. Nits: line 26 packs the whole expectation into one conditional expression; the lever-tuple de-duplication (line 20) is redundant given the tie rule; results.txt prints 'median 0.9400000000000001' (unformatted float); median is vals[len//2] (upper median, harmless here); figure.py depends on research/_shared via sys.path; best_noisy re-scores all 14x15/2 pairs per call with no caching, fine at this size.",
+  "claims": "Checked against results.txt: '+0.55 C at no error, +0.57 C at 30% error' (A: +0.547, +0.569) backed; worst '+0.55 to +0.09 C at 30%' and 'median 0.72, as low as 0.04' (F) backed; '54 of 66 / 65 of 66', '+0.51 to +0.73' backed; '$50 37 of 66, mean +0.009, 29 no gain' backed at e=0; '$20 +0.95 -> +0.52' (D) backed. NOT backed: headline 'At $50 the pair's edge is negligible (+0.009 C) either way' (README.md:3, also on the live page) - under uniform errors section A shows the $50 edge rises 20-fold to +0.184 C at e=0.3 and +0.329 C at e=0.5 (55-59 of 66 mixes). 'the pair's edge does not shrink' under uniform errors: it dips to +0.510 at e=0.1 and +0.522 at e=0.2 before rising. README.md:10 says test_duplicate_garments_cannot_dilute_errors 'now guards' the duplicate artefact; the mutant that removes the collapse survives it. Disclaimer, AI-assistance note and limitations (stylised, no wearer observed, conclusion flips between error models) are present and honest.",
+  "fitness": "A researcher could rerun it in seconds, but would get a one-parameter sensitivity sketch, not a result to build on: the error probability is independent of how much worse the wrong option is, the same in every scenario, and has no data behind it. Nearest prior work, none cited: random-utility / multinomial logit choice (McFadden 1974) and quantal response (McKelvey and Palfrey 1995), where mistake probability falls with the utility gap - the natural model between the two brackets used here; trembling-hand perturbation (Selten 1975) is the README's uniform model; on clothing behaviour, adaptive clothing-insulation models (de Dear and Brager 1998; Schiavon and Lee 2013, Building and Environment) and the Morgan and de Dear clothing-choice studies, which offer data to calibrate e. No novelty is claimed beyond the repository, and none holds externally: 'diversification hedges choice error, worst-case errors erode it' is the expected result. It is one 55-line module in a 45-slug garment-* chain, which research/CLAUDE.md asks to grow as steps inside a programme rather than new slugs; far below the PhD/publishable bar.",
+  "domain": "Compared with clothing-behaviour practice: real choices are driven by forecast and outdoor temperature (Schiavon and Lee 2013) with errors correlated with forecast surprise, which the README itself names as missing. The two brackets (uniform over wrong options, worst option) are a reasonable stated sensitivity, honestly caveated, and the arithmetic is right, but a reviewer would ask for a logit-in-benefit error model before reading any number, would note that 'nothing' is weighted as a choice equal to a garment, and inherits the upstream unvalidated optical comfort index and assumed premiums. Usable as a caveated what-if; not a method a practitioner would sign off on."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sections A and F mean gains and win counts at $50/$100, e=0/0.3/0.5, both error models",
+   "method": "separate implementation written by the auditor (own option dedup by benefit vector, own expectation, itertools.product brute force); only upstream physics imported",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/research",
+   "expected": "results.txt: uniform $50 +0.009/+0.184/+0.329 (37/55/59); uniform $100 +0.547/+0.569/+0.729; worst $100 +0.547/+0.094/+0.025 (54/47/39)",
+   "observed": "identical to 3 dp and identical counts for all 12 rows",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "noisy_benefit for a pair, uniform and worst modes",
+   "method": "hand closed form (1-e)*best + e*mean(wrong) / e*min(wrong), values from scen_vec",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/scripts/hand.py /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/research",
+   "expected": "uniform 0.7*3.573777+0.3*(0+3.532787)/2 = 3.031562; worst 0.7*3.573777 = 2.501644",
+   "observed": "3.0315621773 and 2.5016440737",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "single garment under error",
+   "method": "hand closed form (1-e)*b for a garment whose only wrong option is nothing",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/scripts/hand.py /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/research",
+   "expected": "0.7*6.462321 = 4.523625",
+   "observed": "4.523624860",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "worst-mode break-even median/min at $100",
+   "method": "statistics.median (true median) over the auditor's recomputed list, vs the code's upper-median indexing",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/scripts/hand.py /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/research",
+   "expected": "README: median 0.72, min 0.04 over 54 mixes",
+   "observed": "54 mixes, median 0.72 (both definitions), min 0.04",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "near-duplicate dilution hypothesis: does a benefit-tolerance dedup (0.05, 0.1, 0.2 C) change the uniform results?",
+   "method": "auditor's implementation with option dedup tolerance",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/garment/research 0.2",
+   "expected": "if the uniform edge were a dilution artefact, it would fall",
+   "observed": "unchanged at every tolerance; the edge comes from the cheap second garment being a decent fallback in the wrong-pick branch, as the README says",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "headline experiment reproduces",
+   "method": "rerun run.py in a scratch copy and diff",
+   "command": "cd <scratch>/research/garment-wearwrong && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt <committed>",
+   "expected": "byte-identical",
+   "observed": "byte-identical, 4.0 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates",
+   "method": "rerun figure.py and diff svg",
+   "command": "/usr/bin/python3.13 experiments/figure.py && diff -q experiments/errgain.svg <committed>",
+   "expected": "identical",
+   "observed": "identical (after copying research/_shared, an undocumented dependency)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run tests",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "6 tests pass (README)",
+   "observed": "6 passed in 0.55 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'At $50 the pair's edge is negligible (+0.009 C) either way' (README.md:3, live page)",
+   "method": "compare with results.txt section A",
+   "command": "grep 'budget <= 50' experiments/results.txt",
+   "expected": "edge ~+0.009 under both error models",
+   "observed": "uniform: +0.067/+0.125/+0.184/+0.329 at e=0.1/0.2/0.3/0.5; only worst mode stays ~+0.006",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'If a wrong pick is a random wrong option, the pair's edge does not shrink'",
+   "method": "results.txt section A",
+   "command": "grep 'budget <= 100' experiments/results.txt | head -5",
+   "expected": "non-decreasing in e",
+   "observed": "+0.547, +0.510, +0.522, +0.569, +0.729: dips 7% at e=0.1",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:10: test_duplicate_garments_cannot_dilute_errors guards the duplicate artefact",
+   "method": "mutation removing the collapse (quality_mutate.py)",
+   "command": "python3 platform/ci/quality_mutate.py research/garment-wearwrong/src/garment_wearwrong/wrong.py --old 'opts.setdefault(tuple(sorted(g)), g)' --new 'opts.setdefault(g, g)' -- /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "test fails",
+   "observed": "all tests pass (mutant survived); the test case cannot exercise dilution",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "wearpair's Next steps asked for a wrong-garment penalty",
+   "method": "read research/garment-wearpair/README.md",
+   "command": "grep -n 'wrong-garment' research/garment-wearpair/README.md",
+   "expected": "present",
+   "observed": "line 44: 'add a wrong-garment penalty'",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited and novelty",
+   "method": "compare with McFadden 1974 logit, McKelvey-Palfrey 1995 QRE, Selten 1975, Schiavon and Lee 2013",
+   "command": "grep -n -i 'logit\\|quantal\\|McFadden\\|Schiavon' research/garment-wearwrong/README.md",
+   "expected": "noisy-choice and clothing-behaviour literature cited, novelty stated",
+   "observed": "no matches; README says 'no new external source is used'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/garment_wearwrong/wrong.py:26",
+   "change": "sum(wrong) / len(wrong) -> max(wrong)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_wearwrong/wrong.py:26",
+   "change": "e * (min(wrong) if -> 0.5 * e * (min(wrong) if",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_wearwrong/wrong.py:53",
+   "change": "best_noisy(...2...)[1] - 1e-9 -> best_noisy(...2...)[1] + 0.05 (break-even tolerance)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_wearwrong/wrong.py:20",
+   "change": "opts.setdefault(tuple(sorted(g)), g) -> opts.setdefault(g, g)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Headline (and live page) says 'At $50 the pair's edge is negligible (+0.009 C) either way'; results.txt section A shows that under uniform errors the $50 edge rises to +0.184 C at e=0.3 and +0.329 C at e=0.5 (55-59 of 66 mixes). Only the worst-option model keeps it negligible.",
+   "where": "research/garment-wearwrong/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests are inequality properties only; 4 of 4 seeded mutants in the core expectation and break-even rule survive (uniform mean -> max, loss halved, tolerance +0.05, dedup removed). No test pins a hand-computed value or a results.txt number.",
+   "where": "research/garment-wearwrong/tests/test_wrong.py:13",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work on noisy choice (logit/random utility, quantal response, trembling hand) or clothing-choice behaviour (de Dear and Brager 1998, Schiavon and Lee 2013) is cited; the error rate is independent of the benefit gap and uncalibrated, so neither bracket is anchored; a one-module new slug in a 45-slug garment chain rather than a step in a programme (research/CLAUDE.md).",
+   "where": "research/garment-wearwrong/src/garment_wearwrong/wrong.py:25",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README claims test_duplicate_garments_cannot_dilute_errors 'now guards' the duplicate artefact, but the test's case ({nothing, A, A}) cannot exhibit dilution and the mutant removing the collapse survives; the collapse is also redundant given the tie rule.",
+   "where": "research/garment-wearwrong/tests/test_wrong.py:25",
+   "category": "overclaim",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'the pair's edge does not shrink' under uniform errors, but section A shows +0.547 -> +0.510 at e=0.1 and +0.522 at e=0.2 before rising; break-even_error returns the first crossing although the uniform gain is non-monotone in e.",
+   "where": "research/garment-wearwrong/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "results.txt prints unformatted floats ('median 0.9400000000000001'); figure.py needs research/_shared/linefig.py, not listed in Reproduce or dependencies.",
+   "where": "research/garment-wearwrong/experiments/run.py:44",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Reproducible and arithmetically right: run.py and figure.py regenerate the committed results.txt and SVG byte-for-byte, and an independent brute-force implementation plus three hand closed forms match every number checked. It does not meet the bar: verification is weak (4 of 4 seeded mutants survive; tests check inequalities, not values; the duplicate-dilution test cannot fail), the headline's '$50 negligible either way' is contradicted by section A under uniform errors (+0.009 -> +0.329 C), and as research it is a one-parameter sensitivity sketch with no noisy-choice or clothing-behaviour literature cited and no data behind the error rate, far from the PhD/publishable bar research/CLAUDE.md sets. The limitations section is honest about being stylised."
+}

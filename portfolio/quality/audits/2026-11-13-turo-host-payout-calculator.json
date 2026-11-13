@@ -1,0 +1,193 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/turo-host-payout-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-f",
+ "drawn_by": "sample",
+ "round": 60,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an experienced US Turo fleet host (a 'power host' running several cars) who prices trips and picks earnings plans for a living; first they check that the host-share table is Turo's current one, whether the booking-window shares actually apply in their market, and whether delivery and Extras income, which Turo also splits at host share, is counted",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/turo-host-payout-calculator/check.mjs /home/user/oss-monorepo/ventures/turo-host-payout-calculator/calc.mjs recomputes against Turo's own help center (help.turo.com 'Earnings and host share' (last updated 2026-10-19) and 'Earnings plans - In brief | US hosts' (last updated 2026-05-21), fetched as .md 2026-11-13). All 12 plan x window cells match Turo's variable-share table exactly (12/12), the damage-responsibility figures $250/$1,500/$2,750 match the US plan summaries, and the fee arithmetic is right (Peace of Mind, 14-27 days, $412.37 + $18.40 mileage + $25 late = 455.77 x 0.75 = 341.83; tool 341.83). Held at 2 because Turo applies that matrix only in nine markets (Austin, Dallas, Detroit, Las Vegas, Maui, Philadelphia, Phoenix, San Diego, Seattle). Everywhere else in the US the share is flat: 70/80/90% by plan. The tool asks every host for the booking window and applies the matrix, so a host outside those markets gets the right figure in only 3 of 12 cells (the 3-13 column). Example: a Balanced host in Chicago whose guest booked 30 days out, $350 trip: tool 315.00, Turo 280.00 (+$35, a 12.5% overstatement); last-minute: tool 262.50, Turo 280.00. Delivery fees and Extras, which Turo splits at host share for US hosts, have no input.",
+  "completeness": "Claimed features run end to end: computeTripPayout with mileage/late/additional-usage fees in the split, comparePlans with damage caps, compareBookingWindows, estimateMonthly, share link plus localStorage draft (share.test.mjs), opt-out usage counting (usage.test.mjs). The served page loads (https://marisstella.app/turo-host-payout-calculator/ 200; the two guide pages return 307 to their clean URLs). One claimed feature is missing: README.md:62 and calc.mjs:22 say every rate is 'exposed as an adjustable input', but index.html has no input for host share or damage cap (only plan and window selects).",
+  "verification": "cd ventures/turo-host-payout-calculator && node --test '*.test.mjs': 54 pass, 0 fail. quality_mutate: 4 core mutants. 2 caught (dropping additionalUsageFee from the split; turoCut off by a cent). 2 survived the full suite: changing the Peace of Mind 14-27 cell 0.75 -> 0.70 (calc.mjs:61), and the Peace of Mind cap 250 -> 750 (calc.mjs:43). Only 3 of the 12 matrix cells are pinned (calc.test.mjs:17-21), and the caps are only compared with themselves (calc.test.mjs:111-116), so the data a host acts on is mostly untested.",
+  "craft": "Files read: calc.mjs (224 lines, pure functions, no dependencies), calc.test.mjs, index.html script (lines 205-428), share.mjs. Clean and small. Invalid plan or window silently falls back to balanced / 3-13 (calc.mjs:84-90), which is tested and documented. Library-level input such as '1,200' becomes 0 (nonNegative), but the UI uses type=number, so it is unreachable there. Minor: README.md:91 dev command lists 3 of the 6 test files. No dead code or copied engines.",
+  "claims": "Disclaimers are present (index.html:192,199; README Disclaimers), not-affiliated wording is present, and the matrix and caps match Turo. But the headline claim on every surface is that Turo's US host share 'now depends on' plan AND booking window (README.md:21-23, index.html:15 and :186 FAQ, how-much-does-turo-take-from-hosts.html:29-30 and :102, llms.txt:3, VENTURE.yaml description). Turo's help page says this applies only 'in some US locations', the nine markets listed. No file in the venture mentions the market restriction (grep for austin/market/select: no hit). The guide's answer 'Turo takes between 0% and 35%' (how-much-...html:102) is wrong for hosts outside those markets, who face 10/20/30%. 'Every number ... exposed as an adjustable input' (README.md:62, calc.mjs:20-23) is not backed by the UI. 'Restructured ... around March 2026 into three named earnings plans' (README.md:21) conflates the 31 March 2026 variable-share pilot with the plans, which already existed.",
+  "fitness": "Job: 'what will this trip pay me, and which plan should I pick'. A host in one of the nine variable-share markets can do it, short of delivery/Extras income. A host anywhere else, who is most US hosts, is shown a booking-window table that does not apply to them and a per-trip figure that is wrong unless they happen to pick 3-13 days. The plan-vs-damage-cap comparison is useful for everyone.",
+  "domain": "Compared with Turo's published US earnings-plan terms (fetched). Correct: host share applies to trip price plus additional distance, additional usage and late return fees; the share locks at booking; caps are $250/$1,500/$2,750. Departs: (1) the variable share is applied nationwide instead of in nine markets; (2) delivery and Extras income, split at host share in the US, is not modelled; (3) incidental reimbursements (fuel, tolls, cleaning) paid at 100% are not mentioned, so 'Turo's cut' is fine but total trip income is understated. A power host would catch (1) within minutes."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "all 12 host-share cells for the variable-share markets, $350 trip",
+   "method": "Turo variable host share table, help.turo.com 'Earnings and host share' (last updated 2026-10-19) and 'Earnings plans - In brief | US hosts' (last updated 2026-05-21), fetched as .md 2026-11-13",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/turo-host-payout-calculator/check.mjs /home/user/oss-monorepo/ventures/turo-host-payout-calculator/calc.mjs",
+   "expected": "12/12 cells = 350 x Turo share",
+   "observed": "12/12",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "payout for a host outside the nine variable-share markets (e.g. Chicago), Balanced, booked 28+ days, $350",
+   "method": "Turo flat US share Balanced 80%, help.turo.com 'Earnings and host share' (last updated 2026-10-19) and 'Earnings plans - In brief | US hosts' (last updated 2026-05-21), fetched as .md 2026-11-13",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/turo-host-payout-calculator/check.mjs /home/user/oss-monorepo/ventures/turo-host-payout-calculator/calc.mjs",
+   "expected": "280.00 (and 3/12 cells wrongly priced is the failure; 12/12 expected)",
+   "observed": "315.00; flat-market cells matching 3/12",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "damage-responsibility caps per plan",
+   "method": "Turo 'Earnings plans - In brief | US hosts' plan summaries",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/turo-host-payout-calculator/check.mjs /home/user/oss-monorepo/ventures/turo-host-payout-calculator/calc.mjs",
+   "expected": "250 / 1500 / 2750",
+   "observed": "250 / 1500 / 2750",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Peace of Mind 14-27 days, $412.37 trip + $18.40 mileage + $25 late return",
+   "method": "by hand from Turo's rule that additional distance and late return fees are split at host share: 455.77 x 0.75",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/turo-host-payout-calculator/check.mjs /home/user/oss-monorepo/ventures/turo-host-payout-calculator/calc.mjs",
+   "expected": "341.83",
+   "observed": "341.83",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "delivery fee / Extras income split at host share",
+   "method": "Turo 'Earnings and host share': US hosts get the plan's host share of delivery and Extras",
+   "command": "grep -n -i 'delivery\\|extras' ventures/turo-host-payout-calculator/index.html ventures/turo-host-payout-calculator/calc.mjs",
+   "expected": "an input, split at host share",
+   "observed": "no input; only mentioned as 'delivery discounts' in the limits note",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/turo-host-payout-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "54 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README/page/llms.txt claim that US host share depends on booking window",
+   "method": "Turo help: variable share only in Austin, Dallas, Detroit, Las Vegas, Maui, Philadelphia, Phoenix, San Diego, Seattle",
+   "command": "grep -rn -i 'austin\\|market' ventures/turo-host-payout-calculator/",
+   "expected": "market restriction stated",
+   "observed": "no mention anywhere",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'every number exposed as an adjustable input'",
+   "method": "read index.html form",
+   "command": "grep -n '<input\\|<select' ventures/turo-host-payout-calculator/index.html",
+   "expected": "inputs for host share and caps",
+   "observed": "only plan/window selects; shares and caps are fixed constants",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "not-affiliated disclaimer and estimate framing",
+   "method": "read pages",
+   "command": "grep -n -i 'affiliat' ventures/turo-host-payout-calculator/*.html",
+   "expected": "present on tool and guide",
+   "observed": "present (index.html:192,199; guide :116)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page and guide pages",
+   "method": "load https://marisstella.app/turo-host-payout-calculator/",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/turo-host-payout-calculator/",
+   "expected": "200",
+   "observed": "200; guide pages 307 to clean URLs; served llms.txt rewritten to marisstella.app",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:61",
+   "change": "peace_of_mind \"14_27\": 0.75 -> 0.70",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:43",
+   "change": "peace_of_mind: 250, -> peace_of_mind: 750,",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:116",
+   "change": "nonNegative(lateReturnFee) + nonNegative(additionalUsageFee) -> nonNegative(lateReturnFee)",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:124",
+   "change": "turoCut = round2(splitEligible - hostPayout) -> round2(splitEligible * (1 - hostShare) + 0.01)",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The booking-window matrix is applied to every US host, but Turo uses it only in nine markets (Austin, Dallas, Detroit, Las Vegas, Maui, Philadelphia, Phoenix, San Diego, Seattle); elsewhere the share is flat 70/80/90%. A host outside those markets gets a wrong payout for 3 of 4 window choices (Balanced, 28+ days, $350: 315.00 vs Turo 280.00), with no warning.",
+   "where": "ventures/turo-host-payout-calculator/calc.mjs:60",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Headline copy says Turo's US host share 'now depends on' plan AND booking window, and the guide says Turo takes '0% to 35%'. Neither mentions that this is a nine-market rule; outside those markets Turo takes 10/20/30%.",
+   "where": "ventures/turo-host-payout-calculator/README.md:21",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "'Every number ... exposed as an adjustable input' is unbacked: the UI has no host-share or cap inputs, only plan/window selects.",
+   "where": "ventures/turo-host-payout-calculator/README.md:62",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Delivery fee and Extras income, which Turo splits at the plan's host share for US hosts, cannot be entered, so a host who delivers or sells Extras understates the split-eligible amount.",
+   "where": "ventures/turo-host-payout-calculator/calc.mjs:108",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Only 3 of 12 host-share cells and none of the damage caps are pinned by tests; changing a Peace of Mind cell or cap leaves all 54 tests green.",
+   "where": "ventures/turo-host-payout-calculator/calc.test.mjs:17",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README dev command runs 3 of the 6 test files (omits share, and the two guide-page tests).",
+   "where": "ventures/turo-host-payout-calculator/README.md:91",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right and the 12-cell table and damage caps match Turo's own help center exactly (check.mjs, 12/12). But Turo applies that booking-window table only in nine US markets, and nothing in the venture says so. Most US hosts are flat 70/80/90%, and the tool asks them for a booking window that does not affect their share; for 3 of 4 answers it then shows a wrong payout (Balanced, 28+ days, $350: 315 vs 280). The headline claim on every page repeats the same universality, and 'adjustable inputs' are claimed but not built. Delivery/Extras income is not modelled, and 2 of 4 seeded data mutants survived. Below the bar on correctness, claims and verification; the fix (a market toggle that uses the 3-13 column as the flat rate, copy naming the nine markets, a delivery/Extras field, tests pinning all 12 cells) is small."
+}
