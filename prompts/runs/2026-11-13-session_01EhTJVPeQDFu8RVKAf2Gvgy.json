@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVPeQDFu8RVKAf2Gvgy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T01:06:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/llm-coding-inference milestone 7am: pseudo-count variance floor vs the 3-miss pilot guard",
+  "projects": [
+    "llm-coding-inference"
+  ],
+  "pr": 15315,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/llm-coding-inference/LOG.md",
+      "issue": "The log is not strictly newest-first: 6e sits at the bottom. `grep -n '^## '` is needed to find the newest entry."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`gh api search/issues` returned nothing with no error in this container, so the open-PR duplicate check is unreliable. I relied on pick_track's CLAIM CHECK."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled prompt asked for revenue-generating venture work, but promptctl route drew the research track. I followed the router, the repo's configured process.",
+      "did": "advanced the llm-coding-inference programme",
+      "result": "one pre-registered milestone landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-guard-that-refuses-the-best-coder.md"
+  ],
+  "goal": null,
+  "notes": "Prediction committed in 7db460aa before the draws. 39 cells x 6 rules x 1,000 draws. P0 replay 39/39; P1, P2, P3 supported; P4 refuted (1.011 lexicon 2% n 600), P5 refuted (79% of gain), so the decision rule was not met and the defaults are unchanged (PSEUDO=0 added, off). Local checks: test_llmci 31 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links 0 updated; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null
+}

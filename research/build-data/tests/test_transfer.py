@@ -149,3 +149,30 @@ class TailFold(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class MinSupport(unittest.TestCase):
+    """Session 81: classes with fewer than k source training rows fold into 'other'."""
+
+    def frames(self):
+        import pandas as pd
+        src = pd.DataFrame(dict(year=[2018] * 5 + [2020] * 3, y=range(8),
+                                cls=["alteration"] * 4 + ["plumbing"] + ["plumbing"] * 3))
+        held = pd.DataFrame(dict(year=[2018] * 9, y=range(9), cls=["plumbing"] * 9))
+        return {"sf": src, "austin": held}
+
+    def test_counts_only_source_training_years(self):
+        fold, n = transfer.minsup_map(self.frames(), "austin", 2020, k=2)
+        self.assertEqual(n["plumbing"], 1)  # the 2020 rows are not training rows for Y=2020; Austin is never read
+        self.assertEqual(n["alteration"], 4)
+        self.assertEqual(fold, {c: "other" for c in transfer.CLASSES if c not in ("alteration", "other")})
+
+    def test_k_zero_folds_nothing_and_other_never_folds(self):
+        self.assertEqual(transfer.minsup_map(self.frames(), "austin", 2020, k=0)[0], {})
+        self.assertNotIn("other", transfer.minsup_map(self.frames(), "austin", 2020, k=10 ** 9)[0])
+
+    def test_name(self):
+        self.assertEqual(transfer.minsup_k("cascade2_minsup1000"), 1000)
+        self.assertIsNone(transfer.minsup_k("cascade2"))
+        self.assertIsNone(transfer.minsup_k("cascade2_minsupx"))

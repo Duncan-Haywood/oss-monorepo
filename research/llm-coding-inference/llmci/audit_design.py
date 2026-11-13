@@ -78,20 +78,36 @@ def pilot_ceiling(y, f):
     return cell_ceiling(sum(pos) / len(pos), sum(1 - b for b in neg) / len(neg))
 
 
-def _cell_s2(f_all, pilot_y, cells):
-    """Pilot variance of y - f in each cell (as `plan_audit` allocates): floored at 1e-4, 0.25 with under two items."""
+PSEUDO = 0.0  # pseudo-count variance floor per coder cell (LOG.md 7am); 0 is off, the rule every experiment before 7am ran
+
+
+def pseudo_var(y, pseudo):
+    """Pseudo-count variance floor for one coder cell's 0/1 labels y: p~(1 - p~) with p~ = (sum(y) + pseudo) /
+    (len(y) + 2 pseudo) (pseudo 2 is the plus-four of Agresti and Coull). Inside a coder cell f is constant, so the
+    residual y - lambda f has the variance of y, and a cell whose audit holds 0 to 2 positives gets a variance near
+    zero; the floor keeps it at about what (pseudo) positives would give (LOG.md 7am). 0.0 when pseudo is 0."""
+    if not pseudo:
+        return 0.0
+    p = (sum(y) + pseudo) / (len(y) + 2 * pseudo)
+    return p * (1 - p)
+
+
+def _cell_s2(f_all, pilot_y, cells, pseudo=0.0):
+    """Pilot variance of y - f in each cell (as `plan_audit` allocates): floored at 1e-4, 0.25 with under two items;
+    with pseudo > 0 also at least `pseudo_var` of the cell's pilot labels."""
     s2 = []
     for cell in cells:
+        ys = [pilot_y[i] for i in cell if i in pilot_y]
         res = [pilot_y[i] - f_all[i] for i in cell if i in pilot_y]
         if len(res) > 1:
             m = sum(res) / len(res)
-            s2.append(max(1e-4, sum((r - m) ** 2 for r in res) / (len(res) - 1)))
+            s2.append(max(1e-4, sum((r - m) ** 2 for r in res) / (len(res) - 1), pseudo_var(ys, pseudo)))
         else:
             s2.append(0.25)
     return s2
 
 
-def predicted_ratio(f_all, pilot_y, n, floor=FLOOR):
+def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0):
     """Pilot plug-in forecast of the half-width ratio, coder cells over one pooled stratum, for an audit of n items
     (LOG.md 7ak). Unlike `pilot_ceiling` (asymptotic, Neyman without floor, pooled at lambda 0) it prices what the
     real audit does: the pooled side uses the control-variate weight lambda fitted on the pilot, the cells side the
@@ -116,13 +132,14 @@ def predicted_ratio(f_all, pilot_y, n, floor=FLOOR):
     sizes = [len(c) for c in cells]
     if min(sizes) == 0:
         return 1.0
-    s2 = _cell_s2(f_all, pilot_y, cells)
+    s2 = _cell_s2(f_all, pilot_y, cells, pseudo)
     alloc = cell_allocation(n, sizes, s2, floor)
     var_cells = sum((Nh / N) ** 2 * (1 - a / Nh) * v / a for Nh, a, v in zip(sizes, alloc, s2))
     return (var_cells / var_pool) ** 0.5
 
 
-def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN):
+def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
+               pseudo=PSEUDO):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -132,20 +149,22 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     half-width ratio of cells over pooled at the pilot's sensitivity and specificity (`pilot_ceiling`), reported for
     the planner and not used by the rule (an upper bound, not a forecast; see `cell_ceiling`): 7h saw the screen pick cells at J = 0.39 for a gain of 0.6% against a
     ceiling of 8%. width_margin (default WIDTH_MARGIN = 0 since 7ak; None turns it off, as every experiment before 7ak ran):
-    also send the plan to pooled unless `predicted_ratio` is at most 1 - width_margin."""
+    also send the plan to pooled unless `predicted_ratio` is at most 1 - width_margin. pseudo (default PSEUDO): the
+    pseudo-count variance floor (`pseudo_var`) used in the allocation, the width forecast and, carried in the plan,
+    by `audit_interval` for each coder cell (LOG.md 7am)."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
     design = screen(y, f, tau, guard, neg_guard)
-    if design == "cells" and width_margin is not None and predicted_ratio(f_all, pilot_y, n, floor) > 1 - width_margin:
+    if design == "cells" and width_margin is not None and predicted_ratio(f_all, pilot_y, n, floor, pseudo) > 1 - width_margin:
         design = "pooled"
     if design == "pooled":
         return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
                 "ceiling": pilot_ceiling(y, f)}
     cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
-    s2 = _cell_s2(f_all, pilot_y, cells)
+    s2 = _cell_s2(f_all, pilot_y, cells, pseudo)
     alloc = cell_allocation(n, [len(c) for c in cells], s2, floor)
-    return {"design": "cells", "cells": cells,
+    return {"design": "cells", "cells": cells, "pseudo": pseudo,
             "to_label": [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)],
             "ceiling": pilot_ceiling(y, f)}
 
@@ -155,7 +174,8 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     human 0/1} for the pilot plus the items drawn from `to_label`. Estimator of 6ac and 6ad: one control-variate weight
     lambda = cov(y, f) / var(f) clipped to [0, 1], pooled over the audited items, applied in every cell; the stratified
     variance (with finite-population correction); then a Wilson interval on n_eff = p(1-p) / se^2 labels. Needs at
-    least two labelled items in each cell."""
+    least two labelled items in each cell. A cells plan made with pseudo > 0 floors each cell's variance at
+    `pseudo_var` of its audited labels (LOG.md 7am); a pooled plan never does."""
     import math
     cells = plan["cells"]
     ys = [[labels[i] for i in c if i in labels] for c in cells]
@@ -169,11 +189,14 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     my = sum(ay) / len(ay)
     lam = 0.0 if vf == 0 else min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(ay, af)) / (len(ay) - 1) / vf))
     total = sum(len(c) for c in cells)
+    pseudo = plan.get("pseudo", 0.0) if len(cells) > 1 else 0.0
     value = var = 0.0
     for c, y, f in zip(cells, ys, fs):
         r = [a - lam * b for a, b in zip(y, f)]
         mr = sum(r) / len(r)
         v = sum((x - mr) ** 2 for x in r) / (len(r) - 1)
+        if pseudo:
+            v = max(v, pseudo_var(y, pseudo))
         w = len(c) / total
         value += w * (lam * sum(f_all[i] for i in c) / len(c) + mr)
         var += w * w * (1 - len(y) / len(c)) * v / len(y)
