@@ -161,7 +161,24 @@ Milestone 3b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `src/infra_dcopf/vl
 - **As planned, it gets close but does not finish.** J ends within 0.1 % of ratings and 0.1 MVAr of Q limits on 19 of 34 but strictly inside on 5: the QP puts rows on their bounds and first-order error decides the side.
 - **A small interior margin fixes most of it.** J-m changes one thing: ratings x 0.999, slack limits by 0.1 MW, angles by 0.01 deg, voltages by 0.001 pu, Q by 0.1 MVAr. 17 of the 19 near-misses become fully clean. On SAD, J-m alone (8 of 11) beats the P-only repair run at the AC optimum's own schedule (6).
 - **Cost.** n_gen + n_vbus power flows per round, up to 10 rounds; 26 min for all 36 cases on 4 processes, of which case300 API (no QP solution in 10 rounds) takes 10 min.
-- **Limits.** J-m's margins were chosen after seeing J on the same cases, so 28 of 34 is a tuning-set figure until the frozen rules run on held-out cases. PIPS only; one load point per case; no LPAC baseline yet. Not repaired: case300 TYP and API, case179 TYP, case73 API, case118 API, case240 SAD.
+- **Limits.** J-m's margins were chosen after seeing J on the same cases, so 28 of 34 is a tuning-set figure until the frozen rules run on held-out cases. PIPS only; one load point per case; LPAC baseline in the section below (2026-11-13). Not repaired: case300 TYP and API, case179 TYP, case73 API, case118 API, case240 SAD.
+
+## LPAC as a one-shot baseline (added 2026-11-13, `experiments/run_lpac.py`, `results_lpac.txt`, `diag_lpac.py`, `results_lpac_infeasible.txt`)
+Milestone 4a of [`grid-linopf`](../grid-linopf/PROPOSAL.md). LPAC-C (Coffrin and Van Hentenryck 2014), in the conic form PowerModels.jl implements, carries reactive power and voltage magnitude in a linear power-flow model (`src/infra_dcopf/lpac.py`, solved by Clarabel; SCS as a second opinion). Its dispatch and voltages were run through one AC power flow and scored with the same checks as the repair, on the 34 PGLib cases with an AC optimum. Plan and predictions logged before any LPAC code ran.
+
+| 34 cases with an AC optimum | fully clean | P-clean |
+|---|---|---|
+| LPAC-C has a solution | 25 | |
+| L: LPAC's P and voltages, one AC power flow | **0** | 4 |
+| L-f: LPAC's P at the case file's 1.0 pu | 0 | 4 |
+| L, then the reactive stage | 8 | |
+| L&rarr;J: the frozen J-m-a repair started at L | 17 (24 with the reactive stage) | |
+| J-m-a from the DC start, same 25 cases / all 34 | 15 (23) / 21 (31) | |
+
+- **No case is feasible one-shot.** On the 25 cases LPAC-C solves, the AC power flow breaks Q limits on 21 and voltage limits on 20; 376 of 1,000 units get a setpoint exactly on a voltage bound. LPAC's own thermal rows hold, but the AC flows overload by up to 17 %.
+- **LPAC-C has no solution on 9 cases**, 7 of them SAD; SCS agrees on 8 and is inconclusive on the ninth (case24 SAD). Removing the angle limits makes 8 of the 9 solvable (after-the-run diagnostic).
+- **As a warm start it is neutral to slightly helpful:** 17 against 15 fully clean on the same 25 cases (sign test P = 0.73), finishing earlier on 7 of the 12 both finish.
+- **Limits.** One LPAC form (cold start, conic cosine and thermal rows), one load point per case; LPAC-W and the polyhedral LP form are not run yet.
 
 ## Is the repair's QP solved correctly? (added 2026-11-13, `experiments/audit_qp.py`, `audit_qp.txt`, `run_vlin.py --margin --analytic --clarabel` / `--screen`)
 Milestone 2b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). Every QP the repair poses (347 along J-m-a's path on 34 PGLib cases) was re-solved by Clarabel (an independent interior-point solver) and by a screened PIPS solve (constraint generation over the rows near their bounds, exact for a convex QP), and the whole repair was rerun with each. Plan and predictions logged before the runs.
@@ -201,7 +218,8 @@ Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens`
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 42)
+## Checks (`tests/`, 44)
+- `tests/test_lpac.py` (4, 8 cases): LPAC's branch coefficients with the exact trigonometric terms reproduce PYPOWER's flows at the AC optimum on case14 TYP, case30 API and case118 SAD and with a 5-degree phase shifter added; LPAC-C solves case14 TYP and API and case30 SAD inside its voltage bands with positive losses and a cost within 5 % of the AC optimum; SCS and Clarabel agree on its objective to 1e-5.
 - `tests/test_vlin.py` (10): the screened QP returns the full QP's solution (hard and elastic) with fewer rows, and Clarabel and PIPS solve the same QP to the same point; the analytic sensitivities match central finite differences to 1e-4 (scaled) on case14 API and case30 SAD, and an analytic linearisation runs one power flow; the joint check is clean at the AC optimum and returns its cost, per-bus setpoints round-trip to per-unit VG, a 0.004 pu setpoint move is predicted to first order, the bound-shrinking helper stops at the midpoint, and the method repairs case14 API from 1.0 pu at the optimum's cost (within 0.1 %).
 - `tests/test_vsched.py` (4): the reference dict carries a schedule to every generator bus, PGLib's file schedule is flat 1.0 pu, pinning holds every non-slack unit within 0.02 MW, and the reactive stage at the AC optimum's dispatch returns the optimum's cost.
 - `tests/test_aclin.py` (5): on case30 API, the linearisation's offsets reproduce the AC power flow at its point, a 5 MW redispatch is predicted to within 0.05 MW of slack and 0.5 MVA of branch flow, the loss factors lie in a physical range, the QP solution satisfies its own linear constraints, and the linearisation at the AC optimum returns an AC-feasible dispatch.
@@ -322,12 +340,16 @@ PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min
 PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
 PYTHONPATH=src:experiments python experiments/run_stale_factors.py  # about 4 min; writes results_stale_factors.txt
 PYTHONPATH=src python experiments/run_outage.py 1.0   # about 9 min; writes results_outage.txt (1.1 writes results_outage_k1.1.txt)
+OMP_NUM_THREADS=1 python experiments/run_lpac.py  # LPAC one-shot baseline and LPAC-started repair, about 5 min; needs pypower, clarabel, scs; writes results_lpac.txt/.json
+python experiments/diag_lpac.py               # which limit class makes LPAC-C infeasible; writes results_lpac_infeasible.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 
 ## References
+- Coffrin, C., Van Hentenryck, P. (2014), A linear-programming approximation of AC power flows, *INFORMS Journal on Computing* 26(4):718-734, doi:10.1287/ijoc.2014.0594 (arXiv:1206.3614).
+- O'Donoghue, B., Chu, E., Parikh, N., Boyd, S. (2016), Conic optimization via operator splitting and homogeneous self-dual embedding, *Journal of Optimization Theory and Applications* 169(3):1042-1068, doi:10.1007/s10957-016-0892-3 (SCS).
 (DOIs from memory; the DOI resolver was unreachable through the proxy, so they were not looked up in this run. 2026-11-11: the PowerModels.jl DOI and bibliographic data were checked against the BibTeX in its README; the PGLib arXiv id was checked against the PGLib-OPF README, which links it as the library's report and asks users to cite it, but arxiv.org was unreachable, so its author list and title are from memory.)
 - Thurner, L. et al. (2018), pandapower, *IEEE Trans. Power Systems* 33(6), doi:10.1109/TPWRS.2018.2829021.
 - Zimmerman, R. D., Murillo-Sanchez, C. E., Thomas, R. J. (2011), MATPOWER, *IEEE Trans. Power Systems* 26(1), doi:10.1109/TPWRS.2010.2051168.
@@ -339,4 +361,4 @@ python experiments/figure.py                  # experiments/gap_vs_load.svg
 - Coffrin, C., Bent, R., Sundar, K., Ng, Y., Lubin, M. (2018), PowerModels.jl: An Open-Source Framework for Exploring Power Flow Formulations, *Power Systems Computation Conference (PSCC)*, doi:10.23919/PSCC.2018.8442948.
 
 ## Outside dependencies
-pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`), and SciPy (sparse matrices for PYPOWER's QP), and Clarabel (Apache 2.0) for the repair's QP since milestone 2b.
+pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`), and SciPy (sparse matrices for PYPOWER's QP), and Clarabel (Apache 2.0) for the repair's QP since milestone 2b and for LPAC; SCS 3.3 (MIT) as the second LPAC solver (milestone 4a).
