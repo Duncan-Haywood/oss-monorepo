@@ -195,3 +195,45 @@ export function relaxedBreakFloor(opp, n, opts = {}) {
   const r = leastBreaks(opp, n, { ...opts, budget: 0 });
   return r && r.floor;
 }
+
+/**
+ * The break floor of a single round robin's timetable kept as its forward table, so a search that
+ * changes a few rounds prices the change without the whole programme: rounds before the first
+ * changed one keep their table, and the programme reruns from there (R - lo transitions instead of
+ * R - 1, about half on a random move). `trial(lo)` prices the timetable as `opp` now stands, with
+ * rounds 0..lo-1 unchanged since the last `commit`; `commit()` keeps the last trial's table (call it
+ * only right after the trial it accepts; the caller undoes a refused move instead). Same floor as
+ * leastBreaks(opp, n).floor. null when a round has more than ORIENT_MAX_MATCHES matches. `opp` is
+ * read live (the caller moves it).
+ */
+export function floorTable(opp, n) {
+  const R = opp.length;
+  if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > ORIENT_MAX_MATCHES)) return null;
+  const masks = (r) => homeMasks(roundMatches([opp[r]], n)[0]);
+  const playsOf = (r) => { let p = 0; for (let t = 0; t < n; t++) if (opp[r][t] < n) p |= 1 << t; return p >>> 0; };
+  // g[y] = min over x of f[x] + #teams in both rounds at the same ground
+  const step = (fr, A, B, both) => {
+    const g = new Int32Array(B.length).fill(0x3fffffff);
+    for (let x = 0; x < A.length; x++) {
+      const fx = fr[x], ax = A[x];
+      for (let y = 0; y < B.length; y++) { const c = fx + popcount(~(ax ^ B[y]) & both); if (c < g[y]) g[y] = c; }
+    }
+    return g;
+  };
+  let H = [], plays = [], fwd = [], pending = null;
+  const run = (lo) => {
+    const h = H.slice(0, lo), p = plays.slice(0, lo), f = fwd.slice(0, lo);
+    for (let r = lo; r < R; r++) {
+      h[r] = masks(r); p[r] = playsOf(r);
+      f[r] = r === 0 ? new Int32Array(h[0].length) : step(f[r - 1], h[r - 1], h[r], (p[r - 1] & p[r]) >>> 0);
+    }
+    let best = Infinity;
+    for (const v of f[R - 1]) if (v < best) best = v;
+    pending = { h, p, f };
+    return best;
+  };
+  const commit = () => { if (pending) { H = pending.h; plays = pending.p; fwd = pending.f; pending = null; } };
+  const floor = run(0);
+  commit();
+  return { floor, trial: (lo) => run(lo), commit };
+}
