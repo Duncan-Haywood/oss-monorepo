@@ -57,6 +57,15 @@ const PILOTS = {
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
   'social-security-earnings-test-calculator': async (m) => [m.LIMITS_2026.low, m.LIMITS_2026.high, 1, 2, 3], // 2026 exempt amounts; 1, 2, 3: the $1-for-$2 and $1-for-$3 withholding rates
   'rmd-calculator': async (m) => [500000, Math.round(m.rmdFor(500000, 75))], // worked example: $500,000 at age 75 over the Table III factor
+  'etsy-profit-calculator': async (m) => {
+    const f = m.ETSY_US_FEES;
+    const ex = m.calculateOrder({ price: 30, shippingCharged: 5 }); // the lead's worked example
+    const total = Math.round((ex.fees.listing + ex.fees.transaction + ex.fees.payment) * 100) / 100;
+    return [f.listingFee, f.paymentFixed, 30, 5, total];
+  },
+  'wage-garnishment-limit-calculator': async (m) => [
+    m.FEDERAL_MIN_WAGE, ...Object.keys(m.PERIODS).map((p) => m.protectedFloor(p)),
+  ], // the minimum wage and the four pay-period floors, 15 U.S.C. 1673(a) and 29 CFR 870.10
   'qbi-deduction-calculator': async (m) => [m.THRESHOLDS[2026].single, m.THRESHOLDS[2026].joint, m.THRESHOLDS[2026].rangeSingle, m.THRESHOLDS[2026].rangeJoint, m.THRESHOLDS[2026].minDeduction, m.THRESHOLDS[2026].minDeductionFloor],
 };
 
@@ -278,4 +287,19 @@ test('au-gst-registration-checker: lead is sourced, dated and matches the thresh
   const stated = [...text.matchAll(/AUD ([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
   assert.deepEqual(stated, [THRESHOLD, NONPROFIT_THRESHOLD]);
   assert.match(text, /21 days/);
+});
+
+// Percentages in the Etsy and garnishment leads: the dollar check above does not see them.
+test('etsy-profit-calculator and wage-garnishment-limit-calculator: lead percentages match the calc module', async () => {
+  const lead = (slug) => {
+    const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+    return html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/)[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  };
+  const pct = (text) => [...text.matchAll(/(\d+(?:\.\d+)?)%/g)].map((x) => Number(x[1]));
+  const etsy = await import(new URL('etsy-profit-calculator/calc.mjs', root));
+  assert.deepEqual(pct(lead('etsy-profit-calculator')), [etsy.ETSY_US_FEES.transactionRate, etsy.ETSY_US_FEES.paymentRate]);
+  const g = await import(new URL('wage-garnishment-limit-calculator/calc.mjs', root));
+  assert.deepEqual(pct(lead('wage-garnishment-limit-calculator')), [25, g.supportPercent(true, false), g.supportPercent(false, true), 15]);
+  assert.match(g.CITATIONS.ordinary, /25%/);
+  assert.match(g.CITATIONS.student, /15%/);
 });
