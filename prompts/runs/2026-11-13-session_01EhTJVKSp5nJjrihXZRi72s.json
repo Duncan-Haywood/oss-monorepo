@@ -51,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Round 10 of the changepoint watch: NAB's 47 real series (MIT), hourly, replayed after every point, pre-registered (first commit). T1 hint not confirmed (49 vs 50 windows), T2 drift-beats-middle dropped (48 vs 52), T3 non-nested hint fails by one (48 vs 49). Level settings sit near chance at a window (13.7% vs 11.8%); drift 20.5% at half the alerts. Hint text now cites the NAB miss. Checks: node --test watch-nab.test.mjs watch-eagerness.test.mjs: 15 pass; portfolio/router/validate.py valid.",
+  "notes": "Round 10 of the changepoint watch: NAB's 47 real series (MIT), hourly, replayed after every point, pre-registered (first commit). T1 hint not confirmed (49 vs 50 windows), T2 drift-beats-middle dropped (48 vs 52), T3 non-nested hint fails by one (48 vs 49). Level settings sit near chance at a window (13.7% vs 11.8%); drift 20.5% at half the alerts. Hint text now cites the NAB miss. Checks: node --test watch-nab.test.mjs watch-eagerness.test.mjs: 15 pass; portfolio/router/validate.py valid. After merging main: run_venture_tests.py changepoint-detector ok (162 s); venture-preflight.mjs changepoint-detector clean.",
   "corrections": [],
   "redteam": null
 }
