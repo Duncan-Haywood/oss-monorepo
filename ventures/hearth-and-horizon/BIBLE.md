@@ -117,6 +117,7 @@ introduces a dated fact.
 | 2041 | A typhoon takes down the tower of the San Isidro church in Batangas; its bell is recast | *Slowest Bell* |
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
+| 2049 | A week of cloud over Maewo, Vanuatu, takes a solar vaccine fridge above 8 C for 26 hours four days before a measles-rubella catch-up campaign; Penama's cold-chain assistant is called Chain | *The Cold Chain* |
 | 2051 | The only recompression chamber in the Faroes (invented hospital at Gjógv á Ytstoy, built 2039) treats a salmon-farm diver and a seven-year-old with carbon monoxide poisoning together on a gale night; its log system is called Vakt | *The Second Gas* |
 | 2051 | Sgarbhaigh (invented), Outer Hebrides: island hospital with a two-lock recompression chamber (bought 2040 for the scallop divers; operator Donnie MacInnes, inside attendant Catriona Morrison, control AI Gauge); Fri 17 Nov, helicopter grounded, diver Tomasz Wróbel (Table 6) and Ealasaid MacPhee, 7 (carbon monoxide), treated together, 21:51 to 02:36 | *Two Metres* |
 | 2060 | Holy Year (25 July is a Sunday); heatwave on the Castilian Meseta; Fraternity of the Way (invented) runs water caches and a logistics AI, Aljibe; Valdeceniza (invented village) rings its harvest bell at 03:30 for pilgrims | *The Bell at Half Past Three* |
@@ -277,9 +278,10 @@ until it has. An empty shelf below means: write a proposal.
 
 **Hearth & Horizon**
 
-- *Proposal: The Cold Chain* (2026-11-13): a vaccine fridge at a district health post on an island in Vanuatu or Kiribati, run on a solar direct-drive fridge, loses its ice lining in a week of cloud before a measles catch-up campaign. Work out the fridge's hold-over time against WHO PQS figures for solar direct-drive refrigerators (days of autonomy at 43 °C ambient), the vials' vaccine vial monitor stages, and how many doses a boat run to the provincial store can carry in a cold box. The plot turns on whether to use doses whose monitors are near the discard point; check every WHO figure against its source before drafting.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
+
+- *Proposal: The Wet Bulb* (2026-11-13): a Gulf-coast parish school in 2047 runs its outdoor First Holy Communion procession on a heat-index rule, and the school's assistant has been quoting the dry-bulb temperature and a phone app's heat index while the humidity off the bay rises. Work out from the NWS Rothfusz regression and from wet-bulb globe temperature (WBGT) how far a 33 C, 70% humidity morning in the sun differs from what the app shows, how long eighty children in white can stand on asphalt at each WBGT band (cite the published school or athletics guidance, not memory), and what moving the procession inside or to 8 a.m. buys. The plot turns on a rule written for the wrong number; check every threshold against its source before drafting.
 
 **For Other Minds**
 
