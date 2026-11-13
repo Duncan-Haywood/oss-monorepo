@@ -993,5 +993,102 @@ class FeederPackageTest(unittest.TestCase):
         self.assertEqual(committed["collisions"], [])
 
 
+
+class TroughParamsTest(unittest.TestCase):
+    def test_run_drop_speed_and_the_lift_it_leaves(self):
+        p = Feeder()
+        d = p.trough_design()
+        self.assertAlmostEqual(d["drop_mm"], 1440 * math.tan(math.radians(3)), places=6)
+        # energy: g h = (1 + k) v^2 / 2 + g crr L cos a, per unit mass
+        L = 1.44 / math.cos(math.radians(3))
+        lhs = 9.81 * d["drop_mm"] / 1000
+        rhs = (1 + p.ball_inertia_k) * d["end_speed_m_s"] ** 2 / 2 + 9.81 * p.trough_crr * L * math.cos(math.radians(3))
+        self.assertAlmostEqual(lhs, rhs, places=9)
+        self.assertGreater(d["run_time_s"], 3.0)          # slow: a far-end ball takes seconds, so the queue matters
+        self.assertEqual(d["queue_balls"], 42)
+        # the loop does not close by gravity: the tub's rim is over 2 m above the outlet
+        self.assertGreater(d["lift_mm"], 2000)
+        self.assertAlmostEqual(d["lift_mm"], d["tub_rim_low_z"] + p.tub_drop_clear_mm - p.sump_out_z)
+        self.assertLess(p.trough_lift_power_w(36), 1.0)   # lifting the balls is cheap; the hardware is the problem
+
+    def test_trough_rules_catch_bad_changes(self):
+        self.assertEqual(Feeder().check_trough(), [])
+        self.assertTrue(any("1.5 balls" in r for r in Feeder(trough_w=90.0).check_trough()))
+        self.assertTrue(any("start again" in r for r in Feeder(trough_slope_deg=2.0).check_trough()))
+        self.assertTrue(any("start again" in r for r in Feeder(trough_crr=0.04).check_trough()))
+        self.assertTrue(any("net plane" in r for r in Feeder(trough_x0=20.0).check_trough()))
+        self.assertTrue(any("near the court" in r for r in Feeder(trough_end_z=110.0).check_trough()))
+        self.assertTrue(any("under the net beam" in r for r in Feeder(sump_out_z=90.0).check_trough()))
+        self.assertTrue(any("off the gutter run" in r for r in Feeder(trough_hanger_y=(80.0,)).check_trough()))
+        self.assertIn(Feeder(trough_w=90.0).check_trough()[0], Feeder(trough_w=90.0).check())
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class TroughCadTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F
+        cls.F = F
+        cls.p = Feeder()
+        cls.parts = {q.name: q for q in F.all_parts(cls.p)}
+
+    def _solids(self, name):
+        q = self.parts[name]
+        return [q.shape.moved(loc) for loc in q.placements]
+
+    def test_tub_rim_matches_the_envelope(self):
+        tub = self._solids("hopper_tub")[0].bounding_box()
+        self.assertAlmostEqual(tub.max.Z, self.p.tub_rim_z[1], places=3)
+        self.assertLess(self.p.tub_rim_z[0], self.p.tub_rim_z[1])
+
+    def test_gutter_runs_follow_the_design(self):
+        a, b = self._solids("trough_gutter")
+        for g, sgn in ((a, 1), (b, -1)):
+            bb = g.bounding_box()
+            self.assertAlmostEqual(bb.min.X, self.p.trough_x0, places=3)
+            self.assertAlmostEqual(min(abs(bb.min.Y), abs(bb.max.Y)), self.p.sump_half, places=3)
+            self.assertAlmostEqual(bb.min.Z, self.p.trough_bottom_z(self.p.sump_half) - self.p.trough_wall, delta=0.5)
+            self.assertAlmostEqual(bb.max.Z, self.p.trough_end_z + self.p.trough_w / 2, delta=4.0)
+            self.assertEqual(sgn > 0, bb.min.Y > 0)
+        self.assertAlmostEqual(a.volume, b.volume, places=3)
+
+    def test_gutter_rests_in_every_saddle_without_clashing(self):
+        gutters = self._solids("trough_gutter")
+        holders = [n for n in self.parts if n.startswith("trough_hanger_")] + ["trough_sump"]
+        self.assertEqual(len(holders), len(self.p.trough_hanger_y) + 1)
+        for n in holders:
+            for h in self._solids(n):
+                for g in gutters:
+                    self.assertLess((g & h).volume, 1.0, n)
+                gap = min(g.distance_to(h) for g in gutters)
+                self.assertLess(gap, 2.0, f"{n} does not carry the gutter (gap {gap:.2f} mm)")
+
+    def test_hangers_bolt_to_the_net_beam(self):
+        beam = self._solids("net_beam")[0]
+        for n in (n for n in self.parts if n.startswith("trough_hanger_")):
+            for h in self._solids(n):
+                bb = h.bounding_box()
+                self.assertAlmostEqual(bb.min.X, 0.0, places=3)
+                self.assertLessEqual(bb.min.Z, self.p.rail_z + 10.0 - 6)
+                self.assertGreaterEqual(bb.max.Z, self.p.rail_z + 30.0 + 6)
+                self.assertLess(h.distance_to(beam), 0.01)
+
+    def test_sump_outlet_passes_under_the_beam_and_off_the_court(self):
+        sump = self._solids("trough_sump")[0]
+        beam = self._solids("net_beam")[0]
+        bb = sump.bounding_box()
+        self.assertAlmostEqual(bb.min.X, -self.p.rail_w, places=3)
+        self.assertGreaterEqual(bb.min.Z, self.p.ground_min_mm)
+        self.assertLess((sump & beam).volume, 1.0)
+        # a ball-sized probe at the outlet's floor slides through the stub without touching it
+        from build123d import Location, Sphere
+        r = self.p.ball_d / 2
+        for x in (-self.p.rail_w, 0.0, self.p.trough_x0 + self.p.sump_wall - r):
+            probe = Sphere(r).moved(Location((x, 0, self.p.sump_out_z + r + 0.5)))
+            self.assertLess((probe & sump).volume, 1.0, x)
+        _, deg = self.F.sump_floor_rise(self.p)
+        self.assertGreater(deg, 10.0)
+
+
 if __name__ == "__main__":
     unittest.main()
