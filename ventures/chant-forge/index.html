@@ -40,7 +40,7 @@
     <div class="grid">
       <div><label for="bpm">Tempo (BPM)</label><input id="bpm" type="number" value="124" min="40" max="220"></div>
       <div><label for="genre">Genre backing</label><select id="genre"><option value="">None (choir line only)</option></select></div>
-      <div><label for="final">Final note</label><select id="final"><option value="auto" selected>Fit E2-E4 for me</option><option value="split">Tenors and basses by phrase (wide chants)</option><option value="splitwords">Tenors and basses, handing over at a word too</option><option value="split3">Tenors, baritones and basses by phrase</option><option value="">Keep as written</option></select></div>
+      <div><label for="final">Final note</label><select id="final"><option value="auto" selected>Fit E2-E4 for me</option><option value="split">Tenors and basses by phrase (wide chants)</option><option value="splitwords">Tenors and basses, handing over at a word too</option><option value="split3">Tenors, baritones and basses by phrase</option><option value="split4">First and second tenors, baritones and basses (TTBB)</option><option value="">Keep as written</option></select></div>
       <div><label for="stretch">Bar fit</label><select id="stretch"><option value="stretch" selected>Lengthen long notes to fill bars</option><option value="pad">Pad with rests</option><option value="none">No fitting</option></select></div>
       <div><label for="half">Chant speed</label><select id="half"><option value="">Normal</option><option value="1">Half-time over the backing (metal)</option></select></div>
       <div><label for="sections">Song sections</label><select id="sections"><option value="">One groove all the way</option><option value="1">Intro, verses, builds, breakdown and drops (from the double bars)</option></select></div>
@@ -90,7 +90,7 @@
   <script type="module">
     import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize } from "./gabc.mjs";
     import { eventsToMidi } from "./midi.mjs";
-    import { suggestFinal, splitVoices, describeSplit, BARITONE_RANGE } from "./voicefit.mjs";
+    import { suggestFinal, splitVoices, describeSplit, BARITONE_RANGE, TENOR2_RANGE } from "./voicefit.mjs";
     import { arrange, barsFor, bpmRange, GENRE_NAMES } from "./genre.mjs";
     import { renderMidi } from "./render.mjs";
     import { sectionPlan, liftEvents } from "./sections.mjs";
@@ -157,12 +157,14 @@ mode: 1;
         if (!r.fits) lines.push(`Note: the chant spans ${r.ambitus} semitones${withLift}, ${r.over} more than ${r.range.join("-")}; left as written. Split it between voices or accept a falsetto or a low pedal.`);
         else { events = transposeToFinal(events, r.recommended.final); lines.push(`Moved so the final is MIDI ${r.recommended.final - lift}${lift ? ` (${r.recommended.final} after the lift)` : ""}, which keeps it inside ${r.range.join("-")}${withLift}.`); }
       }
-      if (["split", "splitwords", "split3"].includes($("final").value)) {
-        const three = $("final").value === "split3";
-        const r = splitVoices(events, { words: $("final").value === "splitwords" ? "prefer" : "needed", baritone: three ? BARITONE_RANGE : null });
-        if (!r.fits) throw new Error(`No split at bars or words fits tenors C3-A4${three ? ", baritones A2-F4" : ""} and basses E2-E4: ${r.reason}.`);
+      if (["split", "splitwords", "split3", "split4"].includes($("final").value)) {
+        const four = $("final").value === "split4";
+        const three = four || $("final").value === "split3";
+        const r = splitVoices(events, { words: $("final").value === "splitwords" ? "prefer" : "needed", baritone: three ? BARITONE_RANGE : null, tenor2: four ? TENOR2_RANGE : null });
+        if (!r.fits) throw new Error(`No split at bars or words fits ${four ? "first tenors C3-A4, second tenors C3-G4" : "tenors C3-A4"}${three ? ", baritones A2-F4" : ""} and basses E2-E4: ${r.reason}.`);
         events = r.events;
-        const tracks = Object.keys(r.voiceNotes).some((v) => v.includes("baritone")) ? "a Tenors, a Baritones and a Basses track" : "a Tenors and a Basses track";
+        const sung = (x) => Object.keys(r.voiceNotes).some((v) => v !== "all" && v.split("+").includes(x));
+        const tracks = [sung("tenor2") ? "a First tenors, a Second tenors" : "a Tenors", ...(sung("baritone") ? ["a Baritones"] : [])].join(", ") + " and a Basses track";
         lines.push(`Voices: ${describeSplit(r)}.${r.split ? ` The MIDI has ${tracks}; the cue sheet says who sings each note.` : ""}`);
       }
       const sum = summarize({ ...parsed, events }, { bpm, pulsesPerBar: 8 });
