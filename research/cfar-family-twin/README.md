@@ -12,4 +12,12 @@ PYTHONPATH=src python3 experiments/run.py                 # ~10 min; output in e
 
 **Builds on.** The sensor-simulation and sim-to-real-for-perception direction of the ARPG lab (<https://arpg.colorado.edu/>, radar/lidar perception); no specific ARPG paper is reproduced and nothing here is affiliated with or endorsed by that lab. Detectors are classical: Finn & Johnson (1968, *RCA Review* 29(3)), Rohling (1983, *IEEE Trans. AES* 19(4)) for OS-CFAR and its exact Gaussian Pfa, Ward (1981, *Electronics Letters* 17(16)) for the compound clutter model. Companion to `radar-clutter-twin` and the scalar-LQ twin projects `twin-transfer`, `randomized-twin`.
 
-Stylised: single-pulse square-law detection, unit-mean gamma texture iid across cells, Rayleigh-fluctuating additive target, no range/Doppler structure, no real radar data, no interfering targets in the window (where OS-CFAR is normally preferred). MIT.
+Stylised: single-pulse square-law detection, unit-mean gamma texture iid across cells, Rayleigh-fluctuating target added in power (see Known gaps), no range/Doppler structure, no real radar data, no interfering targets in the window (where OS-CFAR is normally preferred). MIT.
+
+## Known gaps (quality audit round 59, 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-cfar-family-twin.json`](../../portfolio/quality/audits/2026-11-13-cfar-family-twin.json). The false-alarm results reproduce byte for byte and match the textbook CA and OS formulas; these gaps are in the detection-probability side and the framing.
+
+- **The target is added in power, not amplitude.** `_pd_cond` (`src/cfar_family_twin/model.py`) computes P(τ·e0 + s·e1 > T) with e0, e1 independent Exp(1). A Swerling-1 target in complex-Gaussian clutter of local power τ gives an Exp(τ + s) test cell instead. Against the standard Swerling-1 CA-CFAR formula the twin Pd is overstated by up to 0.014 (0.6996 / 0.8922 / 0.9645 reported against 0.6855 / 0.8843 / 0.9615 at 15 / 20 / 25 dB), and real-clutter Pd by 0.002 to 0.005. The auditor re-ran the detector ranking with the standard model and it did not change. `simulate_direct` uses the same model, so the direct-simulation test cannot catch this. Fixing it means re-running `experiments/run.py` and updating the paper's Pd tables.
+- **Prior work not cited.** With texture drawn independently per cell, the clutter is iid K-distributed, and CFAR loss in K clutter is studied in Watts (1985, IEE Proc. F 132), Armstrong and Griffiths (1991, IEE Proc. F 138) and Ward, Tough and Watts, *Sea Clutter* (IET, 2006). There is no baseline that sets the threshold for the K distribution itself.
+- `twin_pd` has no test, and a seeded change to its target power passed every test.
