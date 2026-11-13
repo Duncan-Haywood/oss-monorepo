@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
     "Spent about 25 minutes on the allocator's row (league-schedule-generator, exact least breaks per timetable) before claim_check.py showed PR #15421, opened 4 minutes before this session's PR, doing the same thing with the same method; yielded and removed the files.",
-    "RC2 (python-sat, core-guided MaxSAT) did not finish one 20-team single round robin in 100 s; a linear SAT-UNSAT search with glucose4 found no fewer breaks than the tool in 5 s on any of 16 seasons but proved only the 4 lowest-break ones. At 12 teams every listed season's breaks were already the proven least. Not landed (PR #15421 owns it); recorded here for that session."
+    "RC2 (python-sat, core-guided MaxSAT) did not finish one 20-team single round robin in 100 s; a linear SAT-UNSAT search with glucose4 found no fewer breaks than the tool in 5 s on any of 16 seasons but proved only the 4 lowest-break ones. At 12 teams every listed season's breaks were already the proven least. Not landed (PR #15421 owns it); recorded here for that session.",
+    "Lengthened photo-editing's flagship next: past the 2,000-character cap (validate.py and test_allocate caught it locally); trimmed, and dropped an item already done."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -55,7 +56,7 @@
     "ventures/photo-editing/eval/lens-pipeline-grade-2026-11-13.md"
   ],
   "goal": null,
-  "notes": "Real check: RAW_CANON_5DMARK2_PREPROD.CR2 (rawpy test file) + lensfun data/db at 52cf1a7b0e82 (56 files) through tools/real_cr2_pipeline.py --lens-db: rendered, master 5616x3744 rgb48le, max difference 0 against shootflow develop --dcp --lens-db, 92.2% of samples differ from the uncorrected master, 14.1 s vs 10.9 s. tests/test_lens_pipeline.py 8 passed (18 s); 3 seeded faults each caught. run_venture_tests.py photo-editing: ok (84.4 s). Pixel 3 read profile (for the C de-stuffing item, not pursued): 0.378 s on 1 thread, 0.250 s on 4; bytes.replace 0.031 s, regex 0.012 s, byteswap 0.008 s, lut16 0.016 s, serial _blit 0.062 s of a 0.54 s profiled read.",
+  "notes": "Real check: RAW_CANON_5DMARK2_PREPROD.CR2 (rawpy test file) + lensfun data/db at 52cf1a7b0e82 (56 files) through tools/real_cr2_pipeline.py --lens-db: rendered, master 5616x3744 rgb48le, max difference 0 against shootflow develop --dcp --lens-db, 92.2% of samples differ from the uncorrected master, 14.1 s vs 10.9 s. tests/test_lens_pipeline.py 8 passed (18 s); 3 seeded faults each caught. run_venture_tests.py photo-editing: ok (84.4 s). Pixel 3 read profile (for the C de-stuffing item, not pursued): 0.378 s on 1 thread, 0.250 s on 4; bytes.replace 0.031 s, regex 0.012 s, byteswap 0.008 s, lut16 0.016 s, serial _blit 0.062 s of a 0.54 s profiled read. Local CI (run_workflow_locally.py --for-changes; no check runs had started on the PR): photo-editing-ci, ventures-tests, portfolio-pages, pages, doc-refs, conflict-markers, duplicate-symbols, control-plane-guard, readme-live-links all passed their run: steps; portfolio-validate first failed on this PR's own flagship next: at 2,249 chars (cap 2,000), fixed to 1,977, then validate.py and test_allocate pass; agent-permission-harness failed once on a repository file count that changed mid-run (preflight writing alongside), and 94/94 pass rerun alone. venture-preflight.mjs photo-editing: clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
