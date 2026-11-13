@@ -14,7 +14,7 @@
 // starting points to overwrite, never a statement of what a platform will
 // charge you.
 
-export const MODEL_NOTE = "Fee presets are typical seller-side rates as last checked and marketplaces change them without notice, so confirm yours on the listing screen; buyer-side fees are paid by the buyer and are not modelled; income tax, sales tax and chargebacks are not modelled; sale probability is your own estimate, not a forecast";
+export const MODEL_NOTE = "Fee presets are rough typical seller-side rates, not taken from a dated fee page, and marketplaces change them without notice, so confirm yours on the listing screen; buyer-side fees are paid by the buyer and are not modelled; income tax, sales tax and chargebacks are not modelled; sale probability is your own estimate, not a forecast";
 
 export const PLATFORMS = {
   stubhub: { label: "StubHub", sellerFeePct: 10 },
@@ -153,15 +153,21 @@ function splitLine(line) {
  * order is event,platform,qty,cost,sale,fees.
  */
 export function parseSales(text) {
-  const rows = []; let skipped = 0; let col = null;
+  const rows = []; let skipped = 0; let col = null; let width = 6;
   for (const raw of String(text ?? "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line || line.startsWith("#")) continue;
     const cells = splitLine(line);
     if (!col && cells.some((c) => HEADERS.platform.test(c)) && cells.some((c) => HEADERS.cost.test(c))) {
       col = headerColumns(cells);
+      width = cells.length;
       continue;
     }
+    // An unquoted "$1,200.00" splits into two cells and shifts every column
+    // after it; a row wider than the columns is skipped, not misread.
+    let used = cells.length;
+    while (used > 0 && cells[used - 1] === "") used -= 1;
+    if (used > width) { skipped += 1; continue; }
     const m = col || { event: 0, platform: 1, qty: 2, cost: 3, sale: 4, fees: 5, payout: -1 };
     const at = (k) => (m[k] >= 0 ? cells[m[k]] : undefined);
     const qty = toNumber(at("qty"));
@@ -214,6 +220,6 @@ export function summarizeSales(report) {
 export const INPUT_NOTES = [
   { what: "event,platform,qty,cost,sale,fees", detail: "One sale per line, in this order if there is no header row. cost is the total you paid for the lot; sale is the gross price; fees is what the marketplace kept." },
   { what: "event,platform,cost,payout", detail: "With a header row, columns are found by name. payout (what the marketplace paid you) can replace sale + fees." },
-  { what: "$1,200.00 and (45.00)", detail: "Dollar signs and thousands separators are ignored; parentheses mean negative." },
+  { what: "$1,200.00 and (45.00)", detail: "Dollar signs are ignored and parentheses mean negative. Quote an amount with a thousands separator (\"$1,200.00\"): unquoted, its comma splits the row, which is then skipped rather than misread." },
   { what: "Blank lines and # comments", detail: "Skipped. A row with no platform or no readable numbers is counted as skipped, not guessed." },
 ];

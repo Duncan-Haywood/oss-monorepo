@@ -133,12 +133,13 @@ describe("selectNextPairHybrid first-option fallback", () => {
 });
 
 describe("hybridSwitchAt: the staged selector's switch point by list length", () => {
-  it("hands over at the first answer up to INFO_FROM_START_MAX_ITEMS, at 120 answers above", () => {
+  it("hands over at the first answer at every length (above INFO_FROM_START_MAX_ITEMS too, since 2026-11-13)", () => {
     expect(hybridSwitchAt(2)).toBe(0);
     expect(hybridSwitchAt(15)).toBe(0);
     expect(hybridSwitchAt(INFO_FROM_START_MAX_ITEMS)).toBe(0);
-    expect(hybridSwitchAt(INFO_FROM_START_MAX_ITEMS + 1)).toBe(HYBRID_SWITCH_ANSWERS);
-    expect(hybridSwitchAt(220)).toBe(HYBRID_SWITCH_ANSWERS);
+    expect(hybridSwitchAt(INFO_FROM_START_MAX_ITEMS + 1)).toBe(0);
+    expect(hybridSwitchAt(220)).toBe(0);
+    expect(hybridSwitchAt(5000)).toBe(0);
   });
 
   const lcg = (seed: number) => { let x = seed; return () => ((x = (x * 1664525 + 1013904223) % 4294967296) / 4294967296); };
@@ -156,10 +157,14 @@ describe("hybridSwitchAt: the staged selector's switch point by list length", ()
     }
   });
 
-  it("a 200-item list still gets the shipped selector's pair before 120 answers", () => {
+  it("a 200-item list gets the information selector's pair before 120 answers too (no warm-up since 2026-11-13)", () => {
     for (let s = 1; s <= 5; s++) {
-      expect(selectNextPairHybrid(input(200, 50, s))).toEqual(selectNextPair(input(200, 50, s)));
+      expect(selectNextPairHybrid(input(200, 50, s))).toEqual(selectNextPairByInformation(input(200, 50, s)));
     }
+  });
+
+  it("HYBRID_SWITCH_ANSWERS passed explicitly still gives the old warm-up on a long list", () => {
+    expect(selectNextPairHybrid(input(200, 50, 2), { switchAt: HYBRID_SWITCH_ANSWERS })).toEqual(selectNextPair(input(200, 50, 2)));
   });
 
   it("an explicit switchAt still wins over the length rule", () => {
@@ -223,12 +228,13 @@ describe("answer agreement and the admission pause", () => {
 });
 
 describe("resolvePairSelector: what /api/trials/next runs", () => {
-  it("defaults to staged up to INFO_FROM_START_MAX_ITEMS items and standard above", () => {
+  it("defaults to staged at every length (standard above INFO_FROM_START_MAX_ITEMS until 2026-11-13)", () => {
     expect(defaultPairSelector(3)).toBe("staged");
     expect(defaultPairSelector(INFO_FROM_START_MAX_ITEMS)).toBe("staged");
-    expect(defaultPairSelector(INFO_FROM_START_MAX_ITEMS + 1)).toBe("standard");
+    expect(defaultPairSelector(INFO_FROM_START_MAX_ITEMS + 1)).toBe("staged");
+    expect(defaultPairSelector(500)).toBe("staged");
     expect(resolvePairSelector(null, undefined, 30)).toEqual({ selector: "staged", ignored: [] });
-    expect(resolvePairSelector(null, "", 500)).toEqual({ selector: "standard", ignored: [] });
+    expect(resolvePairSelector(null, "", 500)).toEqual({ selector: "staged", ignored: [] });
   });
 
   it("lets the survey's setting win over the environment, and the environment over the default", () => {
@@ -240,7 +246,9 @@ describe("resolvePairSelector: what /api/trials/next runs", () => {
 
   it("ignores an unknown value instead of reading it as either selector, and reports it", () => {
     expect(resolvePairSelector("magic", undefined, 30)).toEqual({ selector: "staged", ignored: ["magic"] });
-    expect(resolvePairSelector(null, "Staged", 500)).toEqual({ selector: "standard", ignored: ["Staged"] });
+    // "Staged" is not read as staged: it is skipped and the environment's "standard" wins.
+    expect(resolvePairSelector("Staged", "standard", 500)).toEqual({ selector: "standard", ignored: ["Staged"] });
+    expect(resolvePairSelector(null, "Standard", 500)).toEqual({ selector: "staged", ignored: ["Standard"] });
     expect(resolvePairSelector("magic", "standard", 30)).toEqual({ selector: "standard", ignored: ["magic"] });
   });
 });

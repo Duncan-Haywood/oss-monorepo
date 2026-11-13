@@ -1,0 +1,22 @@
+Milestone 7c post-hoc diagnostic (written after results.txt was read): growth rate sigma = ln(rho)/DT (1/s) against divergence.
+
+design-conditions: 72; linearly unstable at one or more held-out plants: 14
+  lever 0: among unstable ones, Spearman(sigma, dead share) 0.83 (p 0.000236, n 14); stable ones with any divergence: 0 of 58
+  lever 1: among unstable ones, Spearman(sigma, dead share) 0.82 (p 0.000298, n 14); stable ones with any divergence: 6 of 58
+  unstable design-conditions sorted by sigma (label, geom, seed, sigma 1/s, dead share L0, median pos RMS L0 m):
+    6b+integ                     above 5   7.41  0.438  0.225
+    6b+integ                     above 3   5.88  0.312  0.199
+    6b+integ                     above 4   5.01  0.172  0.174
+    6b+integ                     above 1   4.66  0.125  0.177
+    6b+integ                     above 0   4.20  0.109  0.172
+    6b+integ                     above 2   3.91  0.156  0.164
+    6b+integ, ki 1.25x ceiling   above 5   0.66  0.000  0.109
+    m7 cmd-ff                    below 5   0.66  0.078  0.112
+    6b+integ, ki 1.25x ceiling   above 2   0.62  0.000  0.109
+    6b+integ, ki 1.25x ceiling   above 4   0.59  0.000  0.110
+    6b+integ, ki 1.25x ceiling   above 3   0.58  0.000  0.111
+    6b+integ, ki 1.25x ceiling   above 1   0.55  0.000  0.114
+    6b+integ, ki 1.25x ceiling   above 0   0.50  0.000  0.112
+    m7 cmd-ff                    below 1   0.44  0.047  0.117
+
+within 6b+integ above (6 x 64 episodes, lever 0): per-episode sigma, diverged median 5.26 vs survived 3.85 1/s; AUC 0.80 (Mann-Whitney one-sided p 1.42e-17)

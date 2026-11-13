@@ -46,7 +46,11 @@ What this does differently:
 1. **Worst-case holds.** Each call reserves its worst case (a high input
    estimate plus the full output cap) against every budget it belongs to
    *before* it is sent. Real usage then replaces the hold, so a budget is
-   never promised twice.
+   never promised twice for text calls. Images and documents (above all
+   ones sent by URL or file id), server-side tool fees such as web search,
+   and long-context or one-hour-cache price tiers are not in the estimate,
+   so a call carrying them can cost more than its hold (quality audit
+   round 62, `portfolio/quality/blind-pairs/2026-11-13-h/llm-spend-guard.json`).
 2. **Per-run breakers for agents.** The guard catches the same request
    repeated *n* times in a window, calls or dollars per minute over a limit,
    and a per-run step cap. A stuck tool-call loop stops in seconds, not when

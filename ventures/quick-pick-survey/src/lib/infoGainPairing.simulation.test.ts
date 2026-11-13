@@ -9,7 +9,6 @@ import {
   selectNextPair,
   selectNextPairByInformation,
   selectNextPairHybrid,
-  INFO_FROM_START_MAX_ITEMS,
   type InformationOptions,
   type PairItem,
 } from "@/lib/pairing";
@@ -62,13 +61,12 @@ describe("information-gain selector vs the shipped selector", () => {
       expect(info.rank).toBeGreaterThan(shipped.rank);
       // Measured 2026-10-21: the hybrid never does worse than shipped on rank.
       expect(hybrid.rank).toBeGreaterThanOrEqual(shipped.rank);
-      // On rd<150 it keeps up only where it still switches at 120 answers (over
-      // INFO_FROM_START_MAX_ITEMS items) or once there are enough answers. Since
-      // 2026-11-10 a 41-item list uses the information selector from the first
-      // answer: at 90 answers it has fewer items under rd 150 than shipped (the
-      // stricter bar, not the couple screen's), but reaches the couple screen's
-      // own bar sooner (test below).
-      if (items > INFO_FROM_START_MAX_ITEMS || budget >= 300) expect(hybrid.under150).toBeGreaterThanOrEqual(shipped.under150);
+      // On rd<150 it keeps up once there are enough answers. Since 2026-11-10
+      // a 41-item list, and since 2026-11-13 every list, uses the information
+      // selector from the first answer: at 90 answers it has fewer items under
+      // rd 150 than shipped (the stricter bar, not the couple screen's), but
+      // reaches the couple screen's own bar sooner (tests below).
+      if (budget >= 300) expect(hybrid.under150).toBeGreaterThanOrEqual(shipped.under150);
     }, 120_000);
   }
 });
@@ -76,15 +74,18 @@ describe("information-gain selector vs the shipped selector", () => {
 /** Answers until `need` items are under rd 200, the couple screen's bar (couples.ts). */
 function answersToCoupleBar(policy: Policy, items: number, seed: number, need = 8): number {
   let at = Infinity;
-  simulate(policy, items, 8 * items, seed, 0, 0, 0, false, (answered, rds) => {
+  // Every list measured reaches the bar inside 60 answers; 300 bounds the long lists' cost.
+  simulate(policy, items, Math.min(8 * items, 300), seed, 0, 0, 0, false, (answered, rds) => {
     if (at === Infinity && rds.filter((rd) => rd < 200).length >= need) at = answered;
   });
   return at;
 }
 
 describe("the couple screen's bar by list length (2026-11-10)", () => {
-  // scripts/couple-bar-sweep.ts prints the full table (8 to 120 items, 30 seeds).
-  for (const items of [11, 41]) {
+  // scripts/couple-bar-sweep.ts prints the full table (8 to 120 items, 30 seeds);
+  // scripts/long-list-switch-sweep.ts the lists over 120 (2026-11-13), where the
+  // staged default used to wait 120 answers and so equalled shipped here.
+  for (const items of [11, 41, 220]) {
     it(`${items} items: the staged default reaches 8 items under rd 200 no later than shipped`, () => {
       const s = seeds(10).map((x) => answersToCoupleBar(selectNextPair, items, x));
       const h = seeds(10).map((x) => answersToCoupleBar((i) => selectNextPairHybrid(i), items, x));

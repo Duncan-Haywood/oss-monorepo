@@ -41,7 +41,9 @@ they deploy.
 first, then its drop-ins in file-name order; the last assignment of a setting
 wins, and an empty assignment (`Environment=`, `ExecStartPre=`,
 `ReadWritePaths=`, `CapabilityBoundingSet=`, `AmbientCapabilities=`) resets that
-list, as in systemd. Lines ending in `\` are joined. `DynamicUser=yes` is
+list, as in systemd. Lines ending in `\` are joined. Paths are read the way systemd reads them: a quoted
+executable is unquoted, and repeated slashes and `.` components are dropped, so
+`ExecStart=//tmp/x` counts as `/tmp/x` and `ReadWritePaths=/./` as `/`. `DynamicUser=yes` is
 honoured for what systemd.exec(5) says it implies (`NoNewPrivileges=`,
 `ProtectSystem=strict`, `ProtectHome=read-only`, a private `/tmp`), so those are
 not reported missing beside it. A drop-in with no unit beside it is checked only
@@ -99,12 +101,14 @@ CLI records nothing.
 
 ```sh
 python3 -m unittest test_check -v
-node --test classify.test.mjs page.test.mjs usage.test.mjs
+node --test classify.test.mjs page.test.mjs usage.test.mjs parity-fuzz.test.mjs
 ```
 
 `classify.test.mjs` includes a parity test that runs `check.py` over
 [`fixtures/`](fixtures/) (CRLF line endings, quoting, a lone drop-in, a template
 unit) and asserts the browser port produces identical findings and drop-ins.
+`parity-fuzz.test.mjs` does the same for 4,000 random units built from risky
+keys and odd spellings, with a fixed seed.
 The guide's worked example is checked against the CLI's real output in
 `page.test.mjs`.
 
