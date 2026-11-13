@@ -1,0 +1,284 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/dupehound",
+ "stratum": "venture",
+ "seed": "2026-11-13-s-690a",
+ "drawn_by": "sample",
+ "round": 73,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior developer-tooling engineer who maintains static-analysis / clone-detection tooling in CI (the kind who has run jscpd and PMD CPD on large monorepos). They would check first that reported clones are real and complete (no false or missed windows), that the file:line ranges point at the duplicated code, that the --threshold CI gate exits as documented, and that the speed and agreement numbers against jscpd reproduce",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Built in a private copy (cargo 1.97, crates fetched fine): `cargo build --release` OK in 20 s. Recomputed against sources the author did not write: (1) my own Python brute-force detector (/tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/scripts/indep.py: own lexer, every 50-token window with an earlier non-overlapping occurrence marked) on 20 venture dirs (every 20th of the first 400): files 483, lines 53,401, tokens 589,205, duplicated tokens 99,714, exactly equal to `dupehound --ext mjs --min-lines 1 --no-gitignore --json` on the same dirs. (2) A hand-made tree (/tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/gt): a.js, d.js, e.js byte-identical by sha256sum, b.js a reformatted copy of a.js's function, c.js the same with identifiers renamed. dupehound reports 3 clones (d~e, d~a whole files, d~b), identical_copies 3, 3 whole-file, removable 39 = max(3x13, 2x18) and max 49 = 67-18, duplicated lines 49 = 18+18+13, all as computed by hand; the renamed c.js is not matched in exact mode and is matched by --normalize. (3) jscpd 4.3.0 (npm, independent tool) on the same 20 dirs: line-level, dupehound flags 97.2% of jscpd's lines and jscpd 90.3% of dupehound's; duplicated share 17.6% vs 15.3%. Defects found by running it: a backslash-newline inside a Python triple-quoted string or a JS template literal is skipped without counting the line, so every later clone line in that file is off by one per continuation (p1.py with `HELP = \"\"\"\\` reports a block at 3-12 that sits at 4-13; a template with two continuations shifts x1.js by two). A clone that begins with a lone shared token (the `;` ending the previous statement) reports its start on that earlier line, so b.js is reported 2-14 for a function at 5-14 (jscpd says 7-14). Not 4: line numbers are wrong in a common Python idiom (`dedent(\"\"\"\\`).",
+  "completeness": "README/llms.txt promises checked end to end: text report and --top (works), --json schema (fields as listed), --min-tokens/--min-lines/--ext/--max-lines (used), --normalize (renamed copy found), --threshold (exit 1 at 50% on 54.44%, exit 0 at 60%), --families (1 family of 4 on the hand tree), --guarded (8 patterns, families sum 401,608 -> 288,057 on ventures+platform), the WebAssembly build equals the CLI (node --test web/dupehound.test.mjs 3/3 pass with the binary built, including the 5-option byte-equality test), the live page https://marisstella.app/dupehound/ returns 200 and its served llms.txt links the marisstella.app page (source GitHub-Pages link is rewritten at deploy: source-only). The README's 'Next' honestly lists what is not done (crates.io, prebuilt binaries); install needs a sparse clone and a Rust toolchain.",
+  "verification": "`cargo test --release`: 26 passed (tests/detect.rs). `node --test '*.test.mjs'` in the subject dir: 16/16 pass; `node --test web/dupehound.test.mjs` 3/3. fmt and clippy -D warnings clean. The brute-force cross-check on random inputs is real evidence for the window/pair stage. Seven mutants through platform/ci/quality_mutate.py: caught 2 (self-overlap guard lib.rs:486, stats counting the first side lib.rs:576); survived 5: substantial_overlap replaced by any overlap (lib.rs:843), dropping the identical-copies term from removable_lines (lib.rs:907), span end line taken from the last token's start line (lib.rs:541), template-literal newline not counted inside ${} (lib.rs:341), and the --threshold comparison inverted (main.rs:281; no test anywhere mentions threshold). No test asserts any clone's start_line/end_line, and the wasm-vs-CLI equality cannot catch a line bug both share.",
+  "craft": "Read src/lib.rs (1,264 lines), src/main.rs (290), src/wasm.rs, tests/detect.rs, web/dupehound.test.mjs, page.test.mjs, tests/bench/compare.py and rss.py. Good: rayon parallel hashing/sorting, 16-byte tokens, deterministic output order, union-find with path halving, clean fmt/clippy, documented functions, no unsafe outside the wasm ABI. Defects: line counting lost after backslash-newline (lib.rs:277, lib.rs:324); hand-assembled JSON via write! (escaping is correct, but the report is a 1-line format string with 12 positional fields); one 1,264-line module mixing lexer, detector, families, glob and JSON; 'collision check' compares 64-bit FNV token hashes rather than token text; compare.py uses `p.lstrip('./')`, which strips characters, not a prefix.",
+  "claims": "Checked: speed and memory (README:21, index.html:7: rerun on 11,371 .mjs files today, 0.94-1.02 s wall, 594-597 MB, 39,935 clones, 37.5% duplicated; the 2026-11-12 table says 1.1-1.3 s and 575 MB on 11,023 files: consistent); guarded fold 396,673 -> 283,122 (README:149; today 401,608 -> 288,057 on 11,711 files: consistent drift); jscpd much slower (rerun subset: jscpd 5.7 s and 404 MB vs 0.04 s and 30 MB: backed); 'flags the same lines to within about 5%' (README:21) and 'within a point' of duplicated share (index.html:9): partial, my 20-dir rerun gives 97.2%/90.3% line recall and 17.6% vs 15.3%; 'a hash collision cannot report a false clone' (index.html:99, README:52): not backed, the check compares 64-bit token hashes, not text (negligible risk, absolute wording); 'removable at least the larger of ...' (README:106) is not a guaranteed lower bound, since families join by chained overlap; web/dupehound.wasm '195 KB' (README:155) is 248,715 bytes (243 KB): stale. Disclaimer (no warranty, not a code review, user verifies) on README and page, privacy and usage counting described and tested (page.test.mjs, usage.test.mjs); jscpd/PMD non-affiliation stated.",
+  "fitness": "The job: a developer runs it on a large JS repo and gates CI on duplication. Walked through: on the whole ventures tree it finishes in about 1 s where jscpd needs a 12 GB heap; --threshold exits 1/0 as documented; --families --guarded produces a ranked list of what to consolidate with file:line pointers. Gaps a user hits: no prebuilt binary or crates.io package (sparse clone plus Rust toolchain), off-by-N line numbers in Python files that use `\"\"\"\\`, only text/JSON output (no SARIF or annotations for CI UIs), one generic lexer.",
+  "domain": "Compared against jscpd and PMD CPD practice: Rabin-Karp windows of 50 tokens with jscpd's default limits, diagonal merging into maximal clones and clone classes (families) are the standard method; type-2 normalisation matches what the clone literature and CPD's --ignore-identifiers/--ignore-literals do (the README compares it only with jscpd). Departures: each window is paired only with the first occurrence of its hash (documented, gives fragmented clones in repetitive code); the duplicated-lines metric counts a whole line range including blank/comment lines and the line of a lone leading token; removable-lines 'lower estimate' is a heuristic, not a bound. A senior tooling engineer would sign the method off with these limits, which are mostly stated."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Duplicated-token count, file/line/token totals on 20 venture dirs (483 .mjs files)",
+   "method": "own Python brute-force detector with its own lexer, no dupehound code",
+   "command": "cd ventures && python3 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/scripts/indep.py 50 $(ls | head -400 | awk 'NR%20==0') vs /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --ext mjs --min-lines 1 --no-gitignore --json <same dirs>",
+   "expected": "files 483, lines 53401, tokens 589205, dup_tokens 99714 (brute force)",
+   "observed": "files 483, lines 53401, tokens 589205, duplicated_tokens 99714",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Clones, identical copies, removable range and duplicated lines on a hand-made tree with 3 byte-identical files, a reformatted copy and a renamed copy",
+   "method": "sha256sum for identical files; hand arithmetic for removable = max((4-1)x13, (3-1)x18) and max = 67-18",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/gt && sha256sum src/*.js lib/*.js && /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --json . && /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --families .",
+   "expected": "3 clones, identical 3, removable 39 to 49, duplicated lines 49, renamed c.js unmatched",
+   "observed": "3 clones, 3 identical (18 lines), 39 to 49 removable, 49 duplicated lines, c.js unmatched (matched with --normalize)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Line-level agreement with jscpd 4.3.0 on the same 20 dirs",
+   "method": "jscpd 4.3.0 from npm, tests/bench/compare.py",
+   "command": "jscpd --silent --pattern '**/*.mjs' --ignore '**/node_modules/**' --reporters json --output OUT <dirs>; python3 dupehound/tests/bench/compare.py OUT/jscpd-report.json dsub.json",
+   "expected": "line recall within about 5% each way (README:21)",
+   "observed": "97.2% of jscpd's lines, 90.3% of dupehound's lines by jscpd; duplicated share 17.6% vs 15.3%",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Line numbers after a Python docstring with a backslash-newline",
+   "method": "hand: p1.py lines 4-13 hold the block (grep -n)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/gt3 && grep -n 'def f\\|return v0' p1.py && /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --json .",
+   "expected": "p1.py 4-13",
+   "observed": "p1.py 3-12 (p2.py correctly 4-13)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Start line of the reformatted copy in b.js",
+   "method": "hand: the function in b.js spans lines 5-14",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/gt && /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --json .",
+   "expected": "b.js 5-14",
+   "observed": "b.js 2-14 (clone starts at the ';' ending line 2; jscpd reports 7-14)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "--threshold CI gate exit codes",
+   "method": "run with thresholds either side of the 54.44% measured",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/gt && /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --threshold 50 .; echo $?; /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --threshold 60 .; echo $?",
+   "expected": "1 then 0",
+   "observed": "1 then 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "WebAssembly output equals the native CLI",
+   "method": "repo test with the release binary built",
+   "command": "cd <copy of ventures/dupehound> && cargo build --release && node --test web/dupehound.test.mjs",
+   "expected": "3 pass",
+   "observed": "3 pass, 0 skipped",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Rust and node suites",
+   "method": "run",
+   "command": "cargo test --release; node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "26 passed; 16 passed",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Whole-tree speed and memory (README:21, BENCHMARK Families table)",
+   "method": "rerun with tests/bench/rss.py, 3 runs, 4-core container",
+   "command": "python3 ventures/dupehound/tests/bench/rss.py /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --ext mjs --json ventures",
+   "expected": "about 1.1-1.3 s and 575 MB on about 11,000 files",
+   "observed": "0.94-1.02 s, 594-597 MB on 11,371 files (39,935 clones, 37.51%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "--guarded lowers summed removable lines 396,673 -> 283,122 (README:149)",
+   "method": "rerun on today's tree",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/dh/target/release/dupehound --ext mjs --json --guarded ventures/dupehound/guards/oss-monorepo.txt ventures platform",
+   "expected": "a fall of about 113k lines, 0 fully guarded families",
+   "observed": "401,608 -> 288,057 on 11,711 files, 0 fully guarded families",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'a hash collision cannot report a false clone' (index.html:99)",
+   "method": "read src/lib.rs:473-477",
+   "command": "sed -n 473,477p ventures/dupehound/src/lib.rs",
+   "expected": "token text compared",
+   "observed": "64-bit FNV token hashes compared, not text",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "web/dupehound.wasm is 195 KB (README:155)",
+   "method": "ls -l",
+   "command": "ls -l ventures/dupehound/web/dupehound.wasm",
+   "expected": "about 195 KB",
+   "observed": "248,715 bytes (243 KB)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, privacy and non-affiliation on page and README",
+   "method": "read index.html:157-163, README Licence section; page.test.mjs",
+   "command": "grep -n 'No warranty' ventures/dupehound/index.html ventures/dupehound/README.md",
+   "expected": "present",
+   "observed": "present on both; usage counting local-only with opt-out",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page and served llms.txt",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/dupehound/; curl -sS https://marisstella.app/dupehound/llms.txt | grep 'Browser page'",
+   "expected": "200 and a marisstella.app link",
+   "observed": "200; link rewritten to https://marisstella.app/dupehound/",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/lib.rs:486",
+   "change": "!(fa == fb && (pb - pa) < w as u32) -> !(fa == fb && (pb - pa) < 1)",
+   "caught": true,
+   "test_cmd": "cargo test --release --quiet"
+  },
+  {
+   "where": "src/lib.rs:843",
+   "change": "2 * (hi - lo) >= shorter -> hi > lo",
+   "caught": false,
+   "test_cmd": "cargo test --release --quiet"
+  },
+  {
+   "where": "src/lib.rs:907",
+   "change": ".max((identical_copies as u64 - 1) * identical_lines as u64), -> ,",
+   "caught": false,
+   "test_cmd": "cargo test --release --quiet"
+  },
+  {
+   "where": "src/lib.rs:541",
+   "change": "t[s.end as usize - 1].end_line -> t[s.end as usize - 1].line",
+   "caught": false,
+   "test_cmd": "cargo test --release --quiet"
+  },
+  {
+   "where": "src/lib.rs:576",
+   "change": "by_file[c.second.file].push(c.second) -> by_file[c.first.file].push(c.first)",
+   "caught": true,
+   "test_cmd": "cargo test --release --quiet"
+  },
+  {
+   "where": "src/lib.rs:341",
+   "change": "b'\\n' => *line += 1 -> b'\\n' => {} (inside ${} of a template)",
+   "caught": false,
+   "test_cmd": "cargo test --release --quiet"
+  },
+  {
+   "where": "src/main.rs:281",
+   "change": "st.duplicated_percent() > t -> st.duplicated_percent() < t",
+   "caught": false,
+   "test_cmd": "cargo test --release --quiet"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "A backslash-newline inside a Python triple-quoted string is skipped without counting the line, so every later line number in the file is off by one per continuation; `dedent(\"\"\"\\` is a common idiom. Reproduced: a block at p1.py:4-13 is reported as 3-12",
+   "where": "ventures/dupehound/src/lib.rs:277",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Same line-count loss for a backslash-newline in a JS template literal (`b'\\\\' => i += 2` skips the newline): two continuations shift later clones by two lines",
+   "where": "ventures/dupehound/src/lib.rs:324",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "The --threshold CI gate, a headline feature, has no test; inverting its comparison leaves every Rust and node test green",
+   "where": "ventures/dupehound/src/main.rs:281",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No test asserts any clone's start_line/end_line; taking the end line from the last token's start line survives, and the wasm-vs-CLI equality cannot catch a bug both builds share",
+   "where": "ventures/dupehound/src/lib.rs:541",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Family logic untested at its thresholds: replacing the half-overlap rule with any overlap, or dropping the identical-copies term from removable_lines, both survive",
+   "where": "ventures/dupehound/src/lib.rs:843",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Page says a hash collision 'cannot' report a false clone, but the check compares 64-bit FNV token hashes, not token text (negligible probability, absolute wording); README:52 says the same",
+   "where": "ventures/dupehound/index.html:99",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README calls the removable-lines figure 'at least' (n-1) x shortest, but families join by chained overlap, so a short copy need not be shared by every other copy: it is a heuristic, not a lower bound",
+   "where": "ventures/dupehound/README.md:106",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "web/dupehound.wasm stated as 195 KB; the shipped file is 248,715 bytes (243 KB)",
+   "where": "ventures/dupehound/README.md:155",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "'flags the same lines to within about 5%' did not reproduce on a 20-dir rerun: jscpd confirms 90.3% of dupehound's flagged lines (duplicated share 17.6% vs 15.3%)",
+   "where": "ventures/dupehound/README.md:21",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "A clone that starts at a lone shared token (the ';' closing the previous statement) reports its range from that earlier line, counting unrelated code and comment lines as duplicated (b.js 2-14 for a function at 5-14)",
+   "where": "ventures/dupehound/src/lib.rs:539",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "compare.py normalises paths with lstrip('./'), which strips any leading dots and slashes (breaks '../' or dot-file paths), not the './' prefix",
+   "where": "ventures/dupehound/tests/bench/compare.py:6",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15653"
+ ],
+ "verdict": "dupehound is a real, fast, mostly correct clone detector: its duplicated-token totals on 483 real files equal an independent brute-force detector exactly, a hand-built tree's clones, identical counts and removable range match sha256sum and hand arithmetic, and the speed and memory claims reproduce (about 1 s and 595 MB on 11,371 files, against jscpd's 5.7 s on a 483-file subset). It misses the bar on verification and claims: 5 of 7 seeded bugs survived, including an inverted --threshold gate and a wrong span end line, because no test pins line numbers or the CI exit code; and those untested line numbers are in fact wrong after a backslash-newline in a Python triple-quoted string or JS template literal. Claims are mostly backed, with a stale wasm size, an absolute 'cannot collide' wording, a removable-lines 'at least' that is a heuristic, and a 'within about 5%' agreement that came out at 90-97% on a rerun. The disclaimer is present and complete."
+}
