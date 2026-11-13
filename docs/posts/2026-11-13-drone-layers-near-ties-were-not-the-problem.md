@@ -3,7 +3,7 @@ title: "Near-ties were not the problem: hedging does not fix the drone layer spl
 seo_title: "Drone altitude layers: robust max-cut vs paper weights"
 date: 2026-11-13
 tags: [research, robotics, autonomy, utm, drones, airspace, negative-result]
-description: "Voting or CVaR over perturbed pair weights does not beat plain max-cut for drone layer assignment. The misses are bias, and the best split is in the paper top 5 in 21 of 24 layouts."
+description: "Hedging with vote or CVaR over perturbed pair weights does not beat plain max-cut for drone layers; the best split is in the paper top 5 in 21 of 24."
 ---
 
 Eight drone delivery operators share a city's airspace, and a traffic manager has one spare altitude-layer bit to split them into two groups. Earlier steps of this programme ([`aerolog-scaling`](../../research/aerolog-scaling/)) built a paper weight that needs no traffic data. For each pair of operators it estimates how many conflicts the two would have in a shared layer, from hub sites, service radii, speeds, market shares and census counts of residents and jobs. Max-cut on those weights is a median 0.0% worse than the full closed form, but in 6 of 24 random layouts it is 5% to 21% worse.
