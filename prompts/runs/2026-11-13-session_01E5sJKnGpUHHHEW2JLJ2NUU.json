@@ -1,0 +1,513 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnGpUHHHEW2JLJ2NUU",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T10:31:15Z",
+  "ended": "2026-11-13T10:32:04Z",
+  "wall_minutes": 5.69,
+  "tokens_in": 2919504,
+  "tokens_out": 18147,
+  "cost_usd": 1.5788,
+  "tool_calls": 36,
+  "task": "redteam campaigns on three recently changed ventures",
+  "projects": [
+    "llm-spend-guard",
+    "webhook-relay",
+    "ticket-resale-profit-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15463",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open entry first, but all 9 open entries are control-plane workflow edits that already have open owner-gated PRs; the open list has no marker for \"PR open, waiting on owner\", so each run re-reads and re-checks them."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20` with no --under printed nothing for the files I grepped for (it lists a sample); `--under <venture dir>` was needed to probe a chosen file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 (fix open entries) skipped: every entry needs a control-plane workflow edit that already has an open PR awaiting owner approval; a duplicate PR would add noise.",
+      "did": "Listed the existing PRs in the PR body and went to seeding.",
+      "result": "Run time went to 24 mutants and 6 guards instead."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard) not done: the six escapes were unrelated single-boundary gaps in three products, not a class one lint could catch, and each new test now runs in ventures-tests on every PR.",
+      "did": "Added the tests to the existing suites only.",
+      "result": "catch rate 75% -> 100% on these targets."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-budget-alert-that-missed-by-a-third-of-a-trillionth.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: guard.mjs 5/8, verify.mjs 7/8, engine.mjs 6/8; all 6 escapes triaged gap, rerun caught_after_fix true for all. Real-bug hunt over llm-spend-guard proxy.mjs/providers.mjs/guard.mjs and webhook-relay verify.mjs (14 schemes) found nothing reproducible. Verification: run_venture_tests.py on the 3 slugs: 3 suites, 0 failed. Float finding: 400 x (3000 tok * $75/M) sums to 89.99999999999963 in doubles, so the 1e-12 alert tolerance is load-bearing.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/llm-spend-guard/guard.mjs",
+        "test": "node --test ventures/llm-spend-guard/**/*.test.mjs  (in .)",
+        "seed": 977607313,
+        "commit": "6a1c9d67",
+        "sites": 230,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 97,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "repeatWindowSec: b.repeatWindowSec ?? 300,",
+            "after": "repeatWindowSec: b.repeatWindowSec ?? 301,",
+            "line_text": "      repeatWindowSec: b.repeatWindowSec ?? 300,",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default repeat window was untested; test: repeat exactly 300 s later is fresh, 299 s later trips"
+          },
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 140,
+            "col": 28,
+            "operator": "times-to-div",
+            "before": "return Math.floor(t / ms) * ms + ms;",
+            "after": "return Math.floor(t / ms) / ms + ms;",
+            "line_text": "  return Math.floor(t / ms) * ms + ms;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 165,
+            "col": 65,
+            "operator": "times-to-div",
+            "before": "+ n(usage.cacheRead) * price.cacheRead + n(usage.cacheWrite) * price.cacheWrite) / 1e6;",
+            "after": "+ n(usage.cacheRead) * price.cacheRead + n(usage.cacheWrite) / price.cacheWrite) / 1e6;",
+            "line_text": "    + n(usage.cacheRead) * price.cacheRead + n(usage.cacheWrite) * price.cacheWrite) / 1e6;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 274,
+            "col": 78,
+            "operator": "gt-to-ge",
+            "before": "let maxOut = Number.isInteger(req.maxOutputTokens) && req.maxOutputTokens > 0 ? req.maxOutputTokens : null;",
+            "after": "let maxOut = Number.isInteger(req.maxOutputTokens) && req.maxOutputTokens >= 0 ? req.maxOutputTokens : null;",
+            "line_text": "    let maxOut = Number.isInteger(req.maxOutputTokens) && req.maxOutputTokens > 0 ? req.maxOutputTokens : null;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "maxOutputTokens: 0 would price output at $0 and bypass requireOutputCap; test asserts no-output-cap refusal and default substitution"
+          },
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 315,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "if (b.limitCalls != null && cur.calls + 1 > b.limitCalls) {",
+            "after": "if (b.limitCalls != null || cur.calls + 1 > b.limitCalls) {",
+            "line_text": "      if (b.limitCalls != null && cur.calls + 1 > b.limitCalls) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 351,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "if (before < line - 1e-12 && after >= line - 1e-12) {",
+            "after": "if (before < line - 1e-12 && after >= line - 1e-13) {",
+            "line_text": "      if (before < line - 1e-12 && after >= line - 1e-12) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "tolerance matters for real sums: 400 x 3000 tok at $75/M sums to 89.99999999999963, 3.7e-13 under the 90% line; test asserts the alert fires"
+          },
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 388,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "store.set(k, { ...cur, reserved: Math.max(0, cur.reserved - h.estimateUsd), calls: Math.max(0, cur.calls - 1) });",
+            "after": "store.set(k, { ...cur, reserved: Math.max(1, cur.reserved - h.estimateUsd), calls: Math.max(0, cur.calls - 1) });",
+            "line_text": "      store.set(k, { ...cur, reserved: Math.max(0, cur.reserved - h.estimateUsd), calls: Math.max(0, cur.calls - 1) });",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/llm-spend-guard/guard.mjs",
+            "line": 402,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": "if (parts[0] === 'b') {",
+            "after": "if (parts[0] !== 'b') {",
+            "line_text": "      if (parts[0] === 'b') {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/webhook-relay/verify.mjs",
+        "test": "node --test ventures/webhook-relay/**/*.test.mjs  (in .)",
+        "seed": 970792761,
+        "commit": "6a1c9d67",
+        "sites": 52,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 7,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "return x.length === y.length && timingSafeEqual(x, y);",
+            "after": "return x.length !== y.length && timingSafeEqual(x, y);",
+            "line_text": "  return x.length === y.length && timingSafeEqual(x, y);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 19,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (scheme === \"none\") return OK;",
+            "after": "if (scheme !== \"none\") return OK;",
+            "line_text": "  if (scheme === \"none\") return OK;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 46,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "const ts = (pairs.find((p) => p[0] === \"ts\") || [])[1];",
+            "after": "const ts = (pairs.find((p) => p[0] === \"ts\") && [])[1];",
+            "line_text": "      const ts = (pairs.find((p) => p[0] === \"ts\") || [])[1];",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 47,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const sigs = pairs.filter((p) => p[0] === \"h1\" && p[1]).map((p) => p[1]);",
+            "after": "const sigs = pairs.filter((p) => p[1] === \"h1\" && p[1]).map((p) => p[1]);",
+            "line_text": "      const sigs = pairs.filter((p) => p[0] === \"h1\" && p[1]).map((p) => p[1]);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 62,
+            "col": 52,
+            "operator": "or-to-and",
+            "before": "const got = headers[\"x-wc-webhook-signature\"] || \"\";",
+            "after": "const got = headers[\"x-wc-webhook-signature\"] && \"\";",
+            "line_text": "      const got = headers[\"x-wc-webhook-signature\"] || \"\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 72,
+            "col": 42,
+            "operator": "gt-to-ge",
+            "before": "return Math.abs(nowSec * 1000 - ts) > TOLERANCE_SEC * 1000 ? fail(\"timestamp outside tolerance\") : OK;",
+            "after": "return Math.abs(nowSec * 1000 - ts) >= TOLERANCE_SEC * 1000 ? fail(\"timestamp outside tolerance\") : OK;",
+            "line_text": "      return Math.abs(nowSec * 1000 - ts) > TOLERANCE_SEC * 1000 ? fail(\"timestamp outside tolerance\") : OK;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "linear replay window boundary untested (other providers use <= 300 s); test pins exactly 300 s accepted, 300.001 s refused"
+          },
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 95,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "const name = (header || \"x-signature\").toLowerCase();",
+            "after": "const name = (header && \"x-signature\").toLowerCase();",
+            "line_text": "      const name = (header || \"x-signature\").toLowerCase();",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/verify.mjs",
+            "line": 96,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "const got = (headers[name] || \"\").replace(/^sha256=/, \"\");",
+            "after": "const got = (headers[name] && \"\").replace(/^sha256=/, \"\");",
+            "line_text": "      const got = (headers[name] || \"\").replace(/^sha256=/, \"\");",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ticket-resale-profit-calculator/engine.mjs",
+        "test": "node --test ventures/ticket-resale-profit-calculator/**/*.test.mjs  (in .)",
+        "seed": 637051511,
+        "commit": "6a1c9d67",
+        "sites": 205,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 43,
+            "col": 46,
+            "operator": "lt-to-le",
+            "before": "if (!finite(listPerTicket) || listPerTicket < 0) throw new RangeError(\"listPerTicket must be a non-negative number\");",
+            "after": "if (!finite(listPerTicket) || listPerTicket <= 0) throw new RangeError(\"listPerTicket must be a non-negative number\");",
+            "line_text": "  if (!finite(listPerTicket) || listPerTicket < 0) throw new RangeError(\"listPerTicket must be a non-negative number\");",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "$0 list price (giving tickets away) is valid input; test asserts it computes and -0.01 throws"
+          },
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 60,
+            "col": 75,
+            "operator": "plus-to-minus",
+            "before": "const need = targetProfit + o.costPerTicket * o.qty + o.deliveryPerOrder + o.flatFeePerTicket * o.qty;",
+            "after": "const need = targetProfit + o.costPerTicket * o.qty + o.deliveryPerOrder - o.flatFeePerTicket * o.qty;",
+            "line_text": "  const need = targetProfit + o.costPerTicket * o.qty + o.deliveryPerOrder + o.flatFeePerTicket * o.qty;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 74,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "if (!finite(pSell) || pSell < 0 || pSell > 1) throw new RangeError(\"pSell must be between 0 and 1\");",
+            "after": "if (!finite(pSell) || pSell < 1 || pSell > 1) throw new RangeError(\"pSell must be between 0 and 1\");",
+            "line_text": "  if (!finite(pSell) || pSell < 0 || pSell > 1) throw new RangeError(\"pSell must be between 0 and 1\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 74,
+            "col": 43,
+            "operator": "gt-to-ge",
+            "before": "if (!finite(pSell) || pSell < 0 || pSell > 1) throw new RangeError(\"pSell must be between 0 and 1\");",
+            "after": "if (!finite(pSell) || pSell < 0 || pSell >= 1) throw new RangeError(\"pSell must be between 0 and 1\");",
+            "line_text": "  if (!finite(pSell) || pSell < 0 || pSell > 1) throw new RangeError(\"pSell must be between 0 and 1\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 87,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "export function priceSweep(input, { steps = 9, stepPct = 10 } = {}) {",
+            "after": "export function priceSweep(input, { steps = 10, stepPct = 10 } = {}) {",
+            "line_text": "export function priceSweep(input, { steps = 9, stepPct = 10 } = {}) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 128,
+            "col": 36,
+            "operator": "and-to-or",
+            "before": "col.costPerTicket = col.cost >= 0 && PER_TICKET.test(cells[col.cost]);",
+            "after": "col.costPerTicket = col.cost >= 0 || PER_TICKET.test(cells[col.cost]);",
+            "line_text": "  col.costPerTicket = col.cost >= 0 && PER_TICKET.test(cells[col.cost]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 192,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "export function analyzeSales({ rows, skipped = 0 }) {",
+            "after": "export function analyzeSales({ rows, skipped = 1 }) {",
+            "line_text": "export function analyzeSales({ rows, skipped = 0 }) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "exported API default for hand-built rows; test asserts skipped is 0 when omitted"
+          },
+          {
+            "file": "ventures/ticket-resale-profit-calculator/engine.mjs",
+            "line": 204,
+            "col": 60,
+            "operator": "times-to-div",
+            "before": "roi: e.cost > 0 ? round2(((e.payout - e.cost) / e.cost) * 100) : null,",
+            "after": "roi: e.cost > 0 ? round2(((e.payout - e.cost) / e.cost) / 100) : null,",
+            "line_text": "    roi: e.cost > 0 ? round2(((e.payout - e.cost) / e.cost) * 100) : null,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e257b996-7b1b-51a0-afba-1a3d3d6c5537",
+    "transcripts": 1,
+    "first": "2026-11-13T10:31:15Z",
+    "last": "2026-11-13T10:36:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 73,
+        "output": 18147,
+        "thinking": 6563,
+        "cache_read": 2838452,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80979,
+        "api_equivalent_usd": 1.5788,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 73,
+      "output": 18147,
+      "thinking": 6563,
+      "cache_read": 2838452,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80979,
+      "api_equivalent_usd": 1.5788,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.69,
+      "active_minutes": 5.69,
+      "model_minutes": 3.19,
+      "tool_minutes": 2.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "24 mutation runs, 6 tests, code read of proxy and 14 webhook schemes, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 190.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

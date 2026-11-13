@@ -117,3 +117,13 @@ test("mailgun: hmac of timestamp+token inside the body, with a replay window", (
   assert.match(run(Buffer.from("{}")).reason, /signature block/);
   assert.match(run(Buffer.from("nope")).reason, /not JSON/);
 });
+
+test("replay window edge: exactly 300 s old is accepted, one tick more is not (linear ms, stripe s)", () => {
+  const lin = (ms) => { const b = Buffer.from(JSON.stringify({ webhookTimestamp: ms })); return verify("linear", { headers: { "linear-signature": h("k", b) }, body: b, secret: "k", nowSec: NOW }); };
+  assert.equal(lin(NOW * 1000 - 300_000).ok, true);
+  assert.equal(lin(NOW * 1000 + 300_000).ok, true);
+  assert.match(lin(NOW * 1000 - 300_001).reason, /tolerance/);
+  const st = (t) => verify("stripe", { headers: { "stripe-signature": `t=${t},v1=${h("k", `${t}.${body}`)}` }, body, secret: "k", nowSec: NOW });
+  assert.equal(st(NOW - 300).ok, true);
+  assert.match(st(NOW - 301).reason, /tolerance/);
+});

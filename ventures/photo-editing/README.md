@@ -1462,6 +1462,11 @@ and runs the predictor in C, so a tile holds the GIL only to set up the call. Sa
 LibRaw; the Pixel read drops from 0.21 s to 0.10 s on four CPUs and from 0.33 s to 0.22 s on one.
 Measuring first showed the Python de-stuffing was about 8% of a tile, not half, and that the
 Pixel writes new Huffman tables for every tile (`eval/native-destuff-2026-11-13.md`).
+Then tile placing moved onto the decode threads too: a tile the C reader returns is copied into
+the sensor plane as one numpy assignment on the thread that decoded it, instead of 256 row copies on
+the calling thread after the pool. Same sensels; the Pixel's four-thread read drops from a median
+0.12-0.17 s to 0.09-0.14 s on a noisy shared host (paired runs 1.3-1.4 times faster); one thread and
+installs without numpy are unchanged (`eval/parallel-tile-placing-2026-11-13.md`).
 
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
