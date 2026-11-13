@@ -267,15 +267,17 @@ flagships:
       pairs as the gate's detector", "A pooled spread that models the lapse"):
       gates select on spread, and a lapse-modelled pool sits on a spread-lapse
       ridge (safe at the ceiling, or unsafe with a tight lapse prior); it now
-      needs a careless signal from outside the choices, (c). Next, most
-      valuable first: (f) the pooled ranking overclaims on sparse long lists
-      (150 items, half to one answer per item per person: 5.4-14.3% of
-      "clearly above" pairs are the wrong way round under both selectors,
-      against 0.5% on 15-30 items; same doc section): find out whether it is
-      per-person Glicko ratings off a common scale or the DerSimonian-Laird
-      spread from one or two people per item, then fix the ranges
-      (groupRanking.ts; careless-pattern-sweep.ts --items 150 --no-self
-      reproduces it); (b) half-time salience (q = 0.5 still leaks +0.12 to
+      needs a careless signal from outside the choices, (c). The sparse long-list overclaim
+      (f) was the sweep harness, not the ranking (2026-11-13, doc section "The
+      sparse long-list overclaim was the harness"; scripts/sparse-pool-overclaim.ts):
+      the sweeps' rd cap at 349 counted never-answered rows as raters; the
+      shipped pool calls 0-0.4% of clear pairs wrong at 150 items, and a
+      joint Bradley-Terry fit is no more honest and calls 20-54% fewer pairs.
+      Next, most valuable first: (g) the "Careless patterns" table's
+      weighted columns (loo-w, gate-w, self-w) at 8 and 60 respondents were
+      run under the cap; 20-respondent cells are re-run
+      (docs/careless-pattern-uncapped-2026-11-13.jsonl: loo-w gains and camp
+      costs both larger), the rest are not; (b) half-time salience (q = 0.5 still leaks +0.12 to
       +0.29: does pace see them?); (c) the first real survey's answers:
       msToAnswer against the answer-time model (and as a careless detector for
       the pooled prior), and how noisy real pairwise answers are, which decides
