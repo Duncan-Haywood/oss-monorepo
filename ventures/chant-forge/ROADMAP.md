@@ -69,6 +69,11 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   `eval/section-levels.mjs`): a piece with four or more sections turns the verse before the last drop into a
   breakdown (drums and bass out, choir alone, then a swelling held chord); every build bar holds the mode's approach
   chord (bVII, bII or II) with a seven-eighth riser up the mode. Breakdown 11-16 dB under the verses. Not listened to.
+- 2026-11-13, latest: `--a-cappella` (first verse choir alone, band in on its build) and `--key-lift N` (last drop and
+  outro up N semitones, the build into it in the new key), range-checked against E2-E4 or `--range`; `--suggest-final`
+  and `--auto-final` count the lift. `lift.test.mjs` (6 tests), `eval/key-lift-check.mjs`: rendered bass in the lifted
+  drop 1.117-1.124x the earlier drop's (expected 1.1225), a cappella bars silent after the first. Studio-page
+  switches; browser e2e 82 checks. Not listened to.
 
 ## Next
 
