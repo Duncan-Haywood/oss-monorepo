@@ -11,6 +11,10 @@
   "checked": "2026-11-12",
   "title": "Density Ratio Estimation in Machine Learning (2012)"
  },
+ "doi:10.1080/01621459.1979.10482505": {
+  "checked": "2026-11-13",
+  "title": "Estimates of Income for Small Places: An Application of James-Stein Procedures to Census Data (1979)"
+ },
  "doi:10.1126/science.adi6000": {
   "checked": "2026-11-12",
   "title": "Prediction-powered inference (2023)"
@@ -22,6 +26,10 @@
  "doi:10.1198/jasa.2009.tm08439": {
   "checked": "2026-11-12",
   "title": "Nonparametric Bayes Modeling of Multivariate Categorical Data (2009)"
+ },
+ "doi:10.2307/2342192": {
+  "checked": "2026-11-13",
+  "title": "On the Two Different Aspects of the Representative Method: The Method of Stratified Sampling and the Method of Purposive Selection (1934)"
  },
  "doi:10.3102/1076998613480394": {
   "checked": "2026-11-12",
