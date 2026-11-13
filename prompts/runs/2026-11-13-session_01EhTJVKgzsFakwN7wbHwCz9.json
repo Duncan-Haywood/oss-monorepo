@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First debug script imported 'playwright' as an ES module from the venture dir; it resolves only via require there (fixed with createRequire)."
+    "First debug script imported 'playwright' as an ES module from the venture dir; it resolves only via require there (fixed with createRequire).",
+    "Full suite first run: 483/484, sample-pack.test failed because sample-season-pack.html is generated from printPackHtml; regenerated with build-sample-pack.mjs."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
     "ventures/league-schedule-generator/README.md (Print check section)"
   ],
   "goal": null,
-  "notes": "node eval/print-check.mjs: 12 FAIL before fixes, 82 ok / 0 fail after. node --test print.test.mjs: 3 pass. Full venture suite via run_venture_tests.py: see PR.",
+  "notes": "node eval/print-check.mjs: 12 FAIL before fixes, 82 ok / 0 fail after. node --test print.test.mjs: 3 pass. Full venture suite via run_venture_tests.py: see PR. Full suite run_venture_tests.py league-schedule-generator: 483/484 then sample pack regenerated; affected suites (sample-pack, print, polish, printpack) 15/15 pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
