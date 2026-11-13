@@ -1,0 +1,113 @@
+TIES cafe: 6 distinct rosters at score 1503758.95, payroll $3690.00, posted open 15 h; exposure by seed 1:92 2:100 6:100 4:116 5:132 3:140 over 23 person-days (34.4 s)
+PLAY call 0.01 extra 0 cafe seed 1 exposure 92: 12 disrupted weeks, open hours added 32, changes to others 20, premiums $344.00, proven 9/9
+PLAY call 0.01 extra 0 cafe seed 2 exposure 100: 12 disrupted weeks, open hours added 24, changes to others 25, premiums $420.00, proven 9/9
+PLAY call 0.01 extra 0 cafe seed 6 exposure 100: 12 disrupted weeks, open hours added 40, changes to others 21, premiums $345.00, proven 10/10
+PLAY call 0.01 extra 0 cafe seed 4 exposure 116: 12 disrupted weeks, open hours added 48, changes to others 21, premiums $372.00, proven 10/10
+PLAY call 0.01 extra 0 cafe seed 5 exposure 132: 12 disrupted weeks, open hours added 56, changes to others 10, premiums $176.00, proven 11/11
+PLAY call 0.01 extra 0 cafe seed 3 exposure 140: 12 disrupted weeks, open hours added 56, changes to others 5, premiums $87.00, proven 9/9
+FLOOR call 0.01 extra 0 cafe: hindsight adds 4 h over the seed-1 callers' weeks (proven 12/12)
+PLAY call 0.01 extra 0.109 cafe seed 1 exposure 92: 40 disrupted weeks, open hours added 815, changes to others 25, premiums $419.00, proven 97/97
+PLAY call 0.01 extra 0.109 cafe seed 2 exposure 100: 40 disrupted weeks, open hours added 799, changes to others 26, premiums $434.00, proven 97/97
+PLAY call 0.01 extra 0.109 cafe seed 6 exposure 100: 40 disrupted weeks, open hours added 815, changes to others 26, premiums $432.00, proven 98/98
+PLAY call 0.01 extra 0.109 cafe seed 4 exposure 116: 40 disrupted weeks, open hours added 805, changes to others 19, premiums $335.50, proven 96/96
+PLAY call 0.01 extra 0.109 cafe seed 5 exposure 132: 40 disrupted weeks, open hours added 803, changes to others 18, premiums $307.50, proven 95/95
+PLAY call 0.01 extra 0.109 cafe seed 3 exposure 140: 40 disrupted weeks, open hours added 805, changes to others 20, premiums $337.50, proven 98/98
+FLOOR call 0.01 extra 0.109 cafe: hindsight adds 777 h over the seed-1 callers' weeks (proven 40/40)
+PLAY call 0.084 extra 0 cafe seed 1 exposure 92: 40 disrupted weeks, open hours added 291, changes to others 116, premiums $1973.00, proven 62/62
+PLAY call 0.084 extra 0 cafe seed 2 exposure 100: 40 disrupted weeks, open hours added 290, changes to others 101, premiums $1703.00, proven 59/59
+PLAY call 0.084 extra 0 cafe seed 6 exposure 100: 40 disrupted weeks, open hours added 331, changes to others 103, premiums $1718.00, proven 60/60
+PLAY call 0.084 extra 0 cafe seed 4 exposure 116: 40 disrupted weeks, open hours added 283, changes to others 143, premiums $2572.00, proven 63/63
+PLAY call 0.084 extra 0 cafe seed 5 exposure 132: 40 disrupted weeks, open hours added 362, changes to others 71, premiums $1248.00, proven 62/62
+PLAY call 0.084 extra 0 cafe seed 3 exposure 140: 40 disrupted weeks, open hours added 356, changes to others 65, premiums $1125.00, proven 62/62
+FLOOR call 0.084 extra 0 cafe: hindsight adds 182 h over the seed-1 callers' weeks (proven 40/40)
+PLAY call 0.084 extra 0.109 cafe seed 1 exposure 92: 40 disrupted weeks, open hours added 1051, changes to others 131, premiums $2243.00, proven 132/132
+PLAY call 0.084 extra 0.109 cafe seed 2 exposure 100: 40 disrupted weeks, open hours added 1057, changes to others 93, premiums $1574.00, proven 126/126
+PLAY call 0.084 extra 0.109 cafe seed 6 exposure 100: 40 disrupted weeks, open hours added 1056, changes to others 121, premiums $2017.00, proven 131/131
+PLAY call 0.084 extra 0.109 cafe seed 4 exposure 116: 40 disrupted weeks, open hours added 1077, changes to others 121, premiums $2179.00, proven 129/129
+PLAY call 0.084 extra 0.109 cafe seed 5 exposure 132: 40 disrupted weeks, open hours added 1103, changes to others 61, premiums $1071.00, proven 130/130
+PLAY call 0.084 extra 0.109 cafe seed 3 exposure 140: 40 disrupted weeks, open hours added 1099, changes to others 47, premiums $817.00, proven 125/125
+FLOOR call 0.084 extra 0.109 cafe: hindsight adds 953 h over the seed-1 callers' weeks (proven 40/40)
+TIES spare: 1 distinct rosters at score 3937.38, payroll $3885.00, posted open 0 h; exposure by seed 1:54 over 27 person-days (5.9 s)
+TIES salon: 5 distinct rosters at score 2095.75, payroll $2054.00, posted open 0 h; exposure by seed 1:56 2:56 3:56 4:56 5:56 over 16 person-days (2.9 s)
+PLAY call 0.01 extra 0 salon seed 1 exposure 56: 12 disrupted weeks, open hours added 28, changes to others 2, premiums $44.00, proven 7/7
+PLAY call 0.01 extra 0 salon seed 2 exposure 56: 12 disrupted weeks, open hours added 28, changes to others 2, premiums $44.00, proven 7/7
+PLAY call 0.01 extra 0 salon seed 3 exposure 56: 12 disrupted weeks, open hours added 28, changes to others 2, premiums $44.00, proven 7/7
+PLAY call 0.01 extra 0 salon seed 4 exposure 56: 12 disrupted weeks, open hours added 28, changes to others 2, premiums $44.00, proven 7/7
+PLAY call 0.01 extra 0 salon seed 5 exposure 56: 12 disrupted weeks, open hours added 28, changes to others 2, premiums $44.00, proven 7/7
+FLOOR call 0.01 extra 0 salon: hindsight adds 28 h over the seed-1 callers' weeks (proven 12/12)
+PLAY call 0.01 extra 0.109 salon seed 1 exposure 56: 35 disrupted weeks, open hours added 279, changes to others 50, premiums $1101.00, proven 66/66
+PLAY call 0.01 extra 0.109 salon seed 2 exposure 56: 35 disrupted weeks, open hours added 279, changes to others 50, premiums $1101.00, proven 66/66
+PLAY call 0.01 extra 0.109 salon seed 3 exposure 56: 35 disrupted weeks, open hours added 279, changes to others 50, premiums $1101.00, proven 66/66
+PLAY call 0.01 extra 0.109 salon seed 4 exposure 56: 35 disrupted weeks, open hours added 279, changes to others 50, premiums $1101.00, proven 66/66
+PLAY call 0.01 extra 0.109 salon seed 5 exposure 56: 35 disrupted weeks, open hours added 279, changes to others 50, premiums $1101.00, proven 66/66
+FLOOR call 0.01 extra 0.109 salon: hindsight adds 279 h over the seed-1 callers' weeks (proven 35/35)
+PLAY call 0.084 extra 0 salon seed 1 exposure 56: 36 disrupted weeks, open hours added 183, changes to others 41, premiums $841.00, proven 48/48
+PLAY call 0.084 extra 0 salon seed 2 exposure 56: 36 disrupted weeks, open hours added 183, changes to others 41, premiums $841.00, proven 48/48
+PLAY call 0.084 extra 0 salon seed 3 exposure 56: 36 disrupted weeks, open hours added 183, changes to others 41, premiums $841.00, proven 48/48
+PLAY call 0.084 extra 0 salon seed 4 exposure 56: 36 disrupted weeks, open hours added 183, changes to others 41, premiums $841.00, proven 48/48
+PLAY call 0.084 extra 0 salon seed 5 exposure 56: 36 disrupted weeks, open hours added 183, changes to others 41, premiums $841.00, proven 48/48
+FLOOR call 0.084 extra 0 salon: hindsight adds 183 h over the seed-1 callers' weeks (proven 36/36)
+PLAY call 0.084 extra 0.109 salon seed 1 exposure 56: 38 disrupted weeks, open hours added 440, changes to others 71, premiums $1541.00, proven 87/87
+PLAY call 0.084 extra 0.109 salon seed 2 exposure 56: 38 disrupted weeks, open hours added 440, changes to others 71, premiums $1541.00, proven 87/87
+PLAY call 0.084 extra 0.109 salon seed 3 exposure 56: 38 disrupted weeks, open hours added 440, changes to others 71, premiums $1541.00, proven 87/87
+PLAY call 0.084 extra 0.109 salon seed 4 exposure 56: 38 disrupted weeks, open hours added 440, changes to others 71, premiums $1541.00, proven 87/87
+PLAY call 0.084 extra 0.109 salon seed 5 exposure 56: 38 disrupted weeks, open hours added 440, changes to others 71, premiums $1541.00, proven 87/87
+FLOOR call 0.084 extra 0.109 salon: hindsight adds 440 h over the seed-1 callers' weeks (proven 38/38)
+TIES retail: 6 distinct rosters at score 2251.82, payroll $2250.00, posted open 0 h; exposure by seed 1:24 4:24 5:24 2:30 3:30 6:30 over 17 person-days (10.2 s)
+PLAY call 0.01 extra 0 retail seed 1 exposure 24: 12 disrupted weeks, open hours added 6, changes to others 16, premiums $266.00, proven 8/8
+PLAY call 0.01 extra 0 retail seed 4 exposure 24: 12 disrupted weeks, open hours added 12, changes to others 18, premiums $300.00, proven 9/9
+PLAY call 0.01 extra 0 retail seed 5 exposure 24: 12 disrupted weeks, open hours added 12, changes to others 20, premiums $338.00, proven 9/9
+PLAY call 0.01 extra 0 retail seed 2 exposure 30: 12 disrupted weeks, open hours added 12, changes to others 17, premiums $291.00, proven 8/8
+PLAY call 0.01 extra 0 retail seed 3 exposure 30: 12 disrupted weeks, open hours added 12, changes to others 11, premiums $177.00, proven 5/5
+PLAY call 0.01 extra 0 retail seed 6 exposure 30: 12 disrupted weeks, open hours added 6, changes to others 17, premiums $289.00, proven 7/7
+FLOOR call 0.01 extra 0 retail: hindsight adds 0 h over the seed-1 callers' weeks (proven 12/12)
+PLAY call 0.01 extra 0.109 retail seed 1 exposure 24: 37 disrupted weeks, open hours added 192, changes to others 171, premiums $2777.00, proven 67/67
+PLAY call 0.01 extra 0.109 retail seed 4 exposure 24: 37 disrupted weeks, open hours added 201, changes to others 188, premiums $3098.00, proven 66/66
+PLAY call 0.01 extra 0.109 retail seed 5 exposure 24: 37 disrupted weeks, open hours added 195, changes to others 162, premiums $2646.00, proven 67/67
+PLAY call 0.01 extra 0.109 retail seed 2 exposure 30: 37 disrupted weeks, open hours added 225, changes to others 124, premiums $2027.00, proven 66/66
+PLAY call 0.01 extra 0.109 retail seed 3 exposure 30: 37 disrupted weeks, open hours added 228, changes to others 115, premiums $1876.00, proven 66/66
+PLAY call 0.01 extra 0.109 retail seed 6 exposure 30: 37 disrupted weeks, open hours added 228, changes to others 119, premiums $1920.00, proven 66/66
+FLOOR call 0.01 extra 0.109 retail: hindsight adds 96 h over the seed-1 callers' weeks (proven 37/37)
+PLAY call 0.084 extra 0 retail seed 1 exposure 24: 37 disrupted weeks, open hours added 66, changes to others 82, premiums $1340.00, proven 37/37
+PLAY call 0.084 extra 0 retail seed 4 exposure 24: 37 disrupted weeks, open hours added 48, changes to others 93, premiums $1564.00, proven 46/46
+PLAY call 0.084 extra 0 retail seed 5 exposure 24: 37 disrupted weeks, open hours added 48, changes to others 82, premiums $1370.00, proven 41/41
+PLAY call 0.084 extra 0 retail seed 2 exposure 30: 37 disrupted weeks, open hours added 48, changes to others 85, premiums $1421.00, proven 43/43
+PLAY call 0.084 extra 0 retail seed 3 exposure 30: 37 disrupted weeks, open hours added 66, changes to others 86, premiums $1452.00, proven 41/41
+PLAY call 0.084 extra 0 retail seed 6 exposure 30: 37 disrupted weeks, open hours added 60, changes to others 88, premiums $1448.00, proven 40/40
+FLOOR call 0.084 extra 0 retail: hindsight adds 18 h over the seed-1 callers' weeks (proven 37/37)
+PLAY call 0.084 extra 0.109 retail seed 1 exposure 24: 38 disrupted weeks, open hours added 288, changes to others 208, premiums $3381.00, proven 95/95
+PLAY call 0.084 extra 0.109 retail seed 4 exposure 24: 38 disrupted weeks, open hours added 273, changes to others 207, premiums $3417.00, proven 91/91
+PLAY call 0.084 extra 0.109 retail seed 5 exposure 24: 38 disrupted weeks, open hours added 285, changes to others 221, premiums $3650.00, proven 97/97
+PLAY call 0.084 extra 0.109 retail seed 2 exposure 30: 38 disrupted weeks, open hours added 303, changes to others 193, premiums $3202.00, proven 90/90
+PLAY call 0.084 extra 0.109 retail seed 3 exposure 30: 38 disrupted weeks, open hours added 309, changes to others 185, premiums $3082.00, proven 94/94
+PLAY call 0.084 extra 0.109 retail seed 6 exposure 30: 38 disrupted weeks, open hours added 321, changes to others 200, premiums $3278.00, proven 94/94
+FLOOR call 0.084 extra 0.109 retail: hindsight adds 183 h over the seed-1 callers' weeks (proven 38/38)
+TIES clinic: 6 distinct rosters at score 503235.35, payroll $2708.00, posted open 5 h; exposure by seed 1:30 2:30 4:30 6:30 3:45 5:45 over 12 person-days (14.9 s)
+PLAY call 0.01 extra 0 clinic seed 1 exposure 30: 14 disrupted weeks, open hours added 20, changes to others 6, premiums $169.00, proven 7/7
+PLAY call 0.01 extra 0 clinic seed 2 exposure 30: 14 disrupted weeks, open hours added 20, changes to others 6, premiums $169.00, proven 7/7
+PLAY call 0.01 extra 0 clinic seed 4 exposure 30: 14 disrupted weeks, open hours added 20, changes to others 6, premiums $169.00, proven 7/7
+PLAY call 0.01 extra 0 clinic seed 6 exposure 30: 14 disrupted weeks, open hours added 20, changes to others 6, premiums $169.00, proven 7/7
+PLAY call 0.01 extra 0 clinic seed 3 exposure 45: 14 disrupted weeks, open hours added 25, changes to others 3, premiums $96.00, proven 6/6
+PLAY call 0.01 extra 0 clinic seed 5 exposure 45: 14 disrupted weeks, open hours added 25, changes to others 3, premiums $96.00, proven 6/6
+FLOOR call 0.01 extra 0 clinic: hindsight adds 20 h over the seed-1 callers' weeks (proven 14/14)
+PLAY call 0.01 extra 0.109 clinic seed 1 exposure 30: 33 disrupted weeks, open hours added 155, changes to others 59, premiums $1678.00, proven 48/48
+PLAY call 0.01 extra 0.109 clinic seed 2 exposure 30: 33 disrupted weeks, open hours added 155, changes to others 59, premiums $1678.00, proven 48/48
+PLAY call 0.01 extra 0.109 clinic seed 4 exposure 30: 33 disrupted weeks, open hours added 155, changes to others 59, premiums $1678.00, proven 48/48
+PLAY call 0.01 extra 0.109 clinic seed 6 exposure 30: 33 disrupted weeks, open hours added 155, changes to others 59, premiums $1678.00, proven 48/48
+PLAY call 0.01 extra 0.109 clinic seed 3 exposure 45: 33 disrupted weeks, open hours added 200, changes to others 23, premiums $743.00, proven 48/48
+PLAY call 0.01 extra 0.109 clinic seed 5 exposure 45: 33 disrupted weeks, open hours added 200, changes to others 23, premiums $743.00, proven 48/48
+FLOOR call 0.01 extra 0.109 clinic: hindsight adds 155 h over the seed-1 callers' weeks (proven 33/33)
+PLAY call 0.084 extra 0 clinic seed 1 exposure 30: 37 disrupted weeks, open hours added 85, changes to others 52, premiums $1382.00, proven 32/32
+PLAY call 0.084 extra 0 clinic seed 2 exposure 30: 37 disrupted weeks, open hours added 85, changes to others 52, premiums $1382.00, proven 32/32
+PLAY call 0.084 extra 0 clinic seed 4 exposure 30: 37 disrupted weeks, open hours added 85, changes to others 52, premiums $1382.00, proven 32/32
+PLAY call 0.084 extra 0 clinic seed 6 exposure 30: 37 disrupted weeks, open hours added 85, changes to others 52, premiums $1382.00, proven 32/32
+PLAY call 0.084 extra 0 clinic seed 3 exposure 45: 37 disrupted weeks, open hours added 100, changes to others 17, premiums $543.00, proven 30/30
+PLAY call 0.084 extra 0 clinic seed 5 exposure 45: 37 disrupted weeks, open hours added 100, changes to others 17, premiums $543.00, proven 30/30
+FLOOR call 0.084 extra 0 clinic: hindsight adds 85 h over the seed-1 callers' weeks (proven 37/37)
+PLAY call 0.084 extra 0.109 clinic seed 1 exposure 30: 38 disrupted weeks, open hours added 313, changes to others 72, premiums $1989.00, proven 68/68
+PLAY call 0.084 extra 0.109 clinic seed 2 exposure 30: 38 disrupted weeks, open hours added 313, changes to others 72, premiums $1989.00, proven 68/68
+PLAY call 0.084 extra 0.109 clinic seed 4 exposure 30: 38 disrupted weeks, open hours added 313, changes to others 72, premiums $1989.00, proven 68/68
+PLAY call 0.084 extra 0.109 clinic seed 6 exposure 30: 38 disrupted weeks, open hours added 313, changes to others 72, premiums $1989.00, proven 68/68
+PLAY call 0.084 extra 0.109 clinic seed 3 exposure 45: 38 disrupted weeks, open hours added 348, changes to others 31, premiums $987.00, proven 68/68
+PLAY call 0.084 extra 0.109 clinic seed 5 exposure 45: 38 disrupted weeks, open hours added 348, changes to others 31, premiums $987.00, proven 68/68
+FLOOR call 0.084 extra 0.109 clinic: hindsight adds 303 h over the seed-1 callers' weeks (proven 38/38)
