@@ -85,7 +85,7 @@ def held_residual(theta0, k, mu, f_n, layout="corners"):
     return max(0.0, theta0 - free / k)
 
 
-def _xml(mu, layout, sag, ledger_dz, timestep, solref):
+def _xml(mu, layout, sag, ledger_dz, timestep, solref, edge=None):
     r = 0.002
     hw, hh, ht = W / 2, H / 2, T / 2
     wall = "\n".join(
@@ -94,6 +94,8 @@ def _xml(mu, layout, sag, ledger_dz, timestep, solref):
     feet = [(-hw + r, -hh + r), (hw - r, -hh + r)]
     if sag:
         feet.append((0.0, -hh + r - sag))
+    if edge is not None:                  # milestone 6b: feet on a given bottom-edge profile
+        feet = [(y, -hh + r + dz) for y, dz in edge]
     foot = "\n".join(
         f'<geom type="sphere" size="{r}" pos="0 {y:.6f} {z:.6f}" contype="4" conaffinity="0" '
         f'rgba="0 0 0 0"/>' for y, z in feet)
@@ -126,7 +128,7 @@ def theta_of(R):
 
 def seat(theta0=math.radians(1.0), mu=0.4, f_n=50.0, k_hold=None, layout="corners", sag=0.0,
          ledger_dz=0.0, v=0.02, t_release=0.5, settle=2.0, k_theta=3000.0, timestep=5e-4,
-         solref=0.002, gap=0.010, return_trace=False):
+         solref=0.002, gap=0.010, return_trace=False, edge=None):
     """Lower one sheet onto the ledger. Returns a dict with the final tilt (rad) relative to the
     ledger, the creep rate after settling (rad/s), the time of first contact and the run time.
 
@@ -136,10 +138,12 @@ def seat(theta0=math.radians(1.0), mu=0.4, f_n=50.0, k_hold=None, layout="corner
                keeps that stiffness (N m / rad) about theta0 while the sheet settles
     sag        outward bow of the bottom edge (m), modelled as a third foot at mid-width
     ledger_dz  height difference of the ledger over the sheet width (m)
+    edge       None, or (y, dz) of each foot on the bottom edge (dz < 0 below the nominal edge);
+               replaces the corner feet and ``sag`` (milestone 6b, ``bowed_edge.profile``)
     """
     import mujoco
 
-    m = mujoco.MjModel.from_xml_string(_xml(mu, layout, sag, ledger_dz, timestep, solref))
+    m = mujoco.MjModel.from_xml_string(_xml(mu, layout, sag, ledger_dz, timestep, solref, edge))
     d = mujoco.MjData(m)
     bid = m.body("sheet").id
     lid = m.geom("ledger").id

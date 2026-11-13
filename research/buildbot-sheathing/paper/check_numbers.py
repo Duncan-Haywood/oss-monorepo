@@ -10,11 +10,20 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent.parent
 E = "experiments/"
-M1, M2, M3, M3B, M4, M5, M6, M7 = (E + d + "/results.txt" for d in (
+M1, M2, M3, M3B, M4, M5, M6, M7, M6B = (E + d + "/results.txt" for d in (
     "m1_gap_placement", "m2_asbuilt_studs", "m3_ledger", "m3b_humanoid",
-    "m4_tack_measure", "m5_cycle", "m6_drake", "m7_cost"))
+    "m4_tack_measure", "m5_cycle", "m6_drake", "m7_cost", "m6b_bowed_edge"))
 
 CHECKS = [
+    # 5.6 the bowed bottom edge as a curve (milestone 6b)
+    (M6B, "R = 117.0 m at mid-width, h0 = 1.221 m, r_bar from mid-width = 1.562 m", "R = 117.0 m at mid-width"),
+    (M6B, "H37 smooth bow within theta_s + 0.005 deg: 100% of 48 cells -> held", "in all 48 cells"),
+    (M6B, "drake -0.00031 0.02223 0.05876", "0.05876° in Drake"),
+    (M6B, "mujoco -0.00024 0.02186 0.06055", "0.06055° in MuJoCo"),
+    (M6B, "2x 1 low three | 0.5602 0.6250 0.6244 0.6264", "from 0.5602 to 0.6250 clean sheets"),
+    (M6B, "worst two-2x change 0.45, bar 0.5 -> held", "by at most 0.45 points"),
+    (M6B, "drake: median |tilt| 0.0500", "median 0.0500° in Drake"),
+    (M6B, "mujoco: median |tilt| 0.0607", "0.0607° in MuJoCo"),
     # 5.1 gap and pose (milestone 1)
     (M1, "0.0000 3.931 0.898", "from 3.931 to 3.137 mm"),
     (M1, "0.1250 3.137 0.413", "from 0.898 to 0.413 mm"),

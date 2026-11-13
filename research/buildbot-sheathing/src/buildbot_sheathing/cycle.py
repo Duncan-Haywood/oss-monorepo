@@ -66,11 +66,18 @@ def tool_scatter(recoil):
     raise ValueError(recoil)
 
 
-def ledger_draw(s_corner=0.5 * MM, panel_frac=1.0, residual=None):
+def ledger_draw(s_corner=0.5 * MM, panel_frac=1.0, residual=None, rock_draw=None):
     """Tilt of a sheet seated on a laser-set ledger (rad). ``residual``, if given, is an array of
-    seated tilts a simulator left (milestone 6); one is resampled per sheet and added."""
+    seated tilts a simulator left (milestone 6); one is resampled per sheet and added.
+    ``rock_draw``, if given, replaces the three-foot bow rock 2 s / W by seated tilts simulated on
+    a smooth 1/16 in bow (milestone 6b, ``bowed_edge.panel_tilt``)."""
     def f(rng, n):
-        t = L.ledger_tilt(rng, n, s_corner=s_corner) + L.panel_tilt(rng, n, panel_frac, panel_frac)
+        if rock_draw is None:
+            pt = L.panel_tilt(rng, n, panel_frac, panel_frac)
+        else:
+            from . import bowed_edge as B
+            pt = B.panel_tilt(rng, n, rock_draw, panel_frac, panel_frac)
+        t = L.ledger_tilt(rng, n, s_corner=s_corner) + pt
         if residual is not None:
             t = t + rng.choice(np.asarray(residual, float), n)
         return t
@@ -79,13 +86,13 @@ def ledger_draw(s_corner=0.5 * MM, panel_frac=1.0, residual=None):
 
 def clean_cell(framing="2x2x", policy="single", placement="ledger", warp="low", recoil="none",
                s_x=1 * MM, s_theta=math.radians(0.25), s_corner=0.5 * MM, panel_frac=1.0,
-               trials=20000, seed=7, s_read=0.5 * MM, s_edge=0.5 * MM, residual=None):
+               trials=20000, seed=7, s_read=0.5 * MM, s_edge=0.5 * MM, residual=None, rock_draw=None):
     """First-pass clean sheets and missed nails for one pipeline (milestone 4's model)."""
     kw = dict(trials=trials, seed=seed, policy=policy, band=band(), joint_band=band(FRAMING[framing]),
               s_robot=tool_scatter(recoil), s_read=s_read, s_edge=s_edge, s_x=s_x, aim="edge",
               **WARP[warp])
     if placement == "ledger":
-        kw["theta_draw"] = ledger_draw(s_corner, panel_frac, residual)
+        kw["theta_draw"] = ledger_draw(s_corner, panel_frac, residual, rock_draw)
     elif placement == "lift-tack":
         kw["s_theta"] = s_theta
     else:
