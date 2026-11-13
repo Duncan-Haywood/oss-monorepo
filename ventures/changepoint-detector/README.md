@@ -1866,7 +1866,7 @@ Annual global temperature anomaly, 1880-2024 (`data/global-temp-annual.csv`, 145
 - **The slope model dates one bend, 1913, with a 95% range of 1895 to 1992.** It does not find 1976, the best-known acceleration; `--trend bends` returns the same single bend. The range is nearly a century, so this is a bend the series cannot place, not a date to quote.
 - **Reading:** on a drifting series the step models cut a staircase (8 cuts for the level model), as on GDP and beer. The agreement at 1946 is the useful result; the other cuts have no documentation behind them. One series, one recalled date: it says the detector can date a real step on real data, not how often it will.
 
-Still wanted: the 1976 acceleration found by a bend model on a series long enough to place it (a longer or less smooth record).
+Still wanted: the 1976 acceleration found by a bend model on a series long enough to place it (a longer or less smooth record). **Answered 2026-11-13 by a test on the levels, not the differences:** see "The 1976 acceleration, dated and tested on the levels" below (knot 1976, p 0.001 on GCAG and GISTEMP).
 
 ## Mauna Loa CO2: a smooth acceleration, no step (2026-11-09)
 
@@ -3787,3 +3787,71 @@ The page's and CLI's off-budget caveat (`eagernessText`) quoted round 6's persis
 it now quotes this run's (1 a month: 19 of 31 at 19.3 per 1,000; 1 a week: 29 of 31 at 74.0), and the
 default-budget line says the 15.7 baseline is under the shipped persist 2. Test: `watch-eagerness.test.mjs`
 ("round 6 re-checked under persist 2"), which reads the output file and the text.
+
+## The 1976 acceleration, dated and tested on the levels (2026-11-13, pre-registered; ships as `--hinge-test`)
+
+The slope-break test above works on the differences because, on a drifting series (GDP, productivity), the residuals
+about any line are close to a unit root and a level fit's gain is meaningless. That safety costs power: on annual
+global temperature it finds the recalled 1976 acceleration as its best split but gives p 0.80. Temperature does not
+drift that way: about a trend its year-to-year scatter is a stationary AR(1) with rho near 0.5. So `hinge-test.mjs`
+tests on the levels: one continuous hinge (`x = a + b t + c (t - k)+`), a sup-F over knots with 15% trimmed at each
+end (Andrews 1993; the knot is not identified under the null, Davies 1987, so no table applies), the series and the
+regressors Prais-Winsten transformed with the rho of the best least-squares hinge's residuals, and a p-value from a
+parametric bootstrap that reruns the whole procedure on the fitted straight line plus AR(1) noise. It refuses when the
+straight line's residuals have bias-corrected rho above 0.9 (0.7 under 100 points), the unit-root case the differences
+test is for.
+
+**Size, synthetic** (`node eval/hinge-test-sim.mjs 300 99 line size`, `eval/hinge-test-sim-size.out.txt`; straight
+line plus AR(1) noise, 300 series per cell, 99 replicates each): rejections at p <= 0.05 between 3.0% and 7.7% in all
+12 cells (n 60, 145, 300; rho 0, 0.3, 0.6, 0.8). Two choices were made on synthetic size alone, before any real run:
+the bootstrap draws its noise with the rho of the straight-line residuals, not the hinge's (the hinge's gave 10.0% and
+20.0% at n 60, rho 0.6 and 0.8), and under 100 points the guard is 0.7 (with 0.9, n 60 rho 0.8 rejected 10.7%; now
+195 of 300 such series are refused and the rest reject 3.3%).
+
+**Power, synthetic** (`node eval/hinge-test-sim.mjs 150 99 line power`, `eval/hinge-test-sim-power.out.txt`; one
+slope change at 65% of the series, innovation sd 1):
+
+| n | rho | slope change per step | levels: p <= 0.05 | levels: also dated within 5% of n | differences: p <= 0.05 |
+|---|---|---|---|---|---|
+| 145 | 0.5 | 0.02 | 14% | 3% | 0% |
+| 145 | 0.5 | 0.04 | 40% | 14% | 0% |
+| 145 | 0.5 | 0.08 | 94% | 51% | 0% |
+| 145 | 0.3 | 0.04 | 71% | 31% | 0% |
+| 300 | 0.6 | 0.02 | 57% | 21% | 0% |
+| 300 | 0.6 | 0.04 | 99% | 51% | 0% |
+| 60 | 0.3 | 0.10 | 35% | 10% | 0% |
+| 60 | 0.3 | 0.20 | 83% | 52% | 0% |
+
+The differences test finds none of these: differencing AR(1) noise with rho 0.5 leaves noise about as large as the
+original, against a mean shift of a few hundredths. The levels test detects far more often than it dates: a hinge is
+a gentle feature, and the best knot wanders. Read the date with the slopes, not alone.
+
+**Real series, pre-registered** (`eval/hinge-test-prereg-2026-11-13.md` committed before the run;
+`node eval/hinge-test-real.mjs`, `eval/hinge-test-real.out.txt`; 999 replicates, seed 1). GISTEMP annual and GCAG
+1850-2024 are new fixtures made from the same monthly file as the existing one (`data/SOURCE.md`).
+
+| series | knot | F (bar) | p | slope before -> after, degrees per century | differences test p |
+|---|---|---|---|---|---|
+| A. GCAG 1880-2024 | 1976 | 72.0 (11.7) | 0.001 | 0.44 -> 2.03 | 0.800 |
+| B. GISTEMP 1880-2024 | 1976 | 85.6 (13.2) | 0.001 | 0.35 -> 2.12 | 0.746 |
+| C. GCAG 1850-2024 | 1976 | 93.1 (13.0) | 0.001 | 0.30 -> 2.16 | 0.763 |
+| D. log US real GDP | refused (rho 0.97) | | | | |
+| D. log US labour productivity | refused (rho 0.98) | | | | |
+| E. GCAG 1910-2024 (no prediction) | 1985 | 47.8 (11.3) | 0.001 | 0.59 -> 2.30 | 0.907 |
+| E. GCAG 1930-2024 (no prediction) | refused (rho 0.76 above the short-series 0.7) | | | | |
+
+Every prediction held (A, B and C: p <= 0.01, knot in 1960-1985; both D refused), so the test ships. p 0.001 is the
+floor at 999 replicates. B is a second analysis of largely the same thermometer readings, not independent evidence.
+The mid-1970s date is recalled from the literature, not read from a source here, so the knot is a plausibility check,
+not a labelled hit.
+
+**What it does not say.** A small p rejects the straight line; it does not say one hinge is the right model (the
+record also rises in 1910-1940 and has the 1945 step). The 1930-2024 refusal shows the guard's weak point: it reads
+the straight line's residuals, which a real hinge makes stickier, so on a short window with a strong bend it can
+refuse a series it could have tested. Dependence beyond AR(1) (long memory) would make it over-reject; this was not
+measured on real data. Up to 600 points in `analyze` (the bootstrap reruns a quadratic scan).
+
+**Use it.** CLI `--hinge-test`; `analyze({ ..., hingeTest: true })` returns `hingeTest: { index, label, f, bar95, p,
+rho, slopeBefore, slopeAfter, significant, note }` or `{ refused, reason }`; on the page, the "Also test one change of
+slope on the levels" box. Test: `hinge-test.test.mjs`.
+

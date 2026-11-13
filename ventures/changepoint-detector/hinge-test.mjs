@@ -104,6 +104,9 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   if (n < 30) return { refused: true, reason: `needs 30 or more points (got ${n})`, n };
   const st = statistic(x, margin, rhoCap);
   const rhoLineC = corrected(st.o.rhoLine, n);
+  // Short series: the AR(1) estimate is too rough near a unit root (size 10.7% at n 60, rho 0.8 with the 0.9 guard,
+  // eval/hinge-test-sim.out.txt), so below 100 points the guard is 0.7.
+  if (n < 100) rhoMax = Math.min(rhoMax, 0.7);
   if (rhoLineC > rhoMax) {
     return { refused: true, reason: `the residuals about a straight line have lag-1 autocorrelation ${rhoLineC.toFixed(2)} (bias-corrected), above ${rhoMax}: too close to a unit root for a level test; use the test on differences (slopeBreaks)`, rhoLine: rhoLineC, n };
   }

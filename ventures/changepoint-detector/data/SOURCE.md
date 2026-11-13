@@ -667,3 +667,10 @@ report prints when the set is wider than one page (`eval/multi-report-print.mjs`
 - **Licence:** a published table (Harvey 1989); R's `datasets` package is GPL-2 or later. Only
   the numbers are used here.
 - **Used by:** `eval/multi-report-print.mjs`, `multi-report.test.mjs`.
+
+## gistemp-annual.csv and gcag-annual-1850.csv
+
+- **What:** annual means of the 12 monthly global temperature anomalies (degrees C), complete years only: `GISTEMP` rows, 1880-2024 (145 values), and `GCAG` rows, 1850-2024 (175 values; its 1880-2024 part equals `global-temp-annual.csv` exactly).
+- **Retrieved:** 2026-11-13 from <https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv> (datahub.io `global-temp`, republishing NASA GISTEMP and NOAA/NASA GCAG).
+- **Licence:** the datahub packaging is ODC-PDDL; the underlying figures are public US government data. Kept as test fixtures with their source named.
+- **Used by:** `hinge-test.test.mjs`, `eval/hinge-test-real.mjs`, README "The 1976 acceleration, dated and tested on the levels".
