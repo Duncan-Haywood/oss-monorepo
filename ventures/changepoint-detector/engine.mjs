@@ -2097,7 +2097,10 @@ export function analyze(input = {}) {
   let ranges = null;
   if (!joint && o.intervals !== false) {
     const nbOn = isFinite(nbSize) && nbSize > 0;
-    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, robust ? 'meanvarlaplace' : model, sigma, 0, exposure), { minSegment, level: 0.95 });
+    // GARCH cuts with clustering: the range comes from the same segment likelihood that chose them, (a, b) held at the fit
+    const cost = garchFit?.clustered ? garchCost(values, garchFit.alpha, garchFit.beta)
+      : nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, robust ? 'meanvarlaplace' : model, sigma, 0, exposure);
+    ranges = changeIntervals(p.changepoints, values.length, cost, { minSegment, level: 0.95 });
   }
   // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
   let rangeWarning = null;
@@ -2533,6 +2536,10 @@ export function localFitScale(v, w = 7, degree = 1) {
  */
 // Per-cut and GARCH-term penalties in multiples of ln n (log-likelihood units), fixed before the fresh-seed run.
 export const GARCH_CUT_PEN = 1.5, GARCH_TERM_PEN = 0.25;
+// Penalty on the Student t paths (garchCuts' tPen, off in analyze), in multiples of ln n: tuned in sample and run on fresh
+// seeds, where it failed one line of the bar (eval/meanvar-tgarch-prereg-2026-11-13.md; README "Heavy tails in the GARCH
+// search"). Eval only until a new pre-registration passes.
+export const GARCH_T_PEN = 0.5;
 export const GARCH_T_NUS = [4, 8];
 export const GARCH_GRID = []; for (const a of [0, 0.05, 0.1, 0.2, 0.3]) for (const b of [0, 0.5, 0.7, 0.85, 0.93]) if (a + b < 0.98) GARCH_GRID.push([a, b]);
 
@@ -2586,6 +2593,10 @@ function garchSegLLt(x, lo, hi, a, b, nu) {
   }
   return ll;
 }
+
+// The GARCH segment likelihood as a changeIntervals cost (twice the negative log-likelihood, a and b fixed), so the 95%
+// range of a `--garch` cut comes from the model that chose it (README, "A range from the GARCH fit").
+export function garchCost(x, a, b) { return (lo, hi) => -2 * garchSegLL(x, lo, hi, a, b); }
 
 // Greedy forward search. Returns { cuts, gains }: cuts in the order added, gains[k] the likelihood rise of step k.
 // Stops when the best gain falls under minPen or no segment can be split.

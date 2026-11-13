@@ -3,6 +3,7 @@
 // two paths to garchCuts' model choice, independent t noise and t-GARCH, nu read off {4, 8}, each paying tPen more.
 // Cells: the four noises below, null / sd 1 -> 2 at n/2 / mean +1.5 at n/2, as in meanvar-garch-compare.mjs.
 // usage: node eval/meanvar-tgarch.mjs [reps] [seedShift] [tPens, comma list of multiples of ln n; "off" = Gaussian only]
+//   [n list, default 100,200] [noise list, default gauss,garch,t3,tgarch] (the last two only split a run across processes)
 import { garchCuts, GARCH_CUT_PEN, GARCH_TERM_PEN } from '../engine.mjs';
 import { NOISE } from './meanvar-garch-binseg.mjs';
 const reps = +process.argv[2] || 100, shift = +process.argv[3] || 0;
@@ -16,7 +17,8 @@ const pct = (k, n) => `${Math.round(100 * k / n)}%`;
 console.log(`reps ${reps}, seed shift ${shift}, cut ${GARCH_CUT_PEN} ln n, GARCH term ${GARCH_TERM_PEN} ln n; per t penalty (ln n):\nnull any change / sd 1->2 exactly one / mean +1.5 exactly one`);
 console.log(`n | noise | ${PENS.map((p) => `t ${p}`).join(' | ')}`);
 const t0 = Date.now();
-for (const n of [100, 200]) for (const name of ['gauss', 'garch', 't3', 'tgarch']) {
+const NS = (process.argv[5] || '100,200').split(',').map(Number), NAMES = (process.argv[6] || 'gauss,garch,t3,tgarch').split(',');
+for (const n of NS) for (const name of NAMES) {
   const gen = NOISE[name], ln = Math.log(n), tally = PENS.map(() => [0, 0, 0]);
   for (let k = 0; k < reps; k++) {
     const series = [
