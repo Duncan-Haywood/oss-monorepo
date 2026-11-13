@@ -136,6 +136,7 @@ def dev():
         out[c] = evaluate(rows)
         L.append(_line(c, out[c]))
     (HERE / "dev.txt").write_text("\n".join(L) + "\n")
+    (HERE / "dev.json").write_text(json.dumps(out, indent=1) + "\n")
     print("\n".join(L))
 
 
