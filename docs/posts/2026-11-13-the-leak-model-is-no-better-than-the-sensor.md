@@ -2,8 +2,8 @@
 title: "Finding the leak: a hydraulic model does no better than the sensor that dropped most"
 seo_title: "Leak localisation on BattLeDIM L-Town: WNTR sensitivity vs chance"
 date: 2026-11-13
-description: "On BattLeDIM's L-Town, nominal-model sensitivity localisation puts 31-47% of leaks within 300 m, ten times chance, but no better than the most-affected pressure sensor."
-tags: [research, water-leaks, leak-localisation, BattLeDIM, WNTR, EPANET, water-loss]
+description: "On BattLeDIM L-Town, nominal-model leak localisation puts 31-47% of leaks within 300 m: ten times chance, but no better than the most-affected sensor."
+tags: [research, water-leaks, leak-localisation, BattLeDIM, wntr, EPANET, water-loss]
 ---
 
 Ten steps of the [water-leaks programme](/research/water-leaks/) asked whether leak *detectors* on the BattLeDIM L-Town benchmark beat random alarms. This step asks the next question a leakage crew cares about: once an alarm goes off, where do you send the acoustic loggers? BattLeDIM counts a leak as found only if the reported location is within 300 m of it.
