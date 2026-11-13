@@ -365,6 +365,8 @@ class WarpRectilinear2:
         return self.terms[min(p, len(self.terms) - 1)]
 
 
+WARP_TYPES = (WarpRectilinear, WarpRectilinear2, WarpFisheye)
+
 @dataclass(frozen=True)
 class VignetteRadial:
     k: tuple[float, float, float, float, float]
