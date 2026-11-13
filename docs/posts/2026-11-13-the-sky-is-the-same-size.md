@@ -6,7 +6,7 @@ description: "New hopeful science fiction: a dead space station falls over a Bol
 tags: [hearth-and-horizon, fiction, space]
 ---
 
-[The Sky Is the Same Size](/ventures/hearth-and-horizon/the-sky-is-the-same-size.html) is a new Hearth & Horizon story, about 5,700 words. It's set in an invented town on the Bolivian altiplano, south of Lake Titicaca, from 11 to 15 August 2061.
+[The Sky Is the Same Size](https://marisstella.app/hearth-and-horizon/the-sky-is-the-same-size.html) is a new Hearth & Horizon story, about 5,700 words. It's set in an invented town on the Bolivian altiplano, south of Lake Titicaca, from 11 to 15 August 2061.
 
 A retired commercial space station is meant to be steered into the empty South Pacific. Its deorbit burn fails, and it starts coming down on its own. Two days before the town's patronal feast, the phone maps show the predicted track as one red line passing nine kilometres from the plaza. The regional risk office sends a flood-style alert telling people to stay indoors, and its engineer drives three hours to cancel the candlelit procession in person.
 
