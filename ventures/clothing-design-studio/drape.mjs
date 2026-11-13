@@ -215,16 +215,18 @@ export function armRadiusAt(arm, s) {
  * small, so the radial distance stands in for the true one).
  */
 export function armContact(body, x, y, z) {
-  let best = null;
+  // the winner's numbers are kept as scalars and boxed once at the end (this runs
+  // for every cloth vertex near an arm, every substep)
+  let found = false, bd = 0, bx = 0, by = 0, bz = 0, br = 0, bs = 0, barm = null;
   for (const arm of body.arms || []) for (const c of arm.caps) {
     const ux = c.b[0] - c.a[0], uy = c.b[1] - c.a[1], uz = c.b[2] - c.a[2], L2 = ux * ux + uy * uy + uz * uz;
     let t = ((x - c.a[0]) * ux + (y - c.a[1]) * uy + (z - c.a[2]) * uz) / (L2 || 1);
     t = Math.max(0, Math.min(1, t));
     const cx = c.a[0] + t * ux, cy = c.a[1] + t * uy, cz = c.a[2] + t * uz;
     const r = c.ra + (c.rb - c.ra) * t, dist = Math.hypot(x - cx, y - cy, z - cz) - r;
-    if (!best || dist < best.dist) best = { dist, cx, cy, cz, r, s: c.s0 + t * Math.sqrt(L2), arm };
+    if (!found || dist < bd) { found = true; bd = dist; bx = cx; by = cy; bz = cz; br = r; bs = c.s0 + t * Math.sqrt(L2); barm = arm; }
   }
-  return best;
+  return found ? { dist: bd, cx: bx, cy: by, cz: bz, r: br, s: bs, arm: barm } : null;
 }
 const scale = (e, s) => ({ a: e.a * s, b: e.b * s });
 function num(v, lo, hi) { const n = Number(v); return Number.isFinite(n) && n >= lo && n <= hi ? n : null; }
@@ -529,9 +531,30 @@ function pushOut(body, pos, k, thick) {
   return d;
 }
 
+/**
+ * True when the point is surely at least `thick` from every arm capsule, so
+ * pushOutArm would return 0 without touching anything. It compares the squared
+ * distance to each capsule's axis with (r + thick + 1e-9)^2: no hypot, no
+ * object, and the 1e-9 m margin covers the rounding gap between sqrt and the
+ * hypot armContact uses. Any doubt falls through to armContact itself, so the
+ * cloth moves exactly as before.
+ */
+function armsClear(body, x, y, z, thick) {
+  for (const arm of body.arms) for (const c of arm.caps) {
+    const a = c.a, ux = c.b[0] - a[0], uy = c.b[1] - a[1], uz = c.b[2] - a[2], L2 = ux * ux + uy * uy + uz * uz;
+    let t = ((x - a[0]) * ux + (y - a[1]) * uy + (z - a[2]) * uz) / (L2 || 1);
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const dx = x - (a[0] + t * ux), dy = y - (a[1] + t * uy), dz = z - (a[2] + t * uz);
+    const R = c.ra + (c.rb - c.ra) * t + thick + 1e-9;
+    if (!(dx * dx + dy * dy + dz * dz >= R * R)) return false; // NaN falls through too
+  }
+  return true;
+}
+
 /** Push vertex k out of the nearest arm capsule along its radius; returns the depth corrected (m). */
 function pushOutArm(body, pos, k, thick) {
   const x = pos[k], y = pos[k + 1], z = pos[k + 2];
+  if (armsClear(body, x, y, z, thick)) return 0;
   const c = armContact(body, x, y, z);
   if (!c || c.dist >= thick) return 0;
   let dx = x - c.cx, dy = y - c.cy, dz = z - c.cz, d = Math.hypot(dx, dy, dz);
