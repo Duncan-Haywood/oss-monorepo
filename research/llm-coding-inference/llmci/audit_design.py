@@ -10,7 +10,9 @@ TAU = 0.1  # minimum pilot informedness J_hat for coder cells (LOG.md 7ah, 7ai: 
 GUARD = 0  # minimum human positives in the pilot (6al set 20; LOG.md 7ai: at 1% prevalence that sent every draw to
 #           pooled and gave up 15% of width; NEG_GUARD and TAU now do its job; guard=20 restores the 6al screen)
 TAU_6AM, GUARD_6AM = 0.3, 20  # the screen shipped from 6am to 7ah; experiments before 7ai compare against it
-PILOT_SHARE = 0.3
+PILOT_SHARE = 0.3  # suggested pilot share (no function reads it). LOG.md 7aq: on 39 GoEmotions cells 0.3 keeps only 67% of
+#                   the shipped rule's width gain at 0.5 (coverage unchanged), because the 3-miss guard passes less often; prefer
+#                   a pilot of about n/2. The value stays until a pre-registered check changes it.
 NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7w); the default since 7w, neg_guard=0 turns it off
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)
 WIDTH_MARGIN = 0.0  # keep cells only if the pilot's `predicted_ratio` <= 1 - WIDTH_MARGIN (LOG.md 7ak: removed all 7 cells
