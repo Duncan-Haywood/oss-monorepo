@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 83, 2026-11-13: choosing the class configuration per target city from its own year Y-1 (pre-registered; results below)
+## Session 83, 2026-11-13: choosing the class configuration per target city from the target's own previous year lands within 0.65 days of the best of three candidates in all 12 city-year-quantile cells (mean regret 0.07 days vs 1.7 to 6.6 for any fixed choice; S1 to S5 held)
 
 Why: session 82 closed with "the class configuration has to be chosen per target city" after three source-count fold rules failed. Its "Next" asked for a choice made from the target city's own history, fixed before the test year.
 - New: `src/select_class.py` and `transfer.run(..., select=True)`. The transfer model for test year Y never reads the held-out city (it trains on the sources' years <= Y-2, early-stops on their Y-1), so the held-out city's own year Y-1 is a clean selection set: the rows own_boosted already early-stops on. For each candidate the transfer model's seed-mean pinball loss on those rows is computed per quantile. Rules: **argmin** (lowest selection-year loss; ties to cascade2) and **gated** (keep cascade2 unless a candidate beats it on Y-1 with a 95% week-block interval below zero). Test-year scoring on all rows (reference, as sessions 81 and 82); regret = picked candidate's test loss minus the best candidate's. 7 tests (a check that select=True leaves every test-row loss unchanged).
@@ -12,6 +12,36 @@ Predictions (written before any run):
 - (S4) argmin's regret is <= 1 day in at least 10 of the 12 cells.
 - (S5) gated's mean regret is no higher than argmin's (a significance gate costs nothing).
 Refuted if any part fails.
+
+Outcome. Fresh pull 2026-11-13 14:31 to 14:42 UTC, one city per process: SF 1,298,286, Austin 2,385,260, Seattle 194,248 rows (SF +71, Austin +192 since session 82's 11:38 pull). Runs one after another with `/usr/bin/python3.13`, 14:43 to 15:13 UTC. Outputs: `results/select_class_{austin,sf,seattle}_i2c_{2021,2022}.json`, `results/select_class_summary.json` (`python3.13 src/select_class.py --summarise ...`).
+- Picks and regret (days of mean pinball loss on all test-year rows; regret = picked minus best candidate's loss):
+
+| held, year | q | selection-year loss cascade2 / type / drop | argmin | gated | test best | regret argmin | regret always cascade2 / type / drop |
+|---|---|---|---|---|---|---|---|
+| Austin 2021 | 0.5 | 78.96 / 70.62 / 78.71 | type | type | cascade2 | 0.12 | 0 / 0.12 / 3.98 |
+| Austin 2021 | 0.9 | 69.23 / 52.30 / 54.57 | type | type | type | 0 | 14.84 / 0 / 1.81 |
+| Austin 2022 | 0.5 | 82.87 / 79.50 / 86.98 | type | type | type | 0 | 3.57 / 0 / 7.35 |
+| Austin 2022 | 0.9 | 73.08 / 55.17 / 58.85 | type | type | type | 0 | 13.88 / 0 / 6.50 |
+| SF 2021 | 0.5 | 97.00 / 106.30 / 97.09 | cascade2 | cascade2 | drop | 0.05 | 0.05 / 10.57 / 0 |
+| SF 2021 | 0.9 | 78.47 / 91.07 / 78.30 | drop | cascade2 | drop | 0 | 0.38 / 16.12 / 0 |
+| SF 2022 | 0.5 | 90.50 / 104.59 / 90.37 | drop | drop | drop | 0 | 0.25 / 15.96 / 0 |
+| SF 2022 | 0.9 | 69.73 / 86.76 / 69.40 | drop | drop | drop | 0 | 0.24 / 22.89 / 0 |
+| Seattle 2021 | 0.5 | 127.18 / 126.76 / 127.40 | type | cascade2 | cascade2 | 0.64 | 0 / 0.64 / 0.22 |
+| Seattle 2021 | 0.9 | 97.49 / 101.55 / 97.22 | drop | cascade2 | cascade2 | 0.03 | 0 / 6.18 / 0.03 |
+| Seattle 2022 | 0.5 | 127.55 / 128.79 / 127.78 | cascade2 | cascade2 | cascade2 | 0 | 0 / 0.64 / 0.12 |
+| Seattle 2022 | 0.9 | 89.36 / 96.75 / 89.81 | cascade2 | cascade2 | cascade2 | 0 | 0 / 6.26 / 0.36 |
+
+- Mean regret over the 12 cells: argmin 0.07 days (max 0.64), gated 0.05 (max 0.38), always cascade2 2.77 (max 14.84), always minsupdrop1000 1.70 (max 7.35), always type 6.62 (max 22.89).
+- (S1) Held: argmin picks type for Austin q0.9 in both years (selection-year margin 16.9 and 17.9 days over cascade2).
+- (S2) Held: neither rule picks type for SF q0.9 (type is 12.6 and 17.0 days worse on SF's selection year).
+- (S3) Held: argmin's 0.07 days is below every fixed policy (1.70, 2.77, 6.62).
+- (S4) Held: argmin is within 1 day of the best candidate in 12 of 12 cells.
+- (S5) Held: gated 0.05 <= argmin 0.07. The gate avoided Seattle 2021's two noisy switches (0.42 and 0.27-day selection margins) and cost 0.38 days in SF 2021 q0.9.
+- Why it works: the class's transfer cost is a property of the target city (which classes the sources fill for it), and that property barely moves between adjacent years, so one year of the target's own outcomes, scored with the transfer model it never trained on, ranks the candidates as the test year does. The large gaps (Austin q0.9, SF type) are 10 to 18 days on the selection year; where the selection-year gaps are under half a day, the test-year gaps are under 0.7 days, so a wrong pick there costs little.
+- Data drift, unplanned: today's pull, 3 hours after session 82's, moves some test-year contrasts by more than their intervals. Austin 2021 type minus cascade2 is +0.12 [-0.87, 1.08] at q0.5 (session 82: +2.59 [1.63, 3.52]) and -14.84 at q0.9 (session 82: -15.34); Austin 2022 cascade2's q0.9 regret is 13.88 (session 82's type contrast: -9.79). A rerun of the unmodified `censored_eval.py validate` path on today's pull reproduces +0.12 and -14.84 to the printed digit, so the shift is in the data (192 new Austin rows and any edited completion dates), not in `select=True`. The selector's comparisons use one pull throughout. The interval on a single pull understates run-to-run variation from feed edits, and earlier sessions' "reproduces to the digit" held only for pulls with unchanged row counts.
+- Practical rule: before shipping a transfer model to a new city, score each candidate encoding of the work type on that city's latest complete year with the transfer model fitted without it, and keep the default unless a candidate wins with an interval below zero.
+- Limits: the selection year is scored on complete labels from today's pull (the information own_boosted's early stopping already uses; a deployed selector sees Y-1 right-truncated, which sessions 77 and 78 showed shortens the tail); 3 cities, 2 test years, 3 candidates, 3 seeds; no interval on regret.
+Next: score the selection year as a deployment would see it (Y-1 right-truncated at the start of Y, CC and IPCW from session 78) and check that the picks survive; then write sessions 79 to 83 into the paper's 4.4.
 
 ## Session 82, 2026-11-13: folding thin classes to missing removes Austin's median cost but gives back its build-time tail, because the sources' thin rows still train the missing branch; dropping them recovers the tail, yet the plain permit type still wins in Austin (N4, N5, D1 held; N1, N2, N3, D2, D3 refuted)
 
