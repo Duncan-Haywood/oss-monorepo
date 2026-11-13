@@ -10,7 +10,8 @@
 // xmllint needs each XSD with xmldsig beside it, one directory per layout (2.00/nfse_v200.xsd
 // ... 2.04/nfse_v204.xsd; the mirror names 2.00-2.02 "nfse v200.xsd", so rename them); nfse_v204.xsd as published puts
 // minOccurs/maxOccurs on the global CompNfse element, which xmllint refuses to compile, so
-// strip those two attributes from that line in your copy (they mean nothing there).
+// strip those two attributes from that element in your copy (they mean nothing there; they sit on
+// the line after `<xsd:element name="CompNfse"`, so a one-line sed on the name misses them).
 //   node eval/abrasf-xsd-diff.mjs <dir with 2.00/ ... 2.04/> [--per N] [--only 2.01,2.02] [--providers <Schemas dir>] file.xml ...
 // --providers adds the city providers' own copies (abrasf.mjs checks a file from a city in
 // OpenAC.Net.NFSe's list against its provider's copy): <Schemas dir> is the Schemas/ folder of
