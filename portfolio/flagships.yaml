@@ -290,23 +290,21 @@ flagships:
       Swiss formats, with a self-hosted league page.
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
-      (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
-      CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
-      capped breaks, zero-break odd leagues, field start; sampled, annealed and climbed starters,
-      20 and 22 teams at the floor, 24-40 8-21% above it; break-weighted starters; shift venues for
-      single and home-and-away seasons, odd leagues 17-39 under 2 breaks per team; shift starters and
-      capped shift candidates through the search and as home-and-away leg ones, 11 and 13 teams 3-5%
-      lower; README 2026-11-12 sections and eval/shift-*.txt; best-of-k-page.txt: the page's four
-      choices re-measured). 2026-11-12 latest (README "Pick any season on the frontier", eval/frontier-gap.txt): the page lists every
-      frontier season as a button and keeps the one clicked (share link carryOverKeep, no version
-      needed: the four choices still pick among tries 0-9), plus 2 gap capped tries that join the
-      frontier in 9 of 12 runs at 17-20 teams home and away (19 teams 25 to 13 breaks widest gap).
-      Next, most valuable first: a search that reaches 66-90 breaks at 17-20 teams home and away
-      with low carry-over (the circle-start capped search is poor there and a squeeze from a
-      starter could not cut breaks; a move that cuts breaks while keeping balance, e.g. flipping a
-      whole alternating run); moves that keep the shift pattern for 17-40 teams; a lower bound or a
-      timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12 unanswered at
-      134 after 70 min; next symmetry breaking or cube-and-conquer); close 24-40 (tabu, longer runs,
+      (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
+      duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool, capped breaks,
+      zero-break odd leagues, field start; sampled, annealed and climbed starters; break-weighted and
+      shift starters; frontier picker with gap tries, README 2026-11-12 sections). 2026-11-13 latest
+      (README "Squeezing a season under a cap", eval/squeeze-gap.txt): squeezeDoubleRounds searches a
+      home-and-away season's timetable and grounds together under a break cap (pair, two-pair and
+      alternating-run flips; leg-one balance held); the page runs 4 squeezes after its 12 tries, each at
+      the widest frontier gap left: at 17-20 teams 2-4 seasons join the frontier in every run, least
+      carry-over at a break budget 5.2% lower on average, up to 33%. Next, most valuable first: the
+      19-team jump (about 1,311-1,517 carry-over at 79-87 breaks, then 3,100+ at 78 and under on every
+      seed): a squeeze that starts from a shift-starter season above the gap and walks its cap down, or a
+      move that keeps the shift pattern; squeezes for a single round robin (the same joint moves on one
+      leg); the lowest-carry-over end (squeezing 1,460/116 at 20 teams stalls at 112: a perfectly balanced
+      season is a deep local minimum); a lower bound or a timetable below 136 at 12 (SAT,
+      eval/carryover-sat.py: next symmetry breaking or cube-and-conquer); close 24-40 (tabu, longer runs,
       the literature's starters); a real league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
