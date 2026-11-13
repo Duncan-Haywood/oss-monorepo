@@ -33,7 +33,8 @@ it does not depend on survey year (m5i: upbringing reports are stable within per
 Intervals: 500-draw stratified PSU bootstrap over the whole file (seed 1); rho and p are re-estimated in every draw, and the
 m5h main-spec channels are computed on the same draws so contrasts are paired.
 Sensitivities (point estimates): R from `religkid` (ISSP years, same instrument as `marelkid`); third-plus generation only;
-g = 24 and 32 for M_model.
+g = 24 and 32 for M_model. Added after the first full run (exploratory, not a prediction test): second generation only,
+because the third-plus column showed most of M - M_model vanishing there.
 
 Predictions, written before the first run:
 P1. Net transmission is positive for cohorts born 1925-64: R - M between +1 and +4 points, interval excluding zero.
@@ -202,6 +203,7 @@ def main():
     pt = stats(d, one)
     sens = {'R from religkid (ISSP years)': stats(d, one, rcol='raised_kid'),
             'third-plus generation only': stats(d, one, extra=d['third'].to_numpy()),
+            'second generation only (post hoc)': stats(d, one, extra=(d['gen'] == '2nd gen').to_numpy()),
             'g=24': stats(d, one, g=24), 'g=32': stats(d, one, g=32)}
     print(f"US-born adults with mother's religion: n={int(d['module'].sum())}; with father's too: "
           f"{int((d['module'] & d['has_pa']).sum())}")

@@ -34,6 +34,18 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Do children of mixed Catholic marriages explain the extra Catholics? (milestone 5b, 2026-11-13)
+
+Only a little. m5h's model (children take their mother's religion; Catholic mothers have more children) leaves 2-4 points
+more US-born adults raised Catholic than it predicts. Using what 5,714 US-born GSS respondents (1988-2018) said about their
+parents' religion: of children with only a Catholic **mother**, 72% [67, 77] were raised Catholic; with only a Catholic
+**father**, 42% [36, 48] (cohorts 1925-64; the gap is about 30 points in every cohort, before and after the Church dropped
+its mixed-marriage promise in 1970). Net, mixed marriages add **+0.56 points [-0.01, +1.01]** to the raised-Catholic share,
+**18%** of the gap. Most of the rest is immigrant mothers: the model gave the children of immigrants the Catholic share of
+all US women of their mothers' cohort (about 25%), but their mothers were 50% Catholic. The transmission channel's
+contribution to the 1990-99 to 2010-18 change is -0.07 [-0.44, +0.28], so H4 (immigration +1.07, fertility -0.37) stands, and
+m5h's fertility upper bound is loose. Code `experiments/m5l_parents/run.py`, tables `t32` to `t34`, details in `LOG.md`.
+
 ## Did immigrants' contribution to the Catholic share really collapse after 2018? (milestone 5b, 2026-11-13)
 
 Mostly not: the collapse came from the web interviews. m5h found the first-generation contribution to the adult Catholic share
@@ -77,7 +89,8 @@ result survives every sensitivity tried. From 2010-18 to 2021-24 the all-mode se
 (-1.38). **Corrected 2026-11-13 (m5k):** most of that fall is the web slice; in person it is -0.44 [-1.38, +0.49]. Limits: survivors' fertility, religion at interview, children assumed to take the mother's
 religion. The model under-explains the share raised Catholic by 2-4 points for cohorts born 1925-69; crediting all of
 that to fertility lifts the fertility level to about 2.2 points, but flat across decades, so its share of the 1990-2018
-change stays about zero (details in `LOG.md`).
+change stays about zero (details in `LOG.md`). **Update 2026-11-13 (m5l):** parents' religion shows about a fifth of
+that gap is mixed-marriage transmission and most of the rest immigrant mothers, so the bound overstates fertility.
 
 ## Retention models (milestone 4, 2026-11-04)
 
@@ -120,6 +133,7 @@ python3 experiments/m5h_fertility/run.py      # fertility vs immigration channel
 python3 experiments/m5i_panel/run.py          # panels: test-retest of upbringing, web vs phone attendance; about 1 min
 python3 experiments/m5j_reweight/run.py       # demographic raking of web respondents, panel check + 2022-24; about 6 min
 python3 experiments/m5k_inperson/run.py       # m5h accounting with 2021-24 in person / by randomised arm / web; about 10 min
+python3 experiments/m5l_parents/run.py        # parents' religion: mixed-marriage transmission vs the m5h residual; about 4 min
 PY=$(python3 platform/ci/pyenv.py pytest numpy pandas)   # bare python3 lacks all three; scipy is not needed
 "$PY" -m pytest -q research/catholic-demography/test_cathdem.py   # from the repo root; no download needed
 ```
