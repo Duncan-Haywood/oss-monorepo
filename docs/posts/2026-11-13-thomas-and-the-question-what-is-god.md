@@ -1,6 +1,6 @@
 ---
 title: "Little Lamps: Thomas Aquinas and the question \"What is God?\""
-seo_title: "Saint Thomas Aquinas bedtime story for children: the boy who asked \"What is God?\""
+seo_title: "Saint Thomas Aquinas bedtime story: the boy who asked \"What is God?\""
 date: 2026-11-13
 tags: [fiction, little-lamps, bedtime-story, saints]
 description: "A new Little Lamps bedtime story: Saint Thomas Aquinas, the boy at Monte Cassino who kept asking \"What is God?\", and what he answered at the end."
