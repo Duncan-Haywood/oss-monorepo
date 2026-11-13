@@ -42,8 +42,8 @@ first run pick it and later runs keep it, set `WATCH_OPTIONS` to `--detector aut
 
 Several metrics in one sheet (orders, revenue, sign-ups as columns): add `--columns all`, or name them with a model
 each, `--columns orders:poisson,revenue,signups:poisson`, to `WATCH_OPTIONS`. Each column keeps its own record in
-`watch-state.json`, the day's new changes arrive as one message, and the alert budget of `--alerts-per` covers the
-whole watch (split evenly across the columns), so watching five metrics does not send five times the alerts.
+`watch-state.json`, the day's new changes arrive as one message, and `--detector auto --alerts-per` picks each
+column's setting against the budget on its own history.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood

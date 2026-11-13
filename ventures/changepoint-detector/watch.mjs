@@ -36,9 +36,9 @@ Options:
   --columns <list|all>      watch several metrics of one CSV in one run: a comma list (orders,revenue,signups) or
                             all (every numeric column). A column may name its own model after a colon
                             (orders:poisson,revenue:meanvar). Each column keeps its own record in the one state file and
-                            all new changes go out as one webhook message. With --detector auto or --suggest the alert
-                            budget is for the whole watch and is split evenly across the columns. README, "Several metrics
-                            in one watch".
+                            all new changes go out as one webhook message. With --detector auto or --suggest each column
+                            is picked against the whole budget, as a one-column watch would be (splitting it across the
+                            columns was tested and failed, README "Several metrics in one watch").
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
@@ -201,10 +201,11 @@ export function emptyMultiState() { return { version: 1, columns: {} }; }
 
 async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl }) {
   const k = specs.length;
-  // One budget for the whole watch: with k columns each gets 1/k of it, so a person who asked for about one alert a
-  // month still gets about one a month in all, not k (the alerts of k independent quiet columns add up).
+  // Each column is picked against the whole budget, as a one-column watch would be. Splitting it (1/k each) was
+  // pre-registered and failed (eval/watch-columns.mjs): on 5 noise columns the unsplit picks already sent 1.33 alerts per
+  // 100 checks of the whole watch, and on the UK seat-belt columns the split sent more (8 against 5), because Quiet sent
+  // more than Middle on those seasonal monthly series.
   const whole = budget ?? HINT_BUDGET;
-  const share = whole / k;
   const { column: _c, labelColumn, alertHistory: _h, ...base } = o;
   const series = specs.map((s) => {
     const { labels, values, column } = parseSeries(csv, s.column, labelColumn ?? null);
@@ -214,12 +215,10 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
   if (suggest) {
     const rows = series.map((c) => {
       if (c.values.length < 10) throw new Error(`--suggest needs at least 10 points; ${c.column} has ${c.values.length}.`);
-      return { column: c.column, ...eagernessReplay(c.values, c.labels, { ...c.opts, budget: share }) };
+      return { column: c.column, ...eagernessReplay(c.values, c.labels, { ...c.opts, budget: whole }) };
     });
-    if (json) out(JSON.stringify({ budget: whole, perColumn: share, plain: plainBudgetText(whole, every), columns: rows }, null, 2) + '\n');
-    else out(`Budget for the whole watch: ${plainBudgetText(whole, every)}, split across ${k} column${k === 1 ? '' : 's'} (${plainBudgetText(share, every)} each).
-
-`
+    if (json) out(JSON.stringify({ budget: whole, plain: plainBudgetText(whole, every), columns: rows }, null, 2) + '\n');
+    else out(`Budget: ${plainBudgetText(whole, every)} per column, ${k} column${k === 1 ? '' : 's'}.\n\n`
       + rows.map((r) => `== ${r.column} ==\n${eagernessText(r, { column: r.column, every })}`).join('\n\n') + '\n');
     return 0;
   }
@@ -238,7 +237,7 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
     if (auto) {
       if (st.choice && DETECTORS.includes(st.choice.detector)) det.detector = st.choice.detector;
       else {
-        const { replay: _r, ...ch } = chooseDetector(c.values, c.labels, { ...det, budget: share });
+        const { replay: _r, ...ch } = chooseDetector(c.values, c.labels, { ...det, budget: whole });
         st.choice = ch;
         picked = ch;
         det.detector = ch.detector;
@@ -258,14 +257,14 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
   }
   if (!dry) await writeFile(statePath, JSON.stringify(state, null, 2) + '\n');
   if (json) {
-    out(JSON.stringify({ alerts: alerting.reduce((s, r) => s + r.res.alerts.length, 0), budget: auto ? { whole, perColumn: share } : undefined,
+    out(JSON.stringify({ alerts: alerting.reduce((s, r) => s + r.res.alerts.length, 0), budget: auto ? whole : undefined,
       columns: results.map((r) => ({ column: r.column, model: r.model, n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.res })) }, null, 2) + '\n');
   } else {
     const head = alerting.length
       ? `New changes in ${alerting.length} of ${k} column${k === 1 ? '' : 's'}: ${alerting.map((r) => r.column).join(', ')}.`
       : `No new confirmed change in ${k} column${k === 1 ? '' : 's'}.`;
     const blocks = results.map((r) => {
-      const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; this column's share of the budget is ${plainBudgetText(share, every)}. Later runs keep it.\n` : '';
+      const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
       return `== ${r.column} ==\n${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
     });
     out([head, ...blocks].join('\n\n') + '\n');

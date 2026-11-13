@@ -8,7 +8,7 @@
 #                               "--detector auto --alerts-per 1/month" picks how eager to be from your history
 #                               at the first run, within about one alert a month, and keeps that pick
 #                               "--columns orders:poisson,revenue,signups:poisson" (or "--columns all") watches several
-#                               metrics of one CSV; the alert budget is then for the whole watch, split across them
+#                               metrics of one CSV, each with its own record, new changes in one message
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric

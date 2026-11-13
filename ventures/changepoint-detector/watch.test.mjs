@@ -359,7 +359,7 @@ test('CLI --columns: each column keeps its own record; a step in one column is o
   await assert.rejects(main([csv, '--state', one, '--columns', 'all', '--column', 'orders'], { out: () => {} }), /not both/);
 });
 
-test('CLI --columns with --detector auto: the alert budget is for the whole watch, split evenly across the columns', async () => {
+test('CLI --columns with --detector auto: each column is picked against the whole budget (the split failed, eval/watch-columns.mjs)', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'watch-cols-'));
   const csv = join(dir, 'kpi.csv'), state = join(dir, 'state.json');
   const g = gauss(lcg(5));
@@ -367,11 +367,11 @@ test('CLI --columns with --detector auto: the alert budget is for the whole watc
   let o = '';
   await main([csv, '--state', state, '--columns', 'all', '--detector', 'auto', '--budget', '2'], { out: (s) => (o += s) });
   const st = JSON.parse(readFileSync(state, 'utf8'));
-  for (const k of ['a', 'b', 'c', 'd']) assert.equal(st.columns[k].choice.budget, 0.5, k);
-  assert.match(o, /this column's share of the budget/);
+  for (const k of ['a', 'b', 'c', 'd']) assert.equal(st.columns[k].choice.budget, 2, k);
+  assert.match(o, /How eager: \w+ \([\w-]+\), picked from 60 points[\s\S]*budget about/);
   let s = '';
   await main([csv, '--suggest', '--columns', 'a,b', '--alerts-per', '2/month'], { out: (x) => (s += x) });
-  assert.match(s, /split across 2 columns/);
+  assert.match(s, /per column, 2 columns/);
   assert.match(s, /== a ==[\s\S]*== b ==/);
 });
 

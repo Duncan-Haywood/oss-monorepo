@@ -71,6 +71,10 @@
 </ol>
 <p>Or anywhere with Node: <code>node watch.mjs data.csv --state watch-state.json</code>, from cron, a CI job or a notebook. Options for counts (<code>--model poisson</code>), volatility (<code>--model meanvar</code>), a weekly cycle (<code>--period 7</code>) and growth (<code>--log</code>) are in <code>node watch.mjs --help</code>.</p>
 
+<h2 id="several">Several metrics from one sheet</h2>
+<p>Most teams track more than one number: orders, revenue, sign-ups, tickets. If they sit as columns of one CSV, one repository watches them all. Add <code>--columns all</code> to <code>WATCH_OPTIONS</code>, or name them, each with its own model if it needs one: <code>--columns orders:poisson,revenue,signups:poisson</code>. Each column keeps its own record of what was already reported, and a day's new changes arrive as one message that names the columns that moved.</p>
+<p>Watching five numbers instead of one means five chances a day for noise to look like a change. We tested whether to split the alert budget across the columns, and the test said no: on five columns of pure noise the default settings sent 1.3 alerts per 100 checks of the whole watch without any split, and on five real road-casualty columns the split sent more alerts, not fewer (README, "Several metrics in one watch"). So <code>--detector auto --alerts-per 1/month</code> picks each column's setting on its own history, as for a single metric.</p>
+
 <h2>What you would use otherwise</h2>
 <ul>
 <li><strong>A fixed threshold.</strong> Simple, but you have to know the level in advance, and a slow series crosses it on noise.</li>
