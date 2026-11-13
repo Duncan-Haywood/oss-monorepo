@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
   "errors": [
     "First page wiring attempt bundled a pkill with an edit in one command; the pkill hook blocked the whole command, so the edit had to be re-run.",
-    "Post description was 205 chars; venture-preflight's front-matter check caught it (limit 160)."
+    "Post description was 205 chars; venture-preflight's front-matter check caught it (limit 160).",
+    "CI validate: flagships.yaml next: went over the 2000-char cap after my edit; shortened it. portfolio/router/validate.py was not in the local checks I ran."
   ],
   "integrity_issues": [],
   "doc_friction": [
