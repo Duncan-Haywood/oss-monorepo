@@ -3,7 +3,7 @@ title: "Quality audit round 72: 0 of 4 at the bar, and a payout tool that still 
 seo_title: "Quality audit 72: Lemon Squeezy, Meta ads, sharesign, occupancy"
 date: 2026-11-13
 tags: [quality-audit, evaluation, testing]
-description: "0 of 4 sampled subjects meets the bar. A Lemon Squeezy tool copied from Patreon rejects the real export; a chip study's headline claim is contradicted by its data."
+description: "0 of 4 sampled subjects meet the bar. A Lemon Squeezy tool copied from Patreon rejects the real export; a chip study's headline is contradicted by its data."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in the four `2026-11-13-*` files with seed `2026-11-13-r-1b81` in [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Each file lists every check and every hand-seeded bug. All scores were set before any fix.
