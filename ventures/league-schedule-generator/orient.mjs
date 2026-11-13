@@ -14,10 +14,11 @@
 // is one xor and one popcount. 20 teams: 19 rounds x 1,024 x 1,024 states, about 20 M popcounts.
 //
 // The programme ignores the balance rule (each team's home and away games within one); the least it
-// finds is therefore a floor for the tool's own rules, and it is the tool's least whenever an
-// optimal host choice is also balanced, which the traceback checks. Among optimal host choices the
-// traceback prefers balanced ones: it keeps every optimal predecessor and walks them with a seeded
-// search for one that leaves each team within one (`balanced: true`), within a step budget.
+// finds is therefore a floor for the tool's own rules. A seeded depth-first walk back over its table
+// then looks for a balanced host choice at the floor, then at the floor + 1, and so on, pruning a
+// branch once a team can no longer end within one. A level walked to the end with nothing found
+// proves that many breaks impossible, so the first balanced hit is the least (`proved`), within a
+// step budget. Checked against MaxSAT in eval/orient-dp.txt.
 //
 // A home-and-away season keeps one host per pair (at home in leg one, away in leg two), which ties
 // rounds far apart, so the programme cannot model it exactly; run over both legs with every match
@@ -56,10 +57,12 @@ function homeMasks(ms) {
 
 /**
  * Least breaks for the timetable `opp` (opp[r][t] = t's opponent in round r, >= n a bye), the
- * hosts free per match. Returns { least, venues, balanced, steps } or null when a round has more
- * than `maxMatches` matches or n > 32. venues[r][t] is 1 when t is at home in round r; it has
- * `least` breaks, and balanced says whether every team's home and away games are within one over
- * `span` rounds (default all). `seed` and `budget` steer the balanced traceback.
+ * hosts free per match. Returns { floor, least, proved, breaks, venues, balanced, steps } or null
+ * when a round has more than `maxMatches` matches or n > 32. floor: least breaks with every match
+ * free. least: least breaks with every team's home and away games within one over `span` rounds
+ * (default all), null when the walk found none within `budget` steps and `maxSlack` over the floor;
+ * proved: no balanced choice has fewer. venues[r][t] is 1 when t is at home in round r and has
+ * `breaks` breaks (least, else floor and unbalanced). `seed` orders the walk.
  */
 export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = opp.length, seed = 1, budget = 5000000, maxSlack = 10 } = {}) {
   if (n > 32) return null;
@@ -87,7 +90,6 @@ export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = op
   let floor = Infinity;
   for (let y = 0; y < last.length; y++) if (last[y] < floor) floor = last[y];
 
-  // traceback: a seeded depth-first walk over optimal predecessors, preferring one that is balanced
   const rand = mulberry32(seed >>> 0);
   const g = new Int32Array(n); // games so far (within span), home minus away, per team
   const after = []; // after[r][t]: games t plays within span in rounds r..R-1

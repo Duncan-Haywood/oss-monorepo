@@ -1,3 +1,4 @@
+# node eval/orient-dp.mjs 12,14,16,17,18,19,20,22,24 (2026-11-13; same tries as eval/orient-maxsat.txt, seed 1, weighted 8). floor = least breaks with every match free; least = least with each team balanced within one, proved when "proved"; maxsat = eval/orient-maxsat.py (240 s per try). Every venues recount equals the reported breaks.
 {"teams":12,"double":false,"i":0,"coe":170,"breaks":14,"floor":14,"least":14,"proved":true,"maxsat":14,"steps":12,"ms":3}
 {"teams":12,"double":false,"i":1,"coe":174,"breaks":14,"floor":14,"least":14,"proved":true,"maxsat":14,"steps":11,"ms":2}
 {"teams":12,"double":false,"i":2,"coe":170,"breaks":14,"floor":14,"least":14,"proved":true,"maxsat":14,"steps":11,"ms":1}

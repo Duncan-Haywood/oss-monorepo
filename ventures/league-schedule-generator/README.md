@@ -1386,7 +1386,7 @@ round robins at 12 to 20 teams and 10 home-and-away seasons at 12 to 20, seeds 1
   carry-over at a break budget: 0.2% over all 31 runs, up to 34.5% at one budget (20 single s3).
 - It is cheap: 0.4 to 3.4 s for a single round robin, 1.2 to 4.8 s for a home-and-away season at 12 to
   20 teams, on the worker after the squeezes (`polishS` in the file).
-- Not reached: 18 teams' 348 / 40 (the proof says 38) on seeds 1 and 3, and 20 teams' 360 / 52 (needs
+- Not reached (until the next section's exact solver): 18 teams' 348 / 40 (the proof says 38) on seeds 1 and 3, and 20 teams' 360 / 52 (needs
   50). The venue search's annealing finds them only on some seeds; an exact orientation in the page
   would need a solver in the browser.
 - Tests: `polish.test.mjs`, 5 tests: 14 teams' 314 / 20 regrounds to 314 / 16 on the same pairs every
@@ -1396,6 +1396,66 @@ round robins at 12 to 20 teams and 10 home-and-away seasons at 12 to 20, seeds 1
   `bestCarryOverRounds` keeps its choice while `buildSchedule` rebuilds a kept polished season.
   `eval/browser-frontier-pick.mjs --teams=14 --single --polished` picks 314 / 16 on the page and its
   share link reopens on it; all checks pass (`eval/browser-frontier-pick-polished.txt`).
+
+## The fewest breaks of a timetable, exactly, in the page (2026-11-13, latest)
+
+The last section proved, offline with a MaxSAT solver, that the frontier gaps sit in the timetables
+and that the page's venue search sometimes leaves 2 to 5 breaks its timetable does not need (18
+teams' 348 / 40 needs 38; 20 teams' 360 / 52 needs 50). It closed with "an exact orientation in the
+page would need a solver in the browser". `orient.mjs` is that solver, in about 200 lines and no
+dependencies.
+
+**How.** In a single round robin each match belongs to one round, and a team's break between rounds
+r and r + 1 depends only on who hosts in those two rounds. So the hosts of one round are a state
+(2^k of them for k matches: 1,024 at 20 teams), and the least breaks up to round r + 1 is a
+minimum over the states of round r. Each state's teams-at-home is a bitmask, so one transition is
+one xor and one popcount: 19 x 1,024 x 1,024 at 20 teams, about 30 ms. That gives the `floor`, the
+least breaks with every match free. The tool also wants each team's home and away games within one;
+a seeded depth-first walk back over the programme's table finds a balanced host choice at the floor,
+then at the floor + 1, + 2 and so on (each step's remaining slack keeps it to host choices within
+the target, and a team that can no longer end within one prunes the branch). A level walked to the
+end with nothing found proves that many breaks impossible, so the first balanced hit is the least,
+`proved`. A step budget (5 M by default, 2 M in the page) bounds the walk; out of budget it returns
+the floor and `least: null`. Up to 12 matches a round (24 or 25 teams); bigger returns null.
+
+**Checked against the MaxSAT proofs** (`node eval/orient-dp.mjs`, `eval/orient-dp.txt`, the same 108
+tries at 12 to 24 teams as `eval/orient-maxsat.txt`):
+
+- **105 of 106** MaxSAT-proved tries get the same least, proved. The other one (22 teams, try 3,
+  floor 38, MaxSAT 42) runs out of budget after 16 s.
+- **Two tries MaxSAT did not prove in 240 s are proved here:** 22 teams' 440 timetable (tries 0 and
+  4) needs **58** breaks; the page gave it 66. Each took 3 s.
+- Time: 0 to 40 ms at 12 to 20 teams when the floor is balanced (most tries), 0.1 to 3 s when the
+  walk has to climb above it (20 teams' try 5: floor 34, least 36), 0.6 to 3.4 s at 24 teams.
+- `orient.test.mjs` checks the programme against every host choice counted by brute force at 5 and 6
+  teams (6 tries each; floor and balanced least equal), the circle method's textbook n - 2, 20 teams'
+  360 at 50, an unbalanced floor (14 teams try 4: 18, least 20) and the out-of-budget path.
+
+**In the page.** `polishSeasonVenues` now regrounds a single round robin with `leastBreaks` first and
+falls back to the annealing only when the timetable is too big or the walk runs out of budget; a
+season regrounded at a proved least carries `leastProved: true`. Re-run of `eval/polish-frontier.mjs`
+on 24 single round robins at 12 to 22 teams, seeds 1 to 3 (`eval/polish-frontier-exact.txt`, against
+`eval/polish-frontier.txt` from the annealing):
+
+| | annealing (12-20, 21 runs) | exact (12-20, same 21 runs) |
+|---|---|---|
+| seasons joining the frontier | 5, in 2 runs | 15, in 9 runs |
+| mean cut in the least carry-over at a break budget | 0.18% | 0.76% |
+| polish time per run | 0.4 to 3.4 s | 0.02 to 3 s |
+
+- **18 teams' 348 / 38 and 20 teams' 360 / 50 now reach the page on every seed** (20 teams: 360 / 52
+  -> 360 / 50, the least carry-over within 50 to 51 breaks falls from 546 to 360, 34%).
+- 17 teams: two seasons join on every seed (653 / 26 -> 653 / 24, 623 / 28 -> 623 / 26).
+- 19 teams seed 1: the gap try 2,749 / 17 regrounds to 2,749 / 12, the least MaxSAT proved.
+- **22 teams** (no earlier measurement): 440 / 66 -> 440 / 58 on every seed, and 692 / 52 -> 692 / 42
+  (seed 2): 2 to 3 seasons join per run, mean cut 3.6 to 6.8%, up to 38%. The cost is time: 6.8 to
+  11.7 s of polish on the worker, after the squeezes (the list grows while the page is usable).
+
+**Not solved.** A home-and-away season keeps one host per pair, which ties rounds a leg apart, so the
+programme does not model it; `relaxedBreakFloor` runs it over both legs with every match free and gives
+a valid but loose floor (19 teams' 1,311 timetable: 74, where MaxSAT proves 85), so home-and-away
+regrounding stays with the annealing. The next step the floor makes cheap is a timetable search that
+scores its moves on the proved break floor (30 ms per timetable at 20 teams).
 
 ## Several divisions on shared courts (`divisions.mjs`)
 
