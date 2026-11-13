@@ -8,7 +8,8 @@
 // Source, read 2026-11-11 (pdftotext of irs.gov/pub/irs-pdf/f2210.pdf, "Form 2210 (2025) Created
 // 10/21/25", and i2210.pdf, "Instructions for Form 2210 (2025)"): the line wording below, the
 // worksheet's four rate periods (Apr 16-Jun 30, Jul 1-Sep 30, Oct 1-Dec 31, Jan 1-Apr 15) each
-// multiplying "underpayment x days / 365 x 0.07", Table 2 (total days per period) and Examples 1,
+// multiplying "underpayment x days / 365 x 0.07" (366 in a leap year: the 2024 worksheet, i2210--2024.pdf
+// from irs.gov/pub/irs-prior, read 2026-11-13, and its Example 5), Table 2 (total days per period) and Examples 1,
 // 3 and 4, all reproduced in penalty2210.test.mjs. The quarterly underpayment rates are the IRS
 // page irs.gov/payments/quarterly-interest-rates, read the same day: 8% through 2024, 7% for every
 // quarter of 2025, 2026 Q1 7%, Q2 6%, Q3 7%, Q4 7%. A rate for a quarter not on file is taken as
@@ -60,10 +61,12 @@ export function ratePeriods(year, rates = {}) {
       rate = UNDERPAYMENT_RATES[LAST_ON_FILE];
       warnings.push(`No IRS underpayment rate on file for ${key.replace("-", " Q")}; ${+(rate * 100).toFixed(4)}% (the last one on file, ${LAST_ON_FILE.replace("-", " Q")}) is used. Check irs.gov/payments/quarterly-interest-rates or pass rates.`);
     }
-    return { start, end, rate, key };
+    // Each period sits inside one calendar year and divides by that year's length: the 2024
+    // worksheet prints "÷ 366" for its three 2024 periods and "÷ 365" for January to April 2025.
+    const y = +end.slice(0, 4);
+    const yearDays = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
+    return { start, end, rate, key, yearDays };
   });
-  // The 2025 worksheet divides by 365; a leap day inside a period is not checked against a form.
-  if (periods.some((p) => { const y = +p.end.slice(0, 4); return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; })) warnings.push("A rate period falls in a leap year; this uses 365 days as the 2025 worksheet does, and that year's worksheet may divide by 366.");
   return { periods, warnings };
 }
 
@@ -145,9 +148,10 @@ export function penaltyWorksheet(year, underpayments, payments = [], opts = {}) 
         const n = Math.max(0, days(from, to));
         if (!n) continue;
         dayCounts.push(n);
-        amount += (piece.cents * n * per.rate) / 365;
+        // One computation per payment, each rounded to the cent (instructions, "Line 4" and Example 5).
+        amount += Math.round((piece.cents * n * per.rate) / per.yearDays);
       }
-      return { period: `${iso(t(per.start) + DAY)} to ${per.end}`, rate: per.rate, days: dayCounts, cents: Math.round(amount) };
+      return { period: `${iso(t(per.start) + DAY)} to ${per.end}`, rate: per.rate, days: dayCounts, cents: amount };
     });
     return { due: printed[j], underpayment: Math.max(0, u), paidBy: applied[j], unpaid: left[j], lines, penalty: lines.reduce((s, l) => s + l.cents, 0) };
   });
