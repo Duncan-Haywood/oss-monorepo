@@ -1,9 +1,9 @@
 ---
 title: "Four more tools that opened with a wall of links"
-seo_title: "League schedule, shift roster, residency and 3PL tools: the form before the links"
+seo_title: "League, roster, residency and 3PL tools: the form before the links"
 date: 2026-11-13
 tags: [design, mobile, seo, open-source]
-description: "The league schedule generator's intro named 28 guides in one paragraph. It and three other tools now open with a short line, four buttons and the form, and keep every guide in a grouped list lower down."
+description: "The league schedule generator named 28 guides in its intro. It and three other tools now open with four buttons and the form; the guides moved lower."
 ---
 
 The [league schedule generator](/league-schedule-generator/) has 29 guide pages: how byes work
