@@ -2,7 +2,7 @@
 name = "infra-dcopf"
 version = "0.1.0"
 requires-python = ">=3.9"
-dependencies = ["numpy", "pandapower"]
+dependencies = ["numpy", "pandapower", "pypower", "clarabel"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

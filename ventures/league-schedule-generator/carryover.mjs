@@ -13,6 +13,7 @@
 // Pure functions, seeded, no DOM, so the page, the CLI and the tests share it.
 
 import { mulberry32 } from "./calc.mjs";
+import { leastBreaks } from "./orient.mjs";
 
 /**
  * Carry-over matrix from each team's opponents in playing order. `opponents[k]` is team k's list of
@@ -1927,7 +1928,14 @@ export function polishSeasonVenues(n, season, { seed = 1 } = {}) {
   const opp = oppFromRounds(season.rounds, N, n);
   const own = season.rounds.map((r) => { const v = new Uint8Array(N); for (const [h] of r.matches) v[h] = 1; return v; });
   let venues;
-  if (legs === 1) venues = assignVenues(opp, n, seed, 8, { hosts: pairHostsOf(opp, own) });
+  let proved = false;
+  if (legs === 1) {
+    // exact first (orient.mjs: a programme over rounds, then the least balanced host choice); the
+    // annealing only when the timetable is too big for it or its search budget runs out
+    const exact = leastBreaks(opp, n, { seed, budget: 2000000 });
+    if (exact && exact.balanced) { venues = exact.venues; proved = exact.proved; }
+    else venues = assignVenues(opp, n, seed, 8, { hosts: pairHostsOf(opp, own) });
+  }
   else {
     const host = new Int16Array(N * N).fill(-1);
     for (let r = 0; r < R; r++) for (const [h, a] of season.rounds[r].matches) host[Math.min(h, a) * N + Math.max(h, a)] = h;
@@ -1954,7 +1962,8 @@ export function polishSeasonVenues(n, season, { seed = 1 } = {}) {
   for (let t = 0; t < n; t++) breaks += teamBreaks(venues, opp, t, n);
   if (breaks >= season.breaks) return null;
   const rounds = season.rounds.map((rd, r) => ({ ...rd, matches: rd.matches.map(([a, b]) => (venues[r][a] ? [a, b] : [b, a])) }));
-  return { ...season, rounds, breaks };
+  // leastProved: no balanced home/away on this timetable has fewer breaks
+  return proved ? { ...season, rounds, breaks, leastProved: true } : { ...season, rounds, breaks };
 }
 
 /**
