@@ -16,6 +16,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from page_pool import map_pages  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 CLAIM = re.compile(
     r"(trusted by\b|\bjoin(ed)? (over |more than )?\d[\d,]*(\.\d+)?[km]?\+? "
@@ -72,6 +75,11 @@ def check(text):
     return out
 
 
+def check_file(path):
+    """`check` of one file, for `map_pages` (module level so it pickles)."""
+    return check(path.read_text(encoding="utf-8", errors="replace"))
+
+
 def files(root):
     for pat in ("*.html", "README.md", "llms.txt"):
         for p in sorted(root.rglob(pat)):
@@ -84,9 +92,11 @@ def main(argv=None):
     ap.add_argument("--root", default=str(ROOT / "ventures"))
     args = ap.parse_args(argv)
     bad, n = 0, 0
-    for p in files(Path(args.root)):
+    paths = list(files(Path(args.root)))
+    # Per-file and pure: the pool prints the same lines in the same order.
+    for p, found in zip(paths, map_pages(check_file, paths)):
         n += 1
-        for line_no, snip in check(p.read_text(encoding="utf-8", errors="replace")):
+        for line_no, snip in found:
             bad += 1
             print(f"{p}:{line_no}: {snip}")
     print(f"{n} files scanned, {bad} unattributed social-proof claims")

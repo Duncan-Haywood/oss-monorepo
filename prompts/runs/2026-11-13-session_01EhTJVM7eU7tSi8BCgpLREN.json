@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVM7eU7tSi8BCgpLREN",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T00:02:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: ranked not-changed items from 2026-11-12 history docs",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": 15301,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/ci-perf-2026-11-12-js-syntax-one-process.md",
+      "issue": "lists check_conflict_markers at 11.1 s; warm it is 2.3 s, the figure was a cold page cache or a loaded machine"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-the-cheap-question-first.md",
+    "docs/history/ci-perf-2026-11-12-social-proof-dom-refs-pool.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall clock of two served-page checks (date +%s.%N around python3 platform/ci/<script>.py, warm, 4-core container, 2 runs each). check_social_proof 5.03/4.78 s -> 1.46/1.42 s; check_js_dom_refs 5.39/5.43 s -> 1.17/1.18 s; total 10.3 -> 2.6 s. Same answers: stdout cmp-identical on clean tree and on an 80-page seeded-fault copy (61 and 29 lines). check_conflict_markers measured 2.3 s warm (cold-cache 21 s in cProfile explains the 11 s note); bytes-first variant 2.2 s vs 1.6-1.8 s, not landed. Local checks: run_workflow_locally --for-changes (see PR).",
+  "corrections": [],
+  "redteam": null
+}
