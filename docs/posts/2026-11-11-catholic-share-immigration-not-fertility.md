@@ -15,7 +15,7 @@ Between the 1990s and 2010-18 the share of American adults who call themselves C
 - Fertility added 1.17 points to the Catholic share in the 1990s and 0.81 in 2010-18. Immigrants added 2.30 and then 3.37.
 - So over the change from the 1990s to 2010-18, immigration contributed **+1.07 points** (95% interval +0.52 to +1.68) and fertility **-0.37** (-0.69 to -0.02). The difference, +1.44 [+0.74, +2.10], survives every alternative I tried: a different generation length, counting fathers, using the mother's upbringing instead of her current religion, and US-born mothers only.
 - The model has a gap. It explains 2 to 4 points fewer Catholic upbringings than happened for people born 1925-69. Even if all of that gap is credited to fertility, the fertility boost is a flat 2.2 points in every decade, so its share of the change stays at zero.
-- Since 2018 the picture reverses: the immigrant contribution fell by 1.38 points, the largest part of the recent drop to 22.2%. That last step has the web-interview caveat from earlier posts.
+- Since 2018 the picture reverses: the immigrant contribution fell by 1.38 points, the largest part of the recent drop to 22.2%. That last step has the web-interview caveat from earlier posts. **Correction, 2026-11-13:** the caveat turned out to matter. With only the 2022 and 2024 in-person interviews, the fall is -0.44 points (-1.38 to +0.49), not distinguishable from zero; see [the follow-up](2026-11-13-catholic-immigrant-share-web-interviews.md).
 
 **Limits.** Dropping immigrants is a composition contrast, not a model of a country without them. The fertility side assumes children are raised in their mother's religion and measures her religion at interview, not when she was raising them.
 

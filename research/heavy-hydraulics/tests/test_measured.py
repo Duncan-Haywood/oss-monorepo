@@ -228,3 +228,19 @@ def test_screening_ols_recovers_exact_plane_and_cv_is_out_of_sample():
     cv = grouped_cv(rows, ys2, list(range(len(rows))))
     assert cv[0] == pytest.approx(ys[0] + 0.0, abs=1.5)
     assert abs(cv[0] - ys2[0]) > 3.0
+
+
+def test_no_load_line_recovers_intercept_speed_slope_and_marginal_rate():
+    from heavy_hydraulics.measured import no_load_line
+    import random
+    rng = random.Random(1)
+    rpm = [rng.uniform(1200, 2300) for _ in range(400)]
+    p = [rng.uniform(0, 40) for _ in range(400)]
+    fuel = [2.0 + 0.0015 * (n - 2100) + 0.24 * q for n, q in zip(rpm, p)]
+    a, c, b = no_load_line(fuel, rpm, p, 2100)
+    assert abs(a - 2.0) < 1e-9 and abs(c - 0.0015) < 1e-12 and abs(b - 0.24) < 1e-12
+    # the break-even fuel rate scales linearly in b, which 6e relies on
+    from heavy_hydraulics.measured import breakeven_rest_rate
+    f1 = breakeven_rest_rate(20, 5, 98, 1.2, 0.2332, 0.818)
+    f2 = breakeven_rest_rate(20, 5, 98, 1.2, 0.30, 0.818)
+    assert abs(f2 / f1 - 0.30 / 0.2332) < 1e-12

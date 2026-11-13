@@ -1,0 +1,131 @@
+kind,period,quantity,sample,est,lo,hi
+level,2021-24,S,V0 2021-24 all modes,22.216,21.201,23.179
+level,2021-24,S,V1 2022+24 all modes,22.269,21.154,23.524
+level,2021-24,S,V2 2022+24 in person,22.865,21.004,24.697
+level,2021-24,S,V3 2022+24 F2F-first arm,23.740,22.063,25.499
+level,2021-24,S,V4 2022+24 web-first arm,21.756,20.291,23.176
+level,2021-24,S,V5 2022+24 web,21.328,19.964,22.823
+level,2021-24,S,V2 - V1 (in person vs all modes),0.596,-0.596,1.855
+level,2021-24,S,V2 - V5 (completed mode: in person vs web),1.537,-0.606,3.806
+level,2021-24,S,V3 - V4 (randomised arm: F2F-first vs web-first),1.984,-0.128,4.090
+level,2021-24,S,V1 - V0 (dropping the 2021 web wave),0.053,-0.706,0.830
+level,2021-24,fertility,V0 2021-24 all modes,0.659,0.430,0.864
+level,2021-24,fertility,V1 2022+24 all modes,0.642,0.397,0.841
+level,2021-24,fertility,V2 2022+24 in person,0.616,0.373,0.819
+level,2021-24,fertility,V3 2022+24 F2F-first arm,0.716,0.458,0.938
+level,2021-24,fertility,V4 2022+24 web-first arm,0.612,0.376,0.816
+level,2021-24,fertility,V5 2022+24 web,0.656,0.410,0.849
+level,2021-24,fertility,V2 - V1 (in person vs all modes),-0.026,-0.074,0.021
+level,2021-24,fertility,V2 - V5 (completed mode: in person vs web),-0.040,-0.131,0.055
+level,2021-24,fertility,V3 - V4 (randomised arm: F2F-first vs web-first),0.104,0.006,0.208
+level,2021-24,fertility,V1 - V0 (dropping the 2021 web wave),-0.017,-0.054,0.024
+level,2021-24,immigration (1st gen),V0 2021-24 all modes,1.985,1.528,2.507
+level,2021-24,immigration (1st gen),V1 2022+24 all modes,2.498,1.954,3.012
+level,2021-24,immigration (1st gen),V2 2022+24 in person,2.922,2.043,3.757
+level,2021-24,immigration (1st gen),V3 2022+24 F2F-first arm,2.738,2.014,3.409
+level,2021-24,immigration (1st gen),V4 2022+24 web-first arm,2.418,1.726,3.130
+level,2021-24,immigration (1st gen),V5 2022+24 web,1.435,0.644,2.236
+level,2021-24,immigration (1st gen),V2 - V1 (in person vs all modes),0.424,-0.171,1.025
+level,2021-24,immigration (1st gen),V2 - V5 (completed mode: in person vs web),1.487,0.409,2.603
+level,2021-24,immigration (1st gen),V3 - V4 (randomised arm: F2F-first vs web-first),0.321,-0.617,1.316
+level,2021-24,immigration (1st gen),V1 - V0 (dropping the 2021 web wave),0.513,0.135,0.851
+level,2021-24,immigration (1st+2nd gen),V0 2021-24 all modes,3.958,3.303,4.649
+level,2021-24,immigration (1st+2nd gen),V1 2022+24 all modes,4.597,3.798,5.441
+level,2021-24,immigration (1st+2nd gen),V2 2022+24 in person,5.346,4.099,6.760
+level,2021-24,immigration (1st+2nd gen),V3 2022+24 F2F-first arm,4.843,4.016,5.671
+level,2021-24,immigration (1st+2nd gen),V4 2022+24 web-first arm,4.515,3.527,5.571
+level,2021-24,immigration (1st+2nd gen),V5 2022+24 web,3.290,2.255,4.258
+level,2021-24,immigration (1st+2nd gen),V2 - V1 (in person vs all modes),0.749,-0.080,1.609
+level,2021-24,immigration (1st+2nd gen),V2 - V5 (completed mode: in person vs web),2.055,0.613,3.708
+level,2021-24,immigration (1st+2nd gen),V3 - V4 (randomised arm: F2F-first vs web-first),0.328,-0.907,1.488
+level,2021-24,immigration (1st+2nd gen),V1 - V0 (dropping the 2021 web wave),0.639,0.103,1.196
+level,2021-24,first-gen share of adults,V0 2021-24 all modes,16.316,15.279,17.288
+level,2021-24,first-gen share of adults,V1 2022+24 all modes,17.007,15.692,18.354
+level,2021-24,first-gen share of adults,V2 2022+24 in person,18.464,16.362,20.511
+level,2021-24,first-gen share of adults,V3 2022+24 F2F-first arm,16.565,15.382,17.966
+level,2021-24,first-gen share of adults,V4 2022+24 web-first arm,17.160,15.628,18.774
+level,2021-24,first-gen share of adults,V5 2022+24 web,15.151,13.447,16.869
+level,2021-24,first-gen share of adults,V2 - V1 (in person vs all modes),1.458,0.050,2.876
+level,2021-24,first-gen share of adults,V2 - V5 (completed mode: in person vs web),3.313,0.607,5.814
+level,2021-24,first-gen share of adults,V3 - V4 (randomised arm: F2F-first vs web-first),-0.595,-2.316,1.058
+level,2021-24,first-gen share of adults,V1 - V0 (dropping the 2021 web wave),0.691,-0.129,1.447
+level,2021-24,first-gen share of Catholics,V0 2021-24 all modes,23.792,21.732,26.034
+level,2021-24,first-gen share of Catholics,V1 2022+24 all modes,26.317,23.925,28.672
+level,2021-24,first-gen share of Catholics,V2 2022+24 in person,28.885,24.927,32.391
+level,2021-24,first-gen share of Catholics,V3 2022+24 F2F-first arm,26.189,23.067,29.086
+level,2021-24,first-gen share of Catholics,V4 2022+24 web-first arm,26.366,23.490,29.496
+level,2021-24,first-gen share of Catholics,V5 2022+24 web,20.860,17.685,24.423
+level,2021-24,first-gen share of Catholics,V2 - V1 (in person vs all modes),2.568,0.312,4.886
+level,2021-24,first-gen share of Catholics,V2 - V5 (completed mode: in person vs web),8.025,3.555,12.473
+level,2021-24,first-gen share of Catholics,V3 - V4 (randomised arm: F2F-first vs web-first),-0.177,-4.002,3.565
+level,2021-24,first-gen share of Catholics,V1 - V0 (dropping the 2021 web wave),2.525,0.782,4.126
+change,2010-18 -> 2021-24,dS,V0 2021-24 all modes,-2.762,-4.133,-1.445
+change,2010-18 -> 2021-24,dS,V1 2022+24 all modes,-2.710,-4.205,-1.159
+change,2010-18 -> 2021-24,dS,V2 2022+24 in person,-2.114,-4.143,-0.044
+change,2010-18 -> 2021-24,dS,V3 2022+24 F2F-first arm,-1.238,-3.300,0.757
+change,2010-18 -> 2021-24,dS,V4 2022+24 web-first arm,-3.223,-4.906,-1.556
+change,2010-18 -> 2021-24,dS,V5 2022+24 web,-3.651,-5.477,-1.816
+change,2010-18 -> 2021-24,dS,V2 - V1 (in person vs all modes),0.596,-0.596,1.855
+change,2010-18 -> 2021-24,dS,V2 - V5 (completed mode: in person vs web),1.537,-0.606,3.806
+change,2010-18 -> 2021-24,dS,V3 - V4 (randomised arm: F2F-first vs web-first),1.984,-0.128,4.090
+change,2010-18 -> 2021-24,dS,V1 - V0 (dropping the 2021 web wave),0.053,-0.706,0.830
+change,2010-18 -> 2021-24,fertility,V0 2021-24 all modes,-0.146,-0.282,-0.026
+change,2010-18 -> 2021-24,fertility,V1 2022+24 all modes,-0.164,-0.320,-0.024
+change,2010-18 -> 2021-24,fertility,V2 2022+24 in person,-0.190,-0.365,-0.032
+change,2010-18 -> 2021-24,fertility,V3 2022+24 F2F-first arm,-0.090,-0.246,0.058
+change,2010-18 -> 2021-24,fertility,V4 2022+24 web-first arm,-0.194,-0.354,-0.040
+change,2010-18 -> 2021-24,fertility,V5 2022+24 web,-0.150,-0.316,0.010
+change,2010-18 -> 2021-24,fertility,V2 - V1 (in person vs all modes),-0.026,-0.074,0.021
+change,2010-18 -> 2021-24,fertility,V2 - V5 (completed mode: in person vs web),-0.040,-0.131,0.055
+change,2010-18 -> 2021-24,fertility,V3 - V4 (randomised arm: F2F-first vs web-first),0.104,0.006,0.208
+change,2010-18 -> 2021-24,fertility,V1 - V0 (dropping the 2021 web wave),-0.017,-0.054,0.024
+change,2010-18 -> 2021-24,immigration (1st gen),V0 2021-24 all modes,-1.380,-2.051,-0.720
+change,2010-18 -> 2021-24,immigration (1st gen),V1 2022+24 all modes,-0.867,-1.608,-0.124
+change,2010-18 -> 2021-24,immigration (1st gen),V2 2022+24 in person,-0.443,-1.377,0.489
+change,2010-18 -> 2021-24,immigration (1st gen),V3 2022+24 F2F-first arm,-0.627,-1.465,0.215
+change,2010-18 -> 2021-24,immigration (1st gen),V4 2022+24 web-first arm,-0.948,-1.732,-0.124
+change,2010-18 -> 2021-24,immigration (1st gen),V5 2022+24 web,-1.930,-2.854,-1.022
+change,2010-18 -> 2021-24,immigration (1st gen),V2 - V1 (in person vs all modes),0.424,-0.171,1.025
+change,2010-18 -> 2021-24,immigration (1st gen),V2 - V5 (completed mode: in person vs web),1.487,0.409,2.603
+change,2010-18 -> 2021-24,immigration (1st gen),V3 - V4 (randomised arm: F2F-first vs web-first),0.321,-0.617,1.316
+change,2010-18 -> 2021-24,immigration (1st gen),V1 - V0 (dropping the 2021 web wave),0.513,0.135,0.851
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V0 2021-24 all modes,-1.234,-1.903,-0.558
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V1 2022+24 all modes,-0.703,-1.442,0.025
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V2 2022+24 in person,-0.253,-1.164,0.725
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V3 2022+24 F2F-first arm,-0.537,-1.380,0.391
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V4 2022+24 web-first arm,-0.753,-1.549,0.073
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V5 2022+24 web,-1.780,-2.702,-0.870
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V2 - V1 (in person vs all modes),0.450,-0.157,1.052
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V2 - V5 (completed mode: in person vs web),1.527,0.434,2.678
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V3 - V4 (randomised arm: F2F-first vs web-first),0.217,-0.747,1.201
+change,2010-18 -> 2021-24,immigration(1st) minus fertility,V1 - V0 (dropping the 2021 web wave),0.531,0.153,0.872
+change,1990-99 -> 2021-24,dS,V0 2021-24 all modes,-4.153,-5.344,-2.901
+change,1990-99 -> 2021-24,dS,V1 2022+24 all modes,-4.100,-5.516,-2.614
+change,1990-99 -> 2021-24,dS,V2 2022+24 in person,-3.505,-5.562,-1.398
+change,1990-99 -> 2021-24,dS,V3 2022+24 F2F-first arm,-2.629,-4.499,-0.700
+change,1990-99 -> 2021-24,dS,V4 2022+24 web-first arm,-4.613,-6.201,-2.889
+change,1990-99 -> 2021-24,dS,V5 2022+24 web,-5.041,-6.601,-3.281
+change,1990-99 -> 2021-24,dS,V2 - V1 (in person vs all modes),0.596,-0.596,1.855
+change,1990-99 -> 2021-24,dS,V2 - V5 (completed mode: in person vs web),1.537,-0.606,3.806
+change,1990-99 -> 2021-24,dS,V3 - V4 (randomised arm: F2F-first vs web-first),1.984,-0.128,4.090
+change,1990-99 -> 2021-24,dS,V1 - V0 (dropping the 2021 web wave),0.053,-0.706,0.830
+change,1990-99 -> 2021-24,fertility,V0 2021-24 all modes,-0.513,-0.843,-0.186
+change,1990-99 -> 2021-24,fertility,V1 2022+24 all modes,-0.531,-0.865,-0.199
+change,1990-99 -> 2021-24,fertility,V2 2022+24 in person,-0.557,-0.895,-0.204
+change,1990-99 -> 2021-24,fertility,V3 2022+24 F2F-first arm,-0.457,-0.796,-0.123
+change,1990-99 -> 2021-24,fertility,V4 2022+24 web-first arm,-0.561,-0.907,-0.232
+change,1990-99 -> 2021-24,fertility,V5 2022+24 web,-0.517,-0.881,-0.186
+change,1990-99 -> 2021-24,fertility,V2 - V1 (in person vs all modes),-0.026,-0.074,0.021
+change,1990-99 -> 2021-24,fertility,V2 - V5 (completed mode: in person vs web),-0.040,-0.131,0.055
+change,1990-99 -> 2021-24,fertility,V3 - V4 (randomised arm: F2F-first vs web-first),0.104,0.006,0.208
+change,1990-99 -> 2021-24,fertility,V1 - V0 (dropping the 2021 web wave),-0.017,-0.054,0.024
+change,1990-99 -> 2021-24,immigration (1st gen),V0 2021-24 all modes,-0.312,-0.930,0.279
+change,1990-99 -> 2021-24,immigration (1st gen),V1 2022+24 all modes,0.202,-0.510,0.825
+change,1990-99 -> 2021-24,immigration (1st gen),V2 2022+24 in person,0.626,-0.393,1.521
+change,1990-99 -> 2021-24,immigration (1st gen),V3 2022+24 F2F-first arm,0.442,-0.383,1.211
+change,1990-99 -> 2021-24,immigration (1st gen),V4 2022+24 web-first arm,0.121,-0.669,0.884
+change,1990-99 -> 2021-24,immigration (1st gen),V5 2022+24 web,-0.862,-1.660,0.023
+change,1990-99 -> 2021-24,immigration (1st gen),V2 - V1 (in person vs all modes),0.424,-0.171,1.025
+change,1990-99 -> 2021-24,immigration (1st gen),V2 - V5 (completed mode: in person vs web),1.487,0.409,2.603
+change,1990-99 -> 2021-24,immigration (1st gen),V3 - V4 (randomised arm: F2F-first vs web-first),0.321,-0.617,1.316
+change,1990-99 -> 2021-24,immigration (1st gen),V1 - V0 (dropping the 2021 web wave),0.513,0.135,0.851

@@ -20,3 +20,13 @@ Arithmetic: payout, profit, ROI, break-even list price, effective fee rate. Assu
 listing sells and what an unsold ticket is worth. Fee presets (about 10% / 10% / 10% / 15%) are typical seller
 rates as last checked; marketplaces change them, so overwrite them with what your listing screen shows. Buyer
 fees, tax and chargebacks are not modelled.
+
+## Known gaps (quality audit 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-ticket-resale-profit-calculator.json`](../../portfolio/quality/audits/2026-11-13-ticket-resale-profit-calculator.json);
+the sales-log header, per-ticket cost and blank-fees defects were fixed in the same PR.
+
+- The fee presets (10% StubHub, SeatGeek, Vivid Seats; 15% Ticketmaster resale)
+  carry no source or date in the code. They fall inside third-party 2025
+  ranges, but no marketplace's own fee schedule has been checked; type the
+  rate your listing screen shows.
