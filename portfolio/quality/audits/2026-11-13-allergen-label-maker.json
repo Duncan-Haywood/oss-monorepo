@@ -1,0 +1,317 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/allergen-label-maker",
+ "stratum": "venture",
+ "seed": "2026-11-13-e",
+ "drawn_by": "sample",
+ "round": 59,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a food-labelling regulatory compliance specialist for UK/EU (Reg. (EU) 1169/2011 Annex II and Art. 21, FSA PPDS guidance under Natasha's Law) and US (FALCPA plus the FASTER Act); they check first that every named allergenic ingredient is caught, that each allergen is emphasised in the ingredients list with the cereal and nut named, and that a US Contains statement names the tree nut, fish and crustacean species",
+ "scores": {
+  "correctness": 1,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node .../scratchpad/allergen/probe.mjs calc.mjs ran 80 ingredients and 5 labels against Reg. (EU) 1169/2011 Annex II, FIC Art. 21, FALCPA s.403(w) and FDA's Jan 2025 allergen Q&A (from the auditor's knowledge of those texts; not fetched). Right: 25 named Annex II ingredients across all 14 (milk powder, quail eggs, semolina, malt vinegar, soy lecithin, arachis oil, celery salt, E220-E228, langoustine, squid ink, walnut oil, ghee...), maltodextrin exempt, US rye/barley not wheat and spelt wheat, look-alikes excluded in the matrix. Wrong: eight common finfish undetected (sea bream, turbot, eel, carp, skate, john dory, caviar, lox); generic 'nuts' undetected; a second supplier tag silently dropped (soya lost); 'butter [none]' declares no milk; US pine nut/chestnut not declared; label emphasis misses 8 of 11 declared allergen words and bolds 4 look-alikes; US/UK Contains lines use category names. Held at 1: in a user-safety tool the matrix misses named allergens and the label, the headline output, is not the emphasis the law asks for on ordinary input.",
+  "completeness": "Matrix, CSV (matrixCsv), labels (labelFor), may=, UK/US switch, supplier tags, customer allergen page (menupage.mjs) all produce output end to end in node and are covered by tests. The label's emphasis feature works only for words in a second list. Browser not driven this round; https://marisstella.app/allergen-label-maker/ could not be loaded (proxy CONNECT 403), so no URL defects filed. No TODOs or stubs.",
+  "verification": "cd ventures/allergen-label-maker && node --test '*.test.mjs': 38 tests, 38 pass, 0 fail (189 ms). Six mutations via platform/ci/quality_mutate.py: 3 caught (emphasis removed, wheat tag -> gluten, check-dedupe), 3 survived (named-beats-check precedence calc.mjs:165, sulphite E-number range calc.mjs:79, dark-chocolate exclusion calc.mjs:68). No test covers fish breadth, two tags, emphasis of declared allergens beyond 'wheat'/'milk', or US tree-nut species; one test (calc.test.mjs:152) asserts the non-compliant US 'Crustacean shellfish' wording.",
+  "craft": "Read calc.mjs (321 lines, pure, no deps), menupage.mjs, index.html module script and the four test files. Good: esc() on all output, JSON in the menu page escaped for <script>, menupage classify kept equal to the page script by test. Defects: emphasise() (calc.mjs:254-281) is a second, narrower allergen dictionary that ignores RULES' 'not' exclusions, so label and matrix disagree; readIngredient uses raw.match (first tag only) but strips all tags (calc.mjs:137-138); noneTag disables named rules (calc.mjs:154); a no-op map in analyseDish (calc.mjs:217-221).",
+  "claims": "Backed: disclaimer, no-warranty and 'a missed allergen can seriously harm a customer' (index.html:119, page.test.mjs:7-14); no network calls (page.test.mjs:16-21); local-only usage counting with DNT/GPC (usage.mjs); 'check' never printed as declaration (calc.mjs labelFor uses declaredKeys). Not backed: 'print-ready label ... allergens in bold, the way Natasha's Law asks for them' (index.html:64, README.md:3, llms.txt:3) given the emphasis gaps; README.md:28 '[none] clears guesses' (clears named allergens too); 'the tool uses exactly that' for tags (index.html:102) fails for a second tag; README.md:47 test counts stale. README's 'What is not verified' section is honest about the word list.",
+  "fitness": "Job: a UK cafe owner builds an allergen matrix for the folder and PPDS labels for grab-and-go sandwiches and cakes. The example menu works and the matrix is a useful first pass with sensible 'check' flags, but a fish dish with sea bream comes out allergen-free, and every label must be re-edited by hand for emphasis (and for any branded component's sub-ingredients) before it is lawful. A US user gets category names on the Contains line and misses pine nuts. Usable as a drafting aid with a careful human, not as the label.",
+  "domain": "Compared with a food-labelling compliance specialist's practice under FIC 1169/2011 (Annex II, Art. 21, Art. 9 compound ingredients), FSA PPDS guidance and FALCPA/FASTER. Sound: the 14/9 lists, sesame in the US list, rye/barley split from wheat, the contains/check/may three-tier design, precautionary labelling left to the user, sulphite threshold explained. Departs: emphasis not applied to every allergen, cereal and nut not named on the label, UK reliance on a Contains box, US Contains without species, FDA 2025 tree-nut list not followed, branded compound ingredients not broken down."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "named finfish common on UK menus: sea bream, turbot, eel, carp, skate, john dory, caviar, lox",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): Reg. (EU) 1169/2011 Annex II item 4 'Fish and products thereof' covers every finfish species and roe",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "fish declared for each",
+   "observed": "contains=[] check=[] for all eight; cod roe, sea bass, smoked salmon, anchovy paste are caught",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "two supplier tags in one compound ingredient: 'Sauce (stock cube [celery], curry paste [soya])'",
+   "method": "by hand from the page's own tag rule (index.html:70, 'state what its label says in square brackets')",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "celery and soya declared",
+   "observed": "contains=[celery]; soya silently dropped (only the first [...] is read, all are stripped)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "UK label emphasis of declared allergens: plain flour, brie, mayo, groundnut, lobsters, arachis oil, creme fraiche, halloumi",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): Reg. (EU) 1169/2011 Art. 21(1)(b): the allergen name must be emphasised in the list of ingredients; FSA PPDS guidance (Natasha's Law) requires the same",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "each allergenic ingredient emphasised (and the cereal named, e.g. wheat flour)",
+   "observed": "all eight printed without <strong> while the Contains line lists them; only words in emphasise()'s separate list (calc.mjs:256-272) are bolded",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "look-alikes on the label: coconut milk, cocoa butter, egg-free mayonnaise, cream of tartar",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): FIC Art. 7 (information must not mislead); these are not Annex II allergens",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "no emphasis",
+   "observed": "'coconut <strong>milk</strong>, cocoa <strong>butter</strong>, <strong>egg</strong>-free <strong>mayonnaise</strong>, <strong>cream</strong> of tartar' while the matrix correctly declares none",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "US mode: pine nuts and chestnuts",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): FDA, Questions and Answers Regarding Food Allergens (Edition 5, final guidance Jan 2025): the tree-nut list keeps chestnut and pine nut (pinyon), drops coconut",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "tree nuts declared in US mode",
+   "observed": "contains=[] check=[], advisory only (calc.mjs:88-90), the chestnut advisory itself says 'US guidance lists it'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "US Contains statement for prawns, cod, almonds, cashews",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): FD&C Act s.403(w)(2) (FALCPA): the Contains statement names the specific tree nut, fish species and crustacean species",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "Contains: Milk, Fish (cod), Shellfish (prawns/shrimp), Tree nuts (almonds, cashews) or the species names",
+   "observed": "'Contains: Milk, Fish, Crustacean shellfish, Tree nuts'; calc.test.mjs:152 asserts the category name",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "UK Contains line names: wholemeal flour, almonds",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): FIC Annex II items 1 and 8 name the cereal (wheat, rye, barley, oats) and the nut; the Commission Q&A on FIC (2013) and FSA guidance say a 'Contains' box may not replace emphasis in the ingredients list",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "emphasis in the list naming 'wheat' and 'almonds'; any Contains box only as an addition",
+   "observed": "'Contains: Cereals containing gluten, ..., Tree nuts' and 'wholemeal flour' unbolded",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Annex II named ingredients across the 14 (milk powder, goat's cheese, quail eggs, semolina, malt vinegar, soy lecithin, sesame oil, arachis/groundnut oil, celery salt, E220/E224/E228, metabisulphite, langoustine, octopus, squid ink, walnut oil, pecan, macadamia, pistachio, ghee, paneer, whey)",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): Reg. (EU) 1169/2011 Annex II items 1-14 and sulphite E-numbers E220-E228",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "each declared under the right allergen",
+   "observed": "all 25 declared correctly; maltodextrin correctly not gluten (Annex II exemption)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "generic 'nuts', 'chopped nuts', 'nut oil'",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): FIC Annex II item 8; FSA treats an unspecified 'nuts' as needing declaration",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "at least a check flag for tree nuts",
+   "observed": "contains=[] check=[] (only 'mixed nuts'/'tree nuts' match, calc.mjs:81)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'[none]' tag on a named allergen: 'butter [none]', 'mayonnaise [none]'",
+   "method": "README.md:28 says '[none] clears guesses' (check-tier only)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "milk / eggs still declared",
+   "observed": "contains=[] check=[]: every rule is skipped (calc.mjs:154)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "US: barley malt and rye not wheat; spelt is wheat; flour/enriched flour",
+   "method": "from the auditor's knowledge of the regulation text (not fetched; regulator hosts unreachable through the proxy): FALCPA wheat includes spelt/kamut (FDA Q&A); 21 CFR 137.105/137.165: 'flour'/'enriched flour' is wheat flour by standard of identity",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "barley/rye none; spelt wheat; flour and enriched flour wheat (contains)",
+   "observed": "barley none, spelt wheat (pass); flour/enriched/bleached flour only 'check'",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/allergen-label-maker && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "38 tests, 38 pass, 0 fail (189 ms)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'print-ready label ... with the allergens in bold, the way Natasha's Law asks for them' (index.html:64, README.md:3-6, llms.txt:3)",
+   "method": "compare with label output above",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "every declared allergen bold in the ingredients list",
+   "observed": "many declared allergens not bold; tagged items (pesto [milk]) show no emphasis or sub-ingredients",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, no-warranty, 'missed allergen can seriously harm', no network, local-only usage counter",
+   "method": "read index.html:119-122, page.test.mjs, usage.mjs",
+   "command": "node --test page.test.mjs usage.test.mjs",
+   "expected": "present and tested",
+   "observed": "present; page.test.mjs asserts them and no fetch/XHR",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test counts '19 engine tests, 5 page tests'",
+   "method": "grep -c '^test(' *.test.mjs",
+   "command": "grep -c '^test(' ventures/allergen-label-maker/*.test.mjs",
+   "expected": "19 / 5",
+   "observed": "calc 19, page 6, menupage 7, usage 6",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "matrix, CSV, labels, may=, UK/US switch, customer allergen page, tags",
+   "method": "node calls into calc.mjs/menupage.mjs exports used by index.html",
+   "command": "node --test menupage.test.mjs; node /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/allergen/probe.mjs /home/user/oss-monorepo/ventures/allergen-label-maker/calc.mjs",
+   "expected": "each works",
+   "observed": "all produce output end to end in node; browser not driven this audit; served page not loadable (proxy 403 on marisstella.app)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:165",
+   "change": "if (!prev || (prev.check && !entry.check && !prev.tagged)) found.set(k, entry); -> if (!prev) found.set(k, entry);",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:280",
+   "change": "return esc(ingredientText).replace(re, \"<strong>$1</strong>\"); -> return esc(ingredientText);",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:149",
+   "change": "if (k === \"wheat\") found.set(\"gluten\" -> if (k === \"wheatX\") found.set(\"gluten\"",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:235",
+   "change": "for (const k of declared.keys()) check.delete(k); -> (removed)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:79",
+   "change": "e22[0-8] -> e22[0-3]",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:68",
+   "change": "/\\bdark chocolate\\b/,  -> (removed)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Common finfish are not recognised at all (sea bream, turbot, eel, carp, skate, john dory, caviar, lox): a dish with sea bream shows no fish in the matrix, label or customer page, which says 'Not listed'.",
+   "where": "ventures/allergen-label-maker/calc.mjs:63",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Only the first [...] tag in an ingredient is read but every tag is stripped from the text, so 'sauce (stock [celery], paste [soya])' silently loses soya, an allergen the user typed.",
+   "where": "ventures/allergen-label-maker/calc.mjs:137",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "Label emphasis uses its own short word list, not the detection rules, so declared allergens (plain/wholemeal flour, brie, halloumi, creme fraiche, mayo, dijon, groundnut, arachis oil, lobsters) are printed unbolded; tagged items (pesto [milk]) appear with no emphasis. FIC Art. 21(1)(b) / Natasha's Law require emphasis in the ingredients list.",
+   "where": "ventures/allergen-label-maker/calc.mjs:256",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "US mode never declares pine nut or chestnut, which remain on FDA's tree-nut list (Q&A Edition 5, Jan 2025); they are reported as advisories only.",
+   "where": "ventures/allergen-label-maker/calc.mjs:88",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "'[none]' skips every rule, including named allergens ('butter [none]' declares no milk); README says it clears guesses only.",
+   "where": "ventures/allergen-label-maker/calc.mjs:154",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Generic 'nuts', 'chopped nuts', 'nut oil' raise nothing, not even a check.",
+   "where": "ventures/allergen-label-maker/calc.mjs:81",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "US Contains line prints category names 'Fish', 'Crustacean shellfish', 'Tree nuts'; FALCPA s.403(w)(2) requires the species / nut type; the test at calc.test.mjs:152 enshrines it.",
+   "where": "ventures/allergen-label-maker/calc.mjs:287",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Look-alikes are bolded on the label (coconut milk, cocoa butter, egg-free mayonnaise, cream of tartar, almond milk's 'milk') because emphasise() ignores the 'not' exclusions, contradicting the matrix.",
+   "where": "ventures/allergen-label-maker/calc.mjs:279",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "UK label relies on a 'Contains: Cereals containing gluten, Tree nuts, Crustaceans' line; FIC requires the cereal/nut named and emphasised in the list, and the Commission Q&A says a Contains box cannot replace that.",
+   "where": "ventures/allergen-label-maker/index.html:158",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Headline claim 'print-ready label ... allergens in bold, the way Natasha's Law asks for them' is not backed for the inputs above.",
+   "where": "ventures/allergen-label-maker/index.html:64",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "US 'flour' / 'enriched flour' only 'check' though by US standard of identity (21 CFR 137.105) flour is wheat.",
+   "where": "ventures/allergen-label-maker/calc.mjs:56",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Tag aliases miss singular/species names ('tree nut', 'crustacean', 'almond', 'lupine'); an error is shown, so not silent. 'lupine flour' also gets a gluten check.",
+   "where": "ventures/allergen-label-maker/calc.mjs:127",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Three seeded mutations survive: named-beats-check precedence, E224-E228 range, dark-chocolate exclusion.",
+   "where": "ventures/allergen-label-maker/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README test counts stale (says 5 page tests; there are 6, plus 7 menupage tests).",
+   "where": "ventures/allergen-label-maker/README.md:47",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15369"
+ ],
+ "verdict": "Allergen Label Maker is a well-intentioned drafting aid with a sound three-tier design (contains / check / may) and a correct mapping of the 14 UK/EU and 9 US allergens, and it catches 25 of 25 ordinary named Annex II ingredients I tried. It does not meet the bar for a user-safety tool: eight common finfish (sea bream, turbot, eel ...) and a generic 'nuts' are not detected, a second supplier tag in one ingredient is silently dropped, '[none]' suppresses named allergens, and US mode ignores pine nut and chestnut. The label, its headline output, emphasises allergens from a separate shorter word list, so most declared allergens are printed unbolded and look-alikes like coconut milk are bolded, and both UK and US Contains lines use category names the regulations do not accept. 38 tests pass; 3 of 6 seeded mutations survive. Fixes are mostly small: extend the fish and nut words, read all tags, limit [none] to check rules, drive emphasis from the detection matches, and add US tree-nut rules."
+}
