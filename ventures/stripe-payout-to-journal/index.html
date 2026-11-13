@@ -142,7 +142,7 @@
   </footer>
 
   <script type="module">
-    import { validate, sampleReport, sampleBrokenReport, parseMapping, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
+    import { validate, parseAmount, sampleReport, sampleBrokenReport, parseMapping, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -161,8 +161,8 @@
     function run(text) {
       const mp = parseMapping($("#mapping").value);
       $("#mapping-note").textContent = mp.errors.join(" ");
-      const exp = parseFloat($("#expected").value.replace(",", "."));
-      const r = validate(text, { mapping: mp.mapping, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? Math.round(exp * 100) : undefined });
+      const exp = parseAmount($("#expected").value.replace(/[$€£]/g, ""));
+      const r = validate(text, { mapping: mp.mapping, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? exp : undefined });
       last = r;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${r.summary.payouts} payout${r.summary.payouts === 1 ? "" : "s"}, ${r.summary.rows} rows, ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"}`;
