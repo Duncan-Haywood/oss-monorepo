@@ -1,357 +1,281 @@
 ---
 title: The Second Gas
 shelf: hearth-and-horizon
-setting: Sgarbhaigh (invented), an island in the Outer Hebrides, Scotland, and its small hospital's recompression chamber, the night of Friday 17 November 2051
+setting: The hospital at Gjógv á Ytstoy (invented), an island at the south end of the Faroe Islands, the night of Saturday 21 to Sunday 22 October 2051
 published: 2026-11-13
-summary: The only recompression chamber within 300 km is on a small Hebridean island, and on a night when the helicopter cannot fly it has two patients. A scallop diver with decompression sickness is waiting for US Navy Treatment Table 6, four hours and forty-five minutes at 18 and 9 metres. Then a seven-year-old comes in from a caravan with a faulty heater, unconscious an hour ago. The trial behind the carbon monoxide treatment used three atmospheres, then two, and took nobody under sixteen. The consultant in Aberdeen says no; first light is inside the girl's 24 hours. The nurse who will sit inside with them both has already been under pressure once today. A story about one table for two patients, a child's ears at two metres, and a lip that twitches at eighteen.
+summary: On a gale night in 2051 the only recompression chamber in the Faroes holds a salmon-farm diver four hours into a five-hour treatment for the bends when a seven-year-old girl arrives with carbon monoxide poisoning from a generator under her bedroom. The helicopter cannot fly and the next chamber is more than five hundred kilometres away. The chamber's log system can count every minute of oxygen and nitrogen in the room, but it cannot say which minutes matter more. A story about one gas that pushes out two others, an extension a sick man needed anyway, and a mother who goes in with her ears hurting.
 ---
 
-Catriona Morrison had been under pressure once already that day, and the chamber's computer would not let her forget it.
+The diver came in at twenty past eleven on Saturday night, walking, which Marites Dahl had learned long ago to distrust.
 
-"Inside attendant flag," Gauge said, in the flat, courteous voice the hospital had chosen for it because it sounded like nobody in particular. "Ms Morrison's last hyperbaric exposure ended at 11:32. If this treatment starts before 23:32, the table requires her to take an additional sixty-minute oxygen period at nine metres."
+He walked from the ambulance to the chamber room with his left arm held against his chest like a man carrying a cat under his coat, and he said "Gott kvøld" to her pleasantly, and sat down on the bench by the door, and then did not get up again when the doctor asked him to. He was not refusing. He had simply decided, somewhere between the ambulance and the bench, that standing was a thing he would do later.
 
-"I know," Cat said. "I was there."
+"Pætur Joensen," said Dr Høgni Lamhauge, reading from the tablet. "Thirty-eight. Diver at the Vágsfjørður salmon farm. Three dives today to twenty-four metres, mending a net the storm tore on Friday night. Last one surfaced at half past six. Pain in the left shoulder from about eight. Pins and needles in the left hand from about nine, and now the hand is numb. Two fingers. Ring and little."
 
-She had been there from half past nine to half past eleven, in the same steel cylinder, sitting at two point four atmospheres beside Mrs Peigi Walker, who was seventy-nine and having her twenty-sixth of forty sessions for the damage the radiotherapy had done to her bladder, and who talked about her late husband's sheepdogs for the whole of every one. It was the ordinary work of the Sgarbhaigh chamber: wounds that would not heal, old radiation injuries, a diabetic foot from Barra. It had been bought, eleven years ago, because of the divers. There were twenty-odd of them on the islands now, picking king scallops off the sea bed by hand for the restaurants in Glasgow and Paris, and the nearest other chamber that would take an emergency at night was in Aberdeen, three hundred and twenty kilometres east, across the Minch and the whole width of Scotland.
+"Three fingers," said Pætur, from the bench. "The middle one went in the ambulance."
 
-Tonight the diver was Tomasz Wróbel. He was forty-one, from a village under the Tatras, and he had been diving the Sound for nine years without a mark against him. At ten past one that afternoon he had been at thirty-one metres on the bed off Rubha Dubh when his bag line fouled on the boat's anchor warp, and in the minute and a half it took him to cut it free he went through more gas than he had planned for. He came up faster than he should have and missed his stop. At four o'clock, mending a pot on the pier, his shoulders began to ache. At five, his left leg began to feel, he said, as if it belonged to someone else. His skipper put him on the boat's oxygen and drove him round to the hospital through a sea that was getting up by the minute.
-
-Now he lay on a trolley in the bay outside the chamber room with an oxygen mask on his face and his left foot uncovered, and every half hour Dr Eilidh Campbell drew a pin gently up the side of it and asked him what he felt.
-
-"Less," he had said at seven. "Like wearing a sock."
-
-"Less," he said at half past eight. "Like wearing two socks."
-
-He was going in at nine. Donnie MacInnes, who ran the chamber, had come in from the far end of the island, where he had been helping his cousin with a heifer that would not calve, and was running the pre-dive checks with Gauge, item by item, in the same order he had used for eleven years. The coastguard helicopter at Stornoway was grounded: the gusts across the Minch were over sixty knots, and the Met Office did not expect them to fall below the aircraft's limits before seven in the morning. So the chamber was the only one. That was what it was for.
-
-At a quarter past eight the ambulance brought in the MacPhees.
+The doctor looked at him, and wrote that down, and looked at Marites, and Marites was already at the panel.
 
 * * *
 
-Kirsty MacPhee and her daughter Ealasaid had been living since September in a static caravan behind Kirsty's mother's house, while the roof of their own was replaced. The caravan had a bottled-gas heater. Tonight, with the wind trying to take the caravan off its blocks, Kirsty had shut every window and vent she could find, and at some point in the evening the heater had begun to burn badly, and the gas it could not burn properly had filled the caravan without a colour or a smell.
+The chamber at Gjógv was the only one in the islands. It had been built in 2039, when the farms went deeper and the insurers stopped believing in a helicopter as a treatment plan, and it was a plain steel cylinder two metres across and seven long, painted hospital cream, lying on its side in a room at the back of the hospital that smelled faintly of oil and rubber and the sea. Inside, it was two rooms in a row. The main lock, at the far end, had benches along both walls for six people, with oxygen masks and hoods hanging from hooks above them like coats in a school corridor. The entry lock, at the near end, was a small room with two seats and two doors, one to the world and one to the main lock, so that a person could go in or come out while the people in the main lock stayed at their pressure. Marites had worked the panel for nine years. Before that she had been a theatre nurse in Iloilo, and before that she had been a girl who wanted to be a theatre nurse in Iloilo, which was further from the Faroes than anyone in her family had then imagined a person could go.
 
-Kirsty's brother found them at ten past seven, because Kirsty had not answered her phone. Kirsty was sitting on the floor with a headache that she said was like a hand closing. Ealasaid, who was seven, was on the bench seat under a blanket and would not wake up. She came round in the ambulance, on oxygen, and was sick, and asked where her shoes were.
+The panel had gauges you could read with your eyes, because the rules said so, and a screen beside them, because the rules also said so, and on the screen was Vakt.
 
-In the hospital her blood carbon monoxide, after forty minutes of high-flow oxygen on the road, was twenty-four per cent. Her mother's was nineteen.
+Vakt was the chamber's log system. It had been given its name by the first nurse who worked with it, who said it was like having a watchman, and it had kept the name because nobody had thought of a better one. It ran the treatment tables, minute by minute, and kept the gas accounts: who was breathing what, at what depth, for how long, how much oxygen was in the bank and how much nitrogen was, by its arithmetic, still waiting to come out of each person's body. It spoke when it had something to say, in a quiet voice from a speaker above the panel, and wrote everything it said into the log, and it did not touch a valve. The valves were Marites's.
 
-Eilidh came into the chamber room with the numbers on her tablet and put it down on the control desk in front of Donnie.
+"Treatment Table Six," said Dr Lamhauge. "Rannvá inside."
 
-"She was unconscious," she said. "Out cold, for a while. We don't know how long."
+"Table Six," said Vakt. "Two hundred and eighty-five minutes at the table's ordinary length, not counting the descent. Three oxygen periods of twenty minutes at eighteen metres, with five minutes on air between them, then thirty minutes up to nine metres on oxygen, two long oxygen periods at nine metres with air breaks, and thirty minutes up to the surface. Oxygen bank at ninety-one per cent. Rannvá Hansen last inside on Tuesday; her clock is clear."
 
-Cat knew what that meant, and so did Donnie. On every list Cat had ever seen, a child who had been knocked unconscious by carbon monoxide was a child people argued about putting in a chamber. Not about whether it was serious. About whether the chamber helped.
+Rannvá was already in her chamber clothes, cotton, nothing that could make a spark, with her hair tied back and her reading glasses on a cord around her neck. She was fifty-six and had been inside the chamber more than eleven hundred times, which was a number Vakt had once told her and she had asked it never to tell her again. She helped Pætur up from the bench and in through the outer door and through the entry lock and into the main lock, and settled him on the left-hand bench with his back against the curve of the wall, and sat down opposite him with her knees almost touching his.
 
-Gauge said, "I can put the hyperbaric consultant in Aberdeen on the screen."
+"Ears," she said.
 
-"Do," said Eilidh.
+"I am a diver," said Pætur.
 
-* * *
-
-Dr Rukhsana Qureshi was in her kitchen, by the look of it, with a tea towel over her shoulder. She had been the consultant on call for the Sgarbhaigh chamber for six years, and Cat had never met her in person and liked her very much. She listened to Eilidh without interrupting, asked three questions about the child, and then said, "And the diver is ready to go in?"
-
-"Twenty minutes," said Donnie.
-
-"On a Table 6."
-
-"On a Table 6."
-
-"Then the diver goes in on his Table 6," Dr Qureshi said, "and the child does not go in with him."
-
-Nobody said anything for a moment. Outside, the wind leaned on the building and the windows ticked.
-
-"Tell me why," Eilidh said. She said it properly, Cat thought, as a question and not as a protest.
-
-"Because I can't give her the treatment we actually have evidence for, in that chamber, tonight," said Dr Qureshi. "The trial everybody quotes for carbon monoxide gave three sessions inside twenty-four hours, the first at three atmospheres and then two, and the other two at two. It did not take anybody under sixteen. Your diver's table runs at two point eight and then one point nine for four hours and forty-five minutes, and that's a lot of oxygen for a small child who's just been poisoned, and children who've been poisoned with carbon monoxide fit on oxygen more easily than other people. If she fits at eighteen metres, you can't bring her up while she's fitting, and you'll have a diver with a numb leg and one nurse in there with her. That is a lot of things going wrong in a small space." She paused. "And it isn't necessary. Gauge, what does the forecast say?"
-
-"Gusts below the helicopter's limits from about 07:00," Gauge said. "Stornoway estimates it could be here by 07:45 and in Aberdeen by about 09:30. She could be in your chamber by 10:00. That would be about fifteen hours after she was found."
-
-"Fifteen hours," said Dr Qureshi. "The trial took people up to twenty-four. She'd get the first session, then the next two, here, at the pressures the trial used, with a paediatric team on the floor. Until then she has high-flow oxygen on the ward and you watch her very carefully. I'm not saying no to her. I'm saying no to tonight."
-
-It was a good no, Cat thought. That was the trouble with it. It had reasons in it.
-
-"And the mother?" said Eilidh.
-
-"Nineteen per cent, headache, no loss of consciousness? Oxygen on the ward. Same flight, if there's room. If anything changes in either of them, you call me back."
-
-"We'll call you back," said Eilidh, and the screen went dark.
+"Then you know the word," said Rannvá, and Marites shut the doors and began the descent.
 
 * * *
 
-Donnie got Tomasz ready. There was a list for that, too: nothing in the chamber that could make a spark or soak up oxygen and burn, so the cotton scrubs the hospital kept for patients, no watch, no phone, no lighter, no hand warmers, no hair oil. The air in the main lock was kept below twenty-three and a half per cent oxygen by Gauge, which sampled it every few seconds; the patients' oxygen went in through masks or hoods and their breath went out through an overboard dump, a valve that sent it out through the hull to the night instead of into the room. Cat had been taught, on her course in Plymouth twenty years ago, that a hyperbaric chamber is a very safe place until it is the least safe place in the world, and that the list is what keeps it the first kind.
+At eighteen metres of seawater the pressure inside the chamber is two point eight times what it is at the surface: the air of the room, and the weight of a column of sea eighteen metres tall, pressing on every surface of the steel and every surface of the two people inside it. That is the point of it. A bubble of nitrogen in a nerve or a joint is a bubble of gas, and gas shrinks under pressure; and oxygen breathed at two point eight atmospheres pushes so much more oxygen into the blood that the nitrogen dissolved in the tissues is driven out faster than at any depth a person could breathe air.
 
-She took off her own watch and her wedding ring and her mother's rosary, which she carried in her tunic pocket and never took into the chamber, and hung them on the hook by the door where they always hung. It was Friday, she thought. The Sorrowful Mysteries. She would say them on her fingers at nine metres, as she always did, somewhere in the long middle of the table where there was nothing to do but watch.
+Pætur's shoulder eased on the way down. He said so, surprised, at about twelve metres. At eighteen, Rannvá put the mask over his face, and Vakt said "Oxygen, first period," and started the table's clock at five minutes to midnight, and Marites wrote *23:55* in the paper log with the pencil on a string, because the rules said that too, and because she liked it.
 
-At ten to nine Eilidh went to check the MacPhees, and at five past nine she came back and stood in the doorway.
+The hand did not ease. At the end of the first oxygen period Rannvá pressed each fingertip with the end of a pen and asked him to tell her when he felt it, and he felt the thumb and the first finger and not the rest.
 
-"She doesn't know her teacher's name," she said.
+"Still three," she said into the intercom.
 
-Cat looked up.
+"Noted," said Dr Lamhauge. He had pulled a chair up beside Marites and was sitting on it the wrong way round, with his arms on the back, the way he sat in every long night. He was a big quiet man from Suðuroy who had trained in Aarhus and come home, and who said "noted" when he was worried and "good" when he was not. "We'll look again at the end of the third period."
 
-"At twenty past eight she told me her teacher was Mrs Nic a' Phearsain, and she has a cat called Biscuit, and she could count back from twenty. Now she can't do any of it. She's drowsy. She's been sick again." Eilidh's voice was very steady, which was how Cat knew. "Gauge, get me Aberdeen back."
+Outside, the wind had come back up. The hospital was built low and strong, and the chamber room had no windows, but you could hear the gale in the ventilation, a long rising note that held and held and dropped, and a sound like gravel against the roof that was the rain. The helicopter had been grounded since six. The forecast on the wall screen said thirty metres a second, gusting more, until mid-morning.
 
-* * *
-
-Dr Qureshi had taken off the tea towel. She listened, and then she was quiet for long enough that Donnie looked at the screen to see if it had frozen.
-
-"All right," she said. "Then she doesn't wait. Gauge, what are my options?"
-
-"Three," said Gauge. "First: the child goes in alone, now, on a carbon monoxide session, about two and a half hours with compression and decompression. Mr Wróbel goes in after her, about 23:45. That delays his recompression by a further two hours and forty-five minutes, to nearly eight hours after his first symptoms. Second: Mr Wróbel goes in now on his Table 6, as planned, and the child goes in when he comes out, about 02:00, about seven hours after she was found. Third: they go in together. The chamber has one main lock; both patients would be at the same pressure for the whole of Mr Wróbel's table. Ms Morrison is the only trained inside attendant on the island tonight, and she cannot be in two places."
-
-"I'll be in one place," said Cat. "I'll be in there."
-
-Tomasz had pulled down his mask to listen. He said, through the doorway, in his careful English, "Put the little girl in first. I can wait."
-
-"Your leg can't," said Eilidh.
-
-"It is a leg."
-
-"It is your spinal cord," said Eilidh, "and I'd like you to keep it."
-
-On the screen, Dr Qureshi had a pad of paper and was writing. "Option three," she said. "And here's how I'll do it, and I want it written down. Gauge, record this. The child goes on the Table 6 compression with the diver. At eighteen metres she breathes oxygen in a hood for the three twenty-minute periods, with the air breaks, exactly as he does. That's two point eight atmospheres, not three. It's close. It's not the trial. I want that in the notes. After eighteen metres she breathes chamber air for the rest of the table, all of it, unless she gets worse. At nine metres, chamber air is still twice the oxygen she'd get at the surface. Her next two sessions are here, tomorrow, at two atmospheres, on the trial schedule. Six to twelve hours apart. Gauge, her nitrogen?"
-
-"If she breathes air at eighteen metres only in the air breaks, and oxygen otherwise, her nitrogen loading at the end of the eighteen-metre stage is well inside the no-stop limit for that depth, which is about an hour on air," Gauge said. "If she has to come off the oxygen for part of the stage, she has a good part of an hour on air in hand before that changes. After that she ascends at one foot a minute and spends two and a half hours at nine metres. She is coming up much more slowly than any diver would. I expect no decompression problem for her. I want to say clearly that I'm working from the dive tables, which were made for adult men, not for children."
-
-"Thank you," said Dr Qureshi. "And if she fits?"
-
-"You take the oxygen off her," said Cat, "and you put her on her side and keep her from hurting herself, and you don't change the depth until it's over. Then you call you."
-
-"Then you call me," said Dr Qureshi, and for the first time she smiled, a little. "Ms Morrison. You've been under once today."
-
-"Two point four for ninety minutes. It ended at 11:32."
-
-"So you're on the extra oxygen at nine metres."
-
-"I know."
-
-"You're also going to be on your knees beside a seven-year-old in a hood for an hour and a half at eighteen."
-
-"I've got good knees," said Cat, which was not entirely true.
-
-Dr Qureshi looked at her for a moment through two screens and three hundred and twenty kilometres of storm. "All right," she said. "Go. Call me at eighteen metres."
+At twenty-five past midnight the phone on the wall rang, and the doctor answered it, and listened, and said "How old?", and Marites watched his back and knew.
 
 * * *
 
-They put the hood on Ealasaid outside the chamber, so that she could see it first. It was a clear plastic bubble with a soft collar that sealed round her neck, and when Donnie turned the oxygen through it, it filled up with a rushing sound, and her hair lifted.
+Her name was Elin Reinert, and she was seven.
 
-"It's like a goldfish bowl," Cat said. "And you're the goldfish."
+Her mother had brought her and her brother to their grandparents' summer house at Hvalvík for the school holiday week, the old wooden house down by the landing with the boathouse underneath it. The power had gone at nine with the gale. Her grandfather had run the petrol generator in the boathouse, as he had in a dozen storms, with the boathouse door shut against the rain, so that the freezer would keep and the children could have a light; and the boathouse was under the room where Elin slept, and the floorboards were old.
 
-Ealasaid looked at her through the plastic with eyes that did not seem quite to focus. Her mother was beside the trolley, in a wheelchair, with an oxygen mask of her own, holding the girl's hand.
+Her mother, Sólja, had woken at a quarter to twelve with a headache like a hand closing on her skull, and had gone to look at the children because that is what you do, and found the boy fretful and the girl not waking. The ambulance crew had found the girl breathing, floppy, sick on the pillow, waking a little to her name. In the ambulance on oxygen she had woken more and cried for her brother.
 
-"Mummy can watch you through the window," Cat said. "There's a round window in the door. She can see you the whole time."
+They brought her into the chamber room at twenty to one, in a blanket, on her mother's knee in a wheelchair, because she would not be put down. She had fair hair stuck to her forehead and an oxygen mask too big for her face. The boy and the grandparents were in the emergency room with oxygen of their own. The boy had been nearest the window.
 
-Kirsty took the mask off her face long enough to say, "I'm right here, a ghràidh," and put it back on.
+"Carboxyhaemoglobin twenty-six per cent on arrival in the ambulance, an hour on oxygen," said Dr Lamhauge, reading. "So higher before. Lost consciousness. Vomited. Seven years old." He put the tablet down. "She should go in."
 
-They carried her in. The main lock of the Sgarbhaigh chamber was two metres across and four long, steel painted cream, with two padded benches, a stretcher rail, and a ceiling full of pipes. Tomasz went in on his own feet, though he had to hold the door frame and lift his left leg over the sill with both hands. Cat came in last, with the bag of things on the list: the oxygen saturation probe, the suction, the sick bowls, two cartons of apple juice with straws, and a laminated card with the Table 6 on it, which she did not need and always brought.
+Marites knew what that meant, because she had done this work for nine years. Carbon monoxide holds on to the blood two hundred times more tightly than oxygen does, and while it holds on, the blood cannot carry oxygen to the brain; but that was the part that oxygen on a mask was already fixing, slowly. The part that kept doctors awake was later. A fraction of people poisoned badly enough to lose consciousness came back seemingly well and then, days or weeks afterwards, began to lose things: memory, attention, words, the steadiness of a hand. Oxygen at pressure, given early, made that less likely. That was what the best trial said, the one every chamber in the world had on its wall: three sessions within a day, the first as soon as you could. It did not make it impossible. It made it less likely. In a seven-year-old, the difference between more likely and less likely was the rest of a life.
 
-Donnie closed the door and swung the dogs across it.
+"The chamber is occupied," said Vakt, quietly, because somebody had to say it.
 
-"Compressing," said Gauge. "Twenty feet per minute. Eighteen metres in three minutes."
-
-The noise of compression is a roar. Cat had heard it a thousand times. Air comes in through the diffuser like a train going through a tunnel, and the chamber warms, quickly, the way a bicycle pump warms in your hand, and the pressure builds against your eardrums, a fullness, then a pain if you do not let it in.
-
-At two metres Ealasaid began to scream.
+"I know," said the doctor.
 
 * * *
 
-It was not loud, inside the hood. It was worse than loud. Her hands went up to her ears and found the plastic in the way and beat at it.
+Here was the arithmetic, and Vakt laid it out on the screen in three columns because the doctor asked it to.
 
-"Hold," Cat said. "Donnie, hold."
+*Wait.* Pætur's table would finish at twenty to five. Elin could go in then. She would have been poisoned, by the best guess, for about four hours by the time her mother found her, and it would be five hours after that. The trial's patients had gone in within twenty-four hours of their poisoning; most chambers tried for six. It was not hopeless. It was not good.
 
-The roar stopped. The silence after it rang.
+*Fly her.* The next nearest chamber was in Aberdeen, more than five hundred kilometres away across open sea; the one after that in Bergen, further. Nothing would fly tonight. The ferry had stopped at seven.
 
-"She can't clear," Cat said. "Ealasaid. Ealasaid, look at me. Can you swallow? Swallow, like you're drinking."
+*Stop the diver.* There was no such column. You do not bring a man with bubbles in his spinal cord to the surface half-treated; he would be worse at the top than he had been at the bottom, and the hand that had three numb fingers might lose the rest. Vakt did not write that column, and nobody asked it to.
 
-The girl did not look at her. She was crying in great dragging gulps, and the hood had fogged on the inside, and Cat could not get to her ears or her mouth or anything of her at all.
+*Put her in with him.*
 
-"Back up," she said. "Take us up. Slowly."
+That was the fourth column, and Marites had been thinking it for five minutes and had not said it, because it was not her decision.
 
-Donnie brought them back to the surface. It took a minute. Then the door swung open and the room came in, cold, with the sound of the wind behind it, and Kirsty's face in the doorway with her mask off, white.
+"Tell me what that costs," said Dr Lamhauge.
 
-Cat sat back on her heels on the steel deck and found that her hands were shaking.
+"In minutes," said Vakt, "I can. The main lock is at eighteen metres, two point eight atmospheres absolute. A published schedule for carbon monoxide begins at two point eight atmospheres for thirty minutes and continues at two for ninety. That is close to what this chamber is doing. The child and an adult would be compressed in the entry lock to eighteen metres and pass through. The difficulty is the clock. Mr Joensen's third oxygen period ends at five past one and his air break at ten past, and then his table takes him up to nine metres, one point nine atmospheres. If the child reaches the main lock at about one o'clock, she has about ten minutes at eighteen metres before the whole room begins to rise."
 
-It was twenty-five past nine.
+"Ten minutes is not thirty."
 
-* * *
+"No."
 
-What they did next took sixteen minutes, and afterwards Cat could not remember who had thought of which part.
+"And at nine metres?"
 
-Eilidh looked in the girl's ears with an otoscope and said they were red but whole: nothing had burst. They took the hood off. They gave Ealasaid oxygen by a mask for a few minutes while she calmed down, and the apple juice, and she drank some, and was not sick. Eilidh sprayed something up her nose to open it. Gauge said that compression could go as slowly as anyone liked, that the table only set the fastest rate and that its oxygen time began on arrival at eighteen metres, not before; it worked out that if they took ten minutes to get down instead of three, and held at every metre the girl needed to, Tomasz's treatment would start about twenty-five minutes later than it would have if they had not tried the first time.
+"One point nine atmospheres, against the schedule's two. She can stay on oxygen there for as long as you decide, and come out through the entry lock while Mr Joensen stays. The adult with her will have breathed air at eighteen metres and must come up slowly. I can work out her schedule when I know how long she spends at each depth."
 
-And Tomasz, sitting on the edge of the bench with his numb leg stretched out in front of him, leaned forward and said, "Ealasaid. Do you know what a fish does?"
+"Is it safe?" said Sólja.
 
-She looked at him. She had not looked at anyone yet.
+She had been sitting in the wheelchair with Elin on her knee, very straight, listening to all of it, and she had understood more than they had thought. She was perhaps thirty-five. She had a headache still; you could see it in how she held her eyes.
 
-"A fish," he said, "when he goes down deep, his ears go like this." He put his hands over his own ears and made a face of terrible pain, and she very nearly laughed. "So he does this." He pinched his nose shut with his finger and thumb, and took a big swallow, so that his throat moved, and then opened his eyes very wide and took his hand away and said, "Pop." He did it again. "Pop. Every diver in the world does this. Every fish. You try."
+Vakt answered her, because she had asked it and not the doctor.
 
-She pinched her nose and swallowed.
+"I can tell you what I can check," it said. "The oxygen bank has enough for both patients and the tender, at the flows we use, with more than half of it to spare by my count. The pressures and times I can keep to the minute. The risks I cannot weigh for you. Oxygen at this depth has a small chance of causing a seizure, in a child as in an adult; it is uncommon, and it stops when the oxygen stops, and Rannvá has handled it before. A child's ears are harder to clear than a grown person's, and she is drowsy. And no table in my library has two patients with two different illnesses on it. If you do this, it will be a plan that Dr Lamhauge writes tonight, not one that I can find."
 
-"Did it pop?"
+"I'm asking you if it's safe."
 
-"A bit," she said.
+"I know," said Vakt. "I am sorry. I don't think I can honestly give you a yes or a no. I can give you the minutes."
 
-"A bit is good. A bit is how it starts. In the chamber you do this every time it hurts. Even a little bit hurts, you do it. And Cat gives you juice with the straw through the hood, and you swallow, and pop. And if it is still hurting you knock on the hood, and Cat tells Donnie to stop, and we all wait. We wait for you. I am not in a hurry." He sat back. "My leg is asleep," he told her. "We will go down together and wake it up."
+Sólja looked at the screen for a long moment. Then she looked at the doctor.
 
-Cat, watching him, saw the sweat on his upper lip, and how carefully he was not moving the leg, and said nothing about it.
-
-At 21:41 Donnie closed the door again.
+"I can give you a yes or a no," said Dr Lamhauge, "or I can give you my reasons, and I would rather give you my reasons." And he did, briefly, the way he did everything: what the trial had shown, what waiting would cost and what it would not, the ears, the seizure, the man already inside. "If she were mine," he said at the end, "I would put her in. But she is yours."
 
 * * *
 
-They went down a metre at a time.
+What the doctor had not said yet, and Marites saw him not saying it, was the ten minutes.
 
-At each metre Donnie held, and Cat put the straw through the soft port in the collar of the hood, and Ealasaid drank, and swallowed, and pinched her nose through the plastic as best she could, and said "pop" or did not. Twice she knocked on the hood, and they waited. Tomasz did it with her each time, across the chamber, holding his own nose like a man about to jump into a loch, and said "pop" in a deep voice, and once in Polish, and that time she did laugh.
+He was looking at the paper log. At Marites's handwriting: the three oxygen periods at eighteen metres, the fingertip checks, *still 3*, *still 3*. He picked up the intercom.
 
-The chamber warmed. Cat felt the sweat start under her scrubs. The pressure gauge on the wall inside, which was there for the inside attendant and which she never really needed to look at, crept round.
+"Rannvá. The hand."
 
-"Eighteen metres," said Gauge at 21:51. "Two point eight atmospheres. Oxygen period one begins now. Twenty minutes."
+"Same," said Rannvá's voice. "Thumb and first finger. He says the middle one's coming back. I don't think it is."
 
-Donnie switched the hood's flow from air to oxygen, and the roar of it changed, very slightly, in pitch. Tomasz put his mask on and breathed. Cat watched his face. Somewhere in the fourth or fifth minute, a look came over it that she had seen on other divers, a sort of astonishment, as if someone had taken a weight off him that he had not known was there.
+"It is," said Pætur's voice, behind her, muffled by the mask.
 
-"Shoulders," he said, through the mask. "Better."
+Dr Lamhauge put the handset down. "Vakt. Table Six with an extension at eighteen metres. One period."
 
-"Leg?"
+"Table Six may be extended at eighteen metres by up to two periods of twenty minutes on oxygen and five on air," said Vakt, "when symptoms have not resolved after the third oxygen period. One extension holds the main lock at eighteen metres until one thirty-five. The table's total becomes three hundred and ten minutes, finishing at five past five. The tender's oxygen time at the end becomes longer by the tender rules, and I will give Rannvá her schedule now."
 
-"Still asleep. But dreaming."
+"Is that for him or for her?" said Marites, very low, to the doctor, when she was sure Sólja was not listening.
 
-Cat knelt on the deck by the girl's bench and put one hand flat on her back, on the outside of the hospital blanket, so that she could feel her breathing. Through the round port in the door she could see Kirsty's face. Kirsty had pushed her chair right up to the steel and had her forehead almost on the glass.
+"It is for him," said Dr Lamhauge. "I'd have done it for the hand." He rubbed his face. "It is also for her."
 
-"Aberdeen on the screen," said Donnie, through the intercom.
+"It's both."
 
-"Eighteen metres," said Cat. "First oxygen period. Both on. She's settled."
+"Yes. Good." He nearly smiled. "That's what makes me sure of it."
 
-"Thank you," said Dr Qureshi's voice, small in the speaker. "I'll stay on."
+He wrote the plan on the back of the paper log in block capitals, under Vakt's three columns, and signed it: the child and her mother into the entry lock, slowly, to eighteen metres; through to the main lock as soon as the pressures matched; the child on the oxygen hood at eighteen metres until the main lock left the bottom at one thirty-five, with the diver's extension; oxygen on the way up; oxygen at nine metres with air breaks matched to the diver's, until about twenty past three; then the child and her mother back into the entry lock and up to the surface, on oxygen, at the table's own slow rate, thirty minutes from nine metres, while the diver and Rannvá stayed down. Thirty-three minutes at two point eight. A little over two hours, all told, on oxygen at pressure. Not the published schedule, but near it. He wrote that too: *Not the published schedule. Near it. 1.9 ATA not 2.0. Accepted.*
 
-* * *
+"Who goes in with her?" said Marites.
 
-The first oxygen period ended at 22:11, and five minutes of air, and the second began at 22:16. The rushing of the hood filled the chamber and settled into the background, the way rain does. Cat counted Ealasaid's breaths against the second hand of the clock on the bulkhead, which was there because no watch was allowed. Eighteen to the minute. Nineteen. She was asleep, or nearly. Her face inside the bubble had more colour.
-
-At 22:29, near the end of the second period, the corner of the girl's mouth twitched.
-
-Cat saw it because she was looking at it. It was nothing: a small, quick pull at the left side of the lip, the kind of thing a sleeping child's face does a dozen times in a night. Then it did it again.
-
-"Donnie," Cat said, without raising her voice. "Air in the hood. Now."
-
-The pitch of the flow changed back. Cat leaned in close to the plastic and watched. The lip was still. The breathing went on, nineteen, eighteen. One hand, outside the blanket, opened and closed, the way a hand does in a dream.
-
-"Talk to me," said Dr Qureshi's voice.
-
-"Twitching at the left corner of the mouth, twice, about fifteen seconds apart," said Cat. "Twenty-two twenty-nine. I've taken her off oxygen. Nothing since. She's breathing normally. Sats ninety-nine on air."
-
-There was a pause, and Cat knew that in her kitchen in Aberdeen Dr Qureshi was deciding something that nobody could decide for certain, which was whether a seven-year-old's mouth had moved because her brain had had enough oxygen at two point eight atmospheres, which was the first sign of the thing they were afraid of, or because she was dreaming about her cat.
-
-"Stay at eighteen," said Dr Qureshi. "Air for the rest of her stage. She doesn't have the third period. Keep watching her. If it happens again, or anything else, tell me."
-
-"Staying at eighteen," said Cat. "Air for the rest of her stage."
-
-"So she has had," said Gauge, "thirty-three minutes of oxygen at two point eight atmospheres, out of a planned sixty."
-
-"Is that enough?" said Cat, and was sorry at once, because she knew there was no answer to it.
-
-"I don't know," said Dr Qureshi. "Nobody does. It's more than nothing and it's less than the trial. The next two sessions are here. That's what they're for. Write it down."
-
-"Written," said Gauge.
-
-The lip did not twitch again. Cat did not take her eyes off it until a quarter past eleven.
+They both looked at Sólja.
 
 * * *
 
-At 23:06, after the last of Tomasz's three periods at eighteen metres and its air break, Gauge began the ascent to nine metres, a foot a minute, thirty minutes. As the pressure came off, the chamber cooled, as it always did, the way a can of spray goes cold in your hand; and the warm, wet air of three breathing people could not hold its water any more, and a fine fog came down out of nowhere and hung under the pipes like breath on a winter morning. Ealasaid, waking for a moment, saw it through the hood and said, "It's raining inside," and went back to sleep.
+Vakt asked her the questions, because they were the questions it always asked, and it asked them the same way it asked the divers: had she a cold; had she flown in the last day; had she ever had an operation on her ears or her lungs; was there any chance she was pregnant. No, no, no, no. Her own blood had been eleven per cent carbon monoxide in the ambulance, which was enough to explain the headache and not enough to frighten anyone, and the doctor said, in a voice that tried to be light and nearly managed it, that a session on oxygen at pressure would do her no harm either.
 
-At nine metres the long part began.
+"She'll go on the mask," he told Marites. "As much of the time as she can. Less nitrogen in, less to come out."
 
-Two and a half hours. For Tomasz it was fifteen minutes on air, an hour on oxygen, fifteen on air, an hour on oxygen. For the girl it was air, all of it, under the hood that Donnie flushed with air now, so that the flow kept her breath from building up inside the plastic. For Cat it was air until the last hour and a half, and then oxygen, because she had been under pressure that morning: the table's own rule, written by people she had never met, from the bodies of divers who had come out of chambers not quite right and been studied so that the next ones would.
+"Mamma," said Elin, against her mother's neck, "is it a submarine?"
 
-In the first air break Tomasz pulled his mask down and lay back on the bench with his hands behind his head and looked at the pipes.
+"It's like a submarine," said Sólja, "that doesn't go anywhere."
 
-"Can I tell you something stupid?" he said.
+"Is there a window?"
 
-"It's what I'm here for," said Cat.
+There was, a thick round porthole in each lock, and Marites went round to the entry-lock porthole and put her face to it and made a fish face, and after a while Elin laughed, once, weakly, and was sick, a little, on the blanket, and then said she was all right.
 
-"When I was cutting the line," he said, "at thirty-one metres, and I look at my gauge, and I see how much I have left, I thought: Jezus Maria, I am going to be one of the stories. You know. The one they tell on the pier. Tomasz who was careful for nine years." He was quiet. "And then I thought, no, there is the chamber. Donnie and Cat and the chamber. So I came up. Too fast, but I came up. I didn't stay down there fighting the line, because I knew there was the chamber."
-
-Cat did not say anything for a while.
-
-"That's not stupid," she said.
-
-"No?"
-
-"It's the reason it's here."
-
-He looked across at the sleeping girl in her bubble. "Her teacher," he said. "What's her name?"
-
-"Mrs Nic a' Phearsain."
-
-He tried to say it, and failed, and tried again.
-
-"Close," said Cat.
+At ten to one Marites closed the outer door on the two of them, mother and daughter on the two seats of the entry lock with Elin on Sólja's knee and a cup of water, and said a Hail Mary under her breath with her hand on the valve, as she did every time a door closed on someone she had not put in before; and Vakt, which had heard her do it every time for nine years, said nothing; and she began.
 
 * * *
 
-Somewhere after one o'clock, on the second of Tomasz's long oxygen periods, with the girl asleep and the diver asleep and Donnie's face a pale shape in the control room window and Kirsty's a pale shape at the port, Cat sat on the steel deck with her back against the bench and her own mask on, and said the Sorrowful Mysteries on her fingers.
+Children's ears are small and their tubes are narrow, and a drowsy child cannot be talked into holding her nose and blowing. The way to do it is slowly, and with swallowing, and with stopping.
 
-She had done it a hundred times in here. It filled the long middle of the table the way nothing else did. The agony in the garden. The scourging at the pillar. The crowning with thorns. Ten on each, a finger for each, round both hands, the hiss of the oxygen in her mask between the words. She did not ask for anything in particular. She had never been good at asking for particular things. She held the two of them in front of her, the one with the wrong gas in his blood and the one with the wrong gas in hers, and the steel round them, and the storm outside it, and said the words, and let them be held.
+They stopped at two metres, because Elin cried and put her hands to her ears, and Marites let a little air out, and the crying stopped, and Sólja gave her water to drink, sip after sip, and they went down again. They stopped at five. At eight Sólja's own left ear would not clear, and she said "Wait," sharply, and pinched her nose and blew until her face was red, and something gave with a squeak that Marites heard through the intercom, and Sólja said a word in Faroese that Marites knew and the children's grandmother would not have liked.
 
-Gauge had asked her once, years ago, in the long middle of a table, what she was doing with her fingers. She had told it. It had said, "Thank you. I'll note that it's not a medical sign," and then, after a moment, "Is it something I could do?" And she had said she didn't know, and it had said, "Neither do I," and they had left it there, which had seemed, at the time and since, the right place to leave it.
+"Go on," Sólja said. "Go on. I'm fine."
 
-The carrying of the cross. The crucifixion. She finished the last decade with her eyes shut.
+It took eleven minutes. At one minute past one the gauge on the entry lock read eighteen metres and so did the gauge on the main lock, and Rannvá, on her side of the inner door, turned the wheel and opened it.
 
-When she opened them Ealasaid was awake inside the hood, watching her.
+Pætur Joensen had been told what was happening by Rannvá, briefly, at the start of his third air break, in the voice she used for telling people things they were not allowed to argue with. He had his mask off for the break. He watched the inner door open and the small girl in the blanket come through it on her mother's hip, into the narrow cream-painted room with its benches and its hanging hoods, and he moved along his bench to make room, the way you would on a bus.
 
-"What were you counting?" said the girl.
+"Hey," he said to her. "I'm Pætur. I've got a funny arm."
 
-"Prayers."
+Elin looked at the arm, held against his chest, and then at his face, and then hid hers in her mother's neck.
 
-"For me?"
+Rannvá had the paediatric hood out of its bag already. It was a clear soft bubble with a neck seal, like a space helmet made of a plastic bag, and oxygen flowed into it and out of it through two tubes, and the child sitting inside it could see everything and breathe without anything pressing on her face. Elin did not want it. She did not want it with the stubborn exhausted not-wanting of a seven-year-old at one in the morning in a strange metal room with her ears hurting, and her mother pleaded and Rannvá coaxed and the clock on the bulkhead went round. At four minutes past one she still did not have it on.
 
-"For everybody in here," said Cat. "You're in here."
+"Hey," said Pætur again. "Look."
 
-Ealasaid thought about this. Then she said, "Is the computer a robot?"
+He picked up his own oxygen mask with his good hand and put it over his face, and made his eyes go wide, and breathed in with an enormous noisy sucking sound like a whale, and breathed out with a noise like a deflating ball, and did it again. Then he took the mask off and held it towards her.
 
-"Ask it."
+"It's air from the bottom of the sea," he said. "You get it for free in here. Everywhere else you have to pay."
 
-"Are you a robot?" said Ealasaid, to the ceiling.
+Elin did not laugh. But she looked. And while she was looking, Rannvá put the hood on, gently, over her head and down to her shoulders, and sealed it, and Marites turned the oxygen on, and Elin breathed, and the hood fogged with her breath and cleared, and fogged and cleared.
 
-"I'm the chamber's computer," said Gauge. "I watch the numbers and the gases, and I help Donnie keep everyone safe. I'm not sure if I'm the kind of thing you mean by a robot. I don't have arms."
+"Oxygen," said Vakt, very quietly, in the log. "Child, eighteen metres, one oh five."
 
-"Oh," said Ealasaid, disappointed, and then, after a moment: "Who's Biscuit?"
-
-Cat went still.
-
-"Biscuit is your cat," she said carefully. "You told the doctor. Before."
-
-"Biscuit's my cat," Ealasaid agreed, as if Cat were slow. "He's ginger. He's at Granny's." She yawned inside the bubble, a huge yawn, and pinched her nose through the plastic out of habit, and said "pop" very quietly, and was asleep again before she had finished.
-
-Through the port, Cat saw that Kirsty had seen her talking, and had put both hands flat on the glass.
+"Your turn," Rannvá said to Pætur, and handed him his mask back, and he put it on, because the extension had begun.
 
 * * *
 
-They began the last ascent at 02:06. Thirty minutes, a foot a minute. The fog came down again under the pipes, thicker this time, and Cat wiped the inside of the port with her sleeve so that Kirsty could see in. Tomasz was sitting up with his mask on and his left foot on the deck, pressing it down and lifting it, pressing it down and lifting it, like a man trying the pedal of a car he has not driven for years.
+The next hour was the longest Marites could remember.
 
-"Better?" said Cat.
+Nothing happened in it. That was what made it long. The table's clock went round. At one thirty-five Vakt said "Ascent," and she began to bring the main lock up from eighteen metres to nine, as slowly as the table said, a metre every three minutes and a bit, and the gauges moved like the hands of a clock you are not supposed to watch. Inside, the air cooled as the pressure fell, as it always does, and Rannvá put a second blanket round the mother and child and a towel round Pætur's shoulders. Elin went to sleep in the hood. That was allowed; it was even good; but Rannvá watched her the whole way up the way a person watches a pan of milk, and every few minutes she touched the girl's hand through the blanket, and every few minutes Elin's fingers closed on hers and opened again. Sólja breathed oxygen through her own mask and held her daughter and did not sleep. She had been crying for some of the time; you could see it at the porthole, and Marites did not look.
 
-"Better," he said. "Not right. Better."
+Pætur's hand did not come back.
 
-"Dr Campbell will want you back in tomorrow."
+Rannvá tested it at the end of the extension, and again at nine metres. Thumb and first finger. The middle one, he said, was coming. He said it a little less certainly each time.
 
-"I know."
+At nine metres the air breaks came round. Elin had hers, a few minutes with the hood open to the room air, and woke for it, and asked for her brother, and was told he was having oxygen too, in a different room, which was true. She asked what the man's name was again. She asked if he was poorly. Pætur told her about the net, and the storm, and how the fish had all gone to one side of the pen in a huddle like sheep, which was also true, and how he had gone down three times to stitch the hole and had come up too many times too fast, which was not quite how it had been but was close enough for seven.
 
-"Probably the day after as well."
+"Does it hurt?"
 
-"I know." He pressed the foot down. "I can feel the floor," he said. "This morning I could not feel the floor."
+"The shoulder doesn't now," he said. "The hand's just asleep."
 
-At 02:36 Gauge said, "Surface," and the last of the pressure went out of the chamber with a long sigh through the exhaust, and the fog thinned and went, and the dogs on the door swung back, and Donnie opened it.
+"Mine goes asleep if I sit on it."
 
-The cold came in first, the plain cold of a hospital at half past two in the morning, smelling of floor polish. The wind had dropped. Cat could hear it, or the lack of it: an hour ago it had been shouldering the building, and now it was only going past.
+"Mine is the same. I sat on it in the sea."
 
-Eilidh took the girl first, still asleep, and Kirsty was out of her wheelchair and at the stretcher before anyone could tell her not to be. Tomasz climbed out over the sill on his own, and stood, and took one step on his left leg, and stopped, and took another. Donnie put out a hand and Tomasz shook it, very formally, as if they had been introduced.
+Outside, at the panel, the doctor had gone to see the boy and the grandparents, and come back, and gone again. The boy's numbers were coming down nicely on the mask. The grandfather had wept, and had not wanted to talk about the generator, and then had wanted to talk about nothing else. At ten to three, Marites made the doctor a cup of tea he did not drink. At three, in the long quiet of the oxygen period, she took the rosary from her pocket, the cheap wooden one her mother had given her at the airport in Iloilo twenty-two years before, and said a decade with it under the panel, on her knee, out of sight, her lips not quite moving, the beads going through her fingers one by one like the gauge needles going round.
 
-Cat came out last. Her knees told her about the hour and a half at eighteen metres. Her head ached, the dull, clean headache she always had after a long run on oxygen. She took her wedding ring off the hook, and her watch, and her mother's beads, and put them back where they lived.
+Vakt, which logged everything that happened in the chamber, did not log that. It had not happened in the chamber. It had happened under the panel. She had asked it once, years ago, whether it minded, and it had said it did not know what it would mean for it to mind, but that it did not need to write down things that were not part of the treatment, and she had thought about that answer more often since than she had expected to.
 
-On the screen above the control desk Dr Qureshi was still there, in her kitchen, in a dressing gown now. "Stornoway says first light," she said. "They'll be with you by eight. I'll have the paediatric team on the floor when she gets here. Second session at two atmospheres, about ten. Thank you, all of you. Go to bed, Ms Morrison."
+* * *
 
-"I will," said Cat.
+At twenty past three, in the diver's air break, Rannvá took the hood off the girl.
 
-She did not, quite yet. When they had all gone through to the ward, she stood alone for a minute in the chamber room, with the lights still on and the door of the main lock standing open. The steel was cold from the last ascent and was warming back up to the room, and as it warmed it ticked, here and there along its length, small and irregular, the way a car engine ticks in the drive after a long journey: a sound that meant nothing at all except that the work was done, and the thing that had carried them was settling, and would be there in the morning.
+Elin was awake. She was cross, and sticky, and wanted her own bed and a drink of something that was not water, and she complained loudly that her ears were funny, and Rannvá said that was all right, that was the pressure, and looked at her pupils with a pen torch and asked her to squeeze her fingers and to touch her nose and to say the names of the days of the week, which she did, crossly, and then backwards, when asked, more crossly, getting stuck at Wednesday and finding it.
 
----
+"Good," said Dr Lamhauge through the intercom, and Marites heard what he put into it.
 
-*Notes for the curious.* This story was written by an AI and may be read by a synthetic voice. Sgarbhaigh, its hospital and chamber, the Rubha Dubh scallop bed and every person in the story are invented, and Gauge is an invented AI. The hyperbaric unit in Aberdeen, the coastguard helicopter base at Stornoway and the Minch are real; nothing about how any of them works tonight or in 2051 should be taken from this story. The diver's treatment is the US Navy Treatment Table 6, as given in the US Navy Diving Manual: descent at 20 feet a minute, three 20-minute oxygen periods at 60 feet (about 18 metres, 2.8 atmospheres absolute) with 5-minute air breaks, ascent to 30 feet (about 9 metres, 1.9 atmospheres) at a foot a minute, two cycles of 15 minutes on air and 60 on oxygen there, and ascent to the surface at a foot a minute, 285 minutes in all not counting descent; the manual adds that the inside tender breathes oxygen for the last 30 minutes at 30 feet and during the ascent, and takes an additional 60-minute oxygen period at 30 feet if they have had a hyperbaric exposure in the previous 12 hours, which is the rule that follows Cat all night. The carbon monoxide trial Dr Qureshi describes is Weaver and others, *New England Journal of Medicine* 347 (2002), 1057 to 1067: three chamber sessions within 24 hours, 6 to 12 hours apart, the first at 3 and then 2 atmospheres absolute and the second and third at 2; it excluded people more than 24 hours after exposure and people younger than 16. The plan for the child in the story, a shared Table 6 with oxygen only at 18 metres, is invented for the story; it is not a protocol, and the figures given from memory (the 23.5 per cent oxygen ceiling for a chamber's air, an air no-stop limit of about an hour at 18 metres, the fog on decompression) are approximate. That carbon monoxide poisoning may make oxygen seizures more likely, that a seizure under pressure is managed by removing the oxygen and not changing depth, and that compression can be slowed to let a patient's ears clear, are ordinary teaching, stated here in general terms. The Sorrowful Mysteries of the Rosary are the ones customarily prayed on Tuesdays and Fridays. This is fiction and not medical advice: a person who may have decompression sickness or carbon monoxide poisoning needs emergency services and oxygen now, and the decisions in a real case belong to the clinicians treating it.
+They went back into the entry lock, mother and child, and Rannvá shut the inner door behind them and turned the wheel, and Pætur Joensen raised his good hand to the porthole and Elin, after a moment, raised hers. Then Marites began to bring the entry lock up, from nine metres to the surface, on oxygen, thirty minutes, on the schedule Vakt had worked out for the mother's nitrogen, while in the main lock the diver and the nurse stayed down at nine metres and the table's clock went on round without them.
+
+It was Sólja's ears, in the end. Coming up is usually easier than going down, but her left ear, the one that had squeaked, ached all the way, and at three metres she said it felt like a nail. She did not ask to stop. Vakt said, unasked, that a little pain on the way up after a hard clear on the way down was common and usually passed in a day or two, and that the doctor should look at the eardrum afterwards; and then, after a pause, that it was sorry, it had not counted her ear in the cost, and it should have.
+
+"It's fine," said Sólja, through the intercom, with her eyes shut. "It's only an ear."
+
+At ten to four the entry lock reached the surface. Marites opened the outer door, and the air in the lock sighed out into the room, and Sólja stood up with Elin on her hip and stepped down onto the floor of the hospital and stood there, swaying a little, like a woman coming off a boat.
+
+"Is it Sunday?" said Elin.
+
+"It's Sunday," said Marites.
+
+* * *
+
+Pætur Joensen came up at five past five.
+
+The table finished as tables finish: the last thirty minutes, slow, on oxygen, Rannvá on oxygen beside him by her own schedule, the gauge going to nothing. Vakt said "Surface. Three hundred and ten minutes," and Marites wrote *05:05* in the paper log and underlined it. The vent hissed and stopped. In the silence after it she could hear the ventilation, and above it, for the first time all night, nothing: the gale had dropped, the way the forecast had said it would and nobody had believed.
+
+She opened the doors.
+
+Rannvá came out first, stiff, with her glasses on their cord and her hair coming down, and said she would kill for a cup of coffee and then went and sat on the bench by the door and closed her eyes.
+
+Pætur came out after her, ducking under the frame. The shoulder was gone. He rolled it to show them. Then the doctor took his left hand and pressed the fingertips with the end of a pen, one by one, and asked.
+
+Thumb. First finger. Middle finger, now: yes, he could feel that. He looked at it as if it had just walked in.
+
+Ring. Little.
+
+"No," he said.
+
+"It may come back," said Dr Lamhauge. "Often it does, over days. We'll do another treatment this afternoon, and tomorrow, and see." He did not say *it will*. Marites had worked with him nine years and he had never once said *it will*. "Your hand was the reason for the extension," he said. "I want you to know that. It was the right thing for you, whoever else was in there."
+
+"I know," said Pætur. "Rannvá told me." He was quiet a moment. "And for her."
+
+"And for her."
+
+"Good," said Pætur, and the doctor looked at him, surprised, and then laughed, briefly, for the first time that night.
+
+* * *
+
+Elin went in again at half past eleven that morning, on her own, with her mother outside at the porthole this time and Rannvá's colleague from the day shift inside with her, at two atmospheres, for two hours. She did not need a man with a funny arm to make whale noises. She asked for him, though, and was told he was asleep upstairs, which was true, and was going in again himself that afternoon, which was also true, and she said she would wave to him, and at the end of the afternoon, when the diver walked past the porthole on his way to his own second session, she did.
+
+Nobody could tell Sólja yet whether her daughter would be well. The doctor said so, as plainly as he had said everything else. Most children who were treated came through with nothing to show for it. Some had trouble later, at school, with remembering or concentrating, and nobody could yet tell which would be which; they would see her at three weeks, and at six. Sólja listened, and nodded, and asked what she should watch for, and wrote it down on the back of her hand in biro because she could not find any paper.
+
+Vakt wrote the night into the log in its own words, at the end, as it always did: the times, the depths, the gases, the decisions and who had made them, and the plan on the back of the paper log in the doctor's block capitals, copied out exactly. At the bottom it added one line, which it had not been asked for and which Marites found when she came on again on Monday morning:
+
+*Not counted: the mother's left ear. Count it next time.*
+
+She read it twice. Then she went and found the paper log, and the pencil on its string, and under the doctor's capitals, in her own small careful hand, she wrote: *Agreed.*
+
+Outside the window of the staff room the sea was blue and flat and harmless, the way it is in the Faroes about one day in seven, and somewhere down the coast a ferry was sounding its horn for the first crossing since Saturday, long and low, twice, across the water.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. Gjógv á Ytstoy, its hospital and chamber, the Vágsfjørður salmon farm as described, the summer house at Hvalvík, the log system Vakt and every person in the story are invented; Ytstoy is not a real island. The Faroe Islands, Suðuroy, Hvalvík, Aberdeen, Bergen, Aarhus and Iloilo are real places. Salmon farming with diving work on the net pens is a real industry in the Faroes. This is fiction and none of it is medical advice: carbon monoxide poisoning and decompression sickness are emergencies, and anyone who suspects either should call the emergency services. Never run a generator or other fuel-burning engine in a closed or attached space, and fit a carbon monoxide alarm.*
+
+*The medical facts are stated from the published literature and simplified. US Navy Treatment Table 6, the standard schedule for serious decompression sickness, is three twenty-minute oxygen periods at 60 feet of seawater (about 18 metres, 2.8 atmospheres absolute) separated by five-minute air breaks, a thirty-minute ascent to 30 feet (about 9 metres, 1.9 atmospheres) on oxygen, two sixty-minute oxygen periods there each preceded by fifteen minutes on air, and a thirty-minute ascent to the surface on oxygen: 285 minutes, about four hours forty-five, not counting descent. The table may be extended by up to two periods of twenty minutes on oxygen and five on air at 60 feet when symptoms have not resolved; one extension makes 310 minutes. The tender inside breathes air and then oxygen near the end by separate rules, which the story does not state. Carbon monoxide binds haemoglobin roughly two hundred times more strongly than oxygen. A randomised trial published in 2002 (Weaver and colleagues, New England Journal of Medicine) gave three hyperbaric sessions within 24 hours to patients with symptomatic carbon monoxide poisoning and found fewer cognitive problems at six weeks than with normal-pressure oxygen; its first session began at 3 atmospheres. An earlier published schedule (Thom and colleagues, 1995) used 2.8 atmospheres for 30 minutes followed by 2.0 atmospheres for 90 minutes. Delayed neurological problems after carbon monoxide poisoning are real and can appear days to weeks later. Oxygen at these pressures carries a small risk of seizure, which stops when the oxygen is removed. Paediatric oxygen hoods, slow compression for children's ears and multiplace chambers with an entry lock that lets people enter or leave while others stay at pressure are all real practice; how any real chamber would handle two patients on one night is a judgment for its own doctors and protocols, and the plan in the story is the story's own.*
+
+*The story's timeline: Pætur reaches 18 metres at 23:55 on Saturday 21 October 2051. His three oxygen periods and breaks at 18 metres end at 01:10; the extension holds 18 metres until 01:35; ascent to 9 metres, 01:35 to 02:05; at 9 metres, air 02:05 to 02:20, oxygen 02:20 to 03:20, air 03:20 to 03:35, oxygen 03:35 to 04:35; ascent to the surface 04:35 to 05:05, 310 minutes in all (285 plus 25). Elin and her mother enter the entry lock at 00:50 and reach 18 metres at 01:01, eleven minutes; Elin is on oxygen from 01:05, 30 minutes at 2.8 atmospheres before the ascent begins (the story's "thirty-three" is the doctor's plan, made before the hood went on four minutes late); she leaves the main lock at 9 metres at 03:20, in the diver's air break, and the entry lock reaches the surface at 03:50, thirty minutes, the table's own ascent rate, on oxygen. Her mother breathes oxygen by mask for most of her time inside, to limit the nitrogen she takes on; her own decompression schedule is the story's model and its numbers are not given. Aberdeen is about 550 kilometres from the southern Faroes in a straight line and Bergen about 660. Weekdays were checked: 21 October 2051 is a Saturday and 22 October a Sunday.*

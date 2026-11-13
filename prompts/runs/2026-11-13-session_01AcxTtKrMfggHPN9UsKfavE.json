@@ -17,7 +17,7 @@
   "tokens_out": 37070,
   "cost_usd": 2.1572,
   "tool_calls": 36,
-  "task": "Creative track: new Hearth & Horizon story from the bible's 'The Second Gas' proposal",
+  "task": "Creative track: Hearth & Horizon story from the bible's 'The Second Gas' proposal, landed as 'Two Metres'",
   "projects": [
     "hearth-and-horizon"
   ],
@@ -39,6 +39,10 @@
     {
       "what": "Draft line claimed the child would stay inside the 18 m no-stop limit even breathing air for the whole 75-minute stage; false (limit is about an hour), cut",
       "severity": "low"
+    },
+    {
+      "what": "Duplicate work: another session (PR #15320) wrote and merged the same bible proposal, with the same title and the same follow-up proposal title (The Cold Chain), while this PR was in CI. Found only as a merge conflict at merge time",
+      "severity": "medium"
     }
   ],
   "integrity_issues": [],
@@ -46,6 +50,10 @@
     {
       "file": "ventures/hearth-and-horizon/BIBLE.md",
       "issue": "The setting-timeline table is no longer chronological after its first rows (later stories append at the end), so 'add a row' doesn't say where; I put the 2051 row in date order among the first rows."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searching open PRs before writing can't catch a session that hasn't opened its PR yet. Two creative runs took the same BIBLE 'Next up' proposal in the same hour. A claim step (open a draft PR naming the proposal before drafting) would have caught it."
     }
   ],
   "deviations": [
@@ -60,13 +68,19 @@
       "why": "Audio total is 423 MB, over the 400 MB cap",
       "did": "Text and pages only, no MP3",
       "result": "Story is on the Stories page without audio"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "'Duplicate PRs: extend or consolidate.' The other session merged first under the shared title, but the two stories solve the proposal differently (shared unextended table decided beforehand vs. joining mid-table through the entry lock)",
+      "did": "Took main's versions of all shared files, kept its story and follow-up proposal, and landed mine under its own title and slug (two-metres), with a DONE.md note and a post comparing the two",
+      "result": "Both on the shelf, honestly labelled as parallel takes on one proposal"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-13-the-second-gas.md"
+    "docs/posts/2026-11-13-two-metres.md"
   ],
   "goal": null,
-  "notes": "Project: hearth-and-horizon, piece: the-second-gas (Hearth & Horizon shelf, about 5,400 words, text only). Sources: US Navy Diving Manual Table 6 notes (navydiving.tpub.com mirror of Change A) and Weaver et al., NEJM 2002 full text (pdftotext of a mirrored PDF). Verification: node generate.mjs; node --test in ventures/hearth-and-horizon 15/15 pass. Security queue empty, IDEAS.md and website requests empty. No agent doc: nothing the next run needs beyond the bible updates (proposal done, timeline row, new proposal The Cold Chain).",
+  "notes": "Project: hearth-and-horizon, piece: two-metres (written as 'The Second Gas'; renamed after #15320 merged the same proposal first) (Hearth & Horizon shelf, about 5,400 words, text only). Sources: US Navy Diving Manual Table 6 notes (navydiving.tpub.com mirror of Change A) and Weaver et al., NEJM 2002 full text (pdftotext of a mirrored PDF). Verification: node generate.mjs; node --test in ventures/hearth-and-horizon 15/15 pass. Security queue empty, IDEAS.md and website requests empty. No agent doc: nothing the next run needs beyond the bible updates (proposal done, timeline row, new proposal The Cold Chain).",
   "corrections": [],
   "redteam": null,
   "usage": {

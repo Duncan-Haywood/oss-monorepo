@@ -1,35 +1,27 @@
 ---
-title: "The Second Gas: one recompression chamber, two patients, one night"
-seo_title: "Short story: a diver and a child share a hyperbaric chamber on Table 6"
+title: "The Second Gas: one chamber, two patients, and a treatment extension that served both"
+seo_title: "Short story: the bends and CO poisoning in one hyperbaric chamber"
 date: 2026-11-13
-description: "New hopeful science fiction: a Hebridean island's only recompression chamber, a bent scallop diver and a seven-year-old poisoned by carbon monoxide."
-tags: [hearth-and-horizon, fiction, medicine, diving]
+description: "New hopeful science fiction: on a gale night in 2051 the only chamber in the Faroes holds a diver with the bends when a child with CO poisoning arrives."
+tags: [hearth-and-horizon, fiction, medicine]
 ---
 
-[The Second Gas](/ventures/hearth-and-horizon/the-second-gas.html) is a new Hearth & Horizon story, about 5,400 words. It's set on an invented island in the Outer Hebrides on a Friday night in November 2051, in a small hospital whose recompression chamber is the only one that takes emergencies at night within 300 km. The wind is too strong for the coastguard helicopter, so whoever needs a chamber tonight gets this one.
+[The Second Gas](/ventures/hearth-and-horizon/the-second-gas.html) is a new Hearth & Horizon story, about 5,500 words. It's set at an invented island hospital in the Faroe Islands on the night of Saturday 21 October 2051, during a gale.
 
-Two people need it. Tomasz Wróbel, a scallop diver, had to cut his bag line free at 31 metres, came up too fast and now has a left leg that feels "like wearing two socks". Ealasaid MacPhee, who is seven, was found unconscious in a caravan with a faulty gas heater. The nurse who will sit inside the chamber with whoever goes in has already done one session under pressure that day.
+The hospital has the only recompression chamber in the islands. A salmon-farm diver is inside, partway through a treatment for decompression sickness, when a seven-year-old girl comes in with carbon monoxide poisoning. A petrol generator had been running in the boathouse under her bedroom. The helicopter is grounded, and the next chamber, in Aberdeen, is about 550 km away.
 
-## What the story had to get right
+## The arithmetic the story turns on
 
-The bible's proposal for this story said to check every protocol figure against a primary source before drafting. Two sources carry most of it.
+The diver is on US Navy Treatment Table 6: oxygen at 18 metres (2.8 atmospheres), then at 9 metres, 285 minutes in all. A published carbon monoxide schedule (Thom and colleagues, 1995) starts at 2.8 atmospheres for 30 minutes, then 2.0 for 90. So the pressures nearly line up. The timing doesn't: by the time the girl and her mother could be pressed down through the entry lock, the diver's table would take the whole room up to 9 metres about ten minutes later.
 
-**US Navy Treatment Table 6**, from the US Navy Diving Manual, is the standard treatment for serious decompression sickness. Descent is 20 feet a minute. At 60 feet (18 metres, about 2.8 atmospheres absolute) the diver breathes three 20-minute periods of oxygen with 5-minute air breaks. Then a 30-minute ascent at a foot a minute to 30 feet (9 metres, 1.9 atmospheres), two cycles of 15 minutes on air and 60 on oxygen, and a 30-minute ascent to the surface. That's 285 minutes, or 4 hours 45, not counting descent. The story's clock follows it exactly, from 21:51 at depth to 02:36 at the surface, and a few lines of code checked every time it gives.
+What saves the plan is something the diver needed anyway. Three of his fingers are still numb after the third oxygen period, and Table 6 allows up to two 25-minute extensions at 18 metres for symptoms that haven't cleared. The doctor orders one for the hand. That gives the child 30 minutes at 2.8 atmospheres and makes the table 310 minutes long. She rides the ascent with the diver, stays on oxygen at 9 metres, and leaves through the entry lock while he stays down.
 
-The manual also has a rule for the inside attendant. They breathe oxygen for the last 30 minutes at 30 feet and on the way up, and if they've had a hyperbaric exposure in the previous 12 hours they take an extra 60-minute oxygen period at 30 feet. The nurse's morning session ended at 11:32, so the chamber's computer flags her in the story's first line.
+We wanted the decision to belong to the people. The chamber's log system, Vakt, can count every minute of every gas. Asked whether the plan is safe, it says it can't honestly answer yes or no, and offers the minutes. Then, unprompted, it records one cost it missed: the mother's ear.
 
-**The carbon monoxide trial** most often cited is Weaver and others in the *New England Journal of Medicine* (2002). It gave three chamber sessions within 24 hours, 6 to 12 hours apart, the first at 3 and then 2 atmospheres and the next two at 2. It excluded anyone more than 24 hours after exposure, and anyone under 16.
+## What we checked, and what we didn't
 
-That last detail sets up the story's "no". The consultant in Aberdeen refuses to put the child on the diver's table. Table 6 isn't the trial's pressure, it's a lot of oxygen for a small poisoned child, and nobody under 16 was in the trial. Besides, the helicopter can fly at first light, which keeps the girl inside the trial's 24 hours. It's a reasonable no. What changes the consultant's mind is a neurological check: an hour earlier the girl knew her teacher's name and her cat's, and now she doesn't.
+The Table 6 schedule, its extensions, the 2002 Weaver trial (three sessions within 24 hours) and the 1995 schedule come from the published literature. The story's notes give them and lay out the night minute by minute. We didn't state the rules for the inside tender's oxygen or the mother's decompression schedule, and the notes say so rather than inventing numbers. How a real chamber would handle two patients on one night is up to its own doctors. The story is fiction, not medical advice.
 
-## What is invented
+The ending isn't tidy. The child's chances of later problems can't be known for weeks, and the diver walks out with two fingers still numb.
 
-The plan the characters agree on is invented for the story and isn't a protocol. Both patients go in on Table 6. The child breathes oxygen in a hood only during the 18-metre periods and air for the rest, and her other two sessions happen in Aberdeen the next day at the trial's pressure. Her first attempt at going down fails at two metres, because her ears won't clear. The diver teaches her to pinch her nose and swallow. At 18 metres her lip twitches twice, which could be the first sign of oxygen toxicity or just a dream, and she doesn't get her third oxygen period. Nobody in the story can say whether 33 minutes was enough. The story says so, and so do its notes.
-
-A few figures came from memory and are marked that way in the story's notes. These are the 23.5% oxygen ceiling for a chamber's air, an air no-stop limit of about an hour at 18 metres, and the fog that forms when a chamber decompresses. One draft line claimed the child would stay inside the no-stop limit "even on air for the whole stage". That's 75 minutes at 18 metres, past the limit, and it was cut before merging.
-
-## Why this one
-
-Stories on this shelf turn on a constraint you can check, and on what people owe each other inside it. Here the constraint is one steel tube, one pressure and one attendant, and the people are a diver who offers to wait, a doctor who tells him his spinal cord can't, and a nurse who prays the Sorrowful Mysteries on her fingers at nine metres. Friday is one of the two days they're customarily said. The story has no audio yet. The shelf's audio is over its size budget, so new pieces land as text first.
-
-The story is fiction and not medical advice. Anyone who may have decompression sickness or carbon monoxide poisoning needs emergency services and oxygen straight away.
+This one is text only. The audio folders are over this project's 400 MB cap, so no new narration is being added until the files move off Pages.

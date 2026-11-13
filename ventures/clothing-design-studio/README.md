@@ -66,6 +66,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `wardrobe.mjs`, `wardrobe.html` | Capsule wardrobe from a profile, outfit count, first drop within a budget |
 | `camera.mjs`, `camera.html` | Photo and live-camera try-on: tap two shoulders, the garment outline in the chosen size is scaled (shoulder span over the body model's shoulder width) and rotated onto the picture; on-device. `pose.mjs`: "Find my shoulders" places the two points with an on-device pose model (MediaPipe, loaded on click) |
 | `fit.mjs`, `fit.html` | Size from body measurements with ease per size; size run for a quantity from the audience chest curve; typical size chart, replaceable by the factory's |
+| `drape.mjs`, `drape.html` | Virtual sewing and drape: the drafted front and back panels meshed, sewn at shoulders and side seams around a body from chest/waist/hip/height, settled under gravity (XPBD); stretch, gap, touch and Laplace pressure at chest, waist, hip and hem, hem height, front/side/back views coloured by stretch. Body panels only |
 | `markets.mjs`, `prices.html` | One margin target to a shelf price per market (EU/UK VAT included, US before sales tax), price endings, the real margin at the rounded price. VAT rates are standard rates cross-checked against commercial 2026 tables on 2026-11-05 (not the Commission's own table, unreachable), editable |
 | `duty.mjs`, `duty.html` | Landed cost into the US, EU and UK: duty on the right customs value (US factory price only; EU and UK factory price plus freight and insurance), extra-tariff field, zero-duty least-developed-country origins only with an origin proof, import VAT shown apart, freight per garment. Duty rates for four knitted garment types are typed from memory and unchecked (official tariff sites blocked from the build host, 2026-11-06); hand-worked tests only |
 | `labels.mjs`, `labels.html` | Fibre-content label wording for the EU (8 languages) and US, checklist of other required label items, starting care text |
@@ -106,6 +107,87 @@ and run it yourself.
 
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
+
+## Virtual drape: the pattern sewn onto a body (2026-11-13)
+
+`drape.mjs` and `drape.html`. The interviews asked to see a garment on the
+wearer, and every earlier view (`garment3d.mjs`, `tryon.mjs`) was geometry
+with "no drape". This is cloth: the drafted front and back stitch lines from
+`pattern.mjs` are meshed on a grid (2.5 cm by default), each grid edge is an
+XPBD spring set from the fabric's tensile stiffness Kt (N/m) and the mass
+from its g/m2, the shoulder and side seams are pulled shut with gravity off,
+then gravity settles the garment on a body of stacked ellipses whose girths
+are the chest, waist and hip entered (height proportions as in `tryon.mjs`;
+contact along the surface normal with friction). It reports, at chest, waist,
+hip and hem: stretch round the body (area-weighted course strain), the most
+stretched triangle, the mean gap to the body, the share of cloth touching,
+and pressure by Laplace's law (Kt x strain / girth radius); plus the hem
+height against a straight drop of the pattern length from the HPS, seam gaps,
+points inside the body and whether it settled. Front, side and back SVG views
+are drawn back to front, coloured by stretch.
+
+**Checked against closed forms** (`node --test drape.test.mjs`, 7 tests, about
+5 s): a strip hanging under its own weight stretches rho g L^2 / 2Kt (within
+2% at 1.25 and 2.5 cm meshes; before outline springs were given half a cell
+it stretched 11% and 23% too little, depending on the mesh, which is how that was found);
+a stiff strip between two pins sags like the catenary of its length (within
+3%); a tube 10% short of a 10 cm cylinder takes the hoop strain the girths
+dictate (within 0.01), and the contact force the solver feels approaches
+Laplace's law as the step shrinks (0.46, 0.77, 0.95 of T/R at 1 cm/32,
+2 cm/32 and 2 cm/64 substeps: one XPBD iteration softens a constraint by
+1/(1 + k w dt^2)), so the page reports T/R from the strain rather than the raw
+contact force. Garment tests: a regular M tee on a 100 cm chest hangs with no
+stretch; a slim XS (90 cm garment chest) stretches 12.3% round the chest,
+touches all round, and nothing passes through the body.
+
+**Measured on one body** (chest 100, waist 88, hip 98, height 178 cm; jersey
+preset 160 g/m2, 60 N/m; `node eval/drape-sizes.mjs`, 24 drapes, all settled,
+0.8-1.3 s each in Node):
+
+| garment | fit | size | tape ease at chest (cm) | chest stretch % | chest clearance (cm) | chest touching % | chest pressure (mmHg) | hem stretch % | hem higher than flat (cm) | seam gap (cm) | settled | ms |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tee | slim | XS | -10 | 12.3 | 0.2 | 100 | 0.3 | 10.1 | 0.4 | 0.32 | yes | 1268 |
+| tee | slim | S | -2 | 2.9 | 0.2 | 100 | 0.1 | 0.8 | 6.9 | 0 | yes | 962 |
+| tee | slim | M | 6 | 0 | 0.6 | 67 | 0 | 0 | 6.3 | 0 | yes | 842 |
+| tee | slim | L | 14 | 0 | 1.5 | 54 | 0 | 0 | 6.2 | 0 | yes | 992 |
+| tee | regular | XS | -4 | 4.9 | 0.2 | 100 | 0.1 | 2.4 | 6.5 | 0 | yes | 920 |
+| tee | regular | S | 4 | 0 | 0.5 | 74 | 0 | 0.1 | 6.7 | 0 | yes | 795 |
+| tee | regular | M | 12 | -0.1 | 1.3 | 51 | 0 | 0 | 6.4 | 0 | yes | 840 |
+| tee | regular | L | 20 | -0.1 | 1.6 | 51 | 0 | 0 | 6.2 | 0 | yes | 933 |
+| crewneck | slim | XS | -6 | 7.3 | 0.2 | 100 | 0.2 | 3.4 | 5.3 | 0 | yes | 952 |
+| crewneck | slim | S | 2 | 0.1 | 0.3 | 75 | 0 | 0.1 | 6.9 | 0 | yes | 773 |
+| crewneck | slim | M | 10 | -0.1 | 1.1 | 48 | 0 | 0 | 6.6 | 0 | yes | 890 |
+| crewneck | slim | L | 18 | -0.1 | 1.6 | 48 | 0 | 0 | 6.5 | 0 | yes | 911 |
+| crewneck | regular | XS | 0 | 0.7 | 0.2 | 100 | 0 | 0 | 6.6 | 0 | yes | 828 |
+| crewneck | regular | S | 8 | 0.1 | 0.7 | 65 | 0 | 0 | 7.8 | 0 | yes | 851 |
+| crewneck | regular | M | 16 | -0.1 | 1.7 | 47 | 0 | 0 | 6.6 | 0 | yes | 916 |
+| crewneck | regular | L | 24 | -0.1 | 1.9 | 51 | 0 | 0 | 5.9 | 0 | yes | 950 |
+| hoodie | slim | XS | -2 | 2.7 | 0.2 | 100 | 0.1 | 0.2 | 7.4 | 0 | yes | 831 |
+| hoodie | slim | S | 6 | 0 | 0.6 | 61 | 0 | 0.1 | 7.2 | 0 | yes | 822 |
+| hoodie | slim | M | 14 | -0.1 | 1.4 | 56 | 0 | 0 | 6.4 | 0 | yes | 881 |
+| hoodie | slim | L | 22 | -0.1 | 1.7 | 47 | 0 | 0 | 5.7 | 0 | yes | 909 |
+| hoodie | regular | XS | 4 | 0 | 0.4 | 70 | 0 | 0.1 | 7.4 | 0 | yes | 798 |
+| hoodie | regular | S | 12 | -0.1 | 1.5 | 45 | 0 | 0 | 6.5 | 0 | yes | 798 |
+| hoodie | regular | M | 20 | -0.1 | 1.6 | 53 | 0 | 0 | 6.5 | 0 | yes | 993 |
+| hoodie | regular | L | 28 | -0.1 | 1.4 | 39 | 0 | 0 | 5.9 | 0 | yes | 966 |
+
+What the sweep says: stretch at the chest appears only when the tape ease is
+negative or about zero, and then it is close to the girth shortfall (tape
+ease -10 cm gives 12.3%, -4 gives 4.9%, -2 gives 2.7-2.9%); positive ease
+never stretches but the gap to the body saturates near 1.5-1.9 cm, because
+gravity lays the cloth on the chest and shoulder blades and the extra width
+falls into folds at the sides rather than standing off evenly. Every garment
+that is not stretched ends 5.7-7.8 cm higher than its body length measured
+straight down from the shoulder: that length goes over the shoulder and round
+the chest and back. A tight one ends lower (XS slim tee +0.4 cm) because the
+stretched cloth pulls down. These are model results on a smooth ellipse body
+with no arms; none has been compared with a real garment on a real person.
+
+Not yet: sleeves (and arms under them), hood, rib bands, anisotropic knit
+(course and wale differ a lot in real jersey), measured fabric stiffness (the
+presets are rough guesses; strain where tight is set by the body, pressure
+scales with Kt), and a body scan instead of ellipses. Usage events
+`drape_open`, `drape_run` (local counts only).
 
 ## Turntable preview (2026-11-04)
 

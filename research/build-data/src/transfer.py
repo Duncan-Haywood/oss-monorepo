@@ -56,6 +56,29 @@ def tailfold_map(frames, held, test_year, min_n=TAILFOLD_MIN_N, n_boot=2000, see
     return {c: into for c in flagged if c != into}, diag
 
 
+MINSUP_GRID = (100, 1000, 10000)  # session 81: k values tried on the validation year
+
+
+def minsup_map(frames, held, test_year, k):
+    """Session 81, the minimum-support rule, decided from the sources' training rows only.
+
+    A class with fewer than k source training rows (cities other than `held`, issue years <= Y-2,
+    the rows the transfer model is fitted on) is folded into "other" in every city, so the transfer
+    model never learns a class from a handful of borrowed rows. Session 80 found Austin's trade
+    classes taught by 42 to 466 slow Seattle rows. The held-out city's rows are never read.
+    Returns (fold dict, source row count per class)."""
+    src = [c for c in CITIES if c != held and c in frames]
+    tr = pd.concat([frames[c][frames[c].year <= test_year - 2] for c in src])
+    n = {c: int((tr.cls == c).sum()) for c in CLASSES}
+    return {c: "other" for c in CLASSES if c != "other" and n[c] < k}, n
+
+
+def minsup_k(name):
+    """'cascade2_minsup1000' -> 1000; None for any other configuration name."""
+    m = re.fullmatch(r"cascade2_minsup(\d+)", name)
+    return int(m.group(1)) if m else None
+
+
 def apply_fold(frames, fold):
     """Copy of frames with classes merged per `fold`; the pre-fold class kept as cls_unfolded."""
     out = {}
