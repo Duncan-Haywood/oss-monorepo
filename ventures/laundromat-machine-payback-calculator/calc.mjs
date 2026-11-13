@@ -19,12 +19,14 @@ const num = (v, d = 0) => {
 // Header optional.
 export function parseMachines(text) {
   const rows = [];
-  let skipped = 0;
+  let skipped = 0, split = 0;
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
     const cells = splitCells(line);
     if (cells.length < 4) { skipped++; continue; }
+    // More than six cells means an unquoted thousands comma ($4,800) split a number; reading on would turn it into $4.
+    if (cells.length > 6) { split++; continue; }
     const count = num(cells[1], NaN), price = num(cells[2], NaN), turns = num(cells[3], NaN);
     if (!Number.isFinite(count) || !Number.isFinite(price) || !Number.isFinite(turns)) { if (rows.length || !/count|machine|name|type/i.test(line)) skipped++; continue; }
     const util = num(cells[4], 0), install = num(cells[5], 0);
@@ -32,6 +34,7 @@ export function parseMachines(text) {
     rows.push({ name: cells[0] || "Machine", count, price, turns, util, install });
   }
   const warnings = skipped ? [`${skipped} machine line(s) skipped (need a name, a count, a positive price and turns per day).`] : [];
+  if (split) warnings.push(`${split} machine line(s) skipped: more than six columns, likely an unquoted comma in a number. Write 4800 or "$4,800".`);
   if (!rows.length) return { error: "Add at least one machine line: name, count, price per cycle, turns per day, utility cost per cycle, installed cost per machine." };
   return { rows, warnings };
 }

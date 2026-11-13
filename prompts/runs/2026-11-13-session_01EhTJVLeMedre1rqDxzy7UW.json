@@ -1,0 +1,213 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVLeMedre1rqDxzy7UW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled routine 4: continue work on the repo (redteam route)",
+  "input_sha256": "c80472c440e6cffa56577a5e330d40820a7301f966c54e919e8de1b69f97fad3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T14:32:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam campaign on ventures/shift-roster-builder/demand.mjs",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15525",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "campaign runs the whole venture suite (node --test ventures/<slug>/**/*.test.mjs, ~100-150 s here because calc.test.mjs takes 95 s), not the target's own 3 s test file, so 10 mutants took ~25 min and rerun another ~12. The prompt's 'suite time' advice reads as the target's test file; say it is the venture's full suite, or let campaign take --suite."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-opening-at-five-pm-closing-at-nine-am.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: all 9 open entries are control-plane workflow edits already in open PRs awaiting owner approval; none fixable from this branch. Campaign 10 mutants, 3 caught; 2 equivalent, 5 gaps guarded, rerun caught_after_fix true for all 5; the second copy of the day-first regex (readStandard, line 401) mutated by hand and caught. Two real defects (open/close validation, Swiss amounts) patched with tests. Guard class: validation moved into headcount (library), so CLI, page and any future caller get it. Full venture suite run locally: see PR.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/shift-roster-builder/demand.mjs",
+        "test": "node --test ventures/shift-roster-builder/**/*.test.mjs  (in .)",
+        "seed": 51006132,
+        "commit": "6afa51aaf",
+        "sites": 1470,
+        "baseline_seconds": 147.7,
+        "mutants": [
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 56,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "const isoKey = (k) => String(k).trim().replace(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);",
+            "after": "const isoKey = (k) => String(k).trim().replace(/^(\\d{4})-(\\d{2,2})-(\\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);",
+            "line_text": "const isoKey = (k) => String(k).trim().replace(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);",
+            "caught": false,
+            "seconds": 148.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "skipDates typed 2026-3-02 (one-digit month, padded day) stopped matching; test added"
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 129,
+            "col": 57,
+            "operator": "minus-to-plus",
+            "before": "if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;",
+            "after": "if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo + 1 || t.getUTCDate() !== d) return null;",
+            "line_text": "  if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;",
+            "caught": true,
+            "seconds": 144.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 129,
+            "col": 61,
+            "operator": "or-to-and",
+            "before": "if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;",
+            "after": "if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 && t.getUTCDate() !== d) return null;",
+            "line_text": "  if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;",
+            "caught": false,
+            "seconds": 147.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "readStamp's calendar check: a day that overflows (Feb 31, day 0, day 99) always lands in another month AND on another day number (overflow by under a year cannot reach the same month, and the landed day is always smaller than the typed one or, for day 0, 28-31), so || and && agree on every input the regex lets through"
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 286,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const m = /^(?:[a-z]+[.,]?\\s+)?(\\d{1,2})([\\/-])(\\d{1,2})\\2(\\d{2}|\\d{4})(?!\\d)/i.exec(t);",
+            "after": "const m = /^(?:[a-z]+[.,]?\\s+)?(\\d{1,3})([\\/-])(\\d{1,2})\\2(\\d{2}|\\d{4})(?!\\d)/i.exec(t);",
+            "line_text": "    const m = /^(?:[a-z]+[.,]?\\s+)?(\\d{1,2})([\\/-])(\\d{1,2})\\2(\\d{2}|\\d{4})(?!\\d)/i.exec(t);",
+            "caught": false,
+            "seconds": 148.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a stray 3-digit first number ('123/01/2026') flipped the whole file to day-first; test added for this copy and the readStandard copy"
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 422,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "if (!Number.isFinite(items) || String(c[qty] ?? \"\").trim() === \"\") { out.skipped.push(`row ${i + 2}: could not read the quantity \"${c[qty] ?? \"\"}\"`); return; }",
+            "after": "if (!Number.isFinite(items) && String(c[qty] ?? \"\").trim() === \"\") { out.skipped.push(`row ${i + 2}: could not read the quantity \"${c[qty] ?? \"\"}\"`); return; }",
+            "line_text": "      if (!Number.isFinite(items) || String(c[qty] ?? \"\").trim() === \"\") { out.skipped.push(`row ${i + 2}: could not read the quantity \"${c[qty] ?? \"\"}\"`); return; }",
+            "caught": false,
+            "seconds": 147.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "labour standard with an unreadable quantity ('abc') went on with NaN minutes; test added"
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 699,
+            "col": 73,
+            "operator": "const-plus-one",
+            "before": "const firstH = [...Array(24).keys()].find(trades), lastH = [...Array(24).keys()].reverse().find(trades);",
+            "after": "const firstH = [...Array(24).keys()].find(trades), lastH = [...Array(25).keys()].reverse().find(trades);",
+            "line_text": "    const firstH = [...Array(24).keys()].find(trades), lastH = [...Array(24).keys()].reverse().find(trades);",
+            "caught": false,
+            "seconds": 149.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "lastH over 25 keys: trades(24) reads hours[24], undefined, so it is never a trading hour and find skips it"
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 710,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "if (o.seen && !o.keepRare && o.open === undefined && o.close === undefined && observed[d] >= 20) {",
+            "after": "if (o.seen && !o.keepRare && o.open === undefined && o.close === undefined && observed[d] >= 21) {",
+            "line_text": "    if (o.seen && !o.keepRare && o.open === undefined && o.close === undefined && observed[d] >= 20) {",
+            "caught": false,
+            "seconds": 148.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the break floor of 20 weekday dates was untested at the boundary; test with exactly 20 dates added"
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 827,
+            "col": 24,
+            "operator": "lt-to-le",
+            "before": "for (let j = i; j < R; j++) {",
+            "after": "for (let j = i; j <= R; j++) {",
+            "line_text": "      for (let j = i; j < R; j++) {",
+            "caught": true,
+            "seconds": 150.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 914,
+            "col": 85,
+            "operator": "eq-flip",
+            "before": "const cands = b.methods.filter((m) => m.id === pre + \"all\" || ids.some((x) => m.id === pre + x));",
+            "after": "const cands = b.methods.filter((m) => m.id === pre + \"all\" || ids.some((x) => m.id !== pre + x));",
+            "line_text": "  const cands = b.methods.filter((m) => m.id === pre + \"all\" || ids.some((x) => m.id === pre + x));",
+            "caught": false,
+            "seconds": 152.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "with --short-cost backtestSales also returns the plain 'all' method; the mutant let it be chosen and the note claimed a gain over equal weights; test over four short costs added"
+          },
+          {
+            "file": "ventures/shift-roster-builder/demand.mjs",
+            "line": 1081,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "const w = rc === null ? 1 : rc;",
+            "after": "const w = rc !== null ? 1 : rc;",
+            "line_text": "    const w = rc === null ? 1 : rc;",
+            "caught": true,
+            "seconds": 151.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/shift-roster-builder/demand.mjs",
+        "issue": "--open/--close accepted any non-negative number: '--open 17 --close 9' or '--close 25' gave an empty shift list with no note. headcount now requires whole hours 0-24 with open < close and throws a plain message; an opening hour after the last sale adds a 'nothing was planned' note. Test: demand.test.mjs '--open/--close out of range'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/shift-roster-builder/demand.mjs",
+        "issue": "readAmount stripped the CHF code but read the Swiss grouping \"1'234.50\" (and 1’234.50) as NaN, so those rows were skipped as unreadable sales. Now read; '12'34' still refused. Test: demand.test.mjs 'Swiss amounts'.",
+        "patched": true
+      }
+    ]
+  }
+}

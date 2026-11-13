@@ -1,0 +1,228 @@
+{
+  "date": "2026-11-13",
+  "subject": "ventures/laundromat-machine-payback-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-13-l",
+  "drawn_by": "sample",
+  "round": 66,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a laundromat owner-operator deciding whether to add or replace a washer/dryer line (or the commercial laundry equipment distributor's finance desk that quotes them payback). What they check first: turns per machine per day and vend price per line, water/sewer, gas and electric per cycle from their own bills, repairs and parts per machine, the financing payment against monthly contribution, and, for a replacement, the incremental gain over the machines being retired; their CPA then asks about Section 179 / MACRS depreciation",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Recomputed with an independent Python script in exact fractions (/tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/ref.py), solving the definitions on the page (cycles = count x turns x days; contribution = revenue x (1 - fee) - cycles x utility; payback = invested / contribution; turns for target from payback = target; raise break-even loss L from c1 x (1 - L) = c0) rather than copying calc.mjs. On the built-in sample with $9,000 overhead every output agrees to the cent: per-line contribution 3426.30 / 3512.25 / 1210.50 / 295.20, payback 11.21 / 12.30 / 17.35 / 195.12 months, turns for a 60-month target 0.841 / 0.717 / 0.723 / 19.512, store contribution 8,444.25, net -555.75, break-even volume 106.6%, raise rows 3/5/10/15% extra 340.03/566.72/1133.44/1700.17, break-even loss 3.87/6.29/11.83/16.76%, at 97% retention 76.50/296.39/846.11/1395.83 (tool 1133.45 vs 1133.44 is float rounding). Wrong: an installed cost typed the way people type money, 'Washer 20 lb,8,$4.25,4.5,$0.95,$4,800', is split at the thousands comma, install becomes $4, the trailing '800' cell is dropped with no warning, and the tool reports payback 0.009 months and 'Every line pays back inside 60 months' (node one-liner, below). There is no financing, depreciation or ROI output to check against the annuity formula or IRS Pub 946: the tool says so; /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/finance.py shows a 60-month 9% note on the sample 20-lb line costs $797.12/month, which the payback figure ignores.",
+    "completeness": "Claimed in README, page and VENTURE.yaml, each exercised with node against calc.mjs: per-line payback and contribution (works); turns per day for a target payback (works; re-entering neededTurns lands exactly on 60 months, also a test); store net, annual and break-even volume (works); price-rise break-even share and change at retention (works, and caps at 100% when contribution is negative); CSV export (reportCsv runs, header and store rows present); paste from a spreadsheet with tabs and quoted '$1,200' (works); 'nothing uploaded' (page.test.mjs asserts no fetch/XHR/beacon). No stubs, TODOs or dead buttons in index.html; every element the script looks up exists (page test). Not claimed and absent: financing, depreciation, repairs, replacement vs keep.",
+    "verification": "cd ventures/laundromat-machine-payback-calculator && node --test '*.test.mjs': 27 tests, 27 pass, 0.18 s. Seeded 5 mutations with platform/ci/quality_mutate.py: 2 caught (utilities scaled by (1-fee), calc.mjs:58; fees subtracted twice from net, calc.mjs:70), 3 survived: neededTurns using a hard-coded 30 days instead of daysPerMonth (calc.mjs:63), atRetention subtracting contribution x keep (calc.mjs:82), and the meets/misses threshold moved by a month (calc.mjs:64). No test covers a non-default days-open, the at-retention column, the payback boundary, or an unquoted thousands comma.",
+    "craft": "Read calc.mjs (139 lines), index.html script, calc.test.mjs, page.test.mjs. Small pure engine, no dependencies, input validated with specific error messages, careful splitCells for tabs and quoted cells, and a dated comment on the earlier break-even fix. Defects: parseMachines silently ignores cells past the sixth, so a mis-split row loses data without a warning (calc.mjs:26-30); fractional machine counts (0.5) and retention above 100% are accepted (calc.mjs:31, :47); calc.test.mjs re-imports node:test and assert under new names at :77-79 (a bolted-on fix test).",
+    "claims": "Backed: every formula on the 'How it is calculated' card (index.html:102) matches calc.mjs and my recompute; 'Not modelled: financing and interest, taxes and depreciation, repairs and downtime...' (index.html:103, README, FAQ) is honest and matches the code; 'Unverified: tested on hand-calculated examples' is true; the sample is labelled 'an invented store, not a real business'; disclaimer, independence and local-only usage counting present (page.test.mjs). Weak: the FAQ (index.html:113 and JSON-LD at :12) says payback on full line contribution 'is how an owner decides whether to add or replace machines', but for a replacement the payback is on the incremental contribution over the retired machines, which the tool does not ask for; llms.txt:5 says 'estimates', boilerplate but harmless. Could not load https://marisstella.app/laundromat-machine-payback-calculator/ (the proxy rejects marisstella.app in this session), so no URL defect is filed: llms.txt's github.io link is a placeholder platform/ci/build_pages_site.py:108 rewrites at deploy.",
+    "fitness": "Walked the job an owner does when a distributor quotes 'two-year payback' on eight 20-lb washers: enter the line with their turns, vend price and utilities, read payback and turns needed. That works and the turns-needed column is the useful question. Gaps hit in the first hour: typing '$4,800' as installed cost silently gives a $4 machine and a 0-month payback; no repairs/parts line, so payback is optimistic for older stores; no financing payment, though most equipment is financed; for a replacement there is no field for the old machines' contribution or trade-in value, so payback is credited with revenue the store already earns; no tax effect (Section 179/MACRS) for the CPA. Usable as a first screen on a new store's added line, not as the decision sheet for a re-equip.",
+    "domain": "Compared with how a laundromat owner and an equipment distributor's finance desk run a machine pro forma: revenue = machines x turns x vend price x days, less card fees and per-cycle utilities, is the standard first cut and is done right. Departures: simple undiscounted payback only (no NPV/IRR or financed cash-on-cash); no maintenance and repairs, which practitioners always deduct per machine; replacement treated as addition (no incremental contribution, no utility savings vs old machines, no trade-in); no depreciation (commercial laundry equipment is generally depreciable under MACRS per IRS Pub 946 and eligible for Section 179), stated as not modelled. The sample dryer prices a 'cycle' at $0.25, i.e. one quarter of time, with 6 turns a day, so the example shows dryers paying back in 195 months; dryers vend by time and a typical dry takes several quarters, so the example teaches the opposite of practice. Defaults (30 days, 3% fee, 60-month target, 97% retention) are user-editable assumptions, uncited but not presented as market data."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "per-line contribution and payback for the 4 sample lines",
+      "method": "independent Python in exact fractions from the page's stated definitions (ref.py)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/ref.py; node -e analyze(sample,{overheadMonthly:9000})",
+      "expected": "contribution 3426.30/3512.25/1210.50/295.20; payback 11.21/12.30/17.35/195.12",
+      "observed": "3426.30/3512.25/1210.50/295.20; 11.21/12.30/17.35/195.12",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "turns per day for a 60-month target, solved from payback = target",
+      "method": "T = install / (target x days x (price x (1 - fee) - utility)) in fractions",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/ref.py",
+      "expected": "0.841 / 0.717 / 0.723 / 19.512",
+      "observed": "0.841 / 0.717 / 0.723 / 19.512",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "store net and break-even volume with $9,000 overhead",
+      "method": "hand: 8444.25 - 9000; 9000 / 8444.25",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/ref.py",
+      "expected": "net -555.75, break-even volume 1.06581",
+      "observed": "net -555.75, break-even volume 1.0658140154543032",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "price-rise break-even loss and change at 97% retention for +3/5/10/15%",
+      "method": "solve c1 x (1 - L) = c0 with utilities falling with lost cycles; c1 x 0.97 - c0",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/ref.py",
+      "expected": "L 3.87/6.29/11.83/16.76%; at retention 76.50/296.39/846.11/1395.83",
+      "observed": "3.87/6.29/11.83/16.76%; 76.50/296.39/846.11/1395.83",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "installed cost typed with a thousands comma, unquoted: 'Washer 20 lb,8,$4.25,4.5,$0.95,$4,800'",
+      "method": "hand: 8 x 4800 / 3426.30 = 11.21 months, or a warning that the row has 7 cells",
+      "command": "cd ventures/laundromat-machine-payback-calculator && node -e 'import(\"./calc.mjs\").then(m=>{const r=m.analyze(m.parseMachines(\"Washer 20 lb,8,$4.25,4.5,$0.95,$4,800\").rows,{});console.log(r.lines[0].install,r.lines[0].paybackMonths,r.verdict,r.warnings)})'",
+      "expected": "install 4800, payback 11.21, or a skipped-line warning",
+      "observed": "install 4, payback 0.0093 months, 'Every line pays back inside 60 months at these turns.', no warning",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "financing: monthly payment on the sample 20-lb line ($38,400, 9%, 60 months) vs the payback figure",
+      "method": "standard annuity formula P r / (1 - (1+r)^-n) (finance.py)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/finance.py",
+      "expected": "a financed view, or a stated limit",
+      "observed": "$797.12/month not modelled; the limit is stated on the page and README",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "zero turns, negative per-cycle margin, non-default days open",
+      "method": "hand",
+      "command": "node -e analyze(parseMachines('W,10,5,0,1,5000').rows,{}) and daysPerMonth '30.4'",
+      "expected": "payback 'never' with a warning; cycles 1216 at 30.4 days",
+      "observed": "payback null, verdict 'never pays back', contribution warning; cycles 1216",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CSV export and spreadsheet paste (tabs, quoted $1,200)",
+      "method": "run reportCsv and splitCells; calc.test.mjs",
+      "command": "cd ventures/laundromat-machine-payback-calculator && node --test '*.test.mjs'",
+      "expected": "header, line rows, store rows; quoted comma kept",
+      "observed": "as expected",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "cd ventures/laundromat-machine-payback-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "27 tests, 27 pass, 0.18 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "formulas on 'How it is calculated' (index.html:102) vs calc.mjs",
+      "method": "recompute above",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/laundromat/ref.py",
+      "expected": "same definitions, same numbers",
+      "observed": "same",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ: full-line payback 'is how an owner decides whether to add or replace machines'",
+      "method": "capital budgeting practice: a replacement is judged on incremental cash flow over the retired asset",
+      "command": "grep -n 'add or replace' ventures/laundromat-machine-payback-calculator/index.html",
+      "expected": "replacement needs incremental contribution and trade-in, or the claim limited to additions",
+      "observed": "index.html:113 and JSON-LD :12 apply it to replacements; no input for the old machines",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "served page, llms.txt and sitemap",
+      "method": "load https://marisstella.app/laundromat-machine-payback-calculator/; build_pages_site.py rewrite_base_urls",
+      "command": "curl -sS https://marisstella.app/laundromat-machine-payback-calculator/llms.txt",
+      "expected": "200 with marisstella.app URLs",
+      "observed": "proxy refused marisstella.app (CONNECT 403; WebFetch ENOTFOUND); source llms.txt uses the github.io placeholder the build rewrites, so no URL defect filed",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "sample dryer line: $0.25 per 'cycle', 6 turns/day",
+      "method": "practice: dryers vend by time, a customer's dry is several quarters",
+      "command": "node -e analyze(sample) -> Dryer 30 lb stack payback",
+      "expected": "a dryer turn priced as a full dry",
+      "observed": "195-month payback, 19.5 turns/day needed",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:63",
+      "change": "(perCycle * o.daysPerMonth) -> (perCycle * 30) in neededTurns",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:82",
+      "change": "atRetention: c1 * keep - contribution -> atRetention: c1 * keep - contribution * keep",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:64",
+      "change": "paybackMonths <= o.targetPaybackMonths + 1e-9 -> paybackMonths < o.targetPaybackMonths - 1",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:70",
+      "change": "const net = contribution - o.overheadMonthly; -> const net = contribution - o.overheadMonthly - feeCost;",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:58",
+      "change": "const utilCost = cycles * m.util; -> const utilCost = cycles * m.util * (1 - fee);",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "an unquoted installed cost with a thousands comma ('$4,800') splits into '$4' and '800'; the extra cell is silently dropped, install becomes $4, payback reads 0.009 months and the verdict says every line pays back, with no warning",
+      "where": "ventures/laundromat-machine-payback-calculator/calc.mjs:26",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "3 of 5 seeded mutations survive: turns-needed ignoring days open, the at-retention column, and the meets/misses threshold are untested",
+      "where": "ventures/laundromat-machine-payback-calculator/calc.test.mjs:17",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "the FAQ says full-line payback is how an owner decides to replace machines, but a replacement pays back on incremental contribution (minus the old machines' contribution, plus trade-in); the tool has no input for either, so re-equip payback is overstated",
+      "where": "ventures/laundromat-machine-payback-calculator/index.html:113",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "no repairs/parts cost per machine and no financing payment, the two lines an owner deducts next after utilities; stated as not modelled, but payback is optimistic without them",
+      "where": "ventures/laundromat-machine-payback-calculator/calc.mjs:59",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "sample dryer line prices a cycle at $0.25 (one quarter of time) with 6 turns a day, so the example shows dryers needing 195 months to pay back; dryers vend by time and a dry is several quarters",
+      "where": "ventures/laundromat-machine-payback-calculator/calc.mjs:99",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "fractional machine counts (0.5) and 'cycles kept after a raise' above 100% are accepted without a warning",
+      "where": "ventures/laundromat-machine-payback-calculator/calc.mjs:31",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15517"
+  ],
+  "verdict": "A small, honest machine-line payback screen whose arithmetic is right: every per-line contribution, payback, turns-needed, store net and price-rise figure I recomputed independently on the sample matches to the cent, and its limits (no financing, tax, depreciation, repairs) are stated plainly. It does not meet the bar: an installed cost typed as '$4,800' silently becomes $4 and reports a 0-month payback that 'meets' the target, the tests let 3 of 5 seeded bugs through, and for the re-equip decision the README and FAQ advertise it credits new machines with the whole line's revenue rather than the gain over the old ones, with no repairs or financing line. The built-in dryer example prices a cycle at one quarter. Finished for what it claims; correctness, verification, fitness and domain at 2."
+}

@@ -69,6 +69,8 @@ export function readAmount(raw) {
   if (!t) return NaN;
   // A currency code beside the number ("USD 40.00", "40.00 EUR") is dropped, as a symbol is.
   t = t.replace(/\b(?:usd|cad|aud|nzd|gbp|eur|chf|mxn)\b/gi, "");
+  // Swiss thousands: "1'234.50" and "1’234.50" (2026-11-13: CHF was read, but its usual grouping was not a number).
+  if (/^\D*\d{1,3}(?:['’]\d{3})+(?:[.,]\d+)?\D*$/.test(t)) t = t.replace(/['’]/g, "");
   const neg = /^\(.*\)$/.test(t) || /^-|-$/.test(t.replace(/[$£€\s]/g, ""));
   t = t.replace(/[$£€\s()+-]/g, "");
   if (t.includes(",") && t.includes(".")) t = t.lastIndexOf(",") > t.lastIndexOf(".") ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
@@ -686,6 +688,13 @@ export function headcount(avg, observed, o = {}) {
   if (!(splh > 0)) throw new Error("sales per labor hour must be a positive number");
   if (!Number.isInteger(minStaff) || minStaff < 0) throw new Error("minimum staff must be a whole number, 0 or more");
   const maxStaff = o.maxStaff === undefined ? 50 : Number(o.maxStaff);
+  if (!(maxStaff >= 0)) throw new Error("maximum staff must be a number, 0 or more");
+  // --open/--close are whole hours, 0-24, open before close (2026-11-13: "--open 17 --close 9" or "--close 25" gave an
+  // empty plan with no word why; a shop open past midnight cannot be written as one day yet).
+  const hourOk = (v) => Number.isInteger(Number(v)) && Number(v) >= 0 && Number(v) <= 24;
+  if (o.open !== undefined && !(hourOk(o.open) && Number(o.open) < 24)) throw new Error("opening hour must be a whole hour from 0 to 23");
+  if (o.close !== undefined && !(hourOk(o.close) && Number(o.close) > 0)) throw new Error("closing hour must be a whole hour from 1 to 24 (24 is midnight)");
+  if (o.open !== undefined && o.close !== undefined && Number(o.open) >= Number(o.close)) throw new Error("the opening hour must come before the closing hour (a day that runs past midnight cannot be planned as one day)");
   const shutMin = shutMinDays(o);
   return avg.map((hours, d) => {
     if (!observed[d]) return new Array(24).fill(0);
@@ -952,6 +961,7 @@ export function demandShifts(text, o = {}) {
     const needed = p.reduce((a, b) => a + b, 0);
     return { day: DAYS[d], needed, scheduled: shifts.reduce((a, [x, y]) => a + (y - x), 0), shifts: [...shifts], sales: s.avg[d].reduce((a, b) => a + b, 0) };
   });
+  if (!days.some((x) => x.needed) && (o.open !== undefined || o.close !== undefined)) s.notes.push(`No hour of any day falls between --open and --close and the hours with sales, so nothing was planned: check the hours (${o.open ?? "first sale"} to ${o.close ?? "last sale"}).`);
   if (dropped.length) s.notes.push(`Left unstaffed: ${dropped.length} run${dropped.length === 1 ? "" : "s"} shorter than the shortest shift, where a ${minShift}-hour shift would cost more in spare hours than the short hours it saves at short cost ${rCut}${o.shortCost === undefined ? " (short and spare hours weighed the same)" : ""}: ${droppedList(dropped)}.`);
   // Group identical shift lists across days: "Mon/Tue/Wed, 11:00, 15:00, 2".
   const lines = new Map();

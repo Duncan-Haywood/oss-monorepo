@@ -203,7 +203,11 @@ Same job as pdf-form-filler, worded differently -- included to show the overlap 
   function findingLi(f) {
     const li = document.createElement("li");
     li.className = f.severity;
-    li.innerHTML = `<span class="cat">${categoryLabel(f.category)} · ${f.severity}</span><br>${f.detail}`;
+    // Finding text quotes pasted skill names and descriptions, so it goes in as text, never as HTML.
+    const cat = document.createElement("span");
+    cat.className = "cat";
+    cat.textContent = `${categoryLabel(f.category)} · ${f.severity}`;
+    li.append(cat, document.createElement("br"), document.createTextNode(f.detail));
     return li;
   }
 

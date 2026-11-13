@@ -593,3 +593,77 @@ test("camelCase headers read: an invoice-line export (InvoiceDate, Quantity, Uni
   const t = hourlySales(rows.join("\n").replace("InvoiceNo", "Invoice").replace("UnitPrice", "Price"), { count: "tickets" });
   assert.equal(t.avg[0][10], 1);
 });
+
+// Red team 2026-11-13: guards for mutants that escaped this suite, and the two defects that run found.
+import { readSales, readAmount, pickHalfLife } from "./demand.mjs";
+
+test("--open/--close out of range or the wrong way round is refused, not an empty plan", () => {
+  const s = hourlySales(CSV);
+  for (const [open, close] of [[17, 9], [9, 25], [9.5, 17], [24, undefined], [undefined, 0], [8, 8]])
+    assert.throws(() => headcount(s.avg, s.observed, { splh: 100, open, close }), /hour/, `open ${open} close ${close}`);
+  assert.throws(() => demandShifts(CSV, { splh: 100, open: 17, close: 9 }), /before the closing hour/);
+  assert.throws(() => headcount(s.avg, s.observed, { splh: 100, maxStaff: "lots" }), /maximum staff/);
+  assert.ok(headcount(s.avg, s.observed, { splh: 100, open: 0, close: 24 })[0].every((v) => v >= 1));
+  // An opening hour after the last sale is legal but plans nothing: a note says so.
+  const late = demandShifts(CSV, { splh: 100, open: 20 });
+  assert.equal(late.shiftsText, "");
+  assert.ok(late.notes.some((n) => /nothing was planned/.test(n)), late.notes.join("\n"));
+});
+
+test("Swiss amounts with an apostrophe thousands mark are read (CHF is a listed currency)", () => {
+  assert.equal(readAmount("CHF 1'234.50"), 1234.5);
+  assert.equal(readAmount("1’234.50"), 1234.5);
+  assert.equal(readAmount("-1'234'567.05"), -1234567.05);
+  assert.ok(Number.isNaN(readAmount("12'34")), "a short group is not a thousands mark");
+});
+
+test("--skip-dates matches a date typed with a one-digit month and a padded day", () => {
+  const csv = "Date Time,Net Sales\n2026-03-02 09:00,100\n2026-03-09 09:00,300\n";
+  const r = readSales(csv, { skipDates: ["2026-3-02"] });
+  assert.equal(r.rows, 1);
+  assert.deepEqual([...r.skippedDays], ["2026-3-2"]);
+});
+
+test("a stray three-digit first number does not turn a whole file day-first (sales and labour standard)", () => {
+  const rows = ["03/05/2026 10:00", "03/05/2026 11:00", "123/01/2026 10:00"];
+  const sales = readSales("Date Time,Sales,Ticket\n" + rows.map((t, i) => `${t},50,${i + 1}`).join("\n"));
+  assert.equal(sales.dayFirst, false);
+  assert.equal(sales.entries[0].key, "2026-3-5");
+  const std = readSales("Date Time,Sales,Ticket\n" + rows.map((t, i) => `${t},50,${i + 1}`).join("\n"), { standard: "1/ticket" });
+  assert.equal(std.dayFirst, false);
+  assert.equal(std.entries[0].key, "2026-3-5");
+});
+
+test("labour standard: an unreadable quantity is skipped and said, not counted as NaN minutes", () => {
+  const csv = "date,time,ticket_number,Quantity,unit_price\n2026-11-02,08:05,1,abc,1.00\n2026-11-02,08:10,2,2,1.00\n";
+  const r = readSales(csv, { standard: "0.5/item" });
+  assert.ok(r.skipped.some((x) => /could not read the quantity "abc"/.test(x)), r.skipped.join("\n"));
+  assert.ok(r.entries.every((e) => Number.isFinite(e.amount)));
+});
+
+test("a lunch break is found with exactly 20 dates of the weekday (the documented floor)", () => {
+  let csv = "Date Time,Sales\n";
+  for (let w = 0; w < 20; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (const h of [8, 9, 10, 11, 12, 13, 16, 17, 18]) csv += `${day} ${h}:00,${h === 12 ? 250 : 90}\n`;
+    if (w < 2) csv += `${day} 14:00,5\n${day} 15:00,5\n`;
+  }
+  const s = hourlySales(csv);
+  assert.equal(s.observed[0], 20);
+  const p = headcount(s.avg, s.observed, { splh: 100, seen: s.seen });
+  assert.equal(p[0][14], 0);
+  assert.equal(p[0][15], 0);
+});
+
+test("half-life auto with --short-cost picks only among the short-cost methods", () => {
+  for (const shortCost of [0.2, 1, 3, 8]) {
+    const rows = ["datetime,sales"];
+    for (let d = 0; d < 84; d++) {
+      const date = new Date(Date.UTC(2026, 0, 5) + d * 864e5).toISOString().slice(0, 10);
+      for (let h = 9; h < 17; h++) rows.push(`${date} ${h}:00,${Math.round((d > 50 ? 1.6 : 1) * (h === 12 ? 160 : 70) * (1 + 0.6 * Math.sin(d * 2.3 + h * 1.1)))}`);
+    }
+    const p = pickHalfLife(rows.join("\n"), { splh: 60, shortCost });
+    // Equal weights chosen must say no gain; anything else names its weighting.
+    if (p.halfLife === undefined && p.window === undefined) assert.doesNotMatch(p.note, /fewer than equal weights/, `shortCost ${shortCost}`);
+  }
+});
