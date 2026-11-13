@@ -20,8 +20,15 @@ Diagnostics per operator: L ratio (census / real mean leg length), total-variati
 real destination distributions on 500 m cells inside the disc, and e_k, the mean |log| ratio of gas_pj to gas_d over
 the seven pairs with k (both vectors normalised to sum 1). Per missed layout, the decision error is decomposed by pair:
 with weights normalised to the closed form's cross total, err = [S_pj(P) - S_pj(Q)] - [S_cf(P) - S_cf(Q)], P the
-gas_pj pick and Q the closed form's, summed over pairs whose same-group status differs; each pair's term is split
-half to each of its operators.
+gas_pj pick and Q the closed form's, summed over pairs whose same-group status differs and sign-flipped so that a
+positive term favours the wrong pick; each pair's term is split half to each of its operators. e_k averages over the
+pairs where both weights are positive (pairs whose discs do not meet have zero weight in both or one of the vectors;
+those are counted separately).
+
+Analysis fixes after the first run (predictions unchanged): the first run summed the decision error with the opposite
+sign to the one documented (so prediction 2 took the largest share of the wrong sign and the "largest pair terms" were
+the pairs working against the wrong pick), and e_k was NaN for operators with a zero-weight pair, which also broke the
+two Spearman correlations. Both are fixed here; the first run's numbers are not used.
 
 Predictions (written and committed before any swap was computed):
  (1) in layout 0 and in layout 17, some single fwd[k] reaches fresh ratio <= 1.01 (prior 55%).
@@ -102,7 +109,7 @@ def decompose(pj, cf, P, Q):
         sp, sq = P[i] == P[j], Q[i] == Q[j]
         if sp == sq:
             continue
-        sgn = 1.0 if sp else -1.0
+        sgn = -1.0 if sp else 1.0
         e = sgn * (scale * pj[(i, j, "enr")] - cf.get((i, j, "enr"), 0.0))
         terms[(i, j)] = e
         op[i] += e / 2
@@ -146,9 +153,13 @@ def run_layout(idx, n_flights=rl.N_FLIGHTS, cf_pairs=rl.CF_PAIRS):
     ratio = {name: gp.score(sim_fr, p) / fl / base for name, p in picks.items()}
     vpj, vd = norm(rs.vec(w["gas_pj"])), norm(rs.vec(w["gas_d"]))
     lerr = {(i, j): abs(math.log(a / b)) if a > 0 and b > 0 else float("nan") for (i, j), a, b in zip(CROSS, vpj, vd)}
-    ek = [sum(lerr[p] for p in CROSS if k in p) / (M - 1) for k in range(M)]
+    ek = []
+    for k in range(M):
+        x = [lerr[p] for p in CROSS if k in p and lerr[p] == lerr[p]]
+        ek.append(sum(x) / len(x) if x else float("nan"))
+    zero1 = sum((a > 0) != (b > 0) for a, b in zip(vpj, vd))
     op, terms = decompose(w["gas_pj"], cf, picks["gas_pj"], picks["cf"])
-    return dict(idx=idx, ratio=ratio, picks=picks, Lr=Lr, tv=tvs, ek=ek, op=op, terms=terms, shares=shares,
+    return dict(idx=idx, ratio=ratio, picks=picks, Lr=Lr, tv=tvs, ek=ek, op=op, terms=terms, shares=shares, zero1=zero1,
                 radii=radii, speeds=speeds, lerr=lerr)
 
 
@@ -195,9 +206,12 @@ def main():
               f"; total {tot:+.3f}")
 
     P("\n## Across the 192 operators")
-    ek = [x for s in res for x in s["ek"]]
-    lr = [abs(math.log(x)) for s in res for x in s["Lr"]]
-    tvs = [x for s in res for x in s["tv"]]
+    ok = [(s, k) for s in res for k in range(M) if s["ek"][k] == s["ek"][k]]
+    P(f"operators with at least one positive pair weight in both vectors: {len(ok)}/192; "
+      f"pairs positive in one vector only: {sum(s['zero1'] for s in res)} of {24 * len(CROSS)}")
+    ek = [s["ek"][k] for s, k in ok]
+    lr = [abs(math.log(s["Lr"][k])) for s, k in ok]
+    tvs = [s["tv"][k] for s, k in ok]
     P(f"L_census/L_real: median {rl.median([x for s in res for x in s['Lr']]):.3f}, "
       f"range {min(x for s in res for x in s['Lr']):.3f} to {max(x for s in res for x in s['Lr']):.3f}")
     P(f"TV distance: median {rl.median(tvs):.3f}, range {min(tvs):.3f} to {max(tvs):.3f}")
@@ -212,7 +226,7 @@ def main():
     shares2 = []
     for i in (0, 17):
         op = by[i]["op"]
-        shares2.append(max(op) / sum(op) if sum(op) else float("nan"))
+        shares2.append(max(op) / sum(op) if sum(op) > 0 else float("nan"))
     P(f"(2) largest operator share of decision error: layout 0 {shares2[0]:.2f}, layout 17 {shares2[1]:.2f}: {all(x >= 0.5 for x in shares2)}")
     n3 = sum(bool(fix(by[i])) for i in MISSED)
     P(f"(3) missed layouts fixed by a single fwd[k]: {n3}/6: {n3 >= 4}")
