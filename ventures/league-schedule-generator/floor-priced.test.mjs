@@ -31,6 +31,42 @@ test("floorTable prices a changed timetable as the whole programme does, rounds 
   }
 });
 
+test("floorTable priced on a move's own span (trial(lo, hi)) matches the whole programme, with walks and commits between", () => {
+  // README "A backward table": a trial reruns only rounds lo..hi and meets the backward table of
+  // round hi + 1; stale tables are caught up from untouched rounds. Moves here: two rounds swapped,
+  // three rounds rotated, and one round's pairs re-matched with another's (a partial swap), each
+  // priced on its own span, kept or undone at random, with balanced walks read in between (which
+  // run the trial's table forward to the end, and a commit then keeps it).
+  let moves = 0, walks = 0;
+  for (const N of [6, 8, 11, 14]) for (const n of [N, N - 1]) {
+    const opp = circleOpp(N % 2 ? N + 1 : N).map((o) => Int16Array.from(o));
+    const R = opp.length, tb = floorTable(opp, n), rand = mulberry32(N * 13 + n);
+    for (let i = 0; i < 80; i++) {
+      const rs = [];
+      const k = rand() < 0.3 ? 3 : 2;
+      while (rs.length < k) { const q = Math.floor(rand() * R); if (!rs.includes(q)) rs.push(q); }
+      const was = rs.map((q) => Int16Array.from(opp[q]));
+      if (k === 3) { opp[rs[0]] = was[1]; opp[rs[1]] = was[2]; opp[rs[2]] = was[0]; }
+      else { opp[rs[0]] = was[1]; opp[rs[1]] = was[0]; }
+      const lo = Math.min(...rs), hi = Math.max(...rs);
+      const whole = leastBreaks(opp, n, { budget: 0 }).floor;
+      assert.equal(tb.trial(lo, hi), whole, `${n} teams, move ${i} (${lo}..${hi})`);
+      moves++;
+      if (rand() < 0.3) {
+        const b = tb.balanced(whole + 4, { seed: 2 });
+        assert.equal(b.floor, whole, `${n} teams, move ${i}: the walk's table`);
+        const x = leastBreaks(opp, n, { seed: 2 });
+        if (b.proved && x.proved) assert.equal(b.least, x.least <= whole + 4 ? x.least : null, `${n} teams, move ${i}: balanced least`);
+        walks++;
+      }
+      if (rand() < 0.5) tb.commit(); else rs.forEach((q, j) => { opp[q] = was[j]; });
+    }
+    // after it all, the committed table still prices the timetable as it stands
+    assert.equal(tb.trial(0), leastBreaks(opp, n, { budget: 0 }).floor, `${n} teams, final`);
+  }
+  assert.ok(moves === 640 && walks > 100, `${moves} moves, ${walks} walks`);
+});
+
 test("floorTable refuses a timetable too big for the programme", () => {
   assert.equal(floorTable(circleOpp(28), 28), null);
 });
