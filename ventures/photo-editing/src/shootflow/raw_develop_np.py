@@ -41,6 +41,31 @@ def available() -> bool:
     return True
 
 
+def _run_bands(fn, rows: int, band: int | None = None, threads: int | None = None) -> None:
+    """Call ``fn(y0, y1)`` for each band of ``band`` rows, on a thread pool.
+
+    Every caller's ``fn`` reads shared inputs and writes only rows ``y0:y1`` of its own output, and each output
+    sample depends only on its pixel's inputs, so neither the band height nor the thread count changes a byte.
+    numpy releases the GIL inside its array operations, so the bands run in parallel. The count is
+    ``SHOOTFLOW_THREADS`` if set, else the CPUs, at most one per band (``dng_opcodes._warp_threads``).
+    """
+
+    from shootflow import dng_opcodes
+
+    band = band or _BAND_ROWS
+    starts = range(0, rows, band)
+    n = dng_opcodes._warp_threads(rows, band) if threads is None else max(1, min(int(threads), len(starts)))
+    if n <= 1:
+        for y0 in starts:
+            fn(y0, min(rows, y0 + band))
+        return
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=n) as ex:
+        for _ in ex.map(lambda y0: fn(y0, min(rows, y0 + band)), starts):
+            pass
+
+
 def _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps=()):
     """Active-area samples, black-subtracted, scaled and clamped; and the clip count."""
 
@@ -108,14 +133,14 @@ def _encode(r, g, b, hi, m, curve, lut_size, look):
     return out
 
 
-def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=None):
+def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=None, threads=None):
     pad = np.zeros((h + 2, w + 2), dtype=np.float64)
     pad[1:-1, 1:-1] = norm
     inside = np.zeros((h + 2, w + 2), dtype=np.int64)
     inside[1:-1, 1:-1] = 1
-    out = np.empty((h, w, 3), dtype=np.uint16)
-    for y0 in range(0, h, _BAND_ROWS):
-        y1 = min(h, y0 + _BAND_ROWS)
+    out = np.empty((h, w, 3), dtype=np.uint16) if sink is None else None
+
+    def band(y0, y1):
         bh = y1 - y0
         chans = [np.empty((bh, w), dtype=np.float64) for _ in range(3)]
         for py in (0, 1):
@@ -157,8 +182,10 @@ def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=None):
         if sink is not None:
             for i in range(3):
                 sink[y0:y1, :, i] = _clip(chans[i] * mults[i], hi)
-            continue
+            return
         out[y0:y1] = _encode(chans[0] * mults[0], chans[1] * mults[1], chans[2] * mults[2], hi, m, curve, lut_size, look)
+
+    _run_bands(band, h, threads=threads)
     return out
 
 
@@ -168,38 +195,63 @@ def _clip(v, hi):
     return np.where(v > hi, hi, np.where(v < 0, 0.0, v))
 
 
-def _encode_warped(img, warps, hi, m, curve, lut_size, look, mults=(1.0, 1.0, 1.0), kernel="bilinear"):
+def _encode_warped(img, warps, hi, m, curve, lut_size, look, mults=(1.0, 1.0, 1.0), kernel="bilinear", threads=None):
     """Run the OpcodeList3 opcodes on a clipped linear (h, w, 3) image (``dng_opcodes.run_stage3_planes``), then encode it band by band."""
 
     from shootflow import dng_opcodes
 
-    img = dng_opcodes.run_stage3_planes(warps, img, tuple(mults), kernel)
+    img = dng_opcodes.run_stage3_planes(warps, img, tuple(mults), kernel)  # threaded inside (warp_planes)
+    return _encode_image(img, hi, m, curve, lut_size, look, threads=threads)
+
+
+def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
+    """``_encode`` over an (h, w, 3) image band by band, each channel first scaled by ``mults`` when given."""
+
     out = np.empty(img.shape, dtype=np.uint16)
-    for y0 in range(0, img.shape[0], _BAND_ROWS):
-        band = img[y0 : y0 + _BAND_ROWS]
-        out[y0 : y0 + _BAND_ROWS] = _encode(band[..., 0], band[..., 1], band[..., 2], hi, m, curve, lut_size, look)
+
+    def band(y0, y1):
+        b = img[y0:y1]
+        if mults is None:
+            planes = (b[..., 0], b[..., 1], b[..., 2])
+        else:
+            planes = (b[..., 0] * mults[0], b[..., 1] * mults[1], b[..., 2] * mults[2])
+        out[y0:y1] = _encode(*planes, hi, m, curve, lut_size, look)
+
+    _run_bands(band, img.shape[0], threads=threads)
     return out
 
 
-def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
+def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None):
     ow, oh = w // 2, h // 2
-    acc = [np.zeros((oh, ow), dtype=np.float64) for _ in range(3)]
-    cnt = [0, 0, 0]
-    for dy in (0, 1):
-        for dx in (0, 1):
-            c = pat[dy * 2 + dx]
-            acc[c] = acc[c] + norm[dy : 2 * oh : 2, dx : 2 * ow : 2]
-            cnt[c] += 1
-    return _encode(
-        acc[0] / cnt[0] * mults[0], acc[1] / cnt[1] * mults[1], acc[2] / cnt[2] * mults[2], hi, m, curve, lut_size, look
-    )
+    out = np.empty((oh, ow, 3), dtype=np.uint16)
+
+    def band(y0, y1):
+        acc = [np.zeros((y1 - y0, ow), dtype=np.float64) for _ in range(3)]
+        cnt = [0, 0, 0]
+        for dy in (0, 1):
+            for dx in (0, 1):
+                c = pat[dy * 2 + dx]
+                acc[c] = acc[c] + norm[2 * y0 + dy : 2 * y1 : 2, dx : 2 * ow : 2]
+                cnt[c] += 1
+        out[y0:y1] = _encode(
+            acc[0] / cnt[0] * mults[0], acc[1] / cnt[1] * mults[1], acc[2] / cnt[2] * mults[2],
+            hi, m, curve, lut_size, look,
+        )
+
+    _run_bands(band, oh, threads=threads)
+    return out
 
 
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
     linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(), warps=(), warp_kernel="bilinear",
+    threads=None,
 ):
-    """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``."""
+    """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``.
+
+    Demosaic and encode run in bands on ``threads`` threads (``SHOOTFLOW_THREADS`` or every CPU when None), as
+    the warp does; the thread count never changes the output.
+    """
 
     norm, clipped = _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps)
     if warps:
@@ -221,17 +273,16 @@ def render(
         else:
             ow, oh = w, h
             lin = np.empty((h, w, 3), dtype=np.float64)
-            _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=lin)
+            _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=lin, threads=threads)
         del norm
-        return _encode_warped(lin, warps, hi, m, curve, lut_size, look, mults, warp_kernel), ow, oh, clipped
+        return _encode_warped(lin, warps, hi, m, curve, lut_size, look, mults, warp_kernel, threads), ow, oh, clipped
     if linear_raw:
-        img = norm.reshape(h, w, 3)
-        out = _encode(img[..., 0] * mults[0], img[..., 1] * mults[1], img[..., 2] * mults[2], hi, m, curve, lut_size, look)
+        out = _encode_image(norm.reshape(h, w, 3), hi, m, curve, lut_size, look, mults=mults, threads=threads)
         return out, w, h, clipped
     if half:
-        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look)
+        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads)
         return out, w // 2, h // 2, clipped
-    return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look), w, h, clipped
+    return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads), w, h, clipped
 
 
 def crop(pixels, cx, cy, cw, ch):
@@ -263,6 +314,37 @@ def to_array(pixels) -> array:
     out = array("H")
     out.frombytes(np.ascontiguousarray(pixels, dtype=np.uint16).tobytes())
     return out
+
+
+def unpack_bits(chunk: bytes, bits: int, count: int, row_samples: int) -> array:
+    """``raw_develop._unpack_bits`` vectorised: MSB-first ``bits``-wide samples (9 to 15), each row on a byte.
+
+    Sample ``i`` of a row starts at bit ``i * bits``; three bytes from its first byte, read big-endian, hold all
+    of it (``bits + 7 <= 24``), so it is that 24-bit word shifted right and masked. Bytes past the end of the
+    chunk read as 0, as in the pure-Python loop. Returns ``array('H')`` of ``count`` samples.
+    """
+
+    if not 8 < bits < 16:
+        raise ValueError("unpack_bits takes 9- to 15-bit samples")
+    row_bytes = (row_samples * bits + 7) // 8
+    rows = (count + row_samples - 1) // row_samples
+    buf = np.zeros((rows, row_bytes + 2), dtype=np.uint8)
+    flat = np.frombuffer(chunk, dtype=np.uint8)[: rows * row_bytes]
+    full, rest = divmod(len(flat), row_bytes)
+    buf[:full, :row_bytes] = flat[: full * row_bytes].reshape(full, row_bytes)
+    if rest:
+        buf[full, :rest] = flat[full * row_bytes :]
+    off = np.arange(row_samples, dtype=np.int64) * bits
+    first = off >> 3
+    shift = (24 - bits - (off & 7)).astype(np.uint32)
+    mask = np.uint32((1 << bits) - 1)
+    out = np.empty((rows, row_samples), dtype=np.uint16)
+    step = max(1, (1 << 22) // max(1, row_samples))  # about 4 M samples per pass bounds the working set
+    for r0 in range(0, rows, step):
+        b = buf[r0 : r0 + step].astype(np.uint32)
+        word = (b[:, first] << 16) | (b[:, first + 1] << 8) | b[:, first + 2]
+        out[r0 : r0 + step] = (word >> shift) & mask
+    return array("H", out.ravel()[:count].tobytes())
 
 
 def predict_rows(diffs, width, height, nf, predictor, initial, restart) -> array:
