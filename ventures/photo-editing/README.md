@@ -1544,3 +1544,23 @@ EF100-400mm at 100 mm and developed half size in 9.5 s. On the one real file car
 maker's correction and a lensfun profile, a Leica X Vario at 46 mm, the two differ by up to 8 px at
 full size once their zooms are matched, more than the camera's own correction of under 4 px. Which
 is right is not settled by that file. Details: `eval/lensfun-correction-2026-11-13.md`.
+
+## The lensfun port against the real lensfun library (2026-11-13)
+
+The lensfun correction above was checked against lensfun's own compiled code, not just against its
+formulas written out again. lensfunpy bundles liblensfun 0.3.4, lensfun's latest release.
+`tools/lensfun_released_check.py` runs it on every rectilinear ptlens, poly3 and poly5 lens in that
+release's database: at each calibrated focal length and between each pair, on 3:2 and 4:3 frames, at
+two crop factors. It compares where each pixel reads from with our WarpRectilinear2. We follow
+lensfun's master branch, which keeps the centre's scale. The release keeps Hugin's half-height point
+instead, and one exact change of radius takes one to the other (derived in the eval).
+RESULTS_README_PLACEHOLDER
+
+The first comparisons were 0.05-0.3 px off. The cause was a bug in lensfun 0.3.4 itself. Its SSE
+loops for ptlens and poly3 (`mod-coord-sse.cpp`) compute each pixel's factor, then multiply it lane
+by lane into interleaved `(x, y)` registers. Six of every eight coordinates get a neighbouring
+pixel's factor. Lensfun's master branch fixed it; no release has the fix yet. So the check compares
+only the coordinates lensfun computes with their own factor, and reports the bug's size separately.
+`tests/test_lensfun_released.py` (3) holds the identity to 1e-9 px against v0.3.4's pipeline written
+out, and runs the real library when lensfunpy is installed. Details:
+`eval/lensfun-released-check-2026-11-13.md`.
