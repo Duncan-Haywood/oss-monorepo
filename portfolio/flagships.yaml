@@ -187,8 +187,10 @@ flagships:
       pay week ($1.22 open); the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a floor above 60 copies needs
       something stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
-      would post; a real published-schedule export (7shifts, When I Work, Homebase, Deputy: search public repos as the
-      Square files were found); a real multi-location Square or Toast export (planned as one shop today); whether the
+      would post; a real 7shifts, When I Work or Homebase schedule export (a Deputy export and a retail WFM tool's
+      initial/final week are read since 2026-11-13, README "Two real schedule exports"; search public repos by header row as
+      those were found); the Deputy file's rostered-vs-worked pairs (93% exact starts, 11% of work unrostered) as the
+      call-out and extra-shift rates in the reissue benches; a real multi-location Square or Toast export (planned as one shop today); whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
