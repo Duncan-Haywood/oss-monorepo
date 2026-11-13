@@ -11,6 +11,14 @@ def rsimplex(K, rng):
 
 
 class T(unittest.TestCase):
+    def test_zero_report(self):
+        # a zero reported on the realised class costs infinite log loss, and KL to a
+        # report that zeroes a class the truth gives mass is infinite (quality audit
+        # 2026-11-13: both branches were untested)
+        self.assertEqual(log_loss([0.0, 1.0, 0.0], 0), math.inf)
+        self.assertEqual(kl([0.5, 0.5, 0.0], [1.0, 0.0, 0.0]), math.inf)
+        self.assertEqual(kl([0.5, 0.5, 0.0], [0.5, 0.5, 0.0]), 0)
+
     def test_strictly_proper(self):
         rng = random.Random(1)
         for _ in range(300):
