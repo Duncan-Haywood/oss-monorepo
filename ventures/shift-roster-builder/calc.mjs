@@ -2361,7 +2361,44 @@ export function optimalityText(opt) {
 // bonus (café sample, dated days off, exact check off: week 3 left 27 h open with the bonus, 22 h without; eval/steady-plan.mjs).
 // A proven roster cannot (open hours cost BIG, the bonus is a fraction of a wage), so only an unproven one is checked against
 // a build without the bonus, and the one with fewer open hours is kept (the kept one on a tie). `keepChecked` says which won.
+//
+// Same input, same roster: the last 32 builds are remembered in this process and a repeat returns a copy at once. On the
+// page, building an unchanged week again (a second click, a report that rebuilds) no longer re-runs a multi-second proof;
+// in the tests, 92 of the suite's ~390 s inside buildRoster were repeats of an input the same file had already built
+// (2026-11-13; the sample week alone 42 times). Only plain data is remembered: an input holding anything JSON would
+// misread (a Set, a Map, a function, a Date) is built fresh. `memo: false` always builds fresh.
+const rosterMemo = new Map();
+const ROSTER_MEMO_SIZE = 32; // the sample week's roster is about 9 KB as JSON
+function memoKey(value) {
+  let ok = true;
+  const key = JSON.stringify(value, (k, v) => {
+    if (v === undefined || v === null || typeof v === "string" || typeof v === "boolean") return v;
+    if (typeof v === "number") return Number.isFinite(v) ? v : `#${v}`; // JSON would write NaN and Infinity as null
+    if (Array.isArray(v)) return v;
+    if (typeof v === "object" && Object.getPrototypeOf(v) === Object.prototype) return v;
+    ok = false;
+    return null;
+  });
+  return ok ? key : null;
+}
 export function buildRoster(staff, slots, options = {}) {
+  const key = options?.memo === false ? null : memoKey([staff, slots, options]);
+  if (key !== null && rosterMemo.has(key)) {
+    const hit = rosterMemo.get(key);
+    rosterMemo.delete(key); rosterMemo.set(key, hit); // least recently used goes first
+    return structuredClone(hit);
+  }
+  const r = buildRosterUnmemoized(staff, slots, options);
+  if (key === null) return r;
+  try {
+    rosterMemo.set(key, structuredClone(r));
+  } catch {
+    return r; // a result that cannot be copied is not remembered
+  }
+  if (rosterMemo.size > ROSTER_MEMO_SIZE) rosterMemo.delete(rosterMemo.keys().next().value);
+  return r;
+}
+function buildRosterUnmemoized(staff, slots, options = {}) {
   const r = buildRosterOnce(staff, slots, options);
   if (r.error || !keepOn(options) || !Object.keys(options.keep).length) return r;
   if (["optimal", "improved"].includes(r.optimality?.status)) return r;
@@ -4003,7 +4040,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, keptStart, BIG };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, keptStart, BIG, memoKey };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
