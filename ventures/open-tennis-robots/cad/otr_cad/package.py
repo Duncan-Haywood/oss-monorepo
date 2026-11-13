@@ -27,7 +27,7 @@ from dataclasses import asdict
 from itertools import combinations
 from pathlib import Path
 
-from build123d import Compound, ExportDXF, ExportSVG, LineType, Unit, export_step, export_stl
+from build123d import Axis, Compound, ExportDXF, ExportSVG, LineType, Unit, export_step, export_stl
 
 from . import __version__
 from . import collector as C
@@ -155,6 +155,32 @@ def azimuth_sweep(p: Feeder) -> list[str]:
     return out
 
 
+def cable_sweep(p: Feeder) -> list[str]:
+    """Clashes of the head's free cable loop (2026-11-13), drawn at its cut length along the curve it takes at each
+    design pose (the actuator's two limits and -15 to +45 deg), against every part (hose parts excepted, as in the
+    azimuth sweep), with the turntable straight and turned to the hard stops' reach either way. The loop's ends sit
+    in the gland and the clip, so those two are left out."""
+    out = []
+    axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
+    skip = {"cable_gland", "cable_clip"}
+    for e in p.cable_loop_poses():
+        loop = F.cable_loop_solids(p, e)
+        for az in (0.0, -p.az_reach_deg, p.az_reach_deg):
+            moving, fixed = F.turned_solids(p, e, az)
+            others = [(n, s, s.bounding_box()) for n, s in moving + fixed if n.split("[")[0] not in skip]
+            for k, seg in enumerate(loop):
+                a = seg.rotate(axis, az)
+                ba = a.bounding_box()
+                for nb, b, bb in others:
+                    if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                            or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                        continue
+                    v = (a & b).volume
+                    if v > 1.0:
+                        out.append(f"at {e:+.1f} deg turned {az:+.1f} deg: cable loop segment {k} x {nb}: {v:.0f} mm^3")
+    return out
+
+
 def feed_stroke_sweep(p: Feeder, thetas=(45.0, 90.0, 135.0, 180.0)) -> list[str]:
     """Clashes of the shuttle, its rod and its crank along the feed stroke (the drawn pose is crank angle 0), at both
     ends of the elevation range (2026-11-11)."""
@@ -248,6 +274,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         clash += elevation_sweep(p)
         clash += azimuth_sweep(p)
         clash += feed_stroke_sweep(p)
+        clash += cable_sweep(p)
         turning = max((F.turning_inertia(p, e) for e in (p.elev_min, 0.0, p.elev_max)), key=lambda t: t[0])
         if turning[0] > p.az_inertia_kgm2:
             rules = rules + [f"turning inertia from the CAD is {turning[0]:.4f} kg m^2, above the "
@@ -257,6 +284,8 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         gravity = F.gravity_table(p)
         rules = rules + p.check_elevation(gravity)
         rules = rules + p.check_shuttle_drive(F.shuttle_kg(p))
+        peak = p.shuttle_drive(F.shuttle_kg(p))["peak_torque_nm"]
+        rules = rules + [r for r in p.check_cables(peak) if r not in rules]
     contacts = ground_contacts(parts, ('wheel', 'levelling_foot') if feeder else ('wheel', 'ball_caster', 'drum_disc'))
     ground_ok = all(abs(z) < 0.05 for z in contacts.values())
 

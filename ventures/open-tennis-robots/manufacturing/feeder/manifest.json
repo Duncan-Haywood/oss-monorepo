@@ -197,7 +197,58 @@
     "feed_mu_slide": 0.35,
     "feed_mu_ball": 0.6,
     "feed_dwell_s": 0.1,
-    "feed_interval_min_s": 2.0
+    "feed_interval_min_s": 2.0,
+    "head_wires": [
+      [
+        "launcher motor phases",
+        6,
+        14
+      ],
+      [
+        "wheel tachometers",
+        6,
+        26
+      ],
+      [
+        "shuttle servo signal",
+        1,
+        26
+      ],
+      [
+        "shuttle servo supply and return",
+        2,
+        20
+      ]
+    ],
+    "turntable_wires": [
+      [
+        "elevation actuator",
+        2,
+        18
+      ],
+      [
+        "elevation feedback pot",
+        3,
+        26
+      ]
+    ],
+    "bundle_fill": 0.6,
+    "cable_bend_factor": 10.0,
+    "cable_clear_mm": 3.0,
+    "cable_twist_deg_m": 180.0,
+    "cable_gland_h": 12.0,
+    "cable_clip_x": -200.0,
+    "cable_clip_z": -180.0,
+    "cable_clip_dir_deg": 90.0,
+    "cable_clamp_z": 420.0,
+    "bearing_bore_d": 60.0,
+    "electronics_x": -600.0,
+    "servo_supply_v": 6.0,
+    "servo_stall_v": 5.0,
+    "servo_stall_a": 3.0,
+    "servo_lead_awg": 20,
+    "servo_vih": 2.4,
+    "logic_high_v": 3.3
   },
   "derived": {
     "wheel_gap_mm": 54.0,
@@ -205,7 +256,7 @@
     "base_width_mm": 994,
     "net_w_mm": 3000.0,
     "wind_force_n": 69.1,
-    "ballast_kg": 14.7,
+    "ballast_kg": 14.5,
     "hose_len_mm": 1070,
     "hose_bow_radius_mm": 426,
     "hose_cut_mm": 810,
@@ -215,14 +266,14 @@
     "brace_x_n": 185,
     "brace_y_n": 179,
     "retain_pass_n": 16.7,
-    "made_part_mass_kg": 39.98,
-    "az_inertia_kgm2": 0.3475,
-    "az_turning_kg": 8.55,
+    "made_part_mass_kg": 40.16,
+    "az_inertia_kgm2": 0.3477,
+    "az_turning_kg": 8.56,
     "az_ratio": 10.0,
     "az_motor_torque_nm": 0.139,
     "az_torque_margin": 2.15,
     "az_fastest_slew_s": 0.94,
-    "az_tooth_stress_mpa": 2.81,
+    "az_tooth_stress_mpa": 2.82,
     "az_step_miss_mm": 75,
     "az_hose_torque_nm": 0.398,
     "az_stop_deg": 35.0,
@@ -231,14 +282,14 @@
     "az_stop_pad_strain": 0.439,
     "az_stop_insert_n": 115,
     "elev_gravity_nm": {
-      "-15": 0.64,
-      "+0": 4.12,
-      "+15": 7.32,
-      "+30": 10.02,
-      "+45": 12.04
+      "-15": 0.65,
+      "+0": 4.13,
+      "+15": 7.33,
+      "+30": 10.03,
+      "+45": 12.05
     },
-    "elev_push_peak_n": 102.5,
-    "elev_force_margin": 2.15,
+    "elev_push_peak_n": 102.6,
+    "elev_force_margin": 2.14,
     "elev_len_mm": [
       247.7,
       371.4
@@ -254,7 +305,17 @@
       0.676
     ],
     "shuttle_cycle_s": 1.676,
-    "shuttle_jam_offset_mm": 274.3
+    "shuttle_jam_offset_mm": 274.3,
+    "cable_cut_mm": 376,
+    "cable_window_mm": [
+      353,
+      398
+    ],
+    "cable_bundle_od_mm": 11.5,
+    "cable_twist_deg_m": 145,
+    "cable_loop_reach_mm": 203,
+    "servo_stall_v": 5.68,
+    "servo_ground_shift_v": 0.16
   },
   "design_rules": [],
   "collisions": [],
@@ -263,25 +324,28 @@
     "levelling_foot": 0.0
   },
   "files": {
-    "README.txt": "87667810d0ea9eb5703e2990db9f2f46d5de47f52f545b2a40f82590c338ab1f",
-    "bom.csv": "d41ba1c4a14df065d790f79e6267987c7685cf6ee7b244dede9553ce9c9bc4a6",
-    "cut_list.csv": "89052d74478d3dcb577ebf61bcffa05c6f2bb59cdaec9866ebb184ed032e630a",
-    "drawings/assembly_front.svg": "b6b12adf0b3ba5443e424fad243713f90eb18ca8e061b67aa27459e405bca60d",
-    "drawings/assembly_side.svg": "95692caa178d524f82c10745c10a2c1ccef15c5aac807a507dc2b413a050e7bd",
-    "drawings/assembly_top.svg": "8cb405e431c1a69a811be4a78d900449dc51f34f6406950de2ee23cdf9132c31",
+    "README.txt": "7a74fdc476c56bd71f4dcc860e082e01e2c4ef3edc91c7a83d949d9ab3128501",
+    "bom.csv": "aacf3448ba87886e2b5a280e5c2f9b5ff27fe1069441cbcd4ba4491c5945aedc",
+    "cut_list.csv": "7d4ea820471bde87f619f78f84bc49a005713fa586aea4f4edbabb7589f80482",
+    "drawings/assembly_front.svg": "19ca09b67e968bf11971ccc2dd33da12e9e05f9bd724d5419da9774a31484886",
+    "drawings/assembly_side.svg": "314cdf774d79954526083d1c5b6e698ca870d495a903da0d1d3058b739845113",
+    "drawings/assembly_top.svg": "c2bada394d4d430e9e3a1ab599b586c8e8296bac4641981aa1fc5284e725f787",
     "laser/base_deck__aluminium_5mm.dxf": "92278c6c272132809319c163d36fa5dcb1a0b00b56df67e020de2f917fe7984c",
     "laser/drive_bracket__aluminium_5mm.dxf": "0f16cea0a86c3d9cea308d510306d589f88a071a4194011d698756a43bfc0bf7",
     "laser/head_guard_plate__aluminium_5mm.dxf": "a598c6bd324981f4719534cd4e3d6e3ac778ef5cfd5fd17690effbdc5f55050b",
-    "laser/head_motor_plate__aluminium_5mm.dxf": "d0948132427fec905d513143e850fa826edd01ef50ca42a12dd61fcecebdcf67",
+    "laser/head_motor_plate__aluminium_5mm.dxf": "8e442fc7c5fdd0bbc0f9ec3622c7dd6b814b31169b8cd759e1622233b15de557",
     "laser/hopper_shelf__aluminium_5mm.dxf": "2808742243b4027d0ee94b295d86b8208e0c1d0392965e5f93325e4dffed710b",
     "laser/idler_bracket__aluminium_5mm.dxf": "40215fe66647dda29a1be98946e2d4151dd1316672587738efb0ee77f773c35d",
     "laser/mast_plate__aluminium_5mm.dxf": "db57e974679d5c0eba7bca92fe98aa1b6285374254a33f27e88cfe45f0813c5c",
     "laser/trunnion_cheek__aluminium_5mm.dxf": "9394d290dcc7e43dc7d2c75b991dc674ee8804c71c3505651b7b87f83e61bccc",
     "laser/trunnion_cheek_elev__aluminium_5mm.dxf": "0019e52899c239bfae0c8a0ccd9984fd8aef706565d2f1ddbcf4d2dcfce73c73",
     "laser/turntable_plate__aluminium_5mm.dxf": "fbb01c3ce384519d38e12a08ca801d671b23f2af207424e9e0da97a7ff40e237",
-    "laser_parts.csv": "c887ccc6e96d4ad2c20177efb0b0a53ceb9dda54caed6986036868df4d0c2a3e",
+    "laser_parts.csv": "9564a3641006ca18ea98cf1558135572915a7771fa968a11d076cc1bc7003f48",
     "print/az_gear_sector.stl": "2be1ec3a1af3948afc9cee798a9740a3717daa786abda1ec818b83ee8c235ea6",
     "print/az_stop_block.stl": "51a9d8b998d1b95d620f2195b8f71914d0509e16ccdfd1672356d2ab7820fcff",
+    "print/cable_clamp.stl": "bff72b0531734d690d7e72308fae1f7e44eb882cd1d9f200ce1679bdfa98ff92",
+    "print/cable_clip.stl": "bfd3f073f3919269628e8444025e8be1dbcf2cfa0c3f54713372e4db45d255d8",
+    "print/cable_gland.stl": "da4b4ae5b189957c95f06e12dfe42193252fd87755a38984aff4910c90570e8e",
     "print/camera_clamp.stl": "b506d096039c8f8c1ae01ce656c806cff20e60740be9be762159e0f59f29a78a",
     "print/cheek_foot.stl": "979743f972aa1723179aa23b130a604c3c5d19480244002cd5d4502be02dd010",
     "print/feed_floor.stl": "9232f347e2ce88338e8d638587cee28ccd1a1ba117f516212c4be7a398d6d2e5",
@@ -295,11 +359,14 @@
     "print/shuttle_rod.stl": "78f4aadc99021ced1de35b3efe0b9a7ade8cdbaf85fe0f1ef52ecf1385df7d90",
     "print/shuttle_servo_bracket.stl": "042cf1ce03639a6815f0cfe954450f4ae73282c19a672b28091d46e4c1fc48f0",
     "print/take_up_collar.stl": "f3f4c5c77a7327e380a62e84ccfb6b471ba8bbffc569c153876cf682451b1b94",
-    "print_parts.csv": "38e8281592aef54ae69a423cb56c9cf1b94c9aff91bfd7fdaf0f56c1392b4ba4",
-    "step/assembly.step": "ce7a46cb39b9f10ae2adbc2c4525fc4be9ee5b2c126a1f68ccebb2c007510f5a",
+    "print_parts.csv": "a07b80b20236989131aff96f3308ff6b1996763fb2508695181cc446c5013668",
+    "step/assembly.step": "d6b762f06d222e0f303d35bf46d54b9426ac6aab7da451516372765f6e713288",
     "step/az_gear_sector.step": "5c3557dba3a878b5204935b487cfc643208b096e9e668ee78d60f4a23c0e5763",
     "step/az_stop_block.step": "94c5ad439636e6989696d2b2e92dc1a582cb463a23d4ece139f49a0bfb7019fd",
     "step/base_deck.step": "e678f017ac3af79ef40897f946691db31d207b8e48c2bb7ec5de39c37d4332bc",
+    "step/cable_clamp.step": "a83019bd746ac676bb4d66d728cb135f5a46b844174858f290bd091ff8ff746a",
+    "step/cable_clip.step": "15d901962d81b95f8f819ab0588b022e90b41da721cc4fb37a5af98dd38fdffe",
+    "step/cable_gland.step": "108cfdb719a53882a3626d757f632b276d73b771c1fef89862af382b0d4e20b7",
     "step/camera_clamp.step": "57352718ae57a8567cd531576fcffb166badf5c0f297df0b36f3421727b677c3",
     "step/cheek_foot.step": "014eb4d283863c762dba2300e5d94f70ef22818e03e2edf273babf581a6761b6",
     "step/drive_bracket.step": "9b194364b37032166a8932bbaa7f10cb86491e23dda5cbca8ea3d8320bd6fba5",
@@ -307,7 +374,7 @@
     "step/feed_roof_column.step": "06dbf6586f6bd5ffe1bfdfd8a941815d43c124b68c27abec66e5fa9615d1d188",
     "step/feed_shuttle.step": "bd4af79036e80c3eeea3d6814a7df377df605b4454872a00eed0d81dc9ba8381",
     "step/head_guard_plate.step": "8fea28691a894f7a4d158a2584ca4598de63cd4f87dab6d614d1bed1fc19154f",
-    "step/head_motor_plate.step": "bbd0edbfa8751dce3ee3a8f3bf51f2c0d0de0f368be6340340866ac1abe09d0d",
+    "step/head_motor_plate.step": "7e03aafc8b3186e8fb09b9fc53058acb48228c667aaf2dc4194e828d849eb041",
     "step/home_switch_bracket.step": "01842a4718fee54cd51c4beeac55ceee820330efb6d8f6a56627447e990876c0",
     "step/hopper_shelf.step": "51f7ec58a47d8ccea7b2956ff945235f489dd814ebad77456553287f33c110e0",
     "step/hopper_spigot.step": "9490cc3f55bc0da2a5ae0a8c1da6db837db42170a441bac1e83a6d36a0b178b1",

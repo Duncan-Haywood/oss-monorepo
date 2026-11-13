@@ -135,7 +135,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727).
-      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5", "Round 6" and "Round 7"): eagerness hint on the page and in the CLI, with a plain-terms budget box on the page (README "Round 6", "The hint in the CLI watch", "A budget box on the page"), so next is a fresh labelled set to test the hint where it matters, or the drift model as the watch for wandering levels (the plain pass's 38-vs-33 lead is there); a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5" to "Round 8"): hint, budget box and "Wandering level" (drift, Round 8) shipped; next a fresh labelled set to test the hint and drift watch, and drift as a fourth setting in the hint; a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the GARCH search"): re-test scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -208,9 +208,11 @@ flagships:
       index 22) mapped to a name for CR2s whose maker note gives no usable name
       (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
       since 2026-11-13);
-      cubic resampling landed 2026-11-13 (--warp-kernel cubic, eval/warp-kernel-cubic-2026-11-13.md:
-      2-100x closer than bilinear under the Leica T's warp, 89% vs 73% of fine detail kept,
-      but the warp costs 2.2x): next, a faster cubic (separable passes) so it can be the default;
+      cubic resampling landed 2026-11-13 and is the default since the same day
+      (eval/warp-kernel-fast-cubic-2026-11-13.md: padded-plane taps and threaded bands,
+      same bytes, Leica T cubic warp 15.7 s to 8.4 s on one thread, 3.0 s on four): next,
+      the same banded threading for the rest of the numpy develop (demosaic, colour and
+      encode, about 2 s of the Leica T's 5.2 s), checked byte-identical at every thread count;
       MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the raw-value
       unit is settled (README, 2026-11-12 MapTable section).
     next: >-
@@ -226,7 +228,7 @@ flagships:
       Next, most valuable first: a real evenly lit frame shot wide open
       (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair (a zoom at several focal lengths); the
-      grade stage reading a workspace lens database; a faster cubic warp so it can be the default; a
+      grade stage reading a workspace lens database; a
       real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
@@ -265,9 +267,15 @@ flagships:
       with careless ones). 2026-11-13 later ("A lapse gate for the upper
       end"): a perfect careless detector would make it safe (honest
       0.957-0.961 at 10-12% less width), but the answers' lapse estimates
-      reach AUC 0.58-0.69 under staged and a rank gate buys only 1-4%. Next, most valuable first: (a) a better careless
-      detector to revive the gate: anchor pairs or msToAnswer, measured as
-      AUC in the gated sweep; (b)
+      reach AUC 0.58-0.69 under staged and a rank gate buys only 1-4%. Anchor pairs as the
+      detector (2026-11-13, latest, "Anchor pairs as the gate's detector"):
+      AUC 0.85-0.88 at 1 in 5, but gating on consistency selects
+      wide-spread people (consistent half of an all-honest panel pools to
+      1.71-1.94 vs 1.27-1.40), so gates are closed. Next, most valuable
+      first: (a) a pooled spread fit that carries each person's lapse share
+      in the likelihood (p = e/2 + (1 - e) sigma(d), e integrated on the
+      grid) instead of a gate, scored with scripts/gated-upper-sweep.ts's
+      mixed panels against the oracle; (b)
       half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
       them?); (c) the first real survey's answers: msToAnswer against the
       answer-time model, and how noisy real pairwise answers are, which
@@ -303,29 +311,29 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the servo's 5-6 V supply and the cable runs to the
-      turntable (they must clear the head out to the hard stops' 36.4 deg
-      reach, not just +-30); the netting trough that rolls balls to the hopper
-      inlet; a lower tub if the 2.3 m rim is too high.
+      venv, about 2 min): the netting trough that rolls balls to the hopper
+      inlet; a lower, rear-mounted tub if the 2.3 m rim is too high to fill;
+      the deck-side cable run and the stepper's driver mount.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
       History and every measurement: cad/README.md (feeder CAD package; azimuth and elevation drives; shuttle
-      drive; home switch; hard stops; collision sweeps) and the README ("Running a drill on the machine", "Wheel
-      speed loop"). Latest, 2026-11-12: azimuth hard stops (cad/README.md "Azimuth hard stops"): printed blocks
-      with polyurethane pads meet the gear sector's ends at +-35 deg (spare teeth 8 to 10 deg for full mesh
-      there); a 60 deg/s runaway squeezes a pad 44%; turned that far the head hit the hopper and mast posts first
-      at 31.6-32.3 deg, so they moved out (y 245 to 290, 130 to 160) and the build sweeps to the 36.4 deg reach.
-      Same day: the home switch and cam lobe (-32 deg click, firmware homes from either side). Next, needing a
-      person: log a real wheel's tach on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head
-      and measure the hose's torque, the stepper's pull-out, the actuator's real lengths, the column's load on the
-      shuttle and the servo's loaded stroke time; click the home switch on a printed sector to calibrate
-      AZ_HOME_DEG; push a sector into a stop with a scale and measure a pad's stiffness; hang a real hose from a
-      tube. Buildable: the servo's supply and the cable runs (clear of the head out to the 36.4 deg reach); the
-      netting trough that rolls balls to the hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is
-      too high to fill.
+      drive; home switch; hard stops; cables; collision sweeps) and the README ("Running a drill on the machine",
+      "Wheel speed loop"). Latest, 2026-11-13: cables to the head (cad/README.md "Cables to the head"): the
+      bundle twists on the turntable axis (145 deg/m at the 36.4 deg reach), and a 376 mm loop runs behind the
+      pivot from a turntable gland to a clip on the rear lower standoff, fitting every pose of the actuator's
+      whole travel (-30.3 to +45.8 deg; 353-398 mm window) and swept clear at the hard stops. A clip under the
+      pivot cannot work (about 8 mm of slack possible, 13 needed). Servo: 6 V buck on the deck, 20 AWG leads
+      (26 AWG lifts the servo's ground 0.56 V at stall). Next, needing a person: log a real wheel's tach on
+      spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head and measure the hose's torque, the
+      stepper's pull-out, the actuator's real lengths, the column's load on the shuttle and the servo's loaded
+      stroke time and stall current; click the home switch on a printed sector to calibrate AZ_HOME_DEG; push a
+      sector into a stop with a scale; hang a real hose from a tube; bend a built cable loop through the
+      actuator's travel. Buildable: the netting trough that rolls balls to the hopper inlet; a lower,
+      rear-mounted tub if the 2.3 m rim is too high to fill; the deck-side cable run (deck edge to the axis
+      clamp) and the stepper driver's mount.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
@@ -337,4 +345,4 @@ flagships:
       mastering checks and a release kit for streaming distribution.
     next: >-
       Browser studio page (index.html, client-side; headless-Chromium e2e, 38 checks) and the CLI options named below landed 2026-11-03 with tests; details are in git and the README. Open checks that need a person: listen to the studio page and to --stretch, --repeat, --halftime, --fills, --intro, --limit (pumping) and the stems; try --lrc in a real player and --markers/--stems in a DAW; try --cues, RECORDING-GUIDE.md and the --suggest-final E2-E4 range with real singers; check the release kit against a distributor's real upload form; check master-cli against EBU test files and a real mix; verify the per-service playback targets (written from memory) against the services' pages.
-      Corpus read against pre-1929 scans 2026-11-13: all five pieces, 1,492 notes, 0 differences (eval/scan-check/, scancheck.test.mjs); Te Deum and Salve Regina now have a 1913 Liber Usualis witness; full Pange lingua and Veni Creator written from the 1908 pages. Next: transcribe the Te Deum solemn tone (LU 1913 pp. 22*-25*) and the Salve simple tone (p. 65) from the scans as new files with a scan check, read a sample of the 59 gregobase-1908 files and the ten unread off-final endings against the 1908 scan (unstarred page N = leaf N + 23), and get a second reader for the 2026-11-13 readings (ROADMAP.md).
+      Corpus read against pre-1929 scans by machine 2026-11-13 (scan.mjs, eval/scan-check.mjs, eval/scan-check-verdicts.md): all five pieces now have a pre-1929 source, one Te Deum note corrected, seven off-final endings confirmed; a person should look at the Te Deum correction. Independent reading by eye the same day (eval/scan-read-by-eye/): 1,492 notes incl. quilismas and liquescents, 0 differences; the 1974 Te Deum kept as corpus/te-deum-simple.gabc (the 1913 tonus simplex); strophic hymns landed (pange-lingua-full.gabc 6 verses, veni-creator-full.gabc 7 verses). Next (buildable here): read the new te-deum.gabc (1908 Roman tone) by eye, section transitions in the genre templates, and teaching scan.mjs quilismas and liquescents (ROADMAP.md).

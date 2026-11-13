@@ -16,6 +16,8 @@ Draws are iid Bernoulli(`p`). (i) *Sequential Wald*: check every 100 draws from 
 5. **Precision does not depend on knowing `p`.** `m`=14/27/102/402 gives relative sd 0.3/0.2/0.1/0.05. A fixed `n=95 940` planned for a 20% half-width at `p₀`=10⁻³ delivers 6%, 20%, 37%, 63%, 200% at `p`=10⁻², 10⁻³, 3×10⁻⁴, 10⁻⁴, 10⁻⁵ (38% chance of zero failures at 10⁻⁵). Inverse sampling with `m`=102 takes `102/p` draws (10 200 to 10.2M) and always has relative sd 0.10.
 
 ## Limitations
+The "sequential Wald" rule here is the naive plug-in rule. Chow & Robbins (1965) add `+1/n` to the variance estimate, which removes this zero-failure stop (exact: P(stop at 0)=5.5×10⁻⁵, coverage 0.942 at `p`=10⁻³, `ε`=2×10⁻⁴; quality audit `portfolio/quality/audits/2026-11-13-stop-twin.json`); the trap is in the plug-in rule, not the classical method. Prior work on inverse sampling (Best 1974; Mikulski & Smith 1976; Dagum, Karp, Luby & Ross 2000) is not compared.
+
 Iid Bernoulli draws with a known-faithful twin; no autocorrelation (`autocorr-twin`), no twin bias or heavy-tailed real gusts (`safety-twin`), no importance sampling (`scenario-twin`). The exact interval is conservative (coverage 95.0–95.5%, not lower). Sequential Wald is shown at one grid (`n₀=step=100`); other check schedules change the numbers but not the zero-failure trap. The `1/√(m−2)` law is asymptotic in small `p` (exact sd is within 6% at `m`=5, `p`=0.05). Expected run length `m/p` is unbounded if `p` is far smaller than believed, so a cap is needed in practice and a capped run is a different (censored) design not analysed here.
 
 ## Next steps

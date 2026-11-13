@@ -1,8 +1,8 @@
-// node eval/scan-check/build-hymns.mjs
+// node eval/scan-read-by-eye/build-hymns.mjs
 // Writes corpus/pange-lingua-full.gabc and corpus/veni-creator-full.gabc: every verse
 // of the two hymns, each set to the first verse's neumes, which corpus/pange-lingua.gabc
 // and corpus/veni-creator.gabc carry and which were read note by note against the 1908
-// page scans (eval/scan-check/README.md).
+// page scans (eval/scan-read-by-eye/README.md).
 //
 // The verse texts are as printed in the Graduale Romanum, Vatican edition, 1908
 // (public domain): Pange lingua on p. 123*, Veni Creator on pp. 121*-122* (the first

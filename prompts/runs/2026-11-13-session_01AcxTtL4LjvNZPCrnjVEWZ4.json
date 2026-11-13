@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "First crop of the 1913 Salve Regina overlapped its halves, duplicating notes; redone without overlap before reading.",
-    "Post front matter over limits (description 222, seo_title 78); caught by venture-preflight, fixed."
+    "Post front matter over limits (description 222, seo_title 78); caught by venture-preflight, fixed.",
+    "Duplicate work: PR 15377 (machine reader scan.mjs, same flagship item) merged while this PR was open; the claim check had passed at 05:11 because 15377's title was opened earlier but its row showed no PR in allocate.py. Resolved by merging main: kept 15377's te-deum.gabc (1908 Roman tone), restored this run's read file unchanged as te-deum-simple.gabc, renamed eval/scan-check/ to eval/scan-read-by-eye/ to avoid sitting beside eval/scan-check.mjs, and reframed the post as the independent second reading."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "prompts/ventures/prompt-1.md",
       "issue": "Says venture-preflight takes over 5 min; it stops in seconds on a front-matter error, so running platform/ci/check_post_frontmatter.py before it saves a cycle."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 9 chant-forge showed 'open PRs naming it: 0' and claim_check.py said HOLD, yet PR 15377 on the same item merged ~20 minutes later; the claim check may miss a PR whose title does not start with the slug or was opened in the same minute."
     }
   ],
   "deviations": [
@@ -56,10 +61,10 @@
   ],
   "writeups": [
     "docs/posts/2026-11-13-chant-forge-corpus-read-against-the-1908-scans.md",
-    "ventures/chant-forge/eval/scan-check/README.md"
+    "ventures/chant-forge/eval/scan-read-by-eye/README.md"
   ],
   "goal": null,
-  "notes": "Probed hosts: gregobase.selapa.net, archive.org (metadata, page images, fulltext/inside.php) all answer from the cloud proxy. Read 1,492 notes of the five corpus pieces against archive.org scans (1908 Graduale leaves 874-877, 912, 914; 1913 Liber Usualis leaves 70-71, 603-606): 0 differences. Starred-page leaf map: N* = leaf 791+N; unstarred N = leaf N+23. Added corpus/scan-check.json with file hashes, scancheck.test.mjs (5 tests), build-hymns.mjs and the full Pange lingua / Veni Creator files. Verification: run_venture_tests.py chant-forge ok (63.8s); node --test scancheck.test.mjs 5/5; venture-preflight and site-builder tests re-run after the front-matter fix (see PR).",
+  "notes": "Probed hosts: gregobase.selapa.net, archive.org (metadata, page images, fulltext/inside.php) all answer from the cloud proxy. Read 1,492 notes of the five corpus pieces against archive.org scans (1908 Graduale leaves 874-877, 912, 914; 1913 Liber Usualis leaves 70-71, 603-606): 0 differences. Starred-page leaf map: N* = leaf 791+N; unstarred N = leaf N+23. Added corpus/scan-read-by-eye.json with file hashes, scan-read-by-eye.test.mjs (5 tests), build-hymns.mjs and the full Pange lingua / Veni Creator files. Verification: run_venture_tests.py chant-forge ok (63.8s); node --test scan-read-by-eye.test.mjs 5/5; venture-preflight and site-builder tests re-run after the front-matter fix (see PR). Merge with main after PR 15377 (same item, machine reader): readings now framed as an independent second reading, covering the notes the machine skips; the two agree on Dies irae, Veni Creator, Pange lingua and the Salve Regina.",
   "corrections": [],
   "redteam": null,
   "usage": {

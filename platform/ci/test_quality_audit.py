@@ -136,6 +136,18 @@ class QualityAuditTest(unittest.TestCase):
                 (p / n).write_text("x")
             assert q.next_round(p, ref="no-such-ref-xyz") == 42
 
+    def test_open_round_prs_count_toward_round_and_seed(self):
+        titles = ["quality: round 60 (seed 2026-11-13-f), 0 of 4 at the bar; Turo fixed + post",
+                  "quality fix: platform/agents toJson (control plane)", "Quality: Round 7", "polish: round 3 of x"]
+        prs = q.parse_round_titles(titles)
+        assert prs == [(60, "2026-11-13-f"), (7, None)]
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "2026-11-13-quality-audit-round-59.md").write_text("x")
+            assert q.next_round(Path(d), ref="no-such-ref-xyz", in_flight=(60, 7)) == 61
+        used = [audit(seed=f"2026-11-13{s}") for s in ("", "-b", "-c", "-d", "-e")]
+        assert q.free_seed("2026-11-13", used + [{"seed": "2026-11-13-f"}]) == "2026-11-13-g"
+
     def test_population_reads_the_repository(self):
         pop = q.population()
         assert pop["flagship"] and all(p.startswith("ventures/") for p in pop["flagship"])

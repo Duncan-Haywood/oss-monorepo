@@ -117,6 +117,79 @@ def _hose_curve_range_3d(o: tuple, m: tuple, u: tuple, r_min: float, slope_min: 
     return None if lo is None else (lo, hi)
 
 
+# Copper resistance per metre at 20 C by AWG (standard table), and the outside diameter of silicone-insulated
+# fine-strand hook-up wire of that gauge (an assumption: read your reel). Used by the cable checks (2026-11-13).
+AWG_OHM_PER_M = {14: 8.29e-3, 16: 13.2e-3, 18: 20.9e-3, 20: 33.3e-3, 22: 52.9e-3, 24: 84.2e-3, 26: 134e-3}
+AWG_OD_MM = {14: 3.0, 16: 2.5, 18: 2.0, 20: 1.7, 22: 1.5, 24: 1.3, 26: 1.1}
+
+
+@functools.lru_cache(maxsize=4096)
+def _cable_loop_range(f: tuple, h: tuple, d: tuple, elev_deg: float, shape: tuple, r_min: float, rb: float,
+                      step: float = 10.0, hmax: float = 360.0, n: int = 32,
+                      target: float | None = None) -> tuple | None:
+    """Shortest and longest free cable loop (mm) in the head's mid-plane (y = 0), pivot-relative (x, z), that leaves
+    the turntable gland `f` straight up and enters the head clip `h` along `-d` (`d` points from the clip into the
+    loop, already turned with the head), as a cubic Bezier with handles `step` to `hmax`, never bending tighter than
+    `r_min` and keeping the bundle (radius `rb`) off everything in `shape`:
+    (turntable top z, pivot bolt radius, head x0, head x1, head-frame z above which the head is full, lower wheel
+    centre z and radius in the head frame, pivot z in the head frame, head-frame standoff circles (x, z, r)...).
+    With `target`, also returns the control points of the fitting curve whose length is nearest it.
+    None if no curve fits (2026-11-13)."""
+    z_tt, bolt_r, hx0, hx1, hz_full, wz, wr, pz, *stand = shape
+    c, s = math.cos(math.radians(elev_deg)), math.sin(math.radians(elev_deg))
+
+    def free(x: float, z: float) -> bool:
+        if z < z_tt + rb or math.hypot(x, z) < bolt_r + rb:
+            return False
+        hx, hz = x * c + z * s, -x * s + z * c + pz          # head frame (x from the wheel centres, z from the ball path)
+        if hx0 - rb < hx < hx1 + rb and hz > hz_full - rb:
+            return False
+        if math.hypot(hx, hz - wz) < wr + rb:
+            return False
+        return all(math.hypot(hx - sx, hz - sz) >= sr + rb for sx, sz, sr in stand)
+
+    kcap = 1 / r_min
+    lo = hi = None
+    best = None
+    cnt = int(hmax / step)
+    for i in range(1, cnt + 1):
+        p1 = (f[0], f[1] + i * step)
+        for j in range(1, cnt + 1):
+            p2 = (h[0] + j * step * d[0], h[1] + j * step * d[1])
+            pts = (f, p1, p2, h)
+            ok, length, prev, prev_a = True, 0.0, f, None
+            for k in range(n + 1):
+                t = k / n
+                u = 1 - t
+                q = (u ** 3 * f[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t ** 3 * h[0],
+                     u ** 3 * f[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t ** 3 * h[1])
+                if 0 < k < n and not free(*q):
+                    ok = False
+                    break
+                a = [3 * u * u * (p1[m] - f[m]) + 6 * u * t * (p2[m] - p1[m]) + 3 * t * t * (h[m] - p2[m]) for m in (0, 1)]
+                b = [6 * u * (p2[m] - 2 * p1[m] + f[m]) + 6 * t * (h[m] - 2 * p2[m] + p1[m]) for m in (0, 1)]
+                sp = math.hypot(*a)
+                # a fold back on itself (handles past each other on one line) has zero cross product: catch it as a
+                # tangent that turns more than 90 deg between samples, or stops
+                if sp < 1e-6 or (prev_a and a[0] * prev_a[0] + a[1] * prev_a[1] <= 0) \
+                        or abs(a[0] * b[1] - a[1] * b[0]) > kcap * sp ** 3:
+                    ok = False
+                    break
+                prev_a = a
+                if k:
+                    length += math.dist(prev, q)
+                prev = q
+            if not ok:
+                continue
+            lo = length if lo is None else min(lo, length)
+            hi = length if hi is None else max(hi, length)
+            if target is not None and (best is None or abs(length - target) < abs(best[0] - target)):
+                best = (length, pts)
+    if lo is None:
+        return None
+    return (lo, hi) if target is None else (lo, hi, best)
+
+
 @dataclass(frozen=True)
 class Collector:
     # Tennis ball (ITF 65.4-68.6 mm).
@@ -519,6 +592,33 @@ class Feeder:
     feed_mu_ball: float = 0.6         # felt ball on the shuttle's top (assumption)
     feed_dwell_s: float = 0.10        # shuttle held forward while the wheels take the ball (assumption)
     feed_interval_min_s: float = 2.0  # shortest drill interval to support (about a commercial machine's fastest, as az_slew_s)
+
+    # Cables to the head (2026-11-13). The launcher ESCs, the ESP32 and a 6 V buck for the shuttle servo sit on the
+    # base deck; everything that tilts or turns is wired from there. The bundle rises on the turntable axis through the
+    # mast and turntable plates' 40 mm holes (it twists there as the head turns, and never swings), leaves a printed
+    # gland on the turntable plate straight up and makes one free loop in the head's mid-plane to a printed clip on the
+    # head's rear lower standoff. Loose wires in a spiral wrap, so each bends about its own axis: the loop's bend limit
+    # is `cable_bend_factor` times the thickest wire, not the bundle. Wire and servo figures are assumptions.
+    head_wires: tuple = (("launcher motor phases", 6, 14), ("wheel tachometers", 6, 26),
+                         ("shuttle servo signal", 1, 26), ("shuttle servo supply and return", 2, 20))
+    turntable_wires: tuple = (("elevation actuator", 2, 18), ("elevation feedback pot", 3, 26))
+    bundle_fill: float = 0.6          # wire area over the bundle's circle (assumption)
+    cable_bend_factor: float = 10.0   # moving wire's smallest bend radius over its own diameter (assumption)
+    cable_clear_mm: float = 3.0       # bundle kept this far off every part
+    cable_twist_deg_m: float = 180.0  # twist a free run of loose wires may take, either way, per metre (assumption)
+    cable_gland_h: float = 12.0       # the loop leaves the gland this far above the turntable plate
+    cable_clip_x: float = -200.0      # head frame: bundle centre at the standoff clip (rear lower standoff at -215, -150)
+    cable_clip_z: float = -180.0
+    cable_clip_dir_deg: float = 90.0  # head frame: the loop leaves the clip this way (90 = up, toward the ball path)
+    cable_clamp_z: float = 420.0      # fixed clamp on the turntable axis, under the mast plate: the twist runs from here
+    bearing_bore_d: float = 60.0      # lazy-susan bearing's open centre (assumption: read yours)
+    electronics_x: float = -600.0     # ESP32, ESCs and the servo's buck on the deck's M3 grid, behind the battery
+    servo_supply_v: float = 6.0       # buck output for the shuttle servo (standard-size servos take 4.8 to 6.8 V)
+    servo_stall_v: float = 5.0        # the voltage `servo_stall_nm` is quoted at
+    servo_stall_a: float = 3.0        # stall current at `servo_supply_v` (assumption: DS3218 class; read yours)
+    servo_lead_awg: int = 20          # servo supply and return from the buck to the servo
+    servo_vih: float = 2.4            # servo's signal input threshold (assumption: many accept 3.3 V logic; check yours)
+    logic_high_v: float = 3.3         # the ESP32's output high
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -964,6 +1064,7 @@ class Feeder:
         bad += self.check_azimuth()
         bad += self.check_home_switch()
         bad += self.check_az_stops()
+        bad += self.check_cables()
         return bad
 
     # ---- azimuth drive (2026-11-10) -------------------------------------------
@@ -1538,6 +1639,149 @@ class Feeder:
             bad.append("shuttle slot runs off the motor plate's rear edge")
         if self.crank_x + self.servo_flange_l > self.head_x1:
             bad.append("shuttle servo is off the front of the motor plate")
+        return bad
+
+    # ---- cables to the head (2026-11-13) ----------------------------------------
+    def bundle_od(self, wires: tuple) -> float:
+        """Diameter (mm) of a loose round bundle of `wires` ((name, count, AWG), ...) at `bundle_fill`."""
+        area = sum(n * AWG_OD_MM[g] ** 2 for _, n, g in wires)
+        return math.sqrt(area / self.bundle_fill)
+
+    @property
+    def cable_bend_r(self) -> float:
+        """Smallest bend radius of the moving loop: the thickest head wire's, since loose wires bend one by one."""
+        return self.cable_bend_factor * max(AWG_OD_MM[g] for _, _, g in self.head_wires)
+
+    def elev_act_limits(self) -> tuple[float, float]:
+        """Elevation (deg) at the actuator's own limits: fully extended (nose down) and fully retracted (nose up). A
+        runaway or a hand on the head can drive it anywhere between, so the cables must reach both, not only the
+        +-range the drills use."""
+        def at(length: float) -> float:
+            lo, hi = -80.0, 80.0                     # the actuator shortens as the nose rises
+            for _ in range(60):
+                mid = (lo + hi) / 2
+                lo, hi = (mid, hi) if self.elev_act_len(mid) > length else (lo, mid)
+            return (lo + hi) / 2
+        return at(self.elev_act_closed + self.elev_act_stroke), at(self.elev_act_closed)
+
+    def _loop_shape(self) -> tuple:
+        rb = self.bundle_od(self.head_wires) / 2 + self.cable_clear_mm
+        stand = tuple((x, z, 5.0) for x, z in ((-215.0, -150.0), (95.0, -150.0)))   # feeder._standoffs, lower pair
+        shape = (self.turntable_top - self.pivot_z, 8.0, self.head_x0, self.head_x1,
+                 self.floor_top - self.feed_floor_t, self.head_gap_axis * -1, self.wheel_head_d / 2, self.pivot_z_rel, *stand)
+        return shape, rb
+
+    def cable_loop_poses(self) -> list[float]:
+        ext, ret = self.elev_act_limits()
+        return [ext, self.elev_min, 0.0, 15.0, 30.0, self.elev_max, ret]
+
+    def cable_loop_ends(self, elev_deg: float) -> tuple[tuple, tuple, tuple]:
+        """Pivot-relative (x, z) of the gland exit and the head clip, and the direction from the clip into the loop
+        (`cable_clip_dir_deg` in the head frame, turned with the head), with the head at `elev_deg`."""
+        c, s = math.cos(math.radians(elev_deg)), math.sin(math.radians(elev_deg))
+        f = (0.0, self.turntable_top + self.cable_gland_h - self.pivot_z)
+        hx, hz = self.cable_clip_x, self.cable_clip_z - self.pivot_z_rel
+        dx, dz = math.cos(math.radians(self.cable_clip_dir_deg)), math.sin(math.radians(self.cable_clip_dir_deg))
+        return f, (hx * c - hz * s, hx * s + hz * c), (dx * c - dz * s, dx * s + dz * c)
+
+    def cable_loop_design(self) -> dict | None:
+        """Size the free loop between the turntable gland and the head clip (2026-11-13).
+
+        Each pose, from the actuator's extended limit to its retracted limit, gets the range of loop lengths that fit
+        (`_cable_loop_range`); the wire is cut once, so it must fit every pose. Returns the common window, the cut
+        length in its middle, the curve each pose takes at that length (pivot-relative control points), the loop's
+        furthest reach from the turntable axis and its lowest point. None if no single length fits every pose."""
+        shape, rb = self._loop_shape()
+        r_min = self.cable_bend_r
+        ranges = {}
+        for e in self.cable_loop_poses():
+            f, h, d = self.cable_loop_ends(e)
+            ranges[e] = _cable_loop_range(f, h, d, e, shape, r_min, rb)
+            if ranges[e] is None:
+                return None
+        lo = max(r[0] for r in ranges.values())
+        hi = min(r[1] for r in ranges.values())
+        if lo > hi:
+            return {"ranges": ranges, "window": None, "rb": rb, "r_min": r_min}
+        cut = (lo + hi) / 2
+        curves = {}
+        for e in ranges:
+            f, h, d = self.cable_loop_ends(e)
+            curves[e] = _cable_loop_range(f, h, d, e, shape, r_min, rb, target=cut)[2]
+        def pts(ctrl, n=32):
+            out = []
+            for k in range(n + 1):
+                t = k / n
+                u = 1 - t
+                out.append(tuple(u ** 3 * ctrl[0][m] + 3 * u * u * t * ctrl[1][m] + 3 * u * t * t * ctrl[2][m] + t ** 3 * ctrl[3][m]
+                                 for m in (0, 1)))
+            return out
+        reach = max(abs(q[0]) for _, c in curves.values() for q in pts(c))
+        low = min(q[1] for _, c in curves.values() for q in pts(c))
+        return {"ranges": ranges, "window": (lo, hi), "cut_mm": cut, "curves": curves, "rb": rb, "r_min": r_min,
+                "reach_mm": reach, "lowest_z": self.pivot_z + low, "fit_err_mm": max(abs(l - cut) for l, _ in curves.values())}
+
+    def cable_twist(self) -> dict:
+        """The bundle's run on the turntable axis (2026-11-13): it twists by the head's azimuth between the fixed clamp
+        under the mast plate and the gland on the turntable plate. Returns the run's length, the twist rate at the
+        hard stops' reach, the bundle's diameter there (head and turntable wires) and the room it has in the plates'
+        40 mm holes and the bearing's open centre."""
+        run = self.turntable_top + self.cable_gland_h - self.cable_clamp_z
+        od = self.bundle_od(self.head_wires + self.turntable_wires)
+        rate = self.az_reach_deg / (run / 1000) if run > 0 else math.inf
+        # outer wire's stretch at that twist: a helix of radius od/2 over the run
+        helix = math.sqrt(1 + (od / 2 * math.radians(self.az_reach_deg) / run) ** 2) - 1 if run > 0 else math.inf
+        return {"run_mm": run, "rate_deg_m": rate, "od_mm": od, "hole_gap_mm": (40.0 - od) / 2,
+                "bore_gap_mm": (self.bearing_bore_d - od) / 2, "helix_strain": helix,
+                "clamp_below_stepper_mm": self.mast_top_z - self.stepper_body_mm - self.cable_clamp_z}
+
+    def servo_supply(self, peak_torque_nm: float, cut_mm: float | None = None) -> dict:
+        """The shuttle servo's 6 V supply (2026-11-13). The buck sits on the deck with the ESP32, so its return shares
+        the ESP32's ground. At stall the servo draws `servo_stall_a`; the leads' resistance takes some of the voltage,
+        and the return's drop lifts the servo's ground above the ESP32's, which eats into the 3.3 V signal. Run
+        length: deck to the axis, up the axis to the gland, the free loop, and the head from the clip to the servo.
+        Stall torque is taken as proportional to the terminal voltage below `servo_stall_v` and no higher above it
+        (conservative). Returns every AWG's result and the chosen gauge's."""
+        cut = cut_mm if cut_mm is not None else 400.0
+        servo_x, servo_z = self.crank_x, self.shuttle_zc
+        head = abs(self.cable_clip_x - servo_x) + abs(self.cable_clip_z - servo_z) + self.servo_top_y
+        run = (abs(self.electronics_x - self.head_x) + (self.turntable_top + self.cable_gland_h - self.rail_top - self.plate_t)
+               + cut + head) / 1000
+        r_motor = self.servo_supply_v / self.servo_stall_a
+        rows = {}
+        for awg, ohm in sorted(AWG_OHM_PER_M.items()):
+            r_lead = run * ohm
+            i = self.servo_supply_v / (r_motor + 2 * r_lead)
+            v_term = i * r_motor
+            ground = i * r_lead
+            torque = self.servo_stall_nm * min(1.0, v_term / self.servo_stall_v)
+            rows[awg] = {"v_term": v_term, "ground_shift_v": ground, "signal_high_v": self.logic_high_v - ground,
+                         "stall_nm": torque, "torque_margin": torque / peak_torque_nm if peak_torque_nm > 0 else math.inf}
+        return {"run_m": run, "stall_a": self.servo_stall_a, "awg": rows, "chosen": rows[self.servo_lead_awg],
+                "buck_w": self.servo_supply_v * self.servo_stall_a}
+
+    def check_cables(self, peak_servo_nm: float | None = None) -> list[str]:
+        bad = []
+        t = self.cable_twist()
+        if t["rate_deg_m"] > self.cable_twist_deg_m:
+            bad.append(f"cable twists {t['rate_deg_m']:.0f} deg/m on the turntable axis at the {self.az_reach_deg:.1f} deg reach "
+                       f"({self.cable_twist_deg_m:g} allowed): lower the clamp")
+        if t["hole_gap_mm"] < 2 or t["bore_gap_mm"] < 2:
+            bad.append(f"the {t['od_mm']:.1f} mm bundle does not pass the plates' 40 mm holes or the bearing's open centre")
+        if t["clamp_below_stepper_mm"] < 10:
+            bad.append("the axis cable clamp is not below the azimuth stepper")
+        d = self.cable_loop_design()
+        if d is None or d["window"] is None:
+            bad.append("no single cable length makes a loop from the turntable gland to the head clip at every elevation "
+                       "between the actuator's limits")
+        if peak_servo_nm is not None:
+            s = self.servo_supply(peak_servo_nm, d["cut_mm"] if d and d["window"] else None)["chosen"]
+            if s["torque_margin"] < self.servo_torque_factor:
+                bad.append(f"shuttle servo at {s['v_term']:.2f} V on stall has {s['torque_margin']:.2f}x the torque it needs "
+                           f"({self.servo_torque_factor:g}x wanted): heavier servo leads")
+            if s["signal_high_v"] < self.servo_vih + 0.3:
+                bad.append(f"servo ground rises {s['ground_shift_v']:.2f} V at stall, leaving the signal {s['signal_high_v']:.2f} V "
+                           f"against a {self.servo_vih:g} V threshold: heavier servo leads")
         return bad
 
     def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:

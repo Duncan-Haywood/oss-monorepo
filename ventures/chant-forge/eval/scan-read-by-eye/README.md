@@ -1,11 +1,16 @@
-# Corpus notes read against the page scans (2026-11-13)
+# Corpus notes read by eye against the page scans (2026-11-13)
+
+> The same day, PR 15377 landed a machine reader (`../../scan.mjs`, `../scan-check.mjs`)
+> and replaced `corpus/te-deum.gabc` with the 1908 Roman tone. The reading here is
+> independent of that one and covers the notes the machine skips. The Te Deum it
+> read is the earlier file, kept unchanged as `corpus/te-deum-simple.gabc`.
 
 Until today nobody had compared chant-forge's corpus with a printed book. The
 GABC files came from GregoBase's volunteers, and two of them (Te Deum, Salve
 Regina) named only post-1929 books as their source. This run read every note
 of the five named pieces against public-domain scans on archive.org. All five
-match. The machine-readable record is [`corpus/scan-check.json`](../../corpus/scan-check.json),
-and `scancheck.test.mjs` fails if a checked file changes without a fresh reading.
+match. The machine-readable record is [`corpus/scan-read-by-eye.json`](../../corpus/scan-read-by-eye.json),
+and `scan-read-by-eye.test.mjs` fails if a checked file changes without a fresh reading.
 
 ## Result
 
@@ -15,7 +20,7 @@ and `scancheck.test.mjs` fails if a checked file changes without a fresh reading
 | `veni-creator.gabc` | 43 | Graduale Romanum, Vatican, 1908, p. 121* | [912](https://archive.org/details/graduale-romanum-1908/page/n912) | 0 |
 | `pange-lingua.gabc` | 53 | Graduale Romanum, Vatican, 1908, p. 123* | [914](https://archive.org/details/graduale-romanum-1908/page/n914) | 0 |
 | `salve-regina.gabc` | 231 | Liber Usualis, Desclée, 1913, pp. 62-63 (solemn tone, mode 1) | [70-71](https://archive.org/details/liber-usualis-1913/page/n70) | 0 |
-| `te-deum.gabc` | 552 | Liber Usualis, Desclée, 1913, pp. 25*-28* (*tonus simplex*) | [603-606](https://archive.org/details/liber-usualis-1913/page/n603) | 0 |
+| `te-deum-simple.gabc` (the pre-15377 `te-deum.gabc`) | 552 | Liber Usualis, Desclée, 1913, pp. 25*-28* (*tonus simplex*) | [603-606](https://archive.org/details/liber-usualis-1913/page/n603) | 0 |
 | `gregobase-1908/3407.gabc` (ending only) | 219 | Graduale Romanum, Vatican, 1908, p. 396 | [419](https://archive.org/details/graduale-romanum-1908/page/n419) | 0 |
 
 "Notes" counts the individual pitches the parser reads, so a three-note neume
@@ -26,8 +31,9 @@ counts three.
 - **The Te Deum and Salve Regina now have a pre-1929 witness.** Both files,
   unchanged, match the 1913 Liber Usualis note for note. The melodies are in
   a public-domain book, and GregoBase releases the transcriptions as CC0, so
-  the caveat in `corpus/README.md` ("a pre-1929 source for those two is wanted
-  before a release") is met.
+  that caveat is met for both. (PR 15377 met it for the Salve against the 1912
+  Antiphonale and replaced the Te Deum with the 1908 Roman tone. The simple tone
+  is kept as `te-deum-simple.gabc`.)
 - **The corpus README had two labels wrong.** It called the Salve Regina
   the "simple tone". It is the solemn mode-1 tone; the simple tone (*in cantu
   simplici*, mode 5, LU 1913 p. 65) is a different melody. The Te Deum file,

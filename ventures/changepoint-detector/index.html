@@ -167,9 +167,9 @@
     <div class="grid">
       <div><label for="watch-url">CSV link (optional; blank = the data box above)</label><input id="watch-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
       <div><label for="watch-name">Watch name</label><input id="watch-name" type="text" placeholder="blank = the link, or &ldquo;pasted series&rdquo;"></div>
-      <div><label for="watch-detector">How eager</label><select id="watch-detector"><option value="">Quiet (default; may miss steps under 2 noise sd)</option><option value="bocpd">Middle (more real changes, about twice the false alerts)</option><option value="pelt">Eager (every marked change in our test set, about six times the alerts)</option></select></div>
+      <div><label for="watch-detector">How eager</label><select id="watch-detector"><option value="">Quiet (default; may miss steps under 2 noise sd)</option><option value="bocpd">Middle (more real changes, about twice the false alerts)</option><option value="pelt">Eager (every marked change in our test set, about six times the alerts)</option><option value="drift">Wandering level (a price or stock level that drifts all the time: alerts on jumps, not the drift)</option></select></div>
     </div>
-    <p class="note">The value column, model (level, level and volatility, or counts), seasonal period and logs come from the boxes above; other models are watched as a level. A link must allow reading from a web page (a Google Sheet published as CSV does); if it does not, paste the rows instead.</p>
+    <p class="note">The value column, model (level, level and volatility, or counts), seasonal period and logs come from the boxes above; the wandering-level model is watched with "Wandering level" (no seasonal period), other models as a level. A link must allow reading from a web page (a Google Sheet published as CSV does); if it does not, paste the rows instead.</p>
     <button type="button" id="watch-check">Check for new changes</button>
     <button type="button" class="secondary" id="watch-forget">Forget this watch</button>
     <pre id="watch-status" role="status" hidden></pre>
@@ -635,9 +635,10 @@
       const col = $("#column").value.trim();
       const state = watchLoad(name);
       try {
-        const out = watchCheck({ csv, state, column: col || null, model, detector: $("#watch-detector").value || undefined, period: period > 1 ? period : undefined, log: $("#log").checked && model !== "poisson" ? true : undefined });
+        const det = $("#watch-detector").value || (m === "drift" ? "drift" : undefined);
+        const out = watchCheck({ csv, state, column: col || null, model, detector: det, period: period > 1 && det !== "drift" ? period : undefined, log: $("#log").checked && model !== "poisson" ? true : undefined });
         const kept = watchSave(name, out.state);
-        const head = `Watch: ${name} (${out.column ?? "values"}, ${out.n} points${model !== m ? "; watched as a level" : ""})`;
+        const head = `Watch: ${name} (${out.column ?? "values"}, ${out.n} points${det === "drift" ? "; jumps on a wandering level" : model !== m ? "; watched as a level" : ""})`;
         watchShow([head, out.text, "", "On record:", recordText(out.state), kept ? "" : "\nThis browser would not keep the list (private window or site data blocked): the next check starts fresh."].join("\n"));
         record("watch_check");
       } catch (e) { watchShow(e.message); }

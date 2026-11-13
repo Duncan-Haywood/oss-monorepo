@@ -47,21 +47,27 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-03: `--fills` (`fillBar` in `genre.mjs`, `fills.test.mjs`, 3 tests): a four-hit snare crescendo on the last beat of every fourth bar, never the final bar; off by default, adds hits only. Not listened to.
 - 2026-11-03: `render-cli.mjs --stems DIR` (`stems: true` in `renderMidi`): one WAV per voice (choir, organ, bass, chords, drums) at the mix's scale, so a producer can load them into a DAW and mix by ear. 1 test: the stems sum to the mix within 1e-9; Dies irae metal gives 5 stems. Not listened to.
 
-- 2026-11-13: corpus read against the page scans (`eval/scan-check/`, `corpus/scan-check.json`,
-  `scancheck.test.mjs`, 5 tests). Every note of the five pieces, 1,492 in all, matches a pre-1929
-  book: Dies irae, Veni Creator and Pange lingua the 1908 Graduale (archive.org), Salve Regina and
-  Te Deum the 1913 Liber Usualis. Labels fixed: the Salve is the solemn tone, the Te Deum the
-  simple tone. Alleluia 3407's off-final ending confirmed in the book. Full hymns written:
-  `pange-lingua-full.gabc` (6 verses) and `veni-creator-full.gabc` (7 verses), text from the 1908
-  pages, by `eval/scan-check/build-hymns.mjs`. Read by one reader; a second reader is open.
+- 2026-11-13: corpus read against pre-1929 scans by machine (`scan.mjs`, `eval/scan-check.mjs`,
+  8 tests): Dies irae, Veni Creator, Pange lingua (1908 Graduale) and Salve Regina (1912
+  Antiphonale) agree on every note read (604, 43, 53, 214); the Te Deum is now the 1908 Roman
+  tone (GregoBase 3656) with one transcription error corrected from the scan; seven of the
+  11 off-final Graduale endings are the book's. Planted one-step errors caught 189-200 of 200.
+  Verdicts: `eval/scan-check-verdicts.md`.
+- 2026-11-13: an independent reading by eye (`eval/scan-read-by-eye/`, `corpus/scan-read-by-eye.json`,
+  `scan-read-by-eye.test.mjs`, 5 tests), covering every note including rhombi, quilismas and
+  liquescents. Dies irae, Veni Creator and Pange lingua against the 1908 Graduale, the Salve
+  Regina and the earlier Te Deum file (now `corpus/te-deum-simple.gabc`) against the 1913 Liber
+  Usualis: 1,492 notes, 0 differences. The 1974 Te Deum is the 1913 *tonus simplex*. Strophic
+  hymns landed: `pange-lingua-full.gabc` (6 verses) and `veni-creator-full.gabc` (7 verses),
+  texts from the 1908 pages, by `eval/scan-read-by-eye/build-hymns.mjs`.
 
 ## Next
 
-1. **Corpus hardening** (five pieces read against scans and full hymns landed 2026-11-13):
-   a second reader for those readings; read a sample of the 59 `gregobase-1908/`
-   files and the other ten off-final endings against the 1908 scan (leaf = page + 23 for the
-   unstarred pages); then the Te Deum solemn tone
-   (LU 1913 pp. 22*-25*) and the Salve simple tone (p. 65) as new files.
+1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
+   Creator (the 1908 book prints them as text under the first verse's
+   melody), find the four supplement-page off-final pieces in a scan that has
+   the "pro aliquibus locis" supplement, teach the reader quilismas and
+   liquescents, and have a person look at the Te Deum correction.
 2. **Real-file robustness:** run the converter over a batch of Gregorio files
    and fix whatever it misreads:
    - multi-clef pieces;

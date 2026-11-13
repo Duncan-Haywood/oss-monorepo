@@ -1,5 +1,5 @@
 {
-  "about": "Corpus files read note by note against public-domain page scans on archive.org (2026-11-13). sha256 is the first 16 hex digits of the file as read; a changed file needs a fresh read. eval/scan-check/README.md has the method and the readings.",
+  "about": "Corpus files read note by note against public-domain page scans on archive.org (2026-11-13). sha256 is the first 16 hex digits of the file as read; a changed file needs a fresh read. eval/scan-read-by-eye/README.md has the method and the readings.",
   "checks": [
     {
       "file": "dies-irae.gabc", "sha256": "d708f009b6ae4e5b", "notes": 613, "scope": "every note",
@@ -26,7 +26,7 @@
       "result": "match", "differences": 0
     },
     {
-      "file": "te-deum.gabc", "sha256": "585e145f94333936", "notes": 552, "scope": "every note",
+      "file": "te-deum-simple.gabc", "sha256": "585e145f94333936", "notes": 552, "scope": "every note",
       "witness": "Liber Usualis, 1913 (Desclée), pp. 25*-28*, Pro gratiarum actione, tonus simplex",
       "scan": "https://archive.org/details/liber-usualis-1913/page/n603", "leaves": "603-606",
       "result": "match", "differences": 0,

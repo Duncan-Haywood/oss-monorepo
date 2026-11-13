@@ -58,6 +58,10 @@ elev_actuator,cots,1,"Linear actuator, 12-24 V, 150 mm stroke, 220 N class, clev
 elev_actuator_rod,cots,1,"The elev_actuator's own rod (not bought separately), drawn at 0 deg",
 elev_pin,cots,1,"M6 shoulder bolt, 40 mm shoulder, + nyloc: through the guard plate (nut inside), the actuator's rod eye",
 elev_anchor_bolt,cots,1,"M6 shoulder bolt, 30 mm shoulder, + nyloc: through the guard-side cheek's tab, the actuator's anchor eye",
+cable_clip,print,1,PETG,"Slides onto the rear lower head standoff before it is bolted in. Tie the bundle in its channel with the loop's cut length above it (manifest: cable_cut_mm); below it the wires turn +y through the motor plate's grommet hole to the motors, tachometers and servo."
+cable_gland,print,1,PETG,Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the bundle through its slot: the loop above it and the twisting run below it start here. The elevation actuator's wires leave the bundle here.
+cable_clamp,print,1,PETG,"M5 and a T-nut into the cable crossbar's front slot. Zip-tie the bundle at the bore: the run from here up to the gland twists as the head turns, so keep it free of ties."
+cable_crossbar,stock,1,"2020 T-slot, cut 280 mm","Between the two rear mast posts' inner faces (corner brackets, M5): carries the axis cable clamp."
 M8 x 110 bolt + nyloc nut + 4 washers,cots,1,M8 x 110 bolt + nyloc nut + 4 washers,head pivot through the cheeks
 "M5 female-female standoff, 80 mm",cots,4,"M5 female-female standoff, 80 mm",between the head plates
 M5 x 12 button head,cots,34,M5 x 12 button head,"standoffs, mast plate to posts, turntable, deck, brackets"
@@ -95,7 +99,10 @@ Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable
 ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"
 "50 A+ BLDC ESC, servo-pulse input",cots,2,"50 A+ BLDC ESC, servo-pulse input",launcher wheels
 "Dual DC motor driver, 10 A/ch",cots,1,"Dual DC motor driver, 10 A/ch",base drive
-5-6 V 5 A buck converter (servo supply),cots,1,5-6 V 5 A buck converter (servo supply),shuttle servo: its stall current is a few amps
+6 V 5 A buck converter (servo supply),cots,1,6 V 5 A buck converter (servo supply),"shuttle servo, on the deck beside the ESP32: 20 AWG supply and return to the servo (manifest cables line)"
+"Spiral wrap, 10 mm, 1 m",cots,1,"Spiral wrap, 10 mm, 1 m","the head's wires in the free loop: loose, so each wire bends on its own"
+Snap-in grommet for a 14 mm hole,cots,1,Snap-in grommet for a 14 mm hole,the head's wires through the motor plate
+"Zip ties, 2.5 mm",cots,10,"Zip ties, 2.5 mm","cable gland, clamp and clip"
 "Storage tub, about 440 x 340 x 250 mm",cots,1,"Storage tub, about 440 x 340 x 250 mm",hopper; see the part notes for the cut
 "Stepper driver, 2 A class (TMC2209 or A4988), 24 V",cots,1,"Stepper driver, 2 A class (TMC2209 or A4988), 24 V",azimuth stepper
 TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers

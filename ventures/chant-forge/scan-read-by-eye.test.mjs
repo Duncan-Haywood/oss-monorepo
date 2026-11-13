@@ -1,5 +1,5 @@
 // Scan check (2026-11-13): the corpus files were read note by note against
-// public-domain page scans (corpus/scan-check.json, eval/scan-check/README.md).
+// public-domain page scans (corpus/scan-read-by-eye.json, eval/scan-read-by-eye/README.md).
 // These tests keep that record honest: a file that changes after its reading
 // fails until someone reads it again, and the full-hymn files must be exactly
 // what build-hymns.mjs writes from the checked first verses.
@@ -10,11 +10,11 @@ import { createHash } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseGabc, summarize } from './gabc.mjs';
-import { HYMNS, buildHymn } from './eval/scan-check/build-hymns.mjs';
+import { HYMNS, buildHymn } from './eval/scan-read-by-eye/build-hymns.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const corpus = join(here, 'corpus');
-const record = JSON.parse(readFileSync(join(corpus, 'scan-check.json'), 'utf8'));
+const record = JSON.parse(readFileSync(join(corpus, 'scan-read-by-eye.json'), 'utf8'));
 const notesOf = (text) => parseGabc(text).events.filter((e) => e.type === 'note');
 
 test('every checked file is unchanged since its reading and has the recorded note count', () => {
@@ -28,9 +28,9 @@ test('every checked file is unchanged since its reading and has the recorded not
   }
 });
 
-test('all five named corpus pieces have a full reading against a pre-1929 book', () => {
+test('the five pieces read by eye (te-deum-simple.gabc is the file read before PR 15377 swapped te-deum.gabc for the 1908 Roman tone) each have a full reading against a pre-1929 book', () => {
   const full = new Set(record.checks.filter((c) => c.scope === 'every note' && c.result === 'match').map((c) => c.file));
-  for (const f of ['dies-irae.gabc', 'pange-lingua.gabc', 'veni-creator.gabc', 'te-deum.gabc', 'salve-regina.gabc']) assert.ok(full.has(f), f);
+  for (const f of ['dies-irae.gabc', 'pange-lingua.gabc', 'veni-creator.gabc', 'te-deum-simple.gabc', 'salve-regina.gabc']) assert.ok(full.has(f), f);
 });
 
 for (const [slug, h] of Object.entries(HYMNS)) {

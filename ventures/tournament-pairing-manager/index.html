@@ -8,8 +8,8 @@
   <meta property="og:title" content="Tournament Pairing Manager — free, private, in your browser">
   <meta property="og:description" content="Swiss pairings, tiebreak standings and single or double elimination brackets for chess clubs, pickleball, darts, esports and school events.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tournament Pairing Manager", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free Swiss pairing generator and bracket maker for chess clubs, pickleball, darts, esports and school tournaments. Swiss pairings with colour balance and Buchholz tiebreaks, plus single and double elimination brackets. Runs entirely in your browser; nothing is uploaded.", "featureList": "swiss pairing generator, swiss tournament software, chess tournament pairings, buchholz tiebreak, sonneborn-berger, single elimination bracket maker, double elimination bracket generator, bracket reset, byes, standings csv export"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does Swiss pairing work?", "acceptedAnswer": {"@type": "Answer", "text": "Everyone plays every round and nobody is knocked out. Each round the players are sorted by score and paired with someone on a similar score who they have not played yet, so the leaders meet each other and the table sorts itself out in about log2 of the number of players rounds. Eight players need three rounds, sixteen need four."}}, {"@type": "Question", "name": "How many Swiss rounds do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Enough rounds that only one player can finish unbeaten: the next whole number above log2 of the player count. That is 3 rounds for 8 players, 4 for 16 and 5 for 32. One extra round makes the final ranking more reliable. The page shows the recommended number for your field."}}, {"@type": "Question", "name": "What happens with an odd number of players?", "acceptedAnswer": {"@type": "Answer", "text": "One player gets a bye each round and is scored as a win unless you change the bye points. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets a second bye before everyone has had one."}}, {"@type": "Question", "name": "How are ties in the Swiss standings broken?", "acceptedAnswer": {"@type": "Answer", "text": "In this order: Buchholz (the sum of your opponents' scores), Buchholz cut 1 (the same with the weakest opponent dropped), Sonneborn-Berger (points scored against each opponent weighted by that opponent's score), number of wins, and progressive score. Players still level share a rank, and the page marks them as tied so you can run a playoff or apply your own rule."}}, {"@type": "Question", "name": "Does it balance colours or home and away?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you switch it on. The first player listed on each board is White or home. The pairing search penalises giving anyone the same colour three times in a row or a large imbalance, so long runs of one colour are rare, but it is a penalty, not a guarantee: in our simulations some players still got three in a row over six rounds."}}, {"@type": "Question", "name": "Can I run a single or double elimination bracket instead?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose the format and the page seeds the players by rating (or list order), gives the top seeds byes when the field is not a power of two, and lets you click the winner of each match. Double elimination has a winners bracket, a losers bracket and a grand final with an optional bracket reset. Change an earlier result and any later matches that depended on it are cleared."}}, {"@type": "Question", "name": "Is my player list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server and there are no accounts. Use Save tournament to keep a file you can load again later; nothing is kept on the page itself."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tournament Pairing Manager", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free Swiss pairing generator and bracket maker for chess clubs, pickleball, darts, esports and school tournaments. Swiss pairings with colour balance and Buchholz tiebreaks, plus single and double elimination brackets. Runs entirely in your browser; nothing is uploaded.", "featureList": "swiss pairing generator, swiss tournament software, chess tournament pairings, buchholz tiebreak, sonneborn-berger, single elimination bracket maker, double elimination bracket generator, bracket reset, byes, standings csv export, elo rating calculator, glicko-2 rating calculator"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does Swiss pairing work?", "acceptedAnswer": {"@type": "Answer", "text": "Everyone plays every round and nobody is knocked out. Each round the players are sorted by score and paired with someone on a similar score who they have not played yet, so the leaders meet each other and the table sorts itself out in about log2 of the number of players rounds. Eight players need three rounds, sixteen need four."}}, {"@type": "Question", "name": "How many Swiss rounds do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Enough rounds that only one player can finish unbeaten: the next whole number above log2 of the player count. That is 3 rounds for 8 players, 4 for 16 and 5 for 32. One extra round makes the final ranking more reliable. The page shows the recommended number for your field."}}, {"@type": "Question", "name": "What happens with an odd number of players?", "acceptedAnswer": {"@type": "Answer", "text": "One player gets a bye each round and is scored as a win unless you change the bye points. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets a second bye before everyone has had one."}}, {"@type": "Question", "name": "How are ties in the Swiss standings broken?", "acceptedAnswer": {"@type": "Answer", "text": "In this order: Buchholz (the sum of your opponents' scores), Buchholz cut 1 (the same with the weakest opponent dropped), Sonneborn-Berger (points scored against each opponent weighted by that opponent's score), number of wins, and progressive score. Players still level share a rank, and the page marks them as tied so you can run a playoff or apply your own rule."}}, {"@type": "Question", "name": "Does it balance colours or home and away?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you switch it on. The first player listed on each board is White or home. The pairing search penalises giving anyone the same colour three times in a row or a large imbalance, so long runs of one colour are rare, but it is a penalty, not a guarantee: in our simulations some players still got three in a row over six rounds."}}, {"@type": "Question", "name": "Can it work out rating changes after the event?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Below the results, Rating changes shows what the event does to each player's Elo rating (with a K-factor you set) or Glicko-2 rating, deviation and volatility, from the games played so far, and downloads them as a CSV. Byes are left out, and the whole event is scored as one rating period against the ratings players brought in. It is an estimate for your club's own ladder, not an official rating."}}, {"@type": "Question", "name": "Can I run a single or double elimination bracket instead?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose the format and the page seeds the players by rating (or list order), gives the top seeds byes when the field is not a power of two, and lets you click the winner of each match. Double elimination has a winners bracket, a losers bracket and a grand final with an optional bracket reset. Change an earlier result and any later matches that depended on it are cleared."}}, {"@type": "Question", "name": "Is my player list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server and there are no accounts. Use Save tournament to keep a file you can load again later; nothing is kept on the page itself."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
     body { max-width: 1080px; margin: auto; padding: 28px; }
@@ -54,7 +54,7 @@
   <header>
     <p class="note">TOURNAMENT PAIRING MANAGER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Run a Swiss tournament or bracket without the spreadsheet</h1>
-    <p>Paste your <strong>players</strong> (with ratings if you have them) and pick a format. Get <strong>Swiss pairings</strong> round by round with <strong>colour balance</strong> and <strong>Buchholz and Sonneborn-Berger tiebreaks</strong>, or a <strong>single or double elimination bracket</strong> with byes, where you click each winner and the bracket fills itself in. Save the event to a file, export standings as a <strong>CSV</strong>, and copy the pairings for the group chat.</p>
+    <p>Paste your <strong>players</strong> (with ratings if you have them) and pick a format. Get <strong>Swiss pairings</strong> round by round with <strong>colour balance</strong> and <strong>Buchholz and Sonneborn-Berger tiebreaks</strong>, or a <strong>single or double elimination bracket</strong> with byes, where you click each winner and the bracket fills itself in. Save the event to a file, export standings as a <strong>CSV</strong>, copy the pairings for the group chat, and see each player's <strong>Elo or Glicko-2 rating change</strong> from the event.</p>
     <p class="note">For chess clubs, pickleball, darts, table tennis, esports and school events. New to Swiss? Read <a href="./how-to-run-a-swiss-tournament.html">how to run a Swiss tournament, with a worked example</a>.</p>
   </header>
 
@@ -110,6 +110,21 @@
       <div class="scroll"><table id="matches"><thead><tr><th>Round</th><th>Match</th><th>Player A</th><th>Player B</th><th>Winner</th></tr></thead><tbody></tbody></table></div>
     </div>
 
+    <div id="ratings-panel">
+      <h2 style="margin-top:22px">Rating changes</h2>
+      <p class="note">What this event does to each player's rating, from the games played so far. Byes are not games and are left out. The whole event counts as one rating period, scored against the ratings players brought in. Add an RD (and optionally a volatility) after a Glicko player's rating, like <code>Ana Souza, 1610, 85</code>.</p>
+      <div class="row4">
+        <div><label for="rating-method">Rating system</label><select id="rating-method"><option value="elo">Elo</option><option value="glicko2">Glicko-2</option></select></div>
+        <div id="elo-k-wrap"><label for="elo-k">Elo K-factor</label><input id="elo-k" inputmode="decimal" value="20"></div>
+        <div id="glicko-tau-wrap" hidden><label for="glicko-tau">Glicko-2 tau</label><input id="glicko-tau" inputmode="decimal" value="0.5"></div>
+        <div id="glicko-rd-wrap" hidden><label for="glicko-rd">RD for a rated player with none given</label><input id="glicko-rd" inputmode="decimal" value="350"></div>
+      </div>
+      <div class="check" id="elo-cap-wrap"><input type="checkbox" id="elo-cap"><label for="elo-cap" style="display:inline;margin:0;font-weight:400">Count a rating gap of more than 400 points as 400</label></div>
+      <div class="scroll"><table id="ratings"></table></div>
+      <p class="note" id="ratings-note"></p>
+      <button type="button" class="secondary" id="dl-ratings">Download rating changes CSV</button>
+    </div>
+
     <button type="button" id="save-file">Save tournament</button>
     <button type="button" id="dl-csv" class="secondary">Download standings CSV</button>
     <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
@@ -122,6 +137,7 @@
     <p><strong>Colours:</strong> with colour balance on, each pairing gives White to the player who is owed it, and a long run or a large imbalance adds to the cost so the search avoids it.</p>
     <p><strong>Tiebreaks:</strong> Buchholz, Buchholz cut 1, Sonneborn-Berger, wins and progressive score, in that order, then rating. Players level on everything share a rank and are marked as tied.</p>
     <p><strong>Brackets:</strong> standard seeding (1 v 8, 4 v 5, 2 v 7, 3 v 6), top seeds take the byes when the field is not a power of two. Double elimination drops each loser into the losers bracket in an order chosen to delay rematches, and the grand final can reset. Every match is derived from the results you have entered, so the bracket can never disagree with them.</p>
+    <p><strong>Ratings:</strong> Elo uses the logistic expectation and your K-factor. Glicko-2 follows the steps in Mark Glickman's paper <cite>Example of the Glicko-2 system</cite> (published on glicko.net), including the iterative volatility search, and the test suite reproduces that paper's worked example (1464.06, RD 151.52, volatility 0.05999) and checks the volatility search against plain bisection on 2,000 random players.</p>
     <p><strong>Checked:</strong> the test suite plays out about a hundred random events, from 4 to 32 players: no rematches, one game per player per round, byes spread evenly, nobody out of a double elimination bracket before a second loss.</p>
   </section>
 
@@ -137,6 +153,8 @@
     <p>In this order: Buchholz (the sum of your opponents' scores), Buchholz cut 1 (the same with the weakest opponent dropped), Sonneborn-Berger (points scored against each opponent weighted by that opponent's score), number of wins, and progressive score. Players still level share a rank, and the page marks them as tied so you can run a playoff or apply your own rule.</p>
     <h3>Does it balance colours or home and away?</h3>
     <p>Yes, if you switch it on. The first player listed on each board is White or home. The pairing search penalises giving anyone the same colour three times in a row or a large imbalance, so long runs of one colour are rare, but it is a penalty, not a guarantee: in our simulations some players still got three in a row over six rounds.</p>
+    <h3>Can it work out rating changes after the event?</h3>
+    <p>Yes. Below the results, Rating changes shows what the event does to each player's Elo rating (with a K-factor you set) or Glicko-2 rating, deviation and volatility, from the games played so far, and downloads them as a CSV. Byes are left out, and the whole event is scored as one rating period against the ratings players brought in. It is an estimate for your club's own ladder, not an official rating.</p>
     <h3>Can I run a single or double elimination bracket instead?</h3>
     <p>Yes. Choose the format and the page seeds the players by rating (or list order), gives the top seeds byes when the field is not a power of two, and lets you click the winner of each match. Double elimination has a winners bracket, a losers bracket and a grand final with an optional bracket reset. Change an earlier result and any later matches that depended on it are cleared.</p>
     <h3>Is my player list uploaded anywhere?</h3>
@@ -148,7 +166,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your tournament's own rules or an official rated-event system. <strong>You are responsible for reviewing and verifying every pairing and result</strong> before you publish them or submit them to a rating body. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. The pairings follow the general Swiss idea and are not an implementation of any federation's official pairing rules.</p>
     <p><strong>Independent.</strong> Not affiliated with any chess federation, sports body, club or tournament software company, and none is named or ranked here. The example players are invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so use Save tournament and keep the file.</p>
-    <p>Everything runs in your browser. Your player names and results are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tournament_started</code>, <code>example_loaded</code>, <code>round_paired</code>, <code>file_saved</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your player names and results are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tournament_started</code>, <code>example_loaded</code>, <code>round_paired</code>, <code>file_saved</code>, <code>csv_downloaded</code>, <code>text_shared</code>, <code>ratings_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tool: the <a href="../league-schedule-generator/">league schedule generator</a> for round-robin seasons with dates, courts and home and away.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -157,6 +175,7 @@
   <script type="module">
     import { parsePlayers, seedPlayers, recommendedSwissRounds, swissStandings, pairSwissRound, validateSwiss, buildBracket, resolveBracket, pruneResults, roundName, bracketText, standingsCsv, pairingsText, serializeState, parseState, sampleFields, BYE } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { gamesFromSwiss, gamesFromBracket, eloRatings, glickoRatings, ratingsCsv } from "./ratings.mjs";
 
     const $ = (s) => document.querySelector(s);
     const status = $("#form-status");
@@ -208,6 +227,36 @@
       $("#bracket-panel").hidden = T.format === "swiss";
       $("#champion").innerHTML = "";
       if (T.format === "swiss") renderSwiss(); else renderBracket();
+      renderRatings();
+    }
+
+    function ratingRows() {
+      const games = T.format === "swiss" ? gamesFromSwiss(T.rounds) : gamesFromBracket(T.bracketView.b, T.bracketView.res, BYE);
+      const method = T.ratingMethod ?? "elo";
+      const rows = method === "glicko2" ? glickoRatings(T.players, games, { tau: T.tau ?? 0.5, rd: T.rdDefault ?? 350 }) : eloRatings(T.players, games, { k: T.k ?? 20, cap400: Boolean(T.cap400) });
+      return { method, rows, games };
+    }
+
+    function renderRatings() {
+      const { method, rows, games } = ratingRows();
+      $("#rating-method").value = method;
+      $("#elo-k").value = T.k ?? 20;
+      $("#glicko-tau").value = T.tau ?? 0.5;
+      $("#elo-cap").checked = Boolean(T.cap400);
+      $("#elo-k-wrap").hidden = method !== "elo";
+      $("#elo-cap-wrap").hidden = method !== "elo";
+      $("#glicko-tau-wrap").hidden = method !== "glicko2";
+      $("#glicko-rd-wrap").hidden = method !== "glicko2";
+      $("#glicko-rd").value = T.rdDefault ?? 350;
+      const f1 = (x) => (x == null ? "" : (Math.round(x * 10) / 10).toFixed(1));
+      const sign = (x) => (x > 0 ? "+" : "") + f1(x);
+      if (method === "glicko2") {
+        $("#ratings").innerHTML = `<thead><tr><th>Player</th><th class="n">Before</th><th class="n">RD</th><th class="n">Games</th><th class="n">Score</th><th class="n">Expected</th><th class="n">Change</th><th class="n">After</th><th class="n">RD after</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.name)}${r.assumed ? ' <span class="pill tie">new</span>' : ""}</td><td class="n">${f1(r.before)}</td><td class="n">${f1(r.rdBefore)}</td><td class="n">${r.games}</td><td class="n">${r.score}</td><td class="n">${r.expected.toFixed(2)}</td><td class="n">${sign(r.change)}</td><td class="n">${f1(r.after)}</td><td class="n">${f1(r.rdAfter)}</td></tr>`).join("")}</tbody>`;
+        $("#ratings-note").textContent = `${games.length} rated games. Glicko-2 as in Mark Glickman's "Example of the Glicko-2 system". Players without a rating start at 1500, RD 350 and volatility 0.06 (marked new); a rated player with no RD gets the RD set above (350 treats them as barely known, so they move a long way; enter each player's real RD when you have it) and a missing volatility is taken as 0.06. Glickman notes the system works best with many games per player in a period (he suggests 10 to 15 on average), so a short club night gives a rough update. An estimate for your club's own ladder, not an official rating.`;
+      } else {
+        $("#ratings").innerHTML = `<thead><tr><th>Player</th><th class="n">Before</th><th class="n">Rated games</th><th class="n">Score</th><th class="n">Expected</th><th class="n">Change</th><th class="n">After</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.name)}${r.before == null ? ' <span class="pill tie">unrated</span>' : ""}</td><td class="n">${r.before ?? ""}</td><td class="n">${r.rated}${r.skipped ? ` <span class="note">(${r.skipped} v unrated)</span>` : ""}</td><td class="n">${r.before == null ? "" : r.ratedScore}</td><td class="n">${r.before == null ? "" : r.expected.toFixed(2)}</td><td class="n">${r.before == null ? "" : sign(r.change)}</td><td class="n">${r.before == null ? "" : f1(r.after)}</td></tr>`).join("")}</tbody>`;
+        $("#ratings-note").textContent = `${games.length} games. Elo change = K x (score - expected), with expected = 1 / (1 + 10^((opponent - player) / 400)), all against the ratings at the start of the event. Games with an unrated player are not rated for either side. An estimate for your club's own ladder, not an official rating: rating bodies set their own K-factors and rules.`;
+      }
     }
 
     function renderSwiss() {
@@ -293,6 +342,17 @@
       if (e.target.value) T.results[id] = e.target.value; else delete T.results[id];
       render();
     });
+    $("#rating-method").addEventListener("change", (e) => { if (!T) return; T.ratingMethod = e.target.value; render(); });
+    $("#elo-k").addEventListener("change", (e) => { if (!T) return; const v = Number(e.target.value); T.k = Number.isFinite(v) && v > 0 ? v : 20; render(); });
+    $("#glicko-tau").addEventListener("change", (e) => { if (!T) return; const v = Number(e.target.value); T.tau = Number.isFinite(v) && v > 0 ? v : 0.5; render(); });
+    $("#glicko-rd").addEventListener("change", (e) => { if (!T) return; const v = Number(e.target.value); T.rdDefault = Number.isFinite(v) && v > 0 ? Math.min(v, 350) : 350; render(); });
+    $("#elo-cap").addEventListener("change", (e) => { if (!T) return; T.cap400 = e.target.checked; render(); });
+    $("#dl-ratings").addEventListener("click", () => {
+      if (!T) return;
+      const { method, rows } = ratingRows();
+      download(method === "glicko2" ? "glicko2-ratings.csv" : "elo-ratings.csv", ratingsCsv(rows, method), "text/csv");
+      record("ratings_downloaded");
+    });
     $("#next-round").addEventListener("click", () => { if (!T) return; pairNext(false); render(); });
     $("#undo-round").addEventListener("click", () => { if (!T || !T.rounds.length) return; T.rounds.pop(); T.notes = []; if (T.rounds.length === 0) pairNext(true); render(); });
     $("#save-file").addEventListener("click", () => {
@@ -310,7 +370,7 @@
       T = out.state;
       T.withdrawn = T.withdrawn ?? [];
       T.planned = T.planned || recommendedSwissRounds(T.players.length);
-      $("#players").value = T.players.map((p) => (p.rating == null ? p.name : `${p.name}, ${p.rating}`)).join("\n");
+      $("#players").value = T.players.map((p) => (p.rating == null ? p.name : [p.name, p.rating, p.rd, p.rd != null ? p.vol : null].filter((x) => x != null).join(", "))).join("\n");
       $("#format").value = T.format; syncFormat();
       if (T.format === "swiss" && !T.rounds.length) pairNext(true);
       status.textContent = "Loaded.";

@@ -1125,7 +1125,9 @@ class DevelopSettings:
     # How the warps (WarpRectilinear, WarpRectilinear2, WarpFisheye, lensfun's) sample their
     # source: "bilinear" (2 x 2) or "cubic" (the 4 x 4 Catmull-Rom spline the DNG
     # specification recommends; sharper, clipped at edges). Both engines give the same bytes.
-    warp_kernel: str = "bilinear"
+    # Cubic is the default since 2026-11-13 (eval/warp-kernel-fast-cubic-2026-11-13.md): with the
+    # padded-plane taps and threaded bands it costs less than bilinear did before.
+    warp_kernel: str = "cubic"
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None

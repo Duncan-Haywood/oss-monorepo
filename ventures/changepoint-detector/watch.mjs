@@ -40,6 +40,8 @@ Options:
                             detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
                             points), bocpd-ar1, bocpd (default for poisson and meanvar), bocpd-window, or pelt (finds
                             smaller steps, e.g. 1 noise sd, at several times the false alerts). README, "Watching a growing series".
+                            drift: jumps on a level that wanders all the time (a price, a stock level, a slowly growing
+                            count), where the others alert on the wander itself (--model mean only). README, "Round 8".
                             auto: at the first run, replay the history once per setting and keep the most eager one
                             within the alert budget (below); later runs reuse it from the state file. README, "Round 6".
   --suggest                 replay the history once per setting (quiet, middle, eager), print the alerts each would have

@@ -113,6 +113,25 @@ class EngineTests(unittest.TestCase):
                 npy = do.warp_planes([wp], arr, band=4, kernel="cubic", scale=scale)
                 self.assertEqual(npy.tobytes(), pure.tobytes())
 
+    def test_thread_count_and_band_height_never_change_the_bytes(self):
+        import numpy as np
+
+        rng = random.Random(9)
+        w, h = 37, 29
+        src = array("d", (rng.random() for _ in range(w * h * 3)))
+        # Strong enough that source points fall past every edge, so the padded taps are exercised there too.
+        wp = do.WarpRectilinear(((1.12, 0.05, 0.01, 0.0, 0.002, -0.003), (0.9, 0.04, 0, 0, 0, 0)), 0.45, 0.55)
+        for kernel in do.WARP_KERNELS:
+            pure = do.warp_rgb([wp], src, w, h, kernel=kernel)
+            for band, threads in ((1, 1), (3, 4), (7, 2), (64, 1), (5, 16)):
+                with self.subTest(kernel=kernel, band=band, threads=threads):
+                    arr = np.frombuffer(src.tobytes(), dtype=np.float64).reshape(h, w, 3).copy()
+                    npy = do.warp_planes([wp], arr, band=band, kernel=kernel, threads=threads)
+                    self.assertEqual(npy.tobytes(), pure.tobytes())
+
+    def test_cubic_is_the_default_kernel(self):
+        self.assertEqual(rd.DevelopSettings().warp_kernel, "cubic")
+
     def test_develop_engines_agree_and_cubic_differs_from_bilinear(self):
         rng = random.Random(17)
         w, h = 40, 14
@@ -123,7 +142,7 @@ class EngineTests(unittest.TestCase):
             with self.subTest(half=half):
                 py = rd.develop(raw, rd.DevelopSettings(engine="python", half=half, warp_kernel="cubic"))
                 npy = rd.develop(raw, rd.DevelopSettings(engine="numpy", half=half, warp_kernel="cubic"))
-                lin = rd.develop(raw, rd.DevelopSettings(engine="numpy", half=half))
+                lin = rd.develop(raw, rd.DevelopSettings(engine="numpy", half=half, warp_kernel="bilinear"))
                 self.assertEqual(py[2].tobytes(), npy[2].tobytes())
                 self.assertNotEqual(npy[2].tobytes(), lin[2].tobytes())
 
@@ -141,7 +160,8 @@ class CliTests(unittest.TestCase):
             src = Path(tmp) / "lens.dng"
             src.write_bytes(make_dng(patch_sensor(24, 8), 24, 8, extra_raw_tags=[warp_tag([(0.9, 0.03, 0, 0, 0, 0)])]))
             outs = []
-            for i, extra in enumerate(([], ["--warp-kernel", "cubic"])):
+            # Cubic is the default since 2026-11-13: no flag and "--warp-kernel bilinear" must differ.
+            for i, extra in enumerate(([], ["--warp-kernel", "bilinear"])):
                 out = io.StringIO()
                 code = main(
                     ["develop", str(src), "--out", str(Path(tmp) / f"m{i}"), "--engine", "python", *extra],

@@ -3975,3 +3975,64 @@ measured on real data. Up to 600 points in `analyze` (the bootstrap reruns a qua
 rho, slopeBefore, slopeAfter, significant, note }` or `{ refused, reason }`; on the page, the "Also test one change of
 slope on the levels" box. Test: `hinge-test.test.mjs`.
 
+
+## Round 8: a watch for a level that wanders (2026-11-13, pre-registered; ships as an option)
+
+The watch took the level, volatility and count models only, so a series whose level drifts all the time (a price, a
+stock of inventory, a slowly growing count) was watched with the level detectors, which read the drift itself as a run
+of steps and keep alerting. `--model drift` ("Jumps on a drifting level") models the drift as a random walk and cuts
+only jumps the walk does not explain. Now the watch can use it: detector `drift` (`detectDrift` in `watch-core.mjs`:
+`driftLevel` on the newest `window` points, wander chosen with the changes, `noise: 'ml'`, as `--model drift` does;
+level model only; no seasonal period; `--log` honoured). The alert gives the smoothed level on each side of the jump.
+
+**The round.** `eval/watch-drift.mjs` holds the rule, committed before the first run (this PR's first commit). The
+candidate is measured against the default `bocpd-ar1-window` under the shipped advance policy (confirm 5, tolerance 5,
+hold, persist 2), so only the detections differ. To be offered as a setting, not the default, it had to (a) at least
+halve the default's false alerts on two random-walk nulls and (b) find as many jumps on four walk-plus-jump cells
+with a median delay at most 3 points longer. The synthetic generator is new (seeds 81-90, noise sd 1, walk step sd
+omega, jump at point 301 of 500, a check after every point from 100). Output: `eval/watch-drift.out.txt`, 253 s on
+4 cores.
+
+| cell | default: false alerts / 1,000 checks, jumps found, delay | drift |
+|---|---|---|
+| walk 0.1 | 2.00 | 1.00 |
+| walk 0.3 | 7.00 | 0.50 |
+| walk 0.1 + jump 3 sd | 0.50, 10/10, 5 | 0.50, 10/10, 5 |
+| walk 0.1 + jump 5 sd | 0.25, 10/10, 5 | 0.50, 10/10, 5 |
+| walk 0.3 + jump 5 sd | 6.00, 10/10, 5 | 0.25, 10/10, 5 |
+| walk 0.3 + jump 8 sd | 5.25, 10/10, 5 | 0.25, 10/10, 5 |
+| null iid (reported only) | 0.00 | 0.00 |
+| null AR(1) 0.8 (reported only) | 3.25 | 1.75 |
+| step 2 sd iid (reported only) | 0.25, 10/10, 5 | 0.00, 10/10, 5 |
+
+**Both parts pass:** (a) 0.75 against 4.50 false alerts per 1,000 checks on the walk nulls; (b) 40 of 40 jumps against
+40 of 40, median delay 5 against 5. So `drift` ships as an option: "Wandering level" in the page's "How eager"
+select (also used when the page's model is the wandering-level one and no setting is picked), `--detector drift` in
+`watch.mjs`, and `detector: "drift"` for agents calling `watchCheck`. The default does not change. The gain is where
+the pre-registration said it would be: at the larger wander (omega 0.3, about a third of the noise sd each step) the
+default sends 6 to 7 false alerts per 1,000 daily checks, about 2.5 a year, and the drift watch about 0.2 a year. At
+omega 0.1 the two are close.
+
+**TCPD, deciding nothing, and a prediction that was wrong.** On TCPD's 31 univariate series (watched from 20% of their
+length, as in rounds 4-7) the drift watch sent 202 alerts against the default's 103, 40.6% at an annotated change
+against 42.7%, and reached **44 of 52** majority-marked changes against 32. The header predicted that the default
+would reach more marks. It did not: the drift watch reached more on brent_spot, businv, children_per_woman,
+co2_canada, gdp_iran, ozone, uk_coal_employ and usd_isk, all of them series whose level moves for years at a time,
+and lost one on construction and one on lga_passengers. The extra alerts come from the same wandering series (co2_canada
+23, children_per_woman 15, bank 47 against 29 on a series with no marks). That is about the trade the "Middle"
+setting makes (README "Round 6": 23 of 31 on the future halves at 1.7 times the default's alerts), here at twice the
+alerts for 12 more marks. It is one run on seen series and decided nothing: it says the drift watch is worth trying
+on a series that clearly wanders, not that it should be the default. A pre-registered round on fresh labelled data
+would be the test for that.
+
+Not done: the "Which How eager suits this series?" hint does not consider `drift` (round 6's replay scored three
+settings), and the budget box cannot pick it. The drift fit costs about 25 ms at 500 points and 90 ms at 1,000, about
+half the default's time per check, so a replay is no slower.
+
+Tests: `watch-drift.test.mjs` (4: it is a named detector for the level model only; a 6-sd jump on a wander of 0.3 is
+found within 2 rows with its levels; a watch from 100 to 260 points sends that jump once and nothing for the wander;
+`window` and `--log` are honoured). `eval/watch-drift-browser.mjs` in headless Chromium at 390 px (output
+`eval/watch-drift-browser.out.txt`, 5 of 5): 150 rows of wander send nothing under "Wandering level"; checks at 250, 259
+and 260 rows send the row-201 jump once (level 88.7 to 96.3, 7.75 noise sd); the wandering-level model with the setting
+blank uses the drift watch; no page errors, no sideways scroll. `deploy/make-watch-repo.sh` now copies `drift-level.mjs`, which `watch-core.mjs`
+imports.
