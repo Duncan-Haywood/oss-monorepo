@@ -28,11 +28,31 @@ export function splitCsvRow(line, sep) {
   return out;
 }
 
+// Split a CSV text into records. A quoted cell may hold a line break (Square's item export puts an item's
+// description in its Notes cell, often over several lines: 14 of 50 rows in one real export), so a newline inside quotes
+// does not end the row; it is kept as a space. A quote left open at the end falls back to one row per line. A bare "\r" before "\n" is dropped. A BOM at the start is dropped.
+export function csvLines(text) {
+  const s = String(text || "").replace(/^\uFEFF/, "");
+  const out = []; let cur = "", q = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === '"') { q = !q; cur += ch; }
+    else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && s[i + 1] === "\n") i++;
+      if (q) cur += " "; else { out.push(cur); cur = ""; }
+    } else cur += ch;
+  }
+  if (cur !== "") out.push(cur);
+  // A quote never closed (a stray inch mark) would swallow every row after it: read the file line by line instead.
+  if (q) return s.split(/\r?\n/);
+  return out;
+}
+
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const clean = (s) => String(s || "").replace(/[,;\t]/g, " ").replace(/\s+/g, " ").trim();
 
 export function importStaffCsv(text) {
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = csvLines(text).filter((l) => l.trim());
   const notes = [], skipped = [];
   if (lines.length < 2) return { staffText: "", rows: 0, notes: ["Needs a header row and at least one person."], skipped, unknown: [] };
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
