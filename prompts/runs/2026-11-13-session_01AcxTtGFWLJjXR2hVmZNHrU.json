@@ -54,7 +54,7 @@
     "ventures/shift-roster-builder/README.md section 'Two real schedule exports (2026-11-13)'"
   ],
   "goal": "Flagship depth with real data",
-  "notes": "--import-shifts refused both real exports found by GitHub code search (a Deputy roster+timesheet export, a retail WFM initial/final week). Now: header families with preference order and --use, busier role column, whole-file d/m vs m/d, leave/discarded rows, --location and page pickers, weeks anchored at the first date. Findings: store's first draft to final kept 3 of 160 shifts unchanged (hours -15%); Deputy firm's worked times matched roster (93% exact starts), 11% of work unrostered. Verification: node --test on import-shifts/page/cli tests 64/64 pass locally; full venture suite and venture-preflight results below.",
+  "notes": "--import-shifts refused both real exports found by GitHub code search (a Deputy roster+timesheet export, a retail WFM initial/final week). Now: header families with preference order and --use, busier role column, whole-file d/m vs m/d, leave/discarded rows, --location and page pickers, weeks anchored at the first date. Findings: store's first draft to final kept 3 of 160 shifts unchanged (hours -15%); Deputy firm's worked times matched roster (93% exact starts), 11% of work unrostered. Verification: node --test on import-shifts/page/cli tests 64/64 pass locally; run_venture_tests.py shift-roster-builder: ok (189.1 s, 0 failed); venture-preflight.mjs: clean (one earlier run caught a 91-char seo_title, fixed).",
   "corrections": [],
   "redteam": null,
   "usage": {
