@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up Betha 1.00 query (ConsultarLoteRpsEnvio); validated by xmllint against
+     servico_consultar_lote_rps_envio_v01.xsd from OpenAC.Net.NFSe (cac2bb13). Betha's
+     schemas are unqualified: only the root is in the namespace, so it carries a prefix and
+     its children none. No real party. -->
+<e:ConsultarLoteRpsEnvio xmlns:e="http://www.betha.com.br/e-nota-contribuinte-ws">
+  <Prestador>
+    <Cnpj>11222333000181</Cnpj>
+    <InscricaoMunicipal>123456</InscricaoMunicipal>
+  </Prestador>
+  <Protocolo>202611130001</Protocolo>
+</e:ConsultarLoteRpsEnvio>
