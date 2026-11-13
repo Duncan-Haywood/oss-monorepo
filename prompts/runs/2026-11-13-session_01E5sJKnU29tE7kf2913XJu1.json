@@ -31,12 +31,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
   "errors": [
-    "My first re-runs of the ticket-resale mutants passed a test glob to node with its quotes intact (unquoted shell variable), so node ran 0 tests and exited 0; quality_mutate graded every mutant SURVIVED. Caught by comparing with a manual run; tool fixed in this PR."
+    "My first re-runs of the ticket-resale mutants passed a test glob to node with its quotes intact (unquoted shell variable), so node ran 0 tests and exited 0; quality_mutate graded every mutant SURVIVED. Caught by comparing with a manual run; tool fixed in this PR.",
+    "Edited the visible FAQ answer on llm-spend-guard's how-to page without its FAQPage JSON-LD; faq-visible.test.mjs failed in portfolio-pages CI. The CI log tail (MCP get_job_logs caps at ~317k chars) did not reach the failing test, so it took a local full-suite run to find it."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,6 +52,10 @@
     {
       "file": "platform/ci/quality_audit.py",
       "issue": "`sample` skips seeds used by open `quality: round N (seed S)` PRs, but two sessions that draw within minutes of each other both see none and pick the same seed (second time on 2026-11-13: rounds 59 and 62). A claim that lands before drawing (e.g. a branch or a file pushed at draw time, checked again just before opening the PR) would close the race."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "The portfolio-pages 'test' job prints 1,600+ TAP tests; get_job_logs returns only the last ~317k chars, which never include the failing 'not ok' line. A one-line failure summary at the end of the job (e.g. grep '^not ok' after node --test) would save a 10-minute local re-run."
     }
   ],
   "deviations": [
