@@ -209,7 +209,7 @@
   },
   {
    "severity": "low",
-   "what": "alpha = 3.912/V (Koschmieder 2%) labelled meteorological visibility; WMO MOR and the lidar fog literature use 5% (ln 20/MOR = 2.996/MOR), 31% lower extinction; NIR wavelength dependence of fog extinction not modelled or listed in Limitations",
+   "what": "alpha = 3.912/V (Koschmieder 2%) labelled meteorological visibility; WMO MOR and the lidar fog literature use 5% (ln 20/MOR = 2.996/MOR), about 23% lower extinction (the 2% constant gives 31% more); NIR wavelength dependence of fog extinction not modelled or listed in Limitations",
    "where": "research/fog-twin/src/fog_twin/model.py:8",
    "category": "domain-rule",
    "origin": "spec"
