@@ -211,8 +211,9 @@ flagships:
       1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); next on speed: the plane's
       double allocation in parse_raw and C prediction for point-transform scans), and the serial
       _normalised_plane (about 0.2-0.4 s);
-      MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the raw-value
-      unit is settled (README, 2026-11-12 MapTable section).
+      MapTable and ScalePerRow/Column run in OpcodeList1 since 2026-11-13 (spec's
+      integer range; eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial
+      there still need a unit the text does not give, or a real file.
     next: >-
       History and every measurement: README and eval/ (ingest to masters;
       DNG developer with DNG-spec colour, DCP tables, tone curves; Canon CR2;

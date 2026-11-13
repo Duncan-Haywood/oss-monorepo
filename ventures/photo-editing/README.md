@@ -1383,6 +1383,55 @@ What is not: no camera- or converter-written file carrying it has been tried. Th
 passing here (opcodes with flag bit 1 skipped in every develop) was fixed on 2026-11-13: see
 "Full and preview quality" below. Details: `eval/warp-rectilinear2-2026-11-12.md`.
 
+## Value tables and row and column gains on the stored raw values: OpcodeList1 (2026-11-13)
+
+`MapTable`, `ScalePerRow` and `ScalePerColumn` now run in `OpcodeList1` too, on the stored CFA
+values before black subtraction or anything else reads them. Until now they ran only in
+`OpcodeList2` and `OpcodeList3`. In the first list they were named and left undone, because no
+file had shown what unit a stored raw value is in. The DNG 1.7.1.0 text settles it for these
+three (chapter 6, p. 105): after each opcode "image values are clipped ... to the logical range
+of the image being modified. For OpcodeList1, this range is 0 to 2^32-1 for images with a bit
+depth greater than 16, otherwise 0 to 2^16-1." So the first list works on integers:
+
+- `MapTable`: the stored value is the table index. Value `v` becomes `table[min(v, size - 1)]`.
+  That picks the same entry the SDK's float view (`v / 65535`, indexed at `floor(x * 65535 + 0.5)`)
+  picks, so one rule holds in all three lists. A sensor that stores companded values (a square
+  root or log curve, to fit a wide range into fewer bits) writes the expansion table here.
+- `ScalePerRow` / `ScalePerColumn`: a gain has no unit. `v * scale` is rounded half up and clipped
+  to `0..65535` (`0..2^32-1` above 16 bits). This is the fix for row or column readout gain
+  mismatch, applied where the mismatch happens: on the raw values, black level included.
+
+The other three still wait. `DeltaPerRow`, `DeltaPerColumn` and `MapPolynomial` need a unit. An
+offset of 0.01 is 0.01 of what? The text doesn't say for stored values, so in `OpcodeList1` they
+stay named and undone. Also named and skipped: a `MapTable` on 32-bit stored data (a 16-bit table
+gives no index there), and a plane range that leaves out plane 0 (a CFA image has one plane).
+Areas count from the stored frame's top-left, as the bad-pixel fixes do. One choice to check
+against Adobe's output when a file turns up: the SDK multiplies in float32, so where a product
+lands within float32 rounding of a half step, its result may differ from this float64 one by one
+count.
+
+Speed on a 12.2 MP stored frame (4032 x 3024): `MapTable` 0.07 s, a row or column scale
+0.15-0.16 s with numpy; pure Python 1.4 s and 2.6-2.9 s. Both give the same values.
+
+What is checked: 12 tests (`tests/test_dng_list1_table_scale.py`), each on both engines. Every
+answer is checked against the closed form written out in the test:
+
+- tables of 1, 2, 300, 4,096 and 65,536 entries, over the whole frame and over an area with row
+  and column pitches; the input is left untouched;
+- row and column scales, including gains of 0 and 3 (clipped), with an exact half rounding up;
+- a table and a scale composing in list order, and 32-bit stored data;
+- on a whole develop, a sensor that stored square-root-companded 16-bit values develops
+  byte-identical to the clean sensor with the expansion table in `OpcodeList1` (more than 100
+  8-bit steps off without it);
+- rows and columns darkened by known readout gains come back within 3 16-bit steps of 257
+  (more than 20 without);
+- numpy and pure Python give the same bytes at full and half size.
+
+Four seeded faults each fail 5 to 14 of the tests: rounding down instead of half up, a table
+index off by one, wrapping instead of clipping at the top, and the column pitch ignored. What is
+not checked: no camera- or converter-written file carrying any of the three in `OpcodeList1`.
+Details: `eval/list1-table-scale-2026-11-13.md`.
+
 ## Full and preview quality: opcode flag bit 1 (2026-11-13)
 
 Each DNG opcode carries two flag bits. Bit 0 marks it optional. Bit 1, in the
@@ -1480,9 +1529,10 @@ scale is taken off and put back. The table is indexed as the DNG SDK indexes 16-
 `floor(x * 65535 + 0.5)`, a short table's last entry serving every larger value. A per-row or
 per-column list whose length does not match its area's steps is named and skipped, as the SDK
 rejects it. Both engines give the same bytes (numpy: 0.15-0.34 s per opcode on a 12 MP plane);
-`--no-opcodes` turns them off. `OpcodeList1` still runs only the bad-pixel fixes: there the SDK's
-float view of a raw value is `value / 65535` whatever the white level, and no file has shown which
-unit a camera means, so these five stay named there.
+`--no-opcodes` turns them off. In `OpcodeList1` they stayed named, since no file had shown which
+unit a stored raw value is in. Since 2026-11-13, `MapTable` and the two scales run there too. The
+specification's integer range for that list settles them; the deltas still wait (see
+"Value tables and row and column gains on the stored raw values" above).
 
 What is checked: 16 tests (`tests/test_dng_table_per_line.py`) against the formulas written out in
 the test. A raw file with its rows darkened by known gains, a fixed offset added per column, or

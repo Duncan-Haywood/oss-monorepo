@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtJCz5fpwZkk1hRbB3C",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:06:58Z",
+  "ended": "2026-11-13T22:16:58Z",
+  "wall_minutes": 10.77,
+  "tokens_in": 8444845,
+  "tokens_out": 38779,
+  "cost_usd": 3.5765,
+  "tool_calls": 75,
+  "task": "photo-editing (flagship 7): MapTable and ScalePerRow/Column in DNG OpcodeList1",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15633",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "A seeded-fault script crashed with a mutant still in place, and a same-second rewrite left a stale .pyc of a later mutant. The venture suite then failed 13/1 on clean source until __pycache__ was cleared. Not a code defect; the suite was rerun clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Three sessions ran allocate in the same second and each was sent to row 3, then row 4. claim_check made me yield twice. The 'picked by session id among the first 6' spread did not separate them, and every Deepen row already had a PR under 24 h old, so no row was free."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Seeded-fault runs that rewrite a source file and restore it within one second can leave a stale __pycache__ .pyc that Python accepts. Worth one line: clear __pycache__ (or set PYTHONDONTWRITEBYTECODE=1) after mutation testing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The assigned rows (einvoice-preflight, then shift-roster-builder) were claimed by PRs opened in the same second. Every other Deepen row had an open PR under 24 h old.",
+      "did": "Took photo-editing (flagship 7) on an item separate from its open 12 h-old draft #15457, which only touches _normalised_plane, and left that draft alone (under the 24 h orphan line).",
+      "result": "No file overlap with #15457 except README/flagships.yaml text in other sections."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-one-sentence-settled-three-raw-opcodes.md",
+    "ventures/photo-editing/eval/list1-table-scale-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "DNG 1.7.1.0 spec p.105 fixes OpcodeList1's range to integers 0..2^16-1, so MapTable (stored value = index) and ScalePerRow/Column (unit-free) now run there; Delta and MapPolynomial stay named. 12 tests on pure and numpy engines; four seeded faults fail 5-14 tests each; run_venture_tests.py photo-editing ok (Python 3.13 + numpy 2.5.3, 73 s) on clean source. 12 MP: MapTable 0.065 s, scale 0.16 s with numpy.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a48c2d72-ca39-5d2a-9727-5375adc6b712",
+    "transcripts": 1,
+    "first": "2026-11-13T22:06:58Z",
+    "last": "2026-11-13T22:17:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 130,
+        "output": 38779,
+        "thinking": 8704,
+        "cache_read": 8302219,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142496,
+        "api_equivalent_usd": 3.5765,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 130,
+      "output": 38779,
+      "thinking": 8704,
+      "cache_read": 8302219,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142496,
+      "api_equivalent_usd": 3.5765,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 67,
+      "mcp__github__update_pull_request": 3,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.77,
+      "active_minutes": 10.77,
+      "model_minutes": 7.63,
+      "tool_minutes": 3.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "spec reading, implementation on two engines, 12 tests, fault seeding, docs: a senior engineer's day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 167.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
