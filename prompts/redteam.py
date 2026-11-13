@@ -343,6 +343,9 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
 def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) -> dict[str, Any]:
     """Re-apply every escaped, non-equivalent mutant and set `caught_after_fix`."""
     rec = json.loads(record_path.read_text())
+    # A suite that is red without any mutant fails with every mutant too, so
+    # it would mark every gap caught: run each suite clean once first.
+    green: dict[str, bool] = {}
     for camp in (rec.get("redteam") or {}).get("campaigns", []):
         for m in camp["mutants"]:
             if m["caught"] or m.get("triage") == "equivalent":
@@ -352,6 +355,14 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             if found is None or not target.is_file():
                 m["caught_after_fix"] = None
                 m["note"] = (m.get("note") or "") + " [rerun: target or suite gone]"
+                continue
+            key = json.dumps([found[0], str(found[1])])
+            if key not in green:
+                green[key] = run_suite(*found, timeout=timeout)[0]
+            if not green[key]:
+                m["caught_after_fix"] = None
+                m["note"] = ((m.get("note") or "") + " [rerun: suite is red without the mutant;"
+                             " make it green, then rerun]")
                 continue
             original = target.read_bytes()
             lines = original.decode().split("\n")
