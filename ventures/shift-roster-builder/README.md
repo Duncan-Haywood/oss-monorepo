@@ -196,6 +196,8 @@ Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven
 
 **Shifts from hourly sales (2026-11-07).** `node cli.mjs --from-sales hourly.csv --splh 60 [--min-staff 2] [--min-shift 4] [--max-shift 8] [--open 8 --close 22]` (`demand.mjs`) averages each weekday-hour of a till or POS export (a date-time column and a sales column; weekday-name rows also read), sets heads needed to `max(min-staff, ceil(average / splh))` inside the hours with sales, and cuts each day's headcount curve layer by layer into shifts. A run shorter than `--min-shift` is stretched to it and the stretch is reported as extra hours. Shift lines go to stdout in the shifts-file format, so the output feeds the normal build. Hand-built sales only (`demand.test.mjs`: averaging, headcount, coverage of every hour by the cut, parse round trip, CLI); not a forecast model, no real POS export tried (wanted: one). 2026-11-07: `--skip-dates 2026-11-26,2026-12-25` leaves holiday or storm days out of the average, and `--half-life <weeks>` weights recent weeks more (a day's weight halves every that many weeks back from the newest date); hand-built sales only (`demand.test.mjs`). 2026-11-07: the page `shifts-from-sales.html` (paste or load a CSV; same engine; table by day, copy button; tested in `page-sales.test.mjs`, clicked in headless Chromium 2026-11-10 at 1280 and 390 px wide: sample, copy, bad and zero inputs, skip dates and half-life, no console errors, no sideways scroll; that run found that text with no readable sales left "Paste sales above." instead of an error, now fixed). 2026-11-08: fixed a bug found by probing the parser: an ISO date with a 12-hour clock (`2026-03-05 2:00 PM`) was read as 2 AM and `12:00 AM` as noon, putting demand in the wrong hours; now converted, 13 PM refused (`demand.test.mjs`). Next: a real POS export.
 
+**Repeat builds remembered (2026-11-13).** `buildRoster` keeps its last 32 builds in the process; the same staff, shifts and options again returns a copy at once instead of re-running the proof (on the page: an unchanged week built twice). Inputs JSON would misread (Set, Map, function, Date) are built fresh; `memo: false` always builds fresh. The full venture suite went from 148.8 s to 131.7 s on 4 cores (421 to 367 CPU-seconds); splitting `calc.test.mjs` had first been tried and changed nothing, because the suite is CPU-bound (`docs/posts/2026-11-13-splitting-a-slow-test-file-did-nothing.md`). Test: `calc.test.mjs`, "a repeat build of the same input is remembered".
+
 **Input checks from a red-team run (2026-11-13).** `--open`/`--close` are now whole hours from 0 to 24 with the opening first: `--open 17 --close 9` or `--close 25` used to return an empty plan with no word why, and now stop with an error (a day that runs past midnight cannot be planned as one day yet). An opening hour after the last sale, which is legal, plans nothing and now says so in the notes. Amounts with a Swiss apostrophe thousands mark (`CHF 1'234.50`, also `1’234.50`) used to be skipped as unreadable and are now read. Tested in `demand.test.mjs` with hand-built rows, as are five guards for faults the suite missed (a one-digit-month `--skip-dates`, a stray three-digit date number flipping a file to day-first, an unreadable quantity under `--standard`, the 20-date floor of the lunch-break rule, half-life auto with `--short-cost`).
 
 **Messy sales exports (2026-11-09).** Probing `--from-sales` with made-up exports of the kinds POS tools write showed four failures, now fixed and unit-tested (made-up rows only, still no real export): `1.234,50` (decimal comma) was silently read as 1.2345, a thousand times too small and no warning, and is now 1234.50; `(12.50)` was an unreadable cell and is now a refund, skipped like any negative; month-name stamps (`"Mar 5, 2026 2 PM"`, `5 March 2026 14:00`) were unreadable; and an hour interval beside a weekday (`14:00-15:00`, `2 PM - 3 PM`) is read by its start. A dotted date (`05.03.2026`) is now day first; slashes stay month first. Also 2026-11-09: a separate Date column and Time column (`Date,Time,Net Sales`) used to read 0 rows and are now joined into one stamp. Later the same day: an Excel `sep=,` first line (which made the real header look like data, so every row was lost) is skipped, and a bracketed unit in a header (`Net Sales (USD)`, `Sales [GBP]`) no longer hides the column; both were found by probing and are unit-tested on made-up rows.
@@ -1286,3 +1288,67 @@ Not claimed: invented teams with rates from one firm's file (as above); 20 seede
 one move at a time, so a trade that needs two shifts to move together is not found; risk counts a person-day's shifts
 one by one, so it does not check that one person could take all of them; the surrogate's looseness is measured on five
 teams only.
+
+## Counting call-out risk with hand-over chains (2026-11-13 later)
+
+"Paying for call-out slack" (above) priced risk hours with a check that asked one question per shift: could someone else
+take it outright, nobody else moved? Its own closing lines named two gaps: it counted a person-day's shifts one by one (one
+stand-in could be counted for two shifts they could not both work), and it over-counted badly: retail's posted roster
+showed 54 risk hours over a measured exposure of 0. `coverRisk` now hands out all of the day's shifts at once, and lets a
+stand-in who is full pass one of their own shifts (on the call-out day or later; earlier ones have been worked) to a third
+person, who may pass one on: up to `chain` passes per shift, 2 by default, `--cover-chain 0` for the first check.
+
+**Does it pick out the days that really open?** `node eval/cover-risk-joint.mjs` (`eval/cover-risk-joint.out.txt`)
+compares each setting with `calloutExposure` person-day by person-day on the five templates and three seeded 20-person
+weeks: 202 person-days, of which 48 really open hours when that person calls out.
+
+| check | person-days flagged | of them really open | missed | hours flagged |
+|---|---|---|---|---|
+| each shift on its own (before) | 91 | 52.7% | 0 | 670 |
+| all shifts at once | 91 | 52.7% | 0 | 670 |
+| + one pass | 75 | 64.0% | 0 | 549 |
+| **+ two passes (default)** | **72** | **66.7%** | 0 | **532** |
+| + three passes | 72 | 66.7% | 0 | 532 |
+
+The joint check changed nothing here: no template or seeded week gives anyone two shifts on one day. It is a correctness
+fix that the tests pin (`cover-price.test.mjs`: Bo, capped at 4 h a week, could take either of Ana's two Tuesday shifts but
+not both; the old check called that day safe). The chains do the work: retail's 81 h on 11 days fall to 45 h on 5, of which
+4 days really open; the seeded weeks' 88 flagged hours were all false and fall to 0. The café's 23 flagged days still sit
+over 11 that open: there the rebuild finds cover by moving many shifts, which no short chain sees. Risk stays an upper
+bound (no day exposure finds open was missed by any setting).
+
+**Does the price still buy the same trades?** The template sweep (`node eval/cover-price.mjs`, `eval/cover-price.out.txt`)
+on the new check: retail's one hand-over now takes risk from 45 h to **0 h**, matching its measured exposure (24 h to 0;
+the old check called the same roster 54 h), at the same $5.82 of score and with the same seeded-week results. The spare
+café now makes 2 moves (200 to 194 risk hours by the new count) for the same $18.34; over 20 seeded weeks at the sick-only
+rate it made fewer changes to others (12 to 10) and lower premiums ($193 to $157); at the all-leave rate it added 130 open
+hours instead of 138, with more changes (147 to 152) and premiums ($2,438 to $2,493). Its exposure is 54 h either way. Café, salon and clinic: still no move pays at any price.
+
+**What the old check bought on bigger weeks.** `node eval/cover-chain-cost.mjs` (`eval/cover-chain-cost.out.txt`) runs the
+priced pass ($100 an hour at risk) on seeded 20-, 40- and 60-person weeks, each built once with the defaults, every setting
+starting from the same roster, and asks the strictest count (two passes, no budget) about the roster each posts:
+
+| week | one-shift check: moves, score paid, strict risk before → after | two passes (default): moves | pass time, old / default / two passes uncapped |
+|---|---|---|---|
+| 20 x 56 week 2 | 1, $3.66, 189 → 189 h | 0 | 22 ms / 45 ms / 59 ms |
+| 40 x 112 week 0 | 1, $3.13, 435 → 435 h | 0 | 104 ms / 685 ms / 5.6 s |
+| 40 x 112 week 1 | 6, $4.93, 440 → 440 h | 0 | 153 ms / 1.2 s / 14.0 s |
+| 40 x 112 week 2 | 5, $3.74, 160 → 160 h | 0 | 109 ms / 99 ms / 233 ms |
+| 60 x 168 week 0 | 8, $10.38, 292 → 292 h | 0 | 1.1 s / 3.5 s / 14.4 s |
+
+All 21 trades the old check made on these weeks, $25.84 of score in all, cleared risk the two-pass count does not see.
+The old check flagged 846 h on the 60-person week where two passes find 292: it was charging a manager for slack the team
+already had.
+
+**Cost, and the budget.** On a day nobody can cover, the two-pass search reads 38-39 of 40 people's lists, and the pass
+re-runs it for every candidate move, so uncapped it took 5.6-14.4 s on the 40-60 person weeks. A memo keyed on the lists
+each search read was tried and dropped: the failing searches read nearly everyone, so nothing was reused and it ran
+slower. What shipped is a budget, `coverBudget` (500 checks per person-day): a search past it counts the day at risk, which
+only ever adds risk, so the count stays an upper bound. A capped search can also "clear" risk merely by finishing under
+budget after a move (4 such trades, $0.90, on the 60-person week), so every move that passes the capped screen is
+confirmed by the same check without the budget before it is kept, and the reported risk hours are the unbudgeted count.
+On the templates the budget never binds (the capped and uncapped counts agree on all 202 person-days).
+
+Not claimed: five invented templates and seven seeded weeks; exposure is itself a model (5pm notice, kept rebuild), not a
+real week; the café's gap between flagged and open days is left; moving two shifts together is still not tried; the
+60-person pass is 3x slower than the old check's (3.5 s against 1.1 s), within the 250-copy cap.

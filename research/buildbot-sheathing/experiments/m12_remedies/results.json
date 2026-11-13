@@ -1,0 +1,423 @@
+{
+ "versions": {
+  "python": "3.13.18",
+  "numpy": "2.5.3"
+ },
+ "trials": 20000,
+ "seed": 7,
+ "A": {
+  "measured|three|no push|ledger": {
+   "clean": 0.42525,
+   "missed": 1.0946500000000028,
+   "lo": 0.4184132289452284,
+   "hi": 0.43211548150006934
+  },
+  "measured|three|no push|slide+shim 0.5 mm": {
+   "clean": 0.5418,
+   "missed": 0.7257999999999971,
+   "lo": 0.5348872425437092,
+   "hi": 0.5486967026520975
+  },
+  "measured|three|mid push|ledger": {
+   "clean": 0.55165,
+   "missed": 0.8031999999999986,
+   "lo": 0.5447481611576201,
+   "hi": 0.5585320007888732
+  },
+  "measured|three|mid push|slide+shim 0.5 mm": {
+   "clean": 0.65565,
+   "missed": 0.5308499999999974,
+   "lo": 0.6490353489652991,
+   "hi": 0.6622048680138235
+  },
+  "measured|dense|no push|ledger": {
+   "clean": 0.4742,
+   "missed": 0.9671999999999967,
+   "lo": 0.4672852024723984,
+   "hi": 0.4811247069521994
+  },
+  "measured|dense|no push|slide+shim 0.5 mm": {
+   "clean": 0.5909,
+   "missed": 0.6612000000000025,
+   "lo": 0.5840690077027287,
+   "hi": 0.5976960788594444
+  },
+  "measured|dense|mid push|ledger": {
+   "clean": 0.57855,
+   "missed": 0.6839499999999983,
+   "lo": 0.5716919565919869,
+   "hi": 0.5853778734350614
+  },
+  "measured|dense|mid push|slide+shim 0.5 mm": {
+   "clean": 0.7013,
+   "missed": 0.4224499999999993,
+   "lo": 0.6949186009033029,
+   "hi": 0.7076040825396613
+  },
+  "measured|local|no push|ledger": {
+   "clean": 0.5303,
+   "missed": 0.7653499999999989,
+   "lo": 0.5233779321762266,
+   "hi": 0.5372104300111644
+  },
+  "measured|local|no push|slide+shim 0.5 mm": {
+   "clean": 0.6632,
+   "missed": 0.45294999999999774,
+   "lo": 0.6566190907897412,
+   "hi": 0.6697182263383848
+  },
+  "measured|local|mid push|ledger": {
+   "clean": 0.6495,
+   "missed": 0.5485000000000009,
+   "lo": 0.6428592255193641,
+   "hi": 0.6560833535900406
+  },
+  "measured|local|mid push|slide+shim 0.5 mm": {
+   "clean": 0.7707,
+   "missed": 0.3007999999999982,
+   "lo": 0.7648221361970989,
+   "hi": 0.77647389166187
+  },
+  "measured, common removed|three|no push|ledger": {
+   "clean": 0.47065,
+   "missed": 0.990249999999997,
+   "lo": 0.46373860100197695,
+   "hi": 0.47757267192871866
+  },
+  "measured, common removed|three|no push|slide+shim 0.5 mm": {
+   "clean": 0.59575,
+   "missed": 0.6641500000000033,
+   "lo": 0.5889308433157037,
+   "hi": 0.6025323804282796
+  },
+  "measured, common removed|three|mid push|ledger": {
+   "clean": 0.6086,
+   "missed": 0.6628500000000026,
+   "lo": 0.6018155456473521,
+   "hi": 0.6153427425886436
+  },
+  "measured, common removed|three|mid push|slide+shim 0.5 mm": {
+   "clean": 0.7183,
+   "missed": 0.40975000000000317,
+   "lo": 0.7120242385054297,
+   "hi": 0.7244919154717145
+  },
+  "measured, common removed|dense|no push|ledger": {
+   "clean": 0.5027,
+   "missed": 0.8739499999999976,
+   "lo": 0.4957706014612327,
+   "hi": 0.5096283615059607
+  },
+  "measured, common removed|dense|no push|slide+shim 0.5 mm": {
+   "clean": 0.62745,
+   "missed": 0.5756000000000021,
+   "lo": 0.6207253804961634,
+   "hi": 0.6341256677144962
+  },
+  "measured, common removed|dense|mid push|ledger": {
+   "clean": 0.63345,
+   "missed": 0.5801500000000013,
+   "lo": 0.6267466957667466,
+   "hi": 0.6401020479265648
+  },
+  "measured, common removed|dense|mid push|slide+shim 0.5 mm": {
+   "clean": 0.75485,
+   "missed": 0.34319999999999706,
+   "lo": 0.7488394928317543,
+   "hi": 0.7607626227938764
+  },
+  "measured, common removed|local|no push|ledger": {
+   "clean": 0.52715,
+   "missed": 0.7782999999999975,
+   "lo": 0.5202260255931104,
+   "hi": 0.5340635464658885
+  },
+  "measured, common removed|local|no push|slide+shim 0.5 mm": {
+   "clean": 0.65625,
+   "missed": 0.4835499999999999,
+   "lo": 0.6496379627300257,
+   "hi": 0.6628020237973622
+  },
+  "measured, common removed|local|mid push|ledger": {
+   "clean": 0.6701,
+   "missed": 0.5012499999999984,
+   "lo": 0.6635515627632309,
+   "hi": 0.6765831041699446
+  },
+  "measured, common removed|local|mid push|slide+shim 0.5 mm": {
+   "clean": 0.79595,
+   "missed": 0.26589999999999936,
+   "lo": 0.7903080378961782,
+   "hi": 0.8014782917856167
+  },
+  "own parabola|three|no push|ledger": {
+   "clean": 0.57915,
+   "missed": 0.7299500000000019,
+   "lo": 0.5722931689638521,
+   "hi": 0.5859764306114615
+  },
+  "own parabola|three|no push|slide+shim 0.5 mm": {
+   "clean": 0.7001,
+   "missed": 0.44854999999999734,
+   "lo": 0.6937115448781315,
+   "hi": 0.7064115994683025
+  },
+  "own parabola|three|mid push|ledger": {
+   "clean": 0.74175,
+   "missed": 0.394249999999998,
+   "lo": 0.7356381514254074,
+   "hi": 0.747768995729767
+  },
+  "own parabola|three|mid push|slide+shim 0.5 mm": {
+   "clean": 0.8548,
+   "missed": 0.1840000000000006,
+   "lo": 0.8498491947828712,
+   "hi": 0.8596145314245989
+  },
+  "own parabola|dense|no push|ledger": {
+   "clean": 0.59945,
+   "missed": 0.6586500000000028,
+   "lo": 0.5926403359180968,
+   "hi": 0.606221466706855
+  },
+  "own parabola|dense|no push|slide+shim 0.5 mm": {
+   "clean": 0.7273,
+   "missed": 0.3883500000000031,
+   "lo": 0.7210845805846768,
+   "hi": 0.7334281166164447
+  },
+  "own parabola|dense|mid push|ledger": {
+   "clean": 0.77645,
+   "missed": 0.3095000000000021,
+   "lo": 0.7706231086678058,
+   "hi": 0.7821707106953709
+  },
+  "own parabola|dense|mid push|slide+shim 0.5 mm": {
+   "clean": 0.88765,
+   "missed": 0.12979999999999814,
+   "lo": 0.8831986243645493,
+   "hi": 0.891952484610439
+  },
+  "own parabola|local|no push|ledger": {
+   "clean": 0.5769,
+   "missed": 0.6860500000000016,
+   "lo": 0.5700386759535875,
+   "hi": 0.5837317878157317
+  },
+  "own parabola|local|no push|slide+shim 0.5 mm": {
+   "clean": 0.7015,
+   "missed": 0.4147499999999986,
+   "lo": 0.6951197819603322,
+   "hi": 0.7078028246653872
+  },
+  "own parabola|local|mid push|ledger": {
+   "clean": 0.7427,
+   "missed": 0.36794999999999933,
+   "lo": 0.7365952578155401,
+   "hi": 0.7487115244577209
+  },
+  "own parabola|local|mid push|slide+shim 0.5 mm": {
+   "clean": 0.86,
+   "missed": 0.16680000000000028,
+   "lo": 0.8551218343852169,
+   "hi": 0.8647398945738847
+  },
+  "straight|three|no push|ledger": {
+   "clean": 0.8107,
+   "missed": 0.251000000000003,
+   "lo": 0.8052111928232907,
+   "hi": 0.8160694715866895
+  },
+  "straight|three|no push|slide+shim 0.5 mm": {
+   "clean": 0.918,
+   "missed": 0.08915000000000317,
+   "lo": 0.914116742775761,
+   "hi": 0.921722709182307
+  },
+  "straight|three|mid push|ledger": {
+   "clean": 0.79665,
+   "missed": 0.2760500000000028,
+   "lo": 0.7910150383917613,
+   "hi": 0.8021710224296761
+  },
+  "straight|three|mid push|slide+shim 0.5 mm": {
+   "clean": 0.9079,
+   "missed": 0.10514999999999963,
+   "lo": 0.9038136338646553,
+   "hi": 0.9118296973642824
+  },
+  "straight|dense|no push|ledger": {
+   "clean": 0.8372,
+   "missed": 0.2049999999999994,
+   "lo": 0.8320187078842959,
+   "hi": 0.8422517782407294
+  },
+  "straight|dense|no push|slide+shim 0.5 mm": {
+   "clean": 0.937,
+   "missed": 0.06594999999999729,
+   "lo": 0.9335480599377411,
+   "hi": 0.9402840943820573
+  },
+  "straight|dense|mid push|ledger": {
+   "clean": 0.82905,
+   "missed": 0.21704999999999863,
+   "lo": 0.8237693841302691,
+   "hi": 0.8342042322974874
+  },
+  "straight|dense|mid push|slide+shim 0.5 mm": {
+   "clean": 0.9333,
+   "missed": 0.07050000000000334,
+   "lo": 0.9297582011300923,
+   "hi": 0.9366753743087374
+  },
+  "straight|local|no push|ledger": {
+   "clean": 0.81275,
+   "missed": 0.240000000000002,
+   "lo": 0.8072834464430722,
+   "hi": 0.8180964305901474
+  },
+  "straight|local|no push|slide+shim 0.5 mm": {
+   "clean": 0.9228,
+   "missed": 0.08250000000000068,
+   "lo": 0.9190191048851497,
+   "hi": 0.9264185034590395
+  },
+  "straight|local|mid push|ledger": {
+   "clean": 0.7804,
+   "missed": 0.29899999999999927,
+   "lo": 0.774609039520995,
+   "hi": 0.7860832627015941
+  },
+  "straight|local|mid push|slide+shim 0.5 mm": {
+   "clean": 0.88925,
+   "missed": 0.12605000000000155,
+   "lo": 0.8848256672531886,
+   "hi": 0.89352482718384
+  }
+ },
+ "B": {
+  "H53": true,
+  "bar53": 0.5022,
+  "H54": true,
+  "H54_gain": 0.12639999999999996,
+  "H55": false,
+  "best": "measured|local|mid push|slide+shim 0.5 mm",
+  "best_clean": 0.7707
+ },
+ "C": {
+  "rows": {
+   "three|ledger": {
+    "clean": 1.0,
+    "missed": 0.0
+   },
+   "three|slide+shim 0.5 mm": {
+    "clean": 1.0,
+    "missed": 0.0
+   },
+   "dense|ledger": {
+    "clean": 1.0,
+    "missed": 0.0
+   },
+   "dense|slide+shim 0.5 mm": {
+    "clean": 1.0,
+    "missed": 0.0
+   },
+   "local|ledger": {
+    "clean": 1.0,
+    "missed": 0.0
+   },
+   "local|slide+shim 0.5 mm": {
+    "clean": 1.0,
+    "missed": 0.0
+   }
+  },
+  "H56": true
+ },
+ "D": {
+  "three": {
+   "straight": 0.8107,
+   "parabola": 0.57915,
+   "measured": 0.42525,
+   "common_removed": 0.47065
+  },
+  "dense": {
+   "straight": 0.8372,
+   "parabola": 0.59945,
+   "measured": 0.4742,
+   "common_removed": 0.5027
+  },
+  "local": {
+   "straight": 0.81275,
+   "parabola": 0.5769,
+   "measured": 0.5303,
+   "common_removed": 0.52715
+  }
+ },
+ "E": [
+  {
+   "studs": "straight",
+   "estimate": "three",
+   "push": "no push",
+   "s_robot_mm": 0.8393554687500001
+  },
+  {
+   "studs": "measured",
+   "estimate": "three",
+   "push": "mid push",
+   "s_robot_mm": 0.267578125
+  },
+  {
+   "studs": "measured",
+   "estimate": "local",
+   "push": "no push",
+   "s_robot_mm": 0.46191406249999994
+  },
+  {
+   "studs": "measured",
+   "estimate": "local",
+   "push": "mid push",
+   "s_robot_mm": 0.60595703125
+  },
+  {
+   "studs": "measured, common removed",
+   "estimate": "local",
+   "push": "mid push",
+   "s_robot_mm": 0.6259765625
+  }
+ ],
+ "F": {
+  "mid_mm": [
+   -2.2047091220036643,
+   -1.1770431773527306,
+   -3.751062888378884,
+   -3.7894626540874286,
+   -5.42716008010371,
+   0.712733752905332
+  ],
+  "force_N": [
+   29.27057909620131,
+   15.626884779719228,
+   49.80057544703939,
+   50.31038572914412,
+   72.05309616900921,
+   9.462531578763635
+  ],
+  "rms_before_mm": [
+   0.9448742379513612,
+   0.8270337572243996,
+   1.943288935397384,
+   2.6127170315737445,
+   3.491663468565053,
+   1.5958214819529632
+  ],
+  "rms_after_mm": [
+   1.5609117339841625,
+   0.5694700727136394,
+   1.0471680043839082,
+   0.44928883140130316,
+   1.1792468887738188,
+   1.2025096047892054
+  ]
+ },
+ "seconds": 39.47744059562683
+}

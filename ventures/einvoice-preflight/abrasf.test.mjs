@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { checkAbrasf, looksLikeAbrasf, municipioProblem, ibgeCheckDigit } from "./abrasf.mjs";
 import { CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
-import { rootsOf, VERSIONS, cityProvider, providerSameAs, CITY_COUNT } from "./abrasf-xsd.mjs";
+import { rootsOf, VERSIONS, cityProvider, providerSameAs, providerMulti, multiFor, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { preflightDocuments } from "./report.mjs";
 
 const rps = readFileSync(new URL("./fixtures/abrasf-gerar-nfse-204.xml", import.meta.url), "utf8");
@@ -216,10 +216,81 @@ test("a city whose provider copy is a different ABRASF layout gets that layout (
 });
 
 test("a city whose provider schema is not read is named, and the ABRASF layout still applies", () => {
-  const code = "3518800"; // Guarulhos/SP, listed as Ginfes 1.00
+  const code = "4104204"; // Campo Largo/PR, listed as IPM 1.01 (no schema read for it)
   const p = cityProvider(code);
   assert.ok(p && !p.key, JSON.stringify(p));
   const r = checkAbrasf(toCity(rps, code));
   assert.deepEqual(r.findings, []);
   assert.match(r.skipped.join(" "), new RegExp(`runs ${p.listed} per OpenAC\\.Net\\.NFSe's list .*not read here, so the file is checked against ABRASF 2\\.04`));
+});
+
+// ---------- multi-file provider layouts: Ginfes 1.00 and WebISS 1.00 (2026-11-13, night) ----------
+
+const ginfes = readFileSync(new URL("./fixtures/ginfes-enviar-lote-v03.xml", import.meta.url), "utf8");
+const GINFES_ENVIO = "http://www.ginfes.com.br/servico_enviar_lote_rps_envio_v03.xsd";
+
+test("Ginfes 1.00 and WebISS 1.00 are compiled from their schema sets, roots in their own namespaces", () => {
+  assert.deepEqual(providerMulti("Ginfes 1.00"), { files: 13, namespace: "http://www.ginfes.com.br/tipos_v03.xsd" });
+  assert.equal(providerMulti("WebISS 1.00").files, 16);
+  assert.equal(providerMulti("ISSNet 2.04"), null);
+  assert.deepEqual(multiFor("EnviarLoteRpsEnvio", GINFES_ENVIO), ["Ginfes 1.00"]);
+  assert.deepEqual(multiFor("EnviarLoteRpsEnvio", "http://www.abrasf.org.br/nfse.xsd"), []);
+  assert.equal(cityProvider("3518800").key, "Ginfes 1.00"); // Guarulhos
+});
+
+test("a made-up Ginfes batch (xmllint-valid against servico_enviar_lote_rps_envio_v03.xsd) is clean and named", () => {
+  assert.ok(looksLikeAbrasf(ginfes));
+  const r = checkAbrasf(ginfes);
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "Ginfes 1.00");
+  assert.equal(r.meta.rps, true);
+  assert.match(r.skipped[0], /^layout: EnviarLoteRpsEnvio is in http:\/\/www\.ginfes\.com\.br\/servico_enviar_lote_rps_envio_v03\.xsd, Ginfes 1\.00's own layout \(13 schema files/);
+  assert.match(r.skipped.join(" "), /Guarulhos\/SP .* runs Ginfes 1\.00 .* the layout the file is in/);
+});
+
+test("Ginfes: a type element without its tipos: prefix is in the wrong namespace (xmllint agrees)", () => {
+  const xml = ginfes.replace("<tipos:NumeroLote>42</tipos:NumeroLote>", "<NumeroLote>42</NumeroLote>");
+  const f = checkAbrasf(xml).findings;
+  assert.ok(f.some((x) => x.rule === "ABR-002" && x.message === `NumeroLote inside LoteRps is in namespace ${GINFES_ENVIO}, but the schema puts it in http://www.ginfes.com.br/tipos_v03.xsd.`), JSON.stringify(f));
+  assert.ok(f.some((x) => x.rule === "ABR-004" && /NumeroLote is required/.test(x.message)));
+  // ... and the message's own element in the types namespace is wrong too.
+  const g = checkAbrasf(ginfes.replace("<LoteRps Id=\"L42\">", "<tipos:LoteRps Id=\"L42\">").replace("</LoteRps>", "</tipos:LoteRps>")).findings;
+  assert.ok(g.some((x) => x.rule === "ABR-002" && /LoteRps inside EnviarLoteRpsEnvio is in namespace http:\/\/www\.ginfes\.com\.br\/tipos_v03\.xsd, but the schema puts it in http:\/\/www\.ginfes\.com\.br\/servico_enviar/.test(x.message)), JSON.stringify(g));
+});
+
+test("Ginfes: schema values and the 1.00 sums are checked (Aliquota as a fraction)", () => {
+  assert.deepEqual(rules(ginfes.replace("<tipos:Serie>A</tipos:Serie>", "<tipos:Serie>ABCDEF</tipos:Serie>")), ["ABR-005"]); // tsSerieRps: 5 characters
+  assert.deepEqual(rules(ginfes.replace("<tipos:ValorIss>45.00</tipos:ValorIss>", "<tipos:ValorIss>50.00</tipos:ValorIss>")), ["ABR-021"]);
+  assert.deepEqual(rules(ginfes.replace("<tipos:BaseCalculo>900.00</tipos:BaseCalculo>", "<tipos:BaseCalculo>1000.00</tipos:BaseCalculo>")), ["ABR-020"]);
+  assert.deepEqual(rules(ginfes.replace("<tipos:Cnpj>11444777000161</tipos:Cnpj>", "<tipos:Cnpj>11444777000162</tipos:Cnpj>")), ["ABR-010"]);
+});
+
+test("Ginfes: a cancel request whose Pedido drops to no namespace (as several integrators' samples write it) is reported", () => {
+  const cancel = `<CancelarNfseEnvio xmlns="http://www.ginfes.com.br/servico_cancelar_nfse_envio_v03.xsd"><Pedido xmlns=""><InfPedidoCancelamento Id="C1" xmlns="http://www.ginfes.com.br/tipos_v03.xsd"><IdentificacaoNfse><Numero>30</Numero><Cnpj>11222333000181</Cnpj><InscricaoMunicipal>123456</InscricaoMunicipal><CodigoMunicipio>3518800</CodigoMunicipio></IdentificacaoNfse><CodigoCancelamento>1</CodigoCancelamento></InfPedidoCancelamento></Pedido></CancelarNfseEnvio>`;
+  const r = checkAbrasf(cancel);
+  assert.equal(r.meta.version, "Ginfes 1.00");
+  assert.ok(r.findings.some((x) => x.rule === "ABR-002" && /Pedido inside CancelarNfseEnvio is in no namespace/.test(x.message)), JSON.stringify(r.findings));
+  assert.deepEqual(checkAbrasf(cancel.replace('<Pedido xmlns="">', "<Pedido>")).findings, []);
+});
+
+test("Ginfes: a batch escaped inside a SOAP parameter is found", () => {
+  const esc = ginfes.replace(/^<\?xml[^>]*\?>/, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const soap = `<?xml version="1.0"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><ns1:RecepcionarLoteRpsV3 xmlns:ns1="http://producao.ginfes.com.br"><arguments>x</arguments><arg1>${esc}</arg1></ns1:RecepcionarLoteRpsV3></soap:Body></soap:Envelope>`;
+  const r = checkAbrasf(soap);
+  assert.equal(r.meta.version, "Ginfes 1.00");
+  assert.deepEqual(r.findings, []);
+  assert.match(r.skipped.join(" "), /escaped text \(a SOAP parameter\)/);
+});
+
+test("an ABRASF 2.04 RPS for a Ginfes city is told that city's web service reads Ginfes's own namespaces", () => {
+  const r = checkAbrasf(toCity(rps, "3518800"));
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "2.04");
+  assert.match(r.skipped.join(" "), /Guarulhos\/SP .* runs Ginfes 1\.00 .*own namespaces \(http:\/\/www\.ginfes\.com\.br\/tipos_v03\.xsd and one per message\); this file is in http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/);
+});
+
+test("a Ginfes file for a city listed on another system says to check which one", () => {
+  const r = checkAbrasf(ginfes.replaceAll("3518800", "3543402")); // Ribeirão Preto, ISSNet 2.04
+  assert.equal(r.meta.version, "Ginfes 1.00");
+  assert.match(r.skipped.join(" "), /Ribeirão Preto\/SP .* runs ISSNet 2\.04 .*but the file is in http:\/\/www\.ginfes\.com\.br\/servico_enviar_lote_rps_envio_v03\.xsd, the namespace Ginfes 1\.00's schemas use/);
 });

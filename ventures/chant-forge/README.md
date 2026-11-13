@@ -353,6 +353,31 @@ congregation than a whole phrase sung by one section is a question for singers, 
 both ranges, or one that straddles the gap between them at every final, is still refused, and the message names the
 widest word. The cue sheet's `who` column and the two MIDI tracks already work note by note, so they needed no change.
 
+## Overlapped handoffs (2026-11-13, latest)
+
+A handoff inside a phrase from the tenors straight to the basses (or back) leaves a gap in the line between two words:
+one section stops and the other has to find its first note cold. `--overlap` (with `--split-voices`) closes it where
+it can: if the outgoing section's last note before the seam is in both ranges, the incoming section **joins early** and
+sings it too, taking its pitch from the singers it relieves; otherwise, if the incoming section's first note is in both
+ranges, the outgoing section **holds on** for it. That note is tagged `all`, so the MIDI puts it on both tracks and the
+cue sheet's `who` column says `all`. A handoff to or from the full choir never breaks the line, and a seam at a bar is a
+breath, so neither is touched. Where neither seam note is in both ranges the summary says how many handoffs break.
+
+```
+node cli.mjs corpus/gregobase-1908/3408.gabc --split-voices --split-words --overlap --tenor 52-64 --bass 45-57 --cues q.txt
+voices: ...; phrase 12 handed over at a word: basses "nem", tenors "tuam"; phrase 12: tenors join basses on F#3 ("nem") and take over; final F#3
+```
+
+`eval/overlap-check.mjs` (report: `eval/overlap-report.md`) runs the corpus under the same three range pairs as the
+word split. The finding: **direct swaps are rare, and every one in the corpus can overlap.** With textbook or amateur
+ranges the shared band is wide enough that the split always passes through the full choir (0 direct swaps, so
+`--overlap` changes nothing); only octave-wide sections (shared band E3-A3) produce them: 7 with the default
+setting, 13 with `--split-words`, 9 with `--word-cost 0`, and in every case a seam note is in both ranges (0 breaks;
+about two in three join early). The full-choir share moves by 0.1 point. The option is off by default because whether
+a one-note overlap sounds better than a clean handoff is for singers to judge; the studio page uses the textbook
+ranges, where it never fires, so it has no switch there. `split.test.mjs` covers join, hold, break, bars and full-choir
+neighbours, and checks every overlapped note against both ranges on the corpus.
+
 ## Mix and master check
 
 ```sh

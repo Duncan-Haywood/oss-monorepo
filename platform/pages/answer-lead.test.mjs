@@ -67,6 +67,11 @@ const PILOTS = {
     m.FEDERAL_MIN_WAGE, ...Object.keys(m.PERIODS).map((p) => m.protectedFloor(p)),
   ], // the minimum wage and the four pay-period floors, 15 U.S.C. 1673(a) and 29 CFR 870.10
   'qbi-deduction-calculator': async (m) => [m.THRESHOLDS[2026].single, m.THRESHOLDS[2026].joint, m.THRESHOLDS[2026].rangeSingle, m.THRESHOLDS[2026].rangeJoint, m.THRESHOLDS[2026].minDeduction, m.THRESHOLDS[2026].minDeductionFloor],
+  'economic-nexus-threshold-tracker': async (m) => [...new Set(m.STATE_THRESHOLDS.filter((s) => !s.noSalesTax).map((s) => s.amount))], // the three dollar thresholds the table holds
+  'no-tax-on-tips-overtime-calculator': async (m) => [m.TIP_DEDUCTION_CAP, m.OVERTIME_CAP_SINGLE, m.OVERTIME_CAP_JOINT, m.PHASEOUT_THRESHOLD_SINGLE, m.PHASEOUT_THRESHOLD_JOINT],
+  'auto-loan-interest-deduction-calculator': async (m) => [m.QPVLI_CAP, m.PHASEOUT_THRESHOLD_OTHER, m.PHASEOUT_THRESHOLD_JOINT],
+  'charitable-deduction-calculator': async (m) => [m.NON_ITEMIZER_CAP.single, m.NON_ITEMIZER_CAP.mfj],
+  'gambling-loss-deduction-calculator': async (m) => [10000, 10000 * m.LOSS_CAP_RATE, 10000 * (1 - m.LOSS_CAP_RATE)].map(Math.round), // worked example: $10,000 won and lost
 };
 
 // slugs whose engine is not calc.mjs
@@ -302,4 +307,19 @@ test('etsy-profit-calculator and wage-garnishment-limit-calculator: lead percent
   assert.deepEqual(pct(lead('wage-garnishment-limit-calculator')), [25, g.supportPercent(true, false), g.supportPercent(false, true), 15]);
   assert.match(g.CITATIONS.ordinary, /25%/);
   assert.match(g.CITATIONS.student, /15%/);
+});
+
+// Economic nexus lead: the state counts it states must be the table's own.
+test('economic-nexus-threshold-tracker: lead counts match the threshold table', async () => {
+  const html = readFileSync(new URL('economic-nexus-threshold-tracker/index.html', root), 'utf8');
+  const text = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/)[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  const { STATE_THRESHOLDS: T } = await import(new URL('economic-nexus-threshold-tracker/calc.mjs', root));
+  const taxed = T.filter((s) => !s.noSalesTax);
+  const at = (n) => taxed.filter((s) => s.amount === n).map((s) => s.label);
+  assert.ok(at(100000).includes('District of Columbia'));
+  assert.match(text, new RegExp(`In ${at(100000).length - 1} states and DC`));
+  for (const n of [500000, 250000]) for (const name of at(n)) assert.ok(text.includes(name), `lead omits ${name}`);
+  assert.match(text, new RegExp(`${taxed.filter((s) => s.transactions).length} of these jurisdictions`));
+  for (const s of taxed.filter((x) => x.condition === 'AND')) assert.ok(text.includes(s.label), `lead omits AND-test state ${s.label}`);
+  for (const s of T.filter((x) => x.noSalesTax)) assert.ok(text.includes(s.label), `lead omits ${s.label}`);
 });

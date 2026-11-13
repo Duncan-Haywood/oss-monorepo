@@ -284,9 +284,24 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
 
 test("same input gives the same roster", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
-  const a = buildRoster(staff, slots, {}), b = buildRoster(staff, slots, {});
+  const a = buildRoster(staff, slots, { memo: false }), b = buildRoster(staff, slots, { memo: false }); // two real builds
   assert.deepEqual(a.owner, b.owner);
   assert.equal(a.cost, b.cost);
+});
+
+test("a repeat build of the same input is remembered and returns a copy, not the stored roster", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const opts = { exact: false, balance: 31 };
+  const a = buildRoster(staff, slots, opts);
+  a.owner[0] = -99; a.unfilled.length = 0;
+  const b = buildRoster(staff, slots, { ...opts });
+  assert.notEqual(b.owner[0], -99, "a caller's edit must not reach the next caller");
+  assert.deepEqual(b.owner, buildRoster(staff, slots, { ...opts, memo: false }).owner);
+  // An input JSON would misread is built fresh, and a changed option is a different input.
+  assert.notEqual(buildRoster(staff, slots, { ...opts, balance: 0 }).score, undefined);
+  assert.equal(_internals.memoKey([{ s: new Set([1]) }]), null);
+  assert.equal(_internals.memoKey([{ f: () => 1 }]), null);
+  assert.notEqual(_internals.memoKey([{ x: NaN }]), _internals.memoKey([{ x: null }]));
 });
 
 test("the example fills most shifts, beats filling in listed order, and names who is critical", () => {

@@ -21,7 +21,7 @@
 //      on the real files described there, which is where the tolerance rules come from.
 // An offline observation, not the municipality's acceptance, and not tax advice.
 
-import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, CITY_COUNT } from "./abrasf-xsd.mjs";
+import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, providerMulti, multiFor, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { UF_CODE } from "./nfe.mjs";
@@ -33,7 +33,9 @@ const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 
 export function looksLikeAbrasf(text) {
   const head = String(text).slice(0, 8192);
-  return head.includes("abrasf.org.br/nfse.xsd") || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
+  // Ginfes 1.00 (www.ginfes.com.br/..._v03.xsd) and WebISS 1.00 (www.abrasf.org.br/nfse) are
+  // ABRASF-model provider layouts with their own namespaces, read as such.
+  return head.includes("abrasf.org.br/nfse.xsd") || head.includes("www.ginfes.com.br/") || /abrasf\.org\.br\/nfse["'&]/.test(head) || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
 }
 
 // ---------- IBGE municipality codes ----------
@@ -96,7 +98,9 @@ function findRoot(node, depth = 0) {
   const roots = new Set(VERSIONS.flatMap(rootsOf));
   for (const [n] of walk(node, "")) {
     if (n.ns === ABRASF_NS && roots.has(n.name)) return { root: n, wrapped: n !== node };
-    if (depth === 0 && !named(n).length && /^\s*</.test(n.text || "") && n.text.includes("abrasf.org.br/nfse.xsd")) {
+    const multi = multiFor(n.name, n.ns)[0];
+    if (multi) return { root: n, wrapped: n !== node, multi };
+    if (depth === 0 && !named(n).length && /^\s*</.test(n.text || "") && /abrasf\.org\.br\/nfse|www\.ginfes\.com\.br\//.test(n.text)) {
       try {
         const inner = findRoot(parseCfdiXml(n.text).root, 1);
         if (inner) return { ...inner, wrapped: true, escaped: true };
@@ -260,11 +264,16 @@ export function checkAbrasf(text) {
   if (!found) {
     return { findings: [finding("ABR-001", `No ABRASF element (GerarNfseEnvio, EnviarLoteRpsEnvio, CompNfse, ...) was found.`, "Check this is an ABRASF-layout municipal NFS-e; providers with their own layouts (São Paulo's Paulistana, DSF, Betha 1.0, ...) are not read, and the national NFS-e has its own check.", "/")], skipped, meta: {} };
   }
-  const { root, wrapped, escaped, offNs, other } = found;
+  const { root, wrapped, escaped, offNs, other, multi } = found;
   const base = `/${root.name}`;
   const stated = statedVersion(root);
   let version = "";
-  if (offNs) skipped.push(`schema: ${root.name} is outside the ABRASF namespace, so the schema layer is skipped (identifiers and values are still checked)`);
+  if (multi) {
+    // A provider's own multi-file layout, recognised by the root's namespace: the schema
+    // layer checks against that provider's schema set, whatever versao says.
+    version = multi;
+    skipped.push(`layout: ${root.name} is in ${root.ns}, ${multi}'s own layout (${providerMulti(multi).files} schema files read from OpenAC.Net.NFSe), so the schema layer checks against that set, namespaces included`);
+  } else if (offNs) skipped.push(`schema: ${root.name} is outside the ABRASF namespace, so the schema layer is skipped (identifiers and values are still checked)`);
   else if (other) skipped.push(`schema: ${root.name} is not an element ABRASF 2.00-2.04 declares as a document (an older layout such as 1.00, a provider's variant, or a fragment), so the schema layer is skipped (identifiers and values are still checked)`);
   else if (VERSIONS.includes(stated)) version = stated;
   else if (!stated) {
@@ -280,7 +289,7 @@ export function checkAbrasf(text) {
     // but none, or far fewer, under another (2.00 writes DataEmissao as a date and time,
     // 2.01 on as a date; 2.04 renamed Tomador to TomadorServico). Say which layout it fits;
     // the findings stand.
-    if (stated && own.length) {
+    if (stated && own.length && !multi) {
       const best = VERSIONS.filter((v) => v !== version).map((v) => [v, checkAgainstAbrasf(root, v).length]).sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? 1 : -1))[0];
       if (best && (best[1] === 0 || best[1] * 2 <= own.length - 2)) skipped.push(`layout: the file states ${version} and draws ${own.length} schema finding${own.length === 1 ? "" : "s"} under it, but ${best[1] === 0 ? "none" : best[1]} under ABRASF ${best[0]}: if the city's web service runs ${best[0]}, set versao to ${best[0]} (or build the file to ${version})`);
     }
@@ -295,7 +304,12 @@ export function checkAbrasf(text) {
   if (run) {
     const where = `${run.city} (${city.path.slice(city.path.lastIndexOf("/", city.path.lastIndexOf("/") - 1) + 1)} ${city.code})`;
     const layoutOfListed = run.listed.split(" ").pop();
-    if (!run.key) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities; that provider's own schema is not read here${version ? `, so the file is checked against ABRASF ${version}` : ""}`);
+    const listedMulti = run.key && providerMulti(run.key);
+    if (multi) {
+      if (run.key === multi) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, the layout the file is in`);
+      else skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file is in ${root.ns}, the namespace ${multi}'s schemas use: check which system the city's web service runs before sending`);
+    } else if (listedMulti) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose layout puts its elements in its own namespaces (${listedMulti.namespace} and one per message); this file is in ${root.ns}, so that web service would not read it as ${root.name}${version ? `. Checked against ABRASF ${version}` : ""}. If the city has moved to another system, its list entry is stale`);
+    else if (!run.key) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities; that provider's own schema is not read here${version ? `, so the file is checked against ABRASF ${version}` : ""}`);
     else if (!rootsOf(run.key).includes(root.name)) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose schema does not declare ${root.name} as a document${version ? `; checked against ABRASF ${version}` : ""}`);
     else if (!version && stated && /^1\./.test(stated) !== /^1\./.test(layoutOfListed)) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file states layout ${stated}: check which layout the city's web service takes before sending`);
     else {
