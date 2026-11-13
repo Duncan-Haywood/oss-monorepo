@@ -7,7 +7,7 @@
 // carryOverTry output, rounds included, for combineCarryOverTries on the page), then
 // { type: "done" }, or { type: "error", error }.
 //
-// Squeeze mode (home and away, after the pool): In { squeeze: count, n, seed, results } (every
+// Squeeze mode (either kind of season, after the pool): In { squeeze: count, n, seed, results } (every
 // try's result, by index). Out: { type: "try", i, candidate, result } per squeezed season
 // (carryOverSqueeze, numbered after the tries), then { type: "done" }.
 //

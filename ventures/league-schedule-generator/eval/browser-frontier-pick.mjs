@@ -3,7 +3,8 @@
 // checks the schedule and the read-out follow it, that the share link reopens on it, and that
 // "Back to the choice above" and changing the choice return to the first season.
 // Since 2026-11-13 it also checks a squeezed season (README "Squeezing a season under a cap") is
-// listed and picks it. Options: --teams=12. Needs Playwright and a Chromium (skips with exit 0 otherwise):
+// listed and picks it; --single (2026-11-13 later) does the same on a single round robin
+// (README "Squeezing a single round robin"). Options: --teams=12, --single. Needs Playwright and a Chromium (skips with exit 0 otherwise):
 //   node eval/browser-frontier-pick.mjs
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -47,7 +48,7 @@ const page = await open(url);
 await page.fill("#teams", Array.from({ length: teams }, (_, i) => `Team ${i + 1}`).join("\n"));
 await page.fill("#start", "2026-10-06");
 await page.check("#wd2");
-await page.check("#double");
+if (!process.argv.includes("--single")) await page.check("#double");
 await page.check("#carryOver");
 await page.click("#build");
 await waitLine(page, /Best of \d+ searches/);

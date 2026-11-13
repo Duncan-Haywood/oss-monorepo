@@ -1,0 +1,26 @@
+{
+ "doi:10.1016/j.isatra.2020.08.010": {
+  "checked": "2026-11-13",
+  "title": "Deep learning algorithms for rotating machinery intelligent diagnosis: An open source benchmark study (2020)"
+ },
+ "doi:10.1016/j.patter.2023.100804": {
+  "checked": "2026-11-13",
+  "title": "Leakage and the reproducibility crisis in machine-learning-based science (2023)"
+ },
+ "doi:10.1016/j.ymssp.2010.07.017": {
+  "checked": "2026-11-13",
+  "title": "Rolling element bearing diagnostics—A tutorial (2011)"
+ },
+ "doi:10.1016/j.ymssp.2015.04.021": {
+  "checked": "2026-11-13",
+  "title": "Rolling element bearing diagnostics using the Case Western Reserve University data: A benchmark study (2015)"
+ },
+ "doi:10.1016/j.ymssp.2021.108732": {
+  "checked": "2026-11-13",
+  "title": "Towards better benchmarking using the CWRU bearing fault dataset (2022)"
+ },
+ "doi:10.3390/s17020425": {
+  "checked": "2026-11-13",
+  "title": "A New Deep Learning Model for Fault Diagnosis with Good Anti-Noise and Domain Adaptation Ability on Raw Vibration Signals (2017)"
+ }
+}
