@@ -1,0 +1,21 @@
+# Milestone 121: a guard on where a shifter's amount comes from, tested blind on three new shifter families
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 121.
+
+## Seen cells (160 cells, 80 designs; not a test)
+
+SWC 2.44%, SWS(64) 1.96%, SWDG 1.61%, random 2.91%
+SWD(k) seen mean regret by k (k = 383 flags every wide shifter, so it equals SWS(64)): k=1 1.81%, k=2 1.81%, k=4 1.81%, k=8 1.81%, k=16 1.81%, k=64 1.81%, k=190 1.81%, k=191 1.81%, k=287 1.81%, k=383 1.96%
+seen designs with shift_width >= 64 and amount_depth > 0: lzcnorm128 (382), lzcnorm64 (190), lzcnorm96 (286)
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_cells | mux_share | SWS(64) | SWD(1) | SWD(8) | SWDG
+addsh128 | 128 | 1 | 1 | 0.768 | True | False | True | True
+addsh64 | 64 | 1 | 1 | 0.724 | True | False | True | False
+fpalign128 | 128 | 2 | 4 | 0.618 | True | False | True | False
+fpalign64 | 64 | 2 | 4 | 0.536 | True | False | True | False
+pcsh128 | 128 | 127 | 127 | 0.412 | True | False | False | False
+pcsh64 | 64 | 63 | 63 | 0.380 | True | False | False | False
+
+## Blind test: no table yet
