@@ -3,7 +3,7 @@ title: "What a rota that survives a call-out costs: $5.82, one shift changing ha
 seo_title: "Pricing call-out slack into a staff schedule: measured on five teams"
 date: 2026-11-13
 tags: [ventures, shift-roster-builder, scheduling, optimization]
-description: "Putting a price on call-out risk inside the roster search: on one team it removed every open hour a week of sick calls left, for $5.82 of score; on three of five it bought nothing."
+description: "Pricing call-out risk inside the roster search: on one team it removed every open hour a week of sick calls left, for $5.82; on three of five, nothing paid."
 ---
 
 A weekly staff roster is usually scored on one week: the pay, the overtime,
