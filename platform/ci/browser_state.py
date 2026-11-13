@@ -196,7 +196,7 @@ STATE = os.path.join(HERE, "browser_state.json")
 # by `test_browser_checks.Registry.test_every_enumeration_of_the_checks_agrees`,
 # because a duplicated constant with no guard is how this repository has twice
 # shipped a rule that went stale on one side.
-CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "optout", "sweep", "journey")
+CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "optout", "framerate", "sweep", "journey")
 
 # A commit touching any of these can change what a browser sees. See the
 # module docstring for why this is a literal list and not a heuristic.
