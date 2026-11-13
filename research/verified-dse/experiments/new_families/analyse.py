@@ -200,6 +200,33 @@ def main(dst):
             f"(7) blind funnel cells above theta, SWCG below SWC: "
             + (f"{mean(fa, swcg) < mean(fa, swc)} ({len(fa)} cells)" if fa else "not testable (no funnel cell above theta)"),
             f"(8) pooled SWC - random interval below 0: {hi8 < 0} ({lo8:+.2f} to {hi8:+.2f})"]
+    # Lines below were added after the blind table was read: descriptive, not tests.
+    tau = rule.stats.kendall_tau_b
+    blind_raw = rule.load_table(BLIND, "new_families")
+    out += ["", "post hoc (added after the blind table was read; descriptive): per blind cell, Kendall tau-b of r2 and of r2c(1.25) "
+            "against routed area x delay, of mapped delay against routed delay, of mapped area against routed area; the r2 rank of "
+            "the routed-best point (1 = first; ties averaged) out of n"]
+    for c in blind:
+        rs = blind_raw[(c["clock"], c["design"], c["table"])]
+        per = rs[0]["period_ns"]
+        y = [rule.flow.scores(r)["r4"] for r in rs]
+        r2 = [score.r2c(r, None) for r in rs]
+        r2c = [score.r2c(r, ALPHA) for r in rs]
+        b = y.index(min(y))
+        rank = sum(v < r2[b] for v in r2) + (sum(v == r2[b] for v in r2) + 1) / 2
+        out.append(f"  {c['clock']} {c['design']}: tau(r2, y) {tau(r2, y):+.2f}, tau(r2c, y) {tau(r2c, y):+.2f}, tau(md, rd) "
+                   f"{tau([per - r['synth_netlist_wns'] for r in rs], [per - r['final_wns'] for r in rs]):+.2f}, tau(ma, ra) "
+                   f"{tau([r['synth_netlist_area'] for r in rs], [r['final_area_notap'] for r in rs]):+.2f}; best routed point's r2 "
+                   f"rank {rank:g} of {len(rs)}")
+    sh = lambda c: fam(c) in ("barrel", "funnel")
+    ns = [c for c in test if not sh(c)]
+    b, w, _ = pool.compare(ns, swc, rand)
+    lo, hi = pool.boot_ci(ns, lambda c: swc(c) - rand(c), seed=SEED)
+    out += ["", f"post hoc: SWC's whole test set without the shifter families (barrel, funnel; a split chosen after milestones 116 and "
+            f"118): {len(ns)} cells, SWC {mean(ns, swc):.2f}% against random {mean(ns, rand):.2f}%; better {b}, worse {w}, sign p = "
+            f"{pool.sign_p(b, w):.3f}; design bootstrap 95% interval {lo:+.2f} to {hi:+.2f} points",
+            f"post hoc: on the shifter cells of the test set ({len(test) - len(ns)}), SWC {mean([c for c in test if sh(c)], swc):.2f}%, "
+            f"random {mean([c for c in test if sh(c)], rand):.2f}%"]
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
 
