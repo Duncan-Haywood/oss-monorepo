@@ -156,6 +156,10 @@
     <label for="officials">One per line. Every match gets one official, shared out evenly. Put a team in brackets if they belong to it (they never work its matches), weekdays after a colon, and <code>max 4</code> to cap their matches. <code>Pat (Hawks): Tue, Thu max 4</code></label>
     <textarea id="officials" rows="3" placeholder="Pat (Hawks): Tue, Thu max 4&#10;Sam"></textarea>
 
+    <h2 style="margin-top:18px">7. Team duties: snack stand, scoreboard, set-up (optional)</h2>
+    <label for="duties">One duty per line, with how many teams it needs each playing night after a colon. Only teams that play that night are given a duty, never two on the same night, and the duties are shared out as evenly as the schedule allows. <code>Snack stand: 2</code></label>
+    <textarea id="duties" rows="2" placeholder="Snack stand: 2&#10;Scoreboard"></textarea>
+
     <button type="button" id="build">Build the schedule</button>
     <button type="button" class="secondary" id="reshuffle">Reshuffle courts and times</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -217,6 +221,13 @@
     <button type="button" class="secondary" id="dl-off-ics" hidden>Download calendar (.ics), selected official</button>
     <button type="button" id="dl-page">Download league web page (.html)</button>
     <button type="button" class="secondary" id="dl-sheets">Download printable score sheets (.html)</button>
+    <h3 style="margin-top:18px">Team sheets to print</h3>
+    <p class="note">One page per team: its games in date order (with byes, the official and its duty when you listed them), then the duty rota night by night. Free, no logo.</p>
+    <p><label for="sheetTitle">Title on the sheets</label> <input id="sheetTitle" style="width:16em" placeholder="Spring league team sheets">
+    <label for="sheetContact">Contact line</label> <input id="sheetContact" style="width:16em" placeholder="Sam, 555 0100"></p>
+    <button type="button" id="dl-team-sheets">Download team sheets to print (.html)</button>
+    <button type="button" class="secondary" id="dl-duties" hidden>Download team duty rota (text)</button>
+    <p id="duty-line" class="note" role="status"></p>
   </section>
 
   <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>
@@ -377,6 +388,7 @@
   <script type="module">
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
+    import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
     import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -425,6 +437,9 @@
       $("#grounds").value = f.grounds || "";
       $("#linked").value = f.linked || "";
       $("#scoring").value = f.scoring || "";
+      $("#duties").value = f.duties || "";
+      $("#sheetTitle").value = f.sheetTitle || "";
+      $("#sheetContact").value = f.sheetContact || "";
     }
 
     function readFields() {
@@ -435,6 +450,7 @@
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
+        duties: $("#duties").value, sheetTitle: $("#sheetTitle").value, sheetContact: $("#sheetContact").value,
       };
     }
 
@@ -446,6 +462,7 @@
 
     function render(s, extra) {
       last = { s, ...extra };
+      later(showDutyLine);
       $("#report").hidden = false;
       $("#dl-change-notices").hidden = !(extra.moves && extra.moves.length);
       const v = validateSchedule(s);
@@ -827,7 +844,7 @@
       window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false; $("#carryOver").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
@@ -893,6 +910,42 @@
         record("print_pack_opened");
       });
     }
+    // Team duties and team sheets: the one-division schedule in the multi-division shape (singleAsDivisions),
+    // so the page uses the same rota and sheet code as multi-division-league-schedule.html.
+    function teamDuties() {
+      if (!last) return null;
+      const shaped = singleAsDivisions(last.s);
+      const pd = parseDivisionDuties($("#duties").value);
+      if (pd.errors.length) return { shaped, errors: pd.errors };
+      if (!pd.duties.length) return { shaped, duties: null, errors: [] };
+      const result = assignDivisionDuties(shaped, pd.duties);
+      const errors = validateDivisionDuties(shaped, pd.duties, result);
+      return { shaped, duties: result, errors };
+    }
+    function showDutyLine() {
+      const td = teamDuties();
+      $("#dl-duties").hidden = !td?.duties;
+      if (!td) { $("#duty-line").textContent = ""; return; }
+      if (td.errors.length) { $("#duty-line").textContent = "Duties: " + td.errors.join(" "); return; }
+      if (!td.duties) { $("#duty-line").textContent = ""; return; }
+      const t = td.duties.loads.map((l) => l.total);
+      $("#duty-line").textContent = `Duties: ${td.duties.rows.length} slots filled, ${t.length ? Math.min(...t) + " to " + Math.max(...t) : 0} per team` + (td.duties.unfilled.length ? `; ${td.duties.unfilled.length} slot(s) with no team free (marked "find a volunteer").` : ".");
+    }
+    $("#duties").addEventListener("input", showDutyLine);
+    $("#dl-team-sheets").addEventListener("click", () => {
+      const td = teamDuties();
+      if (!td) { status.textContent = "Make a schedule first."; return; }
+      if (td.errors.length) { $("#duty-line").textContent = "Not downloaded. Duties: " + td.errors.join(" "); return; }
+      download("team-sheets.html", divisionsTeamSheetsHtml(td.shaped, { title: $("#sheetTitle").value || "Team sheets", contact: $("#sheetContact").value, duties: td.duties }), "text/html");
+      record("team_sheets_downloaded");
+    });
+    $("#dl-duties").addEventListener("click", () => {
+      const td = teamDuties();
+      if (!td?.duties || td.errors.length) return;
+      download("team-duties.txt", divisionsDutiesText(td.duties), "text/plain");
+      record("duties_downloaded");
+    });
+
     $("#dl-sheets").addEventListener("click", () => {
       if (!last) return;
       download("score-sheets.html", scoreSheetsHtml(last.s, { title: "League score sheets" }), "text/html");

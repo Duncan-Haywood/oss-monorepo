@@ -2706,7 +2706,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2737,6 +2737,7 @@ export function decodeFields(text) {
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
       playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
       pins: str(o.pins), rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
+      duties: str(o.duties), sheetTitle: str(o.sheetTitle), sheetContact: str(o.sheetContact),
     };
   } catch { return null; }
 }

@@ -12,7 +12,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { extname, join } from "node:path";
 import { buildSchedule, readSpec, scoreSheetsHtml, leaguePageHtml, assignOfficials, parseOfficials } from "../calc.mjs";
-import { buildDivisions, readDivisionsSpec, divisionsScoreSheetsHtml, divisionsTeamSheetsHtml } from "../divisions.mjs";
+import { buildDivisions, readDivisionsSpec, divisionsScoreSheetsHtml, divisionsTeamSheetsHtml, singleAsDivisions, parseDivisionDuties, assignDivisionDuties } from "../divisions.mjs";
 import { printPackHtml } from "../printpack.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -57,6 +57,11 @@ const dspec = readDivisionsSpec(JSON.parse(await readFile(join(root, "example-di
 const dsch = buildDivisions(dspec.spec ?? dspec);
 docs.push({ name: "division-score-sheets", html: divisionsScoreSheetsHtml(dsch), sheets: dsch.nights.length, sheetSel: ".sheet" });
 docs.push({ name: "division-team-sheets", html: divisionsTeamSheetsHtml(dsch, { contact: "league@example.org" }) });
+// One-league team sheets (2026-11-13): 9 long names (a bye every round), officials and two duties.
+let s9 = single(9);
+s9 = assignOfficials(s9, parseOfficials("Alex Morgan-Whitfield\nSam Lee\nJordan Price", s9.teams).officials).schedule;
+const s9d = singleAsDivisions(s9);
+docs.push({ name: "single-team-sheets", html: divisionsTeamSheetsHtml(s9d, { title: "Elm Street team sheets", contact: "league@example.org", duties: assignDivisionDuties(s9d, parseDivisionDuties("Snack stand: 2\nScoreboard").duties) }) });
 
 // The two pages' own "Print" (window.print of the built page): served, filled in and built.
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".json": "application/json", ".js": "text/javascript", ".css": "text/css" };
