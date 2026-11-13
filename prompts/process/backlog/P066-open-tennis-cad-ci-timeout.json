@@ -1,7 +1,7 @@
 {
   "id": "P066",
   "title": "open-tennis-robots-ci: the cad job ran 19 min of its 20 min timeout; the next CAD slice will time it out",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -19,7 +19,9 @@
   "baseline": "19 min of 20 (PR #15557, 2026-11-13)",
   "opened": "2026-11-13",
   "source": "explore run 2026-11-13, hopper agitator",
-  "pr": null,
-  "result": null,
-  "history": []
+  "pr": "this",
+  "result": "pending: read the cad check run's wall time on the next open-tennis-robots PR (expect ~4-5 min against the 19 min baseline). Local reading: 323 s vs 1637 s.",
+  "history": [
+    "2026-11-13: all_parts(Feeder) (18.4 s) was called ~60 times per feeder build by the sweeps, inertia and gravity table; otr_cad/feeder.py now keeps the last four builds keyed by equal params. Sweeps 433 s -> 33 s; full local suite 1636.6 s -> 322.6 s, 80 tests OK incl. both committed-package freshness checks. Workflow timeout left at 20 (owner-gated, no longer needed). Post: docs/posts/2026-11-13-the-cad-suite-was-rebuilding-the-feeder-sixty-times.md"
+  ]
 }
