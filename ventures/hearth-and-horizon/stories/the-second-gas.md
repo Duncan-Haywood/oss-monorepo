@@ -3,7 +3,7 @@ title: The Second Gas
 shelf: hearth-and-horizon
 setting: The hospital at Gjógv á Ytstoy (invented), an island at the south end of the Faroe Islands, the night of Saturday 21 to Sunday 22 October 2051
 published: 2026-11-13
-summary: On a gale night in 2051 the only recompression chamber in the Faroes holds a salmon-farm diver four hours into a five-hour treatment for the bends when a seven-year-old girl arrives with carbon monoxide poisoning from a generator under her bedroom. The helicopter cannot fly and the next chamber is more than five hundred kilometres away. The chamber's log system can count every minute of oxygen and nitrogen in the room, but it cannot say which minutes matter more. A story about one gas that pushes out two others, an extension a sick man needed anyway, and a mother who goes in with her ears hurting.
+summary: On a gale night in 2051 the only recompression chamber in the Faroes holds a salmon-farm diver less than an hour into a five-hour treatment for the bends when a seven-year-old girl arrives with carbon monoxide poisoning from a generator under her bedroom. The helicopter cannot fly and the next chamber is more than five hundred kilometres away. The chamber's log system can count every minute of oxygen and nitrogen in the room, but it cannot say which minutes matter more. A story about one gas that pushes out two others, an extension a sick man needed anyway, and a mother who goes in with her ears hurting.
 ---
 
 The diver came in at twenty past eleven on Saturday night, walking, which Marites Dahl had learned long ago to distrust.
@@ -74,7 +74,7 @@ Marites knew what that meant, because she had done this work for nine years. Car
 
 Here was the arithmetic, and Vakt laid it out on the screen in three columns because the doctor asked it to.
 
-*Wait.* Pætur's table would finish at twenty to five. Elin could go in then. She would have been poisoned, by the best guess, for about four hours by the time her mother found her, and it would be five hours after that. The trial's patients had gone in within twenty-four hours of their poisoning; most chambers tried for six. It was not hopeless. It was not good.
+*Wait.* Pætur's table would finish at twenty to five. Elin could go in then. She would have been poisoned, by the best guess, for about three hours by the time her mother found her, and it would be five hours after that. The trial's patients had gone in within twenty-four hours of their poisoning; most chambers tried for six. It was not hopeless. It was not good.
 
 *Fly her.* The next nearest chamber was in Aberdeen, more than five hundred kilometres away across open sea; the one after that in Bergen, further. Nothing would fly tonight. The ferry had stopped at seven.
 
@@ -156,7 +156,7 @@ Vakt asked her the questions, because they were the questions it always asked, a
 
 There was, a thick round porthole in each lock, and Marites went round to the entry-lock porthole and put her face to it and made a fish face, and after a while Elin laughed, once, weakly, and was sick, a little, on the blanket, and then said she was all right.
 
-At ten to one Marites closed the outer door on the two of them, mother and daughter on the two seats of the entry lock with Elin on Sólja's knee and a cup of water, and said a Hail Mary under her breath with her hand on the valve, as she did every time a door closed on someone she had not put in before; and Vakt, which had heard her do it every time for nine years, said nothing; and she began.
+At five to one Marites closed the outer door on the two of them, mother and daughter on the two seats of the entry lock with Elin on Sólja's knee and a cup of water, and said a Hail Mary under her breath with her hand on the valve, as she did every time a door closed on someone she had not put in before; and Vakt, which had heard her do it every time for nine years, said nothing; and she began.
 
 * * *
 
@@ -166,7 +166,7 @@ They stopped at two metres, because Elin cried and put her hands to her ears, an
 
 "Go on," Sólja said. "Go on. I'm fine."
 
-It took eleven minutes. At one minute past one the gauge on the entry lock read eighteen metres and so did the gauge on the main lock, and Rannvá, on her side of the inner door, turned the wheel and opened it.
+It took eleven minutes. At six minutes past one the gauge on the entry lock read eighteen metres and so did the gauge on the main lock, and Rannvá, on her side of the inner door, turned the wheel and opened it.
 
 Pætur Joensen had been told what was happening by Rannvá, briefly, at the start of his third air break, in the voice she used for telling people things they were not allowed to argue with. He had his mask off for the break. He watched the inner door open and the small girl in the blanket come through it on her mother's hip, into the narrow cream-painted room with its benches and its hanging hoods, and he moved along his bench to make room, the way you would on a bus.
 
@@ -174,7 +174,7 @@ Pætur Joensen had been told what was happening by Rannvá, briefly, at the star
 
 Elin looked at the arm, held against his chest, and then at his face, and then hid hers in her mother's neck.
 
-Rannvá had the paediatric hood out of its bag already. It was a clear soft bubble with a neck seal, like a space helmet made of a plastic bag, and oxygen flowed into it and out of it through two tubes, and the child sitting inside it could see everything and breathe without anything pressing on her face. Elin did not want it. She did not want it with the stubborn exhausted not-wanting of a seven-year-old at one in the morning in a strange metal room with her ears hurting, and her mother pleaded and Rannvá coaxed and the clock on the bulkhead went round. At four minutes past one she still did not have it on.
+Rannvá had the paediatric hood out of its bag already. It was a clear soft bubble with a neck seal, like a space helmet made of a plastic bag, and oxygen flowed into it and out of it through two tubes, and the child sitting inside it could see everything and breathe without anything pressing on her face. Elin did not want it. She did not want it with the stubborn exhausted not-wanting of a seven-year-old at one in the morning in a strange metal room with her ears hurting, and her mother pleaded and Rannvá coaxed and the clock on the bulkhead went round. At nine minutes past one she still did not have it on.
 
 "Hey," said Pætur again. "Look."
 
@@ -184,7 +184,7 @@ He picked up his own oxygen mask with his good hand and put it over his face, an
 
 Elin did not laugh. But she looked. And while she was looking, Rannvá put the hood on, gently, over her head and down to her shoulders, and sealed it, and Marites turned the oxygen on, and Elin breathed, and the hood fogged with her breath and cleared, and fogged and cleared.
 
-"Oxygen," said Vakt, very quietly, in the log. "Child, eighteen metres, one oh five."
+"Oxygen," said Vakt, very quietly, in the log. "Child, eighteen metres, one ten."
 
 "Your turn," Rannvá said to Pætur, and handed him his mask back, and he put it on, because the extension had begun.
 
@@ -278,4 +278,4 @@ Outside the window of the staff room the sea was blue and flat and harmless, the
 
 *The medical facts are stated from the published literature and simplified. US Navy Treatment Table 6, the standard schedule for serious decompression sickness, is three twenty-minute oxygen periods at 60 feet of seawater (about 18 metres, 2.8 atmospheres absolute) separated by five-minute air breaks, a thirty-minute ascent to 30 feet (about 9 metres, 1.9 atmospheres) on oxygen, two sixty-minute oxygen periods there each preceded by fifteen minutes on air, and a thirty-minute ascent to the surface on oxygen: 285 minutes, about four hours forty-five, not counting descent. The table may be extended by up to two periods of twenty minutes on oxygen and five on air at 60 feet when symptoms have not resolved; one extension makes 310 minutes. The tender inside breathes air and then oxygen near the end by separate rules, which the story does not state. Carbon monoxide binds haemoglobin roughly two hundred times more strongly than oxygen. A randomised trial published in 2002 (Weaver and colleagues, New England Journal of Medicine) gave three hyperbaric sessions within 24 hours to patients with symptomatic carbon monoxide poisoning and found fewer cognitive problems at six weeks than with normal-pressure oxygen; its first session began at 3 atmospheres. An earlier published schedule (Thom and colleagues, 1995) used 2.8 atmospheres for 30 minutes followed by 2.0 atmospheres for 90 minutes. Delayed neurological problems after carbon monoxide poisoning are real and can appear days to weeks later. Oxygen at these pressures carries a small risk of seizure, which stops when the oxygen is removed. Paediatric oxygen hoods, slow compression for children's ears and multiplace chambers with an entry lock that lets people enter or leave while others stay at pressure are all real practice; how any real chamber would handle two patients on one night is a judgment for its own doctors and protocols, and the plan in the story is the story's own.*
 
-*The story's timeline: Pætur reaches 18 metres at 23:55 on Saturday 21 October 2051. His three oxygen periods and breaks at 18 metres end at 01:10; the extension holds 18 metres until 01:35; ascent to 9 metres, 01:35 to 02:05; at 9 metres, air 02:05 to 02:20, oxygen 02:20 to 03:20, air 03:20 to 03:35, oxygen 03:35 to 04:35; ascent to the surface 04:35 to 05:05, 310 minutes in all (285 plus 25). Elin and her mother enter the entry lock at 00:50 and reach 18 metres at 01:01, eleven minutes; Elin is on oxygen from 01:05, 30 minutes at 2.8 atmospheres before the ascent begins (the story's "thirty-three" is the doctor's plan, made before the hood went on four minutes late); she leaves the main lock at 9 metres at 03:20, in the diver's air break, and the entry lock reaches the surface at 03:50, thirty minutes, the table's own ascent rate, on oxygen. Her mother breathes oxygen by mask for most of her time inside, to limit the nitrogen she takes on; her own decompression schedule is the story's model and its numbers are not given. Aberdeen is about 550 kilometres from the southern Faroes in a straight line and Bergen about 660. Weekdays were checked: 21 October 2051 is a Saturday and 22 October a Sunday.*
+*The story's timeline: Pætur reaches 18 metres at 23:55 on Saturday 21 October 2051. His three oxygen periods and breaks at 18 metres end at 01:10; the extension holds 18 metres until 01:35; ascent to 9 metres, 01:35 to 02:05; at 9 metres, air 02:05 to 02:20, oxygen 02:20 to 03:20, air 03:20 to 03:35, oxygen 03:35 to 04:35; ascent to the surface 04:35 to 05:05, 310 minutes in all (285 plus 25). Elin and her mother enter the entry lock at 00:55 and reach 18 metres at 01:06, eleven minutes, at the start of Pætur's third air break; Elin is on oxygen from 01:10, as the extension begins, 25 minutes at 2.8 atmospheres before the ascent begins (the story's "thirty-three" is the doctor's plan, made before the slow compression and the four minutes it took to get the hood on); she leaves the main lock at 9 metres at 03:20, in the diver's air break, and the entry lock reaches the surface at 03:50, thirty minutes, the table's own ascent rate, on oxygen. Her mother breathes oxygen by mask for most of her time inside, to limit the nitrogen she takes on; her own decompression schedule is the story's model and its numbers are not given. Aberdeen is about 550 kilometres from the southern Faroes in a straight line and Bergen about 660. Weekdays were checked: 21 October 2051 is a Saturday and 22 October a Sunday.*
