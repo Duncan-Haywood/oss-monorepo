@@ -159,8 +159,8 @@ class DeepenTests(unittest.TestCase):
                 return mock.Mock(stdout=out, returncode=0)
             with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
                 return deepen_to_window(7), m.call_count
-        self.assertEqual(run(False), (False, 1))
-        self.assertEqual(run(True), (True, 3))  # rev-parse, git log, fetch
+        self.assertEqual(run(False), (False, 2))  # rev-parse, rev-list
+        self.assertEqual(run(True), (True, 4))  # rev-parse, rev-list, git log, fetch
 
     def test_fetch_timeout_returns_false_instead_of_blocking(self):
         import subprocess
@@ -175,11 +175,49 @@ class DeepenTests(unittest.TestCase):
     def test_skips_fetch_when_history_already_reaches_window(self):
         from unittest import mock
         def fake(cmd, **kw):
-            out = "true" if "rev-parse" in cmd else "1000000000\n"
+            out = "true" if "rev-parse" in cmd else "" if "rev-list" in cmd else "1000000000\n"
             return mock.Mock(stdout=out, returncode=0)
         with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
             self.assertFalse(deepen_to_window(7))
-            self.assertEqual(m.call_count, 2)  # no fetch
+            self.assertEqual(m.call_count, 3)  # rev-parse, rev-list, git log; no fetch
+
+    def test_stale_origin_main_is_fetched_even_when_history_reaches_window(self):
+        # 2026-11-13: origin/main sat at a 6-day-old clone-time commit while HEAD was current
+        # main; its deep history "reached" the window, so no fetch ran and last_landed lied.
+        from unittest import mock
+        for shallow in ("true", "false"):
+            calls = []
+            def fake(cmd, **kw):
+                calls.append(cmd)
+                if "rev-parse" in cmd:
+                    out = shallow
+                elif "rev-list" in cmd:
+                    out = "5c6cef44fdb9830ff4ba791359445aac257c4e92\n"
+                else:
+                    out = "1000000000\n"
+                return mock.Mock(stdout=out, returncode=0)
+            with mock.patch("allocate.subprocess.run", side_effect=fake):
+                self.assertTrue(deepen_to_window(7))
+            self.assertTrue(any("fetch" in c for c in calls), shallow)
+
+    def test_own_commits_on_a_work_branch_do_not_count_as_stale(self):
+        import subprocess
+        import tempfile
+        from allocate import origin_main_behind_head
+        with tempfile.TemporaryDirectory() as d:
+            env = {"GIT_AUTHOR_NAME": "a", "GIT_AUTHOR_EMAIL": "a@x", "GIT_COMMITTER_NAME": "a",
+                   "GIT_COMMITTER_EMAIL": "a@x", "PATH": __import__("os").environ["PATH"]}
+            def git(*a, **extra):
+                subprocess.run(["git", *a], cwd=d, check=True, capture_output=True,
+                               env={**env, **extra})
+            git("init", "-q", "-b", "main")
+            git("commit", "-q", "--allow-empty", "-m", "base")
+            git("update-ref", "refs/remotes/origin/main", "HEAD")
+            git("commit", "-q", "--allow-empty", "-m", "my own work")
+            self.assertFalse(origin_main_behind_head(Path(d)))
+            git("commit", "-q", "--allow-empty", "-m", "a merged PR (#1)",
+                GIT_COMMITTER_NAME="GitHub", GIT_COMMITTER_EMAIL="noreply@github.com")
+            self.assertTrue(origin_main_behind_head(Path(d)))
 
 
 class NextTaskTests(unittest.TestCase):

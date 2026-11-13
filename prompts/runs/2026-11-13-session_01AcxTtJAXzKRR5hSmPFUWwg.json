@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtJAXzKRR5hSmPFUWwg",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T09:06:33Z",
+  "ended": "2026-11-13T09:11:09Z",
+  "wall_minutes": 4.77,
+  "tokens_in": 2243561,
+  "tokens_out": 14691,
+  "cost_usd": 1.2479,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15441",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First test run failed: the old skip-fetch test's mock returned a timestamp for every non-rev-parse command, which the new rev-list staleness probe read as 'stale'; fixed the mock."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR advice names search_pull_requests (MCP), but that tool is not in this session's GitHub MCP list; gh api search/issues worked instead."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Container's origin/main started at #13701 (2026-11-07) while HEAD was #15437; ~30 tools read origin/main without a freshness check (grep 'origin/main' platform portfolio). Fixed here for allocate.py only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Critique mode says to file each problem as a backlog item; prompts/process/backlog/ is a CODEOWNERS path, so filing it would hold the code fix for owner approval.",
+      "did": "Recorded the remaining ~30 unguarded origin/main readers in doc_friction and the post instead.",
+      "result": "Fix lands unblocked; the broader item waits for a run that can file it in its own PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-ref-that-was-six-days-old.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog had only owner/blocked rows). Lens: doc_friction on allocate.py (stale 'last landed'). Root cause: stale clone-time origin/main passed _history_reaches. Verification: portfolio/router unittest test_allocate 92 OK; live repro with origin/main reset to 6a7105402 printed 'last landed ... (0.8h ago)' after the new fetch (was 154.1h). main_health.py 62/62 before work. No backlog id touched; a backlog item for the other origin/main readers was not filed because prompts/process/backlog is a CODEOWNERS path (would hold this PR for owner approval).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b97b39b5-4288-546d-8d64-1f6cb43104e7",
+    "transcripts": 1,
+    "first": "2026-11-13T09:06:33Z",
+    "last": "2026-11-13T09:11:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 60,
+        "output": 14691,
+        "thinking": 4949,
+        "cache_read": 2178743,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64758,
+        "api_equivalent_usd": 1.2479,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 60,
+      "output": 14691,
+      "thinking": 4949,
+      "cache_read": 2178743,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64758,
+      "api_equivalent_usd": 1.2479,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.77,
+      "active_minutes": 4.77,
+      "model_minutes": 3.13,
+      "tool_minutes": 1.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "diagnose stale-ref bug, fix, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 160.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
