@@ -65,15 +65,17 @@ export function compute(raw) {
     return { drive: d, hours: round2(h), profit: round2(pr), hourly: round2(pr / h) };
   });
   const findings = [];
-  if (profit < 0) findings.push({ severity: "high", title: `The route loses about ${dollars(-profit)} a month at ${p.clients} clients. Each client leaves ${dollars(clientMargin)} a month after supplies and driving, which does not cover ${dollars(monthlyFixed)} of fixed costs and disposal.` });
-  if (v.margin <= 0) findings.push({ severity: "high", title: `Each visit costs more than it brings in (${dollars(v.margin)}). Adding clients loses more. Raise the price or cut the drive between yards.` });
+  if (profit < 0) findings.push({ severity: "high", title: `The route loses about ${dollars(-profit)} a month at ${p.clients} clients. ${clientMargin > 0 ? `Each client leaves ${dollars(clientMargin)} a month after supplies and driving, which does not cover ${dollars(monthlyFixed)} of fixed costs and disposal.` : round2(clientMargin) < 0 ? `Each client loses about ${dollars(-clientMargin)} a month after supplies and driving, before ${dollars(monthlyFixed)} of fixed costs and disposal.` : `Each client leaves nothing after supplies and driving toward ${dollars(monthlyFixed)} of fixed costs and disposal.`}` });
+  // Compare the rounded margin, so a float residue never reads "costs $0.00 more".
+  if (v.margin <= 0 && round2(v.margin) < 0) findings.push({ severity: "high", title: `Each visit costs about ${dollars(-v.margin)} more than it brings in. Adding clients loses more. Raise the price or cut the drive between yards.` });
+  else if (v.margin <= 0) findings.push({ severity: "high", title: `Each visit brings in exactly what it costs, so no number of clients covers ${dollars(monthlyFixed)} of fixed costs and disposal. Raise the price or cut the drive between yards.` });
   else if (p.targetHourly > 0 && hourly < p.targetHourly) findings.push({ severity: "medium", title: `The route pays you about ${dollars(hourly)} an hour of work including driving, short of your ${dollars(p.targetHourly)} target. Price per visit would need to be ${dollars(priceForTarget)} at this route.` });
   if (breakEvenClients !== null && p.clients - breakEvenClients < 5 && profit >= 0) findings.push({ severity: "medium", title: `Break-even is ${breakEvenClients.toFixed(1)} clients and you have ${p.clients}. Losing a few cancellations in a month turns it into a loss.` });
   if (v.margin > 0 && p.drive > 0) {
     const driveShare = (p.drive / v.minutes) * 100;
     if (driveShare >= 40) findings.push({ severity: "medium", title: `${driveShare.toFixed(0)}% of each visit is driving. Clients clustered in the same neighbourhoods raise your hourly pay more than a price rise of the same size.` });
   }
-  findings.push({ severity: "info", title: `Each client adds about ${dollars(clientMargin)} a month and about ${(VISITS_PER_MONTH * v.minutes / 60).toFixed(1)} hours of work.` });
+  if (clientMargin > 0) findings.push({ severity: "info", title: `Each client adds about ${dollars(clientMargin)} a month and about ${(VISITS_PER_MONTH * v.minutes / 60).toFixed(1)} hours of work.` });
   if (clientsForTarget !== null) findings.push({ severity: "info", title: `To reach ${dollars(p.targetMonthly)} a month at this price and route you need about ${Math.ceil(clientsForTarget)} clients and ${(clientsForTarget * VISITS_PER_MONTH * v.minutes / 60).toFixed(0)} hours of work a month.` });
   return { errors: [], input: p, visits, hours, revenue: round2(revenue), profit: round2(profit), hourly: round2(hourly), perVisit: round2(v.margin), clientMargin: round2(clientMargin), breakEvenClients, clientsForTarget, priceForTarget: priceForTarget === null ? null : round2(priceForTarget), findings, sweep };
 }
