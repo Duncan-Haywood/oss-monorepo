@@ -19,6 +19,11 @@ for a ready PR, 24 h for a draft), with
 
   * its age since the last push, and whether it is a draft;
   * its check runs on the head commit (green, red, pending, none);
+  * **merge**: GitHub's own merge test against today's main (clean,
+    conflicts, ?). Green checks ran on the main of the last push: on
+    2026-11-13, 10 of the 12 green rows conflicted with main (dirty; the
+    other two were #15460, merged that run, and a dependabot bump), so a
+    "green" column alone sent the next run to PRs it could not merge as is;
   * **already on main**: every changed file is the same blob on main, or every
     block of added lines is already in main's copy (owner_held_prs's rule), so
     the PR is probably superseded: run `portfolio/ledger/supersede_check.py`
@@ -35,8 +40,8 @@ It does not merge, close or comment on anything. Read the diff before you act.
 
 Network use is owner_held_prs.py's (GITHUB_TOKEN when set; a cloud session's
 proxy authenticates it otherwise): one request per PR page, then per stalled
-candidate one for its files, one for its head commit and one for its check
-runs, sixteen at a time. Fetch origin/main first for the "already on main"
+candidate one for its files, one for its head commit, one for its check
+runs and one or more for the PR itself (its mergeable flag), sixteen at a time. Fetch origin/main first for the "already on main"
 column. Exit 0 with the list, 2 when GitHub cannot be read.
 """
 
@@ -47,6 +52,7 @@ import datetime as dt
 import json
 import re
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -84,12 +90,18 @@ def checks_summary(runs: list[dict]) -> str:
     return "green"
 
 
+def merge_word(mergeable) -> str:
+    """GitHub's `mergeable` as one word: True clean, False conflicts, None unknown."""
+    return {True: "clean", False: "conflicts"}.get(mergeable, "?")
+
+
 def classify(prs: list[dict], info_of, rules, now: dt.datetime, main=ohp.NoMain()) -> list[dict]:
     """Rows for the same-repo open PRs that touch no owned path and whose head
     is older than its stall threshold, stalest first.
 
-    `info_of(pr)` returns {"files": [...], "pushed_at": iso, "checks": [...]}
-    for one PR (files as the API lists them; check runs on the head commit)."""
+    `info_of(pr)` returns {"files": [...], "pushed_at": iso, "checks": [...],
+    "mergeable": bool|None} for one PR (files as the API lists them; check runs
+    on the head commit; GitHub's mergeable flag against today's main)."""
     same = [pr for pr in prs if not ohp.is_fork(pr)]
     # updated_at moves on every push, comment and label, so a PR updated within
     # the threshold cannot be stale; skip its three requests.
@@ -119,6 +131,7 @@ def classify(prs: list[dict], info_of, rules, now: dt.datetime, main=ohp.NoMain(
             "draft": draft,
             "idle_hours": round(idle.total_seconds() / 3600, 1),
             "checks": checks_summary(info.get("checks") or []),
+            "merge": merge_word(info.get("mergeable")),
             "files": len(files),
             "on_main": bool(files) and all(ohp.change_on_main(f, main) for f in files),
             "says_wait": wait.group(0) if wait else "",
@@ -142,13 +155,17 @@ def render(rows: list[dict]) -> str:
            "or draft and idle 24h+), stalest first. Read the diff, verify on today's main, then merge or close "
            "with a reason (.github/prompts/land-your-work.md).", ""]
     if live:
-        out += ["| PR | idle | checks | files | title | note |", "|---|---|---|---|---|---|"]
+        out += ["| PR | idle | checks | merge | files | title | note |", "|---|---|---|---|---|---|---|"]
         for r in live:
             title = r["title"].replace("|", "/")
             if r["draft"]:
                 title = "(draft) " + title
             note = "already on main: supersede_check.py, then close" if r["on_main"] else ""
-            out.append(f"| #{r['number']} | {fmt_idle(r['idle_hours'])} | {r['checks']} | {r['files']} | {title} | {note} |")
+            merge = r.get("merge", "?")
+            out.append(f"| #{r['number']} | {fmt_idle(r['idle_hours'])} | {r['checks']} | {merge} | {r['files']} | {title} | {note} |")
+        ready = [r for r in live if r["checks"] == "green" and r.get("merge") == "clean" and not r["draft"]]
+        out += ["", f"Green and clean against main: {', '.join('#%d' % r['number'] for r in ready) or 'none'}. "
+                "A 'conflicts' row needs main merged into it first; its green checks ran on an older main."]
     if waiting:
         out += ["", "Left open on purpose (the body says so; not candidates): "
                 + ", ".join(f"#{r['number']} ({r['says_wait']})" for r in waiting)]
@@ -167,10 +184,19 @@ def main(argv: list[str] | None = None) -> int:
         sha = pr["head"]["sha"]
         commit = ohp.get(f"/repos/{repo}/commits/{sha}")
         checks = ohp.get(f"/repos/{repo}/commits/{sha}/check-runs?per_page=100").get("check_runs", [])
+        # The list endpoint has no `mergeable`; a PR's own GET starts GitHub's
+        # background merge test and returns null until it finishes (a few seconds).
+        mergeable = None
+        for attempt in range(3):
+            mergeable = ohp.get(f"/repos/{repo}/pulls/{pr['number']}").get("mergeable")
+            if mergeable is not None:
+                break
+            time.sleep(2 + 2 * attempt)
         return {
             "files": ohp.pages(f"/repos/{repo}/pulls/{pr['number']}/files", limit=30),
             "pushed_at": ((commit.get("commit") or {}).get("committer") or {}).get("date", ""),
             "checks": checks,
+            "mergeable": mergeable,
         }
 
     try:
