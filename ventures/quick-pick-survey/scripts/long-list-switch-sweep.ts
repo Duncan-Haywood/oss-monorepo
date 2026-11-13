@@ -8,7 +8,8 @@
  * answers): rank accuracy, items under rd 200 and rd 150, how many of the true
  * top 10 are in the estimated top 10, top-1 hit, the insights card's clear pick
  * (src/lib/clearPick.ts on the refit, up to REFIT_MAX_ITEMS) as fire rate and
- * wrong share, and the answer count at which the couple screen's bar (8 items
+ * wrong share, each seed's rank accuracy (`rankBySeed`, the same seeds in
+ * every selector's row, for paired differences), and the answer count at which the couple screen's bar (8 items
  * under rd 200) is first met. docs/INFORMATION-GAIN-SELECTOR.md, "Lists over
  * 120 items: the switch rule (2026-11-13)".
  *
@@ -90,6 +91,7 @@ for (const items of itemCounts) {
         console.log(JSON.stringify({
           items, lapse, selector: name, answers: b, seeds: nSeeds,
           rank: +mean(a.rank).toFixed(3),
+          rankBySeed: a.rank.map((x) => +x.toFixed(4)),
           under200: +mean(a.u200).toFixed(1),
           under150: +mean(a.u150).toFixed(1),
           top10: +mean(a.top10).toFixed(2),
