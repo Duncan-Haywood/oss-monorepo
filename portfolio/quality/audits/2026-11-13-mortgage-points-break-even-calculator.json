@@ -1,0 +1,255 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/mortgage-points-break-even-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-q-5db1",
+ "drawn_by": "sample",
+ "round": 71,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior mortgage loan officer who walks borrowers through Loan Estimate point options, paired with a CFP who prices the opportunity cost and tax side. They would check first that the two payments and the simple break-even match a standard amortization calculator, that the opportunity-cost (true) break-even and the implied return are computed consistently, and that the tax treatment follows IRS Pub 936 (points on a main-home purchase generally deductible in the year paid for itemizers; refinance points spread over the loan)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every output I recomputed matches. Independent Python script (scratchpad mp/indep.py, stdlib only, imports nothing from the venture) implements the textbook payment M = P r/(1-(1+r)^-n), its own amortization schedule, the future value of after-tax savings minus compounded points plus balance gap, a bisection IRR and a closed-form survival-weighted expectation (1-h)^(t-1) h. Against `node js.mjs` calling calc.mjs analyze() on four cases (defaults; defaults at 0% return; defaults at 24% tax; $300k 15y 7.0% vs 6.5% for 2 points, 5y horizon, 5% return, 15% move): payA/payB 2495.48/2594.39 and 2613.32/2696.48, simple break-even 40.44 and 72.15 months, true break-even 35/32/47/60 months, advantage at horizon $6,514/$6,553/$3,554/$69, IRR 31.33/31.33/18.84/5.30%, expected advantage $12,007/$8,948/$7,276/$468, P(finish ahead) 0.742/0.762/0.668/0.450 and interest avoided $10,553/$7,077 all agree to the cent or 4 dp. The $400k 6.75% 30y payment $2,594.39 is the standard published figure (any amortization table). The accounting identity at 0% return and 0% tax (advantage = interest avoided - points: $10,553.15 - $4,000 = $6,553.15) holds. IRR is unchanged by the cash return (31.33% at 0% and 4.5%), as it must be. Not 4: the opportunity-cost rate is used pre-tax and points are never deducted, so the 'true' numbers are right for the model but the model is simplified (see domain).",
+  "completeness": "README and page promise: simple and true break-even, yearly return on the points, dollars ahead/behind at horizon, chance you finish ahead given early sale/refinance, horizon x cash-return grid, client-side only, disclaimer, usage events, DNT/GPC. All present in calc.mjs analyze() and index.html run(): verdict, 8-row measures table, 3-row probability table, grid over horizons {2,3,5,7,10,15,20,30, user horizon} x returns {0, user, 8}. usage.mjs is localStorage only and honours navigator.doNotTrack/globalPrivacyControl (usage.mjs:34). Lender credit is handled by the documented swap of inputs (works). Not built and not claimed as built (VENTURE.yaml): printable comparison, refinance-vs-stay. The live page could not be loaded from this container (proxy 403 on marisstella.app), so served-page checks rest on source plus the build's URL rewrite.",
+  "verification": "`cd ventures/mortgage-points-break-even-calculator && node --test '*.test.mjs'`: 27 tests, 27 pass, 0.12 s. Tests pin the payment, schedule end, the 0%-return identity and the end-month probabilities summing to 1, but the rest are direction-only (higher return -> later, higher tax -> lower, IRR > 0). Eight mutants via platform/ci/quality_mutate.py, 3 caught, 5 survived: dropping the compounding of savings (calc.mjs:77, fv = fv + saving) SURVIVED, which shifts the true break-even and every positive-return number; dropping the balance gap from the IRR (calc.mjs:87) SURVIVED; replacing the yearly-to-monthly hazard 1-(1-q)^(1/12) with q/12 (calc.mjs:104) SURVIVED; reachBreakEven exponent t/12 -> t (calc.mjs:139, shows ~0% for every user) SURVIVED; interest-avoided slice off by one month (calc.mjs:162) SURVIVED. Caught: tax sign flip (calc.mjs:76), terminal-month mass dropped (calc.mjs:107), balance gap zeroed (calc.mjs:78).",
+  "craft": "Read calc.mjs (169 lines), calc.test.mjs, page.test.mjs, usage.mjs, index.html script. Small pure functions, model written out in the header comment, no dependencies, output escaped, absurd terms refused. Defects: analyze() warns 'Points cost cannot be negative' but computes anyway (pointsPct -1 -> points -$4,000, simple break-even -40.4 months shown, calc.mjs:125 omits pointsPct and negative rates from the early-return condition; negative rates likewise return 361 rows); horizon 0 or negative silently becomes the full 30-year term with no warning (calc.mjs:127 nz(...) || o.term); a blank or non-numeric field silently becomes the example value (index.html:123). advantageByMonth is recomputed 3x per grid row (fine at this size).",
+  "claims": "Checked: disclaimer in header and footer ('not legal, tax, accounting, compliance, or financial advice ... not ... lending or mortgage-brokerage advice', index.html footer); defaults labelled placeholders (header note, README Limits); 'nothing uploaded' (page.test asserts no fetch/XHR/beacon; usage.mjs localStorage only); DNT/GPC honoured (usage.mjs:34); FAQ '$4,000 of points that cut the payment by $99 breaks even in about 40 months' (computed 98.91, 40.44); FAQ 'true break-even is usually a little earlier or later' (35 vs 40.4 at defaults, 47 at 24% tax); points deductibility explicitly not modelled (FAQ 'How is tax handled?', 'Not decided', README Limits). Weak spot: JSON-LD featureList (index.html:12) lists 'lender credit comparison' as a feature; it is an input-swap workaround in the FAQ, and VENTURE.yaml says a lender-credit mode is not built. llms.txt links the github.io host, but the Pages build rewrites it (build_pages_site.py rewrite_base_urls), so source-only and not counted.",
+  "fitness": "Job: a buyer holding a Loan Estimate with a 1-point option decides whether to buy it. Typing the two rates and point cost gives payments, break-even with and without opportunity cost, the dollars at a planned sale year and an odds-weighted view; the horizon x return grid shows sensitivity. A standard-deduction borrower (most borrowers since 2018) can finish the job. Gaps a loan officer would hit: only two offers at a time (Loan Estimates often price 0, 0.5, 1, 2 points), points financed into the balance not modelled, no APR cross-check, and for an itemizing purchaser the result is biased against points (domain).",
+  "domain": "Against IRS Pub 936 and standard CFP practice. Amortization, simple break-even and the opportunity-cost break-even are textbook. Departures: (1) the tax rate is applied to reduce the interest saving (correct for an itemizer) but the points themselves are never deducted, although Pub 936 lets points on a main-home purchase generally be deducted in full in the year paid by the same itemizer; the asymmetric treatment penalises points: at defaults with 24% tax the tool says break-even month 47 and +$3,554 at 7 years, while netting the deduction (approximated as 0.76 points, `node ded.mjs`) gives month 35 and +$4,860. Disclosed as a limit, but the one input only itemizers use is the one that makes the bias bite. (2) The return on cash is used pre-tax, overstating the opportunity cost for taxable savings. (3) The yearly chance of moving and the 'years you expect to keep the loan' are two separate, possibly inconsistent exit models shown side by side without reconciliation. CFPB's points guidance (one point = 1% of the loan, compare by break-even and how long you keep the loan) is followed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "monthly payment at $400k 30y 6.75% and 6.375%; $300k 15y 7.0% and 6.5%",
+   "method": "standard amortization formula M = P r/(1-(1+r)^-n) in independent Python; published $2,594.39 figure",
+   "command": "python3 scratchpad/mp/indep.py vs node scratchpad/mp/js.mjs",
+   "expected": "2594.3924 / 2495.4796; 2696.4848 / 2613.3221",
+   "observed": "2594.3924 / 2495.4796; 2696.4848 / 2613.3221",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "simple break-even = points / monthly saving at defaults and the $300k case",
+   "method": "hand: 4000 / 98.9128 and 6000 / 83.1627",
+   "command": "python3 scratchpad/mp/indep.py",
+   "expected": "40.44 and 72.15 months",
+   "observed": "40.4397 and 72.1477",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "opportunity-cost (true) break-even month and advantage at horizon, 4 cases",
+   "method": "independent FV of after-tax savings minus points*(1+i)^t plus balance gap, own schedule",
+   "command": "python3 scratchpad/mp/indep.py",
+   "expected": "35/32/47/60 months; $6,514.15/$6,553.15/$3,553.60/$68.93",
+   "observed": "35/32/47/60; 6514.15/6553.15/3553.60/68.93",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "implied yearly return (IRR) on the points at horizon",
+   "method": "independent bisection on cost = sum s_k/(1+x)^k + gap/(1+x)^hm, annualised",
+   "command": "python3 scratchpad/mp/indep.py",
+   "expected": "31.329% / 31.329% / 18.836% / 5.301%",
+   "observed": "31.329 / 31.329 / 18.836 / 5.301",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "expected advantage and P(finish ahead) under a 10%/yr (15%/yr) move hazard",
+   "method": "closed-form survival (1-h)^(t-1) h with h = 1-(1-q)^(1/12), terminal mass at month n",
+   "command": "python3 scratchpad/mp/indep.py",
+   "expected": "E $12,006.54/$8,948.31/$7,276.31/$467.76; pWin 0.7419/0.7617/0.6677/0.4498",
+   "observed": "12006.54/8948.31/7276.31/467.76; 0.7419/0.7617/0.6677/0.4498",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "accounting identity at 0% return, 0% tax: advantage(84) = interest avoided - points",
+   "method": "hand from the two schedules",
+   "command": "python3 scratchpad/mp/indep.py",
+   "expected": "10553.15 - 4000 = 6553.15",
+   "observed": "6553.15",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/mortgage-points-break-even-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "tests 27, pass 27, fail 0, 0.12 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "tax treatment of points for an itemizing purchaser (24% bracket, defaults)",
+   "method": "IRS Pub 936, 'Points': purchase points on a main home generally deductible in full in the year paid; approximated by netting 24% off the point cost",
+   "command": "node scratchpad/mp/ded.mjs",
+   "expected": "points deduction reflected when a tax rate is entered",
+   "observed": "tool: break-even month 47, +$3,554 at 7y; with deduction approx: month 35, +$4,860",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "negative points cost and negative rates",
+   "method": "call analyze({pointsPct:-1}) and analyze({baseRate:-1, pointsRate:-2})",
+   "command": "node scratchpad/mp/js.mjs",
+   "expected": "refused like the other invalid inputs",
+   "observed": "warning shown but computed: points -$4,000, simple break-even -40.4 months; negative rates return 361 rows",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "horizon 0 or negative",
+   "method": "call analyze({horizon:0}) and analyze({horizon:-3})",
+   "command": "node scratchpad/mp/js.mjs",
+   "expected": "warning",
+   "observed": "silently becomes 30 years, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, placeholders, nothing uploaded, DNT/GPC",
+   "method": "read index.html footer/header, usage.mjs:34, page.test.mjs",
+   "command": "grep -n 'doNotTrack\\|globalPrivacyControl' ventures/mortgage-points-break-even-calculator/usage.mjs",
+   "expected": "all backed",
+   "observed": "all backed by files and asserted in page.test.mjs",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ worked example '$4,000 of points ... $99 ... about 40 months'",
+   "method": "hand",
+   "command": "python3 -c 'print(4000/98.9128)'",
+   "expected": "about 40",
+   "observed": "40.44",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "JSON-LD featureList 'lender credit comparison'",
+   "method": "compare with code and VENTURE.yaml",
+   "command": "grep -n 'lender' ventures/mortgage-points-break-even-calculator/index.html ventures/mortgage-points-break-even-calculator/VENTURE.yaml",
+   "expected": "a lender-credit mode",
+   "observed": "an input-swap workaround in the FAQ; VENTURE.yaml says a lender-credit mode is not built",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/mortgage-points-break-even-calculator/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403 from this container; not checkable",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:77",
+   "change": "fv = fv * (1 + i) + saving -> fv = fv + saving",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:87",
+   "change": "let pv = endGap / Math.pow(1 + m, months) -> let pv = 0",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:104",
+   "change": "h = 1 - Math.pow(1 - q, 1 / 12) -> h = q / 12",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:139",
+   "change": "Math.pow(1 - q, trueBreakEven / 12) -> Math.pow(1 - q, trueBreakEven)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:162",
+   "change": "b.interest.slice(1, hm + 1) -> b.interest.slice(1, hm)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:76",
+   "change": "tax * (b.interest[m] - a.interest[m]) -> tax * (a.interest[m] - b.interest[m])",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:107",
+   "change": "end = t === n ? alive : alive * h -> end = alive * h",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:78",
+   "change": "balanceGap = b.balance[m] - a.balance[m] -> balanceGap = 0",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Core outputs pinned only by direction: 5 of 8 seeded mutants survive, including dropping the compounding of savings (true break-even and every positive-return figure), dropping the balance gap from the IRR, the yearly-to-monthly hazard, the 'chance you still hold the loan at break-even' exponent (t vs t/12, which shows ~0% to every user) and the interest-avoided window",
+   "where": "ventures/mortgage-points-break-even-calculator/calc.test.mjs:30",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Asymmetric tax treatment: the tax rate (an input only itemizers use) cuts the interest saving, but the points themselves are never deducted although IRS Pub 936 generally allows purchase points on a main home in full in the year paid. At defaults with 24% tax the tool reports break-even month 47 and +$3,554 at 7 years; netting the deduction gives about month 35 and +$4,860. Disclosed as a limit, but the bias is systematic against points for exactly the users who enter a tax rate",
+   "where": "ventures/mortgage-points-break-even-calculator/calc.mjs:76",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Negative points cost (and negative rates) produce a warning but are still computed and displayed: pointsPct -1 shows points -$4,000 and a simple break-even of -40.4 months; the early-return condition omits these checks",
+   "where": "ventures/mortgage-points-break-even-calculator/calc.mjs:125",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Horizon 0 or negative silently becomes the full loan term with no warning; a blank or non-numeric field silently becomes the example value",
+   "where": "ventures/mortgage-points-break-even-calculator/calc.mjs:127",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Opportunity-cost rate is used pre-tax; the label does not say to enter an after-tax return, so the cost of the cash is overstated for taxable savings",
+   "where": "ventures/mortgage-points-break-even-calculator/calc.mjs:71",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "JSON-LD featureList advertises 'lender credit comparison'; it is an input-swap workaround described in the FAQ, and VENTURE.yaml says a lender-credit mode is not built",
+   "where": "ventures/mortgage-points-break-even-calculator/index.html:12",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15589"
+ ],
+ "verdict": "A small, clean and correct points calculator. Every output I recomputed in an independent Python implementation (payments, simple and opportunity-cost break-even, advantage at horizon, IRR, hazard-weighted expectation and win probability, interest avoided) matches calc.mjs to the cent on four cases, and the disclaimer and privacy claims are backed. It misses the bar on verification: 27 tests pass but 5 of 8 seeded mutants survive, including removing the compounding of savings and breaking the 'chance you still hold the loan at break-even' figure. A CFP would also flag that the tax input cuts the interest saving while ignoring the Pub 936 deduction of purchase points, which biases the result against points for every itemizer (break-even 47 vs about 35 months at defaults)."
+}
