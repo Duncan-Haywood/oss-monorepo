@@ -1,5 +1,18 @@
 # buildbot-sheathing research log
 
+## 2026-11-13 · Milestone 9 result: a push of 28–232 N straightens the joint stud, but single-2x joints still stop at the straight-stud ceiling
+
+`experiments/m9_straighten/` (run.py, results.txt, results.json, figure.png); `src/buildbot_sheathing/straighten.py`; 48 s on one CPU (MuJoCo 4.0.1 for the humanoid capacity).
+
+- **H41 held.** The cubic-Hermite FE beam reproduces the closed forms exactly: c = 48.000 and 192.000, residual 0.07407 b and 0.29630 b at u = 1/6.
+- **H42 held.** A mid-height push on a Stud-grade 2x4 bending flatwise between pinned plates takes a median of **28 N** and a 99th percentile of **126 N** at the lower published warp (53 and 232 N at the higher), and 376 N for a grade-limit stud at DF-L's 95th-percentile E. Fixed ends cost four times that. Nail by nail equals the mid push for the median stud (the mid push alone brings every point within 0.5 mm when the bow is under about 6.8 mm), but on the studs it does not, holding each nail while pushing the next makes the stud a short beam: p99 355 N at low warp and **1,258 N** at high, up to 2,821 N at the grade limit, and 791 N (p99) if the tolerance is tightened to 0.25 mm. **Push first, then nail.**
+- **A G1 can just do it.** Milestone 3b's static whole-body model gives a sideways push of **81–88 N** at 1.2–1.3 m (right ankle roll binds, at either foot friction), an H1 **120–123 N** (shoulder yaw). That covers 93% of low-warp studs and 69% of high-warp ones for the G1, 99% and 86% for the H1. A G1 that cannot move a stud can read it and fall back to the extra stud.
+- **H43 refuted, and the reason is the useful part.** Straightening lifts the best single-2x pipeline from **0.560 to 0.710** clean sheets at low warp and **0.307 to 0.677** at high (0.625→0.782 and 0.344→0.750 under milestone 6b's smooth-bow rock), 6 to 37 points, but not to 95%: on perfectly straight studs the same pipeline gives **0.737** (0.811 smooth-bow). Bow was costing single-2x joints up to 37 points; the sheet's own pose on the ledger costs the remaining 19–26. Doubled joints (0.9994 single read, 1.000 three reads) stay the only route to 95%.
+- **The push policy barely matters, the end restraint does.** Nail-by-nail and a three-point simultaneous push land within 0.4 points of the mid push. Fixed ends lose up to 5 points at high warp, because they leave 4 times as much shape (0.296 b at u = 1/6).
+- **H44 held, on a low bar.** Single 2x plus straightening beats doubled joints in 100% of draws at 100 and 300 houses a year; milestone 7 had already found doubled joints never pay. The informative number is the break-even: the median draw keeps favouring the push until about **925 s** of pushing a sheet. Against *not* pushing, straightening pays in 92% of draws at high warp and only 7.5–10% at low: at low warp its rework saving (0.79 → 0.47 nails a sheet) is worth about what 10–40 s of a supervised robot costs.
+- **What it means for the programme.** Three ways to deal with a bowed joint stud are now priced: double it ($5.42 a sheet, 95%+ clean), push it (28–232 N, free in dollars, 0.68–0.78 clean), or live with it (0.31–0.63). The recommendation stands as doubled joints where 95% first-pass is wanted; the push is the cheap fallback, and it removes bow as the cap, which turns the single-2x question into a placement question. The paper's section 5.2 can now say what the cap is made of.
+- **Inputs not sourced:** the push tolerance (0.5 mm, swept 0.25–1), the push time (10–40 s a sheet), the end restraint (both ends bracketed), and whether a pushed stud stays put between sheets.
+
 ## 2026-11-13 · Milestone 9 planned: push the bowed joint stud onto its line instead of doubling it
 
 Written before any milestone-9 experiment was run.

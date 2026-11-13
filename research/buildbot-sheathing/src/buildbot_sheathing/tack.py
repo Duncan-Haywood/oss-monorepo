@@ -41,7 +41,8 @@ TOP = HEIGHT / 2 - EDGE             # lever arm of the top and bottom joint nail
 def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0.0,
              shape="halfnormal", s_layout=0.0, s_read=0.5e-3, s_robot=0.9e-3, s_edge=0.5e-3,
              band=None, joint_band=None, s_x=0.0, s_theta=0.0, s_sway=0.0, aim="edge",
-             accept_half=None, max_hangs=5, rng=None, theta_draw=None):
+             accept_half=None, max_hangs=5, rng=None, theta_draw=None, straighten=None,
+             s_push=None):
     """Monte Carlo of one sheet's 62 nails on four as-built studs, hung with a pose error.
 
     s_x, s_theta   the hang: translation along the wall and rotation about the sheet centre
@@ -49,6 +50,11 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     aim            "edge" or "nominal"
     theta_draw     optional callable (rng, n) -> n rotations (rad), replacing the Gaussian s_theta
                    draw (milestone 3: the tilt a ledger and the panel's geometry leave)
+    straighten     optional ``straighten.Straightener`` (milestone 9): both joint studs are pushed
+                   toward the line through the robot's estimate of their ends before nailing. The
+                   push is set from a read, so the stud is straightened as if its bow were
+                   b + N(0, s_push) (s_push defaults to s_read); the robot believes the shape the
+                   policy leaves for its own estimate of the bow. Needs the three or dense policy.
     accept_half    re-hang while the narrowest predicted joint half-window is below this (None:
                    never re-hang); max_hangs caps the hangs a sheet
     Other arguments are milestone 2's (`asbuilt.simulate`).
@@ -74,6 +80,18 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     est_j = _fit(policy, ur, reads, U_JOINT)
     est_f = _fit(policy, ur, reads, U_FIELD)
     true_j, true_f = line(U_JOINT), line(U_FIELD)
+    if straighten is not None:
+        if policy not in ("three", "dense"):
+            raise ValueError("straightening needs a bow estimate: policy three or dense")
+        sp = s_read if s_push is None else s_push
+        e01 = _fit(policy, ur, reads, [0.0, 1.0])                        # (t, 4, 2)
+        tgt = e01[..., :1] + (e01[..., 1:] - e01[..., :1]) * U_JOINT[None, None, :]
+        b_hat = _fit(policy, ur, reads, [0.5])[..., 0] - (e01[..., 0] + e01[..., 1]) / 2
+        true_line = a0[..., None] + (a1 - a0)[..., None] * U_JOINT[None, None, :]
+        for k in (0, 3):
+            b_push = b[:, k] + (rng.normal(0, sp, t) if sp > 0 else 0.0)
+            true_j[:, k] = true_line[:, k] + straighten.left(b_push)
+            est_j[:, k] = tgt[:, k] + straighten.left(b_hat[:, k])
     blo_j, bhi_j = jband(T[..., None] * (U_JOINT[None, None, :] - 0.5))
     blo_f, bhi_f = band(T[..., None] * (U_FIELD[None, None, :] - 0.5))
     hj = jband.face / 2 - R

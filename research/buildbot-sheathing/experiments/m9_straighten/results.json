@@ -1,0 +1,776 @@
+{
+ "versions": {
+  "python": "3.13.18",
+  "numpy": "2.5.3"
+ },
+ "constants": {
+  "I_flat_m4": 4.0972780957499984e-07,
+  "L_m": 2.352675,
+  "E_psi": {
+   "DF-L": 1400000.0,
+   "Hem-Fir": 1200000.0,
+   "SPF": 1200000.0,
+   "SP": 1300000.0
+  },
+  "cov_E": 0.25,
+  "tol_m": 0.0005,
+  "EI_over_L3_at_1.2e6psi_N_per_m": 260.32138105063535
+ },
+ "A": {
+  "pinned": {
+   "c_fe": 47.999999698127795,
+   "c_closed": 48.0,
+   "rmax_fe": 0.07407407487200729,
+   "rmax_closed": 0.07407407407407413,
+   "at_u": 0.16666666666666666,
+   "three_c": [
+    64.80000012514574,
+    14.400000313005876,
+    64.79999968295306
+   ],
+   "three_rmax": 0.011725531698102837
+  },
+  "fixed": {
+   "c_fe": 191.99999970143836,
+   "c_closed": 192.0,
+   "rmax_fe": 0.29629629637869753,
+   "rmax_closed": 0.29629629629629634,
+   "at_u": 0.16666666666666666,
+   "three_c": [
+    648.0000003596069,
+    144.0000002622627,
+    647.9999995935941
+   ],
+   "three_rmax": 0.11725531684967189
+  }
+ },
+ "H41": true,
+ "B": [
+  {
+   "warp": "low",
+   "policy": "mid",
+   "ends": "pinned",
+   "median": 27.84632960888394,
+   "p95": 89.26334246125634,
+   "p99": 126.27723555287858,
+   "max": 337.8980376987272
+  },
+  {
+   "warp": "low",
+   "policy": "mid",
+   "ends": "fixed",
+   "median": 111.38531843553577,
+   "p95": 357.0533698450254,
+   "p99": 505.1089422115143,
+   "max": 1351.5921507949088
+  },
+  {
+   "warp": "low",
+   "policy": "nails",
+   "ends": "pinned",
+   "median": 27.846319319107053,
+   "p95": 94.97162606557303,
+   "p99": 354.5115284452017,
+   "max": 1622.1566210385151
+  },
+  {
+   "warp": "low",
+   "policy": "nails",
+   "ends": "fixed",
+   "median": 432.85814999212994,
+   "p95": 3886.863176587467,
+   "p99": 7181.934085260479,
+   "max": 26116.81412497988
+  },
+  {
+   "warp": "low",
+   "policy": "three",
+   "ends": "pinned",
+   "median": 37.59254504459435,
+   "p95": 120.50551255542373,
+   "p99": 170.47426832561646,
+   "max": 456.16235177425045
+  },
+  {
+   "warp": "low",
+   "policy": "three",
+   "ends": "fixed",
+   "median": 375.92544992855267,
+   "p95": 1205.0551238957048,
+   "p99": 1704.742680909906,
+   "max": 4561.623511464285
+  },
+  {
+   "warp": "high",
+   "policy": "mid",
+   "ends": "pinned",
+   "median": 52.87203510820102,
+   "p95": 168.10285986233487,
+   "p99": 232.43394632817427,
+   "max": 485.3682796731035
+  },
+  {
+   "warp": "high",
+   "policy": "mid",
+   "ends": "fixed",
+   "median": 211.48814043280407,
+   "p95": 672.4114394493395,
+   "p99": 929.7357853126971,
+   "max": 1941.473118692414
+  },
+  {
+   "warp": "high",
+   "policy": "nails",
+   "ends": "pinned",
+   "median": 52.96695253357237,
+   "p95": 779.6248280346892,
+   "p99": 1257.5760470290882,
+   "max": 3103.252641013673
+  },
+  {
+   "warp": "high",
+   "policy": "nails",
+   "ends": "fixed",
+   "median": 1482.1543489350347,
+   "p95": 12308.546196240888,
+   "p99": 18406.53603328952,
+   "max": 40889.03827889347
+  },
+  {
+   "warp": "high",
+   "policy": "three",
+   "ends": "pinned",
+   "median": 71.3772475339195,
+   "p95": 226.93886125243034,
+   "p99": 313.7858281490378,
+   "max": 655.2471788241432
+  },
+  {
+   "warp": "high",
+   "policy": "three",
+   "ends": "fixed",
+   "median": 713.7724743568211,
+   "p95": 2269.388609400916,
+   "p99": 3137.8582771717033,
+   "max": 6552.471779223184
+  }
+ ],
+ "B_extra": {
+  "grade_limit": {
+   "mid/pinned": 376.0410553109476,
+   "mid/fixed": 1504.1642212437905,
+   "nails/pinned": 2821.102684935102,
+   "nails/fixed": 32691.21596892025,
+   "three/pinned": 507.65542565019456,
+   "three/fixed": 5076.554249515022
+  },
+  "e95_dfl_pa": 14040269381.340233,
+  "ratio_median_stud": 0.999999696577239,
+  "ratio_q": [
+   0.9999997392774922,
+   1.0000000217217877
+  ],
+  "tol": [
+   {
+    "tol_mm": 0.25,
+    "p99": 790.9457015173115,
+    "max": 3499.453936148544
+   },
+   {
+    "tol_mm": 1.0,
+    "p99": 126.27720158262845,
+    "max": 542.3413610091739
+   }
+  ]
+ },
+ "H42": true,
+ "C": [
+  {
+   "robot": "g1",
+   "mu_foot": 0.3,
+   "x": 0.3,
+   "caps": [
+    97.412109375,
+    95.947265625,
+    87.890625,
+    80.56640625
+   ],
+   "why": [
+    "slip",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint"
+   ],
+   "share_low": 0.928115,
+   "share_high": 0.6883
+  },
+  {
+   "robot": "g1",
+   "mu_foot": 0.3,
+   "x": 0.4,
+   "caps": [
+    97.412109375,
+    95.947265625,
+    87.890625,
+    80.56640625
+   ],
+   "why": [
+    "slip",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint"
+   ],
+   "share_low": 0.928115,
+   "share_high": 0.6883
+  },
+  {
+   "robot": "g1",
+   "mu_foot": 0.6,
+   "x": 0.3,
+   "caps": [
+    106.201171875,
+    95.947265625,
+    87.890625,
+    80.56640625
+   ],
+   "why": [
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint"
+   ],
+   "share_low": 0.928115,
+   "share_high": 0.6883
+  },
+  {
+   "robot": "g1",
+   "mu_foot": 0.6,
+   "x": 0.4,
+   "caps": [
+    106.201171875,
+    95.947265625,
+    87.890625,
+    80.56640625
+   ],
+   "why": [
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint",
+    "right_ankle_roll_joint"
+   ],
+   "share_low": 0.928115,
+   "share_high": 0.6883
+  },
+  {
+   "robot": "h1",
+   "mu_foot": 0.3,
+   "x": 0.3,
+   "caps": [
+    125.244140625,
+    120.849609375,
+    120.849609375,
+    123.046875
+   ],
+   "why": [
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw"
+   ],
+   "share_low": 0.987055,
+   "share_high": 0.857845
+  },
+  {
+   "robot": "h1",
+   "mu_foot": 0.3,
+   "x": 0.4,
+   "caps": [
+    125.9765625,
+    122.314453125,
+    120.1171875,
+    120.1171875
+   ],
+   "why": [
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw"
+   ],
+   "share_low": 0.986635,
+   "share_high": 0.855635
+  },
+  {
+   "robot": "h1",
+   "mu_foot": 0.6,
+   "x": 0.3,
+   "caps": [
+    125.244140625,
+    120.849609375,
+    120.849609375,
+    123.046875
+   ],
+   "why": [
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw"
+   ],
+   "share_low": 0.987055,
+   "share_high": 0.857845
+  },
+  {
+   "robot": "h1",
+   "mu_foot": 0.6,
+   "x": 0.4,
+   "caps": [
+    125.9765625,
+    122.314453125,
+    120.1171875,
+    120.1171875
+   ],
+   "why": [
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw",
+    "left_shoulder_yaw"
+   ],
+   "share_low": 0.986635,
+   "share_high": 0.855635
+  }
+ ],
+ "D": [
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x, three, no push",
+   "clean": 0.56015,
+   "missed": 0.7918000000000032,
+   "feasible": 0.96585
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x, three, mid pinned",
+   "clean": 0.7095,
+   "missed": 0.4664000000000015,
+   "feasible": 0.99395
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x, three, mid fixed",
+   "clean": 0.7001,
+   "missed": 0.4752499999999973,
+   "feasible": 0.99295
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x, three, nails pinned",
+   "clean": 0.70935,
+   "missed": 0.4666499999999971,
+   "feasible": 0.99395
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x, three, nails fixed",
+   "clean": 0.70625,
+   "missed": 0.47500000000000164,
+   "feasible": 0.994
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x, three, three pinned",
+   "clean": 0.70625,
+   "missed": 0.4747499999999991,
+   "feasible": 0.9938
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x, three, three fixed",
+   "clean": 0.70215,
+   "missed": 0.4825999999999986,
+   "feasible": 0.9939
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x2x, single",
+   "clean": 0.99945,
+   "missed": 0.0005500000000000504,
+   "feasible": 1.0
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "pipeline": "2x2x, three",
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0
+  },
+  {
+   "rock": "three-foot",
+   "warp": "straight",
+   "pipeline": "2x, three, straight studs",
+   "clean": 0.73705,
+   "missed": 0.4075000000000011,
+   "feasible": 0.9948
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x, three, no push",
+   "clean": 0.3071,
+   "missed": 1.9578,
+   "feasible": 0.79495
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x, three, mid pinned",
+   "clean": 0.67725,
+   "missed": 0.5377999999999974,
+   "feasible": 0.99115
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x, three, mid fixed",
+   "clean": 0.62755,
+   "missed": 0.616849999999999,
+   "feasible": 0.9844
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x, three, nails pinned",
+   "clean": 0.67845,
+   "missed": 0.5383999999999993,
+   "feasible": 0.99125
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x, three, nails fixed",
+   "clean": 0.6716,
+   "missed": 0.5558999999999972,
+   "feasible": 0.99155
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x, three, three pinned",
+   "clean": 0.67775,
+   "missed": 0.5402500000000001,
+   "feasible": 0.99165
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x, three, three fixed",
+   "clean": 0.6603,
+   "missed": 0.5710999999999979,
+   "feasible": 0.99065
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x2x, single",
+   "clean": 0.94035,
+   "missed": 0.10349999999999948,
+   "feasible": 1.0
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "pipeline": "2x2x, three",
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0
+  },
+  {
+   "rock": "three-foot",
+   "warp": "straight",
+   "pipeline": "2x, three, straight studs",
+   "clean": 0.73705,
+   "missed": 0.4075000000000011,
+   "feasible": 0.9948
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x, three, no push",
+   "clean": 0.625,
+   "missed": 0.606350000000003,
+   "feasible": 0.9865
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x, three, mid pinned",
+   "clean": 0.78195,
+   "missed": 0.3076500000000013,
+   "feasible": 0.9997
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x, three, mid fixed",
+   "clean": 0.7729,
+   "missed": 0.31594999999999707,
+   "feasible": 0.9995
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x, three, nails pinned",
+   "clean": 0.7821,
+   "missed": 0.3073999999999988,
+   "feasible": 0.9997
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x, three, nails fixed",
+   "clean": 0.7781,
+   "missed": 0.3139000000000025,
+   "feasible": 0.9997
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x, three, three pinned",
+   "clean": 0.77905,
+   "missed": 0.31454999999999944,
+   "feasible": 0.9997
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x, three, three fixed",
+   "clean": 0.77325,
+   "missed": 0.3219999999999976,
+   "feasible": 0.99975
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x2x, single",
+   "clean": 0.9996,
+   "missed": 0.0004000000000012882,
+   "feasible": 1.0
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "pipeline": "2x2x, three",
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "straight",
+   "pipeline": "2x, three, straight studs",
+   "clean": 0.8107,
+   "missed": 0.251000000000003,
+   "feasible": 0.9999
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x, three, no push",
+   "clean": 0.34445,
+   "missed": 1.7744000000000013,
+   "feasible": 0.83045
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x, three, mid pinned",
+   "clean": 0.7498,
+   "missed": 0.3669000000000011,
+   "feasible": 0.99945
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x, three, mid fixed",
+   "clean": 0.69895,
+   "missed": 0.4387500000000002,
+   "feasible": 0.9981
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x, three, nails pinned",
+   "clean": 0.7508,
+   "missed": 0.36684999999999923,
+   "feasible": 0.99945
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x, three, nails fixed",
+   "clean": 0.7446,
+   "missed": 0.38225000000000064,
+   "feasible": 0.99935
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x, three, three pinned",
+   "clean": 0.74975,
+   "missed": 0.3705500000000008,
+   "feasible": 0.9994
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x, three, three fixed",
+   "clean": 0.7332,
+   "missed": 0.39659999999999695,
+   "feasible": 0.9994
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x2x, single",
+   "clean": 0.94365,
+   "missed": 0.10019999999999918,
+   "feasible": 1.0
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "pipeline": "2x2x, three",
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "straight",
+   "pipeline": "2x, three, straight studs",
+   "clean": 0.8107,
+   "missed": 0.251000000000003,
+   "feasible": 0.9999
+  }
+ ],
+ "H43": false,
+ "E": [
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "volume": 100,
+   "median": {
+    "2x2x": 12.17370689196569,
+    "2x": 7.031203535006377,
+    "nails": 7.100871224834002,
+    "mid": 7.100843669418375
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.101
+  },
+  {
+   "rock": "three-foot",
+   "warp": "low",
+   "volume": 300,
+   "median": {
+    "2x2x": 8.689091599219088,
+    "2x": 3.482063130529526,
+    "nails": 3.552416222207758,
+    "mid": 3.5523482784615172
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.101
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "volume": 100,
+   "median": {
+    "2x2x": 12.201098671671733,
+    "2x": 7.288213553451838,
+    "nails": 7.11966119590852,
+    "mid": 7.119518232094158
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.92
+  },
+  {
+   "rock": "three-foot",
+   "warp": "high",
+   "volume": 300,
+   "median": {
+    "2x2x": 8.711007748352195,
+    "2x": 3.7332951422591245,
+    "nails": 3.5689363129563287,
+    "mid": 3.5686974812356076
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.92
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "volume": 100,
+   "median": {
+    "2x2x": 12.173699959558693,
+    "2x": 6.988241932167284,
+    "nails": 7.0649783661658425,
+    "mid": 7.0650483517916935
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.07475
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "low",
+   "volume": 300,
+   "median": {
+    "2x2x": 8.689063392272846,
+    "2x": 3.4398010491762347,
+    "nails": 3.515147789095953,
+    "mid": 3.5151923576109008
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.07475
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "volume": 100,
+   "median": {
+    "2x2x": 12.200349545837467,
+    "2x": 7.250193294222012,
+    "nails": 7.081832498346891,
+    "mid": 7.081841034569587
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.9155
+  },
+  {
+   "rock": "smooth (Drake)",
+   "warp": "high",
+   "volume": 300,
+   "median": {
+    "2x2x": 8.710489057643208,
+    "2x": 3.695868670316025,
+    "nails": 3.527279095440348,
+    "mid": 3.5272889789717565
+   },
+   "share_nails_lt_2x2x": 1.0,
+   "share_nails_lt_2x": 0.9155
+  }
+ ],
+ "H44": true,
+ "E_breakeven_s": {
+  "low": 925.0,
+  "high": 930.0
+ },
+ "wall_s": 47.52247500419617
+}

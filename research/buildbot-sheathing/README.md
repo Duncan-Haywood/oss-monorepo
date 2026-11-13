@@ -176,6 +176,28 @@ first half (base beats walker) and was refuted as registered in its second (the 
 at about 500 houses a year, not 30–300); H-A (aim from the edge) held only at a 0.5 mm stud read
 and is not what decides an as-built wall: the joint framing is.
 
+**Milestone 9: straighten the bowed joint stud instead of doubling it? It removes the bow, not
+the cap.** Carpenters push a bowed stud onto the line and nail it there; once the first sheet's
+joint nails hold it, it stays straight for the next sheet. Treating the stud as a Stud-grade 2x4
+bending flatwise between pinned plates (E from the NDS Stud-grade values, 1.2–1.4 million psi,
+COV 0.25), one push at mid-height takes **48 E I b / L³**: a median of **28 N** and a 99th
+percentile of **126 N** at the lower published warp (53 and 232 N at the higher), 376 N for a
+grade-limit stud, and it leaves at most 7.4% of the bow (0.296 b if the plates held the ends
+fixed). A G1 can push about **81–88 N** sideways at stud mid-height (ankle roll), enough for 93% of
+low-warp studs and 69% of high-warp ones; an H1 about 120 N (99%, 86%). Order matters: pushing
+each point onto the line just before its nail, after the nails below it are in, needs up to
+1,258 N at the 99th percentile on high-warp studs, so push first and then nail. Straightened,
+single-2x joints score within three points of straight studs: the best single-2x pipeline goes
+from **0.56 to 0.71** clean sheets at the lower warp and from **0.31 to 0.68** at the higher
+(0.63→0.78 and 0.34→0.75 with milestone 6b's smooth-bow rock). It does not reach 95%: even on
+straight studs single 2x stops at **0.74–0.81**, because the sheet's own pose on the ledger is
+then what closes the window. Doubled joints stay the only route to 95% first-pass clean sheets.
+In dollars (G1 on a lift base, 100 houses a year) straightening costs about what it saves at the
+lower warp (cheaper than not pushing in 10% of draws) and pays at the higher (92%), and it is
+always cheaper than the doubled stud.
+
+![Shape a push leaves along the stud; push force against what a G1 and H1 can push sideways; clean sheets with and without straightening against doubled joints](experiments/m9_straighten/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -403,11 +425,41 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 | Supervision, operator | 0.1–1.0 and 0–0.5 person-h a machine-h | [`buildbot-cost`](../buildbot-cost), [`buildbot-custom`](../buildbot-custom) sweeps |
 | Stage times | place 15–60 s, ledger 0–20 s, read 1–3 s, re-drive 15–60 s; framer 60–120 s a stud | **not sourced**, milestone 5's sweep |
 
+## Milestone 9 method (`src/buildbot_sheathing/straighten.py`)
+- **Beam.** The stud bends flatwise about its weak axis (I = 3.5 x 1.5³ / 12 = 0.984 in⁴) over
+  the 92 5/8 in clear span, its stress-free shape milestone 2's parabolic bow, its ends held by
+  the plates either pinned (end-nailed; the realistic case) or fixed (the bound). A push is a
+  displacement imposed at a point; the force follows from a cubic-Hermite finite-element beam
+  (192 elements) and, for a mid push, the closed form c E I b / L³ with c = 48 or 192 and a
+  shape left of b u (1 − 2u)² or 4 b u (1 − 2u)².
+- **Policies.** *mid*: one push at mid-height onto the line through the stud's estimated ends;
+  *nails* (registered): mid first, then bottom up, each joint nail's point pushed to within 0.5 mm
+  of the line and held by its nail; *three* (post hoc): a simultaneous push at u = 1/6, 1/2 and
+  5/6, a straightedge held at three points. The push is set from a read, so the stud is
+  straightened as if its bow were b + N(0, 0.5 mm); the robot believes the shape the policy leaves
+  for its own three-read estimate of the bow. Field studs are not pushed.
+- **Clean sheets** are milestone 5's ledger pipeline (`tack.simulate` through `cycle.clean_cell`,
+  s_x 1 mm, recoil none, 20,000 sheets, seed 7) with both joint studs replaced by their
+  straightened shape, under milestone 3's three-foot bow rock and milestone 6b's smooth-bow seats.
+- **Capacity.** `humanoid.max_side_push`: milestone 3b's static whole-body check (torque limits,
+  both soles loaded, no foot slip) for a push along the wall with both hands at 1.0–1.3 m.
+- **Dollars** are milestone 7's model for the G1 on a lift base, with 10–40 s a sheet added for
+  the push (unsourced) and missed nails from the clean-sheet run.
+
+| input | value | source |
+|---|---|---|
+| Stud-grade E (reference) | DF-L 1.4, Hem-Fir 1.2, S-P-F 1.2 million psi | NDS Supplement Table 4A (WCLIB/WWPA, NLGA rules) as tabulated by [Engineers Edge](https://engineersedge.com/civil_engineering/engineering_properties_structural_lumber__15400.htm), read 2026-11-13 (the AWC PDF was not reachable) |
+| Southern Pine 2x4 "No.3 and Stud" E | 1.3 million psi (E_min 470,000) | [SFPA/SPIB design values, Table 1](https://www.southernpine.com/wp-content/uploads/2023/09/TABLE01_L1.pdf), read 2026-11-13 |
+| COV of E | 0.25, lognormal | NDS Appendix F for visually graded lumber; consistent with the table: 1.3e6 (1 − 1.645 x 0.25) x 1.03 / 1.66 = 475,000 ≈ E_min 470,000 |
+| Bow, twist | low and high published warp, grade limit 3/4 in | milestone 2 |
+| Push tolerance | 0.5 mm (0.25 and 1 mm reported) | **not sourced**: about one read's scatter |
+| Push time | 10–40 s a sheet | **not sourced** |
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 55 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
+python -m pytest -q tests                                    # 69 test functions (70 cases); one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -429,6 +481,8 @@ python experiments/m6_drake/figure.py
 python experiments/m6b_bowed_edge/run.py > experiments/m6b_bowed_edge/results.txt       # ~5 min on 4 CPUs (MuJoCo 4.0.1, Drake 1.51.1); seeds 5, 13, 7
 python experiments/m6b_bowed_edge/envelope.py > experiments/m6b_bowed_edge/envelope.txt # ~3 min, post hoc, seed 21
 python experiments/m6b_bowed_edge/figure.py
+python experiments/m9_straighten/run.py > experiments/m9_straighten/results.txt       # ~1 min (MuJoCo for section C); seeds 5, 7, 11, 23
+python experiments/m9_straighten/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -622,6 +676,33 @@ python paper/check_numbers.py                                # every number the 
   62% of draws cross inside 10–1,000, at a median of 54 houses); **H30 refuted** for every class
   (doubled joints win in 0% of draws, median $5.1–5.3 a sheet dearer); H31 held.
 
+## Milestone 9 results (`experiments/m9_straighten/results.txt`)
+- **A. Closed form.** The FE beam gives c = 48.000 (pinned) and 192.000 (fixed) and leaves
+  0.07407 b and 0.29630 b at u = 1/6, matching the closed forms. A three-point push needs 64.8,
+  14.4 and 64.8 E I b / L³ (pinned) and leaves 0.0117 b.
+- **B. Force** (N; median / 95th / 99th percentile over 200,000 studs, pinned). Low warp: mid
+  28 / 89 / 126, nail by nail 28 / 95 / 355, three-point 38 / 121 / 170. High warp: mid 53 / 168 /
+  232, nail by nail 53 / 780 / 1,258, three-point 71 / 227 / 314. Fixed ends: four times the mid
+  push and far more for nail by nail (p99 7,182 N low). Grade-limit stud (17.7 mm at the wall) at
+  DF-L's 95th-percentile E (2.04 million psi): mid 376 N, three-point 508 N, nail by nail 2,821 N.
+  Nail by nail at a 1 mm tolerance: p99 126 N (low); at 0.25 mm, 791 N.
+- **C. Sideways capacity** at 1.2–1.3 m: G1 81–88 N (right ankle roll), H1 120–123 N (shoulder
+  yaw), at foot friction 0.3 or 0.6 and reach 0.3 or 0.4 m. Share of studs whose mid push fits:
+  G1 0.928 (low warp) and 0.688 (high); H1 0.987 and 0.858.
+- **D. Clean sheets** (single 2x, three reads; no push → mid push, pinned). Three-foot rock:
+  low 0.560 → 0.710, high 0.307 → 0.677; straight studs 0.737. Smooth-bow rock: low 0.625 → 0.782,
+  high 0.344 → 0.750; straight studs 0.811. Nail by nail and three-point push within 0.4 points of
+  the mid push; fixed ends lose up to 5 points at high warp. Doubled joints, single read: 0.9994
+  and 0.940; three reads 1.000.
+- **E. Dollars** (base, median $/clean sheet at 100 houses a year, low / high warp): doubled
+  12.17 / 12.20, single 2x no push 7.03 / 7.29, single 2x straightened 7.10 / 7.12. Straightening
+  is cheaper than doubling in every draw (at 100 and 300 houses, both rocks) until about 925 s of
+  pushing a sheet, and cheaper than not pushing in 7.5–10% of draws at low warp and 92% at high.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H41 held; H42 held (126 N, bar 200; 376 N,
+  bar 400; nail by nail equals the mid push for the median stud); **H43 refuted** (0.71 and 0.68,
+  bar 0.95: straightening stops at the straight-stud ceiling); H44 held (100% of draws, bar 90%),
+  though milestone 7 had already found doubled joints never pay in dollars, so the bar was low.
+
 ## Limitations
 - **Gaussian, independent, swept.** Stud, edge, gauge and width errors are swept, not measured;
   real errors have bias and heavy tails. The stud estimate includes the layout scatter
@@ -660,6 +741,13 @@ python paper/check_numbers.py                                # every number the 
   and its own missed nails are not charged (which favours it). A site robot is dedicated to wall
   sheathing; moving it between sites, setting it up, insurance and idle days are not priced, and
   neither are a plant's floor space, the walls a plant must ship, or a missed nail found late.
+- **Straightening (milestone 9).** A linear Euler-Bernoulli beam with ideal pinned or fixed
+  ends; real end nails sit between and can slip, the stud's own bow may relax as it dries or
+  creep back before the second sheet, and a stud with a knot near the push point may crack.
+  The sheet is taken as rigid in its plane, so a driven nail holds its point; nail slip under
+  the stud's spring-back is not modelled. E is a design reference value with an assumed
+  lognormal spread, not measured studs. The humanoid capacity is milestone 3b's static check
+  with both hands on the stud; a one-hand push while the other hand nails would have less.
 - **Plate nails** see only the tool scatter: the sheet's vertical placement is not modelled.
 - **Strict pass/fail.** One nail outside its window fails the sheet; the nails missed are
   reported beside it, and real practice may accept a near miss or re-drive it.
@@ -679,8 +767,11 @@ than its re-drive). A time study of a crew's sheathing, a quote for a drive-and-
 nailing bridge, and the cost of a missed nail found at inspection would replace milestone 7's
 widest sweeps. Milestone 6 found the ledger results hold on Drake; how far a bowed bottom edge
 rocks the sheet depends on the contact model (0.11–0.15°), so a flexible sheet and a measured rock
-on a mock-up would pin it. Milestone 8, the paper draft, is done ([`paper/`](paper/)); before submission it needs the Elsevier LaTeX template, the unconfirmed citations checked and authorship decided. A measured sample of real panels' squareness and edge
-bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+on a mock-up would pin it. Milestone 8, the paper draft, is done ([`paper/`](paper/)); before submission it needs the Elsevier LaTeX template, the unconfirmed citations checked and authorship decided. Milestone 9 found that pushing a bowed joint stud onto its line
+removes the bow's cost at 28–232 N but leaves single 2x at the straight-stud ceiling of 0.74–0.81,
+so the next step for single-2x joints is the sheet pose itself (a ledger with a fence, or a
+measured panel) and a mock-up push on real studs to pin the end restraint. A measured sample of
+real panels' squareness and edge bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps

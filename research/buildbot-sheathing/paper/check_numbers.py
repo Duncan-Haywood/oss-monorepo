@@ -13,8 +13,24 @@ E = "experiments/"
 M1, M2, M3, M3B, M4, M5, M6, M7, M6B = (E + d + "/results.txt" for d in (
     "m1_gap_placement", "m2_asbuilt_studs", "m3_ledger", "m3b_humanoid",
     "m4_tack_measure", "m5_cycle", "m6_drake", "m7_cost", "m6b_bowed_edge"))
+M9 = E + "m9_straighten/results.txt"
 
 CHECKS = [
+    # 5.8 straightening the joint stud (milestone 9)
+    (M9, "pinned 48.000 48.0 0.07407 0.07407 0.1667", "c = 48.000 and 192.000"),
+    (M9, "fixed 192.000 192.0 0.29630 0.29630 0.1667", "0.07407 b and 0.29630 b at u = 1/6"),
+    (M9, "low mid pinned | 28 89 126", "median of 28 N and a 99th percentile of 126 N"),
+    (M9, "high mid pinned | 53 168 232", "53 and 232 N at the"),
+    (M9, "mid/pinned 376 N", "376 N for a grade-limit stud"),
+    (M9, "high nails pinned | 53 780 1258", "needs up to 1,258 N"),
+    (M9, "low nails pinned | 28 95 355", "against 355 N at the lower warp"),
+    (M9, "three-foot low 2x, three, no push 0.5602", "rise from 0.5602 to 0.7095"),
+    (M9, "three-foot low 2x, three, mid pinned 0.7095", "rise from 0.5602 to 0.7095"),
+    (M9, "three-foot high 2x, three, no push 0.3071", "higher warp from 0.3071"),
+    (M9, "three-foot high 2x, three, mid pinned 0.6773", "to 0.6773"),
+    (M9, "(straight studs, the ceiling) 0.7370", "straight studs gives 0.7370"),
+    (M9, "low warp: the median draw stops favouring the push over doubled joints at 925.0 s",
+     "until about 925 s of pushing a sheet"),
     # 5.6 the bowed bottom edge as a curve (milestone 6b)
     (M6B, "R = 117.0 m at mid-width, h0 = 1.221 m, r_bar from mid-width = 1.562 m", "R = 117.0 m at mid-width"),
     (M6B, "H37 smooth bow within theta_s + 0.005 deg: 100% of 48 cells -> held", "in all 48 cells"),

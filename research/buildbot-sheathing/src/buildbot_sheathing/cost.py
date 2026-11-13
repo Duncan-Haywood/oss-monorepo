@@ -101,14 +101,15 @@ def robot_spec(cls, p):
 
 
 def robot_seconds(cls, p, missed, reads):
-    """Machine seconds a sheet: place, sense, nail and rework (milestone 5's stages)."""
+    """Machine seconds a sheet: place, sense, nail and rework (milestone 5's stages), plus
+    reads["extra"] seconds if given (milestone 9's straightening push)."""
     s = robot_spec(cls, p)
     if cls == "gantry":
         place, sense = p["g_load"], p["g_scan"]
     else:
         place = p["t_place"] + (p["t_ledger"] if reads["ledger"] else 0.0)
         sense = reads["n"] * p["t_read"]
-    return place + sense + s["t_nail"] + missed * p["t_fix"]
+    return place + sense + s["t_nail"] + missed * p["t_fix"] + reads.get("extra", 0.0)
 
 
 def robot_cost(cls, p, volume, missed, reads, doubled):
