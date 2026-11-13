@@ -3,7 +3,7 @@ title: "Open at 17:00, close at 09:00: red-teaming the shifts-from-sales planner
 seo_title: "Staffing from POS sales: input checks and mutation testing"
 date: 2026-11-13
 tags: [testing, mutation-testing, scheduling, labor, pos, redteam]
-description: "Ten faults seeded into the code that turns hourly POS sales into shifts; three caught. Two real bugs: reversed opening hours gave an empty plan in silence, and Swiss amounts were skipped."
+description: "Ten faults seeded into the POS-sales shift planner, three caught. Reversed opening hours gave a silent empty plan; Swiss amounts were skipped."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) can plan a

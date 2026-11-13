@@ -15,25 +15,34 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "task": "redteam campaign on ventures/shift-roster-builder/demand.mjs",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15525",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 7,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "campaign runs the whole venture suite (node --test ventures/<slug>/**/*.test.mjs, ~100-150 s here because calc.test.mjs takes 95 s), not the target's own 3 s test file, so 10 mutants took ~25 min and rerun another ~12. The prompt's 'suite time' advice reads as the target's test file; say it is the venture's full suite, or let campaign take --suite."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-13-opening-at-five-pm-closing-at-nine-am.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Step 0: all 9 open entries are control-plane workflow edits already in open PRs awaiting owner approval; none fixable from this branch. Campaign 10 mutants, 3 caught; 2 equivalent, 5 gaps guarded, rerun caught_after_fix true for all 5; the second copy of the day-first regex (readStandard, line 401) mutated by hand and caught. Two real defects (open/close validation, Swiss amounts) patched with tests. Guard class: validation moved into headcount (library), so CLI, page and any future caller get it. Full venture suite run locally: see PR.",
   "corrections": [],
   "redteam": {
     "campaigns": [
