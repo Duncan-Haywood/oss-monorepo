@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free SPC Control Chart Tool: X-bar R, I-MR, p Charts, Nelson Rules, Cpk</title>
+  <meta name="description" content="Free control chart maker in your browser: paste measurements or defect counts, get X-bar R, X-bar S, I-MR, p, np, c or u charts with all eight Nelson rules, Phase I limit revision and Cp, Cpk, Pp, Ppk. Nothing uploaded.">
+  <meta property="og:title" content="SPC control charts">
+  <meta property="og:description" content="Shewhart control charts, the eight Nelson rules and process capability, free in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M4 9h24M4 23h24' stroke='%23fca5a5' stroke-width='1.6'/%3E%3Cpath d='M4 17l5-3 4 4 4-6 4 5 4-2 3 1' stroke='%23fff' stroke-width='2.2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SPC Control Charts", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free Shewhart control charts in the browser: I-MR, X-bar R, X-bar S, p, np, c and u charts with the eight Nelson rules, Phase I limit revision and Cp, Cpk, Pp, Ppk.", "featureList": "I-MR, X-bar R, X-bar S, averages as individuals, p, np, c, u charts; eight Nelson rules; exclude and revise points; Cp, Cpk, Pp, Ppk with a confidence bound; CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a control chart?", "acceptedAnswer": {"@type": "Answer", "text": "A time-ordered plot of a process measurement with a centre line and upper and lower control limits set three standard deviations from the centre, where the standard deviation is estimated from short-term (within-subgroup) variation. Points outside the limits, or unusual runs inside them, suggest something changed in the process: a special cause worth looking for."}}, {"@type": "Question", "name": "Which control chart should I use?", "acceptedAnswer": {"@type": "Answer", "text": "One measurement at a time: individuals and moving range (I-MR). Small subgroups of measurements, such as five parts an hour: X-bar and R. Subgroups of about ten or more: X-bar and S. Counts of defective units out of a sample: p (any sample size) or np (fixed size). Counts of defects: c (same amount inspected each time) or u (varying amount). The tool guesses from the shape of your data and you can override it."}}, {"@type": "Question", "name": "What are the Nelson rules?", "acceptedAnswer": {"@type": "Answer", "text": "Eight tests for special causes published by Lloyd Nelson in 1984: a point beyond 3 sigma, nine in a row on one side of the centre, six in a row trending, fourteen alternating, two of three beyond 2 sigma, four of five beyond 1 sigma, fifteen hugging the centre, and eight avoiding it. Each extra rule catches small shifts sooner but also raises false alarms; this page lets you switch each one off."}}, {"@type": "Question", "name": "How often does an in-control process raise a false alarm?", "acceptedAnswer": {"@type": "Answer", "text": "More often than people expect. In a seeded simulation of 20,000 perfectly stable processes, a first X-bar and R chart of 25 subgroups of five raised at least one signal 15% of the time with rule 1 alone and 29% with all eight rules. An individuals chart of 100 points did so 63% and 84% of the time, mostly because of the moving-range chart. A single signal is a reason to look, not proof."}}, {"@type": "Question", "name": "What are Cp, Cpk, Pp and Ppk?", "acceptedAnswer": {"@type": "Answer", "text": "Capability indices comparing the specification width to the process spread. Cp and Cpk use the short-term (within-subgroup) standard deviation; Pp and Ppk use the overall standard deviation of all the data. The k versions account for the process not being centred. They only predict anything when the chart is in control."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser; nothing you paste leaves the page."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+  <style>
+    svg.chart { width: 100%; height: auto; background: #fff; border: 1px solid #d9dfe6; border-radius: 10px; margin-top: 8px; }
+    .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 2px 14px; }
+    .rule { display: flex; gap: 8px; align-items: baseline; }
+    .rule label { font-weight: 400; margin: 6px 0; }
+    .opt { display: flex; gap: 8px; align-items: baseline; }
+    .opt label { font-weight: 400; }
+    .summary { font-size: 1.02rem; }
+    pre.bib { white-space: pre-wrap; font-size: .8rem; background: #f4f5f7; padding: 10px; border-radius: 8px; }
+  </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
+</head>
+<body>
+  <header>
+    <p class="note">SPC CONTROL CHARTS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Has your process changed, or is it just noise?</h1>
+    <p>For machinists, quality engineers, lab and line supervisors, and anyone with a column of measurements or defect counts in time order: paste them, and get a Shewhart control chart with <strong>all eight Nelson rules</strong>, trial limits you can revise, and <strong>Cp, Cpk, Pp and Ppk</strong> when you add specification limits. Free, with no account and no install.</p>
+    <p class="note">Statistics on figures you paste. Not engineering, safety or quality-system advice. The example is real published data from NIST and Sematech.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Your data</h2>
+      <label for="data">One line per point, in time order: a value, a subgroup ("10.1, 10.3, 9.9"), or for attributes "count, sample size". An optional label ends with a colon.</label>
+      <textarea id="data" rows="12" spellcheck="false"></textarea>
+      <div class="grid">
+        <div><label for="type">Chart</label><select id="type">
+          <option value="auto">Guess from the data</option>
+          <option value="imr">Individuals and moving range (I-MR)</option>
+          <option value="xbar-r">Averages and ranges (X-bar and R)</option>
+          <option value="xbar-s">Averages and standard deviations (X-bar and S)</option>
+          <option value="means-imr">Subgroup averages as individuals</option>
+          <option value="p">Proportion defective (p): count, sample size</option>
+          <option value="np">Number defective (np)</option>
+          <option value="c">Count of defects (c)</option>
+          <option value="u">Defects per unit (u): count, units</option>
+        </select></div>
+        <div><label for="npn">Sample size for np (if lines hold only counts)</label><input id="npn" type="number" min="1" step="1"></div>
+        <div><label for="lsl">Lower spec limit (optional)</label><input id="lsl" type="number" step="any"></div>
+        <div><label for="usl">Upper spec limit (optional)</label><input id="usl" type="number" step="any"></div>
+        <div><label for="exclude">Leave out of the limits (point numbers, e.g. 4, 17)</label><input id="exclude" type="text" inputmode="numeric"></div>
+      </div>
+      <div class="opt"><input type="checkbox" id="revise"><label for="revise">Drop points beyond 3 sigma and recompute the limits until none remain (Phase I)</label></div>
+      <h3>Rules</h3>
+      <div class="rules">
+          <div class="rule"><input type="checkbox" id="r1" checked><label for="r1">1. One point more than 3 sigma from the centre line</label></div>
+          <div class="rule"><input type="checkbox" id="r2" checked><label for="r2">2. Nine points in a row on the same side of the centre line</label></div>
+          <div class="rule"><input type="checkbox" id="r3" checked><label for="r3">3. Six points in a row steadily increasing or decreasing</label></div>
+          <div class="rule"><input type="checkbox" id="r4" checked><label for="r4">4. Fourteen points in a row alternating up and down</label></div>
+          <div class="rule"><input type="checkbox" id="r5" checked><label for="r5">5. Two of three points in a row more than 2 sigma from the centre, same side</label></div>
+          <div class="rule"><input type="checkbox" id="r6" checked><label for="r6">6. Four of five points in a row more than 1 sigma from the centre, same side</label></div>
+          <div class="rule"><input type="checkbox" id="r7" checked><label for="r7">7. Fifteen points in a row within 1 sigma of the centre line</label></div>
+          <div class="rule"><input type="checkbox" id="r8" checked><label for="r8">8. Eight points in a row more than 1 sigma from the centre, either side</label></div>
+      </div>
+      <button type="button" id="run">Draw the chart</button>
+      <button type="button" class="secondary" id="example">Load the NIST wafer example</button>
+    </section>
+    <section class="card" id="out" hidden aria-live="polite">
+      <h2>Results</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Who this is for</h2>
+      <p>A machine shop charting a critical diameter, a food plant checking fill weights, a lab tracking a control sample, a call centre counting errors per hundred calls, a contractor counting punch-list defects per unit. Statistical software does this well and costs money; spreadsheet templates rarely apply more than one rule. This page applies all eight, tells you which rule fired on which point, and says when the chart itself is the wrong one for your data.</p>
+      <h3>The worked example: real wafers, two answers</h3>
+      <p>Press <em>Load the NIST wafer example</em>: 450 line-width measurements from a semiconductor lithography process (Sematech, published by NIST), five sites on each of three wafers from thirty cassettes. Charted the textbook way, one wafer per subgroup on an X-bar and R chart, 25 of the 90 wafers fall outside the limits. The page then points out that the wafer averages move about 1.9 times as much from wafer to wafer as the spread across one wafer predicts, because each wafer's range measures site-to-site differences, not wafer-to-wafer ones. Switch the chart to <em>subgroup averages as individuals</em> and only the three wafers of cassette 27 fall outside. Which chart is right depends on whether wafer-to-wafer variation is part of normal running; NIST's own case study makes the same point about batch processes.</p>
+      <h3>When to use something else</h3>
+      <p>Autocorrelated data (a tank temperature read every second), very small shifts that matter (use CUSUM or EWMA), many correlated variables (multivariate charts), or a regulated quality system that needs validated software and an audit trail.</p>
+    </section>
+    <section class="card">
+      <h2>Method and citation</h2>
+      <p>Limits are three standard deviations from the centre line, with the standard deviation estimated from within-subgroup variation: R-bar/d<sub>2</sub>, S-bar/c<sub>4</sub>, or the average moving range over d<sub>2</sub>(2) = 1.128 (Shewhart 1931). The constants d<sub>2</sub> and d<sub>3</sub> are computed by numerically integrating the distribution of the range of a normal sample (Tippett 1925) and c<sub>4</sub> from its gamma-function formula; the test suite checks them against the published tables for subgroups of 2 to 25. The run rules are Nelson's (1984), applied to the location chart; range, S and moving-range charts get rule 1 only. Capability uses the within sigma for Cp and Cpk and the overall sample standard deviation for Pp and Ppk, with Bissell's (1990) approximate lower 95% bound on Cpk.</p>
+      <p>The moving-range chart deserves a caution: a range of two values is skewed, so about 0.9% of in-control points pass its upper limit against 0.27% for the individuals chart. Rigdon, Cruthis and Champ (1994) found it adds little detection power. Its signals are listed separately here.</p>
+      <pre class="bib">@book{shewhart1931,
+  author = {Shewhart, Walter A.}, title = {Economic Control of Quality of Manufactured Product},
+  publisher = {D. Van Nostrand}, year = {1931}}
+@article{nelson1984,
+  author = {Nelson, Lloyd S.}, title = {The Shewhart Control Chart: Tests for Special Causes},
+  journal = {Journal of Quality Technology}, volume = {16}, number = {4}, pages = {237--239}, year = {1984}}
+@article{tippett1925,
+  author = {Tippett, L. H. C.}, title = {On the Extreme Individuals and the Range of Samples Taken from a Normal Population},
+  journal = {Biometrika}, volume = {17}, number = {3/4}, pages = {364--387}, year = {1925}}
+@article{bissell1990,
+  author = {Bissell, A. F.}, title = {How Reliable is Your Capability Index?},
+  journal = {Journal of the Royal Statistical Society, Series C}, volume = {39}, number = {3}, pages = {331--340}, year = {1990}}
+@article{rigdon1994,
+  author = {Rigdon, Steven E. and Cruthis, Emma N. and Champ, Charles W.},
+  title = {Design Strategies for Individuals and Moving Range Control Charts},
+  journal = {Journal of Quality Technology}, volume = {26}, number = {4}, pages = {274--287}, year = {1994}}</pre>
+      <p class="note">Example data: NIST/SEMATECH e-Handbook of Statistical Methods, case study 6.6.1, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section6/pmc611.htm">Lithography Process</a> (file LITHOGRA.DAT, a US government work).</p>
+    </section>
+    <section class="card">
+      <h2>Questions</h2>
+      <h3>What is a control chart?</h3>
+      <p>A time-ordered plot of a process measurement with a centre line and upper and lower control limits set three standard deviations from the centre, where the standard deviation is estimated from short-term (within-subgroup) variation. Points outside the limits, or unusual runs inside them, suggest something changed in the process: a special cause worth looking for.</p>
+      <h3>Which control chart should I use?</h3>
+      <p>One measurement at a time: individuals and moving range (I-MR). Small subgroups of measurements, such as five parts an hour: X-bar and R. Subgroups of about ten or more: X-bar and S. Counts of defective units out of a sample: p (any sample size) or np (fixed size). Counts of defects: c (same amount inspected each time) or u (varying amount). The tool guesses from the shape of your data and you can override it.</p>
+      <h3>What are the Nelson rules?</h3>
+      <p>Eight tests for special causes published by Lloyd Nelson in 1984: a point beyond 3 sigma, nine in a row on one side of the centre, six in a row trending, fourteen alternating, two of three beyond 2 sigma, four of five beyond 1 sigma, fifteen hugging the centre, and eight avoiding it. Each extra rule catches small shifts sooner but also raises false alarms; this page lets you switch each one off.</p>
+      <h3>How often does an in-control process raise a false alarm?</h3>
+      <p>More often than people expect. In a seeded simulation of 20,000 perfectly stable processes, a first X-bar and R chart of 25 subgroups of five raised at least one signal 15% of the time with rule 1 alone and 29% with all eight rules. An individuals chart of 100 points did so 63% and 84% of the time, mostly because of the moving-range chart. A single signal is a reason to look, not proof.</p>
+      <h3>What are Cp, Cpk, Pp and Ppk?</h3>
+      <p>Capability indices comparing the specification width to the process spread. Cp and Cpk use the short-term (within-subgroup) standard deviation; Pp and Ppk use the overall standard deviation of all the data. The k versions account for the process not being centred. They only predict anything when the chart is in control.</p>
+      <h3>Is my data uploaded?</h3>
+      <p>No. Everything runs in your browser; nothing you paste leaves the page.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether a signal matters, what caused it, whether to stop the line, and whether your specification limits are the right ones. Limits here are trial (Phase I) limits from the data you paste; for ongoing monitoring, fix limits from a stable period and chart new data against them. Normality is assumed for the variable charts and for the capability figures; heavily skewed data needs a transformation or another method.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and not engineering, safety or quality-system advice. Results are arithmetic on figures you paste; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>chart_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free and open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spc-control-charts">source code</a>. If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { analyze, toCsv, RULES } from "./engine.mjs";
+    import { EXAMPLE_TEXT } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const f = (v, d = 4) => (v === null || v === undefined || Number.isNaN(v) ? "—" : Number(v.toFixed(d)).toLocaleString("en-US", { maximumFractionDigits: d }));
+    const optNum = (id) => ($(id).value.trim() === "" ? null : Number($(id).value));
+    function chartSvg(ch, zones) {
+      const pts = ch.points.filter((p) => p.value !== null);
+      const W = 760, Hh = 230, padL = 52, padR = 14, padT = 12, padB = 26;
+      const ys = [];
+      for (const p of ch.points) { if (p.value !== null) ys.push(p.value); ys.push(p.ucl, p.lcl); }
+      let lo = Math.min(...ys), hi = Math.max(...ys);
+      if (hi === lo) { hi += 1; lo -= 1; }
+      const span = hi - lo; lo -= span * 0.06; hi += span * 0.06;
+      const n = ch.points.length;
+      const X = (i) => padL + (n === 1 ? 0 : (i * (W - padL - padR)) / (n - 1));
+      const Y = (v) => padT + ((hi - v) * (Hh - padT - padB)) / (hi - lo);
+      const step = (key) => ch.points.map((p, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(p[key]).toFixed(1)}`).join(" ");
+      let s = `<svg class="chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(ch.name)} chart with control limits">`;
+      for (const t of [lo + span * 0.06, (lo + hi) / 2, hi - span * 0.06]) s += `<text x="${padL - 6}" y="${Y(t) + 4}" font-size="10" text-anchor="end" fill="#4a5664">${esc(f(t, 3))}</text>`;
+      if (zones) for (const k of [1, 2, -1, -2]) s += `<path d="${ch.points.map((p, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(p.cl + k * p.sigma).toFixed(1)}`).join(" ")}" stroke="#e3e9ef" fill="none"/>`;
+      s += `<path d="${step("ucl")}" stroke="#b91c1c" stroke-dasharray="5 4" fill="none"/><path d="${step("lcl")}" stroke="#b91c1c" stroke-dasharray="5 4" fill="none"/><path d="${step("cl")}" stroke="#15803d" fill="none"/>`;
+      let line = "", pen = false;
+      ch.points.forEach((p, i) => { if (p.value === null) { pen = false; return; } line += `${pen ? "L" : "M"}${X(i).toFixed(1)},${Y(p.value).toFixed(1)} `; pen = true; });
+      s += `<path d="${line}" stroke="#1d4ed8" stroke-width="1.4" fill="none"/>`;
+      for (const p of pts) {
+        const bad = p.rules.length > 0;
+        s += `<circle cx="${X(p.i).toFixed(1)}" cy="${Y(p.value).toFixed(1)}" r="${bad ? 4.2 : 2.8}" fill="${p.excluded ? "#fff" : bad ? "#dc2626" : "#1d4ed8"}" stroke="${bad ? "#dc2626" : "#1d4ed8"}"><title>${esc(p.label)}: ${esc(f(p.value))}${bad ? " — rule " + p.rules.join(", ") : ""}${p.excluded ? " (left out of the limits)" : ""}</title></circle>`;
+      }
+      s += `<text x="${padL}" y="${Hh - 8}" font-size="10" fill="#4a5664">${esc(ch.points[0].label)}</text><text x="${W - padR}" y="${Hh - 8}" font-size="10" text-anchor="end" fill="#4a5664">${esc(ch.points[n - 1].label)}</text></svg>`;
+      return s;
+    }
+    let last = null;
+    function run() {
+      const rules = RULES.map((r) => r.id).filter((id) => $("r" + id).checked);
+      const exclude = $("exclude").value.split(/[\s,;]+/).filter(Boolean).map(Number).filter((v) => Number.isInteger(v) && v > 0);
+      let res;
+      try {
+        res = analyze({ text: $("data").value, type: $("type").value, rules, exclude, revise: $("revise").checked, n: optNum("npn"), lsl: optNum("lsl"), usl: optNum("usl") });
+      } catch (e) {
+        $("result").innerHTML = `<div class="finding"><span class="pill warn">Check</span> ${esc(e.message)}</div>`;
+        $("out").hidden = false;
+        return;
+      }
+      last = res;
+      let h = `<p class="summary">${esc(res.summary)}</p>`;
+      for (const w of res.warnings) h += `<div class="finding"><span class="pill warn">Note</span> ${esc(w)}</div>`;
+      res.charts.forEach((ch, k) => { h += `<h3>${esc(ch.name)}</h3>` + chartSvg(ch, k === 0 && rules.some((r) => r > 1)); });
+      if (res.type === "imr" || res.type === "means-imr") h += `<p class="note">About 0.9% of in-control points pass the moving-range chart's upper limit, against 0.27% on the individuals chart; read its signals with that in mind.</p>`;
+      if (res.signals.length) {
+        const rows = [];
+        for (const ch of res.charts) for (const p of ch.points) if (p.rules.length) rows.push(`<tr><td class="n">${p.i + 1}</td><td>${esc(p.label)}</td><td>${esc(ch.name)}</td><td class="n">${esc(f(p.value))}</td><td>${p.rules.map((r) => `<span title="${esc(RULES[r - 1].text)}">${r}</span>`).join(", ")}</td></tr>`);
+        h += `<h3>Signals</h3><p class="note">${RULES.map((r) => `${r.id}: ${esc(r.text.toLowerCase())}`).join(" · ")}</p><div class="scroll"><table><thead><tr><th class="n">Point</th><th>Label</th><th>Chart</th><th class="n">Value</th><th>Rules</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+      }
+      const c = res.capability;
+      if (c) {
+        const row = (k, v, note) => `<tr><td>${k}</td><td class="n">${v}</td><td>${note}</td></tr>`;
+        h += `<h3>Capability</h3><div class="scroll"><table><tbody>${[
+          row("Cp", f(c.cp, 3), "spec width over 6 within-sigma"), row("Cpk", f(c.cpk, 3), `lower 95% bound ${f(c.cpkLower95, 3)}`),
+          row("Pp", f(c.pp, 3), "spec width over 6 overall sigma"), row("Ppk", f(c.ppk, 3), ""),
+          row("Mean", f(c.mean), `${c.N} measurements`), row("Sigma within / overall", `${f(c.sigmaWithin)} / ${f(c.sigmaOverall)}`, ""),
+          row("Expected outside spec (ppm)", `${f(c.ppmWithin, 0)} / ${f(c.ppmOverall, 0)}`, "within / overall, assuming normality"),
+          row("Observed outside spec (ppm)", f(c.ppmObserved, 0), ""),
+        ].join("")}</tbody></table></div>`;
+        for (const w of c.warnings) h += `<div class="finding"><span class="pill warn">Note</span> ${esc(w)}</div>`;
+      }
+      h += `<button type="button" class="secondary" id="csv">Download points and limits (CSV)</button>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "control-chart.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("csv_downloaded");
+      });
+      record("chart_run");
+    }
+    function loadExample() { $("data").value = EXAMPLE_TEXT; $("type").value = "auto"; $("exclude").value = ""; $("lsl").value = ""; $("usl").value = ""; $("revise").checked = false; }
+    loadExample();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { loadExample(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
