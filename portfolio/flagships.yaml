@@ -257,19 +257,15 @@ flagships:
       is the server default up to 120 items (pairing.ts; "Staged as the
       default up to 120 items"); its one cost is whole-session coin flippers
       at 40-50% of a panel (-0.006 to -0.025). Tried and not shipped
-      2026-11-12: the self-consistency gate ("Self-consistency": depends on
-      real answer noise) and a Student-t prior for the pairwise intervals ("A
-      heavier-tailed prior for the pairwise intervals": narrower but covers
-      less than the Gaussian under uniform, normal and Laplace truths;
-      priorDf in btRefit.ts, unwired). 2026-11-13: the pooled sd's collapse
-      to 0.33 is a flat evidence surface under staged (5-13 nats from 0.3 to
-      1.2 over 40 people vs 281 shipped), not the sampler; the likelihood
-      interval's upper end (pooledPriorPhiUpper, unwired) holds 0.955 honest
-      coverage at 15% less width than fixed, but 0.72-0.76 worst with
-      careless answers ("Why the pooled sd collapsed"). Next, most valuable
-      first: (a) the upper end for respondents lapseEstimate calls honest
-      only: store it beside setPriorPhi and sweep a mixed honest/careless
-      panel, then wire it into the pairwise intervals if it holds; (b)
+      (doc sections named): Student-t prior for the intervals, the
+      self-consistency gate, and the pooled sd's upper end
+      (pooledPriorPhiUpper, unwired; 15% narrower for honest panels, unsafe
+      with careless ones). 2026-11-13 later ("A lapse gate for the upper
+      end"): a perfect careless detector would make it safe (honest
+      0.957-0.961 at 10-12% less width), but the answers' lapse estimates
+      reach AUC 0.58-0.69 under staged and a rank gate buys only 1-4%. Next, most valuable first: (a) a better careless
+      detector to revive the gate: anchor pairs or msToAnswer, measured as
+      AUC in the gated sweep; (b)
       half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
       them?); (c) the first real survey's answers: msToAnswer against the
       answer-time model, and how noisy real pairwise answers are, which
