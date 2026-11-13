@@ -193,7 +193,8 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15369"
  ],
  "verdict": "A small, clean, fully reproducible study: the 10-minute experiment re-ran byte-identical, and CA/OS thresholds, the K-distribution oracle Pfa and the CA inflation all match textbook formulas and an independent simulation. It misses the bar on verification (2): twin_pd is untested and the Pd check compares two copies of the same non-standard power-sum target model, which overstates twin Pd by up to 0.014 against the Swerling-1 closed form. A radar reviewer would also score novelty and method at 2: with iid texture the 'twin gap' is the classical exponential-vs-K mismatch, the explanation follows from the model, prior K-clutter CFAR work is uncited, and the correlated-texture case where CFAR families actually differ is left for later. Correct and honest within its stated limits, not publishable as it stands."
 }

@@ -111,6 +111,8 @@ export const mappingText = (id, mapping) => platform(id).engine.mappingText(mapp
 export const defaultMapping = (id) => platform(id).engine.defaultMapping();
 export const sampleReport = (id) => platform(id).engine.sampleReport();
 export const sampleBrokenReport = (id) => platform(id).engine.sampleBrokenReport();
+// The deposit box takes an amount the way the reports write them ("1,234.56", "1.234,56"); in cents.
+export { parseAmount } from "./engines/stripe.mjs";
 export const money = gumroad.money;
 export const decodeBuffer = gumroad.decodeBuffer;
 export const toXeroJournalCsv = (id, j, o) => platform(id).engine.toXeroJournalCsv(j, o);

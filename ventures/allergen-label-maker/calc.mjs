@@ -60,7 +60,7 @@ const RULES = [
   { a: "eggs", re: /\b(eggs?|egg ?yolks?|egg ?whites?|mayonnaise|mayo|meringue|albumen|albumin|ovalbumin|lysozyme|hollandaise|bearnaise|aioli)\b/,
     not: [/\beggplants?\b/, /\begg[- ]free( (mayonnaise|mayo))?\b/, /\bvegan (mayonnaise|mayo)\b/] },
   { a: "eggs", re: /\b(custard|fresh pasta|brioche|mousse)\b/, check: true },
-  { a: "fish", re: /\b(fish|cod|haddock|salmon|tuna|anchov(y|ies)|sardines?|mackerel|trout|sea ?bass|herrings?|plaice|pollock|pollack|hake|sole|tilapia|kippers?|surimi|isinglass|halibut|monkfish|swordfish|snapper|catfish|pilchards?|whitebait|sprats?|bonito|dashi|eels?|carp|pike|perch|grouper|mahi[- ]?mahi|roe|caviar|taramasalata)\b/ },
+  { a: "fish", re: /\b(fish|cod|haddock|salmon|tuna|anchov(y|ies)|sardines?|mackerel|trout|sea ?bass|herrings?|plaice|pollock|pollack|hake|sole|tilapia|kippers?|surimi|isinglass|halibut|monkfish|swordfish|snapper|catfish|pilchards?|whitebait|sprats?|bonito|dashi|eels?|carp|pike|perch|grouper|mahi[- ]?mahi|roe|caviar|taramasalata|bream|turbot|skate|dory|lox|brill|mullet|barramundi|dab|coley|whiting|pangasius|basa|zander|sea ?trout|gurnard|bass)\b/ },
   { a: "fish", re: /\b(caesar dressing|worcestershire( sauce)?|nam pla|oyster sauce|fish sauce|paella)\b/, check: true },
   { a: "crustaceans", re: /\bshellfish\b/, check: true },
   { a: "molluscs", re: /\bshellfish\b/, check: true },
@@ -81,6 +81,9 @@ const RULES = [
   { a: "sulphites", re: /\b(sulphites?|sulfites?|sulphur dioxide|sulfur dioxide|metabisulphite|metabisulfite|e22[0-8]|e224|e225)\b/ },
   { a: "sulphites", re: /\b(wine|wine vinegar|cider|dried apricots?|dried fruit|sultanas?|raisins?|dried mango|desiccated coconut|balsamic|sherry|port|prosecco|champagne|sauerkraut|pickled onions?|gherkins?)\b/, check: true },
   { a: "treenuts", re: /\b(almonds?|hazelnuts?|walnuts?|cashews?|pecans?|brazil nuts?|pistachios?|macadamias?|queensland nuts?|filberts?|marzipan|praline|nougat|frangipane|gianduja|nutella|amaretto|amaretti|mixed nuts?|tree nuts?|almond (milk|butter|flour))\b/ },
+  // FDA, Questions and Answers Regarding Food Allergens, Edition 5 (final guidance, January 2025):
+  // the US tree-nut list keeps chestnut and pine nut (and drops coconut); UK and EU law does not name them.
+  { a: "treenuts", region: "us", re: /\b(pine ?nuts?|chestnuts?)\b/, not: [/\bwater chestnuts?\b/] },
   { a: "treenuts", re: /\bnuts?\b/, check: true, not: [/\bpine ?nuts?\b/, /\bmonkey nuts?\b/, /\bground ?nuts?\b/, /\bnut[- ]free\b/, /\bno nuts?\b/] },
   { a: "treenuts", re: /\b(pesto|baklava|florentines?|granola|muesli|nut butter)\b/, check: true, not: [/\bnut[- ]free [a-z ]+/] },
 ];
@@ -88,9 +91,9 @@ const RULES = [
 // Foods that are not on the legal list but that people with a nut allergy are often told
 // to avoid. Reported as advisories, never as declared allergens.
 const ADVISORY = [
-  { re: /\bpine ?nuts?\b/, text: "Pine nuts are not among the tree nuts named in UK and EU law, but some people with nut allergies react to them. Say so on your menu if you use them." },
+  { re: /\bpine ?nuts?\b/, region: "us", text: "Pine nuts are not among the tree nuts named in UK and EU law, but some people with nut allergies react to them. Say so on your menu if you use them." },
   { re: /\b(coconut)\b/, not: [/\bcoconut (milk|cream|oil)\b/], text: "Coconut is not one of the tree nuts named in UK and EU law, and US guidance on it has changed; check the rule that applies to you." },
-  { re: /\bchestnuts?\b/, not: [/\bwater chestnuts?\b/], text: "Chestnut is not among the tree nuts named in UK and EU law, though US guidance lists it. Check the rule that applies to you." },
+  { re: /\bchestnuts?\b/, region: "us", not: [/\bwater chestnuts?\b/], text: "Chestnut is not among the tree nuts named in UK and EU law, though US guidance lists it. Check the rule that applies to you." },
   { re: /\bnutmeg\b/, text: "Nutmeg is a seed, not a nut; it is not a declared allergen." },
 ];
 
@@ -136,28 +139,34 @@ const ALIASES = {
 const alias = (w) => ALIASES[normalise(w)] || (KEYS.has(normalise(w)) ? normalise(w) : null);
 
 // One ingredient (with optional parenthesised sub-ingredients and a [tag]) -> findings.
-export function readIngredient(raw) {
-  const tag = raw.match(/\[([^\]]*)\]/);
+export function readIngredient(raw, region = DEFAULT_REGION) {
+  // Every [tag] counts: "sauce (stock [celery], paste [soya])" states celery and soya.
+  const tags = [...String(raw).matchAll(/\[([^\]]*)\]/g)].map((m) => m[1]);
+  const tagWords = [];
   const bare = raw.replace(/\[[^\]]*\]/g, " ");
   const found = new Map(); // key -> {via, check, tagged}
   const unknownTags = [];
-  if (tag) {
-    for (const t of tag[1].split(/[,;|]/)) {
+  for (const tagText of tags) {
+    for (const t of tagText.split(/[,;|]/)) {
       const w = normalise(t);
       if (!w) continue;
       if (w === "none" || w === "no allergens") continue;
       const k = alias(w);
       if (!k) { unknownTags.push(t.trim()); continue; }
+      tagWords.push(t.trim());
       found.set(k, { via: "stated on the supplier label", check: false, tagged: true });
       if (k === "wheat") found.set("gluten", { via: "stated on the supplier label", check: false, tagged: true });
     }
   }
-  const noneTag = tag && /^\s*(none|no allergens)\s*$/i.test(tag[1]);
+  // [none] says the supplier label declares nothing, which clears "usually contains" guesses.
+  // It never clears an allergen the ingredient names itself: "butter [none]" is still milk.
+  const noneTag = tags.length > 0 && tags.every((t) => /^\s*(none|no allergens)\s*$/i.test(t));
   const text = normalise(bare);
   {
     for (const rule of RULES) {
       // A [none] tag clears the "usually contains" guesses, never an allergen named outright.
       if (noneTag && rule.check) continue;
+      if (rule.region && rule.region !== region) continue;
       let t = text;
       for (const n of rule.not || []) t = t.replace(new RegExp(n.source, "g"), " ");
       const m = t.match(rule.re);
@@ -173,11 +182,12 @@ export function readIngredient(raw) {
   }
   const advisories = [];
   for (const adv of ADVISORY) {
+    if (adv.region && adv.region === region) continue;
     let t = text;
     for (const n of adv.not || []) t = t.replace(new RegExp(n.source, "g"), " ");
     if (adv.re.test(t)) advisories.push(adv.text);
   }
-  return { raw: raw.trim(), found, advisories, unknownTags, noneTag: Boolean(noneTag) };
+  return { raw: raw.trim(), found, advisories, unknownTags, tagWords, noneTag: Boolean(noneTag) };
 }
 
 // Parse "# Name | may=milk, nuts" blocks followed by an ingredient list.
@@ -220,7 +230,7 @@ function sortKeys(keys, region) {
 export function analyseDish(dish, region = DEFAULT_REGION) {
   const items = splitTopLevel(dish.body);
   const ingredients = items.map((raw) => {
-    const r = readIngredient(raw);
+    const r = readIngredient(raw, region);
     // Sub-ingredients in brackets are read as part of the same text, so "dressing (egg, mustard)" works.
     return r;
   });
@@ -285,9 +295,27 @@ export function emphasise(ingredientText, region = DEFAULT_REGION) {
   return esc(ingredientText).replace(re, "<strong>$1</strong>");
 }
 
+// Emphasise exactly what the reader declared for this ingredient (the matched words, after
+// look-alikes such as coconut milk were set aside), so the label and the matrix agree.
+function emphasiseDeclared(text, words) {
+  const ws = [...new Set(words.filter(Boolean))].sort((a, b) => b.length - a.length);
+  if (!ws.length) return esc(text);
+  const alt = ws.map((w) => esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "\\s+")).join("|");
+  return esc(text).replace(new RegExp(`\\b(${alt})\\b`, "gi"), "<strong>$1</strong>");
+}
+
 export function labelFor(result, region = DEFAULT_REGION) {
-  const text = result.items.map((i) => i.replace(/\[[^\]]*\]/g, "").trim()).filter(Boolean).join(", ");
-  const html = emphasise(text, region);
+  const universe = new Set((region === "us" ? US9 : EU14).map((x) => x[0]));
+  const parts = (result.ingredients || []).map((ing) => {
+    const bare = ing.raw.replace(/\[[^\]]*\]/g, "").replace(/\s+/g, " ").trim();
+    const words = [...ing.found].filter(([k, v]) => universe.has(k) && !v.check && !v.tagged).map(([, v]) => v.via);
+    const stated = ing.tagWords || [];
+    const suffixText = stated.length ? ` (${stated.join(", ")})` : "";
+    const suffixHtml = stated.length ? ` (${stated.map((w) => `<strong>${esc(w)}</strong>`).join(", ")})` : "";
+    return { text: bare + suffixText, html: emphasiseDeclared(bare, words) + suffixHtml, empty: !bare };
+  }).filter((p) => !p.empty);
+  const text = parts.map((p) => p.text).join(", ");
+  const html = parts.map((p) => p.html).join(", ");
   const L = labelsFor(region);
   const contains = result.declaredKeys.map((k) => L[k]);
   return {

@@ -237,7 +237,8 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15369"
  ],
  "verdict": "The accounting is right where it matters most: every figure I recomputed by hand for the sample payout matches to the cent, each month's journal balances to a Stripe clearing account, the IIF and Xero exports sum to zero, the column names match Stripe's published payout-reconciliation schema, the merchant-time-zone created date drives the month split, and the dispute fee is correctly an expense rather than part of the dispute. That is the clearing-account method a bookkeeper would sign off. It does not meet the bar because verification is 2: three of nine seeded mutations survive, including the rule that dates a period's journal inside its own month, and the deposit box on the page, which has no test, reads a deposit typed '1,262.00' as $1.26 and tells the user not to post a correct journal. Category rules also depart from Stripe's reference for Connect platform fees and failed asynchronous charges. Correctness, completeness, craft, claims, fitness and domain are 3; verification 2."
 }

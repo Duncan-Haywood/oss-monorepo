@@ -6,15 +6,17 @@ Why it seemed worth doing: `eda-proposers` found the grid the weakest method at 
 
 **Builds on.** `research/eda-proposers` (the 80-design table, the exact hypervolume code and the metric), `research/eda-harness` (whose lexicographic `GridProposer` is the baseline), `research/chip-accel`. No CU Boulder lab's work is built on and no affiliation is implied.
 
+**Prior work.** Space-filling orders are textbook design of experiments: Latin hypercube sampling (McKay, Beckman and Conover 1979, *Technometrics* 21(2)), the Halton sequence (Halton 1960, *Numerische Mathematik* 2), and maximin distance designs (Johnson, Moore and Ylvisaker 1990, *J. Statistical Planning and Inference* 26; Morris and Mitchell 1995, *J. Statistical Planning and Inference* 43). That they beat a lexicographic walk at small budgets is the expected result; this project measures how much on this harness's table and does not claim the finding is new.
+
 ## Question and headline
-If a search must walk a full grid anyway, in what order should it visit the points? On this table the harness's lexicographic order is far behind a random order up to 30 evaluations and needs 75 evaluations to find the whole front, while a space-filling order (Halton, or greedy farthest-point from the centre) reaches 90% of the true-front hypervolume in 7 to 15 evaluations against about 17 for random. The ranking among space-filling orders is not established by one table (see Limitations).
+If a search must walk a full grid anyway, in what order should it visit the points? On this table the harness's lexicographic order is far behind a random order up to 30 evaluations and needs 75 evaluations to find the whole front, while a space-filling order (Halton, or greedy farthest-point from the centre) reaches 90% of the true-front hypervolume in 7 to 15 evaluations against about 17 for random. Halton's 7, and its 0.926 at budget 8, are the best of 48 equally valid labellings of the same sequence (6 assignments of bases to axes times 8 level reversals); across those 48 the budget-8 score has mean 0.854, median 0.859 and minimum 0.746, and 42 of 48 beat random's 0.808 (recomputed in a second, blind quality audit on 2026-11-13; [`portfolio/quality/blind-pairs/2026-11-13-e/`](../../portfolio/quality/blind-pairs/2026-11-13-e/)). The ranking among space-filling orders is not established by one table (see Limitations).
 
 ## Method
 Orders (`src/eda_gridorder/orders.py`), each a full permutation of the 80 designs:
 - `lexicographic`: sorted index tuples, the harness default.
 - `halton`: the Halton sequence (bases 2, 3, 5) scaled onto the index grid; repeats skipped, leftovers appended in lexicographic order.
 - `farthest`: greedy maximin on range-normalised L1 distance, starting at the centre-most design. `farthest-rand-start` is the same with a random first design.
-- `latin`: batches of 8 designs that each use every level of every axis about once.
+- `latin`: batches of 8 designs greedily matched to random Latin targets; only the first batch is exactly Latin (later batches repeat levels, because the designs left do not allow a Latin batch).
 - `random`: a uniform shuffle.
 
 Metric and budget are `eda-proposers`': the hypervolume of the found non-dominated set over that of the true front (12 of 80 designs; reference 1.1 on each normalised objective), at B distinct designs. Deterministic orders are one run. Stochastic orders use 300 seeds with 95% bootstrap intervals.
@@ -22,7 +24,7 @@ Metric and budget are `eda-proposers`': the hypervolume of the found non-dominat
 ## Reproduce
 ```bash
 cd research/eda-gridorder
-python3 -m unittest discover -s tests          # 7 tests, under 1 s, stdlib only
+python3 -m unittest discover -s tests          # 10 tests, under 1 s, stdlib only
 python3 experiments/run.py                     # about 7 s; writes experiments/results.txt
 python3 experiments/figure.py                  # writes experiments/figure.svg
 ```

@@ -207,7 +207,8 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15369"
  ],
  "verdict": "Correct and reproducible, but below the bar on claims and verification. results.txt regenerates byte-identical, and an independent stdlib implementation (own normalisation, Pareto filter, exact 3-D hypervolume, Halton and lexicographic orders, disjoint random seeds) matches the 12-design front, the lexicographic and Halton curves to three decimals and the random means within the author's intervals. Two README sentences say more than the data: lexicographic is not worse than all 300 random orders at B=16 (one is lower), and the random-start farthest-point interval overlaps random's at B=8. Tests check the curve against a slow definition but leave Halton, Latin and the bootstrap untested (3 of 4 mutants survive). As research, the effect is the textbook design-of-experiments result, uncited, on one 80-point toy table with deterministic orders as single draws; it is a sound harness-default fix, not a new result. Median 2; misses the bar on claims (2) and verification (2)."
 }

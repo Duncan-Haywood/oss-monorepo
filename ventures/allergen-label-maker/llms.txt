@@ -1,6 +1,6 @@
 # Allergen Label Maker
 
-> Free allergen matrix and print-ready pre-packed food (Natasha's Law) labels. Paste each dish's ingredients, get the 14 UK/EU allergens (or the US 9) per dish, and a label with allergens in bold. Runs in the browser; nothing is uploaded.
+> Free allergen matrix and draft pre-packed food (Natasha's Law) labels to check and print. Paste each dish's ingredients, get the 14 UK/EU allergens (or the US 9) per dish, and a label with allergens in bold. Runs in the browser; nothing is uploaded.
 
 Free and open source (MIT). It reads the ingredient words a person types; it is a drafting aid, not legal advice, and a person must confirm every label against supplier information.
 

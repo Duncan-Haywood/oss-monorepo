@@ -142,7 +142,7 @@
   </footer>
 
   <script type="module">
-    import { PLATFORMS, detect, convert, parseMapping, mappingText, defaultMapping, sampleReport, sampleBrokenReport, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
+    import { PLATFORMS, parseAmount, detect, convert, parseMapping, mappingText, defaultMapping, sampleReport, sampleBrokenReport, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -166,8 +166,8 @@
 
     function run(text) {
       const chosen = $("#platform").value;
-      const exp = parseFloat($("#expected").value.replace(",", "."));
-      const opts = { platform: chosen, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? Math.round(exp * 100) : undefined };
+      const exp = parseAmount($("#expected").value); // cents; reads "1,234.56" and "1.234,56" like the report's amounts
+      const opts = { platform: chosen, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? exp : undefined };
       let c = convert(text, opts);
       if (c.platform) {
         // Use the account names on screen only when they belong to this platform; otherwise show its defaults.

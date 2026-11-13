@@ -228,7 +228,8 @@
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15369"
  ],
  "verdict": "A tidy, honest, dependency-free drafting aid whose region lists (EU 14, US 9 with sesame) and look-alike handling are right and whose disclaimers are strong, but it does not reach the bar a labelling specialist would sign. Recomputed checks: 4 pass/partial of 9 correctness/domain rows. It misses common allergen names outright (oatmeal, couscous, farina, roe/caviar, curds, generic 'nuts' and 'shellfish', filbert, US pine nut), and its labels, the headline feature, emphasise allergens from a second word list that has drifted from detection, so many declared allergens and every supplier-tagged one are not in bold in the ingredients list. US Contains lines lack the species FALCPA requires, and [none] can wipe a named allergen. 38/38 tests pass and 3 of 4 seeded mutants were caught; the survivor is in the emphasis list. Does not meet the bar (correctness, claims and verification at 2)."
 }
