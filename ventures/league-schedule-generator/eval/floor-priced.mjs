@@ -6,7 +6,10 @@
 // and from the season under the gap at the same caps, each with `--iterations` moves. Reports
 // the frontier before and after, the least carry-over at each break budget and the time.
 //
-//   node eval/floor-priced.mjs <teams> <seed> [--iterations 3000] [--step 2] [--cache dir] [--page]
+//   node eval/floor-priced.mjs <teams> <seed> [--iterations 3000] [--step 2] [--cache dir] [--page] [--deals p]
+//
+// `--deals p`: re-deal three rounds at once (threeRoundDeals) on a share p of the moves (default 0.15,
+// CARRY_OVER_DEALS, what the page runs; --deals 0 is the swap-only search of the section before).
 //
 // `--page` runs what the page runs instead of the sweep: carryOverFloorPriced (CARRY_OVER_FLOOR_PRICED
 // seasons, from the season above the gap at its breaks - 2, - 4, ...).
@@ -18,7 +21,7 @@ import { frontierOf } from "./frontier-gap.mjs";
 
 const n = +process.argv[2], seed = +process.argv[3];
 const opt = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-const iterations = +opt("--iterations", 3000), stepB = +opt("--step", 2), cache = opt("--cache", null);
+const deals = +opt("--deals", 0.15), iterations = +opt("--iterations", 3000), stepB = +opt("--step", 2), cache = opt("--cache", null);
 const t0 = Date.now();
 const file = cache ? `${cache}/list-${n}-${seed}.json` : null;
 let all = file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
@@ -40,13 +43,13 @@ const caps = [];
 for (let c = top.breaks - stepB; c > under.breaks; c -= stepB) caps.push(c);
 const t1 = Date.now();
 const runs = [];
-if (process.argv.includes("--page")) for (const r of carryOverFloorPriced(n, all.map((t, i) => ({ ...t, index: i })), { seed, count: CARRY_OVER_FLOOR_PRICED, iterations })) {
-  runs.push({ from: "page", cap: r.maxBreaks, result: `${r.coe}/${r.breaks}`, floor: r.floor, proved: r.leastProved, floors: r.floors, s: null, r });
+if (process.argv.includes("--page")) for (const r of carryOverFloorPriced(n, all.map((t, i) => ({ ...t, index: i })), { seed, count: CARRY_OVER_FLOOR_PRICED, iterations, deals })) {
+  runs.push({ from: "page", cap: r.maxBreaks, result: `${r.coe}/${r.breaks}`, floor: r.floor, proved: r.leastProved, floors: r.floors, dealt: r.dealt, s: null, r });
 }
 else for (const [name, from] of [["top", top], ["under", under]]) for (const cap of caps) {
   const s = Date.now();
-  const r = floorPricedSingleRounds(n, all[from.index], { seed, maxBreaks: cap, iterations });
-  runs.push({ from: name, cap, result: r && `${r.coe}/${r.breaks}`, floor: r?.floor, proved: r?.leastProved, floors: r?.floors, s: +((Date.now() - s) / 1000).toFixed(1), r });
+  const r = floorPricedSingleRounds(n, all[from.index], { seed, maxBreaks: cap, iterations, deals });
+  runs.push({ from: name, cap, result: r && `${r.coe}/${r.breaks}`, floor: r?.floor, proved: r?.leastProved, floors: r?.floors, dealt: r?.dealt, s: +((Date.now() - s) / 1000).toFixed(1), r });
 }
 const tRuns = Date.now() - t1;
 const added = runs.filter((x) => x.r).map((x, k) => ({ index: all.length + k, coe: x.r.coe, breaks: x.r.breaks }));
@@ -58,7 +61,7 @@ const cuts = [];
 for (let k = lo; k <= hi; k++) cuts.push((least(before, k) - least(after, k)) / least(before, k));
 const gapCuts = cuts.slice(under.breaks - lo, top.breaks - lo);
 console.log(JSON.stringify({
-  teams: n, seed, iterations,
+  teams: n, seed, iterations, deals,
   gap: `${top.coe}/${top.breaks} .. ${under.coe}/${under.breaks}`,
   runs: runs.map(({ r, ...x }) => x),
   before: before.map(lab).join(" "), after: after.map(lab).join(" "),
