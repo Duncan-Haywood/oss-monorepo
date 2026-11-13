@@ -104,6 +104,60 @@ def evaluate(rows, n=GATE_N, k=GATE_K):
                 pre_5e_pick_gap=res["pick_gap"])
 
 
+def same_fidelity_answer(rows, verified):
+    """Extra, after the verdicts: compare like with like. Verify every unverified design whose screen score is at least
+    the screen score of the best verified design (by DFN), then answer with the best verified DFN. Returns (pick, verified)."""
+    ver = set(verified)
+    while True:
+        b = max(ver, key=lambda i: (rows[i]["dfn"], -i))
+        more = [i for i, r in enumerate(rows) if i not in ver and r["score"] >= rows[b]["score"] and r["score"] > 0]
+        if not more:
+            return b, ver
+        ver |= set(more)
+
+
+def affine_answer(rows, verified):
+    """Extra, after the verdicts (a negative): map unverified screen scores through a least-squares line DFN ~ screen fitted
+    on the verified designs with a positive screen score (identity below 3 points), then verify the merged leader until it
+    is verified. Returns (pick, verified)."""
+    ver = set(verified)
+    while True:
+        pts = [(rows[i]["score"], rows[i]["dfn"]) for i in ver if rows[i]["score"] > 0]
+        a, b = 0.0, 1.0
+        if len(pts) >= 3:
+            mx, my = sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+            sxx = sum((p[0] - mx) ** 2 for p in pts)
+            if sxx > 0:
+                b = sum((p[0] - mx) * (p[1] - my) for p in pts) / sxx
+                a = my - b * mx
+        merged = [r["dfn"] if i in ver else (a + b * r["score"] if r["score"] > 0 else 0.0) for i, r in enumerate(rows)]
+        p = max(range(len(rows)), key=lambda i: (merged[i], -i))
+        if p in ver:
+            return p, ver
+        ver.add(p)
+
+
+def cost_gate(rows, n=GATE_N):
+    """Extra, after the verdicts: a cost-aware gate. Also run DFN on design 0 (it counts as verified either way) and
+    predict rule/all-DFN as (mean SPMe time of the first n) / (design 0's DFN time) + (suspect share of the first n).
+    Skip SPMe when the prediction is at least 1."""
+    pred = (sum(r["t_v0"] for r in rows[:n]) / n) / rows[0]["t_dfn"] + sum(1 for r in rows[:n] if suspect(r)) / n
+    return pred >= 1.0, pred
+
+
+def extras(rows, e):
+    """Post hoc variants on one pool: the same-fidelity answer (gap, calls) and the cost-aware gate (right or not)."""
+    res = R.apply_rule(rows)
+    pick, ver = same_fidelity_answer(rows, res["verified_idx"])
+    t_rule_sf = sum(r["t_spme"] for r in rows) + sum(rows[i]["t_dfn"] for i in ver)
+    skip, pred = cost_gate(rows)
+    ap, aver = affine_answer(rows, res["verified_idx"])
+    return dict(affine_gap=(e["best_dfn"] - rows[ap]["dfn"]) / e["best_dfn"], affine_calls=len(aver),
+                sf_gap=(e["best_dfn"] - rows[pick]["dfn"]) / e["best_dfn"], sf_calls=len(ver), sf_t_ratio=t_rule_sf / e["t_all"],
+                cost_gate_skip=skip, cost_gate_pred=pred,
+                cost_gate_right=None if e["tie"] else (skip == (e["cheaper"] == "all-DFN")))
+
+
 def verdicts(C):
     """C: {condition id: evaluate() output plus 'rate' and 'set'}."""
     v = R.verdict
@@ -235,7 +289,10 @@ def _lines(name, c, dropped):
             f"  wall time: rule {c['t_rule']:.0f} s, all-DFN {c['t_all']:.0f} s (rule/all {c['t_rule'] / c['t_all']:.2f}; cheaper: {c['cheaper']}"
             f"{', within 5%' if c['tie'] else ''}); gated {c['t_gated']:.0f} s = {c['gated_ratio']:.2f} x the cheaper; gate right: {c['gate_right']}",
             f"  answer gap to pool DFN best {c['best_dfn']:.1f} Wh/kg: gated {c['gated_pick_gap']:.4f}, rule+iterate {c['rule_pick_gap']:.4f},"
-            f" 5e's pre-registered answer {R._fmt(c['pre_5e_pick_gap'], 4)}"]
+            f" 5e's pre-registered answer {R._fmt(c['pre_5e_pick_gap'], 4)}",
+            f"  extra, after the verdicts: same-fidelity answer gap {c['sf_gap']:.4f} at {c['sf_calls']} calls (rule/all {c['sf_t_ratio']:.2f});"
+            f" cost-aware gate predicts rule/all {c['cost_gate_pred']:.2f} -> {'skip' if c['cost_gate_skip'] else 'rule'}, right: {c['cost_gate_right']};"
+            f" affine-corrected answer gap {c['affine_gap']:.4f} at {c['affine_calls']} calls"]
 
 
 def report():
@@ -254,7 +311,8 @@ def report():
             L.append(f"{c}: no complete design yet")
             continue
         s, rate = _parse(c)
-        e = dict(evaluate(rows), set=s, rate=rate, dropped=dropped,
+        e = evaluate(rows)
+        e = dict(e, **extras(rows, e), set=s, rate=rate, dropped=dropped,
                  median_t_v0=statistics.median(r["t_v0"] for r in rows), median_t_dfn=statistics.median(r["t_dfn"] for r in rows))
         L += _lines(c, e, dropped)
         summ["conditions"][c] = e
@@ -265,6 +323,7 @@ def report():
     for s, runs in committed_cells().items():
         rows, dropped = pool(runs)
         e = evaluate(rows)
+        e.update(extras(rows, e))
         L += _lines(f"{s}@1x", e, dropped)
         summ["committed"][s] = e
     (HERE / "results.txt").write_text("\n".join(L) + "\n")
