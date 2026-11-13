@@ -926,6 +926,15 @@ class ElevationStopTest(unittest.TestCase):
         self.assertEqual(p.check_elevation(g), [])
 
 
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class CableGeometryTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F
+        cls.p = Feeder()
+        cls.parts = F.all_parts(cls.p)
+
     def test_cable_loop_is_clear_and_the_sweep_can_fail(self):
         from build123d import Location
         from otr_cad import feeder as F

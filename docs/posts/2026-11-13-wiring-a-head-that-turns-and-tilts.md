@@ -1,9 +1,9 @@
 ---
 title: "Wiring a launcher head that turns and tilts: the obvious cable route had 8 mm of slack and needed 13"
-seo_title: "Cable routing through a pan-tilt pivot: twist on the axis, loop behind the pivot"
+seo_title: "Cable routing for a pan-tilt head: axis twist, loop behind the pivot"
 date: 2026-11-13
 tags: [ventures, open-tennis-robots, cad]
-description: "Cable routing for the open tennis feeder's pan-tilt head: a twist run on the turntable axis, a 376 mm loop behind the pivot checked over the actuator's whole travel, and why the servo needs 20 AWG leads, not a stock 26 AWG extension."
+description: "Cabling a pan-tilt ball launcher: a twist run on the turntable axis, a 376 mm loop behind the pivot, and 20 AWG servo leads instead of 26."
 ---
 
 The open tennis-ball feeder's launcher head turns about ±30 degrees on a

@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydtW9ckFiZ8qba1186",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T05:06:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 10 open-tennis-robots, buildable item: the servo's 5-6 V supply and the cable runs to the turntable, clear of the head out to the hard stops' 36.4 deg reach",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15380",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First elevation-loop model used a cubic Bezier with both end tangents vertical; with a clip under the pivot the control points are collinear, so the family can only make a straight line (and folded curves pass the curvature test). Found by exploring a quintic family; added a fold guard (tangent may not turn >90 deg between samples) to _cable_loop_range.",
+    "An exploratory scratch script split its own source on a marker string and broke (wasted one background run).",
+    "Existing test_elevation_sweep_can_fail asserted Feeder(mast_top_z=700).check() == []; the new cable rule correctly flags that design too, so the test now filters the cable rule out.",
+    "Post front matter: description 233 chars and seo_title 80 chars; caught by venture-preflight and fixed.",
+    "Two new geometry tests were first appended to ElevationStopTest, which has no setUpClass fixture; moved to a new CableGeometryTest class."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Without build123d in python3 it reports the open-tennis-robots suite as failed with ModuleNotFoundError in a FeederParamsTest (test_take_up_parts_match_the_design imports build123d unguarded). With PATH pointing at a venv holding build123d it passed in 0.3 s, which suggests the CAD tests were not what ran; I ran cad/tests with pytest directly."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/params.py",
+      "issue": "_hose_curve_range/_hose_curve_range_3d have the same blind spot I fixed in the new cable function: a fold back along a straight line has zero cross product, so it passes the curvature limit. Hose tangents are rarely collinear, so it is probably harmless, but nobody has checked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-wiring-a-head-that-turns-and-tilts.md",
+    "ventures/open-tennis-robots/cad/README.md (Cables to the head)"
+  ],
+  "goal": null,
+  "notes": "Landed: Feeder.cable_twist, cable_loop_design (checked over the actuator's whole travel, -30.3 to +45.8 deg), servo_supply, check_cables; CAD parts cable_clip, cable_gland, cable_clamp and cable_crossbar, plus a 14 mm grommet hole in the motor plate; package.cable_sweep (7 elevations x straight and +-36.4 deg, no clash); regenerated feeder package (design_rules [] and collisions []). Finding: a clip under the pivot cannot work (about 8.4 mm of slack possible at R 30 over the 106 mm span, about 13 needed); the loop behind the pivot gives a 353-398 mm window, cut at 376. Servo: 20 AWG leads, 5.68 V at stall; 26 AWG gives 4.88 V and lifts the ground 0.56 V. electronics.md's 6-7.4 V BEC changed to a 6 V buck. No agent doc: everything the next run needs is in cad/README.md and flagships.yaml next. Verification: cad/tests pytest (build123d 0.13.0 venv): 64 passed, then 2 failed because I had put two new geometry tests in ElevationStopTest, which has no parts fixture; moved them to their own CableGeometryTest class, and all 5 cable tests passed (168 s). node platform/pages/venture-preflight.mjs open-tennis-robots: clean, after fixing the post's front-matter lengths. Feeder package regenerated (4 min 14 s), manifest design_rules [] and collisions [].",
+  "corrections": [],
+  "redteam": null
+}
