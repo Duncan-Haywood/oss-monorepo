@@ -87,3 +87,38 @@ test("analyzeSales totals per platform and lists losing sales", () => {
   assert.equal(summarizeSales(r).status, "ok");
   assert.equal(summarizeSales(analyzeSales({ rows: [] })).status, "none");
 });
+
+// Quality audit 2026-11-13 (round 62): headers were matched by prefix and the
+// first match won, so "Net Profit" became the payout and "Buyer" the cost.
+test("parseSales gives each header to one field and never reads a profit column as payout", () => {
+  const a = parseSales("Event,Platform,Qty,Net Profit,Cost,Payout\nG,StubHub,2,70,200,270");
+  assert.equal(a.rows.length, 1);
+  assert.equal(a.rows[0].payout, 270);
+  assert.equal(a.rows[0].cost, 200);
+  const b = parseSales("Event,Sold On,Buyer,Qty,Cost,Sale Price,Fees\nG,SeatGeek,Pat,2,200,300,30");
+  assert.equal(b.skipped, 0);
+  assert.deepEqual([b.rows[0].platform, b.rows[0].cost, b.rows[0].gross, b.rows[0].payout], ["SeatGeek", 200, 300, 270]);
+});
+
+test("parseSales multiplies a per-ticket cost column by qty", () => {
+  const { rows } = parseSales("event,platform,qty,cost per ticket,payout\nG,StubHub,2,100,270");
+  assert.equal(rows[0].cost, 200);
+});
+
+test("parseSales skips a row whose fees cell is blank when there is no payout", () => {
+  const r = parseSales("event,platform,qty,cost,sale,fees\nG,StubHub,2,200,300,");
+  assert.equal(r.rows.length, 0);
+  assert.equal(r.skipped, 1);
+  const p = parseSales("event,platform,qty,cost,fees,payout\nG,StubHub,2,200,,270");
+  assert.equal(p.rows[0].payout, 270);
+});
+
+test("hand-computed break-even, effective fee and break-even sale chance", () => {
+  const input = { qty: 4, costPerTicket: 85.5, feePct: 10, flatFeePerTicket: 2.5, deliveryPerOrder: 15 };
+  // (342 + 15 + 4 * 2.5) / (4 * 0.9) = 101.94
+  assert.equal(Math.round(breakEvenList(input) * 100) / 100, 101.94);
+  // fees 44 + 10 = 54, plus delivery 15, over gross 440 = 15.68%
+  assert.equal(Math.round(netIfSold(110, input).effectiveFeePct * 100) / 100, 15.68);
+  // loss if unsold 342 - 160 = 182; swing 29 + 182 = 211; 182 / 211 = 0.86
+  assert.equal(Math.round(expectedProfit(110, input, { pSell: 0.7, salvagePerTicket: 40 }).breakEvenPSell * 100) / 100, 0.86);
+});
