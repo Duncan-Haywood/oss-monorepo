@@ -1,0 +1,59 @@
+NTTL 1725 (JD7610, 86.47 kW rated PTO, high idle 2267 rpm), full-throttle varying-power rows:
+  OLS fuel = 7.714 + 0.2116 P  (L/h, P in kW); intercept per rated kW 0.0892 L/h/kW; max |residual| 0.252 L/h
+  general model (eqs 2-3, full throttle, N = 1) against each row: P kW, measured, model, model/measured
+     86.47   25.82   27.39  1.061
+     76.12   23.95   25.11  1.048
+     57.76   19.91   21.07  1.058
+     38.81   16.18   16.89  1.044
+     19.59   11.81   12.66  1.072
+      0.77    7.77    8.51  1.095
+  general model in SI: Q_F = 0.2203 X P + 0.0965 P L/h (P rated kW), slope 0.2203 L/kWh
+  JD7610 specific model (appendix A: b = 0.0203 gal/h/hp, from 50% and 75% pull) at X = 0: 8.91 L/h against measured 7.77 at 0.77 kW
+
+6c thresholds over 384 cases: central median 1.001, max 3.004 L/h; rescaled by b 0.2203/0.2332 = 0.9447: median 0.945, max 2.838; sweep max over 108 sets: max 6.671 L/h
+XE80E no-load rate (eq 3 at X = 0) and the share of the 384 cases where a smaller fixed pump wins:
+   k     HI   n rpm   N      no-load L/h  central %  any-set %
+  1.00  2200.0   1500  0.682     3.797       0.0      11.2
+  1.00  2200.0   1800  0.818     4.426       0.0       5.7
+  1.00  2200.0   2100  0.955     5.056       0.0       1.6
+  1.00  2200.0   2200  1.000     5.266       0.0       0.8
+  1.00  2375.0   1500  0.632     3.565       0.0      14.8
+  1.00  2375.0   1800  0.758     4.148       0.0       7.6
+  1.00  2375.0   2100  0.884     4.731       0.0       3.6
+  1.00  2375.0   2200  0.926     4.926       0.0       2.1
+  1.00  2400.0   1500  0.625     3.534       0.0      15.1
+  1.00  2400.0   1800  0.750     4.112       0.0       7.8
+  1.00  2400.0   2100  0.875     4.689       0.0       3.6
+  1.00  2400.0   2200  0.917     4.881       0.0       2.3
+  0.85  2200.0   1500  0.682     3.227       0.0      19.8
+  0.85  2200.0   1800  0.818     3.762       0.0      11.2
+  0.85  2200.0   2100  0.955     4.298       0.0       6.0
+  0.85  2200.0   2200  1.000     4.476       0.0       5.7
+  0.85  2375.0   1500  0.632     3.030       0.0      22.9
+  0.85  2375.0   1800  0.758     3.526       0.0      15.1
+  0.85  2375.0   2100  0.884     4.022       0.0       8.6
+  0.85  2375.0   2200  0.926     4.187       0.0       7.0
+  0.85  2400.0   1500  0.625     3.004       0.0      24.2
+  0.85  2400.0   1800  0.750     3.495       0.0      15.1
+  0.85  2400.0   2100  0.875     3.986       0.0       9.4
+  0.85  2400.0   2200  0.917     4.149       0.0       7.6
+  at 2100 rpm: no-load 3.986 to 5.056 L/h; over 6e's floor 2.53 by x1.58 to x2.00
+  at 1500 rpm: no-load 3.004 to 3.797 L/h; any-set share 11.2% to 24.2%
+  1725 measured intercept carried by rated power (full throttle, no speed correction): 4.871 L/h; central 0.0%, any-set 2.3%
+  sweep-max p50: 2.266 L/h
+  sweep-max p90: 3.890 L/h
+  sweep-max p99: 5.239 L/h
+
+Loader low idle (800 rpm, 83 kW): measured 1.463 L/h (6e); eq 3 at X = 0:
+  HI 2200: N 0.364, model 3.538 L/h, model/measured 2.42
+  HI 2300: N 0.348, model 3.427 L/h, model/measured 2.34
+  HI 2400: N 0.333, model 3.325 L/h, model/measured 2.27
+  full throttle, no load (eq 2): 8.005 L/h; per rev at 800 rpm the measured idle is 30.5 mm^3
+
+Predictions (LOG.md, 6f):
+  H1 slope 0.19-0.23 and intercept 6.5-8.5: 0.2116, 7.714 -> held
+  H2 2100 rpm no-load in 3.5-5.5 in all six scenarios, above 2.53: -> held
+  H3 central share 0% in every 2100 rpm scenario: max 0.0% -> held
+  H4 lowest 2100 rpm scenario (3.986 L/h) any-set share under 5%: 9.4% -> refuted
+  H5 1500 rpm any-set share under 15% in every scenario: max 24.2% -> refuted
+  H6 loader low-idle over-prediction above 1.5x: 2.27 to 2.42 -> held

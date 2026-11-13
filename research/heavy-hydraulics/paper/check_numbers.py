@@ -29,6 +29,15 @@ CHECKS = [
     ("&minus;0.589 with p99", "excavator_breakeven_geometry_results.txt", "Spearman(peakiness, f_t,max) -0.589"),
     ("0.207 to 0.470 of each", "excavator_breakeven_geometry_results.txt", "min 0.207, median 0.316, max 0.470"),
     ("within 0.0012", "excavator_fuel_breakeven_results.txt", "max |diff| 0.0012 over 20 rows"),
+    # milestone 6f: section 3.7g
+    ("fits 7.714 + 0.2116 P L/h, 0.0892 L/h per rated kW", "asabe_no_load_fuel_results.txt", "OLS fuel = 7.714 + 0.2116 P  (L/h, P in kW); intercept per rated kW 0.0892 L/h/kW"),
+    ("Q = (0.2203 X + 0.0965) P<sub>rated</sub>", "asabe_no_load_fuel_results.txt", "Q_F = 0.2203 X P + 0.0965 P L/h"),
+    ("the no-load rate is 3.99 to 5.06 L/h", "asabe_no_load_fuel_results.txt", "at 2100 rpm: no-load 3.986 to 5.056 L/h"),
+    ("maximum 2.84 L/h", "asabe_no_load_fuel_results.txt", "median 0.945, max 2.838"),
+    ("in 1.6 to 9.4% under at least one", "asabe_no_load_fuel_results.txt", "1.00  2200.0   2100  0.955     5.056       0.0       1.6"),
+    ("in 1.6 to 9.4% under at least one", "asabe_no_load_fuel_results.txt", "0.85  2400.0   2100  0.875     3.986       0.0       9.4"),
+    ("(11.2 to 24.2% at 1500 rpm)", "asabe_no_load_fuel_results.txt", "any-set share 11.2% to 24.2%"),
+    ("by 2.27 to 2.42 times", "asabe_no_load_fuel_results.txt", "2.27 to 2.42 -> held"),
     # figure captions (milestone 6 references step)
     ("crosses 1 at 19.3, 23.9 and 28.4 bar", "ranking_map_results.txt", "p_n  1.44 bar: monotone=True; break-even dp_ls = 19.3 bar"),
     ("crosses 1 at 19.3, 23.9 and 28.4 bar", "ranking_map_results.txt", "p_n  6.44 bar: monotone=True; break-even dp_ls = 23.9 bar"),
