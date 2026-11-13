@@ -13,3 +13,4 @@ hopper_brace_y,1,"2020 T-slot, cut 1734 mm, ends mitred to 20 deg","Behind the r
 camera_bar,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
 net_pole_vertical,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
 net_pole_top,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.
+cable_crossbar,1,"2020 T-slot, cut 280 mm","Between the two rear mast posts' inner faces (corner brackets, M5): carries the axis cable clamp."
