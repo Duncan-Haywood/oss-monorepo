@@ -210,3 +210,39 @@ test("random closed positions conserve basis: net gain + deferred loss = proceed
     assert.ok(Math.abs(got - (proceeds - cost)) < 0.05 * r.summary.lossSales + 0.01, `trial ${trial}: ${got} vs ${proceeds - cost}\n${rows.join("\n")}`);
   }
 });
+
+// Red-team 2026-11-13: guards for mutants that escaped the suite.
+test("parseDate refuses a padded month and a two-digit-year ISO date", () => {
+  assert.equal(parseDate("2025-001-15"), null);
+  // Date.UTC maps years 0-99 to 1900-1999, so only the year check catches this one.
+  assert.equal(parseDate("0050-01-01"), null);
+});
+
+test("penny-stock prices under $1 are read from the price column, not refused or replaced by the amount", () => {
+  const r = evaluate("Date,Symbol,Action,Quantity,Price,Amount\n2025-01-02,PNY,buy,1000,0.50,505.00\n2025-03-03,PNY,sell,1000,0.40,395.00");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.summary.grossLoss, 100);
+});
+
+test("a sale with a small gain under $1 is not counted as a loss sale", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,100,10,Taxable", "2025-03-01,X,sell,100,10.005,Taxable"));
+  assert.equal(r.summary.lossSales, 0);
+  assert.equal(r.summary.grossLoss, 0);
+});
+
+test("dividend reinvestments and Fidelity's YOU BOUGHT / YOU SOLD rows are purchases and sales", () => {
+  const r = evaluate(csv(
+    "2025-01-02,VTI,YOU BOUGHT VANGUARD TOTAL STOCK MKT,10,200,Taxable",
+    "2025-03-03,VTI,YOU SOLD VANGUARD TOTAL STOCK MKT,10,180,Taxable",
+    "2025-03-20,VTI,Reinvest Shares,1,181,Taxable",
+  ));
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.summary.grossLoss, 200);
+  assert.equal(r.summary.disallowed, 20); // the reinvested share washes 1 of 10 shares' loss
+});
+
+test("Schwab's Reinvest Dividend cash leg is not read as a purchase", () => {
+  const r = evaluate(csv("2025-01-02,VTI,buy,10,200,Taxable", "2025-03-03,VTI,sell,10,180,Taxable", "2025-03-20,VTI,Reinvest Dividend,1,181,Taxable"));
+  assert.equal(r.summary.disallowed, 0);
+  assert.equal(r.errors.length, 1);
+});

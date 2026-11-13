@@ -1,5 +1,6 @@
 """P047: platform code must not build URLs on the retired /monorepo-projects/ Pages path."""
 import pathlib
+import subprocess
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -14,7 +15,11 @@ ALLOWED = {"platform/pages/build.mjs", "platform/ci/test_no_dead_pages_base.py",
 class NoDeadPagesBase(unittest.TestCase):
     def test_platform_does_not_name_the_dead_path(self):
         hits = []
-        for p in (ROOT / "platform").rglob("*"):
+        # Tracked files only: a local site build leaves gitignored output in platform/pages/dist that copies
+        # allowed venture text (subpath-robots-check's worked example), which failed this test after any build.
+        tracked = subprocess.run(["git", "ls-files", "platform"], cwd=ROOT, capture_output=True, text=True,
+                                 check=True).stdout.splitlines()
+        for p in (ROOT / rel for rel in tracked):
             if not p.is_file() or "node_modules" in p.parts or p.suffix in {".png", ".jpg", ".woff2", ".ico"}:
                 continue
             rel = p.relative_to(ROOT).as_posix()
