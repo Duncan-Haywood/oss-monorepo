@@ -1587,8 +1587,24 @@ Measured on every `pa` calibration in lensfun's database and the midpoints betwe
 0.0036% from lensfun's, 1.1% at the 99th percentile; 0.7% of cases are refused. Lensfun's own corner
 gain is a median +0.46 EV, over a stop in 18% of cases: that much darker are those corners without
 it. 16 tests (`tests/test_lens_vignetting.py`), and nine seeded faults all caught. Not checked: a
-real evenly lit frame, and liblensfun's compiled devignetting. Details:
+real evenly lit frame. Details:
 `eval/lensfun-vignetting-2026-11-13.md`.
+
+### Vignetting against the compiled lensfun (2026-11-13, later still)
+
+`tools/lensfun_vignetting_released_check.py` runs liblensfun 0.3.4's own devignetting (lensfunpy's
+`apply_color_modification` on an image of ones) on every `pa` lens in that release's database that
+we find by the same name: 97,382 cases on 474 lenses, calibration points and midpoints in f-number
+and in focal length, on 3:2 and 4:3 frames at two crop factors. Our interpolation and units agree
+with it to a median 0.00012% of the gain (99th percentile 0.0034%; the largest, 0.32%, is lensfun's
+own float32 rounding on a 93x corner gain). Where lensfun's `c` goes negative it returns black;
+`build_vignette` refuses all 133 such cases. One difference is deliberate: the release measures the
+radius by the pixel-centre diagonal `hypot(w - 1, h - 1)`, master (which we follow) by the
+edge-to-edge one, `hypot(w, h)`. That moves the corner gain by a median 0.0075% on a 6000 px frame,
+but by up to 10% on the steepest calibrations (46% on an 800 px preview), so programs built on the
+release and on master disagree there. The FixVignetteRadial we ship is within 1.2% of the release at
+the 99th percentile on an 800 px frame. 6 tests (`tests/test_lensfun_vignetting_released.py`); four
+seeded faults all caught. Details: `eval/lensfun-vignetting-released-2026-11-13.md`.
 
 ## The lensfun port against the real lensfun library (2026-11-13)
 

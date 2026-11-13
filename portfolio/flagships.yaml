@@ -201,10 +201,10 @@ flagships:
     buildable: >-
       The DNG 1.7.1.0 specification PDF is reachable from a cloud session
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
-      memory. Lensfun vignetting landed 2026-11-13 (eval/lensfun-vignetting-2026-11-13.md);
-      its formula is written out, not run from liblensfun: lensfunpy (pypi) bundles
-      liblensfun 0.3.4, so a check of `apply_color_modification` against
-      build_vignette, as tools/lensfun_released_check.py does for distortion; Canon's maker-note lens number (CameraSettings
+      memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
+      liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
+      the SSE path (four-component float32 images through lensfunpy, if it allows them)
+      and a 16-bit fixed-point output check; Canon's maker-note lens number (CameraSettings
       index 22) mapped to a name for CR2s whose maker note gives no usable name
       (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
       since 2026-11-13);
