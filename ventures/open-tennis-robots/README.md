@@ -67,8 +67,12 @@ the recycle loop was open: balls reach the sump about 2.2 m below the tub's rim
 ([`cad/README.md`](cad/README.md), "Catch trough"). Ball lift (2026-11-13): a
 cleated belt in a column beside the mast now carries them up and drops them
 into the tub, about 53 a minute on paper, and the firmware runs it for 16 s
-after each ball fed ([`cad/README.md`](cad/README.md), "Ball lift"). Not yet
-modelled: the netting and the hopper agitator.
+after each ball fed ([`cad/README.md`](cad/README.md), "Ball lift"). Hopper
+agitator (2026-11-13): a two-arm stirrer on a small gearmotor sweeps over the
+tub's outlet at a ball's centre height while balls are being fed, so balls
+bridging the outlet cannot leave the feed column empty
+([`cad/README.md`](cad/README.md), "Hopper agitator"). Not yet modelled: the
+netting.
 
 > **Status:** the collector is design v0.2 with a complete package; the
 > feeder is a v0.1 design. The physics, planners, tracker and firmware
@@ -231,7 +235,7 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
    drive stack.
 2. **Feeder CAD**: launcher head, lateral base, mast and catch-net frame are
    in `manufacturing/feeder/` (v0.1), with the hopper, hose and feed shuttle.
-   Still to model: the hopper agitator (the trough and the ball lift to the tub landed 2026-11-13). The azimuth drive
+   The trough, the ball lift to the tub and the hopper agitator landed 2026-11-13. The azimuth drive
    landed 2026-11-10, and the elevation drive and the shuttle's servo crank landed 2026-11-11. The hose and its sliding-sleeve take-up are
    checked over the head's whole tilt and turn range (2026-11-10).
 3. Bench-test the feeder head: calibrate wheel efficiencies

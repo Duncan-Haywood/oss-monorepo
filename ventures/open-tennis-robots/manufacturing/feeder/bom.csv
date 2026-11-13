@@ -25,7 +25,7 @@ home_switch,cots,1,"Subminiature roller-lever microswitch (D2F-01L3 class), abou
 home_switch_lever,cots,1,"the switch's roller lever (free position), part of home_switch",
 az_stop_block,print,2,PETG,"Azimuth hard stops, one each side, on the mast plate in the gap the gear sector turns in. The sector's end faces meet their pads at +-35 deg (working range +-30, home click -32). Two M4 heat-set inserts from below; screws up through the mast plate. 100% infill. Glue a 5 mm polyurethane pad on the face toward the sector."
 az_stop_pad,cots,2,"Polyurethane sheet, Shore 70A, 5 mm, cut 12 x 6 mm (two); glued to the stop blocks' faces (modulus about 5.5 MPa assumed: check your sheet)",
-hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole."
+hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole, the agitator's motor mount under the small hole beside it."
 hopper_spigot,print,1,PETG,"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical cup 102.5 mm across and 40 mm deep for the sleeve's top end. Print flange down, 6 walls."
 feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 810 mm",Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord 1014 mm; bows to 426 mm radius at the closest pose; needs 150. Top end bonded into the take-up collar; a hose clamp at the column socket.
 take_up_sleeve,stock,1,"Rigid round tube, 96 mm bore, about 102 mm OD, cut 300 mm; slot 10 mm wide in the rear wall from the top end down 262 mm","Hangs from the outlet socket, open at the bottom. The hose's collar slides 236 mm in it (free hose 521 to 757 mm over the elevation and azimuth range). Deburr the bore."
@@ -43,7 +43,7 @@ hopper_brace_y,stock,1,"2020 T-slot, cut 1734 mm, ends mitred to 20 deg","Behind
 camera_bar,stock,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
 net_pole_vertical,stock,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
 net_pole_top,stock,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.
-hopper_tub,cots,1,Storage tub about 440 x 340 x 250 mm outside; cut a 75 mm hole at the low end over the outlet. Holds about 125 balls at 0.55 packing.,
+hopper_tub,cots,1,Storage tub about 440 x 340 x 250 mm outside; cut a 75 mm hole at the low end over the outlet and a 12 mm hole for the agitator's shaft (match them to the shelf's). Holds about 125 balls at 0.55 packing.,
 launcher_wheel,cots,2,150 x 45 mm polyurethane-tread wheel on an 8 mm shaft hub,
 launcher_motor,cots,2,"BLDC outrunner, 63 mm class, 8 mm shaft, 24 V, ~1 kW peak",
 head_standoff,cots,4,"M5 female-female standoff, 80 mm",
@@ -83,6 +83,9 @@ lift_clip,print,6,PETG,"Holds the three rods round the channel and bolts to the 
 lift_head,print,1,PETG,"Bolts to the top of the spine (two M5 each side into its +-y slots; slot the holes to tension the belt). The top pulley turns on an 8 mm axle through it, 2420 mm up. Balls ride over the pulley under the hood and drop 115 deg past the top onto a 30 deg floor that falls toward the tub; the finger behind each ball pushes it down that floor. Print in two halves split on y = 300 if your printer is short of 178 mm."
 lift_chute,stock,1,"Rigid round tube, 72 mm bore, about 80 mm OD, cut 223 mm (the take-up sleeve's tube)",From the lift head's socket down 8 deg to a point over the tub: its end's floor is 34 mm above the rim there. Push into the socket and glue.
 lift_strut,stock,1,"2020 T-slot, cut 241 mm",From the spine's -y face to the +y front hopper post's front face (a 2020 corner bracket at each end): holds the column's top half against sway.
+hopper_agitator,print,1,PETG,"Stirrer over the tub's outlet: two 115 mm arms, 12 mm tall, centred a ball's radius over the floor, 20 rpm so an arm crosses the outlet 40 times a minute. Push it on the shaft's D flat, set screw (M3 into a heat-set insert) on the flat. Print arms down, 4 walls; 230 mm long, so diagonally on a 220 mm bed."
+hopper_agitator_mount,print,1,PETG,"Agitator gearmotor's mount: screw the motor's face to it first (M3 from the counterbores in its top), then bolt it up under the shelf (M4 from above into its three heat-set inserts). Print top down, 6 walls."
+agitator_motor,cots,1,"Planetary gearmotor, 25 mm class, concentric 6 mm D shaft at least 25 mm long, about 20 rpm and 1.5 N m rated at 24 V, four M3 face holes on 17 mm (all assumed: check yours against the mount)",
 M8 x 110 bolt + nyloc nut + 4 washers,cots,1,M8 x 110 bolt + nyloc nut + 4 washers,head pivot through the cheeks
 "M5 female-female standoff, 80 mm",cots,4,"M5 female-female standoff, 80 mm",between the head plates
 M5 x 12 button head,cots,34,M5 x 12 button head,"standoffs, mast plate to posts, turntable, deck, brackets"
@@ -127,6 +130,11 @@ M3 x 8 screw (lift),cots,4,M3 x 8 screw (lift),lift gearmotor's face to the boot
 M3 x 10 screw + nyloc nut (flights),cots,64,M3 x 10 screw + nyloc nut (flights),"flights through the belt, between its cords"
 "UHMW-PE tape, 25 mm wide, self-adhesive",cots,1,"UHMW-PE tape, 25 mm wide, self-adhesive",both 20 mm faces of the lift spine (4.7 m)
 "Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",cots,1,"Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",lift gearmotor from GPIO 16
+M3 x 10 socket cap screw (agitator),cots,4,M3 x 10 socket cap screw (agitator),"agitator gearmotor's face to its mount, from the mount's counterbores"
+M4 x 10 button head (agitator),cots,3,M4 x 10 button head (agitator),"agitator motor mount up under the shelf, from above (the tub sits over the heads)"
+"M4 heat-set insert, 5.7 mm long (agitator)",cots,3,"M4 heat-set insert, 5.7 mm long (agitator)",agitator motor mount
+M3 x 6 set screw + M3 heat-set insert,cots,1,M3 x 6 set screw + M3 heat-set insert,agitator hub onto the shaft's flat
+"Logic-level N-MOSFET module, 24 V 2 A, + flyback diode",cots,1,"Logic-level N-MOSFET module, 24 V 2 A, + flyback diode",agitator gearmotor from GPIO 17
 Raspberry Pi 5 (4 GB),cots,1,Raspberry Pi 5 (4 GB),vision + planning
 Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable,stereo bar
 ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"

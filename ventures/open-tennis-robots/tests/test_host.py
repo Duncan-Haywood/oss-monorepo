@@ -43,6 +43,8 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         self.assertEqual(sim.hw.target_rpm, (0, 0))      # wheels told to stop at the end
         self.assertFalse(sim.ctl.estop)
         self.assertEqual(sim.hw.lift_pwm.duty, 65535)    # the ball lift runs on for the balls still coming back
+        sim.run_ms(3100)
+        self.assertEqual(sim.hw.agit_pwm.duty, 0)        # the agitator stops once no ball is wanted
 
     def test_pot_actuator(self):
         self._check_clean_run(controller.ELEV_POT)
@@ -80,6 +82,7 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         sim.run_ms(20)
         self.assertEqual(sim.hw.target_rpm, (0, 0))
         self.assertEqual(sim.hw.lift_pwm.duty, 0)        # e-stop stops the lift too
+        self.assertEqual(sim.hw.agit_pwm.duty, 0)        # and the hopper agitator
 
     def test_lost_feed_frame_aborts_and_drops_the_queued_ball(self):
         sim = SimFeeder()

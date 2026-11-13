@@ -33,3 +33,7 @@ GATE_BACK_MS = 850              # back stroke: cad 0.68 s, plus 0.14 s for the n
 # so balls still in the trough or on the belt reach the tub (manifest "ball lift" line: run-on).
 LIFT_RUN_ON_MS = 16000
 LIFT_DUTY = 1.0
+# Hopper agitator (cad: Feeder.agitator_design): its gearmotor on a MOSFET from GPIO 17 stirs the outlet while balls
+# are queued or on their way, and this long after, for two more passes of its arms (manifest "hopper agitator" line).
+AGIT_RUN_ON_MS = 3000
+AGIT_DUTY = 1.0

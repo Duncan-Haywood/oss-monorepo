@@ -158,6 +158,10 @@ class FeederHw:
         # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 16, PWM) runs on after each ball fed.
         self.lift_pwm = PWM(Pin(16), freq=20000, duty_u16=0)
         self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0))
+        # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 17, PWM) stirs the tub's
+        # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.
+        self.agit_pwm = PWM(Pin(17), freq=20000, duty_u16=0)
+        self.agit = controller.AgitatorRun(getattr(config, "AGIT_RUN_ON_MS", 3000), getattr(config, "AGIT_DUTY", 1.0))
         self.arm()
 
     def arm(self):
@@ -182,6 +186,8 @@ class FeederHw:
         self.elev.stop()
         self.lift.stop()
         self.lift_pwm.duty_u16(0)
+        self.agit.stop()
+        self.agit_pwm.duty_u16(0)
         if self.elev.mode == controller.ELEV_RC:
             self.elev_out.pwm.duty_u16(0)     # no pulse: the actuator holds where it is
         else:
@@ -284,6 +290,7 @@ class FeederHw:
         else:
             self.gate.frac(0)             # hold the shuttle retracted (also from power-up)
         self.lift_pwm.duty_u16(int(self.lift.update(now) * 65535))
+        self.agit_pwm.duty_u16(int(self.agit.update(now, self.feeding > 0 or self.gate_out) * 65535))
 
 
 class CollectorHw:
