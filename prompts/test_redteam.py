@@ -142,6 +142,28 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(redteam.tally([rec])["catch_rate_after_fix"], 1.0)
         self.assertEqual(self.target.read_text(), CALC)
 
+    def test_a_hard_kill_mid_mutant_is_recovered(self):
+        # Simulate SIGKILL: the mutant is on disk and no `finally` ran.
+        original = self.target.read_bytes()
+        site = redteam.sites(CALC, "js")[0]
+        redteam._mutate(self.target, original, redteam.apply(CALC, site), self.repo)
+        self.assertNotEqual(self.target.read_text(), CALC)
+        self.assertEqual(redteam.recover(self.repo), ["ventures/demo/calc.mjs"])
+        self.assertEqual(self.target.read_text(), CALC)
+        self.assertEqual(redteam.recover(self.repo), [])
+
+    def test_unrecorded_campaign_is_saved_and_attachable(self):
+        camp = redteam.campaign(self.target, 3, seed=7, repo=self.repo)
+        saved = redteam.save_campaign(camp, repo=self.repo)
+        self.assertEqual(saved.name, "campaign-7.json")
+        record = self.repo / "run.json"
+        record.write_text(json.dumps({"redteam": None}))
+        self.assertEqual(redteam.attach(saved, record), 1)
+        self.assertEqual(json.loads(record.read_text())["redteam"]["campaigns"][0]["seed"], 7)
+        rec = redteam.rerun(saved, repo=self.repo)  # rerun takes the saved file too
+        self.assertIn("campaigns", rec["redteam"])
+        self.assertFalse(any((self.repo / ".redteam" / "backup").iterdir()))
+
     def test_red_baseline_and_dirty_file_are_refused(self):
         self.target.write_text(CALC + "\n")
         with self.assertRaisesRegex(SystemExit, "uncommitted"):

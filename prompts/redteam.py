@@ -5,6 +5,8 @@
     python3 prompts/redteam.py campaign [--target FILE | --under DIR] [--mutants 8] [--seed S] [--record RUN.json]
     python3 prompts/redteam.py rerun RUN.json          # blue team: re-run escaped mutants
     python3 prompts/redteam.py tally [RUN.json ...]    # catch rate from run records
+    python3 prompts/redteam.py attach CAMPAIGN.json RUN.json   # move a saved campaign into a run record
+    python3 prompts/redteam.py recover                  # put back any file a killed run left mutated
     python3 prompts/redteam.py open [RUN.json ...]     # real defects nobody has patched yet
 
 A *mutant* is one small, deliberate defect in a source file: a flipped
@@ -25,7 +27,15 @@ starts on them.
 
 Every number this prints comes from a test run it made. `--record` writes the
 campaign into the run record so nobody copies numbers by hand, and
-`promptctl.py measure` derives the rates from the mutants themselves.
+`promptctl.py measure` derives the rates from the mutants themselves. Without
+`--record` the campaign is still saved, to `.redteam/campaign-<seed>.json`
+(two campaigns were lost to a skipped flag, 2026-10-31 and 11-02); `rerun`
+works on that file and `attach` moves it into the run record.
+
+Before a mutant is written, the original goes to `.redteam/backup/`. A kill
+that skips `finally` (SIGKILL, a tool timeout's second signal) used to leave
+the mutant in the file (2026-11-03); every command now puts such files back
+first, and `recover` does only that.
 
 Standard library only.
 """
@@ -53,6 +63,7 @@ REPO = Path(__file__).resolve().parent.parent
 EXCLUDED_PREFIXES = ("node_modules/", "gitops/prod/", ".git/")
 
 TIMEOUT_SECONDS = 300
+FOREGROUND_SECONDS = 540  # agent tool calls are killed at 600 s; warn before that
 PROBE_SECONDS = 20  # a random draw skips suites slower than this
 
 
@@ -281,6 +292,45 @@ def _dirty(path: Path, repo: Path) -> bool:
     return bool(proc.stdout.strip())
 
 
+def _backup_path(target: Path, repo: Path) -> Path:
+    return repo / ".redteam" / "backup" / target.relative_to(repo).as_posix().replace("/", "__")
+
+
+def _mutate(target: Path, original: bytes, mutated: str, repo: Path) -> None:
+    """Keep the original on disk before the mutant is written, so a hard kill is recoverable."""
+    bk = _backup_path(target, repo)
+    bk.parent.mkdir(parents=True, exist_ok=True)
+    (bk.parent / (bk.name + ".path")).write_text(target.relative_to(repo).as_posix())
+    bk.write_bytes(original)
+    target.write_text(mutated)
+
+
+def _restored(target: Path, original: bytes, repo: Path) -> None:
+    target.write_bytes(original)
+    bk = _backup_path(target, repo)
+    bk.unlink(missing_ok=True)
+    (bk.parent / (bk.name + ".path")).unlink(missing_ok=True)
+
+
+def recover(repo: Path = REPO) -> list[str]:
+    """Put back every file a killed run left mutated; return their paths."""
+    d = repo / ".redteam" / "backup"
+    fixed = []
+    for marker in sorted(d.glob("*.path")) if d.is_dir() else []:
+        rel = marker.read_text().strip()
+        bk = marker.with_suffix("")
+        if bk.is_file():
+            (repo / rel).write_bytes(bk.read_bytes())
+            bk.unlink()
+            fixed.append(rel)
+        marker.unlink()
+    return fixed
+
+
+def _on_term(*_: Any) -> None:
+    sys.exit(143)
+
+
 def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
              timeout: int = TIMEOUT_SECONDS) -> dict[str, Any]:
     found = suite_for(target, repo)
@@ -308,16 +358,21 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
           f"{round(base_seconds * n / 60, 1)} min. If a slow suite makes you kill this, "
           "run `git status` afterwards: a suite may rewrite tracked files outside the target.",
           file=sys.stderr)
+    if base_seconds * n > FOREGROUND_SECONDS:
+        print(f"WARNING: about {round(base_seconds * n)} s in all, past the ~600 s foreground "
+              f"tool limit. Run it in the background, or use --mutants "
+              f"{max(1, int(FOREGROUND_SECONDS // max(base_seconds, 1)))}. A later `rerun` of "
+              "the escapes costs the same per mutant.", file=sys.stderr)
     rng = random.Random(seed)
     chosen = sorted(rng.sample(pool, min(mutants, len(pool))), key=lambda s: (s.line, s.col))
     results = []
     # A tool-timeout kill is SIGTERM, which skips `finally` unless it raises.
-    old_term = signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+    old_term = signal.signal(signal.SIGTERM, _on_term)
     try:
         for i, site in enumerate(chosen, 1):
-            target.write_text(apply(text, site))
+            _mutate(target, original, apply(text, site), repo)
             passed, seconds = run_suite(cmd, cwd, timeout)
-            target.write_bytes(original)
+            _restored(target, original, repo)
             results.append({
                 "file": target.relative_to(repo).as_posix(), "line": site.line,
                 "col": site.col, "operator": site.operator,
@@ -329,7 +384,7 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
                   f"{'caught' if not passed else 'ESCAPED'} ({seconds}s)", file=sys.stderr)
     finally:
         signal.signal(signal.SIGTERM, old_term)
-        target.write_bytes(original)
+        _restored(target, original, repo)
     if target.read_bytes() != original:
         raise SystemExit(f"{target}: could not restore the original; check `git diff`")
     return {
@@ -343,6 +398,18 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
 def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) -> dict[str, Any]:
     """Re-apply every escaped, non-equivalent mutant and set `caught_after_fix`."""
     rec = json.loads(record_path.read_text())
+    # Same SIGTERM guard as `campaign`: this loop runs a suite per escape, and a
+    # tool-timeout kill here once left a mutant in the file (2026-11-03).
+    old_term = signal.signal(signal.SIGTERM, _on_term)
+    try:
+        _rerun_campaigns(rec, repo, timeout)
+    finally:
+        signal.signal(signal.SIGTERM, old_term)
+    record_path.write_text(json.dumps(rec, indent=2) + "\n")
+    return rec
+
+
+def _rerun_campaigns(rec: dict[str, Any], repo: Path, timeout: int) -> None:
     for camp in (rec.get("redteam") or {}).get("campaigns", []):
         for m in camp["mutants"]:
             if m["caught"] or m.get("triage") == "equivalent":
@@ -371,13 +438,11 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
                 m["note"] = (m.get("note") or "") + " [rerun: mutation no longer applies]"
                 continue
             try:
-                target.write_text(apply(original.decode(), site))
+                _mutate(target, original, apply(original.decode(), site), repo)
                 passed, _ = run_suite(*found, timeout=timeout)
             finally:
-                target.write_bytes(original)
+                _restored(target, original, repo)
             m["caught_after_fix"] = not passed
-    record_path.write_text(json.dumps(rec, indent=2) + "\n")
-    return rec
 
 
 # --------------------------------------------------------------------------
@@ -439,6 +504,21 @@ def open_defects(records: list[tuple[str, dict[str, Any]]]) -> list[dict[str, An
     return out
 
 
+def save_campaign(camp: dict[str, Any], repo: Path = REPO) -> Path:
+    """Write a campaign nobody asked to record, in record shape so `rerun` and `attach` take it."""
+    path = repo / ".redteam" / f"campaign-{camp['seed']}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"redteam": {"campaigns": [camp], "real_defects": []}}, indent=2) + "\n")
+    return path
+
+
+def attach(saved: Path, record_path: Path) -> int:
+    camps = (json.loads(saved.read_text()).get("redteam") or {}).get("campaigns", [])
+    for camp in camps:
+        add_to_record(record_path, camp)
+    return len(camps)
+
+
 def add_to_record(record_path: Path, camp: dict[str, Any]) -> None:
     rec = json.loads(record_path.read_text())
     rt = rec.get("redteam") or {}
@@ -475,6 +555,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("rerun", help="re-run escaped mutants after the blue team's fix")
     p.add_argument("record", type=Path)
     p.add_argument("--timeout", type=int, default=TIMEOUT_SECONDS)
+    p = sub.add_parser("attach", help="move a saved campaign into a run record")
+    p.add_argument("saved", type=Path)
+    p.add_argument("record", type=Path)
+    sub.add_parser("recover", help="restore files a killed run left mutated")
     p = sub.add_parser("tally", help="catch rate across run records")
     p.add_argument("records", nargs="*", type=Path,
                    help="default: every record under prompts/runs/")
@@ -483,6 +567,15 @@ def main(argv: list[str] | None = None) -> int:
                    help="default: every record under prompts/runs/")
     args = parser.parse_args(argv)
 
+    if args.cmd in ("campaign", "rerun", "recover"):
+        for rel in recover():
+            print(f"restored {rel}: a previous run was killed with a mutant in it", file=sys.stderr)
+        if args.cmd == "recover":
+            return 0
+    if args.cmd == "attach":
+        n = attach(args.saved, args.record)
+        print(f"attached {n} campaign(s) from {args.saved} to {args.record}", file=sys.stderr)
+        return 0
     if args.cmd == "targets":
         targets = list_targets(under=args.under)
         rng = random.Random(args.seed)
@@ -521,8 +614,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"could not save to {args.record}: {exc}; the campaign is printed below",
                       file=sys.stderr)
         else:
-            print("not saved: rerun with --record prompts/runs/<your record>.json "
-                  "to keep this campaign in the run record", file=sys.stderr)
+            saved = save_campaign(camp)
+            print(f"saved to {saved.relative_to(REPO)}; put it in your run record with "
+                  f"`python3 prompts/redteam.py attach {saved.relative_to(REPO)} "
+                  "prompts/runs/<your record>.json` (rerun also takes the saved file)", file=sys.stderr)
         print(json.dumps(camp, indent=2))
         print(json.dumps(tally([{"redteam": {"campaigns": [camp]}}])), file=sys.stderr)
         return 0
