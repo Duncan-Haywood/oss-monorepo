@@ -253,6 +253,8 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15416"
+ ],
  "verdict": "The design is right and the arithmetic matches the providers' published rates. Worst-case holds, then settlement from reported usage, held a $0.10 cap against 20 concurrent calls; Anthropic, OpenAI-cached and streamed usage all priced to the cent; the simulator's totals match a hand sum. But the guarantee a FinOps engineer buys it for, a hard cap that cannot be overshot, fails in ordinary cases I reproduced on a real socket: OpenAI n=4 reached 2.4x the cap; prefix price matching admitted gpt-5-pro at gpt-5's price (12x low); 1-hour cache writes and long-context tiers settle low; and a cleanly truncated stream is charged from partial usage, despite the README. Tests (45, all green) caught 3 of 5 seeded bugs; the early-stream path is untested. Scores: correctness 2, claims 2, verification 2. Does not meet the bar. The two high defects each have a few-line fix."
 }

@@ -222,6 +222,8 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15416"
+ ],
  "verdict": "A small, correct technical note. Every number I recomputed from textbook definitions matches: properness holds numerically, the vertex worst-case regret formulas equal a brute-force grid maximum, and all E1-E3 values and the E4 Brier values reproduce exactly (E2 to 3 dp under 60-digit finite differences). It does not meet the bar: claims=2 (three text claims are wrong or overstated, including a log 'drop-a-class' loss that is a 1e-9-floor artefact), verification=2 (2 of 4 seeded mutants in the zero-probability branches survive), and fitness/domain=2 because the paper cites no prior work (Bickel 2007 compares exactly these three rules) and its range-normalisation convention is asserted rather than argued. Median 2."
 }

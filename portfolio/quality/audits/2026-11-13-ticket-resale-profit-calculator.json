@@ -262,6 +262,8 @@
    "origin": "audit"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15416"
+ ],
  "verdict": "The pricing engine is right: break-even, target-profit price, payout, ROI, effective fee rate, expected profit with salvage and the break-even sale chance all matched hand recomputation to the cent on three CLI runs, and the 12-sale worked log matched an independent Python recompute. The guide's arithmetic holds and the tax wording agrees with the IRS's 2025 1099-K rule. It does not meet the bar. The sales-log parser matches header names by prefix and takes the first match, so a 'Net Profit' column becomes the payout (a $70 gain reported as a $130 loss) and 'Cost per ticket' becomes the lot cost (35% ROI shown as 170%), with no warning; 'Sold On' and 'Buyer' columns make every row unreadable; a blank fee is silently $0. Four of five seeded mutations survive the 31 tests, including dropping the flat fee from the break-even price. The fee presets sit within 2025 third-party ranges but cite no source or date. Completeness 3; correctness, craft, claims, fitness and domain 2; verification 1."
 }

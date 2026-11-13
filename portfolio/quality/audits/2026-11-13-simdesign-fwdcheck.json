@@ -242,6 +242,8 @@
    "origin": "build"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15416"
+ ],
  "verdict": "Does not meet the bar. The arithmetic is honest and reproducible: run.py regenerates every number in results.txt; nominal stress, mass and deflection match my independent beam-theory and Castigliano checks; the forward buckling factor holds within 2% under refinement. The headline verdict (only the 1.5 mm design survives) is also right, because the nominal stress alone decides it. But the finite-element stress columns are centroid averages on 2 and 4 elements across a bending section, so they recover 50% and 75% of the outer-fibre stress. The README reads them as a sharp-corner effect, declares the 2.0 mm design a coarse-mesh pass and says the peaks overstate a filleted part, when they understate even the stress with no concentration. 4 of 5 seeded mutants survive the 3 tests, no outside prior work is cited, and the project is one more step in the simdesign cluster that PROGRAMMES.md names as fragmentation."
 }
