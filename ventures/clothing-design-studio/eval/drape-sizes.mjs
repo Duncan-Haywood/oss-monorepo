@@ -9,7 +9,7 @@ const me = { chest: 100, waist: 88, hip: 98, height: 178 };
 const rows = [];
 for (const garment of ["tee", "crewneck", "hoodie"]) for (const fit of ["slim", "regular"]) for (const size of ["XS", "S", "M", "L"]) {
   const t = Date.now();
-  const r = drapeGarment(me, { garment, fit, size });
+  const r = drapeGarment(me, { garment, fit, size, sleeves: false }); // body panels only, as measured on 2026-11-13 before sleeves
   const gm = garmentMeasurements(garment, fit)[size];
   const lv = Object.fromEntries(r.levels.map(l => [l.where, l]));
   rows.push({ garment, fit, size, tapeEase: Math.round((gm.chest - me.chest) * 10) / 10, chestStrain: lv.chest.hoopStrainPct, chestClear: lv.chest.clearanceCm, chestTouch: lv.chest.touchingPct, chestMmHg: lv.chest.pressureMmHg, hemStrain: lv.hem.hoopStrainPct, hemRise: -r.checks.hemDropCm, seamGap: r.checks.seamGapCm, inside: r.checks.verticesInsideBody, settled: r.checks.settled, ms: Date.now() - t });

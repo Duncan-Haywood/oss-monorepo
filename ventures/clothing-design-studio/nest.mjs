@@ -144,7 +144,7 @@ class Strip {
 
 function mulberry(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
-function placeAll(shapes, order, widthCm, g, oneWay) {
+function placeAll(shapes, order, widthCm, g, noTurn) {
   const wc = Math.floor(widthCm / g + 1e-9), strip = new Strip(wc);
   const placed = [];
   let endRow = 0;
@@ -152,7 +152,7 @@ function placeAll(shapes, order, widthCm, g, oneWay) {
     const sh = shapes[idx];
     let best = null;
     for (const o of sh.orients) {
-      if (o.r.W > wc) continue;
+      if (o.r.W > wc || (noTurn && o.rot !== 0)) continue;
       // scan rows from the top of the marker; stop when no later row can beat the best end row
       // rows above the first row with a free cell are full, so the piece's first busy row cannot sit there
       const dyMin = o.r.spans.length ? o.r.spans[0].dy : 0;
@@ -214,19 +214,24 @@ export function nest(shapes, { widthCm = 150, edgeCm = 1.5, gridCm = 0.5, tries 
     orders.push(head.concat(tail));
   }
   let bestRun = null, rowsTried = 0;
-  const run = ord => {
-    const placed = placeAll(prepared, ord, usable, gridCm, oneWay);
+  // noTurn: place every piece unturned even where turning is allowed. The greedy
+  // placer can end longer when it may turn pieces (each turn is locally best),
+  // and a one-way layout is a valid turnable one, so both are tried and the
+  // shorter kept (2026-11-13: the corrected sleeves nested 194 cm turnable
+  // against 182 one-way for two M tees).
+  const run = (ord, noTurn = false) => {
+    const placed = placeAll(prepared, ord, usable, gridCm, noTurn);
     rowsTried++;
     if (!placed) return null;
     const len = Math.max(...placed.map(p => (p.y + p.o.r.H - 1) * gridCm));
     // tie-break on how far down the cloth the pieces end in total, so a move that
     // packs the tail tighter without yet shortening the marker still counts
     let sink = 0; for (const p of placed) sink += p.y + p.o.r.H;
-    return { len, sink, placed, ord };
+    return { len, sink, placed, ord, noTurn };
   };
   const better = (a, b) => !b || a.len < b.len - 1e-9 || (Math.abs(a.len - b.len) < 1e-9 && a.sink < b.sink);
-  for (const ord of orders) {
-    const r = run(ord);
+  for (const ord of orders) for (const noTurn of oneWay ? [false] : [false, true]) {
+    const r = run(ord, noTurn);
     if (r && better(r, bestRun)) bestRun = r;
   }
   if (!bestRun) return { ok: false, error: "No layout found." };
@@ -246,7 +251,7 @@ export function nest(shapes, { widthCm = 150, edgeCm = 1.5, gridCm = 0.5, tries 
       j = ((j % n) + n) % n; if (j === i) j = (i + 1) % n;
       if (rnd() < 0.5) { [ord[i], ord[j]] = [ord[j], ord[i]]; }
       else { const [v] = ord.splice(i, 1); ord.splice(j, 0, v); }
-      const r = run(ord);
+      const r = run(ord, cur.noTurn);
       if (!r) continue;
       if (!better(cur, r)) { cur = r; accepted++; }
       if (better(r, bestRun)) bestRun = r;

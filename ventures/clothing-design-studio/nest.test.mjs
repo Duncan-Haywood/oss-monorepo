@@ -35,8 +35,14 @@ test("a real tee nests with no exact overlaps, inside the width, and beats the r
   assert.ok(r.ok, r.error);
   const v = verifyNest(r);
   assert.ok(v.ok, v.problems.join("; "));
+  // One tee is a tie: front and back fill the width side by side and the sleeves go below
+  // either way (the drafted sleeve, cut 25.5 cm long, against the rectangle's 25). Until the
+  // 2026-11-13 sleeve fix the drafted sleeve was half its true width, so one tee "won" here.
   const rect = markerFor("tee", { M: 1 }, { fabricWidthCm: 150 });
-  assert.ok(r.lengthCm < rect.markerLengthCm, `${r.lengthCm} vs rectangles ${rect.markerLengthCm}`);
+  assert.ok(r.lengthCm <= rect.markerLengthCm + 1, `${r.lengthCm} vs rectangles ${rect.markerLengthCm}`);
+  // from two garments on, the real outlines interlock and beat the rectangles
+  const run = nestRatio("tee", { M: 2 }, { widthCm: 150 }), rectRun = markerFor("tee", { M: 2 }, { fabricWidthCm: 150 });
+  assert.ok(run.lengthCm < 0.95 * rectRun.markerLengthCm, `${run.lengthCm} vs rectangles ${rectRun.markerLengthCm}`);
   assert.ok(r.efficiencyPct > 55 && r.efficiencyPct <= 100, String(r.efficiencyPct));
 });
 

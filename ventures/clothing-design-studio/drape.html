@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Free Virtual Garment Drape: Sew Your T-Shirt or Hoodie Pattern onto a Body and See Where It Pulls</title>
-  <meta name="description" content="Free cloth simulation in your browser: the drafted tee, sweatshirt or hoodie pattern is sewn at the shoulders and sides around a body from your measurements and hung under gravity. See where it stretches, how far it stands off the body, where the hem really lands and the pressure on the body.">
+  <meta name="description" content="Free cloth simulation in your browser: the drafted tee, sweatshirt or hoodie pattern is sewn around a body from your measurements, sleeves set in round the arms, and hung under gravity. See where body and sleeves stretch, how far it stands off the body, where the hem really lands and the pressure on the body.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Virtual drape: sew the pattern onto a body">
@@ -43,8 +43,8 @@
 <main>
   <p><a href="./">Clothing Design Studio</a> · <a href="pattern.html">Pattern pieces</a> · <a href="fit.html">Size finder</a> · <a href="launch.html">Launch path</a></p>
   <h1>Sew the pattern onto a body and see where it pulls</h1>
-  <p>A size chart compares two numbers: the garment's chest and yours. Cloth does more than that. It hangs from the shoulders, takes length going round the chest, and stretches where the body is bigger than the cut. This page takes the <a href="pattern.html">drafted front and back pattern pieces</a>, sews them at the shoulders and side seams around a body built from your measurements, lets gravity settle them, and colours each part of the cloth by how much it stretches around the body.</p>
-  <p class="placeholder">A simulation from typical drafting ratios, a smooth body made of ellipses, and fabric stiffness you type or guess. Body panels only for now: no sleeves, hood or rib bands. It shows ease and tension; it is not a promise of fit. A sample garment on a real person always wins.</p>
+  <p>A size chart compares two numbers: the garment's chest and yours. Cloth does more than that. It hangs from the shoulders, takes length going round the chest, and stretches where the body is bigger than the cut. This page takes the <a href="pattern.html">drafted front and back pattern pieces</a>, sews them at the shoulders and side seams around a body built from your measurements, sets the sleeves into the armholes around the arms, lets gravity settle them, and colours each part of the cloth by how much it stretches around the body.</p>
+  <p class="placeholder">A simulation from typical drafting ratios, a smooth body made of ellipses, and fabric stiffness you type or guess. Body and sleeves on straight arms held out 45°; no hood or rib bands yet. It shows ease and tension; it is not a promise of fit. A sample garment on a real person always wins.</p>
   <div class="grid">
     <section>
       <h2>Garment</h2>
@@ -60,7 +60,13 @@
         <div><label for="waist">Waist</label><input id="waist" type="number" min="40" max="170" step="0.5" value="88"></div>
         <div><label for="hip">Hip</label><input id="hip" type="number" min="50" max="180" step="0.5" value="98"></div>
         <div><label for="height">Height</label><input id="height" type="number" min="120" max="230" step="0.5" value="178"></div>
+        <div><label for="upperArm">Upper arm (optional)</label><input id="upperArm" type="number" min="15" max="70" step="0.5" placeholder="0.31 × chest"></div>
+        <div><label for="wrist">Wrist (optional)</label><input id="wrist" type="number" min="10" max="30" step="0.5" placeholder="0.165 × chest"></div>
       </div>
+      <h2 style="margin-top:14px">Sleeves</h2>
+      <p><label style="display:inline"><input type="checkbox" id="sleeves" checked> Sew in the sleeves (untick for the body panels alone, faster)</label></p>
+      <label for="bicep">My sleeve width: flat bicep, laid down, cm (optional)</label>
+      <input id="bicep" type="number" min="8" max="40" step="0.5" placeholder="drafted: about 18 at M">
       <h2 style="margin-top:14px">Fabric</h2>
       <label for="fabric">Preset</label>
       <select id="fabric"></select>
@@ -80,6 +86,9 @@
       <div class="legend"><span><span class="sw" style="background:rgb(120,150,190)"></span>not stretched</span><span><span class="sw" style="background:rgb(240,196,85)"></span>1-3% stretch</span><span><span class="sw" style="background:rgb(240,125,60)"></span>about 6%</span><span><span class="sw" style="background:rgb(240,40,30)"></span>12% or more</span></div>
       <h3>By level</h3>
       <div class="tablewrap"><table id="levels"><thead><tr><th>Where</th><th>Body girth</th><th>Stretch round the body</th><th>Most stretched</th><th>Average gap to the body</th><th>Touching</th><th>Pressure</th><th>Reading</th></tr></thead><tbody></tbody></table></div>
+      <h3>Sleeves</h3>
+      <div class="tablewrap"><table id="sleeveTable"><thead><tr><th>Where</th><th>Arm girth</th><th>Stretch round the arm</th><th>Most stretched</th><th>Average gap to the arm</th><th>Touching</th><th>Pressure</th><th>Reading</th></tr></thead><tbody></tbody></table></div>
+      <p id="cuff" class="muted"></p>
       <h3>Checks</h3>
       <div id="checks" class="muted"></div>
       <div id="notes" class="notes" style="margin-top:10px"></div>
@@ -87,8 +96,10 @@
   </div>
   <section>
     <h2>How it works, and what was checked</h2>
-    <p>The front and back pieces are meshed into triangles on a grid inside their stitch lines. Every grid edge is a spring set from the fabric's stiffness, solved with extended position-based dynamics (XPBD) in many small time steps; the springs on the outline carry half a cell, so the panel's stiffness per unit width is the number you enter. The panels start on a loose tube around the body, the shoulder and side seams are pulled shut with gravity off, then gravity is switched on and the garment settles. The body is a stack of elliptical sections whose girths are your chest, waist and hip, with height proportions from the same body model as the <a href="fit.html">size finder's try-on</a>.</p>
+    <p>The front and back pieces are meshed into triangles on a grid inside their stitch lines. Every grid edge is a spring set from the fabric's stiffness, solved with extended position-based dynamics (XPBD) in many small time steps; the springs on the outline carry half a cell, so the panel's stiffness per unit width is the number you enter. The panels start on a loose tube around the body and the sleeves on a tube around each arm; the shoulder, side and underarm seams are pulled shut and each sleeve cap is sewn into its armhole, joining points at the same fraction of each curve's length so the cap's ease is gathered in, all with gravity off; then gravity is switched on and the garment settles. The arms are straight, held 45° out from the sides (an A pose, as virtual fitting avatars use; with the arms nearer the sides the underarm has to wrap under the arm and pulls the shoulders), and round, tapering from your upper arm girth to your wrist, with a slightly fuller deltoid at the top that carries the shoulder out onto the arm. The body is a stack of elliptical sections whose girths are your chest, waist and hip, with height proportions from the same body model as the <a href="fit.html">size finder's try-on</a>.</p>
     <p>Before any garment, the solver is checked against answers known in closed form (<code>drape.test.mjs</code>): a strip hanging under its own weight stretches by ρgL²/2K (within 2%), a nearly unstretchable strip between two pins sags like a catenary (within 3%), and a tube pulled over a cylinder takes the stretch the two girths dictate, with a contact force that approaches Laplace's law, pressure = tension ÷ radius, as the time step shrinks. The pressure shown here is that law applied to the simulated stretch.</p>
+    <p>Putting arms in found a drafting error (fixed 2026-11-13): the sleeve piece had been drawn with the flat, laid-down bicep as its full width, so at M it was 24 cm round, and the drape stretched it 37% round a 31 cm upper arm. Its length also ran from the underarm instead of the shoulder point, so sleeves were a cap height too long. The pattern now draws the whole sleeve (about 36 cm round, 18 cm flat, at M, with a 10 cm cap) measured from the shoulder point, as the spec sheet does. You can enter your own flat bicep above to see a narrower or wider sleeve.</p>
+    <p>Known limit: with the sleeves in, the neckline shows a few percent of stretch (about 7% on an M tee, against 1% for the body panels alone) and the tops of the sleeve caps bunch slightly. Real tees don't pull at the neck in this pose, so read colour at the neck as a limit of the fixed arm pose, not as a fault in the pattern.</p>
     <p>One thing the flat numbers miss: on the default body every drafted tee, sweatshirt and hoodie that is not stretched ends about 5.5 to 8 cm higher than its body length measured straight down from the shoulder, because that length goes over the shoulder and round the chest and back. It is a model result, not yet checked against a real garment on a real person.</p>
   </section>  <!-- journey -->
   <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
@@ -124,15 +135,18 @@
       setTimeout(() => {
         const t = performance.now();
         const r = drapeGarment(
-          { chest: $("#chest").value, waist: $("#waist").value, hip: $("#hip").value, height: $("#height").value },
-          { garment: $("#garment").value, fit: $("#fit").value, size: $("#size").value, fabric: { gsm: Number($("#gsm").value), ktNPerM: Number($("#kt").value) }, gridCm: Number($("#grid").value) });
+          { chest: $("#chest").value, waist: $("#waist").value, hip: $("#hip").value, height: $("#height").value, upperArm: $("#upperArm").value || undefined, wrist: $("#wrist").value || undefined },
+          { garment: $("#garment").value, fit: $("#fit").value, size: $("#size").value, fabric: { gsm: Number($("#gsm").value), ktNPerM: Number($("#kt").value) }, gridCm: Number($("#grid").value), sleeves: $("#sleeves").checked, pattern: Number($("#bicep").value) > 0 ? { bicepCm: Number($("#bicep").value) } : {} });
         $("#run").disabled = false;
         if (!r.ok) { $("#status").textContent = r.error; return; }
         $("#status").textContent = `Settled in ${Math.round(performance.now() - t)} ms: ${r.checks.vertices} points, ${r.checks.triangles} triangles.`;
         $("#views").innerHTML = ["front", "side", "back"].map(v => `<figure>${drapeSvg(r, v)}<figcaption>${v[0].toUpperCase() + v.slice(1)}</figcaption></figure>`).join("");
         $("#levels tbody").innerHTML = r.levels.map(l => `<tr><td>${esc(l.where)}</td><td class="num">${l.bodyGirthCm} cm</td><td class="num">${Math.max(0, l.hoopStrainPct)}%</td><td class="num">${Math.max(0, l.maxHoopStrainPct)}%</td><td class="num">${l.clearanceCm} cm</td><td class="num">${l.touchingPct}%</td><td class="num">${l.pressurePa ? `${l.pressurePa} Pa (${l.pressureMmHg} mmHg)` : "none"}</td><td>${esc(l.word)}</td></tr>`).join("");
+        const sl = r.sleeves[0];
+        $("#sleeveTable tbody").innerHTML = sl ? sl.levels.map(l => `<tr><td>${esc(l.where)}</td><td class="num">${l.armGirthCm} cm</td><td class="num">${Math.max(0, l.hoopStrainPct)}%</td><td class="num">${Math.max(0, l.maxHoopStrainPct)}%</td><td class="num">${l.clearanceCm} cm</td><td class="num">${l.touchingPct}%</td><td class="num">${l.pressurePa ? `${l.pressurePa} Pa (${l.pressureMmHg} mmHg)` : "none"}</td><td>${esc(l.word)}</td></tr>`).join("") : `<tr><td colspan="8">Sleeves not sewn in.</td></tr>`;
+        $("#cuff").textContent = sl ? `Sleeve ${r.draft.checks.sleeveBicepGirthCm} cm round at the bicep (${Math.round(r.draft.checks.sleeveBicepGirthCm * 5) / 10} cm flat), cap ${r.draft.checks.capHeightCm} cm high, ${r.draft.checks.sleeveLengthCm} cm from the shoulder point. The cuff ends ${sl.cuffPastWristCm >= 0 ? `${sl.cuffPastWristCm} cm past the wrist` : sl.cuffAboveElbowCm > 0 ? `${sl.cuffAboveElbowCm} cm above the elbow` : `${-sl.cuffPastWristCm} cm short of the wrist`} on an arm held out.` : "";
         const c = r.checks;
-        $("#checks").innerHTML = `Hem ${c.hemFromFloorCm} cm from the floor (${c.hemDropCm < 0 ? `${-c.hemDropCm} cm higher` : `${c.hemDropCm} cm lower`} than a straight drop of the pattern length from the shoulder) · widest seam gap ${c.seamGapCm} cm · points inside the body ${c.verticesInsideBody} · garment panels weigh ${c.garmentMassG} g · ${c.settled ? "settled" : "still moving slightly"}.`;
+        $("#checks").innerHTML = `Hem ${c.hemFromFloorCm} cm from the floor (${c.hemDropCm < 0 ? `${-c.hemDropCm} cm higher` : `${c.hemDropCm} cm lower`} than a straight drop of the pattern length from the shoulder) · widest seam gap ${c.seamGapCm} cm · points inside the body ${c.verticesInsideBody} · garment weighs ${c.garmentMassG} g${c.sleeveMassG ? ` (sleeves ${c.sleeveMassG} g)` : ""} · ${c.settled ? "settled" : "still moving slightly"}.`;
         $("#notes").innerHTML = r.notes.map(n => `<p style="margin:4px 0">${esc(n)}</p>`).join("");
         recordUsage("drape_run");
       }, 30);
