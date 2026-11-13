@@ -1421,8 +1421,16 @@ own WarpRectilinear, on gratings whose true value at every source point is known
 times closer than bilinear (RMS 0.0133 against 0.0550 at 0.25 cycles per pixel). On the real Leica T
 frame, the bilinear warp keeps 73% of the unwarped render's fine detail (mean absolute Laplacian of
 green) and cubic keeps 89%. The cost: the full-size warp takes 14.6 s instead of 5.7 s on the numpy
-engine, so bilinear stays the default until a faster cubic lands. Not checked: the kernel Adobe's
+engine, so bilinear stayed the default until a faster cubic landed. Not checked: the kernel Adobe's
 DNG SDK uses.
+
+Later the same day the faster cubic landed and **cubic became the default**
+(`eval/warp-kernel-fast-cubic-2026-11-13.md`). Each plane is edge-padded once, so the 16 taps are
+fixed offsets read with one `take` each, and the warp's bands run on a thread pool
+(`SHOOTFLOW_THREADS`, default every CPU). The output is byte-for-byte what it was, at any thread
+count. On the Leica T frame the cubic warp now costs 8.4 s on one thread (was 15.7 s), 5.5 s on two
+(what bilinear cost before) and 3.0 s on four, where the whole develop (5.2 s) beats the old bilinear
+develop (7.3 s). `--warp-kernel bilinear` keeps the softer, slightly faster sampling.
 
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
