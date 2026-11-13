@@ -22,7 +22,7 @@ function parseArgs(argv) {
     else if (a === "--assume") args.assume = argv[++i];
     else if (a === "--set") args.sets.push(argv[++i]);
     else if (a === "--budget") args.budget = num(argv[++i]);
-    else if (a === "--minimum") args.minimum = num(argv[++i]);
+    else if (a === "--subscription" || a === "--minimum") args.minimum = num(argv[++i]);
     else if (a === "--top") args.top = num(argv[++i]);
     else if (a === "--help" || a === "-h") args.help = true;
     else if (!args.sub && !a.startsWith("-")) args.sub = a;
@@ -35,11 +35,11 @@ function parseArgs(argv) {
 const USAGE = [
   "Usage:",
   "  node cli.mjs template                      print a product,usage CSV to fill in",
-  "  node cli.mjs estimate <usage.csv|->        [--budget USD] [--minimum USD] [--top N] [--json]",
+  "  node cli.mjs estimate <usage.csv|->        [--budget USD] [--subscription USD] [--top N] [--json]",
   "                        [--set product=value]... [--prices file.json] [--assume file.json]",
   "",
   "Estimates a monthly Cloudflare developer-platform bill from the usage you give (Workers requests",
-  "and CPU time, KV reads and writes, R2 storage and operations; counts in millions) at editable list prices and a monthly minimum,",
+  "and CPU time, KV reads and writes, R2 storage and operations; counts in millions) at editable list prices plus the Workers Paid subscription,",
   "then ranks the changes that cut it most with a dollar saving each. Levers overlap, so",
   "savings are not additive. Exit 1 when --budget (monthly USD) is exceeded; 2 on bad input.",
   "Arithmetic on your inputs, not a bill reader and not a guarantee. No network call.",
@@ -58,7 +58,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   if (args.sub !== "estimate") return { exitCode: 2, output: `Unknown subcommand "${args.sub}". Try --help.` };
   if (args.unknown) return { exitCode: 2, output: `Unknown option ${args.unknown}. Try --help.` };
   if (args.positional.length !== 1) return { exitCode: 2, output: "Usage: node cli.mjs estimate <usage.csv|->" };
-  if (!Number.isFinite(args.minimum)) return { exitCode: 2, output: "--minimum needs a non-negative number (monthly USD)." };
+  if (!Number.isFinite(args.minimum)) return { exitCode: 2, output: "--subscription needs a non-negative number (monthly USD)." };
   if (!Number.isFinite(args.top)) return { exitCode: 2, output: "--top needs a non-negative number." };
   if (args.budget !== null && !Number.isFinite(args.budget)) return { exitCode: 2, output: "--budget needs a non-negative number (monthly USD)." };
 
@@ -88,7 +88,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   }
   const lines = [summary.text, "", "Estimated monthly bill by product:"];
   for (const i of estimate.items.filter((x) => x.monthly > 0)) lines.push(`  ${fmt(i.monthly).padStart(12)}  ${i.label}${i.note ? ` (${i.note})` : ""}`);
-  if (estimate.minimumTopUp > 0) lines.push(`  ${fmt(estimate.minimumTopUp).padStart(12)}  Top-up to the ${fmt(args.minimum)} plan minimum`);
+  if (estimate.subscription > 0) lines.push(`  ${fmt(estimate.subscription).padStart(12)}  Workers Paid subscription`);
   lines.push(`  ${fmt(estimate.total).padStart(12)}  TOTAL`);
   if (levers.length) {
     lines.push("", "Levers that cut the bill most (each alone, under its assumption; not additive):");

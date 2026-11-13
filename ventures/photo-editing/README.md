@@ -1379,10 +1379,31 @@ What is checked: 21 tests (`tests/test_dng_warp2.py`). The source point is check
 specification's formula, written out separately in the test, for odd terms, clamping, `r^14` and
 the division form. An even-only WarpRectilinear2 gives WarpRectilinear's points. The skip rule is
 checked on the specification's three worked examples. numpy and pure Python give the same bytes.
-What is not: no camera- or converter-written file carrying it has been tried. One gap found in
-passing: `plan()` skips any opcode flagged "preview quality" (flag bit 1) in every develop, but the
-specification says a full-quality develop still needs it. That is left for its own change.
-Details: `eval/warp-rectilinear2-2026-11-12.md`.
+What is not: no camera- or converter-written file carrying it has been tried. The gap found in
+passing here (opcodes with flag bit 1 skipped in every develop) was fixed on 2026-11-13: see
+"Full and preview quality" below. Details: `eval/warp-rectilinear2-2026-11-12.md`.
+
+## Full and preview quality: opcode flag bit 1 (2026-11-13)
+
+Each DNG opcode carries two flag bits. Bit 0 marks it optional. Bit 1, in the
+specification's words (DNG 1.7.1.0, chapter 6, p. 104), means the opcode "can be skipped when
+doing 'preview quality' processing, and only needs to be applied when doing 'full quality'
+processing". Until 2026-11-13 `dng_opcodes.plan()` treated bit 1 as "preview only" and skipped
+such opcodes in every develop, so a full develop of a file using the flag left out a correction
+the file asked for. Now a develop is full quality by default and runs them; `--preview-quality`
+(`DevelopSettings.preview_quality`) skips them and names each one in the report
+(`"OpcodeList2: 1 x GainMap skipped (full quality only; this is a preview-quality render)"`). The
+half-size still made for proxies and analysis when a DNG has no embedded preview
+(`still_for_review`) is the one preview-quality render ShootFlow makes. A WarpRectilinear2 skipped
+this way does not arm the skip rule, so the fallback warp after it runs.
+
+Checked: 11 tests (`tests/test_dng_quality_flag.py`, plus the WarpRectilinear2 skip-rule case in
+`tests/test_dng_warp2.py`); 6 of them fail on the old code. On real files it changes nothing yet:
+`tools/dng_opcode_flags.py` lists the flags of the six camera DNGs in the metadata-extractor
+collection (DJI Phantom 4 x2, LG Nexus 5X, Leica T, Leica X Vario, Pentax Q-S1) and none sets bit
+1. The two DJI files are the first real ones here carrying FixVignetteRadial and FixBadPixelsList;
+the first develops in 46 s, repairs 9,334 sensels and matches LibRaw to a median 0.012 8-bit steps
+with opcodes off. Details: `eval/opcode-quality-flag-2026-11-13.md`.
 
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 

@@ -34,20 +34,32 @@ test("estimateBill: allowances and overage arithmetic", () => {
   assert.equal(item(est, "r2_class_a_m").monthly, 22.5); // 5 over x $4.50
   assert.equal(item(est, "r2_class_b_m").monthly, 36); // 100 over x $0.36
   assert.equal(est.usageCharges, 181);
-  assert.equal(est.minimumTopUp, 0);
-  assert.equal(est.total, 181);
-  assert.equal(est.annual, 2172);
+  assert.equal(est.subscription, 5);
+  assert.equal(est.total, 186); // the $5 Workers Paid subscription is added, not a floor
+  assert.equal(est.annual, 2232);
 });
 
-test("the plan minimum is a floor on the total", () => {
+test("Cloudflare's own Workers pricing example 1: 15 M requests at 7 ms CPU = $8", () => {
+  // developers.cloudflare.com/workers/platform/pricing/: $5 subscription
+  // + (15 - 10) M requests x $0.30 + (105 - 30) M CPU-ms x $0.02 = $8.00.
+  // The old engine treated the $5 as a floor and returned $5.00 (audit
+  // portfolio/quality/audits/2026-11-13-cloudflare-bill-estimator.json).
+  const est = estimateBill({ workers_requests_m: 15, workers_cpu_m_ms: 105 });
+  assert.equal(est.usageCharges, 3);
+  assert.equal(est.subscription, 5);
+  assert.equal(est.total, 8);
+});
+
+test("the subscription is added to small usage, and 0 models an R2-only account", () => {
   const est = estimateBill({ workers_requests_m: 12 });
   assert.equal(est.usageCharges, 0.6);
-  assert.equal(est.minimumTopUp, 4.4);
-  assert.equal(est.total, 5);
+  assert.equal(est.total, 5.6);
   assert.equal(estimateBill({ workers_requests_m: 12 }, undefined, 0).total, 0.6);
+  // 100 GB of R2 only: (100 - 10) x $0.015 = $1.35, no Workers Paid needed
+  assert.equal(estimateBill({ r2_storage_gb: 100 }, undefined, 0).total, 1.35);
 });
 
-test("usage inside the allowances costs nothing beyond the minimum", () => {
+test("usage inside the allowances costs nothing beyond the subscription", () => {
   assert.equal(estimateBill({ workers_requests_m: 9, kv_reads_m: 10, r2_storage_gb: 10 }).total, 5);
 });
 
@@ -66,7 +78,7 @@ test("rankLevers sorts by saving and computes each against the baseline", () => 
 test("assumptions override and levers that touch nothing are omitted", () => {
   const r = rankLevers({ kv_writes_m: 3 }, undefined, { kvWritePct: 100 });
   assert.deepEqual(r.map((l) => l.id), ["skip-redundant-kv-writes"]);
-  assert.equal(r[0].saving, 5); // $10 of usage -> $0, but the $5 minimum still applies after
+  assert.equal(r[0].saving, 10); // $10 of usage -> $0; the $5 subscription is paid either way
   assert.equal(r[0].after, 5);
   assert.deepEqual(rankLevers({}), []);
 });

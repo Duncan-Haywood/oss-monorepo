@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydrFiPuDDjjZ1N6dBL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:38:54Z",
+  "ended": "2026-11-13T04:08:08Z",
+  "wall_minutes": 29.45,
+  "tokens_in": 7621024,
+  "tokens_out": 32106,
+  "cost_usd": 3.066,
+  "tool_calls": 65,
+  "task": "quick-pick-survey flagship 8 item (a): lapse-gated upper end of the pooled prior for the pairwise intervals",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15360",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First sweep run took ~3 min a cell because each gate re-ran the pooled search on identical memberships; killed and restarted with a memo (about 10x faster)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rejects a bracketed pattern if the unbracketed name appears anywhere else in the same command line (e.g. a later npx call in a chained command); the CLAUDE.md note only says to bracket the first letter."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (quick-pick-survey next: item a)",
+      "why": "Item (a) said to store the upper end beside setPriorPhi first; I measured the gate before adding a schema column, because the column only matters if the gate holds.",
+      "did": "Swept the gate on mixed panels with no schema change.",
+      "result": "The gate does not hold with the available detectors, so no migration was needed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quick-pick-survey-a-gate-needs-a-detector.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (A lapse gate for the upper end)"
+  ],
+  "goal": null,
+  "notes": "Measured, not shipped. scripts/gated-upper-sweep.ts, 144 cells (8/15/30 items x 2/4/8 per item x careless share 0/25/50/100% x lapse 0.2/0.4, seed bases 1000 and 50000). Oracle gate: honest 0.957-0.961 at 10-12% less width. Lapse-estimate AUC 0.58-0.69 staged, 0.65-0.80 shipped; tau 0.1 passes everyone on the refit estimate; rank gate safe on mixed panels but 1-4% narrower than fixed. Verification: tsc --noEmit and eslint on the script clean; post front matter, links and similarity checks pass. No app code changed, so venture test suite not reached.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6f8ac52e-2c23-5882-b506-c444529ecb94",
+    "transcripts": 1,
+    "first": "2026-11-13T03:38:54Z",
+    "last": "2026-11-13T04:08:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 144,
+        "output": 32106,
+        "thinking": 7236,
+        "cache_read": 7505613,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115267,
+        "api_equivalent_usd": 3.066,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 144,
+      "output": 32106,
+      "thinking": 7236,
+      "cache_read": 7505613,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115267,
+      "api_equivalent_usd": 3.066,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 59,
+      "Write": 2,
+      "ReadNotifications": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.45,
+      "active_minutes": 9.1,
+      "model_minutes": 5.3,
+      "tool_minutes": 3.8,
+      "waiting_on_human_minutes": 20.35,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design and run a 144-cell simulation sweep, analyse, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 195.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

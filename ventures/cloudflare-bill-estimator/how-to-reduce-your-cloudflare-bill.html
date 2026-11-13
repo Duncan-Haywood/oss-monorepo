@@ -6,7 +6,7 @@
   <title>How to Reduce Your Cloudflare Workers, KV and R2 Bill: Levers Ranked by Dollar Impact</title>
   <meta name="description" content="Where a Cloudflare Workers, KV and R2 bill comes from and the changes that usually cut it most: edge caching, KV write and read reduction, R2 operation batching and lifecycle rules, with the arithmetic for each.">
   <link rel="canonical" href="./how-to-reduce-your-cloudflare-bill.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which Cloudflare costs usually dominate?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the workload. Request-heavy APIs are dominated by Worker requests and CPU time; apps that write to KV on every request are dominated by KV writes; media and backup workloads by R2 operations. Estimate your own mix with the estimator rather than assuming."}}, {"@type": "Question", "name": "Is there a minimum on Workers Paid?", "acceptedAnswer": {"@type": "Answer", "text": "Workers Paid carries a monthly minimum, so the bill never falls below it however little you use. The estimator shows the minimum as a floor and lets you edit it."}}, {"@type": "Question", "name": "Do the savings add up?", "acceptedAnswer": {"@type": "Answer", "text": "No. Edge caching and CPU trimming act on the same Worker CPU time, so each lever is calculated alone and the list is a ranking, not a plan total."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which Cloudflare costs usually dominate?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the workload. Request-heavy APIs are dominated by Worker requests and CPU time; apps that write to KV on every request are dominated by KV writes; media and backup workloads by R2 operations. Estimate your own mix with the estimator rather than assuming."}}, {"@type": "Question", "name": "Is Workers Paid a minimum or a subscription?", "acceptedAnswer": {"@type": "Answer", "text": "Workers Paid is a flat monthly subscription (5 USD at the time of writing) billed on top of any usage above the included allowances; usage does not count toward it. Cloudflare's own example: 15 million requests at 7 ms of CPU each costs 5 + 1.50 + 1.50 = 8 USD. R2 on its own does not need Workers Paid. The estimator adds the subscription as its own line and lets you edit it, or set it to 0."}}, {"@type": "Question", "name": "Do the savings add up?", "acceptedAnswer": {"@type": "Answer", "text": "No. Edge caching and CPU trimming act on the same Worker CPU time, so each lever is calculated alone and the list is a ranking, not a plan total."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 820px; margin: auto; padding: 28px; }
@@ -22,7 +22,7 @@
 <main>
   <p><a href="./">← Back to Cloudflare Bill Estimator</a></p>
   <h1>How to reduce your Cloudflare Workers, KV and R2 bill: levers ranked by dollar impact</h1>
-  <p>A Workers Paid invoice is a monthly minimum plus separately metered usage: Worker requests, CPU time, KV reads and writes, and R2 storage and operations. R2 egress is free, so the money moves to operation counts. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most". That is arithmetic you can do before the invoice, from the numbers in your dashboard.</p>
+  <p>A Workers Paid invoice is a flat monthly subscription plus separately metered usage: Worker requests, CPU time, KV reads and writes, and R2 storage and operations. R2 egress is free, so the money moves to operation counts. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most". That is arithmetic you can do before the invoice, from the numbers in your dashboard.</p>
 
   <h2>1. Cache at the edge so the Worker never runs</h2>
   <p>Every request that reaches a Worker is billed as a request and as CPU time. Responses that rarely change can be served from the Cache API or the CDN cache instead. Serving 40% of 110M requests from cache removes 44M requests and the CPU time they used.</p>
@@ -52,8 +52,8 @@
   <h2>Common questions</h2>
   <h3>Which Cloudflare costs usually dominate?</h3>
   <p>It depends on the workload. Request-heavy APIs are dominated by Worker requests and CPU time; apps that write to KV on every request are dominated by KV writes; media and backup workloads by R2 operations. Estimate your own mix with the estimator rather than assuming.</p>
-  <h3>Is there a minimum on Workers Paid?</h3>
-  <p>Workers Paid carries a monthly minimum, so the bill never falls below it however little you use. The estimator shows the minimum as a floor and lets you edit it.</p>
+  <h3>Is Workers Paid a minimum or a subscription?</h3>
+  <p>Workers Paid is a flat monthly subscription (5 USD at the time of writing) billed on top of any usage above the included allowances; usage does not count toward it. Cloudflare's own example: 15 million requests at 7 ms of CPU each costs 5 + 1.50 + 1.50 = 8 USD. R2 on its own does not need Workers Paid. The estimator adds the subscription as its own line and lets you edit it, or set it to 0.</p>
   <h3>Do the savings add up?</h3>
   <p>No. Edge caching and CPU trimming act on the same Worker CPU time, so each lever is calculated alone and the list is a ranking, not a plan total.</p>
 

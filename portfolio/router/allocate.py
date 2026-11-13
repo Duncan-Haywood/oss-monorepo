@@ -725,7 +725,14 @@ def _age_hours(created: str, now: datetime) -> float:
         return float("inf")
 
 
-START_SPREAD = 3
+# Six, not three (process run 2026-11-13): about five ventures runs start an
+# hour (118 run records on 2026-11-12) and a session takes some 20 minutes to
+# open its PR, so ~1.7 others are unclaimed at any moment. A new session's
+# chance of sharing a row is then about 1 - exp(-1.7 / spread): 43% over three
+# rows, 24% over six. Three still sent two sessions to einvoice-preflight
+# within minutes three times on 2026-11-13 (doc_friction on this file). Six of
+# the eleven Deepen flagships keeps the pick in the top half of the list.
+START_SPREAD = 6
 
 
 def session_id() -> Optional[str]:
