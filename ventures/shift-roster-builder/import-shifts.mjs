@@ -62,17 +62,34 @@ function parseDate(tok, order = "") {
 }
 
 // Which order a file writes its numeric dates in, from every date in it: "dmy" when some first part is above 12
-// (13/05/2026), "mdy" when some second part is, "" when no row settles it (or rows disagree).
-export function dateOrder(tokens) {
-  let dmy = false, mdy = false;
-  for (const t of tokens) {
-    const m = /^(?:[a-z]+\.?,?\s+)?(\d{1,2})[\/.-](\d{1,2})[\/.-]\d{2,4}/i.exec(String(t || "").trim());
+// (13/05/2026), "mdy" when some second part is, "" when rows disagree. When no part is above 12 (a day-first
+// export for 1 to 7 December reads 01/12 ... 07/12), the order that keeps the dates closer together wins: a
+// published schedule covers a week or a few, and read month first those dates would spread over seven months
+// (until 2026-11-13 they were read US-style, so that week came out as 7 weeks and lost Monday and Saturday).
+// `by` says how it was settled ("value", "span" or "" when nothing did); `ambiguous` is true when some date
+// could be read either way and nothing settled it, so the caller can say it read month first.
+export function readDateOrder(tokens) {
+  let dmy = false, mdy = false, either = false;
+  const toks = [...tokens].map((t) => String(t || "").trim()).filter(Boolean);
+  for (const t of toks) {
+    const m = /^(?:[a-z]+\.?,?\s+)?(\d{1,2})[\/.-](\d{1,2})[\/.-]\d{2,4}/i.exec(t);
     if (!m) continue;
     if (+m[1] > 12) dmy = true;
     if (+m[2] > 12) mdy = true;
+    if (+m[1] !== +m[2]) either = true;
   }
-  return dmy && !mdy ? "dmy" : mdy && !dmy ? "mdy" : "";
+  if (dmy !== mdy) return { order: dmy ? "dmy" : "mdy", by: "value", ambiguous: false };
+  if (dmy || !either) return { order: "", by: "", ambiguous: false };
+  const span = (order) => {
+    let lo = Infinity, hi = -Infinity;
+    for (const t of toks) { const d = parseDate(t, order); if (d) { lo = Math.min(lo, d.t.getTime()); hi = Math.max(hi, d.t.getTime()); } }
+    return lo === Infinity ? 0 : Math.round((hi - lo) / 86400000);
+  };
+  const sd = span("dmy"), sm = span("mdy");
+  if (sd === sm) return { order: "", by: "", ambiguous: true };
+  return { order: sd < sm ? "dmy" : "mdy", by: "span", ambiguous: false, spans: { dmy: sd, mdy: sm } };
 }
+export const dateOrder = (tokens) => readDateOrder(tokens).order;
 
 // "2026-11-02 07:00", "2026-11-02T07:00:00", "7:00 AM" -> {date tok (maybe ""), time tok}
 function splitStamp(tok) {
@@ -169,7 +186,8 @@ export function importShiftsCsv(text, opts = {}) {
     }
     return [startTok, endTok];
   };
-  const order = dateOrder(data.map((c) => at(c, ix.date) || splitStamp((timeToks(c) || [""])[0]).date));
+  const dates = readDateOrder(data.map((c) => at(c, ix.date) || splitStamp((timeToks(c) || [""])[0]).date));
+  const order = dates.order;
   const dropped = { leave: 0, discarded: 0, empty: 0, elsewhere: 0 };
   const counts = new Map(); // key -> Map(week -> n)
   let rows = 0;
@@ -206,7 +224,9 @@ export function importShiftsCsv(text, opts = {}) {
   if (dropped.empty) notes.push(`${plural(dropped.empty, "row")} had no ${famName(fam)} shift (only ${families.filter((f) => f !== fam).map(famName).join(" or ")}) and ${dropped.empty === 1 ? "was" : "were"} left out.`);
   if (wantLoc) notes.push(`Only ${locations.find((l) => norm(l.name) === wantLoc).name}: ${plural(dropped.elsewhere, "row")} at other locations left out.`);
   else if (locations.length > 1) notes.push(`The file has ${locations.length} locations (${locations.slice(0, 6).map((l) => `${l.name}: ${l.rows}`).join("; ")}${locations.length > 6 ? "; ..." : ""}); they were planned as one. Pick one location to plan it alone.`);
-  if (order === "dmy") notes.push("Dates were read day first (the file has dates such as 13/05).");
+  if (dates.by === "value" && order === "dmy") notes.push("Dates were read day first (the file has dates such as 13/05).");
+  if (dates.by === "span") { const [a, b] = order === "dmy" ? ["day", "month"] : ["month", "day"]; notes.push(`Dates were read ${a} first: no date in the file settles it, and read ${b} first they would spread over ${dates.spans[order === "dmy" ? "mdy" : "dmy"] + 1} days instead of ${dates.spans[order] + 1}. If that is wrong, export the dates as YYYY-MM-DD.`); }
+  if (dates.ambiguous) notes.push("Dates such as 05/08/2026 could be day or month first and nothing in the file settles it: read month first (US). If yours are day first, export the dates as YYYY-MM-DD.");
   if (!rows) return { shiftsText: "", rows: 0, shifts: 0, notes: [...notes, "No readable shifts in the file."], skipped, unknown, locations, families };
   const clock = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
   // Weeks run seven days from the file's first date (a Sunday-to-Saturday export is one week, not two).
