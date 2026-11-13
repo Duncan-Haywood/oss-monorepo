@@ -79,6 +79,8 @@ def pilot_ceiling(y, f):
 
 
 PSEUDO = 0.0  # pseudo-count variance floor per coder cell (LOG.md 7am); 0 is off, the rule every experiment before 7am ran
+FALLBACK_PSEUDO = None  # guard-first fallback (LOG.md 7an): when the pilot holds fewer than neg_guard coder misses, plan
+#                        again with neg_guard 0 and this pseudo-count floor instead of going straight to pooled; None is off
 
 
 def pseudo_var(y, pseudo):
@@ -139,7 +141,7 @@ def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0):
 
 
 def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
-               pseudo=PSEUDO):
+               pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -151,10 +153,17 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     ceiling of 8%. width_margin (default WIDTH_MARGIN = 0 since 7ak; None turns it off, as every experiment before 7ak ran):
     also send the plan to pooled unless `predicted_ratio` is at most 1 - width_margin. pseudo (default PSEUDO): the
     pseudo-count variance floor (`pseudo_var`) used in the allocation, the width forecast and, carried in the plan,
-    by `audit_interval` for each coder cell (LOG.md 7am)."""
+    by `audit_interval` for each coder cell (LOG.md 7am). fallback_pseudo (default FALLBACK_PSEUDO, None is off): the
+    guard-first rule of LOG.md 7an. When the pilot holds fewer than neg_guard human positives the coder labelled 0, the
+    plan is made again with neg_guard 0 and pseudo = fallback_pseudo (tau, guard and the width forecast unchanged);
+    a pilot that passes the miss guard is planned exactly as without it. The result carries "fallback": True then."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
+    if fallback_pseudo is not None and neg_guard and sum(1 for a, b in zip(y, f) if a and not b) < neg_guard:
+        plan = plan_audit(f_all, pilot_y, n, tau, guard, floor, 0, width_margin, fallback_pseudo, None)
+        plan["fallback"] = True
+        return plan
     design = screen(y, f, tau, guard, neg_guard)
     if design == "cells" and width_margin is not None and predicted_ratio(f_all, pilot_y, n, floor, pseudo) > 1 - width_margin:
         design = "pooled"

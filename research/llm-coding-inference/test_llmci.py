@@ -475,3 +475,26 @@ def test_pseudo_floor_widens_only_a_thin_coder_negative_cell():
     assert S.audit_interval(pooled, f, labels) == S.audit_interval(dict(pooled, pseudo=0.0), f, labels)
     pilot = {i: h[i] for i in range(0, N, 4)}
     assert S.plan_audit(f, pilot, 400, neg_guard=0)["pseudo"] == S.PSEUDO
+
+
+def test_guard_first_fallback_only_replans_a_pilot_the_miss_guard_refuses():
+    # LOG.md 7an: fallback_pseudo leaves a pilot with >= neg_guard coder misses planned exactly as before, and replans
+    # one with fewer at neg_guard 0 and that pseudo floor (flagged "fallback"); the default (None) changes nothing.
+    from llmci import audit_design as S
+    assert S.FALLBACK_PSEUDO is None
+    rng = random.Random(11)
+    N, n = 4000, 600
+    y = [int(rng.random() < 0.06) for _ in range(N)]
+    sharp = [a if rng.random() < 0.985 else 1 - a for a in y]  # misses few positives: thin pilots fail the guard
+    pilot = {i: y[i] for i in rng.sample(range(N), 300)}
+    misses = sum(1 for i in pilot if pilot[i] and not sharp[i])
+    assert misses < S.NEG_GUARD
+    assert S.plan_audit(sharp, pilot, n)["design"] == "pooled"
+    fb = S.plan_audit(sharp, pilot, n, fallback_pseudo=2.0)
+    assert fb.pop("fallback") is True
+    assert fb == S.plan_audit(sharp, pilot, n, neg_guard=0, pseudo=2.0)
+    assert fb["design"] == "cells" and fb["pseudo"] == 2.0
+    loose = [a if rng.random() < 0.8 else 1 - a for a in y]  # misses plenty: the guard passes, the fallback is idle
+    assert sum(1 for i in pilot if pilot[i] and not loose[i]) >= S.NEG_GUARD
+    assert S.plan_audit(loose, pilot, n, fallback_pseudo=2.0) == S.plan_audit(loose, pilot, n)
+    assert S.plan_audit(sharp, pilot, n, neg_guard=0, fallback_pseudo=2.0) == S.plan_audit(sharp, pilot, n, neg_guard=0)
