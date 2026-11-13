@@ -1,6 +1,6 @@
 ---
 title: "A t-shirt ends higher than its length: sewing the pattern onto a body in the browser"
-seo_title: "Free virtual garment drape: cloth simulation of a t-shirt pattern on your measurements"
+seo_title: "Free virtual garment drape: a tee pattern sewn onto your body"
 date: 2026-11-13
 tags: [clothing-design-studio, simulation, fit]
 description: "The studio now sews its drafted tee and hoodie panels around a body and lets them hang, after checking the solver against a hanging strip and a catenary."

@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVNzc74EKxzD4zKNd6P",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (ventures brief)",
+  "input_sha256": "f295deebe25520aebfdb3a2dd2007380a626adf38c909b5e9c83900b10aad0d9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T01:12:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: virtual drape (cloth simulation of the drafted panels on a body)",
+  "projects": [
+    "clothing-design-studio"
+  ],
+  "pr": 15318,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "hanging-strip test read 11%/23% too stiff (mesh-dependent)",
+      "cause": "outline springs carried a full grid cell instead of half",
+      "fix": "per-edge share of adjacent full cells; structural springs reduced by the diagonal and bending contribution"
+    },
+    {
+      "what": "solver contact force read 0.46-0.77 of Laplace pressure",
+      "cause": "one XPBD iteration softens a constraint by 1/(1+k w dt^2)",
+      "fix": "page reports T/R from simulated strain; test checks the converged small-step setting (0.95)"
+    },
+    {
+      "what": "preflight failed twice on the post's front matter",
+      "cause": "description 168 > 160 chars, seo_title 86 > 70",
+      "fix": "shortened"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-tee-ends-higher-than-its-length.md"
+  ],
+  "goal": null,
+  "notes": "Routed ventures/1. Website requests come first (prompt.md); R-0001 to R-0004 are blocked or taken (ai-bookkeeper has open PR #15283; wall-framing-takeoff and sales-agent are inputs-only; monetization waits on the owner's checkout link), so R-0005 was the first request with agent-buildable work and no open PR. Built drape.mjs (XPBD cloth, stacked-ellipse body, virtual sewing), drape.html, drape.test.mjs (7 tests: hanging strip within 2%, catenary within 3%, tube-on-cylinder hoop strain and Laplace convergence, body girths, garment fit, bad input, SVG), eval/drape-sizes.mjs (24 drapes, table in README). Verification: python3 platform/ci/run_venture_tests.py clothing-design-studio -> ok (9.2s); headless Chromium desk 1200px and phone 390px: no console errors, scrollWidth equals viewport; venture-preflight rerun after front-matter fixes (result in PR). Next: sleeves sewn into the armholes with arms, anisotropic knit, a real fabric strip test, a real tee on a real person.",
+  "corrections": [],
+  "redteam": null
+}
