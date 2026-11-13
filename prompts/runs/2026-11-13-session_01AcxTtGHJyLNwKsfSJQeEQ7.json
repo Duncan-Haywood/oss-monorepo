@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtGHJyLNwKsfSJQeEQ7",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:06:57Z",
+  "ended": "2026-11-13T17:01:50Z",
+  "wall_minutes": 60.27,
+  "tokens_in": 12468344,
+  "tokens_out": 39581,
+  "cost_usd": 4.3559,
+  "tool_calls": 117,
+  "task": "Explore idea: first whole-site dark-mode contrast sample (Next 1 of polish-2026-11-11-index-contrast-dark-mode.md), then fix what it finds",
+  "projects": [
+    "platform/pages",
+    "research/_homepage",
+    "research/civ-levers",
+    "research/marriage-divorce-evidence",
+    "android-data-safety-check",
+    "clothing-design-studio",
+    "cra-evidence-desk",
+    "merchant-feed-check",
+    "permit-packet-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15542",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First local workflow run failed check_post_frontmatter (description 188 > 160, seo_title 74 > 70); 168 site-builder tests failed from the same cause. Fixed front matter."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/contrast.mjs",
+      "issue": "axe assumes white behind a page whose html and body are transparent, so every color-scheme: light dark page with no background was mis-measured in dark mode (230 false failures, 26 hidden real ones). Fixed in this PR by painting the Canvas colour first."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "contrast.mjs needs axe-core, which is not in /opt/node-tools; the polish report says 'npm i axe-core somewhere' but cloud-session.md doesn't mention it. npm install of axe-core@4.10.2 into the scratchpad worked in seconds."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "gh api search/issues returned nothing silently (unauthenticated?), so the duplicate-PR search gave no signal; no error was printed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Explore's sweep skip-list does not name contrast, but the 2026-11-11 polish run had started dark-mode contrast; I extended that run's open 'Next 1' instead of starting a new sweep kind.",
+      "did": "Sampled whole-site dark mode with the existing contrast.mjs plus new sampling knobs",
+      "result": "609 -> 133 failing nodes in the dark sample; touched slugs and a 1-in-10 research sample clean in both schemes except one documented item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-dark-mode-contrast-sweep.md",
+    "docs/reports/explore-2026-11-13-dark-mode-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Idea: dark-mode contrast across the whole site, as a 1-in-8 sample (626 of 5,007 non-post pages x 1280/390 px, ~12 min). Before: 609 nodes / 183 pages. After canvas fix + research button: 133 / 38, of which 68 are the known sticky-panel false positive (20 bid calculators). Fixed: research project/topic primary button (white on #86a8ff 2.31:1 -> var(--bg) 8.0:1, ~1,100 pages built from the templates), research in-text link underlines, civ-levers and marriage-divorce-evidence apps, request-form Send button (1.9:1), cra-evidence-desk, android-data-safety-check dark ink, permit-packet-preflight link (1.94:1), clothing-design-studio row-input labels (4 pages), merchant-feed-check focusable pre. Verification: ONLY_SLUGS of the 7 touched site slugs in light+dark -> only clothing-design-studio/bom.html scrollable-region (late-rendered table, left open in report); ONLY_SLUGS=research SAMPLE_EVERY=10 light+dark -> 112 pages, 0 violations. Venture tests ok (android-data-safety-check, clothing-design-studio, permit-packet-preflight, merchant-feed-check, cra-evidence-desk pytest 24 passed); marriage-divorce-evidence unittest 86 OK; research/_homepage build.py ok. run_workflow_locally --for-changes: all selected workflows passed except the front-matter failure (fixed; site-builder suite then 1605 pass, 0 fail) and pages.yml steps needing the skipped build. Next: sticky-panel layout fix, bom.html re-measure in reflow.mjs, other sample offsets.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "99dfad01-c481-5228-8579-57978fdd6290",
+    "transcripts": 1,
+    "first": "2026-11-13T16:06:57Z",
+    "last": "2026-11-13T17:07:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 110,
+        "input": 207,
+        "output": 39581,
+        "thinking": 6976,
+        "cache_read": 12330974,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137163,
+        "api_equivalent_usd": 4.3559,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 110,
+      "input": 207,
+      "output": 39581,
+      "thinking": 6976,
+      "cache_read": 12330974,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137163,
+      "api_equivalent_usd": 4.3559,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 117,
+    "tools": {
+      "Bash": 111,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 60.27,
+      "active_minutes": 60.27,
+      "model_minutes": 9.66,
+      "tool_minutes": 50.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "front-end engineer: run an axe sweep over 1,250 page loads, triage families incl. a tool false positive, fix 14 files, re-verify, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 137.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

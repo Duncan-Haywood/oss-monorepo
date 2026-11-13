@@ -145,6 +145,27 @@ try {
 
 requireNonEmpty(pages, only, 'built pages');
 
+// A sample, for a whole-site pass that would otherwise take hours: every Nth
+// page of the sorted list, starting at SAMPLE_OFFSET (default 0), so a rerun
+// with the same N and offset reads the same pages. SKIP_PREFIXES drops trees
+// whose pages share one template (`writing/` is 3,000+ posts on one layout),
+// so the sample is spent on pages that carry their own palette. Both are
+// printed, so a sampled run never reads as a full one.
+const sampleEvery = Number(process.env.SAMPLE_EVERY || 0);
+const sampleOffset = Number(process.env.SAMPLE_OFFSET || 0);
+const skipPrefixes = (process.env.SKIP_PREFIXES || '').split(',').map((s) => s.trim()).filter(Boolean);
+if (skipPrefixes.length) {
+  const before = pages.length;
+  pages = pages.filter((p) => !skipPrefixes.some((prefix) => p.startsWith(prefix)));
+  console.log(`SKIP_PREFIXES=${skipPrefixes.join(',')}: ${before} -> ${pages.length} pages`);
+}
+if (sampleEvery > 1) {
+  const before = pages.length;
+  pages = pages.filter((_, i) => i % sampleEvery === sampleOffset % sampleEvery);
+  console.log(`SAMPLED: every ${sampleEvery}th page from offset ${sampleOffset}: ${pages.length} of ${before}`);
+}
+requireNonEmpty(pages, only, 'built pages');
+
 console.log(`Checking ${pages.length} pages at ${BASE}, ${RUNS.map((v) => v.name).join(', ')}\n`);
 
 const browser = await chromium.launch(LAUNCH);
@@ -161,6 +182,22 @@ for (const viewport of RUNS) {
     const url = `${BASE}/${relative}`;
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
+      // axe takes a page whose <html> and <body> are both transparent to be on
+      // white. In dark mode a page that declares `color-scheme: light dark`
+      // and paints no background sits on the browser's dark canvas instead, so
+      // its light text read as 2:1 failures it does not have (2026-11-13: 140
+      // such nodes on 14 checker pages, every one legible in a screenshot).
+      // Paint the canvas colour the reader actually sees, then measure.
+      await page.evaluate(() => {
+        const clear = (el) => /rgba\(0, 0, 0, 0\)|transparent/.test(getComputedStyle(el).backgroundColor);
+        if (!document.body || !clear(document.documentElement) || !clear(document.body)) return;
+        const probe = document.createElement('div');
+        probe.style.background = 'Canvas';
+        document.documentElement.appendChild(probe);
+        const canvas = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        document.documentElement.style.backgroundColor = canvas;
+      });
       await page.addScriptTag({ content: axeSource });
       const result = await page.evaluate(
         async (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
@@ -192,6 +229,12 @@ for (const viewport of RUNS) {
   await page.close();
 }
 await browser.close();
+
+// JSON_OUT writes every finding, so a sweep's families can be counted and
+// diffed without re-parsing the grouped text below.
+if (process.env.JSON_OUT) {
+  await fs.writeFile(process.env.JSON_OUT, JSON.stringify({ pages: pages.length, runs: RUNS.map((r) => r.name), findings }, null, 1));
+}
 
 if (findings.length === 0) {
   console.log(`\n${pages.length} pages, ${RUNS.length} viewport/scheme runs: no WCAG A/AA violations.`);

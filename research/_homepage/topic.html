@@ -14,6 +14,8 @@
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent-ink);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px}
+/* Links inside running text carry an underline: colour alone measured 1.27:1 against the dark-mode text (axe link-in-text-block, 2026-11-13). */
+.count a,main>p a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;border-radius:4px}
 .wrap{max-width:820px;margin:0 auto;padding:0 24px;overflow-wrap:break-word}
 @media (max-width:600px){.wrap{padding:0 16px}}
@@ -33,7 +35,7 @@ figure img{display:block;max-width:100%;height:auto;margin:0 auto;background:#ff
 figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
 .links{display:flex;gap:.6rem;flex-wrap:wrap;padding:0;list-style:none;margin:0}
 .links a{display:inline-block;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:.45rem .9rem;font-size:14px;font-weight:500}
-.links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 .log-intro{font-size:14px;color:var(--muted);margin:0 0 1rem}
 .log-entry{border-left:3px solid var(--c,var(--accent));padding:.1rem 0 .1rem 1rem;margin:0 0 1.4rem}
 .log-entry h3{font:600 17px/1.35 var(--serif);margin:0 0 .4rem}
