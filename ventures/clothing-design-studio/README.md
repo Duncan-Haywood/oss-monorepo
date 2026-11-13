@@ -277,16 +277,60 @@ end longer when allowed to turn pieces than when not (194 against 182 cm), so
 shorter. Earlier marker figures in this README were measured on the narrow
 sleeves.
 
-**Known artifact, still open:** with sleeves on, the M tee's neckline band (top
-6 cm, within 16 cm of the centre) reads 6.7% stretch against 0.9% for the
-panels alone, and the cap tops bunch into small flaps above the shoulder
-points. Real tees don't pull at the neck when the arms are 45 degrees out, so
-treat the yellow-to-red at the neck as the pose and the round arms, not the
-pattern. Likely causes to test next: the cap's ease (1 cm) gathered at the top
-on a 2 cm sleeve grid, and the stiff seam pairs at the shoulder point.
+**Known artifact, diagnosed 2026-11-13 (still open):** with sleeves on, the M
+tee's neckline reads 6.7% stretch round the body (cloth within 3 cm of the
+high point of the shoulder) against 0.8% for the panels alone. Real tees don't
+pull at the neck when the arms are 45 degrees out, so treat the colour at the
+neck as the model, not the pattern. What it is and is not, measured on the
+M tee (`node eval/drape-arms-down.mjs`, table in
+`eval/drape-arms-down-2026-11-13.md`):
 
-Not yet: arms that hang (the sleeve's fall on a lowered arm), elbow bend, a
-non-round arm section, the hood and rib bands, and any real garment compared.
+| change | neck stretch |
+|---|---|
+| default (deltoid cap, friction 0.4, arms at 45) | 6.7% |
+| deltoid lowered so its top is flush with the shoulder point (it stood 4 cm above) | 7.6% (worse) |
+| contact friction 0.05 instead of 0.4 | 12.1% (doubles) |
+| arms raised to 60 degrees | 3.8% (halves) |
+| settle 4 s instead of 2 | 6.7% (unchanged: it is settled) |
+| panels alone | 0.8% |
+
+So the deltoid's bump is not it, nor an unsettled run. The sleeves sit on the
+arms by friction; the less they grip, or the more the arm slopes down, the
+harder they pull the shoulders outward along the arm, and the neckline takes
+the stretch. A real arm is not a smooth capsule and a real sleeve's cap is
+held by its own shape, so the next thing to try is the sleeve's own weight
+path: pin the cap's top to the shoulder point with a stiffer seam, or give the
+cap a bending stiffness so it holds its dome.
+
+### Lowered arms (2026-11-13): tried, kept off by default
+
+`drapeGarment(..., { lowerArms: true })` sews at 45 degrees, then swings both
+arms about their shoulder joints (smoothstep over 0.8 s) down to
+`hangAngleDeg(body)`, the lowest angle that keeps the arm 1.2 cm off the torso
+below the armpit, carrying the sleeves by contact and friction, then settles.
+`lowerArms: 35` asks for a set angle; `setArmAngle(body, deg)` moves the
+arms of a body model. On the 100 cm chest the arms reach **28.5 degrees**, not
+straight down: the torso is stacked ellipses whose girths are true but which
+have no soft tissue, wider at the armpit than a real chest the arm squashes.
+
+| tee, 100 cm chest | arms out (45) | arms lowered (29) |
+|---|---|---|
+| S: neck / bicep mean / bicep peak / inside body | 10.5% / 6.5% / 23.6% / 0 | 10.5% / 8.9% / 58.8% / 8 |
+| M | 6.7% / 1.0% / 5.1% / 0 | 7.1% / 4.0% / 22.9% / 0 |
+| L | 6.9% / 0.2% / 1.6% / 0 | 7.1% / 1.0% / 13.6% / 0 |
+| M hem vs straight drop | 8.8 cm higher | 8.2 cm higher |
+
+Across tee, long sleeve and hoodie in S, M and L, lowering moves the hem 0 to
+0.6 cm and the neck by at most 0.7 points; the cuff lands within 0.5 cm except
+the S hoodie (2.5 cm further). What it adds is false: the cloth pinched between
+the arm and the side reads as a bicep peak of up to 61% (tee and long sleeve),
+eight underarm points end inside the body on the S tee and long sleeve, and two lowered runs (tee L, hoodie L) did not
+settle in the time given. So the page keeps the 45 degree pose. Arms that
+really hang need a torso that gives under the arm (a soft layer, or a section
+shaped from a scan) before the sleeve's fall can be read.
+
+Not yet: elbow bend, a non-round arm section, a torso the arm can rest
+against, the hood and rib bands, and any real garment compared.
 
 ## Turntable preview (2026-11-04)
 

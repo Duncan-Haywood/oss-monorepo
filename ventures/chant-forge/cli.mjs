@@ -6,12 +6,12 @@ import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize
 import { eventsToMidi } from './midi.mjs';
 import { lrc } from './lrc.mjs';
 import { cueSheet } from './cues.mjs';
-import { suggestFinal, splitVoices, describeSplit, MENS_RANGE, TENOR_RANGE, BASS_RANGE, BARITONE_RANGE } from './voicefit.mjs';
+import { suggestFinal, splitVoices, describeSplit, MENS_RANGE, TENOR_RANGE, BASS_RANGE, BARITONE_RANGE, TENOR2_RANGE } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 import { sectionPlan, liftEvents } from './sections.mjs';
 import { noteName } from './gabc.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--tenor LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--second-tenors] [--tenor LOW-HIGH] [--tenor2 LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
@@ -25,7 +25,8 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --overlap  with --split-voices: where tenors hand straight to basses (or back) inside a phrase, both sections sing the note at the seam if it is in both ranges, so the line does not break; the summary counts the handoffs where no such note exists
   --word-cost  a handoff inside a phrase must win the full choir more than this many notes, for --split-words (default 3)
   --baritones  with --split-voices: a third section between tenors and basses; a phrase or word can go to all three, to two of them (tenors and baritones, baritones and basses) or to one, as many sections as can reach it; the MIDI gets a Baritones track too
-  --tenor, --baritone, --bass  section ranges for --split-voices as MIDI numbers LOW-HIGH (defaults 48-69, C3-A4; 45-65, A2-F4; and 40-64, E2-E4); --baritone implies --baritones
+  --second-tenors  with --split-voices: split the tenors into first and second tenors (TTBB with --baritones); --tenor is then the first tenors' range; the MIDI gets a Second tenors track and the cue sheet says T1 and T2 (octave-wide sections on the corpus: one-section notes 29.9% to 13.7%, 65 of 67 files fit instead of 64, eval/four-sections-report.md)
+  --tenor, --tenor2, --baritone, --bass  section ranges for --split-voices as MIDI numbers LOW-HIGH (defaults 48-69, C3-A4; 48-67, C3-G4; 45-65, A2-F4; and 40-64, E2-E4); --baritone implies --baritones and --tenor2 implies --second-tenors
   --outro   N bars after the chant (the backing winds down under them; with --sections it ends on a held chord)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)
@@ -70,6 +71,8 @@ export function run(argv) {
     else if (a === '--bass') args.bass = argv[++i];
     else if (a === '--baritone') { args.baritone = argv[++i]; args.baritones = true; }
     else if (a === '--baritones') args.baritones = true;
+    else if (a === '--tenor2') { args.tenor2 = argv[++i]; args.tenors2 = true; }
+    else if (a === '--second-tenors') args.tenors2 = true;
     else if (a === '--outro') args.outro = Number(argv[++i]);
     else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
@@ -107,9 +110,11 @@ export function run(argv) {
   const tenor = rangeArg(args.tenor, '--tenor', TENOR_RANGE);
   const bass = rangeArg(args.bass, '--bass', BASS_RANGE);
   const baritone = args.baritones ? rangeArg(args.baritone, '--baritone', BARITONE_RANGE) : null;
-  if (!tenor || !bass || (args.baritones && !baritone)) return { code: 2, text: '--tenor, --baritone and --bass must be two MIDI numbers LOW-HIGH, low first (48-69 is C3-A4)' };
+  const tenor2 = args.tenors2 ? rangeArg(args.tenor2, '--tenor2', TENOR2_RANGE) : null;
+  if (!tenor || !bass || (args.baritones && !baritone) || (args.tenors2 && !tenor2)) return { code: 2, text: '--tenor, --tenor2, --baritone and --bass must be two MIDI numbers LOW-HIGH, low first (48-69 is C3-A4)' };
   if ((args.tenor !== undefined || args.bass !== undefined) && !args.split) return { code: 2, text: '--tenor and --bass need --split-voices' };
   if (args.baritones && !args.split) return { code: 2, text: '--baritones and --baritone need --split-voices' };
+  if (args.tenors2 && !args.split) return { code: 2, text: '--second-tenors and --tenor2 need --split-voices' };
   if ((args.splitWords || args.wordCost !== undefined) && !args.split) return { code: 2, text: '--split-words and --word-cost need --split-voices' };
   if (args.entranceCost !== undefined && !args.split) return { code: 2, text: '--entrance-cost needs --split-voices' };
   const entranceCost = args.entranceCost === undefined ? 0 : Number(args.entranceCost);
@@ -176,11 +181,11 @@ export function run(argv) {
   if (args.split && hasNotes) {
     const fin = events.filter((e) => e.type === 'note').at(-1).midi;
     try {
-      split = splitVoices(events, { tenor, bass, baritone, words: args.splitWords ? 'prefer' : 'needed', wordCost, entranceCost, overlap: !!args.overlap, shift: args.final !== null ? args.final + lift - fin : null });
+      split = splitVoices(events, { tenor, bass, baritone, tenor2, words: args.splitWords ? 'prefer' : 'needed', wordCost, entranceCost, overlap: !!args.overlap, shift: args.final !== null ? args.final + lift - fin : null });
     } catch (err) {
       return { code: 2, text: err.message };
     }
-    if (!split.fits) return { code: 1, text: `--split-voices: no split at bars or words fits tenors ${noteName(tenor.low)}-${noteName(tenor.high)}${baritone ? `, baritones ${noteName(baritone.low)}-${noteName(baritone.high)}` : ''} and basses ${noteName(bass.low)}-${noteName(bass.high)}: ${split.reason}${args.final !== null ? '; drop --final to let it choose' : ''}` };
+    if (!split.fits) return { code: 1, text: `--split-voices: no split at bars or words fits ${tenor2 ? 'first tenors' : 'tenors'} ${noteName(tenor.low)}-${noteName(tenor.high)}${tenor2 ? `, second tenors ${noteName(tenor2.low)}-${noteName(tenor2.high)}` : ''}${baritone ? `, baritones ${noteName(baritone.low)}-${noteName(baritone.high)}` : ''} and basses ${noteName(bass.low)}-${noteName(bass.high)}: ${split.reason}${args.final !== null ? '; drop --final to let it choose' : ''}` };
     events = split.events;
     args.final = split.final - lift;
   } else if (args.final !== null && hasNotes) events = transposeToFinal(events, args.final + lift);
@@ -206,7 +211,9 @@ export function run(argv) {
       allNotes: split.allNotes,
       tenorNotes: split.tenorNotes,
       bassNotes: split.bassNotes,
-      ...(baritone ? { baritoneNotes: split.baritoneNotes, voiceNotes: split.voiceNotes, sectionNotes: split.sectionNotes, baritonePhrases: who('baritone') } : {}),
+      ...(baritone ? { baritoneNotes: split.baritoneNotes, baritonePhrases: who('baritone') } : {}),
+      ...(tenor2 ? { tenor2Notes: split.tenor2Notes, tenor2Phrases: who('tenor2') } : {}),
+      ...(baritone || tenor2 ? { voiceNotes: split.voiceNotes, sectionNotes: split.sectionNotes } : {}),
       tenorPhrases: who('tenor'),
       bassPhrases: who('bass'),
       changes: split.changes,

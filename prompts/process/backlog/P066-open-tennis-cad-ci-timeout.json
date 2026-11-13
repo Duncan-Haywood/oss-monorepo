@@ -19,12 +19,9 @@
   "baseline": "19 min of 20 (PR #15557, 2026-11-13)",
   "opened": "2026-11-13",
   "source": "explore run 2026-11-13, hopper agitator",
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15580",
-  "result": "helped: cad job 13.1 min of 20 on PR #15580 (run 43489023074, 19:06:30 to 19:19:39 UTC; test step 12.1 min), was 19 min on PR #15557. Local 1627 s to 805 s.",
+  "pr": "this",
+  "result": "helped: cad check run on PR #15581 took 6 min 40 s (18:56:51 to 19:03:31 UTC, success, pip install included) against the 19 min baseline on PR #15557; local suite 323 s vs 1637 s.",
   "history": [
-    {
-      "date": "2026-11-13",
-      "note": "Fixed in the tests, not the workflow (no control-plane PR): the collector and feeder package builds start as subprocesses in setUpModule and run beside the other tests; the clean-design sweeps the feeder build already runs (elevation, azimuth, feed stroke, cable loop) are asserted once from its manifest instead of re-run by four geometry tests; cable_sweep takes poses/azimuths so the shifted-loop failure case checks 1 pose of 21. Local, 4 CPUs, same machine: 1627 s before, 805 s after, all tests OK. CI wall time not yet measured: compare the cad job on the next open-tennis-robots PR against the 19 min baseline."
-    }
+    "2026-11-13: all_parts(Feeder) (18.4 s) was called ~60 times per feeder build by the sweeps, inertia and gravity table; otr_cad/feeder.py now keeps the last four builds keyed by equal params. Sweeps 433 s -> 33 s; full local suite 1636.6 s -> 322.6 s, 80 tests OK incl. both committed-package freshness checks. Workflow timeout left at 20 (owner-gated, no longer needed). Post: docs/posts/2026-11-13-the-cad-suite-was-rebuilding-the-feeder-sixty-times.md"
   ]
 }
