@@ -13,69 +13,43 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Deploy Concurrency Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free browser and CLI checker that reads GitHub Actions workflow YAML and reports every way a deploying workflow can apply an older revision over a newer one."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a deployment race?", "acceptedAnswer": {"@type": "Answer", "text": "Two runs of the same deploy workflow overlapping in time. Push commit A, then commit B a minute later, and both runs start. If A's run happens to finish last — because it queued for a runner, because its build was slower, because a step retried — then A is what is live, while B's green check sits at the top of the branch. Nothing failed, and the run log for A does not say it overwrote anything, because from inside that run nothing did."}}, {"@type": "Question", "name": "Does a concurrency block always fix it?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the group name is the same for every run that writes to the same target. A group keyed on something that changes each run puts every run in a group of its own, so nothing ever waits for anything. That is the same race as having no block at all, with the difference that the block is there and reads as protection, which is why it survives review. Two workflows deploying the same environment under two different group names have the same problem for the same reason."}}, {"@type": "Question", "name": "Should a deploy use cancel-in-progress?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. Cancelling is right for tests, where the only cost of stopping a superseded run is the time it had used. A deploy cancelled part-way through has already written part of its change — some of a batch of uploaded files, half a copied artifact, a migration that ran without the code expecting it — and nothing re-runs to finish it. For a deploy, queueing the newer run instead means it applies last, which is the order you want."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The scan runs in this page's own JavaScript, on your device. Nothing you paste is sent anywhere, stored on a server, or logged. This page makes no network request of any kind after it loads — no analytics service, no font, no CDN. The same logic ships as a stdlib-only Python script with no network access at all, if you would rather not paste a workflow into a web page."}}, {"@type": "Question", "name": "Can I run this in my own CI?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The CLI takes workflow files or a directory of them, prints the same findings this page shows, and can exit non-zero when a high-risk finding is present, so it can gate a pull request. It is free, MIT-licensed, has no dependencies beyond the Python standard library, and never calls the GitHub API."}}]}</script>
 <style>
-  :root {
-    color-scheme: light dark;
-    --bg: #fbfbfa; --fg: #1a1a19; --muted: #53534f; --card: #fff;
-    --border: #e2e2dd; --accent: #1f5f3f; --high: #8c2f20; --medium: #7a5310;
-    --code: #f2f2ef;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #17181a; --fg: #ececeb; --muted: #a8a8a3; --card: #202124;
-      --border: #34353a; --accent: #7fd0a4; --high: #f0917f; --medium: #e5bc6a;
-      --code: #26272b;
-    }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg);
-    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-  .wrap { max-width: 60rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
-  h1 { font-size: 1.85rem; line-height: 1.2; margin: 0 0 .5rem; max-width: 24ch; }
-  h2 { font-size: 1.12rem; margin: 2rem 0 .6rem; }
-  p.lede { color: var(--muted); max-width: 46rem; font-size: 1.05rem; }
-  a { color: var(--accent); overflow-wrap: anywhere; }
-  section { background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
-  label { display: block; font-weight: 600; margin-bottom: .35rem; }
-  textarea { width: 100%; min-height: 15rem; padding: .7rem; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--code); color: var(--fg);
-    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    resize: vertical; }
-  .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .8rem; }
-  button { font: inherit; font-weight: 600; padding: .5rem .95rem; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--accent); color: var(--bg);
-    cursor: pointer; }
-  button.secondary { background: transparent; color: var(--fg); font-weight: 500; }
-  button:focus-visible, textarea:focus-visible, a:focus-visible, input:focus-visible {
-    outline: 3px solid var(--accent); outline-offset: 2px; }
-  .finding { border-left: 4px solid var(--border); padding: .1rem 0 .1rem .8rem;
-    margin: 1.1rem 0; }
-  .finding.high { border-left-color: var(--high); }
-  .finding.medium { border-left-color: var(--medium); }
-  .badge { display: inline-block; font-size: .73rem; font-weight: 700;
-    letter-spacing: .05em; text-transform: uppercase; padding: .1rem .4rem;
-    border-radius: 4px; border: 1px solid currentColor; vertical-align: .1em; }
-  .badge.high { color: var(--high); }
-  .badge.medium { color: var(--medium); }
-  .finding h3 { font-size: 1rem; margin: .2rem 0 .35rem; }
-  .where { font-size: .84rem; color: var(--muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  pre { background: var(--code); border: 1px solid var(--border); border-radius: 6px;
-    padding: .65rem .75rem; overflow-x: auto; font-size: .84rem; margin: .5rem 0 0; }
-  code { background: var(--code); padding: .08em .3em; border-radius: 4px; font-size: .92em; }
-  .ok { color: var(--accent); font-weight: 600; }
-  .fine { font-size: .87rem; color: var(--muted); }
-  ul.jobs { margin: .4rem 0 0; padding-left: 1.1rem; font-size: .92rem; color: var(--muted); }
-  .empty { color: var(--muted); }
-  footer { margin-top: 2.5rem; font-size: .87rem; color: var(--muted); }
-  footer p { max-width: 46rem; }
-</style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { overflow-wrap: anywhere; }
+    .note, .fine, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    textarea { width: 100%; min-height: 15rem; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; resize: vertical; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button:focus-visible, textarea:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #17604a; outline-offset: 2px; }
+    .finding { border: 1px solid #e6eaf0; border-left: 4px solid #e6eaf0; border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+    .finding.high { border-left-color: #9a3412; }
+    .finding.medium { border-left-color: #b45309; }
+    .badge { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .badge.high { background: #fde8e8; color: #9a3412; }
+    .badge.medium { background: #fdf1e0; color: #92400e; }
+    .finding h3 { margin: 8px 0 4px; }
+    .where { font-size: .84rem; color: #55606f; font-family: ui-monospace, monospace; }
+    pre { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; margin: 8px 0 0; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    ul.jobs { margin: 6px 0 0; padding-left: 1.1rem; font-size: .92rem; color: #55606f; }
+    .empty { color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer h2 { font-size: 1rem; }
+  </style>
 </head>
 <body>
-<div class="wrap">
-
-  <h1>Find the race that ships an older commit</h1>
-  <p class="lede">
+  <header>
+    <p class="note">DEPLOY CONCURRENCY CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Find the race that ships an older commit</h1>
+  <p>
     A deploy that races itself does not fail. It succeeds &mdash; twice, in the
     wrong order &mdash; and what is left behind is a green check on the newer
     commit sitting above a live site running the older one. Paste a GitHub
@@ -83,8 +57,10 @@
     do that, with the line and the fix. Free, no sign-in, and nothing you paste
     leaves your device.
   </p>
+  </header>
+<main>
 
-  <section>
+  <section class="card">
     <label for="yaml">Workflow YAML</label>
     <textarea id="yaml" spellcheck="false" aria-describedby="yaml-help"
       placeholder="Paste the contents of .github/workflows/deploy.yml here"></textarea>
@@ -99,7 +75,7 @@
     </div>
   </section>
 
-  <section aria-live="polite" id="results">
+  <section class="card" aria-live="polite" id="results">
     <h2>Findings</h2>
     <p class="empty" id="placeholder">
       Nothing scanned yet. Paste a workflow above, or load the example to see
@@ -108,7 +84,7 @@
     <div id="report"></div>
   </section>
 
-  <section>
+  <section class="card">
     <h2>The five things it looks for</h2>
     <ol>
       <li><strong>No concurrency group on a deploying job.</strong> Two pushes
@@ -137,7 +113,7 @@
     </p>
   </section>
 
-  <section>
+  <section class="card">
     <h2>Run it in your own CI</h2>
     <p>
       The same logic ships as <code>check.py</code> &mdash; Python standard
@@ -150,7 +126,7 @@ python3 check.py .github/workflows/ --fail-on-risk   # exit 1 on a high-risk fin
 python3 check.py deploy.yml --json          # stable ids, for your own tooling</code></pre>
   </section>
 
-  <section>
+  <section class="card">
     <h2>Questions</h2>
     <h3>What is a deployment race?</h3>
     <p>Two runs of the same deploy workflow overlapping in time. Push commit A, then commit B a minute later, and both runs start. If A's run happens to finish last — because it queued for a runner, because its build was slower, because a step retried — then A is what is live, while B's green check sits at the top of the branch. Nothing failed, and the run log for A does not say it overwrote anything, because from inside that run nothing did.</p>
@@ -164,6 +140,8 @@ python3 check.py deploy.yml --json          # stable ids, for your own tooling</
     <p>Yes. The CLI takes workflow files or a directory of them, prints the same findings this page shows, and can exit non-zero when a high-risk finding is present, so it can gate a pull request. It is free, MIT-licensed, has no dependencies beyond the Python standard library, and never calls the GitHub API.</p>
   </section>
 
+  <p class="note" style="max-width:48rem;margin:1rem auto">Want all twelve workflow risks in one run? <a href="../workflow-audit/">Workflow Audit</a> is a single GitHub Action that checks them together, deploy concurrency included.</p>
+</main>
   <footer>
     <h2>Limits, and what this is not</h2>
     <p>
@@ -190,7 +168,7 @@ python3 check.py deploy.yml --json          # stable ids, for your own tooling</
       device only, which never leaves it and which you can switch off here:
     </p>
     <p class="row">
-      <label class="fine" for="optout" style="font-weight:400">
+      <label class="fine" for="optout" style="font-weight:400;margin:0">
         <input type="checkbox" id="optout"> Don&rsquo;t count my use of this page
       </label>
     </p>
@@ -202,7 +180,6 @@ python3 check.py deploy.yml --json          # stable ids, for your own tooling</
       and <code>check.py</code></a>, MIT licensed.
     </p>
   </footer>
-</div>
 
 <script type="module">
 import { classifyWorkflow } from "./classify.mjs";
