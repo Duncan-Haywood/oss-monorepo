@@ -49,6 +49,7 @@ python -m pytest tests                                # 6 tests
 - Realised load and renewables, not forecasts; wholesale price, no levies. The weekly margin is inside the cost model's own uncertainty (technology-data costs), so a real-world weekly verdict would rest on costs as much as on prices.
 - 2015 to 2019 only; no 2020 to 2024 data (OPSD and ENTSO-E hosts are unreachable from the run container, and no fuel or carbon price series is committed), so the level error is not decomposed into fuel and carbon.
 - `merit` executed-charging figures depend on the hour-order tie-break.
+- The store and the pump are priced against different demand: the store buys the cheapest hours across the whole year, the heat pump pays the November to March mean at a constant COP (inherited from `energy-thermal-real`). Restricting the store to heating-season days moves its price by -0.004 to +0.001 EUR/kWh, about the size of the weekly margin (second auditor, round 69).
 
 ## Next steps
 1. Add a fuel/carbon-price regressor to the residual-load fit once 2020 onward data are reachable, and test whether the weekly verdict becomes right.
