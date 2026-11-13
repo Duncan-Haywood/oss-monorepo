@@ -3,7 +3,7 @@ title: "Two slashes past the systemd checker: red-teaming a unit-file linter"
 seo_title: "systemd unit hardening check: //tmp and ReadWritePaths=// now flagged"
 date: 2026-11-13
 tags: [testing, mutation-testing, systemd, linux, security, redteam]
-description: "24 faults seeded into the systemd unit hardening check, 17 caught. Reading it as an attacker found two real misses: a doubled slash hid a binary in /tmp and a whole-filesystem ReadWritePaths."
+description: "24 faults seeded into a systemd unit checker, 17 caught. Two real misses: a doubled slash hid a /tmp binary and a whole-filesystem ReadWritePaths."
 ---
 
 The [systemd unit hardening check](../../ventures/systemd-unit-hardening-check/)
