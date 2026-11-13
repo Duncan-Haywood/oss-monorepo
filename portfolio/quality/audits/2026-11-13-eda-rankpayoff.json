@@ -1,0 +1,238 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/eda-rankpayoff",
+ "stratum": "research",
+ "seed": "2026-11-13-g",
+ "drawn_by": "sample",
+ "round": 61,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior researcher in multi-fidelity design-space exploration and performance-predictor evaluation (the kind who reviews for ICCAD/DAC or the NAS track of NeurIPS). They would check first: that the capture probabilities are right (an exact hypergeometric closed form exists, so Monte Carlo is checkable), how ties in coarse screens are broken, whether the 207 screens are independent evidence, whether top-weighted agreement measures (precision@k, NDCG, weighted Kendall tau, rank-biased overlap) were tried as the computable alternative to Spearman, and which prior work already reports that global rank correlation of a cheap predictor is a poor guide to top-k search payoff (NAS performance-predictor studies, IR top-weighted correlation).",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every reported number I recomputed independently matches. Rerun in a scratch copy (`cd /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/copy && PYTHONPATH=src python3 experiments/run.py`, 40 s) gives experiments/results.txt byte-identical (diff empty); figure.py (16 s) gives scatter.svg byte-identical. Independent script /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/indep.py imports nothing from the package: scipy 1.18.1 spearmanr and kendalltau (tau-b) reproduce every named-screen Spearman/Kendall to 3 dp in both truths, including tau-b 0.672 on the tied 'none (cycles)' latency screen; an exact hypergeometric closed form for P(pool best in screen's top k) (sum over candidate best b of sum_{m<k} C(A_b,m)C(B_b,19-m)/C(40,20)) gives area x latency base 0.6460/0.9689 vs reported MC 0.636/0.970, latency gates 0.6943 vs 0.692, highest-Spearman latency screen sweep26 rho 0.9582 cap1 0.3229 vs 0.958/0.324; largest MC deviation 0.011 (x unit cap3 0.589 vs 0.6004, 1.6 SE). Cross-screen Spearman recomputed with exact capture: area x latency rho vs cap1 0.614 (reported 0.598), latency -0.115 (reported -0.129), latency rho vs cap3 0.222 (0.221), latency -best_rank vs cap1 0.898 (0.898). Counts: 204/207 best_rank 1 (AxL), 14 of 175 rho>=0.9 with best_rank>3 (latency), sweep rho 0.932-0.982 / cap1 0.497-0.815 all match. Rebuilding the join from the two source JSONs gives 0 field mismatches with data.json. Not 4: capture() and best_rank() break screen ties by list index while spearman uses average ranks; the latency 'none (cycles)' screen has only 5 distinct values over 40 designs and the winner (p4,w4) happens to be first by index in its 20-way tie, so its reported best_rank 6 / cap1 0.150 / cap3 0.555 become cap1 0.058 / cap3 0.194 under random tie order (expected best_rank 15.5). One of 207 screens, not in the headline.",
+  "completeness": "README promises: unittest suite (ran: 7 OK in 0.11 s), build_data.py rebuild (independently rebuilt: 0 mismatches), run.py reproduces results.txt (byte-identical), figure.py reproduces scatter.svg (byte-identical), live page https://marisstella.app/research/eda-rankpayoff/ (HTTP 200, embeds scatter.svg and the 0.60 / -0.13 headline), research/README.md:955 index entry present. Every README Results bullet is computed in results.txt. Short of 4: no held-out designs although the 'practical reading' recommends held-out evaluation, and no computable top-weighted alternative to Spearman is tested, so the question 'what should a loop report instead' is answered only with an uncomputable quantity.",
+  "verification": "`cd research/eda-rankpayoff && PYTHONPATH=src python3 -m unittest discover -s tests`: 7 tests OK in 0.11 s (also pytest: 7 passed). Tests are real where they exist: Wikipedia's IQ/TV example for rho=-29/165 and tau=-5/45 (I confirmed both with scipy), enumeration of all 10 pools for capture at k=1. Four non-equivalent mutants via platform/ci/quality_mutate.py: 1 caught (capture top slice [:k] -> [:k+1]), 3 survived: Kendall tau-b denominator replaced by tau-a (rank.py:52; no Kendall tie test, changes the tied cycles screen), best_rank tie-break (screen[i], i) -> (screen[i], -i) (rank.py:65; no tie test for best_rank or capture), and run.py:72 sign for ratio1 dropped (flips every ratio1 row of section B; experiments/run.py has no test). A fifth mutant swapping ta/tb is equivalent (symmetric product) and not counted. README says tests check 'tie handling' but only ranks() ties are tested.",
+  "craft": "Read src/eda_rankpayoff/rank.py (80 lines), tests/test_rank.py, experiments/run.py, build_data.py, figure.py. Stdlib only, short pure functions, common random numbers across screens (fixed seeds), figure recomputes rather than retyping, build_data asserts the two sources agree on delay and depth. Defects: inconsistent tie conventions (average ranks for Spearman, index order for top-k and best_rank) with no note; Monte Carlo (40 s, +-0.01 noise) where an exact closed form runs in 1.5 s for all 414 screens; figure.py reruns the whole measure() pass (16 s) instead of reading results; open() without close; run.py docstring says 'seconds' while README says 'about 2 minutes each' (measured 40 s and 16 s). A senior Python reviewer would accept with those notes.",
+  "claims": "Checked against results.txt and my recomputations: headline 0.60 (0.50-0.68), -0.13 (-0.26-0.02), 0.958 -> 32%, gate count 0.551 -> 69%, 14 of 175, 204 of 207, 0.93-0.98 and 0.49-0.81 sweep ranges, named-screen values (0.931/0.936/0.937, best 5th/6th/2nd, 0.589/0.504/0.948), 0.90 (0.87-0.92) for best_rank: all backed. Limitations are unusually honest (one winner, correlated screens, optimistic bootstrap, nothing held out). Unbacked or overstated: (1) the shipped figure (experiments/figure.py:25, shown on the live page) is titled 'Rank agreement does not predict screen payoff' but plots k=3, where results.txt gives cap3 vs spearman +0.221 (0.068 to 0.360), a positive correlation whose interval excludes 0; the 'does not' finding is a k=1 result. (2) 'reproduced by independent code' (README.md:26) for 0.636/0.970/1.078: eda-latencyhalve's capture_probability is the same algorithm with random.Random(seed) and rng.sample over the same 40 rows, so the 3-dp match shows identical draws, not an independent check; the exact value is 0.646. (3) 'This asks a new question' (README.md:3) is new within the repo's eda track only; the question is studied in the performance-predictor literature, uncited. (4) 'about 2 minutes each' stale. MIT, AI-assistance and 'preliminary, not sign-off' disclaimers present.",
+  "fitness": "Could a researcher build on it? As a reproducible dataset-plus-script that shows, on 40 SKY130-mapped MAC engines, that Spearman can rank screens opposite to their top-1 capture, yes: it runs in under a minute and every number checks. As a citable result, not yet. Nearest prior work: (a) White, Zela, Ru, Liu, Hutter, 'How Powerful are Performance Predictors in Neural Architecture Search?' (NeurIPS 2021) and Ning et al., 'Evaluating Efficient Performance Estimators of Neural Architectures' (NeurIPS 2021), which evaluate cheap predictors by Kendall tau and by top-k precision / search outcome and report that they disagree; Abdelfattah et al., 'Zero-Cost Proxies for Lightweight NAS' (ICLR 2021), which reports top-10% correlation for the same reason; (b) top-weighted rank agreement in IR: Yilmaz, Aslam and Robertson's AP correlation (SIGIR 2008), Webber, Moffat and Zobel's rank-biased overlap (TOIS 2010), Vigna's weighted Kendall tau (WWW 2015). None is cited, and none of those computable top-weighted measures is tested as a predictor of payoff, which is the obvious next question. With one winning design, cap1 is near-mechanically a function of where that design and its near neighbours fall (best_rank correlates 0.90), so the latency result is close to expected; the area x latency contrast is the more informative part.",
+  "domain": "Against standard practice in predictor evaluation and multi-fidelity DSE: the payoff metric (P(pool best in top k) over random sub-pools) and the screen family are sensible and correctly implemented; Spearman/Kendall tau-b are textbook-correct. Departures a senior reviewer would flag: no top-weighted agreement baselines (precision@k, NDCG, weighted tau, AP-correlation), which are the field's standard answer to 'global correlation ignores the top'; inference across 207 screens of which 200 are re-weightings of one model, treated as independent (acknowledged, but no block or named-only analysis to show the sign holds); nothing held out although the recommendation is held-out evaluation; index tie-breaking in a coarse screen inflates one named row; Monte Carlo where the exact value is a one-line hypergeometric sum. Would sign off as an internal technical note for the eda track, not for a venue as is."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Spearman and Kendall tau-b of all 7 named screens per truth (14 rows), including the tied 'none (cycles)' latency screen",
+   "method": "scipy.stats.spearmanr and scipy.stats.kendalltau (tau-b) 1.18.1, independent of the package",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/indep.py",
+   "expected": "results.txt section A: e.g. AxL x fanout 0.976/0.890; latency none 0.815/0.672; latency x gates 0.551/0.421",
+   "observed": "all 14 rows identical to 3 dp (0.976/0.890, 0.815/0.672, 0.551/0.421 ...)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "P(pool best among screen's top k), k=1 and 3, for the named screens",
+   "method": "exact closed form: sum over candidate true best b of sum_{m<k} C(A_b,m) C(B_b,19-m) / C(40,20), A_b/B_b = designs worse in truth that precede/follow b in screen order (hypergeometric; no Monte Carlo)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/indep.py",
+   "expected": "AxL base 0.636/0.970; latency x gates 0.692/0.934; latency x fanout 0.461/0.948 (MC, +-0.007 claimed)",
+   "observed": "0.6460/0.9689; 0.6943/0.9338; 0.4560/0.9470; max |MC-exact| 0.011 over 28 values (1.6 SE)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline cross-screen correlations (207 screens per truth)",
+   "method": "scipy spearmanr across screens of scipy rho against exact (noise-free) capture",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/indep.py",
+   "expected": "AxL rho vs cap1 0.598; latency rho vs cap1 -0.129, rho vs cap3 0.221, -best_rank vs cap1 0.898",
+   "observed": "0.614; -0.115; 0.222; 0.898 (sign and size hold without MC noise)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "counts and extremes: best_rank==1 count, rho>=0.9 with best outside top 3, highest-Spearman latency screen",
+   "method": "independent recount from data.json with scipy rho",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/indep.py",
+   "expected": "204 of 207; 14 of 175; sweep-26 rho 0.958 cap1 0.324",
+   "observed": "204 of 207; 14 of 175; sweep26 rho 0.9582, exact cap1 0.3229",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tie-break sensitivity of the latency 'none (cycles)' screen (5 distinct cycle counts over 40 designs)",
+   "method": "exact capture with ties broken by index (as the code does) vs averaged over 2,000 random tie orders",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/indep.py",
+   "expected": "a reported capture figure that does not depend on design order",
+   "observed": "index order cap1 0.152 cap3 0.560 (reported 0.150/0.555); random tie order cap1 0.058 cap3 0.194; best_rank 6 vs expected 15.5",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "data.json join of the two source files",
+   "method": "independent rebuild from eda-latencyhalve mapped.json and eda-delayproxy proxies.json, field by field",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/indep.py",
+   "expected": "0 mismatches",
+   "observed": "40 rows, 0 field mismatches",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments and figure reproduce committed outputs",
+   "method": "rerun in a scratch copy and diff/cmp",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/rankpayoff/copy && PYTHONPATH=src python3 experiments/run.py && PYTHONPATH=src python3 experiments/figure.py && diff experiments/results.txt /home/user/oss-monorepo/research/eda-rankpayoff/experiments/results.txt && cmp experiments/scatter.svg /home/user/oss-monorepo/research/eda-rankpayoff/experiments/scatter.svg",
+   "expected": "identical; 'about 2 minutes each' (README)",
+   "observed": "both identical; 40 s and 16 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run the documented command",
+   "command": "cd research/eda-rankpayoff && PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "pass",
+   "observed": "Ran 7 tests in 0.114s OK; pytest 7 passed in 0.24 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "textbook values the tests pin",
+   "method": "scipy on Wikipedia's IQ/TV data",
+   "command": "/usr/bin/python3.13 -c \"from scipy import stats; iq=[86,97,99,100,101,103,106,110,112,113]; tv=[2,20,28,27,50,29,7,17,6,12]; print(stats.spearmanr(iq,tv).statistic, stats.kendalltau(iq,tv).statistic)\"",
+   "expected": "-29/165 = -0.175758, -5/45 = -0.111111",
+   "observed": "-0.17575757575757575 -0.1111111111111111",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "figure title 'Rank agreement does not predict screen payoff' (experiments/figure.py:25, on the live page) over the k=3 latency scatter",
+   "method": "cross-screen Spearman of rho vs cap3 for latency from results.txt and exact recomputation",
+   "command": "grep -n 'cap3    vs spearman' research/eda-rankpayoff/experiments/results.txt",
+   "expected": "a correlation indistinguishable from 0 at k=3 if the title held",
+   "observed": "+0.221 (bootstrap 0.068 to 0.360); exact-capture recomputation 0.222",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'reproduced by independent code' for eda-latencyhalve's 0.636/0.970/1.078 (README.md:26)",
+   "method": "read eda-latencyhalve/src/eda_latencyhalve/screen.py capture_probability and compare with the exact value",
+   "command": "grep -n 'Random\\|sample' research/eda-latencyhalve/src/eda_latencyhalve/screen.py",
+   "expected": "an independent method agreeing within noise",
+   "observed": "same algorithm, random.Random(seed) + rng.sample over the same 40 rows, so identical draws; exact value is 0.646",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README numeric results bullets (0.60, -0.13, 0.958/32%, 0.551/69%, 14/175, 204/207, 0.93-0.98, 0.49-0.81, 0.90)",
+   "method": "match each against results.txt and indep.py",
+   "command": "cat research/eda-rankpayoff/experiments/results.txt",
+   "expected": "every number present",
+   "observed": "all present and consistent",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "load served page",
+   "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/eda-rankpayoff/",
+   "expected": "200 with README claims",
+   "observed": "200, embeds scatter.svg, headline 0.60 (0.50 to 0.68) and -0.13",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited and novelty positioned",
+   "method": "read README 'Builds on' against White et al. NeurIPS 2021, Ning et al. NeurIPS 2021, Abdelfattah et al. ICLR 2021, Yilmaz-Aslam-Robertson SIGIR 2008, Webber-Moffat-Zobel TOIS 2010, Vigna WWW 2015",
+   "command": "grep -n -i 'White\\|NAS\\|Abdelfattah\\|NDCG\\|weighted\\|rank-biased\\|precision' research/eda-rankpayoff/README.md",
+   "expected": "predictor-evaluation and top-weighted-correlation literature cited; at least one top-weighted measure tested",
+   "observed": "no match; only Peherstorfer-Willcox-Gunzburger 2018 cited; no top-weighted measure computed",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/eda_rankpayoff/rank.py:76",
+   "change": "capture top slice [:k] -> [:k + 1]",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_rankpayoff/rank.py:52",
+   "change": "Kendall tau-b denominator sqrt((c+d+ta)(c+d+tb)) -> sqrt((c+d)(c+d)) (tau-a)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/eda_rankpayoff/rank.py:65",
+   "change": "best_rank tie-break key (screen[i], i) -> (screen[i], -i)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:72",
+   "change": "sign = -1 if payoff == \"ratio1\" else 1 -> sign = 1",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Novelty positioned only within the repo's eda track: the performance-predictor literature that already evaluates cheap predictors by rank correlation versus top-k precision/search outcome (White et al. NeurIPS 2021; Ning et al. NeurIPS 2021; Abdelfattah et al. ICLR 2021) and IR's top-weighted correlations (AP-correlation, RBO, weighted Kendall tau) are not cited, and no computable top-weighted agreement measure is tested as the alternative to Spearman.",
+   "where": "research/eda-rankpayoff/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Shipped figure titled 'Rank agreement does not predict screen payoff' plots k=3, where the cross-screen correlation is +0.221 (bootstrap 0.068 to 0.360, excludes 0); the 'does not' result holds at k=1 only.",
+   "where": "research/eda-rankpayoff/experiments/figure.py:25",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Only 1 of 4 non-equivalent seeded mutants caught: Kendall tie handling, best_rank/capture tie-breaking and all of experiments/run.py (signs, bootstrap) are untested, though README says tests check 'tie handling'.",
+   "where": "research/eda-rankpayoff/tests/test_rank.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "capture() and best_rank() break screen ties by list index while spearman() uses average ranks; for the latency 'none (cycles)' screen (5 distinct values, winner first by index in a 20-way tie) the reported best_rank 6 / cap1 0.150 / cap3 0.555 become 15.5 (expected) / 0.058 / 0.194 under random tie order.",
+   "where": "research/eda-rankpayoff/src/eda_rankpayoff/rank.py:76",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'reproduced by independent code' for 0.636/0.970: eda-latencyhalve uses the same algorithm and RNG stream, so the 3-dp match reflects identical draws; the exact value is 0.646.",
+   "where": "research/eda-rankpayoff/README.md:26",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Runtime docs disagree with each other and with measurement: README 'about 2 minutes each', run.py docstring 'seconds'; measured 40 s and 16 s.",
+   "where": "research/eda-rankpayoff/experiments/run.py:3",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Monte Carlo (5,000 pools, +-0.01 error) where the capture probability has an exact hypergeometric closed form that computes all 414 screens in about 1.5 s.",
+   "where": "research/eda-rankpayoff/src/eda_rankpayoff/rank.py:68",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15397"
+ ],
+ "verdict": "A small, honest, fully reproducible study: results.txt and scatter.svg regenerate byte-identically, and every headline number survives an independent recomputation with scipy's Spearman/Kendall and an exact (noise-free) hypergeometric capture probability (area x latency 0.614 vs reported 0.598; latency -0.115 vs -0.129; 14 of 175; 204 of 207). It does not meet the bar: tests caught 1 of 4 seeded mutants (tie handling and the experiment script are untested), the shipped figure's title says agreement does not predict payoff over a k=3 panel where the correlation is +0.22 with an interval excluding 0, and the question is presented as new without the NAS performance-predictor and top-weighted rank-correlation literature that already studies it, nor any computable top-weighted measure as the alternative a loop could actually use. Index tie-breaking inflates one named row (cycles alone) but not the headline."
+}
