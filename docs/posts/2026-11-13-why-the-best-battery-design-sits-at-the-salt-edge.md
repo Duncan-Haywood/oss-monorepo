@@ -3,7 +3,7 @@ title: "Why the best battery electrode design sits at the salt edge"
 date: 2026-11-13
 tags: [cell-fidelity, batteries, simulation, pybamm, design-search, pre-registration]
 seo_title: "Why is the best Li-ion electrode design at the electrolyte limit?"
-description: Split a cell design's 100-cycle energy into thermodynamic energy, utilisation and retention, and the optimum's place at the electrolyte limit falls out. Tested on 192 fresh PyBaMM designs.
+description: "A cell design's 100-cycle energy splits into thermodynamic energy, utilisation and retention, which puts the optimum at the electrolyte limit."
 ---
 
 The `cell-fidelity` programme asks when a lithium-ion electrode design search can trust PyBaMM's cheap SPMe model instead of the full DFN model. Its trust test is the electrolyte's salt. If a design's minimum salt concentration drops below 10% of where it started, it gets checked with DFN. The last step found something awkward: the best design in a pool keeps landing right at that threshold. On 21 (cell, current) conditions the best design's closed-form salt number, r_kt, sat between −0.06 and +0.58, while the pools ranged from −3.98 to +0.92. So the designs the cheap model gets wrong are the same ones a search is looking for. This step asked why.
