@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it answers
+
+In 40 states and DC, an out-of-state seller must register and collect sales tax once its sales into the state reach $100,000 a year; California, New York and Texas use $500,000, Alabama and Mississippi $250,000, and 18 of these jurisdictions also count transactions (usually 200, as an either-or test; Connecticut and New York require both, New York at 100 transactions). Alaska, Delaware, Montana, New Hampshire and Oregon have no state sales tax. Source: South Dakota v. Wayfair, 585 U.S. 162 (2018), and each state's department of revenue, compiled from Numeral's and TaxCloud's 2026 nexus guides. As of 2026-09-24; confirm your state's exact wording and measuring period before you register.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/economic-nexus-threshold-tracker/)

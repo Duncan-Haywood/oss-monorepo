@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it answers
+
+Two new federal deductions apply to tax years 2025 through 2028: up to $25,000 of qualified tips, and up to $12,500 ($25,000 married filing jointly) of qualified overtime compensation — but only the half-time premium portion of overtime pay, not your full time-and-a-half wages, and both shrink once your income clears $150,000 (single) or $300,000 (joint). This estimates both, including the part people usually get wrong. Source: 26 U.S.C. sections 224 and 225 as added by Public Law 119-21 (2025); married filing separately qualifies for neither. As of 2026-09-24.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/no-tax-on-tips-overtime-calculator/)
