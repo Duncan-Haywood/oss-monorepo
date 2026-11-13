@@ -17,8 +17,16 @@ M9 = E + "m9_straighten/results.txt"
 M10 = E + "m10_ceiling/results.txt"
 M11 = E + "m11_measured/results.txt"
 M12 = E + "m12_remedies/results.txt"
+M13 = E + "m13_price/results.txt"
 
 CHECKS = [
+    # 5.12 what the remedies cost (milestone 13)
+    (M13, "three point - ledger 0.4253 1.095 198 | 7.10", "cost a median $7.10 per clean sheet"),
+    (M13, "local line push slide+shim 0.7707 0.301 248 | 7.42", "costs $7.42 at 0.7707"),
+    (M13, "2x2x point - ledger 1.0000 0.000 145 | 12.17", "but cost $12.17"),
+    (M13, "beats doubled joints in 1.0000 of draws (bar 0.90), median saving $5.13", "(median saving $5.13)"),
+    (M13, "median $5.51 [5-95%: 3.91, 8.55] (8.8 loaded person-minutes", "median $5.51 more than its re-drive (8.8"),
+    (M13, "above v = 0.2344 m/s", "about\n0.23 m/s"),
     # 5.11 the single-2x remedies on measured studs (milestone 12)
     (M12, "measured three no push ledger 0.4253", "from 0.4253 to 0.5303 clean sheets"),
     (M12, "measured local no push ledger 0.5303", "from 0.4253 to 0.5303 clean sheets"),
