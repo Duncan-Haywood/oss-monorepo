@@ -48,7 +48,7 @@
     .layout > * { min-width: 0; }
     @media (max-width: 700px) { section { overflow-x: auto; } table { max-width: 100%; } }
     /* The intro used to be a 10-link paragraph, about 1,200 px tall on a 390 px phone above the first input. In-page jumps are now a wrapping row of short links and the guides a list near the end. */
-    .jump { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 4px 0 0; } .jump a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 11px; border: 1px solid #d8d2c4; border-radius: 999px; background: #fffef8; color: #1f2320; font-size: .87rem; font-weight: 600; text-decoration: none; } .jump a:hover { border-color: #24352d; } .jump a:focus-visible { outline: 2px solid #24352d; outline-offset: 2px; }
+    .pf-jump { --jump-fg: #1f2320; --jump-line: #d8d2c4; --jump-bg: #fffef8; --jump-hover: #24352d; --jump-margin: 4px 0 0; }
     #guides { margin-top: 18px; } .guides { columns: 2 300px; column-gap: 28px; margin: 0; padding-left: 1.1rem; } .guides li { break-inside: avoid; margin: 0 0 .55rem; line-height: 1.4; }
   </style>
 </head>
@@ -57,7 +57,7 @@
     <p>FOR REVERB SELLERS</p>
     <h1>See whether that offer still beats eBay.</h1>
     <p class="answer-source" data-answer-lead>Reverb charges a 5% selling fee, capped at $500 per item, plus payment processing of 3.19% + $0.49 for standard sellers, so a $15,000 guitar owes $500 in selling fees rather than the uncapped $750. Source: Reverb, "Selling Fees" and "Preferred Seller" help pages. As of 2026-09 (month the page last checked them; rates change, so check Reverb before relying on it).</p>
-    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay; "Copy counter-offer message" below pastes a reply naming that crossover price into your Reverb inbox. Further down this page:</p><nav class="jump" aria-label="On this page"><a href="#offer-compare">Offer vs list</a><a href="#offer-ladder">Offer ladder</a><a href="#inbox">Offer inbox</a><a href="#wait-compare">Wait for a better offer</a><a href="#shipping-compare">Shipping</a><a href="#safe-shipping-compare">Safe Shipping</a><a href="#consignment-compare">Consign or sell to a shop</a><a href="#bump-compare">Bump</a><a href="#return-compare">Return or partial refund</a><a href="#guides">Guides</a></nav>
+    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay; "Copy counter-offer message" below pastes a reply naming that crossover price into your Reverb inbox. Further down this page:</p><nav class="pf-jump" aria-label="On this page"><a href="#offer-compare">Offer vs list</a><a href="#offer-ladder">Offer ladder</a><a href="#inbox">Offer inbox</a><a href="#wait-compare">Wait for a better offer</a><a href="#shipping-compare">Shipping</a><a href="#safe-shipping-compare">Safe Shipping</a><a href="#consignment-compare">Consign or sell to a shop</a><a href="#bump-compare">Bump</a><a href="#return-compare">Return or partial refund</a><a href="#guides">Guides</a></nav>
   </header>
   <main class="layout">
     <section>

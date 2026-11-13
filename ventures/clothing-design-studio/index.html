@@ -84,11 +84,8 @@
     .muted { color: var(--muted); font-size: .88rem; }
     /* Tool output tables scroll inside their box on a phone, not the page (launch calendar: 372 px in a 324 px panel). */
     .workspace output, #ix-cal-out, #sep-out { display: block; max-width: 100%; overflow-x: auto; }
-    .jump { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0 0 16px; }
-    .jump a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--accent2); font-size: .87rem; font-weight: 600; text-decoration: none; }
-    .jump a:first-child { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .jump a:hover { border-color: var(--accent); }
-    .jump a:focus-visible, .stages a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .pf-jump { --jump-fg: var(--accent2); --jump-line: var(--line); --jump-bg: var(--card); --jump-hover: var(--accent); --jump-margin: 0 0 16px; }
+    .stages a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 20px; }
     .stages h3 { font-size: .9rem; margin: 10px 0 4px; color: var(--accent); }
     .stages ul { margin: 0; padding-left: 18px; line-height: 1.6; font-size: .92rem; }
@@ -102,8 +99,8 @@
     <p class="eyebrow">Free clothing design studio</p>
     <h1>Say what you want on the shirt. See it, change it, know what it costs.</h1>
     <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them.</p>
-    <nav class="jump" aria-label="On this page and next">
-      <a href="#h-design">Start designing</a>
+    <nav class="pf-jump" aria-label="On this page and next">
+      <a class="pf-jump-main" href="#h-design">Start designing</a>
       <a href="launch.html">Launch path: what to decide, in order</a>
       <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a>
       <a href="for-independent-clothing-designers.html">Who it is for</a>
