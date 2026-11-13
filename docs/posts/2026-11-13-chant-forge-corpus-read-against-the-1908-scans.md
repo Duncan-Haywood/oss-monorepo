@@ -1,9 +1,9 @@
 ---
 title: "1,492 chant notes read against 1908 and 1913 scans: no differences, two wrong labels"
-seo_title: "Checking GregoBase GABC transcriptions against the 1908 Vatican Graduale scans"
+seo_title: "GregoBase GABC chant checked against the 1908 Graduale scans"
 date: 2026-11-13
 tags: [music, gregorian-chant, gabc, public-domain, open-source]
-description: "Chant Forge's five corpus pieces, read note by note against archive.org scans of the 1908 Graduale and the 1913 Liber Usualis, match exactly. The reading also showed the corpus had the Te Deum and Salve Regina mislabelled."
+description: "Five chant pieces read note by note against 1908 and 1913 scans: 1,492 notes match. The reading also found the Te Deum and Salve Regina mislabelled."
 ---
 
 Chant Forge turns public-domain Gregorian chant, written in GABC, into MIDI choir lines. Its corpus of five pieces came from GregoBase, where volunteers type up chant from old books. Until today nobody here had checked a single note against a printed page. Two pieces, the Te Deum and the Salve Regina, also named only post-1929 books as their source, which is a problem for a project that wants to release recordings built on public-domain melodies.
