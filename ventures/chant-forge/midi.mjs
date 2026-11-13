@@ -84,7 +84,23 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
     for (const sec of backing.sections) conductor.push([sec.tick, meta(0x06, [...new TextEncoder().encode(sec.name)])]);
     conductor.sort((a, b) => a[0] - b[0]);
   }
-  const tracks = [track(conductor), track(choir)];
+  // --split-voices: notes tagged 'tenor', 'bass' or 'all' go to a Tenors track (channel 1) and a
+  // Basses track (channel 5); 'all' is in both, so each section's part is complete on its own
+  const split = events.some((e) => e.type === 'note' && e.voice);
+  const section = (keep, ch, name) => {
+    const tl = [[0, meta(0x03, [...new TextEncoder().encode(name)])], [0, [0xc0 | ch, 52]]];
+    let tt = 0;
+    for (const e of events) {
+      const len = Math.round(e.pulses * ticksPerPulse);
+      if (e.type === 'note' && (e.voice === 'all' || e.voice === keep)) {
+        if (e.syllable) tl.push([tt, meta(0x05, [...new TextEncoder().encode(e.syllable)])]);
+        tl.push([tt, [0x90 | ch, e.midi, velocity]], [tt + len, [0x80 | ch, e.midi, 0]]);
+      }
+      tt += len;
+    }
+    return track(tl);
+  };
+  const tracks = split ? [track(conductor), section('tenor', 0, 'Tenors'), section('bass', 4, 'Basses')] : [track(conductor), track(choir)];
   if (drone && lastMidi !== null && end > 0) {
     const d = lastMidi - 12;
     tracks.push(track([[0, [0xc1, 19]], [0, [0x91, d, 60]], [end, [0x81, d, 0]]]));
