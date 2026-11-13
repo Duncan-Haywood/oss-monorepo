@@ -809,29 +809,57 @@ left is a joint likelihood where the variance path may break at a changepoint wh
 segment-independent cost cannot express (the recursion depends on the previous segment's state). Not shipped as an option;
 the function and the script stay so the next attempt starts from this baseline. Simulated noise only.
 
-### Pruning meanvar cuts with a segment-wise GARCH likelihood: fewer extra cuts, GARCH false alarms only partly (2026-11-02, measured, not shipped)
+### Pruning meanvar cuts with a segment-wise GARCH likelihood (2026-11-02; table withdrawn and re-measured 2026-11-13, not shipped)
 
 The joint likelihood named above, in its cheapest form. `eval/meanvar-garch-segments.mjs` (output
-`eval/meanvar-garch-segments.out.txt`, 100 series per cell, same seeds and noise kinds as the filter run) takes the plain
-meanvar PELT cuts as candidates. Every segment gets its own mean and scale, and inside a segment the standardised residual
-follows a unit-variance GARCH(1,1) whose a and b are shared by all segments (small grid). The cut whose removal costs least
-quasi-log-likelihood is dropped while that cost is under `pen x ln n`. Plain, then pruned: null series with any change / sd
-1 to 2 break found exactly once / mean +1.5 sd shift found exactly once.
+`eval/meanvar-garch-segments.out.txt`) takes the plain meanvar PELT cuts as candidates. Every segment gets its own mean
+and scale, and inside a segment the standardised residual follows a unit-variance GARCH(1,1) whose a and b are shared by
+all segments (small grid). The cut whose removal costs least quasi-log-likelihood is dropped while that cost is under
+`pen x ln n` (log-likelihood units).
 
-| n, noise | plain | pruned, pen 12 | pruned, pen 16 |
+**The 2026-11-02 table measured nothing.** The script passed `analyze()`'s changepoint objects into the segment
+likelihood, which needs indexes, so every total was NaN and the "pruned" columns were whatever the NaN comparisons left
+(found 2026-11-13). The table is withdrawn; its conclusions (pen 12 to 16, "barely moves at n = 200") do not stand.
+`pruneByGarch` now refuses anything but integer cuts, and `garch-prune.test.mjs` checks it keeps a real break and drops
+false cuts.
+
+**Re-measured** (100 series per cell, the original seeds, so in-sample): null series with any change / sd 1 to 2 break
+found exactly once / mean +1.5 sd shift found exactly once. Plain meanvar first, then pruned at three penalties.
+
+| n, noise | plain | pen 1 ln n | pen 1.5 ln n | pen 2 ln n |
+|---|---|---|---|---|
+| 100, Gaussian | 4% / 94% / 95% | 4% / 92% / 95% | 3% / 61% / 95% | 0% / 26% / 100% |
+| 100, GARCH | 41% / 63% / 63% | 28% / 61% / 65% | 10% / 45% / 77% | 3% / 26% / 94% |
+| 100, t3 | 37% / 58% / 48% | 36% / 57% / 48% | 33% / 57% / 48% | 20% / 56% / 65% |
+| 200, Gaussian | 0% / 97% / 96% | 0% / 97% / 96% | 0% / 94% / 96% | 0% / 76% / 99% |
+| 200, GARCH | 50% / 58% / 52% | 29% / 63% / 68% | 9% / 61% / 89% | 1% / 45% / 97% |
+| 200, t3 | 63% / 55% / 34% | 63% / 57% / 34% | 61% / 56% / 35% | 51% / 66% / 55% |
+
+The prune does what it was meant to on clustered volatility: at 1.5 ln n the GARCH false alarms fall to 9% at n = 200
+(`--bootstrap`: 16%) and mean shifts are found more often. It does nothing for t3 or AR(1) noise, as expected of a
+GARCH model. The cost is the real variance break, which a shared GARCH partly explains away: at 3 ln n it is found 4% to
+11% of the time, the filter's failure again.
+
+**Pre-registered on fresh seeds (2026-11-13; `eval/meanvar-garch-segments-prereg-2026-11-13.md`).** Hypothesis: grid
+points with a + b above 0.9 are what absorb a lasting step, so a grid capped at 0.9 keeps it. Fixed beforehand: pen 1.5 ln
+n, cap 0.9, 200 series per cell, every seed moved by 1,000,003. Bar: GARCH null false alarms at n = 200 at most 10%; sd
+break on GARCH noise at n = 200 at least 74% (`--bootstrap`); Gaussian null at most 2%, sd break at least 90% (n = 200)
+and 80% (n = 100); mean shift at least the plain rate.
+
+| n, noise | plain | pruned, cap 0.9 (pre-registered) | pruned, no cap (diagnostic, after) |
 |---|---|---|---|
-| 100, GARCH | 41% / 63% / 63% | 21% / 86% / 82% | 5% / 58% / 36% |
-| 100, t3 | 37% / 58% / 48% | 12% / 88% / 90% | 4% / 62% / 31% |
-| 200, GARCH | 50% / 58% / 52% | 48% / 97% / 100% | 28% / 97% / 100% |
-| 200, t3 | 63% / 55% / 34% | 56% / 99% / 100% | 40% / 99% / 100% |
-| 200, Gaussian | 0% / 97% / 96% | 0% / 100% / 100% | 0% / 100% / 100% |
+| 100, Gaussian | 1% / 92% / 95% | 1% / **74%** / 96% | 1% / 68% / 96% |
+| 100, GARCH | 36% / 67% / 71% | 14% / 39% / 85% | 14% / 39% / 85% |
+| 200, Gaussian | 3% / 98% / 98% | 2% / 96% / 99% | 2% / 93% / 99% |
+| 200, GARCH | 49% / 51% / 49% | 10% / **55%** / 82% | 9% / 54% / 83% |
 
-Unlike the filter, the real sd break survives (97% to 100% at n = 200), and the clusters of extra cuts that made "exactly one"
-rates low go away. But the false-alarm rate on a null GARCH series barely moves at n = 200 with pen 12 (50% to 48%) and needs
-pen 16 to reach 28%, while at n = 100 pen 16 already costs the true breaks (mean shift 82% to 36%). So the penalty would have
-to depend on n and the result is still far from the filter's 1%. A single surviving cut is usually a volatility cluster that
-a segment-own scale explains better than any shared (a, b). Not wired into `analyze`; next is a joint fit where the cut
-candidates are searched, not only pruned. Simulated noise only; the penalty was swept on the same seeds it is reported on.
+**It fails** on two of the four lines: the sd break on GARCH noise (55% against 74%) and Gaussian at n = 100 (74%
+against 80%). False alarms (10%) and mean shifts pass. The hypothesis is mostly wrong too: without the cap the GARCH-noise
+break is found 54% of the time, so high persistence is not what absorbs it. On GARCH noise at n = 100 the plain fit finds
+the break alone 67% of the time and the prune keeps it 39%, so the prune is removing the true break, not failing to add
+one. Not shipped; `--bootstrap` stays the option for clustered volatility. The open route is unchanged: candidates
+searched jointly with the GARCH fit, or a penalty for the prune read off a block bootstrap as `--bootstrap` does for
+plain meanvar. Simulated noise only.
 
 ### A second dispersion round does not help (2026-10-26, negative result)
 
