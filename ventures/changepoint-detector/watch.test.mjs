@@ -311,3 +311,77 @@ test('ausair: the old-history alerts the replay found are held by default', () =
   assert.ok(now.held.length >= 1);
   assert.ok(now.held.every((h) => h.index <= now.from - 5));
 });
+
+test('--columns: names, all, a model per column, and the mistakes it refuses', async () => {
+  const { columnSpecs } = await import('./watch.mjs');
+  const csv = 'date,orders,revenue,signups\n2026-01-01,3,10.5,1\n2026-01-02,4,11,2\n';
+  assert.deepEqual(columnSpecs(csv, 'orders:poisson, revenue'), [{ column: 'orders', model: 'poisson' }, { column: 'revenue', model: null }]);
+  assert.deepEqual(columnSpecs(csv, 'all').map((s) => s.column), ['orders', 'revenue', 'signups']);
+  assert.deepEqual(columnSpecs(csv, '1,3'), [{ column: 1, model: null }, { column: 3, model: null }]);
+  assert.throws(() => columnSpecs(csv, 'orders:counts'), /after the colon is the model/);
+  assert.throws(() => columnSpecs(csv, 'orders,ORDERS'), /listed twice/);
+  await assert.rejects(main(['x.csv', '--columns', '--dry-run'], { out: () => {} }), /comma list/);
+});
+
+test('CLI --columns: each column keeps its own record; a step in one column is one webhook message naming it', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-cols-'));
+  const csv = join(dir, 'kpi.csv'), state = join(dir, 'state.json');
+  const ga = gauss(lcg(21)), gb = gauss(lcg(22));
+  const rows = (n, stepAt) => Array.from({ length: n }, (_, i) => [50 + ga() + (stepAt != null && i >= stepAt ? 5 : 0), 200 + 3 * gb()]);
+  const write = (r) => writeFileSync(csv, 'date,orders,visits\n' + r.map(([a, b], i) => `${new Date(Date.UTC(2026, 0, 1) + i * 864e5).toISOString().slice(0, 10)},${a.toFixed(3)},${b.toFixed(3)}`).join('\n') + '\n');
+  const posts = [];
+  const fetchImpl = async (url, init) => { posts.push(JSON.parse(init.body)); return { ok: true, status: 200 }; };
+  const run = async (args) => { let o = ''; const code = await main(args, { out: (s) => (o += s), env: { HOOK: 'http://hook' }, fetchImpl }); return { code, o }; };
+  const all = rows(130, 120);
+  write(all.slice(0, 120));
+  let r = await run([csv, '--state', state, '--columns', 'all', '--webhook-env', 'HOOK']);
+  assert.equal(r.code, 0, r.o);
+  assert.match(r.o, /No new confirmed change in 2 columns\./);
+  assert.match(r.o, /== orders ==/);
+  assert.match(r.o, /== visits ==/);
+  const st = JSON.parse(readFileSync(state, 'utf8'));
+  assert.deepEqual(Object.keys(st.columns), ['orders', 'visits']);
+  assert.equal(st.columns.orders.n, 120);
+  for (let n = 121; n <= 130 && !posts.length; n++) { write(all.slice(0, n)); r = await run([csv, '--state', state, '--columns', 'all', '--webhook-env', 'HOOK', '--fail-on-alert']); }
+  assert.equal(posts.length, 1, r.o);
+  assert.equal(r.code, 1);
+  assert.match(r.o, /New changes in 1 of 2 columns: orders\./);
+  assert.match(posts[0].text, /^orders changed from 2026-05-01: level up/);
+  assert.doesNotMatch(posts[0].text, /visits/);
+  // the same change is not sent again
+  r = await run([csv, '--state', state, '--columns', 'all', '--webhook-env', 'HOOK', '--fail-on-alert']);
+  assert.equal(r.code, 0);
+  assert.equal(posts.length, 1);
+  // a one-column record is not silently reused as a several-column one
+  const one = join(dir, 'one.json');
+  await main([csv, '--state', one], { out: () => {} });
+  await assert.rejects(main([csv, '--state', one, '--columns', 'all'], { out: () => {} }), /one-column watch/);
+  await assert.rejects(main([csv, '--state', one, '--columns', 'all', '--column', 'orders'], { out: () => {} }), /not both/);
+});
+
+test('CLI --columns with --detector auto: the alert budget is for the whole watch, split evenly across the columns', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-cols-'));
+  const csv = join(dir, 'kpi.csv'), state = join(dir, 'state.json');
+  const g = gauss(lcg(5));
+  writeFileSync(csv, 'date,a,b,c,d\n' + Array.from({ length: 60 }, (_, i) => `${i + 1},${g()},${g()},${g()},${g()}`).join('\n') + '\n');
+  let o = '';
+  await main([csv, '--state', state, '--columns', 'all', '--detector', 'auto', '--budget', '2'], { out: (s) => (o += s) });
+  const st = JSON.parse(readFileSync(state, 'utf8'));
+  for (const k of ['a', 'b', 'c', 'd']) assert.equal(st.columns[k].choice.budget, 0.5, k);
+  assert.match(o, /this column's share of the budget/);
+  let s = '';
+  await main([csv, '--suggest', '--columns', 'a,b', '--alerts-per', '2/month'], { out: (x) => (s += x) });
+  assert.match(s, /split across 2 columns/);
+  assert.match(s, /== a ==[\s\S]*== b ==/);
+});
+
+test('deploy/make-watch-repo.sh: the standalone folder runs --columns too', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const dest = join(mkdtempSync(join(tmpdir(), 'watch-repo-')), 'w');
+  execFileSync('sh', [new URL('./deploy/make-watch-repo.sh', import.meta.url).pathname, dest]);
+  const a = stepSeries(80, 60, 4), b = stepSeries(80, 200, 0, 9);
+  writeFileSync(join(dest, 'data/metric.csv'), 'date,a,b\n' + a.map((v, i) => `${i + 1},${v.toFixed(3)},${b[i].toFixed(3)}`).join('\n') + '\n');
+  const out = execFileSync('node', ['watch.mjs', 'data/metric.csv', '--state', 'watch-state.json', '--columns', 'all'], { cwd: dest, encoding: 'utf8' });
+  assert.match(out, /== a ==\nFirst check: 1 change already in the history/);
+  assert.match(readFileSync(join(dest, 'README.md'), 'utf8'), /--columns all/);
+});

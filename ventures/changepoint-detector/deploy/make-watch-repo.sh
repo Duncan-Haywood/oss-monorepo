@@ -15,7 +15,7 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs ramps.mjs drift-level.mjs update-rate.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs ramps.mjs drift-level.mjs update-rate.mjs multivariate.mjs consensus.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
@@ -39,6 +39,11 @@ lists the options (counts, volatility, a weekly cycle, logs).
 How eager to be: `node watch.mjs data/metric.csv --suggest --alerts-per 1/month` replays your history once per
 setting and suggests the most eager one that would have stayed within about one alert a month. To have the
 first run pick it and later runs keep it, set `WATCH_OPTIONS` to `--detector auto --alerts-per 1/month`.
+
+Several metrics in one sheet (orders, revenue, sign-ups as columns): add `--columns all`, or name them with a model
+each, `--columns orders:poisson,revenue,signups:poisson`, to `WATCH_OPTIONS`. Each column keeps its own record in
+`watch-state.json`, the day's new changes arrive as one message, and the alert budget of `--alerts-per` covers the
+whole watch (split evenly across the columns), so watching five metrics does not send five times the alerts.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood

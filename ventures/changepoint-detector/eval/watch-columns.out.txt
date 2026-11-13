@@ -1,0 +1,2 @@
+Budget 2 alerts per 100 checks for the whole watch. A: each column gets 2. B: each gets 2/k.
+
