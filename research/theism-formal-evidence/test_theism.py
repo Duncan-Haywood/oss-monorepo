@@ -340,6 +340,18 @@ def test_e21_frame_conditions_for_god_is_essential():
         assert res["posthoc"][st]["seen_not_cond"] == 0, st
     e21.test_closure_cycle(); e21.test_symmetric_and_reflexive_safe()
 
+
+def test_e22_transient_countermodel_is_an_e19_model():
+    """H26: the Lean countermodel, built in E19's semantics, is a stage-III model failing at w."""
+    e22 = _load("e22_transient_countermodel")
+    res = e22.run(exhaustive=(1, 2, 3), sampled=((4, 300),), seed=1)
+    assert res["sizes"]["3 (all)"]["pairs"] == 24      # E21's 24 failing (relation, world) pairs with A4a
+    for s in res["sizes"].values():
+        assert all(v == 0 for v in s["failed_checks"].values())
+    # negative control: v0 on a cycle (reflexive) breaks (b) and (e)
+    r = e22.check([0b011, 0b010, 0b001], 3, 2, 0)
+    assert not r["e"] and not r["b"]
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

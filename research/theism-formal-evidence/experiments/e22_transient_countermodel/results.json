@@ -1,0 +1,91 @@
+{
+ "sizes": {
+  "1 (all)": {
+   "relations": 1,
+   "with_transient_successor": 0,
+   "pairs": 0,
+   "failed_checks": {
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "d": 0,
+    "e": 0
+   }
+  },
+  "2 (all)": {
+   "relations": 9,
+   "with_transient_successor": 0,
+   "pairs": 0,
+   "failed_checks": {
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "d": 0,
+    "e": 0
+   }
+  },
+  "3 (all)": {
+   "relations": 343,
+   "with_transient_successor": 24,
+   "pairs": 24,
+   "failed_checks": {
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "d": 0,
+    "e": 0
+   }
+  },
+  "4 (all)": {
+   "relations": 50625,
+   "with_transient_successor": 3696,
+   "pairs": 4896,
+   "failed_checks": {
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "d": 0,
+    "e": 0
+   }
+  },
+  "5 (sample 5000)": {
+   "relations": 5000,
+   "with_transient_successor": 1164,
+   "pairs": 1938,
+   "failed_checks": {
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "d": 0,
+    "e": 0
+   }
+  },
+  "6 (sample 5000)": {
+   "relations": 5000,
+   "with_transient_successor": 1071,
+   "pairs": 2054,
+   "failed_checks": {
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "d": 0,
+    "e": 0
+   }
+  },
+  "8 (sample 2000)": {
+   "relations": 2000,
+   "with_transient_successor": 267,
+   "pairs": 590,
+   "failed_checks": {
+    "a": 0,
+    "b": 0,
+    "c": 0,
+    "d": 0,
+    "e": 0
+   }
+  }
+ },
+ "fail": [],
+ "seed": 22,
+ "seconds": 13.2
+}
