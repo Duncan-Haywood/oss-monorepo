@@ -11,6 +11,7 @@ false `datePublished`) and that `tags` is a non-empty list.
     python3 platform/ci/check_post_frontmatter.py [--root DIR]   # exit 1 if any
     python3 platform/ci/check_post_frontmatter.py docs/posts/NEW.md   # just these
     python3 platform/ci/check_post_frontmatter.py --limits   # the caps, before you write
+    python3 platform/ci/check_post_frontmatter.py --landed-since 2026-11-10   # posts that reached main broken
 
 Named posts are checked alone, and the cross-post checks (tag spellings,
 shared descriptions) report only groups that include one of them. Runs kept
@@ -19,6 +20,7 @@ passing a file and getting a usage error (two friction reports, 2026-11-10).
 import argparse
 import datetime
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -151,12 +153,51 @@ def duplicate_descriptions(texts):
     return [v for v in seen.values() if len(v) > 1]
 
 
+def landed_broken(since, ref="origin/main", root=ROOT):
+    """[(commit line, post name, problems)] for posts that failed this check in the commit that added them.
+
+    Measures whether the guards before a merge work: a broken post on main
+    fails writing.mjs, so the site build and deploy stay red until another
+    run fixes it forward (#15454 on 2026-11-13 merged seconds before its CI
+    started; #15451 fixed it 11 minutes later). The date check is judged
+    against the commit's own UTC day. The shallow-clone boundary commit,
+    which git reports as adding every post, is skipped.
+    """
+    git = lambda *a: subprocess.run(["git", *a], cwd=root, capture_output=True, text=True).stdout
+    shallow_file = Path(root) / git("rev-parse", "--git-path", "shallow").strip()
+    shallow = set(shallow_file.read_text().split()) if shallow_file.is_file() else set()
+    log = git("log", ref, "--first-parent", f"--since={since}", "--diff-filter=A", "--name-only",
+              "--format=@%H %cI %s", "--", "docs/posts/*.md")
+    out, head, skip = [], None, False
+    for line in log.splitlines():
+        if line.startswith("@"):
+            head, skip = line[1:], line[1:].split()[0] in shallow
+            continue
+        if not line.strip() or skip or not head:
+            continue
+        sha, stamp = head.split()[:2]
+        day = datetime.datetime.fromisoformat(stamp).astimezone(datetime.timezone.utc).date()
+        name = line.rsplit("/", 1)[-1]
+        found = problems(name, git("show", f"{sha}:{line}"), today=day)
+        if found:
+            out.append((f"{sha[:9]} {stamp[:10]} {head.split(None, 2)[2][:90]}", name, found))
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("posts", nargs="*", help="check only these posts (default: every post)")
     ap.add_argument("--limits", action="store_true", help="print the front-matter limits and exit")
+    ap.add_argument("--landed-since", metavar="DATE",
+                    help="list posts that failed this check in the main commit that added them (exit 0: a report)")
     args = ap.parse_args(argv)
+    if args.landed_since:
+        found = landed_broken(args.landed_since, root=args.root)
+        for commit, name, ps in found:
+            print(f"{commit}\n    {name}: {'; '.join(ps)}")
+        print(f"{len(found)} post(s) reached main failing this check since {args.landed_since}")
+        return 0
     if args.limits:
         print(limits_line())
         return 0
