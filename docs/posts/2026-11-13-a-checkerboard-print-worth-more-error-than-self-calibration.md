@@ -3,7 +3,7 @@ title: "A checkerboard print worth more focal-length error than self-calibration
 seo_title: "Camera self-calibration on real images: covariance and corner bias"
 date: 2026-11-13
 tags: [research, sensing-selfcal, computer-vision, robotics]
-description: "First full paper draft of the sensing-selfcal programme: target-free calibration matches Zhang to 0.2%, the solver's σ is 2× small, and half-width end squares bias the default corner window by up to 0.9%."
+description: "Paper draft: camera self-calibration matches Zhang to 0.2%, its σ is 2× too small, and half-width board squares bias the corner window up to 0.9%."
 ---
 
 The `sensing-selfcal` programme asks a question a fleet perception engineer
