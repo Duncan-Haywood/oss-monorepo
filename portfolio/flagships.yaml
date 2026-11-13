@@ -162,12 +162,11 @@ flagships:
       Porte 3.1 landed (README): open: SAT's CP error matrix to map
       MX-070..080 to CP codes (omawww blocked), a real payroll or export file,
       a PAC rejection compared; postal codes (MX-080) landed (README); Brazil
-      NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII
-      fix); PL_010_V1.30 reform layout and IBS/CBS/IS sums (BR-050..052,
-      4,987/4,987 vs xmllint) landed 2026-11-12; open: a real reform NF-e from
-      a SEFAZ test environment, cClassTrib/rate tables, a real SEFAZ
-      rejection; national NFS-e landed 2026-11-12 (README "Brazil: national
-      NFS-e"): open: a national-system rejection compared, municipal rates,
+      NF-e 4.00, PL_010 reform sums and the cClassTrib table (BR-053..057,
+      NFSE-034..036, 2026-11-13) landed (README); open: a real reform NF-e
+      from a SEFAZ test environment, the cCredPres table, a real SEFAZ
+      rejection for a cClassTrib; national NFS-e landed 2026-11-12 (README
+      "Brazil: national NFS-e"): open: a national-system rejection compared, municipal rates,
       ABRASF layouts; refresh the Bulgaria page when its draft passes. A run
       that lands a slice replaces its item here; keep this under 2,000
       characters.

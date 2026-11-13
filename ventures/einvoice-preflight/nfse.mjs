@@ -20,13 +20,18 @@
 //      - vDescIncond - vTotalRet;
 //   4. the IBS/CBS sums (NFSE-030..NFSE-033): the reform base (to 2026 net of ISSQN, PIS
 //      and COFINS; 2027-2032 net of ISSQN), each tax at its effective rate, vIBSTot =
-//      vIBSUF + vIBSMun, and vTotNF (vLiq in 2026, plus IBS and CBS from 2027).
+//      vIBSUF + vIBSMun, and vTotNF (vLiq in 2026, plus IBS and CBS from 2027);
+//   5. the classification (NFSE-034..NFSE-036): the DPS's CST and cClassTrib against the
+//      published IBS/CBS table (cclasstrib.mjs): the code exists and belongs to the CST
+//      (NFSE-034), is allowed on an NFS-e and valid on the date (NFSE-035), and the NFS-e's
+//      pRedAliqUF/Mun/CBS is the code's reduction (NFSE-036).
 // An offline observation, not the national system's authorisation, and not tax advice.
 
 import { COMPLEX, SIMPLE, PACKAGE } from "./nfse-xsd-data.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { keyCheckDigit } from "./nfe.mjs";
+import { checkClassTrib } from "./cclasstrib.mjs";
 
 export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";
 export { PACKAGE };
@@ -326,15 +331,21 @@ function checkReform(inf, infDPS, iss, out, skipped) {
     const node = kid(v, grp);
     if (!node) continue;
     const rate = txt(node, p), ef = txt(node, pEf);
-    if (txt(node, pRed) || pRedutor) reduced = true;
-    else if (rate && ef && units(rate, 4) !== units(ef, 4)) out.push(finding("NFSE-031", `${pEf} is ${ef}%, but with no reduction (${pRed}, pRedutor) the effective rate is ${p} ${rate}%.`, `Set ${pEf} to ${rate}, or state the reduction.`, `${P}/valores/${grp}/${pEf}`));
+    const red = txt(node, pRed);
+    if (pRedutor) reduced = true;
+    else if (red && rate && ef) {
+      // A percentage, as the NF-e schema's TRed note says ("Percentual"); Unimake's NFS-e
+      // and NF-e samples write 60.00 for a 60% cut, and 0.10 x (1 - 60/100) = 0.04.
+      const want = Number(rate) * (1 - Number(red) / 100);
+      if (Number.isFinite(want) && Math.abs(Number(ef) - want) > 0.00005) out.push(finding("NFSE-031", `${pEf} is ${ef}%, but ${p} ${rate}% less the ${pRed} ${red}% reduction is ${Number(want.toFixed(4))}%.`, `Set ${pEf} to ${Number(want.toFixed(4))}, or check the reduction.`, `${P}/valores/${grp}/${pEf}`));
+    } else if (!red && rate && ef && units(rate, 4) !== units(ef, 4)) out.push(finding("NFSE-031", `${pEf} is ${ef}%, but with no reduction (${pRed}, pRedutor) the effective rate is ${p} ${rate}%.`, `Set ${pEf} to ${rate}, or state the reduction.`, `${P}/valores/${grp}/${pEf}`));
     const amount = val(tot, ...totPath);
     if (vBC && ef && amount) {
       const want = taxOf(cents(vBC), ef);
       if (Number.isFinite(want) && Number.isFinite(cents(amount)) && Math.abs(want - cents(amount)) > 1) out.push(finding("NFSE-031", `${label} is ${amount}, but vBC ${vBC} x ${pEf} ${ef}% = ${money(want)}.`, `Recompute ${label} from the base and the effective rate.`, `${P}/totCIBS/${totPath.join("/")}`));
     }
   }
-  if (reduced) skipped.push("IBS/CBS effective rates: a rate reduction (pRedAliq or pRedutor) is stated, and whether it is a fraction or a percentage was not read; the effective rates are taken as stated");
+  if (reduced) skipped.push("IBS/CBS effective rates: a government-purchase reducer (pRedutor) is stated, and how it combines with the rate was not read; the effective rates are taken as stated");
   // NFSE-032: vIBSTot = vIBSUF + vIBSMun.
   const gIBS = kid(tot, "gIBS");
   if (gIBS) {
@@ -347,6 +358,34 @@ function checkReform(inf, infDPS, iss, out, skipped) {
     const extra = year >= 2027 ? cents(val(gIBS, "vIBSTot")) + cents(val(tot, "gCBS", "vCBS")) : 0;
     const want = iss.vLiq + extra;
     if (Number.isFinite(want) && cents(vTotNF) !== want) out.push(finding("NFSE-033", `vTotNF is ${vTotNF}, but ${year >= 2027 ? `vLiq ${money(iss.vLiq)} + vCBS + vIBSTot` : `in ${year} it equals vLiq`} = ${money(want)} (the schema's vTotNF note).`, year >= 2027 ? "From 2027 IBS and CBS are charged on top: add them to vLiq." : "Until 2027 the IBS and CBS are informative: set vTotNF to vLiq.", `${P}/totCIBS/vTotNF`));
+  }
+}
+
+// NFSE-034..NFSE-036: the DPS's CST and cClassTrib against the classification table
+// (cclasstrib.mjs). The NFS-e's gIBSCBS (cCredPres, gTribRegular, gDif) is not the NF-e
+// value group, so the group indicators are not read here.
+const CT_RULE = { unknown: "NFSE-034", cst: "NFSE-034", doc: "NFSE-035", date: "NFSE-035", red: "NFSE-036" };
+function checkClassification(infDPS, DP, inf, out) {
+  const trib = descend(infDPS, "IBSCBS", "valores", "trib");
+  if (!trib) return;
+  const v = kid(kid(inf, "IBSCBS"), "valores");
+  const red = {}, taxed = [];
+  for (const [part, grp, f] of [["IBSUF", "uf", "pRedAliqUF"], ["IBSMun", "mun", "pRedAliqMun"], ["CBS", "fed", "pRedAliqCBS"]]) {
+    const node = kid(v, grp);
+    if (!node) continue;
+    taxed.push(part);
+    if (kid(node, f)) red[part] = txt(node, f);
+  }
+  // Rates of zero with no reduction stated (São Paulo's sample: pIBSMun 0.00) do not need a
+  // gRed: only a stated rate above zero is read for a missing reduction.
+  const field = { IBSUF: ["uf", "pIBSUF"], IBSMun: ["mun", "pIBSMun"], CBS: ["fed", "pCBS"] };
+  const date = (txt(infDPS, "dCompet") || txt(infDPS, "dhEmi")).slice(0, 10);
+  for (const p of checkClassTrib({ cst: txt(trib, "CST"), code: txt(trib, "cClassTrib"), doc: "nfse", date, red: v ? red : null, taxed })) {
+    if (p.kind === "red" && !Object.hasOwn(red, p.part) && !(Number(val(v, ...field[p.part])) > 0)) continue;
+    const path = p.kind === "red" ? `/NFSe/infNFSe/IBSCBS/valores/${field[p.part][0]}` : p.kind === "date" ? `${DP}/dCompet` : `${DP}/IBSCBS/valores/trib/cClassTrib`;
+    const rule = Object.hasOwn(CT_RULE, p.kind) ? CT_RULE[p.kind] : null;
+      if (!rule) continue;
+    out.push(finding(rule, p.message, p.fix, path));
   }
 }
 
@@ -383,6 +422,7 @@ export function checkNfse(text) {
   checkDpsId(infDPS, DP, findings);
   if (inf) checkNfseKey(inf, infDPS, findings, skipped);
   checkIds(infDPS, DP, inf, findings);
+  checkClassification(infDPS, DP, inf, findings);
   if (inf) {
     const iss = checkIssqn(inf, infDPS, DP, findings);
     checkReform(inf, infDPS, iss, findings, skipped);

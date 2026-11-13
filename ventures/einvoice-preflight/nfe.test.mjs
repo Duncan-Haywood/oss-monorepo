@@ -205,3 +205,40 @@ test("the open-source corpus: 17 clean files, every seeded fault caught", async 
   for (const m of out.mutations) assert.equal(m.caught, m.applied, m.mutation);
   assert.equal(out.mutations.reduce((s, m) => s + m.caught, 0), 153);
 });
+
+test("BR-053..BR-057: CST and cClassTrib against the classification table", async () => {
+  const { CODES, TABLE } = await import("./cclasstrib-data.mjs");
+  assert.ok(TABLE.codes >= 160 && TABLE.published >= "2026-06-22");
+  const ct = (t) => rules(t).filter((r) => /^BR-05[3-7]$/.test(r));
+  const item1 = '<IBSCBS><CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260.00</vBC><gIBSUF><pIBSUF>0.1000</pIBSUF><vIBSUF>0.26</vIBSUF></gIBSUF><gIBSMun><pIBSMun>0.0000</pIBSMun><vIBSMun>0.00</vIBSMun></gIBSMun><vIBS>0.26</vIBS><gCBS><pCBS>0.9000</pCBS><vCBS>2.34</vCBS></gCBS></gIBSCBS></IBSCBS>';
+  // A CST 200 code with a 60% cut, written as Unimake's RTC samples write it.
+  const c60 = Object.entries(CODES).find(([, c]) => c.cst === "200" && c.nfe && c.pRedIBS === 60 && c.pRedCBS === 60)[0];
+  const red = (p, r, ef) => `<gRed><pRedAliq>${r}</pRedAliq><pAliqEfet>${ef}</pAliqEfet></gRed>`;
+  const item60 = (cbsRed = red("CBS", "60.0000", "0.3600")) => `<IBSCBS><CST>200</CST><cClassTrib>${c60}</cClassTrib><gIBSCBS><vBC>260.00</vBC><gIBSUF><pIBSUF>0.1000</pIBSUF>${red("UF", "60.0000", "0.0400")}<vIBSUF>0.26</vIBSUF></gIBSUF><gIBSMun><pIBSMun>0.0000</pIBSMun>${red("Mun", "60.0000", "0.0000")}<vIBSMun>0.00</vIBSMun></gIBSMun><vIBS>0.26</vIBS><gCBS><pCBS>0.9000</pCBS>${cbsRed}<vCBS>2.34</vCBS></gCBS></gIBSCBS></IBSCBS>`;
+  assert.deepEqual(ct(rswap(item1, item60())), []);
+  // the CBS reduction left off, a wrong reduction, a wrong effective rate
+  assert.deepEqual(ct(rswap(item1, item60(""))), ["BR-057"]);
+  assert.match(checkNfe(rswap(item1, item60(""))).findings.find((f) => f.rule === "BR-057").message, /reduces the CBS rate by 60%/);
+  assert.deepEqual(ct(rswap(item1, item60(red("CBS", "40.0000", "0.5400")))), ["BR-057"]);
+  const ef = checkNfe(rswap(item1, item60(red("CBS", "60.0000", "0.5400")))).findings.filter((f) => f.rule === "BR-057");
+  assert.equal(ef.length, 1);
+  assert.match(ef[0].message, /pAliqEfet is 0\.5400%, but pCBS 0\.9000% less the 60\.0000% reduction \(pRedAliq\) is 0\.36%/);
+  // a reduction on a code that has none (nfelib's reform sample writes pRedAliq 1 on 000001)
+  assert.deepEqual(ct(rswap("<pCBS>0.9000</pCBS><vCBS>2.34", `<pCBS>0.9000</pCBS>${red("CBS", "1.0000", "0.8910")}<vCBS>2.34`)), ["BR-057"]);
+  // unknown code; a code of another CST
+  assert.deepEqual(ct(rswap("<cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", "<cClassTrib>000099</cClassTrib><gIBSCBS><vBC>260")), ["BR-053"]);
+  const wrongCst = checkNfe(rswap("<CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", "<CST>410</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260"));
+  assert.ok(wrongCst.findings.some((f) => f.rule === "BR-053" && /belongs to CST 000/.test(f.message)));
+  // CST 410 (immunity) takes no gIBSCBS group
+  const c410 = Object.entries(CODES).find(([, c]) => c.cst === "410" && c.nfe && !c.credPres)[0];
+  const imm = rswap("<CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", `<CST>410</CST><cClassTrib>${c410}</cClassTrib><gIBSCBS><vBC>260`);
+  assert.deepEqual(ct(imm), ["BR-056"]);
+  // a code the table does not allow on a model 55, and on an NFC-e
+  const notNfe = Object.entries(CODES).find(([, c]) => c.cst === "000" && !c.nfe)[0];
+  assert.deepEqual(ct(rswap("<cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", `<cClassTrib>${notNfe}</cClassTrib><gIBSCBS><vBC>260`)), ["BR-054"]);
+  // a code that has ended: 220001 stops on 2026-01-01; the fixture is dated 2026-11-12
+  const ended = Object.entries(CODES).find(([, c]) => c.to && c.to < "2026-11-12");
+  assert.ok(ended, "the table has a code that has ended");
+  const r = ct(rswap("<CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", `<CST>${ended[1].cst}</CST><cClassTrib>${ended[0]}</cClassTrib><gIBSCBS><vBC>260`));
+  assert.ok(r.includes("BR-055"), r.join());
+});
