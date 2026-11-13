@@ -36,6 +36,17 @@ CHECKS = [
     ("&minus;0.589 with p99", "excavator_breakeven_geometry_results.txt", "Spearman(peakiness, f_t,max) -0.589"),
     ("0.207 to 0.470 of each", "excavator_breakeven_geometry_results.txt", "min 0.207, median 0.316, max 0.470"),
     ("within 0.0012", "excavator_fuel_breakeven_results.txt", "max |diff| 0.0012 over 20 rows"),
+    # milestone 6i: section 3.7j
+    ("g is only 0.014 at the central geometry but a median 0.129", "excavator_loss_below_x0_results.txt", "central geometry: g 0.0142"),
+    ("over the 384 geometries (p90 0.311)", "excavator_loss_below_x0_results.txt", "median 0.1293, p90 0.3109"),
+    ("is a median 0.446", "excavator_loss_below_x0_results.txt", "s median 0.4455"),
+    ("zero-stroke loss 18.09 bar", "excavator_loss_below_x0_results.txt", "19.49 - 1.39 = 18.09 bar"),
+    ("from 5.50 to 5.64 L/h", "excavator_loss_below_x0_results.txt", "anchored: eta_LS 0.7672, f_t,max 5.635 L/h"),
+    ("from 3.32 to 4.63 L/h", "excavator_loss_below_x0_results.txt", "f_t,max min 2.64, p10 3.36, median 4.63"),
+    ("in 44.3 to 66.7% of geometries", "excavator_loss_below_x0_results.txt", "beats 3.986: 66.7%, 5.056: 44.3%"),
+    ("(70.3% with the 4-term fit", "excavator_loss_below_x0_results.txt", "beats 3.986: 70.3%"),
+    ("88.8% with a fit on the small strokes", "excavator_loss_below_x0_results.txt", "beats 3.986: 88.8%"),
+    ("at a median 0.950 of the piston", "excavator_loss_below_x0_results.txt", "256 geometries where a fixed pump wins: median 0.9496"),
     # milestone 6h: section 3.7i
     ("RMS efficiency residual 0.0156 at 60 C", "pump_loss_model_results.txt", "60 C 0.0156"),
     ("efficiency at 0.1 of stroke is 0.440", "pump_loss_model_results.txt", "x 0.100: model 0.440, table 0.672"),
