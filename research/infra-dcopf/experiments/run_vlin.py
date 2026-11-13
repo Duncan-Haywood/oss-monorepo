@@ -186,8 +186,9 @@ def compare_screen(rows, L):
     P("")
     lab = "Clarabel (C)" if SOLVER == "clarabel" else "Screened QP (S)"
     P(f"{lab} against PIPS on the full QP (U), same variant ({path.name}); S/C columns are this run:")
-    P(f"{'case':18s} {'kind':4s} {'U':>6s} {'S':>6s} {'U+R':>6s} {'S+R':>6s} {'same path':>9s} {'dCost pp':>9s} "
-      f"{'U s':>7s} {'S s':>7s} {'speedup':>7s} {'rows':>6s} {'used':>6s} {'pass':>5s} {'fb':>3s}")
+    a = "C" if SOLVER == "clarabel" else "S"
+    P(f"{'case':18s} {'kind':4s} {'U':>6s} {a:>6s} {'U+R':>6s} {a + '+R':>6s} {'same path':>9s} {'dCost pp':>9s} "
+      f"{'U s':>7s} {a + ' s':>7s} {'speedup':>7s} {'rows':>6s} {'used':>6s} {'pass':>5s} {'fb':>3s}")
     agg = {"u": 0, "s": 0, "ur": 0, "sr": 0, "same": 0, "path": 0, "n": 0, "us": 0.0, "ss": 0.0,
            "rows": 0, "used": 0, "calls": 0, "passes": 0, "fb": 0}
     dcost, ratios = [], []
@@ -222,15 +223,15 @@ def compare_screen(rows, L):
         agg["ss"] += r["J_secs"]
         for k, kk in (("rows", "rows_full"), ("used", "rows_used"), ("calls", "calls"), ("passes", "passes"), ("fb", "fallback")):
             agg[k] += q.get(kk, 0)
-    P(f"  {agg['n']} cases: fully clean U {agg['u']}, S {agg['s']} (same verdict on {agg['same']}, same round-by-round "
-      f"statuses on {agg['path']}); with the reactive stage U {agg['ur']}, S {agg['sr']}")
+    P(f"  {agg['n']} cases: fully clean U {agg['u']}, {a} {agg['s']} (same verdict on {agg['same']}, same round-by-round "
+      f"statuses on {agg['path']}); with the reactive stage U {agg['ur']}, {a} {agg['sr']}")
     if dcost:
-        P(f"  cost difference S - U where both fully clean ({len(dcost)}): max |d| {max(abs(x) for x in dcost):.4f} pp, "
+        P(f"  cost difference {a} - U where both fully clean ({len(dcost)}): max |d| {max(abs(x) for x in dcost):.4f} pp, "
           f"mean {np.mean(dcost):+.4f} pp")
-    P(f"  repair time (J only, summed): U {agg['us']:.0f} s, S {agg['ss']:.0f} s ({agg['us'] / max(agg['ss'], 1e-9):.1f}x); "
+    P(f"  repair time (J only, summed): U {agg['us']:.0f} s, {a} {agg['ss']:.0f} s ({agg['us'] / max(agg['ss'], 1e-9):.1f}x); "
       f"per-case speedup median {np.median(ratios):.1f}x, range {min(ratios):.1f} to {max(ratios):.1f}x")
-    P(f"  QP rows: {agg['rows']} in the full QPs, {agg['used']} used by the screened ones "
-      f"({100 * agg['used'] / max(agg['rows'], 1):.1f} %); {agg['passes']} PIPS solves for {agg['calls']} QPs; "
+    P(f"  QP rows: {agg['rows']} in the full QPs, {agg['used']} used by this run "
+      f"({100 * agg['used'] / max(agg['rows'], 1):.1f} %); {agg['passes']} solver calls for {agg['calls']} QPs; "
       f"{agg['fb']} fell back to the full QP")
 
 

@@ -163,6 +163,22 @@ Milestone 3b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `src/infra_dcopf/vl
 - **Cost.** n_gen + n_vbus power flows per round, up to 10 rounds; 26 min for all 36 cases on 4 processes, of which case300 API (no QP solution in 10 rounds) takes 10 min.
 - **Limits.** J-m's margins were chosen after seeing J on the same cases, so 28 of 34 is a tuning-set figure until the frozen rules run on held-out cases. PIPS only; one load point per case; no LPAC baseline yet. Not repaired: case300 TYP and API, case179 TYP, case73 API, case118 API, case240 SAD.
 
+## Is the repair's QP solved correctly? (added 2026-11-13, `experiments/audit_qp.py`, `audit_qp.txt`, `run_vlin.py --margin --analytic --clarabel` / `--screen`)
+Milestone 2b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). Every QP the repair poses (347 along J-m-a's path on 34 PGLib cases) was re-solved by Clarabel (an independent interior-point solver) and by a screened PIPS solve (constraint generation over the rows near their bounds, exact for a convex QP), and the whole repair was rerun with each. Plan and predictions logged before the runs.
+
+| | PIPS, full QP (U, as before) | PIPS, screened (S) | Clarabel, full QP (C) |
+|---|---|---|---|
+| hard QPs solved, of 248 | 173 | 173 | 178 |
+| elastic QPs solved, of 99 | 63 | 55 | **89** |
+| objective agrees with C where both solve | 236 of 236 | 228 of 228 | |
+| J-m fully clean, of 34 | 19 | 21 | **21** |
+| J-m then reactive stage, of 34 | 29 | 29 | **31** |
+| repair time, summed over 34 cases | 1,353 s | 452 s (3.0x) | **260 to 277 s (4.9 to 5.2x)** |
+
+- **Where PIPS reports a solution, it is the right one** (every objective matches Clarabel within 1e-6), so the costs of finished repairs stand.
+- **PIPS's failures on the elastic QP are mostly spurious.** An elastic QP has a slack on every row and is almost always feasible; PIPS failed 36 of 99, Clarabel solved 26 of those. On case24 API and case73 SAD the repair had been halving its step box after these failures; with Clarabel both finish. Hard-QP failures are mostly real: Clarabel solves 5 of PIPS's 75.
+- **Clarabel is the solver for later milestones** (`solver="clarabel"`; the default stays PIPS so earlier scripts reproduce): never worse here, about 5x faster. Screening is exact but uses PIPS, and inherits its elastic failures.
+
 ## Analytic sensitivities from the power-flow Jacobian (added 2026-11-13, `experiments/check_sens.py`, `results_sens.txt`, `run_vlin.py --margin --analytic`, `results_vlin_margin_analytic.txt`)
 Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens` takes every sensitivity J-m uses (slack P, |S| at both branch ends, angle differences, PQ-bus voltages, unit Q; with respect to unit P and generator voltage setpoints) from the Newton Jacobian at the base power flow, by the implicit function theorem: one sparse LU and one solve per round, instead of n_gen + n_vbus extra power flows. Plan and predictions logged before the run.
 
@@ -185,8 +201,8 @@ Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens`
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 40)
-- `tests/test_vlin.py` (8): the analytic sensitivities match central finite differences to 1e-4 (scaled) on case14 API and case30 SAD, and an analytic linearisation runs one power flow; the joint check is clean at the AC optimum and returns its cost, per-bus setpoints round-trip to per-unit VG, a 0.004 pu setpoint move is predicted to first order, the bound-shrinking helper stops at the midpoint, and the method repairs case14 API from 1.0 pu at the optimum's cost (within 0.1 %).
+## Checks (`tests/`, 42)
+- `tests/test_vlin.py` (10): the screened QP returns the full QP's solution (hard and elastic) with fewer rows, and Clarabel and PIPS solve the same QP to the same point; the analytic sensitivities match central finite differences to 1e-4 (scaled) on case14 API and case30 SAD, and an analytic linearisation runs one power flow; the joint check is clean at the AC optimum and returns its cost, per-bus setpoints round-trip to per-unit VG, a 0.004 pu setpoint move is predicted to first order, the bound-shrinking helper stops at the midpoint, and the method repairs case14 API from 1.0 pu at the optimum's cost (within 0.1 %).
 - `tests/test_vsched.py` (4): the reference dict carries a schedule to every generator bus, PGLib's file schedule is flat 1.0 pu, pinning holds every non-slack unit within 0.02 MW, and the reactive stage at the AC optimum's dispatch returns the optimum's cost.
 - `tests/test_aclin.py` (5): on case30 API, the linearisation's offsets reproduce the AC power flow at its point, a 5 MW redispatch is predicted to within 0.05 MW of slack and 0.5 MVA of branch flow, the loss factors lie in a physical range, the QP solution satisfies its own linear constraints, and the linearisation at the AC optimum returns an AC-feasible dispatch.
 - `tests/test_pglib.py` (5): the PGLib reader, the parsed BASELINE.md table, the AC OPF against PGLib's published case118 TYP and API objectives (within 0.01 %), and the PowerModels DC convention reproducing the published case14 API DC cost while MATPOWER's B matrix does not.
@@ -280,9 +296,9 @@ Next step 2 asked for an outage stress test. Penalty factors and loss share are 
 
 ## Reproduce
 ```bash
-pip install pytest numpy pandapower
+pip install pytest numpy pandapower pypower clarabel
 cd research/infra-dcopf
-python -m pytest -q tests                     # 40 tests, about 30 s
+python -m pytest -q tests                     # 43 tests, about 30 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
 PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes results_prev_interval.txt
@@ -291,6 +307,9 @@ OMP_NUM_THREADS=1 python experiments/run_vsched.py  # about 6 min on 4 processes
 OMP_NUM_THREADS=1 python experiments/run_vlin.py    # about 29 min on 4 processes, needs pypower; writes results_vlin.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin  # variant J-m, about 26 min; writes results_vlin_margin.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic  # J-m, Jacobian sensitivities, about 24 min; writes results_vlin_margin_analytic.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --clarabel  # milestone 2b, Clarabel on every QP, about 2 min; results_vlin_margin_analytic_clarabel.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --screen    # milestone 2b, screened PIPS QP, about 3 min; results_vlin_margin_analytic_screen.txt/.json
+OMP_NUM_THREADS=1 python experiments/audit_qp.py  # every QP of J-m-a's path under PIPS, screened PIPS and Clarabel, about 12 min; audit_qp.txt/.json
 python experiments/check_sens.py              # analytic vs central differences, about 2 min; writes results_sens.txt
 python experiments/profile_vlin.py case118_ieee api  # where the repair's time goes
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
@@ -316,7 +335,8 @@ python experiments/figure.py                  # experiments/gap_vs_load.svg
 
 - Babaeinejadsarookolaee, S. et al. (2019), The Power Grid Library for Benchmarking AC Optimal Power Flow Algorithms, arXiv:1908.02788 (PGLib-OPF; cases v23.07 in `data/pglib/`, CC BY 4.0).
 - Fletcher, R., Sainz de la Maza, E. (1989), Nonlinear programming and nonsmooth optimization by successive linear programming, *Mathematical Programming* 43, 235&ndash;256, doi:10.1007/BF01582292 (the l1-penalised SLP step used in C; DOI, volume and pages checked 2026-11-12 against the publisher's first page via a web search, the resolver being unreachable).
+- Goulart, P. J., Chen, Y. (2024), Clarabel: An interior-point solver for conic programs with quadratic objectives, arXiv:2405.12762 (the QP solver adopted in milestone 2b; version 0.11.1 from PyPI; title, authors and arXiv id checked 2026-11-13 against the BibTeX in its PyPI description, arXiv itself unreachable through the proxy).
 - Coffrin, C., Bent, R., Sundar, K., Ng, Y., Lubin, M. (2018), PowerModels.jl: An Open-Source Framework for Exploring Power Flow Formulations, *Power Systems Computation Conference (PSCC)*, doi:10.23919/PSCC.2018.8442948.
 
 ## Outside dependencies
-pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`), and SciPy (sparse matrices for PYPOWER's QP).
+pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`), and SciPy (sparse matrices for PYPOWER's QP), and Clarabel (Apache 2.0) for the repair's QP since milestone 2b.

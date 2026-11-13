@@ -370,12 +370,12 @@ def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None, screen=
         QP_LOG.append(dict(H=H, c=c, A=A, u=u, a_eq=a_eq, b_eq=b_eq, xmin=xmin, xmax=xmax, x0=x0,
                            elastic=elastic, ng=ng))
     QP_STATS["calls"] += 1
+    QP_STATS["rows_full"] += m
     if solver == "clarabel":
         QP_STATS["rows_used"] += m
         QP_STATS["passes"] += 1
         x, ok = _qp_clarabel(H, c, A, u, a_eq, b_eq, xmin, xmax, x0, elastic)
         return x[:ng], x[ng:], ok
-    QP_STATS["rows_full"] += m
     if not screen:
         QP_STATS["rows_used"] += m
         QP_STATS["passes"] += 1
