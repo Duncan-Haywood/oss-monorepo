@@ -81,7 +81,7 @@
     <label for="teams">One team per line</label>
     <textarea id="teams" rows="8" placeholder="Net Ninjas&#10;Dink Dynasty&#10;Kitchen Kings&#10;Lob Squad&#10;Spin Doctors"></textarea>
     <div class="check"><input type="checkbox" id="double"><label for="double" style="display:inline;margin:0;font-weight:400">Double round robin (everyone plays everyone twice, once at each home)</label></div>
-    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs twelve searches in the background, side by side on your device's cores: a few seconds, up to about 35 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
+    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs twelve searches in the background, side by side on your device's cores: a few seconds, up to about 35 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first, then squeezes four more seasons into the gaps between them, about 2 more seconds); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
     <input type="hidden" id="carryOverKeep" value="" aria-label="Season picked from the frontier list">
     <div><label for="carryOverPick">When spreading, run the searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">fewer back-to-back home or away games</option><option value="fewest">the fewest back-to-back home or away games possible, then the most even carry-over</option></select></div>
 
@@ -376,7 +376,7 @@
   <script type="module">
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
-    import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP } from "./carryover.mjs";
+    import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -575,9 +575,40 @@
       const b = combineCarryOverTries(results, spec.carryOverPick, { among: CARRY_CHOICE, keep });
       return { teams: n, double: spec.double, rounds: b.rounds, summary: carryOverSummary(b) };
     }
+    // A home-and-away season then runs CARRY_OVER_SQUEEZE squeezes (carryOverSqueeze) on one more
+    // worker: seasons searched under a break cap into the widest gaps of the tries' frontier. Like
+    // the gap tries they only join the list, so the four choices are unchanged.
+    function squeezeCarryOver(n, spec, results, done) {
+      const base = [...results].sort((a, b) => a.index - b.index);
+      const onMain = () => later(() => {
+        const out = base.slice();
+        try { for (let j = 0; j < CARRY_OVER_SQUEEZE; j++) { const t = carryOverSqueeze(n, out, { seed: spec.seed }); if (!t) break; out.push(t); } } catch { /* the tries alone */ }
+        done(out);
+      });
+      status.textContent = `Searching for an even carry-over: ${CARRY_TRIES} searches done; squeezing ${CARRY_OVER_SQUEEZE} more seasons into the gaps...`;
+      let w;
+      try { w = new Worker("./carryover-worker.mjs", { type: "module" }); } catch { onMain(); return; }
+      const pool = [w];
+      carryPool = pool;
+      const out = base.slice();
+      let over = false;
+      const fall = () => { if (over) return; over = true; w.terminate(); if (carryPool === pool) carryPool = []; onMain(); };
+      w.onmessage = (e) => {
+        const d = e.data;
+        if (carryPool !== pool || over) return;
+        if (d.type === "try") out.push(d.result);
+        else if (d.type === "done") { over = true; w.terminate(); carryPool = []; done(out); }
+        else fall();
+      };
+      w.onerror = (e) => { e.preventDefault(); fall(); };
+      w.postMessage({ squeeze: CARRY_OVER_SQUEEZE, n, seed: spec.seed, results: base });
+    }
     function searchCarryOver(key, spec, then) {
       const n = spec.teams.length;
-      const keep = (results) => { triesCache.set(key, results); then(); };
+      const keep = (results) => {
+        if (!spec.double) { triesCache.set(key, results); then(); return; }
+        squeezeCarryOver(n, spec, results, (all) => { triesCache.set(key, all); then(); });
+      };
       const onMain = () => later(() => {
         try { keep(Array.from({ length: CARRY_TRIES }, (_, i) => carryOverTry(n, i, { double: spec.double, seed: spec.seed, weighted: CARRY_WEIGHTED }))); } catch (e) { status.textContent = e.message; }
       });

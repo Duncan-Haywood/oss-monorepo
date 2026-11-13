@@ -52,6 +52,13 @@ class WaitFor(unittest.TestCase):
             self.assertFalse(wait(p, marker="EXIT", timeout=3, clock=lambda: t[0], nap=nap)[0])
             self.assertFalse(wait(p, timeout=3, clock=lambda: t[0], nap=nap)[0])
 
+    def test_marker_ending_in_equals_or_colon_is_a_prefix(self):
+        from wait_for import is_marker
+        self.assertTrue(is_marker("rc=0", "rc="))
+        self.assertTrue(is_marker("exit: 1", "exit:"))
+        self.assertFalse(is_marker("the rc=0 line", "rc="))
+        self.assertFalse(is_marker("rc0", "rc="))
+
     def test_default_accepts_the_harness_task_file_ending_and_a_dash(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")

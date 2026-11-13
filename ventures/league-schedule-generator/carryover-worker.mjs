@@ -7,12 +7,27 @@
 // carryOverTry output, rounds included, for combineCarryOverTries on the page), then
 // { type: "done" }, or { type: "error", error }.
 //
+// Squeeze mode (home and away, after the pool): In { squeeze: count, n, seed, results } (every
+// try's result, by index). Out: { type: "try", i, candidate, result } per squeezed season
+// (carryOverSqueeze, numbered after the tries), then { type: "done" }.
+//
 // Whole-search mode (older pages, kept for cached copies): In { n, double, seed, tries, capped, pick }.
 // Out: { type: "try", i, tries, candidate } per search, then { type: "done", rounds, summary }.
-import { bestCarryOverRounds, carryOverSummary, carryOverTry } from "./carryover.mjs";
+import { bestCarryOverRounds, carryOverSummary, carryOverTry, carryOverSqueeze } from "./carryover.mjs";
 self.onmessage = (e) => {
-  const { n, double, seed, tries, capped, pick, indices, weighted } = e.data || {};
+  const { n, double, seed, tries, capped, pick, indices, weighted, squeeze, results } = e.data || {};
   try {
+    if (Number.isInteger(squeeze) && Array.isArray(results)) {
+      const all = [...results].sort((a, b) => a.index - b.index);
+      for (let j = 0; j < squeeze; j++) {
+        const result = carryOverSqueeze(n, all, { seed });
+        if (!result) break;
+        all.push(result);
+        self.postMessage({ type: "try", i: result.index, candidate: { coe: result.coe, breaks: result.breaks, breakWeight: null, maxBreaks: result.maxBreaks }, result });
+      }
+      self.postMessage({ type: "done" });
+      return;
+    }
     if (Array.isArray(indices)) {
       for (const i of indices) {
         const result = carryOverTry(n, i, { double: Boolean(double), seed, weighted: Number.isInteger(weighted) ? weighted : Infinity });

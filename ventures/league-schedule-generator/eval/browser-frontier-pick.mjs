@@ -2,7 +2,8 @@
 // home-and-away season with "Spread who you meet next", clicks another season on the frontier,
 // checks the schedule and the read-out follow it, that the share link reopens on it, and that
 // "Back to the choice above" and changing the choice return to the first season.
-// Options: --teams=12. Needs Playwright and a Chromium (skips with exit 0 otherwise):
+// Since 2026-11-13 it also checks a squeezed season (README "Squeezing a season under a cap") is
+// listed and picks it. Options: --teams=12. Needs Playwright and a Chromium (skips with exit 0 otherwise):
 //   node eval/browser-frontier-pick.mjs
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -49,15 +50,21 @@ await page.check("#wd2");
 await page.check("#double");
 await page.check("#carryOver");
 await page.click("#build");
-await waitLine(page, /Best of 12 searches/);
+await waitLine(page, /Best of \d+ searches/);
 const before = await fixtures(page);
 const shown = (await line(page)).match(/kept (\d+)\/(\d+)/);
 const buttons = page.locator("#carry-frontier button[data-keep]:not([disabled])");
 const count = await buttons.count();
 check(!(await page.locator("#carry-frontier").isHidden()) && count >= 1, `the frontier list shows (${count} other season(s)): ${(await page.locator("#carry-frontier").textContent()).trim()}`);
-const label = await buttons.first().textContent();
-await buttons.first().click();
-await waitLine(page, /Picked from 12 searches/);
+// a squeezed season (index 12 and up, CARRY_OVER_SQUEEZE) is picked when one is listed, so the
+// share link has to rebuild the squeezes to reopen on it
+const keeps = await buttons.evaluateAll((bs) => bs.map((b) => Number(b.dataset.keep)));
+const sqAt = keeps.findIndex((k) => k >= 12);
+check(sqAt >= 0, `a squeezed season is on the list (try numbers ${keeps.join(", ")})`);
+const target = buttons.nth(Math.max(0, sqAt));
+const label = await target.textContent();
+await target.click();
+await waitLine(page, /Picked from \d+ searches/);
 const after = await fixtures(page);
 const picked = (await line(page)).match(/kept (\d+)\/(\d+)/);
 check(after !== before && `${picked[1]} carry-over, ${picked[2]} back-to-back` === label.trim(), `picking "${label.trim()}" keeps that season (was ${shown[1]}/${shown[2]})`);
@@ -67,18 +74,18 @@ await page.click("#copy-link");
 const link = await page.evaluate(() => navigator.clipboard.readText());
 check(/#s=/.test(link), "share link copied");
 const other = await open(link);
-await waitLine(other, /Picked from 12 searches/);
+await waitLine(other, /Picked from \d+ searches/);
 check(await fixtures(other) === after, "the share link opens on the picked season");
 await other.close();
 await page.click('#carry-frontier button[data-keep=""]');
-await waitLine(page, /Best of 12 searches/);
+await waitLine(page, /Best of \d+ searches/);
 check(await fixtures(page) === before, "Back to the choice above restores the first season");
 await page.selectOption("#carryOverPick", "fair");
 await buttons.first().click();
 await waitLine(page, /Picked from/);
 await page.selectOption("#carryOverPick", "balanced");
 await page.click("#build");
-await waitLine(page, /Best of 12 searches/);
+await waitLine(page, /Best of \d+ searches/);
 check(await fixtures(page) === before, "changing the choice drops a picked season");
 check(errors.length === 0, `no page errors${errors.length ? ": " + errors.join("; ") : ""}`);
 await browser.close();
