@@ -5,10 +5,12 @@ them into that same interpreter if none can.
     PY=$(python3 platform/ci/pyenv.py pytest numpy) && "$PY" -m pytest ...
     PY=$(python3 platform/ci/pyenv.py pytest -r requirements.txt)   # a project's whole list
     PY=$(python3 platform/ci/pyenv.py --for research/marine-hull)   # what its .py files import
+    PY=$(python3 platform/ci/pyenv.py -r research/infra-dcopf/pyproject.toml)  # declared deps
 
 `--for DIR` reads every .py file under DIR and asks for the third-party modules
 they import (stdlib, relative imports, imports inside `try:` and modules the
-repository itself holds are left out), plus pytest; point it at a subfolder
+repository itself holds are left out), plus pytest and the dependencies the
+nearest pyproject.toml declares (its test/tests/dev extras included); point it at a subfolder
 (`DIR/tests`) to skip, say, a data fetcher's heavy imports. Only 5 of 1,083
 research projects carry a requirements.txt, and runs kept naming too few
 modules by hand (doc friction 2026-11-12: `pyenv.py pytest` returned an
@@ -34,6 +36,7 @@ printed. Progress goes to stderr; stdout is only the path. Exit 1 when nothing w
 was tried.
 """
 import fcntl
+import functools
 import glob
 import os
 import re
@@ -272,7 +275,10 @@ def read_requirements(path):
     """Distribution names in a requirements file (versions, extras, markers,
     comments, and pip option lines dropped), so `-r requirements.txt` works.
     Doc friction 2026-11-06/07: the hint named numpy and pytest, then runs
-    hand-installed pandas, scipy, lightgbm, xgboost."""
+    hand-installed pandas, scipy, lightgbm, xgboost. A `pyproject.toml` is
+    read with read_pyproject."""
+    if os.path.basename(path) == "pyproject.toml":
+        return read_pyproject(path)
     names = []
     with open(path) as f:
         for line in f:
@@ -285,9 +291,56 @@ def read_requirements(path):
     return names
 
 
+# Extras a test run needs; `figure`/`sim` style extras are left to the run.
+TEST_EXTRAS = ("test", "tests", "dev")
+
+
+def read_pyproject(path):
+    """Distribution names in a pyproject.toml's `[project] dependencies` plus
+    its test/tests/dev optional dependencies. 918 research projects carry a
+    pyproject.toml and 6 a requirements.txt (2026-11-13), and a run that named
+    `pytest numpy scipy pypower` by hand still lacked infra-dcopf's pandapower
+    (doc friction 2026-11-12, twice)."""
+    try:
+        raw = open(path, "rb").read()
+    except OSError:
+        return []
+    try:
+        import tomllib
+        project = tomllib.loads(raw.decode("utf-8", "replace")).get("project", {})
+        specs = list(project.get("dependencies", []))
+        for extra in TEST_EXTRAS:
+            specs += project.get("optional-dependencies", {}).get(extra, [])
+    except ImportError:  # Python < 3.11: the `dependencies = [...]` array only
+        m = re.search(r"^dependencies\s*=\s*\[(.*?)\]", raw.decode("utf-8", "replace"), re.M | re.S)
+        specs = re.findall(r"[\"']([^\"']+)[\"']", m.group(1)) if m else []
+    except ValueError:  # a malformed file asks for nothing rather than failing the call
+        return []
+    names = []
+    for spec in specs:
+        name = re.split(r"[<>=!~\[ @;]", str(spec).strip(), 1)[0]
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
+def nearest_pyproject(directory, stop):
+    """The pyproject.toml in `directory` or the closest folder above it, not
+    above `stop` (so `--for proj/tests` still finds `proj/pyproject.toml`)."""
+    d, stop = os.path.abspath(directory), os.path.abspath(stop)
+    while True:
+        f = os.path.join(d, "pyproject.toml")
+        if os.path.isfile(f):
+            return f
+        if d == stop or os.path.dirname(d) == d or not d.startswith(stop):
+            return None
+        d = os.path.dirname(d)
+
+
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "site-packages", "build", "dist"}
 
 
+@functools.lru_cache(maxsize=None)
 def _local_names(stop):
     """Module names the repository itself provides: every .py stem and every
     folder holding a .py file under `stop`. Scripts reach siblings with
@@ -302,6 +355,9 @@ def _local_names(stop):
             names.add(os.path.basename(root))
             names.update(f[:-3] for f in py)
     return names
+
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def project_imports(directory, stop=None):
@@ -352,6 +408,17 @@ def expand_args(args):
                 continue
             mods = project_imports(d)
             print(f"pyenv: {d} imports {', '.join(mods) or 'nothing outside the stdlib'}", file=sys.stderr)
+            # The project's declared dependencies too: a module imported only
+            # by a file the scan skipped, or loaded by name, is still listed there.
+            stop = REPO_ROOT if os.path.abspath(d).startswith(REPO_ROOT) else os.path.abspath(d)
+            pp = nearest_pyproject(d, stop)
+            if pp:
+                local = _local_names(REPO_ROOT)
+                declared = [n for n in read_pyproject(pp) if import_name(n) not in local]
+                extra = [n for n in declared if import_name(n) not in mods]
+                if extra:
+                    print(f"pyenv: {os.path.relpath(pp)} also declares {', '.join(extra)}", file=sys.stderr)
+                mods = mods + extra
             for m in ["pytest"] + mods:
                 if m not in out:
                     out.append(m)

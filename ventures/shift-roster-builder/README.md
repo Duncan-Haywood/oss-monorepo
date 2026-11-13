@@ -918,3 +918,26 @@ Every engine roster's change count equals the ILP's count, none breaks an ILP ru
 Outputs: `eval/reissue-ilp-check.<set>.txt` and `.all.txt` (after), `eval/reissue-ilp-check.40x112.before*.txt` and `60x168.before*.txt`, and `eval/reissue-ilp-score.<set>.txt`. Test (`reissue-posted.test.mjs`): on a three-shift week where the caller's 6-14 can only be covered by moving Ana up from 6-11, the kept start leaves 8 hours open without the eject move and 5 with it, Ana on 6-14.
 
 Not claimed: seeded weeks and invented templates; 4 call-outs a day sampled on the seeded weeks; the ILP's hard rules are its own transcription, cross-checked against every engine roster, not proven equal to the engine on every input; the unproven reissues depend on machine speed (on the cafés keepShift 20 made 95 changes this run against 94 in the section above). An eject move gives up one clashing shift; a person who must give up two to take an open one is not tried. The planner's keep-usual-shifts runs the kept start too; its tests pass, but its sweep was not re-run.
+
+
+## Giving up two clashing shifts, and the keep-usual-shifts sweep with the kept start (2026-11-13)
+
+Two open items from the section above, both answered here, both with no change to any measured roster.
+
+**The two-shift eject.** The kept start's eject move gives up one clashing shift. A person can block an open shift with two: Ana holds Tuesday's 15-23 close and Wednesday 9-17, and the caller's Wednesday 6-14 clashes with both (7 hours' rest after the close; an overlap with 9-17). Dropping either one alone makes no room, so the one-shift move never fires and the kept start leaves 8 hours open. `ejectOpen` (calc.mjs) now also tries, for each eligible person, giving up every shift that clashes with the open one when there are two or more and none has started; the dropped shifts go, longest first, to whoever takes each at the least score given the earlier ones, or stay open, and the move is made when it lowers the score. `keptEject2: false` turns it off. Test (`reissue-posted.test.mjs`): on that three-shift week the kept start leaves 6-14 open without the move, and with it Ana takes 6-14 and Bo takes her two shifts, nothing open.
+
+**What it changed on the benches: nothing.** With a counter in a scratch copy of calc.mjs (not committed), on every reissue set this README measures, the two-shift move found a person whose clashing shifts could all be given up 2-40 times per set and was never worth making (`eval/eject2-probe.txt`):
+
+| set (call-outs) | two-shift move possible | made | one-shift eject made |
+|---|---|---|---|
+| 4 templates (56) | 6 | 0 | 10 |
+| 20 x 56 (24) | 4 | 0 | 5 |
+| 30 x 84 (24) | 6 | 0 | 9 |
+| 40 x 112 (24) | 2 | 0 | 16 |
+| both cafés, every keep variant (41 each) | 40 | 0 | 36 |
+
+Run on and off (`OPTS='{"keptEject2":false}' node eval/reissue-scale.mjs 40 112 2 4`, and 60 168), every call-out's open hours, changes, premium and pay are the same: 37 changes to others at 40 x 112 and 26 at 60 x 168, as in the section above, and the same time (118 s and 362 s for the 24 reissues either way). The reason is arithmetic: the two shifts given up are usually longer together than the one taken, so the move only pays when both find a new holder, and the kept start has already handed every shift someone could take to them. The move stays on because it costs no measurable time and covers the week in the test, which the later stages would otherwise have to repair with a chain of moves on a big week. That leaves the open list for these reissues as it was: every reissue above the least change count is a score trade, not a search miss.
+
+**The keep-usual-shifts sweep with the kept start.** The planner's keep-usual-shifts has run the kept start (and now both eject moves) since the kept start landed, but its sweep was not re-run. `RATES=0,0.02,0.04,0.08 KEEP=0.05,0.1,0.25 node eval/steady-plan.mjs 5 4` (`eval/steady-plan.kept-start.txt`) gives the same weeks reused, weeks proven, open hours, pay, changes week to week, forced changes and distance from the usual rota as `eval/steady-plan.out.txt` on every one of the 80 rows (5 teams and the total x 4 leave rates x 4 settings): all 1,600 planned weeks are proven, so the optimum was already found and the kept start only gives the search a nearer starting point. Only the timings differ. On this machine a plan with keepValue 0.1 took 30 s against 40 s with no keep at 2% leave and 37 s against 36 s at 8%, where the first sweep had the keep plans 20-42% slower; that reading spans two machines and a week of other speed work (the suite fell from 158 s to 134 s on 2026-11-12), so the kept start's own share of it is not separated.
+
+Not claimed: invented teams and seeded weeks, as above; the counts come from an uncommitted scratch counter; 60 x 168 was compared on and off but not counted. The unproven 60-person reissues still depend on machine speed.

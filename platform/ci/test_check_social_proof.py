@@ -85,6 +85,16 @@ class Cli(unittest.TestCase):
         self.assertIn("a.html:1:", out)
         self.assertIn("a.html:2:", out)
 
+    def test_pooled_scan_prints_in_file_order(self):
+        # 70 files (over page_pool.MIN_POOL), so main maps them on a process
+        # pool; the lines must come back in the serial order, file by file.
+        files = {f"p{i:02d}.html": ("ok" if i % 4 else f"Trusted by {i},000 teams") for i in range(70)}
+        code, out = self.run_main(files)
+        self.assertEqual(code, 1)
+        flagged = [line.split("/")[-1].split(":")[0] for line in out.splitlines()[:-1]]
+        self.assertEqual(flagged, [f"p{i:02d}.html" for i in range(70) if i % 4 == 0])
+        self.assertIn("70 files scanned, 18 unattributed", out)
+
     def test_node_modules_skipped(self):
         code, out = self.run_main({"node_modules/x/README.md": "Trusted by 9,000", "a.html": "ok"})
         self.assertEqual(code, 0)
