@@ -3,7 +3,7 @@ title: "AI Bookkeeper had 48 guides: half in one sentence at the top, half in th
 seo_title: "Free bookkeeping guides by business, from a bank statement"
 date: 2026-11-13
 tags: [design, mobile, seo, open-source]
-description: "The bookkeeper's header note linked 33 guides in one sentence and its footer listed 15 more. They now sit in one grouped Guides section, and the import box starts 256 px higher on a phone."
+description: "33 guide links sat in one header sentence and 15 more in the footer. Now all 48 are in one grouped section, and the import box is 256 px higher on a phone."
 ---
 
 [AI Bookkeeper](/ai-bookkeeper/) turns a bank CSV into double-entry books in your browser.
