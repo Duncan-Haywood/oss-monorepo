@@ -58,6 +58,10 @@ where it departs from the paper.
   "Watching a growing series" below. Since 2026-11-12 (later) the page replays the watch on the series
   you just analysed ("What a daily watch would have sent"), and agents call `replayWatch` in `watch-core.mjs`
   (README "Replaying the watch on your own history").
+- **Watch several metrics in one run** (2026-11-13): `node watch.mjs kpi.csv --state s.json --columns all` (or
+  `--columns orders:poisson,revenue,signups:poisson`, a model per column) watches every column of one CSV, keeps a
+  record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
+  one watch".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
@@ -4086,6 +4090,53 @@ round's result. Next for the hint: a rule that does not assume nested settings (
 alerts than Quiet on the history *and* the drift fit's wander is a material share of the noise), pre-registered on a fresh
 labelled set.
 
+## Several metrics in one watch (2026-11-13; `--columns` ships, a split budget was pre-registered and fails)
+
+A business rarely watches one number. Orders, revenue, sign-ups and tickets usually sit as columns of one sheet, and
+until now the self-deployed watch took one column, so five metrics meant five repositories, five state files and five
+messages a morning.
+
+**What shipped.** `watch.mjs --columns <list|all>`: `all` takes every numeric column but the label column (the same
+detection as the analysis's several-columns mode, `parseColumns`); a list names columns by header or 0-based index, and
+a column may carry its own model after a colon (`orders:poisson,revenue:meanvar`), so counts and money can share a
+sheet. Each column runs exactly the one-column watch (same detectors, guards and defaults), with its record under
+`columns.<name>` in one state file; a day's new changes from every column go out as one webhook message naming each
+column, and `--fail-on-alert` fails on any. A one-column state file is refused rather than reused, `--column` and
+`--columns` together are refused, a column listed twice is refused. `--suggest` and `--detector auto` work per column.
+`deploy/make-watch-repo.sh` now copies `multivariate.mjs` and `consensus.mjs`, so the standalone repository runs
+`--columns` (tested), and its README, the workflow's header and the watch page explain it. Tests: four in
+`watch.test.mjs` (spec parsing and refusals; per-column records with a step in one column sent once, naming only it;
+`--detector auto` per column; the standalone folder).
+
+**The budget question, pre-registered.** Five columns give noise five chances a day. The obvious fix is to split the
+`--alerts-per` budget across the columns (1/k each) when `--detector auto` picks each column's setting.
+`eval/watch-columns.mjs` fixed the rule before any result was printed (two run-time changes made before output, noted
+in its header: 10 seeds, not 20, and one eagerness replay per column shared by both arms): ship the split if, on 5
+independent N(0,1) columns of 300 points with no change, the split's whole-watch rate is at or under 2 alerts per 100
+checks and the unsplit rate is above it. Output: `eval/watch-columns.out.txt`.
+
+| set | columns | unsplit (2 each) | split (2/k each) |
+|---|---|---|---|
+| synthetic null, 10 seeds | 5 | 1.33 per 100 checks | 0.13 |
+| UK road casualties, monthly, `--period 12` | 5 | 3.25 (5 alerts) | 5.19 (8 alerts) |
+| bike share daily, `poisson --period 7` | 2 | 15.21 (89) | 15.21 (89) |
+| German unemployment, quarterly | 2 | 5.21 (5) | 5.21 (5) |
+| frozen orange juice price and PPI, `--log` | 2 | 4.08 (20) | 4.08 (20) |
+
+**Fails.** The unsplit picks already kept five noise columns under the budget (1.33 per 100 checks for the whole
+watch), so the rule's second half is false and the split does not ship: each column is picked against the whole
+budget, as a one-column watch is. The real sets say why the split is not even a safe default. On three of four the
+budget never binds: the hint already picks Quiet, and the split changes nothing. On the seat-belt set (Harvey and
+Durbin's UK driver casualties) it made the watch noisier: the split pushed DriversKilled and drivers from Middle to
+Quiet, and on these seasonal monthly series Quiet sent more alerts than Middle (drivers 4 against 2), because the
+"How eager" settings are not nested in their alert counts here (Round 9 met the same thing). The documented 1983-02
+seat-belt law was alerted within 3 months in drivers and front under both arms. The bike-share columns send about 15
+alerts per 100 checks on every setting, even with the weekly cycle removed: a level that moves with weather and season
+keeps tripping a level watch, one more reason to replay the history (`--suggest`, or the page's replay) before setting
+one up.
+
+Not done: a budget rule for the whole watch that does not assume the settings are nested (the same open item as the
+hint's non-nested rule); a several-columns card on the page (the page's watch card is still one column).
 ## Round 10: the watch on a fresh labelled set, NAB's 47 real series (2026-11-13, pre-registered; all three rules fail)
 
 Since round 6 every watch decision has waited on "a fresh labelled set". Every round so far scored TCPD, which rounds 3-9

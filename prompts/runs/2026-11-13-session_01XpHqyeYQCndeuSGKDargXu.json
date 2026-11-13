@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyeYQCndeuSGKDargXu",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T06:39:34Z",
+  "ended": "2026-11-13T07:04:29Z",
+  "wall_minutes": 25.07,
+  "tokens_in": 2968395,
+  "tokens_out": 16986,
+  "cost_usd": 1.5146,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15408",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first quote-aware lookahead-regex line split in the new test invariant was quadratic on 20 MB CSVs (52 s); replaced with a one-pass counter before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are still owner-gated workflow edits, as three earlier runs reported; the prompt's fallback to items 2-4 worked."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A foreground 'sleep N; cmd' is blocked by a hook; waiting on a background full venture sweep (14 min) meant ending the turn and waiting for the completion notice, not documented here."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-one-wild-column-and-twenty-megabytes-of-commas.md",
+    "docs/history/ci-perf-2026-11-13-xls-row-padding.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of ai-bookkeeper's xls-receipts-fuzz test and suite. Before/after: scratch bench replaying the test's 300 damaged .xls files through xlsToCsv, 18.7/19.3 s -> 1.30/1.31 s (alternating runs, output hash 11b53ea5a508f684 identical); test file 20.2 s -> 2.2 s (time node --test --test-reporter=dot); suite alone 45.2 s -> 27.6 s (python3 platform/ci/run_venture_tests.py ai-bookkeeper, run back to back, both pass). Pool reading: full venture sweep run_venture_tests.py --slowest 40 --no-elsewhere, 1345 suites, 0 failed, 13m47s wall; ai-bookkeeper 156.4 s in it (6th). New invariant (one field count per CSV row) passes on old and new reader, fails when padding removed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b302fddc-d39a-5a7a-973a-3b85fcbd1320",
+    "transcripts": 1,
+    "first": "2026-11-13T06:39:34Z",
+    "last": "2026-11-13T07:04:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 78,
+        "output": 16986,
+        "thinking": 2650,
+        "cache_read": 2893841,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74476,
+        "api_equivalent_usd": 1.5146,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 78,
+      "output": 16986,
+      "thinking": 2650,
+      "cache_read": 2893841,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74476,
+      "api_equivalent_usd": 1.5146,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 2,
+      "Monitor": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.07,
+      "active_minutes": 11.69,
+      "model_minutes": 3.1,
+      "tool_minutes": 8.6,
+      "waiting_on_human_minutes": 13.38,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "sweep, profile, fix, invariant test, write-ups at senior-engineer pace",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 198.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

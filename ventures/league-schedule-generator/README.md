@@ -1240,7 +1240,7 @@ never picked by the four choices (`combineCarryOverTries(..., { among: 10 })`), 
 link builds the same season. A squeezed season picked from the list goes into the share link like
 any other (`carryOverKeep` `13@18d1`), and the link rebuilds it. The CLI and tests reach the same
 code through `bestCarryOverRounds(n, { double: true, squeeze: 4 })`, or the `buildSchedule` spec field
-`carryOverSqueeze: 4`. A single round robin runs no squeezes.
+`carryOverSqueeze: 4`. Since the next section, a single round robin squeezes too.
 
 What it adds (`node eval/squeeze-gap.mjs --sizes N --seeds 1,2,3`, `eval/squeeze-gap.txt`, 17 to
 20 teams home and away). In each column the first figure is carry-over, the second back-to-back home or away games:
@@ -1274,6 +1274,61 @@ What it adds (`node eval/squeeze-gap.mjs --sizes N --seeds 1,2,3`, `eval/squeeze
   choices unchanged with squeezes present. `eval/browser-frontier-pick.mjs` now picks a squeezed
   season when one is listed. At 18 teams it picked 1,406/92 (try 15), and its share link reopened
   on it. All 9 checks pass (`eval/browser-frontier-pick-18.txt`).
+
+## Squeezing a single round robin (2026-11-13 later)
+
+The same gaps exist when everyone meets once. At 19 teams every seed's tries jump from 323
+carry-over at 36 back-to-back home or away games to 959 to 1,079 at 24 to 28; at 20 teams from 360
+at 52 to about 550 at 36 to 42. A single round robin ran no squeezes, so the list stopped there.
+
+**`squeezeSingleRounds(n, start, { maxBreaks })`** is the squeeze on one leg. The two searches share
+their code (`squeezeLegs`): every match keeps its ground while the timetable moves, and the ground
+moves are the same three (flip one match, flip two of one team's matches where it hosts one and
+visits the other, flip a whole alternating run), refused when a team's home and away games end up
+more than one apart. There are no repeats across a halfway point to price. `carryOverSqueeze`
+now tells the two kinds apart by the number of rounds and aims at gaps of 4 breaks or more on one
+leg (8 on two: one leg has about a third of a season's breaks). `bestCarryOverRounds(n, { squeeze })`,
+the `buildSchedule` spec field `carryOverSqueeze` and the page all run it for either kind; the page
+adds tries 12 to 15 to a single round robin's list as well, about a second more on one thread, and
+the four choices and every older share link are unchanged.
+
+What it adds (`node eval/squeeze-single.mjs --sizes 10,...,20 --seeds 1,2,3`,
+`eval/squeeze-single.txt`, 24 runs at 10, 12, 14, 16, 17, 18, 19 and 20 teams). Carry-over / breaks:
+
+| Teams, seed | Frontier of the 12 tries | Squeezed seasons added |
+|---|---|---|
+| 19, s1 | 323/36, 1,079/24, 1,141/20, 1,421/16 | 897/32, 955/30, 1,019/26, 1,295/18 |
+| 19, s2 | 323/36, 959/28, 1,079/24, 1,197/20, 1,359/16 | 903/32, 1,105/22, 1,235/18 |
+| 17, s2 | 343/32, 651/26, 727/22, 809/18, 975/14 | 539/29, 651/24 (beats 651/26), 731/19, 761/16 |
+| 18, s2 | 348/38, 436/32 ... 674/16 | 434/30 (beats 436/32 and 440/30), 452/26 (beats 452/28), 490/22, 644/18 |
+| 20, s1 | 360/52, 546/36 ... 1,424/18 | 1,250/20 only |
+
+- 42 squeezed seasons join the frontier over the 24 runs (0 to 4 a run) and 9 of the tries' seasons
+  are now beaten on both counts. The least carry-over within each break budget falls 1.5% on
+  average: 3.9% at the odd sizes (17 and 19), 0.7% at the even ones. The largest cut is 21.9%
+  (17 teams s2, 16 breaks: 975 to 761). Four squeezes take 0.6 to 1.2 s.
+- **Where it does nothing.** The gap under the lowest-carry-over season at 20 teams (360/52 to
+  546/36 on seed 1) is not narrowed on any seed: squeezed from 546/36 with a cap of 44 it stays at
+  546/36, and walked down from 360/52 two breaks at a time it never gets under 50 (scratch run, not
+  kept). 360 is a starter whose every carry-over count is 0 or 1; its low value is tied to its break
+  pattern, as at the top of the 19-team home-and-away jump. At 14 teams 2 of 3 seeds gain nothing
+  (the tries' frontier is already 2 breaks apart).
+- **Tried and not shipped: a three-cycle ground move.** In an odd league's single round robin every
+  team plays an even number of games, so balance means exactly half at home, and every ground move
+  above that touches a team once is refused. Reversing a directed three-cycle of hosts (x hosts y,
+  y hosts z, z hosts x) keeps every count. On the same 24 runs it gave a 1.4% mean cut against 1.5%
+  without (odd sizes 3.3% against 3.9%), and on the 19-team home-and-away jump it found nothing the
+  plain moves did not (from 1,311/87 under caps of 75 to 83: 1,479/83 against 1,385/83). It stays
+  behind `cycles: true`, off. The odd sizes gain anyway because a timetable move changes which
+  matches sit next to each other, which moves breaks without moving a ground.
+- Tests: `squeeze.test.mjs`, 13 tests. At 8, 9, 12 and 13 teams a squeezed single round robin is
+  valid (every pair once, nobody twice in a round, each team's home and away games within one), its
+  breaks and carry-over match the schedule's own recount, it stays within the cap, it never has more
+  carry-over than its start, and it is seeded. The three-cycle move keeps a 9-team league at exactly
+  4 home games each; a home-and-away start is refused; `carryOverSqueeze` numbers single squeezes
+  after the tries with no target twice; and `bestCarryOverRounds` squeezes a single round robin
+  without moving its choice. `eval/browser-frontier-pick.mjs --single` runs the page check on a
+  single round robin (`eval/browser-frontier-pick-single.txt`).
 
 ## Several divisions on shared courts (`divisions.mjs`)
 
