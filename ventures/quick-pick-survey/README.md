@@ -196,6 +196,14 @@ from the rest. In simulation it recovered 55-75% of what leaving out exactly the
 would when those answers were quick (0.4x pace), against 0-35% for leaving out fast people, and
 cost up to 0.006 with nobody careless and up to 0.019 against a camp with a second taste, so it
 too is a comparison, not the default (same file, "Half-time carelessness and answer times").
+Someone who answers properly and then gets bored and clicks through has a *block* of quick answers.
+`?drop=fast-blocks` (the builder's "Rank without answers after someone sped up" button) finds the
+answer where a person turned much quicker than everyone else at the same point in the survey. The
+comparison is with everyone at that point, so the slow first pairs and the speed-up everyone shows
+are not mistaken for a block. It then leaves out that person's answers from there on. In simulation
+it recovered all of what leaving out exactly the careless answers would when the block was at 0.4x
+pace, against 64-82% for the per-answer cut, and cost at most 0.0004 Spearman in any cell. A
+comparison for now (same file, "Carelessness that starts mid-session").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once
