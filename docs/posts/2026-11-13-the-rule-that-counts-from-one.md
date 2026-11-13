@@ -3,7 +3,7 @@ title: "The Rule That Counts From One: a coral nursery, a heat rule and a spawni
 seo_title: "Short story: coral bleaching, degree heating weeks and a rule"
 date: 2026-11-13
 description: "New hopeful science fiction: a Philippine coral nursery's heat rule fires on the night the corals spawn, because the satellite counts from one degree."
-tags: [hearth-and-horizon, fiction, oceans]
+tags: [hearth-and-horizon, fiction, ocean]
 ---
 
 [The Rule That Counts From One](/ventures/hearth-and-horizon/the-rule-that-counts-from-one.html) is a new Hearth & Horizon story, about 5,100 words. It is set in an invented fishing village on an invented island in the Bohol Sea, Philippines, from early March to Easter Sunday 2061. It is the shelf's three hundredth story and its first about coral reefs.
