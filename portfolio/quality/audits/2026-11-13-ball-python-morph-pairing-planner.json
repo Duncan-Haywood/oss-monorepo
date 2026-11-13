@@ -221,6 +221,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15304"],
  "verdict": "Per-egg Mendelian odds are right on every cross recomputed independently (dihybrid 9-class, spider lethal, super forms, possible-het per-egg, a 24-class trihybrid), and the money arithmetic is right. It misses the bar on correctness, verification and claims: the clutch-level 'chance of at least one' ignores that a possible-het parent's genotype is shared by every egg, overstating the sample pairings by about 10 points and skewing rank-by-target, and the tests cannot see it because their oracle shares the same model; the FAQ also states the wrong origins for 50% and 66% possible hets. Refusing allelic complexes keeps it honest but leaves out a large share of real pairings."
 }

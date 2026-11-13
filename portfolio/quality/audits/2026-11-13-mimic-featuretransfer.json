@@ -205,6 +205,6 @@
    "origin": "design"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15304"],
  "verdict": "The numbers are right: a full rerun reproduces results.json and results.txt bit-for-bit, and AUROC (hand Mann-Whitney), the length column (no model, raw ranks) and the intervals (DeLong) all agree with independent recomputation. It does not meet the bar. Verification is weak (4 of 5 seeded core mutants survive, including leaking the held-out family into training), and two claims are wrong or unbacked: the headline credits 'content words' when the word set includes stop words and a content-only ablation scores 0.899, below characters; and the 'char+word not always best' examples name the two families where it is best. Feature-set rankings are not tested with families as the unit (6/8, p = 0.29). A careful, honest, small step that fixes an earlier leakage limitation; not new relative to cross-domain detection work and below the PhD programme bar."
 }

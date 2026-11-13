@@ -47,6 +47,6 @@
     {"severity": "low", "what": "README says run.py takes 'about 1 minute'; it takes 1.9 s", "where": "research/robofab-reach/README.md:15", "category": "stale-docs", "origin": "maintenance"},
     {"severity": "low", "what": "min_link default step=5.0 while README and every caller use 10 mm", "where": "research/robofab-reach/src/robofab_reach/model.py:83", "category": "code-craft", "origin": "implementation"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15304"],
   "verdict": "A small, clean, reproducible reach study (run.py reproduces results.txt byte for byte in 1.9 s; 7 tests pass). Section 1 recomputes exactly from a closed-form workspace bound, and the elbow-120/90 and shoulder-[0,90] answers recompute with an independent checker. But the sharpest headline, 'at a 60-degree elbow limit no arm up to 600 mm works', is false: it holds only inside the 400 mm base search box, and a 400 mm arm works from (120,-690). The pick height has a precedence bug that moves 4 of 16 table cells, including a quoted headline value, and two of four seeded target-geometry mutants survive. The equal-link result is a textbook enclosing-sphere bound restated by grid search, and no base-placement prior work is cited. Does not meet the bar (claims 1, correctness 2, verification 2)."
 }
