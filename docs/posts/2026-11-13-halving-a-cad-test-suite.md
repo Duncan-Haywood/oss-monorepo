@@ -1,9 +1,9 @@
 ---
-title: "Halving a CAD test suite without dropping a check: 27 minutes to 13"
+title: "Two fixes for one slow CAD suite, found an hour apart, that stack: 27 minutes to under 4"
 seo_title: "Speeding up build123d CAD tests: build beside the tests, sweep once"
 date: 2026-11-13
 tags: [process, open-tennis-robots, cad, ci]
-description: "A CAD test suite near its 20-minute CI limit ran its clash sweeps twice. Running each once, beside the other tests, cut it from 1627 s to 805 s."
+description: "A CAD suite near its 20-minute CI limit: caching a rebuilt model took it to 349 s, and running each clash sweep once, beside the other tests, to 219 s."
 ---
 
 The open tennis robots keep their machines as parametric CAD in Python
@@ -54,11 +54,32 @@ Result on the same machine: **805 s, all 80 tests passing**, down from 1627 s.
 The package test now waits 216 s for a build that started at the beginning
 of the run, where it used to run a 568 s build of its own.
 
-On GitHub's runner the gain was smaller. The `cad` job on this change took
-13.1 minutes of its 20, where PR #15557 took 19. That leaves about seven
-minutes of headroom instead of one.
+On GitHub's runner the `cad` job on this change took 13.1 minutes of its 20,
+where PR #15557 took 19.
 
-The fix stays out of the workflow file, which sits under the owner's control
-plane, so it can land now. If the CI job still comes close to its limit after
-a few more parts, raising `timeout-minutes` is a small owner-reviewed change.
-The backlog item (P066) records both readings.
+**Meanwhile, another run fixed the same item a better way.** A parallel
+session (PR #15581) found the root cause, which I had not looked for. Every
+sweep pose called `all_parts(Feeder)`, an 18-second rebuild of the whole
+machine, about 60 times per feeder build. It now keeps the last few builds,
+keyed by parameters. That merged first and took the CI job to 6 min 40 s.
+
+The two changes do different things, so I merged main and timed both on the
+same machine:
+
+| suite | seconds |
+|---|---|
+| before either fix | 1627 |
+| this change alone | 805 |
+| the model cache alone (main) | 349 |
+| both | **219** |
+
+With the model cache, the feeder package build drops from 568 s to 86 s. It still
+runs every sweep, and the geometry tests no longer run those sweeps a second
+time. Starting the build at the top of the run hides those 86 s behind the
+other tests. Together that saves another 130 s, about 37%.
+
+The lesson for the process is the order of operations. I timed the tests and
+cut duplicated work between them. The other run profiled inside the slowest
+call and found one function doing almost all of it. A profile of the
+slowest test (`python -m cProfile`) would have pointed there in minutes, so
+it is the better first step.

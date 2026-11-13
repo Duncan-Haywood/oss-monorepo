@@ -30,21 +30,33 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "first timing run failed at import: a script outside cad/ puts its own dir on sys.path, not cwd; reran with PYTHONPATH"
+    "first timing run failed at import: a script outside cad/ puts its own dir on sys.path, not cwd; reran with PYTHONPATH",
+    "duplicate work: PR #15581 fixed P066 in parallel; no PR referenced P066 when this run started (list of open PRs checked), and both runs opened theirs within minutes"
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/process/backlog/P066-open-tennis-cad-ci-timeout.json",
       "issue": "says the fix waits for the owner (CODEOWNERS); two of its three suggested changes are in the venture's own tests and needed no control-plane review"
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "'search open PRs for its id first' misses a parallel run that has not pushed yet; two process runs took P066 within the same hour. A claim (draft PR on the first commit) earlier would have shown it; I spent 15 min timing before pushing"
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "merged with a duplicate already on main instead of closing: measured that the two fixes stack (349 s -> 219 s)",
+      "did": "merged main, kept main's P066 result, added history",
+      "result": "landed"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-13-halving-a-cad-test-suite.md"
   ],
   "goal": null,
-  "notes": "Mode: Solve, P066 (only agent-owned open item besides blocked P056). open-tennis-robots cad suite, local 4 CPUs, python -m unittest discover -s tests: before 1627.3 s (Ran 80, OK), after 805.4 s (Ran 80, OK). Package builds start in setUpModule as subprocesses; clean sweeps asserted once from the fresh feeder manifest; cable_sweep poses/azimuths, shifted loop caught at all 7 poses (checked). promptctl validate and unittest discover -s prompts green after the record. CI cad-job wall time on the next open-tennis-robots PR is the metric to verify. CI: cad job on PR #15580 took 13.1 min (run 43489023074), was 19 min on #15557; everything else green.",
+  "notes": "Mode: Solve, P066 (only agent-owned open item besides blocked P056). open-tennis-robots cad suite, local 4 CPUs, python -m unittest discover -s tests: before 1627.3 s (Ran 80, OK), after 805.4 s (Ran 80, OK). Package builds start in setUpModule as subprocesses; clean sweeps asserted once from the fresh feeder manifest; cable_sweep poses/azimuths, shifted loop caught at all 7 poses (checked). promptctl validate and unittest discover -s prompts green after the record. CI cad-job wall time on the next open-tennis-robots PR is the metric to verify. CI: cad job on PR #15580 took 13.1 min (run 43489023074), was 19 min on #15557; everything else green. Before merging, main gained PR #15581 (another process run on P066: cache all_parts(Feeder), CI 6:40). Merged main and kept main's P066 status; the changes stack: same machine, main 349.1 s, main+this 218.7 s (80 OK).",
   "corrections": [],
   "redteam": null,
   "usage": {
