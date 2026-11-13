@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtLzbXsmUQ4ZPRg8nnY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T23:06:23Z",
+  "ended": "2026-11-13T23:15:50Z",
+  "wall_minutes": 9.79,
+  "tokens_in": 9747331,
+  "tokens_out": 39938,
+  "cost_usd": 3.937,
+  "tool_calls": 79,
+  "task": "Deepen flagship 5 (einvoice-preflight): built-in INV checks beside PINT sets -- Malaysia's tourism tax read as a flat amount",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15644",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    "Ran eval/phive-corpus.mjs before/after with git stash in a background job while the venture test suite and my README/llms.txt edits ran concurrently; nothing was lost (checked git status and re-ran the suite afterwards), but a concurrent stash could have mixed old and new code into the test run.",
+    "First venture-preflight run failed on the new post's front matter (description 194 chars, seo_title 72); trimmed and re-ran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/phive-corpus.mjs",
+      "issue": "The default run (no --builtin) needs slimdom/fontoxpath; without them it prints a warning and silently scores built-in checks only, which looks like a full run in the summary lines. Worth failing loudly or labelling each line."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: sits at ~1,990 of 2,000 characters, so replacing an item with an honest 'landed; open: ...' line overflowed by 19 chars on the first try; the field is close to unusable for status and could move detail to the README."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-einvoice-malaysia-tourism-tax.md",
+    "ventures/einvoice-preflight/README.md (section 'Flat-amount taxes beside VAT: Malaysia's tourism tax (2026-11-13)')"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/1 by draw; allocate.py picked einvoice-preflight. Verification: eval/phive-corpus.mjs --good on phive-rules 37a2664 (all 12 sets): built-in only PINT MY 20/24 -> 24/24 clean, every other set unchanged; with official sets (slimdom+fontoxpath installed --no-save) identical before/after on all 12 sets. New tests flat-tax.test.mjs (7) and tests/test_flat_tax.py (6) pass; 164 JS tests across touched modules pass; Python unittest discover 407 OK; run_venture_tests.py einvoice-preflight ok; venture-preflight.mjs re-run after front-matter fix (result in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d45b5710-c2ee-531e-aca6-54d77320a29b",
+    "transcripts": 1,
+    "first": "2026-11-13T23:06:23Z",
+    "last": "2026-11-13T23:16:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 144,
+        "output": 39938,
+        "thinking": 6743,
+        "cache_read": 9594844,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152343,
+        "api_equivalent_usd": 3.937,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 144,
+      "output": 39938,
+      "thinking": 6743,
+      "cache_read": 9594844,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152343,
+      "api_equivalent_usd": 3.937,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 75,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.79,
+      "active_minutes": 9.79,
+      "model_minutes": 7.78,
+      "tool_minutes": 2.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior e-invoicing engineer: read PINT MY TTX rules and samples, change JS+Python checks and reader, build a valid example, tests, corpus before/after, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 152.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

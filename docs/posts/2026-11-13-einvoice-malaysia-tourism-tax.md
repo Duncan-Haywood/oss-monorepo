@@ -1,9 +1,9 @@
 ---
 title: "Malaysia's tourism tax has no percentage, and our checker kept asking for one"
-seo_title: "PINT Malaysia tourism tax (TTX, AAL) e-invoice: flat per-night tax check"
+seo_title: "PINT Malaysia tourism tax (TTX/AAL) e-invoice: flat per-night tax"
 date: 2026-11-13
 tags: [einvoice-preflight, ventures]
-description: "A hotel invoice under PINT Malaysia carries a flat 10 MYR a night tourism tax beside 8% service tax. The checker now reads it as a flat amount, and a wrong SST row beside it is no longer hidden."
+description: "Malaysia's tourism tax is a flat 10 MYR a night with no rate. The checker now reads it as a flat amount, and the SST rows beside it are checked again."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks an e-invoice before it is sent: its own arithmetic checks, plus the official rule sets for the invoice's profile. Most of its arithmetic rests on one assumption: every tax is a percentage of a taxable amount. Malaysia's tourism tax isn't.
