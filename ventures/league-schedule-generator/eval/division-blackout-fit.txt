@@ -1,0 +1,21 @@
+division blackout fit, 8 leagues per cell, seed 1, 4 fit seed(s); Tue + Thu, 2 times; courts for about half the league's matches a night (at least the biggest round) plus 0-1, so divisions take turns
+mode      divs k | moved old -> new | unplaced old -> new | weeks old -> new | breaks old -> new | invalid | ms old/new
+spread       2 1 |   54 ->   27 |   0 ->   0 | 12.02 -> 11.52 |   213 ->   149 | 0 | 12/79
+clustered    2 1 |   55 ->   36 |   0 ->   0 | 7.98 -> 7.89 |   153 ->   116 | 0 | 4/32
+spread       2 2 |  120 ->   76 |   0 ->   0 | 12.05 -> 11.68 |   307 ->   214 | 0 | 5/60
+clustered    2 2 |   76 ->   65 |   0 ->   0 | 8.14 -> 8.14 |   193 ->   162 | 0 | 4/35
+spread       3 1 |   83 ->   54 |   0 ->   0 | 12.02 -> 11.80 |   282 ->   231 | 0 | 6/69
+clustered    3 1 |   83 ->   57 |   0 ->   0 | 11.30 -> 11.18 |   226 ->   170 | 0 | 5/56
+spread       3 2 |  140 ->   90 |   0 ->   0 | 13.27 -> 13.11 |   353 ->   266 | 0 | 7/84
+clustered    3 2 |  125 ->  103 |   0 ->   0 | 10.82 -> 10.73 |   331 ->   305 | 0 | 5/50
+spread       4 1 |   92 ->   66 |   0 ->   0 | 12.91 -> 12.82 |   382 ->   333 | 0 | 8/88
+clustered    4 1 |  122 ->   84 |   0 ->   0 | 11.57 -> 11.54 |   496 ->   414 | 0 | 9/84
+spread       4 2 |  200 ->  132 |   0 ->   0 | 13.61 -> 13.02 |   513 ->   405 | 0 | 7/85
+clustered    4 2 |  173 ->  139 |   0 ->   0 | 13.86 -> 13.77 |   561 ->   490 | 0 | 8/78
+all 96 leagues: moved 1323 -> 929 (-30%), unplaced 0 -> 0, weeks 11.63 -> 11.43, breaks 4010 -> 3255, invalid 0, leagues worse on (unplaced, moved): 0
+
+# ablation: one fit seed instead of four (node eval/division-blackout-fit.mjs 8 1 1)
+all 96 leagues: moved 1323 -> 930 (-30%), unplaced 0 -> 0, weeks 11.63 -> 11.47, breaks 4010 -> 3423, invalid 0, leagues worse on (unplaced, moved): 0
+
+# held-out leagues (node eval/division-blackout-fit.mjs 8 2)
+all 96 leagues: moved 1298 -> 861 (-34%), unplaced 0 -> 0, weeks 11.39 -> 11.09, breaks 3684 -> 2820, invalid 0, leagues worse on (unplaced, moved): 0
