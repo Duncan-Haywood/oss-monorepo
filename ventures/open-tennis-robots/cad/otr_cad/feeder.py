@@ -23,11 +23,16 @@ slot in the plate (`shuttle_drive_parts`, posed along the stroke by
 `feed_stroke_solids`).
 
 Catch trough (2026-11-13): two runs of bought half-round gutter on printed
-hangers along the net beam's front face fall to a printed sump at y = 0 whose
-outlet passes under the beam (`trough_gutter`, `trough_hangers`, `trough_sump`).
+hangers along the net beam's front face fall to a printed sump whose outlet
+passes under the beam (`trough_gutter`, `trough_hangers`, `trough_sump`).
 
-Not modelled yet: the netting itself, the return from the sump up to the tub
-(about 2.2 m: `Feeder.trough_design`), the hopper agitator, and the deck-side
+Ball lift (2026-11-13): a cleated belt in a column between the mast rails at
+y = lift_y carries the balls from the sump 2.3 m up to the tub: printed boot
+with the inlet turn, 2040 spine, AT5 belt with finger flights, rods for the
+channel, a printed head with a hood and drop floor, and a chute to the tub
+(`lift_parts`, sized by `Feeder.lift_design`).
+
+Not modelled yet: the netting itself, the hopper agitator, and the deck-side
 cable run. They are listed in `hardware/feeder-catcher.md`.
 """
 
@@ -1087,7 +1092,7 @@ def _x_seg(r: float, x0: float, z0: float, x1: float, z1: float, y: float):
     """A cylinder of radius r along a sloped line in the plane y."""
     ln = math.hypot(x1 - x0, z1 - z0)
     d = ((x1 - x0) / ln, 0.0, (z1 - z0) / ln)
-    return Cylinder(r, ln).moved(Location(((x0 + x1) / 2, y, (z0 + z1) / 2), _z_to(d)))
+    return Cylinder(r, ln).moved(_along(((x0 + x1) / 2, y, (z0 + z1) / 2), d))
 
 
 def trough_sump(p: Feeder) -> Part:
@@ -1170,12 +1175,9 @@ def _chain(pts, r: float, dz: float):
     return sweep(Plane(origin=pts[0], z_dir=path.tangent_at(0)) * Circle(r), path=path)
 
 
-def _z_to(d: tuple[float, float, float]) -> tuple[float, float, float]:
-    """Euler angles (degrees, build123d's X-Y-Z order) that turn +z onto the unit vector d."""
-    dx, dy, dz = d
-    rx = math.degrees(math.atan2(-dy, math.hypot(dx, dz)))
-    ry = math.degrees(math.atan2(dx, dz))
-    return (rx, ry, 0.0)
+def _along(c, d) -> Location:
+    """Location at point c whose z axis points along the vector d."""
+    return Plane(origin=tuple(c), z_dir=tuple(d)).location
 
 
 def lift_boot(p: Feeder) -> Part:
@@ -1337,16 +1339,15 @@ def lift_head(p: Feeder) -> Part:
     blk = blk - Box(dep, dep, zt - z0 + 1).moved(Location((p.lift_x, p.lift_y, (z0 - 1 + zt) / 2)))
     hood = Cylinder(rh, dep).moved(Location((xp, p.lift_y, zt), (90, 0, 0)))
     up = Box(2 * rh + 2, dep + 2, rh + 1).moved(Location((xp, p.lift_y, zt + (rh + 1) / 2)))
-    tilt = math.radians(p.lift_hood_deg - 90.0)
-    wedge = Box(rh + 1, dep + 2, rh + 1).moved(Location((-(rh + 1) / 2, 0, (rh + 1) / 2)))
-    wedge = wedge.moved(Location((0, 0, 0), (0, -(p.lift_hood_deg - 90.0), 0))).moved(Location((xp, p.lift_y, zt)))
-    blk = blk - (hood & (up + wedge))
+    # on the far side, everything inside the hood down to the released ball's bottom (the drop floor's top edge)
+    _, zr, _ = p.lift_release()
+    zf0 = zt + zr - p.ball_d / 2 - 1.0
+    side = Box(rh + 1, dep + 2, zt - zf0 + 1).moved(Location((xp - (rh + 1) / 2, p.lift_y, (zf0 + zt + 1) / 2)))
+    blk = blk - (hood & (up + side))
     big = 600.0
     above = Box(big, dep, big).moved(Location((big / 2 - 30.0, 0, big / 2)))
     above = above.moved(Location((0, 0, 0), (0, math.degrees(drop), 0))).moved(Location((0, 0, 0), (0, 0, psi)))
     above = above.moved(Location((xe, ye, zf0)))
-    x_hood_end = xp - rh * math.sin(math.radians(p.lift_hood_deg))
-    keep = Box(big, dep + 2 * w + 2, big).moved(Location((x_hood_end + big / 2, p.lift_y, zt - rh * math.cos(math.radians(p.lift_hood_deg)) - big / 2 + big)))
     open_ = above - Box(big, big, big).moved(Location((xe + big / 2, p.lift_y, zt)))   # nothing in the fingers' path
     hood_band = (Cylinder(rh + w + 1, dep + 2 * w + 2).moved(Location((xp, p.lift_y, zt), (90, 0, 0)))
                  - Cylinder(rh, dep + 2 * w + 4).moved(Location((xp, p.lift_y, zt), (90, 0, 0))))
@@ -1359,8 +1360,8 @@ def lift_head(p: Feeder) -> Part:
     sl = math.radians(p.chute_slope_deg)
     d = (ux * math.cos(sl), uy * math.cos(sl), -math.sin(sl))
     ax = (sx, sy, zs + r_in)
-    blk = blk - Cylinder(r_o + 0.3, 200.0).moved(Location((ax[0] + d[0] * 100, ax[1] + d[1] * 100, ax[2] + d[2] * 100), _z_to(d)))
-    blk = blk - Cylinder(r_in, 2 * r_o).moved(Location(ax, _z_to(d)))
+    blk = blk - Cylinder(r_o + 0.3, 200.0).moved(_along((ax[0] + d[0] * 100, ax[1] + d[1] * 100, ax[2] + d[2] * 100), d))
+    blk = blk - Cylinder(r_in, 2 * r_o).moved(_along(ax, d))
     # spine slot, rod sockets, axle
     z_sp = zt - p.lift_r_in - 3.0
     blk = blk - Box(20.6, 40.6, z_sp - z0 + 1).moved(Location((xp, p.lift_y, (z0 - 1 + z_sp) / 2)))
@@ -1384,7 +1385,7 @@ def lift_chute(p: Feeder) -> Part:
     dvec = ((xt - sx) / ln, (yt - sy) / ln, (ze - zs) / ln)
     tube = Cylinder(r_o, ln) - Cylinder(r_in, ln + 2)
     mid = ((sx + xt) / 2, (sy + yt) / 2, (zs + ze) / 2 + r_in)
-    return Part("lift_chute", "stock", "rigid tube", 1, tube, [Location(mid, _z_to(dvec))],
+    return Part("lift_chute", "stock", "rigid tube", 1, tube, [_along(mid, dvec)],
                 spec=f"Rigid round tube, {p.hose_id:g} mm bore, about {2 * r_o:g} mm OD, cut {ln:.0f} mm (the take-up sleeve's tube)",
                 notes=f"From the lift head's socket down {p.chute_slope_deg:g} deg to a point over the tub: its end's floor is "
                       f"{ze - d['rim_at_end_z']:.0f} mm above the rim there. Push into the socket and glue.")
@@ -1686,14 +1687,27 @@ def shuttle_line(p: Feeder) -> str:
 def trough_line(p: Feeder, balls_per_min: float = 36.0) -> str:
     d = p.trough_design()
     _, floor_deg = sump_floor_rise(p)
-    return (f"catch trough: two {d['run_len_mm']:.0f} mm runs of {p.trough_w:g} mm half-round gutter fall "
-            f"{p.trough_slope_deg:g} deg ({d['drop_mm']:.0f} mm) to a sump at y = 0; a ball from the far end takes "
+    ra, rb = d["runs_mm"]
+    return (f"catch trough: runs of {ra:.0f} and {rb:.0f} mm of {p.trough_w:g} mm half-round gutter fall "
+            f"{p.trough_slope_deg:g} deg to a sump at y = {p.sump_y:+.1f}; a ball from the far end takes "
             f"{d['run_time_s']:.1f} s and arrives at {d['end_speed_m_s']:.2f} m/s (rolling resistance {p.trough_crr:g}, "
             f"assumed); the runs hold {d['queue_balls']} balls queued; the sump floor falls {floor_deg:.0f} deg to an outlet "
-            f"{p.sump_out_z:g} mm above the court, under the net beam. NOT CLOSED: the tub's rim is "
-            f"{d['tub_rim_low_z']:.0f} mm up, so returning balls must be lifted {d['lift_mm']:.0f} mm "
-            f"({p.trough_lift_power_w(balls_per_min):.2f} W at {balls_per_min:g} balls a minute, no losses); "
-            f"no lift is designed yet")
+            f"{p.sump_out_z:g} mm above the court, under the net beam; the tub's rim is {d['tub_rim_low_z']:.0f} mm up, "
+            f"{d['lift_mm']:.0f} mm above the outlet ({p.trough_lift_power_w(balls_per_min):.2f} W at {balls_per_min:g} "
+            f"balls a minute, no losses): the ball lift closes the loop")
+
+
+def lift_line(p: Feeder) -> str:
+    d = p.lift_design()
+    return (f"ball lift: cleated AT5 belt, {d['belt_teeth']} teeth ({d['belt_mm']:.0f} mm) over {p.lift_pulley_teeth}-tooth "
+            f"pulleys {d['centre_mm']:.0f} mm apart, {d['flights']} flights every {d['flight_pitch_mm']:.1f} mm at "
+            f"{d['speed_m_s']:.2f} m/s ({d['transit_s']:.1f} s up); a ball rolls in down a {d['inlet_slope_deg']:.1f} deg inlet "
+            f"in {d['roll_in_s']:.2f} s, so one flight in {d['flights_per_ball']} carries a ball: about "
+            f"{d['rate_per_min']:.0f} balls a minute (wanted {p.lift_rate_min:g}); every flight loaded needs "
+            f"{d['torque_nm']:.2f} N m ({d['torque_margin']:.1f}x margin on {p.lift_motor_nm:g} N m assumed), {d['power_w']:.1f} W; "
+            f"fingers turn {p.lift_finger_clear:g} mm under a {d['floor_z']:.1f} mm floor with the boot {d['boot_bottom_z']:.0f} mm "
+            f"off the court; chute ends {d['chute_end'][2] - d['rim_at_end_z']:.0f} mm over the tub's rim; firmware runs it "
+            f"{d['run_on_s']:.1f} s after the last ball fed (all friction and motor figures assumed)")
 
 
 def cable_line(p: Feeder) -> str:
@@ -1841,6 +1855,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, shuttle_line(p))
         checks.insert(-3, cable_line(p))
     checks.insert(-3, trough_line(p))
+    checks.insert(-3, lift_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
@@ -1860,6 +1875,11 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     derived.update({"trough_drop_mm": round(td["drop_mm"], 1), "trough_run_time_s": round(td["run_time_s"], 2),
                     "trough_end_speed_m_s": round(td["end_speed_m_s"], 3), "trough_queue_balls": td["queue_balls"],
                     "tub_rim_low_z_mm": round(td["tub_rim_low_z"]), "trough_lift_needed_mm": round(td["lift_mm"])})
+    ld = p.lift_design()
+    derived.update({"lift_belt_teeth": ld["belt_teeth"], "lift_flights": ld["flights"], "lift_speed_m_s": round(ld["speed_m_s"], 3),
+                    "lift_rate_per_min": round(ld["rate_per_min"], 1), "lift_torque_nm": round(ld["torque_nm"], 3),
+                    "lift_torque_margin": round(ld["torque_margin"], 2), "lift_z_top_mm": round(ld["z_top"], 1),
+                    "lift_run_on_s": round(ld["run_on_s"], 1), "lift_chute_clear_mm": round(ld["chute_end"][2] - ld["rim_at_end_z"], 1)})
     if gravity is not None:
         e = p.elevation_drive(gravity)
         derived.update({"elev_gravity_nm": {f"{k:+g}": round(v, 2) for k, v in sorted(gravity.items())},

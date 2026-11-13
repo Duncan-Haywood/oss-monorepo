@@ -458,6 +458,34 @@ class LinearAxis:
         return self.duty
 
 
+class LiftRun:
+    """When the ball lift's gearmotor runs (2026-11-13, cad/README.md "Ball lift").
+
+    A returning ball takes up to `run_on_ms` to reach the tub after the last ball is fed: its flight and fall down the
+    net, the far end of the trough (about 5 s) and the lift itself (about 9 s at 0.27 m/s), the figure the CAD's
+    manifest prints as the lift's run-on. So every ball fed restarts the timer, and the motor runs until it expires; it
+    is off from power-up and after every stop (e-stop, watchdog). `update(now_ms)` returns the duty to drive."""
+
+    def __init__(self, run_on_ms, duty=1.0):
+        self.run_on_ms = run_on_ms
+        self.duty = duty
+        self.until = None
+
+    def kick(self, now_ms):
+        self.until = now_ms + self.run_on_ms
+
+    def stop(self):
+        self.until = None
+
+    def update(self, now_ms):
+        if self.until is None:
+            return 0.0
+        if now_ms >= self.until:
+            self.until = None
+            return 0.0
+        return self.duty
+
+
 class Controller:
     def __init__(self, hw, role, now_ms):
         if role not in (ROLE_FEEDER, ROLE_COLLECTOR):

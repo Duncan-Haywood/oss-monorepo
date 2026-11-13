@@ -300,31 +300,34 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the ball lift from the trough's sump (outlet floor 50
-      mm up, stub under the net beam at y = 0) to the tub, 2245 mm higher (paddle
-      belt, rotating-disc elevator or auger; where it stands clear of the head's
-      sweeps and the base's wheels; its motor and the duct under the deck); the
-      deck-side cable run and the stepper's driver mount.
+      venv, about 2 min): the deck-side cable run from the deck's edge to the
+      axis clamp, with the lift motor's lead to the boot and the stepper
+      driver's mount; the hopper agitator (a ball bridging over the tub's
+      outlet: what turns it, where it mounts, its firmware hook); the lift
+      flight's own CAD (fingers and base plate as a printed part, M3 through
+      the belt between its cords) and the top pulley's belt tensioner.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
       History and every measurement: cad/README.md (feeder CAD package; azimuth and elevation drives; shuttle
-      drive; home switch; hard stops; cables; catch trough; collision sweeps) and the README ("Running a drill on
-      the machine", "Wheel speed loop"). Latest, 2026-11-13: catch trough (cad/README.md "Catch trough"): two
-      runs of 125 mm half-round gutter on printed hangers fall 3 deg to a printed sump at y = 0 whose outlet
-      passes under the net beam; a far-end ball takes 4.6 s at rolling resistance 0.03 (assumed). It showed the
-      recycle loop is open: the tub's rim is 2265 mm up, so balls must be lifted 2245 mm (2120 even with nose-up
-      limited to +30 deg); 0.75 W at 36 balls a minute. Next, needing a person: tilt a gutter with a ball to
-      measure rolling resistance and count bounce-outs down a net; log a real wheel's tach on spin-up and rerun
-      tests/wheel_loop_sweep.py with its lag; weigh the head and measure the hose's torque, the stepper's
-      pull-out, the actuator's real lengths, the column's load on the shuttle and the servo's loaded stroke time
-      and stall current; click the home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
-      stop with a scale; hang a real hose from a tube; bend a built cable loop through the actuator's travel.
-      Buildable: the ball lift from the sump to the tub (mechanism, placement clear of every sweep, motor and
-      firmware hook, the duct under the deck); the deck-side cable run (deck edge to the axis clamp) and the
-      stepper driver's mount.
+      drive; home switch; hard stops; cables; catch trough; ball lift; collision sweeps) and the README ("Running
+      a drill on the machine", "Wheel speed loop"). Latest, 2026-11-13: ball lift (cad/README.md "Ball lift"):
+      a cleated AT5 belt with 16 mm printed finger flights in a column between the mast rails at y = 300 carries
+      balls from the sump (moved off centre to y = +193.5, outlet raised to 80 mm, into the boot through a
+      90 deg inlet turn) 2.36 m up and over a hooded top pulley into a chute that ends 34 mm above the tub's
+      rim; about 53 balls a minute, 0.13 N m and 2.8 W on assumed figures; checked clear of the head at every
+      pose; firmware LiftRun runs it 16 s after each ball fed. Next, needing a person: build the boot and one
+      flight and feed it balls from a gutter (a ball half-in when a finger arrives; the inlet turn's friction);
+      tilt a gutter with a ball to measure rolling resistance and count bounce-outs down a net; log a real
+      wheel's tach on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head and measure the
+      hose's torque, the stepper's pull-out, the actuator's real lengths, the column's load on the shuttle and
+      the servo's loaded stroke time and stall current; click the home switch on a printed sector to calibrate
+      AZ_HOME_DEG; push a sector into a stop with a scale; hang a real hose from a tube; bend a built cable loop
+      through the actuator's travel. Buildable: the deck-side cable run (deck edge to the axis clamp, plus the
+      lift motor's lead) and the stepper driver's mount; the hopper agitator; the flight as a printed part and
+      the top pulley's tensioner.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

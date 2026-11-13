@@ -36,9 +36,10 @@ collision check and a wind-ballast figure) is in
    (accelerate, cruise, brake).
 4. **Catch and recycle.** The ball hits the slack netting, drops into the
    sloped trough along the bottom of the frame, and rolls to a sump at the
-   middle. It cannot roll on into the hopper: the sump's outlet is 50 mm above
-   the court and the tub's rim about 2.27 m, so a ball lift has to close the
-   loop (2026-11-13, `cad/README.md`, "Catch trough"; not designed yet).
+   sump at the lift's foot. It cannot roll on into the hopper: the sump's
+   outlet is 80 mm above the court and the tub's rim about 2.27 m, so a
+   cleated-belt lift carries it up and a chute drops it into the tub
+   (2026-11-13, `cad/README.md`, "Catch trough" and "Ball lift").
 
 ## Main dimensions (v0.1)
 
@@ -96,9 +97,11 @@ hung with 10-15 cm of slack so it absorbs the ball rather than bouncing it
 back. The launcher fires through a padded sleeve in the net. Along the
 bottom, a trough sloped toward the centre (two runs of 125 mm half-round
 gutter on printed hangers, CAD since 2026-11-13) drops balls into a printed
-sump whose outlet passes under the net beam. From there a lift must raise them
-about 2.2 m to the tub; a flexible chute alone cannot, since the tub has to sit
-that high for the feed hose to fall to the head. Keep the net taut at the
+sump whose outlet passes under the net beam. From there a lift raises them
+about 2.3 m to the tub (a flexible chute alone cannot, since the tub has to
+sit that high for the feed hose to fall to the head): a cleated belt in a
+column between the mast rails, CAD since 2026-11-13 (`cad/README.md`, "Ball
+lift"). Keep the net taut at the
 edges so balls do not snag.
 
 ## Sensing

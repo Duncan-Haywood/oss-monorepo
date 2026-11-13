@@ -408,7 +408,7 @@ ORDER
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
-NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, cabling. See hardware/feeder-catcher.md. The elevation actuator is
+NOT IN THIS PACKAGE YET: the netting, hopper agitator, the deck-side cabling (the trough and the ball lift are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
 bought to the window in the elevation check below (any make whose retracted and
 extended lengths span it).
 
