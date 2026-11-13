@@ -1,5 +1,22 @@
 # Research log
 
+## 2026-11-13 · LPAC as a one-shot baseline (plan, written before any LPAC code ran; milestone 4a of `research/grid-linopf`)
+- Why: the proposal's H3 says a single linearisation, even a better one than DC, is AC-feasible on fewer than half the cases where the repair is. Milestone 4 owes two such baselines; this step builds the first, LPAC (Coffrin and Van Hentenryck 2014), the linear model that carries reactive power and voltage magnitude. The optimised linearisation (Misra et al. 2018 / Chen and Singh 2025) is a later step.
+- Formulation (`src/infra_dcopf/lpac.py`), fixed now: LPAC-C (cold start, no AC solution needed) in the form PowerModels.jl implements as `LPACCPowerModel`: per bus an angle and a voltage deviation &phi; with |V| = 1 + &phi; in [VMIN, VMAX]; per branch a cosine variable cs; Ohm's law from the AC branch model with |V|<sup>2</sup> &rarr; 1 + 2&phi;, |V<sub>i</sub>||V<sub>j</sub>|cos &rarr; cs + &phi;<sub>i</sub> + &phi;<sub>j</sub>, |V<sub>i</sub>||V<sub>j</sub>|sin &rarr; &theta;<sub>i</sub> &minus; &theta;<sub>j</sub> (taps and phase shifts as MATPOWER's branch model); shunts at 1 + 2&phi;; cosine relaxation cs &le; 1 &minus; (1 &minus; cos &delta;)/&delta;<sup>2</sup> (&theta;<sub>i</sub> &minus; &theta;<sub>j</sub>)<sup>2</sup> and cs &ge; cos &delta; with &delta; the branch's largest angle limit (capped at 90&deg;); angle-difference limits; thermal limits p<sup>2</sup> + q<sup>2</sup> &le; RATE_A<sup>2</sup> at both ends; unit P and Q limits; the case's quadratic costs. Solved by Clarabel 0.11 as a conic QP (the two quadratic constraint types as second-order cones). The branch coefficients are unit-tested against PYPOWER's own flows at an AC power-flow solution with the exact trigonometric terms.
+- Arms, all from the LPAC solution, all checked by `vlin.check` (thresholds unchanged):
+  - **L**: LPAC's P for every unit and its voltage 1 + &phi; at each unit's bus as the setpoint, one AC power flow (the slack takes the mismatch). This is the one-shot baseline.
+  - **L-f**: LPAC's P at the case file's setpoints (1.0 pu), to separate the P from the voltage half.
+  - **L+R**: when L is not fully clean, milestone 3's reactive stage on L's P.
+  - **L&rarr;J**: the frozen J-m-a repair (margins, analytic sensitivities, Clarabel QP, 10 rounds) started at L's point instead of the DC dispatch at 1.0 pu, and **L&rarr;J+R**.
+  Compared case by case with J-m-a from the DC start (`results_vlin_margin_analytic_clarabel.json`: fully clean 21 of 34, 31 with the reactive stage) and with that start itself (DC at 1.0 pu: P-clean 3 of 34, fully clean 0).
+- Predictions, to be reported held or refuted:
+  - **H3 (proposal):** L is fully clean on at most 10 of 34 (fewer than half of J-m-a's 21). Refuted outright if L reaches 21; between 11 and 20 it is reported as partly refuted.
+  - **P1:** L is P-clean (thermal, slack, angle) on at least 10 of 34 (the DC start: 3).
+  - **P2:** LPAC's own objective is within 1 % of the AC optimum on at least 27 of 34 cases (it carries losses, so it should not sit far below).
+  - **P3:** L or L+R is fully clean on at least 15 and at most 30 of 34 (J-m-a+R: 31; the reactive stage on the DC dispatch: 4).
+  - **P4:** L&rarr;J is fully clean on at least 21 of 34 (no worse than from the DC start), with a median clean round no later than J-m-a's (6).
+- No formulation or rule changes after the first full run; a change would be a declared new variant.
+
 ## 2026-11-13 · Is the repair's QP solved correctly? Outcome (H6, H7, H8 held; H5 refuted; H9 at the bar for Clarabel, refuted narrowly for screening). PIPS's elastic QP is the weak part
 - Audit (`experiments/audit_qp.py`, `audit_qp.txt`, `.json`): J-m-a posed 347 QPs on the 34 cases (248 hard, 99 elastic). **H6 held:** wherever PIPS (U) and Clarabel (C) both solve a QP, the objectives agree within 1e-6 relative on all of them (173 hard, 63 elastic). **H7 held:** the screened PIPS solve (S) agrees with C on every QP both solve (173, 55), using 7.8 % of the rows. No solver ever reported success at an infeasible point.
 - **H5 refuted:** of the 75 hard QPs U fails, C solves only 5 (4 on case24 API, 1 on case73 SAD); the other 70 are infeasible by C too. PIPS's hard-QP failures are mostly real: the linear model with its margins and trust box has no point inside every limit.
