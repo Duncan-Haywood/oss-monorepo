@@ -81,6 +81,7 @@ def pilot_ceiling(y, f):
 PSEUDO = 0.0  # pseudo-count variance floor per coder cell (LOG.md 7am); 0 is off, the rule every experiment before 7am ran
 FALLBACK_PSEUDO = None  # guard-first fallback (LOG.md 7an): when the pilot holds fewer than neg_guard coder misses, plan
 #                        again with neg_guard 0 and this pseudo-count floor instead of going straight to pooled; None is off
+FALLBACK_TWO_PHASE = False  # LOG.md 7ao: a fallback plan uses the two-phase cells design (`two_phase` in plan_audit)
 
 
 def pseudo_var(y, pseudo):
@@ -109,13 +110,14 @@ def _cell_s2(f_all, pilot_y, cells, pseudo=0.0):
     return s2
 
 
-def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0):
+def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0, two_phase=False):
     """Pilot plug-in forecast of the half-width ratio, coder cells over one pooled stratum, for an audit of n items
     (LOG.md 7ak). Unlike `pilot_ceiling` (asymptotic, Neyman without floor, pooled at lambda 0) it prices what the
     real audit does: the pooled side uses the control-variate weight lambda fitted on the pilot, the cells side the
     floored allocation `cell_allocation` would make, and both carry the finite-population correction. Returns
     sqrt(var_cells / var_pooled) with the variances of `audit_interval`'s estimator at the planned sizes; 1.0 when
-    the pilot leaves the pooled variance at zero."""
+    the pilot leaves the pooled variance at zero. two_phase: price the cells side as the two-phase design of LOG.md
+    7ao (`two_phase_allocation`: pilot items known exactly, the rest of each cell estimated from fresh items only)."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
@@ -135,13 +137,29 @@ def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0):
     if min(sizes) == 0:
         return 1.0
     s2 = _cell_s2(f_all, pilot_y, cells, pseudo)
+    if two_phase:
+        rest, k = two_phase_allocation(n, cells, pilot_y, s2, floor)
+        if min(rest) < 2:
+            return float("inf")
+        var_cells = sum((R / N) ** 2 * (1 - a / R) * v / a for R, a, v in zip(rest, k, s2))
+        return (var_cells / var_pool) ** 0.5
     alloc = cell_allocation(n, sizes, s2, floor)
     var_cells = sum((Nh / N) ** 2 * (1 - a / Nh) * v / a for Nh, a, v in zip(sizes, alloc, s2))
     return (var_cells / var_pool) ** 0.5
 
 
+def two_phase_allocation(n, cells, pilot_y, s2, floor=FLOOR):
+    """Second-phase sizes for the two-phase cells design (LOG.md 7ao). The pilot items are treated as a census of
+    themselves, so what is left to estimate in cell h is the mean of its R_h unpiloted items, from a fresh simple random
+    sample of k_h of them. The budget n - (pilot size) is split by `cell_allocation` over the remainders (Neyman on
+    R_h S_h, each cell at least floor of that budget and two items, capped at R_h). Returns (R, k)."""
+    rest = [sum(1 for i in c if i not in pilot_y) for c in cells]
+    budget = max(0, n - len(pilot_y))
+    return rest, cell_allocation(budget, rest, s2, floor)
+
+
 def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
-               pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO):
+               pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO, two_phase=False, fallback_two_phase=FALLBACK_TWO_PHASE):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -156,22 +174,36 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     by `audit_interval` for each coder cell (LOG.md 7am). fallback_pseudo (default FALLBACK_PSEUDO, None is off): the
     guard-first rule of LOG.md 7an. When the pilot holds fewer than neg_guard human positives the coder labelled 0, the
     plan is made again with neg_guard 0 and pseudo = fallback_pseudo (tau, guard and the width forecast unchanged);
-    a pilot that passes the miss guard is planned exactly as without it. The result carries "fallback": True then."""
+    a pilot that passes the miss guard is planned exactly as without it. The result carries "fallback": True then.
+    two_phase (LOG.md 7ao): a cells plan becomes two-phase: the pilot's labels count exactly for their own items and
+    each cell's unpiloted rest is estimated from fresh items only (`two_phase_allocation`; the width forecast prices
+    that design). Given the pilot, the second phase is a stratified simple random sample of a fixed finite remainder,
+    so the interval does not reuse the labels that chose the design. fallback_two_phase: make the fallback plan
+    two-phase (the guard-pass plan is unchanged). The plan carries "two_phase" and "pilot" for `audit_interval`."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
     if fallback_pseudo is not None and neg_guard and sum(1 for a, b in zip(y, f) if a and not b) < neg_guard:
-        plan = plan_audit(f_all, pilot_y, n, tau, guard, floor, 0, width_margin, fallback_pseudo, None)
+        plan = plan_audit(f_all, pilot_y, n, tau, guard, floor, 0, width_margin, fallback_pseudo, None,
+                          two_phase or fallback_two_phase)
         plan["fallback"] = True
         return plan
     design = screen(y, f, tau, guard, neg_guard)
-    if design == "cells" and width_margin is not None and predicted_ratio(f_all, pilot_y, n, floor, pseudo) > 1 - width_margin:
+    if design == "cells" and width_margin is not None and \
+            predicted_ratio(f_all, pilot_y, n, floor, pseudo, two_phase) > 1 - width_margin:
         design = "pooled"
     if design == "pooled":
         return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
                 "ceiling": pilot_ceiling(y, f)}
     cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
     s2 = _cell_s2(f_all, pilot_y, cells, pseudo)
+    if two_phase:
+        rest, k = two_phase_allocation(n, cells, pilot_y, s2, floor)
+        if min(rest) < 2:
+            return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
+                    "ceiling": pilot_ceiling(y, f)}
+        return {"design": "cells", "cells": cells, "pseudo": pseudo, "two_phase": True, "pilot": sorted(pilot_y),
+                "to_label": [min(a, R) for a, R in zip(k, rest)], "ceiling": pilot_ceiling(y, f)}
     alloc = cell_allocation(n, [len(c) for c in cells], s2, floor)
     return {"design": "cells", "cells": cells, "pseudo": pseudo,
             "to_label": [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)],
@@ -186,6 +218,8 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     least two labelled items in each cell. A cells plan made with pseudo > 0 floors each cell's variance at
     `pseudo_var` of its audited labels (LOG.md 7am); a pooled plan never does."""
     import math
+    if plan.get("two_phase"):
+        return _two_phase_interval(plan, labels, z)
     cells = plan["cells"]
     ys = [[labels[i] for i in c if i in labels] for c in cells]
     fs = [[f_all[i] for i in c if i in labels] for c in cells]
@@ -216,6 +250,39 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     mid = (p + z * z / (2 * n)) / d
     half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
     return value, mid - half, mid + half
+
+
+def _wilson(value, var, z):
+    import math
+    se = math.sqrt(var)
+    p = min(0.9995, max(0.0005, value))
+    n = p * (1 - p) / max(se, 1e-9) ** 2
+    d = 1 + z * z / n
+    mid = (p + z * z / (2 * n)) / d
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return value, mid - half, mid + half
+
+
+def _two_phase_interval(plan, labels, z):
+    """`audit_interval` for a two-phase plan (LOG.md 7ao): in each coder cell, the pilot items' labels are summed as
+    known and the mean of the R_h unpiloted items is estimated from the second-phase labels alone, with the
+    finite-population correction on R_h and the variance floored at `pseudo_var` of those labels. Inside a cell the
+    coder's code is constant, so the control-variate weight drops out. Same Wilson step on n_eff."""
+    pilot = set(plan["pilot"])
+    total = sum(len(c) for c in plan["cells"])
+    pseudo = plan.get("pseudo", 0.0)
+    value = var = 0.0
+    for c in plan["cells"]:
+        known = sum(labels[i] for i in c if i in pilot)
+        y2 = [labels[i] for i in c if i not in pilot and i in labels]
+        rest = sum(1 for i in c if i not in pilot)
+        if len(y2) < 2:
+            raise ValueError("each cell needs at least two second-phase labels")
+        m = sum(y2) / len(y2)
+        v = max(sum((a - m) ** 2 for a in y2) / (len(y2) - 1), pseudo_var(y2, pseudo))
+        value += (known + rest * m) / total
+        var += (rest / total) ** 2 * (1 - len(y2) / rest) * v / len(y2)
+    return _wilson(value, var, z)
 
 
 def guard_fire_probability(pilot, misses, corpus, neg_guard=NEG_GUARD):
