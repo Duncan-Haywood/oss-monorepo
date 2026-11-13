@@ -10,10 +10,11 @@ import { suggestFinal } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 import { sectionPlan } from './sections.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--outro N] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
+  --no-breakdown  with --sections: keep the verse before the last drop a verse (by default a piece with four or more sections turns it into a breakdown: drums and bass out, choir alone, then a swelling chord)
   --outro   N bars after the chant (the backing winds down under them; with --sections it ends on a held chord)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)
@@ -45,6 +46,7 @@ export function run(argv) {
     else if (a === '--genre') args.genre = argv[++i];
     else if (a === '--fills') args.fills = true;
     else if (a === '--sections') args.sections = true;
+    else if (a === '--no-breakdown') args.breakdown = false;
     else if (a === '--outro') args.outro = Number(argv[++i]);
     else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
@@ -85,6 +87,7 @@ export function run(argv) {
   if (args.final !== null) events = transposeToFinal(events, args.final);
   if (args.fills && !args.genre) return { code: 2, text: '--fills needs --genre' };
   if (args.sections && !args.genre) return { code: 2, text: '--sections needs --genre' };
+  if (args.breakdown === false && !args.sections) return { code: 2, text: '--no-breakdown needs --sections' };
   if (args.stretch && !args.fit) return { code: 2, text: '--stretch needs --fit' };
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
   if (args.halftime) events = halfTime(events);
@@ -92,7 +95,7 @@ export function run(argv) {
   const ppb = 8; // the backing's bar is always 4/4 at two pulses a beat (genre.mjs BAR), whatever --fit says
   const chantPulses = events.reduce((s, e) => s + e.pulses, 0);
   const chantBars = Math.max(1, Math.ceil(chantPulses / ppb - 1e-9));
-  const plan = args.sections ? sectionPlan({ events, pulsesPerBar: ppb, intro: args.intro || 0, outro: args.outro || 0 }) : null;
+  const plan = args.sections ? sectionPlan({ events, pulsesPerBar: ppb, intro: args.intro || 0, outro: args.outro || 0, breakdown: args.breakdown === false ? false : 'auto' }) : null;
   if (args.outro) events = [...events, { type: 'bar', kind: 'full', pulses: chantBars * ppb - chantPulses + ppb * args.outro }];
   if (args.intro) events = [{ type: 'bar', kind: 'full', pulses: 8 * args.intro }, ...events];
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
