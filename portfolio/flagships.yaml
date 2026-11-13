@@ -287,12 +287,11 @@ flagships:
       duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor, three-round re-deals,
       balanced least priced, faster break floor (22 teams in the page): README 2026-11-11 to 2026-11-13
-      sections). 2026-11-13 latest (README "Blackout fit", eval/blackout-fit.txt): teams are given the
-      round-robin places that suit their blackout dates (seeded hill climb on relabellings, scored by the
-      real placement: displaced, end date, breaks); 640 random leagues: makeups 5,431 -> 3,911 (-28%),
-      season 18.04 -> 17.22 weeks, breaks -27%, 0 invalid; on by default, 0.2-0.5 s at 16-30 teams.
-      Next, most valuable first: the same fit on the multi-division page (it still moves blocked
-      matches after the build, applyDivisionBlackouts), and joint with skip dates and court closures; the rest of the 20-team gap (40 to 44 still ~444-550:
+      sections). 2026-11-13 latest: blackout fit on both pages (README "Blackout fit" and "Blackout fit on
+      the multi-division page"): teams take the round-robin places that suit their blackout dates; one
+      league, 640 random leagues: makeups -28%; several divisions, 192 random leagues: matches moved -30%
+      and -34% held out (eval/division-blackout-fit.txt), 0 invalid, never worse. Next, most valuable
+      first: the rest of the 20-team gap (40 to 44 still ~444-550:
       four-round re-deals or a longer run, now 3.8x cheaper; or a starter family climbed with the floor
       as its score); 24 and 25 teams in the page (152-426 s: the step is still 87 s of a 24-team run and
       the walk's 4,096-state predecessor scan 37 s; a backward table so a move reruns only its own span);

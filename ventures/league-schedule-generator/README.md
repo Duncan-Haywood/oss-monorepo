@@ -1671,7 +1671,56 @@ floor for home and away"):
   grounds are already optimal over every such block, so the 2 breaks MaxSAT saves on the 1,311
   timetable need a change spread over more than two rounds' pairs.
 
-## Blackout fit: teams placed in the round robin around their blackout dates (2026-11-13, latest)
+## Blackout fit on the multi-division page (2026-11-13, latest)
+
+The multi-division page used to build the season first and then move every match that fell on a team's
+unavailable date (`applyDivisionBlackouts`). It now fits first, as the single-league page does.
+
+The reason it is cheap here: **which night a match position lands on does not depend on who plays in it.**
+The night loop (`takeNight`, pulled out of `buildDivisions` unchanged) hands each night's open court slots
+to the divisions with the most rounds left, and it reads only how many matches each round has. So
+`divisionMatchNights(spec)` runs that loop once, without the court assignment, and every
+(home, away, night) position it lists stays put under any renaming of a division's teams. Skip dates,
+court closures, shared slots and split rounds are already in those nights, because they come from the
+same loop.
+
+`fitDivisionsToBlackouts` then searches each division's renamings separately (a seeded hill climb on
+pair swaps with sideways moves, each swap moving a team that has a blackout, 3,000 evaluations a
+division) for the fewest positions where a team is out that night. That count is exact and costs one
+pass over the division's matches, so the search is milliseconds. `buildDivisionsWithBlackouts` builds
+the season with the renamings from four fit seeds and with none, runs the existing mover on each, and
+keeps the season that leaves the fewest matches unplaced, then moves the fewest, then ends earliest,
+then has the fewest home/away breaks. The unfitted season is one of the candidates, so the result is
+never worse on that order. `buildDivisions(spec)` takes `spec.perms` (one renaming per division) for
+this; the court assignment, travel, linked teams and venue fairness all run as before on the renamed
+round robin. The page and `node divisions.mjs spec.json` use it whenever the blackout box has dates
+and print a "Blackout fit:" line saying what changed; `"blackoutFit": "no"` in the spec (or
+`blackoutFit: false` in code) turns it off.
+
+**Measured** (`node eval/division-blackout-fit.mjs 8 1`, `eval/division-blackout-fit.txt`): 96 random
+leagues of 2 to 4 divisions of 4 to 12 teams (30% double), Tuesday and Thursday, two time slots, courts
+for about half of the league's matches a night (never fewer than the biggest round needs) plus 0 or 1, so
+divisions take turns. Every team gives 1 or 2 dates it cannot play, from the first 24 nights
+("spread") or from three nights only ("clustered"). Each league is built with the fit off and on:
+
+- matches moved off a blackout date 1,323 -> 929 (30% fewer); 0 -> 0 left unplaced;
+- the mean season ends 11.63 -> 11.43 weeks after the start;
+- home/away breaks 4,010 -> 3,255 (19% fewer), because fewer make-ups break up the home/away pattern;
+- 0 invalid schedules (`validateDivisions` on both), and no league worse on (unplaced, moved).
+
+On a second set of 96 leagues (seed 2, not looked at while building it): moved 1,298 -> 861 (34%
+fewer), season 11.39 -> 11.09 weeks, breaks 3,684 -> 2,820. With one fit seed instead of four the
+moves are the same (929 -> 930); the extra seeds buy a little of the end date and breaks
+(3,423 -> 3,255). The cost is the extra builds: about 30-100 ms a league against 3-9 ms.
+
+The gain is smallest in "clustered" leagues with 2 dates a team (76 -> 65, 173 -> 139): when a third of
+a division is out on the same night there is little to rearrange. Synthetic leagues only; no real
+club's sign-up export has been tried. Tests: `division-blackout-fit.test.mjs` (the nights match the
+build's, with skip dates, closures and split rounds; a renamed league validates; never more moves than
+without the fit; the same seed gives the same season; an odd division puts a blackout on a bye; no
+blackouts means the same season as before).
+
+## Blackout fit: teams placed in the round robin around their blackout dates (2026-11-13)
 
 Until now a team's blackout dates were handled after the timetable was fixed: each play night took the
 remaining round with the fewest blocked matches, and every blocked match went to a makeup round after the
@@ -1710,8 +1759,7 @@ example 10 teams, single, 2 dates: 156 -> 188), because a makeup ranks above a b
 organiser may weigh those differently. Synthetic leagues only; no real league's blackout list has been
 tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves each team's sequence with
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
-change). The multi-division page still moves blocked matches after the build (`applyDivisionBlackouts`);
-fitting there is the next step.
+change). The multi-division page gets the same fit in the next section.
 
 ## A faster break floor: 3.8x less worker time, and 22 teams in the page (2026-11-13)
 
