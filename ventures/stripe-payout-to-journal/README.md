@@ -18,8 +18,22 @@ key; the work happens in your browser and nothing you paste is uploaded.
 To run the tests (Node 20 or newer):
 
 ```
-node --test ventures/stripe-payout-to-journal/
+cd ventures/stripe-payout-to-journal && node --test '*.test.mjs'
 ```
+
+## Known gaps (quality audit round 59, 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-stripe-payout-to-journal.json`](../../portfolio/quality/audits/2026-11-13-stripe-payout-to-journal.json).
+Fixed in the same PR: the bank-deposit box read `1,262.00` as 1.26 and called a correct payout wrong;
+it now uses `parseAmount`, which reads both `1,262.00` and `1.262,00`. Still open:
+
+- A Type-only `application_fee` row (a platform's earnings) matches the fee pattern and is booked to
+  Stripe Fees instead of revenue; `payment_failure_refund` is booked as a dispute.
+- `charge_failure`, `partial_capture_reversal`, `platform_earning` and `currency_conversion` fall to
+  uncategorised (flagged; the journal still balances).
+- A payout with rows in two currencies is summed into one line with only a warning.
+- Seeded bugs in the month-end journal dating, the `refund_failure` class and the mixed-currency
+  warning passed every test.
 
 ## Files
 
