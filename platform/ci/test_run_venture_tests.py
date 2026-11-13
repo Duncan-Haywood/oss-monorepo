@@ -92,6 +92,19 @@ class FakeVentures(unittest.TestCase):
         self.assertIn("assertion that skips the close", out)
         self.assertLess(secs, 15)
 
+    def test_node_test_runs_without_force_exit(self):
+        # Node 22.23's --test-force-exit in `node --test` runner mode ended files
+        # early at random with exit 0: changepoint-detector's engine.test.mjs
+        # reported 38 to 94 of 94 tests (docs/history/ci-perf-2026-11-13-
+        # changepoint-engine-test-split.md). A green suite must have run them all.
+        self.assertNotIn("--test-force-exit", rvt.NODE_TEST)
+        self.venture("many", {"m.test.mjs":
+            "import test from 'node:test';"
+            "for (let i = 0; i < 40; i++) test('t' + i, () => { const e = Date.now() + (i % 10 === 3 ? 400 : 5); while (Date.now() < e); });"})
+        _, ok, out, _ = rvt.run("many")
+        self.assertTrue(ok, out)
+        self.assertIn("# tests 40", out)
+
     def test_ventures_without_tests_are_skipped(self):
         self.venture("d", {"index.html": "<p>"})
         self.venture("e", {"node_modules/dep/q.test.mjs": "throw 1"})
