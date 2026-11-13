@@ -42,8 +42,12 @@ def is_marker(line, marker):
     """The marker alone, or as the line's first word: `--marker EXIT` matches
     `EXIT 0` (an `echo EXIT $?` line), `DONE` matches `DONE in 42 s`. A marker
     inside a line (`not DONE yet`) does not count (friction 2026-11-11: `--marker
-    EXIT` waited its full 540 s timeout on a log that ended `EXIT 0`)."""
+    EXIT` waited its full 540 s timeout on a log that ended `EXIT 0`). A marker
+    that ends in `=` or `:` is a prefix: `rc=` matches `rc=0` (an `echo rc=$?`
+    line; friction 2026-11-13, the same 540 s wait)."""
     s = line.strip()
+    if marker[-1] in "=:" and s.startswith(marker):
+        return True
     return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-")
 
 

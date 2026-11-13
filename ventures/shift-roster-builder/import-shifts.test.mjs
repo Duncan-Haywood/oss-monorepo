@@ -126,3 +126,42 @@ test("dateOrder settles d/m vs m/d from the whole file", async () => {
   assert.equal(dateOrder(["05/08/2026"]), "");
   assert.equal(dateOrder(["13/05/2026", "05/13/2026"]), "");
 });
+
+test("a day-first week with no part over 12 is read day first, not as seven months (2026-11-13)", async () => {
+  const { readDateOrder } = await import("./import-shifts.mjs");
+  // 1 to 7 December 2026, as a Deputy (Australian) export writes it: Tuesday to Monday.
+  const rows = ["Date,Start,End,Position"];
+  for (let d = 1; d <= 7; d++) rows.push(`0${d}/12/2026,9:00,17:00,Cashier`);
+  const r = importShiftsCsv(rows.join("\n"));
+  assert.equal(r.shifts, 7);
+  for (const day of ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) assert.match(r.shiftsText, new RegExp(`${day}, 9:00, 17:00, 1, , cashier`));
+  const notes = r.notes.join(" ");
+  assert.doesNotMatch(notes, /weeks/);
+  assert.match(notes, /read day first: no date in the file settles it/);
+  // The same week written US style (2/1 ... 2/7) stays month first.
+  const us = ["Date,Start,End"];
+  for (let d = 1; d <= 7; d++) us.push(`2/${d}/2026,9:00,17:00`);
+  const u = importShiftsCsv(us.join("\n"));
+  assert.equal(u.shifts, 7);
+  assert.match(u.notes.join(" "), /read month first: no date/);
+  assert.deepEqual(readDateOrder(["01/12/2026", "07/12/2026"]).order, "dmy");
+  assert.deepEqual(readDateOrder(["12/01/2026", "12/07/2026"]).order, "mdy");
+  // One ambiguous date settles nothing: read month first, and the note says so.
+  assert.deepEqual(readDateOrder(["05/08/2026"]), { order: "", by: "", ambiguous: true });
+  assert.deepEqual(readDateOrder(["05/05/2026"]).ambiguous, false);
+  assert.match(importShiftsCsv("Date,Start,End\n05/08/2026,9:00,17:00").notes.join(" "), /could be day or month first/);
+});
+
+test("stamps with two-digit years and seconds; a location in the first column; notes only for several families or locations (red team 2026-11-13)", () => {
+  const r = importShiftsCsv("Location,Start,End,Role\nNorth,11/02/26 7:00:00,11/02/26 15:00:00,Bar\nSouth,11/03/26 07:00:00,11/03/26 15:30:00,Bar\n");
+  assert.deepEqual(r.skipped, []);
+  assert.match(r.shiftsText, /Mon, 7:00, 15:00, 1, , bar/);
+  assert.match(r.shiftsText, /Tue, 7:00, 15:30, 1, , bar/);
+  assert.deepEqual(r.locations, [{ name: "North", rows: 1 }, { name: "South", rows: 1 }]);
+  assert.match(r.notes.join(" "), /2 locations/);
+  const one = importShiftsCsv("Location,Date,Start,End\nNorth,2026-11-02,9:00,17:00\n");
+  const notes = one.notes.join(" ");
+  assert.deepEqual(one.locations, [{ name: "North", rows: 1 }]);
+  assert.doesNotMatch(notes, /locations/);
+  assert.doesNotMatch(notes, /shift columns/);
+});

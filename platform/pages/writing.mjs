@@ -77,21 +77,37 @@ const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', '
  * A post's topic from its tags, first rule wins: onboarding posts (`start-here`)
  * are the newcomer's way in, so they group together whatever else they name; quality audits
  * (`quality-audit`, portfolio/quality/) grade work from every track, so they group apart; opinion pieces are about
- * steering the fleet; then research; then a named tool or channel; then
+ * steering the fleet; then research (the `research` tag, or a tag naming a project in
+ * `research/`); then a named venture, tool or channel; then
  * hosting and CI plumbing; then anything about agents; everything else is a tool or project.
  * A post the rules file wrongly says so with `topic:` in its front matter.
+ *
+ * `projects` holds the slugs of `research/` and `ventures/` (`projectSlugs()`). Research posts
+ * name their project (`marine-hull`, `cell-fidelity`) more often than they add `research`: until
+ * 2026-11-13, 110 of them fell through to "Tools and projects".
  */
-export function topicOf(tags = [], explicit = '') {
+export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
   if (explicit) return explicit;
   const has = (list) => tags.some((t) => list.includes(t));
   if (tags.includes('start-here')) return 'start';
   if (tags.includes('quality-audit')) return 'quality';
   if (tags.includes('opinion')) return 'agents';
-  if (tags.includes('research')) return 'research';
-  if (has(TOOL_TAGS)) return 'tools';
+  if (tags.includes('research') || tags.some((t) => projects.research.has(t))) return 'research';
+  if (has(TOOL_TAGS) || tags.some((t) => projects.ventures.has(t))) return 'tools';
   if (has(INFRA_TAGS)) return 'infrastructure';
   if (has(AGENT_TAGS)) return 'agents';
   return 'tools';
+}
+const NO_PROJECTS = Object.freeze({ research: new Set(), ventures: new Set() });
+
+/** Project folder names under `research/` and `ventures/` (a folder with a README.md or index.html). */
+export function projectSlugs(root = DEFAULT_ROOT) {
+  const list = (dir, marks) => {
+    const abs = path.join(root, dir);
+    if (!existsSync(abs)) return new Set();
+    return new Set(readdirSync(abs).filter((d) => !d.startsWith('_') && !d.startsWith('.') && marks.some((m) => existsSync(path.join(abs, d, m)))));
+  };
+  return { research: list('research', ['README.md']), ventures: list('ventures', ['index.html', 'README.md']) };
 }
 export const topicLabel = (id) => TOPICS.find((t) => t.id === id)?.label ?? id;
 const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
@@ -160,10 +176,11 @@ export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = 
   const dir = path.join(root, POSTS_DIR);
   if (!existsSync(dir)) return [];
   const posts = [];
+  const projects = projectSlugs(root);
   for (const name of readdirSync(dir).sort()) {
     if (!name.endsWith('.md')) continue;
     try {
-      posts.push(loadPost(root, POSTS_DIR, name));
+      posts.push(loadPost(root, POSTS_DIR, name, projects));
     } catch (err) {
       if (!skipBad) throw err;
       // A GitHub Actions annotation, so the skip shows on the run summary.
@@ -198,7 +215,7 @@ export function autoSeoTitle(title) {
 }
 
 /** One post, validated. Throws on a malformed one. */
-function loadPost(root, POSTS_DIR, name) {
+function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
   const dir = path.join(root, POSTS_DIR);
   const fm = FILE_RE.exec(name);
   if (!fm) throw new Error(`${POSTS_DIR}/${name}: name must be <YYYY-MM-DD>-<slug>.md`);
@@ -229,7 +246,7 @@ function loadPost(root, POSTS_DIR, name) {
     seoTitle: meta.seo_title ? String(meta.seo_title) : (String(meta.title).length > TITLE_BUDGET ? autoSeoTitle(String(meta.title)) : undefined),
     description: meta.description,
     tags,
-    topic: topicOf(tags, meta.topic),
+    topic: topicOf(tags, meta.topic, projects),
     source: `${POSTS_DIR}/${name}`,
     body,
     words,
@@ -286,9 +303,8 @@ const STYLE = `
   .posts h2 a:hover, .posts h2 a:focus-visible { color:var(--accent); }
   .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 6px; } .pager .nums > * { min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
-  .posts .meta { display:flex; flex-wrap:wrap; gap:6px; margin:.7em 0 0; }
-  .posts .date, .posts .mins { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px;
-    border:1px solid var(--line); background:var(--bg); color:var(--muted); }
+  .posts .meta { display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; margin:.7em 0 0; font-size:.85rem; }
+  .posts .when { white-space:nowrap; }
   .pf-hero .crumbs { margin:0 0 18px; } .pf-hero .meta { margin:0; } .pf-hero .tag { color:var(--muted); border-color:var(--line); }
   .pf-hero h1 { font-size:clamp(1.9rem,4.4vw,2.6rem); }
   .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
@@ -447,7 +463,13 @@ const FINDER_SCRIPT = `(() => {
     a.href = r[0] + '/'; a.textContent = r[1]; h.appendChild(a);
     const d = document.createElement('p'); d.textContent = r[2];
     const m = document.createElement('p'); m.className = 'meta';
-    m.textContent = r[6] + ' · ' + r[3] + ' · ' + r[4] + ' min read';
+    // The same markup as a server-rendered card (renderIndex), so a search result looks like the list it came from.
+    const tp = document.createElement('span'); tp.className = 'topic'; tp.textContent = r[6];
+    const w = document.createElement('span'); w.className = 'when';
+    const t = document.createElement('time'); t.dateTime = r[3];
+    t.textContent = new Date(r[3] + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    w.appendChild(t); w.appendChild(document.createTextNode(' · ' + r[4] + ' min read'));
+    m.appendChild(tp); m.appendChild(document.createTextNode(' ')); m.appendChild(w);
     li.appendChild(h); li.appendChild(d); li.appendChild(m);
     return li;
   }
@@ -570,7 +592,7 @@ export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes 
       (p) => `<li data-slug="${esc(p.slug)}" data-topic="${esc(p.topic)}" data-tags="${esc(p.tags.join(' '))}" data-date="${p.date}" data-mins="${p.minutes}" data-text="${esc(cardText(p))}">
   <h2><a href="${up}${esc(p.slug)}/">${esc(p.title)}</a></h2>
   <p>${esc(p.description)}</p>
-  <p class="meta"><span class="topic">${esc(topicLabel(p.topic))}</span> <time class="date" datetime="${p.date}">${longDate(p.date)}</time> <span class="mins">${p.minutes} min read</span></p>
+  <p class="meta"><span class="topic">${esc(topicLabel(p.topic))}</span> <span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${p.minutes} min read</span></p>
 </li>`,
     )
     .join('\n');
@@ -831,8 +853,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
     },
     hero: `<h1>${esc(post.title)}</h1>
 <p class="dek">${esc(post.description)}</p>
-<p class="meta">${topic} <time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
-<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}${tags ? `<br>${tags}` : ''}</p>`,
+<p class="meta">${topic} <time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read&nbsp;·&nbsp;<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}${tags ? `<br>${tags}` : ''}</p>`,
     body: `<article>
 ${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), toRoot)}
 </article>

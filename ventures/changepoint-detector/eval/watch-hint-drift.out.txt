@@ -1,0 +1,63 @@
+Round 9, the 31 shipped univariate TCPD series (the rule): 23 series scored; skipped (h < 30): centralia (n=15), debt_ireland (n=21), gdp_argentina (n=59), gdp_croatia (n=24), gdp_iran (n=58), gdp_japan (n=58), ozone (n=54), rail_lines (n=37).
+
+  series                       n    h  hist rate q/m/d/e (per 100)    fut rate q/m/d/e            hint3  hint4   future marks (reached by hint3 / hint4)
+  bank                         581  290    6.0   7.3  12.1  13.8      6.5   8.2   8.6  13.4   quiet  quiet   0 (0 / 0)
+  brent_spot                   500  250    0.5   4.5   3.0  11.5      0.4   3.2   0.8  10.0   quiet  quiet   2 (1 / 1)
+  businv                       330  165    0.8   4.5   5.3  12.1      0.6   4.2   4.8  11.5   quiet  quiet   2 (0 / 0)
+  children_per_woman           301  150    1.7   1.7   9.2  11.7      2.0   3.3   4.0  14.6   middle middle  1 (0 / 0)
+  co2_canada                   215  107    3.5   2.3  15.1  15.1      1.9   5.6  12.0  13.9   quiet  quiet   4 (0 / 0)
+  construction                 319  159    0.0   4.7   0.0  12.5      1.3   3.8   0.0   9.4   quiet  drift   1 (1 / 0)
+  global_co2                   104   52    6.3   6.3   6.3   9.4      1.9   0.0  13.5  17.3   quiet  quiet   0 (0 / 0)
+  homeruns                     118   59    2.6   5.1  12.8  12.8      3.4   3.4   8.5  11.9   quiet  quiet   1 (1 / 1)
+  jfk_passengers               468  234    0.0   0.0   0.0   8.0      0.4   0.4   0.4   8.1   middle drift   1 (1 / 1)
+  lga_passengers               468  234    1.6   1.1   0.0   6.9      1.3   2.6   0.4   9.8   middle drift   2 (1 / 1)
+  nile                         100   50    3.3   3.3   3.3   3.3      0.0   0.0   0.0   2.0   quiet  quiet   0 (0 / 0)
+  quality_control_1            313  156    1.6   0.0   1.6   2.4      0.0   0.0   0.0   1.3   middle drift   0 (0 / 0)
+  quality_control_2            283  141    0.9   0.0   0.9   0.9      0.0   0.7   0.0   0.0   eager  eager   0 (0 / 0)
+  quality_control_3            366  183    0.7   0.0   0.7   4.8      0.5   0.5   2.7   8.2   middle drift   0 (0 / 0)
+  quality_control_4            500  250    2.5   5.5   1.0  10.0      2.8   5.6   1.2  10.0   quiet  drift   1 (1 / 1)
+  quality_control_5            325  162    0.0   0.0   0.0   0.0      0.0   0.0   0.0   0.0   eager  eager   0 (0 / 0)
+  seatbelts                    192   96    0.0   1.3   1.3   9.2      0.0   2.1   0.0   5.2   middle drift   1 (1 / 0)
+  shanghai_license             205  102    3.7   3.7   8.5   8.5      1.9   2.9   3.9  14.6   quiet  quiet   2 (1 / 1)
+  uk_coal_employ               105   52    6.3   9.4   9.4   9.4      1.9   1.9   3.8   7.5   quiet  quiet   2 (0 / 0)
+  unemployment_nl              214  107    1.2   5.8   8.1  12.8      3.7   5.6   6.5  14.0   quiet  quiet   4 (3 / 3)
+  us_population                816  408    0.0   0.0   1.2  16.5      0.0   0.0   0.0  16.7   middle drift   0 (0 / 0)
+  usd_isk                      247  123    1.0   9.1  10.1  10.1      1.6   4.8   0.8   8.9   quiet  quiet   1 (0 / 0)
+  well_log                     675  337    2.6   2.2   2.6   3.0      2.7   2.1   2.4   3.0   quiet  quiet   6 (6 / 6)
+
+  policy                        future alerts  at a mark (share)  per 1000 checks  majority-marked reached  picks q/m/d/e
+  fixed quiet (default)               61         26 (43%)           15.7           16/31              23/0/0/0
+  fixed middle                       106         35 (33%)           27.3           23/31              0/23/0/0
+  fixed drift                         98         45 (46%)           25.3           25/31              0/0/23/0
+  fixed eager                        364         79 (22%)           93.9           31/31              0/0/0/23
+  hint3, B = 2 (shipped)              68         27 (40%)           17.5           17/31              14/7/0/2
+  hint4, B = 2 (candidate)            59         23 (39%)           15.2           15/31              12/1/8/2
+  hint4, B = 1                        57         23 (40%)           14.7           15/31              14/2/5/2
+  hint4, B = 5                        85         31 (36%)           21.9           20/31              6/4/7/6
+  hint4 drift<middle, B = 2           62         25 (40%)           16.0           16/31              12/7/2/2
+
+  Rule: (a) more marks than the shipped hint: 15 vs 17 FAIL; (b) per 1000 at most middle's: 15.2 vs 27.3 PASS; (c) share at most 5 points below the shipped hint's: 39.0% vs 39.7% PASS.
+  The four-setting hint does NOT ship.
+
+Held out (deciding nothing): 6 series scored; skipped (h < 30): robocalls (n=52).
+
+  series                       n    h  hist rate q/m/d/e (per 100)    fut rate q/m/d/e            hint3  hint4   future marks (reached by hint3 / hint4)
+  bitcoin                      774  387    1.9   4.2   5.5  11.0      1.3   3.4   9.6  13.7   quiet  quiet   3 (0 / 0)
+  iceland_tourism              199   99    2.5   2.5   0.0  17.7      0.0   2.0   2.0  12.0   quiet  drift   0 (0 / 0)
+  measles                      991  495    2.8   3.0   3.5   9.8      2.0   4.6   2.4   9.9   quiet  quiet   0 (0 / 0)
+  ratner_stock                 600  300    1.3   4.6   7.1  11.3      0.7   3.0   1.3   5.3   quiet  quiet   0 (0 / 0)
+  scanline_126007              481  240    1.6   5.7   1.6   7.3      5.4   6.6   5.8   8.7   quiet  drift   1 (1 / 0)
+  scanline_42049               481  240    3.1   2.6   5.7   9.4      3.7   4.1   3.7   9.1   quiet  quiet   5 (5 / 5)
+
+  policy                        future alerts  at a mark (share)  per 1000 checks  majority-marked reached  picks q/m/d/e
+  fixed quiet (default)               39         20 (51%)           22.1            6/9              6/0/0/0
+  fixed middle                        73         25 (34%)           41.4            8/9              0/6/0/0
+  fixed drift                         78         31 (40%)           44.2            8/9              0/0/6/0
+  fixed eager                        173         38 (22%)           98.0            9/9              0/0/0/6
+  hint3, B = 2 (shipped)              39         20 (51%)           22.1            6/9              6/0/0/0
+  hint4, B = 2 (candidate)            42         19 (45%)           23.8            5/9              4/0/2/0
+  hint4, B = 1                        41         20 (49%)           23.2            6/9              5/0/1/0
+  hint4, B = 5                        60         21 (35%)           34.0            7/9              0/3/3/0
+  hint4 drift<middle, B = 2           42         19 (45%)           23.8            5/9              4/0/2/0
+
+153 s on 4 cores.

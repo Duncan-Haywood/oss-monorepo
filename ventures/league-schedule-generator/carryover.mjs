@@ -1491,7 +1491,7 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
  * of the trade the weights do not reach (eval/capped-breaks.txt).
  */
-export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   checkBestOfK(tries, pick);
   if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
   if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
@@ -1502,6 +1502,17 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
     const t = carryOverTry(n, i, { double, seed, weights, effort, weighted: tries });
     results.push(t);
     if (onTry) onTry(i, candidateOf(t, pick));
+  }
+  // `squeeze` more seasons after every try: squeezeDoubleRounds (squeezeSingleRounds) into the
+  // widest gaps of the tries' frontier (carryOverSqueeze); like the gap tries, only kept by `keep`
+  if (!Number.isInteger(squeeze) || squeeze < 0) throw new Error("squeeze must be a whole number of 0 or more.");
+  if (squeeze) {
+    for (let j = 0; j < squeeze; j++) {
+      const t = carryOverSqueeze(n, results, { seed, effort });
+      if (!t) break;
+      results.push(t);
+      if (onTry) onTry(t.index, candidateOf(t, pick));
+    }
   }
   return combineCarryOverTries(results, pick, { among: tries + capped, keep });
 }
@@ -1606,6 +1617,14 @@ export function combineCarryOverTries(results, pick = 10, { among = Infinity, ke
 export const CARRY_OVER_GAP = 2;
 
 /**
+ * Squeezed seasons the page runs after its 12 tries in a home-and-away season (carryOverSqueeze,
+ * README "Squeezing a season under a cap"): listed with the other frontier seasons, never picked
+ * by the four choices. At 17 to 20 teams they add 3 or 4 seasons to the frontier and cut the widest
+ * break gap from 10-24 to 6-12 for about 1.5 s on one thread (eval/squeeze-gap.txt).
+ */
+export const CARRY_OVER_SQUEEZE = 4;
+
+/**
  * A kept frontier pick as the share link stores it: the try's index plus the settings the search
  * depends on, so a pick made for 20 teams is never applied to 19, another seed or a single round
  * robin. Returns the index when `text` matches these settings, otherwise null.
@@ -1668,4 +1687,218 @@ export function carryOverSummary(best) {
     ...(best.kept ? { kept: true } : {}),
     ...(Number.isInteger(best.among) && best.among < best.tries.length ? { among: best.among } : {}),
   };
+}
+
+/**
+ * Re-search a home-and-away season under a cap on its breaks, moving the timetable and the grounds
+ * together (README "Squeezing a season under a cap"). Each pair keeps one host: it hosts in leg one
+ * and visits in leg two, so a timetable move inside a leg carries every match's ground with it and
+ * never changes a team's home count. Three moves change grounds: flip one pair, flip two pairs of
+ * one team that it hosts and visits (the team's count is unchanged), and flip a whole alternating
+ * run (every pair one team meets over a stretch of a leg where it alternates home and away, so the
+ * run stays alternating and only its two ends move). Cost: carry-over + `over` per break above
+ * `maxBreaks` + REPEAT_PENALTY per repeat across the halfway point; a move that leaves a team's
+ * leg-one home and away games more than one apart is refused. `start` is a lowCarryOverDoubleRounds
+ * (or carryOverTry) result. Seeded; returns the same shape as lowCarryOverDoubleRounds, the best
+ * season found within the cap (or with the fewest breaks over it, if none got under).
+ */
+export function squeezeDoubleRounds(n, start, opts = {}) {
+  return squeezeLegs(n, start, 2, opts);
+}
+
+/**
+ * The same squeeze on a single round robin (README "Squeezing a single round robin"): every match
+ * keeps its ground through the timetable moves, and the three ground moves flip one match, two
+ * matches of one team (one at home, one away) or a whole alternating run. A move that leaves a
+ * team's home and away games more than one apart is refused. No repeats to price: one leg has no
+ * halfway point. `cycles: true` adds a three-cycle ground move (measured, off by default). `start` is a lowCarryOverRounds, lowCarryOverCappedRounds or carryOverTry result
+ * (not cyclic). Seeded; returns the shape lowCarryOverRounds does, plus { maxBreaks, squeezed }.
+ */
+export function squeezeSingleRounds(n, start, opts = {}) {
+  return squeezeLegs(n, start, 1, opts);
+}
+
+function squeezeLegs(n, start, legs, { seed = 1, effort = 1, maxBreaks, over = 200, cycles = false } = {}) {
+  if (!Number.isInteger(n) || n < 4) throw new Error("A squeezed season needs at least four teams.");
+  if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  if (!start || !Array.isArray(start.rounds) || start.rounds.length !== legs * R) throw new Error(legs === 2 ? "start must be a home-and-away season for this many teams." : "start must be a single round robin for this many teams.");
+  const opp = oppFromRounds(start.rounds, N, n);
+  const host = new Int16Array(N * N).fill(-1); // host[min * N + max]: the team at home in leg one
+  start.rounds.forEach((r, i) => { if (i < R) for (const [h, a] of r.matches) host[Math.min(h, a) * N + Math.max(h, a)] = h; });
+  const P = (t, u) => (t < u ? t * N + u : u * N + t);
+  const homeIn = (r, t) => { const u = opp[r][t]; return (host[P(t, u)] === t) === (r < R) ? 1 : 0; };
+  const leg1Home = new Int32Array(N);
+  for (let r = 0; r < R; r++) for (let t = 0; t < n; t++) if (opp[r][t] < n) leg1Home[t] += homeIn(r, t);
+  const games = N > n ? R - 1 : R;
+  const ok = (t) => t >= n || Math.abs(2 * leg1Home[t] - games) <= 1;
+  const flip = (t, u) => { const p = P(t, u); const h = host[p]; host[p] = h === t ? u : t; leg1Home[t] += h === t ? -1 : 1; leg1Home[u] += h === t ? 1 : -1; };
+  const breaksNow = () => hostBreaks(opp, n, R, host);
+  const coeNow = () => coeOf(opp, n, false) + (legs === 2 ? REPEAT_PENALTY * repeatsAcross(opp, n, R) : 0);
+  const costOf = (c, b) => c + over * Math.max(0, b - maxBreaks);
+  const rand = mulberry32((seed * 2246822519 + 13) >>> 0);
+  const iterations = Math.max(4000, Math.round((effort * 6e7) / (2 * N * N)));
+  let coe = coeNow(), br = breaksNow(), cur = costOf(coe, br);
+  const snap = () => ({ opp: opp.map((o) => o.slice()), host: host.slice(), coe, br });
+  let best = snap();
+  const better = (c, b) => (b <= maxBreaks ? best.br > maxBreaks || c < best.coe || (c === best.coe && b < best.br) : best.br > maxBreaks && (b < best.br || (b === best.br && c < best.coe)));
+  const T0 = Math.max(2, coe / (N * 16));
+  for (let it = 0; it < iterations; it++) {
+    const T = T0 * (1 - it / iterations) + 0.05;
+    const mv = rand();
+    let undo = null, groundsOnly = false;
+    if (mv < 0.55) {
+      // a timetable move inside one leg (the grounds travel with the pairs)
+      const lo = legs === 2 && rand() < 0.5 ? R : 0, hi = lo + R;
+      const r = lo + Math.floor(rand() * R);
+      let s = lo + Math.floor(rand() * (R - 1)); if (s >= r) s++;
+      const k = rand();
+      if (k < 0.4) {
+        const a = Math.floor(rand() * N);
+        let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+        const S = teamSwapRounds(opp, a, b, r, lo, hi);
+        if (S.length >= R) continue;
+        swapTeamsIn(opp, S, a, b); undo = () => swapTeamsIn(opp, S, a, b);
+      } else if (k < 0.6) {
+        [opp[r], opp[s]] = [opp[s], opp[r]]; undo = () => { [opp[r], opp[s]] = [opp[s], opp[r]]; };
+      } else {
+        const cyc = cycleOf(opp, r, s, Math.floor(rand() * N));
+        if (cyc.length === N) continue;
+        const sw = () => { for (const x of cyc) { const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a; } };
+        sw(); undo = sw;
+      }
+    } else {
+      groundsOnly = true;
+      const t = Math.floor(rand() * n), r = Math.floor(rand() * legs * R);
+      if (opp[r][t] >= n) continue;
+      if (cycles && rand() < 0.4) {
+        // `cycles` (off): reverse a directed three-cycle of hosts (x hosts y, y hosts z, z hosts
+        // x), so every team keeps its home count, the one ground move left when every team is
+        // exactly balanced (an even number of games). Measured and not shipped: over 24 single
+        // round robins the squeezes cut 1.4% on, 1.5% off; at 19 teams home and away it found
+        // nothing the plain moves did not (README "Squeezing a single round robin")
+        const H = (x, y) => host[P(x, y)] === x;
+        const u = opp[r][t];
+        const [x, y] = H(t, u) ? [t, u] : [u, t]; // x hosts y
+        const q = Math.floor(rand() * n);
+        let z = -1;
+        for (let d = 0; d < n; d++) { const w = (q + d) % n; if (w !== x && w !== y && H(y, w) && H(w, x)) { z = w; break; } }
+        if (z < 0) continue;
+        const tri = () => { flip(x, y); flip(y, z); flip(z, x); };
+        tri(); undo = tri;
+      } else {
+      const pairs = [];
+      if (mv < 0.7) pairs.push(opp[r][t]);
+      else if (mv < 0.85) {
+        // two pairs of t on opposite grounds in leg one: t's own count is unchanged
+        const want = homeIn(Math.min(r, r < R ? r : r - R), t) ^ 1;
+        const q = Math.floor(rand() * R);
+        for (let d = 0; d < R; d++) { const x = (q + d) % R, u = opp[x][t]; if (u < n && u !== opp[r][t] && homeIn(x, t) === want) { pairs.push(opp[Math.min(r, r < R ? r : r - R)][t], u); break; } }
+        if (pairs.length < 2) continue;
+      } else {
+        const lo = r < R ? 0 : R, hi = lo + R;
+        let a = r, b = r;
+        while (a > lo && opp[a - 1][t] < n && homeIn(a - 1, t) !== homeIn(a, t)) a--;
+        while (b + 1 < hi && opp[b + 1][t] < n && homeIn(b + 1, t) !== homeIn(b, t)) b++;
+        for (let x = a; x <= b; x++) pairs.push(opp[x][t]);
+      }
+      for (const u of pairs) flip(t, u);
+      undo = () => { for (const u of pairs) flip(t, u); };
+      if (!ok(t) || pairs.some((u) => !ok(u))) { undo(); continue; }
+      }
+    }
+    const nc = groundsOnly ? coe : coeNow();
+    const nb = breaksNow();
+    const v = costOf(nc, nb);
+    if (v <= cur || rand() < Math.exp((cur - v) / T)) {
+      cur = v; coe = nc; br = nb;
+      if (better(coe, br)) best = snap();
+    } else undo();
+  }
+  const venues = best.opp.map((o, r) => {
+    const v = new Uint8Array(N);
+    for (let t = 0; t < N; t++) { const u = o[t]; if (t < n && u < n) v[t] = (best.host[P(t, u)] === t) === (r < R) ? 1 : 0; }
+    return v;
+  });
+  const rounds = best.opp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: r < R ? 0 : 1, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, best.opp, t, n);
+  if (legs === 1) return { rounds, coe: coeOf(best.opp, n, false), circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, iterations, maxBreaks, squeezed: true };
+  return { rounds, coe: coeOf(best.opp, n, false), repeats: repeatsAcross(best.opp, n, R), lowerBound: start.lowerBound, breaks, iterations, maxBreaks, squeezed: true };
+}
+
+/**
+ * The squeezes the page runs after its tries (CARRY_OVER_SQUEEZE): for the widest break gaps
+ * between two neighbouring seasons on the tries' frontier (at least `minGap` apart), a cap halfway
+ * across, searched from the season below the gap (squeezeDoubleRounds); then the frontier seasons
+ * themselves at their own breaks, lowest carry-over first, until `count` targets are listed.
+ * Returns [{ from, maxBreaks }] (from: an index into `results`), in the order they run; a function
+ * of the tries alone, so the same tries always give the same squeezes. Either kind of season.
+ */
+export function squeezeTargets(results, { count = 4, minGap = 8, even = false } = {}) {
+  const c = results.map((t, i) => ({ i, coe: t.coe + (t.repeats || 0) * REPEAT_PENALTY, breaks: t.breaks }));
+  const front = c.filter((x) => !c.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks)))
+    .filter((x, k, a) => a.findIndex((y) => y.coe === x.coe && y.breaks === x.breaks) === k)
+    .sort((a, b) => b.breaks - a.breaks || a.i - b.i);
+  const gaps = [];
+  for (let k = 1; k < front.length; k++) {
+    const hi = front[k - 1], lo = front[k], g = hi.breaks - lo.breaks;
+    if (g < minGap) continue;
+    let cap = lo.breaks + Math.floor(g / 2);
+    if (even && cap % 2) cap--;
+    gaps.push({ g, from: lo.i, maxBreaks: cap });
+  }
+  gaps.sort((a, b) => b.g - a.g || a.maxBreaks - b.maxBreaks);
+  const out = gaps.slice(0, count).map(({ from, maxBreaks }) => ({ from, maxBreaks }));
+  for (const x of [...front].sort((a, b) => a.coe - b.coe || a.i - b.i)) {
+    if (out.length >= count) break;
+    if (!out.some((o) => o.from === x.i && o.maxBreaks === x.breaks)) out.push({ from: x.i, maxBreaks: x.breaks });
+  }
+  return out;
+}
+
+/**
+ * The next squeeze of a best-of-k search (single or home and away): `results` are the tries plus any squeezes
+ * already run (in index order), and the target is the first of squeezeTargets(results) that no
+ * earlier squeeze ran, so each squeeze aims at the widest gap the ones before it left. Returns the
+ * squeezed season numbered `results.length` for combineCarryOverTries, with { index, seed,
+ * breakWeight: null, maxBreaks, squeezedFrom }, or null when there is nothing left to aim at.
+ * A function of `results` alone: the same tries always give the same squeezes.
+ */
+export function carryOverSqueeze(n, results, { seed = 1, effort = 1, cycles } = {}) {
+  const done = new Set(results.filter((t) => t.squeezedFrom != null).map((t) => `${t.squeezedFrom}@${t.maxBreaks}`));
+  // a squeezed season is never polished at its own breaks again: it was searched at that cap
+  const fresh = (x) => !done.has(`${x.from}@${x.maxBreaks}`) && !(results[x.from].squeezedFrom != null && x.maxBreaks >= results[x.from].breaks && x.maxBreaks <= results[x.from].maxBreaks);
+  // a single round robin (one leg of rounds) squeezes one leg; a home-and-away season both
+  const N = n % 2 === 0 ? n : n + 1;
+  const double = results[0].rounds.length === 2 * (N - 1);
+  // one leg has about a third of a season's breaks, so its gaps count from half the width
+  const target = squeezeTargets(results, { count: results.length + 1, even: double && n % 2 === 0, minGap: double ? 8 : 4 }).find(fresh);
+  if (!target) return null;
+  const { from, maxBreaks } = target;
+  const index = results.length;
+  const s = carryOverTrySeed(seed, index);
+  const r = (double ? squeezeDoubleRounds : squeezeSingleRounds)(n, results[from], { seed: s, effort, maxBreaks, ...(cycles != null ? { cycles } : {}) });
+  return { ...r, index, seed: s, breakWeight: null, maxBreaks, squeezedFrom: from };
+}
+
+/** `count` squeezes after `tries` (carryOverSqueeze one after another); returns tries + squeezes. */
+export function carryOverSqueezes(n, tries, count, { seed = 1, effort = 1, cycles } = {}) {
+  const out = [...tries].sort((a, b) => a.index - b.index);
+  for (let j = 0; j < count; j++) {
+    const t = carryOverSqueeze(n, out, { seed, effort, cycles });
+    if (!t) break;
+    out.push(t);
+  }
+  return out;
 }

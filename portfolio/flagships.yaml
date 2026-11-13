@@ -135,7 +135,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727).
-      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5" to "Round 8"): hint, budget box and "Wandering level" (drift, Round 8) shipped; next a fresh labelled set to test the hint and drift watch, and drift as a fourth setting in the hint; a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5" to "Round 9"): hint, budget box and "Wandering level" (drift, Round 8) shipped; drift as a fourth hint setting failed (Round 9: 15 vs 17 marks; the rule assumes nested settings); next a fresh labelled set to test the hint, the drift watch and the lead that fixed drift beat fixed middle (Round 9), then a non-nested hint rule (also for `--columns`, README "Several metrics in one watch"); a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the GARCH search"): re-test scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -210,10 +210,11 @@ flagships:
       since 2026-11-13);
       the whole numpy develop runs in threaded bands and packed raws unpack in numpy
       since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same bytes at every thread
-      count and band height); next on speed: the lossless-JPEG decode of compressed DNGs
-      and CR2s in bands of restart intervals or tiles across threads (tiles are
-      independent; check byte-identical at every thread count), and the serial
-      _normalised_plane (about 0.2 s);
+      count and band height); lossless-JPEG DNG tiles decode on a thread pool since
+      2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG,
+      0 of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs, capped by the
+      GIL-held de-stuffing and word packing, so next on speed: move the de-stuffing into the
+      C reader), and the serial _normalised_plane (about 0.2-0.4 s);
       MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the raw-value
       unit is settled (README, 2026-11-12 MapTable section).
     next: >-
@@ -259,31 +260,20 @@ flagships:
       (clearPick.ts), "it's between" as a 95% credible set at min(own EB prior
       sd, stored survey pooled sd) (favouriteSet.ts, surveyPrior*.ts); on real
       PrefLib rankings clear picks wrong 5 of 860, set holds 97-100%. Staged
-      is the server default up to 120 items (pairing.ts; "Staged as the
-      default up to 120 items"); its one cost is whole-session coin flippers
-      at 40-50% of a panel (-0.006 to -0.025). Tried and not shipped
-      (doc sections named): Student-t prior for the intervals, the
-      self-consistency gate, and the pooled sd's upper end
-      (pooledPriorPhiUpper, unwired; 15% narrower for honest panels, unsafe
-      with careless ones). 2026-11-13 later ("A lapse gate for the upper
-      end"): a perfect careless detector would make it safe (honest
-      0.957-0.961 at 10-12% less width), but the answers' lapse estimates
-      reach AUC 0.58-0.69 under staged and a rank gate buys only 1-4%. Anchor pairs as the
-      detector (2026-11-13, latest, "Anchor pairs as the gate's detector"):
-      AUC 0.85-0.88 at 1 in 5, but gating on consistency selects
-      wide-spread people (consistent half of an all-honest panel pools to
-      1.71-1.94 vs 1.27-1.40), so gates are closed. Next, most valuable
-      first: (a) a pooled spread fit that carries each person's lapse share
-      in the likelihood (p = e/2 + (1 - e) sigma(d), e integrated on the
-      grid) instead of a gate, scored with scripts/gated-upper-sweep.ts's
-      mixed panels against the oracle; (b)
-      half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
-      them?); (c) the first real survey's answers: msToAnswer against the
-      answer-time model, and how noisy real pairwise answers are, which
-      decides the self-consistency gate (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d) position bias that
-      starts mid-session; (e) the switch rule above 120 items (then make staged
-      the default there too).
+      is the server default up to 120 items (pairing.ts). Pooled-prior
+      narrowing of the pairwise intervals is closed from the choices alone
+      (2026-11-13, doc sections "A lapse gate for the upper end", "Anchor
+      pairs as the gate's detector", "A pooled spread that models the lapse"):
+      gates select on spread, and a lapse-modelled pool sits on a spread-lapse
+      ridge (safe at the ceiling, or unsafe with a tight lapse prior); it now
+      needs a careless signal from outside the choices, (c). Next, most
+      valuable first: (b) half-time salience (q = 0.5 still leaks +0.12 to
+      +0.29: does pace see them?); (c) the first real survey's answers:
+      msToAnswer against the answer-time model (and as a careless detector for
+      the pooled prior), and how noisy real pairwise answers are, which decides
+      the self-consistency gate (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d) position bias that starts mid-session; (e) the
+      switch rule above 120 items (then make staged the default there too).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
@@ -291,24 +281,23 @@ flagships:
       Swiss formats, with a self-hosted league page.
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
-      (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
-      CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
-      capped breaks, zero-break odd leagues, field start; sampled, annealed and climbed starters,
-      20 and 22 teams at the floor, 24-40 8-21% above it; break-weighted starters; shift venues for
-      single and home-and-away seasons, odd leagues 17-39 under 2 breaks per team; shift starters and
-      capped shift candidates through the search and as home-and-away leg ones, 11 and 13 teams 3-5%
-      lower; README 2026-11-12 sections and eval/shift-*.txt; best-of-k-page.txt: the page's four
-      choices re-measured). 2026-11-12 latest (README "Pick any season on the frontier", eval/frontier-gap.txt): the page lists every
-      frontier season as a button and keeps the one clicked (share link carryOverKeep, no version
-      needed: the four choices still pick among tries 0-9), plus 2 gap capped tries that join the
-      frontier in 9 of 12 runs at 17-20 teams home and away (19 teams 25 to 13 breaks widest gap).
-      Next, most valuable first: a search that reaches 66-90 breaks at 17-20 teams home and away
-      with low carry-over (the circle-start capped search is poor there and a squeeze from a
-      starter could not cut breaks; a move that cuts breaks while keeping balance, e.g. flipping a
-      whole alternating run); moves that keep the shift pattern for 17-40 teams; a lower bound or a
-      timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12 unanswered at
-      134 after 70 min; next symmetry breaking or cube-and-conquer); close 24-40 (tabu, longer runs,
-      the literature's starters); a real league's travel times and unavailable dates; a print check.
+      (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
+      duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool, capped breaks,
+      zero-break odd leagues, field start; sampled, annealed and climbed starters; break-weighted and
+      shift starters; frontier picker with gap tries, README 2026-11-12 sections; squeezes of a
+      home-and-away season under a break cap, README "Squeezing a season under a cap"). 2026-11-13 latest
+      (README "Squeezing a single round robin", eval/squeeze-single.txt): squeezeSingleRounds runs the same
+      joint timetable-and-grounds moves on one leg and the page squeezes either kind: over 24 single round
+      robins at 10-20 teams 42 seasons join the frontier, least carry-over at a break budget 1.5% lower on
+      average (3.9% at 17 and 19 teams, up to 21.9%); a three-cycle ground move (keeps every home count)
+      measured no better, off. Next, most valuable first: the gaps under the lowest-carry-over seasons,
+      which no squeeze touches (20 teams single 360/52 to 546/36; home and away 19 teams 1,311/87 to
+      3,100+ at 78 and under; 1,460/116 at 20 stalls at 112): these are starter or shift-starter seasons
+      whose carry-over is tied to their break pattern, so the next try is a move that keeps the starter's
+      structure (a relabelling or a round rotation scored on breaks) or a starter search with a break cap;
+      a lower bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: next symmetry breaking or
+      cube-and-conquer); close 24-40 (tabu, longer runs, the literature's starters); a real league's
+      travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

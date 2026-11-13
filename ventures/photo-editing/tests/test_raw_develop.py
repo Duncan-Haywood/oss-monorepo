@@ -558,6 +558,52 @@ class DevelopContainerTests(unittest.TestCase):
                     pass
 
 
+class ThreadedTileDecodeTests(unittest.TestCase):
+    """Lossless-JPEG tiles decode on a thread pool (``rd._decode_chunks``); the count never changes a sample."""
+
+    def _blob(self, w=70, h=37, tiles=(16, 8), **opts):
+        sensor = patch_sensor(w, h)
+        return sensor, make_dng(sensor, w, h, compression=7, tiles=tiles, **opts)
+
+    def test_same_samples_at_every_thread_count(self):
+        import os
+        from unittest import mock
+
+        for opts in ({}, {"lossless_nf": 2}, {"predictor": 6}, {"restart": 16}):
+            sensor, blob = self._blob(**opts)
+            for engine in ("auto", "python"):
+                for threads in ("1", "2", "3", "8"):
+                    with self.subTest(opts=opts, engine=engine, threads=threads):
+                        with mock.patch.dict(os.environ, {"SHOOTFLOW_THREADS": threads}), mock.patch.object(
+                            rd, "HUFFMAN_ENGINE", engine
+                        ):
+                            self.assertEqual(rd.parse_raw(blob).values.tolist(), sensor)
+
+    def test_chunks_come_back_in_file_order(self):
+        _, blob = self._blob()
+        reader = rd._Reader(blob)
+        ifd = rd._raw_ifd(rd._all_ifds(reader))
+        spans = list(zip(ifd.get(rd.TAG_TILE_OFFSETS), ifd.get(rd.TAG_TILE_BYTES)))
+        self.assertGreater(len(spans), 8)
+        serial = [list(t) for t in rd._decode_chunks(blob, spans, 7, 16, 1, lambda i: (16, 8), reader.end, threads=1)]
+        for threads in (2, 4, 64):
+            got = [list(t) for t in rd._decode_chunks(blob, spans, 7, 16, 1, lambda i: (16, 8), reader.end, threads=threads)]
+            self.assertEqual(got, serial)
+
+    def test_a_broken_tile_raises_at_every_thread_count(self):
+        _, blob = self._blob()
+        reader = rd._Reader(blob)
+        ifd = rd._raw_ifd(rd._all_ifds(reader))
+        spans = list(zip(ifd.get(rd.TAG_TILE_OFFSETS), ifd.get(rd.TAG_TILE_BYTES)))
+        off, _ = spans[5]
+        broken = bytearray(blob)
+        broken[off : off + 2] = b"\x00\x00"  # tile 5 no longer starts with SOI
+        for threads in (1, 2, 4):
+            with self.subTest(threads=threads):
+                with self.assertRaises(rd.DevelopError):
+                    list(rd._decode_chunks(bytes(broken), spans, 7, 16, 1, lambda i: (16, 8), reader.end, threads=threads))
+
+
 class LosslessJpegInteropTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg not installed")
     def test_decodes_ffmpeg_ljpeg_streams(self):

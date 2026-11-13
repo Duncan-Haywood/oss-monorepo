@@ -83,3 +83,15 @@ test("the share link carries a pick and drops anything malformed", () => {
   // a link made before the picker has no pick and builds the same season it always did
   assert.equal(decodeFields(encodeFields(fields())).carryOverKeep, "");
 });
+
+test("buildSchedule keeps a squeezed season picked from the list (carryOverSqueeze)", async () => {
+  const { carryOverSqueezes } = await import("./carryover.mjs");
+  const withSq = carryOverSqueezes(8, all, 2, { seed: 1 });
+  const at = withSq.length - 1;
+  if (at < all.length) return; // nothing to squeeze at this size and seed
+  const spec = readSpec(fields({ carryOverKeep: carryOverKeepText(at, { n: 8, double: true, seed: 1 }) })).spec;
+  const s = buildSchedule({ ...spec, carryOverTries: 4, carryOverCapped: 2, carryOverGap: 2, carryOverSqueeze: 2 });
+  assert.deepEqual(validateSchedule(s).errors, []);
+  assert.equal(s.carryOverSearch.chosen, at);
+  assert.equal(s.stats.carryOver.value, withSq[at].coe);
+});

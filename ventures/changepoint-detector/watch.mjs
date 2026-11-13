@@ -18,6 +18,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import process from 'node:process';
 import { parseSeries } from './engine.mjs';
+import { parseColumns } from './multivariate.mjs';
 import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector } from './watch-core.mjs';
 
 // The logic lives in watch-core.mjs (no file or network access, so the page and the agent tool import it too).
@@ -32,6 +33,12 @@ Options:
   --state <file>            where alerted changes are remembered (created if missing; commit it or cache it)
   --column <name|index>     value column (default: last numeric column)
   --label-column <name|i>   label/date column (default: first column)
+  --columns <list|all>      watch several metrics of one CSV in one run: a comma list (orders,revenue,signups) or
+                            all (every numeric column). A column may name its own model after a colon
+                            (orders:poisson,revenue:meanvar). Each column keeps its own record in the one state file and
+                            all new changes go out as one webhook message. With --detector auto or --suggest each column
+                            is picked against the whole budget, as a one-column watch would be (splitting it across the
+                            columns was tested and failed, README "Several metrics in one watch").
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
@@ -72,7 +79,7 @@ Statistical analysis of data you supply, not advice. MIT licence.`;
 export async function main(argv, { out = (s) => process.stdout.write(s), env = process.env, fetchImpl = globalThis.fetch } = {}) {
   const o = {};
   let src = null, statePath = null, json = false, failOnAlert = false, dry = false, hookEnv = null;
-  let suggest = false, auto = false, budget = null, plain = null, every = 'day';
+  let suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null;
   const num = (s, name) => { const v = Number(s); if (!(v > 0) || !Number.isInteger(v)) throw new Error(`${name} takes a whole number above 0.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -80,6 +87,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--state') statePath = argv[++i];
     else if (a === '--column') o.column = argv[++i];
     else if (a === '--label-column') o.labelColumn = argv[++i];
+    else if (a === '--columns') { columnsSpec = argv[++i]; if (!columnsSpec || columnsSpec.startsWith('-')) throw new Error('--columns takes a comma list of columns (orders,revenue:poisson) or all.'); }
     else if (a === '--model') { o.model = argv[++i]; if (!['mean', 'meanvar', 'poisson'].includes(o.model)) throw new Error('--model takes mean, meanvar or poisson.'); }
     else if (a === '--penalty') { const p = argv[++i]; o.penalty = /^\d+(\.\d+)?$/.test(p) ? Number(p) : p; }
     else if (a === '--period') o.period = num(argv[++i], '--period');
@@ -117,6 +125,10 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     if (!r.ok) throw new Error(`Fetching ${src} answered ${r.status}.`);
     csv = await r.text();
   } else csv = await readFile(src, 'utf8');
+  if (columnsSpec) {
+    if (o.column != null) throw new Error('Give --column or --columns, not both.');
+    return watchColumns({ csv, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl });
+  }
   const { labels, values, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   const { column: _c, labelColumn: _l, alertHistory: _h, ...detOpts } = o;
@@ -155,6 +167,109 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     : null;
   out((json ? JSON.stringify({ column, n: values.length, ...(picked ? { picked } : {}), ...res }, null, 2) : (pickLine ? pickLine + '\n' : '') + statusText(res, textOpts)) + '\n');
   return failOnAlert && res.alerts.length ? 1 : 0;
+}
+
+/**
+ * `--columns`: [{ column, model }] from "a,b:poisson" or "all" (every numeric column but the label column).
+ * Column names are matched as the single-column watch matches them (case-insensitive, or a 0-based index).
+ */
+export function columnSpecs(csv, spec, labelColumn = null) {
+  const MODELS = ['mean', 'meanvar', 'poisson'];
+  let specs;
+  if (String(spec).trim().toLowerCase() === 'all') specs = parseColumns(csv, null, labelColumn).names.map((column) => ({ column, model: null }));
+  else {
+    specs = String(spec).split(',').map((s) => s.trim()).filter(Boolean).map((s) => {
+      const m = /^(.*?)(?::(mean|meanvar|poisson))?$/.exec(s);
+      const column = m[1].trim();
+      if (!column) throw new Error(`--columns: "${s}" names no column.`);
+      if (s.includes(':') && !m[2]) throw new Error(`--columns: "${s}": the part after the colon is the model, one of ${MODELS.join(', ')}.`);
+      return { column: /^\d+$/.test(column) ? Number(column) : column, model: m[2] ?? null };
+    });
+  }
+  if (!specs.length) throw new Error('--columns: no column to watch.');
+  const seen = new Set();
+  for (const s of specs) {
+    const k = String(s.column).toLowerCase();
+    if (seen.has(k)) throw new Error(`--columns: "${s.column}" is listed twice.`);
+    seen.add(k);
+  }
+  return specs;
+}
+
+/** The record for several columns: { version, columns: { <name>: <one column's state> } }. */
+export function emptyMultiState() { return { version: 1, columns: {} }; }
+
+async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl }) {
+  const k = specs.length;
+  // Each column is picked against the whole budget, as a one-column watch would be. Splitting it (1/k each) was
+  // pre-registered and failed (eval/watch-columns.mjs): on 5 noise columns the unsplit picks already sent 1.33 alerts per
+  // 100 checks of the whole watch, and on the UK seat-belt columns the split sent more (8 against 5), because Quiet sent
+  // more than Middle on those seasonal monthly series.
+  const whole = budget ?? HINT_BUDGET;
+  const { column: _c, labelColumn, alertHistory: _h, ...base } = o;
+  const series = specs.map((s) => {
+    const { labels, values, column } = parseSeries(csv, s.column, labelColumn ?? null);
+    if (values.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${values.length}.`);
+    return { ...s, column: String(column), labels, values, opts: { ...base, ...(s.model ? { model: s.model } : {}) } };
+  });
+  if (suggest) {
+    const rows = series.map((c) => {
+      if (c.values.length < 10) throw new Error(`--suggest needs at least 10 points; ${c.column} has ${c.values.length}.`);
+      return { column: c.column, ...eagernessReplay(c.values, c.labels, { ...c.opts, budget: whole }) };
+    });
+    if (json) out(JSON.stringify({ budget: whole, plain: plainBudgetText(whole, every), columns: rows }, null, 2) + '\n');
+    else out(`Budget: ${plainBudgetText(whole, every)} per column, ${k} column${k === 1 ? '' : 's'}.\n\n`
+      + rows.map((r) => `== ${r.column} ==\n${eagernessText(r, { column: r.column, every })}`).join('\n\n') + '\n');
+    return 0;
+  }
+  let state = emptyMultiState();
+  if (statePath && existsSync(statePath)) {
+    const raw = JSON.parse(await readFile(statePath, 'utf8'));
+    if (!raw.columns && (raw.n || (raw.alerted && raw.alerted.length))) throw new Error(`${statePath} holds the record of a one-column watch; give --columns a new --state file (or keep --column).`);
+    if (raw.columns) state = { version: 1, columns: { ...raw.columns } };
+  }
+  const NAME = { quiet: 'Quiet', middle: 'Middle', eager: 'Eager' };
+  const results = [];
+  for (const c of series) {
+    const st = state.columns[c.column] ?? emptyState();
+    const det = { ...c.opts };
+    let picked = null;
+    if (auto) {
+      if (st.choice && DETECTORS.includes(st.choice.detector)) det.detector = st.choice.detector;
+      else {
+        const { replay: _r, ...ch } = chooseDetector(c.values, c.labels, { ...det, budget: whole });
+        st.choice = ch;
+        picked = ch;
+        det.detector = ch.detector;
+      }
+    }
+    const res = advance(st, detectChanges(c.values, c.labels, det), c.values.length, c.labels, { ...o, ...det });
+    state.columns[c.column] = res.state;
+    results.push({ column: c.column, model: det.model || 'mean', n: c.values.length, picked, res });
+  }
+  const alerting = results.filter((r) => r.res.alerts.length);
+  const message = alerting.map((r) => alertText(r.res, { column: r.column, model: r.model })).join('\n');
+  if (hookEnv && alerting.length) {
+    const url = env[hookEnv];
+    if (!url) throw new Error(`--webhook-env ${hookEnv}: that environment variable is empty.`);
+    const r = await fetchImpl(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(webhookBody(message)) });
+    if (!r.ok) throw new Error(`The webhook answered ${r.status}; the state was not saved, so the next run will try again.`);
+  }
+  if (!dry) await writeFile(statePath, JSON.stringify(state, null, 2) + '\n');
+  if (json) {
+    out(JSON.stringify({ alerts: alerting.reduce((s, r) => s + r.res.alerts.length, 0), budget: auto ? whole : undefined,
+      columns: results.map((r) => ({ column: r.column, model: r.model, n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.res })) }, null, 2) + '\n');
+  } else {
+    const head = alerting.length
+      ? `New changes in ${alerting.length} of ${k} column${k === 1 ? '' : 's'}: ${alerting.map((r) => r.column).join(', ')}.`
+      : `No new confirmed change in ${k} column${k === 1 ? '' : 's'}.`;
+    const blocks = results.map((r) => {
+      const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
+      return `== ${r.column} ==\n${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
+    });
+    out([head, ...blocks].join('\n\n') + '\n');
+  }
+  return failOnAlert && alerting.length ? 1 : 0;
 }
 
 const invoked = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;

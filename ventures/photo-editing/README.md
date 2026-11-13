@@ -1443,6 +1443,20 @@ thread counts. On the Leica T frame and four CPUs, reading the file takes 0.23 s
 read plus full default develop takes 3.7 s (was 8.8 s); an unwarped develop takes 1.1 s (was 2.2 s).
 Not yet threaded: the lossless-JPEG decode of compressed DNGs and CR2s.
 
+## A phone's lossless-JPEG DNG, sensel for sensel, and its tiles on every CPU (2026-11-13)
+
+The first camera-written lossless-JPEG DNG ShootFlow has read: a Google Pixel 3 XL raw (4032 x
+3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; MIT-licensed, from the tinydng
+repository, downloaded at check time). All 12,192,768 sensels equal LibRaw's `raw_image`, and the
+half-size render matches LibRaw's to a median 0.054 of an 8-bit step with opcodes off. With the
+phone's lens shading map on, the two lit corners come to 110% and 85% of the phone's own preview
+(41% and 33% without it). `tools/dng_camera_check.py --preview` now turns the embedded preview by
+the file's Orientation before comparing corners; on this file it had been comparing the wrong ones.
+Lossless-JPEG tiles and strips now decode on a thread pool (`SHOOTFLOW_THREADS`, default every
+CPU), same samples at every thread count: the Pixel's read takes 0.21 s on four CPUs against
+0.33 s on one, and read plus full develop 3.1 s against 6.5 s
+(`eval/pixel3-lossless-tiles-2026-11-13.md`).
+
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
 Five more opcodes now run in `OpcodeList2` and `OpcodeList3`, in list order with the others:
