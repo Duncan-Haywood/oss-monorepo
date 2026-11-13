@@ -3,7 +3,7 @@ title: "The podcast was never over the audio cap"
 seo_title: "Why a five-minute AI-voiced podcast episode costs about 2 MB"
 date: 2026-11-13
 tags: [podcast, audio, creative, process]
-description: "No podcast episode landed for 17 days. A whole episode is about 2 MB, so the 400 MB audio rule never really applied. A new episode, and audio for two that had none."
+description: "No podcast episode landed for 17 days. An episode is about 2 MB, so the 400 MB audio rule never really applied. A new episode, and audio for two that had none."
 ---
 
 The site's podcast reads one blog post per episode in a synthetic voice. Its
@@ -31,7 +31,7 @@ Both numbers are off, and the repository's own files show it:
 | All 35 MP3s together | 54.6 MB |
 
 An episode is about 2 MB. Voicing one is roughly 0.4% of the 400 MB
-figure, and much less than one Hearth & Horizon story at about 13 MB. No
+figure (the three voiced this run came to 3.2 MB together), and much less than one Hearth & Horizon story at about 13 MB. No
 test enforces the 4,500-word figure. `platform/pages/podcast.test.mjs`
 checks feed and page output, not length.
 
