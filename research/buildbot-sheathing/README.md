@@ -217,6 +217,27 @@ then a tighter tool.
 
 ![Shapley shares of the straight-stud ceiling by error source; clean sheets under the slide and shim remedies](experiments/m10_ceiling/figure.png)
 
+**Milestone 11: what do real installed studs look like, and does the parabola every milestone
+assumed hold up? Bow sizes match the books; the shape does not, and it costs single 2x 11–15
+points.** The first measured studs in the programme come from a public laser scan (Adel et al.
+2024 data set, CC BY 4.0; 1.8 million points, 0.019 mm depth resolution) of a full-scale 2x4
+wall two industrial robots built: six vertical studs, five inclined members, scanned on the face
+sheathing is nailed to. Sliced every 10 mm, the six studs bow a median **0.106 in** scaled to
+8 ft (largest 0.283 in), right on the published kiln-dried mean of 0.11 in. Their shape is not a
+parabola: after the best-fit parabola each stud keeps **0.6–0.9 mm RMS** of waviness (a
+synthetic face on the scan's 2 mm profile grid leaves 0.27 mm), and on the three most bowed the
+parabola explains only 64–79% of the shape. About half of that waviness is common to every
+member at the same height, which points to the scan's stitched passes rather than the wood, so
+the post hoc check removes it and keeps the rest (0.3–0.6 mm). Put back into milestone 9's best
+single-2x pipeline, the measured studs give **0.43–0.47** clean sheets against **0.58** for
+parabolas at the same studs' own bows and 0.625 for the model's low-warp draw: the parabola
+flattered single 2x by 11–15 points, and a nail window of ±3 mm cannot absorb a millimetre of
+waviness a three-read fit does not see. Doubled joints give **1.000** on the measured studs in
+every variant, so the programme's recommendation gets stronger. One wall and six studs: enough
+to refute the shape assumption, not to estimate a population.
+
+![Six installed studs' face centrelines against their parabolas; bow amplitude against the published means; clean sheets on measured studs against parabolas](experiments/m11_measured/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -491,11 +512,36 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   are swept 0.25–1 mm (not sourced: no shim or slide accuracy was found).
 - **Tool scatter needed** for 95%: bisection on s_robot (12 steps, fixed seed).
 
+## Milestone 11 method (`src/buildbot_sheathing/measured.py`)
+- **Data.** Adel, Ruan, McGee and Mozaffari (2024, *Automation in Construction* 164, 105444,
+  doi:10.1016/j.autcon.2024.105444), wall module experiment: a 2.05 m by 2.32 m
+  2x4 frame (two plates, six vertical studs at about 402 mm, five members inclined 6°), butt
+  jointed by two industrial robots with a topology-based feedback loop, scanned from one side by a
+  laser profiler on the robot (0.150 mm profile resolution, 0.019 mm depth resolution, a profile
+  every 2 mm, passes stitched on the robot's calibration). Data set doi:10.34770/0w80-p436, CC BY
+  4.0; `experiments/m11_measured/extract.py` downloads it, checks its SHA-256 and writes
+  `profiles.json` (the extracted profiles; the raw scan is not committed).
+- **Extraction.** A plane fitted to the front surface (inlier sd 1.41 mm) gives u along the wall,
+  v up, w out. Each member is sliced every 10 mm of height; per slice the face's two edges (0.5
+  and 99.5 percentiles of the points within 1.5 mm of its top), its centre, mean w and slope dw/du
+  (the section's rotation, i.e. twist). Bow is the parabola coefficient of the centreline about a
+  least-squares chord; lean and layout come from the chords' ends against a uniform grid.
+- **Calibration.** Synthetic faces (38.1 mm, 3.2 mm eased corners) on a 2 mm profile grid at 8
+  phases: bows of 0–6 mm come back to 0.25 mm RMS, and a perfect parabola leaves 0.27 mm RMS of
+  quantisation, the floor any measured residual is read against.
+- **Pipeline.** Milestone 9's best single-2x ledger pipeline (`tack.simulate`, three or dense
+  reads, s_x 1 mm, edge aim, 0.9 mm tool, Drake smooth-rock seats, 20,000 sheets, seed 7) with a
+  new `profiles` argument: each of a sheet's four studs is one of the six measured shapes, with
+  random left-right and top-bottom flips, its deviation scaled to the 92 5/8 in stud by length
+  squared and its measured twist in place of the linear one. Variants: raw slices, a 110 mm
+  running mean, the 110 mm mean less the part common to all eleven members (post hoc, see
+  results), twist off, and each stud's own fitted parabola with a linear twist.
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 74 test functions (75 cases); one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
+python -m pytest -q tests                                    # 78 test functions (79 cases); one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -521,6 +567,9 @@ python experiments/m9_straighten/run.py > experiments/m9_straighten/results.txt 
 python experiments/m9_straighten/figure.py
 python experiments/m10_ceiling/run.py > experiments/m10_ceiling/results.txt           # ~1 min, seed 7; reads m6b's results.json
 python experiments/m10_ceiling/figure.py
+python experiments/m11_measured/extract.py                   # downloads the 54 MB data set once (CC BY 4.0), writes profiles.json
+python experiments/m11_measured/run.py > experiments/m11_measured/results.txt         # ~15 s, seed 7; reads profiles.json and m6b's results.json
+python experiments/m11_measured/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -761,7 +810,45 @@ python paper/check_numbers.py                                # every number the 
   **H46 refuted** (pose 43.5% and 38.6%, bar 50%: milestone 9's reading was half right); H47 held
   (+6.1 and +5.8 points, bar 5); **H48 refuted** (0.893, bar 0.95).
 
+## Milestone 11 results (`experiments/m11_measured/results.txt`)
+- **A. Calibration.** True bows 0 / 1 / 3 / 6 mm read back as −0.08 / 0.89 / 2.88 / 5.95 mm (sd
+  0.12–0.34); parabola R² 0.06 / 0.60 / 0.90 / 0.97 and 0.23–0.30 mm RMS residual from the 2 mm
+  grid alone; a 38.1 mm face reads 36.0 mm wide.
+- **B. Resolution.** The six faces read 35.6–36.0 mm wide (all front points), as the synthetic
+  38.1 mm face does; centrelines jump 1.2–2.6 mm between some neighbouring slices, the size of
+  the profile pitch.
+- **C. Six vertical studs.** Bow −1.55, −0.44, −2.92, −3.25, −5.95, +0.83 mm over 2,220 mm
+  (0.074, 0.021, 0.139, 0.154, 0.283, 0.039 in at 8 ft; median 0.106 in); parabola R² 0.21, 0.03,
+  0.64, 0.74, 0.79, 0.11; RMS residual 0.59–0.94 mm (0.39–0.76 mm after a 110 mm mean). Twist
+  end to end −0.3 to 3.5°. Out of plane, the two left studs run 20.5 and 10.9 mm across their
+  height (the frame is not flat), the others 2–3.5 mm. Layout about a 402 mm grid: sd 2.0 mm at
+  the bottom plate, 5.1 mm at the top; the end studs lean 14.6 and 6.5 mm, the inner four within
+  1.7 mm (the paper reports the top plate sagging toward one end).
+- **Post hoc: wood or scan?** Residuals after each member's parabola correlate across the
+  eleven members (median pairwise r 0.47); their mean carries 48% of the residual variance, against
+  9% if independent. Removing it leaves 0.31–0.60 mm RMS on the studs.
+- **D. Inclined members.** Bows −1.38, −1.99, +0.54, −5.07, −0.59 mm (0.025–0.238 in at 8 ft);
+  all eleven members: median 0.074 in, mean 0.105 in.
+- **E. Clean sheets, single 2x, three reads:** measured raw 0.311, 110 mm mean 0.425, common part
+  removed 0.471, twist off 0.461, each stud's parabola 0.579; model low warp 0.625, straight 0.811.
+  Dense reads: 0.388, 0.474, 0.503, 0.529, 0.600 (model 0.650). Doubled joints: 1.0000 in every
+  variant.
+- **F. Robot placement in the same data set.** The nail-laminated panel's benchmark poses
+  reproduce the paper's Table 1 exactly (mean 1.282 mm in plane; per robot y sd 0.25 and 0.44 mm);
+  the adaptive file does not (mean 1.956 mm against 0.401 in Table 1), so it was not used.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): **H49 refuted** (35.6–36.0 mm wide against
+  38.1 ± 2, and jumps of 1.2–2.6 mm: the 2 mm profile pitch, which the synthetic face shows as
+  well); H50 held (median 0.106 in, largest 0.283 in); **H51 refuted** (R² 0.21–0.79, residual
+  0.59–0.94 mm); **H52 refuted** (measured 0.425 against parabola 0.579, 15 points; doubled
+  joints 1.000).
+
 ## Limitations
+- **Measured studs (milestone 11).** One wall of six studs, of unstated grade and species, built
+  by robots that shorten members to fit, scanned from one side with a profile every 2 mm along
+  the wall, so a face edge is known to about ±1 mm per slice and passes are stitched on the
+  robot's calibration; the part of the waviness common to every member is treated as scan
+  artefact, which may also remove some real shape. Length-squared scaling to the 92 5/8 in stud
+  assumes constant curvature, which the measured shapes do not have.
 - **Gaussian, independent, swept.** Stud, edge, gauge and width errors are swept, not measured;
   real errors have bias and heavy tails. The stud estimate includes the layout scatter
   (studfind's single-read policy).
@@ -837,7 +924,10 @@ rest, and a slide and a shim before tacking lift it to 0.92–0.94, still short 
 tool held to about 0.8 mm. Next for single 2x: a measured scatter for a nailer on an arm (the
 0.9 mm is one source), a mock-up of the slide and shim, and a mock-up push on real studs to pin
 the end restraint. A measured sample of
-real panels' squareness and edge bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+real panels' squareness and edge bow would settle the single-2x case. Milestone 11 measured six installed studs from a public
+scan and found the parabola flatters single 2x by 11–15 points; the next measured check is a
+scan with finer profile pitch (or a scan along the studs) of framer-built walls, to separate
+the wood's waviness from the scanner's and to give a population, not one wall. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps

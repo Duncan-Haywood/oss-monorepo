@@ -438,6 +438,21 @@ low-warp studs (section 5.8) to 0.8932; 95% then needs a tool held to 0.839 mm (
 0.794 mm (pushed) at 1σ. Single 2x can therefore reach 95% only with a pose fix and a tool about
 10% tighter than the one assumed; doubled joints reach it with neither.
 
+### 5.10 Measured studs: the bow is the published size, the shape is not a parabola (milestone 11)
+
+The scanned wall of Adel et al. [2024, data] holds six installed vertical 2x4 studs seen on the
+face sheathing is nailed to. Sliced every 10 mm, their flatwise bows scaled to 8 ft have a median
+of 0.106 in and a largest of 0.283 in, on the published kiln-dried mean of 0.11 in. Their shape
+is not the parabola of section 4.2: after it, 0.59–0.94 mm RMS remains, against 0.27 mm that the
+scan's 2 mm profile pitch leaves on a synthetic parabolic face, and on the three most bowed studs
+the parabola explains 64–79% of the shape. Part of that residual is common to all eleven scanned
+members at the same height (48% of its variance, against 9% for independent members), which
+points to the stitched scan passes; removing it leaves 0.31–0.60 mm. In the single-2x pipeline
+of section 5.8 (three reads), the measured studs give 0.425 clean sheets (0.471 with the common
+part removed), against 0.579 for parabolas at the same studs' own bows: the parabola overstated
+single 2x by 11–15 points. Doubled joints give 1.000 on the measured studs. One robot-built wall
+is a small sample; it refutes the shape assumption without estimating a population.
+
 ## 6. Discussion
 
 **What decides a clean sheet.** The robot's sensing matters only where the framing leaves room
@@ -518,8 +533,8 @@ take responsibility for the content before submission.
 BibTeX entries are in `paper/references.bib`. Identifiers were checked by
 `research/_shared/cite_check.py` on 2026-11-12 (`cite_check.json`) except where noted there.
 
-- Adel, A., Ruan, D., McGee, W., Mozaffari, S. (2024). Feedback-driven adaptive multi-robot timber construction. *Automation in Construction* 164, 105444.
-- Adel, A., et al. (2024, data). Adaptive multi-robot timber construction dataset. doi:10.34770/0w80-p436.
+- Adel, A., Ruan, D., McGee, W., Mozaffari, S. (2024). Feedback-driven adaptive multi-robot timber construction. *Automation in Construction* 164, 105444. doi:10.1016/j.autcon.2024.105444.
+- Ruan, D. (2024). Adaptive Multi-Robot Timber Construction Dataset. Princeton University. doi:10.34770/0w80-p436. CC BY 4.0. (Cited in the text as Adel et al. [2024, data].)
 - Castro, A.M., Qu, A., Kuppuswamy, N., Alspach, A., Sherman, M. (2020). A transition-aware method for the simulation of compliant contact with regularized friction. *IEEE Robotics and Automation Letters*. arXiv:1909.05700.
 - Castro, A.M., Permenter, F.N., Han, X. (2023). An unconstrained convex formulation of compliant contact. *IEEE Transactions on Robotics*. arXiv:2110.10107.
 - Chase, K.W., Parkinson, A.R. (1991). A survey of research in the application of tolerance analysis to the design of mechanical assemblies. *Research in Engineering Design* 3, 23–37. doi:10.1007/BF01580066.

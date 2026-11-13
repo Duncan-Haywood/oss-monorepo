@@ -1,0 +1,92 @@
+# Milestone 11: measured studs from a scanned robot-built 2x4 wall (buildbot-sheathing)
+data: Adel et al. 2024 wall module scan, doi:10.34770/0w80-p436 (CC BY 4.0), 1,816,388 points; wall plane inlier sd 1.41 mm; studs between v = 442 and 2680 mm; 6 vertical studs, 5 inclined members; slices 10 mm
+
+## A. The extractor on synthetic faces of known bow (2 mm profile pitch, 3.2 mm eased corners, 8 grid phases)
+true bow mm | recovered mean, sd | parabola R^2 median | RMS residual median mm | face width median mm
+ 0.0 | -0.08, 0.34 |  0.06 | 0.28 | 36.0
+ 1.0 |  0.89, 0.24 |  0.60 | 0.23 | 36.0
+ 3.0 |  2.88, 0.24 |  0.90 | 0.28 | 36.0
+ 6.0 |  5.95, 0.12 |  0.97 | 0.30 | 36.0
+bow recovered to 0.25 mm RMS; a perfect parabola still leaves 0.27 mm RMS of quantisation (edges fall between profiles 2 mm apart)
+
+## B. H49: does the scan resolve a stud face?
+stud at u   -2046: width 35.8 mm (all front points), 33.6 (flat face); largest slice-to-slice jump 2.16 mm against a robust sd of 0.17
+stud at u   -1648: width 35.6 mm (all front points), 34.0 (flat face); largest slice-to-slice jump 2.62 mm against a robust sd of 0.13
+stud at u   -1243: width 35.6 mm (all front points), 33.6 (flat face); largest slice-to-slice jump 1.41 mm against a robust sd of 0.16
+stud at u    -844: width 35.8 mm (all front points), 33.8 (flat face); largest slice-to-slice jump 1.19 mm against a robust sd of 0.14
+stud at u    -441: width 35.7 mm (all front points), 33.6 (flat face); largest slice-to-slice jump 2.03 mm against a robust sd of 0.17
+stud at u     -37: width 36.0 mm (all front points), 33.9 (flat face); largest slice-to-slice jump 1.50 mm against a robust sd of 0.15
+bar: width 38.1 +- 2 mm and no jump over 0.3 mm + 3 sd
+H49 -> refuted; the synthetic 38.1 mm face reads 36.0 mm on its flat part
+
+## C. The six vertical studs: flatwise bow, shape, twist and out-of-plane shape
+u mm | length mm | bow mm | bow at 8 ft in | parabola R^2 | RMS resid mm | max |dev| mm | twist end-to-end deg | twist RMS about line deg | out-of-plane range mm
+  -2046 |  2220 | -1.55 | -0.074 | 0.21 | 0.90 | 2.52 | -0.33 | 0.42 |  20.5
+  -1648 |  2220 | -0.44 | -0.021 | 0.03 | 0.73 | 1.79 |  2.56 | 0.30 |  10.9
+  -1243 |  2220 | -2.92 | -0.139 | 0.64 | 0.66 | 2.71 | -0.21 | 0.23 |   2.0
+   -844 |  2220 | -3.25 | -0.154 | 0.74 | 0.59 | 2.66 |  1.95 | 0.39 |   3.5
+   -441 |  2220 | -5.95 | -0.283 | 0.79 | 0.94 | 4.30 |  3.48 | 0.41 |   2.1
+    -37 |  2220 |  0.83 |  0.039 | 0.11 | 0.72 | 1.86 |  0.65 | 0.33 |   2.8
+median |bow| at 8 ft 0.106 in, largest 0.283 in; published means 0.11 (low), 0.21 (high), Stud-grade limit 0.75
+H50 -> held
+H51 (studs with |bow| > 1 mm: 4): R^2 [0.21, 0.64, 0.74, 0.79], RMS residual [0.9, 0.66, 0.59, 0.94] mm (bar R^2 >= 0.8, residual <= 0.5 mm)
+H51 -> refuted; RMS residual beyond the 0.27 mm quantisation floor: [0.86, 0.67, 0.6, 0.52, 0.89, 0.67] mm
+after a 110 mm running mean the residual is [0.68, 0.43, 0.47, 0.39, 0.76, 0.54] mm
+
+Post hoc: the residual shape across all eleven members (110 mm mean, after each member's parabola)
+pairwise correlation of the residuals: median 0.47 (range 0.02 to 0.87); the across-member mean carries 48% of the residual variance, against 9% if the members were independent
+RMS residual with the common part removed: [0.53, 0.42, 0.35, 0.32, 0.6, 0.31] mm (vertical studs), common part's RMS 0.39 mm
+
+layout at the bottom: spacing 402.5 mm (16 in = 406.4); residuals [-2.1, 1.1, 2.0, -0.9, 1.7, -1.9] mm, sd 2.0
+layout at the top: spacing 401.4 mm (16 in = 406.4); residuals [6.6, -5.4, -1.2, -3.1, -1.2, 4.4] mm, sd 5.1
+lean (top minus bottom of each stud's chord): [14.6, -1.7, 0.5, 0.3, -1.4, 6.5] mm; about their median: [14.2, -2.0, 0.1, -0.1, -1.8, 6.2] mm
+
+## D. The five inclined members, in-plane bow about their own chords (horizontal slices, x cos)
+u   -1881:  6.1 deg off vertical, bow -1.38 mm (-0.065 in at 8 ft), R^2 0.31, RMS residual 0.62 mm
+u   -1478:  6.2 deg off vertical, bow -1.99 mm (-0.093 in at 8 ft), R^2 0.39, RMS residual 0.75 mm
+u   -1075:  6.1 deg off vertical, bow  0.54 mm ( 0.025 in at 8 ft), R^2 0.04, RMS residual 0.80 mm
+u    -676:  6.1 deg off vertical, bow -5.07 mm (-0.238 in at 8 ft), R^2 0.74, RMS residual 0.89 mm
+u    -273:  6.0 deg off vertical, bow -0.59 mm (-0.028 in at 8 ft), R^2 0.06, RMS residual 0.73 mm
+all eleven members: median |bow| at 8 ft 0.074 in, mean 0.105, largest 0.283
+
+## E. H52: milestone 9's best single-2x ledger pipeline on the measured studs
+three stud reads, s_x 1 mm, edge aim, tool 0.9 mm, smooth-rock seats (Drake), 20,000 sheets, seed 7; each stud drawn from the six with random flips; deviation scaled to the 2353 mm stud by length squared
+2x    three measured (110 mm mean)           clean 0.4253 [0.4184, 0.4321], missed 1.095 a sheet
+2x    three measured (raw slices)            clean 0.3106 [0.3043, 0.3171], missed 1.454 a sheet
+2x    three measured, common part removed    clean 0.4707 [0.4637, 0.4776], missed 0.990 a sheet
+2x    three parabola at each stud's own bow  clean 0.5792 [0.5723, 0.5860], missed 0.730 a sheet
+2x    three measured, no twist               clean 0.4611 [0.4541, 0.4680], missed 0.970 a sheet
+2x    three model, straight studs            clean 0.8107, missed 0.251
+2x    three model, low studs                 clean 0.6250, missed 0.606
+2x    dense measured (110 mm mean)           clean 0.4742 [0.4673, 0.4811], missed 0.967 a sheet
+2x    dense measured (raw slices)            clean 0.3875 [0.3807, 0.3942], missed 1.131 a sheet
+2x    dense measured, common part removed    clean 0.5027 [0.4958, 0.5096], missed 0.874 a sheet
+2x    dense parabola at each stud's own bow  clean 0.5995 [0.5926, 0.6062], missed 0.659 a sheet
+2x    dense measured, no twist               clean 0.5288 [0.5218, 0.5357], missed 0.800 a sheet
+2x    dense model, straight studs            clean 0.8372, missed 0.205
+2x    dense model, low studs                 clean 0.6503, missed 0.532
+2x2x  three measured (110 mm mean)           clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  three measured (raw slices)            clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  three measured, common part removed    clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  three parabola at each stud's own bow  clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  three measured, no twist               clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  three model, straight studs            clean 1.0000, missed 0.000
+2x2x  three model, low studs                 clean 1.0000, missed 0.000
+2x2x  dense measured (110 mm mean)           clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  dense measured (raw slices)            clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  dense measured, common part removed    clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  dense parabola at each stud's own bow  clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  dense measured, no twist               clean 1.0000 [0.9998, 1.0000], missed 0.000 a sheet
+2x2x  dense model, straight studs            clean 1.0000, missed 0.000
+2x2x  dense model, low studs                 clean 1.0000, missed 0.000
+|measured - parabola|: single 2x 0.1539, doubled 0.0000 (bar 0.05); doubled on measured 1.0000 (bar 0.99)
+H52 -> refuted
+
+## F. The same data set's nail-laminated panel: an industrial robot placing ten 2x4s
+BenchmarkPose: per-element in-plane distances reproduce the paper's Table 1 (mean 1.2820 mm there, 1.2820 here)
+BenchmarkPose: in-plane distance mean 1.28 mm, sd 1.01; x sd 0.20, y sd 1.37 mm (per robot: y sd 0.25 and 0.44); yaw mean 0.11 deg, sd 0.26
+AdaptivePose: per-element in-plane distances do not reproduce the paper's Table 1 (mean 0.4011 mm there, 1.9561 here)
+AdaptivePose: in-plane distance mean 1.96 mm, sd 1.02; x sd 0.63, y sd 0.90 mm (per robot: y sd 1.03 and 0.84); yaw mean 0.48 deg, sd 0.09
+(these are element poses from the robot's own profile scans, not nail positions)
+
+wall time 16 s

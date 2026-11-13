@@ -15,8 +15,20 @@ M1, M2, M3, M3B, M4, M5, M6, M7, M6B = (E + d + "/results.txt" for d in (
     "m4_tack_measure", "m5_cycle", "m6_drake", "m7_cost", "m6b_bowed_edge"))
 M9 = E + "m9_straighten/results.txt"
 M10 = E + "m10_ceiling/results.txt"
+M11 = E + "m11_measured/results.txt"
 
 CHECKS = [
+    # 5.10 measured studs (milestone 11)
+    (M11, "median |bow| at 8 ft 0.106 in, largest 0.283 in", "of 0.106 in and a largest of 0.283 in"),
+    (M11, "RMS residual [0.9, 0.66, 0.59, 0.94] mm", "0.59–0.94 mm RMS remains"),
+    (M11, "a perfect parabola still leaves 0.27 mm RMS", "against 0.27 mm that the"),
+    (M11, "R^2 [0.21, 0.64, 0.74, 0.79]", "explains 64–79% of the shape"),
+    (M11, "carries 48% of the residual variance, against 9%", "(48% of its variance, against 9%"),
+    (M11, "[0.53, 0.42, 0.35, 0.32, 0.6, 0.31] mm", "leaves 0.31–0.60 mm"),
+    (M11, "2x    three measured (110 mm mean)           clean 0.4253", "give 0.425 clean sheets"),
+    (M11, "2x    three measured, common part removed    clean 0.4707", "(0.471 with the common"),
+    (M11, "2x    three parabola at each stud's own bow  clean 0.5792", "against 0.579 for parabolas"),
+    (M11, "2x2x  three measured (110 mm mean)           clean 1.0000", "Doubled joints give 1.000 on the measured studs"),
     # 5.9 the straight-stud ceiling (milestone 10)
     (M10, "three-foot: clean with all six 0.7370", "reach 0.7370 clean sheets"),
     (M10, "smooth (Drake): clean with all six 0.8107", "and 0.8107 (smooth rock)"),
