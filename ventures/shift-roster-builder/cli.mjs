@@ -65,6 +65,7 @@ Options:
   --cover-price <$>  pay up to $ per hour at risk for call-out slack: a day is at risk when others could not take all of that
                       person's shifts that day, even passing on up to two of their own. Unlike --steady this gives up score
   --cover-chain <n>   hand-over passes the risk check allows per shift (0-3, default 2; 0 is the first, looser check)
+  --no-cover-pairs    with --cover-price, try only moves of the at-risk person's own shifts (no relief, trade or relay)
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
@@ -295,6 +296,7 @@ export function parseArgs(argv) {
       if (!Number.isFinite(v) || v < 0) throw new Error("--cover-price needs a number of dollars per hour at risk");
       o.options.coverPrice = v;
     }
+    else if (a === "--no-cover-pairs") o.options.coverPairs = false;
     else if (a === "--cover-chain") {
       const v = Number(argv[++i]);
       if (!Number.isInteger(v) || v < 0 || v > 3) throw new Error("--cover-chain needs a whole number from 0 to 3");
