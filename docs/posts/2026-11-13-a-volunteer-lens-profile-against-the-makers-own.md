@@ -1,9 +1,9 @@
 ---
 title: "A volunteer lens profile against the maker's own correction"
-seo_title: "Lensfun distortion correction for CR2 and DNG raws, checked against a camera's own warp"
+seo_title: "Lensfun lens correction for raws, checked against the camera's own"
 date: 2026-11-13
 tags: [photo-editing, ventures, raw, dng, lensfun]
-description: "ShootFlow now corrects lens distortion on raws that carry none, from lensfun's open database. On a Leica X Vario the profile and Leica's own correction differ by up to 8 px."
+description: "ShootFlow now corrects lens distortion from lensfun's open database. On a Leica X Vario, lensfun and Leica's own correction differ by up to 8 px."
 ---
 
 [ShootFlow](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-editing) develops raw photos into 16-bit masters on your own machine. Yesterday it learned to apply the lens correction some cameras write into their DNG files. Most raw files carry none, though. Every Canon CR2 and the DNGs most cameras write leave the barrel or pincushion in the picture. Darktable, RawTherapee and Hugin fill that gap from [lensfun](https://github.com/lensfun/lensfun), an open database of distortion calibrations that volunteers have made for about 1,500 lenses.
