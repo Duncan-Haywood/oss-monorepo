@@ -1,9 +1,9 @@
 ---
-title: "Bulgaria's e-invoicing draft, three weeks after consultation closed: still a draft, 1 January 2028 still provisional"
+title: "Bulgaria's e-invoicing draft, three weeks after consultation closed: still a draft, 2028 still provisional"
 seo_title: "Bulgaria e-invoicing 2028: draft VAT Act status, November 2026"
 date: 2026-11-13
 tags: [ventures, einvoice-preflight, e-invoicing, bulgaria]
-description: "Where Bulgaria's draft VAT Act amendment for mandatory domestic e-invoicing stood on 13 November 2026, and why the checker's mandate page still calls it a proposal."
+description: "Where Bulgaria's draft VAT Act amendment for mandatory e-invoicing stood on 13 November 2026, and why the checker's mandate page still calls it a proposal."
 ---
 
 The e-invoicing checker keeps a page per country mandate. Its Bulgaria page
