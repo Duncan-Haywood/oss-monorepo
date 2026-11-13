@@ -5,7 +5,7 @@ import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { parseGabc } from './gabc.mjs';
-import { splitVoices, phrasesOf, TENOR_RANGE, BASS_RANGE } from './voicefit.mjs';
+import { splitVoices, phrasesOf, wordsOf, TENOR_RANGE, BASS_RANGE } from './voicefit.mjs';
 import { parseMidi } from './render.mjs';
 import { run } from './cli.mjs';
 
@@ -94,4 +94,124 @@ test('CLI: without --split-voices the file is unchanged; flag checks', () => {
   assert.equal(run([f, '--split-voices', '--auto-final']).code, 2);
   assert.equal(run([f, '--split-voices', '--bass', '60-40']).code, 2);
   assert.equal(run([join(corpus, 'dies-irae.gabc'), '--split-voices', '--final', '62']).code, 1);
+});
+
+// ---- Handing over inside a phrase, at a word (2026-11-13, later) ----
+const wev = (spec) => spec.split(' ').map((t) => {
+  if (t === '|') return { type: 'bar', kind: 'full', pulses: 1 };
+  const start = t.startsWith('/');
+  return { type: 'note', midi: Number(start ? t.slice(1) : t), pulses: 1, syllable: start ? 'w' : null, wordStart: start };
+});
+
+test('needed (the default) matches the bar-only split exactly on all 67 corpus files', () => {
+  for (const f of files) {
+    const a = splitVoices(load(f), { words: 'never' }), b = splitVoices(load(f));
+    assert.equal(b.handoffs, 0, f);
+    assert.deepEqual(b.events, a.events, f);
+    assert.deepEqual(b.phrases, a.phrases, f);
+  }
+});
+
+test('a phrase wider than either section is handed over once, at a word', () => {
+  // one phrase, 29 semitones: tenors 48-69 take the high word, basses 40-64 the low one
+  const e = wev('/40 42 45 /60 64 /66 69');
+  assert.equal(splitVoices(e, { words: 'never' }).fits, false);
+  const r = splitVoices(e);
+  assert.ok(r.fits);
+  assert.equal(r.handoffs, 1);
+  assert.equal(r.phrases[0].voice, 'mixed');
+  assert.deepEqual(r.phrases[0].parts.map((p) => p.voice), ['bass', 'tenor']);
+  assert.equal(r.bassNotes + r.tenorNotes + r.allNotes, 7);
+  // a word that is itself wider than both sections is refused, and the reason names it
+  const x = splitVoices(wev('/40 70 /50'));
+  assert.equal(x.fits, false);
+  assert.match(x.reason, /widest word, "w", spans 30/);
+});
+
+test('prefer trades a handoff for more than wordCost full-choir notes', () => {
+  // phrase 2 needs tenors only on its first word (one note at 66); the rest fits C3-E4
+  const e = wev('/50 52 | /66 /60 61 62 63 | /55 53');
+  const keep = splitVoices(e, { shift: 0 });
+  assert.deepEqual(keep.phrases.map((p) => p.voice), ['all', 'tenor', 'all']);
+  const cheap = splitVoices(e, { shift: 0, words: 'prefer', wordCost: 3 });
+  assert.equal(cheap.phrases[1].voice, 'mixed');
+  assert.equal(cheap.allNotes, 8); // 4 more full-choir notes (of 9) for one handoff
+  const dear = splitVoices(e, { shift: 0, words: 'prefer', wordCost: 4 }); // a tie keeps the whole phrase
+  assert.equal(dear.phrases[1].voice, 'tenor');
+  assert.throws(() => splitVoices(e, { words: 'sometimes' }), /never, needed or prefer/);
+  assert.throws(() => splitVoices(e, { words: 'prefer', wordCost: -1 }), /whole number/);
+});
+
+test('the DP is exact: brute force over every word assignment on 300 random lines', () => {
+  let seed = 7;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+  const tenor = { low: 52, high: 64 }, bass = { low: 45, high: 57 }, both = { low: 52, high: 57 };
+  const R = { all: both, tenor, bass };
+  for (let t = 0; t < 300; t++) {
+    const toks = [];
+    const n = 4 + rnd(6);
+    let m = 50 + rnd(6);
+    for (let i = 0; i < n; i++) {
+      if (i && rnd(4) === 0) toks.push('|');
+      m = Math.max(42, Math.min(66, m + rnd(9) - 4));
+      toks.push((i === 0 || toks.at(-1) === '|' || rnd(2) ? '/' : '') + m);
+    }
+    const e = wev(toks.join(' '));
+    const ph = phrasesOf(e);
+    const ws = wordsOf(e, ph);
+    for (const [words, wordCost] of [['needed', 4], ['prefer', 0], ['prefer', 3]]) {
+      const r = splitVoices(e, { tenor, bass, words, wordCost, shift: 0 });
+      // brute force at shift 0
+      let best = null;
+      const V = ['all', 'tenor', 'bass'];
+      for (let code = 0; code < 3 ** ws.length; code++) {
+        let c = code, ok = true, mid = 0, nonAll = 0, ch = 0, prev = null;
+        for (let k = 0; k < ws.length; k++) {
+          const v = V[c % 3]; c = Math.floor(c / 3);
+          if (ws[k].lo < R[v].low || ws[k].hi > R[v].high) { ok = false; break; }
+          if (v !== 'all') nonAll += ws[k].notes;
+          if (prev && prev !== v) { ch++; if (ws[k - 1].phrase === ws[k].phrase) mid++; }
+          prev = v;
+        }
+        if (!ok) continue;
+        const key = words === 'needed' ? [mid, nonAll, ch] : [nonAll + wordCost * mid, ch, mid];
+        const d = best ? key.findIndex((x, i) => x !== best[i]) : -1;
+        if (!best || (d >= 0 && key[d] < best[d])) best = key;
+      }
+      if (!best) { assert.equal(r.fits, false, toks.join(' ')); continue; }
+      assert.ok(r.fits, toks.join(' '));
+      const nonAll = r.notes - r.allNotes;
+      const got = words === 'needed' ? [r.handoffs, nonAll, r.changes] : [nonAll + wordCost * r.handoffs, r.changes, r.handoffs];
+      assert.deepEqual(got, best, `${words} ${wordCost}: ${toks.join(' ')}`);
+    }
+  }
+});
+
+test('octave-wide sections: words make 56 of the 67 corpus files singable, bars alone 50', () => {
+  const tenor = { low: 52, high: 64 }, bass = { low: 45, high: 57 };
+  let never = 0, needed = 0, handoffs = 0;
+  for (const f of files) {
+    if (splitVoices(load(f), { tenor, bass, words: 'never' }).fits) never++;
+    const r = splitVoices(load(f), { tenor, bass });
+    if (r.fits) { needed++; handoffs += r.handoffs; }
+  }
+  assert.equal(never, 50);
+  assert.equal(needed, 56);
+  assert.equal(handoffs, 7);
+});
+
+test('CLI: --split-words hands phrase 54 of the Dies irae over at a word', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cf-split-'));
+  const r = run([join(corpus, 'dies-irae.gabc'), '--split-voices', '--split-words', '-o', join(dir, 'w.mid'), '--json']);
+  assert.equal(r.code, 0, r.text);
+  const v = JSON.parse(r.text).voices;
+  assert.equal(v.allNotes, 607);
+  assert.equal(v.tenorNotes, 6);
+  assert.deepEqual(v.sharedPhrases, [54]);
+  assert.equal(v.handoffs, 1);
+  assert.match(v.line, /phrase 54 handed over at a word: tenors "Judicándus", all "homo reus:"/);
+  const f = join(corpus, 'pange-lingua.gabc');
+  assert.equal(run([f, '--split-words']).code, 2);
+  assert.equal(run([f, '--split-voices', '--word-cost', '3']).code, 2);
+  assert.equal(run([f, '--split-voices', '--split-words', '--word-cost', 'x']).code, 2);
 });

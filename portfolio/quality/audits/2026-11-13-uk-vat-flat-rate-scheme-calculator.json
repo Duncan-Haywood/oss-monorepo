@@ -1,0 +1,210 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/uk-vat-flat-rate-scheme-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-m",
+ "drawn_by": "sample",
+ "round": 67,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a UK chartered accountant / VAT adviser who files Flat Rate Scheme returns; checks first the VAT Notice 733 sector percentage table, the 1% first-year discount (including on the 16.5% limited cost rate), the limited cost trader test and what counts as relevant goods, the flat-rate turnover base, the £150k join / £230k leave limits and the £2,000 capital-asset reclaim",
+ "scores": {
+  "correctness": 2,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs directly with node -e on 9 input sets. Arithmetic is right where the rule is right: general builder 100k ex VAT, goods 20k, first year -> 8.5% x 120,000 = 10,200 FRS vs 20,000-4,000 = 16,000 standard (hand: identical); LCT boundary at 50k turnover (2% of 60,000 gross = 1,200) flips correctly between goods 999 ex (1,198.80 inc, LCT) and 1,000 ex (1,200 inc, sector rate); capital asset 1,666.67 ex = 2,000.00 inc is reclaimed (333.33), 1,666.66 is not. Wrong where the rule is wrong: in the first year of registration HMRC's 1% reduction applies to the 16.5% limited cost rate too (15.5%; VAT Notice 733 newly-registered discount, GOV.UK 'VAT Flat Rate Scheme: how much you pay'; not fetched live, gov.uk 403 through the proxy), but the tool keeps 16.5%: IT consultant 60k, goods 300, other purchases 1,000, first year -> tool 11,880 FRS, 'Standard wins by £140'; correct 15.5% x 72,000 = 11,160, FRS wins by £580 (decision flips). The sector table has 52 rows; every rate checked matches the current (April 2017) table, but 'Catering services including restaurants and takeaways' (12.5%) and 'Any other activity not listed elsewhere' (12%) are missing. Above the limits the headline still says 'Flat Rate Scheme wins by £4,200' for a business at £240,000 VAT-inclusive that must leave.",
+  "completeness": "README/page claim: sector flat rate (works, but 2 HMRC categories missing, so a restaurant cannot pick its trade); 16.5% LCT test (works, annual only, no per-period £250/quarter test); 1% first-year discount (works on sector rate, deliberately not on LCT, which is the wrong rule); capital asset reclaim (works, boundary right); join and leave limits (join works; leave is only mentioned inside the >£150k join finding and never stops the headline from recommending FRS). Download and print wired in index.html. No stubs or TODOs.",
+  "verification": "node --test '*.test.mjs' in the venture dir: 23 tests, 23 pass (calc, page and usage). Seeded 5 mutations with platform/ci/quality_mutate.py: 3 survived (LCT 2% comparison < -> <=; capital >= -> >; Management consultancy 14 -> 12), 2 caught (LCT £1,000 -> £250; first-year 1 -> 2 points). No test pins any boundary or the sector table against a source.",
+  "craft": "Read calc.mjs (115 lines), index.html, calc.test.mjs, page.test.mjs. Single compute() with validation, finite/negative checks, rounding helper, escaped output. '60,000' is rejected rather than parsed (the page input is type=number so the browser mostly prevents it). firstYear finding text and the LCT choice are hardcoded together. Clean for its size; no dead code.",
+  "claims": "Disclaimer, no-warranty and 'not tax advice' present (index.html:110, calc.mjs summaryText). 'Covers ... the 1% first-year discount ... and the join and leave turnover limits' (index.html:87) is only partly backed: the discount is withheld from the LCT rate and leave is not modelled. README 'you know whether to join (or leave) the Flat Rate Scheme' overclaims given the wrong first-year LCT rate and missing sectors. VENTURE.yaml honestly records the rates were 'remembered without network access' and never verified since. Assumptions (standard-rated sales only) are stated on the page.",
+  "fitness": "Walked a newly registered IT contractor through the page: it applies 16.5% and tells them standard accounting is better when the correct 15.5% makes FRS better, the exact decision the tool exists for. A restaurant or takeaway cannot select its sector. A food retailer (sales and goods mostly zero-rated) gets 'FRS wins' because the tool grosses up everything at 20% (disclosed limit). A plain standard-rated service business past its first year gets a sound answer.",
+  "domain": "Against VAT Notice 733 (cited from knowledge, not fetched): sector rates that exist match; LCT test (2% of VAT-inclusive turnover or £1,000 a year, strict less-than, VAT-inclusive goods) matches for the annual case; £150k ex-VAT join and £2,000 inc-VAT capital rule match. Departs on: 1% first-year discount on the LCT rate; leave test (£230k inc VAT, unless expected below £191,500) not applied; per-period LCT test approximated annually; relevant-goods guidance omits vehicle parts and the resale/hire exclusion; flat-rate turnover including exempt/zero-rated sales not modelled (disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "first-year limited cost trader rate",
+   "method": "HMRC VAT Notice 733, newly-registered 1% reduction applies to the appropriate percentage including 16.5% (cited from knowledge; gov.uk 403 via proxy)",
+   "command": "node -e 'import(\"./calc.mjs\").then(({compute})=>{const r=compute({sector:\"6\",turnover:\"60000\",goodsSpend:\"300\",otherPurchases:\"1000\",capitalSpend:\"0\",firstYear:\"yes\"});console.log(r.frsRate,r.frsNet,r.stdNet,r.better,r.saving)})'",
+   "expected": "15.5%, FRS 11,160, std 11,740, FRS wins by 580",
+   "observed": "16.5 11880 11740 standard -140",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "general builder, first year, goods-heavy",
+   "method": "hand: 9.5%-1% = 8.5% x 120,000; std 20,000 - 20% x 20,000",
+   "command": "compute({sector:'14',turnover:'100000',goodsSpend:'20000',otherPurchases:'0',capitalSpend:'0',firstYear:'yes'})",
+   "expected": "rate 8.5, FRS 10,200, std 16,000, FRS by 5,800",
+   "observed": "rate 8.5, FRS 10200, std 16000, save 5800",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "LCT 2% boundary at 60,000 gross",
+   "method": "VAT Notice 733 LCT test: relevant goods inc VAT < 2% of flat-rate turnover; hand 2% x 60,000 = 1,200",
+   "command": "compute with turnover 50000, goodsSpend 999 then 1000",
+   "expected": "999 -> 1,198.80 LCT 16.5%; 1000 -> 1,200.00 not LCT 14.5%",
+   "observed": "LCT true 16.5 / LCT false 14.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "capital asset £2,000 inc VAT boundary",
+   "method": "VAT Notice 733 capital expenditure goods >= £2,000 inc VAT single purchase",
+   "command": "compute capitalSpend 1666.67 and 1666.66, goods 5000, turnover 60000",
+   "expected": "reclaim 333.33 then 0",
+   "observed": "333.33 then 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sector table completeness and rates",
+   "method": "HMRC flat rate percentages table (from 1 April 2017), recalled; spot-checked all 52 rows",
+   "command": "node -e 'import(\"./calc.mjs\").then(({SECTORS})=>console.log(SECTORS.length, SECTORS.filter(s=>/Catering|Any other/.test(s.label)).length))'",
+   "expected": "all HMRC categories including Catering 12.5% and Any other activity 12%",
+   "observed": "52 0; rates present all match",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "business over the £230k leave limit",
+   "method": "VAT Notice 733: must leave when total income inc VAT exceeds £230,000",
+   "command": "compute({sector:'6',turnover:'200000',goodsSpend:'5000',...})",
+   "expected": "headline does not recommend FRS for a business that must leave",
+   "observed": "headline 'Flat Rate Scheme leaves £4,200.00 a year more'; join/leave finding shown separately",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/uk-vat-flat-rate-scheme-calculator && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "23 pass 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "page 'Covers ... 1% first-year discount ... join and leave turnover limits'",
+   "method": "compare index.html:87 with calc.mjs:66,91-92",
+   "command": "read + compute runs above",
+   "expected": "each covered feature works",
+   "observed": "discount withheld from LCT, leave limit not applied",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and not-tax-advice",
+   "method": "read",
+   "command": "grep -n 'No warranty\\|Not tax advice' index.html calc.mjs",
+   "expected": "present",
+   "observed": "index.html:110, calc.mjs:113",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page",
+   "method": "load https://marisstella.app/uk-vat-flat-rate-scheme-calculator/",
+   "command": "curl -sS https://marisstella.app/uk-vat-flat-rate-scheme-calculator/",
+   "expected": "200",
+   "observed": "proxy 403 CONNECT rejected; not checked live",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "input with thousands separator",
+   "method": "run",
+   "command": "compute({turnover:'60,000',...})",
+   "expected": "60000 parsed or clear error",
+   "observed": "error 'turnover must be a number'",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:64",
+   "change": "goodsInc < lctLimit || -> goodsInc <= lctLimit ||",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:71",
+   "change": "capitalIncVat >= CAPITAL_RECLAIM_MIN -> capitalIncVat > CAPITAL_RECLAIM_MIN",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:22",
+   "change": "[\"Management consultancy\", 14] -> [\"Management consultancy\", 12]",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:8",
+   "change": "LCT_MIN_GOODS = 1000 -> LCT_MIN_GOODS = 250",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:66",
+   "change": "round2(sectorRate - (firstYear ? 1 : 0)) -> round2(sectorRate - (firstYear ? 2 : 0))",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "First-year 1% discount is not applied to the 16.5% limited cost trader rate (HMRC allows 15.5% in the first year of registration). Overstates FRS cost by 1% of gross turnover and can flip the verdict: 60k IT consultant, goods 300, other 1,000, first year shows 'Standard wins by £140' when FRS wins by £580. A test (calc.test.mjs:26-28) pins the wrong rule.",
+   "where": "ventures/uk-vat-flat-rate-scheme-calculator/calc.mjs:66",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Sector table omits 'Catering services including restaurants and takeaways' (12.5%) and 'Any other activity not listed elsewhere' (12%); a restaurant cannot select its trade.",
+   "where": "ventures/uk-vat-flat-rate-scheme-calculator/calc.mjs:13",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Leave limit not modelled: a business at £240,000 VAT-inclusive is told 'Flat Rate Scheme wins by £4,200' in the headline; the £230k test (and the £191,500 exception) only appears as text inside the join finding.",
+   "where": "ventures/uk-vat-flat-rate-scheme-calculator/calc.mjs:91",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "3 of 5 seeded mutants survive: LCT and capital boundaries and the sector table are untested against a source.",
+   "where": "ventures/uk-vat-flat-rate-scheme-calculator/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Page claims it 'Covers' the 1% discount and the leave limit; README says you will 'know whether to join (or leave)'. Both overstate given the defects above.",
+   "where": "ventures/uk-vat-flat-rate-scheme-calculator/index.html:87",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "LCT test is annual only; HMRC applies it per return period (£250 a quarter), so lumpy goods purchases are misjudged. Relevant-goods note omits vehicle parts and the goods-for-resale/hire exclusion.",
+   "where": "ventures/uk-vat-flat-rate-scheme-calculator/calc.mjs:99",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15534"
+ ],
+ "verdict": "A small, tidy FRS-vs-standard calculator whose arithmetic is right (builder, LCT 2% boundary and £2,000 capital boundary all recompute exactly) and whose existing sector rates match HMRC's table, but a VAT adviser would not sign it off: it withholds the first-year 1% from the 16.5% limited cost rate, which flips the verdict for exactly the newly registered contractors it targets; two HMRC sectors (catering, any other activity) are missing; and the headline recommends FRS to a business over the £230k leave limit. 3 of 5 seeded mutants survive. Correctness, claims and verification are all 2, so it does not meet the bar; finished-ness is 2."
+}
