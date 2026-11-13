@@ -215,6 +215,8 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15385"
+ ],
  "verdict": "Reproducible and arithmetically right: run.py and figure.py regenerate the committed results.txt and SVG byte-for-byte, and an independent brute-force implementation plus three hand closed forms match every number checked. It does not meet the bar: verification is weak (4 of 4 seeded mutants survive; tests check inequalities, not values; the duplicate-dilution test cannot fail), the headline's '$50 negligible either way' is contradicted by section A under uniform errors (+0.009 -> +0.329 C), and as research it is a one-parameter sensitivity sketch with no noisy-choice or clothing-behaviour literature cited and no data behind the error rate, far from the PhD/publishable bar research/CLAUDE.md sets. The limitations section is honest about being stylised."
 }

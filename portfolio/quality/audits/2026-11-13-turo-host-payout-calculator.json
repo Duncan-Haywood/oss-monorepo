@@ -188,6 +188,8 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15385"
+ ],
  "verdict": "The arithmetic is right and the 12-cell table and damage caps match Turo's own help center exactly (check.mjs, 12/12). But Turo applies that booking-window table only in nine US markets, and nothing in the venture says so. Most US hosts are flat 70/80/90%, and the tool asks them for a booking window that does not affect their share; for 3 of 4 answers it then shows a wrong payout (Balanced, 28+ days, $350: 315 vs 280). The headline claim on every page repeats the same universality, and 'adjustable inputs' are claimed but not built. Delivery/Extras income is not modelled, and 2 of 4 seeded data mutants survived. Below the bar on correctness, claims and verification; the fix (a market toggle that uses the 3-13 column as the flat rate, copy naming the nine markets, a delivery/Extras field, tests pinning all 12 cells) is small."
 }

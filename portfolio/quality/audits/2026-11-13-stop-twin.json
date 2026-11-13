@@ -219,6 +219,8 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15385"
+ ],
  "verdict": "A small, correct teaching note. Every number I recomputed (scipy negative-binomial moments, beta-quantile closed form for the exact interval, exact coverage 0.95001 by pmf summation, an exact Markov-chain version of the sequential Wald trap, the planning table) matches results.txt within Monte Carlo error, and the experiment reproduces byte-for-byte. It misses the bar on verification: 4 of 5 seeded mutants survive, including both limits of exact_ci. As research it is below the repository's PhD bar: the content is classical (Haldane 1945, Best 1974, Mikulski & Smith 1976, Dagum et al. 2000), most of that prior work is uncited, and the 'sequential Wald' it shows failing omits the +1/n term of the Chow-Robbins rule the README cites, which by exact computation removes the trap."
 }
