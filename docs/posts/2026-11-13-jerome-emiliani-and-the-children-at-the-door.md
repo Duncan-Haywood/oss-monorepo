@@ -1,9 +1,9 @@
 ---
 title: "Little Lamps: Jerome Emiliani, the chains at Treviso and the children at the door"
-seo_title: "Saint Jerome Emiliani bedtime story: patron of orphans, for ages 3 to 8"
+seo_title: "Saint Jerome Emiliani bedtime story: patron of orphans, ages 3 to 8"
 date: 2026-11-13
 tags: [fiction, little-lamps, bedtime-story, saints]
-description: "A new Little Lamps bedtime story: Saint Jerome Emiliani, the Venetian soldier in chains who became a father to orphans. What is history, what is legend, and what we left out."
+description: "A Little Lamps bedtime story: Saint Jerome Emiliani, the Venetian soldier in chains who became a father to orphans, and what is history or legend."
 ---
 
 [Jerome Emiliani and the Children at the Door](../../ventures/hearth-and-horizon/stories/jerome-emiliani-and-the-children-at-the-door.md)
