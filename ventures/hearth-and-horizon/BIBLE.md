@@ -266,6 +266,12 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
    two false weekday claims, a quarter period written as a half, and a run of
    sunrise times that the story's own arithmetic did not produce
    (`docs/reports/hearth-and-horizon-revision-2026-11-10.md`).
+   Then read the story once against its own closing note: every number a
+   character says (a ratio, a total, a reading, a count of hours or stumps)
+   should come out of the note's model. The 2026-11-13 pass found 20 slips
+   in 12 longer stories, and most were dialogue that had drifted from the
+   note, not a wrong model
+   (`docs/reports/hearth-and-horizon-revision-2026-11-13.md`).
 9. Render audio (`render_audio.py`), regenerate (`node generate.mjs`), and run
    `node --test`. Audio size is checked first (`prompts/creative/prompt-0.md`).
 
