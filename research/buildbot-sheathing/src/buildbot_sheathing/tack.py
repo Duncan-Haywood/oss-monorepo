@@ -42,7 +42,7 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
              shape="halfnormal", s_layout=0.0, s_read=0.5e-3, s_robot=0.9e-3, s_edge=0.5e-3,
              band=None, joint_band=None, s_x=0.0, s_theta=0.0, s_sway=0.0, aim="edge",
              accept_half=None, max_hangs=5, rng=None, theta_draw=None, straighten=None,
-             s_push=None):
+             s_push=None, profiles=None):
     """Monte Carlo of one sheet's 62 nails on four as-built studs, hung with a pose error.
 
     s_x, s_theta   the hang: translation along the wall and rotation about the sheet centre
@@ -55,6 +55,11 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
                    push is set from a read, so the stud is straightened as if its bow were
                    b + N(0, s_push) (s_push defaults to s_read); the robot believes the shape the
                    policy leaves for its own estimate of the bow. Needs the three or dense policy.
+    profiles       optional measured studs (milestone 11): a tuple (g, D, PHI) with g the n_g
+                   points of u in [0, 1], D (n_prof, n_g) each stud's face line about its chord (m)
+                   and PHI (n_prof, n_g) its section rotation (rad). Each of the four studs is
+                   drawn from them with a random left-right and top-bottom flip, in place of the
+                   parabolic bow and linear twist; layout lean (s_layout) still applies.
     accept_half    re-hang while the narrowest predicted joint half-window is below this (None:
                    never re-hang); max_hangs caps the hangs a sheet
     Other arguments are milestone 2's (`asbuilt.simulate`).
@@ -70,10 +75,33 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     T = to_wall_twist_angle(draw_magnitude(rng, (t, 4), twist_mean, TWIST_LIMIT, shape))
     a0 = rng.normal(0, s_layout, (t, 4)) if s_layout > 0 else np.zeros((t, 4))
     a1 = rng.normal(0, s_layout, (t, 4)) if s_layout > 0 else np.zeros((t, 4))
+    if profiles is not None:
+        g, D, PHI = (np.asarray(v, float) for v in profiles)
+        pick_ = rng.integers(0, D.shape[0], (t, 4))
+        lr = rng.choice([-1.0, 1.0], (t, 4))
+        ud = rng.random((t, 4)) < 0.5
 
-    def line(u):
-        u = np.asarray(u)[None, None, :]
-        return a0[..., None] + (a1 - a0)[..., None] * u + 4 * b[..., None] * u * (1 - u)
+        def _prof(A, u, sign):
+            u = np.asarray(u, float)
+            vals = np.stack([np.interp(u, g, row) for row in A])            # (n_prof, len u)
+            rev = np.stack([np.interp(1 - u, g, row) for row in A])
+            out = np.where(ud[..., None], rev[pick_], vals[pick_])
+            return out * (lr[..., None] if sign else 1.0)
+
+        def line(u):
+            uu = np.asarray(u)[None, None, :]
+            return a0[..., None] + (a1 - a0)[..., None] * uu + _prof(D, u, True)
+
+        def phi(u):
+            # a left-right mirror reverses the section's rotation as well as the bow
+            return _prof(PHI, u, True)
+    else:
+        def line(u):
+            u = np.asarray(u)[None, None, :]
+            return a0[..., None] + (a1 - a0)[..., None] * u + 4 * b[..., None] * u * (1 - u)
+
+        def phi(u):
+            return T[..., None] * (np.asarray(u)[None, None, :] - 0.5)
 
     ur = READ_U[policy]
     reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
@@ -81,6 +109,8 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     est_f = _fit(policy, ur, reads, U_FIELD)
     true_j, true_f = line(U_JOINT), line(U_FIELD)
     if straighten is not None:
+        if profiles is not None:
+            raise ValueError("straightening is modelled on parabolic bows only")
         if policy not in ("three", "dense"):
             raise ValueError("straightening needs a bow estimate: policy three or dense")
         sp = s_read if s_push is None else s_push
@@ -92,8 +122,8 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
             b_push = b[:, k] + (rng.normal(0, sp, t) if sp > 0 else 0.0)
             true_j[:, k] = true_line[:, k] + straighten.left(b_push)
             est_j[:, k] = tgt[:, k] + straighten.left(b_hat[:, k])
-    blo_j, bhi_j = jband(T[..., None] * (U_JOINT[None, None, :] - 0.5))
-    blo_f, bhi_f = band(T[..., None] * (U_FIELD[None, None, :] - 0.5))
+    blo_j, bhi_j = jband(phi(U_JOINT))
+    blo_f, bhi_f = band(phi(U_FIELD))
     hj = jband.face / 2 - R
     ref = (est_j.max(axis=-1) + est_j.min(axis=-1)) / 2
     loL_true_hi = true_j[:, 0] + bhi_j[:, 0]          # far side of the left joint stud's band
