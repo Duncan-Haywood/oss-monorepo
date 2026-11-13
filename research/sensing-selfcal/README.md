@@ -10,8 +10,21 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (82 of 82)
-and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (125 of 125,
+revised with milestones 4e–4g) and a list of what a submission still needs.
+
+**Milestone 4g headline** (every disjoint split of the 13 views, 37,752 per camera, no new solve; can a
+camera test its own focal length with nothing borrowed?): **a robust view jackknife (the MAD of the
+delete-one focal lengths) against a plain χ²<sub>1</sub> catches a 2% focal change from 6 new views in
+54% of splits at 2.3% false alarms**, evenly on both cameras, with no threshold taken from another
+unit. The same scoring **corrects milestone 4d**: the sibling-threshold test's 61% came from a 60-split
+sample and a 99th percentile of 180 statistics; on every split it is **43%** (left 56–61%, right
+26–30%) at the same 2.4% false alarms. The robust jackknife is still not an honest error bar (twice
+too wide on the right camera), and with 4 new views every variant catches a 2% change in 13% of splits
+at most. One of four pre-registered predictions held (the power one); the robust test's left-camera
+false alarms (3.4%) sit just above the 3% bar.
+
+![share of splits where the f-alone update test fires against the focal change, every disjoint split, plain jackknife, robust jackknife and borrowed threshold, both cameras](experiments/m4g_allsplits/power.png)
 
 **Milestone 1 headline, on two real cameras** (OpenCV's stereo calibration photos, 13 views
 each): withholding the checkerboard's geometry and solving for the 54 corners as free 3-D
@@ -101,7 +114,7 @@ Four of five pre-registered predictions held; the f-only power figure was not pr
 found unbiased): with corners the board's half-width end squares cannot pull, **the focal-length
 spread between disjoint view sets falls from 0.86–1.02% to 0.59%**, and the f-alone jackknife test
 with a sibling's threshold **detects a 2% focal change in 61% of splits (34–35% on the biased
-corners) and a 1% change in 18–28%** (4–12% before), with 6 new views. It catches the real unit
+corners; 43% once every split is scored, milestone 4g) and a 1% change in 18–28%** (4–12% before), with 6 new views. It catches the real unit
 swap in 79%. But **the borrowed threshold stops travelling**: the left camera's false alarms reach
 11% (the right's 0%), because the jackknife now overstates the spread 1.5× on one camera and 2.8×
 on the other. Four of five pre-registered predictions held.
@@ -731,6 +744,7 @@ OMP_NUM_THREADS=1 python3 experiments/m4d_window/run.py   # ~40 min on 4 cores, 
 python3 experiments/m4d_window/analyse.py      # seconds; summary.json, power.png
 OMP_NUM_THREADS=1 python3 experiments/m4f_setsize/run.py  # ~30 min on 4 cores after 4d and 4e, resumable; results.json.gz
 python3 experiments/m4f_setsize/analyse.py     # seconds; summary.json, ratio.png
+python3 experiments/m4g_allsplits/analyse.py   # seconds, no new solve; summary.json, power.png
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -791,7 +805,10 @@ pool the update over several capture sessions to buy back power; find what drive
 c<sub>x</sub> offset (which views pull it); and a capture with a physically changed lens (zoom or
 refocus) for a real focal change. After milestone 4c: score the f-alone test with a borrowed threshold
 and the union with W as pre-registered hypotheses on fresh splits or a second rig, and pool
-thresholds over several sibling units rather than one.
+thresholds over several sibling units rather than one. After milestone 4g (done: every split scored;
+a robust MAD jackknife against χ²<sub>1</sub> needs nothing borrowed): pre-register that test on a
+second unit's views, and try other robust jackknife scales (a trimmed or delete-d jackknife) that might
+also make the error bar itself honest on the right camera.
 
 ## References
 
