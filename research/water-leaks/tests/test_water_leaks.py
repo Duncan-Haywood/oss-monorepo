@@ -268,3 +268,35 @@ def test_evaluate_counts_a_2018_leak_only_for_a_2018_alarm():
     assert r["n18"] == 2 and r["tp18"] == [0]
     assert r["n19"] == 1 and r["tp19"] == [2]
     assert r["fp18"] == [] and r["fp19"] == []
+
+
+# step 11: localisation numerics (no WNTR needed)
+from water_leaks import localise  # noqa: E402
+
+
+def test_localise_estimate_picks_matching_signature():
+    S = np.array([[-1.0, -0.1, -0.1], [-0.1, -1.0, -0.2], [-0.2, -0.2, -1.0]])
+    r = 0.3 * S[1] - 0.05        # scaled and shifted copy of row 1
+    assert localise.estimate(r, S, "pearson") == 1
+    assert localise.estimate(0.3 * S[2], S, "cosine") == 2
+
+
+def test_poisson_binomial_tail_matches_binomial():
+    from math import comb
+    ps = [0.2] * 10
+    exact = sum(comb(10, i) * 0.2 ** i * 0.8 ** (10 - i) for i in range(3, 11))
+    assert abs(localise.poisson_binomial_tail(ps, 3) - exact) < 1e-12
+    assert localise.poisson_binomial_tail([0.5, 0.5], 0) == 1.0
+    assert localise.poisson_binomial_tail([0.5], 2) == 0.0
+
+
+def test_residual_sees_a_step_drop():
+    hrs = np.arange(np.datetime64("2019-01-01T00", "h"), np.datetime64("2019-02-10T00", "h"))
+    level = np.ones(len(hrs))
+    A = detect.design(hrs, level)
+    hod = (hrs - hrs.astype("datetime64[D]")).astype(int)
+    P = np.stack([30 + np.sin(hod / 24 * 2 * np.pi), 40 + 0 * hod], axis=1).astype(float)
+    t = 30 * 24
+    P[t:, 0] -= 0.5
+    r = localise.residual(P, A, t)
+    assert abs(r[0] + 0.5) < 1e-6 and abs(r[1]) < 1e-6

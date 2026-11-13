@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtJDu9QD4XY3C3jfuz4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T21:05:39Z",
+  "ended": "2026-11-13T21:14:31Z",
+  "wall_minutes": 9.16,
+  "tokens_in": 4867658,
+  "tokens_out": 37705,
+  "cost_usd": 2.6476,
+  "tool_calls": 50,
+  "task": "Deepen (flagship 11): chant-forge, section ranges from a choir's own range test (--singers CSV)",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15614",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "venture-preflight flagged an unguarded object-map lookup (VOICING_SECTIONS[k]) and a too-long post description/seo_title",
+      "fix": "Map lookup and Object.hasOwn for the section aliases (parseSection('constructor') had returned a function); shortened the front matter"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/inherited_keys.py",
+      "issue": "flags the `Object.hasOwn(MAP, k) ? MAP[k] : null` form it recommends when written as one line inside a const; a Map passed"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-choir-sings-the-notes-every-singer-reaches.md",
+    "ventures/chant-forge/README.md (Your own choir)",
+    "ventures/chant-forge/eval/singers-check-report.md"
+  ],
+  "goal": "Land the buildable item in chant-forge's flagship next: (--singers range test)",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; allocate.py picked chant-forge (row 9). Built singers.mjs (CSV parse, note names, per-section overlap, who-limits report, exact contiguous divider, fewestSectionsForSingers), CLI --singers (alone prints the report), studio page box. Checks run here: run_venture_tests.py chant-forge ok (19.3 s), node --test singers/choir/split/browser-safe/chant-forge all pass, eval/browser-e2e.mjs 109 of 109 (4 new: page range test byte-equal to CLI cue sheet and MIDI), eval/singers-check.mjs: divider equals brute force on narrowest section in 290 of 290 synthetic choirs, total in 285. Example CSVs are made up with placeholder names. Not tried with a real choir.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8af9538b-9ab6-5ec3-9927-4eb6748135c2",
+    "transcripts": 1,
+    "first": "2026-11-13T21:05:39Z",
+    "last": "2026-11-13T21:14:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 88,
+        "output": 37705,
+        "thinking": 7644,
+        "cache_read": 4749673,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117897,
+        "api_equivalent_usd": 2.6476,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 88,
+      "output": 37705,
+      "thinking": 7644,
+      "cache_read": 4749673,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117897,
+      "api_equivalent_usd": 2.6476,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 45,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.16,
+      "active_minutes": 9.16,
+      "model_minutes": 7.25,
+      "tool_minutes": 1.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer writing a CSV range-test reader, exact divider with brute-force check, CLI and page wiring and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 226.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

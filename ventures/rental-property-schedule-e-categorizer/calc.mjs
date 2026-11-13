@@ -271,7 +271,8 @@ function categorise(t, userRules) {
     if (/security dep|deposit/.test(d) && /security/.test(d)) return { key: "security_deposit", source: "built-in" };
     if (/\btransfer\b|xfer/.test(d)) return { key: "transfer", source: "built-in" };
     if (/late fee|pet rent|pet fee|laundry|application fee|app fee|parking rent/.test(d)) return { key: "other_income", source: "built-in" };
-    if (/\brent\b|rental|lease|tenant|zelle|venmo|apartment|unit\s?\w+|cash app|paypal|deposit/.test(d)) return { key: "rent", source: "built-in" };
+    // Word boundaries: "UNITED AIRLINES", "COMMUNITY BANK" and "ESCROW RELEASE" credits are not rent.
+    if (/\brent\b|\brental(?!\s+car)|\blease|tenant|zelle|venmo|apartment|\bunit\b|cash app|paypal|deposit/.test(d)) return { key: "rent", source: "built-in" };
     return { key: "uncategorised", source: "none" };
   }
   for (const [key, re] of DEFAULT_RULES) if (re.test(d)) return { key, source: "built-in" };
