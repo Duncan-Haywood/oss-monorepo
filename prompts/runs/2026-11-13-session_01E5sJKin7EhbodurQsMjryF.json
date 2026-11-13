@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKin7EhbodurQsMjryF",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T08:18:24Z",
+  "ended": "2026-11-13T08:25:39Z",
+  "wall_minutes": 7.42,
+  "tokens_in": 2718080,
+  "tokens_out": 37372,
+  "cost_usd": 2.2332,
+  "tool_calls": 29,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15432",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 'pick the project that has gone longest' rule points at podcast episodes, but with audio at 423 MB (over the 400 MB cap) podcast work is excluded, so the real choice is only between two shelves that both landed pieces today; the rule could say so."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Setting timeline table is now ~90 long rows; reading it to avoid repeats costs a large tool output (44 KB). DONE.md plus a keyword grep was the faster overlap check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Wrote a fresh idea (uncontrolled reentry) instead of an open Next-up proposal: both open H&H proposals carry notes that they overlap finished stories, and DONE.md had no reentry/debris story.",
+      "did": "Added the story's own Done entry and timeline row.",
+      "result": "bible_done.mjs moved it; tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-sky-is-the-same-size.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Hearth & Horizon shelf, piece 'the-sky-is-the-same-size' (~5,700 words, text only: audio dir total 423 MB > 400 MB cap). Risk sums worked in a python one-off (orbit period, westward shift, track azimuth 40.5 deg at 17 S, ground speed ~7.3 km/s, 1/18 footprint chance, ~1 in 2.5 million town). Weekdays checked. Adversarial re-read fixed an unverifiable claim about real debris-injury history, fireball dark-flight geometry, and Rosary timing. Checks: hearth-and-horizon node --test 15/15, platform/pages/writing.test.mjs 38/38. No agent doc: nothing new the next run needs beyond the BIBLE row and DONE entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b059aa51-db29-52c1-ad1d-587fe4d58bee",
+    "transcripts": 1,
+    "first": "2026-11-13T08:18:24Z",
+    "last": "2026-11-13T08:25:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 51,
+        "output": 37372,
+        "thinking": 15482,
+        "cache_read": 2597269,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120760,
+        "api_equivalent_usd": 2.2332,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 51,
+      "output": 37372,
+      "thinking": 15482,
+      "cache_read": 2597269,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120760,
+      "api_equivalent_usd": 2.2332,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 24,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.42,
+      "active_minutes": 7.42,
+      "model_minutes": 7.07,
+      "tool_minutes": 0.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a professional writer drafting and fact-checking a 5,700-word hard-SF short story with worked orbital-risk numbers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 447.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
