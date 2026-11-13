@@ -16,6 +16,9 @@
  *              panel's pooled lapse distribution (pooledLapsePrior + posteriorMean)
  *   gate-refit the same, with the lapse read in-sample from the person's own
  *              refit at the fixed prior (refitLapse below)
+ *   gate-half  a rank gate: the upper end pooled over the more consistent half
+ *              of the panel by refitLapse, for respondents at or under that
+ *              half's cut; fixed for the rest
  *   oracle     the gate a perfect detector would give: truly honest pool, upper
  *              end for truly honest respondents, fixed for careless ones
  *
@@ -138,6 +141,9 @@ for (const items of itemCounts) {
         const own = upperOf(pool.filter((p) => p.eOwn < tau));
         const pooled = upperOf(pool.filter((p) => p.ePool < tau));
         const refit = upperOf(pool.filter((p) => p.eRefit < tau));
+        // A rank gate: the pool's more consistent half by refitLapse, and the same cut for respondents.
+        const cut = [...pool.map((p) => p.eRefit)].sort((x, y) => x - y)[Math.floor((pool.length - 1) / 2)];
+        const half = upperOf(pool.filter((p) => p.eRefit <= cut));
         const oracle = upperOf(pool.filter((p) => !p.careless));
         const rules: Record<string, (p: Person) => number> = {
           fixed: () => REFIT_PRIOR_PHI,
@@ -145,16 +151,17 @@ for (const items of itemCounts) {
           "gate-own": (p) => (p.eOwn < tau ? own.upper : REFIT_PRIOR_PHI),
           "gate-pool": (p) => (p.ePool < tau ? pooled.upper : REFIT_PRIOR_PHI),
           "gate-refit": (p) => (p.eRefit < tau ? refit.upper : REFIT_PRIOR_PHI),
+          "gate-half": (p) => (p.eRefit <= cut ? half.upper : REFIT_PRIOR_PHI),
           oracle: (p) => (p.careless ? REFIT_PRIOR_PHI : oracle.upper),
         };
         const out: Record<string, unknown> = {
-          phi: { all: r3(all.phi), own: r3(own.phi), pool: r3(pooled.phi), refit: r3(refit.phi), oracle: r3(oracle.phi) },
-          upper: { all: r3(all.upper), own: r3(own.upper), pool: r3(pooled.upper), refit: r3(refit.upper), oracle: r3(oracle.upper) },
+          phi: { all: r3(all.phi), own: r3(own.phi), pool: r3(pooled.phi), refit: r3(refit.phi), half: r3(half.phi), oracle: r3(oracle.phi) },
+          upper: { all: r3(all.upper), own: r3(own.upper), pool: r3(pooled.upper), refit: r3(refit.upper), half: r3(half.upper), oracle: r3(oracle.upper) },
           surveyMassAboveTau: r3(evalPanel.survey),
         };
         const groups = { honest: evalPanel.filter((p) => !p.careless), careless: evalPanel.filter((p) => p.careless) };
         out.passed = Object.fromEntries(
-          Object.entries(groups).map(([g, ps]) => [g, { own: r3(mean(ps.map((p) => +(p.eOwn < tau)))), pool: r3(mean(ps.map((p) => +(p.ePool < tau)))), refit: r3(mean(ps.map((p) => +(p.eRefit < tau)))) }])
+          Object.entries(groups).map(([g, ps]) => [g, { own: r3(mean(ps.map((p) => +(p.eOwn < tau)))), pool: r3(mean(ps.map((p) => +(p.ePool < tau)))), refit: r3(mean(ps.map((p) => +(p.eRefit < tau)))), half: r3(mean(ps.map((p) => +(p.eRefit <= cut)))) }])
         );
         const pick = (f: (p: Person) => number) => auc(groups.honest.map(f), groups.careless.map(f));
         out.auc = { own: r3(pick((p) => p.eOwn)), pool: r3(pick((p) => p.ePool)), refit: r3(pick((p) => p.eRefit)) };
