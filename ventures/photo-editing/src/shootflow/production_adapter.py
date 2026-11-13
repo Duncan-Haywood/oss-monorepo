@@ -6,6 +6,7 @@ import math
 import os
 import stat
 import tempfile
+import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -27,6 +28,7 @@ from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.camera_profiles import CAMERA_PROFILES_DIR, profile_for
+from shootflow.lens_profiles import LENS_PROFILES_DIR, LensProfileError, load_db
 from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, still_for_review
 from shootflow.raw_preview import is_cr2_path, is_developable_path, is_raw_path
 from shootflow.production_status import (
@@ -60,6 +62,7 @@ _FFMPEG_GRADE_PRODUCTION_ADAPTER = "ffmpeg-grade-production-local"
 GRADE_SCOPE_ENV = "SHOOTFLOW_GRADE_SCOPE"
 GRADE_SCOPES = ("all", "selected")
 REVIEW_GRADE_NOTE_SUFFIX = ".review-grade.json"
+LENS_NOTE_SUFFIX = ".lens.json"
 _PRODUCTION_ADAPTER_OUTPUT_KINDS: dict[str, tuple[str, ...] | None] = {
     _DRY_RUN_PRODUCTION_ADAPTER: None,
     _METADATA_PRODUCTION_ADAPTER: None,
@@ -1194,6 +1197,12 @@ def _materialize_ffmpeg_grade_production_outputs(
     file name, then by the profile's own camera tag, then Adobe Standard);
     with no profile for its camera it stops here naming the folder. Other RAW
     formats stop here with a message naming the DNG route.
+
+    With lensfun XML files in the workspace's ``color/lens-profiles/``, each
+    DNG and CR2 is also corrected for its lens (distortion, lateral colour and
+    vignetting, as ``shootflow develop --lens-db``; a file's own lens warp
+    wins), and a ``<master>.lens.json`` note beside the master says which lens
+    was corrected, or why none was.
     """
 
     _validate_grade_action_shape(action, expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER)
@@ -1221,15 +1230,18 @@ def _materialize_ffmpeg_grade_production_outputs(
             lut_path = SHOOT_LOOK_LUT_PATH
         tools = find_ffmpeg_tools()
         with tempfile.TemporaryDirectory(prefix="shootflow-develop-") as scratch:
+            lens_note: dict | None = None
             if review_source is None and is_developable_path(source_path):
                 developed = Path(scratch) / "developed.tif"
                 try:
-                    settings = None
-                    if is_cr2_path(source_path):
-                        settings = DevelopSettings(dcp=_camera_profile(root, source_path).profile)
-                    develop_file(source_path, developed, settings)
+                    lens_db = _workspace_lens_db(root)
+                    dcp = _camera_profile(root, source_path).profile if is_cr2_path(source_path) else None
+                    settings = DevelopSettings(dcp=dcp, lens_db=lens_db) if dcp or lens_db else None
+                    report = develop_file(source_path, developed, settings)
                 except (DevelopError, OSError, ValueError) as exc:
                     raise ProductionAdapterError(f"could not develop {source_path.name}: {exc}") from exc
+                if lens_db is not None:
+                    lens_note = {"lens": report.lens, "notes": list(report.lens_notes), "lens_files": lens_db.files}
                 source_path = developed
             for output in action.outputs:
                 _validate_ffmpeg_output(root, output)
@@ -1246,9 +1258,68 @@ def _materialize_ffmpeg_grade_production_outputs(
                 materialized.append(output)
                 if review_source is not None:
                     _write_review_grade_note(root, output=output, proxy=review_source)
+                if lens_note is not None:
+                    _write_lens_note(root, output=output, **lens_note)
     except FfmpegMediaError as exc:
         raise ProductionAdapterError(str(exc)) from exc
     return tuple(materialized)
+
+
+_LENS_DB_CACHE: dict[tuple, object] = {}
+_LENS_DB_LOCK = threading.Lock()  # grade jobs run on several threads; parse a database once
+
+
+def _workspace_lens_db(root: Path):
+    """The lensfun database in ``color/lens-profiles/``, or None when the folder is absent or holds no XML.
+
+    Symlinked folders are refused and symlinked files skipped, as for camera profiles. The parsed
+    database is kept per process, keyed by each file's name, size and modification time, so a shoot
+    of hundreds of raws reads the XML once and an edited file is read again.
+    """
+
+    directory = root / LENS_PROFILES_DIR
+    for part in (root / Path(LENS_PROFILES_DIR).parts[0], directory):
+        if part.is_symlink():
+            raise DevelopError(f"{part.relative_to(root)} is a symlink; lens profiles must live in the workspace")
+    if not directory.is_dir():
+        return None
+    files = sorted(p for p in directory.glob("*.xml") if p.is_file() and not p.is_symlink())
+    if not files:
+        return None
+    key = (str(directory),) + tuple((p.name, p.stat().st_size, p.stat().st_mtime_ns) for p in files)
+    with _LENS_DB_LOCK:
+        db = _LENS_DB_CACHE.get(key)
+        if db is None:
+            try:
+                db = load_db([str(p) for p in files])
+            except LensProfileError as exc:
+                raise DevelopError(f"{LENS_PROFILES_DIR}: {exc}") from None
+            if len(_LENS_DB_CACHE) > 8:
+                _LENS_DB_CACHE.clear()
+            _LENS_DB_CACHE[key] = db
+    return db
+
+
+def lens_note_path(graded_output: str) -> str:
+    return graded_output + LENS_NOTE_SUFFIX
+
+
+def _write_lens_note(root: Path, *, output: str, lens: str | None, notes: list[str], lens_files: int) -> None:
+    note = {
+        "kind": "lens_correction",
+        "graded_output": output,
+        "lens_database": f"{LENS_PROFILES_DIR}/ ({lens_files} XML file{'s' if lens_files != 1 else ''})",
+        "corrected": lens is not None,
+        "lens": lens,
+        "notes": notes,
+    }
+    note_path = _workspace_output_path(root, lens_note_path(output))
+    _reject_symlink_path(note_path.parent, root, "lens note directory")
+    try:
+        with note_path.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(note, ensure_ascii=True, indent=2, sort_keys=True) + "\n")
+    except FileExistsError as exc:
+        raise ProductionAdapterError(f"Refusing to overwrite existing lens note: {note_path.name}") from exc
 
 
 def _camera_profile(root: Path, source_path: Path):

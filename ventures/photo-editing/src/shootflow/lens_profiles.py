@@ -68,6 +68,9 @@ DIAGONAL_35MM = math.hypot(36.0, 24.0)
 # Subject distance when the file gives none: far focus. Lensfun's interpolation reads distance as 0.1 / d, so
 # 1000 m and infinity differ by 0.0001 (calibrations are typically made at 10 m and 1000 m).
 DEFAULT_DISTANCE = 1000.0
+# The shoot workspace's folder of lensfun XML files: with any in it, the pipeline's grade stage corrects
+# every DNG and CR2 it develops as `shootflow develop --lens-db` would (production_adapter).
+LENS_PROFILES_DIR = "color/lens-profiles"
 
 # EXIF and TIFF tags read here.
 TAG_MAKE = 271

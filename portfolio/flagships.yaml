@@ -226,11 +226,14 @@ flagships:
       rectilinear lensfun profiles the best even-only fit leaves over 1 px at
       6000 px for 17%, eval/warp-rectilinear2-2026-11-12.md).
       Lensfun distortion, TCA and vignetting for files with none (--lens-db;
-      eval/lensfun-*-2026-11-13.md).
-      Next, most valuable first: a real evenly lit frame shot wide open
+      eval/lensfun-*-2026-11-13.md), and in the overnight grade stage from the workspace's
+      color/lens-profiles/ with a <master>.lens.json note since 2026-11-13 (real 5D Mark II CR2: master
+      bit-identical to develop --lens-db, eval/lens-pipeline-grade-2026-11-13.md).
+      Next, most valuable first: a real DNG without its own lens warp and a real lens with a vignetting
+      calibration through the pipeline's lens stage; per-workspace switches for TCA and vignetting;
+      a real evenly lit frame shot wide open
       (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair (a zoom at several focal lengths); the
-      grade stage reading a workspace lens database; a
+      maker-against-lensfun DNG pair (a zoom at several focal lengths);  a
       real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
