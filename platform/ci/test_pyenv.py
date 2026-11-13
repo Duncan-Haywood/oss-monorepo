@@ -247,6 +247,7 @@ class T(unittest.TestCase):
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
 
     def test_version_specifiers_are_not_part_of_the_import_name(self):
+        self.addCleanup(pyenv.PINS.clear)
         self.assertEqual(pyenv.import_name("pillow>=9"), "PIL")
         self.assertEqual(pyenv.import_name("scikit-learn==1.4"), "sklearn")
         self.assertEqual(pyenv.import_name("numpy"), "numpy")
@@ -348,6 +349,30 @@ class T(unittest.TestCase):
         pip = [c for c in calls if c[1:3] == ["-m", "pip"]]
         self.assertEqual(len(pip), 1)
         self.assertEqual(pip[0][-1:], ["scipy"])
+
+    def test_a_version_pin_is_installed_and_required(self):
+        # Doc friction 2026-11-13: `pybamm==26.10.1.1` installed plain pybamm.
+        self.addCleanup(pyenv.PINS.clear)
+        self.assertEqual(pyenv.import_name("pybamm==26.10.1.1"), "pybamm")
+        self.assertEqual(pyenv.import_name("OpenDSSDirect.py>=0.9:opendssdirect"), "opendssdirect")
+        self.assertEqual(pyenv.PINS, {"pybamm": "pybamm==26.10.1.1",
+                                      "opendssdirect": "OpenDSSDirect.py>=0.9"})
+        run = FakeRun(pip_ok={"/a"})
+        pyenv.pip_install("/a", ["pybamm", "numpy"], run, quiet)
+        self.assertEqual(run.calls[0][-2:], ["pybamm==26.10.1.1", "numpy"])
+
+    def test_a_real_interpreter_must_meet_the_pin(self):
+        import importlib.metadata as md
+        have = md.version("pip")
+        self.addCleanup(pyenv.PINS.clear)
+        mod = pyenv.import_name(f"pip=={have}")
+        self.assertTrue(pyenv.imports(sys.executable, [mod]))
+        self.assertEqual(pyenv.missing(sys.executable, ["json", mod]), [])
+        pyenv.import_name("pip==0.0.1")
+        self.assertFalse(pyenv.imports(sys.executable, [mod]))
+        self.assertEqual(pyenv.missing(sys.executable, ["json", mod]), ["pip"])
+        pyenv.import_name(f"pip>=0.1,<={have}")
+        self.assertTrue(pyenv.imports(sys.executable, [mod]))
 
     def test_missing_probes_a_real_interpreter(self):
         self.assertEqual(pyenv.missing(sys.executable, ["json", "no_such_module_xyz"]),
