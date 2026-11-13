@@ -41,10 +41,27 @@
  *   loo-slope    leave out rho < 0.2 AND slope < `--slope-min`
  *   oracle-drop  leave out the careless (for dissent: the camp; a ceiling only)
  *
- *   npx tsx scripts/answer-time-sweep.ts [--items 15,30] [--per-item 4] [--respondents 20] [--careless 0.25,0.4,0.5] [--patterns salience,random,dissent] [--ratio 1,0.6,0.4] [--gamma 0.6] [--careless-gamma 0] [--person-sd 0.4] [--pace-min 0.6] [--slope-min 0.05] [--surveys 20] [--seed-base 4000] [--selector staged|standard]
+ * Half-time carelessness (`--q` below 1, 2026-11-13): a careless person
+ * answers by their pattern on a share q of picks and honestly on the rest
+ * (the careless-pattern sweep's `--q`, same answer streams), with careless
+ * answers timed as above and honest ones as an honest person's. Their median
+ * time moves only part of the way, so two answer-level signals are added:
+ *
+ *   fastShare      share of their timed answers under `--fast-at` x the panel's median of medians
+ *   selfFastShare  share under `--fast-at` x their own median
+ *
+ * and three schemes that leave out answers, not people (each person's Glicko
+ * states replayed from the answers kept, as the route would have to):
+ *
+ *   share-drop       leave out people whose fastShare >= `--share-min`
+ *   answer-drop      leave out every answer under `--fast-at` x the panel's median of medians
+ *   self-answer-drop leave out every answer under `--fast-at` x the person's own median
+ *   oracle-answers   leave out exactly the careless answers (a ceiling only)
+ *
+ *   npx tsx scripts/answer-time-sweep.ts [--q 1] [--fast-at 0.5] [--share-min 0.3] [--items 15,30] [--per-item 4] [--respondents 20] [--careless 0.25,0.4,0.5] [--patterns salience,random,dissent] [--ratio 1,0.6,0.4] [--gamma 0.6] [--careless-gamma 0] [--person-sd 0.4] [--pace-min 0.6] [--slope-min 0.05] [--surveys 20] [--seed-base 4000] [--selector staged|standard]
  */
 import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
-import { DEFAULT_GLICKO_STATE } from "../src/lib/glicko2";
+import { DEFAULT_GLICKO_STATE, applyComparison, type GlickoState } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
 import { groupRanking, type RatingRow } from "../src/lib/groupRanking";
 
@@ -65,6 +82,9 @@ const slopeMin = Number(opt("--slope-min", "0.05"));
 const nSurveys = Number(opt("--surveys", "20"));
 const spread = Number(opt("--spread", "0.25"));
 const seedBase = Number(opt("--seed-base", "4000"));
+const qs = nums(opt("--q", "1"));
+const fastAt = Number(opt("--fast-at", "0.5"));
+const shareMin = Number(opt("--share-min", "0.3"));
 const LOO_MIN = 0.2;
 
 const mean = (v: number[]) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN);
@@ -97,8 +117,21 @@ const routeStaged: Policy = (input: PairingInput) => {
   return (input.rand ?? Math.random)() < 0.5 ? [a, b] : [b, a];
 };
 
-type Shown = { a: string; b: string; ms: number };
-type Person = { careless: boolean; rows: RatingRow[]; shown: Shown[]; loo: number; pace: number; slope: number };
+type Shown = { a: string; b: string; ms: number; careless: boolean };
+type Answer = { picked: string; other: string };
+type Person = { careless: boolean; rows: RatingRow[]; shown: Shown[]; answers: Answer[]; loo: number; pace: number; slope: number; fastShare: number; selfFastShare: number; ownMedian: number };
+
+/** Each item's Glicko state from the kept answers, replayed in order from the default (what the route stores, minus the dropped answers). */
+function replay(ids: string[], answers: Answer[], keep: (i: number) => boolean): RatingRow[] {
+  const st = new Map<string, GlickoState>(ids.map((id) => [id, { ...DEFAULT_GLICKO_STATE }]));
+  answers.forEach((ans, i) => {
+    if (!keep(i)) return;
+    const { a, b } = applyComparison(st.get(ans.picked)!, st.get(ans.other)!, "A");
+    st.set(ans.picked, a);
+    st.set(ans.other, b);
+  });
+  return [...st].map(([itemId, s]) => ({ itemId, rating: s.rating, rd: s.rd }));
+}
 
 const answeredRows = (rows: RatingRow[]) => rows.filter((r) => r.rd < DEFAULT_GLICKO_STATE.rd - 1e-9);
 
@@ -132,7 +165,8 @@ function auc(hi: number[], lo: number[]): number {
 }
 const share = (v: boolean[]) => (v.length ? Number((v.filter(Boolean).length / v.length).toFixed(3)) : null);
 
-for (const pattern of patterns) {
+for (const q of qs) for (const pattern of patterns) {
+  if (pattern === "dissent" && q !== qs[0]) continue; // q has no meaning for a camp answering honestly
   for (const ratio of ratios) {
     for (const gamma of gammas) {
       for (const items of itemCounts) {
@@ -142,7 +176,9 @@ for (const pattern of patterns) {
               const budget = items * k;
               const nCareless = Math.round(frac * nResp);
               const acc: Record<string, { rho: number[]; clear: number; wrong: number }> = {};
-              const sig = { paceH: [] as number[], paceC: [] as number[], slopeH: [] as number[], slopeC: [] as number[] };
+              const sig = { paceH: [] as number[], paceC: [] as number[], slopeH: [] as number[], slopeC: [] as number[], shareH: [] as number[], shareC: [] as number[], selfH: [] as number[], selfC: [] as number[] };
+              let replayMismatch = 0;
+              const answerFlags: Record<string, { h: number; hn: number; c: number; cn: number }> = {};
               const flags: Record<string, { h: boolean[]; c: boolean[] }> = {};
               for (let sv = 0; sv < nSurveys; sv++) {
                 const svSeed = seedBase + sv * 104729 + items * 31 + k;
@@ -163,27 +199,36 @@ for (const pattern of patterns) {
                   const own = (careless && pattern === "dissent" ? camp : common).map((m) => m + spread * normal(pr));
                   const base = 2500 * Math.exp(personSd * normal(tr));
                   const shown: Shown[] = [];
-                  const careChooser: Chooser | undefined = !isCareless
+                  const pick: Chooser | undefined = !isCareless
                     ? undefined
                     : pattern === "random"
                       ? (_a, _b, _p, rand) => rand() < 0.5
                       : pattern === "first"
                         ? () => true
                         : (a, b, _p, rand) => rand() < 1 / (1 + Math.exp(-2 * (salience[idx.get(a)!] - salience[idx.get(b)!])));
+                  // q < 1 draws as the careless-pattern sweep's `--q` does; q = 1 draws nothing extra, so the 2026-11-12 rows reproduce.
+                  const careChooser: Chooser | undefined = !pick ? undefined : q >= 1 ? pick : (a, b, p, rand) => (rand() < q ? pick(a, b, p, rand) : undefined);
                   const chooser: Chooser = (a, b, p, rand) => {
                     const ia = idx.get(a)!, ib = idx.get(b)!;
+                    const out = careChooser?.(a, b, p, rand);
                     let ms: number;
-                    if (!isCareless) ms = base * (1 + gamma * Math.exp(-Math.abs(own[ia] - own[ib]) / 0.25));
+                    if (out === undefined) ms = base * (1 + gamma * Math.exp(-Math.abs(own[ia] - own[ib]) / 0.25));
                     else {
                       const close = pattern === "salience" ? Math.exp(-Math.abs(salience[ia] - salience[ib]) / 0.25) : 0;
                       ms = base * ratio * (1 + carelessGamma * close);
                     }
-                    shown.push({ a, b, ms: ms * Math.exp(0.35 * normal(tr)) });
-                    return careChooser?.(a, b, p, rand);
+                    shown.push({ a, b, ms: ms * Math.exp(0.35 * normal(tr)), careless: out !== undefined });
+                    return out;
                   };
                   const res = simulate(routeStaged, items, budget, seed, 0, 0, 0, false, undefined, 0, undefined, (i) => own[i], chooser);
                   const rows = [...res.states].map(([itemId, s]) => ({ itemId, rating: s.rating, rd: s.rd }));
-                  people.push({ careless, rows, shown, loo: NaN, pace: NaN, slope: NaN });
+                  const answers = res.history.map((h) => ({ picked: h.picked, other: h.other }));
+                  if (sv === 0 && r < 3) {
+                    // The replay must reproduce simulate's own states when every answer is kept.
+                    const back = new Map(replay(ids, answers, () => true).map((x) => [x.itemId, x]));
+                    if (rows.some((x) => Math.abs(back.get(x.itemId)!.rating - x.rating) > 1e-6)) replayMismatch++;
+                  }
+                  people.push({ careless, rows, shown, answers, loo: NaN, pace: NaN, slope: NaN, fastShare: NaN, selfFastShare: NaN, ownMedian: NaN });
                 }
                 const medians = people.map((p) => median(p.shown.map((s) => s.ms)));
                 const panelPace = median(medians);
@@ -195,6 +240,11 @@ for (const pattern of patterns) {
                   p.loo = mine.length >= 3 ? spearman(mine.map((m) => m.rating), mine.map((m) => oth.get(m.itemId)!)) : 0;
                   if (!Number.isFinite(p.loo)) p.loo = 0;
                   p.pace = medians[i] / panelPace;
+                  p.ownMedian = medians[i];
+                  p.fastShare = p.shown.filter((s) => s.ms < fastAt * panelPace).length / p.shown.length;
+                  p.selfFastShare = p.shown.filter((s) => s.ms < fastAt * medians[i]).length / p.shown.length;
+                  (p.careless ? sig.shareC : sig.shareH).push(p.fastShare);
+                  (p.careless ? sig.selfC : sig.selfH).push(p.selfFastShare);
                   p.slope = spearman(p.shown.map((s) => s.ms), p.shown.map((s) => -Math.abs(oth.get(s.a)! - oth.get(s.b)!)));
                   if (!Number.isFinite(p.slope)) p.slope = 0;
                   (p.careless ? sig.paceC : sig.paceH).push(p.pace);
@@ -205,7 +255,14 @@ for (const pattern of patterns) {
                   "pace-drop": (p) => p.pace < paceMin,
                   "loo-pace": (p) => p.loo < LOO_MIN && p.pace < paceMin,
                   "loo-slope": (p) => p.loo < LOO_MIN && p.slope < slopeMin,
+                  "share-drop": (p) => p.fastShare >= shareMin,
                   "oracle-drop": (p) => p.careless,
+                };
+                // Answer-level schemes: keep every person, leave out some of their answers.
+                const answerRules: Record<string, (p: Person, s: Shown) => boolean> = {
+                  "answer-drop": (_p, s) => s.ms < fastAt * panelPace,
+                  "self-answer-drop": (p, s) => s.ms < fastAt * p.ownMedian,
+                  "oracle-answers": (_p, s) => s.careless,
                 };
                 const add = (name: string, s: { rho: number; clear: number; wrong: number }) => {
                   acc[name] ??= { rho: [], clear: 0, wrong: 0 };
@@ -219,8 +276,18 @@ for (const pattern of patterns) {
                   flags[name] ??= { h: [], c: [] };
                   for (const p of people) (p.careless ? flags[name].c : flags[name].h).push(drop(p));
                 }
+                for (const [name, drop] of Object.entries(answerRules)) {
+                  const rows = people.map((p) => ({ rows: replay(ids, p.answers, (i) => !drop(p, p.shown[i])), keep: true }));
+                  add(name, score(ids, target, pooled(ids, rows)));
+                  const f = (answerFlags[name] ??= { h: 0, hn: 0, c: 0, cn: 0 });
+                  for (const p of people) for (const s of p.shown) {
+                    // Answers, not people: an honest answer is any answer given honestly, including a half-time careless person's.
+                    if (s.careless) { f.cn++; if (drop(p, s)) f.c++; } else { f.hn++; if (drop(p, s)) f.h++; }
+                  }
+                }
               }
-              const cell: Record<string, unknown> = { pattern, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
+              if (replayMismatch) throw new Error(`replay did not reproduce simulate's states (${replayMismatch} people)`);
+              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
               const base = acc["shipped"].rho;
               for (const [name, a] of Object.entries(acc)) {
                 const d = a.rho.map((x, i) => x - base[i]);
@@ -232,12 +299,18 @@ for (const pattern of patterns) {
                   se: Number(se.toFixed(4)),
                   wrongShare: Number((a.clear ? a.wrong / a.clear : 0).toFixed(4)),
                   ...(flags[name] ? { flagHonest: share(flags[name].h), flagCareless: share(flags[name].c) } : {}),
+                  ...(answerFlags[name] ? { answersDroppedHonest: Number((answerFlags[name].h / Math.max(1, answerFlags[name].hn)).toFixed(3)), answersDroppedCareless: answerFlags[name].cn ? Number((answerFlags[name].c / answerFlags[name].cn).toFixed(3)) : null } : {}),
                 };
               }
               cell.detect = {
                 // Honest (or the majority, for dissent) over careless (or the camp): above 0.5 means the signal separates them.
                 paceAuc: Number(auc(sig.paceH, sig.paceC).toFixed(3)),
                 slopeAuc: Number(auc(sig.slopeH, sig.slopeC).toFixed(3)),
+                // Fast-answer share: higher means faster, so careless over honest.
+                fastShareAuc: Number(auc(sig.shareC, sig.shareH).toFixed(3)),
+                selfFastShareAuc: Number(auc(sig.selfC, sig.selfH).toFixed(3)),
+                fastShareHonestMedian: Number(median(sig.shareH).toFixed(3)),
+                fastShareCarelessMedian: sig.shareC.length ? Number(median(sig.shareC).toFixed(3)) : null,
                 paceHonestMedian: Number(median(sig.paceH).toFixed(3)),
                 paceCarelessMedian: sig.paceC.length ? Number(median(sig.paceC).toFixed(3)) : null,
                 slopeHonestMean: Number(mean(sig.slopeH).toFixed(3)),
