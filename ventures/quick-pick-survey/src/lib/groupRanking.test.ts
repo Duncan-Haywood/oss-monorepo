@@ -288,3 +288,34 @@ describe("parseDrop", () => {
     for (const bad of ["", "Fast", "slot", "fast,slot"]) expect(parseDrop(bad)).toEqual({ ok: false });
   });
 });
+
+describe("groupRanking answeredOnly", () => {
+  const items = [{ id: "a", label: "A" }, { id: "b", label: "B" }];
+  // Person 2 down-weighted by scaling their rd past the starting 350, as the sweeps' weighting schemes do.
+  const rows = [
+    { itemId: "a", rating: 1700, rd: 120 },
+    { itemId: "b", rating: 1400, rd: 120 },
+    { itemId: "a", rating: 1300, rd: 600 },
+    { itemId: "b", rating: 1650, rd: 600 },
+  ];
+  it("by default a row at or above the starting rd reads as never answered and is left out", () => {
+    const r = groupRanking(items, rows);
+    expect(r.find((x) => x.itemId === "a")!.respondents).toBe(1);
+  });
+  it("with answeredOnly every row counts, so a down-weighted person still pulls a little", () => {
+    const r = groupRanking(items, rows, "overlap", { answeredOnly: true });
+    const a = r.find((x) => x.itemId === "a")!;
+    expect(a.respondents).toBe(2);
+    expect(a.rating).toBeLessThan(1700);
+    expect(a.rating).toBeGreaterThan(1600);
+  });
+  it("a never-answered row capped just under the starting rd would count as a rater at 1500 (the sweeps' old bug)", () => {
+    // The sweeps capped rd at 349 to keep down-weighted rows in; that also let
+    // every never-answered row (1500, rd 350) through as a real rating.
+    const unanswered = [{ itemId: "a", rating: 1500, rd: 350 }, { itemId: "b", rating: 1500, rd: 350 }];
+    const kept = groupRanking(items, [...rows.slice(0, 2), ...unanswered]);
+    const capped = groupRanking(items, [...rows.slice(0, 2), ...unanswered.map((u) => ({ ...u, rd: 349 }))]);
+    expect(kept.find((x) => x.itemId === "a")!.respondents).toBe(1);
+    expect(capped.find((x) => x.itemId === "a")!.respondents).toBe(2);
+  });
+});

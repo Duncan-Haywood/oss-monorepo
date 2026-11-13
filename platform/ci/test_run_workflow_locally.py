@@ -6,6 +6,7 @@ import argparse
 import io
 import contextlib
 import os
+import shutil
 import sys
 import tempfile
 import textwrap
@@ -1394,7 +1395,7 @@ class SweepExitCode(unittest.TestCase):
     def sweep(self, code_for_report):
         real_report, real_fp = runner.report, runner.checkout_fingerprint
         runner.report = lambda *a, **k: code_for_report
-        runner.checkout_fingerprint = lambda: ("a" * 40, "d1")
+        runner.checkout_fingerprint = lambda: runner.Fingerprint("a" * 40, "d1")
         wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
         out = io.StringIO()
         try:
@@ -1419,6 +1420,11 @@ class SweepExitCode(unittest.TestCase):
     def test_a_clean_workflow_passes(self):
         code, _ = self.sweep(0)
         self.assertEqual(code, 0)
+
+
+def fp(head, content, paths=None):
+    """A fingerprint for the mocked sweeps below (`runner.Fingerprint`)."""
+    return runner.Fingerprint(head * 40, content, paths or {})
 
 
 class CheckoutStability(unittest.TestCase):
@@ -1447,26 +1453,47 @@ class CheckoutStability(unittest.TestCase):
             runner.checkout_fingerprint = real
         return code, out.getvalue()
 
-    def test_a_moved_head_fails_the_sweep_and_names_both_commits(self):
-        code, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
-        self.assertEqual(code, 1)
-        self.assertIn("UNSTABLE CHECKOUT", out)
-        self.assertIn("aaaaaaaaa", out)
-        self.assertIn("bbbbbbbbb", out)
+    def test_a_moved_head_over_the_same_tree_keeps_the_verdict(self):
+        # Committing the run record is the one thing a run is told to do while
+        # a long sweep runs, and it changes no byte a step reads. Three of the
+        # four 2026-11-12/13 friction reports lost a whole sweep to it.
+        code, out = self.sweep(fp("a", "d1"), fp("b", "d1"))
+        self.assertEqual(code, 0)
+        self.assertNotIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("note: HEAD moved", out)
+        self.assertIn("the verdicts above stand", out)
 
-    def test_changed_tracked_files_fail_even_when_head_held_still(self):
-        # The commoner shape: another session runs `regen.mjs` or resolves a
-        # conflict in this checkout without committing. HEAD never moves.
-        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d2"))
-        self.assertEqual(code, 1)
-        self.assertIn("UNSTABLE CHECKOUT", out)
+    def test_changed_tracked_files_fail_whether_or_not_head_moved(self):
+        # A branch checkout or a merge mid-sweep: the content moved, so the
+        # verdict is a reading of two trees either way.
+        for after in (fp("a", "d2"), fp("b", "d2")):
+            code, out = self.sweep(fp("a", "d1"), after)
+            self.assertEqual(code, 1)
+            self.assertIn("UNSTABLE CHECKOUT", out)
+        code, out = self.sweep(fp("a", "d1"), fp("a", "d2"))
         self.assertIn("HEAD did not move", out)
+
+    def test_the_drift_line_names_the_paths_that_moved(self):
+        # "tracked files changed" alone sent runs back to a 40-minute sweep to
+        # find out whether it mattered; the paths answer that in a glance.
+        code, out = self.sweep(
+            fp("a", "d1", {"a.py": "1", "b.py": "1"}),
+            fp("a", "d2", {"a.py": "2", "b.py": "1"}))
+        self.assertEqual(code, 1)
+        self.assertIn("a.py", out)
+        self.assertNotIn("b.py", out)
+
+    def test_many_moved_paths_are_cut_with_a_count(self):
+        before = fp("a", "d1", {f"f{i}.py": "1" for i in range(9)})
+        after = fp("a", "d2", {f"f{i}.py": "2" for i in range(9)})
+        self.assertIn("(+4 more)", runner.checkout_drift(before, after))
 
     def test_a_still_checkout_does_not_trip_it(self):
         # A guard that fails on correct input gets switched off within a day.
-        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d1"))
+        code, out = self.sweep(fp("a", "d1"), fp("a", "d1"))
         self.assertEqual(code, 0)
         self.assertNotIn("UNSTABLE CHECKOUT", out)
+        self.assertNotIn("note: HEAD moved", out)
 
     def test_an_unmeasurable_fingerprint_is_not_a_finding(self):
         # No git binary, or not a repository. "Could not measure" must not
@@ -1475,13 +1502,13 @@ class CheckoutStability(unittest.TestCase):
         code, out = self.sweep(None, None)
         self.assertEqual(code, 0)
         self.assertNotIn("UNSTABLE CHECKOUT", out)
-        self.assertIsNone(runner.checkout_drift(None, ("a" * 40, "d1")))
-        self.assertIsNone(runner.checkout_drift(("a" * 40, "d1"), None))
+        self.assertIsNone(runner.checkout_drift(None, fp("a", "d1")))
+        self.assertIsNone(runner.checkout_drift(fp("a", "d1"), None))
 
     def test_the_failure_is_reported_after_the_verdict_it_invalidates(self):
         # It invalidates a pass and a failure alike, so it has to read as a
         # note about the whole run rather than as one more failing workflow.
-        _, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
+        _, out = self.sweep(fp("a", "d1"), fp("b", "d2"))
         self.assertLess(out.index("workflow(s) passed."),
                         out.index("UNSTABLE CHECKOUT"))
 
@@ -1503,7 +1530,7 @@ class CheckoutStability(unittest.TestCase):
     def test_workflows_done_before_the_move_keep_their_verdict(self):
         # Eleven run records lost a whole sweep for one edit mid-run and
         # re-ran every workflow; only the ones after the move are void.
-        a, b = ("a" * 40, "d1"), ("a" * 40, "d2")
+        a, b = fp("a", "d1"), fp("a", "d2")
         code, out = self.two_workflow_sweep([a, a, b])
         self.assertEqual(code, 1)
         self.assertIn("UNSTABLE CHECKOUT", out)
@@ -1512,7 +1539,7 @@ class CheckoutStability(unittest.TestCase):
         self.assertNotIn("run_workflow_locally.py first.yml", out)
 
     def test_a_move_during_the_first_workflow_voids_them_all(self):
-        a, b = ("a" * 40, "d1"), ("a" * 40, "d2")
+        a, b = fp("a", "d1"), fp("a", "d2")
         code, out = self.two_workflow_sweep([a, b])
         self.assertEqual(code, 1)
         self.assertIn("not a reading of anything", out)
@@ -1522,14 +1549,100 @@ class CheckoutStability(unittest.TestCase):
         # Asserts the premise rather than assuming it: the function really
         # does return this checkout's HEAD, so a test suite passing on
         # mocks cannot hide a fingerprint that never measured anything.
-        fp = runner.checkout_fingerprint()
-        self.assertIsNotNone(fp)
-        head, digest = fp
-        self.assertEqual(len(head), 40, head)
-        self.assertEqual(len(digest), 64, digest)
-        self.assertEqual(fp, runner.checkout_fingerprint(),
+        taken = runner.checkout_fingerprint()
+        self.assertIsNotNone(taken)
+        self.assertEqual(len(taken.head), 40, taken.head)
+        self.assertEqual(len(taken.content), 64, taken.content)
+        self.assertTrue(taken.paths, "no tracked path was fingerprinted")
+        self.assertEqual(taken, runner.checkout_fingerprint(),
                          "the fingerprint is not stable across two reads of "
                          "an unchanged tree, so it would cry wolf on every run")
+
+
+class TrackedContent(unittest.TestCase):
+    """The premise of the stability check, measured against real git.
+
+    The mocked sweeps above cannot tell whether `tracked_content` actually
+    reads the same digest either side of a `git commit`; that claim is the
+    whole fix, so it is checked on a repository.
+    """
+
+    def setUp(self):
+        import subprocess
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = self.tmp.name
+        self.addCleanup(self.tmp.cleanup)
+
+        def run(*args):
+            return subprocess.run(["git"] + list(args), cwd=self.repo,
+                                  capture_output=True, text=True, check=True)
+
+        self.run = run
+        run("init", "-q", "-b", "main")
+        run("config", "user.email", "t@example.com")
+        run("config", "user.name", "T")
+        run("config", "commit.gpgsign", "false")  # the signing helper is not here
+        self.write("kept.txt", "one\n")
+        run("add", "-A")
+        run("commit", "-qm", "first")
+
+    def write(self, name, text):
+        with open(os.path.join(self.repo, name), "w", encoding="utf-8") as f:
+            f.write(text)
+
+    def digest(self):
+        content = runner.tracked_content(cwd=self.repo)
+        self.assertIsNotNone(content)
+        return content
+
+    def test_committing_what_the_worktree_already_held_changes_nothing(self):
+        self.write("kept.txt", "two\n")
+        self.write("new.txt", "fresh\n")
+        self.run("add", "-A")
+        staged = self.digest()
+        self.run("commit", "-qm", "the run record")
+        self.assertEqual(staged, self.digest(),
+                         "a commit of files already in the worktree read as "
+                         "the tree moving, which voided eleven runs' sweeps")
+
+    def test_an_edit_changes_the_path_it_touched(self):
+        before = self.digest()
+        self.write("kept.txt", "edited\n")
+        after = self.digest()
+        self.assertNotEqual(before["kept.txt"], after["kept.txt"])
+        self.assertEqual(runner.moved_paths(
+            runner.Fingerprint("a", "1", before),
+            runner.Fingerprint("a", "2", after)), "kept.txt")
+
+    def test_a_deleted_tracked_file_is_marked_gone(self):
+        os.remove(os.path.join(self.repo, "kept.txt"))
+        self.assertEqual(self.digest()["kept.txt"], runner.GONE)
+
+    def test_a_checkout_of_another_branch_still_moves_the_tree(self):
+        # The 2026-09-11 incident: the shape the check exists for must stay caught.
+        before = self.digest()
+        self.run("checkout", "-q", "-b", "other")
+        self.write("kept.txt", "theirs\n")
+        self.run("commit", "-qam", "theirs")
+        self.assertNotEqual(before, self.digest())
+
+    def test_batching_many_dirty_files_hashes_every_one(self):
+        for i in range(7):
+            self.write(f"f{i}.txt", "x\n")
+        self.run("add", "-A")
+        self.run("commit", "-qm", "seven")
+        for i in range(7):
+            self.write(f"f{i}.txt", f"changed {i}\n")
+        content = runner.tracked_content(cwd=self.repo, chunk=2)
+        ids = [content[f"f{i}.txt"] for i in range(7)]
+        self.assertEqual(len(set(ids)), 7, ids)
+        self.assertEqual(content, runner.tracked_content(cwd=self.repo))
+
+    def test_git_that_cannot_answer_reads_as_unmeasurable(self):
+        empty = tempfile.mkdtemp()
+        self.addCleanup(lambda: shutil.rmtree(empty, ignore_errors=True))
+        self.assertIsNone(runner.tracked_content(cwd=empty))
 
 
 class ChangedPaths(unittest.TestCase):
@@ -1660,8 +1773,10 @@ class Handoff(unittest.TestCase):
         log = text.split("Log: ", 1)[1].split()[0]
         self.assertTrue(os.path.isfile(log))
         self.assertIn("wait_for.py " + log, text)
-        # Editing mid-sweep voided eleven runs' verdicts: say so while it runs.
-        self.assertIn("do not edit or commit tracked files", text)
+        # Editing mid-sweep voided eleven runs' verdicts: say so while it runs,
+        # and say that committing (which they are told to do) is not an edit.
+        self.assertIn("do not change tracked files", text)
+        self.assertIn("Committing files already written is fine", text)
 
     def test_the_child_ends_with_a_line_wait_for_accepts(self):
         import wait_for
