@@ -15,6 +15,9 @@ node cli.mjs corpus/veni-creator.gabc -o veni.mid --final 50 --fit 8 --stretch -
 - `--genre deep-house` (or another name from `--help`) adds the backing.
 - Slow the tempo for a first take: `--bpm 90`. Speed it up once the line is known.
 - The cue sheet lists bar, beat, seconds, note name, length in beats and syllable.
+  With `--genre NAME --sections`, a line starting `--` opens each section: what the band does under it, the
+  first note and how far it is from your last one, and where the band comes in after an a cappella verse
+  (`--a-cappella`) or the new key's first note after `--key-lift`. Those are the places to pitch from.
   Print it. The first lines for Veni Creator at 124 BPM look like this:
 
 ```

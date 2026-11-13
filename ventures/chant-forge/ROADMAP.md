@@ -74,6 +74,11 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   and `--auto-final` count the lift. `lift.test.mjs` (6 tests), `eval/key-lift-check.mjs`: rendered bass in the lifted
   drop 1.117-1.124x the earlier drop's (expected 1.1225), a cappella bars silent after the first. Studio-page
   switches; browser e2e 82 checks. Not listened to.
+- 2026-11-13, later still: per-section singer guidance in the cue sheet (`--cues` with `--sections`, `cues.mjs`
+  `sectionCues`): a line above each section's first note says what the band does, the first note and its interval
+  from the last one sung, when the band comes in after the a cappella verse or back after the breakdown, and the
+  lifted drop's first note beside the old key's. 4 new tests; sample sheet `eval/cues-sections-pange-lingua.txt`.
+  Not tried with singers.
 
 ## Next
 
