@@ -8,10 +8,13 @@ import { lrc } from './lrc.mjs';
 import { cueSheet } from './cues.mjs';
 import { suggestFinal } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
+import { sectionPlan } from './sections.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
+  --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
+  --outro   N bars after the chant (the backing winds down under them; with --sections it ends on a held chord)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)
   --stretch with --fit: lengthen the phrase's long notes to fill the bar instead of padding silence
@@ -41,6 +44,8 @@ export function run(argv) {
     else if (a === '--drone') args.drone = true;
     else if (a === '--genre') args.genre = argv[++i];
     else if (a === '--fills') args.fills = true;
+    else if (a === '--sections') args.sections = true;
+    else if (a === '--outro') args.outro = Number(argv[++i]);
     else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
     else if (a === '--lrc') args.lrc = argv[++i];
@@ -56,6 +61,8 @@ export function run(argv) {
   if (!(args.bpm > 0)) return { code: 2, text: '--bpm must be a positive number' };
 
   if (!Number.isInteger(args.repeat) || args.repeat < 1 || args.repeat > 64) return { code: 2, text: '--repeat must be a whole number from 1 to 64' };
+
+  if (args.outro !== undefined && (!Number.isInteger(args.outro) || args.outro < 1 || args.outro > 16)) return { code: 2, text: '--outro must be a whole number of bars from 1 to 16' };
 
   if (args.intro !== undefined && (!Number.isInteger(args.intro) || args.intro < 1 || args.intro > 16)) return { code: 2, text: '--intro must be a whole number of bars from 1 to 16' };
 
@@ -77,10 +84,16 @@ export function run(argv) {
   }
   if (args.final !== null) events = transposeToFinal(events, args.final);
   if (args.fills && !args.genre) return { code: 2, text: '--fills needs --genre' };
+  if (args.sections && !args.genre) return { code: 2, text: '--sections needs --genre' };
   if (args.stretch && !args.fit) return { code: 2, text: '--stretch needs --fit' };
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
   if (args.halftime) events = halfTime(events);
   if (args.repeat > 1) events = Array.from({ length: args.repeat }, () => events).flat().map((e) => ({ ...e }));
+  const ppb = 8; // the backing's bar is always 4/4 at two pulses a beat (genre.mjs BAR), whatever --fit says
+  const chantPulses = events.reduce((s, e) => s + e.pulses, 0);
+  const chantBars = Math.max(1, Math.ceil(chantPulses / ppb - 1e-9));
+  const plan = args.sections ? sectionPlan({ events, pulsesPerBar: ppb, intro: args.intro || 0, outro: args.outro || 0 }) : null;
+  if (args.outro) events = [...events, { type: 'bar', kind: 'full', pulses: chantBars * ppb - chantPulses + ppb * args.outro }];
   if (args.intro) events = [{ type: 'bar', kind: 'full', pulses: 8 * args.intro }, ...events];
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
   if (args.cues) {
@@ -100,7 +113,7 @@ export function run(argv) {
       const mode = Number(parsed.header.mode);
       if (!mode) return { code: 2, text: '--genre needs a mode header in the GABC file (mode: 1;)' };
       try {
-        backing = arrange({ genre: args.genre, mode, final: fin.midi, bars: barsFor(events), fills: args.fills });
+        backing = arrange({ genre: args.genre, mode, final: fin.midi, bars: plan ? plan.reduce((m, s) => Math.max(m, s.start + s.bars), 0) : barsFor(events), fills: args.fills, sections: plan });
       } catch (err) {
         return { code: 2, text: err.message };
       }
@@ -109,6 +122,7 @@ export function run(argv) {
     }
     writeFileSync(args.out, eventsToMidi(events, { bpm: args.bpm, title, drone: args.drone, backing, markers: args.markers }));
     summary.wrote = args.out;
+    if (plan) summary.sections = plan.map((s) => `${s.name} bar ${s.start + 1}-${s.start + s.bars}${s.build ? ' (build)' : ''}`);
   }
   const text = args.json
     ? JSON.stringify(summary, null, 2)
@@ -116,6 +130,7 @@ export function run(argv) {
         `${summary.name || args.file}: ${summary.notes} notes, ${summary.lowest}-${summary.highest} (ambitus ${summary.ambitus} semitones), final ${summary.final}`,
         `mode ${summary.mode ?? 'not given'}${summary.modeFinalMatches === false ? ' (final does not match the mode: check the transcription)' : ''}`,
         `${summary.bars.toFixed(2)} bars, ${summary.seconds.toFixed(1)} s at ${args.bpm} BPM`,
+        ...(summary.sections ? [`sections: ${summary.sections.join('; ')}`] : []),
         ...summary.warnings.map((w) => `warning: ${w}`),
         ...(summary.wrote ? [`wrote ${summary.wrote}`] : []),
       ].join('\n');

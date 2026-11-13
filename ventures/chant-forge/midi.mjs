@@ -79,6 +79,11 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
       conductor.push([tick, meta(0x06, [...new TextEncoder().encode(label)])]);
     });
   }
+  // song sections from genre.mjs (sections.mjs plan), as DAW locators
+  if (backing && backing.sections) {
+    for (const sec of backing.sections) conductor.push([sec.tick, meta(0x06, [...new TextEncoder().encode(sec.name)])]);
+    conductor.sort((a, b) => a[0] - b[0]);
+  }
   const tracks = [track(conductor), track(choir)];
   if (drone && lastMidi !== null && end > 0) {
     const d = lastMidi - 12;
