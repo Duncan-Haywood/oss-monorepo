@@ -106,8 +106,11 @@ test('links to the pet grooming bid calculator', () => {
 // *notices* a swallowed document, so a future rewrite back to a raw-source
 // regex breaks a test instead of quietly passing.
 test('the structural guards actually fail on a swallowed document', () => {
-  const broken = html.replace('</style>', '');
-  assert.notEqual(broken, html, 'index.html no longer contains </style>; this case needs updating');
+  // The last </style>, so no later style element can close the swallow again
+  // (the head also carries the small rows-reserve style block).
+  const cut = html.lastIndexOf('</style>');
+  assert.ok(cut > 0, 'index.html no longer contains </style>; this case needs updating');
+  const broken = html.slice(0, cut) + html.slice(cut + '</style>'.length);
 
   const d = derive(broken);
   assert.equal(d.unclosed, 'style', 'an unclosed <style> was not detected');

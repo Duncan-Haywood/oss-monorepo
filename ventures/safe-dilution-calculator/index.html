@@ -53,6 +53,14 @@
     .scroll { overflow-x: auto; }
     .error { color: #9a3412; font-weight: 600; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #founders:empty{min-height:384px}html:not(.pf-rows-ready) #safes:empty{min-height:407px}}
+@media (scripting:enabled) and (min-width:372px){html:not(.pf-rows-ready) #founders:empty{min-height:242px}html:not(.pf-rows-ready) #safes:empty{min-height:226px}}
+@media (scripting:enabled) and (min-width:512px){html:not(.pf-rows-ready) #founders:empty{min-height:164px}html:not(.pf-rows-ready) #safes:empty{min-height:155px}}
+@media (scripting:enabled) and (min-width:792px){html:not(.pf-rows-ready) #safes:empty{min-height:123px}}
+@media (scripting:enabled) and (min-width:932px){html:not(.pf-rows-ready) #safes:empty{min-height:84px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
