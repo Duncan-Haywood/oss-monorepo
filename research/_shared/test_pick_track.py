@@ -83,6 +83,33 @@ class NextStepsTest(unittest.TestCase):
         self.assertEqual(pick_track.next_steps("nosuch-project"), "")
 
 
+class NewestLogEntriesTest(unittest.TestCase):
+    LOG = ("# Log\n\n## 2026-11-13 · Milestone 6g: newest\n- x\n"
+           "## 2026-11-12 · Milestone 6f\n"
+           "## 2026-10-28 · old one above a newer one\n"
+           "## 2026-11-12 · Milestone 6e: same day, lower in the file\n"
+           "## 2026-11-03 · out of order\n")
+
+    def test_sorted_by_date_with_file_order_for_ties(self):
+        out = pick_track.newest_log_entries("x", n=4, text=self.LOG)
+        self.assertEqual([o.split(": ", 1)[1][:10] for o in out],
+                         ["2026-11-13", "2026-11-12", "2026-11-12", "2026-11-03"])
+        self.assertIn("6f", out[1])
+        self.assertIn("6e", out[2])
+        self.assertTrue(out[0].startswith("3: "))
+
+    def test_cuts_long_titles(self):
+        out = pick_track.newest_log_entries("x", n=1, width=30, text=self.LOG)
+        self.assertTrue(out[0].endswith("...") and len(out[0]) <= 33)
+
+    def test_missing_log_is_empty(self):
+        self.assertEqual(pick_track.newest_log_entries("nosuch-programme"), [])
+
+    def test_real_log_reads(self):
+        out = pick_track.newest_log_entries("heavy-hydraulics", n=1)
+        self.assertEqual(len(out), 1)
+
+
 class RecentLandedTest(unittest.TestCase):
     def test_returns_list_of_lines(self):
         out = pick_track.recent_landed("sim2real-inference")

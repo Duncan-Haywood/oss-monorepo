@@ -386,6 +386,32 @@ def mentioned_in_logs(slug):
                   if f.parent.name != slug and slug in f.read_text(errors="ignore"))
 
 
+def newest_log_entries(slug, n=3, width=160, text=None):
+    """The `n` newest `## <date> · <title>` headings of research/<slug>/LOG.md, newest first.
+
+    Sorted by date, file order breaking ties, because a LOG.md is newest-first only near
+    the top: three logs had older entries above newer ones further down, and a run that
+    followed README 'Next steps' instead of the log's newest entries lost time
+    (doc_friction 2026-11-13). Each line is `<line number>: <date> · <title>`, cut to `width`.
+    """
+    if text is None:
+        log = RESEARCH / slug / "LOG.md"
+        if not log.is_file():
+            return []
+        text = log.read_text(errors="ignore")
+    found = []
+    for i, line in enumerate(text.splitlines(), 1):
+        m = re.match(r"^## +(\d{4}-\d{2}-\d{2})\b\s*[·:-]?\s*(.*)", line)
+        if m:
+            found.append((m.group(1), -i, m.group(2).strip()))
+    found.sort(reverse=True)
+    out = []
+    for date, neg_i, title in found[:n]:
+        entry = f"{-neg_i}: {date} · {title}"
+        out.append(entry if len(entry) <= width else entry[:width].rstrip() + "...")
+    return out
+
+
 def next_steps(name, width=400):
     """The "Next steps" paragraph of research/<name>/README.md, cut to `width`."""
     readme = RESEARCH / name / "README.md"
@@ -483,6 +509,8 @@ if __name__ == "__main__":
                 print(f"  {line}")
         if has:
             print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
+            for line in newest_log_entries(slug):
+                print(f"  LOG.md {line}")
         else:
             print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
         for line in claim_check(slug):
@@ -519,6 +547,8 @@ if __name__ == "__main__":
                   "newest LOG.md entries, and prefer its next step over a free milestone below")
             for s in progs_here:
                 if not is_blocked(s):
+                    for line in newest_log_entries(s, n=2):
+                        print(f"  {s}: LOG.md {line}")
                     for line in claim_check(s):
                         print(f"  {s}: {line}")
         else:
