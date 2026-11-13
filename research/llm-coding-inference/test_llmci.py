@@ -498,3 +498,51 @@ def test_guard_first_fallback_only_replans_a_pilot_the_miss_guard_refuses():
     assert sum(1 for i in pilot if pilot[i] and not loose[i]) >= S.NEG_GUARD
     assert S.plan_audit(loose, pilot, n, fallback_pseudo=2.0) == S.plan_audit(loose, pilot, n)
     assert S.plan_audit(sharp, pilot, n, neg_guard=0, fallback_pseudo=2.0) == S.plan_audit(sharp, pilot, n, neg_guard=0)
+
+
+def test_two_phase_counts_the_pilot_exactly_and_estimates_only_the_rest():
+    # LOG.md 7ao: a two-phase cells plan labels fresh items only, sized by `two_phase_allocation` over each cell's
+    # unpiloted rest; its interval sums the pilot labels as known, so with the whole rest labelled it is exact.
+    from llmci import audit_design as S
+    assert S.FALLBACK_TWO_PHASE is False
+    rng = random.Random(12)
+    N, n = 3000, 800
+    y = [int(rng.random() < 0.08) for _ in range(N)]
+    f = [a if rng.random() < 0.9 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    plan = S.plan_audit(f, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True, width_margin=None)
+    assert plan["design"] == "cells" and plan["two_phase"] and plan["pilot"] == sorted(pilot)
+    assert sum(plan["to_label"]) == n - len(pilot)
+    rest = [sum(1 for i in c if i not in pilot) for c in plan["cells"]]
+    assert all(t <= r for t, r in zip(plan["to_label"], rest))
+    full = dict(pilot); full.update({i: y[i] for i in range(N)})
+    est, lo, hi = S.audit_interval(plan, f, full)
+    assert abs(est - sum(y) / N) < 1e-12 and hi - lo < 1e-3  # FPC: nothing left to estimate
+    # a partial second phase: unbiased for the rest, pilot labels enter only as known counts
+    labels = dict(pilot)
+    for c, t in zip(plan["cells"], plan["to_label"]):
+        for i in rng.sample([i for i in c if i not in pilot], t):
+            labels[i] = y[i]
+    est, lo, hi = S.audit_interval(plan, f, labels)
+    known = sum(pilot.values())
+    hand = known
+    for c in plan["cells"]:
+        y2 = [labels[i] for i in c if i in labels and i not in pilot]
+        hand += sum(1 for i in c if i not in pilot) * sum(y2) / len(y2)
+    assert abs(est - hand / N) < 1e-12 and lo < est < hi
+    # the forecast prices the design: two-phase discards the pilot from the rest's estimate, so it is no narrower
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True) >= S.predicted_ratio(f, pilot, n, pseudo=2.0)
+
+
+def test_fallback_two_phase_applies_only_to_the_fallback_plan():
+    from llmci import audit_design as S
+    rng = random.Random(11)
+    N, n = 4000, 600
+    y = [int(rng.random() < 0.06) for _ in range(N)]
+    sharp = [a if rng.random() < 0.985 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 300)}
+    fb = S.plan_audit(sharp, pilot, n, fallback_pseudo=2.0, fallback_two_phase=True)
+    assert fb.pop("fallback") is True
+    assert fb == S.plan_audit(sharp, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True)
+    loose = [a if rng.random() < 0.8 else 1 - a for a in y]
+    assert S.plan_audit(loose, pilot, n, fallback_pseudo=2.0, fallback_two_phase=True) == S.plan_audit(loose, pilot, n)
