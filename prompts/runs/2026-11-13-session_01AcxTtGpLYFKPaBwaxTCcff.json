@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtGpLYFKPaBwaxTCcff",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T09:06:40Z",
+  "ended": "2026-11-13T09:28:51Z",
+  "wall_minutes": 22.38,
+  "tokens_in": 8759137,
+  "tokens_out": 75532,
+  "cost_usd": 4.5747,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15447",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally --for-changes caught two real failures before merge: no sibling tool linked the new page (siblings orphan budget 0; fixed with a link from stl-decomposition) and the post description was 193 chars against a 160 limit (fixed)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "The definition-of-done table does not say a new tool must be linked from a sibling page (platform/pages/siblings.mjs --check, budget 0) or that post descriptions are capped at 160 chars; both surfaced only in the local workflow run."
+    },
+    {
+      "file": "platform/pages/*.test.mjs",
+      "issue": "176 failures on unchanged main in this cloud container (site-builder tests shelling out to buildSite), which makes the site-builder step useless as a signal locally; had to diff counts against a stash of main."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-isolation-forest-checked-against-scikit-learn.md",
+    "ventures/isolation-forest/README.md (Verification section)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: isolation forest (Liu, Ting & Zhou 2008/2012) as the ninth research-algorithms tool, from the research-tools candidate list. Because the algorithm is random, verification compares 20,000-tree expected scores with scikit-learn 1.9.1 on three UCI datasets (wholesale, ionosphere, breast cancer Wisconsin): max abs diff 0.0025-0.0034, mean ~0.0006, which equals the engine's own seed-to-seed gap (0.0029), with a signed-bias bound in the test. Default-100-tree AUC over seeds matches (0.855 / 0.985). Finding: on the long-tailed wholesale spend, raw-scale top ten are all big spenders; on log scale 8/10 are near-zero buyers in some group. Per-row score SD across seeds at 100 trees: median 0.008, worst 0.024. Venture tests 41/41; Playwright 1200/390 px clean. Next: extended isolation forest mode.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "943e593a-ed0b-514a-a887-4fe84c412132",
+    "transcripts": 1,
+    "first": "2026-11-13T09:06:40Z",
+    "last": "2026-11-13T09:29:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 134,
+        "output": 75532,
+        "thinking": 10973,
+        "cache_read": 8590833,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168170,
+        "api_equivalent_usd": 4.5747,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 134,
+      "output": 75532,
+      "thinking": 10973,
+      "cache_read": 8590833,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168170,
+      "api_equivalent_usd": 4.5747,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 65,
+      "Write": 5,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.38,
+      "active_minutes": 22.38,
+      "model_minutes": 12.32,
+      "tool_minutes": 10.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior data scientist: implement and verify an isolation forest against sklearn, page, CLI, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 349.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

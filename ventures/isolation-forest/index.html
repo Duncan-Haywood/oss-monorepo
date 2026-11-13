@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2337306b'/%3E%3Ccircle%20cx='10'%20cy='12'%20r='2.5'%20fill='%23fff'/%3E%3Ccircle%20cx='14'%20cy='17'%20r='2.5'%20fill='%23fff'/%3E%3Ccircle%20cx='11'%20cy='21'%20r='2.5'%20fill='%23fff'/%3E%3Ccircle%20cx='24'%20cy='8'%20r='3'%20fill='%23f2a93b'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Isolation Forest Online — find outliers and anomalies in your CSV, free</title>
+  <meta name="description" content="Free online isolation forest (Liu, Ting &amp; Zhou 2008) for outlier and anomaly detection. Paste a CSV with several numeric columns and get every row ranked by anomaly score, the rows flagged as unusual, and which columns make each one stand out. Checked against scikit-learn. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Isolation forest in your browser: which rows of my data are unusual?">
+  <meta property="og:description" content="Rank the rows of a spreadsheet from most to least unusual across all its numeric columns at once, with the reason each top row stands out. Isolation forest, checked against scikit-learn.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Isolation Forest: find outliers and anomalies in a CSV", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a CSV with numeric columns and rank every row by its isolation forest anomaly score (Liu, Ting and Zhou 2008). Flags the unusual rows and shows which columns make each one stand out. Runs in your browser.", "featureList": "isolation forest online, outlier detection, anomaly detection, multivariate outliers, anomaly score, contamination threshold, CSV upload, feature explanations, seeded and reproducible, CSV download", "citation": ["https://doi.org/10.1109/ICDM.2008.17", "https://doi.org/10.1145/2133360.2133363"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does an isolation forest do?", "acceptedAnswer": {"@type": "Answer", "text": "It ranks rows by how easy they are to separate from the rest. It cuts the data again and again at random: a random column, at a random value between that column's smallest and largest. An unusual row ends up alone after a few cuts; an ordinary row, surrounded by similar ones, takes many. Averaged over 100 random trees, few cuts means a high anomaly score."}}, {"@type": "Question", "name": "How do I read the anomaly score?", "acceptedAnswer": {"@type": "Answer", "text": "Scores run from 0 to 1. Near 1, the row was isolated almost at once: an anomaly. Well below 0.5, it is an ordinary row. If every row scores close to 0.5, the data has no distinct anomaly. The tool flags rows above 0.5 by default, the same rule as scikit-learn's contamination set to auto."}}, {"@type": "Question", "name": "What does contamination mean?", "acceptedAnswer": {"@type": "Answer", "text": "The share of rows you expect to be anomalies. Choose 5% and the tool flags the 5% of rows with the highest scores, whatever their scores are. Leave it on auto to flag every row scoring above 0.5 instead. It changes only where the line is drawn, never the scores or the ranking."}}, {"@type": "Question", "name": "Why is a row flagged when none of its values is extreme?", "acceptedAnswer": {"@type": "Answer", "text": "Because the combination is rare. A customer with average spending on milk and average spending on detergent may still be the only one with that particular mix. The table lists columns two or more robust standard deviations from the median; when it lists none, the row is unusual only jointly."}}, {"@type": "Question", "name": "Do I need to scale or normalise my columns first?", "acceptedAnswer": {"@type": "Answer", "text": "No. Each cut is drawn between a column's own minimum and maximum, so multiplying a column by a constant or adding one to it leaves every score unchanged. A log transform does change the result. On the example, the ten highest scores on the raw amounts are all big spenders; after taking the logarithm of each amount, eight of the top ten are customers who buy almost nothing in one or two product groups."}}, {"@type": "Question", "name": "Why do the scores change a little when I change the seed?", "acceptedAnswer": {"@type": "Answer", "text": "The trees are random. With 100 trees a row's score typically moves by about 0.01 between seeds, so rows with nearly equal scores can swap places. Raise the number of trees for steadier scores. The same seed always gives the same result."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and scored by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1b2f; background: #f3f2f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3d3480; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2a2459; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2a2459; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #514d66; }
+    .card { background: #fff; border: 1px solid #d9d6e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2a245910; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    fieldset { border: 1px solid #d9d6e8; border-radius: 9px; margin: 14px 0 0; padding: 8px 12px 12px; }
+    legend { font-weight: 600; padding: 0 4px; }
+    #features label { display: inline-flex; align-items: center; font-weight: 500; margin: 6px 14px 0 0; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3d3480; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e9e6f5; color: #2a2459; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe9f3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #514d66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d6e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f4f2fa; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2a2459; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #514d66; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .flag { color: #a4410e; font-weight: 700; }
+    pre { background: #f5f4fa; border: 1px solid #e0ddec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ISOLATION FOREST · OUTLIER AND ANOMALY DETECTION · MANY COLUMNS AT ONCE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which rows of my data are unusual?</h1>
+    <p>Paste a table: customers and what they spend, orders, expense lines, sensor readings, lab measurements. An <strong>isolation forest</strong> (Liu, Ting &amp; Zhou 2008) cuts the data at random, again and again, and counts how many cuts it takes to leave each row on its own. Unusual rows are isolated in a few cuts, ordinary ones take many. You get every row ranked by <strong>anomaly score</strong>, the rows flagged as anomalies, and the columns that make each of the top rows stand out. It looks at all your numeric columns together, so it also finds rows whose <em>combination</em> of values is rare.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row and one or more numeric columns (comma, tab or semicolon separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="customer,orders,spend,returns&#10;A-104,12,1830.50,1&#10;A-105,3,240.00,0&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 440 wholesale customers' annual spending (UCI)</button>
+    <p class="note" id="data-status">Missing cells are filled with the column median. ID columns and codes with three or fewer values are left out unless you tick them.</p>
+
+    <fieldset>
+      <legend>Columns to use as features</legend>
+      <div id="features"><span class="note">Paste data to choose columns.</span></div>
+    </fieldset>
+    <div class="grid">
+      <div><label for="label-col">Row label</label><select id="label-col"></select></div>
+      <div><label for="contamination">Flag as anomalies</label><select id="contamination"><option value="auto" selected>Scores above 0.5 (auto)</option><option value="0.01">Top 1% of rows</option><option value="0.02">Top 2%</option><option value="0.05">Top 5%</option><option value="0.1">Top 10%</option></select></div>
+      <div><label for="trees">Trees (more = steadier scores)</label><select id="trees"><option value="100" selected>100 (the paper's default)</option><option value="500">500</option><option value="2000">2,000</option></select></div>
+      <div><label for="sample">Rows per tree (the paper's ψ)</label><select id="sample"><option value="64">64</option><option value="128">128</option><option value="256" selected>256 (default)</option><option value="512">512</option><option value="1024">1,024</option></select></div>
+      <div><label for="seed">Random seed</label><input id="seed" inputmode="numeric" value="42"></div>
+    </div>
+    <button type="button" id="analyze">Find unusual rows</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>How the scores are spread</h3>
+    <p class="note">Each bar counts rows in a score band; orange is the flagged part. A long thin tail to the right means a few rows are clearly different from the rest.</p>
+    <div id="histogram" role="img" aria-label="Histogram of anomaly scores with the flagged rows in orange"></div>
+    <h3>Two columns at a time</h3>
+    <div class="grid">
+      <div><label for="x-col">Across</label><select id="x-col"></select></div>
+      <div><label for="y-col">Up</label><select id="y-col"></select></div>
+    </div>
+    <div id="scatter" role="img" aria-label="Scatter plot of two chosen columns with each row coloured by anomaly score and flagged rows ringed"></div>
+    <h3>Most unusual rows</h3>
+    <div class="scroll">
+      <table id="top-table">
+        <thead><tr><th class="n">Rank</th><th>Row</th><th class="n">Score</th><th>What stands out</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">“What stands out” lists columns at least 2 robust standard deviations (1.4826 × the median absolute deviation) from the column median. When it lists none, the row is unusual only in its combination of values. Rows with nearly equal scores can swap places with another seed.</p>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download every row's score (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>The isolation forest (Liu, Ting &amp; Zhou 2008; journal version 2012) starts from two facts about anomalies: they are <em>few</em> and they are <em>different</em>. Each of <em>t</em> = 100 trees is grown on ψ = 256 rows drawn at random without replacement. At each node it picks a column at random and cuts at a value drawn uniformly between that column's minimum and maximum among the node's rows, and it stops when one row is left, the rows are identical, or the depth reaches ⌈log₂ ψ⌉ = 8. A row's path length <em>h(x)</em> is the number of cuts on its way down, plus <code>c(size)</code> for the rows still sharing its leaf, where <code>c(n) = 2H(n − 1) − 2(n − 1)/n</code> is the average path length of an unsuccessful search in a binary search tree and <code>H(i) ≈ ln i + 0.5772</code>.</p>
+    <p>The anomaly score is <code>s(x, ψ) = 2^(−E[h(x)] / c(ψ))</code>, where <code>E[h(x)]</code> is the average over the trees. A row isolated at the average depth scores 0.5; one isolated at once scores near 1. Flagging rows above 0.5 is the rule scikit-learn uses when its contamination is <code>auto</code>.</p>
+    <p>Two choices the paper leaves open: a column that is constant within a node is never picked (it cannot split), and missing cells are filled with the column median before the trees are grown. “What stands out” (robust z-scores per column) is a description added for readers, not part of the method.</p>
+    <p>Verified by tests in the source against <strong>scikit-learn 1.9.1</strong>'s <code>IsolationForest</code>. The two use different random number generators, so the check is on the <em>expected</em> score: with 20,000 trees, every row of three public datasets (this page's example, UCI Ionosphere and UCI Breast Cancer Wisconsin) agrees to within 0.0034, the same size as the gap between two runs of this tool with different seeds. At the default 100 trees the mean AUC over seeds agrees too: 0.855 on Ionosphere and 0.985 on Breast Cancer Wisconsin, as in scikit-learn. The constant <code>c(n)</code> matches scikit-learn's to 1e-12.</p>
+    <h3>BibTeX</h3>
+    <pre>@inproceedings{liu2008isolation,
+  author    = {Liu, Fei Tony and Ting, Kai Ming and Zhou, Zhi-Hua},
+  title     = {Isolation Forest},
+  booktitle = {Proceedings of the 8th IEEE International Conference on Data Mining (ICDM)},
+  pages     = {413--422}, year = {2008},
+  doi       = {10.1109/ICDM.2008.17}
+}
+@article{liu2012isolation,
+  author  = {Liu, Fei Tony and Ting, Kai Ming and Zhou, Zhi-Hua},
+  title   = {Isolation-Based Anomaly Detection},
+  journal = {ACM Transactions on Knowledge Discovery from Data},
+  volume  = {6}, number = {1}, pages = {3:1--3:39}, year = {2012},
+  doi     = {10.1145/2133360.2133363}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Unusual is not wrong.</strong> A high score says a row is rare in this data, not that it is an error, a fraud or a problem. Look at the flagged rows before acting on them.</li>
+      <li><strong>Long tails dominate.</strong> On money columns the biggest spenders are isolated first, as in the example. Taking the logarithm of such columns before pasting shifts attention to unusually small values and unusual proportions.</li>
+      <li><strong>Axis-parallel cuts.</strong> Cuts run along one column at a time, so a row that breaks a diagonal relationship between two columns (for example, much more spend than orders would predict) can score lower than it should. A ratio column such as spend per order helps.</li>
+      <li><strong>Numbers only.</strong> Text and category columns are not used. Small integer codes (three or fewer values) are left out by default because their numeric distance means nothing.</li>
+      <li><strong>Random.</strong> Scores vary a little by seed; raise the number of trees to steady them.</li>
+      <li>Not modelled: the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind &amp; Brunner 2021), SCiForest's guided cuts (Liu, Ting &amp; Zhou 2010), scoring new rows against a forest fitted on old ones (the engine's <code>fitForest</code> and <code>scoreRows</code> do this from code), and a time order (for one series over time, use the <a href="../matrix-profile-explorer/">matrix profile explorer</a> or the <a href="../changepoint-detector/">changepoint detector</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does an isolation forest do?</h3>
+    <p>It ranks rows by how easy they are to separate from the rest. It cuts the data again and again at random: a random column, at a random value between that column's smallest and largest. An unusual row ends up alone after a few cuts; an ordinary row, surrounded by similar ones, takes many. Averaged over 100 random trees, few cuts means a high anomaly score.</p>
+    <h3>How do I read the anomaly score?</h3>
+    <p>Scores run from 0 to 1. Near 1, the row was isolated almost at once: an anomaly. Well below 0.5, it is an ordinary row. If every row scores close to 0.5, the data has no distinct anomaly. The tool flags rows above 0.5 by default, the same rule as scikit-learn's contamination set to auto.</p>
+    <h3>What does contamination mean?</h3>
+    <p>The share of rows you expect to be anomalies. Choose 5% and the tool flags the 5% of rows with the highest scores, whatever their scores are. Leave it on auto to flag every row scoring above 0.5 instead. It changes only where the line is drawn, never the scores or the ranking.</p>
+    <h3>Why is a row flagged when none of its values is extreme?</h3>
+    <p>Because the combination is rare. A customer with average spending on milk and average spending on detergent may still be the only one with that particular mix. The table lists columns two or more robust standard deviations from the median; when it lists none, the row is unusual only jointly.</p>
+    <h3>Do I need to scale or normalise my columns first?</h3>
+    <p>No. Each cut is drawn between a column's own minimum and maximum, so multiplying a column by a constant or adding one to it leaves every score unchanged. A log transform does change the result. On the example, the ten highest scores on the raw amounts are all big spenders; after taking the logarithm of each amount, eight of the top ten are customers who buy almost nothing in one or two product groups.</p>
+    <h3>Why do the scores change a little when I change the seed?</h3>
+    <p>The trees are random. With 100 trees a row's score typically moves by about 0.01 between seeds, so rows with nearly equal scores can swap places. Raise the number of trees for steadier scores. The same seed always gives the same result.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and scored by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: <em>Wholesale customers</em>, annual spending in monetary units by 440 clients of a wholesale distributor in Portugal on six product groups, from the UCI Machine Learning Repository (Cardoso, M. (2013), <a href="https://doi.org/10.24432/C5030X" rel="noopener">doi:10.24432/C5030X</a>), under CC BY 4.0, retrieved 2026-11-13. The Channel and Region columns are codes and are left out by default.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or auditor. Results are statistical estimates from the data you enter; a high score is not proof of an error or of wrongdoing. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the UCI Machine Learning Repository, scikit-learn, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs customers.csv --contamination 0.05</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/isolation-forest" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies in a series, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, <a href="../synthetic-control/">synthetic control</a> asks whether an intervention changed one unit's outcome, <a href="../stl-decomposition/">STL decomposition</a> separates trend from season, and <a href="../fuzzy-dedupe/">fuzzy dedupe</a> finds rows that are the same person.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+    let parsed = null;
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) {
+        parsed = null;
+        $("#features").innerHTML = `<span class="note">Paste data to choose columns.</span>`;
+        $("#label-col").innerHTML = "";
+        $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a table or load the example.";
+        return;
+      }
+      parsed = p;
+      const prof = profileColumns(p);
+      $("#features").innerHTML = prof.map((c, j) => {
+        const on = c.numeric && !c.idLike && !c.code;
+        const why = !c.numeric ? " (text)" : c.idLike ? " (ID?)" : c.code ? ` (code, ${c.distinct} values)` : "";
+        return `<label><input type="checkbox" data-col="${esc(c.name)}"${on ? " checked" : ""}${c.numeric ? "" : " disabled"}>${esc(c.name)}${esc(why)}</label>`;
+      }).join("");
+      const guess = prof.findIndex((c) => c.idLike || !c.numeric);
+      $("#label-col").innerHTML = `<option value="">Row number</option>` + p.columns.map((c, j) => `<option value="${esc(c)}"${j === guess ? " selected" : ""}>${esc(c)}</option>`).join("");
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.columns.length} columns${p.headerless ? " (no header row: columns named c1, c2, ...)" : ""}.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      const cols = [...document.querySelectorAll("#features input:checked")].map((el) => el.dataset.col);
+      return {
+        csv: $("#csv").value,
+        columns: cols.length ? cols : undefined,
+        labelColumn: $("#label-col").value || undefined,
+        contamination: $("#contamination").value === "auto" ? "auto" : Number($("#contamination").value),
+        trees: Number($("#trees").value),
+        sampleSize: Number($("#sample").value),
+        seed: $("#seed").value.trim() === "" ? 42 : Number($("#seed").value),
+      };
+    }
+
+    function histogram(r) {
+      const W = 920, H = 230, L = 52, R = 12, T = 12, B = 40, bins = r.histogram;
+      const max = Math.max(...bins.map((b) => b.count)) || 1;
+      const lo = bins[0].from, hi = bins[bins.length - 1].to;
+      const sx = (v) => L + ((v - lo) / (hi - lo)) * (W - L - R);
+      const sy = (c) => T + (1 - c / max) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<line x1="${L}" x2="${W - R}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9e9ab4"/>`;
+      out += `<text x="${L - 6}" y="${sy(max) + 4}" text-anchor="end" font-size="11" fill="#514d66">${max}</text><text x="${L - 6}" y="${sy(0) + 4}" text-anchor="end" font-size="11" fill="#514d66">0</text>`;
+      for (const b of bins) {
+        const x0 = sx(b.from) + 1, w = Math.max(1, sx(b.to) - sx(b.from) - 2);
+        const ok = b.count - b.flagged;
+        if (ok) out += `<rect x="${x0.toFixed(1)}" y="${sy(b.count).toFixed(1)}" width="${w.toFixed(1)}" height="${(sy(b.flagged) - sy(b.count)).toFixed(1)}" fill="#6d64b3"><title>${b.from.toFixed(3)} to ${b.to.toFixed(3)}: ${b.count} rows</title></rect>`;
+        if (b.flagged) out += `<rect x="${x0.toFixed(1)}" y="${sy(b.flagged).toFixed(1)}" width="${w.toFixed(1)}" height="${(sy(0) - sy(b.flagged)).toFixed(1)}" fill="#e2852b"><title>${b.from.toFixed(3)} to ${b.to.toFixed(3)}: ${b.flagged} flagged</title></rect>`;
+      }
+      for (let v = Math.ceil(lo * 10) / 10; v <= hi + 1e-9; v += 0.1) out += `<text x="${sx(v).toFixed(1)}" y="${H - 22}" text-anchor="middle" font-size="11" fill="#514d66">${v.toFixed(1)}</text>`;
+      out += `<line x1="${sx(0.5)}" x2="${sx(0.5)}" y1="${T}" y2="${sy(0)}" stroke="#2a2459" stroke-dasharray="4 3"/>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 5}" text-anchor="middle" font-size="12" fill="#4a5a61">anomaly score (dashed line: 0.5)</text>`;
+      return out + "</svg>";
+    }
+
+    function scatter(r) {
+      const xi = r.features.indexOf($("#x-col").value), yi = r.features.indexOf($("#y-col").value);
+      if (xi < 0 || yi < 0) return "";
+      const W = 920, H = 420, L = 70, R = 14, T = 14, B = 44;
+      const xs = r.matrix.map((row) => row[xi]), ys = r.matrix.map((row) => row[yi]);
+      let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      if (x1 === x0) { x0 -= 1; x1 += 1; }
+      if (y1 === y0) { y0 -= 1; y1 += 1; }
+      const sx = (v) => L + ((v - x0) / (x1 - x0)) * (W - L - R);
+      const sy = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+      const lo = r.stats.min, hi = Math.max(r.stats.max, lo + 1e-9);
+      const colour = (s) => {
+        const t = Math.min(1, Math.max(0, (s - lo) / (hi - lo)));
+        const mix = (a, b) => Math.round(a + (b - a) * t);
+        return `rgb(${mix(186, 190)},${mix(182, 60)},${mix(220, 20)})`;
+      };
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#e3e0ef"/>`;
+      for (const v of [y0, y1]) out += `<text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#514d66">${esc(fmt(v))}</text>`;
+      for (const v of [x0, x1]) out += `<text x="${sx(v)}" y="${H - 26}" text-anchor="${v === x0 ? "start" : "end"}" font-size="11" fill="#514d66">${esc(fmt(v))}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="#514d66">${esc(r.features[xi])} → · ${esc(r.features[yi])} ↑ · colour: score, ringed: flagged</text>`;
+      const order = r.scores.map((s, i) => i).sort((a, b) => r.scores[a] - r.scores[b]);
+      for (const i of order) {
+        const s = r.scores[i];
+        out += `<circle cx="${sx(xs[i]).toFixed(1)}" cy="${sy(ys[i]).toFixed(1)}" r="${r.flagged[i] ? 4.5 : 3}" fill="${colour(s)}"${r.flagged[i] ? ' stroke="#2a2459" stroke-width="1.4"' : ' opacity=".8"'}><title>${esc(r.labels[i])}: score ${s.toFixed(3)}</title></circle>`;
+      }
+      return out + "</svg>";
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const stat = (v, l) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`;
+      $("#stats").innerHTML = stat(`${r.flaggedCount} of ${r.n}`, "rows flagged as anomalies") + stat(r.stats.max.toFixed(3), "highest score") + stat(r.stats.median.toFixed(3), "median score") + stat(String(r.features.length), "feature columns used");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#histogram").innerHTML = histogram(r);
+      const opts = r.features.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+      const keepX = $("#x-col").value, keepY = $("#y-col").value;
+      $("#x-col").innerHTML = opts;
+      $("#y-col").innerHTML = opts;
+      // Default view: the two columns that most often stand out in the top row.
+      const lead = r.top[0].features.map((f) => f.column);
+      $("#x-col").value = r.features.includes(keepX) ? keepX : lead[0];
+      $("#y-col").value = r.features.includes(keepY) ? keepY : lead[1] || lead[0];
+      $("#scatter").innerHTML = scatter(r);
+      $("#top-table tbody").innerHTML = r.top.map((t) => {
+        const why = t.standsOut.map((f) => `${esc(f.column)} ${esc(fmt(f.value))} <span class="note">(${f.z > 0 ? "+" : ""}${f.z.toFixed(1)} SD; median ${esc(fmt(f.median))})</span>`).join("<br>") || `<span class="note">no single column; the combination is rare</span>`;
+        return `<tr><td class="n">${t.rank}</td><td>${esc(t.label)}${t.flagged ? ` <span class="flag">flagged</span>` : ""}</td><td class="n">${t.score.toFixed(3)}</td><td>${why}</td></tr>`;
+      }).join("");
+      const p = r.params;
+      $("#settings-line").textContent = `Features: ${r.features.join(", ")}. ${p.trees} trees, ${p.sampleSize} rows each, height limit ${p.heightLimit}, seed ${p.seed}; flagged ${p.contamination === "auto" ? "above 0.5" : `top ${p.contamination * 100}%`}.`;
+    }
+
+    function run() {
+      const r = analyze(inputs());
+      if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+      $("#status").textContent = "";
+      last = r;
+      show(r);
+      record("analysis_run");
+    }
+
+    $("#analyze").addEventListener("click", () => { if (!parsed) refreshColumns(); run(); });
+    $("#x-col").addEventListener("change", () => { if (last) $("#scatter").innerHTML = scatter(last); });
+    $("#y-col").addEventListener("change", () => { if (last) $("#scatter").innerHTML = scatter(last); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "isolation-forest-scores.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

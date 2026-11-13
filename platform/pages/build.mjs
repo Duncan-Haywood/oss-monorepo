@@ -503,7 +503,7 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest'];
 
 const CATEGORY_RULES = [
   {
