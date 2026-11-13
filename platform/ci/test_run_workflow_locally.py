@@ -1749,6 +1749,7 @@ class Handoff(unittest.TestCase):
         self.assertFalse(runner.wants_handoff(["--for-changes", "--foreground"],
                                               agent, no_tty))
         self.assertFalse(runner.wants_handoff(["--list"], agent, no_tty))
+        self.assertFalse(runner.wants_handoff(["--for-changes", "--dry-run"], agent, no_tty))
         child = dict(agent, **{runner.CHILD_ENV: "1"})
         self.assertFalse(runner.wants_handoff(["--tree"], child, no_tty))
 
