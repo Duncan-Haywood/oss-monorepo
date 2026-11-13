@@ -212,6 +212,7 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, sh
 
 // One line for the CLI and the studio page: who sings what, from a fitting splitVoices result.
 const WHO_NAME = { all: 'all', tenor: 'tenors', bass: 'basses' };
+const whoName = (v) => (Object.hasOwn(WHO_NAME, v) ? WHO_NAME[v] : v);
 export function describeSplit(r) {
   if (!r.split) return `the whole chant fits ${r.unison.join('-')}, so the full choir sings every phrase (final ${r.finalName})`;
   const whole = (v) => r.phrases.map((p, k) => (p.voice === v ? k + 1 : 0)).filter(Boolean);
@@ -221,8 +222,8 @@ export function describeSplit(r) {
     const w = whole(v);
     const part = mixed.filter(([p]) => p.parts.some((x) => x.voice === v)).length;
     const where = [w.length ? `phrase ${w.join(', ')}` : '', part ? `part of ${part === 1 ? 'one shared phrase' : `${part} shared phrases`}` : ''].filter(Boolean).join(' and ');
-    return `${WHO_NAME[v]} alone on ${where} (${notesOf(v)} notes)`;
+    return `${whoName(v)} alone on ${where} (${notesOf(v)} notes)`;
   });
-  const shared = mixed.map(([p, n]) => `phrase ${n} handed over at a word: ${p.parts.map((x) => `${WHO_NAME[x.voice]} "${x.text}"`).join(', ')}`);
+  const shared = mixed.map(([p, n]) => `phrase ${n} handed over at a word: ${p.parts.map((x) => `${whoName(x.voice)} "${x.text}"`).join(', ')}`);
   return [`full choir on ${r.allNotes} of ${r.notes} notes (${r.unison.join('-')})`, ...alone, ...shared, `final ${r.finalName}`].join('; ');
 }
