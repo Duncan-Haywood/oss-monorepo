@@ -17,6 +17,10 @@ modules by hand (doc friction 2026-11-12: `pyenv.py pytest` returned an
 interpreter without numpy for marine-hull; `pytest numpy matplotlib` one
 without scikit-learn).
 
+A version specifier (`pybamm==26.10.1.1`, `numpy>=2`) is honoured: pip is
+asked for it, and an interpreter whose installed version misses it does not
+count. Names read from `-r` and `--for` stay unpinned.
+
 When the pip name and the import name differ and are not in PIP_NAMES, pass
 `pip-name:module` (e.g. `OpenDSSDirect.py:opendssdirect`).
 
@@ -82,16 +86,57 @@ def pip_timeout(modules):
 IMPORT_NAMES = {v.lower(): k for k, v in PIP_NAMES.items()}
 
 
+# import name -> the requirement a caller pinned (`pybamm==26.10.1.1`). A pin
+# used to be dropped: pip installed the latest release and an interpreter with
+# any version passed, so a result could be rerun on a version it was never
+# checked against (doc friction 2026-11-13). Filled by import_name.
+PINS = {}
+
+SPEC_RE = re.compile(r"[<>=!~]")
+
+
 def import_name(arg):
     """Import name for a module or pip name; other dashes become underscores.
     `pip-name:module` names both when neither table knows the pair (it is
-    remembered in PIP_NAMES for the install)."""
+    remembered in PIP_NAMES for the install). A version specifier is kept in
+    PINS, so the install asks for it and the check requires it."""
     if ":" in arg:
         pkg, mod = arg.split(":", 1)
-        PIP_NAMES.setdefault(mod, pkg)
+        PIP_NAMES.setdefault(mod, re.split(r"[<>=!~\[; ]", pkg, maxsplit=1)[0])
+        if SPEC_RE.search(pkg):
+            PINS[mod] = pkg.replace(" ", "")
         return mod
-    arg = re.split(r"[<>=!~\[; ]", arg, maxsplit=1)[0]  # drop a version specifier or extras
-    return IMPORT_NAMES.get(arg.lower(), arg.replace("-", "_"))
+    base = re.split(r"[<>=!~\[; ]", arg, maxsplit=1)[0]  # drop a version specifier or extras
+    mod = IMPORT_NAMES.get(base.lower(), base.replace("-", "_"))
+    if SPEC_RE.search(arg.split(";", 1)[0]):
+        PINS[mod] = arg.split(";", 1)[0].replace(" ", "")
+    return mod
+
+
+# Run inside the candidate interpreter: does the installed distribution meet
+# the requirement? `packaging` when present, else exact `==` only (other
+# operators then pass, as before).
+PIN_CHECK = """def _pin_ok(req):
+    import importlib.metadata as md, re
+    try:
+        from packaging.requirements import Requirement
+        r = Requirement(req)
+        return r.specifier.contains(md.version(r.name), prereleases=True)
+    except ImportError:
+        name = re.split(r"[<>=!~\\[ ]", req, maxsplit=1)[0]
+        m = re.search(r"==([^,;]+)", req)
+        return not m or md.version(name) == m.group(1).strip()
+    except Exception:
+        return False
+"""
+
+
+def pin_code(modules):
+    """Python that fails unless every pinned module's version matches."""
+    reqs = [PINS[m] for m in modules if m in PINS]
+    if not reqs:
+        return ""
+    return "\n" + PIN_CHECK + "".join(f"assert _pin_ok({r!r}), {r!r}\n" for r in reqs)
 
 
 def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/python3*")):
@@ -114,7 +159,7 @@ def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/pyth
 
 
 def imports(py, modules, run=subprocess.run):
-    code = "import " + ", ".join(modules) if modules else "pass"
+    code = ("import " + ", ".join(modules) if modules else "pass") + pin_code(modules)
     try:
         return run([py, "-c", code], capture_output=True, timeout=60).returncode == 0
     except (OSError, subprocess.TimeoutExpired):
@@ -132,7 +177,7 @@ def index_reachable(url=TORCH_CPU_INDEX, timeout=8):
 
 def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr),
                 reachable=index_reachable):
-    pkgs = [PIP_NAMES.get(m, m) for m in modules]
+    pkgs = [PINS.get(m) or PIP_NAMES.get(m, m) for m in modules]
     base = [py, "-m", "pip", "install", "--quiet", "--disable-pip-version-check"]
     if TORCH_FAMILY & set(modules) and not os.environ.get("PYENV_TORCH_CUDA"):
         base += ["--extra-index-url", TORCH_CPU_INDEX]
@@ -216,8 +261,10 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
 MISSING_PROBE = """import importlib, sys
 bad = []
 for m in sys.argv[1:]:
+    m, _, req = m.partition("=")
     try:
         importlib.import_module(m)
+        assert not req or _pin_ok(req)
     except Exception:
         bad.append(m)
 print(" ".join(bad))"""
@@ -226,7 +273,8 @@ print(" ".join(bad))"""
 def missing(py, modules, run=subprocess.run):
     """The modules `py` cannot import, in one subprocess (all of them on error)."""
     try:
-        done = run([py, "-c", MISSING_PROBE, *modules], capture_output=True, timeout=120)
+        args = [f"{m}={PINS[m]}" if m in PINS else m for m in modules]
+        done = run([py, "-c", PIN_CHECK + MISSING_PROBE, *args], capture_output=True, timeout=120)
     except (OSError, subprocess.TimeoutExpired):
         return list(modules)
     out = getattr(done, "stdout", None)
@@ -251,7 +299,7 @@ def install(modules, cands, run, log, venv_dir):
     for py, lacks in nearest_first(modules, cands, run):
         # Print pip names, not import names: a log of `pip install cv2` (no such
         # package) led runs to hand-install opencv (doc friction 2026-11-11).
-        pkgs = ' '.join(PIP_NAMES.get(m, m) for m in lacks) or '(nothing missing?)'
+        pkgs = ' '.join(PINS.get(m) or PIP_NAMES.get(m, m) for m in lacks) or '(nothing missing?)'
         log(f"pyenv: trying {py} -m pip install {pkgs}")
         if pip_install(py, lacks or modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")

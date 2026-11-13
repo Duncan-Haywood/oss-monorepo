@@ -156,10 +156,22 @@ class FakeVentures(unittest.TestCase):
         self.venture("own", {"test_x.py": ""})
         (self.wf / "own-ci.yml").write_text(self.OWN_CI)
         with mock.patch("sys.stdout") as out:
-            self.assertEqual(rvt.main(["own", "gone"]), 0)
+            self.assertEqual(rvt.main(["own", "gone"]), 1)
         printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
         self.assertIn("skip own: no *.test.mjs; its Python tests run in .github/workflows/own-ci.yml", printed)
         self.assertIn("skip gone: no such venture", printed)
+        self.assertIn("error: no such venture: gone", printed)
+
+    def test_a_ventures_path_names_the_venture(self):
+        for arg in ("ventures/own", "ventures/own/", "./ventures/own", "/x/ventures/own/src/a.mjs", "own"):
+            self.assertEqual(rvt.normalize_slug(arg), "own")
+        self.venture("own", {"test_x.py": ""})
+        (self.wf / "own-ci.yml").write_text(self.OWN_CI)
+        with mock.patch("sys.stdout") as out:
+            self.assertEqual(rvt.main(["--no-elsewhere", "ventures/own/"]), 0)
+        printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
+        self.assertIn("skip own:", printed)
+        self.assertNotIn("no such venture", printed)
 
 
 class Report(unittest.TestCase):
@@ -232,7 +244,9 @@ class Selection(unittest.TestCase):
                 mock.patch.object(unwired_checks, "run_all") as ran, \
                 mock.patch("sys.stdout"):
             self.assertEqual(rvt.main(["--since", "abc123", "--no-unwired"]), 0)
-            self.assertEqual(rvt.main(["someventure-that-is-not-here"]), 0)
+            # Unknown named slug: exit 1 (a typo must not read as a pass), and
+            # without --since the unwired checks still do not run.
+            self.assertEqual(rvt.main(["someventure-that-is-not-here"]), 1)
         ran.assert_not_called()
 
     def test_the_biggest_suite_starts_first(self):

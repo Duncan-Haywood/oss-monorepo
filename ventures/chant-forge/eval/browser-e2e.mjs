@@ -51,6 +51,19 @@ await page.waitForTimeout(300);
 ok(!(await page.locator("#stop").isDisabled()), "Play enables Stop");
 await page.click("#stop");
 ok(await page.locator("#stop").isDisabled(), "Stop disables Stop");
+// song sections: every sample with every genre plans sections and still converts
+await page.selectOption("#sections", "1");
+for (const p of pieces.filter(Boolean)) {
+  await page.selectOption("#piece", p);
+  await page.waitForFunction(() => document.querySelector("#src").value.includes("%%"));
+  for (const g of genres.filter(Boolean)) {
+    await page.selectOption("#genre", g);
+    await page.click("#go");
+    const t = await out();
+    ok(/Sections: Intro bar 1-2.*Outro/.test(t) && !(await page.locator("#dlmid").isDisabled()), `sections ${p} + ${g}: ${(t.match(/Sections: .*/) || ["none"])[0].slice(0, 70)}`);
+  }
+}
+await page.selectOption("#sections", "");
 // errors
 await page.fill("#src", "hello");
 await page.click("#go");

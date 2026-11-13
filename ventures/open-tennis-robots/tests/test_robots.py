@@ -363,6 +363,26 @@ class FirmwareTest(unittest.TestCase):
 
     # ---- elevation actuator (2026-11-11) ----------------------------------------------------------------------
 
+    def test_lift_runs_on_after_each_ball_and_stops_with_everything(self):
+        lift = controller.LiftRun(16000)
+        self.assertEqual(lift.update(0), 0.0)                 # off from power-up
+        lift.kick(1000)
+        self.assertEqual(lift.update(1001), 1.0)
+        lift.kick(9000)                                       # a second ball restarts the timer
+        self.assertEqual(lift.update(24999), 1.0)
+        self.assertEqual(lift.update(25000), 0.0)
+        lift.kick(30000)
+        lift.stop()                                           # e-stop or watchdog
+        self.assertEqual(lift.update(30001), 0.0)
+
+    def test_lift_run_on_covers_the_cad_return_time(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
+        import config
+        from otr_cad.params import Feeder  # pure dataclass, no CAD kernel needed
+        need = Feeder().lift_design()["run_on_s"] * 1000
+        self.assertGreaterEqual(config.LIFT_RUN_ON_MS, need)
+        self.assertLess(config.LIFT_RUN_ON_MS, need + 5000)    # not running a minute for nothing
+
     def _elev(self, mode, **kw):
         return controller.LinearAxis(mode, controller.ElevationGeometry(), 246.0, 150.0, -15.0, 45.0, 18.0, 22.0, **kw)
 

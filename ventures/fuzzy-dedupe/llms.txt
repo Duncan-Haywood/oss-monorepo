@@ -1,0 +1,19 @@
+# Fuzzy Dedupe: find duplicate contacts in a CSV, even when they are spelled differently
+
+> Free tool for contact lists, CRM exports, customer and donor files: paste or open a CSV and get groups of rows that are probably the same person or business (nicknames such as Bob and Robert, typos, accents, Gmail dots and +tags, Inc vs LLC, swapped first and last names), the reason each pair matched, a borderline list to check, and a merged CSV with one row per person. Fellegi-Sunter record linkage with weights learned from the file by EM, Jaro-Winkler string comparison and blocking. Up to 50,000 rows; nothing uploaded.
+
+Free and open source (MIT). Results are statistical matches, not legal, tax, financial or professional advice; check groups before deleting anything.
+
+## Pages
+
+- [The tool](https://marisstella.app/fuzzy-dedupe/): CSV in; duplicate groups, borderline pairs, the weight of each field, merged and annotated CSV out. Febrl benchmark: 99.6-99.8% of true duplicate pairs found at 100% precision.
+
+## How to use the engine
+
+- `engine.mjs` exports `analyze({ csv } | { header, rows, types?, matchThreshold?, reviewThreshold?, differentNameGuard? })`, returning `summary`, `groups` (members, kept row, merged record, conflicting columns), `review`, `pairs` with per-field reasons, and `weights`; plus `annotatedCsv`, `mergedCsv`, `jaroWinkler`, `guessTypes` and `PAPERS`.
+- `cli.mjs`: `node cli.mjs contacts.csv --merged clean.csv --annotated groups.csv [--threshold 0.9] [--column "Header=type"] [--json]`.
+- Agents: `node platform/agents/tools.mjs call fuzzy-dedupe analyze --input '{"csv":"First Name,Last Name,Email\n..."}'`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fuzzy-dedupe): MIT licensed.

@@ -62,11 +62,27 @@ cable_clip,print,1,PETG,"Slides onto the rear lower head standoff before it is b
 cable_gland,print,1,PETG,Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the bundle through its slot: the loop above it and the twisting run below it start here. The elevation actuator's wires leave the bundle here.
 cable_clamp,print,1,PETG,"M5 and a T-nut into the cable crossbar's front slot. Zip-tie the bundle at the bore: the run from here up to the gland twists as the head turns, so keep it free of ties."
 cable_crossbar,stock,1,"2020 T-slot, cut 280 mm","Between the two rear mast posts' inner faces (corner brackets, M5): carries the axis cable clamp."
-trough_gutter,stock,2,"125 mm (5 in class) half-round gutter, cut two 1442 mm lengths from one 3.05 m length; one end cap each at the outer ends",Falls 3 deg to the sump from 190 mm (inside bottom) at the outer ends. Sits in the hangers' saddles; lace the net's bottom edge to the back lip so a ball sliding down the net drops inside.
-trough_hanger_a,print,2,PETG,"At y = +-300 mm. Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
-trough_hanger_b,print,2,PETG,"At y = +-800 mm. Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
-trough_hanger_c,print,2,PETG,"At y = +-1300 mm. Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
-trough_sump,print,1,PETG,"Bolted to the net beam's front face by its rear tab (two M5 x 40 and T-nuts; the heads sit in the cavity, put them in first); the gutters' low ends rest in its saddles. Its outlet stub (72 mm bore) passes under the net beam. The return to the tub is not built yet: the balls leave here 2245 mm below the tub's rim (manifest: trough line)."
+trough_gutter_a,stock,1,"125 mm (5 in class) half-round gutter, cut 1636 mm (both runs come from one 3.05 m length: 2884 mm together); one end cap at the outer end",The -y run. Falls 3 deg to the sump from 204 mm (inside bottom) at its outer end. Sits in the hangers' saddles; lace the net's bottom edge to the back lip so a ball sliding down the net drops inside.
+trough_gutter_b,stock,1,"125 mm (5 in class) half-round gutter, cut 1248 mm (both runs come from one 3.05 m length: 2884 mm together); one end cap at the outer end",The +y run. Falls 3 deg to the sump from 184 mm (inside bottom) at its outer end. Sits in the hangers' saddles; lace the net's bottom edge to the back lip so a ball sliding down the net drops inside.
+trough_hanger_a,print,1,PETG,"At y = -1300 mm (saddle 192 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_b,print,1,PETG,"At y = -850 mm (saddle 168 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_c,print,1,PETG,"At y = -400 mm (saddle 145 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_d,print,1,PETG,"At y = +50 mm (saddle 121 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_e,print,1,PETG,"At y = +500 mm (saddle 130 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_f,print,1,PETG,"At y = +950 mm (saddle 153 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_g,print,1,PETG,"At y = +1350 mm (saddle 174 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_sump,print,1,PETG,"At y = +193.5 mm, off centre so its outlet meets the lift's boot. Bolted to the net beam's front face by its rear tab (two M5 x 40 and T-nuts; the heads sit in the cavity, put them in first); the gutters' low ends rest in its saddles. Its outlet stub (72 mm bore, falling 3.6 deg) passes under the net beam and butts against the lift boot's inlet arm at the beam's rear face (glue or a strap)."
+lift_boot,print,1,PETG,"Hangs under the lift base plate between the mast rails (four M5 up through the plate); the spine's foot sits in its slot. The bottom pulley's 6 mm D shaft is the gearmotor's, through the +y wall; the gearmotor's face bolts to that wall (M3 on a 31 mm circle; the wall is recessed to 0 mm there, so back it with the motor's flange). Floor 67.2 mm up; the fingers turn under it with 1.5 mm to spare. Print floor down, 4 walls; the inlet arm needs support."
+lift_base_plate,laser,1,aluminium 5052 5 mm,On the two mast rails at the lift (M5 and T-nuts at the ends). The boot hangs under it on the four inner M5s; the spine passes through and is squared to it with two 2040 corner brackets.
+lift_spine,stock,1,"2040 T-slot, cut 2328 mm","Stands inside the belt loop, 20 mm across x: a self-adhesive UHMW tape on each 20 mm face takes the belt's tooth side. Its 40 mm faces (+-y, outside the belt) carry the boot, the head, the rod clips and the strut."
+lift_belt,cots,1,"AT5 polyurethane timing belt, steel cords, 25 mm wide, 959 teeth (4795 mm), welded endless; 32 flights every 149.8 mm (printed: two 16 mm fingers 30 mm apart on a 30 mm base plate, two M3 through the belt between its cords, or welded cleats from the belt supplier)",
+lift_pulley,cots,2,"AT5 timing pulley, 16 teeth (pitch diameter 25.5 mm), flanged, for 25 mm belt: one with a 6 mm D bore (gearmotor), one with 8 mm bearings on an axle (drawn at the belt's tooth-tip circle)",
+lift_motor,cots,1,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft (the base drive's class; 0.6 N m rated assumed), on a MOSFET from GPIO 16",
+lift_rod,stock,3,"10 mm aluminium rod, cut 2141 mm",The channel's front and two sides above the boot: a lifted ball is pushed against the front rod. Ends square and deburred; the top ends go 15 mm into the head.
+lift_clip,print,6,PETG,"Holds the three rods round the channel and bolts to the spine's +-y faces (M5 and T-nuts); the belt's up strand runs through it, clear of the fingers. The lowest one stands on the base plate."
+lift_head,print,1,PETG,"Bolts to the top of the spine (two M5 each side into its +-y slots; slot the holes to tension the belt). The top pulley turns on an 8 mm axle through it, 2420 mm up. Balls ride over the pulley under the hood and drop 115 deg past the top onto a 30 deg floor that falls toward the tub; the finger behind each ball pushes it down that floor. Print in two halves split on y = 300 if your printer is short of 178 mm."
+lift_chute,stock,1,"Rigid round tube, 72 mm bore, about 80 mm OD, cut 223 mm (the take-up sleeve's tube)",From the lift head's socket down 8 deg to a point over the tub: its end's floor is 34 mm above the rim there. Push into the socket and glue.
+lift_strut,stock,1,"2020 T-slot, cut 241 mm",From the spine's -y face to the +y front hopper post's front face (a 2020 corner bracket at each end): holds the column's top half against sway.
 M8 x 110 bolt + nyloc nut + 4 washers,cots,1,M8 x 110 bolt + nyloc nut + 4 washers,head pivot through the cheeks
 "M5 female-female standoff, 80 mm",cots,4,"M5 female-female standoff, 80 mm",between the head plates
 M5 x 12 button head,cots,34,M5 x 12 button head,"standoffs, mast plate to posts, turntable, deck, brackets"
@@ -99,10 +115,18 @@ M4 x 30 socket cap screw (servo),cots,5,M4 x 30 socket cap screw (servo),motor p
 "Hose clamp, 80-90 mm",cots,1,"Hose clamp, 80-90 mm",hose at the column socket
 Flexible-PVC adhesive or epoxy,cots,1,Flexible-PVC adhesive or epoxy,hose's top end into the take-up collar
 "25 mm strap, 1 m",cots,2,"25 mm strap, 1 m",tub to the shelf
-M5 x 35 button head + T-nut (trough),cots,12,M5 x 35 button head + T-nut (trough),trough hangers to the net beam's front face
+M5 x 35 button head + T-nut (trough),cots,14,M5 x 35 button head + T-nut (trough),trough hangers to the net beam's front face
 M5 x 40 button head + T-nut (sump),cots,2,M5 x 40 button head + T-nut (sump),trough sump's rear tab to the net beam
 "Half-round gutter end cap, 125 mm class",cots,2,"Half-round gutter end cap, 125 mm class",trough's outer ends
-"Zip ties, 4.8 mm (trough)",cots,6,"Zip ties, 4.8 mm (trough)",gutter into each hanger's saddle
+"Zip ties, 4.8 mm (trough)",cots,7,"Zip ties, 4.8 mm (trough)",gutter into each hanger's saddle
+M5 x 12 button head + T-nut (lift),cots,24,M5 x 12 button head + T-nut (lift),lift base plate to the mast rails and boot; rod clips and head to the spine
+2040 corner bracket with M5 screws and T-nuts (lift),cots,2,2040 corner bracket with M5 screws and T-nuts (lift),spine to the lift base plate
+2020 corner bracket with M5 screws and T-nuts (lift),cots,2,2020 corner bracket with M5 screws and T-nuts (lift),lift strut to the spine and the hopper post
+M3 x 8 screw (lift),cots,4,M3 x 8 screw (lift),lift gearmotor's face to the boot
+"8 mm axle, 60 mm, + two 608 bearings + e-clips",cots,1,"8 mm axle, 60 mm, + two 608 bearings + e-clips",lift's top pulley in the head
+M3 x 10 screw + nyloc nut (flights),cots,64,M3 x 10 screw + nyloc nut (flights),"flights through the belt, between its cords"
+"UHMW-PE tape, 25 mm wide, self-adhesive",cots,1,"UHMW-PE tape, 25 mm wide, self-adhesive",both 20 mm faces of the lift spine (4.7 m)
+"Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",cots,1,"Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",lift gearmotor from GPIO 16
 Raspberry Pi 5 (4 GB),cots,1,Raspberry Pi 5 (4 GB),vision + planning
 Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable,stereo bar
 ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"

@@ -11,7 +11,12 @@
 // ... 2.04/nfse_v204.xsd; the mirror names 2.00-2.02 "nfse v200.xsd", so rename them); nfse_v204.xsd as published puts
 // minOccurs/maxOccurs on the global CompNfse element, which xmllint refuses to compile, so
 // strip those two attributes from that line in your copy (they mean nothing there).
-//   node eval/abrasf-xsd-diff.mjs <dir with 2.00/ ... 2.04/> [--per N] [--only 2.01,2.02] file.xml ...
+//   node eval/abrasf-xsd-diff.mjs <dir with 2.00/ ... 2.04/> [--per N] [--only 2.01,2.02] [--providers <Schemas dir>] file.xml ...
+// --providers adds the city providers' own copies (abrasf.mjs checks a file from a city in
+// OpenAC.Net.NFSe's list against its provider's copy): <Schemas dir> is the Schemas/ folder of
+// a checkout of the pinned OpenAC.Net.NFSe commit, each copy beside its xmldsig file.
+// --retarget CODE,CODE,... also checks every file once more with its city codes changed to
+// each listed IBGE code (so a valid ABRASF file becomes a seed for that city's provider copy).
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -19,18 +24,32 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { checkAbrasf, ABRASF_NS } from "../abrasf.mjs";
 import { parseCfdiXml } from "../cfdi-xml.mjs";
-import { VERSIONS, rootsOf } from "../abrasf-xsd.mjs";
+import { VERSIONS, rootsOf, PROVIDER_LAYOUTS, providerSameAs } from "../abrasf-xsd.mjs";
+import { readdirSync } from "node:fs";
+import { UF_CODE } from "../nfe.mjs";
+const UF_BY_CODE = Object.fromEntries(Object.entries(UF_CODE).map(([k, v]) => [v, k]));
 
 const args = process.argv.slice(2);
 const dir = args.shift();
 let per = 60;
 let only = null;
+let providers = null;
+let retarget = [];
 for (;;) {
+  if (args[0] === "--providers") { args.shift(); providers = args.shift(); continue; }
+  if (args[0] === "--retarget") { args.shift(); retarget = args.shift().split(","); continue; }
   if (args[0] === "--per") { args.shift(); per = Number(args.shift()); }
   else if (args[0] === "--only") { args.shift(); only = new Set(args.shift().split(",")); }
   else break;
 }
 const XSD = Object.fromEntries(VERSIONS.filter((v) => !only || only.has(v)).map((v) => [v, join(dir, `${v}/nfse_v${v.replace(".", "")}.xsd`)]));
+if (providers) for (const key of PROVIDER_LAYOUTS) {
+  if (providerSameAs(key)) continue; // checked as the ABRASF layout it is identical to
+  const [name, ver] = key.split(" ");
+  const d = join(providers, name, ver);
+  const f = readdirSync(d).find((x) => /^nfse.*\.xsd$/.test(x));
+  XSD[key] = join(d, f);
+}
 const SCHEMA = new Set(["ABR-001", "ABR-002", "ABR-003", "ABR-004", "ABR-005", "ABR-006"]);
 
 let seed = 20261113;
@@ -101,8 +120,10 @@ const verdicts = { files: 0, bothValid: 0, bothInvalid: 0, onlyXmllint: 0, onlyU
 const disagree = [];
 const seeds = [];
 const seen = new Set();
-for (const file of args) {
-  const raw = readFileSync(file, "utf8");
+const inputs = args.flatMap((file) => [[file, null], ...retarget.map((c) => [file, c])]);
+for (const [file, city] of inputs) {
+  let raw = readFileSync(file, "utf8");
+  if (city) raw = raw.replace(/<(CodigoMunicipio|MunicipioIncidencia)>\d{7}</g, `<$1>${city}<`).replace(/<Uf>[A-Z]{2}</g, `<Uf>${UF_BY_CODE[city.slice(0, 2)]}<`);
   let doc;
   try { doc = parseCfdiXml(raw).root; } catch { continue; }
   const root = doc && abrasfRoot(doc);

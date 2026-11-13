@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { checkAbrasf, looksLikeAbrasf, municipioProblem, ibgeCheckDigit } from "./abrasf.mjs";
 import { CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
-import { rootsOf, VERSIONS } from "./abrasf-xsd.mjs";
+import { rootsOf, VERSIONS, cityProvider, providerSameAs, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { preflightDocuments } from "./report.mjs";
 
 const rps = readFileSync(new URL("./fixtures/abrasf-gerar-nfse-204.xml", import.meta.url), "utf8");
@@ -12,7 +12,10 @@ const rules = (text) => checkAbrasf(text).findings.map((f) => f.rule);
 const swap = (from, to, base = nfse) => { assert.ok(base.includes(from), from); return base.replace(from, to); };
 
 test("both made-up files are clean (both validated by xmllint against nfse_v204.xsd)", () => {
-  assert.deepEqual(checkAbrasf(nfse), { findings: [], skipped: [], meta: checkAbrasf(nfse).meta });
+  // The made-up files name São Paulo, whose own system (ISSSaoPaulo 1.00 in OpenAC.Net.NFSe's
+  // list) is not ABRASF 2.x: said, and the file is still checked against ABRASF 2.04.
+  assert.deepEqual(checkAbrasf(nfse), { findings: [], skipped: [checkAbrasf(nfse).skipped[0]], meta: checkAbrasf(nfse).meta });
+  assert.match(checkAbrasf(nfse).skipped[0], /^city: São Paulo\/SP \(OrgaoGerador\/CodigoMunicipio 3550308\) runs ISSSaoPaulo 1\.00 .*not read here, so the file is checked against ABRASF 2\.04$/);
   const m = checkAbrasf(nfse).meta;
   assert.equal(m.root, "CompNfse");
   assert.equal(m.version, "2.04");
@@ -136,7 +139,8 @@ test("layouts 2.00-2.02: a 2.02 batch is checked against the 2.02 schema (valida
   assert.deepEqual(r.findings, []);
   assert.equal(r.meta.version, "2.02");
   assert.equal(r.meta.stated, "2.02");
-  assert.deepEqual(r.skipped, []);
+  assert.equal(r.skipped.length, 1);
+  assert.match(r.skipped[0], /^city: São Paulo\/SP \(Servico\/CodigoMunicipio 3550308\) runs ISSSaoPaulo 1\.00/);
   // The 2.04 name for the buyer is not allowed in 2.02, and 2.02's is not allowed in 2.04.
   const renamed = lote202.replace(/<Tomador>/, "<TomadorServico>").replace(/<\/Tomador>/, "</TomadorServico>");
   assert.deepEqual(rules(renamed), ["ABR-002"]);
@@ -171,4 +175,51 @@ test("a stated layout the file does not follow is named beside the findings", ()
   const b = checkAbrasf(both);
   assert.equal(b.findings.length, 3);
   assert.ok(!b.skipped.some((x) => /^layout:/.test(x)), b.skipped.join("\n"));
+});
+
+// ---------- the city's own system (2026-11-13, later) ----------
+
+const toCity = (xml, code) => xml.replaceAll("<CodigoMunicipio>3550308</CodigoMunicipio>", `<CodigoMunicipio>${code}</CodigoMunicipio>`).replaceAll("<MunicipioIncidencia>3550308</MunicipioIncidencia>", `<MunicipioIncidencia>${code}</MunicipioIncidencia>`);
+
+test("city list: OpenAC.Net.NFSe's municipalities map to provider copies, names matched ignoring case", () => {
+  assert.ok(CITY_COUNT > 150, String(CITY_COUNT));
+  assert.deepEqual(cityProvider("3543402"), { listed: "ISSNet 2.04", key: "ISSNet 2.04", city: "Ribeirão Preto/SP" });
+  assert.equal(cityProvider("4304903").key, "Citta 2.03");
+  assert.equal(providerSameAs("Citta 2.03"), "2.02"); // the copy is ABRASF 2.02 as published
+  assert.equal(providerSameAs("ISSNet 2.04"), "");
+  assert.equal(cityProvider("0000000"), null);
+  // Several names in the list differ in case from the schema folder (WebIss / WebISS).
+  assert.equal(cityProvider("2800308").key, "WebISS 2.02"); // Aracaju, listed as "WebIss 2.02"
+});
+
+test("a Ribeirão Preto RPS is checked against ISSNet's own 2.04 copy (free-text item code), and the note counts both", () => {
+  const xml = toCity(rps, "3543402").replace("<ItemListaServico>01.07</ItemListaServico>", "<ItemListaServico>1.07</ItemListaServico>");
+  // Under ABRASF 2.04, "1.07" is outside the LC 116 item list.
+  assert.deepEqual(checkAbrasf(toCity(rps, "3550308").replace("01.07</ItemListaServico>", "1.07</ItemListaServico>")).findings.map((f) => f.rule), ["ABR-005"]);
+  const r = checkAbrasf(xml);
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "ISSNet 2.04");
+  const note = r.skipped.find((s) => s.startsWith("city:"));
+  assert.match(note, /^city: Ribeirão Preto\/SP \(Servico\/CodigoMunicipio 3543402\) runs ISSNet 2\.04 .*its own copy of the schema \(ABRASF 2\.04 with its additions\), so the schema layer checks against it: 0 schema findings \(ABRASF 2\.04 would draw 1\)/);
+});
+
+test("a city whose provider copy is a different ABRASF layout gets that layout (Casca/RS runs Citta 2.03, which is ABRASF 2.02)", () => {
+  const casca = (x) => toCity(x, "4304903");
+  // The 2.02 batch fits; the 2.04 RPS (TomadorServico, the 2.04 name) does not.
+  const ok = checkAbrasf(casca(lote202));
+  assert.deepEqual(ok.findings, []);
+  assert.equal(ok.meta.version, "2.02");
+  assert.match(ok.skipped.join(" "), /runs Citta 2\.03 .*ABRASF 2\.02 as published \(not 2\.03, the layout its name gives\)/);
+  const bad = checkAbrasf(casca(rps));
+  assert.ok(bad.findings.some((f) => f.rule === "ABR-002" && /TomadorServico/.test(f.message)), JSON.stringify(bad.findings));
+  assert.match(bad.skipped.join(" "), /ABRASF 2\.04 would draw 0/);
+});
+
+test("a city whose provider schema is not read is named, and the ABRASF layout still applies", () => {
+  const code = "3518800"; // Guarulhos/SP, listed as Ginfes 1.00
+  const p = cityProvider(code);
+  assert.ok(p && !p.key, JSON.stringify(p));
+  const r = checkAbrasf(toCity(rps, code));
+  assert.deepEqual(r.findings, []);
+  assert.match(r.skipped.join(" "), new RegExp(`runs ${p.listed} per OpenAC\\.Net\\.NFSe's list .*not read here, so the file is checked against ABRASF 2\\.04`));
 });

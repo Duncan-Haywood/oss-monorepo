@@ -236,16 +236,48 @@ function checker(schema) {
   return { checkNode, valueProblem };
 }
 
+// A provider's own copy of an ABRASF schema ("ISSNet 2.04"): either the name of the ABRASF
+// layout it is identical to, or a delta on one (types added or changed, names dropped).
+export const PROVIDER_LAYOUTS = Object.keys(data.providers);
+/** The ABRASF layout a provider copy is identical to, or "" if it differs. */
+export const providerSameAs = (key) => (typeof data.providers[key] === "string" ? data.providers[key] : "");
+/** The ABRASF layout a provider copy is built on (identical to, or a delta on). */
+export const providerBase = (key) => providerSameAs(key) || data.providers[key]?.base || "";
+/** What OpenAC.Net.NFSe's municipality list says a city runs: { listed: "Provider versao",
+ *  key: the provider copy read here ("" if none; names matched ignoring case), city: "Name/UF" },
+ *  or null for a city the list does not carry. */
+export function cityProvider(ibge) {
+  const v = data.cities[String(ibge).trim()];
+  if (!v) return null;
+  const [listed, city] = v.split("|");
+  const key = PROVIDER_LAYOUTS.find((k) => k.toLowerCase() === listed.toLowerCase()) ?? "";
+  return { listed, key, city };
+}
+export const CITY_COUNT = Object.keys(data.cities).length;
+
+const resolved = {};
+function layoutOf(key) {
+  if (data.versions[key]) return data.versions[key];
+  if (resolved[key]) return resolved[key];
+  const p = data.providers[key];
+  if (p === undefined) return null;
+  if (typeof p === "string") return (resolved[key] = data.versions[p]);
+  const b = data.versions[p.base];
+  const drop = new Set(p.drop);
+  const keep = (o) => Object.fromEntries(Object.entries(o).filter(([n]) => !drop.has(n)));
+  return (resolved[key] = { namespace: b.namespace, roots: p.roots, complex: { ...keep(b.complex), ...p.complex }, simple: { ...keep(b.simple), ...p.simple } });
+}
+
 const checkers = {};
-const get = (v) => (checkers[v] ||= checker(data.versions[v]));
+const get = (v) => (checkers[v] ||= checker(layoutOf(v)));
 
-/** Root element names a layout declares (GerarNfseEnvio, EnviarLoteRpsEnvio, CompNfse, ...). */
-export const rootsOf = (version) => Object.keys(data.versions[version].roots);
+/** Root element names a layout (or provider copy) declares (GerarNfseEnvio, CompNfse, ...). */
+export const rootsOf = (version) => Object.keys(layoutOf(version)?.roots ?? {});
 
-/** Check `node` (a declared root element) against layout `version`. */
+/** Check `node` (a declared root element) against layout `version` (or a provider copy). */
 export function checkAgainstAbrasf(node, version, path = `/${node.name}`) {
   const out = [];
-  const type = data.versions[version].roots[node.name];
+  const type = layoutOf(version)?.roots[node.name];
   if (!type) return out;
   get(version).checkNode(node, type, path, out);
   return out;

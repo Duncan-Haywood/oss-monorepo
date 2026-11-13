@@ -61,6 +61,11 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   hymns landed: `pange-lingua-full.gabc` (6 verses) and `veni-creator-full.gabc` (7 verses),
   texts from the 1908 pages, by `eval/scan-read-by-eye/build-hymns.mjs`.
 
+- 2026-11-13: song sections (`sections.mjs`, `--sections`, `--outro N`, `sections.test.mjs`, 11 tests): intro, verse,
+  build, drop and outro from the chant's double bars; each energy made from the genre's bar; build bar with an
+  accelerating snare roll and an empty last eighth; a marker per section; a studio-page switch. Rendered, drops sit
+  1.7-3.5 dB above verses on all four genres. Not listened to.
+
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
@@ -78,8 +83,8 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    - (stretching landed above; ear-compare it against padding on two pieces);
    - (half-time mode landed above, `--halftime`; ear check pending);
    - compare the options by ear on two pieces.
-4. **Genre templates as code** (first version landed above; ear check, fills,
-   and transitions between sections remain), each a MIDI drum, bass and harmony generator
+4. **Genre templates as code** (first version landed above; fills and section transitions
+   landed; ear check remains), each a MIDI drum, bass and harmony generator
    keyed to the mode:
    - deep house at 122–124 BPM;
    - EDM and hard rock at 140–150;

@@ -85,6 +85,47 @@ Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (8 tests,
 passing 2026-11-03). On 2026-11-03 the example's output was also read back with
 an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
 
+## Song sections (2026-11-13)
+
+`--sections` (with `--genre`) turns the one groove that ran under the whole chant into a song: intro, verses, builds,
+drops and an outro. The chant supplies the form. Every double bar (`::`) closes a section: a verse of a strophic hymn,
+a whole antiphon, or one pass of `--repeat`. `sections.mjs` turns those cuts into whole bars, merges sections shorter
+than four bars (the simple-tone Te Deum has 28 double bars), makes the first chant section a verse and the last a
+drop, and alternates the ones between, counted back from the last. Intro bars (`--intro N`) and the new
+`--outro N` bars are sections of their own.
+
+`genre.mjs` makes each energy from the genre's own bar by taking parts away, so all four genres get it: the intro
+keeps hats, ride and softer chords; a verse drops the crash and the chord part (the choir carries the harmony) and
+softens drums and bass; a drop is the bar as written, with a crash on its first downbeat; the outro keeps hats and
+chords, then ends on one held chord and a crash. A section that leads into a drop ends on a build bar: kicks on 1 and 2,
+a snare roll that speeds from quarters to sixteenths and swells, bass and chords held under it, and the last eighth
+empty for every part, so the drop lands out of silence. `--fills` skips intro, outro and build bars. Each section gets
+a MIDI marker named after it (DAW locators). The studio page has a "Song sections" switch (two bars of intro and outro).
+
+```
+node cli.mjs corpus/pange-lingua-full.gabc --final 52 --fit 8 --stretch --genre deep-house --sections --intro 2 --outro 2 -o pange.mid
+sections: Intro bar 1-2; Verse 1 bar 3-11 (build); Drop 1 bar 12-20; Verse 2 bar 21-29 (build); Drop 2 bar 30-38; ...; Outro bar 57-58
+```
+
+Measured on the six-verse Pange lingua through the preview renderer, backing only, mean power per section (verse
+bars without their build bar):
+
+| genre | intro | verse | drop | outro |
+|---|---|---|---|---|
+| deep house, 124 BPM | -29.3 dB | -21.1 dB | -19.3 dB | -25.0 dB |
+| EDM, 140 BPM | -31.4 dB | -22.2 dB | -20.5 dB | -27.1 dB |
+| hard rock, 140 BPM | -27.0 dB | -21.0 dB | -17.5 dB | -24.4 dB |
+| metal, 170 BPM | -26.5 dB | -19.3 dB | -16.9 dB | -26.1 dB |
+
+So a drop is 1.7 to 3.5 dB above its verse and the intro 6 to 9 dB below. Whether that is enough lift, and whether
+the air gap before a drop sounds deliberate rather than like a dropout, are ear questions nobody has answered.
+`sections.test.mjs` (11 tests): one section per verse of the six-verse hymn, each starting on its verse's first
+downbeat; the Te Deum merges to sections of 4+ bars; per genre, the intro has no kick, snare or bass, verses have no
+chords or crash, the build's snare gaps shrink and its velocities rise, nothing sounds in the last eighth, the drop
+opens on a crash, the outro ends on a held three-note chord, every pitched note stays in the mode; without
+`--sections` the backing is byte-for-byte what it was; rendered, intro < verse < drop; markers in the file; the CLI
+flags. `eval/browser-e2e.mjs` adds 20 checks (every sample with every genre and sections on): 58, all pass.
+
 ## Mix and master check
 
 ```sh
@@ -142,7 +183,7 @@ final, and refuses a chant wider than the range (`autofinal.test.mjs`, 3 tests).
 Chromium through Playwright: all 6 samples times all 5 backings convert, the MIDI
 (`MThd`) and WAV (`RIFF/WAVE`, not silent) downloads work, Play and Stop toggle,
 bad input and a zero tempo give messages, and there is no sideways scroll at 375 px.
-38 checks, no page error. It cannot hear anything: a person still has to listen.
+38 checks, no page error (58 since 2026-11-13, with song sections). It cannot hear anything: a person still has to listen.
 
 ## Corpus read against the printed book (2026-11-13)
 

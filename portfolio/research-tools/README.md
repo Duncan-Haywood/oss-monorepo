@@ -75,6 +75,7 @@ for the browser-extension, iOS and Android packagers.
 | [`fdr-multiple-testing`](../../ventures/fdr-multiple-testing/) | Benjamini & Hochberg 1995; Benjamini & Yekutieli 2001; Benjamini, Krieger & Yekutieli 2006; Storey 2002; Wang & Ramdas 2022 | I ran many tests: which results still stand, at a chosen false discovery rate or family-wise error rate? |
 | [`synthetic-control`](../../ventures/synthetic-control/) | Abadie & Gardeazabal 2003; Abadie, Diamond & Hainmueller 2010, 2015; Abadie 2021 | Did this intervention change one unit's outcome, by how much, and is the gap unusual against placebo runs on every donor? |
 | [`stl-decomposition`](../../ventures/stl-decomposition/) | Cleveland, Cleveland, McRae & Terpenning 1990; Cleveland 1979; Wang, Smith & Hyndman 2006 | Is it the season or the trend: what are this series' trend, seasonal pattern and remainder, and which points stand out from both? |
+| [`fuzzy-dedupe`](../../ventures/fuzzy-dedupe/) | Fellegi & Sunter 1969; Winkler 1988, 1990; Jaro 1989 | Which rows of this contact or customer file are the same person, even spelled differently, and what does the merged file look like? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
