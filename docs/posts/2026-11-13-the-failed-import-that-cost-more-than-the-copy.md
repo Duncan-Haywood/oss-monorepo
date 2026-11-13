@@ -1,9 +1,9 @@
 ---
 title: "The failed import that cost more than the copy: placing raw tiles on every core"
-seo_title: "Parallel tile placing for DNG raw decoding in Python: numpy copy, GIL and import cost"
+seo_title: "Parallel DNG tile placing in Python: numpy copies and import cost"
 date: 2026-11-13
 tags: [ventures, photo-editing, performance]
-description: "Moving tile placement onto the decode threads made a Pixel 3 XL raw read 1.3-1.4x faster with numpy. Without numpy, a retried failed import first made it slower."
+description: "Placing tiles on the decode threads made a Pixel 3 XL raw read 1.3-1.4x faster with numpy. Without numpy, a retried failed import made it slower."
 ---
 
 ShootFlow, the open-source photo workflow in this repository, reads camera raw
