@@ -2517,3 +2517,96 @@ Caveats: synthetic Bradley-Terry respondents with uniform truth; careless
 means a constant lapse share from the first answer; 40 respondents per
 panel; one threshold (0.1) for the absolute gates and one cut (the median)
 for the rank gate.
+
+## Anchor pairs as the gate's detector (2026-11-13, latest; measured, not shipped)
+
+The section above ended on a detector the answers do not give, and named
+anchor pairs first: the 2026-11-11 anchor section lifted the lapse
+estimate's AUC under staged from 0.56-0.72 to 0.80-0.99. This puts anchors
+into the gated sweep and asks whether the gate now gets near the oracle.
+
+**Design** (`scripts/gated-upper-sweep.ts --every N`, rows in
+`docs/anchor-gated-upper-2026-11-13.jsonl`, 288 cells). The same grid as the
+section above (8/15/30 items x 2/4/8 per item, 40 respondents per panel,
+pooled on an independent panel, careless shares 0/25/50/100%, lapse 0.2 and
+0.4, seed bases 1000 and 50000), both selectors, with one answer in 10 or
+one in 5 an anchor pair (the anchor sweep's rule: the most lopsided pair by
+the person's own ratings, sides at random). Every respondent gets the
+anchors under every rule, so the fixed prior pays for them too. Three new
+gates read the lapse from the anchor answers only:
+
+- **anchor-half**: the rank gate with the anchor estimate (uniform prior).
+- **anchor-tau**: the anchor estimate against the panel's pooled anchor
+  lapse prior, under 0.15.
+- **anchor-mass**: keep the panel's lowest (1 - m) by the anchor estimate,
+  m the pooled anchor prior's mass at or above 0.1 (the panel's own reading
+  of its careless share).
+
+The sweep also reports `spreadRho`: among honest respondents, the Spearman
+correlation of each lapse estimate with the sd of the person's true logits.
+
+**Honest respondents, mean coverage (worst cell) / mean half-width**, over
+the 18 list-and-budget cells:
+
+| anchors | lapse | careless | selector | AUC anchor / own | fixed | gate-half | anchor-half | oracle |
+|---|---|---|---|---|---|---|---|---|
+| 1 in 10 | 0.2 | 50% | staged | 0.66 / 0.70 | 0.958 (0.920) / 2.38 | 0.962 (0.936) / 2.33 | 0.963 (0.939) / 2.33 | 0.960 (0.929) / 2.18 |
+| 1 in 10 | 0.4 | 50% | staged | 0.80 / 0.82 | 0.958 (0.920) / 2.38 | 0.962 (0.929) / 2.30 | 0.963 (0.940) / 2.29 | 0.960 (0.929) / 2.18 |
+| 1 in 10 | 0.4 | 50% | shipped | 0.81 / 0.87 | 0.972 (0.946) / 2.48 | 0.969 (0.945) / 2.30 | 0.966 (0.936) / 2.25 | 0.962 (0.930) / 2.18 |
+| 1 in 5 | 0.2 | 25% | staged | 0.73 / 0.73 | 0.965 (0.929) / 2.40 | 0.968 (0.946) / 2.34 | 0.968 (0.947) / 2.33 | 0.952 (0.923) / 1.98 |
+| 1 in 5 | 0.2 | 50% | staged | 0.76 / 0.76 | 0.964 (0.930) / 2.41 | 0.966 (0.934) / 2.29 | 0.966 (0.937) / 2.28 | 0.959 (0.933) / 2.08 |
+| 1 in 5 | 0.4 | 25% | staged | 0.85 / 0.85 | 0.965 (0.929) / 2.40 | 0.968 (0.946) / 2.33 | 0.968 (0.947) / 2.32 | 0.952 (0.923) / 1.98 |
+| 1 in 5 | 0.4 | 50% | staged | 0.87 / 0.88 | 0.964 (0.930) / 2.41 | 0.965 (0.934) / 2.24 | 0.965 (0.933) / 2.23 | 0.959 (0.933) / 2.08 |
+| 1 in 5 | 0.4 | 50% | shipped | 0.88 / 0.90 | 0.975 (0.959) / 2.53 | 0.969 (0.947) / 2.32 | 0.968 (0.946) / 2.28 | 0.965 (0.944) / 2.23 |
+
+(All 16 rows: run the table in the PR's run record notes, or re-read the
+jsonl.) anchor-tau and anchor-mass pass only 17-36% of honest respondents
+and pool them to an upper end of 1.9-2.0, so they come out at the fixed
+prior's width; with every respondent careless at lapse 0.4 they keep the
+fixed prior's coverage (0.855-0.863) where anchor-half drops to 0.797-0.825
+(worst 0.673).
+
+**The pooled upper end with nobody careless** (all-honest panels, lapse
+irrelevant):
+
+| anchors | selector | everyone (= oracle) | more consistent half (refit) | more consistent half (anchors) | spreadRho own / refit / anchor |
+|---|---|---|---|---|---|
+| 1 in 10 | staged | 1.38 | 1.94 | 1.90 | -0.24 / -0.27 / -0.22 |
+| 1 in 10 | shipped | 1.37 | 1.84 | 1.71 | -0.36 / -0.34 / -0.25 |
+| 1 in 5 | staged | 1.27 | 1.84 | 1.84 | -0.23 / -0.24 / -0.24 |
+| 1 in 5 | shipped | 1.40 | 1.84 | 1.78 | -0.22 / -0.24 / -0.14 |
+
+What it shows:
+
+- **Anchors do not add a separate signal; they add easy pairs.** With
+  anchors in the stream, the estimate from all answers (`own`) reaches the
+  same AUC as the anchor-only one, or higher (0.70-0.90 against
+  0.66-0.88). The 2026-11-11 gain was the anchor pairs making careless
+  answers visible to any estimate, at a mix with lapsers at 0.5; at lapse
+  0.2 the AUC here is 0.63-0.76.
+- **A better detector would not save the rank gate.** Even at AUC 0.85-0.88
+  the anchor rank gate is 4-10% narrower than fixed, the oracle 10-18%.
+  The cause shows on all-honest panels: the more consistent half pools to an
+  upper end of 1.71-1.94 against 1.27-1.40 for everyone, because a
+  consistent person is mostly a person whose items are far apart (every
+  estimate correlates -0.14 to -0.36 with the true spread). Gating on
+  consistency selects on the very spread being pooled. That holds for any
+  detector read from the person's own choices, anchors included.
+- **Anchors cost width.** One in five raises the fixed prior's honest width
+  from 2.34 (no anchors, the section above) to 2.40-2.41 under staged:
+  answers spent on settled pairs; the 2026-11-11 section priced the rank
+  accuracy (flat at 15 items, -0.01 to -0.03 at 30).
+
+**Decision.** Not shipped; no anchors are asked and the intervals keep the
+fixed prior. Gating the pool by a lapse estimate is closed: its failure is
+selection on spread, not detector quality. The way to keep careless people
+from shrinking the pool is to stop gating and model them: pool the spread
+with each person's likelihood carrying their own lapse share (p = e/2 +
+(1 - e) sigma(d), e integrated over the grid), so a coin flip widens the
+lapse term rather than shrinking the spread, and nobody is selected out.
+A detector from outside the choices (answer times) would also escape the
+selection, but needs real answers to test.
+
+Caveats: as the section above (synthetic Bradley-Terry respondents, uniform
+truth, constant lapse from the first answer, 40 per panel), plus one anchor
+rule, two anchor rates, one threshold for anchor-tau and one mass cut.
