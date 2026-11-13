@@ -49,7 +49,7 @@ def run(case, tmp):
     with open(path, 'w') as f:
         f.write(inp(case))
     en = toolkit.ENepanet(version=2.2)
-    en.ENopen(path, os.path.join(tmp, case['name'] + '.rpt'), '')
+    en.ENopen(path, os.path.join(tmp, case['name'] + '.rpt'), os.path.join(tmp, case['name'] + '.bin'))
     en.ENsolveH()
     pressures = {}
     for n in case['nodes']:

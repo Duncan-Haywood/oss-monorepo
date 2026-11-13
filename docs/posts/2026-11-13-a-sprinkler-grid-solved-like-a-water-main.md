@@ -1,6 +1,6 @@
 ---
 title: "A sprinkler grid, solved the way EPANET solves a water main"
-seo_title: "Free sprinkler hydraulic calculator for gridded systems, checked against EPANET"
+seo_title: "Free sprinkler hydraulic calculator for grids, checked against EPANET"
 date: 2026-11-13
 tags: [sprinkler-hydraulic-calc, fire-protection, hydraulics, construction]
 description: "A free hydraulic calculator for tree, looped and gridded sprinkler systems using EPANET's gradient method, matching EPANET 2.2 to 0.00001 psi on 59 networks."
