@@ -62,13 +62,19 @@
       "why": "An initial inputmode sweep idea was dropped after finding wall-framing inputs intentionally accept feet-inches text (a false-positive-prone heuristic).",
       "did": "Picked the STL research-tool candidate instead.",
       "result": "Shipped a verified venture."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged on local verification because GitHub showed no check runs on the PR.",
+      "did": "Ran every check the diff reaches by hand (listed in notes).",
+      "result": "null until the post-merge build"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-13-stl-decomposition-in-the-browser.md"
   ],
   "goal": "research algorithms as tools",
-  "notes": "Explore idea: STL decomposition (portfolio/research-tools candidate) as venture stl-decomposition. Engine from the paper; 9 statsmodels 0.15.0 cases agree on trend/seasonal/resid/weights to 2.6e-11. Finding: Mauna Loa CO2 seasonal swing 6.33 -> 6.66 ppm (1975-84 vs 2016-25), ~0.09 ppm/decade, stable across 4 smoothing settings; STL adjusted within 0.075 ppm mean of NOAA's deseasonalized column. No separate agent doc: the venture README and research-tools README carry what the next run needs (MSTL next).",
+  "notes": "Explore idea: STL decomposition (portfolio/research-tools candidate) as venture stl-decomposition. Engine from the paper; 9 statsmodels 0.15.0 cases agree on trend/seasonal/resid/weights to 2.6e-11. Finding: Mauna Loa CO2 seasonal swing 6.33 -> 6.66 ppm (1975-84 vs 2016-25), ~0.09 ppm/decade, stable across 4 smoothing settings; STL adjusted within 0.075 ppm mean of NOAA's deseasonalized column. No separate agent doc: the venture README and research-tools README carry what the next run needs (MSTL next). Verification (PR had no check runs when merged, so local): stl-decomposition node --test 41/41; changepoint-detector suite ok (225 s); platform/pages/build.test.mjs 312/312; siblings.test.mjs 20/20 and siblings --check 0 orphans; optout-persistence count bumped; check_calendar_dates, check_csv_formula_guard, check_post_frontmatter, check_post_links ok; run_workflow_locally --for-changes: 10/13 workflows passed before fixes; the failures (sibling-links, changed-ventures python checks) were fixed and rerun as above; pages.yml build steps skipped locally and agent-review/deploy jobs held (secrets).",
   "corrections": [],
   "redteam": null,
   "usage": {
