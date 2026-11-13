@@ -155,3 +155,9 @@ test("the comparison page carries the disclaimer and links back to the tool", ()
   assert.match(vsPage, /<strong>No warranty\.<\/strong>/);
   assert.match(vsPage, /href="\.\/"/);
 });
+
+test("finding text (which quotes the pasted token) is never written with innerHTML (quality audit 2026-11-13)", () => {
+  const js = scripts.join("\n");
+  assert.ok(!/innerHTML\s*=\s*`[^`]*\$\{/.test(js), "no innerHTML template with interpolated values");
+  assert.match(js, /createTextNode\(f\.detail\)/);
+});

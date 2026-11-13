@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKjD9Nkwx85GZatridd",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T15:00:05Z",
+  "ended": "2026-11-13T15:08:08Z",
+  "wall_minutes": 8.35,
+  "tokens_in": 10905564,
+  "tokens_out": 115600,
+  "cost_usd": 7.0649,
+  "tool_calls": 140,
+  "task": "quality round 66, mode sample, seed 2026-11-13-l",
+  "projects": [
+    "ventures/jwt-security-check",
+    "ventures/laundromat-machine-payback-calculator",
+    "research/chip-cse-style",
+    "research/house-adufees",
+    "ventures/mcp-config-risk-check",
+    "ventures/skill-manifest-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15517",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "One commit (b010a8e72) swept in the jwt auditor's half-written audit file (invalid JSON) because I ran git add on the audits directory while an auditor was still writing; the next commit replaced it with the validated version before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Parallel auditors write into the shared audits/ directory; nothing warns the lead not to git add the directory until every auditor has reported. Committing per file by name avoids it."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "'Load the served page at https://marisstella.app/<slug>/' cannot be done from cloud sessions: all three auditors got a proxy 403 / ENOTFOUND, so served-page checks were recorded as partial."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook also refuses a command where the bracketed pattern text appears elsewhere on the line (for example in the command that started the server); kill $! is simpler for a server you started yourself."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 scopes fixes to the audited subjects; the jwt XSS pattern was a family defect, so I scanned all venture pages and fixed the two sister paste-and-check tools (mcp-config-risk-check, skill-manifest-check) whose pasted input reached innerHTML.",
+      "did": "Fixed both with page tests, confirmed old page vulnerable and new page safe in headless Chromium.",
+      "result": "Two more live XSS bugs closed; 12 lower-risk scan hits listed below, unreviewed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-66.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-13-l, round 66, mode sample. Subjects: ventures/jwt-security-check, ventures/laundromat-machine-payback-calculator, research/chip-cse-style, research/house-adufees (all never audited). Share meeting the bar: 0 of 4; overall sampled 31 of 278 (Wilson 8%-15%). Seeded mutations caught 10 of 20. Fix PR: #15517 (same PR) for all four subjects plus mcp-config-risk-check and skill-manifest-check. Spot-checks I ran myself: laundromat $4,800 -> install 4 (reproduced); house-adufees 3380+1.01*7000=10450 and 6250-lot figures (reproduced); jwt RFC 7519 6.1 token -> only invalid-structure (reproduced) and XSS token in headless Chromium (0 elements after fix); chip results.txt cells (right 128 vs gen 112 under dch_map, read) and run.py byte-identical after fix; house-adufees run.py byte-identical after fix. Tests: jwt 70/70, laundromat 28/28, mcp-config 82/82, skill-manifest 58/58, house-adufees 13/13, chip 3/3. validate: 318 audit files, 0 problems. Unreviewed innerHTML scan hits: ventures/backup-verification-evidence/index.html | message || ventures/coffee-roaster-margin-calculator/index.html | r.cheapestSingleOrigin ? \" (\" + esc(r.cheapestSingleOrigin.name) + \")\" : \"\" || ventures/commissary-kitchen-cost-split-calculator/index.html | t.name || ventures/google-ads-editor-csv-check/index.html | s.keywords; s.keywords === 1 ? \"\" : \"s\" || ventures/llm-api-pricing-calculator/index.html | r.name || ventures/mcp-config-risk-check/index.html | f.detail || ventures/retainage-cashflow-calculator/index.html | $('due').value.trim()||'date not provided'; $('invoice').value.trim()||'Invoice reference not provided'; $('payer').value.trim()||'Payer / GC not prov || ventures/sepa-pain001-validator/index.html | s.version ? esc(s.version) : \"unrecognised message\" || ventures/skill-manifest-check/index.html | f.detail || ventures/sms-segment-cost-calculator/index.html | volume.messagesPerMonth.toLocaleString(\"en-US\") || ventures/time-tracker/index.html | data.settings.name ? esc(data.settings.name) + \"<br>\" : \"\"; sel.value ? \"Client: \" + esc(sel.value) : \"All clients\" || ventures/trump-account-calculator/index.html | result.withdrawalAgeUsed || ventures/vector-db-cost-calculator/index.html | r.name || ventures/vpat-acr-generator/index.html | c.name",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5b35c5c9-389a-5954-9742-ad2b53d8c6ff",
+    "transcripts": 5,
+    "first": "2026-11-13T15:00:05Z",
+    "last": "2026-11-13T15:08:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 133,
+        "input": 273,
+        "output": 115600,
+        "thinking": 24249,
+        "cache_read": 10429572,
+        "cache_write_5m": 379957,
+        "cache_write_1h": 95762,
+        "api_equivalent_usd": 7.0649,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 133,
+      "input": 273,
+      "output": 115600,
+      "thinking": 24249,
+      "cache_read": 10429572,
+      "cache_write_5m": 379957,
+      "cache_write_1h": 95762,
+      "api_equivalent_usd": 7.0649,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 140,
+    "tools": {
+      "Bash": 110,
+      "WebFetch": 6,
+      "ToolSearch": 5,
+      "Read": 5,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "WebSearch": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.35,
+      "active_minutes": 5.63,
+      "model_minutes": 4.66,
+      "tool_minutes": 0.97,
+      "waiting_on_human_minutes": 2.72,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 15.59
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four audits with independent recomputations plus five fixes and browser checks, about 2-2.5 h each for a senior reviewer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 141.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

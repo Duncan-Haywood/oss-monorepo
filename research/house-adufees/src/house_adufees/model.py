@@ -11,7 +11,6 @@ from pathlib import Path
 DATA = Path(__file__).resolve().parents[2] / "data"
 STEPS = ("2026-01-01", "2026-07-01")
 LOCATIONS = ("inside Denver", "outside Denver")
-SEWER_AND_OTHER_2000 = None  # computed in residual()
 
 
 def schedule():
