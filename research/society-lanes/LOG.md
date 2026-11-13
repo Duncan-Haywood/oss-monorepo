@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-13 · Milestone 7 (taken early): do pedestrians keep right outside the lab, and does the side follow the local road rule? (predictions written before any in-the-wild trajectory was analysed)
+- Why now: milestone 2 needs BaSiGo 2013 from ped.fz-juelich.de, which the cloud session's egress proxy refused (HTTP 403 on CONNECT, also doi.org). The OpenTraj collection (Amirian et al. 2020, github.com/crowdbotp/OpenTraj, commit 97ec1d5e) is reachable and mirrors the ETH/Hotel (Zurich, 2009) and UCY Zara (Nicosia) trajectories, which is milestone 7's data. Taken out of order; milestone 2 stays next once the archive answers.
+- The contrast the proposal did not plan: Switzerland drives on the right and Cyprus on the left (Kincaid 1986, *The Rule of the Road*). If the corridor convention of milestone 1 is a local norm rather than a human universal, it should differ between the two cities.
+- Measure (fixed before running): head-on encounters. Two pedestrians, not listed in the same group in `groups.txt`, both moving faster than 0.3 m/s, headings more than 135 degrees apart, approaching, with closest approach under 2.0 m inside their shared time window. At closest approach each walker sees the other on their left (the pair kept right), on their right (kept left), or the two disagree (dropped, counted). Share kept right per scene, 95% interval by a block bootstrap over 60 s time blocks. Sensitivity: closest approach 1.5 and 3.0 m, heading gap 150 degrees.
+- Orientation: passing side depends on the handedness of the world frame. Each scene's `H.txt` maps image pixels to world metres; the image (u right, v down) is an unmirrored view of the ground from above, so the world frame is right-handed seen from above if and only if the image-to-world Jacobian has negative determinant. The projection is checked by drawing the world tracks back onto each scene's reference frame before any side is counted.
+- Method check on lab data: the same encounter code on the HERMES 2D runs (OpenTraj mirror of the milestone 1 files).
+- **Predictions:**
+  - W0 (method check): encounter keep-right share in the five HERMES free-choice runs is at least 0.85, and in the assigned-exit runs within 0.40 to 0.65. Prior 75%.
+  - W1: in Zurich (ETH and Hotel pooled) the keep-right share exceeds 0.5 with the 95% interval excluding 0.5. Prior 60%.
+  - W2: in Nicosia (Zara01 and Zara02 pooled) the keep-right share is lower than in Zurich, with the difference's 95% interval excluding 0. Prior 45%.
+  - W3: in Nicosia the keep-right share is below 0.5 with the interval excluding 0.5 (a keep-left norm). Prior 25%.
+  - W4: the Zurich in-the-wild share is lower than the HERMES free-choice encounter share (open pavement against a closed corridor). Prior 75%.
+
 ## 2026-11-13 · Milestone 1: do people in a real bidirectional corridor keep to their right, and how lane-ordered is the flow? (predictions written before any trajectory was analysed)
 - Why: every `society-*` result on robots and passing side so far (`society-robotnorms`, `society-plaza`, `society-twinfidelity`, `society-sidefit`) rests on a side bias that was assumed or read off a figure (17.5% left, Moussaïd et al. 2009, Fig. 4). Before any robot is added, the programme needs the human baseline measured from real trajectories: how strongly people hold their right, and how much lane order forms, in the setting the robot simulations will later be calibrated against.
 - Data: the HERMES bidirectional corridor experiments (Düsseldorf, 2009; Forschungszentrum Jülich pedestrian data archive, DOIs 10.34735/ped.2009.12 free choice, .11 symmetric, .10 asymmetric), 24 runs, 50 to 309 participants, trajectories at 16 fps from overhead stereo cameras. The corridor runs along y (walls at x = 0 and x = 3.0 or 3.6 m, measured section y = -4 to 4 m). Data are fetched by script and not redistributed; only derived statistics are committed.
