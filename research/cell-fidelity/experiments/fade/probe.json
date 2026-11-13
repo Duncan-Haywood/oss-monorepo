@@ -1,0 +1,61 @@
+{
+ "Ai2020@0.625x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.6954392319999556,
+   "error": null,
+   "r_min": 0.07180638906830751,
+   "current_A": 2.4798563777994147
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.0613732629999504,
+   "error": null,
+   "r_min": 0.16295456514547227,
+   "current_A": 2.4798563777994147
+  }
+ },
+ "NCA_Kim2011@0.75x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.6791561430000002,
+   "error": null,
+   "r_min": 0.03794714330812199,
+   "current_A": 1.0223953261927945
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8324261380000166,
+   "error": null,
+   "r_min": 0.048076796571824,
+   "current_A": 1.0223953261927945
+  }
+ },
+ "OKane2022@1.75x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.6718115279999779,
+   "error": null,
+   "r_min": 0.10329770943046156,
+   "current_A": 8.75
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.9654394039999943,
+   "error": null,
+   "r_min": 0.14430435456790208,
+   "current_A": 8.75
+  }
+ },
+ "kept": [
+  "Ai2020@0.625x",
+  "NCA_Kim2011@0.75x",
+  "OKane2022@1.75x"
+ ]
+}
