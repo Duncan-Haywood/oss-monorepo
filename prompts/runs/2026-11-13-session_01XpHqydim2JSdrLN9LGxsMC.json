@@ -39,6 +39,10 @@
     {
       "file": "prompts/creative/prompt-0.md",
       "issue": "The audio cap (400 MB) has been exceeded for many runs (423 MB today), so every run is text only; the prompt still describes audio as the default deliverable."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes reported ventures-tests 'node --test in each touched venture' as FAIL while printing '4 suites run, 0 failed': the red came from the unwired test_no_dead_pages_base.py reading a gitignored platform/pages/dist file that the same local run's pages build had just written; it passes once dist/ is removed. A local sweep should not fail on its own build output."
     }
   ],
   "deviations": [
@@ -53,7 +57,7 @@
     "docs/posts/2026-11-13-two-ends-of-a-broken-cable.md"
   ],
   "goal": null,
-  "notes": "Project: Hearth & Horizon (science fiction shelf). Piece: the-step-that-goes-up (5,470 words incl. note), text only (audio 423 MB > 400 MB cap). Security queue empty; IDEAS.md and website requests empty; routed creative by weighted draw. Verification: node --test in ventures/hearth-and-horizon 15/15 pass; check_post_frontmatter, check_post_links pass; post_similarity 0 pairs >= 0.25. Adversarial re-read fixed 6 slips before commit (grapnel depth vs elapsed time, cable km vs list km, 'two weeks' vs eight days, length rounding, depth claimed before location known, mud source).",
+  "notes": "Project: Hearth & Horizon (science fiction shelf). Piece: the-step-that-goes-up (5,470 words incl. note), text only (audio 423 MB > 400 MB cap). Security queue empty; IDEAS.md and website requests empty; routed creative by weighted draw. Verification: node --test in ventures/hearth-and-horizon 15/15 pass; check_post_frontmatter, check_post_links pass; post_similarity 0 pairs >= 0.25. Adversarial re-read fixed 6 slips before commit (grapnel depth vs elapsed time, cable km vs list km, 'two weeks' vs eight days, length rounding, depth claimed before location known, mud source). Local run_workflow_locally --for-changes: 9/11 workflows passed; pages.yml no verdict (site build skipped); ventures-tests red only from test_no_dead_pages_base on a gitignored dist/ artifact of the local build, OK after rm -rf platform/pages/dist; run_venture_tests --since base: 4 suites, 0 failed.",
   "corrections": [],
   "redteam": null,
   "usage": {
