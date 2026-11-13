@@ -31,8 +31,23 @@ const root = process.cwd();
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 const BUTTON = /calculat|compute|check|run|generat|estimate|plan|show|build|go\b|update|submit|price|quote/i;
 const SKIP_BUTTON = /clear|reset|delete|remove|print|copy|download|share|example|sample|demo/i;
-const ERROR = /\bNaN\b|invalid|not a (valid )?number|enter a (valid )?(number|amount)|must be a number|please enter|numbers? only|could not read|can't read|cannot read/gi;
+const ERROR = /\bNaN\b|invalid|not a (valid )?number|enter a (valid )?(number|amount)|must be a number|please enter|numbers? only|could not read|can't read|cannot read|must be (between|a whole|at least|from)|should be (a whole|between)|digits only/gi;
 const SEL = 'input[inputmode=decimal]:not([type]), input[inputmode=numeric]:not([type]), input[inputmode=decimal][type=text], input[inputmode=numeric][type=text]';
+
+// Fields triaged by hand: no real value reaches 1,000, so "2,500" there is a
+// typo whatever the page does with it. Reviewed 2026-11-13.
+const SMALL = 'no real value reaches 1,000';
+export const ALLOWED = {
+  'ventures/estimate-maker/index.html': { 'i-validdays': SMALL, 'i-tax': 'a percent' },
+  'ventures/proposal-maker/index.html': { 'i-validdays': SMALL, 'i-tax': 'a percent', 'i-depval': 'a percent', 't-rounds': 'revision rounds', 't-net': 'net payment days' },
+  'ventures/invoice-maker/index.html': { 'i-tax': 'a percent', 'i-latepct': 'a percent per month' },
+  'ventures/freelance-dashboard/index.html': { rate: 'a set-aside percent, capped at 70' },
+  'ventures/freelance-contract-maker/index.html': { 'f-depositPct': 'a percent', 'f-payDays': 'payment days', 'f-lateFeePct': 'a percent', 'f-revisions': 'revision rounds', 'f-noticeDays': 'notice days' },
+  'ventures/freelance-proposal-maker/index.html': { 'f-depositPct': 'a percent' },
+  'ventures/shift-roster-builder/shifts-from-sales.html': { shortcost: 'a cost ratio, 1 to about 5' },
+  'ventures/league-schedule-generator/index.html': { rounds: 'rounds of a season' },
+  'ventures/ebike-rental-fleet-profit-calculator/index.html': { f_peakDays: 'days in a year, already range-checked', f_offDays: 'days in a year, already range-checked' },
+};
 
 export function lineDiff(a, b) {
   const x = a.split('\n'), y = b.split('\n');
@@ -131,6 +146,7 @@ async function main() {
   await Promise.all([1, 2, 3, 4, 5, 6].map(worker));
   await browser.close();
   server.close();
+  for (const h of hits) if (h[2] === 'silent' && ALLOWED[h[0]]?.[h[1]]) h[2] = `allowed (${ALLOWED[h[0]][h[1]]})`;
   const silent = hits.filter((h) => h[2] === 'silent');
   console.log(`${files.length} pages, ${fieldsTried} numeric text fields tried; ${silent.length} silent, ${hits.filter((h) => h[2] === 'rejects').length} rejects, ${hits.filter((h) => h[2] === 'error').length} errors`);
   for (const h of hits) console.log(JSON.stringify(h));
