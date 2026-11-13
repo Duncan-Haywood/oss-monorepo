@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 28,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "clippy -D warnings: collapsible match and type complexity",
       "fix": "match guard and a Parsed type alias"
+    },
+    {
+      "what": "first CI round red: sibling-links (no inbound sibling), check_js_syntax (self-import fixture redeclared its binding), check_pages_links/pages check (the page's example import strings read as dead links), optout-persistence pinned count 1323, no launch date, catch-all category grew to 6",
+      "fix": "dupehound links cyclehound; valid self-import fixture; example strings built by a helper and the FAQ quote entity-escaped; constant raised with a graduation note; launched.mjs --write; cyclehound added to the developer-tools category beside dupehound"
     }
   ],
   "integrity_issues": [],
@@ -54,6 +58,10 @@
     {
       "file": "portfolio/opinions/2026-10-29-dev-tools-in-rust.md",
       "issue": "the import-graph candidate suggested building on oxc; a lexer proved enough (edge-for-edge with madge), worth saying for the next Rust candidate before pulling in a heavy parser crate"
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "a new venture trips six separate repo-wide gates (sibling link, launch date, opt-out count, category rule, link checkers reading example code in inline scripts, fixture syntax sweep) that no checklist lists together; a 'new venture' preflight script running them would save a CI round"
     }
   ],
   "deviations": [
@@ -69,7 +77,7 @@
     "ventures/cyclehound/BENCHMARK.md"
   ],
   "goal": "Direction: dev tools in Rust, common and niche",
-  "notes": "Idea: cyclehound (import-graph/circular-import checker in Rust; CLI + wasm page). Measured madge 8.0.0 14.1-17.8 s/327-363 MB and dependency-cruiser 16.10.4 51.8 s/2,272 MB on ventures/ (11,422 .mjs files); cyclehound 0.19-0.26 s/17-20 MB. Graph identical to madge with --no-require (11,422 nodes, 9,417 edges); vs depcruise with --no-type every edge shared, depcruise extra = 11 CSS imports. Repo has 31 files in 9 load-time cycle components; all 22 .mjs ones load cleanly from any entry (latent, not bugs). No separate docs/reports agent doc: README Limits + opinion piece carry the next steps (tsconfig paths, CI gate). Local checks: cargo test 13 pass, clippy/fmt clean, node tests 15 pass, Playwright page check clean.",
+  "notes": "Idea: cyclehound (import-graph/circular-import checker in Rust; CLI + wasm page). Measured madge 8.0.0 14.1-17.8 s/327-363 MB and dependency-cruiser 16.10.4 51.8 s/2,272 MB on ventures/ (11,422 .mjs files); cyclehound 0.19-0.26 s/17-20 MB. Graph identical to madge with --no-require (11,422 nodes, 9,417 edges); vs depcruise with --no-type every edge shared, depcruise extra = 11 CSS imports. Repo has 31 files in 9 load-time cycle components; all 22 .mjs ones load cleanly from any entry (latent, not bugs). No separate docs/reports agent doc: README Limits + opinion piece carry the next steps (tsconfig paths, CI gate). Local checks: cargo test 13 pass, clippy/fmt clean, node tests 15 pass, Playwright page check clean. CI round 1 failed on new-venture gates (see errors), all fixed in the same PR.",
   "corrections": [],
   "redteam": null,
   "usage": {
