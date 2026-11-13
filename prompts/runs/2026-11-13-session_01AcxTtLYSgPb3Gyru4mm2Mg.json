@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First built the whole lensfun distortion slice (own module, tests, CLI) in parallel with session_01EhTJVL1AkctBrPoK1SFB5b, whose PR #15302 on the same item was opened 2 min after this session started and before this session's draft PR; claim_check said yield. Rebased onto #15302 and kept only what it lacked (TCA, maker-note lens name). About 40% of the session's build time was duplicate."
+    "First built the whole lensfun distortion slice (own module, tests, CLI) in parallel with session_01EhTJVL1AkctBrPoK1SFB5b, whose PR #15302 on the same item was opened 2 min after this session started and before this session's draft PR; claim_check said yield. Rebased onto #15302 and kept only what it lacked (TCA, maker-note lens name). About 40% of the session's build time was duplicate.",
+    "Merging main after PR #15302's squash merge conflicted in six files; I read only `tail -3` of git's output, saw one CONFLICT, resolved it, and committed and pushed the other five files with conflict markers. Caught by the next test run and fixed in the following commit, before any merge."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
       "file": "CLAUDE.md",
       "why": "'Merge it yourself' in every session: this PR stacks on PR #15302 (another session's, still open with lint fixes in flight), so merging it first would also land #15302's commits under this PR.",
       "did": "Waited for #15302 to merge, then merged main and this PR (see notes).",
-      "result": null
+      "result": "#15302 landed about 3 min after I started waiting; main merged in, then this PR merged on green CI."
     }
   ],
   "writeups": [
