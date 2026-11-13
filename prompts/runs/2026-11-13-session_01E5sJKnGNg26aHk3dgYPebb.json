@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnGNg26aHk3dgYPebb",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T17:18:39Z",
+  "ended": "2026-11-13T17:25:18Z",
+  "wall_minutes": 6.8,
+  "tokens_in": 3940101,
+  "tokens_out": 28720,
+  "cost_usd": 2.3392,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15559",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First run of operator_demand.py summed the decision error with the opposite sign to its docstring and produced NaN e_k for operators with a zero-weight pair; caught on reading the output, fixed, rerun; predictions unchanged and disclosed in LOG, README and post."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to search open PRs with search_pull_requests; that MCP tool is not available in cloud sessions (system prompt says search_* tools are absent), list_pull_requests worked instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (land open research PRs first): left #15442 (hanger-codesign WIP draft) and #15554 (theism, opened 17:09 by an active sibling) alone, since both are drafts other sessions own.",
+      "did": "Advanced the drawn programme instead.",
+      "result": "No conflict; milestone 11m landed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-drone-layers-one-operators-demand.md",
+    "research/aerolog-scaling/LOG.md (11m entry)"
+  ],
+  "goal": null,
+  "notes": "Programme aerolog-scaling, milestone 11m: operator-by-operator census/real demand swaps on 24 layouts. 4 of 8 predictions held (one only by the letter). Checks: project tests 88 passed, build.py ok, research_live_links 0 updates, check_md_links ok, post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46eeb797-be2f-5084-b938-0884d6d09b63",
+    "transcripts": 1,
+    "first": "2026-11-13T17:18:39Z",
+    "last": "2026-11-13T17:25:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 71,
+        "output": 28720,
+        "thinking": 6922,
+        "cache_read": 3814833,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125197,
+        "api_equivalent_usd": 2.3392,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 71,
+      "output": 28720,
+      "thinking": 6922,
+      "cache_read": 3814833,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125197,
+      "api_equivalent_usd": 2.3392,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 33,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.8,
+      "active_minutes": 6.8,
+      "model_minutes": 4.52,
+      "tool_minutes": 2.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researcher designing, coding and writing up one pre-registered diagnostic experiment",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 256.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
