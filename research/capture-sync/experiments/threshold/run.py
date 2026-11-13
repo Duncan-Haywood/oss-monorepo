@@ -28,6 +28,7 @@ import wave
 from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
+from scipy.signal import fftconvolve
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
@@ -83,8 +84,8 @@ def run_cell(args):
             i = int(rng.integers(0, len(speech) - need))
             seg = speech[i:i + need]
         if rt > 0:
-            xa = np.convolve(seg, rir(rt, rng))[:need]
-            xb = np.convolve(seg, rir(rt, rng))[:need]
+            xa = fftconvolve(seg, rir(rt, rng))[:need]
+            xb = fftconvolve(seg, rir(rt, rng))[:need]
         else:
             xa, xb = seg, seg
         p0 = pad + int(PRIOR * FS) + G  # a's window starts here (source time)

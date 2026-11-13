@@ -31,6 +31,7 @@ import numpy as np
 from scipy.special import log_ndtr
 
 FS = 16000
+_trapz = getattr(np, "trapezoid", None) or np.trapz  # numpy < 2 has only trapz
 
 
 def welch(a, b, fs=FS, nperseg=512):
@@ -84,7 +85,7 @@ def p_fail(mu, s0, s1, f, P, span_s, model="cells", n=801):
         logF = log_ndtr(z) - span_s * nu * np.exp(-0.5 * z ** 2)
     else:
         raise ValueError(model)
-    ok = np.trapezoid(dens * np.exp(logF), x)
+    ok = _trapz(dens * np.exp(logF), x)
     return float(min(1.0, max(0.0, 1.0 - ok)))
 
 
