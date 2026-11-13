@@ -259,32 +259,20 @@ flagships:
       (clearPick.ts), "it's between" as a 95% credible set at min(own EB prior
       sd, stored survey pooled sd) (favouriteSet.ts, surveyPrior*.ts); on real
       PrefLib rankings clear picks wrong 5 of 860, set holds 97-100%. Staged
-      is the server default up to 120 items (pairing.ts; "Staged as the
-      default up to 120 items"); its one cost is whole-session coin flippers
-      at 40-50% of a panel (-0.006 to -0.025). Tried and not shipped
-      (doc sections named): Student-t prior for the intervals, the
-      self-consistency gate, and the pooled sd's upper end
-      (pooledPriorPhiUpper, unwired; 15% narrower for honest panels, unsafe
-      with careless ones). 2026-11-13 later ("A lapse gate for the upper
-      end"): a perfect careless detector would make it safe (honest
-      0.957-0.961 at 10-12% less width), but the answers' lapse estimates
-      reach AUC 0.58-0.69 under staged and a rank gate buys only 1-4%. Anchor pairs as the
-      detector (2026-11-13, latest, "Anchor pairs as the gate's detector"):
-      AUC 0.85-0.88 at 1 in 5, but gating on consistency selects
-      wide-spread people (consistent half of an all-honest panel pools to
-      1.71-1.94 vs 1.27-1.40), so gates are closed. A pooled fit that models
-      each person's lapse (2026-11-13, last, "A pooled spread that models the
-      lapse"; lapsePool.ts, unwired): free lapse weights leave a spread-lapse
-      ridge, so its upper end sits at the ceiling (safe, no gain); a Beta(1,
-      19) lapse prior acts as the blind pool (unsafe). Narrowing the pooled
-      prior now needs a careless signal from outside the choices (c). Next,
-      most valuable first: (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
-      them?); (c) the first real survey's answers: msToAnswer against the
-      answer-time model, and how noisy real pairwise answers are, which
-      decides the self-consistency gate (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d) position bias that
-      starts mid-session; (e) the switch rule above 120 items (then make staged
-      the default there too).
+      is the server default up to 120 items (pairing.ts). Pooled-prior
+      narrowing of the pairwise intervals is closed from the choices alone
+      (2026-11-13, doc sections "A lapse gate for the upper end", "Anchor
+      pairs as the gate's detector", "A pooled spread that models the lapse"):
+      gates select on spread, and a lapse-modelled pool sits on a spread-lapse
+      ridge (safe at the ceiling, or unsafe with a tight lapse prior); it now
+      needs a careless signal from outside the choices, (c). Next, most
+      valuable first: (b) half-time salience (q = 0.5 still leaks +0.12 to
+      +0.29: does pace see them?); (c) the first real survey's answers:
+      msToAnswer against the answer-time model (and as a careless detector for
+      the pooled prior), and how noisy real pairwise answers are, which decides
+      the self-consistency gate (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d) position bias that starts mid-session; (e) the
+      switch rule above 120 items (then make staged the default there too).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
