@@ -1,0 +1,34 @@
+{
+  "note": "Where each corpus piece is printed in a pre-1929 scan on archive.org. leaf = the n-number in archive.org/download/<item>/page/n<leaf>.jpg; staves = first and last staff of the piece on that page (1 = top). clefLine = GABC letter index of the clef line (c4 = 9) for naming notes in the report.",
+  "pieces": [
+    {
+      "name": "Dies irae",
+      "gabc": "corpus/dies-irae.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "clefLine": 9,
+      "pages": [
+        { "page": "83*", "leaf": 874, "staves": [5, 9] },
+        { "page": "84*", "leaf": 875 },
+        { "page": "85*", "leaf": 876 },
+        { "page": "86*", "leaf": 877, "staves": [1, 4] }
+      ]
+    },
+    {
+      "name": "Veni Creator (verse 1)",
+      "gabc": "corpus/veni-creator.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "clefLine": 7,
+      "pages": [{ "page": "121*", "leaf": 912, "staves": [3, 4] }]
+    },
+    {
+      "name": "Pange lingua (verse 1)",
+      "gabc": "corpus/pange-lingua.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "clefLine": 9,
+      "pages": [{ "page": "123*", "leaf": 914, "staves": [1, 3] }]
+    }
+  ]
+}
