@@ -30,14 +30,14 @@ test("a site at an origin root governs its own robots.txt", () => {
 });
 
 test("a GitHub Pages project site does not, and the report names the repo that does", () => {
-  const report = assess({ siteUrl: "https://marisstella.app/" });
+  const report = assess({ siteUrl: "https://duncan-haywood.github.io/monorepo-projects/" });
   assert.equal(report.governs, false);
   assert.equal(report.verdict, "does-not-govern");
   assert.equal(report.hostKind, "github-pages");
   assert.equal(report.site.governingRobotsUrl, "https://duncan-haywood.github.io/robots.txt");
   assert.equal(
     report.site.publishedRobotsUrl,
-    "https://marisstella.app/robots.txt",
+    "https://duncan-haywood.github.io/monorepo-projects/robots.txt",
   );
 
   const notYours = report.findings.find((f) => f.id === "robots-not-yours");
@@ -315,12 +315,12 @@ test("the portfolio's own published catalogue reproduces the documented defect",
   // `subpath-robots`). Asserting it here keeps the tool's headline claim
   // pinned to a real, checkable instance rather than a constructed one.
   const report = assess({
-    siteUrl: "https://marisstella.app/",
+    siteUrl: "https://duncan-haywood.github.io/monorepo-projects/",
     publishedRobots: [
       "User-agent: *",
       "Allow: /",
       "",
-      "Sitemap: https://marisstella.app/sitemap.xml",
+      "Sitemap: https://duncan-haywood.github.io/monorepo-projects/sitemap.xml",
     ].join("\n"),
   });
   assert.equal(report.verdict, "does-not-govern");

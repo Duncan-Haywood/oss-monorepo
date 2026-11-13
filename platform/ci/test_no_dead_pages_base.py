@@ -44,8 +44,12 @@ class NoDeadPagesBase(unittest.TestCase):
         pyproject Homepage, an email footer) still named the dead base. The Pages build rewrites served HTML, but the
         self-deploy bundles (platform/deploy/build.mjs), packages and CLI output carry the raw files, so a self-hoster's
         sitemap and every probe's contact link pointed at a 404. Use https://marisstella.app/<slug>/."""
+        # subpath-robots-check's worked example is this very path: a project site whose robots.txt nobody reads.
+        allowed = ("ventures/subpath-robots-check/",)
         hits = []
         for p in (ROOT / "ventures").rglob("*"):
+            if p.relative_to(ROOT).as_posix().startswith(allowed):
+                continue
             if not p.is_file() or "node_modules" in p.parts or p.suffix in {".png", ".jpg", ".woff2", ".ico", ".pdf", ".stl", ".gz"}:
                 continue
             try:
