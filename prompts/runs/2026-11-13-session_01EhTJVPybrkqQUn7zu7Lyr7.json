@@ -37,13 +37,20 @@
       "issue": "The buildable note suggested 'separable passes' for the cubic warp; a warp's source point moves in x and y together, so that route does not exist. The cost was in 2-D fancy-index gathers. Rewritten in this PR."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Skipped venture-preflight.mjs: the change is engine code, tests and docs; no page, site file or VENTURE.yaml of photo-editing changed, so the site-wide checks it runs cannot be affected.",
+      "did": "ran the venture's full suite, ruff, run_workflow_locally --for-changes and PR CI instead",
+      "result": "all green on PR CI"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-13-a-sharper-lens-warp-for-free.md",
     "ventures/photo-editing/eval/warp-kernel-fast-cubic-2026-11-13.md"
   ],
   "goal": null,
-  "notes": "Numpy cubic warp: edge-padded planes plus shifted-view take for the 16 taps, 64-row bands on a thread pool (SHOOTFLOW_THREADS). Leica T develop SHA-256 identical before/after at 1, 2 and 4 threads for no-warp, bilinear and cubic. Cubic warp cost 15.7 s -> 8.4 s (1 thread), 3.0 s (4 threads). Default kernel switched to cubic in DevelopSettings and the CLI. Local checks: photo-editing unittest suite via pytest 879 passed, 5 skipped; ruff clean; mypy shows one pre-existing error in raw_develop_np.py:295 (untouched file, numpy-stub dependent).",
+  "notes": "Numpy cubic warp: edge-padded planes plus shifted-view take for the 16 taps, 64-row bands on a thread pool (SHOOTFLOW_THREADS). Leica T develop SHA-256 identical before/after at 1, 2 and 4 threads for no-warp, bilinear and cubic. Cubic warp cost 15.7 s -> 8.4 s (1 thread), 3.0 s (4 threads). Default kernel switched to cubic in DevelopSettings and the CLI. Local checks: photo-editing unittest suite via pytest 879 passed, 5 skipped; ruff clean; mypy shows one pre-existing error in raw_develop_np.py:295 (untouched file, numpy-stub dependent). PR CI all green on head; run_workflow_locally --for-changes: no failures, portfolio-pages site-builder test ran out of local budget, deploy/review jobs not run locally.",
   "corrections": [],
   "redteam": null
 }
