@@ -6,6 +6,8 @@ import {
   BOOKING_WINDOWS,
   DAMAGE_RESPONSIBILITY_CAP,
   HOST_SHARE,
+  FLAT_HOST_SHARE,
+  VARIABLE_SHARE_MARKETS,
   hostShareFor,
   computeTripPayout,
   comparePlans,
@@ -14,14 +16,14 @@ import {
 } from "./calc.mjs";
 
 test("hostShareFor reads the plan x window matrix directly", () => {
-  assert.equal(hostShareFor("peace_of_mind", "0_2"), 0.65);
-  assert.equal(hostShareFor("balanced", "14_27"), 0.85);
-  assert.equal(hostShareFor("more_earnings", "28_plus"), 1.0);
+  assert.equal(hostShareFor("peace_of_mind", "0_2", "variable"), 0.65);
+  assert.equal(hostShareFor("balanced", "14_27", "variable"), 0.85);
+  assert.equal(hostShareFor("more_earnings", "28_plus", "variable"), 1.0);
 });
 
 test("hostShareFor falls back to balanced / 3-13 for an unknown plan or window", () => {
-  assert.equal(hostShareFor("bogus", "0_2"), HOST_SHARE.balanced["0_2"]);
-  assert.equal(hostShareFor("balanced", "bogus"), HOST_SHARE.balanced["3_13"]);
+  assert.equal(hostShareFor("bogus", "0_2", "variable"), HOST_SHARE.balanced["0_2"]);
+  assert.equal(hostShareFor("balanced", "bogus", "variable"), HOST_SHARE.balanced["3_13"]);
 });
 
 test("every plan x window cell is a fraction between 0 and 1", () => {
@@ -57,7 +59,7 @@ test("computeTripPayout includes extra-mileage, late-return, and additional-usag
 });
 
 test("computeTripPayout divides the host payout across the stated number of days", () => {
-  const result = computeTripPayout({ tripPrice: 300, plan: "balanced", bookingWindow: "28_plus", days: 3 });
+  const result = computeTripPayout({ tripPrice: 300, plan: "balanced", bookingWindow: "28_plus", market: "variable", days: 3 });
   assert.equal(result.hostPayout, 270); // 300 * 0.9
   assert.equal(result.perDay, 90);
 });
@@ -82,7 +84,7 @@ test("computeTripPayout flags a zero trip price", () => {
 });
 
 test("computeTripPayout flags the last-minute booking window", () => {
-  const result = computeTripPayout({ tripPrice: 200, plan: "balanced", bookingWindow: "0_2" });
+  const result = computeTripPayout({ tripPrice: 200, plan: "balanced", bookingWindow: "0_2", market: "variable" });
   assert.ok(result.findings.some((f) => f.id === "last-minute-booking"));
 });
 
@@ -116,7 +118,7 @@ test("comparePlans carries each plan's damage-responsibility cap for context", (
 });
 
 test("compareBookingWindows returns all four windows for the same trip and plan", () => {
-  const { rows, swing } = compareBookingWindows({ tripPrice: 500, plan: "balanced", selectedWindow: "0_2" });
+  const { rows, swing } = compareBookingWindows({ tripPrice: 500, plan: "balanced", market: "variable", selectedWindow: "0_2" });
   assert.equal(rows.length, 4);
   assert.equal(rows.filter((r) => r.selected).length, 1);
   const earliest = rows.find((r) => r.bookingWindow === "0_2");
@@ -141,3 +143,34 @@ test("estimateMonthly rounds a fractional trip count and floors negative input a
 function round2Local(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
+
+// Literal values copied from Turo's help center (help.turo.com, "Earnings
+// and host share" and "Earnings plans - In brief | US hosts", read
+// 2026-11-13). Pinned cell by cell: quality round 60 found a changed cell and
+// a changed cap both passed the suite, and that the matrix was applied to
+// every US host although Turo uses it only in nine markets.
+test("every host-share cell and cap matches Turo's published values", () => {
+  assert.deepEqual(HOST_SHARE, {
+    peace_of_mind: { "0_2": 0.65, "3_13": 0.70, "14_27": 0.75, "28_plus": 0.80 },
+    balanced: { "0_2": 0.75, "3_13": 0.80, "14_27": 0.85, "28_plus": 0.90 },
+    more_earnings: { "0_2": 0.85, "3_13": 0.90, "14_27": 0.95, "28_plus": 1.00 },
+  });
+  assert.deepEqual(FLAT_HOST_SHARE, { peace_of_mind: 0.70, balanced: 0.80, more_earnings: 0.90 });
+  assert.deepEqual(DAMAGE_RESPONSIBILITY_CAP, { peace_of_mind: 250, balanced: 1500, more_earnings: 2750 });
+  assert.deepEqual(VARIABLE_SHARE_MARKETS, ["Austin", "Dallas", "Detroit", "Las Vegas", "Maui", "Philadelphia", "Phoenix", "San Diego", "Seattle"]);
+});
+
+test("outside the variable-share markets the booking window does not change the share", () => {
+  // A Chicago host on Balanced, booked 30 days out: Turo pays a flat 80%.
+  const flat = computeTripPayout({ tripPrice: 350, plan: "balanced", bookingWindow: "28_plus" });
+  assert.equal(flat.market, "flat");
+  assert.equal(flat.hostPayout, 280);
+  assert.ok(!computeTripPayout({ tripPrice: 350, plan: "balanced", bookingWindow: "0_2" }).findings.some((f) => f.id === "last-minute-booking"));
+  const { rows, swing } = compareBookingWindows({ tripPrice: 350, plan: "balanced", selectedWindow: "28_plus" });
+  assert.ok(rows.every((r) => r.hostPayout === 280));
+  assert.equal(swing, 0);
+  // The same trip in Austin, a variable-share market, pays 90%.
+  assert.equal(computeTripPayout({ tripPrice: 350, plan: "balanced", bookingWindow: "28_plus", market: "variable" }).hostPayout, 315);
+  // An unknown market falls back to flat, the common case.
+  assert.equal(hostShareFor("more_earnings", "0_2", "mars"), 0.9);
+});

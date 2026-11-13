@@ -1,5 +1,5 @@
 name: turo-host-payout-calculator
-description: Free browser calculator for independent Turo hosts that turns one trip's price into an actual payout under Turo's 2026 plan x booking-window earnings matrix (Peace of Mind / Balanced / More Earnings, each split further by how far ahead the guest booked), compares the same trip across all three plans and all four booking windows, and projects a monthly/annual estimate from a stated trip frequency, entirely client-side.
+description: Free browser calculator for independent Turo hosts that turns one trip's price into an actual payout under Turo's 2026 earnings plans (Peace of Mind / Balanced / More Earnings: a flat 70/80/90% share in most US markets, split further by how far ahead the guest booked in nine variable-share markets), compares the same trip across all three plans and all four booking windows, and projects a monthly/annual estimate from a stated trip frequency, entirely client-side.
 stage: prototype
 
 owner: duncan
