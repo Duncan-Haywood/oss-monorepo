@@ -91,7 +91,7 @@
     <h2>Shifts to cover</h2>
     <label for="shifts">One requirement per line: day(s), start, end, people needed, label (optional)</label>
     <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
-    <label for="import-shifts-file">…or convert a published-schedule export from another scheduler (one row per shift: date, start, end, position), or the saved JSON a scheduler's API returns for shifts (choose it together with the roles and locations JSON for names, time zone and closing times)</label>
+    <label for="import-shifts-file">…or convert a published-schedule export from another scheduler (one row per shift: date, start, end, position), or the saved JSON the 7shifts or When I Work API returns for shifts (choose it together with the roles or positions and locations JSON for names, time zone and closing times)</label>
     <input id="import-shifts-file" type="file" multiple accept=".csv,.tsv,.txt,.json,text/csv,text/plain,application/json">
     <p id="import-shifts-pick" class="note" hidden><label for="import-shifts-loc">Location</label> <select id="import-shifts-loc"></select> <label for="import-shifts-use">Read</label> <select id="import-shifts-use"></select></p>
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it.</p>
@@ -302,6 +302,7 @@
     import { importStaffCsv } from "./import-staff.mjs";
     import { importShiftsCsv } from "./import-shifts.mjs";
     import { import7shifts } from "./import-7shifts.mjs";
+    import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -749,8 +750,8 @@
     const runShiftsImport = () => {
       if (!shiftsFile) return;
       const loc = $("#import-shifts-loc").value, use = $("#import-shifts-use").value;
-      // Saved 7shifts API responses are JSON; everything else is read as a CSV export.
-      const r = shiftsFile.json ? import7shifts(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
+      // Saved When I Work or 7shifts API responses are JSON (told apart by their fields); everything else is read as a CSV export.
+      const r = shiftsFile.json ? (looksLikeWhenIWork(shiftsFile.texts) ? importWhenIWork : import7shifts)(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
       if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); }
       status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${shiftsFile.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
       return r;
