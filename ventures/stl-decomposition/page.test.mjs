@@ -122,5 +122,6 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and llms.txt exist", () => 
 
 test("footer links the sibling research-algorithm tools", () => {
   const html = page("index.html");
+  assert.match(html, /href="\.\.\/gaussian-process-regression\/"/);
   for (const s of ["changepoint-detector", "conformal-prediction-intervals", "matrix-profile-explorer", "survival-analysis", "fdr-multiple-testing", "synthetic-control"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
 });
