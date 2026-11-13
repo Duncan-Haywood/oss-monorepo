@@ -78,7 +78,7 @@ def main(argv=None):
     ap.add_argument("--root", default=str(ROOT / "ventures"))
     root = Path(ap.parse_args(argv).root)
     bad = 0
-    files = [f for f in sorted(root.rglob("*.html")) if "node_modules" not in f.parts]
+    files = [f for f in sorted(root.rglob("*.html")) if {"node_modules", ".next"}.isdisjoint(f.parts)]
     for f, found in zip(files, map_pages(_page, files)):
         for msg in found:
             print(f"{f.relative_to(root)}: {msg}")

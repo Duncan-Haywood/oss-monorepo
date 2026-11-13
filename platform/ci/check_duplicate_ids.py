@@ -53,7 +53,7 @@ def _page(f):
 def scan(root=ROOT):
     bad = []
     # Nested pages (site/, tools/) are served too; vendored trees are not ours.
-    files = [f for f in sorted((root / "ventures").rglob("*.html")) if "node_modules" not in f.parts]
+    files = [f for f in sorted((root / "ventures").rglob("*.html")) if {"node_modules", ".next"}.isdisjoint(f.parts)]
     for f, found in zip(files, map_pages(_page, files)):
         for line, i, first in found:
             bad.append((f.relative_to(root), line, i, first))

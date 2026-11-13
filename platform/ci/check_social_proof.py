@@ -91,7 +91,7 @@ def check_file(path):
 def files(root):
     for pat in ("*.html", "README.md", "llms.txt"):
         for p in sorted(root.rglob(pat)):
-            if "node_modules" not in p.parts:
+            if {"node_modules", ".next"}.isdisjoint(p.parts):
                 yield p
 
 

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKjAd4bCqijdLr7Jx4D",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:18:00Z",
+  "ended": "2026-11-13T22:42:21Z",
+  "wall_minutes": 24.35,
+  "tokens_in": 5158438,
+  "tokens_out": 29715,
+  "cost_usd": 2.4534,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15634",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First piece (Lawrence) duplicated PR #15635, merged by another session while this PR was in CI; found at merge time via a 405 merge conflict. Branch reset to main and a different piece written."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The duplicate-PR search ran before drafting and found nothing, but the BIBLE had exactly one open Little Lamps proposal, so two sessions drafted it in parallel. Suggest: re-check main and open PRs for the slug right before committing, and prefer proposing+writing a fresh saint over the single open proposal."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' is hard to apply when every shelf got a piece the same day."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (468 MB > 400 MB).",
+      "did": "Text, pages and feeds only.",
+      "result": "Story lands text only."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Wrote Monica without a pre-existing proposal (this run's own proposal was lost with the Lawrence reset).",
+      "did": "Added the Done entry with full sources directly and moved it to DONE.md.",
+      "result": "Done entry carries the numbers/sources as the bible asks."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-monica-and-the-son-of-these-tears.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf. Piece: monica-and-the-son-of-these-tears (~1,200 words + prayer + note, all scenes referenced to the Confessions). Venture node --test 15/15 pass; first commit's CI on GitHub was fully green (Lawrence version, same files touched).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "123767d6-0531-591b-987f-3bebe6281c32",
+    "transcripts": 1,
+    "first": "2026-11-13T22:18:00Z",
+    "last": "2026-11-13T22:42:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 109,
+        "output": 29715,
+        "thinking": 6884,
+        "cache_read": 5052299,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106030,
+        "api_equivalent_usd": 2.4534,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 109,
+      "output": 29715,
+      "thinking": 6884,
+      "cache_read": 5052299,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106030,
+      "api_equivalent_usd": 2.4534,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 39,
+      "Write": 4,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.35,
+      "active_minutes": 15.59,
+      "model_minutes": 5.24,
+      "tool_minutes": 10.35,
+      "waiting_on_human_minutes": 8.77,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching the Confessions references and writing a ~2,000-word sourced children's story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 163.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

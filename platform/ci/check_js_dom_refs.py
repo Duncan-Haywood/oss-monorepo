@@ -69,7 +69,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
     root = Path(a.root)
     pages = [p for p in sorted(root.rglob("*.html"))
-             if not any(s in p.parts for s in ("node_modules", ".git", "dist", "build"))]
+             if not any(s in p.parts for s in ("node_modules", ".next", ".git", "dist", "build"))]
     n = bad = 0
     # Each page's answer depends only on that page and its own scripts, so a
     # process pool returns the same results in the same order.

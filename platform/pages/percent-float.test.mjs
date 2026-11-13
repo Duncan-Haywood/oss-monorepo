@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const SCAN = ["ventures", "platform", "research"];
 const EXT = /\.(mjs|cjs|js|ts|html)$/;
-const SKIP_DIR = new Set(["node_modules", ".git", "dist", "build", "_site", "vendor", "__pycache__", ".venv", "venv"]);
+const SKIP_DIR = new Set(["node_modules", ".next", ".git", "dist", "build", "_site", "vendor", "__pycache__", ".venv", "venv"]);
 
 export const UNROUNDED_PERCENT = /\$\{(?:[^{}]*\*\s*100|\s*100\s*\*[^{}]*)\s*\}\s?%/g;
 

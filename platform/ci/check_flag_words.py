@@ -43,7 +43,7 @@ def offenders(path: Path) -> list[tuple[int, str]]:
 def main(root: Path = REPO_ROOT) -> int:
     problems = []
     for f in sorted((root / "ventures").glob("**/*.mjs")):
-        if "node_modules" in f.parts or f.name.endswith(".test.mjs"):
+        if not {"node_modules", ".next"}.isdisjoint(f.parts) or f.name.endswith(".test.mjs"):
             continue
         for line, name in offenders(f):
             problems.append(f"{f.relative_to(root)}:{line}: {name}() reads any unlisted word, 'no' and 'off' included, as true")

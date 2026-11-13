@@ -72,7 +72,9 @@ step needs: it is enough that every world seen is on some cycle, of any length. 
 
 - The converses are search results on at most 3 worlds and at most 2 individuals at 3 worlds
   (3 at 2 worlds); the Lean theorems carry only the sufficient directions. A Lean construction of
-  a failing model for every transient successor (the stage-II converse in general) is not done.
+  a failing model for every transient successor (the stage-II converse in general) was not done
+  here; E22 proves it for every serial frame (`essential_a4_iff`,
+  [E22 results](../e22_transient_countermodel/results.md)).
 - Stage I's exact condition is open: the 24 pairs show it depends on the algebra, not only on R.
 - As in E19 and E20, the semantics is the AFP file's as we read it, not Anderson (1990) directly.
 

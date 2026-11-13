@@ -42,7 +42,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
     bad, pages = [], 0
     for page in sorted(Path(args.root).rglob("*.html")):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         pages += 1
         bad += [(page, t) for t in unsafe(page)]
