@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqycLey7SZVCExypnCLU",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:44:57Z",
+  "ended": "2026-11-13T17:00:28Z",
+  "wall_minutes": 15.69,
+  "tokens_in": 7979621,
+  "tokens_out": 69892,
+  "cost_usd": 4.1702,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15550",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pipe.mjs size table first used an object keyed by nominal size; JS orders integer-like keys ('1','2') first, so sizes came out of order. Caught in the first run of the example, switched to an array.",
+    "First upsizing loop could never fire under a uniform friction rate (the tightest path sets the rate, so every end already passes); replaced with an optional trim pass that is reachable and tested."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Post front-matter limits (description <= 160, seo_title <= 70) surfaced one at a time: the first failed in the 5-minute build stage, and the second only on rerun. Checking every front-matter field in stage 1b would save a build cycle."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "'Calculators are a poor use of a run' sits uneasily with the construction direction's engineering tools (hvac-load-calc, continuous-beam-calculator). It is unclear where an algorithmic sizing tool falls; I judged it depth, not a calculator."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-hunters-1940-table-against-his-own-rule.md",
+    "ventures/water-supply-sizing/README.md (Checked against Hunter)"
+  ],
+  "goal": null,
+  "notes": "Idea: water supply pipe sizing from first principles, built on Hunter's 1940 binomial demand worked exactly for mixed fixtures by convolution, plus a pipe tree with a pressure walk and trim. Verified against BMS65 Table 2 from the NIST scan (13/14 rows to 4 dp). Finding: the exact 1% tail rule steps up before Hunter's table (99 vs 107 flush valves for m=8). Checks: run_venture_tests (2 suites ok), venture-preflight full build clean, optout-persistence 20/20, router validate and sync_tree_counts --check clean, Chromium at 1280/390 px with no console errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4fbd778f-85ba-545c-87f1-9188a83db71d",
+    "transcripts": 1,
+    "first": "2026-11-13T16:44:57Z",
+    "last": "2026-11-13T17:00:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 126,
+        "output": 69892,
+        "thinking": 11445,
+        "cache_read": 7828731,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150764,
+        "api_equivalent_usd": 4.1702,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 126,
+      "output": 69892,
+      "thinking": 11445,
+      "cache_read": 7828731,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150764,
+      "api_equivalent_usd": 4.1702,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 54,
+      "Write": 7,
+      "ToolSearch": 3,
+      "Read": 3,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.69,
+      "active_minutes": 15.69,
+      "model_minutes": 10.14,
+      "tool_minutes": 5.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an engineer re-deriving Hunter from BMS65, writing and testing the convolution and pipe-tree sizer, a page, explainer and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 287.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
