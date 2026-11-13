@@ -330,6 +330,21 @@ MuJoCo, both under the 0.149° static bound milestone 3 charged. On its bowed mi
 balanced, so the rock is set by friction and approach, not statics; charging the full bound is
 the conservative choice.
 
+That three-foot bow is a modelling choice, and the rock is its artefact. A smooth bow is a
+rocker: a parabolic 1/16 in bow over 48 in has radius R = 117.0 m at mid-width, against a centre
+of mass h0 = 1.221 m above it, so rolling by θ raises the centre of mass by (R − h0) θ²/2 and
+gravity rolls the sheet back to level. Only wall friction can then keep a tilt, at most
+θ_s = μ F_n r̄ / (m g (R − h0)), with r̄ = 1.562 m from the mid-width contact. Modelled as 49 feet
+on the curve, both engines seat inside θ_s + 0.005° in all 48 cells of a grid over bow, holder
+error, wall friction and press (H37). Over the 2,000 random seats of milestone 6 the 99th
+percentile |θ| is 0.05876° in Drake and 0.06055° in MuJoCo, and the best single-2x pipeline
+rises from 0.5602 to 0.6250 clean sheets (Drake; 0.6244 with MuJoCo seats), while doubled joints
+move by at most 0.45 points (H40). A kink keeps the rock: balanced on a point the sheet's
+toppling moment is smaller than the wall friction a light press holds, so it stops where the
+approach leaves it, which is why the engines disagreed. A 1 mm bump under a straight edge (grit
+on the ledger) leaves a median 0.0500° in Drake and 0.0607° in MuJoCo. A light press once the
+sheet is seated and a clean ledger are the placement rules that follow.
+
 ![Figure 2. Press threshold by wall friction in MuJoCo, Drake and the closed form; clean sheets with each engine's seated residual; tipping height of a sliding sheet (milestone 6).](../experiments/m6_drake/figure.png)
 
 ### 5.7 Dollars per clean sheet (H-D)
@@ -397,7 +412,8 @@ right framing; the business case needs volume.
   pulls a stud partly straight. Crook, sheet bow and wall racking are not modelled.
 - **Rigid sheet, two compliant engines.** Both engines run a rigid point-contact sheet with
   regularised contact; agreeing with each other does not make either a real sheet on real
-  framing. A flexible sheet and a mock-up would settle the bowed-edge rock.
+  framing. Real edge profiles are not measured: a smooth bow seats inside the friction band, a
+  kink or grit does not, and how often real edges and ledgers have one is unknown.
 - **Static humanoid.** No walking, balance controller or hand-off dynamics; joint gains are taken
   at face value.
 - **Strict pass/fail.** One nail outside its window fails a sheet, though a crew may accept a near

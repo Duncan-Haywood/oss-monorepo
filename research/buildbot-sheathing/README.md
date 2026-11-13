@@ -149,6 +149,23 @@ milestone 3's full rock is the conservative side.
 
 ![Press threshold by wall friction in MuJoCo, Drake and the closed form; clean sheets with each simulator's seated residual; push height that tips a sliding sheet](experiments/m6_drake/figure.png)
 
+**Milestone 6b: does a bowed sheet edge rock the sheet off plumb? Not if the bow is a curve.**
+Milestones 3 to 6 modelled PS 2's 1/16 in bottom-edge bow as three feet, so the sheet balanced on
+its middle foot and fell onto a corner: a rock of 2 s / W = 0.149°, on which MuJoCo and Drake
+disagreed by 0.02–0.03°. A real bow is a curve. A parabolic 1/16 in bow over 48 in has a radius of
+**117 m**, against a centre of mass 1.22 m above it, so the sheet is a stable rocker: gravity rolls
+it back to level and only wall friction keeps a tilt, at most θ_s = μ F_n r̄ / (m g (R − h0)).
+Modelled as 25 to 401 feet on the curve, both engines seat inside that band in all 48 cells
+(0.007° at most at a 5 N press, 0.058° at 50 N), and over 2,000 random seats the 99th percentile
+is **0.06°** in both. Charged to milestone 5's pipelines, the best single-2x pipeline goes from
+**0.560 to 0.625** clean sheets (doubled joints move by 0.45 points at most) and the engines now
+agree within 0.11 points. A kink, a chipped edge or **1 mm of grit on the ledger** keeps a rock
+(0.05–0.09° for grit, up to 0.15° for a kink at a light press), set by how the sheet lands rather
+than by statics, which is why the engines disagreed before. Placement rules: back the press off
+once the sheet is down, and keep the ledger clean.
+
+![Seated tilt on a smooth bow against the press and the friction band; tilt by edge shape; clean sheets on single-2x pipelines with the three-foot and the smooth-bow rock](experiments/m6b_bowed_edge/figure.png)
+
 **Milestone 8: the paper draft.** [`paper/draft.md`](paper/draft.md) writes milestones 1 to 7
 up as one article for *Automation in Construction* (highlights, abstract, methods, results by
 hypothesis, discussion, limitations, references in [`paper/references.bib`](paper/references.bib)).
@@ -409,6 +426,9 @@ python experiments/m3b_humanoid/figure.py
 pip install drake                                            # milestone 6; results made with drake 1.51.1 (Python 3.11)
 python experiments/m6_drake/run.py > experiments/m6_drake/results.txt                   # ~7 min on 4 CPUs; seeds 13 and 7
 python experiments/m6_drake/figure.py
+python experiments/m6b_bowed_edge/run.py > experiments/m6b_bowed_edge/results.txt       # ~5 min on 4 CPUs (MuJoCo 4.0.1, Drake 1.51.1); seeds 5, 13, 7
+python experiments/m6b_bowed_edge/envelope.py > experiments/m6b_bowed_edge/envelope.txt # ~3 min, post hoc, seed 21
+python experiments/m6b_bowed_edge/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 

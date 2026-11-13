@@ -213,6 +213,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    within 0.06 points (H-E held); Drake's press thresholds sit at 97–100% of the closed form,
    MuJoCo's at 87–99%. Still open: how far a bowed bottom edge rocks the sheet (0.11–0.15°,
    model-dependent).
+   **6b. The bowed bottom edge** (done 2026-11-13, `experiments/m6b_bowed_edge/`): modelled as a
+   curve, a 1/16 in bow is a stable rocker (R = 117 m against h0 = 1.22 m) and seats inside the
+   friction band θ_s = μ F_n r̄ / (m g (R − h0)) in both engines (99th percentile 0.06° against the
+   0.149° three-foot rock); the best single-2x pipeline goes from 0.56 to 0.625 clean. A kink or
+   1 mm of grit keeps a rock of up to 0.09–0.15°, set by the approach.
 7. **Cost per clean sheet by robot class** (done 2026-11-12, `experiments/m7_cost/`): the G1 on a
    drive-and-lift base is the cheapest robot below about 500 houses a year and beats the walking H1
    in every draw; it beats a hand crew in 37% of draws at 100 houses a year and 74% at 300. Doubled

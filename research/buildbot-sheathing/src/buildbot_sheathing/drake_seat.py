@@ -30,7 +30,7 @@ R_SPHERE = 0.002
 
 
 def _build(mu, layout, sag, ledger_dz, solver, time_step, k_contact, dissipation, stiction_tol,
-           mu_ledger=None):
+           mu_ledger=None, edge=None):
     from pydrake.geometry import (Box, CollisionFilterDeclaration, GeometrySet, ProximityProperties,
                                   Sphere)
     from pydrake.math import RigidTransform, RotationMatrix
@@ -70,6 +70,8 @@ def _build(mu, layout, sag, ledger_dz, solver, time_step, k_contact, dissipation
     feet = [(-hw + r, -hh + r), (hw - r, -hh + r)]
     if sag:
         feet.append((0.0, -hh + r - sag))
+    if edge is not None:
+        feet = [(y, -hh + r + dz) for y, dz in edge]
     for i, (y, z) in enumerate(feet):
         foot_ids.append(plant.RegisterCollisionGeometry(
             sheet, RigidTransform([0, y, z]), Sphere(r), f"f{i}", props(mu_l)))
@@ -88,7 +90,7 @@ def _build(mu, layout, sag, ledger_dz, solver, time_step, k_contact, dissipation
 
 def seat(theta0=math.radians(1.0), mu=0.4, f_n=50.0, k_hold=None, layout="corners", sag=0.0,
          ledger_dz=0.0, v=0.02, t_release=0.5, settle=2.0, k_theta=3000.0, solver="sap",
-         time_step=1e-3, k_contact=1e6, dissipation=5.0, stiction_tol=1e-4, gap=0.010):
+         time_step=1e-3, k_contact=1e6, dissipation=5.0, stiction_tol=1e-4, gap=0.010, edge=None):
     """``ledger.seat`` in Drake. Same arguments and returns (tilt relative to the ledger, rad;
     creep rate after settling, rad/s; time of first contact; run time), plus the solver,
     contact stiffness (N/m), Hunt-Crossley dissipation (s/m) and TAMSI stiction tolerance."""
@@ -97,7 +99,8 @@ def seat(theta0=math.radians(1.0), mu=0.4, f_n=50.0, k_hold=None, layout="corner
     from pydrake.multibody.plant import ExternallyAppliedSpatialForce
 
     plant, sheet, sim, ctx, pctx, feet, ledger_id = _build(
-        mu, layout, sag, ledger_dz, solver, time_step, k_contact, dissipation, stiction_tol)
+        mu, layout, sag, ledger_dz, solver, time_step, k_contact, dissipation, stiction_tol,
+        edge=edge)
     Rx = RotationMatrix.MakeXRotation(theta0)
     low = min((Rx.matrix() @ np.array([0.0, y, z]))[2] - R_SPHERE for y, z in feet)
     z0 = 1.8
