@@ -6,6 +6,8 @@ Follow-up to `codesign-aero-cant-kappa` (track 14, `codesign`). That project mad
 
 **Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, cant's advantage and its 35° plateau survive the correction.
 
+**Audit note (2026-11-13).** [`portfolio/quality/audits/2026-11-13-codesign-aero-cant-propdata.json`](../../portfolio/quality/audits/2026-11-13-codesign-aero-cant-propdata.json): the regex in `experiments/extract_c.py` skips 45 of the 205 UIUC static files (the `da40xx` and `apc29ff` families, multi-blade files and others; 27 of them in the diameter range). Including the two-blade ones moves the median c from 0.081 to about 0.082. So "every static file" below means every file the regex matched. The 160 rows are test files: the 77 in range cover 75 distinct propellers. `fetch()` also saves an HTML challenge page as if it were data. Only `codesign-cant` has rerun the cant result with the corrected torque limits, and only at c = 0.081.
+
 ![Left: held-out error against the cant bound for c at the 10th, 50th and 90th percentile and maximum of measured propellers. Right: the cant angle chosen](experiments/propdata.png)
 
 **Headline (all numbers from `experiments/results.txt` and `data/propdata_c.csv`).**

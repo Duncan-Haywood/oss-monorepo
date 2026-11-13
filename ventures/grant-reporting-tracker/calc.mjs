@@ -78,32 +78,45 @@ export function sampleGrants(today = localToday()) {
   ];
 }
 
-// The report due date rolls forward from the last one actually filed, not
-// always from the award date. Before this, an award's `nextReport` was
-// permanently `awardDate + intervalMonths` -- correct for the first cycle of
-// a multi-year award, then stuck. A grant awarded three years ago that
-// reports quarterly, filed on schedule every time, showed the same
-// three-year-old due date and "Overdue" forever, because nothing here could
-// tell the tool a report had already gone out. `lastReportFiled` is optional
-// (older saved awards and the sample rows have none) so the anchor falls
-// back to `awardDate` when it is absent, invalid, or not yet reached --
-// which reproduces the original behavior exactly for a first-cycle award.
-function reportAnchor(grant, today) {
+// Reports fall on the award's own fixed schedule: award date plus one, two,
+// three ... intervals, each computed from the award date so a clamped month
+// end (31 Jan -> 28 Feb) never drifts the later dates. `lastReportFiled`
+// (optional; older saved awards and the sample rows have none) says which of
+// those scheduled reports is done: the latest scheduled date on or before the
+// filing, or up to EARLY_FILING_DAYS after it (capped at half the interval),
+// so a report sent late covers its own period and one sent a few days early
+// covers the date it was sent for. The next report is the one after that.
+//
+// Until 2026-11-13 the next date was "filed date + interval", which let one
+// late filing push every later deadline back (award 2026-01-15, every 6
+// months, filed 2026-08-01 showed 2027-02-01 "Due soon" on 2027-01-20, when
+// the funder's date, 2027-01-15, had already passed). Quality audit
+// portfolio/quality/audits/2026-11-13-grant-reporting-tracker.json.
+//
+// A filed date before the award date or after "today" is ignored, as before:
+// it cannot be a real filing for this award as of the visitor's clock.
+const EARLY_FILING_DAYS = 30;
+
+function scheduledDate(grant, k) {
+  return shiftMonths(grant.awardDate, Number(grant.intervalMonths) * k);
+}
+
+function nextScheduledReport(grant, today) {
+  const first = addMonths(grant.awardDate, Number(grant.intervalMonths));
+  if (!first) return null;
   const filed = grant.lastReportFiled ? parseDate(grant.lastReportFiled) : null;
-  if (!filed) return grant.awardDate;
   const award = parseDate(grant.awardDate);
   const asOf = parseDate(today);
-  // A filed date has to actually be a step forward from the award date, and
-  // not in the future relative to "today" -- either would move the schedule
-  // backward or ahead of the visitor's own clock rather than rolling it
-  // forward, so treat it the same as no filed date at all.
-  if (award && filed < award) return grant.awardDate;
-  if (asOf && filed > asOf) return grant.awardDate;
-  return grant.lastReportFiled;
+  if (!filed || (award && filed < award) || (asOf && filed > asOf)) return first;
+  const window = Math.min(EARLY_FILING_DAYS, Number(grant.intervalMonths) * 15) * 86400000;
+  const reach = new Date(filed.getTime() + window);
+  let covered = 1;
+  while (parseDate(scheduledDate(grant, covered + 1)) <= reach) covered += 1;
+  return scheduledDate(grant, covered + 1);
 }
 
 export function reviewGrant(grant, today = localToday()) {
-  const nextReport = addMonths(reportAnchor(grant, today), Number(grant.intervalMonths));
+  const nextReport = nextScheduledReport(grant, today);
   const days = nextReport ? Math.ceil((parseDate(nextReport) - parseDate(today)) / 86400000) : null;
   const restrictedBalance = Number(grant.awardAmount) - Number(grant.spentAmount);
   return {

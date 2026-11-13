@@ -1,0 +1,279 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/workflow-audit",
+ "stratum": "venture",
+ "seed": "2026-11-13-b",
+ "drawn_by": "sample",
+ "round": 56,
+ "auditor": "agent session (Claude), quality-audit round 56",
+ "status": "audited",
+ "professional": "a senior application-security engineer who reviews GitHub Actions CI/CD supply chains (the kind of reviewer who runs zizmor and reads GitHub Security Lab advisories); they check first whether the high-severity classes (pwn-request checkout, script injection including actions/github-script, workflow_run artifact execution, cache poisoning) are actually reported on known-vulnerable fixtures, then false positives on the documented safe pattern (intermediate env var), then SHA pinning, then whether the SARIF lands correctly in Code Scanning",
+ "scores": {
+  "correctness": 2,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran a 19-case fixture battery (python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/run.py /home/user/oss-monorepo/ventures/workflow-audit/audit.py) with expected outcomes typed from GitHub's hardening docs and Security Lab posts: 14/19 pass. Right: github.head_ref and issue.title injection in single-line and multi-line run blocks, head_commit.message, the env-intermediate mitigation not flagged, github.sha not flagged, pwn-request via pull_request.head.ref, short SHA flagged and full SHA accepted, write-all, missing permissions, missing timeout, timeout 360 (GitHub default) flagged, fork-reachable self-hosted runner, secrets: inherit on pull_request_target, base64 of a secret. Wrong: (1) the merge layer silently drops three risk classes its own vendored checkers report (python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/dropped.py /home/user/oss-monorepo/ventures/workflow-audit): artifact-executed-after-untrusted-download (audit.py:43 maps the misspelt key 'artifact-executed', so the page's headline High item never appears; a workflow_run job that downloads a PR artifact and runs bash ./build.sh gets only a medium 'unscoped-artifact-download'), checkout-persists-credentials-with-upload (the ArtiPACKED shape, the worse of the two checkout cases, is reported as nothing while the milder shape is reported), and shut-down-version (actions/upload-artifact@v3, which no longer runs). (2) Not detected: injection in actions/github-script `script:` (GitHub's own example), workflow_run.head_branch, checkout of refs/pull/N/merge under pull_request_target, toJSON(secrets). The per-check logic is mostly right; the product's own layer is wrong on a high-severity class, so 2.",
+  "completeness": "Claimed features exercised: composite Action inputs (path, fail-on, sarif-file, baseline) read from action.yml, CLI text/json/markdown/sarif (tests run all four), fail-on thresholds, baseline with line-shift tolerance and duplicate counting, inline ignore with rule list, error on missing baseline, deploy-concurrency adapter, drift guard against 11 source ventures (all 11 byte-identical, checked with cmp). Not working end to end: three of the advertised risk classes (artifacts executed on untrusted triggers, credentials persisted with upload, end-of-life action versions that no longer run) never reach the report. The Action itself was not run on a GitHub runner from this session.",
+  "verification": "cd ventures/workflow-audit && python3 -m unittest test_audit: 16 tests OK in 7.5 s; node --test page.test.mjs usage.test.mjs: 14 pass. Five mutations with platform/ci/quality_mutate.py: 2 caught (baseline budget > to >=; fail-on >= to >), 3 survived: severity of unmasked-env-export medium to low, inline-ignore also honouring the line below, and renaming the cache-poisoning rule key so it no longer matches (the exact bug class that already shipped for artifact-executed). No test asserts that every RISK_CLASSIFICATIONS entry of a vendored checker is mapped in CHECKS, and only 3 of 27 rule names are asserted end to end.",
+  "craft": "Read audit.py (356 lines), action.yml, test_audit.py, checks/injection.py, checks/artifact-poisoning.py, checks/checkout-credentials.py, checks/runtime-deprecation.py, checks/unpinned-action.py headers. audit.py is small, readable, subprocess-isolated, errors surfaced as warnings. Defects: rule names are hand-typed strings in CHECKS rather than read from each checker's RISK_CLASSIFICATIONS, and an unknown rule is dropped silently as 'informational' with no warning (audit.py:119-122), which is how three risk classes vanished; SARIF helpUri points to https://duncan-haywood.github.io/monorepo-projects/workflow-audit/ which returns 404 (audit.py:290), so every Code Scanning alert links to a dead page; the Action scans the tree four times (action.yml run block) instead of once and rendering four formats; no partialFingerprints in SARIF.",
+  "claims": "Backed: disclaimer, no warranty, no SLA, 'not a security audit', no network calls (no urllib/socket/http in audit.py or checks; page.test.mjs), MIT, zizmor named honestly as broader. Served page https://marisstella.app/workflow-audit/ loaded (200, 21 KB) and matches source apart from build chrome. Unbacked: page 'What it checks' table lists 'artifacts executed ... on untrusted triggers' as High and 'actions on end-of-life runtimes' as Low; neither the executed-artifact rule nor shut-down-version is ever reported. README:65 'Informational classifications are dropped' is false: risk classifications are dropped too. README:50 'On this monorepo the scan finds 1,182' is stale: the scan today finds 13 (0 high, 10 medium, 3 low) over 129 workflows. llms.txt carries the calculator boilerplate 'Results are estimates from the numbers typed in', which does not describe a workflow scanner.",
+  "fitness": "Walked a maintainer's job: add the documented four-line step, get a job summary, fail on high. The flow works on the CLI on fixtures and on this monorepo (0.6 s). Gaps a maintainer hits: the recommended ref Duncan-Haywood/oss-monorepo/ventures/workflow-audit@main makes the runner download the whole monorepo tree (git ls-tree: about 1,074 MB tracked) on every job that uses it; a workflow_run artifact-execution pwn, the most common high-impact pattern in recent advisories, comes back with no high finding, so fail-on: high passes; github-script injections pass silently. The README is honest that zizmor is deeper.",
+  "domain": "Compared against GitHub Docs, 'Security hardening for GitHub Actions' (untrusted-input list, actions/github-script example, intermediate env-var mitigation, pin to full-length commit SHA) and GitHub Security Lab 'Keeping your GitHub Actions and workflows secure' parts 1-4 (pwn requests, untrusted input, workflow_run artifacts); expected outcomes typed into the fixture before running, from those sources, not from the checkers' own docstrings, and zizmor's audit set (template-injection incl. github-script, artipacked, dangerous-triggers, unpinned-uses, cache-poisoning, excessive-permissions). Matches practice: the env-var mitigation, full-SHA pinning (short SHA rejected), first-party vs third-party owner split, timeout default 360, fork-exposed self-hosted runners as high, secrets: inherit. Departs: injection only in run: (not github-script script:, the docs' own example), workflow_run.head_branch not treated as untrusted, the refs/pull/N/merge pwn-request variant missed, toJSON(secrets) not flagged, and the merge layer drops artipacked and workflow_run artifact execution."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "script injection from github.head_ref, issue.title (multi-line run), head_commit.message, pull_request.body (folded run)",
+   "method": "GitHub Docs, 'Security hardening for GitHub Actions' (untrusted-input list, actions/github-script example, intermediate env-var mitigation, pin to full-length commit SHA) and GitHub Security Lab 'Keeping your GitHub Actions and workflows secure' parts 1-4 (pwn requests, untrusted input, workflow_run artifacts); expected outcomes typed into the fixture before running, from those sources, not from the checkers' own docstrings",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/run.py /home/user/oss-monorepo/ventures/workflow-audit/audit.py",
+   "expected": "script-injection reported in all four",
+   "observed": "script-injection reported in all four",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "documented safe patterns are not flagged: intermediate env var for issue.title; github.sha and pull_request.number in run; full 40-hex SHA pin",
+   "method": "GitHub Docs, 'Security hardening for GitHub Actions' (untrusted-input list, actions/github-script example, intermediate env-var mitigation, pin to full-length commit SHA) and GitHub Security Lab 'Keeping your GitHub Actions and workflows secure' parts 1-4 (pwn requests, untrusted input, workflow_run artifacts); expected outcomes typed into the fixture before running, from those sources, not from the checkers' own docstrings",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/run.py /home/user/oss-monorepo/ventures/workflow-audit/audit.py",
+   "expected": "no script-injection / no unpinned finding",
+   "observed": "none reported",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "workflow_run job downloads the triggering run's artifact then runs bash ./build.sh",
+   "method": "GitHub Security Lab, 'Keeping your GitHub Actions and workflows secure Part 1: Preventing pwn requests' (workflow_run + artifact) and the vendored checker's own risk classification",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/dropped.py /home/user/oss-monorepo/ventures/workflow-audit",
+   "expected": "artifact-executed-after-untrusted-download at high (page: 'artifacts executed ... on untrusted triggers: High')",
+   "observed": "standalone checker reports it; audit.py reports only unscoped-artifact-download (medium)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "actions/checkout without persist-credentials:false in a job that uploads the workspace (ArtiPACKED)",
+   "method": "Palo Alto Unit 42 'ArtiPACKED' (2024) and actions/checkout README on persist-credentials; vendored checker classification",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/dropped.py /home/user/oss-monorepo/ventures/workflow-audit",
+   "expected": "a checkout-credentials finding (the with-upload shape)",
+   "observed": "standalone: checkout-persists-credentials-with-upload; audit.py: no finding at all",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "actions/github-script with ${{ github.event.comment.body }} in script:",
+   "method": "GitHub Docs, Security hardening for GitHub Actions, 'Understanding the risk of script injections' (github-script example)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/run.py /home/user/oss-monorepo/ventures/workflow-audit/audit.py",
+   "expected": "script-injection",
+   "observed": "no finding",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "pull_request_target checkout of refs/pull/${{ github.event.number }}/merge then make test; checkout of pull_request.head.ref",
+   "method": "GitHub Security Lab, Preventing pwn requests (any checkout of the PR's code under pull_request_target)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/run.py /home/user/oss-monorepo/ventures/workflow-audit/audit.py",
+   "expected": "pwn-request-checkout for both",
+   "observed": "head.ref flagged; merge ref not flagged",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "timeout-minutes: 360, self-hosted runner on pull_request, secret piped to base64",
+   "method": "GitHub Docs: default job timeout 360 minutes; self-hosted runner security for public repos; masking does not survive transformation",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/workflow-audit/extra.py /home/user/oss-monorepo/ventures/workflow-audit/audit.py",
+   "expected": "job-timeout-at-default low; fork-exposed high; transformed-secret high",
+   "observed": "job-timeout-at-default low; fork-exposed high; transformed-secret high",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suites",
+   "method": "run",
+   "command": "cd ventures/workflow-audit && python3 -m unittest test_audit && node --test page.test.mjs usage.test.mjs",
+   "expected": "all pass",
+   "observed": "16 OK (7.5 s); 14 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "every vendored checker's RISK_CLASSIFICATIONS is mapped in CHECKS",
+   "method": "import each checks/*.py and diff its RISK_CLASSIFICATIONS against the CHECKS severity map",
+   "command": "cd ventures/workflow-audit && python3 -c \"import importlib.util, audit\nfor n,_,sev in audit.CHECKS:\n s=importlib.util.spec_from_file_location('c',audit.CHECKS_DIR/f'{n}.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m);x=set(getattr(m,'RISK_CLASSIFICATIONS',set()))-set(sev)\n x and print(n,sorted(x))\"",
+   "expected": "no output",
+   "observed": "artifact-poisoning ['artifact-executed-after-untrusted-download']; checkout-credentials ['checkout-persists-credentials-with-upload']; runtime-deprecation ['shut-down-version']",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "vendored copies identical to source ventures",
+   "method": "cmp each checks/<n>.py against ventures/actions-<n>-check/check.py and deploy-concurrency-check/check.py",
+   "command": "cd ventures && for n in injection secret-leak artifact-poisoning cache-poisoning self-hosted-exposure secrets-inherit permissions checkout-credentials runtime-deprecation timeout; do cmp -s actions-$n-check/check.py workflow-audit/checks/$n.py && echo $n same; done",
+   "expected": "11 same (unpinned-action has no source venture, as stated)",
+   "observed": "11 same",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'On this monorepo the scan finds 1,182'",
+   "method": "run the CLI on this checkout",
+   "command": "python3 ventures/workflow-audit/audit.py . --format json",
+   "expected": "1,182 findings",
+   "observed": "13 findings (0 high, 10 medium, 3 low), 129 workflows, 0.6 s",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "SARIF helpUri resolves",
+   "method": "curl the URI written into every SARIF rule",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://duncan-haywood.github.io/monorepo-projects/workflow-audit/",
+   "expected": "200",
+   "observed": "404",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page matches source and carries disclaimer, no-network and not-a-security-audit lines",
+   "method": "load https://marisstella.app/workflow-audit/ and diff against index.html",
+   "command": "curl -sS https://marisstella.app/workflow-audit/",
+   "expected": "200, same claims",
+   "observed": "200, 21,123 bytes, differences only build chrome (canonical, JSON-LD breadcrumbs, stylesheet)",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "size of what a runner downloads for uses: Duncan-Haywood/oss-monorepo/ventures/workflow-audit@main",
+   "method": "sum of tracked blob sizes (the action tarball is the whole repo tree at the ref)",
+   "command": "git ls-tree -r -l HEAD | awk '{s+=$4} END {print s/1e6}'",
+   "expected": "a few MB for a single-purpose action",
+   "observed": "about 1,074 MB tracked",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "audit.py:220",
+   "change": "if budget.get(fp, 0) > 0: -> if budget.get(fp, 0) >= 0:",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_audit"
+  },
+  {
+   "where": "audit.py:42",
+   "change": "\"unmasked-env-export\": \"medium\" -> \"unmasked-env-export\": \"low\"",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_audit"
+  },
+  {
+   "where": "audit.py:177",
+   "change": "for n in (f[\"line\"], f[\"line\"] - 1): -> for n in (f[\"line\"], f[\"line\"] - 1, f[\"line\"] + 1):",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_audit"
+  },
+  {
+   "where": "audit.py:44",
+   "change": "\"cache-write-on-untrusted-trigger\": \"high\" -> \"cache-write-on-untrusted\": \"high\"",
+   "caught": false,
+   "test_cmd": "python3 -m unittest test_audit"
+  },
+  {
+   "where": "audit.py:235",
+   "change": "return any(RANK[f[\"severity\"]] >= RANK[fail_on] for f in findings) -> return any(RANK[f[\"severity\"]] > RANK[fail_on] for f in findings)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest test_audit"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "CHECKS maps 'artifact-executed' but the vendored checker emits 'artifact-executed-after-untrusted-download', so the page's High 'artifacts executed on untrusted triggers' is never reported; fail-on: high passes a workflow_run artifact-execution pwn",
+   "where": "ventures/workflow-audit/audit.py:43",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "checkout-persists-credentials-with-upload (ArtiPACKED, the worse checkout shape) is not mapped and silently dropped, while the milder shape is reported",
+   "where": "ventures/workflow-audit/audit.py:48",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "shut-down-version (actions/upload-artifact, download-artifact v1-v3, cache v1-v2: jobs fail) is not mapped and silently dropped",
+   "where": "ventures/workflow-audit/audit.py:49",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "unknown rule names are dropped silently as informational with no warning, and no test checks CHECKS against each checker's RISK_CLASSIFICATIONS; a renamed rule key survives the suite",
+   "where": "ventures/workflow-audit/audit.py:119",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "script injection detected only in run:, not in actions/github-script script: (GitHub docs' own example); workflow_run.head_branch not treated as untrusted",
+   "where": "ventures/workflow-audit/checks/injection.py:101",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "pwn-request checkout of refs/pull/${{ github.event.number }}/merge under pull_request_target not detected",
+   "where": "ventures/workflow-audit/checks/injection.py:105",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "recommended uses: ref is a subdirectory of a ~1 GB monorepo, so every job using the Action downloads the whole tree",
+   "where": "ventures/workflow-audit/README.md:25",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "page lists artifact execution (High) and end-of-life action versions (Low) as checked; neither shut-down-version nor the executed-artifact rule is ever reported",
+   "where": "ventures/workflow-audit/index.html",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "SARIF helpUri https://duncan-haywood.github.io/monorepo-projects/workflow-audit/ returns 404; every Code Scanning alert links to a dead page",
+   "where": "ventures/workflow-audit/audit.py:290",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "README says the scan finds 1,182 findings on this monorepo; today it finds 13",
+   "where": "ventures/workflow-audit/README.md:50",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "README says only informational classifications are dropped; risk classifications are dropped too",
+   "where": "ventures/workflow-audit/README.md:65",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries calculator boilerplate 'Results are estimates from the numbers typed in' for a workflow scanner",
+   "where": "ventures/workflow-audit/llms.txt:5",
+   "category": "other",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15312"
+ ],
+ "verdict": "A tidy, honest-in-tone aggregator whose eleven vendored checkers are byte-identical to their source ventures and mostly right on fixtures typed from GitHub's hardening docs (14 of 19 plus 3 of 3). The product's own layer, a hand-typed rule-to-severity map, silently drops three risk classes its checkers report: workflow_run artifact execution (advertised as High), the ArtiPACKED checkout-with-upload shape, and action versions that no longer run. A maintainer who adds fail-on: high would pass a workflow_run artifact pwn. Tests pass but 3 of 5 seeded mutations survive, including a rule-key rename, the bug class that shipped. Coverage also misses github-script injection and the merge-ref pwn request. Below the bar on correctness, claims and verification; not finished."
+}
