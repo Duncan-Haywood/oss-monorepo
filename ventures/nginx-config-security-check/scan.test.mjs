@@ -179,3 +179,16 @@ test("CLI: the fixture tree, json and --fail-on-risk", () => {
   assert.equal(clean.status, 0);
   assert.match(clean.stdout, /None of the patterns/);
 });
+
+test("an include glob that matches no file given matches nothing (no fallback to a bare *.conf)", () => {
+  const files = [
+    { name: "nginx.conf", text: "include custom.d/*.conf;\nhttp { include conf.d/*.conf; }\n" },
+    { name: "conf.d/a.conf", text: "server { listen 80; autoindex on; }\n" },
+  ];
+  const { findings, notes } = scanFiles(files);
+  assert.deepEqual(findings.map((f) => f.type), ["autoindex-on"]);
+  assert.match(notes[0], /custom\.d\/\*\.conf matched none/);
+  // An absolute glob still matches by its directory and file parts.
+  const abs = scanFiles([{ name: "nginx.conf", text: "http { include /etc/nginx/sites-enabled/*; }" }, { name: "sites-enabled/x", text: "server { listen 80; autoindex on; }" }]);
+  assert.equal(abs.findings.length, 1);
+});

@@ -138,14 +138,21 @@ function normalise(name) {
 
 // Resolve `include` against the files supplied. A pattern matches a file
 // whose path ends with it (so `include conf.d/*.conf;` matches
-// `/etc/nginx/conf.d/app.conf` or `conf.d/app.conf`), and an absolute
-// pattern also matches by its trailing components. Matches are taken in
-// name order, as nginx's glob does.
+// `/etc/nginx/conf.d/app.conf` or `conf.d/app.conf`). An absolute pattern
+// may also match by fewer trailing components (`/etc/nginx/conf.d/*.conf`
+// matches a file named `conf.d/app.conf`), but never by a bare glob, which
+// would match unrelated files: `include custom.d/*.conf;` with no custom.d
+// file given matches nothing, as in nginx. Matches are taken in name order,
+// as nginx's glob does.
 function matchInclude(pattern, names) {
   const p = normalise(pattern);
   const parts = p.split("/").filter(Boolean);
-  for (let k = parts.length; k >= 1; k--) {
-    const re = globToRegex(parts.slice(parts.length - k).join("/"));
+  const absolute = p.startsWith("/");
+  const shortest = absolute ? 1 : parts.length;
+  for (let k = parts.length; k >= shortest; k--) {
+    const tail = parts.slice(parts.length - k);
+    if (k === 1 && parts.length > 1 && /[*?[]/.test(tail[0])) break;
+    const re = globToRegex(tail.join("/"));
     const hits = names.filter((nm) => re.test(normalise(nm)));
     if (hits.length) return hits.sort();
   }
