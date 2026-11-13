@@ -23,6 +23,7 @@ Needs python-sat (pip install python-sat; MIT), used by this eval script only, n
 
   node eval/orient-maxsat-dump.mjs 20 1 > /tmp/t.json
   python3 eval/orient-maxsat.py /tmp/t.json --teams 20 [--double] [--tries 0,4] [--seconds 600] [--out o.json]
+  python3 eval/orient-maxsat.py /tmp/t.json --teams 20 --tries 0 --rotate     (round rotations and reversals)
 """
 import argparse
 import json
@@ -78,6 +79,31 @@ def least_breaks(rounds, n, double):
     return cost, out
 
 
+def carry_over(rounds, n):
+    """Non-cyclic carry-over value (sum of squared cells), as carryOverFromOpponents."""
+    opp = [[] for _ in range(n)]
+    for rd in rounds:
+        for a, b in rd["matches"]:
+            if a < n and b < n:
+                opp[a].append(b)
+                opp[b].append(a)
+    cells = {}
+    for seq in opp:
+        for x, y in zip(seq, seq[1:]):
+            cells[x, y] = cells.get((x, y), 0) + 1
+    return sum(v * v for v in cells.values())
+
+
+def rotations(rounds):
+    """The round rotations and their reversals of a single round robin: every one keeps the
+    timetable's pairs and rounds, so it is the same structure played in another order."""
+    R = len(rounds)
+    for k in range(R):
+        rot = rounds[k:] + rounds[:k]
+        yield f"rot{k}", rot
+        yield f"rev{k}", rot[::-1]
+
+
 def _run(args):
     rounds, n, double = args
     return least_breaks(rounds, n, double)
@@ -91,10 +117,25 @@ def main():
     ap.add_argument("--tries", default=None, help="comma-separated try indices (default all)")
     ap.add_argument("--seconds", type=float, default=600, help="per-try limit; over it the try is reported unsolved")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--rotate", action="store_true", help="single round robin: every round rotation and reversal of each picked try")
     a = ap.parse_args()
     data = json.load(open(a.file))
     pick = [int(x) for x in a.tries.split(",")] if a.tries else [d["i"] for d in data]
     done = []
+    if a.rotate:
+        for d in data:
+            if d["i"] not in pick:
+                continue
+            for name, rot in rotations(d["rounds"]):
+                t0 = time.time()
+                with mp.Pool(1) as p:
+                    job = p.apply_async(_run, ((rot, a.teams, False),))
+                    try:
+                        cost = job.get(a.seconds)[0]
+                    except mp.TimeoutError:
+                        cost = None
+                print(json.dumps({"teams": a.teams, "i": d["i"], "order": name, "coe": carry_over(rot, a.teams), "least": cost, "s": round(time.time() - t0, 1)}), flush=True)
+        return
     for d in data:
         if d["i"] not in pick:
             continue

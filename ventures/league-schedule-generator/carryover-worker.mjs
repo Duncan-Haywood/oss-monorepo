@@ -9,13 +9,14 @@
 //
 // Squeeze mode (either kind of season, after the pool): In { squeeze: count, n, seed, results } (every
 // try's result, by index). Out: { type: "try", i, candidate, result } per squeezed season
-// (carryOverSqueeze, numbered after the tries), then { type: "done" }.
+// (carryOverSqueeze, numbered after the tries), then, when `polish` is set, one per polished season
+// (carryOverPolish, numbered after the squeezes), then { type: "done" }.
 //
 // Whole-search mode (older pages, kept for cached copies): In { n, double, seed, tries, capped, pick }.
 // Out: { type: "try", i, tries, candidate } per search, then { type: "done", rounds, summary }.
-import { bestCarryOverRounds, carryOverSummary, carryOverTry, carryOverSqueeze } from "./carryover.mjs";
+import { bestCarryOverRounds, carryOverSummary, carryOverTry, carryOverSqueeze, carryOverPolish } from "./carryover.mjs";
 self.onmessage = (e) => {
-  const { n, double, seed, tries, capped, pick, indices, weighted, squeeze, results } = e.data || {};
+  const { n, double, seed, tries, capped, pick, indices, weighted, squeeze, polish, results } = e.data || {};
   try {
     if (Number.isInteger(squeeze) && Array.isArray(results)) {
       const all = [...results].sort((a, b) => a.index - b.index);
@@ -24,6 +25,9 @@ self.onmessage = (e) => {
         if (!result) break;
         all.push(result);
         self.postMessage({ type: "try", i: result.index, candidate: { coe: result.coe, breaks: result.breaks, breakWeight: null, maxBreaks: result.maxBreaks }, result });
+      }
+      if (Number.isInteger(polish) && polish > 0) for (const result of carryOverPolish(n, all, { seed, count: polish })) {
+        self.postMessage({ type: "try", i: result.index, candidate: { coe: result.coe, breaks: result.breaks, breakWeight: null, maxBreaks: null }, result });
       }
       self.postMessage({ type: "done" });
       return;

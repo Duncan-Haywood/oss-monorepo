@@ -1,0 +1,10 @@
+ok   the frontier list shows (4 other season(s)): Other seasons from the same searches, each the most even carry-over found for its number of back-to-back home or away games. Click one to use it: 238 carry-over, 20 back-to-back 250 carry-over, 18 back-to-back (shown) 314 carry-over, 16 back-to-back 370 carry-over, 14 back-to-back 434 carry-over, 12 back-to-back
+ok   a squeezed season is on the list (try numbers 3, 16, 2, 8)
+ok   a regrounded season is on the list (index 16 and up)
+ok   picking "314 carry-over, 16 back-to-back" keeps that season (was 250/18)
+ok   the report's own recount (314) agrees with the kept try (314)
+ok   share link copied
+ok   the share link opens on the picked season
+ok   Back to the choice above restores the first season
+ok   changing the choice drops a picked season
+ok   no page errors
