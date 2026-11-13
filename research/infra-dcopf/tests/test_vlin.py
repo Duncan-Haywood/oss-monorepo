@@ -107,3 +107,36 @@ def test_analytic_linearise_uses_one_power_flow(case14_api):
     n0 = vlin.PF_COUNT[0]
     lin = vlin.linearise(ppc, dc["gen"][:, PG].copy(), v, lay, analytic=True)
     assert lin is not None and vlin.PF_COUNT[0] - n0 == 1
+
+
+def _first_qp(ppc):
+    dc = rundcopf(ppc, ppoption(VERBOSE=0, OUT_ALL=0))
+    lay = vlin.Layout(ppc)
+    return vlin.linearise(ppc, dc["gen"][:, PG], lay.v_of(file_schedule(ppc)), lay, analytic=True)
+
+
+@pytest.mark.parametrize("elastic", [None, vlin.ELASTIC])
+def test_screened_qp_matches_the_full_qp(case14_api, elastic):
+    """Milestone 2b: constraint generation returns the full QP's optimum with fewer rows."""
+    ppc, _ = case14_api
+    lin = _first_qp(ppc)
+    before = dict(vlin.QP_STATS)
+    full = vlin.solve(ppc, lin, margin=vlin.MARGIN, elastic=elastic)
+    scr = vlin.solve(ppc, lin, margin=vlin.MARGIN, elastic=elastic, screen=True)
+    assert full[2] and scr[2]
+    assert np.abs(full[0] - scr[0]).max() < 1e-3   # MW
+    assert np.abs(full[1] - scr[1]).max() < 1e-5   # pu
+    used = vlin.QP_STATS["rows_used"] - before["rows_used"]
+    total = vlin.QP_STATS["rows_full"] - before["rows_full"]
+    assert used < 0.75 * total
+
+
+def test_clarabel_solves_the_same_qp_as_pips(case14_api):
+    pytest.importorskip("clarabel")
+    ppc, _ = case14_api
+    lin = _first_qp(ppc)
+    a = vlin.solve(ppc, lin, margin=vlin.MARGIN)
+    b = vlin.solve(ppc, lin, margin=vlin.MARGIN, solver="clarabel")
+    assert a[2] and b[2]
+    assert np.abs(a[0] - b[0]).max() < 1e-3
+    assert np.abs(a[1] - b[1]).max() < 1e-5
