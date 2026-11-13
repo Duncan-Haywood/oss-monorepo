@@ -283,3 +283,186 @@ test('CLI: --overlap reports overlaps and breaks; needs --split-voices', () => {
   assert.equal(JSON.parse(run([f, '--split-voices', '--split-words', '--tenor', '52-64', '--bass', '45-57', '--json']).text).voices.overlaps, undefined);
   assert.equal(run([f, '--overlap']).code, 2);
 });
+
+// ---- Three sections: baritones between tenors and basses (2026-11-13) ----
+const BARITONE = { low: 45, high: 65 };
+const OCTAVE = { tenor: { low: 52, high: 64 }, baritone: { low: 48, high: 60 }, bass: { low: 45, high: 57 } };
+const SECTIONS3 = { tenor: TENOR_RANGE, baritone: BARITONE, bass: BASS_RANGE };
+const rangeOf = (voice, secs) => {
+  const names = voice === 'all' ? Object.keys(secs) : voice.split('+');
+  return { low: Math.max(...names.map((n) => secs[n].low)), high: Math.min(...names.map((n) => secs[n].high)) };
+};
+
+test('three sections: every note is in the range of every section that sings it, on all 67 files and both range sets', () => {
+  for (const secs of [SECTIONS3, OCTAVE]) {
+    for (const f of files) {
+      const r = splitVoices(load(f), { ...secs, overlap: true });
+      if (!r.fits) continue;
+      let sum = 0;
+      for (const n of Object.values(r.voiceNotes)) sum += n;
+      assert.equal(sum, r.notes, f);
+      for (const e of r.events.filter((x) => x.type === 'note')) {
+        const g = rangeOf(e.voice, secs);
+        assert.ok(e.midi >= g.low && e.midi <= g.high, `${f}: ${e.midi} for ${e.voice}`);
+      }
+    }
+  }
+});
+
+test('three sections: octave-wide sections fit 64 of 67 files with baritones, 56 without', () => {
+  const fit = (bar) => files.filter((f) => splitVoices(load(f), { ...OCTAVE, baritone: bar ? OCTAVE.baritone : null }).fits).length;
+  assert.equal(fit(false), 56);
+  assert.equal(fit(true), 64);
+  assert.equal(splitVoices(load(join(corpus, 'dies-irae.gabc')), { tenor: OCTAVE.tenor, bass: OCTAVE.bass }).fits, false);
+  assert.ok(splitVoices(load(join(corpus, 'dies-irae.gabc')), OCTAVE).fits);
+});
+
+test('three sections: a phrase out of the unison band goes to the two sections that reach it, not one', () => {
+  // unison C3-E4 (48-64); tenors and baritones 48-65; baritones and basses 45-64
+  const r = splitVoices(ev('50 52 55 | 60 63 65 | 52 50 | 46 48 50 | 50'), { ...SECTIONS3, shift: 0 });
+  assert.deepEqual(r.phrases.map((p) => p.voice), ['all', 'tenor+baritone', 'all', 'baritone+bass', 'all']);
+  assert.deepEqual(r.sectionNotes, { tenor: 9, baritone: 12, bass: 9 });
+  assert.match(describeSplit(r), /tenors and baritones together on phrase 2 \(3 notes\); baritones and basses together on phrase 4 \(3 notes\)/);
+  // 67 is above the baritones and 44 below them: one section alone
+  const s = splitVoices(ev('50 52 55 | 60 63 65 67 | 52 50 | 44 46 48 | 50'), { ...SECTIONS3, shift: 0 });
+  assert.deepEqual(s.phrases.map((p) => p.voice), ['all', 'tenor', 'all', 'bass', 'all']);
+  // the same chant with two sections: the 65 and the 46 phrases are tenors and basses alone
+  const two = splitVoices(ev('50 52 55 | 60 63 65 | 52 50 | 46 48 50 | 50'), { shift: 0 });
+  assert.deepEqual(two.phrases.map((p) => p.voice), ['all', 'tenor', 'all', 'bass', 'all']);
+});
+
+test('three sections: the DP is exact (brute force over every assignment of 150 random small chants)', () => {
+  let seed = 7;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+  const sets = ['all', 'tenor+baritone', 'baritone+bass', 'tenor+bass', 'tenor', 'baritone', 'bass'];
+  for (let t = 0; t < 150; t++) {
+    const phr = 1 + rnd(5);
+    const spec = [];
+    for (let k = 0; k < phr; k++) {
+      const n = 1 + rnd(3);
+      for (let j = 0; j < n; j++) spec.push(String(40 + rnd(30)));
+      if (k < phr - 1) spec.push('|');
+    }
+    const e = ev(spec.join(' '));
+    const r = splitVoices(e, { ...SECTIONS3, shift: 0, words: 'never' });
+    const ps = phrasesOf(e);
+    let best = null;
+    const walk = (k, acc, missing, changes) => {
+      if (k === ps.length) { if (!best || missing < best[0] || (missing === best[0] && changes < best[1])) best = [missing, changes]; return; }
+      for (const v of sets) {
+        const g = rangeOf(v, SECTIONS3);
+        if (g.low > g.high || ps[k].lo < g.low || ps[k].hi > g.high) continue;
+        const size = v === 'all' ? 3 : v.split('+').length;
+        walk(k + 1, v, missing + (3 - size) * ps[k].notes, changes + (k && v !== acc ? 1 : 0));
+      }
+    };
+    walk(0, null, 0, 0);
+    assert.equal(r.fits, best !== null, spec.join(' '));
+    if (!best) continue;
+    const missing = r.events.filter((x) => x.type === 'note').reduce((a, x) => a + 3 - (x.voice === 'all' ? 3 : x.voice.split('+').length), 0);
+    assert.deepEqual([missing, r.changes], best, spec.join(' '));
+  }
+});
+
+test('CLI --baritones: a Baritones track, T+Bar style who column, flag checks', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cf-split3-'));
+  const mid = join(dir, 'd.mid'), cues = join(dir, 'd.txt');
+  const f = join(corpus, 'dies-irae.gabc');
+  const r = run([f, '--split-voices', '--baritones', '--tenor', '52-64', '--baritone', '48-60', '--bass', '45-57', '--fit', '8', '-o', mid, '--cues', cues, '--json']);
+  assert.equal(r.code, 0, r.text);
+  const v = JSON.parse(r.text).voices;
+  const m = parseMidi(readFileSync(mid));
+  const byCh = (ch) => m.notes.filter((n) => n.ch === ch).length;
+  assert.equal(byCh(0), v.sectionNotes.tenor);
+  assert.equal(byCh(5), v.sectionNotes.baritone);
+  assert.equal(byCh(4), v.sectionNotes.bass);
+  assert.ok(v.sectionNotes.baritone > 0);
+  const who = readFileSync(cues, 'utf8').split('\n').filter((l) => l && !l.startsWith('--')).slice(1).map((l) => l.trim().split(/\s+/)[5]);
+  assert.ok(who.every((w) => /^(all|T|Bar|B|T\+Bar|Bar\+B|T\+B)$/.test(w)), who.find((w) => !/^(all|T|Bar|B|T\+Bar|Bar\+B|T\+B)$/.test(w)));
+  assert.ok(who.some((w) => w.includes('Bar')));
+  assert.equal(run([f, '--baritones']).code, 2);
+  assert.equal(run([f, '--split-voices', '--baritone', '60-40']).code, 2);
+  // without baritones, octave sections cannot sing it
+  assert.equal(run([f, '--split-voices', '--tenor', '52-64', '--bass', '45-57']).code, 1);
+});
+
+// ---- A cost on section entrances (2026-11-13) ----
+test('entrance cost: a section joins a short passage only when it sings more than the cost there', () => {
+  // tenors alone on the 66-68 phrases; the middle phrase (2 notes) is in everyone's range
+  const spec = '66 67 | 55 57 | 66 68';
+  const at = (cost) => splitVoices(ev(spec), { ...SECTIONS3, shift: 0, entranceCost: cost });
+  const free = at(0);
+  assert.deepEqual(free.phrases.map((p) => p.voice), ['tenor', 'all', 'tenor']);
+  assert.equal(free.entrances, 2);
+  // two sections joining for 2 notes win 4 section-notes; at cost 1 that is worth 2
+  assert.deepEqual(at(1).phrases.map((p) => p.voice), ['tenor', 'all', 'tenor']);
+  // at cost 2 they tie (4 against 4), and fewer changes of singer break the tie
+  assert.deepEqual(at(2).phrases.map((p) => p.voice), ['tenor', 'tenor', 'tenor']);
+  const shut = at(3);
+  assert.deepEqual(shut.phrases.map((p) => p.voice), ['tenor', 'tenor', 'tenor']);
+  assert.equal(shut.entrances, 0);
+  assert.equal(shut.changes, 0);
+  assert.throws(() => splitVoices(ev(spec), { entranceCost: -1 }), /entranceCost/);
+  assert.throws(() => splitVoices(ev(spec), { entranceCost: 1.5 }), /entranceCost/);
+});
+
+test('entrance cost: the DP is exact (brute force over every assignment of 150 random small chants)', () => {
+  let seed = 11;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+  const secs = [['tenor', SECTIONS3.tenor], ['baritone', SECTIONS3.baritone], ['bass', SECTIONS3.bass]];
+  const sets = [7, 3, 6, 5, 1, 2, 4];
+  const rangeOfMask = (m) => {
+    const rs = secs.filter((_, k) => m & (1 << k)).map((x) => x[1]);
+    return { low: Math.max(...rs.map((r) => r.low)), high: Math.min(...rs.map((r) => r.high)) };
+  };
+  const pop = (m) => (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1);
+  for (let t = 0; t < 150; t++) {
+    const cost = rnd(7);
+    const phr = 1 + rnd(5);
+    const spec = [];
+    const phrases = [];
+    for (let k = 0; k < phr; k++) {
+      const n = 1 + rnd(4);
+      const notes = Array.from({ length: n }, () => 42 + rnd(28));
+      phrases.push(notes);
+      spec.push(...(k ? ['|'] : []), ...notes.map(String));
+    }
+    const r = splitVoices(ev(spec.join(' ')), { ...SECTIONS3, shift: 0, entranceCost: cost });
+    let best = null;
+    const walk = (k, prev, score) => {
+      if (k === phrases.length) { if (best === null || score < best) best = score; return; }
+      const lo = Math.min(...phrases[k]), hi = Math.max(...phrases[k]);
+      for (const m of sets) {
+        const g = rangeOfMask(m);
+        if (g.low > g.high || lo < g.low || hi > g.high) continue;
+        const joined = prev === null ? 0 : pop(m & ~prev);
+        walk(k + 1, m, score + (3 - pop(m)) * phrases[k].length + cost * joined);
+      }
+    };
+    walk(0, null, 0);
+    assert.equal(r.fits, best !== null, spec.join(' '));
+    if (!r.fits) continue;
+    const missing = r.events.filter((x) => x.type === 'note').reduce((a, x) => a + 3 - (x.voice === 'all' ? 3 : x.voice.split('+').length), 0);
+    assert.equal(missing + cost * r.entrances, best, `${spec.join(' ')} cost ${cost}`);
+  }
+});
+
+test('entrance cost on the corpus: 8 cuts changes of singer with three octave-wide sections (484 to 435)', () => {
+  const total = (cost) => files.reduce((a, f) => {
+    const r = splitVoices(load(f), { ...OCTAVE, overlap: true, entranceCost: cost });
+    return r.fits ? a + r.changes : a;
+  }, 0);
+  assert.equal(total(0), 484);
+  assert.equal(total(8), 435);
+});
+
+test('CLI --entrance-cost: passes through to the split and is checked', () => {
+  const f = join(corpus, 'dies-irae.gabc');
+  const base = [f, '--split-voices', '--baritones', '--tenor', '52-64', '--baritone', '48-60', '--bass', '45-57', '--json'];
+  const a = JSON.parse(run(base).text).voices;
+  const b = JSON.parse(run([...base, '--entrance-cost', '16']).text).voices;
+  assert.ok(b.changes <= a.changes, `${b.changes} > ${a.changes}`);
+  assert.ok(Number.isInteger(b.entrances));
+  assert.equal(run([f, '--entrance-cost', '4']).code, 2);
+  assert.equal(run([f, '--split-voices', '--entrance-cost', 'x']).code, 2);
+});

@@ -18,7 +18,12 @@ test('PrusaSlicer-style footer gives grams and time directly', () => {
   assert.deepEqual(r.derived, []);
 });
 
-test('Orca/Bambu weight and header time', () => {
+test('Bambu Studio header: both times on one line, as GCodeProcessor writes it', () => {
+  const r = parseGcode('; HEADER_BLOCK_START\n; BambuStudio 01.10.01.50\n; model printing time: 1h 52m 3s; total estimated time: 1h 58m 40s\n; total filament weight [g] : 29.46\n; HEADER_BLOCK_END\n');
+  assert.deepEqual([r.ok, r.grams, r.hours], [true, 29.46, 1.98]);
+});
+
+test('Orca (non-Bambu printer) weight and header time', () => {
   const r = parseGcode('; total estimated time: 1h 30m 0s\n; total filament weight [g] : 12.5\n');
   assert.deepEqual([r.ok, r.grams, r.hours], [true, 12.5, 1.5]);
 });

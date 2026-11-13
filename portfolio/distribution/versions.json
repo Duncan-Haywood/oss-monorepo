@@ -18,8 +18,8 @@
       "hash": "sha256-87c97eccf34f0cedcd8847f805ac979df714b5483e086fd3a4cf942a4994581e"
     },
     "actions-injection-check": {
-      "version": "0.1.0",
-      "hash": "sha256-de468eb452e38eefdded20e949a501d6ddc6ce7315f682b8d267c85351a9a30d"
+      "version": "0.1.1",
+      "hash": "sha256-380c286d3bf9ca0f72eb074d2ac695232e3e0d3a7d9848f06e9588a1a6fa7b05"
     },
     "actions-permissions-check": {
       "version": "0.1.0",
@@ -34,8 +34,8 @@
       "hash": "sha256-48a07e01a4ffd873131cf34dd0a197acf9aaf7a16d77d47d09e763ce1d7ea95a"
     },
     "actions-secret-leak-check": {
-      "version": "0.1.0",
-      "hash": "sha256-fafb0844c54bbd56fd47d5705c1fad624e32d3eb01b82ea5889155b46351ba72"
+      "version": "0.1.1",
+      "hash": "sha256-deba81c28028c8f61405077b86fdb56609319bf02925272597080ee73c5b430b"
     },
     "actions-secrets-inherit-check": {
       "version": "0.1.0",
@@ -66,8 +66,8 @@
       "hash": "sha256-c61cd5870065d10c716935d450e5fd15b82883032bb3c6b356e2511e075aefb2"
     },
     "devsec-toolkit": {
-      "version": "0.1.1",
-      "hash": "sha256-50c7527a82bf5679a34a912a1dc0619823efccdc31702897b95ac3ce8911b3ee"
+      "version": "0.1.2",
+      "hash": "sha256-1e0f7e540776e96a33eea5e3d55662627100d204776dd758b810a9442b941ef4"
     },
     "docker-base-image-eol-check": {
       "version": "0.1.0",
@@ -114,8 +114,8 @@
       "hash": "sha256-4a8312a4d79f09b1a158f8eb9daaac5ecdabcaab764da7d3ccbdaaf390018e78"
     },
     "pinned-actions-check": {
-      "version": "0.1.0",
-      "hash": "sha256-c2022dd1852bc8bfcfac28c71b9bb879dbbd55f7bb0ca329c5b8e03667fe4b9d"
+      "version": "0.1.1",
+      "hash": "sha256-66cfddcb3ee70ab5c5802e2f47cc06db57f9a74e9f59e8d7288df9296ec6d5b6"
     },
     "required-checks-drift-check": {
       "version": "0.1.2",

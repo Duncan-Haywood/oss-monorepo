@@ -365,6 +365,13 @@ const medianOf = (v: number[]) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 
+/** The q-quantile of v, linear between order statistics (q = 0.5 is the median). */
+const quantileOf = (v: number[], q: number) => {
+  const s = v.slice().sort((a, b) => a - b);
+  const h = (s.length - 1) * q, lo = Math.floor(h);
+  return lo + 1 < s.length ? s[lo] + (h - lo) * (s[lo + 1] - s[lo]) : s[lo];
+};
+
 /**
  * Each respondent's typical time per pick, relative to the panel's. Relative,
  * not a fixed number of seconds: a list of short labels is quicker to answer
@@ -526,6 +533,20 @@ export const FAST_BLOCK_MIN_LOG = 0.5;
 /** And the split's t statistic is at least this (it is the best of many splits, so well above 2). */
 export const FAST_BLOCK_T = 4;
 
+/**
+ * Which quantile of the panel's log times at each position fastBlockStarts
+ * reads against. An upper quantile, not the median: when 40% of a panel turn
+ * quick at the same point (0.6x pace), they drag the median down with them and
+ * hide; the 0.75 quantile stays among the honest. In the answer-time sweep
+ * (docs/INFORMATION-GAIN-SELECTOR.md, "A panel curve the careless cannot drag
+ * down", 2026-11-13) it raised the share of the ceiling recovered in those
+ * cells from 34-85% to 79-90%, and cost nothing measurable elsewhere (within
+ * 0.0001 Spearman with nobody careless or against a camp). Only the curve's
+ * shape over positions matters to a split, so a constant offset from reading
+ * a higher quantile cancels.
+ */
+export const FAST_BLOCK_CURVE_Q = 0.75;
+
 /** Passes over the panel's curve in fastBlockStarts (each leaves out the blocks the last found). */
 export const FAST_BLOCK_PASSES = 3;
 
@@ -555,8 +576,9 @@ export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog 
  * own answers from 0, in order) from which they did: a bored or tired person
  * who answers properly at first and then clicks through.
  *
- * Each timed answer is read against the panel's median time at the same point
- * in the session (a running median over five positions), not against the
+ * Each timed answer is read against the panel's time at the same point in the
+ * session (the FAST_BLOCK_CURVE_Q quantile of everyone's log time there,
+ * smoothed by a running median over five positions), not against the
  * person's own start: everyone's first pairs are slow while they read the
  * instructions, and everyone speeds up as they learn the screen, and a split
  * against their own start takes either for a block. In the answer-time sweep
@@ -567,8 +589,9 @@ export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog 
  * at most 0.2% of honest respondents, and, for people who turned careless
  * halfway at 0.4x the honest time, recovered 87-105% of what leaving out
  * exactly their careless answers would (the per-answer cut: 0-93%). At 0.6x
- * it recovers 88-101% of the ceiling when a quarter of the panel has a block,
- * but only 34-90% when 40% turn quick at the same point. It sees
+ * it recovers 91-102% of the ceiling when a quarter of the panel has a block
+ * (salience pattern) and 79-90% when 40% turn quick at the same point (the
+ * median curve: 34-85%). It sees
  * nothing of carelessness spread through a session (`?drop=fast-answers` is
  * for that) or of careless answers that are no faster. A comparison, not
  * the default, until real answer times are in (flagship item c).
@@ -577,7 +600,8 @@ export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog 
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[]): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q): Map<string, number> {
+  if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
   const by = new Map<string, { index: number; ms: number }[]>();
   const seen = new Map<string, number>();
   for (const a of answers) {
@@ -597,7 +621,7 @@ export function fastBlockStarts(answers: AnswerTime[]): Map<string, number> {
     const atPos: number[] = [];
     for (let i = 0; i < longest; i++) {
       const v = people.filter(([id, l]) => l.length > i && i < (splits.get(id) ?? Infinity)).map(([, l]) => Math.log(l[i].ms));
-      atPos.push(v.length ? medianOf(v) : NaN);
+      atPos.push(v.length ? quantileOf(v, curveQ) : NaN);
     }
     const curve = atPos.map((_, i) => medianOf(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
     const next = new Map<string, number>();

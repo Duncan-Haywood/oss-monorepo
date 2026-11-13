@@ -11930,21 +11930,28 @@ export async function collectOfflineBundle(outDir, surfaces) {
   return { shared, categories };
 }
 
+// Every file under `outDir` as [relative path, sha256 of its bytes], in path
+// order: the part of the cache name that depends on what was built. Each file
+// is hashed on its own, so any byte or name changes the cache. Read
+// synchronously: the site is about 26k files and 1.1 GB, mostly small files,
+// where `fs.promises.readFile`'s per-call overhead dominated (3.8 s read+hash
+// with 32 in flight, 1.4 s sync, same digests). Nothing else in the build runs
+// while this does
+// (docs/history/pages-build-perf-2026-11-12-cache-name-sync-reads.md).
+export async function offlineFileDigests(outDir) {
+  const files = (await listFiles(outDir)).sort();
+  return files.map((file) => [path.relative(outDir, file), crypto.createHash('sha256').update(readFileSync(file)).digest()]);
+}
+
 // The service worker's cache name: a digest of the generator (`codeVersion`,
 // default offline.mjs) and of every file's path and bytes under `outDir`.
-export async function offlineCacheName(outDir, codeVersion) {
+// `digests` (from `offlineFileDigests(outDir)`) lets a caller that names the
+// same tree more than once read it once; the build passes none
+// (docs/history/pages-test-perf-2026-11-13-cache-name-digests-once.md).
+export async function offlineCacheName(outDir, codeVersion, digests) {
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
-  // Each file hashed on its own, then the digests in path order: any byte or
-  // name changes the cache. Read synchronously: the site is about 26k files
-  // and 1.1 GB, mostly small files, where `fs.promises.readFile`'s per-call
-  // overhead dominated (3.8 s read+hash with 32 in flight, 1.4 s sync, same
-  // digests). Nothing else in the build runs while this does
-  // (docs/history/pages-build-perf-2026-11-12-cache-name-sync-reads.md).
-  const files = (await listFiles(outDir)).sort();
-  for (const file of files) {
-    hash.update(path.relative(outDir, file)).update(crypto.createHash('sha256').update(readFileSync(file)).digest());
-  }
+  for (const [rel, digest] of digests ?? (await offlineFileDigests(outDir))) hash.update(rel).update(digest);
   return `portfolio-${hash.digest('hex').slice(0, 12)}`;
 }
 

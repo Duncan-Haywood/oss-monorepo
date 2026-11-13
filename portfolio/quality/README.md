@@ -79,7 +79,12 @@ the rotation working, not a bug. From 2026-11-10 a flagship audited in the last
 flagships were returning identical scores. `sample` picks the seed and round
 number itself: the date, or the date with the first `-b`, `-c` ... suffix no
 audit on disk, on `origin/main` or in an open `quality: round N (seed S)` PR
-title has used, and one more than the highest round in those places. It
+title has used, plus a four-character random tail (`2026-11-13-p-17e6`), and
+one more than the highest round in those places. The tail exists because the
+letter alone let two sessions that started minutes apart draw the same seed
+before either claim PR was visible: seeds `2026-11-13-e`, `-h` and `-o` were
+each audited twice ([`blind-pairs/`](blind-pairs/)). Two sessions can still
+share a round number; the second renames its post. It
 fetches `origin main` itself and prints the open round PRs it skipped
 (`--offline` skips both). Keep that title shape so the next run sees your
 claim, and open the PR as soon as you have drawn. Because the non-flagship strata are uniform random, the share of

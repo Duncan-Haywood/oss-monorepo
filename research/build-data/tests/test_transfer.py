@@ -113,6 +113,12 @@ class Paired(unittest.TestCase):
         n23 = int((fc["seattle"].year == 2023).sum())
         self.assertEqual(len(r1["_select"]["permit_id"]), n23)
         self.assertEqual(len(r1["_select"]["loss"][0.9]), n23)
+        # session 84: the year Y-2 rows come back too, with labels and issue days for truncation
+        n22 = int((fc["seattle"].year == 2022).sum())
+        self.assertEqual(len(r1["_select2"]["loss"][0.5]), n22)
+        self.assertEqual(len(r1["_select2"]["start"]), n22)
+        self.assertTrue(all(str(s).startswith("2022") for s in r1["_select2"]["start"]))
+        np.testing.assert_array_equal(r1["_select"]["y"], fc["seattle"][fc["seattle"].year == 2023].y.to_numpy(float))
 
     def test_different_test_rows_are_refused(self):
         ft = self.frames("type")

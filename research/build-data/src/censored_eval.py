@@ -152,7 +152,7 @@ def fit(data_dir, held, test_year, seeds, classes, select=False):
         else:
             key = (k, ())
         r = transfer.run(frames, held, test_year, seeds, keep_rows=True, select=select)
-        R[k] = done[key] = dict(r["_rows"], _select=r["_select"]) if select else r["_rows"]
+        R[k] = done[key] = dict(r["_rows"], _select=r["_select"], _select2=r["_select2"]) if select else r["_rows"]
         print(held, test_year, k, "n_test", r["n_test"], flush=True)
     fit.folds = FOLDS
     a = R[classes[0]]

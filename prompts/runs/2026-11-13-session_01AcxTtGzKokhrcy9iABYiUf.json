@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtGzKokhrcy9iABYiUf",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:06:19Z",
+  "ended": "2026-11-13T18:18:33Z",
+  "wall_minutes": 12.57,
+  "tokens_in": 13519508,
+  "tokens_out": 137506,
+  "cost_usd": 8.4385,
+  "tool_calls": 161,
+  "task": "quality audit round 69 (mode sample, seed 2026-11-13-o)",
+  "projects": [
+    "ventures/3d-print-price-calculator",
+    "ventures/mortgage-escrow-analysis-checker",
+    "research/energy-store-modelprice",
+    "research/garment-twonodeheld"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 2 says give each auditor 'the subject'; my brief guessed garment-twonodeheld was cloth simulation from its slug and was wrong (it is clothing thermophysiology). Briefs should say 'read the README to name the field' rather than guess."
+    },
+    {
+      "file": "research/energy-store-modelprice/tests/test_model.py",
+      "issue": "Research projects with bare pytest tests plus pytest-only path config are invisible to `unittest discover`, which research CI is said to run; two of four subjects this round had tests no CI executes."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "pyenv.py pytest numpy did not include scipy, which garment-twonodeheld needs; the auditor had to retry with scipy. Projects do not declare scipy in pyproject."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Applied fixes in the same PR as the audits rather than separate fix PRs, as earlier rounds did (round 68 post).",
+      "did": "one PR with per-subject fix commits; fix_prs points at it",
+      "result": "all fixes tested, mutants re-run and caught"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Opened the PR with a placeholder post commit to claim the round title before audits finished, since a claim needs a non-empty diff and empty commits are not allowed.",
+      "did": "draft post stub, replaced by the full post",
+      "result": "no conflict with parallel rounds"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-69.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-13-o, round 69, mode sample. Subjects: ventures/3d-print-price-calculator, ventures/mortgage-escrow-analysis-checker, research/energy-store-modelprice, research/garment-twonodeheld. Share meeting the bar: 0 of 4 (cumulative sampled 32 of 290, Wilson 8%-15%). Seeded mutations caught by subjects' own tests: 11 of 24. Fix PR: #15569 (escrow Reg X deficiency definition + Appendix E/boundary tests; Bambu G-code print time; energy-store claim corrections + section A pin; garment unittest pins). Spot-checks by the orchestrator: read calc.mjs:137 and confirmed the deficiency formula against 12 CFR 1024.17(b); confirmed weekly real verdicts S S S P T in energy-store results.txt and cost.py heat_in_kwh from T_AMB; re-ran 8 mutants after the fixes, all caught. Verification: venture suites node --test 53/53 and 79/79 pass; research pytest 7/7 (energy) and unittest 4/4 (garment, python3.13); research homepage build ok; check_md_links ok; quality_audit validate 330 files 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5126774c-bade-554d-9a1e-517d514005d7",
+    "transcripts": 5,
+    "first": "2026-11-13T18:06:19Z",
+    "last": "2026-11-13T18:18:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 153,
+        "input": 309,
+        "output": 137506,
+        "thinking": 38788,
+        "cache_read": 12962925,
+        "cache_write_5m": 451885,
+        "cache_write_1h": 104389,
+        "api_equivalent_usd": 8.4385,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 153,
+      "input": 309,
+      "output": 137506,
+      "thinking": 38788,
+      "cache_read": 12962925,
+      "cache_write_5m": 451885,
+      "cache_write_1h": 104389,
+      "api_equivalent_usd": 8.4385,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.959,
+    "tool_calls": 161,
+    "tools": {
+      "Bash": 144,
+      "Read": 5,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.57,
+      "active_minutes": 7.3,
+      "model_minutes": 5.63,
+      "tool_minutes": 1.68,
+      "waiting_on_human_minutes": 5.27,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 24.91
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four expert audits (~3 h each incl. regulation/standard lookup and independent recompute) plus fixes and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 165.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

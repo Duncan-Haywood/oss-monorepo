@@ -96,6 +96,14 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-13, latest: `--overlap` (README "Overlapped handoffs"): at a direct tenor/bass swap inside a phrase both
   sections sing one seam note if it is in both ranges. Only octave-wide sections produce such swaps on the corpus
   (7-13 of them); every one overlaps (0 breaks, eval/overlap-report.md). Off by default; not tried with singers.
+- 2026-11-13, latest: `--baritones` (README "Three sections"): tenors, baritones and basses; a phrase or word goes
+  to all three, two or one, fewest section-notes left out. Two-section results unchanged. Octave-wide sections: 64
+  of 67 files fit instead of 56, one-section notes 89.4% to 29.9% (eval/three-sections-report.md); amateur ranges:
+  25.4% to 2.5%. Changes of singer rise (166 to 484 octave-wide). Studio page option too. Not tried with singers.
+- 2026-11-13, latest: `--entrance-cost N` (README "Short entrances"): each section entrance costs N section-notes, so
+  a section joins a passage only when it sings more than N notes. The premise was weak: octave-wide, a section that
+  enters sings a median of 19 notes (1 of 238 entrances under 4 notes). Cost 8 cuts changes of singer 484 to 435
+  for 1.3% more section-notes left out (eval/entrance-cost-report.md). Default 0. Not tried with singers.
 
 ## Next
 

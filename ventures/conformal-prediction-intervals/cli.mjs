@@ -34,7 +34,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
 Statistical output from your data, not advice. No warranty. MIT licence.
-Web version: https://duncan-haywood.github.io/monorepo-projects/conformal-prediction-intervals/`;
+Web version: https://marisstella.app/conformal-prediction-intervals/`;
 
 const FLAGS = { "--target": "target", "--features": "features", "--coverage": "coverage", "--method": "method", "--seed": "seed", "--test-fraction": "testFraction", "--cal-fraction": "calibrationFraction", "--repeats": "repeats", "--new": "newFile" };
 

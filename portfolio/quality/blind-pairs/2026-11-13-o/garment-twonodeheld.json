@@ -1,0 +1,220 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/garment-twonodeheld",
+ "stratum": "research",
+ "seed": "2026-11-13-o",
+ "drawn_by": "sample",
+ "round": 69,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a building-physics / thermal-comfort researcher reviewing for Building and Environment or Energy and Buildings (Gagge two-node modelling, ASHRAE 55 / ISO 7730, personal comfort systems and adaptive textiles). They would check first that the two-node model is the published one (against pythermalcomfort), that the score measures comfort rather than distance from the model's own set point, and whether a held-out test is meaningful when the tuned parameter is a thermostat band on the same variable the score penalises",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran it. `/usr/bin/python3.13 experiments/run.py` (3.7 s) rewrites experiments/results.txt byte-identical (git status clean afterwards); `experiments/figure.py` rewrites held.svg byte-identical. Three independent recomputations in /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/garment: (1) indep.py re-implements the hysteresis gate, the |tsk-33.7| score, the 54-band grid search, the four-schedule oracle and the switch count from scratch (only the ODE flex.run is reused) and reproduces every summary number in results.txt for both choice sets to 3 dp (tuned 33.6-33.7, train 0.880/0.467, held-out 0.834/1.354 and 0.338/1.085, oracle 0.920/0.825/1.364, near-count 4 and 2 of 54, switch lists [1,2,1,2,14,24,1,1] and [14,18,13,14,0,0,1,1]); (2) mytwo.py, my own Gagge-Fobelets-Berglund (1986) two-node with ISO 7730 f_cl/radiation and the IR-transmittance split written from the published equations, gives fixed closed/open scores 1.1326/1.6768 (24 C 1->2), 0.9782/1.3365 (24 C 2->1), 1.0419/0.6698 (28 C), 2.3074/3.8071 (20 C), equal to the package to 4 dp and to the per-scenario rows of results.txt; (3) pythermalcomfort 4.6.1 two_nodes_gagge (the cited reference, pip-installed into scratch) vs flex.run(opts=REF, tau=0) at 60 min: t_skin/t_core 33.6379/36.8545 vs 33.6380/36.8545 (24 C, 1.2 met), 31.3475 vs 31.3476 (20 C, 1 met), 34.9231 vs 34.9232 (28 C, 2 met), 34.9099 vs 34.9100 (31 C): within 1e-4 C. The IR-transmittance extension itself is not validated against any source (none exists in the repo), so correctness is of the computation, not of the physics of a gating textile.",
+  "completeness": "Everything the README says is done runs end to end: the train/held-out protocol (held.py), the 54-band grid (bands()), the five references (tuned, untuned, closed, open, oracle), both choice sets, the switch counts and the near-optimum count (run.py), the figure (figure.py parses results.txt, no retyped numbers), 4 tests as stated, live page https://marisstella.app/research/garment-twonodeheld/ returns 200 and says '4 tests'. No TODOs or stubs. Not done and not claimed: lag/actuation-cost retune (listed as next step).",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests`: 4 passed in 1.48 s. Mutations via platform/ci/quality_mutate.py: tune argmin->argmax caught; TEST_BETWEEN rooms changed caught; oracle_mean divided by len+1 SURVIVED; gate built with (lo, lo) instead of (lo, hi) SURVIVED; band widths doubled (lo + 2w) SURVIVED. 3 of 5 core-logic mutants survive because no test pins any headline number (the tuned band, a train mean, an oracle mean) or the grid contents; the tests check only internal consistency (tuned <= default on train, oracle <= fixed/default on one set). test_oracle_lower_bound_on_every_policy is named for a property the README says does not hold (the gate beats the oracle on train) and only checks three policies.",
+  "craft": "Read held.py (41 lines), run.py, figure.py, test_held.py and the three upstream modules (garment-twonodemet/met.py, garment-twonodeswitch/switch.py, garment-twonodeoptics/flex.py). held.py is small and clear and reuses the upstream model rather than copying it. Defects: imports from sibling research projects by chained sys.path.insert (held.py:6, met.py:6-7, switch.py:5) rather than a declared dependency, so pyproject.toml's dependencies (numpy, scipy) do not describe what is needed; run.py reaches into h.met.sw.switches through two module layers; a misleading test name (tests/test_held.py:22). Acceptable for a research script.",
+  "claims": "Checked each Results bullet against results.txt and my recomputation: 'beats the untuned band and both fixed states on both held-out sets under both choice sets, by 0.01 to 0.06 C' (0.048/0.051 ours, 0.059/0.014 ref) pass; oracle gaps 0.009 worse / 0.010 better (ours), 0.024 better / equal (ref) pass; same band both sets, 4 and 2 of 54 within 0.02 C pass; tuned beats oracle on train 0.880 vs 0.920 pass; switch counts pass; 'at 20 C (ref) all gates and fixed closed score the same' pass (1.876/1.574 everywhere); 'a still narrower band might score slightly better' true (33.68-33.70 gives 0.871 vs 0.880, see domain). 'ref' = pythermalcomfort 4.6.1 confirmed. Limitations are frank (zero lag/cost, close-relative held-out rooms, proxy not comfort index, grid widened once). Not disclosed: whether the grid widening from 0.2 to 0.1 C was decided after seeing held-out numbers, and that the 33.7 C target is activity-independent.",
+  "fitness": "Field: building physics / thermal comfort, specifically control of adaptive (IR-gating) textiles in a Gagge two-node model. Nearest prior work: on-off/hysteresis (deadband) control theory (Astrom & Murray, Feedback Systems, relay control; ASHRAE Handbook HVAC Applications ch. 48 on deadband), dynamic IR-gating textiles (Zhang et al. 2019 Science 363:619; Hsu et al. 2016 Science 353:1019 for static IR-transparent textiles), personal comfort systems and model-based control (Zhang, Arens et al. 2015 Build. Environ. 91:15; Kim et al. 2018 personal comfort models), and the Gagge two-node / pythermalcomfort implementation. Novelty is low: with zero lag, free switching and a score that is mean |tsk - set point| on the very variable the gate senses, the optimal on/off policy is bang-bang at the set point for any room, so a narrow band at 33.7 C 'carrying over' to held-out rooms is close to guaranteed by construction rather than evidence of generalisation. My scratch run confirms the optimum is a grid-boundary solution (bands 33.65-33.70 0.874, 33.68-33.70 0.871, 33.70-33.70 0.872 ours; 0.4568/0.4562 ref, all better than the reported 'tuned' 33.6-33.7). Effect sizes (0.01 to 0.06 C) are far below the two-node model's error against people (typically several tenths of a degree in mean skin temperature). Baselines are good (untuned, two fixed states, an oracle); confounds of actuation are disclosed, not handled. A useful robustness extension I ran: retuning at lag 5 and 10 min keeps the held-out advantage over the untuned band (ours 0.876 vs 0.922 and 0.918 vs 0.969 between; lag.out), which the README says was not run. A researcher can build on the code; the result itself is a small incremental step.",
+  "domain": "The two-node model matches pythermalcomfort 4.6.1 to 1e-4 C (sound). The departure a comfort reviewer would flag: the score uses a fixed 33.7 C skin target in both phases, but ISO 7730 / Fanger (1970) give the comfortable mean skin temperature as 35.7 - 0.028 (M - W): 34.07 C at 1 met and 32.44 C at 2 met, so walking at 33.7 C is scored 'neutral' while it is about 1.3 C warm by the standard the repo's own base.pmv uses. Re-scoring with that activity-dependent target (fanger.py) leaves the ranking mostly intact under 'ours' (tuned 1.603/1.576/1.975 vs default 1.650/1.624/1.976) but under 'ref' retuning picks 33.8-33.9 and the untuned band beats it on the outside set (1.280 vs 1.282), and absolute errors roughly double, so the gate is far from the comfort target. No comfort index (PMV, SET, Zhang sensation) is used, and the README acknowledges that. A reviewer would not sign off on the method for a comfort claim; it is acceptable as a control-protocol exercise."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Summary table (tuned band, train/held-out means, untuned, fixed, oracle) for both choice sets, plus switch counts and near-optimum count",
+   "method": "independent re-implementation of gate, score, grid search, oracle and switch counting; only the ODE flex.run reused",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/garment/indep.py",
+   "expected": "results.txt: 33.6-33.7; 0.880/0.834/1.354 ours; 0.467/0.338/1.085 ref; oracle 0.920/0.825/1.364; 4 and 2 of 54",
+   "observed": "identical to 3 dp in every cell; same switch lists",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fixed closed/open scores at 24 C both directions, 28 C and 20 C (ours)",
+   "method": "own Gagge, Fobelets & Berglund (1986) two-node with ISO 7730 f_cl and radiation and the IR-transmittance split, written from the published equations",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/garment/mytwo.py",
+   "expected": "package: 1.1326/1.6768, 0.9782/1.3365, 1.0419/0.6698, 2.3074/3.8071",
+   "observed": "1.1326/1.6768, 0.9782/1.3365, 1.0419/0.6698, 2.3074/3.8071",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'ref' two-node model end state at tau=0, 60 min, four rooms/activities",
+   "method": "pythermalcomfort 4.6.1 two_nodes_gagge (the cited reference), installed into scratch",
+   "command": "PYTHONPATH=ptc461 python3.13 -c 'two_nodes_gagge(...) vs flex.run(opts=REF)'",
+   "expected": "pythermalcomfort t_skin 33.6379, 31.3475, 34.9231, 34.9099",
+   "observed": "flex 33.6380, 31.3476, 34.9232, 34.9100 (t_core identical to 4 dp)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Is 33.6-33.7 C the optimum or a grid boundary?",
+   "method": "extra bands beyond the grid scored with the independent gate",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/garment/indep.py (extra band rows)",
+   "expected": "README: 'a still narrower band might score slightly better'",
+   "observed": "33.68-33.70 gives 0.8714 vs 0.8803 (ours), 0.4568 vs 0.4675 (ref): narrower is better, optimum lies at the boundary",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment and figure regenerate the committed outputs",
+   "method": "rerun and git status",
+   "command": "/usr/bin/python3.13 experiments/run.py && /usr/bin/python3.13 experiments/figure.py && git status --short .",
+   "expected": "no diff",
+   "observed": "no diff (results.txt and held.svg byte-identical)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "pytest",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "4 tests pass (README)",
+   "observed": "4 passed in 1.48s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'by 0.01 to 0.06 C against the untuned band' and the oracle gaps 0.009/0.010/0.024/equal",
+   "method": "arithmetic on results.txt and indep.py output",
+   "command": "by hand",
+   "expected": "0.01-0.06; 0.009, 0.010, 0.024, 0",
+   "observed": "0.048, 0.051, 0.059, 0.014; 0.009, 0.010, 0.024, 0.000",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Where the gate has nothing to do, tuning changes nothing: at 20 C (ref)'",
+   "method": "results.txt per-scenario rows",
+   "command": "read results.txt",
+   "expected": "equal scores",
+   "observed": "1.876 and 1.574 for tuned, default, closed and oracle",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page and repo index say what the README says",
+   "method": "loaded https://marisstella.app/research/garment-twonodeheld/ and research/README.md:594",
+   "command": "curl -sS https://marisstella.app/research/garment-twonodeheld/",
+   "expected": "200, 4 tests, 0.01 to 0.06 C",
+   "observed": "200, '4 tests', same summary sentence",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Skin-temperature target vs ISO 7730 / Fanger comfortable skin temperature 35.7 - 0.028 (M-W)",
+   "method": "ISO 7730 (Fanger 1970) formula, re-score",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/garment/fanger.py",
+   "expected": "activity-dependent target 34.07 C (1 met), 32.44 C (2 met)",
+   "observed": "code uses 33.7 C in both phases; with the ISO target the ref retune changes band (33.8-33.9) and the untuned band wins the outside set by 0.002",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Does the held-out advantage survive an actuation lag (README: not run)?",
+   "method": "held.tune with lag 5 and 10 min",
+   "command": "/usr/bin/python3.13 -c '... h.tune(h.TRAIN, o, lag=5.0) ...' (output /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/garment/lag.out)",
+   "expected": "unknown",
+   "observed": "tuned still beats untuned on both held-out sets at lag 5 and 10 in both choice sets (e.g. ours between 0.876 vs 0.922)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Do tests pin any headline number?",
+   "method": "read tests/test_held.py",
+   "command": "cat tests/test_held.py",
+   "expected": "a regression test on the tuned band and a headline mean",
+   "observed": "none; only internal-consistency inequalities",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/garment_twonodeheld/held.py:41",
+   "change": "key=lambda x: x[1]) -> key=lambda x: -x[1])",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:17",
+   "change": "TEST_BETWEEN = scenarios((23.0, 25.0)) -> scenarios((23.0, 24.0))",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:36",
+   "change": "oracle_mean / len(scs) -> / (len(scs) + 1)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:27",
+   "change": "Gate(band[0], band[1], lag) -> Gate(band[0], band[0], lag)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:22",
+   "change": "lo + w -> lo + 2 * w",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The held-out test is near-tautological: with zero lag, free switching and a score of mean |tsk - 33.7| on the variable the gate senses, bang-bang at the set point is optimal in every room, so the tuned band 'carrying over' is expected by construction; the reported optimum 33.6-33.7 is a grid-boundary solution (33.68-33.70 scores 0.871 vs 0.880 ours). The README discloses the narrow-band and zero-lag caveats but presents 'carries over' as the headline finding without saying it follows from the setup, and does not cite deadband/relay control theory",
+   "where": "research/garment-twonodeheld/README.md:27",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Score uses a fixed 33.7 C skin target in both the 1 met and 2 met phases; ISO 7730 / Fanger comfortable skin temperature is 35.7 - 0.028 (M-W) = 34.07 C at 1 met and 32.44 C at 2 met (the repo's own base.pmv uses this form). Re-scored with it, the ref retune picks a different band and the untuned band wins the outside set; the limitation is not stated",
+   "where": "research/garment-twonodemet/src/garment_twonodemet/met.py:12",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins a headline output: 3 of 5 seeded mutants in held.py (oracle mean, gate thresholds, band grid) survive",
+   "where": "research/garment-twonodeheld/tests/test_held.py:17",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "test_oracle_lower_bound_on_every_policy is named for a bound the README says does not hold (the tuned gate beats the oracle on train) and only tests three policies on one set",
+   "where": "research/garment-twonodeheld/tests/test_held.py:22",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Sibling research projects imported by chained sys.path.insert; pyproject.toml declares only numpy and scipy",
+   "where": "research/garment-twonodeheld/src/garment_twonodeheld/held.py:6",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "README says the grid was widened once from 0.2 to 0.1 C width but not whether that was decided before or after seeing held-out scores, which matters for a held-out protocol",
+   "where": "research/garment-twonodeheld/README.md:41",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
+ ],
+ "verdict": "Computationally correct and honestly written: every number in the README reproduces byte-identically, an independent re-implementation of the gate, score, grid search and oracle and my own two-node model match to 3-4 dp, and the 'ref' model matches pythermalcomfort 4.6.1 to 1e-4 C. It does not meet the bar because verification is 2 (no test pins a headline number; 3 of 5 seeded mutants survive), and fitness and domain are 2: the 'tuned band carries over to held-out rooms' result is close to guaranteed by a zero-lag, zero-cost hysteresis gate scored on distance of its own sensed variable from the set point (the optimum sits at the grid boundary), and the fixed 33.7 C target departs from the ISO 7730 activity-dependent comfortable skin temperature. Finished (completeness 3). A lag-5/10 retune I ran shows the held-out advantage persists, which would strengthen the next step."
+}

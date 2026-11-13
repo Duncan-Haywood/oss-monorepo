@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://duncan-haywood.github.io/monorepo-projects/retainage-cashflow-calculator/sitemap.xml
+Sitemap: https://marisstella.app/retainage-cashflow-calculator/sitemap.xml
