@@ -7,7 +7,7 @@
 //
 //   node eval/squeeze-single.mjs --sizes 12,16,18,19,20 --seeds 1,2,3 [--count 4] [--effort 1] [--cycles 0] [--cache dir]
 //
-// `--cycles 0` turns off the three-cycle ground move (on by default for one leg) to measure it;
+// `--cycles 1` turns on the three-cycle ground move (off by default; measured, not shipped);
 // `--cache dir` keeps each size and seed's 12 tries as JSON so a second run skips them.
 //
 // One JSON line per (size, seed), then a table; eval/squeeze-single.txt holds the run behind the README.
@@ -56,7 +56,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1].split(",").map(Number) : d; };
   const [count] = arg("--count", [4]);
   const [effort] = arg("--effort", [1]);
-  const [cyc] = arg("--cycles", [1]);
+  const [cyc] = arg("--cycles", [0]);
   const ci = process.argv.indexOf("--cache"), cache = ci > 0 ? process.argv[ci + 1] : null;
   const rows = [];
   for (const n of arg("--sizes", [12, 16, 18, 19, 20])) for (const seed of arg("--seeds", [1, 2, 3])) { const r = probe(n, seed, { count, effort, cycles: cyc !== 0, cache }); rows.push(r); console.log(JSON.stringify(r)); }

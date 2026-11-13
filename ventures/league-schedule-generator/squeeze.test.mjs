@@ -133,11 +133,12 @@ for (const n of [8, 9, 12, 13]) {
   });
 }
 
-test("single squeeze refuses a home-and-away start, and the three-cycle move keeps every home count", () => {
+test("single squeeze refuses a home-and-away start, and the three-cycle move (cycles) keeps every home count", () => {
   assert.throws(() => squeezeSingleRounds(8, lowCarryOverDoubleRounds(8, { seed: 1, effort: 0.1 }), { maxBreaks: 10 }), /single round robin/);
   // 9 teams: 8 games each, so every team is exactly 4-4 and only the three-cycle move can change a ground
   const start = lowCarryOverRounds(9, { seed: 1, effort: 0.2, breakWeight: 20 });
-  const s = squeezeSingleRounds(9, start, { seed: 1, effort: 0.3, maxBreaks: start.breaks + 4 });
+  const s = squeezeSingleRounds(9, start, { seed: 1, effort: 0.3, maxBreaks: start.breaks + 4, cycles: true });
+  checkSingle(s.rounds, 9);
   const home = Array(9).fill(0);
   for (const r of s.rounds) for (const [h] of r.matches) home[h]++;
   assert.deepEqual(home, Array(9).fill(4));

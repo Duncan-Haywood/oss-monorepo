@@ -283,19 +283,20 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
       duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool, capped breaks,
       zero-break odd leagues, field start; sampled, annealed and climbed starters; break-weighted and
-      shift starters; frontier picker with gap tries, README 2026-11-12 sections). 2026-11-13 latest
-      (README "Squeezing a season under a cap", eval/squeeze-gap.txt): squeezeDoubleRounds searches a
-      home-and-away season's timetable and grounds together under a break cap (pair, two-pair and
-      alternating-run flips; leg-one balance held); the page runs 4 squeezes after its 12 tries, each at
-      the widest frontier gap left: at 17-20 teams 2-4 seasons join the frontier in every run, least
-      carry-over at a break budget 5.2% lower on average, up to 33%. Next, most valuable first: the
-      19-team jump (about 1,311-1,517 carry-over at 79-87 breaks, then 3,100+ at 78 and under on every
-      seed): a squeeze that starts from a shift-starter season above the gap and walks its cap down, or a
-      move that keeps the shift pattern; squeezes for a single round robin (the same joint moves on one
-      leg); the lowest-carry-over end (squeezing 1,460/116 at 20 teams stalls at 112: a perfectly balanced
-      season is a deep local minimum); a lower bound or a timetable below 136 at 12 (SAT,
-      eval/carryover-sat.py: next symmetry breaking or cube-and-conquer); close 24-40 (tabu, longer runs,
-      the literature's starters); a real league's travel times and unavailable dates; a print check.
+      shift starters; frontier picker with gap tries, README 2026-11-12 sections; squeezes of a
+      home-and-away season under a break cap, README "Squeezing a season under a cap"). 2026-11-13 latest
+      (README "Squeezing a single round robin", eval/squeeze-single.txt): squeezeSingleRounds runs the same
+      joint timetable-and-grounds moves on one leg and the page squeezes either kind: over 24 single round
+      robins at 10-20 teams 42 seasons join the frontier, least carry-over at a break budget 1.5% lower on
+      average (3.9% at 17 and 19 teams, up to 21.9%); a three-cycle ground move (keeps every home count)
+      measured no better, off. Next, most valuable first: the gaps under the lowest-carry-over seasons,
+      which no squeeze touches (20 teams single 360/52 to 546/36; home and away 19 teams 1,311/87 to
+      3,100+ at 78 and under; 1,460/116 at 20 stalls at 112): these are starter or shift-starter seasons
+      whose carry-over is tied to their break pattern, so the next try is a move that keeps the starter's
+      structure (a relabelling or a round rotation scored on breaks) or a starter search with a break cap;
+      a lower bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: next symmetry breaking or
+      cube-and-conquer); close 24-40 (tabu, longer runs, the literature's starters); a real league's
+      travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

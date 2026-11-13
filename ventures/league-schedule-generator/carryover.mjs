@@ -1711,14 +1711,14 @@ export function squeezeDoubleRounds(n, start, opts = {}) {
  * keeps its ground through the timetable moves, and the three ground moves flip one match, two
  * matches of one team (one at home, one away) or a whole alternating run. A move that leaves a
  * team's home and away games more than one apart is refused. No repeats to price: one leg has no
- * halfway point. `start` is a lowCarryOverRounds, lowCarryOverCappedRounds or carryOverTry result
+ * halfway point. `cycles: true` adds a three-cycle ground move (measured, off by default). `start` is a lowCarryOverRounds, lowCarryOverCappedRounds or carryOverTry result
  * (not cyclic). Seeded; returns the shape lowCarryOverRounds does, plus { maxBreaks, squeezed }.
  */
 export function squeezeSingleRounds(n, start, opts = {}) {
   return squeezeLegs(n, start, 1, opts);
 }
 
-function squeezeLegs(n, start, legs, { seed = 1, effort = 1, maxBreaks, over = 200, cycles = legs === 1 } = {}) {
+function squeezeLegs(n, start, legs, { seed = 1, effort = 1, maxBreaks, over = 200, cycles = false } = {}) {
   if (!Number.isInteger(n) || n < 4) throw new Error("A squeezed season needs at least four teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
@@ -1772,10 +1772,11 @@ function squeezeLegs(n, start, legs, { seed = 1, effort = 1, maxBreaks, over = 2
       const t = Math.floor(rand() * n), r = Math.floor(rand() * legs * R);
       if (opp[r][t] >= n) continue;
       if (cycles && rand() < 0.4) {
-        // reverse a directed three-cycle of hosts (t hosts u, u hosts v, v hosts t): every team
-        // keeps its home count, so this is the one ground move left when every team is exactly
-        // balanced (an even number of games: an odd league's single round robin), where any flip
-        // that touches a team only once is refused
+        // `cycles` (off): reverse a directed three-cycle of hosts (x hosts y, y hosts z, z hosts
+        // x), so every team keeps its home count, the one ground move left when every team is
+        // exactly balanced (an even number of games). Measured and not shipped: over 24 single
+        // round robins the squeezes cut 1.4% on, 1.5% off; at 19 teams home and away it found
+        // nothing the plain moves did not (README "Squeezing a single round robin")
         const H = (x, y) => host[P(x, y)] === x;
         const u = opp[r][t];
         const [x, y] = H(t, u) ? [t, u] : [u, t]; // x hosts y
