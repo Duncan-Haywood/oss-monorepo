@@ -106,46 +106,6 @@ test("sewing two edges of unequal spacing joins every vertex on both, at matchin
   assert.ok(Math.abs(p.f - 0.75) < 1e-12 && Math.abs(p.d - 0.2) < 1e-12);
 });
 
-test("sleeves: sewn into the armholes they skim the arm, and the old half-width sleeve is caught stretched round it", () => {
-  const me = { chest: 100, waist: 88, hip: 98, height: 178 };
-  const r = drapeGarment(me, { garment: "tee", size: "M" });
-  assert.equal(r.ok, true);
-  assert.equal(r.sleeves.length, 2);
-  assert.equal(r.checks.verticesInsideBody, 0);
-  assert.ok(r.checks.seamGapCm < 1, `seam gap ${r.checks.seamGapCm}`);
-  assert.equal(r.checks.settled, true);
-  for (const s of r.sleeves) {
-    const bicep = s.levels.find(l => l.where === "bicep");
-    assert.ok(bicep.hoopStrainPct < 3, JSON.stringify(bicep));
-    // a 22 cm tee sleeve (shoulder point to cuff) ends well above the elbow
-    assert.ok(s.cuffAboveElbowCm > 5, String(s.cuffAboveElbowCm));
-  }
-  // the pre-2026-11-13 sleeve: the flat bicep (about 12 cm at M) drawn as the full width
-  const old = drapeGarment(me, { garment: "tee", size: "M", pattern: { bicepCm: 12 } });
-  const oldBicep = old.sleeves[0].levels.find(l => l.where === "bicep");
-  assert.ok(oldBicep.hoopStrainPct > 15 && oldBicep.touchingPct === 100, JSON.stringify(oldBicep));
-  assert.match(old.notes.join(" "), /sleeve is stretched more than 8% round the bicep/);
-  // a tight tee: with sleeves the chest still takes the tape arithmetic's 8-16%, and the sleeves are tight too
-  const xs = drapeGarment(me, { garment: "tee", size: "XS", fit: "slim" });
-  assert.equal(xs.checks.settled, true);
-  assert.equal(xs.checks.verticesInsideBody, 0);
-  const xc = xs.levels.find(l => l.where === "chest").hoopStrainPct;
-  assert.ok(xc > 8 && xc < 16, String(xc));
-  // the regular tee's yoke (above the armholes) stays nearly unstretched: the garment hangs from the shoulders
-  let yA = 0, yE = 0;
-  for (let q = 0; q < r.cloth.triOffs[2]; q++) {
-    const t = r.cloth.tris[q], y = (r.pos[3 * t[0] + 1] + r.pos[3 * t[1] + 1] + r.pos[3 * t[2] + 1]) / 3;
-    if (y < 1.40) continue;
-    yA += r.strain[q].area; yE += r.strain[q].area * r.strain[q].ex;
-  }
-  assert.ok(yE / yA < 0.05, `yoke stretch ${(100 * yE / yA).toFixed(1)}%`);
-  assert.ok(xs.sleeves[0].levels.find(l => l.where === "bicep").hoopStrainPct > 8);
-  // body panels only, as before sleeves: no arms, no sleeve numbers
-  const bare = drapeGarment(me, { garment: "tee", size: "M", sleeves: false, gridCm: 3.5 });
-  assert.equal(bare.sleeves.length, 0);
-  assert.equal(bare.body.arms, null);
-});
-
 test("garment drape: a regular tee hangs free, a slim size down pulls tight, and nothing goes through the body", () => {
   const me = { chest: 100, waist: 88, hip: 98, height: 178 };
   // body panels only: the tape arithmetic (garment chest against body chest) holds without arms
@@ -206,21 +166,4 @@ test("arms: setArmAngle swings about the shoulder joint; hangAngleDeg clears the
   const at = d => { const bb = bodyModel(me, { armAngleDeg: d }); const w = bb.arms[0].caps[2]; const s = sectionAt(bb, w.b[1]); return w.b[0] - w.rb - s.a; };
   assert.ok(at(deg) >= 0.012 - 1e-9, String(at(deg)));
   assert.ok(hangAngleDeg(bodyModel(me), 0.05) > deg); // a wider gap needs the arms further out
-});
-
-test("garment drape: lowerArms sews at 45 then swings the arms down, sleeves carried with them", () => {
-  const me = { chest: 100, waist: 88, hip: 98, height: 178 };
-  const r = drapeGarment(me, { size: "L", gridCm: 4, lowerArms: true });
-  assert.equal(r.ok, true);
-  assert.equal(r.sewAngleDeg, 45);
-  assert.ok(r.body.armAngleDeg < 35, String(r.body.armAngleDeg));
-  assert.ok(r.checks.seamGapCm < 1, String(r.checks.seamGapCm));
-  // the sleeve came down with the arm: its cuff row sits round the lowered arm, not where the 45-degree arm was
-  const s = r.sleeves[0];
-  assert.ok(s.cuffFromShoulderCm > 15 && s.cuffFromShoulderCm < 40, JSON.stringify(s));
-  assert.ok(s.levels.find(l => l.where === "bicep").clearanceCm < 3);
-  assert.match(r.notes.join(" "), /lowered to \d+/);
-  // a fixed angle can be asked for too
-  const r2 = drapeGarment(me, { size: "L", gridCm: 4, lowerArms: 35, settleTime: 1.2 });
-  assert.equal(r2.body.armAngleDeg, 35);
 });

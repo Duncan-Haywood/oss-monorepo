@@ -264,7 +264,7 @@ the cap and armhole are matched over the span their vertices actually cover.
 The arm angle matters: an M tee's yoke (above 140 cm) stretches 13.8% on
 average at 20 degrees, 6.6% at 30 and 3.4% at 45, because an arm near the side
 makes the underarm wrap under it; hence 45 by default. `drape.test.mjs`
-checks the arm girths, the edge pairing, the M tee's sleeves (under 3% at the
+checks the arm girths and the edge pairing; `drape-sleeves.test.mjs` the M tee's sleeves (under 3% at the
 bicep, cuff above the elbow, yoke under 5%), the old width caught over 15%,
 and the XS slim chest still at the tape arithmetic's 8-16% with sleeves on.
 

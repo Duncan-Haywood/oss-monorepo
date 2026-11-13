@@ -13,6 +13,7 @@ import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 import { checkNfe, looksLikeNfe } from "./nfe.mjs";
 import { checkNfse, looksLikeNfse } from "./nfse.mjs";
 import { checkAbrasf, looksLikeAbrasf } from "./abrasf.mjs";
+import { checkDsf, looksLikeDsf } from "./dsf.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -124,6 +125,14 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         const nfse = checkNfse(peek);
         const m = nfse.meta;
         reports.push({ file: name, errors: nfse.findings, envelope: `Read as a Brazilian national NFS-e ${m.kind === "DPS" ? "DPS (the request)" : "(as issued)"} ${m.versao || ""}, not EN 16931${m.cStat === "100" ? "; issued (cStat 100)" : ""}${m.ambGer === "2" || m.tpAmb === "2" ? "; test environment" : ""}`, ...(nfse.skipped.length ? { skipped: nfse.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeDsf(peek)) {
+        // Brazil's municipal NFS-e in DSF's own layout (Campinas's old system, Campo Grande,
+        // Teresina, ...): own schema, RPS signature hash and batch totals.
+        const dsf = checkDsf(peek);
+        const m = dsf.meta;
+        reports.push({ file: name, errors: dsf.findings, envelope: `Read as a Brazilian municipal NFS-e in DSF's layout (${m.version ? `DSF ${m.version.split(" ")[1]}` : "DSF"}${m.root ? `, ${m.root}` : ""}), not EN 16931${m.root === "ReqEnvioLoteRPS" ? `; a batch of ${m.rps} RPS` : ""}`, ...(dsf.skipped.length ? { skipped: dsf.skipped } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeAbrasf(peek)) {

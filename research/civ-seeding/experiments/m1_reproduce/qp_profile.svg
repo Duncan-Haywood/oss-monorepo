@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the moment criterion relative to its minimum against qP; at qN = 0.05 it bottoms out at qP 0.30 to 0.35 and is flat-ish from 0.25 to 0.45; at qN = 0.10, the published estimate, it is 2 to 16 times the minimum everywhere">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Banerjee et al. (2013) information model: fit criterion over qP</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="117.5" y2="117.5" stroke="#ddd"/><text x="58" y="121.5" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.55</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="530.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.85</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">qP (chance an adopter tells a neighbour per period)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">criterion / minimum</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,70.4 95.1,131.6 126.2,197.6 157.3,261.1 188.4,309.6 219.6,306.4 250.7,281.6 281.8,259.2 312.9,238.3 344.0,219.9 375.1,203.2 406.2,193.1 437.3,187.9 468.4,180.5 499.6,176.0 530.7,171.3 561.8,168.6 592.9,164.8 624.0,161.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="95.1" cy="131.6" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="197.6" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="261.1" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="219.6" cy="306.4" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="281.6" r="3" fill="#c0392b"/>
+<circle cx="281.8" cy="259.2" r="3" fill="#c0392b"/>
+<circle cx="312.9" cy="238.3" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="219.9" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="203.2" r="3" fill="#c0392b"/>
+<circle cx="406.2" cy="193.1" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="187.9" r="3" fill="#c0392b"/>
+<circle cx="468.4" cy="180.5" r="3" fill="#c0392b"/>
+<circle cx="499.6" cy="176.0" r="3" fill="#c0392b"/>
+<circle cx="530.7" cy="171.3" r="3" fill="#c0392b"/>
+<circle cx="561.8" cy="168.6" r="3" fill="#c0392b"/>
+<circle cx="592.9" cy="164.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="161.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">qN = 0.05</text>
+<polyline points="64.0,245.4 95.1,228.0 126.2,191.5 157.3,165.6 188.4,147.0 219.6,133.1 250.7,122.3 281.8,112.8 312.9,107.1 344.0,101.5 375.1,95.9 406.2,93.8 437.3,90.0 468.4,86.3 499.6,83.6 530.7,82.1 561.8,80.5 592.9,78.2 624.0,76.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="245.4" r="3" fill="#1f6fb2"/>
+<circle cx="95.1" cy="228.0" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="191.5" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="165.6" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="147.0" r="3" fill="#1f6fb2"/>
+<circle cx="219.6" cy="133.1" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="122.3" r="3" fill="#1f6fb2"/>
+<circle cx="281.8" cy="112.8" r="3" fill="#1f6fb2"/>
+<circle cx="312.9" cy="107.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="101.5" r="3" fill="#1f6fb2"/>
+<circle cx="375.1" cy="95.9" r="3" fill="#1f6fb2"/>
+<circle cx="406.2" cy="93.8" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="90.0" r="3" fill="#1f6fb2"/>
+<circle cx="468.4" cy="86.3" r="3" fill="#1f6fb2"/>
+<circle cx="499.6" cy="83.6" r="3" fill="#1f6fb2"/>
+<circle cx="530.7" cy="82.1" r="3" fill="#1f6fb2"/>
+<circle cx="561.8" cy="80.5" r="3" fill="#1f6fb2"/>
+<circle cx="592.9" cy="78.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="76.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">qN = 0.10</text>
+</svg>
