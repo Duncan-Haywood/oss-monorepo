@@ -30,13 +30,17 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
   "errors": [
     {
       "what": "git diff | patch onto the built dist copy of etsy-profit-calculator failed (the build rewrites the <style> block), so the after-screenshot needed a substring splice instead",
+      "fixed": true
+    },
+    {
+      "what": "First push's post had a 165-character description and a 73-character seo_title; writing.mjs throws on load, so CI Portfolio Pages test reported 172 failures and validate failed",
       "fixed": true
     }
   ],
@@ -64,7 +68,7 @@
     "docs/reports/polish-2026-11-13-intro-walls.md"
   ],
   "goal": "impressive sites, SEO and AEO",
-  "notes": "Full local build of main (9,098 pages). First input at 390x844, before/after: eBay 1,940/884, Etsy 1,451/949, Reverb 1,451/973; 1,280: 1,204/724, 988/742, 927/705. Venture suites: eBay 505/505, Etsy 196/196, Reverb 123/123; answer-lead.test.mjs 50/50; intro-links.test.mjs 3/3. Site-build suite (node --test 'platform/pages/*.test.mjs'): see the follow-up line below.",
+  "notes": "Full local build of main (9,098 pages). First input at 390x844, before/after: eBay 1,940/884, Etsy 1,451/949, Reverb 1,451/973; 1,280: 1,204/724, 988/742, 927/705. Venture suites: eBay 505/505, Etsy 196/196, Reverb 123/123; answer-lead.test.mjs 50/50; intro-links.test.mjs 3/3. Site-build suite (node --test 'platform/pages/*.test.mjs') on the first commit: 1,583 pass, 2 fail, both from this run's post description being 165 characters (writing.mjs throws, which also caused the first CI run's 172 failures). After the front-matter fix, heading-order and podcast tests 13/13 and promptctl validate ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
