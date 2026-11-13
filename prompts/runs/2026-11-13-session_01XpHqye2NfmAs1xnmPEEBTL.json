@@ -54,7 +54,7 @@
     "ventures/chant-forge/eval/key-lift-check.md"
   ],
   "goal": null,
-  "notes": "Checks run here: node --test for chant-forge (run_venture_tests.py chant-forge: ok, 121 tests incl. 6 new); eval/browser-e2e.mjs 82 checks pass; byte-identical MIDI and text vs main for 7 commands without new flags; eval/key-lift-check.mjs rendered bass ratio 1.117-1.124 (expected 1.1225), a cappella bars silent after the first; lifted mix through render-cli --lufs -14 --limit passes master-cli (-14.0 LUFS, -1.05 dBTP); platform/pages site tests 54 pass; venture-preflight rerun (see PR). No agent doc: the flagships.yaml next and README carry what the next run needs.",
+  "notes": "Checks run here: node --test for chant-forge (run_venture_tests.py chant-forge: ok, 121 tests incl. 6 new); eval/browser-e2e.mjs 82 checks pass; byte-identical MIDI and text vs main for 7 commands without new flags; eval/key-lift-check.mjs rendered bass ratio 1.117-1.124 (expected 1.1225), a cappella bars silent after the first; lifted mix through render-cli --lufs -14 --limit passes master-cli (-14.0 LUFS, -1.05 dBTP); platform/pages site tests 54 pass; venture-preflight rerun clean (exit 0). No agent doc: the flagships.yaml next and README carry what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {
