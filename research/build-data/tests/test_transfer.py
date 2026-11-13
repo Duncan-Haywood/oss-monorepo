@@ -176,3 +176,41 @@ class MinSupport(unittest.TestCase):
         self.assertEqual(transfer.minsup_k("cascade2_minsup1000"), 1000)
         self.assertIsNone(transfer.minsup_k("cascade2"))
         self.assertIsNone(transfer.minsup_k("cascade2_minsupx"))
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class MinSupportMissing(unittest.TestCase):
+    """Session 82: thin classes fold to a missing class (NaN), which the model treats as unseen."""
+
+    def test_name_and_target(self):
+        self.assertEqual(transfer.minsup_spec("cascade2_minsupna1000"), (1000, transfer.MISSING))
+        self.assertEqual(transfer.minsup_spec("cascade2_minsup1000"), (1000, "other"))
+        self.assertEqual(transfer.minsup_k("cascade2_minsupna100"), 100)
+        self.assertIsNone(transfer.minsup_spec("cascade2_minsupnax"))
+        self.assertNotIn(transfer.MISSING, transfer.CLASSES)
+
+    def test_folded_rows_are_nan_in_the_feature(self):
+        import pandas as pd
+        src = pd.DataFrame(dict(year=[2018] * 5, y=range(5), cls=["alteration"] * 4 + ["plumbing"]))
+        frames = {"sf": src, "austin": src.copy()}
+        fold, _ = transfer.minsup_map(frames, "austin", 2020, k=2, into=transfer.MISSING)
+        self.assertEqual(fold["plumbing"], transfer.MISSING)
+        d = transfer.apply_fold(frames, fold)["austin"]
+        d = d.assign(log_cost=0.0, desc_len=0, month=1, dow=0)
+        x = transfer.feats(d)
+        self.assertEqual(int(x.cls.isna().sum()), 1)
+        self.assertEqual(d.cls_unfolded.iloc[4], "plumbing")
+
+    def test_lightgbm_routes_missing_like_an_unseen_category(self):
+        # the premise of the rule: a NaN category and a category absent from training get the same prediction
+        import numpy as np, pandas as pd, lightgbm as lgb
+        rng = np.random.default_rng(0)
+        cats = ["alteration", "new_construction", "other"]
+        c = rng.choice(cats, 3000)
+        y = np.where(c == "alteration", 10.0, np.where(c == "new_construction", 50.0, 30.0)) + rng.normal(0, 1, 3000)
+        X = pd.DataFrame(dict(cls=pd.Categorical(c, categories=transfer.CLASSES), z=rng.normal(size=3000)))
+        m = lgb.train(dict(objective="quantile", alpha=0.5, verbose=-1, min_data_in_leaf=20, seed=0),
+                      lgb.Dataset(X, y), 50)
+        te = pd.DataFrame(dict(cls=pd.Categorical([None, "plumbing"], categories=transfer.CLASSES), z=[0.1, 0.1]))
+        p = m.predict(te)
+        self.assertAlmostEqual(p[0], p[1], places=9)

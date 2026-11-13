@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 82, 2026-11-13: folding thin classes to missing instead of "other" (pending)
+
+Why: session 81's minimum-support rule (k = 1000) won back half of Austin's build-time q0.9 transfer cost but cost Austin 4 to 9 days at the median, likely because the folded trade permits joined the sources' "other" rows instead of staying unseen. Its "Next" asked for a fold to missing.
+- New: configuration `cascade2_minsupna<k>` (`transfer.minsup_spec`, `transfer.MISSING`): the same source-only count rule as session 81, but a thin class becomes a missing value (NaN) of the model's categorical class feature in every city. LightGBM sends a missing category down the same branch as a category it never saw in training (a test checks the two predictions are equal), so the held-out city's thin-class rows are treated as the plain permit-type class treats Austin's trade permits, while every well-supported class keeps its cascade2 label. 3 tests.
+Design (fixed before any run): k = 1000, carried from session 81 (no new tuning; 2020 stays the validation year and is not rerun). `python3.13 src/censored_eval.py validate DIR --pull-date 2026-11-13 --held H --test-year Y --pseudo-pull Y+2-11-13 --classes cascade2 type cascade2_minsup1000 cascade2_minsupna1000` for H = austin, sf, seattle and Y = 2021, 2022. All contrasts on all rows (reference); "X minus cascade2" < 0 means X helps.
+Predictions (written before any run):
+- (N1) Austin 2021 and 2022: q0.9 minsupna minus cascade2 < 0 with a 95% interval below zero.
+- (N2) Austin 2021 and 2022: the median cost goes: q0.5 minsupna minus cascade2 < 1 day (session 81's minsup: +8.50 and +4.42).
+- (N3) Austin 2021 and 2022: minsupna beats minsup at q0.5 (minsupna minus minsup < 0, interval below zero) and is no worse than minsup at q0.9 (minsupna minus minsup <= +1 day).
+- (N4) SF 2021 and 2022: |minsupna minus cascade2| <= 0.1 x (type minus cascade2) at q0.9.
+- (N5) Seattle 2021 and 2022: |minsupna minus cascade2| < 1 day at q0.9 and q0.5.
+Refuted if any part fails in either year.
+
 ## Session 81, 2026-11-13: a minimum-support rule (k = 1000, chosen on 2020) wins back 47 to 64% of Austin's build-time q0.9 transfer cost and keeps SF's and Seattle's gains, but costs Austin 4 to 9 days at the median (M1, M2, M4, M5 held; M3 refuted)
 
 Why: session 80 found Austin's 15-day transfer q0.9 cost from the cascade2 work-type class comes from 42 to 466 slow Seattle rows behind its trade classes, and SF's gain from 271,672 close source rows behind alteration. Its "Next" asked for a minimum-support rule fixed in advance.

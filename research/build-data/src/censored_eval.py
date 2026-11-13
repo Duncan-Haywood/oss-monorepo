@@ -125,16 +125,17 @@ def fit(data_dir, held, test_year, seeds, classes):
               and os.path.exists(os.path.join(data_dir, f"{c}.csv"))]
     R, FOLDS, done, cache = {}, {}, {}, {}
     for k in classes:
-        ms = transfer.minsup_k(k)
+        spec = transfer.minsup_spec(k)
+        ms, into = spec if spec else (None, None)
         base = "cascade2" if ms is not None else k
         if base not in cache:
             cache[base] = {c: transfer.frame(os.path.join(data_dir, f"{c}.csv"), "i2c", base)[0] for c in cities}
         frames = cache[base]
         if ms is not None:  # session 81: fold classes with < k source training rows into "other"
-            fold, n_src = transfer.minsup_map(frames, held, test_year, ms)
-            FOLDS[k] = dict(k=ms, fold=fold, n_source=n_src)
-            print(held, test_year, k, "folds", sorted(fold), flush=True)
-            key = ("cascade2", tuple(sorted(fold)))
+            fold, n_src = transfer.minsup_map(frames, held, test_year, ms, into)
+            FOLDS[k] = dict(k=ms, into=into, fold=fold, n_source=n_src)
+            print(held, test_year, k, "folds", sorted(fold), "into", into, flush=True)
+            key = ("cascade2", into, tuple(sorted(fold)))
             if key in done:  # same fold as a configuration already fitted: identical model (fixed seeds)
                 R[k] = done[key]
                 continue
@@ -241,7 +242,8 @@ DEFAULT_CLASSES = ["cascade2", "cascade2_nodemo"]
 
 
 def class_arg(s):
-    """--classes value: type, cascade2, cascade2_nodemo, or cascade2_minsup<k> (session 81)."""
+    """--classes value: type, cascade2, cascade2_nodemo, cascade2_minsup<k> (session 81) or
+    cascade2_minsupna<k> (session 82: thin classes folded to missing, not "other")."""
     import transfer
     if s in ("type", "cascade2", "cascade2_nodemo") or transfer.minsup_k(s) is not None:
         return s
