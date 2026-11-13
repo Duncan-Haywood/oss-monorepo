@@ -1,0 +1,86 @@
+[
+ {
+  "held": "austin",
+  "year": 2020,
+  "k": 1000,
+  "fold": [
+   "electrical",
+   "fire",
+   "mechanical",
+   "plumbing"
+  ],
+  "n_source_folded": {
+   "electrical": 456,
+   "fire": 71,
+   "mechanical": 116,
+   "plumbing": 42
+  },
+  "test_share_folded": 0.7545310632248894,
+  "0.5": {
+   "type_minus_cascade2": {
+    "diff": -13.153973751575334,
+    "lo": -14.079113484380098,
+    "hi": -12.204181668778881
+   },
+   "minsup_minus_cascade2": {
+    "diff": 0.4997679719028558,
+    "lo": -0.3335151054899518,
+    "hi": 1.3412978553833392
+   },
+   "share_of_type_effect_undone": -0.03799368778906093
+  },
+  "0.9": {
+   "type_minus_cascade2": {
+    "diff": -17.153156976821617,
+    "lo": -18.200010837504475,
+    "hi": -16.073565491466862
+   },
+   "minsup_minus_cascade2": {
+    "diff": -11.000200504491794,
+    "lo": -11.531228071657734,
+    "hi": -10.368626056966413
+   },
+   "share_of_type_effect_undone": 0.6412930587270862
+  }
+ },
+ {
+  "held": "sf",
+  "year": 2020,
+  "k": 1000,
+  "fold": [
+   "fire",
+   "sign"
+  ],
+  "n_source_folded": {
+   "fire": 74,
+   "sign": 522
+  },
+  "test_share_folded": 0.00949069042961675,
+  "0.5": {
+   "type_minus_cascade2": {
+    "diff": 13.307927472180864,
+    "lo": 10.795466426699146,
+    "hi": 15.88709473529969
+   },
+   "minsup_minus_cascade2": {
+    "diff": 0.28749247629229924,
+    "lo": 0.20617010586227477,
+    "hi": 0.3672690953279178
+   },
+   "share_of_type_effect_undone": 0.021603099122179528
+  },
+  "0.9": {
+   "type_minus_cascade2": {
+    "diff": 14.378458438573228,
+    "lo": 12.073211818236128,
+    "hi": 16.706165116856454
+   },
+   "minsup_minus_cascade2": {
+    "diff": -0.35307537196570654,
+    "lo": -0.5371497864140945,
+    "hi": -0.17658079679842067
+   },
+   "share_of_type_effect_undone": -0.024555857185531646
+  }
+ }
+]
