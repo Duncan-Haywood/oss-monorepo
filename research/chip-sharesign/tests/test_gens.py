@@ -17,6 +17,14 @@ class T(unittest.TestCase):
             f = self._files(fam, 6, 3)
             self.assertTrue(flow.equivalent(f[True], "top", f[False], "top"), fam)
 
+    def test_equivalence_check_rejects_a_different_design(self):
+        # without this a miter that proves nothing (e.g. `-verify` dropped) passes every pair
+        f = self._files("addconst", 8, 2)
+        bad = os.path.join(os.path.dirname(f[True]), "bad.v")
+        open(bad, "w").write("module top(input [7:0] a, input [7:0] b, output [7:0] y0, output [7:0] y1);\n"
+                             "  assign y0 = a + b + 8'd0;\n  assign y1 = a + b + 8'd2;\nendmodule\n")
+        self.assertFalse(flow.equivalent(f[True], "top", bad, "top"))
+
     def test_operand_swap_is_not_unsharing(self):
         d = tempfile.mkdtemp()
         a, b = os.path.join(d, "a.v"), os.path.join(d, "b.v")
