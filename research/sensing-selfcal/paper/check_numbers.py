@@ -1,0 +1,148 @@
+"""Check each number quoted in draft.md against the stored result it came from.
+
+    python3 paper/check_numbers.py      # stdlib only; exit 1 on any miss
+
+Two kinds of check. ("json", file, path, value, places, claim): the value at `path` in the
+experiment's summary file, rounded to `places`, must equal `value` (a rate is scaled to % first
+when `value` is given as a percentage, see `pct`). ("log", text, claim): numbers that were computed by
+an analysis script but stored only in its printed output (the LOG entry written from that output)
+must appear verbatim in LOG.md. Every check also requires `claim` to appear in draft.md, so a number
+edited in the draft without updating this table fails.
+"""
+import json, pathlib, sys
+
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parent
+DRAFT = (HERE / "draft.md").read_text()
+LOG = (ROOT / "LOG.md").read_text()
+EXP = ROOT / "experiments"
+
+
+def J(rel, path):
+    o = json.loads((EXP / rel).read_text())
+    parts = path.split("/")
+    while parts:
+        k = parts.pop(0)
+        while isinstance(o, dict) and k not in o and parts:   # keys that contain "/" ("sb/left")
+            k += "/" + parts.pop(0)
+        o = o[int(k)] if isinstance(o, list) else o[k]
+    return o
+
+
+def pct(x):
+    return 100 * x
+
+
+CHECKS = [
+    # Section 3
+    ("json", "m1_real/summary.json", "cams/left/rel_gap_pct", -0.15, 2, None, "−0.15%"),
+    ("json", "m1_real/summary.json", "cams/right/rel_gap_pct", -0.24, 2, None, "−0.24%"),
+    ("json", "m1_real/summary.json", "cams/left/selfcal_f", 534.82, 2, None, "534.82 px"),
+    ("json", "m1_real/summary.json", "cams/right/selfcal_f", 538.43, 2, None, "538.43"),
+    ("json", "m1_real/summary.json", "cams/left/zhang_f", 535.62, 2, None, "535.62"),
+    ("json", "m1_real/summary.json", "cams/right/zhang_f", 539.71, 2, None, "539.71"),
+    ("json", "m1_real/summary.json", "cams/left/sigma_ratio", 1.12, 2, None, "1.12× Zhang's"),
+    ("log", "0.0077 square widths rms", "0.77% of a square rms"),
+    ("log", "correlate at 0.903", "(correlation 0.90)"),
+    # Section 4
+    ("json", "m2_spread/summary.json", "hypotheses/H2_rerun/m1_rms_z_same_subsets", 1.94, 2, None, "rms 1.94"),
+    ("log", "rms z 1.94, 95% bootstrap 1.75–2.12", "rms 1.94 (95% bootstrap 1.75–2.12)"),
+    ("json", "m2_spread/summary.json", "hypotheses/H2_rerun/zhang_rms_z", 2.16, 2, None, "gives 2.16"),
+    ("json", "m3_robust/summary.json", "hypotheses/H8_nested/sf/rms_z", 2.28, 2, None, "rms z is still 2.28"),
+    ("json", "m2_spread/summary.json", "hypotheses/H6/left/rho_spread_err", -0.46, 2, None, "−0.46 left"),
+    ("json", "m2_spread/summary.json", "hypotheses/H6/right/rho_spread_err", -0.58, 2, None, "−0.58 right"),
+    ("json", "m2_spread/summary.json", "hypotheses/H7/rms_z", 2.41, 2, None, "rises to 2.41"),
+    ("json", "m2_spread/summary.json", "hypotheses/H7/zhang_rms_z", 5.83, 2, None, "rms z 5.83"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf_cr_view/left/rms_z", 1.76, 2, None, "1.76 / 1.59"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf_cr_view/right/rms_z", 1.59, 2, None, "1.76 / 1.59"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf_jack/left/rms_z", 0.70, 2, None, "0.70 / 0.65"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf_jack/right/rms_z", 0.65, 2, None, "0.70 / 0.65"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf_jack/left/cover_2sigma", 97, 0, pct, "97% / 99%"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf_jack/right/cover_2sigma", 99, 0, pct, "97% / 99%"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf_jack/near_4to6/rms_z", 1.01, 2, None, "and 1.01 on near-critical"),
+    ("json", "m3_robust/summary.json", "hypotheses/H9/sf/near_4to6/rms_z", 2.34, 2, None, "reported σ gives 2.34"),
+    ("json", "m3_robust/summary.json", "hypotheses/H10/auc/sf_jack", 0.75, 2, None, "0.75 against 0.91"),
+    ("json", "m3_robust/summary.json", "hypotheses/H10/auc/sf", 0.91, 2, None, "0.75 against 0.91"),
+    ("json", "m3_robust/summary.json", "hypotheses/H10/n_bad", 22, 0, None, "only 22 bad"),
+    ("json", "m5_lens/summary.json", "hypotheses/H12/k2/rms_z", 3.01, 2, None, "is 3.01"),
+    ("json", "m5_lens/summary.json", "hypotheses/H12/k2/rms_z_without_top5", 2.00, 2, None, "(2.00 without five"),
+    ("log", "k2 = 0.143 ± 0.018 (left)", "0.143 ± 0.018 left"),
+    ("log", "along the board's columns 0.44–0.56", "(0.44–0.56 between neighbours"),
+    # Section 5
+    ("json", "m4_accept/summary.json", "hypotheses/H18/pooled/rate", 72.5, 1, pct, "fires on 72.5%"),
+    ("json", "m4_accept/summary.json", "hypotheses/H19/pooled/rate", 6.5, 1, pct, "to 6.5% (10.8% left"),
+    ("json", "m4_accept/summary.json", "hypotheses/H19/left/rate", 10.8, 1, pct, "10.8% left"),
+    ("json", "m4_accept/summary.json", "hypotheses/H19/right/rate", 2.1, 1, pct, "2.1% right"),
+    ("json", "m4_accept/summary.json", "hypotheses/H21/0.99/rate", 11.7, 1, pct, "only 10–12%"),
+    ("json", "m4_accept/summary.json", "hypotheses/H21/1.01/rate", 10.0, 1, pct, "only 10–12%"),
+    ("log", "2.33 / 4.56 / 2.51 (right)", "4.6× for the right"),
+    ("json", "m4b_viewcov/summary.json", "hypotheses/H24/subpix11/rate", 37.8, 1, pct, "36–38%"),
+    ("json", "m4b_viewcov/summary.json", "hypotheses/H24/sb/rate", 36.1, 1, pct, "36–38%"),
+    ("json", "m4b_viewcov/summary.json", "hypotheses/H23/subpix11/rate", 74.2, 1, pct, "36–74% false alarms"),
+    ("json", "m4b_viewcov/summary.json", "hypotheses/H25/subpix11/pooled/rate", 2.5, 1, pct, "fires on 2.5% (11×11"),
+    ("json", "m4b_viewcov/summary.json", "hypotheses/H25/sb/pooled/rate", 1.7, 1, pct, "and 1.7% (SB"),
+    ("json", "m4b_viewcov/summary.json", "hypotheses/H26/subpix11/J/rate", 30, 0, pct, "caught in\n30% of splits"),
+    ("json", "m4c_reference/summary.json", "thresholds/subpix11/right/zf2_99", 1.7, 1, None, "1.7–4.2"),
+    ("json", "m4c_reference/summary.json", "thresholds/sb/left/zf2_99", 4.2, 1, None, "1.7–4.2"),
+    ("json", "m4c_reference/summary.json", "hypotheses/H28/subpix11/rate", 0, 0, pct, "0 false alarms in 360"),
+    ("json", "m4c_reference/summary.json", "hypotheses/H29/subpix11/kept", 19, 0, pct, "only 19–22%"),
+    ("json", "m4c_reference/summary.json", "hypotheses/H29/sb/kept", 22, 0, pct, "only 19–22%"),
+    ("json", "m4c_reference/summary.json", "hypotheses/H31/subpix11/rate", 5, 0, pct, "only\n5–10% of splits"),
+    ("json", "m4c_reference/summary.json", "hypotheses/H31/sb/rate", 10, 0, pct, "only\n5–10% of splits"),
+    ("log", "detects ±2% at k = 6 in 41% / 28% (11×11, −2% / +2%) and 40% / 31% (SB), and ±4% in 78–85%",
+     "detects ±2% in 28–41% and ±4%\nin 78–85%"),
+    # Section 6
+    ("log", "moves flat-board Zhang's f by 4.8 px (left) and 7.2 px (right), 0.9–1.3%", "4.8 px (left) and 7.2 px (right), 0.9–1.3%"),
+    ("json", "m6b_render/summary.json", "real/left/gap11_sb_ring_over1", 22, 0, None, "on 22 (left)"),
+    ("json", "m6b_render/summary.json", "real/right/gap11_sb_ring_over1", 30, 0, None, "and 30 (right)"),
+    ("json", "m6b_render/summary.json", "calib/left/check_edge", 0.949, 3, None, "0.949 / 0.960 px"),
+    ("json", "m6b_render/summary.json", "calib/right/check_edge", 0.960, 3, None, "0.949 / 0.960 px"),
+    ("log", "max 0.19 / 0.36 px", "0.19 / 0.36 px"),
+    ("log", "0.49–0.53 of the corner spacing", "0.49–0.53 of the\ncorner spacing"),
+    ("log", "+0.43% to +1.47%", "+0.43% to +1.47%"),
+    ("log", "−0.32% to −0.43%", "−0.32% to −0.43%"),
+    ("log", "+0.64% / +0.91%", "+0.64% / +0.91%"),
+    ("log", "−0.12% / −0.39%", "−0.12% / −0.39%"),
+    ("log", "max 3.5–9.6 px", "(up to 9.6 px)"),
+    ("json", "m6b_render/summary.json", "real/left/zhang_f/subpix5", 532.9, 1, None, "532.9 px (left)"),
+    ("json", "m6b_render/summary.json", "real/right/zhang_f/subpix5", 536.2, 1, None, "536.2 px (right)"),
+    # Section 7
+    ("json", "m4d_window/summary.json", "hypotheses/H39/subpix11", 1.02, 2, pct, "| 1.02% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H39/sb", 0.86, 2, pct, "| 0.86% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H39/subpix5", 0.59, 2, pct, "| 0.59% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H40/subpix11/rate", 34.2, 1, pct, "| 34.2% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H40/sb/rate", 35.4, 1, pct, "| 35.4% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H40/subpix5/rate", 61.3, 1, pct, "| 61.3% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H42/subpix11/rate", 30.3, 1, pct, "| 30.3% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H42/sb/rate", 74.7, 1, pct, "| 74.7% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H42/subpix5/rate", 79.4, 1, pct, "| 79.4% |"),
+    ("json", "m4d_window/summary.json", "hypotheses/H38/pooled/rate", 1.7, 1, pct, "(1.7% false alarms pooled)"),
+    ("json", "m4d_window/summary.json", "hypotheses/H41/left/rate", 11.1, 1, pct, "11.1% on the left camera"),
+    ("json", "m4d_window/summary.json", "hypotheses/H41/right/rate", 0.0, 1, pct, "0.0% on the right"),
+    ("log", "±1% in 28% / 18%", "1% focal change in 18–28%"),
+    ("log", "±4% in 98% / 97%", "4% in 97–98%"),
+    ("log", "own 99th percentile of z<sub>f</sub>² is 3.56, the right's 1.03", "3.56 and 1.03"),
+]
+
+
+def main():
+    bad = 0
+    for c in CHECKS:
+        claim = c[-1]
+        if claim not in DRAFT:
+            print("MISSING IN DRAFT", repr(claim)); bad += 1; continue
+        if c[0] == "log":
+            if c[1] not in LOG:
+                print("NOT IN LOG", repr(c[1])); bad += 1
+            continue
+        _, rel, path, value, places, scale, _ = c
+        got = J(rel, path)
+        got = scale(got) if scale else got
+        if round(got, places) != round(value, places):
+            print(f"MISMATCH {rel}:{path} = {got!r}, draft says {value} ({claim!r})"); bad += 1
+    print(f"{len(CHECKS) - bad} of {len(CHECKS)} checks pass")
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

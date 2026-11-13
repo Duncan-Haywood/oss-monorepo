@@ -85,6 +85,14 @@ export function value(input = {}) {
   const methods = [];
   if (sdeValue !== null) methods.push(["SDE multiple", sdeValue]);
   if (arrValue !== null) methods.push(["ARR multiple", arrValue]);
+  // The midpoint for a given factor list, by the same methods as above. Levers use it so a
+  // fix's value respects the 0.8x floor and the SDE/ARR average (quality audit 2026-11-13).
+  const midFor = (list) => {
+    const vals = [];
+    if (sdeValue !== null) vals.push(sde * multipleFor(t.sde, list));
+    if (arrValue !== null) vals.push(arr * multipleFor(t.arr, list, 0.9));
+    return vals.reduce((s, v) => s + v, 0) / vals.length;
+  };
   if (!methods.length) {
     return { error: "There is no earnings or recurring revenue to price. A business with zero or negative profit is usually valued on assets, audience or code, which this tool does not model." };
   }
@@ -96,7 +104,7 @@ export function value(input = {}) {
   const levers = fs
     .filter((f) => f.delta < 0)
     .map((f) => {
-      const uplift = -f.delta * (sdeValue !== null ? sde : (arr || 0) * 0.9 / 1);
+      const uplift = midFor(fs.map((g) => (g === f ? { ...g, delta: 0 } : g))) - mid;
       return { key: f.key, label: f.label, note: f.note, multipleGain: -f.delta, valueGain: Math.round(uplift) };
     })
     .sort((a, b) => b.valueGain - a.valueGain);
