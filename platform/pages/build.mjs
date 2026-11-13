@@ -792,10 +792,12 @@ const CATEGORY_RULES = [
     // checking a deck or floor beam over several posts, beside `wall-framing-takeoff`.
     // `water-supply-sizing` joined 2026-11-13 on its first commit: peak water demand by
     // Hunter's method and supply pipe sizes a plumber checks, beside `hvac-load-calc`.
+    // `sprinkler-hydraulic-calc` joined 2026-11-13 on its first commit: a sprinkler fitter or
+    // estimator checking a tree, loop or grid against the flow test, beside `water-supply-sizing`.
     // `earthwork-cut-fill` joined 2026-11-12 on its first commit: a site-work contractor
     // turning a surveyor's point file into pad cut and fill and truckloads for a bid,
     // beside `concrete-maturity` and the excavation and grading bid calculators.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -4851,7 +4853,8 @@ const SUBCATEGORY_RULES = {
       // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
       // `wall-condensation-check` (2026-11-11): the moisture check on the same wall `hvac-load-calc` sizes heat for.
       // `water-supply-sizing` (2026-11-13): peak water demand and supply pipe sizes, the plumbing step beside the water heater and softener bids.
-      test: (slug) => /^(hvac-load-calc|water-supply-sizing|wall-condensation-check|service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      // `sprinkler-hydraulic-calc` (2026-11-13): fire sprinkler hydraulics for trees, loops and grids, the pipe work beside the domestic water sizing.
+      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|wall-condensation-check|service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -11927,21 +11930,28 @@ export async function collectOfflineBundle(outDir, surfaces) {
   return { shared, categories };
 }
 
+// Every file under `outDir` as [relative path, sha256 of its bytes], in path
+// order: the part of the cache name that depends on what was built. Each file
+// is hashed on its own, so any byte or name changes the cache. Read
+// synchronously: the site is about 26k files and 1.1 GB, mostly small files,
+// where `fs.promises.readFile`'s per-call overhead dominated (3.8 s read+hash
+// with 32 in flight, 1.4 s sync, same digests). Nothing else in the build runs
+// while this does
+// (docs/history/pages-build-perf-2026-11-12-cache-name-sync-reads.md).
+export async function offlineFileDigests(outDir) {
+  const files = (await listFiles(outDir)).sort();
+  return files.map((file) => [path.relative(outDir, file), crypto.createHash('sha256').update(readFileSync(file)).digest()]);
+}
+
 // The service worker's cache name: a digest of the generator (`codeVersion`,
 // default offline.mjs) and of every file's path and bytes under `outDir`.
-export async function offlineCacheName(outDir, codeVersion) {
+// `digests` (from `offlineFileDigests(outDir)`) lets a caller that names the
+// same tree more than once read it once; the build passes none
+// (docs/history/pages-test-perf-2026-11-13-cache-name-digests-once.md).
+export async function offlineCacheName(outDir, codeVersion, digests) {
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
-  // Each file hashed on its own, then the digests in path order: any byte or
-  // name changes the cache. Read synchronously: the site is about 26k files
-  // and 1.1 GB, mostly small files, where `fs.promises.readFile`'s per-call
-  // overhead dominated (3.8 s read+hash with 32 in flight, 1.4 s sync, same
-  // digests). Nothing else in the build runs while this does
-  // (docs/history/pages-build-perf-2026-11-12-cache-name-sync-reads.md).
-  const files = (await listFiles(outDir)).sort();
-  for (const file of files) {
-    hash.update(path.relative(outDir, file)).update(crypto.createHash('sha256').update(readFileSync(file)).digest());
-  }
+  for (const [rel, digest] of digests ?? (await offlineFileDigests(outDir))) hash.update(rel).update(digest);
   return `portfolio-${hash.digest('hex').slice(0, 12)}`;
 }
 

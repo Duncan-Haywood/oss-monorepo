@@ -70,7 +70,10 @@ export function parseTrades(text) {
     const ln = n + 2;
     const date = parseDate(f[c.date]);
     const sideRaw = (f[c.side] || "").toLowerCase();
-    const side = /^(buy|bought|purchase|b\b|bto|btc)/.test(sideRaw) ? "buy" : /^(sell|sold|sale|s\b|sto|stc)/.test(sideRaw) ? "sell" : null;
+    // A dividend reinvestment is a purchase and can wash a loss (Pub. 550); Schwab's "Reinvest Dividend" is the cash
+    // leg with no shares, its "Reinvest Shares" (Fidelity: "REINVESTMENT ...") the buy. Fidelity writes "YOU BOUGHT".
+    const side = /^(?:you\s+)?(?:buy|bought|purchase|b\b|bto|btc)|^reinvest(?:ment|ed)?\b(?!\s+div)/.test(sideRaw) ? "buy"
+      : /^(?:you\s+)?(?:sell|sold|sale|s\b|sto|stc)/.test(sideRaw) ? "sell" : null;
     const qty = Math.abs(num(f[c.qty]));
     const sym = (f[c.sym] || "").toUpperCase().replace(/\s+/g, "");
     let price = c.price >= 0 ? Math.abs(num(f[c.price])) : NaN;
@@ -104,7 +107,14 @@ export function analyze(trades) {
       if (need <= 1e-9) break;
       if (lot.sym !== s.sym || lot.date > s.date || lot.soldFromTaxable >= lot.qty - 1e-9) continue;
       const take = Math.min(need, lot.qty - lot.soldFromTaxable);
-      lot.soldFromTaxable += take; need -= take; costFromLots += (lot.price * take) + (lot.addedBasisPerShare || 0) * take;
+      lot.soldFromTaxable += take; need -= take; costFromLots += lot.price * take;
+      // carried-over wash losses sit on the replacement shares only; those are taken first, each at its own amount
+      let rest = take;
+      while (rest > 1e-9 && lot.carried && lot.carried.length) {
+        const c = lot.carried[0], k = Math.min(rest, c.qty);
+        costFromLots += c.perShare * k; c.qty -= k; rest -= k;
+        if (c.qty <= 1e-9) lot.carried.shift();
+      }
       consumed.push({ lot, take });
     }
     const unmatchedShares = need > 1e-9 ? need : 0;
@@ -122,11 +132,10 @@ export function analyze(trades) {
       for (const b of buys) {
         if (remaining <= 1e-9) break;
         if (b.sym !== s.sym || b.date < lo || b.date > hi) continue;
-        let avail = b.free;
-        const lotUsedAsSold = consumed.find((x) => x.lot === b);
-        if (lotUsedAsSold) avail -= lotUsedAsSold.take;
-        // shares of this buy already sold in an earlier sale (not this one) are not replacement shares
-        if (!b.ira) avail = Math.min(avail, b.qty - b.soldFromTaxable);
+        // A taxable buy can replace only shares still held (not sold, this sale included) that are not already
+        // carrying an earlier wash loss; an IRA buy is never sold here, so its unused count is all that matters.
+        const avail = b.ira ? b.free
+          : b.qty - b.soldFromTaxable - (b.carried || []).reduce((a, c) => a + c.qty, 0);
         if (avail <= 1e-9) continue;
         const use = Math.min(avail, remaining);
         b.free -= use; remaining -= use;
@@ -142,7 +151,7 @@ export function analyze(trades) {
           const share = r2(disallowed * (rep.qty / matched));
           rep.disallowedShare = share; left = r2(left - share);
           if (rep.ira) sale.permanent = r2(sale.permanent + share);
-          else { rep.buy.added += share; rep.buy.addedBasisPerShare = (rep.buy.addedBasisPerShare || 0) + share / rep.qty; rep.adjustedBasisPerShare = rep.buy.price + rep.buy.addedBasisPerShare; }
+          else { rep.buy.added += share; (rep.buy.carried ||= []).push({ qty: rep.qty, perShare: share / rep.qty }); rep.adjustedBasisPerShare = r2(rep.buy.price + share / rep.qty); }
         }
       }
     }

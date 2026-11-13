@@ -161,7 +161,45 @@ await page.click("#go");
   ok(fs.readFileSync(await dwc.path(), "utf8") === fs.readFileSync(path.join(tmp, "w.txt"), "utf8"), "split-at-a-word cue sheet equals the CLI's --split-words --cues");
   const [dwm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
   ok(fs.readFileSync(await dwm.path()).equals(fs.readFileSync(path.join(tmp, "w.mid"))), "split-at-a-word MIDI equals the CLI's");
+  // three sections: equals the CLI's --baritones
+  await page.selectOption("#final", "split3");
+  await page.click("#go");
+  const t3 = await out();
+  ok(/tenors and baritones together on phrase 54 \(13 notes\); final F3\. The MIDI has a Tenors, a Baritones and a Basses track/.test(t3), "three-section summary on the Dies irae");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--split-voices", "--baritones", "--fit", "8", "--stretch", "-o", path.join(tmp, "b.mid"), "--cues", path.join(tmp, "b.txt")]);
+  const [dbc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  const sheet3 = fs.readFileSync(await dbc.path(), "utf8");
+  ok(sheet3 === fs.readFileSync(path.join(tmp, "b.txt"), "utf8") && /T\+Bar/.test(sheet3), "three-section cue sheet equals the CLI's --baritones --cues (T+Bar rows)");
+  const [dbm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  const mid3 = fs.readFileSync(await dbm.path());
+  ok(mid3.equals(fs.readFileSync(path.join(tmp, "b.mid"))) && mid3.includes("Baritones"), `three-section MIDI equals the CLI's (${mid3.length} bytes, Baritones track)`);
+  // four sections (TTBB): equals the CLI's --baritones --second-tenors
+  await page.selectOption("#final", "split4");
+  await page.click("#go");
+  const t4 = await out();
+  ok(/first tenors, second tenors and baritones together on phrase 54 \(13 notes\); final F3\. The MIDI has a First tenors, a Second tenors, a Baritones and a Basses track/.test(t4), "four-section summary on the Dies irae");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--split-voices", "--baritones", "--second-tenors", "--fit", "8", "--stretch", "-o", path.join(tmp, "q.mid"), "--cues", path.join(tmp, "q.txt")]);
+  const [dqc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  const sheet4 = fs.readFileSync(await dqc.path(), "utf8");
+  ok(sheet4 === fs.readFileSync(path.join(tmp, "q.txt"), "utf8") && /T1\+T2\+Bar/.test(sheet4), "four-section cue sheet equals the CLI's --second-tenors --cues (T1+T2+Bar rows)");
+  const [dqm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  const mid4 = fs.readFileSync(await dqm.path());
+  ok(mid4.equals(fs.readFileSync(path.join(tmp, "q.mid"))) && mid4.includes("Second tenors"), `four-section MIDI equals the CLI's (${mid4.length} bytes, Second tenors track)`);
+  // a named choir: octave-wide sections, three of them; equals the CLI's --choir octave --baritones
+  await page.selectOption("#choir", "octave");
+  await page.selectOption("#final", "split3");
+  await page.click("#go");
+  ok(/Voices: full choir on 7 of 613 notes \(E3-A3\)/.test(await out()), "octave choir, three sections: summary on the Dies irae");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--choir", "octave", "--split-voices", "--baritones", "--fit", "8", "--stretch", "-o", path.join(tmp, "o.mid"), "--cues", path.join(tmp, "o.txt")]);
+  const [doc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  ok(fs.readFileSync(await doc.path(), "utf8") === fs.readFileSync(path.join(tmp, "o.txt"), "utf8"), "octave-choir cue sheet equals the CLI's --choir octave --baritones --cues");
+  const [dom] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  ok(fs.readFileSync(await dom.path()).equals(fs.readFileSync(path.join(tmp, "o.mid"))), "octave-choir MIDI equals the CLI's");
+  // unison with a named choir that cannot sing it: the note names the fewest sections that can
   await page.selectOption("#final", "auto");
+  await page.click("#go");
+  ok(/more than E3-A3; left as written\. The octave choir can sing it as tenors, baritones and basses/.test(await out()), "octave choir, unison: names the fewest sections");
+  await page.selectOption("#choir", "");
   // back to the state the next check expects
   await page.selectOption("#genre", "edm"); await page.selectOption("#sections", "1");
   await page.selectOption("#acap", "1"); await page.selectOption("#lift", "2");

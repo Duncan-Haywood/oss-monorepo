@@ -1,0 +1,331 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqye2VsdGEiWARKrAXB8",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T19:38:54Z",
+  "ended": "2026-11-13T19:39:31Z",
+  "wall_minutes": 9.59,
+  "tokens_in": 3234408,
+  "tokens_out": 18546,
+  "cost_usd": 1.6502,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15596",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The campaign with --target ran the whole ai-bookkeeper suite (~26 s per mutant, ~5.5 min for 12) rather than penalty2210.test.mjs (0.25 s); the prompt says --target skips the probe but not that the suite chosen is the venture's full glob, so a fast per-file test does not make the campaign fast."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is now 10 entries, all control-plane edits that need their own PR; sessions restricted to one branch cannot act on any of them, so every red-team run re-reads and skips the same list."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix the open entries first; all 10 are .github/workflows or prompts/ edits (control plane, own PR, owner approval) and this session may push only claude/gracious-ptolemy-leq3rt.",
+      "did": "Left them open, unchanged, and went to seeding.",
+      "result": "No step-0 progress; the main defect found this run was fixed in full."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard of the class; the class here (a tax worksheet's leap-year divisor) is specific to one module, and a repository-wide lint for '/ 365' would flag many legitimate day-count conventions.",
+      "did": "Guarded with a test reproducing the IRS's own 2024 Example 5 and Table 2 instead of a lint.",
+      "result": "The test fails on the old code and passes on the fix."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-2024-penalty-worksheet-divides-by-366.md",
+    "ventures/ai-bookkeeper/HISTORY.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/ai-bookkeeper/penalty2210.mjs (changed on main 2026-11-11; users rely on tax numbers). 12 mutants, 9 caught, 2 equivalent, 1 gap covered; rerun catch_rate_after_fix 1.0. Real defect: 2024 leap-year divisor and per-payment rounding vs IRS 2024 instructions Example 5; fixed and tested. Full ai-bookkeeper suite 2532/2532 pass. Guard added: penalty2210.test.mjs 2024 Example 5 test.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ai-bookkeeper/penalty2210.mjs",
+        "test": "node --test ventures/ai-bookkeeper/**/*.test.mjs  (in .)",
+        "seed": 737182699,
+        "commit": "08c0e09ae",
+        "sites": 124,
+        "baseline_seconds": 25.6,
+        "mutants": [
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 74,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let j = 0; j < 4; j++) {",
+            "after": "for (let j = 1; j < 4; j++) {",
+            "line_text": "  for (let j = 0; j < 4; j++) {",
+            "caught": true,
+            "seconds": 24.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 74,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let j = 0; j < 4; j++) {",
+            "after": "for (let j = 0; j <= 4; j++) {",
+            "line_text": "  for (let j = 0; j < 4; j++) {",
+            "caught": true,
+            "seconds": 25.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 78,
+            "col": 20,
+            "operator": "plus-to-minus",
+            "before": "const l13 = l11 + l12;",
+            "after": "const l13 = l11 - l12;",
+            "line_text": "    const l13 = l11 + l12;",
+            "caught": true,
+            "seconds": 26.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 81,
+            "col": 41,
+            "operator": "minus-to-plus",
+            "before": "const l16 = j > 0 && l15 === 0 ? l14 - l13 : 0;",
+            "after": "const l16 = j > 0 && l15 === 0 ? l14 + l13 : 0;",
+            "line_text": "    const l16 = j > 0 && l15 === 0 ? l14 - l13 : 0;",
+            "caught": true,
+            "seconds": 25.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 82,
+            "col": 33,
+            "operator": "minus-to-plus",
+            "before": "const l17 = l10 >= l15 ? l10 - l15 : 0;",
+            "after": "const l17 = l10 >= l15 ? l10 + l15 : 0;",
+            "line_text": "    const l17 = l10 >= l15 ? l10 - l15 : 0;",
+            "caught": true,
+            "seconds": 26.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 99,
+            "col": 56,
+            "operator": "minus-to-plus",
+            "before": "const quarter = (j) => Math.round((wh * (j + 1)) / 4) - Math.round((wh * j) / 4);",
+            "after": "const quarter = (j) => Math.round((wh * (j + 1)) / 4) + Math.round((wh * j) / 4);",
+            "line_text": "  const quarter = (j) => Math.round((wh * (j + 1)) / 4) - Math.round((wh * j) / 4);",
+            "caught": true,
+            "seconds": 26.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 128,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "if (!(p.date > due[j]) || left[j] <= 0) continue;",
+            "after": "if (!(p.date >= due[j]) || left[j] <= 0) continue;",
+            "line_text": "      if (!(p.date > due[j]) || left[j] <= 0) continue;",
+            "caught": true,
+            "seconds": 25.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 139,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "let amount = 0;",
+            "after": "let amount = 1;",
+            "line_text": "      let amount = 0;",
+            "caught": true,
+            "seconds": 25.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 142,
+            "col": 32,
+            "operator": "and-to-or",
+            "before": "const paid = piece.date && piece.date < stop ? piece.date : stop;",
+            "after": "const paid = piece.date || piece.date < stop ? piece.date : stop;",
+            "line_text": "        const paid = piece.date && piece.date < stop ? piece.date : stop;",
+            "caught": false,
+            "seconds": 25.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "A dated piece after April 15 now keeps its own date, but `to` is then clipped to per.end, and the last period ends on April 15 (the same `stop`), so no day count changes; a null date still falls to `stop` because null < string is false. The existing test 'a payment after April 15 stops the count' passes with the mutant for this reason."
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 144,
+            "col": 24,
+            "operator": "lt-to-le",
+            "before": "const to = paid < per.end ? paid : per.end;",
+            "after": "const to = paid <= per.end ? paid : per.end;",
+            "line_text": "        const to = paid < per.end ? paid : per.end;",
+            "caught": false,
+            "seconds": 26.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "When paid equals per.end both branches give the same date, so `to` is unchanged."
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 152,
+            "col": 44,
+            "operator": "max-to-min",
+            "before": "return { due: printed[j], underpayment: Math.max(0, u), paidBy: applied[j], unpaid: left[j], lines, penalty: lines.reduce((s, l) => s + l.cents, 0) };",
+            "after": "return { due: printed[j], underpayment: Math.min(0, u), paidBy: applied[j], unpaid: left[j], lines, penalty: lines.reduce((s, l) => s + l.cents, 0) };",
+            "line_text": "    return { due: printed[j], underpayment: Math.max(0, u), paidBy: applied[j], unpaid: left[j], lines, penalty: lines.reduce((s, l) => s + l.cents, 0) };",
+            "caught": false,
+            "seconds": 25.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The worksheet's line 1a (column.underpayment) was never asserted; Example 3 now pins it to 4,000 / 3,000 / 3,000 / 3,000 in penalty2210.test.mjs."
+          },
+          {
+            "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+            "line": 154,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "return { columns: cols, penalty: cols.reduce((s, c) => s + c.penalty, 0), rates: periods, warnings };",
+            "after": "return { columns: cols, penalty: cols.reduce((s, c) => s - c.penalty, 0), rates: periods, warnings };",
+            "line_text": "  return { columns: cols, penalty: cols.reduce((s, c) => s + c.penalty, 0), rates: periods, warnings };",
+            "caught": true,
+            "seconds": 26.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+        "issue": "Tax year 2024 (rates on file, so accepted without a warning about rates) was figured at days/365 in every rate period, though the 2024 Form 2210 worksheet divides the three 2024 periods by 366; the code only printed a 'may divide by 366' warning. It also summed a period's payments and rounded once, where line 4 is one rounded computation per payment. IRS Example 5 (2024): $6.56 + $26.67 = $33.23; the code gave $33.32. Fixed: each period divides by its calendar year's length and each entry is rounded; test from Example 5 and Table 2.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15596"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "231950c8-14a1-55a5-ab4e-7fd7eea4cf7b",
+    "transcripts": 1,
+    "first": "2026-11-13T19:38:54Z",
+    "last": "2026-11-13T19:48:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 83,
+        "output": 18546,
+        "thinking": 5850,
+        "cache_read": 3153285,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81040,
+        "api_equivalent_usd": 1.6502,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 83,
+      "output": 18546,
+      "thinking": 5850,
+      "cache_read": 3153285,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81040,
+      "api_equivalent_usd": 1.6502,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.59,
+      "active_minutes": 6.43,
+      "model_minutes": 3.29,
+      "tool_minutes": 3.14,
+      "waiting_on_human_minutes": 3.16,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "read IRS 2024 instructions, fix, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 181.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

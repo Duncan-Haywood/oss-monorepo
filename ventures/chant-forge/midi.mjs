@@ -85,14 +85,21 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
     conductor.sort((a, b) => a[0] - b[0]);
   }
   // --split-voices: notes tagged 'tenor', 'bass' or 'all' go to a Tenors track (channel 1) and a
-  // Basses track (channel 5); 'all' is in both, so each section's part is complete on its own
+  // Basses track (channel 5); 'all' is in both, so each section's part is complete on its own.
+  // With baritones (voices like 'tenor+baritone') a Baritones track (channel 6) sits between them
+  // and a note goes to every section its voice names.
   const split = events.some((e) => e.type === 'note' && e.voice);
+  const sings = (voice, keep) => voice === 'all' || (typeof voice === 'string' && voice.split('+').includes(keep));
+  const baritones = split && events.some((e) => e.type === 'note' && sings(e.voice, 'baritone') && e.voice !== 'all');
+  // With second tenors (voices like 'tenor2+baritone') a Second tenors track (channel 7) follows
+  // the first tenors' track, which is then named First tenors.
+  const tenors2 = split && events.some((e) => e.type === 'note' && sings(e.voice, 'tenor2') && e.voice !== 'all');
   const section = (keep, ch, name) => {
     const tl = [[0, meta(0x03, [...new TextEncoder().encode(name)])], [0, [0xc0 | ch, 52]]];
     let tt = 0;
     for (const e of events) {
       const len = Math.round(e.pulses * ticksPerPulse);
-      if (e.type === 'note' && (e.voice === 'all' || e.voice === keep)) {
+      if (e.type === 'note' && sings(e.voice, keep)) {
         if (e.syllable) tl.push([tt, meta(0x05, [...new TextEncoder().encode(e.syllable)])]);
         tl.push([tt, [0x90 | ch, e.midi, velocity]], [tt + len, [0x80 | ch, e.midi, 0]]);
       }
@@ -100,7 +107,9 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
     }
     return track(tl);
   };
-  const tracks = split ? [track(conductor), section('tenor', 0, 'Tenors'), section('bass', 4, 'Basses')] : [track(conductor), track(choir)];
+  const tracks = split
+    ? [track(conductor), section('tenor', 0, tenors2 ? 'First tenors' : 'Tenors'), ...(tenors2 ? [section('tenor2', 6, 'Second tenors')] : []), ...(baritones ? [section('baritone', 5, 'Baritones')] : []), section('bass', 4, 'Basses')]
+    : [track(conductor), track(choir)];
   if (drone && lastMidi !== null && end > 0) {
     const d = lastMidi - 12;
     tracks.push(track([[0, [0xc1, 19]], [0, [0x91, d, 60]], [end, [0x81, d, 0]]]));

@@ -68,6 +68,8 @@ test("sample totals and csv", () => {
   const csv = toCsv(r);
   assert.match(csv, /^registrant,type,vehicles/);
   assert.match(csv, /total,,,,277\.00,/);
+  // Red-team 2026-11-13: the sample's mileage reaches the cost-per-mile line ($277 / 120,000 mi).
+  assert.ok(r.advice.includes("Spread over 120,000 miles that is about 0.231 cents per mile."), r.advice.join("\n"));
 });
 
 // Red-team 2026-11-12: guards for mutants that escaped (overlap at a shared edge, per-vehicle at one

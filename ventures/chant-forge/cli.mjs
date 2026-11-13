@@ -6,24 +6,28 @@ import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize
 import { eventsToMidi } from './midi.mjs';
 import { lrc } from './lrc.mjs';
 import { cueSheet } from './cues.mjs';
-import { suggestFinal, splitVoices, describeSplit, MENS_RANGE, TENOR_RANGE, BASS_RANGE } from './voicefit.mjs';
+import { suggestFinal, splitVoices, describeSplit, MENS_RANGE, TENOR_RANGE, BASS_RANGE, BARITONE_RANGE, TENOR2_RANGE, CHOIRS, CHOIR_NAMES, choirUnison, fewestSections } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 import { sectionPlan, liftEvents } from './sections.mjs';
 import { noteName } from './gabc.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--overlap] [--tenor LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--choir NAME] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--second-tenors] [--tenor LOW-HIGH] [--tenor2 LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
   --no-breakdown  with --sections: keep the verse before the last drop a verse (by default a piece with four or more sections turns it into a breakdown: drums and bass out, choir alone, then a swelling chord)
   --a-cappella  with --sections: the first verse is the choir alone (no backing); the band comes in on its build bar
   --key-lift  with --sections: raise the last drop (and the outro) N semitones, 2 = a whole tone; refused if the lifted line leaves the singing range
+  --choir   a set of section ranges by name: ${CHOIR_NAMES.join(', ')} (textbook: T C3-A4, T2 C3-G4, Bar A2-F4, B E2-E4; amateur: T D3-F4, T2 D3-Eb4, Bar B2-D4, B G2-C4; octave: one octave a section, T E3-E4, T2 D3-D4, Bar C3-C4, B A2-A3); rules of thumb, not measurements. It sets the --split-voices ranges (--tenor and the others still override one section) and, without --range, the unison range for --suggest-final, --auto-final and the --key-lift check to the band every section reaches (textbook C3-E4, amateur D3-C4, octave E3-A3); when the unison line does not fit, the message names the fewest sections that do
   --range   singing range as MIDI numbers LOW-HIGH for --suggest-final, --auto-final and the --key-lift check (default 40-64, E2-E4)
   --split-voices  tenors and basses take turns by phrase: the full choir sings every phrase both sections can reach, the rest go to the section that can; picks the final itself unless --final is given; the MIDI gets a Tenors and a Basses track and the cue sheet a who-sings column
   --split-words  with --split-voices: also hand over inside a phrase, at a word, when each handoff wins the full choir more than --word-cost notes (by default a phrase is handed over at a word only when no whole-phrase split fits, as few times as possible)
+  --entrance-cost N  with --split-voices: charge each section entrance N notes, so a section that joins for a passage and leaves again comes in only when it sings more than N notes there (default 0; on the corpus, 8 cuts changes of singer about 10% with three octave-wide sections, eval/entrance-cost-report.md)
   --overlap  with --split-voices: where tenors hand straight to basses (or back) inside a phrase, both sections sing the note at the seam if it is in both ranges, so the line does not break; the summary counts the handoffs where no such note exists
   --word-cost  a handoff inside a phrase must win the full choir more than this many notes, for --split-words (default 3)
-  --tenor, --bass  section ranges for --split-voices as MIDI numbers LOW-HIGH (defaults 48-69, C3-A4, and 40-64, E2-E4)
+  --baritones  with --split-voices: a third section between tenors and basses; a phrase or word can go to all three, to two of them (tenors and baritones, baritones and basses) or to one, as many sections as can reach it; the MIDI gets a Baritones track too
+  --second-tenors  with --split-voices: split the tenors into first and second tenors (TTBB with --baritones); --tenor is then the first tenors' range; the MIDI gets a Second tenors track and the cue sheet says T1 and T2 (octave-wide sections on the corpus: one-section notes 29.9% to 13.7%, 65 of 67 files fit instead of 64, eval/four-sections-report.md)
+  --tenor, --tenor2, --baritone, --bass  section ranges for --split-voices as MIDI numbers LOW-HIGH (defaults 48-69, C3-A4; 48-67, C3-G4; 45-65, A2-F4; and 40-64, E2-E4); --baritone implies --baritones and --tenor2 implies --second-tenors
   --outro   N bars after the chant (the backing winds down under them; with --sections it ends on a held chord)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)
@@ -59,12 +63,18 @@ export function run(argv) {
     else if (a === '--a-cappella') args.acappella = true;
     else if (a === '--key-lift') args.keyLift = Number(argv[++i]);
     else if (a === '--range') args.range = argv[++i];
+    else if (a === '--choir') args.choir = argv[++i];
     else if (a === '--split-voices') args.split = true;
     else if (a === '--split-words') args.splitWords = true;
     else if (a === '--word-cost') args.wordCost = argv[++i];
+    else if (a === '--entrance-cost') args.entranceCost = argv[++i];
     else if (a === '--overlap') args.overlap = true;
     else if (a === '--tenor') args.tenor = argv[++i];
     else if (a === '--bass') args.bass = argv[++i];
+    else if (a === '--baritone') { args.baritone = argv[++i]; args.baritones = true; }
+    else if (a === '--baritones') args.baritones = true;
+    else if (a === '--tenor2') { args.tenor2 = argv[++i]; args.tenors2 = true; }
+    else if (a === '--second-tenors') args.tenors2 = true;
     else if (a === '--outro') args.outro = Number(argv[++i]);
     else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
@@ -87,7 +97,12 @@ export function run(argv) {
   if (args.intro !== undefined && (!Number.isInteger(args.intro) || args.intro < 1 || args.intro > 16)) return { code: 2, text: '--intro must be a whole number of bars from 1 to 16' };
 
   if (args.keyLift !== undefined && (!Number.isInteger(args.keyLift) || args.keyLift < 1 || args.keyLift > 7)) return { code: 2, text: '--key-lift must be a whole number of semitones from 1 to 7' };
-  let range = MENS_RANGE;
+  let choir = null;
+  if (args.choir !== undefined) {
+    choir = CHOIRS[args.choir];
+    if (!choir) return { code: 2, text: `--choir must be one of ${CHOIR_NAMES.join(', ')}` };
+  }
+  let range = choir ? choirUnison(choir) : MENS_RANGE;
   if (args.range !== undefined) {
     const m = /^(\d{1,3})-(\d{1,3})$/.exec(args.range || '');
     if (!m || Number(m[1]) >= Number(m[2]) || Number(m[2]) > 127) return { code: 2, text: '--range must be two MIDI numbers LOW-HIGH, low first (40-64 is E2-E4)' };
@@ -99,11 +114,18 @@ export function run(argv) {
     if (!m || Number(m[1]) >= Number(m[2]) || Number(m[2]) > 127) return null;
     return { low: Number(m[1]), high: Number(m[2]) };
   };
-  const tenor = rangeArg(args.tenor, '--tenor', TENOR_RANGE);
-  const bass = rangeArg(args.bass, '--bass', BASS_RANGE);
-  if (!tenor || !bass) return { code: 2, text: '--tenor and --bass must be two MIDI numbers LOW-HIGH, low first (48-69 is C3-A4)' };
+  const tenor = rangeArg(args.tenor, '--tenor', choir ? choir.tenor : TENOR_RANGE);
+  const bass = rangeArg(args.bass, '--bass', choir ? choir.bass : BASS_RANGE);
+  const baritone = args.baritones ? rangeArg(args.baritone, '--baritone', choir ? choir.baritone : BARITONE_RANGE) : null;
+  const tenor2 = args.tenors2 ? rangeArg(args.tenor2, '--tenor2', choir ? choir.tenor2 : TENOR2_RANGE) : null;
+  if (!tenor || !bass || (args.baritones && !baritone) || (args.tenors2 && !tenor2)) return { code: 2, text: '--tenor, --tenor2, --baritone and --bass must be two MIDI numbers LOW-HIGH, low first (48-69 is C3-A4)' };
   if ((args.tenor !== undefined || args.bass !== undefined) && !args.split) return { code: 2, text: '--tenor and --bass need --split-voices' };
+  if (args.baritones && !args.split) return { code: 2, text: '--baritones and --baritone need --split-voices' };
+  if (args.tenors2 && !args.split) return { code: 2, text: '--second-tenors and --tenor2 need --split-voices' };
   if ((args.splitWords || args.wordCost !== undefined) && !args.split) return { code: 2, text: '--split-words and --word-cost need --split-voices' };
+  if (args.entranceCost !== undefined && !args.split) return { code: 2, text: '--entrance-cost needs --split-voices' };
+  const entranceCost = args.entranceCost === undefined ? 0 : Number(args.entranceCost);
+  if (!(Number.isInteger(entranceCost) && entranceCost >= 0)) return { code: 2, text: '--entrance-cost must be a whole number of notes, 0 or more' };
   if (args.overlap && !args.split) return { code: 2, text: '--overlap needs --split-voices' };
   if (args.wordCost !== undefined && !args.splitWords) return { code: 2, text: '--word-cost needs --split-words' };
   const wordCost = args.wordCost === undefined ? 3 : Number(args.wordCost);
@@ -123,6 +145,14 @@ export function run(argv) {
   let events = parsed.events;
   const hasNotes = events.some((e) => e.type === 'note');
   if ((args.suggest || args.auto) && !hasNotes) return { code: 2, text: 'no notes' };
+  // with a named choir, a unison line that does not fit is answered with the fewest sections
+  // that do (checked on the line as written, before any fitting, halving or lift: those never
+  // change which notes are sung)
+  const voicingHint = () => {
+    if (!choir || args.range !== undefined) return '';
+    const v = fewestSections(events, choir);
+    return v.sections ? `; the ${args.choir} choir can sing it as ${v.name}: add ${v.flags}` : `; no split into up to four sections of the ${args.choir} choir fits it either`;
+  };
   // Timing first (bar fitting, half time and repeats never change a pitch), then the section
   // plan, then the key lift, then the pitch choice: so the range check sees the lifted line.
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
@@ -151,26 +181,27 @@ export function run(argv) {
         r.recommended = { ...r.recommended, final: keyOf(r.recommended), name: noteName(keyOf(r.recommended)) };
         r.finals = { ...r.finals, lowest: r.finals.lowest - lift, highest: r.finals.highest - lift, lowestName: noteName(r.finals.lowest - lift), highestName: noteName(r.finals.highest - lift) };
       }
+      if (choir) { r.choir = args.choir; if (!r.fits && args.range === undefined) r.fewestSections = fewestSections(events, choir); }
       return { code: 0, text: JSON.stringify(r, null, 2) };
     }
     const withLift = lift ? ` with the last drop lifted ${lift}` : '';
-    if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones${withLift} is ${r.over} wider than ${r.range.join('-')}; try --split-voices (tenors and basses by phrase) or accept a falsetto/low pedal` };
+    if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones${withLift} is ${r.over} wider than ${r.range.join('-')}${choir ? voicingHint() || '; try --split-voices' : '; try --split-voices (tenors and basses by phrase) or accept a falsetto/low pedal'}` };
     return { code: 0, text: `finals that fit ${r.range.join('-')}${withLift}: ${noteName(r.finals.lowest - lift)} to ${noteName(r.finals.highest - lift)}; recommended --final ${keyOf(r.recommended)} (${noteName(keyOf(r.recommended))})` };
   }
   if (args.auto) {
     const r = suggestFinal(events, range);
-    if (!r.fits) return { code: 1, text: `--auto-final: ambitus ${r.ambitus} semitones${lift ? ` with the last drop lifted ${lift}` : ''} is ${r.over} wider than ${r.range.join('-')}; use --final to choose` };
+    if (!r.fits) return { code: 1, text: `--auto-final: ambitus ${r.ambitus} semitones${lift ? ` with the last drop lifted ${lift}` : ''} is ${r.over} wider than ${r.range.join('-')}; use --final to choose${voicingHint()}` };
     args.final = keyOf(r.recommended);
   }
   let split = null;
   if (args.split && hasNotes) {
     const fin = events.filter((e) => e.type === 'note').at(-1).midi;
     try {
-      split = splitVoices(events, { tenor, bass, words: args.splitWords ? 'prefer' : 'needed', wordCost, overlap: !!args.overlap, shift: args.final !== null ? args.final + lift - fin : null });
+      split = splitVoices(events, { tenor, bass, baritone, tenor2, words: args.splitWords ? 'prefer' : 'needed', wordCost, entranceCost, overlap: !!args.overlap, shift: args.final !== null ? args.final + lift - fin : null });
     } catch (err) {
       return { code: 2, text: err.message };
     }
-    if (!split.fits) return { code: 1, text: `--split-voices: no split at bars or words fits tenors ${noteName(tenor.low)}-${noteName(tenor.high)} and basses ${noteName(bass.low)}-${noteName(bass.high)}: ${split.reason}${args.final !== null ? '; drop --final to let it choose' : ''}` };
+    if (!split.fits) return { code: 1, text: `--split-voices: no split at bars or words fits ${tenor2 ? 'first tenors' : 'tenors'} ${noteName(tenor.low)}-${noteName(tenor.high)}${tenor2 ? `, second tenors ${noteName(tenor2.low)}-${noteName(tenor2.high)}` : ''}${baritone ? `, baritones ${noteName(baritone.low)}-${noteName(baritone.high)}` : ''} and basses ${noteName(bass.low)}-${noteName(bass.high)}: ${split.reason}${args.final !== null ? '; drop --final to let it choose' : ''}` };
     events = split.events;
     args.final = split.final - lift;
   } else if (args.final !== null && hasNotes) events = transposeToFinal(events, args.final + lift);
@@ -188,6 +219,7 @@ export function run(argv) {
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
   // the mode check is about the transcription, so judge the final as written, before --final moves it
   if ('modeFinalMatches' in summary) summary.modeFinalMatches = summarize(parsed).modeFinalMatches;
+  if (choir) summary.choir = args.choir;
   if (split) {
     const who = (v) => split.phrases.map((p, k) => (p.voice === v ? k + 1 : 0)).filter(Boolean);
     summary.voices = {
@@ -196,9 +228,13 @@ export function run(argv) {
       allNotes: split.allNotes,
       tenorNotes: split.tenorNotes,
       bassNotes: split.bassNotes,
+      ...(baritone ? { baritoneNotes: split.baritoneNotes, baritonePhrases: who('baritone') } : {}),
+      ...(tenor2 ? { tenor2Notes: split.tenor2Notes, tenor2Phrases: who('tenor2') } : {}),
+      ...(baritone || tenor2 ? { voiceNotes: split.voiceNotes, sectionNotes: split.sectionNotes } : {}),
       tenorPhrases: who('tenor'),
       bassPhrases: who('bass'),
       changes: split.changes,
+      entrances: split.entrances,
       handoffs: split.handoffs,
       ...(args.overlap ? { overlaps: split.overlaps.length, breaks: split.breaks } : {}),
       sharedPhrases: split.phrases.map((p, k) => (p.voice === 'mixed' ? k + 1 : 0)).filter(Boolean),

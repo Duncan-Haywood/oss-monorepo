@@ -252,6 +252,20 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    12.6 points, and per-nail reads, push and a slide and shim together reach 0.771 (0.860 on the
    same studs' parabolas). 95% then needs a tool held to 0.61 mm. Doubled joints stay at 1.000.
    Still open: a line-laser stud read on a robot, timed.
+13. **What the remedies cost** (done 2026-11-13, `experiments/m13_price/`): with each remedy's
+   seconds charged in milestone 7's cost model, the full single-2x stack costs $7.42 per clean sheet
+   at 100 houses a year against $7.10 for three reads (0.771 against 0.425 first-pass clean); the
+   doubled joint stud ($12.17, 1.000 clean) loses in every draw and pays only if a missed nail costs
+   about $5.51 more than its re-drive. Still open: the cost and detection rate of a missed nail at
+   inspection, and measured remedy times.
+14. **What an escaped missed nail costs in capacity** (done 2026-11-13, `experiments/m14_escaped/`): a
+   rigid-plastic fully anchored shear-wall model (Källsner and Girhammar 2009), checked against SDPWS's
+   spacing table (within 6%), scores the simulated miss patterns. One joint-edge miss costs about 2% of
+   its sheet; on measured studs with three reads the mean sheet loses 2.3% but the 99th percentile
+   11.5%, because misses cluster. Nailing the joint edges at 4 in carries every escaped miss (99.98% of
+   sheets at or above the intact 6 in sheet) for less than re-driving them. The model loses only 20% where
+   Weiss (2017)'s walls with the bottom foot unnailed lost about half, so its losses are lower bounds.
+   Still open: a racking test of sheets with shiners at the simulated positions.
 
 ## Target venue
 

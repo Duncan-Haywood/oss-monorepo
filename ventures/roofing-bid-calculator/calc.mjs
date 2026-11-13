@@ -36,7 +36,10 @@ export const SECTION_PRESETS = Object.freeze([
   { label: 'Addition' },
 ]);
 
-function number(value, name, { min = 0, allowZero = true } = {}) {
+function number(value, name, { min = 0, allowZero = true, required = false } = {}) {
+  // A cleared <input> arrives as '' and Number('') is 0: for a field that drives
+  // the price, a blank must not silently become zero labor, a flat pitch or no tear-off.
+  if (required && typeof value === 'string' && value.trim() === '') throw new Error(`${name} is blank`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
@@ -75,7 +78,7 @@ export function steepLaborMultiplier(risePer12) {
  *   One row per roof plane group. Splitting this way is the point: a steep
  *   garage or a multi-layer porch cannot be priced at the same rate as a
  *   low-slope main.
- * @param {number} input.wastePercent            Cut-up waste, starter, ridge.
+ * @param {number} input.wastePercent            Cut-up waste (cuts, valleys); starter and ridge are in accessories.
  * @param {number} input.materialPerSquare       Installed covering, per square.
  * @param {number} input.underlaymentPerSquare   Felt / synthetic, per square.
  * @param {number} input.accessoriesFlat         Ridge, starter, flashing, vents.
@@ -96,12 +99,12 @@ export function calculateBid(input) {
   if (sectionsInput.length === 0) throw new Error('Add at least one roof section to price');
 
   const wastePercent = number(input.wastePercent ?? 0, 'Waste');
-  const materialPerSquare = number(input.materialPerSquare ?? 0, 'Material per square');
-  const underlaymentPerSquare = number(input.underlaymentPerSquare ?? 0, 'Underlayment per square');
+  const materialPerSquare = number(input.materialPerSquare ?? 0, 'Material per square', { required: true });
+  const underlaymentPerSquare = number(input.underlaymentPerSquare ?? 0, 'Underlayment per square', { required: true });
   const accessoriesFlat = number(input.accessoriesFlat ?? 0, 'Accessories');
-  const installHoursPerSquare = number(input.installHoursPerSquare ?? 0, 'Install hours per square');
-  const tearOffHoursPerSquare = number(input.tearOffHoursPerSquare ?? 0, 'Tear-off hours per square');
-  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+  const installHoursPerSquare = number(input.installHoursPerSquare ?? 0, 'Install hours per square', { required: true });
+  const tearOffHoursPerSquare = number(input.tearOffHoursPerSquare ?? 0, 'Tear-off hours per square', { required: true });
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage', { required: true });
   const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');
   const dumpPerSquare = number(input.dumpPerSquare ?? 0, 'Dump per square');
   const dumpsterFee = number(input.dumpsterFee ?? 0, 'Dumpster fee');
@@ -115,14 +118,14 @@ export function calculateBid(input) {
 
   const sections = sectionsInput.map((section, index) => {
     const label = section.name?.trim() || `Section ${index + 1}`;
-    const footprintSqFt = number(section.footprintSqFt ?? 0, `${label}: footprint square feet`);
-    const pitchRise = number(section.pitchRise ?? 0, `${label}: pitch rise`);
-    const tearOffLayers = number(section.tearOffLayers ?? 0, `${label}: tear-off layers`);
+    const footprintSqFt = number(section.footprintSqFt ?? 0, `${label}: footprint square feet`, { required: true });
+    const pitchRise = number(section.pitchRise ?? 0, `${label}: pitch rise`, { required: true });
+    const tearOffLayers = number(section.tearOffLayers ?? 0, `${label}: tear-off layers`, { required: true });
     const factor = pitchFactor(pitchRise);
     const steep = steepLaborMultiplier(pitchRise);
     const surfaceSqFt = footprintSqFt * factor;
     const squares = surfaceSqFt / SQUARE_SQ_FT;
-    // Waste is on the *new* covering (cuts, starter, ridge, valleys), not on
+    // Waste is on the *new* covering (cuts, valleys), not on
     // tear-off. Tear-off follows the existing surface times the number of
     // layers coming off.
     const materialSquares = squares * (1 + wastePercent / 100);

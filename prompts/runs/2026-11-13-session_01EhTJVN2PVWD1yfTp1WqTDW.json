@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVN2PVWD1yfTp1WqTDW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T20:28:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 15599,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "The pick_track CLAIM CHECK showed a sibling had landed milestone 4e 11 minutes earlier with no open PR on the programme; it was clear the next free label (4f) was safe, but nothing says how to tell a sibling still running a step from one that has finished."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/LOG.md",
+      "why": "The 4f plan was written while the solves ran, not before they started (the solves are deterministic enumeration; nothing was analysed before the plan was committed, and analyse.py was tested only on synthetic data first).",
+      "did": "plan committed and pushed before any real-data analysis",
+      "result": "pre-registration intact: H48 and H51 held, H49 and H50 refuted"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Milestone 4f of sensing-selfcal: 10,854 new 5x5-corner solves (every 3-12 view subset of 13, both cameras). Jackknife/real f spread falls 6.7->1.1 (left) and 6.7->1.4 (right) from 4 to 10 views; solver sigma 2-6x small. H48, H51 held; H49, H50 refuted. Local checks: pytest research/sensing-selfcal/tests 28 passed; paper/check_numbers.py 92/92; research/_homepage/build.py ok; check_md_links ok; post frontmatter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null
+}

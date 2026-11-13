@@ -1,9 +1,11 @@
 // Call-out slack priced inside the build: coverRisk and --cover-price (2026-11-13, eval/cover-price.mjs).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseStaff, parseShifts, buildContext, buildRoster, coverRisk, coverSlackText, optimalityText, calloutExposure, TEMPLATES } from "./calc.mjs";
+import { parseStaff, parseShifts, buildContext, buildRoster, coverRisk, coverSlackPass, coverSlackText, optimalityText, calloutExposure, TEMPLATES } from "./calc.mjs";
 import { parseArgs, run } from "./cli.mjs";
 import { readFileSync } from "node:fs";
+import { sets } from "./eval/real-rate-week.mjs";
+import { seededWeeks } from "./eval/reissue-scale.mjs";
 
 const O = { minRestHours: 10 };
 const ctxOf = (staffText, shiftsText, o = O) => buildContext(parseStaff(staffText).staff, parseShifts(shiftsText).slots, o);
@@ -150,4 +152,58 @@ test("CLI --cover-chain sets the passes and rejects out-of-range values", () => 
   assert.equal(parseArgs(["--cover-chain", "0", "a", "b"]).options.coverChain, 0);
   assert.equal(parseArgs(["--cover-chain", "3", "a", "b"]).options.coverChain, 3);
   assert.throws(() => parseArgs(["--cover-chain", "4"]), /--cover-chain needs a whole number/);
+});
+
+test("moving a stand-in's own shift: a relief clears risk no move of the at-risk person's shifts can (2026-11-13 later)", () => {
+  // Ana can only work Tuesday. Bo could cover her but is capped at 4 h and holds Monday, which by Tuesday has been worked,
+  // so no hand-over chain can pass it on. Cy works Mondays only, at a higher wage, so the build gives Monday to Bo.
+  const staffText = "name, wage, max hours, min hours, availability\nAna, 20, 40, 0, Tue 0-24\nBo, 20, 4, 0, any\nCy, 30, 40, 0, Mon 0-24";
+  const shiftsText = "Mon, 9:00, 13:00, 1\nTue, 9:00, 13:00, 1";
+  const staff = parseStaff(staffText).staff, slots = parseShifts(shiftsText).slots;
+  const plain = buildRoster(staff, slots, O);
+  assert.equal(calloutExposure(staff, slots, plain, O).exposure, 4);
+  const single = buildRoster(staff, slots, { ...O, coverPrice: 25, coverPairs: false });
+  assert.equal(single.coverSlack.moves, 0);
+  assert.equal(single.coverSlack.riskHours, 4);
+  const paired = buildRoster(staff, slots, { ...O, coverPrice: 25 });
+  const cs = paired.coverSlack;
+  assert.equal(cs.relieves, 1);
+  assert.equal(cs.riskHours, 0);
+  assert.equal(paired.unfilledHours, plain.unfilledHours);
+  assert.equal(calloutExposure(staff, slots, paired, O).exposure, 0); // the slow measurement agrees
+  assert.match(coverSlackText(cs, staff), /freed a stand-in/);
+  // Too low a price: the relief costs about $24 of score for 4 h at risk, so $5 an hour buys nothing.
+  assert.equal(buildRoster(staff, slots, { ...O, coverPrice: 5 }).coverSlack.moves, 0);
+});
+
+test("a two-shift move must clear risk, not only score: the spare-part-timer team posts the single-move roster", () => {
+  // Before the rule a relief there left risk at 194 h, saved $5 of score and raised measured exposure from 54 h to 66 h.
+  const [stf, shf] = sets().spare;
+  const staff = parseStaff(stf).staff, slots = parseShifts(shf).slots;
+  const off = buildRoster(staff, slots, { ...O, coverPrice: 25, coverPairs: false });
+  const on = buildRoster(staff, slots, { ...O, coverPrice: 25 });
+  assert.equal(on.coverSlack.relieves + on.coverSlack.trades + on.coverSlack.pairMoves, 0);
+  assert.deepEqual(on.owner, off.owner);
+});
+
+test("on a seeded 20-person week the two-shift moves clear risk the single moves cannot, never opening a shift", () => {
+  // eval/cover-pairs.mjs, 20 x 56 week 2: single moves 189 -> 189 h, with the pairs 189 -> 107 h.
+  const { staff: st, shifts: sh } = seededWeeks(20, 56, 3)[2];
+  const staff = parseStaff(st).staff, slots = parseShifts(sh).slots;
+  const r = buildRoster(staff, slots, O);
+  const ctx = buildContext(staff, slots, O);
+  const off = coverSlackPass(ctx, r.owner, { price: 25, pairs: false });
+  const on = coverSlackPass(ctx, r.owner, { price: 25 });
+  assert.equal(off.moves, 0);
+  assert.ok(on.relieves + on.trades + on.pairMoves >= 1);
+  assert.ok(on.risk.hours < off.risk.hours, `${on.risk.hours} < ${off.risk.hours}`);
+  assert.equal(on.risk.hours, coverRisk(ctx, on.owner, { budget: Infinity }).hours);
+  assert.ok(on.score + 25 * on.risk.hours < off.score + 25 * off.risk.hours);
+  const open = (owner) => owner.filter((p) => p < 0).length;
+  assert.equal(open(on.owner), open(r.owner));
+});
+
+test("--no-cover-pairs turns the two-shift moves off on the CLI", () => {
+  const o = parseArgs(["staff.txt", "shifts.txt", "--cover-price", "25", "--no-cover-pairs"]);
+  assert.equal(o.options.coverPairs, false);
 });

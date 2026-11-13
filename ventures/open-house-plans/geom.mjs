@@ -38,6 +38,12 @@ export function centroid(poly) {
 
 /** Counter-clockwise (in y-up maths terms) and without repeated or collinear points. */
 export function clean(poly) {
+  if (poly.length >= 4) { const r = cleanSimple(poly); if (r) return r; }
+  return cleanGeneral(poly);
+}
+
+/** clean() without the fast path; exported so a test can pin the two together. */
+export function cleanGeneral(poly) {
   const pts = [];
   for (const p of poly) {
     const last = pts[pts.length - 1];
@@ -57,6 +63,27 @@ export function clean(poly) {
   let s = 0;
   for (let i = 0; i < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length]; s += x1 * y2 - x2 * y1; }
   return s < 0 ? pts.reverse() : pts;
+}
+
+// Fast path for the common case, a polygon whose corners are all distinct
+// (wrap-around included) and none of which is a straight-through vertex
+// (every rect() and cutCorner()): the general loop above would copy the
+// points unchanged, so do just that, then orient. Returns null when any corner
+// repeats or is collinear, and the general path decides. Pinned against the
+// general path in geom.test.mjs.
+function cleanSimple(poly) {
+  const n = poly.length;
+  let s = 0;
+  for (let i = 0; i < n; i++) {
+    const a = poly[i === 0 ? n - 1 : i - 1], b = poly[i], c = poly[i + 1 === n ? 0 : i + 1];
+    if (Math.abs(a[0] - b[0]) <= EPS && Math.abs(a[1] - b[1]) <= EPS) return null;
+    if ((Math.abs(a[0] - b[0]) < EPS && Math.abs(b[0] - c[0]) < EPS) || (Math.abs(a[1] - b[1]) < EPS && Math.abs(b[1] - c[1]) < EPS)) return null;
+    s += b[0] * c[1] - c[0] * b[1];
+  }
+  const out = new Array(n);
+  if (s < 0) for (let i = 0; i < n; i++) { const p = poly[n - 1 - i]; out[i] = [p[0], p[1]]; }
+  else for (let i = 0; i < n; i++) { const p = poly[i]; out[i] = [p[0], p[1]]; }
+  return out;
 }
 
 /**

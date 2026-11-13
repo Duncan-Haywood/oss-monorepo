@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 119 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 120 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -91,6 +91,13 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   random in 3 cells and worse in none. It acts on only 3 of the 12 cells, so the interval is -1.58 to +0.00 points. The max-tree
   decoy, mux-heavy but no shifter, stays on the ladder and wins (0.73% against 2.99%):
   [`experiments/struct_guard/`](experiments/struct_guard/results.txt).
+- **The RTL shifter guard fails its second blind test (milestone 120, flow run, mostly negative).** A barrel written as explicit
+  mux stages (proved equal to `barrel_w`) has no shift operator, so SWS(64) does not flag it, and the clipped switch loses there
+  (muxshl128 19.68% and 17.85% against 2.99% and 2.37% random). A mux-share band catches it. But the guard also flags a 128-bit
+  leading-zero normaliser where the ladder reaches 0.00% against 11.4 to 11.8% random. Blind regret: SWS(64) 9.84%, the
+  band-extended guard SWG 7.16%, random 7.16%, the unguarded rule 8.38%. The property that defeats the ladder looks like a shift
+  amount taken straight from an input, not a shift operator:
+  [`experiments/shift_power/`](experiments/shift_power/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

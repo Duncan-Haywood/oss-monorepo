@@ -25,6 +25,7 @@ import json
 import math
 import random
 import re
+import secrets
 import statistics
 import sys
 from pathlib import Path
@@ -123,10 +124,21 @@ def free_seed(date: str, audits: list[dict]) -> str:
     (rounds 39, 40 and 41 all ran on seed 2026-11-10) and each post had to
     explain why; picking the suffix by hand was the -b/-c rule in the README."""
     used = {str(a.get("seed", "")) for a in audits}
+    used |= {re.sub(r"-[0-9a-f]{4}$", "", s) for s in used}  # a claim_seed tail still uses its letter
     for suffix in [""] + [f"-{c}" for c in "bcdefghijklmnopqrstuvwxyz"]:
         if date + suffix not in used:
             return date + suffix
     return date + "-" + hashlib.sha256(repr(sorted(used)).encode()).hexdigest()[:6]
+
+
+def claim_seed(base: str, token: str | None = None) -> str:
+    """`base` plus a short random tail, so two sessions that run `sample`
+    minutes apart draw different subjects. The letter alone did not do it:
+    seeds 2026-11-13-e, -h and -o were each drawn by two sessions that started
+    before either's claim PR was visible, and each pair audited the same four
+    subjects (portfolio/quality/blind-pairs/). The seed is still printed and
+    recorded, so `--seed` reproduces any draw."""
+    return f"{base}-{token or secrets.token_hex(2)}"
 
 
 ROUND_RE = re.compile(r"quality-audit-round-(\d+)\.md$")
@@ -412,7 +424,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     sp = sub.add_parser("sample", help="draw this round's subjects")
-    sp.add_argument("--seed", default=None, help="default: today's date, suffixed -b, -c ... past seeds audits already used")
+    sp.add_argument("--seed", default=None, help="default: today's date, suffixed -b, -c ... past seeds audits already used, plus a random tail so concurrent sessions draw differently")
     sp.add_argument("--k", type=int, default=2, help="subjects per venture and research stratum")
     sp.add_argument("--k-platform", type=int, default=1)
     sp.add_argument("--json", action="store_true")
@@ -441,7 +453,7 @@ def main(argv: list[str] | None = None) -> int:
         local = load_audits()
         every = local + remote_audits(local)
         held = [{"seed": sd} for _, sd in prs if sd]  # seeds open round PRs hold
-        seed = args.seed or free_seed(dt.date.today().isoformat(), every + held)
+        seed = args.seed or claim_seed(free_seed(dt.date.today().isoformat(), every + held))
         picks = draw(seed, args.k, args.k_platform, audits=every)
         rnd = next_round(in_flight=tuple(r for r, _ in prs))
         if args.json:

@@ -45,6 +45,9 @@ All identifiers checked with `research/_shared/cite_check.py` on 2026-11-13 (`ci
 - Karamouzas, Skinner and Guy (2014), universal power law of pedestrian interactions, *Phys. Rev. Lett.* 113, 238701, doi:10.1103/PhysRevLett.113.238701. An anticipatory energy fitted to real data, which makes it the strongest physics-style candidate.
 - Moussaïd et al. (2009), behavioural mechanisms of self-organisation, *Proc. R. Soc. B*, doi:10.1098/rspb.2009.0405. It measured a side preference in pairwise avoidance and showed that the bias drives lane asymmetry in a model. It measured pairs, not a crowd, and had no robots.
 - Murakami et al. (2021), mutual anticipation and self-organisation in crowds, *Science Advances*, doi:10.1126/sciadv.abe7758. Lane formation fails when walkers cannot anticipate, which bears on robots that do not signal intent.
+- Lerner, Chrysanthou and Lischinski (2007), crowds by example, *Computer Graphics Forum* 26(3), doi:10.1111/j.1467-8659.2007.01089.x (the DOI the OpenTraj README links; doi.org refused the lookup on 2026-11-13). The UCY Zara pavement recordings in Nicosia used at milestone 7.
+- Amirian et al. (2020), OpenTraj, ACCV (citation from the repository's own BibTeX; no identifier checked). The collection that mirrors ETH, UCY and the HERMES 2D runs on GitHub.
+- Kincaid (1986), *The Rule of the Road: An International Guide to History and Practice*, Greenwood Press. Source for the road-traffic side of Switzerland (right) and Cyprus (left).
 - Alahi et al. (2016), Social LSTM, CVPR, doi:10.1109/CVPR.2016.110, and Pellegrini et al. (2009), the ETH data, ICCV, doi:10.1109/ICCV.2009.5459260. Data-driven predictors and the benchmark they are trained on. That benchmark has sparse counterflow and no controlled lane experiment.
 
 *Robots among people:*
@@ -131,7 +134,7 @@ model; no anticipation (Murakami et al. 2021); corridor width 3.0 against 3.6 m.
 4. Add ORCA and the power law, and score H3 and H4 for all three.
 5. Add robots with four policies at three shares. Measure human costs per family.
 6. Test policy-ranking invariance (H5), and add SARL trained against each family.
-7. Check the baseline in the wild (ETH/UCY or ATC).
+7. Check the baseline in the wild (ETH/UCY or ATC). (Done 2026-11-13, taken early: 0.65 kept right in Zurich, 0.68 in Nicosia; see LOG.md.)
 8. Write the paper in RA-L format, with one command per figure.
 9. Owner steps: any corridor trial with a real robot and people needs ethics review and consent, and is the owner's to run. Submission is the owner's step.
 

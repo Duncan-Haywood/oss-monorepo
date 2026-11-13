@@ -1,5 +1,6 @@
 """P047: platform code must not build URLs on the retired /monorepo-projects/ Pages path."""
 import pathlib
+import subprocess
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -14,7 +15,11 @@ ALLOWED = {"platform/pages/build.mjs", "platform/ci/test_no_dead_pages_base.py",
 class NoDeadPagesBase(unittest.TestCase):
     def test_platform_does_not_name_the_dead_path(self):
         hits = []
-        for p in (ROOT / "platform").rglob("*"):
+        # Tracked files only: a local site build leaves gitignored output in platform/pages/dist that copies
+        # allowed venture text (subpath-robots-check's worked example), which failed this test after any build.
+        tracked = subprocess.run(["git", "ls-files", "platform"], cwd=ROOT, capture_output=True, text=True,
+                                 check=True).stdout.splitlines()
+        for p in (ROOT / rel for rel in tracked):
             if not p.is_file() or "node_modules" in p.parts or p.suffix in {".png", ".jpg", ".woff2", ".ico"}:
                 continue
             rel = p.relative_to(ROOT).as_posix()
@@ -38,6 +43,27 @@ class NoDeadPagesBase(unittest.TestCase):
                 if f.is_file() and any(marker in ln and DEAD in ln for ln in f.read_text(encoding="utf-8").splitlines()):
                     hits.append(f.relative_to(ROOT).as_posix())
         self.assertEqual(hits, [], "dead Pages base in a venture front door; use https://duncan-haywood.github.io/oss-monorepo/<slug>/")
+
+    def test_venture_files_do_not_name_the_dead_path(self):
+        """Red-team 2026-11-13: 167 venture files (sitemaps, robots.txt, probe User-Agents, SARIF informationUri, a
+        pyproject Homepage, an email footer) still named the dead base. The Pages build rewrites served HTML, but the
+        self-deploy bundles (platform/deploy/build.mjs), packages and CLI output carry the raw files, so a self-hoster's
+        sitemap and every probe's contact link pointed at a 404. Use https://marisstella.app/<slug>/."""
+        # subpath-robots-check's worked example is this very path: a project site whose robots.txt nobody reads.
+        allowed = ("ventures/subpath-robots-check/",)
+        hits = []
+        for p in (ROOT / "ventures").rglob("*"):
+            if p.relative_to(ROOT).as_posix().startswith(allowed):
+                continue
+            if not p.is_file() or "node_modules" in p.parts or p.suffix in {".png", ".jpg", ".woff2", ".ico", ".pdf", ".stl", ".gz"}:
+                continue
+            try:
+                text = p.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                continue
+            if DEAD in text:
+                hits.append(p.relative_to(ROOT).as_posix())
+        self.assertEqual(hits, [], "dead Pages base in a venture file; use https://marisstella.app/<slug>/")
 
 
 if __name__ == "__main__":

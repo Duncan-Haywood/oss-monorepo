@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVL3AZMoQxVknABTu1h",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T19:59:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 15598,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The scheduled task prompt asks for revenue product work, but the router drew the creative track (weight 0.1). I followed the router."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "newadvent.org, somascans.org and ewtn.com are unresolvable from the cloud session, so the saint's facts were checked through web search summaries only."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Little Lamps: jerome-emiliani-and-the-children-at-the-door (text only; audio is 423 MB, over the 400 MB cap). Facts were checked by web search: birth year 1481 or 1486, escape on 27-28 Sep 1511 (Sanudo), beatified 1747, canonised 1767, patron of orphans 1928. The story leaves out ordination because the sources disagree. Added a Lawrence proposal to the bible. Post added. node --test in hearth-and-horizon passed 15/15.",
+  "corrections": [],
+  "redteam": null
+}

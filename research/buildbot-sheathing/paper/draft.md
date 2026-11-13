@@ -467,6 +467,20 @@ reach 0.7707 (0.7960 with the scan's common part removed), against 0.8600 on the
 give 1.0000 in every cell. The single-2x route therefore needs all of a line read along the stud,
 a push, a pose fix and a tighter tool; doubled joints need none of them.
 
+### 5.12 What the remedies cost (milestone 13)
+
+Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
+nail height, the push U(10, 40) s, the slide and shim U(5, 30) s; swept, not measured), prices
+section 5.11's pipelines on the measured studs. At 100 houses a year, three reads on the ledger
+cost a median $7.10 per clean sheet at 0.4253 first-pass clean; the full stack, with per-nail reads
+by line laser, costs $7.42 at 0.7707. Below the machine's capacity extra seconds cost only
+supervision, so first-pass quality up to 0.77 is nearly free. Doubled joints reach 1.0000 in 145 s
+but cost $12.17, and the cheapest single-2x pipeline beats them in every one of the 4,000 draws at
+100, 300 and 1,000 houses a year (median saving $5.13). Doubling pays only if a missed nail costs a
+median $5.51 more than its re-drive (8.8 loaded person-minutes), against $6.51 on the parabolic
+studs of section 5.7. A line laser beats three point reads once it sweeps faster than about
+0.23 m/s.
+
 ## 6. Discussion
 
 **What decides a clean sheet.** The robot's sensing matters only where the framing leaves room
@@ -488,7 +502,9 @@ doubled joints save 18–65 s of rework a sheet; in dollars, that rework is chea
 stud is not. The decision turns on the cost of a missed nail found late: a miss the robot finds
 and re-drives at once is cheap, a miss found at inspection or in a shear wall where it is a
 structural defect is not. Where a shear-wall design already calls for 3x or doubled joints, the
-stud is sunk and the robot gets its 99.97% for free.
+stud is sunk and the robot gets its 99.97% for free. On measured studs
+(section 5.12) the threshold is about $5.50 a missed nail, and the single-2x remedies cost about
+30 cents a sheet, so the framing choice reduces to that one number.
 
 **Against a crew.** A site robot beats the hand crew in the median draw only when it sheathes
 over about 100 houses a year, more than a robot moving between single-house sites would. That is

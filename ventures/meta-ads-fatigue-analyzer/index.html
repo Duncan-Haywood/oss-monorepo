@@ -137,7 +137,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, adsCsv, sampleCsv, money, pct } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, adsCsv, sampleCsv, money, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -147,7 +147,7 @@
 
     function run(text) {
       const delim = detectDelimiter(text);
-      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: detectDecimalComma(text, delim) });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const r = analyze(n.rows, {
         targetCpa: Number($("#target").value) || null, freqThreshold: Number($("#freq").value) || 3,

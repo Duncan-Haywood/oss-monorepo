@@ -72,3 +72,11 @@ test("the sample payouts load from the page and the account list defaults to the
   assert.match(html, /sampleReport/);
   assert.match(html, /mappingText\(\)/);
 });
+
+test("the page is labelled for Lemon Squeezy, not the tool it was copied from, and reads the deposit with parseAmount", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /PATREON PAYOUT|Pledge Amount/i);
+  assert.doesNotMatch(html, /parseFloat\(\$\("#expected"\)/);
+  assert.match(html, /parseAmount\(\$\("#expected"\)\.value\)/);
+  assert.match(html, /Known gap/);
+});

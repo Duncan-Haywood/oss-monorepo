@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVQ9JWkbzSQHUx1W8RE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T19:07:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 (website request, building): the drape's open items, arms that hang and the neckline residual",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 15583,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The allocator's 'Start here' line names a flagship while CLAUDE.md and prompt.md say open website requests come first; the allocator does not list requests, so a run has to reconcile the two by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The allocator named einvoice-preflight (flagship row 3); CLAUDE.md and prompt.md put open website requests first, and R-0005 had a buildable open item with no open PR.",
+      "did": "Took R-0005 instead of the flagship row.",
+      "result": "Shipped the lowerArms option (measured, kept off the page) and a neckline diagnosis with five one-variable runs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-why-the-simulated-tee-pulls-at-the-neck.md",
+    "ventures/clothing-design-studio/eval/drape-arms-down-2026-11-13.md"
+  ],
+  "goal": "Land a working slice of R-0005's next open item: arms that hang in the virtual drape, and a diagnosis of the 6.7% neckline stretch.",
+  "notes": "Lowered arms reach only 28.5 degrees on the ellipse torso (100 cm chest); across tee/long sleeve/hoodie S-M-L the hem moved 0-0.6 cm and the neck at most 0.7 points, while the pinched underarm read as up to 61% bicep peak and 8 points went inside the body on S tee and long sleeve, so the page keeps 45 degrees (negative result, documented). Neckline: deltoid flush 7.6% (worse than 6.7), friction 0.05 12.1%, arms at 60 3.8%, settle 4 s unchanged: the sleeves pull the shoulders outward along the arm. Verification: node --test drape.test.mjs 12/12 pass; run_venture_tests.py clothing-design-studio ok; portfolio/requests tests 23/23; post frontmatter, links, similarity checks clean; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

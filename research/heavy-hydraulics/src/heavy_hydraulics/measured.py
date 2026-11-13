@@ -335,17 +335,17 @@ def breakeven_rest_rate_two_eta(m, m_star, p, q_ls_mean, tau, b, eta_ls, eta_oc)
     return b * gap * q_ls_mean / (600.0 * (tau - 1))
 
 
-def fit_pump_loss(table, min_fraction=0.0):
+def fit_pump_loss(table, min_fraction=0.0, max_fraction=1.0):
     """Least-squares fit of a stroke-linear loss model to an efficiency table (milestone 6h).
 
     table: (fractions, pressures, grid) as from eta_table. The loss in bar of full-stroke flow,
     L = x p (1/eta - 1), is fitted as L = k0 + kp p + kl p^2 + kc x p on the cells with
-    x >= min_fraction. Returns (k0, kp, kl, kc)."""
+    min_fraction <= x <= max_fraction. Returns (k0, kp, kl, kc)."""
     fr, ps, grid = table
     rows, ys = [], []
     for i, p in enumerate(ps):
         for j, x in enumerate(fr):
-            if x + 1e-12 < min_fraction:
+            if x + 1e-12 < min_fraction or x - 1e-12 > max_fraction:
                 continue
             e = grid[i][j]
             rows.append((1.0, p, p * p, x * p))
@@ -384,3 +384,81 @@ def flat_hold_shortfall(coef, p, q_max, b, g, tau):
     k0, kp, kl, _ = coef
     a = k0 + kp * p + kl * p * p
     return b * q_max * a * g / (600.0 * (tau - 1.0))
+
+
+def continued_loss(table, kc, x, p, mode="anchored", coef=None):
+    """Pump loss in bar of full-stroke flow, L = x p (1/eta - 1), with a rule below the smallest
+    measured stroke x0 (milestone 6i). At and above x0 it is the table's (6g). Below x0:
+
+    'flat': L = x L(x0)/x0, i.e. 6g's flat efficiency hold (loss shrinks with flow);
+    'anchored': L = L(x0) - kc p (x0 - x), the measured loss at x0 less the fitted stroke-proportional
+        term, so a pump at zero stroke still pays L(x0) - kc p x0;
+    'model': the fit_pump_loss model L = k0 + kp p + kl p^2 + kc x p (coef required)."""
+    fr = table[0]
+    x0 = fr[0]
+    x = min(max(x, 0.0), 1.0)
+    if x >= x0:
+        return x * p * (1.0 / part_stroke_eta(table, x, p) - 1.0)
+    l0 = x0 * p * (1.0 / part_stroke_eta(table, x0, p) - 1.0)
+    if mode == "flat":
+        return x * l0 / x0
+    if mode == "anchored":
+        return l0 - kc * p * (x0 - x)
+    if mode == "model":
+        k0, kp, kl, kc_ = coef
+        return k0 + kp * p + kl * p * p + kc_ * x * p
+    raise ValueError("mode must be flat, anchored or model")
+
+
+def stroke_shortfall(x, w, x0):
+    """g = E_w[(1 - x/x0)+] and s = P_w(x < x0) over samples x with weights w (6h's g, 6i)."""
+    tw = sum(w)
+    if tw <= 0:
+        raise ValueError("weights must sum to a positive number")
+    g = sum(wi * max(0.0, 1.0 - xi / x0) for xi, wi in zip(x, w)) / tw
+    s = sum(wi for xi, wi in zip(x, w) if xi < x0) / tw
+    return g, s
+
+
+def idle_pump_power(coef, q_fixed, p_neutral, q_max, p_standby, q_standby=0.0, speed_ratio=1.0):
+    """Pump shaft power (kW) of each circuit while no function moves (milestone 6j).
+
+    coef: fit_pump_loss coefficients (k0, kp, kl, kc), loss in bar of full-stroke flow.
+    Open-centre: the fixed pump at full stroke circulates q_fixed through the valve's neutral passage
+    at p_neutral and pays its own loss L(1, p_neutral) on its displacement.
+    Load-sensing: the variable pump destrokes to its standby pressure and pays its zero-stroke loss
+    L(0, p_standby) on its full displacement q_max, plus the standby flow q_standby at p_standby.
+    speed_ratio scales both pumps' flows (idle pump speed over working speed); the loss in bar of
+    full-stroke flow is held, so drag power scales with speed (an assumption). p_neutral is taken at
+    the flow actually circulated (the caller evaluates it at q_fixed * speed_ratio).
+    Returns (P_open_centre, P_load_sensing)."""
+    k0, kp, kl, kc = coef
+    if min(q_fixed, q_max, speed_ratio) <= 0 or min(p_neutral, p_standby, q_standby) < 0:
+        raise ValueError("flows and speed must be positive, pressures non-negative")
+    l_oc = k0 + kp * p_neutral + kl * p_neutral ** 2 + kc * p_neutral
+    l_ls = k0 + kp * p_standby + kl * p_standby ** 2
+    p_oc = q_fixed * speed_ratio * (p_neutral + l_oc) / 600.0
+    p_ls = (q_max * speed_ratio * l_ls + q_standby * p_standby) / 600.0
+    return p_oc, p_ls
+
+
+def idle_hours_per_work_hour(share, s0):
+    """No-function hours per hour of load-sensing record (6j). share: no-function hours over all
+    machine hours, the record's own still time included; s0: the record's still share t_still / t_ls.
+    share == s0 returns s0 (the record alone); share must lie in [s0, 1)."""
+    if not 0 <= s0 <= share < 1:
+        raise ValueError("need 0 <= s0 <= share < 1")
+    return share * (1.0 - s0) / (1.0 - share)
+
+
+def breakeven_rest_rate_idle(saving_moving, tau, b, p_ls_idle, p_oc_idle, idle_hours):
+    """6g/6i's break-even rest-of-machine fuel rate with idle pump power charged (6j).
+
+    saving_moving: the fixed pump's pump-fuel saving per hour of load-sensing record while moving
+    (L/h), (b / 600) Q [(p + m) / eta_LS - (p + m*) / eta_OC]; idle powers in kW; idle_hours from
+    idle_hours_per_work_hour. f_t* = [saving_moving + b (P_LS - P_OC) idle_hours] / (tau - 1);
+    None where the fixed pump saves no pump fuel overall or loses no time."""
+    s = saving_moving + b * (p_ls_idle - p_oc_idle) * idle_hours
+    if s <= 0 or tau <= 1:
+        return None
+    return s / (tau - 1.0)

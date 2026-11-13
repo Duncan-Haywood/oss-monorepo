@@ -503,6 +503,9 @@ def hopper_shelf(p: Feeder) -> Part:
         with Locations((a_o, 0)):
             Circle(80.0 / 2, mode=Mode.SUBTRACT)
         _holes([(a_o + x, y) for x, y in _ring(SPIGOT_BOLT_R, 4, 45)], 4.4)
+        xs, ys = p.agit_xy
+        _holes([(xs, ys)], p.agit_shelf_hole)                                         # agitator shaft
+        _holes([(xs + x, ys + y) for x, y in _ring(p.agit_mount_bolt_r, 3, 90)], 4.4)  # its motor mount, M4 from above
         with Locations((0, p.tub_w / 2 + 12), (0, -p.tub_w / 2 - 12)):
             SlotOverall(60, 6, mode=Mode.SUBTRACT)  # a 25 mm strap over the tub each side
     face = sk.sketch
@@ -510,7 +513,78 @@ def hopper_shelf(p: Feeder) -> Part:
     return Part("hopper_shelf", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))], flat=face, thickness=p.plate_t,
                 notes=f"Tub shelf, falls {p.shelf_slope_deg:g} deg toward the net so balls roll to the outlet. "
-                      "Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole.")
+                      "Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole, the agitator's "
+                      "motor mount under the small hole beside it.")
+
+
+# ---------------------------------------------------------------- hopper agitator (2026-11-13)
+
+def _shelf_frame(p: Feeder) -> Location:
+    """The shelf's frame: origin at its underside's centre, x down the slope toward the net, z normal to it."""
+    ox, oz = p.shelf_origin
+    return Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))
+
+
+def _agit_loc(p: Feeder) -> Location:
+    xs, ys = p.agit_xy
+    return _shelf_frame(p) * Location((xs, ys, 0))
+
+
+def hopper_agitator(p: Feeder) -> Part:
+    """Two-arm stirrer on the gearmotor's shaft over the outlet (`Feeder.agitator_design`): a boss from just over the
+    tub floor grips the shaft's top end (D bore, M3 set screw into a heat-set insert against the flat), and the arms
+    turn a ball's radius above the floor."""
+    z = p.agit_z()
+    h = z["arm_bottom"] - z["boss_bottom"]
+    boss = Cylinder(p.agit_boss_d / 2, h).moved(Location((0, 0, z["boss_bottom"] + h / 2)))
+    zc = (z["arm_bottom"] + z["arm_top"]) / 2
+    hub = Cylinder(p.agit_hub_d / 2, p.agit_arm_h).moved(Location((0, 0, zc)))
+    with BuildSketch() as sk:
+        SlotOverall(2 * p.agit_arm_l, p.agit_arm_w)
+    arms = extrude(sk.sketch, p.agit_arm_h).moved(Location((0, 0, z["arm_bottom"])))
+    blk = boss + hub + arms
+    bore_h = z["shaft_top"] + 0.5 - (z["boss_bottom"] - 1.0)
+    flat = p.agit_shaft_d / 2 - 0.5                       # a D shaft's flat, 0.5 mm deep
+    bore = Cylinder((p.agit_shaft_d + 0.2) / 2, bore_h).moved(Location((0, 0, z["boss_bottom"] - 1.0 + bore_h / 2)))
+    bore = bore - Box(20.0, 10.0, bore_h + 2).moved(Location((0, flat + 5.0, z["boss_bottom"] - 1.0 + bore_h / 2)))
+    blk = blk - bore
+    ins = p.agit_boss_d / 2 - flat + 0.5
+    blk = blk - Cylinder(2.0, ins).moved(Location((0, flat + ins / 2 - 0.5, z["set_screw"]), ROT_Y_AXIS))
+    d = p.agitator_design()
+    return Part("hopper_agitator", "print", "PETG", 1, blk, [_agit_loc(p)],
+                notes=f"Stirrer over the tub's outlet: two {p.agit_arm_l:g} mm arms, {p.agit_arm_h:g} mm tall, centred a ball's "
+                      f"radius over the floor, {p.agit_motor_rpm:g} rpm so an arm crosses the outlet {d['passes_per_min']:.0f} "
+                      f"times a minute. Push it on the shaft's D flat, set screw (M3 into a heat-set insert) on the flat. "
+                      f"Print arms down, 4 walls; {2 * p.agit_arm_l:g} mm long, so diagonally on a 220 mm bed.")
+
+
+def agitator_motor_mount(p: Feeder) -> Part:
+    """Printed disc under the shelf: the gearmotor's four face screws go down from counterbores in its top into the
+    motor's face, and then the disc is bolted up under the shelf with three M4 from above into its inserts."""
+    t = p.agit_mount_t
+    blk = Cylinder(p.agit_mount_d / 2, t).moved(Location((0, 0, -t / 2)))
+    blk = blk - Cylinder(p.agit_collar_d / 2 + 0.5, t + 2).moved(Location((0, 0, -t / 2)))
+    for x, y in _ring(p.agit_motor_pcd / 2, 4, 45):
+        blk = blk - Cylinder(1.7, t + 2).moved(Location((x, y, -t / 2)))
+        blk = blk - Cylinder(3.25, 3.5).moved(Location((x, y, -1.75)))
+    for x, y in _ring(p.agit_mount_bolt_r, 3, 90):
+        blk = blk - Cylinder(2.0, 7.0).moved(Location((x, y, -3.5)))
+    return Part("hopper_agitator_mount", "print", "PETG", 1, blk, [_agit_loc(p)],
+                notes="Agitator gearmotor's mount: screw the motor's face to it first (M3 from the counterbores in its top), "
+                      "then bolt it up under the shelf (M4 from above into its three heat-set inserts). Print top down, 6 walls.")
+
+
+def agitator_motor(p: Feeder) -> Part:
+    z = p.agit_z()
+    body = Cylinder(p.agit_motor_d / 2, p.agit_motor_len).moved(Location((0, 0, z["motor_face"] - p.agit_motor_len / 2)))
+    return Part("agitator_motor", "cots", "", 1, body, [_agit_loc(p)],
+                spec=f"Planetary gearmotor, {p.agit_motor_d:g} mm class, concentric {p.agit_shaft_d:g} mm D shaft at least "
+                     f"{p.agit_shaft_len:g} mm long, about {p.agit_motor_rpm:g} rpm and {p.agit_motor_nm:g} N m rated at 24 V, "
+                     f"four M3 face holes on {p.agit_motor_pcd:g} mm (all assumed: check yours against the mount)")
+
+
+def agitator_parts(p: Feeder) -> list[Part]:
+    return [hopper_agitator(p), agitator_motor_mount(p), agitator_motor(p)]
 
 
 # ---------------------------------------------------------------- feed parts (printed)
@@ -896,10 +970,17 @@ def take_up_parts(p: Feeder) -> list[Part]:
 
 def envelopes(p: Feeder) -> list[Part]:
     out = []
-    out.append(Part("hopper_tub", "cots", "", 1, Box(p.tub_l, p.tub_w, p.tub_h).moved(Location((0, 0, p.plate_t + p.tub_h / 2))),
-                    [Location((p.shelf_origin[0], 0, p.shelf_origin[1]), (0, p.shelf_slope_deg, 0))],
+    # an open box (since 2026-11-13, when the agitator went inside it; a solid block until then)
+    tub = Box(p.tub_l, p.tub_w, p.tub_h).moved(Location((0, 0, p.plate_t + p.tub_h / 2)))
+    tub = tub - Box(p.tub_l - 2 * p.tub_wall, p.tub_w - 2 * p.tub_wall, p.tub_h).moved(
+        Location((0, 0, p.plate_t + p.tub_wall + p.tub_h / 2)))
+    xs, ys = p.agit_xy
+    tub = tub - Cylinder(75.0 / 2, 20.0).moved(Location((p.outlet_a, 0, p.plate_t)))
+    tub = tub - Cylinder(p.agit_floor_hole / 2, 20.0).moved(Location((xs, ys, p.plate_t)))
+    out.append(Part("hopper_tub", "cots", "", 1, tub, [_shelf_frame(p)],
                     spec=f"Storage tub about {p.tub_l:g} x {p.tub_w:g} x {p.tub_h:g} mm outside; cut a 75 mm hole at the low end "
-                         f"over the outlet. Holds about {p.tub_capacity()} balls at {p.packing:g} packing."))
+                         f"over the outlet and a {p.agit_floor_hole:g} mm hole for the agitator's shaft (match them to the shelf's). "
+                         f"Holds about {p.tub_capacity()} balls at {p.packing:g} packing."))
     g = p.head_gap_axis
     wheel = Cylinder(p.wheel_head_d / 2, p.wheel_head_w).moved(Location((0, 0, 0), ROT_Y_AXIS))
     out.append(Part("launcher_wheel", "cots", "", 2, wheel, [_head_loc(p, 0, 0, g), _head_loc(p, 0, 0, -g)],
@@ -1406,14 +1487,31 @@ def lift_parts(p: Feeder) -> list[Part]:
             lift_head(p), lift_chute(p), lift_strut(p)]
 
 
+_ALL_PARTS_CACHE: list[tuple[Feeder, list[Part]]] = []
+
+
 def all_parts(p: Feeder) -> list[Part]:
+    """Every part of the feeder for `p`. Building them takes ~18 s, and the sweeps, the inertia and the gravity table
+    ask for them about 60 times per package build, so the last few results are kept (keyed by equal params; Feeder
+    holds a list, so it is not hashable). Callers get a fresh list; nothing here mutates a Part or its shape, since
+    `placed()` and `rotate()` return copies (2026-11-13, P066)."""
+    for q, parts in _ALL_PARTS_CACHE:
+        if q == p:
+            return list(parts)
+    parts = _build_all_parts(p)
+    _ALL_PARTS_CACHE.insert(0, (p, parts))
+    del _ALL_PARTS_CACHE[4:]
+    return list(parts)
+
+
+def _build_all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), az_stop_block(p), az_stop_pads(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p),
             cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p),
-            *trough_gutter(p), *trough_hangers(p), trough_sump(p), *lift_parts(p)]
+            *trough_gutter(p), *trough_hangers(p), trough_sump(p), *lift_parts(p), *agitator_parts(p)]
 
 
 # ---------------------------------------------------------------- elevation actuator
@@ -1637,6 +1735,11 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M3 x 10 screw + nyloc nut (flights)", 2 * p.lift_design()["flights"], "flights through the belt, between its cords"),
         ("UHMW-PE tape, 25 mm wide, self-adhesive", 1, f"both 20 mm faces of the lift spine ({2 * (p.lift_z_top - p.lift_z_bottom) / 1000:.1f} m)"),
         ("Logic-level N-MOSFET module, 24 V 5 A, + flyback diode", 1, "lift gearmotor from GPIO 16"),
+        ("M3 x 10 socket cap screw (agitator)", 4, "agitator gearmotor's face to its mount, from the mount's counterbores"),
+        ("M4 x 10 button head (agitator)", 3, "agitator motor mount up under the shelf, from above (the tub sits over the heads)"),
+        ("M4 heat-set insert, 5.7 mm long (agitator)", 3, "agitator motor mount"),
+        ("M3 x 6 set screw + M3 heat-set insert", 1, "agitator hub onto the shaft's flat"),
+        ("Logic-level N-MOSFET module, 24 V 2 A, + flyback diode", 1, "agitator gearmotor from GPIO 17"),
     ]
 
 
@@ -1708,6 +1811,19 @@ def lift_line(p: Feeder) -> str:
             f"fingers turn {p.lift_finger_clear:g} mm under a {d['floor_z']:.1f} mm floor with the boot {d['boot_bottom_z']:.0f} mm "
             f"off the court; chute ends {d['chute_end'][2] - d['rim_at_end_z']:.0f} mm over the tub's rim; firmware runs it "
             f"{d['run_on_s']:.1f} s after the last ball fed (all friction and motor figures assumed)")
+
+
+def agitator_line(p: Feeder) -> str:
+    d = p.agitator_design()
+    lo, hi = d["arm_band_mm"]
+    return (f"hopper agitator: two {p.agit_arm_l:g} mm arms {lo:.1f}-{hi:.1f} mm over the tub floor (a floor ball's centre is "
+            f"at {p.ball_d / 2:g}), shaft {d['outlet_dist_mm']:.0f} mm from the outlet's centre, so the tips pass "
+            f"{d['overshoot_mm']:.0f} mm beyond it and {d['wall_clear_mm']:.0f} mm from the tub's walls; at "
+            f"{p.agit_motor_rpm:g} rpm an arm crosses the outlet {d['passes_per_min']:.0f} times a minute (feed rate "
+            f"{p.lift_rate_min:g}); both arms ploughing a full tub need {d['torque_nm']:.2f} N m ({d['torque_margin']:.1f}x margin "
+            f"on {p.agit_motor_nm:g} N m assumed), {d['power_w']:.1f} W; at the {p.agit_motor_stall_nm:g} N m stall an arm's root "
+            f"sees {d['root_stress_mpa']:.1f} MPa and a tip pushes {d['tip_force_stall_n']:.0f} N (load, friction and motor "
+            f"figures assumed; one ball freed per pass is an assumption to measure)")
 
 
 def cable_line(p: Feeder) -> str:
@@ -1856,6 +1972,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, cable_line(p))
     checks.insert(-3, trough_line(p))
     checks.insert(-3, lift_line(p))
+    checks.insert(-3, agitator_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
@@ -1880,6 +1997,10 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                     "lift_rate_per_min": round(ld["rate_per_min"], 1), "lift_torque_nm": round(ld["torque_nm"], 3),
                     "lift_torque_margin": round(ld["torque_margin"], 2), "lift_z_top_mm": round(ld["z_top"], 1),
                     "lift_run_on_s": round(ld["run_on_s"], 1), "lift_chute_clear_mm": round(ld["chute_end"][2] - ld["rim_at_end_z"], 1)})
+    ad = p.agitator_design()
+    derived.update({"agitator_torque_nm": round(ad["torque_nm"], 3), "agitator_torque_margin": round(ad["torque_margin"], 2),
+                    "agitator_passes_per_min": ad["passes_per_min"], "agitator_wall_clear_mm": round(ad["wall_clear_mm"], 1),
+                    "agitator_overshoot_mm": round(ad["overshoot_mm"], 1), "agitator_root_stress_mpa": round(ad["root_stress_mpa"], 2)})
     if gravity is not None:
         e = p.elevation_drive(gravity)
         derived.update({"elev_gravity_nm": {f"{k:+g}": round(v, 2) for k, v in sorted(gravity.items())},

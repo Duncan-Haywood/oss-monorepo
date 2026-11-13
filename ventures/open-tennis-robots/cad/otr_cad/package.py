@@ -155,17 +155,18 @@ def azimuth_sweep(p: Feeder) -> list[str]:
     return out
 
 
-def cable_sweep(p: Feeder) -> list[str]:
+def cable_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
     """Clashes of the head's free cable loop (2026-11-13), drawn at its cut length along the curve it takes at each
     design pose (the actuator's two limits and -15 to +45 deg), against every part (hose parts excepted, as in the
     azimuth sweep), with the turntable straight and turned to the hard stops' reach either way. The loop's ends sit
-    in the gland and the clip, so those two are left out."""
+    in the gland and the clip, so those two are left out. `poses` and `azimuths` narrow the sweep (a test of a
+    known clash need not walk all 21 poses)."""
     out = []
     axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
     skip = {"cable_gland", "cable_clip"}
-    for e in p.cable_loop_poses():
+    for e in (p.cable_loop_poses() if poses is None else poses):
         loop = F.cable_loop_solids(p, e)
-        for az in (0.0, -p.az_reach_deg, p.az_reach_deg):
+        for az in ((0.0, -p.az_reach_deg, p.az_reach_deg) if azimuths is None else azimuths):
             moving, fixed = F.turned_solids(p, e, az)
             others = [(n, s, s.bounding_box()) for n, s in moving + fixed if n.split("[")[0] not in skip]
             for k, seg in enumerate(loop):
@@ -408,7 +409,7 @@ ORDER
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
-NOT IN THIS PACKAGE YET: the netting, hopper agitator, the deck-side cabling (the trough and the ball lift are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
+NOT IN THIS PACKAGE YET: the netting, the deck-side cabling (the trough, the ball lift and the hopper agitator are in it since 2026-11-13). See hardware/feeder-catcher.md. The elevation actuator is
 bought to the window in the elevation check below (any make whose retracted and
 extended lengths span it).
 

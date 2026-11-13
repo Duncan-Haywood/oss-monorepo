@@ -140,3 +140,20 @@ def test_clarabel_solves_the_same_qp_as_pips(case14_api):
     assert a[2] and b[2]
     assert np.abs(a[0] - b[0]).max() < 1e-3
     assert np.abs(a[1] - b[1]).max() < 1e-5
+
+
+@pytest.mark.parametrize("elastic", [None, vlin.ELASTIC])
+def test_screened_clarabel_matches_full_clarabel(case14_api, elastic):
+    """Milestone 6: constraint generation on Clarabel returns the full Clarabel QP's optimum."""
+    pytest.importorskip("clarabel")
+    ppc, _ = case14_api
+    lin = _first_qp(ppc)
+    before = dict(vlin.QP_STATS)
+    full = vlin.solve(ppc, lin, margin=vlin.MARGIN, elastic=elastic, solver="clarabel")
+    mid = dict(vlin.QP_STATS)
+    scr = vlin.solve(ppc, lin, margin=vlin.MARGIN, elastic=elastic, solver="clarabel", screen=True)
+    assert full[2] and scr[2]
+    assert np.abs(full[0] - scr[0]).max() < 1e-3   # MW
+    assert np.abs(full[1] - scr[1]).max() < 1e-5   # pu
+    assert mid["rows_used"] - before["rows_used"] == mid["rows_full"] - before["rows_full"]
+    assert vlin.QP_STATS["rows_used"] - mid["rows_used"] < 0.75 * (vlin.QP_STATS["rows_full"] - mid["rows_full"])

@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkDYxrKRKWj1kcaNi2",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T19:21:31Z",
+  "ended": "2026-11-13T19:26:53Z",
+  "wall_minutes": 5.55,
+  "tokens_in": 2737687,
+  "tokens_out": 26241,
+  "cost_usd": 1.7242,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15592",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "check_post_frontmatter: seo_title 77 chars and a tag spelled two ways (base-rates vs base-rate); fixed before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio cap is justified by GitHub Pages' 1 GB site limit, but the site is now served by Cloudflare and portfolio-pages.yml builds with --audio-cdn (MP3s linked from jsDelivr, not shipped). The real remaining constraint is git history growth and jsDelivr limits; the section should restate the cap's reason so runs can judge it."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Both 'Next up' proposals for Hearth & Horizon and For Other Minds carry notes saying they duplicate finished stories; the shelf effectively has no clean proposal, so a run has to invent one (fine, but the list reads as available when it is not)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-an-error-rate-measured-on-someone-else.md"
+  ],
+  "goal": null,
+  "notes": "Creative track. Project: Hearth & Horizon, For Other Minds shelf (28 -> 29, the thinnest shelf). Piece: the-word-in-the-margin (3,660 words, text only; audio dirs 423 MB > 400 MB cap). Topic new to the shelf: a detector's false-positive rate measured on a different population; pre-chatbot archive as a guaranteed-negative control; group threshold refuted as label-not-cause. Checks: weekdays/Easter 2034 computed, Wilson CI, binomial tail, node --test 15/15 pass, post checks pass. No agent doc: nothing a next run needs beyond the BIBLE row and DONE entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bb007549-6473-585f-b235-fef8371d19ae",
+    "transcripts": 1,
+    "first": "2026-11-13T19:21:31Z",
+    "last": "2026-11-13T19:27:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 67,
+        "output": 26241,
+        "thinking": 9803,
+        "cache_read": 2654077,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83543,
+        "api_equivalent_usd": 1.7242,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 67,
+      "output": 26241,
+      "thinking": 9803,
+      "cache_read": 2654077,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83543,
+      "api_equivalent_usd": 1.7242,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 30,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.55,
+      "active_minutes": 5.55,
+      "model_minutes": 5.09,
+      "tool_minutes": 0.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "drafting and fact-checking a 3,700-word short story plus a 700-word post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 348.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

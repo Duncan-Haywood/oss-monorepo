@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKmCC8QXaLjPmg1jrum",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:18:33Z",
+  "ended": "2026-11-13T18:27:42Z",
+  "wall_minutes": 9.36,
+  "tokens_in": 6610372,
+  "tokens_out": 43459,
+  "cost_usd": 3.2203,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15575",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First script run failed on a backslash inside an f-string expression (Python 3.11); fixed and rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/society-lanes/PROPOSAL.md",
+      "issue": "Milestone 2 (BaSiGo) depends on ped.fz-juelich.de, which the proxy refused (403, also doi.org) for the second session today; the HERMES 2D runs and ETH/UCY are mirrored in github.com/crowdbotp/OpenTraj, reachable via raw.githubusercontent.com. Recorded in LOG.md so milestone 3 can read HERMES from the mirror."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "arXiv and doi.org both refused; new identifiers could only be checked against the dataset repository's own links, so the OpenTraj arXiv id was dropped rather than cited unchecked."
+    },
+    {
+      "file": "OpenTraj ETH/UCY homographies (external)",
+      "issue": "H.txt takes (row, col), not (x, y) as OpenTraj's README example implies, and Zara02's obsmat matches H-old.txt; passing-side work must project tracks onto video frames before trusting handedness, which cost ~15 min and would otherwise have flipped the Nicosia result."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/society-lanes/PROPOSAL.md",
+      "why": "Took milestone 7 before milestones 2 to 6 because milestone 2's data host was unreachable and milestone 7's data were reachable on GitHub.",
+      "did": "Registered predictions W0-W4, then ran the in-the-wild encounter analysis, adding a Zurich vs Nicosia (right vs left road traffic) contrast the proposal did not plan.",
+      "result": "Landed: 3 of 5 predictions held; the street convention (0.65-0.68) is much weaker than the lab's 0.94."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-on-a-real-pavement-people-keep-right-two-times-in-three.md",
+    "research/society-lanes/LOG.md (milestone 7 entry)"
+  ],
+  "goal": null,
+  "notes": "Verification: society-lanes tests 10 passed (unittest); m7_wild_sides.py ran in 21 s; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post frontmatter/links/similarity ok. Results: HERMES encounter measure 0.935 free / 0.526 assigned (matches M1); Zurich 0.654 [0.592,0.741] n=723; Nicosia 0.680 [0.565,0.797] n=491; difference -0.026 [-0.160,0.119].",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "626af5de-1937-5d00-b930-e964bd1b33c5",
+    "transcripts": 1,
+    "first": "2026-11-13T18:18:33Z",
+    "last": "2026-11-13T18:27:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 114,
+        "output": 43459,
+        "thinking": 12558,
+        "cache_read": 6478382,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131876,
+        "api_equivalent_usd": 3.2203,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 114,
+      "output": 43459,
+      "thinking": 12558,
+      "cache_read": 6478382,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131876,
+      "api_equivalent_usd": 3.2203,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 49,
+      "Read": 10,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.36,
+      "active_minutes": 9.36,
+      "model_minutes": 7.09,
+      "tool_minutes": 2.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "data sourcing, frame verification against video, encounter code+tests, write-up: ~1.5 researcher days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 310.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

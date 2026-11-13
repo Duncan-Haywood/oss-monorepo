@@ -1,0 +1,13 @@
+[project]
+name = "capture-sync"
+version = "0.1.0"
+description = "Audio sync of free-running cameras and phones, measured on real asynchronous recordings."
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

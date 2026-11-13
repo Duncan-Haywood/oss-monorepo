@@ -368,6 +368,15 @@ describe("fastBlockStarts", () => {
     const out = fastBlockStarts(panel(8, 42, (p, i) => (p === 0 && i < 2 ? null : 3000 * jitter(i, p) * (p === 0 && i >= 22 ? 0.4 : 1))));
     expect(out.get("p0")).toBe(22);
   });
+  it("against an upper quantile of the panel's times, still finds four in ten who turn quick at the same answer", () => {
+    // Four of ten at 0.55x from answer 20 drag the panel's median down with them, hiding all four; the 0.75
+    // quantile sits among the honest six and finds them, and no honest person (FAST_BLOCK_CURVE_Q).
+    const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p < 4 && i >= 20 ? 0.55 : 1);
+    expect(fastBlockStarts(panel(10, 40, ms), 0.5).size).toBe(0);
+    expect([...fastBlockStarts(panel(10, 40, ms), 0.75)].sort()).toEqual([["p0", 20], ["p1", 20], ["p2", 20], ["p3", 20]]);
+    expect(fastBlockStarts(panel(10, 40, ms)).size).toBe(4); // the shipped default
+    expect(() => fastBlockStarts(panel(10, 40, ms), 1)).toThrow();
+  });
   it("needs AGREEMENT_MIN_RESPONDENTS people with enough timed answers", () => {
     expect(fastBlockStarts(panel(4, 40, (p, i) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.4 : 1))).size).toBe(0);
   });

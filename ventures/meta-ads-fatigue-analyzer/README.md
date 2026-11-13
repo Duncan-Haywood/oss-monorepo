@@ -40,6 +40,19 @@ result's cost, otherwise **watch**. Scale candidates need enough results, a cost
 per result at least 20% under the median and frequency under the threshold. It is
 arithmetic on the file, not advice; see the page for what is not modelled.
 
+## Known gaps
+
+From the quality audit of 2026-11-13
+([`portfolio/quality/audits/2026-11-13-meta-ads-fatigue-analyzer.json`](../../portfolio/quality/audits/2026-11-13-meta-ads-fatigue-analyzer.json)):
+
+- With a Day breakdown each row carries that day's frequency (usually 1 to 1.5), and the averaged
+  figure rarely reaches the frequency threshold, so the daily CTR-trend signal seldom fires on a
+  real daily export. Until the model handles it, export without the Day breakdown for period
+  frequency, or lower the threshold.
+- Ads are compared with one median across all campaigns, so retargeting (high frequency by design)
+  dominates the flags; CPM is not computed. The thresholds (frequency 3, CTR 80%, cost 125%, trend
+  -25%) are rules of thumb, not sourced from Meta.
+
 ## Run
 
 Open `index.html` in a browser (or serve the folder). Tests: `node --test`.

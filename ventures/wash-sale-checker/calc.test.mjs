@@ -137,3 +137,112 @@ test("scientific notation is read as its value, and a field that is not one numb
   }
   assert.equal(parseTrades(head + '2026-01-05,Sell,ABC,-100,"$1,234.50"').trades[0].price, 1234.5);
 });
+
+// Red-team 2026-11-13. Real defect: the disallowed loss was spread per replacement share but charged on every share
+// later sold from that purchase, so selling a 100-share buy that replaced only 30 shares added the carried loss
+// 100/30 times over and overstated the later loss.
+test("carried-over loss is added once, even when the replacement purchase is larger than the washed sale", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,30,100,Taxable", "2025-03-03,X,sell,30,90,Taxable", "2025-03-10,X,buy,100,90,Taxable", "2025-06-02,X,sell,100,90,Taxable"));
+  const [first, second] = r.sales;
+  assert.equal(first.disallowed, 300);
+  assert.equal(first.replacements[0].adjustedBasisPerShare, 100);
+  // 9,000 cost + 300 carried = 9,300 basis; proceeds 9,000 -> loss 300
+  assert.equal(second.basis, 9300);
+  assert.equal(second.gain, -300);
+  // over a closed position, reported gains plus the code-W add-backs equal the real result: 11,700 proceeds - 12,000 cost
+  assert.equal(r.summary.netGain + r.summary.disallowed, -300);
+});
+
+test("carried-over loss follows the replacement shares when the purchase is sold in pieces", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,30,100,Taxable", "2025-03-03,X,sell,30,90,Taxable", "2025-03-10,X,buy,100,90,Taxable",
+    "2025-06-02,X,sell,50,95,Taxable", "2025-07-01,X,sell,50,95,Taxable"));
+  const [, a, b] = r.sales;
+  assert.equal(a.basis + b.basis, 9300);
+  assert.equal(r.summary.netGain + r.summary.disallowed, 12200 - 12000);
+});
+
+test("two washed sales into one purchase each carry their own loss", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,10,100,Taxable", "2025-01-03,X,buy,10,100,Taxable",
+    "2025-03-03,X,sell,10,90,Taxable", "2025-03-04,X,sell,10,80,Taxable", "2025-03-10,X,buy,40,85,Taxable", "2025-06-02,X,sell,40,85,Taxable"));
+  const [s1, s2, last] = r.sales;
+  assert.equal(s1.disallowed, 100);
+  assert.equal(s2.disallowed, 200);
+  assert.equal(s1.replacements[0].adjustedBasisPerShare, 95);
+  assert.equal(s2.replacements[0].adjustedBasisPerShare, 105);
+  assert.equal(last.basis, 3400 + 300);
+  assert.equal(r.summary.netGain + r.summary.disallowed, 900 + 800 + 3400 - 2000 - 3400);
+});
+
+// Red-team 2026-11-13, second real defect (found by the conservation test below): shares already carrying one wash
+// loss were designated again as replacement shares for a later loss sale, so the same held shares carried two losses.
+test("shares already carrying a wash loss are not replacement shares for a second loss sale", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,20,100,Taxable", "2025-01-10,X,sell,10,80,Taxable", "2025-01-15,X,sell,5,80,Taxable", "2025-03-10,X,sell,5,80,Taxable"));
+  const [a, b, c] = r.sales;
+  assert.equal(a.disallowed, 200); // the 10 shares still held from the same buy replace it
+  assert.equal(b.basis, 600); // 5 x 100 + 5 x 20 carried
+  assert.equal(b.disallowed, 0); // the 5 left already carry the first loss
+  assert.equal(c.basis, 600);
+  assert.equal(r.summary.netGain + r.summary.deferred, 1600 - 2000);
+});
+
+test("report CSV prints amounts to the cent", () => {
+  const row = reportCsv(evaluate(csv("2025-01-02,X,buy,3,10.005,Taxable", "2025-06-02,X,sell,3,9.333,Taxable"))).split("\n")[1];
+  assert.equal(row, '2025-06-02,X,3,28.00,30.02,-2.02,0.00,2.02,""');
+});
+
+// Class guard (red-team 2026-11-13): basis is conserved. For random taxable trade lists that end flat, every dollar of
+// cost appears exactly once: reported gains plus the deferred (code W) add-backs equal proceeds minus cost.
+test("random closed positions conserve basis: net gain + deferred loss = proceeds - cost", () => {
+  let seed = 20261113;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return Math.floor((seed / 2147483648) * n); };
+  for (let trial = 0; trial < 300; trial++) {
+    const rows = []; let held = 0, day = 0, proceeds = 0, cost = 0;
+    const date = () => new Date(Date.UTC(2025, 0, 2) + day * 86400000).toISOString().slice(0, 10);
+    for (let k = 0; k < 2 + rnd(8); k++) {
+      day += 1 + rnd(40);
+      const price = 50 + rnd(100);
+      if (held > 0 && rnd(2)) { const q = 1 + rnd(held); held -= q; proceeds += q * price; rows.push(`${date()},X,sell,${q},${price},Taxable`); }
+      else { const q = 1 + rnd(60); held += q; cost += q * price; rows.push(`${date()},X,buy,${q},${price},Taxable`); }
+    }
+    if (held) { day += 1 + rnd(40); proceeds += held * 70; rows.push(`${date()},X,sell,${held},70,Taxable`); }
+    const r = evaluate(csv(...rows));
+    const got = Math.round((r.summary.netGain + r.summary.deferred) * 100) / 100;
+    assert.ok(Math.abs(got - (proceeds - cost)) < 0.05 * r.summary.lossSales + 0.01, `trial ${trial}: ${got} vs ${proceeds - cost}\n${rows.join("\n")}`);
+  }
+});
+
+// Red-team 2026-11-13: guards for mutants that escaped the suite.
+test("parseDate refuses a padded month and a two-digit-year ISO date", () => {
+  assert.equal(parseDate("2025-001-15"), null);
+  // Date.UTC maps years 0-99 to 1900-1999, so only the year check catches this one.
+  assert.equal(parseDate("0050-01-01"), null);
+});
+
+test("penny-stock prices under $1 are read from the price column, not refused or replaced by the amount", () => {
+  const r = evaluate("Date,Symbol,Action,Quantity,Price,Amount\n2025-01-02,PNY,buy,1000,0.50,505.00\n2025-03-03,PNY,sell,1000,0.40,395.00");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.summary.grossLoss, 100);
+});
+
+test("a sale with a small gain under $1 is not counted as a loss sale", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,100,10,Taxable", "2025-03-01,X,sell,100,10.005,Taxable"));
+  assert.equal(r.summary.lossSales, 0);
+  assert.equal(r.summary.grossLoss, 0);
+});
+
+test("dividend reinvestments and Fidelity's YOU BOUGHT / YOU SOLD rows are purchases and sales", () => {
+  const r = evaluate(csv(
+    "2025-01-02,VTI,YOU BOUGHT VANGUARD TOTAL STOCK MKT,10,200,Taxable",
+    "2025-03-03,VTI,YOU SOLD VANGUARD TOTAL STOCK MKT,10,180,Taxable",
+    "2025-03-20,VTI,Reinvest Shares,1,181,Taxable",
+  ));
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.summary.grossLoss, 200);
+  assert.equal(r.summary.disallowed, 20); // the reinvested share washes 1 of 10 shares' loss
+});
+
+test("Schwab's Reinvest Dividend cash leg is not read as a purchase", () => {
+  const r = evaluate(csv("2025-01-02,VTI,buy,10,200,Taxable", "2025-03-03,VTI,sell,10,180,Taxable", "2025-03-20,VTI,Reinvest Dividend,1,181,Taxable"));
+  assert.equal(r.summary.disallowed, 0);
+  assert.equal(r.errors.length, 1);
+});

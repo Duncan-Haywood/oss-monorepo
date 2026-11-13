@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b91c1c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EH%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How the Sprinkler Hydraulic Calculator Works | Gradient Solver, EPANET Check</title>
+  <meta name="description" content="How the free sprinkler hydraulic calculator solves tree, looped and gridded systems: Hazen-Williams, K-factor heads as emitters, the global gradient algorithm, the design point and the supply curve, and its check against EPANET 2.2 on 59 networks.">
+  <link rel="canonical" href="./how-it-works.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why compare against EPANET?", "acceptedAnswer": {"@type": "Answer", "text": "EPANET is the US EPA's free, open-source water network solver and uses the same gradient method, so agreement to a hundred-thousandth of a psi on 59 networks shows the network solve is right. It does not check the design rules: those are tested separately against a hand calculation."}}, {"@type": "Question", "name": "Does a grid always need less pressure than a tree?", "acceptedAnswer": {"@type": "Answer", "text": "Not by much when the whole grid is the design area: 0.3 to 10.9 psi in the table above. It helps most when the design area sits at the far end of a large grid, where the shut lines and the far cross main form a second path to the open heads."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d1a1a; background: #f4efed; }
+    body { max-width: 780px; margin: 0 auto; padding: 32px 16px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; letter-spacing: -.03em; }
+    h2 { margin-top: 32px; font-size: 1.25rem; }
+    code { font-size: .9em; }
+    .eq { background: #fffdfc; border: 1px solid #d9ccc9; border-radius: 8px; padding: 10px 14px; font-family: ui-monospace, Menlo, monospace; font-size: .88rem; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 5px 7px; border-bottom: 1px solid #e3d6d3; }
+    th:first-child, td:first-child { text-align: left; }
+    .tablewrap { overflow-x: auto; }
+    a { color: #991b1b; }
+    footer { margin-top: 32px; font-size: .84rem; color: #5c5352; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Back to the calculator</a></p>
+  <h1>How the sprinkler hydraulic calculator works</h1>
+  <p>A sprinkler system is a pipe network with leaks on purpose. The calculator finds the pressure needed at its source so that every open head gives at least its required flow, then asks whether the water supply can give that pressure at that flow. Everything below runs in your browser, and the same code runs from the command line.</p>
+
+  <h2>The three relations</h2>
+  <p>Friction in each pipe is Hazen-Williams in the form NFPA 13 prints, with flow <i>Q</i> in gpm, inside diameter <i>d</i> in inches and the roughness coefficient <i>C</i>:</p>
+  <p class="eq">p = 4.52 Q<sup>1.85</sup> / (C<sup>1.85</sup> d<sup>4.87</sup>)   psi per foot</p>
+  <p>The length is the pipe plus its fittings' equivalent length, which you type as <code>fit=</code>. Each foot of rise costs 0.433 psi. A head discharges <i>Q</i> = <i>K</i>&radic;<i>P</i>, with <i>P</i> its pressure in psi. Inside diameters for schedule 10 and 40 steel come from the outside diameters and wall thicknesses in ASME B36.19M and B36.10M; any other pipe takes its inside diameter as <code>id=</code>.</p>
+
+  <h2>Solving every pipe at once</h2>
+  <p>A hand calculation starts at the most remote head with its required flow, adds the friction to the next head, takes that head's flow from its pressure, and carries the sum back toward the riser. Where two paths meet at different pressures it corrects one with a K-factor for the whole branch. That works for a tree. In a loop or a grid the split of flow between paths is unknown until the pressures are, and the hand method turns into an iteration such as Hardy Cross.</p>
+  <p>This calculator uses the global gradient algorithm of Todini and Pilati (1988), the method EPANET uses (Rossman, <i>EPANET 2.2 User Manual</i>, US EPA, 2020). It is Newton's method on all pipe flows and node pressures together: each step linearises every pipe's loss about its current flow, solves one symmetric linear system for the node heads, and updates the flows from them. Trees, loops and grids are the same problem to it. Each head is modelled the way EPANET models an emitter, as an extra link from its node to a point at zero pressure with loss (<i>Q</i>/<i>K</i>)<sup>2</sup>. A head cannot draw water in, so if a node's pressure would go below zero its head is shut, like a check valve, and reopened when the pressure comes back. On the example grid the solve takes 6 Newton steps; across the 61 test networks the median is 7.</p>
+
+  <h2>The design point</h2>
+  <p>Each open head must give the larger of the density times the area it covers and <i>K</i>&radic;(minimum pressure). The calculator finds the lowest pressure at the source at which every head meets its flow, by bisection on the source pressure with a full network solve at each trial. The head that just meets its flow is the most demanding one. Every other head gives a little more than it needs: that excess is the over-discharge, and it is real water the supply must give.</p>
+  <p>In the example (12 heads, K 5.6, 0.15 gpm/sq ft over 130 sq ft, so 19.5 gpm a head) the source needs <b>27.2 psi</b> at <b>240.4 gpm</b> for the heads, plus 250 gpm of hose: 490.4 gpm. Head H13 is the most demanding at 12.13 psi; the 12 heads over-discharge by 6.4 gpm in total.</p>
+
+  <h2>The water supply</h2>
+  <p>A flow test gives a static pressure and a residual pressure at a measured flow. Between and beyond them the supply is taken to follow the Hazen-Williams shape:</p>
+  <p class="eq">P(Q) = P<sub>static</sub> &minus; (P<sub>static</sub> &minus; P<sub>residual</sub>) (Q / Q<sub>test</sub>)<sup>1.85</sup></p>
+  <p>On graph paper with flow spaced by its 1.85 power (N<sup>1.85</sup> paper) that is a straight line, which is why sprinkler designers plot it that way. The example's supply (65 psi static, 45 psi at 800 gpm) gives <b>56.9 psi</b> at 490.4 gpm, a margin of <b>29.7 psi</b> over the demand. The calculator also finds where the system's own curve meets the supply: with every listed head open, the system would really take 608.4 gpm, hose included, at 52.9 psi.</p>
+
+  <h2>Checked against EPANET</h2>
+  <p>The test suite builds 61 seeded networks (the example, 30 random grids with uneven elevations, sizes, C values and K factors, and 30 random trees) and runs each through the EPANET 2.2 toolkit, with every head as an emitter of exponent 0.5. EPANET's US-unit Hazen-Williams has slightly different constants (4.727 C<sup>&minus;1.852</sup> d<sup>&minus;4.871</sup> in feet and cubic feet per second, and 0.4333 psi per foot), so for the comparison the calculator runs with those constants. On the 59 networks where every head stays at positive pressure, every node pressure and pipe flow agrees with EPANET to within 0.00001 psi and gpm. The other two have heads above the water's reach; EPANET 2.2 lets an emitter draw water in at negative pressure, which a sprinkler cannot, so they are not the same problem.</p>
+  <p>The NFPA form and EPANET's form differ a little: rewritten for gpm and inches, EPANET's constant is 4.533 against NFPA 13's 4.52, with exponents 1.852 and 4.871 against 1.85 and 4.87. On the example the design pressure is 27.21 psi with the NFPA form and 27.23 psi with EPANET's.</p>
+  <p>A second test needs no EPANET: a single branch line on one level, worked by the head-by-head hand method above, matches the network solver's design pressure to within a millionth of a psi for four line lengths and K factors.</p>
+
+  <h2>What a grid buys</h2>
+  <p>The same heads and pipes, with and without the far cross main (<code>check/grid_vs_tree.mjs</code>): branch lines of 1-1/4 in schedule 40 with heads at 12 ft, 2-1/2 in schedule 10 cross mains 12 ft apart, K 5.6 at 0.15 gpm/sq ft over 130 sq ft. When the design area is every line in a four-line grid, the far cross main has little to do. When the design area is the far four lines of a ten-line grid fed from the other end, the shut lines and the far cross main become a second path, and the demand at the same pipe sizes drops a great deal. The geometry is illustrative, not a real building.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Heads a line</th><th>4 lines open: grid psi</th><th>tree psi</th><th>10 lines, far 4 open: grid psi</th><th>tree psi</th></tr></thead>
+    <tbody>
+      <tr><td>2</td><td>21.8</td><td>22.1</td><td>22.1</td><td>27.0</td></tr>
+      <tr><td>3</td><td>28.1</td><td>28.9</td><td>27.9</td><td>39.8</td></tr>
+      <tr><td>4</td><td>38.7</td><td>40.2</td><td>36.3</td><td>60.4</td></tr>
+      <tr><td>5</td><td>55.5</td><td>58.2</td><td>47.7</td><td>92.2</td></tr>
+      <tr><td>6</td><td>81.7</td><td>86.1</td><td>62.5</td><td>140.7</td></tr>
+      <tr><td>7</td><td>121.9</td><td>128.9</td><td>81.4</td><td>214.5</td></tr>
+      <tr><td>8</td><td>183.2</td><td>194.0</td><td>105.4</td><td>325.9</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>A tree designer would not keep a 2-1/2 inch cross main carrying several hundred gpm past six lines; they would upsize it. The table shows how much of that upsizing a grid does for free.</p>
+
+  <h2>Questions</h2>
+  <h3>Why compare against EPANET?</h3>
+  <p>EPANET is the US EPA's free, open-source water network solver and uses the same gradient method, so agreement to a hundred-thousandth of a psi on 59 networks shows the network solve is right. It does not check the design rules: those are tested separately against a hand calculation.</p>
+  <h3>Does a grid always need less pressure than a tree?</h3>
+  <p>Not by much when the whole grid is the design area: 0.3 to 10.9 psi in the table above. It helps most when the design area sits at the far end of a large grid, where the shut lines and the far cross main form a second path to the open heads.</p>
+
+  <h2>What it leaves out</h2>
+  <p>It calculates the heads you list as open; it does not pick the most remote design area, apply area reductions or room design, or add fittings for you. Pumps, backflow preventers and valves are not separate items: put their loss into the supply or a pipe's equivalent length. Velocity pressure is left out throughout, which NFPA 13 permits. It warns when a pipe runs faster than 32 ft/s.</p>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not engineering advice and not a stamped hydraulic calculation.</strong> NFPA 13, your local code and the authority having jurisdiction decide what is accepted; a qualified fire protection designer signs off on a real system.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sprinkler-hydraulic-calc">Source and tests</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work</a>.</p>
+  </footer>
+</body>
+</html>

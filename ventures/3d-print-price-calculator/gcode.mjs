@@ -50,7 +50,9 @@ export function parseGcode(text, { diameterMm = 1.75, densityGPerCm3 = 1.24 } = 
   if (g !== null) { grams = sumList(g); slicer = "PrusaSlicer-family"; }
 
   const t = line(src, /^;\s*estimated printing time \(normal mode\)\s*=\s*(.+)$/im)
-    ?? line(src, /^;\s*total estimated time:\s*(.+)$/im);
+    // Bambu Studio and Orca with a Bambu profile write both times on one line:
+    // "; model printing time: 1h 52m 3s; total estimated time: 1h 58m 40s".
+    ?? line(src, /^;\s*(?:model printing time:[^;\n]*;\s*)?total estimated time:\s*(.+)$/im);
   if (t !== null) { seconds = parseDuration(t); slicer = slicer ?? "PrusaSlicer-family"; }
 
   const mm = line(src, /^;\s*filament used \[mm\]\s*=\s*(.+)$/im);

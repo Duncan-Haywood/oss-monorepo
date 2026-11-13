@@ -1,0 +1,188 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/garment-learning",
+  "stratum": "research",
+  "seed": "2026-11-13-p-0bf4",
+  "drawn_by": "sample",
+  "round": 70,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an industrial engineer who models learning curves for apparel production (the kind who reviews for IIE Transactions or the International Journal of Production Economics). They would check first which learning-curve form is used (Wright's cumulative-average vs Crawford's unit-time) since it changes every 'coats to X' answer, whether the floor is modelled the standard way (De Jong 1957 incompressibility), whether any learning rate is sourced from apparel/sewing data (e.g. Nembhard and Uzumeri 2000, a textile plant), and whether forgetting (Jaber and Bonney 1996 LFCM) matters for a hobbyist sewing a few coats a year",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Rerun in a scratch copy (so the tree's results.txt was not rewritten): `cd /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/r/research/garment-learning && /usr/bin/python3.13 experiments/run.py` output is byte-identical to the committed experiments/results.txt (diff empty); figure.py regenerates an identical max_wage.svg. Independent recomputation in /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep.py and /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep2.py (import nothing from the package or from garment-teardown): Table A by closed form n=ceil((k/2)^(1/-log2 r)) gives 8.612->9, 19.227->20, 95.592->96, 74.16->75, 369.658->370, 9137.77->9138, all six match. Materials by hand from garment-teardown's TRENCH constants and replica() defaults: 2.9/0.80*1.03*7 + 2.2*1.03/0.80*3 + 8 = $42.634, F = 85*0.6+25 = 76 min. Table C: (50-42.634)/h gives $1.4539, $2.1204, $2.9347, $4.2801 for coats 1/5/20/100, matching 1.45/2.12/2.93/4.28. Table B $15/h: 118.63, 94.74, 80.28, 68.45 match 119/95/80/68. Table D exact sum with my own loop: 27.636, 22.094, 17.766, 14.944, 14.043 vs steady state 13.818, matching. Every model output is right; one prose claim derived from them is not (see claims).",
+    "completeness": "Claimed: 9 tests (9 pass), run.py writes results.txt (yes, deterministic), figure.py writes max_wage.svg (yes), live page https://marisstella.app/research/garment-learning/ (HTTP 200, carries the 'AI assistance' note). Next steps (measured learning rate, forgetting, pattern-complexity link) are listed as not done, honestly. Nothing claimed done is missing.",
+    "verification": "`cd research/garment-learning && /usr/bin/python3.13 -m pytest -q tests`: 9 passed in 0.02 s. Four mutants via platform/ci/quality_mutate.py: 3 survived (average_cost_over divides by n+1; target<floor -> <=; the downward-scan `<=` -> `<` in units_to_reach, the last near-equivalent on continuous inputs), 1 caught (n -> n+1 in unit_minutes). No test pins any results.txt number, so a regression in average_cost_over (which drives the whole of Table D and the '8%' claim) goes unnoticed; the only average test checks avg > unit cost.",
+    "craft": "Read src/garment_learning/model.py (55 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Clean, small, stdlib, validates rate in (0,1) and n>=1, figure parses results.txt instead of retyping numbers. Small issues: tests use `from garment_learning import *`; cumulative_minutes is an O(n) Python loop (fine at n<=1000); Table D is labelled 'sewing labour' but uses sewing + cutting minutes (76, not 51), consistent with garment-teardown's labour but mislabelled; units_to_reach's `limit` is only checked in the upward scan.",
+    "claims": "Checked: the 6-row Table A, B, C, D numbers in README match results.txt (pass); 'about 9,100' for 9,138 (pass); 'every parameter is assumed' disclosed (pass); Wright 1936 'cited from memory, not fetched' disclosed (pass). Fail: README:37 'the learning surcharge is under 8% after 200 coats' — 14.944/13.818 = 1.0815, an 8.15% surcharge, so the claim is false (it reads under 8% only from the rounded 14.9/13.8); the same sentence ships on the live page. Fail: README calls t(n)=t1*n^b a 'Wright learning curve' and attributes 'unit time falls by a fixed share with each doubling' to Wright (1936); Wright's model is the cumulative-average one, the unit-time form is Crawford's (1944). Under Wright's actual form the headline 20 coats (4x, 0.85) becomes 7, 96 becomes 33, 370 becomes 119 ({S}/indep2.py), so the misattribution changes the headline by about 3x and the README never says the model choice matters.",
+    "fitness": "For a researcher: the result is a parameter sweep of a textbook learning curve where every input (first-coat multiple, rate, floor, materials) is assumed, and the README itself shows the answer spans three orders of magnitude on the two assumed numbers. Nearest prior work: Wright (1936), Crawford (1944, unit model), De Jong (1957, incompressible floor), Nembhard and Uzumeri (2000, measured learning and forgetting for sewing operators in a textile plant), Jaber and Bonney (1996, learn-forget curve). Only Wright is cited; nothing measured or sourced. Nothing here is new and there is no data to build on; it is a worked example, far from research/CLAUDE.md's PhD bar of multi-session programmes aimed at papers.",
+    "domain": "Against standard learning-curve practice: the floor as max(floor, t1*n^b) is a crude version of De Jong's incompressibility model t1*(M+(1-M)n^b), which is the standard way to model a plateau and avoids the kink; the model form (unit vs cumulative-average) is not stated or tested though practitioners always name it; apparel learning rates exist in the IE literature and were not used; forgetting, which dominates for a hobbyist sewing intermittently, is excluded (disclosed). The arithmetic of the chosen model is right; the method choices a practitioner would question are unaddressed."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Table A coats to within 2x of experienced time, six (k, rate) cells",
+      "method": "closed form n = ceil((k/2)^(1/-log2 r)) from the unit-time curve, independent script",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep.py",
+      "expected": "9, 20, 96, 75, 370, 9138 (results.txt)",
+      "observed": "8.612->9, 19.227->20, 95.592->96, 74.16->75, 369.658->370, 9137.77->9138",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Table C max wage for a $50 coat, coats 1/5/20/100",
+      "method": "hand derivation of materials from garment-teardown TRENCH constants (2.9/0.8*1.03*7 + 2.2*1.03/0.8*3 + 8 = 42.634) and (50-materials)/hours, independent script",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep2.py",
+      "expected": "1.45, 2.12, 2.93, 4.28",
+      "observed": "1.4539, 2.1204, 2.9347, 4.2801",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Table B total cost of n-th coat at $6 and $15/h",
+      "method": "materials + hours*wage, independent script",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep2.py",
+      "expected": "$6: 73,63,58,53; $15: 119,95,80,68",
+      "observed": "$6: 73.03,63.48,57.69,52.96; $15: 118.63,94.74,80.28,68.45",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Table D mean labour per coat over run lengths 1..1000",
+      "method": "own exact-sum loop with floor, $6/h, efficiency 0.55",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep2.py",
+      "expected": "27.6, 22.1, 17.8, 14.9, 14.0 vs 13.8",
+      "observed": "27.636, 22.094, 17.766, 14.944, 14.043 vs 13.818",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "cd research/garment-learning && /usr/bin/python3.13 -m pytest -q tests",
+      "expected": "9 tests pass",
+      "observed": "9 passed in 0.02s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiment reproduces committed results",
+      "method": "rerun in scratch copy and diff",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/r/research/garment-learning && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/garment-learning/experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical; figure.py SVG identical too",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'the learning surcharge is under 8% after 200 coats'",
+      "method": "unrounded ratio of Table D mean at n=200 to steady state",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep2.py",
+      "expected": "< 8%",
+      "observed": "14.944/13.818 = 8.15%",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "unit-time curve attributed to Wright (1936)",
+      "method": "Wright's model is cumulative-average (Crawford 1944 is unit-time); recompute Table A under Wright's actual form",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/indep2.py",
+      "expected": "if model form were immaterial, same coats-to-2x",
+      "observed": "Wright cumulative-average: 4 / 7 / 33 (4x at 0.80/0.85/0.90), 119 (8x, 0.85) vs README 9 / 20 / 96 / 370",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page serves and carries the AI note",
+      "method": "load served page",
+      "command": "curl -sS https://marisstella.app/research/garment-learning/ | grep -o 'AI assistance'",
+      "expected": "200 with note",
+      "observed": "200, 'AI assistance' present; also serves 'under 8%'",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work on apparel learning rates and plateau/forgetting cited",
+      "method": "compare against Crawford 1944, De Jong 1957, Jaber and Bonney 1996, Nembhard and Uzumeri 2000",
+      "command": "grep -n 'Crawford\\|De Jong\\|Jaber\\|Nembhard' research/garment-learning/README.md",
+      "expected": "cited or contrasted",
+      "observed": "none cited; only Wright (from memory)",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/garment_learning/model.py:55",
+      "change": "cumulative / n -> cumulative / (n + 1) in average_cost_over",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "src/garment_learning/model.py:33",
+      "change": "if target < floor -> if target <= floor (target equal to floor wrongly unreachable)",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "src/garment_learning/model.py:39",
+      "change": "downward scan unit_minutes(n-1) <= target -> < target (near-equivalent on continuous inputs)",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "src/garment_learning/model.py:22",
+      "change": "t1 * n ** b -> t1 * (n + 1) ** b",
+      "caught": true,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The unit-time curve t(n)=t1*n^b is called a 'Wright learning curve' and attributed to Wright (1936); Wright's model is cumulative-average (the unit form is Crawford 1944). The choice is not stated as a choice, and under Wright's actual form the headline 20 coats becomes 7 (96 -> 33, 370 -> 119), so the headline depends on an unacknowledged model choice by ~3x.",
+      "where": "research/garment-learning/README.md:3",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Every parameter is assumed and no prior work on measured apparel/sewing learning rates, plateau (De Jong 1957) or forgetting (Jaber and Bonney 1996; Nembhard and Uzumeri 2000 studied sewing operators) is cited, so the result is a textbook sweep with nothing new for a researcher to build on.",
+      "where": "research/garment-learning/README.md:11",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "'the learning surcharge is under 8% after 200 coats' is false: 14.944/13.818 = 8.15% (it looks under 8% only from rounded 14.9/13.8). Also served on the live page.",
+      "where": "research/garment-learning/README.md:37",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "No test pins any results.txt number; 3 of 4 seeded mutants survive, including a wrong divisor in average_cost_over that drives all of Table D.",
+      "where": "research/garment-learning/tests/test_model.py:38",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Table D is labelled 'sewing labour' but uses sewing + cutting minutes (76, not 51).",
+      "where": "research/garment-learning/experiments/run.py:37",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15585"
+  ],
+  "verdict": "Does not meet the bar (claims 2, verification 2, median 2). The arithmetic is right: results.txt reproduces byte for byte and independent closed-form and hand recomputation matches every number in Tables A to D. But the README attributes a unit-time curve to Wright, whose model is cumulative-average, and under Wright's actual form the headline '20 coats' is 7; one prose claim ('under 8% after 200 coats') is false at 8.15%; three of four seeded bugs survive the tests; and as research it is a sweep of a 1930s-40s textbook model with every input assumed and the apparel learning-curve literature uncited, so there is nothing new or measured to build on."
+}

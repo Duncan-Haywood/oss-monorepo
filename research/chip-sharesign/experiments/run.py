@@ -19,6 +19,7 @@ def main():
                 open(f, "w").write(gens.FAMILIES[fam](w, k, sh))
                 fs[sh] = f
             eq = flow.equivalent(fs[True], "top", fs[False], "top")
+            assert eq, f"shared and unshared {fam} {w} {k} not proved equivalent; not scoring it"
             for sc in flow.SCRIPTS:
                 s = flow.score(fs[True], "top", sc); u = flow.score(fs[False], "top", sc)
                 rows.append((fam, w, k, sc, s["cells"], s["depth"], u["cells"], u["depth"], eq))

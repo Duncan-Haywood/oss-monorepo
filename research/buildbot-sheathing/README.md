@@ -238,6 +238,21 @@ to refute the shape assumption, not to estimate a population.
 
 ![Six installed studs' face centrelines against their parabolas; bow amplitude against the published means; clean sheets on measured studs against parabolas](experiments/m11_measured/figure.png)
 
+**Milestone 14: what does a missed nail that nobody finds do to a shear wall? About 2% of its
+sheet's racking capacity each, more where misses cluster, and 4 in joint nailing covers them.** A
+rigid-plastic model of a fully anchored sheathed wall (Källsner and Girhammar 2009), which tracks
+SDPWS's spacing table to within 6%, scores the miss patterns of milestone 12's robot. One joint-edge
+nail missed costs **2.0–2.2%** of the sheet. With three stud reads on the measured studs, every miss
+left in, the mean sheet keeps **97.7%**, but the 99th-percentile sheet only **88.5%**: a stud the
+robot misjudges is misjudged for a run of heights, so 13% of sheets miss three or more nails. Nailing
+the two joint edges at **4 in instead of 6 in** keeps **99.98%** of sheets at or above the intact 6 in
+sheet with every miss left in, and costs less than re-driving the misses ($6.98 against $7.10 a sheet,
+against $12.17 for a doubled joint stud). The model is optimistic about clustered misses: with the
+bottom foot unnailed it loses 20% where tested walls lost about half (Weiss 2017), so its losses are
+lower bounds; at 2.45 times the loss, 97.6% of 4 in sheets still clear the bar.
+
+![Sheet capacity with every miss left in, by pipeline, and the capacity each nail carries](experiments/m14_escaped/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -553,11 +568,49 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   three, dense or per-nail reads; push or not; milestone 9's ledger or milestone 10's slide and
   shim (0.5 mm). Doubled joints on measured studs; the tool scatter that gives 95% (bisection).
 
+## Milestone 13 method (`src/buildbot_sheathing/price.py`)
+- **Question.** Which single-2x pipeline is cheapest per clean sheet on milestone 11's measured
+  studs once each remedy's seconds are charged, and does the doubled joint stud now pay?
+- **Model.** Milestone 7's G1 on a drive-and-lift base and its 4,000 draws (seed 11), at 100, 300
+  and 1,000 houses a year; every missed nail is found and re-driven. Clean sheets and missed nails
+  from milestone 12's 12 single-2x cells on measured studs (and the common-removed bracket); a new
+  20,000-sheet cell for doubled joints with a single read.
+- **Seconds charged.** Point reads at t_read U(1, 3) s each: three reads 9 a sheet, dense 51, per-nail
+  31 (17 on the new joint stud, 7 on each new field stud), plus 2 edge reads. Or, for dense and
+  per-nail reads, a line laser swept along the three new studs, 3 × 2.353 m / v, v log-uniform
+  0.05–0.5 m/s (unsourced; ISO 10218-1's 250 mm/s reduced speed sits inside it). Mid push U(10, 40) s
+  (milestone 9); slide and shim U(5, 30) s plus 2 edge reads (unsourced). Seed 29.
+- **Break-even.** The extra dollars a missed nail must carry, beyond its re-drive, for doubled joints
+  to tie the per-draw cheapest single-2x pipeline: (cost doubled − cost single) / (missed single −
+  missed doubled).
+
+## Milestone 14 method (`src/buildbot_sheathing/racking.py`)
+- **Question.** If a missed nail is never found, how much racking capacity does the sheet lose, given
+  where a robot's misses actually fall?
+- **Model.** Källsner and Girhammar's plastic model of a fully anchored wall (2009, *Engineering
+  Structures* 31(9), 2171–2181, [doi:10.1016/j.engstruct.2009.03.023](https://doi.org/10.1016/j.engstruct.2009.03.023);
+  the full text was not opened, so this is the model as we understand it from its abstract-level descriptions):
+  framing pinned at its joints (a stud nail at height z moves γz, a top-plate nail γH, the bottom plate
+  none), a rigid sheet, every fastener rigid-plastic with one capacity F along its slip. Capacity is the
+  least plastic work over the sheet's rigid motions, H·γ·H_wall = F·min Σ|slip_i|, a convex problem
+  solved by reweighted least squares (checked against Nelder–Mead). Only ratios are reported, so F is
+  not needed. A missed nail carries nothing. Sheets in a wall share γ, so a wall is the sum of its sheets.
+- **Checks.** SDPWS Table 4.3A's ratios across edge spacing (H60), read from secondary copies (the
+  Massachusetts reprint of IBC Table 2306.3, [780 CMR 2306.3](https://regulations.justia.com/states/massachusetts/780-cmr/chapter-23/section-2306/subsection-2306-3),
+  and a [Huber tech tip](https://www.huberwood.com/uploads/documents/technical/Shear-Capacity-and-Wood-Structural-Panels-Tech-Tip-Wall-ZIP-System.pdf)
+  quoting SDPWS 2021); Weiss's walls tested with the bottom 12 in unnailed (H61; B. D. Weiss, *Structural
+  performance of light-frame shear walls with simulated decay and a repair design*, MS thesis,
+  Washington State University, 2017, [record](https://rex.libraries.wsu.edu/esploro/outputs/graduate/Structural-performance-of-light-frame-shear-walls/99900525291401842);
+  only its abstract was read).
+- **Misses.** `tack.simulate(return_hits=True)` on milestone 12's measured-stud cells (20,000 sheets,
+  seed 7); a 4 in joint-edge schedule via `u_joint` (25 heights a side). Wall lines: 100,000 random
+  draws of four sheets. Cost: milestone 7's model with 16 more nails at t_nail / 62 seconds each.
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 78 test functions (79 cases); one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
+python -m pytest -q tests                                    # 88 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -588,6 +641,8 @@ python experiments/m11_measured/run.py > experiments/m11_measured/results.txt   
 python experiments/m11_measured/figure.py
 python experiments/m12_remedies/run.py > experiments/m12_remedies/results.txt         # ~40 s, seed 7; reads m11 profiles.json and m6b's results.json
 python experiments/m12_remedies/figure.py
+python experiments/m13_price/run.py > experiments/m13_price/results.txt               # ~5 s; reads m12's results.json, m11 profiles.json, m6b's results.json
+python experiments/m13_price/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -880,7 +935,52 @@ python paper/check_numbers.py                                # every number the 
   least-squares line instead of its end chord; fixed and tested, and only the fixed run is reported
   ([`LOG.md`](LOG.md)).
 
+## Milestone 13 results (`experiments/m13_price/results.txt`)
+
+![Median dollars per clean sheet against first-pass clean sheets for every single-2x pipeline and doubled joints, measured studs](experiments/m13_price/figure.png)
+
+- **First-pass quality is cheap up to 0.77.** At 100 houses a year, three reads on the ledger cost
+  a median **$7.10** per clean sheet (0.425 first-pass clean, 198 s); the full stack (per-nail reads
+  by line laser, mid push, slide and shim) **$7.42** (0.771, 248 s). Below the machine's capacity,
+  extra seconds cost only supervision, so 35 points of first-pass quality cost 32 cents.
+- **The doubled joint stud still does not pay.** Doubled joints give 1.000 in 145 s but cost
+  **$12.17**: the stud and a framer's time are 44% of it. The per-draw cheapest single-2x pipeline is
+  cheaper in **every** draw at 100, 300 and 1,000 houses a year (median saving $5.13).
+- **Break-even.** Doubling pays only if a missed nail costs a median **$5.51** more than its re-drive
+  [5–95%: $3.91, $8.55], 8.8 loaded person-minutes ($5.83 with the common part removed). Measured
+  studs lower milestone 7's $6.51 (the three-read pipeline now misses 1.095 nails a sheet, not
+  0.79), but less than that rise suggests: in about half the draws the cheapest pipeline is one that
+  misses fewer nails.
+- **Line laser or point reads.** Per-nail reads by point (31 + 2 a sheet) cost 15 cents more than
+  three reads; by line laser they tie three reads at about **0.23 m/s** sweep speed and win above it.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H57 held (1.000 of draws against a 0.90 bar);
+  H58 held (the full stack is never the cheapest pipeline); **H59 refuted** ($5.51 against a $5.00 bar).
+- **Reading it.** The dollar case for doubling rests entirely on what an escaped or late-found missed
+  nail costs, which this model does not price: every miss is assumed found. A shear-wall nailing
+  defect found at inspection, or not found, is the number a builder would supply.
+
+## Milestone 14 results (`experiments/m14_escaped/results.txt`)
+
+- **The model against the code table.** 4, 3 and 2 in edge spacing give 1.442, 1.884 and 2.769 times
+  the 6 in sheet against SDPWS's 1.536, 1.964 and 2.607 (H60 held).
+- **The model against a test: unconservative.** The bottom 12 in unnailed loses 20.4% (11 of 62 nails)
+  against "close to or more than half" in Weiss's (2017) tests (**H61 refuted**). Every loss here is a
+  lower bound.
+- **One nail.** A joint-edge nail is worth 2.00–2.21% of the sheet, a plate nail 1.05–1.83%, a field
+  nail 0.70–1.02% (H62 held).
+- **Misses left in, three reads.** Mean sheet 0.977, 1st percentile 0.885, 13.4% of sheets below 0.95,
+  a 16 ft wall's 1st percentile 0.934 (**H63 refuted** on the tail). Full stack: mean 0.994, 1st
+  percentile 0.937. Doubled joints: 1.000.
+- **4 in joint edges.** Intact 1.318; with 1.572 misses a sheet left in, mean 1.286, 1st percentile
+  1.160, 99.98% of sheets at or above the intact 6 in sheet (H64 held); 97.6% at 2.45 times the loss.
+  Median $6.98 a sheet at 100 houses a year, against $7.10 for 6 in with re-drives and $12.17 for doubled
+  joints.
+
 ## Limitations
+- **Racking model (milestone 14).** Rigid-plastic, equal fasteners, full anchorage, a rigid sheet and
+  sheets acting independently; no stiffness, edge-distance, tear-out or cyclic effects. It understates
+  clustered missing nails against one test series (about 2.5 times there). Whether a code official
+  accepts a schedule that knowingly includes shiners is outside it.
 - **Measured studs (milestone 11).** One wall of six studs, of unstated grade and species, built
   by robots that shorten members to fit, scanned from one side with a profile every 2 mm along
   the wall, so a face edge is known to about ±1 mm per slice and passes are stitched on the
@@ -968,7 +1068,13 @@ scan with finer profile pitch (or a scan along the studs) of framer-built walls,
 the wood's waviness from the scanner's and to give a population, not one wall. Milestone 12
 found that reading each stud at every nail height recovers most of that loss, and that per-nail
 reads, a mid push and a slide and shim together reach 0.77 on the measured studs (95% needs a
-0.6 mm tool); a line-laser stud read on a real robot, and its time, is the next measured input. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+0.6 mm tool); a line-laser stud read on a real robot, and its time, is the next measured input. Milestone 13
+priced those remedies: they cost 32 cents a clean sheet for 35 points of first-pass quality, while
+the doubled joint stud costs $5.13 more and pays only if a missed nail costs about $5.51 beyond its
+re-drive; the cost and detection rate of a missed nail at inspection is now the input that decides
+the framing. Milestone 14 sized an escaped miss in capacity (about 2% of its sheet,
+clustered) and found 4 in joint nailing carries them; a racking test of sheets with shiners at the
+simulated positions would check the model where it is weakest, clustered misses. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps

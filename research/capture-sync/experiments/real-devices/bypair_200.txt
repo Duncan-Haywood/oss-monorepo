@@ -1,0 +1,11 @@
+room 200, recordings as published, 4.0 s windows, 20 times x 10 sessions per pair
+Nexus   -Pixel6a  PHAT 0.030  gamma0.25 0.005  PHAT wrong peaks at (s, count): [(np.float64(0.2), 1), (np.float64(0.18), 1), (np.float64(-0.37), 1)]
+Nexus   -Pixel6b  PHAT 0.015  gamma0.25 0.000  PHAT wrong peaks at (s, count): [(np.float64(-0.55), 1), (np.float64(1.3), 1), (np.float64(-1.13), 1)]
+Nexus   -Pixel7   PHAT 0.040  gamma0.25 0.000  PHAT wrong peaks at (s, count): [(np.float64(0.12), 1), (np.float64(1.51), 1), (np.float64(1.22), 1)]
+Nexus   -Xiaomi   PHAT 0.025  gamma0.25 0.000  PHAT wrong peaks at (s, count): [(np.float64(2.3), 1), (np.float64(0.74), 1), (np.float64(-0.49), 1)]
+Pixel6a -Pixel6b  PHAT 0.035  gamma0.25 0.005  PHAT wrong peaks at (s, count): [(np.float64(1.77), 1), (np.float64(-0.81), 1), (np.float64(-0.66), 1)]
+Pixel6a -Pixel7   PHAT 0.015  gamma0.25 0.000  PHAT wrong peaks at (s, count): [(np.float64(-0.76), 1), (np.float64(0.19), 1), (np.float64(-0.35), 1)]
+Pixel6a -Xiaomi   PHAT 0.020  gamma0.25 0.005  PHAT wrong peaks at (s, count): [(np.float64(-1.73), 1), (np.float64(-0.21), 1), (np.float64(1.79), 1)]
+Pixel6b -Pixel7   PHAT 0.050  gamma0.25 0.010  PHAT wrong peaks at (s, count): [(np.float64(-1.95), 2), (np.float64(-0.5), 1), (np.float64(0.17), 1)]
+Pixel6b -Xiaomi   PHAT 0.020  gamma0.25 0.000  PHAT wrong peaks at (s, count): [(np.float64(-0.8), 1), (np.float64(0.43), 1), (np.float64(-0.53), 1)]
+Pixel7  -Xiaomi   PHAT 0.055  gamma0.25 0.005  PHAT wrong peaks at (s, count): [(np.float64(1.04), 2), (np.float64(-0.94), 1), (np.float64(-0.51), 1)]

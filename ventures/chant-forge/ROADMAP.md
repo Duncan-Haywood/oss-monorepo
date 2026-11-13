@@ -96,6 +96,18 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-13, latest: `--overlap` (README "Overlapped handoffs"): at a direct tenor/bass swap inside a phrase both
   sections sing one seam note if it is in both ranges. Only octave-wide sections produce such swaps on the corpus
   (7-13 of them); every one overlaps (0 breaks, eval/overlap-report.md). Off by default; not tried with singers.
+- 2026-11-13, latest: `--baritones` (README "Three sections"): tenors, baritones and basses; a phrase or word goes
+  to all three, two or one, fewest section-notes left out. Two-section results unchanged. Octave-wide sections: 64
+  of 67 files fit instead of 56, one-section notes 89.4% to 29.9% (eval/three-sections-report.md); amateur ranges:
+  25.4% to 2.5%. Changes of singer rise (166 to 484 octave-wide). Studio page option too. Not tried with singers.
+- 2026-11-13, latest: `--entrance-cost N` (README "Short entrances"): each section entrance costs N section-notes, so
+  a section joins a passage only when it sings more than N notes. The premise was weak: octave-wide, a section that
+  enters sings a median of 19 notes (1 of 238 entrances under 4 notes). Cost 8 cuts changes of singer 484 to 435
+  for 1.3% more section-notes left out (eval/entrance-cost-report.md). Default 0. Not tried with singers.
+- 2026-11-13, latest: `--second-tenors` (README "Four sections"): TTBB, 15 section sets, same exact DP. Octave-wide,
+  second tenors a tone under the tenors: 65 of 67 files fit (64 with three), one-section notes 29.9% to 13.7%, changes
+  of singer 484 to 569 (eval/four-sections-report.md). A section added on top gains nothing; textbook ranges gain
+  nothing. Studio page option too. Not tried with singers.
 
 ## Next
 
@@ -147,3 +159,4 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - Artist name and whether it is published under the portfolio's name.
 - Distributor account (card, about $20–25 a year) and whether to pay singers.
 - 2026-11-03: `render-cli.mjs --lufs N --limit` (`limiterCurve` in `render.mjs`): 5 ms lookahead limiter looping on LUFS and true peak. Dies irae deep house: -14.00 LUFS, -1.05 dBTP (without `--limit` -15.91, -0.19); metal unchanged. 1 test; stems sum to the mix. Not listened to (pumping is an ear judgement).
+- 2026-11-13, latest: `--choir textbook|amateur|octave` (README "A choir by name"): one option for the four section ranges; without `--split-voices` it sets the unison range to the band every section reaches and names the fewest sections that fit when unison does not. Corpus (eval/choir-presets-report.md): textbook choir unison 60 of 67 (E2-E4 default: 67), amateur 12, octave 0; octave needs three sections for 8 files, TTBB for 1, none fits 2. Studio page choice too. Not tried with singers.

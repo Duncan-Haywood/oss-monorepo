@@ -1,0 +1,6 @@
+20x56 week 2 start: exposure 113 h over 56 person-days, 10.5 s
+20x56 week 2 pairs off (0 moves, risk 189 -> 189 h, score +0.00, open 48 h): exposure 113 h over 56 person-days, 0.1 s
+20x56 week 2 pairs on (4 moves, risk 189 -> 107 h, score +35.27, open 48 h): exposure 68 h over 56 person-days, 9.4 s
+40x112 week 0 start: exposure 328 h over 103 person-days, 417.4 s
+40x112 week 0 pairs off (0 moves, risk 435 -> 435 h, score +0.00, open 169 h): exposure 328 h over 103 person-days, 425.1 s
+40x112 week 0 pairs on (1 moves, risk 435 -> 427 h, score +4.47, open 169 h): exposure 322 h over 103 person-days, 440.8 s

@@ -209,3 +209,19 @@ test('material and section presets are usable starting points', () => {
     assert.ok(preset.label.length > 0);
   }
 });
+
+// Quality audit round 71 (portfolio/quality/audits/2026-11-13-roofing-bid-calculator.json).
+test('engine pins golden values recomputed from trade definitions', () => {
+  const r = calculateBid(ranch());
+  assert.equal(r.jobCost.toFixed(2), '11085.87');
+  assert.equal(r.jobPrice.toFixed(2), '13857.34');
+});
+
+test('a cleared price-driving field is an error, not zero', () => {
+  assert.throws(() => calculateBid({ ...ranch(), hourlyWage: '' }), /Hourly wage is blank/);
+  const r = ranch();
+  r.sections[0].pitchRise = ' ';
+  assert.throws(() => calculateBid(r), /pitch rise is blank/);
+  // Optional costs still read blank as zero.
+  assert.doesNotThrow(() => calculateBid({ ...ranch(), otherCost: '' }));
+});

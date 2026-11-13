@@ -105,18 +105,22 @@ export function cueRows(events, { bpm = 124, pulsesPerBar = 8, pulsesPerBeat = 2
   return rows;
 }
 
-const WHO = { all: 'all', tenor: 'T', bass: 'B' };
+// with second tenors (tenor2) in the choir, 'tenor' is the first tenors: T1 and T2
+const WHO = { all: 'all', tenor: 'T', tenor2: 'T2', baritone: 'Bar', bass: 'B' };
+const whoWith = (names) => (v) => (typeof v === 'string' && v.split('+').every((x) => Object.hasOwn(names, x)) ? v.split('+').map((x) => names[x]).join('+') : '?');
 
 export function cueSheet(events, opts = {}) {
-  // --split-voices adds a who-sings column: all, T (tenors alone) or B (basses alone)
+  // --split-voices adds a who-sings column: all, T (tenors alone) or B (basses alone); with
+  // --baritones also Bar (baritones alone), T+Bar and Bar+B
   const split = events.some((e) => e.type === 'note' && e.voice);
+  const who = whoWith(events.some((e) => e.type === 'note' && typeof e.voice === 'string' && e.voice.split('+').includes('tenor2')) ? { ...WHO, tenor: 'T1' } : WHO);
   const lines = [split ? 'bar  beat  time(s)  note  beats  who  syllable' : 'bar  beat  time(s)  note  beats  syllable'];
   const guides = new Map(sectionCues(events, opts).map((g) => [g.noteIndex, g]));
   cueRows(events, opts).forEach((r, i) => {
     const g = guides.get(i);
     if (g) lines.push(`-- ${g.section}, bar ${g.bar}, ${g.seconds.toFixed(2)} s: ${g.text}`);
     lines.push(
-      [String(r.bar).padStart(3), String(r.beat).padStart(5), r.seconds.toFixed(2).padStart(8), r.note.padStart(5), String(r.beats).padStart(6), ...(split ? [(Object.hasOwn(WHO, r.voice) ? WHO[r.voice] : '?').padStart(4)] : []), '  ' + r.syllable].join(' '),
+      [String(r.bar).padStart(3), String(r.beat).padStart(5), r.seconds.toFixed(2).padStart(8), r.note.padStart(5), String(r.beats).padStart(6), ...(split ? [who(r.voice).padStart(4)] : []), '  ' + r.syllable].join(' '),
     );
   });
   return lines.join('\n') + '\n';

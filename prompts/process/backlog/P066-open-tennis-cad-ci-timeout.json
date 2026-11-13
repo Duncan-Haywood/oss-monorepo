@@ -1,0 +1,28 @@
+{
+  "id": "P066",
+  "title": "open-tennis-robots-ci: the cad job ran 19 min of its 20 min timeout; the next CAD slice will time it out",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "The cad job runs cad/tests, which builds the collector and the feeder packages fresh (the feeder build does the elevation, azimuth, feed-stroke and cable collision sweeps). On PR #15557 (hopper agitator, 2026-11-13) it took 17:45:19 to 18:04:18 UTC, 19 of the 20 minutes in timeout-minutes. Locally on 4 CPUs the same suite took 27 min and one feeder build 10 min. Every new part adds pairs to the sweeps, so the next slice is likely to hit the timeout and read as a red CI that is only slow. The workflow is under .github/, so the fix waits for the owner (CODEOWNERS).",
+  "evidence": [
+    "PR #15557 check run 'cad': started 2026-11-13T17:45:19Z, completed 2026-11-13T18:04:18Z, success",
+    "local: python -m unittest discover -s tests in cad/: Ran 80 tests in 1636.571s, OK"
+  ],
+  "change": "Either raise timeout-minutes on the cad job (e.g. to 45), or have the tests build each package once and share it between test_committed_package_is_current and the other package tests (a module-level cache), or split the sweeps into their own job.",
+  "touches": [
+    ".github/workflows/open-tennis-robots-ci.yml",
+    "ventures/open-tennis-robots/cad/tests/test_cad.py"
+  ],
+  "metric": "cad job wall time on open-tennis-robots PRs",
+  "baseline": "19 min of 20 (PR #15557, 2026-11-13)",
+  "opened": "2026-11-13",
+  "source": "explore run 2026-11-13, hopper agitator",
+  "pr": "this",
+  "result": "helped: cad check run on PR #15581 took 6 min 40 s (18:56:51 to 19:03:31 UTC, success, pip install included) against the 19 min baseline on PR #15557; local suite 323 s vs 1637 s.",
+  "history": [
+    "2026-11-13: all_parts(Feeder) (18.4 s) was called ~60 times per feeder build by the sweeps, inertia and gravity table; otr_cad/feeder.py now keeps the last four builds keyed by equal params. Sweeps 433 s -> 33 s; full local suite 1636.6 s -> 322.6 s, 80 tests OK incl. both committed-package freshness checks. Workflow timeout left at 20 (owner-gated, no longer needed). Post: docs/posts/2026-11-13-the-cad-suite-was-rebuilding-the-feeder-sixty-times.md",
+    "2026-11-13 (PR #15580, a parallel run): the package builds start as subprocesses in setUpModule and run beside the other tests; the clean-design sweeps the feeder build already runs are asserted once from its manifest instead of re-run by four geometry tests; cable_sweep takes poses/azimuths. Same 4-CPU machine: main with the all_parts cache 349 s, plus this 219 s, 80 tests OK. Before both: 1627 s; this alone: 805 s (CI cad job 13.1 min)."
+  ]
+}
