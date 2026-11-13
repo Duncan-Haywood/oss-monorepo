@@ -27,6 +27,7 @@ Options:
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --dispersion              with --model meanvar: scale the penalty by the dispersion of the squared residuals (fewer false alarms on heavy tails or clustered volatility)
   --robust                  with --model meanvar: Laplace noise instead of Gaussian, so heavy tails are not read as volatility changes
+  --garch                   with --model meanvar: search the cuts jointly with a GARCH(1,1) noise model, for volatility that comes in clusters (returns); far fewer false alarms there than --bootstrap, a little less power on a lasting volatility step, and not for heavy tails alone (use --bootstrap); at most 20,000 points
   --min-segment <n>         shortest segment (default: 2 for mean, 10 for meanvar)
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar subtract it, poisson fits multiplicative factors
   --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step; write label=kind (e.g. 2026-12-25=closed) to fit one factor per kind
@@ -96,6 +97,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--log') opt.log = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
     else if (a === '--robust') opt.robust = true;
+    else if (a === '--garch') opt.garch = true;
     else if (a === '--dispersion') opt.dispersion = true;
     else if (a === '--bootstrap') opt.bootstrap = true;
     else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' ? (i++, 'nb') : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
@@ -200,6 +202,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     } catch { /* the panel is extra; the analysis below already ran */ }
   }
   lines.push(r.summary, '');
+  if (r.garch) lines.push(`GARCH search: ${r.garch.note}`, '');
   lines.push('Segments (PELT):');
   for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  ${s.geometricMean !== undefined ? `geometric mean=${s.geometricMean}  ` : ''}${s.slope !== undefined ? `slope=${s.slope}  ` : ''}sd=${s.sd}`);
   const ch = r.pelt.changepoints.filter((x) => x.range95);

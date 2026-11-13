@@ -2049,6 +2049,20 @@ export function analyze(input = {}) {
     const bic = penaltyValue(penalty ?? 'bic', values.length, model);
     if (bp > bic * 1.0001) { bootstrap = round(bp, 2); p = pelt(values, { model, penalty: bp, minSegment, sigma, exposure }); }
   }
+  // garch: cuts searched jointly with a segment-wise GARCH(1,1) likelihood (clustered volatility; not for heavy tails alone)
+  let garchFit = null;
+  if (o.garch) {
+    if (model !== 'meanvar' || robust || o.dispersion || o.bootstrap || o.ar1 || o.trend || period) throw new Error('The GARCH search is for the "meanvar" model without --robust, --dispersion, --bootstrap, --ar1, --trend or --period.');
+    if (values.length > 20000) throw new Error(`The GARCH search takes at most 20,000 points (each step rescans every segment); got ${values.length}. Aggregate first, or use --bootstrap.`);
+    const ln = Math.log(values.length);
+    const g = garchCuts(values, { pen: GARCH_CUT_PEN * ln, garchPen: GARCH_TERM_PEN * ln, minSeg: minSegment, maxCuts: 40, stride: Math.max(1, Math.ceil(values.length / 250)) });
+    garchFit = { clustered: g.garch, alpha: g.a, beta: g.b, cutPenalty: round(GARCH_CUT_PEN * ln, 3), garchPenalty: round(GARCH_TERM_PEN * ln, 3) };
+    garchFit.note = g.garch
+      ? `The volatility clusters (a shared GARCH(1,1), a ${g.a}, b ${g.b}), so these cuts are changes the clustering does not explain; a burst it can explain, even a crash, is not cut (33 years of the Dow: no cut at all, README "Cuts searched jointly with a GARCH likelihood"). For bursts as changes use --bootstrap. Not for heavy tails without clustering: on t3 noise it raised a false change on 44-49% of series.`
+      : 'No volatility clustering worth its penalty, so these are plain mean-and-variance cuts at a slightly higher penalty (1.5 times BIC).';
+    // penalty reported in pelt's units (twice the log-likelihood)
+    p = { changepoints: g.cuts.slice().sort((a, b) => a - b), penalty: 2 * GARCH_CUT_PEN * ln };
+  }
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
@@ -2106,7 +2120,9 @@ export function analyze(input = {}) {
   }
   // a variance model assumes Gaussian noise: on heavy-tailed, autocorrelated or volatility-clustered noise with no change at all it
   // reported one 35% to 68% of the time (eval/meanvar-robustness.mjs, README). Warn from the segment-standardised residuals.
-  if (!rangeWarning && model === 'meanvar' && values.length >= 40) {
+  // GARCH cuts: the ranges below still come from the independent-noise cost, which clustered volatility makes too narrow
+  if (!rangeWarning && garchFit?.clustered && p.changepoints.length) rangeWarning = 'These ranges come from the independent-noise variance cost, not the GARCH fit that chose the cuts, so with clustered volatility they are too narrow: read them as the least uncertainty there is.';
+  if (!rangeWarning && model === 'meanvar' && values.length >= 40 && !garchFit?.clustered) {
     const nd = meanvarNoiseCheck(values, p.changepoints, robust);
     if (nd) rangeWarning = nd;
   }
@@ -2187,6 +2203,7 @@ export function analyze(input = {}) {
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(dispersion ? { dispersion } : {}),
     ...(bootstrap ? { bootstrapPenalty: bootstrap } : {}),
+    ...(garchFit ? { garch: garchFit } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
     ...(cycleWarning ? { cycleWarning } : {}),
@@ -2505,3 +2522,98 @@ export function localFitScale(v, w = 7, degree = 1) {
   if (!res.length) return 0;
   return median(res) / (0.67449 * Math.sqrt(1 - c0)) * 0.954;
 }
+
+/**
+ * `meanvar` cuts on clustered volatility (`garch: true`, CLI `--garch`). Each segment has its own mean and scale; inside a
+ * segment the standardised residual follows a unit-variance GARCH(1,1) whose a and b are shared by all segments and read
+ * off an 18-point grid (a + b under 0.98). A greedy forward search adds the cut, at any position, that raises the best-over-grid
+ * quasi-log-likelihood most. It runs twice, with independent noise (a = b = 0) and on the GARCH grid, and keeps the cut
+ * set with the highest LL - pen per cut - (garchPen if GARCH). Pre-registered against `--bootstrap` on fresh seeds
+ * (eval/meanvar-garch-choose-prereg-2026-11-13.md, README "Cuts searched jointly with a GARCH likelihood").
+ */
+// Per-cut and GARCH-term penalties in multiples of ln n (log-likelihood units), fixed before the fresh-seed run.
+export const GARCH_CUT_PEN = 1.5, GARCH_TERM_PEN = 0.25;
+export const GARCH_GRID = []; for (const a of [0, 0.05, 0.1, 0.2, 0.3]) for (const b of [0, 0.5, 0.7, 0.85, 0.93]) if (a + b < 0.98) GARCH_GRID.push([a, b]);
+
+// quasi-log-lik of x[lo..hi) given (a, b), own mean and scale (two fixed-point passes), as in meanvar-garch-segments.mjs
+export function garchSegLL(x, lo, hi, a, b) {
+  let m = 0; for (let i = lo; i < hi; i++) m += x[i]; m /= hi - lo;
+  let s2 = 0; for (let i = lo; i < hi; i++) s2 += (x[i] - m) ** 2; s2 = Math.max(s2 / (hi - lo), 1e-12);
+  let ll = 0;
+  for (let pass = 0; pass < 2; pass++) {
+    let h = 1, num = 0; ll = 0;
+    for (let i = lo; i < hi; i++) {
+      const z2 = (x[i] - m) ** 2 / s2;
+      ll += -0.5 * (Math.log(s2 * h) + z2 / h);
+      num += z2 / h;
+      h = (1 - a - b) + a * z2 + b * h;
+    }
+    s2 *= num / (hi - lo);
+  }
+  return ll;
+}
+
+// Greedy forward search. Returns { cuts, gains }: cuts in the order added, gains[k] the likelihood rise of step k.
+// Stops when the best gain falls under minPen or no segment can be split.
+export function garchForward(x, { minPen, minSeg = 10, maxCuts = 8, grid = GARCH_GRID, stride = 1 } = {}) {
+  const n = x.length; let cuts = []; const added = [], gains = [];
+  const segsOf = (c) => { const e = [0, ...c.slice().sort((p, q) => p - q), n]; return e.slice(0, -1).map((lo, k) => [lo, e[k + 1]]); };
+  // per grid point, the LL of each current segment
+  let cache = grid.map(([a, b]) => segsOf(cuts).map(([lo, hi]) => garchSegLL(x, lo, hi, a, b)));
+  let cur = Math.max(...cache.map((s) => s.reduce((p, q) => p + q, 0)));
+  const base = cur;
+  // best (LL, cut, segment) over positions t in [from, to] of the given segments, stepping by `step`
+  const scan = (segs, ks, from, to, step) => {
+    let bestLL = -Infinity, bestT = -1, bestK = -1;
+    for (let g = 0; g < grid.length; g++) {
+      const [a, b] = grid[g], tot = cache[g].reduce((p, q) => p + q, 0);
+      for (const k of ks) {
+        const [lo, hi] = segs[k];
+        for (let t = Math.max(lo + minSeg, from ?? -Infinity); t <= Math.min(hi - minSeg, to ?? Infinity); t += step) {
+          const v = tot - cache[g][k] + garchSegLL(x, lo, t, a, b) + garchSegLL(x, t, hi, a, b);
+          if (v > bestLL) { bestLL = v; bestT = t; bestK = k; }
+        }
+      }
+    }
+    return { bestLL, bestT, bestK };
+  };
+  while (added.length < maxCuts) {
+    const segs = segsOf(cuts);
+    // long series: a coarse pass every `stride` points, then every point within a stride of the coarse best
+    let { bestLL, bestT, bestK } = scan(segs, segs.map((_, k) => k), null, null, stride);
+    if (stride > 1 && bestT >= 0) ({ bestLL, bestT } = scan(segs, [bestK], bestT - stride + 1, bestT + stride - 1, 1));
+    if (bestT < 0 || bestLL - cur < minPen) break;
+    gains.push(bestLL - cur); added.push(bestT); cuts = [...cuts, bestT];
+    cache = grid.map(([a, b]) => segsOf(cuts).map(([lo, hi]) => garchSegLL(x, lo, hi, a, b)));
+    cur = Math.max(...cache.map((s) => s.reduce((p, q) => p + q, 0)));
+  }
+  return { cuts: added, gains, base };
+}
+
+// Model choice on top of the search: the GARCH terms must earn their keep too. Runs the forward search twice, once with
+// independent noise (grid a = b = 0, i.e. plain mean-and-variance segments) and once on the GARCH grid, and keeps the
+// cut set with the highest LL - pen x cuts - (GARCH ? garchPen : 0). On noise with no clustering a variance step is then
+// a cut, not a GARCH path that partly explains it away. Penalties in log-likelihood units.
+export function garchCuts(x, { pen, garchPen, minSeg = 10, maxCuts = 8, stride = 1 } = {}) {
+  let bestScore = -Infinity, best = null;
+  for (const [garch, grid] of [[false, [[0, 0]]], [true, GARCH_GRID]]) {
+    const { cuts, gains, base } = garchForward(x, { minPen: pen, minSeg, maxCuts, grid, stride });
+    let ll = base;
+    for (let k = 0; k <= cuts.length; k++) {
+      if (k) ll += gains[k - 1];
+      const score = ll - pen * k - (garch ? garchPen : 0);
+      if (score > bestScore) { bestScore = score; best = { cuts: cuts.slice(0, k), garch }; }
+    }
+  }
+  // the shared (a, b) of the kept fit, for the report
+  const e = [0, ...best.cuts.slice().sort((p, q) => p - q), x.length];
+  let top = -Infinity;
+  for (const [a, b] of best.garch ? GARCH_GRID : [[0, 0]]) {
+    let t = 0; for (let k = 0; k + 1 < e.length; k++) t += garchSegLL(x, e[k], e[k + 1], a, b);
+    if (t > top) { top = t; best.a = a; best.b = b; }
+  }
+  // the GARCH path can end on a = b = 0; the same cuts then score higher without the GARCH term
+  if (best.garch && best.a === 0 && best.b === 0) best.garch = false;
+  return best;
+}
+

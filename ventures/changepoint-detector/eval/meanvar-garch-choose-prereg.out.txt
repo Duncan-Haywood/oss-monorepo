@@ -1,0 +1,9 @@
+reps 200, seed shift 2000003, prune 1.5 ln n, joint 1.5 ln n, GARCH terms 0.25 ln n
+null any change / sd 1->2 exactly one / mean +1.5 exactly one
+n | noise | bootstrap | choose
+100 | gauss | 3% / 76% / 98% | 3% / 77% / 99%
+100 | garch | 12% / 53% / 85% | 11% / 51% / 87%
+100 | t3    | 9% / 43% / 83% | 44% / 68% / 56%
+200 | gauss | 1% / 99% / 97% | 1% / 95% / 97%
+200 | garch | 19% / 69% / 69% | 7% / 65% / 90%
+200 | t3    | 13% / 61% / 83% | 49% / 50% / 49%
