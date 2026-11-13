@@ -1,9 +1,9 @@
 ---
 title: "Which choir can sing this chant? Unison, two, three or four sections"
-seo_title: "Gregorian chant voicing for amateur men's choirs: range presets and fewest sections"
+seo_title: "Gregorian chant for amateur men's choirs: which voicing fits"
 date: 2026-11-13
 tags: [music, gregorian-chant, choir, open-source, chant-forge]
-description: "Chant Forge's --choir option names a set of section ranges and tells a director the fewest sections that can sing a chant. On 67 chants: a textbook choir sings 60 in unison, an amateur choir 12, a beginners' choir none."
+description: "One option names a choir's section ranges and the fewest sections that can sing a chant. On 67 chants, a textbook choir sings 60 in unison, a beginners' none."
 ---
 
 Chant Forge turns public-domain Gregorian chant (GABC files) into MIDI for a men's choir, with lyrics, a cue sheet and an optional dance or metal backing. Over the last day it learned to divide a chant between sections when one unison line is too wide: tenors and basses, then baritones between them, then first and second tenors. Each of those options wanted section ranges, four flags of two MIDI numbers each. Nobody running a parish choir thinks in MIDI numbers.
