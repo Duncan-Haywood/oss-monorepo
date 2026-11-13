@@ -289,20 +289,21 @@ flagships:
       shift starters; frontier picker with gap tries, README 2026-11-12 sections; squeezes of a
       home-and-away season under a break cap, README "Squeezing a season under a cap"; single round robin
       squeezes, README "Squeezing a single round robin"; MaxSAT proof that the frontier gaps are
-      timetable-bound, README "The gaps are in the timetables"). 2026-11-13 latest (README "The fewest
-      breaks of a timetable, exactly, in the page", orient.mjs, eval/orient-dp.txt): a dynamic programme
-      over rounds (state = one round's hosts, one xor and popcount per transition) plus a slack search for
-      the least balanced host choice proves the fewest breaks of a single round robin's timetable in
-      milliseconds to seconds; 105 of 106 MaxSAT-proved tries agree, and it proves two 22-team ones MaxSAT
-      did not (440 at 58, the page gives 66); carryOverPolish uses it, so the page reaches 18 teams'
-      348/38 and 20 teams' 360/50. Next, most valuable first: a timetable search that prices the proved
-      break floor (orient.mjs leastBreaks floor, 30 ms at 20 teams, as the score of a starter climb or
-      squeeze move), aimed at 20 single 360-546; an exact or tighter floor for home and away (the pair
-      keeps one host, which ties far rounds: the relaxed floor gives 74 where MaxSAT proves 85 at 19;
-      try a DP over leg one with leg two's mirrored order, or a Lagrangian on the pair ties); a lower
-      bound or a timetable below 136 at 12 (eval/carryover-sat.py); close 24-40 (tabu, longer runs,
-      the literature's starters); faster balanced search at 22-24 (22 teams' try 3 runs out of budget);
-      a real league's travel and blackout dates; a print check.
+      timetable-bound, README "The gaps are in the timetables"; exact break floor in the page, orient.mjs,
+      README "The fewest breaks of a timetable, exactly"). 2026-11-13 latest (README "Pricing the break
+      floor", eval/floor-priced.txt): floorPricedSingleRounds anneals a single round robin's timetable on
+      carry-over + its proved break floor (floorTable, incremental) and the page adds up to 2 such seasons
+      into the widest frontier gap (6 to 21 teams): 20 teams 412-440 at 48 breaks where the list had
+      546-552, 15 seasons join over 18 runs. Next, most valuable first: the middle of the 20-team gap
+      (40 to 44 breaks still ~516-550: a bigger timetable neighbourhood priced on the floor, e.g. re-solving
+      two or three rounds at once, or a starter family climbed with the floor as its score); price the
+      balanced least rather than the floor where they differ (several 20-team searches end 2 over the cap);
+      an exact or tighter floor for home and away (the pair keeps one host, which ties far rounds: the
+      relaxed floor gives 74 where MaxSAT proves 85 at 19; try a DP over leg one with leg two's mirrored
+      order, or a Lagrangian on the pair ties); a faster floor at 22-25 teams (one search 22-86 s; the 22
+      team gap 440/58..690/48 gains 6-7% when run); a lower bound or a timetable below 136 at 12
+      (eval/carryover-sat.py); close 24-40 (tabu, longer runs, the literature's starters); a real
+      league's travel and blackout dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

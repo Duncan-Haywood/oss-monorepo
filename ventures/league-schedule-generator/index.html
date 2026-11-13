@@ -376,7 +376,7 @@
   <script type="module">
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
-    import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish } from "./carryover.mjs";
+    import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -580,12 +580,15 @@
     // single round robin since 2026-11-13, squeezeSingleRounds). Like the gap tries they only join
     // the list, so the four choices are unchanged. Then up to CARRY_OVER_POLISH frontier seasons
     // are regrounded with fewer breaks on the same timetable (carryOverPolish), joining the list too.
+    // A single round robin then gets up to CARRY_OVER_FLOOR_PRICED seasons whose timetables were
+    // searched on their proved break floor into the widest gap left (carryOverFloorPriced).
     function squeezeCarryOver(n, spec, results, done) {
       const base = [...results].sort((a, b) => a.index - b.index);
       const onMain = () => later(() => {
         const out = base.slice();
         try { for (let j = 0; j < CARRY_OVER_SQUEEZE; j++) { const t = carryOverSqueeze(n, out, { seed: spec.seed }); if (!t) break; out.push(t); } } catch { /* the tries alone */ }
         try { out.push(...carryOverPolish(n, out, { seed: spec.seed, count: CARRY_OVER_POLISH })); } catch { /* without polished seasons */ }
+        try { out.push(...carryOverFloorPriced(n, out, { seed: spec.seed, count: CARRY_OVER_FLOOR_PRICED })); } catch { /* without floor-priced seasons */ }
         done(out);
       });
       status.textContent = `Searching for an even carry-over: ${CARRY_TRIES} searches done; squeezing ${CARRY_OVER_SQUEEZE} more seasons into the gaps and regrounding the best...`;
@@ -604,7 +607,7 @@
         else fall();
       };
       w.onerror = (e) => { e.preventDefault(); fall(); };
-      w.postMessage({ squeeze: CARRY_OVER_SQUEEZE, polish: CARRY_OVER_POLISH, n, seed: spec.seed, results: base });
+      w.postMessage({ squeeze: CARRY_OVER_SQUEEZE, polish: CARRY_OVER_POLISH, floorPriced: CARRY_OVER_FLOOR_PRICED, n, seed: spec.seed, results: base });
     }
     function searchCarryOver(key, spec, then) {
       const n = spec.teams.length;

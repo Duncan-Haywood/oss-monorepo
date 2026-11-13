@@ -1492,7 +1492,7 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
  * of the trade the weights do not reach (eval/capped-breaks.txt).
  */
-export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, polish = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, polish = 0, floorPriced = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   checkBestOfK(tries, pick);
   if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
   if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
@@ -1518,6 +1518,13 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
   // `polish` more: frontier seasons regrounded with fewer breaks (carryOverPolish); only kept by `keep`
   if (!Number.isInteger(polish) || polish < 0) throw new Error("polish must be a whole number of 0 or more.");
   if (polish) for (const t of carryOverPolish(n, results, { seed, count: polish })) {
+    results.push(t);
+    if (onTry) onTry(t.index, candidateOf(t, pick));
+  }
+  // `floorPriced` more: timetables searched on their proved break floor into the widest gap
+  // (carryOverFloorPriced, single round robins); only kept by `keep`
+  if (!Number.isInteger(floorPriced) || floorPriced < 0) throw new Error("floorPriced must be a whole number of 0 or more.");
+  if (floorPriced) for (const t of carryOverFloorPriced(n, results, { seed, count: floorPriced })) {
     results.push(t);
     if (onTry) onTry(t.index, candidateOf(t, pick));
   }
@@ -2109,4 +2116,44 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
   let breaks = 0;
   for (let t = 0; t < n; t++) breaks += teamBreaks(x.venues, c.opp, t, n);
   return { rounds, coe: c.coe, circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, floor: x.floor, leastProved: x.proved, maxBreaks, iterations: it, floors, floorPriced: true };
+}
+
+/** Floor-priced seasons the page adds after its regrounded ones, at most (carryOverFloorPriced). */
+export const CARRY_OVER_FLOOR_PRICED = 2;
+
+/**
+ * Seasons the page adds after the regrounded ones (README "Pricing the break floor"): for a single
+ * round robin of 6 to 21 teams (at 22 to 25 one search takes about a minute, eval/floor-priced.txt), the widest break gap (at least `minGap`) between neighbouring
+ * seasons on the frontier of `results`, searched by floorPricedSingleRounds from the season above
+ * it (least carry-over, most breaks) at caps of its breaks - 2, - 4, ... while above the season
+ * under the gap, `count` + 1 searches at most. A season is kept when nothing in `results` or an earlier kept one beats it on both
+ * counts. At most `count`, numbered after the results with `floorPricedFrom` set. A function of
+ * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
+ * season or when the frontier has no such gap.
+ */
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000 } = {}) {
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  const base = [...results].sort((a, b) => a.index - b.index);
+  if (n < 6 || n > 21 || !count || base.some((t) => t.rounds.length !== R)) return [];
+  const pts = base.map((t, i) => ({ i, coe: t.coe, breaks: t.breaks }));
+  const front = pts.filter((x) => !pts.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks)))
+    .filter((x, k, a) => a.findIndex((y) => y.coe === x.coe && y.breaks === x.breaks) === k)
+    .sort((a, b) => a.coe - b.coe || a.breaks - b.breaks);
+  let gi = -1;
+  for (let k = 1; k < front.length; k++) {
+    const g = front[k - 1].breaks - front[k].breaks;
+    if (g >= minGap && (gi < 0 || g > front[gi - 1].breaks - front[gi].breaks)) gi = k;
+  }
+  if (gi < 0) return [];
+  const top = front[gi - 1], under = front[gi];
+  const all = pts.slice();
+  const out = [];
+  for (let cap = top.breaks - 2, k = 0; cap > under.breaks && out.length < count && k <= count; cap -= 2, k++) {
+    const s = floorPricedSingleRounds(n, base[top.i], { seed: carryOverTrySeed(seed, top.i), maxBreaks: cap, iterations });
+    if (!s) continue;
+    if (all.some((y) => y.coe <= s.coe && y.breaks <= s.breaks)) continue;
+    all.push({ coe: s.coe, breaks: s.breaks });
+    out.push({ ...s, index: base.length + out.length, seed: carryOverTrySeed(seed, top.i), breakWeight: null, floorPricedFrom: top.i });
+  }
+  return out;
 }

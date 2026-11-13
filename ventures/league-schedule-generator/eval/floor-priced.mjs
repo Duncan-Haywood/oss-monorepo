@@ -6,11 +6,14 @@
 // and from the season under the gap at the same caps, each with `--iterations` moves. Reports
 // the frontier before and after, the least carry-over at each break budget and the time.
 //
-//   node eval/floor-priced.mjs <teams> <seed> [--iterations 3000] [--step 2] [--cache dir]
+//   node eval/floor-priced.mjs <teams> <seed> [--iterations 3000] [--step 2] [--cache dir] [--page]
+//
+// `--page` runs what the page runs instead of the sweep: carryOverFloorPriced (CARRY_OVER_FLOOR_PRICED
+// seasons, from the season above the gap at its breaks - 2, - 4, ...).
 //
 // One JSON line; eval/floor-priced.txt holds the runs behind the README.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { carryOverTry, carryOverSqueezes, carryOverPolish, floorPricedSingleRounds, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_POLISH } from "../carryover.mjs";
+import { carryOverTry, carryOverSqueezes, carryOverPolish, floorPricedSingleRounds, carryOverFloorPriced, CARRY_OVER_FLOOR_PRICED, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_POLISH } from "../carryover.mjs";
 import { frontierOf } from "./frontier-gap.mjs";
 
 const n = +process.argv[2], seed = +process.argv[3];
@@ -37,7 +40,10 @@ const caps = [];
 for (let c = top.breaks - stepB; c > under.breaks; c -= stepB) caps.push(c);
 const t1 = Date.now();
 const runs = [];
-for (const [name, from] of [["top", top], ["under", under]]) for (const cap of caps) {
+if (process.argv.includes("--page")) for (const r of carryOverFloorPriced(n, all.map((t, i) => ({ ...t, index: i })), { seed, count: CARRY_OVER_FLOOR_PRICED, iterations })) {
+  runs.push({ from: "page", cap: r.maxBreaks, result: `${r.coe}/${r.breaks}`, floor: r.floor, proved: r.leastProved, floors: r.floors, s: null, r });
+}
+else for (const [name, from] of [["top", top], ["under", under]]) for (const cap of caps) {
   const s = Date.now();
   const r = floorPricedSingleRounds(n, all[from.index], { seed, maxBreaks: cap, iterations });
   runs.push({ from: name, cap, result: r && `${r.coe}/${r.breaks}`, floor: r?.floor, proved: r?.leastProved, floors: r?.floors, s: +((Date.now() - s) / 1000).toFixed(1), r });

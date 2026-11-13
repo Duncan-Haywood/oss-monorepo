@@ -87,3 +87,40 @@ test("floorPricedSingleRounds at 20 teams: 360 / 50 to a 48-break cap gives 410 
   assert.equal(`${r.coe}/${r.breaks}`, "410/48");
   assert.ok(r.leastProved);
 });
+
+test("carryOverFloorPriced: seasons into the widest gap, on the frontier, numbered after the results, seeded; none for home and away", async () => {
+  const { carryOverFloorPriced } = await import("./carryover.mjs");
+  const n = 12, tries = [];
+  for (let i = 0; i < 12; i++) tries.push(carryOverTry(n, i, { seed: 1, weighted: 8 }));
+  const out = carryOverFloorPriced(n, tries, { seed: 1, count: 2, minGap: 2, iterations: 400 });
+  const again = carryOverFloorPriced(n, tries, { seed: 1, count: 2, minGap: 2, iterations: 400 });
+  assert.deepEqual(out, again);
+  out.forEach((s, k) => {
+    assert.equal(s.index, tries.length + k);
+    assert.ok(Number.isInteger(s.floorPricedFrom));
+    assert.ok(!tries.some((t) => t.coe <= s.coe && t.breaks <= s.breaks), `${s.coe}/${s.breaks} is beaten by a try`);
+  });
+  const d = [carryOverTry(8, 0, { seed: 1, weighted: 8, double: true })];
+  assert.deepEqual(carryOverFloorPriced(8, d, { seed: 1 }), []);
+});
+
+test("bestCarryOverRounds keeps its choice with floor-priced seasons, and buildSchedule rebuilds a kept one", async () => {
+  const { bestCarryOverRounds, carryOverKeepText } = await import("./carryover.mjs");
+  const { buildSchedule, readSpec, validateSchedule } = await import("./calc.mjs");
+  const n = 10, opts = { seed: 1, tries: 4, capped: 2, gap: 2 };
+  const plain = bestCarryOverRounds(n, opts);
+  const withF = bestCarryOverRounds(n, { ...opts, floorPriced: 2 });
+  assert.equal(withF.chosen, plain.chosen);
+  assert.deepEqual(withF.rounds, plain.rounds);
+  assert.throws(() => bestCarryOverRounds(n, { ...opts, floorPriced: -1 }), /floorPriced/);
+  const at = withF.tries.length - 1;
+  assert.ok(at >= plain.tries.length, "a floor-priced season is listed");
+  const listed = withF.tries[at];
+  assert.ok(!plain.tries.some((t) => t.coe <= listed.coe && t.breaks <= listed.breaks), "it joins the frontier");
+  const fields = { teams: "A\nB\nC\nD\nE\nF\nG\nH\nI\nJ", start: "2026-01-05", weekdays: ["Mon"], carryOver: true, double: false, seed: 1, carryOverKeep: carryOverKeepText(at, { n, double: false, seed: 1 }) };
+  const { spec } = readSpec(fields);
+  const s = buildSchedule({ ...spec, carryOverTries: 4, carryOverCapped: 2, carryOverGap: 2, carryOverFloorPriced: 2 });
+  assert.deepEqual(validateSchedule(s).errors, []);
+  assert.equal(s.carryOverSearch.chosen, at);
+  assert.equal(s.stats.carryOver.value, listed.coe);
+});
