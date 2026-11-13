@@ -3,7 +3,7 @@ title: "Reading a 7shifts schedule without a CSV export"
 seo_title: "Import 7shifts shifts into a free roster builder from the API"
 date: 2026-11-13
 tags: [ventures, shift-roster-builder, scheduling, 7shifts, import, open-source]
-description: "The free roster builder now reads 7shifts' own API responses: UTC times put back on the location's clock, open shifts counted as needed, 'until close' shifts ended at closing time."
+description: "The free roster builder now reads the 7shifts API: UTC times put back on the location's clock, open shifts counted as needed, close shifts ended at closing."
 ---
 
 The [shift roster builder](../../ventures/shift-roster-builder/) learns the shifts a
