@@ -53,6 +53,7 @@ from build123d import (
     Plane,
     Polygon,
     RectangleRounded,
+    RegularPolygon,
     SlotOverall,
     extrude,
 )
@@ -1142,7 +1143,7 @@ def trough_sump(p: Feeder) -> Part:
 # ---------------------------------------------------------------- ball lift (2026-11-13)
 
 LIFT_PARTS = ("lift_boot", "lift_base_plate", "lift_spine", "lift_belt", "lift_pulley", "lift_motor", "lift_rod",
-              "lift_clip", "lift_head", "lift_chute", "lift_strut")
+              "lift_clip", "lift_head", "lift_jack_screw", "lift_chute", "lift_strut")
 
 
 def _stadium(p: Feeder, r: float, z0: float, z1: float, half_w: float, x: float | None = None):
@@ -1235,13 +1236,13 @@ def lift_base_plate(p: Feeder) -> Part:
 
 def lift_spine(p: Feeder) -> Part:
     z0 = p.lift_z_bottom + p.lift_r_in + 3.0
-    z1 = p.lift_z_top - p.lift_r_in - 3.0
+    z1 = p.lift_spine_top_z
     return Part("lift_spine", "stock", "aluminium extrusion", 1, Box(20, 40, z1 - z0),
                 [Location((p.lift_x_pulley, p.lift_y, (z0 + z1) / 2))],
                 spec=f"2040 T-slot, cut {z1 - z0:.0f} mm",
                 notes="Stands inside the belt loop, 20 mm across x: a self-adhesive UHMW tape on each 20 mm face takes the "
                       "belt's tooth side. Its 40 mm faces (+-y, outside the belt) carry the boot, the head, the rod clips "
-                      "and the strut.")
+                      "and the strut. It stops short of the top pulley so the head can come down to put the belt on.")
 
 
 def lift_belt(p: Feeder) -> Part:
@@ -1253,8 +1254,10 @@ def lift_belt(p: Feeder) -> Part:
     return Part("lift_belt", "cots", "", 1, shell, [Location((0, 0, 0))],
                 spec=f"AT5 polyurethane timing belt, steel cords, {p.lift_belt_w:g} mm wide, {d['belt_teeth']} teeth "
                      f"({d['belt_mm']:.0f} mm), welded endless; {d['flights']} flights every {d['flight_pitch_mm']:.1f} mm "
-                     f"(printed: two {p.lift_finger_l:g} mm fingers {p.lift_finger_w:g} mm apart on a {p.lift_flight_base:g} mm "
-                     f"base plate, two M3 through the belt between its cords, or welded cleats from the belt supplier)")
+                     f"of two {p.lift_finger_l:g} mm fingers over {p.lift_finger_w:g} mm on a {p.lift_flight_base:g} mm base: "
+                     f"order PU cleats welded to the back by the belt supplier (a screw through the belt does not fit: its "
+                     f"head would sit on the tooth side, which runs on the pulleys' teeth and the spine's strip, and an M3 "
+                     f"countersunk head, 6 mm across, is wider than an AT5 tooth)")
 
 
 def lift_pulleys(p: Feeder) -> list[Part]:
@@ -1366,15 +1369,61 @@ def lift_head(p: Feeder) -> Part:
     z_sp = zt - p.lift_r_in - 3.0
     blk = blk - Box(20.6, 40.6, z_sp - z0 + 1).moved(Location((xp, p.lift_y, (z0 - 1 + z_sp) / 2)))
     r = p.lift_rod_d / 2
+    t = p.lift_tension_design()
+    sock = 2 * (15.0 - t["off_lo_mm"] + 1.0)                 # the rods' tops stay seated with the head at its lowest
     for x, y in [(p.lift_x_front + r, p.lift_y), (p.lift_x, p.lift_y - dep / 2 - r), (p.lift_x, p.lift_y + dep / 2 + r)]:
-        blk = blk - Cylinder(r + 0.2, 32.0).moved(Location((x, y, z0)))
+        blk = blk - Cylinder(r + 0.2, sock).moved(Location((x, y, z0)))
     blk = blk - Cylinder(4.0, dep + 2 * w + 2).moved(Location((xp, p.lift_y, zt), (90, 0, 0)))
+    blk = blk - lift_head_tension_cuts(p)
     return Part("lift_head", "print", "PETG", 1, blk, [Location((0, 0, 0))],
-                notes=f"Bolts to the top of the spine (two M5 each side into its +-y slots; slot the holes to tension the "
-                      f"belt). The top pulley turns on an 8 mm axle through it, {zt:.0f} mm up. Balls ride over the pulley "
+                notes=f"Slides on the top of the spine ({t['travel_mm']:.1f} mm of travel): two M5 each side go into T-nuts "
+                      f"in its +-y slots, which slide with the head while loose, and two M5 x 25 jack screws stand on the top rod clip and turn "
+                      f"in captive nuts in the head to raise it and tension the belt (see the tensioner in cad/README.md). "
+                      f"The top pulley turns on an 8 mm axle through it, {zt:.0f} mm up. Balls ride over the pulley "
                       f"under the hood and drop {p.lift_hood_deg:g} deg past the top onto a {p.lift_drop_deg:g} deg floor that "
                       f"falls toward the tub; the finger behind each ball pushes it down that floor. Print in two halves "
                       f"split on y = {p.lift_y:g} if your printer is short of {ztop - (zs - w - 10):.0f} mm.")
+
+
+def lift_head_tension_cuts(p: Feeder):
+    """Holes the tensioner needs in the head: through each +-y side wall a 5.5 mm hole for each spine bolt (its T-nut
+    slides up the spine's slot with the head while the bolt is loose, so the hole need not be slotted), and for each
+    jack screw a 5.3 mm hole up from the underside with an M5 nut pocket entered from the outer face."""
+    z0, xp = p.lift_head_z0, p.lift_x_pulley
+    y_in, y_out = 20.0, p.lift_depth / 2 + p.lift_wall + 1.0
+    ln = y_out - y_in
+    cut = None
+    for s in (1, -1):
+        yc = p.lift_y + s * (y_in + ln / 2)
+        for zb in p.LIFT_HEAD_BOLT_Z:
+            hole = Cylinder(2.75, ln).moved(Location((xp, yc, z0 + zb), (90, 0, 0)))
+            cut = hole if cut is None else cut + hole
+        yj = p.lift_y + s * p.lift_jack_y
+        hole = Cylinder(2.65, 27.0 + 1.0).moved(Location((xp, yj, z0 + 27.0 / 2 - 0.5)))
+        nut = (RegularPolygon(8.3 / math.sqrt(3), 6, rotation=30))
+        pocket = extrude(Plane.XY.offset(z0 + 8.0) * nut, 4.3).moved(Location((xp, yj, 0)))
+        entry = Box(8.3, y_out - p.lift_jack_y + 1, 4.3).moved(
+            Location((xp, p.lift_y + s * (p.lift_jack_y + (y_out - p.lift_jack_y + 1) / 2), z0 + 8.0 + 4.3 / 2)))
+        cut = cut + hole + pocket + entry
+    return cut
+
+
+def lift_tensioner_parts(p: Feeder) -> list[Part]:
+    """The jack screws (drawn with the head at its CAD position): each one's hex head stands on the top rod clip and
+    its shank runs up into the head through a captive nut."""
+    zc, z0 = p.lift_clip_top_z, p.lift_head_z0
+    k = p.LIFT_JACK_K
+    shank_top = zc + k + 25.0
+    screw = (Cylinder(4.0, k).moved(Location((0, 0, k / 2)))
+             + Cylinder(2.5, shank_top - zc - k).moved(Location((0, 0, k + (shank_top - zc - k) / 2))))
+    t = p.lift_tension_design()
+    return [Part("lift_jack_screw", "cots", "", 2, screw,
+                 [Location((p.lift_x_pulley, p.lift_y + s * p.lift_jack_y, zc)) for s in (1, -1)],
+                 spec="M5 x 25 hex bolt + M5 nut (captive in the head) + M5 jam nut: the top pulley's jack screws",
+                 notes=f"Stand on the top rod clip; turning them out raises the head. Set {t['t0_n']:.0f} N at the drive "
+                       f"pulley: a strand plucked at mid-height swings about {t['ring_hz']:.1f} times a second, or a 1 N push "
+                       f"there moves it about {t['push_1n_mm']:.0f} mm. Then tighten the four side M5s and lock each jack "
+                       f"with its jam nut up against the head.")]
 
 
 def lift_chute(p: Feeder) -> Part:
@@ -1403,7 +1452,7 @@ def lift_strut(p: Feeder) -> Part:
 
 def lift_parts(p: Feeder) -> list[Part]:
     return [lift_boot(p), lift_base_plate(p), lift_spine(p), lift_belt(p), *lift_pulleys(p), lift_rods(p), lift_clips(p),
-            lift_head(p), lift_chute(p), lift_strut(p)]
+            lift_head(p), *lift_tensioner_parts(p), lift_chute(p), lift_strut(p)]
 
 
 def all_parts(p: Feeder) -> list[Part]:
@@ -1707,7 +1756,15 @@ def lift_line(p: Feeder) -> str:
             f"{d['torque_nm']:.2f} N m ({d['torque_margin']:.1f}x margin on {p.lift_motor_nm:g} N m assumed), {d['power_w']:.1f} W; "
             f"fingers turn {p.lift_finger_clear:g} mm under a {d['floor_z']:.1f} mm floor with the boot {d['boot_bottom_z']:.0f} mm "
             f"off the court; chute ends {d['chute_end'][2] - d['rim_at_end_z']:.0f} mm over the tub's rim; firmware runs it "
-            f"{d['run_on_s']:.1f} s after the last ball fed (all friction and motor figures assumed)")
+            f"{d['run_on_s']:.1f} s after the last ball fed; {_tension_text(p)} (all friction, belt and motor figures "
+            f"assumed)")
+
+
+def _tension_text(p: Feeder) -> str:
+    t = p.lift_tension_design()
+    return (f"two jack screws raise the head {t['travel_mm']:.1f} mm on the spine to tension the belt to {t['t0_n']:.0f} N "
+            f"at the drive pulley (slack strand {t['slack_n']:.1f} N; a strand plucked at mid-height swings "
+            f"{t['ring_hz']:.1f} times a second)")
 
 
 def cable_line(p: Feeder) -> str:
