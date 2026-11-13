@@ -385,7 +385,28 @@ def evaluate_committed(C):
         auc_mis_t=auc([-r["r_t"] for r in pool], mis),
         auc_mis_sim=auc([-(r["spme_r"] if r["spme_r"] is not None else 0.0) for r in pool], mis),
     )
+    s.update(kt_metrics(C))
+    for c in conds:
+        rc = [r for r in C if r["cond"] == c]
+        per[c]["share_kt"] = sum(r["r_kt"] <= R_FLAG for r in rc) / len(rc)
+    s["n_share_ok_kt"] = sum(1 for c in conds if abs(per[c]["share_kt"] - per[c]["share_obs"]) <= 0.15)
+    s["auc_mis_kt"] = auc([-r["r_kt"] for r in pool], mis)
     return s, per
+
+
+def kt_metrics(rows):
+    ran = [r for r in rows if not r["spme_fail"]]
+    dfn = [r for r in rows if r["dfn_r"] is not None]
+    wrong = [r for r in rows if (r["r_kt"] <= R_FLAG) != r["suspect"]]
+    return dict(kt_rho=spearman([r["r_kt"] for r in ran], [r["spme_r"] for r in ran]) if len(ran) > 2 else float("nan"),
+                kt_auc=auc([-r["r_kt"] for r in rows], [r["suspect"] for r in rows]),
+                kt_miscls=len(wrong) / len(rows) if rows else float("nan"),
+                kt_wrong=[(r.get("cond") or f"{r['set']}@{r['rate']:g}x", r["j"], round(r["r_kt"], 3),
+                           None if r["spme_r"] is None else round(r["spme_r"], 3), r["spme_fail"]) for r in wrong],
+                kt_mae=(sum(abs(max(r["r_kt"], 0) - max(r["spme_r"], 0)) for r in ran) / len(ran)) if ran else float("nan"),
+                lin_mae=(sum(abs(max(r["r_ss"], 0) - max(r["spme_r"], 0)) for r in ran) / len(ran)) if ran else float("nan"),
+                kt_rho_dfn=spearman([r["r_kt"] for r in dfn], [r["dfn_r"] for r in dfn]) if len(dfn) > 2 else float("nan"),
+                kt_mae_dfn=(sum(abs(max(r["r_kt"], 0) - max(r["dfn_r"], 0)) for r in dfn) / len(dfn)) if dfn else float("nan"))
 
 
 def evaluate_fresh(F):
@@ -419,8 +440,9 @@ def evaluate_fresh(F):
                         auc=auc([-r["r_ss"] for r in sub], [r["suspect"] for r in sub]),
                         n_suspect=sum(r["suspect"] for r in sub), n=len(sub),
                         n_dfn_drop=sum(not r["dfn_ok"] for r in sub),
-                        base=[(r["rate"], r["r_ss"], r["spme_r"], r["dfn_r"], r["suspect"]) for r in b])
+                        base=[(r["rate"], r["r_ss"], r["r_kt"], r["spme_r"], r["dfn_r"], r["suspect"]) for r in b])
     s["cells"] = cells
+    s.update(kt_metrics(F))
     return s
 
 
@@ -436,6 +458,8 @@ def verdicts(s, f):
     if f and f.get("cells"):
         n15 = sum(c["within_15"] for c in f["cells"].values())
         n2miss = sum(not c["within_2"] for c in f["cells"].values())
+        v["H69"] = ("supported" if f["kt_miscls"] <= 0.02 and f["kt_mae"] <= 0.02 else
+                    "refuted" if f["kt_miscls"] > 0.05 or f["kt_mae"] > 0.05 else "mixed")
         v["H68"] = ("supported" if f["auc"] >= 0.90 and n15 == len(f["cells"]) else
                     "refuted" if f["auc"] < 0.80 or n2miss >= 2 else "mixed")
     return v
@@ -454,20 +478,26 @@ def report():
          f"H66 {v['H66']}: predicted share within 0.15 of observed on {s['n_share_ok']} of {s['n_cond']}",
          f"H67 {v['H67']}: AUC(-r_ss, mis-scored) {_f(s['auc_mis'], 3)}; SPMe's own r_min {_f(s['auc_mis_sim'], 3)}",
          f"No verdict: r_t AUC suspect {_f(s['auc_suspect_t'], 3)}, misclassification {_f(s['miscls_t'], 3)}, AUC mis-scored {_f(s['auc_mis_t'], 3)};"
-         f" Spearman r_t {_f(s['rho_t_pooled'])}; Spearman(r_ss, DFN r_min) {_f(s['rho_dfn_pooled'])}", "",
-         "Per condition: n, Spearman, SPMe r_min range, observed share, predicted share, median r_ss, median SPMe r_min, mis-scored/pool"]
+         f" Spearman r_t {_f(s['rho_t_pooled'])}; Spearman(r_ss, DFN r_min) {_f(s['rho_dfn_pooled'])}",
+         f"Post hoc r_kt (D_e(c), Kirchhoff; written after H64 to H67): Spearman {_f(s['kt_rho'], 3)}; AUC suspect {_f(s['kt_auc'], 4)};"
+         f" misclassifies {_f(s['kt_miscls'], 4)} ({len(s['kt_wrong'])} designs: {s['kt_wrong']}); share within 0.15 on {s['n_share_ok_kt']} of {s['n_cond']};"
+         f" AUC mis-scored {_f(s['auc_mis_kt'], 3)}; mean |r_kt - r_SPMe| {_f(s['kt_mae'], 4)} (linear r_ss {_f(s['lin_mae'], 4)});"
+         f" against DFN r_min: Spearman {_f(s['kt_rho_dfn'], 3)}, mean abs {_f(s['kt_mae_dfn'], 3)}", "",
+         "Per condition: n, Spearman, SPMe r_min range, observed share, predicted share (r_ss; r_kt), median r_ss, median SPMe r_min, mis-scored/pool"]
     for c, p in per.items():
-        L.append(f"  {c:18s} {p['n']:3d} rho {_f(p['rho'])} range {_f(p['spme_r_range'])} share obs {_f(p['share_obs'])} pred {_f(p['share_pred'])}"
+        L.append(f"  {c:18s} {p['n']:3d} rho {_f(p['rho'])} range {_f(p['spme_r_range'])} share obs {_f(p['share_obs'])} pred {_f(p['share_pred'])}; {_f(p['share_kt'])}"
                  f" med r_ss {_f(p['rss_med'])} med r {_f(p['spme_r_med'])} mis {p['n_mis']}/{p['n_pool']}")
     if f:
         L += ["", f"Fresh sweep: {f['n']} SPMe runs, {f['n_suspect']} suspect",
               f"H68 {v.get('H68')}: AUC(-r_ss, suspect) {_f(f['auc'], 3)} (r_t {_f(f['auc_t'], 3)}); misclassification {_f(f['miscls'], 3)};"
-              f" Spearman SPMe {_f(f['rho'])}, DFN {_f(f['rho_dfn'])}"]
+              f" Spearman SPMe {_f(f['rho'])}, DFN {_f(f['rho_dfn'])}",
+              f"H69 {v.get('H69')}: r_kt <= 0.10 misclassifies {_f(f['kt_miscls'], 4)} ({len(f['kt_wrong'])}: {f['kt_wrong']}); mean |r_kt - r_SPMe| {_f(f['kt_mae'], 4)}"
+              f" (linear {_f(f['lin_mae'], 4)}); AUC {_f(f['kt_auc'], 4)}; against DFN r_min Spearman {_f(f['kt_rho_dfn'], 3)}, mean abs {_f(f['kt_mae_dfn'], 3)}"]
         for c, d in f["cells"].items():
             L.append(f"  {c}: predicted crossing {_f(d['pred'])}x (r_ss at 1x {_f(d['rss_1x'], 3)}); observed bracket ({d['lo']}, {d['hi']});"
                      f" within 1.5x {d['within_15']}, within 2x {d['within_2']}; AUC {_f(d['auc'], 3)}; suspect {d['n_suspect']}/{d['n']}; DFN not finished {d['n_dfn_drop']}")
-            for rate, rs, sr, dr, su in d["base"]:
-                L.append(f"     baseline {rate:g}x: r_ss {_f(rs, 3)} SPMe r_min {_f(sr, 3)} DFN r_min {_f(dr, 3)} suspect {su}")
+            for rate, rs, rk, sr, dr, su in d["base"]:
+                L.append(f"     baseline {rate:g}x: r_ss {_f(rs, 3)} r_kt {_f(rk, 3)} SPMe r_min {_f(sr, 3)} DFN r_min {_f(dr, 3)} suspect {su}")
     (HERE / "results.txt").write_text("\n".join(L) + "\n")
     (HERE / "summary.json").write_text(json.dumps(dict(committed=s, per_condition=per, fresh=f, verdicts=v), indent=1, default=str) + "\n")
     print("\n".join(L))
