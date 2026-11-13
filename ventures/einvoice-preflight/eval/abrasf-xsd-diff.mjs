@@ -44,7 +44,8 @@ for (;;) {
 }
 const XSD = Object.fromEntries(VERSIONS.filter((v) => !only || only.has(v)).map((v) => [v, join(dir, `${v}/nfse_v${v.replace(".", "")}.xsd`)]));
 // A multi-file provider layout (Ginfes 1.00, WebISS 1.00) has one schema per message: the
-// file to validate against is the one that declares the root element at top level.
+// file to validate against is the one that declares the root element at top level. A
+// single-file 1.0x layout (ISSRio 1.00, BHISS 1.00, ...) declares every root in its one file.
 const MULTI_XSD = {};
 if (providers) for (const key of PROVIDER_LAYOUTS) {
   if (providerSameAs(key)) continue; // checked as the ABRASF layout it is identical to
@@ -52,7 +53,7 @@ if (providers) for (const key of PROVIDER_LAYOUTS) {
   const d = join(providers, name, ver);
   if (providerMulti(key)) {
     MULTI_XSD[key] = {};
-    for (const f of readdirSync(d).filter((x) => /^(servico_|tipos).*\.xsd$/.test(x) && (key !== "Ginfes 1.00" || /_v03\.xsd$/.test(x)))) {
+    for (const f of readdirSync(d).filter((x) => (providerMulti(key).files === 1 ? /^nfse.*\.xsd$/.test(x) : /^(servico_|tipos).*\.xsd$/.test(x)) && (key !== "Ginfes 1.00" || /_v03\.xsd$/.test(x)))) {
       for (const el of parseCfdiXml(readFileSync(join(d, f), "utf8")).root.children) if (el.name === "element") MULTI_XSD[key][el.attrs.name] = join(d, f);
     }
     XSD[key] = true;
@@ -67,7 +68,9 @@ let seed = 20261113;
 const rand = (n) => { seed = (seed * 1103515245 + 12345) % 2 ** 31; return seed % n; };
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 function serialize(n, parentNs = "") {
-  const attrs = Object.entries(n.attrs).map(([k, v]) => ` ${k}="${esc(v).replace(/"/g, "&quot;")}"`).join("");
+  // xsi:schemaLocation is only a hint, and serialised without its xmlns:xsi the element is
+  // not namespace-well-formed (xmllint then refuses a file it would accept): leave xsi:* out.
+  const attrs = Object.entries(n.attrs).filter(([k]) => !k.startsWith("xsi:")).map(([k, v]) => ` ${k}="${esc(v).replace(/"/g, "&quot;")}"`).join("");
   const ns = n.ns !== parentNs ? ` xmlns="${n.ns}"` : "";
   const kids = n.children.filter((c) => c.name);
   const body = kids.length ? kids.map((c) => serialize(c, n.ns)).join("") : esc(n.text);

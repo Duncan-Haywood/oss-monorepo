@@ -21,7 +21,7 @@
 //      on the real files described there, which is where the tolerance rules come from.
 // An offline observation, not the municipality's acceptance, and not tax advice.
 
-import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, providerMulti, multiFor, CITY_COUNT } from "./abrasf-xsd.mjs";
+import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, providerMulti, multiFor, rootNamespace, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { UF_CODE } from "./nfe.mjs";
@@ -31,13 +31,16 @@ export { ABRASF_NS, SOURCE };
 const SCHEMA_RULES = new Set(["ABR-002", "ABR-003", "ABR-004", "ABR-005", "ABR-006"]);
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 
+const OWN_NS = /sistema\.com\.br\/Nfse\/arquivos\/nfse_3\.xsd|isscuritiba\.curitiba\.pr\.gov\.br\/iss\/nfse\.xsd|www\.e-nfs\.com\.br/;
 export function looksLikeAbrasf(text) {
   const head = String(text).slice(0, 8192);
   // Ginfes 1.00 (www.ginfes.com.br/..._v03.xsd) and WebISS 1.00 (www.abrasf.org.br/nfse) are
   // ABRASF-model provider layouts with their own namespaces, read as such; so are ISSNet 1.00
   // (www.issnetonline.com.br/webserviceabrasf/vsd/...) and Betha 1.00
   // (www.betha.com.br/e-nota-contribuinte-ws).
-  return head.includes("abrasf.org.br/nfse.xsd") || head.includes("www.ginfes.com.br/") || head.includes("issnetonline.com.br/webserviceabrasf/vsd/") || head.includes("betha.com.br/e-nota-contribuinte-ws") || /abrasf\.org\.br\/nfse["'&]/.test(head) || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
+  // The single-file 1.0x layouts add SimplISS 1.00 (www.sistema.com.br/Nfse/arquivos/nfse_3.xsd),
+  // Curitiba's (isscuritiba.curitiba.pr.gov.br/iss/nfse.xsd) and Abaco 1.00 (www.e-nfs.com.br).
+  return OWN_NS.test(head) || head.includes("abrasf.org.br/nfse.xsd") || head.includes("www.ginfes.com.br/") || head.includes("issnetonline.com.br/webserviceabrasf/vsd/") || head.includes("betha.com.br/e-nota-contribuinte-ws") || /abrasf\.org\.br\/nfse["'&]/.test(head) || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
 }
 
 // ---------- IBGE municipality codes ----------
@@ -96,13 +99,17 @@ const amt = (n, name) => { const v = txt(n, name); return v === "" ? 0 : cents(v
 // Many files wrap the ABRASF element: a SOAP envelope, a web service reply, an ERP's own
 // container, or the XML escaped as text inside a SOAP parameter. Find the first element in
 // the ABRASF namespace whose name a layout declares as a root, reading escaped XML once.
+const MISSPELT = "http:/www.abrasf.org.br/nfse.xsd";
 function findRoot(node, depth = 0) {
   const roots = new Set(VERSIONS.flatMap(rootsOf));
   for (const [n] of walk(node, "")) {
     if (n.ns === ABRASF_NS && roots.has(n.name)) return { root: n, wrapped: n !== node };
-    const multi = multiFor(n.name, n.ns)[0];
+    // ABRASF's own 1.00 schema (and ISSIntegra's copy) misspells its namespace as
+    // "http:/www.abrasf.org.br/nfse.xsd"; a file in it that states a 2.x layout is far more
+    // likely a 2.x file with a typo (named as such below) than an ISSIntegra 1.00 file.
+    const multi = n.ns === MISSPELT && VERSIONS.includes(statedVersion(n)) ? "" : multiFor(n.name, n.ns)[0];
     if (multi) return { root: n, wrapped: n !== node, multi };
-    if (depth === 0 && !named(n).length && /^\s*</.test(n.text || "") && /abrasf\.org\.br\/nfse|www\.ginfes\.com\.br\/|issnetonline\.com\.br\/webserviceabrasf\/vsd\/|betha\.com\.br\/e-nota-contribuinte-ws/.test(n.text)) {
+    if (depth === 0 && !named(n).length && /^\s*</.test(n.text || "") && (/abrasf\.org\.br\/(nfse|ABRASF\/arquivos)|www\.ginfes\.com\.br\/|issnetonline\.com\.br\/webserviceabrasf\/vsd\/|betha\.com\.br\/e-nota-contribuinte-ws/.test(n.text) || OWN_NS.test(n.text))) {
       try {
         const inner = findRoot(parseCfdiXml(n.text).root, 1);
         if (inner) return { ...inner, wrapped: true, escaped: true };
@@ -272,10 +279,21 @@ export function checkAbrasf(text) {
   const stated = statedVersion(root);
   let version = "";
   if (multi) {
-    // A provider's own multi-file layout, recognised by the root's namespace: the schema
-    // layer checks against that provider's schema set, whatever versao says.
-    version = multi;
-    skipped.push(`layout: ${root.name} is in ${root.ns}, ${multi}'s own layout (${providerMulti(multi).files} schema files read from OpenAC.Net.NFSe), so the schema layer checks against that set, namespaces included`);
+    // A provider's own layout, recognised by the root's namespace: the schema layer checks
+    // against that provider's schema set, whatever versao says. ABRASF 1.00's namespace
+    // (www.abrasf.org.br/ABRASF/arquivos/nfse.xsd) is shared by several city systems (Rio,
+    // Salvador, DBSeller, Pronim, Thema, ...): the issuing city's own system is taken when it
+    // is one of them, otherwise the one the file draws fewest schema findings under.
+    const candidates = multiFor(root.name, root.ns);
+    const listed = candidates.length > 1 && issuerCity(root) && cityProvider(issuerCity(root).code);
+    if (listed && candidates.includes(listed.key)) version = listed.key;
+    else {
+      const tries = candidates.map((k) => [k, checkAgainstAbrasf(root, k).length]).sort((a, b) => a[1] - b[1]);
+      version = tries[0][0];
+      if (candidates.length > 1) skipped.push(`layout: ${root.ns} is used by ${candidates.length} city systems (${candidates.join(", ")}); with no city among them named in the file, it is checked against ${version}, which it fits best (${tries[0][1]} schema finding${tries[0][1] === 1 ? "" : "s"}${tries.length > 1 ? `; ${tries[1][0]} would draw ${tries[1][1]}` : ""})`);
+    }
+    const files = providerMulti(version).files;
+    skipped.push(`layout: ${root.name} is in ${root.ns}, ${version}'s own layout (${files === 1 ? "its single schema file" : `${files} schema files`} read from OpenAC.Net.NFSe), so the schema layer checks against ${files === 1 ? "it" : "that set"}, namespaces included`);
   } else if (offNs) skipped.push(`schema: ${root.name} is outside the ABRASF namespace, so the schema layer is skipped (identifiers and values are still checked)`);
   else if (other) skipped.push(`schema: ${root.name} is not an element ABRASF 2.00-2.04 declares as a document (an older layout such as 1.00, a provider's variant, or a fragment), so the schema layer is skipped (identifiers and values are still checked)`);
   else if (VERSIONS.includes(stated)) version = stated;
@@ -309,8 +327,19 @@ export function checkAbrasf(text) {
     const layoutOfListed = run.listed.split(" ").pop();
     const listedMulti = run.key && providerMulti(run.key);
     if (multi) {
-      if (run.key === multi) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, the layout the file is in`);
-      else skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file is in ${root.ns}, the namespace ${multi}'s schemas use: check which system the city's web service runs before sending`);
+      if (run.key === version) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, the layout the file is in`);
+      else skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file is in ${root.ns}, the namespace ${version}'s schemas use: check which system the city's web service runs before sending`);
+    } else if (listedMulti && rootNamespace(run.key, root.name) === root.ns && rootsOf(run.key).includes(root.name) && VERSIONS.includes(stated)) {
+      skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file states layout ${stated}, so it is checked against ABRASF ${stated}; ${run.listed}'s own schema would draw ${checkAgainstAbrasf(root, run.key).length} schema findings. Check which layout the city's web service takes before sending`);
+    } else if (listedMulti && rootNamespace(run.key, root.name) === root.ns && rootsOf(run.key).includes(root.name)) {
+      // BHISS 1.00 and DSF 1.00 write ABRASF's 1.00 model in the 2.x namespace: the city's
+      // own schema replaces the 2.x layout for the schema layer.
+      const theirs = checkAgainstAbrasf(root, run.key);
+      const ours = findings.filter((f) => SCHEMA_RULES.has(f.rule));
+      findings.splice(0, findings.length, ...findings.filter((f) => !SCHEMA_RULES.has(f.rule)), ...theirs);
+      skipped.splice(0, skipped.length, ...skipped.filter((x) => !/^schema: the file states layout/.test(x)));
+      skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose single schema file writes the 1.00 model in this same namespace, so the schema layer checks against it: ${theirs.length} schema finding${theirs.length === 1 ? "" : "s"}${version ? ` (ABRASF ${version} would draw ${ours.length})` : ""}. If the file goes to another city, its system may differ`);
+      version = run.key;
     } else if (listedMulti) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose layout puts its elements in its own namespaces (${listedMulti.namespace} and one per message); this file is in ${root.ns}, so that web service would not read it as ${root.name}${version ? `. Checked against ABRASF ${version}` : ""}. If the city has moved to another system, its list entry is stale`);
     else if (!run.key) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities; that provider's own schema is not read here${version ? `, so the file is checked against ABRASF ${version}` : ""}`);
     else if (!rootsOf(run.key).includes(root.name)) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose schema does not declare ${root.name} as a document${version ? `; checked against ABRASF ${version}` : ""}`);
