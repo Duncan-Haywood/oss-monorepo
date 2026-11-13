@@ -38,7 +38,8 @@ export const READY_CLASS = 'pf-rows-ready';
 const BARE_DIV = /<div id="([A-Za-z][\w-]*)"><\/div>/g;
 // Measured on 2026-11-13 with no change from the reservation: their shift
 // comes from something else (a section revealed late, a canvas, a results
-// table), so a block there would only be noise. See the report.
+// table), so a block there would only be noise. See the report. Retainage and
+// shed-designer have their own late-reveal block (polish-2026-11-13-late-reveal.md).
 export const SKIP = new Set([
   'delivery-app-margin-calculator', 'hvac-load-calc', 'portable-restroom-event-quote', 'proposal-maker',
   'retainage-cashflow-calculator', 'shed-designer', 'str-host-payout-calculator',
