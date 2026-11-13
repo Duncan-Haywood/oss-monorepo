@@ -17,8 +17,9 @@ used to mean decoding the statement's projection table by hand.
 Aggregate accounting per 12 CFR 1024.17: monthly payment = 1/12 of yearly bills; cushion at most 1/6
 of yearly bills; balance needed at the start of the year = cushion minus the lowest cumulative
 (deposits less bills) over the twelve months. Below that: shortage (spread over at least 12 months,
-or 30 days if under a month's payment). Below the zero-cushion figure: deficiency (two or more
-payments). Above: surplus ($50 or more refunded within 30 days when current). Rules were read from
+or 30 days if under a month's payment). A negative account balance at the analysis: deficiency
+(two or more payments; 12 CFR 1024.17(b) defines it as "the amount of a negative balance in an
+escrow account", so a projected low point below zero is a shortage, not a deficiency). Above: surplus ($50 or more refunded within 30 days when current). Rules were read from
 the CFPB's published text of the regulation.
 
 Checks against the statement: cushion over 1/6, servicer's projected bills above the bills entered,
@@ -29,6 +30,15 @@ of an insurance quote or a tax appeal. The "most in question" figure is not a re
 Not checked: the servicer's own worksheet, disbursement dates other than the month entered, state
 law, loan documents that set stricter terms, escrow waivers, whether a bill is itself correct.
 Unverified against a real servicer's worksheet.
+
+## Known gaps
+
+From the 2026-11-13 quality audit ([`portfolio/quality/audits/2026-11-13-mortgage-escrow-analysis-checker.json`](../../portfolio/quality/audits/2026-11-13-mortgage-escrow-analysis-checker.json)):
+
+- The "most in question over a year" total adds findings that overlap: the payment excess already
+  contains higher projected bills and an oversized cushion, so the total can count one dollar twice.
+- A deficiency smaller than one month's payment may be collected within 30 days
+  (12 CFR 1024.17(f)(4)(i)(B)); the tool only raises an information note for it.
 
 ## Run
 
