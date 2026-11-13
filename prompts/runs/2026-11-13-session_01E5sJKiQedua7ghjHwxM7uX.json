@@ -46,7 +46,7 @@
     "docs/posts/2026-11-13-pyenv-reads-pyproject.md"
   ],
   "goal": null,
-  "notes": "Critique mode: backlog had owner/blocked rows only. main_health 62/62 pass. Lens: doc friction by file. Fixed the pyenv/pyproject friction (2026-11-12, reported twice). Checks: test_pyenv 31 OK; live pyenv --for research/hanger-knit returned /usr/bin/python3.13. No backlog ids touched. No agent doc: the post and pyenv's docstring say what the next run needs.",
+  "notes": "Critique mode: backlog had owner/blocked rows only. main_health 62/62 pass. Lens: doc friction by file. Fixed the pyenv/pyproject friction (2026-11-12, reported twice). Checks: test_pyenv 31 OK; live pyenv --for research/hanger-knit returned /usr/bin/python3.13. No backlog ids touched. No agent doc: the post and pyenv's docstring say what the next run needs. Fix-forward: main went red after #15300 (portfolio/router/validate.py: shift-roster-builder next: 2043 chars, cap 2000); condensed its 20-60-person reissue history clause (detail stays in the venture README); validate.py now passes.",
   "corrections": [],
   "redteam": null,
   "usage": {
