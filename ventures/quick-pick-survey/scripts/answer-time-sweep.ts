@@ -77,8 +77,15 @@
  *   shift-drop     what ships (groupRanking.ts fastBlockStarts): the same split,
  *                  with its fixed constants, on each answer's log time minus the
  *                  panel's log time at that position (the FAST_BLOCK_CURVE_Q
- *                  quantile, 0.5 until 2026-11-13 and 0.75 since; running median of 5)
- *   shift-drop-qNN `--curve-q 0.NN`: the same against the 0.NN quantile
+ *                  quantile, 0.5 until 2026-11-13 and 0.75 since; running median of 5).
+ *                  Since 2026-11-13 later its gap threshold is per survey
+ *                  (autoFastBlockMinLog) and a split must fit as a step, not a
+ *                  line (stepOverTrend, FAST_BLOCK_TREND_F); rows before that
+ *                  file (docs/fast-blocks-trend-2026-11-13.jsonl) used a fixed 0.5.
+ *   shift-drop-qNN `--curve-q 0.NN`: the same against the 0.NN quantile, fixed 0.5 gap, no trend test
+ *   shift-drop-auto-qNN-fNN[-cNN][-tfNN] `--auto q:floor[:cap[:trendF]]`: per-survey gap threshold
+ *   shift-drop-tfNN `--trend-f f`: the fixed 0.5 gap with the step-over-line test at f
+ *   `--person-drift sd`: each person's own speed-up or slow-down over the session, N(0, sd) log
  *
  * `--onset-spread s` (2026-11-13): each careless person's onset is drawn
  * uniform on onset +- s (clamped to 0.05-0.95), as real ones may be spread out.
@@ -89,7 +96,7 @@
 import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE, applyComparison, type GlickoState } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
-import { autoFastBlockMinLog, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
+import { autoFastBlockMinLog, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
@@ -327,7 +334,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 // `--curve-q`: the same reading against an upper quantile of the panel's times at each position, which a
                 // large share turning quick at once drags down less than the median.
                 for (const cq of curveQs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq, FAST_BLOCK_MIN_LOG, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-q${Math.round(cq * 100)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const f of trendFs) {
@@ -338,9 +345,9 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                   const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f, a.c, a.tf);
                   people.forEach((p, i) => (p.qBlockAt[a.key] = st.at[i]));
                   (autoMinLogs[a.key] ??= []).push(st.minLog);
-                  if (a.q === FAST_BLOCK_AUTO_Q && a.f === FAST_BLOCK_AUTO_FLOOR && a.c === FAST_BLOCK_AUTO_CAP && a.tf === 0) {
+                  if (a.q === FAST_BLOCK_AUTO_Q && a.f === FAST_BLOCK_AUTO_FLOOR && a.c === FAST_BLOCK_AUTO_CAP && a.tf === FAST_BLOCK_TREND_F) {
                     // With the shipped q and floor, this must agree with the library's own "auto" reading.
-                    const lib = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto");
+                    const lib = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))));
                     if (people.some((_, i) => (lib.get(`p${i}`) ?? null) !== st.at[i])) throw new Error(`autoBlockStarts disagrees with fastBlockStarts(..., "auto") in survey ${sv}`);
                   }
                 }

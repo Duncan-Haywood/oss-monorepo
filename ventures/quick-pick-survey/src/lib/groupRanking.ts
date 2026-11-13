@@ -601,12 +601,23 @@ export function stepOverTrend(x: number[], at: number): number {
   return (sseLine - sseStep) / Math.max(sseStep / Math.max(1, n - 3), 1e-12);
 }
 
-/** The lowest per-survey gap threshold FAST_BLOCK_AUTO may pick (on the log scale; 0.3 is 26% quicker). */
-export const FAST_BLOCK_AUTO_FLOOR = 0.3;
+/**
+ * The lowest per-survey gap threshold autoFastBlockMinLog may pick (on the log scale; 0.4 is 33% quicker). A floor of
+ * 0.3 found as many blocks but flagged up to 3.3% of honest respondents when 40% of a panel were careless; 0.4 kept
+ * that to 0.6% (docs/INFORMATION-GAIN-SELECTOR.md, "A threshold from the panel's own slow turns", 2026-11-13).
+ */
+export const FAST_BLOCK_AUTO_FLOOR = 0.4;
 /** Which quantile of the panel's mirrored (slow-turn) gaps FAST_BLOCK_AUTO reads. */
 export const FAST_BLOCK_AUTO_Q = 0.9;
-/** The highest per-survey gap threshold FAST_BLOCK_AUTO may pick. */
+/** The highest per-survey gap threshold autoFastBlockMinLog may pick. */
 export const FAST_BLOCK_AUTO_CAP = FAST_BLOCK_MIN_LOG;
+/**
+ * A split also has to fit as a step at least this much better than a straight line (stepOverTrend), so that
+ * someone who speeds up steadily all session is not taken for a bored respondent. In the answer-time sweep, with
+ * each person's own speed-up or slow-down drawn at 0.6 log over the session, the split alone flagged 26% of honest
+ * respondents; with this test, 6-9% (same section).
+ */
+export const FAST_BLOCK_TREND_F = 1;
 
 /**
  * A per-survey gap threshold for fastBlockSplit, from the panel's own residual
@@ -650,11 +661,20 @@ export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q
  * for that) or of careless answers that are no faster. A comparison, not
  * the default, until real answer times are in (flagship item c).
  *
+ * Since 2026-11-13 (later) two more defaults (docs/INFORMATION-GAIN-SELECTOR.md,
+ * "A threshold from the panel's own slow turns"): the gap a split needs is set
+ * per survey (`minLog` "auto", autoFastBlockMinLog, between 0.4 and 0.5), and a
+ * split must fit as a step at least FAST_BLOCK_TREND_F better than a straight
+ * line. Where nobody changes pace on their own, the hard case (40% turning
+ * quick at 0.6x) went from 86% to 99% of the ceiling for the salience pattern
+ * and from 64% to 95% for random clicking; where everyone's own pace drifts
+ * by 0.6 log over the session, honest flags fell from 26% to 9%.
+ *
  * Needs AGREEMENT_MIN_RESPONDENTS respondents with timed answers; otherwise
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = FAST_BLOCK_MIN_LOG, trendF = 0): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F): Map<string, number> {
   if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
   if (minLog !== "auto" && !(minLog > 0)) throw new Error(`minLog must be a positive number or "auto", got ${minLog}`);
   const by = new Map<string, { index: number; ms: number }[]>();

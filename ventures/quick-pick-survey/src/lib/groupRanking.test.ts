@@ -400,23 +400,28 @@ describe("fastBlockStarts", () => {
     // Four of ten at 0.55x from answer 20 drag the panel's median down with them, hiding all four; the 0.75
     // quantile sits among the honest six and finds them, and no honest person (FAST_BLOCK_CURVE_Q).
     const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p < 4 && i >= 20 ? 0.55 : 1);
-    expect(fastBlockStarts(panel(10, 40, ms), 0.5).size).toBe(0);
+    expect(fastBlockStarts(panel(10, 40, ms), 0.5, FAST_BLOCK_MIN_LOG, 0).size).toBe(0); // the median, with the rules of that day
     expect([...fastBlockStarts(panel(10, 40, ms), 0.75)].sort()).toEqual([["p0", 20], ["p1", 20], ["p2", 20], ["p3", 20]]);
     expect(fastBlockStarts(panel(10, 40, ms)).size).toBe(4); // the shipped default
     expect(() => fastBlockStarts(panel(10, 40, ms), 1)).toThrow();
   });
-  it("with a per-survey threshold, finds a slower block a quiet panel's noise cannot make, and only there", () => {
-    // One of eight turns 0.7x quicker (a log gap of 0.36) from answer 20: under the fixed 0.5 nobody is flagged; the
-    // quiet panel's own slow turns are tiny, so "auto" drops the threshold to its floor and finds them.
-    const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.7 : 1);
-    expect(fastBlockStarts(panel(8, 40, ms)).size).toBe(0);
-    expect([...fastBlockStarts(panel(8, 40, ms), undefined, "auto")]).toEqual([["p0", 20]]);
-    // The same panel, but two honest people also slow down to twice their time on their own (one from answer 10,
-    // one from 28, so the panel's curve barely moves at 20): the mirrored gaps now show turns that big are what this
-    // panel's people do, so "auto" keeps the fixed 0.5 and the 0.36 block is no longer told apart from them.
-    const noisy = (p: number, i: number) => ms(p, i) * ((p === 5 && i >= 10) || (p === 6 && i >= 28) ? 2 : 1);
-    expect(fastBlockStarts(panel(8, 40, noisy), undefined, "auto").size).toBe(0);
+  it("with a per-survey threshold, finds a slower block a quiet panel's noise cannot make", () => {
+    // One of eight turns 0.65x quicker (a log gap of 0.43) from answer 20: under the fixed 0.5 (the rule before
+    // 2026-11-13, later) nobody is flagged; the quiet panel's own slow turns are tiny, so the default "auto" drops the
+    // threshold to its floor (FAST_BLOCK_AUTO_FLOOR, 0.4) and finds them.
+    const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.65 : 1);
+    expect(fastBlockStarts(panel(8, 40, ms), undefined, FAST_BLOCK_MIN_LOG, 0).size).toBe(0);
+    expect([...fastBlockStarts(panel(8, 40, ms))]).toEqual([["p0", 20]]);
+    // How a noisier panel raises the threshold is pinned in autoFastBlockMinLog's own tests: end to end, people who
+    // slow down also lift the panel's curve and so widen everyone else's gaps.
     expect(() => fastBlockStarts(panel(8, 40, ms), undefined, 0)).toThrow();
+  });
+  it("does not take one person's steady speed-up over the whole session for a block", () => {
+    // p0 gets steadily quicker, to 0.3x by the last answer: a split finds a gap over 0.5 with a large t, but a line fits
+    // as well as a step, so the default (FAST_BLOCK_TREND_F) flags nobody; without the test p0 is flagged.
+    const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 ? Math.exp(-1.2 * (i / 39)) : 1);
+    expect(fastBlockStarts(panel(8, 40, ms), undefined, FAST_BLOCK_MIN_LOG, 0).has("p0")).toBe(true);
+    expect(fastBlockStarts(panel(8, 40, ms)).size).toBe(0);
   });
   it("needs AGREEMENT_MIN_RESPONDENTS people with enough timed answers", () => {
     expect(fastBlockStarts(panel(4, 40, (p, i) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.4 : 1))).size).toBe(0);

@@ -253,29 +253,29 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
-      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
-      staged-by-default at every list length, the closed pooled-prior work, the
-      sparse long-list overclaim (f), the uncapped weighted schemes (g),
-      half-time salience (b) and mid-session blocks (d) are written up there.
-      Latest (2026-11-13, "A panel curve the careless cannot drag down";
-      docs/fast-blocks-curve-q-2026-11-13.jsonl): ?drop=fast-blocks (a change
-      point read against the panel's time at the same point) now reads against
-      the panel's 0.75 quantile, not its median: with 40% turning quick at once
-      at 0.6x it finds 72-80% of them (was 31-60%) and recovers 64-110% of the
-      ceiling (was 2-90%), at no measurable cost. Not the default ranking yet.
-      Next, most valuable first: (c) the first real survey's answers:
-      msToAnswer against the answer-time model, whether real people have
-      warm-ups, blocks or spread-out carelessness and how quick each is (decides
-      whether ?drop=fast-blocks, the cheapest view, or ?drop=fast-answers should
-      become the default), and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d2) the slowest blocks
-      (about a fifth of people at 0.6x, 40% careless, gap near the 0.5 log
-      threshold) are still missed: a per-survey threshold from the panel's
-      own residual spread is the next try; (d3) position bias that starts mid-session (a first-slot
-      block is found by time only when it is quick); (h) share-drop beat both
-      pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real
-      panel's times.
+      History and every measurement: README,
+      docs/INFORMATION-GAIN-SELECTOR.md, docs/CONVERGENCE.md and
+      docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list
+      length, the closed pooled-prior work, the sparse long-list overclaim
+      (f), the uncapped weighted schemes (g), half-time salience (b),
+      mid-session blocks (d) and the upper-quantile panel curve are written up
+      there. Latest (2026-11-13, "A threshold from the panel's own slow
+      turns"; docs/fast-blocks-trend-2026-11-13.jsonl): ?drop=fast-blocks sets
+      its gap per survey from the panel's mirrored slow turns (0.4-0.5) and
+      needs a step, not a line (stepOverTrend): 40% turning quick at 0.6x now
+      99%/95% of the ceiling (salience/random, was 86%/64%); with each
+      person's own pace drifting 0.6 log, honest flags 26% to 9%. Next, most
+      valuable first: (c) the first real survey's answers: msToAnswer against
+      the answer-time model, the spread of each person's own log-time slope
+      (decides step test alone vs the shipped pair: at drift 0.3 the pair
+      flags 4.9% of honest people, the step test alone 2.1%), whether real
+      people have warm-ups, blocks or spread-out carelessness, and how noisy
+      real pairwise answers are (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d4) a curve that spread growing over the session
+      cannot lift (the 0.75 quantile doubles honest flags under personal
+      drift: 11% at the median, 21-26%); (d3) position bias that starts
+      mid-session; (h) share-drop beat both pace cuts at q = 1 but taxes a
+      camp by up to 0.030: decide on a real panel's times.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
