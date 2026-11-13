@@ -423,6 +423,18 @@ describe("fastBlockStarts", () => {
     expect(fastBlockStarts(panel(8, 40, ms), undefined, FAST_BLOCK_MIN_LOG, 0).has("p0")).toBe(true);
     expect(fastBlockStarts(panel(8, 40, ms)).size).toBe(0);
   });
+  it("reads its later passes against the median of the people not yet flagged, which spread growing over the session cannot lift", () => {
+    // Twelve people whose own pace drifts from 2.7x quicker to 2.7x slower over the session (half speed up, half slow
+    // down), so the panel's spread grows with every answer and lifts its upper quantile; four of them turn 0.55x quick
+    // from answer 20. Read against the 0.75 quantile in every pass (laterQ 0.75, before 2026-11-13, last), only two
+    // are found; the default (FAST_BLOCK_LATER_Q) finds all four, and no one else.
+    const n = 12;
+    const d = (p: number) => 2 * p / (n - 1) - 1;
+    const ms = (p: number, i: number) => 3000 * jitter(i, p) * Math.exp(-d(p) * (i / 39)) * (p % 3 === 0 ? 1.3 : p % 3 === 1 ? 0.8 : 1) * (p >= n - 4 && i >= 20 ? 0.55 : 1);
+    expect(fastBlockStarts(panel(n, 40, ms), 0.75, "auto", undefined, 0.75).size).toBe(2);
+    expect([...fastBlockStarts(panel(n, 40, ms))].sort()).toEqual([["p10", 20], ["p11", 20], ["p8", 20], ["p9", 20]]);
+    expect(() => fastBlockStarts(panel(n, 40, ms), 0.75, "auto", undefined, 1)).toThrow();
+  });
   it("needs AGREEMENT_MIN_RESPONDENTS people with enough timed answers", () => {
     expect(fastBlockStarts(panel(4, 40, (p, i) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.4 : 1))).size).toBe(0);
   });

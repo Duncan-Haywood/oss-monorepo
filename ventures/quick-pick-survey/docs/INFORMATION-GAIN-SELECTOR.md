@@ -3439,3 +3439,86 @@ a steady speed-up to 0.3x that the fixed rule flags and the default does not;
 `autoFastBlockMinLog` at its floor for a quiet panel, at the cap when people
 slow down by 0.5 or more, in between otherwise, and not moved by people who
 turn quick; `stepOverTrend` large for a step and below 1 for a slope.
+
+## A later-pass curve that drift cannot lift (2026-11-13, last; shipped)
+
+Item (d4) on the flagship list. Since the 0.75-quantile curve, `?drop=fast-blocks`
+reads each answer against an upper quantile of the panel's log times at that
+point. When people speed up or slow down on their own, the panel's spread grows
+over the session. An upper quantile rises with the spread, so everyone's
+residuals drift downwards and honest people who sped up look like a block. The
+step test (previous section) removed most of that, but at a personal drift of
+0.6 log the shipped rule still flagged up to 9.4% of honest respondents with
+nobody careless.
+
+**The idea.** The upper quantile is there only so that a large share turning
+quick at once cannot drag the curve down. From the second pass on, the people
+the first pass found are already left out of the curve (from their split on).
+With them out, the median is not dragged down, and the median is the one
+location a symmetric growth in spread does not move. So `fastBlockStarts` now
+reads its first pass against the 0.75 quantile and its second and third passes
+against `laterQ`, the median of the people still in (`FAST_BLOCK_LATER_Q = 0.5`).
+
+**Grid.** `scripts/answer-time-sweep.ts --later-q 0.5,0.6` adds a
+`shift-drop-lNN` scheme per value: the shipped reading (auto threshold and step
+test) with passes after the first at that quantile. Each grid ran at person
+drift 0, 0.3 and 0.6: salience and random patterns, 25% and 40% careless at
+0.6x with onsets 0.25, 0.5 and 0.75; both patterns at 0.4x and 0.6x with a
+five-answer warm-up and a shared 0.7 learning curve; salience with onsets spread
++-0.2; and a stress cell (60 people, pace spread 0.6, warm-up, 30 surveys). Cost
+cells: nobody careless, and a 25-40% camp with a second taste, each with and
+without the warm-up and learning curve. Panels of 20 on 15 and 30 items, 4
+answers per item, 40 surveys per cell. Raw rows:
+`docs/fast-blocks-later-q-2026-11-13.jsonl`, 168 cells. In that file
+`shift-drop` is the rule as it shipped before this change (0.75 in every pass).
+
+Means over cells. "Ceiling" is the share of `oracle-answers` recovered, over
+cells where it is above 0.003; "honest" is the share of honest respondents
+flagged (mean, then the worst cell).
+
+| cells (person drift) | 0.75 every pass (old) | later passes at 0.5 (shipped) | later passes at 0.6 |
+|---|---|---|---|
+| careless share present (0), 44 cells | 98% ceiling, honest 0.1% / 0.6% | 98%, 0.0% / 0.2% | 97%, 0.1% / 0.4% |
+| careless share present (0.3) | 85%, 3.8% / 5.2% | 86%, 3.3% / 5.2% | 86%, 3.4% / 5.2% |
+| careless share present (0.6) | 66%, **8.3% / 11.2%** | 64%, **5.2% / 7.5%** | 65%, 6.2% / 7.9% |
+| nobody careless or a camp (0), 12 cells | Spearman +0.0001, honest 0.0% / 0.2% | 0.0000, 0.0% / 0.1% | 0.0000, 0.0% / 0.1% |
+| nobody careless or a camp (0.3) | -0.0011, 3.6% / 4.9% | -0.0012, 2.7% / 3.6% | -0.0009, 3.0% / 3.9% |
+| nobody careless or a camp (0.6) | -0.0016, **7.5% / 9.4%** | -0.0016, **4.8% / 6.3%** | -0.0016, 5.8% / 7.1% |
+
+Careless people found, mean over the careless cells: 0.96 / 0.85 / 0.68 (old)
+against 0.96 / 0.84 / 0.65 (shipped) at drift 0 / 0.3 / 0.6.
+
+What it shows:
+
+- **Under personal drift it flags about a third fewer honest people** (0.6:
+  7.5% to 4.8% with nobody careless, 8.3% to 5.2% with a careless share; 0.3:
+  3.6% to 2.7%), at the same Spearman cost and the same share of the ceiling,
+  within 2 points.
+- **With no personal drift nothing moves.** The 40%-at-0.6x cells that the
+  0.75 curve was brought in for keep 96-103% of the ceiling, because the first
+  pass still reads the upper quantile and finds them; the later passes only
+  read a curve with them already out.
+- **Single random-pattern cells swing both ways at drift 0.6** (for example
+  36% to 56% and 65% to 43% of a small ceiling). Those ceilings are 0.003-0.01
+  Spearman and the cells hold 40 surveys, so the swings are noise around a
+  level mean (66% against 64%).
+- **0.6 sits between** on every row, so the median ships.
+- **What is left**: at drift 0.6, 4.8% of honest people are still flagged, and
+  only 65% of the ceiling is recovered. That part is the split search on one
+  person's own noisy drift, which no panel curve can fix. Whether real people
+  drift this much is the open question (item c).
+
+**Decision.** `FAST_BLOCK_LATER_Q = 0.5` ships as the default `laterQ` of
+`fastBlockStarts`. The sweep's `autoBlockStarts` copy follows it, and the check
+that it agrees with the library still passes. `--curve-q` and `--trend-f` pass
+their own quantile as `laterQ`, so their earlier rows reproduce. A new unit test
+pins a case where it matters: twelve people whose own pace drifts from 2.7x
+quicker to 2.7x slower over 40 answers, four of whom turn 0.55x quick from
+answer 20. With 0.75 in every pass, two of the four are found. With the
+default, all four are found and no one else. That test fails with
+`FAST_BLOCK_LATER_Q` set back to 0.75. The view stays a comparison, not the
+default ranking.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --later-q 0.5,0.6
+--surveys 40 --person-drift 0.6 --patterns salience,random --careless 0.25,0.4
+--ratio 0.6 --onset 0.25,0.5,0.75` (a few minutes on 4 CPUs).
