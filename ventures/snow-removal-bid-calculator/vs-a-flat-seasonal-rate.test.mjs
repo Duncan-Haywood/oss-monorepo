@@ -134,3 +134,8 @@ test('the comparison page links back to the calculator and to the named-product 
   assert.match(html, /<a href="index\.html">/);
   assert.match(html, /href="vs-aspire\.html"/);
 });
+
+test('the $22/hr default is called a wage, not a loaded rate (quality audit 2026-11-13)', () => {
+  assert.doesNotMatch(html, /\$22\/hr loaded operator/);
+  assert.match(html, /\$22\/hr operator wage/);
+});
