@@ -90,6 +90,26 @@ export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = op
   let floor = Infinity;
   for (let y = 0; y < last.length; y++) if (last[y] < floor) floor = last[y];
 
+  const w = balancedWalk(f, H, plays, opp, n, { span, seed, budget, maxSlack, floor });
+  const { least, found, steps } = w, proved = w.proved;
+  const choice = found || plainTraceback(f, H, plays, R, floor);
+  const venues = opp.map((o, r) => {
+    const v = new Uint8Array(o.length), h = H[r][choice[r]];
+    for (let t = 0; t < n; t++) if (o[t] < n) v[t] = (h >>> t) & 1;
+    return v;
+  });
+  return { floor, least, proved, breaks: least ?? floor, venues, balanced: !!found, steps };
+}
+
+/**
+ * The least balanced host choice over a forward table f (f[r][x]: least breaks in rounds 0..r with
+ * round r's hosts x), H (home masks) and plays: a seeded depth-first walk back from the last round
+ * at floor, floor + 1, ... floor + maxSlack, each level walked to the end proving that many breaks
+ * impossible. Returns { least, found (the host choice per round), proved, steps }; least null when
+ * nothing was found within maxSlack or the budget ran out.
+ */
+function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget = 5000000, maxSlack = 10, floor }) {
+  const R = opp.length, last = f[R - 1];
   const rand = mulberry32(seed >>> 0);
   const g = new Int32Array(n); // games so far (within span), home minus away, per team
   const after = []; // after[r][t]: games t plays within span in rounds r..R-1
@@ -148,13 +168,7 @@ export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = op
     if (found) least = floor + k;
     if (!complete) { proved = false; break; }
   }
-  const choice = found || plainTraceback(f, H, plays, R, floor);
-  const venues = opp.map((o, r) => {
-    const v = new Uint8Array(o.length), h = H[r][choice[r]];
-    for (let t = 0; t < n; t++) if (o[t] < n) v[t] = (h >>> t) & 1;
-    return v;
-  });
-  return { floor, least, proved: least != null && proved, breaks: least ?? floor, venues, balanced: !!found, steps };
+  return { least, found, proved: least != null && proved, steps };
 }
 
 /** One optimal host choice per round, first predecessor found (no balance preference). */
@@ -233,7 +247,18 @@ export function floorTable(opp, n) {
     return best;
   };
   const commit = () => { if (pending) { H = pending.h; plays = pending.p; fwd = pending.f; pending = null; } };
+  // the least balanced host choice of the last trial's timetable (or the committed one), at most
+  // `maxBreaks` breaks, by balancedWalk over its table: no programme to rerun. null when none is
+  // within maxBreaks or the walk ran out of `budget` steps (then { least: null, proved: false }).
+  const balanced = (maxBreaks, { seed = 1, budget = 50000 } = {}) => {
+    const t = pending || { h: H, p: plays, f: fwd };
+    let fl = Infinity;
+    for (const v of t.f[R - 1]) if (v < fl) fl = v;
+    if (fl > maxBreaks) return { least: null, proved: true, floor: fl };
+    const w = balancedWalk(t.f, t.h, t.p, opp, n, { seed, budget, maxSlack: maxBreaks - fl, floor: fl });
+    return { least: w.least, proved: w.proved || (w.least == null && w.steps < budget), floor: fl };
+  };
   const floor = run(0);
   commit();
-  return { floor, trial: (lo) => run(lo), commit };
+  return { floor, trial: (lo) => run(lo), commit, balanced };
 }
