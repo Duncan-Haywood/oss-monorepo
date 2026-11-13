@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKmnSQVs7itDx5QoRUL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T05:18:09Z",
+  "ended": "2026-11-13T05:30:04Z",
+  "wall_minutes": 12.32,
+  "tokens_in": 4298262,
+  "tokens_out": 28597,
+  "cost_usd": 2.2925,
+  "tool_calls": 46,
+  "task": "aerolog-scaling milestone 11i: land-masked paper weight for drone altitude-layer assignment",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15387",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Local sweep (run_workflow_locally --for-changes) flagged my post's description at 163 chars (limit 160); fixed. The sweep then reported UNSTABLE CHECKOUT because I edited the post while it ran."
+  ],
+  "integrity_issues": [
+    "The land mask's share of real destinations (98.8%) was computed before the predictions were written; disclosed in the docstring and LOG as a data check, not a prediction."
+  ],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "nyc.gov, data.cityofnewyork.us, census.gov, osmdata and overpass all 403 through the proxy; GitHub raw copies of public geodata (dwillis/nyc-maps) were the only route. Worth listing GitHub mirrors of common geodata."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/local/bin/python3 even though python3 -m pytest had failed a moment before (it installed pytest silently); fine, but surprising."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (land open research PRs first): the four open research-titled PRs were either another live session's (#15384, updated minutes before), CODEOWNERS/CI (#8700), a run-record branch (#14094) or a 13-day-old draft (#12154); I left them alone to keep this run to one programme step.",
+      "did": "advanced the drawn programme only",
+      "result": "no conflict; claim check clear"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-drone-layers-land-mask.md",
+    "research/aerolog-scaling/LOG.md (11i entry)"
+  ],
+  "goal": null,
+  "notes": "Land mask from NYC DCP shoreline-clipped borough boundaries (via github.com/dwillis/nyc-maps). gas_l within 5% of cf in 17/24 (gas_u 13), median 1.019 vs 1.026, pair-rank r unchanged (0.964 vs 0.967); 3 of 8 predictions held. Window clip (gas_w) does nothing. Next: census-tract density. Verification: aerolog-scaling tests 75 passed; research homepage build ok; check_md_links ok; programme_check ok; check_post_frontmatter ok after fix; platform/pages node tests rerun after fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "14a8f825-9f8f-5e0a-b0ea-0596cfd54982",
+    "transcripts": 1,
+    "first": "2026-11-13T05:18:09Z",
+    "last": "2026-11-13T05:30:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 84,
+        "output": 28597,
+        "thinking": 7259,
+        "cache_read": 4187847,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110331,
+        "api_equivalent_usd": 2.2925,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 84,
+      "output": 28597,
+      "thinking": 7259,
+      "cache_read": 4187847,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110331,
+      "api_equivalent_usd": 2.2925,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.32,
+      "active_minutes": 12.32,
+      "model_minutes": 5.75,
+      "tool_minutes": 6.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "data sourcing, mask rasteriser, experiment, write-up for one milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 261.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
