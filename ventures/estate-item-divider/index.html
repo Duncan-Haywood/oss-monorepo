@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235b3f8c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Estate Item Divider — divide belongings between heirs fairly</title>
+  <meta name="description" content="Free tool for dividing personal property and heirlooms between heirs. Each heir privately values every item; the tool gives each item to whoever values it most and evens up with cash so nobody envies anyone, or divides items alone with no cash. Private, in your browser.">
+  <meta property="og:title" content="Estate Item Divider — divide belongings between heirs fairly">
+  <meta property="og:description" content="Sealed bids with cash to even up so no heir would swap, or a fair items-only split for families who won't pay each other. Free, private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Estate Item Divider","applicationCategory":"UtilitiesApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free tool for executors and families dividing an estate's personal property. Heirs value each item privately; the tool assigns items and computes cash equalisation so no heir envies another, or finds the fairest items-only division (maximum Nash welfare). Runs in your browser; nothing is uploaded.","featureList":"divide personal property among heirs, sealed bid estate division, Knaster procedure, envy-free division with cash, maximum Nash welfare, EF1, unequal inheritance shares, bid sheet csv import"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you divide personal property among heirs fairly?","acceptedAnswer":{"@type":"Answer","text":"Have every heir privately write down what each item is worth to them, in dollars. Give each item to the heir who values it most, then use cash to even up: heirs who take more than their share pay in, and heirs who take less are paid. Set the amounts so that nobody would rather have another heir's items and cash. That is what this tool calculates."}},{"@type":"Question","name":"What if the family does not want money to change hands?","acceptedAnswer":{"@type":"Answer","text":"Use the items-only method. It finds the division that maximises the product of what each heir gets, which is a standard fair-division rule: nobody can be made better off without someone else losing, and any envy disappears if you take away a single item from the other heir's pile."}},{"@type":"Question","name":"What if the will gives heirs different shares?","acceptedAnswer":{"@type":"Answer","text":"Turn off equal shares and enter each heir's percentage. The cash method then uses Knaster's sealed-bid procedure, which gives every heir at least their percentage of the estate by their own values plus their percentage of the surplus. The items-only method weights each heir by their share."}},{"@type":"Question","name":"Should the values be appraisals or what the items mean to us?","acceptedAnswer":{"@type":"Answer","text":"What each item is worth to you: the most you would honestly pay to keep it. An appraisal is a useful anchor, but a grandmother's ring can be worth far more to one grandchild than its resale value, and the method works because it gives items to whoever values them most."}},{"@type":"Question","name":"Can someone game it by bidding high?","acceptedAnswer":{"@type":"Answer","text":"Bidding more than an item is worth to you risks winning it and paying cash for value you do not feel. Bidding low risks losing it to someone else for less than you would have paid. Honest values, written down before anyone sees the others, are the safe strategy."}},{"@type":"Question","name":"Is my information uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser. There are no accounts and nothing is sent to a server. Save the division to a file if you want to reopen it."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the values you type. The will, the executor or personal representative, a court order and the law where the estate is administered decide who gets what. Use the result as a proposal the heirs agree to, and ask an estate lawyer about tax and title."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b2d; background: #f6f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #4b2f8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #2d1d55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2d1d55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4560; }
+    .card { background: #fff; border: 1px solid #dcd6ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2d1d5512; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid #635c80; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    #grid input[type=number] { min-width: 90px; }
+    #grid input.item { min-width: 150px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4b2f8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe6f6; color: #2d1d55; }
+    button.small { padding: 4px 9px; margin: 0; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #ebe6f6; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4560; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #efeaf9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #2d1d55; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .ok { background: #e2f3e7; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #1d4d2b; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+    .check input { width: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd6ea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ESTATE ITEM DIVIDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Divide a parent's belongings between heirs, fairly</h1>
+    <p>Each heir privately writes down what <strong>every item is worth to them</strong>. The tool gives each item to whoever values it most and works out the <strong>cash that evens it up</strong>, so at the end <strong>no heir would rather have another heir's items and cash</strong>. If the family would rather not pay each other, it finds the fairest split of the items alone.</p>
+    <p class="note">How it works, with a worked example: <a href="./how-to-divide-personal-property-among-heirs.html">how to divide personal property among heirs</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The estate</h2>
+    <div class="row3">
+      <div><label for="mode">Method</label><select id="mode"><option value="cash" selected>Sealed bids, cash evens it up</option><option value="items">Items only, no cash between heirs</option></select></div>
+      <div><label for="count">Heirs</label><select id="count"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+      <div><label for="cash">Cash in the estate to split by share ($, optional)</label><input type="number" id="cash" min="0" step="0.01" max="10000000000" value="0"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="equal" checked> Equal shares (untick if the will gives heirs different percentages)</label>
+
+    <h2 style="margin-top:20px">2. What each item is worth to each heir</h2>
+    <p class="note">One row per item, one column per heir. Enter dollars: the most each heir would honestly pay to keep the item. Leave a cell at 0 for an item someone does not want. Collect the numbers privately first, for example with the blank bid sheet below.</p>
+    <div class="scroll"><table id="grid"><thead></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-item">Add an item</button>
+    <p class="note" id="item-count"></p>
+    <button type="button" id="solve">Divide the estate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="dl-sheet">Download blank bid sheet</button>
+    <button type="button" class="secondary" id="load-sheet-btn">Import filled bid sheet (CSV)</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved division</button>
+    <input type="file" id="load-sheet" accept=".csv,text/csv" hidden aria-label="Filled bid sheet CSV">
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved division file">
+    <p id="form-status" role="status" class="note">Fill in the grid, then click Divide the estate.</p>
+  </section>
+
+  <section id="result" class="card" hidden>
+    <h2>The division</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead></thead><tbody></tbody></table></div>
+    <p class="note" id="explain"></p>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save division</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Sealed bids, equal shares:</strong> each item goes to the heir who values it most, which makes the total value the family keeps as large as it can be. Cash payments are then set so that no heir prefers another heir's items plus cash, and among such payments the least well-off heir gets as much above a fair share as possible. Envy-free payments always exist for this allocation; the tool finds them with longest paths over the heirs' envy graph and a closed-form shift.</p>
+    <p><strong>Sealed bids, unequal shares:</strong> Knaster's procedure (1946) generalised to percentages. Each heir is owed their percentage of the estate as they value it; the difference from what they take is paid in cash, and the surplus left over is shared by percentage.</p>
+    <p><strong>Items only:</strong> the division that maximises the product of each heir's value for what they get (each raised to their share). It is Pareto-optimal and envy-free up to one item. The tool proves the answer optimal by branch and bound with a market-price bound; on the rare large estate where the proof does not finish in time, it says so and still checks the envy-free-up-to-one-item guarantee.</p>
+    <p><strong>Checked:</strong> the test suite runs hundreds of random estates and confirms payments add up to zero, nobody envies anyone in the cash method, the items-only answers match a brute-force search on small estates and always meet the up-to-one-item guarantee.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do you divide personal property among heirs fairly?</h3>
+    <p>Have every heir privately write down what each item is worth to them, in dollars. Give each item to the heir who values it most, then use cash to even up: heirs who take more than their share pay in, and heirs who take less are paid. Set the amounts so that nobody would rather have another heir's items and cash. That is what this tool calculates.</p>
+    <h3>What if the family does not want money to change hands?</h3>
+    <p>Use the items-only method. It finds the division that maximises the product of what each heir gets, which is a standard fair-division rule: nobody can be made better off without someone else losing, and any envy disappears if you take away a single item from the other heir's pile.</p>
+    <h3>What if the will gives heirs different shares?</h3>
+    <p>Turn off equal shares and enter each heir's percentage. The cash method then uses Knaster's sealed-bid procedure, which gives every heir at least their percentage of the estate by their own values plus their percentage of the surplus. The items-only method weights each heir by their share.</p>
+    <h3>Should the values be appraisals or what the items mean to us?</h3>
+    <p>What each item is worth to you: the most you would honestly pay to keep it. An appraisal is a useful anchor, but a grandmother's ring can be worth far more to one grandchild than its resale value, and the method works because it gives items to whoever values them most.</p>
+    <h3>Can someone game it by bidding high?</h3>
+    <p>Bidding more than an item is worth to you risks winning it and paying cash for value you do not feel. Bidding low risks losing it to someone else for less than you would have paid. Honest values, written down before anyone sees the others, are the safe strategy.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. Everything is calculated in your browser. There are no accounts and nothing is sent to a server. Save the division to a file if you want to reopen it.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. It is arithmetic on the values you type. The will, the executor or personal representative, a court order and the law where the estate is administered decide who gets what. Use the result as a proposal the heirs agree to, and ask an estate lawyer about tax and title.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not legal, tax, financial or appraisal advice. <strong>The will, the executor or personal representative, any court order and local law decide how an estate is distributed</strong>; you are responsible for agreeing the division with the other heirs. To the maximum extent permitted by law the authors are not liable for any loss arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any law firm, appraiser, estate sale company or court, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so use Save division and keep the file.</p>
+    <p>Everything runs in your browser. Names, items and values are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>division_run</code>, <code>example_loaded</code>, <code>sheet_downloaded</code>, <code>sheet_imported</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted only in local storage on your device, never with any of your inputs, and are never sent anywhere. Switching them off below removes them and stays off on your next visit.</p>
+    <p>Related tools: the <a href="../roommate-rent-splitter/">roommate rent splitter</a> (the same fairness idea for rooms and rent) and the <a href="../estate-sale-net-proceeds-calculator/">estate sale net proceeds calculator</a> for what is left over.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { solve, money, resultText, resultCsv, serializeState, parseState, sampleInput, bidSheetCsv, parseBidSheet, MAX_HEIRS, MAX_ITEMS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const pct = (x) => (Math.round(x * 1000) / 10) + "%";
+    let R = null, INPUT = null;
+
+    function draw(state) {
+      const n = state.heirs.length;
+      const equal = state.equalShares !== false;
+      $("#grid thead").innerHTML = "<tr><th>Item</th>" + state.heirs.map((h, i) => '<th><input type="text" class="hname" value="' + esc(h.name) + '" aria-label="Name of heir ' + (i + 1) + '">' + (equal ? "" : '<input type="number" class="hshare" min="0.01" max="100" step="any" value="' + (Math.round((h.share ?? 100 / n) * 100) / 100) + '" aria-label="Share of heir ' + (i + 1) + ' (%)" title="Share (%)">') + "</th>").join("") + "<th></th></tr>";
+      $("#grid tbody").innerHTML = state.items.map((it, j) => '<tr><td><input type="text" class="item" value="' + esc(it) + '" aria-label="Name of item ' + (j + 1) + '"></td>' + state.heirs.map((h, i) => '<td><input type="number" class="val" min="0" step="any" max="1000000000" value="' + (h.values?.[j] ?? 0) + '" aria-label="' + esc((h.name || "Heir " + (i + 1)) + " value for " + (it || "item " + (j + 1))) + '"></td>').join("") + '<td><button type="button" class="secondary small del" aria-label="Remove item ' + (j + 1) + '">×</button></td></tr>').join("");
+      $("#item-count").textContent = state.items.length + " of up to " + MAX_ITEMS + " items.";
+    }
+
+    function read() {
+      const names = [...document.querySelectorAll("#grid thead .hname")].map((e) => e.value.trim());
+      const shares = [...document.querySelectorAll("#grid thead .hshare")].map((e) => Number(e.value));
+      const rows = [...document.querySelectorAll("#grid tbody tr")];
+      return {
+        mode: $("#mode").value, equalShares: $("#equal").checked, estateCash: Number($("#cash").value) || 0,
+        items: rows.map((r) => r.querySelector(".item").value.trim()),
+        heirs: names.map((name, i) => ({ name, share: shares[i] ?? 100 / names.length, values: rows.map((r) => Number(r.querySelectorAll(".val")[i].value)) })),
+      };
+    }
+
+    function fill(s) {
+      $("#mode").value = s.mode; $("#equal").checked = s.equalShares !== false; $("#cash").value = s.estateCash || 0;
+      $("#count").value = String(s.heirs.length);
+      draw(s);
+    }
+
+    function resize(n) {
+      const s = read();
+      while (s.heirs.length < n) s.heirs.push({ name: "Heir " + (s.heirs.length + 1), share: 100 / n, values: s.items.map(() => 0) });
+      s.heirs.length = n;
+      if (!s.equalShares) s.heirs.forEach((h) => { h.share = Math.round(10000 / n) / 100; });
+      draw(s);
+    }
+
+    function run() {
+      INPUT = read();
+      const res = solve(INPUT);
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res;
+      status.textContent = "Done. Scroll down.";
+      render();
+      return true;
+    }
+
+    function render() {
+      $("#result").hidden = false;
+      const good = [];
+      if (R.mode === "cash" && R.equal) good.push(R.envyFree ? "Nobody envies anyone: every heir prefers their own items and cash to any other heir's." : "After rounding to cents, someone could prefer another heir's pile by a few cents.");
+      if (R.mode === "cash" && !R.equal) good.push("Every heir gets at least their percentage of the estate by their own values, plus their percentage of the surplus.");
+      if (R.mode === "items") good.push((R.proven ? "Proven the fairest items-only division (maximum Nash welfare)." : R.method === "picking" ? "Large estate: the optimality search did not finish, so this is a turn-taking division that still meets the up-to-one-item guarantee." : "Large estate: best division found; the proof of optimality did not finish in time.") + (R.envyFree ? " Nobody envies anyone." : " Envy-free up to one item."));
+      $("#notices").innerHTML = good.map((t) => '<div class="ok">' + esc(t) + "</div>").join("") + R.notes.map((t) => '<div class="warn">' + esc(t) + "</div>").join("");
+      if (R.mode === "cash") {
+        const moving = R.rows.reduce((s, r) => s + Math.max(0, r.payment), 0);
+        const tiles = [[money(R.totalValue), "value of items, to whoever got each"], [money(moving), "cash changing hands between heirs"]];
+        if (R.equal) tiles.push([money(R.margin), "every heir gets at least this above a fair share"]);
+        else tiles.push([money(R.surplus), "surplus shared by percentage"]);
+        $("#big").innerHTML = tiles.map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + esc(b) + "</div>").join("");
+        $("#out thead").innerHTML = '<tr><th>Heir</th><th>Items</th><th class="num">Worth to them</th><th class="num">Even-up cash</th>' + (R.estateCash ? '<th class="num">Estate cash</th>' : "") + '<th class="num">Total</th><th class="num">Fair share (own values)</th></tr>';
+        $("#out tbody").innerHTML = R.rows.map((r) => "<tr><td>" + esc(r.heir) + (R.equal ? "" : " (" + pct(r.share) + ")") + "</td><td>" + esc(r.items.join(", ") || "none") + '</td><td class="num">' + money(r.itemsValue) + '</td><td class="num">' + (r.payment > 0 ? "receives " : r.payment < 0 ? "pays " : "") + money(Math.abs(r.payment)) + "</td>" + (R.estateCash ? '<td class="num">' + money(r.estateCash) + "</td>" : "") + '<td class="num"><strong>' + money(r.total) + '</strong></td><td class="num">' + money(r.fairShare) + "</td></tr>").join("");
+        $("#explain").textContent = "Total = what the items are worth to that heir plus the cash they receive (minus what they pay). Fair share = their percentage of everything in the estate, at their own values. Each heir's figures are in their own values, so totals are not comparable between heirs.";
+      } else {
+        const lowest = R.rows.slice().sort((a, b) => a.percentOfOwn / a.share - b.percentOfOwn / b.share)[0];
+        $("#big").innerHTML = [[R.proven ? "Proven" : "Best found", "fairest items-only split"], [R.envyFree ? "None" : "Up to one item", "envy"], [pct(lowest.percentOfOwn), "least for anyone, of the estate by their own values (" + esc(lowest.heir) + ")"]].map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + b + "</div>").join("");
+        $("#out thead").innerHTML = '<tr><th>Heir</th><th>Items</th><th class="num">Worth to them</th><th class="num">Share of the estate, by their values</th><th class="num">Their entitlement</th></tr>';
+        $("#out tbody").innerHTML = R.rows.map((r) => "<tr><td>" + esc(r.heir) + "</td><td>" + esc(r.items.join(", ") || "none") + '</td><td class="num">' + money(r.itemsValue) + '</td><td class="num"><strong>' + pct(r.percentOfOwn) + '</strong></td><td class="num">' + pct(r.share) + "</td></tr>").join("");
+        $("#explain").textContent = R.belowFairShare.length ? "With whole items and no cash, " + R.belowFairShare.join(", ") + " ended below their entitlement by their own values. The cash method can fix that." : "Every heir received at least their entitlement of the estate, by their own values.";
+      }
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    fill(sampleInput());
+    $("#count").addEventListener("change", () => resize(Number($("#count").value)));
+    $("#equal").addEventListener("change", () => { const s = read(); if (!s.equalShares) s.heirs.forEach((h) => { h.share = Math.round(10000 / s.heirs.length) / 100; }); draw(s); });
+    $("#add-item").addEventListener("click", () => { const s = read(); if (s.items.length >= MAX_ITEMS) { status.textContent = "At most " + MAX_ITEMS + " items."; return; } s.items.push(""); s.heirs.forEach((h) => h.values.push(0)); draw(s); document.querySelector("#grid tbody tr:last-child .item").focus(); });
+    $("#grid").addEventListener("click", (e) => {
+      const b = e.target.closest(".del");
+      if (!b) return;
+      const s = read();
+      if (s.items.length <= 1) return;
+      const j = [...document.querySelectorAll("#grid tbody tr")].indexOf(b.closest("tr"));
+      s.items.splice(j, 1); s.heirs.forEach((h) => h.values.splice(j, 1));
+      draw(s);
+    });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("division_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: three heirs, six items, invented numbers. Enter yours above."; } }, 0); });
+    $("#dl-sheet").addEventListener("click", () => { const s = read(); download("bid-sheet.csv", bidSheetCsv(s.items, s.heirs.map((h) => h.name)), "text/csv"); record("sheet_downloaded"); status.textContent = "Send each heir the sheet; each fills in their own column privately. Then combine the columns into one file and import it."; });
+    $("#load-sheet-btn").addEventListener("click", () => $("#load-sheet").click());
+    $("#load-sheet").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseBidSheet(await f.text());
+      e.target.value = "";
+      if (out.error) { status.textContent = out.error; return; }
+      const s = read();
+      fill({ ...s, items: out.items, heirs: out.heirs, equalShares: s.equalShares });
+      record("sheet_imported");
+      status.textContent = "Imported " + out.items.length + " items for " + out.heirs.length + " heirs.";
+    });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!R) return;
+      try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied. Paste it into an email to the family."; record("text_copied"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; }
+    });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("estate-division.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("estate-division.json", serializeState(INPUT), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseState(await f.text());
+      e.target.value = "";
+      if (out.error) { status.textContent = out.error; return; }
+      if (out.state.heirs.length < 2 || out.state.heirs.length > MAX_HEIRS) { status.textContent = "The saved division has an unsupported number of heirs."; return; }
+      fill(out.state);
+      run();
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
