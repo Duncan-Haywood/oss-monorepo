@@ -137,11 +137,25 @@ export function limitedCompany(profit, salary, costs = 0, employmentAllowance = 
 // Search salaries for the one that maximises take-home. When keepNiYear is true the
 // salary stays at or above the lower earnings limit, so the year still counts for the
 // State Pension without paying NI.
+// The largest salary the company can pay out of `available` once its own employer NI
+// on that salary is paid too (salary + employer NI <= available).
+export function maxAffordableSalary(available, employmentAllowance = false) {
+  if (available <= 0) return 0;
+  let lo = 0, hi = available;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (mid + employerNi(mid, employmentAllowance) <= available) lo = mid; else hi = mid;
+  }
+  return Math.floor(lo * 100) / 100;
+}
+
 export function bestSalary(profit, costs = 0, employmentAllowance = false, keepNiYear = true, retain = 0) {
-  const max = Math.max(0, profit - costs);
+  // Salary and the employer NI on it both come out of profit after costs; a salary whose
+  // NI the company cannot cover would leave a loss the take-home figure never paid for.
+  const max = maxAffordableSalary(Math.max(0, profit - costs), employmentAllowance);
   const floor = keepNiYear ? Math.min(R.lowerEarningsLimit, max) : 0;
   let best = null;
-  const candidates = new Set([floor, Math.min(R.secondaryThreshold, max), Math.min(R.personalAllowance, max)]);
+  const candidates = new Set([floor, max, Math.min(R.secondaryThreshold, max), Math.min(R.personalAllowance, max)]);
   for (let s = floor; s <= Math.min(max, 150000); s += 100) candidates.add(s);
   for (const s of candidates) {
     if (s < floor || s > max) continue;
@@ -170,6 +184,7 @@ export function compare(input) {
     salary = Number(input.salary);
     if (!Number.isFinite(salary) || salary < 0) errors.push("Enter a director salary of zero or more.");
     else if (Number.isFinite(profit) && salary > profit - (Number.isFinite(costs) ? costs : 0)) errors.push("Salary cannot exceed profit after company costs.");
+    else if (Number.isFinite(profit) && Number.isFinite(costs) && salary + employerNi(salary, input.employmentAllowance === "yes") > profit - costs + 0.005) errors.push(`Salary plus the company's employer NI on it is more than profit after company costs; the most this company can pay is about £${Math.floor(maxAffordableSalary(profit - costs, input.employmentAllowance === "yes")).toLocaleString("en-GB")}.`);
   }
   if (errors.length) return { ok: false, errors };
 
@@ -185,7 +200,7 @@ export function compare(input) {
   levels.sort((a, b) => a - b);
   const table = levels.map((p) => {
     const s = soleTrader(p).takeHome;
-    const l = (salaryMode === "custom" && salary <= p - costs ? limitedCompany(p, salary, costs, ea, retain) : bestSalary(p, costs, ea, keep, retain)).takeHome;
+    const l = (salaryMode === "custom" && salary + employerNi(salary, ea) <= p - costs + 0.005 ? limitedCompany(p, salary, costs, ea, retain) : bestSalary(p, costs, ea, keep, retain)).takeHome;
     return { profit: p, soleTrader: s, limited: l, diff: r2(l - s), current: p === profit };
   });
 

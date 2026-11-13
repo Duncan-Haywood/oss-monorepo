@@ -303,3 +303,30 @@ test('etsy-profit-calculator and wage-garnishment-limit-calculator: lead percent
   assert.match(g.CITATIONS.ordinary, /25%/);
   assert.match(g.CITATIONS.student, /15%/);
 });
+
+// UK sole trader vs limited company lead (pounds): every £ figure it states must come out of the
+// calculator, and its "usually not" claim must hold on a
+// £1,000 grid from £10,000 to £300,000 (all profit taken out, no running costs, no Employment Allowance).
+test('uk-sole-trader-vs-limited-company-calculator: lead is sourced, dated and matches the calculator', async () => {
+  const slug = 'uk-sole-trader-vs-limited-company-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source: GOV\.UK/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const c = await import(new URL(`${slug}/calc.mjs`, root));
+  const withCosts = c.compare({ ...c.SAMPLE, profit: '50000', costs: '1200' });
+  const noCosts = c.compare({ ...c.SAMPLE, profit: '50000', costs: '0' });
+  for (let p = 10000; p <= 300000; p += 1000) {
+    const gap = c.bestSalary(p, 0, false, true, 0).takeHome - c.soleTrader(p).takeHome;
+    assert.ok(gap < 0, `the company keeps more at £${p}, so "usually not" is wrong`);
+  }
+  const allowed = [
+    50000, Math.round(withCosts.st.takeHome), withCosts.lc.salary, Math.round(withCosts.lc.takeHome),
+    Math.round(noCosts.lc.takeHome), 1200,
+  ];
+  const stated = [...text.matchAll(/£([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.ok(stated.length > 0, 'lead states no figure');
+  for (const n of stated) assert.ok(allowed.includes(n), `£${n} is not a figure the calculator produces`);
+});
