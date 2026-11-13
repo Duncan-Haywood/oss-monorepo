@@ -32,7 +32,7 @@ import numpy as np
 
 from .asbuilt import (BOW_LIMIT, READ_U, TWIST_LIMIT, U_FIELD, U_JOINT, Band, _fit,
                       draw_magnitude, to_wall_bow, to_wall_twist_angle)
-from .budget import EDGE, GAP, HEIGHT, N_NAILS, R, Z_JOINT, plate_halves
+from .budget import EDGE, GAP, HEIGHT, R, Z_JOINT, plate_halves
 from .straighten import shape as shape_mid
 
 ZC = Z_JOINT - HEIGHT / 2           # joint-nail heights about the sheet centre
@@ -43,7 +43,7 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
              shape="halfnormal", s_layout=0.0, s_read=0.5e-3, s_robot=0.9e-3, s_edge=0.5e-3,
              band=None, joint_band=None, s_x=0.0, s_theta=0.0, s_sway=0.0, aim="edge",
              accept_half=None, max_hangs=5, rng=None, theta_draw=None, straighten=None,
-             s_push=None, profiles=None):
+             s_push=None, profiles=None, u_joint=None, return_hits=False):
     """Monte Carlo of one sheet's 62 nails on four as-built studs, hung with a pose error.
 
     s_x, s_theta   the hang: translation along the wall and rotation about the sheet centre
@@ -64,6 +64,10 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
                    and PHI (n_prof, n_g) its section rotation (rad). Each of the four studs is
                    drawn from them with a random left-right and top-bottom flip, in place of the
                    parabolic bow and linear twist; layout lean (s_layout) still applies.
+    u_joint        optional joint-nail heights as fractions of the sheet height (milestone 14: a
+                   denser joint-edge schedule); default the 17 heights of a 6 in schedule
+    return_hits    also return ``hits`` (trials, n) booleans in the order left joint edge, right
+                   joint edge, field stud 1, field stud 2, 7 bottom-plate and 7 top-plate nails
     accept_half    re-hang while the narrowest predicted joint half-window is below this (None:
                    never re-hang); max_hangs caps the hangs a sheet
     Other arguments are milestone 2's (`asbuilt.simulate`).
@@ -72,6 +76,8 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     (P both joint windows non-empty at every height, final hang), hangs (mean hangs a sheet).
     """
     rng = np.random.default_rng(seed) if rng is None else rng
+    UJ = U_JOINT if u_joint is None else np.asarray(u_joint, float)
+    ZCJ = UJ * HEIGHT - HEIGHT / 2
     band = Band() if band is None else band
     jband = band if joint_band is None else joint_band
     t = trials
@@ -109,16 +115,16 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
 
     if policy == "local":
         # milestone 12: read the stud at every nail height and aim each nail at its own read
-        nj = len(U_JOINT)
-        ur = np.concatenate([U_JOINT, U_FIELD])
+        nj = len(UJ)
+        ur = np.concatenate([UJ, U_FIELD])
         reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
         est_j, est_f = reads[..., :nj].copy(), reads[..., nj:]
     else:
         ur = READ_U[policy]
         reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
-        est_j = _fit(policy, ur, reads, U_JOINT)
+        est_j = _fit(policy, ur, reads, UJ)
         est_f = _fit(policy, ur, reads, U_FIELD)
-    true_j, true_f = line(U_JOINT), line(U_FIELD)
+    true_j, true_f = line(UJ), line(U_FIELD)
     if straighten is not None and (profiles is not None or policy == "local"):
         # milestone 12: a mid push on any stud shape, by superposition. The stud's mid-height
         # point moves by its offset from its own chord plus N(0, s_push), times the pinned (or
@@ -127,9 +133,9 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
         if straighten.policy != "mid":
             raise ValueError("measured studs and local reads support the mid push only")
         sp = s_read if s_push is None else s_push
-        w = shape_mid(U_JOINT, straighten.ends)[None, :]
-        rj = reads[..., :len(U_JOINT)] if policy == "local" else None
-        pol, uu, rr = ("dense", U_JOINT, rj) if policy == "local" else (policy, ur, reads)
+        w = shape_mid(UJ, straighten.ends)[None, :]
+        rj = reads[..., :len(UJ)] if policy == "local" else None
+        pol, uu, rr = ("dense", UJ, rj) if policy == "local" else (policy, ur, reads)
         e01 = _fit(pol, uu, rr, [0.0, 1.0])
         b_hat = _fit(pol, uu, rr, [0.5])[..., 0] - (e01[..., 0] + e01[..., 1]) / 2
         ends_ = line([0.0, 1.0])                                         # pinned at the plates
@@ -143,14 +149,14 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
             raise ValueError("straightening needs a bow estimate: policy three or dense")
         sp = s_read if s_push is None else s_push
         e01 = _fit(policy, ur, reads, [0.0, 1.0])                        # (t, 4, 2)
-        tgt = e01[..., :1] + (e01[..., 1:] - e01[..., :1]) * U_JOINT[None, None, :]
+        tgt = e01[..., :1] + (e01[..., 1:] - e01[..., :1]) * UJ[None, None, :]
         b_hat = _fit(policy, ur, reads, [0.5])[..., 0] - (e01[..., 0] + e01[..., 1]) / 2
-        true_line = a0[..., None] + (a1 - a0)[..., None] * U_JOINT[None, None, :]
+        true_line = a0[..., None] + (a1 - a0)[..., None] * UJ[None, None, :]
         for k in (0, 3):
             b_push = b[:, k] + (rng.normal(0, sp, t) if sp > 0 else 0.0)
             true_j[:, k] = true_line[:, k] + straighten.left(b_push)
             est_j[:, k] = tgt[:, k] + straighten.left(b_hat[:, k])
-    blo_j, bhi_j = jband(phi(U_JOINT))
+    blo_j, bhi_j = jband(phi(UJ))
     blo_f, bhi_f = band(phi(U_FIELD))
     hj = jband.face / 2 - R
     ref = (est_j.max(axis=-1) + est_j.min(axis=-1)) / 2
@@ -171,7 +177,7 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     if accept_half is None:
         pick = np.zeros(t, dtype=int)
     else:
-        shift = x[..., None] + th[..., None] * ZC[None, None, :]          # (t, m, 17)
+        shift = x[..., None] + th[..., None] * ZCJ[None, None, :]          # (t, m, 17)
         mL = ref[:, 0:1, None] + GAP / 2 + shift + dL[..., None]          # measured edges
         mR = ref[:, 3:4, None] - GAP / 2 + shift + dR[..., None]
         halfL = (estL_hi[:, None, :] - (mL + EDGE)) / 2
@@ -182,7 +188,7 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
         pick = ok.argmax(axis=1)
     rows = np.arange(t)
     x, th, dL, dR = x[rows, pick][:, None], th[rows, pick][:, None], dL[rows, pick][:, None], dR[rows, pick][:, None]
-    shift = x + th * ZC[None, :]
+    shift = x + th * ZCJ[None, :]
     eL = ref[:, 0:1] + GAP / 2 + shift
     eR = ref[:, 3:4] - GAP / 2 + shift
     if aim == "edge":
@@ -212,10 +218,13 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
         hits.append(np.abs(n) <= h)
     allhit = np.concatenate(hits, axis=1)
     feasible = np.all(eL + EDGE <= loL_true_hi, axis=1) & np.all(loR_true_lo <= eR - EDGE, axis=1)
-    return {"clean": float(allhit.all(axis=1).mean()),
-            "missed": float((1 - allhit.mean()) * N_NAILS),
-            "feasible": float(feasible.mean()),
-            "hangs": float((pick + 1).mean())}
+    out = {"clean": float(allhit.all(axis=1).mean()),
+           "missed": float((~allhit).sum(axis=1).mean()),
+           "feasible": float(feasible.mean()),
+           "hangs": float((pick + 1).mean())}
+    if return_hits:
+        out["hits"] = allhit
+    return out
 
 
 def success(**kw):
