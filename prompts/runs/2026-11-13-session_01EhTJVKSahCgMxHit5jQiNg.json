@@ -49,7 +49,7 @@
     "docs/reports/polish-2026-11-13-answer-leads-nexus-obbba.md"
   ],
   "goal": null,
-  "notes": "answer-lead.test.mjs 56/56; run_venture_tests on 5 slugs 0 failed; full build OK; check.mjs: publishable, 9269 pages, no dead links; Playwright at 390/1280: no sideways scroll, lead at 265px top on phone. Statute hosts (law.cornell.edu, uscode.house.gov) unreachable (HTTP 000), so As-of dates are the calc modules' verification dates.",
+  "notes": "answer-lead.test.mjs 56/56; run_venture_tests on 5 slugs 0 failed; full build OK; check.mjs: publishable, 9269 pages, no dead links; Playwright at 390/1280: no sideways scroll, lead at 265px top on phone. Statute hosts (law.cornell.edu, uscode.house.gov) unreachable (HTTP 000), so As-of dates are the calc modules' verification dates. Platform page tests: 1625 tests, 1598 pass, 26 skipped, 1 fail ('an identical build produces an identical cache name'): I edited and committed the run record while the two builds ran; re-run alone on the unchanged tree: 1 pass, 0 fail.",
   "corrections": [],
   "redteam": null
 }
