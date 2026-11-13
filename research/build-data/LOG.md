@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 81, 2026-11-13: a minimum-support rule for the work-type class, k chosen on 2020 and tested on 2021 and 2022
+## Session 81, 2026-11-13: a minimum-support rule (k = 1000, chosen on 2020) wins back 47 to 64% of Austin's build-time q0.9 transfer cost and keeps SF's and Seattle's gains, but costs Austin 4 to 9 days at the median (M1, M2, M4, M5 held; M3 refuted)
 
 Why: session 80 found Austin's 15-day transfer q0.9 cost from the cascade2 work-type class comes from 42 to 466 slow Seattle rows behind its trade classes, and SF's gain from 271,672 close source rows behind alteration. Its "Next" asked for a minimum-support rule fixed in advance.
 - New: configuration `cascade2_minsup<k>` (`transfer.minsup_map`): a class with fewer than k source training rows (the sources' issue years <= Y-2, the transfer model's own training rows) is folded into "other" in every city before fitting. The rule reads only the sources; the held-out city is never read. A configuration whose fold equals one already fitted reuses that fit (fixed seeds, identical model). 3 tests.
@@ -11,6 +11,31 @@ Predictions (written before any run):
 - (M3) Austin 2021 and 2022: the rule wins back at least half of cascade2's cost against type, minsup minus cascade2 <= 0.5 x (type minus cascade2) at q0.9. Refuted if either year fails.
 - (M4) SF 2021 and 2022: the rule keeps at least 90% of cascade2's gain over type, |minsup minus cascade2| <= 0.1 x (type minus cascade2) at q0.9. Refuted if either year fails.
 - (M5) Seattle 2021 and 2022: the rule folds no class holding more than 1% of Seattle's test rows, and |minsup minus cascade2| < 1 day at q0.9. Refuted if either part fails in either year.
+
+Outcome. Fresh pull 2026-11-13 00:09 to 00:24 UTC: row counts equal session 80's (SF 1,298,215, Austin 2,385,068, Seattle 194,241). Runs one after another with `/usr/bin/python3.13`, 4 to 5 minutes each, 00:25 to 01:07 UTC (a container restart at 00:41 stopped the driver after Austin 2021; the five remaining city-years were rerun from the same pull). Every type-minus-cascade2 contrast reproduces sessions 79 and 80 to the printed digit (fixed seeds): Austin 2020 -17.15, SF 2020 +14.38, Seattle 2021 +6.25, and the rest. Outputs: `results/censored_eval_validate_{austin,sf}_i2c_2020_pp2022_cascade2-type-cascade2_minsup100-cascade2_minsup1000-cascade2_minsup10000.json`, `results/censored_eval_validate_{austin,sf,seattle}_i2c_{2021_pp2023,2022_pp2024}_cascade2-type-cascade2_minsup1000.json`, `results/minsup_summary.json` (`src/summarise_minsup.py`).
+- Validation (2020), mean over Austin and SF of minsup minus cascade2 at q0.9: k = 100 -1.19 days (folds plumbing and fire in Austin, fire in SF), k = 1000 -5.68, k = 10000 -5.68 (the same folds as k = 1000, so the same fit). k* = 1000.
+- Transfer contrasts on all rows (reference), days of mean pinball loss [95% week-block interval]. "minsup minus cascade2" < 0 means the rule helps; "type minus cascade2" < 0 means the work-type class costs (as in session 80's table, with the sign read the same way: positive = class helps).
+
+| held, year | classes folded (source rows) | test rows folded | type minus cascade2, q0.9 | minsup minus cascade2, q0.9 | share of the cost won back | minsup minus cascade2, q0.5 |
+|---|---|---|---|---|---|---|
+| Austin 2020 (validation) | electrical, mechanical, plumbing, fire | 75.5% | -17.15 | **-11.00 [-11.53, -10.37]** | 64% | +0.50 [-0.33, 1.34] |
+| Austin 2021 | electrical 466, mechanical 141, plumbing 42, fire 72 | 75.5% | -15.34 | **-9.33 [-10.01, -8.62]** | 61% | **+8.50 [7.73, 9.33]** |
+| Austin 2022 | electrical 480, mechanical 157, plumbing 43, fire 72 | 76.8% | -9.79 | **-4.59 [-5.90, -3.04]** | 47% | **+4.42 [3.26, 5.55]** |
+| SF 2020 (validation) | sign, fire | 0.9% | +14.38 | -0.35 [-0.54, -0.18] | | +0.29 [0.21, 0.37] |
+| SF 2021 | sign 525, fire 75 | 1.1% | +15.74 | -0.20 [-0.39, -0.03] | | -0.12 [-0.20, -0.05] |
+| SF 2022 | sign 525, fire 75 | 1.1% | +22.65 | -0.25 [-0.41, -0.10] | | -0.20 [-0.31, -0.09] |
+| Seattle 2021 | fire 3 | 0.0% | +6.25 | -0.01 [-0.14, 0.15] | | +0.15 [0.07, 0.22] |
+| Seattle 2022 | fire 3 | 0.0% | +6.31 | 0.00 (no row changes) | | 0.00 |
+
+- (M1) Held: k* = 1000 (k = 10000 tied it with the same folds; ties go to the smaller k).
+- (M2) Held: the rule lowers Austin's q0.9 loss by 9.3 days in 2021 and 4.6 in 2022, both intervals below zero.
+- (M3) Refuted, narrowly: the rule wins back 61% of cascade2's cost in 2021 but 47% in 2022 (bar 50%). Even at best the rule leaves Austin 5 to 6 days worse at q0.9 than the plain permit-type class.
+- (M4) Held: SF keeps all of its gain; the rule helps SF slightly (0.2 to 0.35 days at q0.9, folding 525 sign rows) in every year.
+- (M5) Held: in Seattle the rule folds only fire (3 source rows, no Seattle test row in 2021 or 2022) and moves q0.9 by at most 0.01 days.
+- Not predicted: the rule costs Austin 8.5 days at the median in 2021 and 4.4 in 2022 (2.4 to 2.9 in electrical, 1.0 to 1.9 in plumbing, 1.4 to 1.6 in mechanical, and +2.3 in new construction in 2021, a class the rule does not fold). That makes Austin's median worse than under the plain permit-type class by 5.9 days (2021) and 7.6 (2022). The likely reason: folding a thin class into "other" is not the same as leaving it unseen. Under `type` Austin's trade permits are a category the sources never had, which LightGBM routes down the "not this category" side of each split; under the rule they join Seattle's and SF's "other" rows (8,215 cascade2 source rows in 2021), whose durations they now share. So the fold target matters, not only the threshold.
+- What this means. A support threshold fixed on one year carries to the next two, removes most of the tail cost that a few hundred borrowed rows cause, and costs nothing where classes are well supported. But a class folded into a catch-all is still a class. Folding into "other" moves part of the error from the tail to the middle of the distribution, so the rule is not yet a fix to adopt.
+- Limits: 3 seeds; one threshold grid (100, 1000, 10000) on one validation year; a rule that reads source counts only, not durations; no intervals on the class split; reference cohorts truncated at 1,412 to 2,142 days.
+Next: fold thin classes to missing (an unseen category) instead of "other", predicted to keep the q0.9 gain and remove the median cost; a duration-aware rule (minimum support plus session 77's tail ratio); check new construction's median shift in Austin 2021.
 
 ## Session 80, 2026-11-12: San Francisco's build-time gain and Austin's cost from the work-type class hold in 2020 and 2022; both come from which classes the sources fill, and Austin's from 42 to 466 slow Seattle trade rows (W1, W2, W5, W6 held; W3, W4 refuted)
 
