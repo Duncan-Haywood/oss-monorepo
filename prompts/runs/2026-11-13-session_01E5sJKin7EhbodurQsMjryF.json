@@ -39,6 +39,10 @@
     {
       "file": "ventures/hearth-and-horizon/BIBLE.md",
       "issue": "The Setting timeline table is now ~90 long rows; reading it to avoid repeats costs a large tool output (44 KB). DONE.md plus a keyword grep was the faster overlap check."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/stories.mjs",
+      "issue": "Page title hard-coded '(text and audio)' for every story while audio is capped; found by the PR bot, not by any test."
     }
   ],
   "deviations": [
@@ -53,7 +57,7 @@
     "docs/posts/2026-11-13-the-sky-is-the-same-size.md"
   ],
   "goal": null,
-  "notes": "Creative track, Hearth & Horizon shelf, piece 'the-sky-is-the-same-size' (~5,700 words, text only: audio dir total 423 MB > 400 MB cap). Risk sums worked in a python one-off (orbit period, westward shift, track azimuth 40.5 deg at 17 S, ground speed ~7.3 km/s, 1/18 footprint chance, ~1 in 2.5 million town). Weekdays checked. Adversarial re-read fixed an unverifiable claim about real debris-injury history, fireball dark-flight geometry, and Rosary timing. Checks: hearth-and-horizon node --test 15/15, platform/pages/writing.test.mjs 38/38. No agent doc: nothing new the next run needs beyond the BIBLE row and DONE entry.",
+  "notes": "Creative track, Hearth & Horizon shelf, piece 'the-sky-is-the-same-size' (~5,700 words, text only: audio dir total 423 MB > 400 MB cap). Risk sums worked in a python one-off (orbit period, westward shift, track azimuth 40.5 deg at 17 S, ground speed ~7.3 km/s, 1/18 footprint chance, ~1 in 2.5 million town). Weekdays checked. Adversarial re-read fixed an unverifiable claim about real debris-injury history, fireball dark-flight geometry, and Rosary timing. Checks: hearth-and-horizon node --test 15/15, platform/pages/writing.test.mjs 38/38. No agent doc: nothing new the next run needs beyond the BIBLE row and DONE entry. Also, after the Copilot reviewer flagged it: stories.mjs gave every story page the title suffix '(text and audio)', so 323 text-only pages promised audio in <title>/og:title; the suffix is now conditional on the audio manifest (26 pages keep it). The post links the live story URL. Merging main hit one BIBLE.md conflict (two 2061 timeline rows added the same hour); kept both.",
   "corrections": [],
   "redteam": null,
   "usage": {
