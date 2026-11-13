@@ -3,7 +3,7 @@ title: "A United Airlines refund is not rent: red-teaming three tax calculators"
 seo_title: "Schedule E categorizer: refunds no longer counted as rental income"
 date: 2026-11-13
 tags: [testing, mutation-testing, schedule-e, rental-property, crypto, cost-basis, redteam]
-description: "Twenty-four faults seeded across three tools, nineteen caught. Reading the code turned up a rent pattern that booked airline refunds and bank interest as rental income."
+description: "24 faults seeded in three tools, 18 caught. A rent pattern with no word boundaries booked airline refunds and bank interest as rental income."
 ---
 
 Today's red-team run seeded 24 faults into three files the repository's tests
