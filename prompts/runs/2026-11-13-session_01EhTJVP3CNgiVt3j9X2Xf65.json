@@ -39,13 +39,20 @@
       "issue": "Deepen-a-flagship default sent this run to its sixth heavily-tuned shift-roster-builder optimizer item in two days; the item turned out to be a negative result (move never taken). The flagship's next: list could say which items the last run expects to be negative."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight.mjs: the change touches only the engine's kept-start move, README, eval outputs and a post; no page, sitemap or llms.txt changed.",
+      "did": "Ran the full venture suite and the reissue benches instead.",
+      "result": "suite green; benches identical on/off"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-13-a-move-that-never-fired.md",
     "ventures/shift-roster-builder/README.md (section 'Giving up two clashing shifts, and the keep-usual-shifts sweep with the kept start')"
   ],
   "goal": null,
-  "notes": "Two-shift eject added to ejectOpen (keptEject2, default on) with a test; counted with an uncommitted scratch counter: possible 58 times over all reissue sets, taken 0; 40x112 and 60x168 on/off identical per call-out and in time (eval/eject2-probe.txt). steady-plan sweep re-run with the kept start: all 80 rows identical apart from timings (eval/steady-plan.kept-start.txt). Checks: node --test reissue-posted.test.mjs pass; full venture suite via platform/ci/run_venture_tests.py shift-roster-builder (result in PR body). No docs/reports agent doc: the README section carries what the next run needs.",
+  "notes": "Two-shift eject added to ejectOpen (keptEject2, default on) with a test; counted with an uncommitted scratch counter: possible 58 times over all reissue sets, taken 0; 40x112 and 60x168 on/off identical per call-out and in time (eval/eject2-probe.txt). steady-plan sweep re-run with the kept start: all 80 rows identical apart from timings (eval/steady-plan.kept-start.txt). Checks: node --test reissue-posted.test.mjs pass; full venture suite via platform/ci/run_venture_tests.py shift-roster-builder passed: 'ok shift-roster-builder (152.7s)'. No docs/reports agent doc: the README section carries what the next run needs.",
   "corrections": [],
   "redteam": null
 }
