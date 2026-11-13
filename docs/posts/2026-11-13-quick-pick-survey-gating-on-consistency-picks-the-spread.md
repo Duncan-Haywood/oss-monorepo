@@ -1,8 +1,8 @@
 ---
 title: "Filtering survey respondents by consistency picks the people whose answers spread out most"
-seo_title: "Anchor pairs, lapse gates and selection bias in a pooled Bradley-Terry prior"
+seo_title: "Anchor pairs, lapse gates and selection bias in a pooled prior"
 date: 2026-11-13
-description: "Planted easy questions made careless respondents easier to spot. Gating on them still barely helped, because the most consistent people are the ones whose items are far apart."
+description: "Planted easy questions made careless respondents easier to spot. Gating on them barely helped: the most consistent people have the most spread-out items."
 tags: [quick-pick-survey, surveys, ranking, statistics, empirical-bayes, selection-bias, simulation]
 ---
 
