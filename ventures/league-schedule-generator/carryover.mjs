@@ -1491,7 +1491,7 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
  * of the trade the weights do not reach (eval/capped-breaks.txt).
  */
-export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, polish = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   checkBestOfK(tries, pick);
   if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
   if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
@@ -1513,6 +1513,12 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
       results.push(t);
       if (onTry) onTry(t.index, candidateOf(t, pick));
     }
+  }
+  // `polish` more: frontier seasons regrounded with fewer breaks (carryOverPolish); only kept by `keep`
+  if (!Number.isInteger(polish) || polish < 0) throw new Error("polish must be a whole number of 0 or more.");
+  if (polish) for (const t of carryOverPolish(n, results, { seed, count: polish })) {
+    results.push(t);
+    if (onTry) onTry(t.index, candidateOf(t, pick));
   }
   return combineCarryOverTries(results, pick, { among: tries + capped, keep });
 }
@@ -1902,3 +1908,91 @@ export function carryOverSqueezes(n, tries, count, { seed = 1, effort = 1, cycle
   }
   return out;
 }
+
+/**
+ * The fewest breaks the venue search finds for a season's own timetable (README "Polishing the
+ * grounds of the frontier"). Carry-over depends only on who meets whom in which round, so the same
+ * timetable with other grounds has the same carry-over; a MaxSAT check (eval/orient-maxsat.py)
+ * showed the capped, gap and squeezed tries often keep 2 to 5 more breaks than their timetable
+ * needs. A single round robin reruns assignVenues seeded with the season's own hosts (each team's
+ * home and away games within one); a home-and-away season reruns assignVenuesDouble from its own
+ * pair hosts (the pair's leg-one host is away in leg two; leg one balanced within one). Returns the
+ * season with the new grounds when it has strictly fewer breaks and passes those checks, else null.
+ * Seeded; the timetable and carry-over are untouched.
+ */
+export function polishSeasonVenues(n, season, { seed = 1 } = {}) {
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  const legs = season?.rounds?.length === 2 * R ? 2 : season?.rounds?.length === R ? 1 : 0;
+  if (!legs) throw new Error("season must be a single or home-and-away round robin for this many teams.");
+  const opp = oppFromRounds(season.rounds, N, n);
+  const own = season.rounds.map((r) => { const v = new Uint8Array(N); for (const [h] of r.matches) v[h] = 1; return v; });
+  let venues;
+  if (legs === 1) venues = assignVenues(opp, n, seed, 8, { hosts: pairHostsOf(opp, own) });
+  else {
+    const host = new Int16Array(N * N).fill(-1);
+    for (let r = 0; r < R; r++) for (const [h, a] of season.rounds[r].matches) host[Math.min(h, a) * N + Math.max(h, a)] = h;
+    venues = assignVenuesDouble(opp, n, seed, 6, host);
+  }
+  // the checks the season's own grounds pass: balance (leg one of a season), and a pair's two
+  // meetings at opposite grounds
+  const span = legs === 2 ? R : opp.length;
+  for (let t = 0; t < n; t++) {
+    let h = 0, g = 0;
+    for (let r = 0; r < span; r++) if (opp[r][t] < n) { g++; h += venues[r][t]; }
+    if (Math.abs(2 * h - g) > 1) return null;
+  }
+  if (legs === 2) {
+    const first = new Int8Array(N * N).fill(-1);
+    for (let r = 0; r < 2 * R; r++) for (let t = 0; t < n; t++) {
+      const u = opp[r][t];
+      if (u >= n || t > u) continue;
+      if (first[t * N + u] < 0) first[t * N + u] = venues[r][t];
+      else if (first[t * N + u] === venues[r][t]) return null;
+    }
+  }
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, opp, t, n);
+  if (breaks >= season.breaks) return null;
+  const rounds = season.rounds.map((rd, r) => ({ ...rd, matches: rd.matches.map(([a, b]) => (venues[r][a] ? [a, b] : [b, a])) }));
+  return { ...season, rounds, breaks };
+}
+
+/**
+ * Seasons the page adds after its squeezes (README "Polishing the grounds of the frontier"): each
+ * season of `results` (tries and squeezes, by index, one per distinct carry-over/breaks, none
+ * polished already) is regrounded by polishSeasonVenues; a polished season is kept when nothing in
+ * `results` or the other polished seasons beats it on both counts, so a season the tries' frontier
+ * left out can join it (14 teams: 314 / 20 regrounded to 314 / 16 beats 334 / 16). At most `count`,
+ * by source index, each numbered after the results (index = results.length, + 1, ...) with
+ * `polishedFrom` set. A function of `results` and `seed` alone, so a share link that keeps a
+ * polished season rebuilds it.
+ */
+export function carryOverPolish(n, results, { seed = 1, count = CARRY_OVER_POLISH } = {}) {
+  const base = [...results].sort((a, b) => a.index - b.index);
+  const done = new Set(base.filter((t) => t.polishedFrom != null).map((t) => t.polishedFrom));
+  const score = (t) => ({ coe: t.coe + (t.repeats || 0) * REPEAT_PENALTY, breaks: t.breaks });
+  const seen = new Set();
+  const polished = [];
+  base.forEach((t, i) => {
+    if (t.polishedFrom != null || done.has(i)) return;
+    const key = `${t.coe}/${t.repeats || 0}/${t.breaks}`; // the same season found by several tries is regrounded once
+    if (seen.has(key)) return;
+    seen.add(key);
+    // the seed is the source's own (the output index is not known until the kept ones are counted)
+    const p = polishSeasonVenues(n, t, { seed: carryOverTrySeed(seed, i) });
+    if (p) polished.push({ from: i, season: p });
+  });
+  const all = [...base.map(score), ...polished.map((x) => score(x.season))];
+  const beaten = (x) => all.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks));
+  const out = [];
+  for (const { from, season } of polished) {
+    if (out.length >= count) break;
+    if (beaten(score(season))) continue;
+    const { squeezedFrom, maxBreaks, squeezed, ...rest } = season; // a polished season is not a squeeze
+    out.push({ ...rest, index: base.length + out.length, seed: carryOverTrySeed(seed, from), breakWeight: null, polishedFrom: from });
+  }
+  return out;
+}
+
+/** Polished seasons the page adds after its squeezes, at most (carryOverPolish). */
+export const CARRY_OVER_POLISH = 4;

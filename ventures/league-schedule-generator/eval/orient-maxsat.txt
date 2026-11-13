@@ -1,0 +1,124 @@
+# python3 eval/orient-maxsat.py <tries> --teams N [--double] --seconds 240 (2026-11-13; tries from eval/orient-maxsat-dump.mjs N 1 [d], seed 1).
+# least = proved fewest breaks for that try's own timetable under the tool's rules; null = not proved in the time limit. Every oriented season re-checked by eval/orient-maxsat-check.mjs (all ok).
+{"teams": 12, "double": false, "i": 0, "coe": 170, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 1, "coe": 174, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 2, "coe": 170, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 3, "coe": 172, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 4, "coe": 168, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 5, "coe": 174, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 6, "coe": 264, "breaks": 10, "least": 10, "s": 0.0}
+{"teams": 12, "double": false, "i": 7, "coe": 188, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 8, "coe": 264, "breaks": 10, "least": 10, "s": 0.0}
+{"teams": 12, "double": false, "i": 9, "coe": 200, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 12, "double": false, "i": 10, "coe": 196, "breaks": 18, "least": 16, "s": 0.0}
+{"teams": 12, "double": false, "i": 11, "coe": 170, "breaks": 20, "least": 16, "s": 0.0}
+{"teams": 14, "double": false, "i": 0, "coe": 252, "breaks": 18, "least": 18, "s": 0.0}
+{"teams": 14, "double": false, "i": 1, "coe": 250, "breaks": 18, "least": 18, "s": 0.0}
+{"teams": 14, "double": false, "i": 2, "coe": 370, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 14, "double": false, "i": 3, "coe": 238, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 14, "double": false, "i": 4, "coe": 242, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 14, "double": false, "i": 5, "coe": 244, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 14, "double": false, "i": 6, "coe": 250, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 14, "double": false, "i": 7, "coe": 358, "breaks": 16, "least": 16, "s": 0.0}
+{"teams": 14, "double": false, "i": 8, "coe": 434, "breaks": 12, "least": 12, "s": 0.0}
+{"teams": 14, "double": false, "i": 9, "coe": 334, "breaks": 16, "least": 16, "s": 0.0}
+{"teams": 14, "double": false, "i": 10, "coe": 314, "breaks": 20, "least": 16, "s": 0.0}
+{"teams": 14, "double": false, "i": 11, "coe": 270, "breaks": 24, "least": 20, "s": 0.0}
+{"teams": 16, "double": false, "i": 0, "coe": 224, "breaks": 24, "least": 24, "s": 0.1}
+{"teams": 16, "double": false, "i": 1, "coe": 224, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 16, "double": false, "i": 2, "coe": 224, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 16, "double": false, "i": 3, "coe": 224, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 16, "double": false, "i": 4, "coe": 224, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 16, "double": false, "i": 5, "coe": 224, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 16, "double": false, "i": 6, "coe": 224, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 16, "double": false, "i": 7, "coe": 288, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 16, "double": false, "i": 8, "coe": 488, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 16, "double": false, "i": 9, "coe": 360, "breaks": 18, "least": 18, "s": 0.0}
+{"teams": 16, "double": false, "i": 10, "coe": 342, "breaks": 22, "least": 22, "s": 0.0}
+{"teams": 16, "double": false, "i": 11, "coe": 338, "breaks": 26, "least": 26, "s": 0.0}
+{"teams": 17, "double": false, "i": 0, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 1, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 2, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 3, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 4, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 5, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 6, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 7, "coe": 343, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 17, "double": false, "i": 8, "coe": 969, "breaks": 14, "least": 14, "s": 0.0}
+{"teams": 17, "double": false, "i": 9, "coe": 807, "breaks": 18, "least": 18, "s": 0.0}
+{"teams": 17, "double": false, "i": 10, "coe": 703, "breaks": 22, "least": 22, "s": 0.0}
+{"teams": 17, "double": false, "i": 11, "coe": 653, "breaks": 26, "least": 24, "s": 0.1}
+{"teams": 18, "double": false, "i": 0, "coe": 348, "breaks": 40, "least": 38, "s": 26.5}
+{"teams": 18, "double": false, "i": 1, "coe": 464, "breaks": 28, "least": 28, "s": 0.0}
+{"teams": 18, "double": false, "i": 2, "coe": 460, "breaks": 28, "least": 28, "s": 0.0}
+{"teams": 18, "double": false, "i": 3, "coe": 444, "breaks": 28, "least": 28, "s": 0.0}
+{"teams": 18, "double": false, "i": 4, "coe": 348, "breaks": 40, "least": 38, "s": 26.3}
+{"teams": 18, "double": false, "i": 5, "coe": 430, "breaks": 30, "least": 30, "s": 0.1}
+{"teams": 18, "double": false, "i": 6, "coe": 468, "breaks": 26, "least": 26, "s": 0.0}
+{"teams": 18, "double": false, "i": 7, "coe": 476, "breaks": 26, "least": 26, "s": 0.0}
+{"teams": 18, "double": false, "i": 8, "coe": 662, "breaks": 16, "least": 16, "s": 0.0}
+{"teams": 18, "double": false, "i": 9, "coe": 510, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 18, "double": false, "i": 10, "coe": 454, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 18, "double": false, "i": 11, "coe": 470, "breaks": 28, "least": 28, "s": 0.0}
+{"teams": 19, "double": false, "i": 0, "coe": 323, "breaks": 36, "least": 36, "s": 0.0}
+{"teams": 19, "double": false, "i": 1, "coe": 323, "breaks": 36, "least": 36, "s": 0.0}
+{"teams": 19, "double": false, "i": 2, "coe": 323, "breaks": 36, "least": 36, "s": 0.1}
+{"teams": 19, "double": false, "i": 3, "coe": 323, "breaks": 36, "least": 36, "s": 0.0}
+{"teams": 19, "double": false, "i": 4, "coe": 323, "breaks": 36, "least": 36, "s": 0.0}
+{"teams": 19, "double": false, "i": 5, "coe": 323, "breaks": 36, "least": 36, "s": 0.0}
+{"teams": 19, "double": false, "i": 6, "coe": 323, "breaks": 36, "least": 36, "s": 0.0}
+{"teams": 19, "double": false, "i": 7, "coe": 323, "breaks": 36, "least": 36, "s": 0.0}
+{"teams": 19, "double": false, "i": 8, "coe": 1421, "breaks": 16, "least": 16, "s": 0.0}
+{"teams": 19, "double": false, "i": 9, "coe": 1141, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 19, "double": false, "i": 10, "coe": 1079, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 19, "double": false, "i": 11, "coe": 2749, "breaks": 17, "least": 12, "s": 0.5}
+{"teams": 20, "double": false, "i": 0, "coe": 360, "breaks": 52, "least": 50, "s": 19.5}
+{"teams": 20, "double": false, "i": 1, "coe": 586, "breaks": 38, "least": 38, "s": 0.0}
+{"teams": 20, "double": false, "i": 2, "coe": 588, "breaks": 34, "least": 34, "s": 0.0}
+{"teams": 20, "double": false, "i": 3, "coe": 576, "breaks": 32, "least": 32, "s": 0.1}
+{"teams": 20, "double": false, "i": 4, "coe": 360, "breaks": 54, "least": 50, "s": 18.2}
+{"teams": 20, "double": false, "i": 5, "coe": 666, "breaks": 36, "least": 36, "s": 0.3}
+{"teams": 20, "double": false, "i": 6, "coe": 546, "breaks": 36, "least": 36, "s": 0.1}
+{"teams": 20, "double": false, "i": 7, "coe": 618, "breaks": 38, "least": 38, "s": 0.1}
+{"teams": 20, "double": false, "i": 8, "coe": 1424, "breaks": 18, "least": 18, "s": 0.1}
+{"teams": 20, "double": false, "i": 9, "coe": 1092, "breaks": 22, "least": 22, "s": 0.0}
+{"teams": 20, "double": false, "i": 10, "coe": 1008, "breaks": 26, "least": 26, "s": 0.0}
+{"teams": 20, "double": false, "i": 11, "coe": 910, "breaks": 30, "least": 30, "s": 0.0}
+{"teams": 22, "double": false, "i": 0, "coe": 440, "breaks": 66, "least": null, "s": 240.0}
+{"teams": 22, "double": false, "i": 1, "coe": 752, "breaks": 42, "least": 42, "s": 0.1}
+{"teams": 22, "double": false, "i": 2, "coe": 726, "breaks": 44, "least": 44, "s": 0.1}
+{"teams": 22, "double": false, "i": 3, "coe": 762, "breaks": 44, "least": 42, "s": 0.1}
+{"teams": 22, "double": false, "i": 4, "coe": 440, "breaks": 66, "least": null, "s": 240.0}
+{"teams": 22, "double": false, "i": 5, "coe": 704, "breaks": 46, "least": 46, "s": 0.1}
+{"teams": 22, "double": false, "i": 6, "coe": 718, "breaks": 42, "least": 42, "s": 0.0}
+{"teams": 22, "double": false, "i": 7, "coe": 764, "breaks": 38, "least": 38, "s": 0.0}
+{"teams": 22, "double": false, "i": 8, "coe": 1130, "breaks": 20, "least": 20, "s": 0.0}
+{"teams": 22, "double": false, "i": 9, "coe": 970, "breaks": 24, "least": 24, "s": 0.0}
+{"teams": 22, "double": false, "i": 10, "coe": 848, "breaks": 28, "least": 28, "s": 0.0}
+{"teams": 22, "double": false, "i": 11, "coe": 776, "breaks": 32, "least": 32, "s": 0.0}
+{"teams": 24, "double": false, "i": 0, "coe": 570, "breaks": 66, "least": 64, "s": 0.2}
+{"teams": 24, "double": false, "i": 1, "coe": 570, "breaks": 66, "least": 64, "s": 0.2}
+{"teams": 24, "double": false, "i": 2, "coe": 942, "breaks": 54, "least": 52, "s": 0.1}
+{"teams": 24, "double": false, "i": 3, "coe": 886, "breaks": 52, "least": 50, "s": 0.1}
+{"teams": 24, "double": false, "i": 4, "coe": 570, "breaks": 66, "least": 64, "s": 0.2}
+{"teams": 24, "double": false, "i": 5, "coe": 570, "breaks": 66, "least": 64, "s": 0.2}
+{"teams": 24, "double": false, "i": 6, "coe": 888, "breaks": 52, "least": 52, "s": 0.3}
+{"teams": 24, "double": false, "i": 7, "coe": 912, "breaks": 48, "least": 48, "s": 0.1}
+{"teams": 24, "double": false, "i": 8, "coe": 1428, "breaks": 22, "least": 22, "s": 0.0}
+{"teams": 24, "double": false, "i": 9, "coe": 1270, "breaks": 26, "least": 26, "s": 0.0}
+{"teams": 24, "double": false, "i": 10, "coe": 1132, "breaks": 30, "least": 30, "s": 0.0}
+{"teams": 24, "double": false, "i": 11, "coe": 1108, "breaks": 34, "least": 34, "s": 0.0}
+# home and away, 19 teams seed 1, tries 0 and 7
+{"teams": 19, "double": true, "i": 0, "coe": 1311, "breaksBefore": 87, "minBreaks": 85, "s": 142.2}
+{"teams": 19, "double": true, "i": 7, "coe": 1517, "breaksBefore": 84, "minBreaks": 84, "s": 0.0}
+
+[exited with code 0]
+# --rotate on 20 teams try 0 (360 carry-over), --seconds 120, stopped after 8 of 38 orders
+{"teams": 20, "i": 0, "order": "rot0", "coe": 360, "least": 50, "s": 19.8}
+{"teams": 20, "i": 0, "order": "rev0", "coe": 360, "least": 50, "s": 49.8}
+{"teams": 20, "i": 0, "order": "rot1", "coe": 360, "least": null, "s": 120.0}
+{"teams": 20, "i": 0, "order": "rev1", "coe": 360, "least": null, "s": 120.0}
+{"teams": 20, "i": 0, "order": "rot2", "coe": 360, "least": null, "s": 120.0}
+{"teams": 20, "i": 0, "order": "rev2", "coe": 360, "least": null, "s": 120.0}
+{"teams": 20, "i": 0, "order": "rot3", "coe": 360, "least": 50, "s": 2.0}
+{"teams": 20, "i": 0, "order": "rev3", "coe": 360, "least": null, "s": 120.0}

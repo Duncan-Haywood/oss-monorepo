@@ -4,7 +4,9 @@
 // "Back to the choice above" and changing the choice return to the first season.
 // Since 2026-11-13 it also checks a squeezed season (README "Squeezing a season under a cap") is
 // listed and picks it; --single (2026-11-13 later) does the same on a single round robin
-// (README "Squeezing a single round robin"). Options: --teams=12, --single. Needs Playwright and a Chromium (skips with exit 0 otherwise):
+// (README "Squeezing a single round robin"). --polished (2026-11-13, README "Polishing the grounds
+// of the frontier") picks a regrounded season instead (index 16 and up, after the 4 squeezes; 14
+// teams single lists 314 / 16). Options: --teams=12, --single, --polished. Needs Playwright and a Chromium (skips with exit 0 otherwise):
 //   node eval/browser-frontier-pick.mjs
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -62,7 +64,9 @@ check(!(await page.locator("#carry-frontier").isHidden()) && count >= 1, `the fr
 const keeps = await buttons.evaluateAll((bs) => bs.map((b) => Number(b.dataset.keep)));
 const sqAt = keeps.findIndex((k) => k >= 12);
 check(sqAt >= 0, `a squeezed season is on the list (try numbers ${keeps.join(", ")})`);
-const target = buttons.nth(Math.max(0, sqAt));
+const polAt = keeps.findIndex((k) => k >= 16);
+if (process.argv.includes("--polished")) check(polAt >= 0, "a regrounded season is on the list (index 16 and up)");
+const target = buttons.nth(Math.max(0, process.argv.includes("--polished") ? polAt : sqAt));
 const label = await target.textContent();
 await target.click();
 await waitLine(page, /Picked from \d+ searches/);
