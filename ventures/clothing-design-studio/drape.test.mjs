@@ -82,7 +82,9 @@ test("arms: the upper arm and wrist girths are the ones entered, the arms hang o
   const b = bodyModel({ chest: 100, height: 180, upperArm: 33, wrist: 17 }, { armAngleDeg: 30 });
   assert.equal(b.arms.length, 2);
   for (const arm of b.arms) {
-    assert.ok(Math.abs(2 * Math.PI * armRadiusAt(arm, 0) - 0.33) < 1e-9);
+    // the upper arm girth below the deltoid cap (which starts 12% fuller at the joint)
+    assert.ok(Math.abs(2 * Math.PI * armRadiusAt(arm, arm.caps[1].s0) - 0.33) < 1e-9);
+    assert.ok(Math.abs(armRadiusAt(arm, 0) / armRadiusAt(arm, arm.caps[1].s0) - 1.12) < 1e-9);
     assert.ok(Math.abs(2 * Math.PI * armRadiusAt(arm, arm.wristAt) - 0.17) < 1e-9);
     assert.ok(Math.sign(arm.d[0]) === arm.side && arm.d[1] < 0);
     assert.ok(Math.abs(Math.atan2(Math.abs(arm.d[0]), -arm.d[1]) * 180 / Math.PI - 30) < 1e-9);
@@ -123,11 +125,20 @@ test("sleeves: sewn into the armholes they skim the arm, and the old half-width 
   const oldBicep = old.sleeves[0].levels.find(l => l.where === "bicep");
   assert.ok(oldBicep.hoopStrainPct > 15 && oldBicep.touchingPct === 100, JSON.stringify(oldBicep));
   assert.match(old.notes.join(" "), /sleeve is stretched more than 8% round the bicep/);
-  // a tight tee with the arms held out pulls harder across the chest than the bare panels did
+  // a tight tee: with sleeves the chest still takes the tape arithmetic's 8-16%, and the sleeves are tight too
   const xs = drapeGarment(me, { garment: "tee", size: "XS", fit: "slim" });
   assert.equal(xs.checks.settled, true);
   assert.equal(xs.checks.verticesInsideBody, 0);
-  assert.ok(xs.levels.find(l => l.where === "chest").hoopStrainPct > 8);
+  const xc = xs.levels.find(l => l.where === "chest").hoopStrainPct;
+  assert.ok(xc > 8 && xc < 16, String(xc));
+  // the regular tee's yoke (above the armholes) stays nearly unstretched: the garment hangs from the shoulders
+  let yA = 0, yE = 0;
+  for (let q = 0; q < r.cloth.triOffs[2]; q++) {
+    const t = r.cloth.tris[q], y = (r.pos[3 * t[0] + 1] + r.pos[3 * t[1] + 1] + r.pos[3 * t[2] + 1]) / 3;
+    if (y < 1.40) continue;
+    yA += r.strain[q].area; yE += r.strain[q].area * r.strain[q].ex;
+  }
+  assert.ok(yE / yA < 0.05, `yoke stretch ${(100 * yE / yA).toFixed(1)}%`);
   assert.ok(xs.sleeves[0].levels.find(l => l.where === "bicep").hoopStrainPct > 8);
   // body panels only, as before sleeves: no arms, no sleeve numbers
   const bare = drapeGarment(me, { garment: "tee", size: "M", sleeves: false, gridCm: 3.5 });

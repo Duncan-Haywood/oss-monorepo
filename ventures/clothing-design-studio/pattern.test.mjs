@@ -43,7 +43,7 @@ test("the sleeve is a whole sleeve: its width is the full bicep girth and its le
     assert.ok(Math.abs(d.checks.sleeveLengthCm - want) < 0.05);
     assert.ok(Math.abs(Math.max(...xs) - Math.min(...xs) - d.checks.sleeveBicepGirthCm) < 0.05);
   }
-  // an M regular tee: a flat bicep of about 19 cm (38 round), more than a typical 31 cm upper arm, and a 9 to 12 cm cap
+  // an M regular tee: a flat bicep of about 18 cm (36 round), more than a typical 31 cm upper arm, and a 9 to 12 cm cap
   const m = draft("tee", "M").checks;
   assert.ok(m.sleeveBicepGirthCm > 35 && m.sleeveBicepGirthCm < 42, String(m.sleeveBicepGirthCm));
   assert.ok(m.capHeightCm > 9 && m.capHeightCm < 12, String(m.capHeightCm));

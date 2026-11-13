@@ -36,12 +36,14 @@
  * garment's step it reads low; the pressure reported is T / R from the strain).
  *
  * Sleeves (2026-11-13): the drafted sleeve is meshed twice, wrapped round
- * straight arms held out 30 degrees from the sides (round tapered capsules from
+ * straight arms held out 45 degrees from the sides (round tapered capsules from
  * the upper arm and wrist girths), its underarm seam closed row by row and its
  * cap sewn into the armhole at matching fractions of the two curves' lengths
  * (`pairEdges`, so the cap's ease is gathered in rather than dropped). Twelve
  * seam passes per substep, because the shoulder point, where the shoulder seam
  * and both cap halves meet, otherwise gapped 3 cm from solver ordering alone.
+ * A deltoid cap at the top of each arm carries the shoulder out onto the arm;
+ * without it the sewn garment slid 10 cm down off the shoulders.
  *
  * What it is NOT: a fitted body scan, a validated fabric model or a fit
  * promise. Hood, pocket and rib bands are not simulated yet. The arms are
@@ -78,7 +80,7 @@ const DEPTH = Object.freeze({ chest: 0.7, waist: 0.72, hip: 0.68 });
  * half-width and half-depth (m). Above `top` there is no body.
  * @param {{chest:number, waist?:number, hip?:number, height?:number}} m  cm
  */
-export function bodyModel(m, { armAngleDeg = 30 } = {}) {
+export function bodyModel(m, { armAngleDeg = 45 } = {}) {
   const chest = num(m?.chest, 60, 170);
   if (chest == null) return { ok: false, error: "Enter a chest measurement between 60 and 170 cm." };
   const assumed = [];
@@ -108,6 +110,8 @@ export function bodyModel(m, { armAngleDeg = 30 } = {}) {
   ];
   // Arms: straight, held out armAngleDeg from the side (an A pose, as virtual
   // fitting avatars use, so the sleeve's underarm has room beside the torso).
+  // 45 by default: at 30 the underarm, wrapping under an arm close to the side,
+  // stretched an M tee's yoke 6.6% on average; 3.4% at 45; 13.8% at 20.
   // Round tapered capsules: upper arm girth at the top, 0.8 of it at the elbow,
   // the wrist girth at the wrist, then a hand. Typical proportions when not
   // measured: upper arm 0.31 x chest, wrist 0.165 x chest, elbow 0.186 H and
@@ -118,13 +122,19 @@ export function bodyModel(m, { armAngleDeg = 30 } = {}) {
   const al = Math.max(5, Math.min(60, armAngleDeg)) * Math.PI / 180;
   const arms = [1, -1].map(sg => {
     const d = [sg * Math.sin(al), -Math.cos(al), 0];
-    const p0 = [sg * (shoulderA - rU), hps - slope - rU, 0];
+    // The joint sits high and under the shoulder's edge, and a deltoid cap (a sphere a
+    // little fatter than the upper arm) carries the shoulder's top out onto the arm.
+    // With the joint a full upper-arm radius down, the arm's top fell away 1.5 cm
+    // below the shoulder shelf and the sewn garment slid 10 cm down onto the arms.
+    const dJ = 0.3, dX = 0.85, dR = 1.12;
+    const p0 = [sg * (shoulderA - dX * rU), hps - slope - dJ * rU, 0];
     const at = s => [p0[0] + s * d[0], p0[1] + s * d[1], 0];
     const sE = 0.186 * H - rU * 0.5, sW = 0.332 * H - rU * 0.5, sH = sW + 0.1 * H;
     return {
       side: sg, p0, d, n1: [sg * Math.cos(al), Math.sin(al), 0], wristAt: sW, elbowAt: sE,
       caps: [
-        { a: p0, b: at(sE), ra: rU, rb: rE, s0: 0 },
+        { a: p0, b: at(0.35 * sE), ra: dR * rU, rb: rU, s0: 0 },
+        { a: at(0.35 * sE), b: at(sE), ra: rU, rb: rE, s0: 0.35 * sE },
         { a: at(sE), b: at(sW), ra: rE, rb: rW, s0: sE },
         { a: at(sW), b: at(sH), ra: rW * 1.15, rb: rW * 1.15, s0: sW },
       ],
@@ -137,7 +147,7 @@ export function bodyModel(m, { armAngleDeg = 30 } = {}) {
 export function armRadiusAt(arm, s) {
   for (const c of arm.caps) {
     const L = Math.hypot(c.b[0] - c.a[0], c.b[1] - c.a[1], c.b[2] - c.a[2]);
-    if (s <= c.s0 + L) return c.ra + (c.rb - c.ra) * Math.max(0, Math.min(1, (s - c.s0) / (L || 1)));
+    if (s <= c.s0 + L + 1e-9) return c.ra + (c.rb - c.ra) * Math.max(0, Math.min(1, (s - c.s0) / (L || 1)));
   }
   const c = arm.caps[arm.caps.length - 1];
   return c.rb;
@@ -524,6 +534,12 @@ export function onPolyline(line, x, y) {
  */
 export function pairEdges(A, B) {
   if (!A.length || !B.length) return [];
+  // Each edge's fractions are rescaled over the span its vertices actually cover: a
+  // grid mesh's outline stops short of a curve's ends (the sleeve's 2 cm grid
+  // reached only 28-86% of each cap half), and matching raw fractions then sewed
+  // the shoulder point a quarter of the way down the cap, stretching the yoke 14%.
+  const span = L => { const lo = Math.min(...L.map(x => x.f)), hi = Math.max(...L.map(x => x.f)); return L.map(x => ({ i: x.i, f: hi > lo ? (x.f - lo) / (hi - lo) : 0.5 })); };
+  A = span(A); B = span(B);
   const near = (L, f) => L.reduce((b, x) => (Math.abs(x.f - f) < Math.abs(b.f - f) ? x : b));
   const seen = new Set(), out = [];
   const add = (i, j) => { const key = i + ":" + j; if (!seen.has(key)) { seen.add(key); out.push([i, j]); } };
@@ -537,7 +553,7 @@ export function pairEdges(A, B) {
  * @param {{chest:number, waist?:number, hip?:number, height?:number, upperArm?:number, wrist?:number}} measures cm
  * @param {{garment?:string, size?:string, fit?:string, fabric?:string|{gsm:number,ktNPerM:number}, gridCm?:number, sizeChart?:object, settleTime?:number, sleeves?:boolean, armAngleDeg?:number, pattern?:object}} opts
  */
-export function drapeGarment(measures, { garment = "tee", size = "M", fit = "regular", fabric = "jersey", gridCm = 2.5, sizeChart = BODY_CHEST_CM, settleTime, sewTime, substeps = 32, sleeves = true, armAngleDeg = 30, pattern = {} } = {}) {
+export function drapeGarment(measures, { garment = "tee", size = "M", fit = "regular", fabric = "jersey", gridCm = 2.5, sizeChart = BODY_CHEST_CM, settleTime, sewTime, substeps = 32, sleeves = true, armAngleDeg = 45, pattern = {} } = {}) {
   if (!SIMULATED.includes(garment)) return { ok: false, error: `No drape for "${garment}".` };
   const body = bodyModel(measures, { armAngleDeg });
   if (!body.ok) return body;
@@ -607,8 +623,8 @@ export function drapeGarment(measures, { garment = "tee", size = "M", fit = "reg
     };
     [1, -1].forEach((sg, q) => {
       const arm = body.arms.find(a => a.side === sg), off = cloth.offs[2 + q];
-      // the underarm (cap baseline, pattern y = 0) sits level with the bottom of the body's armhole
-      const s0 = (arm.p0[1] - (body.hps - ad)) / Math.cos(body.armAngleDeg * Math.PI / 180);
+      // start with the cap's top at the shoulder joint, so the cap top lands on the shoulder point
+      const s0 = capH;
       const R0 = w / (2 * Math.PI);
       sleeve.uv.forEach(([u, v], i) => {
         const s = v + s0, R = Math.max(R0, armRadiusAt(arm, Math.max(0, s)) + 0.012), th = -2 * Math.PI * u / w;
@@ -750,7 +766,7 @@ function notesFor(levels, hemDropCm, body, sleeves = []) {
     if (sl.cuffPastWristCm > 6) out.push(`The cuff reaches ${sl.cuffPastWristCm} cm past the wrist with the arms held out: on a hanging arm it bunches or covers the hand.`);
   }
   if (body.assumed?.length) out.push(`Not given, so assumed: ${body.assumed.join(", ")}.`);
-  out.push(sl ? `Body and sleeves, arms held ${body.armAngleDeg} degrees from the sides; hood and rib bands are not simulated yet, and the body is smooth ellipses and round arms, so treat this as a picture of ease and tension, not a promise of fit.` : "Body panels only: sleeves, hood and rib bands are not simulated, and the body is smooth ellipses, so treat this as a picture of ease and tension, not a promise of fit.");
+  out.push(sl ? `Body and sleeves, arms held ${body.armAngleDeg} degrees from the sides; hood and rib bands are not simulated yet, and the body is smooth ellipses and round arms, so treat this as a picture of ease and tension, not a promise of fit. In this pose the neckline shows a few percent of stretch that the panels alone do not: read it as the pose, not the pattern.` : "Body panels only: sleeves, hood and rib bands are not simulated, and the body is smooth ellipses, so treat this as a picture of ease and tension, not a promise of fit.");
   return out;
 }
 

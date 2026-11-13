@@ -66,7 +66,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `wardrobe.mjs`, `wardrobe.html` | Capsule wardrobe from a profile, outfit count, first drop within a budget |
 | `camera.mjs`, `camera.html` | Photo and live-camera try-on: tap two shoulders, the garment outline in the chosen size is scaled (shoulder span over the body model's shoulder width) and rotated onto the picture; on-device. `pose.mjs`: "Find my shoulders" places the two points with an on-device pose model (MediaPipe, loaded on click) |
 | `fit.mjs`, `fit.html` | Size from body measurements with ease per size; size run for a quantity from the audience chest curve; typical size chart, replaceable by the factory's |
-| `drape.mjs`, `drape.html` | Virtual sewing and drape: the drafted front and back panels meshed, sewn at shoulders and side seams around a body from chest/waist/hip/height, settled under gravity (XPBD); stretch, gap, touch and Laplace pressure at chest, waist, hip and hem, hem height, front/side/back views coloured by stretch. Body panels only |
+| `drape.mjs`, `drape.html` | Virtual sewing and drape: the drafted front and back panels meshed, sewn at shoulders and side seams around a body from chest/waist/hip/height, settled under gravity (XPBD); stretch, gap, touch and Laplace pressure at chest, waist, hip and hem, hem height, front/side/back views coloured by stretch. Sleeves sewn into the armholes round arms held out 45 degrees (bicep, elbow and cuff stretch, where the cuff lands); `sleeves: false` for the panels alone |
 | `markets.mjs`, `prices.html` | One margin target to a shelf price per market (EU/UK VAT included, US before sales tax), price endings, the real margin at the rounded price. VAT rates are standard rates cross-checked against commercial 2026 tables on 2026-11-05 (not the Commission's own table, unreachable), editable |
 | `duty.mjs`, `duty.html` | Landed cost into the US, EU and UK: duty on the right customs value (US factory price only; EU and UK factory price plus freight and insurance), extra-tariff field, zero-duty least-developed-country origins only with an origin proof, import VAT shown apart, freight per garment. Duty rates for four knitted garment types are typed from memory and unchecked (official tariff sites blocked from the build host, 2026-11-06); hand-worked tests only |
 | `labels.mjs`, `labels.html` | Fibre-content label wording for the EU (8 languages) and US, checklist of other required label items, starting care text |
@@ -183,11 +183,110 @@ the chest and back. A tight one ends lower (XS slim tee +0.4 cm) because the
 stretched cloth pulls down. These are model results on a smooth ellipse body
 with no arms; none has been compared with a real garment on a real person.
 
-Not yet: sleeves (and arms under them), hood, rib bands, anisotropic knit
+Not yet (sleeves landed the same day, next section): hood, rib bands, anisotropic knit
 (course and wale differ a lot in real jersey), measured fabric stiffness (the
 presets are rough guesses; strain where tight is set by the body, pressure
 scales with Kt), and a body scan instead of ellipses. Usage events
 `drape_open`, `drape_run` (local counts only).
+
+## Sleeves in the drape, and the sleeve pattern they caught (2026-11-13)
+
+`drape.mjs` now sews the sleeves in (on by default; `sleeves: false` gives the
+body panels alone, as in the table above). The body gains two straight arms
+held out 45 degrees from the sides (an A pose, as fitting avatars use): round
+tapered capsules from the upper arm girth to the wrist (typed or assumed at
+0.31 and 0.165 of the chest), with a deltoid cap 12% fuller at the top that
+carries the shoulder out onto the arm. The drafted sleeve is meshed twice and
+wrapped round each arm; its underarm seam is closed row by row and its cap is
+sewn into the armhole by `pairEdges`, joining each vertex on either curve to
+the one at the same fraction of the other's length, so the cap's ease is
+gathered in. The page (`drape.html`) has optional upper arm and wrist inputs,
+a sleeves switch, an optional flat bicep for the designer's own sleeve width,
+a sleeve table (stretch, gap, touch and pressure at the bicep, elbow and cuff)
+and where the cuff ends on the arm.
+
+**What it found: the drafted sleeve was half as wide as it should be, and a
+cap height too long.** `pattern.mjs` took a flat (laid-down) bicep figure and
+drew it as the sleeve's full width, so the M tee's sleeve was 24 cm round
+against a typical 31 cm upper arm; on the drape it stretched 37% round the
+bicep (45% with the final arm shape). Its length ran from the underarm rather
+than from the shoulder point, which is how `spec.mjs` and `tryon.mjs` define
+sleeve length, so every sleeve came out a cap height (15 to 19 cm) too long.
+Both were in every DXF and SVG pattern this venture produced. Now the piece
+width is twice the flat bicep (0.17 x body chest + 0.1 x garment ease, about
+18 cm flat at M), the cap height that follows is 9.7 to 11.8 cm (typical for a
+knit tee), and the length is measured from the cap's top. A designer can set
+their own flat bicep (`bicepCm`). These are still typical drafting ratios
+typed from general knowledge, not a pattern maker's block; no real sample has
+been sewn from either version.
+
+`node eval/drape-sleeves.mjs` (one body: chest 100, waist 88, hip 98, height
+178; arm 31 and wrist 16.5 cm assumed; jersey 160 g/m2, 60 N/m). "Old width"
+reproduces the old sleeve width at the corrected length:
+
+| garment | size | sleeve | bicep girth (cm) | cap (cm) | bicep stretch % | most stretched % | touching % | cuff past wrist (cm) | chest stretch % | seam gap (cm) | inside | settled | ms |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tee | S | old width | 22.44 | 15.48 | 60 | 93.6 | 100 | -34.7 | 0.8 | 0.34 | 0 | yes | 3674 |
+| tee | S | drafted now | 33.68 | 9.66 | 6.5 | 23.6 | 100 | -34.5 | 0.2 | 0.09 | 0 | yes | 3882 |
+| tee | M | old width | 24.2 | 16.63 | 44.8 | 78.5 | 100 | -34.7 | 0.1 | 0.19 | 0 | yes | 3476 |
+| tee | M | drafted now | 36.4 | 10.28 | 1 | 5.1 | 74 | -34.6 | 0.1 | 0.05 | 0 | yes | 4001 |
+| tee | L | old width | 25.96 | 17.79 | 31.1 | 42.9 | 100 | -34.7 | 0 | 0.08 | 0 | yes | 4045 |
+| tee | L | drafted now | 39.12 | 10.91 | 0.2 | 1.6 | 55 | -32 | 0.1 | 0.01 | 0 | yes | 4193 |
+| longsleeve | S | old width | 22.44 | 15.48 | 60 | 93.6 | 100 | 5.3 | 0.8 | 0.34 | 0 | yes | 4448 |
+| longsleeve | S | drafted now | 33.68 | 9.66 | 6.5 | 24.5 | 100 | 5.5 | 0.2 | 0.09 | 0 | yes | 5235 |
+| longsleeve | M | old width | 24.2 | 16.63 | 44.7 | 78.5 | 100 | 5.4 | 0.1 | 0.2 | 0 | yes | 4626 |
+| longsleeve | M | drafted now | 36.4 | 10.28 | 1.1 | 6.7 | 82 | 5.7 | 0.1 | 0.04 | 0 | yes | 4994 |
+| longsleeve | L | old width | 25.96 | 17.79 | 31 | 42.4 | 100 | 5.4 | 0.1 | 0.08 | 0 | yes | 5101 |
+| longsleeve | L | drafted now | 39.12 | 10.91 | 0 | 1.1 | 53 | 8.5 | 0.1 | 0.01 | 0 | yes | 5676 |
+| hoodie | S | old width | 23.24 | 16.67 | 50.7 | 85.1 | 100 | 6.2 | 0.2 | 0.26 | 0 | yes | 4520 |
+| hoodie | S | drafted now | 35.28 | 10.57 | 0.4 | 1 | 82 | 7.5 | 0.1 | 0.07 | 0 | yes | 4972 |
+| hoodie | M | old width | 25 | 17.82 | 36.4 | 62.8 | 100 | 6.3 | 0.2 | 0.05 | 0 | yes | 5058 |
+| hoodie | M | drafted now | 38 | 11.19 | 0.3 | 5.6 | 67 | 8.6 | 0 | 0.03 | 0 | yes | 5363 |
+| hoodie | L | old width | 26.76 | 18.96 | 26.6 | 49.6 | 100 | 6.4 | 0.1 | 0 | 0 | yes | 5257 |
+| hoodie | L | drafted now | 40.72 | 11.8 | 0 | 0.3 | 58 | 8.7 | 0 | 0 | 0 | yes | 5974 |
+
+The old width stretched 27-60% round the bicep in every size; the drafted
+sleeve stretches 0-1% on the sizes that fit this body (6.5% on S, cut for a
+92 cm chest). No vertex ends inside the body, every seam closes within
+0.35 cm and every drape settles. The long sleeve's cuff lands 5-9 cm past the
+wrist with the arm held out, so the default 62 cm may be long for a 178 cm
+body; it is a model reading, not a checked one.
+
+Three solver lessons, each found by a measurement: (1) the shoulder point,
+where the shoulder seam and both halves of the cap meet, gapped 3 cm from
+Gauss-Seidel ordering alone; twelve seam passes per substep close it to under
+0.75 cm even on a tight XS. (2) With the arm's joint a full upper-arm radius
+below the shoulder, the arm's top fell away 1.5 cm under the shoulder shelf
+and the sewn tee slid 10 cm down onto the arms, stretching the yoke 14%; the
+higher joint and deltoid cap fixed that. (3) A grid outline stops short of a
+curve's ends (the sleeve's 2 cm grid reached only 28-86% of each cap half), so
+the cap and armhole are matched over the span their vertices actually cover.
+The arm angle matters: an M tee's yoke (above 140 cm) stretches 13.8% on
+average at 20 degrees, 6.6% at 30 and 3.4% at 45, because an arm near the side
+makes the underarm wrap under it; hence 45 by default. `drape.test.mjs`
+checks the arm girths, the edge pairing, the M tee's sleeves (under 3% at the
+bicep, cuff above the elbow, yoke under 5%), the old width caught over 15%,
+and the XS slim chest still at the tape arithmetic's 8-16% with sleeves on.
+
+The fix moved the nesting numbers: with whole-width sleeves, one M tee's true
+outlines no longer beat the rectangle marker (99.5 against 99 cm; the sleeves
+go below the body panels either way), while two or more still do by 8-23%
+(two M tees 182 against 198 cm). It also showed that the greedy nester could
+end longer when allowed to turn pieces than when not (194 against 182 cm), so
+`nest()` now tries every starting order unturned as well and keeps the
+shorter. Earlier marker figures in this README were measured on the narrow
+sleeves.
+
+**Known artifact, still open:** with sleeves on, the M tee's neckline band (top
+6 cm, within 16 cm of the centre) reads 6.7% stretch against 0.9% for the
+panels alone, and the cap tops bunch into small flaps above the shoulder
+points. Real tees don't pull at the neck when the arms are 45 degrees out, so
+treat the yellow-to-red at the neck as the pose and the round arms, not the
+pattern. Likely causes to test next: the cap's ease (1 cm) gathered at the top
+on a 2 cm sleeve grid, and the stiff seam pairs at the shoulder point.
+
+Not yet: arms that hang (the sleeve's fall on a lowered arm), elbow bend, a
+non-round arm section, the hood and rib bands, and any real garment compared.
 
 ## Turntable preview (2026-11-04)
 
