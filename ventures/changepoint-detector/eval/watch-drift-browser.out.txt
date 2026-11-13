@@ -1,0 +1,6 @@
+ok   first check under Wandering level: no alert on 150 rows of wander (Watch: wander-a (price, 150 points; jumps on a wandering level) / No new confirmed change.)
+ok   the jump is reported once over checks at 250, 259 and 260 rows (New change:   price changed from d201: level up from 88.7 to 96.3 (7.75 noise sd); 59 points since (dated well back: it took more data to show). )
+ok   the wandering-level model with the setting blank uses the drift watch (Watch: wander-b (price, 150 points; jumps on a wandering level))
+ok   no page errors
+ok   no sideways scroll at 390 px
+5 of 5

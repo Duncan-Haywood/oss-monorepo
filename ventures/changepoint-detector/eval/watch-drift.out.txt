@@ -1,0 +1,46 @@
+Round 8: the drift model as the watch for a wandering level. Rule and reasons: header of eval/watch-drift.mjs. Advance policy: --confirm 5, --tolerance 5, holdHistory, persist 2 (the shipped defaults); only the detector differs.
+
+Part A: 10 seeds (81-90) per cell, 500 points, baseline check at 100, one check per point; jumps at point 301. Each cell: false alerts per 1,000 checks; for jump cells also jumps found and median delay.
+
+  walk 0.1             bocpd-ar1-window:   2.00                      drift:   1.00                                 
+  walk 0.3             bocpd-ar1-window:   7.00                      drift:   0.50                                 
+  walk 0.1 + jump 3    bocpd-ar1-window:   0.50  found 10/10 d5      drift:   0.50  found 10/10 d5                 
+  walk 0.1 + jump 5    bocpd-ar1-window:   0.25  found 10/10 d5      drift:   0.50  found 10/10 d5                 
+  walk 0.3 + jump 5    bocpd-ar1-window:   6.00  found 10/10 d5      drift:   0.25  found 10/10 d5                 
+  walk 0.3 + jump 8    bocpd-ar1-window:   5.25  found 10/10 d5      drift:   0.25  found 10/10 d5                 
+  null iid             bocpd-ar1-window:   0.00                      drift:   0.00                                 
+  null ar1 0.8         bocpd-ar1-window:   3.25                      drift:   1.75                                 
+  step 2sd iid         bocpd-ar1-window:   0.25  found 10/10 d5      drift:   0.00  found 10/10 d5                 
+
+Part B, deciding nothing: 31 univariate TCPD series (shipped), watched from 20% of their length.
+
+  detector           alerts  at a mark (share)  majority-marked reached
+  bocpd-ar1-window      103         44 (42.7%)          32/52
+  drift                 202         82 (40.6%)          44/52
+
+  per series where the two differ (alerts / at a mark / majority reached):
+    bank                   bocpd-ar1-window 29/0/0 of 0   drift 47/0/0 of 0
+    brent_spot             bocpd-ar1-window 2/2/2 of 4   drift 8/6/4 of 4
+    businv                 bocpd-ar1-window 2/1/1 of 3   drift 11/3/3 of 3
+    children_per_woman     bocpd-ar1-window 4/0/0 of 2   drift 15/6/2 of 2
+    co2_canada             bocpd-ar1-window 5/1/1 of 5   drift 23/10/5 of 5
+    construction           bocpd-ar1-window 2/1/1 of 1   drift 0/0/0 of 1
+    gdp_argentina          bocpd-ar1-window 0/0/0 of 0   drift 5/4/0 of 0
+    gdp_iran               bocpd-ar1-window 2/1/0 of 1   drift 4/2/1 of 1
+    gdp_japan              bocpd-ar1-window 0/0/0 of 0   drift 4/1/0 of 0
+    global_co2             bocpd-ar1-window 3/1/0 of 0   drift 9/3/0 of 0
+    homeruns               bocpd-ar1-window 2/1/1 of 1   drift 9/6/1 of 1
+    lga_passengers         bocpd-ar1-window 6/4/2 of 3   drift 1/1/1 of 3
+    ozone                  bocpd-ar1-window 0/0/0 of 1   drift 3/2/1 of 1
+    quality_control_3      bocpd-ar1-window 1/1/1 of 1   drift 5/1/1 of 1
+    quality_control_4      bocpd-ar1-window 10/3/1 of 1   drift 5/1/1 of 1
+    shanghai_license       bocpd-ar1-window 4/2/1 of 2   drift 8/2/1 of 2
+    uk_coal_employ         bocpd-ar1-window 3/3/2 of 4   drift 5/5/3 of 4
+    unemployment_nl        bocpd-ar1-window 4/4/3 of 4   drift 11/6/3 of 4
+    usd_isk                bocpd-ar1-window 2/1/1 of 2   drift 8/5/2 of 2
+    well_log               bocpd-ar1-window 16/13/10 of 10   drift 15/13/10 of 10
+
+Rule, 'drift' against 'bocpd-ar1-window':
+  (a) mean false alerts per 1,000 checks on the walk nulls 0.75 vs 4.50 (at most half): pass
+  (b) jumps found 40 vs 40 of 40, median delay 5 vs 5 (at most 3 longer): pass
+Ships: 'drift' is offered as the watch setting for a wandering level (not the default).
