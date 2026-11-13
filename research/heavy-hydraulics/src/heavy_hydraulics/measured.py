@@ -464,7 +464,7 @@ def breakeven_rest_rate_idle(saving_moving, tau, b, p_ls_idle, p_oc_idle, idle_h
     return s / (tau - 1.0)
 
 
-def gear_pump_point(rows, size, speed):
+def gear_pump_point(rows, size, speed, skip_short=False):
     """One catalogue gear pump at one speed (6k), from rows of data/casappa_kp30_curves.csv
     (size, kind, pressure_bar, speed_rpm, value; strings or numbers).
 
@@ -473,7 +473,8 @@ def gear_pump_point(rows, size, speed):
     through the drawn power curves and continued as the line through the two nearest curves outside
     them (so power(0) is the zero-pressure drag). Values at `speed` are linear between the 100 r/min
     samples on either side (flow lines, drawn straight, are extended linearly outside their span;
-    power curves are not)."""
+    power curves are not). With skip_short, a power curve not drawn at `speed` is left out instead of
+    raising, as long as two remain (6m: Danfoss draws its rated-pressure curve from about 1000 r/min)."""
     def at(kind, pr):
         pts = sorted((float(r[3]), float(r[4])) for r in rows
                      if int(r[0]) == size and r[1] == kind and int(float(r[2])) == pr)
@@ -489,7 +490,15 @@ def gear_pump_point(rows, size, speed):
     if len(press) < 2 or len(fl) != 2:
         raise ValueError(f"size {size}: need two flow lines and at least two power curves")
     (pa, pb), (qa, qb) = fl, (at("flow", fl[0]), at("flow", fl[1]))
-    pw = [(p, at("power", p)) for p in press]
+    pw = []
+    for p in press:
+        try:
+            pw.append((p, at("power", p)))
+        except ValueError:
+            if not skip_short:
+                raise
+    if len(pw) < 2:
+        raise ValueError(f"size {size}: fewer than two power curves drawn at {speed} r/min")
 
     def flow(p):
         return qa + (qb - qa) * (p - pa) / (pb - pa)
