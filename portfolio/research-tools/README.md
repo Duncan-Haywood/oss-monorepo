@@ -76,6 +76,7 @@ for the browser-extension, iOS and Android packagers.
 | [`synthetic-control`](../../ventures/synthetic-control/) | Abadie & Gardeazabal 2003; Abadie, Diamond & Hainmueller 2010, 2015; Abadie 2021 | Did this intervention change one unit's outcome, by how much, and is the gap unusual against placebo runs on every donor? |
 | [`stl-decomposition`](../../ventures/stl-decomposition/) | Cleveland, Cleveland, McRae & Terpenning 1990; Cleveland 1979; Wang, Smith & Hyndman 2006 | Is it the season or the trend: what are this series' trend, seasonal pattern and remainder, and which points stand out from both? |
 | [`fuzzy-dedupe`](../../ventures/fuzzy-dedupe/) | Fellegi & Sunter 1969; Winkler 1988, 1990; Jaro 1989 | Which rows of this contact or customer file are the same person, even spelled differently, and what does the merged file look like? |
+| [`isolation-forest`](../../ventures/isolation-forest/) | Liu, Ting & Zhou 2008, 2012 | Which rows of this table are unusual across all their numeric columns at once, how unusual, and which columns make each one stand out? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -88,8 +89,9 @@ control (Ben-Michael, Feller & Rothstein 2021) as a bias-corrected mode for
 `synthetic-control`; Sinkhorn optimal
 transport (Cuturi 2013) for comparing distributions; Gaussian-process
 regression with marginal-likelihood fitting (Rasmussen & Williams 2006);
-isolation forest (Liu, Ting & Zhou 2008); robust PCA by principal component
+robust PCA by principal component
 pursuit (Candès et al. 2011); MSTL for several seasonal periods at once
 (Bandara, Hyndman & Bergmeir) as a mode of `stl-decomposition`;
 online FDR control (Javanmard & Montanari 2018) for tests that arrive over time;
-p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take p-values.
+p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take p-values;
+the extended isolation forest's random-hyperplane cuts (Hariri, Carrasco Kind & Brunner 2021) as a mode of `isolation-forest`.
