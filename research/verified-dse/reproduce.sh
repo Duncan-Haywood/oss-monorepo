@@ -44,3 +44,4 @@ $PY experiments/clip_score/score.py   # milestone 115 (no flow; under 10 s; expe
 $PY experiments/pilot_clip/guard.py   # milestone 116 (no flow; under 15 s; experiments/pilot_clip/run.py re-runs the 1,200-point flow, about 1 h 50 min on 4 cores)
 $PY experiments/switch_pooled/pool.py   # milestone 117 (no flow; under 15 s)
 $PY experiments/new_families/analyse.py   # milestone 118 (no flow; under 20 s; experiments/new_families/run.py re-runs the 1,440-point flow, about 40 min on 4 cores)
+$PY experiments/struct_guard/analyse.py   # milestone 119 (no flow; about 15 s; features.py needs yosys, run.py re-runs the 1,440-point flow, about 40 min on 4 cores)
