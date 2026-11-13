@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { STAGES, NOT_TOOLS, allPages, placeOf, withJourney, hubHtml, journeyBlock } from "./journey.mjs";
+import { STAGES, NOT_TOOLS, allPages, placeOf, withJourney, hubHtml, journeyBlock, studioToolsHtml } from "./journey.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
 const htmlFiles = readdirSync(new URL(".", import.meta.url)).filter(f => f.endsWith(".html"));
@@ -59,6 +59,12 @@ test("launch.html lists exactly the path (run `node buildhub.mjs`), with the no-
   assert.ok(html.includes(hubHtml()), "hub list is stale");
   assert.match(html, /No warranty\./);
   assert.match(html, /<title>[^<]{20,}<\/title>/);
+});
+
+test("the studio page's Every tool section lists the whole path (run `node buildhub.mjs`)", () => {
+  const html = read("index.html");
+  assert.ok(html.includes(studioToolsHtml()), "Every tool section is missing or stale");
+  for (const { href } of allPages()) if (href !== "./") assert.ok(html.includes(`href="${href}"`), href);
 });
 
 test("labels are escaped", () => {

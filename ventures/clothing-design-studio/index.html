@@ -31,13 +31,13 @@
     .lede { max-width: 760px; line-height: 1.55; margin: 0 0 16px; }
     a { color: var(--accent); }
     .workspace { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
-    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .workspace { grid-template-columns: minmax(0, 1fr); } }
     section, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
     h2 { font-size: 1.05rem; margin: 0 0 10px; }
     h3 { font-size: .95rem; margin: 12px 0 6px; }
     label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
     input, select, textarea, button { font: inherit; }
-    input:not([type]), input[type=text], input[type=number], input[type=password], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    input:not([type]), input[type=text], input[type=number], input[type=password], input[type=email], input[type=url], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
     .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
     .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .btn { cursor: pointer; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--accent2); background: var(--card); color: var(--accent2); font-weight: 650; }
@@ -82,6 +82,16 @@
     details > summary { cursor: pointer; font-weight: 700; }
     pre { white-space: pre-wrap; background: #faf6ef; padding: 8px; border-radius: 8px; font-size: .85rem; max-height: 260px; overflow: auto; }
     .muted { color: var(--muted); font-size: .88rem; }
+    /* Tool output tables scroll inside their box on a phone, not the page (launch calendar: 372 px in a 324 px panel). */
+    .workspace output, #ix-cal-out, #sep-out { display: block; max-width: 100%; overflow-x: auto; }
+    .jump { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0 0 16px; }
+    .jump a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--accent2); font-size: .87rem; font-weight: 600; text-decoration: none; }
+    .jump a:first-child { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .jump a:hover { border-color: var(--accent); }
+    .jump a:focus-visible, .stages a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 20px; }
+    .stages h3 { font-size: .9rem; margin: 10px 0 4px; color: var(--accent); }
+    .stages ul { margin: 0; padding-left: 18px; line-height: 1.6; font-size: .92rem; }
     footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
     .sr { position: absolute; left: -9999px; }
   </style>
@@ -91,8 +101,14 @@
   <header>
     <p class="eyebrow">Free clothing design studio</p>
     <h1>Say what you want on the shirt. See it, change it, know what it costs.</h1>
-    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="launch.html">Launch path: what to decide, in what order</a> · <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="drape.html">Virtual drape on a body</a> · <a href="camera.html">Try it on from a photo</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a> · <a href="prices.html">Price by market</a> · <a href="preorder.html">Pre-order planner</a> · <a href="reorder.html">Reorder planner</a> · <a href="orderlines.html">Colour and size order matrix</a> · <a href="returns.html">Returns calculator</a> · <a href="repeat.html">Repeat-customer value</a> · <a href="pattern.html">Pattern pieces, graded</a> · <a href="spec.html">Measurement spec and sample check</a> · <a href="colour.html">Colour approval (lab dip ΔE)</a> · <a href="inspection.html">Final inspection sample size</a> · <a href="freight.html">Freight: sea vs air per garment</a> · <a href="channels.html">Where to sell</a> · <a href="cashflow.html">Launch cash flow</a> · <a href="tna.html">Time and action calendar</a> · <a href="duty.html">Import duty by destination</a> · <a href="wholesale.html">Wholesale to shops</a> · <a href="linesheet.html">Line sheet for shops</a> · <a href="barcodes.html">Barcodes (GTIN)</a> · <a href="partners.html">Partner-brand commission</a> · <a href="bom.html">Bill of materials and order</a> · <a href="shrink.html">Fabric shrinkage allowance</a> · <a href="gsm.html">Fabric gsm, kilos and metres</a> · <a href="timeline.html">Production timeline</a> · <a href="tiers.html">Fabric price tiers</a>  · <a href="startup.html">Start-up budget</a> · <a href="fx.html">Factory currency risk</a> · <a href="testing.html">Safety tests to ask for</a> · <a href="pod.html">Factory run or print-on-demand</a> · <a href="pricepoint.html">Best shelf price from a price test</a> · <a href="financing.html">Financing a factory run</a></p>
-    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="launch.html">Launch path: what to decide, in what order</a> · <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="drape.html">Virtual drape on a body</a> · <a href="camera.html">Try it on from a photo</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a> · <a href="prices.html">Price by market</a> · <a href="preorder.html">Pre-order planner</a> · <a href="reorder.html">Reorder planner</a> · <a href="orderlines.html">Colour and size order matrix</a> · <a href="returns.html">Returns calculator</a> · <a href="spec.html">Measurement spec and sample check</a> · <a href="inspection.html">Final inspection sample size</a> · <a href="freight.html">Freight: sea vs air per garment</a> · <a href="channels.html">Where to sell</a> · <a href="cashflow.html">Launch cash flow</a> · <a href="tna.html">Time and action calendar</a> · <a href="duty.html">Import duty by destination</a> · <a href="wholesale.html">Wholesale to shops</a> · <a href="linesheet.html">Line sheet for shops</a> · <a href="barcodes.html">Barcodes (GTIN)</a> · <a href="partners.html">Partner-brand commission</a> · <a href="bom.html">Bill of materials and order</a> · <a href="shrink.html">Fabric shrinkage allowance</a> · <a href="gsm.html">Fabric gsm, kilos and metres</a> · <a href="timeline.html">Production timeline</a> · <a href="tiers.html">Fabric price tiers</a>  · <a href="startup.html">Start-up budget</a> · <a href="fx.html">Factory currency risk</a> · <a href="testing.html">Safety tests to ask for</a> · <a href="pod.html">Factory run or print-on-demand</a> · <a href="pricepoint.html">Best shelf price from a price test</a> · <a href="adspend.html">Ad spend: what a customer may cost</a></p>
+    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them.</p>
+    <nav class="jump" aria-label="On this page and next">
+      <a href="#h-design">Start designing</a>
+      <a href="launch.html">Launch path: what to decide, in order</a>
+      <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a>
+      <a href="for-independent-clothing-designers.html">Who it is for</a>
+      <a href="#tools">Every tool</a>
+    </nav>
   </header>
 
   <div class="workspace">
@@ -402,6 +418,95 @@
       </section>
     </div>
   </div>
+
+  <!-- tools -->
+  <section id="tools" aria-labelledby="tools-h">
+    <h2 id="tools-h">Every tool, in launch order (50)</h2>
+    <p class="muted">Each runs in your browser, free. The <a href="launch.html">launch path</a> says why each stage comes where it does.</p>
+    <div class="stages">
+    <div class="stage">
+      <h3>1. Design the thing</h3>
+      <ul>
+        <li><a href="sunglasses.html">Sunglasses designer</a></li>
+        <li><a href="wardrobe.html">Capsule wardrobe planner</a></li>
+        <li><a href="fit.html">Size finder and size run</a></li>
+        <li><a href="camera.html">Try it on from a photo</a></li>
+        <li><a href="artwork.html">Public-domain paintings, checked for print</a></li>
+        <li><a href="pattern.html">Pattern pieces, graded, SVG and DXF</a></li>
+        <li><a href="drape.html">Virtual drape: sew the pattern onto a body</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>2. Know what one piece costs</h3>
+      <ul>
+        <li><a href="how-much-does-it-cost-to-make-a-t-shirt.html">Worked example: what a t-shirt costs</a></li>
+        <li><a href="bom.html">Bill of materials and order</a></li>
+        <li><a href="quotes.html">Compare factory quotes</a></li>
+        <li><a href="tiers.html">Fabric price tiers</a></li>
+        <li><a href="shrink.html">Fabric shrinkage allowance</a></li>
+        <li><a href="gsm.html">Fabric gsm, kilos and metres</a></li>
+        <li><a href="freight.html">Freight per garment</a></li>
+        <li><a href="duty.html">Import duty by destination</a></li>
+        <li><a href="import-duty-on-clothing.html">Worked example: duty on a hoodie</a></li>
+        <li><a href="parcel.html">Duty on a single parcel</a></li>
+        <li><a href="fx.html">Factory currency risk</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>3. Set the price</h3>
+      <ul>
+        <li><a href="prices.html">Price by market</a></li>
+        <li><a href="pricepoint.html">Best price from a price test</a></li>
+        <li><a href="returns.html">Returns: what an order really earns</a></li>
+        <li><a href="discount.html">Discount: orders a sale needs</a></li>
+        <li><a href="bundle.html">Set pricing: is a bundle discount worth it?</a></li>
+        <li><a href="repeat.html">Repeat customers: what can you pay to win one?</a></li>
+        <li><a href="wholesale.html">Wholesale price</a></li>
+        <li><a href="sunglasses-profit-margin.html">Worked example: sunglasses margin</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>4. Commit to a first run</h3>
+      <ul>
+        <li><a href="orderlines.html">Colour and size order matrix</a></li>
+        <li><a href="preorder.html">Pre-order planner</a></li>
+        <li><a href="clothing-minimum-order-quantity.html">Worked example: reaching a 300-piece MOQ</a></li>
+        <li><a href="pod.html">Factory run or print-on-demand</a></li>
+        <li><a href="startup.html">Start-up budget</a></li>
+        <li><a href="cashflow.html">Launch cash flow</a></li>
+        <li><a href="financing.html">Financing a run: the real yearly rate</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>5. Make it and check it</h3>
+      <ul>
+        <li><a href="timeline.html">Production timeline</a></li>
+        <li><a href="tna.html">Time and action calendar</a></li>
+        <li><a href="spec.html">Measurement spec and sample check</a></li>
+        <li><a href="colour.html">Colour approval: lab dip delta E</a></li>
+        <li><a href="testing.html">Safety tests to ask for</a></li>
+        <li><a href="inspection.html">Final inspection sample size</a></li>
+        <li><a href="labels.html">Label checker</a></li>
+        <li><a href="barcodes.html">Barcodes (GTIN)</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>6. Sell it and keep selling</h3>
+      <ul>
+        <li><a href="channels.html">Where to sell</a></li>
+        <li><a href="salestax.html">US sales tax</a></li>
+        <li><a href="eutax.html">EU VAT and one-stop shop</a></li>
+        <li><a href="eprfr.html">French textile eco-contribution</a></li>
+        <li><a href="greenclaims.html">Green claims checker for your copy</a></li>
+        <li><a href="linesheet.html">Wholesale line sheet</a></li>
+        <li><a href="partners.html">Partner-brand commission</a></li>
+        <li><a href="reorder.html">Reorder planner</a></li>
+        <li><a href="adspend.html">Ad spend: what a customer may cost</a></li>
+      </ul>
+    </div>
+    </div>
+  </section>
+  <!-- /tools -->
 
   <section id="faq" aria-labelledby="faq-h">
     <h2 id="faq-h">Questions</h2>
