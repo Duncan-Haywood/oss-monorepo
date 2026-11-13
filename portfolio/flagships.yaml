@@ -167,7 +167,7 @@ flagships:
       environment, the cCredPres table, a real SEFAZ rejection for a
       cClassTrib; national NFS-e landed 2026-11-12 (README): open: a
       national-system rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
-      open: ISS retained on a real file, city provider schemas and Ginfes/WebISS 1.00 sets landed (README): open: ISSNet 1.00 (xs:all), Betha 1.00, a real Ginfes reply; refresh
+      open: ISS retained on a real file, city provider schemas and Ginfes/WebISS/ISSNet/Betha 1.00 sets landed (README): open: IPM 1.01, ISSDSF 1.00, a real Ginfes or Betha reply; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder

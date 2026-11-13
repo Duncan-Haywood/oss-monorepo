@@ -252,7 +252,8 @@ test("Ginfes: a type element without its tipos: prefix is in the wrong namespace
   const xml = ginfes.replace("<tipos:NumeroLote>42</tipos:NumeroLote>", "<NumeroLote>42</NumeroLote>");
   const f = checkAbrasf(xml).findings;
   assert.ok(f.some((x) => x.rule === "ABR-002" && x.message === `NumeroLote inside LoteRps is in namespace ${GINFES_ENVIO}, but the schema puts it in http://www.ginfes.com.br/tipos_v03.xsd.`), JSON.stringify(f));
-  assert.ok(f.some((x) => x.rule === "ABR-004" && /NumeroLote is required/.test(x.message)));
+  // Reported once: an element present in the wrong namespace is not reported again as missing.
+  assert.ok(!f.some((x) => x.rule === "ABR-004" && /NumeroLote is required/.test(x.message)), JSON.stringify(f));
   // ... and the message's own element in the types namespace is wrong too.
   const g = checkAbrasf(ginfes.replace("<LoteRps Id=\"L42\">", "<tipos:LoteRps Id=\"L42\">").replace("</LoteRps>", "</tipos:LoteRps>")).findings;
   assert.ok(g.some((x) => x.rule === "ABR-002" && /LoteRps inside EnviarLoteRpsEnvio is in namespace http:\/\/www\.ginfes\.com\.br\/tipos_v03\.xsd, but the schema puts it in http:\/\/www\.ginfes\.com\.br\/servico_enviar/.test(x.message)), JSON.stringify(g));
@@ -293,4 +294,68 @@ test("a Ginfes file for a city listed on another system says to check which one"
   const r = checkAbrasf(ginfes.replaceAll("3518800", "3543402")); // Ribeirão Preto, ISSNet 2.04
   assert.equal(r.meta.version, "Ginfes 1.00");
   assert.match(r.skipped.join(" "), /Ribeirão Preto\/SP .* runs ISSNet 2\.04 .*but the file is in http:\/\/www\.ginfes\.com\.br\/servico_enviar_lote_rps_envio_v03\.xsd, the namespace Ginfes 1\.00's schemas use/);
+});
+
+// ---------- ISSNet 1.00 (<xs:all>) and Betha 1.00 (unqualified) (2026-11-13, evening) ----------
+
+const issnet = readFileSync(new URL("./fixtures/issnet-consultar-nfse-v100.xml", import.meta.url), "utf8");
+const betha = readFileSync(new URL("./fixtures/betha-consultar-lote-v100.xml", import.meta.url), "utf8");
+const BETHA_NS = "http://www.betha.com.br/e-nota-contribuinte-ws";
+
+test("ISSNet 1.00 and Betha 1.00 are compiled from their schema sets", () => {
+  assert.deepEqual(providerMulti("ISSNet 1.00"), { files: 18, namespace: "http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_complexos.xsd" });
+  assert.deepEqual(providerMulti("Betha 1.00"), { files: 7, namespace: `${BETHA_NS}/tipos` });
+  assert.deepEqual(multiFor("ConsultarLoteRpsEnvio", BETHA_NS), ["Betha 1.00"]);
+  assert.ok(rootsOf("Betha 1.00").includes("EnviarLoteRpsEnvio"));
+  assert.ok(!rootsOf("Betha 1.00").includes("EnviarLoteRpsResposta")); // reply schemas name undefined types; not read
+  assert.deepEqual(cityProvider("1200203"), { listed: "Betha 1.00", key: "Betha 1.00", city: "Cruzeiro do Sul/AC" });
+});
+
+test("ISSNet 1.00: a made-up query (xmllint-valid) is clean, and <xs:all> lets its members come in any order", () => {
+  assert.ok(looksLikeAbrasf(issnet));
+  const r = checkAbrasf(issnet);
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "ISSNet 1.00");
+  // Order inside an all group is free, but each member at most once and the required ones present.
+  const swapped = issnet.replace(/<DataFinal>2026-10-31<\/DataFinal>\s*<DataInicial>2026-10-01<\/DataInicial>/, "<DataInicial>2026-10-01</DataInicial><DataFinal>2026-10-31</DataFinal>");
+  assert.notEqual(swapped, issnet);
+  assert.deepEqual(checkAbrasf(swapped).findings, []);
+  const twice = issnet.replace("<DataInicial>2026-10-01</DataInicial>", "<DataInicial>2026-10-01</DataInicial><DataInicial>2026-10-02</DataInicial>");
+  assert.ok(checkAbrasf(twice).findings.some((x) => x.rule === "ABR-002" && /DataInicial appears more than once in PeriodoEmissao/.test(x.message)));
+  const missing = issnet.replace("<DataInicial>2026-10-01</DataInicial>", "");
+  assert.ok(checkAbrasf(missing).findings.some((x) => x.rule === "ABR-004" && /DataInicial is required in PeriodoEmissao/.test(x.message)));
+});
+
+test("ISSNet 1.00: tsCompetencia's ^...$ pattern refuses every value, as xmllint reads it", () => {
+  const r = checkAbrasf(issnet); // a query has no Competencia; check the value rule directly
+  assert.deepEqual(r.findings, []);
+  return import("./abrasf-xsd.mjs").then(({ abrasfValueProblem }) => {
+    assert.match(abrasfValueProblem("ISSNet 1.00", "tsCompetencia", "201304"), /XSD reads \^ and \$ as literal characters.*would accept "201304"/);
+    assert.match(abrasfValueProblem("ISSNet 1.00", "tsCompetencia", "201313"), /read as anchors it would still refuse "201313"/);
+    assert.equal(abrasfValueProblem("ISSNet 1.00", "tsTipoRps", "1"), "");
+  });
+});
+
+test("libxml2 collapses spaces around an xs:int that has a pattern facet, but not around a bare one", async () => {
+  const { abrasfValueProblem } = await import("./abrasf-xsd.mjs");
+  assert.equal(abrasfValueProblem("Betha 1.00", "TsTipoRps", " 1"), ""); // int + pattern [1-3]{1}: xmllint accepts
+  assert.match(abrasfValueProblem("2.04", "int", " 7"), /libxml2-based validators \(xmllint, PHP\) reject/); // bare xs:int: xmllint refuses
+});
+
+test("Betha 1.00: a made-up query with a prefixed root and unprefixed children is clean", () => {
+  assert.ok(looksLikeAbrasf(betha));
+  const r = checkAbrasf(betha);
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "Betha 1.00");
+  // OpenAC.Net.NFSe's writer form: default xmlns on the root, xmlns="" on each child.
+  const openac = betha.replace("<e:ConsultarLoteRpsEnvio xmlns:e=", "<ConsultarLoteRpsEnvio xmlns=").replace("</e:ConsultarLoteRpsEnvio>", "</ConsultarLoteRpsEnvio>").replace("<Prestador>", '<Prestador xmlns="">').replace("<Protocolo>", '<Protocolo xmlns="">');
+  assert.deepEqual(checkAbrasf(openac).findings, []);
+});
+
+test("Betha 1.00: a default xmlns every child inherits is refused once per child, with the fix", () => {
+  const inherited = betha.replace("<e:ConsultarLoteRpsEnvio xmlns:e=", "<ConsultarLoteRpsEnvio xmlns=").replace("</e:ConsultarLoteRpsEnvio>", "</ConsultarLoteRpsEnvio>");
+  const f = checkAbrasf(inherited).findings;
+  assert.deepEqual(f.map((x) => x.rule), ["ABR-002", "ABR-002"], JSON.stringify(f));
+  assert.equal(f[0].message, `Prestador inside ConsultarLoteRpsEnvio is in namespace ${BETHA_NS}, but this layout's schema (elementFormDefault unqualified) puts every element below the message root in no namespace.`);
+  assert.match(f[0].fix, /add xmlns="" to each of its direct children \(<Prestador xmlns="">/);
 });

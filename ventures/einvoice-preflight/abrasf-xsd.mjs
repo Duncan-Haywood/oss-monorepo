@@ -30,10 +30,26 @@ const PROVIDER_EXTRA = {
   "InfNfse/tsStatusNfse": "tsStatusNfse is not an ABRASF element; it appears in replies from at least one city's own system (Campo Novo do Parecis), so it comes from the city, not from your RPS.",
 };
 
+// XSD regular expressions have no anchors: outside a character class ^ and $ are ordinary
+// characters (XML Schema Part 2, appendix F), and xmllint reads them so. ISSNet 1.00 writes
+// tsCompetencia as "^20(09|[1-9]\d)(0[1-9]|1[0-2])$", which therefore matches no real month;
+// they are escaped here so this check agrees with xmllint.
+const literalAnchors = (source) => {
+  let out = "", inClass = false;
+  for (let i = 0; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === "\\") { out += ch + (source[++i] ?? ""); continue; }
+    if (inClass) { if (ch === "]") inClass = false; out += ch; continue; }
+    if (ch === "[") { inClass = true; out += ch; if (source[i + 1] === "^") out += source[++i]; continue; }
+    out += ch === "^" || ch === "$" ? `\\${ch}` : ch;
+  }
+  return out;
+};
+const hasLiteralAnchor = (source) => literalAnchors(source) !== source;
 const regexCache = new Map();
 const xsdRegex = (source) => {
   let re = regexCache.get(source);
-  if (!re) regexCache.set(source, (re = new RegExp(`^(?:${source})$`, "u")));
+  if (!re) regexCache.set(source, (re = new RegExp(`^(?:${literalAnchors(source)})$`, "u")));
   return re;
 };
 
@@ -68,8 +84,11 @@ function checker(schema) {
     // XSD collapses the spaces around an xs:int, xs:date or xs:dateTime, but libxml2 (xmllint, PHP's
     // DOMDocument::schemaValidate, which many Brazilian ERPs use) rejects them: measured in
     // eval/abrasf-xsd-diff.mjs (it trims them for xs:byte and xs:nonNegativeInteger). A space
-    // there is never wanted, so it is reported.
-    if (["int", "date", "dateTime"].includes(t.base) && raw !== raw.trim() && value) return "has a space before or after it, which libxml2-based validators (xmllint, PHP) reject though XSD would trim it";
+    // there is never wanted, so it is reported. libxml2 does collapse it when the type, or one
+    // it derives from, carries a pattern or enumeration facet (measured 2026-11-13 on xs:int and
+    // xs:date: " 1" passes an int restricted by pattern [1-3] or enumeration 1, fails a bare
+    // int or one with only totalDigits or a range), so there it is checked as XSD reads it.
+    if (["int", "date", "dateTime"].includes(t.base) && !t.patterns.length && !t.enum && raw !== raw.trim() && value) return "has a space before or after it, which libxml2-based validators (xmllint, PHP) reject though XSD would trim it";
     if (whole && !/^[+-]?\d+$/.test(value)) return value ? "is not a whole number" : "is empty";
     if (whole && (Number(value) < whole[0] || Number(value) > whole[1])) return `is outside the range of xs:${t.base}`;
     if (t.base === "decimal" && !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(value)) return value ? "is not a number (use a point for decimals, no thousands separator)" : "is empty";
@@ -86,7 +105,9 @@ function checker(schema) {
       if (t.minInclusive !== undefined && n < t.minInclusive) return `is below ${t.minInclusive}`;
       if (t.maxInclusive !== undefined && n > t.maxInclusive) return `is above ${t.maxInclusive}`;
     }
-    if (!t.patterns.every((alts) => alts.some((p) => xsdRegex(p).test(value)))) return /^\s|\s$/.test(raw) && ws === "preserve" ? "starts or ends with a space, which the schema's pattern does not allow" : "does not match the format the schema requires";
+    const failed = t.patterns.find((alts) => !alts.some((p) => xsdRegex(p).test(value)));
+    if (failed && failed.some(hasLiteralAnchor) && !/[\^$]/.test(value)) return `does not match the schema's pattern ${failed.join(" | ")}, which no ordinary value can: XSD reads ^ and $ as literal characters, not anchors, so xmllint and other libxml2-based validators reject every value here (${failed.some((p) => new RegExp(`^(?:${p})$`, "u").test(value)) ? `a validator that reads them as anchors would accept ${JSON.stringify(value)}` : `read as anchors it would still refuse ${JSON.stringify(value)}`}; ask the provider which one its web service runs)`;
+    if (failed) return /^\s|\s$/.test(raw) && ws === "preserve" ? "starts or ends with a space, which the schema's pattern does not allow" : "does not match the format the schema requires";
     if (t.enum && !t.enum.includes(value)) return t.enum.length <= 16 ? `is not one of ${t.enum.join(", ")}` : "is not in the schema's code list";
     return "";
   }
@@ -104,6 +125,25 @@ function checker(schema) {
         return new Set();
       }
       if (p.k === "c") return new Set(p.items.flatMap((it) => [...rep(it, pos)]));
+      if (p.k === "a") {
+        // <xs:all>: each member at most once, in any order; the group ends wherever every
+        // required member has been seen (members are single elements, max 1).
+        const names = new Map(p.items.map((it) => [it.name, it]));
+        const out = new Set();
+        const used = new Set();
+        const done = () => p.items.every((it) => it.min === 0 || used.has(it.name));
+        if (done()) out.add(pos);
+        for (let q = pos; q < kids.length && names.has(kids[q].name) && !used.has(kids[q].name); q++) {
+          used.add(kids[q].name);
+          far = Math.max(far, q + 1);
+          if (done()) out.add(q + 1);
+        }
+        if (!out.size) {
+          if (!need.has(pos + used.size)) need.set(pos + used.size, new Set());
+          for (const it of p.items) if (it.min > 0 && !used.has(it.name)) need.get(pos + used.size).add(it.name);
+        }
+        return out;
+      }
       let cur = new Set([pos]);
       for (const it of p.items) {
         const next = new Set();
@@ -184,15 +224,20 @@ function checker(schema) {
     }
     const count = new Map();
     const seen = [];
+    const misplacedNs = new Set(); // known names in the wrong namespace: reported once, not again as missing
     let structural = false;
     for (const c of kids) {
       const t = types.get(c.name);
       const want = t && nsOf.get(c.name);
       if (!t || (t !== "#any" && c.ns !== want)) {
         structural = true;
+        if (t) misplacedNs.add(c.name);
         const abrasf = want === ABRASF_NS;
-        out.push(finding("ABR-002", t ? (abrasf ? `${c.name} inside ${node.name} is not in the ABRASF namespace (${ABRASF_NS}).` : `${c.name} inside ${node.name} is in ${c.ns ? `namespace ${c.ns}` : "no namespace"}, but the schema puts it in ${want}.`) : `${c.name} is not allowed inside ${node.name}.`,
-          t ? (abrasf ? "Declare xmlns=\"http://www.abrasf.org.br/nfse.xsd\" so every element is in it (a default namespace dropped on a child is the usual cause)." : `Put ${c.name} in ${want} (in this provider's layout the message's own elements and the shared types sit in different namespaces, so a prefix such as tipos: matters).`) : `Remove ${c.name}, or check its spelling (element names are case-sensitive) and where the schema puts it.${PROVIDER_EXTRA[`${node.name}/${c.name}`] ? ` ${PROVIDER_EXTRA[`${node.name}/${c.name}`]}` : ""}`, `${path}/${c.name}`));
+        // An unqualified layout (Betha 1.00) leaves every local element in no namespace: only
+        // the message root is in the provider's namespace.
+        const none = want === "";
+        out.push(finding("ABR-002", t ? (abrasf ? `${c.name} inside ${node.name} is not in the ABRASF namespace (${ABRASF_NS}).` : none ? `${c.name} inside ${node.name} is in namespace ${c.ns}, but this layout's schema (elementFormDefault unqualified) puts every element below the message root in no namespace.` : `${c.name} inside ${node.name} is in ${c.ns ? `namespace ${c.ns}` : "no namespace"}, but the schema puts it in ${want}.`) : `${c.name} is not allowed inside ${node.name}.`,
+          t ? (abrasf ? "Declare xmlns=\"http://www.abrasf.org.br/nfse.xsd\" so every element is in it (a default namespace dropped on a child is the usual cause)." : none ? `Keep the default xmlns on the message root and add xmlns="" to each of its direct children (<${c.name} xmlns="">, as OpenAC.Net.NFSe's Betha writer does), or put the root in the namespace with a prefix (<e:${node.name} xmlns:e="...">) and leave the children unprefixed.` : `Put ${c.name} in ${want} (in this provider's layout the message's own elements and the shared types sit in different namespaces, so a prefix such as tipos: matters).`) : `Remove ${c.name}, or check its spelling (element names are case-sensitive) and where the schema puts it.${PROVIDER_EXTRA[`${node.name}/${c.name}`] ? ` ${PROVIDER_EXTRA[`${node.name}/${c.name}`]}` : ""}`, `${path}/${c.name}`));
         continue;
       }
       const n = (count.get(c.name) ?? 0) + 1;
@@ -207,7 +252,7 @@ function checker(schema) {
     }
     const present = new Set(seen.map((c) => c.name));
     for (const name of required(present)) {
-      if (!present.has(name)) { structural = true; out.push(finding("ABR-004", `${name} is required in ${node.name} and is missing.`, `Add ${name} to ${node.name}.`, `${path}/${name}`)); }
+      if (!present.has(name) && !misplacedNs.has(name)) { structural = true; out.push(finding("ABR-004", `${name} is required in ${node.name} and is missing.`, `Add ${name} to ${node.name}.`, `${path}/${name}`)); }
     }
     if (!structural) {
       const m = matcher(def.model, seen);

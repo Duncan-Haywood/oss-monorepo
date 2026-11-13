@@ -34,8 +34,10 @@ const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 export function looksLikeAbrasf(text) {
   const head = String(text).slice(0, 8192);
   // Ginfes 1.00 (www.ginfes.com.br/..._v03.xsd) and WebISS 1.00 (www.abrasf.org.br/nfse) are
-  // ABRASF-model provider layouts with their own namespaces, read as such.
-  return head.includes("abrasf.org.br/nfse.xsd") || head.includes("www.ginfes.com.br/") || /abrasf\.org\.br\/nfse["'&]/.test(head) || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
+  // ABRASF-model provider layouts with their own namespaces, read as such; so are ISSNet 1.00
+  // (www.issnetonline.com.br/webserviceabrasf/vsd/...) and Betha 1.00
+  // (www.betha.com.br/e-nota-contribuinte-ws).
+  return head.includes("abrasf.org.br/nfse.xsd") || head.includes("www.ginfes.com.br/") || head.includes("issnetonline.com.br/webserviceabrasf/vsd/") || head.includes("betha.com.br/e-nota-contribuinte-ws") || /abrasf\.org\.br\/nfse["'&]/.test(head) || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
 }
 
 // ---------- IBGE municipality codes ----------
@@ -100,7 +102,7 @@ function findRoot(node, depth = 0) {
     if (n.ns === ABRASF_NS && roots.has(n.name)) return { root: n, wrapped: n !== node };
     const multi = multiFor(n.name, n.ns)[0];
     if (multi) return { root: n, wrapped: n !== node, multi };
-    if (depth === 0 && !named(n).length && /^\s*</.test(n.text || "") && /abrasf\.org\.br\/nfse|www\.ginfes\.com\.br\//.test(n.text)) {
+    if (depth === 0 && !named(n).length && /^\s*</.test(n.text || "") && /abrasf\.org\.br\/nfse|www\.ginfes\.com\.br\/|issnetonline\.com\.br\/webserviceabrasf\/vsd\/|betha\.com\.br\/e-nota-contribuinte-ws/.test(n.text)) {
       try {
         const inner = findRoot(parseCfdiXml(n.text).root, 1);
         if (inner) return { ...inner, wrapped: true, escaped: true };
@@ -121,15 +123,16 @@ function statedVersion(root) {
 // The city whose web service takes the file: on an issued NFS-e the issuing body
 // (OrgaoGerador) or the provider's address; on an RPS, which carries no provider address,
 // the service's CodigoMunicipio (in practice the provider's city: an RPS is sent to the
-// provider's own city hall).
+// provider's own city hall). ISSNet 1.00 names the service's city MunicipioPrestacaoServico.
 function issuerCity(root) {
-  const order = [["OrgaoGerador", "CodigoMunicipio"], ["PrestadorServico", "Endereco"], ["Servico", "CodigoMunicipio"]];
+  const order = [["OrgaoGerador", "CodigoMunicipio"], ["PrestadorServico", "Endereco"], ["Servico", "CodigoMunicipio"], ["Servico", "MunicipioPrestacaoServico"]];
   for (const [parent, child] of order) {
     for (const [n, p] of walk(root, `/${root.name}`)) {
       if (n.name !== parent) continue;
       const holder = child === "Endereco" ? kid(n, "Endereco") : n;
-      const code = txt(holder, "CodigoMunicipio");
-      if (/^\d{7}$/.test(code)) return { code, path: `${p}${child === "Endereco" ? "/Endereco" : ""}/CodigoMunicipio` };
+      const field = child === "Endereco" ? "CodigoMunicipio" : child;
+      const code = txt(holder, field);
+      if (/^\d{7}$/.test(code)) return { code, path: `${p}${child === "Endereco" ? "/Endereco" : ""}/${field}` };
     }
   }
   return null;
@@ -146,7 +149,7 @@ function checkIds(root, base, out) {
     }
   }
   for (const [n, p] of walk(root, base)) {
-        for (const field of ["CodigoMunicipio", "MunicipioIncidencia", "CodigoMunicipioGerador"]) {
+        for (const field of ["CodigoMunicipio", "MunicipioIncidencia", "CodigoMunicipioGerador", "MunicipioPrestacaoServico"]) {
       const c = kid(n, field);
       if (!c || named(c).length || !c.text.trim()) continue;
       const code = c.text.trim();
@@ -262,7 +265,7 @@ export function checkAbrasf(text) {
     }
   }
   if (!found) {
-    return { findings: [finding("ABR-001", `No ABRASF element (GerarNfseEnvio, EnviarLoteRpsEnvio, CompNfse, ...) was found.`, "Check this is an ABRASF-layout municipal NFS-e; providers with their own layouts (São Paulo's Paulistana, DSF, Betha 1.0, ...) are not read, and the national NFS-e has its own check.", "/")], skipped, meta: {} };
+    return { findings: [finding("ABR-001", `No ABRASF element (GerarNfseEnvio, EnviarLoteRpsEnvio, CompNfse, ...) was found.`, "Check this is an ABRASF-layout municipal NFS-e; providers with their own layouts (São Paulo's Paulistana, DSF, IPM 1.0x, ...) are not read, and the national NFS-e has its own check.", "/")], skipped, meta: {} };
   }
   const { root, wrapped, escaped, offNs, other, multi } = found;
   const base = `/${root.name}`;
