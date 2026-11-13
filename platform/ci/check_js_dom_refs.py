@@ -18,6 +18,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from page_pool import map_pages  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script>", re.S | re.I)
 SRC = re.compile(r'\bsrc\s*=\s*["\']([^"\']+)["\']', re.I)
@@ -45,17 +48,19 @@ def page_problems(path: Path):
     js_all = "\n".join(js)
     if "document.write" in js_all or "<iframe" in html.lower():
         return []
+    # Lookups first: a page with no literal lookup has nothing to report, so
+    # the id scan over page + scripts (most of the time) is skipped for it.
+    # The answer is the same set either way.
+    stripped = JSCOMMENT.sub("", js_all)
+    wanted = {m.group(2) or m.group(4) for m in LOOKUP.finditer(stripped)}
+    wanted = {i for i in wanted if "${" not in i}
+    if not wanted:
+        return []
     defined = set()
     for m in DEFINED.finditer(html + "\n" + js_all):
         defined |= {g for g in m.groups() if g and not g.startswith(("'", '"', "`"))}
     defined = {d for d in defined if d}
-    stripped = JSCOMMENT.sub("", js_all)
-    bad = set()
-    for m in LOOKUP.finditer(stripped):
-        i = m.group(2) or m.group(4)
-        if i not in defined and "${" not in i:
-            bad.add(i)
-    return sorted(bad)
+    return sorted(wanted - defined)
 
 
 def main(argv=None):
@@ -63,12 +68,13 @@ def main(argv=None):
     ap.add_argument("--root", default=str(ROOT / "ventures"))
     a = ap.parse_args(argv)
     root = Path(a.root)
+    pages = [p for p in sorted(root.rglob("*.html"))
+             if not any(s in p.parts for s in ("node_modules", ".git", "dist", "build"))]
     n = bad = 0
-    for p in sorted(root.rglob("*.html")):
-        if any(s in p.parts for s in ("node_modules", ".git", "dist", "build")):
-            continue
+    # Each page's answer depends only on that page and its own scripts, so a
+    # process pool returns the same results in the same order.
+    for p, ids in zip(pages, map_pages(page_problems, pages)):
         n += 1
-        ids = page_problems(p)
         if ids:
             bad += 1
             print(f"{p.relative_to(root)}: no element with id {', '.join(ids)}")

@@ -295,6 +295,35 @@ class T(unittest.TestCase):
                 self.assertEqual(pyenv.expand_args(["--for", d]), ["pytest", "numpy"])
         self.assertEqual(pyenv.expand_args(["--for", "/no/such/dir"]), ["--for"])
 
+    def test_pyproject_dependencies_and_test_extras(self):
+        # 2026-11-12: infra-dcopf's pyproject listed pandapower; the run named it by hand
+        with tempfile.TemporaryDirectory() as d:
+            pp = Path(d, "pyproject.toml")
+            pp.write_text('[project]\nname = "x"\ndependencies = ["numpy>=1.24", "pandapower", '
+                          '"scikit-learn[all] ; python_version>\'3\'"]\n'
+                          '[project.optional-dependencies]\ntest = ["pytest", "numpy"]\nfigure = ["matplotlib"]\n')
+            self.assertEqual(pyenv.read_pyproject(str(pp)), ["numpy", "pandapower", "scikit-learn", "pytest"])
+            self.assertEqual(pyenv.read_requirements(str(pp)), ["numpy", "pandapower", "scikit-learn", "pytest"])
+            Path(d, "pyproject.toml").write_text("[project\n")
+            self.assertEqual(pyenv.read_pyproject(str(pp)), [])
+        self.assertEqual(pyenv.read_pyproject("/no/such/pyproject.toml"), [])
+
+    def test_nearest_pyproject_walks_up_to_stop(self):
+        with tempfile.TemporaryDirectory() as repo:
+            proj = Path(repo, "research", "proj")
+            (proj / "tests").mkdir(parents=True)
+            (proj / "pyproject.toml").write_text("[project]\n")
+            self.assertEqual(pyenv.nearest_pyproject(str(proj / "tests"), repo), str(proj / "pyproject.toml"))
+            self.assertIsNone(pyenv.nearest_pyproject(str(Path(repo, "research")), repo))
+
+    def test_for_dir_adds_declared_dependencies_not_local_ones(self):
+        # hanger-knit imports numpy only through its sibling hanger_fit
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "pyproject.toml").write_text('[project]\ndependencies = ["numpy", "hanger-fit", "scipy"]\n')
+            with unittest.mock.patch.object(pyenv, "project_imports", return_value=["scipy"]), \
+                 unittest.mock.patch.object(pyenv, "_local_names", return_value={"hanger_fit"}):
+                self.assertEqual(pyenv.expand_args(["--for", d]), ["pytest", "scipy", "numpy"])
+
     def test_install_starts_with_the_interpreter_missing_fewest(self):
         # 2026-11-10: pip ran on PATH's python3 and 3.12 for 10+ min while 3.13 lacked one module
         lacks = {"/usr/local/bin/python3": "numpy scipy pytest", "/usr/bin/python3.12": "numpy scipy",

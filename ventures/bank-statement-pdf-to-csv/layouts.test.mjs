@@ -171,3 +171,19 @@ test("text repeated once on every page (a watermark) never joins a description",
   const r = parseStatement(lines, {});
   assert.deepEqual(r.transactions.map((t) => t.description), ["SHOP 1 REF 1234", "SHOP 2 REF 1234"]);
 });
+
+test("a row sharing the date above still counts after a stray line closed the transaction", () => {
+  const lines = [
+    L(1, -10, ["Opening balance:", 77], ["50,000.00", 269]),
+    L(1, -11, ["Closing balance:", 77], ["48,976.44", 269]),
+    L(1, -20, ["Date", 77], ["Description", 149], ["Debit", 299], ["Credit", 365], ["Balance", 457]),
+    L(1, -30, ["01 Jan", 77], ["Transaction 1", 149], ["1,000.00", 282]),
+    L(1, -35, ["Ref 7781", 40]),
+    L(1, -40, ["Transaction 2", 149], ["23.56", 299]),
+  ];
+  const r = parseStatement(lines, { year: 2025 });
+  assert.deepEqual(r.transactions.map((t) => [t.date.d, t.description, t.amount]), [
+    [1, "Transaction 1", -100000], [1, "Transaction 2", -2356],
+  ]);
+  assert.equal(r.reconcile.ok, true);
+});

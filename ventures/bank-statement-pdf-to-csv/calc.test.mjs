@@ -185,3 +185,41 @@ test("PDF: a composite font with no ToUnicode is reported as unreadable", async 
   assert.equal(r.transactions.length, 0);
   assert.match(r.findings[0].detail, /no mapping back to characters/);
 });
+
+test("a day the month does not have (30 Feb, 31 Apr) is an unreadable date, not a CSV row Xero rejects", () => {
+  const feb = parseStatementText("Beginning balance 100.00\n02/30/2026 A -50.00 50.00\nEnding balance 50.00");
+  assert.equal(feb.transactions[0].date.ok, false);
+  assert.ok(feb.findings.some((f) => f.severity === "error" && /1 date could not be read/.test(f.title)));
+  const apr = parseStatementText("Beginning balance 100.00\n31/04/2026 A -50.00 50.00\nEnding balance 50.00");
+  assert.equal(apr.transactions[0].date.ok, false);
+  const leap = parseStatementText("Beginning balance 100.00\n29/02/2028 A -50.00 50.00\nEnding balance 50.00");
+  assert.equal(leap.transactions[0].date.ok, true, "29 Feb in a leap year is real");
+  const notLeap = parseStatementText("Beginning balance 100.00\n29/02/2027 A -50.00 50.00\nEnding balance 50.00");
+  assert.equal(notLeap.transactions[0].date.ok, false, "29 Feb 2027 is not");
+  const fromPeriod = parseStatementText("Statement period Feb 1, 2027 to Feb 28, 2027\nBeginning balance 100.00\n29/02 A -50.00 50.00\nEnding balance 50.00");
+  assert.equal(fromPeriod.transactions[0].date.ok, false, "a year taken from the period is checked too");
+  const ok = parseStatementText("Beginning balance 100.00\n31/01/2026 A -50.00 50.00\nEnding balance 50.00");
+  assert.equal(ok.transactions[0].date.ok, true);
+  assert.equal(ok.findings.filter((f) => f.severity === "error").length, 0);
+});
+
+test("printed money-in and money-out totals are checked against the rows, in both directions", () => {
+  const head = "Beginning balance 100.00\n01/02/2026 A 70.00 170.00\n01/03/2026 B -20.00 150.00\nEnding balance 150.00\n";
+  const agree = parseStatementText(head + "Total deposits 70.00\nTotal withdrawals 20.00");
+  assert.ok(!agree.findings.some((f) => /total differs/.test(f.title)), "matching totals raise nothing");
+  const off = parseStatementText(head + "Total deposits 80.00\nTotal withdrawals 25.00");
+  const titles = off.findings.map((f) => f.title);
+  assert.ok(titles.includes("Money-in total differs from the statement"));
+  assert.ok(titles.includes("Money-out total differs from the statement"));
+  assert.ok(off.findings.some((f) => /not the 70\.00 read/.test(f.detail)));
+  assert.ok(off.findings.some((f) => /not the 20\.00 read/.test(f.detail)));
+});
+
+test("a bare dotted day.month is read as the second (value) date, and nothing longer is", () => {
+  const two = parseStatementText("Beginning balance 0.00\n05.01.2026 06.01. A 5.00 5.00\nEnding balance 5.00");
+  assert.deepEqual([two.transactions[0].postDate.m, two.transactions[0].postDate.d], [6, 1]);
+  assert.equal(two.transactions[0].postDate.y, 2026, "a value date with no year takes its row's year");
+  const r = parseStatementText("Beginning balance 0.00\n05.01.2026 06.101 A 5.00 5.00\nEnding balance 5.00");
+  assert.equal(r.transactions[0].postDate, null, "06.101 is not a date");
+  assert.equal(r.transactions[0].description, "06.101 A");
+});

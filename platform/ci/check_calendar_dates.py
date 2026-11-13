@@ -10,7 +10,14 @@ this in the FatturaPA checker and in twelve sibling validators.
 A line is flagged when it shape-checks a date (the YYYY-MM-DD regex or a
 `T00:00:00Z` suffix), tests it with isNaN(Date.parse(...)) or
 isNaN(new Date(...).getTime()), and does not round-trip it (toISOString().slice(0, 10),
-getUTCDate or getUTCMonth) on the same line. Exit 1 lists each hit.
+getUTCDate or getUTCMonth) on the same line.
+
+The second pattern is the hand-rolled range check: a line that tests a month
+(`<= 12` or `< 12`) and a day with `d >= 1 && d <= 31`, and no calendar check
+(a Date.UTC round trip, a month-length table, a realDay/calDate helper) on that
+line or the four after it. Every month then has 31 days. The red-team run of
+2026-11-12 found it in the bank-statement converter (02/30 exported as
+2026-02-30) and five import checkers and categorizers. Exit 1 lists each hit.
 Usage: python3 platform/ci/check_calendar_dates.py [root ...]
 """
 import pathlib
@@ -21,14 +28,25 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SHAPE = re.compile(r"\\d\{4\}-\\d\{2\}-\\d\{2\}|T00:00:00Z")
 NAN_CHECK = re.compile(r"isNaN\((?:Date\.parse\(|new Date\()")
 ROUND_TRIP = re.compile(r"toISOString\(\)\.slice\(0, ?10\)|getUTCDate\(\)|getUTCMonth\(\)")
+DAY_RANGE = re.compile(r"([\w.+\[\]]+) >= 1 && \1 <= 31\b")
+MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b")
+CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|calDate\(|validDate\(")
+WINDOW = 4
 SUFFIXES = {".mjs", ".js", ".cjs", ".ts"}
 SKIP_PARTS = {"node_modules", "dist", "build", "vendor"}
 
 
 def scan_text(text):
     """Line numbers (1-based) of validators that accept a rolled-over day."""
-    return [i for i, line in enumerate(text.splitlines(), 1)
-            if SHAPE.search(line) and NAN_CHECK.search(line) and not ROUND_TRIP.search(line)]
+    lines = text.splitlines()
+    hits = []
+    for i, line in enumerate(lines, 1):
+        if SHAPE.search(line) and NAN_CHECK.search(line) and not ROUND_TRIP.search(line):
+            hits.append(i)
+        elif DAY_RANGE.search(line) and MONTH_RANGE.search(line) \
+                and not CALENDAR.search("\n".join(lines[i - 1:i + WINDOW])):
+            hits.append(i)
+    return hits
 
 
 def scan(roots):
@@ -52,8 +70,8 @@ def main(argv):
     roots = argv or [ROOT / "ventures", ROOT / "platform"]
     hits = scan(roots)
     for h in hits:
-        print(f"{h}: a YYYY-MM-DD check that trusts Date.parse accepts 2026-02-30 (it rolls over to March); "
-              "also require new Date(s + \"T00:00:00Z\").toISOString().slice(0, 10) === s")
+        print(f"{h}: this date check accepts 2026-02-30 (Date.parse rolls it over to March, and a 1-31 day range "
+              "gives every month 31 days); round-trip it: new Date(Date.UTC(y, m - 1, d)).getUTCDate() === d")
     if hits:
         return 1
     print("check_calendar_dates: no YYYY-MM-DD validator accepts an impossible day")

@@ -24,6 +24,23 @@ class CalendarDates(unittest.TestCase):
         ]:
             self.assertEqual(c.scan_text(line), [], line)
 
+    def test_flags_a_day_range_that_gives_every_month_31_days(self):
+        for text in [
+            'if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return null;\nreturn `${y}-${mo}-${d}`;',
+            'if (m) return +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31 ? "iso" : "bad";',
+            'if (mm >= 0 && mm < 12 && dd >= 1 && dd <= 31) {\n  return iso(y, mm, dd);\n}',
+        ]:
+            self.assertEqual(c.scan_text(text), [1], text)
+
+    def test_accepts_a_day_range_followed_by_a_calendar_check(self):
+        for text in [
+            'if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31)) return false;\nconst t = new Date(Date.UTC(y, m - 1, d));\nreturn t.getUTCDate() === d;',
+            'if (mm >= 0 && mm < 12 && dd >= 1 && dd <= 31) {\n  return calDate(y, mm, dd);\n}',
+            'const validDmy = (d, m) => m >= 1 && m <= 12 && d >= 1 && d <= MONTH_DAYS[m - 1];',
+            'if (!(daysOpen >= 1 && daysOpen <= 31)) errors.push("Days open per month must be 1 to 31.");',
+        ]:
+            self.assertEqual(c.scan_text(text), [], text)
+
     def test_the_pattern_it_guards_is_real(self):
         out = subprocess.run(["node", "-e", 'process.stdout.write(String(Number.isNaN(Date.parse("2026-02-30"))))'],
                              capture_output=True, text=True, check=True).stdout

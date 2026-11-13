@@ -42,8 +42,12 @@ an exact WarpRectilinear2 (``kr`` on ``r^0..r^3``)::
 frame, as lensfun's ``GetAutoScale`` does, so no edge is smeared or left empty: scaling the corrected
 coordinates by ``1/k`` is ``kr_p / k^(p+1)``, still exact.
 
+<<<<<<< HEAD
 Lateral colour (TCA, ``poly3`` and ``linear``) is composed onto the distortion per colour plane, exactly
 (``plane_terms``; since 2026-11-13). Not ported: vignetting, lensfun's ``acm`` model (no profile in the database uses
+=======
+Not ported: lateral colour (TCA), vignetting, lensfun's ``acm`` model (no profile in the database uses
+>>>>>>> origin/main
 it) and projection changes for fisheye lenses (their distortion polynomial is applied as for a
 rectilinear lens; lensfun does the same when no projection change is asked for).
 """
@@ -82,6 +86,7 @@ class Distortion:
     terms: tuple[float, float, float]  # ptlens a, b, c; poly3 k1, 0, 0; poly5 k1, k2, 0
 
 
+<<<<<<< HEAD
 @dataclass(frozen=True)
 class Tca:
     """Lateral colour at one focal length: red and blue scaled about the centre, after the distortion."""
@@ -91,12 +96,17 @@ class Tca:
     terms: tuple[float, ...]  # vr, vb, cr, cb, br, bb (linear: kr, kb, 0, 0, 0, 0)
 
 
+=======
+>>>>>>> origin/main
 @dataclass
 class CalibrationSet:
     crop: float
     aspect: float
     distortion: list[Distortion] = field(default_factory=list)
+<<<<<<< HEAD
     tca: list[Tca] = field(default_factory=list)
+=======
+>>>>>>> origin/main
 
 
 @dataclass
@@ -202,6 +212,7 @@ def _parse_lens(le, source: str) -> Lens:
             else:
                 continue
             cs.distortion.append(Distortion(float(d.get("focal")), model, terms))
+<<<<<<< HEAD
         for t in cal.findall("tca"):
             model = t.get("model", "")
             if model == "poly3":
@@ -212,6 +223,8 @@ def _parse_lens(le, source: str) -> Lens:
             else:
                 continue  # acm: not carried
             cs.tca.append(Tca(float(t.get("focal")), model, terms6))
+=======
+>>>>>>> origin/main
         sets.append(cs)
     return Lens(
         _texts(le, "maker"), _texts(le, "model"), _texts(le, "mount"),
@@ -395,6 +408,7 @@ def calibration_set(lens: Lens, crop: float) -> CalibrationSet | None:
     return best
 
 
+<<<<<<< HEAD
 def interpolate_tca(lens: Lens, crop: float, focal: float) -> Tca | None:
     """Lensfun's ``InterpolateTCA``: the set with the nearest crop at least 0.96 of the camera's, then the
     distortion's spline rules, with the ``v`` terms (the first two) not scaled by focal length
@@ -483,6 +497,8 @@ def plane_terms(kr: tuple[float, ...], tca: Tca | None, s: float) -> list[tuple[
     return out
 
 
+=======
+>>>>>>> origin/main
 def interpolate_distortion(lens: Lens, crop: float, focal: float) -> tuple[Distortion, CalibrationSet] | None:
     cs = calibration_set(lens, crop)
     if cs is None:
@@ -612,7 +628,11 @@ class Correction:
     notes: list[str]
 
 
+<<<<<<< HEAD
 def build_warp(lens: Lens, focal: float, crop: float, w: int, h: int, fill: bool = True, tca: bool = True) -> Correction:
+=======
+def build_warp(lens: Lens, focal: float, crop: float, w: int, h: int, fill: bool = True) -> Correction:
+>>>>>>> origin/main
     found = interpolate_distortion(lens, crop, focal)
     if found is None:
         raise LensProfileError(
@@ -620,6 +640,7 @@ def build_warp(lens: Lens, focal: float, crop: float, w: int, h: int, fill: bool
             "to be at least 0.96 of the calibration's)"
         )
     dist, cs = found
+<<<<<<< HEAD
     s = hugin_scale(cs, crop, w, h)
     kr = radial_terms(dist, s)
     lateral = interpolate_tca(lens, crop, focal) if tca else None
@@ -634,6 +655,13 @@ def build_warp(lens: Lens, focal: float, crop: float, w: int, h: int, fill: bool
     if k != 1.0:
         planes = [scale_terms(p, k) for p in planes]
     warp = WarpRectilinear2(tuple(p + (0.0, 0.0, 0.0, 1.0) for p in planes), 0.5, 0.5, False)
+=======
+    kr = radial_terms(dist, hugin_scale(cs, crop, w, h))
+    k = fill_scale(kr, w, h) if fill else 1.0
+    if k != 1.0:
+        kr = scale_terms(kr, k)
+    warp = WarpRectilinear2((kr + (0.0, 0.0, 0.0, 1.0),), 0.5, 0.5, False)
+>>>>>>> origin/main
     notes = []
     focals = sorted({d.focal for d in cs.distortion if d.model == dist.model})
     if focal in focals:
@@ -644,7 +672,10 @@ def build_warp(lens: Lens, focal: float, crop: float, w: int, h: int, fill: bool
         how = f"interpolated to {focal:g} mm from calibrations at {', '.join(f'{v:g}' for v in focals)} mm"
     notes.append(
         f"lens correction from lensfun: {lens.name} [{lens.source}], {dist.model}, {how}; crop factor {crop:g}"
+<<<<<<< HEAD
         + (f"; lateral colour {lateral.model}" if lateral is not None else "")
+=======
+>>>>>>> origin/main
         + (f", zoom {k:.4f} to fill the frame" if fill else ", no fill zoom")
     )
     return Correction(warp, lens, dist, crop, k, notes)
@@ -708,8 +739,12 @@ def shot_info(ifd0, exif) -> ShotInfo:
 
 
 def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str | None = None,
+<<<<<<< HEAD
                    focal: float | None = None, crop: float | None = None, fill: bool = True,
                    tca: bool = True) -> Correction:
+=======
+                   focal: float | None = None, crop: float | None = None, fill: bool = True) -> Correction:
+>>>>>>> origin/main
     """Choose the lens and build its warp; ``lens_name``, ``focal`` and ``crop`` override the file's tags."""
 
     notes: list[str] = []
@@ -750,6 +785,10 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
             raise LensProfileError("the file names no lens and the camera is not a fixed-lens camera in the "
                                    "database; pass --lens")
         notes.append(f"fixed-lens camera: {lens.name}")
+<<<<<<< HEAD
     result = build_warp(lens, focal, crop, w, h, fill=fill, tca=tca)
+=======
+    result = build_warp(lens, focal, crop, w, h, fill=fill)
+>>>>>>> origin/main
     result.notes = notes + result.notes
     return result

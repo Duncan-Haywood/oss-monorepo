@@ -524,6 +524,7 @@ def parse_cr2(data: bytes, cfa: str | None = None) -> rd.RawImage:
         synth.entries[rd.TAG_AS_SHOT_NEUTRAL] = tuple(1.0 / v for v in as_shot)
     head = rd.Ifd(entries=dict(ifd0.entries), byte_order=reader.end)
     head.entries[rd.TAG_UNIQUE_CAMERA_MODEL] = tuple(unique.encode("latin-1")) + (0,)
+<<<<<<< HEAD
     return rd.RawImage(width, height, 1, values, synth, head, source="cr2", notes=notes, exif=_exif_with_lens(reader, ifd0))
 
 
@@ -545,3 +546,8 @@ def _exif_with_lens(reader: rd._Reader, ifd0: rd.Ifd) -> rd.Ifd | None:
     out = rd.Ifd(entries=dict(exif.entries) if exif is not None else {}, byte_order=reader.end)
     out.entries[TAG_EXIF_LENS_MODEL] = tuple(name) + (0,)
     return out
+=======
+    return rd.RawImage(
+        width, height, 1, values, synth, head, source="cr2", notes=notes, exif=rd.exif_ifd(reader, ifd0)
+    )
+>>>>>>> origin/main

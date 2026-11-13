@@ -1544,6 +1544,7 @@ EF100-400mm at 100 mm and developed half size in 9.5 s. On the one real file car
 maker's correction and a lensfun profile, a Leica X Vario at 46 mm, the two differ by up to 8 px at
 full size once their zooms are matched, more than the camera's own correction of under 4 px. Which
 is right is not settled by that file. Details: `eval/lensfun-correction-2026-11-13.md`.
+<<<<<<< HEAD
 
 ### Lateral colour too, and Canon lens names from the maker note (2026-11-13)
 
@@ -1567,3 +1568,5 @@ and up to 9.9 px. 12 tests (`tests/test_lens_tca.py`). Four seeded faults each f
 TCA before the distortion, `v` scaled by focal length, `b` scaled once, and a fill zoom from green
 alone. Not checked: a real frame with sharp corner edges, to see that the fringes go. Details:
 `eval/lensfun-tca-2026-11-13.md`.
+=======
+>>>>>>> origin/main

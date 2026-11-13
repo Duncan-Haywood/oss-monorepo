@@ -752,7 +752,10 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         lens_focal=args.lens_focal,
         lens_crop=args.lens_crop,
         lens_fill=not args.no_lens_fill,
+<<<<<<< HEAD
         lens_tca=not args.no_lens_tca,
+=======
+>>>>>>> origin/main
     )
     if (args.lens or args.lens_focal or args.lens_crop) and not args.lens_db:
         raise DevelopError("--lens, --lens-focal and --lens-crop need --lens-db (a folder of lensfun XML files)")
@@ -1311,11 +1314,14 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Keep the corrected picture at the centre's scale instead of zooming so the frame has no empty edge.",
     )
+<<<<<<< HEAD
     develop.add_argument(
         "--no-lens-tca",
         action="store_true",
         help="Correct the lens's distortion only, not its lateral colour (red and blue fringes toward the corners).",
     )
+=======
+>>>>>>> origin/main
 
     create_demo = subparsers.add_parser(
         "create-demo-workspace",
