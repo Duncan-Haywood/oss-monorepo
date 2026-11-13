@@ -1491,7 +1491,7 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
  * of the trade the weights do not reach (eval/capped-breaks.txt).
  */
-export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   checkBestOfK(tries, pick);
   if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
   if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
@@ -1502,6 +1502,17 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
     const t = carryOverTry(n, i, { double, seed, weights, effort, weighted: tries });
     results.push(t);
     if (onTry) onTry(i, candidateOf(t, pick));
+  }
+  // `squeeze` (home and away only) more seasons after every try: squeezeDoubleRounds into the
+  // widest gaps of the tries' frontier (carryOverSqueeze); like the gap tries, only kept by `keep`
+  if (!Number.isInteger(squeeze) || squeeze < 0) throw new Error("squeeze must be a whole number of 0 or more.");
+  if (double && squeeze) {
+    for (let j = 0; j < squeeze; j++) {
+      const t = carryOverSqueeze(n, results, { seed, effort });
+      if (!t) break;
+      results.push(t);
+      if (onTry) onTry(t.index, candidateOf(t, pick));
+    }
   }
   return combineCarryOverTries(results, pick, { among: tries + capped, keep });
 }
@@ -1604,6 +1615,14 @@ export function combineCarryOverTries(results, pick = 10, { among = Infinity, ke
  * 3,731 / 59; eval/frontier-gap.txt).
  */
 export const CARRY_OVER_GAP = 2;
+
+/**
+ * Squeezed seasons the page runs after its 12 tries in a home-and-away season (carryOverSqueeze,
+ * README "Squeezing a season under a cap"): listed with the other frontier seasons, never picked
+ * by the four choices. At 17 to 20 teams they add 3 or 4 seasons to the frontier and cut the widest
+ * break gap from 10-24 to 6-12 for about 1.5 s on one thread (eval/squeeze-gap.txt).
+ */
+export const CARRY_OVER_SQUEEZE = 4;
 
 /**
  * A kept frontier pick as the share link stores it: the try's index plus the settings the search
@@ -1782,4 +1801,66 @@ export function squeezeDoubleRounds(n, start, { seed = 1, effort = 1, maxBreaks,
   let breaks = 0;
   for (let t = 0; t < n; t++) breaks += teamBreaks(venues, best.opp, t, n);
   return { rounds, coe: coeOf(best.opp, n, false), repeats: repeatsAcross(best.opp, n, R), lowerBound: start.lowerBound, breaks, iterations, maxBreaks, squeezed: true };
+}
+
+/**
+ * The squeezes the page runs after its tries (CARRY_OVER_SQUEEZE): for the widest break gaps
+ * between two neighbouring seasons on the tries' frontier (at least `minGap` apart), a cap halfway
+ * across, searched from the season below the gap (squeezeDoubleRounds); then the frontier seasons
+ * themselves at their own breaks, lowest carry-over first, until `count` targets are listed.
+ * Returns [{ from, maxBreaks }] (from: an index into `results`), in the order they run; a function
+ * of the tries alone, so the same tries always give the same squeezes. Home and away only.
+ */
+export function squeezeTargets(results, { count = 4, minGap = 8, even = false } = {}) {
+  const c = results.map((t, i) => ({ i, coe: t.coe + (t.repeats || 0) * REPEAT_PENALTY, breaks: t.breaks }));
+  const front = c.filter((x) => !c.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks)))
+    .filter((x, k, a) => a.findIndex((y) => y.coe === x.coe && y.breaks === x.breaks) === k)
+    .sort((a, b) => b.breaks - a.breaks || a.i - b.i);
+  const gaps = [];
+  for (let k = 1; k < front.length; k++) {
+    const hi = front[k - 1], lo = front[k], g = hi.breaks - lo.breaks;
+    if (g < minGap) continue;
+    let cap = lo.breaks + Math.floor(g / 2);
+    if (even && cap % 2) cap--;
+    gaps.push({ g, from: lo.i, maxBreaks: cap });
+  }
+  gaps.sort((a, b) => b.g - a.g || a.maxBreaks - b.maxBreaks);
+  const out = gaps.slice(0, count).map(({ from, maxBreaks }) => ({ from, maxBreaks }));
+  for (const x of [...front].sort((a, b) => a.coe - b.coe || a.i - b.i)) {
+    if (out.length >= count) break;
+    if (!out.some((o) => o.from === x.i && o.maxBreaks === x.breaks)) out.push({ from: x.i, maxBreaks: x.breaks });
+  }
+  return out;
+}
+
+/**
+ * The next squeeze of a home-and-away best-of-k search: `results` are the tries plus any squeezes
+ * already run (in index order), and the target is the first of squeezeTargets(results) that no
+ * earlier squeeze ran, so each squeeze aims at the widest gap the ones before it left. Returns the
+ * squeezed season numbered `results.length` for combineCarryOverTries, with { index, seed,
+ * breakWeight: null, maxBreaks, squeezedFrom }, or null when there is nothing left to aim at.
+ * A function of `results` alone: the same tries always give the same squeezes.
+ */
+export function carryOverSqueeze(n, results, { seed = 1, effort = 1 } = {}) {
+  const done = new Set(results.filter((t) => t.squeezedFrom != null).map((t) => `${t.squeezedFrom}@${t.maxBreaks}`));
+  // a squeezed season is never polished at its own breaks again: it was searched at that cap
+  const fresh = (x) => !done.has(`${x.from}@${x.maxBreaks}`) && !(results[x.from].squeezedFrom != null && x.maxBreaks >= results[x.from].breaks && x.maxBreaks <= results[x.from].maxBreaks);
+  const target = squeezeTargets(results, { count: results.length + 1, even: n % 2 === 0 }).find(fresh);
+  if (!target) return null;
+  const { from, maxBreaks } = target;
+  const index = results.length;
+  const s = carryOverTrySeed(seed, index);
+  const r = squeezeDoubleRounds(n, results[from], { seed: s, effort, maxBreaks });
+  return { ...r, index, seed: s, breakWeight: null, maxBreaks, squeezedFrom: from };
+}
+
+/** `count` squeezes after `tries` (carryOverSqueeze one after another); returns tries + squeezes. */
+export function carryOverSqueezes(n, tries, count, { seed = 1, effort = 1 } = {}) {
+  const out = [...tries].sort((a, b) => a.index - b.index);
+  for (let j = 0; j < count; j++) {
+    const t = carryOverSqueeze(n, out, { seed, effort });
+    if (!t) break;
+    out.push(t);
+  }
+  return out;
 }
