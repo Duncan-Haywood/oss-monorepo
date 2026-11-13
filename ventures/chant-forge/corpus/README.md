@@ -10,8 +10,10 @@ book and page it was transcribed from.
 | `dies-irae.gabc` | 3441 | Graduale Romanum (Vatican), 1908, p. 83* | 1 |
 | `pange-lingua.gabc` | 3855 | Graduale Romanum (Vatican), 1908, p. 123* (first verse only) | 3 |
 | `veni-creator.gabc` | 3431 | Graduale Romanum (Vatican), 1908, p. 121* (first verse only) | 8 |
-| `te-deum.gabc` | 16704 | Graduale Romanum, Solesmes, 1974, p. 841 | 3 |
-| `salve-regina.gabc` | 2715 | Liber Usualis, 1961, p. 276 (simple tone) | 1 |
+| `te-deum.gabc` | 16704 | Graduale Romanum, Solesmes, 1974, p. 841 (simple tone; matches Liber Usualis 1913 pp. 25*-28* note for note) | 3 |
+| `salve-regina.gabc` | 2715 | Liber Usualis, 1961, p. 276 (solemn tone; matches Liber Usualis 1913 pp. 62-63 note for note) | 1 |
+| `pange-lingua-full.gabc` | (3855) | Graduale Romanum, Vatican, 1908, p. 123*: all six verses on the checked verse-1 neumes | 3 |
+| `veni-creator-full.gabc` | (3431) | Graduale Romanum, Vatican, 1908, pp. 121*-122*: all seven verses on the checked verse-1 neumes | 8 |
 
 Files are unmodified GregoBase downloads (`download.php?id=N&format=gabc&elem=1`).
 Their headers carry the original transcribers. `chant-forge.test.mjs` parses
@@ -31,13 +33,17 @@ GregoBase's FAQ (gregobase.selapa.net, read 2026-11-03) says: "All chant
 transcriptions are released under CC0 (a.k.a. Public Domain) license." So the
 GABC text is usable. Two caveats:
 
-- The Te Deum (1974) and Salve Regina (1961) come from post-1929 books. The
-  melodies are old and GregoBase releases its transcription as CC0, but we
-  have not checked those two against a pre-1929 scan. The three Vatican 1908
-  pieces are the cleanest. A pre-1929 source for those two is wanted before a
-  release.
-- Nobody here has compared the transcriptions with the page scans. They are
-  as good as GregoBase's volunteers.
+- The Te Deum (1974) and Salve Regina (1961) name post-1929 books. On
+  2026-11-13 both were read note by note against the 1913 Liber Usualis
+  (public domain) and match it exactly, so the melodies as transcribed are in
+  a pre-1929 book (`scan-check.json`, `../eval/scan-check/README.md`). The
+  2026-11-03 label "simple tone" on the Salve Regina was wrong: it is the
+  solemn mode-1 tone. The Te Deum file is the simple tone (*tonus simplex*).
+- The five named pieces were read against page scans on 2026-11-13 (Dies
+  irae, Veni Creator and Pange lingua against the 1908 Graduale; the other two
+  against the 1913 Liber Usualis): 0 differences in 1,492 notes. The 59 files
+  in `gregobase-1908/` have not been read against the scans, apart from the
+  ending of 3407. `scancheck.test.mjs` fails if a checked file changes.
 
 Each file's header carries:
 
