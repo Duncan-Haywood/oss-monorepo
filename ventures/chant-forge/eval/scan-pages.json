@@ -1,5 +1,5 @@
 {
-  "note": "Where each corpus piece is printed in a pre-1929 scan on archive.org. leaf = the n-number in archive.org/download/<item>/page/n<leaf>.jpg; staves = first and last staff of the piece on that page (1 = top). clefLine = GABC letter index of the clef line (c4 = 9) for naming notes in the report.",
+  "note": "Where each corpus piece is printed in a pre-1929 scan on archive.org. leaf = the n-number in archive.org/download/<item>/page/n<leaf>.jpg; staves = first and last staff of the piece on that page (1 = top). local = the pages also carry other pieces, so both ends of the alignment are free. clefLine (GABC letter index of the clef line, c4 = 9) is read from the GABC when absent. The off-final pieces cite the page their GregoBase header names; the leaves around it are scanned and the piece found by alignment.",
   "pieces": [
     {
       "name": "Dies irae",
@@ -8,10 +8,30 @@
       "archive": "gradualesacrosan0000cath",
       "clefLine": 9,
       "pages": [
-        { "page": "83*", "leaf": 874, "staves": [5, 9] },
-        { "page": "84*", "leaf": 875 },
-        { "page": "85*", "leaf": 876 },
-        { "page": "86*", "leaf": 877, "staves": [1, 4] }
+        {
+          "page": "83*",
+          "leaf": 874,
+          "staves": [
+            5,
+            9
+          ]
+        },
+        {
+          "page": "84*",
+          "leaf": 875
+        },
+        {
+          "page": "85*",
+          "leaf": 876
+        },
+        {
+          "page": "86*",
+          "leaf": 877,
+          "staves": [
+            1,
+            4
+          ]
+        }
       ]
     },
     {
@@ -20,7 +40,16 @@
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "clefLine": 7,
-      "pages": [{ "page": "121*", "leaf": 912, "staves": [3, 4] }]
+      "pages": [
+        {
+          "page": "121*",
+          "leaf": 912,
+          "staves": [
+            3,
+            4
+          ]
+        }
+      ]
     },
     {
       "name": "Pange lingua (verse 1)",
@@ -28,7 +57,241 @@
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "clefLine": 9,
-      "pages": [{ "page": "123*", "leaf": 914, "staves": [1, 3] }]
+      "pages": [
+        {
+          "page": "123*",
+          "leaf": 914,
+          "staves": [
+            1,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Te Deum (Roman tone, 1908)",
+      "gabc": "corpus/te-deum.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "clefLine": 9,
+      "pages": [
+        {
+          "page": "118*",
+          "leaf": 909,
+          "staves": [
+            3,
+            99
+          ]
+        },
+        {
+          "page": "119*",
+          "leaf": 910
+        },
+        {
+          "page": "120*",
+          "leaf": 911
+        },
+        {
+          "page": "121*",
+          "leaf": 912,
+          "staves": [
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Salve Regina (solemn tone)",
+      "gabc": "corpus/salve-regina.gabc",
+      "book": "Antiphonale Romanum, Vatican 1912",
+      "archive": "antiphonale00anonuoft",
+      "clefLine": 9,
+      "pages": [
+        {
+          "page": "56",
+          "leaf": 83,
+          "staves": [
+            5,
+            5
+          ]
+        },
+        {
+          "page": "57",
+          "leaf": 84,
+          "staves": [
+            1,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3434 (off-final ending)",
+      "gabc": "corpus/gregobase-1908/3434.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 353",
+          "leaf": 353
+        },
+        {
+          "page": "leaf 354",
+          "leaf": 354
+        },
+        {
+          "page": "329",
+          "leaf": 355
+        },
+        {
+          "page": "leaf 356",
+          "leaf": 356
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3407 (off-final ending)",
+      "gabc": "corpus/gregobase-1908/3407.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 420",
+          "leaf": 420
+        },
+        {
+          "page": "leaf 421",
+          "leaf": 421
+        },
+        {
+          "page": "396",
+          "leaf": 422
+        },
+        {
+          "page": "leaf 423",
+          "leaf": 423
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3426 (off-final ending)",
+      "gabc": "corpus/gregobase-1908/3426.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 424",
+          "leaf": 424
+        },
+        {
+          "page": "leaf 425",
+          "leaf": 425
+        },
+        {
+          "page": "400",
+          "leaf": 426
+        },
+        {
+          "page": "leaf 427",
+          "leaf": 427
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3403 (off-final ending)",
+      "gabc": "corpus/gregobase-1908/3403.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 512",
+          "leaf": 512
+        },
+        {
+          "page": "leaf 513",
+          "leaf": 513
+        },
+        {
+          "page": "488",
+          "leaf": 514
+        },
+        {
+          "page": "leaf 515",
+          "leaf": 515
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3453 (off-final ending)",
+      "gabc": "corpus/gregobase-1908/3453.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 537",
+          "leaf": 537
+        },
+        {
+          "page": "leaf 538",
+          "leaf": 538
+        },
+        {
+          "page": "513",
+          "leaf": 539
+        },
+        {
+          "page": "leaf 540",
+          "leaf": 540
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3418 (off-final ending)",
+      "gabc": "corpus/gregobase-1908/3418.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 579",
+          "leaf": 579
+        },
+        {
+          "page": "leaf 580",
+          "leaf": 580
+        },
+        {
+          "page": "555",
+          "leaf": 581
+        },
+        {
+          "page": "leaf 582",
+          "leaf": 582
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3429 (off-final ending)",
+      "gabc": "corpus/gregobase-1908/3429.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "82*",
+          "leaf": 873
+        },
+        {
+          "page": "leaf 874",
+          "leaf": 874
+        }
+      ]
     }
   ]
 }

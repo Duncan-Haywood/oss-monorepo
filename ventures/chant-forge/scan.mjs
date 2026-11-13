@@ -8,8 +8,7 @@
 // the GABC's (an edit distance with free ends in the GABC), so a page that
 // shows only part of a piece is placed where it belongs.
 //
-// What it does not read: slanted strokes (the porrectus' first two notes),
-// the clef's type (c or f is taken from the GABC), accidentals, rhythmic
+// A porrectus stroke is read as its two ends. What it does not read: the clef's type (c or f is taken from the GABC), accidentals, rhythmic
 // signs and the text. Those come out as gaps in the alignment, which is why
 // the report gives the disagreements to look at by eye rather than a verdict.
 // No dependencies: the page comes in as a binary PGM (ffmpeg or ImageMagick
@@ -78,7 +77,7 @@ export function binarize(img, t = threshold(img)) {
 
 // Staff lines: rows whose ink covers at least `minCover` of the page width,
 // merged into lines, then grouped four at a time with even spacing.
-export function findStaves(bin, { minCover = 0.45, linesPerStaff = 4 } = {}) {
+export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
   const { width, height, ink } = bin;
   const rowInk = new Array(height).fill(0);
   for (let y = 0; y < height; y++) {
@@ -93,17 +92,40 @@ export function findStaves(bin, { minCover = 0.45, linesPerStaff = 4 } = {}) {
     while (y + 1 < height && rowInk[y + 1] >= minCover * width) y++;
     lines.push({ top: start, bottom: y, y: (start + y) / 2 });
   }
+  // A staff is `linesPerStaff` lines at an even spacing. Other ink-heavy
+  // rows (a page rule, a heavy line of text) may sit between candidates,
+  // so look for the evenly spaced set rather than taking lines in fours.
   const staves = [];
-  for (let i = 0; i + linesPerStaff - 1 < lines.length; i++) {
-    const group = lines.slice(i, i + linesPerStaff);
-    const gaps = group.slice(1).map((l, k) => l.y - group[k].y);
-    const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-    if (mean < 6 || gaps.some((g) => Math.abs(g - mean) > 0.2 * mean)) continue;
-    // horizontal extent: where the middle lines carry ink
-    const extent = staffExtent(bin, group);
-    staves.push({ lines: group, space: mean, top: group[0].y, bottom: group[linesPerStaff - 1].y, ...extent });
-    i += linesPerStaff - 1;
+  const used = new Set();
+  const cands = [];
+  for (let i = 0; i < lines.length; i++) {
+    for (let j = i + 1; j < lines.length; j++) {
+      const d = lines[j].y - lines[i].y;
+      if (d < 6) continue;
+      if (d > 120) break;
+      const idx = [i, j];
+      for (let k = 2; k < linesPerStaff; k++) {
+        const tol = Math.max(2, 0.12 * d);
+        const m = lines.findIndex((l) => Math.abs(l.y - (lines[i].y + k * d)) <= tol);
+        if (m < 0) break;
+        idx.push(m);
+      }
+      if (idx.length === linesPerStaff) cands.push({ idx, d });
+    }
   }
+  // tightest spacing first: real staves beat chance alignments of a page
+  // rule with lines of other staves
+  cands.sort((p, q) => p.d - q.d);
+  for (const c of cands) {
+    if (c.idx.some((k) => used.has(k))) continue;
+    const group = c.idx.map((k) => lines[k]);
+    const mean = (group[linesPerStaff - 1].y - group[0].y) / (linesPerStaff - 1);
+    const extent = staffExtent(bin, group);
+    if (extent.right - extent.left < 8 * mean) continue;
+    c.idx.forEach((k) => used.add(k));
+    staves.push({ lines: group, space: mean, top: group[0].y, bottom: group[linesPerStaff - 1].y, ...extent });
+  }
+  staves.sort((p, q) => p.top - q.top);
   return staves;
 }
 
@@ -113,7 +135,7 @@ function staffExtent(bin, lines) {
   for (const l of lines) {
     for (let x = 0; x < width; x++) {
       let any = 0;
-      for (let y = l.top - 2; y <= l.bottom + 2; y++) any |= ink[y * width + x];
+      for (let y = l.top - 4; y <= l.bottom + 4; y++) any |= ink[y * width + x];
       covered[x] += any;
     }
   }
@@ -121,7 +143,7 @@ function staffExtent(bin, lines) {
   // allowed): a page frame's vertical rule crosses the lines but is not staff
   let best = [0, -1], start = -1, miss = 0;
   for (let x = 0; x <= width; x++) {
-    const on = x < width && covered[x] >= lines.length;
+    const on = x < width && covered[x] >= lines.length - 1;
     if (on) { if (start < 0) start = x; miss = 0; }
     else if (start >= 0 && ++miss > 4) {
       const end = x - miss;
@@ -139,7 +161,7 @@ function staffExtent(bin, lines) {
 export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
-  const y0 = Math.max(0, Math.round(staff.top - 2.6 * s));
+  const y0 = Math.max(0, Math.round(staff.top - 2.1 * s));
   const y1 = Math.min(bin.height - 1, Math.round(staff.bottom + 1.7 * s));
   const lineRows = new Set();
   for (const l of staff.lines) for (let y = l.top; y <= l.bottom; y++) lineRows.add(y);
@@ -173,17 +195,32 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
   const heads = [];
   for (const r of runs) {
     const c = (r.a + r.b) / 2;
-    let h = open.find((o) => o.lastX >= r.x - 1 && Math.abs(o.c - c) < 0.25 * s);
-    if (!h) { h = { x0: r.x, lastX: r.x, c, n: 0, sum: 0 }; open.push(h); heads.push(h); }
-    h.lastX = r.x; h.n++; h.sum += c; h.c = h.sum / h.n;
+    // follow the last column's centre, so a slanted porrectus stroke stays
+    // one piece while it descends
+    let h = open.find((o) => o.lastX >= r.x - 1 && o.lastX < r.x && Math.abs(o.cLast - c) < 0.2 * s);
+    if (!h) { h = { x0: r.x, lastX: r.x, cs: [] }; open.push(h); heads.push(h); }
+    h.lastX = r.x; h.cLast = c; h.cs.push(c);
     for (let i = open.length - 1; i >= 0; i--) if (open[i].lastX < r.x - 1) open.splice(i, 1);
   }
   const out = [];
+  const posOf = (c) => Math.round((staff.bottom - c) / (s / 2));
+  const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
   for (const h of heads) {
     const w = h.lastX - h.x0 + 1;
-    if (w < 0.4 * s || w > 1.2 * s) continue;
-    const pos = Math.round((staff.bottom - h.c) / (s / 2));
-    out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: h.c, pos });
+    if (w < 0.25 * s) continue; // rhombi keep only a few full-height columns
+    if (w <= 1.2 * s) {
+      const c = mean(h.cs);
+      out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c) });
+      continue;
+    }
+    // a porrectus stroke: wide, and its ends a step or more apart. Its
+    // ends are the first two notes (the third is the head on its stem).
+    const k = Math.max(2, Math.round(0.15 * s));
+    const cA = mean(h.cs.slice(0, k)), cB = mean(h.cs.slice(-k));
+    if (w > 3 * s || cB - cA < 0.4 * s) continue;
+    const e = Math.round(0.5 * s);
+    out.push({ x: h.x0 + e / 2, x0: h.x0, x1: h.x0 + e, y: cA, pos: posOf(cA) });
+    out.push({ x: h.lastX - e / 2, x0: h.lastX - e, x1: h.lastX, y: cB, pos: posOf(cB) });
   }
   // reading order: left to right; heads sharing columns are read bottom-up
   out.sort((p, q) => p.x - q.x);
@@ -282,7 +319,7 @@ export function gabcSteps(src) {
       // skip letters that are not pitches: custos (x+), accidentals (fx fy f#)
       if (g[i + 1] === '+') continue;
       if (g[i + 1] && 'xy#'.includes(g[i + 1])) { i++; continue; }
-      out.push({ rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text });
+      out.push({ rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2] });
     }
   }
   return out;
@@ -321,4 +358,35 @@ export function align(a, b) {
     else gabcOnly++;
   }
   return { pairs, startJ, endJ, distance: D[n][endJ], match, sub, scanOnly, gabcOnly };
+}
+
+// Local alignment (free ends on both sides): for a page that also carries
+// other pieces. Scores +1 a match, -1 a mismatch or gap; returns the best
+// region in the same shape as align().
+export function alignLocal(a, b) {
+  const n = a.length, m = b.length;
+  const H = Array.from({ length: n + 1 }, () => new Int32Array(m + 1));
+  let best = 0, bi = 0, bj = 0;
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      const v = Math.max(0, H[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 1 : -1), H[i - 1][j] - 1, H[i][j - 1] - 1);
+      H[i][j] = v;
+      if (v > best) { best = v; bi = i; bj = j; }
+    }
+  }
+  const pairs = [];
+  let i = bi, j = bj;
+  while (i > 0 && j > 0 && H[i][j] > 0) {
+    if (H[i][j] === H[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 1 : -1)) { pairs.push([i - 1, j - 1]); i--; j--; }
+    else if (H[i][j] === H[i - 1][j] - 1) { pairs.push([i - 1, null]); i--; }
+    else { pairs.push([null, j - 1]); j--; }
+  }
+  pairs.reverse();
+  let match = 0, sub = 0, scanOnly = 0, gabcOnly = 0;
+  for (const [p, q] of pairs) {
+    if (p !== null && q !== null) (a[p] === b[q] ? match++ : sub++);
+    else if (p !== null) scanOnly++;
+    else gabcOnly++;
+  }
+  return { pairs, startJ: j, endJ: bj, startI: i, endI: bi, score: best, match, sub, scanOnly, gabcOnly };
 }

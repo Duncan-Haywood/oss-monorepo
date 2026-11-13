@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { readPgm, readPage, gabcSteps, align } from '../scan.mjs';
+import { readPgm, readPage, gabcSteps, align, alignLocal } from '../scan.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
@@ -22,6 +22,7 @@ const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] :
 const cache = opt('--cache', join(tmpdir(), 'chant-forge-scans'));
 const only = opt('--only', null);
 const out = opt('--out', join(here, 'scan-check-report.md'));
+const trials = Number(opt('--trials', 200));
 mkdirSync(cache, { recursive: true });
 
 const NAMES = 'abcdefghijklm';
@@ -47,10 +48,14 @@ const lines = [
   'stem, notes on ledger lines); "scan only" are marks it read as notes that the',
   'GABC lacks (flats, the odd custos, specks). Disagreements are listed so each',
   'can be looked at on the scan; the verdicts from looking are in',
-  '`scan-check-verdicts.md`.',
+  '`scan-check-verdicts.md`. The last column is a control: one GABC note that',
+  'agrees with the scan is moved a step up or down (seeded, one at a time) and',
+  'the check is run again; it counts the trials in which the moved note is',
+  'reported, so it says how many real one-step transcription slips this',
+  'check would catch.',
   '',
-  '| piece | book | pages | notes read | agree | differ | GABC only | scan only | agreement |',
-  '|---|---|---|---|---|---|---|---|---|',
+  '| piece | book | pages | notes read | agree | differ | GABC only | scan only | agreement | one-step errors caught |',
+  '|---|---|---|---|---|---|---|---|---|---|',
 ];
 const details = [];
 const summary = [];
@@ -58,6 +63,7 @@ for (const piece of manifest.pieces) {
   if (only && piece.name !== only) continue;
   const src = readFileSync(join(root, piece.gabc), 'utf8');
   const g = gabcSteps(src);
+  if (piece.clefLine === undefined) { const c = /\(([cf])b?([1-4])\)/.exec(src.slice(src.indexOf('%%'))); piece.clefLine = 3 + 2 * (Number(c[2]) - 1); }
   const scanNotes = [];
   for (const p of piece.pages) {
     const staves = readPage(page(piece.archive, p.leaf));
@@ -66,30 +72,63 @@ for (const piece of manifest.pieces) {
       for (const n of s.notes) if (n.rel !== null) scanNotes.push({ ...n, page: p.page, leaf: p.leaf, staff: s.staff });
     }
   }
-  const r = align(scanNotes.map((n) => n.rel), g.map((n) => n.rel));
+  // `local`: the pages also carry other pieces, so neither sequence's ends count
+  const aligner = piece.local ? alignLocal : align;
+  const r = aligner(scanNotes.map((n) => n.rel), g.map((n) => n.rel));
   const span = r.endJ - r.startJ;
+  // Control: would the check notice a wrong note? Move one GABC note that
+  // agrees with the scan up or down a step (seeded), align again, and count
+  // the trials where that note no longer pairs with an equal scan note.
+  const a = scanNotes.map((n) => n.rel);
+  const agreeing = r.pairs.filter(([p, q]) => p !== null && q !== null && a[p] === g[q].rel).map(([, q]) => q);
+  let seed = 12345, caught = 0;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  for (let t = 0; t < trials && agreeing.length; t++) {
+    const q = agreeing[Math.floor(rnd() * agreeing.length)];
+    const b = g.map((n) => n.rel);
+    b[q] += rnd() < 0.5 ? -1 : 1;
+    const rr = aligner(a, b);
+    if (!rr.pairs.some(([p, qq]) => qq === q && p !== null && a[p] === b[q])) caught++;
+  }
   const agreement = r.match / Math.max(1, span);
-  summary.push({ name: piece.name, notes: scanNotes.length, ...r, span, agreement });
-  lines.push(`| ${piece.name} | ${piece.book} | ${piece.pages.map((p) => p.page).join(', ')} | ${scanNotes.length} | ${r.match} | ${r.sub} | ${r.gabcOnly} | ${r.scanOnly} | ${(100 * agreement).toFixed(1)}% of ${span} GABC notes |`);
+  summary.push({ name: piece.name, notes: scanNotes.length, ...r, span, agreement, caught });
+  lines.push(`| ${piece.name} | ${piece.book} | ${piece.pages.map((p) => p.page).join(', ')} | ${scanNotes.length} | ${r.match} | ${r.sub} | ${r.gabcOnly} | ${r.scanOnly} | ${(100 * agreement).toFixed(1)}% of ${span} GABC notes | ${caught} of ${trials} |`);
   const diffs = [];
   r.pairs.forEach(([p, q], k) => {
     if (p !== null && q !== null && scanNotes[p].rel === g[q].rel) return;
-    if (p === null && q !== null) return; // missed notes are listed by count only
-    const n = p !== null ? scanNotes[p] : null;
+    // a note the reader missed is placed next to the nearest scan note
+    let n = p !== null ? scanNotes[p] : null;
+    let near = '';
+    if (!n) {
+      for (let d = 1; !n && d < r.pairs.length; d++) {
+        for (const kk of [k - d, k + d]) if (!n && r.pairs[kk] && r.pairs[kk][0] !== null) n = scanNotes[r.pairs[kk][0]];
+      }
+      near = 'not read; near ';
+    }
     // syllable context: the GABC syllable this lands on, or the next one
     let qq = q;
     for (let d = k; qq === null && d < r.pairs.length; d++) qq = r.pairs[d][1];
     const syl = qq !== null && qq < g.length ? g[qq].text : '';
-    const where = n ? `p. ${n.page} (leaf ${n.leaf}), staff ${n.staff}, x ${n.x}` : '';
-    const scanName = n ? NAMES[n.rel + piece.clefLine] || `step ${n.rel}` : '-';
+    const where = n ? `${near}p. ${n.page} (leaf ${n.leaf}), staff ${n.staff}, x ${n.x}` : '';
+    const scanName = p !== null ? NAMES[scanNotes[p].rel + piece.clefLine] || `step ${scanNotes[p].rel}` : '-';
     const gabcName = q !== null ? NAMES[g[q].rel + piece.clefLine] || `step ${g[q].rel}` : '-';
-    diffs.push(`| ${syl || '?'} | ${gabcName} | ${scanName} | ${where} |`);
+    diffs.push(`| ${syl || '?'} | ${q !== null ? g[q].group : ''} | ${gabcName} | ${scanName} | ${where} |`);
   });
   details.push('', `## ${piece.name}`, '', `${piece.gabc}, ${g.length} GABC notes; scan of ${piece.book} (archive.org item \`${piece.archive}\`).`, '');
-  if (diffs.length) details.push('| syllable | GABC | scan | where |', '|---|---|---|---|', ...diffs);
+  {
+    // the ending: the GABC's last six notes and what the scan has there
+    const last = g.slice(-6).map((n, k) => {
+      const q = g.length - 6 + k;
+      const pr = r.pairs.find(([, qq]) => qq === q);
+      const sn = pr && pr[0] !== null ? NAMES[a[pr[0]] + piece.clefLine] : '·';
+      return `${NAMES[n.rel + piece.clefLine]}/${sn}`;
+    });
+    details.push(`Ending, GABC/scan (· = not read or not on these pages): ${last.join(' ')}; GABC notes covered ${r.startJ + 1}-${r.endJ} of ${g.length}.`, '');
+  }
+  if (diffs.length) details.push('| syllable | GABC group | GABC note | scan | where |', '|---|---|---|---|---|', ...diffs);
   else details.push('No disagreement among the notes the reader found.');
 }
 lines.push(...details, '');
 writeFileSync(out, lines.join('\n'));
-for (const s of summary) console.log(`${s.name}: ${s.notes} notes read, ${s.match} agree, ${s.sub} differ, ${s.gabcOnly} GABC only, ${s.scanOnly} scan only (${(100 * s.agreement).toFixed(1)}% of ${s.span})`);
+for (const s of summary) console.log(`${s.name}: ${s.notes} notes read, ${s.match} agree, ${s.sub} differ, ${s.gabcOnly} GABC only, ${s.scanOnly} scan only (${(100 * s.agreement).toFixed(1)}% of ${s.span}); planted one-step errors caught ${s.caught}/${trials}`);
 console.log(`wrote ${out}`);
