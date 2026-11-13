@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtLYSgPb3Gyru4mm2Mg",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:06:11Z",
+  "ended": "2026-11-13T00:29:45Z",
+  "wall_minutes": 23.82,
+  "tokens_in": 18811871,
+  "tokens_out": 97493,
+  "cost_usd": 7.6311,
+  "tool_calls": 108,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15306",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First built the whole lensfun distortion slice (own module, tests, CLI) in parallel with session_01EhTJVL1AkctBrPoK1SFB5b, whose PR #15302 on the same item was opened 2 min after this session started and before this session's draft PR; claim_check said yield. Rebased onto #15302 and kept only what it lacked (TCA, maker-note lens name). About 40% of the session's build time was duplicate."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Says to open the draft PR 'as soon as you pick'; I picked, then read lensfun source and wrote code for ~25 min before opening it. Another session claimed the same row in that window. The allocate.py 'Start here' text says it, but it is easy to read past; claim_check should run before any building, not after."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The photo-editing buildable item for TCA read as 'landed 2026-11-13' while it was the open next item (written by the concurrent PR), which is ambiguous to the next reader."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "mypy in photo-editing-ci.yml fails locally on Python 3.13 numpy stubs ('Type statement is only supported in Python 3.12') unless run with --python-version 3.13; not mentioned in cloud-session.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'Merge it yourself' in every session: this PR stacks on PR #15302 (another session's, still open with lint fixes in flight), so merging it first would also land #15302's commits under this PR.",
+      "did": "Waited for #15302 to merge, then merged main and this PR (see notes).",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-colour-fringe-fits-in-fifteen-terms.md",
+    "ventures/photo-editing/eval/lensfun-tca-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 7 photo-editing. Lensfun TCA composed exactly into the 3-plane WarpRectilinear2 (degree <= 14): 2.7e-12 px from lensfun's pipeline on 909 lenses / 6,257 cases; uncorrected corner red-blue median 0.56 px, >1 px in 30%. Canon maker-note 0x0095 lens name read (real 5D Mark II CR2 now finds its lens). Tests: test_lens_tca.py 12 pass, 4 seeded faults caught; run_venture_tests photo-editing ok 100.8 s; ruff clean; mypy clean on changed files.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "14ae5ee5-0161-5103-a067-d16b02817716",
+    "transcripts": 1,
+    "first": "2026-11-13T00:06:11Z",
+    "last": "2026-11-13T00:30:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 103,
+        "input": 196,
+        "output": 97493,
+        "thinking": 25524,
+        "cache_read": 18565756,
+        "cache_write_5m": 0,
+        "cache_write_1h": 245919,
+        "api_equivalent_usd": 7.6311,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 103,
+      "input": 196,
+      "output": 97493,
+      "thinking": 25524,
+      "cache_read": 18565756,
+      "cache_write_5m": 0,
+      "cache_write_1h": 245919,
+      "api_equivalent_usd": 7.6311,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 108,
+    "tools": {
+      "Bash": 99,
+      "mcp__github__pull_request_read": 4,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.82,
+      "active_minutes": 23.82,
+      "model_minutes": 19.41,
+      "tool_minutes": 4.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer porting lensfun TCA from source, deriving the composition, tests and whole-db check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 78.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
