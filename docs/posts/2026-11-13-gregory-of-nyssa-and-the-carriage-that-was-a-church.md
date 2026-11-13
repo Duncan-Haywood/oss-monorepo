@@ -1,9 +1,9 @@
 ---
 title: "Saints by Candlelight 106: Gregory of Nyssa and the carriage that was a church"
-seo_title: "Saint Gregory of Nyssa bedtime story: the forgotten brother who went deepest"
+seo_title: "Saint Gregory of Nyssa bedtime story: the forgotten brother"
 date: 2026-11-13
 tags: [fiction, saints-by-candlelight, bedtime-story, saints]
-description: "Episode 106 of the bedtime saints podcast: Saint Gregory of Nyssa, the forged letters, the exile, the psalm-singing post carriage and the endless journey into God."
+description: "Episode 106 of the bedtime saints podcast: Saint Gregory of Nyssa, the forged letters, the exile, the psalm-singing carriage and the endless journey into God."
 ---
 
 [Gregory of Nyssa and the Carriage That Was a Church](../../ventures/saints-by-candlelight/episodes/106-gregory-of-nyssa-and-the-carriage-that-was-a-church.md)
