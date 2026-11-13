@@ -6,7 +6,7 @@
   "input": null,
   "input_sha256": null,
   "follow_up_inputs": [],
-  "model": "claude-opus-5-5",
+  "model": null,
   "models_seen": [],
   "started": null,
   "ended": "2026-11-13T21:02:17Z",
