@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>John Vianney and the Way to Ars</title>
+      <link>https://example.invalid/hearth-and-horizon/john-vianney-and-the-way-to-ars.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/john-vianney-and-the-way-to-ars.html</guid>
+      <pubDate>Fri, 13 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint John Vianney, the Curé of Ars, the farm boy who made his First Communion in a kitchen with the windows covered, found Latin so hard that he was nearly not made a priest, and was sent to a tiny village of about two hundred people, where he stayed for forty-one years, and where people came from all over France to tell God they were sorry and to go home light. Gently for ages 3 to 8, with a prayer and a note for grown-ups. About nine minutes read aloud. His feast day is the 4th of August. Setting: Dardilly, Écully and Ars, near Lyon in France, about 200 years ago. Read the full text at https://example.invalid/hearth-and-horizon/john-vianney-and-the-way-to-ars.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint John Vianney, the Curé of Ars, the farm boy who made his First Communion in a kitchen with the windows covered, found Latin so hard that he was nearly not made a priest, and was sent to a tiny village of about two hundred people, where he stayed for forty-one years, and where people came from all over France to tell God they were sorry and to go home light. Gently for ages 3 to 8, with a prayer and a note for grown-ups. About nine minutes read aloud. His feast day is the 4th of August.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Vincent and the Babies at the Church Door</title>
       <link>https://example.invalid/hearth-and-horizon/vincent-and-the-babies-at-the-church-door.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/vincent-and-the-babies-at-the-church-door.html</guid>
