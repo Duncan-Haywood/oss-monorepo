@@ -3,7 +3,7 @@ title: "Teaching a scan reader to see a quilisma, and testing it on pages it had
 seo_title: "Detecting the quilisma in scanned Gregorian chant (1908 Graduale)"
 date: 2026-11-13
 tags: [music, gregorian-chant, optical-music-recognition, open-source, chant-forge]
-description: "A saw-tooth neume in the 1908 Vatican Graduale, found by counting notched rows. Set on five chants, then tested on nine chants scanned for the first time: 15 of 17 found."
+description: "Finding the saw-tooth quilisma in scans of the 1908 Graduale by counting notched rows: set on five chants, then 15 of 17 found on nine never-seen chants."
 ---
 
 Chant Forge checks its GABC transcriptions of Gregorian chant against scans of the 1908 Vatican Graduale on archive.org. A small reader in `scan.mjs` finds the staves, the note heads and their pitches, lines the scan up with the GABC, and lists where they disagree. Earlier today it learned to tell a rhombus (punctum inclinatum) from a square. The quilisma was still read as a square.
