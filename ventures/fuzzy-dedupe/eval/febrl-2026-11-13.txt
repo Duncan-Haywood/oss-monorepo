@@ -1,0 +1,15 @@
+set      rows  true pairs  tool P / R / F1        exact-match P / R / F1   borderline  ms
+Febrl 1 @0.9   1000      500    1.000 / 0.998 / 0.999    1.000 / 0.362 / 0.532        0    214
+Febrl 1 @0.5   1000      500    1.000 / 0.998 / 0.999    1.000 / 0.362 / 0.532        0    154
+Febrl 2 @0.9   5000     1934    1.000 / 0.996 / 0.998    1.000 / 0.291 / 0.451        1    447
+Febrl 2 @0.5   5000     1934    1.000 / 0.996 / 0.998    1.000 / 0.291 / 0.451        1    413
+Febrl 3 @0.9   5000     6538    1.000 / 0.998 / 0.999    1.000 / 0.259 / 0.412        9    466
+Febrl 3 @0.5   5000     6538    0.998 / 0.998 / 0.998    1.000 / 0.259 / 0.412        8    458
+
+name and address only (no birth date, no ID number); guard = different-first-name pairs held for review:
+Febrl 1 guard on   1000      500    1.000 / 0.848 / 0.918       54    155
+Febrl 1 guard off  1000      500    1.000 / 0.956 / 0.978        0    135
+Febrl 2 guard on   5000     1934    1.000 / 0.835 / 0.910      217    256
+Febrl 2 guard off  5000     1934    1.000 / 0.966 / 0.983        0    265
+Febrl 3 guard on   5000     6538    0.997 / 0.810 / 0.894      799    460
+Febrl 3 guard off  5000     6538    0.998 / 0.952 / 0.974        1    329

@@ -110,7 +110,7 @@
     <h2>What it checks, and what it leaves out</h2>
     <ul>
       <li><strong>Email syntax:</strong> missing or doubled @, spaces, "Name &lt;address&gt;" form, several addresses in one cell, bad characters, a domain with no dot or an impossible ending. Blank emails and stray whitespace are listed too.</li>
-      <li><strong>Duplicates:</strong> the same address ignoring capitals is a duplicate. Gmail ignores dots and "+" tags, and a few other providers ignore "+" tags, so those are flagged as <em>likely</em> duplicates for you to review, never removed for you.</li>
+      <li><strong>Duplicates:</strong> the same address ignoring capitals is a duplicate. Gmail ignores dots and "+" tags, and a few other providers ignore "+" tags, so those are flagged as <em>likely</em> duplicates for you to review, never removed for you. To find the same person under different emails or spellings (Bob and Robert, a typo in the surname, the same phone), use the <a href="../fuzzy-dedupe/">fuzzy duplicate finder</a>.</li>
       <li><strong>Typos:</strong> common misspellings of gmail, hotmail, yahoo, outlook, icloud and similar, and endings like .con, .coom and .cmo, each with a suggested fix.</li>
       <li><strong>Role and disposable addresses:</strong> info@, admin@, support@, sales@, noreply@ and similar; and a small built-in list of throwaway-inbox domains (it is short and will miss many).</li>
       <li><strong>Placeholders and wrapped addresses:</strong> test@test.com, none@none.com and similar fillers are flagged; <code>mailto:</code>, <code>Name &lt;a@b.com&gt;</code>, quotes and trailing punctuation are stripped by the safe-fixes copy instead of rejecting the row, and internationalised domains are written in punycode.</li>
