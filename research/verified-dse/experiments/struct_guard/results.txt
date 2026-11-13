@@ -1,0 +1,16 @@
+# Milestone 119: a structural shifter guard for the clipped switch, chosen on 136 seen cells, tested blind on three new families (rotate-and-mask, leading-zero normaliser, maximum tree)
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 119.
+
+## Selection on the seen cells (136 cells, 68 designs)
+
+SWC 1.67%, random 2.37%
+
+SWS(8) 1.19% (11 designs flagged) | SWS(16) 1.08% (10 designs flagged) | SWS(32) 1.08% (9 designs flagged) | SWS(64) 1.08% (8 designs flagged) | SWS(128) 1.11% (5 designs flagged) | SWS(256) 1.14% (2 designs flagged) | SWS(off) 1.67% (0 designs flagged)
+SWM(0.1) 1.30% (16 designs flagged) | SWM(0.25) 1.30% (16 designs flagged) | SWM(0.5) 1.32% (14 designs flagged) | SWM(0.75) 1.32% (14 designs flagged) | SWM(0.9) 1.34% (5 designs flagged) | SWM(off) 1.67% (0 designs flagged)
+
+chosen: SWS(64) 1.08% (leave-one-family-out 1.15%), SWM(0.25) 1.30% (leave-one-family-out 1.95%); primary guard SWS(64)
+seen designs it flags: barrel128, barrel192, barrel256, barrel64, barrel96, funnel128, funnel64, rotmix64
+blind designs it flags: lzcnorm64, rotmask128, rotmask64
+
+## Blind test: no table yet
