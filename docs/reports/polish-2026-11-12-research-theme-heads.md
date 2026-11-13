@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: research index theme heads on phones
 
 **Why this item.** Item 1 of "Still weakest" in `polish-2026-11-12-research-index-length.md`

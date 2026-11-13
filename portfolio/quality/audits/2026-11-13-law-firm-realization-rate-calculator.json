@@ -1,0 +1,235 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/law-firm-realization-rate-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-n",
+ "drawn_by": "sample",
+ "round": 68,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a law-firm billing partner or legal operations / finance manager at a small-to-midsize firm who runs the monthly timekeeper productivity, WIP and receipts reports; first they check that realization, collection and yield follow the standard definitions, that lockup is WIP days plus debtor days, and that the tool accepts the figures their period reports actually produce (including periods where receipts exceed billings)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed the shipped five-timekeeper example independently in Python (python3 /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/hand.py) from the standard definitions, and ran the shipped engine (node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs). Firm: standard value 2,401,000 (sum of hours x rate), billed 2,042,000, collected 1,824,000; realization 0.85048 (tool 0.8505), collection 0.89324 (tool 0.8932), yield 0.75968 (tool 0.7597, page '76.0%'). Leakage per timekeeper B 172,000 > D 161,000 > C 115,000 > A 91,500 > E 37,500; tool ranks identically, top share 172,000/577,000 = 29.81% (tool 0.2981), and D (yield 0.6247) is correctly named lowest-yield-but-not-largest-loss. Lockup: WIP 210,000 / (2,401,000/365) = 31.92 days, AR 380,000 / (2,042,000/365) = 67.92 days, total 99.85 (tool 31.92 + 67.92 = 99.84, rounding of rounded parts). Target 2,000,000: hours needed 2,000,000 / (1,824,000/7,810) = 8,563.60 (tool 8563.6); yield needed 0.83299 (tool 0.833). Solo check 1,500 h x $300, billed 405,000, collected 364,500: 0.90 / 0.90 / 0.81, effective $243/h (tool identical). Small departures: one point of realization is computed from the 4-decimal-rounded collection rate (calc.mjs:159), 21,445.73 vs exact 21,446.74; with billing above standard the finding calls a $9,000 post-bill loss 'the larger half' of a $5,000 total loss (calc.mjs:211-213). Every headline number matched; held at 3, not 4, because a period where receipts exceed billings, normal on period-basis reports, is refused rather than computed.",
+  "completeness": "Claimed features (README, page header, VENTURE.yaml) checked by running calc.mjs: per-timekeeper and firm realization/collection/yield (works), pre-bill vs post-bill split (works), ranking by dollars lost with the rate-vs-dollars finding (works), lockup days from WIP and receivables (works), value of 1/3/5 points of realization per year (works), target as hours needed vs yield needed (works), utilization when available hours given (works), CSV and copy summary (resultCsv/summaryText run in tests). Page wiring read in index.html:157-210. One small dead promise: the error status says 'Fix the highlighted figures' (index.html:179) but no field is highlighted, only the first is focused. The served page https://marisstella.app/law-firm-realization-rate-calculator/ could not be loaded from this session (proxy CONNECT 403; WebFetch ENOTFOUND), so no URL defect is filed; llms.txt still names the github.io host in source, which build_pages_site.rewrite_base_urls rewrites at deploy.",
+  "verification": "cd ventures/law-firm-realization-rate-calculator && node --test '*.test.mjs': 28 tests, 28 pass, 0 fail (0.11 s). quality_mutate.py, 5 mutants in calc.mjs: caught 2 (period days 365/12 -> 30 at :162; receivable days over collected instead of billed at :165); survived 3: top-leak share denominator changed (:146), the pre-bill vs post-bill 'larger half' finding inverted (:211), and the hours-exceed-available check loosened by 50% (:86). The sample-data test (calc.test.mjs:107) asserts only the yield string and row counts, so the findings a partner reads (top share, which stage loses more) are not pinned.",
+  "craft": "Read calc.mjs (262 lines), calc.test.mjs, page.test.mjs, usage.mjs, index.html script. Pure, dependency-free engine with field-level error ids the page focuses; good. Concrete defects: numeric() (calc.mjs:51) turns accounting negatives like '(1,000)' into null, so the user is told 'The amount billed ... is needed' instead of 'cannot be negative'; pointValue uses an already-rounded rate (calc.mjs:159); usd/pct formatters are duplicated in the page and the engine; duplicate CSS rule .pill.high and several unused classes (heat, short, checkbox-row) copied from a template. No dead engines or copied logic beyond that.",
+  "claims": "Checked: formulas on the page ('The arithmetic' list, index.html:98-104) match calc.mjs exactly, including 'months x 30.4' (365/12); 'a test in the code asserts there are no network calls' is backed by page.test.mjs ('neither page nor engine can send figures anywhere'); 'no benchmark claimed' holds (page states no figure is a standard; no industry averages quoted); disclaimer, independence and no-SLA text present (page.test.mjs checks). One unbacked claim: README.md:28 calls usage.mjs 'opt-in-only usage counters (off by default)', but usage.mjs record() counts unless the visitor opts out or sends DNT/GPC, and the page itself correctly says 'opt-out-able'. The counts stay in localStorage, so the impact is low.",
+  "fitness": "Job walked: a billing partner pastes one quarter's timekeeper productivity report (recorded value, billed, collected) to find where realization leaks and who to talk to first. With annual figures and clean cut-offs it does the job well, and the dollar ranking plus pre/post split is exactly the conversation starter a managing partner wants. But collected > billed for any timekeeper is a hard error (calc.mjs:79), and on a period-basis report (receipts in the period vs bills issued in the period) that is common for a quarter, and not rare for a year, when prior-period receivables are paid. The user cannot proceed without editing their own figures. No import of a billing-system export, so a 30-timekeeper firm types 150 numbers.",
+  "domain": "Compared with standard law-firm billing definitions (dollar basis, as in large-firm financial reporting): realization = billed / (hours x standard rate), collection = collected / billed, yield or collected realization = collected / standard value; Clio Legal Trends Report uses the same three-stage chain (utilization -> realization -> collection) on hours; lockup as WIP days + debtor days (the standard lockup measure used in law-firm finance). Matches: all three ratios, their product identity, lockup on standard value per day and billing per day, utilization as recorded hours / available hours, effective rate as cash per recorded hour, billed above standard (premium/fixed fee) allowed as realization > 100%. Departs: treating collection > 100% as a data error rather than the normal period-basis effect of collecting prior billings; no option for an 'on matched cohort' vs 'period' basis, which practitioners distinguish."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "firm realization, collection and yield on the shipped 5-timekeeper example",
+   "method": "standard law-firm billing definitions (dollar basis, as in large-firm financial reporting): realization = billed / (hours x standard rate), collection = collected / billed, yield or collected realization = collected / standard value; Clio Legal Trends Report uses the same three-stage chain (utilization -> realization -> collection) on hours",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/hand.py; node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "0.8505 / 0.8932 / 0.7597 (2,042,000/2,401,000; 1,824,000/2,042,000; 1,824,000/2,401,000)",
+   "observed": "0.8505 / 0.8932 / 0.7597",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ranking by dollars lost, top share, and lowest-yield-not-largest-loss finding",
+   "method": "hand recomputation: leakage = hours x rate - collected per timekeeper; share of positive leakage",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/hand.py; node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "B 172,000 first, top share 29.81%, D lowest yield 62.47%",
+   "observed": "Partner B 172,000 first, 0.2981, Associate D 62.5% named",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "lockup days on WIP 210,000 and AR 380,000, 12-month period",
+   "method": "standard law-firm lockup = WIP days (WIP / standard value per day) + debtor days (AR / billing per day), 365-day year",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/hand.py; node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "31.92 + 67.92 = 99.85",
+   "observed": "31.92 + 67.92 = 99.84",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "target of $2,000,000 as hours needed and yield needed",
+   "method": "hand: hours = target / (collected per recorded hour); yield = target / annual standard value",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/hand.py; node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "8,563.60 h; 0.8330",
+   "observed": "8563.6; 0.833",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "value of one point of realization per year",
+   "method": "hand: 1% of standard value x collection rate (unrounded) = 2,401,000 x 0.01 x 0.893242",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/hand.py; node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "21,446.74",
+   "observed": "21,445.73 (uses 4-dp rounded collection rate)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "quarter where receipts exceed billings (300 h x $400, billed 100,000, collected 105,000, 3 months)",
+   "method": "period-basis practice: collection rate = period receipts / period billings, may exceed 100% when prior-period AR is paid",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "collection 1.05, yield 0.875",
+   "observed": "ok:false, 'Collected is larger than billed' error",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "premium/fixed-fee case: billed above standard, then partly unpaid (std 40,000, billed 44,000, collected 35,000)",
+   "method": "hand: pre-bill -4,000 (gain), post-bill loss 9,000, net loss 5,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "numbers right; finding should not call 9,000 'the larger half' of a 5,000 loss",
+   "observed": "numbers right; finding says 'The larger half of the loss, $9,000'",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/law-firm-realization-rate-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "28 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README says usage counters are opt-in-only and off by default",
+   "method": "read usage.mjs record()",
+   "command": "grep -n 'opt-in' ventures/law-firm-realization-rate-calculator/README.md; sed -n 30,55p ventures/law-firm-realization-rate-calculator/usage.mjs",
+   "expected": "counters off until the visitor opts in",
+   "observed": "counters on by default, off on opt-out or DNT/GPC",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "page formula list matches the engine",
+   "method": "compare index.html 'The arithmetic' list to calc.mjs shape()/lockup",
+   "command": "sed -n 95,106p ventures/law-firm-realization-rate-calculator/index.html",
+   "expected": "same formulas",
+   "observed": "same formulas, 30.4 = 365/12",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'a test in the code asserts there are no network calls'",
+   "method": "read page.test.mjs",
+   "command": "cd ventures/law-firm-realization-rate-calculator && node --test '*.test.mjs'",
+   "expected": "a test that rejects fetch/XHR/beacon in page and engine",
+   "observed": "page.test.mjs 'neither page nor engine can send figures anywhere' passes",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "'Fix the highlighted figures' error status",
+   "method": "read index.html run()",
+   "command": "grep -n highlight ventures/law-firm-realization-rate-calculator/index.html",
+   "expected": "invalid fields highlighted",
+   "observed": "only the first invalid field is focused; nothing highlighted",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "accounting-style negative '(1,000)' in Billed",
+   "method": "run the engine",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/law-firm/tool.mjs",
+   "expected": "'Billed cannot be negative'",
+   "observed": "'The amount billed for this time is needed.'",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:162",
+   "change": "const days = periodMonths * (365 / 12); -> const days = periodMonths * 30;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:165",
+   "change": "receivableDays ar / (billed / days) -> ar / (collected / days)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:146",
+   "change": "ranked[0].leakage / positiveLeak -> ranked[0].leakage / (positiveLeak + ranked[0].leakage)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:211",
+   "change": "preBill >= post ? -> preBill <= post ?",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:86",
+   "change": "hours > available -> hours > available * 1.5",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Collected above billed is a hard validation error, but on period-basis reports (receipts in the period vs bills issued in the period) collections routinely exceed billings for a timekeeper in a quarter, and sometimes a year, when prior-period receivables are paid. The user cannot get any result without editing their real figures. It should be computed (collection > 100%) with a warning, not refused.",
+   "where": "ventures/law-firm-realization-rate-calculator/calc.mjs:79",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The findings a partner acts on are untested: inverting which stage loses more (pre- vs post-bill) or changing the top-leak share denominator leaves all 28 tests green; the sample test only checks the yield string.",
+   "where": "ventures/law-firm-realization-rate-calculator/calc.test.mjs:107",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README says usage counters are 'opt-in-only ... off by default'; usage.mjs counts unless the visitor opts out or sends DNT/GPC (the page correctly says opt-out-able). Counts never leave the device.",
+   "where": "ventures/law-firm-realization-rate-calculator/README.md:28",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "When billing exceeds standard (pre-bill gain) and part goes unpaid, the finding calls the post-bill loss 'the larger half of the loss' though it exceeds the total loss (e.g. $9,000 of a $5,000 net loss).",
+   "where": "ventures/law-firm-realization-rate-calculator/calc.mjs:213",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Point value is computed from the collection rate already rounded to 4 decimals, so the headline 'value of a point' is off by about $1 on the sample ($21,445.73 vs $21,446.74).",
+   "where": "ventures/law-firm-realization-rate-calculator/calc.mjs:159",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Accounting negatives such as '(1,000)' parse to null and the user is told the figure is missing rather than that it cannot be negative.",
+   "where": "ventures/law-firm-realization-rate-calculator/calc.mjs:51",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Error status says 'Fix the highlighted figures' but no input is highlighted; only the first invalid one is focused.",
+   "where": "ventures/law-firm-realization-rate-calculator/index.html:179",
+   "category": "other",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15545"
+ ],
+ "verdict": "The arithmetic is right: every headline figure on the shipped example (realization 85.05%, collection 89.32%, yield 75.97%, the dollar ranking, 29.8% top share, lockup 31.92 + 67.92 days, the target as 8,563.6 hours or an 83.3% yield) matches an independent recomputation from the standard dollar-basis definitions, and the page states its formulas and limits honestly. It misses the bar on verification: 3 of 5 seeded mutants survived, including inverting the pre- vs post-bill finding a partner reads first. It is held back as a working tool by treating collections above billings as an error, which a billing partner entering a quarter's period reports will hit and cannot get past. Small fixes: compute collection > 100% with a warning, pin the findings in tests, correct the README's opt-in wording, use the unrounded collection rate for point value."
+}

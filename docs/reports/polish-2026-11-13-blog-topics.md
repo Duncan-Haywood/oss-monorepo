@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: blog topics follow the project, search-result cards match the list
 
 **Why.** The previous report's "still weakest" items were taken (#15399 has the last intro link

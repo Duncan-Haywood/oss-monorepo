@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: related posts that are related, and front-matter escapes
 
 **Why this item.** The polish prompt asks for screenshots of the hub, a flagship, a research page,

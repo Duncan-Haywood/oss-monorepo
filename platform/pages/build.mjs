@@ -789,10 +789,12 @@ const CATEGORY_RULES = [
     // furnace, mini-split and heat pump bid calculators.
     // `continuous-beam-calculator` joined 2026-11-12 on its first commit: a builder or designer
     // checking a deck or floor beam over several posts, beside `wall-framing-takeoff`.
+    // `water-supply-sizing` joined 2026-11-13 on its first commit: peak water demand by
+    // Hunter's method and supply pipe sizes a plumber checks, beside `hvac-load-calc`.
     // `earthwork-cut-fill` joined 2026-11-12 on its first commit: a site-work contractor
     // turning a surveyor's point file into pad cut and fill and truckloads for a bid,
     // beside `concrete-maturity` and the excavation and grading bid calculators.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -4847,7 +4849,8 @@ const SUBCATEGORY_RULES = {
       // `pv-string-sizer` (2026-11-11): PV string sizing (cold Voc, hot Vmp, strings per MPPT) for solar installers.
       // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
       // `wall-condensation-check` (2026-11-11): the moisture check on the same wall `hvac-load-calc` sizes heat for.
-      test: (slug) => /^(hvac-load-calc|wall-condensation-check|service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      // `water-supply-sizing` (2026-11-13): peak water demand and supply pipe sizes, the plumbing step beside the water heater and softener bids.
+      test: (slug) => /^(hvac-load-calc|water-supply-sizing|wall-condensation-check|service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -7868,7 +7871,7 @@ const FEEDBACK_STYLE = `
     #fb textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px 12px;
                    border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #fb button { margin-top: 12px; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 9px;
-                 border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+                 border: 1px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; }
     #fb button:disabled { opacity: .6; cursor: progress; }
     #fb-status { min-height: 1.5em; margin-top: 10px; }
     .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
@@ -8371,13 +8374,13 @@ const CUSTOM_DEV_STYLE = `
     .cd-mic-row { margin: 4px 0 10px; }
     .cd-mic-row[hidden], #cdf-mic-note[hidden] { display: none; }
     #cdf .cd-mic { font: inherit; font-size: .9em; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
-    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
     .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
     .cd-filter[hidden] { display: none; }
     .cd-filter button { font: inherit; font-size: .88em; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; text-transform: capitalize; }
-    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cd-shown { color: var(--muted); font-size: .88em; }
     @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }

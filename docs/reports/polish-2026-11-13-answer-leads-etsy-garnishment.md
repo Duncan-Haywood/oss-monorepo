@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [aeo, seo]
+topics: [seo]
 date: 2026-11-13
 ---
 # Polish 2026-11-13: answer-first leads on etsy-profit-calculator and wage-garnishment-limit-calculator

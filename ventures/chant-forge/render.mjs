@@ -250,13 +250,15 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       const base = [L.slice(), R.slice()];
       const stemBase = stemBuf ? [...stemBuf].map(([, ch]) => [ch[0].slice(), ch[1].slice()]) : null;
       let curve = null, gUsed = g, c = limitCeiling(ceiling);
+      const x0 = new Float64Array(total), x1 = new Float64Array(total); // reused by every pass
+      const b0 = base[0], b1 = base[1];
       for (let pass = 0; pass < 8; pass++) {
         gUsed = g;
-        const x0 = base[0].map((v) => v * g), x1 = base[1].map((v) => v * g);
+        for (let i = 0; i < total; i++) { x0[i] = b0[i] * g; x1[i] = b1[i] * g; }
         curve = limiterCurve(x0, x1, rate, c);
         for (let i = 0; i < total; i++) { L[i] = x0[i] * curve[i]; R[i] = x1[i] * curve[i]; }
         const now = integratedLufs([L, R], rate).lufs;
-        const tp = Math.max(truePeak(L), truePeak(R));
+        const tp = truePeak(R, 4, 16, truePeak(L)); // = Math.max of the two
         const tpDb = 20 * Math.log10(tp || 1e-9);
         const loud = Number.isFinite(now) && Math.abs(now - targetLufs) < 0.05;
         if (loud && tpDb <= -1.05) break;

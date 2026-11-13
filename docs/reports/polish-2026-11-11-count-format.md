@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, platform]
+topics: [design]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: every site-owned count grouped ("1,073", not "1073")

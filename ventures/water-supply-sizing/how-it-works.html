@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4ed8'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Water Pipe Peak Demand Is Worked Out | Hunter's Method, Checked</title>
+  <meta name="description" content="Hunter's 1940 probability method for peak water demand, step by step: the binomial model, his own table reproduced, where the exact 1% rule differs from it, mixing fixture types by convolution, and pipe sizing by Hazen-Williams from the pressure budget.">
+  <link rel="canonical" href="./how-it-works.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does the tool reproduce Hunter's 1940 table?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, to the fourth decimal in 13 of the 14 legible rows of his Table 2 for flush valves and bathtubs, and at every tabulated group size the exact 1% rule gives his design number. The one difference is 31 bathtubs: 0.0115 computed, 0.0118 printed."}}, {"@type": "Question", "name": "Why does the exact rule need one more fixture sooner than Hunter's table?", "acceptedAnswer": {"@type": "Answer", "text": "Hunter stepped up when the probability of exactly that many fixtures running reached 1%. His stated rule is about more than that many running, and that tail reaches 1% a few fixtures earlier: 99 flush valves instead of 107 for a design number of 8."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #172033; background: #eaf0f7; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 16px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; letter-spacing: -.03em; }
+    h2 { margin-top: 1.8em; font-size: 1.2rem; }
+    code, .f { font-family: ui-monospace, Menlo, monospace; font-size: .9em; background: #fff; padding: 1px 4px; border-radius: 4px; }
+    .f { display: block; padding: 8px 10px; margin: 8px 0; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; background: #fff; }
+    th, td { text-align: right; padding: 5px 8px; border-bottom: 1px solid #dde4ec; }
+    th:first-child, td:first-child { text-align: left; }
+    .tablewrap { overflow-x: auto; }
+    a { color: #1e40af; }
+    footer { margin-top: 30px; font-size: .84rem; color: #4f5b6e; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Back to the pipe sizing tool</a></p>
+  <h1>How the peak demand and the pipe sizes are worked out</h1>
+  <p>Peak demand is the flow a pipe must carry in the busiest period. Adding up every fixture's flow badly oversizes the pipe, because fixtures rarely all run at once. Roy B. Hunter of the National Bureau of Standards treated this as a probability question in 1940 (<a href="https://nvlpubs.nist.gov/nistpubs/Legacy/BMS/nbsbuildingmaterialsstructures65.pdf">BMS65, "Methods of Estimating Loads in Plumbing Systems"</a>). Plumbing codes' fixture-unit tables still descend from that work. This tool goes back to his model and works it exactly.</p>
+
+  <h2>1. One fixture type: the binomial model</h2>
+  <p>A fixture draws <i>q</i> gpm for <i>t</i> seconds, once every <i>T</i> seconds in the busy period. At a random instant it is running with probability <i>p</i> = <i>t</i>/<i>T</i>. With <i>n</i> such fixtures acting independently, the number running is binomial:</p>
+  <span class="f">P(exactly r running) = C(n, r) · p^r · (1 − p)^(n − r)</span>
+  <p>Hunter chose the design number <i>m</i> as the count exceeded no more than 1% of the time; the design flow is <i>m</i> · <i>q</i>. The tool computes <i>m</i> exactly as the smallest count with P(more than <i>m</i> running) ≤ 1% (or the share you choose), working in logarithms so thousands of fixtures do not underflow.</p>
+  <p>Hunter's values for the busy period were, from his Table 1: flush valves 9 s in 300 s at 27 gpm; flush tanks 60 s in 300 s at 4 gpm; bathtubs 60 s in 900 s at 8 gpm. They describe heavily used buildings of the 1930s. The tool includes them as a historical baseline ("Add Hunter's 1940 types"), not as defaults for a house.</p>
+
+  <h2>2. Checked against Hunter's own table</h2>
+  <p>Hunter's Table 2 lists, for each design number <i>r</i>, the group size <i>n</i> at which he steps up to it and the probability of exactly <i>r</i> running there. The tool's probability function gives the same value to the fourth decimal in 13 of the 14 legible rows; the exception is 31 bathtubs (0.0115 computed, 0.0118 printed). The flush-tank column is garbled in the scan's text layer and is left out. At every tabulated <i>n</i>, the exact 1% rule gives Hunter's <i>m</i>.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Fixture</th><th>m</th><th>Hunter's n</th><th>Exact rule first needs m at n</th></tr></thead>
+      <tbody>
+        <tr><td>Flush valves (p = 0.03)</td><td>2</td><td>6</td><td>6</td></tr>
+        <tr><td>Flush valves</td><td>3</td><td>16</td><td>16</td></tr>
+        <tr><td>Flush valves</td><td>4</td><td>30</td><td>29</td></tr>
+        <tr><td>Flush valves</td><td>5</td><td>47</td><td>45</td></tr>
+        <tr><td>Flush valves</td><td>6</td><td>66</td><td>62</td></tr>
+        <tr><td>Flush valves</td><td>7</td><td>85</td><td>80</td></tr>
+        <tr><td>Flush valves</td><td>8</td><td>107</td><td>99</td></tr>
+        <tr><td>Bathtubs (p = 1/15)</td><td>2</td><td>3</td><td>3</td></tr>
+        <tr><td>Bathtubs</td><td>3</td><td>8</td><td>8</td></tr>
+        <tr><td>Bathtubs</td><td>4</td><td>15</td><td>14</td></tr>
+        <tr><td>Bathtubs</td><td>5</td><td>22</td><td>21</td></tr>
+        <tr><td>Bathtubs</td><td>6</td><td>31</td><td>29</td></tr>
+        <tr><td>Bathtubs</td><td>7</td><td>40</td><td>37</td></tr>
+        <tr><td>Bathtubs</td><td>9</td><td>59</td><td>55</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The last column shows a small gap. Hunter stepped up when the probability of <i>exactly</i> <i>r</i> running reached 1%. Read literally, his 1% rule is about <i>more than</i> <i>m</i> running, and that tail reaches 1% a few fixtures sooner. With 106 flush valves his table still says 7; the chance that more than 7 run is 1.47%. The difference is at most one fixture's flow, and Hunter's other assumptions are far looser than that. The tool follows the stated rule.</p>
+
+  <h2>3. A mix of fixture types: one distribution, not a sum</h2>
+  <p>Hunter blended types through fixture-unit weights read off his curves. The tool does not need weights. Each type's flow is <i>q</i> times a binomial count, and the types are independent, so the total flow's distribution is their convolution. It is computed on a 0.1 gpm grid, and the design flow is the smallest flow exceeded no more than 1% of the time. Sizing each type alone and adding the results overstates the peak, because a rare high moment for showers seldom coincides with one for toilets.</p>
+  <p>For the example house's service pipe (2 showers, 4 lavatories, 3 toilets, the kitchen sink, dishwasher, clothes washer and a hose bibb, with the illustrative timings on the tool page): everything at once is 31.3 gpm; each type sized alone and added is 25.3 gpm; the mix worked as one distribution is 10.8 gpm.</p>
+  <p>Two options change the question. <b>Only count instants when water is running</b> uses the zero-truncated distribution: the 1% is counted only over moments when some fixture is open, which raises the design flow when fixtures sit idle most of the time. And the design flow is never set below the largest single fixture's flow, since a pipe feeding a fixture must carry it.</p>
+
+  <h2>4. The pressure budget and the friction rate</h2>
+  <p>For each fixture end, the pressure available for pipe friction is:</p>
+  <span class="f">static − fixed losses − minimum at the fixture − 0.433 psi/ft × rise</span>
+  <p>Divided by the path's developed length (pipe length × (1 + fittings allowance)), that gives an allowable friction rate. The tightest path sets one rate for every segment: the uniform friction-rate method. In the example, the hall bath path has 130 ft of pipe, 195 ft developed with a 50% allowance, and climbs 10 ft. That gives (60 − 6 − 20 − 4.33) / 195 × 100 = 15.22 psi per 100 ft.</p>
+
+  <h2>5. Friction, velocity and the size chosen</h2>
+  <p>Friction is Hazen-Williams in US units, with <i>C</i> = 140 for copper and 150 for PEX (editable in the JSON):</p>
+  <span class="f">head loss (ft per 100 ft) = 0.2083 · (100 / C)^1.852 · Q^1.852 / d^4.8655 &nbsp;&nbsp; psi = 0.433 × ft</span>
+  <span class="f">velocity (ft/s) = 0.4085 · Q / d²</span>
+  <p>Each segment carries the design flow of the fixtures it feeds and all those beyond it, and gets the smallest size whose friction is within the allowable rate and whose velocity is within the limit. Inside diameters come from the outside diameter and nominal wall: copper water tube per ASTM B88 (outside diameter = nominal + 1/8 in), PEX at copper-tube size with an SDR 9 wall (OD / 9, at least 0.070 in). Then the tool walks every path and reports the pressure left at each end.</p>
+  <p><b>Trim</b> (optional) spends the spare pressure on shorter paths. Longest segments first, it steps a segment down a size whenever velocity stays within the limit and every end still holds the minimum, and repeats until no step is possible. In the example it takes both upstairs bath branches from 3/4 in to 1/2 in, leaving 24.2 psi at the hall bath.</p>
+
+  <h2>What it leaves out</h2>
+  <ul>
+    <li>Fixtures are assumed independent. Real use clusters (morning showers), which the "busy period" timings must cover.</li>
+    <li>Hazen-Williams is a cold-water correlation; it is less exact in small pipe and hot water.</li>
+    <li>Fittings are a percentage allowance, not counted one by one; meter and backflow losses are a fixed number, not a curve against flow.</li>
+    <li>No water hammer, hot-water recirculation, fire sprinklers or irrigation demand.</li>
+    <li>It is not your code's fixture-unit table. Many jurisdictions require that table, or an approved alternative such as a published probabilistic demand method, and an inspector decides.</li>
+  </ul>
+
+  <h2>Questions</h2>
+  <h3>Does the tool reproduce Hunter's 1940 table?</h3>
+  <p>Yes, to the fourth decimal in 13 of the 14 legible rows of his Table 2 for flush valves and bathtubs, and at every tabulated group size the exact 1% rule gives his design number. The one difference is 31 bathtubs: 0.0115 computed, 0.0118 printed.</p>
+  <h3>Why does the exact rule need one more fixture sooner than Hunter's table?</h3>
+  <p>Hunter stepped up when the probability of exactly that many fixtures running reached 1%. His stated rule is about more than that many running, and that tail reaches 1% a few fixtures earlier: 99 flush valves instead of 107 for a design number of 8.</p>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not engineering advice and not a plumbing code sizing method.</strong> Your local plumbing code and the authority having jurisdiction decide what is accepted.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/water-supply-sizing">Source</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+</body>
+</html>

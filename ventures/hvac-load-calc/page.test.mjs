@@ -79,3 +79,7 @@ test('duct page: every looked-up element exists, results written as text, linked
   assert.match(js, /recordUsage\(.*'ducts_sized'\)/);
   assert.match(markup, /href="\.\/ducts\.html"/);
 });
+
+test('index links one hop to the water-supply-sizing sibling', () => {
+  assert.match(markup, /href="\.\.\/water-supply-sizing\/"/);
+});

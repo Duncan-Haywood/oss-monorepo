@@ -1,7 +1,7 @@
 ---
 kind: analysis
 subjects: [ci]
-topics: [ci, blog-posts, hooks]
+topics: [ci, blog-posts]
 date: 2026-11-13
 title: Posts that reach main broken, and the hook chain that let them
 description: Ten posts reached main failing the front-matter check in four days; the pre-push hook skipped every add/commit/push chain.

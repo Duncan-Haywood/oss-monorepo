@@ -6,13 +6,16 @@
 // and from the season under the gap at the same caps, each with `--iterations` moves. Reports
 // the frontier before and after, the least carry-over at each break budget and the time.
 //
-//   node eval/floor-priced.mjs <teams> <seed> [--iterations 3000] [--step 2] [--cache dir] [--page] [--deals p] [--floor-only]
+//   node eval/floor-priced.mjs <teams> <seed> [--iterations 3000] [--step 2] [--cache dir] [--page] [--deals p] [--floor-only] [--max-teams m]
 //
 // `--floor-only`: price every timetable on its break floor alone, as before 2026-11-13's "Pricing the
 // balanced least" (the default now prices the least balanced choice once the floor is within the cap).
 //
 // `--deals p`: re-deal three rounds at once (threeRoundDeals) on a share p of the moves (default 0.15,
 // CARRY_OVER_DEALS, what the page runs; --deals 0 is the swap-only search of the section before).
+//
+// `--max-teams m`: the largest league the page step takes (carryOverFloorPriced maxTeams, default 22, the
+// page's since 2026-11-13, README "A faster break floor"; it was 21, which the 16-20 team runs never reach).
 //
 // `--page` runs what the page runs instead of the sweep: carryOverFloorPriced (CARRY_OVER_FLOOR_PRICED
 // seasons, from the season above the gap at its breaks - 2, - 4, ...).
@@ -24,7 +27,7 @@ import { frontierOf } from "./frontier-gap.mjs";
 
 const n = +process.argv[2], seed = +process.argv[3];
 const opt = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-const balanced = !process.argv.includes("--floor-only"), deals = +opt("--deals", 0.15), iterations = +opt("--iterations", 3000), stepB = +opt("--step", 2), cache = opt("--cache", null);
+const maxTeams = +opt("--max-teams", 22), balanced = !process.argv.includes("--floor-only"), deals = +opt("--deals", 0.15), iterations = +opt("--iterations", 3000), stepB = +opt("--step", 2), cache = opt("--cache", null);
 const t0 = Date.now();
 const file = cache ? `${cache}/list-${n}-${seed}.json` : null;
 let all = file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
@@ -46,7 +49,7 @@ const caps = [];
 for (let c = top.breaks - stepB; c > under.breaks; c -= stepB) caps.push(c);
 const t1 = Date.now();
 const runs = [];
-if (process.argv.includes("--page")) for (const r of carryOverFloorPriced(n, all.map((t, i) => ({ ...t, index: i })), { seed, count: CARRY_OVER_FLOOR_PRICED, iterations, deals, balanced })) {
+if (process.argv.includes("--page")) for (const r of carryOverFloorPriced(n, all.map((t, i) => ({ ...t, index: i })), { seed, count: CARRY_OVER_FLOOR_PRICED, iterations, deals, balanced, maxTeams })) {
   runs.push({ from: "page", cap: r.maxBreaks, result: `${r.coe}/${r.breaks}`, floor: r.floor, proved: r.leastProved, floors: r.floors, walks: r.walks, dealt: r.dealt, s: null, r });
 }
 else for (const [name, from] of [["top", top], ["under", under]]) for (const cap of caps) {

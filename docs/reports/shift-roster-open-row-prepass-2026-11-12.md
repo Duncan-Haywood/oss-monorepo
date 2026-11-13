@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [shift-roster-builder]
+date: 2026-11-12
+tagged: auto
+---
 # shift-roster-builder: an early open-hours floor for the score LP's open-hours row (measured, not landed)
 
 For the session that lands PR #15205, or the next one to deepen shift-roster-builder after it.

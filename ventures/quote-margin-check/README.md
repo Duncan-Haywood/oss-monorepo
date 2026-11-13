@@ -11,8 +11,6 @@ target-price comparison.
 [`site/index.html`](site/index.html) directly in a browser, or serve the
 `site/` directory statically — it is a self-contained, zero-dependency page
 with the same math as the CLI below (see [`site/calc.mjs`](site/calc.mjs)).
-Not yet deployed to a public URL — publishing under the portfolio's name is
-owner-gated per `portfolio/DIRECTION.md` — but it's ready to deploy as-is.
 
 The static surface includes crawlable `robots.txt` and `sitemap.xml` files so
 the calculator can be discovered by search engines and AI assistants when it is
@@ -240,6 +238,14 @@ or resetting a local draft records `draft_restored` or `draft_reset`. The
 export contains the same arithmetic report as the page and quotes currency
 labels safely for spreadsheet import. These events contain no quote values
 and are never uploaded.
+
+## Known gaps
+
+From the [2026-11-13 quality audit](../../portfolio/quality/audits/2026-11-13-quote-margin-check.json):
+
+- No gross margin % or markup % is reported, though the tool is named for margin. On the example that would be 80.0% margin on price and 400% markup on direct costs.
+- Costs that scale with price (platform or card fees) can only be entered as a fixed amount. A 10% fee typed as $240 of overhead gives a target of 3,345 where grossing up gives 3,450.
+- There is no input for the cost of staff labour, so agency use is limited to the owner's own hours.
 
 ## Input
 

@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [accessibility, headings]
+topics: [accessibility]
 date: 2026-11-12
 ---
 # Polish 2026-11-12: 281 tool results no longer jump from h2 to h4

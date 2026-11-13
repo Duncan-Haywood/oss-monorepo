@@ -76,3 +76,34 @@ def test_psi_reset_default_is_the_old_reset_and_zero_calms():
     assert (a == b).all() and run.collapses == ca
     run(psi_reset=0.0, **kw)
     assert len(run.collapses) <= len(ca)
+
+
+def test_stress_split_is_exact():
+    # sixth run, H1: log PSI = 2 log(E/E*) + (1 - 2a) log N + log(S_ss/S) + offset
+    from civ_levers.history import stress_terms, log_psi
+    for a, wel, g in ((0.5, 0.0, 3.0), (0.65, 0.0, 8.0), (0.5, 0.2, 3.0), (0.4, 0.4, 16.0)):
+        kw = dict(years=1500, rho=0.06, m=0.05, k=4, g=g, lag=100, plag=100, collapse_thr=0.3,
+                  a=a, welfare=wel)
+        t, N, E, S, psi = run(**kw)
+        tot = stress_terms(N, E, S, tau=0.3, g=g, a=a, welfare=wel).sum(axis=-1)
+        assert np.allclose(tot, log_psi(N, E, S, a=a, welfare=wel), rtol=0, atol=1e-9)
+
+
+def test_population_drops_out_at_half_land_share():
+    from civ_levers.history import stress_terms
+    t, N, E, S, psi = run(years=800, rho=0.06, m=0.05, k=4, g=3.0, collapse_thr=0.3)
+    assert np.all(stress_terms(N, E, S, g=3.0)[:, 1] == 0)
+
+
+def test_new_options_default_to_old_model():
+    kw = dict(years=1500, rho=0.03, m=0.02, k=4, g=3.0, lag=200, plag=200, collapse_thr=0.3)
+    a_ = run(**kw); ca = list(run.collapses)
+    b_ = run(a=0.5, collapse_fiscal=0.1, **kw)
+    assert ca == run.collapses
+    for x, y in zip(a_[1:], b_[1:]):
+        assert (x == y).all()
+
+
+def test_other_land_share_keeps_equilibrium():
+    N = run(years=3000, m=0.0, me=0.0, rho=0.0, n0=0.4, a=0.7)[1]
+    assert abs(N[-1] - 1.0) < 0.01

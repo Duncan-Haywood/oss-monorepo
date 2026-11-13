@@ -55,7 +55,8 @@ class Main:
 
 
 def info_of(p):
-    return {"files": FILES[p["number"]], "pushed_at": p["_pushed"], "checks": [{"status": "completed", "conclusion": "success"}]}
+    return {"files": FILES[p["number"]], "pushed_at": p["_pushed"], "checks": [{"status": "completed", "conclusion": "success"}],
+            "mergeable": {1: True, 4: False}.get(p["number"])}
 
 
 PRS = [pr(1, 5), pr(2, 1), pr(3, 10, draft=True), pr(4, 30, draft=True), pr(5, 50), pr(6, 50, fork=True),
@@ -97,6 +98,13 @@ class Classify(unittest.TestCase):
         self.assertIn("Left open on purpose", text)
         self.assertNotIn("| #8 |", text)
         self.assertIn("nothing for another agent", op.render([]))
+        # Only a ready, green, clean PR is named as landable as is.
+        self.assertIn("Green and clean against main: #1.", text)
+
+    def test_merge_column(self):
+        self.assertEqual(self.by[1]["merge"], "clean")
+        self.assertEqual(self.by[4]["merge"], "conflicts")
+        self.assertEqual(self.by[7]["merge"], "?")
 
 
 class Checks(unittest.TestCase):

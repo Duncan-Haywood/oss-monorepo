@@ -404,3 +404,15 @@ class QuoteMarginTests(unittest.TestCase):
         discount_rows = [line for line in report.splitlines() if line.startswith("| -")]
         self.assertTrue(discount_rows)
         self.assertTrue(any(row.rstrip().endswith("| — |") for row in discount_rows))
+
+    def test_exactly_at_target_after_ten_percent_overrun_survives_ten(self) -> None:
+        """20 h at $50 run 10% long is 22 h = $1,100: a $1,100 quote just survives +10%.
+        Pins the >= at the boundary (quality round 68 found a > mutant survived)."""
+        quote = load_quote({"price": 1100, "delivery_hours": 20, "target_hourly_rate": 50})
+        self.assertEqual(survives_overrun_percent(quote, calculate(quote)), 10)
+
+    def test_discount_that_exactly_reaches_direct_costs_has_no_hours_at_target(self) -> None:
+        quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 900, "target_hourly_rate": 50})
+        ten = next(row for row in discount_ask_scenarios(quote, calculate(quote)) if row["percent"] == 10)
+        self.assertIsNone(ten["hours_at_target"])
+        self.assertIsNone(ten["hours_to_cut"])

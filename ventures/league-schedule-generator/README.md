@@ -1482,7 +1482,7 @@ be a break or two above it; the six best timetables within the cap are kept and 
 carry-over whose balanced least is within the cap wins.
 
 **In the page** (`carryOverFloorPriced`, `CARRY_OVER_FLOOR_PRICED = 2`, single round robins of 6 to 21
-teams): after the regrounded seasons, the widest gap of 4 or more breaks on the list's frontier is
+teams; 22 since "A faster break floor" below): after the regrounded seasons, the widest gap of 4 or more breaks on the list's frontier is
 searched from the season above it at caps of its breaks - 2, - 4 (3 searches at most); a result
 nothing beats joins the list (`floorPricedFrom` names its source), never the four choices, so every
 older share link builds the same season; one picked from the list rebuilds from its link
@@ -1643,7 +1643,7 @@ pass it through; the result reports `walks`.
 - **The cost is worker time:** 20 s a run on average before, 32 s now (304 s -> 479 s over the 15
   runs). The worst is 19 teams, 4 to 5 s before and 35 to 46 s now, adding nothing either way: odd
   leagues near the cap often have no balanced choice inside it, and each such walk spends its budget
-  before giving up. A smaller budget (10,000 steps) did not help 19 teams (37 s) and lost seasons at
+  before giving up (corrected below: a profile shows the cost was the break floor's programme, not the walks; "A faster break floor"). A smaller budget (10,000 steps) did not help 19 teams (37 s) and lost seasons at
   17 (32.3% -> 26.4% inside the gap), so 50,000 stays. The step still runs after the squeezes with
   the page usable throughout.
 - Tests (`floor-priced.test.mjs`, now 16): `floorTable.balanced` returns `leastBreaks`' proved balanced
@@ -1670,6 +1670,60 @@ floor for home and away"):
   and 84 at 87 and 84 (`eval/double-blocks.mjs`, `eval/double-blocks.txt`, 26 to 43 s each). The page's
   grounds are already optimal over every such block, so the 2 breaks MaxSAT saves on the 1,311
   timetable need a change spread over more than two rounds' pairs.
+
+## A faster break floor: 3.8x less worker time, and 22 teams in the page (2026-11-13, latest)
+
+The section above put the 19-team cost (35 to 46 s for nothing) on the balanced walks running out of
+budget. **A profile says otherwise**: on 19 teams seed 3 the walks took under 1 s of 143 s; the rest
+was the break floor's own programme, `f[r + 1](y) = min over x of f[r](x) + cost(x, y)`, a double
+loop over 2^k x 2^k host choices (k matches a round: 262,144 popcounts a round at 19 teams, 16.7
+million at 24 and 25). Balanced pricing had made it worse by keeping the search above its cap, where
+nearly every move passes the carry-over line and needs a floor (1,412 to 2,878 floors a search
+against 166 to 1,083 on the floor alone).
+
+**`minPlusStep` (orient.mjs) does that step without the double loop.** The cost of a pair of host
+choices is a sum over teams, and each team plays one match a round, so each host bit of round r
+touches at most two host bits of round r + 1: the bits form paths and cycles. Eliminating round r's
+bits one at a time along those paths keeps a table over the bits not yet eliminated plus round r +
+1's bits met so far, never much more than 2^(k + 1) entries, so a step costs about k x 2^(k + 2)
+additions. It returns exactly the double loop's table (`orient.test.mjs`: 300 random rounds with
+byes, sitting-out teams, repeated pairs and any table to come). `leastBreaks`, `relaxedBreakFloor`
+and `floorTable` all use it; nothing else changes, so every search follows the same path and returns
+the same season.
+
+| One round's step | double loop | minPlusStep |
+|---|---|---|
+| 9 matches (18-19 teams) | 2.6 ms | 0.12 ms |
+| 10 matches (20-21 teams) | 11.5 ms | 0.20-0.26 ms |
+| 12 matches (24-25 teams) | 203 ms | 0.85-1.3 ms |
+
+A whole floor (`leastBreaks`, no walk) at 24 teams: 1,263 ms to 39 ms; 25 teams 1,524 to 56 ms.
+
+**The page's floor-priced step, same lists, old code against new** (`eval/faster-floor.txt`, 16 to 20
+teams, seeds 1 to 3, one run at a time on the same machine): **the same seasons and the same frontier
+in all 15 runs, 485 s -> 127 s** in all. 19 teams, which add nothing, 38 / 48 / 134 s -> 8 / 8 / 18 s;
+20 teams 32-36 s -> 11-12 s; 17 teams 13-29 s -> 8-15 s.
+
+**22 teams join the page** (`carryOverFloorPriced(n, results, { maxTeams })`, default 22, was a fixed
+21; `node eval/floor-priced.mjs <teams> <seed> --page --max-teams 25`):
+
+| Teams | Seeds 1-3: seasons added | cut inside the gap | worker time |
+|---|---|---|---|
+| 22 | 670 / 50 + 662 / 48; 488 / 56 + 592 / 54; 470 / 56 + 604 / 54 | 4.0%, 8.7%, 9.8% | 35-64 s |
+| 23 | none (the 565 / 44 .. 1,667 / 40 gap is not entered) | 0 | 28-77 s |
+| 24 | 614 / 62 + 640 / 60; 620 / 62; 610 / 62 | 18.2%, 5.9%, 5.6% | 152-334 s |
+| 25 | 715 / 47 on seed 2 only | 0-3.1% | 136-426 s |
+
+22 teams gain on every seed for about what 19 teams used to cost for nothing, so the page now runs
+the step there; at 23 it adds nothing, and 24 and 25 gain but take 2 to 7 minutes, so they stay
+off (the function itself still takes up to 25). Every 22-team season added is listed after the
+regrounded ones, never one of the four choices, so share links made before this change build the
+same season. What is left at 24 teams is still the step (87 s of a 152 s run) and the walk's
+predecessor scan (37 s, 4,096 states a round).
+
+- Tests: `orient.test.mjs` (now 9): `minPlusStep` equals the double loop on 300 random cases; a
+  24-team floor in seconds. `floor-priced.test.mjs` (now 17): 22 teams pass the page's size gate,
+  23 do not. The other 21 orient and floor-priced tests pass unchanged.
 
 ## Team sheets and a duty rota for a one-division league (2026-11-13, latest)
 

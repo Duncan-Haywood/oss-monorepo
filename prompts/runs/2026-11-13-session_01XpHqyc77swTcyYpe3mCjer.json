@@ -1,0 +1,420 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyc77swTcyYpe3mCjer",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:46:39Z",
+  "ended": "2026-11-13T16:52:06Z",
+  "wall_minutes": 13.52,
+  "tokens_in": 6928706,
+  "tokens_out": 40468,
+  "cost_usd": 3.0035,
+  "tool_calls": 76,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15549",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Rewrote docs/taxonomy.json with json.dumps and reformatted the whole file (896-line diff); reverted and edited the three alias lines with sed.",
+    "A hand-applied mutant check read stale __pycache__ (two same-size edits in one second) and looked like a failure; cleared the cache."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is now 9 entries, all control-plane workflow edits that already have open PRs waiting on the owner (#14808, #14877, #15248, #14612, #15201); the step reads as if each is fixable in-run. A line saying 'an entry whose fix is an open owner-held PR: skip' would save the triage."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 4b suggests opening control-plane changes as their own PR, but the cloud harness lets a session push only its assigned branch, so the CP half can only be written up."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "targets --probe on ventures/shift-roster-builder and league-schedule-generator: every file was >20s, so 'aim at a file that just changed on main' found nothing usable among the top recent changes; fell back to --under platform/ci."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix every open defect first; all 9 are control-plane workflow edits already open as owner-held PRs or needing a branch this session cannot push.",
+      "did": "Left them open, fixed the two red tests on main they would have caught, and widened unwired_checks so the class is caught from a non-control-plane file.",
+      "result": "Two reds fixed; 72 suites now reachable from PR CI."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-tests-nobody-runs.md",
+    "docs/reports/redteam-2026-11-13-unwired-suites.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: unwired_checks.py runs platform/ci test suites no PR workflow names; with the browser fix undone it exits 1 naming test_browser_checks.py. Verification: test_unwired_checks 11 OK, test_browser_checks 55 OK, test_doc_index 26 OK, test_check_social_proof OK (new tests fail on old code: 2 failures), doc_index check ok, unwired_checks 104/104, check_social_proof 6537 files 0 claims.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_social_proof.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_social_proof  (in platform/ci)",
+        "seed": 705379938,
+        "commit": "2f377873c",
+        "sites": 24,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 19,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "sys.path.insert(0, str(Path(__file__).resolve().parent))",
+            "after": "sys.path.insert(1, str(Path(__file__).resolve().parent))",
+            "line_text": "sys.path.insert(0, str(Path(__file__).resolve().parent))",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Run as a script, sys.path[0] is already this directory, so inserting it at 1 instead of 0 resolves the same modules; under unittest the test file inserts the same dir at 0 first."
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 22,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 42,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "after": "return any(k in lowered for k in PREFILTER_KEYS) and SLASH5.search(lowered) is not None",
+            "line_text": "    return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 51,
+            "col": 7,
+            "operator": "const-plus-one",
+            "before": "NEAR = 120",
+            "after": "NEAR = 121",
+            "line_text": "NEAR = 120",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 74,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "after": "out.append((i, line[max(1, m.start() - 40):m.end() + 40].strip()))",
+            "line_text": "            out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 98,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "n += 1",
+            "after": "n += 2",
+            "line_text": "        n += 1",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 103,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 103,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/unwired_checks.py",
+        "test": "/usr/local/bin/python3 -m unittest test_unwired_checks  (in platform/ci)",
+        "seed": 58232340,
+        "commit": "2f377873c",
+        "sites": 15,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 27,
+            "col": 28,
+            "operator": "div-to-times",
+            "before": "WORKFLOWS = HERE.parents[1] / \".github\" / \"workflows\"",
+            "after": "WORKFLOWS = HERE.parents[1] * \".github\" / \"workflows\"",
+            "line_text": "WORKFLOWS = HERE.parents[1] / \".github\" / \"workflows\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 53,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "f\"`python3 platform/ci/{name}` reproduces this)\\n\" + \"\\n\".join(out.splitlines()[-8:])",
+            "after": "f\"`python3 platform/ci/{name}` reproduces this)\\n\" - \"\\n\".join(out.splitlines()[-8:])",
+            "line_text": "        f\"`python3 platform/ci/{name}` reproduces this)\\n\" + \"\\n\".join(out.splitlines()[-8:])",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 53,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "f\"`python3 platform/ci/{name}` reproduces this)\\n\" + \"\\n\".join(out.splitlines()[-8:])",
+            "after": "f\"`python3 platform/ci/{name}` reproduces this)\\n\" + \"\\n\".join(out.splitlines()[-9:])",
+            "line_text": "        f\"`python3 platform/ci/{name}` reproduces this)\\n\" + \"\\n\".join(out.splitlines()[-8:])",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Tail length of a red check in the report is user-visible CI output; test_report_keeps_the_last_eight_lines_of_a_red_output pins it (now the TAIL constant). [rerun: line changed; triage by hand] Line changed after the refactor to TAIL = 8: re-applied by hand as TAIL = 9, and the new test fails (FAILED (failures=1)); restored, green."
+          },
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 54,
+            "col": 43,
+            "operator": "neq-flip",
+            "before": "for name, rc, out in results if rc != 0)",
+            "after": "for name, rc, out in results if rc == 0)",
+            "line_text": "        for name, rc, out in results if rc != 0)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 58,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "--help lost its description (doc line 1 is blank); test_help_describes_the_tool."
+          },
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 71,
+            "col": 20,
+            "operator": "neq-flip",
+            "before": "failed = sum(rc != 0 for _, rc, _ in results)",
+            "after": "failed = sum(rc == 0 for _, rc, _ in results)",
+            "line_text": "    failed = sum(rc != 0 for _, rc, _ in results)",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() exit code and pass count were untested, though run_venture_tests and CI read them; test_main_exits_1_when_any_is_red_and_0_when_all_pass."
+          },
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 71,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "failed = sum(rc != 0 for _, rc, _ in results)",
+            "after": "failed = sum(rc != 1 for _, rc, _ in results)",
+            "line_text": "    failed = sum(rc != 0 for _, rc, _ in results)",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() exit code and pass count were untested, though run_venture_tests and CI read them; test_main_exits_1_when_any_is_red_and_0_when_all_pass."
+          },
+          {
+            "file": "platform/ci/unwired_checks.py",
+            "line": 73,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if failed else 0",
+            "after": "return 2 if failed else 0",
+            "line_text": "    return 1 if failed else 0",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "main() exit code and pass count were untested, though run_venture_tests and CI read them; test_main_exits_1_when_any_is_red_and_0_when_all_pass."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/test_browser_checks.py",
+        "issue": "Red on main: ask-voice-icon, band-gap, sticky-fit-check and lighthouse in platform/pages read BASE_URL and launch chromium but are not in CHECKS; the registry test (nightly only) failed and named only the first. Now pending/by_hand with reasons, and the test names every offender.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15549"
+      },
+      {
+        "file": "platform/ci/test_doc_index.py",
+        "issue": "Red on main: doc_index.py check found 44 problems in 36 docs/reports (23 without front matter, 21 off-taxonomy topics). backfill --write plus aliases responsive/mobile/forms->design, headings->accessibility, tooling->software-for-routine; five one-off topics dropped.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15549"
+      },
+      {
+        "file": "platform/ci/check_social_proof.py",
+        "issue": "'such as', 'sample' and 'example' anywhere within NEAR excused a claim, so 'Trusted by teams such as Acme and Globex.' and 'Trusted by 2,000 firms. Download a sample invoice.' passed; 'Loved by 10,000+' and 'Join thousands of happy users' were not claims. Now those words excuse only before the claim, and both phrasings are claims. Tree still 0.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15549"
+      },
+      {
+        "file": "platform/ci/unwired_checks.py",
+        "issue": "72 of 121 platform/ci test suites ran in no pull-request workflow (two red on main unseen). unwired_checks.py now runs them (~20 s).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15549"
+      },
+      {
+        "file": ".github/workflows/ventures-tests.yml",
+        "issue": "unwired_checks runs via run_venture_tests.py --since in ventures-tests.yml, whose pull_request/push paths are ventures/** only, so a PR touching only platform/pages, platform/ci or docs/reports (how both 2026-11-13 reds landed) skips it. Fix: add 'platform/ci/**', 'platform/pages/*.mjs' and 'docs/reports/**', 'docs/taxonomy.json' to both paths lists (with no venture changed, --since runs only the unwired set, ~20 s). Control plane, own PR; this session could push only its own branch.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c8f2fe81-7724-56e3-a6c7-d30645891d6b",
+    "transcripts": 1,
+    "first": "2026-11-13T16:46:39Z",
+    "last": "2026-11-13T17:00:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 138,
+        "output": 40468,
+        "thinking": 9478,
+        "cache_read": 6824996,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103572,
+        "api_equivalent_usd": 3.0035,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 138,
+      "output": 40468,
+      "thinking": 9478,
+      "cache_read": 6824996,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103572,
+      "api_equivalent_usd": 3.0035,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 72,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.52,
+      "active_minutes": 13.52,
+      "model_minutes": 6.43,
+      "tool_minutes": 7.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: audit CI wiring of 121 suites, fix two red suites, extend a guard with tests, close a lint loophole",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 166.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
