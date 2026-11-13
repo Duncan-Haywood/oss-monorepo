@@ -49,6 +49,11 @@
     #printable[hidden] { display: none; }
     @media print { body { background: #fff; padding: 0; } body > *:not(#printable), main > *:not(#printable) { display: none !important; } #printable { display: block !important; border: 0; box-shadow: none; } }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #lines:empty{min-height:352px}}
+@media (scripting:enabled) and (min-width:764px){html:not(.pf-rows-ready) #lines:empty{min-height:86px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

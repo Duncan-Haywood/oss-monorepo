@@ -119,6 +119,12 @@
       @page { margin: 16mm; }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #slabs:empty{min-height:566px}}
+@media (scripting:enabled) and (min-width:420px){html:not(.pf-rows-ready) #slabs:empty{min-height:536px}}
+@media (scripting:enabled) and (min-width:864px){html:not(.pf-rows-ready) #slabs:empty{min-height:94px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

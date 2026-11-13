@@ -123,3 +123,22 @@ def test_thirteenth_coordinate_sets_the_filter():
         a = poshold.score(np.c_[x, np.full(2, u)], 4, 1, ff=1.0, parts=True)[2]
         b = poshold.score(x, 4, 1, ff=1.0, tau_ff=tau, parts=True)[2]
         assert np.allclose(a["pos"], b["pos"])
+
+
+def test_integrator_feed_forward_is_inert_without_cant_and_ignores_the_filter():
+    # Milestone 7b: ff_mode="integ" feeds forward lat * ki * integ * tau_max_nom, unfiltered.
+    rng = np.random.default_rng(11)
+    x = rng.uniform(0.3, 0.7, (3, 12)); x[:, 2] = 0.0
+    a = poshold.score(x, 4, 1, parts=True)[2]
+    b = poshold.score(x, 4, 1, ff=1.0, ff_mode="integ", parts=True)[2]
+    for k in a:
+        assert np.allclose(a[k], b[k])          # no cant: lat = 0
+    x[:, 2] = 0.5
+    c = poshold.score(x, 4, 1, ff=1.0, ff_mode="integ", tau_ff=0.05, parts=True)[2]
+    d = poshold.score(x, 4, 1, ff=1.0, ff_mode="integ", tau_ff=2.0, parts=True)[2]
+    e = poshold.score(x, 4, 1, parts=True)[2]
+    f = poshold.score(x, 4, 1, ff=1.0, tau_ff=0.5, parts=True)[2]
+    for k in c:
+        assert np.array_equal(c[k], d[k])       # tau_ff is unused in this mode
+    assert not np.allclose(c["pos"], e["pos"])  # it acts on a canted vehicle
+    assert not np.allclose(c["pos"], f["pos"])  # and differs from milestone 7's commanded-torque feed-forward

@@ -81,6 +81,7 @@
       <div><label for="holidays">Known holidays (counts model; dates or row numbers, comma-separated)</label><input id="holidays" type="text" placeholder="e.g. 2024-12-25, 2025-01-01"></div>
       <div><label for="log"><input id="log" type="checkbox"> Take logs first (level, volatility or slope models; positive values, e.g. sales or prices that grow by a percentage)</label></div>
       <div><label for="slopeBreaks"><input id="slopeBreaks" type="checkbox"> Also test for a change of growth rate (40+ points; tick &ldquo;take logs&rdquo; for percentage growth). A weak test: a miss does not rule a break out</label></div>
+      <div><label for="hingeTest"><input id="hingeTest" type="checkbox"> Also test one change of slope on the levels (30&ndash;600 points; for a series that wanders about a trend, like temperature; refuses one that drifts like GDP)</label></div>
       <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
@@ -431,7 +432,7 @@
       $("#multi-results").hidden = true;
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
-      const opts = { csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, ...($("#noiseFloor").value === "local25" && $("#model").value === "mean" ? { noiseFloor: 2, noiseFloorOrder: "local", noiseFloorWindow: 25 } : {}), hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) };
+      const opts = { csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, hingeTest: $("#hingeTest").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, ...($("#noiseFloor").value === "local25" && $("#model").value === "mean" ? { noiseFloor: 2, noiseFloorOrder: "local", noiseFloorWindow: 25 } : {}), hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) };
       const agreedBase = { csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty };
       const wantAgreed = $("#model").value === "mean";
       stopAgreed();
@@ -494,6 +495,12 @@
       $("#slopeResult").innerHTML = r.slopeBreaks
         ? `<p class="note" role="note"><strong>Growth-rate test (bar ${esc(r.slopeBreaks.critical)}):</strong> ${r.slopeBreaks.breaks.length ? r.slopeBreaks.breaks.map((b) => `${esc(b.label)}: ${esc(b.slopeBefore)} → ${esc(b.slopeAfter)} per step (Wald ${esc(b.wald)})`).join("; ") : "no change of growth rate clears the bar."} ${esc(r.slopeBreaks.note)}</p>`
         : "";
+      if (r.hingeTest) {
+        const h = r.hingeTest;
+        $("#slopeResult").innerHTML += h.refused
+          ? `<p class="note" role="note"><strong>Slope test on the levels:</strong> not run. ${esc(h.reason)}.</p>`
+          : `<p class="note" role="note"><strong>Slope test on the levels:</strong> ${h.significant ? "a change of slope" : "no significant change of slope"}, best at ${esc(h.label)}: ${esc(h.slopeBefore)} → ${esc(h.slopeAfter)} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}). ${esc(h.note)}</p>`;
+      }
       $("#chart").innerHTML = chartSvg(r);
       $("#changes").innerHTML = r.pelt.changepoints.length
         ? `<tr><th>New segment from</th><th class="n">Mean before</th><th class="n">Mean after</th><th class="n">Shift (noise sd)</th><th class="n">SD before → after</th><th class="n">Bayesian prob. (±3 points)</th></tr>` +
