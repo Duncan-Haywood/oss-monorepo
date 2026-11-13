@@ -19,8 +19,9 @@ const tiles = (plan) => plan.every((s, i) => i === 0 || s.start === plan[i - 1].
 test('a six-verse hymn gives one section per verse, starting on the verse downbeats', () => {
   const ev = fitStretch(transposeToFinal(corpus('pange-lingua-full.gabc').events, 52), 8);
   const plan = sectionPlan({ events: ev, intro: 2, outro: 2 });
-  const chant = plan.filter((s) => s.energy === 'verse' || s.energy === 'drop');
+  const chant = plan.filter((s) => ['verse', 'breakdown', 'drop'].includes(s.energy));
   assert.equal(chant.length, 6);
+  assert.deepEqual(chant.map((s) => s.energy), ['verse', 'drop', 'verse', 'drop', 'breakdown', 'drop']);
   assert.equal(plan[0].energy, 'intro');
   assert.equal(plan.at(-1).energy, 'outro');
   assert.equal(chant[0].energy, 'verse');
@@ -148,4 +149,90 @@ test('cli: --sections and --outro', () => {
   assert.match(r.text, /sections: Intro bar 1-2 .*; Drop 1 bar 3-5; Outro bar 6-7/);
   const text = new TextDecoder('latin1').decode(readFileSync(o));
   assert.ok(text.includes('Intro') && text.includes('Outro'));
+});
+
+// Breakdown and riser (2026-11-13 later)
+import { APPROACH } from './genre.mjs';
+
+const bdPlan = [
+  { name: 'Verse 1', energy: 'verse', start: 0, bars: 4, build: true },
+  { name: 'Drop 1', energy: 'drop', start: 4, bars: 4, build: false },
+  { name: 'Breakdown', energy: 'breakdown', start: 8, bars: 5, build: true },
+  { name: 'Drop 2', energy: 'drop', start: 13, bars: 4, build: false },
+];
+
+test('breakdown: only the verse before the last drop of a long piece; --no-breakdown and short pieces keep verses', () => {
+  const ev = fitStretch(transposeToFinal(corpus('pange-lingua-full.gabc').events, 52), 8);
+  const off = sectionPlan({ events: ev, breakdown: false });
+  assert.ok(!off.some((s) => s.energy === 'breakdown'));
+  const on = sectionPlan({ events: ev });
+  assert.equal(on.filter((s) => s.energy === 'breakdown').length, 1);
+  const k = on.findIndex((s) => s.energy === 'breakdown');
+  assert.equal(on[k + 1], on.findLast((s) => s.energy === 'drop'));
+  assert.ok(on[k].build, 'the breakdown ends on a build into the last drop');
+  // same bars either way: only the energy changes
+  assert.deepEqual(on.map((s) => [s.start, s.bars]), off.map((s) => [s.start, s.bars]));
+  // three sections (the Kyrie file): auto keeps verses, forcing it gives one
+  const kyrie = parseGabc('name:T;\nmode:1;\n%%\n(c4) Ky(f)ri(g)e(f)(g)(f)(g)(f)(g) (::) Chri(g)ste(f)(g)(f)(g)(f)(g)(f) (::) Ky(f)ri(g)e(f)(g)(f)(g)(f)(g) (::)\n').events;
+  const kev = fitToBars(kyrie, 2);
+  assert.ok(!sectionPlan({ events: kev, pulsesPerBar: 2 }).some((s) => s.energy === 'breakdown'));
+  assert.ok(sectionPlan({ events: kev, pulsesPerBar: 2, breakdown: true }).some((s) => s.energy === 'breakdown'));
+  assert.throws(() => sectionPlan({ events: kev, breakdown: 'yes' }));
+});
+
+for (const genre of ['deep-house', 'edm', 'hard-rock', 'metal']) {
+  test(`${genre}: breakdown has no drums or bass, choir alone then a swelling chord; builds rise to the approach chord`, () => {
+    for (const mode of [1, 3, 5, 7]) {
+      const final = 50;
+      const a = arrange({ genre, mode, final, bars: 17, fills: true, sections: bdPlan });
+      const scale = SCALES[a.mode];
+      for (let bar = 8; bar < 12; bar++) {
+        assert.equal(inBar(a.drums, bar).length, 0, `drums in breakdown bar ${bar}`);
+        assert.equal(inBar(a.bass, bar).length, 0, `bass in breakdown bar ${bar}`);
+      }
+      // 4 bars before the build: two choir-alone, then held chords getting louder
+      assert.equal(inBar(a.chords, 8).length + inBar(a.chords, 9).length, 0);
+      const v10 = inBar(a.chords, 10), v11 = inBar(a.chords, 11);
+      assert.equal(v10.length, 3);
+      assert.equal(v11.length, 3);
+      assert.ok(v11[0].vel > v10[0].vel);
+      // both builds (bars 3 and 12): approach chord held, riser climbs in eighths and swells, all before the air gap
+      for (const bar of [3, 12]) {
+        const ch = inBar(a.chords, bar);
+        const held = ch.filter((n) => n.len > PPQ);
+        const want = [0, 2, 4].map((k) => final + scale[(APPROACH[a.mode] + k) % 7] + 12 * Math.floor((APPROACH[a.mode] + k) / 7));
+        assert.deepEqual(held.map((n) => n.note), want, `mode ${mode} approach chord`);
+        const riser = ch.filter((n) => n.len <= PPQ);
+        assert.equal(riser.length, 7);
+        assert.ok(riser.every((n, i) => i === 0 || (n.note > riser[i - 1].note && n.vel > riser[i - 1].vel)));
+        const air = (bar + 1) * BAR - PPQ / 2;
+        assert.ok(ch.every((n) => n.tick + n.len <= air));
+        assert.ok(inBar(a.bass, bar).every((n) => n.note === final - 24 + scale[APPROACH[a.mode]]));
+      }
+      for (const n of [...a.bass, ...a.chords]) assert.ok(scale.includes((((n.note - final) % 12) + 12) % 12), `${n.note} out of mode ${mode}`);
+      // fills stay out of the breakdown
+      assert.equal(inBar(a.drums, 11).length, 0);
+    }
+  });
+}
+
+test('rendered, the breakdown is quieter than the verse and the last drop is the loudest stretch', () => {
+  const a = arrange({ genre: 'edm', mode: 1, final: 50, bars: 17, sections: bdPlan });
+  const wav = renderMidi(eventsToMidi([{ type: 'bar', kind: 'full', pulses: 8 * 17 }], { bpm: 120, backing: a }), { targetPeak: 0.8 });
+  const L = wav.channels[0], rate = 44100, barSec = 2;
+  const rms = (b0, b1) => { let s = 0, n = 0; for (let i = Math.floor(b0 * barSec * rate); i < Math.floor(b1 * barSec * rate); i++) { s += L[i] * L[i]; n++; } return Math.sqrt(s / n); };
+  const verse = rms(0, 3), drop1 = rms(4, 8), bd = rms(8, 12), drop2 = rms(13, 17);
+  assert.ok(bd < verse && verse < drop1 && Math.abs(drop2 - drop1) / drop1 < 0.05, `verse ${verse} drop1 ${drop1} breakdown ${bd} drop2 ${drop2}`);
+});
+
+test('cli: --no-breakdown', () => {
+  assert.equal(run([f, '--no-breakdown']).code, 2, 'needs --sections');
+  const full = new URL('./corpus/pange-lingua-full.gabc', import.meta.url).pathname;
+  const on = run([full, '--final', '52', '--fit', '8', '--stretch', '--genre', 'deep-house', '--sections', '-o', join(d, 'on.mid')]);
+  const off = run([full, '--final', '52', '--fit', '8', '--stretch', '--genre', 'deep-house', '--sections', '--no-breakdown', '-o', join(d, 'off.mid')]);
+  assert.equal(on.code, 0, on.text);
+  assert.match(on.text, /Breakdown bar \d+-\d+ \(build\); Drop 3/);
+  assert.equal(off.code, 0, off.text);
+  assert.match(off.text, /Verse 3 bar/);
+  assert.doesNotMatch(off.text, /Breakdown/);
 });
