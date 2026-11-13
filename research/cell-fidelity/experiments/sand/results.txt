@@ -1,0 +1,29 @@
+Milestone 5i: closed-form steady salt depletion r_ss against committed and fresh SPMe labels
+
+Committed: 1280 designs over 19 conditions (1074 where SPMe returned a run; 1267 in 5e's pools, 405 mis-scored)
+H64 supported: Spearman(r_ss, SPMe r_min) pooled 0.99; conditions with rho >= 0.6: 19 of 19
+H65 supported: AUC(-r_ss, suspect) 0.997; rule r_ss <= 0.10 misclassifies 0.138
+H66 mixed: predicted share within 0.15 of observed on 12 of 19
+H67 supported: AUC(-r_ss, mis-scored) 0.951; SPMe's own r_min 0.957
+No verdict: r_t AUC suspect 0.997, misclassification 0.138, AUC mis-scored 0.951; Spearman r_t 0.99; Spearman(r_ss, DFN r_min) 0.97
+
+Per condition: n, Spearman, SPMe r_min range, observed share, predicted share, median r_ss, median SPMe r_min, mis-scored/pool
+  OKane2022@2x        64 rho 0.98 range 0.42 share obs 0.81 pred 0.95 med r_ss -0.73 med r 0.00 mis 49/64
+  Chen2020@2x         64 rho 0.98 range 0.42 share obs 0.81 pred 0.95 med r_ss -0.73 med r 0.00 mis 49/64
+  Marquis2019@2x      64 rho 1.00 range 0.67 share obs 0.22 pred 0.44 med r_ss 0.20 med r 0.31 mis 10/64
+  Ecker2015@2x        64 rho 0.99 range 0.43 share obs 0.70 pred 0.91 med r_ss -0.54 med r 0.03 mis 21/64
+  Mohtat2020@2x       64 rho 1.00 range 0.76 share obs 0.02 pred 0.02 med r_ss 0.56 med r 0.56 mis 0/64
+  Ai2020@0.5x         64 rho 0.98 range 0.81 share obs 0.31 pred 0.39 med r_ss 0.27 med r 0.36 mis 31/64
+  Ai2020@0.75x        64 rho 0.87 range 0.69 share obs 0.53 pred 0.66 med r_ss -0.13 med r 0.07 mis 48/64
+  Ai2020@0.25x        64 rho 0.88 range 0.90 share obs 0.05 pred 0.09 med r_ss 0.62 med r 0.71 mis 17/51
+  NCA_Kim2011@0.5x    64 rho 0.99 range 0.75 share obs 0.36 pred 0.66 med r_ss -0.09 med r 0.18 mis 16/64
+  Chen2020@0.5x       64 rho 1.00 range 0.58 share obs 0.00 pred 0.02 med r_ss 0.58 med r 0.63 mis 0/64
+  Ecker2015@0.5x      64 rho 1.00 range 0.52 share obs 0.00 pred 0.00 med r_ss 0.62 med r 0.66 mis 0/64
+  OKane2022@1.5x      64 rho 0.98 range 0.66 share obs 0.58 pred 0.81 med r_ss -0.27 med r 0.06 mis 30/64
+  OKane2022@1x       128 rho 0.99 range 0.79 share obs 0.18 pred 0.48 med r_ss 0.12 med r 0.30 mis 15/128
+  Ecker2015@1x        64 rho 1.00 range 0.71 share obs 0.06 pred 0.36 med r_ss 0.22 med r 0.37 mis 1/64
+  Ai2020@1x           64 rho 0.77 range 0.62 share obs 0.72 pred 0.83 med r_ss -0.41 med r -0.00 mis 57/64
+  Mohtat2020@1x       64 rho 1.00 range 0.40 share obs 0.00 pred 0.00 med r_ss 0.78 med r 0.78 mis 0/64
+  NCA_Kim2011@1x      64 rho 0.94 range 0.47 share obs 0.94 pred 0.98 med r_ss -1.13 med r 0.00 mis 52/64
+  Marquis2019@1x      64 rho 1.00 range 0.53 share obs 0.00 pred 0.00 med r_ss 0.59 med r 0.63 mis 0/64
+  Chen2020@1x         64 rho 0.99 range 0.72 share obs 0.25 pred 0.45 med r_ss 0.15 med r 0.32 mis 9/64
