@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Cold Chain</title>
+      <link>https://example.invalid/hearth-and-horizon/the-cold-chain.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-cold-chain.html</guid>
+      <pubDate>Fri, 13 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A week of cloud sits over a solar vaccine fridge at a village dispensary in Vanuatu, and on the eighth day the cabinet climbs past eight degrees for twenty-six hours, four days before a measles catch-up campaign for 214 children. The provincial officer says throw every vial away. The cold-chain assistant says the alarm measured the air, not the vaccine, and that the answer is printed on each vial, if two people in daylight can agree what it says. A story about a test figure measured in a hotter room than yours, a square that must be lighter than its circle, and the three vials nobody could call. Setting: Wainasa dispensary (invented), on the east coast of Maewo, Penama Province, Vanuatu, Thursday 4 to Monday 15 February 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-cold-chain.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A week of cloud sits over a solar vaccine fridge at a village dispensary in Vanuatu, and on the eighth day the cabinet climbs past eight degrees for twenty-six hours, four days before a measles catch-up campaign for 214 children. The provincial officer says throw every vial away. The cold-chain assistant says the alarm measured the air, not the vaccine, and that the answer is printed on each vial, if two people in daylight can agree what it says. A story about a test figure measured in a hotter room than yours, a square that must be lighter than its circle, and the three vials nobody could call.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Second Gas</title>
       <link>https://example.invalid/hearth-and-horizon/the-second-gas.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-second-gas.html</guid>

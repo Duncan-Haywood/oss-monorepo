@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyeUiCEn1y3r6RUGYLV",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T02:38:07Z",
+  "ended": "2026-11-13T02:48:33Z",
+  "wall_minutes": 10.64,
+  "tokens_in": 3325904,
+  "tokens_out": 33590,
+  "cost_usd": 2.1656,
+  "tool_calls": 37,
+  "task": "Creative track: Hearth & Horizon story 'The Cold Chain' (BIBLE proposal 2026-11-13)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15346",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First draft had a wrong currency detail (PNG 'toea' in a Vanuatu scene) and a heat-rise rate inconsistent with the stated peak; both caught on the adversarial re-read and fixed before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 'look at what landed most recently' git log needs history the shallow clone lacks; it showed one commit until I ran git fetch --deepen=300."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over the 400 MB cap (423 MB)",
+      "did": "Landed text, pages and feeds without audio, as the prompt allows",
+      "result": "Story live as text only"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-cold-chain.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, piece: the-cold-chain (H&H shelf, Vanuatu 2049, ~5,200 words). Sources checked by web search: WHO PQS solar direct-drive autonomy definition (+43 C test) and listed model figures (78-117 h); VVM categories. Not verified, so stated as such in the notes: the real MR VVM category, and the autonomy scaling to a 29 C room (own estimate). Weekdays checked in code. Verification: node --test in ventures/hearth-and-horizon 15/15 pass; run_workflow_locally --for-changes: pages.yml 3/3 run steps passed, portfolio-pages blog front matter check ok, overall 9/10 selected workflows passed (ventures-tests 5/5 run steps, pages.yml 3/3); portfolio-pages' site-builder test ran out of the local budget with no verdict, so the PR's CI check runs were read for it before merging. Added BIBLE proposal 'The Wet Bulb' so the H&H next-up list isn't left with only the Quarry Nine sequel.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1438f19d-fd7e-5e0d-9573-0bcd4ace2c89",
+    "transcripts": 1,
+    "first": "2026-11-13T02:38:07Z",
+    "last": "2026-11-13T02:48:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 66,
+        "output": 33590,
+        "thinking": 11725,
+        "cache_read": 3219641,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106197,
+        "api_equivalent_usd": 2.1656,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 66,
+      "output": 33590,
+      "thinking": 11725,
+      "cache_read": 3219641,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106197,
+      "api_equivalent_usd": 2.1656,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.64,
+      "active_minutes": 10.64,
+      "model_minutes": 6.41,
+      "tool_minutes": 4.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researched 5,200-word short story with checked technical notes and a blog post, about a day and a half for a professional writer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 461.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
