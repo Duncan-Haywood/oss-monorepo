@@ -219,10 +219,8 @@ flagships:
       matches the Leica T's preview to 0.18 px; WarpRectilinear2: on 5,411
       rectilinear lensfun profiles the best even-only fit leaves over 1 px at
       6000 px for 17%, eval/warp-rectilinear2-2026-11-12.md).
-      Lensfun lens correction for files with none (--lens-db; Leica X Vario:
-      lensfun vs maker up to 8 px, eval/lensfun-correction-2026-11-13.md);
-      its TCA per plane, exact (eval/lensfun-tca-2026-11-13.md); its vignetting
-      as a fitted FixVignetteRadial (median 0.0036%, eval/lensfun-vignetting-2026-11-13.md).
+      Lensfun distortion, TCA and vignetting for files with none (--lens-db;
+      eval/lensfun-*-2026-11-13.md).
       Next, most valuable first: a real evenly lit frame shot wide open
       (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair (a zoom at several focal lengths); the
