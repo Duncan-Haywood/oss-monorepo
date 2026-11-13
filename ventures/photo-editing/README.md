@@ -1567,3 +1567,26 @@ and up to 9.9 px. 12 tests (`tests/test_lens_tca.py`). Four seeded faults each f
 TCA before the distortion, `v` scaled by focal length, `b` scaled once, and a fill zoom from green
 alone. Not checked: a real frame with sharp corner edges, to see that the fringes go. Details:
 `eval/lensfun-tca-2026-11-13.md`.
+
+## The lensfun port against the real lensfun library (2026-11-13)
+
+The lensfun correction above was checked against lensfun's own compiled code, not just against its
+formulas written out again. lensfunpy bundles liblensfun 0.3.4, lensfun's latest release.
+`tools/lensfun_released_check.py` runs it on every rectilinear ptlens, poly3 and poly5 lens in that
+release's database: at each calibrated focal length and between each pair, on 3:2 and 4:3 frames, at
+two crop factors. It compares where each pixel reads from with our WarpRectilinear2. We follow
+lensfun's master branch, which keeps the centre's scale. The release keeps Hugin's half-height point
+instead, and one exact change of radius takes one to the other (derived in the eval).
+On 36,756 cases over 1,083 lenses the median gap is 0.008 px (ptlens) and 0.005 px (poly3). The
+worst is 0.40 px, on lenses with large terms, inside the error of lensfun's own approximate square
+root. The exception is five lenses that list one focal length twice: lensfun 0.3.4 keeps the last
+entry and master, which we follow, the first.
+
+The first comparisons were 0.05-0.3 px off. The cause was a bug in lensfun 0.3.4 itself. Its SSE
+loops for ptlens and poly3 (`mod-coord-sse.cpp`) compute each pixel's factor, then multiply it lane
+by lane into interleaved `(x, y)` registers. Six of every eight coordinates get a neighbouring
+pixel's factor. Lensfun's master branch fixed it; no release has the fix yet. So the check compares
+only the coordinates lensfun computes with their own factor, and reports the bug's size separately.
+`tests/test_lensfun_released.py` (3) holds the identity to 1e-9 px against v0.3.4's pipeline written
+out, and runs the real library when lensfunpy is installed. Details:
+`eval/lensfun-released-check-2026-11-13.md`.
