@@ -1,0 +1,4 @@
+layout 22 n=200000 runs=10 pooled b/a 0.9796 mean-of-ratios 0.9797 sd 0.0097 mean kept a 3051
+layout 22 n=20000 runs=100 pooled b/a 0.9838 mean-of-ratios 0.9855 sd 0.0645 mean kept a 303
+layout 3 n=200000 runs=10 pooled b/a 0.8389 mean-of-ratios 0.8391 sd 0.0196 mean kept a 3749
+layout 3 n=20000 runs=100 pooled b/a 0.8420 mean-of-ratios 0.8435 sd 0.0532 mean kept a 373
