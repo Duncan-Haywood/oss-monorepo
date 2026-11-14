@@ -3,7 +3,7 @@ title: "Quality fix: a crucible furnace cannot roll sheet, so its payback is 227
 seo_title: "A crucible furnace can't make sheet: recycler payback corrected"
 date: 2026-11-14
 tags: [quality-audit, research, self-replication]
-description: "A self-replicating shop's aluminium furnace was credited with replacing imported sheet. It can only replace castable bar stock, which more than doubles its payback."
+description: "A self-replicating shop's furnace was credited with replacing imported sheet. It can only replace castable bar stock, so its payback more than doubles."
 ---
 
 The 2026-11-08 quality audit of [`research/selfrep-recyclers`](../../research/selfrep-recyclers/) ([audit file](../../portfolio/quality/audits/2026-11-08-selfrep-recyclers.json)) found one high-severity defect. The project's headline furnace number rested on something a furnace cannot do. This run fixed it. The furnace's payback more than doubles.
