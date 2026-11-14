@@ -133,17 +133,29 @@ export const STATE_SOURCES = {
   WI: { url: "https://www.revenue.wi.gov/Pages/FAQS/pcs-sales.aspx", freqs: ["monthly", "quarterly", "annual"] },
   WV: { url: "https://tax.wv.gov/Documents/CST/cst200cu.instructions.pdf", freqs: ["monthly", "quarterly", "annual"] },
   WY: { url: "https://excise-tax-div.wyo.gov/salesuselodging-tax/salesuselodging-returns", freqs: ["monthly", "quarterly", "annual"] },
+  // Read in full on 2026-11-14 (eval/state-pages-2026-11-14.md quotes each sentence relied on). All eight match the
+  // presets already here; what is new is that a frequency the page does not list now gets a note.
+  GA: { url: "https://dor.georgia.gov/taxes/business-taxes/sales-use-tax/file-pay", read: "2026-11-14" },
+  IL: { url: "https://tax.illinois.gov/research/taxinformation/sales/rot.html", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  MN: { url: "https://www.revenue.state.mn.us/guide/filing-information", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  NC: { url: "https://www.ncdor.gov/taxes-forms/sales-and-use-tax/sales-and-use-tax-filing-requirements-payment-options/filing-frequency-and-due-dates", freqs: ["monthly", "quarterly"], read: "2026-11-14" },
+  NV: { url: "https://tax.nv.gov/faqs/sales-tax-information/", read: "2026-11-14" },
+  SC: { url: "https://dor.sc.gov/tax/sales", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  VA: { url: "https://www.tax.virginia.gov/retail-sales-and-use-tax", freqs: ["monthly", "quarterly"], read: "2026-11-14" },
+  WA: { url: "https://dor.wa.gov/file-pay-taxes/filing-frequencies-due-dates", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
 };
 export const STATE_SOURCES_READ = "2026-11-12";
+// The day a state's page was read: its own `read`, else the first batch's date.
+export const stateSourceRead = (s) => STATE_SOURCES[s]?.read ?? STATE_SOURCES_READ;
 const FREQ_WORD = { monthly: "monthly", quarterly: "quarterly", semiannual: "semiannual", annual: "annual" };
-const STATE_NAME = { AL: "Alabama", AZ: "Arizona", CA: "California", CT: "Connecticut", DC: "The District of Columbia", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IN: "Indiana", KS: "Kansas", KY: "Kentucky", MI: "Michigan", MS: "Mississippi", ND: "North Dakota", NM: "New Mexico", OK: "Oklahoma", PA: "Pennsylvania", TX: "Texas", VT: "Vermont", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" };
+const STATE_NAME = { AL: "Alabama", AZ: "Arizona", CA: "California", CT: "Connecticut", DC: "The District of Columbia", GA: "Georgia", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IL: "Illinois", IN: "Indiana", KS: "Kansas", KY: "Kentucky", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", NC: "North Carolina", ND: "North Dakota", NM: "New Mexico", NV: "Nevada", OK: "Oklahoma", PA: "Pennsylvania", SC: "South Carolina", TX: "Texas", VA: "Virginia", VT: "Vermont", WA: "Washington", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" };
 
 // A frequency the state's own page does not offer: say so and name the ones it does.
 function frequencyNote(s, frequency) {
   const src = STATE_SOURCES[s];
   if (!src?.freqs || src.freqs.includes(frequency)) return null;
   if (s === "PA") return null; // PA's annual case has its own, more specific note below
-  return `${STATE_NAME[s] ?? s}'s own page lists ${src.freqs.map((f) => FREQ_WORD[f]).join(", ")} sales tax filing, not ${FREQ_WORD[frequency] ?? frequency} (${src.url}, read ${STATE_SOURCES_READ}). Use the frequency on your own notice.`;
+  return `${STATE_NAME[s] ?? s}'s own page lists ${src.freqs.map((f) => FREQ_WORD[f]).join(", ")} sales tax filing, not ${FREQ_WORD[frequency] ?? frequency} (${src.url}, read ${stateSourceRead(s)}). Use the frequency on your own notice.`;
 }
 
 export function stateFilingNote(state, frequency = "quarterly") {
@@ -183,7 +195,7 @@ function stateRuleNote(s, frequency) {
 // "<ST> state" label; the CLI applies them under --state unless --discount names that label. Check yours.
 export function stateDiscounts(state) {
   const s = String(state ?? "").toUpperCase();
-  // GA vendor's compensation (ST-3 instructions via search 2026-10-28; dor.georgia.gov not reachable): 3% of the first $3,000 of tax on a return, 0.5% of the rest, only when return and payment are both timely. A 2026 fiscal note describes a proposal to raise the $3,000 step to $10,000: unconfirmed, not modelled. The tax of one return is the whole base here, local tax included only if booked under the same label.
+  // GA vendor's compensation (Form ST-3 Rev. 07/25/22 and its instructions, read on dor.georgia.gov 2026-11-14; earlier from search 2026-10-28): Part C prints 3% on the first $3,000 of state and local tax on non-motor-fuel sales and .5% on the rest, only when return and payment are both timely. A 2026 fiscal note describes a proposal to raise the $3,000 step to $10,000: unconfirmed, not modelled. The tax of one return is the whole base here, local tax included only if booked under the same label.
   // OH vendor discount (R.C. 5739.12, ODT notice ST 2025-02 via search excerpts 2026-10-29; tax.ohio.gov not reachable): 0.75% of tax, capped at $750 per vendor's license per month covered, on returns due on or after 2026-01-01; motor vehicle dealers' vehicle sales are uncapped (not modelled); timely return and payment required.
   const d = { OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
   return d ? { [`${s} state`]: { ...d } } : {};

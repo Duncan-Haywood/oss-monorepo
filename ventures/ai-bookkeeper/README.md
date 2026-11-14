@@ -1052,6 +1052,16 @@ says the state is not yet checked. Results:
   text. Utah, Tennessee, Arkansas, Rhode Island, Colorado, Maine, Massachusetts and Ohio
   refused the connection. Not tax advice: your own notice decides your date.
 
+**Eight more states read on their own pages (2026-11-14).** Georgia, Illinois, Minnesota, North
+Carolina, Nevada, South Carolina, Virginia and Washington answered this time. Each page's due-date
+sentences match the presets already here (North Carolina's quarterly returns on the last day of the
+next month, Minnesota's annual return on February 5, Washington's monthly 25th and annual April 15),
+so no date changed. They are now in `STATE_SOURCES` with the day they were read: the tax calendar
+links each page, and a frequency the page does not list gets a note. North Carolina and Virginia
+list monthly and quarterly only, so `--state NC --freq annual` now says so. Georgia's 3% / 0.5%
+vendor's compensation, until now from search excerpts, was read on Form ST-3 Part C itself. Quotes
+and what still refused: [`eval/state-pages-2026-11-14.md`](eval/state-pages-2026-11-14.md).
+
 **Refunds and write-offs.** A bank line for the exact amount left on a credit
 note nobody applied (money out for a customer's credit, money in for a
 supplier's), with the credit's number or the party's name in the description,

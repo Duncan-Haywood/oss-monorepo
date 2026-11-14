@@ -506,3 +506,31 @@ test("a frequency the state's own page does not offer gets a note naming the one
   assert.match(stateFilingNote("MI", "quarterly"), /February 28/);
   assert.match(stateFilingNote("AZ", "monthly"), /accrue from the 20th/);
 });
+
+// Read on each state's own page on 2026-11-14 (eval/state-pages-2026-11-14.md quotes the sentences): GA, IL, MN, NC, NV, SC, VA, WA.
+test("eight more states' due dates match their own pages, read 2026-11-14", async () => {
+  const { STATE_SOURCES, stateSourceRead, stateDiscounts } = await import("./salestaxreturn.mjs");
+  const cases = [
+    // [state, frequency, period, due before the weekend move]
+    ["GA", "monthly", "2026-10", "2026-11-20"], // "no later than the 20th day of the month following the period being reported"
+    ["IL", "monthly", "2026-10", "2026-11-20"], ["IL", "quarterly", "2026-Q3", "2026-10-20"], ["IL", "annual", "2026", "2027-01-20"],
+    ["MN", "monthly", "2026-10", "2026-11-20"], ["MN", "quarterly", "2026-Q4", "2027-01-20"], ["MN", "annual", "2026", "2027-02-05"],
+    ["NC", "monthly", "2026-10", "2026-11-20"], ["NC", "quarterly", "2026-Q1", "2026-04-30"], ["NC", "quarterly", "2026-Q4", "2027-01-31"],
+    ["NV", "monthly", "2026-10", "2026-11-20"], // "Sales and Use Tax returns are now due on the 20th of the month"
+    ["SC", "monthly", "2026-10", "2026-11-20"], ["SC", "quarterly", "2026-Q2", "2026-07-20"], ["SC", "annual", "2026", "2027-01-20"],
+    ["VA", "monthly", "2026-04", "2026-05-20"], ["VA", "quarterly", "2026-Q4", "2027-01-20"],
+    ["WA", "monthly", "2026-06", "2026-07-25"], ["WA", "quarterly", "2026-Q1", "2026-04-30"], ["WA", "annual", "2026", "2027-04-15"],
+  ];
+  for (const [st, f, period, due] of cases) assert.equal(dueDate(period, stateDueDay(st, f)), due, `${st} ${f} ${period}`);
+  for (const st of ["GA", "IL", "MN", "NC", "NV", "SC", "VA", "WA"]) assert.equal(stateSourceRead(st), "2026-11-14", st);
+  assert.equal(stateSourceRead("TX"), "2026-11-12");
+  // Frequencies the page does not list get a note dated by that page's own reading
+  assert.match(stateFilingNote("NC", "annual"), /North Carolina's own page lists monthly, quarterly sales tax filing, not annual .*read 2026-11-14/);
+  assert.match(stateFilingNote("VA", "annual"), /Virginia's own page lists monthly, quarterly .*not annual/);
+  assert.match(stateFilingNote("WA", "semiannual"), /not semiannual/);
+  assert.equal(stateFilingNote("MN", "annual"), null);
+  assert.equal(stateFilingNote("GA", "quarterly"), null); // GA's page names no frequency list (monthly unless the state agrees otherwise)
+  // Georgia's vendor's compensation, Form ST-3 Part C: 3% of the first $3,000 of tax, .5% of the rest
+  assert.deepEqual(stateDiscounts("GA")["GA state"].tiers, [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }]);
+  for (const st of ["GA", "IL", "MN", "NC", "NV", "SC", "VA", "WA"]) assert.match(STATE_SOURCES[st].url, /^https:\/\/[a-z.]*\.(gov|us)\//);
+});
