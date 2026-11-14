@@ -60,9 +60,20 @@ function fromBase64Url(s) {
   return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
 }
 
-/** The list (and an optional question) as a URL fragment: the fragment never reaches a server. */
-export function encodeList({ title = "", items }) {
-  return toBase64Url(JSON.stringify({ v: 1, t: title, i: items }));
+/** Modes a shared link may carry besides the default full order. */
+export const LINK_MODES = ["favourite", "top"];
+
+/**
+ * The list (and an optional question) as a URL fragment: the fragment never
+ * reaches a server. A link can also carry the mode the sender picked
+ * ("favourite", or "top" with its shortlist size k), so the people it is sent
+ * to answer the same question; a full-order link stays as it always was.
+ */
+export function encodeList({ title = "", items, mode, k }) {
+  const d = { v: 1, t: title, i: items };
+  if (LINK_MODES.includes(mode)) d.m = mode;
+  if (mode === "top") d.k = k;
+  return toBase64Url(JSON.stringify(d));
 }
 export function decodeList(fragment) {
   try {
@@ -73,7 +84,15 @@ export function decodeList(fragment) {
     if (!d || d.v !== 1 || !Array.isArray(d.i)) return null;
     const items = parseList(d.i.map(String).join("\n"));
     if (items.length < MIN_ITEMS) return null;
-    return { title: Array.from(String(d.t || "")).slice(0, 200).join(""), items };
+    const out = { title: Array.from(String(d.t || "")).slice(0, 200).join(""), items };
+    // A mode the page does not know, or a shortlist size that does not fit the
+    // list (it needs 2 to n-1, so some options are left out), is not guessed
+    // at: the list opens in the full order and `modeIgnored` says why, so the
+    // page can tell the person rather than silently asking a different question.
+    if (d.m === "favourite") out.mode = "favourite";
+    else if (d.m === "top" && Number.isInteger(d.k) && d.k >= 2 && d.k < items.length) Object.assign(out, { mode: "top", k: d.k });
+    else if (d.m !== undefined) out.modeIgnored = d.m === "top" ? `a shortlist of ${String(d.k).slice(0, 12)} does not fit a list of ${items.length}` : "the link asks for a mode this page does not know";
+    return out;
   } catch {
     return null;
   }

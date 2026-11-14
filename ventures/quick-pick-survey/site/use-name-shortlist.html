@@ -33,6 +33,7 @@
   <h1>Choose a name from a shortlist by picking pairs</h1>
   <p class="lede">When fifteen names all sound fine, saying which of two you prefer is easy. Do that a few dozen times and you have an order, plus a chance for each name to be the one you&#39;d actually choose.</p>
   <p><a class="cta" href="rank.html#l=eyJ2IjoxLCJ0IjoiV2hpY2ggbmFtZSBkbyB5b3UgcHJlZmVyPyIsImkiOlsiSnVuaXBlciIsIkF0bGFzIiwiV2lsbG93IiwiRmVsaXgiLCJJcmlzIiwiVGhlbyIsIkhhemVsIiwiQXJsbyIsIkNsYXJhIiwiU2lsYXMiLCJNYWJlbCIsIk90aXMiXX0" data-event="use_page_start">Start ranking this list &rarr;</a></p>
+  <p><a href="rank.html#l=eyJ2IjoxLCJ0IjoiV2hpY2ggbmFtZSBkbyB5b3UgcHJlZmVyPyIsImkiOlsiSnVuaXBlciIsIkF0bGFzIiwiV2lsbG93IiwiRmVsaXgiLCJJcmlzIiwiVGhlbyIsIkhhemVsIiwiQXJsbyIsIkNsYXJhIiwiU2lsYXMiLCJNYWJlbCIsIk90aXMiXSwibSI6InRvcCIsImsiOjN9" data-event="use_page_shortlist">Down to a final three? Find your top 3 &rarr;</a> <span class="muted">(asks about the options near the cut instead of the whole order; <a href="how-many-pairwise-comparisons.html">how many picks that takes</a>)</span></p>
   <p class="muted">Opens the free ranker with the list below already filled in. Change it there with "Start over", or <a href="rank.html">paste your own list</a>.</p>
 
   <section>
@@ -66,6 +67,7 @@
   import { record } from "./usage.mjs";
   record("use_page_viewed:use-name-shortlist");
   document.querySelector("a.cta").addEventListener("click", () => record("use_page_start:use-name-shortlist"));
+  document.querySelector('a[data-event="use_page_shortlist"]').addEventListener("click", () => record("use_page_shortlist:use-name-shortlist"));
 </script>
 </body>
 </html>

@@ -22,6 +22,7 @@ export const USE_PAGES = [
     title: "Prioritise a feature backlog by picking pairs",
     description: "Rank your product backlog by answering 'which first?' between two features at a time, then combine your team's picks into one order with the features you disagree on flagged. Free, in the browser.",
     lede: "Scoring twenty features 1 to 10 gives you twenty 8s. Asking \"which would you build first?\" between two at a time makes people trade off, and the order falls out of the answers.",
+    shortlist: { k: 3, label: "Only need the 3 to build next? Find your top 3" },
     question: "Which would you build first?",
     items: ["Dark mode", "CSV export", "Faster search", "Mobile app", "Team accounts", "Calendar sync", "Offline mode", "Single sign-on", "Public API", "Better onboarding", "Usage dashboard", "Slack integration"],
     why: [
@@ -52,6 +53,7 @@ export const USE_PAGES = [
     title: "Choose a name from a shortlist by picking pairs",
     description: "Narrow a shortlist of baby names, business names or project names by answering 'which do you prefer?' two at a time, then compare your picks with a partner's or a team's. Free, nothing uploaded.",
     lede: "When fifteen names all sound fine, saying which of two you prefer is easy. Do that a few dozen times and you have an order, plus a chance for each name to be the one you'd actually choose.",
+    shortlist: { k: 3, label: "Down to a final three? Find your top 3" },
     question: "Which name do you prefer?",
     items: ["Juniper", "Atlas", "Willow", "Felix", "Iris", "Theo", "Hazel", "Arlo", "Clara", "Silas", "Mabel", "Otis"],
     why: [
@@ -97,6 +99,7 @@ export const USE_PAGES = [
     title: "Rank customer pain points by picking pairs: a free MaxDiff alternative",
     description: "Ask a handful of customers 'which is the bigger problem for you?' between two pain points at a time, then combine their result codes into one ranked list with rank ranges. Free, nothing uploaded.",
     lede: "\"How much of a problem is this, 1 to 5?\" gets you a column of 4s. MaxDiff surveys fix that by making people choose, but the tools cost money. Asking which of two problems is bigger makes the same trade-off, and a few customers' answers give an order.",
+    shortlist: { k: 3, label: "Only need the 3 to fix first? Find each customer's top 3" },
     question: "Which is the bigger problem for you?",
     items: ["Setup takes too long", "Too expensive for what it does", "Reports are hard to read", "Missing integrations", "Slow customer support", "Hard to train new staff", "Data export is clunky", "Mobile app is limited", "Too many notifications", "Unclear pricing tiers"],
     why: [
@@ -177,8 +180,13 @@ export const HUB = {
   description: "Starter lists that open a free pairwise ranker already filled in: a backlog, team goals, customer pain points, values, names, trips, a wedding, a house hunt, a book club pick, a to-do list.",
 };
 
-export function rankLink(page) {
-  return `rank.html#l=${encodeList({ title: page.question, items: parseList(page.items.join("\n")) })}`;
+export function rankLink(page, { mode, k } = {}) {
+  return `rank.html#l=${encodeList({ title: page.question, items: parseList(page.items.join("\n")), mode, k })}`;
+}
+
+/** The page's "find my top k" link, when a shortlist is a common job for its list. */
+export function shortlistLink(page) {
+  return page.shortlist ? rankLink(page, { mode: "top", k: page.shortlist.k }) : null;
 }
 
 export function renderUsePage(page) {
@@ -220,7 +228,8 @@ export function renderUsePage(page) {
   <h1>${esc(page.title)}</h1>
   <p class="lede">${esc(page.lede)}</p>
   <p><a class="cta" href="${esc(link)}" data-event="use_page_start">Start ranking this list &rarr;</a></p>
-  <p class="muted">Opens the free ranker with the list below already filled in. Change it there with "Start over", or <a href="rank.html">paste your own list</a>.</p>
+${page.shortlist ? `  <p><a href="${esc(shortlistLink(page))}" data-event="use_page_shortlist">${esc(page.shortlist.label)} &rarr;</a> <span class="muted">(asks about the options near the cut instead of the whole order; <a href="how-many-pairwise-comparisons.html">how many picks that takes</a>)</span></p>
+` : ""}  <p class="muted">Opens the free ranker with the list below already filled in. Change it there with "Start over", or <a href="rank.html">paste your own list</a>.</p>
 
   <section>
     <h2>The starter list</h2>
@@ -252,7 +261,8 @@ export function renderUsePage(page) {
 <script type="module">
   import { record } from "./usage.mjs";
   record("use_page_viewed:${page.slug}");
-  document.querySelector("a.cta").addEventListener("click", () => record("use_page_start:${page.slug}"));
+  document.querySelector("a.cta").addEventListener("click", () => record("use_page_start:${page.slug}"));${page.shortlist ? `
+  document.querySelector('a[data-event="use_page_shortlist"]').addEventListener("click", () => record("use_page_shortlist:${page.slug}"));` : ""}
 </script>
 </body>
 </html>

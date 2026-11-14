@@ -11,7 +11,8 @@ runs the same Bradley-Terry refit in your browser, shows a 90% rank range per
 option, and combines a team's picks from shareable result codes, with rank
 ranges for the group itself and for the wider group it stands for. A "find my
 top k" mode (since 2026-11-14) asks about the options near the cut instead of
-the whole order, for when you need a shortlist. Nothing is
+the whole order, for when you need a shortlist; its link carries the k, so a
+team all answers for the same cut. Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
 
 ## Deploy your own copy

@@ -33,6 +33,7 @@
   <h1>Prioritise a feature backlog by picking pairs</h1>
   <p class="lede">Scoring twenty features 1 to 10 gives you twenty 8s. Asking &quot;which would you build first?&quot; between two at a time makes people trade off, and the order falls out of the answers.</p>
   <p><a class="cta" href="rank.html#l=eyJ2IjoxLCJ0IjoiV2hpY2ggd291bGQgeW91IGJ1aWxkIGZpcnN0PyIsImkiOlsiRGFyayBtb2RlIiwiQ1NWIGV4cG9ydCIsIkZhc3RlciBzZWFyY2giLCJNb2JpbGUgYXBwIiwiVGVhbSBhY2NvdW50cyIsIkNhbGVuZGFyIHN5bmMiLCJPZmZsaW5lIG1vZGUiLCJTaW5nbGUgc2lnbi1vbiIsIlB1YmxpYyBBUEkiLCJCZXR0ZXIgb25ib2FyZGluZyIsIlVzYWdlIGRhc2hib2FyZCIsIlNsYWNrIGludGVncmF0aW9uIl19" data-event="use_page_start">Start ranking this list &rarr;</a></p>
+  <p><a href="rank.html#l=eyJ2IjoxLCJ0IjoiV2hpY2ggd291bGQgeW91IGJ1aWxkIGZpcnN0PyIsImkiOlsiRGFyayBtb2RlIiwiQ1NWIGV4cG9ydCIsIkZhc3RlciBzZWFyY2giLCJNb2JpbGUgYXBwIiwiVGVhbSBhY2NvdW50cyIsIkNhbGVuZGFyIHN5bmMiLCJPZmZsaW5lIG1vZGUiLCJTaW5nbGUgc2lnbi1vbiIsIlB1YmxpYyBBUEkiLCJCZXR0ZXIgb25ib2FyZGluZyIsIlVzYWdlIGRhc2hib2FyZCIsIlNsYWNrIGludGVncmF0aW9uIl0sIm0iOiJ0b3AiLCJrIjozfQ" data-event="use_page_shortlist">Only need the 3 to build next? Find your top 3 &rarr;</a> <span class="muted">(asks about the options near the cut instead of the whole order; <a href="how-many-pairwise-comparisons.html">how many picks that takes</a>)</span></p>
   <p class="muted">Opens the free ranker with the list below already filled in. Change it there with "Start over", or <a href="rank.html">paste your own list</a>.</p>
 
   <section>
@@ -66,6 +67,7 @@
   import { record } from "./usage.mjs";
   record("use_page_viewed:use-feature-backlog");
   document.querySelector("a.cta").addEventListener("click", () => record("use_page_start:use-feature-backlog"));
+  document.querySelector('a[data-event="use_page_shortlist"]').addEventListener("click", () => record("use_page_shortlist:use-feature-backlog"));
 </script>
 </body>
 </html>

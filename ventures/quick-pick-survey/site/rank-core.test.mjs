@@ -522,3 +522,28 @@ test("the respondent's name and the question are cut by code point, never throug
   assert.ok(!lone.test(l.title), JSON.stringify(l.title.slice(-2)));
   assert.equal(Array.from(l.title).length, 200);
 });
+
+test("a shared link carries the sender's mode and shortlist size; a full-order link is unchanged", () => {
+  const items = ["a", "b", "c", "d", "e"];
+  assert.equal(encodeList({ title: "t", items, mode: "order", k: 3 }), encodeList({ title: "t", items }), "full order: same link as before");
+  assert.deepEqual(decodeList(encodeList({ title: "t", items })), { title: "t", items });
+  assert.deepEqual(decodeList(encodeList({ title: "t", items, mode: "top", k: 2 })), { title: "t", items, mode: "top", k: 2 });
+  assert.deepEqual(decodeList("#l=" + encodeList({ items, mode: "top", k: 4 })), { title: "", items, mode: "top", k: 4 });
+  assert.deepEqual(decodeList(encodeList({ items, mode: "favourite", k: 3 })), { title: "", items, mode: "favourite" });
+});
+
+test("a link's mode is never guessed: a shortlist that does not fit, or an unknown mode, opens the full order and says why", () => {
+  const items = ["a", "b", "c", "d", "e"];
+  const raw = (d) => btoa(JSON.stringify({ v: 1, t: "", i: items, ...d })).replace(/=+$/, "");
+  for (const k of [5, 1, 2.5, "3", null, 99]) {
+    const d = decodeList(raw({ m: "top", k }));
+    assert.equal(d.mode, undefined, `k ${JSON.stringify(k)}`);
+    assert.match(d.modeIgnored, /does not fit a list of 5/);
+  }
+  const u = decodeList(raw({ m: "bracket" }));
+  assert.equal(u.mode, undefined);
+  assert.match(u.modeIgnored, /does not know/);
+  assert.deepEqual(decodeList(raw({ m: "top", k: 3 })).k, 3);
+  // Duplicates collapse before the fit check: k must be under the de-duplicated list.
+  assert.equal(decodeList(btoa(JSON.stringify({ v: 1, t: "", i: ["a", "a", "b", "c"], m: "top", k: 3 })).replace(/=+$/, "")).mode, undefined);
+});

@@ -33,6 +33,7 @@
   <h1>Rank customer pain points by picking pairs: a free MaxDiff alternative</h1>
   <p class="lede">&quot;How much of a problem is this, 1 to 5?&quot; gets you a column of 4s. MaxDiff surveys fix that by making people choose, but the tools cost money. Asking which of two problems is bigger makes the same trade-off, and a few customers&#39; answers give an order.</p>
   <p><a class="cta" href="rank.html#l=eyJ2IjoxLCJ0IjoiV2hpY2ggaXMgdGhlIGJpZ2dlciBwcm9ibGVtIGZvciB5b3U_IiwiaSI6WyJTZXR1cCB0YWtlcyB0b28gbG9uZyIsIlRvbyBleHBlbnNpdmUgZm9yIHdoYXQgaXQgZG9lcyIsIlJlcG9ydHMgYXJlIGhhcmQgdG8gcmVhZCIsIk1pc3NpbmcgaW50ZWdyYXRpb25zIiwiU2xvdyBjdXN0b21lciBzdXBwb3J0IiwiSGFyZCB0byB0cmFpbiBuZXcgc3RhZmYiLCJEYXRhIGV4cG9ydCBpcyBjbHVua3kiLCJNb2JpbGUgYXBwIGlzIGxpbWl0ZWQiLCJUb28gbWFueSBub3RpZmljYXRpb25zIiwiVW5jbGVhciBwcmljaW5nIHRpZXJzIl19" data-event="use_page_start">Start ranking this list &rarr;</a></p>
+  <p><a href="rank.html#l=eyJ2IjoxLCJ0IjoiV2hpY2ggaXMgdGhlIGJpZ2dlciBwcm9ibGVtIGZvciB5b3U_IiwiaSI6WyJTZXR1cCB0YWtlcyB0b28gbG9uZyIsIlRvbyBleHBlbnNpdmUgZm9yIHdoYXQgaXQgZG9lcyIsIlJlcG9ydHMgYXJlIGhhcmQgdG8gcmVhZCIsIk1pc3NpbmcgaW50ZWdyYXRpb25zIiwiU2xvdyBjdXN0b21lciBzdXBwb3J0IiwiSGFyZCB0byB0cmFpbiBuZXcgc3RhZmYiLCJEYXRhIGV4cG9ydCBpcyBjbHVua3kiLCJNb2JpbGUgYXBwIGlzIGxpbWl0ZWQiLCJUb28gbWFueSBub3RpZmljYXRpb25zIiwiVW5jbGVhciBwcmljaW5nIHRpZXJzIl0sIm0iOiJ0b3AiLCJrIjozfQ" data-event="use_page_shortlist">Only need the 3 to fix first? Find each customer&#39;s top 3 &rarr;</a> <span class="muted">(asks about the options near the cut instead of the whole order; <a href="how-many-pairwise-comparisons.html">how many picks that takes</a>)</span></p>
   <p class="muted">Opens the free ranker with the list below already filled in. Change it there with "Start over", or <a href="rank.html">paste your own list</a>.</p>
 
   <section>
@@ -66,6 +67,7 @@
   import { record } from "./usage.mjs";
   record("use_page_viewed:use-customer-pain-points");
   document.querySelector("a.cta").addEventListener("click", () => record("use_page_start:use-customer-pain-points"));
+  document.querySelector('a[data-event="use_page_shortlist"]').addEventListener("click", () => record("use_page_shortlist:use-customer-pain-points"));
 </script>
 </body>
 </html>
