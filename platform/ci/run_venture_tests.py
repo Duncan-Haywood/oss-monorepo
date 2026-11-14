@@ -35,7 +35,10 @@ a named Python-only venture (photo-editing) printed "skip" and a mixed one
 (einvoice-preflight) printed "ok" for its Node tests alone, so the local
 pass was not the CI pass (run-record doc friction, 2026-11-12).
 `--no-elsewhere` turns that off; CI never does it, since those workflows run
-there on their own.
+there on their own. Those steps are read with PyYAML: when `python3` lacks it
+the script reruns itself under a python3 here that has it, and when none does
+the venture's line says PART, not ok (2026-11-14: open-tennis-robots printed
+"ok" in 0.4 s with its Python and CAD suites never run).
 An empty or all-zero `--since` (a new branch, a dispatch) means every venture.
 `--since` also runs every argument-free platform/ci/check_*.py that no
 workflow names (unwired_checks.py; `--no-unwired` skips them): 30 of 60 ran in
@@ -235,6 +238,26 @@ def run_elsewhere_step(argv, cwd, env, timeout):
         ok, out = run_one(argv, cwd, timeout, {**env, "PATH": path})
         note = f"(python3 here lacks {', '.join(lacking)}; ran with {py})\n"
     return ok, note + out
+
+
+REEXEC_ENV = "RUN_VENTURE_TESTS_REEXEC"
+
+
+def reexec_with_yaml(argv):
+    """Rerun this script under a python3 here that has PyYAML, if there is one.
+
+    Session images can carry several interpreters, and pip often installs into
+    one that is not first on PATH (pyenv.py, "Why"), so `python3` lacking
+    PyYAML does not mean the machine does. Returns only when none has it.
+    """
+    if os.environ.get(REEXEC_ENV):
+        return
+    py = interpreter_with("yaml")
+    if py is None:
+        return
+    print(f"note: python3 here lacks PyYAML; rerunning with {py}", flush=True)
+    os.environ[REEXEC_ENV] = "1"
+    os.execv(py, [py, os.path.abspath(__file__), *argv])
 
 
 def clear_workflow_caches():
@@ -549,10 +572,16 @@ def main(argv):
     # Named slugs and --changed are how a session checks its own work; --since
     # and a full run are CI's modes, where those workflows run on their own.
     elsewhere = bool(args.slugs or args.changed) and not ON_ACTIONS and not args.no_elsewhere
-    if elsewhere and importlib.util.find_spec("yaml") is None:
-        # run_workflow_locally reads workflows with PyYAML.
-        print("note: PyYAML is not installed, so own-workflow Python tests are not run here "
-              "(pip install pyyaml)", flush=True)
+    # Ventures whose own-workflow Python steps this run cannot run (no PyYAML).
+    no_yaml = elsewhere and importlib.util.find_spec("yaml") is None
+    if no_yaml:
+        reexec_with_yaml(argv)  # returns only when no interpreter here has PyYAML
+        # run_workflow_locally reads workflows with PyYAML. Without it a named
+        # venture used to print "ok" for its Node suite alone, and the note
+        # above scrolled away (doc friction 2026-11-14: open-tennis-robots "ok"
+        # in 0.4 s, its Python and CAD suites never run).
+        print("note: no python3 here has PyYAML, so own-workflow Python tests are not run "
+              "(python3 platform/ci/pyenv.py yaml installs it)", flush=True)
         elsewhere = False
     runs_here = {s for s in slugs if has_tests(s)
                  or (elsewhere and (VENTURES / s).is_dir() and elsewhere_commands(s))}
@@ -564,15 +593,19 @@ def main(argv):
     lint_slugs = [s for s in slugs if (VENTURES / s).is_dir()]
     slugs = sorted(runs_here, key=lambda s: (-suite_weight(s), s))
 
-    failed, times = [], {}
+    failed, partial, times = [], [], {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         # Printed as each finishes, so one slow suite does not hide the rest.
         for future in as_completed([pool.submit(run, s, elsewhere) for s in slugs]):
             slug, ok, out, secs = future.result()
             times[slug] = secs
             also = sorted({c[-1] for c in elsewhere_commands(slug)}) if elsewhere else []
-            print(f"{'ok  ' if ok else 'FAIL'} {slug} ({secs:.1f}s)"
+            unrun = sorted({w for w, _ in python_run_elsewhere(slug)}) if no_yaml else []
+            if unrun:
+                partial.append(slug)
+            print(f"{('PART' if unrun else 'ok  ') if ok else 'FAIL'} {slug} ({secs:.1f}s)"
                   + (f" incl. Python steps of {', '.join(also)}" if also else "")
+                  + (f"; Python steps of {', '.join(unrun)} NOT run (no PyYAML)" if unrun else "")
                   + skipped_note(out), flush=True)
             if not ok:
                 failed.append(slug)
@@ -584,7 +617,9 @@ def main(argv):
     if args.slowest:
         print(slowest_table(times, args.slowest))
     print(f"{len(slugs)} suites run, {len(failed)} failed"
-          + (f": {' '.join(sorted(failed))}" if failed else ""))
+          + (f": {' '.join(sorted(failed))}" if failed else "")
+          + (f"; {len(partial)} only partly run (own-workflow Python steps need PyYAML): "
+             f"{' '.join(sorted(partial))}" if partial else ""))
     unknown = [s for s in (lint_slugs_named if args.slugs else []) if not (VENTURES / s).is_dir()]
     if unknown:
         print(f"error: no such venture: {' '.join(unknown)} (pass the folder name under ventures/)")

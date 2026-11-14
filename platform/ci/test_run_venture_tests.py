@@ -429,3 +429,70 @@ class Skipped(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NoPyYAML(unittest.TestCase):
+    """Without PyYAML a named mixed venture printed "ok" for its Node suite
+    alone (doc friction 2026-11-14, open-tennis-robots: 0.4 s, its Python and
+    CAD suites never run). Now it reruns under a python3 that has PyYAML, or
+    marks the line PART and says so in the summary."""
+
+    venture = FakeVentures.venture
+
+    def setUp(self):
+        FakeVentures.setUp(self)
+        self.venture("mix", {"a.test.mjs": "import test from 'node:test'; test('x', () => {});\n"})
+        (self.wf / "mix-ci.yml").write_text(
+            "jobs:\n  t:\n    defaults:\n      run:\n        working-directory: ventures/mix\n"
+            "    steps:\n      - run: python3 -m unittest discover -s tests\n")
+        real = importlib.util.find_spec
+        for p in (mock.patch.object(rvt, "ON_ACTIONS", False),
+                  mock.patch.object(rvt.importlib.util, "find_spec",
+                                    side_effect=lambda n, *a: None if n == "yaml" else real(n, *a)),
+                  mock.patch.object(rvt, "run", side_effect=lambda s, *_: (s, True, "", 0.1))):
+            p.start()
+            self.addCleanup(p.stop)
+
+    def main_lines(self, argv):
+        with mock.patch("builtins.print") as printed:
+            code = rvt.main(argv)
+        return code, " ".join(str(c.args[0]) for c in printed.call_args_list)
+
+    def test_no_interpreter_with_yaml_marks_the_venture_partial(self):
+        with mock.patch.object(rvt, "interpreter_with", return_value=None), \
+             mock.patch.object(rvt.os, "execv") as execv:
+            code, lines = self.main_lines(["mix"])
+        execv.assert_not_called()
+        self.assertEqual(code, 0)
+        self.assertNotIn("ok   mix", lines)
+        self.assertIn("PART mix", lines)
+        self.assertIn("mix-ci.yml NOT run (no PyYAML)", lines)
+        self.assertIn("1 only partly run", lines)
+
+    def test_another_interpreter_with_yaml_reruns_the_script(self):
+        with mock.patch.object(rvt, "interpreter_with", return_value="/other/python3"), \
+             mock.patch.dict(rvt.os.environ, {}, clear=False), \
+             mock.patch.object(rvt.os, "execv", side_effect=SystemExit(0)) as execv:
+            rvt.os.environ.pop(rvt.REEXEC_ENV, None)
+            with self.assertRaises(SystemExit), mock.patch("builtins.print"):
+                rvt.main(["mix"])
+        py, args = execv.call_args.args
+        self.assertEqual(py, "/other/python3")
+        self.assertEqual(args[-1], "mix")
+        self.assertTrue(args[1].endswith("run_venture_tests.py"))
+
+    def test_a_rerun_never_reruns_again(self):
+        with mock.patch.object(rvt, "interpreter_with", return_value="/other/python3"), \
+             mock.patch.dict(rvt.os.environ, {rvt.REEXEC_ENV: "1"}), \
+             mock.patch.object(rvt.os, "execv") as execv:
+            _, lines = self.main_lines(["mix"])
+        execv.assert_not_called()
+        self.assertIn("PART mix", lines)
+
+    def test_ci_mode_is_untouched(self):
+        with mock.patch.object(rvt, "interpreter_with") as finder, \
+             mock.patch.object(rvt, "inherited_keys") as ik:
+            ik.new_hits.return_value = []
+            _, lines = self.main_lines(["--since", "0" * 40, "--no-unwired"])
+        finder.assert_not_called()
+        self.assertNotIn("PART", lines)
