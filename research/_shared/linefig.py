@@ -15,11 +15,20 @@ from pathlib import Path
 COLS = ["#c0392b", "#1f6fb2", "#2e8b57", "#8e44ad"]
 
 
+# "0.3818(0.0020)" and "0.38±0.02" / "0.38+-0.02": a value with its standard error
+# or interval, as many results.txt files print it. table() reads the value; before
+# this, such a row parsed as no number and was skipped (friction 2026-11-13: a figure
+# had to read the JSON and call write_lines by hand).
+_WITH_ERR = re.compile(r"^([-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)(?:\([^()]*\)|(?:±|\+-|\+/-)\S*)$")
+
+
 def num(tok):
+    """float(tok), or the leading value of a value(se) / value±err token; None if neither."""
     try:
         return float(tok)
     except ValueError:
-        return None
+        m = _WITH_ERR.match(tok)
+        return float(m.group(1)) if m else None
 
 
 def table(text, section, xcol, ycols, maxrows=None, sep=None):
@@ -46,9 +55,9 @@ def table(text, section, xcol, ycols, maxrows=None, sep=None):
             if p and not p[0]:
                 p = p[1:]
         if on and len(p) > max([xcol] + ycols) and num(p[xcol]) is not None and all(num(p[c]) is not None for c in ycols):
-            xs.append(float(p[xcol]))
+            xs.append(num(p[xcol]))
             for k, c in enumerate(ycols):
-                ys[k].append(float(p[c]))
+                ys[k].append(num(p[c]))
             if maxrows and len(xs) == maxrows:
                 break
     if not xs:
@@ -57,11 +66,16 @@ def table(text, section, xcol, ycols, maxrows=None, sep=None):
     return xs, ys
 
 
-def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=None):
+def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=None, vline=None):
+    """A line plot as SVG text. `hline` draws a dashed reference line at that y; `vline`
+    one at that x (a number, or a list of them), e.g. a break-even or design value
+    (friction 2026-11-13: a decision curve could not mark its 1.48 L/h reference).
+    A vline outside the data's x range widens the axis to show it."""
+    vlines = [] if vline is None else ([vline] if isinstance(vline, (int, float)) else list(vline))
     W, H, L, R, T, B = 640, 380, 64, 16, 56, 56
     fx = math.log10 if logx else (lambda v: v)
     fy = math.log10 if logy else (lambda v: v)
-    xs_all = [fx(x) for _, xs, _ in series for x in xs]
+    xs_all = [fx(x) for _, xs, _ in series for x in xs] + [fx(v) for v in vlines if v > 0 or not logx]
     ys_all = [fy(y) for _, _, ys in series for y in ys if (y > 0 or not logy)] + ([fy(hline)] if hline else [])
     x0, x1 = min(xs_all), max(xs_all)
     y0, y1 = min(ys_all), max(ys_all)
@@ -98,6 +112,9 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
     o.append(f'<text x="14" y="{(T+H-B)/2}" text-anchor="middle" {f} font-size="12" transform="rotate(-90 14 {(T+H-B)/2})">{ylabel}</text>')
     if hline:
         o.append(f'<line x1="{L}" x2="{W-R}" y1="{py(hline):.1f}" y2="{py(hline):.1f}" stroke="#555" stroke-dasharray="4 3"/>')
+    for v in vlines:
+        if v > 0 or not logx:
+            o.append(f'<line x1="{px(v):.1f}" x2="{px(v):.1f}" y1="{T}" y2="{H-B}" stroke="#555" stroke-dasharray="4 3"/>')
     for j, (n, xs, ys) in enumerate(series):
         c = COLS[j % len(COLS)]
         pts = [(px(x), py(y)) for x, y in zip(xs, ys) if y > 0 or not logy]
