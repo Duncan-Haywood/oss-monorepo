@@ -1,5 +1,21 @@
 # buildbot-sheathing research log
 
+## 2026-11-14 · Milestone 18 planned: does the hold-down's shear path stop Weiss's decayed wall sliding, and what joint strength fits then?
+
+Written before any milestone-18 capacity was computed. Inputs: milestone 17's wall (`wall_lp.Wall`, Weiss's 8 by 8 ft wall), its NDS joint ratio (1.297 F per 16d end nail) and its post hoc fit (0.47 times that ratio).
+
+- **Why.** Milestone 17's fit has the decayed wall slide on its sill: every stud's end nails shear and nothing else moves. But in Weiss's set-up (Ch. 4.3.3–4.3.4) each double end stud is nailed to an HTT4 hold-down whose 5/8 in anchor rod passes through the sill into the steel test beam, so the end studs cannot slide along the sill without bending that rod and crushing the sill around it. Milestone 17 modelled the hold-downs as vertical ties only and left this "real load path" out, and its fit matched Weiss's spacing finding but not her reported failure (sheathing nails pulling out along the double end studs). This step adds it.
+- **Model change.** `Wall.capacity(..., hd_shear=s)`: at each held-down stud bottom the lateral joint carries s F on top of its end nails (rigid-plastic; `s=inf`: no slide at all). `s=0` is milestone 17's model.
+- **Sourced scale for s.** The NDS yield-limit (dowel) equations for a 5/8 in rod (F_yb 45,000 psi) bearing parallel to grain in a 1.5 in DF-L sill (G 0.50) with a steel side member (the beam flange or the HTT4 seat), single shear, R_d for D > 1/4 in. A design value, so the tested ultimate is larger by an unknown factor: reported as 1 to 5 times Z, swept rather than picked, and converted to F with milestone 17's implied 238–246 lb per sheathing nail.
+- **H81 (code check).** `hd_shear=0` reproduces milestone 17's registered capacities (intact and decayed, both schedules, NDS joints) to 1e-9 relative; capacity never falls as s rises; `s=inf` gives the same capacity as s set above the frame's total nail capacity. Refuted otherwise (a bug).
+- **H82 (the shear path alone).** At NDS-ratio joints with a rigid shear path, the decayed walls keep 47–67% (6-12) and 24–44% (3-12). Expected refuted: adding a load path cannot lower a decayed capacity, and milestone 17 already kept 79.5% and 63.4%.
+- **H83 (one joint strength still fits).** With a rigid shear path, some single multiple of the NDS joint ratio in 0.05–1.50 fits both tested shares (56.5%, 33.9%) to an rms of at most 5 points.
+- **H84 (the schedule matters again).** At H83's best fit, decay 3-12 over decay 6-12 lies in 1.02–1.25 (tested 1.12; milestone 17's fit gave 1.00).
+- **H85 (where it fails).** At H83's best fit, the decayed 6-12 wall's mechanism spends at least half its sheathing-nail dissipation in nails on the two double end studs (Weiss's reported failure line).
+- **H86 (the real rod locks the slide).** The shear capacity at which, at 0.47 times the NDS ratio, the decayed 6-12 wall stops sliding as a whole (the end studs' slide falls below half the top plate's) is at most the NDS design value Z of the anchor-rod path, in F.
+- **Also reported, not scored:** the share kept and decay ratio over s (0, 1, 2, 4, 8, 16 F and rigid) times the joint multiple (0.05–1.50); the mechanism at each fit; the tested per-wall spread (Table 5-1) beside the fit; escaped misses (milestone 17's H80) rerun at the new fit on a 2,000-wall subsample.
+- **Limits known in advance.** As milestone 17: rigid-plastic, monotonic, rigid studs, cyclic tests of two or three walls a group. The rod's shear path is a dowel design equation, not a tested ultimate; the steel side member's thickness is not given in the thesis text we read, so the steel's bearing is taken as not governing (checked by sweeping its thickness).
+
 ## 2026-11-14 · Milestone 17 result: Weiss's own wall at code-strength joints still keeps 80%; with end nails at about half the NDS ratio the decayed wall slides on its sill and matches both tested groups
 
 `experiments/m17_weiss_wall/` (run.py, results.txt, results.json, figure.py, figure.png); `src/buildbot_sheathing/wall_lp.py` (milestone 15's limit analysis for a wall of several sheets on shared studs); `tests/test_wall_lp.py` (5 tests). About 5 min on four CPUs (about 9,300 LPs).
