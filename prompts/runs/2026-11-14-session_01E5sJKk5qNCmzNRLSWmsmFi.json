@@ -1,0 +1,198 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKk5qNCmzNRLSWmsmFi",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T10:19:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam campaign (random draw: ventures/stripe-churn-cohort-analyzer/cli.mjs), purple-team fix of the class found",
+  "projects": [
+    "stripe-churn-cohort-analyzer",
+    "platform/ci",
+    "ventures (310 CLI files)"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15819",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all 11 open entries are control-plane edits that already have their own PRs awaiting owner approval (#14612, #14877, #14698, #15248, #15561, #15728...). `redteam.py open` could name the PR that holds each fix so a run doesn't have to cross-check the open PR list by hand."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun reports 'line changed' after a class-wide codemod rewrites the mutated line; the prompt covers that (triage by hand), which worked, but a sweep that moves the target's own lines is the expected outcome of step 4, so rerun-before-sweep could be stated as the order."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 fixes skipped: every open entry needs a control-plane edit that another session already has in an open PR waiting on owner approval; duplicating them would add more PRs to the same queue.",
+      "did": "Listed the existing PRs in the PR body and moved to seeding.",
+      "result": "No duplicate control-plane PRs; the run's time went to the new defect class."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-space-in-the-folder-name-turned-310-command-line-tools-off.md"
+  ],
+  "goal": "Measure the stripe-churn CLI's catch rate, and fix and guard what the hunt finds.",
+  "notes": "Guard added: platform/ci/check_cli_entry.py + test_check_cli_entry.py (picked up by unwired_checks.py on venture PRs; ~0.9 s). First run: 311 fragile entry guards on main, 0 after the codemod. Codemod: 310 files to pathToFileURL(process.argv[1]).href, import merged into an existing node:url import where present; 3 browser-shared modules (typeof process guard) use await import('node:url'). Verification: node --check on all 310 changed files; the test suites of all 212 changed ventures via run_venture_tests.py --no-elsewhere (result below); platform/ci test_check_comma_input + test_check_locale_drift (10 pass), platform/pages clauses/faq-duplicate/siblings/storage-guard/surface-budget/typecheck (89 pass), platform/privacy inline-signals (26 pass); stripe-churn cli.test.mjs 13 pass, and the 2 defect tests fail on main's cli.mjs. Smoke: social-preview-check under 'My Projects #2' prints usage; security-headers-check there exits 1 on a dead URL. Not covered: a symlinked script (Node realpaths import.meta.url, not argv[1]); none of these CLIs is installed via an npm bin link today.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+        "test": "node --test ventures/stripe-churn-cohort-analyzer/**/*.test.mjs  (in .)",
+        "seed": 926403754,
+        "commit": "99d8ceaa4",
+        "sites": 73,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 45,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "else if (arg === \"--cohorts\") opts.cohorts = true;",
+            "after": "else if (arg !== \"--cohorts\") opts.cohorts = true;",
+            "line_text": "    else if (arg === \"--cohorts\") opts.cohorts = true;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 50,
+            "col": 35,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a non-negative number`);",
+            "after": "if (!Number.isFinite(v) || v <= 0) throw new Error(`${arg} needs a non-negative number`);",
+            "line_text": "      if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a non-negative number`);",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "--max-churn 0 / --what-if 0 were untested; test: zero is a valid --max-churn and --what-if"
+          },
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 65,
+            "col": 65,
+            "operator": "times-to-div",
+            "before": "const over = opts.maxChurn != null && result.summary.logoChurn * 100 > opts.maxChurn;",
+            "after": "const over = opts.maxChurn != null && result.summary.logoChurn / 100 > opts.maxChurn;",
+            "line_text": "  const over = opts.maxChurn != null && result.summary.logoChurn * 100 > opts.maxChurn;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 65,
+            "col": 71,
+            "operator": "gt-to-ge",
+            "before": "const over = opts.maxChurn != null && result.summary.logoChurn * 100 > opts.maxChurn;",
+            "after": "const over = opts.maxChurn != null && result.summary.logoChurn * 100 >= opts.maxChurn;",
+            "line_text": "  const over = opts.maxChurn != null && result.summary.logoChurn * 100 > opts.maxChurn;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "churn exactly at the limit was untested; test: churn exactly at --max-churn does not exceed it"
+          },
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 86,
+            "col": 144,
+            "operator": "times-to-div",
+            "before": "for (const c of result.cohorts) out.push(`${c.key}  n=${String(c.size).padStart(3)}  ` + c.logo.slice(0, 12).map((x) => String(Math.round(x * 100)).padStart(3)).join(\" \"));",
+            "after": "for (const c of result.cohorts) out.push(`${c.key}  n=${String(c.size).padStart(3)}  ` + c.logo.slice(0, 12).map((x) => String(Math.round(x / 100)).padStart(3)).join(\" \"));",
+            "line_text": "    for (const c of result.cohorts) out.push(`${c.key}  n=${String(c.size).padStart(3)}  ` + c.logo.slice(0, 12).map((x) => String(Math.round(x * 100)).padStart(3)).join(\" \"));",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "cohort cells were only checked for the heading; test compares every cell with result.cohorts"
+          },
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 90,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "for (const k of skipped.slice(0, 10)) out.push(`  line ${k.line}: ${k.reason}`);",
+            "after": "for (const k of skipped.slice(1, 10)) out.push(`  line ${k.line}: ${k.reason}`);",
+            "line_text": "    for (const k of skipped.slice(0, 10)) out.push(`  line ${k.line}: ${k.reason}`);",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "only the count of skipped rows was unchecked; test: skipped rows are listed from the first"
+          },
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 118,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": "catch (e) { console.error(`cannot read ${opts.file}: ${e.message}`); return 2; }",
+            "after": "catch (e) { console.error(`cannot read ${opts.file}: ${e.message}`); return 3; }",
+            "line_text": "  catch (e) { console.error(`cannot read ${opts.file}: ${e.message}`); return 2; }",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+            "line": 127,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {",
+            "after": "if (process.argv[2] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {",
+            "line_text": "if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "`node cli.mjs` with no args was untested (mutant made it a silent exit 0); test: with no arguments the executable prints usage and exits 2 [rerun: line changed; triage by hand]. Re-applied by hand at the rewritten line 130 (process.argv[1] && -> process.argv[2] &&): the no-arguments test fails, so caught."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/stripe-churn-cohort-analyzer/cli.mjs",
+        "issue": "--max-churn, --what-if and --months read an empty value as 0 (Number(\"\") === 0), so `--max-churn \"$LIMIT\"` with LIMIT unset set a 0% limit and failed every cron run. Now rejected as not a number; failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/*/ (310 files)",
+        "issue": "The 'run main when this is the entry script' check compared import.meta.url with a hand-built file:// string (`file://${process.argv[1]}`, 250 guards; new URL(`file://...`) and new URL(argv[1], 'file://'), 61 more; 311 guards in 310 files). import.meta.url is percent-encoded, so from a folder with a space (the template form), '#' or '%' in its name, or any Windows path, the CLI printed nothing and exited 0: `--help` was silent and a CI gate such as --max-churn or a security check's exit 1 always passed. Reproduced with social-preview-check copied under 'My Projects' and stripe-churn under 'a#b'. Fixed in all 310 by a codemod to pathToFileURL(process.argv[1]).href (lazy await import('node:url') in the 3 browser-loaded modules); new lint platform/ci/check_cli_entry.py fails on the fragile forms.",
+        "patched": true
+      }
+    ]
+  }
+}
