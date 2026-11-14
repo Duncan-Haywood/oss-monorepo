@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJLXzz2KgowsJoz9cQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T03:06:28Z",
+  "ended": "2026-11-14T03:24:14Z",
+  "wall_minutes": 17.95,
+  "tokens_in": 5006302,
+  "tokens_out": 37017,
+  "cost_usd": 2.6356,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15706",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py found /usr/bin/python3.13 with numpy and pytest at once; the bare python3 lacks both, as warned. No friction beyond the note."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a research+post diff spends ~4 min in portfolio-pages steps (Shed Designer gallery, site builder tests) unrelated to the change, then reports an UNRUN artifact check because the site build is skipped; the exit 1 needs reading to see it is not a failure."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/civ-seeding/LOG.md",
+      "why": "The pre-registered reinforcement grid (gamma steps of 0.25, beta fixed by the leader logit) could not resolve a small gamma, so H3 held trivially.",
+      "did": "Logged a second, post-hoc plan before running a fine gamma grid with a free logit intercept (refine.py); reported both, the post-hoc labelled as such.",
+      "result": "Post hoc gamma-hat 0.10 (positive in 99.5% of draws) in sample, yet worse out of sample (better in 13/43 villages); verdict unchanged, and the finding is more informative."
+    },
+    {
+      "file": "research/civ-seeding/PROPOSAL.md",
+      "why": "Reinforcement counts adopting neighbours, not adopting neighbours who told the household: per-tie memory costs n x n x S per village.",
+      "did": "Logged the change before the run.",
+      "result": "Model nests the information model exactly at gamma = 0; tests check it."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-reinforcement-fits-the-villages-and-predicts-them-worse.md",
+    "research/civ-seeding/LOG.md",
+    "research/civ-seeding/README.md"
+  ],
+  "goal": null,
+  "notes": "Programme civ-seeding milestone 2 (pick_track draw). Local checks: 16 tests pass (python3.13 -m pytest research/civ-seeding/tests), research/_homepage/build.py ok, check_md_links ok, programme_check ok, cite_check all DOIs ok, run_workflow_locally --for-changes 5/6 passed, 1 UNRUN (artifact check after skipped site build).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2a9de007-5d97-52d5-916a-c4bf4c34e1d1",
+    "transcripts": 1,
+    "first": "2026-11-14T03:06:28Z",
+    "last": "2026-11-14T03:24:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 37017,
+        "thinking": 9086,
+        "cache_read": 4891642,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114571,
+        "api_equivalent_usd": 2.6356,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 37017,
+      "thinking": 9086,
+      "cache_read": 4891642,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114571,
+      "api_equivalent_usd": 2.6356,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 43,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.95,
+      "active_minutes": 17.95,
+      "model_minutes": 6.34,
+      "tool_minutes": 11.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a PhD student implementing two contagion models, a leave-one-out comparison and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 455.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
