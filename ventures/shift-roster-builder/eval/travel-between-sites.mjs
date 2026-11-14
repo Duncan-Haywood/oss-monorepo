@@ -55,7 +55,7 @@ function hops(r) {
   return out;
 }
 
-const TS = [0, 15, 30, 45, 60];
+const TS = [0, 30, 45, 60];
 const N = Number(process.argv[3] || 10);
 const SEEDS = Number(process.argv[2] || 30);
 const BASE = { exact: "auto", seed: 1, minRestHours: 0, maxDailyHours: 10 };
