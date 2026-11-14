@@ -235,11 +235,14 @@ flagships:
       them) and a 16-bit fixed-point output check; CR2s with no lens name are
       matched by the maker note's focal range and aperture since 2026-11-14
       (eval/canon-lens-from-range-2026-11-14.md: one lens in 38% of lensfun's
-      Canon-mount cases, the rest refused as ties); next: the same fields from
-      Nikon's LensData or Sony's maker note; the whole numpy develop runs in
-      threaded bands and packed raws unpack in numpy since 2026-11-13
-      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
-      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
+      Canon-mount cases, the rest refused as ties); any maker's LensSpecification,
+      DNG LensInfo and Nikon's maker-note lens tag are matched the same way, both
+      f-numbers, since 2026-11-14 (eval/lens-specification-2026-11-14.md: 50% of
+      lensfun's ranged lenses alone); next: Olympus's Equipment IFD (ORF magic) and
+      Pentax lens numbers; the whole numpy develop runs in threaded bands and packed
+      raws unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md:
+      same bytes at every thread count and band height); lossless-JPEG DNG tiles
+      decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
       of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
       2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit

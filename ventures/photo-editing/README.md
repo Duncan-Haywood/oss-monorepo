@@ -1803,6 +1803,22 @@ are ties, mostly versions of one lens (IS, IS II). The true lens is never droppe
 alone in lensfun, so a lens lensfun lacks can be taken for one it has with the same range; the note
 names the lens it used. Details: `eval/canon-lens-from-range-2026-11-14.md`.
 
+### Any maker: lenses found from LensSpecification, DNG LensInfo or Nikon's maker note (2026-11-14)
+
+The same idea now works beyond Canon. Most bodies since EXIF 2.3 write the lens's focal range and its
+widest f-number at each end in one standard tag, LensSpecification; DNG files carry the same four values as
+LensInfo, and older Nikon bodies keep them in their maker note (tag 0x0084, read on seven real NEFs, D70 to
+D810). When a file names no lens, ShootFlow matches those values against lensfun's names on the body's
+mount, both f-numbers this time, so an f/4 zoom is no longer confused with an f/3.5-5.6 one of the same
+range. One fit: corrected, with a note naming the tag. Several: refused, the candidates listed. The tag is
+not used for a camera lensfun does not know (no mount to narrow the search) or for a fixed-lens camera
+(its own entry wins).
+
+On real Sony and Samsung files that also name their lens, the tag alone picked the same lens 3 times out
+of 6 and refused the other 3; it never picked a different one. Across lensfun's 1,119 lenses whose names
+state a range, the four values pick one lens in 50.0% of cases (one f-number, as Canon gives: 46.6%).
+Details: `eval/lens-specification-2026-11-14.md`.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its
