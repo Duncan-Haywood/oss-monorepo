@@ -34,7 +34,8 @@
   "errors": [
     "Ran three tesseract processes at once on 4 cores (a debug read alongside the benchmark); OpenMP oversubscription slowed each page from ~5 s to over 6 min. Killed them and ran OCR one at a time after that.",
     "The first benchmark table compared different images: ImageMagick +noise was unseeded, and the generator printed negative balances without a minus. Seeded it, fixed it, and dropped that comparison from the README.",
-    "An early repair rule 'fixed' a correct first row against an opening balance the reader had mis-taken from a one-line 'Beginning ... Ending ...' summary. Fixed the reader, and the first row is no longer repaired against the opening alone."
+    "An early repair rule 'fixed' a correct first row against an opening balance the reader had mis-taken from a one-line 'Beginning ... Ending ...' summary. Fixed the reader, and the first row is no longer repaired against the opening alone.",
+    "The real-scan unit test was flaky: it used unseeded ImageMagick noise, and OCR of a tight-leading ImageMagick image dropped a row. It now uses a seeded image and asserts the property that matters (the reading is right, or the balance checks flag it)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -60,7 +61,7 @@
     "ventures/ai-bookkeeper/README.md (Scanned statements)"
   ],
   "goal": null,
-  "notes": "Verification: run_venture_tests.py ai-bookkeeper ok (38.8s); eval/pasted-roundtrip.mjs 1094 rows 0 wrong; eval/scanned-statements.mjs --n 40 (seed 7, tesseract 5.3.4) gave 694/703 rows and 36/40 perfect with repair and a second reading, vs 691 and 32 with one reading and no repair, on the same images; CLI import of a scanned PDF checked by hand (a page misread by --psm 6 was recovered by the --psm 4 reading). tesseract-ocr was installed with apt in the session. No agent doc in docs/reports: the README section carries what the next run needs.",
+  "notes": "Verification: run_venture_tests.py ai-bookkeeper ok (38.8s); eval/pasted-roundtrip.mjs 1094 rows 0 wrong; eval/scanned-statements.mjs --n 40 (seed 7, tesseract 5.3.4) gave 694/703 rows and 36/40 perfect with repair and a second reading, vs 691 and 32 with one reading and no repair, on the same images; CLI import of a scanned PDF checked by hand (a page misread by --psm 6 was recovered by the --psm 4 reading). tesseract-ocr was installed with apt in the session. No agent doc in docs/reports: the README section carries what the next run needs. GitHub showed no check runs on the PR, so verification is local: venture-preflight.mjs ai-bookkeeper clean; run_workflow_locally ventures-tests.yml 5/5 run steps passed (3 uses: steps not run); conflict-markers-ci, portfolio-validate and prompts-ci passed; check_md_links, check_code_refs, venture_live_links, readme_titles and control_plane_guard --check-coverage all exit 0; check_post_frontmatter ok. The agent-cross-review and portfolio-pages deploy jobs were not run locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
