@@ -67,6 +67,24 @@ class ResearchPublishTest(unittest.TestCase):
         index = [n for n in graph((self.out / "index.html").read_text()) if n.get("@type") == "CollectionPage"][0]
         self.assertEqual(index["mainEntity"]["numberOfItems"], len(topics))
 
+    def test_dependency_tile_is_measured_not_typed(self):
+        # The tile said "0 runtime dependencies" while 462 of 1,080 projects imported numpy,
+        # matplotlib, scipy or others (2026-11-14). It must now be a count the build measured.
+        html = (self.out / "index.html").read_text()
+        m = re.search(r'<div class="stat"><b>([\d,]+)</b><span>need only the Python standard library</span>', html)
+        self.assertIsNotNone(m)
+        stdlib = int(m.group(1).replace(",", ""))
+        self.assertGreater(stdlib, 0)
+        self.assertLess(stdlib, len(self.projects))
+        self.assertNotIn("runtime dependencies", html)
+        sys.path.insert(0, str(BUILD.parent))
+        try:
+            import build
+        finally:
+            sys.path.pop(0)
+        self.assertIn("numpy", build.third_party_imports("cell-fidelity"))
+        self.assertNotIn("linefig", build.third_party_imports("workcell-twin"))
+
     def test_no_page_requests_fonts_from_a_third_party(self):
         for page in self.out.rglob("index.html"):
             self.assertNotIn("fonts.googleapis.com", page.read_text(), page)

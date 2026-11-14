@@ -46,6 +46,37 @@ def test_count(slug):
     )
 
 
+# A module counts as the project's own when any file or directory under research/ carries its
+# name (each project's src/ packages, research/_shared helpers such as linefig). Anything else
+# outside the standard library is a third-party package. Imports are read from every .py file
+# outside tests/, including optional ones inside try blocks, so the count of projects needing
+# none is a lower bound. It replaced a hard-coded "0 runtime dependencies" tile (2026-11-14).
+IMPORT_RE = re.compile(r"^\s*(?:from\s+([A-Za-z_]\w*)[\w.]*\s+import|import\s+([A-Za-z_][\w., ]*))", re.M)
+_OWN = None
+
+
+def own_modules():
+    global _OWN
+    if _OWN is None:
+        _OWN = ({f.stem for f in RESEARCH.rglob("*.py")}
+                | {d.name for d in RESEARCH.rglob("*") if d.is_dir()})
+    return _OWN
+
+
+def third_party_imports(slug):
+    std = set(sys.stdlib_module_names) | {"__future__"}
+    found = set()
+    root = RESEARCH / slug
+    for f in root.rglob("*.py"):
+        parts = f.relative_to(root).parts
+        if "tests" in parts or "__pycache__" in parts:
+            continue
+        for a, b in IMPORT_RE.findall(f.read_text(errors="ignore")):
+            names = [a] if a else [n.strip().split(" ")[0].split(".")[0] for n in b.split(",")]
+            found.update(n for n in names if n and n not in std)
+    return found - own_modules()
+
+
 def plain(s):
     return html.unescape(re.sub(r"<[^>]+>", " ", s))
 
@@ -651,6 +682,7 @@ def build(out, base_url=None, chrome=None):
         "FONTS": font_faces(""),
         "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "LOGS": log_section, "SECTIONS": sections,
         "PROJECT_COUNT": f"{len(by_slug):,}", "TEST_COUNT": f"{sum(tests.values()):,}",
+        "STDLIB_COUNT": f"{sum(1 for s in by_slug if not third_party_imports(s)):,}",
         "THEME_COUNT": str(len(data["themes"])), "SOCIAL_META": social_meta(base_url), "REPO_URL": REPO_URL, "REPO": REPO,
     }.items():
         page = page.replace("{{" + key + "}}", val)
