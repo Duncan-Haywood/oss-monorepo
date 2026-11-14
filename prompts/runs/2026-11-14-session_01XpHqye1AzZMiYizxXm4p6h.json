@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqye1AzZMiYizxXm4p6h",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T22:38:51Z",
+  "ended": "2026-11-14T22:49:33Z",
+  "wall_minutes": 11.31,
+  "tokens_in": 13318939,
+  "tokens_out": 59453,
+  "cost_usd": 5.3716,
+  "tool_calls": 93,
+  "task": "einvoice-preflight flagship: HRFISK20Data in the creator (allocate.py row 3)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16004",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: sat at 1995/2000 chars; landing one item meant cutting an unrelated history phrase to fit the cap."
+    },
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "the Croatia section said real Croatian invoices were unavailable; the authority's own 8 samples were one gh search/code away (shunkica/fiskalizacija2 docs/Primjeri_eRacuna)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/einvoice-preflight (sample files)",
+      "why": "did not commit the Porezna uprava sample XMLs (third-party mirror, licence not stated there)",
+      "did": "eval script plus note naming the source and how to fetch them",
+      "result": "reproducible without redistributing the files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-einvoice-croatia-tax-office-samples-fail-own-rules.md",
+    "ventures/einvoice-preflight/eval/hr-official-samples-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Creator hr profile writes HR-CIUS 2025 UBL with HRFISK20Data on exempt lines; generated S/S+E/E/Z/AE/13%/K/credit files pass plain route and Saxon on the authority XSLT with no EN fatal. Authority's 8 samples: plain vs Saxon agree 16/16. Found and fixed creator bugs in every profile: O invoices (BR-O-02/05) and K invoices (BR-IC-11/12). create.html line table no longer widens the page on phones (567px -> 390px at 390). Verification: run_venture_tests.py einvoice-preflight exit 0; generate-hr.test.mjs 7/7; Playwright on create.html HR example: created, no findings, no console errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "01770da2-4a4e-5aa9-8568-c7191ec0d8f4",
+    "transcripts": 1,
+    "first": "2026-11-14T22:38:51Z",
+    "last": "2026-11-14T22:50:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 175,
+        "output": 59453,
+        "thinking": 11386,
+        "cache_read": 13124134,
+        "cache_write_5m": 0,
+        "cache_write_1h": 194630,
+        "api_equivalent_usd": 5.3716,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 175,
+      "output": 59453,
+      "thinking": 11386,
+      "cache_read": 13124134,
+      "cache_write_5m": 0,
+      "cache_write_1h": 194630,
+      "api_equivalent_usd": 5.3716,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 86,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.31,
+      "active_minutes": 11.31,
+      "model_minutes": 9.01,
+      "tool_minutes": 2.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior dev: HR-CIUS profile in an invoice generator, XSD-ordered extension, differential test vs authority XSLT, two EN rule fixes, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 223.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

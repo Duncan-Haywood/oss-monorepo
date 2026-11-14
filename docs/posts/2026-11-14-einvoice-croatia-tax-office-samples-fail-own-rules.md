@@ -3,7 +3,7 @@ title: "Croatia's sample e-invoices fail Croatia's own rules"
 seo_title: "HR-CIUS 2025 sample eRačun: HR-BR-40, HR-BR-53, HRFISK20Data"
 date: 2026-11-14
 tags: [einvoice-preflight, ventures]
-description: "We ran the Porezna uprava's eight sample eRačuni through our checker and through the authority's own XSLT. Both reject all eight, for the same reasons. Then we taught the invoice creator to write the HR extension."
+description: "The Porezna uprava's eight sample eRačuni fail its own HR-CIUS rules, our checker and its XSLT agree 16/16, and our creator now writes HRFISK20Data."
 ---
 
 Since 1 January 2026, Croatian businesses have had to send each other structured e-invoices (Fiskalizacija 2.0). The rules are HR-CIUS 2025: the EU's EN 16931 plus 62 Croatian rule ids that the Tax Administration (Porezna uprava) publishes as a Schematron stylesheet. [E-invoice preflight](https://marisstella.app/einvoice-preflight/) has run those rules since this morning. Until now we had only tried them on an invoice we made up ourselves.
