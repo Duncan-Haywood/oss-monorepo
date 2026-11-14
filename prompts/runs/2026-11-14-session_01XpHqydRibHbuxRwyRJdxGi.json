@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydRibHbuxRwyRJdxGi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T20:53:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship (allocate.py row 8): the elevation pot wires' pickup from the actuator's PWM in the shared lead",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15973",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first firmware fix stopped the drive on a lost pot reading, which reset the stall timer every other tick so a jammed actuator never faulted (no capacitor, readings locked to a PWM edge)",
+      "fix": "found by the new tests/pot_pickup_sweep.py before commit; lost ticks now hold the last duty and count toward the stall time; regression test added"
+    },
+    {
+      "what": "first jam test ran at full duty, where sign-magnitude PWM has no edges, so it could not show pickup",
+      "fix": "jam moved 3 mm short of the goal, where the loop runs at min duty"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "cad/README.md (open-tennis-robots), 'The elevation actuator's lead'",
+      "issue": "suggested 'twist the motor pair' against the pot's PWM noise; with sign-magnitude drive only one wire toggles, so twisting does not cancel the electric field at the wiper"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "says a bare python3 often lacks pytest; platform/ci/pyenv.py installed it to /usr/bin/python3.13 in about a minute, worked as documented"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-tennis-feeder-pot-reads-its-own-motor.md",
+    "ventures/open-tennis-robots/cad/README.md section 'The pot's pickup from the motor pair'"
+  ],
+  "goal": null,
+  "notes": "Model: closed-form steady-state RC node error per PWM edge (checked against edge-by-edge stepping). No cap: 11 V steps, 8% of readings at rail; 100 nF: 0.55 mm; 1 uF: 0.055 mm, lag 0.054 mm; 220 nF to 2.3 uF passes at defaults. Firmware: 8 reads trimmed mean, lost_ticks=3. Verification: ventures/open-tennis-robots tests/ 103 passed (python3.13 pytest); cad/tests 66 passed 50 skipped without build123d (full run pending); node --test 21 passed. No agent doc in docs/reports: the cad README section and flagships next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}
