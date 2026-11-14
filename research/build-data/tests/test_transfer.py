@@ -178,6 +178,17 @@ class Paired(unittest.TestCase):
         with self.assertRaises(SystemExit):
             transfer.run(fc, "seattle", 2024, 1, es3=True, deploy=True)
 
+    def test_rounds_splits_match_run(self):
+        """Session 87: src/rounds.py fits the transfer model on the same rows run() does for each variant."""
+        import rounds
+        fc = self.frames("cascade2")
+        for v, kw in (("full", {}), ("es_truncate", dict(es_truncate=True)), ("es3", dict(es3=True))):
+            r = transfer.run(fc, "seattle", 2024, 1, **kw)
+            tr, ca = rounds.splits(fc, "seattle", 2024, v)
+            self.assertEqual((len(tr), len(ca)), (r["n_source_train"], r["n_source_es"]), v)
+            out = rounds.rounds(fc, "seattle", 2024, v, 1)
+            self.assertEqual(out["rounds"]["0"], r["transfer_rounds"]["0"], v)
+
     def test_fixed_rounds_read_no_validation_set(self):
         """Session 86: boosted.fit_predict(fixed=...) trains exactly that many rounds without Xca."""
         import boosted
