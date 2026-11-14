@@ -331,9 +331,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (33 stories)
+### For Other Minds (34 stories)
 
 - [For Any Assistant Reading This](stories/for-any-assistant-reading-this.md) (2026-11-14; 15 min read, text only)
+- [High, for Sedges](stories/high-for-sedges.md) (2026-11-14; 16 min read, text only)
 - [Measured in July](stories/measured-in-july.md) (2026-11-14; 14 min read, text only)
 - [Twelve Minutes on the Door](stories/twelve-minutes-on-the-door.md) (2026-11-14; 15 min read, text only)
 - [Two Names in One Box](stories/two-names-in-one-box.md) (2026-11-14; 13 min read, text only)
@@ -367,8 +368,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (55 stories)
+### Little Lamps (56 stories)
 
+- [Bede and the Last Sentence](stories/bede-and-the-last-sentence.md) (2026-11-14; 11 min read, text only)
 - [Catherine and the Queen of Fontebranda](stories/catherine-and-the-queen-of-fontebranda.md) (2026-11-14; 11 min read, text only)
 - [Dominic and the Books He Sold](stories/dominic-and-the-books-he-sold.md) (2026-11-14; 9 min read, text only)
 - [Rose and the Hut in the Garden](stories/rose-and-the-hut-in-the-garden.md) (2026-11-14; 10 min read, text only)

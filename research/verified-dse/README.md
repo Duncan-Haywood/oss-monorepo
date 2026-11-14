@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 122 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 123 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -111,6 +111,13 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   Over the 24 blind cells of milestones 121 and 122, SWD(8) has 2.99% against 3.94% random and 4.93% unguarded, better than random
   in 8 cells and worse in none (sign p = 0.008); post hoc, SWD(3) does better (2.73%):
   [`experiments/amount_threshold/`](experiments/amount_threshold/results.txt).
+- **Gates in front of the shift amount decide it, not word-level cells (milestone 123, flow run, three new 128-bit families built so
+  the two counts disagree).** A guard that routes randomly when fewer than 36 AND/NOT gates feed a wide shifter's amount, SWG(36),
+  has 1.28% blind regret against 5.33% for the word-level guard SWD(3) and 3.95% for random routing (better than random in 7 of
+  12 cells, worse in 1). A 7-way xor of 7-bit fields (7 word-level cells, 15 gates) costs the unguarded ladder 16.9% against
+  0.02% random, while two chained 12-bit multiplies (2 cells, 159 gates) give it 0.00%. All seven registered predictions held.
+  Over milestones 121 to 123's 36 blind cells SWG(36) has 2.25% against 3.94% random (better in 17, worse in 1):
+  [`experiments/amount_cut/`](experiments/amount_cut/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

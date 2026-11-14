@@ -70,7 +70,12 @@ word-level cells deep and reaches 0.00\% in all 10 that are 4 or more
 deep. A guard that routes randomly on wide shifters with an amount under
 8 cells deep is better than random routing in 8 of 24 blind cells and
 worse in none (sign p = 0.008; interval -2.04 to -0.14 points); the data
-place the cut between depth 2 and 4, a post-hoc reading.
+place the cut between depth 2 and 4, a post-hoc reading. A fifth blind
+test builds shifters where word-level cells and gates disagree. Counting
+gates wins: a guard that routes randomly when fewer than 36 AND/NOT
+gates feed the amount has 1.28\% regret on 12 blind cells against 5.33\%
+for a word-level guard and 3.95\% for random routing, and 2.25\% against
+3.94\% random over 36 blind cells (better in 17, worse in 1).
 \end{abstract}
 \textbf{Draft for MLCAD (6 pages when typeset); not submitted.}
 Programme \texttt{verified-dse}, milestone 7. Written with AI assistance
@@ -1006,6 +1011,30 @@ see operand width, so the chain's depth 4 (7-bit xors and adds) and the
 alignment step's depth 2 (8-bit subtract, compare, select) may be closer
 in gate levels than the counts suggest.
 
+\textbf{Gates, not word-level cells (milestone 123; flow run).}
+Word-level depth counts an 8-bit subtract and a 1-bit increment alike.
+We measured the amount's cone in two-input AND and NOT gates
+(\texttt{experiments/\allowbreak{}amount\_\allowbreak{}cut/\allowbreak{}gate\_\allowbreak{}depth.py}: cut the coarse netlist
+to the shift amount, map with \texttt{abc\ -g\ AND}, take the longest
+path). On the seen ladder-branch shifters the ladder loses at gate depth
+0 and 27 to 30 and wins from 41 up, so a gate threshold of 36 (the
+midpoint) and SWD(3) split the seen cells identically. We fixed both and
+seven predictions, then ran six 128-bit shifters from three new families
+built so the counts disagree (1,440 flow runs): the top bits of a
+three-term 32-bit sum and of two chained 12-bit multiplies (word depth
+2, 118 and 159 gates), a 4- and an 8-way xor of 7-bit fields (word depth
+3 and 7, 7 and 15 gates), and two controls at word depth 3 with 43 and
+166 gates. All seven predictions held. The gate guard has 1.28\% blind
+regret against 5.33\% for SWD(3) and 3.95\% for random routing, better
+than random in 7 cells and worse in 1 (sign p = 0.070). The 8-way xor
+costs the unguarded ladder 16.9\% against 0.02\% for random routing; the
+multiply chain gives it 0.00\% against 3.3\% to 10.3\%. Over the 36
+blind cells of milestones 121 to 123 the gate guard has 2.25\% against
+3.94\% for random routing (better in 17 cells, worse in 1;
+design-bootstrap interval -3.01 to -0.59 points). The threshold is
+placed only within (30, 41{]}, and one cell (the 32-bit sum, tight
+clock) goes against it.
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1105,15 +1134,12 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  Where the amount-depth cut lies. Milestones 121 and 122 put it between
-  word-level depth 2 (the ladder loses on all 4 ladder-branch cells at
-  depth 1 and 2) and 4 (it reaches 0.00\% on all 10 at depth 4 to 127),
-  but only post hoc and with a word-level count that does not see
-  operand width. A blind test needs designs at depth 3, a 2-cell amount
-  built from wide operators and a 5-cell one from narrow ones, with a
-  gate-level depth computed alongside, and families whose cost ratio
-  puts them on the ladder branch (half of milestone 122's cells sat
-  below it).
+  Where the gate-depth cut lies. Milestone 123 showed that gates in
+  front of the shift amount, not word-level cells, separate the shifters
+  the ladder ranks from those it does not (all seven predictions held),
+  with a threshold chosen as the midpoint of (30, 41{]} on seen data. A
+  blind test should place it with amounts of about 30 to 45 gates from
+  several families and check whether it scales with shift width.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point

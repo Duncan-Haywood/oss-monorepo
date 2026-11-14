@@ -107,7 +107,8 @@ export function parseWhen(v, dmy = false) {
   let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    // Two- or four-digit years only: "1/2/123" is a typo, not the year 123.
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -318,7 +319,7 @@ export function analyze(orders, opts = {}) {
   if (foodPct < 0 || foodPct >= 100) return { invalid: "Food cost % must be at least 0 and under 100." };
   if (packaging < 0) return { invalid: "Packaging cost must be zero or more." };
   if (markupNow < 0) return { invalid: "Current markup must be zero or more." };
-  if (directPct < 0 || directPct >= 1 || directFlat < 0) return { invalid: "Direct-order fee must be a percentage under 100 and a flat amount of zero or more." };
+  if (!(directPct >= 0 && directPct < 1) || !(directFlat >= 0) || !Number.isFinite(directFlat)) return { invalid: "Direct-order fee must be a percentage under 100 and a flat amount of zero or more." };
   const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));
   if (!inRange.length) return { invalid: "No orders fall inside that date range." };
   let dropped = 0;

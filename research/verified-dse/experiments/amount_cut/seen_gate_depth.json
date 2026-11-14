@@ -1,0 +1,346 @@
+{
+ "adder_op16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "adder_op32": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "adder_op64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "adder_ripple16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "adder_ripple64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "addsh128": {
+  "amount_gate_depth": 27,
+  "amount_gates": 47
+ },
+ "addsh64": {
+  "amount_gate_depth": 23,
+  "amount_gates": 40
+ },
+ "alignsh128": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "alignsh64": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "alu32": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "alu8": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "barrel128": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "barrel16": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "barrel192": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "barrel256": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "barrel32": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "barrel64": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "barrel96": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "bcastadd64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "bcastmix192": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "chainsh2": {
+  "amount_gate_depth": 41,
+  "amount_gates": 144
+ },
+ "chainsh8": {
+  "amount_gate_depth": 104,
+  "amount_gates": 497
+ },
+ "cmp128": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "cmp_sat12": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "cordic12x16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "cordic8x16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "crc16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "crc32": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "decmux64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "fanao96": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "fifo8x4": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "fir8x12": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "fir8x16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "fpalign128": {
+  "amount_gate_depth": 30,
+  "amount_gates": 117
+ },
+ "fpalign64": {
+  "amount_gate_depth": 30,
+  "amount_gates": 117
+ },
+ "funnel128": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "funnel64": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "gf2mat40": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "gf2mat48": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "gf2mat56": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "gf2mat64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "lzcnorm128": {
+  "amount_gate_depth": 98,
+  "amount_gates": 559
+ },
+ "lzcnorm32": {
+  "amount_gate_depth": 25,
+  "amount_gates": 125
+ },
+ "lzcnorm64": {
+  "amount_gate_depth": 50,
+  "amount_gates": 274
+ },
+ "lzcnorm96": {
+  "amount_gate_depth": 71,
+  "amount_gates": 394
+ },
+ "mac4": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "maxtree16x16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "maxtree32x16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult14": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult18": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult20": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult22": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult24": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult26": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult28": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult30": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult32": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult36": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult40": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "mult8": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "muxshl128": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "muxshl64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "pcnsh24": {
+  "amount_gate_depth": 97,
+  "amount_gates": 228
+ },
+ "pcnsh6": {
+  "amount_gate_depth": 24,
+  "amount_gates": 24
+ },
+ "pcsh128": {
+  "amount_gate_depth": 517,
+  "amount_gates": 2005
+ },
+ "pcsh64": {
+  "amount_gate_depth": 263,
+  "amount_gates": 832
+ },
+ "popcount128": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "popcount16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "popcount32": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "popcount64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "prio64": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "rotmask128": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "rotmask64": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "rotmix64": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "sbox": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "sort8x8": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "sq16": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "sq20": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "sq24": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "sq28": {
+  "amount_gate_depth": null,
+  "amount_gates": null
+ },
+ "tzcsh4": {
+  "amount_gate_depth": 6,
+  "amount_gates": 8
+ },
+ "tzcsh8": {
+  "amount_gate_depth": 10,
+  "amount_gates": 21
+ },
+ "xbar16": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "xbar32x2": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ },
+ "xbar32x4": {
+  "amount_gate_depth": 0,
+  "amount_gates": 0
+ }
+}
