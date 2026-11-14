@@ -1,9 +1,9 @@
 ---
 title: "A stamp checker that threw instead of reporting. Red-teaming the ZATCA check the day it shipped"
-seo_title: "Fuzzing a ZATCA invoice hash, QR and signature checker: four crashes and a false chain error"
+seo_title: "Fuzzing a ZATCA stamp checker: four crashes and a false chain error"
 date: 2026-11-14
 tags: [einvoice-preflight, testing, mutation-testing, fuzzing, redteam]
-description: "16 faults seeded into the new ZATCA stamp check and its C14N writer, 12 caught. Reading it as an attacker found a false hash-chain error and three ways to make a file unreadable; a fuzz test found a fourth."
+description: "16 faults seeded into the new ZATCA stamp check, 12 caught. Reading it found a false chain error and two crashes that hid findings; a fuzz test found one more."
 ---
 
 This morning [E-invoice preflight](https://marisstella.app/einvoice-preflight/)
