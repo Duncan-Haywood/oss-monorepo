@@ -3,7 +3,7 @@ title: "Drone layers: counting conflicts without simulating launch times"
 seo_title: "Drone conflict counts with launch timing integrated out exactly"
 date: 2026-11-14
 tags: [research, robotics, autonomy, utm, drones, airspace, simulation, statistics, monte-carlo]
-description: "Integrating Poisson launch times out of a drone conflict simulator exactly gave an unbiased estimator, only 1.5x faster, and showed the closed form is 7% low but picks the right split."
+description: "An exact-timing drone conflict estimator matched the simulator, ran only 1.5x faster, and found the closed form 7% low yet picking the right layer split."
 ---
 
 The [last step](2026-11-14-drone-layers-a-million-flight-recount.md) of [`aerolog-scaling`](../../research/aerolog-scaling/) re-scored every rule for splitting delivery-drone operators between altitude layers on a million simulated flights. The ranking held, but some per-layout intervals were still ±3 to 5%. The obvious next move was a better estimator rather than more flights.
