@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T12:05:56Z",
   "ended": "2026-11-14T12:06:47Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 7.06,
+  "tokens_in": 4169130,
+  "tokens_out": 25666,
+  "cost_usd": 2.0322,
+  "tool_calls": 53,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15845",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,32 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 11 entries, all control-plane workflow edits with PRs already waiting on the owner; the prompt asks each run to re-check them, which is nothing but a restated blocker. The list could mark entries that have an open control-plane PR as 'waiting' and skip them."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets` with no flags lists only 21 random files; finding the probe time for one venture needs --under and --limit, which the prompt doesn't mention together."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix the open defects first; all 11 are control-plane edits with open PRs awaiting owner approval.",
+      "did": "Checked open PRs for each, left them, and seeded 10 mutants instead of 8.",
+      "result": "No duplicate control-plane PRs opened."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-quick-pick-null-code.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Target ventures/quick-pick-survey/site/rank-core.mjs (team-range code from #15820). Guard added: platform/ci/check_share_decoders.py (run by unwired_checks.py); first run: 204 modules, 205 decoders, 0 crashes. Verified: rank-core.test.mjs 29 pass; run_venture_tests.py quick-pick-survey ok; test_check_share_decoders, test_unwired_checks, test_main_health OK; check_post_frontmatter, check_post_links pass.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -194,6 +214,81 @@
         "issue": "decodeAnswers read d.l on whatever JSON.parse returned, so a result code whose payload is JSON null (QP1.bnVsbA, a hand-edited or damaged code) threw TypeError inside the Combine click handler: the team box did nothing and showed no error for the other pasted codes. Fixed: non-object payloads return the 'damaged' error; test 'a result code whose payload is not an object is refused, not thrown' failed first.",
         "patched": true
       }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3d6e0b55-6e89-58a8-8460-2590bbd98f9c",
+    "transcripts": 1,
+    "first": "2026-11-14T12:05:56Z",
+    "last": "2026-11-14T12:13:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 25666,
+        "thinking": 7669,
+        "cache_read": 4081254,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87780,
+        "api_equivalent_usd": 2.0322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 25666,
+      "thinking": 7669,
+      "cache_read": 4081254,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87780,
+      "api_equivalent_usd": 2.0322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 50,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.06,
+      "active_minutes": 7.06,
+      "model_minutes": 5.37,
+      "tool_minutes": 1.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, one bug fix with tests, new CI check with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 196.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
     ]
   }
 }
