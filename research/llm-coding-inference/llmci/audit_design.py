@@ -14,6 +14,10 @@ PILOT_SHARE = 0.7  # suggested pilot share (no function reads it). LOG.md 7ar (p
 #                   summed width gain rises with the pilot (0.3: 3.007, 0.5: 4.418, 0.7: 5.506) at 93% coverage or more, as
 #                   the 3-miss guard passes more often; with the plan held to n labels (BUDGET_CAP, post hoc) 0.7 still gains
 #                   5.140. Was 0.3 until 7ar (7aq: 0.3 keeps only 67% of the gain at 0.5). Use it with BUDGET_CAP on.
+#                   LOG.md 7as (pre-registered, 18 fresh GoEmotions cells + the 51): 0.7 held on the fresh cells (gain
+#                   0.831 against 0.666 at 0.5); 0.8 gained more (6.280 against 5.946 over 69 cells) but missed the
+#                   committed coverage bar, 0.9 less, and 1.0 nothing (-0.215): with no labels left to allocate the cells
+#                   estimate equals the pooled one. Do not raise it toward 1.0.
 PILOT_SHARE_PRE7AR = 0.3  # the suggested share before 7ar; experiments before 7ar read it so each replays as committed
 BUDGET_CAP = True  # plan_audit's default: a cells plan never labels more than n items (`cap_to_budget`; LOG.md 7ar found an
 #                   uncapped plan up to 20% over budget at a 0.7n pilot). Experiments before 7ar call `plan_audit_pre7ar`.
