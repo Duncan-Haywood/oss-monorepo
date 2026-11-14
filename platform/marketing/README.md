@@ -117,3 +117,18 @@ not exist yet, or it ran and failed) and reports `unknown` rather than `never`
 when it cannot read — an absent measurement must not read as a measured
 absence. `announced` still means *asked*: there is no confirmation API, and
 Google does not participate at all, so Search Console remains the owner's.
+
+**Every URL submitted is on the declared host and under the key's path
+(2026-11-14).** IndexNow rejects a whole request (422) that names one URL off
+`host` or outside the folder `keyLocation` covers, and the 2026-11-07 quality
+audit ([`2026-11-07-marketing.json`](../../portfolio/quality/audits/2026-11-07-marketing.json),
+defect 0) showed a stray `<loc>` in any child sitemap went straight into the
+payload. `scopeToSite` now drops such URLs and the CLI prints how many and
+which. In the same change: an unknown flag or a flag with no value exits 2
+instead of falling through to a dry run (a `--sumbit` typo looked like
+success), a missing ref or a bad `--base-url` prints one line instead of a
+stack trace, and the sources line says `N of M published sitemap(s)` when some
+children were skipped, instead of counting them as read.
+
+Still open from that audit: the full catalogue is resubmitted every run (no
+changed-URL mode), and 200, 202, 422 and 429 are not told apart.

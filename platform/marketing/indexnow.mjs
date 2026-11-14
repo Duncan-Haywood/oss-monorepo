@@ -224,10 +224,11 @@ export async function urlsFromSitemaps(readFile, baseUrl) {
 
   // A root `<urlset>` (no index) is a legitimate small-site shape and needs
   // no second pass — its locs are already pages.
-  if (!isSitemapIndex(root)) return { urls: locsIn(root).sort(), warnings, childCount: 0 };
+  if (!isSitemapIndex(root)) return { urls: locsIn(root).sort(), warnings, childCount: 0, readCount: 0 };
 
   const children = locsIn(root);
   const urls = new Set();
+  let readCount = 0;
   for (const child of children) {
     if (!child.startsWith(baseUrl)) {
       warnings.push(`child sitemap ${child} is not under ${baseUrl} — skipped`);
@@ -240,9 +241,43 @@ export async function urlsFromSitemaps(readFile, baseUrl) {
       warnings.push(`child sitemap ${child} is named by sitemap.xml but absent from the artifact — skipped`);
       continue;
     }
+    readCount += 1;
     for (const loc of locsIn(xml)) urls.add(loc);
   }
-  return { urls: [...urls].sort(), warnings, childCount: children.length };
+  return { urls: [...urls].sort(), warnings, childCount: children.length, readCount };
+}
+
+/**
+ * Keep only the URLs this submission may name: same scheme and host as
+ * `baseUrl`, and at or under its path (which is where `keyLocation` sits).
+ *
+ * The IndexNow documentation says a request naming a URL off the declared
+ * `host`, or outside the folder the key file covers, is rejected as a whole
+ * (422), so one stray `<loc>` in a child sitemap cost the whole announcement.
+ * Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-marketing.json,
+ * defect 0) reproduced it: a fixture's `evil.test` and `/outside/` URLs were
+ * both in the dry-run payload. Dropped URLs are returned so the caller can
+ * print them; a systematic drop must stay visible.
+ */
+export function scopeToSite(urls, baseUrl) {
+  const base = new URL(baseUrl);
+  const kept = [];
+  const dropped = [];
+  for (const url of urls) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      dropped.push(url);
+      continue;
+    }
+    if (parsed.protocol === base.protocol && parsed.host === base.host && parsed.pathname.startsWith(base.pathname)) {
+      kept.push(url);
+    } else {
+      dropped.push(url);
+    }
+  }
+  return { kept, dropped };
 }
 
 /**
@@ -495,13 +530,23 @@ export async function submit(payload) {
   return { status: res.status, ok: res.ok, body };
 }
 
-function parseArgs(argv) {
+/**
+ * Unknown flags and a flag missing its value throw instead of being ignored:
+ * a typo such as `--sumbit` used to fall through to a dry run that looked
+ * like success (quality audit 2026-11-07, defect 2).
+ */
+export function parseArgs(argv) {
   const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null };
+  const valued = { '--ref': 'ref', '--dir': 'dir', '--base-url': 'baseUrl' };
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--submit') args.submit = true;
-    else if (argv[i] === '--ref') args.ref = argv[++i];
-    else if (argv[i] === '--dir') args.dir = argv[++i];
-    else if (argv[i] === '--base-url') args.baseUrl = argv[++i];
+    const flag = argv[i];
+    if (flag === '--submit') args.submit = true;
+    else if (flag in valued) {
+      const value = argv[i + 1];
+      if (value === undefined || value.startsWith('--')) throw new Error(`${flag} needs a value`);
+      args[valued[flag]] = value;
+      i += 1;
+    } else throw new Error(`unknown argument ${JSON.stringify(flag)} (known: --submit, --ref, --dir, --base-url)`);
   }
   return args;
 }
@@ -509,18 +554,32 @@ function parseArgs(argv) {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const args = parseArgs(process.argv.slice(2));
+  let args;
+  try {
+    args = parseArgs(process.argv.slice(2));
+  } catch (err) {
+    console.error(`indexnow: ${err.message}`);
+    process.exit(2);
+  }
   const readFile = readerFor(args);
-  const catalog = await readCatalog(readFile);
-
-  const resolved = resolveBaseUrl({
-    explicit: args.baseUrl,
-    catalog,
-    published: publishedBaseUrl(),
-    // publishedBaseUrl() reads the serving branch, so it is a second reading
-    // of *this* artifact only when this artifact is that branch's snapshot.
-    comparable: !args.dir && args.ref === SERVING_BRANCH,
-  });
+  // A missing ref or a bad --base-url is a user error with a message already
+  // written for it; print that, not a stack trace (audit 2026-11-07, defect 2).
+  let catalog;
+  let resolved;
+  try {
+    catalog = await readCatalog(readFile);
+    resolved = resolveBaseUrl({
+      explicit: args.baseUrl,
+      catalog,
+      published: publishedBaseUrl(),
+      // publishedBaseUrl() reads the serving branch, so it is a second reading
+      // of *this* artifact only when this artifact is that branch's snapshot.
+      comparable: !args.dir && args.ref === SERVING_BRANCH,
+    });
+  } catch (err) {
+    console.error(`indexnow: ${err?.message || err}`);
+    process.exit(1);
+  }
   if (resolved.source === 'conflict') {
     const { artifact, published, via } = resolved.conflict;
     console.error(
@@ -543,7 +602,9 @@ if (isMain) {
   try {
     const walked = await urlsFromSitemaps(readFile, baseUrl);
     fromSitemaps = walked.urls;
-    sitemapNote = `${fromSitemaps.length} from ${walked.childCount} published sitemap(s)`;
+    const read =
+      walked.readCount === walked.childCount ? `${walked.childCount}` : `${walked.readCount} of ${walked.childCount}`;
+    sitemapNote = `${fromSitemaps.length} from ${read} published sitemap(s)`;
     for (const warning of walked.warnings) console.error(`indexnow: warning — ${warning}`);
   } catch (err) {
     // Not fatal: the catalogue floor is still a correct, useful submission,
@@ -558,7 +619,14 @@ if (isMain) {
         `  ${err?.message || err}`,
     );
   }
-  const urls = [...new Set([...fromCatalog, ...fromSitemaps])].sort();
+  const { kept: urls, dropped } = scopeToSite([...new Set([...fromCatalog, ...fromSitemaps])].sort(), baseUrl);
+  if (dropped.length) {
+    console.error(
+      `indexnow: warning — ${dropped.length} URL(s) are not under ${baseUrl} and were left out ` +
+        '(IndexNow rejects a whole request that names one): ' +
+        `${dropped.slice(0, 5).join(', ')}${dropped.length > 5 ? ', …' : ''}`,
+    );
+  }
 
   if (urls.length === 0) {
     console.error('indexnow: catalog.json named no URLs — refusing to submit an empty list.');
