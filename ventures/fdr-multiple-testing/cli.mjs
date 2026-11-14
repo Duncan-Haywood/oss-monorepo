@@ -3,6 +3,7 @@
 //   node cli.mjs pvalues.csv --column p_value --alpha 0.05 [--method bh] [--json]
 import { readFileSync } from "node:fs";
 import { analyze, PAPERS, METHODS, formatP } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `fdr-multiple-testing: Benjamini-Hochberg, Holm, Bonferroni, Storey q-values and e-BH for a list of tests
 
@@ -106,7 +107,7 @@ export function run(argv, stdinText) {
   return { code: 0, out: formatText(r, { all: o.all }) };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const argv = process.argv.slice(2);
   const needsStdin = !argv.includes("--help") && !argv.includes("-h") && !argv.some((a, i) => !a.startsWith("-") && !Object.keys(FLAGS).includes(argv[i - 1]) && a !== "-");

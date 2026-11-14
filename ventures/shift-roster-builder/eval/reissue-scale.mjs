@@ -11,6 +11,7 @@
 // VARIANTS="rebuild,keep/shift 1" picks variants (default: rebuild, keep/h 0.1, keep/shift 1).
 import { parseStaff, parseShifts, buildRoster, TEMPLATES, DAYS } from "../calc.mjs";
 import { reissue, VARIANTS } from "./reissue-posted.mjs";
+import { pathToFileURL } from "node:url";
 
 const pick = (process.env.VARIANTS || "rebuild,keep/h 0.1,keep/shift 1").split(",");
 const variants = Object.fromEntries(pick.map((k) => [k, VARIANTS[k]]));
@@ -91,7 +92,7 @@ function report(name, r, all) {
   tally(r.cases, all);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const all = {};
   if (process.argv[2] === "templates") {
     for (const [k, t] of Object.entries(TEMPLATES)) report(k, studyWeek(t.staff(), t.shifts()), all);

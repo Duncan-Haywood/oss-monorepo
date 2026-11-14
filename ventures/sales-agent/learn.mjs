@@ -41,7 +41,7 @@ export const trainingLabel = (r) => { const label = Object.hasOwn(ALIAS, r.label
 
 export const TRAINING_FILE = /^(replies|heldout|fresh-[\d-]+[a-z]?)\.jsonl$/;
 
-if (typeof process !== "undefined" && import.meta.url === `file://${process.argv[1]}` && process.argv.includes("--write")) {
+if (typeof process !== "undefined" && process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href && process.argv.includes("--write")) {
   const { readFileSync, writeFileSync, readdirSync } = await import("node:fs");
   const dir = new URL("./eval/", import.meta.url);
   const files = readdirSync(dir).filter((f) => TRAINING_FILE.test(f)).sort();

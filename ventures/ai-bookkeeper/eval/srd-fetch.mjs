@@ -9,13 +9,13 @@
 //   node eval/cord-receipts.mjs eval/srd/labels.jsonl --ocr <ocr>/psm6,<ocr>/psm4 --settled
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const SRD_REPO = "amannirala13/Bill-Segmentation-OpenCV";
 export const SRD_COMMIT = "a98b578ae6032fcf67d64cbbd78dd0e58f457e18";
 export const srdUrl = (id) => `https://raw.githubusercontent.com/${SRD_REPO}/${SRD_COMMIT}/Dataset/receipt/p/${id}.jpg`;
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const out = process.argv[2];
   if (!out) { console.error("usage: node eval/srd-fetch.mjs <out>"); process.exit(2); }
   mkdirSync(out, { recursive: true });

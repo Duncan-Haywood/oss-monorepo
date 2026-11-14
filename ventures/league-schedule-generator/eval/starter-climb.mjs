@@ -31,6 +31,7 @@
 // Output: one JSON line per size and parity, then the STARTERS literal for carryover.mjs.
 import { carryOverFromOpponents, starterOpp, STARTERS } from "../carryover.mjs";
 import { mulberry32 } from "../calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const secs = Number(process.argv[2] || 30);
 const sizes = process.argv.length > 3 ? process.argv.slice(3).map(Number) : [6, 10, 12, 14, 18, 20, 22, 24, 26, 28, 30, 34, 36, 38, 40];
@@ -176,7 +177,7 @@ function oldBest(N, n) {
   return v;
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const table = {};
   for (const N of sizes) {

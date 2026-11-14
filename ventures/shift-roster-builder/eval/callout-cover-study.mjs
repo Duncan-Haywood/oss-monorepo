@@ -3,6 +3,7 @@
 // full rebuild covers as well as the posted week, and how many other shifts each such rebuild moves.
 // Used by page-callout*.test.mjs. Run: node eval/callout-cover-study.mjs
 import { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, absencePlan, DAYS } from "../calc.mjs";
+import { pathToFileURL } from "node:url";
 
 export function study(text, { exact = "auto" } = {}) {
   const slots = parseShifts(sampleShifts()).slots;
@@ -27,7 +28,7 @@ export function study(text, { exact = "auto" } = {}) {
 export const SAMPLE = () => sampleStaff();
 export const WITH_SPARE = () => sampleStaff() + "\nHal, 15, 24, 0, any";
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const [name, t] of [["sample", SAMPLE()], ["with a spare part-timer", WITH_SPARE()]]) {
     const o = study(t, { exact: process.env.EXACT === "off" ? false : "auto" });
     console.log(`${name}: ${o.cases} cases, ${o.patched} patched, ${o.covered} covered by a rebuild, ${Math.min(...o.moves)} to ${Math.max(...o.moves)} other shifts moved; rebuilds ${JSON.stringify(o.statuses)}${o.unproven.length ? `, unproven: ${o.unproven.join(", ")}` : ""}`);

@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import { audit, summarize, formatMoney, parseLimitList } from './benford.mjs';
 import { readLedger, flaggedToCsv } from './csv.mjs';
+import { pathToFileURL } from 'node:url';
 
 function parseArgs(argv) {
   const o = { _: [] };
@@ -67,7 +68,7 @@ export function run(argv, out = process.stdout) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     process.exitCode = run(process.argv.slice(2));
   } catch (e) {

@@ -17,6 +17,7 @@ import { readFile } from "node:fs/promises";
 import process from "node:process";
 import { parseSales, parseStock, orderPlan, purchaseSchedule, scheduleCsv, whenLabel, analyze, reportCsv, sampleText, pct, num, money } from "./calc.mjs";
 import { LOT_METHODS } from "./lotsize.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Back-test demand forecasts per SKU and get safety stock and reorder points.
 
@@ -157,4 +158,4 @@ async function main() {
   else console.log(render(result, parsed, o));
 }
 
-if (process.argv[1] && import.meta.url === new URL(process.argv[1], "file://").href) await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();

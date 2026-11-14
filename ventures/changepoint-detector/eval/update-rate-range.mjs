@@ -22,6 +22,7 @@
 // usage: node eval/update-rate-range.mjs > eval/update-rate-range.out.txt
 import { partitionRates, cutRanges } from '../update-rate.mjs';
 import { makeRng, chain, NULLS, POWER } from './update-rate-sim.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const SETTING = { kind: 'markov', mult: 2, minSegment: 20 };
 export const SLACKS = [2, 3.84, 6, 9, 2 * Math.log(300)];
@@ -49,7 +50,7 @@ function powerRun(seed, slacks, reps = 200) {
 }
 const median = (a) => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const t0 = Date.now();
   const cal = powerRun(20261203, SLACKS);
   console.log('CALIBRATION, seed 20261203: covered / with a cut (coverage), median width of the nearest cut\'s range');

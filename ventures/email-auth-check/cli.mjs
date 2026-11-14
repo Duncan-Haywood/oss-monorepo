@@ -19,6 +19,7 @@
 //   - run: node cli.mjs yourdomain.com
 
 import { runFullCheck } from './lookup.mjs';
+import { pathToFileURL } from 'node:url';
 
 function parseArgs(argv) {
   const args = { domain: null, json: false, timeoutMs: undefined, help: false };
@@ -91,7 +92,7 @@ export async function run(argv, { checkFn = runFullCheck } = {}) {
   return { exitCode, output };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   if (exitCode === 2) console.error(output);
   else console.log(output);

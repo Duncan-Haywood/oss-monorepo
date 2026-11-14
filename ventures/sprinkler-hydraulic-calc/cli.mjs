@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { analyze, EXAMPLE } from './hydraulics.mjs';
 import { parse, serialize } from './format.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function parseArgs(argv) {
   const o = { file: null, example: false, json: false, print: false };
@@ -65,7 +66,7 @@ export function report({ model, result: r }) {
   return lines.join('\n');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const opts = parseArgs(process.argv.slice(2));
   const out = run(opts);
   if (out.error) { console.error(out.error); process.exit(1); }

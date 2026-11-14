@@ -3,6 +3,7 @@
 // Preview render of a chant-forge MIDI file to a stereo WAV; then run master-cli.mjs on it.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { renderMidi, encodeWav } from './render.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function run(argv) {
   let out = null, file = null, rate = 44100, lufs = null, stemDir = null, limit = false;
@@ -33,4 +34,4 @@ export function run(argv) {
   }
   return { code: 0, text: `${file}: ${r.notes} notes, ${r.seconds.toFixed(1)} s, wrote ${out}${r.lufs !== null ? `, ${r.lufs.toFixed(1)} LUFS` : ''} (preview synth, not a master; run master-cli.mjs on it)${extra}` };
 }
-if (import.meta.url === `file://${process.argv[1]}`) { const o = run(process.argv.slice(2)); (o.code ? console.error : console.log)(o.text); process.exit(o.code); }
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) { const o = run(process.argv.slice(2)); (o.code ? console.error : console.log)(o.text); process.exit(o.code); }

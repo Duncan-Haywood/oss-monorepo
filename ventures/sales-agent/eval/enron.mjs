@@ -22,6 +22,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { parseReplies, triage } from "../engine.mjs";
 import { parseMessage, toReplyBlock } from "../self-host/imap.mjs";
+import { pathToFileURL } from "node:url";
 
 /**
  * Read one raw message the way the self-host server does (self-host/imap.mjs parseMessage, toReplyBlock), then the
@@ -78,7 +79,7 @@ export function run(dir, { replies = false } = {}) {
   return { n, empty, counts, flagged, reached, auto, bounce };
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const dir = args.find((a) => !a.startsWith("--") && !["--show", "--labels"].includes(args[args.indexOf(a) - 1]));
   if (!dir) { console.error("usage: node eval/enron.mjs <dir> [--replies] [--show <category>] [--json]"); process.exit(2); }

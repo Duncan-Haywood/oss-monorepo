@@ -16,6 +16,7 @@
 
 import { runProbe } from './probe.mjs';
 import { buildReport } from '../analyze.mjs';
+import { pathToFileURL } from 'node:url';
 
 function formatText(report) {
   const lines = [];
@@ -90,6 +91,6 @@ async function main() {
   process.exit(report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

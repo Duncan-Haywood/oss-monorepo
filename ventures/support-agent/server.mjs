@@ -14,6 +14,7 @@ import { parseKnowledge } from "./agent.mjs";
 import { newState, agentOf, logTurn, feedback, purge, stats, gaps, runTests, recalibrate, logCsv, redact } from "./store.mjs";
 import { homePage, adminPage } from "./render.mjs";
 import { widgetJs } from "./widget.mjs";
+import { pathToFileURL } from "node:url";
 
 const readBody = (req, max = 2_000_000) => new Promise((resolve, reject) => {
   let size = 0; const chunks = [];
@@ -158,7 +159,7 @@ export function handler(cfg) {
   };
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const env = process.env;
   if (!env.ADMIN_KEY || env.ADMIN_KEY.length < 12) { console.error("set ADMIN_KEY (12+ characters), e.g. ADMIN_KEY=$(openssl rand -hex 16)"); process.exit(1); }
   const file = env.STATE || "./state.json";

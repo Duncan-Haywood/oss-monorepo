@@ -11,6 +11,7 @@ import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 import { sectionPlan, liftEvents } from './sections.mjs';
 import { noteName } from './gabc.mjs';
 import { parseSingers, singersChoir, singersReport, fewestSectionsForSingers, sitOutNotes, SECTION_ORDER, SECTION_LABEL } from './singers.mjs';
+import { pathToFileURL } from 'node:url';
 
 const USAGE = `usage: node cli.mjs --singers FILE.csv [--sit-out N]   (report the section ranges a range test gives, and exit)
        node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--choir NAME] [--singers FILE.csv] [--sit-out N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--second-tenors] [--tenor LOW-HIGH] [--tenor2 LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
@@ -343,7 +344,7 @@ export function run(argv) {
   return { code: 0, text };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const r = run(process.argv.slice(2));
   (r.code ? process.stderr : process.stdout).write(r.text + '\n');
   process.exit(r.code);

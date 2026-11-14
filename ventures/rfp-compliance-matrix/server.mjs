@@ -10,6 +10,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { extract, toCsv, toMarkdown, csvCell } from './extract.mjs';
 import { outline, toOutlineMarkdown, coverage, coverageToCsv } from './shred.mjs';
 import { refine } from './llm.mjs';
+import { pathToFileURL } from 'node:url';
 
 const MAX_BODY = 2_000_000;
 const MAX_TEXT = 1_500_000;
@@ -88,7 +89,7 @@ export function handler(cfg = {}) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const env = process.env;
   const cfg = { apiKey: env.API_KEY, anthropicKey: env.ANTHROPIC_API_KEY, model: env.LLM_MODEL || undefined, refineLimit: env.REFINE_PER_HOUR ? Number(env.REFINE_PER_HOUR) : undefined };
   http.createServer(handler(cfg)).listen(Number(env.PORT || 8080), () =>

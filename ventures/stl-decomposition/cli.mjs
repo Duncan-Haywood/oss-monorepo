@@ -3,6 +3,7 @@
 //   node cli.mjs sales.csv --column sales [--period 12] [--robust] [--json | --csv]
 import { readFileSync } from "node:fs";
 import { analyze, PAPERS, fmt, csvCell } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `stl-decomposition: split a time series into trend, seasonal and remainder (STL, Cleveland et al. 1990)
 
@@ -130,7 +131,7 @@ export function run(argv, stdinText) {
   return { code: 0, out: formatText(r) };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const argv = process.argv.slice(2);
   const flagWithValue = new Set(Object.keys(FLAGS));

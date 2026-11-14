@@ -9,6 +9,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { buildProposal, renderProposalHtml, escapeHtml as esc, money, formatDate, COMPANY_FIELDS } from "./proposal.mjs";
+import { pathToFileURL } from "node:url";
 
 const MAX_BODY = 64 * 1024, MAX_PROPOSALS = 2000;
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
@@ -143,7 +144,7 @@ export function handler(state, save, env = process.env, now = Date.now) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const statePath = process.env.STATE || "state.json";
   let state = emptyState();
   try { state = { ...state, ...JSON.parse(fs.readFileSync(statePath, "utf8")) }; } catch (e) { if (e.code !== "ENOENT") throw e; }

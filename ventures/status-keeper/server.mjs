@@ -13,6 +13,7 @@ import { DEFAULTS, EXPIRY_DEFAULTS, EXPIRY_TYPES, recordExpiry, newState, record
 import { statusPage, statusJson, atomFeed, badgeSvg, messagePage } from "./render.mjs";
 import { checkTls, checkDomain } from "./certs.mjs";
 import { subscribe, confirm, unsubscribe, activeCount, confirmationMail, notifyAll } from "./subscribers.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 
@@ -189,7 +190,7 @@ async function sendResend(msg) {
   if (!res.ok) throw new Error(`resend ${res.status}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY) { console.error("missing env: ADMIN_KEY"); process.exit(1); }
   let monitors;
   try { monitors = parseMonitors(env.MONITORS_JSON); } catch (e) { console.error(`MONITORS_JSON: ${e.message}`); process.exit(1); }

@@ -8,6 +8,7 @@
 // 1 hour of the person's wage per short-notice change, the caller's own changes exempt. Arithmetic on invented staff and
 // an invented rule, not a statement of any ordinance. Run: node eval/reissue-posted.mjs [sample|spare|both]
 import { parseStaff, parseShifts, buildRoster, rosterCsv, coverOptions, scheduleChanges, keepFromCsv, sampleStaff, sampleShifts, DAYS } from "../calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const staffOf = (text) => { const p = parseStaff(text); if (p.errors.length) throw new Error(p.errors[0]); return p.staff; };
 const PAST = "(already worked)";
@@ -71,7 +72,7 @@ export function study(staffText, { base = { minRestHours: 10 }, variants = VARIA
   return { posted: { status: posted.optimality?.status, pay: posted.cost, open: posted.unfilledHours }, cases };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const which = process.argv[2] || "both";
   const sets = [["sample", sampleStaff()], ["spare", sampleStaff() + "\nHal, 15, 24, 0, any"]].filter(([n]) => which === "both" || which === n);
   const f = (v) => `${String(v.open).padStart(3)} h open ${String(v.changes).padStart(2)} changes (${v.people} people) owed $${v.owed.toFixed(2).padStart(6)} pay $${v.pay.toFixed(2)} ${v.status} ${v.ms} ms`;

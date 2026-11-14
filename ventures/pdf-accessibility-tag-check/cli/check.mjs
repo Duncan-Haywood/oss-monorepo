@@ -21,6 +21,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { analyzePdf } from '../engine.mjs';
 import { inflate } from './inflate-node.mjs';
+import { pathToFileURL } from 'node:url';
 
 async function collectPdfPaths(inputs) {
   const out = [];
@@ -115,6 +116,6 @@ async function main() {
   process.exit(anyDanger ? 1 : 0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }
