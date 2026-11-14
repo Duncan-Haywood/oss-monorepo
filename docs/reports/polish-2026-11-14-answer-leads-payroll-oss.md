@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-14
+---
 # Polish 2026-11-14: answer-first leads on mileage, nanny tax, employer payroll, EU OSS
 
 Picked from `polish-2026-11-13-answer-leads-nexus-obbba.md`, "Still weakest" item 1, which named
