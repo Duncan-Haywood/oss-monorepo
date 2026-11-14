@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-11-14 · Milestone 6 Next (1) and (2): the stall is a fold on all six; repair-and-continue clears case300 TYP only
+- Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-14, "Past the loading limit"); numbers in `research/infra-dcopf/experiments/results_fold.txt` and `results_fold_fallback.txt`; figure `fold_sigma.svg`.
+- **Fold test, F1 to F3 held:** the Newton Jacobian's smallest singular value falls to 5 to 9 % of its no-load value at every stall, &sigma;<sub>min</sub><sup>2</sup> is linear in load near it (R<sup>2</sup> &ge; 0.996) with the fitted fold 0.001 to 0.004 past the stall, and the AC-optimum control keeps 84 % at full load. The DC dispatch at the file's voltage setpoints is past the loading limit on all six.
+- **Repair-and-continue, M1 to M3 and M5 refuted:** repaired at the fold, round 1's linearisation has no power flow on any case, and the RTE stages end at points breaking hundreds of voltage limits. With a fallback declared after the run (re-solve the repaired point cold), case300 TYP walks up in four stages and is fully clean at full load at **+0.83 %** (M4 held), the first feasible point from the DC start on a no-power-flow case. The five RTE cases stay unsolved.
+- Next: a reactive (V, Q) pre-stage at the fold point before the P repair, or the reduced-load AC OPF's voltage schedule as the start, on the same six; then the second reference AC solver.
+
 ## 2026-11-14 · Milestone 6 Next (1): a start with an AC power flow. The planned dispatch homotopy fails at its first point; the DC dispatch looks past the loading limit on all six no-power-flow cases
 - Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-14); numbers in `research/infra-dcopf/experiments/results_homotopy.txt`, `results_homotopy_load.txt`, `results_homotopy_dcangle.txt`.
 - **Planned run:** dispatch homotopy from the case file's dispatch to the DC point. Q1 to Q4 refuted (0 of 6), Q5 untestable. PGLib's file dispatch is not an operating point (generation 2.0 to 18.3 GW, 3 to 23 %, short of load), and it has no power flow on any of the six cases.
