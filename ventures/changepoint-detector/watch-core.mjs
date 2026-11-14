@@ -45,13 +45,54 @@ export function emptyState() {
  * (0-based in the full series). opts: detector 'pelt' | 'bocpd', model, penalty, period, log, ...
  */
 export function detectChanges(values, labels, opts0 = {}) {
-  const { minShift, ...opts } = opts0;
+  const { minShift, minSpreadRatio, ...opts } = opts0;
   const d = opts.detector ?? defaultDetector(opts.model ?? 'mean');
   if ((d.startsWith('bocpd-ar1') || d === 'drift') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
-  if (d === 'drift') return aboveFloor(detectDrift(values, labels, opts), minShift);
+  const floors = (cs) => aboveSpreadFloor(aboveFloor(cs, minShift), values, minSpreadRatio);
+  if (d === 'drift') return floors(detectDrift(values, labels, opts));
   const all = detectBoth(values, labels, { ...opts, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
-  return aboveFloor(all[d], minShift);
+  return floors(all[d]);
+}
+
+/** Points before a change that its spread is read from (README "Round 15"), and the fewest that make a reading. */
+export const SPREAD_WINDOW = 60;
+export const SPREAD_MIN_POINTS = 10;
+
+/**
+ * The spread of the series in the `w` points before index i: 1.4826 times the median absolute deviation from their
+ * median (a robust standard deviation), or their standard deviation when the MAD is 0 (a quantized column). null when
+ * fewer than SPREAD_MIN_POINTS points precede i or the points do not vary.
+ */
+export function spreadBefore(values, i, w = SPREAD_WINDOW) {
+  const xs = values.slice(Math.max(0, i - w), Math.max(0, i)).map(Number);
+  if (xs.length < SPREAD_MIN_POINTS) return null;
+  const med = (a) => { const s = [...a].sort((x, y) => x - y); const h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; };
+  const m = med(xs);
+  const mad = 1.4826 * med(xs.map((x) => Math.abs(x - m)));
+  if (mad > 0) return mad;
+  const mean = xs.reduce((t, x) => t + x, 0) / xs.length;
+  const sd = Math.sqrt(xs.reduce((t, x) => t + (x - mean) ** 2, 0) / (xs.length - 1));
+  return sd > 0 ? sd : null;
+}
+
+/** A change's move in units of the spread before it: |shift| / spreadBefore, or null when either is unknown. */
+export function spreadRatio(values, c, w = SPREAD_WINDOW) {
+  if (c.shift === undefined) return null;
+  const s = spreadBefore(values, c.index, w);
+  return s === null ? null : Math.abs(c.shift) / s;
+}
+
+/**
+ * The spread-relative floor (option minSpreadRatio; README "Round 15", measured, not offered): drop a detection whose
+ * move is under `k` times the column's own spread in the SPREAD_WINDOW points before it. One k serves every column, so
+ * a column that wanders gets a higher floor in its own units than a flat one, with no labels and no per-column setting.
+ * A detection whose ratio is unknown (no level each side, too little history, a constant stretch) is kept.
+ */
+export function aboveSpreadFloor(changes, values, k) {
+  if (k == null || k === 0) return changes;
+  if (!(typeof k === 'number' && k > 0 && Number.isFinite(k))) throw new Error('minSpreadRatio takes a number above 0.');
+  return changes.filter((c) => { const r = spreadRatio(values, c); return r === null || r >= k; });
 }
 
 /**
