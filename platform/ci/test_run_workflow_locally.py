@@ -1395,7 +1395,7 @@ class SweepExitCode(unittest.TestCase):
     def sweep(self, code_for_report):
         real_report, real_fp = runner.report, runner.checkout_fingerprint
         runner.report = lambda *a, **k: code_for_report
-        runner.checkout_fingerprint = lambda: runner.Fingerprint("a" * 40, "d1")
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
         wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
         out = io.StringIO()
         try:
@@ -1441,7 +1441,7 @@ class CheckoutStability(unittest.TestCase):
         """Run an empty-but-nonzero selection with a fingerprint sequence."""
         real = runner.checkout_fingerprint
         seq = iter([before, after])
-        runner.checkout_fingerprint = lambda: next(seq)
+        runner.checkout_fingerprint = lambda **_: next(seq)
         wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
         out = io.StringIO()
         try:
@@ -1515,7 +1515,7 @@ class CheckoutStability(unittest.TestCase):
     def two_workflow_sweep(self, prints):
         real = runner.checkout_fingerprint
         seq = iter(prints)
-        runner.checkout_fingerprint = lambda: next(seq)
+        runner.checkout_fingerprint = lambda **_: next(seq)
         wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
         out = io.StringIO()
         try:
@@ -1605,6 +1605,40 @@ class TrackedContent(unittest.TestCase):
         self.assertEqual(staged, self.digest(),
                          "a commit of files already in the worktree read as "
                          "the tree moving, which voided eleven runs' sweeps")
+
+    def fingerprint(self, untracked=False):
+        content = self.digest()
+        loose = runner.untracked_content(cwd=self.repo) if untracked else {}
+        return runner.Fingerprint("h", repr(sorted(content.items())), content, loose)
+
+    def test_committing_a_file_that_was_untracked_is_not_drift(self):
+        # 2026-11-14, two reports: a sweep voided five workflows because the
+        # run committed a new post it had written (untracked -> tracked) while
+        # the sweep ran; no byte any step read had changed.
+        self.write("post.md", "new post\n")
+        before = self.fingerprint(untracked=True)
+        self.assertIn("post.md", before.untracked)
+        self.run("add", "post.md")
+        self.run("commit", "-qm", "the post")
+        after = self.fingerprint()
+        self.assertNotEqual(before.content, after.content)
+        self.assertIsNone(runner.checkout_drift(before, after))
+
+    def test_a_new_file_with_other_bytes_than_the_untracked_one_is_drift(self):
+        self.write("post.md", "draft\n")
+        before = self.fingerprint(untracked=True)
+        self.write("post.md", "rewritten\n")
+        self.run("add", "post.md")
+        self.run("commit", "-qm", "the post")
+        self.assertIn("post.md", runner.checkout_drift(before, self.fingerprint()))
+
+    def test_a_file_that_appears_from_nowhere_is_still_drift(self):
+        # A checkout or merge adding a file the worktree never held.
+        before = self.fingerprint(untracked=True)
+        self.write("theirs.md", "from a branch\n")
+        self.run("add", "theirs.md")
+        self.run("commit", "-qm", "theirs")
+        self.assertIn("theirs.md", runner.checkout_drift(before, self.fingerprint()))
 
     def test_an_edit_changes_the_path_it_touched(self):
         before = self.digest()

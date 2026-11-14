@@ -1766,9 +1766,49 @@ class Fingerprint(typing.NamedTuple):
     head: str
     content: str  # digest of `tracked_content`, so two equal trees compare equal
     paths: typing.Mapping[str, str] = {}  # for naming what moved; never mutated
+    # Untracked, non-ignored files and their blob ids, read only for the
+    # fingerprint taken before a sweep: a file the run writes and then commits
+    # (a new post, the run record) joins the tracked set with bytes the sweep
+    # already read, so it must not count as the tree moving. Never in `content`.
+    untracked: typing.Mapping[str, str] = {}
 
 
-def checkout_fingerprint() -> Fingerprint | None:
+UNTRACKED_CAP = 2000  # past this, skip the lookup (a build tree left unignored)
+
+
+def untracked_content(cwd: str = REPO, chunk: int = 200) -> dict[str, str]:
+    """{untracked, non-ignored path: blob id}, or {} when git cannot answer.
+
+    {} only loses the allowance for committing a new file; it never hides a
+    change, so failure degrades to the stricter old behaviour.
+    """
+    try:
+        ls = subprocess.run(["git", "ls-files", "-o", "--exclude-standard", "-z"],
+                            cwd=cwd, capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    if ls.returncode != 0:
+        return {}
+    paths = [p for p in ls.stdout.split("\0")
+             if p and os.path.isfile(os.path.join(cwd, p))]
+    if len(paths) > UNTRACKED_CAP:
+        return {}
+    out = {}
+    for i in range(0, len(paths), chunk):
+        batch = paths[i:i + chunk]
+        try:
+            hashed = subprocess.run(["git", "hash-object", "--"] + batch, cwd=cwd,
+                                    capture_output=True, text=True, timeout=300)
+        except (OSError, subprocess.SubprocessError):
+            return {}
+        ids = hashed.stdout.split()
+        if hashed.returncode != 0 or len(ids) != len(batch):
+            return {}
+        out.update(zip(batch, ids))
+    return out
+
+
+def checkout_fingerprint(with_untracked: bool = False) -> Fingerprint | None:
     """HEAD and a digest of every tracked path's content, as the worktree holds it.
 
     Deliberately reads **tracked content only**. Untracked files are excluded
@@ -1794,13 +1834,18 @@ def checkout_fingerprint() -> Fingerprint | None:
     digest = hashlib.sha256(
         "\0".join(f"{p}\0{content[p]}" for p in sorted(content)).encode()
     ).hexdigest()
-    return Fingerprint(head.stdout.strip(), digest, content)
+    untracked = untracked_content() if with_untracked else {}
+    return Fingerprint(head.stdout.strip(), digest, content, untracked)
 
 
 def moved_paths(before: Fingerprint, after: Fingerprint, shown=DRIFT_PATHS_SHOWN) -> str:
     """"a, b (+3 more)" over the tracked paths whose content differs, or ""."""
     old, new = dict(getattr(before, "paths", {})), dict(getattr(after, "paths", {}))
-    names = sorted(p for p in set(old) | set(new) if old.get(p) != new.get(p))
+    # A path tracked now but not before is unmoved if the worktree already
+    # held the same bytes untracked: a commit of a file the run wrote.
+    loose = getattr(before, "untracked", {}) or {}
+    names = sorted(p for p in set(old) | set(new)
+                   if (old[p] if p in old else loose.get(p)) != new.get(p))
     if not names:
         return ""
     more = f" (+{len(names) - shown} more)" if len(names) > shown else ""
@@ -1855,6 +1900,11 @@ def checkout_drift(before, after) -> str | None:
     if before.content == after.content:
         return None  # same tree, new commit: the caller notes the HEAD move
     moved = moved_paths(before, after)
+    if not moved and getattr(before, "untracked", None) and getattr(after, "paths", None):
+        # Content differs only by newly tracked files whose bytes the worktree
+        # already held untracked (2026-11-14 reports: committing a new post
+        # voided five workflows). Same bytes read, so the same tree.
+        return None
     where = f": {moved}" if moved else ""
     same_head = "" if before.head != after.head else " (HEAD did not move)"
     return f"tracked files changed while the sweep ran{same_head}{where}"
@@ -1878,7 +1928,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
             print(f"  {total} run: step(s) in {len(selected)} workflow(s).")
         return 0
 
-    before = checkout_fingerprint()
+    before = checkout_fingerprint(with_untracked=True)
 
     failures, out_of_budget, after_skip = [], [], []
     # Workflows that finished before the checkout first moved: their verdicts
