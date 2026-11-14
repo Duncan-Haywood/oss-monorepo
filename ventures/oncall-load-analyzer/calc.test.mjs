@@ -104,3 +104,40 @@ test("toCsv quotes names with commas and humanMin handles null", () => {
   assert.equal(humanMin(null), "n/a");
   assert.equal(humanMin(90), "1.5 h");
 });
+
+test("gini values are exact and do not depend on input order", () => {
+  assert.equal(gini([0, 0, 0, 10]), 0.75);
+  assert.equal(gini([10, 0, 0, 0]), 0.75);
+  assert.equal(gini([3, 1, 2]), gini([1, 2, 3]));
+  assert.ok(Math.abs(gini([1, 2, 3]) - 2 / 9) < 1e-12);
+});
+
+test("humanMin switches to hours at exactly 60 minutes", () => {
+  assert.equal(humanMin(59), "59 min");
+  assert.equal(humanMin(60), "1.0 h");
+});
+
+test("default timezone is UTC: 21:30Z on a Tuesday is off-hours, not night", () => {
+  const r = run(["2026-09-01T21:30:00Z,,api,Ana,low,x"]);
+  assert.equal(r.summary.kinds.offHours, 1);
+  assert.equal(r.summary.kinds.night, 0);
+});
+
+test("high-urgency pages are counted per person, starting from zero", () => {
+  const r = run(["2026-09-01T10:00:00Z,,api,Ana,low,a", "2026-09-01T11:00:00Z,,api,Ana,high,b"]);
+  assert.equal(r.people[0].high, 1);
+});
+
+test("a resolved column that comes first in the header is still read", () => {
+  const n = normalizeRows(parseCsv("resolved_at,created_at,assigned_to\n2026-09-01T10:30:00Z,2026-09-01T10:00:00Z,Ana"));
+  assert.equal(n.incidents[0].resolvedMin, 30);
+});
+
+test("parseTime refuses days a month does not have, seconds past 59 and impossible offsets", () => {
+  for (const s of ["2026-02-30 10:00", "2026-04-31", "2025-02-29T01:00:00Z", "2026-03-01 10:00:60", "2026-03-01T10:00+25:00", "2026-03-01T10:00+05:99", "2026-00-10"]) {
+    assert.equal(parseTime(s), null, s);
+  }
+  assert.equal(parseTime("2028-02-29T01:00:00Z"), Date.UTC(2028, 1, 29, 1));
+  assert.equal(parseTime("2026-03-01T10:00+05:30"), Date.UTC(2026, 2, 1, 4, 30));
+  assert.equal(parseTime("2026-03-01T10:00:59-14:00"), Date.UTC(2026, 2, 2, 0, 0, 59));
+});
