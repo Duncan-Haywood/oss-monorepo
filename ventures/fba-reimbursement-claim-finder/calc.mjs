@@ -142,7 +142,15 @@ const DAY = 86400000;
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(0);
-const addMonths = (t, m) => { const d = new Date(t); d.setUTCMonth(d.getUTCMonth() + m); return d.getTime(); };
+// Calendar months, clamped to the target month's last day: 31 Aug + 6 months is 28 Feb, not 3 March.
+// (setUTCMonth alone rolls the 29th-31st into the next month, which put a claim deadline 1-3 days late.)
+export const addMonths = (t, m) => {
+  const d = new Date(t), day = d.getUTCDate();
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + m);
+  d.setUTCDate(Math.min(day, new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate()));
+  return d.getTime();
+};
 const ymd = (t) => new Date(t).toISOString().slice(0, 10);
 
 function findColumns(header, aliases) {

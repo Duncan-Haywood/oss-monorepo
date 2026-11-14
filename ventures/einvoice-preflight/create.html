@@ -70,7 +70,7 @@
 
   <section id="hrSection" hidden>
     <h2>Croatia (HR-CIUS 2025)</h2>
-    <p class="muted" style="font-size:.85rem">Fiskalizacija 2.0 adds these to every domestic B2B invoice. Give each line a KPD 2025 class (e.g. 62.20.30) in the lines table. An exempt (E) line makes the creator add the HR extension (HRFISK20Data) that HR-BR-26 requires. Seller and buyer e-addresses default to scheme 9934 and the OIB from the VAT ID.</p>
+    <p class="muted" style="font-size:.85rem">Fiskalizacija 2.0 adds these to every domestic B2B invoice. Give each line a KPD 2025 class (e.g. 62.20.30) in the lines table. An exempt (E) line or charge, or an amount with an HR label (deposit, PP, PPMV, other non-taxable fee), makes the creator add the HR extension (HRFISK20Data) that HR-BR-26 requires. Seller and buyer e-addresses default to scheme 9934 and the OIB from the VAT ID.</p>
     <div class="grid">
       <label>Issue time (hh:mm:ss) <input id="issue_time" value="12:00:00" pattern="\d{2}:\d{2}:\d{2}"></label>
       <label>Business process (P1 to P12) <input id="process" value="P1"></label>
@@ -116,8 +116,12 @@
 
   <section>
     <h2>Lines</h2>
-    <div class="lines-scroll"><table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>KPD (HR)</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
+    <div class="lines-scroll"><table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>KPD (HR)</th><th>HR label</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
     <div class="actions"><button type="button" class="secondary" id="addLine">+ Add line</button></div>
+    <h3 style="font-size:1rem;margin:1rem 0 .3rem">Allowances and charges on the whole invoice</h3>
+    <div class="lines-scroll"><table class="lines"><thead><tr><th>Type</th><th>Reason</th><th>Amount (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>HR label</th><th></th></tr></thead><tbody id="adjustments"></tbody></table></div>
+    <div class="actions"><button type="button" class="secondary" id="addAdjustment">+ Add allowance or charge</button></div>
+    <p class="muted" style="font-size:.85rem">A discount on the whole invoice is an <b>allowance</b>, a delivery or packaging fee a <b>charge</b>; each counts in its VAT rate's row (EN 16931 BG-20, BG-21). In Croatia, an amount outside the VAT base takes an <b>HR label</b>: POVNAK (refundable deposit), PP (consumption tax), PPMV (special tax on motor vehicles) or N (another non-taxable fee, e.g. tourist tax). The label also works on a line, in the HR label column there. It is written as the Porezna uprava's own samples write it: exempt (E) in the EN layer, outside the VAT base (O) in the HR extension.</p>
     <p class="muted" style="font-size:.85rem">0% needs a category: <b>Z</b> zero-rated, <b>E</b> exempt (e.g. Kleinunternehmer § 19 UStG), <b>AE</b> reverse charge, <b>K</b> intra-EU supply, <b>G</b> export, <b>O</b> outside scope. All but Z need a reason.</p>
     <div class="totals" id="totals"></div>
   </section>
@@ -165,11 +169,32 @@
         <td><select data-f="unit" aria-label="Unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
         <td><input data-f="unit_price" aria-label="Unit price (net)" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" aria-label="VAT percent" type="number" step="any" value="19" style="width:4.5em"></td>
         <td><select data-f="tax_category" aria-label="VAT category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
-        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><input data-f="kpd" aria-label="KPD 2025 class (Croatia)" placeholder="62.20.30" style="width:6.5em"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
+        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><input data-f="kpd" aria-label="KPD 2025 class (Croatia)" placeholder="62.20.30" style="width:6.5em"></td><td><select data-f="hr_label" aria-label="Croatian out-of-scope label"><option value="">none</option><option>POVNAK</option><option>PP</option><option>PPMV</option><option>N</option></select></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
       for (const [k, v] of Object.entries(l)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
       tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
       tr.addEventListener("input", showTotals);
       $("lines").appendChild(tr);
+    }
+    function adjustmentRow(a = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><select data-f="type" aria-label="Allowance or charge"><option value="charge">charge</option><option value="allowance">allowance</option></select></td>
+        <td><input data-f="reason" aria-label="Reason" placeholder="Delivery"></td><td><input data-f="amount" aria-label="Amount (net)" type="number" step="any" min="0" style="width:7em"></td>
+        <td><input data-f="tax_percent" aria-label="VAT percent" type="number" step="any" value="19" style="width:4.5em"></td>
+        <td><select data-f="tax_category" aria-label="VAT category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
+        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><select data-f="hr_label" aria-label="Croatian out-of-scope label"><option value="">none</option><option>POVNAK</option><option>PP</option><option>PPMV</option><option>N</option></select></td><td><button type="button" class="secondary" aria-label="Remove allowance or charge">×</button></td>`;
+      for (const [k, v] of Object.entries(a)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
+      tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
+      tr.addEventListener("input", showTotals);
+      $("adjustments").appendChild(tr);
+    }
+    function adjustments() {
+      const out = { allowances: [], charges: [] };
+      for (const tr of $("adjustments").children) {
+        const o = {}; tr.querySelectorAll("[data-f]").forEach((el) => { o[el.dataset.f] = el.value; });
+        const { type, ...rest } = o;
+        (type === "allowance" ? out.allowances : out.charges).push(rest);
+      }
+      return out;
     }
     function lines() {
       return [...$("lines").children].map((tr) => {
@@ -184,6 +209,7 @@
         prepaid: g("prepaid") || 0, terms: g("terms"), seller: party("seller"), buyer: party("buyer"), lines: lines(),
         delivery_date: g("delivery_date"), period: { start: g("period_start"), end: g("period_end") },
         original_invoice_date: g("original_invoice_date"), delivery_country: g("delivery_country"),
+        ...adjustments(),
       };
       if ($("profile").value === "hr") Object.assign(d, { issue_time: g("issue_time"), process: g("process"), operator: { name: g("operator_name"), oib: g("operator_oib") } });
       const pay = {}; document.querySelectorAll("#payment [data-k]").forEach((el) => { pay[el.dataset.k] = el.value.trim(); });
@@ -206,7 +232,8 @@
     function showTotals() {
       const r = generateInvoice(draft(), opts());
       const t = r.totals;
-      $("totals").innerHTML = t ? ["net", "tax", "gross", "due"].map((k) => `<div class="metric"><strong>${money(t[k], $("currency").value.toUpperCase())}</strong><span>${{ net: "Net", tax: "VAT", gross: "Gross", due: "Amount due" }[k]}</span></div>`).join("") : "";
+      const keys = ["net", ...(t && t.allowances ? ["allowances"] : []), ...(t && t.charges ? ["charges"] : []), "tax", "gross", "due"];
+      $("totals").innerHTML = t ? keys.map((k) => `<div class="metric"><strong>${money(k === "allowances" ? -t[k] : t[k], $("currency").value.toUpperCase())}</strong><span>${{ net: "Net of lines", allowances: "Allowances", charges: "Charges", tax: "VAT", gross: "Gross", due: "Amount due" }[k]}</span></div>`).join("") : "";
     }
     document.querySelectorAll("input,select").forEach((el) => el.addEventListener("input", showTotals));
 
@@ -259,6 +286,8 @@
       $("lines").innerHTML = "";
       lineRow({ description: "Consulting", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 19 });
       lineRow({ description: "Printed handbook", quantity: 3, unit: "C62", unit_price: 50, tax_percent: 7 });
+      $("adjustments").innerHTML = "";
+      adjustmentRow({ type: "charge", reason: "Shipping", amount: 4.9, tax_percent: 7 });
       showTotals();
     };
     // Made-up companies and operator; the OIB check digits are valid. The third line is exempt,
@@ -275,9 +304,13 @@
       lineRow({ description: "IT podrška", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 25, kpd: "62.20.30" });
       lineRow({ description: "Priručnik (tiskani)", quantity: 3, unit: "C62", unit_price: 20, tax_percent: 5, kpd: "58.11.11" });
       lineRow({ description: "Tečaj", quantity: 1, unit: "C62", unit_price: 150, tax_percent: 0, tax_category: "E", tax_reason: "Oslobođeno PDV-a prema čl. 39. Zakona o PDV-u", kpd: "85.59.09" });
+      // A refundable deposit on the printed handbooks' packaging: outside the VAT base (HR:POVNAK).
+      $("adjustments").innerHTML = "";
+      adjustmentRow({ type: "charge", reason: "Povratna naknada", amount: 0.3, tax_percent: 0, hr_label: "POVNAK" });
       showTotals();
     }
     $("addLine").onclick = () => lineRow();
+    $("addAdjustment").onclick = () => adjustmentRow();
     showHr();
     $("issue_date").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     lineRow();

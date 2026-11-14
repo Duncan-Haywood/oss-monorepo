@@ -104,7 +104,10 @@ export function seniorityFits(antig, start, end) {
   if (!m) return true;
   const d0 = new Date(s);
   // Add the years and months on the calendar, then the days.
-  const t = Date.UTC(d0.getUTCFullYear() + Number(m[1] || 0), d0.getUTCMonth() + Number(m[2] || 0), d0.getUTCDate()) + Number(m[3]) * 864e5;
+  // The day is clamped to the target month's length (31 Aug + P6M is 28 Feb, not 3 March).
+  const y = d0.getUTCFullYear() + Number(m[1] || 0), mo = d0.getUTCMonth() + Number(m[2] || 0);
+  const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+  const t = Date.UTC(y, mo, Math.min(d0.getUTCDate(), last)) + Number(m[3]) * 864e5;
   return t <= e + 864e5;
 }
 

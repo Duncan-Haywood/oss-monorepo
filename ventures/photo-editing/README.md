@@ -1134,7 +1134,8 @@ Not done: colour is only as good as the profile you supply (no profile ships her
 (DSLR-A100) and SR2/SRF are refused; the older bodies' masked right-hand columns are not trimmed
 (LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
 Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
-applied, and Sony's lens name in the maker note is not read yet.
+applied. Since the same day the maker note's LensSpec names the lens for lensfun (see "Sony and Samsung:
+lenses named from the maker note" below).
 
 ## Fujifilm RAF (2026-11-14)
 
@@ -1256,7 +1257,8 @@ encoder of its own, checks that the C and Python decoders agree on random stream
 synthetic SRW through the profile chooser and the CLI.
 
 Not done: colour is only as good as the profile you supply (no real Samsung `.dcp` was at hand);
-the lens name in the maker note is not read for lensfun yet; uncompressed and 32769 SRWs are
+the lens is named from the maker note's LensType since the same day (see "Sony and Samsung: lenses
+named from the maker note"); uncompressed and 32769 SRWs are
 refused for want of a test file.
 
 ## Panasonic RW2 (2026-11-14)
@@ -2125,6 +2127,20 @@ On 18 real ORFs and four Olympus JPEGs, eight frames from seven bodies that gave
 identified, and every pick is the lens metadata-extractor's independent decoder names for the same file.
 Develop still takes DNG or CR2, so this reaches ORF and JPEG shot facts and a future ORF developer.
 Details: `eval/olympus-equipment-2026-11-14.md`.
+
+### Sony and Samsung: lenses named from the maker note (2026-11-14)
+
+The Sony DSLR-A500 and Samsung's Galaxy NX and NX20 write no EXIF lens name or LensSpecification, and E-mount
+bodies that do write LensSpecification often fit several lensfun lenses with it (three 24 mm f/1.8 lenses,
+four 24-70 mm f/2.8). Sony's maker note keeps LensSpec (tag 0xB02A): the range, the f-numbers and the
+feature letters of Sony's lens names (DT, FE, E, PZ, ZA, G, SAM, SSM, OSS, II ...), so ShootFlow rebuilds
+"DT 18-55mm F3.5-5.6 SAM" from it. Samsung's keeps the lens's number in its NX list (tag 0xA003), named from
+metadata-extractor's Apache-licensed list. The range picks the lens when one fits, and the name breaks the
+tie when several do, also beside a file's own LensSpecification.
+
+On the ten real ARW and SRW files at hand, every frame now picks the lens its own EXIF name (or, for the
+A500, ExifTool's reading of its lens number) gives, from maker-note and tag data alone; before, three gave
+no hint and three were refused as ties. Details: `eval/sony-samsung-lens-2026-11-14.md`.
 
 ### Converted DNGs: the camera's maker note from DNGPrivateData (2026-11-14)
 
