@@ -1,9 +1,9 @@
 ---
 title: "--tz=-5 ran in UTC with no warning. Red-teaming the on-call load analyzer's CLI"
-seo_title: "On-call load analyzer CLI: a timezone flag that silently fell back to UTC"
+seo_title: "On-call analyzer CLI: a timezone flag that fell back to UTC"
 date: 2026-11-14
 tags: [testing, mutation-testing, on-call, pagerduty, cli, redteam]
-description: "Eight faults seeded into the on-call load analyzer's command line, two caught. Reading the code turned up a timezone flag that quietly reported nights in UTC, plus the same silent default in two sibling CLIs."
+description: "Eight faults seeded into the on-call load analyzer CLI, two caught. Its --tz flag quietly reported nights in UTC; two sibling CLIs had the same silent default."
 ---
 
 The [On-call Load Analyzer](../../ventures/oncall-load-analyzer/) reads an
