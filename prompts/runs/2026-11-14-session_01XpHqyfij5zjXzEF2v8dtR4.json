@@ -44,6 +44,10 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "chant-forge next: was 1988 of 2000 characters, so the landed item had to be shortened in place twice to fit the validator cap."
+    },
+    {
+      "file": "platform/ci/doc_index.py",
+      "issue": "No pull-request workflow runs doc_index check on its own, so a report without front matter reached main (PR #15807) and turned the next PRs' changed-ventures job red."
     }
   ],
   "deviations": [
@@ -59,7 +63,7 @@
     "ventures/chant-forge/eval/thick-line-check.md"
   ],
   "goal": "Deepen the chant-forge flagship: the scan reader that checks GABC transcriptions against the printed book",
-  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge ok (28.3s); the 2 new scan.test.mjs tests fail on the old reader and pass on the new. Evals (scan-check, shape-check, rhombus-check --held-out --sweep, thick-line-check) run on a clean copy of main and on the branch over the same 185 archive.org pages (archive.org reachable from the cloud session). Not held out: thresholds set on the same pages.",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge ok (28.3s); the 2 new scan.test.mjs tests fail on the old reader and pass on the new. Evals (scan-check, shape-check, rhombus-check --held-out --sweep, thick-line-check) run on a clean copy of main and on the branch over the same 185 archive.org pages (archive.org reachable from the cloud session). Not held out: thresholds set on the same pages. CI changed-ventures went red on a report merged to main by PR #15807 (docs/reports/2026-11-14-quality-fix-selfrep-materials-stl.md, no front matter); fixed forward here with doc_index.py backfill --write. venture-preflight chant-forge clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
