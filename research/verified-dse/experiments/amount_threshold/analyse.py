@@ -74,7 +74,8 @@ def guard(flag):
     return lambda c: c["rand"] if flag(c["design"]) else swc(c)
 
 
-swd8, swdg8, swd1, sws = guard(flag_d), guard(flag_dg), guard(lambda d: flag_d(d, 1)), ad.sws
+swd8, swdg8, swd1 = guard(flag_d), guard(flag_dg), guard(lambda d: flag_d(d, 1))
+sws = guard(lambda d: FEAT[d]["shift_width"] >= 64)  # milestone 119's SWS(64), over this file's FEAT
 
 
 def m121_blind():
@@ -132,6 +133,16 @@ def main(dst):
             f"mean regret %: SWC {mean(four, swc):.2f}, SWS(64) {mean(four, sws):.2f}, SWD(8) {mean(four, swd8):.2f}, "
             f"SWDG(8) {mean(four, swdg8):.2f}, random {mean(four, rand):.2f}", ""]
     out += sp.compare_lines(four, ((swd8, rand, "SWD(8)", "random"), (swdg8, rand, "SWDG(8)", "random")), SEED)
+    out += ["", "## Post hoc (chosen after this table was read; not a test): SWD(k) by k on milestones 121 and 122's 24 blind cells", "",
+            "k | designs flagged | mean regret % | better than random | worse than random"]
+    for k in (1, 2, 3, 4, 5, 8, 11, 17):
+        g = guard(lambda d, k=k: flag_d(d, k))
+        bt, w, _ = pool.compare(two, g, rand)
+        out.append(f"{k} | {', '.join(sorted({c['design'] for c in two if flag_d(c['design'], k)})) or '-'} | {mean(two, g):.2f} | {bt} | {w}")
+    lad = [c for c in two if c["ratio"] > score.THETA]
+    out += ["", "ladder-branch cells of milestones 121 and 122 by amount_depth (SWC % against random %): "
+            + "; ".join(f"{c['design']} {c['clock']} d={FEAT[c['design']]['amount_depth']} {swc(c):.2f} vs {c['rand']:.2f}"
+                        for c in sorted(lad, key=lambda c: (FEAT[c['design']]['amount_depth'], c['design'], c['clock'])))]
     deep = [c for c in blind if FEAT[c["design"]]["amount_depth"] >= 8]
     shallow = [c for c in blind if FEAT[c["design"]]["amount_depth"] < 8]
     b1, w1, _ = pool.compare(blind, swd8, rand)

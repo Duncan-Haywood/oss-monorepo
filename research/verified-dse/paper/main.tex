@@ -63,7 +63,14 @@ against 2 to 3\% for random routing. A 128-bit leading-zero normaliser
 that the guard flags is where the ladder reaches 0.00\% against 11\% for
 random routing. Shifters whose amount comes straight from an input
 defeat the mapped rung; a shifter whose amount comes out of deep logic
-does not.
+does not. Two further blind tests count the logic in front of the
+amount. On the 14 cells of milestones 121 and 122 where the rule takes
+its ladder branch, the ladder loses in all 4 whose amount is 1 or 2
+word-level cells deep and reaches 0.00\% in all 10 that are 4 or more
+deep. A guard that routes randomly on wide shifters with an amount under
+8 cells deep is better than random routing in 8 of 24 blind cells and
+worse in none (sign p = 0.008; interval -2.04 to -0.14 points); the data
+place the cut between depth 2 and 4, a post-hoc reading.
 \end{abstract}
 \textbf{Draft for MLCAD (6 pages when typeset); not submitted.}
 Programme \texttt{verified-dse}, milestone 7. Written with AI assistance
@@ -972,6 +979,33 @@ has the optimum ranked last by the rung and every other excess 0, so the
 quantile is 0 and the regret is log c for any n, and the empirical
 coverage stays a property of this table).
 
+\textbf{The amount-depth threshold, tested blind from both sides
+(milestone 122; flow run).} Milestone 121 left the cut between
+word-level depth 2 and 63 untested. We fixed SWD(8) as the primary guard
+and seven predictions, then ran six 128-bit shifters no table had run,
+one shallow and one deep per family (1,440 flow runs,
+\texttt{experiments/\allowbreak{}amount\_\allowbreak{}threshold/\allowbreak{}}):
+\texttt{x\ \textgreater{}\textgreater{}\ s} with s = a then K rounds of
+\texttt{(s\ \^{}\ b)\ +\ c} (depth 4 and 16),
+\texttt{x\ \textless{}\textless{}\ popcount(m)} over a 6- or 24-bit mask
+(5 and 23), and \texttt{x\ \textgreater{}\textgreater{}} the lane given
+by the first set bit of a 4- or 8-bit request (10 and 22). Four
+predictions held and three failed. On all 6 cells where the rule takes
+its ladder branch, including the depth-4 chain, the clipped ladder
+reaches 0.00\% against 2.79\% to 5.65\% for random routing; the other 6
+cells sit below the cost threshold, where every rule routes randomly.
+SWD(8) is therefore wrong on the depth-4 chain and loses 3.11 points
+there to the unguarded rule (blind regret 3.09\% against 2.57\%, with
+random 4.54\%). Over the 24 blind cells of milestones 121 and 122,
+SWD(8) is better than random in 8 cells and worse in none (sign p =
+0.008; design-bootstrap interval -2.04 to -0.14 points), and 2.99\%
+against 4.93\% for the unguarded rule. A post-hoc scan (chosen after the
+table was read) puts the cut between 2 and 4: SWD(3) has 2.73\% and is
+better than random in 10 cells, worse in none. Word-level depth does not
+see operand width, so the chain's depth 4 (7-bit xors and adds) and the
+alignment step's depth 2 (8-bit subtract, compare, select) may be closer
+in gate levels than the counts suggest.
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1071,12 +1105,15 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  Where the amount-depth cut lies. Milestone 121 found that the ladder
-  wins on shifters whose amount comes from deep logic (normalisers, a
-  popcount, depth 63 and more) and loses when one adder or an exponent
-  difference (depth 1 to 2) feeds the amount. The guard SWD(8) should be
-  tested blind on amounts 4 to 32 word-level cells deep, with a
-  gate-level depth alongside the word-level count.
+  Where the amount-depth cut lies. Milestones 121 and 122 put it between
+  word-level depth 2 (the ladder loses on all 4 ladder-branch cells at
+  depth 1 and 2) and 4 (it reaches 0.00\% on all 10 at depth 4 to 127),
+  but only post hoc and with a word-level count that does not see
+  operand width. A blind test needs designs at depth 3, a 2-cell amount
+  built from wide operators and a 5-cell one from narrow ones, with a
+  gate-level depth computed alongside, and families whose cost ratio
+  puts them on the ladder branch (half of milestone 122's cells sat
+  below it).
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point
