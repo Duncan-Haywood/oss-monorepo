@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, privacy, honesty]
+topics: [design, privacy, guardrails]
 date: 2026-11-14
 ---
 # Polish 2026-11-14: the shared footer's Privacy paragraph, 499 words → 115, and accurate again
