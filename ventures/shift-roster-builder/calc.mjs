@@ -120,6 +120,13 @@ export function parseAvailability(text) {
 const ROLE_CELL = /^roles?\s*:/i;
 const FIXED_CELL = /^(fixed|pin|pinned)\s*:/i;
 const parseFixed = (cell) => cell.replace(FIXED_CELL, "").split(/[|/&+]/).map((r) => r.trim()).filter(Boolean);
+// Sites (2026-11-14): "site: Harbour" on a shift says which shop it is at; "sites: Main | Harbour" on a person says where
+// they can work (no cell = anywhere). One run then plans several shops from one staff list, so the weekly hour cap,
+// rest rule and no-double-booking hold across them. Names match with case and punctuation ignored ("Main St." = "main st").
+const SITE_CELL = /^(site|location|shop|store)\s*:/i;
+const SITES_CELL = /^(sites|locations|shops|stores)\s*:/i;
+export const siteKey = (x) => String(x || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+const parseSites = (cell) => cell.replace(SITES_CELL, "").replace(SITE_CELL, "").split(/[|/&+;]/).map(siteKey).filter(Boolean);
 const parseRoles = (cell) => cell.replace(ROLE_CELL, "").split(/[|/&+]/).map((r) => r.trim().toLowerCase()).filter(Boolean);
 
 // "prev: Sun 10pm" = when this person's last shift LAST week ended, so the rest rule also holds across the week boundary.
@@ -255,6 +262,9 @@ export function parseStaff(text, { weekStart = null } = {}) {
     if (staff.some((s) => s.name.toLowerCase() === c[0].toLowerCase())) { errors.push(`${where}: "${c[0]}" is listed twice`); return; }
     const tail = c.slice(4);
     const roles = tail.filter((x) => ROLE_CELL.test(x)).flatMap(parseRoles);
+    const siteCells = tail.filter((x) => SITES_CELL.test(x) || SITE_CELL.test(x));
+    const sites = siteCells.length ? [...new Set(siteCells.flatMap(parseSites))] : null;
+    if (siteCells.length && !sites.length) errors.push(`${where} (${c[0]}): "${siteCells[0]}" names no site; write it like "sites: Main | Harbour"`);
     let prevEnd = null;
     const prevCell = tail.find((x) => PREV_CELL.test(x));
     if (prevCell) {
@@ -285,7 +295,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
       seniority = Number(senCell.replace(SENIORITY_CELL, "").trim());
       if (!Number.isFinite(seniority)) { errors.push(`${where} (${c[0]}): could not read "${senCell}"; write it like "seniority: 3" (higher = more senior)`); seniority = null; }
     }
-    const isExtra = (x) => SENIORITY_CELL.test(x) || STREAK_CELL.test(x) || ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x);
+    const isExtra = (x) => SENIORITY_CELL.test(x) || STREAK_CELL.test(x) || ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x) || SITES_CELL.test(x) || SITE_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
@@ -317,7 +327,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
         }
       }
     }
-    staff.push({ seniority, age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
+    staff.push({ sites: sites && sites.length ? sites : null, seniority, age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -343,9 +353,13 @@ export function parseShifts(text) {
     if (a === b) { errors.push(`${where}: start and end are the same`); return; }
     const count = (c[3] || "") === "" ? 1 : Number(c[3]);
     if (!Number.isInteger(count) || count < 1 || count > 50) { errors.push(`${where}: people needed must be a whole number from 1 to 50`); return; }
-    const label = ROLE_CELL.test(c[4] || "") || FIXED_CELL.test(c[4] || "") ? "" : (c[4] || "");
+    const tagged = (x) => ROLE_CELL.test(x || "") || FIXED_CELL.test(x || "") || SITE_CELL.test(x || "");
+    const label = tagged(c[4]) ? "" : (c[4] || "");
     const roleCell = c.slice(4).find((x) => ROLE_CELL.test(x));
-    const roleRaw = roleCell ? parseRoles(roleCell)[0] || "" : FIXED_CELL.test(c[5] || "") ? "" : (c[5] || "").trim().toLowerCase();
+    const roleRaw = roleCell ? parseRoles(roleCell)[0] || "" : tagged(c[5]) ? "" : (c[5] || "").trim().toLowerCase();
+    const siteCell = c.slice(4).find((x) => SITE_CELL.test(x));
+    const site = siteCell ? siteCell.replace(SITE_CELL, "").trim() : "";
+    if (siteCell && !siteKey(site)) { errors.push(`${where}: "site:" needs a name`); return; }
     // "role: keyholder x1" asks for one keyholder among the people needed; the other copies take anyone. No "xN" = every copy.
     const roleCount = /^(.+?)\s*[x×]\s*(\d+)$/.exec(roleRaw);
     const role = roleCount ? roleCount[1].trim() : roleRaw;
@@ -358,7 +372,7 @@ export function parseShifts(text) {
     if (slots.length + days.length * count > MAX_SLOTS * 4) { overflow = true; return; } // stop expanding a runaway file
     for (const d of days) for (let k = 0; k < count; k++) {
       const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight
-      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role: k < roleNeeded ? role : "", copy: k + 1, of: count, fixed: fixedNames[k] || "" });
+      slots.push({ day: d, startMin: a, endMin: end, start: d * 1440 + a, end: d * 1440 + end, label, role: k < roleNeeded ? role : "", copy: k + 1, of: count, fixed: fixedNames[k] || "", ...(site ? { site } : {}) });
     }
   });
   if (!slots.length && !errors.length) errors.push("Add at least one shift to cover.");
@@ -395,8 +409,13 @@ function qualified(person, slot) {
   return !slot.role || (person.roles || []).includes(slot.role);
 }
 
+function worksAt(person, slot) {
+  return !slot.site || !person.sites || person.sites.includes(siteKey(slot.site));
+}
+
 function available(person, slot) {
   if (!qualified(person, slot)) return false;
+  if (!worksAt(person, slot)) return false;
   if (slot.fixed && slot.fixed.toLowerCase() !== person.name.toLowerCase()) return false;
   const first = person.days[slot.day];
   const stop = Math.min(slot.endMin, 1440);
@@ -425,7 +444,7 @@ export function buildContext(staff, slots, options = {}) {
 // slotKey(slot) (day, start, end, role). Each hour of such a shift they work again earns keepValue x their wage, the same way
 // a prefer: hour does, so it flows through the search and every exact bound; it is far below BIG, so it never leaves a shift open,
 // and it trades at most keepValue x wage an hour of pay for a steadier rota. Copies of one shift share a key. null when off.
-export const slotKey = (s) => `${s.day}|${s.startMin}|${s.endMin}|${s.role || ""}`;
+export const slotKey = (s) => `${s.day}|${s.startMin}|${s.endMin}|${s.role || ""}` + (s.site ? `|@${siteKey(s.site)}` : "");
 // `keepShift` (2026-11-12) is the same bonus counted per shift instead of per hour: keeping a kept shift earns keepShift x the
 // person's wage whatever its length, the shape of a per-change short-notice premium (rebuilding a posted week).
 export const keepOn = (o) => !!o && !!o.keep && (o.keepValue > 0 || o.keepShift > 0);
@@ -433,11 +452,13 @@ function keepSets(o, staff, slots) {
   if (!keepOn(o)) return null;
   const by = new Map(Object.entries(o.keep).map(([n, keys]) => [n.toLowerCase(), new Set(keys)]));
   const keys = slots.map(slotKey), anyRole = slots.map((s) => slotKey({ ...s, role: "*" }));
+  // A kept shift from a file with no site column matches the same day and hours at any site.
+  const anySite = slots.map((s) => slotKey({ ...s, role: "*", site: "" }));
   const sets = staff.map((p) => {
     const ks = by.get(p.name.toLowerCase());
     if (!ks) return null;
     const set = new Set();
-    keys.forEach((k, i) => { if (ks.has(k) || ks.has(anyRole[i])) set.add(i); });
+    keys.forEach((k, i) => { if (ks.has(k) || ks.has(anyRole[i]) || ks.has(anySite[i])) set.add(i); });
     return set.size ? set : null;
   });
   return sets.some(Boolean) ? sets : null;
@@ -2501,6 +2522,7 @@ function whyUnfilled(ctx, owner, i) {
   const pinned = slot.fixed && ctx.staff.some((p) => p.name.toLowerCase() === slot.fixed.toLowerCase());
   if (pinned && why.free === 0) text = `${slot.fixed} is pinned to this shift but is not available for the whole of it`;
   else if (slot.role && skilled === 0) text = `nobody listed has the role "${slot.role}"`;
+  else if (slot.site && !ctx.staff.some((p) => worksAt(p, slot))) text = `nobody listed works at "${slot.site}"`;
   else if (why.free === 0) text = slot.role ? `nobody with the role "${slot.role}" is available for this whole shift` : "nobody listed is available for this whole shift";
   else {
     const bits = [];
@@ -2862,7 +2884,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   const assignments = slots.map((s, i) => ({ slot: s, person: res.owner[i] >= 0 ? staff[res.owner[i]].name : null }));
   const grid = staff.map((p, k) => ({
     name: p.name,
-    days: DAYS.map((_, d) => res.lists[k].filter((i) => slots[i].day === d).map((i) => `${fmtClock(slots[i].startMin)}–${fmtClock(slots[i].endMin)}${slots[i].label ? " " + slots[i].label : ""}${slots[i].role ? " [" + slots[i].role + "]" : ""}`)),
+    days: DAYS.map((_, d) => res.lists[k].filter((i) => slots[i].day === d).map((i) => `${fmtClock(slots[i].startMin)}–${fmtClock(slots[i].endMin)}${slots[i].label ? " " + slots[i].label : ""}${slots[i].role ? " [" + slots[i].role + "]" : ""}${slots[i].site ? " @ " + slots[i].site : ""}`)),
   }));
 
   const savingVsListed = base.cost - res.cost;
@@ -3132,10 +3154,12 @@ const unDefuse = (t) => (/^'[=+\-@\t\r]/.test(t) ? t.slice(1) : t);
 
 export function rosterCsv(r) {
   const q = csvCell;
-  const rows = ["day,start,end,hours,label,assigned_to,role"];
+  // A "site" column is added only when some shift names a site, so one-shop files stay byte-identical.
+  const sited = r.assignments.some((a) => a.slot.site);
+  const rows = ["day,start,end,hours,label,assigned_to,role" + (sited ? ",site" : "")];
   for (const a of r.assignments) {
     const s = a.slot;
-    rows.push([DAYS[s.day] + (s.endMin > 1440 ? " (overnight)" : ""), fmtClock(s.startMin), fmtClock(s.endMin), ((s.end - s.start) / 60).toFixed(2), q(s.label || ""), q(a.person || "UNFILLED"), q(s.role || "")].join(","));
+    rows.push([DAYS[s.day] + (s.endMin > 1440 ? " (overnight)" : ""), fmtClock(s.startMin), fmtClock(s.endMin), ((s.end - s.start) / 60).toFixed(2), q(s.label || ""), q(a.person || "UNFILLED"), q(s.role || ""), ...(sited ? [q(s.site || "")] : [])].join(","));
   }
   return rows.join("\n") + "\n";
 }
@@ -3284,7 +3308,8 @@ export function parseRosterCsv(csv) {
     let end = parseTime(c[2]);
     if (day < 0 || Number.isNaN(start) || Number.isNaN(end)) continue;
     if (end <= start) end += 1440;
-    out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: unDefuse((c[4] || "").trim()) });
+    const site = unDefuse((c[7] || "").trim());
+    out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: unDefuse((c[4] || "").trim()), ...(site ? { site } : {}) });
   }
   return out;
 }
@@ -3300,7 +3325,8 @@ export function pinStarted(slots, postedCsv, changedAt) {
   let pinned = 0, open = 0;
   const out = slots.map((s) => {
     if (!(s.start < changedAt)) return s;
-    const k = rows.findIndex((r, j) => !used.has(j) && r.start === s.start && r.end === s.end);
+    // With sites, a posted row pins only a shift at its own site (a row with no site, from an older file, pins any).
+    const k = rows.findIndex((r, j) => !used.has(j) && r.start === s.start && r.end === s.end && (!r.site || siteKey(r.site) === siteKey(s.site)));
     if (k >= 0) { used.add(k); pinned++; return { ...s, fixed: rows[k].person }; }
     open++;
     return { ...s, fixed: STARTED_OPEN };
@@ -3484,7 +3510,7 @@ export function keepFromCsv(csv) {
   const keep = {};
   for (const r of parseRosterCsv(csv)) {
     const base = r.day * 1440;
-    (keep[r.person.toLowerCase()] ||= []).push(slotKey({ day: r.day, startMin: r.start - base, endMin: r.end - base, role: "*" }));
+    (keep[r.person.toLowerCase()] ||= []).push(slotKey({ day: r.day, startMin: r.start - base, endMin: r.end - base, role: "*", site: r.site }));
   }
   return keep;
 }
@@ -4536,4 +4562,52 @@ export function steadyText(s) {
     : `Call-out check: ${s.tied.length} rosters tie at the best score; this one adds the fewest open hours if someone calls out (${num(s.exposure)} h summed over ${s.personDays} person-days, ${others}).`;
   const worst = s.worst.slice().sort((a, b) => b.added - a.added).slice(0, 5).map((c) => `${c.person} on ${DAYS[c.day]} (+${num(c.added)} h)`);
   return `${head}\n${worst.length ? `Call-outs that would still leave hours open: ${worst.join(", ")}${s.worst.length > 5 ? ` and ${s.worst.length - 5} more` : ""}.` : "No single call-out Tue-Sun leaves an hour open."}`;
+}
+
+// Per-site split of a roster built across several shops (2026-11-14). For each site: shifts, hours needed, hours covered,
+// hours left open, and payroll; a person's payroll (overtime included) is shared between sites in proportion to their hours
+// at each, since overtime is earned on the week, not on one shop. `shared` lists everyone who works at two or more sites,
+// with their hours at each. Shifts with no site are grouped under "" (shown as "(no site)"). Returns null when no shift
+// names a site, so one-shop rosters show nothing new.
+export function siteSplit(r) {
+  const asg = (r && r.assignments) || [];
+  if (!asg.some((a) => a.slot.site)) return null;
+  const name = new Map(), by = new Map(), personSite = new Map();
+  for (const a of asg) {
+    const k = siteKey(a.slot.site);
+    if (!name.has(k)) name.set(k, a.slot.site || "");
+    const row = by.get(k) || { site: name.get(k), shifts: 0, hours: 0, covered: 0, open: 0, openShifts: 0, cost: 0, people: new Set() };
+    const h = (a.slot.end - a.slot.start) / 60;
+    row.shifts++; row.hours += h;
+    if (a.person) {
+      row.covered += h; row.people.add(a.person);
+      const m = personSite.get(a.person) || new Map();
+      m.set(k, (m.get(k) || 0) + h);
+      personSite.set(a.person, m);
+    } else { row.open += h; row.openShifts++; }
+    by.set(k, row);
+  }
+  const costOf = new Map((r.people || []).map((p) => [p.name, p.cost || 0]));
+  for (const [person, m] of personSite) {
+    const total = [...m.values()].reduce((t, h) => t + h, 0);
+    for (const [k, h] of m) by.get(k).cost += total > 0 ? (costOf.get(person) || 0) * (h / total) : 0;
+  }
+  const sites = [...by.values()].map((x) => ({ ...x, people: x.people.size }))
+    .sort((a, b) => (a.site === "") - (b.site === "") || a.site.localeCompare(b.site));
+  const shared = [...personSite].filter(([, m]) => m.size > 1)
+    .map(([person, m]) => ({ name: person, hours: Object.fromEntries([...m].map(([k, h]) => [name.get(k), h])) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return { sites, shared };
+}
+
+// Plain-text form of siteSplit for the CLI and the copyable summary.
+export function siteSplitText(split) {
+  if (!split) return "";
+  const nm = (s) => s || "(no site)";
+  const w = Math.max(9, ...split.sites.map((s) => nm(s.site).length));
+  const lines = [`By site (one staff list across ${split.sites.length} sites; payroll shared by each person's hours at each site):`,
+    ...split.sites.map((s) => `${nm(s.site).padEnd(w)} ${String(s.shifts).padStart(4)} shifts  ${num(s.covered).padStart(6)} of ${num(s.hours)} h covered${s.open > 0 ? `, ${num(s.open)} h open` : ""}  ${money(s.cost)}  ${s.people} ${s.people === 1 ? "person" : "people"}`)];
+  if (split.shared.length) lines.push(`Working at more than one site: ${split.shared.map((p) => `${p.name} (${Object.entries(p.hours).map(([k, h]) => `${nm(k)} ${num(h)} h`).join(", ")})`).join("; ")}.`);
+  else lines.push("Nobody works at more than one site this week.");
+  return lines.join("\n");
 }
