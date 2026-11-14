@@ -41,11 +41,67 @@ test("amount due follows gross minus prepaid", () => {
   assert.ok(r.changes.some((c) => c.path === "/totals/due" && c.to === "1100.00"));
 });
 
-test("a header allowance leaves tax and totals alone and says so", () => {
+// Header allowances and charges (BG-20/BG-21), recomputed since 2026-11-14 (eval/cii-header-allowances.mjs).
+const allowance = (amt, cat = "S", rate = "19", ind = "false") => `<ram:SpecifiedTradeAllowanceCharge><ram:ChargeIndicator><udt:Indicator>${ind}</udt:Indicator></ram:ChargeIndicator><ram:ActualAmount>${amt}</ram:ActualAmount><ram:Reason>Rabatt</ram:Reason><ram:CategoryTradeTax><ram:TypeCode>VAT</ram:TypeCode><ram:CategoryCode>${cat}</ram:CategoryCode>${rate === null ? "" : `<ram:RateApplicablePercent>${rate}</ram:RateApplicablePercent>`}</ram:CategoryTradeTax></ram:SpecifiedTradeAllowanceCharge>`;
+// The clean invoice with a 100.00 allowance at S 19%, all its totals right.
+const withAllowance = () => ex("xrechnung-cii-invoice.xml")
+  .replace("<ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>190.00", allowance("100.00") + "<ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>171.00")
+  .replace("<ram:BasisAmount>1000.00</ram:BasisAmount>\n        <ram:CategoryCode>S", "<ram:BasisAmount>900.00</ram:BasisAmount>\n        <ram:CategoryCode>S")
+  .replace("<ram:AllowanceTotalAmount>0.00", "<ram:AllowanceTotalAmount>100.00")
+  .replace("<ram:TaxBasisTotalAmount>1000.00", "<ram:TaxBasisTotalAmount>900.00")
+  .replace('<ram:TaxTotalAmount currencyID="EUR">190.00', '<ram:TaxTotalAmount currencyID="EUR">171.00')
+  .replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1071.00")
+  .replace("<ram:DuePayableAmount>1190.00", "<ram:DuePayableAmount>1071.00");
+
+test("a correct invoice with a header allowance comes back byte for byte", () => {
+  const src = withAllowance();
+  const r = repairCii(src);
+  assert.deepEqual(r.remaining, []);
+  assert.equal(r.repaired, false);
+  assert.equal(r.xml, src);
+});
+
+test("a header allowance is taken off its tax group, and every total follows", () => {
+  const clean = withAllowance();
+  // The seller forgot the allowance everywhere but the allowance itself.
+  const src = clean.replace("<ram:BasisAmount>900.00", "<ram:BasisAmount>1000.00").replace("<ram:CalculatedAmount>171.00", "<ram:CalculatedAmount>190.00")
+    .replace("<ram:AllowanceTotalAmount>100.00", "<ram:AllowanceTotalAmount>0.00").replace("<ram:TaxBasisTotalAmount>900.00", "<ram:TaxBasisTotalAmount>1000.00")
+    .replace('currencyID="EUR">171.00', 'currencyID="EUR">190.00').replace("<ram:GrandTotalAmount>1071.00", "<ram:GrandTotalAmount>1190.00").replace("<ram:DuePayableAmount>1071.00", "<ram:DuePayableAmount>1190.00");
+  const r = repairCii(src);
+  assert.deepEqual(r.changes.map((c) => c.path), ["/tax_breakdown/0/taxable", "/tax_breakdown/0/tax", "/totals/allowances", "/totals/net", "/totals/tax", "/totals/gross", "/totals/due"]);
+  assert.equal(r.xml, clean);
+  assert.deepEqual(r.remaining, []);
+});
+
+test("a header charge is added; one in a category no line has needs its own tax block", () => {
+  const charge = allowance("50.00", "S", "19", "true");
+  const src = ex("xrechnung-cii-invoice.xml").replace("<ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>", charge + "<ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>");
+  const r = repairCii(src);
+  assert.ok(r.changes.some((c) => c.path === "/totals/charges" && c.to === "50.00"));
+  assert.ok(r.changes.some((c) => c.path === "/tax_breakdown/0/taxable" && c.to === "1050.00"));
+  assert.ok(r.changes.some((c) => c.path === "/totals/gross" && c.to === "1249.50"));
+  // At 7%, no line and no header block: the tax is not invented.
+  const r7 = repairCii(ex("xrechnung-cii-invoice.xml").replace("<ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>", allowance("50.00", "S", "7", "true") + "<ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>"));
+  assert.ok(r7.skipped.some((s) => /Tax was not recomputed/.test(s)));
+  assert.ok(!r7.changes.some((c) => c.path === "/totals/gross"));
+});
+
+test("a header allowance with no readable amount or category stops the tax part", () => {
   const src = ex("xrechnung-cii-invoice.xml").replace("<ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>", "<ram:SpecifiedTradeAllowanceCharge><ram:ChargeIndicator><udt:Indicator>false</udt:Indicator></ram:ChargeIndicator><ram:ActualAmount>10.00</ram:ActualAmount></ram:SpecifiedTradeAllowanceCharge><ram:ApplicableTradeTax>\n        <ram:CalculatedAmount>");
   const r = repairCii(src);
-  assert.ok(r.skipped.some((s) => /header allowances/.test(s)));
+  assert.ok(r.skipped.some((s) => /header allowance or charge has no readable/.test(s)));
   assert.equal(r.repaired, false);
+});
+
+test("BT-111 in another currency is left as written; BT-110 is found by its currency", () => {
+  const clean = ex("xrechnung-cii-invoice.xml").replace("<ram:InvoiceCurrencyCode>EUR", "<ram:TaxCurrencyCode>GBP</ram:TaxCurrencyCode><ram:InvoiceCurrencyCode>EUR")
+    .replace('<ram:TaxTotalAmount currencyID="EUR">190.00</ram:TaxTotalAmount>', '<ram:TaxTotalAmount currencyID="GBP">163.40</ram:TaxTotalAmount><ram:TaxTotalAmount currencyID="EUR">190.00</ram:TaxTotalAmount>');
+  assert.equal(repairCii(clean).repaired, false);
+  const src = clean.replace('currencyID="EUR">190.00', 'currencyID="EUR">197.00');
+  const r = repairCii(src);
+  assert.deepEqual(r.changes.map((c) => [c.path, c.to]), [["/totals/tax", "190.00"]]);
+  assert.ok(r.xml.includes('currencyID="GBP">163.40'));
+  assert.ok(r.skipped.some((s) => /BT-111, GBP/.test(s)));
 });
 
 test("a header tax block that no line matches is reported, tax is not invented", () => {

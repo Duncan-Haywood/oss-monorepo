@@ -1223,11 +1223,19 @@ veraPDF (PDF/A-3 after the update) is the open check.
 Same contract as UBL: only amounts are edited, in place: each line's
 `LineTotalAmount` (quantity x net price / basis quantity), each header
 `ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the
-header monetary summation (line total, tax basis, tax, grand total, amount due
-= grand - prepaid + rounding). Skipped, and said so: lines with their own
-allowance, charge or sub-line, header allowances or charges, more than one
-`TaxTotalAmount`, and tax groups that do not match the header blocks one to
-one. On `examples/xrechnung-cii-credit-note-with-defects.xml` it fixes the
+header monetary summation (line total, allowance and charge totals, tax basis
+= lines - allowances + charges, tax, grand total, amount due = grand - prepaid
++ rounding). Header allowances and charges (BG-20/BG-21,
+`SpecifiedTradeAllowanceCharge`, and EXTENDED's `SpecifiedLogisticsServiceCharge`
+as a charge) move their own tax group's basis since 2026-11-14; before that a
+file with one was declined. A second `TaxTotalAmount` in the VAT accounting
+currency (BT-111) is left as written and said so; the one in the invoice
+currency (BT-110) is still recomputed. Skipped, and said so: lines with their
+own allowance, charge or sub-line (their totals are kept as written), a header
+allowance with no readable indicator, amount or category, a second tax total
+with no currency to tell it apart, and tax groups that do not match the header
+blocks one to one. Measured on real files in "CII header allowances on real
+files" below. On `examples/xrechnung-cii-credit-note-with-defects.xml` it fixes the
 wrong VAT amount (150.00 to 190.00) and leaves the type code and missing
 fields for a person. Hand-written examples only (`repair-cii.test.mjs`,
 `server.test.mjs`); on real files see "The repair on real files" below. The web page's
@@ -1456,7 +1464,23 @@ The bundled Peppol rules were release 3.0.20 (OpenPEPPOL `261c458`, March 2026);
 
 A new check, `eval/peppol-unit-tests.mjs`, runs OpenPeppol's own unit tests (`rules/unit-*`) through the compiled set. The shipped rules agreed with **775 of 899** assertions of their *own* release; every miss was Danish. Cause: `plain-compile.mjs` pasted schema- and pattern-level `<let>`s into rule contexts, where a relative path such as `ubl-invoice:Invoice/cac:AccountingSupplierParty/...` started from the Invoice element rather than the document node, so **DK-R-002..017 and the Icelandic IS-R rules never fired**. Such values are now substituted as `root(.)/(value)`. Now: **1,048 of 1,048** assertions agree. The same fix, rebuilt from the same pinned sources, reaches XRechnung (`isCVD`: the CII Clean Vehicles rules could not fire), NLCIUS and seven PINT jurisdiction sets; ZATCA, CIUS-RO, CIUS-PT and the EN 16931 base are byte-identical. `eval/phive-corpus.mjs --good` output is byte-identical before and after, and OpenPeppol's ten 3.0.22 examples go from 9 to 10 with no blocking finding. `build-plain-rules.mjs` now merges the manifest instead of replacing it (a rerun used to drop the 37 PINT/ZATCA/CIUS entries) and takes `EINVOICE_PLAIN_ONLY`. Details: `eval/peppol-bis-3.0.22-2026-11-14.md`; tests: `peppol-bis-3022.test.mjs` (14). Open: the Saxon route picks up 3.0.22 on its next image build (not rebuilt here); a real access point's verdict on a 3.0.22 file.
 
-## The repair on real files (2026-11-14, latest)
+## CII header allowances on real files (2026-11-14, latest)
+
+`node eval/cii-header-allowances.mjs <checkouts>` takes every CII invoice, as XML
+or inside a Factur-X PDF, in the ZUGFeRD corpus, Mustang, KoSIT's XRechnung
+suite and the CEN examples that has a header allowance or charge: 77 files, 66
+distinct documents. The repair used to decline all of them. **Now 64 are
+recomputed and come back unchanged** (they are valid; nothing they state is
+rewritten); 2 are still declined (a line with no quantity; CEN's XRechnung-O,
+which states no tax total). Seeded, one total at a time pushed up 7.00 (allowance total,
+charge total, tax basis, tax, grand total, a tax group's basis or tax): **449 of
+459 restored to the original numbers, 10 declined with the reason, 0 wrong.**
+The broader 529-file run below still changes 2 files and moves no amount due.
+On the seeded Factur-X PDFs (qpdf 12.4.2) the attachment comes back byte for
+byte from **314 of 358** (248 before), qpdf passes all 358, and declines drop
+from 110 to 44 (none for allowances now). Details: `eval/cii-header-allowances-2026-11-14.md`.
+
+## The repair on real files (2026-11-14)
 
 The repair had only met files this repository wrote. Run over 529 real UBL, CII
 and Factur-X files from the ZUGFeRD corpus, Mustang, KoSIT's XRechnung suite and
