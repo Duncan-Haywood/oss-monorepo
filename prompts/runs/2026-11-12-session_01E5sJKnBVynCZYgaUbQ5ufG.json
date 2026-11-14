@@ -321,7 +321,8 @@
       {
         "file": ".github/workflows/distribution-versions-ci.yml",
         "issue": "17 of 28 (releases.test.mjs only looked covered: tool-releases.test.mjs contains its name) platform/distribution/*.test.mjs run in no PR workflow (ghaction, nixflake, precommit, desktop, mcp, vscode, webext, android, attribution, bluesky, citation, devto, hashnode, mastodon, setup, wordpress, ios; releases), which is how three of them went red on main unseen. Fix: add all but ios.test.mjs (its catalogue-wide plan test takes >90 s; give it its own step with a timeout) to the 'Publisher unit tests' step, and add ventures/** paths the generators read. Control plane, own PR, owner approval. Opened as PR #15201.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15789: platform/ci/unwired_checks.py now runs every platform/**/*.test.mjs no workflow runs, so these 26 distribution suites run on every venture PR (ventures-tests.yml via run_venture_tests.py --since); ios.test.mjs is a named slow skip. Platform-only PRs still skip ventures-tests.yml: that is the open 2026-11-13 #4 entry."
       }
     ]
   },
