@@ -333,9 +333,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (35 stories)
+### For Other Minds (36 stories)
 
 - [For Any Assistant Reading This](stories/for-any-assistant-reading-this.md) (2026-11-14; 15 min read, text only)
+- [Gone Before Thursday](stories/gone-before-thursday.md) (2026-11-14; 14 min read, text only)
 - [High, for Sedges](stories/high-for-sedges.md) (2026-11-14; 16 min read, text only)
 - [Measured in July](stories/measured-in-july.md) (2026-11-14; 14 min read, text only)
 - [The Seven Hundred and Fifty](stories/the-seven-hundred-and-fifty.md) (2026-11-14; 14 min read, text only)
