@@ -1073,10 +1073,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     columns.desc = hdr.indexOf("notes");
   }
   if (bank === "cash-app") { columns.amount = hdr.indexOf("net amount"); columns.desc = hdr.indexOf("notes"); }
-  // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
+  // Mercury lists Pending, Failed and Cancelled rows beside Sent ones (on one real LLC download, 197
+  // of 372 rows were Failed card charges that never moved money). "Received" is read as booked: an
+  // onboarding sample in Mercury's layout marks every deposit that way.
   // Venmo lists Pending and Cancelled payments, and its balance rows have no date.
   const stateCol = bank === "revolut" ? hdr.indexOf("state") : bank === "mercury" || bank === "paypal" || bank === "venmo" || bank === "cash-app" || bank === "sofi" || bank === "usaa" ? hdr.indexOf("status") : -1;
-  const okState = bank === "mercury" ? /^(sent|completed)$/i : bank === "cash-app" ? /^complete$/i : bank === "sofi" || bank === "usaa" ? /^posted$/i : bank === "venmo" ? /^(complete|issued)$/i : bank === "paypal" ? /^completed$/i : /^completed$/i;
+  const okState = bank === "mercury" ? /^(sent|completed|received)$/i : bank === "cash-app" ? /^complete$/i : bank === "sofi" || bank === "usaa" ? /^posted$/i : bank === "venmo" ? /^(complete|issued)$/i : bank === "paypal" ? /^completed$/i : /^completed$/i;
   // Any other export with a Status or State column (Chime, Brex, Bluevine and the like): skip
   // rows whose status is plainly not a booked transaction. Only that vocabulary is skipped, so
   // an unknown label such as "Settled" or "Cleared" keeps the row.
@@ -1099,11 +1101,18 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Deutsche Bank style: one column for each side; the other party is the payee on money out, the payer on money in.
   const payeeOut = hdr.findIndex((x) => /^(beg(ue|ü)nstigter|zahlungsempf(ä|ae)nger\*in)$/.test(x)), payerIn = hdr.findIndex((x) => /^zahlungspflichtige(r|\*r)$/.test(x));
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
-  const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
+  // Mercury's download does the same in "Source Account": one file can hold the checking account, a
+  // second checking account and the Mercury Credit card, whose autopay shows on both sides (two real
+  // LLC downloads, 2026-11-14), so it is split the same way.
+  const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname|source account)$/.test(x));
   const accountNames = new Set();
   const memoCols = hdr.map((x, ix) => (/^(memo|notes?|comments?|remarks)$/.test(x) && ix !== columns.desc ? ix : -1)).filter((ix) => ix !== -1);
   const labelCols = ["reporting category", "category", "category name", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
   const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
+  // Mercury writes the owner's own category in "Category" and its merchant category in "Mercury
+  // Category" (Software, Restaurants, FinancialInstitutionsAndFees...). The owner's label wins; the
+  // merchant one is read only where the owner left the line blank.
+  const catCol2 = hdr.indexOf("mercury category");
   // The card network's merchant category: a four-digit code (Tinkoff's MCC, purchasing-card files) or its name.
   // The City of Toronto's PCard report calls them "Merchant Type" (the code) and "Merchant Type Description".
   // A code column wins over a name column; a "merchant category" column is read only when it is not the description.
@@ -1114,7 +1123,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Which card on a business account made the charge: Chase's business card writes the last four
   // digits of each employee's card in a "Card" column, Brex "Card Last Four". Only the last four
   // digits are kept, never a full number or a name.
-  const cardCol = hdr.findIndex((x, ix) => ix !== columns.desc && ix !== columns.amount && /^(card|card last four|card last 4|card last 4 digits|last 4 digits|card no\.?|card number)$/.test(x));
+  const cardCol = hdr.findIndex((x, ix) => ix !== columns.desc && ix !== columns.amount && /^(card|card last four|card last 4|card last 4 digits|last 4 digits|last four digits|card no\.?|card number)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   // ICICI credit-card CSV: every amount is unsigned and BillingAmountSign says "CR" on a credit; blank is a charge.
   const billSignCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("billingamountsign") : -1;
@@ -1257,7 +1266,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       else if (m === "from") cents = Math.abs(cents);
     }
     // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
-    const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
+    const bankCat = ((catCol === -1 ? "" : String(r[catCol] ?? "").trim()) || (catCol2 === -1 ? "" : String(r[catCol2] ?? "").trim())).slice(0, 60);
     let mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
     // US Bank's card export has no MCC column but writes it into the memo after the
     // reference number: "24269794038500527407893; 05411; ; ; ;" (a real download read

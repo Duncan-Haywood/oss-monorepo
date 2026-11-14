@@ -857,8 +857,11 @@ export function parseRules(text, accounts) {
 export const BANK_CATEGORY = [
   ["6040", /^(fee\/)?interest( charges?)?$|^fee\/interest charge$|^finance charges?$/i],
   ["6010", /^(fees? (&|and) adjustments|bank fees?|service fees?|fees?)$/i],
+  // Mercury's merchant category for its own foreign-transaction fees: 45 of 45 lines were filed to
+  // Bank Fees by the owner on a real LLC download (2026-11-14, tuned on that file).
+  ["6010", /^financialinstitutionsandfees$/i],
   ["6130", /^(food (&|and) drink|restaurants?|dining|dining out|coffee shops?|fast food|food & dining)$/i],
-  ["6120", /^(travel|other travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car)/i],
+  ["6120", /^(travel|other travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car|carrental$)/i],
   ["6160", /^(gas|gasoline|gas\/automotive|gas & fuel|fuel|automotive|auto & transport|parking)$/i],
   ["6140", /^(utilities|bills & utilities|internet|phone|phone\/cable|mobile phone|telephone)$/i],
   ["6030", /^insurance$/i],

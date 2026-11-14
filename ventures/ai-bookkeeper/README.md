@@ -1340,6 +1340,24 @@ Measured before and after, on the same files (all fetched at run time, none comm
 
 The gain is small because glued names are rare in these sets, but each of those lines was a payee the books could never learn. Pinned in `glued-payee.test.mjs` (6 tests, descriptions written here in the real shapes). Not tried: a US Bank business checking download, where `WEB AUTHORIZED PMT` lines are commoner.
 
+### Mercury business accounts (2026-11-14, fifth batch)
+
+Every business file read so far was at Chase. `node eval/mercury-exports.mjs` reads five files in the layout Mercury's download writes, fetched at run time from public GitHub repositories at pinned commits (none committed; the two real ones hold names, emails and account digits): two that look like LLCs' own downloads (200 and 372 rows) and three samples in Mercury's layout. The first carries the owner's own `Category` on 105 lines (Bank Fees, Software & Subscriptions, Business Meals, Legal & Professional Services, Revenue, Transfer...): the first set of a firm's own labels on its own bank lines. Four findings, two with money consequences:
+
+1. **Three accounts read as one.** Mercury writes every account into one file and names it on each row in `Source Account`: on the first LLC's file, a checking account, a second checking account and the Mercury Credit card. The reader did not know that column, so all 200 rows went into whichever account the user picked: card charges landed in the checking account, and each of the card's 24 autopayments (`IO AUTOPAY`) appeared twice in the same account, once out and once in, with nothing to pair against. `Source Account` is now read like Mint's `Account` column, so the page and `import file.csv --map "NAME"=CODE` ask for a chart code per account. Split that way, the 48 autopay and transfer lines pair as transfers between the accounts (0 before) and the card's charges land on the card.
+2. **Mercury's merchant category was ignored.** The file has two category columns: the owner's own (`Category`) and Mercury's (`Mercury Category`: Software, Restaurants, FinancialInstitutionsAndFees...). Only the first was read. It still wins; Mercury's now fills the lines the owner left blank, as the same weak, review-only hint as Chase's label. Two labels gained a mapping: `FinancialInstitutionsAndFees` (Mercury's own foreign-transaction fee, 45 of 45 filed to Bank Fees by the owner; written looking at this file) and `CarRental`. `Retail`, `Grocery`, `Entertainment`, `ProfessionalServices`, `GovernmentServices` and `Electronics` name no account and stay silent.
+3. **Card lines lost their card.** `Last Four Digits` is now read like Chase's `Card` column, so `cards` gives spend per card on a Mercury card account. The cardholder's name and email in the same row are never kept.
+4. **Failed charges.** On the second LLC's file 197 of 372 rows are `Failed` card charges, retried until they went through; they were already skipped, and stay skipped. A sample file marks every deposit `Received`; that is now read as booked instead of skipping all 53 deposits.
+
+Replayed in date order against the owner's labels (the `Category` column blanked first, so the categorizer never sees it; money out, labels that name an account; 100 lines):
+
+| | before | after |
+|---|---|---|
+| every line, right / wrong | 85.0% / 6.0% | 90.0% / 3.0% |
+| first-seen payee (25 lines) | 44.0% / 24.0% | 64.0% / 12.0% |
+
+On the second LLC's file (no owner labels), a cold import suggests an account for 167 of 174 lines against 72 before; by eye the new ones are AI and developer tools under Mercury's `Software` and its foreign-transaction fees, all plausible. Caveats: one firm's 100 labelled lines, a few recurring payees, and the fee rule was written looking at the same file, so the gain is an upper bound. The three wrong suggestions left are all the new-payee guess (a lodging charge, an Airwallex transfer and a Wise fee sent to meals). Pinned in `mercury-business.test.mjs` (6 tests, rows written here under the real header).
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.
