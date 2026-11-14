@@ -103,7 +103,7 @@ export function normalizeState(value) {
 export function parseAmount(value) {
   const raw = String(value ?? '').trim();
   if (!raw) return null;
-  const negative = /^\(.*\)$/.test(raw) || raw.startsWith('-');
+  const negative = /^\(.*\)$/.test(raw) || /^[^0-9]*[-−]/.test(raw);
   const cleaned = raw.replace(/[^0-9.]/g, '');
   if (!cleaned || cleaned === '.') return null;
   const n = Number(cleaned);
