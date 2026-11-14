@@ -245,6 +245,7 @@ export function decodeQrTlv(bytes) {
     // ZATCA's spec allows only one-byte lengths, but a long seller name or a DER length
     // form turns up in the wild; read 0x81/0x82 rather than misreading the rest.
     if (len === 0x81) { len = bytes[i + 2]; head = 3; } else if (len === 0x82) { len = bytes[i + 2] * 256 + bytes[i + 3]; head = 4; }
+    if (i + head > bytes.length) throw new Error(`tag ${tag}'s length is cut off`);
     if (i + head + len > bytes.length) throw new Error(`tag ${tag} says ${len} bytes but only ${bytes.length - i - head} remain`);
     if (out.has(tag)) throw new Error(`tag ${tag} appears twice`);
     out.set(tag, bytes.subarray(i + head, i + head + len));
@@ -349,7 +350,9 @@ export function checkZatcaStamp(source) {
       meta.checked.push("signature");
       if (!cert.curveIsSecp256k1) {
         findings.push(finding("KSA-STAMP-15", "The signing certificate's key is not on secp256k1, the curve ZATCA's CSIDs use.", "Generate the key pair with the secp256k1 curve, as ZATCA's onboarding requires, and onboard it again.", "/Invoice/ext:UBLExtensions//ds:X509Certificate"));
-      } else if (!verifyEcdsaSecp256k1(cert.point, fromBase64(digest || hash), sigBytes)) {
+      } else if (!(() => { try { return verifyEcdsaSecp256k1(cert.point, fromBase64(digest || hash), sigBytes); } catch { return false; } })()) {
+        // A DigestValue that is not base64 (base64url, say) cannot be what was signed; it is
+        // reported here and as KSA-STAMP-01, not thrown (that took the file's whole report down).
         findings.push(finding("KSA-STAMP-03", `The SignatureValue does not verify against the certificate's public key over the ${digest && digest !== hash ? "stated" : ""} invoice hash. Either the signature was made with another key, or over something other than the hash bytes.`.replace("  ", " "),
           "Sign the base64-decoded invoice hash (the 32 raw bytes) with ECDSA SHA-256 using the private key of this certificate, and write the DER signature in base64.", "/Invoice/ext:UBLExtensions//ds:SignatureValue"));
       }
@@ -364,7 +367,9 @@ export function checkZatcaStamp(source) {
     if (certDigest && certText) {
       meta.checked.push("certificate digest");
       const expect = toBase64(utf8(hex(sha256(certText))));
-      const expectRaw = toBase64(sha256(fromBase64(certText)));
+      // A certificate that is not base64 is already KSA-STAMP-17; only the SDK's form applies.
+      let expectRaw = null;
+      try { expectRaw = toBase64(sha256(fromBase64(certText))); } catch { /* reported as 17 */ }
       if (certDigest !== expect && certDigest !== expectRaw) {
         findings.push(finding("KSA-STAMP-18", "xades:CertDigest is not the digest of the embedded certificate.", "Write base64(hex(SHA-256(certificate base64 text))) as the certificate digest, as ZATCA's SDK does, for the same certificate that is embedded in ds:X509Certificate.", "/Invoice/ext:UBLExtensions//xades:CertDigest/ds:DigestValue"));
       }
@@ -452,7 +457,10 @@ export function checkZatcaChain(items) {
   const out = new Map();
   const byIcv = new Map();
   for (const it of items) {
-    const icv = Number(it.meta?.icv);
+    // A plain decimal counter only: Number("") is 0, so a file with no ICV would stand in
+    // for counter 0 (and "1e1" for 10).
+    const icvText = String(it.meta?.icv ?? "").trim();
+    const icv = /^\d+$/.test(icvText) ? Number(icvText) : NaN;
     if (!Number.isInteger(icv) || !it.meta?.hash) continue;
     if (!byIcv.has(icv)) byIcv.set(icv, []);
     byIcv.get(icv).push(it);

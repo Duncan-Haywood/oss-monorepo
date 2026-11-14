@@ -1634,6 +1634,20 @@ old malformed TLV (04), the XAdES digests (18, 19), an expired certificate (16),
 and a restarted or broken chain through `preflightDocuments` (20); plus SHA-256
 and ECDSA agreement with `node:crypto` and the C14N basics.
 
+Red-team pass (2026-11-14, 7 more tests, 22 in all), four fixes: a
+`DigestValue` or `X509Certificate` that is not base64 (base64url's `-` and `_`) threw out of the
+check, and the batch report then listed the whole file as unreadable with none
+of its findings (now KSA-STAMP-01 and -03); a QR cut off inside a long-form
+length (`0x81`/`0x82`) read as an empty field instead of KSA-STAMP-04; and a
+file with no ICV counted as counter 0 in the chain check, so a batch holding it
+and a device's first invoice (ICV 1) failed the first invoice with a false
+KSA-STAMP-20 (counters must now be plain digits). Also now pinned: a
+certificate dated 2050 or later (GeneralizedTime) and the no-certificate path
+that verifies the QR's own key and signature, C14N's ordering of namespace
+declarations and of attributes when two prefixes share a namespace, and a fuzz
+test that mangles each signature field and cuts the QR at every length and
+asserts the check reports rather than throws (it found the certificate crash).
+
 Not done: the certificate chain to ZATCA's CA is not verified (no CA keys, no
 network call), so a self-made certificate passes as long as it signed this
 invoice; Fatoora's acceptance is not known from any of this; the Python CLI

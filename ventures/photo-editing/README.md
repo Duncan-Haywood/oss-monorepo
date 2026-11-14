@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below). Other RAW formats (CR3, RAF, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below). Other RAW formats (CR3, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -916,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW and Pentax PEF with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW and PEF since 2026-11-14, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below; convert CR3 with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF" and "Fujifilm RAF" below; convert CR3 with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1135,6 +1135,41 @@ Not done: colour is only as good as the profile you supply (no profile ships her
 (LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
 Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
 applied, and Sony's lens name in the maker note is not read yet.
+
+## Fujifilm RAF (2026-11-14)
+
+Fujifilm raw files no longer need Adobe's DNG Converter, and that includes X-Trans, the 6x6 colour
+layout most Fujifilm X bodies use instead of a Bayer pattern. `shootflow develop DSCF0001.RAF --dcp
+PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for the other raw formats) reads the RAF itself,
+and the pipeline's grade stage develops RAF stills with the workspace's `color/camera-profiles/`
+(`src/shootflow/raf.py`).
+
+What it reads: the RAF's own header (not a TIFF), its header records and the CFA block, which on
+X-Trans bodies is a small TIFF of Fujifilm tags (size, bits, data offset, 36 black levels, balance)
+and on older Bayer bodies is the sensor data itself. Uncompressed 16-bit words and 12-bit packing.
+The X-Trans layout comes from header record 0x0131, which is stored backwards. The crop is the
+camera's picture area from the header (0x0110, 0x0111): on all three files it is centred on the
+camera's embedded JPEG, which drops a further 8 px a side on the X-Trans bodies
+(`eval/raf_jpeg_alignment.py`).
+
+The developer now demosaics 6x6 patterns: the bilinear demosaic takes the CFA's period as a
+parameter (every 3x3 X-Trans window holds all three colours), an edge sensel with no in-image
+neighbour of a colour borrows the reflected ones on both engines, and half size on X-Trans averages
+2x2 blocks of a full-size demosaic. The pure-Python and numpy engines still give identical bytes.
+
+How it was checked (`tools/raf_libraw_check.py`, `eval/fujifilm-raf-reader-2026-11-14.md`): the
+three RAFs in the public metadata-extractor-images collection, an X-E1 (12-bit packed), an X-E2
+(14-bit) and a FinePix S5500 (Bayer). Against LibRaw 0.22 through rawpy, every sensel is equal on
+all three (37.3 M in all), and so are the as-shot white balance, the black level at each of the 36
+(or 4) CFA positions, the white level and the CFA layout. 0.01-0.33 s to read; 7 s to develop a
+16 MP X-Trans frame with numpy. `tests/test_raf.py` (14 tests) writes RAFs of each layout, checks
+the sensels exactly, keeps flat fields flat through the X-Trans demosaic, compares the two engines
+byte for byte and runs a synthetic RAF through the profile chooser and the CLI.
+
+Not done: the X-Trans demosaic is bilinear, softer and more prone to false colour than a
+directional X-Trans demosaic such as Markesteijn's; Fujifilm's lossless-compressed RAFs (X-T2 era
+and later), SuperCCD and GFX files are refused or unchecked (none at hand); colour is only as good
+as the profile you supply (no real Fujifilm `.dcp` was at hand).
 
 ## Pentax PEF (2026-11-14)
 

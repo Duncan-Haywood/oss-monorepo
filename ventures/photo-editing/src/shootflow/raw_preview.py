@@ -74,15 +74,19 @@ def is_pef_path(path: Path) -> bool:
     return path.suffix.lower() == ".pef"
 
 
-def needs_profile_path(path: Path) -> bool:
-    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CR2, ARW, NEF, ORF, RW2, SRW, PEF)."""
+def is_raf_path(path: Path) -> bool:
+    return path.suffix.lower() == ".raf"
 
-    return is_cr2_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path)
+
+def needs_profile_path(path: Path) -> bool:
+    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CR2, ARW, NEF, ORF, RW2, SRW, PEF, RAF)."""
+
+    return is_cr2_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path)
 
 
 def is_developable_path(path: Path) -> bool:
     """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
-    Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW and Pentax PEF given a camera profile (``camera_profiles``)."""
+    Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF given a camera profile (``camera_profiles``)."""
 
     return is_dng_path(path) or needs_profile_path(path)
 

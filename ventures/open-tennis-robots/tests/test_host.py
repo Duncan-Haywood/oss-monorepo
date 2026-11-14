@@ -345,10 +345,49 @@ class SpinupRampTest(unittest.TestCase):
         self.assertFalse(full.hw.wheel_ramps[0].coasting)               # arrived, and held by the loop again
         self.assertAlmostEqual(full.wheel[0], 3000, delta=150)
 
+    def _flips_on_slow_down(self, pack_mv, hyst_mv=None):
+        """Brake/coast changes over a 20% slow-down from 5000 rpm with the reading lifted 260 mV while braking."""
+        sim = SimFeeder()
+        if hyst_mv is not None:
+            sim.hw.brake_guard = controller.BrakeGuard(sim.cfg.REGEN_BRAKE_MAX_MV, hyst_mv)
+        sim.write(P.encode(P.HEARTBEAT) + P.encode(P.SET_WHEELS, 5000, 2000))
+        for _ in range(120):
+            sim.write(P.encode(P.HEARTBEAT))
+            sim.run_ms(100)
+        sim.pack_mv, sim.brake_rise_mv = pack_mv, 260
+        guard, seen = sim.hw.brake_guard, []
+        update = guard.update
+        guard.update = lambda mv: seen.append(update(mv)) or seen[-1]
+        sim.write(P.encode(P.HEARTBEAT) + P.encode(P.SET_WHEELS, 4000, 2000))
+        for _ in range(15):
+            sim.write(P.encode(P.HEARTBEAT))
+            sim.run_ms(100)
+        return sum(1 for a, b in zip(seen, seen[1:]) if a != b), sim
+
+    def test_braking_does_not_flip_the_guard(self):
+        import config
+        near = config.REGEN_BRAKE_MAX_MV - 100          # resting 100 mV under the threshold, inside the 260 mV rise
+        old, _ = self._flips_on_slow_down(near, hyst_mv=0)   # the first firmware's single threshold
+        self.assertGreater(old, 10)                                       # 21 on this plant
+        new, sim = self._flips_on_slow_down(near)
+        self.assertLessEqual(new, 1)
+        self.assertAlmostEqual(sim.wheel[0], 4000, delta=200)            # it coasted the rest of the way and arrived
+        low, sim = self._flips_on_slow_down(config.REGEN_BRAKE_MAX_MV - 1000)
+        self.assertEqual(low, 0)                                          # well under: brakes throughout
+        self.assertTrue(sim.hw.brake_guard.ok)
+
+    def test_brake_guard_band(self):
+        g = controller.BrakeGuard(27600, 700)
+        self.assertTrue(g.update(27600))
+        self.assertFalse(g.update(27601))
+        self.assertFalse(g.update(27000))                                 # inside the band: still coasting
+        self.assertTrue(g.update(26899))
+
     def test_regen_config_matches_the_cad(self):
         import config
         p = _feeder()
         self.assertEqual(config.REGEN_BRAKE_MAX_MV, p.regen_brake_max_v * 1000)
+        self.assertEqual(config.REGEN_BRAKE_HYST_MV, round(p.regen_brake_hyst_v * 1000))
         self.assertTrue(config.WHEEL_BRAKE)
         self.assertEqual(p.check_regen(), [])
 

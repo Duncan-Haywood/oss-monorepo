@@ -106,12 +106,12 @@ flagships:
       slips, full-size photos); (6) payroll (README; journal layout 11-14): a real
       Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: 38 states' pages, discounts for 22 (MD, UT statutes; CO's ended 2026,
-      README); open: IN's day and allowance, NJ, AR, RI, ME, MA; a real return
-      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
-      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
-      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
+      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
+      discounts, IN's band and day from the book (README); open: AR statutes, a real
+      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
+      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
+      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
+      once printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -159,28 +159,27 @@ flagships:
       (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
       box and "Wandering level" (drift) shipped; Rounds 10-12 (NAB; SKAB, 33 pump
       faults, 8 sensors): every rule failed; 8 SKAB columns sent 8.5 false lines per
-      100 checks on a normal run; Rounds 13-15 (agreement; floors) failed: 14 kept
-      28/33 at 2.27 false/100, 15 (spread-relative) 1.40 false but 27/33
-      (thermocouple set k); next k without the loudest column; a real deployer's
-      repository on GitHub Actions (the emulated run is in the README); (a) ar1 +
-      floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a
-      season and a trend term per column (README "Wide sets in print"); (b) sticky
-      series on a drifting level: four repeat treatments failed the frozen-juice
-      bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky),
-      test it on fresh labelled data; update-rate check: date a documented
-      collection change. One-tick stale feeds (README): next its power in n, or a
-      rounded-walk likelihood. Next: apple's volume in several-columns mode; joint
-      drift (measured, not offered) and its 2x penalty on fresh multi-column
-      labelled data; long labelled series from outside TCPD (none over 991 points).
-      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
-      absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks:
-      `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real
-      step inside a cycle, a cycle check not tied to rho, real documented ramps and
-      close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3)
-      `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the
-      GARCH search"): re-test scoring breaks with false alarms, new seeds; (4)
-      driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a
-      yearly term.
+      100 checks on a normal run; Rounds 13-16 failed (floors: 28/33 at 2.27
+      false/100; 27 at 1.40; loud split 30 at 2.47, README Round 16); next a rolling
+      normal window; a real deployer's repository on GitHub Actions (the emulated
+      run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data
+      (0.564 on TCPD's 3, a lead), a season and a trend term per column (README
+      "Wide sets in print"); (b) sticky series on a drifting level: four repeat
+      treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc
+      (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data;
+      update-rate check: date a documented collection change. One-tick stale feeds
+      (README): next its power in n, or a rounded-walk likelihood. Next: apple's
+      volume in several-columns mode; joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data; long labelled series from outside
+      TCPD (none over 991 points). Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual
+      guard, a second hinge; a real step inside a cycle, a cycle check not tied to
+      rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell
+      under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line
+      (README "Heavy tails in the GARCH search"): re-test scoring breaks with false
+      alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a
+      shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -220,33 +219,33 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*. Exact side:
-      branch-and-price and column generation prove 20-80 person weeks; the exact
-      check is on by default at every size. Forecast side (--from-sales, eight real
-      files incl. real Square and Toast exports, 2026-11-13:
-      eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
-      cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
-      weeks: reissues hold started and posted shifts (README "Is 91 the least?" to
-      "Giving up two clashing shifts"); a whole week at the Deputy file's rates
-      (README "A whole week of call-outs at a real roster's rates", 2026-11-13):
-      kept reissues cut changes 56-66%, open hours path-dependent both ways. Next:
-      whether a real manager would set keepShift above 1; close the 100-person gaps
-      (tree, not bound: README same section); day sweeps LP-guided, by the
-      open-hours LP when the pay floor is skipped (README "A guide when the pay
-      floor is skipped"); warm start landed (README 2026-11-14), next a warm-sized
-      gate; re-run the keep-usual-shifts sweep on real dated leave records; a
-      manager's read on whether the steadier plan is the one they would post; a real
-      7shifts account through --import-7shifts (README "Reading 7shifts directly");
-      a real When I Work account or response through --import-wheniwork (README
-      "Reading When I Work directly"); Homebase (docs need an account);
-      --cover-price moves two shifts together (README "Moving two shifts together":
-      20-person week exposure 113 to 68 h for $35.27); second call-outs priced
-      (README "A second call-out in the same week", off by default); next: fewer
-      capped pairs, pair price past 120 copies; a real two-site export and staff
-      list (README "Staff shared between sites"); own and site rates read from staff
-      CSVs and 7shifts (README "Per-location pay from an export"); next a real wages
-      export, real trip times; whether the priced cut's r = 1 default suits a real
-      manager; a manager's real task list for the fixed minutes.
+      Landed work and measurements: README and eval/*. Exact side: branch-and-price
+      and column generation prove 20-80 person weeks; the exact check is on by
+      default at every size. Forecast side (--from-sales, eight real files incl.
+      real Square and Toast exports, 2026-11-13: eval/real-pos-exports.mjs):
+      backtest, closure score, half-life auto, priced cut, tickets, labour standard,
+      shut-door work, multi-file pastes. Posted weeks: reissues hold started and
+      posted shifts (README "Is 91 the least?" to "Giving up two clashing shifts");
+      a whole week at the Deputy file's rates (README "A whole week of call-outs at
+      a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open
+      hours path-dependent both ways. Next: whether a real manager would set
+      keepShift above 1; 100-person gaps: 376/351 h at 20 s vs 359/347 (README "Room
+      for the clique LP"); day sweeps LP-guided, by the open-hours LP when the pay
+      floor is skipped (README "A guide when the pay floor is skipped"); warm start
+      landed (README 2026-11-14), next a warm-sized gate; re-run the
+      keep-usual-shifts sweep on real dated leave records; a manager's read on
+      whether the steadier plan is the one they would post; a real 7shifts account
+      through --import-7shifts (README "Reading 7shifts directly"); a real When I
+      Work account or response through --import-wheniwork (README "Reading When I
+      Work directly"); Homebase (docs need an account); --cover-price moves two
+      shifts together (README "Moving two shifts together": 20-person week exposure
+      113 to 68 h for $35.27); second call-outs priced (README "A second call-out in
+      the same week", off by default); next: fewer capped pairs, pair price past 120
+      copies; a real two-site export and staff list (README "Staff shared between
+      sites"); own and site rates read from staff CSVs and 7shifts (README
+      "Per-location pay from an export"); next a real wages export, real trip times;
+      whether the priced cut's r = 1 default suits a real manager; a manager's real
+      task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -254,11 +253,12 @@ flagships:
     buildable: >-
       Public samples, no key: the proxy serves
       github.com/drewnoakes/metadata-extractor-images (sparse checkout; ARW, NEF,
-      ORF, RW2, SRW and PEF read, eval/*-reader-2026-11-14.md; raf/ holds 3 files:
-      X-E1 and EX-2 X-Trans, S5500 Bayer). Read Fujifilm RAF directly, sensel for
-      sensel against LibRaw (X-Trans needs a 6x6 demosaic); Samsung SRW lens name
-      (maker note 0xA003) for lensfun; Sony maker-note lens names, from those same
-      files. The DNG 1.7.1.0 spec PDF is reachable (URL in
+      ORF, RW2, SRW, PEF and RAF read, eval/*-reader-2026-11-14.md). A directional
+      X-Trans demosaic (Markesteijn-style) in place of bilinear, measured against
+      LibRaw's on the X-E1 and X-E2 RAFs (false colour, detail;
+      eval/fujifilm-raf-reader-2026-11-14.md); Samsung SRW lens name (maker note
+      0xA003) for lensfun; Sony maker-note lens names, from those same files. The
+      DNG 1.7.1.0 spec PDF is reachable (URL in
       eval/opcode-spec-audit-2026-11-12.md): read it, not memory.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
@@ -269,14 +269,14 @@ flagships:
       profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
-      NEF, ORF, RW2, SRW, PEF read directly since 2026-11-14
-      (eval/*-reader-2026-11-14.md); RW2 lens from its JPEG's maker note
-      (eval/panasonic-rw2-lens-2026-11-14.md). Next, most valuable first: a real NEF
-      with a split row; Sony maker-note lens name and in-file lens corrections; a
-      real DNG and a vignetting-calibrated lens through the pipeline's lens stage; a
-      real evenly lit frame shot wide open (corners level after lensfun's
-      vignetting?); a second maker-against-lensfun DNG pair (a zoom at several focal
-      lengths); a real DNG carrying any opcode run only on synthetic files so far,
+      NEF, ORF, RW2, SRW, PEF, RAF (X-Trans too) read directly since 2026-11-14
+      (eval/*-reader-*.md); RW2 lens from its JPEG's maker note
+      (eval/panasonic-rw2-lens-2026-11-14.md). Next, most valuable first: a
+      compressed RAF (X-T2 or later); a real NEF with a split row; Sony maker-note
+      lens name and in-file lens corrections; a real DNG and a vignetting-calibrated
+      lens through the pipeline's lens stage; a real evenly lit frame shot wide open
+      (corners level after lensfun's vignetting?); a second maker-against-lensfun
+      DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
       or the SDK to check them; lateral colour measured on a real frame with sharp
       corner edges; a real Adobe `.dcp` through the profile chooser; newer CR2s
       (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that collection under their
@@ -355,9 +355,7 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the bus with several ESC brakes and bounces in a row
-      (regen model: cad/README.md "Regenerative braking"); several bounces in a row
-      on the contactor; the lift flight as a printed part and the top pulley's
+      venv, about 2 min): the lift flight as a printed part and the top pulley's
       tensioner if PR 15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -382,15 +380,14 @@ flagships:
       through the actuator's travel. Stepper ENABLE on GPIO 5 after an opto on the
       contactor's coil (GPIO 15) landed 2026-11-14: contactor makes 12-29 A in the
       sweep, a 10 ms bounce re-closes at 5-21 A; scope a real contactor's pull-in
-      and bounce. Regenerative braking landed 2026-11-14 (cad/README.md
-      "Regenerative braking"): a Schottky across the contactor, the firmware coasts
-      above a 27.6 V pack; scope the bus on a 20% slow-down and log how hard a real
-      ESC brakes. Buildable: the flight as a printed part and the tensioner (PR
-      15456). Pot pickup from the PWM landed 2026-11-14 (1 uF on GPIO 39, trimmed
-      reads): scope GPIO 39 at part duty. Actuator's lead landed 2026-11-14
-      (cad/README.md "The elevation actuator's lead"): cut 220 mm, 209-231 fits;
-      find where a real actuator's cable leaves its housing and bend a built lead
-      through the travel.
+      and bounce. Regen, then brakes and bounces in a row (700 mV guard band),
+      landed 2026-11-14 (cad/README.md): scope the bus on a 20% slow-down; log a
+      real ESC braking and the battery reading noise. Buildable: the flight as a
+      printed part and the tensioner (PR 15456). Pot pickup from the PWM landed
+      2026-11-14 (1 uF on GPIO 39, trimmed reads): scope GPIO 39 at part duty.
+      Actuator's lead landed 2026-11-14 (cad/README.md "The elevation actuator's
+      lead"): cut 220 mm, 209-231 fits; find where a real actuator's cable leaves
+      its housing and bend a built lead through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
@@ -405,26 +402,26 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-14
-      latest: porrectus tops read at their top, 88 to 73 differences; 3912 corrected
-      (eval/porrectus-top-check.md)). Open checks that need a person: listen to the
+      latest: C clefs inside a staff, held out 129 to 13 differences; 3775 corrected
+      (eval/clef-change-check.md)). Open checks that need a person: listen to the
       studio page, the options (--stretch, --halftime, --fills, --limit pumping,
       stems, sections, breakdown, riser, the a cappella verse and whether the key
       lift sounds like a lift); --lrc in a real player and --markers/--stems in a
       DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range
       with real singers; the release kit against a distributor's real form; the Te
-      Deum and GregoBase 3427 corrections (eval/scan-check-verdicts.md). master-cli
-      passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs (403),
-      Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas, liquescents,
-      lines at true thickness; tilted pages straightened, 2 of 185 real pages
-      (eval/deskew-check.md); next: a fresh worn-page set (new GABC needed), mottled
-      squares, a liquescent hook ending on a line (held-out misses), broken-up
-      strokes (3403, 3408); --split-voices (by phrase or at a word, --split-words,
-      eval/word-split-report.md) and --overlap (both sections sing the seam note at
-      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
-      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
-      overlap against a clean handoff; --baritones, --entrance-cost N and
-      --second-tenors (TTBB; README) need the same check. --choir presets, --singers
-      (a choir's range test CSV) and --sit-out N (README "Letting a singer sit a
-      note out") landed. Next: a real choir's range test via --singers; a director
-      on --sit-out N and the --musicxml parts (music21 reads all 97,705 notes back;
-      open in MuseScore).
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; tilted pages straightened, 2 of 185 real pages
+      (eval/deskew-check.md); next: 9 fresh-list diffs, a worn-page set (new GABC
+      needed), mottled squares, a liquescent hook ending on a line (held-out
+      misses), broken-up strokes (3403, 3408); --split-voices (by phrase or at a
+      word, --split-words, eval/word-split-report.md) and --overlap (both sections
+      sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
+      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
+      and of a one-note overlap against a clean handoff; --baritones,
+      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
+      --choir presets, --singers (a choir's range test CSV) and --sit-out N (README
+      "Letting a singer sit a note out") landed. Next: a real choir's range test via
+      --singers; a director on --sit-out N and the --musicxml parts (music21 reads
+      all 97,705 notes back; open in MuseScore).

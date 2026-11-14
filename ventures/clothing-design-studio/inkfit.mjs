@@ -43,30 +43,40 @@ function rng(seed) {
  * Frank-Wolfe with exact line search; w (length pts.length) is updated in place as a warm start. Returns P w.
  */
 export function mixWeights(x, pts, w, lambda = 0, iters = 40) {
-  const m = pts.length, p = [0, 0, 0], n2 = pts.map(q => q[0] * q[0] + q[1] * q[1] + q[2] * q[2]);
+  // scalars rather than small arrays: the same operations in the same order (so the same bits), without an
+  // allocation per iteration; this is the inner loop of every cost evaluation in `fitIndexInks`
+  const m = pts.length, x0 = x[0], x1 = x[1], x2 = x[2];
   const lam = Math.max(0, Math.min(0.95, lambda));
-  for (let j = 0; j < m; j++) for (let k = 0; k < 3; k++) p[k] += w[j] * pts[j][k];
+  const n2 = new Float64Array(m);
+  let p0 = 0, p1 = 0, p2 = 0;
+  for (let j = 0; j < m; j++) {
+    const q = pts[j], wj = w[j];
+    n2[j] = q[0] * q[0] + q[1] * q[1] + q[2] * q[2];
+    p0 += wj * q[0]; p1 += wj * q[1]; p2 += wj * q[2];
+  }
   for (let it = 0; it < iters; it++) {
     // gradient wrt w_j: 2 p_j.(Pw - x) + lam (|p_j|^2 - 2 p_j.Pw); pairwise step: weight moves from the worst
     // vertex in use (a) to the best (s), which converges on hull faces where plain Frank-Wolfe zig-zags
-    const g = [p[0] - x[0], p[1] - x[1], p[2] - x[2]];
+    const g0 = p0 - x0, g1 = p1 - x1, g2 = p2 - x2;
     let s = 0, best = Infinity, a = -1, worst = -Infinity;
     for (let j = 0; j < m; j++) {
-      const q = pts[j], dot = q[0] * g[0] + q[1] * g[1] + q[2] * g[2], dp = q[0] * p[0] + q[1] * p[1] + q[2] * p[2];
+      const q = pts[j], q0 = q[0], q1 = q[1], q2 = q[2];
+      const dot = q0 * g0 + q1 * g1 + q2 * g2, dp = q0 * p0 + q1 * p1 + q2 * p2;
       const v = 2 * dot + lam * (n2[j] - 2 * dp);
       if (v < best) { best = v; s = j; }
       if (w[j] > 1e-12 && v > worst) { worst = v; a = j; }
     }
     if (a < 0 || worst - best < 1e-12) break; // optimal: every vertex in use is as good as the best
-    const d = [pts[s][0] - pts[a][0], pts[s][1] - pts[a][1], pts[s][2] - pts[a][2]];
-    const curv = (1 - lam) * (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+    const ps = pts[s], pa = pts[a];
+    const d0 = ps[0] - pa[0], d1 = ps[1] - pa[1], d2 = ps[2] - pa[2];
+    const curv = (1 - lam) * (d0 * d0 + d1 * d1 + d2 * d2);
     // along w + t (e_s - e_a): slope best - worst, curvature 2 curv
     const t = curv > 1e-16 ? Math.min(w[a], (worst - best) / (2 * curv)) : w[a];
     if (t < 1e-12) break;
     w[a] -= t; w[s] += t;
-    for (let k = 0; k < 3; k++) p[k] += t * d[k];
+    p0 += t * d0; p1 += t * d1; p2 += t * d2;
   }
-  return p;
+  return [p0, p1, p2];
 }
 
 /** Closest point to x in the convex hull of pts (mixWeights with no grain term). */

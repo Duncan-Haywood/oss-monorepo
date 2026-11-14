@@ -2067,3 +2067,35 @@ and dual bound to 1e-6; a basis from another week is refused and the LP is solve
 the time gate itself is unchanged and still sized for the cold solve. Next: a gate sized for the warm solve, which needs more
 week-0-like weeks to see how often the open-hours optimum is far from the priced one; carry the priced LP's basis into the
 dayLNS guide's re-solves.
+
+## Room for the clique LP on the biggest weeks (2026-11-14)
+
+On a big week with the exact check on, the whole-score column generation runs first and gets half of the time left. On the
+100 x 280 weeks (400 copies, the largest the product takes) that half is about 9 s; it proved nothing there and left a root bound
+near 294 open hours, while the open-hours clique LP, which bounds 358 and 344 h on the same weeks (README "The 60-person week's
+300 open hours are the least"), was then skipped by its own time gate, so the day sweeps ran with no LP guide either. **What
+landed:** `scoreCGBudgetMs` (calc.mjs) gives column generation half of what is left as before, unless that would leave the clique
+LP less than its expected cost (1.6 s x (copies / 245)^4.5, now `cliqueCostMs`); then it gets what leaves the clique LP that cost
+plus 1 s, never under 1 s. At the default 20 s budget that changes weeks of about 355 copies and up. `cliqueRoom: false` keeps the
+plain half.
+
+| default 20 s budget (`eval/clique-room.out.txt`, single runs) | before: open h, score gap | now: open h, score gap |
+|---|---|---|
+| 100 x 280 week 0 (400 copies) | 386, $9.2 M | **376**, $1.8 M |
+| 100 x 280 week 1 (400) | 353, $6.5 M | **351**, $0.7 M |
+| 90 x 252 week 0 (348; rule does not apply) | 354 | 355 |
+| 90 x 252 week 1 (352; rule does not apply) | 229 | 226 |
+| 90 x 252 week 2 (363) | 376, $0.6 M | 376, $0.23 M |
+
+The 90-person rows the rule does not touch moved by noise (the cover passes and the day sweeps' kicks are time-bound). On week 1
+of 90 x 252 column generation overran its share by about 2 s and the clique LP's gate then skipped it in the run with the change,
+which is why that row has no tighter gap. The 100 x 280 seeds 2 and 3 make 407 copies and are refused (`MAX_SLOTS`), so two
+weeks is all the generator gives at that size. With no budget the engine holds 359 and 347 h on the two 100-person weeks, so the
+budgeted gap is now 17 and 4 h, not 27 and 6.
+
+Tests: `clique-room.test.mjs` (the half is kept wherever the clique LP still fits after it, 245-326 copies at 17 s left; on 400
+copies the clique LP gets its expected cost plus 1 s; the share is never under 1 s or over the half for 0-60 s left at 100-400
+copies; `cliqueRoom: false` and `cliqueFloor: false` keep the half). Not claimed: two 400-copy weeks and three 90-person weeks,
+generated, single runs on one cloud machine; the clique LP's cost fit is still the one from eval/clique-floor.out.txt, and it runs
+about 10 s at 400 copies here against the fit's 14.6 s. Next: column generation's overrun past its share, and the rest of the
+100-person gap (376 against 359 with no budget).
