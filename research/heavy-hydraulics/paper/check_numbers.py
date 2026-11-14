@@ -306,6 +306,20 @@ CHECKS = [
     ('0.815 to 0.831 overall efficiency', 'gear_pump_crux_results.txt', 'danfoss 0.8147'),
     ('within 0.003 of each other', 'gear_pump_crux_results.txt', 'gap +0.0028'),
     ('in 70% (69 to 90%)', 'excavator_gear_pump_danfoss_results.txt', '68.8% to 90.4%'),
+    # milestone 6o: section 3.7o and the abstract
+    ('is 0.801 to 0.908, median 0.882', 'excavator_gear_pump_marzocchi_results.txt', 'the eleven sizes: 0.801 to 0.908, median 0.882'),
+    ('a median +0.090 above Casappa', 'excavator_gear_pump_marzocchi_results.txt', 'median +0.090'),
+    ('the ALP3 reads 0.8773 (median) and 0.8975 (at 85 L/min)', 'excavator_gear_pump_marzocchi_results.txt', '110): 0.8773; index 2 (at Q20 85 L/min): 0.8975'),
+    ('in 99.5% of geometries (central 6.161 L/h)', 'excavator_gear_pump_marzocchi_results.txt', 'S = 0.38: central 6.161 L/h at q_p 92.5; median 6.67 (p10 4.79, p90 14.28); beats 3.986: 99.5%'),
+    ('99.5% to 100.0% over the 18 idle settings', 'excavator_gear_pump_marzocchi_results.txt', 'over the 18 settings: 99.5% to 100.0%'),
+    ('crosses 50% at c = 0.9123, which is 0.8188 at 85 L/min', 'excavator_gear_pump_marzocchi_results.txt', '50% crossing: c 0.9123; index 1 0.8004; index 2 0.8188'),
+    ('are 0.8281, 0.8309 and 0.8188, a spread of 0.0121', 'excavator_gear_pump_marzocchi_results.txt', 'index 2: casappa 0.8281, danfoss 0.8309, marzocchi 0.8188; spread 0.0121'),
+    ('they spread 0.0291', 'excavator_gear_pump_marzocchi_results.txt', 'marzocchi 0.8004; spread 0.0291'),
+    ('at 0.759, 0.849 and 0.898', 'excavator_gear_pump_marzocchi_results.txt', 'Danfoss 0.8320 / 0.8485'),
+    ('to within 0.4%', 'excavator_gear_pump_marzocchi_results.txt', 'median 0.9998 (0.9957 to 1.0027)'),
+    ('is 0.950 to 0.996 of displacement', 'excavator_gear_pump_marzocchi_results.txt', '0.97-1.03 for every size: refuted (0.950 to 0.996)'),
+    ('three held)', 'excavator_gear_pump_marzocchi_results.txt', 'GM5 median P/(Mn/9549) at 2000 r/min in 0.97-1.03: held'),
+    ('(a smaller fixed pump wins in 99.5% of geometries), and scaled down they cross 50% at 0.819', 'excavator_gear_pump_marzocchi_results.txt', 'index 2 0.8188'),
 ]
 
 
