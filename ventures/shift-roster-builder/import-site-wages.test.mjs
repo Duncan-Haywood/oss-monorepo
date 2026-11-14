@@ -142,12 +142,12 @@ test("CLI: --import-7shifts-staff and --import-staff write cells the build price
   const dir = mkdtempSync(join(tmpdir(), "srb-"));
   const f = join(dir, "team.jsonl");
   writeFileSync(f, company().map((x) => JSON.stringify(x)).join("\n"));
-  const out = execFileSync(process.execPath, ["cli.mjs", "--import-7shifts-staff", f], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  const out = execFileSync(process.execPath, ["cli.mjs", "--import-7shifts-staff", f], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   assert.match(out, /Ana Lopez, 18, 32, 0, any, role: Server\/Bar, sites: Main \| Airport, wage at Airport: 22.5/);
   const staff = join(dir, "staff.txt"), shifts = join(dir, "shifts.txt");
   writeFileSync(staff, out);
   writeFileSync(shifts, "Mon,9,17,1,Server,site: Airport\nTue,9,17,1,Cook,site: Main\n");
-  const built = execFileSync(process.execPath, ["cli.mjs", staff, shifts, "--json"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  const built = execFileSync(process.execPath, ["cli.mjs", staff, shifts, "--json"], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   const j = JSON.parse(built);
   const air = j.assignments.find((a) => a.site === "Airport");
   assert.equal(air.person, "Ana Lopez");
@@ -157,5 +157,5 @@ test("CLI: --import-7shifts-staff and --import-staff write cells the build price
   assert.equal(j.siteWage.extra, 8 * (22.5 - 18));
   const csv = join(dir, "long.csv");
   writeFileSync(csv, "Employee,Location,Hourly Rate\nAna,Main,18\nAna,Airport,21.5\n");
-  assert.match(execFileSync(process.execPath, ["cli.mjs", "--import-staff", csv], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }), /Ana, 18, 40, 0, any, sites: Main \| Airport, wage at Airport: 21.5/);
+  assert.match(execFileSync(process.execPath, ["cli.mjs", "--import-staff", csv], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }), /Ana, 18, 40, 0, any, sites: Main \| Airport, wage at Airport: 21.5/);
 });

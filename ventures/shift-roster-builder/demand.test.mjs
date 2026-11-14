@@ -667,3 +667,15 @@ test("half-life auto with --short-cost picks only among the short-cost methods",
     if (p.halfLife === undefined && p.window === undefined) assert.doesNotMatch(p.note, /fewer than equal weights/, `shortCost ${shortCost}`);
   }
 });
+
+// Red team 2026-11-14: in the joined cut, a short run that must be staffed stretches back into open hours before
+// reaching into a closure, as the plain cut does; a mutant that stopped the backward stretch escaped.
+test("joined cut: a must-staff short run before a closure stretches back into open hours, not into the closure", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 14; h++) p[h] = 1; p[13] = 2; // shut from 14:00
+  const cost = { tail: new Array(24).fill(null), r: 1, minStaff: 1, join: true }; // no tail: the 13:00 run is never dropped
+  const sh = cutShifts(p, 4, 8, cost);
+  assert.deepEqual([...sh], cutShifts(p, 4, 8));
+  assert.deepEqual(sh.dropped, []);
+  assert.ok(sh.some(([a, b]) => a === 10 && b === 14), JSON.stringify(sh));
+  for (const [, b] of sh) assert.ok(b <= 14, JSON.stringify(sh));
+});
