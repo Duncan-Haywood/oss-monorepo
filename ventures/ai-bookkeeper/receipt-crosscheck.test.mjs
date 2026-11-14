@@ -112,3 +112,35 @@ test("with four readings the total printed on a total line by most readings wins
   // a tie goes to the earlier reading
   assert.equal(parseReceiptPasses(["Total 12.00", "Total 13.00", "Total 13.00", "Total 12.00"]).cents, 1200);
 });
+
+// --four-pass (CLI): the photo twice, then an ImageMagick grey copy at 2,000 px twice.
+test("--four-pass reads a small photo four times, a big one twice, and skips the copy without ImageMagick", async () => {
+  const { receiptPassesFromFile } = await import("./ocr.mjs");
+  const mk = (w, h, { magick = true } = {}) => {
+    const calls = [];
+    const run = (cmd, args) => {
+      calls.push([cmd, ...args].join(" "));
+      if (cmd === "magick") return { error: new Error("ENOENT") }; // ImageMagick 6: identify and convert only
+      if (cmd === "identify") return magick ? { status: 0, stdout: `${w} ${h}` } : { error: new Error("ENOENT") };
+      if (cmd === "convert") return magick ? { status: 0, stdout: "" } : { error: new Error("ENOENT") };
+      return { status: 0, stdout: "KEDAI MAJU\nTotal 34.00" };
+    };
+    return { run, calls };
+  };
+  const small = mk(750, 1000);
+  const t = receiptPassesFromFile("slip.jpg", { run: small.run, env: {}, grow: 2000 });
+  assert.equal(t.length, 4);
+  const ocr = small.calls.filter((c) => c.startsWith("tesseract"));
+  assert.equal(ocr.length, 4);
+  assert.match(ocr[2], /grey\.png stdout --psm 6$/);
+  assert.match(ocr[3], /grey\.png stdout --psm 4$/);
+  assert.ok(small.calls.some((c) => /^convert slip\.jpg\[0\] -colorspace Gray -resize 2000x2000 .*grey\.png$/.test(c)));
+  // already 2,000 px on the long side: two readings, no copy
+  const big = mk(3000, 4000);
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: big.run, env: {}, grow: 2000 }).length, 2);
+  assert.ok(!big.calls.some((c) => c.startsWith("convert")));
+  // no ImageMagick: two readings, no error
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: mk(750, 1000, { magick: false }).run, env: {}, grow: 2000 }).length, 2);
+  // without grow, as before
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: mk(750, 1000).run, env: {} }).length, 2);
+});
