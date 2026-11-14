@@ -5,7 +5,7 @@
 // a lead must be one the venture's own calc module exports.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 
 const root = new URL('../../ventures/', import.meta.url);
 
@@ -349,4 +349,26 @@ test('uk-sole-trader-vs-limited-company-calculator: lead is sourced, dated and m
   const stated = [...text.matchAll(/£([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
   assert.ok(stated.length > 0, 'lead states no figure');
   for (const n of stated) assert.ok(allowed.includes(n), `£${n} is not a figure the calculator produces`);
+});
+
+// Every lead stays short: the fact, its source and the date, nothing else. An answer
+// engine lifts one paragraph; a long one gets cut mid-sentence or skipped, and on a
+// phone it pushes the form down (social-security-earnings-test's lead was 369 px at
+// 390 px wide). How-to-use text belongs in the next paragraph. Report:
+// docs/reports/polish-2026-11-14-lead-length.md.
+const MAX_LEAD_WORDS = 100;
+test(`every answer lead is at most ${MAX_LEAD_WORDS} words`, () => {
+  const long = [];
+  let seen = 0;
+  for (const slug of readdirSync(root)) {
+    let html;
+    try { html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8'); } catch { continue; }
+    const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+    if (!m) continue;
+    seen++;
+    const words = m[1].replace(/<[^>]+>/g, ' ').trim().split(/\s+/).length;
+    if (words > MAX_LEAD_WORDS) long.push(`${slug}: ${words} words`);
+  }
+  assert.ok(seen >= 50, `found only ${seen} leads; did the marker change?`);
+  assert.deepEqual(long, [], 'move how-to-use text or detail out of the lead');
 });
