@@ -881,6 +881,7 @@ ventures/qcd-calculator/usage.mjs
 ventures/qif-file-check/usage.mjs
 ventures/qsbs-exclusion-calculator/usage.mjs
 ventures/quarterly-estimated-tax-calendar/usage.mjs
+ventures/quick-pick-survey/site/usage.mjs
 ventures/quickbooks-chart-of-accounts-csv-check/usage.mjs
 ventures/quickbooks-iif-file-check/usage.mjs
 ventures/quickbooks-import-csv-check/usage.mjs
