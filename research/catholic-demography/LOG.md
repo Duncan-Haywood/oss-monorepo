@@ -2,6 +2,62 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-14 · Milestone 5b, twelfth GSS-only step: giving immigrant mothers their own Catholic share fits them but opens a gap for US-born mothers
+
+Run: `experiments/m5m_mothers_nativity/run.py` (output `results.txt`, tables `t35` to `t38`; 500-draw stratified PSU bootstrap
+over the whole file, seed 1; p and rho re-estimated by nativity in every draw, m5h's channels on the same draws). Data from
+`data/download_gssr.sh` (checksums passed). Mother's nativity is read from `parborn` with the gssrdoc codebook (2, 4, 8 =
+mother foreign-born; 0, 1, 3 = mother US-born). **Order of events:** the script with P1-P5 was committed (f912ce1f0) and
+pushed before its first run; it ran once without changes. `posthoc.py` (`posthoc.txt`, point estimates) was written after
+reading the results and tests no prediction.
+
+Question. m5l found that the m5h model check residual is mainly in mothers who were more Catholic than the model's p, and
+(post hoc) that this sits in the second generation. Here the model gets separate p and rho for foreign-born and US-born
+GSS women, and each respondent uses those of their mother's nativity. Does the model check then pass?
+
+- **P2 supported: immigrant mothers fit once they get their own p.** Children of foreign-born mothers, cohorts 1925-64
+  (n 160): mothers 52.7% Catholic, model 49.9%, gap **+2.7 [-6.4, +12.0]** (pooled model: 24.6%, gap +28.1). For cohorts
+  1965-99 (n 152) it does not fit: mothers 70.0%, model 47.6%, gap +22.4 [+15.3, +29.6]. Foreign-born GSS women of those
+  mothers' cohorts are 41-45% Catholic, so the recent immigrants who raised US-born children were more Catholic than all
+  foreign-born women of their age.
+- **P1 refuted: the overall gap gets larger.** Cohorts 1925-64, M - M_gen is **+4.07 [+2.50, +5.63]**, against +2.64 with
+  the pooled p. With US-born women's own p (21.9% for these mothers' cohorts; the pooled model gave this group 25.6%), children of US-born
+  mothers (n 3,318) report mothers 26.9% Catholic against a model of 22.8%: **+4.14 [+2.53, +5.70]**. The pooled model fit
+  this group only because its p included foreign-born women. So m5l's reading (the residual is immigrant mothers) is half
+  right.
+- **P3 refuted.** Full-file model check (all US-born adults surveyed 1977-2024, cohorts 1925-64): R - R_gen **+4.63
+  [+3.62, +5.66]**, against R - R_model +3.34 [+2.34, +4.42] with pooled p. The gap is positive in every 5-year cohort from
+  1930 to 1984.
+- **P4 supported as written, but it mostly tests the fill.** The mean rho_FB - rho_US over mothers' cohorts 1900-39 is
+  +0.16 [-0.01, +0.37]. But GSS foreign-born women reach the coverage rule (80 Catholic mothers, 300 women per 10-year
+  window) only at window centres 1940-60, where rho_FB is 1.27, 1.16, 1.35 against rho_US 1.08, 1.09, 1.00. Earlier windows take
+  the nearest covered value. So "immigrant Catholic women had larger families" holds where it is measured, for mothers
+  born about 1935-65.
+- **P5 supported; H4 stands.** With generation-specific rho, fertility's contribution to the 1990-99 -> 2010-18 change
+  is -0.32 [-0.60, +0.04] (m5h main -0.37; difference +0.05 [-0.28, +0.43]). Immigration minus |fertility| is +0.75
+  [+0.11, +1.38]. Fertility's contribution to the level is lower: 0.90 points in 1990-99 against 1.17.
+- **Where the new gap is (post hoc, point estimates, `posthoc.txt`).** Of the 3,318 children of US-born mothers (1925-64),
+  122 have a foreign-born father. Their mothers were 45.7% Catholic against p_US 21.5%: US-born women who married
+  immigrants were twice as Catholic. In the 3,196 families where both parents were US-born the gap is still **+3.4 points**
+  (M 26.2% against model 22.8%). To match it with p_US the model would need a Catholic / other fertility ratio of **1.27**,
+  against the 1.05 measured among GSS women aged 45+. The same holds for cohorts 1965-99 (+3.7, needed 1.28 against 1.06).
+- **Implication.** The m5h residual is not one thing. For immigrant mothers of the older cohorts it was the wrong p, and
+  that part is now fixed. For US-born families the mothers were more Catholic than GSS women of their cohort, by 3 to 4
+  points. Either Catholic mothers had more surviving, reporting children than GSS women's completed fertility shows (the
+  mothers' cohorts born 1897-1936 are seen only at ages 41-80+ from 1977 on, so differential survival and the `childs`
+  measure are both candidates), or the GSS undercounts Catholics among the oldest women. This step cannot tell which. The
+  m5h fertility channel uses only rho, and its change estimate barely moves, so H4 is not affected. The m5h model check,
+  though, cannot be made to pass this way.
+- **Sensitivities.** g 24 or 32: M - M_gen 1925-64 +3.7 to +4.5. p from women raised Catholic instead of Catholic now:
+  +3.85. The US-mother gap appears in all of them.
+- **Limits.** Mothers' religion is recall. Foreign-born p and rho for mothers born before about 1935 are filled from the
+  1940 window, because `born` is asked only from 1977. The foreign-born-mother cells have 150-160 respondents. `parborn` 4
+  and 6 (one parent foreign-born, the other unknown) count as foreign-born mother and unknown here, while `gen` in
+  `recode.py` leaves them out of the second generation; they are 52 US-born respondents in all years.
+- **Next.** Check rho against an outside source on completed fertility by religion and nativity for women born 1900-40
+  (the Growth of American Families and National Fertility Studies series behind Westoff & Jones 1979, or NSFG for later
+  cohorts), to decide between "fertility understated" and "p understated". Then H5, or milestone 2.
+
 
 ## 2026-11-13 · Milestone 5b, eleventh GSS-only step: m5h's model-check residual is immigrant mothers, not mixed marriages or missed fertility
 

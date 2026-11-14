@@ -1,0 +1,8 @@
+US-born mother, module sample; percent; rho as ratios
+cohorts    parborn                          n      R      M   p_US  M_gen  M-M_gen  rho_US rho_needed
+1925-1964  all US-born mothers           3318  27.62  26.92  21.88  22.78     4.14   1.053      1.316
+1925-1964  0 both parents US-born        3196  26.86  26.22  21.89  22.80     3.41   1.054      1.268
+1925-1964  1 father foreign-born          122  47.96  45.72  21.46  22.18    23.54   1.043      3.082
+1965-1999  all US-born mothers           1484  31.00  29.90  24.45  25.57     4.33   1.063      1.319
+1965-1999  0 both parents US-born        1443  30.70  29.26  24.44  25.57     3.69   1.063      1.279
+1965-1999  1 father foreign-born           41  41.86  53.82  24.66  25.61    28.21   1.053      3.562

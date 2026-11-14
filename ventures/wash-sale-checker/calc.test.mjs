@@ -94,6 +94,25 @@ test("amount column can stand in for price, and quoted fields parse", () => {
   assert.equal(t[0].price, 100);
 });
 
+test("an amount column that comes first is still read", () => {
+  const t = parseTrades("Amount,Date,Symbol,Action,Quantity\n1000,2025-01-02,A,Buy,10").trades;
+  assert.equal(t.length, 1);
+  assert.equal(t[0].price, 100);
+});
+
+test("a four-digit year is taken as written, never shifted like a two-digit one", () => {
+  assert.equal(isoDate(parseDate("01/02/0100")), "0100-01-02");
+  assert.equal(isoDate(parseDate("01/02/25")), "2025-01-02");
+});
+
+test("an account number that starts with 401 or 403 is not a retirement account", () => {
+  for (const acct of ["Individual 40198765", "Joint 4035678", "Brokerage ira9"]) {
+    const r = evaluate(csv(`2025-01-02,ABC,buy,10,100,${acct}`, `2025-06-01,ABC,sell,10,80,${acct}`));
+    assert.equal(r.summary.lossSales, 1, acct);
+    assert.equal(r.summary.allowed, 200, acct);
+  }
+});
+
 test("the sample list produces a mix of permanent, deferred and clean results", () => {
   const r = evaluate(sampleList());
   assert.equal(r.summary.washed, 2);
@@ -188,6 +207,14 @@ test("shares already carrying a wash loss are not replacement shares for a secon
 test("report CSV prints amounts to the cent", () => {
   const row = reportCsv(evaluate(csv("2025-01-02,X,buy,3,10.005,Taxable", "2025-06-02,X,sell,3,9.333,Taxable"))).split("\n")[1];
   assert.equal(row, '2025-06-02,X,3,28.00,30.02,-2.02,0.00,2.02,""');
+});
+
+// Red-team 2026-11-14: the number exemption was /^-?\d/, unanchored, so a symbol such as "-1+CMD|..." was written raw and
+// a spreadsheet ran it as a formula. Only a whole number is exempt now; negative amounts still print bare.
+test("report CSV defuses a symbol that starts with a minus and a digit but is not a number", () => {
+  const r = evaluate(csv("2025-01-02,-1+CMD|x,buy,1,10,Taxable", "2025-02-02,-1+CMD|x,sell,1,5,Taxable"));
+  const row = reportCsv(r).split("\n")[1];
+  assert.equal(row, "2025-02-02,'-1+CMD|X,1,5.00,10.00,-5.00,0.00,5.00,\"\"");
 });
 
 // Class guard (red-team 2026-11-13): basis is conserved. For random taxable trade lists that end flat, every dollar of
