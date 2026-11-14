@@ -351,33 +351,44 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the deck-side cable run from the deck's edge to the
-      axis clamp, with the lift motor's lead to the boot and the stepper
-      driver's mount; the lift
-      flight's own CAD (fingers and base plate as a printed part, M3 through
-      the belt between its cords) and the top pulley's belt tensioner.
+      venv, about 2 min): the elevation actuator's short lead from the gland to its
+      motor and pot; a power-distribution model from the routed lead lengths
+      (cad/README.md "Deck-side cables", 2026-11-14): a fuse per branch (ESCs, lift,
+      agitator, stepper driver, bucks), the contactor's rating and each branch's
+      gauge; the lift flight as a printed part and the top pulley's tensioner if PR
+      15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      History and every measurement: cad/README.md (feeder CAD package; azimuth and elevation drives; shuttle
-      drive; home switch; hard stops; cables; catch trough; ball lift; collision sweeps) and the README ("Running
-      a drill on the machine", "Wheel speed loop"). Latest, 2026-11-13: ball lift (cad/README.md "Ball lift"):
-      a cleated AT5 belt with 16 mm printed finger flights in a column between the mast rails at y = 300 carries
-      balls from the sump (moved off centre to y = +193.5, outlet raised to 80 mm, into the boot through a
-      90 deg inlet turn) 2.36 m up and over a hooded top pulley into a chute that ends 34 mm above the tub's
-      rim; about 53 balls a minute, 0.13 N m and 2.8 W on assumed figures; checked clear of the head at every
-      pose; firmware LiftRun runs it 16 s after each ball fed. Hopper agitator, 2026-11-13 (cad/README.md "Hopper agitator"): two printed arms at a ball's centre height over the tub outlet on a 25 mm gearmotor under the shelf, 40 passes a minute, run while balls are fed. Next, needing a person: fill the tub over a bare outlet and count how often balls bridge it, motor off and on; build the boot and one
-      flight and feed it balls from a gutter (a ball half-in when a finger arrives; the inlet turn's friction);
-      tilt a gutter with a ball to measure rolling resistance and count bounce-outs down a net; log a real
-      wheel's tach on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head and measure the
-      hose's torque, the stepper's pull-out, the actuator's real lengths, the column's load on the shuttle and
-      the servo's loaded stroke time and stall current; click the home switch on a printed sector to calibrate
-      AZ_HOME_DEG; push a sector into a stop with a scale; hang a real hose from a tube; bend a built cable loop
-      through the actuator's travel. Buildable: the deck-side cable run (deck edge to the axis clamp, plus the
-      lift motor's lead) and the stepper driver's mount; the flight as a printed part and
-      the top pulley's tensioner.
+      History and every measurement: cad/README.md (feeder CAD package; azimuth and
+      elevation drives; shuttle drive; home switch; hard stops; cables; catch
+      trough; ball lift; deck cables; collision sweeps) and the README ("Running a
+      drill on the machine", "Wheel speed loop"). Latest, 2026-11-13: ball lift
+      (cad/README.md "Ball lift"): a cleated AT5 belt with 16 mm printed finger
+      flights in a column between the mast rails at y = 300 carries balls from the
+      sump (moved off centre to y = +193.5, outlet raised to 80 mm, into the boot
+      through a 90 deg inlet turn) 2.36 m up and over a hooded top pulley into a
+      chute that ends 34 mm above the tub's rim; about 53 balls a minute, 0.13 N m
+      and 2.8 W on assumed figures; checked clear of the head at every pose;
+      firmware LiftRun runs it 16 s after each ball fed. Hopper agitator, 2026-11-13
+      (cad/README.md "Hopper agitator"): two printed arms at a ball's centre height
+      over the tub outlet on a 25 mm gearmotor under the shelf, 40 passes a minute,
+      run while balls are fed. Next, needing a person: fill the tub over a bare
+      outlet and count how often balls bridge it, motor off and on; build the boot
+      and one flight and feed it balls from a gutter (a ball half-in when a finger
+      arrives; the inlet turn's friction); tilt a gutter with a ball to measure
+      rolling resistance and count bounce-outs down a net; log a real wheel's tach
+      on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head
+      and measure the hose's torque, the stepper's pull-out, the actuator's real
+      lengths, the column's load on the shuttle and the servo's loaded stroke time
+      and stall current; click the home switch on a printed sector to calibrate
+      AZ_HOME_DEG; push a sector into a stop with a scale; hang a real hose from a
+      tube; bend a built cable loop through the actuator's travel. Buildable: the
+      flight as a printed part and the tensioner (PR 15456); the actuator's lead
+      from the gland; branch fuses and contactor from the routed leads
+      (cad/README.md "Deck-side cables").
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
