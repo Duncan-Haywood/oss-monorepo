@@ -297,10 +297,10 @@ flagships:
       profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
-      NEF, ORF read directly since 2026-11-14 (eval/*-reader-2026-11-14.md). Next,
-      most valuable first: RW2 read directly (GF1, GF3, GF7, LX7 public; LibRaw
-      check); a real NEF with a split row; Sony maker-note lens name and in-file
-      lens corrections; a real DNG and a vignetting-calibrated lens through the
+      NEF, ORF, RW2 read directly since 2026-11-14 (eval/*-reader-2026-11-14.md).
+      Next, most valuable first: RW2 lens from its JpgFromRaw maker note (EXIF has
+      none); a real NEF with a split row; Sony maker-note lens name and in-file lens
+      corrections; a real DNG and a vignetting-calibrated lens through the
       pipeline's lens stage; a real evenly lit frame shot wide open (corners level
       after lensfun's vignetting?); a second maker-against-lensfun DNG pair (a zoom
       at several focal lengths); a real DNG carrying any opcode run only on

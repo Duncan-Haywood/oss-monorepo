@@ -79,8 +79,8 @@ TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no emb
 gets its proxy and its scores from a half-size development instead of failing. Since
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
-2026-11-14 a Sony ARW, a Nikon NEF and an Olympus ORF the same way ("Sony ARW", "Nikon NEF" and
-"Olympus ORF" below). Other RAW formats (CR3, RAF, RW2, ...) are still scored from their preview but stop at the grade
+2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF and a Panasonic RW2 the same way ("Sony ARW", "Nikon NEF",
+"Olympus ORF" and "Panasonic RW2" below). Other RAW formats (CR3, RAF, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -916,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF and Olympus ORF with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF and ORF since 2026-11-14, "Sony ARW", "Nikon NEF" and "Olympus ORF" below; convert CR3 with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF and Panasonic RW2 with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF and RW2 since 2026-11-14, "Sony ARW", "Nikon NEF", "Olympus ORF" and "Panasonic RW2" below; convert CR3 with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1135,6 +1135,39 @@ Not done: colour is only as good as the profile you supply (no profile ships her
 (LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
 Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
 applied, and Sony's lens name in the maker note is not read yet.
+
+## Panasonic RW2 (2026-11-14)
+
+Panasonic Lumix raw files no longer need Adobe's DNG Converter. `shootflow develop P1000001.RW2
+--dcp PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for CR2, ARW, NEF and ORF) reads the
+RW2 itself, and the pipeline's grade stage develops RW2 stills with the workspace's
+`color/camera-profiles/` (`src/shootflow/rw2.py`).
+
+What it reads: Panasonic's compressed RW2 with RawFormat 4, which every body in the test set
+writes (the 2009 GF1 to the 2015 GF7). The data comes in 0x4000-byte blocks, each stored rotated
+by 0x2008 bytes, read from the top of the block down; every run of 14 sensels on a row restarts
+two predictions, and every third sensel reads a 2-bit shift for the 8-bit steps that follow.
+Size, sensor borders (the crop), CFA, black level, white level and as-shot balance come from
+Panasonic's own tags in IFD0. The decode runs in C through the same optional ctypes library as
+the NEF and ORF readers (0.07-0.15 s per file), with a pure-Python reference that gives the same
+sensels (7-11 s).
+
+Like a CR2, ARW, NEF or ORF, it is developed with the camera's `.dcp` (e.g. `Panasonic DMC-GF7
+Adobe Standard.dcp` from Adobe's free DNG Converter).
+
+How it was checked (`tools/rw2_libraw_check.py`, `eval/panasonic-rw2-reader-2026-11-14.md`): the
+four camera RW2s in the public metadata-extractor-images collection (GF1, GF3, GF7, LX7). Against
+LibRaw 0.22 through rawpy, every one of 50.1 M stored sensels is equal on both decoders, and so are
+the as-shot white balance, the black level at each CFA position, the CFA pattern and the crop on
+all four. `tests/test_rw2.py` (9 tests) writes RW2s with an encoder of its own that picks a shift
+for every three sensels and writes each value through the decoder's block addressing, across
+several blocks and all four shifts, and runs both decoders, the profile chooser, the crop and the
+CLI.
+
+Not done: colour is only as good as the profile you supply; the GF7's own colour matrix (tags
+0x11C-0x120) is not read yet. The GF1's white level is 4095, where LibRaw takes 3986 from a
+per-model table. RawFormat 5 and later (the 14-bit and newer 12-bit blocks of the GH5 era on) and
+older 16-bit RW2s are refused for want of a test file.
 
 ## Olympus ORF (2026-11-14)
 
