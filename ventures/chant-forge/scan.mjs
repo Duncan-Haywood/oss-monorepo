@@ -534,10 +534,92 @@ export function findClef(bin, staff) {
   return { pos, x0: x, x1 };
 }
 
+// A page photographed or scanned a little turned prints its staff lines
+// at a slope. findStaves takes a line as rows that each hold a fifth of the
+// page width in ink, so a line that drifts several of its own thicknesses
+// across the staff is spread over more rows than it fills, stops being one
+// band, or is measured so thick that readStaff erases the heads on it
+// (leaf 424 of the 1908 Graduale: 2 of its 9 staves found,
+// eval/thick-line-check.md). The slope is found the usual way for printed
+// pages: shear the ink by each trial slope and keep the one whose row
+// profile is sharpest (sum of squared row counts), coarse then fine.
+// Ink is sampled every SKEW_STEP columns. A page is only straightened when
+// the slope moves a line DESKEW_MIN_DRIFT pixels or more across the page
+// (0.29 degrees at 2000 px), so a page the square reader already reads is
+// read exactly as before: on drawn pages the square reader holds to 0.3-0.4
+// degrees and fails from 0.5 (eval/deskew-synthetic-report.md). Below that
+// straightening gains nothing and can cost: it tightens the line mask, so
+// specks touching a line are no longer masked and can join a head (seen at
+// 0.2 degrees with a heavy one-in-400 speckle, eval/deskew-check.md).
+export const SKEW_MAX_DEG = 3;
+export const SKEW_STEP = 2;
+export const DESKEW_MIN_DRIFT = 10;
+export function estimateSkew(bin, { maxDeg = SKEW_MAX_DEG, minDrift = DESKEW_MIN_DRIFT } = {}) {
+  const { width, height, ink } = bin;
+  const xs = [], ys = [];
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x += SKEW_STEP) if (ink[row + x]) { xs.push(x - width / 2); ys.push(y); }
+  }
+  if (!xs.length) return 0;
+  const pad = Math.ceil(Math.tan((maxDeg * Math.PI) / 180) * width) + 2;
+  const hist = new Float64Array(height + 2 * pad);
+  const score = (t) => {
+    hist.fill(0);
+    for (let i = 0; i < xs.length; i++) hist[ys[i] + Math.round(xs[i] * t) + pad]++;
+    let q = 0;
+    for (let i = 0; i < hist.length; i++) q += hist[i] * hist[i];
+    return q;
+  };
+  const toT = (deg) => Math.tan((deg * Math.PI) / 180);
+  let best = 0, bestQ = score(0);
+  // coarse: 0.1 degree steps; then 0.01 degree steps around the best
+  for (let d = -maxDeg; d <= maxDeg + 1e-9; d += 0.1) {
+    const q = score(toT(d));
+    if (q > bestQ) { bestQ = q; best = d; }
+  }
+  const c = best;
+  for (let d = c - 0.1; d <= c + 0.1 + 1e-9; d += 0.01) {
+    const q = score(toT(d));
+    if (q > bestQ) { bestQ = q; best = d; }
+  }
+  const t = toT(best);
+  return Math.abs(t) * width >= minDrift ? t : 0;
+}
+
+// how far a point in column x of the straightened page sits below its
+// place on the page as scanned (shearColumns moves column x by the opposite)
+function shiftOf(x, t, width) {
+  return -Math.round((x - width / 2) * t);
+}
+
+// Straighten the ink by moving each column up or down a whole number of
+// pixels (a vertical shear). For the few degrees a page is turned this is a
+// rotation to within cos(3 deg) = 0.9986 horizontally, and no pixel is
+// resampled: every column, and so every head's vertical runs, is kept as
+// printed.
+export function shearColumns(bin, t) {
+  const { width, height, ink } = bin;
+  const out = new Uint8Array(width * height);
+  for (let x = 0; x < width; x++) {
+    const dy = Math.round((x - width / 2) * t);
+    for (let y = 0; y < height; y++) {
+      const ny = y + dy;
+      if (ny >= 0 && ny < height && ink[y * width + x]) out[ny * width + x] = 1;
+    }
+  }
+  return { width, height, ink: out };
+}
+
 // Scan values relative to the clef line, staff by staff. A trailing custos
 // (the small guide note at the right end) is dropped.
 export function readPage(img, opts = {}) {
-  const bin = binarize(img);
+  const raw = binarize(img);
+  // a tilted page is straightened first (estimateSkew, shearColumns); y
+  // values are given back on the page as scanned
+  const t = opts.deskew === false ? 0 : estimateSkew(raw);
+  const bin = t ? shearColumns(raw, t) : raw;
+  const back = (x, y) => y + shiftOf(x, t, raw.width);
   const staves = findStaves(bin, opts);
   return staves.map((staff, k) => {
     const heads = readStaff(bin, staff, opts);
@@ -551,8 +633,9 @@ export function readPage(img, opts = {}) {
       staff: k + 1,
       top: staff.top,
       space: staff.space,
+      skew: t ? Math.round(Math.atan(t) * 18000 / Math.PI) / 100 : 0,
       clefPos: clef ? clef.pos : null,
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
     };
   });
 }
