@@ -44,6 +44,15 @@
     footer { margin-top: 28px; border-top: 1px solid #d9d5e8; padding-top: 16px; }
     th[scope="row"] { font-weight: normal; font-size: inherit; text-transform: none; letter-spacing: normal; color: inherit; }
 </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 580px) { div.grid:has(#usage-term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 298px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
