@@ -2132,7 +2132,7 @@ takes 5-11 s and buys a far tighter bound, while the cover passes turn the same 
 neither wins every week. That is the next question: a rule for when the clique LP's bound is worth the cover passes' time (for
 example, run it only when its guide is used by the day sweeps, or cap the cover passes' share from below).
 
-Tests: `cg-hardstop.test.mjs` (on a 60 x 168 week given a 300 ms share column generation stops within 250 ms of it and inside a
+Tests: `cg-hardstop.test.mjs` (on a 60 x 168 week given a 300 ms share column generation stops within 500 ms of it (0.01 s past it here) and inside a
 round; with the hard stop off it never stops inside a round; on seeded eight-person weeks a column generation stopped at 0 or 5 ms
 never reports a bound, or leaves buildRoster a lower bound, above the proven best). Not claimed: generated weeks only, single runs
 on one cloud machine; the open-hours moves above are within the run-to-run noise these big weeks show (README "Room for the
