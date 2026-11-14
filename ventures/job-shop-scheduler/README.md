@@ -39,7 +39,10 @@ implementation (`engine.mjs`) of published ideas:
   Operational Research* 11(1), 1982);
 - on shops of up to 64 operations, a depth-first branch and bound over
   Giffler-Thompson conflict sets, pruned by the one-machine bound on the
-  operations left. If it finishes, the answer is proved optimal.
+  operations left. It runs first with a 2,000-node cap, which settles most small
+  shops without any tabu run; only when that cap is hit does
+  a short tabu run (at most 300 ms) come before the uncapped search. If it
+  finishes, the answer is proved optimal.
 
 Not affiliated with or endorsed by the authors or by the JSPLIB maintainers.
 

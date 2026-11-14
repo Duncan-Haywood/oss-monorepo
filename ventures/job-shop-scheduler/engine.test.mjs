@@ -138,6 +138,25 @@ test('the bounds never exceed a found schedule on mid-size random shops', () => 
   }
 });
 
+test('small shops the capped exact search settles skip the tabu run, and keep the brute-force optimum', () => {
+  // Pins the search order: before this, every small shop the dispatch rules
+  // left unproved spent the tabu run's full 300 ms first.
+  const rand = rng(11);
+  let settled = 0;
+  for (let t = 0; t < 40; t++) {
+    const inst = randomInstance(rand, 3, 3);
+    const r = solve(inst, { ms: 2000, seed: t + 1 });
+    assert.equal(r.makespan, bruteForce(inst), `case ${t}`);
+    assert.equal(r.optimal, true);
+    if (r.proof === 'exhaustive search') {
+      settled++;
+      assert.equal(r.tabuIterations, 0, `case ${t} ran tabu before a 3x3 exact search`);
+      assert.ok(r.nodes <= 2000);
+    }
+  }
+  assert.ok(settled > 0, 'some cases needed the exact search');
+});
+
 test('the example is solved and proved, and its summaries add up', () => {
   const r = solve(EXAMPLE, { ms: 2000 });
   assert.equal(r.optimal, true);

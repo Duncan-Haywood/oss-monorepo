@@ -626,6 +626,9 @@ export function checkSchedule(input, ops) {
 
 // ---------------------------------------------------------------- solve
 
+// Node cap on the exact search tried before tabu on small shops.
+const QUICK_NODES = 2000;
+
 // solve(instance, {ms, seed, iterations, nodes}) -> the shortest schedule found,
 // the proved lower bound, and whether it is proved optimal.
 export function solve(input, limits = {}) {
@@ -649,6 +652,16 @@ export function solve(input, limits = {}) {
   let optimal = best <= lowerBound + EPS;
   let tabuIter = 0, restarts = 0, nodes = 0, exactComplete = false;
   const small = g.N <= 64;
+  if (!optimal && small) {
+    // A capped exact search first: most small shops are settled within
+    // QUICK_NODES nodes, so the tabu run's 300 ms only goes to the shops this
+    // cannot finish. It reads no random numbers, so the tabu run below sees
+    // the same seed stream.
+    const quick = branchAndBound(g, best, bestSeq, { deadline, maxNodes: Math.min(limits.nodes ?? Infinity, QUICK_NODES), lowerBound });
+    nodes += quick.nodes;
+    if (quick.best < best - EPS) { best = quick.best; bestSeq = quick.bestSeq; method = 'branch and bound'; }
+    if (quick.complete) { optimal = true; exactComplete = true; lowerBound = best; }
+  }
   if (!optimal) {
     // Small shops: a short tabu run for a good bound, then the exact search.
     const tsDeadline = small ? t0 + Math.min(ms * 0.4, 300) : deadline;
@@ -658,8 +671,8 @@ export function solve(input, limits = {}) {
     optimal = best <= lowerBound + EPS;
   }
   if (!optimal && small && Date.now() < deadline) {
-    const bb = branchAndBound(g, best, bestSeq, { deadline, maxNodes: limits.nodes ?? Infinity, lowerBound });
-    nodes = bb.nodes;
+    const bb = branchAndBound(g, best, bestSeq, { deadline, maxNodes: limits.nodes != null ? Math.max(0, limits.nodes - nodes) : Infinity, lowerBound });
+    nodes += bb.nodes;
     exactComplete = bb.complete;
     if (bb.best < best - EPS) { best = bb.best; bestSeq = bb.bestSeq; method = 'branch and bound'; }
     if (bb.complete) { optimal = true; lowerBound = best; }
