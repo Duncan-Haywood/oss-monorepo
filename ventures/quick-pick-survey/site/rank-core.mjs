@@ -66,7 +66,10 @@ export function encodeList({ title = "", items }) {
 }
 export function decodeList(fragment) {
   try {
-    const d = JSON.parse(fromBase64Url(String(fragment).replace(/^#/, "")));
+    // An optional "l=" prefix is accepted so a static page can link with a
+    // fragment that reads as state, not as a section id (the Pages link
+    // checker skips fragments containing "="; site/use-*.html link this way).
+    const d = JSON.parse(fromBase64Url(String(fragment).replace(/^#/, "").replace(/^l=/, "")));
     if (!d || d.v !== 1 || !Array.isArray(d.i)) return null;
     const items = parseList(d.i.map(String).join("\n"));
     if (items.length < MIN_ITEMS) return null;

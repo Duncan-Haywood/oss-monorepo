@@ -82,7 +82,7 @@ export const USE_PAGES = [
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 export function rankLink(page) {
-  return `rank.html#${encodeList({ title: page.question, items: parseList(page.items.join("\n")) })}`;
+  return `rank.html#l=${encodeList({ title: page.question, items: parseList(page.items.join("\n")) })}`;
 }
 
 export function renderUsePage(page) {

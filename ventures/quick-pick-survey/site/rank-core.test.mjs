@@ -27,6 +27,7 @@ test("parseList trims bullets, drops blanks and case-insensitive repeats, caps t
 test("list links round-trip unicode and reject junk", () => {
   const list = { title: "Qué café?", items: ["Café ☕", "Té", "Agua 💧"] };
   assert.deepEqual(decodeList("#" + encodeList(list)), list);
+  assert.deepEqual(decodeList("#l=" + encodeList(list)), list, "the l= form the ready-list pages link with");
   assert.equal(decodeList("#nonsense"), null);
   assert.equal(decodeList(encodeList({ items: ["one", "two"] })), null, "fewer than 3 items");
 });
