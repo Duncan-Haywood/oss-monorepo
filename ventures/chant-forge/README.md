@@ -783,7 +783,7 @@ rhombus rule, untouched, read 243 of 245 rhombi and called none of 1,604 squares
 quilismas: 22 of the 39 fresh ones are not paired by pitch, so a GABC that drops a quilisma's
 `w` is only caught where the reader and the alignment both find the note.
 
-### Quilisma version 3 (2026-11-14, latest)
+### Quilisma version 3 (2026-11-14)
 
 The eleven pieces scanned for liquescents showed more false quilismas than before (17 of 1,631
 other heads). Each was cropped and looked at: five were pieces of a porrectus stroke read as one
@@ -806,7 +806,32 @@ Of the six left, one is a real quilisma the alignment paired with a neighbour, o
 end falling 0.05 (just under the cut), one the lower head of a stacked pair and three mottled
 squares. Details, the measurements and the crops' verdicts: `eval/quilisma-stroke-check.md`.
 The same pieces were a clean test of the untouched rhombus rule: 417 of 420 rhombi, but 14 of
-2,641 squares called rhombi, more than before and not looked at yet.
+2,641 squares called rhombi, more than before (looked at: next section).
+
+### Rhombus height floor (2026-11-14, latest)
+
+```sh
+node ventures/chant-forge/eval/rhombus-check.mjs --held-out --sweep   # same cache as scan-check
+```
+
+Ten of those fourteen false rhombi were on two staves, and the crops show ordinary squares in
+worn type: white flecks inside the head cut its edge columns, so it measures narrow (0.35 to
+0.40 spaces) and tapered, just like a rhombus. It is not taller, though. A rhombus is a square on
+its corner and stands 0.63 spaces or more; the worn squares stand 0.56 to 0.61. So a head is now
+a rhombus only if it is also at least 0.62 spaces tall (`RHOMBUS_MIN_H` in `scan.mjs`).
+
+| set | rhombi read | squares called rhombi |
+|---|---|---|
+| 50 pieces it was chosen on, before | 1,026 of 1,033 | 18 of 7,501 |
+| the same, after | 1,024 of 1,033 | 6 of 7,501 |
+| 6 held-out pieces (listed before download), before | 103 of 103 | 1 of 596 |
+| the same, after | 103 of 103 | 1 of 596 |
+
+On the eighteen pieces that raised it, squares called rhombi went from 14 to 4 of 2,641
+(`eval/shape-check-report.md`). The held-out pieces show the floor loses no rhombus but had too
+few worn squares to show the gain; their one false call is the same fault at 0.62, on the floor.
+A ceiling for merged stacks was tried and dropped (real rhombi touching a neighbour read up to
+1.09). Crops, measurements and what is left: `eval/rhombus-height-check.md`.
 
 ### Liquescent (2026-11-14)
 

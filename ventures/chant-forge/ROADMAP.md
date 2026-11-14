@@ -126,6 +126,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   notched head whose centre falls like a porrectus stroke, that sits straight on another head, or that carries a
   liquescent tail is a square. Committed before eighteen never-scanned pieces were read
   (`eval/quilisma-fresh-pages.json`): false calls 29 to 6 of 3,080, quilismas 47 of 55 under both versions.
+- 2026-11-14: rhombus height floor (`RHOMBUS_MIN_H`, README "Rhombus height floor", `eval/rhombus-height-check.md`):
+  worn squares whose flecks make them narrow and tapered are not rhombi unless 0.62 spaces tall. Chosen on 50 pieces
+  (false calls 18 to 6 of 7,501, 2 of 1,026 rhombi lost); on six held-out pieces listed before download, 103 of 103
+  rhombi kept, false calls 1 to 1 (too few worn squares there to show the gain).
 
 ## Next
 
