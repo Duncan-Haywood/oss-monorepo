@@ -282,6 +282,22 @@ out alongside code-strength framing joints; the anchorage is what is left.
 
 ![Pushover of the intact and bottom-foot-unnailed sheet with softening nails; loss against the slip at peak](experiments/m16_soft_nails/figure.png)
 
+**Milestone 17: why do shear walls with a decayed, unnailed bottom foot lose half their strength? In
+Weiss's own walls, because the whole wall slides on its sill nails.** Weiss's thesis (WSU 2017, read in
+full for the first time this step) gives the test set-up: 8 by 8 ft walls of two OSB sheets on a shared
+middle stud, hold-downs only at the wall's ends, and every nail below 12 in omitted. The decayed walls kept
+**57%** (6 in edges) and **34%** (3 in edges) of the controls. Built that way in the limit analysis,
+the model reproduces the controls' spacing ratio (**1.93** against 1.87 tested). At code-strength (NDS)
+stud-to-plate joints, though, the decayed walls keep **80% and 63%**, so the anchorage as tested is not
+the explanation (3 of 6 registered predictions refuted). Post hoc, end nails at **0.47 of the NDS
+ratio** fit both groups (58% and 30%). The decayed wall's least-work mechanism is then the whole wall
+sliding on its 18 stud-to-sill end nails, so its capacity no longer depends on the sheathing schedule,
+as Weiss found. That fit is one parameter against two tested numbers, and a tested end-nail ultimate
+is what would confirm it. For the robot, an escaped miss costs about the same on the two-sheet wall
+(mean **2.7%**, 99th percentile **10.4%**) under every joint strength tried.
+
+![Share of capacity a decayed wall keeps against stud-to-plate joint strength; tested, MCASHEW2 and model shares](experiments/m17_weiss_wall/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -671,6 +687,27 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 - **Checks.** An elastic-perfectly-plastic backbone yielding at 0.01 mm against milestone 14's capacity
   on 202 patterns (H70); SDPWS's spacing ratios (H71); energy derivative, symmetry and backbone points in
   `tests/test_softnail.py`.
+
+## Milestone 17 method (`src/buildbot_sheathing/wall_lp.py`)
+- **Question.** Does Weiss's own wall, built as she tested it, explain why her decayed walls lost about
+  half where the lone-sheet models lost 20%?
+- **Test set-up, from the thesis** (B. D. Weiss, MS thesis, Washington State University, 2017,
+  [open access](https://rex.libraries.wsu.edu/esploro/outputs/graduate/Structural-performance-of-light-frame-shear-walls/99900525291401842),
+  Ch. 4–5): 8 by 8 ft, two vertical 4 by 8 ft 7/16 in OSB sheets on a single middle stud, DF-L No. 2 studs
+  at 16 in, double end studs, a single sill bolted to a steel beam, a double top plate; two 16d common end
+  nails per stud end, four at each double-stud corner; 8d common sheathing nails at 3/8 in; Simpson HTT4
+  hold-downs on the double end studs only; ASTM E2126 cyclic tests (CUREE). Decay: every nail below 12 in
+  omitted. Peak loads from Table 5-2, MCASHEW2's shares from Table 5-3.
+- **Model.** Milestone 15's rigid-body upper-bound limit analysis (an LP, SciPy's HiGHS) for a wall: the sill
+  fixed; the top plate, seven studs (each double end stud one body) and two sheets as bodies. Sheathing
+  nails: milestone 14's layout per sheet (the right sheet shifted 48 in; 3 in edges via `layout_spacing`),
+  rigid-plastic F along the slip (64-gon). Stud-to-plate joints: lateral 1.297 F per end nail (the NDS
+  yield-limit 16d end nail at C_eg 0.67 over the 8d nail through 7/16 in OSB, G 0.50), bearing in
+  compression, opening against ω = 0; rigid hold-downs; a top plate that translates but does not rotate
+  (MCASHEW2's boundary condition in Weiss Ch. 3.2). Variants: hold-downs absent or finite, ω, sheet
+  bearing, top-plate modes, the decay pattern's readings, joint strength 0.2–1.0 of the NDS ratio.
+- **Checks.** One sheet against milestone 15's `Frame` (H75, exact); two pinned sheets equal twice one;
+  a decayed wall never above the frame's sliding capacity (`tests/test_wall_lp.py`).
 
 ## Reproduce
 ```bash
@@ -1084,7 +1121,30 @@ python paper/check_numbers.py                                # every number the 
 - **4 in joint edges** (H74 held): intact 1.320 of the 6 in sheet; with 1.572 misses a sheet left in, 99.98%
   at or above the intact 6 in sheet (minimum 0.854).
 
+## Milestone 17 results (`experiments/m17_weiss_wall/results.txt`)
+
+- **Code check** (H75 held): one sheet matches milestone 15's `Frame` to 0.0 in 8 cases.
+- **Controls** (H76 held): 19.07 F (6-12) and 36.83 F (3-12), a ratio of 1.931 against 1.872 tested
+  (+3.2%). At the tested 8d-in-OSB peak (0.972 kN, SPF) 4,168 and 8,049 lb against 4,688 and 8,775 lb
+  (0.89, 0.92); the tests imply 238–246 lb a sheathing nail in DF-L.
+- **Decay at NDS joints** (H77–H79 refuted): 79.5% kept (6-12) and 63.4% (3-12), against 57% and 34%
+  tested and MCASHEW2's 53% and 46%; decay 3-12 over 6-12 1.54 (tested 1.12). Without hold-downs:
+  50–51% kept, but the intact walls fall to 13.6 and 28.3 F. Every other variant keeps 60–80%.
+- **Mechanism.** Intact and decayed 6-12: the interior studs lift off the sill (0.13 per unit slide) while
+  the sheets rotate. Decayed 3-12, and both decayed walls below 0.6 of the NDS ratio: every stud slides on
+  the sill by the top plate's slide and nothing else moves, so the capacity is 18 end nails' worth.
+- **Joint strength, post hoc:** a least-squares fit gives 0.47 of the NDS ratio, keeping 58.2% and 30.2%
+  (rms 2.9 points), decay ratio 1.00, intact walls 18.9 and 36.3 F. The decayed walls carried 147–165 lb per
+  end nail, about the nail's NDS Z of 141 lb before the end-grain factor.
+- **Escaped misses** (H80 held): two sheets a wall, three reads on measured studs, every miss left in:
+  mean loss 2.73%, 99th percentile 10.41% (milestone 14: 2.34%, 11.49% a sheet); 2.67% and 10.19% at the
+  fitted joints.
+
 ## Limitations
+- **Weiss's wall (milestone 17).** Rigid-plastic, monotonic and small-displacement against cyclic tests of
+  two or three walls a group; studs are rigid bodies, though Weiss's middle studs split; joint strengths are
+  NDS design ratios, and the 0.47 that fits the tests is fitted, not measured; shear through the hold-downs
+  and anchor bolts is ignored, which makes the fitted joints an upper bound on how weak they must be.
 - **Softening nails (milestone 16).** Monotonic loading only (no cyclic strength degradation, pinching
   or unloading branch; most shear-wall tests are cyclic); one nail-joint study, SPF framing; the slip at
   peak is swept, not measured; milestone 14's kinematics (pinned framing, rigid sheet, full anchorage).
@@ -1194,7 +1254,11 @@ Weiss's anchorage and wall size (the thesis full text), and tested ultimate stre
 joints and sheathing nails in place of design ratios, or a softening fastener model. Milestone 16 ran the softening fastener on a tested backbone and found
 it changes nothing (20.1–20.4% against 20.4%), because a racking sheet slips its perimeter nails almost
 equally; what is left is the anchorage, so the next step is a model with hold-down and sill-plate
-stiffness and uplift (or Weiss's full text, to read her set-up). The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+stiffness and uplift (or Weiss's full text, to read her set-up). Milestone 17 read the full text and built
+her wall: its anchorage does not explain the loss at code-strength joints, but end nails at 0.47 of the
+NDS ratio fit both tested groups, because the decayed wall slides on its sill. The next inputs are a tested
+ultimate for 16d end-nailed stud-to-plate joints (to check the 0.47 independently) and the shear the
+hold-downs and anchor bolts carry. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
