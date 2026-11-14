@@ -888,6 +888,7 @@ ventures/quickbooks-import-csv-check/usage.mjs
 ventures/quote-follow-up-timing/usage.mjs
 ventures/quote-margin-check/site/usage.mjs
 ventures/radon-mitigation-bid-calculator/usage.mjs
+ventures/ranked-ballot-counter/usage.mjs
 ventures/rd-tax-credit-calculator/usage.mjs
 ventures/rds-instance-cost-advisor/usage.mjs
 ventures/rds-instance-rightsizer/usage.mjs
