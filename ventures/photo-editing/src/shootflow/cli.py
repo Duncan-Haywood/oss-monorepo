@@ -22,7 +22,7 @@ from shootflow.cull import (
 from shootflow.ffmpeg_media import FfmpegMediaError
 from shootflow.camera_profiles import profile_for
 from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, read_dcp
-from shootflow.raw_preview import is_cr2_path
+from shootflow.raw_preview import needs_profile_path
 from shootflow.assembly import (
     AssemblyPlan,
     AssemblyPlanError,
@@ -782,7 +782,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     for source in sources:
         destination = out_dir / (source.stem + "." + args.format)
         file_settings, chosen = settings, {}
-        if args.dcp and Path(args.dcp).is_dir() and is_cr2_path(source):
+        if args.dcp and Path(args.dcp).is_dir() and needs_profile_path(source):
             choice = profile_for(source, args.dcp)
             file_settings = replace(settings, dcp=choice.profile)
             chosen = {"camera_profile": str(choice.path), "camera_profile_rule": choice.rule}

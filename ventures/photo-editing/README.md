@@ -78,8 +78,9 @@ only, no real camera file yet). Since 2026-11-10 the pipeline develops DNG still
 TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no embedded preview
 gets its proxy and its scores from a half-size development instead of failing. Since
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
-from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below). Other RAW
-formats (CR3, NEF, ARW, ...) are still scored from their preview but stop at the grade
+from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
+2026-11-14 a Sony ARW the same way ("Sony ARW" below). Other RAW
+formats (CR3, NEF, ORF, RAF, RW2, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -915,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2 with a `.dcp` profile (since 2026-11-12; convert CR3, NEF and ARW with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2 and Sony ARW with a `.dcp` profile (CR2 since 2026-11-12, ARW since 2026-11-14, "Sony ARW" below; convert CR3 and NEF with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1100,6 +1101,40 @@ The other three frames have no pile at the clip, so their white level stays 16,3
 the 12-bit 350D, whose pile sits at full scale). Rendered against LibRaw with LibRaw's matrix,
 the median difference first measured 3.0-5.6 8-bit steps, with ShootFlow 3-9% brighter in every
 channel. That gap was the check's own fault (next section). Speed with numpy: read 0.3-0.7 s.
+
+## Sony ARW (2026-11-14)
+
+Until now Sony's raw files had to go through Adobe's DNG Converter first. `shootflow develop DSC00001.ARW --dcp PROFILE.dcp` (or `--dcp FOLDER`,
+chosen per camera as for CR2) now reads the ARW itself, and the pipeline's grade stage develops
+ARW stills with the workspace's `color/camera-profiles/` like CR2 (`src/shootflow/arw.py`).
+
+What it reads: all three ways Sony stores the sensor. Compressed RAW (every Alpha and NEX body
+since about 2008): 16-byte blocks of 16 same-colour sensels (an 11-bit maximum and minimum, their
+positions, fourteen 7-bit deltas with a shift), through the tone curve the file's SonyToneCurve tag
+gives; this format is lossy in the camera, and the reader returns exactly what the camera kept.
+Uncompressed 14-bit. Lossless compressed (A7 IV, A1, A7R V and later): 512 x 512 tiles, each a
+four-component lossless JPEG of 2x2 Bayer cells, decoded by the same lossless-JPEG decoder DNG
+and CR2 use, on every CPU. Black level and as-shot white balance come from the raw IFD on newer
+bodies and from the SR2 sub-IFD on older ones, which Sony encrypts with a key-seeded shift
+register (an independent implementation of the scheme dcraw and ExifTool describe). Newer
+bodies' DefaultCrop is applied; older ones carry none and develop at the full stored width.
+
+Like a CR2, an ARW carries no colour matrix the DNG colour model can use, so it needs the camera's
+`.dcp` (Adobe's free DNG Converter installs one per body, e.g. `Sony ILCE-7M3 Adobe Standard.dcp`).
+
+How it was checked (`tools/arw_libraw_check.py`, `eval/sony-arw-reader-2026-11-14.md`): six real
+ARWs from six bodies (DSLR-A500, NEX-5N, NEX-7, A5000, A7 III compressed; A7 IV lossless), from
+the public metadata-extractor-images collection. Against LibRaw 0.22 through rawpy: every one of
+133.9 M sensels equal on both engines, and the as-shot white balance, black level and CFA pattern
+equal on all six. Reading takes 0.4-1.5 s per file with numpy and 3.5-6.2 s on the standard library
+alone. `tests/test_arw.py` (11 tests) writes ARWs in all three storages with an encoder of its own,
+an encrypted SR2 sub-IFD, partial edge tiles, and runs the profile chooser, the CLI and both engines.
+
+Not done: colour is only as good as the profile you supply (no profile ships here); ARW 1.0
+(DSLR-A100) and SR2/SRF are refused; the older bodies' masked right-hand columns are not trimmed
+(LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
+Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
+applied, and Sony's lens name in the maker note is not read yet.
 
 ## The CR2 brightness gap was the check (2026-11-12)
 
