@@ -1,0 +1,55 @@
+Milestone 7g: lever 2, 64 held-out episodes (seed 9999), integrator feed-forward, side force on.
+dead = diverged episodes summed over the 6 seeds (of 384); per probe, one change from base.
+Diagnosis (base run): why = deaths by tilt / by position; peak = gust torque / plant torque limit, peak over the episode,
+median over diverged (D) and surviving (S) episodes; over = share of D (and S) episodes with the gust torque above the limit
+at some alive step; mix, tilt = median share of alive steps with the mixer scaling roll/pitch, tilt command at its limit.
+
+[above, unconstrained]
+  cap 20: dead base 15; dead85 8; ideal mixer 2; ideal mixer, 2x torque 0; pos gains x0.5 7
+          why tilt 15 / pos 0; peak D 0.91 S 0.50; over D 0.40 S 0.01; mix D 0.13 S 0.00; tilt D 0.14 S 0.04
+          diverged episodes' plant: torque scale 0.87 (all 0.83), mass 0.97 (1.05), lag 1.61 (1.59); distinct episodes 6
+  cap 45: dead base 45; dead85 42; ideal mixer 16; ideal mixer, 2x torque 0; pos gains x0.5 10
+          why tilt 45 / pos 0; peak D 0.65 S 0.50; over D 0.13 S 0.00; mix D 0.41 S 0.00; tilt D 0.04 S 0.00
+          diverged episodes' plant: torque scale 0.82 (all 0.83), mass 1.21 (1.05), lag 1.69 (1.59); distinct episodes 15
+
+[above, M=1.25]
+  cap 20: dead base 4; dead85 3; ideal mixer 3; ideal mixer, 2x torque 0; pos gains x0.5 4
+          why tilt 4 / pos 0; peak D 1.13 S 0.50; over D 1.00 S 0.01; mix D 0.08 S 0.00; tilt D 0.08 S 0.03
+          diverged episodes' plant: torque scale 0.87 (all 0.83), mass 0.91 (1.05), lag 1.61 (1.59); distinct episodes 1
+  cap 45: dead base 12; dead85 9; ideal mixer 3; ideal mixer, 2x torque 0; pos gains x0.5 4
+          why tilt 12 / pos 0; peak D 0.87 S 0.50; over D 0.33 S 0.01; mix D 0.51 S 0.00; tilt D 0.20 S 0.00
+          diverged episodes' plant: torque scale 0.83 (all 0.83), mass 0.97 (1.05), lag 1.56 (1.59); distinct episodes 4
+
+[above, M=1.43]
+  cap 20: dead base 4; dead85 2; ideal mixer 0; ideal mixer, 2x torque 0; pos gains x0.5 3
+          why tilt 4 / pos 0; peak D 1.13 S 0.51; over D 1.00 S 0.01; mix D 0.07 S 0.00; tilt D 0.08 S 0.03
+          diverged episodes' plant: torque scale 0.87 (all 0.83), mass 0.91 (1.05), lag 1.61 (1.59); distinct episodes 1
+  cap 45: dead base 13; dead85 10; ideal mixer 3; ideal mixer, 2x torque 0; pos gains x0.5 3
+          why tilt 13 / pos 0; peak D 0.88 S 0.50; over D 0.38 S 0.01; mix D 0.12 S 0.00; tilt D 0.04 S 0.00
+          diverged episodes' plant: torque scale 0.83 (all 0.83), mass 0.97 (1.05), lag 1.61 (1.59); distinct episodes 4
+
+[above, M=1.67]
+  cap 20: dead base 4; dead85 3; ideal mixer 1; ideal mixer, 2x torque 0; pos gains x0.5 3
+          why tilt 4 / pos 0; peak D 1.12 S 0.51; over D 0.75 S 0.02; mix D 0.06 S 0.00; tilt D 0.07 S 0.03
+          diverged episodes' plant: torque scale 0.87 (all 0.83), mass 0.91 (1.05), lag 1.61 (1.59); distinct episodes 2
+  cap 45: dead base 12; dead85 10; ideal mixer 2; ideal mixer, 2x torque 0; pos gains x0.5 5
+          why tilt 12 / pos 0; peak D 0.87 S 0.50; over D 0.33 S 0.01; mix D 0.42 S 0.00; tilt D 0.23 S 0.00
+          diverged episodes' plant: torque scale 0.83 (all 0.83), mass 0.97 (1.05), lag 1.51 (1.59); distinct episodes 4
+
+[below, unconstrained]
+  cap 20: dead base 42; dead85 34; ideal mixer 14; ideal mixer, 2x torque 0; pos gains x0.5 30
+          why tilt 42 / pos 0; peak D 0.97 S 0.60; over D 0.48 S 0.04; mix D 0.08 S 0.00; tilt D 0.07 S 0.02
+          diverged episodes' plant: torque scale 0.87 (all 0.83), mass 1.21 (1.05), lag 1.62 (1.59); distinct episodes 10
+  cap 45: dead base 52; dead85 48; ideal mixer 19; ideal mixer, 2x torque 0; pos gains x0.5 30
+          why tilt 52 / pos 0; peak D 0.92 S 0.60; over D 0.42 S 0.02; mix D 0.23 S 0.00; tilt D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.83 (all 0.83), mass 1.13 (1.05), lag 1.62 (1.59); distinct episodes 12
+
+[below, M=1.25]
+  cap 20: dead base 45; dead85 38; ideal mixer 15; ideal mixer, 2x torque 0; pos gains x0.5 31
+          why tilt 45 / pos 0; peak D 0.99 S 0.61; over D 0.49 S 0.04; mix D 0.06 S 0.00; tilt D 0.06 S 0.02
+          diverged episodes' plant: torque scale 0.87 (all 0.83), mass 1.13 (1.05), lag 1.62 (1.59); distinct episodes 9
+  cap 45: dead base 55; dead85 49; ideal mixer 18; ideal mixer, 2x torque 0; pos gains x0.5 31
+          why tilt 55 / pos 0; peak D 0.96 S 0.60; over D 0.42 S 0.02; mix D 0.15 S 0.00; tilt D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.87 (all 0.83), mass 1.13 (1.05), lag 1.62 (1.59); distinct episodes 11
+
+wall time 31 s
