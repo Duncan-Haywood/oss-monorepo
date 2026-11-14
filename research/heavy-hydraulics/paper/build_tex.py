@@ -74,6 +74,7 @@ CITES: list[tuple[str, str]] = [
     (r"doi:10\.5281/zenodo\.10639199", C("linjama2024")),
     (r"doi:10\.17221/77/2021-RAE", C("juza2023")),
     (r"doi:10\.3390/en15114030", C("kauranne2022")),
+    (r"doi:10\.3390/en10081113", C("frosina2017")),
     (r" \(Moore, Construction Equipment, 24 March 2020\)", "\x02" + C("moore2020idling")),
     (r"Casappa's KAPPA 30 catalogue \(K 05 T A, 2012, pp\. 9 to 11\)", "Casappa's KAPPA 30 catalogue (pp. 9 to 11)\x02" + C("casappa_kappa")),
     (r"Danfoss's GearMe Aluminum Group 3 technical information \(BC319661777599en-000202, 2023, pp\. 19 to 21\)", "Danfoss's GearMe Aluminum Group 3 technical information (pp. 19 to 21)\x02" + C("danfoss_gearme3")),
