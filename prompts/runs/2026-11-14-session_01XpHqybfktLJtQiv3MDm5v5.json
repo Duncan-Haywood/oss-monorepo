@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqybfktLJtQiv3MDm5v5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T18:49:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship 7: RW2 read directly (top next: item)",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15941",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First test field (random jumps) was not codable under RW2's shift rules; replaced by a field built from random valid shifts and steps, coded back from values alone"
+    },
+    {
+      "what": "Test bit writer did not start a fresh block at the top position (vbits 0x20000); fixed"
+    },
+    {
+      "what": "Three existing tests asserted the old format list in error messages; one pipeline test used .RW2 as its unsupported example (now .RAF)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "photo-editing's next: sat at 1951 of 2000 characters, so adding one landed item went over the cap. I had to fold RW2 into the existing 'ARW, NEF, ORF read directly' phrase to fit; the cap leaves almost no room for a run's landed note"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-panasonic-raw-files-read-from-the-top-down.md",
+    "ventures/photo-editing/eval/panasonic-rw2-reader-2026-11-14.md"
+  ],
+  "goal": "Deepen flagship 7 (photo-editing): a fifth maker raw format read directly, checked against LibRaw",
+  "notes": "rw2.py + C decoder; on 4 real RW2s (GF1, GF3, GF7, LX7) every one of 50,087,520 stored sensels equals LibRaw 0.22 on both decoders, as do WB, black, CFA and crop (tools/rw2_libraw_check.py, eval jsonl). End to end develop of 3 real frames: 3.9 s, masters inspected. Findings: columns past the right border are not black; the GF1 clips at about 3975 (LibRaw table 3986); RW2 EXIF has no lens or maker note (they are in JpgFromRaw), now first in next:. Verification: run_venture_tests.py photo-editing and venture-preflight; results below.",
+  "corrections": [],
+  "redteam": null
+}
