@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVL74TtzieJM7fPTqaX",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T06:35:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator (flagship 9): bring 24 and 25 teams into the page's floor-priced step",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 15748,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Outbound routing/OSM hosts (router.project-osrm.org, overpass-api.de, routing.openstreetmap.de) refused by the proxy",
+      "impact": "could not check the travel-from-coordinates estimate against real road times; picked a buildable item instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/page.test.mjs",
+      "issue": "the import allow-list test pins orient.mjs to calc.mjs only; any new local module (here the generated WebAssembly kernel) needs the test widened"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-3-kb-webassembly-loop-brought-24-team-leagues-into-the-page.md"
+  ],
+  "goal": "flagship deepening: the 'next' item '24 and 25 teams in the page (... or a step in WebAssembly)'",
+  "notes": "minPlusStep's inner loop moved to a 3 KB WebAssembly SIMD module (wasm/minplus.c, wasm/build.sh, embedded base64), with the table permutations inside it and homeMasks built one xor per entry. The same tables bit for bit (Float64 sums kept in the JS order). Step 0.80 -> 0.15 ms at 12 matches. Page floor-priced step old vs new, same cached lists, 11 runs at 20-25 teams: 903 s -> 218 s, the same runs/results/frontier in all (eval/wasm-step.txt). carryOverFloorPriced maxTeams 22 -> 25. Headless Chromium: the module loads on the page thread and in a module worker and equals the JS loop. Verification: run_venture_tests.py league-schedule-generator (1 suite run, 0 failed); venture-preflight.mjs league-schedule-generator: preflight clean.",
+  "corrections": [],
+  "redteam": null
+}

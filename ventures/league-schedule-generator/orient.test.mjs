@@ -150,6 +150,34 @@ test("minPlusStep equals the double loop: byes, repeated pairs, any table to com
   }
 });
 
+test("minPlusStep in WebAssembly equals the JS loop, whole and priced tables, 2 to 16 matches", async () => {
+  const { MINPLUS_WASM_ON } = await import("./orient.mjs");
+  process.env.MINPLUS_JS = "1";
+  const js = await import("./orient.mjs?js-only");
+  delete process.env.MINPLUS_JS;
+  assert.equal(js.MINPLUS_WASM_ON, false);
+  if (!MINPLUS_WASM_ON) return; // no WebAssembly here: both are the JS loop
+  const rand = mulberry32(29);
+  const roundOf = (n, sitOut) => {
+    const ts = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [ts[i], ts[j]] = [ts[j], ts[i]]; }
+    const ms = [];
+    for (let i = sitOut; i + 1 < n; i += 2) ms.push([Math.min(ts[i], ts[i + 1]), Math.max(ts[i], ts[i + 1])]);
+    return ms;
+  };
+  for (let it = 0; it < 240; it++) {
+    const n = it < 8 ? 32 : 4 + Math.floor(rand() * 23);
+    const A = roundOf(n, Math.floor(rand() * 3)), B = it % 9 === 0 ? A.slice() : roundOf(n, Math.floor(rand() * 3));
+    const fi = Int32Array.from({ length: 1 << A.length }, () => Math.floor(rand() * 40));
+    const ff = Float64Array.from({ length: 1 << A.length }, () => rand() * 40);
+    const msg = `n ${n} A ${JSON.stringify(A)} B ${JSON.stringify(B)}`;
+    const wi = minPlusStep(fi, A, B), wf = minPlusStep(ff, A, B);
+    assert.ok(wi instanceof Int32Array && wf instanceof Float64Array, msg);
+    assert.deepEqual(wi, js.minPlusStep(fi, A, B), msg);
+    assert.deepEqual(wf, js.minPlusStep(ff, A, B), msg);
+  }
+});
+
 test("a 24-team break floor in seconds, not minutes (12 matches a round)", () => {
   const tries = carryOverTry(24, 0, { seed: 1, weighted: 8 });
   const t = Date.now();

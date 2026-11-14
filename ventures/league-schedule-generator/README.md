@@ -2062,7 +2062,68 @@ tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves
 its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
 change). The multi-division page gets the same fit in the next section.
 
-## A backward table: the floor-priced step 2.1x faster again, same seasons (2026-11-13, latest)
+## minPlusStep in WebAssembly: 23 to 25 teams join the page (2026-11-14)
+
+The section below left 24 and 25 teams off the page at 54 to 184 s of worker time, with `minPlusStep`
+and the trial loop it is inlined into 94% of a 24-team profile. The step's inner loop now runs in
+WebAssembly, and the page's floor-priced step runs at up to **25 teams** (`maxTeams` 22 -> 25).
+
+- **The kernel** (`wasm/minplus.c`, about 40 lines of C, no libc; `sh wasm/build.sh` builds it with
+  clang 18 for wasm32 with SIMD128 into a 3 KB module, kept as base64 in `wasm/minplus-wasm.mjs`,
+  which `orient.mjs` imports, so the page and its workers need no extra fetch). `minPlusStep` still
+  plans the elimination in JS (order, edge bits, sizes), then hands every step to the module. The
+  table's input and output permutations run there too, from the same two 6-bit lookups `perm` builds.
+- **A flat loop.** For the new table's entry z, the old table's pair sits at 2 (z mod 2^(lx + ly0)),
+  where lx is the x bits left and ly0 the y bits met before the step. So the new table is blocks that
+  each read the same contiguous run of the old one, and the break count reads z's own bits. A
+  first version looped over the y part, then the x part. Its inner loop ran 1 or 2 entries in the
+  late steps.
+- **Bit-identical.** Priced tables (Float64Array) round in the JS order, `(T + both) - d`, not
+  `T + (both - d)`. Whole-break tables are Int32 and exact either way. When WebAssembly or SIMD is
+  missing (`WebAssembly.validate` fails), a table would not fit the module's buffers (2^18 entries),
+  or `MINPLUS_JS=1` is set in Node, the JS loop runs as before. Checked in headless Chromium: the
+  module loads on the page thread and in a module worker, and gives the JS loop's table.
+- **homeMasks, one xor an entry.** With the step about 5x faster, building every round's home masks
+  bit by bit (2^k x k) was as slow as the step itself. Each host choice x now comes from x without
+  its lowest set bit, by one xor. It gives the same masks (2,000 random rounds of 1 to 14 matches,
+  checked against the old loop).
+
+**The step**: 12 matches 0.80 -> 0.15 ms, 10 matches 0.18 -> 0.04 ms (`eval/minplus-bench.mjs`, same
+tables). Built without SIMD the module takes 0.21 ms at 12 matches, so leaving JS gives most of it
+and SIMD about a third more.
+
+**The page's floor-priced step, old code against new** (`eval/wasm-step.txt`, same cached lists, two
+processes at a time on one shared 4-CPU machine):
+
+| Teams, seed | old | new | seasons added (the same in both) |
+|---|---|---|---|
+| 24, 1 | 89.7 s | 21.3 s | 614/62, 640/60 (18.2% inside the gap) |
+| 24, 2 | 110.5 s | 25.6 s | 620/62, 610/62 (5.9%) |
+| 24, 3 | 178.0 s | 41.9 s | 610/62 (5.6%) |
+| 25, 1 | 60.3 s | 16.1 s | none |
+| 25, 2 | 211.3 s | 50.4 s | 715/47 (3.1%) |
+| 25, 3 | 132.0 s | 34.0 s | none |
+| 23, 1 / 2 / 3 | 22.5 / 23.3 / 56.9 s | 4.9 / 5.0 / 11.3 s | none |
+| 22, 1 | 15.0 s | 5.2 s | 670/50, 662/48 |
+| 20, 1 | 4.0 s | 2.4 s | 382/48, 444/46 |
+
+**903 s -> 218 s in all (4.1x)**, with the same runs, results and frontier in all eleven. 22 teams were
+admitted at 35-64 s of worker time; 24 and 25 now take 16-50 s, so `carryOverFloorPriced` defaults to
+`maxTeams` 25. 23 teams still add nothing on three seeds but cost only 5-11 s, so they are not
+special-cased. A 24-team profile after the change: the kernel 62%, the balanced walk 11%, the JS
+around the step (planning, lookups) 6%.
+
+- Tests: `orient.test.mjs` (now 16): the WebAssembly step equals the JS loop (a second copy of
+  `orient.mjs` loaded with `MINPLUS_JS=1`) on 240 random rounds of 2 to 16 matches, Int32 and
+  Float64 tables, byes and repeated pairs included. The double-loop test now runs against the
+  WebAssembly step. `floor-priced.test.mjs`: 22 to 25 teams pass the size gate, 26 do not, and
+  `maxTeams: 22` keeps the old gate. `page.test.mjs`: `orient.mjs` imports only `calc.mjs` and the
+  generated module, which holds nothing but the base64 string. Full suite: 517 tests.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser. No real
+  24-team league has been tried. The kernel's last 1.35x is SIMD, which needs Safari 16.4 or later.
+  Older browsers get the JS loop, at the old speed.
+
+## A backward table: the floor-priced step 2.1x faster again, same seasons (2026-11-13)
 
 The section below left two costs at 24 teams: the programme's step (87 s of a 152 s run) and the
 balanced walk's predecessor scan (37 s). Both are smaller now, and every search still follows the
