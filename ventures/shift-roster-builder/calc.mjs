@@ -3600,13 +3600,11 @@ function planWeeksOnce(staffText, shiftsText, { weeks = 4, weekStart = null, onW
       // same score, so a plan with nothing changing reshuffled people week to week (the sample café cycled through three tied
       // rosters). When an earlier week's roster is still allowed this week and scores the same, the week is built again with a
       // small per-shift bonus for that roster's shifts (keepShift 0.01, starting from it), and that build is posted if its score
-      // without the bonus ties. With keepValue > 0 this runs only when the caller asks for column generation first (deferCover;
-      // the default keeps that setting on the old order): the rebuild keeps the usual-rota bonus's weight on the earlier week's
-      // shifts, and the tie is judged under the usual-rota bonus (README "Keep usual shifts, column generation first").
+      // without the bonus ties. Not with keepValue > 0, whose usual rota already anchors every week.
       // Earlier weeks are tried newest first, so after a week with someone off the plan can go back to the rota before it. Only
       // weeks with no dated day off are copied: copying one carried its reshuffle into later weeks (the leave sweep's distance
       // from the usual rota rose 6-44% before this was added).
-      if (look && steadyTies !== false && k > 0 && !out.some((w) => shape(w.roster) === shape(cur.roster)) && out.some((w) => !w.leave)) {
+      if (look && steadyTies !== false && !steady && k > 0 && !out.some((w) => shape(w.roster) === shape(cur.roster)) && out.some((w) => !w.leave)) {
         const st = parseStaff(text, { weekStart: ws });
         const curSc = rosterScoreUnder(st.staff, sh.slots, weekOpts, cur.roster);
         const tried = new Set();
@@ -3619,7 +3617,7 @@ function planWeeksOnce(staffText, shiftsText, { weeks = 4, weekStart = null, onW
           // A roster this week's rules no longer allow whole (someone off, a carried rest gap) is still built toward, once, for the
           // newest leave-free week only: the bonus keeps as much of it as a tie allows.
           if (lastSc.valid ? lastSc.score > curSc.score + 1e-6 : tried.size > 1) continue;
-          const r = buildRoster(st.staff, sh.slots, { ...weekOpts, keep: keepFrom(last), keepShift: 0.01, keepValue: steady ? weekOpts.keepValue : 0 });
+          const r = buildRoster(st.staff, sh.slots, { ...weekOpts, keep: keepFrom(last), keepShift: 0.01, keepValue: 0 });
           builds++;
           const sc = r.error ? null : rosterScoreUnder(st.staff, sh.slots, weekOpts, r);
           if (sc && sc.valid && sc.score <= curSc.score + 1e-6) {
