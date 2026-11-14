@@ -324,7 +324,11 @@ export function monthlyTaxByLabel(books, label, account = "2100") {
   return { months, first: dates[0] ?? null, last: dates[dates.length - 1] ?? null };
 }
 const sumMonths = (months, from, to) => Object.entries(months).reduce((a, [k, v]) => (k >= from && k <= to ? a + v : a), 0);
-const usd = (c) => `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// the sign goes outside the symbol: -$5.00, not $-5.00 (a credit-heavy look-back year can be negative)
+const usd = (c) => {
+  const text = `$${(Math.abs(c) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return c < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 // Presets a state sets from your own past tax, worked out from the book when it holds the months the rule looks at:
 // { discounts, dueDay, notes }. Merged over stateDiscounts and stateDueDay by the CLI and the page; an explicit --discount or --due-day wins.
