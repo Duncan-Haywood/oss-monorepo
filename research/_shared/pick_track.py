@@ -210,6 +210,13 @@ def refresh_origin_main(hours=6, run=subprocess.run):
             cmd.insert(2, f"--shallow-since={hours + 1} hours ago")
         if git(*cmd, timeout=120).returncode != 0:
             return "`git " + " ".join(cmd) + "` failed"
+        # A stale ref (a fresh clone's is often days old) reads as covered, so the plain fetch
+        # above can leave only the ~4 h it brought in; re-check and deepen once (friction
+        # 2026-11-13: CLAIM CHECK kept saying "shorter than 6h" after the fetch it suggested).
+        if len(cmd) == 4 and is_shallow() and not history_covers(hours):
+            cmd = ["fetch", "-q", f"--shallow-since={hours + 1} hours ago", "origin", "main"]
+            if git(*cmd, timeout=120).returncode != 0:
+                return "`git " + " ".join(cmd) + "` failed"
     except (OSError, subprocess.SubprocessError) as e:
         return f"could not refresh origin/main ({type(e).__name__})"
     return None
@@ -283,7 +290,7 @@ def claim_check(slug, hours=6):
                              f"after opening your draft PR, `python3 portfolio/router/claim_check.py {slug}` says who keeps it if a sibling opened one too")
             else:
                 lines.append(f"CLAIM CHECK: no commit in this clone's history and no open PR names {slug}, but the shallow "
-                             f"history is shorter than {hours}h; run `git fetch --shallow-since='{hours} hours ago' origin main`, then re-run")
+                             f"history is shorter than {hours}h; run `git fetch --shallow-since='{hours + 1} hours ago' origin main`, then re-run")
     return lines
 
 
