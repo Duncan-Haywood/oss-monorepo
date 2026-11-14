@@ -14,7 +14,7 @@ HERE = Path(__file__).resolve().parent
 def main():
     S = json.loads((HERE / "summary.json").read_text())
     conds = [c for c in S["kept"] if c in S["extra"]]
-    pw, ph, gap, top, left = 260, 220, 50, 64, 60
+    pw, ph, gap, top, left = 280, 220, 60, 90, 60
     W = left + len(conds) * (pw + gap) + 10
     H = top + ph + 60
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" font-family="sans-serif" font-size="12">',
@@ -47,7 +47,7 @@ def main():
             if r["j"] == best:
                 o.append(f'<path d="{path(r)}" fill="none" stroke="#d08a00" stroke-width="2" stroke-dasharray="{"5 3" if best in cc["picked"] else "0"}"/>')
         o.append(f'<text x="{x0}" y="{top - 22}" style="font-weight:600">{c}</text>')
-        o.append(f'<text class="s" x="{x0}" y="{top - 7}">ladder gap {100 * cc["gap"]:.1f}% at {cc["t_ratio"]:.2f} of all-DFN; DFN@10 top 3 gap {100 * cc["fixed10"]["gap"]:.1f}%</text>')
+        o.append(f'<text class="s" x="{x0}" y="{top - 7}">ladder {100 * cc["gap"]:.1f}% short at {cc["t_ratio"]:.2f} of all-DFN; DFN@10 top 3: {100 * cc["fixed10"]["gap"]:.1f}%</text>')
         o.append(f'<text class="s" x="{x0 + pw / 2 - 20}" y="{top + ph + 32}">cycle</text>')
         o.append(f'<text class="s" x="{x0 - 4}" y="{top + 10}" text-anchor="end">{yhi:.0f}</text><text class="s" x="{x0 - 4}" y="{top + ph}" text-anchor="end">{ylo:.0f}</text>')
     o.append(f'<text class="s" x="12" y="{top + ph / 2 + 30}" transform="rotate(-90 12 {top + ph / 2 + 30})">Wh/kg</text>')
