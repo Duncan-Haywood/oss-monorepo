@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJ79c2ZBrccVz8Jvqn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T06:06:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/buildbot-sheathing milestone 16: softening nails (tested 8d-in-OSB backbone) against Weiss's missing-nail walls",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15735",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "The first full run died at the final json.dump (numpy bool in the hypotheses dict) after about 25 min; the fix was bool() and a rerun. Earlier, I killed a run partway to add the post-hoc section G. Together about 45 min of wall time lost.",
+    "WebFetch of wfs.swst.org (the Wood and Fiber Science decay paper) returned 502, and a VT thesis PDF was over the 10 MB fetch limit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to wait with wait_for.py on a log ending in DONE. For a job whose stdout is redirected to results.txt, the task output file stays empty until exit, so wait_for reports 'may be stuck' every 9 min. Watching results.txt itself would show progress."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Plain python3 has no numpy here. pyenv.py returned /usr/bin/python3.13, which has numpy, scipy and matplotlib, at once; worth saying so up front."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 16 plan)",
+      "why": "The plan named Foschi's exponential backbone. I used a power-law rise that peaks smoothly at dp and is fixed by the three tested numbers. This was decided before any capacity was computed.",
+      "did": "recorded the change in the result entry",
+      "result": "the conclusion is insensitive to it: a near-brittle nail gives the same 20.4%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-softening-nails-shear-wall-missing-nails.md",
+    "research/buildbot-sheathing/LOG.md (milestone 16 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Routed research by draw; ideas inbox, website requests and security queue empty. pick_track drew buildbot-sheathing (the aerolog-scaling draw was redrawn for an open PR). Milestone 16 results: H70 (reduces to milestone 14, 0.000%), H71 (spacing ratios within 6%), H73 and H74 held; H72 (softening explains Weiss) refuted: 20.1-20.4% loss at every backbone, against 20.4% rigid-plastic. Mechanism: the perimeter nails slip 11-12 mm together at the sheet's peak. Backbone from Shameli Derakshan, Zhou and Ni 2019 (MOC Summit), Table 2, read from its PDF. Checks run here: pytest tests/test_softnail.py, test_racking.py and test_paper.py (12 passed); cite_check ok; build.py, research_live_links and check_md_links (see the PR). No agent doc: the LOG.md entry is what the next run reads (pick_track points there).",
+  "corrections": [],
+  "redteam": null
+}
