@@ -39,17 +39,19 @@ const manifest = JSON.parse(readFileSync(join(here, 'scan-pages.json'), 'utf8'))
 const fresh = JSON.parse(readFileSync(join(here, 'shape-fresh-pages.json'), 'utf8')).pieces.map((p) => ({ ...p, fresh: true }));
 const liqFresh = JSON.parse(readFileSync(join(here, 'liquescent-fresh-pages.json'), 'utf8')).pieces.map((p) => ({ ...p, liqFresh: true }))
   .filter(() => !args.includes('--without-liquescent-fresh'));
+const qFresh = JSON.parse(readFileSync(join(here, 'quilisma-fresh-pages.json'), 'utf8')).pieces.map((p) => ({ ...p, qFresh: true }))
+  .filter(() => !args.includes('--without-quilisma-fresh'));
 const SHAPES = ['punctum', 'virga', 'rhombus', 'quilisma', 'liquescent', 'oriscus', 'stropha'];
 const empty = () => Object.fromEntries(SHAPES.map((k) => [k, { inGabc: 0, paired: 0, rhombus: 0, quilisma: 0, liquescent: 0, square: 0, none: 0 }]));
-const SETS = { tuned: 'tuned on', held: 'held out', fresh: 'fresh', liq: 'liquescent fresh' };
-const sets = { tuned: empty(), held: empty(), fresh: empty(), liq: empty() };
-const liqOnly = { tuned: 0, held: 0, fresh: 0, liq: 0 }; // liquescent notes the reader adds that pair with no GABC note
+const SETS = { tuned: 'tuned on', held: 'held out', fresh: 'fresh', liq: 'liquescent fresh', qf: 'quilisma fresh' };
+const sets = { tuned: empty(), held: empty(), fresh: empty(), liq: empty(), qf: empty() };
+const liqOnly = { tuned: 0, held: 0, fresh: 0, liq: 0, qf: 0 }; // liquescent notes the reader adds that pair with no GABC note
 const oddL = [];
 const oddQ = [];
 const perPiece = [];
 const odd = [];
-[...manifest.pieces, ...fresh, ...liqFresh].forEach((piece, idx) => {
-  const set = piece.liqFresh ? 'liq' : piece.fresh ? 'fresh' : idx < TUNED ? 'tuned' : 'held';
+[...manifest.pieces, ...fresh, ...liqFresh, ...qFresh].forEach((piece, idx) => {
+  const set = piece.qFresh ? 'qf' : piece.liqFresh ? 'liq' : piece.fresh ? 'fresh' : idx < TUNED ? 'tuned' : 'held';
   const g = gabcSteps(readFileSync(join(root, piece.gabc), 'utf8'));
   const scan = [];
   for (const p of piece.pages) {
@@ -109,6 +111,13 @@ const L = [
   'so on those sets the liquescent figures are not held out. "Liquescent fresh" is the eleven pieces',
   'in `liquescent-fresh-pages.json`, listed and first scanned after those thresholds were frozen.',
   'Liquescent figures in more detail: `liquescent-check-report.md`.',
+  '',
+  '**Quilisma version 3 (2026-11-14).** A notched head is no longer a quilisma when its centre falls',
+  '0.06 staff spaces or more left to right (a porrectus stroke piece), when a head is printed straight',
+  'under it, or when it carries a liquescent tail (`isQuilisma`). Chosen on all 32 pieces above, so',
+  'their quilisma false-call figures are no longer held out. "Quilisma fresh" is the eighteen pieces',
+  'in `quilisma-fresh-pages.json`, listed and first scanned after version 3 was frozen. Details:',
+  '`quilisma-stroke-check.md`.',
   '',
   '| set | GABC shape | in the GABC span | paired by pitch | read as rhombus | read as quilisma | read as liquescent | read as square |',
   '|---|---|---|---|---|---|---|---|',

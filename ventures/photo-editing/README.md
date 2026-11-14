@@ -1012,6 +1012,12 @@ How it was checked:
   256x256-sensel tile 27-30 ms to 18-21 ms. Same samples as the pure pass on all 345 encoder
   cases and sensel-for-sensel equal to LibRaw on the CR2. `raw_develop.DECODE_ENGINE`
   (`auto`, `python`, `numpy`) chooses; the Huffman pass is now about 85% of decoding.
+- Point-transform scans in C (2026-11-14, `eval/point-transform-c-2026-11-14.md`): a
+  lossless-JPEG scan with a non-zero point transform now predicts and shifts in C too, off the
+  GIL, instead of falling back to the numpy or Python pass: 4x (predictor 1) to 54x
+  (predictor 6) faster on a synthetic 1,000 x 750 scan, identical samples. No real camera file
+  we have uses a point transform, so measured reads do not change. `parse_raw` also allocates
+  the raw plane once (peak 50 MB to 24 MB on a 12-megasensel DNG).
 
 - Huffman pass in native code (2026-11-12, `eval/ljpeg-native-huffman-2026-11-12.md`): an
   optional C reader (`shootflow/ljpeg_native.py`, about 40 lines of C kept as a string,

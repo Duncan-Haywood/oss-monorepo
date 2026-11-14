@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves } from './scan.mjs';
+import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, headShape, isQuilisma, QUILISMA_MAX_FALL } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -152,6 +152,22 @@ test('a saw-toothed head is a quilisma; a notched head that continues a wide str
   const [st] = readPage(readPgm(toPgm(img)));
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [3, 4, 5, 5, 4]);
   assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'quilisma', 'square', 'square', 'square']);
+});
+
+// Version 3 of the quilisma rule (eval/quilisma-stroke-check.md): notched
+// heads that are a falling piece of a porrectus stroke, the top note of a
+// stack, or an epiphonus head with its tail are squares.
+test('a notched head that falls like a stroke, sits on another head or carries a liquescent tail is not a quilisma', () => {
+  const q = { w: 0.5, h: 0.6, fill: 0.6, taper: 1, notch: 4, afterStroke: false, fall: 0, under: false, liq: false };
+  assert.equal(headShape(q), 'quilisma');
+  assert.equal(isQuilisma({ ...q, fall: -0.4 }), true); // rising: a quilisma joined to the note above
+  assert.equal(headShape({ ...q, fall: QUILISMA_MAX_FALL }), 'square');
+  assert.equal(headShape({ ...q, w: 0.95, fall: 0.2 }), 'square');
+  assert.equal(headShape({ ...q, under: true }), 'square');
+  assert.equal(headShape({ ...q, liq: true }), 'square');
+  assert.equal(headShape({ ...q, notch: 2 }), 'square');
+  // features measured before version 3 (no fall, under or liq) keep their old reading
+  assert.equal(headShape({ w: 0.5, h: 0.6, fill: 0.6, taper: 1, notch: 4, afterStroke: false }), 'quilisma');
 });
 
 // Liquescents as printed in the 1908 type: a small note hung off the head's

@@ -530,12 +530,13 @@ def _decode_scan(data, pos, width, height, tables, predictor, precision, pt, res
     nf = len(tables)
     diffs = _scan_diffs(data, pos, width * height, tables, restart)
     initial = 1 << (precision - pt - 1)
-    if not pt and DECODE_ENGINE in ("auto", "native") and isinstance(diffs, array):
+    if DECODE_ENGINE in ("auto", "native") and isinstance(diffs, array):
         # Differences from the C reader: predict in C too, so a tile's whole decode runs
-        # without the GIL (eval/native-destuff-2026-11-13.md). Same samples as _predict_scan.
+        # without the GIL (eval/native-destuff-2026-11-13.md). Same samples as _predict_scan,
+        # shifted by the point transform in C as well (eval/point-transform-c-2026-11-14.md).
         from shootflow import ljpeg_native
 
-        got = ljpeg_native.predict(diffs, width, height, nf, predictor, initial, restart)
+        got = ljpeg_native.predict(diffs, width, height, nf, predictor, initial, restart, pt)
         if got is not None:
             return got
         if DECODE_ENGINE == "native":
@@ -1067,7 +1068,9 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
         raise DevelopError("planar (separate plane) LinearRaw is not supported")
     if not width or not height or width * height > 400_000_000:
         raise DevelopError("raw image size is missing or implausible")
-    values = array("I" if bits > 16 else "H", bytes((4 if bits > 16 else 2) * width * height * spp))
+    # One zeroed buffer: array(..., bytes(n)) built a zeroed bytes and copied it, twice the plane's
+    # size at peak (eval/point-transform-c-2026-11-14.md).
+    values = array("I" if bits > 16 else "H", [0]) * (width * height * spp)
     if TAG_TILE_OFFSETS in ifd.entries:
         tw = ifd.one(TAG_TILE_WIDTH)
         tl = ifd.one(TAG_TILE_LENGTH)
