@@ -46,7 +46,10 @@ Options:
                             Waiting for two columns to agree does not fix it: sensors that move together (two
                             accelerometers, two temperatures) agree on noise too, so the normal run still sent 2.7
                             messages per 100 checks, and 9 of 33 faults seen by one column alone were missed
-                            (README "Round 13"; not offered).
+                            (README "Round 13"; not offered). A floor per column read off the normal run (--min-shift,
+                            below) cut false lines out of sample from 6.3 to 2.3 per 100 checks but lost 5 of 33 faults:
+                            set the floor by hand on the loud columns that do not matter, not on the one that sees the
+                            faults (README "Round 14"; the automatic version is not offered).
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
