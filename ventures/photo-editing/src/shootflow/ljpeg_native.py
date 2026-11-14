@@ -22,7 +22,9 @@ The same library carries ``shootflow_nikon_run``, the whole Nikon NEF decode
 pure-Python decoder stays the reference (``tests/test_nef.py`` runs both), and
 ``shootflow_olympus_run``, the whole Olympus ORF decode of ``shootflow.orf``
 (``tests/test_orf.py`` runs both), and ``shootflow_panasonic_run``, the whole
-Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both).
+Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both), and the three Samsung SRW
+decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``, ``_blocks_run``;
+``tests/test_srw.py`` runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -403,6 +405,164 @@ long shootflow_panasonic_run(const uint8_t *d, long len, long width, long height
 #undef PANA_BITS
     return 0;
 }
+
+/* Samsung SRW readers of shootflow.srw (the Python decoders there are the reference).
+   PH1 bits: MSB first from 32-bit little-endian words; past len, zeros. */
+typedef struct { const uint8_t *d; long len; long p; uint64_t buf; int vbits; } srw_bits;
+static uint32_t srw_word(const uint8_t *d, long len, long p)
+{
+    uint32_t w = 0;
+    for (int i = 0; i < 4; i++) if (p + i >= 0 && p + i < len) w |= (uint32_t)d[p + i] << (8 * i);
+    return w;
+}
+static unsigned srw_get(srw_bits *b, int n)
+{
+    if (n <= 0) return 0;
+    if (b->vbits < n) { b->buf = b->buf << 32 | srw_word(b->d, b->len, b->p); b->p += 4; b->vbits += 32; }
+    b->vbits -= n;
+    return (unsigned)((b->buf >> b->vbits) & ((n >= 32) ? 0xFFFFFFFFu : ((1u << n) - 1)));
+}
+
+/* Compression 32770 with a row table (samsung_load_raw). out holds width*height + 64 sensels.
+   Returns 0, or -1 on a bad bit length or a vertical prediction above the frame. */
+long shootflow_samsung_rows_run(const uint8_t *d, long len, long start, long table, long width, long height,
+                                uint16_t *out)
+{
+    for (long row = 0; row < height; row++) {
+        long tp = table + 4 * row;
+        if (tp + 4 > len) return -1;
+        srw_bits b = { d, len, start + (long)srw_word(d, len, tp), 0, 0 };
+        int lens[4];
+        for (int c = 0; c < 4; c++) lens[c] = row < 2 ? 7 : 4;
+        long base = row * width;
+        for (long col = 0; col < width; col += 16) {
+            int dir = (int)srw_get(&b, 1), ops[4];
+            for (int c = 0; c < 4; c++) ops[c] = (int)srw_get(&b, 2);
+            for (int c = 0; c < 4; c++) {
+                if (ops[c] == 3) lens[c] = (int)srw_get(&b, 4);
+                else if (ops[c] == 2) lens[c]--;
+                else if (ops[c] == 1) lens[c]++;
+            }
+            for (int k = 0; k < 16; k++) {
+                int c = k < 8 ? 2 * k : 2 * (k - 8) + 1;
+                int n = lens[((c & 1) << 1) | (c >> 3)];
+                if (n < 0 || n > 32) return -1;
+                long v = (long)srw_get(&b, n);
+                if (n && (v >> (n - 1))) v -= (long)1 << n;
+                long pred;
+                if (dir) {
+                    long up = row - ((c & 1) ? 2 : 1);
+                    if (up < 0) return -1;
+                    pred = out[up * width + col + c];
+                } else if (col) pred = out[base + col - ((c & 1) ? 1 : 2)];
+                else pred = 128;
+                out[base + col + c] = (uint16_t)(pred + v);
+            }
+        }
+    }
+    for (long row = 0; row + 1 < height; row += 2)
+        for (long col = 0; col + 1 < width; col += 2) {
+            uint16_t t = out[row * width + col + 1];
+            out[row * width + col + 1] = out[(row + 1) * width + col];
+            out[(row + 1) * width + col] = t;
+        }
+    return 0;
+}
+
+/* Compression 32772 (samsung2_load_raw): lut is 1024 entries of (length << 8) | bits.
+   Returns 0, or -1 when a value leaves [0, 2^bits). */
+long shootflow_samsung_huffman_run(const uint8_t *d, long len, long width, long height, int bits,
+                                   const uint16_t *lut, uint16_t *out)
+{
+    uint64_t acc = 0;
+    int nb = 0;
+    long p = 0, k = 0;
+    int vpred[2][2] = {{0, 0}, {0, 0}}, hpred[2] = {0, 0};
+    long limit = 1L << bits;
+#define S2_FILL(n) while (nb < (n)) { acc = acc << 8 | (p < len ? d[p] : 0); p++; nb += 8; }
+    for (long row = 0; row < height; row++) {
+        int *vp = vpred[row & 1];
+        for (long col = 0; col < width; col++) {
+            S2_FILL(10);
+            unsigned e = lut[(acc >> (nb - 10)) & 1023];
+            nb -= e >> 8;
+            int n = e & 0xFF;
+            int v = 0;
+            if (n) {
+                S2_FILL(n);
+                nb -= n;
+                v = (int)((acc >> nb) & ((1u << n) - 1));
+                if (!(v >> (n - 1))) v -= (1 << n) - 1;
+            }
+            if (col < 2) { vp[col] += v; hpred[col] = vp[col]; }
+            else hpred[col & 1] += v;
+            int h = hpred[col & 1];
+            if (h < 0 || h >= limit) return -1;
+            out[k++] = (uint16_t)h;
+        }
+    }
+#undef S2_FILL
+    return 0;
+}
+
+/* Compression 32773 (samsung3_load_raw). out holds (height + 2) * width sensels, the frame from row 2.
+   Returns 0, or -1 on a bad bit length. */
+long shootflow_samsung_blocks_run(const uint8_t *d, long len, long start, long width, long height, uint16_t *out)
+{
+    static const int pa[7] = {-4, -2, -2, 0, 0, 2, 4}, pb[7] = {-4, -2, 0, 0, 2, 2, 4};
+    if (start + 14 > len) return -1;
+    int opt = d[start + 9];
+    int init = d[start + 12] | d[start + 13] << 8;
+    long off = 2 * width;
+    long rowp = start + 16;
+    for (long row = 0; row < height; row++) {
+        srw_bits b = { d, len, rowp, 0, 0 };
+        int mag = 0, pmode = 7, lent[3][2], lens[4] = {0, 0, 0, 0};
+        for (int i = 0; i < 3; i++) lent[i][0] = lent[i][1] = row < 2 ? 7 : 4;
+        long base = off + row * width;
+        long green = off + (row - 1) * width + (1 - ((row & 1) << 1));
+        long other = off + (row - 2) * width;
+        long prow[2];
+        prow[row & 1] = green;
+        prow[~row & 1] = other;
+        for (long tab = 0; tab + 15 < width; tab += 16) {
+            if (!(opt & 4) && !(tab & 63)) {
+                int i = (int)srw_get(&b, 2);
+                if (i < 3) mag += i == 0 ? 0 : (i == 1 ? -2 : 2);
+                else mag = (int)srw_get(&b, 12);
+            }
+            if (opt & 2) pmode = 7 - 4 * (int)srw_get(&b, 1);
+            else if (!srw_get(&b, 1)) pmode = (int)srw_get(&b, 3);
+            if ((opt & 1) || !srw_get(&b, 1)) {
+                for (int c = 0; c < 4; c++) lens[c] = (int)srw_get(&b, 2);
+                for (int c = 0; c < 4; c++) {
+                    int i = ((int)((row & 1) << 1) | (c & 1)) % 3;
+                    lens[c] = lens[c] < 3 ? lent[i][0] + (lens[c] == 0 ? 0 : (lens[c] == 1 ? 1 : -1))
+                                          : (int)srw_get(&b, 4);
+                    lent[i][0] = lent[i][1];
+                    lent[i][1] = lens[c];
+                }
+            }
+            for (int c = 0; c < 16; c++) {
+                long col = tab + ((((long)c & 7) << 1) ^ (c >> 3) ^ (row & 1));
+                long pred;
+                if (pmode == 7 || row < 2) pred = tab ? out[base + tab - 2 + (col & 1)] : init;
+                else {
+                    long q = prow[col & 1] + col;
+                    pred = ((long)out[q + pa[pmode]] + out[q + pb[pmode]] + 1) >> 1;
+                }
+                int n = lens[c >> 2];
+                if (n < 0 || n > 32) return -1;
+                long v = (long)srw_get(&b, n);
+                if (n && (v >> (n - 1))) v -= (long)1 << n;
+                out[base + col] = (uint16_t)(pred + v * (mag * 2 + 1) + mag);
+            }
+        }
+        long used = b.p - rowp;
+        rowp += (used + 15) / 16 * 16;
+    }
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -516,6 +676,15 @@ def _load():
     panasonic.restype = ctypes.c_long
     panasonic.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
     _STATE["panasonic"] = panasonic
+    for name, args in (
+        ("samsung_rows", [ctypes.c_char_p] + [ctypes.c_long] * 5 + [ctypes.c_void_p]),
+        ("samsung_huffman", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
+        ("samsung_blocks", [ctypes.c_char_p] + [ctypes.c_long] * 4 + [ctypes.c_void_p]),
+    ):
+        f = getattr(lib, f"shootflow_{name}_run")
+        f.restype = ctypes.c_long
+        f.argtypes = args
+        _STATE[name] = f
     return fn
 
 
@@ -727,3 +896,58 @@ def panasonic_run(data: bytes, width: int, height: int) -> array | None:
     if width * height == 0:
         del out[:]
     return out
+
+
+def _srw_call(name: str):
+    return _STATE.get(name) if reader() is not None else None
+
+
+def samsung_rows_run(data: bytes, start: int, table: int, width: int, height: int) -> array | None:
+    """``shootflow.srw`` compression 32770 with a row table, in C: an ``array('H')``, or None without the
+    native library. Raises ``DevelopError`` where the Python reference would."""
+
+    fn: Any = _srw_call("samsung_rows")
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    out = array("H", [0]) * (width * height + 64)
+    if fn(data, len(data), start, table, width, height, out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("SRW: the 32770 stream is invalid (bad bit length or prediction)")
+    del out[width * height :]
+    return out
+
+
+def samsung_huffman_run(data: bytes, width: int, height: int, bits: int) -> array | None:
+    """``shootflow.srw`` compression 32772 in C: an ``array('H')``, or None without the native library."""
+
+    fn: Any = _srw_call("samsung_huffman")
+    if fn is None:
+        return None
+    from shootflow import srw
+
+    data = data if isinstance(data, bytes) else bytes(data)
+    lut = array("H", [(length << 8) | n for length, n in srw.huffman_lut()])
+    out = array("H", [0]) * max(1, width * height)
+    if fn(data, len(data), width, height, bits, lut.buffer_info()[0], out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("SRW: a 32772 value is out of range")
+    del out[width * height :]
+    return out
+
+
+def samsung_blocks_run(data: bytes, start: int, width: int, height: int) -> array | None:
+    """``shootflow.srw`` compression 32773 in C: an ``array('H')``, or None without the native library."""
+
+    fn: Any = _srw_call("samsung_blocks")
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    out = array("H", [0]) * ((height + 2) * width)
+    if fn(data, len(data), start, width, height, out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("SRW: the 32773 stream is invalid (bad bit length)")
+    return out[2 * width :]
