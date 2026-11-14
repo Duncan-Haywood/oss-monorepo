@@ -173,6 +173,7 @@ int main(int argc, char **argv) {
   double t0 = now(), end = t0 + secs;
   long moves = 0, stall = 0, kicks = 0, restarts = 0, sinceBest = 0;
   long kickMax = getenv("KICKS") ? atol(getenv("KICKS")) : 30;
+  long capMove = getenv("CAP") ? atol(getenv("CAP")) : 20000;
   static int climb[MAXN][MAXN];
   int climbBest = cur;
   memcpy(climb, opp, sizeof opp);
@@ -181,7 +182,7 @@ int main(int argc, char **argv) {
     pick_window();
     int slack = 0;
     if (temp > 0) { double u = urand(); slack = 2 * (int)floor(-temp * log(u + 1e-12) / 2.0); }
-    int v = refill(cur, slack, 20000, 0);
+    int v = refill(cur, slack, capMove, 0);
     moves++;
     if (v >= 0) cur = v;
     if (cur < climbBest) { climbBest = cur; memcpy(climb, opp, sizeof opp); stall = 0; sinceBest = 0; }
@@ -194,6 +195,7 @@ int main(int argc, char **argv) {
        * kicks with no new best, a fresh climb from the circle method with its rounds and team
        * labels shuffled (most climbs settle in a basin within seconds) */
       if (++sinceBest > kickMax) {
+        if (getenv("CLIMBS")) fprintf(stderr, "climb %d\n", climbBest);
         circle();
         for (int i = R - 1; i > 0; i--) { int j = rnd() % (i + 1); int tmp[MAXN]; memcpy(tmp, opp[i], sizeof tmp); memcpy(opp[i], opp[j], sizeof tmp); memcpy(opp[j], tmp, sizeof tmp); }
         climbBest = cur = value(opp); memcpy(climb, opp, sizeof opp); sinceBest = 0; restarts++; stall = 0;
