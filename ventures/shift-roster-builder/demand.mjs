@@ -742,6 +742,9 @@ export function headcount(avg, observed, o = {}) {
 // minimum staff is stretched only when that is cheaper in expectation than leaving it unstaffed, and to the cheapest
 // window that holds it (see shiftCost); otherwise it is dropped and reported in `dropped`.
 export function cutShifts(profile, minShift = 4, maxShift = 8, cost = null) {
+  // Whole hours (2026-11-14): the cut steps hour by hour, so 6.5 put a run end at 15.5, read an empty run there and,
+  // with the cut priced, dropped it without moving on (the page hung); unpriced it made phantom 15:30-21:30 shifts.
+  if (!Number.isInteger(minShift) || !Number.isInteger(maxShift)) throw new Error("shift length: the shortest and longest shift must each be a whole number of hours");
   if (!(minShift >= 1) || !(maxShift >= minShift)) throw new Error("shift length: the longest must be at least the shortest, and the shortest at least 1 hour");
   const shifts = [], dropped = [];
   const staffed = new Array(24).fill(0);
