@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 7h: thrust-to-weight as a design variable, scored at twice the trained lever (predictions written and committed before `experiments/m7h_twr/run.py` was run at full budget; outcome below)
+
+- Why: milestone 7g's first next step. 7g found the residual lever-2 divergence is a tilt-over that starts in the mixer: the gust torque outgrows the differential thrust the hover polytope allows, and about 25% more roll/pitch authority removes it. Its advice to a builder was "buy thrust headroom (thrust-to-weight above 2)". Every design so far was sized at thrust-to-weight 2 (`aero.TWR`). Does the co-design choose headroom when it may, and can a builder add it after the fact?
+- Built: an optional `twr` on `poshold.score` and `linstab.design_params` (default None keeps 2.0 bit-for-bit; `tests/test_poshold.py`). Motor mass, cost and torque limits follow it through `aero.size`, and so does hover power through the mass.
+- Plan (`experiments/m7h_twr/run.py`): arm `free` retrains milestone 7e exactly (integ feed-forward, ki <= ceiling / 1.25 as a constraint, 3200 evaluations, 16 episodes at lever 1, 6 seeds, 2 starts, both rigid geometries) with a 13th coordinate for thrust-to-weight on 1.5-4 (start 2.0). Arm `retrofit` keeps 7e's constrained designs and gains and re-sizes them at 2.0 and at the largest thrust-to-weight (0.05 grid) whose sizing still closes. Held-out: 64 episodes (seed 9999), levers 0, 1, 2, tilt-command limits 20° and 45°.
+- Looked at before writing these: two 64-evaluation smoke runs (2 seeds, 4 episodes, scored on seed 4242, not the held-out seed; too short to converge). The first planned retrofit at 2.5 and 3.0 and found the 15-minute endurance closure runs away to the 20 kg clamp. A direct check on the 12 designs (no simulation): the sizing closes up to thrust-to-weight 2.10-2.15 for `above` and 2.25-2.50 for `below`; at 2.25 an `above` design's hover power goes from 450-560 W to about 20 kW. The co-designed airframes sit on the edge of the mass spiral (heavier motors -> more battery -> more thrust needed), so the retrofit arm was changed to "largest that closes" before any held-out run.
+- Predictions:
+  - H1 (prior 90%): `retrofit` at 2.0 reproduces milestones 7e/7g's lever-2 counts exactly (`above`: 4 at 20°, 12 at 45°; `below`: 45 at 20°, 55 at 45°).
+  - H2 (prior 55%): `retrofit max` cuts the lever-2 divergences at least in half in both geometries at both limits (more differential thrust per unit gust torque).
+  - H3 (prior 75%): `retrofit max` costs held-out J at lever 0 (20°) in both geometries (paired mean below 0): the heavier vehicle's hover power price outweighs any tracking gain.
+  - H4 (prior 45%): at least one `retrofit max` design is linearly unstable at some plant corner (worst radius >= 1): the PID outputs are shares of the torque limit, so bigger motors raise the loop gain of a design trained at its ki bound.
+  - H5 (prior 70%): `free` picks thrust-to-weight below 2.0 in at least 4 of 6 seeds in each geometry: the objective prices hover power and trains only at lever 1, where 7e's designs did not diverge.
+  - H6 (prior 60%): `free` diverges at lever 2, 20°, on more held-out flights than `retrofit` 2.0 in at least one geometry.
+  - H7 (prior 55%): `free` beats `retrofit` 2.0 on held-out J at lever 0, 20° (paired mean above 0) in both geometries.
+- Analysis: paired per-seed differences against `retrofit` 2.0 (mean, se, sign count), divergence counts per set. No test beyond counts with six seeds.
+
 ## 2026-11-14 · Milestone 7 started: the paper draft, with the stability section written and every quoted number checked
 
 - Why: milestone 7f's third next step ("the paper's stability section with this curve as its figure"); the programme has eight milestones of results and no paper. A sibling run holds milestone 7g (lever-2 divergence, PR #15752); this run took the draft so the two do not collide.
