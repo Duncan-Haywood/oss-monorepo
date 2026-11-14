@@ -32,8 +32,12 @@ with the inlet turn, 2040 spine, AT5 belt with finger flights, rods for the
 channel, a printed head with a hood and drop floor, and a chute to the tub
 (`lift_parts`, sized by `Feeder.lift_design`).
 
-Not modelled yet: the netting itself, the hopper agitator, and the deck-side
-cable run. They are listed in `hardware/feeder-catcher.md`.
+Deck-side cables (2026-11-14): the fixed run from the electronics on the deck
+to the axis clamp, the stepper's and the lift's leads off it, strap saddles,
+hangers and the stepper driver's carrier (`deck_cable_parts`, sized by
+`Feeder.deck_cable_route`).
+
+Not modelled yet: the netting itself. It is listed in `hardware/feeder-catcher.md`.
 """
 
 from __future__ import annotations
@@ -54,6 +58,11 @@ from build123d import (
     Polygon,
     RectangleRounded,
     SlotOverall,
+    ThreePointArc,
+    Transition,
+    Wire,
+    Line,
+    sweep,
     extrude,
 )
 
@@ -457,6 +466,7 @@ def base_deck(p: Feeder) -> Part:
         xs = [x0 + 30 + i * (x1 - x0 - 60) / (n - 1) for i in range(n)]
         _holes([(x, sy * hw) for x in xs for sy in (-1, 1)], 5.5)
         _holes(_shelf_posts(p), 5.5)  # hopper posts, M5 from below into their tapped ends
+        _holes(deck_cable_saddle_holes(p), 5.5)  # deck-side cable saddles (2026-11-14)
         # Battery strap slots (25 mm strap).
         bx = BATTERY_X
         with Locations((bx - 60, 0), (bx + 60, 0)):
@@ -1101,6 +1111,181 @@ def cable_loop_solids(p: Feeder, elev_deg: float, segs: int = 12) -> list:
     return [_seg(r, pts[k], pts[k + 1], 0.0) for k in range(segs)]
 
 
+# ---------------------------------------------------------------- deck-side cable run (2026-11-14)
+
+SADDLE_L = 12.0      # strap saddle's arch, along the bundle
+SADDLE_EAR = 11.0    # each ear beyond the arch, along the bundle (one M5 each)
+SADDLE_W = 14.0      # ears across the bundle
+HANGER_W = 20.0      # crossbar hanger across the bundle (the 2020's face)
+HANGER_T = 10.0      # and along it
+
+
+def _tube(pts, r: float, rad: float):
+    """A round bundle of radius r along the corner points `pts`, each inner corner rounded to radius `rad`: one
+    circle swept along a wire of lines and true arcs (2026-11-14: a fused chain of cylinders and balls lost most of
+    its pieces to a failed boolean, silently, so the clash checks saw only fragments)."""
+    edges, prev = [], pts[0]
+    for k in range(1, len(pts) - 1):
+        a, b, c = pts[k - 1], pts[k], pts[k + 1]
+        u = _unit(tuple(b[i] - a[i] for i in range(3)))
+        w = _unit(tuple(c[i] - b[i] for i in range(3)))
+        turn = math.acos(max(-1.0, min(1.0, sum(u[i] * w[i] for i in range(3)))))
+        if turn < 1e-9:
+            continue
+        t = rad * math.tan(turn / 2)
+        p0 = tuple(b[i] - u[i] * t for i in range(3))
+        p1 = tuple(b[i] + w[i] * t for i in range(3))
+        bis = _unit(tuple(w[i] - u[i] for i in range(3)))
+        ctr = tuple(b[i] + bis[i] * rad / math.cos(turn / 2) for i in range(3))
+        m = _unit(tuple((p0[i] + p1[i]) / 2 - ctr[i] for i in range(3)))
+        pm = tuple(ctr[i] + m[i] * rad for i in range(3))
+        if math.dist(prev, p0) > 1e-6:
+            edges.append(Line(prev, p0))
+        edges.append(ThreePointArc(p0, pm, p1))
+        prev = p1
+    if math.dist(prev, pts[-1]) > 1e-6:
+        edges.append(Line(prev, pts[-1]))
+    t0 = tuple(pts[1][i] - pts[0][i] for i in range(3))
+    return sweep(Plane(origin=pts[0], z_dir=t0) * Circle(r), path=Wire(edges), transition=Transition.RIGHT)
+
+
+def _unit(v):
+    m = math.sqrt(sum(c * c for c in v))
+    return tuple(c / m for c in v)
+
+
+def deck_cable_parts(p: Feeder) -> list[Part]:
+    """The three fixed runs drawn as solids at their bundles' diameters (the main run at its fullest, on the deck),
+    so the build's clash checks and sweeps see them against every part and every head pose. The branches stop 1 mm
+    short of the main bundle (they leave it there)."""
+    d = p.deck_cable_route()
+    od = d["od_mm"]
+    paths = p.deck_cable_paths()
+    main = _tube(paths["main"], od["deck"] / 2, d["bend_r"]["main"])
+    # branches: re-route their ends so they stop beside the main bundle, not inside it
+    stp = list(paths["stepper"])
+    stp[-1] = (p.head_x - p.post_dx + od["deck"] / 2 + od["stepper"] / 2 + 1.0, stp[-1][1], stp[-1][2])
+    lift = list(paths["lift"])
+    y0 = p.deck_cable_y + od["deck"] / 2 + od["lift"] / 2 + 1.0
+    lift[0] = (lift[0][0], y0, lift[0][2])
+    e = p.deck_cable_electrics()
+    groups = lambda ws: ", ".join(f"{n} {name} {g} AWG" for name, n, g in ws)
+    return [
+        Part("deck_cable_main", "cots", "", 1, main, [Location((0, 0, 0))],
+             spec=f"Deck-side run, electronics to the axis clamp: {groups(p.head_wires + p.turntable_wires)} "
+                  f"({od['axis']:.1f} mm bundle; {od['deck']:.1f} mm on the deck with the stepper's and lift's leads), "
+                  f"{d['len_mm']['main']:.0f} mm routed; cut the head's wires {d['to_clamp_mm']:.0f} mm from their deck "
+                  f"terminals to the clamp, plus the twisting run, the loop and the head's run. Spiral wrap; bends "
+                  f"{d['bend_r']['main']:g} mm"),
+        Part("deck_cable_stepper", "cots", "", 1, _tube(stp, od["stepper"] / 2, d["bend_r"]["stepper"]), [Location((0, 0, 0))],
+             spec=f"Azimuth stepper and home switch: {groups(p.stepper_wires)}, {d['stepper_lead_mm']:.0f} mm from the "
+                  f"driver carrier on the deck (leaves the main run under the crossbar and rises to the stepper's "
+                  f"underside); coil leads add {e['stepper']['stepper_frac']:.1%} to the coil's resistance"),
+        Part("deck_cable_lift", "cots", "", 1, _tube(lift, od["lift"] / 2, d["bend_r"]["lift"]), [Location((0, 0, 0))],
+             spec=f"Lift gearmotor: {groups(p.lift_wires)}, {d['lift_lead_mm']:.0f} mm from its MOSFET on the deck (leaves "
+                  f"the main run on the deck, drops off the deck's front edge and runs under the side rail to the motor's "
+                  f"back); {e['lift']['lift_drop_v']:.2f} V drop at an assumed {p.lift_motor_stall_a:g} A stall"),
+    ]
+
+
+def _saddle_shape(od: float, base: float):
+    """Strap saddle in its own frame: a base plate on the mounting face (z = 0 to `base`), the bundle along x on it
+    (centre at z = base + od / 2) under an arch, and an M5 hole in the plate before and after the arch (deck holes, or
+    T-nuts in the post's slot under the bundle). The bundle passes over the screw heads: 3 mm is a low button head."""
+    wall = 2.4
+    r = od / 2 + 0.4
+    zc = base + od / 2
+    ln = SADDLE_L + 2 * SADDLE_EAR
+    plate = Box(ln, SADDLE_W, base).moved(Location((0, 0, base / 2)))
+    for sx in (-1, 1):
+        plate = plate - Cylinder(2.75, base + 2).moved(Location((sx * (SADDLE_L + SADDLE_EAR) / 2, 0, base / 2)))
+        plate = plate - Cylinder(5.0, base).moved(Location((sx * (SADDLE_L + SADDLE_EAR) / 2, 0, base)))   # head recess
+    arch = Box(SADDLE_L, 2 * (r + wall), zc + r + wall - base).moved(Location((0, 0, (zc + r + wall + base) / 2)))
+    arch = arch - Cylinder(r, SADDLE_L + 2).moved(Location((0, 0, zc), (0, 90, 0)))
+    arch = arch - Box(SADDLE_L + 2, 2 * r, zc - base).moved(Location((0, 0, (zc + base) / 2)))
+    return plate + arch
+
+
+def deck_cable_saddles(p: Feeder) -> Part:
+    """Printed strap saddles: on the deck (M5 through new deck holes, nut below) and on the +y rear mast post's inner
+    face (M5 into a T-nut in its slot)."""
+    d = p.deck_cable_route()
+    od = d["od_mm"]["deck"]
+    t = p.deck_cable_ties()
+    locs = [Location((x, y, d["deck_z"])) for x, y, _ in t["deck"]]
+    face_y = p.post_half_y - p.rail_w                       # the post's inner face
+    for x, _, z in t["post"]:
+        locs.append(Location(Plane(origin=(x, face_y, z), x_dir=(0, 0, 1), z_dir=(0, -1, 0))))
+    return Part("deck_cable_saddle", "print", "PETG", len(locs), _saddle_shape(od, p.deck_saddle_base), locs,
+                notes=f"Strap saddles over the deck-side run: {len(t['deck'])} on the deck (two M5 x 12 each through the "
+                      f"deck's new 5.5 mm holes, nyloc below) and {len(t['post'])} on the +y rear mast post's inner face "
+                      f"(two M5 x 10 into T-nuts in its slot). Print on the ears, no support.")
+
+
+def deck_cable_saddle_holes(p: Feeder) -> list[tuple[float, float]]:
+    t = p.deck_cable_ties()
+    off = (SADDLE_L + SADDLE_EAR) / 2
+    return [(x + sx * off, y) for x, y, _ in t["deck"] for sx in (-1, 1)]
+
+
+def _hanger_shape(p: Feeder, od: float):
+    """Hanger in its own frame: bundle along y, centred at the origin; top face at the crossbar's (or clamp arm's)
+    underside, `cable_clamp_z - 10 - deck_cable_z_low` above. The bundle snaps up into a ring through a slot 1 mm
+    narrower than it; an M5 (crossbar, T-nut) or a zip tie (clamp arm) holds the top."""
+    top = p.cable_clamp_z - 10.0 - p.deck_cable_z_low
+    r = od / 2 + 0.6
+    bot = -r - 2.4
+    blk = Box(HANGER_W, HANGER_T, top - bot).moved(Location((0, 0, (top + bot) / 2)))
+    blk = blk - Cylinder(r, HANGER_T + 2).moved(Location((0, 0, 0), (90, 0, 0)))
+    blk = blk - Box(od - 1.0, HANGER_T + 2, -bot + 1).moved(Location((0, 0, bot / 2 - 0.5)))
+    blk = blk - Cylinder(2.75, 12).moved(Location((0, 0, top - 6)))
+    blk = blk - Box(HANGER_W + 2, 4.0, 2.5).moved(Location((0, 0, top - 14)))     # zip-tie slot (clamp arm)
+    return blk
+
+
+def deck_cable_hangers(p: Feeder) -> Part:
+    t = p.deck_cable_ties()
+    od = p.deck_cable_route()["od_mm"]["deck"]          # drawn at the deck's diameter all along (conservative)
+    locs = [Location((x, y, z)) for x, y, z in t["crossbar"]]
+    locs += [Location((x, y, z), (0, 0, 90)) for x, y, z in t["arm"]]
+    return Part("deck_cable_hanger", "print", "PETG", len(locs), _hanger_shape(p, od), locs,
+                notes=f"Hold the deck-side run {p.cable_clamp_z - 10.0 - p.deck_cable_z_low:g} mm under the cable crossbar "
+                      f"({len(t['crossbar'])}, M5 x 10 into a T-nut in its bottom slot) and under the axis clamp's arm "
+                      f"({len(t['arm'])}, a zip tie round the arm through its slot), so the run can turn up into the clamp's "
+                      f"bore on a {p.deck_cable_bend_r:g} mm bend. Snap the bundle up into the ring.")
+
+
+# Stepper driver carrier (2026-11-14): a StepStick-format driver (TMC2209 or A4988 class, 15.2 x 20.3 mm, two 1x8
+# headers 15.24 mm apart) on a printed plate on the deck's M3 grid beside the ESP32, so every driver stays on the deck.
+STEPSTICK = (15.24, 20.32)       # header rows apart, board length
+CARRIER = (50.0, 40.0, 4.0)      # x, y, thickness; M3 holes at (+-20, +-15) from its centre
+CARRIER_HOLES = [(sx * 20.0, sy * 15.0) for sx in (-1, 1) for sy in (-1, 1)]
+CARRIER_XY = (-605.0, 155.0)     # holes on the deck's M3 grid (x = -645 + 10k, y = 10k), clear of the run's start at x -560
+
+
+def stepper_driver_carrier(p: Feeder) -> Part:
+    lx, ly, t = CARRIER
+    blk = Box(lx, ly, t).moved(Location((0, 0, t / 2 + 6.0)))
+    for hx_, hy_ in CARRIER_HOLES:                          # 6 mm standoffs over the screw heads' nuts
+        blk = blk + Cylinder(4.0, 6.0).moved(Location((hx_, hy_, 3.0)))
+        blk = blk - Cylinder(1.7, 20).moved(Location((hx_, hy_, 5.0)))
+    hx, hy = STEPSTICK
+    # two header windows (2.54 mm pitch rows, 8 pins) and the driver's footprint pocket for the solder side
+    for sx in (-1, 1):
+        blk = blk - Box(3.2, hy + 0.6, 20).moved(Location((sx * hx / 2, -5.0, 8.0)))
+    blk = blk - Box(hx - 4.0, hy - 4.0, 20).moved(Location((0, -5.0, 8.0)))     # air under the driver's thermal pad
+    # screw terminal (4-way motor out, 2-way 24 V) pockets at the +y end
+    blk = blk - Box(31.0, 8.0, 3.0).moved(Location((0, ly / 2 - 6.0, 6.0 + t - 1.5 + 0.01)))
+    return Part("stepper_driver_carrier", "print", "PETG", 1, blk,
+                [Location((CARRIER_XY[0], CARRIER_XY[1], p.rail_top + p.plate_t))],
+                notes="Carries the azimuth stepper's StepStick driver (TMC2209 or A4988 class) in two 1x8 female headers "
+                      "on a scrap of 2.54 mm perfboard pushed into the windows, with a 4-way and a 2-way screw terminal "
+                      "(motor out, 24 V in) at the +y end and a 100 uF 35 V capacitor across 24 V at the terminal. Four "
+                      "M3 x 16 into the deck's M3 grid (40 x 30 mm). Set the driver's current to the manifest's "
+                      "stepper_amps and its microstep pins to firmware AZ_MICROSTEPS; stick its heatsink on; STEP/DIR to "
+                      "GPIO 14/21, EN to GND.")
+
+
 # ---------------------------------------------------------------- catch trough (2026-11-13)
 
 def _gutter_axis(p: Feeder, y: float) -> tuple[float, float]:
@@ -1351,7 +1536,7 @@ def lift_pulleys(p: Feeder) -> list[Part]:
                  Cylinder(p.gearmotor_d / 2, p.gearmotor_len).moved(Location((0, 0, 0), (90, 0, 0))),
                  [Location((p.lift_x_pulley, p.lift_y + p.lift_depth / 2 + p.lift_wall + p.gearmotor_len / 2, p.lift_z_bottom))],
                  spec=f"37 mm gearmotor, 24 V, ~{p.lift_motor_rpm:g} rpm, 6 mm D shaft (the base drive's class; "
-                      f"{p.lift_motor_nm:g} N m rated assumed), on a MOSFET from GPIO 16")]
+                      f"{p.lift_motor_nm:g} N m rated assumed), on a MOSFET from GPIO 12")]
 
 
 def lift_rods(p: Feeder) -> Part:
@@ -1511,6 +1696,7 @@ def _build_all_parts(p: Feeder) -> list[Part]:
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), az_stop_block(p), az_stop_pads(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p),
             cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p),
+            *deck_cable_parts(p), deck_cable_saddles(p), deck_cable_hangers(p), stepper_driver_carrier(p),
             *trough_gutter(p), *trough_hangers(p), trough_sump(p), *lift_parts(p), *agitator_parts(p)]
 
 
@@ -1734,12 +1920,16 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("8 mm axle, 60 mm, + two 608 bearings + e-clips", 1, "lift's top pulley in the head"),
         ("M3 x 10 screw + nyloc nut (flights)", 2 * p.lift_design()["flights"], "flights through the belt, between its cords"),
         ("UHMW-PE tape, 25 mm wide, self-adhesive", 1, f"both 20 mm faces of the lift spine ({2 * (p.lift_z_top - p.lift_z_bottom) / 1000:.1f} m)"),
-        ("Logic-level N-MOSFET module, 24 V 5 A, + flyback diode", 1, "lift gearmotor from GPIO 16"),
+        ("Logic-level N-MOSFET module, 24 V 5 A, + flyback diode", 1, "lift gearmotor from GPIO 12 (module with a gate pull-down)"),
         ("M3 x 10 socket cap screw (agitator)", 4, "agitator gearmotor's face to its mount, from the mount's counterbores"),
         ("M4 x 10 button head (agitator)", 3, "agitator motor mount up under the shelf, from above (the tub sits over the heads)"),
         ("M4 heat-set insert, 5.7 mm long (agitator)", 3, "agitator motor mount"),
         ("M3 x 6 set screw + M3 heat-set insert", 1, "agitator hub onto the shaft's flat"),
-        ("Logic-level N-MOSFET module, 24 V 2 A, + flyback diode", 1, "agitator gearmotor from GPIO 17"),
+        ("Logic-level N-MOSFET module, 24 V 2 A, + flyback diode", 1, "agitator gearmotor from GPIO 2 (module with a gate pull-down)"),
+        ("M5 x 12 button head + nyloc nut (deck cables)", 2 * len(p.deck_cable_ties()["deck"]), "deck-side cable saddles through the deck"),
+        ("M5 x 10 button head + T-nut (deck cables)", 2 * len(p.deck_cable_ties()["post"]) + len(p.deck_cable_ties()["crossbar"]),
+         "cable saddles on the +y rear mast post, hangers under the cable crossbar"),
+        ("M3 x 16 screw + nut (stepper driver carrier)", 4, "carrier to the deck's M3 grid"),
     ]
 
 
@@ -1752,9 +1942,15 @@ COTS_EXTRA = [
     ("6 V 5 A buck converter (servo supply)", 1, "shuttle servo, on the deck beside the ESP32: 20 AWG supply and return to the servo (manifest cables line)"),
     ("Spiral wrap, 10 mm, 1 m", 1, "the head's wires in the free loop: loose, so each wire bends on its own"),
     ("Snap-in grommet for a 14 mm hole", 1, "the head's wires through the motor plate"),
-    ("Zip ties, 2.5 mm", 10, "cable gland, clamp and clip"),
+    ("Zip ties, 2.5 mm", 12, "cable gland, clamp and clip; the clamp arm's hanger"),
     ("Storage tub, about 440 x 340 x 250 mm", 1, "hopper; see the part notes for the cut"),
-    ("Stepper driver, 2 A class (TMC2209 or A4988), 24 V", 1, "azimuth stepper"),
+    ("Stepper driver, 2 A class (TMC2209 or A4988), StepStick format, + heatsink", 1, "azimuth stepper, on the printed carrier on the deck"),
+    ("1x8 female header, 2.54 mm, + 2.54 mm perfboard scrap", 2, "stepper driver carrier"),
+    ("Screw terminal blocks, 5.08 mm, 4-way and 2-way", 1, "stepper driver carrier: motor out, 24 V in"),
+    ("Electrolytic capacitor 100 uF 35 V", 1, "across 24 V at the stepper driver"),
+    ("Silicone wire 22 AWG (4 colours) and 26 AWG pair", 1, "azimuth stepper and home switch, deck to stepper (manifest stepper_lead_mm)"),
+    ("Silicone wire 20 AWG pair", 1, "lift gearmotor, deck to motor (manifest lift_lead_mm)"),
+    ("Spiral wrap, 12 mm, 1 m", 1, "the deck-side run, deck to the axis clamp"),
     ("TCRT5000 reflective sensor", 2, "wheel tachometers"),
     ("22 mm NC mushroom e-stop + 24 V contactor", 1, "hard power cut"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
@@ -1844,6 +2040,24 @@ def cable_line(p: Feeder) -> str:
             f"{p.servo_lead_awg} AWG: {c['v_term']:.2f} V at the {p.servo_stall_a:g} A stall, ground up {c['ground_shift_v']:.2f} V "
             f"(signal high {c['signal_high_v']:.2f} V against an assumed {p.servo_vih:g} V threshold); a stock 26 AWG lead "
             f"would give {a26['v_term']:.2f} V and {a26['signal_high_v']:.2f} V")
+
+
+def deck_cable_line(p: Feeder) -> str:
+    d, e = p.deck_cable_route(), p.deck_cable_electrics()
+    t = p.deck_cable_ties()
+    ph, st, li = e["phase"], e["stepper"], e["lift"]
+    return (f"deck-side cables: {d['od_mm']['deck']:.1f} mm bundle along the deck at y = {p.deck_cable_y:.1f}, up the +y rear "
+            f"mast post's inner face, {p.cable_clamp_z - 10 - p.deck_cable_z_low:g} mm under the crossbar and the clamp arm, "
+            f"up into the axis clamp on {p.deck_cable_bend_r:g} mm bends; {d['len_mm']['main']:.0f} mm routed, the head's "
+            f"wires cut {d['to_clamp_mm']:.0f} mm from the deck to the clamp; {len(t['deck']) + len(t['post'])} saddles and "
+            f"{len(t['crossbar']) + len(t['arm'])} hangers, at most {p.deck_tie_max_mm:g} mm apart. Stepper and home switch "
+            f"leave under the crossbar for the stepper, {d['stepper_lead_mm']:.0f} mm from a StepStick driver on the deck: "
+            f"{e['gauges']['stepper']} AWG coils add {st['stepper_frac']:.1%} to an assumed {p.stepper_coil_ohm:g} ohm coil "
+            f"({e['awg'][26]['stepper_frac']:.0%} at 26 AWG). Lift motor lead {d['lift_lead_mm']:.0f} mm, {e['gauges']['lift']} "
+            f"AWG: {li['lift_drop_v']:.2f} V at an assumed {p.lift_motor_stall_a:g} A stall. Launcher phase extension "
+            f"{e['phase_m']:.2f} m of {e['gauges']['phase']} AWG, {ph['phase_mohm']:.0f} mOhm: {ph['phase_frac']:.1%} of a "
+            f"motor's {p.launcher_peak_w:g} W at an assumed {p.esc_phase_peak_a:g} A spin-up ({e['awg'][16]['phase_frac']:.1%} "
+            f"at 16 AWG)")
 
 
 def structure_kg(p: Feeder, mass_g: float) -> float:
@@ -1970,6 +2184,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, elevation_line(p, gravity))
         checks.insert(-3, shuttle_line(p))
         checks.insert(-3, cable_line(p))
+    checks.insert(-3, deck_cable_line(p))
     checks.insert(-3, trough_line(p))
     checks.insert(-3, lift_line(p))
     checks.insert(-3, agitator_line(p))
@@ -1997,6 +2212,12 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                     "lift_rate_per_min": round(ld["rate_per_min"], 1), "lift_torque_nm": round(ld["torque_nm"], 3),
                     "lift_torque_margin": round(ld["torque_margin"], 2), "lift_z_top_mm": round(ld["z_top"], 1),
                     "lift_run_on_s": round(ld["run_on_s"], 1), "lift_chute_clear_mm": round(ld["chute_end"][2] - ld["rim_at_end_z"], 1)})
+    dc, de = p.deck_cable_route(), p.deck_cable_electrics()
+    derived.update({"deck_cable_to_clamp_mm": round(dc["to_clamp_mm"]), "stepper_lead_mm": round(dc["stepper_lead_mm"]),
+                    "lift_lead_mm": round(dc["lift_lead_mm"]), "stepper_amps": p.stepper_amps,
+                    "stepper_lead_frac": round(de["stepper"]["stepper_frac"], 3),
+                    "lift_lead_drop_v": round(de["lift"]["lift_drop_v"], 2),
+                    "phase_extension_m": round(de["phase_m"], 2), "phase_extension_mohm": round(de["phase"]["phase_mohm"], 1)})
     ad = p.agitator_design()
     derived.update({"agitator_torque_nm": round(ad["torque_nm"], 3), "agitator_torque_margin": round(ad["torque_margin"], 2),
                     "agitator_passes_per_min": ad["passes_per_min"], "agitator_wall_clear_mm": round(ad["wall_clear_mm"], 1),
