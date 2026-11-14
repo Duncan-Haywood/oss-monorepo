@@ -23,7 +23,7 @@ It allows charging and discharging in one interval, so it is a lower bound
 on any physical dispatch.
 
 Usage: python3 check/ratchet_gap.py [--limit N] [--jobs 4] [--out FILE]
-Needs numpy, scipy and node; about 15 minutes on 4 cores.
+Needs numpy, scipy and node; about 6 minutes on 4 cores.
 """
 import argparse
 import json

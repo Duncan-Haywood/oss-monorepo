@@ -208,7 +208,11 @@
       return h;
     }
     fill(DEFAULTS);
-    $("run").addEventListener("click", run);
+    $("run").addEventListener("click", () => {
+      // Planning a year with a binding ratchet can take 10 s or more: say so, let the label paint, then run.
+      const btn = $("run"); btn.disabled = true; btn.textContent = "Working (a year with a ratchet can take 10 to 20 s)...";
+      setTimeout(() => { try { run(); } finally { btn.disabled = false; btn.textContent = "Analyze"; } }, 30);
+    });
     $("example").addEventListener("click", () => { fill(EXAMPLE_SETTINGS); $("data").value = exampleCsv(); record("example_loaded"); run(); });
     $("file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("data").value = await f.text(); });
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
