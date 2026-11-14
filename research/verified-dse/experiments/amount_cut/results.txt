@@ -1,0 +1,43 @@
+# Milestone 123: word-level cells or gates in front of the shift amount, tested blind where the two disagree
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 123.
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | SWG(36) flags | SWD(3) flags
+mul2w | 128 | 2 | 159 | 2098 | 0.306 | False | True
+mul3n | 128 | 3 | 166 | 954 | 0.447 | False | False
+wsum3w | 128 | 2 | 118 | 404 | 0.634 | False | True
+wsum4n | 128 | 3 | 43 | 147 | 0.675 | False | False
+xor4 | 128 | 3 | 7 | 105 | 0.819 | True | False
+xor8 | 128 | 7 | 15 | 168 | 0.796 | True | False
+
+## Seen ladder-branch cells with a wide shift (milestones 119 to 122; where the thresholds were read, not a test)
+
+design | clock | amount_depth | amount_gate_depth | SWC % | random %
+alignsh128 | relaxed | 0 | 0 | 9.34 | 5.32
+alignsh128 | tight | 0 | 0 | 7.11 | 5.43
+alignsh64 | tight | 0 | 0 | 13.77 | 13.70
+rotmask128 | relaxed | 0 | 0 | 22.94 | 9.68
+rotmask128 | tight | 0 | 0 | 9.37 | 7.95
+rotmask64 | tight | 0 | 0 | 1.22 | 1.02
+addsh128 | relaxed | 1 | 27 | 7.74 | 1.30
+addsh128 | tight | 1 | 27 | 23.02 | 1.82
+fpalign128 | relaxed | 2 | 30 | 21.30 | 8.38
+fpalign128 | tight | 2 | 30 | 21.03 | 8.73
+chainsh2 | relaxed | 4 | 41 | 0.00 | 3.43
+chainsh2 | tight | 4 | 41 | 0.00 | 2.79
+pcnsh24 | relaxed | 23 | 97 | 0.00 | 3.11
+pcnsh24 | tight | 23 | 97 | 0.00 | 3.14
+lzcnorm128 | relaxed | 382 | 98 | 0.00 | 11.37
+lzcnorm128 | tight | 382 | 98 | 0.00 | 11.83
+chainsh8 | relaxed | 16 | 104 | 0.00 | 5.53
+chainsh8 | tight | 16 | 104 | 0.00 | 5.65
+pcsh64 | relaxed | 63 | 263 | 0.00 | 0.95
+pcsh64 | tight | 63 | 263 | 0.00 | 0.92
+pcsh128 | relaxed | 127 | 517 | 0.00 | 1.66
+pcsh128 | tight | 127 | 517 | 0.00 | 1.81
+
+seen mean regret % (48 cells): SWC 5.88, SWG(36) 4.35, SWD(3) 4.35, SWD(8) 4.48, random 4.95
+
+## Blind test: no table yet
