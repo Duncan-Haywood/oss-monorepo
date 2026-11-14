@@ -53,6 +53,9 @@
       <label>Invoice number <input id="number" value="RE-2026-001"></label>
       <label>Issue date <input id="issue_date" type="date"></label>
       <label>Due date <input id="due_date" type="date"></label>
+      <label>Delivery / service date <input id="delivery_date" type="date"></label>
+      <label>Service period from <input id="period_start" type="date"></label>
+      <label>Service period to <input id="period_end" type="date"></label>
       <label>Currency <input id="currency" value="EUR" maxlength="3"></label>
       <label>Buyer reference (Leitweg-ID) <input id="buyer_reference"></label>
       <label>Order reference <input id="order_reference"></label>
@@ -165,6 +168,7 @@
         document_type: g("document_type"), number: g("number"), issue_date: g("issue_date"), due_date: g("due_date"), currency: g("currency"),
         buyer_reference: g("buyer_reference"), order_reference: g("order_reference"), original_invoice: g("original_invoice"),
         prepaid: g("prepaid") || 0, terms: g("terms"), seller: party("seller"), buyer: party("buyer"), lines: lines(),
+        delivery_date: g("delivery_date"), period: { start: g("period_start"), end: g("period_end") },
       };
       const pay = {}; document.querySelectorAll("#payment [data-k]").forEach((el) => { pay[el.dataset.k] = el.value.trim(); });
       d.payment = pay;
@@ -232,6 +236,7 @@
       set("buyer", { name: "Kunde AG", street: "Marktplatz 2", postal_code: "20095", city: "Hamburg", country: "DE", endpoint_scheme: "EM", endpoint_id: "ap@kunde.example" });
       set("payment", { iban: "DE02120300000000202051", bic: "BYLADEM1001", account_name: "Muster Software GmbH" });
       $("buyer_reference").value = "04011000-12345-03";
+      $("delivery_date").value = $("issue_date").value;
       $("lines").innerHTML = "";
       lineRow({ description: "Consulting", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 19 });
       lineRow({ description: "Printed handbook", quantity: 3, unit: "C62", unit_price: 50, tax_percent: 7 });
