@@ -81,7 +81,7 @@ Narrowly: claim 1 is new as far as the works above go; claims 2 and 3 apply know
 
 1. **Real-device benchmark** (this PR, 2026-11-13): reference lines with closure checks, measured clock-rate offsets of the five phones, short-window failure shares by room, window, weighting and added noise, PSR AUROC and a room-to-room gate transfer (H1, H2, H3 first look).
 2. **Threshold theory** against the step 1 grid (H4).
-3. **Conformal gate** across rooms, devices and overlap subsets, and where exchangeability fails.
+3. **Conformal gate** across rooms, devices and overlap subsets, and where exchangeability fails. First step landed 2026-11-14 (Learn then Test across rooms, phones and noise levels: the noise level breaks it); overlap subsets and SNR-conditional calibration remain.
 4. **Baselines on equal windows**: Kammerl et al. reimplemented, `paderwasn`'s online tracker.
 5. **Real noise**: recorded babble and wind (licensed recordings, or owner clips), outdoors.
 6. **Session tracker end to end** and its out-of-sync share (H5); feed `capture-realedit` with it.
