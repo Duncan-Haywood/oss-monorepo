@@ -1125,9 +1125,14 @@ def spec_hint(ifd0, exif) -> LensHint | None:
             break
     else:
         tag_hint = None
+    named = _sony_lens_hint(ifd0, exif) or _samsung_lens_hint(ifd0, exif)
     if tag_hint is not None and tag_hint.marked:
+        # A Sony or Samsung note's lens name for the same range breaks a tie the tag alone leaves (three 24 mm
+        # f/1.8 lenses on E-mount); a note that disagrees on the range is ignored.
+        if named is not None and abs(named.short - tag_hint.short) < 0.5 and abs(named.long - tag_hint.long) < 0.5:
+            return tag_hint._replace(name=named.name)
         return tag_hint
-    maker = _maker_note_hint(exif)
+    maker = _maker_note_hint(exif) or named
     if maker is None:
         note = dng_maker_note(ifd0)
         maker = _maker_note_hint(note, ifd0, "converted DNG's ") if note is not None else None
@@ -1369,6 +1374,184 @@ def _olympus_lens_hint(exif) -> LensHint | None:
     name = bytes(raw_name).split(b"\0")[0].decode("ascii", "replace").strip() if raw_name else ""
     return LensHint(float(short), float(long_), current, None, marked, "Olympus maker note's Equipment",
                     name or None)
+
+
+# --- Sony and Samsung ---------------------------------------------------------------------------------------------------
+#
+# A-mount Sony bodies of the DSLR and early SLT years and Samsung's NX bodies before the NX1 write no EXIF LensModel
+# or LensSpecification (the DSLR-A500, the Galaxy NX and the NX20 in drewnoakes/metadata-extractor-images). Their
+# maker notes still say which lens was on: Sony's LensSpec (0xB02A) states the range, the f-numbers and the
+# lens's feature letters; Samsung's LensType (0xA003) is the lens's number in Samsung's own NX list.
+
+SONY_LENS_SPEC = 0xB02A
+# Byte 0 and byte 7 of LensSpec, read as one 16-bit field (byte 0 high): the feature letters a Sony lens name
+# carries, in the order they are written into it, prefix or suffix. Bit layout as published by
+# equational.org/importphotos/alphalensinfo.html and read by ExifTool's Sony.pm (format only; no code copied).
+_SONY_FEATURES = (
+    (0x4000, {0x4000: "PZ"}, True),
+    (0x0300, {0x0100: "DT", 0x0200: "FE", 0x0300: "E"}, True),
+    (0x00E0, {0x0020: "STF", 0x0040: "Reflex", 0x0060: "Macro", 0x0080: "Fisheye"}, False),
+    (0x000C, {0x0004: "ZA", 0x0008: "G"}, False),
+    (0x0003, {0x0001: "SSM", 0x0002: "SAM"}, False),
+    (0x8000, {0x8000: "OSS"}, False),
+    (0x2000, {0x2000: "LE"}, False),
+    (0x0800, {0x0800: "II"}, False),
+)
+
+
+def _hex_digits(b: bytes) -> float | None:
+    """Sony writes LensSpec's numbers as hex digits read as decimal ("0x0055" is 55 mm, "0x35" is f/3.5); a
+    letter digit counts ten and up ("0xB0" is f/11), as on the lenses ExifTool's notes list."""
+
+    digits = b.hex()
+    try:
+        return float(sum(int(c, 16) * 10 ** (len(digits) - 1 - i) for i, c in enumerate(digits)))
+    except ValueError:
+        return None
+
+
+def sony_lens_spec(raw) -> tuple[float, float, float, float, str] | None:
+    """Decode an 8-byte Sony LensSpec: (short mm, long mm, f-number at short, at long, name), or None.
+
+    Bytes: 0 feature flags (high), 1-2 shortest focal length, 3-4 longest (0 on a prime), 5 and 6 the widest
+    f-number at each end in tenths (6 is 0 on a constant-aperture lens), 7 feature flags (low). The name is the
+    one Sony's own lens names follow: "DT 18-55mm F3.5-5.6 SAM", "FE 24-105mm F4 G OSS".
+    """
+
+    if raw is None or len(raw) != 8:
+        return None
+    b = bytes(int(x) & 0xFF for x in raw)
+    short, long_ = _hex_digits(b[1:3]), _hex_digits(b[3:5])
+    a1, a2 = _hex_digits(b[5:6]), _hex_digits(b[6:7])
+    if not short or a1 is None or not a1:
+        return None
+    long_ = long_ or short
+    a1 /= 10
+    a2 = a2 / 10 if a2 else a1
+    if long_ < short or a2 < a1 or not (0.5 <= a1 <= 64 and a2 <= 64):
+        return None
+    rng = f"{short:g}" if long_ == short else f"{short:g}-{long_:g}"
+    ap = f"{a1:g}" if a2 == a1 else f"{a1:g}-{a2:g}"
+    name = f"{rng}mm F{ap}"
+    flags = (b[0] << 8) | b[7]
+    for mask, names, prefix in _SONY_FEATURES:
+        bits = flags & mask
+        if not bits:
+            continue
+        word = names.get(bits, f"Unknown({bits:04x})")
+        name = f"{word} {name}" if prefix else f"{name} {word}"
+    return short, long_, a1, a2, name
+
+
+def _note_ifd(data: bytes, end: str, at: int, base: int):
+    """An IFD at ``at`` in ``data`` whose value offsets count from ``base`` (a maker note's own conventions)."""
+
+    from shootflow.raw_develop import _TYPE_SIZES, Ifd, _Reader
+
+    reader = _Reader.__new__(_Reader)
+    reader.data, reader.end = data, end
+    count = struct.unpack_from(end + "H", data, at)[0]
+    if count > 512:
+        return None
+    ifd = Ifd(byte_order=end, source=data)
+    pos = at + 2
+    for _ in range(count):
+        if pos + 12 > len(data):
+            break
+        tag, typ, n = struct.unpack_from(end + "HHI", data, pos)
+        size = _TYPE_SIZES.get(typ)
+        if size is not None and n < 1 << 20:
+            total = size * n
+            where = pos + 8 if total <= 4 else base + struct.unpack_from(end + "I", data, pos + 8)[0]
+            if 0 <= where and where + total <= len(data):
+                ifd.entries[tag] = reader._values(typ, n, where)
+                ifd.offsets[tag] = where
+        pos += 12
+    return ifd
+
+
+def _maker_note_ifd(ifd0, exif, make: str, base_is_note: bool):
+    """The maker note of a file whose IFD0 names ``make``, read in the file's buffer, or None.
+
+    Sony notes ("SONY DSC \0\0\0" and the like, or no header at all in an ARW) count offsets from the file's
+    TIFF header; Samsung SRW notes (no header) count them from the note's own start.
+    """
+
+    if exif is None or not (_ascii(ifd0, TAG_MAKE) or "").lower().startswith(make):
+        return None
+    at = getattr(exif, "offsets", {}).get(TAG_MAKER_NOTE)
+    source = getattr(exif, "source", None)
+    end = getattr(exif, "byte_order", None)
+    if at is None or source is None or end not in ("<", ">"):
+        return None
+    skip = 12 if bytes(source[at:at + 4]) == b"SONY" else 0
+    try:
+        return _note_ifd(bytes(source), end, at + skip, at if base_is_note else 0)
+    except (struct.error, IndexError, ValueError, OverflowError):
+        return None
+
+
+def _sony_lens_hint(ifd0, exif) -> LensHint | None:
+    """Range, f-numbers and a name from a Sony maker note's LensSpec (0xB02A); the DSLR-A500 frame's only lens
+    record (its LensType 0xB027 is a number with no list we can copy)."""
+
+    from shootflow.raw_develop import LensHint
+
+    note = _maker_note_ifd(ifd0, exif, "sony", base_is_note=False)
+    spec = sony_lens_spec(note.get(SONY_LENS_SPEC)) if note is not None else None
+    if spec is None:
+        return None
+    short, long_, a1, a2, name = spec
+    return LensHint(short, long_, None, None, (a1, a2), "Sony maker note's LensSpec", name)
+
+
+SAMSUNG_LENS_TYPE = 0xA003
+# Samsung NX lens numbers in maker-note tag 0xA003, from metadata-extractor's SamsungType2MakernoteDescriptor
+# (Apache License 2.0, Drew Noakes and contributors); ExifTool's Samsung.pm lists the same numbers and names
+# (2 also covers the 18-55mm's version II there). 0 is a built-in or manual lens.
+SAMSUNG_LENS_TYPES = {
+    1: "Samsung NX 30mm F2 Pancake",
+    2: "Samsung NX 18-55mm F3.5-5.6 OIS",
+    3: "Samsung NX 50-200mm F4-5.6 ED OIS",
+    4: "Samsung NX 20-50mm F3.5-5.6 ED",
+    5: "Samsung NX 20mm F2.8 Pancake",
+    6: "Samsung NX 18-200mm F3.5-6.3 ED OIS",
+    7: "Samsung NX 60mm F2.8 Macro ED OIS SSA",
+    8: "Samsung NX 16mm F2.4 Pancake",
+    9: "Samsung NX 85mm F1.4 ED SSA",
+    10: "Samsung NX 45mm F1.8",
+    11: "Samsung NX 45mm F1.8 2D/3D",
+    12: "Samsung NX 12-24mm F4-5.6 ED",
+    13: "Samsung NX 16-50mm F2-2.8 S ED OIS",
+    14: "Samsung NX 10mm F3.5 Fisheye",
+    15: "Samsung NX 16-50mm F3.5-5.6 Power Zoom ED OIS",
+    20: "Samsung NX 50-150mm F2.8 S ED OIS",
+    21: "Samsung NX 300mm F2.8 ED OIS",
+}
+_NAME_RANGE = re.compile(r"(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?mm F(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?")
+
+
+def _samsung_lens_hint(ifd0, exif) -> LensHint | None:
+    """Range, f-numbers and name of the Samsung NX lens numbered in an SRW maker note's LensType (0xA003)."""
+
+    from shootflow.raw_develop import LensHint
+
+    note = _maker_note_ifd(ifd0, exif, "samsung", base_is_note=True)
+    v = note.get(SAMSUNG_LENS_TYPE) if note is not None else None
+    if not v:
+        return None
+    try:
+        name = SAMSUNG_LENS_TYPES.get(int(v[0]))
+    except (TypeError, ValueError):
+        return None
+    m = _NAME_RANGE.search(name) if name else None
+    if m is None:
+        return None
+    short = float(m.group(1))
+    long_ = float(m.group(2) or short)
+    a1 = float(m.group(3))
+    a2 = float(m.group(4) or a1)
+    return LensHint(short, long_, None, None, (a1, a2), f"Samsung maker note's LensType {int(v[0])}", name)
 
 
 # --- Pentax (and Ricoh, and Samsung's K-mount GX bodies) -------------------------------------------------------------
