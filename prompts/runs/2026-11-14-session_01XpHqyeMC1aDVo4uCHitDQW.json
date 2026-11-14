@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyeMC1aDVo4uCHitDQW",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T09:39:03Z",
+  "ended": "2026-11-14T09:49:18Z",
+  "wall_minutes": 10.62,
+  "tokens_in": 7379917,
+  "tokens_out": 40297,
+  "cost_usd": 3.3066,
+  "tool_calls": 67,
+  "task": "quality fix mode: work the open high-severity defect queue",
+  "projects": [
+    "research/selfrep-materials",
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15807",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "quality_mutate.py run with a repo-root path in the test command ('discover -s research/selfrep-materials/tests') failed its baseline; the command runs in the subject root, so '-s tests' is needed",
+      "cost_minutes": 1
+    },
+    {
+      "what": "first stl_volumes.py edge check called 4 of 18 meshes not closed; they were watertight with a few non-manifold edges (OpenSCAD touching solids). Switched to a directed-edge balance check",
+      "cost_minutes": 3
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "quality_mutate.py's test command runs in the subject root, but the README example and the audit rows quote repo-root paths; one line saying 'paths in the test command are relative to the subject root' would have saved a failed baseline"
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "sample printed a NOTE that today's mode is fix, but only after drawing a seed and round number; printing the mode first (or `mode` being the documented first command in prompts/quality/prompt-0.md) would avoid reading a round draw that will not be used"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "the track prompt describes a sample round, but quality_audit.py mode chose fix (2 high defects open); followed the README's fix mode instead",
+      "did": "fixed the selfrep-materials high defect with sourced data and tests; recorded the already-landed build-data fix in fix_prs; no re-audit in the same round, per the README",
+      "result": "queue --severity high went from 2 open to 0"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "fix mode says 'a later round re-audits'; I did not write a re-audit file for selfrep-materials",
+      "did": "left re-audit to a later round so the score is not raised in the round that fixed it",
+      "result": "audit scores unchanged; fix_prs records PR #15807"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-quality-fix-printed-parts-weigh-half-what-was-assumed.md",
+    "docs/reports/2026-11-14-quality-fix-selfrep-materials-stl.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode; sample seed 2026-11-14-0c66 / round 74 was printed but not used). Subjects: research/selfrep-materials (audit 2026-11-08, high source-data defect) and research/build-data (audit 2026-11-07, high research-design defect, already fixed by PR #15034 and PR #15165, now recorded). Share meeting the bar: not measured (fix mode, no sample round). Fix PRs: #15807. Fix: printed masses come from the 18 Prusa Mendel i2 STL volumes (480 cm3, 0.595 kg solid PLA vs 1.10 kg assumed), cross-checked with numpy-stl to 3 decimals; fasteners are counted per printer from the reprap.org assembly guide oldid=191295 (82 M8 nuts, 88 M8 washers, 62 M3 washers...). Headline for the largest shop: vitamin share 75%->83%, own-scrap recycling cut 3%->2%, energy 9.7->5.5 kWh. Placeholder list kept as default; its results.txt block reproduces the old file byte for byte apart from the Params repr. Verification: selfrep-materials 16 tests OK; selfrep-recyclers tests OK; mutations caught 3/3 (melt-Al energy zeroed, the audit's surviving mutant; a fastener count; fill ignored); research/_homepage/build.py ok; check_md_links ok; research_live_links ok; quality_audit.py validate 346 files 0 problems; run_workflow_locally --for-changes run (see PR). Hosts: raw.githubusercontent.com and reprap.org reachable; github.com, codeload, thingiverse were 403.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2c228fb5-9ffe-5fea-b73b-7804d0497018",
+    "transcripts": 1,
+    "first": "2026-11-14T09:39:03Z",
+    "last": "2026-11-14T09:49:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 40297,
+        "thinking": 9691,
+        "cache_read": 7248487,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131306,
+        "api_equivalent_usd": 3.3066,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 40297,
+      "thinking": 9691,
+      "cache_read": 7248487,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131306,
+      "api_equivalent_usd": 3.3066,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 62,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.62,
+      "active_minutes": 10.62,
+      "model_minutes": 6.31,
+      "tool_minutes": 4.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "locate and measure 18 STLs, tally assembly-guide fasteners, refactor model, tests, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 181.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
