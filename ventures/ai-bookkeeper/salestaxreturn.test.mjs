@@ -665,3 +665,70 @@ test("VA dealer discount: taxable sales x 0.043 x a rate picked by monthly taxab
   assert.match(stateDiscountNote("VA"), /\$20,000/);
   assert.equal(salesTaxReturn(mk(1000000, 53000), { frequency: "monthly", discounts: { "VA state": { rate: 0 } } }).periods[0].rows[0].discount, 0);
 });
+
+test("a sales band rate over 100% is refused like every other discount rate (red team 2026-11-14)", async () => {
+  const { salesTaxReturn } = await import("./salestaxreturn.mjs");
+  const bad = { "VA state": { rate: 0, onSales: 0.043, bands: [{ belowMonthlySales: 6250100, rate: 0.01116 }, { rate: 1.5 }] } };
+  assert.throws(() => salesTaxReturn(books(), { discounts: bad }), /discount for "VA state"/);
+  assert.doesNotThrow(() => salesTaxReturn(books(), { discounts: { "VA state": { ...bad["VA state"], bands: [{ rate: 1 }] } } }));
+});
+
+test("a --state preset that matches no tax line says it was not applied (red team 2026-11-14)", async () => {
+  // Before: --state MI on a book labelled "MI" or "Michigan" took no discount, and the Michigan note still said it "is applied".
+  const { salesTaxReturn, stateDiscounts, presetDiscountWarning } = await import("./salestaxreturn.mjs");
+  const mk = (label) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-01-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-01-10,,A Co,5000.00,4000,Goods\ninvoice,1,2026-01-10,,A Co,300.00,2100,${label}\n`).books;
+  const ret = (label, extra = {}) => salesTaxReturn(mk(label), { frequency: "monthly", discounts: { ...stateDiscounts("MI", "monthly"), ...extra } });
+  assert.equal(ret("MI state").periods[0].rows[0].discount, 600);
+  assert.equal(presetDiscountWarning("MI", "monthly", ret("MI state")), null);
+  for (const label of ["MI", "Michigan"]) {
+    const t = ret(label);
+    assert.equal(t.periods[0].rows[0].discount, 0);
+    const w = presetDiscountWarning("mi", "monthly", t);
+    assert.match(w, /^Michigan's preset discount was not applied/);
+    assert.ok(w.includes(`"${label}"`) && w.includes('"MI state"'));
+  }
+  // a discount the user gave for their own label is not a miss
+  const own = { MI: { rate: 0.005 } };
+  assert.equal(presetDiscountWarning("MI", "monthly", ret("MI", own), own), null);
+  // no preset, or nothing on the return: nothing to say
+  assert.equal(presetDiscountWarning("IN", "monthly", ret("Indiana")), null);
+  assert.equal(presetDiscountWarning("NY", "monthly", ret("NY")), null);
+  assert.equal(presetDiscountWarning(null, "monthly", ret("MI")), null);
+  assert.equal(presetDiscountWarning("MI", "monthly", { periods: [] }), null);
+});
+
+test("CLI: --state MI on a book labelled \"MI\" prints the not-applied warning, not the applied note", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "stpreset-"));
+  const b = addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-01-01,X,1.00\n", "1000").books,
+    "type,number,date,due,party,amount,account,description\ninvoice,1,2026-01-10,,A Co,5000.00,4000,Goods\ninvoice,1,2026-01-10,,A Co,300.00,2100,MI\n").books;
+  writeFileSync(join(dir, "b.json"), JSON.stringify(b));
+  const out = JSON.parse(execFileSync(process.execPath, [new URL("./cli.mjs", import.meta.url).pathname, "--books", join(dir, "b.json"), "salestax", "return", "--state", "MI", "--freq", "monthly", "--json"], { encoding: "utf8" }));
+  assert.ok(out.warnings.some((w) => /preset discount was not applied/.test(w)));
+  assert.ok(!out.warnings.some((w) => /discount is applied/.test(w)));
+});
+
+test("a jurisdiction whose taxable sales net to zero gets no rate warning (red team 2026-11-14)", () => {
+  // a $100 sale and its full credit note in one quarter: rate is null, there is nothing to compare with --rate
+  const b = addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-01-01,X,1.00\n", "1000").books, [
+    "type,number,date,due,party,amount,account,description",
+    "invoice,1,2026-01-10,,A Co,100.00,4000,Goods", "invoice,1,2026-01-10,,A Co,6.00,2100,CA state",
+    "credit note,2,2026-01-20,,A Co,100.00,4000,Return", "credit note,2,2026-01-20,,A Co,6.00,2100,CA state",
+  ].join("\n") + "\n").books;
+  const r = salesTaxReturn(b, { rates: { "CA state": 0.06 } });
+  assert.equal(r.periods[0].rows[0].rate, null);
+  assert.deepEqual(r.warnings.filter((w) => /expected/.test(w)), []);
+});
+
+test("from alone (no to) leaves out tax payments dated before it (red team 2026-11-14)", () => {
+  const b = addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-01-01,X,1.00\n", "1000").books, csv).books;
+  const st = importStatement(b, "Date,Description,Amount\n2026-03-05,CDTFA payment,-9.00\n2026-04-15,CDTFA payment,-12.00\n", "1000");
+  const books2 = confirm(st.books, Object.fromEntries(st.books.transactions.filter((t) => /CDTFA/.test(t.desc)).map((t) => [t.id, "2100"])));
+  assert.equal(salesTaxReturn(books2).totals.paid, 2100);
+  assert.equal(salesTaxReturn(books2, { from: "2026-04-01" }).totals.paid, 1200); // the March payment drops out
+  assert.equal(salesTaxReturn(books2, { to: "2026-03-31" }).totals.paid, 900);    // and with to alone, the April one
+});

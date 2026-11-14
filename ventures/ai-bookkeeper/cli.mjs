@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
-import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote } from "./salestaxreturn.mjs";
+import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
 import { addDeferral, importDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferredRegister, deferredWaterfall, waterfallCsv } from "./deferred.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
@@ -1008,8 +1008,11 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   try { t = salesTaxReturn(books, { frequency: freq, endMonth: endMonthFlag ? Number(endMonthFlag) : stateEndMonth(state, freq), dueDay: dueDayFlag ? Number(dueDayFlag) : stateDueDay(state, freq), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   const stateNote = stateFilingNote(state, t.frequency);
   if (stateNote) t.warnings.push(stateNote);
+  // a preset that matched no tax line says so instead of the note that calls it applied (red team 2026-11-14)
+  const presetMiss = presetDiscountWarning(state, t.frequency, t, discounts);
   const discNote = stateDiscountNote(state);
-  if (discNote) t.warnings.push(discNote);
+  if (presetMiss) t.warnings.push(presetMiss);
+  else if (discNote) t.warnings.push(discNote);
   if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
   console.log(`SALES TAX RETURN WORKSHEET (${t.frequency})`);
   for (const p of t.periods) {
