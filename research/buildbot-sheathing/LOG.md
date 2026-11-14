@@ -1,5 +1,20 @@
 # buildbot-sheathing research log
 
+## 2026-11-14 · Milestone 19 result: slack at the rods and early-peaking joints do not explain Weiss's 3 in wall; every fit needs end nails at a quarter of NDS
+
+`experiments/m19_wall_pushover/` (run.py, results.txt, results.json, figure.py, figure.png); `src/buildbot_sheathing/wall_push.py`; `tests/test_wall_push.py` (6 tests). About 10 min on four CPUs (960 pushovers).
+
+- **H87 held.** Elastic-perfectly-plastic springs (0.1 mm yield) reach `Wall.capacity` within **0.044%** in all 16 cases.
+- **H88 refuted, as a modelling convention, not a bug.** On milestone 15's studs the pushover's peak is 1.24% (intact) and 1.32% (Weiss pattern) above milestone 16's. A rigid stud pinned on its centre line moves the edge nails, which sit 3/8 in off that line, vertically by θ × 3/8 in; milestone 16's parallelogram moves them only along the wall. With the pins on the nail lines the two agree to 1e-7 (now a test). The LP of milestones 15–18 already used the rigid-body convention.
+- **H89 held.** At code-strength joints (m 1, λ 1), the rod at its design value and no gap, the pushover keeps **79.5% and 72.8%**; the LP keeps 79.5% and 73.5%. Softening does not change the wall, as milestone 16 found for one sheet.
+- **H90 held.** At m 0.47, a 1/16 in gap lowers the decayed shares by **0.1 point**. Across the grid the largest effect of any gap up to 1/4 in on the 3 in wall is about 9 points (m 1, λ 0.25: 71.3% to 62.7%).
+- **H91 refuted.** Joints that peak at a quarter of the nails' slip leave the decayed 3 in wall at **71.3%** (6 in: 79.6%) at code strength.
+- **H92 refuted, as expected.** No point with m ≥ 0.75 puts both shares within 10 points; the closest (m 0.75, λ 0.25, 1/4 in gap) keeps 78.0% and 52.0%.
+- **Post hoc (not registered).** All 30 grid points within 5 points rms have m = 0.25; the best keeps **57.8% and 32.5%** (tested 56.5%, 33.9%), decay ratio 1.05 (tested 1.12), intact ratio 1.87 (tested 1.87). That is milestone 18's rigid-plastic trade-off (0.25 of the NDS ratio at the rod's design value) found again by a different model. At that point 79% of the decayed 6-12 wall's stored energy at peak is in sheathing nails and 21% in end-nail joints; 56% of the sheathing nails' share is on the double end studs (Weiss's failure line), 26% on the middle stud.
+- **Numerics.** Every peak settled to 1e-7 Fp; after the peak some walls snap and Newton cannot settle every step (largest residual 3.6e2 Fp). Median share of nails unloading before the peak 0%, 90th percentile 5.2%, largest 100% (a few runs peak after a snap; the path-independent reading counts them on their backbone).
+- **What it means for the programme.** Slack at the rods and the order in which fasteners peak are ruled out under monotonic loading. Two explanations are left: the 16d end-nailed joints really carry about a quarter of their NDS ratio at ultimate in these walls, or the 34% comes from what a monotonic model leaves out (cyclic tear-out at the unsupported bottom edge, the middle stud splitting). A tested end-nail ultimate decides the first; a cyclic (CUREE) push with pinching, which `wall_push` can now host, tests the second. For the robot nothing moves: milestone 17 and 18's escaped-miss figures stand.
+- **Inputs not sourced:** the end-nail joint's backbone (strength m and slip scale λ swept, shape borrowed from the 8d nail); δp (swept 6–12 mm, as milestone 16); the rod's stiffness is the NDS design modulus.
+
 ## 2026-11-14 · Milestone 19 planned: Weiss's wall pushed over with softening nails and slack at the anchor rods
 
 Written before any milestone-19 load was computed. Inputs: milestone 17's wall (`wall_lp.Wall` geometry: 8 by 8 ft, two sheets, seven studs, hold-downs on the double end studs), milestone 16's sourced nail backbone (8d through 7/16 in OSB, Shameli Derakshan et al. 2019: Fp 0.972 kN, K at 0.4 Fp 0.496 kN/mm, Δu 28.7 mm; δp not tabulated, swept), milestone 17's NDS end-nail ratio (1.297 F per 16d end nail) and milestone 18's rod path (design value 2.55 F).
