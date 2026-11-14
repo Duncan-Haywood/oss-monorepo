@@ -185,7 +185,7 @@ def test_milestone_7g_probes_leave_the_default_rollout_unchanged_and_label_each_
     kw = dict(dist_sign=poshold.cop_signs(1.0), ff=1.0, ff_mode="integ", lever_scale=2.0)
     a = poshold.rollout(sz, g, kap, 8, 5, **kw)
     diag = {}
-    b = poshold.rollout(sz, g, kap, 8, 5, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, diag=diag, **kw)
+    b = poshold.rollout(sz, g, kap, 8, 5, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", diag=diag, **kw)
     for k in ("pos", "yaw", "att", "dead", "pos_ep"):
         assert np.array_equal(a[k], b[k]), k
     assert ((diag["dead_why"] > 0) == b["dead_ep"]).all()

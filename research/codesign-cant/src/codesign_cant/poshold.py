@@ -69,7 +69,7 @@ def reference(episodes, seed, steps=None):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover"):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -95,7 +95,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     dead_tilt_deg, mixer_ideal, torque_room and pos_scale (milestone 7g) are probes too: the roll/pitch angle that counts as
     divergence (deg); mixer_ideal=True delivers the clipped request with no polytope scaling (yaw and roll/pitch never compete);
     torque_room multiplies every torque limit (requested and delivered, the controller's nominal ones too); pos_scale multiplies
-    the three position-loop gains. With diag, also "dead_why" (1 roll/pitch past dead_tilt_deg, 2 position past DEAD_POS, 0
+    the three position-loop gains; mix_mode="free" lets the mixer shift the collective ("airmode", `allocation.mix_priority`). With diag, also "dead_why" (1 roll/pitch past dead_tilt_deg, 2 position past DEAD_POS, 0
     alive), "gust_over_tmax" (share of alive steps with the gust torque above the plant's torque limit on roll or pitch) and
     "gust_peak" (peak over alive steps of that ratio).
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
@@ -167,7 +167,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         gy = om_prev + gyro_n[:, :, t][None]
         u = kp * e - kd * gy + ki * integ
         req = np.clip(u, -1, 1) * tmax_nom[:, None, :]
-        mixed, s_rp, s_y = mix_priority(req, *mix_args, mode="hover")
+        mixed, s_rp, s_y = mix_priority(req, *mix_args, mode=mix_mode)
         if mixer_ideal:
             mixed, s_rp, s_y = req, np.ones_like(s_rp), np.ones_like(s_y)
         if diag is not None:
