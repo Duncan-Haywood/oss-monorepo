@@ -48,7 +48,8 @@ H = N − Σ<sub>j=1..N−1</sub> (Σ<sub>i=1..j</sub> U<sub>i</sub>/U)<sup>P</s
   <span class="eq">d ≥ a·v/j + v²/a           t = d/v + a/j + v/a
 2a³/j² ≤ d &lt; a·v/j + v²/a   t = (a/j)(1 + √(1 + 4dj²/a³))
 d &lt; 2a³/j²                t = ∛(32d/j)</span>
-  <p>The tool's tests integrate the motion numerically and agree with these to 10<sup>−6</sup> s in all three cases.</p>
+  <p>The formulae assume the car reaches full acceleration before rated speed, which holds when v ≥ a²/j. A slow lift (say 0.5 m/s with a = j = 1) hits rated speed first, so its acceleration peaks at √(vj); the tool puts that value in place of a, and the middle case then never applies. Without it a 0.75 m move at 0.5 m/s came out 3.00 s instead of 2.91 s, and flight time jumped at the case boundary.</p>
+  <p>The tool's tests integrate the motion numerically and agree with these to 10<sup>−6</sup> s in all three cases, for fast and slow lifts.</p>
 
   <h2>4. Time per stop and the round trip</h2>
   <p>The car travels to the reversal floor, a distance d<sub>H</sub> found by adding the floor heights up to H (eq 17), with S stops on the way, so the average flight between stops is d<sub>H</sub>/S. Each stop costs the extra time that flight takes over running the same distance at rated speed, plus the doors (eq 18):</p>
