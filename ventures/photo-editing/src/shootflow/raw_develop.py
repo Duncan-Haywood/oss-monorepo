@@ -67,7 +67,7 @@ from dataclasses import dataclass, field
 from itertools import accumulate
 from operator import add
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from shootflow import dng_colour as dc
 from shootflow import dng_opcodes
@@ -930,6 +930,20 @@ def _decode_scan_reference(data, pos, width, height, tables, predictor, precisio
 # --------------------------------------------------------------------------
 
 
+class LensHint(NamedTuple):
+    """What a maker note says about the lens when it gives no usable name (Canon CameraSettings).
+
+    ``short`` and ``long`` are the lens's focal range in mm (equal for a prime); ``aperture`` is its widest
+    f-number at the shot's focal length (a zoom's f/3.5-5.6 reports 5.6 at the long end), or None; ``lens_type``
+    is Canon's lens number (several lenses, Canon's and third parties', share one), or None.
+    """
+
+    short: float
+    long: float
+    aperture: float | None
+    lens_type: int | None = None
+
+
 @dataclass
 class RawImage:
     width: int
@@ -942,6 +956,7 @@ class RawImage:
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
     exif: Ifd | None = None  # the EXIF IFD (lens name, focal length), when the file has one
+    lens_hint: LensHint | None = None  # the maker note's focal range and aperture (CR2), for a lens with no name
 
 
 def _unpack_bits(chunk: bytes, bits: int, count: int, row_samples: int) -> list[int]:
@@ -1772,7 +1787,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
 
             try:
                 corr = lens_profiles.correction_for(
-                    settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif), w, h,
+                    settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif, raw.lens_hint), w, h,
                     lens_name=settings.lens_name, focal=settings.lens_focal, crop=settings.lens_crop,
                     fill=settings.lens_fill, tca=settings.lens_tca, vignetting=settings.lens_vignetting,
                     aperture=settings.lens_aperture, distance=settings.lens_distance,

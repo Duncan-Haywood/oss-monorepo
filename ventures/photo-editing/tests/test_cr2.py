@@ -120,6 +120,7 @@ def make_cr2(
     lens_name=None,
     focal=None,
     fnumber=None,
+    camera_settings=None,
 ):
     values = sensor(pattern, levels, seed, gain=gain, clip=clip)
     stream = encode_lossless_jpeg(sliced(values), SENSOR_W // FRAME_NF, SENSOR_H, FRAME_NF, precision=14)
@@ -147,6 +148,8 @@ def make_cr2(
     if 0x3F + 4 <= color_data_len:
         color[0x3F : 0x3F + 4] = list(levels)
     canon_entries = [(0x4001, 3, tuple(color))]
+    if camera_settings is not None:
+        canon_entries.insert(0, (0x0001, 3, tuple(camera_settings)))
     if lens_name is not None:
         canon_entries.insert(0, (0x0095, 2, tuple(lens_name.encode("latin-1")) + (0,)))
     if sensor_info:
