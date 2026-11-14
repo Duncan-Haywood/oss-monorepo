@@ -2,7 +2,7 @@
 title: "A CSV guard that let a minus sign through"
 seo_title: "CSV formula injection: an unanchored number exemption leaks -1+cmd"
 date: 2026-11-14
-description: "The wash-sale checker had a CSV formula-injection guard, but its number exemption checked only the first characters, so a ticker like -1+CMD|... reached the spreadsheet raw. Our lint passed it too. Both are fixed."
+description: "The wash-sale checker's CSV guard exempted anything starting with a number, so a ticker like -1+CMD|... reached the spreadsheet raw. Fixed, and the lint now checks."
 tags: [redteam, security, csv, testing]
 ---
 
