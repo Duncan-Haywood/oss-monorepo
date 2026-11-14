@@ -394,9 +394,13 @@ const sigmoid = (x) => 1 / (1 + Math.exp(-x));
 export function linearize(n, answers, c) {
   const J = new Float64Array(n * n);
   const grad = new Array(n).fill(0);
+  let ll = 0;
   for (const [w, l, t] of answers) {
     const p = sigmoid(c[w] - c[l]);
     const v = p * (1 - p), score = t ? 0.5 : 1;
+    // log p and log(1 - p) without overflow for large gaps.
+    const d = c[w] - c[l], logP = -Math.log1p(Math.exp(-d)), log1mP = -Math.log1p(Math.exp(d));
+    ll += score * (Number.isFinite(logP) ? logP : d) + (1 - score) * (Number.isFinite(log1mP) ? log1mP : -d);
     grad[w] += score - p; grad[l] -= score - p;
     J[w * n + w] += v; J[l * n + l] += v; J[w * n + l] -= v; J[l * n + w] -= v;
   }
@@ -405,7 +409,18 @@ export function linearize(n, answers, c) {
     for (let j = 0; j < n; j++) s += J[i * n + j] * c[j];
     return s;
   });
-  return { J, h };
+  // The quadratic is q(b) = k + h'b - b'Jb/2 with k = l(c) - grad'c - c'Jc/2.
+  // k moves with the expansion point, so the marginal likelihood must keep it
+  // whenever c depends on tau (dropping it is PQL, not Laplace; see
+  // docs/RANK-PAGE.md "Team ranges").
+  let k = ll;
+  for (let i = 0; i < n; i++) {
+    k -= grad[i] * c[i];
+    let jc = 0;
+    for (let j = 0; j < n; j++) jc += J[i * n + j] * c[j];
+    k -= 0.5 * c[i] * jc;
+  }
+  return { J, h, k };
 }
 
 /** One person's refit and their likelihood linearised at it (the starting point of populationAt). */
@@ -456,12 +471,13 @@ function solveColumns(l, n, M) {
  * log L = sum_p (-log|B_p| / 2 + tau^2 h_p' B_p^-1 h_p / 2) - log|P| / 2 + g' P^-1 g / 2.
  * tau = 0 is every answer in one fit (no disagreement allowed).
  */
-function populationFromInfos(n, infos, tau, phi) {
+function populationFromInfos(n, infos, tau, phi, laplace = true) {
   const t2 = tau * tau;
   const P = new Float64Array(n * n);
   const g = new Array(n).fill(0);
   let ll = 0;
-  for (const { J, h } of infos) {
+  for (const { J, h, k = 0 } of infos) {
+    if (laplace) ll += k;
     const B = Float64Array.from(J, (x, k) => t2 * x + (k % (n + 1) === 0 ? 1 : 0));
     const L = cholesky(B, n);
     for (let i = 0; i < n; i++) ll -= Math.log(L[i * n + i]);
@@ -488,19 +504,19 @@ function populationFromInfos(n, infos, tau, phi) {
  * formula on Gaussian data with the same J recovered it (docs/RANK-PAGE.md,
  * "Team ranges"). tau = 0 is every answer read as one person's.
  */
-export function populationAt(n, people, tau, { phi = REFIT_PRIOR_PHI, passes = TEAM_PASSES } = {}) {
+export function populationAt(n, people, tau, { phi = REFIT_PRIOR_PHI, passes = TEAM_PASSES, laplace = true } = {}) {
   let infos = people.map((p) => (p.J ? p : personInfo(n, p.answers)));
   if (tau === 0) {
     const all = infos.flatMap((p) => p.answers);
     const m = modeAround(n, all, new Array(n).fill(0), phi * phi);
-    return populationFromInfos(n, [linearize(n, all, m)], 0, phi);
+    return populationFromInfos(n, [linearize(n, all, m)], 0, phi, laplace);
   }
-  let r = populationFromInfos(n, infos, tau, phi);
+  let r = populationFromInfos(n, infos, tau, phi, laplace);
   let modes = infos.map((p) => (p.f ? p.f.mu : r.mu));
   for (let k = 0; k < passes; k++) {
     modes = infos.map((p, i) => modeAround(n, p.answers, r.mu, tau * tau, modes[i]));
     infos = infos.map((p, i) => ({ answers: p.answers, ...linearize(n, p.answers, modes[i]) }));
-    r = populationFromInfos(n, infos, tau, phi);
+    r = populationFromInfos(n, infos, tau, phi, laplace);
   }
   return r;
 }
@@ -514,11 +530,11 @@ export const TEAM_TAU_MAX = 5;
 export const TEAM_TAU_STEPS = 10;
 
 /** "People like these": the population posterior at the tau that best explains the codes. */
-export function populationFit(n, people, { steps = TEAM_TAU_STEPS } = {}) {
+export function populationFit(n, people, { steps = TEAM_TAU_STEPS, laplace = true } = {}) {
   const infos = people.map((p) => (p.J ? p : personInfo(n, p.answers)));
   const memo = new Map();
   const at = (tau) => {
-    if (!memo.has(tau)) memo.set(tau, populationAt(n, infos, tau));
+    if (!memo.has(tau)) memo.set(tau, populationAt(n, infos, tau, { laplace }));
     return memo.get(tau);
   };
   const gr = (Math.sqrt(5) - 1) / 2;

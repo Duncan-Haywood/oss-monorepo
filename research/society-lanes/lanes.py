@@ -184,4 +184,29 @@ def spearman(a, b):
     return num / den if den else float("nan")
 
 
+def rotate_x_corridor(rows, width_cm):
+    """Map a corridor that runs along x (walls at y = 0 and y = width) to this module's frame.
+
+    A +90 degree rotation plus a shift, so handedness is kept: along = x, lateral = width - y.
+    A walker heading +x then has their right at +lateral, as for one heading +y here.
+    """
+    for pid, frame, x, y in rows:
+        yield pid, frame, width_cm - y, x
+
+
+def bootstrap_diff_clustered(groups_a, groups_b, n, rng):
+    """95% interval of share(A) - share(B), two-stage bootstrap (runs, then members) in each."""
+    def one(groups):
+        tot = cnt = 0
+        g = len(groups)
+        for _ in range(g):
+            flags = groups[rng.randrange(g)]
+            k = len(flags)
+            tot += sum(flags[rng.randrange(k)] for _ in range(k))
+            cnt += k
+        return tot / cnt
+    reps = [one(groups_a) - one(groups_b) for _ in range(n)]
+    return quantile(reps, 0.025), quantile(reps, 0.975)
+
+
 __all__ = [n for n in dir() if not n.startswith("_") and n not in ("random", "defaultdict", "annotations")]
