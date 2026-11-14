@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 89, 2026-11-14: keeping the open permits as lower bounds (Portnoy-style censored quantile pseudo-rows) — design and predictions
+
+Why: session 88 found 55 to 65% of the source permits the training cut drops (still open on D = 1 January Y) outlast every window their city-year has, so no reweighting of completed rows can stand for them. Its "Next" asked to keep each open permit as a lower bound on its build time.
+- Method (Portnoy 2003's redistribution of censored mass, with the local quantile level taken from a stratified Kaplan-Meier): each source permit issued in years <= Y-2 and still open at D has window c = D - issue day and is right-censored at c. Its quantile level tau_i = F(c) comes from a Kaplan-Meier fit over the same source city and cascade2 class (all of its rows issued <= Y-2, as seen at D: events at y for completed, censored at c for open). For a model of quantile tau: if tau <= tau_i the permit is one pseudo-row at "+infinity" (y = 100,000 days) with weight 1; otherwise two pseudo-rows, at c with weight (tau - tau_i)/(1 - tau_i) and at +infinity with weight (1 - tau)/(1 - tau_i). LightGBM's quantile objective only uses the sign of the residual and renews leaves by weighted percentile, so the +infinity value only needs to exceed every prediction. Uses only what is known at D. The frame drops permits never completed by the pull (as session 88's G), so "open at D" here means open at D and completed later.
+- Variants: `cens_cut` (cut_only's rows plus the open permits of years <= Y-2 as pseudo-rows; early-stopped on the whole Y-1 unweighted: does keeping the open permits give back what the cut takes?) and `cens_es3` (es3's rows plus the open permits of years <= Y-4 and Y-2 in training and of Y-3 in early stopping, both augmented: the deployable version). full, cut_only, es3, ipcw_cut and ipcw_es3 come from session 88's `rounds_score_ipcw_i2c.json`; `full` is refitted on SF 2021 to check the fresh pull reproduces it.
+Design (fixed before any run): cascade2 class; H = austin, sf, seattle; Y = 2021, 2022; 3 seeds; fresh pull; `rounds.py DIR --score --variants cens_cut cens_es3 --out-name rounds_score_cens_i2c.json`.
+Predictions (written before any run; q0.9 = cascade2's mean pinball loss on all test-year rows, 3 seeds, change against session 88's full):
+- (C1) cens_cut's q0.9 loss is within 1 day of full's in at least 3 of the 4 SF and Seattle city-years (session 88's G1 again).
+- (C2) cens_cut recovers at least half of cut_only's q0.9 cost in at least 3 of those 4 (ipcw_cut: 18 to 33%).
+- (C3) cens_es3's q0.9 loss is below ipcw_es3's in at least 3 of those 4, and its SF and Seattle mean change is below ipcw_es3's +2.53 days.
+- (C4) Austin: cens_cut's q0.9 change is above cut_only's in both years (the long builds Austin gained from losing come back).
+- (C5) cens_cut's q0.5 loss is within 0.5 days of full's in at least 5 of 6 city-years.
+Refuted if any part fails.
+
 ## Session 88, 2026-11-14: inverse-probability-of-censoring weights halve the deployable borrowed model's tail cost in SF and Seattle (q0.9 +2.53 days against the complete-label model, es3 +4.74; better in 4 of 4) but give back only 18 to 33% of what the training cut takes, because 55 to 65% of the dropped permits outlast every window their city-year has (G3 held; G1, G2, G4, G5 refuted)
 
 Why: session 87 found the largest deployable cost in SF and Seattle is the 0.45 to 0.56% of source training permits still open on 1 January Y (D), the longest builds: dropping them alone costs 1.0 to 5.1 days at q0.9. Its "Next" asked to keep their weight without their labels.

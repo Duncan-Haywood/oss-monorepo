@@ -368,3 +368,44 @@ class MinSupportDrop(unittest.TestCase):
         out = transfer.drop_source_rows({"sf": d, "austin": d}, "austin")
         self.assertEqual(len(out["sf"]), 1)
         self.assertEqual(len(out["austin"]), 3)
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class CensoredPseudo(unittest.TestCase):
+    def test_km_matches_a_hand_worked_case(self):
+        """Session 89: times 1, 2+, 3, 4 (2 censored): S(1) = 3/4, S(3) = 3/4 * 1/2 = 3/8, S(4) = 0."""
+        import numpy as np
+        F = transfer.km_cdf_at([1, 2, 3, 4], [1, 0, 1, 1], [0.5, 1, 2, 3, 3.5, 4, 9])
+        np.testing.assert_allclose(F, [0, .25, .25, .625, .625, 1, 1])
+        # no censoring: KM is the empirical cdf
+        np.testing.assert_allclose(transfer.km_cdf_at([5, 1, 3], [1, 1, 1], [1, 3, 5]), [1 / 3, 2 / 3, 1])
+
+    def test_open_rows_split_into_portnoy_pseudo_rows(self):
+        """An open permit at quantile level tau_i: all weight on +inf for tau <= tau_i; else (tau - tau_i)/(1 - tau_i)
+        at its window and (1 - tau)/(1 - tau_i) at +inf, summing to 1."""
+        import datetime
+        import numpy as np, pandas as pd
+        D = datetime.date(2024, 1, 1)
+        st = [(D - datetime.timedelta(days=k)).isoformat() for k in (400, 300, 200, 100)]
+        # windows 400, 300, 200, 100; y: 100 (done), 250 (done), 900 (open at 200), 50 (done)
+        d = pd.DataFrame(dict(start=st, y=[100.0, 250.0, 900.0, 50.0], year=2023, cls="alteration"))
+        rows, W, info = transfer.censored_pseudo(d, D, d, taus=(0.1, 0.5, 0.9))
+        self.assertEqual(info["n_open"], 1)
+        self.assertEqual(list(rows.y), [100.0, 250.0, 50.0, 200.0, transfer.Y_INF])
+        # KM over 50, 100, 250 (events) and 200+ (censored): F(200) = 1 - (3/4)(2/3) = 1/2
+        np.testing.assert_allclose(W[0.1], [1, 1, 1, 0, 1])
+        np.testing.assert_allclose(W[0.5], [1, 1, 1, 0, 1])
+        np.testing.assert_allclose(W[0.9], [1, 1, 1, 0.8, 0.2])
+
+    def test_cens_variants_reduce_to_the_cut_rows_when_nothing_is_open(self):
+        """In the fixture every source permit of years <= Y-2 finished before D, so cens_cut / cens_es3 train on
+        exactly cut_only's / es3's rows with unit weights."""
+        import rounds
+        fc = Paired.frames(self, "cascade2")
+        for v, base in (("cens_cut", "cut_only"), ("cens_es3", "es3")):
+            tr, ca, w, wca = rounds.splits(fc, "seattle", 2024, v)
+            tb, cb, _, _ = rounds.splits(fc, "seattle", 2024, base)
+            self.assertEqual((len(tr), len(ca)), (len(tb), len(cb)), v)
+            self.assertTrue(all((x == 1).all() for x in w.values()))
+            self.assertEqual(rounds.rounds(fc, "seattle", 2024, v, 1)["rounds"],
+                             rounds.rounds(fc, "seattle", 2024, base, 1)["rounds"], v)

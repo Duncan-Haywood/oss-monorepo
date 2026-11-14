@@ -14,6 +14,11 @@ candidate) under the variants that early-stop, and records the round each quanti
                what the cut takes?)
   ipcw_es3     es3's rows (train <= Y-4 and Y-2, early-stop Y-3, all completed by D), training and early-stopping
                rows both IPCW-weighted (session 88: the deployable version)
+  cens_cut     cut_only's rows plus the sources' permits of years <= Y-2 still open at D, kept as lower bounds
+               (transfer.censored_pseudo: Portnoy-style pseudo-rows, quantile level from a Kaplan-Meier per source
+               city and class); early-stopped on the whole Y-1 unweighted (session 89)
+  cens_es3     es3's rows with the same pseudo-rows for the open permits, in training and early stopping
+               (session 89: the deployable version)
 
 --score also scores cascade2's transfer predictions on the held-out city's test year (all rows; mean
 pinball loss over the 3 seeds, as select_deploy's test_loss) and writes results/rounds_score_i2c.json.
@@ -29,7 +34,7 @@ import numpy as np, pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import boosted, transfer  # noqa: E402
 
-VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3")
+VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3")
 
 
 def splits(frames, held, Y, variant, floor=0.05):
@@ -38,6 +43,18 @@ def splits(frames, held, Y, variant, floor=0.05):
     D = datetime.date(Y, 1, 1)
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
+    if variant in ("cens_cut", "cens_es3"):
+        km = {c: frames[c][frames[c].year <= Y - 2].assign(city=c) for c in src}
+        def ccat(f):
+            parts = [transfer.censored_pseudo(frames[c][f(frames[c])].assign(city=c), D, km[c]) for c in src]
+            return (pd.concat([p[0] for p in parts]),
+                    {t: np.concatenate([p[1][t] for p in parts]) for t in transfer.TAUS}, [p[2] for p in parts])
+        if variant == "cens_cut":
+            tr, w, _ = ccat(lambda d: d.year <= Y - 2)
+            return tr, cat(lambda d: d.year == Y - 1), w, None
+        tr, w, _ = ccat(lambda d: (d.year <= Y - 4) | (d.year == Y - 2))
+        ca, wca, _ = ccat(lambda d: d.year == Y - 3)
+        return tr, ca, w, wca
     if variant in ("ipcw_cut", "ipcw_es3"):
         def wcat(f):
             parts = [transfer.ipcw_completed(frames[c][f(frames[c])].assign(city=c), D, floor) for c in src]
@@ -71,7 +88,10 @@ def rounds(frames, held, Y, variant, seeds, score=False, floor=0.05):
             for t in transfer.TAUS:
                 loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr[t], t).mean()))
     res = dict(n_train=len(tr), n_es=len(ca), rounds=out)
-    if w is not None:
+    if isinstance(w, dict):
+        res["pseudo"] = {str(t): dict(sum=float(v.sum()), on_inf=float(v[tr.y.to_numpy(float) >= transfer.Y_INF].sum()))
+                         for t, v in w.items()}
+    elif w is not None:
         res["weights"] = dict(floor=floor, max=float(w.max()), mean=float(w.mean()), share_above_1=float((w > 1).mean()),
                               ess=float(w.sum() ** 2 / (w ** 2).sum()), sum=float(w.sum()))
     if score:
