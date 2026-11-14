@@ -1,6 +1,6 @@
 ---
 kind: polish
-subjects: [wall-framing-takeoff, service-load-check, platform/pages]
+subjects: [wall-framing-takeoff, service-load-check, pages]
 date: 2026-11-14
 tagged: auto
 ---
