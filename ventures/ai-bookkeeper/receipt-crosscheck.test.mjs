@@ -112,3 +112,54 @@ test("with four readings the total printed on a total line by most readings wins
   // a tie goes to the earlier reading
   assert.equal(parseReceiptPasses(["Total 12.00", "Total 13.00", "Total 13.00", "Total 12.00"]).cents, 1200);
 });
+
+// --four-pass (CLI): the photo twice, then an ImageMagick grey copy at 2,000 px twice.
+test("--four-pass reads a small photo four times, a big one twice, and skips the copy without ImageMagick", async () => {
+  const { receiptPassesFromFile } = await import("./ocr.mjs");
+  const mk = (w, h, { magick = true } = {}) => {
+    const calls = [];
+    const run = (cmd, args) => {
+      calls.push([cmd, ...args].join(" "));
+      if (cmd === "magick") return { error: new Error("ENOENT") }; // ImageMagick 6: identify and convert only
+      if (cmd === "identify") return magick ? { status: 0, stdout: `${w} ${h}` } : { error: new Error("ENOENT") };
+      if (cmd === "convert") return magick ? { status: 0, stdout: "" } : { error: new Error("ENOENT") };
+      return { status: 0, stdout: "KEDAI MAJU\nTotal 34.00" };
+    };
+    return { run, calls };
+  };
+  const small = mk(750, 1000);
+  const t = receiptPassesFromFile("slip.jpg", { run: small.run, env: {}, grow: 2000 });
+  assert.equal(t.length, 4);
+  const ocr = small.calls.filter((c) => c.startsWith("tesseract"));
+  assert.equal(ocr.length, 4);
+  assert.match(ocr[2], /grey\.png stdout --psm 6$/);
+  assert.match(ocr[3], /grey\.png stdout --psm 4$/);
+  assert.ok(small.calls.some((c) => /^convert slip\.jpg\[0\] -colorspace Gray -resize 2000x2000 .*grey\.png$/.test(c)));
+  // already 2,000 px on the long side: two readings, no copy
+  const big = mk(3000, 4000);
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: big.run, env: {}, grow: 2000 }).length, 2);
+  assert.ok(!big.calls.some((c) => c.startsWith("convert")));
+  // no ImageMagick: two readings, no error
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: mk(750, 1000, { magick: false }).run, env: {}, grow: 2000 }).length, 2);
+  // without grow, as before
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: mk(750, 1000).run, env: {} }).length, 2);
+});
+
+test("a photo tesseract cannot open is read again from an ImageMagick PNG copy; a missing tesseract still says how to get it", async () => {
+  const { receiptTextFromFile } = await import("./ocr.mjs");
+  const calls = [];
+  const run = (cmd, args) => {
+    calls.push([cmd, ...args].join(" "));
+    if (cmd === "magick") return { error: new Error("ENOENT") };
+    if (cmd === "identify") return { status: 0, stdout: "4961 7016" };
+    if (cmd === "convert") return { status: 0, stdout: "" };
+    // the damaged JPEG fails, its PNG copy reads
+    return args[0].endsWith(".png") ? { status: 0, stdout: "AEON CO.\nTotal 12.00" } : { status: 1, stdout: "", stderr: "Error in pixReadStream: jpeg: no pix returned\nError during processing." };
+  };
+  assert.equal(receiptTextFromFile("427.jpg", { run, env: {} }), "AEON CO.\nTotal 12.00");
+  assert.ok(calls.some((c) => /^convert 427\.jpg\[0\] .*copy\.png$/.test(c)));
+  // no ImageMagick either: the tesseract failure is reported, not "tesseract is needed"
+  const bare = (cmd) => (cmd === "tesseract" ? { status: 1, stdout: "", stderr: "Error during processing." } : { error: new Error("ENOENT") });
+  assert.throws(() => receiptTextFromFile("427.jpg", { run: bare, env: {} }), /tesseract failed: Error during processing/);
+  assert.throws(() => receiptTextFromFile("427.jpg", { run: () => ({ error: new Error("ENOENT") }), env: {} }), /tesseract-ocr/);
+});
