@@ -3,7 +3,7 @@ title: "Samsung raw files, and a filter tag that lies"
 seo_title: "Reading Samsung NX SRW raw files directly, checked against LibRaw"
 date: 2026-11-14
 tags: [photography, raw, samsung, nx1, srw, open-source, photo-editing]
-description: "ShootFlow now develops Samsung NX SRW files itself. On four real bodies all 90 million stored sensels match LibRaw, and two of the four files get their own colour filter layout wrong."
+description: "ShootFlow now develops Samsung NX SRW files itself: all 90 million sensels on four bodies match LibRaw, and two files get their own filter layout wrong."
 ---
 
 ShootFlow, the open-source photo workflow in this repository, develops raw files into 16-bit masters. As of today it read DNG and the raw formats of Canon, Sony, Nikon, Olympus and Panasonic. Samsung NX shooters still had to send every file through Adobe's DNG Converter first. Now `shootflow develop SAM_0001.SRW --dcp FOLDER` reads the SRW itself, and so does the overnight pipeline's grade stage.
