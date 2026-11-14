@@ -1681,8 +1681,8 @@ weights were chosen, so this is a second held-out check.
 
 Not measured: CORD's phone photos with four readings (Hugging Face, where
 they are fetched from, did not answer from this session); full-size 12
-megapixel phone photos; the CLI (it calls the tesseract binary and still reads
-twice). Reproduce: `node eval/srd-fetch.mjs <photos>`, `node
+megapixel phone photos. The CLI reads four times with `--four-pass` since
+2026-11-14 (next section). Reproduce: `node eval/srd-fetch.mjs <photos>`, `node
 eval/sroie-tesseractjs.mjs <photos> <ocr> <node_modules>`, `node
 eval/srd-canvas-grow.mjs <photos> <grown>`, `node eval/sroie-tesseractjs.mjs
 <grown> <ocr2> <node_modules>`, then `node eval/cord-receipts.mjs
@@ -1691,6 +1691,51 @@ eval/srd/labels.jsonl --ocr <ocr>/psm6,<ocr>/psm4,<ocr2>/psm6,<ocr2>/psm4
 `photoocr.test.mjs` (11), `receipt-crosscheck.test.mjs` (12, text written
 here); `node eval/photo-ocr-browser.mjs` shows four readings in headless
 Chromium (6/6).
+
+### The CLI reads a photo four times too (2026-11-14)
+
+The page's four readings and vote ("US receipt photos" above) were the page's
+alone: the CLI, which calls the tesseract binary, still read a photo at most twice.
+`receipts photo.jpg --four-pass` now does what the page does: tesseract `--psm 6`
+and `--psm 4` on the photo, then on a grey copy enlarged so its long side is
+2,000 pixels (ImageMagick: `-colorspace Gray -resize 2000x2000`, `greyCopyFile` in
+`ocr.mjs`), and `parseReceiptPasses` votes. A photo already 2,000 pixels or more is
+read twice; with no ImageMagick on the machine it is read twice and nothing fails.
+The vote's weights are unchanged (chosen on the page's even-numbered SRD photos);
+nothing was tuned on this run.
+
+Measured with the tesseract 5.3.4 binary (Ubuntu's `tesseract-ocr`), one thread per
+process, labels as above (`eval/srd-cli.mjs` writes the four readings,
+`eval/cord-receipts.mjs` and `eval/sroie-receipts.mjs` score them):
+
+| totals right | one reading (`--psm 6`) | `--two-pass` | `--four-pass` |
+|---|---|---|---|
+| SRD US photos, all 196 | 112 (57.1%) | 113 (57.7%) | **131 (66.8%)** |
+| SRD even half (where the vote's weights were chosen) | | 55 of 99 | 65 of 99 |
+| SRD odd half (held out) | | 58 of 97 (59.8%) | **66 of 97 (68.0%)** |
+| SROIE scans, 625 (434 get a grey copy) | 484 (77.4%) | 492 (78.7%) | **503 (80.5%)** |
+
+On SRD, wrong totals fall from 76 to 62 and missing ones from 7 to 3. On SROIE,
+wrong falls from 126 to 115; merchant and date are the same reading as before (one
+merchant another reading found is wrong). The native binary lands within two points
+of the page's tesseract.js on the same photos (page: 68.4% SRD, 83.4% SROIE): the
+engines differ, not the reader. Tax on SRD is unchanged (73 to 74 of 185): the tax
+line is lost with the total line.
+
+**A damaged JPEG no longer stops the CLI.** SROIE scan 427 is a 4961 x 7016 JPEG with
+a bad Huffman code; tesseract's image library refuses it ("jpeg: no pix returned")
+and the CLI used to stop with "tesseract is needed", which was wrong. ImageMagick
+salvages it, so a photo tesseract cannot open is now read again from a PNG copy
+(`imageCopyFile`), and if that fails too the error quotes tesseract's own message.
+
+Cost: four tesseract runs instead of two on a small photo, about 2.6 s on four cores
+for a 750 x 1000 photo. `--two-pass` and the default single reading are unchanged.
+Reproduce: `node eval/srd-fetch.mjs <photos>`, `node eval/srd-cli.mjs <photos> <out>
+[k/n]` (shards for parallel runs; set `OMP_THREAD_LIMIT=1`), then `node
+eval/cord-receipts.mjs eval/srd/labels.jsonl --ocr <out>/psm6,<out>/psm4,<out>/g6,<out>/g4`;
+for SROIE point `eval/srd-cli.mjs` at `<clone>/data/img` and score with `node
+eval/sroie-receipts.mjs <clone>/data --ocr` and the same four folders. Tests:
+`receipt-crosscheck.test.mjs` (14, two new: the four-pass calls and the damaged-JPEG retry).
 
 ## Budget against actual
 

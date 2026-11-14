@@ -144,3 +144,22 @@ test("--four-pass reads a small photo four times, a big one twice, and skips the
   // without grow, as before
   assert.equal(receiptPassesFromFile("slip.jpg", { run: mk(750, 1000).run, env: {} }).length, 2);
 });
+
+test("a photo tesseract cannot open is read again from an ImageMagick PNG copy; a missing tesseract still says how to get it", async () => {
+  const { receiptTextFromFile } = await import("./ocr.mjs");
+  const calls = [];
+  const run = (cmd, args) => {
+    calls.push([cmd, ...args].join(" "));
+    if (cmd === "magick") return { error: new Error("ENOENT") };
+    if (cmd === "identify") return { status: 0, stdout: "4961 7016" };
+    if (cmd === "convert") return { status: 0, stdout: "" };
+    // the damaged JPEG fails, its PNG copy reads
+    return args[0].endsWith(".png") ? { status: 0, stdout: "AEON CO.\nTotal 12.00" } : { status: 1, stdout: "", stderr: "Error in pixReadStream: jpeg: no pix returned\nError during processing." };
+  };
+  assert.equal(receiptTextFromFile("427.jpg", { run, env: {} }), "AEON CO.\nTotal 12.00");
+  assert.ok(calls.some((c) => /^convert 427\.jpg\[0\] .*copy\.png$/.test(c)));
+  // no ImageMagick either: the tesseract failure is reported, not "tesseract is needed"
+  const bare = (cmd) => (cmd === "tesseract" ? { status: 1, stdout: "", stderr: "Error during processing." } : { error: new Error("ENOENT") });
+  assert.throws(() => receiptTextFromFile("427.jpg", { run: bare, env: {} }), /tesseract failed: Error during processing/);
+  assert.throws(() => receiptTextFromFile("427.jpg", { run: () => ({ error: new Error("ENOENT") }), env: {} }), /tesseract-ocr/);
+});

@@ -17,7 +17,7 @@ export { cleanOcr };
 const DEFAULT_OCR = "tesseract {file} stdout --psm 6";
 const IMAGE = new Set([".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp", ".gif"]);
 
-export function receiptTextFromFile(path, { run = spawnSync, env = process.env } = {}) {
+export function receiptTextFromFile(path, { run = spawnSync, env = process.env, retried = false } = {}) {
   const ext = extname(path).toLowerCase();
   if (ext === ".pdf") {
     const r = run("pdftotext", ["-layout", path, "-"], { encoding: "utf8" });
@@ -32,8 +32,14 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env }
     const cmd = (env.RECEIPT_OCR_CMD || DEFAULT_OCR).split(/\s+/);
     const args = cmd.slice(1).map((a) => (a === "{file}" ? path : a));
     if (!cmd.slice(1).includes("{file}")) args.push(path);
-    const r = run(cmd[0], args, { encoding: "utf8" });
-    if (r.error || r.status !== 0) throw new Error(`could not read ${path} as an image: ${cmd[0]} is needed (install tesseract-ocr, or set RECEIPT_OCR_CMD to a command that prints the text)`);
+    let r = run(cmd[0], args, { encoding: "utf8" });
+    // a damaged JPEG (one of SROIE's 626 scans) that tesseract's image library refuses
+    // but ImageMagick salvages is read again as a PNG copy
+    if (!r.error && r.status !== 0 && !retried) {
+      const copy = imageCopyFile(path, run);
+      if (copy) try { return receiptTextFromFile(copy.file, { run, env, retried: true }); } catch {} finally { copy.done(); }
+    }
+    if (r.error || r.status !== 0) throw new Error(`could not read ${path} as an image: ${r.error ? `${cmd[0]} is needed (install tesseract-ocr, or set RECEIPT_OCR_CMD to a command that prints the text)` : `${cmd[0]} failed${r.stderr ? `: ${String(r.stderr).trim().split("\n").pop().slice(0, 120)}` : ""}`}`);
     return cleanOcr(r.stdout);
   }
   return readFileSync(path, "utf8");
@@ -72,15 +78,30 @@ export function receiptPassesFromFile(path, { run = spawnSync, env = process.env
 // grey, enlarged so the long side is `side` pixels. Null when the photo is already
 // that big, or when ImageMagick (`magick`, or the older `convert`) is not there.
 export function greyCopyFile(path, side, run = spawnSync) {
-  let tool = null, size = null;
-  for (const t of [["magick", ["identify"]], ["identify", []]]) {
-    const r = run(t[0], [...t[1], "-format", "%w %h", `${path}[0]`], { encoding: "utf8" });
-    if (!r.error && r.status === 0 && /^\d+ \d+/.test(String(r.stdout).trim())) { tool = t[0] === "magick" ? ["magick", []] : ["convert", []]; size = String(r.stdout).trim().split(/\s+/).map(Number); break; }
+  const size = imageSize(path, run);
+  if (!size || Math.max(size.w, size.h) >= side) return null;
+  return magickCopy(path, ["-colorspace", "Gray", "-resize", `${side}x${side}`], "grey.png", size.tool, run);
+}
+
+// A plain PNG copy of a photo, made by ImageMagick; null without it.
+export function imageCopyFile(path, run = spawnSync) {
+  const size = imageSize(path, run);
+  return size ? magickCopy(path, [], "copy.png", size.tool, run) : null;
+}
+
+function imageSize(path, run) {
+  for (const [cmd, pre, tool] of [["magick", ["identify"], "magick"], ["identify", [], "convert"]]) {
+    const r = run(cmd, [...pre, "-format", "%w %h", `${path}[0]`], { encoding: "utf8" });
+    const m = !r.error && r.status === 0 && String(r.stdout).trim().match(/^(\d+) (\d+)/);
+    if (m) return { w: +m[1], h: +m[2], tool };
   }
-  if (!tool || Math.max(...size) >= side) return null;
+  return null;
+}
+
+function magickCopy(path, ops, name, tool, run) {
   const dir = mkdtempSync(join(tmpdir(), "receipt-"));
-  const file = join(dir, "grey.png");
-  const r = run(tool[0], [...tool[1], `${path}[0]`, "-colorspace", "Gray", "-resize", `${side}x${side}`, file], { encoding: "utf8" });
+  const file = join(dir, name);
+  const r = run(tool, [`${path}[0]`, ...ops, file], { encoding: "utf8" });
   if (r.error || r.status !== 0) { rmSync(dir, { recursive: true, force: true }); return null; }
   return { file, done: () => rmSync(dir, { recursive: true, force: true }) };
 }
