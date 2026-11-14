@@ -64,12 +64,12 @@ def matrix(d, shape):
     return M
 
 
-def design_params(x, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, tau_ff=None, ki_scale=1.0):
-    """Unit-cube designs (N,12 or 13) -> the nominal quantities `step` needs, as in `poshold.score`."""
+def design_params(x, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, tau_ff=None, ki_scale=1.0, twr=None):
+    """Unit-cube designs (N,12 or 13) -> the nominal quantities `step` needs, as in `poshold.score` (twr as there, milestone 7h)."""
     x = np.atleast_2d(np.asarray(x, float))
     L = A.L_RANGE[0] + x[:, 0] * (A.L_RANGE[1] - A.L_RANGE[0])
     D = A.D_RANGE[0] + x[:, 1] * (A.D_RANGE[1] - A.D_RANGE[0])
-    sz = A.size(L, D, alpha_max * np.clip(x[:, 2], 0, 1), kappa_per_d=kappa_per_d, actuator="hover")
+    sz = A.size(L, D, alpha_max * np.clip(x[:, 2], 0, 1), kappa_per_d=kappa_per_d, twr=twr, actuator="hover")
     g = P.phys_gains(x[:, 3:12])
     if tau_ff is None:
         tau_ff = P.TAU_FF_RANGE[0] * (P.TAU_FF_RANGE[1] / P.TAU_FF_RANGE[0]) ** np.clip(x[:, 12], 0, 1) if x.shape[1] == 13 else P.TAU_FF
