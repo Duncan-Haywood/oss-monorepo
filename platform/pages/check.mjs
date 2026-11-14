@@ -38,6 +38,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { SITE_COUNT_PAGES, ungroupedCounts } from './count.mjs';
 import { checkPageIdentity, loadPages } from './page-identity.mjs';
+import { doubleEscapedInChrome } from './entities.mjs';
 import { mapLimit } from './share.mjs';
 import { servedPath } from './served-path.mjs';
 
@@ -1107,6 +1108,21 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         seen.add(problem);
         problems.push(`${relative}: ${problem}`);
       }
+    }
+  }
+
+  // ---- Entities escaped twice in menus, titles and headings ----------------
+  //
+  // `&amp;rsquo;` shows a visitor the literal text "&rsquo;". The custom-
+  // development direction picker printed 50 such choices until 2026-11-14,
+  // because research titles arrive as HTML and were escaped again. Prose is
+  // left alone: posts about entities show them on purpose.
+  for (const relative of servedPages) {
+    const html = await readPage(relative);
+    if (!html.includes('&amp;')) continue;
+    const found = doubleEscapedInChrome(html);
+    if (found.length) {
+      problems.push(`${relative}: entity escaped twice in a menu, title or heading (decode authored HTML before escapeHtml): ${found.slice(0, 5).join(' ')}`);
     }
   }
 
