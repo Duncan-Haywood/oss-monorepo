@@ -1,0 +1,15 @@
+Milestone 7j post hoc: physical gains (attitude kp, kd, ki: shares of the torque limit per rad, rad/s, rad s; position kp 1/s^2, kd 1/s, ki 1/s^3),
+mean over 6 seeds per set; rho = Spearman rank correlation, over the 24 designs of a geometry, of the gain with base deaths at lever 0, 45 deg.
+
+[above, 7e] att kp 2.13; att kd 0.174; att ki 7.79; pos kp 9.98; pos kd 3.99; pos ki 0.137; deaths [0, 0, 0, 0, 0, 0]
+[above, 7h free] att kp 2.33; att kd 0.186; att ki 7.9; pos kp 9.99; pos kd 4.09; pos ki 0.6; deaths [4, 2, 0, 0, 2, 1]
+[above, aware TWR=2.0] att kp 2.14; att kd 0.171; att ki 7.45; pos kp 9.99; pos kd 3.96; pos ki 0.573; deaths [1, 0, 1, 0, 1, 0]
+[above, aware TWR free] att kp 2.41; att kd 0.188; att ki 9.03; pos kp 9.99; pos kd 3.97; pos ki 0.342; deaths [3, 0, 1, 0, 7, 1]
+  rho over 24 designs: att kp +0.57; att kd +0.28; att ki +0.32; pos kp +0.30; pos kd -0.30; pos ki +0.08
+
+[below, 7e] att kp 1.64; att kd 0.0989; att ki 0.273; pos kp 9.98; pos kd 4.31; pos ki 0.376; deaths [0, 1, 0, 0, 0, 0]
+[below, 7h free] att kp 1.58; att kd 0.0984; att ki 0.269; pos kp 10; pos kd 4.3; pos ki 0.414; deaths [0, 2, 0, 0, 0, 0]
+[below, aware TWR=2.0] att kp 1.75; att kd 0.129; att ki 2.85; pos kp 9.99; pos kd 4.14; pos ki 0.619; deaths [0, 0, 0, 0, 0, 0]
+[below, aware TWR free] att kp 1.72; att kd 0.121; att ki 2.73; pos kp 10; pos kd 4.14; pos ki 0.547; deaths [0, 0, 0, 0, 0, 0]
+  rho over 24 designs: att kp +0.36; att kd +0.64; att ki +0.72; pos kp +0.25; pos kd -0.32; pos ki +0.21
+
