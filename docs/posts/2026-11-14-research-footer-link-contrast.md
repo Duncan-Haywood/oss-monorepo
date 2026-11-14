@@ -3,7 +3,7 @@ title: "One footer link, 1,111 research pages, 2.24 to 1"
 seo_title: "A footer link at 2.24:1 contrast on 1,111 research pages, fixed"
 date: 2026-11-14
 tags: [polish, accessibility, contrast, design]
-description: "The dark footer band on every research project page painted its repository link in a light-mode blue at 2.24:1. One CSS rule in the shared footer fixed all 1,111 pages."
+description: "The dark footer band on every research project page drew its repository link in a light-mode blue at 2.24:1. One CSS rule fixed all 1,111 pages."
 ---
 
 Every site-owned page on [marisstella.app](/) ends in the same dark footer band. The band redefines the page's colour tokens so the links in it come out light blue (#a8c7f0 on #0b1626, about 10 to 1).
