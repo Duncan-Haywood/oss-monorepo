@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVLSkPKp8hwTzPU3194",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (owner's standing ventures brief).",
+  "input_sha256": "96b8dcee141c192cf0d3c5dca049bcda7e21033d35a006d95939179bf11dedc7",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T03:56:05Z",
+  "ended": "2026-11-14T04:08:32Z",
+  "wall_minutes": 12.91,
+  "tokens_in": 8136049,
+  "tokens_out": 51583,
+  "cost_usd": 3.8342,
+  "tool_calls": 64,
+  "task": "ai-bookkeeper: deferred (unearned) revenue register, waterfall, cancellations, page card and guide page",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15718",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    "eval/browser-click.mjs: first dialog handler pair threw 'Cannot dismiss dialog which is already handled' (page.once plus page.on both fired); replaced with one queued handler.",
+    "index.html: the page imports engine's confirm(), shadowing window.confirm; the new cancel button used window.prompt and the existing confirm_ helper instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Another session claimed ai-bookkeeper one minute earlier with a bare 'claim (WIP)' PR (#15717) naming no item, so the check could not tell whether our items overlapped; a claim title naming the item would let two sessions share a large venture."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's next: lists only items needing real outside inputs (bank exports, state sites the proxy refuses, real payroll reports), with no BUILDABLE note; a run has to look outside the list for buildable depth."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/browser-click.mjs",
+      "issue": "Six checks fail on main before this change (bill-pay plan, VAT boxes 6/7, reminder row); not caused by this PR, left for a quality run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "It said YIELD to #15717 (claimed 1 min earlier). That PR named no item; this run's item (a new deferred-revenue module) is outside the flagship next: list, in a new file, so the overlap risk was small.",
+      "did": "Kept the item, kept edits to shared files (cli.mjs, engine.mjs, index.html, README) to additive blocks.",
+      "result": "Landed; any merge conflict with #15717 is additive and easy to resolve."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Deepen a flagship's next: milestone by default; every ai-bookkeeper next: item needs a real input or a refused host.",
+      "did": "Built a missing core bookkeeping feature (deferred revenue, the mirror of the existing prepaid register) with depth, a guide page and post, and did not rewrite next: since no listed item landed.",
+      "result": "Feature shipped with 16 tests and a browser click-through."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-nine-thousand-collected-twenty-nine-hundred-earned.md",
+    "ventures/ai-bookkeeper/deferred-revenue-schedule.html",
+    "ventures/ai-bookkeeper/README.md (Deferred revenue section)"
+  ],
+  "goal": "Ship depth on the top flagship toward a product subscription businesses would use and pay for support on.",
+  "notes": "Verification: node --test '*.test.mjs' in ventures/ai-bookkeeper: 2556 pass, 0 fail (15 new in deferred.test.mjs plus the guide-page pin). eval/browser-click.mjs: the 5 new deferred checks pass; 2 unrelated checks fail on this branch and 6 on main (pre-existing). venture-preflight run in the background; result in the PR body. Worked example (synthetic): $9,000.00 collected, $2,890.49 earned by 2026-06-30, $6,109.51 unearned, $4,047.67 current, $2,061.84 long term.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "67321450-5ceb-567f-ac86-a9cf675f2e13",
+    "transcripts": 1,
+    "first": "2026-11-14T03:56:05Z",
+    "last": "2026-11-14T04:09:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 123,
+        "output": 51583,
+        "thinking": 7260,
+        "cache_read": 7985298,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150628,
+        "api_equivalent_usd": 3.8342,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 123,
+      "output": 51583,
+      "thinking": 7260,
+      "cache_read": 7985298,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150628,
+      "api_equivalent_usd": 3.8342,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 59,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.91,
+      "active_minutes": 12.91,
+      "model_minutes": 9.13,
+      "tool_minutes": 3.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a developer designing and testing a deferred-revenue module, CLI, page card and guide page in an existing ledger codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 260.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
