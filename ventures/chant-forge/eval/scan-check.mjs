@@ -1,4 +1,7 @@
-// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--manifest FILE]
+// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--no-stroke-top] [--manifest FILE]
+//
+// --no-stroke-top reads a cut-short porrectus stroke as before 2026-11-14
+// (readStaff's { strokeTop: false }; eval/porrectus-top-check.md).
 //
 // --manifest reads another list of pieces in scan-pages.json's format (e.g.
 // eval/offfinal-supplement-pages.json) instead of scan-pages.json.
@@ -29,7 +32,7 @@ const cache = opt('--cache', join(tmpdir(), 'chant-forge-scans'));
 const only = opt('--only', null);
 const out = opt('--out', join(here, 'scan-check-report.md'));
 const trials = Number(opt('--trials', 200));
-const readOpts = args.includes('--no-deskew') ? { deskew: false } : {};
+const readOpts = { ...(args.includes('--no-deskew') ? { deskew: false } : {}), ...(args.includes('--no-stroke-top') ? { strokeTop: false } : {}) };
 mkdirSync(cache, { recursive: true });
 
 const NAMES = 'abcdefghijklm';

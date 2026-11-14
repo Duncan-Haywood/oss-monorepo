@@ -1025,8 +1025,28 @@ three such notes in pieces scanned earlier:
 A looser end-width cap gained no liquescent on the 50 earlier pieces and added false calls, so the
 rule is unchanged. Two of the three misses are a one-step hook whose small note sits on a staff line;
 the third is a print fleck. The scan note check on the twelve new pieces: 2,030 notes agree with the
-book, 5 differ, not yet looked at. Details: `eval/porrectus-liquescent-check.md`; run
+book, 5 differ (looked at below). Details: `eval/porrectus-liquescent-check.md`; run
 `node eval/porrectus-liquescent-check.mjs`.
+
+### Porrectus tops, and one more transcription slip (2026-11-14, latest)
+
+The five differences above were each looked at on the scan. One is a slip in GregoBase 3912
+(*Hic est qui venit*, p. 472, staff 4): on "et hi tres" the book's second clivis falls a third, e to
+c, the cadence the respond sings on "aqua"; the file had e to d. It is corrected, with a
+`correction:` header pointing at the page. The other four were the reader, all one fault: the 1908
+porrectus stroke thins as it falls, its thin end drops under the head-height floor, and the 0.9-space
+piece left was read as a head at its mean height, a step below the stroke's first note. Now a head
+whose centre falls 0.4 staff spaces or more across it (`STROKE_TOP_FALL` in `scan.mjs`), with nothing
+touching it on the left, is read at its left end. If no foot follows it, its right end is read as the
+stroke's second note too. The 0.4 was picked from an unlabelled histogram of 56,646 heads on 212 pages,
+where falls between 0.35 and 0.45 are rare.
+
+Across the 74 piece checks in the eight scan lists, differences fell from 88 to 73 and agreements rose
+from 13,917 to 13,932. All fifteen were porrectus first notes, fourteen distinct places. No piece gained a
+difference, and no note was lost or added. The "nothing touching on the left" condition was added
+after the first full run showed two broken-up strokes given an extra note, so this is not a held-out
+figure. `node eval/scan-check.mjs --no-stroke-top` reads as before. Details:
+`eval/porrectus-top-check.md`.
 
 ## Not checked yet
 

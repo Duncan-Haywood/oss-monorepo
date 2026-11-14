@@ -219,7 +219,8 @@ function staffExtent(bin, lines) {
 // Heads on one staff. Returns [{x, y, pos}] in reading order, where pos is
 // the staff position counted in steps from the bottom line (0 = bottom
 // line, 1 = first space, 2 = second line, ...).
-export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
+export const STROKE_TOP_FALL = 0.4;
+export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const y0 = Math.max(0, Math.round(staff.top - 2.1 * s));
@@ -279,7 +280,9 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
         const k = Math.max(2, Math.round(0.15 * s));
         feat.fall = (mean(h.cs.slice(-k)) - mean(h.cs.slice(0, k))) / s;
       }
-      out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c), feat });
+      const k2 = Math.max(2, Math.round(0.15 * s));
+      const ends = { a: mean(h.cs.slice(0, k2)), b: mean(h.cs.slice(-k2)) };
+      out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c), feat, ends });
       continue;
     }
     // a porrectus stroke: wide, and its ends a step or more apart. Its
@@ -302,6 +305,34 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     if (!o.feat) continue;
     o.feat.afterStroke = out.some((t) => t !== o && t.x0 < o.x0 && t.x1 - t.x0 + 1 > 0.8 * s && o.x0 - t.x1 <= 0.2 * s && Math.abs(t.y - o.y) <= 0.8 * s);
   }
+  // The top of a porrectus stroke cut short (eval/porrectus-top-check.md).
+  // The stroke thins towards its lower end, and where its columns fall under
+  // the head-height cut (minH) the piece stops. What is left can be narrower
+  // than 1.2 spaces, so it was read as one head at its mean height: half way
+  // down the fall, a step below the stroke's first note. A head whose centre
+  // falls STROKE_TOP_FALL spaces or more from its left end to its right, and
+  // that does not continue a stroke or touch another piece on its left, is
+  // read at its left end. If
+  // no head starts just after it below its right end (the stroke's foot, read
+  // as its own piece), its right end is the stroke's second note.
+  const extra = [];
+  for (const o of out) {
+    if (!strokeTop || !o.feat || o.feat.afterStroke || !(o.feat.fall >= STROKE_TOP_FALL)) continue;
+    // a stroke's top follows its stem; a piece touching another on its left
+    // is the middle of a stroke the reader broke into several pieces
+    if (out.some((t) => t !== o && t.x0 < o.x0 && t.x1 >= o.x0 - 0.2 * s && Math.abs(t.y - o.y) <= 1.2 * s)) continue;
+    const foot = out.some((t) => t !== o && t.x0 > o.x0 && t.x0 - o.x1 <= 0.3 * s && t.y > o.ends.b);
+    const e = Math.round(0.5 * s);
+    if (!foot) {
+      extra.push({ x: o.x1 - e / 2, x0: o.x1 - e, x1: o.x1, y: o.ends.b, pos: posOf(o.ends.b), strokeEnd: true });
+      o.x1 = Math.min(o.x1, o.x0 + e);
+      o.x = (o.x0 + o.x1) / 2;
+    }
+    o.y = o.ends.a;
+    o.pos = posOf(o.ends.a);
+    o.strokeTop = true;
+  }
+  out.push(...extra);
   // a liquescent's small note hangs off its head on a short stem
   // (liquescentTail); it is kept on the head and read after it (readPage)
   for (const o of out) {

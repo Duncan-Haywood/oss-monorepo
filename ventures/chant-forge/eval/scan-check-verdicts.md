@@ -43,6 +43,8 @@ none.
 | Dies irae (earlier versions) | porrectus places such as "tur, (ecd)", "bit (igh)" | first note off by the stroke | the slanted stroke runs from the first note down to the second, as the GABC says | reader (fixed: the stroke's ends are now read as its two notes) |
 | GregoBase 3403 | leaf 513, staff 5, "su-is" | GABC h, scan g | podatus e-f, then a porrectus h-f-h: `(ef/hfh)` as printed | reader (the stroke's end read a step low) |
 | Salve Regina | p. 57, staff 3 ("flentes in hac lacrimárum valle") and staff 6 ("O clemens: O pia") | 9 notes the reader did not find | rhombi, a porrectus, liquescents and two quilismas, each where the GABC has them | GABC right |
+| GregoBase 3912 (2026-11-14) | p. 472 (leaf 498), staff 4, "et hi tres" | GABC `tres(feed...)`, scan c for the second d | the second clivis falls a third, its lower head under the bottom line; the respond's `a(hf/gh!ivFE)qua(feec)` is the same figure | **transcription error; corrected to `tres(feec//efe/f!hh)` in `corpus/gregobase-1908-checked/3912.gabc`** |
+| GregoBase 3486, 3949 (2026-11-14) | p. [46] staves 4 and 6; leaf 563 staff 5 | four porrectus first notes, scan a step low | each stroke starts where the GABC says | reader (fixed: a cut-short stroke top is read at its left end, `eval/porrectus-top-check.md`) |
 
 Notes the reader did not find elsewhere (9 in Dies irae, 4 in the Te Deum, 70
 across the off-final pieces) were not all looked at. They are mostly rhombi,

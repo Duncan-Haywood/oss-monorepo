@@ -19,7 +19,7 @@ check would catch.
 | GregoBase 3419 (middle, p. [157]) | Graduale Romanum, Vatican 1908 | [157] | 33 | 33 | 0 | 0 | 0 | 100.0% of 33 GABC notes | 197 of 200 |
 | GregoBase 3419 (off-final ending, Gaudeamus pp. 486-487) | Graduale Romanum, Vatican 1908 | 486, 487 | 360 | 165 | 0 | 43 | 0 | 79.3% of 208 GABC notes | 197 of 200 |
 | GregoBase 3427 (off-final ending, p. [161]) | Graduale Romanum, Vatican 1908 | leaf 744, leaf 745, [161], leaf 747 | 1291 | 169 | 0 | 13 | 0 | 92.9% of 182 GABC notes | 193 of 200 |
-| GregoBase 3451 (off-final ending, p. [161]) | Graduale Romanum, Vatican 1908 | leaf 744, leaf 745, [161], leaf 747 | 1291 | 325 | 1 | 6 | 0 | 97.9% of 332 GABC notes | 199 of 200 |
+| GregoBase 3451 (off-final ending, p. [161]) | Graduale Romanum, Vatican 1908 | leaf 744, leaf 745, [161], leaf 747 | 1291 | 326 | 0 | 6 | 0 | 98.2% of 332 GABC notes | 200 of 200 |
 
 ## GregoBase 3402 (off-final ending, p. [167])
 
@@ -122,7 +122,6 @@ Ending, GABC/scan (· = not read or not on these pages): h/h g/g f/f g/g h/h f/f
 
 | syllable | GABC group | GABC note | scan | where |
 |---|---|---|---|---|
-| lén | hfg/hvFEge/fg | h | g | p. [161] (leaf 746), staff 5, x 815 |
 | lén | hfg/hvFEge/fg | e | - | not read; near p. [161] (leaf 746), staff 5, x 908 |
 | au | hiHF | h | - | not read; near p. [161] (leaf 746), staff 6, x 843 |
 | au | hiHF | f | - | not read; near p. [161] (leaf 746), staff 6, x 957 |
