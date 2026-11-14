@@ -22,6 +22,7 @@ KEEP64 = [(0.25, 64, s) for s in range(6)]  # 6n: second keep level at H = 64, s
 KEEP8 = [(0.125, 64, s) for s in range(4)]  # 6o: third keep level (omega 7) at H = 64, seeds 0 to 3, paired with uncompressed seeds 0 to 3
 KEEP12 = [(1 / 12, 64, s) for s in range(4)]  # 6q: fourth keep level (omega 11) at H = 64, seeds 0 to 3
 KEEP32 = [(1 / 32, 64, s) for s in range(4)]  # 6r: fifth keep level (omega 31) at H = 64, seeds 0 to 3
+KNEE16 = [(k, 16, s) for k in (0.125, 1 / 32) for s in range(4)] + [(0.25, 16, s) for s in (2, 3)]  # 6s: does the knee move with H? H = 16, omega 7 and 31, seeds 0 to 3; omega 3 seeds 2, 3
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 omega = lambda p: 1 / p - 1
 
@@ -143,6 +144,8 @@ if __name__ == "__main__":
         jobs = [j for j in KEEP12 if j not in have]
     if len(sys.argv) > 2 and sys.argv[2] == "keep32":
         jobs = [j for j in KEEP32 if j not in have]
+    if len(sys.argv) > 2 and sys.argv[2] == "knee16":
+        jobs = [j for j in KNEE16 if j not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)
