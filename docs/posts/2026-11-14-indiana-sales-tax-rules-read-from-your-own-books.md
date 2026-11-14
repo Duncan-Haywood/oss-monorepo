@@ -1,8 +1,8 @@
 ---
 title: "Indiana's sales tax rules look at your last year, so the worksheet reads it from your books"
-seo_title: "Indiana collection allowance and sales tax due date from your own books"
+seo_title: "Indiana sales tax allowance and due date, worked out from your books"
 date: 2026-11-14
-description: "Indiana's collection allowance (0.73%, 0.53% or 0.26%) and its 20th-or-30th due day both depend on your own past tax. The free bookkeeper's sales tax worksheet now works both out from the book, plus Arkansas's 2% and five more states read on their own texts."
+description: "Indiana's collection allowance and 20th-or-30th due day depend on your past tax, so the free bookkeeper now works both out from your books."
 tags: [sales-tax, bookkeeping, indiana, arkansas, small-business]
 ---
 
