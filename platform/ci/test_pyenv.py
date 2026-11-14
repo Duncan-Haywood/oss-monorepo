@@ -242,6 +242,34 @@ class T(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertTrue(out.getvalue().strip())
 
+    def test_split_command_at_double_dash(self):
+        self.assertEqual(pyenv.split_command(["numpy", "--", "-m", "pytest", "-x"]),
+                         (["numpy"], ["-m", "pytest", "-x"]))
+        self.assertEqual(pyenv.split_command(["numpy"]), (["numpy"], None))
+        self.assertEqual(pyenv.split_command(["--", "-"]), ([], ["-"]))
+
+    def test_main_runs_the_command_with_the_interpreter_it_found(self):
+        import io, contextlib
+        calls = []
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            rc = pyenv.main(["json", "--", "-c", "print(1)"],
+                            execv=lambda py, args: calls.append((py, args)))
+        self.assertEqual(rc, 0)
+        self.assertEqual(len(calls), 1)
+        py, args = calls[0]
+        self.assertEqual(args, [py, "-c", "print(1)"])
+        self.assertEqual(out.getvalue(), "")  # no path on stdout: the command owns it
+
+    def test_command_mode_end_to_end_keeps_stdin_and_exit_code(self):
+        import subprocess
+        here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pyenv.py")
+        done = subprocess.run([sys.executable, here, "json", "--", "-"],
+                              input=b"import json, sys\nprint(json.dumps([1]))\nsys.exit(3)\n",
+                              capture_output=True, timeout=120)
+        self.assertEqual(done.stdout.decode().strip(), "[1]")
+        self.assertEqual(done.returncode, 3)
+
     def test_real_interpreter_imports_stdlib(self):
         self.assertTrue(pyenv.imports(sys.executable, ["json"]))
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
