@@ -1,5 +1,18 @@
 # Research log
 
+## 2026-11-14 · V-first with IPOPT (plan, declared after the planned V-first run and before this one ran)
+- Why: the planned run (outcome entry to follow, `results_vfirst.txt`) found no reactive-stage solution on any of the six and no reduced-load AC optimum on any RTE case. Diagnostics run after it: PIPS stops "Numerically failed" after 12 iterations on case1951_rte TYP at 10 %, 30 % and 100 % of load, and on case300 TYP it fails the pinned reactive stage at &mu;* even with thermal, angle, Q and voltage limits all relaxed, where the fold point itself is feasible. So those verdicts are about PIPS, not feasibility. A second NLP solver was built: `src/infra_dcopf/ipopt_nlp.py` hands PYPOWER's unchanged AC OPF (same model, same bound-midpoint start) to IPOPT. On case14, 30, 118 and 300 it matches PIPS's objective within 1e-6 relative; on 11 of the 11 held-out cases PIPS cannot solve that have finished so far it matches PGLib's published IPOPT objective within 0.005 % (`run_ipopt_ref.py`, `results_ipopt_ref.txt`).
+- What I know before writing this: the above, and the planned V/W outcomes under PIPS. No IPOPT reactive stage or reduced-load IPOPT OPF has run on any of the six.
+- Run: `run_vfirst.py --ipopt`, arms V and W exactly as pre-registered, with every AC OPF (reactive stages, W's OPF, +R, case300's reference) on IPOPT. The continuation, the fold numbers and the frozen J-m-a (Clarabel QPs) do not touch the NLP solver and are unchanged.
+  - **I1:** the stage-1 reactive stage solves on at least 5 of 6. Prior 55 % (P is pinned to the DC dispatch, whose AC flows may break thermal limits that no voltage can fix).
+  - **I2:** where it solves, the continuation after stage 1 gains at least 0.05 on at least 75 %. Prior 60 %.
+  - **I3:** V reaches &mu; = 1 on at least 3 of 6. Prior 40 %.
+  - **I4:** V or V+R fully clean on at least 2 of 6. Prior 35 %.
+  - **I5:** every fully clean point within +1 % of its reference. Prior 60 %.
+  - **I6:** the reduced-load AC OPF solves at &mu;* on at least 5 of 6. Prior 85 %.
+  - **I7:** &mu;*<sub>W</sub> &gt; &mu;* on every case with a schedule. Prior 70 %.
+  - **I8:** W reaches &mu; = 1 on at least 2 of 6. Prior 35 %.
+
 ## 2026-11-14 · Raise the voltages first: a reactive (V, Q) pre-stage at the fold, and the reduced-load AC OPF's voltage schedule (plan, written before either ran; milestone 6's Next from the fold step, `research/grid-linopf`)
 - Why: the fold step showed the six no-power-flow cases (case300 TYP; case1888_rte TYP, API, SAD; case1951_rte TYP, SAD) are past a saddle-node at the file's voltage schedule, and that repairing P at the fold does not move it on the five RTE cases. A saddle-node's load margin rises with the voltage schedule, so the plan is to move V before P.
 - What I know before writing this: only `results_fold.txt` / `results_fold_fallback.txt` (&mu;*, &sigma;<sub>min</sub>, M stages) and milestone 6's note that PIPS finds no full AC optimum on any of the five RTE cases at full load. No reactive stage or AC OPF has run at &mu; &lt; 1 on any of the six. Smoke tests of the new script run only on case30_ieee TYP, which is not one of the six.

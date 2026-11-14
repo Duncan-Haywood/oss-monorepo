@@ -11,7 +11,10 @@ Arm W (reduced-load AC OPF schedule): the full AC OPF (PIPS) on the case scaled 
 its generator-bus voltages are V_W; the continuation of the DC dispatch from mu = 0 at V_W; at mu = 1
 the frozen 20-round J-m-a and W+R.
 
-Writes results_vfirst.json and results_vfirst.txt. Usage: run_vfirst.py [--summary] [case/kind ...]
+Writes results_vfirst.json and results_vfirst.txt. Usage: run_vfirst.py [--summary] [--ipopt] [case/kind ...]
+--ipopt (declared after the planned run, LOG.md): every AC OPF (the reactive stages, arm W's OPF, the +R
+stages and case300's reference) solved by IPOPT under PYPOWER's unchanged model (ipopt_nlp.use_ipopt), since
+PIPS fails numerically on the RTE networks at any load. Writes results_vfirst_ipopt.*.
 OMP_NUM_THREADS=1 recommended.
 """
 import json
@@ -29,6 +32,7 @@ from pypower.idx_bus import VM
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "src"))
 sys.path.insert(0, str(HERE))
+from infra_dcopf import ipopt_nlp  # noqa: E402
 from infra_dcopf.fold import newton_jacobian, sigma_min  # noqa: E402
 from infra_dcopf.pglib import baseline, case_path, fix_ref, load_m  # noqa: E402
 from infra_dcopf.vsched import ACOPT, file_schedule, opt_schedule, reactive_stage  # noqa: E402
@@ -56,10 +60,16 @@ def final_stage(ppc, pg, vg, r, out, key):
         out[key + "R"] = reactive(ppc, b)
 
 
+IPOPT = "--ipopt" in sys.argv
+
+
 def run_case(job):
     name, kind = job
     t0 = time.time()
     try:
+        if IPOPT:
+            with ipopt_nlp.use_ipopt():
+                return _run_case(name, kind, t0)
         return _run_case(name, kind, t0)
     except Exception as e:
         return {"case": name, "kind": kind, "error": f"{type(e).__name__}: {e}", "secs": time.time() - t0}
@@ -262,7 +272,8 @@ def summary(rows):
 
 
 def main():
-    jpath = HERE / "results_vfirst.json"
+    stem = "results_vfirst_ipopt" if IPOPT else "results_vfirst"
+    jpath = HERE / f"{stem}.json"
     only = [tuple(a.split("/")) for a in sys.argv[1:] if not a.startswith("--")]
     if "--summary" in sys.argv:
         rows = json.loads(jpath.read_text())
@@ -280,7 +291,7 @@ def main():
             return
         jpath.write_text(json.dumps(rows, indent=1, default=float))
     text = summary(rows)
-    (HERE / "results_vfirst.txt").write_text(text)
+    (HERE / f"{stem}.txt").write_text(text)
     print(text)
 
 
