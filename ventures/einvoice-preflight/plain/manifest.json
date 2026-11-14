@@ -219,6 +219,11 @@
       "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
       "from": "pint-om/1.0.1/selfbilling/PINT-jurisdiction-aligned-rules.xslt",
       "checks": 154
+    },
+    "cius-hr-ubl": {
+      "source": "HR-CIUS 2025 + HR extension (Porezna uprava HRUBLSchematron 13.03.2026, phive 1.0.4) via phive-rules-eracun 4.6.4 on Maven Central; reproduced with the source named, per porezna.gov.hr",
+      "from": "HR-CIUS-EXT-EN16931-UBL.xslt",
+      "checks": 73
     }
   },
   "fontoxpath": "3.34.0"

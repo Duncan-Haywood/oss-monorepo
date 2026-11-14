@@ -55,3 +55,11 @@ test("links to the German and French pages and the sitemap entry is its own url 
   assert.match(html, /href="poland-ksef-e-invoice-mandate\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*croatia-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("says which Croatian rules run, and what is still out of scope", () => {
+  assert.match(html, /HR-CIUS 2025/);
+  assert.match(html, /OIB check digits/);
+  assert.match(html, /KPD/);
+  assert.match(html, /not yet been tried on a real Croatian business's invoice/);
+  assert.doesNotMatch(html, /does not apply the Croatian national profile/);
+});

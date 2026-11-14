@@ -22,6 +22,10 @@ export const ADDONS = {
   nlcius: { source: "nlcius-schematron", match: /nen\.nl:(nlcius|gaccount)/i, plainOnly: true, files: { ubl: "nlcius-ubl.sef.json", cii: "nlcius-cii.sef.json" } },
   // Portugal's CIUS-PT (AMA / FEAP), the checks the EU base does not carry. Plain route only: build-pt-rules.mjs.
   "cius-pt": { source: "cius-pt-schematron", match: /CIUS-PT/i, plainOnly: true, files: { ubl: "cius-pt-ubl.sef.json" } },
+  // Croatia's HR-CIUS 2025 with the HR extension (Fiskalizacija 2.0, B2B since 1 January 2026):
+  // the Porezna uprava's HR-BR rules (OIB check digits, KPD classification, operator, issue
+  // time, process P1-P12). UBL only, plain route only: build-hr-rules.mjs.
+  "cius-hr": { source: "cius-hr-schematron", match: /urn:mfin\.gov\.hr:/i, plainOnly: true, files: { ubl: "cius-hr-ubl.sef.json" } },
 };
 
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
