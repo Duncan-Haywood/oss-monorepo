@@ -61,13 +61,13 @@
   clinic Zed off 2026-11-23: open h old | cg | look-ahead: plain 5/5/5/5 | 5/5/5/5 | 5/5/5/5; keep 0.1 5/5/5/5 | 5/5/5/5 | 5/5/5/5
 
 plain: 61 four-week plans
-  old  open 1086 h, pay $713903, 53.5 s, 1587 person-shift changes week to week
-  cg   open 1089 h, pay $713846, 16.4 s, 1793 person-shift changes week to week (more open than old on 1, fewer on 0)
-  look open 1086 h, pay $713903, 30.9 s, 465 person-shift changes week to week (more open than old on 0, fewer on 0)
+  old  open 1086 h, pay $713903, 53.0 s, 1587 person-shift changes week to week
+  cg   open 1089 h, pay $713846, 16.3 s, 1793 person-shift changes week to week (more open than old on 1, fewer on 0)
+  look open 1086 h, pay $713903, 31.0 s, 465 person-shift changes week to week (more open than old on 0, fewer on 0)
 
 keep usual shifts 0.1: 61 four-week plans
-  old  open 1084 h, pay $713982, 37.5 s, 394 person-shift changes week to week
-  cg   open 1084 h, pay $713982, 37.6 s, 394 person-shift changes week to week (more open than old on 0, fewer on 0)
-  look open 1084 h, pay $713982, 37.3 s, 394 person-shift changes week to week (more open than old on 0, fewer on 0)
+  old  open 1084 h, pay $713982, 37.6 s, 394 person-shift changes week to week
+  cg   open 1084 h, pay $713982, 24.5 s, 394 person-shift changes week to week (more open than old on 0, fewer on 0)
+  look open 1084 h, pay $713982, 28.8 s, 394 person-shift changes week to week (more open than old on 0, fewer on 0)
 
-look-ahead: 171 weeks looked ahead, 1 rebuilt in the old order (next week short of its relaxation), 0 posted a different tie; 70 weeks posted an earlier week's tie (or one closer to it) over column generation's; 1 plans also built in the old order (a week still short after its look-ahead), 0 returned it
+look-ahead: 342 weeks looked ahead, 1 rebuilt in the old order (next week short of its relaxation), 0 posted a different tie; 70 weeks posted an earlier week's tie (or one closer to it) over column generation's; 1 plans also built in the old order (a week still short after its look-ahead), 0 returned it

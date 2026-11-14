@@ -5,13 +5,13 @@
 // proven, open hours, pay, and churn = person-shift pairs that differ between week k-1 and week k (k >= 2; adds plus drops).
 // "forced" counts the drops whose holder is off that day in week k: those must move whatever the setting. "off usual" counts,
 // over every week, the person-shift pairs that differ from the usual rota (the week built with the dated days off left out).
-//   node eval/steady-plan.mjs [seeds=3] [weeks=4]       RATES=0,0.01,0.02,0.04  KEEP=0.1,0.25  EXACT=auto|off  ORDER=walk
+//   node eval/steady-plan.mjs [seeds=3] [weeks=4]       RATES=0,0.01,0.02,0.04  KEEP=0.1,0.25  EXACT=auto|off  ORDER=walk|cg  KEEPSHIFT=0.01
 import { planWeeks, buildRoster, parseStaff, parseShifts, TEMPLATES, sampleStaff, sampleShifts, slotKey } from "../calc.mjs";
 const seeds = Number(process.argv[2] || 3), weeks = Number(process.argv[3] || 4);
 const rates = (process.env.RATES || "0,0.01,0.02,0.04").split(",").map(Number);
 const keeps = [0, ...(process.env.KEEP || "0.1,0.25").split(",").map(Number)];
 const exact = process.env.EXACT === "off" ? false : "auto";
-const page = { minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0, otAfter: 40, otMult: 1.5, burdenPct: 0, balance: 25, toughBalance: 0, exact, exactMs: 4000, ...(process.env.ORDER === "walk" ? { deferCover: false } : {}) }; // ORDER=walk: the planner before 2026-11-13 later
+const page = { minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0, otAfter: 40, otMult: 1.5, burdenPct: 0, balance: 25, toughBalance: 0, exact, exactMs: 4000, ...(process.env.KEEPSHIFT ? { keepShift: Number(process.env.KEEPSHIFT) } : {}), ...(process.env.ORDER === "walk" ? { deferCover: false } : process.env.ORDER === "cg" ? { deferCover: true } : {}) }; // ORDER=walk: the planner before 2026-11-13 later; ORDER=cg: column generation first with keep too
 const weekStart = "2026-11-16";
 const iso = (k) => new Date(Date.UTC(2026, 10, 16 + k)).toISOString().slice(0, 10);
 const proven = (r) => r.optimality?.status === "optimal" || r.optimality?.status === "improved";

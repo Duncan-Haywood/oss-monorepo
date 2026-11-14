@@ -3514,10 +3514,12 @@ function planWeeksOnce(staffText, shiftsText, { weeks = 4, weekStart = null, onW
   // together leave the fewest open hours, then the least summed score, is posted (`tiePick` on that week). So a roster a few
   // points worse this week is taken when it leaves next week an open shift fewer, never one that opens an hour this week. `deferCover: false` keeps
   // the old order with no look-ahead; `lookahead: false` keeps the new order without it.
-  // keepValue > 0 ("keep people on their usual shifts") stays on the old order unless the caller sets `deferCover`: on the leave
-  // sweep (eval/steady-plan.steady-ties.txt) column generation first moved 4-20% more shifts week to week there, and steadiness
-  // is that setting's whole point.
-  const options = given.deferCover === undefined && Number(given.keepValue) > 0 ? { ...given, deferCover: false } : given;
+  // keepValue > 0 ("keep people on their usual shifts") builds its weeks column generation first too since 2026-11-14 (README
+  // "Keep usual shifts, column generation first"), but its usual rota (the anchor below) in the old order. With the anchor
+  // column generation first as well, the leave sweep moved 4-20% more shifts week to week: that anchor is a different tie of the
+  // usual week, and the weeks with someone off strayed further from it. With the anchor in the old order the sweep's churn, distance
+  // from the usual rota, open hours and pay are identical to the old planner's, 1.3-1.8x faster (eval/steady-plan.keep-cg.txt).
+  const options = given;
   const look = lookahead !== false && options.deferCover !== false && options.exact !== false && n > 1;
   const sh = parseShifts(shiftsText);
   if (sh.errors.length) return { error: sh.errors[0] };
@@ -3532,13 +3534,14 @@ function planWeeksOnce(staffText, shiftsText, { weeks = 4, weekStart = null, onW
   const steady = Number(options.keepValue) > 0;
   // The usual rota: options.keep when the caller has one (the page's "Carry over last week" CSV), otherwise the week built from
   // the staff text with the dated days off left out (no week start, so they are skipped) and the bonus off. One extra build.
+  // That build runs in the old order (plateau walk first) unless the caller sets `deferCover`; see the note on keepValue above.
   let anchor = null;
   if (steady) {
     if (options.keep && Object.keys(options.keep).length) anchor = options.keep;
     else {
       const st0 = parseStaff(text);
       if (!st0.errors.length) {
-        const base = buildRoster(st0.staff, sh.slots, { ...options, keepValue: 0, keep: null });
+        const base = buildRoster(st0.staff, sh.slots, { ...options, keepValue: 0, keep: null, ...(given.deferCover === undefined ? { deferCover: false } : {}) });
         if (!base.error) anchor = keepFrom(base);
       }
     }

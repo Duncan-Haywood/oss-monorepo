@@ -68,3 +68,15 @@ test("the page's plan table names a steadied week and a look-ahead pick", async 
   assert.match(html, /w\.steadied \? ` <span class="note">\$\{esc\(w\.steadied\)\} \(a tie\)<\/span>`/);
   assert.match(html, /picked to leave next week \$\{num\(w\.tiePick\.defaultNextOpenHours - w\.tiePick\.nextOpenHours\)\} h fewer open/);
 });
+
+test("keep usual shifts: weeks column generation first, the usual rota in the old order, the same plan as the old planner", () => {
+  const o = { ...O, keepValue: 0.1 };
+  const now = planWeeks(guideStaff(), sampleShifts(), o);
+  const old = planWeeks(guideStaff(), sampleShifts(), { ...o, deferCover: false });
+  assert.ok(now.lookahead, "the look-ahead runs with keep on");
+  assert.equal(old.lookahead, null);
+  assert.deepEqual(now.weeks.map((w) => w.roster.unfilledHours), old.weeks.map((w) => w.roster.unfilledHours));
+  assert.equal(now.totalCost, old.totalCost);
+  now.weeks.forEach((w, k) => assert.equal(shape(w.roster), shape(old.weeks[k].roster), `week ${k + 1} same roster`));
+  for (const w of now.weeks) assert.ok(proven(w.roster), `week ${w.week}`);
+});
