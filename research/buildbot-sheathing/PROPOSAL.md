@@ -279,6 +279,14 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    within 6%; the unnailed bottom foot costs 20.1–20.4% at every slip-at-peak from 6 to 15 mm (rigid-plastic
    20.4%), because the perimeter nails slip almost equally. Escaped misses: 2.39% mean, 11.8% at the 99th
    percentile; 4 in joint edges carry them. Still open: the anchorage (hold-down and sill stiffness, uplift).
+17. **Weiss's own wall** (done 2026-11-14, `experiments/m17_weiss_wall/`): with the thesis full text read,
+   the limit analysis is rebuilt as her tested 8 by 8 ft wall (two sheets on a shared middle stud, hold-downs
+   only at the wall's ends). It matches the controls' spacing ratio (1.93 against 1.87) but at NDS-ratio
+   joints the decayed walls keep 80% and 63% where hers kept 57% and 34%, so the anchorage as tested does
+   not explain them. Post hoc, end nails at 0.47 of the NDS ratio fit both groups (58%, 30%): the decayed
+   wall then slides on its 18 sill nails whatever the sheathing schedule, as Weiss observed. Escaped misses
+   cost the same on the two-sheet wall (2.7% mean, 10.4% at the 99th percentile). Still open: a tested
+   ultimate for end-nailed stud-to-plate joints, and the hold-downs' and anchor bolts' shear.
 
 ## Target venue
 
