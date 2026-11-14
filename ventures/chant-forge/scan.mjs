@@ -361,9 +361,18 @@ export function isQuilisma(f) {
   if (f.fall >= QUILISMA_MAX_FALL || f.under || f.liq) return false;
   return true;
 }
+// Rhombus height floor (2026-11-14, eval/rhombus-height-check.md): a
+// square whose worn print shows white flecks loses its edge columns and
+// comes out narrow and tapered like a rhombus, but it is no taller than a
+// square (0.56-0.61 staff spaces). A rhombus is a square on its corner and
+// stands taller (all but 2 of 1,026 read on 50 pieces are 0.63 or more).
+// Chosen on those 50 pieces (18 squares called rhombi to 6, 2 rhombi lost);
+// tested on six pieces listed before their pages were downloaded
+// (eval/rhombus-fresh-pages.json, eval/rhombus-height-report.md).
+export const RHOMBUS_MIN_H = 0.62;
 export function headShape(f) {
   if (!f) return null;
-  if (f.w < 0.42 && f.taper < 0.8) return 'rhombus';
+  if (f.w < 0.42 && f.taper < 0.8 && f.h >= RHOMBUS_MIN_H) return 'rhombus';
   if (isQuilisma(f)) return 'quilisma';
   return 'square';
 }
@@ -485,7 +494,7 @@ export function readPage(img, opts = {}) {
       top: staff.top,
       space: staff.space,
       clefPos: clef ? clef.pos : null,
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat) })),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
     };
   });
 }
