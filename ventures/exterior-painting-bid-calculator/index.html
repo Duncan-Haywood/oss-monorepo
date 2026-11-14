@@ -315,7 +315,7 @@
       JOB_PRESETS,
       suggestedJobHours,
     } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
@@ -357,7 +357,7 @@
     });
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function applyJobHours(force) {
@@ -606,8 +606,15 @@
       + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
       + 'it is not a building-code, lead-paint, or environmental determination, and it does not warrant the condition of any substrate found under the existing coating.';
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
     }
 
@@ -660,7 +667,7 @@
     function showProposal() {
       const result = calculateBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -715,7 +722,7 @@
     el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -740,8 +747,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

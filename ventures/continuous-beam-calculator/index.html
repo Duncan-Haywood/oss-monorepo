@@ -185,11 +185,11 @@ udl L:240  # 40 psf over a 6 ft strip</textarea></label>
 
   <script type="module">
     import { run, parseLoadLines, fmt, UNITS } from './beam.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     const NS = 'http://www.w3.org/2000/svg';
-    function count(event) { try { recordUsage(localStorage, el('usageOptOut').checked, event); } catch { /* storage is optional */ } }
+    function count(event) { try { recordUsage(usageStorage(), el('usageOptOut').checked, event); } catch { /* storage is optional */ } }
 
     const PRESETS = {
       example: { units: 'imperial', spans: '1.5, 8, 8, 1.5', supports: 'free, pin, pin, pin, free', loads: 'udl D:60   # 10 psf over a 6 ft strip\nudl L:240  # 40 psf over a 6 ft strip', E: '1400000', secType: 'rect', b: '1.5', d: '9.25', plies: '3', Fb: '1000', Fv: '175' },
@@ -364,8 +364,8 @@ udl L:240  # 40 psf over a 6 ft strip</textarea></label>
     el('secType').addEventListener('change', setSecType);
     {
       const u = el('usageOptOut');
-      try { u.checked = readOptOut(localStorage); } catch { /* storage is optional */ }
-      u.addEventListener('change', () => { try { writeOptOut(localStorage, u.checked); } catch { /* storage is optional */ } });
+      try { u.checked = readOptOut(usageStorage()); } catch { /* storage is optional */ }
+      u.addEventListener('change', () => { try { writeOptOut(usageStorage(), u.checked); } catch { /* storage is optional */ } });
     }
     setUnits(); setSecType(); analyse();
   </script>

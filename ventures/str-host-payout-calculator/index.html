@@ -219,7 +219,7 @@
 
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
 
     const BOOKING_IDS = ["nightlyRate", "nights", "cleaningFee", "extraFees", "taxRate", "securityDeposit", "bookingsPerYear", "targetPayout"];
@@ -360,7 +360,7 @@
         breakEven.hidden = true;
       }
 
-      recordUsage(localStorage, optedOut(), "comparison_calculated");
+      recordUsage(usageStorage(), optedOut(), "comparison_calculated");
     }
 
     function summaryText(comparison) {
@@ -390,7 +390,7 @@
       const index = event.target.dataset.toggle;
       if (index == null) return;
       state[Number(index)].enabled = event.target.checked;
-      recordUsage(localStorage, optedOut(), "channel_toggled");
+      recordUsage(usageStorage(), optedOut(), "channel_toggled");
       update();
     });
     el("channelRates").addEventListener("input", (event) => {
@@ -398,7 +398,7 @@
       const field = event.target.dataset.field;
       if (index == null || !field) return;
       state[Number(index)][field] = event.target.value;
-      recordUsage(localStorage, optedOut(), "rates_edited");
+      recordUsage(usageStorage(), optedOut(), "rates_edited");
       update();
     });
     el("copySummary").addEventListener("click", async () => {
@@ -406,7 +406,7 @@
       try {
         await navigator.clipboard.writeText(summaryText(comparison));
         el("status").textContent = "Copied.";
-        recordUsage(localStorage, optedOut(), "summary_copied");
+        recordUsage(usageStorage(), optedOut(), "summary_copied");
       } catch {
         el("status").textContent = "Copy failed — select the table instead.";
       }
@@ -429,7 +429,7 @@
       try {
         await navigator.clipboard.writeText(url.toString());
         el("status").textContent = "Link copied. It holds the numbers, not your address.";
-        recordUsage(localStorage, optedOut(), "link_copied");
+        recordUsage(usageStorage(), optedOut(), "link_copied");
       } catch {
         el("status").textContent = "Could not copy the link.";
       }
@@ -443,8 +443,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

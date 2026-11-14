@@ -392,7 +392,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     })();
     import { parseCuts, parseStock, optimizeCutList, formatCutPlan, formatCutPlanCSV, compareStockLengths, formatStockComparison } from './calc.mjs';
     import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, formatSheetPlanCSV, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
-    import { recordUsage, clearUsage } from './usage.mjs';
+    import { recordUsage, clearUsage, usageStorage } from './usage.mjs';
     import { loadDraft, saveDraft, clearDraft, DRAFT_FIELDS } from './draft.mjs';
     import { decodeInputs, shareUrl, isSafeLength } from './share.mjs';
 
@@ -455,7 +455,7 @@ Top: 31.5 x 11.25 x 2</textarea>
       $(prefix + '-width').value = String(preset.width);
       $(prefix + '-height').value = String(preset.height);
       renderSheet();
-      if (ready.sheetCompare) recordUsage(localStorage, optedOut(), 'sheet-compares');
+      if (ready.sheetCompare) recordUsage(usageStorage(), optedOut(), 'sheet-compares');
     }
 
     /* ---------------- Sheet goods ---------------- */
@@ -796,7 +796,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     function restoreDraft() {
       const draft = loadDraft(localStorage);
       if (!draft) return false;
-      recordUsage(localStorage, optedOut(), 'draft-restores');
+      recordUsage(usageStorage(), optedOut(), 'draft-restores');
       DRAFT_FIELDS.forEach((id) => {
         if (!(id in draft)) return;
         if ($(id).type === 'checkbox') $(id).checked = Boolean(draft[id]);
@@ -809,7 +809,7 @@ Top: 31.5 x 11.25 x 2</textarea>
       if (optedOut()) return;
       // Counted on the settled 'change' edit that calls this, not per keystroke,
       // so draft-saves stays comparable to the run counts beside it.
-      if (saveDraft(localStorage, draftValues())) recordUsage(localStorage, optedOut(), 'draft-saves');
+      if (saveDraft(localStorage, draftValues())) recordUsage(usageStorage(), optedOut(), 'draft-saves');
     }
 
     function wireInputs(ids, render, mode, runEvent) {
@@ -818,8 +818,8 @@ Top: 31.5 x 11.25 x 2</textarea>
         $(id).addEventListener('change', () => {
           render();
           persistDraft();
-          if (ready[mode]) recordUsage(localStorage, optedOut(), runEvent);
-          if (mode === 'sheet' && ready.sheetCompare) recordUsage(localStorage, optedOut(), 'sheet-compares');
+          if (ready[mode]) recordUsage(usageStorage(), optedOut(), runEvent);
+          if (mode === 'sheet' && ready.sheetCompare) recordUsage(usageStorage(), optedOut(), 'sheet-compares');
         });
       });
     }
@@ -830,7 +830,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         try {
           await navigator.clipboard.writeText($(buttonId).dataset.plan || '');
           status.textContent = 'Plan copied.';
-          recordUsage(localStorage, optedOut(), copyEvent);
+          recordUsage(usageStorage(), optedOut(), copyEvent);
         } catch {
           status.textContent = 'Clipboard access was blocked. Select the plan above and copy it manually.';
         }
@@ -875,7 +875,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         const csv = $(buttonId).dataset.csv;
         if (!csv) return;
         downloadCSV(filename, csv);
-        recordUsage(localStorage, optedOut(), downloadEvent);
+        recordUsage(usageStorage(), optedOut(), downloadEvent);
         const status = $(statusId);
         status.textContent = 'CSV downloaded.';
         setTimeout(() => { status.textContent = ''; }, 4000);
@@ -894,14 +894,14 @@ Top: 31.5 x 11.25 x 2</textarea>
       if (!row) return;
       $('stock').value = row.dataset.length;
       renderLinear();
-      if (ready.linear) recordUsage(localStorage, optedOut(), 'compares');
+      if (ready.linear) recordUsage(usageStorage(), optedOut(), 'compares');
     });
 
     // Opting out is not only "stop counting" — it clears what was already
     // counted, so the checkbox means what a visitor reads it to mean.
     $('optout').addEventListener('change', () => {
       if (optedOut()) {
-        clearUsage(localStorage);
+        clearUsage(usageStorage());
         clearDraft(localStorage);
       } else {
         persistDraft();
@@ -935,7 +935,7 @@ Top: 31.5 x 11.25 x 2</textarea>
       try {
         await navigator.clipboard.writeText(url);
         status.textContent = 'Link copied. Whoever opens it sees this layout and can change it.';
-        recordUsage(localStorage, optedOut(), 'share-links');
+        recordUsage(usageStorage(), optedOut(), 'share-links');
       } catch {
         // Clipboard access is refused in more places than it is granted (an
         // insecure origin, a permissions policy, a browser wanting a closer
@@ -962,7 +962,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         else $(id).value = String(shared.values[id]);
       }
       if (shared.tab) selectTab(shared.tab);
-      recordUsage(localStorage, optedOut(), 'share-opens');
+      recordUsage(usageStorage(), optedOut(), 'share-opens');
     }
     renderSheet();
     renderLinear();

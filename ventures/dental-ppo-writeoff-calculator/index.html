@@ -241,7 +241,7 @@
 
   <script type="module">
     import { effectiveReimbursement } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, usageStorage } from './usage.mjs';
     import { resolvePlanRows, parsePlanReport } from './form.mjs';
 
     const SCENARIO_KEY = 'dental-ppo-writeoff-scenario';
@@ -489,7 +489,7 @@
     function recompute(counted) {
       const result = effectiveReimbursement(readForm());
       render(result);
-      if (counted && result.ok) recordUsage(globalThis.localStorage, optedOut(), 'rate_calculated');
+      if (counted && result.ok) recordUsage(usageStorage(), optedOut(), 'rate_calculated');
     }
 
     buildRows();
@@ -522,7 +522,7 @@
       fillForm({ ...readForm(), plans: parsed.plans });
       showingExample = false;
       el('pasteState').textContent = `Filled ${parsed.plans.length} plan${parsed.plans.length === 1 ? '' : 's'}.${parsed.skipped.length ? ` Skipped ${parsed.skipped.length} line${parsed.skipped.length === 1 ? '' : 's'} it could not read.` : ''}`;
-      recordUsage(globalThis.localStorage, optedOut(), 'report_pasted');
+      recordUsage(usageStorage(), optedOut(), 'report_pasted');
       recompute(false);
     });
 
@@ -530,7 +530,7 @@
       try {
         globalThis.localStorage.setItem(SCENARIO_KEY, JSON.stringify(readForm()));
         el('saveState').textContent = 'Saved to this browser.';
-        recordUsage(globalThis.localStorage, optedOut(), 'scenario_saved');
+        recordUsage(usageStorage(), optedOut(), 'scenario_saved');
       } catch {
         el('saveState').textContent = 'This browser is not allowing site data, so nothing was saved.';
       }

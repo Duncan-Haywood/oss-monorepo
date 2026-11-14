@@ -381,7 +381,7 @@
       walmartAdsNote,
       matchTakeNote,
     } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { decodeInputs, encodeInputs } from "./share.mjs";
     import { whereToSellUrl } from "./to-where-to-sell.mjs";
 
@@ -431,7 +431,7 @@
       const link = `${location.href.split("#")[0]}#${encodeInputs(scenario)}`;
       try { history.replaceState(null, "", link); } catch { /* file URLs may reject it */ }
       if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).catch(() => {});
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "share_link_copied");
       window.prompt("Copy this private link:", link);
     }
 
@@ -548,14 +548,14 @@
       const filled = applyCategoryPreset({}, document.getElementById("category").value);
       document.getElementById("referralRate").value = filled.referralRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "category_preset_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "category_preset_applied");
     }
 
     function applyStorage() {
       const filled = applyStoragePreset({}, document.getElementById("storageSeason").value);
       document.getElementById("storageRate").value = filled.storageRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "storage_preset_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "storage_preset_applied");
     }
 
     document.getElementById("category").addEventListener("change", applyCategory);
@@ -582,19 +582,19 @@
                   : ["holdTakePct", "matchTakePct", "promoTakePct", "promoDays", "monthDays"].includes(id)
                     ? "match_take_compared"
                     : "listing_profit_calculated";
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, event);
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
     document.getElementById("share").addEventListener("click", shareLink);
     document.getElementById("whereToSellLink").addEventListener("click", () => {
       // Counts only that the handoff happened, never the listing.
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
     });
     restoreInputs();
     update();
@@ -607,8 +607,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

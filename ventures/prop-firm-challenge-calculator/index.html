@@ -139,7 +139,7 @@
 
   <script type="module">
     import { analyse, summaryText, toCsv, encodeState, decodeState, FIELDS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const $ = (id) => document.getElementById(id);
     const usd = (n) => { const s = '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return n < 0 ? '-' + s : s; };
@@ -221,8 +221,8 @@
     {
       const control = $('usageOptOut');
       try {
-        control.checked = readOptOut(localStorage);
-        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+        control.checked = readOptOut(usageStorage());
+        control.addEventListener('change', () => writeOptOut(usageStorage(), control.checked));
       } catch { /* storage blocked: counting stays off the persisted path */ }
     }
     render(false);

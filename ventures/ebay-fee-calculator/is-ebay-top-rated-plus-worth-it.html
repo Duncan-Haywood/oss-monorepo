@@ -229,7 +229,7 @@
   </footer>
   <script type="module">
     import { compareTopRatedPlus, topRatedPlusNote } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const ids = [
       "price", "shippingCharged", "finalValueRate", "trsDiscountPct",
@@ -289,7 +289,7 @@
     }
 
     function recordCompare() {
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "top_rated_plus_compared");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "top_rated_plus_compared");
     }
 
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
@@ -305,8 +305,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

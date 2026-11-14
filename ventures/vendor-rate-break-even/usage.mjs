@@ -1,3 +1,16 @@
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 const countsKey = 'vendor-rate-break-even-usage';
 const optOutKey = 'vendor-rate-break-even-usage-opt-out';
 
@@ -63,7 +76,7 @@ export function setUsageOptOut(value) {
 // visitors who had already chosen: counting correctly off, and the control
 // saying their choice had been forgotten. One key, one encoding, and
 // `setUsageOptOut` remains the thing that defines it.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem(optOutKey) === 'true';
   } catch {
@@ -72,7 +85,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   // Independent writes, counters first: sharing one try means a setItem
   // that throws on a full quota skips the delete entirely, and the

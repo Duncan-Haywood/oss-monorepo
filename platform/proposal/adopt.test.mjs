@@ -348,6 +348,6 @@ test('the usage.mjs anchor reads a compact import as readily as a spaced one', (
   // The name list grew when this page learned to remember the visitor's
   // opt-out; the spelling being asserted against is still the compact one,
   // which is the whole point of the fixture.
-  assert.match(compact, /import \{recordUsage,readOptOut,writeOptOut\} from '\.\/usage\.mjs'/, 'the compact spelling is what this asserts against');
+  assert.match(compact, /import \{recordUsage,readOptOut,writeOptOut,usageStorage\} from '\.\/usage\.mjs'/, 'the compact spelling is what this asserts against');
   assert.match(compact, /from '\.\/proposal\.mjs'/, 'the proposal import was never anchored');
 });

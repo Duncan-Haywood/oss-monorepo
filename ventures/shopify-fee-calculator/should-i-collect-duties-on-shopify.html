@@ -231,7 +231,7 @@
   </footer>
   <script type="module">
     import { applyPlanPreset, compareMarketsDuties } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const ids = [
       "dutyRatePct", "dapTakePct", "ddpTakePct", "dapRefusePct", "ddpRefusePct",
@@ -292,7 +292,7 @@
     }
 
     function recordCompare() {
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "markets_duties_compared");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "markets_duties_compared");
     }
 
     document.getElementById("plan").addEventListener("change", () => {
@@ -316,16 +316,16 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl && 'checked' in usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
-          usageControl.textContent = readOptOut(localStorage)
+          usageControl.textContent = readOptOut(usageStorage())
             ? 'Usage counting is off'
             : 'Turn off local usage counting';
         };
         usageControl.addEventListener('click', () => {
-          writeOptOut(localStorage, !readOptOut(localStorage));
+          writeOptOut(usageStorage(), !readOptOut(usageStorage()));
           paint();
         });
         paint();

@@ -163,7 +163,7 @@
   <script type="module">
     import { sizeDucts, designFromLoad, DUCT_DEFAULTS, EXAMPLE_DUCTS } from './duct.mjs';
     import { calculate, EXAMPLE } from './load.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     const NUMS = ['blowerStaticInWC', 'coilInWC', 'filterInWC', 'supplyRegisterInWC', 'returnGrilleInWC', 'otherInWC', 'elevationFt', 'returnEffectiveLengthFt', 'branchMaxFpm', 'trunkMaxFpm', 'returnMaxFpm', 'rectHeightIn'];
@@ -259,7 +259,7 @@
         el('trunkTable').append(tr);
       }
       for (const w of s.warnings) el('warnings').append(make('p', w, { class: 'note' }));
-      recordUsage(globalThis.localStorage, el('optOut').checked, 'ducts_sized');
+      recordUsage(usageStorage(), el('optOut').checked, 'ducts_sized');
     }
 
     el('addRun').addEventListener('click', () => addRun());
@@ -277,7 +277,7 @@
       el('jsonText').value = JSON.stringify({ ducts: { ...rest, lengths } }, null, 2);
     });
     el('optOut').checked = readOptOut();
-    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+    el('optOut').addEventListener('change', () => writeOptOut(usageStorage(), el('optOut').checked));
 
     setSettings({});
     fromHouse({ ...EXAMPLE, ducts: EXAMPLE_DUCTS });

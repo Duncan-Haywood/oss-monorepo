@@ -115,7 +115,7 @@
   </footer>
   <script type="module">
     import { calculateRetailerOrder, retailPriceForMargin } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { encodeInputs, decodeInputs, RETAILER_FIELD_IDS } from "./share.mjs";
 
     const INPUTS_KEY = "faire-wholesale-retailer-inputs";
@@ -212,8 +212,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

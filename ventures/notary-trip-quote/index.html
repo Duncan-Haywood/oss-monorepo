@@ -163,7 +163,7 @@
   <div id="proposalDoc" class="pr-shell" hidden></div>
 <!-- proposal:end -->
 <footer><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Everything runs in your browser. Your figures are never uploaded. We count anonymous feature events in local storage only, with no cookies or analytics vendor. Counting is also disabled when the browser sends Do Not Track or Global Privacy Control. <button id="optout" type="button">Turn usage counting off</button></p><p><strong>Nothing leaves your browser.</strong> Every figure stays on this device. A share link encodes only the appointment details you choose into the address bar and is never sent to us.</p><p>Quoting a freelance translation project instead of a notary signing? The <a href="../translator-project-quote/">translator project quote calculator</a> prices word counts, fuzzy-match discounts, rush work, and QA &mdash; nothing uploaded. Choosing which of several offered signings to take in a day? The <a href="../mobile-signing-agent-day-picker/">mobile signing agent day picker</a> finds the most profitable set and order under appointment windows. Pricing a service-of-process job instead of a signing? The <a href="../process-server-fee-calculator/">process server fee &amp; route profit calculator</a> prices a serve's extra attempts, rush and skip-trace add-ons, and mileage against your own vehicle cost and time.</p><p>Pricing a deposition transcript instead of a notary signing? The <a href="../court-reporter-transcript-calculator/">court reporter transcript pricing calculator</a> prices page count, turnaround speed, travel, and add-on fees the same way &mdash; nothing uploaded.</p><p>Free and open source. If it helped you price the next signing with confidence, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
- <script type="module">import{calculateQuote,quoteResult,defaults}from './calc.mjs';import {recordUsage,readOptOut,writeOptOut} from './usage.mjs';
+ <script type="module">import{calculateQuote,quoteResult,defaults}from './calc.mjs';import {recordUsage,readOptOut,writeOptOut,usageStorage} from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
@@ -333,8 +333,15 @@ el('worthHeading').textContent=q.offerEvaluated?'What the offer is worth per hou
       };
     }
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -363,7 +370,7 @@ el('worthHeading').textContent=q.offerEvaluated?'What the offer is worth per hou
     function showProposal() {
       const result = calculateQuote(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -419,7 +426,7 @@ el('worthHeading').textContent=q.offerEvaluated?'What the offer is worth per hou
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -438,16 +445,16 @@ el('worthHeading').textContent=q.offerEvaluated?'What the offer is worth per hou
     {
       const usageControl = document.getElementById('optout');
       if (usageControl && 'checked' in usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
-          usageControl.textContent = readOptOut(localStorage)
+          usageControl.textContent = readOptOut(usageStorage())
             ? 'Usage counting is off'
             : 'Turn off local usage counting';
         };
         usageControl.addEventListener('click', () => {
-          writeOptOut(localStorage, !readOptOut(localStorage));
+          writeOptOut(usageStorage(), !readOptOut(usageStorage()));
           paint();
         });
         paint();

@@ -116,7 +116,7 @@
 <script type="module">
 import { buildReport, toCsv, parsePaste, sampleReport, DAYS } from "./wh347.mjs";
 import { buildCompliance } from "./compliance.mjs";
-import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -171,7 +171,7 @@ function run() {
   report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   return true;
 }
-const track = (e) => { try { recordUsage(localStorage, false, e); } catch { /* optional */ } };
+const track = (e) => { try { recordUsage(usageStorage(), false, e); } catch { /* optional */ } };
 $("#add").addEventListener("click", () => addRow());
 $("#build").addEventListener("click", () => { if (run()) track("report_built"); });
 $("#example").addEventListener("click", () => { load(sampleReport()); if (run()) track("wh347_example_loaded"); });
@@ -190,7 +190,7 @@ $("#csv").addEventListener("click", () => {
   track("wh347_csv_downloaded");
 });
 try { $("#usageOptOut").checked = readOptOut(); } catch { /* optional */ }
-$("#usageOptOut").addEventListener("change", (e) => { try { writeOptOut(localStorage, e.target.checked); } catch { /* optional */ } });
+$("#usageOptOut").addEventListener("change", (e) => { try { writeOptOut(usageStorage(), e.target.checked); } catch { /* optional */ } });
 addRow();
 </script>
 </body>

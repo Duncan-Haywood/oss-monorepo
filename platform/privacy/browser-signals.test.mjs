@@ -161,6 +161,18 @@ test("discovery skips build output, so the count does not depend on who has buil
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+test("discovery skips build output even when it is the only untracked file", () => {
+  // Red team 2026-11-14: \`if (paths.length === 0)\` mutated to \`=== 1\` went
+  // green, because the test above always hands check-ignore two untracked
+  // paths. A lone built copy must still be dropped.
+  const root = mkdtempSync(join(REPO_ROOT, "ventures", "discovery-lone-"));
+  try {
+    mkdirSync(join(root, "dist"), { recursive: true });
+    writeFileSync(join(root, "dist", "usage.mjs"), HONOURING);
+    assert.deepEqual(findUsageModules(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test("discovery outside the repository keeps everything, including a dist", () => {
   // The fixtures above live in a tmpdir, where `git check-ignore` cannot
   // answer. Keeping every path is the right failure: a checker that quietly
@@ -278,4 +290,17 @@ export function recordEvent(event, flag) { if (flag === true) globalThis.localSt
     const result = await checkModule(f.path);
     assert.notEqual(result.status, "undrivable");
   } finally { f.cleanup(); }
+});
+
+test("a factory that returns null is skipped, and the module's plain recorder still decides", async () => {
+  // Red team 2026-11-14: \`made && typeof made === "object"\` mutated to \`||\`
+  // went green; with it, typeof null === "object" sends null into
+  // Object.entries and the whole module reads as an error.
+  const { path, cleanup } = fixture(`
+    export function createUsage() { return null; }
+    ${HONOURING}
+  `);
+  try {
+    assert.equal((await checkModule(path)).status, "pass");
+  } finally { cleanup(); }
 });

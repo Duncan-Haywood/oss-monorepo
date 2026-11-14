@@ -194,7 +194,7 @@
 
   <script type="module">
     import { calculateEffectiveLaborRate, ALL_INPUT_IDS } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, usageStorage } from './usage.mjs';
     import { importRepairOrders } from './ro-import.mjs';
 
     // All twelve figures, on this device only. Deliberately no URL encoding and
@@ -353,7 +353,7 @@
       const result = calculateEffectiveLaborRate(readForm());
       showingExample = false;
       paint(result);
-      if (result.ok) recordUsage(globalThis.localStorage, optedOut(), 'rate_calculated');
+      if (result.ok) recordUsage(usageStorage(), optedOut(), 'rate_calculated');
     });
 
 
@@ -387,7 +387,7 @@
         (imported.clockSeen ? '' : ' Clock hours, payroll, overhead and parts profit are not in repair orders; check those boxes yourself.');
       showingExample = false;
       paint(calculateEffectiveLaborRate(readForm()));
-      recordUsage(globalThis.localStorage, optedOut(), 'repair_orders_imported');
+      recordUsage(usageStorage(), optedOut(), 'repair_orders_imported');
     });
 
     el('saveScenario').addEventListener('click', () => {
@@ -395,7 +395,7 @@
         globalThis.localStorage.setItem(SCENARIO_KEY, JSON.stringify(readForm()));
         el('scenarioStatus').textContent = 'Saved on this device. It will be here next time.';
         el('forgetScenario').hidden = false;
-        recordUsage(globalThis.localStorage, optedOut(), 'scenario_saved');
+        recordUsage(usageStorage(), optedOut(), 'scenario_saved');
       } catch {
         el('scenarioStatus').textContent = 'This browser is not allowing site storage, so nothing was saved.';
       }

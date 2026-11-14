@@ -159,11 +159,11 @@
 
   <script type="module">
     import { run, toCsv, exampleCsv, EXAMPLE_BOUNDARY } from './earthwork.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     let last = null;
-    function count(event) { try { recordUsage(localStorage, el('usageOptOut').checked, event); } catch { /* storage is optional */ } }
+    function count(event) { try { recordUsage(usageStorage(), el('usageOptOut').checked, event); } catch { /* storage is optional */ } }
     const num = id => { const v = el(id).value.trim(); return v === '' ? null : Number(v); };
     const fmt = (x, d = 0) => Number(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 
@@ -255,8 +255,8 @@
     });
     try {
       const u = el('usageOptOut');
-      u.checked = readOptOut(localStorage);
-      u.addEventListener('change', () => writeOptOut(localStorage, u.checked));
+      u.checked = readOptOut(usageStorage());
+      u.addEventListener('change', () => writeOptOut(usageStorage(), u.checked));
     } catch { /* storage is optional */ }
   </script>
 </body>

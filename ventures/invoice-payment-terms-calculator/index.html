@@ -232,7 +232,7 @@
       depositSchedule, scheduleCopy, scheduleNote,
     } from './schedule.mjs';
     import { reminderSchedule, reminderIcs } from './reminders.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { buildCalendar } from './calendar.mjs';
     const ids = ['amount','invoiceDate','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding','earlyPayDays','earlyPayDiscountPct','annualCarryRate','takeRatePct','factorFeePct','advancePct','reserveDays','payRun','payRunDay','payRunWeekday'];
@@ -534,8 +534,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

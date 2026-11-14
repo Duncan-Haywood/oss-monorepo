@@ -316,6 +316,56 @@ def _git(args: list[str], root: Path = ROOT) -> str:
         return ""
 
 
+def _shallow_boundary(git=_git) -> set[str]:
+    shallow_path = git(["rev-parse", "--git-path", "shallow"]).strip()
+    if not shallow_path:
+        return set()
+    p = Path(shallow_path)
+    if not p.is_absolute():
+        p = ROOT / p
+    try:
+        return set(p.read_text().split())
+    except OSError:
+        return set()
+
+
+def history_start(git=_git) -> str | None:
+    """Commit date (YYYY-MM-DD) where a shallow clone's history begins, or None when it is complete."""
+    dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in _shallow_boundary(git)]
+    dates = [d for d in dates if d]
+    return max(dates) if dates else None
+
+
+# A shallow-since fetch back to an audit a week old took 20 s in a cloud session (2026-11-14); older
+# audits mean bigger packs, so past this age the queue says what to fetch instead of fetching it.
+FETCH_MAX_DAYS = 30
+FETCH_TIMEOUT_S = 90
+
+
+def deepen_for(oldest: str, today: dt.date, git=_git, git_run=None) -> str:
+    """Fetch origin/main back to `oldest` when a shallow clone starts after it, so `changes_since`
+    can answer instead of printing "unknown" for every row (run-record doc_friction on this file,
+    2026-11-14T01:16 and 03:25: every queued high defect came out unknown on a cloud clone, and a
+    fix run searched open PRs by hand to learn one was already fixed). Returns a note for stderr,
+    or "" when nothing was needed."""
+    import subprocess
+    start = history_start(git)
+    if not start or start <= oldest:
+        return ""
+    if (today - dt.date.fromisoformat(oldest)).days > FETCH_MAX_DAYS:
+        return (f"(shallow clone starts {start}; oldest audit {oldest} is over {FETCH_MAX_DAYS} days old, "
+                f"so not fetching: run `git fetch --shallow-since={oldest} origin main` in the background)")
+    cmd = ["git", "fetch", "-q", f"--shallow-since={oldest}", "origin", "main"]
+    run = git_run or (lambda c: subprocess.run(c, capture_output=True, timeout=FETCH_TIMEOUT_S, cwd=ROOT).returncode)
+    try:
+        ok = run(cmd) == 0
+    except (OSError, subprocess.SubprocessError):
+        ok = False
+    if ok:
+        return f"(shallow clone started {start}: fetched main since {oldest} to check changes since each audit)"
+    return f"(fetch of main since {oldest} failed or exceeded {FETCH_TIMEOUT_S}s; rows below may say unknown)"
+
+
 def changes_since(subject: str, date: str, git=_git) -> dict:
     """Commits under `subject` since its audit `date`, so a fix session can tell a defect that may already be fixed
     (with no fix_prs recorded) from one nobody touched. On 2026-11-11 a fix run found PR #14327 had fixed a queued
@@ -325,16 +375,7 @@ def changes_since(subject: str, date: str, git=_git) -> dict:
     Audit-round commits are kept: they only appear when they touched the subject itself, and round 30 (#14329)
     shipped a photo-editing page fix that way."""
     ref = "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
-    shallow_path = git(["rev-parse", "--git-path", "shallow"]).strip()
-    boundary: set[str] = set()
-    if shallow_path:
-        p = Path(shallow_path)
-        if not p.is_absolute():
-            p = ROOT / p
-        try:
-            boundary = set(p.read_text().split())
-        except OSError:
-            boundary = set()
+    boundary = _shallow_boundary(git)
     if boundary:
         dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in boundary]
         dates = [d for d in dates if d]
@@ -540,6 +581,11 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
         rows = queue(audits, args.severity)
         seen: dict[tuple[str, str], dict] = {}
         changed = 0
+        if rows and not getattr(args, "no_git", False) and not getattr(args, "no_fetch", False):
+            note = deepen_for(min(r["audit"][:10] for r in rows[: args.limit]), today)
+            if note:
+                import sys
+                print(note, file=sys.stderr)
         for r in rows[: args.limit]:
             print(f"[{r['severity']}] {r['subject']} ({r['audit']}#{r['index']}, {r['category']}): {r['what'][:200]}")
             if getattr(args, "no_git", False):

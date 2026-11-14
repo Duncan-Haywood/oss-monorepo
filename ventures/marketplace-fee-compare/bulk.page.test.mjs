@@ -19,7 +19,7 @@ test("carries the disclaimers, support link, licence and opt-out", () => {
 test("renders user text only through escapeHtml and never counts content", () => {
   assert.ok(script.includes("escapeHtml(r.name)"));
   assert.ok(!/innerHTML\s*=\s*el\("catalog"\)/.test(script));
-  assert.match(script, /recordUsage\(localStorage,[^;]*"catalog_compared"\)/);
+  assert.match(script, /recordUsage\(usageStorage\(\),[^;]*"catalog_compared"\)/);
 });
 
 test("has a title, description and canonical", () => {
