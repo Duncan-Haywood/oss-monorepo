@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJmjL7XjRsjtN2M5Uq",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T11:06:58Z",
+  "ended": "2026-11-14T11:16:23Z",
+  "wall_minutes": 32.57,
+  "tokens_in": 14320120,
+  "tokens_out": 45824,
+  "cost_usd": 5.0222,
+  "tool_calls": 73,
+  "task": "changepoint-detector flagship (w): watch round 12 on a third labelled set (SKAB), also for --columns",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15829",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "A first 1-second-row timing pilot ran past the 120 s tool timeout (about 80 s per column and setting); switched to 5-second buckets, recorded in the script header.",
+    "Header first said 34 fault runs; counting labels before any scored run showed 33 (SKAB's data README lists valve2/4.csv, which is not in the repository). Fixed before the pre-registration commit.",
+    "Post seo_title was 72 characters; preflight caught it, shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "4,200+ lines; finding the current state of the watch item meant reading the last two sections, since the flagship next: points at round names, not line numbers."
+    },
+    {
+      "file": "Stop hook (untracked files)",
+      "issue": "Fires on every turn end while a long background eval writes its output inside the repo; had to move the in-progress output into a gitignored folder. Long evals should write to a scratch path and copy at the end."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/watch-nab.mjs design (h = floor(n/2) history split)",
+      "why": "SKAB's faults start almost exactly at the midpoint of each run, so a half split would cut through the fault starts",
+      "did": "the hint reads SKAB's separate anomaly-free run as the history and every fault run is scored whole after a 20-point baseline",
+      "result": "clean history for the hint; rules evaluated as pre-registered"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-eight-sensors-eight-chances-for-noise.md",
+    "ventures/changepoint-detector/README.md (Round 12)"
+  ],
+  "goal": "Deepen flagship changepoint-detector: test the watch's open decisions on a third labelled set",
+  "notes": "Round 12 pre-registered in commit 3d03a922e before any scored run; full run 1,001 s wall on 4 cores. T6 hint not confirmed (share 28.4% vs 36.8%-5), T7 drift fails, T8 quiet --columns all null 8.54 per 100 > 2. Text changes as pre-registered: eagernessText, watch.mjs --help, watch page, llms.txt. Verification: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (128.0s), 1 suites run, 0 failed; node platform/pages/venture-preflight.mjs changepoint-detector -> first run failed on the post's seo_title (72 > 70 chars), fixed; rerun -> preflight clean for changepoint-detector.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "429764a0-a3d1-5e70-8510-6c9e199dd853",
+    "transcripts": 1,
+    "first": "2026-11-14T11:06:58Z",
+    "last": "2026-11-14T11:39:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 244,
+        "output": 45824,
+        "thinking": 12626,
+        "cache_read": 14160800,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159076,
+        "api_equivalent_usd": 5.0222,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 244,
+      "output": 45824,
+      "thinking": 12626,
+      "cache_read": 14160800,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159076,
+      "api_equivalent_usd": 5.0222,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 59,
+      "Monitor": 5,
+      "ToolSearch": 3,
+      "TaskStop": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "ReadNotifications": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 32.57,
+      "active_minutes": 14.44,
+      "model_minutes": 9.31,
+      "tool_minutes": 5.13,
+      "waiting_on_human_minutes": 18.13,
+      "human_prompts": 30,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "designing, pre-registering and running a benchmark round on a new labelled dataset, plus write-up: about 10 hours of an analyst's time",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 199.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
