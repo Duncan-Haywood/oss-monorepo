@@ -73,7 +73,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `caresymbols.mjs` | The five care symbols (wash, bleach, tumble dry, iron, professional care) drawn as SVG from the starting care text, shown on the label page and downloadable one file each |
 | `commission.mjs`, `partners.html` | Multi-brand shop money: payout per sale after VAT, commission and card fees (shop, brand or split), shelf price for a target payout, settlement statement per partner with refunds, per-partner terms, CSV. Seller-of-record and VAT treatment are assumptions to check with an accountant |
 | `marketing.mjs` | Ad affordability (break-even cost per sale and ROAS) and a launch calendar of drafts from the break-even |
-| `indexsep.mjs` | Index separation: the flat separation's inks laid down as square dots by error diffusion, with the garment as a free colour; films, brief, and a flat-vs-index distance at three viewing distances; dot-gain model, model-based compensation, calibration strip and gain read-back |
+| `indexsep.mjs` | Index separation: the flat separation's inks laid down as square dots by error diffusion, with the garment as a free colour; films, brief, and a flat-vs-index distance at three viewing distances; dot-gain model, model-based compensation, calibration strip and gain read-back; `cleanLoneDots`, no single dots (every dot touches another of its ink), with a Lab-error search under that rule |
 | `inkfit.mjs` | Inks chosen for the dots: moves the index separation's inks so the dots can mix the painting's darks, lights and strong colours, weighed against grain at a viewing distance, and keeps whichever ink set (flat inks included) the eye model puts closest |
 | `usage.mjs` | Anonymous local usage counts |
 
@@ -621,6 +621,68 @@ a printer can mix each one in plastisol or water-based ink (and how it reads
 on cotton) is for a proof, and on a dark garment the white underbase changes
 how a light ink looks. The eye model is the same rough blur as above, so
 treat the gains as relative, not as what a person will see.
+
+### No single dots (2026-11-14)
+
+A dot one cell wide is the first thing a screen loses: the stencil may not
+wash out round it, or the ink may not go through. Error diffusion leaves a lot
+of them: 5.8 to 9.3% of all cells on the nine paintings below are a dot with no
+neighbour of its own ink. On a press that loses every one of them, plain dots
+go from 10.64 to 15.60 delta E at 1 m (white, 4 inks), worse than flat inks.
+
+`cleanLoneDots` in `indexsep.mjs`, the "Single dots" choice on the studio page
+(default "None, refined"):
+
+- **Cleanup.** Each single dot gets the cheapest of: give it up (the cell takes
+  the garment or the ink of a 4-neighbour, joining that neighbour's dot), or
+  grow it into a pair (a 4-neighbour takes its ink, unless that would leave the
+  neighbour's old ink with a single dot). No move creates a single dot, so one
+  pass leaves none (tested; 0 left in 36 runs).
+- **Judged by the score itself.** "Cheapest" is the change in the squared CIE
+  Lab distance between the painting and the print once both are blurred as
+  seen from the chosen distance, linearised Gauss-Newton style: Lab's Jacobian
+  is taken at the current blurred print, and kept current as cells change.
+- **Refining.** Then up to `passes` sweeps let any cell change to any ink or
+  the garment when that lowers the same error and creates no single dot (a
+  direct-binary-search pass under the minimum-dot rule), relinearised each pass.
+
+Measured (`eval/index-mindot.mjs`, the same nine paintings at 640 px, 28 cm,
+flat inks; mean delta E at 0.5 / 1 / 3 m; full output
+`eval/index-mindot-2026-11-14.md`):
+
+| Garment, inks | Plain dots | Plain, singles lost on press | No singles | No singles + 3 passes | Search with singles allowed | Same, singles lost | Closer than plain at 1 m |
+|---|---|---|---|---|---|---|---|
+| white, 3 | 15.88 / 12.14 / 9.79 | 17.82 / 15.83 / 14.74 | 15.61 / 12.23 / 9.92 | 15.16 / 11.74 / 9.85 | 15.20 / 11.32 / 9.77 | 17.39 / 15.66 / 15.15 | 8 of 9 |
+| white, 4 | 14.48 / 10.64 / 8.34 | 17.13 / 15.60 / 14.99 | 14.07 / 10.71 / 8.53 | 13.62 / 10.17 / 8.39 | 13.61 / 9.66 / 8.26 | 16.50 / 15.19 / 15.06 | 9 of 9 |
+| white, 6 | 12.61 / 8.94 / 6.68 | 16.59 / 15.98 / 16.16 | 12.09 / 8.96 / 6.95 | 11.62 / 8.37 / 6.71 | 11.72 / 7.79 / 6.48 | 16.16 / 15.82 / 16.35 | 7 of 9 |
+| near-black, 4 | 14.41 / 11.04 / 8.78 | 15.74 / 12.74 / 10.45 | 13.99 / 11.01 / 8.90 | 13.58 / 10.05 / 8.32 | 13.37 / 9.50 / 8.01 | 15.19 / 11.68 / 10.01 | 9 of 9 |
+
+- The cleanup alone costs under 0.1 at 1 m (10.64 to 10.71) and up to 0.27 at
+  3 m, and is closer up close (14.48 to 14.07). With three refining passes the
+  single-dot-free print is closer than plain dots at 1 m in 33 of 36 runs
+  (10.64 to 10.17); the three misses are by 0.01 to 0.04.
+- The same search with single dots allowed goes further (9.66) on a press that
+  holds them, and falls to 15.19 on one that does not. The rule costs about 0.5
+  at 1 m where single dots hold, and saves about 5 where they don't. The page
+  offers "Keep them" for a printer who has proved their mesh holds single dots.
+- On the page at the full 0.3 mm grid (Starry Night at 1,280 px, 933 x 583
+  dots, near-black, 4 inks): plain 11.88 at 1 m, cleanup 11.47 in 1.8 s, three
+  passes 9.44 in 6.9 s. In headless Chromium with the 640 px image: 12.36 to
+  9.95 at 1 m and 8.66 to 7.16 at 3 m, 3.5 s, no console errors; the brief's
+  per-screen line reads "0% single dots".
+- Two dead ends on the way, kept for the next run: judging moves by squared
+  error in linear RGB (no Lab) made the refining passes worse than none (they
+  under-weigh the darks), and linearising Lab at the painting's colour rather
+  than at the print's made them raise the true squared error (242 to 339 on
+  Starry Night), since the print sits about 13 delta E away. Weighing each cell
+  by 1 / its error to aim at the mean rather than the mean square scored the
+  same on four paintings and was left out.
+
+Not checked: any real screen. Whether a given mesh holds a 2-dot pair at 0.3 mm
+(and loses single dots at all) is for a proof; the calibration strip still
+prints a checkerboard of single dots, and a pair strip is the next thing to
+add. The refining ignores dot gain (the error-diffusion compensation does not
+carry into it), and the eye model is the same rough blur as above.
 
 ### Dot gain (2026-11-11)
 
