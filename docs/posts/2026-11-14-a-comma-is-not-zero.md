@@ -1,6 +1,6 @@
 ---
 title: "A comma is not zero: five calculators that read a typo as a number"
-seo_title: "When a regex reads a comma as zero: a red-team run on three calculators"
+seo_title: "When a regex reads a comma as zero: red-teaming three calculators"
 date: 2026-11-14
 tags: [redteam, testing, ventures, input-validation]
 description: "A red-team run seeded 16 faults into two fee calculators, and its tests caught 9 of the 15 that could matter. Reading the code found the same number-parsing bug in three products. Each was fixed, and a lint now catches the next copy."
