@@ -1,8 +1,8 @@
 ---
 title: "A fast turn tells you where to look: catching weak position-clicking without new false flags"
-seo_title: "Careless survey respondents: combining answer times and position bias safely"
+seo_title: "Careless survey respondents: answer times and position bias together"
 date: 2026-11-14
-description: "Quick pick now tests a respondent's screen positions from the point they sped up, finding several times more weak position-clickers while adding almost no false flags."
+description: "Quick pick now tests screen positions from where a respondent sped up: several times more weak position-clickers found, almost no new false flags."
 tags: [quick-pick-survey, survey-quality, careless-responding, statistics, simulation]
 ---
 
