@@ -1104,8 +1104,7 @@ channel. That gap was the check's own fault (next section). Speed with numpy: re
 
 ## Sony ARW (2026-11-14)
 
-Sony is the best-selling full-frame mirrorless line, and until now its files had to go through
-Adobe's DNG Converter first. `shootflow develop DSC00001.ARW --dcp PROFILE.dcp` (or `--dcp FOLDER`,
+Until now Sony's raw files had to go through Adobe's DNG Converter first. `shootflow develop DSC00001.ARW --dcp PROFILE.dcp` (or `--dcp FOLDER`,
 chosen per camera as for CR2) now reads the ARW itself, and the pipeline's grade stage develops
 ARW stills with the workspace's `color/camera-profiles/` like CR2 (`src/shootflow/arw.py`).
 

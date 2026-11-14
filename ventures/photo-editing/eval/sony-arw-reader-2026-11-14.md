@@ -3,7 +3,7 @@
 ## Why
 
 The developer read DNG and Canon CR2 only; every Sony file had to go through Adobe's DNG
-Converter first (README, "What it reads"). Sony sells the most full-frame mirrorless bodies, so a
+Converter first (README, "What it reads"), so a
 photographer on an A7-series camera could not use the develop or the pipeline's grade stage on
 their own files. Every listed `next:` item for photo-editing needs a file or tool we do not hold;
 this one needed only public sample files, which the proxy serves (`github.com` clone of

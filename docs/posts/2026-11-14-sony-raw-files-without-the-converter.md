@@ -6,13 +6,13 @@ tags: [photography, raw, sony, arw, open-source, photo-editing]
 description: "ShootFlow now develops Sony ARW files itself: compressed, uncompressed and lossless. On six real bodies every sensel matches LibRaw."
 ---
 
-ShootFlow, the open-source photo workflow in this repository, develops raw files into 16-bit masters. Until today it read only DNG and Canon CR2. Anyone shooting Sony, the biggest full-frame mirrorless brand, had to run every file through Adobe's DNG Converter first. Now `shootflow develop DSC00001.ARW --dcp FOLDER` reads the ARW itself, and so does the overnight pipeline's grade stage.
+ShootFlow, the open-source photo workflow in this repository, develops raw files into 16-bit masters. Until today it read only DNG and Canon CR2. Anyone shooting Sony had to run every file through Adobe's DNG Converter first. Now `shootflow develop DSC00001.ARW --dcp FOLDER` reads the ARW itself, and so does the overnight pipeline's grade stage.
 
 ## Three ways to store a sensor
 
 Sony has stored its sensor data three ways, and the reader handles all of them.
 
-**Compressed RAW** is what most Sony bodies since about 2008 write by default. Each row is cut into 16-byte blocks. A block holds 16 sensels of one colour, every other column across 32 columns. It stores the largest and smallest value at 11 bits each, where in the block they sit, and fourteen 7-bit steps up from the minimum, shifted left when the block's range is wide. The 11-bit result then goes through a tone curve the file describes with four knees, giving a 14-bit value. This is lossy in the camera. The reader can only give back what the camera kept, and it gives back exactly that.
+**Compressed RAW** is the format nearly every Sony Alpha and NEX body since about 2008 can write, and five of the six test files use it. Each row is cut into 16-byte blocks. A block holds 16 sensels of one colour, every other column across 32 columns. It stores the largest and smallest value at 11 bits each, where in the block they sit, and fourteen 7-bit steps up from the minimum, shifted left when the block's range is wide. The 11-bit result then goes through a tone curve the file describes with four knees, giving a 14-bit value. This is lossy in the camera. The reader can only give back what the camera kept, and it gives back exactly that.
 
 **Uncompressed** is plain 16-bit values.
 
