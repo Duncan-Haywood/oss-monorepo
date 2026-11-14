@@ -2,8 +2,8 @@
 title: "A stable drone still tips over when the motors run out"
 date: 2026-11-14
 tags: [codesign-cant, quadrotor, rotor-cant, stability, actuator-saturation, mixer, thrust-to-weight, pre-registration]
-seo_title: "Why does a stable quadrotor controller still crash in strong gusts? Thrust headroom"
-description: "Quadrotor designs with a stability margin still crashed at twice the trained gust lever. Every crash was a tilt-over with the mixer saturated. An ideal mixer with 1.25x torque removed them all; airmode and retuning did not."
+seo_title: "Why does a stable quadrotor still crash in gusts? Thrust headroom"
+description: "Quadrotors with a stability margin crashed in a doubled gust lever, tipping over with the mixer saturated. More authority fixed it; airmode, retuning did not."
 ---
 
 The `codesign-cant` programme studies small quadrotors with canted rotors, where the airframe, the motors and the controller are tuned together. The last two steps added a stability margin to the tuner: keep the attitude integral gain at or below 0.8 times its linear stability ceiling. That margin cost under 1% of performance and removed every crash that a looser tilt limit exposed.
