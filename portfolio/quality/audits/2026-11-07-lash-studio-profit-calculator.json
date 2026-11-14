@@ -28,7 +28,7 @@
   {
    "severity": "medium",
    "what": "Seeded mutation survived: the headline 'a month profit' (monthlyProfit = weeklyProfit*52/12) has no test; replacing it with *4 left all 23 tests green. Weekly hours/profit, implied utilisation, lifetime revenue and CSV values are likewise unasserted.",
-   "where": "ventures/lash-studio-profit-calculator/calc.mjs:100 and calc.test.mjs"
+   "where": "ventures/lash-studio-profit-calculator/calc.mjs:100 and calc.test.mjs", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15848"
   },
   {
    "severity": "medium",

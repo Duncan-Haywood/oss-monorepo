@@ -126,6 +126,18 @@ def classify(defect: dict) -> tuple[str, str, str]:
     return "other", "audit", "rule"
 
 
+def defect_fixed(a: dict, d: dict) -> bool:
+    """Whether defect `d` of audit `a` has a recorded fix. A defect's own `fixed_by` (a PR URL) answers per defect;
+    once any defect of the audit carries one, the others are open until they do. An audit with no `fixed_by` on any
+    defect keeps the older reading: a non-empty `fix_prs` closes every defect. That older reading hid partial fixes:
+    PR #15848 fixed one of three medium defects in home-inspection-report-builder and the other two left the queue."""
+    if d.get("fixed_by"):
+        return True
+    if any(x.get("fixed_by") for x in a.get("defects") or []):
+        return False
+    return bool(a.get("fix_prs"))
+
+
 def defect_rows(audits: list[dict]) -> list[dict]:
     rows = []
     for a in audits:
@@ -134,7 +146,7 @@ def defect_rows(audits: list[dict]) -> list[dict]:
             rows.append({"key": f"{a['_file']}#{i}", "file": a["_file"], "subject": a.get("subject"),
                          "stratum": a.get("stratum"), "date": a.get("date"), "severity": d.get("severity"),
                          "what": d.get("what", ""), "category": cat, "origin": origin, "how": how,
-                         "fixed": bool(a.get("fix_prs"))})
+                         "fixed": defect_fixed(a, d)})
     return rows
 
 
@@ -289,22 +301,39 @@ SEV_RANK = {"high": 0, "medium": 1, "low": 2}
 
 
 def queue(audits: list[dict], severity: str = "medium") -> list[dict]:
-    """Defects from each subject's latest audit that no fix PR is recorded against, worst first. Source-only defects
-    (fixed by the build at deploy) are left out."""
+    """Defects from each subject's latest audit that no fix PR is recorded against (`defect_fixed`), worst first.
+    Source-only defects (fixed by the build at deploy) are left out."""
     latest: dict[str, dict] = {}
     for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
         latest[a["subject"]] = a
     out = []
     for a in latest.values():
-        if a.get("fix_prs"):
-            continue
         for i, d in enumerate(a.get("defects") or []):
+            if defect_fixed(a, d):
+                continue
             cat, origin, _ = classify(d)
             if cat == "source-only" or SEV_RANK.get(d.get("severity"), 3) > SEV_RANK[severity]:
                 continue
             out.append({"severity": d["severity"], "subject": a["subject"], "audit": a["_file"], "index": i,
                         "category": cat, "what": d.get("what", ""), "where": d.get("where", "")})
     out.sort(key=lambda r: (SEV_RANK[r["severity"]], r["audit"], r["index"]))
+    return out
+
+
+def unmarked_fixes(audits: list[dict], severity: str = "medium") -> list[dict]:
+    """Latest audits whose `fix_prs` closes two or more defects at `severity` or worse with no `fixed_by` on any:
+    the whole-audit reading hides them all, though a fix PR may have closed only some (PR #15848 closed one of
+    three). Counted so the queue can say how much it cannot see; set `fixed_by` per defect to bring the rest back."""
+    latest: dict[str, dict] = {}
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        latest[a["subject"]] = a
+    out = []
+    for a in latest.values():
+        ds = a.get("defects") or []
+        if not a.get("fix_prs") or any(d.get("fixed_by") for d in ds):
+            continue
+        if sum(SEV_RANK.get(d.get("severity"), 3) <= SEV_RANK[severity] for d in ds) >= 2:
+            out.append(a)
     return out
 
 
@@ -677,7 +706,13 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
                   " or pick another row (a fix PR that has not merged is not yet in fix_prs)")
         if changed:
             print(f"{changed} shown sit under a subject changed since its audit: check whether a commit already fixed"
-                  " it, and if so record that PR in the audit's fix_prs instead of fixing it again")
+                  " it, and if so record that PR in the audit's fix_prs (and the defect's fixed_by) instead of fixing"
+                  " it again")
+        hidden = unmarked_fixes(audits, args.severity)
+        if hidden:
+            print(f"{len(hidden)} audits list fix_prs with no per-defect fixed_by, so all their defects are treated as"
+                  " fixed and are not shown; when you fix some of an audit's defects, set fixed_by on each one you"
+                  " fixed (portfolio/quality/README.md, 'Fix forward')")
     elif args.cmd == "mode":
         open_high = len(queue(audits, "high"))
         print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high), indent=1))
