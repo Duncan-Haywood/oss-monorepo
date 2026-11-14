@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Not Enough Ones</title>
+      <link>https://example.invalid/hearth-and-horizon/not-enough-ones.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/not-enough-ones.html</guid>
+      <pubDate>Sat, 14 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A diocese's screening assistant runs a Benford's-law test on every parish's payments, and a rural parish turns red on the deans' dashboard: too few amounts that begin with 1, three times too many that begin with 4. By Thursday the treasurer of thirty-one years has heard in the gas station that the books are cooked. A young auditor drives out and finds the fours are the Wexley price, forty-five dollars, and that the test was never going to be fair on five hundred lines. The right test finds something else, an honest mistake, and the harder work is undoing what a red square said in public. Setting: Saint Isidore the Farmer (invented), Wexley (invented), Iowa, and the diocesan finance office, Monday 10 February to Sunday 2 March 2053. Read the full text at https://example.invalid/hearth-and-horizon/not-enough-ones.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A diocese's screening assistant runs a Benford's-law test on every parish's payments, and a rural parish turns red on the deans' dashboard: too few amounts that begin with 1, three times too many that begin with 4. By Thursday the treasurer of thirty-one years has heard in the gas station that the books are cooked. A young auditor drives out and finds the fours are the Wexley price, forty-five dollars, and that the test was never going to be fair on five hundred lines. The right test finds something else, an honest mistake, and the harder work is undoing what a red square said in public.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Pull Gently</title>
       <link>https://example.invalid/hearth-and-horizon/pull-gently.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/pull-gently.html</guid>
