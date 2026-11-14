@@ -153,3 +153,26 @@ test('a saw-toothed head is a quilisma; a notched head that continues a wide str
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [3, 4, 5, 5, 4]);
   assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'quilisma', 'square', 'square', 'square']);
 });
+
+// Liquescents as printed in the 1908 type: a small note hung off the head's
+// right edge on a thick short stem. The epiphonus's small head sits above,
+// the cephalicus's hook below. A virga's stem is thin; a podatus's stem
+// ends on a full head. Neither is a liquescent.
+test('a small note on a short thick stem is a liquescent, read after its head at its own pitch', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[300, 2], [500, 4], [700, 4], [900, 2], [900, 4], [1100, 3]]);
+  // epiphonus g-h~ (positions 2 then 3): stem up from the head to a small head
+  rect(img, 300 + 15, cy(3) - 0.25 * S, 7, cy(2) - cy(3)); // stem
+  rect(img, 300 + 12, cy(3) - 0.25 * S, 10, 0.3 * S); // small head
+  // cephalicus (positions 4 then 3): a hook below the head's right edge
+  rect(img, 500 + 14, cy(4), 8, cy(3) - cy(4) + 0.25 * S);
+  // virga: a thin stem down the right edge
+  rect(img, 700 + 19, cy(4), 3, 1.2 * S);
+  // podatus: the stem joins two full heads
+  rect(img, 900 + 16, cy(4), 6, cy(2) - cy(4));
+  const [st] = readPage(readPgm(toPgm(img)));
+  assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 3, 4, 3, 4, 2, 4, 3]);
+  assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'liquescent', 'square', 'liquescent', 'square', 'square', 'square', 'square']);
+});

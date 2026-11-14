@@ -85,6 +85,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-13, later: phrase markers and a stems ZIP on the studio page (`files.mjs`: browser-safe WAV and stored ZIP
   writer, 4 tests); `eval/browser-e2e.mjs` (89 checks) finds the MIDI equal to `--markers` and the stems equal to
   `render-cli.mjs --stems`, summing to the preview within 2 steps of 32,767.
+- 2026-11-14: liquescents read off the scan (`scan.mjs` `liquescentTail`, 1 new test in `scan.test.mjs`): the small
+  note on a short thick stem at a head's right edge (epiphonus above, cephalicus hook below). Set on 21 pieces
+  (54 of 60), frozen, then 20 of 26 on eleven pieces scanned only afterwards, 1 of 1,622 other heads called
+  liquescent (`eval/liquescent-check-report.md`). `scan-check.mjs` now checks 33 more notes, no new disagreement.
 
 - 2026-11-13, latest: `--split-voices` (tenors and basses by phrase; studio page option too). 7 of the 67 corpus files
   span 17 semitones, one more than the C3-E4 band both sections reach; each splits with one phrase for one section
