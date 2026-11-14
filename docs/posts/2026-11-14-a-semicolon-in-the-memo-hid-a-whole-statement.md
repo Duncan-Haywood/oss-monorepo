@@ -1,9 +1,9 @@
 ---
 title: "A semicolon in the memo hid a whole bank statement"
-seo_title: "Why a US Bank CSV export imports 0 rows, and the merchant code hiding in its memo"
+seo_title: "Why a US Bank CSV imported 0 rows, and the code hiding in its memo"
 date: 2026-11-14
 tags: [ai-bookkeeper, bank-csv, parsing, categorization]
-description: "A real US Bank card export read 0 of 57 rows because its memo has more semicolons than the line has commas. The fix, and the merchant category code that memo was carrying all along."
+description: "A real US Bank card export read 0 of 57 rows: its memo had more semicolons than the line had commas. The fix, and the merchant code the memo carried."
 ---
 
 The [AI bookkeeper](../../ventures/ai-bookkeeper/README.md) reads bank and card
