@@ -91,7 +91,7 @@ class Wall:
         return R
 
     def capacity(self, mask=None, lat=None, omega=0.0, holddown=None, use_holddowns=True, top="norot",
-                 bear=(), return_motion=False):
+                 bear=(), hd_shear=0.0, return_motion=False):
         """Least dissipation (units of F) for a unit top-plate displacement.
 
         mask     (n,) True where a sheathing nail holds
@@ -102,6 +102,8 @@ class Wall:
         top      "free", "norot" or "slide"
         bear     pairs (sheet a, sheet b, x) where sheet a's right edge meets sheet b's left edge at x:
                  they may separate along the wall but not overlap (checked at the bottom and top)
+        hd_shear milestone 18: extra lateral capacity (over F) at each held-down stud bottom, the hold-down's
+                 anchor rod bearing in the sill; 0 is milestone 17's model, ``np.inf`` stops the slide
         """
         mask = np.ones(self.n, bool) if mask is None else np.asarray(mask, bool)
         nq = 3 * self.nb
@@ -138,14 +140,15 @@ class Wall:
             body = 1 + s
             for zj, plate in ((0.0, -1), (HEIGHT, 0)):
                 R = self._rel(body, plate, self.studs[s], zj)
-                if lat is None:
+                held = plate == -1 and s in self.ends and use_holddowns
+                shear = hd_shear if held else 0.0
+                if lat is None or np.isinf(shear):
                     eq.append((R[0], {}, 0.0))
                 else:
                     eq.append((R[0], {nv: -1.0, nv + 1: 1.0}, 0.0))
-                    cost += [lat * self.nails[s]] * 2
+                    cost += [lat * self.nails[s] + shear] * 2
                     nv += 2
                 sign = 1.0 if plate == -1 else -1.0
-                held = plate == -1 and s in self.ends and use_holddowns
                 if lat is None or (held and holddown is None):   # a pin, or a rigid tie
                     eq.append((R[1], {}, 0.0))
                     continue

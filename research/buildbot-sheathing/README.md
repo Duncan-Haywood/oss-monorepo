@@ -298,6 +298,21 @@ is what would confirm it. For the robot, an escaped miss costs about the same on
 
 ![Share of capacity a decayed wall keeps against stud-to-plate joint strength; tested, MCASHEW2 and model shares](experiments/m17_weiss_wall/figure.png)
 
+**Milestone 18: does the hold-down's anchor rod stop a decayed shear wall from sliding on its sill? Yes, and
+then the model no longer explains Weiss's 3 in wall.** In Weiss's tests the end studs are nailed to HTT4
+hold-downs whose 5/8 in anchor rods run through the sill into the test beam, a shear path milestone 17 left
+out. The rod path's NDS design value is **617–1,137 lb**. At milestone 17's fitted end nails the slide stops
+once each rod carries about **420 lb**. With the end studs held, no end-nail strength fits: the decayed 3 in wall
+keeps **64–74%** against 34% tested (best rms 22.8 points; 4 of 6 registered predictions held, including the
+two that tested the slide's sensitivity). A fit within 5 points needs each rod below about **970 lb**, and the
+end nails get weaker as the rod gets stronger. At the rod's design value they would carry about 78 lb each,
+below their own design value. So with code-level fastener strengths, a rigid-plastic model of the
+tested wall cannot reproduce the 34%. What remains is slack in the rod's hole, the middle stud
+splitting and cyclic tear-out. For the robot nothing moves: an escaped miss costs 2–3% of a wall on
+average and 9–11% at the 99th percentile under every anchorage model.
+
+![Decayed walls' share kept against end-nail strength with and without the rods' shear path; best-fit end-nail strength against the rod's shear capacity](experiments/m18_holddown_shear/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -709,11 +724,25 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 - **Checks.** One sheet against milestone 15's `Frame` (H75, exact); two pinned sheets equal twice one;
   a decayed wall never above the frame's sliding capacity (`tests/test_wall_lp.py`).
 
+## Milestone 18 method (`wall_lp.Wall.capacity(hd_shear=...)`)
+- **Question.** Milestone 17's fit has the decayed wall slide on its sill, but Weiss's end studs are nailed to
+  HTT4 hold-downs whose 5/8 in anchor rods pass through the sill into the steel beam (Weiss Ch. 4.3.3–4.3.4).
+  Does that shear path stop the slide, and what joint strength fits then?
+- **Model.** Milestone 17's wall LP. Each held-down stud bottom also resists sliding along the sill with
+  s F, rigid-plastic (s = 0: milestone 17; s = inf: no slide). Grid: s 0–16 F and rigid, end-nail strength
+  0.05–1.50 of the NDS ratio (0.01 steps with a rigid path).
+- **Scale for s.** NDS yield-limit equations (D > 1/4 in, R_d 4/3.6/3.2) for a 5/8 in rod (F_yb 45,000 psi)
+  bearing parallel to grain in a 1.5 in DF-L sill (F_e 5,600 psi) with an A36 steel side member
+  (F_e 87,000 psi) 1/8–1/2 in thick: 617–1,137 lb, or 2.55–4.7 F at the 242 lb per sheathing nail the
+  controls imply.
+- **Checks.** s = 0 equals milestone 17 exactly; capacity is monotone in s; a rigid path blocks the whole-wall
+  slide (`tests/test_wall_lp.py`).
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 103 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, five scipy
+python -m pytest -q tests                                    # 106 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, eight scipy
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -753,6 +782,10 @@ python experiments/m15_frame_joints/run.py > experiments/m15_frame_joints/result
 python experiments/m15_frame_joints/figure.py
 python experiments/m16_soft_nails/run.py > experiments/m16_soft_nails/results.txt   # ~25 min (about 7,000 pushovers), seed 7
 python experiments/m16_soft_nails/figure.py
+python experiments/m17_weiss_wall/run.py > experiments/m17_weiss_wall/results.txt     # ~5 min on 4 CPUs (about 9,300 LPs)
+python experiments/m17_weiss_wall/figure.py
+python experiments/m18_holddown_shear/run.py > experiments/m18_holddown_shear/results.txt # ~5 min on 4 CPUs
+python experiments/m18_holddown_shear/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -1140,7 +1173,25 @@ python paper/check_numbers.py                                # every number the 
   mean loss 2.73%, 99th percentile 10.41% (milestone 14: 2.34%, 11.49% a sheet); 2.67% and 10.19% at the
   fitted joints.
 
+## Milestone 18 results (`experiments/m18_holddown_shear/results.txt`)
+
+- **Code check** (H81 held): s = 0 reproduces milestone 17's capacities exactly.
+- **Rigid path at NDS joints** (H82 refuted, as expected): 79.5% and 73.5% kept, decay ratio 1.78.
+- **Refit with a rigid path** (H83, H84 refuted): best end-nail multiple 0.17, keeping 68.9% and 63.6%
+  (rms 22.8 points), decay ratio 1.77 against 1.12 tested; no multiple from 0.05 to 1.50 within 5 points.
+- **Where it fails** (H85 held): 69% (6-12) and 85% (3-12) of the sheathing-nail work is on the double end
+  studs, Weiss's reported failure line.
+- **Threshold** (H86 held): at 0.47 of the NDS ratio the slide stops at s = 1.75 F (about 420 lb a rod), below
+  the rod path's 617 lb design value.
+- **Trade-off, post hoc:** fits within 5 points exist for s up to 4 F (about 970 lb a rod), with end nails at
+  0.45 (s = 0), 0.25 (s = 2.55 F, the rod's design value) and 0.05 (s = 4 F) of the NDS ratio.
+- **Escaped misses** (first 2,000 walls): 2.74% mean, 10.77% p99 in milestone 17's model; 2.13% and 9.02%
+  with a rigid path at the 0.17 fit.
+
 ## Limitations
+- **The rods' shear path (milestone 18).** A design equation, not a tested ultimate, engaged with no slack;
+  the steel side member's thickness is swept, not read; the same rigid-plastic, monotonic model as
+  milestone 17, so slip in an oversized rod hole and cyclic tear-out are outside it.
 - **Weiss's wall (milestone 17).** Rigid-plastic, monotonic and small-displacement against cyclic tests of
   two or three walls a group; studs are rigid bodies, though Weiss's middle studs split; joint strengths are
   NDS design ratios, and the 0.47 that fits the tests is fitted, not measured; shear through the hold-downs
@@ -1258,7 +1309,9 @@ stiffness and uplift (or Weiss's full text, to read her set-up). Milestone 17 re
 her wall: its anchorage does not explain the loss at code-strength joints, but end nails at 0.47 of the
 NDS ratio fit both tested groups, because the decayed wall slides on its sill. The next inputs are a tested
 ultimate for 16d end-nailed stud-to-plate joints (to check the 0.47 independently) and the shear the
-hold-downs and anchor bolts carry. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+hold-downs and anchor bolts carry. Milestone 18 added the rods' shear path: it stops the slide below the
+rod's design value, and then no end-nail strength fits the 3 in wall, so the next model is a displacement-based
+wall with slack at the rods (milestone 16's nail springs), checked against a tested end-nail ultimate. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps

@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydnMKfwBUdtqnam7GZ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T08:40:09Z",
+  "ended": "2026-11-14T08:53:45Z",
+  "wall_minutes": 13.84,
+  "tokens_in": 4122666,
+  "tokens_out": 38075,
+  "cost_usd": 2.5802,
+  "tool_calls": 41,
+  "task": "buildbot-sheathing milestone 18: the hold-downs' anchor-rod shear path on Weiss's decayed wall",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15793",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pushed a post whose seo_title was 71 chars: the pre-push hook checks the working tree, which already held a fix that a failed && chain never committed",
+      "fix": "committed the fix and the tag spelling separately"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py (pre-push hook)",
+      "issue": "the hook checks the working tree, not the commits being pushed, so an uncommitted fix let a bad post through to the branch"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-anchor-rods-stop-decayed-shear-wall-sliding.md",
+    "research/buildbot-sheathing/LOG.md (milestone 18 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered H81-H86 in LOG.md and pushed before computing. H81, H85, H86 held; H82 (expected), H83, H84 refuted. Local checks: tests/test_wall_lp.py 8 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; paper/check_numbers.py 130/130; check_post_frontmatter ok. run.py about 4.5 min on 4 CPUs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d421f1ea-f827-577c-81e2-6e116d183d14",
+    "transcripts": 1,
+    "first": "2026-11-14T08:40:09Z",
+    "last": "2026-11-14T08:53:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 38075,
+        "thinking": 9889,
+        "cache_read": 3995174,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127418,
+        "api_equivalent_usd": 2.5802,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 38075,
+      "thinking": 9889,
+      "cache_read": 3995174,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127418,
+      "api_equivalent_usd": 2.5802,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.84,
+      "active_minutes": 13.84,
+      "model_minutes": 5.93,
+      "tool_minutes": 7.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a structural PhD student extending an LP limit-analysis model, NDS dowel calcs, a sweep and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 387.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

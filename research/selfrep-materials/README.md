@@ -36,6 +36,7 @@ Imported mass per printer copy, kg, base case (`s`=0.10, `r`=0.8, `phi`=0.3, `y`
 
 ## Limitations
 - **Stylised and parameter-driven.** Masses are the assumed placeholders of `selfrep-closure`; every yield, loss and specific energy is a round-number assumption, not a measured or sourced figure. Conclusions are about structure (vitamins dominate, own-scrap recycling is small), not magnitudes.
+- **Remelt is credited against sheet, which a crucible furnace cannot make** (found by the [2026-11-08 quality audit](../../portfolio/quality/audits/2026-11-08-selfrep-recyclers.json) of `selfrep-recyclers`). The 0.06 kg of aluminium saved per copy assumes remelted offcuts replace imported sheet and bar alike; a furnace pours castings, so only the bar stock of cast-and-machined parts (0.029 kg) can really be replaced. The effect on the 3% headline is under 1 point (0.04 kg of 6.6 kg). `selfrep-recyclers` (`furnace_saving_kg`) uses the capped figure.
 - Only the aluminium bar/sheet and brass of that part list are modelled as metal; brass is never remelted and the MDF is never recycled. Filament additives, moisture, colour mixing and mechanical quality loss of recycled plastic are not modelled; `phi` stands in for all of it.
 - Shredder, extruder, furnace and their own bills of materials and masses are absent: the machines that recycle are not counted in the copy.
 - Electricity and the vitamin supply chain are not counted in the energy figure; only shop processes are.

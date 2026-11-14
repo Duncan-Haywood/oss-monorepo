@@ -55,20 +55,6 @@ URL:https://example.invalid/einvoice-preflight/armenia-src-e-invoice-mand
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:f59b907f42109d3f@einvoice-preflight
-DTSTAMP:20260101T000000Z
-DTSTART;VALUE=DATE:20161001
-DTEND;VALUE=DATE:20161002
-SUMMARY:Czech Republic: B2G acceptance since 1 Oct 2016
-DESCRIPTION:Czech Republic (B2G in force\; B2B not enacted). B2G acceptan
- ce since 1 Oct 2016. Detail and sources: https://example.invalid/einvoic
- e-preflight/czech-republic-e-invoice-mandate.html. Not legal or tax advi
- ce.
-URL:https://example.invalid/einvoice-preflight/czech-republic-e-invoice-m
- andate.html
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:60f1756d6ac8f862@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20170101
@@ -99,6 +85,21 @@ URL:https://example.invalid/einvoice-preflight/azerbaijan-e-qaime-e-invoi
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:c483a996e7139aaa@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20190401
+DTEND;VALUE=DATE:20190402
+SUMMARY:Czech Republic: B2G acceptance (Act 134/2016 § 221) from 1 Apr 2
+ 019 for the state
+DESCRIPTION:Czech Republic (B2G in force\; B2B not enacted). B2G acceptan
+ ce (Act 134/2016 § 221) from 1 Apr 2019 for the state. Detail and sourc
+ es: https://example.invalid/einvoice-preflight/czech-republic-e-invoice-
+ mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/czech-republic-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:a79c286530f236cd@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20190701
@@ -124,6 +125,21 @@ DESCRIPTION:Uzbekistan (In force (2026 changes disputed)). B2B and B2G re
  ml. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/uzbekistan-soliq-e-invoice
  -mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a7728200f5cd3165@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20200401
+DTEND;VALUE=DATE:20200402
+SUMMARY:Czech Republic: from 1 Apr 2020 for other contracting authorities
+  (our count from § 279(5))
+DESCRIPTION:Czech Republic (B2G in force\; B2B not enacted). from 1 Apr 2
+ 020 for other contracting authorities (our count from § 279(5)). Detail
+  and sources: https://example.invalid/einvoice-preflight/czech-republic-
+ e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/czech-republic-e-invoice-m
+ andate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
@@ -651,6 +667,19 @@ URL:https://example.invalid/einvoice-preflight/kazakhstan-is-esf-e-invoic
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:5fea62517cae19eb@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260101
+DTEND;VALUE=DATE:20260102
+SUMMARY:Latvia: data to the State Revenue Service from 1 Jan 2026
+DESCRIPTION:Latvia (Upcoming). data to the State Revenue Service from 1 J
+ an 2026. Detail and sources: https://example.invalid/einvoice-preflight/
+ latvia-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/latvia-e-invoice-mandate.h
+ tml
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:19601578d44cf272@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260101
@@ -886,31 +915,33 @@ URL:https://example.invalid/einvoice-preflight/saudi-arabia-zatca-e-invoi
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:ebaa4d0825a3e64c@einvoice-preflight
+UID:07971bb225d1a1a8@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260717
 DTEND;VALUE=DATE:20260718
 SUMMARY:Luxembourg: Draft law No. 8815 (approved by the Government Counci
  l 17 Jul 2026\, filed 30 Jul 2026\, ...
 DESCRIPTION:Luxembourg (Upcoming). Draft law No. 8815 (approved by the Go
- vernment Council 17 Jul 2026\, filed 30 Jul 2026\, not yet law): receive
-  from 1 Jan 2028. Detail and sources: https://example.invalid/einvoice-p
- reflight/luxembourg-e-invoice-mandate.html. Not legal or tax advice.
+ vernment Council 17 Jul 2026\, filed 30 Jul 2026\, in committee and not 
+ yet law at the dossier's October 2026 update): receive from 1 Jan 2028. 
+ Detail and sources: https://example.invalid/einvoice-preflight/luxembour
+ g-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
  te.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:10d4761275e0526b@einvoice-preflight
+UID:f2ddfad3b93b8428@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260730
 DTEND;VALUE=DATE:20260731
 SUMMARY:Luxembourg: Draft law No. 8815 (approved by the Government Counci
  l 17 Jul 2026\, filed 30 Jul 2026\, ...
 DESCRIPTION:Luxembourg (Upcoming). Draft law No. 8815 (approved by the Go
- vernment Council 17 Jul 2026\, filed 30 Jul 2026\, not yet law): receive
-  from 1 Jan 2028. Detail and sources: https://example.invalid/einvoice-p
- reflight/luxembourg-e-invoice-mandate.html. Not legal or tax advice.
+ vernment Council 17 Jul 2026\, filed 30 Jul 2026\, in committee and not 
+ yet law at the dossier's October 2026 update): receive from 1 Jan 2028. 
+ Detail and sources: https://example.invalid/einvoice-preflight/luxembour
+ g-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
  te.html
 TRANSP:TRANSPARENT
@@ -1002,6 +1033,21 @@ DESCRIPTION:Rwanda (In force (2026 order reported\, unconfirmed)). Minist
  e-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/rwanda-eis-e-invoice-manda
  te.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:887c84979095a2d9@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260929
+DTEND;VALUE=DATE:20260930
+SUMMARY:Denmark: registered bookkeeping systems send and receive e-invoic
+ es from 29 Sep 2026
+DESCRIPTION:Denmark (Upcoming). registered bookkeeping systems send and r
+ eceive e-invoices from 29 Sep 2026. Detail and sources: https://example.
+ invalid/einvoice-preflight/denmark-e-invoice-mandate.html. Not legal or 
+ tax advice.
+URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
+ html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
@@ -1213,22 +1259,6 @@ URL:https://example.invalid/einvoice-preflight/philippines-bir-eis-e-invo
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:8ddb9a169807fcf7@einvoice-preflight
-DTSTAMP:20260101T000000Z
-DTSTART;VALUE=DATE:20270101
-DTEND;VALUE=DATE:20270102
-SUMMARY:Denmark: Bookkeeping Act systems\, SAF-T 2.0 from 1 Jan 2027\, de
- fault NemHandel registration repo...
-DESCRIPTION:Denmark (Upcoming). Bookkeeping Act systems\, SAF-T 2.0 from 
- 1 Jan 2027\, default NemHandel registration reported for 2027 (secondary
-  sources\, partly draft). Detail and sources: https://example.invalid/ei
- nvoice-preflight/denmark-e-invoice-mandate.html. Not legal or tax advice
- .
-URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
- html
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:7968dfcd7d213054@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20270101
@@ -1362,6 +1392,20 @@ URL:https://example.invalid/einvoice-preflight/saudi-arabia-zatca-e-invoi
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:e9c668133e84df00@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20270301
+DTEND;VALUE=DATE:20270302
+SUMMARY:Denmark: MitID checks and default NemHandel enrolment from 1 Mar 
+ 2027
+DESCRIPTION:Denmark (Upcoming). MitID checks and default NemHandel enrolm
+ ent from 1 Mar 2027. Detail and sources: https://example.invalid/einvoic
+ e-preflight/denmark-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:4756f9052d82344b@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20270401
@@ -1487,6 +1531,21 @@ URL:https://example.invalid/einvoice-preflight/bulgaria-e-invoice-mandate
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:3c91cca69cb3fe87@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20280101
+DTEND;VALUE=DATE:20280102
+SUMMARY:Denmark: sender master data from 1 Jan 2028 (BEK nr 811\, read 20
+ 26-11-14)
+DESCRIPTION:Denmark (Upcoming). sender master data from 1 Jan 2028 (BEK n
+ r 811\, read 2026-11-14). Detail and sources: https://example.invalid/ei
+ nvoice-preflight/denmark-e-invoice-mandate.html. Not legal or tax advice
+ .
+URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:9e7886ef543af70d@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280101
@@ -1500,29 +1559,32 @@ URL:https://example.invalid/einvoice-preflight/germany-e-invoice-mandate.
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:3de5d363ae5248e6@einvoice-preflight
+UID:7d103f1150e185e0@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280101
 DTEND;VALUE=DATE:20280102
-SUMMARY:Latvia: domestic B2B postponed to 1 Jan 2028 (vendor guides)
-DESCRIPTION:Latvia (Upcoming). domestic B2B postponed to 1 Jan 2028 (vend
- or guides). Detail and sources: https://example.invalid/einvoice-preflig
- ht/latvia-e-invoice-mandate.html. Not legal or tax advice.
+SUMMARY:Latvia: domestic B2B and its data from 1 Jan 2028 (Law on Account
+ ing\, read 2026-11-14)
+DESCRIPTION:Latvia (Upcoming). domestic B2B and its data from 1 Jan 2028 
+ (Law on Accounting\, read 2026-11-14). Detail and sources: https://examp
+ le.invalid/einvoice-preflight/latvia-e-invoice-mandate.html. Not legal o
+ r tax advice.
 URL:https://example.invalid/einvoice-preflight/latvia-e-invoice-mandate.h
  tml
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:f2b5d37ca9cc60f1@einvoice-preflight
+UID:037eeef4570fe7e6@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280101
 DTEND;VALUE=DATE:20280102
 SUMMARY:Luxembourg: Draft law No. 8815 (approved by the Government Counci
  l 17 Jul 2026\, filed 30 Jul 2026\, ...
 DESCRIPTION:Luxembourg (Upcoming). Draft law No. 8815 (approved by the Go
- vernment Council 17 Jul 2026\, filed 30 Jul 2026\, not yet law): receive
-  from 1 Jan 2028. Detail and sources: https://example.invalid/einvoice-p
- reflight/luxembourg-e-invoice-mandate.html. Not legal or tax advice.
+ vernment Council 17 Jul 2026\, filed 30 Jul 2026\, in committee and not 
+ yet law at the dossier's October 2026 update): receive from 1 Jan 2028. 
+ Detail and sources: https://example.invalid/einvoice-preflight/luxembour
+ g-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
  te.html
 TRANSP:TRANSPARENT
