@@ -11,12 +11,12 @@
 // rule was fixed, so they are held out from that too. Every pair where the
 // two disagree about a rhombus is listed with its page, staff and x, so it
 // can be looked at on the scan. Needs curl and ffmpeg, like scan-check.mjs.
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { readPgm, readPage, gabcSteps, align, alignLocal } from '../scan.mjs';
+import { readPage, gabcSteps, align, alignLocal } from '../scan.mjs';
+import { scanCache } from './scan-cache.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
@@ -27,13 +27,7 @@ const out = opt('--out', join(here, 'shape-check-report.md'));
 mkdirSync(cache, { recursive: true });
 const TUNED = 5; // pieces 1-5 set the thresholds; the rest are held out
 
-function page(item, leaf, width = 2000) {
-  const jpg = join(cache, `${item}-n${leaf}-w${width}.jpg`);
-  const pgm = jpg.replace(/\.jpg$/, '.pgm');
-  if (!existsSync(jpg)) execFileSync('curl', ['-sSfL', '-m', '120', '-o', jpg, `https://archive.org/download/${item}/page/n${leaf}_w${width}.jpg`]);
-  if (!existsSync(pgm)) execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', jpg, '-pix_fmt', 'gray', pgm]);
-  return readPgm(readFileSync(pgm));
-}
+const { page, prefetch } = scanCache(cache);
 
 const manifest = JSON.parse(readFileSync(join(here, 'scan-pages.json'), 'utf8'));
 const fresh = JSON.parse(readFileSync(join(here, 'shape-fresh-pages.json'), 'utf8')).pieces.map((p) => ({ ...p, fresh: true }));
@@ -50,7 +44,9 @@ const oddL = [];
 const oddQ = [];
 const perPiece = [];
 const odd = [];
-[...manifest.pieces, ...fresh, ...liqFresh, ...qFresh].forEach((piece, idx) => {
+const allPieces = [...manifest.pieces, ...fresh, ...liqFresh, ...qFresh];
+await prefetch(allPieces.flatMap((p) => p.pages.map((pg) => [p.archive, pg.leaf])));
+allPieces.forEach((piece, idx) => {
   const set = piece.qFresh ? 'qf' : piece.liqFresh ? 'liq' : piece.fresh ? 'fresh' : idx < TUNED ? 'tuned' : 'held';
   const g = gabcSteps(readFileSync(join(root, piece.gabc), 'utf8'));
   const scan = [];
