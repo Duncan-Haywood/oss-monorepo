@@ -396,6 +396,10 @@ class CensoredPseudo(unittest.TestCase):
         np.testing.assert_allclose(W[0.1], [1, 1, 1, 0, 1])
         np.testing.assert_allclose(W[0.5], [1, 1, 1, 0, 1])
         np.testing.assert_allclose(W[0.9], [1, 1, 1, 0.8, 0.2])
+        # cap=True: the upper pseudo-row sits at the stratum's longest completed build (250), weights unchanged
+        rc, Wc, _ = transfer.censored_pseudo(d, D, d, taus=(0.9,), cap=True)
+        self.assertEqual(list(rc.y), [100.0, 250.0, 50.0, 200.0, 250.0])
+        np.testing.assert_allclose(Wc[0.9], W[0.9])
 
     def test_cens_variants_reduce_to_the_cut_rows_when_nothing_is_open(self):
         """In the fixture every source permit of years <= Y-2 finished before D, so cens_cut / cens_es3 train on

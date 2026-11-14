@@ -428,6 +428,19 @@ worst, Austin's median in both years, where even the hindsight choice is wrong),
 hindsight choice under the same model. The early-stopping cut is the larger cost: the best candidate's
 test loss rises by 1.29 days on average over the 12 cells, up to 6.9 days in Austin's 0.9 quantile, because
 a validation set without long builds stops the tail model too early.
+Sessions 86 to 88 (`../src/rounds.py`; `../results/rounds_summary.json`, `../results/rounds_score_i2c.json`,
+`../results/rounds_score_ipcw_i2c_summary.json`, `../results/ipcw_reach_i2c.json`; predictions written before
+each run) took that explanation apart. A borrowed model built only from what was known on 1 January (source
+training rows completed by then, round counts fixed from older years) recovers Austin's tail but costs
+Seattle 2021 10.9 days at q0.9. Early-stopping it on the sources' year Y-3 instead still stops the q0.9 model
+after 8 to 17 rounds in 5 of 6 city-years, yet over 18 model-cells the round count does not track the tail
+loss (Spearman 0.02). What does is the training cut: dropping only the 0.45 to 0.56% of source permits still
+open on 1 January, with complete-label early stopping, costs San Francisco and Seattle 1.0 to 5.1 days at
+q0.9, while Austin, whose borrowed tail is too long, gains 2.3 and 5.7. Inverse-probability-of-censoring
+weights on the completed rows (G per source city-year from its issue days) halve the deployable model's
+q0.9 cost in San Francisco and Seattle (+2.53 days against +4.74, better in 4 of 4) but give back only 18
+to 33% of the cut alone, because 55 to 65% of the dropped permits outlast the longest window any permit of
+their city-year has: G is zero there, and no reweighting of finished permits can stand for them.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.

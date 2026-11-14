@@ -184,7 +184,7 @@ def km_cdf_at(t, event, query):
     return np.where(i >= 0, 1.0 - S[np.maximum(i, 0)], 0.0)
 
 
-def censored_pseudo(d, decision, km_rows, taus=TAUS, y_inf=Y_INF):
+def censored_pseudo(d, decision, km_rows, taus=TAUS, y_inf=Y_INF, cap=False):
     """Session 89: the rows of d as a deployment sees them on `decision`, open permits kept as lower bounds.
 
     Rows completed by the decision date (y <= window c) stay as they are, weight 1 at every quantile. A row
@@ -192,7 +192,11 @@ def censored_pseudo(d, decision, km_rows, taus=TAUS, y_inf=Y_INF):
     `km_rows` (seen at the decision date) of the same city (column `city`, if present) and class (`cls`). For
     quantile tau (Portnoy 2003): tau <= tau_i puts weight 1 on a pseudo-row at y_inf; otherwise weight
     (tau - tau_i)/(1 - tau_i) at c and (1 - tau)/(1 - tau_i) at y_inf. Returns (rows, {tau: weights}, info):
-    rows = completed rows, then the open rows labelled c, then the open rows labelled y_inf."""
+    rows = completed rows, then the open rows labelled c, then the open rows labelled y_inf.
+    cap=True (session 89, post hoc): the upper pseudo-row goes to max(c, the longest build completed by the decision
+    date in the same city and class) instead of y_inf (Efron's convention of putting the mass left past the last
+    observation on it). With y_inf, LightGBM's quantile leaf renewal (weighted percentile of residuals) sets a leaf
+    to ~y_inf whenever more than 1 - tau of its weight is open permits above tau_i, and the predictions explode."""
     def win(x):
         return np.array([(decision - s).days for s in pd.to_datetime(x.start).dt.date], dtype=float)
     def key(x):
@@ -209,6 +213,10 @@ def censored_pseudo(d, decision, km_rows, taus=TAUS, y_inf=Y_INF):
     done, op = d[~open_], d[open_]
     lo, hi = op.copy(), op.copy()
     lo["y"], hi["y"] = c[open_], y_inf
+    if cap:
+        smax = pd.Series(np.where(ke, ky, -np.inf)).groupby(kk).max()
+        top = pd.Series(k[open_]).map(smax).fillna(-np.inf).to_numpy()
+        hi["y"] = np.maximum(c[open_], top)
     rows = pd.concat([done, lo, hi])
     t_i = np.minimum(ti[open_], 1 - 1e-9)
     W = {}
