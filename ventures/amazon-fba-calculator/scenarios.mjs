@@ -1,3 +1,10 @@
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 const KEY = "amazon-fba-scenarios";
 
 function read(storage) {
@@ -9,7 +16,7 @@ function read(storage) {
   }
 }
 
-export function listScenarios(storage = globalThis.localStorage) {
+export function listScenarios(storage = browserStorage()) {
   return read(storage).filter((scenario) => scenario && scenario.id && scenario.name && scenario.inputs);
 }
 

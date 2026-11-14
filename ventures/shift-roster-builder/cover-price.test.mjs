@@ -207,3 +207,26 @@ test("--no-cover-pairs turns the two-shift moves off on the CLI", () => {
   const o = parseArgs(["staff.txt", "shifts.txt", "--cover-price", "25", "--no-cover-pairs"]);
   assert.equal(o.options.coverPairs, false);
 });
+
+test("the caller, off for the call-out day only, may take a stand-in's later shift: a swap covers the day", () => {
+  // 2026-11-14 (README "The caller can take a later shift"): calloutExposure's rebuild empties the caller's call-out day and
+  // nothing else, so Ana, off on Tuesday, can still work Wednesday. Bo (4 h a week) holds Wednesday: he takes Tuesday and
+  // hands Wednesday to Ana. Before, the check never gave the caller a shift and called the day at risk.
+  const staffText = "name, wage, max hours, min hours, availability\nAna, 20, 60, 0, any\nBo, 20, 4, 0, any";
+  const shiftsText = "Tue, 9:00, 13:00, 1\nWed, 9:00, 13:00, 1";
+  const ctx = ctxOf(staffText, shiftsText);
+  const owner = [0, 1]; // Ana Tue, Bo Wed
+  assert.equal(coverRisk(ctx, owner, { callerTakes: false }).riskyDays, 1);
+  const risk = coverRisk(ctx, owner);
+  assert.equal(risk.riskyDays, 0);
+  assert.equal(risk.chained, 1);
+  assert.deepEqual(owner, [0, 1]); // the search leaves the roster as it found it
+  // The other way round (Bo Tue, Ana Wed), Ana calling out Wednesday cannot be swapped: Bo's Tuesday is worked by then.
+  assert.deepEqual(coverRisk(ctx, [1, 0]).cases.map((c) => [c.person, c.day]), [[0, 2]]);
+  // And the slow measurement agrees with the new count on whichever roster the build posts.
+  const staff = parseStaff(staffText).staff, slots = parseShifts(shiftsText).slots;
+  const r = buildRoster(staff, slots, O);
+  const x = calloutExposure(staff, slots, r, O);
+  const open = x.cases.filter((c) => c.added > 0).map((c) => [staff.findIndex((s) => s.name === c.person), c.day]);
+  assert.deepEqual(coverRisk(ctx, r.owner).cases.map((c) => [c.person, c.day]), open);
+});

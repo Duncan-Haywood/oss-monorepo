@@ -626,16 +626,42 @@ filter (`node eval/ffmpeg-check.mjs`; six synthetic stereo 48 kHz signals: three
 sines, pink and white noise, a gated loud/quiet noise): integrated loudness
 within 0.05 LU on all six, true peak within 0.33 dB (the worst case, white
 noise, reads -13.47 here and -13.8 in ffmpeg; 16x oversampling gives -12.9, so
-both 4x meters under-read and ours is the closer). Not checked against EBU test
-files or a real mix; the true-peak filter is a windowed sinc, not the Annex 2
-coefficients. Distributor targets change: read
+both 4x meters under-read and ours is the closer). Checked 2026-11-14 against
+EBU Tech 3341's test signals built from its text (below), not yet the EBU's own
+files or a real mix; the true-peak filter is a windowed sinc, compared with the
+Annex 2 coefficients below. Distributor targets change: read
 theirs before release.
 
 `master-cli.mjs` also prints the gain each service's loudness normalisation would apply
-(Spotify and Apple Music turn quiet tracks up; YouTube, Amazon, Tidal and Deezer only
-turn loud ones down; `platformPlayback` in `master.mjs`, 2026-11-03, 1 test). The
-per-service targets (-14, -16, -14, -14, -14, -15 LUFS) are from memory, not read
-from the services' current pages: verify before relying on them.
+(`platformPlayback` in `master.mjs`). Read on the services' own pages on 2026-11-14
+(eval/ebu-tech3341-2026-11-14.md): only Spotify publishes a level. It plays at
+-14 LUFS, lifts quiet tracks only while 1 dB of true-peak headroom remains (its
+example: -20 LUFS peaking at -5 dBTP is lifted to -16, not -14), and asks masters
+louder than -14 LUFS to keep the true peak under -2 dBTP; the CLI now applies all
+three. Apple Music (-16), YouTube (-14), Amazon Music (-14), Tidal (-14) and
+Deezer (-15) are commonly reported figures with no level on the service's own
+help page (Apple, YouTube, Deezer read; Amazon and Tidal answered 403), and the
+CLI marks them with `*`.
+
+### Checked against EBU Tech 3341 (2026-11-14)
+
+```sh
+node ventures/chant-forge/eval/ebu-tech3341.mjs   # exit 0 when every case passes
+```
+
+The minimum-requirements signals of EBU Tech 3341 (2023) Table 1, synthesised from
+the table's text at 48 kHz (the EBU's own WAV set answered 403): cases 1-5
+(integrated, both gates), 9 and 12 (short-term and momentary constant), 10 and 13
+(short-term and momentary max, 20 files each at shifted offsets) and 15-23 (true
+peak). 69 of 69 readings inside tolerance; the plain sample peak fails 7 of the 9
+true-peak cases, so they do test the oversampling. The CLI now prints the loudest
+momentary (400 ms) and short-term (3 s) window, found over every sample offset
+(a 100 ms grid misses case 13 by up to 0.58 dB). The BS.1770-5 Annex 2 FIR is in
+`master.mjs` too (`truePeakAnnex2`): inside tolerance, but 0.2-0.3 dB under on
+cases 15 and 17, so the windowed sinc stays the true peak. Cases 20-23 depend on
+an anti-aliasing filter the table does not give (here a 20 kHz cut, which itself
+leaves the peak at -0.24 dBTP); not run: 5.0 channels, the authentic programme
+files and loudness range.
 
 ## Real Gregorio files (2026-11-03)
 

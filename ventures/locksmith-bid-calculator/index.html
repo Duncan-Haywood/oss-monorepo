@@ -223,6 +223,12 @@ import {
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data; pass this, never the bare global, so the page still runs.
+function pageStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 // proposal:end
 const el = id => document.getElementById(id);
 const money = (n) => {
@@ -256,7 +262,7 @@ function persistedInputs() {
 function count(event) { recordEvent(event); }
 
 function persistDraft() {
-  saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(persistedInputs(), el));
+  saveBid(pageStorage(), withProposalTerms(BID_SPEC), readProposalTerms(persistedInputs(), el));
 }
 
 function applyValues(values) {
@@ -345,7 +351,7 @@ el('copyLink').addEventListener('click', () => {
 });
 
 el('reset').addEventListener('click', () => {
-  clearBid(localStorage, withProposalTerms(BID_SPEC));
+  clearBid(pageStorage(), withProposalTerms(BID_SPEC));
   history.replaceState(null, '', location.pathname);
   location.reload();
 });
@@ -353,7 +359,7 @@ el('reset').addEventListener('click', () => {
 // A shared link wins over a local draft so the recipient always sees the
 // sender's numbers; the page's own defaults fill any field the link omitted.
 (() => {
-  const { values, source } = restoreBid(withProposalTerms(BID_SPEC), { search: location.hash || location.search, storage: localStorage });
+  const { values, source } = restoreBid(withProposalTerms(BID_SPEC), { search: location.hash || location.search, storage: pageStorage() });
   if (Object.keys(values).length > 0) {
     applyValues(values);
     el('draftStatus').textContent = source === 'link'

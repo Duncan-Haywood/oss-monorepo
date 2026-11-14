@@ -2,7 +2,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_storage_guard import bare_storage_args, check_tree, main, run_contract, unguarded_reads, unshaped_parses
+from check_storage_guard import (bare_storage_args, check_tree, default_param_reads, inline_reads, main, run_contract,
+                                 script_sources,
+                                 unguarded_reads,
+                                 unguarded_typeof, unshaped_parses)
 
 
 class UnguardedReads(unittest.TestCase):
@@ -220,3 +223,103 @@ class BareStorageArgs(unittest.TestCase):
             (v / "index.html").write_text(bad)
             self.assertEqual(len(check_tree(d)), 1)
 
+
+class UnguardedTypeof(unittest.TestCase):
+    """Red team 2026-11-14: 21 page scripts died at the top on a bare `typeof localStorage`."""
+
+    SNIPPET = ("(() => {\n"
+               "  if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;\n"
+               "  try { localStorage.getItem('k'); } catch {}\n"
+               "})();\n")
+    FIXED = SNIPPET.replace(
+        "if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;",
+        "if (typeof document === 'undefined') return;\n  try { if (typeof localStorage === 'undefined') return; } catch { return; }")
+
+    def test_flags_the_snippet_and_each_spelling(self):
+        self.assertEqual(unguarded_typeof(self.SNIPPET), [2])
+        for g in ("window.", "globalThis.", "self."):
+            self.assertEqual(unguarded_typeof(f"if (typeof {g}localStorage !== 'undefined') x();\n"), [1], g)
+
+    def test_the_wrapped_probe_passes(self):
+        self.assertEqual(unguarded_typeof(self.FIXED), [])
+
+    def test_other_bare_reads_are_not_this_check(self):
+        self.assertEqual(unguarded_typeof("localStorage.getItem('k');\n"), [])
+
+    def test_html_scripts_are_read_one_by_one_and_json_is_skipped(self):
+        html = ("<p>Don't worry, it's typeof localStorage in prose</p>\n"
+                '<script type="application/ld+json">{"a": "typeof localStorage"}</script>\n'
+                "<script>\n" + self.SNIPPET + "</script>\n")
+        found = [(start + n - 1) for start, code in script_sources(Path("x.html"), html) for n in unguarded_typeof(code)]
+        self.assertEqual(found, [5])
+
+    def test_tree_reports_html_and_modules_and_skips_tests(self):
+        with tempfile.TemporaryDirectory() as d:
+            v = Path(d) / "a"
+            v.mkdir()
+            (v / "app.test.mjs").write_text(self.SNIPPET)
+            self.assertEqual(check_tree(d), [])
+            (v / "app.js").write_text(self.SNIPPET)
+            (v / "index.html").write_text("<script>\n" + self.SNIPPET + "</script>\n")
+            got = sorted(p.split(d)[1] for p in check_tree(d))
+            self.assertEqual(got, ["/a/app.js:2: `typeof localStorage` outside try throws when site data is blocked",
+                                   "/a/index.html:3: `typeof localStorage` outside try throws when site data is blocked"])
+            (v / "app.js").write_text(self.FIXED)
+            (v / "index.html").write_text("<script>\n" + self.FIXED + "</script>\n")
+            self.assertEqual(check_tree(d), [])
+
+
+class DefaultParamReads(unittest.TestCase):
+    """Red team 2026-11-14: 18 page-module functions defaulted to the bare global."""
+
+    def test_flags_each_shape(self):
+        for src in ("export function load(storage = globalThis.localStorage) {\n}\n",
+                    "function save(v, s = window.localStorage, now = new Date()) {\n}\n",
+                    "const read = (s = localStorage) => s.getItem('k');\n"):
+            with self.subTest(src=src):
+                self.assertEqual(default_param_reads(src), [1])
+
+    def test_guarded_defaults_and_plain_reads_pass(self):
+        src = ("function load(storage = browserStorage()) {}\n"
+               "function f(s = globalThis.localStorage ?? null) {}\n"
+               "// function g(s = localStorage) {}\n"
+               "f(localStorage);\n")
+        self.assertEqual(default_param_reads(src), [])
+
+    def test_tree_reports_a_page_module(self):
+        with tempfile.TemporaryDirectory() as d:
+            v = Path(d) / "a"
+            v.mkdir()
+            (v / "store.mjs").write_text("\nexport function load(storage = globalThis.localStorage) {\n  try { return storage.getItem('k'); } catch { return null; }\n}\n")
+            got = [p.split(d)[1] for p in check_tree(d)]
+            self.assertEqual(got, ["/a/store.mjs:2: default parameter reads `localStorage` outside try"])
+
+
+class InlineReads(unittest.TestCase):
+    """Red team 2026-11-14: inline page scripts are held at zero bare reads."""
+
+    SAFE = "const safe = fn => { try { return fn(); } catch { return null; } };\n"
+
+    def test_a_handler_read_is_flagged(self):
+        self.assertEqual(inline_reads("b.onclick = () => { localStorage.removeItem('k'); };\n"), [1])
+
+    def test_a_read_in_try_passes(self):
+        self.assertEqual(inline_reads("b.onclick = () => { try { localStorage.removeItem('k'); } catch {} };\n"), [])
+
+    def test_safe_passes_only_when_safe_is_a_try_wrapper(self):
+        use = "safe(() => localStorage.removeItem('k'));\n"
+        self.assertEqual(inline_reads(self.SAFE + use), [])
+        self.assertEqual(inline_reads("const safe = (fn) => { try { fn(); } catch {} };\n" + use), [])
+        self.assertEqual(inline_reads(use), [1], "no definition: safe proves nothing")
+        self.assertEqual(inline_reads("const safe = fn => fn();\n" + use), [2], "a safe that does not try")
+
+    def test_a_bare_read_beside_a_safe_one_is_flagged(self):
+        self.assertEqual(inline_reads(self.SAFE + "safe(() => localStorage.getItem('a')); localStorage.getItem('b');\n"), [2])
+
+    def test_tree_reports_an_html_handler_read_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            v = Path(d) / "a"
+            v.mkdir()
+            (v / "index.html").write_text("<p>it's</p>\n<script>\nb.onclick = () => { localStorage.clear(); };\n</script>\n")
+            self.assertEqual([p.split(d)[1] for p in check_tree(d)],
+                             ["/a/index.html:3: inline script reads `localStorage` outside try"])

@@ -42,19 +42,19 @@ The map was on every phone in town by midnight. It was on the phone of Wilmer Ma
 
 "Profe," he said, "is it going to hit the church?"
 
-"No," said Ximena. Then, because he was her student and she had spent nine years telling him not to accept answers that came without working: "Almost certainly no. Come in. I'll show you why that line is a lie."
+"No," said Ximena. Then, because he was her student and she had spent nine years telling her classes not to accept answers that came without working: "Almost certainly no. Come in. I'll show you why that line is a lie."
 
 "Who's lying?"
 
 "Nobody. The line is lying by itself. It's the line through the middle of the window, drawn as if the middle were the answer. Sit."
 
-She took a sheet of squared paper and drew the world flat, the way the map did, and drew the red line, and then drew five other lines like it, each shifted a long way west, and then the same number shifted east. "Those are the passes inside the window," she said. "Plus or minus five hours is ten hours, and ten hours is seven passes. Any one of them could be the one. The red line is the middle one. It's the one they drew because you have to draw something."
+She took a sheet of squared paper and drew the world flat, the way the map did, and drew the red line, and then drew three other lines like it, each shifted a long way west, and then the same number shifted east. "Those are the passes inside the window," she said. "Plus or minus five hours is ten hours, and ten hours is seven passes. Any one of them could be the one. The red line is the middle one. It's the one they drew because you have to draw something."
 
-Wilmer looked at the eleven lines. Most of them crossed the Pacific, or the Atlantic, or the Indian Ocean. Two crossed Africa. One crossed the lake.
+Wilmer looked at the seven lines. Most of them crossed the Pacific, or the Atlantic, or the Indian Ocean. Two crossed Africa. One crossed the lake.
 
-"So it's one chance in eleven it's ours," he said.
+"So it's one chance in seven it's ours," he said.
 
-"It's less than that, and the window will keep shrinking. By tonight it'll be minutes, not hours." She tapped the paper. "And even when it's ours, it isn't *us*. The pieces that survive come down spread along a strip about a thousand kilometres long. The whole of Bolivia, end to end, near enough. Inside that strip the pieces are scattered over an area bigger than the department of La Paz. And people are small."
+"It's less than that, and the window will keep shrinking. By tonight it'll be minutes, not hours." She tapped the paper. "And even when it's ours, it isn't *us*. The pieces that survive come down spread along a strip about a thousand kilometres long. The whole of Bolivia, end to end, near enough. Inside that strip the pieces are scattered over an area nearly the size of the department of Oruro. And people are small."
 
 Benita, who had been quiet, said, "How small?"
 

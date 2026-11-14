@@ -84,7 +84,9 @@
     // is worse than no control at all.
     (() => {
       const usagePreference = 'economic-nexus-threshold-tracker-usage-preference';
-      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+      if (typeof document === 'undefined') return;
+      // Even `typeof localStorage` throws when the visitor blocks site data.
+      try { if (typeof localStorage === 'undefined') return; } catch { return; }
       if (typeof document.getElementById !== 'function') return;
       const usageControl = document.getElementById('usage');
       if (!usageControl || typeof usageControl.addEventListener !== 'function') return;

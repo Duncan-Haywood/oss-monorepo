@@ -1,5 +1,12 @@
 import { buildReport } from './calc.mjs';
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+export function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 export const DEFAULT_HOURLY_RATE = 150;
 export const DEFAULT_BUFFER_PERCENT = 20;
 export const DEFAULT_THEME_MULTIPLIER = 1;
@@ -124,7 +131,7 @@ export function quoteAsText(quote) {
   return lines.join('\n');
 }
 
-export function recordQuoteUsage(storage = globalThis.localStorage, optOut = false, event = 'quote_generated') {
+export function recordQuoteUsage(storage = browserStorage(), optOut = false, event = 'quote_generated') {
   if (optOut || !storage) return;
   let current = {};
   try {

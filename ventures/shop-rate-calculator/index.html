@@ -448,7 +448,7 @@
     }
 
     function refreshSavedState() {
-      const saved = readCarriedRates(localStorage);
+      const saved = readCarriedRates(usageStorage());
       el('forgetRates').hidden = !saved;
     }
 
@@ -484,7 +484,7 @@
           : 'Press “Work out my shop rate” first — the numbers on the form have changed.';
         return;
       }
-      const ok = saveCarriedRates(current.carry, localStorage);
+      const ok = saveCarriedRates(current.carry, usageStorage());
       el('carryStatus').textContent = ok
         ? 'Saved. Every trade bid calculator on this site will now open with these four numbers.'
         : 'This browser will not let the page save site data, so the rates could not be stored.';
@@ -589,7 +589,7 @@
     // them elsewhere on the site. Burden and overhead are deliberately not
     // restored: this page computes those, and prefilling them would show a
     // previous answer beside inputs that no longer produce it.
-    const saved = readCarriedRates(localStorage);
+    const saved = readCarriedRates(usageStorage());
     if (saved) {
       if (typeof saved.hourlyWage === 'number') el('hourlyWage').value = saved.hourlyWage;
       if (typeof saved.targetMargin === 'number') el('targetMargin').value = saved.targetMargin;

@@ -12,7 +12,9 @@ import { parseStaff, parseShifts, buildRoster, buildContext, coverRisk, coverSla
 import { seededWeeks } from "./reissue-scale.mjs";
 
 const OPT = { minRestHours: 10 };
-const CHAINS = (process.env.CHAINS || "0,2/inf,2").split(",").map((c) => { const [ch, b] = c.split("/"); return { chain: Number(ch), budget: b === undefined ? undefined : b === "inf" ? Infinity : Number(b), label: c }; });
+// A trailing "n" (e.g. "2n", "2/inf/n") is that setting with the caller never taking a later shift (callerTakes: false), the
+// count before 2026-11-14 (README "The caller can take a later shift").
+const CHAINS = (process.env.CHAINS || "0,2/inf,2").split(",").map((c) => { const no = c.endsWith("n"); const [ch, b] = c.replace(/\/?n$/, "").split("/"); return { chain: Number(ch), budget: b === undefined ? undefined : b === "inf" ? Infinity : Number(b), callerTakes: !no, label: c }; });
 const SIZES = (process.env.SIZES || "20x56x3,40x112x3,60x168x1").split(",").map((s) => s.split("x").map(Number));
 for (const [P, S, n] of SIZES) {
   seededWeeks(P, S, n).forEach(({ staff: st, shifts: sh }, w) => {
@@ -22,8 +24,8 @@ for (const [P, S, n] of SIZES) {
     const strict = (owner) => coverRisk(ctx, owner, { chain: 2, budget: Infinity }).hours;
     const start = strict(r.owner);
     const line = [];
-    for (const { chain, budget, label } of CHAINS) {
-      const cfg = { price: 100, chain, ...(budget === undefined ? {} : { budget }) };
+    for (const { chain, budget, callerTakes, label } of CHAINS) {
+      const cfg = { price: 100, chain, callerTakes, ...(budget === undefined ? {} : { budget }) };
       const t0 = performance.now();
       const out = coverSlackPass(ctx, r.owner, cfg);
       const before = out.before, capped = coverRisk(ctx, r.owner, cfg).capped;

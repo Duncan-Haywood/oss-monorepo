@@ -54,7 +54,7 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 ```bash
 pip install numpy scipy pytest matplotlib
 cd research/capture-sync
-python -m pytest -q tests                                     # 22 tests (20 synthetic; 2 check committed step 2b outputs)
+python -m pytest -q tests                                     # 24 tests (22 synthetic; 2 check committed step 2b outputs)
 python experiments/real-devices/fetch.py ~/libriwasn 200_0S 800_0S   # ~1 GB, phone channels only
 python experiments/real-devices/run.py ~/libriwasn --trials 40 --procs 4   # ~25 min on 4 cores
 python experiments/real-devices/figure.py
@@ -70,6 +70,9 @@ python experiments/threshold/libriwasn_figure.py
 OMP_NUM_THREADS=1 python experiments/gate/run.py collect ~/libriwasn /tmp/windows.npz --procs 4   # step 3, ~33 min
 python experiments/gate/run.py score /tmp/windows.npz          # ~5 s; results.txt, summary.json
 python experiments/gate/figure.py
+OMP_NUM_THREADS=1 python experiments/gate/noise.py collect ~/libriwasn /tmp/windows_b.npz --procs 4   # step 3b, ~17 min
+python experiments/gate/noise.py score /tmp/windows_b.npz    # ~10 s; noise_results.txt, noise_summary.json
+python experiments/gate/noise_figure.py
 ```
 
 ## Results (from [`experiments/real-devices/results.txt`](experiments/real-devices/results.txt))
@@ -167,6 +170,15 @@ Prior, search and failure rule are as in step 1. A cell is scored if it has at l
 
 ![Wrong among accepted 2 s windows by shift](experiments/gate/gate_shifts.png)
 
+**Step 3b (2026-11-14): can the gate keep its bound when the noise level shifts? Only by noticing and refusing.** The same 96,000 phone windows (replayed exactly, 48/48 cells identical), with two noise-aware Learn-then-Test gates beside step 3's:
+
+- **A blind SNR estimate tells noise levels apart almost perfectly.** The spread of a window's 32 ms frame energies (90th over 10th percentile) is 21 dB for 2 s windows as recorded, 5.2 dB at 0 dB added noise and 1.2 dB at -10 dB, with the 5-95% ranges not overlapping between 0 and -10 dB.
+- **Gating per blind-SNR bin, and refusing windows below the calibration's range, keeps the bound under every shift.** Calibrated without -10 dB audio and tested on it, it lets **0.00%** wrong windows through in both rooms (pooled gate 4.65% and 7.25%), but only by refusing 93% and 99% of them, most of which were right. When the calibration does include noisy audio, room to room at -10 dB it gives **0.27%** wrong while keeping 74% (pooled 3.38% at 95%). Within a room, 4% of session splits exceed 1% (pooled 15%): the bound step 3 missed is met.
+- **Using the threshold theory as the score does not transfer.** It is a slightly better failure flag for PHAT (AUROC 0.987 against 0.977 at 2 s), but under the noise shift it lets 2.25% and 5.37% through, like PSR.
+- **For an engineer:** calibrate the gate on recordings with noise added down to the lowest SNR you expect, gate per blind-SNR bin, and treat a window below the floor as unknown, not as good.
+
+![Wrong among accepted 2 s windows for three gates, by shift](experiments/gate/noise_gates.png)
+
 ## Step 3: a Learn-then-Test gate across rooms, phones and noise (`src/capture_sync/gate.py`, `experiments/gate/`)
 
 **Question.** Milestone 3: step 1's peak-to-sidelobe (PSR) gate used a plug-in threshold with no guarantee and broke at -10 dB from room to room. With a distribution-free threshold, which shifts keep the failure rate and which break it? Plan and six predictions in `LOG.md`, written before the run.
@@ -197,6 +209,29 @@ Within a room (S1), averaged over window lengths and gates, 13.2% of splits ende
 - (f) Agree keeps more windows than PSR alone under S2 at 2 s: **failed**; it keeps fewer and is wrong less often.
 
 **What it means, and what it does not.** The guarantee is marginal: calibrate on a mix of noise levels and it holds for the mix, while the noisiest part of a deployment gets 3 to 7 times the target. Rooms and phones are not where it breaks; the noise level is, and a deployed gate does not observe it. The fix this points to is calibration conditional on something the window can measure (an estimated SNR, Mondrian-style), and the agree check is a cheap extra guard at 2 s and above. Two rooms, five phones and white added noise; the session clustering means the i.i.d. bound itself is not met (S1), so a session-level calibration is the honest next version. No intervals on the S2 to S4 shares: each is one calibration and one test set.
+
+## Step 3b: noise-aware gates (`experiments/gate/noise.py`)
+
+**Question.** Step 3's gate, calibrated on a mix of noise levels, let 4.7% and 7.3% wrong windows through at -10 dB. A deployed gate never sees the added-noise label. Does conditioning on something the window can measure, or a score that models noise, keep the bound? Plan and seven predictions in `LOG.md`, written before the run.
+
+**Method.** Step 1's windows replayed exactly for gamma 1 and 0.25, keeping per window the error, PSR, the threshold theory's blind failure probability `p_blind` (step 2a's cells model, spectra aligned at the window's own estimate) and `snr_hat`, 10 log10 of the 90th over the 10th percentile of 32 ms frame energies, the smaller of the two phones' windows (`gate.blind_snr_db`). Three LTT gates at alpha 1%, delta 0.1: *pooled* (step 3), *mondrian* (a separate PSR threshold for each calibration quartile of `snr_hat`, and refusal below the calibration's 1st percentile; `gate.mondrian_ltt`), *theory* (accept when `p_blind` is at most t). Shifts S1 to S4 as step 3.
+
+**Results** (2 s, gamma 0.25; kept, wrong among kept; [`experiments/gate/noise_results.txt`](experiments/gate/noise_results.txt) has every cell):
+
+| calibrate &rarr; test | pooled (step 3) | mondrian | theory | no gate: wrong |
+|---|---|---|---|---|
+| 200 ms &rarr; 800 ms room, pooled noise | 98%, 1.45% | 90%, **0.37%** | 97%, 1.12% | 2.9% |
+| 200 ms &rarr; 800 ms room, -10 dB | 95%, 3.38% | 74%, **0.27%** | 91%, 2.53% | 7.2% |
+| 800 ms &rarr; 200 ms room, -10 dB | 95%, 0.98% | 90%, 0.36% | 94%, 1.01% | 5.0% |
+| leave one phone out (worst) | 97%, 1.30% | 93%, 0.81% | 97%, 1.45% | 3.2% |
+| no -10 dB &rarr; -10 dB, 200 ms room | 100%, 4.65% | 7%, 0.00% | 97%, 2.25% | 5.0% |
+| no -10 dB &rarr; -10 dB, 800 ms room | 100%, 7.25% | 1%, 0.00% | 97%, 5.37% | 7.2% |
+
+Within a room (S1, 16 cells of room, window and gamma), the share of session splits above 1% wrong among accepted is 15.3% pooled, **4.0% mondrian** and 21.5% theory, keeping 72%, 66% and 77% of windows on average.
+
+**Predictions** (`LOG.md`): (a) replay identical: **held** (48/48). (b) S4 mondrian at or under 2% in both rooms: **held** (0.00%). (c) by refusing, keeping under half: **held** (7% and 1%). (d) theory at or under 2% under S4 while keeping half: **failed** (2.25% and 5.37%). (e) S2 at -10 dB, both noise-aware gates at or under 2%: **failed** for theory (2.53%; mondrian 0.27%). (f) mondrian keeps at least 90% of pooled's windows in S1: **held** (ratio 0.95 in both rooms). (g) theory a better flag than PSR for PHAT at 2 s: **held** (AUROC 0.987 against 0.977); for gamma 0.25 at 2 to 4 s PSR is better.
+
+**What it means, and what it does not.** No score carries a failure bound to a noise level the calibration never saw. What a window can do is tell that it is outside the calibration, and the frame-energy spread does that cleanly for white noise. The guarantee then holds bin by bin, so the practical recipe is to cover the noise range in calibration (adding noise to clean recordings is cheap) and refuse below it. Limits: added white noise only (real babble is speech-like, and its frame-energy spread may not separate levels so well); the per-bin LTT bound assumes exchangeability within a bin, which session clustering still bends; no intervals on S2 to S4, each one calibration and one test set.
 
 ## Step 2b: threshold theory on the real phones (`experiments/threshold/libriwasn.py`)
 
@@ -247,7 +282,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- The gate conditional on a measurable window SNR (Mondrian calibration), with session-level calibration so the within-room bound holds (step 3); then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
+- The blind-SNR Mondrian gate (step 3b) under real babble and shared crowd noise, where frame-energy spread may not separate noise levels; then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 

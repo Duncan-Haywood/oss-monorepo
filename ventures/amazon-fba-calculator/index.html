@@ -1289,7 +1289,7 @@
 
     function renderScenarios() {
       const list = document.getElementById("scenarioList");
-      list.replaceChildren(...listScenarios(localStorage).flatMap((scenario) => {
+      list.replaceChildren(...listScenarios(usageStorage()).flatMap((scenario) => {
         const load = document.createElement("button");
         load.type = "button";
         load.dataset.load = scenario.id;
@@ -1302,7 +1302,7 @@
         return [load, remove];
       }));
       list.querySelectorAll("[data-load]").forEach((button) => button.addEventListener("click", () => {
-        const scenario = listScenarios(localStorage).find((item) => item.id === button.dataset.load);
+        const scenario = listScenarios(usageStorage()).find((item) => item.id === button.dataset.load);
         if (!scenario) return;
         ids.forEach((id) => { if (scenario.inputs[id] !== undefined) document.getElementById(id).value = scenario.inputs[id]; });
         if (scenario.inputs.fulfillmentMethod) {
@@ -1314,7 +1314,7 @@
       }));
       list.querySelectorAll("[data-delete]").forEach((button) => {
         button.addEventListener("click", () => {
-          deleteScenario(localStorage, button.dataset.delete);
+          deleteScenario(usageStorage(), button.dataset.delete);
           renderScenarios();
           recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_deleted");
         });
@@ -1852,7 +1852,7 @@
     document.getElementById("usageOptOut").addEventListener("change", update);
     document.getElementById("saveScenario").addEventListener("click", () => {
       try {
-        saveScenario(localStorage, document.getElementById("scenarioName").value, readInput());
+        saveScenario(usageStorage(), document.getElementById("scenarioName").value, readInput());
         document.getElementById("scenarioName").value = "";
         renderScenarios();
         recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_saved");

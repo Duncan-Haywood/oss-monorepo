@@ -81,7 +81,7 @@
     <p>Local-only privacy: the export never leaves this browser. Anonymous feature events (<code>inventory_normalized</code>, <code>inventory_downloaded</code>, <code>inventory_copied</code>) are counted only in local storage and can be deleted with the button above. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing to sponsor does not change the tool. <a href="LICENSE">License</a></p>
   </footer>
   <script type="module">
-    import { EXAMPLE_INSTALLATIONS, captureSummary, normalizeExport, parseJson, recordCaptureUsage, setUsageOptOut, usageOptedOut } from "./capture.mjs";
+    import { EXAMPLE_INSTALLATIONS, captureSummary, normalizeExport, parseJson, recordCaptureUsage, setUsageOptOut, usageOptedOut, browserStorage } from "./capture.mjs";
 
     const input = document.querySelector("#input");
     const report = document.querySelector("#report");
@@ -119,7 +119,7 @@
       try {
         const inventory = normalizeExport(parseJson(input.value), options());
         show(inventory);
-        recordCaptureUsage("inventory_normalized", localStorage, globalThis.__usageOptOut);
+        recordCaptureUsage("inventory_normalized", browserStorage(), globalThis.__usageOptOut);
         status.textContent = "Normalized locally. Download this file as the Before or After export.";
       } catch (err) {
         latest = null;
@@ -140,7 +140,7 @@
       link.download = "shopify-app-inventory.json";
       link.click();
       URL.revokeObjectURL(link.href);
-      recordCaptureUsage("inventory_downloaded", localStorage, globalThis.__usageOptOut);
+      recordCaptureUsage("inventory_downloaded", browserStorage(), globalThis.__usageOptOut);
     });
 
     document.querySelector("#copy").addEventListener("click", async () => {
@@ -156,7 +156,7 @@
       } catch {
         status.textContent = "Copy unavailable; select the JSON in the summary.";
       }
-      recordCaptureUsage("inventory_copied", localStorage, globalThis.__usageOptOut);
+      recordCaptureUsage("inventory_copied", browserStorage(), globalThis.__usageOptOut);
     });
 
     document.querySelector("#optout").addEventListener("click", () => {
