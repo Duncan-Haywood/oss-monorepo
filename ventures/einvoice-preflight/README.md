@@ -1214,9 +1214,12 @@ newest cross-reference is a stream (most modern generators) gets an appended
 uncompressed xref stream (`/W [1 4 2]`, `/Prev` chained) instead of a table
 (2026-10-22). Encrypted PDFs, or ones whose xref dictionary cannot be read, come
 back with only the corrected XML. Tested on PDFs built by this repo's own writer
-(plain and Flate streams, classic table and a hand-built xref-stream file); no
-real ERP or Factur-X export tried, so a PDF viewer or veraPDF opening the
-result is the open check.
+(plain and Flate streams, classic table and a hand-built xref-stream file), and
+since 2026-11-14 on 358 seeded copies of the real Factur-X / ZUGFeRD PDFs in the
+ZUGFeRD corpus and Mustang, written by qpdf in both layouts: qpdf passes every
+repaired PDF and reads back the original XML byte for byte from 248; the other
+110 are declined with the reason printed (see "The repair on real files" below).
+veraPDF (PDF/A-3 after the update) is the open check.
 Same contract as UBL: only amounts are edited, in place: each line's
 `LineTotalAmount` (quantity x net price / basis quantity), each header
 `ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the
@@ -1227,7 +1230,7 @@ allowance, charge or sub-line, header allowances or charges, more than one
 one. On `examples/xrechnung-cii-credit-note-with-defects.xml` it fixes the
 wrong VAT amount (150.00 to 190.00) and leaves the type code and missing
 fields for a person. Hand-written examples only (`repair-cii.test.mjs`,
-`server.test.mjs`), no real ERP or Factur-X export tried. The web page's
+`server.test.mjs`); on real files see "The repair on real files" below. The web page's
 repair button takes pasted JSON, UBL or CII (clicked through in headless
 Chromium with `eval/browser-repair.mjs`, which pastes the defective CII
 credit note).
@@ -1452,3 +1455,24 @@ The hub table, `mandate-dates.json`, the `.ics` feed (126 milestones, 65 countri
 The bundled Peppol rules were release 3.0.20 (OpenPEPPOL `261c458`, March 2026); 3.0.21 became mandatory on 17 August 2026 and 3.0.22 is its October hotfix. `plain/peppol-ubl.json` and `peppol-cii.json` are now compiled from `38d693d` (165 and 91 checks). Changes a user sees: France's `urn:peppol:france:billing:regulated` / `:non-regulated` profiles and profile 02 (`urn:peppol:bis:billing_with_response`) pass R007 instead of failing it, a 384 corrected invoice between two Slovak parties passes P0112, 389 is Germany-only, a `::` suffix on BT-24 fails R004, any `billing:NN` other than 01 fails R007, Danish P/SE numbers (R052/R053) and DK-R-003/017 are errors, five Dutch identifier warnings (R054 to R057) are new, BGN is out of the currency list. The JSON route's PP-001/PP-002 and the fixes for R007, P0112 and CL007 follow.
 
 A new check, `eval/peppol-unit-tests.mjs`, runs OpenPeppol's own unit tests (`rules/unit-*`) through the compiled set. The shipped rules agreed with **775 of 899** assertions of their *own* release; every miss was Danish. Cause: `plain-compile.mjs` pasted schema- and pattern-level `<let>`s into rule contexts, where a relative path such as `ubl-invoice:Invoice/cac:AccountingSupplierParty/...` started from the Invoice element rather than the document node, so **DK-R-002..017 and the Icelandic IS-R rules never fired**. Such values are now substituted as `root(.)/(value)`. Now: **1,048 of 1,048** assertions agree. The same fix, rebuilt from the same pinned sources, reaches XRechnung (`isCVD`: the CII Clean Vehicles rules could not fire), NLCIUS and seven PINT jurisdiction sets; ZATCA, CIUS-RO, CIUS-PT and the EN 16931 base are byte-identical. `eval/phive-corpus.mjs --good` output is byte-identical before and after, and OpenPeppol's ten 3.0.22 examples go from 9 to 10 with no blocking finding. `build-plain-rules.mjs` now merges the manifest instead of replacing it (a rerun used to drop the 37 PINT/ZATCA/CIUS entries) and takes `EINVOICE_PLAIN_ONLY`. Details: `eval/peppol-bis-3.0.22-2026-11-14.md`; tests: `peppol-bis-3022.test.mjs` (14). Open: the Saxon route picks up 3.0.22 on its next image build (not rebuilt here); a real access point's verdict on a 3.0.22 file.
+
+## The repair on real files (2026-11-14, latest)
+
+The repair had only met files this repository wrote. Run over 529 real UBL, CII
+and Factur-X files from the ZUGFeRD corpus, Mustang, KoSIT's XRechnung suite and
+the CEN examples (`node eval/repair-real-files.mjs <checkouts>`), nearly all of
+which pass the official rules, it **changed 69 and moved the amount due on 53**.
+Every cause was ours: it rewrote a line net to quantity x price even when the
+stated totals agreed with the net (KoSIT's gross-price insurance samples: due
+220.00 became 184.87), rewrote a VAT amount a cent off taxable x rate although
+EN 16931 accepts up to one unit (BR-CO-17), rewrote Hungarian whole-forint VAT,
+summed ZUGFeRD EXTENDED sub-invoice lines, and ignored XRechnung third-party
+payments (BG-DEX-09). Now: a net the header corroborates is kept and listed for
+a person, a per-line rounding cent is kept, whole forints are kept, sub-line
+files are declined, third-party payments leave the due alone. **After: 2 of 529
+changed, neither valid as it stood, 0 amounts due moved.**
+Seeded: 358 real Factur-X PDFs with the tax total pushed up 7.00, rewritten by
+qpdf with and without object streams (`python3 eval/repair-seeded-facturx.py`):
+qpdf passes all 358 repaired PDFs, 248 come back to the original XML byte for
+byte, 110 are declined with the reason printed, none wrong. A dropped UTF-8 BOM
+was fixed on the way. Details: `eval/repair-real-files-2026-11-14.md`.
