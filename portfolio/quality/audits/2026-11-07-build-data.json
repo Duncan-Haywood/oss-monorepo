@@ -1,71 +1,74 @@
 {
-  "date": "2026-11-07",
-  "subject": "research/build-data",
-  "stratum": "research",
-  "seed": "2026-11-07",
-  "auditor": "agent session (Claude), see run record",
-  "status": "audited",
-  "professional": "a construction-industry statistician / construction economist (duration forecasting, reference-class forecasting, survival analysis for right-censored durations); first checks would be how censoring and non-comparable permit populations are handled, and whether the headline numbers reproduce from the raw feeds",
-  "scores": {
-    "correctness": 2,
-    "completeness": 3,
-    "verification": 3,
-    "craft": 2,
-    "claims": 2,
-    "fitness": 3,
-    "domain": 2
+ "date": "2026-11-07",
+ "subject": "research/build-data",
+ "stratum": "research",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a construction-industry statistician / construction economist (duration forecasting, reference-class forecasting, survival analysis for right-censored durations); first checks would be how censoring and non-comparable permit populations are handled, and whether the headline numbers reproduce from the raw feeds",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Raw feeds (data.cityofchicago.org, data.sf.gov, data.austintexas.gov) are blocked by the egress proxy (curl 000, connect_rejected), so the 15-cell headline table could not be re-derived from raw permits; that caps the score at 2. What was recomputed against sources the author did not write: (1) harness.quantile vs numpy.quantile (type 7) on 500 random samples, max abs diff 1.4e-14; harness.pinball vs sklearn.metrics.mean_pinball_loss at tau 0.1/0.5/0.9, identical to 7 digits; (2) conformal.ks_statistic vs scipy.stats.ks_2samp, 0.161667 both; conformal_quantile vs the ceil((n+1)(1-alpha))-th order statistic via numpy, identical (0.66589); (3) an end-to-end synthetic check I built (60,000 rows, exponential lags with known per-type/work-class/cost scale, true quantiles known): boosted.run pinball vs oracle at tau 0.1/0.5/0.9 was 3.239/12.082/8.292 against oracle 3.230/12.012/8.048, while the reference-class baseline gave 3.267/12.810/10.007, so the pipeline (split, features, early stopping, pinball, baseline) is sound and the H1 direction is what the method should give when covariates matter; (4) conformal coverage on iid Gamma data with the true q10/q90 interval: raw 0.801, conformal 0.799 over 100 repeats (nominal 0.80); (5) from results/boosted_*_2024.json I recomputed the win count: 13 of 15 cells have negative diff, the two losses are Chicago a2i q0.1 (+0.3%) and q0.9 (+6.5%), matching README and m3_table.md. Not verified: the real-feed pinball values themselves.",
+  "completeness": "README, paper and LOG claim milestones 1-8 plus extra baselines. Checked every cited artefact exists: src/{permits,harness,boosted,conformal_run,importance,transfer,pooled,baselines,catboost_run,neural,prior}.py, results/m3_table.md, m5_table.md, m7_table.md, boosted/conformal/transfer/pooled/importance/neural/paired JSONs for all five city/target pairs (147 files in results/), datasheets for three cities, paper/paper.md (draft 0, with an honest to-do list of 6 items). Paper says unrun baselines remain and names them. Gaps: raw data is not in git (a pull is required, and the feeds drift, so row counts already differ between paper, README, datasheets and manifest); no PDF/venue formatting; the paper is not submission-ready by its own to-do list; 2 tests skip without torch.",
+  "verification": "Ran: python3 -m pytest research/build-data/tests -q after installing pandas, lightgbm, xgboost, scipy, scikit-learn: 42 passed, 2 skipped (torch-gated neural tests), 1.1 s. Mutation 1: boosted.pin changed t*d to (1-t)*d -> test_boosted.py::test_pin_hand failed (0.6 != 5.4); reverted with git checkout. Mutation 2: conformal_quantile rank ceil((n+1)(1-alpha)) changed to ceil(n(1-alpha)) -> test_conformal.py::test_quantile_hand failed; reverted with git checkout (git status clean). Tests use hand-counted values (type-7 quantile, CQR scores, KS) which is good. Weakness: no test runs boosted.run, baselines.run, transfer.run or the permits.pull path end to end on a small fixture, so the data-handling (year bucketing, negative-lag dropping, categorical level alignment) and the headline-producing code are covered only by unit tests of helpers; my synthetic end-to-end run is the kind of test that is missing.",
+  "craft": "Read src/permits.py, harness.py, boosted.py, baselines.py, conformal.py and their tests. Good: stdlib-only loader, one quantile definition with hand-counted tests, paired week-block bootstrap, forward split with the test year touched once, docstrings stating method and limits. Defects: 26 one-off scripts in src/ (conformal_*_run.py x5, summarise_*.py x4, paired_*.py x4 ...) re-implement the load/split/featurise/summary steps rather than share a pipeline; permits.fetch retries with a bare except Exception and no check that a short page is the real end (a truncated page silently ends the pull, and row counts are only compared against the manifest, not against the server's count(*)); boosted.run swallows ValueError from wilcoxon into p=None; the bootstrap seed is fixed at 0 and 2000 draws with percentile CIs and no BCa; README.md is a single ~700-word paragraph of milestone results, unreadable for a searcher and a reader; LOG.md is 88 KB.",
+  "claims": "Checked against files: 'beats baseline in 13 of 15 cells' -> boosted_*_2024.json, matches; 'by 2 to 36%' -> smallest win is -1.6% (SF a2i q0.1), rounded up to 2 (minor); Chicago losses +0.3% and +6.5% -> match; conformal coverage 0.816/0.860/0.891 -> results files, match; 'bootstrap intervals exclude zero' for all 13 wins is true of the block-bootstrap CI but SF i2c q0.9 has Wilcoxon weekly p=0.114, which the README does not mention. Problems: (a) row counts disagree across files: README/PROPOSAL/datasheets 851,778 / 1,297,657 / 2,382,939 (earlier pulls), paper abstract 851,889 / 1,297,749 / 2,383,195, results/manifest.json (pulled 2026-11-07) 852,489 / 1,298,001 / 2,384,199, so the paper's 'every number copied from results' is not true of the manifest; (b) datasheets/austin.md says 477,248 rows (20%) have no issue date, but manifest.json reports issued = 2,384,199 = all rows for Austin; one of them is wrong and neither is reconciled; (c) project.json lede/summary still describe only sessions 1-6 and omit H2-H5 outcomes; (d) the paper's limitations never mention right-censoring of i2c (see domain), though PROPOSAL.md does. The disclaimer ('Not legal, engineering or financial advice', AI-assisted, no affiliation) is present in the paper; the venue is stated as an aim, not an acceptance.",
+  "fitness": "A researcher can build on it: pinned split and quantile definition, datasheets with licences (Chicago derived rows not redistributed), exact commands to reproduce each table, result JSONs in git, negative findings reported (H2 refuted, H4 holds, secondary H5 refuted, pre-registered neural predictions that failed are logged). Prior work: the paper cites Flyvbjerg 2006 (reference-class forecasting), Gondia et al. 2020, Koenker-Bassett, Gneiting-Raftery, Romano et al. 2019 (CQR), Angelopoulos-Bates, Chen-Guestrin, Prokhorenkova, Grinsztajn, Shwartz-Ziv-Armon, Lundberg-Lee, Gebru; 12 references resolved by cite_check in session 1. Novelty is plausible but modest and narrow: an open multi-city benchmark of permit-lag quantile forecasting with a leakage-free time split, plus the zero-inflation/conformal-tie finding. The literature review is thin for a journal (no survey of permit-processing-time prediction or of survival/AFT models, no zero-inflated or hurdle quantile baseline, no mention of right-censored duration methods). A practitioner takeaway exists (section 6) and permit_prior.json is a reusable artefact. Needs more before a main-track submission.",
+  "domain": "Compared against reference-class forecasting practice (Flyvbjerg) and duration modelling for censored data (Kaplan-Meier / AFT / Cox). Departures: (1) i2c is the issue-to-completion lag restricted to permits that already have a completed date as of the 2026 pull, so permits issued in 2024 and still open are dropped; that right-censoring biases the 2024 i2c test targets (and the baseline and model alike) toward short builds, and no analysis or limitation sentence addresses it; (2) Austin and SF permit populations mix trade permits (plumbing, electrical) with building permits, and 'completed' is a status date, not a certificate of occupancy, so 'how long the build takes' (the research question's wording) is not what i2c measures; (3) Chicago has issued permits only, so a2i is conditional on issuance (disclosed); (4) 'build duration' is treated as one lag per permit although one project holds many permits; (5) pinball loss and week-block bootstrap are the right tools, and the conformal/zero-inflation analysis is careful and honest. A construction economist would accept the a2i work with caveats and ask for a censoring-aware i2c before trusting the build-time claim."
+ },
+ "defects": [
+  {
+   "severity": "high",
+   "what": "i2c (issue to completion) targets are right-censored: only permits already completed at pull time are kept, so recent test-year permits that are still open are excluded; this biases build-time forecasts and the baseline comparison, and neither the paper's limitations nor the README mention it.",
+   "where": "research/build-data/src/harness.py:load and src/boosted.py:load_frame; research/build-data/paper/paper.md section 5"
   },
-  "evidence": {
-    "correctness": "Raw feeds (data.cityofchicago.org, data.sf.gov, data.austintexas.gov) are blocked by the egress proxy (curl 000, connect_rejected), so the 15-cell headline table could not be re-derived from raw permits; that caps the score at 2. What was recomputed against sources the author did not write: (1) harness.quantile vs numpy.quantile (type 7) on 500 random samples, max abs diff 1.4e-14; harness.pinball vs sklearn.metrics.mean_pinball_loss at tau 0.1/0.5/0.9, identical to 7 digits; (2) conformal.ks_statistic vs scipy.stats.ks_2samp, 0.161667 both; conformal_quantile vs the ceil((n+1)(1-alpha))-th order statistic via numpy, identical (0.66589); (3) an end-to-end synthetic check I built (60,000 rows, exponential lags with known per-type/work-class/cost scale, true quantiles known): boosted.run pinball vs oracle at tau 0.1/0.5/0.9 was 3.239/12.082/8.292 against oracle 3.230/12.012/8.048, while the reference-class baseline gave 3.267/12.810/10.007, so the pipeline (split, features, early stopping, pinball, baseline) is sound and the H1 direction is what the method should give when covariates matter; (4) conformal coverage on iid Gamma data with the true q10/q90 interval: raw 0.801, conformal 0.799 over 100 repeats (nominal 0.80); (5) from results/boosted_*_2024.json I recomputed the win count: 13 of 15 cells have negative diff, the two losses are Chicago a2i q0.1 (+0.3%) and q0.9 (+6.5%), matching README and m3_table.md. Not verified: the real-feed pinball values themselves.",
-    "completeness": "README, paper and LOG claim milestones 1-8 plus extra baselines. Checked every cited artefact exists: src/{permits,harness,boosted,conformal_run,importance,transfer,pooled,baselines,catboost_run,neural,prior}.py, results/m3_table.md, m5_table.md, m7_table.md, boosted/conformal/transfer/pooled/importance/neural/paired JSONs for all five city/target pairs (147 files in results/), datasheets for three cities, paper/paper.md (draft 0, with an honest to-do list of 6 items). Paper says unrun baselines remain and names them. Gaps: raw data is not in git (a pull is required, and the feeds drift, so row counts already differ between paper, README, datasheets and manifest); no PDF/venue formatting; the paper is not submission-ready by its own to-do list; 2 tests skip without torch.",
-    "verification": "Ran: python3 -m pytest research/build-data/tests -q after installing pandas, lightgbm, xgboost, scipy, scikit-learn: 42 passed, 2 skipped (torch-gated neural tests), 1.1 s. Mutation 1: boosted.pin changed t*d to (1-t)*d -> test_boosted.py::test_pin_hand failed (0.6 != 5.4); reverted with git checkout. Mutation 2: conformal_quantile rank ceil((n+1)(1-alpha)) changed to ceil(n(1-alpha)) -> test_conformal.py::test_quantile_hand failed; reverted with git checkout (git status clean). Tests use hand-counted values (type-7 quantile, CQR scores, KS) which is good. Weakness: no test runs boosted.run, baselines.run, transfer.run or the permits.pull path end to end on a small fixture, so the data-handling (year bucketing, negative-lag dropping, categorical level alignment) and the headline-producing code are covered only by unit tests of helpers; my synthetic end-to-end run is the kind of test that is missing.",
-    "craft": "Read src/permits.py, harness.py, boosted.py, baselines.py, conformal.py and their tests. Good: stdlib-only loader, one quantile definition with hand-counted tests, paired week-block bootstrap, forward split with the test year touched once, docstrings stating method and limits. Defects: 26 one-off scripts in src/ (conformal_*_run.py x5, summarise_*.py x4, paired_*.py x4 ...) re-implement the load/split/featurise/summary steps rather than share a pipeline; permits.fetch retries with a bare except Exception and no check that a short page is the real end (a truncated page silently ends the pull, and row counts are only compared against the manifest, not against the server's count(*)); boosted.run swallows ValueError from wilcoxon into p=None; the bootstrap seed is fixed at 0 and 2000 draws with percentile CIs and no BCa; README.md is a single ~700-word paragraph of milestone results, unreadable for a searcher and a reader; LOG.md is 88 KB.",
-    "claims": "Checked against files: 'beats baseline in 13 of 15 cells' -> boosted_*_2024.json, matches; 'by 2 to 36%' -> smallest win is -1.6% (SF a2i q0.1), rounded up to 2 (minor); Chicago losses +0.3% and +6.5% -> match; conformal coverage 0.816/0.860/0.891 -> results files, match; 'bootstrap intervals exclude zero' for all 13 wins is true of the block-bootstrap CI but SF i2c q0.9 has Wilcoxon weekly p=0.114, which the README does not mention. Problems: (a) row counts disagree across files: README/PROPOSAL/datasheets 851,778 / 1,297,657 / 2,382,939 (earlier pulls), paper abstract 851,889 / 1,297,749 / 2,383,195, results/manifest.json (pulled 2026-11-07) 852,489 / 1,298,001 / 2,384,199, so the paper's 'every number copied from results' is not true of the manifest; (b) datasheets/austin.md says 477,248 rows (20%) have no issue date, but manifest.json reports issued = 2,384,199 = all rows for Austin; one of them is wrong and neither is reconciled; (c) project.json lede/summary still describe only sessions 1-6 and omit H2-H5 outcomes; (d) the paper's limitations never mention right-censoring of i2c (see domain), though PROPOSAL.md does. The disclaimer ('Not legal, engineering or financial advice', AI-assisted, no affiliation) is present in the paper; the venue is stated as an aim, not an acceptance.",
-    "fitness": "A researcher can build on it: pinned split and quantile definition, datasheets with licences (Chicago derived rows not redistributed), exact commands to reproduce each table, result JSONs in git, negative findings reported (H2 refuted, H4 holds, secondary H5 refuted, pre-registered neural predictions that failed are logged). Prior work: the paper cites Flyvbjerg 2006 (reference-class forecasting), Gondia et al. 2020, Koenker-Bassett, Gneiting-Raftery, Romano et al. 2019 (CQR), Angelopoulos-Bates, Chen-Guestrin, Prokhorenkova, Grinsztajn, Shwartz-Ziv-Armon, Lundberg-Lee, Gebru; 12 references resolved by cite_check in session 1. Novelty is plausible but modest and narrow: an open multi-city benchmark of permit-lag quantile forecasting with a leakage-free time split, plus the zero-inflation/conformal-tie finding. The literature review is thin for a journal (no survey of permit-processing-time prediction or of survival/AFT models, no zero-inflated or hurdle quantile baseline, no mention of right-censored duration methods). A practitioner takeaway exists (section 6) and permit_prior.json is a reusable artefact. Needs more before a main-track submission.",
-    "domain": "Compared against reference-class forecasting practice (Flyvbjerg) and duration modelling for censored data (Kaplan-Meier / AFT / Cox). Departures: (1) i2c is the issue-to-completion lag restricted to permits that already have a completed date as of the 2026 pull, so permits issued in 2024 and still open are dropped; that right-censoring biases the 2024 i2c test targets (and the baseline and model alike) toward short builds, and no analysis or limitation sentence addresses it; (2) Austin and SF permit populations mix trade permits (plumbing, electrical) with building permits, and 'completed' is a status date, not a certificate of occupancy, so 'how long the build takes' (the research question's wording) is not what i2c measures; (3) Chicago has issued permits only, so a2i is conditional on issuance (disclosed); (4) 'build duration' is treated as one lag per permit although one project holds many permits; (5) pinball loss and week-block bootstrap are the right tools, and the conformal/zero-inflation analysis is careful and honest. A construction economist would accept the a2i work with caveats and ask for a censoring-aware i2c before trusting the build-time claim."
+  {
+   "severity": "medium",
+   "what": "Row counts and feed facts disagree across README/PROPOSAL/datasheets (851,778; 1,297,657; 2,382,939), the paper abstract (851,889; 1,297,749; 2,383,195) and results/manifest.json (852,489; 1,298,001; 2,384,199); Austin datasheet says 20% of rows have no issue date but the manifest counts every Austin row as issued.",
+   "where": "research/build-data/results/manifest.json vs datasheets/austin.md and paper/paper.md:13"
   },
-  "defects": [
-    {
-      "severity": "high",
-      "what": "i2c (issue to completion) targets are right-censored: only permits already completed at pull time are kept, so recent test-year permits that are still open are excluded; this biases build-time forecasts and the baseline comparison, and neither the paper's limitations nor the README mention it.",
-      "where": "research/build-data/src/harness.py:load and src/boosted.py:load_frame; research/build-data/paper/paper.md section 5"
-    },
-    {
-      "severity": "medium",
-      "what": "Row counts and feed facts disagree across README/PROPOSAL/datasheets (851,778; 1,297,657; 2,382,939), the paper abstract (851,889; 1,297,749; 2,383,195) and results/manifest.json (852,489; 1,298,001; 2,384,199); Austin datasheet says 20% of rows have no issue date but the manifest counts every Austin row as issued.",
-      "where": "research/build-data/results/manifest.json vs datasheets/austin.md and paper/paper.md:13"
-    },
-    {
-      "severity": "medium",
-      "what": "Raw data are not versioned and feeds drift; the headline tables depend on pulls from different dates, and there is no hash or row-count pin, so the 15-cell table cannot be exactly reproduced later.",
-      "where": "research/build-data/src/permits.py"
-    },
-    {
-      "severity": "medium",
-      "what": "No end-to-end test of boosted.run, baselines.run, transfer.run or the pull path on a small fixture; only helpers are unit-tested.",
-      "where": "research/build-data/tests/"
-    },
-    {
-      "severity": "medium",
-      "what": "Literature review is thin for the stated venue: no survival/AFT, hurdle or zero-inflated quantile baselines, no prior permit-processing-time prediction work.",
-      "where": "research/build-data/paper/paper.md section 1"
-    },
-    {
-      "severity": "low",
-      "what": "project.json lede/summary stale (sessions 1-6 only); README is one very long paragraph.",
-      "where": "research/build-data/project.json, README.md"
-    },
-    {
-      "severity": "low",
-      "what": "'by 2 to 36%' rounds a 1.6% win up; SF i2c q0.9 win has Wilcoxon weekly p=0.114 yet is counted as a win without comment.",
-      "where": "research/build-data/README.md; results/boosted_sf_i2c_2024.json"
-    },
-    {
-      "severity": "low",
-      "what": "26 near-duplicate one-off scripts; permits.fetch retries on bare Exception and a short page ends the pull silently.",
-      "where": "research/build-data/src/"
-    }
-  ],
-  "fix_prs": [],
-  "verdict": "A genuinely strong, honest research programme whose method is sound: I rebuilt the core pipeline's behaviour on synthetic data with known truth (boosted model within about 1-3% of the oracle pinball, baseline clearly worse, conformal coverage 0.799 on iid data), helper functions match numpy, sklearn and scipy, 42 tests pass and both seeded mutations were caught. It does not meet the bar because correctness is capped at 2 (the real-feed headline numbers could not be re-derived, the data hosts being blocked from this environment), claims is 2 (row counts conflict across README, paper, datasheets and manifest; Austin issue-date facts contradict; project.json stale), craft is 2 (script sprawl, no end-to-end test) and domain is 2 (the issue-to-completion target is right-censored and the paper does not say so; completed status date is not a build duration). The a2i, conformal and transfer findings are the most defensible; the build-time (i2c) claims need a censoring-aware treatment before publication. Median of the seven scores is 2."
+  {
+   "severity": "medium",
+   "what": "Raw data are not versioned and feeds drift; the headline tables depend on pulls from different dates, and there is no hash or row-count pin, so the 15-cell table cannot be exactly reproduced later.",
+   "where": "research/build-data/src/permits.py"
+  },
+  {
+   "severity": "medium",
+   "what": "No end-to-end test of boosted.run, baselines.run, transfer.run or the pull path on a small fixture; only helpers are unit-tested.",
+   "where": "research/build-data/tests/"
+  },
+  {
+   "severity": "medium",
+   "what": "Literature review is thin for the stated venue: no survival/AFT, hurdle or zero-inflated quantile baselines, no prior permit-processing-time prediction work.",
+   "where": "research/build-data/paper/paper.md section 1"
+  },
+  {
+   "severity": "low",
+   "what": "project.json lede/summary stale (sessions 1-6 only); README is one very long paragraph.",
+   "where": "research/build-data/project.json, README.md"
+  },
+  {
+   "severity": "low",
+   "what": "'by 2 to 36%' rounds a 1.6% win up; SF i2c q0.9 win has Wilcoxon weekly p=0.114 yet is counted as a win without comment.",
+   "where": "research/build-data/README.md; results/boosted_sf_i2c_2024.json"
+  },
+  {
+   "severity": "low",
+   "what": "26 near-duplicate one-off scripts; permits.fetch retries on bare Exception and a short page ends the pull silently.",
+   "where": "research/build-data/src/"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15034",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15165"
+ ],
+ "verdict": "A genuinely strong, honest research programme whose method is sound: I rebuilt the core pipeline's behaviour on synthetic data with known truth (boosted model within about 1-3% of the oracle pinball, baseline clearly worse, conformal coverage 0.799 on iid data), helper functions match numpy, sklearn and scipy, 42 tests pass and both seeded mutations were caught. It does not meet the bar because correctness is capped at 2 (the real-feed headline numbers could not be re-derived, the data hosts being blocked from this environment), claims is 2 (row counts conflict across README, paper, datasheets and manifest; Austin issue-date facts contradict; project.json stale), craft is 2 (script sprawl, no end-to-end test) and domain is 2 (the issue-to-completion target is right-censored and the paper does not say so; completed status date is not a build duration). The a2i, conformal and transfer findings are the most defensible; the build-time (i2c) claims need a censoring-aware treatment before publication. Median of the seven scores is 2."
 }
