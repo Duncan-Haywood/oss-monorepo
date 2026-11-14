@@ -240,6 +240,17 @@ between shots is a fraction of it. Not measured: the real motor's current
 during a ramp, and the loop's recovery after each ball, which is why the ESC
 fuses are twice the ramped draw.
 
+Closing the e-stop contactor is the other surge (2026-11-14). It joins the
+pack straight to the ESCs' empty input capacitors, so the loop's few tens of
+milliohms are the only limit. On assumed figures a direct close peaks near
+394 A, 13 times the contactor's rating, and across a 27-case sweep
+(`tests/inrush_sweep.py`) it outlasts an assumed BMS short-circuit delay in 9
+cases. The feeder now precharges the bus through a 4.7 ohm resistor and relay
+and closes the contactor 0.5 s later through an on-delay timer, all fed
+through the e-stop; the contactor then makes about 20 A
+(`cad/README.md`, "Contactor inrush and precharge";
+`hardware/electronics.md`).
+
 Also fixed: `launcher.aim` crashed with `AttributeError` on a shot too fast to
 land on its target (80 m/s), because its bisection closed on the jump between
 "hits the net" and "lands long"; it now raises the `ValueError` its callers

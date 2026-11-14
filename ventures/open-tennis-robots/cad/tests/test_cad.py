@@ -14,7 +14,8 @@ try:
 except ImportError:  # pragma: no cover
     HAVE_CAD = False
 
-from otr_cad.params import AWG_AMPS, AWG_OHM_PER_M, FUSE_SIZES_A, Collector, Feeder, fuse_for, gauge_for
+from otr_cad.params import (AWG_AMPS, AWG_OHM_PER_M, FUSE_SIZES_A, Collector, Feeder, fuse_for, gauge_for, rlc_step,
+                            time_above)
 
 HERE = Path(__file__).resolve().parent
 COMMITTED = HERE.parent.parent / "manufacturing" / "collector-package.zip"
@@ -1326,6 +1327,83 @@ class PowerParamsTest(unittest.TestCase):
             bad = Feeder(**kw).check_power()
             self.assertTrue(any(msg in r for r in bad), (kw, bad))
         self.assertTrue(any("BMS" in r for r in Feeder(wheel_spinup_w=200.0).check()))
+
+
+class InrushTest(unittest.TestCase):
+    """Contactor inrush and precharge (2026-11-14): the closed-form R-L-C against brute force, and the checks."""
+
+    @staticmethod
+    def _brute(v, r, l, c, t_end, n=40000):
+        """RK4 on L di/dt = V - R i - q / C, dq/dt = i. Returns (peak current, its time, integral of i^2 dt)."""
+        dt = t_end / n
+        i = q = 0.0
+        best, t_best, i2t = 0.0, 0.0, 0.0
+
+        def f(i, q):
+            return (v - r * i - q / c) / l, i
+        for k in range(n):
+            a1, b1 = f(i, q)
+            a2, b2 = f(i + dt / 2 * a1, q + dt / 2 * b1)
+            a3, b3 = f(i + dt / 2 * a2, q + dt / 2 * b2)
+            a4, b4 = f(i + dt * a3, q + dt * b3)
+            i_new = i + dt / 6 * (a1 + 2 * a2 + 2 * a3 + a4)
+            q += dt / 6 * (b1 + 2 * b2 + 2 * b3 + b4)
+            i2t += dt * (i * i + i_new * i_new) / 2
+            i = i_new
+            if i > best:
+                best, t_best = i, (k + 1) * dt
+        return best, t_best, i2t
+
+    def test_closed_form_matches_brute_force_in_every_damping(self):
+        v, l, c = 29.2, 0.68e-6, 2.3e-3
+        crit = 2 * math.sqrt(l / c)
+        for r in (0.3 * crit, crit, 3 * crit):
+            i, tp, ip = rlc_step(v, r, l, c)
+            peak, t_peak, i2t = self._brute(v, r, l, c, t_end=max(12 * r * c, 60 * math.sqrt(l * c)))
+            self.assertAlmostEqual(ip, peak, delta=1e-3 * peak, msg=r)
+            self.assertAlmostEqual(tp, t_peak, delta=0.02 * tp, msg=r)
+            self.assertAlmostEqual(c * v * v / (2 * r), i2t, delta=0.01 * i2t, msg=r)   # the fuse's I^2 t, any damping
+
+    def test_time_above_a_level(self):
+        i, tp, ip = rlc_step(29.2, 0.064, 0.68e-6, 2.3e-3)
+        dt, n = 5e-8, 0
+        t = 0.0
+        while t < 2e-3:
+            n += i(t) > 150.0
+            t += dt
+        self.assertAlmostEqual(time_above(i, tp, 150.0, 2e-3), n * dt, delta=1e-7)
+        self.assertEqual(time_above(i, tp, ip + 1, 2e-3), 0.0)
+
+    def test_defaults_pass_and_a_direct_close_does_not(self):
+        p = Feeder()
+        self.assertEqual(p.check_inrush(), [])
+        d = p.contactor_inrush()
+        # a direct close is many times the contactor's rating, and limited only by the loop's resistance
+        self.assertGreater(d["direct"]["peak_a"], 10 * p.contactor_make_a / 2)
+        self.assertLess(d["direct"]["peak_a"], p.battery_v_max / d["r_ohm"])
+        self.assertGreater(d["damping"], 1.0)
+        pre = d["precharge"]
+        self.assertAlmostEqual(pre["peak_a"], p.battery_v_max / (p.precharge_ohm + d["r_ohm"]))
+        self.assertLess(d["closing"]["peak_a"], p.contactor_make_a)
+        # the residual is the idle loads' drop across the resistor once the delay is many time constants
+        self.assertGreater(p.precharge_delay_s, 20 * pre["tau_ms"] / 1e3)
+        self.assertAlmostEqual(pre["residual_v"], p.bus_idle_a * (p.precharge_ohm + d["r_ohm"]), places=6)
+        self.assertAlmostEqual(d["esc_branch_i2t"], d["direct"]["i2t"] / 4)
+        self.assertTrue(any("contactor makes" in r and "add the precharge" in r for r in Feeder(precharge_ohm=0).check_inrush()))
+        import inspect
+        self.assertIn("self.check_inrush()", inspect.getsource(Feeder.check))   # the build runs it (check() is slow)
+
+    def test_rules_catch_bad_changes(self):
+        cases = [
+            ({"precharge_ohm": 0.0}, "contactor makes"),
+            ({"precharge_ohm": 0.0, "esc_cap_uf": 2000.0}, "short-circuit trip for"),
+            ({"precharge_delay_s": 0.02}, "lengthen precharge_delay_s"),
+            ({"bus_idle_a": 3.0}, "contactor makes"),
+            ({"precharge_ohm": 2.0}, "precharge relay makes"),
+        ]
+        for kw, msg in cases:
+            bad = Feeder(**kw).check_inrush()
+            self.assertTrue(any(msg in r for r in bad), (kw, bad))
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")

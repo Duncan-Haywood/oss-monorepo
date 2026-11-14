@@ -371,3 +371,42 @@ def test_sicams_hysteresis_one_alarm_per_episode():
     from water_leaks import sicams
     m = np.array([0, 0, 5, 6, 3, 5, 0.5, 0, 6, 0])
     assert sicams.hysteresis(m, th1=4, th0=1) == [2, 8]
+
+
+TINY_INP = """[TITLE]
+tiny
+[JUNCTIONS]
+ J1 0 36 PAT
+[RESERVOIRS]
+ R1 100
+[PIPES]
+ P1 R1 J1 1000 300 100 0 Open
+[PATTERNS]
+ PAT 1 0
+[TIMES]
+ Duration 0:10
+ Hydraulic Timestep 0:05
+ Pattern Timestep 0:05
+ Report Timestep 0:05
+[OPTIONS]
+ Units CMH
+ Headloss H-W
+[END]
+"""
+
+
+def test_simulate_run_year_reads_points_every_five_minutes(tmp_path):
+    """Step 14's EPANET stepper on a reservoir-pipe-junction network: at 36 m3/h the pressure
+    matches the Hazen-Williams loss (SI: 10.67 L Q^1.852 / (C^1.852 D^4.87)); with no demand
+    (the pattern's second step) it is the static 100 m; flows are in the file's CMH units."""
+    import pytest
+    pytest.importorskip("wntr")
+    from water_leaks import simulate
+    inp = tmp_path / "tiny.inp"
+    inp.write_text(TINY_INP)
+    P, F, L = simulate.run_year(inp, ["J1"], ["P1"], [], steps=3)
+    hl = 10.67 * 1000 * (36 / 3600) ** 1.852 / (100 ** 1.852 * 0.3 ** 4.87)
+    assert P.shape == (3, 1) and F.shape == (3, 1) and L.shape == (3, 0)
+    assert abs(P[0, 0] - (100 - hl)) < 0.01
+    assert abs(F[0, 0] - 36) < 1e-3
+    assert abs(P[1, 0] - 100) < 1e-3 and abs(F[1, 0]) < 1e-3

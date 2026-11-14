@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtL9ZX3BBLYZ62CHRoW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T13:06:57Z",
+  "ended": "2026-11-14T13:53:50Z",
+  "wall_minutes": 47.18,
+  "tokens_in": 8122258,
+  "tokens_out": 45480,
+  "cost_usd": 3.775,
+  "tool_calls": 64,
+  "task": "research/verified-dse milestone 123: gate-level against word-level amount depth, blind flow test",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15859",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "dbb11d81e",
+    "59412c9f3"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "Reproduce section still says Yosys 0.33 from apt for the baseline and only mentions nix for milestones 108 to 113; milestones 114 to 123 also need the nix Yosys 0.70 / OpenROAD 26Q3 build. The nix build and fetch_pdk.sh together took about 2 minutes here."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says EDA projects need `apt-get install yosys`; verified-dse's current milestones need Yosys 0.70 from nix (apt gives an older version), so following the apt line would give a different tool version than the cached tables."
+    },
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "Printed /usr/bin/python3.13 as having pytest while `python3.13 -m pytest` first failed with No module named pytest; it worked after pyenv.py ran (it seems to install into that interpreter), so the first call is not side-effect free."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-verified-dse-gates-not-cells.md",
+    "research/verified-dse/LOG.md (milestone 123 entry)"
+  ],
+  "goal": "Advance the verified-dse programme by one pre-registered blind milestone",
+  "notes": "Pre-registration commit dbb11d81e (designs, gate_depth feature, guards SWG(36)/SWD(3), seven predictions) pushed and PR opened before the flow. 1,440 flow runs, 38 min on 4 cores (Yosys 0.70, OpenROAD 26Q3). All seven predictions held: SWG(36) 1.28% blind regret vs SWD(3) 5.33% and random 3.95% (7 better, 1 worse vs random, p=0.070). Over milestones 121-123 (36 cells) SWG(36) 2.25% vs 3.94% random (17 better, 1 worse). Checks run locally: tests/test_amount_cut.py 6 passed; research/_homepage/build.py ok; check_md_links ok; cite_check (no DOIs in README); post frontmatter/links/similarity ok. No agent doc in docs/reports: LOG.md's Next line is where the next run of this programme looks. Full verified-dse suite: 118 passed (228 s). run_workflow_locally --for-changes: 8/9 workflows passed their run: steps; portfolio-pages.yml's site-builder test ran out of the local budget with no verdict (left to GitHub CI); uses: steps and the cross-review/deploy jobs were not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d0cae33e-2447-5f1c-bb8f-4bbd73e4022a",
+    "transcripts": 1,
+    "first": "2026-11-14T13:06:57Z",
+    "last": "2026-11-14T13:54:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 108,
+        "output": 45480,
+        "thinking": 11266,
+        "cache_read": 7963107,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159043,
+        "api_equivalent_usd": 3.775,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 108,
+      "output": 45480,
+      "thinking": 11266,
+      "cache_read": 7963107,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159043,
+      "api_equivalent_usd": 3.775,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 58,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 47.18,
+      "active_minutes": 47.18,
+      "model_minutes": 8.1,
+      "tool_minutes": 39.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an EDA researcher designing, verifying and pre-registering six RTL designs, writing a gate-depth extractor, running and analysing a 1,440-point flow and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 423.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

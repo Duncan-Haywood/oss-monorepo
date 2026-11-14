@@ -15,7 +15,9 @@ loss, damage or injury arising from its use.
 ## Built into the design
 
 - **Hard-wired e-stop** that cuts motor power through a contactor, on each
-  robot. Add a wireless e-stop fob (a latching relay remote in series)
+  robot. On the feeder the same switch also feeds the precharge relay and the
+  contactor's on-delay timer, so pressing it drops all three
+  (`electronics.md`, 2026-11-14). Add a wireless e-stop fob (a latching relay remote in series)
   before you use the feeder alone.
 - **Watchdog**: the ESP32 stops every motor if the Pi sends nothing for
   300 ms (`firmware/esp32/controller.py`).

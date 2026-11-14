@@ -73,7 +73,7 @@ export function decodeList(fragment) {
     if (!d || d.v !== 1 || !Array.isArray(d.i)) return null;
     const items = parseList(d.i.map(String).join("\n"));
     if (items.length < MIN_ITEMS) return null;
-    return { title: String(d.t || "").slice(0, 200), items };
+    return { title: Array.from(String(d.t || "")).slice(0, 200).join(""), items };
   } catch {
     return null;
   }
@@ -85,7 +85,7 @@ export function decodeList(fragment) {
  */
 export function encodeAnswers({ items, answers, name = "" }) {
   const a = answers.map(([w, l, t]) => `${w.toString(36)}.${l.toString(36)}${t ? "=" : ""}`).join(",");
-  return "QP1." + toBase64Url(JSON.stringify({ l: listId(items), n: String(name).slice(0, 60), a }));
+  return "QP1." + toBase64Url(JSON.stringify({ l: listId(items), n: Array.from(String(name)).slice(0, 60).join(""), a }));
 }
 export function decodeAnswers(code, items) {
   const m = /^QP1\.([A-Za-z0-9_-]+)$/.exec(String(code).trim());
@@ -106,7 +106,7 @@ export function decodeAnswers(code, items) {
     if (w >= items.length || l >= items.length || w === l) return { error: "the code is damaged (copy it again in full)" };
     answers.push([w, l, pm[3] === "="]);
   }
-  return { name: String(d.n || ""), answers };
+  return { name: Array.from(String(d.n || "")).slice(0, 60).join(""), answers };
 }
 
 const ids = (n) => Array.from({ length: n }, (_, i) => String(i));

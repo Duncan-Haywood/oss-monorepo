@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseCsv, parseNumber, parseWhen, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS, DAYPARTS } from "./calc.mjs";
+import { parseCsv, parseNumber, parseWhen, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS, DAYPARTS, detectDmy, pct } from "./calc.mjs";
 
 const HEAD = "Order ID,Platform,Order date,Status,Subtotal,Commission,Delivery fee,Marketing fees,Ad spend,Error charges,Net payout\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
@@ -356,4 +356,65 @@ test("the example's ad charges span the $1 to $3.50 range the generator draws", 
   assert.ok(ads.length > 10);
   assert.ok(Math.max(...ads) > 2.5, `largest ad charge ${Math.max(...ads)}`);
   assert.ok(Math.min(...ads) >= 1);
+});
+
+// Red-team 2026-11-14: guards for mutants that escaped the suite, and two
+// real defects (a three-digit year was read as year 123; a non-numeric
+// own-ordering fee passed validation and printed "NaN%").
+test("dates: December, 7:30 AM, two- and four-digit years only", () => {
+  assert.deepEqual(parseWhen("2026-12-05"), { t: Date.UTC(2026, 11, 5), hasTime: false });
+  assert.deepEqual(parseWhen("12/05/2026"), { t: Date.UTC(2026, 11, 5), hasTime: false });
+  assert.equal(new Date(parseWhen("06/03/2026 7:30 AM").t).getUTCHours(), 7);
+  assert.equal(new Date(parseWhen("06/03/2026 12:15 AM").t).getUTCHours(), 0);
+  assert.equal(new Date(parseWhen("06/03/26").t).getUTCFullYear(), 2026);
+  // a mistyped year is a skipped row, not an order in year 123 or 2100
+  assert.equal(parseWhen("1/2/123"), null);
+  assert.equal(parseWhen("1/2/100"), null);
+  assert.equal(parseWhen("06/03/2026 24:00"), null);
+});
+
+test("a first part of exactly 12 does not make a file day-first", () => {
+  assert.equal(detectDmy(["12/05/2026", "03/04/2026"]), false);
+  assert.equal(detectDmy(["13/05/2026", "03/04/2026"]), true);
+  const n = load("A,DoorDash,12/05/2026,Delivered,20,-5,0,0,0,0,15\nB,DoorDash,03/04/2026,Delivered,20,-5,0,0,0,0,15\n");
+  assert.equal(n.dmy, false);
+  assert.equal(new Date(n.orders[0].t).getUTCMonth(), 11);
+});
+
+test("a tied charge column takes the file's majority sign, even by one", () => {
+  // commission: one charge and its reversal (tied); delivery: one positive cost.
+  // Pooled: 1 negative, 2 positive, so the tied column reads positives as costs.
+  const n = load("A,DoorDash,2026-06-01,Delivered,40,10,1.20,0,0,0,28.80\nB,DoorDash,2026-06-02,Delivered,40,-10,0,0,0,0,50\n");
+  assert.equal(n.orders[0].commission, 10);
+  assert.equal(n.orders[1].commission, -10);
+});
+
+test("markup is computed for a platform that nets under a dollar", () => {
+  const n = load("A,DoorDash,2026-06-01,Delivered,20,-19.50,0,0,0,0,0.50\n");
+  const r = analyze(n.orders, { foodPct: 30 });
+  assert.ok(r.summary.markup, "net of $0.50 still has a break-even markup");
+  near(r.summary.markup.total, 20 / 0.5 - 1, 1e-9);
+});
+
+test("own-ordering fee is validated: 100% or more and non-numbers are refused", () => {
+  const n = load("A,DoorDash,2026-06-01,Delivered,20,-5,0,0,0,0,15\n");
+  assert.match(analyze(n.orders, { directPct: 100 }).invalid, /Direct-order/);
+  assert.match(analyze(n.orders, { directPct: 150 }).invalid, /Direct-order/);
+  assert.match(analyze(n.orders, { directPct: "abc" }).invalid, /Direct-order/);
+  assert.match(analyze(n.orders, { directFlat: "abc" }).invalid, /Direct-order/);
+  assert.equal(analyze(n.orders, { directPct: "", directFlat: "" }).summary.directPct, 0.03);
+});
+
+test("promotion that exactly earns back its spend is not flagged high", () => {
+  // food 20, promo 5, packaging 15: profit before spend = 5, per $1 spent = 1.
+  const n = load("A,DoorDash,2026-06-01,Delivered,20,0,0,-5,0,0,15\n");
+  const r = analyze(n.orders, { packaging: 15 });
+  near(r.promo.profitBeforeSpendPerDollar, 1, 1e-9);
+  const f = r.findings.find((x) => /^Promotions and ads/.test(x.title));
+  assert.equal(f.severity, "info");
+});
+
+test("percentages print to one decimal", () => {
+  assert.equal(pct(0.1234), "12.3%");
+  assert.equal(pct(null), "–");
 });
