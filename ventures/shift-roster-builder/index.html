@@ -106,8 +106,8 @@
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it. Several shops? Add <code>site: Harbour</code> to each shift and <code>sites: Main | Harbour</code> to each person (no cell = anywhere): one build plans every site, so hour limits, rest and no double-booking hold across them, and the report splits hours and payroll by site. With split shifts allowed (rest lowered), set the travel time between sites so nobody is due at two shops minutes apart. Turn on paid travel to pay that trip as hours worked (it counts toward overtime), so the roster sends people across only when it is worth it. If one shop pays more (a city with a higher minimum wage, an airport premium), set wages by site: the roster then sends the people whose pay rises least to the dearer shop. Someone paid their own rate at one shop? Add <code>wage at Airport: 24</code> (or <code>+2</code>, <code>+10%</code>) to their row; a site's minimum still applies.</p>
     <label for="file">…or upload a staff CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
-    <label for="import-file">…or convert a staff export from 7shifts, When I Work, Homebase or similar (name, hourly rate, hours and position columns; availability is not in most exports)</label>
-    <input id="import-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="import-file">…or convert a staff export from 7shifts, When I Work, Homebase or similar (name, hourly rate, hours and position columns; a Location column or "Wage at Airport" columns become sites and per-shop rates; or choose the saved 7shifts users, roles, locations, assignments and wages JSON together; availability is not in most exports)</label>
+    <input id="import-file" type="file" multiple accept=".csv,.tsv,.txt,.json,text/csv,text/plain,application/json">
     <div class="row3">
       <div><label for="rest">Minimum rest between shifts (hours)</label><input id="rest" inputmode="decimal" value="10"></div>
       <div><label for="travel">Travel between sites (minutes, or <code>30; Main to Airport 60</code>)</label><input id="travel" value="" placeholder="0"></div>
@@ -316,7 +316,7 @@
   <script type="module">
     import { importStaffCsv } from "./import-staff.mjs";
     import { importShiftsCsv } from "./import-shifts.mjs";
-    import { import7shifts } from "./import-7shifts.mjs";
+    import { import7shifts, import7shiftsStaff } from "./import-7shifts.mjs";
     import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
@@ -759,10 +759,13 @@
       rd.readAsText(f);
     });
     $("#import-file").addEventListener("change", (e) => {
-      const f = e.target.files[0]; if (!f) return;
-      const rd = new FileReader();
-      rd.onload = () => { const r = importStaffCsv(String(rd.result)); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
-      rd.readAsText(f);
+      const fs = [...e.target.files]; if (!fs.length) return;
+      // Saved 7shifts JSON (users, roles, locations, each user's assignments and wages) or a staff CSV.
+      Promise.all(fs.map((x) => x.text())).then((texts) => {
+        const f = { name: fs.length === 1 ? fs[0].name : `${fs.length} files` };
+        const json = texts.every((t) => /^\s*[[{]/.test(t.replace(/^\uFEFF/, "")));
+        const r = json ? import7shiftsStaff(texts) : importStaffCsv(texts[0]); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
+      });
     });
     // A schedule export with several locations, or with planned and worked (or first and final) shifts side by side,
     // gets two pickers; the file stays in memory only, so changing a picker re-reads it without another upload.
