@@ -1,0 +1,20 @@
+Paid travel between two shops, 12 made-up weeks, 7 people at both shops, trip 45 min, rest 0, daily cap 10 h.
+Main lunch 11-3 (2), afternoon 3-5 (1), dinner 5-10 (2); Harbour lunch 11:30-2:30 (1), dinner 5:30-9:30 (1, 2 Fri-Sun). Same engine, exact check "auto".
+
+seed  1 | unpriced:  2 h open,  8 trips, true payroll $3921.00 (built as $3807.00) | priced:  2 h open,  2 trips, $3835.75 | saves $85.25
+seed  2 | unpriced:  0 h open, 10 trips, true payroll $3857.50 (built as $3716.00) | priced:  0 h open,  0 trips, $3719.00 | saves $138.50
+seed  3 | unpriced:  0 h open,  7 trips, true payroll $3768.00 (built as $3672.00) | priced:  0 h open,  0 trips, $3672.00 | saves $96.00
+seed  4 | unpriced:  8 h open,  9 trips, true payroll $3674.75 (built as $3557.00) | priced:  8 h open,  0 trips, $3572.00 | saves $102.75
+seed  5 | unpriced:  6 h open,  7 trips, true payroll $3614.63 (built as $3504.00) | priced:  6 h open,  0 trips, $3517.00 | saves $97.63
+seed  6 | unpriced:  0 h open,  9 trips, true payroll $4015.25 (built as $3884.00) | priced:  0 h open,  1 trips, $3896.00 | saves $119.25
+seed  7 | unpriced:  0 h open,  8 trips, true payroll $3732.75 (built as $3627.00) | priced:  0 h open,  0 trips, $3627.00 | saves $105.75
+seed  8 | unpriced:  0 h open,  6 trips, true payroll $3530.75 (built as $3458.00) | priced:  0 h open,  0 trips, $3458.00 | saves $72.75
+seed  9 | unpriced:  6 h open,  7 trips, true payroll $3552.50 (built as $3458.00) | priced:  6 h open,  2 trips, $3493.00 | saves $59.50
+seed 10 | unpriced:  0 h open,  8 trips, true payroll $3728.38 (built as $3611.00) | priced:  0 h open,  0 trips, $3612.00 | saves $116.38
+seed 11 | unpriced:  0 h open, 11 trips, true payroll $4003.50 (built as $3849.00) | priced:  0 h open,  1 trips, $3859.75 | saves $143.75
+seed 12 | unpriced:  2 h open, 11 trips, true payroll $3894.75 (built as $3744.00) | priced:  2 h open,  1 trips, $3766.75 | saves $128.00
+
+Totals over 12 weeks (true payroll = trips paid at the wage, overtime included):
+  unpriced  open 24 h, 101 trips, 75.75 h paid travel, true payroll $45293.75; 21.1 s a build
+  priced    open 24 h, 7 trips, 5.25 h paid travel, payroll $44028.25; 21.3 s a build
+  pricing the trip saved $1265.50; cheaper in 12 of 12 weeks, the same in 0, dearer in 0

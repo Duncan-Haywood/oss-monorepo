@@ -55,6 +55,15 @@
     .warn { background: #fdf0d5; border-radius: 8px; padding: 10px 12px; }
     .hidden { display: none; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#ptype) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 371px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

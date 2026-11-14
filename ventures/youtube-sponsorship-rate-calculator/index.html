@@ -41,6 +41,15 @@
     .error { color: #9a3412; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 560px) { div.grid:has(#niche) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 277px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

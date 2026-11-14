@@ -199,3 +199,65 @@ test('rng is deterministic and uniform enough', () => {
   close(s / 100000, 0.5, 0.005);
   assert.equal(rng(1)(), rng(1)());
 });
+
+// Red-team 2026-11-14: guards for mutants that escaped and for a real defect.
+
+test('a slow lift that hits rated speed before full acceleration (v < a^2/j) still matches the integrated profile', () => {
+  // 0.5 m/s with a = 1 m/s^2 and j = 1 m/s^3: peak acceleration is sqrt(vj) = 0.707, never a.
+  for (const kin of [{ speed: 0.5, acceleration: 1, jerk: 1 }, { speed: 0.63, acceleration: 1.2, jerk: 1 }, { speed: 0.1, acceleration: 5, jerk: 0.1 }]) {
+    for (const d of [0.05, 0.3, 0.7, 0.75, 1, 2, 3.5, 10, 40]) close(flightTime(d, kin), integratedFlight(d, kin), 1e-6, `v=${kin.speed} d=${d}`);
+    let prev = 0;
+    for (let d = 0.01; d < 12; d += 0.01) {
+      const t = flightTime(d, kin);
+      assert.ok(t > prev, `not increasing at ${d}`);
+      prev = t;
+    }
+  }
+});
+
+test('reachesSpeedBetweenStops agrees with the flight-time regime, boundary included', () => {
+  // One floor of 2 m, v = a = j = 1: hop = 2 m, exactly (a^2 v + v^2 j) / (j a) = 2.
+  const one = { ...EXAMPLE, speed: 1, acceleration: 1, jerk: 1, floors: [{ name: 'L1', rise: 2, population: 50 }] };
+  const r = upPeak(one);
+  assert.equal(r.hop, 2);
+  assert.equal(r.reachesSpeedBetweenStops, true);
+  assert.equal(upPeak({ ...one, floors: [{ name: 'L1', rise: 1.99, population: 50 }] }).reachesSpeedBetweenStops, false);
+  // A slow lift reaches 0.5 m/s within 2 v sqrt(v/j) = 0.707 m, so a 0.72 m hop
+  // reaches it (the unclamped formula said 0.75 m and answered no).
+  const slow = { ...one, speed: 0.5, floors: [{ name: 'L1', rise: 0.72, population: 50 }] };
+  assert.equal(upPeak(slow).reachesSpeedBetweenStops, true);
+  assert.equal(upPeak({ ...slow, floors: [{ name: 'L1', rise: 0.7, population: 50 }] }).reachesSpeedBetweenStops, false);
+});
+
+test('tv is the average floor rise over rated speed', () => {
+  const r = upPeak(EXAMPLE);
+  close(r.tv, 3.6 / 2.5, 1e-12);
+});
+
+test('design search: a design exactly on a target passes, and same-size designs with more lifts are dominated', () => {
+  const r = upPeak({ ...EXAMPLE, persons: null });
+  const one = { lifts: [EXAMPLE.lifts], loads: [EXAMPLE.ratedLoad], speeds: [EXAMPLE.speed] };
+  assert.equal(searchDesigns(EXAMPLE, { ...one, maxInterval: r.interval, minPctPop: 0 }).passing, 1, 'interval on target');
+  assert.equal(searchDesigns(EXAMPLE, { ...one, maxInterval: 1e6, minPctPop: r.pctPop }).passing, 1, 'handling on target');
+  const s = searchDesigns(EXAMPLE, { maxInterval: 1e6, minPctPop: 0, lifts: [3, 4], loads: [1275], speeds: [2.5] });
+  assert.equal(s.passing, 2);
+  assert.deepEqual(s.frontier.map((d) => d.lifts), [3]);
+  const t = searchDesigns(EXAMPLE, { maxInterval: 1e6, minPctPop: 0, lifts: [4], loads: [1000, 1275], speeds: [2.5] });
+  assert.deepEqual(t.frontier.map((d) => d.ratedLoad), [1000]);
+});
+
+test('trip sample reports a positive spread', () => {
+  const c = tripSample(EXAMPLE, { trips: 2000, seed: 3 });
+  assert.ok(c.sdRtt > 1, `sd ${c.sdRtt}`);
+  close(c.seMean, c.sdRtt / Math.sqrt(2000), 1e-12);
+});
+
+test('demand sweep with no upper bound reaches at least from + 1', () => {
+  const sweep = demandSweep(EXAMPLE, { from: 40, steps: 2, reps: 1 });
+  close(sweep[sweep.length - 1].demandPct, 41, 1e-9);
+});
+
+test('a loaded file with a null or non-object floor is refused with a reason, not a TypeError', () => {
+  assert.throws(() => normalise({ ...EXAMPLE, floors: [null] }), /floor 1 must have a rise and a population/);
+  assert.throws(() => normalise({ ...EXAMPLE, floors: [EXAMPLE.floors[0], 7] }), /floor 2 must have/);
+});

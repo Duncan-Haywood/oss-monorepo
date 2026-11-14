@@ -51,6 +51,15 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#split) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 258px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

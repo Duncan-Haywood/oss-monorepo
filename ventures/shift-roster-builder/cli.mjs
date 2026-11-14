@@ -44,6 +44,9 @@ Options:
   --rest <h>          hours of rest between shifts (default 10)
   --travel <spec>     travel time between sites: "30" (minutes between any two) or "30; Main to Airport 60"; a person's shifts at
                       two sites need max(rest, travel) between them (matters when --rest is lowered for split shifts)
+  --pay-travel        pay the --travel minutes of each same-day trip between two sites as hours worked (counts toward
+                      overtime; in the US site-to-site travel in the workday is work time, 29 CFR 785.38); the search prices it
+  --travel-allowance <$>  a flat amount per same-day trip between sites (mileage or a fare; outside overtime and --burden)
   --consec <n>        most days in a row (default 6)
   --daily <h>         daily hour cap (default none)
   --ot-after <h>      weekly overtime threshold (default 40)
@@ -165,7 +168,7 @@ const FLAGS = {
   "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance", "--open-shift-hours": "openShiftWeight",
   "--burden": "burdenPct", "--daily-ot-after": "dailyOtAfter", "--daily-dt-after": "dailyDtAfter", "--dt-mult": "dtMult",
   "--split-premium": "splitPremium", "--split-gap": "splitGap", "--diff-per-hour": "diffPerHour", "--diff-pct": "diffPct",
-  "--meal-after": "mealAfter", "--meal-min": "mealMin", "--keep-shifts": "keepValue",
+  "--meal-after": "mealAfter", "--meal-min": "mealMin", "--keep-shifts": "keepValue", "--travel-allowance": "travelAllowance",
 };
 
 export function parseArgs(argv) {
@@ -184,6 +187,7 @@ export function parseArgs(argv) {
     else if (a === "--location") { o.importLocation = argv[++i]; if (!o.importLocation) throw new Error("--location needs a location name from the export"); }
     else if (a === "--each-location") o.eachLocation = true;
     else if (a === "--travel") { const v = argv[++i]; const tv = parseTravel(v ?? ""); if (!v || tv.errors.length) throw new Error(tv.errors[0] || '--travel needs minutes like "30" or "30; Main to Airport 60"'); o.options.travel = v; }
+    else if (a === "--pay-travel") o.options.travelPay = true;
     else if (a === "--use") { o.importUse = argv[++i]; if (!["schedule", "final", "initial", "timesheet", "plain"].includes(o.importUse)) throw new Error("--use takes schedule, final, initial, timesheet or plain"); }
     else if (a === "--import-7shifts") { const f = argv[++i]; if (!f) throw new Error("--import-7shifts needs a JSON file"); (o.import7 ||= []).push(f); }
     else if (a === "--fetch-7shifts") o.fetch7 = true;
@@ -503,12 +507,12 @@ export function run(staffText, shiftsText, opts = {}) {
         people: r.people.map((p) => ({ name: p.name, hours: p.hours, short: p.short })),
         unfilled: r.unfilled.map((u) => ({ day: DAYS[u.slot.day], start: fmtClock(u.slot.startMin), end: fmtClock(u.slot.endMin), why: u.text })),
         critical: r.critical, warnings: r.warnings, optimality: r.optimality || undefined, steady: r.steady || undefined,
-        coverSlack: r.coverSlack || undefined, sites: siteSplit(r) || undefined,
+        coverSlack: r.coverSlack || undefined, sites: siteSplit(r) || undefined, travelPaid: r.travelPaid,
       }, null, 2) + "\n",
     };
   }
   const bySite = siteSplit(r);
-  return { code, out: reportText(r) + (bySite ? "\n" + siteSplitText(bySite) + "\n" : "") + (r.steady ? "\n" + steadyText(r.steady) + "\n" : "") + (r.coverSlack ? "\n" + coverSlackText(r.coverSlack, st.staff) + "\n" : "") };
+  return { code, out: reportText(r) + (bySite ? "\n" + siteSplitText(bySite) + "\n" : "") + (r.travelPaid ? travelPaidText(r) + "\n" : "") + (r.steady ? "\n" + steadyText(r.steady) + "\n" : "") + (r.coverSlack ? "\n" + coverSlackText(r.coverSlack, st.staff) + "\n" : "") };
 }
 
 
@@ -551,6 +555,14 @@ function coverReport(staff, slots, r, opts) {
   if (asJson) return JSON.stringify(data, null, 2) + "\n";
   lines.push("", "Checks the hard rules in the staff file for everyone touched; people outside the chain keep their shifts. Planning aid, not legal advice.");
   return lines.join("\n") + "\n";
+}
+
+// One line on the paid trips between sites (--pay-travel, --travel-allowance), with who makes them.
+export function travelPaidText(r) {
+  const t = r.travelPaid;
+  if (!t.trips) return "Trips between sites: none this week.";
+  const who = r.people.filter((p) => p.trips).map((p) => `${p.name} ${p.trips}`).join(", ");
+  return `Trips between sites: ${t.trips} (${who}), ${num(t.hours)} h paid travel, adding ${money(t.cost)} to payroll${r.options.travelPay ? ", overtime included" : ""}.`;
 }
 
 function reportText(r) {

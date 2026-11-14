@@ -48,6 +48,16 @@
       select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
     th[scope=col] { white-space: nowrap; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#recovery) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 344px), 1fr)); } }
+    @media (min-width: 740px) { div.grid:has(#filing) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 404px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

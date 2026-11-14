@@ -157,8 +157,14 @@ export function parseTravel(spec) {
 // Per-ctx travel table: site index per shift (-1 = no site) and an n x n minute matrix, or null when no pair needs more than
 // the rest rule already gives (then every check below is skipped and builds are byte-identical to before).
 function travelTable(o, slots, restMin) {
+  if (o.travel === undefined || o.travel === null || o.travel === "") return null;
+  const tt = siteTripTable(o, slots);
+  return tt && tt.T.some((v) => v > restMin) ? tt : null;
+}
+// The site and trip-minute table alone, whatever the rest rule. Paid travel (below) needs it even when every trip fits inside
+// the rest rule, because the trip is paid either way. Null with fewer than two named sites.
+function siteTripTable(o, slots) {
   const tv = parseTravel(o.travel);
-  if (!tv.all && !tv.pairs.length) return null;
   const names = [...new Set(slots.filter((s) => s.site).map((s) => siteKey(s.site)))].sort();
   if (names.length < 2) return null;
   const n = names.length, id = new Map(names.map((x, k) => [x, k]));
@@ -168,7 +174,6 @@ function travelTable(o, slots, restMin) {
     if (!id.has(x) || !id.has(y)) continue;
     T[id.get(x) * n + id.get(y)] = m; T[id.get(y) * n + id.get(x)] = m;
   }
-  if (!T.some((v) => v > restMin)) return null;
   const site = Int32Array.from(slots, (s) => (s.site ? id.get(siteKey(s.site)) : -1));
   return { n, names, T, site, endBy: new Float64Array(n) };
 }
@@ -476,6 +481,7 @@ const DEFAULTS = {
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
   exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, keep: null, keepValue: 0, keepShift: 0, seed: 1, restarts: 4, iterations: 0, longPass: true,
+  travelPay: false, travelAllowance: 0, // pay the trip between two sites in one day as hours worked; a flat amount per trip (siteTrips)
   coverPrice: 0, // dollars per hour at risk if someone calls out (coverRisk); 0 = off, the roster is built on score alone
 };
 
@@ -512,7 +518,7 @@ export function buildContext(staff, slots, options = {}) {
   const target = staff.map((_, i) => (totalHours * caps[i]) / capSum);
   const avgWage = staff.length ? staff.reduce((t, p) => t + p.wage, 0) / staff.length : 0;
   const restMin = Math.max(0, o.minRestHours) * 60;
-  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin, travel: travelTable(o, slots, restMin), diffMin: differentialMinutes(o, slots), keep: keepSets(o, staff, slots) };
+  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin, travel: travelTable(o, slots, restMin), tripPay: o.travelPay || o.travelAllowance > 0 ? siteTripTable(o, slots) : null, diffMin: differentialMinutes(o, slots), keep: keepSets(o, staff, slots) };
 }
 
 // "Keep last week's shifts": `keep` maps a person's name (any case) to the shifts they worked before, each written as
@@ -706,6 +712,30 @@ function validListSlow(ctx, p, list) {
   return !ctx.travel || travelOk(ctx, list);
 }
 
+// Paid travel between sites (2026-11-14). With `travelPay` on, a person's trip from a shift at one named site to their next
+// shift the same day at another is paid time: in the US, travel from one job site to another during the workday is hours
+// worked (29 CFR 785.38), so it is paid at their wage and counts toward daily and weekly overtime. `travelAllowance` is a flat
+// amount per such trip (mileage or a fare), outside overtime and the payroll burden. A trip counts on the day of the shifts;
+// shifts with no site are skipped (the trip is unknown). Calls onTrip(day, minutes) per trip and returns the trip count.
+// The exact search's floors leave travel out (payParts/payroll with noTravel), which keeps them below the true pay.
+function siteTrips(ctx, list, onTrip) {
+  const tt = ctx.tripPay;
+  if (!tt || list.length < 2) return 0;
+  const slots = ctx.slots;
+  let L = list;
+  for (let k = 1; k < list.length; k++) if (slots[list[k]].start < slots[list[k - 1]].start) { L = Array.from(list).sort((a, b) => slots[a].start - slots[b].start || a - b); break; }
+  let day = -1, prev = -1, count = 0;
+  for (const i of L) {
+    const d = slots[i].day;
+    if (d !== day) { day = d; prev = -1; }
+    const x = tt.site[i];
+    if (x < 0) continue;
+    if (prev >= 0 && prev !== x) { count++; if (onTrip) onTrip(d, tt.T[prev * tt.n + x]); }
+    prev = x;
+  }
+  return count;
+}
+
 function hoursOf(ctx, list) {
   let m = 0;
   for (const i of list) m += ctx.slots[i].end - ctx.slots[i].start;
@@ -726,15 +756,17 @@ function paidMinutes(o, s) {
 // numbers in the same order and give the same result bit for bit). The pricing oracle prices millions of lists on a 40-person
 // week, and the Map per call was a fifth of its time (2026-11-11 profile). Days outside 0-30 take the Map.
 const PAY_DAY = new Float64Array(31), PAY_ORDER = new Int32Array(31);
-function payParts(ctx, list) {
+const addTripDay = (d, m) => { PAY_DAY[d] += m / 60; };
+function payParts(ctx, list, noTravel = false) {
   const { o, slots } = ctx;
   let mask = 0, nd = 0;
   for (const i of list) {
     const d = slots[i].day;
-    if (!(d >= 0 && d <= 30 && Number.isInteger(d))) return payPartsMap(ctx, list);
+    if (!(d >= 0 && d <= 30 && Number.isInteger(d))) return payPartsMap(ctx, list, noTravel);
     if (!(mask & (1 << d))) { mask |= 1 << d; PAY_ORDER[nd++] = d; PAY_DAY[d] = 0; }
     PAY_DAY[d] += paidMinutes(o, slots[i]) / 60;
   }
+  if (ctx.tripPay && o.travelPay && !noTravel) siteTrips(ctx, list, addTripDay);
   let straight = 0, ot = 0, dt = 0;
   for (let k = 0; k < nd; k++) {
     let rest = PAY_DAY[PAY_ORDER[k]];
@@ -745,10 +777,11 @@ function payParts(ctx, list) {
   const weekly = Math.max(0, straight - o.otAfter);
   return { straight: straight - weekly, ot: ot + weekly, dt };
 }
-function payPartsMap(ctx, list) {
+function payPartsMap(ctx, list, noTravel = false) {
   const { o, slots } = ctx;
   const byDay = new Map();
   for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + paidMinutes(o, slots[i]) / 60);
+  if (ctx.tripPay && o.travelPay && !noTravel) siteTrips(ctx, list, (d, m) => byDay.set(d, byDay.get(d) + m / 60));
   let straight = 0, ot = 0, dt = 0;
   for (const h of byDay.values()) {
     let rest = h;
@@ -772,16 +805,17 @@ function splitDays(ctx, list) {
   }
   return split.size;
 }
-function payroll(ctx, p, list) {
+function payroll(ctx, p, list, noTravel = false) {
   const { o, staff } = ctx;
-  const q = payParts(ctx, list);
+  const q = payParts(ctx, list, noTravel);
+  const allowance = ctx.tripPay && o.travelAllowance > 0 && !noTravel ? siteTrips(ctx, list) * o.travelAllowance : 0;
   let extra = o.splitPremium > 0 ? splitDays(ctx, list) * o.splitPremium : 0;
   if (ctx.diffMin.length) {
     let m = 0;
     for (const i of list) m += ctx.diffMin[i];
     extra += (m / 60) * (o.diffPerHour + (staff[p].wage * o.diffPct) / 100);
   }
-  return (1 + o.burdenPct / 100) * (staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult) + extra);
+  return (1 + o.burdenPct / 100) * (staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult) + extra) + allowance;
 }
 function softPenalty(ctx, p, h, list) {
   const { o, staff, target, avgWage } = ctx;
@@ -1650,7 +1684,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     for (let p = 0; p < P; p++) {
       const L = lists[p], h = hoursOf(ctx, L);
       let pay = 0;
-      if (mono) { const q = payParts(ctx, L); pay = burden * staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult); }
+      if (mono) { const q = payParts(ctx, L, true); pay = burden * staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult); }
       const h1 = Math.max(h, Math.min(staff[p].maxHours, h + sufHours[k][p]));
       lo0[p] = h; hi0[p] = h1;
       const g0 = gMin(p, h, h1);
@@ -2144,7 +2178,7 @@ export function makeScorePricer(ctx, { maxNodes = 2000000, chainBound = true } =
   }));
   // The fixed part of the floor for a list: its pay without the split premium, avoid, tough and prefer terms.
   const fixedLB = (p, list) => {
-    let pay = payroll(ctx, p, list);
+    let pay = payroll(ctx, p, list, true);
     if (o.splitPremium > 0) pay -= burden * splitDays(ctx, list) * o.splitPremium;
     return pay + toughPenalty(ctx, p, list) + avoidPenalty(ctx, p, list) - preferBonus(ctx, p, list);
   };
@@ -2549,6 +2583,13 @@ function listedOrder(ctx) {
   return owner;
 }
 
+// One person's paid trips between sites: count, minutes paid, and what they add to the payroll (overtime included).
+function tripStats(ctx, p, list, cost) {
+  let m = 0;
+  const trips = siteTrips(ctx, list, (d, x) => { m += x; });
+  return { trips, travelHours: ctx.o.travelPay ? m / 60 : 0, travelCost: trips ? cost - payroll(ctx, p, list, true) : 0 };
+}
+
 function summarise(ctx, owner) {
   const { staff, slots } = ctx;
   const lists = Array.from({ length: ctx.P }, () => []);
@@ -2567,6 +2608,7 @@ function summarise(ctx, owner) {
       minHours: p.minHours, maxHours: p.maxHours, short: Math.max(0, p.minHours - h),
       avoidHours: p.avoid ? lists[k].reduce((t, i) => t + avoidMinutes(p, slots[i]), 0) / 60 : 0,
       daysWorked: new Set(lists[k].map((i) => slots[i].day)).size, slotIds: lists[k], splitDays: splitDays(ctx, lists[k]),
+      ...(ctx.tripPay ? tripStats(ctx, k, lists[k], c) : {}),
     };
   });
   const unfilledHours = unfilled.reduce((t, i) => t + (slots[i].end - slots[i].start) / 60, 0);
@@ -2959,7 +3001,12 @@ function buildRosterOnce(staff, slots, options = {}) {
     const tv = parseTravel(options.travel), named = new Set(slots.filter((s) => s.site).map((s) => siteKey(s.site)));
     for (const e of tv.errors) warnings.push(e);
     for (const [x, y] of tv.pairs) for (const z of [x, y]) if (!named.has(z)) warnings.push(`travel: no shift is at a site called "${z}", so its travel time is not used.`);
-    if (ctx.travel === null && !tv.errors.length && named.size > 1) warnings.push(`travel: every trip between sites is within the ${num(ctx.restMin / 60)} hour rest rule, so it changes nothing; lower the rest rule to allow split shifts across sites.`);
+    if (ctx.travel === null && !ctx.tripPay && !tv.errors.length && named.size > 1) warnings.push(`travel: every trip between sites is within the ${num(ctx.restMin / 60)} hour rest rule, so it changes nothing; lower the rest rule to allow split shifts across sites.`);
+  }
+  if (o.travelPay || o.travelAllowance > 0) {
+    const tv = parseTravel(options.travel);
+    if (!ctx.tripPay) warnings.push("travel pay: fewer than two shifts name a site, so there are no trips between sites to pay.");
+    else if (o.travelPay && !tv.all && !tv.pairs.length) warnings.push("travel pay: no travel time is set, so trips between sites are paid 0 minutes; set the travel time between sites.");
   }
   if (slots.some((s) => s.endMin > 1440 && s.day === 6) && staff.every((p) => p.prevEnd == null)) warnings.push("A Sunday-night shift runs into Monday; the rest rule is checked inside this one week only. To carry it into next week, add \"prev: Sun 10pm\" to each person next week.");
 
@@ -2977,6 +3024,7 @@ function buildRosterOnce(staff, slots, options = {}) {
     listed: { cost: base.cost, otHours: base.otHours, unfilledHours: base.unfilledHours, unfilledSlots: base.unfilled.length },
     savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit, timings, coverSlack,
     filledAll: res.unfilled.length === 0,
+    ...(ctx.tripPay ? { travelPaid: res.people.reduce((t, p) => ({ trips: t.trips + p.trips, hours: t.hours + p.travelHours, cost: t.cost + p.travelCost }), { trips: 0, hours: 0, cost: 0 }) } : {}),
   };
 }
 

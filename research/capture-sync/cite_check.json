@@ -1,4 +1,8 @@
 {
+ "arxiv:1909.08050": {
+  "checked": "2026-11-14",
+  "title": "A scalable noisy speech dataset and online subjective test framework (2019)"
+ },
  "arxiv:2001.11482": {
   "checked": "2026-11-13",
   "title": "Continuous speech separation: dataset and analysis (2020)"
@@ -14,6 +18,10 @@
  "arxiv:2308.10682": {
   "checked": "2026-11-13",
   "title": "LibriWASN: A Data Set for Meeting Separation, Diarization, and Recognition with Asynchronous Recording Devices (2023)"
+ },
+ "doi:10.1002/j.1538-7305.1944.tb00874.x": {
+  "checked": "2026-11-14",
+  "title": "Mathematical Analysis of Random Noise (1944)"
  },
  "doi:10.1007/978-3-319-54427-4_19": {
   "checked": "2026-11-13",

@@ -51,6 +51,15 @@
     .art { font-size: .78rem; color: #54503f; white-space: nowrap; }
     .tier-prohibited { color: #9a1b1b; } .tier-high { color: #9a3412; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#size) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 381px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

@@ -1,0 +1,36 @@
+# Milestone 2: information (I), reinforcement (R), fractional threshold (T)
+grid: 1120 points (630 R incl. 70 with gamma = 0, 490 T), S = 75, seeds (0, 1)
+empirical non-leader take-up by adopting neighbours 0,1,2,3,4+: 0.083(n=2681) 0.143(n=2002) 0.203(n=1189) 0.243(n=748) 0.350(n=1366)
+grid simulated in 122 s
+
+## moment set bcdj5
+in-sample I: qN=0.050 qP=0.3 gamma=+0.00  Q = 1.057e-03 (seed 1 at same point 1.067e-03)
+in-sample R: qN=0.050 qP=0.3 gamma=+0.00  Q = 1.057e-03 (seed 1 at same point 1.067e-03)
+in-sample T: qN=0.050 qP=0.2 theta=0.75  Q = 8.932e-04 (seed 1 at same point 8.979e-04)
+LOO I: mean held-out loss 1.4752e-01 (median 7.6393e-02); most common fit qN=0.050 qP=0.3 gamma=+0.00 (36/43)
+LOO R: mean held-out loss 1.4752e-01 (median 7.6393e-02); most common fit qN=0.050 qP=0.3 gamma=+0.00 (36/43)
+LOO T: mean held-out loss 1.5263e-01 (median 9.0933e-02); most common fit qN=0.050 qP=0.2 theta=0.75 (29/43)
+H3 R vs I: R lower in 0.000 of 2000 paired draws; mean diff +0.000e+00 [+0.000e+00, +0.000e+00]; R better in 0/43 villages
+H3b T vs I: T lower in 0.238 of 2000 paired draws; mean diff +5.111e-03 [-9.036e-03, +2.130e-02]; T better in 20/43 villages
+
+## moment set ext8
+in-sample I: qN=0.050 qP=0.3 gamma=+0.00  Q = 4.219e-03 (seed 1 at same point 3.995e-03)
+in-sample R: qN=0.050 qP=0.3 gamma=+0.00  Q = 4.219e-03 (seed 1 at same point 3.995e-03)
+in-sample T: qN=0.075 qP=0.1 theta=0.60  Q = 3.449e-03 (seed 1 at same point 3.670e-03)
+LOO I: mean held-out loss 1.7419e-01 (median 1.0923e-01); most common fit qN=0.050 qP=0.3 gamma=+0.00 (42/43)
+LOO R: mean held-out loss 1.7419e-01 (median 1.0923e-01); most common fit qN=0.050 qP=0.3 gamma=+0.00 (42/43)
+LOO T: mean held-out loss 1.8373e-01 (median 1.2121e-01); most common fit qN=0.075 qP=0.1 theta=0.60 (32/43)
+H3 R vs I: R lower in 0.000 of 2000 paired draws; mean diff +0.000e+00 [+0.000e+00, +0.000e+00]; R better in 0/43 villages
+H3b T vs I: T lower in 0.238 of 2000 paired draws; mean diff +9.536e-03 [-2.405e-02, +4.104e-02]; T better in 19/43 villages
+
+H3c gamma-hat bootstrap (ext8, B = 1000): mean +0.000, 95% [+0.00, +0.00], share > 0 0.000, share = 0 1.000, share < 0 0.000
+theta-hat bootstrap (ext8): 0.40: 0.002, 0.50: 0.116, 0.60: 0.647, 0.75: 0.143, off: 0.092
+profile bcdj5 gamma: -1.00:3.731e-02 -0.50:1.634e-02 +0.00:1.057e-03 +0.25:1.360e-02 +0.50:1.249e+00 +0.75:4.480e+00 +1.00:7.722e+00 +1.50:1.233e+01 +2.00:1.496e+01
+profile bcdj5 theta: 0.20:1.388e+00 0.30:2.320e-02 0.40:1.645e-02 0.50:8.705e-03 0.60:1.491e-03 0.75:8.932e-04 1.00:1.019e-03 off:1.057e-03
+profile ext8 gamma: -1.00:8.744e-02 -0.50:4.016e-02 +0.00:4.219e-03 +0.25:3.073e-02 +0.50:1.305e+00 +0.75:4.583e+00 +1.00:7.863e+00 +1.50:1.252e+01 +2.00:1.518e+01
+profile ext8 theta: 0.20:1.438e+00 0.30:3.386e-02 0.40:1.825e-02 0.50:8.998e-03 0.60:3.449e-03 0.75:3.691e-03 1.00:4.527e-03 off:4.219e-03
+
+simulated at I ext8 fit (qN=0.050 qP=0.3 gamma=+0.00): non-leader take-up 0.194; by adopting neighbours 0..4+: 0.081 0.184 0.227 0.248 0.272
+simulated at R ext8 fit (qN=0.050 qP=0.3 gamma=+0.00): non-leader take-up 0.194; by adopting neighbours 0..4+: 0.081 0.184 0.227 0.248 0.272
+simulated at T ext8 fit (qN=0.075 qP=0.1 theta=0.60): non-leader take-up 0.195; by adopting neighbours 0..4+: 0.096 0.165 0.221 0.254 0.288
+runtime 123 s

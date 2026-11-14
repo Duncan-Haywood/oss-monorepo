@@ -353,6 +353,21 @@
 <style>@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important}}</style>
 <!-- The ready-design strip is filled by app.mjs, 641 px tall at every width (fixed-width cards); empty at first paint it pushed the editor down: CLS 0.236 at 1,280 px. Hold most of its height until the module has run (docs/reports/polish-2026-11-13-late-reveal.md). -->
 <!-- late-reveal:start --><style>@media (scripting:enabled){html:not(.pf-rows-ready) #starts .pick-list:empty{min-height:620px}}</style><script>document.addEventListener('DOMContentLoaded',()=>document.documentElement.classList.add('pf-rows-ready'))</script><!-- late-reveal:end -->
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 460px) { div.fields:has(#style) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 494px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#roofType) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 322px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#floor) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 505px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#northDeg) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 197px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#sidingType) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 582px), 1fr)); } }
+    @media (min-width: 460px) { div.fields:has(#maxHaulFt) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 264px), 1fr)); } }
+    @media (min-width: 440px) { div.fields:has(#quote-store) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 286px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

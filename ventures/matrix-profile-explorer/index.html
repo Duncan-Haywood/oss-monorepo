@@ -50,6 +50,15 @@
     pre { background: #f6f8fa; border: 1px solid #e3e8ee; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .8rem; line-height: 1.4; }
     code { font-size: .9em; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 460px) { div.grid:has(#column) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 257px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

@@ -61,6 +61,16 @@
     .pf-jump { --jump-fg: #183d2a; --jump-line: #c4d2c7; --jump-bg: #fff; --jump-hover: #23613f; --jump-margin: 10px 0 0; }
     @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 480px) { div.grid:has(#provider) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 293px), 1fr)); } }
+    @media (min-width: 480px) { div.grid:has(#pp-account) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 339px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
