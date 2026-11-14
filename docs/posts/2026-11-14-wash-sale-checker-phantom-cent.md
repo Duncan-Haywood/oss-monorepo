@@ -3,7 +3,7 @@ title: "A cent our wash-sale checker made up, and the variable that was meant to
 seo_title: "Wash-sale checker rounding bug: a phantom cent in replacement basis"
 date: 2026-11-14
 tags: [ventures, wash-sale-checker, redteam, testing]
-description: "When a disallowed wash-sale loss was split across several replacement buys, the free checker could add one cent more to basis than it disallowed. The fix, and what 22 seeded faults showed about the tests."
+description: "Splitting a disallowed wash-sale loss over several buys could add a cent more to basis than was disallowed. The fix, and what 22 seeded faults showed."
 ---
 
 The [wash-sale checker](../../ventures/wash-sale-checker/) takes a trade list and finds losses the wash-sale rule (IRC 1091) disallows. A disallowed loss is not lost for good. It is added to the cost basis of the replacement shares, and it comes back when those shares are sold. If you bought the replacements in several lots, the checker splits the disallowed loss across them in proportion to their share counts.
