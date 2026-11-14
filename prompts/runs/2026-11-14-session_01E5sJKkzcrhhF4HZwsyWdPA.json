@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First run_workflow_locally sweep failed on my post's description (194 chars > 160); the same bad front matter also turned the site-builder and shorts.test.mjs steps red. Fixed the description; the second sweep was green apart from a budget timeout on the site-builder step, which was run directly."
+    "First run_workflow_locally sweep failed on my post's description (194 chars > 160); the same bad front matter also turned the site-builder and shorts.test.mjs steps red. Fixed the description; the second sweep was green apart from a budget timeout on the site-builder step, which was run directly.",
+    "Committed the run record while platform/pages tests were running, which turned the build-hash determinism test red; rerun alone it passed."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -65,7 +66,7 @@
     "docs/posts/2026-11-14-redteam-the-follow-up-that-sent-the-last-nudge-first.md"
   ],
   "goal": null,
-  "notes": "Campaign 1 ventures/babysitting-business-kit/references.mjs: 4/8 caught, 4 gaps, 8/8 after. Campaign 2 platform/ci/dogfood_workflows.py: 4/8 caught, 2 equivalent (timeout 300->301, JSON indent), 2 gaps on main()'s exit code, 6/6 after. No real defects. Verification: references.test.mjs 10/10; test_dogfood_workflows 5/5; run_workflow_locally.py --for-changes second sweep 6/7 workflows passed, portfolio-pages site-builder step ran out of the 300 s sweep budget and was run directly (node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\" in platform/pages).",
+  "notes": "Campaign 1 ventures/babysitting-business-kit/references.mjs: 4/8 caught, 4 gaps, 8/8 after. Campaign 2 platform/ci/dogfood_workflows.py: 4/8 caught, 2 equivalent (timeout 300->301, JSON indent), 2 gaps on main()'s exit code, 6/6 after. No real defects. Verification: references.test.mjs 10/10; test_dogfood_workflows 5/5; run_workflow_locally.py --for-changes second sweep 6/7 workflows passed, portfolio-pages site-builder step ran out of the 300 s sweep budget and was run directly (node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\" in platform/pages). Direct run: 1647/1648 pass; the one failure ('an identical build produces an identical cache name') was caused by committing this record while the suite ran, so the two builds it compares saw different trees; rerun alone it passes. PR CI jobs were all queued (runners starved), so this local verification is the merge basis.",
   "corrections": [],
   "redteam": {
     "campaigns": [
