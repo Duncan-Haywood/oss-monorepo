@@ -4,7 +4,13 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Second step (milestone 2): reinforcement and threshold models fit the villages better in
+through village leaders. **Third step (milestone 3): the estimation cannot reliably tell the
+models apart, and the real villages fit none of them.** On 200 synthetic datasets per model,
+simulated on the real networks, the in-sample criterion picks the reinforcement model for 85%
+of datasets made by the simple model; leaving one village out recovers the true model 58.5%
+(simple), 82% (threshold) and 55.5% (reinforcement) of the time. The real villages' held-out
+prediction errors are two to four times larger than any fitted model produces in its own
+synthetic data. **Second step (milestone 2): reinforcement and threshold models fit the villages better in
 sample (reinforcement &gamma; = 0.10, positive in 99.5% of bootstrap draws; criterion 41% lower)
 but predict held-out villages worse than the simple information model (better in 13 and 19 of
 43 villages), while take-up by number of adopting neighbours (8% with none, 35% with four or
@@ -134,6 +140,45 @@ adopter (0.184 against 0.143, gap interval [&minus;0.063, &minus;0.018]) and too
 more (0.272 against 0.350, [+0.037, +0.117]). That is the shape reinforcement predicts, and also
 the shape homophily or a degree effect would leave in one cross-section.
 
+## Milestone 3: can these moments tell the models apart? (`experiments/m3_identify/`)
+
+Identification by simulation, on the real networks. From each milestone-2 fit (information I;
+threshold T at &theta; 0.60; reinforcement R&delta; at &gamma; 0.10, &delta; &minus;0.25) we drew 200
+synthetic datasets (one adoption outcome per village each), refitted all three families on an
+850-point grid with disjoint families, and asked which family two selection rules pick: lowest
+in-sample criterion, and lowest leave-one-village-out loss (the milestone-2 protocol). Moments 2
+and 3 depend on each dataset's leader take-up; they are linear in simulated adoption, so one
+simulation per grid point serves every dataset exactly (`tests/test_identify.py`). The leader
+logit is held at its real-data value, which helps the rules, so these recovery rates are if
+anything optimistic. Plan logged before the run.
+
+![confusion matrices](experiments/m3_identify/confusion.svg)
+
+| rule, moments | recovers I | recovers T | recovers R&delta; |
+|---|---|---|---|
+| in sample, BCDJ five | 14.5% | 8.5% | 82.5% |
+| in sample, eight | 27.0% | 48.5% | 99.5% |
+| leave one village out, BCDJ five | 56.5% | 83.0% | 12.5% |
+| leave one village out, eight | 58.5% | 82.0% | 55.5% |
+
+- **H2 held.** In sample, the criterion picks the bigger model whatever made the data: data
+  from the simple model are called reinforcement 85% of the time (BCDJ five moments).
+- **H2b held.** With reinforcement as the truth, leave-one-out on the eight moments prefers it to
+  the simple model in only 67% of datasets, so milestone 2's verdict against reinforcement is
+  weak evidence.
+- **Local identification.** The Jacobian of the moment map at the reinforcement fit has
+  condition number 79 (256 on the BCDJ five alone). The weak direction is not, as we predicted,
+  adopters' word of mouth against reinforcement: it is the base adoption rate against
+  non-adopters' word of mouth and reinforcement together (raise one, lower the others, and the
+  moments barely move). Our prediction failed.
+- **The real data are not like any model's data** (a post-hoc check, labelled as such). Real
+  held-out losses (0.17 to 0.19) sit above the 95th percentile of every model's synthetic losses
+  (0.04 to 0.12), and the real 13-of-43 village count for reinforcement against the simple model
+  is below what any model produces in all but 2.5% (simple) and 13% (threshold) of datasets.
+  The villages differ from each other far more than these models allow. That misfit is larger
+  than the simple-against-complex difference itself, so the next step adds village-level
+  heterogeneity before any seeding comparison.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -142,14 +187,16 @@ complex-contagion models fit better in sample and predict held-out villages no b
 on average), and that the take-up curve by adopting neighbours is more convex than the simple
 model's. It does not say adoption is a simple contagion: it says these moments, on 43
 villages, do not reward the extra parameter out of sample. Identification and seeding come in
-milestones 3 and 4. Adoption is observed once, not over time, so homophily and contagion are confounded
+milestones 3 and 4. Milestone 3 says the moments used here cannot reliably choose between
+the models (in sample they cannot at all), and that all three models are too homogeneous across
+villages. Adoption is observed once, not over time, so homophily and contagion are confounded
 (Shalizi and Thomas 2011); every model here is a fitted description of these 43 villages.
 
 ## Run it
 
 ```
 python3 data/build_dataset.py "<mirror>/datav4.0/Matlab Replication"   # optional, rebuilds the data
-python3 -m pytest -q tests                                                # 16 tests, about 5 s
+python3 -m pytest -q tests                                                # 19 tests, about 5 s
 python3 experiments/m1_reproduce/run.py      # about 2 minutes on 4 cores, writes results.txt
 python3 experiments/m1_reproduce/twostep.py  # seconds, needs run.py's dgrid.npz
 python3 experiments/m1_reproduce/periods.py  # about 12 minutes, periods.txt
@@ -157,18 +204,20 @@ python3 experiments/m1_reproduce/figure.py
 python3 experiments/m2_complex/run.py        # about 2 minutes, results.txt
 python3 experiments/m2_complex/refine.py     # about 4 minutes, refine.txt (post hoc)
 python3 experiments/m2_complex/figure.py
+python3 experiments/m3_identify/run.py       # about 2 minutes on 4 cores, results.txt
+python3 experiments/m3_identify/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Milestone 3: the identification study. Simulate synthetic villages on the real networks from
-each fitted model (I; T at &theta; 0.60; R&delta; at &gamma; 0.10), refit all three, and report how often
-the criterion picks the true family (programme H2), with the Jacobian of the moment map around
-the q<sub>P</sub>&ndash;&gamma; trade-off. A moment that separates reinforcement from homophily (take-up
-by adopting neighbours within degree bands) is the first candidate to add. Then seeding rules
-under every model the data cannot reject (milestone 4).
+Village-level heterogeneity first: a random effect on the base adoption rate (and on q) per
+village, fitted by the same simulated method of moments, then milestones 2 and 3 again with it,
+checking that real held-out losses fall inside the synthetic spread. A moment that separates
+reinforcement from homophily (take-up by adopting neighbours within degree bands) is the next
+candidate. Then seeding rules under every model the data cannot reject (milestone 4), which on
+this evidence should be scored as a robust rule rather than under one chosen model.
 
 ## References
 

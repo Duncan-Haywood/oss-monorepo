@@ -15,8 +15,41 @@ class T(unittest.TestCase):
 
     def test_pair_cost_hand_value(self):
         # 30 min fly (1 swap), 30 min ground: scout 33 min -> 2500*.3*.55/500 = 0.825; treater 3500*.3*.5/500 = 1.05
-        # people: (8+3+3)/60*20 = 4.6667; energy 0
-        self.assertAlmostEqual(E.pair_cost(30.0, 30.0, 0.0), 0.825 + 1.05 + 14 / 3)
+        # people: (8+3+3)/60*20 = 4.6667; energy 0; pilot not charged
+        self.assertAlmostEqual(E.pair_cost(30.0, 30.0, 0.0, pilot=False), 0.825 + 1.05 + 14 / 3)
+
+    def test_pilot_time_is_charged_by_default(self):
+        # 14 CFR 107.31: the remote pilot watches the whole flight. 30 flight min at 20 USD/h = 10 USD on top of the
+        # set-up and swap labour; the swap minutes are not counted twice.
+        self.assertTrue(E.PILOT_ATTENDED)
+        self.assertAlmostEqual(E.pair_cost(30.0, 30.0, 0.0), 0.825 + 1.05 + 14 / 3 + 10.0)
+        self.assertAlmostEqual(E.pair_cost(30.0, 30.0, 0.0, pilot_rate=6.0) - E.pair_cost(30.0, 30.0, 0.0, pilot=False), 3.0)
+
+    def test_crossings_finds_every_root_of_a_sawtooth(self):
+        # A sawtooth like the swap-driven cost difference: one bisection over the range finds one root at most.
+        f = lambda x: (x % 1.0) - 0.5 - 0.05 * (x - 2.0)
+        xs = E.crossings(f, 0.1, 6.0)
+        self.assertGreater(len(xs), 3)
+        for x in xs:   # the cheaper side flips there: a root, or a step where a battery swap is added
+            self.assertLess(f(x - 1e-6) * f(x + 1e-6), 0)
+        self.assertEqual(len([x for x in xs if abs(f(x)) < 1e-6]), 6)   # the six continuous roots on (0.1, 6)
+        self.assertEqual(E.crossings(lambda x: x + 1, 0.1, 10.0), [])
+        self.assertAlmostEqual(E.crossings(lambda x: x - 2.5, 0.1, 10.0)[0], 2.5)
+
+    def test_cost_model_matches_the_audit_recomputation(self):
+        # The published Sweep 2 fits (experiments/results.txt). Quality audit 2026-11-13 recomputed the pair at
+        # 2.46x the inline robot at 0.72 ha and 2.32x at 20 ha once the pilot is paid, and 0.98x / 0.68x unpaid.
+        fits = {"fly_min": (0.57, 56.8, 1), "ground_min": (-0.75, 91.2, 1), "inline_min": (0.96, 227.6, 1),
+                "pair_wh": (-3.23, 665.7, 1), "inline_wh": (-1.93, 985.6, 1)}
+        for a, paid, unpaid in ((0.72, 2.46, 0.98), (20.0, 2.32, 0.68)):
+            i, p, h = E.cost_model(fits, a)
+            _, p0, _ = E.cost_model(fits, a, pilot=False)
+            self.assertAlmostEqual(p / i, paid, places=2)
+            self.assertAlmostEqual(p0 / i, unpaid, places=2)
+            self.assertGreater(h, p)
+        # labour reaches both machines; cap reaches only the inline robot
+        self.assertLess(E.cost_model(fits, 1.0, labour=0.0)[0], E.cost_model(fits, 1.0)[0])
+        self.assertEqual(E.cost_model(fits, 1.0, cap=9e9)[1], E.cost_model(fits, 1.0)[1])
 
     def test_held_costs_at_least_unheld(self):
         a = E.pair_cost(10.0, 15.0, 100.0)

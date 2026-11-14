@@ -10,8 +10,21 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (125 of 125,
-revised with milestones 4e–4g) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (142 of 142,
+revised with milestones 4e–4h) and a list of what a submission still needs.
+
+**Milestone 4h headline** (is χ²<sub>1</sub> the right reference for the robust jackknife update
+test? no new solve): **no. Milestone 4g's 54% power came from two errors cancelling.** If each view
+adds an independent offset to the focal length, the robust (MAD) jackknife's z² has a 99th percentile of
+18.45 at 7 + 6 views, not χ²<sub>1</sub>'s 6.63, and χ²<sub>1</sub> would give 6.1% false alarms; on
+these views it gave 2–3% only because the jackknife still overstates the real spread. **Against that
+model reference, which a robot computes in a second for any set sizes and which borrows nothing, the
+test stays at 0.45% / 0.20% false alarms but catches a 2% focal change from 6 new views in 18.6% of
+splits** (the plain jackknife against its own model reference: 8.6%). The model also says
+χ²<sub>1</sub> stays lenient for this test until large sets (3.8% false alarms at 10 + 10 views, 2.2% at
+20 + 20). All three pre-registered predictions held.
+
+![left: false alarms of the jackknife update tests against chi-squared under the independent-offset model as the view sets grow, with the real views' rates; right: detection against focal change for chi-squared and model references, 7 old and 6 new views](experiments/m4h_modelref/reference.png)
 
 **Milestone 4g headline** (every disjoint split of the 13 views, 37,752 per camera, no new solve; can a
 camera test its own focal length with nothing borrowed?): **a robust view jackknife (the MAD of the
@@ -745,6 +758,7 @@ python3 experiments/m4d_window/analyse.py      # seconds; summary.json, power.pn
 OMP_NUM_THREADS=1 python3 experiments/m4f_setsize/run.py  # ~30 min on 4 cores after 4d and 4e, resumable; results.json.gz
 python3 experiments/m4f_setsize/analyse.py     # seconds; summary.json, ratio.png
 python3 experiments/m4g_allsplits/analyse.py   # seconds, no new solve; summary.json, power.png
+python3 experiments/m4h_modelref/analyse.py    # ~30 s, no new solve; summary.json, reference.png
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -808,7 +822,11 @@ and the union with W as pre-registered hypotheses on fresh splits or a second ri
 thresholds over several sibling units rather than one. After milestone 4g (done: every split scored;
 a robust MAD jackknife against χ²<sub>1</sub> needs nothing borrowed): pre-register that test on a
 second unit's views, and try other robust jackknife scales (a trimmed or delete-d jackknife) that might
-also make the error bar itself honest on the right camera.
+also make the error bar itself honest on the right camera. After milestone 4h (done: a model reference
+borrows nothing and is quiet, but catches a 2% change in 19% at 6 views): render or capture a unit with
+10–20 views per set to see whether the robust test against χ²<sub>1</sub> drifts up towards the model's
+3.8–2.2%, and fit a reference that models the near-critical small-set behaviour milestone 4f found
+rather than plain independent offsets.
 
 ## References
 

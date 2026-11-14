@@ -172,7 +172,7 @@
   <script type="module">
     import { upPeak, summarise, searchDesigns, EXAMPLE } from './engine.mjs';
     import { tripSample, demandSweep } from './sim.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     const el = id => document.getElementById(id);
     const SVG = 'http://www.w3.org/2000/svg';
     const svg = (tag, attrs = {}, text) => { const n = document.createElementNS(SVG, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text !== undefined) n.textContent = text; return n; };
@@ -230,7 +230,7 @@
           row(['Boarding and alighting, 2 P tp', `${f1(r.components.transfer)} s`]),
           row(['Losses', `${f1(r.components.losses)} s`]),
         );
-        if (count === true) recordUsage(globalThis.localStorage, el('optOut').checked, 'analysis_run');
+        if (count === true) recordUsage(usageStorage(), el('optOut').checked, 'analysis_run');
         return { m, r };
       } catch (e) { fail(e); return null; }
     }
@@ -241,7 +241,7 @@
       const s = searchDesigns(c.m, targets());
       el('searchNote').textContent = `${s.passing} of ${s.checked} combinations meet both targets; ${s.frontier.length} shown.`;
       el('designs').replaceChildren(...s.frontier.map(d => row([d.lifts, d.ratedLoad, d.persons, d.speed, f1(d.rtt), f1(d.interval), f1(d.pctPop), 'meets'], 'pass')));
-      recordUsage(globalThis.localStorage, el('optOut').checked, 'design_search');
+      recordUsage(usageStorage(), el('optOut').checked, 'design_search');
     }
 
     function chart(points, pct) {
@@ -276,7 +276,7 @@
         const pts = demandSweep(c.m, { from: Math.max(0.5, c.r.pctPop * 0.2), to: c.r.pctPop * 1.25, steps: 10, reps: 3, dwell: Number.isFinite(dwell) && dwell >= 0 ? dwell : 8 });
         chart(pts, c.r.pctPop);
         el('sweep').replaceChildren(...pts.map(p => row([f1(p.demandPct), f1(p.meanWait), f1(p.p90Wait), f1(p.meanLoad), f1(p.meanInterval), f1(p.carriedPctPer5min)])));
-        recordUsage(globalThis.localStorage, el('optOut').checked, 'simulation_run');
+        recordUsage(usageStorage(), el('optOut').checked, 'simulation_run');
       } catch (e) { fail(e); }
     }
 
@@ -303,8 +303,8 @@
       if (!file) return;
       try { load(JSON.parse(await file.text())); calculate(); } catch (e) { fail(new Error(`could not read that file: ${e.message}`)); }
     });
-    el('optOut').checked = readOptOut(globalThis.localStorage);
-    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+    el('optOut').checked = readOptOut(usageStorage());
+    el('optOut').addEventListener('change', () => writeOptOut(usageStorage(), el('optOut').checked));
     load(EXAMPLE);
     calculate(false);
   </script>

@@ -154,7 +154,7 @@
 
   <script type="module">
     import { parsePanels, compareSheetSizes } from './sheet.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, usageStorage } from './usage.mjs';
 
     const $ = (id) => document.getElementById(id);
     const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => (
@@ -205,7 +205,7 @@
       $(id).addEventListener('input', render);
       $(id).addEventListener('change', () => {
         render();
-        recordUsage(localStorage, false, 'sheet-compares');
+        recordUsage(usageStorage(), false, 'sheet-compares');
       });
     });
     render();

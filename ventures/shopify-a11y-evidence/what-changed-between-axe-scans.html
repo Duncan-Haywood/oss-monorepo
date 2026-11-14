@@ -150,7 +150,7 @@
       });
     })();
     import { buildReport, compareReports, comparisonAsText, formatImpact } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, usageStorage } from './usage.mjs';
 
     function escapeHtml(value) {
       return String(value)
@@ -225,7 +225,7 @@
         render(compareReports(before, after));
         errorEl.textContent = '';
         copyStatus.textContent = '';
-        recordUsage(localStorage, optOut(), 'comparison_generated');
+        recordUsage(usageStorage(), optOut(), 'comparison_generated');
       } catch (error) {
         // Invalid JSON on either side must not leave the last valid
         // comparison on screen next to a silent failure -- a visitor who
@@ -249,7 +249,7 @@
       try {
         await navigator.clipboard.writeText(comparisonAsText(latest));
         copyStatus.textContent = 'Comparison copied.';
-        recordUsage(localStorage, optOut(), 'comparison_copied');
+        recordUsage(usageStorage(), optOut(), 'comparison_copied');
       } catch {
         copyStatus.textContent = 'Clipboard is blocked; download the .txt instead.';
       }
@@ -266,7 +266,7 @@
       link.download = `accessibility-comparison-${latest.before.date}-to-${latest.after.date}.txt`;
       link.click();
       URL.revokeObjectURL(link.href);
-      recordUsage(localStorage, optOut(), 'comparison_downloaded');
+      recordUsage(usageStorage(), optOut(), 'comparison_downloaded');
     });
   
 </script>

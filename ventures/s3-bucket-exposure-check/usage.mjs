@@ -4,6 +4,19 @@
 // kind of thing that must not be transmitted anywhere, and this tool never
 // reads it off the visitor's machine either.
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 const STORAGE_KEY = 's3-bucket-exposure-check-usage';
 
 function honorsBrowserSignal() {
@@ -14,7 +27,7 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'check_run') {
+export function recordUsage(storage = usageStorage(), optedOut = false, event = 'check_run') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -32,7 +45,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
 // *removes* the counters, so a flag stored inside them would be deleted by
 // the very act it records. `recordUsage` above consults it directly as well
 // as taking the caller's argument.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem(`${STORAGE_KEY}-opt-out`) === '1';
   } catch {
@@ -41,7 +54,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   // Independent writes, counters first: sharing one try means a setItem that
   // throws on a full quota skips the delete entirely, and the visitor gets

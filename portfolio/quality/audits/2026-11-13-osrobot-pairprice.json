@@ -227,6 +227,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15746"],
  "verdict": "The cost arithmetic is right: an independent numpy refit of Sweep 1 and my own cost formula reproduce every Sweep 3 and Sweep 5 number, and the experiment re-runs. The finding is not sound. Its one decisive omission is the drone pilot's time: charging the scout's 56.8 flight min/ha at the subject's own 20 USD/h turns 'pair cheaper above 0.54 ha' into 'pair 2.3 to 2.5 times dearer at every size'. The reported break-even sizes are arbitrary roots of a sawtooth cost difference (up to nine crossings), the comparison is at 34% weed kill, prices are invented where public ones exist, and no robot-economics prior work is cited. Tests cover econ.py's helpers but not run.py; 2 of 4 seeded mutants survive. Does not meet the bar (correctness 2, claims 2, verification 2, median 2)."
 }

@@ -79,7 +79,7 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) bank readers: 41 public US exports read incl. WF, Ally, a Stripe-funded LLC (README); open: US Bank checking, non-Chase business; (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
+      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) bank readers: 48 public US exports incl. credit unions, US Bank MCC memo (README); open: US Bank checking, non-Chase business; (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
       through real OCR (page SROIE 83.4%, CORD 50.5%, US 68.4%; CLI
@@ -159,7 +159,7 @@ flagships:
       codes (omawww blocked), a real payroll or export file, a PAC rejection
       compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
       PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
-      2026-11-13) landed (README); cCredPres rules (BR-058..061, cStat 1049-1175) and cClassTrib at IT 1.71 landed 2026-11-14 (eval/ccredpres-2026-11-14.md): e211110 event landed 2026-11-14 (README): open: a real event, other RTC events; a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
+      2026-11-13) landed (README); cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110, 11 others, 110001) landed (README): open: a real event, 112120's schema; a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
       open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
@@ -275,17 +275,17 @@ flagships:
       balanced least priced, faster break floor, exact home-and-away breaks, backward table, blackout fit:
       README 2026-11-11 to 2026-11-14 sections). 2026-11-14 latest: least carry-over 94 at 10 teams, and
       at 12 none below 124 (eval/carryover-bnb.c with a per-round matching bound and round 1 per cycle
-      type, 11x faster at 10; README "12 teams cannot reach 122"; the page says so). Blackout fit
-      (2026-11-13) cut makeups 28% and moved matches 30%. Next, most valuable first: the rest of the
+      type; the page says so); refill search in C (eval/refill-search.c): 14 teams 210 (starter 212), stored
+      and on the page; 631 climbs at 12 found nothing below 136. Next, most valuable first: the rest of the
       20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now 2.1x cheaper again,
       README "A backward table"; or a starter family climbed with the floor as its score); 24 and 25 teams
       in the page (54-184 s since the predecessor cache and backward table; the step over wide spans is
       ~94%: moves span 15 of 23 rounds, so narrower moves, or a step in WebAssembly); home-and-away breaks
       exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT; eval/pair-exact.txt): next,
       a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-136 open: re-dealing up to 8 rounds
-      (eval/carryover-lns.c, 2026-11-14) finds no timetable below 136 or 212 (14 teams), so next is 124
-      ruled out (~4 h on 4 cores; round reversal ~2x, a bound across rounds); close 24-40 (tabu, the literature's starters); a
+      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c, 2026-11-14 latest; two other C
+      searches stopped at 136): below 132, or 124-130 ruled out (~4 h on 4 cores; round reversal ~2x); 18 teams:
+      refill from the climbed starter (356 from circle, starter 318); close 24-40 (tabu, the literature's starters); a
       real league's travel and blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-

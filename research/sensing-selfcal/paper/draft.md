@@ -1,7 +1,8 @@
 # Can a field camera trust its own self-calibration? Covariance, corner bias and an update test on real images
 
 *First full draft (milestone 7 of the `sensing-selfcal` programme), 2026-11-13; revised the same day
-with milestones 4e–4g (set size, every disjoint split, a robust jackknife). Target venue: IEEE
+with milestones 4e–4g (set size, every disjoint split, a robust jackknife) and on 2026-11-14 with
+milestone 4h (a reference for the robust jackknife derived from a model). Target venue: IEEE
 Robotics and Automation Letters (an aim, not a claim of acceptance). Every number below comes from a
 file under `../experiments/`; `python3 paper/check_numbers.py` checks each one against that file.
 Citations are listed in `references.bib`; their DOIs could not be looked up from the session that
@@ -25,8 +26,11 @@ the sector-based `findChessboardCornersSB` is biased the other way (−0.1 to �
 is unbiased. On unbiased corners, scored on every one of the 1,716 disjoint splits per camera, the
 focal length alone tested with a robust view jackknife (the MAD of the delete-one estimates) against a
 plain χ²<sub>1</sub> reference detects a 2% focal change from 6 new views in 54% of splits at 2.3%
-false alarms, with nothing borrowed from another unit; a tail threshold borrowed from the sibling
-camera, which looked better on a 60-split sample (61%), reaches 43% on every split. The jackknife's
+false alarms, but only because two errors cancel: under independent per-view offsets χ²<sub>1</sub>
+would give that test 6.1% false alarms. With a reference derived from that model, which borrows
+nothing, the test stays at 0.2–0.5% false alarms and catches the 2% change in 19% of splits; a tail
+threshold borrowed from the sibling camera, which looked better on a 60-split sample (61%),
+reaches 43% on every split. The jackknife's
 overstatement is a small-set effect (7–8× at 4 views, 1.1–1.4× at 10), while the solver's own σ is
 2–6× too small at every size. The practical message for fleet perception is two-sided: a view-level
 jackknife makes in-field self-calibration safe to gate, and the corner localiser, not the solver,
@@ -232,14 +236,39 @@ It needs nothing from another unit, is even across the two cameras (±2%: 50% le
 catches ±4% in 92.7–94.1% of splits. It does not escape the set-size limit: with 4 new views every
 variant catches ±2% in 13% of splits at most, and a larger old set (9 views) does not help.
 
+**Is χ²<sub>1</sub> the right reference for the robust jackknife?** No, and the table's 54% is not the
+power of a 1% test. A MAD of 6 or 7 delete-one values is itself noisy, so z² under R has a heavier tail
+than χ²<sub>1</sub>. If each view adds an independent offset to f (the model behind Section 4's
+reference), z² is scale-free and its distribution depends only on the two set sizes, so a robot can
+compute its reference by Monte Carlo with nothing borrowed. Its 99th percentile is 18.45 at 7 + 6 views
+(25.84 at 7 + 4), not 6.63, and against χ²<sub>1</sub> the model fires on 6.1% of unchanged updates
+(8.5% at 7 + 4). On the real views R against χ²<sub>1</sub> fired less (3.1% / 0.2% at k = 6) only
+because R still overstates the real spread at these sizes. The two errors cancel here, and nothing
+guarantees they cancel on a unit with more views: under the model, χ²<sub>1</sub> still gives
+3.8% false alarms at 10 + 10 views and 2.2% at 20 + 20. Against the model reference (pre-registered,
+milestone 4h):
+
+| f alone, 5×5 corners, every split, k = 6 | robust J, χ²<sub>1</sub> | robust J, model reference | J, model reference |
+|---|---|---|---|
+| ±2% detected (pooled) | 53.8% | 18.6% | 8.6% |
+| ±4% detected (per camera and sign) | 92.2–94.3% | 66.4–75.1% | |
+| false alarms, k = 4–6, left / right | 3.4% / 1.2% | 0.45% / 0.20% | |
+
+The robust scale still doubles the power of the plain one once both have a derived reference, and the
+gap between 19% and the borrowed threshold's 43% is what borrowing nothing costs at 6 new views on this
+rig.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
    view-clustered sandwich give 36–74% false alarms on an unchanged camera; the jackknife 1.7–2.5%.
-2. **Test the focal length on its own, with a robust jackknife against χ²<sub>1</sub>.** The MAD of
-   the delete-one focal lengths in place of their standard deviation catches a 2% change from 6 views
-   in 54% of splits at 2.3% false alarms, with no threshold to borrow; the three-parameter test is
-   information-limited at 4–6 views. Keep W for principal-point moves (the swap lives in
+2. **Test the focal length on its own, with a robust jackknife and a reference computed for the set
+   sizes.** The MAD of the delete-one focal lengths in place of their standard deviation, against the
+   99th percentile of z² under independent per-view offsets (18.45 at 7 + 6 views; a second of Monte
+   Carlo for any sizes), keeps false alarms at 0.2–0.5% and catches a 2% change from 6 views in 19% of
+   splits, with nothing borrowed. Against χ²<sub>1</sub> it catches 54% at 2.3% here, but that is an
+   approximately 2–6% test, not a 1% one, and its rate should be checked on each unit. The
+   three-parameter test is information-limited at 4–6 views. Keep W for principal-point moves (the swap lives in
    c<sub>x</sub>).
 3. **Check the corners before the statistics.** On a board with cut-short end squares, size the
    sub-pixel window below the shortest end square (here 5×5) or print full end squares with a margin
@@ -269,8 +298,10 @@ were found after a pre-registered prediction failed and are labelled so in the l
   estimate each unit's own tail on views the test never touches.
 - Natural-feature correspondences (milestone 3b) on an openly licensed multi-view set with a target
   calibration of the same camera.
-- The robust-jackknife test (Section 7) pre-registered on a second unit's views; its left-camera
-  false alarms (3.4%) sit just above our 3% bar. Every split of these 13 views is already scored.
+- The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
+  the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
+  false alarms survive a unit with more views, where the model says they should rise. Every split of
+  these 13 views is already scored.
 - The citations checked against their DOIs, and the draft cut to 8 pages.
 
 ## Reproducibility

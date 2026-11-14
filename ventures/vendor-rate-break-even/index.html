@@ -55,7 +55,7 @@
 </footer>
 <script type="module">
 import { compare } from './calc.mjs';
-import { recordUsage, setUsageOptOut, readOptOut, writeOptOut } from './usage.mjs';
+import { recordUsage, setUsageOptOut, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 import { encodeShare, decodeShare } from './share.mjs';
 
 const $ = (id) => document.getElementById(id);
@@ -209,16 +209,16 @@ recordUsage('comparison_completed');
     {
       const usageControl = document.getElementById('optout');
       if (usageControl && 'checked' in usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
-          usageControl.textContent = readOptOut(localStorage)
+          usageControl.textContent = readOptOut(usageStorage())
             ? 'Usage counting is off'
             : 'Turn off local usage counting';
         };
         usageControl.addEventListener('click', () => {
-          writeOptOut(localStorage, !readOptOut(localStorage));
+          writeOptOut(usageStorage(), !readOptOut(usageStorage()));
           paint();
         });
         paint();

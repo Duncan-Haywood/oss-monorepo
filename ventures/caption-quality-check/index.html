@@ -154,7 +154,7 @@ node check.mjs captions.srt --max-line-length 32 --max-lines 2</pre>
 
   <script type="module">
     import { checkCaptionsText } from './engine.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -225,7 +225,7 @@ node check.mjs captions.srt --max-line-length 32 --max-lines 2</pre>
       }
       els.status.textContent = '';
       render();
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     });
 
     const EXAMPLE = [
@@ -249,7 +249,7 @@ node check.mjs captions.srt --max-line-length 32 --max-lines 2</pre>
       els.text.value = EXAMPLE;
       render();
       els.status.textContent = 'Worked example: a cue that reads far too fast, an overlap, a three-line cue, and a cue on screen for only 100ms.';
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
     });
 
     $('#clear').addEventListener('click', () => {
@@ -262,8 +262,8 @@ node check.mjs captions.srt --max-line-length 32 --max-lines 2</pre>
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

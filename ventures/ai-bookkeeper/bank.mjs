@@ -51,10 +51,28 @@ const DAY_FIRST_HEADER = /^(дата операции|расход|приход|
 // The delimiter is the one that splits most of the first lines into the same
 // number of fields, so a one-line preamble ("Account summary") or a prose line
 // with a comma above the header does not decide it. The comma wins ties.
+// A delimiter that splits some line into two or more known column names (a header)
+// beats one that does not: US Bank's card export writes `Date,Transaction,Name,Memo,Amount`
+// with five semicolons in every memo ("2426...; 05411; ; ; ;"), and the semicolon,
+// splitting each data line into one more field, outvoted the comma and read 0 rows.
+let HEADER_WORDS = null;
+function headerHits(lines, d) {
+  HEADER_WORDS ??= new Set(Object.values(ALIASES).flat().map((w) => w.toLowerCase()));
+  let best = 0;
+  for (const l of lines) {
+    const cells = l.split(d).map((c) => c.trim().replace(/^"|"$/g, "").trim().toLowerCase());
+    if (cells.length < 2) continue;
+    best = Math.max(best, cells.filter((c) => c && HEADER_WORDS.has(c)).length);
+  }
+  return best;
+}
 function pickDelimiter(s) {
   const lines = s.split(/\r\n|\r|\n/).filter((l) => l.trim() !== "").slice(0, 20);
+  const hits = new Map([",", ";", "\t", "|"].map((d) => [d, headerHits(lines, d)]));
+  const withHeader = [...hits].filter(([, h]) => h >= 2).map(([d]) => d);
   let best = ",", bestScore = -1;
   for (const d of [",", ";", "\t", "|"]) {
+    if (withHeader.length && !withHeader.includes(d)) continue;
     const freq = new Map();
     for (const l of lines) { const n = l.replace(/"[^"]*"/g, "").split(d).length; if (n > 1) freq.set(n, (freq.get(n) ?? 0) + 1); }
     let score = 0;
@@ -498,6 +516,10 @@ export function sniffBank(rows) {
     // Ramp lists card spend as positive amounts, under a "user transaction time" column.
     if (/^(id\|)?user transaction time\|/.test(h)) return "ramp";
     if (/^date\|transaction\|name\|memo\|amount/.test(h)) return "us-bank";
+    // A layout several US credit unions' online banking writes (read 2026-11-14 on real downloads from
+    // credit unions in New Mexico and Oregon and on test files in four other projects): Posting Date,
+    // Effective Date, a Debit/Credit Transaction Type, a signed Amount, a Balance, an Extended Description.
+    if (/^(transaction id\|)?posting date\|effective date\|transaction type\|amount\|check number\|reference number\|description\|/.test(h)) return "credit-union";
     if (/^date\|time\|amount\|type\|description/.test(h)) return "ally";
     if (/^transaction date\|clearing date\|description\|merchant\|category\|type\|amount \(usd\)/.test(h)) return "apple-card";
     if (/^transaction date\|transaction type\|sort code\|account number\|transaction description\|debit amount\|credit amount/.test(h)) return "lloyds";
@@ -1197,7 +1219,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     }
     // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
     const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
-    const mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
+    let mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
+    // US Bank's card export has no MCC column but writes it into the memo after the
+    // reference number: "24269794038500527407893; 05411; ; ; ;" (a real download read
+    // 2026-11-14, eval/us-bank-exports.mjs: 05411 on grocers, 05542 on fuel, 05814 on fast food).
+    if (!mcc && mccCol === -1) for (const ix of memoCols) { const m = /^\s*\d{15,30}\s*;\s*0?(\d{4})\s*;/.exec(String(r[ix] ?? "")); if (m) { mcc = m[1]; break; } }
     if (typeSideCol !== -1) { const w = sideWord(r[typeSideCol]); if (w) sides.set(out.length, w); }
     out.push({ line: lineOf(i), date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}), ...(mcc ? { mcc } : {}) });
   }

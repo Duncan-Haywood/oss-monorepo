@@ -9,9 +9,15 @@ calculator threw after rendering its result; in `setUsageOptOut()` it threw
 before the opt-out was saved. Reads must be inside `try`, or go through the
 `noStorage()` helper, which is the one place that guards the bare read.
 
-Files that take storage as a parameter (`storage = globalThis.localStorage`)
-are a different shape: the page passes `localStorage` in, so the bare read is
-in `index.html`. 239 ventures use it and are out of scope here.
+Files that take storage as a parameter used to be exempt: their default
+(`storage = globalThis.localStorage`) and the page's `recordUsage(localStorage,
+...)` both read the global before any try, so with site data blocked the
+counter threw inside the calculator's change handler, before it re-rendered
+(red team 2026-11-14: 247 modules, 292 pages). They now default to an exported
+`usageStorage()` that guards the read, the pages pass `usageStorage()`, and
+both shapes are checked here: no default parameter may read the global (it is
+outside the try), and no page may pass a bare `localStorage` to a function it
+imports from `./usage.mjs`.
 
 The text check cannot see a wrong answer, so `main` also runs
 `usage_contract.mjs`, which imports each counter and drives it against a fake
@@ -92,17 +98,54 @@ def unshaped_parses(src):
     return bad
 
 
+_USAGE_IMPORT = re.compile(r"""import\s*\{([^}]*)\}\s*from\s*(['"])\./usage\.mjs\2""")
+_SKIP_DIRS = {"node_modules", "dist", ".git"}
+
+
+def bare_storage_args(src):
+    """Return 1-based lines where a page passes the bare global to its usage module.
+
+    `recordUsage(localStorage, ...)` reads the global at the call site, before
+    the module's own try can help, so a visitor who blocks site data gets a
+    SecurityError in the handler that called it. Pass `usageStorage()`.
+    """
+    m = _USAGE_IMPORT.search(src)
+    if not m:
+        return []
+    names = [n.split(" as ")[-1].strip() for n in m.group(1).split(",")]
+    names = [n for n in names if n and n != "usageStorage"]
+    if not names:
+        return []
+    code = _strip(src)
+    call = re.compile(r"\b(?:" + "|".join(map(re.escape, names)) + r")\(\s*(?:(?:window|globalThis)\.)?localStorage\b")
+    return [code.count("\n", 0, c.start()) + 1 for c in call.finditer(code)]
+
+
+def _pages(root):
+    for path in sorted(Path(root).rglob("*")):
+        if path.suffix not in (".html", ".mjs", ".js") or path.name == "usage.mjs" or ".test." in path.name:
+            continue
+        if _SKIP_DIRS.intersection(path.relative_to(root).parts) or not path.is_file():
+            continue
+        yield path
+
+
 def check_tree(root):
     problems = []
     for path in sorted(Path(root).glob("*/usage.mjs")):
         src = path.read_text()
-        if "storage = globalThis.localStorage" in src:
-            continue
         for line in unguarded_reads(src):
             problems.append(f"{path}:{line}: bare `localStorage` read outside try (use noStorage())")
     for path in sorted(Path(root).glob("*/usage.mjs")):
         for line in unshaped_parses(path.read_text()):
             problems.append(f"{path}:{line}: stored counter written to without checking it is a plain object")
+    for path in _pages(root):
+        try:
+            src = path.read_text()
+        except (UnicodeDecodeError, OSError):
+            continue
+        for line in bare_storage_args(src):
+            problems.append(f"{path}:{line}: bare `localStorage` passed to the usage module (pass usageStorage())")
     return problems
 
 

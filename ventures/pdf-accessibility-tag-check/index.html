@@ -181,7 +181,7 @@
 <script type="module">
   import { analyzePdf } from './engine.mjs';
   import { inflate } from './inflate-browser.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -230,7 +230,7 @@
       const report = await analyzePdf(bytes, { inflate });
       render(report, file.name);
       els.status.textContent = `Checked ${file.name}. Nothing was uploaded.`;
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     } catch (err) {
       els.status.innerHTML = `<span class="error">Could not read this file: ${escapeHtml(err.message)}</span>`;
     }
@@ -268,8 +268,8 @@
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 </script>

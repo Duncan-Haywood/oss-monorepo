@@ -65,6 +65,16 @@ export const SOURCES = [
   { bank: "ally", kind: "layout", path: "EliRibble/budgery/HEAD/tests/import_data/ally.csv" },
   { bank: "apple-card", kind: "download", card: true, path: "lonelytango/swiss-finance/HEAD/personal_finance/input/credit/apple/4_2024.csv" },
   { bank: "us-bank", kind: "download", card: true, path: "livingkurt/Copper-rt/HEAD/client/public/Expenses/Fidelity-1-1-20.csv" },
+  // Added 2026-11-14 later (README "Credit unions and the US Bank memo"): a US Bank card download with ISO
+  // dates whose memo holds five semicolons (read 0 rows before), and a layout several US credit unions'
+  // online banking writes (Posting Date, Effective Date, Transaction Type, signed Amount, Balance).
+  { bank: "us-bank", kind: "download", card: true, path: "cincotree/ai-money/HEAD/backend/statements/sample-statement.csv" },
+  { bank: "us-bank", kind: "layout", path: "dvdhfrst-afk/solo-books/HEAD/samples/layouts/example-us-bank.csv" },
+  { bank: "credit-union", kind: "download", path: "jessclem7/CashFlow/HEAD/ExportedTransactions%20(2).csv" },
+  { bank: "credit-union", kind: "download", card: true, path: "JohnTelford/envelope/HEAD/cc-march-2024.csv" },
+  { bank: "credit-union", kind: "layout", path: "MattFox1388/BudgetMobileClient/HEAD/resources/checkings.csv" },
+  { bank: "credit-union", kind: "layout", path: "lonesome-polecat/budgetbee/HEAD/tests/bank1_sample_transactions.csv" },
+  { bank: "credit-union", kind: "layout", path: "Mitchellscot/CashTrack/HEAD/tests/CashTrack.Tests/Files/test-bank-import.csv" },
 ];
 
 const PAY_IN_CARD = /\b(payment|thank you|autopay|auto pay|directpay)\b/i;
@@ -78,19 +88,24 @@ export function analyse(text, src) {
   // Lines after the header row that hold something but were not read.
   const headerAt = lines.findIndex((l) => /date/i.test(l) && /,/.test(l));
   for (let i = headerAt + 1; i < lines.length; i++) if (lines[i].replace(/[,\s"]/g, "") && !got.has(i + 1)) skipped.push({ line: i + 1, why: /,0\.00,|,"?0\.00"?,?$|,,"?0\.00"?$/.test(lines[i]) ? "zero amount" : /beginning balance|ending balance/i.test(lines[i]) ? "balance line" : "other" });
-  const bal = checkRunningBalance(r.rows);
+  // As importStatement does: a card file may print what is owed as positive, so try both signs.
+  const asIs = checkRunningBalance(r.rows);
+  const flipped = checkRunningBalance(r.rows.map((x) => ({ ...x, balance: x.balance === null ? null : -x.balance })));
+  const bal = asIs.checked && (flipped.breaks.length < asIs.breaks.length || (src.card && flipped.breaks.length === asIs.breaks.length)) ? flipped : asIs;
   const signWrong = [];
   for (const x of r.rows) {
     const re = src.card ? PAY_IN_CARD : PAY_IN_BANK;
     // Card payments are money in on a card account; "PAYMENT" inside a merchant name
     // ("PAYMENT ID" on a Venmo row of a checking file) is why checking uses its own list.
-    if (re.test(x.desc) && !/\b(fee|interest charge|plan fee)\b/i.test(x.desc) && x.cents < 0) signWrong.push({ line: x.line, cents: x.cents });
+    // "Ext Credit Card Debit ATT* BILL PAYMENT" is a purchase from AT&T (the credit-union card file says
+    // "Credit Card Debit" on every purchase), not a payment to the card.
+    if (re.test(x.desc) && !/\b(fee|interest charge|plan fee)\b/i.test(x.desc) && !/credit card debit/i.test(x.desc) && x.cents < 0) signWrong.push({ line: x.line, cents: x.cents });
   }
   return {
     bank: r.bank ?? null, rows: r.rows.length, skipped,
     otherSkipped: skipped.filter((s) => s.why === "other").length,
     problems: r.problems ?? [], balance: bal.checked ? { breaks: bal.breaks.length, reordered: !!bal.reordered } : null,
-    signWrong, inferred: r.inferred ?? null,
+    signWrong, inferred: r.inferred ?? null, mcc: r.rows.filter((x) => x.mcc).length,
   };
 }
 

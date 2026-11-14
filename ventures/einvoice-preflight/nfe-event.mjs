@@ -31,6 +31,7 @@ import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { lookupCredPres, TABLE } from "./ccredpres.mjs";
 import { keyCheckDigit, NFE_NS, UF_CODE } from "./nfe.mjs";
+import { checkCancelAgainst, checkRtcDetEvento, RTC_EVENTS, RTC_NO_SCHEMA, sequence } from "./nfe-rtc-events.mjs";
 
 export const EVENT_TYPE = "211110";
 export const DESC = "Solicitação de Apropriação de crédito presumido";
@@ -69,21 +70,6 @@ export function looksLikeNfeEvent(text) {
   return /<(?:[A-Za-z0-9_]+:)?(?:envEvento|evento|procEventoNFe)[\s>]/.test(head) && head.includes(NFE_NS);
 }
 
-// Children of `node` against an ordered list of [name, min, max]; returns problems.
-function sequence(node, spec) {
-  const got = named(node).map((c) => c.name);
-  const out = [];
-  let i = 0;
-  for (const [name, min, max] of spec) {
-    let n = 0;
-    while (got[i] === name) { n++; i++; }
-    if (n < min) out.push(`${name} is missing${got[i] && spec.some(([s]) => s === got[i]) ? ` (or out of order: ${got[i]} comes first)` : ""}`);
-    if (n > max) out.push(`${name} appears ${n} times; at most ${max}`);
-  }
-  if (i < got.length) out.push(`${got[i]} is not allowed here${spec.some(([s]) => s === got[i]) ? " (out of order)" : ""}`);
-  return out;
-}
-
 const OLD = new Set(["gCredPres", "vBC", "gIBS", "gCBS"]);
 function oldLayout(det) {
   return named(det).some((c) => c.name === "gCredPres") && !named(det).some((c) => c.name === "gCredPresOper");
@@ -113,8 +99,35 @@ function readNfe(text) {
       key: (inf.attrs.Id || "").replace(/^NFe/, ""), mod: txt(ide, "mod"), dhEmi: txt(ide, "dhEmi"),
       emit: txt(emit, "CNPJ") || txt(emit, "CPF"), dest: txt(dest, "CNPJ") || txt(dest, "CPF"),
       items: new Set(kidsOf(inf, "det").map((d) => d.attrs.nItem)),
+      itemNodes: new Map(kidsOf(inf, "det").map((d) => [d.attrs.nItem, d])),
     };
   } catch { return null; }
+}
+
+// The rest of an RTC event other than 211110: its detEvento (nfe-rtc-events.mjs), the author
+// against the key or the NF-e, and the date against the NF-e.
+function checkRtcEnvelopeTail({ inf, det, base, dpath, tpEvento, chNFe, dh, author, authorCnpj, authorCpf, nfe, meta }, out, skipped) {
+  const withNfe = nfe && nfe.key === chNFe;
+  const m = checkRtcDetEvento({ code: tpEvento, det, dpath, nfe: withNfe ? { key: nfe.key, items: nfe.itemNodes } : null }, out, skipped);
+  Object.assign(meta, m, { layout: "1.40" });
+  const tpAutor = m.tpAutor;
+  const who = authorCnpj ? "CNPJ" : "CPF";
+  if (tpAutor === "1" && author && KEY.test(chNFe)) {
+    const mine = authorCnpj || (authorCpf ? "000" + authorCpf : "");
+    if (mine && mine !== chNFe.slice(6, 20)) out.push(finding("BRE-012", `tpAutor is 1 (issuer), but the author ${who} ${author} is not the issuer in chNFe (${chNFe.slice(6, 20)}) (SEFAZ cStat 574, MOC rule P12-44).`, "Send from the issuer's CNPJ.", `${base}/${who}`));
+  }
+  if (withNfe) {
+    if (tpAutor === "2" && author && nfe.dest && author !== nfe.dest) out.push(finding("BRE-012", `tpAutor is 2 (buyer), but the author ${author} is not the NF-e's dest ${nfe.dest} (SEFAZ cStat 575, rule 2P21-10).`, "Send from the buyer's CNPJ or CPF on the NF-e.", `${base}/${who}`));
+    if (/^\d{4}-\d{2}-\d{2}T/.test(dh) && /^\d{4}-\d{2}-\d{2}T/.test(nfe.dhEmi) && Date.parse(dh) < Date.parse(nfe.dhEmi)) out.push(finding("BRE-013", `dhEvento ${dh} is before the NF-e's dhEmi ${nfe.dhEmi} (SEFAZ cStat 577).`, "Date the event at or after the NF-e's issue.", `${base}/dhEvento`));
+    if (tpEvento === "112150") {
+      const d = raw(det, "dPrevEntrega");
+      if (/^\d{4}-\d{2}-\d{2}$/.test(d) && /^\d{4}-\d{2}-\d{2}/.test(nfe.dhEmi) && d < nfe.dhEmi.slice(0, 10)) out.push(finding("BRE-034", `dPrevEntrega ${d} is before the NF-e was issued (${nfe.dhEmi.slice(0, 10)}). Section 8.18 states no rule for this, so it is a warning.`, "Check the new delivery date.", `${dpath}/dPrevEntrega`, "warning"));
+    }
+  } else if (RTC_EVENTS[tpEvento].tpAutor !== "8" && tpEvento !== "110001") {
+    skipped.push(`${base}: the NF-e for chNFe was not given, so ${tpAutor === "2" ? "the buyer as author (575), " : ""}the event date (577)${RTC_EVENTS[tpEvento].item ? " and each item against the NF-e" : ""} were not checked; add the NF-e to the same check`);
+  }
+  if (tpEvento === "110001") meta.cancel = { chNFe, seq: txt(inf, "nSeqEvento"), author, orgao: raw(det, "cOrgaoAutor"), tpEventoAut: m.tpEventoAut, nProt: m.nProtEvento, path: base };
+  return meta;
 }
 
 function checkOne(ev, nfe, out, skipped) {
@@ -123,28 +136,36 @@ function checkOne(ev, nfe, out, skipped) {
   const base = `${path}/infEvento`;
   if (!inf) { out.push(finding("BRE-002", "The event has no infEvento.", "Build the event with infEvento holding cOrgao, tpAmb, the author's CNPJ or CPF, chNFe, dhEvento, tpEvento, nSeqEvento, verEvento and detEvento.", path)); return {}; }
   const tpEvento = txt(inf, "tpEvento");
-  if (tpEvento !== EVENT_TYPE) {
-    skipped.push(`${base}: tpEvento ${tpEvento || "(none)"} is not ${EVENT_TYPE}; only the presumed-credit appropriation event is read`);
+  const rtc = tpEvento !== EVENT_TYPE && Object.hasOwn(RTC_EVENTS, tpEvento) ? RTC_EVENTS[tpEvento] : null;
+  if (tpEvento !== EVENT_TYPE && !rtc) {
+    skipped.push(`${base}: tpEvento ${tpEvento || "(none)"}${Object.hasOwn(RTC_NO_SCHEMA, tpEvento) ? ` (${RTC_NO_SCHEMA[tpEvento]}) has no schema in the NT 2025.002 v1.40 events package, so it is not read` : " is not one of the NT 2025.002 reform events this check reads (211110, 112110, 112130, 112140, 112150, 211124, 211128, 211130, 211140, 211150, 212110, 212120, and the cancellation 110001)"}`);
     return { tpEvento };
   }
+  const name = rtc ? rtc.desc : DESC;
+  const what = rtc ? `the event ${tpEvento} ("${rtc.desc}", NT 2025.002 ${rtc.section})` : "the presumed-credit event";
   const chNFe = txt(inf, "chNFe"), seq = txt(inf, "nSeqEvento"), dh = txt(inf, "dhEvento");
   const meta = { tpEvento, chNFe, tpAmb: txt(inf, "tpAmb"), nSeqEvento: seq };
 
   // ---- the envelope (MOC 5.8, general part) ----
   const want = `ID${tpEvento}${chNFe}${/^\d{1,2}$/.test(seq) ? seq.padStart(2, "0") : seq}`;
   if ((inf.attrs.Id || "") !== want) out.push(finding("BRE-010", `The event Id "${inf.attrs.Id || ""}" is not "ID" + tpEvento + chNFe + nSeqEvento in two digits, ${want} (SEFAZ cStat 572).`, `Set Id to ${want}.`, `${base}/@Id`));
-  if (txt(inf, "verEvento") !== "1.00") out.push(finding("BRE-010", `verEvento is "${txt(inf, "verEvento")}"; the presumed-credit event's layout is 1.00 (SEFAZ cStat 492).`, "Set verEvento to 1.00.", `${base}/verEvento`));
+  if (txt(inf, "verEvento") !== "1.00") out.push(finding("BRE-010", `verEvento is "${txt(inf, "verEvento")}"; the layout of ${what} is 1.00 (SEFAZ cStat 492).`, "Set verEvento to 1.00.", `${base}/verEvento`));
   if (!KEY.test(chNFe)) {
-    out.push(finding("BRE-011", `chNFe "${chNFe}" is not a 44-character NF-e access key.`, "Copy the key of the NF-e the credit is claimed on.", `${base}/chNFe`));
+    out.push(finding("BRE-011", `chNFe "${chNFe}" is not a 44-character NF-e access key.`, "Copy the key of the NF-e the event is about.", `${base}/chNFe`));
   } else {
     if (/^\d{44}$/.test(chNFe)) {
       const dv = keyCheckDigit(chNFe.slice(0, 43));
       if (String(dv) !== chNFe[43]) out.push(finding("BRE-011", `chNFe's check digit is ${chNFe[43]}; the other 43 digits give ${dv} (SEFAZ cStat 236).`, "Copy the key from the NF-e again: a digit is mistyped.", `${base}/chNFe`));
     } else skipped.push(`${base}/chNFe: the key carries an alphanumeric CNPJ; its check-digit rule was not read`);
     const mod = chNFe.slice(20, 22);
-    if (mod === "65") out.push(finding("BRE-011", "chNFe is an NFC-e key (model 65); a presumed credit may not be claimed on an NFC-e (SEFAZ cStat 1049, rule 2P12-10).", "Claim presumed credit only on a model 55 NF-e.", `${base}/chNFe`));
-    else if (mod !== "55") out.push(finding("BRE-011", `chNFe's model digits are ${mod}; the presumed-credit event is for a model 55 NF-e only (NT 2025.002 8.4).`, "Copy the key of the NF-e the credit is claimed on.", `${base}/chNFe`));
-    if (!UF.has(chNFe.slice(0, 2))) out.push(finding("BRE-011", `chNFe starts with ${chNFe.slice(0, 2)}, which is not a state's IBGE code.`, "Copy the key of the NF-e the credit is claimed on.", `${base}/chNFe`));
+    if (mod === "65" && !rtc) out.push(finding("BRE-011", "chNFe is an NFC-e key (model 65); a presumed credit may not be claimed on an NFC-e (SEFAZ cStat 1049, rule 2P12-10).", "Claim presumed credit only on a model 55 NF-e.", `${base}/chNFe`));
+    else if (mod === "65") out.push(finding("BRE-011", `chNFe is an NFC-e key (model 65); ${what} is for a model 55 NF-e only.`, "Send this event only on a model 55 NF-e.", `${base}/chNFe`));
+    else if (mod !== "55") out.push(finding("BRE-011", `chNFe's model digits are ${mod}; ${what} is for a model 55 NF-e only (a key's model is 55 or 65: SEFAZ cStat 618, MOC rule P12-30).`, "Copy the key of the NF-e the event is about.", `${base}/chNFe`));
+    if (!UF.has(chNFe.slice(0, 2))) out.push(finding("BRE-011", `chNFe starts with ${chNFe.slice(0, 2)}, which is not a state's IBGE code (SEFAZ cStat 614, MOC rule P12-14).`, "Copy the key of the NF-e the event is about.", `${base}/chNFe`));
+    const yy = Number(chNFe.slice(2, 4)), mm = Number(chNFe.slice(4, 6));
+    if (/^\d{4}$/.test(chNFe.slice(2, 6)) && yy < 6) out.push(finding("BRE-011", `chNFe's year digits are ${chNFe.slice(2, 4)}; a key's year is 06 or later (SEFAZ cStat 615, MOC rule P12-18).`, "Copy the key of the NF-e the event is about.", `${base}/chNFe`));
+    if (/^\d{4}$/.test(chNFe.slice(2, 6)) && (mm < 1 || mm > 12)) out.push(finding("BRE-011", `chNFe's month digits are ${chNFe.slice(4, 6)}, not 01 to 12 (SEFAZ cStat 616, MOC rule P12-22).`, "Copy the key of the NF-e the event is about.", `${base}/chNFe`));
+    if (/^0{9}$/.test(chNFe.slice(25, 34))) out.push(finding("BRE-011", "chNFe's NF-e number (digits 26 to 34) is zero (SEFAZ cStat 619, MOC rule P12-34).", "Copy the key of the NF-e the event is about.", `${base}/chNFe`));
   }
   const authorCnpj = txt(inf, "CNPJ"), authorCpf = txt(inf, "CPF");
   const author = authorCnpj || authorCpf;
@@ -157,7 +178,9 @@ function checkOne(ev, nfe, out, skipped) {
   // ---- detEvento (e211110_v1.00.xsd) ----
   const det = kid(inf, "detEvento");
   const dpath = `${base}/detEvento`;
-  if (!det) { out.push(finding("BRE-002", "infEvento has no detEvento (SEFAZ cStat 493).", "Add detEvento with descEvento, cOrgaoAutor, tpAutor, verAplic and one gCredPresOper per item.", dpath)); return meta; }
+  if (!det) { out.push(finding(rtc ? "BRE-030" : "BRE-002", "infEvento has no detEvento (SEFAZ cStat 493).", rtc ? `Add detEvento as the ${tpEvento} schema lays it out.` : "Add detEvento with descEvento, cOrgaoAutor, tpAutor, verAplic and one gCredPresOper per item.", dpath)); return meta; }
+  meta.name = name;
+  if (rtc) return checkRtcEnvelopeTail({ inf, det, base, dpath, tpEvento, chNFe, dh, author, authorCnpj, authorCpf, nfe, meta }, out, skipped);
   if (oldLayout(det)) {
     const mixedCodes = kidsOf(det, "gCredPres").some((g) => kid(g, "gIBS") && kid(g, "gCBS") && txt(kid(g, "gIBS"), "cCredPres") !== txt(kid(g, "gCBS"), "cCredPres"));
     out.push(finding("BRE-003", `This event is in the layout of NT 2025.002 v1.20/v1.30 (gCredPres with vBC, and a cCredPres inside gIBS and gCBS). The v1.40 schema (events package of 2026-07-27) replaced it with gCredPresOper: vBCCredPres, one cCredPres for the item, then gIBSCredPres and gCBSCredPres with pCredPres and vCredPres (SEFAZ cStat 493 under v1.40).`, mixedCodes ? "Rewrite each item as gCredPresOper. Some items give a different cCredPres for IBS and CBS, which v1.40 cannot hold: one code per item, so check which presumed credit the item takes." : "Rewrite each item as gCredPresOper (the converter on this page does it when both groups share one code).", `${dpath}/gCredPres`));
@@ -244,6 +267,18 @@ function checkOne(ev, nfe, out, skipped) {
   return meta;
 }
 
+/** The fields of a (registered) event a cancellation is compared with; null if unreadable. */
+export function readEventSummary(text) {
+  let root;
+  try { root = parseCfdiXml(text).root; } catch { return null; }
+  const ev = events(root);
+  const e = ev.list?.[0]?.evento;
+  const inf = kid(e, "infEvento");
+  if (!inf) return null;
+  const ret = ev.ret || null;
+  return { chNFe: txt(inf, "chNFe"), tpEvento: txt(inf, "tpEvento"), seq: txt(inf, "nSeqEvento"), author: txt(inf, "CNPJ") || txt(inf, "CPF"), orgao: txt(kid(inf, "detEvento"), "cOrgaoAutor"), nProt: ret ? txt(ret, "nProt") : "" };
+}
+
 /**
  * Check a presumed-credit appropriation event (211110). `opts.nfe` = the text of the NF-e the
  * event refers to, optional. Returns { findings, skipped, meta }.
@@ -261,7 +296,28 @@ export function checkNfeEvent(text, opts = {}) {
   const nfe = opts.nfe ? readNfe(opts.nfe) : null;
   if (opts.nfe && !nfe) skipped.push("the NF-e given with the event could not be read; the checks against it were skipped");
   const metas = ev.list.map((e) => checkOne(e, opts.nfe ? nfe : null, findings, skipped));
-  const meta = { ...metas[0], events: ev.list.length, root: root.name };
+  // The same event (type, key, sequence) twice in one batch: SEFAZ rejects the second as a
+  // duplicate (cStat 573, MOC rule 3P15-10).
+  const seenEv = new Map();
+  metas.forEach((m, i) => {
+    if (!m.tpEvento || !m.chNFe) return;
+    const k = `${m.tpEvento}/${m.chNFe}/${Number(m.nSeqEvento)}`;
+    if (seenEv.has(k)) findings.push(finding("BRE-015", `Event ${i + 1} repeats event ${seenEv.get(k) + 1}: the same tpEvento ${m.tpEvento}, chNFe and nSeqEvento ${m.nSeqEvento} (SEFAZ cStat 573, duplicate event).`, "Give a corrected event the next nSeqEvento, or drop the copy.", `${ev.list[i].path}/infEvento/nSeqEvento`));
+    else seenEv.set(k, i);
+  });
+  // A cancellation (110001) against the event it cancels, when that event is given.
+  if (opts.cancelled) {
+    const orig = readEventSummary(opts.cancelled);
+    for (const m of metas) {
+      if (!m.cancel) continue;
+      if (!orig) { skipped.push("the event given as the one cancelled could not be read; the checks against it were skipped"); break; }
+      const note = checkCancelAgainst(m.cancel, orig, findings);
+      if (note) skipped.push(note);
+    }
+  } else if (metas.some((m) => m.cancel)) {
+    skipped.push("the event this cancellation cancels was not given, so its sequence number (459), author (1113), cOrgaoAutor (1178) and protocol (460) were not compared; add its procEventoNFe to the same check");
+  }
+  const meta = { ...metas[0], events: ev.list.length, root: root.name, types: [...new Set(metas.map((m) => m.tpEvento).filter(Boolean))] };
   if (ev.ret) {
     meta.cStat = txt(ev.ret, "cStat");
     meta.registered = ["135", "136"].includes(meta.cStat);

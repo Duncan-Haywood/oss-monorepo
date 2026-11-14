@@ -133,7 +133,7 @@ test("the old v1.20/v1.30 layout is named, and the converter rewrites it to v1.4
 test("other events and roots: skipped or refused, not misread", () => {
   const cce = swap("<tpEvento>211110", "<tpEvento>110110");
   const r = checkNfeEvent(cce);
-  assert.match(r.skipped.join(" "), /110110 is not 211110/);
+  assert.match(r.skipped.join(" "), /110110 is not one of the NT 2025.002 reform events/);
   assert.deepEqual(r.findings, []);
   assert.match(msgs("<Invoice/>"), /BRE-001/);
   assert.match(msgs("<envEvento xmlns='http://www.portalfiscal.inf.br/nfe'/>"), /BRE-002.*no evento/);

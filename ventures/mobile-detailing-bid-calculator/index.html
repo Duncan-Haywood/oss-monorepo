@@ -153,7 +153,7 @@
 <!-- proposal:end -->
   <footer class="footer"><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not business, tax, financial, or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your hours, miles, wages, costs, or prices.</p><p>Quoting a vehicle wrap instead of a detail on the same car? The <a href="../vehicle-wrap-bid-calculator/">vehicle wrap bid calculator</a> prices vinyl and laminate by the square foot, waste factor, and install labor &mdash; nothing uploaded.</p><p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p><p>Several jobs asking for the same day? The <a href="../mobile-detailing-day-planner/">mobile detailing day planner</a> picks the most profitable set that fits your hours, including the drive &mdash; nothing uploaded.</p><p>Selling unlimited monthly wash plans instead of one-off details? The <a href="../car-wash-membership-calculator/">car wash membership calculator</a> shows net per member, the washes a month where a member stops paying for themselves, and what a price change needs in member count &mdash; nothing uploaded.</p></footer>
   <script type="module">
-    import { calculateBid, claimNote, defaults } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { calculateBid, claimNote, defaults } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
@@ -283,8 +283,15 @@
         "Cleaning chemicals, pads, brushes, and towels supplied by us"
       ];
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -313,7 +320,7 @@
     function showProposal() {
       const result = calculateBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -369,7 +376,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -388,8 +395,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>
