@@ -477,6 +477,17 @@ export function estimatedDueDates(year) {
   });
 }
 
+// The last day to file the year's return and pay in full so the January
+// installment owes no penalty (IRC 6654(h); Form 2210 instructions, "Line 11":
+// "by January 31"). It is a "last day prescribed ... for performing any act", so
+// IRC 7503 moves it past a weekend or DC holiday like the dates above: for tax
+// year 2025, January 31, 2026 is a Saturday and the day is Monday, February 2.
+export function fileAndPayDeadline(year) {
+  const dt = new Date(Date.UTC(year + 1, 0, 31));
+  while (dt.getUTCDay() === 0 || dt.getUTCDay() === 6 || dcHoliday(dt)) dt.setUTCDate(dt.getUTCDate() + 1);
+  return dt.toISOString().slice(0, 10);
+}
+
 // Quarter-by-quarter set-aside for the self-employment part: the year's Schedule C
 // profit so far, annualised to the months covered, taxed with selfEmployment() and
 // split into four equal payments. Income tax is not estimated.

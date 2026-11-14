@@ -42,7 +42,7 @@
 // Box D (withholding on the dates it was actually withheld): pass `withheld` [{ date, cents }] and
 // the penalty is figured with and without it; box D wins when tax was withheld early in the year,
 // the even quarter-a-date default when it was withheld late (a December W-4 change).
-import { scheduleC, estimatedDueDates, SS_WAGE_BASE } from "./taxforms.mjs";
+import { scheduleC, estimatedDueDates, fileAndPayDeadline, SS_WAGE_BASE } from "./taxforms.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
 import { form2210Penalty, checkWithheld } from "./penalty2210.mjs";
 
@@ -118,7 +118,8 @@ export function annualizedInstallments(books, opts = {}) {
     prevUnused = regularPlusCarry - installment;
     prevInstallments += installment;
     cumInstallment = prevInstallments;
-    const paidBy = payments.filter((x) => x.date <= dates[i]).reduce((s, x) => s + Math.max(0, x.cents || 0), 0);
+    const early = (x) => x.withReturn && i === 3 && x.date > dates[3] && x.date <= fileAndPayDeadline(year); // January 31 rule (moved past a weekend, IRC 7503): column (d)
+    const paidBy = payments.filter((x) => x.date <= dates[i] || early(x)).reduce((s, x) => s + Math.max(0, x.cents || 0), 0);
     const evenCredits = paidBy + Math.round((withholding * (i + 1)) / 4);
     const datedCredits = withheld ? paidBy + withheld.filter((w) => w.date <= dates[i]).reduce((s, w) => s + Math.max(0, w.cents), 0) : evenCredits;
     rows.push({
@@ -168,7 +169,8 @@ export function annualizedInstallments(books, opts = {}) {
     else warnings.push(`Box D (withholding on its actual dates) gives ${Math.min(penalty.boxD.regular, penalty.boxD.annualized) / 100}, no lower than the default quarter-a-date spread (${best0(penalty) / 100}), so leave it unchecked.`);
   }
   for (const w of regular.warnings) if (!warnings.includes(w)) warnings.push(w);
-  if (!exempt && (penalty.regular || penalty.annualized)) warnings.push("The penalty assumes the payments listed are all there are and that the rest is paid by April 15 of next year; a payment with an early return (by January 31) or withholding on the dates actually withheld (box D) can lower it.");
+  const earlyReturn = payments.some((x) => x.withReturn && x.date > dates[3] && x.date <= fileAndPayDeadline(year));
+  if (!exempt && (penalty.regular || penalty.annualized)) warnings.push(`The penalty assumes the payments listed are all there are and that the rest is paid by April 15 of next year${earlyReturn ? "" : `; filing and paying with the return by ${fileAndPayDeadline(year)} (January 31, moved past a weekend; mark it as paid with the return) removes the January installment's penalty`}${withheld ? "" : ", and withholding on the dates actually withheld (box D) can lower it"}.`);
   return {
     year, requiredAnnual: required, regularQuarter, rows, withholding, penalty,
     saved: rows.map((r) => r.regularCumulative - r.cumulativeRequired),
