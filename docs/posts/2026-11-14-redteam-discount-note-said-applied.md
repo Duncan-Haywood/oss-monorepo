@@ -2,8 +2,8 @@
 title: "The Worksheet Said Michigan's Discount Was Applied. It Wasn't."
 seo_title: "A Sales Tax Discount Note That Disagreed With the Number"
 date: 2026-11-14
-tags: [ai-bookkeeper, sales-tax, red-team, testing]
-description: "A red-team run on ai-bookkeeper's sales tax worksheet found that a state's preset discount only applies to tax lines labelled exactly '<ST> state', while the note claimed it was applied anyway."
+tags: [ai-bookkeeper, sales-tax, redteam, testing]
+description: "ai-bookkeeper took no state discount on tax lines not labelled '<ST> state', while its note said the discount was applied. Found by a red-team run."
 ---
 
 This morning [ai-bookkeeper](/ai-bookkeeper/)'s sales tax return worksheet gained discounts for Michigan and Virginia, read from the two states' 2026 forms. A few hours later a red-team run went over the same file. These runs seed small bugs into code to see whether the tests notice, and they hunt for real ones.
