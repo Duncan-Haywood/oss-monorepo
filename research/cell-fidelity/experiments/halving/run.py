@@ -29,6 +29,7 @@ EXP = HERE.parent
 SOBOL_SEED = 11
 WORKERS = int(os.environ.get("WORKERS", "3"))
 RUNGS = (10, 20, 50, 100)
+CHUNK = 10                             # cycles per resumed solve (every rung is a multiple)
 PLAN = ((10, 16), (20, 8), (50, 3))   # (cycle reached, designs kept for the next rung); the last 3 go to cycle 100
 CHECK_J = range(8)                     # designs that also get an uninterrupted DFN@100 (resume check)
 # fresh conditions, fixed before any run: Ai2020 at two currents no milestone ran, inside the low-current regime where 5l's
@@ -189,7 +190,9 @@ def dev():
 # ---------- fresh conditions (pybamm) ----------
 
 def _child(args):
-    """One DFN run at a scaled current, solved to each rung of RUNGS in turn, each segment resumed from the last."""
+    """One DFN run at a scaled current, solved in 10-cycle chunks, each resumed from the last chunk's final state
+    (`starting_solution=sol.last_state`, same Simulation object), timed per rung of RUNGS. Only the per-cycle energies and
+    the last state are kept, so memory stays at one chunk's solution (resuming from the whole solution doubled it)."""
     import numpy as np
     import pybamm
     from energy_cell import cell
@@ -201,23 +204,27 @@ def _child(args):
     vlo, vhi = pv["Lower voltage cut-off [V]"], pv["Upper voltage cut-off [V]"]
     step = (f"Discharge at {cur:.6g} A until {vlo} V", f"Charge at {cur:.6g} A until {vhi} V")
     out = dict(ok=True, error=None, mass_kg=float(TR.stack_mass(x, pv)), current_A=cur, seg=[])
-    sol, last = None, 0
+    sim = pybamm.Simulation(pybamm.lithium_ion.DFN(TR.OPTS), parameter_values=pv, experiment=pybamm.Experiment([step] * CHUNK))
+    wh, state = [], None
+
+    def energy(c):
+        d = c.steps[0]
+        return float(np.trapezoid(d["Terminal voltage [V]"].entries * d["Current [A]"].entries, d["Time [s]"].entries)) / 3600.0
     try:
         for k in RUNGS:
             t0 = time.perf_counter()
-            sim = pybamm.Simulation(pybamm.lithium_ion.DFN(TR.OPTS), parameter_values=pv,
-                                    experiment=pybamm.Experiment([step] * (k - last)))
-            sol = sim.solve(initial_soc=1.0) if sol is None else sim.solve(starting_solution=sol)
+            while len(wh) < k:
+                sol = sim.solve(initial_soc=1.0) if state is None else sim.solve(starting_solution=state)
+                cyc = sol.cycles if state is None else sol.cycles[1:]   # a resumed solution starts with a stub cycle (the state)
+                n = len(cyc)
+                wh += [energy(c) for c in cyc]
+                state = sol.last_state
+                del sol, cyc
+                if n < CHUNK:
+                    raise RuntimeError(f"stopped at cycle {len(wh)}")
             out["seg"].append(time.perf_counter() - t0)
-            last = k
-            if len(sol.cycles) < k:
-                break
     except Exception as ex:
         out.update(ok=False, error=f"{type(ex).__name__}: {str(ex)[:160]}")
-    wh = []
-    for c in (sol.cycles if sol is not None else []):
-        d = c.steps[0]
-        wh.append(float(np.trapezoid(d["Terminal voltage [V]"].entries * d["Current [A]"].entries, d["Time [s]"].entries)) / 3600.0)
     out.update(cycle_wh=wh, ok_cycles=len(wh), seconds=sum(out["seg"]))
     out["ok"] = out["ok"] and len(wh) >= 100
     return out
