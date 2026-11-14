@@ -2,7 +2,7 @@ item,kind,qty,what,notes
 head_motor_plate,laser,1,aluminium 5052 5 mm,Both outrunners mount on this plate (M4 on a 25 mm square; check your motor). Pivot bolt M8 through the lower hole.
 head_guard_plate,laser,1,aluminium 5052 5 mm,Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.
 trunnion_cheek,laser,1,aluminium 5052 5 mm,Motor-side (+y) cheek: holds the head's M8 pivot bolt; a printed foot bolts it to the turntable plate.
-trunnion_cheek_elev,laser,1,aluminium 5052 5 mm,"Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's anchor (M6 shoulder bolt). Same feet as the other cheek."
+trunnion_cheek_elev,laser,1,aluminium 5052 5 mm,"Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's anchor (M6 shoulder bolt). Same feet as the other cheek. The grommet hole under the pivot, between the feet, passes the actuator's lead."
 mast_plate,laser,1,aluminium 5052 5 mm,Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing; the azimuth stepper hangs under it on four M3 screws; the home switch bracket sits on two M3 screws.
 turntable_plate,laser,1,aluminium 5052 5 mm,Bolts to the rotating ring of the bearing. Trimmed to a 108 mm radius so the azimuth pinion clears it at every angle; the printed gear sector bolts under its +y edge (3 x M4).
 base_deck,laser,1,aluminium 5052 5 mm,Sits on the rails (M5 and T-nuts); holds the battery and electronics.
@@ -59,9 +59,11 @@ elev_actuator_rod,cots,1,"The elev_actuator's own rod (not bought separately), d
 elev_pin,cots,1,"M6 shoulder bolt, 40 mm shoulder, + nyloc: through the guard plate (nut inside), the actuator's rod eye",
 elev_anchor_bolt,cots,1,"M6 shoulder bolt, 30 mm shoulder, + nyloc: through the guard-side cheek's tab, the actuator's anchor eye",
 cable_clip,print,1,PETG,"Slides onto the rear lower head standoff before it is bolted in. Tie the bundle in its channel with the loop's cut length above it (manifest: cable_cut_mm); below it the wires turn +y through the motor plate's grommet hole to the motors, tachometers and servo."
-cable_gland,print,1,PETG,Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the bundle through its slot: the loop above it and the twisting run below it start here. The elevation actuator's wires leave the bundle here.
+cable_gland,print,1,PETG,Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the bundle through its slot: the loop above it and the twisting run below it start here. The elevation actuator's lead leaves the bore on its -y wall and turns -y to the cheek's grommet (manifest elevation lead line).
 cable_clamp,print,1,PETG,"M5 and a T-nut into the cable crossbar's front slot. Zip-tie the bundle at the bore: the run from here up to the gland twists as the head turns, so keep it free of ties."
 cable_crossbar,stock,1,"2020 T-slot, cut 280 mm","Between the two rear mast posts' inner faces (corner brackets, M5): carries the axis cable clamp."
+elev_lead_fixed,cots,1,"Elevation actuator's lead, tied run: 2 elevation actuator 18 AWG, 3 elevation feedback pot 26 AWG (4.4 mm), out of the gland's bore on its -y wall, 12 mm bend, straight across the turntable under the pivot and through the guard-side cheek's grommet (55 mm)",
+elev_lead,cots,1,"Elevation actuator's lead, free span: cut 220 mm from the cheek's grommet to a zip tie on the actuator's body 70 mm from its anchor eye, on the pivot side (drawn at 0 deg; posed per pose in the sweeps)",
 deck_cable_main,cots,1,"Deck-side run, electronics to the axis clamp: 6 launcher motor phases 14 AWG, 6 wheel tachometers 26 AWG, 1 shuttle servo signal 26 AWG, 2 shuttle servo supply and return 20 AWG, 2 elevation actuator 18 AWG, 3 elevation feedback pot 26 AWG (11.5 mm bundle; 12.7 mm on the deck with the stepper's and lift's leads), 729 mm routed; cut the head's wires 789 mm from their deck terminals to the clamp, plus the twisting run, the loop and the head's run. Spiral wrap; bends 30 mm",
 deck_cable_stepper,cots,1,"Azimuth stepper and home switch: 4 azimuth stepper coils 22 AWG, 2 azimuth home switch 26 AWG, 874 mm from the driver carrier on the deck (leaves the main run under the crossbar and rises to the stepper's underside); coil leads add 6.2% to the coil's resistance",
 deck_cable_lift,cots,1,"Lift gearmotor: 2 lift gearmotor 20 AWG, 916 mm from its MOSFET on the deck (leaves the main run on the deck, drops off the deck's front edge and runs under the side rail to the motor's back); 0.34 V drop at an assumed 5.5 A stall",
@@ -152,7 +154,8 @@ ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmwa
 6 V 5 A buck converter (servo supply),cots,1,6 V 5 A buck converter (servo supply),"shuttle servo, on the deck beside the ESP32: 20 AWG supply and return to the servo (manifest cables line)"
 "Spiral wrap, 10 mm, 1 m",cots,1,"Spiral wrap, 10 mm, 1 m","the head's wires in the free loop: loose, so each wire bends on its own"
 Snap-in grommet for a 14 mm hole,cots,1,Snap-in grommet for a 14 mm hole,the head's wires through the motor plate
-"Zip ties, 2.5 mm",cots,12,"Zip ties, 2.5 mm","cable gland, clamp and clip; the clamp arm's hanger"
+"Snap-in grommet for a 10 mm hole, 6 mm bore or more",cots,1,"Snap-in grommet for a 10 mm hole, 6 mm bore or more",the elevation actuator's lead through the guard-side cheek
+"Zip ties, 2.5 mm",cots,14,"Zip ties, 2.5 mm","cable gland, clamp and clip; the clamp arm's hanger; the actuator's lead to its body (two, side by side)"
 "Storage tub, about 440 x 340 x 250 mm",cots,1,"Storage tub, about 440 x 340 x 250 mm",hopper; see the part notes for the cut
 "Stepper driver, 2 A class (TMC2209 or A4988), StepStick format, + heatsink",cots,1,"Stepper driver, 2 A class (TMC2209 or A4988), StepStick format, + heatsink","azimuth stepper, on the printed carrier on the deck"
 "1x8 female header, 2.54 mm, + 2.54 mm perfboard scrap",cots,2,"1x8 female header, 2.54 mm, + 2.54 mm perfboard scrap",stepper driver carrier

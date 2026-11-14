@@ -217,6 +217,40 @@ class FeederParamsTest(unittest.TestCase):
         # a clamp just under the stepper leaves too short a run for the twist
         self.assertTrue(any("twists" in r for r in Feeder(cable_clamp_z=560.0).check_cables()))
 
+    def test_elev_lead_fits_every_pose_of_the_actuator_travel(self):
+        # 2026-11-14: the actuator's own lead, from the cheek's grommet to a tie on its body, is cut once and must fit
+        # from the extend limit to the retract limit; the tie moves about 80 mm over that travel
+        p = Feeder()
+        d = p.elev_lead_design()
+        lo, hi = d["window"]
+        self.assertGreater(hi - lo, 15.0)                      # room for a cutting and tying error
+        for e, (rlo, rhi) in d["ranges"].items():
+            self.assertLessEqual(rlo, d["cut_mm"])
+            self.assertGreaterEqual(rhi, d["cut_mm"])
+        self.assertEqual(set(d["ranges"]), set(p.cable_loop_poses()))
+        self.assertLess(d["fit_err_mm"], 2.0)
+        self.assertEqual(d["r_min"], 20.0)                     # 10 x the 2.0 mm 18 AWG wire
+        self.assertGreater(d["tie_travel_mm"], 60.0)
+        # the retract limit (nose up) needs the most lead, the extend limit (nose down) the least slack
+        ext, ret = p.elev_act_limits()
+        self.assertAlmostEqual(lo, d["ranges"][ret][0])
+        self.assertAlmostEqual(hi, d["ranges"][ext][1])
+        # any elevation between the limits gets a curve at the cut length, not only the design poses
+        self.assertIsNotNone(p.elev_lead_curve(25.0))
+        self.assertLess(d["stall_drop_frac"], 0.01)
+        self.assertEqual(p.check_elev_lead(), [])
+
+    def test_elev_lead_rules_catch_bad_changes(self):
+        # a tie near the anchor eye, or a lead kept inside the actuator's outer face, leaves no single length
+        for kw in ({"elev_lead_tie_mm": 15.0}, {"elev_lead_out_mm": 0.0}):
+            self.assertTrue(any("no single length" in r for r in Feeder(**kw).check_elev_lead()), kw)
+        # the hole on a foot, too small, or too low
+        self.assertTrue(any("foot" in r for r in Feeder(elev_lead_hole_dx=-35.0).check_elev_lead()))
+        self.assertTrue(any("too small" in r for r in Feeder(elev_lead_hole_d=6.0).check_elev_lead()))
+        self.assertTrue(any("bottom edge" in r for r in Feeder(elev_lead_hole_d=46.0).check_elev_lead()))
+        # an actuator that stalls above what 18 AWG carries
+        self.assertTrue(any("under its" in r for r in Feeder(elev_act_stall_a=12.0).check_elev_lead()))
+
     def test_cable_twist_run(self):
         p = Feeder()
         t = p.cable_twist()
@@ -993,6 +1027,33 @@ class CableGeometryTest(unittest.TestCase):
         finally:
             F.cable_loop_solids = real
         self.assertTrue(bad and any("head_motor_plate" in c for c in bad), bad[:3])
+
+    def test_elev_lead_is_drawn_at_its_cut_and_the_sweep_can_fail(self):
+        from build123d import Location, Vector
+        from otr_cad import feeder as F
+        from otr_cad import package
+        p = self.p
+        d = p.elev_lead_design()
+        r = p.elev_lead_od / 2
+        for e in (p.elev_min, p.elev_max):
+            length = F.elev_lead_solid(p, e).volume / (math.pi * r * r)
+            self.assertAlmostEqual(length, d["cut_mm"] - 2 * F.LEAD_END_GAP, delta=3.0)
+        # the cheek has the hole, and the tied run passes it and ends at the cheek's outer face
+        cheek = next(x for x in self.parts if x.name == "trunnion_cheek_elev").placed()[0]
+        hx, hy, hz = p.elev_lead_hole()
+        self.assertFalse(cheek.is_inside(Vector(hx, hy + p.plate_t / 2, hz)))
+        self.assertTrue(cheek.is_inside(Vector(hx, hy + p.plate_t / 2, hz + p.elev_lead_hole_d / 2 + 2.0)))
+        fixed = next(x for x in self.parts if x.name == "elev_lead_fixed").placed()[0].bounding_box()
+        self.assertAlmostEqual(fixed.min.Y, hy, places=3)
+        self.assertAlmostEqual(fixed.max.Z, hz + r, places=3)
+        # clear as drawn: the feeder build's elev_lead_sweep (FeederPackageTest). Dropped 25 mm it hits the turntable
+        real = F.elev_lead_solid
+        try:
+            F.elev_lead_solid = lambda q, e: real(q, e).moved(Location((0, 0, -25)))
+            bad = package.elev_lead_sweep(p, poses=(0.0,), azimuths=(0.0,))
+        finally:
+            F.elev_lead_solid = real
+        self.assertTrue(bad and any("turntable_plate" in c for c in bad), bad[:3])
 
     def test_cable_parts_sit_where_the_loop_design_puts_them(self):
         p = self.p

@@ -159,7 +159,8 @@ def cable_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
     """Clashes of the head's free cable loop (2026-11-13), drawn at its cut length along the curve it takes at each
     design pose (the actuator's two limits and -15 to +45 deg), against every part (hose parts excepted, as in the
     azimuth sweep), with the turntable straight and turned to the hard stops' reach either way. The loop's ends sit
-    in the gland and the clip, so those two are left out. `poses` and `azimuths` narrow the sweep (a test of a
+    in the gland and the clip, so those two are left out, and so is the actuator's lead against the loop's first
+    segment (the lead shares the gland's bore and turns off it 12 mm up, 2026-11-14). `poses` and `azimuths` narrow the sweep (a test of a
     known clash need not walk all 21 poses)."""
     out = []
     axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
@@ -173,12 +174,43 @@ def cable_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
                 a = seg.rotate(axis, az)
                 ba = a.bounding_box()
                 for nb, b, bb in others:
+                    if k == 0 and nb.split("[")[0] == "elev_lead_fixed":
+                        continue   # both leave the gland's one bore side by side; the lead turns -y 12 mm up
                     if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
                             or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
                         continue
                     v = (a & b).volume
                     if v > 1.0:
                         out.append(f"at {e:+.1f} deg turned {az:+.1f} deg: cable loop segment {k} x {nb}: {v:.0f} mm^3")
+    return out
+
+
+def elev_lead_sweep(p: Feeder, poses=None, azimuths=None) -> list[str]:
+    """Clashes of the elevation actuator's free lead (2026-11-14), drawn at its cut length along the curve it takes at
+    each design pose (the actuator's two limits and -15 to +45 deg), against every part but itself (hose parts
+    excepted), with the turntable straight and turned to the hard stops' reach either way. A pose where the cut length
+    does not fit is reported too. The elevation and azimuth sweeps also see the lead, at their own poses."""
+    out = []
+    axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
+    for e in (p.elev_lead_poses() if poses is None else poses):
+        lead = F.elev_lead_solid(p, e)
+        if lead is None:
+            out.append(f"at {e:+.1f} deg: the elevation lead's cut length does not fit")
+            continue
+        for az in ((0.0, -p.az_reach_deg, p.az_reach_deg) if azimuths is None else azimuths):
+            moving, fixed = F.turned_solids(p, e, az)
+            a = lead.rotate(axis, az)
+            ba = a.bounding_box()
+            for nb, b in moving + fixed:
+                if nb.split("[")[0] == "elev_lead":
+                    continue
+                bb = b.bounding_box()
+                if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                        or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                    continue
+                v = (a & b).volume
+                if v > 1.0:
+                    out.append(f"at {e:+.1f} deg turned {az:+.1f} deg: elevation lead x {nb}: {v:.0f} mm^3")
     return out
 
 
@@ -276,6 +308,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         clash += azimuth_sweep(p)
         clash += feed_stroke_sweep(p)
         clash += cable_sweep(p)
+        clash += elev_lead_sweep(p)
         turning = max((F.turning_inertia(p, e) for e in (p.elev_min, 0.0, p.elev_max)), key=lambda t: t[0])
         if turning[0] > p.az_inertia_kgm2:
             rules = rules + [f"turning inertia from the CAD is {turning[0]:.4f} kg m^2, above the "
