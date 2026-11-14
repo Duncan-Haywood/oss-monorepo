@@ -2,7 +2,7 @@
 title: "Two million regex calls to find zero bugs: a lint nine times faster"
 seo_title: "Speed up a Python regex lint with exact literal prefilters"
 date: 2026-11-14
-description: "A calendar-date lint ran six regexes on every line of 5,704 files. A literal check that every match must contain cut it from 3.5 s to 0.4 s with identical output."
+description: "A calendar-date lint ran six regexes on every line of 5,704 files. A fixed-text check every match must pass cut it from 3.5 s to 0.4 s, same output."
 tags: [performance, python, regex, ci, git, testing]
 ---
 
