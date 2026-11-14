@@ -1490,7 +1490,7 @@ Not claimed: invented teams and seeded weeks on one machine, runs one after anot
 
 **3. A fallback for what one week cannot see.** When a week's look-ahead still leaves the next week short of its relaxation, the shortfall can come from a choice two weeks back. Then the whole plan is also built in the old order and whichever leaves fewer open hours is returned (the new one on a tie; `lookahead.fellBack`).
 
-**"Keep people on their usual shifts" stays on the old order** (unless `deferCover` is set). Measured with column generation first and the look-ahead, it was 1.7x faster at the same open hours (after the fallback), but moved 3% more shifts week to week on the drawn plans and 4-20% more on the leave sweep, and steadiness is that setting's whole point. The page defaults to it, so the page's plans are unchanged; the CLI's `--weeks` without `--keep-shifts` and `planWeeks` with no keep get the new planner.
+**"Keep people on their usual shifts" stayed on the old order** (unless `deferCover` is set; moved to column generation first on 2026-11-14, next section). Measured with column generation first and the look-ahead, it was 1.7x faster at the same open hours (after the fallback), but moved 3% more shifts week to week on the drawn plans and 4-20% more on the leave sweep, and steadiness is that setting's whole point. The page defaults to it, so the page's plans are unchanged; the CLI's `--weeks` without `--keep-shifts` and `planWeeks` with no keep get the new planner.
 
 **Measured** with `node eval/plan-lookahead.mjs` (`eval/plan-lookahead.out.txt`): the plans of `eval/plan-order.mjs` (five invented teams x 12 drawn time-off patterns of one or two days off, plus the guide page's plan), memo off so no kind reuses another's builds, one 4-core machine:
 
@@ -1520,3 +1520,25 @@ Open hours and pay are identical between the two planners in every row. So: abou
 The page's plan table marks a steadied week ("same as week 1 (a tie)") and a look-ahead pick. Options: `lookahead: false`, `steadyTies: false`, `tieSeeds: [...]`; `deferCover: false` is the old planner with neither. Tests: `plan-lookahead.test.mjs` (the guide plan by each path, the sample plan's one rota against the cycling one at the same scores, the old order untouched, `rosterScoreUnder`, the page wiring); `keep-shifts.test.mjs` and `page-limits.test.mjs` pin the re-derived pages.
 
 Not claimed: invented teams with drawn or swept time off, one machine; the relaxation proves week k+1 cannot do better only when that build is proven (an unproven week makes the check a heuristic); the look-ahead is one week, with the whole-plan fallback behind it, not a plan-wide optimum; with steady ties the copies of one shift can swap names in the CSV (same people, same shifts); whether managers prefer the steadier plan is unmeasured.
+
+## Keep usual shifts, column generation first (2026-11-14)
+
+The section above left "Keep people on their usual shifts" (the page's default) on the old order: with column generation first it moved 4-20% more shifts week to week on the leave sweep. This run found why and moved it over.
+
+**Two ideas that changed nothing.** (1) Steady ties in keep mode (post an earlier week's roster when it ties under the usual-rota bonus): it never fired, and the sweep's figures were identical to the digit. In keep mode the weeks with no one off already post the usual rota, and the rebuild toward an earlier week is the same build as the week's own. (2) A per-shift tie-break on the usual rota (`keepShift` 0.01 next to `keepValue` 0.1, `KEEPSHIFT=0.01` in `eval/steady-plan.mjs`), aimed at the churn count, which counts shifts, not wage-hours: also identical on both orders. 0.01 x wage is under the exact search's 0.5 tolerance, so the proof stops before it can choose.
+
+**The cause: the anchor.** In keep mode the planner first builds the usual week (no dated days off, bonus off) and anchors every week to it. With column generation first, that build lands on a different tie of the usual week, and the weeks with someone off strayed further from it. Building only the anchor in the old order (plateau walk first) and every week column generation first gives back the old planner's plans exactly.
+
+**What changed.** `planWeeks` with `keepValue > 0` no longer forces `deferCover: false`; the anchor build does instead (unless the caller sets `deferCover`). So keep plans get column generation first, the one-week look-ahead and the whole-plan fallback.
+
+**Measured.** `RATES=0,0.02,0.04,0.08 KEEP=0.1 node eval/steady-plan.mjs 5 4` (`eval/steady-plan.keep-cg.txt`; the old planner is `eval/steady-plan.steady-ties.txt`), five invented teams, 100 planned weeks per row, all proven:
+
+| days off | keep 0.1, old planner: changes / off usual / time | now | anchor column generation first too (tried) |
+|---|---|---|---|
+| 2% | 170 / 119 / 14.2 s | **170 / 119 / 9.4 s** | 204 / 139 / 7.8 s |
+| 4% | 378 / 298 / 21.5 s | **378 / 298 / 11.8 s** | 404 / 322 / 10.0 s |
+| 8% | 536 / 439 / 19.9 s | **536 / 439 / 14.7 s** | 560 / 453 / 14.2 s |
+
+Open hours and pay are identical to the old planner in every row (the tried variant also matched open hours, but paid slightly less and moved more). On the 61 drawn four-week plans (`node eval/plan-lookahead.mjs`, `eval/plan-lookahead.out.txt`) the keep plans are unchanged (1,084 open hours, $713,982, 394 changes) and take 28.8 s against 37.6 s. So the page's default plan is 1.3-1.8x faster with nothing else moved. On the guide page's café plan the four weeks are the same rosters (`plan-lookahead.test.mjs`, "keep usual shifts").
+
+Not claimed: invented teams with swept or drawn time off, one 4-core machine; times include the usual-week build. Whether a manager notices or prefers the steadier plan is still unmeasured.
