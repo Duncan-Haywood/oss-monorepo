@@ -7,7 +7,6 @@ the library through ctypes with RGBA rows, which lensfunpy's own API does not ac
 from __future__ import annotations
 
 import importlib.util
-import math
 import os
 import sys
 import unittest
@@ -59,7 +58,12 @@ class Models(unittest.TestCase):
         self.assertEqual(int(out[1]), 10000)  # 0.9/1024 of gain lost to truncation: about 9 steps
         self.assertEqual(int(out[2]), (10000 * 1025 + 512) >> 10)
         self.assertEqual(int(out[3]), 25000)
-        self.assertEqual(int(out[4]), min(65535, (10000 * (31 << 10) + 512) >> 10))
+        self.assertEqual(int(out[4]), 65535)
+        self.assertEqual(int(self.t.u16_plain(np.array([40.0], np.float32), 1000)[0]), 31000)  # capped at 31x
+
+    def test_tolerance_grows_with_the_gain(self):
+        self.assertEqual(self.t.sse2_tolerance(0.0, 8192), 9)  # one fraction unit (8 steps) plus rounding
+        self.assertGreater(self.t.sse2_tolerance(8.0, 8192), self.t.sse2_tolerance(1.0, 8192))
 
     def test_fixed_loop_is_exact_to_one_fraction_unit(self):
         terms, s, w, h = self.case()
@@ -141,7 +145,9 @@ class RealLibrary(unittest.TestCase):
         for y in (0, 133, 400):
             u4 = self.row(y, v, np.uint16, 4)
             mod = self.t.model_sse2_row(self.terms, self.s3, self.W, self.H, y, v)
-            self.assertLessEqual(int(np.max(np.abs(u4[:, 0].astype(np.int64) - mod))), math.ceil(v / 1024) + 1, msg=y)
+            gmax = float(np.max(self.row(y, 1.0, np.float32, 3)[:, 0]))
+            self.assertLessEqual(int(np.max(np.abs(u4[:, 0].astype(np.int64) - mod))), self.t.sse2_tolerance(gmax, v),
+                                 msg=y)
             ex = self.r.exact_gain(self.terms, self.s3, self.W, self.H, np.arange(self.W, dtype=float),
                                    np.full(self.W, float(y))) * v
             self.assertTrue(np.all(np.abs(u4[600:, 0] / ex[600:] - 1.0) > 0.5))  # the tail

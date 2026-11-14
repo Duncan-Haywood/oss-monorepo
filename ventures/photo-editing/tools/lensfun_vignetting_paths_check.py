@@ -178,6 +178,16 @@ def model_sse2_row(terms, s: float, w: int, h: int, y: int, v: int, released: bo
     return out
 
 
+RCP_REL = 1.5 * 2.0**-12  # _mm_rcp_ps: Intel's documented bound on the relative error of the approximation
+
+
+def sse2_tolerance(gain: float, v: int) -> int:
+    """Steps the library may differ from ``model_sse2_row``: one 1/1024 fraction unit of truncation, plus what
+    ``_mm_rcp_ps``'s relative error does to a fraction of ``gain * 1024``, times ``v / 1024``, plus rounding."""
+
+    return int(math.ceil(v / 1024.0 * (1.0 + gain * 1024.0 * RCP_REL))) + 1
+
+
 def pcts(xs) -> str:
     xs = np.asarray(xs, float)
     if xs.size == 0:
@@ -185,85 +195,116 @@ def pcts(xs) -> str:
     return ", ".join(f"p{p} {100 * np.percentile(xs, p):.4g}%" for p in (50, 90, 99, 100))
 
 
-def main(argv=None) -> int:
+_W = {}  # per-process state: the library, our database, the arguments
+
+
+def _init(args) -> None:
+    _W["lf"] = Lensfun()
+    _W["ours"] = lp.load_db(_W["lf"].db_dir)
+    _W["args"] = args
+
+
+def lens_cases(index: int):
+    """Every calibration point of lens ``index`` (in liblensfun's order), both frame shapes: (rows, skipped)."""
+
     from lensfun_vignetting_released_check import exact_gain, points, released_scale
+
+    lf, ours, args = _W["lf"], _W["ours"], _W["args"]
+    maker, model, ptr = lf.lenses[index]
+    W, V = args.width, args.value
+    rows = []
+    mine = [ln for ln in ours.lenses if ln.name == model and (not ln.maker or maker in ln.maker)]
+    if len(mine) != 1:
+        return rows, 1
+    lens = mine[0]
+    cs0 = next((c for c in lens.calibrations if c.vignetting), None)
+    if cs0 is None:
+        return rows, 0
+    k = 0
+    for aspect, crop in ((1.5, cs0.crop), (4 / 3, cs0.crop * 1.5)):
+        H = round(W / aspect)
+        ys = np.linspace(0, H - 1, args.rows).round().astype(int)
+        for f, a, d, interp in points(cs0):
+            if interp:
+                continue
+            found = lp.interpolate_vignetting(lens, crop, f, a, d)
+            if found is None:
+                continue
+            k += 1
+            # the numpy model of the SSE2 loop is slow: run it on one case in model_every, picked by number
+            modelled = (index * 7919 + k) % args.model_every == 0
+            vig, cs = found
+            s3 = released_scale(cs, crop, W, H)
+            rec = {"lens": model, "focal": f, "aperture": a, "distance": d, "crop": crop, "aspect": aspect,
+                   "sse_f32": 0.0, "alpha_f32": 0.0, "u16_plain_steps": 0.0, "u16_plain_bias": [],
+                   "u16_plain_model": 0, "sse2_body_rel": 0.0, "sse2_lane_rel": [0.0] * 4, "sse2_tail_rel": 0.0,
+                   "sse2_model_steps": 0, "modelled": modelled, "sse2_fixed_rel": 0.0, "max_gain": 0.0, "skip": False}
+            xs = np.arange(W, dtype=np.float64)
+            for y in ys:
+                ref, ok = lf.devignette_row(ptr, crop, W, H, f, a, d, y, 1.0, np.float32, 3)
+                if not ok:
+                    rec["skip"] = True
+                    break
+                g = ref[:, 0].astype(np.float64)
+                ex = exact_gain(vig.terms, s3, W, H, xs, np.full(W, float(y)))
+                if np.any(ex <= 0) or np.any(ex > 31) or np.any(g * V > 65535):
+                    rec["skip"] = True  # near-singular, past the 31x cap, or clipped: not a precision question
+                    break
+                rec["max_gain"] = max(rec["max_gain"], float(g.max()))
+                sse, _ = lf.devignette_row(ptr, crop, W, H, f, a, d, y, 1.0, np.float32, 4, aligned=True)
+                rec["sse_f32"] = max(rec["sse_f32"], float(np.max(np.abs(sse[:, 0] / g - 1.0))))
+                rec["alpha_f32"] = max(rec["alpha_f32"], float(np.max(np.abs(sse[:, 3] - 1.0))))
+                u3, _ = lf.devignette_row(ptr, crop, W, H, f, a, d, y, V, np.uint16, 3)
+                e = u3[:, 0].astype(np.float64) - g * V
+                rec["u16_plain_steps"] = max(rec["u16_plain_steps"], float(np.max(np.abs(e))))
+                rec["u16_plain_bias"].append(float(np.mean(e)))
+                rec["u16_plain_model"] = max(rec["u16_plain_model"],
+                                             int(np.max(np.abs(u3[:, 0].astype(np.int64) - u16_plain(ref[:, 0], V)))))
+                u4, _ = lf.devignette_row(ptr, crop, W, H, f, a, d, y, V, np.uint16, 4, aligned=True)
+                rel = u4[:, 0].astype(np.float64) / (g * V) - 1.0
+                body = 4 * (W // 4)
+                rec["sse2_body_rel"] = max(rec["sse2_body_rel"], float(np.max(np.abs(rel[:body]))))
+                for j in range(4):
+                    rec["sse2_lane_rel"][j] = max(rec["sse2_lane_rel"][j], float(np.max(np.abs(rel[j:body:4]))))
+                if body < W:
+                    rec["sse2_tail_rel"] = max(rec["sse2_tail_rel"], float(np.max(np.abs(rel[body:]))))
+                if not modelled:
+                    continue
+                mod = model_sse2_row(vig.terms, s3, W, H, int(y), V)
+                tol = sse2_tolerance(float(g.max()), V)
+                diff = np.abs(u4[:, 0].astype(np.int64) - mod)
+                rec["sse2_model_steps"] = max(rec["sse2_model_steps"], int(diff.max()))
+                rec["sse2_model_tol"] = tol
+                fixed = model_sse2_row(vig.terms, s3, W, H, int(y), V, released=False)
+                rec["sse2_fixed_rel"] = max(rec["sse2_fixed_rel"], float(np.max(np.abs(fixed / (g * V) - 1.0))))
+            if rec["skip"]:
+                rows.append({"lens": model, "skip": True})
+                continue
+            rec["u16_plain_bias"] = float(np.mean(rec["u16_plain_bias"]))
+            rows.append(rec)
+    return rows, 0
+
+
+def main(argv=None) -> int:
+    import multiprocessing
 
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--width", type=int, default=1202, help="frame width; not a multiple of 4 shows the SSE2 tail")
     ap.add_argument("--rows", type=int, default=5, help="rows per case (evenly spaced, both edges)")
     ap.add_argument("--value", type=int, default=8192, help="flat 16-bit value (gains up to 8x stay unclipped)")
+    ap.add_argument("--model-every", type=int, default=25, help="run the numpy SSE2 model on one case in N")
+    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 1)
     ap.add_argument("--json")
     args = ap.parse_args(argv)
-
-    lf = Lensfun()
-    ours = lp.load_db(lf.db_dir)
     W, V = args.width, args.value
+    n = len(Lensfun().lenses)
     rows, skipped = [], 0
-    for maker, model, ptr in lf.lenses:
-        mine = [ln for ln in ours.lenses if ln.name == model and (not ln.maker or maker in ln.maker)]
-        if len(mine) != 1:
-            skipped += 1
-            continue
-        lens = mine[0]
-        cs0 = next((c for c in lens.calibrations if c.vignetting), None)
-        if cs0 is None:
-            continue
-        for aspect, crop in ((1.5, cs0.crop), (4 / 3, cs0.crop * 1.5)):
-            H = round(W / aspect)
-            ys = np.linspace(0, H - 1, args.rows).round().astype(int)
-            for f, a, d, interp in points(cs0):
-                if interp:
-                    continue
-                found = lp.interpolate_vignetting(lens, crop, f, a, d)
-                if found is None:
-                    continue
-                vig, cs = found
-                s3 = released_scale(cs, crop, W, H)
-                rec = {"lens": model, "focal": f, "aperture": a, "distance": d, "crop": crop, "aspect": aspect,
-                       "sse_f32": 0.0, "alpha_f32": 0.0, "u16_plain_steps": 0.0, "u16_plain_bias": [],
-                       "u16_plain_model": 0, "sse2_body_rel": 0.0, "sse2_lane_rel": [0.0] * 4, "sse2_tail_rel": 0.0,
-                       "sse2_model_steps": 0, "sse2_fixed_rel": 0.0, "max_gain": 0.0, "skip": False}
-                xs = np.arange(W, dtype=np.float64)
-                for y in ys:
-                    ref, ok = lf.devignette_row(ptr, crop, W, H, f, a, d, y, 1.0, np.float32, 3)
-                    if not ok:
-                        rec["skip"] = True
-                        break
-                    g = ref[:, 0].astype(np.float64)
-                    ex = exact_gain(vig.terms, s3, W, H, xs, np.full(W, float(y)))
-                    if np.any(ex <= 0) or np.any(ex > 31) or np.any(g * V > 65535):
-                        rec["skip"] = True  # near-singular, past the 31x cap, or clipped: not a precision question
-                        break
-                    rec["max_gain"] = max(rec["max_gain"], float(g.max()))
-                    sse, _ = lf.devignette_row(ptr, crop, W, H, f, a, d, y, 1.0, np.float32, 4, aligned=True)
-                    rec["sse_f32"] = max(rec["sse_f32"], float(np.max(np.abs(sse[:, 0] / g - 1.0))))
-                    rec["alpha_f32"] = max(rec["alpha_f32"], float(np.max(np.abs(sse[:, 3] - 1.0))))
-                    u3, _ = lf.devignette_row(ptr, crop, W, H, f, a, d, y, V, np.uint16, 3)
-                    e = u3[:, 0].astype(np.float64) - g * V
-                    rec["u16_plain_steps"] = max(rec["u16_plain_steps"], float(np.max(np.abs(e))))
-                    rec["u16_plain_bias"].append(float(np.mean(e)))
-                    rec["u16_plain_model"] = max(rec["u16_plain_model"],
-                                                 int(np.max(np.abs(u3[:, 0].astype(np.int64) - u16_plain(ref[:, 0], V)))))
-                    u4, _ = lf.devignette_row(ptr, crop, W, H, f, a, d, y, V, np.uint16, 4, aligned=True)
-                    rel = u4[:, 0].astype(np.float64) / (g * V) - 1.0
-                    body = 4 * (W // 4)
-                    rec["sse2_body_rel"] = max(rec["sse2_body_rel"], float(np.max(np.abs(rel[:body]))))
-                    for j in range(4):
-                        rec["sse2_lane_rel"][j] = max(rec["sse2_lane_rel"][j], float(np.max(np.abs(rel[j:body:4]))))
-                    if body < W:
-                        rec["sse2_tail_rel"] = max(rec["sse2_tail_rel"], float(np.max(np.abs(rel[body:]))))
-                    mod = model_sse2_row(vig.terms, s3, W, H, int(y), V)
-                    tol = int(math.ceil(V / 1024)) + 1  # one fraction unit, plus rounding
-                    diff = np.abs(u4[:, 0].astype(np.int64) - mod)
-                    rec["sse2_model_steps"] = max(rec["sse2_model_steps"], int(diff.max()))
-                    rec["sse2_model_tol"] = tol
-                    fixed = model_sse2_row(vig.terms, s3, W, H, int(y), V, released=False)
-                    rec["sse2_fixed_rel"] = max(rec["sse2_fixed_rel"], float(np.max(np.abs(fixed / (g * V) - 1.0))))
-                if rec["skip"]:
-                    rows.append({"lens": model, "skip": True})
-                    continue
-                rec["u16_plain_bias"] = float(np.mean(rec["u16_plain_bias"]))
-                rows.append(rec)
+    with multiprocessing.Pool(args.jobs, _init, (args,)) as pool:
+        for i, (r, sk) in enumerate(pool.imap(lens_cases, range(n), chunksize=4)):
+            rows += r
+            skipped += sk
+            if i % 200 == 199:
+                print(f"  ... {i + 1} of {n} lenses, {len(rows)} cases", flush=True)
     ok = [r for r in rows if not r.get("skip")]
     print(f"cases: {len(ok)} on {len({r['lens'] for r in ok})} lenses, frame {W} px wide, flat 16-bit value {V} "
           f"({len(rows) - len(ok)} skipped: gain over 31x, clipped at {V}, near-singular or not applied; "
@@ -278,9 +319,12 @@ def main(argv=None) -> int:
     for j in range(4):
         print(f"    lane {j}:                                       " + pcts([r["sse2_lane_rel"][j] for r in ok]))
     print("  16-bit SSE2, last w % 4 pixels (rel.):            " + pcts([r["sse2_tail_rel"] for r in ok]))
-    print(f"  model of the SSE2 loop vs the library: largest {max(r['sse2_model_steps'] for r in ok)} steps "
-          f"(one fraction unit is {ok[0]['sse2_model_tol'] - 1} steps at {V})")
-    print("  the same loop with both faults fixed (rel.):      " + pcts([r["sse2_fixed_rel"] for r in ok]))
+    md = [r for r in ok if r["modelled"]]
+    if md:
+        print(f"  model of the SSE2 loop vs the library, {len(md)} cases: largest {max(r['sse2_model_steps'] for r in md)} "
+              f"steps (tolerance: one fraction unit, {math.ceil(V / 1024)} steps at {V}, plus _mm_rcp_ps's bound); within it in "
+              f"{sum(r['sse2_model_steps'] <= r['sse2_model_tol'] for r in md)}")
+        print("  the same loop with both faults fixed (rel.):      " + pcts([r["sse2_fixed_rel"] for r in md]))
     for r in sorted(ok, key=lambda r: -r["sse2_body_rel"])[:5]:
         print(f"  SSE2 body {100 * r['sse2_body_rel']:.3f}% (gain up to {r['max_gain']:.2f})  {r['lens']} @ "
               f"{r['focal']:g} mm f/{r['aperture']:g} {r['distance']:g} m crop {r['crop']:.3g}")
