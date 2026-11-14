@@ -402,3 +402,68 @@ test("team ranges: linearize's constant makes the quadratic equal the log likeli
   for (const [w, l, t] of answers) { const p = 1 / (1 + Math.exp(-(c[w] - c[l]))); ll += t ? 0.5 * Math.log(p) + 0.5 * Math.log(1 - p) : Math.log(p); }
   assert.ok(Math.abs(q - ll) < 1e-10, `${q} vs ${ll}`);
 });
+
+// Guards added by the 2026-11-14 red-team run (prompts/runs/2026-11-14-session_01XpHqyf6p73vWqyxv8qwko8.json).
+
+test("a shared link of another format version is refused, even with a well-formed list", () => {
+  const frag = Buffer.from(JSON.stringify({ v: 2, t: "", i: ["a", "b", "c"] })).toString("base64url");
+  assert.equal(decodeList(frag), null);
+  assert.deepEqual(decodeList(encodeList({ items: ["a", "b", "c"] })).items, ["a", "b", "c"]);
+});
+
+test("the rank range is the middle 90% of the draws: at most 5% of draws fall outside each end", () => {
+  const f = fit(5, [[0, 1, false], [1, 2, false], [2, 3, false], [3, 4, false], [0, 2, false]]);
+  const draws = 2000, seed = 0x51ce;
+  const { ranks } = sampleRanks(f, { draws, seed });
+  for (const row of rankTable(f, { draws, seed })) {
+    const r = Array.from(ranks[row.item]);
+    const better = r.filter((x) => x < row.low).length, atOrBetter = r.filter((x) => x <= row.low).length;
+    const worse = r.filter((x) => x > row.high).length, atOrWorse = r.filter((x) => x >= row.high).length;
+    assert.ok(better <= 0.05 * draws && atOrBetter >= 0.05 * draws, `item ${row.item} low ${row.low}: ${better}/${atOrBetter}`);
+    assert.ok(worse <= 0.05 * draws && atOrWorse >= 0.05 * draws, `item ${row.item} high ${row.high}: ${worse}/${atOrWorse}`);
+  }
+});
+
+test("orderConfidence on two options: unseen reads unsettled, three agreeing answers read settled", () => {
+  assert.ok(Math.abs(orderConfidence(fit(2, []))) < 0.15);
+  assert.ok(orderConfidence(fit(2, [[0, 1, false], [0, 1, false], [0, 1, false]])) > 0.7);
+});
+
+test("a group of one is that person's own fit", () => {
+  const answers = [[0, 1, false], [2, 1, false], [0, 2, true]];
+  const g = groupFit(3, [{ answers }]), f = fit(3, answers);
+  for (let i = 0; i < 3; i++) assert.ok(Math.abs(g.mu[i] - f.mu[i]) < 1e-12);
+  for (let k = 0; k < 9; k++) assert.ok(Math.abs(g.cov[k] - f.cov[k]) < 1e-12);
+});
+
+test("team ranges: the population log likelihood does not depend on how the options are numbered", () => {
+  const perm = [3, 0, 4, 1, 2];
+  const a = [[0, 1, false], [1, 2, false], [2, 3, false], [3, 4, false]], b = [[4, 3, false], [3, 2, false], [1, 0, false], [2, 1, true]];
+  const p = (xs) => xs.map(([w, l, t]) => [perm[w], perm[l], t]);
+  for (const tau of [0.7, 1.3]) {
+    const x = populationAt(5, [{ answers: a }, { answers: b }], tau), y = populationAt(5, [{ answers: p(a) }, { answers: p(b) }], tau);
+    assert.ok(Math.abs(x.logLik - y.logLik) < 1e-9, `tau ${tau}: ${x.logLik} vs ${y.logLik}`);
+  }
+});
+
+test("the same answers give the same table across releases (pinned sampler output)", () => {
+  // A creator reads respondents' codes later, maybe after an update; the
+  // fixed seeds promise the same ranges and stop point. A change to the
+  // sampler, its seed or the default draw counts moves these numbers: update
+  // them only on purpose, and say so in the release notes.
+  const f = fit(4, [[0, 1, false], [1, 2, false], [2, 3, false]]);
+  assert.deepEqual(rankTable(f, { draws: 200 }).map((r) => [r.item, r.low, r.high, r.favourite]),
+    [[0, 1, 4, 0.545], [1, 1, 4, 0.205], [2, 1, 4, 0.165], [3, 1, 4, 0.085]]);
+  assert.ok(Math.abs(orderConfidence(f) - 0.556) < 1e-9, String(orderConfidence(f)));
+});
+
+test("the respondent's name and the question are cut by code point, never through an emoji", () => {
+  const items = ["a", "b", "c"];
+  const lone = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
+  const d = decodeAnswers(encodeAnswers({ items, answers: [[0, 1, false]], name: "x".repeat(59) + "😀🙂" }), items);
+  assert.ok(!lone.test(d.name), JSON.stringify(d.name.slice(-2)));
+  assert.equal(Array.from(d.name).length, 60);
+  const l = decodeList(encodeList({ title: "y".repeat(199) + "😀🙂", items }));
+  assert.ok(!lone.test(l.title), JSON.stringify(l.title.slice(-2)));
+  assert.equal(Array.from(l.title).length, 200);
+});
