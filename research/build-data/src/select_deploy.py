@@ -28,6 +28,8 @@ as a deployment would; results then go to select_deploy_es_<held>_i2c_<year>.jso
 Run (one call per held-out city and test year):
   python3.13 src/select_deploy.py DIR --held austin --test-year 2021
   python3.13 src/select_deploy.py --summarise results/select_deploy_*_i2c_20*.json
+  python3.13 src/select_deploy.py --summarise results/select_deploy_es_*.json --summary-name \
+      select_deploy_es_summary.json --baseline results/select_deploy_{austin,sf,seattle}_i2c_20*.json
 Writes results/select_deploy_<held>_i2c_<year>.json and results/select_deploy_summary.json.
 """
 import argparse, datetime, json, os, sys
@@ -110,7 +112,8 @@ def summarise(paths):
     for p in pols:
         reg = [t["regret"][p] for r in rows for t in r["by_tau"].values()]
         out["policies"][p] = dict(mean_regret=float(np.mean(reg)), max_regret=float(np.max(reg)),
-                                  cells_within_1day=int(sum(x <= 1 for x in reg)))
+                                  cells_within_1day=int(sum(x <= 1 for x in reg)),
+                                  cells_within_0_2day=int(sum(x <= .2 for x in reg)))
     out["agree_with_full1_argmin"] = {
         s: int(sum(t["sets"][s]["picks"]["argmin"] == t["sets"]["full1"]["picks"]["argmin"]
                    for r in rows for t in r["by_tau"].values())) for s in SETS if s in rows[0]["by_tau"]["0.5"]["sets"]}
@@ -120,6 +123,24 @@ def summarise(paths):
                     for r in rows for t, v in r["by_tau"].items()]
     out["labels"] = {f'{r["held_out"]} {r["test_year"]}': r["labels"] for r in rows}
     return out
+
+
+def compare(paths, base_paths):
+    """Session 85: each candidate's test-year loss and the test-year best, under this run's model
+    against a baseline run (session 84's select_deploy_<held>_i2c_<year>.json) for the same cells."""
+    base = {(r["held_out"], r["test_year"]): r for r in map(lambda p: json.load(open(p)), base_paths)}
+    cells, rel = [], []
+    for r in map(lambda p: json.load(open(p)), paths):
+        b = base[(r["held_out"], r["test_year"])]
+        for t, v in r["by_tau"].items():
+            bv = b["by_tau"][t]
+            d = {k: (v["test_loss"][k] - bv["test_loss"][k]) / bv["test_loss"][k] for k in v["test_loss"]}
+            rel += list(d.values())
+            cells.append(dict(held=r["held_out"], year=r["test_year"], tau=t, best=v["test_best"],
+                              best_baseline=bv["test_best"], rel_change=d))
+    return dict(n_cells=len(cells), same_best=sum(c["best"] == c["best_baseline"] for c in cells),
+                n_candidate_cells=len(rel), within_2pct=int(sum(abs(x) < .02 for x in rel)),
+                max_abs_rel_change=float(max(map(abs, rel))), cells=cells)
 
 
 if __name__ == "__main__":
@@ -132,10 +153,14 @@ if __name__ == "__main__":
     ap.add_argument("--summarise", nargs="+", help="result files to pool instead of fitting")
     ap.add_argument("--es-truncate", action="store_true", help="session 85: early-stop on the sources' Y-1 rows completed by D")
     ap.add_argument("--summary-name", default="select_deploy_summary.json")
+    ap.add_argument("--baseline", nargs="+", help="with --summarise: session 84 result files to compare test losses with")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
     if a.summarise:
         s = summarise(a.summarise)
+        if a.baseline:
+            s["vs_baseline"] = compare(a.summarise, a.baseline)
+            print(json.dumps({k: v for k, v in s["vs_baseline"].items() if k != "cells"}))
         json.dump(s, open(os.path.join(res_dir, a.summary_name), "w"), indent=1)
         print(json.dumps(s["policies"], indent=1))
         print(json.dumps(s["agree_with_full1_argmin"]))

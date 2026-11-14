@@ -76,6 +76,19 @@ class Deploy(unittest.TestCase):
         v2, _ = sd.evaluate(fake({"cascade2": (5.0, 5.0, 5.0), "type": (5.0, 5.0, 5.0)}), ["cascade2", "type"], 2021)
         self.assertNotIn("full3", v2["0.5"]["sets"])  # session 84 results (no _select3) still evaluate
 
+    def test_compare_reports_relative_test_loss_change_and_best_agreement(self):
+        """Session 85: compare() lines a run's test losses up with a baseline run's, cell by cell."""
+        import json, tempfile
+        def res(lt):
+            return dict(held_out="sf", test_year=2021, by_tau={"0.5": dict(test_loss=lt, test_best=min(lt, key=lt.get))})
+        d = tempfile.mkdtemp()
+        pa, pb = os.path.join(d, "a.json"), os.path.join(d, "b.json")
+        json.dump(res({"cascade2": 101.0, "type": 90.0}), open(pa, "w"))
+        json.dump(res({"cascade2": 100.0, "type": 95.0}), open(pb, "w"))
+        c = sd.compare([pa], [pb])
+        self.assertEqual((c["n_cells"], c["same_best"], c["n_candidate_cells"], c["within_2pct"]), (1, 1, 2, 1))
+        self.assertAlmostEqual(c["cells"][0]["rel_change"]["cascade2"], 0.01)
+
     def test_different_selection_rows_refused(self):
         R = fake({"cascade2": (5.0, 5.0, 5.0), "type": (5.0, 5.0, 5.0)})
         R["type"]["_select2"]["permit_id"] = np.arange(365) + 1

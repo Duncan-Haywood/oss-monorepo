@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 85, 2026-11-14: (pre-registered; outcome below once the runs finish) a year Y-3 selection set and a transfer model that early-stops on what a deployment sees
+## Session 85, 2026-11-14: choosing the class from the target's year Y-3 fixes Seattle's tail miss (ipcw3 gated 0.31 days mean regret, 1.75 at worst), but early-stopping on only the source permits completed by 1 January costs the best candidate 1.3 days, more than the selector's whole regret (R3, R4 held; R1, R2, R5 refuted)
 
 Why: session 84 found the deployable selector's regret sits in the long builds that a year Y-1 or Y-2 selection set has not yet seen at the decision date D = 1 January Y, and that the oracle full2 was as good as full1 (the loss is truncation, not staleness). Its "Next" asked for year Y-3, nearly complete at D, scored with a transfer model whose sources' early-stopping year is also cut as a deployment would see it.
 - New: `transfer.run(..., es_truncate=True)` early-stops on only the sources' year Y-1 rows completed by D (`transfer.completed_by`); the training rows (years <= Y-2) are unchanged. `select=True` also returns the held-out city's year Y-3 (`_select3`). `src/select_deploy.py --es-truncate` scores nine selection sets (session 84's six plus full3, cc3, ipcw3) and writes `results/select_deploy_es_<held>_i2c_<year>.json`. 2 new tests.
@@ -12,6 +12,34 @@ Predictions (written before any run):
 - (R4) ipcw3's gated mean regret is lower than ipcw2's gated mean regret in the same runs.
 - (R5) Truncated early stopping moves each candidate's test-year loss by less than 2% (relative to session 84) in at least 30 of the 36 candidate-cells.
 Refuted if any part fails.
+
+Outcome. Fresh pull 2026-11-14 00:08 to 00:17 UTC, one city per process: SF 1,298,286, Austin 2,385,260, Seattle 194,248 rows, the same counts as sessions 83 and 84. (A first launch of the runs at 00:10 started before the SF and Austin pulls had finished; it was stopped before writing any result and rerun on the full files.) Runs one after another with `/usr/bin/python3.13`, 00:17 to 00:43 UTC, 3 to 7 minutes each. Outputs: `results/select_deploy_es_{austin,sf,seattle}_i2c_{2021,2022}.json`, `results/select_deploy_es_summary.json` (`--summarise ... --baseline` the session 84 files).
+- What the truncated early-stopping set keeps: 44 to 59% of the sources' year Y-1 rows (Austin held out: 8,103 of 18,295 in 2021, 10,780 of 23,568 in 2022; SF held out: 54 to 59%; Seattle held out: 55 to 59%).
+- How much of Y-3 is visible on 1 January Y: 98.2 to 98.5% in Austin, 93.3 to 93.9% in SF, 92.9 to 93.3% in Seattle. Its visible q0.9 build time is 355 to 589 days against 379 to 739 on all rows (Y-2: 305 to 497 against 386 to 902).
+- Regret over the 12 cells, all under this session's truncated-ES transfer model (days of mean pinball loss on all test-year rows; picked minus best of three):
+
+| selection set | argmin mean (max) | gated mean (max) | gated cells <= 0.2 day | gated cells <= 1 day |
+|---|---|---|---|---|
+| full1 (oracle) | 0.16 (1.75) | 0.17 (1.75) | 11 | 11 |
+| full2 / full3 (oracles) | 0.29 / 0.30 | 0.31 / 0.31 | 10 / 10 | 10 / 10 |
+| cc1 / ipcw1 | 1.56 / 1.56 | 1.56 / 1.56 | 6 / 6 | 7 / 7 |
+| cc2 / ipcw2 | 1.41 / 1.43 | 1.58 / 0.84 (6.17) | 5 / 8 | 7 / 9 |
+| cc3 | 0.82 (6.17) | 0.30 (1.75) | 10 | 10 |
+| ipcw3 | 0.82 (6.17) | **0.31 (1.75)** | 10 | 10 |
+| always cascade2 / drop / type | 2.27 / 1.61 / 5.25 | | 7 / 8 / 2 | 9 / 10 / 3 |
+
+- Seattle 2022 q0.9, session 84's one large miss: on Y-3 the type-minus-cascade2 contrast is -1.01 days [-2.54, +0.38], an interval that crosses zero, so the gate keeps cascade2 (regret 0); on Y-2 under the same model ipcw2 still switches to type (6.17). The two cells ipcw3 misses are Austin's median in 2021 and 2022 (1.75 days each): every selection set, the oracle full1 in 2021 included, prefers type with intervals well below zero (Y-3: -2.87 [-3.32, -2.42] and -3.76 [-4.15, -3.36]), and cascade2 wins the test year. That is a change between years, not truncation.
+- The early-stopping cut moves the test-year losses (relative to session 84, same seeds and rows): 15 of 36 candidate-cells within 2%, the largest +20.1% (Austin 2022 q0.9, drop fold). The best candidate's loss rises by 1.29 days on average over the 12 cells: +6.87 in Austin 2022 q0.9 (56.95 to 63.82), +5.64 in Seattle 2021 q0.5, +2.56 in Seattle 2022 q0.5; it falls by 3.23 in Austin 2021 q0.5. The test-year best candidate changes in 4 of 12 cells (Austin 2022 q0.5; Seattle 2021 q0.5 and q0.9; Seattle 2022 q0.5).
+- End to end, the fully deployable pipeline (truncated ES, ipcw3, gate) averages 83.45 days of loss over the 12 cells, against 82.43 for session 84's ipcw2-gated pipeline (whose early stopping used complete labels) and 81.92 for session 84's hindsight oracle. Per cell it is worse by -6.42 to +6.88 days; the gain is Seattle 2022 q0.9 (the fixed miss).
+- (R1) Refuted: ipcw3 gated is within 0.2 days in 10 of 12 cells, not 12 (the two Austin medians, 1.75 each).
+- (R2) Refuted: the test-year best matches session 84's in 8 of 12 cells.
+- (R3) Held: 92.9 to 98.5% of Y-3 rows completed by D in every city-year.
+- (R4) Held: ipcw3 gated 0.31 days against ipcw2 gated 0.84 in the same runs.
+- (R5) Refuted: 15 of 36 candidate-cells move by less than 2%, not 30.
+- Why: early stopping picks the number of boosting rounds per quantile. Cut to the completed permits, the source validation set has no long builds, so the q0.9 model stops at the round count that suits short builds and under-predicts the target's tail (Austin 2022 q0.9 +12% for type, +20% for the drop fold). Selection on Y-3 is near-complete, so it no longer chases the truncation reversal that broke Y-2 in Seattle, and it costs nothing against the oracles full2 and full3 (0.31 vs 0.31). The selector is now within 0.14 days of the hindsight oracle full1 (0.17) under the same model; what remains is the model, not the choice.
+- Practical rule, revised: choose the class from the target's year Y-3 with IPCW and the gate. Do not early-stop the borrowed model on the sources' most recent year as a deployment sees it: on these cells it costs 1.3 days of mean loss, four times the selector's remaining regret.
+- Limits: no interval on the ES-induced loss changes (the per-row losses of session 84's runs were not kept), so the 1.29-day figure is a point estimate over 12 cells; 3 cities, 2 test years, 3 candidates, 3 seeds; the sources' training rows (years <= Y-2) still carry labels completed after D (74 to 94% of Y-2 rows were complete at D, so this is the smaller leak); the rule above was read off these cells after the run.
+Next: early-stop the sources on an older, near-complete year (Y-3, as the selection set) or fix the round count from a mature year, and truncate the training rows to what was known at D, so the whole pipeline uses only information available on 1 January; pre-register "best-candidate loss within 0.3 days of session 84's in at least 10 of 12 cells".
 
 ## Session 84, 2026-11-13: scored on the labels a deployment would have on 1 January, the per-city class selector's mean regret rises from 0.05 days to 0.58 at best, and in Seattle's tail the truncated year reverses the class contrast with an interval below zero (P1, P4, P5 held; P2, P3 refuted)
 
