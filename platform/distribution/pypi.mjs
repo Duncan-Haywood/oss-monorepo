@@ -38,8 +38,12 @@ export const STDLIB_OK = new Set([
   '__future__', 'argparse', 'base64', 'collections', 'copy', 'csv', 'dataclasses', 'datetime', 'difflib',
   'enum', 'fnmatch', 'functools', 'glob', 'hashlib', 'html', 'io', 'ipaddress', 'itertools', 'json',
   'logging', 'math', 'operator', 'os', 'pathlib', 're', 'shlex', 'shutil', 'stat', 'statistics', 'string',
-  'sys', 'tempfile', 'textwrap', 'time', 'tomllib', 'typing', 'xml', 'zipfile',
+  'sys', 'tempfile', 'textwrap', 'time', 'typing', 'xml', 'zipfile',
 ]);
+// Every module above must exist on PYTHON_FLOOR, the generated requires-python.
+// tomllib (3.11+) was here while the floor was 3.9, so a tool importing it
+// installed on 3.9/3.10 and failed at import (quality audit 2026-11-07-distribution).
+export const PYTHON_FLOOR = '3.9';
 const IMPORT_RE = /^[ \t]*(?:import[ \t]+([A-Za-z_][\w.]*(?:[ \t]*,[ \t]*[A-Za-z_][\w.]*)*)|from[ \t]+([A-Za-z_.][\w.]*)[ \t]+import\b)/gm;
 
 /** Top-level module names imported by Python source `src` (relative imports appear as '.'). */
@@ -74,7 +78,7 @@ version = "${version}"
 description = "${esc(description)}"
 readme = "README.md"
 license = { text = "MIT" }
-requires-python = ">=3.9"
+requires-python = ">=${PYTHON_FLOOR}"
 dependencies = []
 keywords = ["cli", "free", "open-source"]
 classifiers = ["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3", "Environment :: Console"]
