@@ -230,25 +230,28 @@ flagships:
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
       memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
       liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
-      the SSE path (four-component float32 images through lensfunpy, if it allows them)
-      and a 16-bit fixed-point output check; Canon's maker-note lens number (CameraSettings
-      index 22) mapped to a name for CR2s whose maker note gives no usable name
-      (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
-      since 2026-11-13);
-      the whole numpy develop runs in threaded bands and packed raws unpack in numpy
-      since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same bytes at every thread
-      count and band height); lossless-JPEG DNG tiles decode on a thread pool since
-      2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG,
-      0 of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
-      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit table,
-      prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md;
-      tiles are placed on the decode threads with one numpy copy since 2026-11-13 (4-thread read
-      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform scans
-      predict in C and the plane is one buffer since 2026-11-14, eval/point-transform-c-2026-11-14.md), and the serial
-      _normalised_plane (about 0.2-0.4 s);
-      MapTable and ScalePerRow/Column run in OpcodeList1 since 2026-11-13 (spec's
-      integer range; eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial
-      there still need a unit the text does not give, or a real file.
+      the SSE path (four-component float32 images through lensfunpy, if it allows
+      them) and a 16-bit fixed-point output check; Canon's maker-note lens number
+      (CameraSettings index 22) mapped to a name for CR2s whose maker note gives no
+      usable name (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095
+      are read since 2026-11-13); the whole numpy develop runs in threaded bands and
+      packed raws unpack in numpy since 2026-11-13
+      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
+      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
+      (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
+      of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
+      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
+      table, prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs,
+      eval/native-destuff-2026-11-13.md; tiles are placed on the decode threads with
+      one numpy copy since 2026-11-13 (4-thread read 1.3-1.4x faster,
+      eval/parallel-tile-placing-2026-11-13.md); point-transform scans predict in C
+      and the plane is one buffer since 2026-11-14,
+      eval/point-transform-c-2026-11-14.md), and sensor normalisation runs in bands
+      since 2026-11-14 (0.24 s to 0.05 s on 4 CPUs,
+      eval/normalised-plane-bands-2026-11-14.md); MapTable and ScalePerRow/Column
+      run in OpcodeList1 since 2026-11-13 (spec's integer range;
+      eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial there still
+      need a unit the text does not give, or a real file.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera

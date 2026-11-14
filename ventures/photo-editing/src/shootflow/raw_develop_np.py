@@ -66,45 +66,68 @@ def _run_bands(fn, rows: int, band: int | None = None, threads: int | None = Non
             pass
 
 
-def _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps=()):
-    """Active-area samples, black-subtracted, scaled and clamped; and the clip count."""
+def _normalised_plane(
+    vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps=(), threads=None, band=None
+):
+    """Active-area samples, black-subtracted, scaled and clamped; and the clip count.
+
+    The per-row arithmetic (linearisation, black, scale, clamp and the clip count) runs in bands of rows on
+    ``threads`` threads (``_run_bands``): every sample depends only on its own sensel and its row and column
+    terms, so the band height and thread count change no byte. Stage-2 opcodes (``gain_maps``) still run once
+    on the whole plane between the two banded passes, since a framed opcode may span bands.
+    """
 
     full = np.frombuffer(vals, dtype=np.uint16 if vals.typecode == "H" else np.uint32)
     plane = full.reshape(-1, rw * spp)[top : top + h, left * spp : (left + w) * spp]
-    if lin:
-        table = np.asarray(lin, dtype=np.float64)
-        plane = table[np.minimum(plane, len(lin) - 1)]
-    else:
-        plane = plane.astype(np.float64)
-    ys = np.arange(h)
+    table = np.asarray(lin, dtype=np.float64) if lin else None
+    width = w * spp
     dvy = np.array([float(dv[y]) if y < len(dv) else 0.0 for y in range(h)], dtype=np.float64)
-    if spp == 1 and rc == 1 and not dh:
+    fast = spp == 1 and rc == 1 and not dh
+    if fast:
         # off = black + dv per row, then (v - off) * scale (the pure fast path).
-        black_rows = np.array([black[y % rr][0][0] for y in range(h)], dtype=np.float64)
-        off = black_rows + dvy
-        out = (plane - off[:, None]) * span[0][0][0]
+        off = np.array([black[y % rr][0][0] for y in range(rr)], dtype=np.float64)[np.arange(h) % rr] + dvy
+        scale = span[0][0][0]
     else:
-        width = w * spp
         xs = np.arange(width)
         px, s = xs // spp, xs % spp
         dhx = np.array([float(dh[x]) if x < len(dh) else 0.0 for x in range(w)], dtype=np.float64)[px]
         # black and span per (row phase, sample column)
         bl = np.array([[black[r][c][si] for c, si in zip(px % rc, s)] for r in range(rr)], dtype=np.float64)
         sp = np.array([[span[r][c][si] for c, si in zip(px % rc, s)] for r in range(rr)], dtype=np.float64)
-        rphase = ys % rr
-        out = plane - bl[rphase]
-        out -= dvy[:, None]
-        out -= dhx[None, :]
-        out *= sp[rphase]
+    cap_rows = np.array(caplines, dtype=np.float64)
+    out = np.empty((h, width), dtype=np.float64)
+    counts: dict[int, int] = {}
+
+    def finish(y0, y1):
+        o = out[y0:y1]
+        caps = cap_rows[np.arange(y0, y1) % 2]  # caplines: one row of caps per row phase
+        counts[y0] = int(np.count_nonzero(o >= caps))
+        o[...] = np.where(o < 0.0, 0.0, np.where(o > caps, caps, o))
+
+    def normalise(y0, y1):
+        raw = plane[y0:y1]
+        v = table[np.minimum(raw, len(lin) - 1)] if table is not None else raw.astype(np.float64)
+        o = out[y0:y1]
+        if fast:
+            np.subtract(v, off[y0:y1, None], out=o)
+            o *= scale
+        else:
+            np.subtract(v, bl[np.arange(y0, y1) % rr], out=o)
+            o -= dvy[y0:y1, None]
+            o -= dhx[None, :]
+            o *= sp[np.arange(y0, y1) % rr]
+        if gain_maps:
+            o[...] = np.where(o < 0.0, 0.0, np.where(o > 1.0, 1.0, o))
+        else:
+            finish(y0, y1)
+
+    _run_bands(normalise, h, band, threads)
     if gain_maps:
         from shootflow import dng_opcodes
 
-        out = np.where(out < 0.0, 0.0, np.where(out > 1.0, 1.0, out))
         dng_opcodes.apply_plane(gain_maps, out, h, w, spp)
-    caps = np.array(caplines, dtype=np.float64)[ys % 2]
-    clipped = int(np.count_nonzero(out >= caps))
-    out = np.where(out < 0.0, 0.0, np.where(out > caps, caps, out))
-    return out, clipped
+        _run_bands(finish, h, band, threads)
+    return out, sum(counts.values())
 
 
 def _encode(r, g, b, hi, m, curve, lut_size, look):
@@ -253,7 +276,9 @@ def render(
     the warp does; the thread count never changes the output.
     """
 
-    norm, clipped = _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps)
+    norm, clipped = _normalised_plane(
+        vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps, threads=threads
+    )
     if warps:
         # WarpRectilinear: keep the clipped, white-balanced linear image, warp it, then encode (raw_develop.develop).
         if linear_raw:
