@@ -13,6 +13,13 @@ WHEEL_RPM_FULL = 9000          # launcher wheel free speed at full ESC throttle,
 WHEEL_SPINUP_W = 100.0
 WHEEL_INERTIA_KGM2 = 0.00155
 WHEEL_RAMP_MAX_RPM_S = 1500.0
+# Regenerative braking (cad: Feeder.regen_braking). Lowering a wheel's speed ramps it down at WHEEL_SPINUP_W, which an
+# ESC that brakes sends back to the pack (about 6 A for both wheels). Above REGEN_BRAKE_MAX_MV on the battery reading
+# the ramp coasts instead, because braking into a nearly full pack lifts a cell to the BMS's cut and the bus then has
+# nowhere to go. Set WHEEL_BRAKE = False to always coast: needed if your BMS blocks charging when cold, or if your ESC
+# brakes harder than the ramp asks. Fit the Schottky across the contactor (hardware/electronics.md) either way.
+WHEEL_BRAKE = True
+REGEN_BRAKE_MAX_MV = 27600
 AZ_MICROSTEPS = 4               # azimuth driver's microstep setting (match its MS pins)
 AZ_RATIO = 10.0                 # 150-tooth sector over the 15-tooth pinion
 AZ_VMAX_DEG_S = 60.0            # peak turntable speed: 30 deg in 1 s, triangular (cad: Feeder.azimuth_drive)

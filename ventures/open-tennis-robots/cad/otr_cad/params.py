@@ -834,6 +834,31 @@ class Feeder:
     contactor_pull_in_ms: float = 50.0  # coil energised to contacts first touching (small DC contactors: 15-50 ms)
     contactor_bounce_ms: float = 10.0   # contacts first touching to staying closed (each bounce opens them)
     stepper_enable_after_ms: float = 150.0  # firmware CONTACTOR_SETTLE_MS: coil seen on this long before ENABLE
+    # Regenerative braking (2026-11-14, `regen_braking`, `check_regen`). The firmware lowers a wheel's target at the same
+    # capped shaft power it spins up with (controller.SpinupRamp), and an ESC that follows a lower throttle by braking
+    # (synchronous rectification, "damped light", a duty-cycle mode) sends that energy back into the bus. Into the pack it
+    # is a few amps; into a bus the pack is not taking (contactor open, or a BMS that has stopped charging) it is a few
+    # joules into about 2 mF, which lifts the bus past every switched part in about a millisecond. Figures are
+    # assumptions: read your BMS's charge settings and your parts' input ratings, and log the bus on a scope.
+    bms_charge_a: float = 15.0        # BMS continuous charge limit (assumption: many 30 A 8S LiFePO4 BMSs allow half)
+    bms_cell_ovp_v: float = 3.65      # BMS cell over-voltage cut: it stops charging, and the bus loses its sink
+    pack_cells: int = 8
+    cell_spread_v: float = 0.10       # how far the highest cell sits above the pack's average (assumption)
+    regen_eff: float = 0.85           # shaft to bus through motor and ESC while braking (assumption: as esc_eff)
+    switched_v_max: float = 30.0      # lowest input rating on the switched bus: the MDD10A-class H-bridge's 30 V
+                                      # (A4988 class 35 V, small bucks about 36-40 V; read yours)
+    esc_stop_latency_ms: float = 40.0  # firmware sees the bus go and zeroes the ESC command, to the ESC no longer
+                                      # braking: one 10 ms tick, up to 20 ms for the next 50 Hz pulse, and one frame
+                                      # of the ESC's own input filter (assumption)
+    contactor_dropout_ms: float = 5.0  # coil de-energised to contacts open: the fast end, the worst case here
+    regen_diode: bool = True          # Schottky across the contactor and precharge relay, anode on the switched bus:
+                                      # returns braking current to the pack with the contactor open, and cannot power
+                                      # the bus from the pack, so the e-stop still isolates every motor
+    regen_diode_vf: float = 0.55      # its forward drop at the braking current (assumption: a 45 V 20 A class part)
+    regen_diode_vr: float = 45.0      # and its reverse rating: at least 1.5 x the charger's 29.2 V
+    regen_diode_a: float = 20.0       # and its forward current rating
+    regen_brake_max_v: float = 27.6   # firmware REGEN_BRAKE_MAX_MV: above this pack reading the ramp coasts instead of
+                                      # braking (3.45 V a cell, the top few percent of a LiFePO4's charge)
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -1371,6 +1396,7 @@ class Feeder:
         bad += self.check_deck_cables()
         bad += self.check_power()
         bad += self.check_inrush()
+        bad += self.check_regen()
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_agitator()
@@ -2562,6 +2588,96 @@ class Feeder:
                            f"a larger precharge_ohm")
             if pre["peak_a"] > self.bms_sc_a:
                 bad.append(f"precharge current {pre['peak_a']:.0f} A is over the BMS's short-circuit trip")
+        return bad
+
+    # ---- regenerative braking (2026-11-14) --------------------------------------
+    def coast_s(self, rpm_from: float, rpm_to: float) -> float:
+        """A lower bound on the seconds a wheel takes to coast from `rpm_from` down to `rpm_to` with the ESC not
+        driving it (2026-11-14). `launch_drag_w` holds a wheel at the drill's top speed; bearing drag is about constant
+        torque and air drag grows with speed, so below that speed the real drag torque is at most launch_drag_w / w_top,
+        and coasting at that constant torque, t = I (w1 - w2) / tau, is the fastest it can be."""
+        w = 2 * math.pi / 60
+        tau = self.launch_drag_w / (max(self.launch_rpm) * w)
+        return self.launch_wheel_kgm2 * (rpm_from - rpm_to) * w / tau
+
+    def regen_braking(self) -> dict:
+        """What the launcher wheels send back when the firmware lowers their targets (2026-11-14). The ramp lowers each
+        target at `wheel_spinup_w` of shaft power at most (drag ignored: it only takes some of that), so an ESC that
+        brakes puts at most 2 P x regen_eff on the bus. Three cases: (1) into the pack, with the contactor closed: the
+        charge current against the BMS, and the highest cell against its over-voltage cut; (2) the e-stop opens the
+        contactor mid-brake and braking goes on for the firmware's stop latency less the contacts' drop-out: with no
+        return path, C V dV/dt = P lifts the bus by V^2 = V0^2 + 2 P t / C, and with `regen_diode` the bus is held at
+        the pack plus the diode's drop; (3) the pack stops taking charge with the contactor closed (cell over-voltage,
+        a cold BMS's charge block): nothing in the design responds inside the time the bus takes to pass
+        `switched_v_max`, so the firmware must not brake where (1) puts a cell near its cut."""
+        e = self.contactor_inrush()
+        c = e["c_f"]
+        p_bus = 2 * self.wheel_spinup_w * self.regen_eff
+        pi_a = self.pi_w / (self.buck_eff * self.battery_v_max)
+        # the pack-side resistance the braking current crosses: pack, feed out and back, main fuse
+        ohm = {**AWG_OHM_PER_M, **FEED_AWG_OHM_PER_M}
+        r_pack = self.pack_ohm + 2 * self.main_feed_mm / 1000 * ohm[self.main_feed_awg] + self.main_fuse_ohm
+        guarded = self.regen_brake_max_v < self.battery_v_max
+        v_brake = min(self.regen_brake_max_v, self.battery_v_max)       # highest pack reading the firmware brakes at
+
+        def into_pack(v):
+            i_bus = p_bus / v
+            i_chg = max(i_bus - self.bus_idle_a - pi_a, 0.0)
+            v_term = v + i_chg * r_pack
+            return {"pack_v": v, "bus_a": i_bus, "charge_a": i_chg, "terminal_v": v_term,
+                    "top_cell_v": v_term / self.pack_cells + self.cell_spread_v,
+                    "bus_v": v_term + i_bus * self.contactor_ohm}
+
+        def isolated(v0):
+            t = max(self.esc_stop_latency_ms - self.contactor_dropout_ms, 0.0) / 1e3
+            net = p_bus                                                  # idle loads ignored: they take under 5%
+            return {"v0": v0, "window_ms": t * 1e3,
+                    "to_limit_ms": max(c * (self.switched_v_max ** 2 - v0 ** 2) / (2 * net), 0.0) * 1e3,
+                    "peak_v": math.sqrt(v0 * v0 + 2 * net * t / c), "joules": net * t}
+
+        top = max(self.launch_rpm)
+        step = 0.8 * top
+        brake = into_pack(v_brake)
+        out = {"bus_w": p_bus, "c_f": c, "r_pack_ohm": r_pack, "guarded": guarded, "brake_max_v": v_brake,
+               "wheel_j": 0.5 * self.launch_wheel_kgm2 * (top * 2 * math.pi / 60) ** 2, "top_rpm": top,
+               "brake": brake, "unguarded": into_pack(self.battery_v_max),
+               "estop": {"full": isolated(self.battery_v_max), "brake": isolated(v_brake), "low": isolated(self.battery_v_min)},
+               "diode_bus_v": brake["terminal_v"] + self.regen_diode_vf if self.regen_diode else None,
+               "refused": isolated(v_brake),
+               "slow_20pct": {"brake_s": self.spinup_s(top) - self.spinup_s(step), "coast_s": self.coast_s(top, step)},
+               "coast_to_rest_s": self.coast_s(top, 0.0)}
+        return out
+
+    def check_regen(self) -> list[str]:
+        bad = []
+        d = self.regen_braking()
+        b = d["brake"]
+        cut = self.bms_cell_ovp_v
+        if b["charge_a"] > self.bms_use_frac * self.bms_charge_a + 1e-9:
+            bad.append(f"braking both wheels charges the pack at {b['charge_a']:.1f} A, over {self.bms_use_frac:.0%} of the "
+                       f"BMS's {self.bms_charge_a:g} A charge limit: lower wheel_spinup_w")
+        if b["top_cell_v"] > cut - 0.02 + 1e-9:
+            bad.append(f"braking at a {b['pack_v']:g} V pack lifts the highest cell to {b['top_cell_v']:.2f} V, at the BMS's "
+                       f"{cut:g} V cut: the BMS stops charging and the bus has no sink (lower regen_brake_max_v / "
+                       f"REGEN_BRAKE_MAX_MV)")
+        if b["bus_v"] > self.switched_v_max + 1e-9:
+            bad.append(f"braking into the pack holds the bus at {b['bus_v']:.2f} V, over the switched parts' "
+                       f"{self.switched_v_max:g} V")
+        es = d["estop"]["brake"]
+        if not self.regen_diode:
+            if es["peak_v"] > self.switched_v_max + 1e-9:
+                bad.append(f"an e-stop while the wheels brake leaves {es['window_ms']:.0f} ms of braking ({es['joules']:.1f} J) "
+                           f"on the isolated bus: it passes {self.switched_v_max:g} V after {es['to_limit_ms']:.2f} ms and "
+                           f"would reach {es['peak_v']:.0f} V; fit regen_diode across the contactor")
+        else:
+            if d["diode_bus_v"] > self.switched_v_max + 1e-9:
+                bad.append(f"with the contactor open the diode holds the braking bus at {d['diode_bus_v']:.2f} V, over "
+                           f"{self.switched_v_max:g} V")
+            if self.regen_diode_vr < 1.5 * self.battery_v_max - 1e-9:
+                bad.append(f"regen diode's {self.regen_diode_vr:g} V reverse rating is under 1.5 x the charger's "
+                           f"{self.battery_v_max:g} V")
+            if self.regen_diode_a < 2 * b["bus_a"] - 1e-9:
+                bad.append(f"regen diode's {self.regen_diode_a:g} A is under twice the {b['bus_a']:.1f} A braking current")
         return bad
 
     def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:

@@ -315,9 +315,14 @@ class FeederHw:
             self.elev_out.set(out)
         self.tach_top.update(dt)
         self.tach_bottom.update(dt)
+        # Lowering a wheel's speed brakes it only with room in the pack (cad: Feeder.regen_braking): above
+        # REGEN_BRAKE_MAX_MV the ramp coasts, so the BMS never stops charging while an ESC is pushing energy back.
+        brake = getattr(config, "WHEEL_BRAKE", True) and self.battery_mv() <= getattr(config, "REGEN_BRAKE_MAX_MV", 27600)
         for i, (esc, tach) in enumerate(((self.esc_top, self.tach_top), (self.esc_bottom, self.tach_bottom))):
-            ramped = self.wheel_ramps[i].update(self.target_rpm[i], tach.rpm, dt)
-            self.esc_cmd[i] = self.wheel_loops[i].update(ramped, tach.rpm, dt)
+            ramp = self.wheel_ramps[i]
+            ramped = ramp.update(self.target_rpm[i], tach.rpm, dt, brake)
+            # coasting: zero throttle (ESCs set with no brake at zero throttle), the loop's integrator held
+            self.esc_cmd[i] = 0.0 if ramp.coasting else self.wheel_loops[i].update(ramped, tach.rpm, dt)
             esc.frac(self.esc_cmd[i])
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         # Base: proportional position control capped at vmax (trapezoid in practice
