@@ -1,0 +1,23 @@
+Milestone 7i post hoc: Spearman rank correlation, 24 designs per geometry (7e, 7h free, aware TWR=2.0, aware TWR free; 6 seeds each).
+dead = held-out flights diverged of 64 at the 20 deg tilt-command limit. Exploratory, written after results.txt was read.
+
+[above] tau_max  vs dead at lever 2: rho -0.58 (p 0.003, n 24)
+[above] tau_max  vs dead at lever 3: rho -0.81 (p 0.000, n 24)
+[above] mass     vs dead at lever 2: rho -0.79 (p 0.000, n 24)
+[above] mass     vs dead at lever 3: rho -0.87 (p 0.000, n 24)
+[above] power    vs dead at lever 2: rho -0.81 (p 0.000, n 24)
+[above] power    vs dead at lever 3: rho -0.87 (p 0.000, n 24)
+[above] twr      vs dead at lever 2: rho +0.24 (p 0.258, n 24)
+[above] twr      vs dead at lever 3: rho +0.08 (p 0.723, n 24)
+[above] designs at mass >= 1.9 kg: 2 (aware TWR=2.0 s3, aware TWR free s3); dead at lever 2 [0, 0], lever 3 [5, 5]; hover W [678, 661]
+
+[below] tau_max  vs dead at lever 2: rho -0.82 (p 0.000, n 24)
+[below] tau_max  vs dead at lever 3: rho -0.87 (p 0.000, n 24)
+[below] mass     vs dead at lever 2: rho -0.88 (p 0.000, n 24)
+[below] mass     vs dead at lever 3: rho -0.94 (p 0.000, n 24)
+[below] power    vs dead at lever 2: rho -0.86 (p 0.000, n 24)
+[below] power    vs dead at lever 3: rho -0.94 (p 0.000, n 24)
+[below] twr      vs dead at lever 2: rho -0.16 (p 0.447, n 24)
+[below] twr      vs dead at lever 3: rho -0.02 (p 0.936, n 24)
+[below] designs at mass >= 1.9 kg: 2 (aware TWR=2.0 s3, aware TWR free s3); dead at lever 2 [0, 0], lever 3 [4, 5]; hover W [667, 656]
+
