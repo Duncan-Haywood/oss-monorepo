@@ -23,6 +23,6 @@
     {"severity": "medium", "what": "No related-work section: novelty relative to Evron et al. 2022 and memory-based CL theory is asserted, not shown; no citations in the whitepaper.", "where": "research/replay-memory/paper/whitepaper.md"},
     {"severity": "low", "what": "No input validation (m<0, m>r), silent zero matrix when r>=d-m untested, budget_rate has unused arguments, best_split silently drops m with c/m>1.", "where": "research/replay-memory/src/replay_memory/model.py:22-27, 109-113"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15675"],
   "verdict": "A small, readable and well-motivated project whose core algebra (replay equals project out the stored subspace then a plain step in dimension d-m) is right and reproduces: tests pass, run.py regenerates results.txt byte for byte, and the endpoints, the no-replay law and the single-replay totals agree with an independent numpy Monte Carlo to about 1 percent. The headline claim of an exact law for every schedule is wrong for repeated replays of the same buffer, where the closure resamples the stored subspace; it is off by 10-18 percent in the author's own E1 table (visible as 0.0061 vs 0.0071) and the paper wrongly calls that Monte-Carlo noise. The test suite would not have caught it, and a 5 percent coefficient error in the interior-m matrix survives all 8 tests. Single-replay results (E2) stand; the schedule comparisons (E3-E6, 'few large beats many small') are unverified for a fixed buffer. Finished, not at the bar."
 }
