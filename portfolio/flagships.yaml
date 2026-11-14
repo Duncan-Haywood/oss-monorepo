@@ -159,7 +159,7 @@ flagships:
       codes (omawww blocked), a real payroll or export file, a PAC rejection
       compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
       PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
-      2026-11-13) landed (README); cCredPres rules (BR-058..061, cStat 1049-1175) and cClassTrib at IT 1.71 landed 2026-11-14 (eval/ccredpres-2026-11-14.md): open: the e211110 presumed-credit event, a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
+      2026-11-13) landed (README); cCredPres rules (BR-058..061, cStat 1049-1175) and cClassTrib at IT 1.71 landed 2026-11-14 (eval/ccredpres-2026-11-14.md): e211110 event landed 2026-11-14 (README): open: a real event, other RTC events; a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
       open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
