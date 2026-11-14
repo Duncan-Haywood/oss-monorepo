@@ -354,7 +354,7 @@ def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
     else:
         raise rd.DevelopError(f"Nikon raw compression {compression} is not supported; convert to DNG")
 
-    black = (0.0,) * 4
+    black: tuple[float, ...] = (0.0,) * 4
     if mn is not None:
         b = mn.get(MN_BLACK)
         if b and len(b) >= 4:
