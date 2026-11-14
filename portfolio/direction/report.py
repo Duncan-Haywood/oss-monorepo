@@ -99,6 +99,18 @@ def shallow_boundary() -> set[str]:
     return set(path.read_text().split()) if path.exists() else set()
 
 
+def _shallow_fetch(args, cwd, timeout=None):
+    """`git fetch <args>` through platform/ci/shallow_repair.py, which drops the bogus
+    `.git/shallow` entry a --shallow-since fetch can leave (every later fetch then failed with
+    "error in object: unshallow", 2026-11-14). Falls back to a plain fetch if it cannot load."""
+    try:
+        sys.path.insert(0, str(REPO / "platform" / "ci"))
+        import shallow_repair
+        return shallow_repair.fetch(args, cwd=cwd, timeout=timeout, run=subprocess.run)
+    except ImportError:
+        return subprocess.run(["git", "fetch", *args], cwd=cwd, capture_output=True, text=True, timeout=timeout)
+
+
 def ensure_history(since: datetime, ref: str) -> None:
     """A cloud clone holds about 50 commits; fetch main back to `since`."""
     if git("rev-parse", "--is-shallow-repository").strip() != "true":
@@ -108,8 +120,7 @@ def ensure_history(since: datetime, ref: str) -> None:
         return
     print(f"(shallow clone: fetching main since {since:%Y-%m-%d})", file=sys.stderr)
     try:
-        subprocess.run(["git", "fetch", "-q", f"--shallow-since={since:%Y-%m-%d}", "origin", "main"],
-                       cwd=REPO, timeout=600, capture_output=True)
+        _shallow_fetch(["-q", f"--shallow-since={since:%Y-%m-%d}", "origin", "main"], cwd=REPO, timeout=600)
     except subprocess.TimeoutExpired:
         print("(fetch timed out; counts cover what is local)", file=sys.stderr)
 
