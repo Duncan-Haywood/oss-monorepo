@@ -266,7 +266,7 @@ export function deferredWaterfall(books, { asOf = null, horizon = 12 } = {}) {
 // `endExclusive`: the end column is the first day after the service (Stripe-style
 // periods run from one anniversary to the next), so a day is taken off.
 // -> { books, added, problems: ["line 3: ..."] }; bad rows are skipped, not guessed.
-export function addDeferralsCsv(booksIn, text, { method = "daily", endExclusive = false, dayFirst = false, incomeAccount = DEFAULT_INCOME } = {}) {
+export function importDeferralsCsv(booksIn, text, { method = "daily", endExclusive = false, dayFirst = false, incomeAccount = DEFAULT_INCOME } = {}) {
   let books = clone(booksIn);
   const rows = parseCsv(text);
   const problems = [];
@@ -309,4 +309,16 @@ export function addDeferralsCsv(booksIn, text, { method = "daily", endExclusive 
     } catch (e) { problems.push(`${where}: ${e.message.replace(/\.$/, "")}.`); }
   }
   return { books, added, problems };
+}
+
+// The waterfall as CSV for a spreadsheet: one row per plan, a total row. Names and
+// customers are typed by the user, so a cell starting =, +, -, @, tab or CR gets an
+// apostrophe (spreadsheet formula injection).
+export function waterfallCsv(w) {
+  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const c = (n) => (n / 100).toFixed(2);
+  const lines = [["id", "name", "customer", ...w.months, "later", "unearned"].map(cell).join(",")];
+  for (const r of w.rows) lines.push([r.id, r.name, r.customer ?? "", ...r.byMonth.map(c), c(r.later), c(r.unearned)].map(cell).join(","));
+  lines.push(["", "Total", "", ...w.totals.map(c), c(w.later), c(w.unearned)].map(cell).join(","));
+  return lines.join("\n") + "\n";
 }

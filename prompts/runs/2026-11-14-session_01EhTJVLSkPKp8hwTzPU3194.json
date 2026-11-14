@@ -29,7 +29,7 @@
   "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 16,
+  "tests_added": 17,
   "outcome": "success",
   "errors": [
     "eval/browser-click.mjs: first dialog handler pair threw 'Cannot dismiss dialog which is already handled' (page.once plus page.on both fired); replaced with one queued handler.",
@@ -70,7 +70,7 @@
     "ventures/ai-bookkeeper/README.md (Deferred revenue section)"
   ],
   "goal": "Ship depth on the top flagship toward a product subscription businesses would use and pay for support on.",
-  "notes": "Verification: node --test '*.test.mjs' in ventures/ai-bookkeeper: 2556 pass, 0 fail (15 new in deferred.test.mjs plus the guide-page pin). eval/browser-click.mjs: the 5 new deferred checks pass; 2 unrelated checks fail on this branch and 6 on main (pre-existing). venture-preflight run in the background; result in the PR body. Worked example (synthetic): $9,000.00 collected, $2,890.49 earned by 2026-06-30, $6,109.51 unearned, $4,047.67 current, $2,061.84 long term.",
+  "notes": "Verification: node --test '*.test.mjs' in ventures/ai-bookkeeper: 2557 pass, 0 fail (17 new in deferred.test.mjs). eval/browser-click.mjs: the 5 new deferred checks pass; 2 unrelated checks fail on this branch and 6 on main (pre-existing). venture-preflight run in the background; result in the PR body. Worked example (synthetic): $9,000.00 collected, $2,890.49 earned by 2026-06-30, $6,109.51 unearned, $4,047.67 current, $2,061.84 long term.",
   "corrections": [],
   "redteam": null,
   "usage": {

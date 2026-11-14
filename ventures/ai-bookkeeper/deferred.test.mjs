@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm, journal, closeChecks, addDocuments } from "./engine.mjs";
-import { addDeferral, addDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferralSchedule, deferredRegister, deferredWaterfall, endAfterMonths, earnedThrough } from "./deferred.mjs";
+import { addDeferral, importDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferralSchedule, deferredRegister, deferredWaterfall, endAfterMonths, earnedThrough } from "./deferred.mjs";
 import { cashBasis } from "./cashbasis.mjs";
 import { trialBalance, profitAndLoss } from "./ledger.mjs";
 
@@ -137,7 +137,7 @@ Acme,Pro annual,1200.00,2026-01-15,2027-01-15,2026-01-15
 Beta,Team monthly,abc,2026-02-01,2026-03-01,2026-02-01
 Gamma,Pro annual,240,02/01/2026,02/01/2027,
 `;
-  const r = addDeferralsCsv(newBooks(), csv, { endExclusive: true });
+  const r = importDeferralsCsv(newBooks(), csv, { endExclusive: true });
   assert.equal(r.added, 2);
   assert.equal(r.problems.length, 1);
   assert.match(r.problems[0], /^line 3: Amount/);
@@ -145,10 +145,10 @@ Gamma,Pro annual,240,02/01/2026,02/01/2027,
   assert.equal(r.books.deferrals[0].customer, "Acme");
   assert.equal(r.books.deferrals[1].start, "2026-02-01");
   assert.equal(r.books.deferrals[1].received, "2026-02-01");
-  const bad = addDeferralsCsv(newBooks(), "a,b\n1,2\n");
+  const bad = importDeferralsCsv(newBooks(), "a,b\n1,2\n");
   assert.equal(bad.added, 0);
   assert.match(bad.problems[0], /no name, amount, start, end or months/);
-  const months = addDeferralsCsv(newBooks(), "name,amount,start,months,method\nPass,100,2026-05-01,4,monthly\n");
+  const months = importDeferralsCsv(newBooks(), "name,amount,start,months,method\nPass,100,2026-05-01,4,monthly\n");
   assert.equal(months.books.deferrals[0].end, "2026-08-31");
   assert.equal(months.books.deferrals[0].method, "monthly");
 });
@@ -196,7 +196,7 @@ test("bad input is refused with a sentence", () => {
 test("the numbers on deferred-revenue-schedule.html come from the register and waterfall", async () => {
   const { readFileSync } = await import("node:fs");
   const csv = "name,customer,amount,start,months,method\nAnnual plan,Acme,1200.00,2026-01-15,12,daily\nSix-month retainer,Beta,3000.00,2026-03-01,6,monthly\nTwo-year plan,Gamma,4800.00,2026-05-10,24,daily\n";
-  const { books } = addDeferralsCsv(newBooks(), csv);
+  const { books } = importDeferralsCsv(newBooks(), csv);
   const reg = deferredRegister(books, "2026-06-30");
   const w = deferredWaterfall(books, { asOf: "2026-06-30", horizon: 6 });
   const page = readFileSync(new URL("./deferred-revenue-schedule.html", import.meta.url), "utf8");
@@ -206,4 +206,15 @@ test("the numbers on deferred-revenue-schedule.html come from the register and w
   for (const c of [reg.cents, reg.earned, reg.unearned, w.current, w.longTerm]) assert.ok(page.includes(usd(c)), usd(c));
   for (const r of w.rows) for (const c of [...r.byMonth.filter(Boolean), r.later].filter(Boolean)) assert.ok(page.includes(`<td>${num(c)}</td>`), num(c));
   for (const c of [...w.totals, w.later]) assert.ok(page.includes(`<td>${num(c)}</td>`), num(c));
+});
+
+test("waterfall CSV guards cells a spreadsheet would run as formulas", async () => {
+  const { waterfallCsv } = await import("./deferred.mjs");
+  const { books } = addDeferral(base(), { name: "=HYPERLINK(\"x\")", customer: "+1 Acme, Inc", start: "2026-01-15", months: 12, amount: "1200" });
+  const csv = waterfallCsv(deferredWaterfall(books, { horizon: 3 }));
+  const lines = csv.trim().split("\n");
+  assert.equal(lines.length, 3);
+  assert.ok(lines[1].includes(`"'=HYPERLINK(""x"")"`));
+  assert.ok(lines[1].includes(`"'+1 Acme, Inc"`));
+  assert.match(lines[2], /^,Total,,/);
 });

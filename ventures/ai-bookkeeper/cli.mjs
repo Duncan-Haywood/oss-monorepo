@@ -19,7 +19,7 @@ import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
-import { addDeferral, addDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferredRegister, deferredWaterfall } from "./deferred.mjs";
+import { addDeferral, importDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferredRegister, deferredWaterfall, waterfallCsv } from "./deferred.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
@@ -430,7 +430,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     } else if (sub === "import") {
       const into = flag("--into") ?? undefined, method = has("--monthly") ? "monthly" : "daily", endExclusive = has("--end-exclusive");
       if (!rest[1] || !existsSync(rest[1])) throw new Error("deferred import needs a CSV file.");
-      const r = addDeferralsCsv(books, readFileSync(rest[1], "utf8"), { method, endExclusive, dayFirst, ...(into ? { incomeAccount: into } : {}) });
+      const r = importDeferralsCsv(books, readFileSync(rest[1], "utf8"), { method, endExclusive, dayFirst, ...(into ? { incomeAccount: into } : {}) });
       books = r.books; save();
       for (const p of r.problems) console.error(p);
       console.log(`${r.added} deferral${r.added === 1 ? "" : "s"} added.${r.added ? " File each receipt (or invoice) to 2400." : ""}`);
@@ -450,14 +450,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       const horizon = flag("--months") ?? 12, csv = has("--csv");
       const w = deferredWaterfall(books, { asOf, horizon });
       if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
-      const c = (n) => (n / 100).toFixed(2);
-      if (csv) {
-        console.log(["id", "name", "customer", ...w.months, "later", "unearned"].join(","));
-        const q = (v) => (/[",\n]/.test(v) || /^[=+\-@]/.test(v) ? `"${String(/^[=+\-@]/.test(v) ? "'" + v : v).replace(/"/g, '""')}"` : v);
-        for (const r of w.rows) console.log([r.id, q(r.name), q(r.customer ?? ""), ...r.byMonth.map(c), c(r.later), c(r.unearned)].join(","));
-        console.log(["", "Total", "", ...w.totals.map(c), c(w.later), c(w.unearned)].join(","));
-        process.exit(0);
-      }
+      if (csv) { process.stdout.write(waterfallCsv(w)); process.exit(0); }
       console.log(`DEFERRED REVENUE WATERFALL after ${w.asOf ?? "-"}`);
       if (!w.rows.length) console.log("  Nothing left to earn.");
       else {
