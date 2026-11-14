@@ -183,6 +183,17 @@ const DISCOUNT_NOTES = {
 
 export function stateDiscountNote(state) { return DISCOUNT_NOTES[String(state ?? "").toUpperCase()] ?? null; }
 
+// A state preset discount applies only to tax lines labelled "<ST> state". When no row of the return carries that label (or a label with
+// its own discount), say so: before 2026-11-14 a book labelled "MI" or "Michigan" took no discount while the state note said it "is applied".
+export function presetDiscountWarning(state, frequency, result, discounts = {}) {
+  const s = String(state ?? "").toUpperCase();
+  const key = Object.keys(stateDiscounts(s, frequency))[0];
+  if (!key) return null;
+  const labels = [...new Set((result?.periods ?? []).flatMap((p) => p.rows.map((r) => r.jurisdiction)))];
+  if (!labels.length || labels.some((l) => l === key || discounts[l] != null)) return null;
+  return `${STATE_NAME[s] ?? s}'s preset discount was not applied: it is taken on tax lines labelled "${key}", and this return's tax lines are labelled ${labels.map((l) => `"${l}"`).join(", ")}. Put "${key}" in the state tax line's description, or add a discount for your own label ("<label>=<percent>").`;
+}
+
 export function stateFilingNote(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (NO_STATE_SALES_TAX[s]) return NO_STATE_SALES_TAX[s];

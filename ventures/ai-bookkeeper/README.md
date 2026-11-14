@@ -1092,7 +1092,11 @@ have no due-date text on the pages reached. Quotes: [`eval/state-pages-2026-11-1
 applied a timely-filing discount for IL, TX, FL, OH and GA only. Nineteen more states were
 read the same way: the official form instructions, publication, FAQ or statute was saved,
 and every quoted sentence was checked against the saved text. `stateDiscounts` now carries
-15 more, each pinned in `salestaxreturn.test.mjs` with a hand-worked figure:
+15 more, each pinned in `salestaxreturn.test.mjs` with a hand-worked figure. The preset goes on the
+tax line whose description is exactly `<ST> state` (`MI state`, not `MI` or `Michigan`). Since
+2026-11-14, when no tax line on the return carries that label, the worksheet says the preset
+discount was not applied (`presetDiscountWarning`) in place of the state note. Before, a book
+labelled `MI` took no discount while the note said it "is applied".
 
 | State | Rule applied to the "<ST> state" line | Source |
 |---|---|---|
