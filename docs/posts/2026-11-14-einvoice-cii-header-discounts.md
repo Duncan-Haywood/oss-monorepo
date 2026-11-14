@@ -1,9 +1,9 @@
 ---
 title: "The invoice discount the repair would not touch"
-seo_title: "Repairing ZUGFeRD and XRechnung CII totals with header allowances and charges"
+seo_title: "Repairing ZUGFeRD and XRechnung CII totals with header allowances"
 date: 2026-11-14
 tags: [e-invoicing, zugferd, xrechnung, factur-x, einvoice-preflight, open-source]
-description: "The CII repair used to give up on any invoice with a document-level discount or freight charge. On 66 real ones it now recomputes 64 without changing a byte, and restores 449 of 459 planted faults."
+description: "The CII repair gave up on any invoice with a header discount or charge. On 66 real ones it now recomputes 64 unchanged and restores 449 of 459 planted faults."
 ---
 
 [einvoice-preflight](../../ventures/einvoice-preflight/) checks an e-invoice and, on request, repairs its arithmetic: line nets, each VAT group's basis and tax, and the totals. It edits only the numbers, in place, and leaves everything else in the file byte for byte. Earlier today it was [run over 529 real test-suite files](2026-11-14-einvoice-repair-on-real-files.md) for the first time. That run found a gap. For CII files (XRechnung CII, ZUGFeRD and the XML inside a Factur-X PDF), the repair gave up as soon as the document had a header allowance or charge. That means an invoice-wide discount, a freight charge or a packaging fee. Real invoices have these all the time. 66 of the 358 PDFs in that run were declined for this reason alone.
