@@ -42,6 +42,7 @@ Not modelled yet: the netting itself. It is listed in `hardware/feeder-catcher.m
 
 from __future__ import annotations
 
+import dataclasses
 import math
 
 from build123d import (
@@ -2082,7 +2083,7 @@ def power_line(p: Feeder) -> str:
 
 def inrush_line(p: Feeder) -> str:
     d = p.contactor_inrush()
-    dr, pre, cl = d["direct"], d["precharge"], d["closing"]
+    dr, pre = d["direct"], d["precharge"]
     s = (f"inrush: closing the contactor onto the empty bus at the charger's {p.battery_v_max:g} V (assumed loop "
          f"{d['r_ohm'] * 1e3:.0f} mOhm, {d['l_h'] * 1e6:.2f} uH, {d['c_f'] * 1e6:.0f} uF; damping {d['damping']:.2f}) would "
          f"peak at {dr['peak_a']:.0f} A after {dr['t_peak_us']:.0f} us and stay over the BMS's assumed {p.bms_sc_a:g} A "
@@ -2092,9 +2093,21 @@ def inrush_line(p: Feeder) -> str:
         s += (f". Precharge: a relay through the e-stop charges the bus through {p.precharge_ohm:g} ohm ({pre['peak_a']:.1f} A "
               f"peak, time constant {pre['tau_ms']:.1f} ms, {pre['energy_j']:.2f} J in the resistor); an on-delay timer "
               f"closes the contactor after {p.precharge_delay_s:g} s with {pre['residual_v']:.2f} V left (the idle loads' "
-              f"{p.bus_idle_a:g} A across the resistor), so it makes {cl['peak_a']:.1f} A, under its assumed "
+              f"{p.bus_idle_a:g} A across the resistor), so it makes {pre['close']['peak_a']:.1f} A with no start-up loads, under its assumed "
               f"{p.contactor_make_a:g} A. A short on the bus during precharge puts {pre['fault_w']:.0f} W in the resistor "
               f"for {p.precharge_delay_s:g} s ({pre['fault_j']:.0f} J) before the contactor closes onto it and the fuses open")
+        su = d["startup"]
+        parts = []
+        for k in ("full", "low"):
+            b = su[k]
+            names = " and ".join(f"{x['name']} ({x['w']:.0f} W)" for x in b["loads"]) or "no start-up loads"
+            parts.append(f"at {b['v_pack']:g} V with {names} the bus is {b['gap_v']:.2f} V short at the closing and the "
+                         f"contactor makes {b['close']['peak_a']:.1f} A (the resistor passes at most {b['max_w']:.0f} W)")
+        old = dataclasses.replace(p, servo_pulse_at_rest=True).contactor_inrush()["startup"]["low"]
+        s += (". Start-up loads (constant power from " f"{p.switched_start_v:g} V): " + "; ".join(parts)
+              + f". The firmware sends the shuttle servo no pulse until a FEED: pulsed from power-up, a servo seeking home "
+              f"at stall would leave the bus {old['gap_v']:.1f} V short at {old['v_pack']:g} V, chattering at its threshold "
+              f"({old['loads'][-1]['starts']} restarts), and the contactor would make {old['close']['peak_a']:.0f} A")
     return s
 
 

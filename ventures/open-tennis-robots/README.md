@@ -251,6 +251,17 @@ through the e-stop; the contactor then makes about 20 A
 (`cad/README.md`, "Contactor inrush and precharge";
 `hardware/electronics.md`).
 
+That 20 A assumed the switched loads idle while the bus charges (also
+2026-11-14). A buck or a stepper driver draws constant power once it starts,
+and the resistor passes at most 30 W at 24 V. The firmware used to pulse the
+shuttle servo from power-up, so after an e-stop mid-stroke it would seek home
+at stall during the precharge: on assumed figures that holds the bus near 8 V
+and the contactor makes about 223 A. The servo now gets no pulse until the
+first FEED, which runs a back stroke first, and rests unpowered at the crank's
+dead centres between feeds. The stepper driver still holds from power-up, so
+the contactor makes about 45 A; wiring its ENABLE is next (`cad/README.md`,
+"Start-up loads during the precharge").
+
 Also fixed: `launcher.aim` crashed with `AttributeError` on a shot too fast to
 land on its target (80 m/s), because its bisection closed on the jump between
 "hits the net" and "lands long"; it now raises the `ValueError` its callers

@@ -1406,6 +1406,56 @@ class InrushTest(unittest.TestCase):
             self.assertTrue(any(msg in r for r in bad), (kw, bad))
 
 
+class PrechargeStartupTest(unittest.TestCase):
+    """Start-up loads during the precharge (2026-11-14): the stepped bus against closed forms, and the firmware's
+    servo gate."""
+
+    def test_no_start_up_loads_is_the_closed_form(self):
+        p = Feeder(stepper_holds_at_power_up=False)
+        d = p.contactor_inrush()
+        for delay in (0.005, 0.02, 0.5):
+            q = Feeder(stepper_holds_at_power_up=False, precharge_delay_s=delay)
+            b = q.precharge_bus(q.battery_v_max)
+            held = q.bus_idle_a * (q.precharge_ohm + d["r_ohm"])
+            want = held + (q.battery_v_max - held) * math.exp(-delay / ((q.precharge_ohm + d["r_ohm"]) * d["c_f"]))
+            self.assertAlmostEqual(b["gap_v"], want, delta=1e-4 * q.battery_v_max, msg=delay)
+
+    def test_a_constant_power_load_settles_on_the_quadratic_root(self):
+        # V (Vp - V) / R - idle V = P, the upper root, once the delay is long
+        for vp in (24.0, 29.2):
+            p = Feeder(precharge_delay_s=2.0)
+            b = p.precharge_bus(vp)
+            rp = p.precharge_ohm + p.contactor_inrush()["r_ohm"]
+            w = b["loads"][0]["w"]
+            a, bb = 1 / rp, -(vp / rp - p.bus_idle_a)
+            v = (-bb + math.sqrt(bb * bb - 4 * a * w)) / (2 * a)
+            self.assertAlmostEqual(b["bus_v"], v, delta=1e-3, msg=vp)
+            self.assertLess(w, b["max_w"])
+
+    def test_the_old_servo_gate_fails_and_the_new_one_passes(self):
+        old = Feeder(servo_pulse_at_rest=True)
+        bad = old.check_inrush()
+        self.assertTrue(any("bus held" in r and "shuttle servo seeking home" in r for r in bad), bad)
+        low = old.contactor_inrush()["startup"]["low"]
+        # at the low end the servo and stepper ask more than the resistor can pass: the bus chatters at their threshold
+        self.assertGreater(sum(x["w"] for x in low["loads"]), low["max_w"] - old.bus_idle_a * old.battery_v_min)
+        self.assertGreater(low["loads"][0]["starts"], 10)
+        self.assertGreater(low["close"]["peak_a"], 3 * old.contactor_make_a)
+        new = Feeder()
+        self.assertEqual(new.check_inrush(), [])
+        d = new.contactor_inrush()
+        plain = Feeder(stepper_holds_at_power_up=False).contactor_inrush()["closing"]["peak_a"]
+        # the stepper's holding current alone doubles what the contactor makes, still under its assumed limit
+        self.assertGreater(d["closing"]["peak_a"], 2 * plain)
+        self.assertLess(d["closing"]["peak_a"], new.contactor_make_a)
+
+    def test_firmware_gives_the_servo_no_pulse_before_a_feed(self):
+        src = (Path(__file__).resolve().parents[2] / "firmware" / "esp32" / "main.py").read_text()
+        self.assertNotIn("hold the shuttle retracted (also from power-up)", src)
+        self.assertIn("self.gate.pwm.duty_u16(0)", src)
+        self.assertFalse(Feeder.servo_pulse_at_rest)
+
+
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class PowerBomTest(unittest.TestCase):
     def test_bom_fuse_list_is_the_model_s(self):

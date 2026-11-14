@@ -165,6 +165,14 @@ class FeederHw:
         self.gate_open_until = 0      # forward stroke ends (the ball is at the wheels)
         self.gate_ready_at = 0        # back stroke ends and the next ball has dropped into the pocket
         self.gate_out = False
+        # The shuttle's servo gets a pulse only while it has work to do (2026-11-14, cad/README.md "Start-up loads
+        # during the precharge"). Both ends of its stroke are the crank's dead centres, so it rests unpowered. Held at
+        # GATE_LO_US from power-up, it sought its rest at stall current the moment its buck started, while the bus was
+        # still charging through the precharge resistor, and held the bus volts short of the pack when the timer
+        # closed the contactor (manifest "inrush" line). So the pulse starts with the first FEED: a back stroke (its
+        # position after a power cut is unknown), then the forward stroke.
+        self.gate_rest_at = None      # back stroke under way: pulse off at this time
+        self.gate_homed = False       # a back stroke has run since power-up or the last stop
         # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 12, PWM) runs on after each ball fed.
         self.lift_pwm = PWM(Pin(LIFT_PIN), freq=20000, duty_u16=0)
         self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0))
@@ -178,6 +186,13 @@ class FeederHw:
         self.esc_top.frac(0)
         self.esc_bottom.frac(0)
 
+    def gate_back(self, now):
+        """Pulse the shuttle back for GATE_BACK_MS (the next ball drops into the pocket meanwhile), then rest."""
+        self.gate.frac(0)
+        self.gate_homed = True
+        self.gate_ready_at = now + self.gate_back_ms
+        self.gate_rest_at = self.gate_ready_at
+
     def stop_all(self):
         self.target_rpm = (0, 0)
         self.esc_cmd = [0.0, 0.0]
@@ -190,10 +205,12 @@ class FeederHw:
         self.base.set(0)
         self.base_vmax = 0
         self.feeding = 0
-        self.gate.frac(0)
-        if self.gate_out:                 # cut mid-stroke: the shuttle goes back with its ball, none counted
-            self.gate_out = False
-            self.gate_ready_at = time.ticks_ms() + self.gate_back_ms
+        # No pulse after a stop: an e-stop cuts the servo's power, and when it returns the bus is precharging. A shuttle
+        # cut mid-stroke goes back with its ball (none counted) on the next FEED, before any forward stroke.
+        self.gate.pwm.duty_u16(0)
+        self.gate_out = False
+        self.gate_rest_at = None
+        self.gate_homed = False
         self.azim.stop()
         self.elev.stop()
         self.lift.stop()
@@ -290,18 +307,21 @@ class FeederHw:
         ok = steady and self.aim_settled()
         if self.gate_out:
             if now >= self.gate_open_until:
-                self.gate.frac(0)
+                self.gate_back(now)
                 self.gate_out = False
                 self.fed += 1
                 self.lift.kick(now)
-                self.gate_ready_at = now + self.gate_back_ms
+        elif self.feeding and not self.gate_homed:
+            self.gate_back(now)           # first FEED since power-up or a stop: bring the shuttle back first
         elif self.feeding and ok and now >= self.gate_ready_at:
             self.gate.frac(1)
             self.gate_out = True
+            self.gate_rest_at = None
             self.gate_open_until = now + self.gate_out_ms
             self.feeding -= 1
-        else:
-            self.gate.frac(0)             # hold the shuttle retracted (also from power-up)
+        elif self.gate_rest_at is not None and now >= self.gate_rest_at:
+            self.gate.pwm.duty_u16(0)     # back at the dead centre: rest unpowered
+            self.gate_rest_at = None
         self.lift_pwm.duty_u16(int(self.lift.update(now) * 65535))
         self.agit_pwm.duty_u16(int(self.agit.update(now, self.feeding > 0 or self.gate_out) * 65535))
 

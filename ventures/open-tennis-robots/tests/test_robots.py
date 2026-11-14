@@ -662,12 +662,20 @@ class FirmwareTest(unittest.TestCase):
                         sys.modules.pop(k, None)
                     else:
                         sys.modules[k] = v
+            # No FEED yet: the shuttle's servo gets no pulse, so it draws nothing while the bus precharges (2026-11-14)
+            for t in range(0, 100, 10):
+                hw.update(10, t)
+            self.assertEqual(hw.gate.pwm.duty, 0, mode)
             hw.set_aim(1000, 0)
             hw.feed(1)
-            hw.update(10, 0)
+            hw.update(10, 100)
             self.assertTrue(hw.flags() & protocol.FLAG_AIM_SETTLING, mode)
-            self.assertEqual(hw.gate.pwm.duty, int(cfg.GATE_LO_US / 20000 * 65535), mode)   # shuttle held back while aiming
+            self.assertEqual(hw.gate.pwm.duty, int(cfg.GATE_LO_US / 20000 * 65535), mode)   # back stroke first, held while aiming
+            hw.update(10, 100 + cfg.GATE_BACK_MS)
+            self.assertEqual(hw.gate.pwm.duty, 0, mode)     # back at the crank's dead centre: rests unpowered
             hw.stop_all()
+            self.assertEqual(hw.gate.pwm.duty, 0, mode)
+            self.assertFalse(hw.gate_homed, mode)            # the next FEED runs a back stroke first
             self.assertFalse(hw.flags() & protocol.FLAG_ELEV_FAULT, mode)
             if mode == controller.ELEV_POT:
                 state["adc"] = 0               # wiper off: below the calibrated span

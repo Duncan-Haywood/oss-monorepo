@@ -7,6 +7,11 @@ figure but the charger's 29.2 V is assumed, so this sweeps the three that move t
 resistance, each ESC's input capacitance and the loop's inductance per metre. For each case it prints a direct close
 (peak current, microseconds over the BMS's assumed 150 A trip) and a close after the 4.7 ohm, 0.5 s precharge (the
 contactor's peak, and the precharge relay's).
+
+Since 2026-11-14 the precharged close includes the loads that start while the bus charges (`Feeder.precharge_bus`):
+the stepper driver holding, at the pack's full and low ends. A second table repeats the sweep with the old firmware's
+servo pulse at rest (`servo_pulse_at_rest=True`), which set the shuttle's servo seeking home at stall during the
+precharge.
 """
 
 import itertools
@@ -33,6 +38,19 @@ def rows():
     return out
 
 
+def servo_rows():
+    out = []
+    for r, c, l in itertools.product(PACK_OHM, ESC_UF, UH_PER_M):
+        for pulse in (False, True):
+            p = Feeder(pack_ohm=r, esc_cap_uf=c, loop_uh_per_m=l, servo_pulse_at_rest=pulse)
+            su = p.contactor_inrush()["startup"]
+            out.append({"pack_mohm": r * 1e3, "esc_uf": c, "uh_per_m": l, "pulse": pulse,
+                        "full_a": su["full"]["close"]["peak_a"], "low_a": su["low"]["close"]["peak_a"],
+                        "low_gap_v": su["low"]["gap_v"], "bms_us": max(b["close"]["bms_over_us"] for b in su.values()),
+                        "fails": bool(p.check_inrush())})
+    return out
+
+
 def main():
     rs = rows()
     print("pack mOhm  ESC uF  uH/m  zeta | direct A  >150 A us | precharged: close A  relay A  left V")
@@ -46,6 +64,18 @@ def main():
           f"{sum(u > 200 for u in us)} of {len(rs)} past an assumed 200 us BMS delay.")
     print(f"Precharged close: at most {max(x['close_a'] for x in rs):.1f} A; relay at most "
           f"{max(x['precharge_a'] for x in rs):.2f} A; cases the check fails: {sum(bool(x['fails']) for x in rs)}")
+    ss = servo_rows()
+    print("\nStart-up loads during the precharge (stepper holding; servo pulsed at rest or not)")
+    print("pack mOhm  ESC uF  uH/m  servo | close A at 29.2 V  at 24 V  gap V at 24 V  >150 A us")
+    for x in ss:
+        print(f"{x['pack_mohm']:9.0f} {x['esc_uf']:7.0f} {x['uh_per_m']:5.1f} {'pulse' if x['pulse'] else 'none':>6} |"
+              f" {x['full_a']:17.1f} {x['low_a']:8.1f} {x['low_gap_v']:14.2f} {x['bms_us']:10.0f}")
+    for pulse in (False, True):
+        g = [x for x in ss if x["pulse"] == pulse]
+        m = [max(x["full_a"], x["low_a"]) for x in g]
+        print(f"servo {'pulsed at rest (old firmware)' if pulse else 'unpulsed until a FEED'}: contactor makes "
+              f"{min(m):.0f} to {max(m):.0f} A; over 150 A past 200 us in {sum(x['bms_us'] > 200 for x in g)}; "
+              f"cases the check fails: {sum(x['fails'] for x in g)} of {len(g)}")
 
 
 if __name__ == "__main__":
