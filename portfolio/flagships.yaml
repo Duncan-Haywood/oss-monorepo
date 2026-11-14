@@ -283,9 +283,9 @@ flagships:
       ~94%: moves span 15 of 23 rounds, so narrower moves, or a step in WebAssembly); home-and-away breaks
       exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT; eval/pair-exact.txt): next,
       a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams: 124-134 ruled out (~4 h on 4 cores; round reversal ~2x, a bound
-      across rounds; the 8-round exact re-deal, eval/carryover-lns.c, also stops at 136); 18 teams: refill
-      from the climbed starter (356 from circle, starter 318); close 24-40 (tabu, the literature's starters); a
+      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c, 2026-11-14 latest; two other C
+      searches stopped at 136): below 132, or 124-130 ruled out (~4 h on 4 cores; round reversal ~2x); 18 teams:
+      refill from the climbed starter (356 from circle, starter 318); close 24-40 (tabu, the literature's starters); a
       real league's travel and blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-

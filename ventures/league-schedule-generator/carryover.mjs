@@ -63,8 +63,8 @@ export function carryOverFromOpponents(opponents, { cyclic = false } = {}) {
  * with no answer at 90 after 69 min) and finds a 94 in 2 s, so 94 is the least (README "The least
  * carry-over at 10 teams is 94"). 12: the same search with an exact per-round matching bound and
  * round 1 fixed per cycle type finds none at 120 (4 x 3 min) or 122 (4 x 25 min); the best known
- * timetable is 136, so the least is 124 to 136 and not known to be reached (README "12 teams cannot
- * reach 122").
+ * timetable is 132 (eval/window-refill.c; 136 before), so the least is 124 to 132 and not known to
+ * be reached (README "12 teams cannot reach 122", "12 teams at 132").
  */
 export const PROVEN_LEAST = {
   6: { least: 42, exact: true },
@@ -381,14 +381,34 @@ export function starterApplies(N) {
 // Below 22 teams no starter found by sampling, annealing or the O(p) climb reaches the floor, and
 // at 12 teams none goes below 156 (floor 120). eval/round-refill.mjs searches every round robin
 // instead: it takes 2 to 5 rounds out and refills their games with the least-carry-over split, by
-// depth-first search. Its best timetables are stored here whole, as opp[r][t] (team t meets
+// depth-first search (eval/window-refill.c does the same move in C, 2026-11-14: 12 teams 136 -> 132).
+// Its best timetables are stored here whole, as opp[r][t] (team t meets
 // opp[r][t] in round r; team N - 1 is the bye in "odd"). The search runs from it as a third start,
 // beside the circle method and the starter, and keeps the best result (constructionStarts).
 
-/** N -> { even?, odd? }, each a list of rounds, each round the opponent of every team. */
+/**
+ * N -> { even?, odd?, evenAlt?, oddAlt? }, each a list of rounds, each round the opponent of every
+ * team. An "Alt" entry is a further start (constructionStarts: "second timetable"), kept when a
+ * lower-carry-over timetable replaced it but did not beat it on every setting.
+ */
 export const TIMETABLES = {
   12: {
-    even: [ // non-cyclic carry-over 136 (floor 120), eval/round-refill.mjs seed 12
+    even: [ // non-cyclic carry-over 132 (floor 120, proved least >= 124), eval/window-refill.c seed 14
+      [9, 11, 6, 10, 5, 4, 2, 8, 7, 0, 3, 1],
+      [3, 4, 11, 0, 1, 10, 7, 6, 9, 8, 5, 2],
+      [7, 2, 1, 9, 6, 11, 4, 0, 10, 3, 8, 5],
+      [1, 0, 10, 6, 7, 8, 3, 4, 5, 11, 2, 9],
+      [11, 3, 9, 1, 10, 7, 8, 5, 6, 2, 4, 0],
+      [5, 6, 4, 8, 2, 0, 1, 11, 3, 10, 9, 7],
+      [2, 8, 0, 11, 9, 6, 5, 10, 1, 4, 7, 3],
+      [6, 9, 5, 7, 8, 2, 0, 3, 4, 1, 11, 10],
+      [4, 5, 3, 2, 0, 1, 10, 9, 11, 7, 6, 8],
+      [8, 10, 7, 5, 11, 3, 9, 2, 0, 6, 1, 4],
+      [10, 7, 8, 4, 3, 9, 11, 1, 2, 5, 0, 6],
+    ],
+    // the earlier 136 timetable (eval/round-refill.mjs seed 12), kept as a fourth start: the 132
+    // above gives a worse carry-over-only home-and-away season at seed 1 (538 / 62 against 530 / 68)
+    evenAlt: [ // non-cyclic carry-over 136
       [8, 7, 3, 2, 11, 9, 10, 1, 0, 5, 6, 4],
       [4, 9, 5, 8, 0, 2, 7, 6, 3, 1, 11, 10],
       [9, 4, 7, 6, 1, 11, 3, 2, 10, 0, 8, 5],
@@ -436,8 +456,8 @@ export const TIMETABLES = {
 };
 
 /** The stored timetable for N teams, n real (n = N - 1: team N - 1 is the bye), or null. */
-export function storedTimetable(N, n) {
-  const rounds = TIMETABLES[N]?.[n === N ? "even" : "odd"];
+export function storedTimetable(N, n, alt = false) {
+  const rounds = TIMETABLES[N]?.[(n === N ? "even" : "odd") + (alt ? "Alt" : "")];
   return rounds ? rounds.map((o) => Int16Array.from(o)) : null;
 }
 
@@ -482,6 +502,7 @@ export function starterOpp(N, pairs, { step = 1, start = 0 } = {}) {
  */
 function bestStarterOpp(N, n, cyclic, which = "starter") {
   if (which === "timetable") return storedTimetable(N, n);
+  if (which === "second timetable") return storedTimetable(N, n, true);
   return bestStarterOnly(N, n, cyclic, which === "weighted starter");
 }
 
@@ -496,6 +517,7 @@ function constructionStarts(N, n, weighted = false) {
   const out = [];
   if (STARTERS[N]?.[kind]) out.push("starter");
   if (TIMETABLES[N]?.[kind]) out.push("timetable");
+  if (TIMETABLES[N]?.[kind + "Alt"]) out.push("second timetable");
   // with a break weight: the starter picked on carry-over + 10 x breaks (STARTERS_WEIGHTED), kept
   // only when strictly better, like every start here
   if (weighted && STARTERS_WEIGHTED[N]?.[kind]) out.push("weighted starter");
