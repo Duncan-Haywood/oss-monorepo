@@ -3,7 +3,7 @@ title: "Given more thrust, the drone tuner bought efficiency"
 date: 2026-11-14
 tags: [codesign-cant, quadrotor, thrust-to-weight, co-design, mass-spiral, robustness, pre-registration]
 seo_title: "Does more thrust-to-weight make a quadrotor gust-robust? Not alone"
-description: "Bigger motors stopped a co-designed quadrotor's gust crashes but doubled its hover power. A tuner given thrust-to-weight as a free variable used the headroom for efficiency, so the crashes stayed."
+description: "Bigger motors stopped a quadrotor's gust crashes but doubled hover power. Given thrust-to-weight as a free variable, the tuner spent it on efficiency."
 ---
 
 The last step of the `codesign-cant` programme ended with simple advice. The quadrotors it studies crash when the gust's lever on the airframe doubles. They tip over because the motors run out of differential thrust. So buy more thrust: a thrust-to-weight ratio above the 2:1 every design so far assumed.
