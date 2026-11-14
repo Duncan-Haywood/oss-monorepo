@@ -1,6 +1,6 @@
 ---
 title: "Olympus raw files, without the converter"
-seo_title: "Reading Olympus and OM System ORF raw files directly, checked against LibRaw"
+seo_title: "Reading Olympus ORF raw files directly, checked against LibRaw"
 date: 2026-11-14
 tags: [photography, raw, olympus, om-system, orf, open-source, photo-editing]
 description: "ShootFlow now develops Olympus and OM System ORF files itself. On 18 real bodies, from a 2002 compact to the OM-1, every sensel matches LibRaw."
