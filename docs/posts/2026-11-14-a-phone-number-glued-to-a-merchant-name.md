@@ -2,7 +2,7 @@
 title: "SPRINT8006396111: when a bank glues the phone number onto the merchant's name"
 seo_title: "Bank transaction payee names with glued numbers: keeping the merchant"
 date: 2026-11-14
-description: "The ai-bookkeeper dropped any payee word with a digit in it, so 'SPRINT8006396111' had no payee at all. The fix, the version that went wrong, and the numbers on real exports."
+description: "Payee words with a digit were dropped, so SPRINT8006396111 had no payee. The fix, the first version that split stores by town, and real-export numbers."
 tags: [ai-bookkeeper, evaluation, bank-statements, categorization]
 ---
 
