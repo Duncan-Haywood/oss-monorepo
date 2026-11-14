@@ -44,7 +44,8 @@ class Unwired(unittest.TestCase):
                     mock.patch.object(u, "unwired", return_value=[]), \
                     mock.patch.object(u, "unwired_tests", return_value=[]), \
                     mock.patch.object(u, "unwired_extra", return_value=[]), \
-                    mock.patch.object(u, "run_all", side_effect=[results, [], []]), \
+                    mock.patch.object(u, "unwired_node_suites", return_value=[]), \
+                    mock.patch.object(u, "run_all", side_effect=[results, [], [], []]), \
                     redirect_stdout(io.StringIO()) as out:
                 rc = u.main([])
             self.assertEqual(rc, 0 if case == "green" else 1, case)
@@ -154,6 +155,56 @@ class PullRequestTrigger(unittest.TestCase):
             else:
                 self.assertTrue(out.startswith(u.SKIPPED))
 
+
+
+    def test_node_suites_resolve_globs_from_the_steps_working_directory(self):
+        """2026-11-14: platform/proposal/term-ids.test.mjs was red on main and
+        platform/devlog's suite let 4 of 8 mutants through, because no workflow
+        ran either. A suite counts as run only if a `node --test` argument,
+        globbed from its step's directory, reaches it."""
+        with tempfile.TemporaryDirectory() as d:
+            root, wf = Path(d), Path(d) / "wf"
+            wf.mkdir()
+            for f in ("pages/a.test.mjs", "pages/cf/b.test.mjs", "dist/x.test.mjs",
+                      "dist/y.test.mjs", "edge/e.test.mjs", "lone/l.test.mjs"):
+                (root / "platform" / f).parent.mkdir(parents=True, exist_ok=True)
+                (root / "platform" / f).write_text("")
+            (root / "platform/lone/node_modules").mkdir()
+            (root / "platform/lone/node_modules/dep.test.mjs").write_text("")
+            (wf / "deploy.yml").write_text(
+                "on:\n  push:\njobs:\n  t:\n    steps:\n"
+                "      - name: site\n        run: node --test \"*.test.mjs\" \"cf/*.test.mjs\"\n"
+                "        working-directory: platform/pages\n"
+                "      - run: node --test platform/dist/x.test.mjs\n"
+                "      - run: |\n          cd platform/edge && node --test e.test.mjs\n")
+            names = [u.node_name(p, root) for p in u.unwired_node_suites(root, wf)]
+            self.assertEqual(names, ["platform/dist/y.test.mjs", "platform/lone/l.test.mjs"])
+
+    def test_the_real_tree_runs_the_devlog_and_proposal_suites_here(self):
+        names = [u.node_name(p) for p in u.unwired_node_suites()]
+        self.assertIn("platform/devlog/devlog.test.mjs", names)
+        self.assertIn("platform/proposal/term-ids.test.mjs", names)
+        self.assertNotIn("platform/pages/home.test.mjs", names)  # portfolio-pages.yml runs it
+
+    def test_run_node_suite_reports_red_green_and_a_named_slow_skip(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform/s").mkdir(parents=True)
+            (root / "platform/s/g.test.mjs").write_text(
+                "import { test } from 'node:test';\ntest('ok', () => {});\n")
+            (root / "platform/s/r.test.mjs").write_text(
+                "import { test } from 'node:test';\ntest('no', () => { throw new Error('boom'); });\n")
+            self.assertEqual(u.run_node_suite(root / "platform/s/g.test.mjs", root=root)[:2],
+                             ("platform/s/g.test.mjs", 0))
+            name, rc, out = u.run_node_suite(root / "platform/s/r.test.mjs", root=root)
+            self.assertEqual((name, rc), ("platform/s/r.test.mjs", 1))
+            self.assertIn("boom", out)
+            with mock.patch.dict(u.NODE_SLOW, {"platform/s/r.test.mjs": "slow"}):
+                name, rc, out = u.run_node_suite(root / "platform/s/r.test.mjs", root=root)
+            self.assertEqual(rc, 0)
+            self.assertTrue(out.startswith(u.SKIPPED))
+        self.assertIn("cd platform/s && node --test r.test.mjs",
+                      u.report([("platform/s/r.test.mjs", 1, "boom")]))
 
 if __name__ == "__main__":
     unittest.main()

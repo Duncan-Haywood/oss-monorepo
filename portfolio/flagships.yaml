@@ -230,25 +230,28 @@ flagships:
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
       memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
       liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
-      the SSE path (four-component float32 images through lensfunpy, if it allows them)
-      and a 16-bit fixed-point output check; Canon's maker-note lens number (CameraSettings
-      index 22) mapped to a name for CR2s whose maker note gives no usable name
-      (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
-      since 2026-11-13);
-      the whole numpy develop runs in threaded bands and packed raws unpack in numpy
-      since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same bytes at every thread
-      count and band height); lossless-JPEG DNG tiles decode on a thread pool since
-      2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG,
-      0 of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
-      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit table,
-      prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md;
-      tiles are placed on the decode threads with one numpy copy since 2026-11-13 (4-thread read
-      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform scans
-      predict in C and the plane is one buffer since 2026-11-14, eval/point-transform-c-2026-11-14.md), and the serial
-      _normalised_plane (about 0.2-0.4 s);
-      MapTable and ScalePerRow/Column run in OpcodeList1 since 2026-11-13 (spec's
-      integer range; eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial
-      there still need a unit the text does not give, or a real file.
+      the SSE path (four-component float32 images through lensfunpy, if it allows
+      them) and a 16-bit fixed-point output check; Canon's maker-note lens number
+      (CameraSettings index 22) mapped to a name for CR2s whose maker note gives no
+      usable name (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095
+      are read since 2026-11-13); the whole numpy develop runs in threaded bands and
+      packed raws unpack in numpy since 2026-11-13
+      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
+      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
+      (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
+      of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
+      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
+      table, prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs,
+      eval/native-destuff-2026-11-13.md; tiles are placed on the decode threads with
+      one numpy copy since 2026-11-13 (4-thread read 1.3-1.4x faster,
+      eval/parallel-tile-placing-2026-11-13.md); point-transform scans predict in C
+      and the plane is one buffer since 2026-11-14,
+      eval/point-transform-c-2026-11-14.md), and sensor normalisation runs in bands
+      since 2026-11-14 (0.24 s to 0.05 s on 4 CPUs,
+      eval/normalised-plane-bands-2026-11-14.md); MapTable and ScalePerRow/Column
+      run in OpcodeList1 since 2026-11-13 (spec's integer range;
+      eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial there still
+      need a unit the text does not give, or a real file.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -287,27 +290,28 @@ flagships:
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
       staged-by-default at every list length, the closed pooled-prior work, the
-      sparse long-list overclaim (f), the uncapped weighted schemes (g),
-      half-time salience (b), mid-session blocks (d), the panel curve,
-      per-survey threshold and step test, the later-pass curve (d4), the
-      net-step test (d5), the wander bar (d6), the picks test (d7), partway slot
-      runs (d3) and the slot-at-turn test (d9) are written up there. Latest
-      (2026-11-14, "A slot run's cut moved back to an earlier fast turn";
-      docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run that starts after
-      a fast turn (read without the wander bar) is cut from the turn
-      (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to
-      +0.0045, over d9 where the run follows the speed-up; flags nobody new.
-      Next, most valuable first: (c) the first real survey's answers: msToAnswer
-      against the answer-time model, panelWalkRatio on real times, whether times
-      depend on which slot is clicked (the d9 bound assumes not), whether real
-      people have warm-ups, blocks, slot runs or spread-out carelessness, and
-      how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d11) the d10 turn is still a split search: score one
-      candidate from the run's start backwards so a wander step's chance of
-      moving a cut is bounded; (d8) a stronger pick signal under wander (staged
-      pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop
-      beat both pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a
-      real panel's times.
+      sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time
+      salience (b), mid-session blocks (d), the panel curve, per-survey threshold
+      and step test, the later-pass curve (d4), the net-step test (d5), the wander
+      bar (d6), the picks test (d7), partway slot runs (d3) and the slot-at-turn
+      test (d9) are written up there. Latest (2026-11-14, "A slot run's cut moved
+      back to an earlier fast turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a
+      slot run that starts after a fast turn (read without the wander bar) is cut
+      from the turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up
+      to +0.0045, over d9 where the run follows the speed-up; flags nobody new.
+      Since 2026-11-14 site/rank.html ranks a list in the browser on the same refit,
+      with team codes (docs/RANK-PAGE.md); its stop rule overstates certainty for
+      very noisy answerers. Next, most valuable first: (r) get the rank page in
+      front of people, then (c) the first real survey's answers: msToAnswer against
+      the answer-time model, panelWalkRatio on real times, whether times depend on
+      which slot is clicked (the d9 bound assumes not), whether real people have
+      warm-ups, blocks, slot runs or spread-out carelessness, and how noisy real
+      pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11)
+      the d10 turn is still a split search: score one candidate from the run's start
+      backwards so a wander step's chance of moving a cut is bounded; (d8) a
+      stronger pick signal under wander (staged pairs are near 50/50 late in a
+      session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes
+      a camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
