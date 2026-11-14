@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 88, 2026-11-14: inverse-probability-of-censoring weights on the borrowed model's training rows (in progress)
+
+Why: session 87 found the largest deployable cost in SF and Seattle is the 0.45 to 0.56% of source training permits still open on 1 January Y (D), the longest builds: dropping them alone costs 1.0 to 5.1 days at q0.9. Its "Next" asked to keep their weight without their labels.
+- New: `transfer.ipcw_completed(d, D, floor)` keeps the rows completed by D and weights each by 1/G(y), G(t) = share of the same source city-year's permits issued at least t days before D (each city-year's issue days are known in full at D), floored at 0.05 (weight <= 20, select_deploy's floor). `boosted.fit_predict(w=, wca=)` passes weights to LightGBM. `src/rounds.py` gains two variants: `ipcw_cut` (cut_only's rows, IPCW-weighted, early-stopped on the whole Y-1 unweighted: isolates whether the weights give back what the cut takes) and `ipcw_es3` (es3's rows, training and early-stopping rows both weighted: deployable), plus `--floor` and `--out-name`. 3 new tests (weights against a hand-worked case; the ipcw variants fit on exactly cut_only's / es3's rows and reduce to them with floor 1).
+Design (fixed before any run): cascade2 class only; H = austin, sf, seattle; Y = 2021, 2022; 3 seeds; fresh pull; `rounds.py DIR --score --variants full cut_only es3 ipcw_cut ipcw_es3 --out-name rounds_score_ipcw_i2c.json`. Sensitivity (reported, not tested): the same two ipcw variants with `--floor 0.2` (weight <= 5).
+Predictions (written before any run; q0.9 = cascade2's mean pinball loss on all test-year rows, 3 seeds):
+- (G1) ipcw_cut's q0.9 loss is within 1 day of full's in at least 3 of the 4 SF and Seattle city-years (session 87's "Next").
+- (G2) ipcw_cut recovers at least half of cut_only's q0.9 cost against full in at least 3 of those 4.
+- (G3) ipcw_es3's q0.9 loss is below es3's in at least 3 of those 4.
+- (G4) Austin: ipcw_cut's q0.9 loss is above cut_only's in both years (the weights give back the long builds Austin gained from losing).
+- (G5) ipcw_cut's q0.5 loss is within 0.5 days of full's in all 6 city-years.
+Refuted if any part fails.
+
 ## Session 87, 2026-11-14: early-stopping the borrowed model on the sources' year Y-3 still stops its 0.9 quantile after 8 to 17 rounds in 5 of 6 city-years, and the round count does not track the loss (Spearman 0.02); cutting the training rows to those finished by 1 January, 0.45 to 0.56% of them in SF and Seattle, alone costs 1.0 to 5.1 days at q0.9 (E3, F2 held; E1, E2, E4, E5, F1 refuted)
 
 Why: session 86 found the deployable model's loss sits in its round count: rounds fixed from years <= Y-4 early-stopped on Y-3 stop the q0.9 models after 7 to 28 rounds and cost Seattle 2021 q0.9 10.9 days. Its "Next" asked for an early-stopping set that keeps long builds without future labels.

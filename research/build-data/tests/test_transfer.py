@@ -23,6 +23,28 @@ class Harmonise(unittest.TestCase):
 
 
 @unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class IpcwCompleted(unittest.TestCase):
+    def test_weights_are_one_over_the_share_of_the_city_years_issue_windows_at_least_y(self):
+        """Session 88: rows completed by D keep weight 1/G(y), G per city-year from all its issue days."""
+        import datetime
+        import numpy as np, pandas as pd
+        D = datetime.date(2024, 1, 1)
+        # one city-year with windows 400, 300, 200, 100 days; a second city-year (other city) of one row
+        st = [(D - datetime.timedelta(days=k)).isoformat() for k in (400, 300, 200, 100)] + ["2022-06-01"]
+        d = pd.DataFrame(dict(start=st, y=[350.0, 50.0, 250.0, 10.0, 5.0], year=[2022, 2023, 2023, 2023, 2022],
+                              city=["a", "a", "a", "a", "b"]))
+        d.loc[0, "year"] = 2023  # all four "a" rows in one year
+        rows, w = transfer.ipcw_completed(d, D)
+        # seen: y <= window -> rows 0 (350<=400), 1 (50<=300), 3 (10<=100), 4; row 2 (250>200) is censored
+        self.assertEqual(list(rows.index), [0, 1, 3, 4])
+        # G(350) = 1/4 (only the 400-day window), G(50) = 4/4, G(10) = 1, other city-year G(5) = 1
+        np.testing.assert_allclose(w, [4.0, 1.0, 1.0, 1.0])
+        _, wf = transfer.ipcw_completed(d, D, floor=0.5)
+        np.testing.assert_allclose(wf, [2.0, 1.0, 1.0, 1.0])
+        self.assertEqual(len(rows), len(transfer.completed_by(d, D)))
+
+
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
 class Frame(unittest.TestCase):
     HDR = "city,permit_id,permit_type,work_class,estimated_cost,applied,issued,completed,area,description_len"
 
@@ -184,10 +206,25 @@ class Paired(unittest.TestCase):
         fc = self.frames("cascade2")
         for v, kw in (("full", {}), ("es_truncate", dict(es_truncate=True)), ("es3", dict(es3=True))):
             r = transfer.run(fc, "seattle", 2024, 1, **kw)
-            tr, ca = rounds.splits(fc, "seattle", 2024, v)
+            tr, ca, _, _ = rounds.splits(fc, "seattle", 2024, v)
             self.assertEqual((len(tr), len(ca)), (r["n_source_train"], r["n_source_es"]), v)
             out = rounds.rounds(fc, "seattle", 2024, v, 1)
             self.assertEqual(out["rounds"]["0"], r["transfer_rounds"]["0"], v)
+
+    def test_ipcw_variants_use_the_cut_rows_and_reduce_to_them_with_unit_weights(self):
+        """Session 88: ipcw_cut / ipcw_es3 fit on exactly cut_only's / es3's rows; with floor=1 every weight is 1
+        and the fitted rounds equal the unweighted variant's."""
+        import rounds
+        fc = self.frames("cascade2")
+        for v, base in (("ipcw_cut", "cut_only"), ("ipcw_es3", "es3")):
+            tr, ca, w, wca = rounds.splits(fc, "seattle", 2024, v)
+            tb, cb, _, _ = rounds.splits(fc, "seattle", 2024, base)
+            self.assertEqual((len(tr), len(ca)), (len(tb), len(cb)), v)
+            self.assertEqual(len(w), len(tr))
+            self.assertTrue((w >= 1).all() and (w <= 20).all())
+            self.assertEqual(wca is None, v == "ipcw_cut")
+            self.assertEqual(rounds.rounds(fc, "seattle", 2024, v, 1, floor=1.0)["rounds"],
+                             rounds.rounds(fc, "seattle", 2024, base, 1)["rounds"], v)
 
     def test_fixed_rounds_read_no_validation_set(self):
         """Session 86: boosted.fit_predict(fixed=...) trains exactly that many rounds without Xca."""

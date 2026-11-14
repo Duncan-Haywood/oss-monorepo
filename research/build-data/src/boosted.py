@@ -54,21 +54,22 @@ def featurise(tr, others):
     return out
 
 
-def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=300, fixed=None, classifier=True):
+def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=300, fixed=None, classifier=True, w=None, wca=None):
     """Early-stopped LightGBM quantile models (and the zero-lag classifier). Session 86: with
     fixed={tau: rounds} no validation set is read (Xca, yca may be None) and each quantile model is
-    trained for exactly that many rounds; classifier=False skips the zero-lag model (returns pz None)."""
+    trained for exactly that many rounds; classifier=False skips the zero-lag model (returns pz None).
+    Session 88: w / wca are optional per-row weights for the training and early-stopping rows (IPCW)."""
     base = dict(learning_rate=0.15, num_leaves=63, min_data_in_leaf=100, feature_fraction=0.8,
                 bagging_fraction=0.8, bagging_freq=1, seed=seed, verbose=-1, num_threads=4)
     preds, rounds = {}, {}
     for t in TAUS:
         p = dict(base, objective="quantile", alpha=t, metric="quantile")
         if fixed is not None:
-            m = lgb.train(p, lgb.Dataset(Xtr, ytr), max(int(fixed[t]), 1))
+            m = lgb.train(p, lgb.Dataset(Xtr, ytr, weight=w), max(int(fixed[t]), 1))
             preds[t] = np.maximum(m.predict(Xte), 0)
             rounds[t] = max(int(fixed[t]), 1)
             continue
-        m = lgb.train(p, lgb.Dataset(Xtr, ytr), n_max, valid_sets=[lgb.Dataset(Xca, yca)],
+        m = lgb.train(p, lgb.Dataset(Xtr, ytr, weight=w), n_max, valid_sets=[lgb.Dataset(Xca, yca, weight=wca)],
                       callbacks=[lgb.early_stopping(30, verbose=False)])
         preds[t] = np.maximum(m.predict(Xte, num_iteration=m.best_iteration), 0)
         rounds[t] = m.best_iteration
