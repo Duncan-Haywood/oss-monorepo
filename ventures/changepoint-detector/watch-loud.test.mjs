@@ -74,3 +74,12 @@ test('the committed output carries the round\'s verdict', () => {
   assert.ok(existsSync(p));
   assert.match(readFileSync(p, 'utf8'), /T12 S vs Q: .*(PASSES|FAILS)\./);
 });
+
+test('round 16 as run: T12 fails on (a) and (b), and the help, the page and llms.txt say so', () => {
+  const out = readFileSync(new URL('./eval/watch-skab-loud.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /T12 S vs Q: \(a\) pre-fault 2\.47 per 100 checks vs 2 FAIL; \(b\) 30 vs 33 - 2 FAIL; \(c\) 50\.5% vs 36\.8% PASS\. FAILS\./);
+  assert.match(out, /R  round 15, one k in the watch \(re-run\) +150 +89 \(59\.3%\).*27\/33.*1\.40 \(42\/2997\)/, 'the re-run matches round 15');
+  assert.match(readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8'), /README "Round 16"; not offered/);
+  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /README, "Round 16"\)\. You can set that kind of floor yourself/);
+  assert.match(readFileSync(new URL('./llms.txt', import.meta.url), 'utf8'), /README "Round 16"/);
+});
