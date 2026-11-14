@@ -168,6 +168,24 @@ CHECKS = [
     ("log", "R against χ²<sub>1</sub>, ±2% at k = 6 pooled: 53.8% (left 50.0–50.1%, right 54.3–61.0%)", "(±2%: 50% left, 54–61% right)"),
     ("log", "±4% in 92.7–94.1%", "92.7–94.1%"),
     ("log", "every variant is weak (13% at most)", "13% of splits at most"),
+    # Section 7, abstract and recommendations, milestone 4h (model reference for the robust jackknife)
+    ("json", "m4h_modelref/summary.json", "references/normal/7+6/R", 18.45, 2, None, "18.45 at 7 + 6 views"),
+    ("json", "m4h_modelref/summary.json", "references/normal/7+6/R", 18.45, 2, None, "(18.45 at 7 + 6 views;"),
+    ("json", "m4h_modelref/summary.json", "references/normal/7+4/R", 25.84, 2, None, "(25.84 at 7 + 4)"),
+    ("json", "m4h_modelref/summary.json", "references/normal/7+6/pR_chi2", 6.1, 1, pct, "fires on 6.1% of unchanged updates"),
+    ("json", "m4h_modelref/summary.json", "references/normal/7+6/pR_chi2", 6.1, 1, pct, "would give that test 6.1% false alarms"),
+    ("json", "m4h_modelref/summary.json", "references/normal/7+4/pR_chi2", 8.5, 1, pct, "(8.5% at 7 + 4)"),
+    ("json", "m4h_modelref/summary.json", "real_false_alarms_R_chi2/7+6/left", 3.1, 1, pct, "(3.1% / 0.2% at k = 6)"),
+    ("json", "m4h_modelref/summary.json", "real_false_alarms_R_chi2/7+6/right", 0.2, 1, pct, "(3.1% / 0.2% at k = 6)"),
+    ("json", "m4h_modelref/summary.json", "large_sets/10/pR_chi2", 3.8, 1, pct, "3.8% false alarms at 10 + 10 views"),
+    ("json", "m4h_modelref/summary.json", "large_sets/20/pR_chi2", 2.2, 1, pct, "2.2% at 20 + 20"),
+    ("json", "m4h_modelref/summary.json", "hypotheses/H57/R_normal_pm2_k6", 18.6, 1, pct, "| 53.8% | 18.6% | 8.6% |"),
+    ("json", "m4h_modelref/summary.json", "hypotheses/H57/R_normal_pm2_k6", 19, 0, pct, "catches the 2% change in 19% of splits"),
+    ("json", "m4h_modelref/summary.json", "hypotheses/H56/left", 0.45, 2, pct, "| 0.45% / 0.20% |"),
+    ("json", "m4h_modelref/summary.json", "hypotheses/H56/right", 0.20, 2, pct, "| 0.45% / 0.20% |"),
+    ("log", "the plain jackknife against its own model reference catches ±2% at k = 6 in only 8.6% pooled", "| 53.8% | 18.6% | 8.6% |"),
+    ("log", "catches ±4% in 66.4–75.1% of splits (χ²<sub>1</sub>: 92.2–94.3%)", "| 92.2–94.3% | 66.4–75.1% |"),
+    ("log", "0.45% (left) and 0.20% (right) false alarms", "keeps false alarms at 0.2–0.5%"),
 ]
 
 
