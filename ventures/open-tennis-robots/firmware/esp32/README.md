@@ -52,6 +52,14 @@ gate waits until both wheels have held within 3% for 150 ms
 (`controller.SteadyGate`); telemetry sets `FLAG_WHEELS_SETTLING` until then.
 Tuned on a simulated wheel (`tests/wheel_loop_sweep.py`), not a real one.
 
+Since 2026-11-14 a new speed does not reach the loop at once: `controller.SpinupRamp`
+moves each wheel's target at most `WHEEL_RAMP_MAX_RPM_S` per second, and above that
+at `WHEEL_SPINUP_W` of shaft power (`WHEEL_INERTIA_KGM2` is one wheel and its rotor).
+Two wheels spinning up together then stay inside the battery BMS's continuous limit
+(cad `Feeder.power_distribution`). Weigh your wheel and update the inertia here and in
+`cad/otr_cad/params.py`; a test fails if they disagree. A zero speed (stop, e-stop,
+watchdog) still cuts the ESCs at once.
+
 ## Elevation actuator (2026-11-11)
 
 The head tilts on a linear actuator (`cad/README.md`, "Elevation drive"), not a

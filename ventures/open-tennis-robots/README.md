@@ -213,6 +213,33 @@ ball aimed 9.5 m out lands 0.7 m off at 2.8% and 1.7 m off at 6.6%. The
 wheel model is an assumption; the first build should log its tach readings
 during a spin-up and rerun the sweep with the measured lag.
 
+### Spin-up ramp and the battery's limit (2026-11-14)
+
+The power model added to the CAD this day (`cad/README.md`, "Power
+distribution") found that the speed loop's feedforward stepped each ESC's
+throttle the moment a new speed arrived. A wheel starting from rest could then
+draw the motor's peak, about 1 kW, from the battery: 49 A per ESC at 24 V, 98 A
+for both, against a 20 Ah pack whose BMS allows about 30 A continuous
+(assumed). A BMS that cuts out takes the Pi and the ESP32 down with it. The
+firmware now moves each wheel's target along a ramp (`controller.SpinupRamp`):
+at most `WHEEL_RAMP_MAX_RPM_S` (1,500 rpm/s) at low speed, then at a constant
+`WHEEL_SPINUP_W` (100 W) of shaft power, using the wheel's inertia
+(`WHEEL_INERTIA_KGM2`, from an assumed 0.40 kg wheel). Stopping is not ramped.
+A test checks the three numbers against the CAD.
+
+`tests/spinup_ramp_sweep.py` measures it on the simulated feeder (27 cases: three
+wheel pairs, three plants). With no ramp, the median per-wheel peak was 871 W.
+The simulated plant has no current limit, so its worst case (2,643 W) means
+nothing for a real motor. With a 6,000 rpm/s low-speed cap the peak was still
+436 W. The once-per-rev tachometer reads 0 for the first revolutions, so the
+loop's proportional term pushed the wheel past its ramp. At 1,500 rpm/s the
+worst peak is 110 W for a 100 W cap. The cost is a slower start from rest:
+steady in 4.9 s at worst (2.4 s before), and 4.8 s to the drill's fastest wheel
+speed by the CAD's integral. A drill pays that once, because a speed change
+between shots is a fraction of it. Not measured: the real motor's current
+during a ramp, and the loop's recovery after each ball, which is why the ESC
+fuses are twice the ramped draw.
+
 Also fixed: `launcher.aim` crashed with `AttributeError` on a shot too fast to
 land on its target (80 m/s), because its bisection closed on the jump between
 "hits the net" and "lands long"; it now raises the `ValueError` its callers

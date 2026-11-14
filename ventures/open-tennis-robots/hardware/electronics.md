@@ -11,10 +11,15 @@ independently of any software.
             |  tennisbots       |                               |  speed/position loops  |
             +---------+---------+                               |  watchdog, e-stop sense|
                       | 5 V 5 A buck                            +-----+-----------+-----+
-                      |                                               |           |
- 24 V LiFePO4 --[fuse]--[e-stop contactor]--+-- ESCs / H-bridges -----+           |
-                                            +-- shuttle servo (via 6 V buck) -----+
+                      |  [2 A]                                        |           |
+ 24 V LiFePO4 --[30 A]--+--[e-stop contactor]--[fuse block]--+-- ESCs / H-bridge --+
+                                                             +-- lift, agitator, stepper driver
+                                                             +-- shuttle servo (via 6 V buck) ---+
 ```
+
+The Pi's buck takes its supply between the main fuse and the contactor, so the
+Pi and the ESP32 stay powered through an e-stop and can report it. Every motor
+branch is after the contactor.
 
 The e-stop is a normally-closed mushroom switch in series with the
 contactor coil: pressing it (or a broken wire) opens the contactor and
@@ -106,8 +111,50 @@ Measure your build with an inline power meter and update this table.
   lead is 916 mm of 20 AWG. Twist each tachometer pair: they share the
   bundle with the launcher phases.
 
-- Fuse the battery positive within 15 cm of the terminal (feeder ~30 A,
-  collector ~15 A).
+- Fuse the battery positive within 15 cm of the terminal (feeder 30 A,
+  derived below; collector ~15 A).
+
+## Fuses and branch wiring, feeder (2026-11-14)
+
+From `cad/otr_cad/params.py` `Feeder.power_distribution` (the manifest's
+"power" line). Currents are at the 24 V low-battery cut and come from assumed
+part figures (each one is listed in the parameters: read your datasheets).
+Each branch fuse is the smallest standard rating at or above 1.25 times its
+running current, and at or above half its stall current, because a motor
+starts at stall current for a few milliseconds. Its wire is the thinnest gauge
+that carries the fuse's rating (from a conservative table, `AWG_AMPS`), and
+never thinner than 20 AWG.
+
+| Branch | Running | Fuse | Wire |
+| --- | --- | --- | --- |
+| Launcher ESC, top | 6.4 A | 15 A | 16 AWG |
+| Launcher ESC, bottom | 6.4 A | 15 A | 16 AWG |
+| Dual H-bridge: base (two gearmotors) and elevation | 6.0 A | 7.5 A | 20 AWG |
+| Lift gearmotor MOSFET | 2.0 A | 3 A | 20 AWG |
+| Agitator gearmotor MOSFET | 0.8 A | 1 A | 20 AWG |
+| Azimuth stepper driver | 0.3 A | 1 A | 20 AWG |
+| Servo buck, 6 V | 0.8 A | 2 A | 20 AWG |
+| Pi buck, 5 V (before the contactor, inline holder) | 0.6 A | 2 A | 20 AWG |
+| **Battery feed, main fuse and contactor** | **23.3 A** | **30 A** | **12 AWG** |
+
+- **Every load at once draws 23.3 A**, the worst case of a drill starting: both
+  wheels spinning up while the base moves and the head aims. That is under 80%
+  of an assumed 30 A BMS continuous limit (24.0 A). If your BMS allows less,
+  the build's check names the `WHEEL_SPINUP_W` that fits.
+- **The ESCs draw what the firmware's ramp allows.** The ramp caps each wheel at
+  100 W of shaft power while it spins up, which is 6.4 A at the battery. Without
+  it, a wheel starting from rest could draw the motor's 1 kW peak: 49 A per
+  ESC. Each ESC fuse is twice the ramped draw, because the speed loop's
+  recovery after each ball is not modelled. Use slow-blow fuses there if
+  normal ones open during a drill.
+- **The contactor** must be rated 30 A DC or more at 24 V (its coil on 24 V,
+  through the NC mushroom switch), so the main fuse protects it.
+- **The battery feed:** 12 AWG, about 0.6 m each way, drops 0.15 V at 23.3 A.
+- **Not modelled:** the ESCs' input-capacitor inrush when the contactor
+  closes (it is hard on the contacts and on a BMS's short-circuit trip; look for
+  a contactor rated for capacitive loads, or ESCs with an anti-spark
+  connector), regenerative current from braking ESCs, and every load's real
+  current. Log the battery current on the first build with an inline meter.
 - Common ground between the Pi, ESP32, ESCs and drivers; run the UART on a
   short twisted pair.
 - ESCs: calibrate the throttle range once, with the wheels removed.
