@@ -255,8 +255,20 @@ export function displayScore(f, i) {
 }
 
 /** The results as CSV, for a spreadsheet. */
+/**
+ * One quoted CSV cell. An option typed as "=HYPERLINK(...)" or "+1 call" would
+ * run as a formula when the file is opened in a spreadsheet, so a cell that
+ * starts with =, +, -, @, tab or CR (and is not a plain number) gets a leading
+ * apostrophe, the usual guard against formula injection.
+ */
+export function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
 export function resultsCsv(items, f, table) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = csvCell;
   const rows = [["rank", "option", "rank_range_90", "chance_favourite", "score_0_100"].join(",")];
   for (const r of table) rows.push([r.rank, q(items[r.item]), q(r.low === r.high ? `${r.low}` : `${r.low}-${r.high}`), r.favourite.toFixed(3), displayScore(f, r.item)].join(","));
   return rows.join("\n") + "\n";

@@ -147,6 +147,8 @@ test("results CSV quotes options and lists every item", () => {
   const csv = resultsCsv(items, f, rankTable(f, { draws: 200 }));
   assert.equal(csv.trim().split("\n").length, 4);
   assert.match(csv, /"Say ""hi"", then"/);
+  const risky = resultsCsv(["=HYPERLINK(\"x\")", "+1 call", "@sum", "-5 degrees"], fit(4, []), rankTable(fit(4, []), { draws: 50 }));
+  for (const cell of ['"\'=HYPERLINK(""x"")"', '"\'+1 call"', '"\'@sum"', '"\'-5 degrees"']) assert.ok(risky.includes(cell), cell);
 });
 
 test("combine weighs people equally and reports agreement and splits", () => {

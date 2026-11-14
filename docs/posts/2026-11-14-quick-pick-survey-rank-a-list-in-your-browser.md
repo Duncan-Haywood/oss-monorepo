@@ -1,8 +1,8 @@
 ---
 title: "Rank a list by picking pairs, in your browser, and the stop rule that never stopped"
-seo_title: "Pairwise ranking tool: rank a list by choosing between two (free, no sign-up)"
+seo_title: "Free pairwise ranking tool: rank a list by choosing between two"
 date: 2026-11-14
-description: "Quick Pick now has a free page that ranks any list from this-or-that picks, with rank ranges and team aggregation. Its first stop rule never finished for a person with ordinary noise; here is the one that does."
+description: "A free page ranks any list from this-or-that picks, with rank ranges and team results. Its first stop rule never finished; here is the one that does."
 tags: [quick-pick-survey, pairwise-comparison, prioritisation, bradley-terry, statistics, product]
 ---
 
