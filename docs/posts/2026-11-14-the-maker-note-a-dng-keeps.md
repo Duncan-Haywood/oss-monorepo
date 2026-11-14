@@ -1,9 +1,9 @@
 ---
 title: "The maker note a DNG keeps"
-seo_title: "Reading the camera maker note inside an Adobe-converted DNG (DNGPrivateData MakN)"
+seo_title: "Reading the camera maker note inside an Adobe-converted DNG"
 date: 2026-11-14
 tags: [photography, raw, dng, lens-correction, lensfun, canon, open-source, photo-editing]
-description: "Adobe DNG Converter moves the camera's maker note into a private block. ShootFlow now reads it there, checked value for value against ExifTool on a real Canon DNG."
+description: "Adobe DNG Converter moves the camera's maker note into a private block. ShootFlow now reads it there, checked against ExifTool on a real Canon DNG."
 ---
 
 ShootFlow, the open-source photo workflow in this repository, picks a lens correction profile from [lensfun](https://lensfun.github.io/) by working out which lens took the frame. Today's earlier changes taught it to read the lens from three makers' private notes: Canon's CameraSettings, Nikon's lens tag and [Olympus's Equipment block](2026-11-14-the-lens-an-olympus-file-hides.md). There was a catch. ShootFlow develops DNG files, and most DNGs from interchangeable-lens cameras come out of Adobe DNG Converter, which does not copy the camera's maker note to where EXIF keeps it. All three readers worked on the camera's own raw files and on none of the files ShootFlow can develop.
