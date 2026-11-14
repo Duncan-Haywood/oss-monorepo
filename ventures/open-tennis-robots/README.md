@@ -251,6 +251,24 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 8. UWB or line-based localisation for the collector on unlit courts.
 9. An illustrated assembly guide and a kit for sellers.
 
+### Known gaps (quality audit, 2026-11-08)
+
+The [2026-11-08 audit](../../portfolio/quality/audits/2026-11-08-open-tennis-robots.json)
+found the catch-net geometry, the lift constant and the README's headline
+catch rate untested, and the base target unclamped in firmware. Both were
+fixed on 2026-11-14: tests now pin the catch window, hand-computed drag and
+Magnus accelerations, exact study counts and the README's 3.0 m / 2.5 m/s
+cell (274 of 300), and `SET_BASE` clamps the target to the +/- 4.0 m rail.
+Still open:
+
+- **The feed interlock** (wheels within 5% of target before a ball is
+  released) lives only in the board layer, `firmware/esp32/main.py`, which
+  no test drives; `safety.md` relies on it.
+- **E-stop reset** takes the button released plus a `CLEAR_ESTOP` from the
+  Pi. That is a separate reset after release, but it can come from a phone
+  or script away from the machine; a reset at the machine (a button on the
+  feeder that must be pressed after release) is the safer design.
+
 ## Safety, warranty, privacy
 
 **No warranty.** This tool is provided free and as-is, without warranty of
