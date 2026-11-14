@@ -436,6 +436,39 @@ def run(slug, elsewhere=False):
     return slug, ok, "\n".join(outs), time.monotonic() - start
 
 
+SKIP_TOTALS = (
+    re.compile(r"^(?:OK|FAILED) \(.*?\bskipped=(\d+)", re.M),        # unittest
+    re.compile(r"^=+ .*?\b(\d+) skipped\b.* in [\d.]+s", re.M),        # pytest
+    re.compile(r"^# skipped (\d+)$", re.M),                              # node --test (TAP)
+)
+SKIP_REASONS = re.compile(r"\bskipped '([^'\n]+)'|# SKIP\b ?([^\n]*)")
+
+
+def skipped(out):
+    """(tests skipped, most common reason or None) over one venture's output.
+
+    A suite that skips when a package is missing passes here while CI, which
+    installs it, runs it: open-tennis-robots' CAD suite printed "ok" with 96
+    tests skipped for want of build123d (run-record doc friction, 2026-11-14),
+    so a local "ok" read as the CI pass. Saying how many were skipped, and why,
+    keeps that visible.
+    """
+    n = sum(int(m) for rx in SKIP_TOTALS for m in rx.findall(out))
+    reasons = {}
+    for a, b in SKIP_REASONS.findall(out):
+        r = (a or b).strip()
+        if r:
+            reasons[r] = reasons.get(r, 0) + 1
+    return n, (max(reasons, key=lambda r: (reasons[r], r)) if reasons else None)
+
+
+def skipped_note(out):
+    n, why = skipped(out)
+    if not n:
+        return ""
+    return f"; {n} test{'s' if n != 1 else ''} skipped" + (f" (most: {why!r})" if why else "")
+
+
 def normalize_slug(arg):
     """`ventures/foo/`, `./ventures/foo` or a path inside it -> `foo`."""
     parts = [p for p in Path(arg).parts if p not in (".", "/")]
@@ -539,7 +572,8 @@ def main(argv):
             times[slug] = secs
             also = sorted({c[-1] for c in elsewhere_commands(slug)}) if elsewhere else []
             print(f"{'ok  ' if ok else 'FAIL'} {slug} ({secs:.1f}s)"
-                  + (f" incl. Python steps of {', '.join(also)}" if also else ""), flush=True)
+                  + (f" incl. Python steps of {', '.join(also)}" if also else "")
+                  + skipped_note(out), flush=True)
             if not ok:
                 failed.append(slug)
                 if ON_ACTIONS:
