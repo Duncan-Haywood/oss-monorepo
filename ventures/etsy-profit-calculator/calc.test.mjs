@@ -1168,3 +1168,12 @@ test('a Star Seller path that packs a loss while unsigned profits has no reachab
   assert.equal(result.starSeller.profit, -2);
   assert.equal(result.breakEvenSellThroughPct, Infinity);
 });
+
+test('break-even listings is a whole count, free of float error', () => {
+  // $10 Plus less $7.60 of other value leaves $2.40; at $0.20 a listing that is
+  // (10 - 7.6) / 0.2 = 12.000000000000002 in floating point, which the page
+  // printed as is (the sweep saw 11.999999999999998 on other inputs).
+  const args = { listingFee: 0.2, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 0, monthlyAdSpend: 0, otherPlusValue: 7.6 };
+  assert.equal(plusBreakEvenListings(args), 12);
+  assert.equal(plusBreakEvenListings({ ...args, otherPlusValue: 7.5 }), 13); // 12.5 listings: the 13th covers it
+});

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" font-family="system-ui, sans-serif" font-size="12" role="img" aria-labelledby="t d">
+<title id="t">Regret of ten seeding rules under three fitted contagion models</title>
+<desc id="d">For each seeding rule, the share of expected adopters lost against the best rule, under the information, threshold and reinforcement models fitted to the 43 Karnataka villages. Rules sorted by their worst case.</desc>
+<style>text{fill:#222}.ax{stroke:#888}@media (prefers-color-scheme:dark){text{fill:#ddd}}</style>
+<text x="120" y="22" font-size="14" font-weight="600">Adopters lost against the best rule, by model (43 villages, same seed budget)</text>
+<rect x="120" y="34" width="12" height="10" fill="#2a6fdb"/><text x="136" y="43">information (I)</text>
+<rect x="290" y="34" width="12" height="10" fill="#d9822b"/><text x="306" y="43">threshold (T)</text>
+<rect x="460" y="34" width="12" height="10" fill="#3a9d5d"/><text x="476" y="43">reinforcement (R)</text>
+<line class="ax" x1="120.0" y1="56" x2="120.0" y2="370" stroke-opacity="0.3"/><text x="120.0" y="386" text-anchor="middle">0.0%</text>
+<line class="ax" x1="232.0" y1="56" x2="232.0" y2="370" stroke-opacity="0.3"/><text x="232.0" y="386" text-anchor="middle">2.7%</text>
+<line class="ax" x1="344.0" y1="56" x2="344.0" y2="370" stroke-opacity="0.3"/><text x="344.0" y="386" text-anchor="middle">5.3%</text>
+<line class="ax" x1="456.0" y1="56" x2="456.0" y2="370" stroke-opacity="0.3"/><text x="456.0" y="386" text-anchor="middle">8.0%</text>
+<line class="ax" x1="568.0" y1="56" x2="568.0" y2="370" stroke-opacity="0.3"/><text x="568.0" y="386" text-anchor="middle">10.6%</text>
+<line class="ax" x1="680.0" y1="56" x2="680.0" y2="370" stroke-opacity="0.3"/><text x="680.0" y="386" text-anchor="middle">13.3%</text>
+<text x="112" y="77.5" text-anchor="end">greedy-T</text>
+<rect x="120" y="63" width="20.7" height="6" fill="#2a6fdb"><title>greedy-T under I: 0.49%</title></rect>
+<rect x="120" y="70" width="0.5" height="6" fill="#d9822b"><title>greedy-T under T: 0.00%</title></rect>
+<rect x="120" y="77" width="7.1" height="6" fill="#3a9d5d"><title>greedy-T under R: 0.17%</title></rect>
+<text x="112" y="108.5" text-anchor="end">greedy-R</text>
+<rect x="120" y="94" width="13.2" height="6" fill="#2a6fdb"><title>greedy-R under I: 0.31%</title></rect>
+<rect x="120" y="101" width="40.2" height="6" fill="#d9822b"><title>greedy-R under T: 0.95%</title></rect>
+<rect x="120" y="108" width="0.5" height="6" fill="#3a9d5d"><title>greedy-R under R: 0.00%</title></rect>
+<text x="112" y="139.5" text-anchor="end">greedy-I</text>
+<rect x="120" y="125" width="0.5" height="6" fill="#2a6fdb"><title>greedy-I under I: 0.00%</title></rect>
+<rect x="120" y="132" width="107.9" height="6" fill="#d9822b"><title>greedy-I under T: 2.56%</title></rect>
+<rect x="120" y="139" width="38.7" height="6" fill="#3a9d5d"><title>greedy-I under R: 0.92%</title></rect>
+<text x="112" y="170.5" text-anchor="end">patches</text>
+<rect x="120" y="156" width="119.5" height="6" fill="#2a6fdb"><title>patches under I: 2.84%</title></rect>
+<rect x="120" y="163" width="150.9" height="6" fill="#d9822b"><title>patches under T: 3.58%</title></rect>
+<rect x="120" y="170" width="65.6" height="6" fill="#3a9d5d"><title>patches under R: 1.56%</title></rect>
+<text x="112" y="201.5" text-anchor="end">degree</text>
+<rect x="120" y="187" width="136.2" height="6" fill="#2a6fdb"><title>degree under I: 3.23%</title></rect>
+<rect x="120" y="194" width="172.9" height="6" fill="#d9822b"><title>degree under T: 4.11%</title></rect>
+<rect x="120" y="201" width="69.6" height="6" fill="#3a9d5d"><title>degree under R: 1.65%</title></rect>
+<text x="112" y="232.5" text-anchor="end">diffusion</text>
+<rect x="120" y="218" width="221.4" height="6" fill="#2a6fdb"><title>diffusion under I: 5.26%</title></rect>
+<rect x="120" y="225" width="331.3" height="6" fill="#d9822b"><title>diffusion under T: 7.87%</title></rect>
+<rect x="120" y="232" width="167.3" height="6" fill="#3a9d5d"><title>diffusion under R: 3.97%</title></rect>
+<text x="112" y="263.5" text-anchor="end">eigenvector</text>
+<rect x="120" y="249" width="281.9" height="6" fill="#2a6fdb"><title>eigenvector under I: 6.69%</title></rect>
+<rect x="120" y="256" width="421.1" height="6" fill="#d9822b"><title>eigenvector under T: 10.00%</title></rect>
+<rect x="120" y="263" width="233.1" height="6" fill="#3a9d5d"><title>eigenvector under R: 5.54%</title></rect>
+<text x="112" y="294.5" text-anchor="end">leaders</text>
+<rect x="120" y="280" width="261.1" height="6" fill="#2a6fdb"><title>leaders under I: 6.20%</title></rect>
+<rect x="120" y="287" width="439.0" height="6" fill="#d9822b"><title>leaders under T: 10.42%</title></rect>
+<rect x="120" y="294" width="259.4" height="6" fill="#3a9d5d"><title>leaders under R: 6.16%</title></rect>
+<text x="112" y="325.5" text-anchor="end">ball</text>
+<rect x="120" y="311" width="297.5" height="6" fill="#2a6fdb"><title>ball under I: 7.06%</title></rect>
+<rect x="120" y="318" width="441.3" height="6" fill="#d9822b"><title>ball under T: 10.48%</title></rect>
+<rect x="120" y="325" width="270.1" height="6" fill="#3a9d5d"><title>ball under R: 6.41%</title></rect>
+<text x="112" y="356.5" text-anchor="end">random</text>
+<rect x="120" y="342" width="289.9" height="6" fill="#2a6fdb"><title>random under I: 6.88%</title></rect>
+<rect x="120" y="349" width="509.1" height="6" fill="#d9822b"><title>random under T: 12.09%</title></rect>
+<rect x="120" y="356" width="364.1" height="6" fill="#3a9d5d"><title>random under R: 8.65%</title></rect>
+<text x="120" y="410" font-size="11">regret = 1 &#8722; adopters / best rule&#8217;s adopters under that model; 200 runs per village</text>
+</svg>

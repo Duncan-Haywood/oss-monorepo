@@ -361,6 +361,48 @@ class SpinupRampTest(unittest.TestCase):
             self.assertLess(peak, 1.15 * p.wheel_spinup_w, (max_rpm, tau))
 
 
+class PotPickupTest(unittest.TestCase):
+    """The elevation pot's pickup from the actuator's PWM (2026-11-14, cad/README.md "The pot's pickup from the motor
+    pair"): the real firmware against the CAD's pickup model, through tests/pot_pickup_sweep.py."""
+
+    def test_with_the_capacitor_every_read_timing_settles_and_a_jam_faults(self):
+        import pot_pickup_sweep as sweep
+        for timing in sweep.TIMINGS:
+            t, err, fault = sweep.aim(1000.0, timing, "trimmed")
+            self.assertIsNotNone(t, timing)
+            self.assertFalse(fault)
+            self.assertLess(err, 0.3)             # the 0.5 mm deadband is about 0.25 deg
+            self.assertIsNotNone(sweep.jam(1000.0, timing, "trimmed"), timing)
+
+    def test_without_it_the_firmware_works_or_faults_never_runs_blind(self):
+        import pot_pickup_sweep as sweep
+        t, _, fault = sweep.aim(0.0, "random", "one read")
+        self.assertTrue(fault)                    # the old firmware: a spike reads as a broken wire
+        self.assertIsNone(t)
+        t, err, fault = sweep.aim(0.0, "random", "trimmed")
+        self.assertIsNotNone(t)
+        self.assertLess(err, 0.3)
+        for timing in ("after-rise", "after-fall"):   # every reading on an edge: unusable, so it must fault
+            t, _, fault = sweep.aim(0.0, timing, "trimmed")
+            self.assertTrue(fault, timing)
+            self.assertIsNotNone(sweep.jam(0.0, timing, "trimmed"))
+
+    def test_firmware_reads_several_and_trims(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("fw_config", os.path.join(HERE, "..", "firmware", "esp32", "config.py"))
+        cfg = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cfg)
+        self.assertGreaterEqual(cfg.ELEV_POT_READS, 5)
+        p = _feeder()
+        self.assertEqual(cfg.ELEV_SPEED_RET_MM_S, p.elev_fw_speed_mm_s)
+        ax = SimFeeder().hw.elev
+        self.assertEqual((ax.deadband, ax.stall_mm), (p.elev_deadband_mm, p.elev_stall_mm))
+        with open(os.path.join(HERE, "..", "firmware", "esp32", "main.py")) as f:
+            src = f.read()
+        self.assertIn(f"freq={p.elev_pwm_hz:.0f}", src)
+        self.assertIn("controller.trimmed_mean(", src)
+
+
 class TelemetryTest(unittest.TestCase):
     def test_balls_fed_round_trip(self):
         (cmd, vals), = P.Decoder().feed(P.encode(P.TELEMETRY, P.FLAG_WHEELS_SETTLING, 0, 3000, 2000, 25600, 255))

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVPfzTiashERYEttRFp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "23807fdb69c209052f68cab1714c2eeba34532960894a2ed83cd4fea6f3467bd",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T21:06:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 8): quick-pick-survey -- a weigh-criteria page (weighted decision matrix from pairwise picks)",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15979",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The allocator picked quick-pick-survey by session id while another session claimed the same row within the same minute; claim_check catches it only after the claim PR is open."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "claim_check said YIELD to PR #15977 (a 'rank page slice' opened 1 minute earlier). This work is a new page in new files (decide.html, decide-core.mjs) touching rank.html by one link line, so the two do not overlap; yielding would have discarded a distinct slice.",
+      "did": "kept going on disjoint files",
+      "result": "no overlapping files except a one-line link in rank.html and the flagships next: field"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-decision-matrix-with-no-typed-weights.md",
+    "ventures/quick-pick-survey/docs/DECIDE-PAGE.md"
+  ],
+  "goal": null,
+  "notes": "Landed site/decide.html + decide-core.mjs: a weighted decision matrix filled in by pairwise picks (criteria BT -> Luce-share weights, per-criterion BT option scores, joint posterior draws for rank and weight ranges, linearised adaptive picker across both question kinds, QD1 team codes). Simulated (scripts/decide-sim.mjs, 12 people/row, docs/decide-sim-2026-11-14.jsonl): adaptive beats random by 0.11-0.26 Spearman at the cap; the 90% stop is rarely reached inside the cap (reads 0.69-0.83, within 0.12 of truth). Diagnostic: option scores are the bottleneck (true scores lift 0.70 to 0.90; true weights only to 0.77). Checks run here: node --test site/*.test.mjs 71 pass; decide-core.test.mjs red with adaptive swapped for random; Playwright 390px run (example decision, shared link, combine with a damaged code, no console errors) which found and fixed a 'strongest on' bug; post front matter/links/similarity clean; validate.py ok; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

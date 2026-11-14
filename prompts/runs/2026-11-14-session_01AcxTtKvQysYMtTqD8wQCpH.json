@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKvQysYMtTqD8wQCpH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T21:07:06Z",
+  "ended": "2026-11-14T21:20:56Z",
+  "wall_minutes": 14.1,
+  "tokens_in": 6906616,
+  "tokens_out": 31483,
+  "cost_usd": 3.0544,
+  "tool_calls": 62,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15983",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py caught the new post's seo_title (86 chars) and description (181 chars) over the limits; fixed before merge"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "6q's Next (a) asks for an independent multi-unit gear-pump test; the two candidates found (SAE 2012-01-2041, TUprints Schaenzle 2018) are paywalled or behind a bot wall, so the programme's main open question cannot be advanced from a cloud session without a library copy"
+    },
+    {
+      "file": "research/heavy-hydraulics/paper/draft.md",
+      "issue": "the abstract had grown to 870 words, one sentence per milestone, and the draft had no conclusions section; each milestone appended to the abstract rather than rewriting it"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-one-curve-three-gear-pump-makers.md",
+    "research/heavy-hydraulics/LOG.md (6r)"
+  ],
+  "goal": null,
+  "notes": "Routed research/0, draw picked heavy-hydraulics. Tried Next (a) first (second measured gear pump): Zardin 2019 fetched (only model-error plots); Michael 2012 paywalled; Schaenzle 2018 behind a bot wall (respected; a follow-up curl was refused by the permission classifier). Pivoted to Next (e) plus a new test: experiments/gear_pump_evidence.py fits one logistic in efficiency to all 29 scaled-sweep points of three makers, pooled E50 0.8212, RMS 5.62 points, left-out crossings within 0.0118; five predictions written first, all held. Paper: 272-word abstract, section 3.7r, Figure 7, section 6 conclusions, old abstract to Appendix A. Checks: pytest 78 passed 1 skipped; check_numbers 339 claims 0 missing; build_tex 0 problems; research homepage build ok; check_md_links ok; run_workflow_locally research-ci and readme-live-links pass, front matter fixed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fde910dd-5391-58d3-a4c1-d11485b7da73",
+    "transcripts": 1,
+    "first": "2026-11-14T21:07:06Z",
+    "last": "2026-11-14T21:21:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 31483,
+        "thinking": 6106,
+        "cache_read": 6772783,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133718,
+        "api_equivalent_usd": 3.0544,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 31483,
+      "thinking": 6106,
+      "cache_read": 6772783,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133718,
+      "api_equivalent_usd": 3.0544,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 51,
+      "WebSearch": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.1,
+      "active_minutes": 14.1,
+      "model_minutes": 6.18,
+      "tool_minutes": 7.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "literature search, a pooled fit with leave-one-out, figure, abstract and conclusions rewrite by a fluid-power PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 196.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

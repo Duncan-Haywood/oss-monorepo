@@ -40,6 +40,8 @@ class SimFeeder:
         self.fob_cut = False           # wireless e-stop: drops the contactor's coil, the board sees no switch (2026-11-14)
         self.drop_cmd = None           # set to a command byte to lose the next such frame on the wire
         self.pot_broken = False
+        self.pot_pickup = None         # f(duty, read index) -> volts added to each pot reading (tests/pot_pickup_sweep.py)
+        self.elev_jammed = False       # the actuator does not move whatever the duty
         self.pack_mv = 25630           # battery reading; above REGEN_BRAKE_MAX_MV the wheels coast down (2026-11-14)
         state = self
         sim = self
@@ -74,13 +76,18 @@ class SimFeeder:
 
             def __init__(self, pin, atten=None):
                 self.pin = pin
+                self._n = 0
 
             def read_u16(self):
                 cfg = state.cfg
                 if state.pot_broken:
                     return 0
                 lo, hi = cfg.ELEV_POT_RAW_RETRACTED, cfg.ELEV_POT_RAW_EXTENDED
-                return int(lo + state.elev_true / cfg.ELEV_STROKE_MM * (hi - lo))
+                raw = lo + state.elev_true / cfg.ELEV_STROKE_MM * (hi - lo)
+                if state.pot_pickup is not None:   # the pot spans its 3.3 V supply over the calibrated counts
+                    raw += state.pot_pickup(state.hw.elev.duty, self._n) * (hi - lo) / 3.3
+                    self._n += 1
+                return int(min(max(raw, 0), 65535))
 
             def read_uv(self):          # GPIO 36, the battery divider (100k/10k)
                 return int(sim.pack_mv * 1000 / 11)
@@ -168,7 +175,7 @@ class SimFeeder:
                     self.us = t0 + int(frac * 1000)
                     tach._p(None)
             self.us = t0 + 1000
-            if hw.elev.mode != controller.ELEV_RC:
+            if hw.elev.mode != controller.ELEV_RC and not self.elev_jammed:
                 d = hw.elev.duty
                 v = self.cfg.ELEV_SPEED_EXT_MM_S if d > 0 else self.cfg.ELEV_SPEED_RET_MM_S
                 self.elev_true = min(max(self.elev_true + v * d * 0.001, 0.0), self.cfg.ELEV_STROKE_MM)

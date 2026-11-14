@@ -188,8 +188,8 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git (latest: Peppol BIS 3.0.22, 1,048/1,048 unit asserts).
-      Open: ZATCA rules on a real sandbox invoice and credit or debit note;
-      FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
+      Open: ZATCA stamp check landed (README): a real taxpayer's KSA note; FatturaPA
+      tolerances and SdI codes read from spec 1.9 (2026-11-13,
       eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
       Croatia HR-CIUS landed (README): open: a real HR invoice, HRFISK20Data in the
       creator; CIUS-PT: which validator does AT run (AA/RED codes)?; Poland's FA(3):
@@ -298,25 +298,25 @@ flagships:
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Closed items (insights, staged
       default, pooled prior, f, g, b, d, d3-d7, d9, panel and later-pass curves) are
-      written up there. Latest (2026-11-14, "A slot run's cut moved back to an
-      earlier fast turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run
-      that starts after a fast turn (read without the wander bar) is cut from the
-      turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to
-      +0.0045, over d9 where the run follows the speed-up; flags nobody new.
-      site/rank.html ranks a list in the browser on the same refit, with team codes;
-      its stop rule rechecks at the person's own EB prior (docs/RANK-PAGE.md "Noisy
-      answerers"). Team combine: 90% rank ranges for this group and wider ("Team
-      ranges"); a top-k link leads with the team top k, chances and a show of hands
-      (k3: model 338/432 right, tally 311). "Find my top k" mode since 2026-11-14
-      (RANK-PAGE.md "Find my top k"): exact shortlist 54/96 vs 25/96 (ordinary,
-      15-30 options, 1.6x picks); since 2026-11-14 (k2) a link carries the mode and
-      k (RANK-PAGE.md "Shortlist links"), the picks page tables it, 3 ready lists
-      link top 3. Next, most valuable first: (r) get the rank page seen: 10 ready
-      lists + hub landed (RANK-PAGE.md "Six more"); next, read which draw visits,
-      then (c) the first real survey's answers: msToAnswer against the answer-time
-      model, panelWalkRatio on real times, whether times depend on which slot is
-      clicked (the d9 bound assumes not), whether real people have warm-ups, blocks,
-      slot runs or spread-out carelessness, and how noisy real pairwise answers are
+      written up there. d10 (slot run cut from a fast turn):
+      docs/slot-turn-back-2026-11-14.jsonl. site/decide.html (2026-11-14,
+      docs/DECIDE-PAGE.md) weighs criteria by pairwise picks; winner-focused picker
+      and stop (true best 35/60 vs 31; "The winner stop"). site/rank.html ranks a
+      list in the browser on the same refit, with team codes; its stop rule rechecks
+      at the person's own EB prior (docs/RANK-PAGE.md "Noisy answerers"). Team
+      combine: 90% rank ranges for this group and wider ("Team ranges"); a top-k
+      link leads with the team top k, chances and a show of hands (k3: model 338/432
+      right, tally 311). "Find my top k" mode since 2026-11-14 (RANK-PAGE.md "Find
+      my top k"): exact shortlist 54/96 vs 25/96 (ordinary, 15-30 options, 1.6x
+      picks); since 2026-11-14 (k2) a link carries the mode and k (RANK-PAGE.md
+      "Shortlist links"), the picks page tables it, 3 ready lists link top 3. Next,
+      most valuable first: (m) graded option answers on decide.html (DECIDE-PAGE.md
+      "Open"); (r) get the rank page seen: 10 ready lists + hub landed (RANK-PAGE.md
+      "Six more"); next, read which draw visits, then (c) the first real survey's
+      answers: msToAnswer against the answer-time model, panelWalkRatio on real
+      times, whether times depend on which slot is clicked (the d9 bound assumes
+      not), whether real people have warm-ups, blocks, slot runs or spread-out
+      carelessness, and how noisy real pairwise answers are
       (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the d10 turn's
       split search; (d8) a stronger pick signal under wander (staged pairs are near
       50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at
@@ -355,8 +355,7 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the pot wires' pickup from the motor pair's PWM in the
-      shared elevation lead; the bus with several ESC brakes and bounces in a row
+      venv, about 2 min): the bus with several ESC brakes and bounces in a row
       (regen model: cad/README.md "Regenerative braking"); several bounces in a row
       on the contactor; the lift flight as a printed part and the top pulley's
       tensioner if PR 15456 has not landed.
@@ -365,16 +364,15 @@ flagships:
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      History and every measurement: cad/README.md (feeder CAD package; azimuth and
-      elevation drives; shuttle drive; home switch; hard stops; cables; catch
-      trough; ball lift; deck cables; collision sweeps) and the README ("Running a
-      drill on the machine", "Wheel speed loop"). Power (2026-11-14): fuses,
-      precharge, stepper ENABLE, regen (cad/README.md). Next, needing a person: fill
-      the tub over a bare outlet and count how often balls bridge it, motor off and
-      on; build the boot and one flight and feed it balls from a gutter (a ball
-      half-in when a finger arrives; the inlet turn's friction); tilt a gutter with
-      a ball to measure rolling resistance and count bounce-outs down a net; log a
-      real wheel's tach and the battery current on spin-up and rerun
+      History and every measurement: cad/README.md (feeder CAD package, drives,
+      stops, cables, trough, lift, sweeps) and the README ("Running a drill on the
+      machine", "Wheel speed loop"). Power (2026-11-14): fuses, precharge, stepper
+      ENABLE, regen (cad/README.md). Next, needing a person: fill the tub over a
+      bare outlet and count how often balls bridge it, motor off and on; build the
+      boot and one flight and feed it balls from a gutter (a ball half-in when a
+      finger arrives; the inlet turn's friction); tilt a gutter with a ball to
+      measure rolling resistance and count bounce-outs down a net; log a real
+      wheel's tach and the battery current on spin-up and rerun
       tests/wheel_loop_sweep.py and spinup_ramp_sweep.py with its lag; weigh a
       launcher wheel for WHEEL_INERTIA_KGM2; weigh the head and measure the hose's
       torque, the stepper's pull-out, the actuator's real lengths, the column's load
@@ -388,9 +386,11 @@ flagships:
       "Regenerative braking"): a Schottky across the contactor, the firmware coasts
       above a 27.6 V pack; scope the bus on a 20% slow-down and log how hard a real
       ESC brakes. Buildable: the flight as a printed part and the tensioner (PR
-      15456). Actuator's lead landed 2026-11-14 (cad/README.md "The elevation
-      actuator's lead"): cut 220 mm, 209-231 fits; find where a real actuator's
-      cable leaves its housing and bend a built lead through the travel.
+      15456). Pot pickup from the PWM landed 2026-11-14 (1 uF on GPIO 39, trimmed
+      reads): scope GPIO 39 at part duty. Actuator's lead landed 2026-11-14
+      (cad/README.md "The elevation actuator's lead"): cut 220 mm, 209-231 fits;
+      find where a real actuator's cable leaves its housing and bend a built lead
+      through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

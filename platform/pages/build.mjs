@@ -5973,7 +5973,7 @@ const jsonLd = (value) =>
  * tool. The About page's own, separate privacy panel makes the same point
  * with a working link — this one points there instead.
  */
-function disclaimerHtml(toRoot, surfaces = []) {
+export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } = {}) {
   const exceptions = externalCallExceptions(surfaces);
   // Counted in the sentence, named in a <details> after the paragraph (a
   // <details> can't sit inside a <p>). Inline, the ~50 names and ~40 hosts
@@ -6018,19 +6018,28 @@ function disclaimerHtml(toRoot, surfaces = []) {
         <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
         is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
-        count stays in your own browser's local storage.${counterOn() ? ` Each page load
-        also adds one to a daily per-page total on our own open-source counter
-        (which page, which day, and — if you followed one of our own channel
-        links, such as a release note or package page — which channel, and what
-        kind of site sent you, such as "google" or "reddit", never its address;
-        plus the country the request came from as a two-letter code and whether
-        the browser is a phone, tablet or desktop, each kept only as a daily
-        total; nothing you type, no cookie, no IP address stored; its host sees each
-        request the way any web server does), and those totals are
-        published in the repository.` : ''} Browsers sending
+        count stays in your own browser's local storage.
+      </p>${exceptionList}
+      <p>${counter ? `
+        Each page load also adds one to a daily per-page total on our own
+        open-source counter, and those totals are published in the repository.
+        Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
-      </p>${exceptionList}
+      </p>
+      <ul class="pfs-counted">
+        <li><strong>Counted, as daily totals only:</strong> which page; which day;
+        the channel, if you came from one of our own links (a release note, a
+        package page); the kind of site that sent you ("google", "reddit"),
+        never its address; the country, as a two-letter code; and phone, tablet
+        or desktop.</li>
+        <li><strong>Never stored:</strong> anything you type, a cookie, your IP
+        address. Its host sees each request the way any web server does.</li>
+      </ul>` : `
+        Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>`}
       <p>
         If you email one of this site's addresses, your message and address
         are stored privately with our host, Cloudflare, read only to answer
