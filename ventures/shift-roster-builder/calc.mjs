@@ -1837,6 +1837,17 @@ const EXACT_AUTO_SLOTS = MAX_SLOTS;
 // generation given the time proved both. Those weeks get it instead: `scoreCGMs` defaults to 4 x exactMs there. `exactTree: true`
 // keeps the tree on any week.
 const EXACT_TREE_SLOTS = 60;
+// Expected time of the open-hours clique LP (cliqueOpenFloor) on a week of S shift copies: 1.6 s x (S / 245)^4.5, fitted to one
+// machine's 1.2-1.7 s at 238-245 copies, 4.5-6.3 s at 304-326 and 13-15 s at 400 (eval/clique-floor.out.txt).
+const cliqueCostMs = (S) => 1600 * Math.pow(S / 245, 4.5);
+// Column generation's share of the time left on a big week with the cover passes deferred: half, never under 1 s, unless that would
+// leave the clique LP less than its expected cost; then what leaves it that cost plus 1 s (README "Room for the clique LP on the
+// biggest weeks"). `cliqueRoom: false` keeps the plain half, as does `cliqueFloor: false` (no clique LP to make room for).
+function scoreCGBudgetMs(leftMs, S, o = {}) {
+  const half = Math.max(1000, leftMs / 2);
+  if (o.cliqueRoom === false || o.cliqueFloor === false || leftMs - half >= cliqueCostMs(S)) return half;
+  return Math.max(1000, Math.min(half, leftMs - cliqueCostMs(S) - 1000));
+}
 const TANGENTS = 8; // tangent lines under each person's hours curve inside the coverage flow
 // Open hours are a sum of whole shift lengths (a shift is held or open), so a floor on them lifts to the least such sum at or above
 // it: with shifts of 3, 8 and 10 hours nothing sums to 2, so a floor of 2 h means 3 h. The grid rounding in exactSearch only knows
@@ -3298,7 +3309,7 @@ function buildRosterOnce(staff, slots, options = {}) {
     if (!exactOn || o.cliqueFloor === false || over()) return;
     // Under a time budget, skip it unless the time left covers its expected cost: 1.6 s x (copies / 245)^4.5, fitted to one machine's
     // 1.2-1.7 s at 238-245 copies, 4.5-6.3 s at 304-326 and 13-15 s at 400 (eval/clique-floor.out.txt). `cliqueFloor: true` runs it anyway.
-    if (budgetMs > 0 && o.cliqueFloor !== true && budgetMs - (Date.now() - tStart) < 1600 * Math.pow(ctx.S / 245, 4.5)) return;
+    if (budgetMs > 0 && o.cliqueFloor !== true && budgetMs - (Date.now() - tStart) < cliqueCostMs(ctx.S)) return;
     // `openSums: false` (no lift to whole shift sums) applies here too: the floor is then the dual bound alone.
     clique = cliqueOpenFloor(ctx, { upTo: o.openSums === false ? Infinity : Math.floor(best.score / BIG + 1e-9) });
     if (clique) ctx.openFloor = Math.max(ctx.openFloor ?? openHoursFloor(ctx), clique.floor);
@@ -3325,9 +3336,15 @@ function buildRosterOnce(staff, slots, options = {}) {
     if (tryEarly) mark("earlyFloor");
     // With a time budget (weeks above BIG_WEEK) and the cover passes deferred, column generation gets at most half of what is left,
     // so the passes still have time if it does not prove the roster: a 60-person week given 33 s of it ended 11 open hours worse.
+    // Room for the clique LP (2026-11-14, README "Room for the clique LP on the biggest weeks"): on a week whose clique LP would no
+    // longer fit the time left after column generation's half (about 330 copies and up at the 20 s budget), column generation
+    // gets only what leaves the clique LP its expected cost plus 1 s, never under 1 s. On the 100 x 280 weeks the half (9 s)
+    // proved nothing and left a root bound of 294 h, while the clique LP then bounds 358 h and guides the day sweeps: 385 to 376
+    // and 353 to 350 open hours (eval/clique-room.out.txt). `cliqueRoom: false` keeps the plain half.
+    const cgHalf = scoreCGBudgetMs(budgetMs - (Date.now() - tStart), ctx.S, o);
     if (o.scoreCG !== false) {
       try {
-        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, openFloor: early?.floor || 0, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? Math.max(1000, (budgetMs - (Date.now() - tStart)) / 2) : Infinity), maxNodes: o.scoreCGPricingNodes ?? 200000 });
+        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, openFloor: early?.floor || 0, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? cgHalf : Infinity), maxNodes: o.scoreCGPricingNodes ?? 200000 });
       } catch { cg = null; } // a solver failure leaves the exact search to do the work alone
       mark("scoreCG");
       if (cg?.roster) {
@@ -5098,7 +5115,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
