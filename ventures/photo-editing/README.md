@@ -1166,10 +1166,31 @@ all three (37.3 M in all), and so are the as-shot white balance, the black level
 the sensels exactly, keeps flat fields flat through the X-Trans demosaic, compares the two engines
 byte for byte and runs a synthetic RAF through the profile chooser and the CLI.
 
-Not done: the X-Trans demosaic is bilinear, softer and more prone to false colour than a
-directional X-Trans demosaic such as Markesteijn's; Fujifilm's lossless-compressed RAFs (X-T2 era
+Not done: Fujifilm's lossless-compressed RAFs (X-T2 era
 and later), SuperCCD and GFX files are refused or unchecked (none at hand); colour is only as good
 as the profile you supply (no real Fujifilm `.dcp` was at hand).
+
+## Directional X-Trans demosaic (2026-11-14)
+
+X-Trans files are now demosaiced directionally by default (with numpy): green is built four times,
+each time interpolated along one direction only (across, down, both diagonals), red and blue follow
+from each, and every pixel keeps the direction whose result is most even in L\*a\*b\*, with a 3x3
+median of the colour differences after. The bilinear demosaic averaged across edges and left coloured
+fringes on them. `shootflow develop X.RAF --demosaic auto|bilinear|directional` (auto, the default, is
+directional on X-Trans with numpy and bilinear otherwise; the pure-Python engine keeps bilinear and
+says so). The code is the repository's own, from the published idea, not dcraw's or LibRaw's source
+(`src/shootflow/xtrans_demosaic.py`).
+
+How it was checked (`tools/xtrans_demosaic_check.py`, `eval/xtrans-directional-demosaic-2026-11-14.md`):
+known-truth pictures mosaicked with the real X-E1 and X-E2 layouts and demosaiced by ours and by LibRaw
+itself (the mosaic written into the RAF's sensor data, so LibRaw runs its own linear and Markesteijn
+X-Trans methods). Colour PSNR against bilinear: 36.6 against 34.8 dB on the X-E1 frame (binned 4x4 as
+truth), 47.9 against 42.0 on the held-out X-E2 frame, 33.5 against 20.3 on a synthetic zone plate and
+colour-edge sheet; 99th-percentile false colour down 27-75%. That beats LibRaw's one-pass Markesteijn on
+two of the three (X-E2 46.5, sheet 25.9; X-E1 37.5) and trails its three-pass method by 2-6 dB. 7-8.5 s
+for a 16 MP frame on four cores (bilinear 0.9 s; LibRaw's three-pass 1.7 s in C). Not done: a C path,
+LibRaw's three-pass quality, a noisy known truth (on real sensor data our luminance is further from
+LibRaw's render than bilinear's is, unexplained), Bayer files (they keep bilinear).
 
 ## Pentax PEF (2026-11-14)
 
