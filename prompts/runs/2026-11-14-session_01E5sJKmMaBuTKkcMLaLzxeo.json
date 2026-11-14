@@ -1,0 +1,269 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmMaBuTKkcMLaLzxeo",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T08:18:02Z",
+  "ended": "2026-11-14T08:18:39Z",
+  "wall_minutes": 19.19,
+  "tokens_in": 4752428,
+  "tokens_out": 24960,
+  "cost_usd": 2.1905,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15789",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First prototype of the node --test resolver read working-directory only when written before run:, so it counted all 84 platform/pages suites as unwired; fixed by reading the whole step."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 12 entries, all control-plane workflow edits this session cannot land; the prompt says fix them first but has no path for 'all open items need the owner'. Took the closest non-control-plane fix (unwired_checks.py) instead."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20 | grep` for recently changed files (ai-bookkeeper/bank.mjs, shift-roster-builder/cli.mjs) printed nothing, with no hint whether they were unguarded or too slow."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open entries before seeding; all 12 are control-plane workflow edits needing owner approval.",
+      "did": "Seeded first, then closed one entry (17 distribution suites in no PR workflow) without a workflow edit by extending unwired_checks.py.",
+      "result": "Entry 2026-11-12 #1 marked patched; the other 11 remain for a control-plane PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-tests-no-workflow-runs.md"
+  ],
+  "goal": null,
+  "notes": "Target platform/devlog/devlog.mjs (random draw, --under platform). 4/8 caught before, 8/8 after (rerun). Guard added (step 4b): platform/ci/unwired_checks.py runs every platform/**/*.test.mjs that no workflow runs (34 suites; globs resolved from each step's working-directory or cd), via run_venture_tests.py --since in ventures-tests.yml. First run caught term-ids.test.mjs red on main. Cost: unwired_checks 33 s -> 65 s locally. Verified: node --test devlog.test.mjs 15/15, term-ids.test.mjs 4/4, python3 -m unittest test_unwired_checks 17/17, python3 platform/ci/unwired_checks.py 132/149 pass, 16 skipped (pytest-style suites, no pytest here), only red was test_unwired_checks before its mock was updated; check_post_frontmatter and check_post_links clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/devlog/devlog.mjs",
+        "test": "node --test platform/devlog/devlog.test.mjs  (in .)",
+        "seed": 340839602,
+        "commit": "67cfce4f3",
+        "sites": 51,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 112,
+            "col": 86,
+            "operator": "or-to-and",
+            "before": "return docs.sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')) || b.slug.localeCompare(a.slug));",
+            "after": "return docs.sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')) && b.slug.localeCompare(a.slug));",
+            "line_text": "  return docs.sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')) || b.slug.localeCompare(a.slug));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "devlog.test.mjs: same-day and undated docs sort test"
+          },
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 121,
+            "col": 54,
+            "operator": "or-to-and",
+            "before": "if (!statSync(path.join(dir, name)).isDirectory() || !existsSync(readme)) continue;",
+            "after": "if (!statSync(path.join(dir, name)).isDirectory() && !existsSync(readme)) continue;",
+            "line_text": "    if (!statSync(path.join(dir, name)).isDirectory() || !existsSync(readme)) continue;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 123,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const dates = md.match(/\\b20\\d{2}-\\d{2}-\\d{2}\\b/g) ?? [];",
+            "after": "const dates = md.match(/\\b20\\d{3}-\\d{2}-\\d{2}\\b/g) ?? [];",
+            "line_text": "    const dates = md.match(/\\b20\\d{2}-\\d{2}-\\d{2}\\b/g) ?? [];",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 145,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const empty = { records: 0, friction: [], deviations: [], integrity: [], outcomes: {}, by_day: {} };",
+            "after": "const empty = { records: 1, friction: [], deviations: [], integrity: [], outcomes: {}, by_day: {} };",
+            "line_text": "  const empty = { records: 0, friction: [], deviations: [], integrity: [], outcomes: {}, by_day: {} };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 163,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "outcomes[r.outcome ?? 'unknown'] = (outcomes[r.outcome ?? 'unknown'] ?? 0) + 1;",
+            "after": "outcomes[r.outcome ?? 'unknown'] = (outcomes[r.outcome ?? 'unknown'] ?? 1) + 1;",
+            "line_text": "    outcomes[r.outcome ?? 'unknown'] = (outcomes[r.outcome ?? 'unknown'] ?? 0) + 1;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 167,
+            "col": 74,
+            "operator": "const-plus-one",
+            "before": "d.tracks[r.track ?? 'unknown'] = (d.tracks[r.track ?? 'unknown'] ?? 0) + 1;",
+            "after": "d.tracks[r.track ?? 'unknown'] = (d.tracks[r.track ?? 'unknown'] ?? 1) + 1;",
+            "line_text": "      d.tracks[r.track ?? 'unknown'] = (d.tracks[r.track ?? 'unknown'] ?? 0) + 1;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "devlog.test.mjs: by_day counts runs per track"
+          },
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 189,
+            "col": 30,
+            "operator": "minus-to-plus",
+            "before": ".sort((a, b) => b.count - a.count || a.file.localeCompare(b.file));",
+            "after": ".sort((a, b) => b.count + a.count || a.file.localeCompare(b.file));",
+            "line_text": "      .sort((a, b) => b.count - a.count || a.file.localeCompare(b.file));",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "devlog.test.mjs: friction ranks by count then file, lower-count files tallied first"
+          },
+          {
+            "file": "platform/devlog/devlog.mjs",
+            "line": 189,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": ".sort((a, b) => b.count - a.count || a.file.localeCompare(b.file));",
+            "after": ".sort((a, b) => b.count - a.count && a.file.localeCompare(b.file));",
+            "line_text": "      .sort((a, b) => b.count - a.count || a.file.localeCompare(b.file));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "devlog.test.mjs: friction ranks by count then file, lower-count files tallied first"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/proposal/term-ids.test.mjs",
+        "issue": "Red on main since PR #15774: its regex required saveBid(localStorage, ...) but locksmith-bid-calculator now (correctly) saves through pageStorage(). No workflow runs the suite, so nobody saw it. Reproduced with `cd platform/proposal && node --test term-ids.test.mjs` (1 of 4 failing).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15789"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "81837c19-15e0-5f50-8ea7-23ac507dda82",
+    "transcripts": 1,
+    "first": "2026-11-14T08:18:02Z",
+    "last": "2026-11-14T08:37:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 101,
+        "output": 24960,
+        "thinking": 5385,
+        "cache_read": 4657400,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94927,
+        "api_equivalent_usd": 2.1905,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 101,
+      "output": 24960,
+      "thinking": 5385,
+      "cache_read": 4657400,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94927,
+      "api_equivalent_usd": 2.1905,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.19,
+      "active_minutes": 19.19,
+      "model_minutes": 5.0,
+      "tool_minutes": 14.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "mutation triage + 3 tests, diagnosing a stale guard, a workflow-glob resolver with tests, and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 228.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
