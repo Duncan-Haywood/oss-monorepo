@@ -304,9 +304,9 @@ flagships:
       +0.0045, over d9 where the run follows the speed-up; flags nobody new.
       site/rank.html ranks a list in the browser on the same refit, with team codes;
       its stop rule rechecks at the person's own EB prior (docs/RANK-PAGE.md "Noisy
-      answerers"). Team combine shows two 90% rank ranges, this group and the wider
-      group (random effects, Laplace; Wider cover 0.955-1.00, docs/RANK-PAGE.md
-      "Team ranges", "Laplace, not PQL"). "Find my top k" mode since 2026-11-14
+      answerers"). Team combine: 90% rank ranges for this group and wider ("Team
+      ranges"); a top-k link leads with the team top k, chances and a show of hands
+      (k3: model 338/432 right, tally 311). "Find my top k" mode since 2026-11-14
       (RANK-PAGE.md "Find my top k"): exact shortlist 54/96 vs 25/96 (ordinary,
       15-30 options, 1.6x picks); since 2026-11-14 (k2) a link carries the mode and
       k (RANK-PAGE.md "Shortlist links"), the picks page tables it, 3 ready lists
