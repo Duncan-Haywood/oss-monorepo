@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqye5jpwbW44kTtFxsCp",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T04:39:16Z",
+  "ended": "2026-11-14T04:45:42Z",
+  "wall_minutes": 6.64,
+  "tokens_in": 2661121,
+  "tokens_out": 19551,
+  "cost_usd": 1.4996,
+  "tool_calls": 34,
+  "task": "perf: sprinkler-hydraulic-calc test suite and solver (item 4 of the last perf pass's not-changed list)",
+  "projects": [
+    "sprinkler-hydraulic-calc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15730",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First attempt allocated a Float64Array per matrix row per Newton step and was slower than the original (23 s vs 20 s bench); fixed with one buffer per solve."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are still owner-gated workflow edits; the prompt already says to skip to items 2-4, which worked, but the backlog list is the first thing it sends a run to."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`/usr/bin/time` is not installed in the cloud container; used date arithmetic for wall-clock timings."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-zeros-a-sprinkler-solver-was-multiplying.md",
+    "docs/history/ci-perf-2026-11-14-sprinkler-envelope-cholesky.md"
+  ],
+  "goal": null,
+  "notes": "Metric: python3 platform/ci/run_venture_tests.py sprinkler-hydraulic-calc wall clock from the shell, 14.6 s before (main b03218fac, change stashed) and 3.7 s after, same machine back to back. Scratch bench (grid_vs_tree table, example under NFPA and EPANET, six 10-line ladders): 20.3 s before, 4.7-5.0 s after, JSON sha256 877055db4e31b76e both. Profile (node --cpu-prof self time) before: cholSolve 13.7 of 20.3 s. One analyze of a 10-line 80-head grid 241 ms -> 52 ms (5-call mean after warm-up). CLI + check/ outputs sha256 6d19a2c4 before and after. Full venture suite 18/18 pass; mutant (inner product one column late) fails the new test and 4 others.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "527b4637-3169-5b53-a62a-dc4cf0433a3f",
+    "transcripts": 1,
+    "first": "2026-11-14T04:39:16Z",
+    "last": "2026-11-14T04:45:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 64,
+        "output": 19551,
+        "thinking": 4103,
+        "cache_read": 2587202,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73855,
+        "api_equivalent_usd": 1.4996,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 64,
+      "output": 19551,
+      "thinking": 4103,
+      "cache_read": 2587202,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73855,
+      "api_equivalent_usd": 1.4996,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.64,
+      "active_minutes": 6.64,
+      "model_minutes": 3.14,
+      "tool_minutes": 3.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile, envelope Cholesky with bit-identical proof test, history note and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 266.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

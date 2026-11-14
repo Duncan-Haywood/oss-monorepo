@@ -137,6 +137,38 @@ class Paired(unittest.TestCase):
         end = pd.to_datetime(kept.start) + pd.to_timedelta(kept.y, unit="D")
         self.assertTrue((end <= pd.Timestamp("2024-01-01")).all())
 
+    def test_deploy_trains_only_on_rows_known_at_the_decision_date_with_fixed_rounds(self):
+        """Session 86: deploy=True cuts the sources' training rows to those completed by 1 January Y,
+        fixes each quantile's rounds from years <= Y-4 early-stopped on Y-3, and leaves the test rows alone."""
+        import datetime
+        import numpy as np, pandas as pd
+        fc = self.frames("cascade2")
+        r0 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True)
+        r = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True, deploy=True)
+        D = datetime.date(2024, 1, 1)
+        tr = pd.concat([fc[c][fc[c].year <= 2022] for c in r["sources"]])
+        self.assertEqual(r["deploy"]["n_train"], len(transfer.completed_by(tr, D)))
+        self.assertEqual(r["deploy"]["n_train_full"], len(tr))
+        self.assertEqual(r["n_source_train"], r["deploy"]["n_train"])
+        va = pd.concat([fc[c][fc[c].year == 2021] for c in r["sources"]])
+        self.assertEqual(r["deploy"]["n_rounds_val_full"], len(va))
+        self.assertTrue(all(1 <= v <= 300 for v in r["deploy"]["rounds"]["0"].values()))
+        np.testing.assert_array_equal(r0["_rows"]["y"], r["_rows"]["y"])
+        np.testing.assert_array_equal(r0["_rows"]["loss"]["own_baseline"][0.5], r["_rows"]["loss"]["own_baseline"][0.5])
+        self.assertIsNone(r0["deploy"])
+
+    def test_fixed_rounds_read_no_validation_set(self):
+        """Session 86: boosted.fit_predict(fixed=...) trains exactly that many rounds without Xca."""
+        import boosted
+        fc = self.frames("type")
+        d = fc["sf"]
+        x = transfer.feats(d)
+        pr, pz, rounds, _ = boosted.fit_predict(x, d.y.to_numpy(float), None, None, x.iloc[:5], seed=0,
+                                                fixed={t: 7 for t in transfer.TAUS})
+        self.assertIsNone(pz)
+        self.assertEqual(rounds, {t: 7 for t in transfer.TAUS})
+        self.assertEqual(len(pr[0.5]), 5)
+
     def test_different_test_rows_are_refused(self):
         ft = self.frames("type")
         rt = transfer.run(ft, "seattle", 2024, 1, keep_rows=True)

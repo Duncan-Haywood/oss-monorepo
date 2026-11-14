@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtLhRB4FrBUwAJiQm2t",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T04:06:49Z",
+  "ended": "2026-11-14T04:21:40Z",
+  "wall_minutes": 15.17,
+  "tokens_in": 11402675,
+  "tokens_out": 59834,
+  "cost_usd": 4.9976,
+  "tool_calls": 77,
+  "task": "Deepen (flagship 5) einvoice-preflight: read the NF-e presumed-credit appropriation event e211110",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15720",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First xmllint differential disagreed on 3 of 199 mutants (leading spaces in verAplic/cCredPres): values were trimmed before pattern matching though the types are xs:string with whitespace preserve",
+      "fixed": true
+    },
+    {
+      "what": "Test imported a non-existent report.mjs export (checkFiles); the export is preflightDocuments",
+      "fixed": true
+    },
+    {
+      "what": "First post front matter exceeded the description (198>160) and seo_title (76>70) caps",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hint says bracket the first letter, but the hook also blocks a bracketed pkill when the unbracketed pattern appears elsewhere on the same command line (here the http.server launch); it cost one blocked call. Worth saying: launch and kill in separate calls, or kill by PID."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The einvoice-preflight next: sits at the 2,000-character cap, so landing one item and replacing it with a one-line pointer still overflowed; I had to shorten an earlier item too. The cap pushes every run into editing others' items."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-einvoice-brazil-presumed-credit-event-three-layouts.md",
+    "ventures/einvoice-preflight/eval/nfe-event-211110-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (no security-alerts branch); IDEAS.md and website requests empty; routed ventures/1 by draw; allocate.py picked einvoice-preflight (row 3). Sources: e211110_v1.00.xsd of the RTC event packages v1.20/v1.30/v1.40 from stackin-io/data-source's mirror of the official ZIPs (SHA-256 pinned), NT 2025.002 v1.51 s.8.4 from higajooj/dfe_law_reference, cStat texts from sped-nfe docs/cStat.md. Finding: sped-nfe master ships the v1.20 event schema (tpAutor 1 only, old gCredPres layout). Verification run here: node --test nfe-event.test.mjs 10/10; python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (0 failed); eval/nfe-event-xsd-diff.mjs: 199 of 199 mutants agree with xmllint; converter output validates under xmllint; Brazil page section driven in Chromium (sample, convert, paired NF-e; no console errors; no horizontal scroll at 375 px); portfolio/router/validate.py OK; post front matter, links and similarity checks OK. Corpus: 3 public NF-e 211110 files (all Unimake test samples with a made-up key).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4d918dfc-e7a8-5684-9454-5adae16cf2e7",
+    "transcripts": 1,
+    "first": "2026-11-14T04:06:49Z",
+    "last": "2026-11-14T04:21:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 145,
+        "output": 59834,
+        "thinking": 7983,
+        "cache_read": 11207682,
+        "cache_write_5m": 0,
+        "cache_write_1h": 194848,
+        "api_equivalent_usd": 4.9976,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 145,
+      "output": 59834,
+      "thinking": 7983,
+      "cache_read": 11207682,
+      "cache_write_5m": 0,
+      "cache_write_1h": 194848,
+      "api_equivalent_usd": 4.9976,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 70,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.17,
+      "active_minutes": 15.17,
+      "model_minutes": 10.15,
+      "tool_minutes": 5.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior Brazil e-invoicing developer: read NT 8.4 and three schema versions, write the checker, converter, xmllint differential, page and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 200.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

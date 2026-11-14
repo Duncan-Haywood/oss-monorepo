@@ -19,6 +19,7 @@ import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
+import { addDeferral, importDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferredRegister, deferredWaterfall, waterfallCsv } from "./deferred.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
@@ -117,6 +118,14 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   inventory method fifo|avg             costing method (default fifo)
   inventory             stock on hand by SKU, valued; the total should equal account 1450
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
+  deferred add NAME --amount 1200 --start D (--end D | --months 12) [--received D] [--customer TEXT] [--monthly] [--into 4000]
+                         an up-front sale earned over time (annual plan, retainer, class pass); file the receipt to 2400
+  deferred import FILE.csv [--monthly] [--end-exclusive] [--into 4000]  one row per up-front sale (name, amount, start, end or months[, customer, date, account, method])
+  deferred cancel ID --date D [--keep]   stop earning on D; the rest is a refund owed (file the refund to 2400), or with --keep is earned that day
+  deferred refunded ID --date D   the refund of a cancelled plan was paid (its bank line filed to 2400)
+  deferred remove ID     drop a row
+  deferred [--as-of D]   list deferrals: received, earned so far, still to earn, refund owed
+  deferred waterfall [--as-of D] [--months 12] [--csv]   what is still to be earned, month by month; current (next 12 months) and long-term
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
@@ -407,6 +416,56 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       console.log(`PREPAID EXPENSES as of ${g.asOf ?? "-"}`);
       for (const a of g.rows) console.log(`  ${a.id.padEnd(6)} ${a.name.slice(0, 28).padEnd(28)} ${a.date}  ${String(a.months).padStart(2)} mo  paid ${fmt(a.cents).padStart(11)}  expensed ${fmt(a.expensed).padStart(11)}  ahead ${fmt(a.remaining).padStart(11)}`);
       console.log(`  Total: paid ${fmt(g.cents)}, still paid ahead ${fmt(g.remaining)}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "deferred") {
+  try {
+    const sub = rest[0];
+    if (sub === "add") {
+      const fields = { amount: flag("--amount"), start: flag("--start"), end: flag("--end"), months: flag("--months"), received: flag("--received"), customer: flag("--customer") ?? "", incomeAccount: flag("--into") ?? undefined, method: has("--monthly") ? "monthly" : "daily" };
+      const r = addDeferral(books, { ...fields, name: argv.slice(2).join(" ") });
+      books = r.books; save();
+      const d = r.deferral;
+      console.log(`${d.id} ${d.name}: ${fmt(d.cents)} earned ${d.method === "monthly" ? "in equal monthly shares" : "by the day"} from ${d.start} to ${d.end} into ${name(d.incomeAccount)}. File the customer's payment (or the invoice) to 2400.`);
+    } else if (sub === "import") {
+      const into = flag("--into") ?? undefined, method = has("--monthly") ? "monthly" : "daily", endExclusive = has("--end-exclusive");
+      if (!rest[1] || !existsSync(rest[1])) throw new Error("deferred import needs a CSV file.");
+      const r = importDeferralsCsv(books, readFileSync(rest[1], "utf8"), { method, endExclusive, dayFirst, ...(into ? { incomeAccount: into } : {}) });
+      books = r.books; save();
+      for (const p of r.problems) console.error(p);
+      console.log(`${r.added} deferral${r.added === 1 ? "" : "s"} added.${r.added ? " File each receipt (or invoice) to 2400." : ""}`);
+    } else if (sub === "cancel") {
+      const date = flag("--date"), keep = has("--keep");
+      const r = cancelDeferral(books, rest[1], { date, keep });
+      books = r.books; save();
+      console.log(keep ? `${rest[1]} cancelled on ${date}; what was left is earned that day.` : `${rest[1]} cancelled on ${date}; ${fmt(r.refund)} unearned is owed back. File the refund payment to 2400.`);
+    } else if (sub === "refunded") {
+      const date = flag("--date");
+      books = markRefunded(books, rest[1], { date }).books; save();
+      console.log(`${rest[1]}: refund paid on ${date}; nothing more is owed back.`);
+    } else if (sub === "remove") {
+      books = removeDeferral(books, rest[1]).books; save();
+      console.log(`${rest[1]} removed.`);
+    } else if (sub === "waterfall") {
+      const horizon = flag("--months") ?? 12, csv = has("--csv");
+      const w = deferredWaterfall(books, { asOf, horizon });
+      if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
+      if (csv) { process.stdout.write(waterfallCsv(w)); process.exit(0); }
+      console.log(`DEFERRED REVENUE WATERFALL after ${w.asOf ?? "-"}`);
+      if (!w.rows.length) console.log("  Nothing left to earn.");
+      else {
+        console.log(`  ${"".padEnd(26)}${w.months.map((m) => m.padStart(10)).join("")}${"later".padStart(11)}`);
+        for (const r of w.rows) console.log(`  ${(r.id + " " + r.name).slice(0, 25).padEnd(26)}${r.byMonth.map((v) => (v ? fmt(v) : "-").padStart(10)).join("")}${(r.later ? fmt(r.later) : "-").padStart(11)}`);
+        console.log(`  ${"Total".padEnd(26)}${w.totals.map((v) => fmt(v).padStart(10)).join("")}${fmt(w.later).padStart(11)}`);
+      }
+      console.log(`  Still to earn ${fmt(w.unearned)}: ${fmt(w.current)} in the next 12 months (current), ${fmt(w.longTerm)} after (long term).`);
+      if (w.refund) console.log(`  Refunds owed on cancelled plans: ${fmt(w.refund)} (not earned; file each refund payment to 2400).`);
+    } else {
+      const g = deferredRegister(books, asOf);
+      if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+      console.log(`DEFERRED REVENUE as of ${g.asOf ?? "-"}`);
+      for (const a of g.rows) console.log(`  ${a.id.padEnd(6)} ${(a.name + (a.customer ? ` (${a.customer})` : "")).slice(0, 30).padEnd(30)} ${a.start} to ${a.end}  received ${fmt(a.cents).padStart(11)}  earned ${fmt(a.earned).padStart(11)}  to earn ${fmt(a.unearned).padStart(11)}${a.refundDue ? `  refund owed ${fmt(a.refundDue)}` : ""}${a.cancelled ? `  cancelled ${a.cancelled.date}` : ""}`);
+      console.log(`  Total: received ${fmt(g.cents)}, earned ${fmt(g.earned)}, still to earn ${fmt(g.unearned)}${g.refundDue ? `, refunds owed ${fmt(g.refundDue)}` : ""}`);
     }
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "assets") {

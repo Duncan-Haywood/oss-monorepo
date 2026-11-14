@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, SLOT_BLOCK_ALPHA, SLOT_BLOCK_MIN, fairCoinTail, slotBlockAdvice, slotBlockStarts, slotFlags, SLOT_BLOCK_MIN_KEPT, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, SLOT_BLOCK_ALPHA, SLOT_BLOCK_MIN, fairCoinTail, slotBlockAdvice, slotBlockStarts, slotFlags, SLOT_BLOCK_MIN_KEPT, slotRunsAtTurns, SLOT_AT_TURN_MIN, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -281,6 +281,30 @@ describe("slotBlockStarts", () => {
     expect([...whole].sort()).toEqual(["always", "early", "share"]);
     expect([...from.keys()]).toEqual(["late"]);
     expect(from.get("late")).toBeGreaterThanOrEqual(SLOT_BLOCK_MIN_KEPT);
+  });
+  it("slotRunsAtTurns tests the slots from a named turn as one candidate: a lean the run test misses is found", () => {
+    // 13 of 14 on the top slot from answer 40: the tail test needs 15 decided answers and Bonferroni, so it misses it.
+    const answers = seq("both", honest(40) + "aaaaaaaaaaaaba");
+    expect(slotBlockStarts(answers).size).toBe(0);
+    expect(fairCoinTail(14, 13)).toBeLessThan(SLOT_BLOCK_ALPHA);
+    expect([...slotRunsAtTurns(answers, new Map([["both", 40]]))]).toEqual([["both", 40]]);
+    // The same answers with no turn named, or the turn named at the start of the honest stretch, are left alone.
+    expect(slotRunsAtTurns(answers, new Map()).size).toBe(0);
+    expect(slotRunsAtTurns(seq("even", honest(60)), new Map([["even", 20]])).size).toBe(0);
+  });
+  it("slotRunsAtTurns counts ties in the turn index, skips tails under SLOT_AT_TURN_MIN decided answers, and rejects bad bars", () => {
+    expect(slotRunsAtTurns(seq("tied", honest(20) + "eeee" + "a".repeat(SLOT_AT_TURN_MIN)), new Map([["tied", 20]])).get("tied")).toBe(20);
+    expect(slotRunsAtTurns(seq("short", honest(20) + "e".repeat(10) + "a".repeat(SLOT_AT_TURN_MIN - 1)), new Map([["short", 20]])).size).toBe(0);
+    expect(() => slotRunsAtTurns([], new Map(), 0)).toThrow();
+    expect(() => slotRunsAtTurns([], new Map(), 0.01, 0)).toThrow();
+  });
+  it("slotRunsAtTurns flags honest coin-flip slots at most alpha of the time, however the turns were chosen", () => {
+    let s = 777;
+    const rand = () => ((s = (s * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+    const answers = Array.from({ length: 4000 }, (_, p) => Array.from({ length: 60 }, () => ({ participantId: `h${p}`, result: rand() < 0.5 ? "A" : "B" }))).flat();
+    // Every person named at a turn, as a fast-block reading that flagged everyone would.
+    const turns = new Map(Array.from({ length: 4000 }, (_, p) => [`h${p}`, 20 + (p % 30)] as [string, number]));
+    expect(slotRunsAtTurns(answers, turns).size / 4000).toBeLessThanOrEqual(SLOT_BLOCK_ALPHA);
   });
   it("advice names people and answers, and is empty when nobody was flagged", () => {
     expect(slotBlockAdvice(0, 0)).toBe("");

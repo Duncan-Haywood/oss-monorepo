@@ -1,0 +1,95 @@
+Wages by site: a city shop with a $21.30 floor and a suburban shop at the $17.13 state floor, 40 made-up weeks, 7 + 3 people.
+City: 2 open 7-3 + 2 close 3-11 daily (224 h); Suburb: 1 on 11-7 Mon-Thu, 2 Fri-Sun (80 h). Wages $17.13-$23.13. f = share allowed at both shops.
+
+seed  1 f=0.5 | unpriced:   8 h open, built as $6094.48, true $6316.24, 128 h topped up | priced:   8 h open, $6209.52, 112 h topped up | saves $106.72
+seed  1 f=1 | unpriced:   8 h open, built as $6094.48, true $6376.32, 152 h topped up | priced:   8 h open, $6209.52, 112 h topped up | saves $166.80
+seed  2 f=0.5 | unpriced:  24 h open, built as $5836.40, true $5964.88, 144 h topped up | priced:  24 h open, $5931.52, 136 h topped up | saves $33.36
+seed  2 f=1 | unpriced:  24 h open, built as $5836.40, true $6007.60, 160 h topped up | priced:  24 h open, $5882.16, 128 h topped up | saves $125.44
+seed  3 f=0.5 | unpriced:   8 h open, built as $6054.48, true $6367.12, 192 h topped up | priced:   8 h open, $6349.76, 184 h topped up | saves $17.36
+seed  3 f=1 | unpriced:   8 h open, built as $6054.48, true $6353.68, 160 h topped up | priced:   8 h open, $6189.60, 136 h topped up | saves $164.08
+seed  4 f=0.5 | unpriced:  24 h open, built as $5708.40, true $5907.68, 184 h topped up | priced:  24 h open, $5898.32, 176 h topped up | saves $9.36
+seed  4 f=1 | unpriced:  24 h open, built as $5708.40, true $5982.40, 200 h topped up | priced:  24 h open, $5840.96, 168 h topped up | saves $141.44
+seed  5 f=0.5 | unpriced:   8 h open, built as $5966.48, true $6276.40, 176 h topped up | priced:   8 h open, $6204.40, 176 h topped up | saves $72.00
+seed  5 f=1 | unpriced:   8 h open, built as $5966.48, true $6255.12, 192 h topped up | priced:   8 h open, $6196.40, 176 h topped up | saves $58.72
+seed  6 f=0.5 | unpriced:   0 h open, built as $6239.52, true $6510.64, 136 h topped up | priced:   0 h open, $6470.64, 136 h topped up | saves $40.00
+seed  6 f=1 | unpriced:   0 h open, built as $6239.52, true $6462.64, 136 h topped up | priced:   0 h open, $6371.92, 120 h topped up | saves $90.72
+seed  7 f=0.5 | unpriced:  16 h open, built as $5821.44, true $6148.72, 184 h topped up | priced:  16 h open, $6148.72, 184 h topped up | saves $0.00
+seed  7 f=1 | unpriced:   8 h open, built as $6006.48, true $6308.40, 176 h topped up | priced:   8 h open, $6161.68, 160 h topped up | saves $146.72
+seed  8 f=0.5 | unpriced:  32 h open, built as $5219.36, true $5613.20, 152 h topped up | priced:  32 h open, $5507.84, 144 h topped up | saves $105.36
+seed  8 f=1 | unpriced:  32 h open, built as $5219.36, true $5719.92, 168 h topped up | priced:  32 h open, $5507.84, 144 h topped up | saves $212.08
+seed  9 f=0.5 | unpriced:  56 h open, built as $4984.24, true $5218.08, 152 h topped up | priced:  56 h open, $5200.72, 144 h topped up | saves $17.36
+seed  9 f=1 | unpriced:  24 h open, built as $5652.40, true $5976.96, 168 h topped up | priced:  24 h open, $5846.24, 152 h topped up | saves $130.72
+seed 10 f=0.5 | unpriced:  16 h open, built as $5941.44, true $6169.84, 120 h topped up | priced:  16 h open, $6085.76,  96 h topped up | saves $84.08
+seed 10 f=1 | unpriced:  16 h open, built as $5941.44, true $6188.56, 136 h topped up | priced:  16 h open, $6045.76,  96 h topped up | saves $142.80
+seed 11 f=0.5 | unpriced:  16 h open, built as $5621.44, true $5973.92, 144 h topped up | priced:  16 h open, $5933.92, 144 h topped up | saves $40.00
+seed 11 f=1 | unpriced:  16 h open, built as $5621.44, true $6090.00, 168 h topped up | priced:  16 h open, $5893.92, 144 h topped up | saves $196.08
+seed 12 f=0.5 | unpriced:  40 h open, built as $5402.32, true $5542.72, 120 h topped up | priced:  40 h open, $5502.72, 120 h topped up | saves $40.00
+seed 12 f=1 | unpriced:  40 h open, built as $5402.32, true $5646.72, 120 h topped up | priced:  40 h open, $5502.72, 120 h topped up | saves $144.00
+seed 13 f=0.5 | unpriced:  40 h open, built as $5338.32, true $5546.64,  96 h topped up | priced:  40 h open, $5470.56,  72 h topped up | saves $76.08
+seed 13 f=1 | unpriced:  40 h open, built as $5338.32, true $5720.08, 128 h topped up | priced:  40 h open, $5470.56,  72 h topped up | saves $249.52
+seed 14 f=0.5 | unpriced:   0 h open, built as $5911.52, true $6377.52, 200 h topped up | priced:   0 h open, $6289.52, 200 h topped up | saves $88.00
+seed 14 f=1 | unpriced:   0 h open, built as $5911.52, true $6380.24, 216 h topped up | priced:   0 h open, $6209.52, 200 h topped up | saves $170.72
+seed 15 f=0.5 | unpriced:  32 h open, built as $5259.36, true $5725.36, 200 h topped up | priced:  32 h open, $5725.36, 200 h topped up | saves $0.00
+seed 15 f=1 | unpriced:   8 h open, built as $5742.48, true $6184.48, 200 h topped up | priced:   8 h open, $6021.76, 184 h topped up | saves $162.72
+seed 16 f=0.5 | unpriced:  16 h open, built as $5677.44, true $5983.28, 152 h topped up | priced:  16 h open, $5983.28, 152 h topped up | saves $0.00
+seed 16 f=1 | unpriced:  16 h open, built as $5677.44, true $6026.00, 168 h topped up | priced:  16 h open, $5911.28, 152 h topped up | saves $114.72
+seed 17 f=0.5 | unpriced:   8 h open, built as $5862.48, true $6275.20, 216 h topped up | priced:   8 h open, $6267.20, 216 h topped up | saves $8.00
+seed 17 f=1 | unpriced:   0 h open, built as $6023.52, true $6401.52, 200 h topped up | priced:   0 h open, $6289.52, 200 h topped up | saves $112.00
+seed 18 f=0.5 | unpriced:   8 h open, built as $5982.48, true $6307.04, 168 h topped up | priced:   8 h open, $6233.68, 160 h topped up | saves $73.36
+seed 18 f=1 | unpriced:   8 h open, built as $5982.48, true $6340.40, 176 h topped up | priced:   8 h open, $6173.60, 136 h topped up | saves $166.80
+seed 19 f=0.5 | unpriced:  16 h open, built as $5757.44, true $6008.48, 112 h topped up | priced:  16 h open, $5999.12, 104 h topped up | saves $9.36
+seed 19 f=1 | unpriced:   0 h open, built as $5999.52, true $6433.36, 152 h topped up | priced:   0 h open, $6269.28, 128 h topped up | saves $164.08
+seed 20 f=0.5 | unpriced:  24 h open, built as $5644.40, true $5974.24, 152 h topped up | priced:  24 h open, $5956.88, 144 h topped up | saves $17.36
+seed 20 f=1 | unpriced:  16 h open, built as $5821.44, true $6112.64, 160 h topped up | priced:  16 h open, $5981.92, 144 h topped up | saves $130.72
+seed 21 f=0.5 | unpriced:   8 h open, built as $5550.48, true $6067.20, 216 h topped up | priced:   8 h open, $6051.20, 216 h topped up | saves $16.00
+seed 21 f=1 | unpriced:   8 h open, built as $5550.48, true $6123.20, 216 h topped up | priced:   8 h open, $6027.20, 216 h topped up | saves $96.00
+seed 22 f=0.5 | unpriced:   8 h open, built as $5822.48, true $6155.20, 216 h topped up | priced:   8 h open, $6099.20, 216 h topped up | saves $56.00
+seed 22 f=1 | unpriced:   8 h open, built as $5822.48, true $6132.56, 224 h topped up | priced:   8 h open, $6067.20, 216 h topped up | saves $65.36
+seed 23 f=0.5 | unpriced:   8 h open, built as $5950.48, true $6213.76, 184 h topped up | priced:   8 h open, $6205.76, 184 h topped up | saves $8.00
+seed 23 f=1 | unpriced:   8 h open, built as $5950.48, true $6267.20, 216 h topped up | priced:   8 h open, $6133.76, 184 h topped up | saves $133.44
+seed 24 f=0.5 | unpriced:   0 h open, built as $6487.52, true $6702.48,  88 h topped up | priced:   0 h open, $6591.68,  48 h topped up | saves $110.80
+seed 24 f=1 | unpriced:   0 h open, built as $6487.52, true $6659.76,  72 h topped up | priced:   0 h open, $6539.60,  24 h topped up | saves $120.16
+seed 25 f=0.5 | unpriced:   8 h open, built as $5838.48, true $6123.04, 168 h topped up | priced:   8 h open, $6065.68, 160 h topped up | saves $57.36
+seed 25 f=1 | unpriced:   8 h open, built as $5838.48, true $6231.12, 192 h topped up | priced:   8 h open, $6065.68, 160 h topped up | saves $165.44
+seed 26 f=0.5 | unpriced:  16 h open, built as $5949.44, true $6177.84, 120 h topped up | priced:  16 h open, $6129.84, 120 h topped up | saves $48.00
+seed 26 f=1 | unpriced:  16 h open, built as $5949.44, true $6160.64, 160 h topped up | priced:  16 h open, $6033.84, 120 h topped up | saves $126.80
+seed 27 f=0.5 | unpriced:  24 h open, built as $5540.40, true $5822.40, 200 h topped up | priced:  24 h open, $5782.40, 200 h topped up | saves $40.00
+seed 27 f=1 | unpriced:  24 h open, built as $5540.40, true $5889.12, 216 h topped up | priced:  24 h open, $5718.40, 200 h topped up | saves $170.72
+seed 28 f=0.5 | unpriced:  16 h open, built as $6141.44, true $6204.40,  88 h topped up | priced:  16 h open, $6177.68,  72 h topped up | saves $26.72
+seed 28 f=1 | unpriced:  16 h open, built as $6141.44, true $6263.12, 104 h topped up | priced:  16 h open, $6174.96,  56 h topped up | saves $88.16
+seed 29 f=0.5 | unpriced:  16 h open, built as $5597.44, true $5963.36, 176 h topped up | priced:  16 h open, $5939.36, 176 h topped up | saves $24.00
+seed 29 f=1 | unpriced:   0 h open, built as $5919.52, true $6418.88, 208 h topped up | priced:   0 h open, $6248.16, 192 h topped up | saves $170.72
+seed 30 f=0.5 | unpriced:   8 h open, built as $5894.48, true $6260.40, 176 h topped up | priced:   8 h open, $6121.68, 160 h topped up | saves $138.72
+seed 30 f=1 | unpriced:   8 h open, built as $5894.48, true $6303.12, 192 h topped up | priced:   8 h open, $6105.68, 160 h topped up | saves $197.44
+seed 31 f=0.5 | unpriced:  24 h open, built as $5604.40, true $5963.52, 136 h topped up | priced:  24 h open, $5963.52, 136 h topped up | saves $0.00
+seed 31 f=1 | unpriced:  24 h open, built as $5660.40, true $5970.16, 128 h topped up | priced:  24 h open, $5844.72,  96 h topped up | saves $125.44
+seed 32 f=0.5 | unpriced:  16 h open, built as $5765.44, true $6003.36, 176 h topped up | priced:  16 h open, $5979.36, 176 h topped up | saves $24.00
+seed 32 f=1 | unpriced:   8 h open, built as $5926.48, true $6224.48, 200 h topped up | priced:   8 h open, $6093.76, 184 h topped up | saves $130.72
+seed 33 f=0.5 | unpriced:  16 h open, built as $5781.44, true $6182.08, 192 h topped up | priced:  16 h open, $6188.72, 184 h topped up | saves $-6.64
+seed 33 f=1 | unpriced:   8 h open, built as $5990.48, true $6291.04, 168 h topped up | priced:   8 h open, $6141.60, 136 h topped up | saves $149.44
+seed 34 f=0.5 | unpriced:   8 h open, built as $5662.48, true $6163.20, 216 h topped up | priced:   8 h open, $6139.20, 216 h topped up | saves $24.00
+seed 34 f=1 | unpriced:   8 h open, built as $5662.48, true $6111.12, 192 h topped up | priced:   8 h open, $6029.76, 184 h topped up | saves $81.36
+seed 35 f=0.5 | unpriced:   0 h open, built as $5895.52, true $6285.44, 176 h topped up | priced:   0 h open, $6264.00, 144 h topped up | saves $21.44
+seed 35 f=1 | unpriced:   0 h open, built as $5895.52, true $6350.80, 184 h topped up | priced:   0 h open, $6264.00, 144 h topped up | saves $86.80
+seed 36 f=0.5 | unpriced:   0 h open, built as $6047.52, true $6529.52, 200 h topped up | priced:   0 h open, $6480.16, 192 h topped up | saves $49.36
+seed 36 f=1 | unpriced:   0 h open, built as $6047.52, true $6338.72, 160 h topped up | priced:   0 h open, $6282.72, 160 h topped up | saves $56.00
+seed 37 f=0.5 | unpriced:  24 h open, built as $5644.40, true $5839.60, 160 h topped up | priced:  24 h open, $5838.24, 152 h topped up | saves $1.36
+seed 37 f=1 | unpriced:   8 h open, built as $5950.48, true $6281.84, 208 h topped up | priced:   8 h open, $6115.04, 168 h topped up | saves $166.80
+seed 38 f=0.5 | unpriced:  16 h open, built as $6093.44, true $6256.48, 112 h topped up | priced:  16 h open, $6173.76,  96 h topped up | saves $82.72
+seed 38 f=1 | unpriced:  16 h open, built as $6093.44, true $6208.48, 112 h topped up | priced:  16 h open, $6129.68,  72 h topped up | saves $78.80
+seed 39 f=0.5 | unpriced:   0 h open, built as $6103.52, true $6456.16, 192 h topped up | priced:   0 h open, $6448.16, 192 h topped up | saves $8.00
+seed 39 f=1 | unpriced:   0 h open, built as $6103.52, true $6441.52, 200 h topped up | priced:   0 h open, $6248.16, 192 h topped up | saves $193.36
+seed 40 f=0.5 | unpriced:   0 h open, built as $5807.52, true $6330.88, 208 h topped up | priced:   0 h open, $6321.52, 200 h topped up | saves $9.36
+seed 40 f=1 | unpriced:   0 h open, built as $5807.52, true $6298.88, 208 h topped up | priced:   0 h open, $6161.52, 200 h topped up | saves $137.36
+
+f = 0.5, totals over 40 weeks (true payroll = city floor paid, overtime on the week's average rate):
+  unpriced  open 608 h, true payroll $243907.52 (the builder said $231501.76, $12405.76 short); 6528 city hours by people under the floor
+  priced    open 608 h, payroll $242330.56; 6240 city hours by people under the floor
+  pricing the floor saved $1576.96 (0.65% of payroll); cheaper in 35 of 40 weeks, the same in 4, dearer in 1
+
+f = 1, totals over 40 weeks (true payroll = city floor paid, overtime on the week's average rate):
+  unpriced  open 464 h, true payroll $247932.80 (the builder said $234472.48, $13460.32 short); 6896 city hours by people under the floor
+  priced    open 464 h, payroll $242401.60; 5936 city hours by people under the floor
+  pricing the floor saved $5531.20 (2.23% of payroll); cheaper in 40 of 40 weeks, the same in 0, dearer in 0
+
+(22 s)

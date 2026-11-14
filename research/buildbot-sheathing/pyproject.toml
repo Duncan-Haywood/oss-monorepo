@@ -14,6 +14,7 @@ license = { text = "MIT" }
 figure = ["matplotlib"]
 sim = ["mujoco"]
 drake = ["drake"]
+frame = ["scipy"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

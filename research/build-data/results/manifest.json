@@ -44,12 +44,12 @@
   "seattle": {
    "dataset": "76t5-zqzr",
    "host": "data.seattle.gov",
-   "rows": 194248,
-   "applied": 148102,
-   "issued": 141286,
-   "completed": 108212,
-   "cost": 159013,
-   "both_applied_issued": 139140,
+   "rows": 194285,
+   "applied": 148120,
+   "issued": 141302,
+   "completed": 108228,
+   "cost": 159049,
+   "both_applied_issued": 139155,
    "negative_issue_lag": 15,
    "negative_build_time": 10,
    "pulled": "2026-11-14"

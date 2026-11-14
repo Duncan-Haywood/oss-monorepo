@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { agreementSummary, coverage, fastAnswerCutMs, fastAnswerers, fastBlockStarts, ratingsWithoutAnswers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, isFastAnswer, respondentPace, slotBlockAdvice, slotClickerAdvice, slotFlags } from "@/lib/groupRanking";
+import { agreementSummary, coverage, fastAnswerCutMs, fastAnswerers, fastBlockStarts, ratingsWithoutAnswers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, isFastAnswer, respondentPace, slotBlockAdvice, slotClickerAdvice, slotFlags, slotRunsAtTurns } from "@/lib/groupRanking";
 import { CHECKOUT_URL, VALIDATE_URL } from "@/lib/checkout";
 import { reportGate } from "@/lib/reportAccess";
 import { resultsReportHtml } from "@/lib/resultsReport";
@@ -72,7 +72,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const pace = paceSummary(paces, agreements);
     const cut = drop.fastAnswers ? fastAnswerCutMs(paces) : null;
     const inOrder = () => times.filter((t) => !clickers.has(t.participantId)).map((t) => ({ participantId: t.participantId, itemAId: t.itemAId, itemBId: t.itemBId, result: t.result!, ms: t.msToAnswer }));
-    const blocks = drop.fastBlocks ? fastBlockStarts(inOrder()) : null;
+    // Where someone turned quick (fastBlockStarts), their slots from that point on are tested as one named candidate
+    // (slotRunsAtTurns): a lean there joins the slot blocks in the default ranking, cut from the turn. Honest slots are a
+    // fair coin whatever the times say, so this adds at most SLOT_BLOCK_ALPHA honest flags however often the turn is wrong.
+    const turns = fastBlockStarts(inOrder());
+    const atTurns = slotRunsAtTurns(inOrder(), turns);
+    for (const [id, at] of atTurns) slotBlocks.set(id, Math.min(at, slotBlocks.get(id) ?? Infinity));
+    const blocks = drop.fastBlocks ? turns : null;
     const inSlotBlock = (a: { participantId: string }, i: number) => i >= (slotBlocks.get(a.participantId) ?? Infinity);
     const slotOnly = slotBlocks.size ? ratingsWithoutAnswers(inOrder(), inSlotBlock) : null;
     const slotDropped = slotOnly ? slotOnly.dropped : 0;
@@ -95,6 +101,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       slotClickers: clickers.size,
       slotBlocks: slotBlocks.size,
       slotBlockAnswers: slotDropped,
+      slotBlocksAtTurns: atTurns.size,
       fast: drop.fast ? fast.size : 0,
       fastAnswers: cut !== null && replayed ? replayed.dropped : 0,
       fastBlocks: blocks ? blocks.size : 0,

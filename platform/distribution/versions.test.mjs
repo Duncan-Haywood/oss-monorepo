@@ -5,8 +5,11 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   parseAllowlist, allowed, bumpPatch, payload, hashFiles, nextVersions, staleness, hashAll, render, main,
-  loadAllowlist, loadVersions, unstamp, stamp, CHANNELS, ALLOWLIST, VERSIONS,
+  loadAllowlist, loadVersions, unstamp, stamp, CHANNELS, ALLOWLIST, VERSIONS, BUNDLERS,
 } from './versions.mjs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 async function fixture(files) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'versionstest-'));
@@ -76,6 +79,32 @@ test('a release-only tool ships its composite action and check.py', async () => 
   assert.deepEqual(Object.keys((await payload(root, b)).files).sort(), ['action:action.yml', 'action:check.py']);
   assert.match((await payload(root, c)).skip, /ships nothing/);
   await assert.rejects(hashAll(root), /c-check: ships nothing/);
+});
+
+test('a bundle hashes its shipped files, not Python caches left beside them', async () => {
+  const root = await fixture(allowFile([{ slug: 'z-check', channels: ['release'], why: 'x' }]));
+  BUNDLERS['z-check'] = async (_root, out) => {
+    await fs.writeFile(path.join(out, 'run.py'), 'VERSION = "0.4.0"\nprint(1)\n');
+    await fs.mkdir(path.join(out, '__pycache__'));
+    await fs.writeFile(path.join(out, '__pycache__', 'run.cpython-312.pyc'), 'bytecode');
+    await fs.mkdir(path.join(out, '.pytest_cache'));
+    await fs.writeFile(path.join(out, '.pytest_cache', 'README.md'), 'cache');
+    await fs.writeFile(path.join(out, 'stray.pyc'), 'bytecode');
+  };
+  try {
+    const tool = (await loadAllowlist(root)).tools[0];
+    assert.deepEqual(Object.keys((await payload(root, tool)).files), ['bundle:run.py']);
+  } finally {
+    delete BUNDLERS['z-check'];
+  }
+});
+
+test('the command line reads its flags: --check on the committed tree says it is current', async () => {
+  // main() defaults to process.argv.slice(2); an off-by-one there would turn
+  // the CI step `versions.mjs --check` into the plain listing, which exits 0 on a stale manifest.
+  const script = fileURLToPath(new URL('./versions.mjs', import.meta.url));
+  const { stdout } = await promisify(execFile)('node', [script, '--check']);
+  assert.match(stdout, /versions\.json is current \(\d+ tools\)/);
 });
 
 test('hashing ignores the version stamp in a bundled runner, and stamp sets it', () => {

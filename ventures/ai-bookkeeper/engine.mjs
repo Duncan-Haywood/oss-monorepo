@@ -20,6 +20,7 @@ import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
 import { FX_ACCOUNT, fxEntries, docRevalEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
 import { inventoryEntries, inventoryRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
+import { deferralEntries, deferredRegister, DEFERRED_ACCOUNT } from "./deferred.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { cashBasis } from "./cashbasis.mjs";
 import { payrollEntries } from "./payroll.mjs";
@@ -374,7 +375,7 @@ export function journal(books, { withClosing = false } = {}) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
-  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...inventoryEntries(books), ...fxEntries(books), ...docRevalEntries(books), ...payrollEntries(books));
+  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...deferralEntries(books), ...inventoryEntries(books), ...fxEntries(books), ...docRevalEntries(books), ...payrollEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
@@ -436,6 +437,13 @@ export function closeChecks(books, opts = {}) {
   if (books.prepaids?.length) {
     const ahead = prepaidRegister(books).remaining, ledger = b.get(PREPAID_ACCOUNT) ?? 0;
     if (ledger !== ahead) out.push({ severity: "low", check: "prepaid", message: `${map.get(PREPAID_ACCOUNT)?.name ?? PREPAID_ACCOUNT} is ${fmt(ledger)} in the ledger but the prepaid register has ${fmt(ahead)} still paid ahead. ${ledger > ahead ? "A payment filed there has no register row, so it is not being spread over its months." : "A register row has no payment filed to the account."}`, ids: [] });
+  }
+
+  // Unearned revenue: account 2400 (a liability, so a credit balance) should equal what the
+  // deferral register says is still to be earned or owed back.
+  if (books.deferrals?.length) {
+    const reg = deferredRegister(books), ledger = -(b.get(DEFERRED_ACCOUNT) ?? 0);
+    if (ledger !== reg.balance) out.push({ severity: "low", check: "deferred", message: `${map.get(DEFERRED_ACCOUNT)?.name ?? DEFERRED_ACCOUNT} is ${fmt(ledger)} in the ledger but the deferral register has ${fmt(reg.balance)} still to earn${reg.refundDue ? " or refund" : ""}. ${ledger > reg.balance ? "A receipt filed there has no register row, so it is never earned." : reg.refundDue ? "If a refund has been paid, record it with deferred refunded ID; otherwise a register row has no receipt filed to the account." : "A register row has no receipt filed to the account (file the customer's payment, or the invoice, to 2400)."}`, ids: [] });
   }
 
   // Inventory: account 1450 should equal the stock register's value.

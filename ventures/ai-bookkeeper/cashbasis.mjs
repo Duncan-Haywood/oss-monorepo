@@ -17,7 +17,7 @@ import { journal } from "./engine.mjs";
 import { profitAndLoss } from "./ledger.mjs";
 import { settle, AR, AP } from "./accruals.mjs";
 
-const DOC_SOURCES = new Set(["invoice", "bill", "credit", "writeoff", "fx"]);
+const DOC_SOURCES = new Set(["invoice", "bill", "credit", "writeoff", "fx", "deferred"]);
 
 // -> { profitAndLoss, accrual, timing, notes }
 //   timing.net: accrual net profit less cash net profit over the same dates
@@ -29,6 +29,11 @@ export function cashBasis(booksIn, { from = null, to = null } = {}) {
   const dateOf = new Map(books.transactions.map((t) => [t.id, t.date]));
   const entries = accrualEntries.filter((e) => !DOC_SOURCES.has(e.source));
   const notes = [];
+
+  // Deferred revenue: the cash method counts an up-front payment when it arrives, so the
+  // month-by-month earning entries are dropped and the whole amount counts on the day received.
+  for (const r of books.deferrals ?? []) entries.push({ id: `${r.id}-cash`, date: r.received, memo: `Received, ${r.name}`, source: "cash", lines: [{ account: "2400", debit: r.cents, credit: 0 }, { account: r.incomeAccount, debit: 0, credit: r.cents }] });
+  if (books.deferrals?.length) notes.push("Deferred revenue counts in full on the day it was received (cash method), not month by month; a refund of a cancelled plan is not taken off here.");
 
   // Add `lines` (account -> cents in the document's direction) as one entry.
   const emit = (id, date, memo, invoice, amounts) => {

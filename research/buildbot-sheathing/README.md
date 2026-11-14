@@ -253,6 +253,21 @@ lower bounds; at 2.45 times the loss, 97.6% of 4 in sheets still clear the bar.
 
 ![Sheet capacity with every miss left in, by pipeline, and the capacity each nail carries](experiments/m14_escaped/figure.png)
 
+**Milestone 15: do weak stud-to-plate joints explain why the shear-wall model was too optimistic? No,
+not at code strength.** Milestone 14's model pinned the studs to the plates with joints of unlimited
+strength. Rebuilt as a limit analysis of the whole framed sheet (a linear programme over the top plate,
+four studs and the sheet), with each stud held by two 16d end nails at the NDS yield-limit strength
+(**2.55** sheathing nails' worth), the bottom foot unnailed still costs only **20–21%** of the sheet,
+not the "close to or more than half" Weiss (2017) measured. Reaching 40–50% takes joints at
+**0.46–0.56** of the NDS ratio, or a sheet **without hold-downs** (64–100%), so the gap lies in
+anchorage or in ultimate strengths the design equations do not give. One thing the rigid model hid: a
+lone sheet whose top plate can tilt loses **7%** intact and **16.7%** at the 99th-percentile
+escaped-miss sheet (11.5% before); a top plate that only slides, as a continuous wall line holds it,
+restores milestone 14's figures, and **4 in joint edges** carry the misses under every joint model
+(99.89–99.98% of sheets at or above the intact 6 in sheet).
+
+![Capacity lost with the bottom foot unnailed against stud-joint strength; escaped-miss capacity with finite and rigid joints](experiments/m15_frame_joints/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -606,11 +621,28 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   seed 7); a 4 in joint-edge schedule via `u_joint` (25 heights a side). Wall lines: 100,000 random
   draws of four sheets. Cost: milestone 7's model with 16 more nails at t_nail / 62 seconds each.
 
+## Milestone 15 method (`src/buildbot_sheathing/frame_lp.py`)
+- **Question.** Does finite strength in the stud-to-plate joints explain why milestone 14's model lost
+  20% with the bottom foot unnailed where Weiss's walls lost about half, and does it change an escaped
+  miss's cost?
+- **Model.** Upper-bound (kinematic) limit analysis over small rigid motions of the top plate, each of
+  four studs (centrelines at 0, 16, 32 and 48 in) and the sheet, the bottom plate fixed and the top
+  plate's mid-point moved one unit along the wall; the least total dissipation is the capacity, solved
+  as a linear programme (SciPy's HiGHS). Sheathing nails: rigid-plastic, F along the slip (a 64-sided
+  polygon, at most 0.12% low), on the member milestone 14 assigns them. Stud-to-plate joints: lateral
+  ρF, bearing in compression, opening against ωF; hold-downs fix the end studs' bottoms vertically.
+- **ρ from the NDS yield-limit equations** (single shear, R_d = 2.2; dowel bearing 16,600 G^1.84 psi;
+  F_yb 100 ksi for 0.131 in and 90 ksi for 0.162 in nails): an 8d common through 15/32 in OSB (G 0.50)
+  into G 0.50 framing, against two 16d common end nails through a 1.5 in plate (IRC Table R602.3(1))
+  with the end-grain factor 0.67. ω = 0 (NDS allows no end-grain withdrawal), swept to 2.
+- **Checks.** Rigid joints against milestone 14 over 200 three-read miss patterns (H65); the NDS 16d
+  value against Table 12N's 141 lb (`tests/test_frame_lp.py`).
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 88 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
+python -m pytest -q tests                                    # 98 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, five scipy
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -643,6 +675,11 @@ python experiments/m12_remedies/run.py > experiments/m12_remedies/results.txt   
 python experiments/m12_remedies/figure.py
 python experiments/m13_price/run.py > experiments/m13_price/results.txt               # ~5 s; reads m12's results.json, m11 profiles.json, m6b's results.json
 python experiments/m13_price/figure.py
+python experiments/m14_escaped/run.py > experiments/m14_escaped/results.txt         # ~10 s, seed 7
+python experiments/m14_escaped/figure.py
+pip install scipy                                            # milestone 15; results made with scipy's HiGHS
+python experiments/m15_frame_joints/run.py > experiments/m15_frame_joints/results.txt # ~11 min (about 4,000 LPs), seed 7
+python experiments/m15_frame_joints/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -976,7 +1013,26 @@ python paper/check_numbers.py                                # every number the 
   Median $6.98 a sheet at 100 houses a year, against $7.10 for 6 in with re-drives and $12.17 for doubled
   joints.
 
+## Milestone 15 results (`experiments/m15_frame_joints/results.txt`)
+
+- **The joint.** Z = 74.0 lb for the sheathing nail (mode IIIs), 140.7 lb for a 16d end nail (mode IV),
+  ρ = 2.55 (2.34 in SPF).
+- **Reproduces milestone 14 with rigid joints** (H65 held): ratios within 0.09%; the absolute capacity is
+  1.2% higher because the joint-edge nails sit 3/8 in off the stud centreline.
+- **Intact sheet at NDS joints** (H66 refuted): −7.2% at 6 in, the spacing check fails at 2 in (2.87 against
+  2.61). The cause is a lone sheet's top plate tilting while an interior stud lifts (zero withdrawal); a
+  withdrawal of 2 F, or a top plate that only slides (post hoc), removes it.
+- **Weiss's pattern** (H67 refuted): 21.1% lost at NDS joints, 19.7–21.1% for any withdrawal; 40% needs
+  ρ ≤ 1.42, 50% needs ρ ≤ 1.18; without hold-downs 64% (withdrawal 1 F) to 100% (none).
+- **Escaped misses, three reads** (H68 refuted as registered): mean loss 2.73%, 99th percentile 16.7%
+  (milestone 14: 2.34%, 11.5%); with a sliding top plate 2.34% and 11.51%. Full stack: 0.73% and 6.5%.
+- **4 in joint edges** (H69 held): 99.89% of sheets at or above the intact 6 in sheet (99.98% with a
+  sliding top plate).
+
 ## Limitations
+- **Framed-sheet model (milestone 15).** Joint strengths are NDS design-level (yield-limit) ratios, not
+  tested ultimates; joints and nails are rigid-plastic, with no softening; bearing friction and hold-down
+  shear are ignored. One sheet with its own four studs; Weiss's set-up was not read.
 - **Racking model (milestone 14).** Rigid-plastic, equal fasteners, full anchorage, a rigid sheet and
   sheets acting independently; no stiffness, edge-distance, tear-out or cyclic effects. It understates
   clustered missing nails against one test series (about 2.5 times there). Whether a code official
@@ -1074,7 +1130,10 @@ the doubled joint stud costs $5.13 more and pays only if a missed nail costs abo
 re-drive; the cost and detection rate of a missed nail at inspection is now the input that decides
 the framing. Milestone 14 sized an escaped miss in capacity (about 2% of its sheet,
 clustered) and found 4 in joint nailing carries them; a racking test of sheets with shiners at the
-simulated positions would check the model where it is weakest, clustered misses. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+simulated positions would check the model where it is weakest, clustered misses. Milestone 15 found that
+stud-to-plate joints at code strength do not close the gap to Weiss's tests; the next inputs are
+Weiss's anchorage and wall size (the thesis full text), and tested ultimate strengths of end-nailed
+joints and sheathing nails in place of design ratios, or a softening fastener model. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps

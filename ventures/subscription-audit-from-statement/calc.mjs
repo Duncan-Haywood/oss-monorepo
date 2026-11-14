@@ -43,7 +43,7 @@ export const KINDS = [
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s) || /^\$?\s*[-−]/.test(s) || /CR\s*$/i.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s) || /CR\s*$/i.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
