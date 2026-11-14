@@ -1048,6 +1048,24 @@ after the first full run showed two broken-up strokes given an extra note, so th
 figure. `node eval/scan-check.mjs --no-stroke-top` reads as before. Details:
 `eval/porrectus-top-check.md`.
 
+### A clef printed inside a staff, and a slip in GregoBase 3775 (2026-11-14, latest)
+
+GregoBase 3437 (*Adhaesi*) had 16 of the 73 differences left. They were one reader fault: the verse
+starts mid-staff after a double bar with a new C clef (`(z0::c3)`), and the reader only looked for a
+clef at a staff's start, so it read the clef as a podatus and the rest of the staff two steps low. The
+MIDI was never wrong (`parseGabc` follows the change); the check was. `findClefChanges` in `scan.mjs`
+now finds a C clef inside a staff: two blocks a third apart either side of a line, joined on their left
+(a podatus is joined on its right). Notes after it are read against it.
+
+On the 74 earlier piece checks, differences fell from 73 to 57 and no piece got worse; all 11 clefs the
+reader found on those 212 pages were looked at and are real. On fourteen pieces with a clef change,
+listed and committed before their pages were read (`eval/clef-change-fresh-pages.json`), differences
+fell from 129 to 13 and marks the GABC lacks from 46 to 10; all 12 clefs found there are real and read on
+the right line, including two changes back from c3 to c4. Four of the 13 were a slip in GregoBase 3775
+(*Domine spes mea*, p. 458): *et confirmásti* is printed h h h h, the file had f f f f. Corrected, with
+a `correction:` header. `node eval/scan-check.mjs --no-clef-change` reads as before. Details:
+`eval/clef-change-check.md`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
