@@ -217,6 +217,40 @@ class FeederParamsTest(unittest.TestCase):
         # a clamp just under the stepper leaves too short a run for the twist
         self.assertTrue(any("twists" in r for r in Feeder(cable_clamp_z=560.0).check_cables()))
 
+    def test_elev_lead_fits_every_pose_of_the_actuator_travel(self):
+        # 2026-11-14: the actuator's own lead, from the cheek's grommet to a tie on its body, is cut once and must fit
+        # from the extend limit to the retract limit; the tie moves about 80 mm over that travel
+        p = Feeder()
+        d = p.elev_lead_design()
+        lo, hi = d["window"]
+        self.assertGreater(hi - lo, 15.0)                      # room for a cutting and tying error
+        for e, (rlo, rhi) in d["ranges"].items():
+            self.assertLessEqual(rlo, d["cut_mm"])
+            self.assertGreaterEqual(rhi, d["cut_mm"])
+        self.assertEqual(set(d["ranges"]), set(p.cable_loop_poses()))
+        self.assertLess(d["fit_err_mm"], 2.0)
+        self.assertEqual(d["r_min"], 20.0)                     # 10 x the 2.0 mm 18 AWG wire
+        self.assertGreater(d["tie_travel_mm"], 60.0)
+        # the retract limit (nose up) needs the most lead, the extend limit (nose down) the least slack
+        ext, ret = p.elev_act_limits()
+        self.assertAlmostEqual(lo, d["ranges"][ret][0])
+        self.assertAlmostEqual(hi, d["ranges"][ext][1])
+        # any elevation between the limits gets a curve at the cut length, not only the design poses
+        self.assertIsNotNone(p.elev_lead_curve(25.0))
+        self.assertLess(d["stall_drop_frac"], 0.01)
+        self.assertEqual(p.check_elev_lead(), [])
+
+    def test_elev_lead_rules_catch_bad_changes(self):
+        # a tie near the anchor eye, or a lead kept inside the actuator's outer face, leaves no single length
+        for kw in ({"elev_lead_tie_mm": 15.0}, {"elev_lead_out_mm": 0.0}):
+            self.assertTrue(any("no single length" in r for r in Feeder(**kw).check_elev_lead()), kw)
+        # the hole on a foot, too small, or too low
+        self.assertTrue(any("foot" in r for r in Feeder(elev_lead_hole_dx=-35.0).check_elev_lead()))
+        self.assertTrue(any("too small" in r for r in Feeder(elev_lead_hole_d=6.0).check_elev_lead()))
+        self.assertTrue(any("bottom edge" in r for r in Feeder(elev_lead_hole_d=46.0).check_elev_lead()))
+        # an actuator that stalls above what 18 AWG carries
+        self.assertTrue(any("under its" in r for r in Feeder(elev_act_stall_a=12.0).check_elev_lead()))
+
     def test_cable_twist_run(self):
         p = Feeder()
         t = p.cable_twist()
@@ -623,8 +657,9 @@ class FeederGeometryTest(unittest.TestCase):
     def test_elevation_sweep_can_fail(self):
         from otr_cad.package import elevation_sweep
         bad = Feeder(mast_top_z=700.0)  # turntable raised into the head's path
-        # the rules see only that the cable loop no longer fits under the head (2026-11-13); the sweep sees the clash
-        self.assertEqual([r for r in bad.check() if "cable length" not in r], [])
+        # the rules see only that the cable loop (2026-11-13) and the actuator's lead (2026-11-14) no longer fit; the
+        # sweep sees the clash
+        self.assertEqual([r for r in bad.check() if "cable length" not in r and "actuator's lead" not in r], [])
         self.assertTrue(any("turntable" in c for c in elevation_sweep(bad, steps=2)))
 
     def test_head_gravity_moment_from_the_cad_is_a_rigid_rotation(self):
@@ -993,6 +1028,33 @@ class CableGeometryTest(unittest.TestCase):
         finally:
             F.cable_loop_solids = real
         self.assertTrue(bad and any("head_motor_plate" in c for c in bad), bad[:3])
+
+    def test_elev_lead_is_drawn_at_its_cut_and_the_sweep_can_fail(self):
+        from build123d import Location, Vector
+        from otr_cad import feeder as F
+        from otr_cad import package
+        p = self.p
+        d = p.elev_lead_design()
+        r = p.elev_lead_od / 2
+        for e in (p.elev_min, p.elev_max):
+            length = F.elev_lead_solid(p, e).volume / (math.pi * r * r)
+            self.assertAlmostEqual(length, d["cut_mm"] - 2 * F.LEAD_END_GAP, delta=3.0)
+        # the cheek has the hole, and the tied run passes it and ends at the cheek's outer face
+        cheek = next(x for x in self.parts if x.name == "trunnion_cheek_elev").placed()[0]
+        hx, hy, hz = p.elev_lead_hole()
+        self.assertFalse(cheek.is_inside(Vector(hx, hy + p.plate_t / 2, hz)))
+        self.assertTrue(cheek.is_inside(Vector(hx, hy + p.plate_t / 2, hz + p.elev_lead_hole_d / 2 + 2.0)))
+        fixed = next(x for x in self.parts if x.name == "elev_lead_fixed").placed()[0].bounding_box()
+        self.assertAlmostEqual(fixed.min.Y, hy, places=3)
+        self.assertAlmostEqual(fixed.max.Z, hz + r, places=3)
+        # clear as drawn: the feeder build's elev_lead_sweep (FeederPackageTest). Dropped 25 mm it hits the turntable
+        real = F.elev_lead_solid
+        try:
+            F.elev_lead_solid = lambda q, e: real(q, e).moved(Location((0, 0, -25)))
+            bad = package.elev_lead_sweep(p, poses=(0.0,), azimuths=(0.0,))
+        finally:
+            F.elev_lead_solid = real
+        self.assertTrue(bad and any("turntable_plate" in c for c in bad), bad[:3])
 
     def test_cable_parts_sit_where_the_loop_design_puts_them(self):
         p = self.p
@@ -1467,6 +1529,133 @@ class RegenTest(unittest.TestCase):
         d = p.regen_braking()
         self.assertLess(d["slow_20pct"]["brake_s"], d["slow_20pct"]["coast_s"])
         self.assertAlmostEqual(d["wheel_j"] / p.launch_drag_w * 2 / d["coast_to_rest_s"], 1.0, places=6)
+
+
+class BrakesAndBouncesInARowTest(unittest.TestCase):
+    """Several ESC brakes in a row against the firmware's guard, and several contact bounces in a row (2026-11-14)."""
+
+    def test_single_threshold_chatters_and_the_band_does_not(self):
+        p = Feeder()
+        old = p.regen_guard(0.0)
+        self.assertGreaterEqual(old["flips_max"], old["ticks"] - 2)      # flips every tick inside the band
+        lo, hi = old["chatter_band_v"]
+        self.assertLess(lo, p.regen_brake_max_v - old["rise_v"])
+        self.assertGreater(hi - lo, old["rise_v"])
+        new = p.regen_guard()
+        self.assertLessEqual(new["flips_max"], 1)
+        self.assertIsNone(new["chatter_band_v"])
+        self.assertGreater(p.regen_brake_hyst_v, new["needed_hyst_v"])
+        # just under the needed band still flips; just over does not
+        self.assertGreater(p.regen_guard(new["needed_hyst_v"] - 0.01)["flips_max"], 1)
+        self.assertLessEqual(p.regen_guard(new["needed_hyst_v"] + 0.01)["flips_max"], 1)
+        bad = Feeder(regen_brake_hyst_v=0.0).check_regen()
+        self.assertTrue(any("REGEN_BRAKE_HYST_MV" in r for r in bad), bad)
+        self.assertEqual(p.check_regen(), [])
+
+    def test_brakes_in_a_row_do_not_creep_the_pack(self):
+        p = Feeder()
+        g = p.regen_guard()
+        d = p.regen_braking()
+        # a 20% slow-down of both wheels returns 36% of their energy, less the ESC's loss
+        self.assertAlmostEqual(g["slow_j"], 2 * 0.36 * d["wheel_j"] * p.regen_eff, delta=1e-6)
+        self.assertGreater(g["slows_per_pct"], 50)
+        # a loaded reading lets braking start from a pack resting above the threshold, still short of the cut
+        self.assertGreater(g["loaded_top_cell_v"], d["brake"]["top_cell_v"])
+        self.assertLess(g["loaded_top_cell_v"], p.bms_cell_ovp_v - 0.02)
+        bad = Feeder(regen_brake_max_v=28.0).check_regen()
+        self.assertTrue(any("hold speed" in r for r in bad), bad)
+
+    def test_bounce_train_matches_the_closed_form(self):
+        p = Feeder()
+        d = p.contactor_inrush()
+        # one make with no bounce: the precharge closing, as the closed form gives it (the relay's own path adds
+        # under the idle load's worth)
+        one = p.contactor_bounce_train(p.bus_idle_a, 1, 1.0)
+        self.assertAlmostEqual(one["makes"][-1]["peak_a"], d["precharge"]["close"]["peak_a"], delta=p.bus_idle_a + 0.05)
+        # a single long bounce after a long close: the re-close sees contactor_bounce's gap
+        long = Feeder(contactor_bounce_ms=200.0, bounce_counts=(1,), bounce_open_fracs=(0.5,))
+        tr = long.contactor_bounce_train(p.bus_idle_a, 1, 0.5)
+        rp = p.precharge_ohm + d["r_ohm"]
+        want = p.bus_idle_a * rp * (1 - math.exp(-0.1 / (rp * d["c_f"])))
+        self.assertAlmostEqual(tr["makes"][1]["gap_v"], want, delta=0.01)
+
+    def test_several_bounces_never_make_more_than_the_first_closing(self):
+        p = Feeder()
+        b = p.contactor_bounces()
+        first = p.contactor_bounce_train(p.bus_idle_a, 1, 1.0)["makes"][-1]["peak_a"]
+        for run in b["idle"]["runs"]:
+            for m in run["makes"][1:]:
+                self.assertLessEqual(m["gap_v"], p.contactor_inrush()["precharge"]["residual_v"] + 1e-6)
+        for case in b.values():
+            self.assertLess(case["worst"]["peak_a"], p.contactor_make_a)
+        # with the driver enabled its load drags the bus further while a bounce is open, and a touch too short to have
+        # charged the bus leaves the open starting from the precharge's gap: worse than contactor_bounce's one bounce
+        # after a full charge (24.9 A at the defaults), still under the make limit
+        single = p.contactor_bounce()["stepper enabled"]["peak_a"]
+        self.assertGreater(b["stepper enabled"]["worst"]["peak_a"], single + 5)
+        self.assertGreater(b["stepper enabled"]["worst"]["max_gap_v"], p.contactor_bounce()["stepper enabled"]["gap_v"])
+        self.assertAlmostEqual(b["idle"]["worst"]["peak_a"], first, delta=0.5)
+        self.assertEqual(b["idle"]["makes_max"], max(p.bounce_counts) + 1)
+        self.assertEqual(p.check_inrush(), [])
+        # with no precharge every make of the train is a full inrush: the check names it
+        bad = Feeder(precharge_ohm=0.0).check_inrush()
+        self.assertTrue(any("bounces" in r for r in bad), bad)
+
+
+class PotPickupParamsTest(unittest.TestCase):
+    """The elevation pot's pickup from the motor pair's PWM (2026-11-14, `elev_pot_pickup`, `check_elev_pot`)."""
+
+    def test_defaults_pass_and_the_cable_check_runs_it(self):
+        import inspect
+        p = Feeder()
+        self.assertEqual(p.check_elev_pot(), [])
+        self.assertIn("self.check_elev_pot()", inspect.getsource(Feeder))
+        d = p.elev_pot_pickup()
+        self.assertAlmostEqual(d["run_m"], p.elev_lead_design()["run_m"])
+        self.assertAlmostEqual(d["step_v"], p.battery_v_max * d["cm_pf"] / (d["c_nf"] * 1e3 + d["cm_pf"]), places=9)
+        self.assertLess(d["err_mm"], 0.1)
+        self.assertEqual(d["bad_read_frac"], 0.0)
+
+    def test_the_closed_form_matches_stepping_the_node(self):
+        p = Feeder()
+        for nf in (0.0, 100.0, 1000.0):
+            n = p._elev_pot_node(nf)
+            for duty in (0.4, 0.7):
+                # step the RC node edge by edge for many periods from zero error
+                e, steps = 0.0, 400
+                dt = n["period"] / steps
+                trace = []
+                for k in range(steps * 400):
+                    ph = (k % steps) / steps
+                    if k % steps == 0:
+                        e += n["a"]
+                    if k % steps == round(duty * steps):
+                        e -= n["a"]
+                    if k >= steps * 399:
+                        trace.append((ph, e))
+                    e *= math.exp(-dt / n["tau"])
+                for ph, v in trace[::37]:
+                    self.assertAlmostEqual(p.elev_pot_error_v(duty, ph, filter_nf=nf), v, delta=1e-6 + 1e-4 * n["a"])
+                # the mean over a period is zero: many readings at random phase average to the true position
+                self.assertLess(abs(sum(v for _, v in trace) / len(trace)), 0.01 * n["a"] + 1e-6)
+
+    def test_rules_catch_a_small_or_missing_filter_and_a_slow_one(self):
+        bad = Feeder(elev_pot_filter_nf=100.0).check_elev_pot()     # ESP-IDF's example bypass capacitor
+        self.assertTrue(any("deadband" in r for r in bad), bad)
+        self.assertTrue(any("stall check" in r for r in bad), bad)
+        none = Feeder(elev_pot_filter_nf=0.0)
+        self.assertTrue(none.elev_pot_pickup()["clips_rail"])
+        self.assertGreater(none.elev_pot_pickup()["bad_read_frac"], 0.05)
+        self.assertTrue(any("lags" in r for r in Feeder(elev_pot_filter_nf=10000.0).check_elev_pot()))
+        # the chosen 1 uF holds over the assumptions' spread
+        for r in (2500.0, 20000.0):
+            for pf in (10.0, 60.0):
+                self.assertEqual(Feeder(elev_pot_ohm=r, elev_lead_mutual_pf_m=pf).check_elev_pot(), [], (r, pf))
+        # at the default assumptions 220 nF to 2.3 uF passes: 1 uF sits inside with room for the pot and the bundle
+        self.assertTrue(Feeder(elev_pot_filter_nf=200.0).check_elev_pot())
+        self.assertEqual(Feeder(elev_pot_filter_nf=220.0).check_elev_pot(), [])
+        self.assertEqual(Feeder(elev_pot_filter_nf=2200.0).check_elev_pot(), [])
+        self.assertTrue(Feeder(elev_pot_filter_nf=2400.0).check_elev_pot())
 
 
 class InrushTest(unittest.TestCase):

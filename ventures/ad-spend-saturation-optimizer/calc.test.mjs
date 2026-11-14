@@ -13,6 +13,16 @@ test("nelderMead finds the minimum of a quadratic", () => {
   near(r.x[0], 3, 1e-4); near(r.x[1], -1, 1e-4);
 });
 
+test("curves: bind(p) returns exactly f(p, s), the fit's inner loop depends on it", () => {
+  const ps = { exp: [[80, 5], [42000, 9000], [1e-3, 1e6]], hill: [[80, 5, 2.2], [80, 5, 0.8], [60000, 14000, 1.6], [3, 0.5, 3]] };
+  for (const t of ["exp", "hill"]) for (const p of ps[t]) {
+    const g = CURVES[t].bind(p);
+    for (const s of [-2, 0, 1e-9, 0.37, 1, 4, 9, 123.456, 1e5, 7e7, Infinity, NaN]) {
+      assert.ok(Object.is(g(s), CURVES[t].f(p, s)), `${t} ${p} at ${s}: ${g(s)} vs ${CURVES[t].f(p, s)}`);
+    }
+  }
+});
+
 test("percentile interpolates", () => {
   near(percentile([1, 2, 3, 4], 0.5), 2.5, 1e-12);
   near(percentile([1, 2, 3, 4], 0), 1, 0);

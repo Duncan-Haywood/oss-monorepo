@@ -24,7 +24,7 @@ check would catch.
 | GregoBase 3407 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 420, leaf 421, 397, leaf 423 | 1367 | 217 | 0 | 3 | 0 | 98.6% of 220 GABC notes | 199 of 200 |
 | GregoBase 3426 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 424, leaf 425, 401, leaf 427 | 1238 | 160 | 0 | 0 | 0 | 100.0% of 160 GABC notes | 199 of 200 |
 | GregoBase 3403 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 512, leaf 513, 489, leaf 515 | 825 | 113 | 1 | 1 | 0 | 98.3% of 115 GABC notes | 198 of 200 |
-| GregoBase 3453 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 537, leaf 538, 514, leaf 540 | 896 | 137 | 0 | 5 | 0 | 96.5% of 142 GABC notes | 200 of 200 |
+| GregoBase 3453 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 537, leaf 538, 514, leaf 540 | 894 | 137 | 0 | 5 | 0 | 96.5% of 142 GABC notes | 200 of 200 |
 | GregoBase 3418 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 579, leaf 580, 556, leaf 582 | 624 | 154 | 0 | 13 | 0 | 92.2% of 167 GABC notes | 196 of 200 |
 | GregoBase 3429 (off-final ending) | Graduale Romanum, Vatican 1908 | 82*, leaf 874 | 626 | 289 | 0 | 1 | 0 | 99.7% of 290 GABC notes | 200 of 200 |
 | GregoBase 3670 (Qui timetis, tilted page) | Graduale Romanum, Vatican 1908 | 398, 399 | 652 | 290 | 0 | 9 | 1 | 97.0% of 299 GABC notes | 195 of 200 |

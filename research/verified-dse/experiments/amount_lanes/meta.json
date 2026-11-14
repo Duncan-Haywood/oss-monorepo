@@ -1,0 +1,99 @@
+{
+ "base_period_ns": {
+  "lane4k2": 38.17,
+  "lane4k1": 39.28,
+  "sel64": 20.53,
+  "lane2k2": 19.42,
+  "pmul4": 8.96,
+  "pmul3": 13.12,
+  "avg6": 14.4,
+  "avg5": 15.72
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "pmul3": [
+   "pmulsh_w",
+   "pmulsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 3
+   },
+   ""
+  ],
+  "avg5": [
+   "avgsh_w",
+   "avgsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NB": 5
+   },
+   ""
+  ],
+  "sel64": [
+   "selsh_w",
+   "selsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NP": 64
+   },
+   ""
+  ],
+  "avg6": [
+   "avgsh_w",
+   "avgsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NB": 6
+   },
+   ""
+  ],
+  "pmul4": [
+   "pmulsh_w",
+   "pmulsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 4
+   },
+   ""
+  ],
+  "lane2k2": [
+   "lanesh_w",
+   "lanesh_w",
+   {
+    "W": 64,
+    "SW": 6,
+    "K": 2,
+    "L": 2
+   },
+   ""
+  ],
+  "lane4k2": [
+   "lanesh_w",
+   "lanesh_w",
+   {
+    "W": 64,
+    "SW": 6,
+    "K": 2,
+    "L": 4
+   },
+   ""
+  ],
+  "lane4k1": [
+   "lanesh_w",
+   "lanesh_w",
+   {
+    "W": 64,
+    "SW": 6,
+    "K": 1,
+    "L": 4
+   },
+   ""
+  ]
+ }
+}

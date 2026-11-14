@@ -178,11 +178,16 @@ const limitCeiling = (c) => Math.min(c, 0.8);
 
 // Per-sample gain (<= 1) that keeps max(|L|,|R|) under `ceil`: a 5 ms lookahead minimum,
 // then a 5 ms moving average of that minimum, which can only be lower than needed.
-export function limiterCurve(L, R, rate, ceil, ms = 5) {
+// `scratch` (optional, {}) keeps the working arrays between calls of the same length:
+// renderMidi's limiter makes up to 8 passes, and every array is fully rewritten
+// before it is read, so reuse returns the same curve. The returned array is
+// scratch's own, overwritten by the next call with that scratch.
+export function limiterCurve(L, R, rate, ceil, ms = 5, scratch = null) {
   const n = L.length, w = Math.max(1, Math.round(rate * ms / 1000));
-  const need = new Float64Array(n);
+  const buf = scratch && scratch.n === n ? scratch : { n, need: new Float64Array(n), mn: new Float64Array(n), dq: new Int32Array(n), out: new Float64Array(n), cs: new Float64Array(n + 1) };
+  if (scratch && scratch !== buf) Object.assign(scratch, buf);
+  const { need, mn, dq, out, cs } = buf;
   for (let i = 0; i < n; i++) { const a = Math.max(Math.abs(L[i]), Math.abs(R[i])); need[i] = a > ceil ? ceil / a : 1; }
-  const mn = new Float64Array(n), dq = new Int32Array(n);
   let h = 0, t = 0;
   for (let i = n - 1; i >= 0; i--) { // min over need[i..i+w]
     while (t > h && need[dq[t - 1]] >= need[i]) t--;
@@ -190,7 +195,7 @@ export function limiterCurve(L, R, rate, ceil, ms = 5) {
     while (dq[h] > i + w) h++;
     mn[i] = need[dq[h]];
   }
-  const out = new Float64Array(n), cs = new Float64Array(n + 1);
+  cs[0] = 0;
   for (let i = 0; i < n; i++) cs[i + 1] = cs[i] + mn[i];
   for (let i = 0; i < n; i++) { const a = Math.max(0, i - w + 1); out[i] = (cs[i + 1] - cs[a]) / (i + 1 - a); }
   return out;
@@ -251,11 +256,12 @@ export function renderMidi(midiBytes, { rate = 44100, tail = 1.5, targetPeak = 0
       const stemBase = stemBuf ? [...stemBuf].map(([, ch]) => [ch[0].slice(), ch[1].slice()]) : null;
       let curve = null, gUsed = g, c = limitCeiling(ceiling);
       const x0 = new Float64Array(total), x1 = new Float64Array(total); // reused by every pass
+      const lim = {}; // limiterCurve's working arrays, reused by every pass
       const b0 = base[0], b1 = base[1];
       for (let pass = 0; pass < 8; pass++) {
         gUsed = g;
         for (let i = 0; i < total; i++) { x0[i] = b0[i] * g; x1[i] = b1[i] * g; }
-        curve = limiterCurve(x0, x1, rate, c);
+        curve = limiterCurve(x0, x1, rate, c, 5, lim);
         for (let i = 0; i < total; i++) { L[i] = x0[i] * curve[i]; R[i] = x1[i] * curve[i]; }
         const now = integratedLufs([L, R], rate).lufs;
         const tp = truePeak(R, 4, 16, truePeak(L)); // = Math.max of the two

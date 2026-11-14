@@ -45,7 +45,7 @@ button released *and* a `CLEAR_ESTOP` command.
 | 35 | Tachometer, bottom wheel |
 | 27 | Elevation actuator: servo pulse (`ELEV_MODE = "rc"`) or H-bridge PWM (`"pot"`, `"timed"`) |
 | 23 | Elevation H-bridge DIR (`pot`, `timed`) |
-| 39 | Elevation feedback pot wiper (`pot`; input-only, ADC1, 0-3.3 V: power the pot from 3.3 V; 100k wiper to GND) |
+| 39 | Elevation feedback pot wiper (`pot`; input-only, ADC1, 0-3.3 V: power the pot from 3.3 V; 100k wiper to GND; 1 uF ceramic GPIO 39 to GND at the board, against the actuator's PWM in the same lead: cad/README.md "The pot's pickup from the motor pair") |
 | 14 / 21 | Azimuth stepper driver STEP / DIR (NEMA 17, 10:1 gear sector) |
 | 22 | Azimuth home switch (to GND, pull-up: low = at home, about -32 deg) |
 | 5 | Azimuth stepper driver EN (active low; 4.7k pull-up to 3.3 V keeps the driver off through reset; low only once the contactor is closed) |

@@ -12,8 +12,17 @@ option, and combines a team's picks from shareable result codes, with rank
 ranges for the group itself and for the wider group it stands for. A "find my
 top k" mode (since 2026-11-14) asks about the options near the cut instead of
 the whole order, for when you need a shortlist; its link carries the k, so a
-team all answers for the same cut. Nothing is
+team all answers for the same cut, and combining their codes leads with the
+team's top k, each option's chance of really being in it and how many people
+shortlisted it (on 432 simulated teams the model's pick was right 78% of the
+time, a show of hands 72%). Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
+
+**Choosing on several criteria?** [Weigh criteria by picking pairs](https://marisstella.app/quick-pick-survey/decide.html)
+(since 2026-11-14) is a weighted decision matrix with nothing typed: it asks
+"which matters more?" and "on this criterion, which is better?", fits both with
+the same refit and shows rank ranges that include doubt about the weights.
+Model, simulations and what is still open: [docs/DECIDE-PAGE.md](docs/DECIDE-PAGE.md).
 
 ## Deploy your own copy
 

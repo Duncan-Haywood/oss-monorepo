@@ -630,13 +630,57 @@ export function populationFit(n, people, { steps = TEAM_TAU_STEPS, laplace = tru
  */
 export function teamRanges(items, people, options = {}) {
   const n = items.length;
+  const { k, ...rankOptions } = options;
   const infos = people.map((p) => personInfo(n, p.answers));
   const g = groupFit(n, infos);
   const pop = populationFit(n, infos);
-  const gt = rankTable(g, options), pt = rankTable(pop, options);
+  const gt = rankTable(g, rankOptions), pt = rankTable(pop, rankOptions);
   const popBy = new Map(pt.map((r) => [r.item, r]));
   return {
     tau: pop.tau,
     rows: gt.map((r) => ({ item: r.item, rank: r.rank, low: r.low, high: r.high, favourite: r.favourite, popLow: popBy.get(r.item).low, popHigh: popBy.get(r.item).high, popFavourite: popBy.get(r.item).favourite })),
+    ...(k ? { shortlist: shortlistFrom(n, infos, g, pop, k) } : {}),
   };
+}
+
+/*
+ * A team's top k (2026-11-14, docs/RANK-PAGE.md "A team's shortlist").
+ * The shortlist is the group order's top k (the same order as the team
+ * table). Each option gets two chances of really being in the top k: for
+ * this group (groupFit) and for the wider group these people stand for
+ * (populationFit, which widens when people disagree). `votes` counts the
+ * people whose own top k includes the option, the tally a team would make by
+ * hand; scripts/team-shortlist-sweep.mjs measures it against the model.
+ */
+function shortlistFrom(n, infos, g, pop, k, { draws = TOP_DRAWS } = {}) {
+  const shown = topK(g, k);
+  const votes = new Array(n).fill(0);
+  for (const p of infos) for (const i of topK(p.f, k)) votes[i]++;
+  return {
+    k,
+    items: shown,
+    next: order(g)[k],
+    group: topKChances(g, k, { draws }),
+    wider: topKChances(pop, k, { draws }),
+    votes,
+    groupSettled: topSetConfidence(g, k, { draws }),
+  };
+}
+
+/** The team shortlist alone (teamRanges with k returns it alongside the ranges). */
+export function teamShortlist(items, people, k, options = {}) {
+  const n = items.length;
+  const infos = people.map((p) => personInfo(n, p.answers));
+  return shortlistFrom(n, infos, groupFit(n, infos), populationFit(n, infos), k, options);
+}
+
+/** A tally by hand: the k options most people put in their own top k, ties broken by the group order. */
+export function approvalShortlist(n, people, k) {
+  const infos = people.map((p) => (p.f ? p : { f: fit(n, p.answers) }));
+  const votes = new Array(n).fill(0);
+  for (const p of infos) for (const i of topK(p.f, k)) votes[i]++;
+  const g = groupFit(n, infos);
+  const place = new Array(n);
+  order(g).forEach((i, r) => (place[i] = r));
+  return Array.from({ length: n }, (_, i) => i).sort((a, b) => votes[b] - votes[a] || place[a] - place[b]).slice(0, k);
 }

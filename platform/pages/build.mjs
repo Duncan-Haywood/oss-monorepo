@@ -38,7 +38,7 @@ import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
-import { fixPostTitleClashes } from './page-identity.mjs';
+import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildLab } from './lab.mjs';
@@ -53,7 +53,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { addShareCards, cardTitle, mapLimit, renderCards, siteAddress } from './share.mjs';
+import { cardTitle, drawPlannedCards, mapLimit, renderCards, shareTagsFor, siteAddress } from './share.mjs';
 import {
   MARK_GEOMETRY,
   renderSiteCard,
@@ -4015,7 +4015,19 @@ export const CARD_FOOTER = 'Runs in your browser · nothing you type is uploaded
 // — currently just Sponsor Ready, filed under "more". Sized to fit the same
 // footer band as `CARD_FOOTER`; see the About page and the category page's
 // own `nothing you type is uploaded, except on…` for the unabbreviated claim.
-export const CARD_FOOTER_EXCEPTION = 'Runs in your browser · one lookup checks a public API';
+export const CARD_FOOTER_EXCEPTION = 'Runs in your browser · may call an outside service';
+
+/**
+ * What the tools in `externalCallExceptions` have in common, said once so the
+ * footer, the category pages, the About page and llms.txt describe them the
+ * same way. The old wording ("checks a live public API as its whole job")
+ * was true of the first exception, Sponsor Ready, and stopped being true as
+ * the list grew past fifty: most now send what you give them to an AI model,
+ * a payment or CRM account you connect, or a server you run yourself (a local
+ * model on `localhost`), not to a public lookup.
+ */
+export const EXCEPTION_KINDS = 'a public lookup, an AI model or business account you connect, or a server you run yourself';
+export const EXCEPTION_NOUN = 'tools that call an outside service';
 
 export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
 
@@ -4180,6 +4192,54 @@ export async function markSponsorsAndNoscriptIn(outDir) {
     return next;
   });
   return { sponsored, noscripted };
+}
+
+/**
+ * The title-clash fix (`fixPostTitleClashes`), the sponsor and notice pass
+ * (`markSponsorsAndNoscriptIn`) and the share-tag pass (`addShareCards`), in
+ * one read and at most one write per page, then the share cards drawn.
+ *
+ * Measured 2026-11-14 (docs/history/pages-build-perf-2026-11-14-one-walk-finish.md):
+ * the three passes read all ~9,800 pages (254 MB) three times and wrote nearly
+ * all of them twice, and `writeFileUtf8` was the build's largest self time.
+ * Per page the steps are: the retitle, if any; the sponsor marker; the
+ * notice; the share tags. The build used to retitle after the sponsor and
+ * notice pass; the two commute (the retitle touches only `<title>` and
+ * `content="..."` values equal to the old title, which the marker attribute and
+ * the notice never contain, and neither changes a title or an `<h1>`), so the
+ * pages come out byte for byte as before (a full build compared file by file,
+ * and the one-walk test in `noscript-notice.test.mjs`).
+ */
+export async function finishPagesInOneWalk(outDir, { baseUrl, siteName, siteCard, log = () => {} }) {
+  const pages = await loadPages(outDir);
+  const changes = resolvePostTitleClashes(pages);
+  const retitledHtml = new Map(changes.map((c) => [c.rel, c.html]));
+  const changeOf = new Map(changes.map((c) => [c.rel, c]));
+  const sponsored = [], noscripted = [], shareResults = [];
+  for (const [relative, original] of pages) {
+    const file = path.join(outDir, relative);
+    const titled = retitledHtml.get(relative) ?? original;
+    const marked = markSponsorLinks(titled);
+    const noticed = addNoscriptNotice(marked);
+    const { next, plan } = shareTagsFor(noticed, relative, { baseUrl, siteName, siteCard });
+    if (marked !== titled) sponsored.push(file);
+    if (noticed !== marked) noscripted.push(file);
+    // Reported as the separate pass reported it: the page as retitled after
+    // the sponsor and notice pass, before the share tags.
+    if (changeOf.has(relative)) changeOf.get(relative).html = noticed;
+    shareResults.push({ relative, plan, changed: next !== noticed });
+    if (next !== original) writeFileSync(file, next);
+  }
+  for (const { rel, from, to } of changes) {
+    log(`warning: ${rel} reused the title "${from}" of another page; retitled "${to}". Give the post its own seo_title.`);
+  }
+  const shareCards = await drawPlannedCards(outDir, shareResults);
+  return {
+    sponsored: sponsored.map((f) => path.relative(outDir, f)),
+    noscripted: noscripted.map((f) => path.relative(outDir, f)),
+    retitled: changes,
+    shareCards,
+  };
 }
 
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
@@ -5652,8 +5712,8 @@ export function privacyClaimParts(exceptions, { inline = 3 } = {}) {
   if (names.length === 0) return { claim: 'nothing you type is uploaded', list: '' };
   if (names.length <= inline) return { claim: `nothing you type is uploaded, except on ${listProse(names)}`, list: '' };
   return {
-    claim: `nothing you type is uploaded, except on the ${names.length} lookup tools listed below`,
-    list: `\n      <details class="count-exceptions"><summary>The ${names.length} lookup tools that send the one thing you paste to the public API they check</summary><p>${listProse(names)}</p></details>`,
+    claim: `nothing you type is uploaded, except on the ${names.length} ${EXCEPTION_NOUN} listed below`,
+    list: `\n      <details class="count-exceptions"><summary>The ${names.length} ${EXCEPTION_NOUN} (${EXCEPTION_KINDS})</summary><p>${listProse(names)}</p></details>`,
   };
 }
 
@@ -5913,14 +5973,22 @@ const jsonLd = (value) =>
  * tool. The About page's own, separate privacy panel makes the same point
  * with a working link — this one points there instead.
  */
-function disclaimerHtml(toRoot, surfaces = []) {
+export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } = {}) {
   const exceptions = externalCallExceptions(surfaces);
+  // Counted in the sentence, named in a <details> after the paragraph (a
+  // <details> can't sit inside a <p>). Inline, the ~50 names and ~40 hosts
+  // made this one paragraph 1,742 px tall on a 390 px phone, on every page
+  // that carries the footer: polish-2026-11-14-footer-fold.md.
   const exceptionNote = exceptions.length
-    ? ` Except ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )} — each of which checks a live public API as its whole job, so what you paste there to look up goes to ${listProse(
-        [...new Set(exceptions.flatMap((x) => x.hosts))],
-      )} and nowhere else. <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> says exactly what.`
+    ? ` Except on ${exceptions.length === 1 ? `one tool, ${escapeHtml(toolProseName(exceptions[0].title))}, which calls` : `${exceptions.length} ${EXCEPTION_NOUN}:`} ${exceptions.length === 1 ? 'an outside service' : EXCEPTION_KINDS}. ${exceptions.length === 1 ? 'It sends' : 'Each sends'} what you give it to that service and nowhere else; <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> says exactly what.`
+    : '';
+  const exceptionList = exceptions.length > 1
+    ? `
+      <details class="pfs-exceptions">
+        <summary>The ${exceptions.length} ${EXCEPTION_NOUN}, and the hosts they call</summary>
+        <p>${listProse(exceptions.map((x) => escapeHtml(toolProseName(x.title))))}.</p>
+        <p>Hosts: ${listProse([...new Set(exceptions.flatMap((x) => x.hosts))].map(escapeHtml))}.</p>
+      </details>`
     : '';
   return `
       <h2>No warranty</h2>
@@ -5950,19 +6018,28 @@ function disclaimerHtml(toRoot, surfaces = []) {
         <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
         is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
-        count stays in your own browser's local storage.${counterOn() ? ` Each page load
-        also adds one to a daily per-page total on our own open-source counter
-        (which page, which day, and — if you followed one of our own channel
-        links, such as a release note or package page — which channel, and what
-        kind of site sent you, such as "google" or "reddit", never its address;
-        plus the country the request came from as a two-letter code and whether
-        the browser is a phone, tablet or desktop, each kept only as a daily
-        total; nothing you type, no cookie, no IP address stored; its host sees each
-        request the way any web server does), and those totals are
-        published in the repository.` : ''} Browsers sending
+        count stays in your own browser's local storage.
+      </p>${exceptionList}
+      <p>${counter ? `
+        Each page load also adds one to a daily per-page total on our own
+        open-source counter, and those totals are published in the repository.
+        Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>
+      <ul class="pfs-counted">
+        <li><strong>Counted, as daily totals only:</strong> which page; which day;
+        the channel, if you came from one of our own links (a release note, a
+        package page); the kind of site that sent you ("google", "reddit"),
+        never its address; the country, as a two-letter code; and phone, tablet
+        or desktop.</li>
+        <li><strong>Never stored:</strong> anything you type, a cookie, your IP
+        address. Its host sees each request the way any web server does.</li>
+      </ul>` : `
+        Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>`}
       <p>
         If you email one of this site's addresses, your message and address
         are stored privately with our host, Cloudflare, read only to answer
@@ -7490,7 +7567,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   // it cannot drift from the catalogue the way hand-written marketing copy does.
   const shortBoiler = `${formatCount(total)} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
   const deviceClaim = exceptions.length
-    ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
+    ? `the numbers a user types never leave their device, except on ${exceptions.length === 1 ? toolProseName(exceptions[0].title) : `${exceptions.length} ${EXCEPTION_NOUN} (${EXCEPTION_KINDS})`}, which send what you give them to that service and nowhere else`
     : `the numbers a user types never leave their device`;
   const longBoiler = `${SITE_NAME} is a collection of ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
 
@@ -7558,14 +7635,14 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">${formatCount(total)} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
         exceptions.length
-          ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
+          ? `The numbers you type never leave your device, except on the ${exceptions.length} ${EXCEPTION_NOUN} listed below (${EXCEPTION_KINDS}), which send what you give them to that service.`
           : 'The numbers you type never leave your device.'
       }</p>${
         exceptions.length
           ? `
       <details class="exceptions">
-        <summary>The ${exceptions.length} lookup tools that call a public API</summary>
-        <p>${deviceClaim.replace(/^the numbers a user types never leave their device, /, 'The numbers a user types never leave their device, ')}.</p>
+        <summary>The ${exceptions.length} ${EXCEPTION_NOUN}</summary>
+        <p>${listProse(exceptions.map((x) => escapeHtml(toolProseName(x.title))))}. Between them they call ${exceptionHosts}.</p>
       </details>`
           : ''
       }
@@ -7609,7 +7686,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionNames}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
           <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
@@ -11845,8 +11922,8 @@ ${research.themes
   const network = exceptions.length
     ? `## Tools that call the network
 
-On ${exceptions.length} tool${exceptions.length === 1 ? '' : 's'} the one thing you paste is sent to the public API it checks; everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends${full ? '.' : `, and [llms-full.txt](${baseUrl}llms-full.txt) lists them with the hosts they call.`}
-${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): sends what you paste to ${x.hosts.join(', ')}`).join('\n')}\n` : ''}
+On ${exceptions.length} tool${exceptions.length === 1 ? '' : 's'} what you give the tool is sent to an outside service (${EXCEPTION_KINDS}); everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends${full ? '.' : `, and [llms-full.txt](${baseUrl}llms-full.txt) lists them with the hosts they call.`}
+${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): calls ${x.hosts.join(', ')}`).join('\n')}\n` : ''}
 `
     : '';
 
@@ -12699,22 +12776,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // After the chrome pass, which writes the sponsor line into the footer of
   // every page it wraps -- marking before it would leave those unmarked and
-  // uncounted. Before the offline layer below, for the reason stated there:
-  // this rewrites HTML, so a cache named from a hash taken earlier would ship
-  // pages that no longer match it.
-  // One walk for both (`markSponsorsAndNoscriptIn`): the notice pass reads the
-  // same pages straight after.
-  const { sponsored, noscripted } = await markSponsorsAndNoscriptIn(outDir);
-
-  // After every generator has written its pages and the chrome has wrapped
-  // them: a card for each page still on the site-wide one (research, writing,
-  // comparisons, the section front pages), and complete share tags on all of
-  // them. Before the offline layer, which hashes the finished HTML.
-  // Before the share cards, which headline a page with its title: a post that
-  // reused a tool page's title is renamed here rather than failing check.mjs
-  // and holding back every deploy (page-identity.mjs).
-  const retitled = await fixPostTitleClashes(outDir, { log });
-  const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
+  // uncounted. After every generator has written its pages: a card for each
+  // page still on the site-wide one (research, writing, comparisons, the
+  // section front pages), and complete share tags on all of them. Before the
+  // share cards, which headline a page with its title: a post that reused a
+  // tool page's title is renamed here rather than failing check.mjs and
+  // holding back every deploy (page-identity.mjs). Before the offline layer
+  // below, which hashes the finished HTML: a cache named from a hash taken
+  // earlier would ship pages that no longer match it.
+  // One read and one write per page for all four (`finishPagesInOneWalk`).
+  const { sponsored, noscripted, retitled, shareCards } = await finishPagesInOneWalk(outDir, {
+    baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE, log,
+  });
 
   // Before the offline layer, which hashes the finished site: this rewrites
   // pages and feeds and removes the files it moved.

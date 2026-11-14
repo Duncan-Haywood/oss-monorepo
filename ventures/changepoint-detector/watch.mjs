@@ -49,7 +49,11 @@ Options:
                             (README "Round 13"; not offered). A floor per column read off the normal run (--min-shift,
                             below) cut false lines out of sample from 6.3 to 2.3 per 100 checks but lost 5 of 33 faults:
                             set the floor by hand on the loud columns that do not matter, not on the one that sees the
-                            faults (README "Round 14"; the automatic version is not offered).
+                            faults (README "Round 14"; the automatic version is not offered). One floor for all columns
+                            in units of each column's spread over the 5 minutes before the move cut false lines to 1.4
+                            per 100 checks, but lost 6 of 33 faults (README "Round 15"; not offered) Giving the loudest
+                            column its own k caught 30 of 33 but let 2.5 false lines per 100 checks through, mostly a
+                            slowly drifting temperature (README "Round 16"; not offered). Set --min-spread by hand.
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
@@ -82,6 +86,11 @@ Options:
                             less is dropped at every check (it is sent later if more points show it larger). A number
                             applies to every watched column; temperature=0.5,flow=2 sets it per column (--columns).
                             README, "Round 14".
+  --min-spread <k|col=k,...>  the smallest move to alert on, in units of the column's own spread over the 60 points
+                            before the move (a robust standard deviation): 3 drops a detection that moved less than 3
+                            times the recent wiggle. One number serves columns in different units; temperature=4 sets it
+                            per column (--columns). Your own threshold: the automatic k was tested and is not offered
+                            (README "Round 15", "Round 16").
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)
@@ -94,7 +103,7 @@ Statistical analysis of data you supply, not advice. MIT licence.`;
 export async function main(argv, { out = (s) => process.stdout.write(s), env = process.env, fetchImpl = globalThis.fetch } = {}) {
   const o = {};
   let src = null, statePath = null, json = false, failOnAlert = false, dry = false, hookEnv = null;
-  let suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null, floorSpec = null;
+  let suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null, floorSpec = null, spreadSpec = null;
   const num = (s, name) => { const v = Number(s); if (!(v > 0) || !Number.isInteger(v)) throw new Error(`${name} takes a whole number above 0.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -120,6 +129,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--alert-old-history') o.holdHistory = false;
     else if (a === '--persist') { o.persist = num(argv[++i], '--persist'); if (o.persist > 2) throw new Error('--persist takes 1 or 2.'); }
     else if (a === '--min-shift') floorSpec = parseMinShift(argv[++i]);
+    else if (a === '--min-spread') spreadSpec = parseMinSpread(argv[++i]);
     else if (a === '--webhook-env') hookEnv = argv[++i];
     else if (a === '--fail-on-alert') failOnAlert = true;
     else if (a === '--dry-run') dry = true;
@@ -143,9 +153,10 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   } else csv = await readFile(src, 'utf8');
   if (columnsSpec) {
     if (o.column != null) throw new Error('Give --column or --columns, not both.');
-    return watchColumns({ csv, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec });
+    return watchColumns({ csv, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec, spreadSpec });
   }
   if (floorSpec?.byColumn) throw new Error('--min-shift column=x,... is for --columns; with one column give a number.');
+  if (spreadSpec?.byColumn) throw new Error('--min-spread column=k,... is for --columns; with one column give a number.');
   const { labels, values, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   const { column: _c, labelColumn: _l, alertHistory: _h, ...detOpts } = o;
@@ -169,6 +180,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     }
   }
   if (floorSpec?.all) detOpts.minShift = floorSpec.all;
+  if (spreadSpec?.all) detOpts.minSpreadRatio = spreadSpec.all;
   const changes = detectChanges(values, labels, detOpts);
   const res = advance(state, changes, values.length, labels, o);
   const textOpts = { column, model: o.model || 'mean', confirm: o.confirm };
@@ -219,17 +231,26 @@ export function columnSpecs(csv, spec, labelColumn = null) {
  * every watched column; "column=x,column=y" sets it per column (names case-insensitive, or 0-based indexes) and leaves
  * the others without one. Returns { all } or { byColumn: Map(lowercased name -> x) }.
  */
-export function parseMinShift(spec) {
+export function parseMinShift(spec) { return parseColumnNumbers(spec, '--min-shift', 'the floor', '(0.5) or column=number pairs (temperature=0.5,flow=2)'); }
+
+/**
+ * `--min-spread`: the smallest move to alert on in units of the column's spread over the SPREAD_WINDOW points before
+ * it (README "Round 15", "Round 16"; option minSpreadRatio). Same forms as --min-shift: { all } or { byColumn }.
+ */
+export function parseMinSpread(spec) { return parseColumnNumbers(spec, '--min-spread', 'k', '(3) or column=number pairs (temperature=4,flow=2)'); }
+
+function parseColumnNumbers(spec, flag, what0, forms) {
   const s = String(spec ?? '').trim();
-  const pos = (t, what) => { const v = Number(t); if (!(v > 0) || !Number.isFinite(v)) throw new Error(`--min-shift: ${what} takes a number above 0, got "${t}".`); return v; };
-  if (!s || s.startsWith('-')) throw new Error('--min-shift takes a number (0.5) or column=number pairs (temperature=0.5,flow=2).');
+  const pos = (t, what) => { const v = Number(t); if (!(v > 0) || !Number.isFinite(v)) throw new Error(`${flag}: ${what} takes a number above 0, got "${t}".`); return v; };
+  if (!s || s.startsWith('-')) throw new Error(`${flag} takes a number ${forms}.`);
+  if (!s.includes('=')) return { all: pos(s, what0) };
   if (!s.includes('=')) return { all: pos(s, 'the floor') };
   const byColumn = new Map();
   for (const part of s.split(',').map((t) => t.trim()).filter(Boolean)) {
     const i = part.lastIndexOf('=');
     const name = part.slice(0, i).trim().toLowerCase();
-    if (i < 0 || !name) throw new Error(`--min-shift: "${part}" is not column=number.`);
-    if (byColumn.has(name)) throw new Error(`--min-shift: "${name}" is given twice.`);
+    if (i < 0 || !name) throw new Error(`${flag}: "${part}" is not column=number.`);
+    if (byColumn.has(name)) throw new Error(`${flag}: "${name}" is given twice.`);
     byColumn.set(name, pos(part.slice(i + 1).trim(), name));
   }
   return { byColumn };
@@ -238,7 +259,7 @@ export function parseMinShift(spec) {
 /** The record for several columns: { version, columns: { <name>: <one column's state> } }. */
 export function emptyMultiState() { return { version: 1, columns: {} }; }
 
-async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec = null }) {
+async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec = null, spreadSpec = null }) {
   const k = specs.length;
   // Each column is picked against the whole budget, as a one-column watch would be. Splitting it (1/k each) was
   // pre-registered and failed (eval/watch-columns.mjs): on 5 noise columns the unsplit picks already sent 1.33 alerts per
@@ -251,14 +272,18 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
     if (values.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${values.length}.`);
     return { ...s, column: String(column), labels, values, opts: { ...base, ...(s.model ? { model: s.model } : {}) } };
   });
-  if (floorSpec?.byColumn) {
-    const watched = new Map(series.map((c) => [c.column.toLowerCase(), c]));
-    for (const [name, x] of floorSpec.byColumn) {
-      const c = watched.get(name) ?? (/^\d+$/.test(name) ? series.find((t) => t.column === String(parseColumns(csv, null, labelColumn ?? null).names[Number(name)])) : null);
-      if (!c) throw new Error(`--min-shift: "${name}" is not one of the watched columns (${series.map((t) => t.column).join(', ')}).`);
-      c.opts.minShift = x;
-    }
-  } else if (floorSpec?.all) for (const c of series) c.opts.minShift = floorSpec.all;
+  const applyPerColumn = (spec, key, flag) => {
+    if (spec?.byColumn) {
+      const watched = new Map(series.map((c) => [c.column.toLowerCase(), c]));
+      for (const [name, x] of spec.byColumn) {
+        const c = watched.get(name) ?? (/^\d+$/.test(name) ? series.find((t) => t.column === String(parseColumns(csv, null, labelColumn ?? null).names[Number(name)])) : null);
+        if (!c) throw new Error(`${flag}: "${name}" is not one of the watched columns (${series.map((t) => t.column).join(', ')}).`);
+        c.opts[key] = x;
+      }
+    } else if (spec?.all) for (const c of series) c.opts[key] = spec.all;
+  };
+  applyPerColumn(floorSpec, 'minShift', '--min-shift');
+  applyPerColumn(spreadSpec, 'minSpreadRatio', '--min-spread');
   if (suggest) {
     const rows = series.map((c) => {
       if (c.values.length < 10) throw new Error(`--suggest needs at least 10 points; ${c.column} has ${c.values.length}.`);

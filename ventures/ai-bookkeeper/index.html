@@ -533,7 +533,7 @@
     import { estimatedTax } from "./estimatedtax.mjs";
     import { annualizedInstallments } from "./annualized.mjs";
     import { scorpFromBooks } from "./scorp.mjs";
-    import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
+    import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning, stateHistoryPresets, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -1048,9 +1048,11 @@
         const lines = (id) => $(id).value.split("\n").map((x) => x.trim()).filter(Boolean);
         const freq = $("#str-freq").value, st = $("#str-state").value || null;
         const own = parseDiscountSpecs(lines("#str-disc"));
-        const t = salesTaxReturn(books, { frequency: freq, endMonth: st ? stateEndMonth(st, freq) : null, dueDay: st ? stateDueDay(st, freq) : 20, rates: parseRateSpecs(lines("#str-rate")), discounts: { ...stateDiscounts(st, freq), ...own }, asOf: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
+        const hist = stateHistoryPresets(st, books, freq);
+        const t = salesTaxReturn(books, { frequency: freq, endMonth: st ? stateEndMonth(st, freq) : null, dueDay: st ? hist.dueDay ?? stateDueDay(st, freq) : 20, rates: parseRateSpecs(lines("#str-rate")), discounts: { ...stateDiscounts(st, freq), ...hist.discounts, ...own }, asOf: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
         const note = stateFilingNote(st, freq);
         if (note) t.warnings.push(note);
+        t.warnings.push(...hist.notes);
         const miss = presetDiscountWarning(st, freq, t, own);
         const dnote = stateDiscountNote(st);
         if (miss) t.warnings.push(miss);

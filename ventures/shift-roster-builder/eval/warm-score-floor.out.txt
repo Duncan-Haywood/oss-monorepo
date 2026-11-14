@@ -1,0 +1,9 @@
+# node eval/warm-score-floor.mjs 60 168 2; node eval/warm-score-floor.mjs 80 224 3 (2026-11-14, one cloud machine, run beside eval/guide-open.mjs, so times are contended; pivots are not)
+60 x 168 week 0: 245 copies; open-hours LP 1244 ms, 2269 pivots | cold 30,019,980.21, 3655 pivots, 4205 ms | warm 30,019,980.21, 2281 pivots, 2919 ms | difference 0.0000
+60 x 168 week 1: 238 copies; open-hours LP 671 ms, 1967 pivots | cold 30,819,981.32, 1860 pivots, 1374 ms | warm 30,819,981.32, 107 pivots, 155 ms | difference -0.0000
+80 x 224 week 0: 304 copies; open-hours LP 2363 ms, 3861 pivots | cold 25,727,226.43, 6711 pivots, 11723 ms | warm 25,727,226.43, 4017 pivots, 8507 ms | difference 0.0000
+80 x 224 week 1: 314 copies; open-hours LP 3125 ms, 4400 pivots | cold 33,127,068.00, 3896 pivots, 6609 ms | warm 33,127,068.00, 232 pivots, 737 ms | difference -0.0000
+80 x 224 week 2: 326 copies; open-hours LP 4170 ms, 5168 pivots | cold 28,128,389.60, 5337 pivots, 10102 ms | warm 28,128,389.60, 353 pivots, 1001 ms | difference -0.0000
+
+# 60 seeded 4-12 person, 8-24 line weeks, warm-score-floor.test.mjs
+warm score floor: 60 weeks, warm start taken on 60, fewer pivots on 60, pivots 3374 warm vs 6887 cold

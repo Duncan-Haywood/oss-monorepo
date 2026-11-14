@@ -269,7 +269,7 @@ authority, or claims that an invoice is legally valid. It only checks the
 document facts represented in the input schema. The user remains responsible
 for selecting the correct format, tax treatment, and submission process.
 
-**Saudi Arabia: ZATCA (Fatoora) rules (shipped 2026-10-25).** A UBL file whose `cbc:ProfileID` is `reporting:1.0` (simplified) or `clearance:1.0` (standard) is checked by ZATCA's own published rules *instead of* the EU base (KSA invoices carry no BT-24 profile, so the PINT matcher gained a `profileId` test). Two sets: ZATCA's cut of the EN 16931 UBL rules (105 checks) and the KSA business rules, BR-KSA-* (152 checks, including the VAT-number, CRN, QR, cryptographic-stamp, prepayment and 24-hour reporting rules). The rules ship only as SchXslt-compiled XSLT in the `phive-rules-zatca` artefact on Maven Central (rules version 3.4.6; ZATCA publishes them under LGPL-3.0); `build-zatca-rules.mjs` reads them through a second reader in `plain-from-xslt.mjs`, because SchXslt's shape differs from the one PINT and RO use: one mode for all rules with the pattern named inside, and ZATCA's hand-written `xsl:if`, `xsl:for-each` and `xsl:choose` around each assert. The reader rebuilds each assert as one XPath that is true when the check fails (a for-each becomes `exists((select)[violation])`, a `when`/`otherwise` branch carries the negation of the branches before it) and throws on any construct it does not know. Count check: 152 of the 152 `failed-assert`s in the stylesheet come out (the first pass lost 4 that sat in a template with no `xsl:choose`; the test would not have caught it, the id count against the stylesheet did). fontoxpath has no `fn:format-number`, which ZATCA's VAT-amount rules (BR-CO-17, BR-S-09, BR-KSA-51/79/80) use; `plain-compile.mjs` now rewrites it to a prolog function for the two pictures in use (`0.00`, `#.00`: two decimals, half to even), without which those five rules were skipped, not passed. ZATCA's `error` flag is shown as `fatal`. Verification (`zatca.test.mjs`, 6 tests; made-up invoices `examples/zatca-simplified-invoice.xml` and `-with-defects.xml`): the clean file runs with no skipped rule and raises only BR-KSA-98 (the clock rule: any fixed issue date is more than 24 hours old) and BR-KSA-29; the defect file adds BR-CO-14, BR-CO-15, BR-CO-17, BR-S-09 (VAT 14.00 on 100.00 at 15%), BR-KSA-27 (no QR), BR-KSA-40 (a VAT number that does not start and end in 3) and BR-KSA-F-08 (a CRN that is not 10 digits); an unsigned simplified invoice draws BR-KSA-28, -30 and -60. The suite also pins the reader on a tiny fixture. Not done and not known: no real ZATCA sandbox invoice or Fatoora verdict has been tried (the invoices are ours, written against the rule texts), so false positives on real files are possible. BR-KSA-29 used to fire on every signed invoice, ours included: the rules' svrl namespace list binds `sbc` to CommonSignatureComponents-2 (an upstream typo), while the compiled stylesheet's own `xmlns:sbc` is SignatureBasicComponents-2, the namespace ZATCA's samples use and the one an XSLT engine resolves with. Read against the 3.4.6 jar on 2026-11-05; `plain-from-xslt.mjs` now lets the stylesheet's declaration win, `plain/zatca-ksa-ubl.json` is rebuilt, and BR-KSA-29 fires only on an invoice with no stamp (pinned in `zatca.test.mjs`). Signatures, the QR TLV and the invoice hash chain are not checked beyond their presence; the Saxon route and server API still run the EU base on a KSA file; no CII form exists; credit notes (2026-10-26, `examples/zatca-simplified-credit-note.xml`, 2 tests): ZATCA's rules treat a credit or debit note as an `Invoice` document with type code 381 or 383, not a UBL `CreditNote` root. Ours passes, and without its `BillingReference` and `InstructionNote` it draws BR-KSA-56 and BR-KSA-17. A `CreditNote`-rooted file draws EU-base false positives (BR-22 and others read `InvoicedQuantity` and `/ubl:Invoice/...` paths), so a KSA file should not use that root; no real ZATCA credit note was tried. Debit notes (2026-10-25, `examples/zatca-simplified-debit-note.xml`, type 383, 1 test) behave the same: clean, and BR-KSA-17 and BR-KSA-56 without the reason and reference; also made up, no real one tried; the 2.0.3 and 2.3.8 rule versions in the jar are not run; XRechnung-style English fixes for BR-KSA ids are not written (the messages are ZATCA's own English).
+**Saudi Arabia: ZATCA (Fatoora) rules (shipped 2026-10-25).** A UBL file whose `cbc:ProfileID` is `reporting:1.0` (simplified) or `clearance:1.0` (standard) is checked by ZATCA's own published rules *instead of* the EU base (KSA invoices carry no BT-24 profile, so the PINT matcher gained a `profileId` test). Two sets: ZATCA's cut of the EN 16931 UBL rules (105 checks) and the KSA business rules, BR-KSA-* (152 checks, including the VAT-number, CRN, QR, cryptographic-stamp, prepayment and 24-hour reporting rules). The rules ship only as SchXslt-compiled XSLT in the `phive-rules-zatca` artefact on Maven Central (rules version 3.4.6; ZATCA publishes them under LGPL-3.0); `build-zatca-rules.mjs` reads them through a second reader in `plain-from-xslt.mjs`, because SchXslt's shape differs from the one PINT and RO use: one mode for all rules with the pattern named inside, and ZATCA's hand-written `xsl:if`, `xsl:for-each` and `xsl:choose` around each assert. The reader rebuilds each assert as one XPath that is true when the check fails (a for-each becomes `exists((select)[violation])`, a `when`/`otherwise` branch carries the negation of the branches before it) and throws on any construct it does not know. Count check: 152 of the 152 `failed-assert`s in the stylesheet come out (the first pass lost 4 that sat in a template with no `xsl:choose`; the test would not have caught it, the id count against the stylesheet did). fontoxpath has no `fn:format-number`, which ZATCA's VAT-amount rules (BR-CO-17, BR-S-09, BR-KSA-51/79/80) use; `plain-compile.mjs` now rewrites it to a prolog function for the two pictures in use (`0.00`, `#.00`: two decimals, half to even), without which those five rules were skipped, not passed. ZATCA's `error` flag is shown as `fatal`. Verification (`zatca.test.mjs`, 6 tests; made-up invoices `examples/zatca-simplified-invoice.xml` and `-with-defects.xml`): the clean file runs with no skipped rule and raises only BR-KSA-98 (the clock rule: any fixed issue date is more than 24 hours old) and BR-KSA-29; the defect file adds BR-CO-14, BR-CO-15, BR-CO-17, BR-S-09 (VAT 14.00 on 100.00 at 15%), BR-KSA-27 (no QR), BR-KSA-40 (a VAT number that does not start and end in 3) and BR-KSA-F-08 (a CRN that is not 10 digits); an unsigned simplified invoice draws BR-KSA-28, -30 and -60. The suite also pins the reader on a tiny fixture. Not done and not known: no real ZATCA sandbox invoice or Fatoora verdict has been tried (the invoices are ours, written against the rule texts), so false positives on real files are possible. BR-KSA-29 used to fire on every signed invoice, ours included: the rules' svrl namespace list binds `sbc` to CommonSignatureComponents-2 (an upstream typo), while the compiled stylesheet's own `xmlns:sbc` is SignatureBasicComponents-2, the namespace ZATCA's samples use and the one an XSLT engine resolves with. Read against the 3.4.6 jar on 2026-11-05; `plain-from-xslt.mjs` now lets the stylesheet's declaration win, `plain/zatca-ksa-ubl.json` is rebuilt, and BR-KSA-29 fires only on an invoice with no stamp (pinned in `zatca.test.mjs`). Signatures, the QR TLV and the invoice hash chain were not checked beyond their presence until 2026-11-14 (see "ZATCA stamp: hash, signature and QR against the file"); the Saxon route and server API still run the EU base on a KSA file; no CII form exists; credit notes (2026-10-26, `examples/zatca-simplified-credit-note.xml`, 2 tests): ZATCA's rules treat a credit or debit note as an `Invoice` document with type code 381 or 383, not a UBL `CreditNote` root. Ours passes, and without its `BillingReference` and `InstructionNote` it draws BR-KSA-56 and BR-KSA-17. A `CreditNote`-rooted file draws EU-base false positives (BR-22 and others read `InvoicedQuantity` and `/ubl:Invoice/...` paths), so a KSA file should not use that root; no real ZATCA credit note was tried. Debit notes (2026-10-25, `examples/zatca-simplified-debit-note.xml`, type 383, 1 test) behave the same: clean, and BR-KSA-17 and BR-KSA-56 without the reason and reference; also made up, no real one tried; the 2.0.3 and 2.3.8 rule versions in the jar are not run; XRechnung-style English fixes for BR-KSA ids are not written (the messages are ZATCA's own English).
 
 **Netherlands NLCIUS (SI-UBL 2.0), shipped 2026-10-25.** A UBL file whose BT-24 names `urn:fdc:nen.nl:nlcius:v1.0` (or the G-account variant `gaccount:v1.0`) now also gets the Dutch national rules, 39 checks (BR-NL-1 to BR-NL-35 and SI-UBL-2), compiled by `build-nl-rules.mjs` from `si-ubl-2.0.3.13.xslt` in `phive-rules-simplerinvoicing` 4.6.3 on Maven Central (set `EINVOICE_NL_JAR` for a jar on disk, `EINVOICE_NL_RULES` for another rules version). The XSLT bundles the EU base, so the builder keeps only the pattern that holds the national checks and throws if it mixes in base checks. Errors cover the KVK/OIN identifiers, street/city/post code, buyer or order reference, type codes 380/381/384/389 against the Invoice or CreditNote document, a payment means and its code (30, 48, 49, 57, 58, 59); the warnings flag fields NLCIUS says to leave out (tax point date, country subdivision, address line 3, reason codes). The rules only fire for a Dutch seller. A Peppol BIS file does not match; it keeps the Peppol NL-R rules. UBL and, from 2026-10-25, CII (34 checks from `nlcius-cii-1.0.3.13.xslt`, same artefact and builder; the CII twin of the empty-element rule reports as `empty-element-check`); plain route only (browser and Node fallback), no Saxon form. CII verification (`nlcius.test.mjs`, 4 more tests): `examples/nlcius-cii-invoice.xml` (made up) passes with no skipped rule; `examples/nlcius-cii-invoice-with-defects.xml` raises BR-NL-2, BR-NL-3, BR-NL-12 and the warning BR-NL-28-2. A CII file with an empty `ApplicableHeaderTradeDelivery` draws the official empty-element warning, so a clean example carries a delivery date. Verification (`nlcius.test.mjs`, 5 tests): `examples/nlcius-invoice.xml` (made up) passes with no skipped rule; `examples/nlcius-invoice-with-defects.xml` raises BR-NL-2, BR-NL-3, BR-NL-12 and the warning BR-NL-28-2, each with an English fix. The official ids repeat in places (the charge-reason warning BR-NL-34 is reported as `BR-NL-32-n`), kept as published. No real Dutch invoice or Digipoort/Peppol access point verdict has been tried.
 
@@ -1564,3 +1564,92 @@ Croatia's Fiskalizacija 2.0 made structured e-invoices compulsory for domestic B
 - **Checked against the authority's XSLT itself.** `eval/hr-cius-differential-2026-11-14.md` (script: `eval/hr-cius-differential.mjs`): the original stylesheet run by Saxon-JS 2 vs the plain route on our sample and 400 randomly edited copies (deleted, blanked, re-digited and re-coded leaves), twice (a standard-rated file and an exempt-line file). Same HR rule ids on **362 of 372** and **360 of 367** files Saxon finished; every difference is a file whose BT-24 was deleted or blanked, so no add-on is chosen (by design, as for every national set). Saxon *stopped with an error* on 29 and 34 files (an `xs:date` or `xs:decimal` cast of a blanked or garbled value inside an assert), where the plain route reports the other rules and lists the one it could not evaluate under `skipped`.
 - **Tests.** `cius-hr.test.mjs` (8; made-up `examples/hr-invoice.xml`, invented companies with valid OIBs, KPD 62.20.30 and 58.11.11): the clean file passes with none skipped and only the three "keep it" warnings; a bad seller, buyer or operator OIB, a removed operator, a missing or `09:30` issue time, process `P13`, a missing or unlisted KPD code, a 2025 issue date, a spaced invoice number, a missing endpoint, a missing due date, a `PDV25` label and an empty element each raise exactly the expected HR rule; every id has a fix. `croatia-e-invoice-mandate.test.mjs` pins the page's new scope text.
 - **Not done.** No real Croatian business invoice and no access point's or Porezna uprava's verdict has been tried (phive's test folder for this module holds only Fiskalizacija reporting messages, no invoices), so false positives on real files are unmeasured. The HR extension (`HRFISK20Data`) is checked by these rules but the creator cannot write it, and a Croatian invoice with an exempt line needs it (HR-BR-26). CII Croatian invoices get no HR rules (none are published as CII). There is no Saxon form of the set; `report.mjs` hands an HR-CIUS file to the plain route, as it does CIUS-RO and CIUS-PT files. The Fiskalizacija reporting XSD in the same jar (`eIzvjestavanjeSchema.xsd`) is not used.
+
+## ZATCA stamp: hash, signature and QR against the file (2026-11-14)
+
+ZATCA's published BR-KSA rules check that a Saudi invoice *has* a QR code and a
+signature (BR-KSA-27/28/29/30/60), not that they belong to it. Fatoora does
+check, and a stamp that does not match the invoice is a common rejection of a
+self-built signer ("invalid-invoice-hash", an invalid QR). `zatca-stamp.mjs`
+now runs that check offline on every UBL file whose ProfileID is
+`reporting:1.0` or `clearance:1.0`, on the page, the server API and the batch
+report, with no dependency (so it runs in the browser: SHA-256, a small DER
+reader and secp256k1 ECDSA verification over BigInt are written out, and
+`c14n.mjs` is a namespace-aware reader and Canonical XML 1.1 writer).
+
+| Rule | What it checks |
+| --- | --- |
+| KSA-STAMP-01 | The invoice hash, recomputed as ZATCA does (the document without `ext:UBLExtensions`, the root `cac:Signature` and the QR `AdditionalDocumentReference`, C14N 1.1, SHA-256, base64), equals the signature's `DigestValue` |
+| KSA-STAMP-02 | The signature has an invoice-hash reference (`URI=""`) |
+| KSA-STAMP-03 | The `SignatureValue` verifies (ECDSA secp256k1, SHA-256) over the raw hash bytes with the embedded certificate's key (or, with no certificate, the QR's tag 8 key) |
+| KSA-STAMP-04, -05 | The QR is a readable TLV, with tags 1-9 on a simplified invoice (InvoiceTypeCode name `02...`) and 1-8 on a standard one |
+| KSA-STAMP-06 to -10 | QR tags 1-5 equal the seller's RegistrationName, VAT number, IssueDate/IssueTime, total with VAT and VAT total (in the tax currency) |
+| KSA-STAMP-11 to -14 | QR tag 6 is this invoice's hash, tag 7 the SignatureValue, tag 8 the certificate's public key (DER SPKI), tag 9 the certificate's signature |
+| KSA-STAMP-15, -17 | The certificate is readable and its key is on secp256k1 |
+| KSA-STAMP-16 (warning) | The XAdES SigningTime falls inside the certificate's validity |
+| KSA-STAMP-18, -19 | The XAdES certificate digest and SignedProperties digest match, in the form ZATCA's SDK writes them |
+| KSA-STAMP-20 | Across a batch: each invoice's PIH is the hash of the invoice with the previous ICV (compared only where exactly one invoice holds each counter) |
+
+On an unsigned file only QR tags 1-5 are compared (the BR-KSA rules already
+report the missing stamp).
+
+**Measured on ZATCA's own signed samples** (`eval/zatca-stamp-corpus.mjs`,
+phive-rules commit 37a2664, the samples ZATCA's SDK ships for rules 3.4.6 and
+2.3.8, including the 2.3.8 `_Error` files, whose faults are in the business
+rules, not the stamp): **45 of 45 with no stamp finding**, about 3 ms a file in
+Node and 28 ms for the first file in Chromium. With `--node-crypto` the same
+script recomputes each hash's SHA-256 and verifies each signature with
+`node:crypto`, a second implementation: 45 of 45 agree. Things learned on the
+way, each pinned in `zatca-stamp.test.mjs`:
+
+- **The hash reproduced on the first try** on all 45 by removing the three
+  subtrees and canonicalizing; whitespace beside a removed element stays, so a
+  pretty-printed or re-indented signed file no longer matches its hash.
+- **ZATCA signs the hash bytes, not SignedInfo.** The `SignatureValue` is
+  ECDSA-SHA256 over the 32 base64-decoded hash bytes (verified on all 45); over
+  the hash's base64 text it fails.
+- **Tag 4 is the amount payable in ZATCA's own samples.** The data dictionary
+  names the total with VAT (BT-112), but on the five samples where the two
+  differ (three prepayment invoices, payable rounding) the SDK wrote
+  `PayableAmount`. Either is accepted.
+- **ProfileID does not tell simplified from standard.** Every sample says
+  `reporting:1.0`; the InvoiceTypeCode `name` (`01...` or `02...`) does, so tag 9
+  is required only where it starts `02`.
+- **The SignedProperties digest is not quite C14N.** ZATCA's SDK digests the
+  element with `xades` and `ds` declared where used (as exclusive C14N would)
+  but with empty elements self-closed, and writes base64 of the hex digest;
+  inclusive or exclusive C14N with plain base64 is also accepted, for other
+  XAdES signers.
+- **Our own examples had a broken QR.** `examples/zatca-*.xml` carried a TLV
+  whose tag 1 declared 13 bytes for the 12-byte "Acme Widgets", so every field
+  after it misread; fixed (tag 1 now matches the RegistrationName "Acme Widgets
+  LTD", and the prepayment example's totals match the file).
+
+Tests (`zatca-stamp.test.mjs`, 15): our made-up example signed at run time with
+a fresh secp256k1 key and a minimal self-made certificate (no key is
+committed), then each part broken: an edit after signing (01, 08, 11), a
+pretty-print (01), another key or the hash text signed (03), every QR field
+wrong (06-10, 12-14), tag 9 missing on simplified and not on standard (05), the
+old malformed TLV (04), the XAdES digests (18, 19), an expired certificate (16),
+and a restarted or broken chain through `preflightDocuments` (20); plus SHA-256
+and ECDSA agreement with `node:crypto` and the C14N basics.
+
+Red-team pass (2026-11-14, 7 more tests, 22 in all), four fixes: a
+`DigestValue` or `X509Certificate` that is not base64 (base64url's `-` and `_`) threw out of the
+check, and the batch report then listed the whole file as unreadable with none
+of its findings (now KSA-STAMP-01 and -03); a QR cut off inside a long-form
+length (`0x81`/`0x82`) read as an empty field instead of KSA-STAMP-04; and a
+file with no ICV counted as counter 0 in the chain check, so a batch holding it
+and a device's first invoice (ICV 1) failed the first invoice with a false
+KSA-STAMP-20 (counters must now be plain digits). Also now pinned: a
+certificate dated 2050 or later (GeneralizedTime) and the no-certificate path
+that verifies the QR's own key and signature, C14N's ordering of namespace
+declarations and of attributes when two prefixes share a namespace, and a fuzz
+test that mangles each signature field and cuts the QR at every length and
+asserts the check reports rather than throws (it found the certificate crash).
+
+Not done: the certificate chain to ZATCA's CA is not verified (no CA keys, no
+network call), so a self-made certificate passes as long as it signed this
+invoice; Fatoora's acceptance is not known from any of this; the Python CLI
+does not run the stamp check.
+

@@ -88,6 +88,17 @@ Pick what your actuator can report with `ELEV_MODE` in `config.py`:
   A reading more than 1% of the span outside them counts as a broken wire, so put
   a 100k resistor from the wiper to GND (a loose wiper then reads 0) and check
   that neither end reads within about 2% of 0 or 65535, or the check cannot tell.
+  Fit a 1 uF ceramic capacitor from GPIO 39 to GND at the board: the pot wires
+  share a 1.39 m lead with the motor pair, and every PWM edge on the toggling
+  motor wire pushes charge onto the wiper. With no capacitor a reading caught
+  on an edge is at the rail (the old firmware called that a broken wire); with
+  ESP-IDF's example 100 nF a reading is still up to 0.55 mm off, over the
+  deadband (`cad/README.md`, "The pot's pickup from the motor pair"). Each tick
+  takes `ELEV_POT_READS` (8) readings, drops the two highest and two lowest and
+  averages the rest; a reading outside the span stops nothing on its own: the
+  last duty is held and the axis faults on the third such tick in a row (30 ms),
+  and those ticks still count toward the stall time. `tests/pot_pickup_sweep.py`
+  runs this firmware against the pickup model.
 - **timed**: at power-up it retracts for 1.25x the full-stroke time plus 0.5 s
   and calls that stroke 0, which is past +45 deg. With the actuator the CAD first
   drew (240 mm retracted) that is +48.8 deg, and the head plates cut into the
@@ -143,6 +154,15 @@ the wheel's speed would only hold it there). Braking into a nearly full pack
 lifts a cell to the BMS's cut, after which the energy has nowhere to go but
 the bus. Set the ESCs' brake at zero throttle off; a stop and an e-stop
 coast. Numbers: `cad/README.md`, "Regenerative braking".
+
+**Brakes in a row (2026-11-14).** The guard is `controller.BrakeGuard`, with a
+band: once a reading passes `REGEN_BRAKE_MAX_MV` braking stays off until the
+pack reads under that less `REGEN_BRAKE_HYST_MV` (700 mV). Braking lifts the
+reading it is judged by (about 260 mV of charge current across the pack-side
+resistance), so the first, single-threshold guard flipped between braking and
+coasting on every 10 ms tick, about 126 times in one slow-down, for any pack
+resting between about 27.2 and 27.8 V. Numbers: `cad/README.md`, "Brakes and
+bounces in a row".
 
 Whatever the mode, the feed gate now waits for the aim: a ball is released only
 when the wheels are within 5% of their speeds **and** both the elevation and

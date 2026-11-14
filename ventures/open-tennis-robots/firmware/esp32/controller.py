@@ -47,6 +47,18 @@ def _clamp(v, lo, hi):
     return lo if v < lo else hi if v > hi else v
 
 
+def trimmed_mean(vals, trim=None):
+    """Mean of `vals` without the `trim` highest and lowest (default a quarter each side), 2026-11-14: one pot reading
+    caught on a PWM edge (cad/README.md "The pot's pickup from the motor pair") or the ADC's own noise does not move
+    the position, while a wire really off still reads off on every sample."""
+    s = sorted(vals)
+    k = len(s) // 4 if trim is None else trim
+    if len(s) - 2 * k < 1:
+        raise ValueError("nothing left after trimming")
+    mid = s[k:len(s) - k]
+    return sum(mid) / len(mid)
+
+
 class StepperAxis:
     """Open-loop step/dir axis with trapezoidal moves and a home switch (the feeder's azimuth stepper, 2026-11-10).
 
@@ -271,6 +283,28 @@ class SpinupRamp:
         return r
 
 
+class BrakeGuard:
+    """Whether the launcher ESCs may brake, from the pack reading, with a band (2026-11-14, cad: Feeder.regen_guard).
+
+    The board reads the pack every tick, and braking lifts that very reading: the charge current crosses the pack's
+    resistance, its feed and its fuse, about 0.26 V at the threshold. With one threshold (the first firmware) a pack
+    resting within that rise of REGEN_BRAKE_MAX_MV made the guard flip brake, coast, brake on every 10 ms tick, about
+    126 flips in one slow-down, and the reading's own noise widened the band to about 0.6 V. So braking stops when the
+    reading passes `max_mv` and is allowed again only once it reads under `max_mv - hyst_mv`. The upper threshold is
+    unchanged, so the pack is never braked into above it."""
+
+    def __init__(self, max_mv, hyst_mv):
+        self.max_mv, self.hyst_mv = max_mv, hyst_mv
+        self.ok = True
+
+    def update(self, mv):
+        if self.ok and mv > self.max_mv:
+            self.ok = False
+        elif not self.ok and mv < self.max_mv - self.hyst_mv:
+            self.ok = True
+        return self.ok
+
+
 class WheelLoop:
     """One launcher wheel's ESC command from its target and measured rpm: feedforward plus PI (2026-11-11).
 
@@ -377,9 +411,10 @@ class LinearAxis:
       is not read back; `pos` is an estimate that moves toward the goal at the actuator's speed, so `settled` says
       when the head has had time to arrive.
     - pot: a signed H-bridge duty (-1..1, positive extends) from a proportional loop on `feedback_mm` (the pot read
-      and scaled by the board; None when the reading is outside the calibrated span, a broken wire). It faults on a
-      missing reading, or when the duty is on but the stroke has moved less than `stall_mm` in `stall_ms` (jammed,
-      or the H-bridge has no power).
+      and scaled by the board; None when the reading is outside the calibrated span, a broken wire). A missing reading
+      keeps the last duty and faults after `lost_ticks` in a row (30 ms at the 10 ms tick); it also faults
+      when the duty is on but the stroke has moved less than `stall_mm` in `stall_ms` (jammed, or the H-bridge has no
+      power).
     - timed: a signed duty, always full speed, with the position integrated from the speeds measured on your build
       (they differ: gravity pulls the nose up, which retracts). Unhomed, it retracts for long enough to cover the
       whole stroke and stops on the actuator's internal limit, which is stroke 0. Every move adds `speed_tol` of its
@@ -394,7 +429,7 @@ class LinearAxis:
 
     def __init__(self, mode, geom, closed_mm, stroke_mm, lo_deg, hi_deg, speed_ext_mm_s, speed_ret_mm_s,
                  end_mm=3.0, retract_end_mm=0.5, stop_clear_deg=46.3, deadband_mm=0.5, kp=0.08, min_duty=0.35, stall_ms=600, stall_mm=0.5,
-                 speed_tol=0.05, rehome_mm=3.0, coast_mm=1.0, self_locking=True):
+                 lost_ticks=3, speed_tol=0.05, rehome_mm=3.0, coast_mm=1.0, self_locking=True):
         if mode not in (ELEV_RC, ELEV_POT, ELEV_TIMED):
             raise ValueError("elevation mode must be rc, pot or timed")
         self.mode, self.geom = mode, geom
@@ -402,6 +437,7 @@ class LinearAxis:
         self.v_ext, self.v_ret = speed_ext_mm_s, speed_ret_mm_s
         self.deadband, self.kp, self.min_duty = deadband_mm, kp, min_duty
         self.stall_ms, self.stall_mm = stall_ms, stall_mm
+        self.lost_ticks, self._lost = lost_ticks, 0
         self.speed_tol, self.rehome_mm, self.coast_mm = speed_tol, rehome_mm, coast_mm
         self.self_locking = self_locking
         # Stroke limits from the angle limits (the higher angle is the shorter actuator), inside the end margins.
@@ -471,8 +507,20 @@ class LinearAxis:
             return self.goal / self.stroke
         if self.mode == ELEV_POT:
             if feedback_mm is None:
-                self.fault, self.duty = True, 0.0
-                return 0.0
+                # A wire off reads off every tick; one disturbed tick does not. Hold the last duty (at most 22 mm/s
+                # for 20 ms: under 0.5 mm) and fault when it persists. Stopping instead would reset the stall timer
+                # each time, and a jammed actuator whose readings drop out every other tick would never fault.
+                self._lost += 1
+                if self._lost >= self.lost_ticks:
+                    self.fault, self.duty = True, 0.0
+                    return 0.0
+                if self.duty != 0:
+                    self._stall_t += dt_ms
+                    if self._stall_t > self.stall_ms:
+                        self.fault, self.duty = True, 0.0
+                        return 0.0
+                return self.duty
+            self._lost = 0
             self.pos = feedback_mm
             if self.duty != 0:
                 self._stall_t += dt_ms

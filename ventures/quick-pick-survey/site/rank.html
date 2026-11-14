@@ -132,6 +132,7 @@
       <li><strong>Team results</strong> refit each person separately, then average their centred scores, so someone who answered 80 questions counts the same as someone who answered 30. The page shows how much people agree and where they split.</li>
     </ul>
     <p class="muted">Ready lists to start from: <a href="use-feature-backlog.html">a feature backlog</a>, <a href="use-personal-values.html">your personal values</a>, <a href="use-name-shortlist.html">a name shortlist</a>, <a href="use-trip-shortlist.html">a group trip</a>, <a href="use-team-goals.html">team goals</a>, <a href="use-customer-pain-points.html">customer pain points</a>, <a href="use-todo-priorities.html">a to-do list</a>, or <a href="ready-lists.html">all ready lists</a>.</p>
+    <p class="muted">Choosing between a few options on several criteria (rent, commute, space)? <a href="decide.html">Weigh criteria by picking pairs</a>: a decision matrix with no typed weights.</p>
     <p class="muted">Running a survey with many respondents, demographic splits and an admin view? The full app is open source: <a href="./">deploy your own copy</a>.</p>
   </section>
 
@@ -288,14 +289,21 @@
     $("#team-err").textContent = errors.join(" ");
     if (people.length < 2) { $("#team-out").innerHTML = "<p>Paste at least one other person's code.</p>"; return; }
     const c = combine(state.items, people);
-    const t = teamRanges(state.items, people);
+    // A shortlist link asked everyone for the same top k, so the team gets the same answer: which k, and how sure.
+    const k = state.linkMode === "top" ? state.linkK : null;
+    const t = teamRanges(state.items, people, k ? { k } : {});
     const tr = new Map(t.rows.map((r) => [r.item, r]));
     const range = (lo, hi) => (lo === hi ? `${lo}` : `${lo}&ndash;${hi}`);
     const agree = c.agreement;
     // Since the Laplace fix tau reads near its true value (true 0 reads 0.2-0.33, 0.5 reads 0.4-0.7, 1 reads 0.97-1.2,
     // 2 reads 2.0-2.3; docs/RANK-PAGE.md "Team ranges", "Laplace, not PQL"). Words, because logits mean nothing to a reader.
     const tauWords = t.tau < 0.4 ? "about the same likes" : t.tau < 0.8 ? "somewhat different likes" : "clearly different likes";
-    $("#team-out").innerHTML = `<p>${c.people} people. Agreement between their orders: <strong>${agree.toFixed(2)}</strong> (1 = identical, 0 = unrelated, negative = opposite). Read as a model, their picks fit people with <strong>${tauWords}</strong>.</p>
+    const pct = (x) => (x >= 0.995 ? "&gt;99%" : x < 0.005 ? "&lt;1%" : `${Math.round(x * 100)}%`);
+    const sl = t.shortlist;
+    const slLine = (i) => `<strong>${esc(state.items[i])}</strong> (${pct(sl.group[i])} for this group, ${pct(sl.wider[i])} wider; in ${sl.votes[i]} of ${c.people} people's own top ${sl.k})`;
+    const shortlistHtml = sl ? `<p>The team's top ${sl.k}: ${sl.items.map(slLine).join(", ")}. Closest left out: ${slLine(sl.next)}.</p>
+      <p class="muted">The percentages are each option's chance of really being in the top ${sl.k}: for these ${c.people} people's average likes, and for the wider group they stand for. The count of people whose own shortlist has it is shown for the conversation; on 432 simulated teams the average-likes pick named the group's true top 3 in 78% against 72% for counting shortlists, and 75% against 63% when people's likes differed most (docs/RANK-PAGE.md, "A team's shortlist").</p>` : "";
+    $("#team-out").innerHTML = `${shortlistHtml}<p>${c.people} people. Agreement between their orders: <strong>${agree.toFixed(2)}</strong> (1 = identical, 0 = unrelated, negative = opposite). Read as a model, their picks fit people with <strong>${tauWords}</strong>.</p>
       <div class="scroll-x"><table><thead><tr><th class="num">#</th><th>Option</th><th class="num" title="People who ranked it first">1st</th><th class="num" title="Best to worst place across people">Places</th><th class="num" title="90% rank range for this group">Group</th><th class="num" title="90% rank range for people like you">Wider</th></tr></thead><tbody>${
       c.order.map((r) => { const x = tr.get(r.item); return `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td><td class="num">${range(x.low, x.high)}</td><td class="num">${range(x.popLow, x.popHigh)}</td></tr>`; }).join("")}</tbody></table></div>
       <p class="muted"><strong>1st</strong>: people who ranked it first. <strong>Places</strong>: its best to worst place across people; a wide spread marks an option the team splits on, worth a conversation before a vote.</p>

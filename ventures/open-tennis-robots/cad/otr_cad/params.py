@@ -294,6 +294,83 @@ def _cable_loop_range(f: tuple, h: tuple, d: tuple, elev_deg: float, shape: tupl
     return (lo, hi) if target is None else (lo, hi, best)
 
 
+def _seg_dist_2d(q: tuple, a: tuple, b: tuple) -> float:
+    """Distance from (x, z) point q to the segment a-b."""
+    vx, vz = b[0] - a[0], b[1] - a[1]
+    t = max(0.0, min(1.0, ((q[0] - a[0]) * vx + (q[1] - a[1]) * vz) / (vx * vx + vz * vz)))
+    return math.hypot(q[0] - a[0] - t * vx, q[1] - a[1] - t * vz)
+
+
+@functools.lru_cache(maxsize=4096)
+def _lead_range(f: tuple, df: tuple, e: tuple, de: tuple, keep_out: tuple, r_min: float, rb: float,
+                step: float = 5.0, hmax: float = 220.0, n: int = 40, target: float | None = None) -> tuple | None:
+    """Shortest and longest free lead (mm) in 3D from `f`, leaving along the unit vector `df`, to `e`, entered along
+    `-de` (`de` points from `e` into the lead), as a cubic Bezier with handles `step` to `hmax`, never bending
+    tighter than `r_min` and keeping a bundle of radius `rb` (with its clearance) off `keep_out`:
+    (z of the turntable top, y of the cheek's outer face, the turntable plate's -y edge (the lead never hangs outboard
+    of it, where it could catch on the mast as the head turns), feet as (x0, x1, y_outer, z_top)..., then the actuator
+    as ("act", y plane, body radius, (x, z) eye end, (x, z) far end, anchor (x, z), anchor eye radius)). Points within
+    1.5 rb of an end are not tested against the face that end sits on (the lead leaves it there). With `target`,
+    also returns the control points of the fitting curve whose length is nearest it. None if no curve fits
+    (2026-11-14, the elevation actuator's lead)."""
+    z_tt, y_face, y_edge, *rest = keep_out
+    feet = [k for k in rest if k[0] != "act"]
+    _, ay, ar, b0, b1, anc, eye_r = next(k for k in rest if k[0] == "act")
+
+    def free(q: tuple) -> bool:
+        x, y, z = q
+        if z < z_tt + rb or y < y_edge + rb:
+            return False
+        if y > y_face - rb and math.dist(q, f) > 1.5 * rb:
+            return False
+        for x0, x1, yo, zt in feet:
+            if x0 - rb < x < x1 + rb and y > yo - rb and z < zt + rb:
+                return False
+        if abs(y - ay) < ar + rb and math.dist(q, e) > 1.5 * rb:
+            if math.hypot(_seg_dist_2d((x, z), b0, b1), y - ay) < ar + rb:
+                return False
+            if math.hypot(x - anc[0], z - anc[1]) < eye_r + rb:
+                return False
+        return True
+
+    kcap = 1 / r_min
+    lo = hi = best = None
+    cnt = int(hmax / step)
+    for i in range(1, cnt + 1):
+        p1 = tuple(f[m] + i * step * df[m] for m in range(3))
+        for j in range(1, cnt + 1):
+            p2 = tuple(e[m] + j * step * de[m] for m in range(3))
+            ok, length, prev, prev_a = True, 0.0, f, None
+            for k in range(n + 1):
+                t = k / n
+                u = 1 - t
+                q = tuple(u ** 3 * f[m] + 3 * u * u * t * p1[m] + 3 * u * t * t * p2[m] + t ** 3 * e[m] for m in range(3))
+                if 0 < k < n and not free(q):
+                    ok = False
+                    break
+                a = [3 * u * u * (p1[m] - f[m]) + 6 * u * t * (p2[m] - p1[m]) + 3 * t * t * (e[m] - p2[m]) for m in range(3)]
+                b = [6 * u * (p2[m] - 2 * p1[m] + f[m]) + 6 * t * (e[m] - 2 * p2[m] + p1[m]) for m in range(3)]
+                sp = math.sqrt(a[0] ** 2 + a[1] ** 2 + a[2] ** 2)
+                cr = (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+                if sp < 1e-6 or (prev_a and sum(a[m] * prev_a[m] for m in range(3)) <= 0) \
+                        or math.sqrt(cr[0] ** 2 + cr[1] ** 2 + cr[2] ** 2) > kcap * sp ** 3:
+                    ok = False
+                    break
+                prev_a = a
+                if k:
+                    length += math.dist(prev, q)
+                prev = q
+            if not ok:
+                continue
+            lo = length if lo is None else min(lo, length)
+            hi = length if hi is None else max(hi, length)
+            if target is not None and (best is None or abs(length - target) < abs(best[0] - target)):
+                best = (length, (f, p1, p2, e))
+    if lo is None:
+        return None
+    return (lo, hi) if target is None else (lo, hi, best)
+
+
 @dataclass(frozen=True)
 class Collector:
     # Tennis ball (ITF 65.4-68.6 mm).
@@ -723,6 +800,36 @@ class Feeder:
     servo_lead_awg: int = 20          # servo supply and return from the buck to the servo
     servo_vih: float = 2.4            # servo's signal input threshold (assumption: many accept 3.3 V logic; check yours)
     logic_high_v: float = 3.3         # the ESP32's output high
+    # Elevation actuator's lead (2026-11-14): its five wires (`turntable_wires`) leave the bundle at the gland's top,
+    # turn -y and run tied straight across the turntable under the pivot, through a grommet hole in the guard-side
+    # cheek between its two feet, and make one free span to a zip tie on the actuator's body `elev_lead_tie_mm` from
+    # its anchor eye, on the body's front (pivot) side, leaving square off the body. Wherever the real actuator's cable leaves its housing, it is
+    # taped along the body to that tie. The tie, not the exit, is what moves with elevation (`elev_lead_design`).
+    elev_lead_tie_mm: float = 70.0    # tie on the actuator's body, from its anchor eye along the body (design choice)
+    elev_lead_out_mm: float = 10.0    # the lead (with its clearance) may hang this far outboard of the actuator's outer face
+    elev_lead_hole_dx: float = 0.0    # grommet hole in the guard-side cheek: x from the pivot (under it: the head stays high)
+    elev_lead_hole_d: float = 10.0    # snap-in grommet, 6 mm bore or more, for the 4.4 mm lead
+    # The pot's pickup from the motor pair (2026-11-14, `elev_pot_pickup`, `check_elev_pot`). The H-bridge drives the
+    # actuator sign-magnitude (PWM + DIR, MDD10A class): one motor wire swings the whole pack voltage at every PWM edge
+    # while the other sits still, so twisting the motor pair does not cancel its electric field at the pot wires. Each
+    # edge pushes charge through the wire-to-wire capacitance onto the wiper wire; the wiper's own source resistance
+    # and a capacitor at the ADC pin take it away. Every capacitance and the pot's resistance are assumptions.
+    elev_pwm_hz: float = 20000.0      # firmware Motor(freq=20000)
+    elev_pot_ohm: float = 10000.0     # the actuator's feedback pot, end to end (assumption: read yours; swept to 20k)
+    elev_pot_pulldown_ohm: float = 100000.0  # wiper to GND at the board (firmware README: a loose wiper reads 0)
+    elev_pot_supply_v: float = 3.3    # the pot across 3.3 V, so its whole stroke spans 3.3 V at the ADC
+    elev_lead_mutual_pf_m: float = 30.0   # toggling motor wire to the wiper wire, per metre run together (assumption:
+                                          # adjacent wires in a tied bundle; swept 10 to 60)
+    elev_lead_self_pf_m: float = 40.0     # wiper wire to the pot's own 3.3 V and GND wires beside it (assumption)
+    elev_adc_pin_pf: float = 10.0     # ESP32 pad, trace and sample capacitor (assumption)
+    elev_act_l_h: float = 1.0e-3      # actuator motor inductance (assumption: small brushed DC motor class)
+    elev_lead_mutual_nh_m: float = 50.0   # motor loop to wiper loop mutual inductance per metre (assumption)
+    elev_pot_filter_nf: float = 1000.0  # ceramic capacitor from GPIO 39 to GND at the board (design choice: 1 uF X7R)
+    elev_deadband_mm: float = 0.5     # firmware LinearAxis deadband_mm
+    elev_fw_speed_mm_s: float = 22.0  # firmware ELEV_SPEED_RET_MM_S, the faster direction
+    elev_stall_mm: float = 0.5        # firmware LinearAxis stall_mm (a stall resets on any reading this far from the last)
+    elev_pot_err_frac: float = 0.5    # a single reading's pickup error at most this share of the deadband
+    elev_pot_lag_frac: float = 0.25   # the filter's lag at full speed at most this share of the deadband
     # Deck-side cable run (2026-11-14): from the electronics on the deck to the axis clamp, with the azimuth stepper's and
     # the lift gearmotor's leads branching off it. Fixed wiring, tied every `deck_tie_max_mm` or less: along the deck at
     # y = `deck_cable_y`, up the +y rear mast post's inner face, 30 mm under the cable crossbar to y = 0, under the
@@ -859,6 +966,19 @@ class Feeder:
     regen_diode_a: float = 20.0       # and its forward current rating
     regen_brake_max_v: float = 27.6   # firmware REGEN_BRAKE_MAX_MV: above this pack reading the ramp coasts instead of
                                       # braking (3.45 V a cell, the top few percent of a LiFePO4's charge)
+    # Brakes in a row (2026-11-14, `regen_guard`). The board reads the pack on GPIO 36 every 10 ms tick, and braking
+    # lifts that very reading by the charge current x the pack-side resistance (about 0.26 V), so a guard with one
+    # threshold flips brake, coast, brake every tick for any pack resting within that rise of it. The firmware keeps a
+    # band: braking stops when the reading passes REGEN_BRAKE_MAX_MV and starts again only under it less
+    # REGEN_BRAKE_HYST_MV.
+    regen_brake_hyst_v: float = 0.7   # firmware REGEN_BRAKE_HYST_MV
+    battery_adc_noise_v: float = 0.15  # peak noise on the battery reading, at the battery (assumption: +-14 mV at the
+                                      # ESP32's pin through the 11:1 divider; log yours with the motors running)
+    pack_wh: float = 512.0            # 24 V 20 Ah LiFePO4 class (hardware/electronics.md power budget)
+    # Several bounces in a row (2026-11-14, `contactor_bounce_train`): the bounce window split into n opens, each
+    # followed by a re-close, for these counts and these fractions of the window spent open (assumptions: scope yours).
+    bounce_counts: tuple = (1, 2, 3, 4, 6, 10)
+    bounce_open_fracs: tuple = (0.2, 0.5, 0.8, 1.0)   # 1.0: zero-length closes, one open as long as the window
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -2118,6 +2238,249 @@ class Feeder:
             if s["signal_high_v"] < self.servo_vih + 0.3:
                 bad.append(f"servo ground rises {s['ground_shift_v']:.2f} V at stall, leaving the signal {s['signal_high_v']:.2f} V "
                            f"against a {self.servo_vih:g} V threshold: heavier servo leads")
+        bad += self.check_elev_lead()
+        bad += self.check_elev_pot()
+        return bad
+
+    # ---- the elevation actuator's lead (2026-11-14) ---------------------------------
+    @property
+    def elev_lead_od(self) -> float:
+        return self.bundle_od(self.turntable_wires)
+
+    @property
+    def elev_lead_bend_r(self) -> float:
+        """Free span's smallest bend radius: `cable_bend_factor` times its thickest wire (the actuator's 18 AWG)."""
+        return self.cable_bend_factor * max(AWG_OD_MM[g] for _, _, g in self.turntable_wires)
+
+    @property
+    def elev_lead_static_r(self) -> float:
+        """Tied run's bend radius out of the gland: `deck_static_bend_factor` times its thickest wire, 12 mm at least."""
+        return max(12.0, self.deck_static_bend_factor * max(AWG_OD_MM[g] for _, _, g in self.turntable_wires))
+
+    @property
+    def elev_cheek_outer_y(self) -> float:
+        return -(self.plate_half_y + self.plate_t + self.cheek_gap + self.plate_t)
+
+    def elev_lead_hole(self) -> tuple[float, float, float]:
+        """World (x, y, z) of the lead's centre where it leaves the guard-side cheek's grommet hole (the cheek's outer
+        face). Its height is the gland's top plus the tied run's bend: the run leaves the gland straight up and turns
+        -y across the turntable at that height."""
+        return (self.head_x + self.elev_lead_hole_dx, self.elev_cheek_outer_y,
+                self.turntable_top + self.cable_gland_h + self.elev_lead_static_r)
+
+    def elev_lead_fixed_path(self) -> list[tuple[float, float, float]]:
+        """Corner points of the tied run: up out of the gland's bore on its -y wall, a corner at the hole's height
+        (rounded to `elev_lead_static_r`), across -y through the cheek to its outer face."""
+        bore = self.bundle_od(self.head_wires + self.turntable_wires) + 1.0
+        y0 = -(bore / 2 - self.elev_lead_od / 2)
+        hx, hy, hz = self.elev_lead_hole()
+        z0 = self.turntable_top + self.cable_gland_h
+        return [(self.head_x, y0, z0), (self.head_x, y0, hz), (hx, hy, hz)] if hx == self.head_x else \
+            [(self.head_x, y0, z0), (self.head_x, y0, hz), (hx, y0 - 1e-3, hz), (hx, hy, hz)]
+
+    def elev_lead_tie(self, elev_deg: float) -> tuple[tuple, tuple, tuple]:
+        """With the head at `elev_deg`: world (x, y, z) of the lead's centre at the tie on the actuator's body, the
+        unit vector it leaves the body along (the body's front normal, in its x-z plane), and the body's axis as two
+        world (x, z) points (eye end, far end of the body)."""
+        ax, az = self.head_x + self.elev_anchor_dx, self.pivot_z + self.elev_anchor_dz
+        px, pz = self.elev_pin_rel(elev_deg)
+        px, pz = self.head_x + px, self.pivot_z + pz
+        ln = math.hypot(px - ax, pz - az)
+        ux, uz = (px - ax) / ln, (pz - az) / ln
+        nx, nz = uz, -ux                                      # the normal on the pivot's (+x) side
+        if nx < 0:
+            nx, nz = -nx, -nz
+        cx, cz = ax + ux * self.elev_lead_tie_mm, az + uz * self.elev_lead_tie_mm
+        r = self.elev_act_r + self.elev_lead_od / 2
+        eye = 12.0                                            # feeder.ELEV_EYE_MM
+        body = ((ax + ux * eye, az + uz * eye), (ax + ux * (self.elev_act_closed - eye), az + uz * (self.elev_act_closed - eye)))
+        return (cx + nx * r, self.elev_act_y, cz + nz * r), (nx, 0.0, nz), body
+
+    def _elev_lead_keep_out(self, elev_deg: float) -> tuple:
+        _, _, body = self.elev_lead_tie(elev_deg)
+        yo = self.elev_cheek_outer_y
+        foot_y = yo - 20.0                                     # feeder.cheek_foot: 20 mm deep outboard of the cheek
+        feet = tuple((self.head_x + sx * 35.0 - 12.0, self.head_x + sx * 35.0 + 12.0, foot_y, self.turntable_top + 60.0)
+                     for sx in (-1, 1))
+        anchor = (self.head_x + self.elev_anchor_dx, self.pivot_z + self.elev_anchor_dz)
+        edge = self.elev_act_y - self.elev_act_r - self.elev_lead_out_mm
+        return (self.turntable_top, yo, edge, *feet, ("act", self.elev_act_y, self.elev_act_r, body[0], body[1], anchor, 10.0))
+
+    def elev_lead_poses(self) -> list[float]:
+        return self.cable_loop_poses()
+
+    def elev_lead_range(self, elev_deg: float, target: float | None = None) -> tuple | None:
+        hole = self.elev_lead_hole()
+        tie, n, _ = self.elev_lead_tie(elev_deg)
+        rb = self.elev_lead_od / 2 + self.cable_clear_mm
+        return _lead_range(hole, (0.0, -1.0, 0.0), tie, n, self._elev_lead_keep_out(elev_deg), self.elev_lead_bend_r, rb,
+                           target=target)
+
+    def elev_lead_design(self) -> dict:
+        """Size the actuator's free lead (2026-11-14) as `cable_loop_design` sizes the head's loop: every pose from the
+        actuator's extended to its retracted limit gets the range of lengths that fit (`_lead_range`), the cut is the
+        middle of the common window, and each pose's curve at that length is kept. Also the tied run's length and the
+        whole lead from the H-bridge on the deck, and its drop at the actuator's stall."""
+        ranges = {e: self.elev_lead_range(e) for e in self.elev_lead_poses()}
+        out = {"ranges": ranges, "window": None, "r_min": self.elev_lead_bend_r, "od_mm": self.elev_lead_od,
+               "rb": self.elev_lead_od / 2 + self.cable_clear_mm}
+        pts = self.elev_lead_fixed_path()
+        r = self.elev_lead_static_r
+        out["fixed_mm"] = sum(math.dist(pts[k], pts[k + 1]) for k in range(len(pts) - 1)) - 2 * r + math.pi / 2 * r
+        ties = [self.elev_lead_tie(e)[0] for e in ranges]
+        out["tie_travel_mm"] = max(math.dist(a, b) for a in ties for b in ties)
+        if any(v is None for v in ranges.values()):
+            return out
+        lo, hi = max(v[0] for v in ranges.values()), min(v[1] for v in ranges.values())
+        if lo > hi:
+            return out
+        cut = (lo + hi) / 2
+        curves = {e: self.elev_lead_range(e, target=cut)[2] for e in ranges}
+        run_m = (self.deck_cable_route()["to_clamp_mm"] + self.cable_twist()["run_mm"] + out["fixed_mm"] + cut
+                 + self.elev_lead_tie_mm) / 1000
+        g = self.turntable_wires[0][2]
+        drop = self.elev_act_stall_a * 2 * run_m * AWG_OHM_PER_M[g]
+        out.update({"window": (lo, hi), "cut_mm": cut, "curves": curves,
+                    "fit_err_mm": max(abs(c[0] - cut) for c in curves.values()),
+                    "run_m": run_m, "motor_awg": g, "stall_drop_v": drop, "stall_drop_frac": drop / self.supply_v})
+        return out
+
+    def elev_lead_curve(self, elev_deg: float) -> tuple | None:
+        """Control points of the free span at the cut length with the head at `elev_deg` (any elevation between the
+        actuator's limits, not only the design poses), or None if the cut does not fit there."""
+        d = self.elev_lead_design()
+        if d["window"] is None:
+            return None
+        if elev_deg in d["curves"]:
+            return d["curves"][elev_deg][1]
+        r = self.elev_lead_range(elev_deg, target=d["cut_mm"])
+        if r is None or not r[0] - 1e-6 <= d["cut_mm"] <= r[1] + 1e-6:
+            return None
+        return r[2][1]
+
+    def check_elev_lead(self) -> list[str]:
+        """The hole's place first (cheap; a hole on a foot stops there), then the free span's fit and the motor pair."""
+        bad = []
+        hx, hy, hz = self.elev_lead_hole()
+        rh = self.elev_lead_hole_d / 2
+        if rh < self.elev_lead_od / 2 + 1.5:
+            bad.append(f"the cheek's {self.elev_lead_hole_d:g} mm grommet hole is too small for the {self.elev_lead_od:.1f} mm lead")
+        if hz - rh - self.turntable_top < 8.0:
+            bad.append("the lead's grommet hole is too close to the cheek's bottom edge")
+        for sx in (-1, 1):   # the cheek's feet (24 mm wide at 35 mm either side) and their M4 bolts, 30 mm up
+            fx = self.head_x + sx * 35.0
+            if abs(hx - fx) < 12.0 + rh + 3.0:
+                bad.append("the lead's grommet hole is on a cheek foot or its bolt")
+        if bad:
+            return bad
+        d = self.elev_lead_design()
+        if d["window"] is None:
+            bad.append("no single length makes the elevation actuator's lead from the cheek's grommet to its tie on the "
+                       "body at every elevation between the actuator's limits: move the tie (elev_lead_tie_mm) or the hole")
+            return bad
+        g = d["motor_awg"]
+        if AWG_AMPS[g] < self.elev_act_stall_a - 1e-9:
+            bad.append(f"elevation actuator's motor wires ({g} AWG, {AWG_AMPS[g]:g} A) are under its {self.elev_act_stall_a:g} A stall")
+        if d["stall_drop_frac"] > self.lift_drop_frac:
+            bad.append(f"elevation actuator's lead ({g} AWG, {d['run_m']:.2f} m) drops {d['stall_drop_v']:.2f} V at its "
+                       f"{self.elev_act_stall_a:g} A stall, over {self.lift_drop_frac:.0%} of {self.supply_v:g} V")
+        return bad
+
+    # ---- the pot's pickup from the motor pair (2026-11-14) -----------------------------
+    def _elev_pot_node(self, filter_nf=None, pot_ohm=None, mutual_pf_m=None) -> dict | None:
+        d = self.elev_lead_design()
+        if d["window"] is None:
+            return None
+        run = d["run_m"]
+        cf = (self.elev_pot_filter_nf if filter_nf is None else filter_nf) * 1e-9
+        r_pot = self.elev_pot_ohm if pot_ohm is None else pot_ohm
+        cm = (self.elev_lead_mutual_pf_m if mutual_pf_m is None else mutual_pf_m) * run * 1e-12
+        c = cf + self.elev_lead_self_pf_m * run * 1e-12 + self.elev_adc_pin_pf * 1e-12
+        v = self.battery_v_max
+        r_th = 1.0 / (4.0 / r_pot + 1.0 / self.elev_pot_pulldown_ohm)
+        return {"run_m": run, "cm": cm, "c": c, "v": v, "a": v * cm / (c + cm), "r_th": r_th, "tau": r_th * (c + cm),
+                "period": 1.0 / self.elev_pwm_hz}
+
+    @staticmethod
+    def _elev_pot_levels(n: dict, duty: float) -> tuple[float, float]:
+        """Steady-state error (V) just after the rising edge and just after the falling edge at `duty`."""
+        if not 0 < duty < 1:
+            return 0.0, 0.0
+        k1, k2 = math.exp(-duty * n["period"] / n["tau"]), math.exp(-(1 - duty) * n["period"] / n["tau"])
+        e0 = n["a"] * (1 - k2) / (1 - k1 * k2)
+        return e0, e0 * k1 - n["a"]
+
+    def elev_pot_error_v(self, duty: float, phase: float, filter_nf=None, pot_ohm=None, mutual_pf_m=None) -> float:
+        """The wiper node's error (V) at `phase` (0..1 of a PWM period from the rising edge) with the H-bridge at
+        `duty` (its sign only picks which motor wire toggles), the capacitive term of `elev_pot_pickup`. For the
+        firmware simulation (tests/pot_pickup_sweep.py)."""
+        n = self._elev_pot_node(filter_nf, pot_ohm, mutual_pf_m)
+        duty = abs(duty)
+        if n is None or not 0 < duty < 1:
+            return 0.0
+        e0, e1 = self._elev_pot_levels(n, duty)
+        ph = phase % 1.0
+        if ph < duty:
+            return e0 * math.exp(-ph * n["period"] / n["tau"])
+        return e1 * math.exp(-(ph - duty) * n["period"] / n["tau"])
+
+    def elev_pot_pickup(self, filter_nf: float | None = None, pot_ohm: float | None = None,
+                        mutual_pf_m: float | None = None) -> dict | None:
+        """What the actuator's PWM puts on the pot reading (2026-11-14). The motor pair and the three pot wires share
+        `elev_lead_design()["run_m"]` from the H-bridge to the actuator. Sign-magnitude drive: at each PWM edge one motor
+        wire steps by the pack voltage V, pushing a charge V Cm onto the wiper node (Cm = the mutual capacitance along the
+        run), whose capacitance to ground C is the filter, the pin and the wiper wire's capacitance to the pot's own supply
+        wires. The step is a = V Cm / (C + Cm) (edges faster than the node's time constant: conservative). Between edges
+        the node returns to the wiper's true voltage through the wiper's source resistance (the pot's two halves in
+        parallel, worst at mid-travel R/4, in parallel with the pull-down) with tau = R C. In the steady state the error
+        just after the rising edge is e0 = a (1 - k2) / (1 - k1 k2), just after the falling edge e0 k1 - a (k1, k2 the
+        decays over the on- and off-times); its time average is zero, so many readings at random phase average out,
+        but one reading per tick can land anywhere. Every duty from the loop's minimum to just under 1 is tried. The
+        magnetic term (the motor current's ripple slope through the mutual inductance, V / L at most) is added after
+        the filter's attenuation at the PWM frequency. Returns None when the lead has no cut length."""
+        n = self._elev_pot_node(filter_nf, pot_ohm, mutual_pf_m)
+        if n is None:
+            return None
+        run, cm, c, v, a, r_th, tau, period = (n[k] for k in ("run_m", "cm", "c", "v", "a", "r_th", "tau", "period"))
+        mm_per_v = self.elev_act_stroke / self.elev_pot_supply_v
+        worst = {"err_v": 0.0}
+        thr = self.elev_pot_err_frac * self.elev_deadband_mm / mm_per_v
+        bad_frac = 0.0                    # share of a period a single reading would be off by more than that
+        for k in range(36, 100):          # duty 0.36 (just over the firmware's min_duty) to 0.99
+            duty = k / 100
+            e0, e1 = self._elev_pot_levels(n, duty)
+            t_hi = min(tau * math.log(e0 / thr), duty * period) if e0 > thr else 0.0
+            t_lo = min(tau * math.log(-e1 / thr), (1 - duty) * period) if -e1 > thr else 0.0
+            bad_frac = max(bad_frac, (t_hi + t_lo) / period)
+            if max(e0, -e1) > worst["err_v"]:
+                worst = {"duty": duty, "err_v": max(e0, -e1), "pp_v": e0 - e1, "e0_v": e0, "e1_v": e1}
+        m = self.elev_lead_mutual_nh_m * run * 1e-9
+        v_ind = m * v / self.elev_act_l_h                       # before the filter (largest at a low duty)
+        v_ind_f = v_ind / math.sqrt(1 + (2 * math.pi * self.elev_pwm_hz * tau) ** 2)
+        err_v = worst["err_v"] + v_ind_f / 2
+        pp_v = worst["pp_v"] + v_ind_f
+        rail = a > self.elev_pot_supply_v                       # a step that size leaves the ADC's range from anywhere
+        return {"run_m": run, "cm_pf": cm * 1e12, "c_nf": c * 1e9, "edge_v": v, "step_v": a, "r_th_ohm": r_th,
+                "tau_us": tau * 1e6, "duty": worst["duty"], "err_v": err_v, "pp_v": pp_v, "ind_v": v_ind,
+                "ind_filtered_v": v_ind_f, "err_mm": err_v * mm_per_v, "pp_mm": pp_v * mm_per_v,
+                "lag_mm": tau * self.elev_fw_speed_mm_s, "settle_ms": 5 * tau * 1e3, "clips_rail": rail,
+                "bad_read_frac": bad_frac}
+
+    def check_elev_pot(self) -> list[str]:
+        bad = []
+        p = self.elev_pot_pickup()
+        if p is None:
+            return bad                    # check_elev_lead already says the lead has no length
+        fix = "a larger capacitor from GPIO 39 to GND (elev_pot_filter_nf), or a separate shielded pot cable"
+        if p["err_mm"] > self.elev_pot_err_frac * self.elev_deadband_mm + 1e-9:
+            bad.append(f"the actuator's PWM puts up to {p['err_v'] * 1e3:.1f} mV ({p['err_mm']:.2f} mm of stroke) on one pot "
+                       f"reading, over {self.elev_pot_err_frac:.0%} of the {self.elev_deadband_mm:g} mm deadband: {fix}")
+        if p["pp_mm"] > self.elev_stall_mm - 1e-9:
+            bad.append(f"pot readings swing {p['pp_mm']:.2f} mm with the PWM phase, at least the {self.elev_stall_mm:g} mm the "
+                       f"stall check needs to see: a jammed actuator would never fault: {fix}")
+        if p["lag_mm"] > self.elev_pot_lag_frac * self.elev_deadband_mm + 1e-9:
+            bad.append(f"the pot filter's {p['tau_us'] / 1e3:.1f} ms time constant lags the moving actuator by "
+                       f"{p['lag_mm']:.2f} mm, over {self.elev_pot_lag_frac:.0%} of the deadband: a smaller filter capacitor")
         return bad
 
     # ---- deck-side cable run (2026-11-14) ------------------------------------------
@@ -2554,6 +2917,70 @@ class Feeder:
             out[name] = {"load_a": load, "gap_v": gap, "peak_a": peak}
         return out
 
+    def contactor_bounce_train(self, load_a: float, n: int, open_frac: float) -> dict:
+        """The contactor's bounce as n opens in a row (2026-11-14). `contactor_bounce` takes the whole window as one
+        open after a close that had fully charged the bus. Here the window `contactor_bounce_ms` starts at the first
+        touch and alternates close (1 - open_frac) x window / n, open open_frac x window / n, n times, then stays shut.
+        Closed: L di/dt = Vpack - R i - v and C dv/dt = i + (Vpack - v) / Rp - load, from the precharged bus and no
+        current (R, L, C as `contactor_inrush`; the precharge relay stays closed throughout). Open: the contact
+        current stops (its 1/2 L i^2 goes into the arc) and the bus relaxes toward Vpack - load x Rp. A short close can
+        open before the bus has caught up, so a re-close can start from a larger gap than one long bounce leaves.
+        Returns each make's peak and each break's current. RK4 at a 60th of the loop's fastest time constant."""
+        d = self.contactor_inrush()
+        r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
+        vp = self.battery_v_max
+        rp = self.precharge_ohm + r if self.precharge_ohm > 0 else math.inf
+        v = vp - (d["precharge"]["residual_v"] if d["precharge"] else vp)
+        i = 0.0
+        win = self.contactor_bounce_ms / 1e3
+        t_open, t_shut = open_frac * win / n, (1 - open_frac) * win / n
+        settle = 20 * max(r * c, math.sqrt(l * c))
+        h0 = min(math.sqrt(l * c), r * c, l / r) / 60
+
+        def deriv(vv, ii):
+            ip = (vp - vv) / rp if rp != math.inf else 0.0
+            return (ii + ip - load_a) / c, (vp - r * ii - vv) / l
+
+        makes, breaks, arc_j = [], [], 0.0
+        for k in range(n + 1):
+            dur = t_shut if k < n else settle
+            steps = max(int(math.ceil(dur / h0)), 1)
+            h, peak, gap = dur / steps, 0.0, vp - v
+            for _ in range(steps):
+                a1, b1 = deriv(v, i)
+                a2, b2 = deriv(v + a1 * h / 2, i + b1 * h / 2)
+                a3, b3 = deriv(v + a2 * h / 2, i + b2 * h / 2)
+                a4, b4 = deriv(v + a3 * h, i + b3 * h)
+                v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                peak = max(peak, i)
+            makes.append({"gap_v": gap, "peak_a": peak})
+            if k == n:
+                break
+            breaks.append(i)
+            arc_j += 0.5 * l * i * i
+            i = 0.0
+            if rp == math.inf:
+                v = max(v - load_a * t_open / c, 0.0)
+            else:
+                floor = vp - load_a * rp
+                v = floor + (v - floor) * math.exp(-t_open / (rp * c))
+        return {"n": n, "open_frac": open_frac, "makes": makes, "breaks_a": breaks, "arc_j": arc_j,
+                "peak_a": max(m["peak_a"] for m in makes), "max_gap_v": max(m["gap_v"] for m in makes),
+                "break_a": max(breaks) if breaks else 0.0}
+
+    def contactor_bounces(self) -> dict:
+        """Every bounce train in `bounce_counts` x `bounce_open_fracs`, with the idle loads and with the stepper driver
+        enabled, and the worst make and break of each."""
+        stepper = next(b for b in self.power_distribution()["branches"] if b["name"] == "azimuth stepper driver")
+        out = {}
+        for name, load in (("idle", self.bus_idle_a), ("stepper enabled", self.bus_idle_a + stepper["run_a"])):
+            runs = [self.contactor_bounce_train(load, n, f) for n in self.bounce_counts for f in self.bounce_open_fracs]
+            worst = max(runs, key=lambda x: x["peak_a"])
+            out[name] = {"runs": runs, "worst": worst, "break_a": max(x["break_a"] for x in runs),
+                         "arc_j": max(x["arc_j"] for x in runs), "makes_max": max(len(x["makes"]) for x in runs)}
+        return out
+
     def check_inrush(self) -> list[str]:
         bad = []
         if not self.stepper_holds_at_power_up:
@@ -2565,6 +2992,11 @@ class Feeder:
             worst = max(cb["idle"]["peak_a"], cb["stepper enabled"]["peak_a"])
             if worst > self.contactor_make_a + 1e-9:
                 bad.append(f"contactor makes {worst:.0f} A re-closing after a {self.contactor_bounce_ms:g} ms bounce, over the "
+                           f"{self.contactor_make_a:g} A it may make")
+            tr = self.contactor_bounces()["idle"]["worst"]
+            if tr["peak_a"] > self.contactor_make_a + 1e-9:
+                bad.append(f"contactor makes {tr['peak_a']:.0f} A re-closing in a train of {tr['n']} bounces "
+                           f"({tr['open_frac']:.0%} of {self.contactor_bounce_ms:g} ms open), over the "
                            f"{self.contactor_make_a:g} A it may make")
         d = self.contactor_inrush()
         cl, pre = d["closing"], d["precharge"]
@@ -2648,6 +3080,51 @@ class Feeder:
                "coast_to_rest_s": self.coast_s(top, 0.0)}
         return out
 
+    def regen_guard(self, hyst_v: float | None = None) -> dict:
+        """The firmware's brake-or-coast choice over a slow-down (2026-11-14). Each 10 ms tick reads the pack (GPIO 36,
+        between the main fuse and the contactor), and that reading carries the last tick's current across the pack-side
+        resistance: while both wheels brake it reads high by the charge current x R (`regen_braking`'s case 1), while
+        they coast it reads low by the Pi's and idle loads' draw x R, and on top of either sits up to
+        `battery_adc_noise_v`, taken alternating high and low (the worst for flipping). The guard stops braking when the
+        reading passes `regen_brake_max_v` and allows it again only under that less `hyst_v` (0: one threshold, the
+        first firmware). Swept over resting pack voltages around the threshold for the 20% slow-down's length;
+        a flip is one change of mode. Also: how much one slow-down charges the pack, so brakes in a row cannot creep
+        it toward the cut."""
+        hyst = self.regen_brake_hyst_v if hyst_v is None else hyst_v
+        d = self.regen_braking()
+        rpk = d["r_pack_ohm"]
+        rise = d["brake"]["charge_a"] * rpk
+        pi_a = self.pi_w / (self.buck_eff * self.battery_v_max)
+        sag = (pi_a + self.bus_idle_a) * rpk
+        hold_sag = (2 * self.launch_drag_w / (self.esc_eff * self.battery_v_min) + pi_a + self.bus_idle_a) * rpk
+        top = self.regen_brake_max_v
+        ticks = max(int(math.ceil(d["slow_20pct"]["brake_s"] / 0.01)), 2)
+        noise = self.battery_adc_noise_v
+        sweep, flips_max, band = [], 0, []
+        steps = int(round((rise + sag + 2 * noise + 0.4) / 0.005))
+        for k in range(steps + 1):
+            ocv = top - rise - noise - 0.2 + 0.005 * k
+            ok, braked, flips = True, False, 0
+            for t in range(ticks):
+                reading = ocv + (rise if braked else -sag) + (noise if t % 2 else -noise)
+                if ok and reading > top + 1e-12:
+                    ok, flips = False, flips + 1
+                elif not ok and reading < top - hyst - 1e-12:
+                    ok, flips = True, flips + 1
+                braked = ok
+            sweep.append((ocv, flips))
+            flips_max = max(flips_max, flips)
+            if flips > 1:
+                band.append(ocv)
+        slow_j = 2 * (d["wheel_j"] - 0.5 * self.launch_wheel_kgm2 * (0.8 * d["top_rpm"] * 2 * math.pi / 60) ** 2) \
+            * self.regen_eff
+        return {"hyst_v": hyst, "rise_v": rise, "coast_sag_v": sag, "hold_sag_v": hold_sag, "noise_v": noise,
+                "needed_hyst_v": rise + sag + 2 * noise, "ticks": ticks, "flips_max": flips_max,
+                "chatter_band_v": (min(band), max(band)) if band else None, "sweep": sweep,
+                "slow_j": slow_j, "slows_per_pct": self.pack_wh * 3600 * 0.01 / slow_j,
+                # a loaded reading admits braking from a pack resting higher than the threshold: the top cell then
+                "loaded_top_cell_v": (top + hold_sag + rise) / self.pack_cells + self.cell_spread_v}
+
     def check_regen(self) -> list[str]:
         bad = []
         d = self.regen_braking()
@@ -2663,6 +3140,17 @@ class Feeder:
         if b["bus_v"] > self.switched_v_max + 1e-9:
             bad.append(f"braking into the pack holds the bus at {b['bus_v']:.2f} V, over the switched parts' "
                        f"{self.switched_v_max:g} V")
+        if self.regen_brake_max_v < self.battery_v_max:
+            g = self.regen_guard()
+            if g["flips_max"] > 1:
+                bad.append(f"the brake guard flips {g['flips_max']} times in one slow-down for a pack resting at "
+                           f"{g['chatter_band_v'][0]:.2f} to {g['chatter_band_v'][1]:.2f} V: braking lifts its own reading "
+                           f"{g['rise_v']:.2f} V and the reading carries {g['noise_v']:g} V of noise; widen "
+                           f"regen_brake_hyst_v / REGEN_BRAKE_HYST_MV to at least {g['needed_hyst_v']:.2f} V")
+            if g["loaded_top_cell_v"] > cut - 0.02 + 1e-9:
+                bad.append(f"a slow-down that starts while the wheels hold speed reads the pack {g['hold_sag_v']:.2f} V low, "
+                           f"so braking can start from a pack resting above the threshold and lift the highest cell to "
+                           f"{g['loaded_top_cell_v']:.2f} V, at the BMS's {cut:g} V cut (lower regen_brake_max_v)")
         es = d["estop"]["brake"]
         if not self.regen_diode:
             if es["peak_v"] > self.switched_v_max + 1e-9:

@@ -47,6 +47,7 @@ import math
 
 from build123d import (
     Axis,
+    Bezier,
     Box,
     BuildSketch,
     Circle,
@@ -184,6 +185,8 @@ def _cheek_face(p: Feeder, tab: bool):
             with Locations(((x0 + x1) / 2, (z0 + z_top) / 2)):
                 RectangleRounded(x1 - x0, z_top - z0, 8)
             _holes([(ax, az)], 6.4)
+            hx, _, hz = p.elev_lead_hole()
+            _holes([(hx, hz)], p.elev_lead_hole_d)   # the actuator's lead, through a snap-in grommet (2026-11-14)
         _holes([(p.head_x, p.pivot_z)], 8.4)
         _holes([(p.head_x + sx * 35.0, z0 + 30.0) for sx in (-1, 1)], 4.4)
     return s.sketch
@@ -205,7 +208,8 @@ def trunnion_cheek_elev(p: Feeder) -> Part:
                 [Location((0, -y_in, 0), ROT_XZ)],
                 flat=face, thickness=p.plate_t,
                 notes="Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's "
-                      "anchor (M6 shoulder bolt). Same feet as the other cheek.")
+                      "anchor (M6 shoulder bolt). Same feet as the other cheek. The grommet hole under the pivot, "
+                      "between the feet, passes the actuator's lead.")
 
 
 MAST_NOTCH_R = 115.0  # the head's plates reach below the mast plate's top only beyond 119.6 mm behind the axis (+45 deg)
@@ -1073,7 +1077,8 @@ def cable_gland(p: Feeder) -> Part:
     return Part("cable_gland", "print", "PETG", 1, blk, [Location((p.head_x, 0, p.turntable_top))],
                 notes="Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the "
                       "bundle through its slot: the loop above it and the twisting run below it start here. The "
-                      "elevation actuator's wires leave the bundle here.")
+                      "elevation actuator's lead leaves the bore on its -y wall and turns -y to the cheek's grommet "
+                      "(manifest elevation lead line).")
 
 
 def cable_clamp(p: Feeder) -> Part:
@@ -1110,6 +1115,43 @@ def cable_loop_solids(p: Feeder, elev_deg: float, segs: int = 12) -> list:
     pts = [at(k / segs) for k in range(segs + 1)]
     pts = [(p.head_x + x, p.pivot_z + z) for x, z in pts]
     return [_seg(r, pts[k], pts[k + 1], 0.0) for k in range(segs)]
+
+
+# ---------------------------------------------------------------- the elevation actuator's lead (2026-11-14)
+
+LEAD_END_GAP = 0.5   # the drawn free span stops this far short of the cheek's face and the actuator's body
+
+
+def elev_lead_solid(p: Feeder, elev_deg: float):
+    """The free span of the actuator's lead at its cut length with the head at `elev_deg`, a circle swept along its
+    Bezier, world frame, turntable at 0; None if the cut does not fit at that elevation."""
+    ctrl = p.elev_lead_curve(elev_deg)
+    if ctrl is None:
+        return None
+    f, p1, p2, e = ctrl
+    df = _unit(tuple(p1[i] - f[i] for i in range(3)))
+    de = _unit(tuple(p2[i] - e[i] for i in range(3)))
+    f = tuple(f[i] + df[i] * LEAD_END_GAP for i in range(3))
+    e = tuple(e[i] + de[i] * LEAD_END_GAP for i in range(3))
+    edge = Bezier(f, p1, p2, e)
+    return sweep(Plane(origin=f, z_dir=df) * Circle(p.elev_lead_od / 2), path=Wire([edge]), transition=Transition.RIGHT)
+
+
+def elev_lead_parts(p: Feeder) -> list[Part]:
+    d = p.elev_lead_design()
+    groups = ", ".join(f"{n} {name} {g} AWG" for name, n, g in p.turntable_wires)
+    fixed = _tube(p.elev_lead_fixed_path(), p.elev_lead_od / 2, p.elev_lead_static_r)
+    out = [Part("elev_lead_fixed", "cots", "", 1, fixed, [Location((0, 0, 0))],
+                spec=f"Elevation actuator's lead, tied run: {groups} ({p.elev_lead_od:.1f} mm), out of the gland's bore on "
+                     f"its -y wall, {p.elev_lead_static_r:g} mm bend, straight across the turntable under the pivot and "
+                     f"through the guard-side cheek's grommet ({d['fixed_mm']:.0f} mm)")]
+    free = elev_lead_solid(p, 0.0)
+    if free is not None:
+        out.append(Part("elev_lead", "cots", "", 1, free, [Location((0, 0, 0))],
+                        spec=f"Elevation actuator's lead, free span: cut {d['cut_mm']:.0f} mm from the cheek's grommet to a "
+                             f"zip tie on the actuator's body {p.elev_lead_tie_mm:g} mm from its anchor eye, on the pivot "
+                             f"side (drawn at 0 deg; posed per pose in the sweeps)"))
+    return out
 
 
 # ---------------------------------------------------------------- deck-side cable run (2026-11-14)
@@ -1696,7 +1738,7 @@ def _build_all_parts(p: Feeder) -> list[Part]:
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), az_stop_block(p), az_stop_pads(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p),
-            cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p),
+            cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p), *elev_lead_parts(p),
             *deck_cable_parts(p), deck_cable_saddles(p), deck_cable_hangers(p), stepper_driver_carrier(p),
             *trough_gutter(p), *trough_hangers(p), trough_sump(p), *lift_parts(p), *agitator_parts(p)]
 
@@ -1765,6 +1807,9 @@ def swept_solids(p: Feeder, elev_deg: float) -> list[tuple[str, object]]:
     axis = Axis((p.head_x, 0.0, p.pivot_z), (0, 1, 0))
     out = []
     posed = dict(zip(ELEV_ACT_PARTS, elev_actuator_shapes(p, elev_deg)))
+    lead = elev_lead_solid(p, elev_deg)
+    if lead is not None:
+        posed["elev_lead"] = lead
     for part in all_parts(p):
         for i, s in enumerate(part.placed()):
             if part.name in HEAD_PARTS:
@@ -1790,7 +1835,7 @@ def feed_stroke_solids(p: Feeder, elev_deg: float, theta_deg: float) -> tuple[li
 
 
 TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
-                                 "elev_anchor_bolt", "cable_gland", *ELEV_ACT_PARTS}
+                                 "elev_anchor_bolt", "cable_gland", *ELEV_ACT_PARTS, "elev_lead_fixed", "elev_lead"}
 HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar", "take_up_spring"}  # the hose bends; checked by the take-up model
 COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015,
                 "elev_actuator": 0.60, "shuttle_servo": 0.06}  # assumptions: weigh yours
@@ -1943,7 +1988,8 @@ COTS_EXTRA = [
     ("6 V 5 A buck converter (servo supply)", 1, "shuttle servo, on the deck beside the ESP32: 20 AWG supply and return to the servo (manifest cables line)"),
     ("Spiral wrap, 10 mm, 1 m", 1, "the head's wires in the free loop: loose, so each wire bends on its own"),
     ("Snap-in grommet for a 14 mm hole", 1, "the head's wires through the motor plate"),
-    ("Zip ties, 2.5 mm", 12, "cable gland, clamp and clip; the clamp arm's hanger"),
+    ("Snap-in grommet for a 10 mm hole, 6 mm bore or more", 1, "the elevation actuator's lead through the guard-side cheek"),
+    ("Zip ties, 2.5 mm", 14, "cable gland, clamp and clip; the clamp arm's hanger; the actuator's lead to its body (two, side by side)"),
     ("Storage tub, about 440 x 340 x 250 mm", 1, "hopper; see the part notes for the cut"),
     ("Stepper driver, 2 A class (TMC2209 or A4988), StepStick format, + heatsink", 1, "azimuth stepper, on the printed carrier on the deck"),
     ("1x8 female header, 2.54 mm, + 2.54 mm perfboard scrap", 2, "stepper driver carrier"),
@@ -2053,6 +2099,36 @@ def cable_line(p: Feeder) -> str:
             f"would give {a26['v_term']:.2f} V and {a26['signal_high_v']:.2f} V")
 
 
+def elev_lead_line(p: Feeder) -> str:
+    d = p.elev_lead_design()
+    ext, ret = p.elev_act_limits()
+    if d["window"] is None:
+        return "elevation lead: no single length fits every pose between the actuator's limits"
+    lo, hi = d["window"]
+    tight = min(d["ranges"], key=lambda e: d["ranges"][e][1])
+    loose = max(d["ranges"], key=lambda e: d["ranges"][e][0])
+    return (f"elevation lead: {sum(n for _, n, _ in p.turntable_wires)} wires ({d['od_mm']:.1f} mm) leave the gland's bore, "
+            f"turn -y at {p.elev_lead_static_r:g} mm and run {d['fixed_mm']:.0f} mm tied across the turntable under the pivot "
+            f"through a {p.elev_lead_hole_d:g} mm grommet hole in the guard-side cheek; free span to a tie on the actuator's "
+            f"body {p.elev_lead_tie_mm:g} mm from its anchor eye, which moves {d['tie_travel_mm']:.0f} mm over the "
+            f"actuator's whole travel ({ext:+.1f} to {ret:+.1f} deg); bend radius at least {d['r_min']:g} mm, "
+            f"{p.cable_clear_mm:g} mm off the plate, cheek, feet and actuator, at most {p.elev_lead_out_mm:g} mm outboard "
+            f"of the actuator: {lo:.0f} to {hi:.0f} mm fits every pose (shortest at {loose:+.1f} deg, longest at "
+            f"{tight:+.1f} deg), cut {d['cut_mm']:.0f} mm. Motor pair {d['motor_awg']} AWG over {d['run_m']:.2f} m from "
+            f"the H-bridge: {d['stall_drop_v']:.2f} V ({d['stall_drop_frac']:.1%}) at the {p.elev_act_stall_a:g} A stall"
+            + pot_pickup_text(p))
+
+
+def pot_pickup_text(p: Feeder) -> str:
+    d, none = p.elev_pot_pickup(), p.elev_pot_pickup(filter_nf=0.0)
+    if d is None:
+        return ""
+    return (f". Pot pickup: each PWM edge on the toggling motor wire steps the wiper by {none['step_v']:.1f} V with no "
+            f"filter (assumed {d['cm_pf']:.0f} pF wire to wire), so {none['bad_read_frac']:.0%} of single readings are "
+            f"lost; {p.elev_pot_filter_nf:g} nF on GPIO 39 leaves {d['err_v'] * 1e3:.1f} mV ({d['err_mm']:.2f} mm of "
+            f"stroke; deadband {p.elev_deadband_mm:g} mm) and lags {d['lag_mm']:.2f} mm at {p.elev_fw_speed_mm_s:g} mm/s")
+
+
 def deck_cable_line(p: Feeder) -> str:
     d, e = p.deck_cable_route(), p.deck_cable_electrics()
     t = p.deck_cable_ties()
@@ -2103,6 +2179,17 @@ def regen_line(p: Feeder) -> str:
           f"WHEEL_BRAKE = False to coast. Slowing a wheel 20% from {d['top_rpm']:.0f} rpm: "
           f"{d['slow_20pct']['brake_s']:.1f} s braking, at least {d['slow_20pct']['coast_s']:.1f} s coasting; after a stop or "
           f"an e-stop the wheels ({d['wheel_j']:.0f} J each) coast for at least {d['coast_to_rest_s']:.0f} s")
+    if p.regen_brake_max_v < p.battery_v_max:
+        g, g0 = p.regen_guard(), p.regen_guard(0.0)
+        band = (f"{g0['chatter_band_v'][0]:.2f} to {g0['chatter_band_v'][1]:.2f} V" if g0["chatter_band_v"] else "none")
+        s += (f". Brakes in a row: braking lifts the pack reading {g['rise_v']:.2f} V (charge current x "
+              f"{d['r_pack_ohm'] * 1e3:.0f} mOhm), so a single threshold flipped brake and coast up to {g0['flips_max']} times "
+              f"in one slow-down for a pack resting at {band} (with an assumed {g['noise_v']:g} V of reading noise); "
+              f"braking now resumes only {g['hyst_v'] * 1e3:.0f} mV under the threshold (REGEN_BRAKE_HYST_MV; "
+              f"{g['needed_hyst_v'] * 1e3:.0f} mV needed): {g['flips_max']} flip at most. Each 20% slow-down returns "
+              f"{g['slow_j']:.0f} J, {g['slows_per_pct']:.0f} slow-downs per 1% of a {p.pack_wh:g} Wh pack. A slow-down that "
+              f"starts while the wheels hold speed reads {g['hold_sag_v']:.2f} V low, so the highest cell can reach "
+              f"{g['loaded_top_cell_v']:.2f} V")
     return s
 
 
@@ -2143,6 +2230,15 @@ def inrush_line(p: Feeder) -> str:
                   f"{tied:.1f} A. A {p.contactor_bounce_ms:g} ms bounce re-closes onto a {cb['idle']['gap_v']:.2f} V gap "
                   f"({cb['idle']['peak_a']:.1f} A; the precharge relay holds the bus meanwhile), "
                   f"{cb['stepper enabled']['peak_a']:.1f} A if the driver were already enabled")
+            tb = p.contactor_bounces()
+            wi, ws = tb["idle"], tb["stepper enabled"]
+            s += (f". Several bounces in a row ({min(p.bounce_counts)} to {max(p.bounce_counts)} opens, "
+                  f"{min(p.bounce_open_fracs):.0%} to {max(p.bounce_open_fracs):.0%} of the window open): with the idle "
+                  f"loads no make exceeds {wi['worst']['peak_a']:.1f} A, the precharge closing itself (a short close "
+                  f"leaves at most the precharge's {wi['worst']['max_gap_v']:.2f} V gap); with the driver enabled "
+                  f"{ws['worst']['peak_a']:.1f} A ({ws['worst']['n']} open of {ws['worst']['open_frac']:.0%} of the window "
+                  f"after a touch too short to charge the bus: the one-bounce figure above is optimistic); breaks open at most {max(wi['break_a'], ws['break_a']):.1f} A, "
+                  f"{max(wi['arc_j'], ws['arc_j']) * 1e6:.0f} uJ of loop energy per train into the arcs")
     return s
 
 
@@ -2270,6 +2366,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, elevation_line(p, gravity))
         checks.insert(-3, shuttle_line(p))
         checks.insert(-3, cable_line(p))
+        checks.insert(-3, elev_lead_line(p))
     checks.insert(-3, deck_cable_line(p))
     checks.insert(-3, power_line(p))
     checks.insert(-3, inrush_line(p))
@@ -2319,6 +2416,9 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                     "inrush_closing_a": round(ci["closing"]["peak_a"], 1), "precharge_ohm": p.precharge_ohm,
                     "precharge_delay_s": p.precharge_delay_s, "stepper_enable_after_ms": p.stepper_enable_after_ms,
                     "bounce_reclose_a": round(p.contactor_bounce()["idle"]["peak_a"], 1),
+                    "bounce_train_max_a": round(p.contactor_bounces()["idle"]["worst"]["peak_a"], 1),
+                    "regen_brake_hyst_mv": round(p.regen_brake_hyst_v * 1000),
+                    "regen_guard_flips_max": p.regen_guard()["flips_max"],
                     "precharge_residual_v": round(ci["precharge"]["residual_v"], 2) if ci["precharge"] else None})
     ad = p.agitator_design()
     derived.update({"agitator_torque_nm": round(ad["torque_nm"], 3), "agitator_torque_margin": round(ad["torque_margin"], 2),
@@ -2344,4 +2444,8 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                         "cable_bundle_od_mm": round(ct["od_mm"], 1), "cable_twist_deg_m": round(ct["rate_deg_m"]),
                         "cable_loop_reach_mm": round(cd["reach_mm"]), "servo_stall_v": round(cs["v_term"], 2),
                         "servo_ground_shift_v": round(cs["ground_shift_v"], 2)})
+        ld = p.elev_lead_design()
+        if ld["window"]:
+            derived.update({"elev_lead_cut_mm": round(ld["cut_mm"]), "elev_lead_window_mm": [round(v) for v in ld["window"]],
+                            "elev_lead_fixed_mm": round(ld["fixed_mm"]), "elev_lead_tie_travel_mm": round(ld["tie_travel_mm"])})
     return checks, derived

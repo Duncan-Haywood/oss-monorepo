@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGJSw77ueaFGR1g9xn",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T22:06:27Z",
+  "ended": "2026-11-14T22:14:19Z",
+  "wall_minutes": 8.01,
+  "tokens_in": 3227430,
+  "tokens_out": 36912,
+  "cost_usd": 2.2403,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15999",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Audio is over the 400 MB cap (474 MB) again, so every creative run lands text only. Moving the enclosures is still the owner's decision and stays open."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal asked for a published efficiency table. NC State Extension's page was readable, but the sswm.info Practical Action PDF came back as binary through WebFetch and had to be put through pdftotext locally. A note saying so would save the next run a step."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-ram-pump-that-pays-for-water-with-water.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: the-ram-at-the-bottom-of-the-field, text only (audio cap). The self-review pass caught and fixed these before commit: the boarders' need was described as current during the April holidays (now a summer class plus need in term); the site distance contradicted itself (eleven versus nine metres, fifty metres versus a 45 m drive pipe); a bulletin number had been invented in the closing note and was removed. node --test 17/17 pass; post front-matter, link and similarity checks clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7431ad8e-f401-5331-9b93-7f707fc85e62",
+    "transcripts": 1,
+    "first": "2026-11-14T22:06:27Z",
+    "last": "2026-11-14T22:14:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 69,
+        "output": 36912,
+        "thinking": 15257,
+        "cache_read": 3117572,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109789,
+        "api_equivalent_usd": 2.2403,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 69,
+      "output": 36912,
+      "thinking": 15257,
+      "cache_read": 3117572,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109789,
+      "api_equivalent_usd": 2.2403,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.01,
+      "active_minutes": 8.01,
+      "model_minutes": 7.15,
+      "tool_minutes": 0.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -22,7 +22,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { importsOf, closure, descriptionOf, discover } from './npm.mjs';
-import { toolUrl } from './bluesky.mjs';
+import { toolUrl, BASE_URL } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
 
 const exec = promisify(execFile);
@@ -82,7 +82,7 @@ export function manifest({ name = DEFAULT_NAME, version = VERSION, count }) {
     files: ['server.mjs', 'tools.json', 'tools', 'LICENSE', 'README.md', 'server.json'],
     engines: { node: '>=18' },
     license: 'MIT',
-    homepage: 'https://duncan-haywood.github.io/oss-monorepo/',
+    homepage: BASE_URL,
     repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: 'platform/distribution' },
     bugs: { url: `${REPO_URL}/issues` },
     keywords: ['mcp', 'model-context-protocol', 'mcp-server', 'calculator', 'free', 'open-source'],

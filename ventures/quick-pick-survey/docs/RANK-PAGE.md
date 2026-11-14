@@ -535,3 +535,68 @@ no horizontal scroll, no console errors.
 Limits: the saved progress for a list wins over a link's mode (someone who
 already ranked that list keeps their own mode); the measured k are only 3 and
 5, so a top 8 quotes the top-5 numbers and says so.
+
+## A team's shortlist (2026-11-14, k3)
+
+A shortlist link asks everyone for the same top k, but until now the combine
+step answered a different question: it showed the team's whole order with
+rank ranges, and the team had to read its shortlist off the table with no
+sense of how sure it was. Now, when the link asked for a top k, the team box
+leads with the team's answer:
+
+- **The team's top k**: the group order's first k (`groupFit`, the same order
+  as the table), each with two chances of really being in the top k: for these
+  people's average likes (`groupFit`) and for the wider group they stand for
+  (`populationFit`, which is less sure when people disagree). The closest
+  option left out gets the same numbers.
+- **A show of hands**: how many people have the option in their own top k.
+  It is printed for the conversation, not used to pick.
+  `teamRanges(items, people, { k })` returns it as `shortlist`
+  (`teamShortlist` alone, `approvalShortlist` for the tally).
+
+**Why the model picks, not the vote count.** `node
+scripts/team-shortlist-sweep.mjs --runs 16` (rows in
+`docs/team-shortlist-2026-11-14.jsonl`): a wider group with true scores over 6
+logits; each of m members likes those plus their own N(0, tau^2) per option
+and answers the page's own top-k questions until its stop rule or the cap;
+10, 15 and 20 options, k = 3, teams of 3, 5 and 8, tau
+0.5, 1 and 2; 16 teams a cell, 432 in all. Exact = the shown set is exactly the
+true top 3.
+
+| truth | group order (shown) | show of hands | wider-group order |
+|---|---|---|---|
+| this group's average likes | **338 / 432** | 311 / 432 | 338 / 432 |
+| the wider group's | 255 / 432 | 241 / 432 | 260 / 432 |
+
+- **The tally loses most when people differ.** At tau 2 the group order got
+  this group's shortlist in 108 of 144 teams, the tally in 90; at tau 0.5,
+  118 against 113. A tally throws away how strongly each person likes an
+  option and how close their own cut was.
+- **Small teams lose most to the tally**: teams of 3, 108 against 94; of 8,
+  116 against 111. The tally and the model disagreed in 71 of 432 teams.
+- **Picking by the wider-group fit instead buys nothing** (260 against 255
+  for the wider truth), so the page shows one shortlist, the group order's.
+- **Small teams cannot name a wider group's shortlist when people differ.**
+  At tau 2 the true wider top 3 was named in 49 of 144 teams by the group
+  order, 50 by the wider-group order and 44 by the tally.
+  The wider chance says so: it averaged 0.72 there.
+- **The chances are close to calibrated, slightly cautious.** Mean chance
+  shown for the shortlist against the share that really was in:
+  this group 0.943 / 0.940 (tau 0.5), 0.917 / 0.926 (tau 1), 0.894 / 0.917
+  (tau 2); wider 0.912 / 0.928, 0.830 / 0.880, 0.718 / 0.752.
+
+People answered about 57, 99 and 140 picks each at 10, 15 and 20 options.
+
+Checks: three tests in `site/rank-core.test.mjs` (a team that agrees gets
+its shared top k, chances that sum to k, votes, and no shortlist without k;
+a 3-2 split leaves the wider chances less sure than the group's, red with
+`wider` read from the group fit, checked; the tally counts own top k and
+breaks ties by the group order). Browser (Chromium, 390 px): a top-3 link on
+8 options, one scripted respondent (31 picks) plus two pasted codes; the box
+led with "The team's top 3" and the closest left out; no horizontal scroll,
+no console errors.
+
+Limits: simulated people with evenly spaced scores, no ties or fatigue; k = 3
+only in the sweep; a full-order or favourite link still combines as before
+(no shortlist), and a person who ranked in another mode is combined the same
+way.

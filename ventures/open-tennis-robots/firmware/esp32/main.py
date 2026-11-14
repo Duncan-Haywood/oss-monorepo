@@ -168,6 +168,8 @@ class FeederHw:
         ramp = (getattr(config, "WHEEL_SPINUP_W", 100.0), getattr(config, "WHEEL_INERTIA_KGM2", 0.00155),
                 getattr(config, "WHEEL_RAMP_MAX_RPM_S", 1500.0))
         self.wheel_ramps = (controller.SpinupRamp(*ramp), controller.SpinupRamp(*ramp))
+        self.brake_guard = controller.BrakeGuard(getattr(config, "REGEN_BRAKE_MAX_MV", 27600),
+                                                 getattr(config, "REGEN_BRAKE_HYST_MV", 700))
         self.wheels_steady = controller.SteadyGate()
         self.base_target = 0
         self.base_vmax = 0
@@ -286,7 +288,10 @@ class FeederHw:
         return self.elev.settled and self.azim.settled
 
     def elev_feedback_mm(self):
-        raw = self.elev_pot.read_u16()
+        # several readings, the extremes dropped (controller.trimmed_mean): a reading caught on one of the actuator's
+        # PWM edges cannot move the position or fault the axis on its own (cad/README.md, "The pot's pickup")
+        n = getattr(config, "ELEV_POT_READS", 8)
+        raw = controller.trimmed_mean([self.elev_pot.read_u16() for _ in range(n)])
         lo, hi = config.ELEV_POT_RAW_RETRACTED, config.ELEV_POT_RAW_EXTENDED
         margin = abs(hi - lo) * 0.01
         if not min(lo, hi) - margin <= raw <= max(lo, hi) + margin:
@@ -316,8 +321,9 @@ class FeederHw:
         self.tach_top.update(dt)
         self.tach_bottom.update(dt)
         # Lowering a wheel's speed brakes it only with room in the pack (cad: Feeder.regen_braking): above
-        # REGEN_BRAKE_MAX_MV the ramp coasts, so the BMS never stops charging while an ESC is pushing energy back.
-        brake = getattr(config, "WHEEL_BRAKE", True) and self.battery_mv() <= getattr(config, "REGEN_BRAKE_MAX_MV", 27600)
+        # REGEN_BRAKE_MAX_MV the ramp coasts, so the BMS never stops charging while an ESC is pushing energy back, and it
+        # brakes again only under REGEN_BRAKE_MAX_MV - REGEN_BRAKE_HYST_MV: braking lifts the reading it is judged by.
+        brake = self.brake_guard.update(self.battery_mv()) and getattr(config, "WHEEL_BRAKE", True)
         for i, (esc, tach) in enumerate(((self.esc_top, self.tach_top), (self.esc_bottom, self.tach_bottom))):
             ramp = self.wheel_ramps[i]
             ramped = ramp.update(self.target_rpm[i], tach.rpm, dt, brake)

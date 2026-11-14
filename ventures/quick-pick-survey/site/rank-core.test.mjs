@@ -8,7 +8,7 @@ import {
   parseList, listId, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, order,
   topKChances, topSetConfidence, topStopCheck, topK,
   nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, stopCheck, STOP_CONFIDENCE, MAX_ITEMS,
-  personInfo, groupFit, populationFit, populationAt, teamRanges, linearize,
+  personInfo, groupFit, populationFit, populationAt, teamRanges, linearize, teamShortlist, approvalShortlist,
 } from "./rank-core.mjs";
 import { buildEngineFile, ENGINE_FILES } from "../scripts/build-rank-engine.mjs";
 
@@ -546,4 +546,41 @@ test("a link's mode is never guessed: a shortlist that does not fit, or an unkno
   assert.deepEqual(decodeList(raw({ m: "top", k: 3 })).k, 3);
   // Duplicates collapse before the fit check: k must be under the de-duplicated list.
   assert.equal(decodeList(btoa(JSON.stringify({ v: 1, t: "", i: ["a", "a", "b", "c"], m: "top", k: 3 })).replace(/=+$/, "")).mode, undefined);
+});
+
+test("team shortlist: a shortlist link's k gives the group's top k, two chances each and a show of hands", () => {
+  const items = ["a", "b", "c", "d", "e", "f"];
+  const p = { answers: chain([0, 1, 2, 3, 4, 5], 3) };
+  const t = teamRanges(items, [p, p, p], { k: 2 });
+  const sl = t.shortlist;
+  assert.deepEqual(sl.items, [0, 1]);
+  assert.equal(sl.next, 2);
+  assert.deepEqual(sl.items, t.rows.slice(0, 2).map((r) => r.item), "the shortlist is the team table's first k");
+  assert.deepEqual(sl.votes, [3, 3, 0, 0, 0, 0]);
+  for (const ch of [sl.group, sl.wider]) assert.ok(Math.abs(ch.reduce((a, x) => a + x, 0) - 2) < 1e-9, "chances sum to k");
+  assert.ok(sl.group[0] > 0.9 && sl.group[5] < 0.05, `group ${sl.group}`);
+  assert.equal(teamRanges(items, [p, p]).shortlist, undefined, "no k, no shortlist");
+  assert.deepEqual(teamShortlist(items, [p, p, p], 2).items, sl.items);
+});
+
+test("team shortlist: when people split, the wider group's chances are less sure than this group's", () => {
+  const items = ["a", "b", "c", "d", "e", "f"];
+  const up = { answers: chain([0, 1, 2, 3, 4, 5], 4) }, down = { answers: chain([5, 4, 3, 2, 1, 0], 4) };
+  const sl = teamShortlist(items, [up, up, up, down, down], 2);
+  assert.deepEqual(sl.items, [0, 1]);
+  const sure = (ch) => sl.items.reduce((a, i) => a + ch[i], 0);
+  assert.ok(sure(sl.wider) < sure(sl.group) - 0.1, `wider ${sure(sl.wider)} group ${sure(sl.group)}`);
+  assert.deepEqual(sl.votes, [3, 3, 0, 0, 2, 2]);
+});
+
+test("approval shortlist counts own top k and breaks ties by the group order", () => {
+  // Two people put c first and a second; one puts a first and b second, and b last-but-not-least for the others.
+  const p1 = { answers: chain([2, 0, 1, 3, 4], 4) }, p2 = { answers: chain([2, 0, 3, 1, 4], 4) }, p3 = { answers: chain([0, 1, 2, 3, 4], 4) };
+  const set = approvalShortlist(5, [p1, p2, p3], 2);
+  assert.deepEqual(new Set(set), new Set([0, 2]), `votes give a 3 and c 2: ${set}`);
+  // A tie (one each) goes to the option higher in the group order.
+  const q1 = { answers: chain([0, 1, 2], 4) }, q2 = { answers: chain([1, 2, 0], 4) };
+  assert.equal(approvalShortlist(3, [q1, q2], 1).length, 1);
+  const g = order(groupFit(3, [q1, q2].map((q) => personInfo(3, q.answers))));
+  assert.deepEqual(approvalShortlist(3, [q1, q2], 1), [g.find((i) => i === 0 || i === 1)]);
 });

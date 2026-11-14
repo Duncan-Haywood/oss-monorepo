@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVPyzRrGE9yuXtqCGm1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures brief: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing prompt)",
+  "input_sha256": "63a7db43bede3197de1ec64cde0e61271d383bc9ce7f1e8677406c1056d9486c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T22:11:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 7 photo-editing buildable item: read Fujifilm RAF directly against LibRaw, with the 6x6 X-Trans demosaic",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15993",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First full-suite run failed on two tests that still named the old format list / used .RAF as the example of an undevelopable raw",
+      "fix": "updated tests/test_camera_profiles.py's message and tests/test_ffmpeg_pipeline.py to use .CR3"
+    },
+    {
+      "what": "numpy demosaic gave 0/0 at some X-Trans edge sensels (warning on the real X-E1)",
+      "fix": "numpy path now reflects neighbours where the pure path did; engines byte-identical, tested"
+    },
+    {
+      "what": "Blog post first draft said the Pentax reader landed 'yesterday'; it landed the same day",
+      "fix": "corrected before commit"
+    },
+    {
+      "what": "CI lint (mypy, no numpy) failed: an `np: Any` annotation before `import numpy as np` is a no-redef error there, though clean locally with numpy",
+      "fix": "import numpy then assign np; checked mypy in a numpy-free venv as CI runs it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says run venture tests with platform/ci/run_venture_tests.py; for photo-editing it runs 0 suites (Python tests live in photo-editing-ci.yml), so the real check is `PYTHONPATH=src python3 -m unittest discover -s tests` plus ruff and mypy from that workflow."
+    },
+    {
+      "file": "ventures/photo-editing (mypy)",
+      "issue": "mypy reports a pre-existing error in dng_opcodes.py:1000 when numpy is installed (np = None fallback); CI's lint job installs no numpy so it passes there. Easy to mistake for a regression."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-fujifilm-x-trans-raw-files-without-the-converter.md",
+    "ventures/photo-editing/eval/fujifilm-raf-reader-2026-11-14.md"
+  ],
+  "goal": "Deepen the top unclaimed flagship (photo-editing) with a hard engineering slice: a new raw format and a new CFA geometry, checked against LibRaw on real files.",
+  "notes": "Verification: tools/raf_libraw_check.py on the 3 public RAFs (X-E1, X-E2, S5500): 0 of 37,297,152 sensels differ from LibRaw 0.22.2; WB, 36/4 blacks, white, CFA equal (eval/fujifilm-raf-libraw-2026-11-14.jsonl). Header 0x0131 is stored backwards (r=1.000 vs 0.087 against WB-predicted per-position means, X-E2). JPEG alignment: header picture area centred on the camera JPEG to within 1 px on all three (eval/fujifilm-raf-jpeg-alignment-2026-11-14.jsonl). Pure vs numpy engines byte-identical on a 600x402 window of the real X-E1, full and half. pytest (venv with numpy) whole photo-editing suite: 1075 passed, 8 skipped. ruff clean; mypy: only the pre-existing dng_opcodes.py:1000 error with numpy present. Stdlib unittest with system python (no numpy): 1083 tests, 1 error in untouched test_real_photo_calibration from this container's broken system Pillow (_imaging import); CI's photo-editing test job is green. venture-preflight photo-editing: clean. flagships.yaml next rewritten (1992/2000).",
+  "corrections": [],
+  "redteam": null
+}

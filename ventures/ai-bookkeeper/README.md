@@ -1062,6 +1062,23 @@ list monthly and quarterly only, so `--state NC --freq annual` now says so. Geor
 vendor's compensation, until now from search excerpts, was read on Form ST-3 Part C itself. Quotes
 and what still refused: [`eval/state-pages-2026-11-14.md`](eval/state-pages-2026-11-14.md).
 
+**Indiana from the book's own history, Arkansas's 2%, and the last six states read (2026-11-14, fifth pass).**
+Indiana's rules depend on your own past tax, so the worksheet now works them out from the book. DOR
+Bulletin #83 (effective January 1, 2026) sets the collection allowance for a calendar year from tax in the
+12 months to June 30 of the year before: 0.73% up to $60,000, 0.53% to $600,000, 0.26% above. Bulletin #102
+puts monthly returns on the 30th, or on the 20th when the year before averaged over $1,000 a month. When
+the book holds those months, `--state IN` applies that year's band to "IN state" and that year's due day,
+and says which figures it used ("0.73% collection allowance, from $48,000.00 of "IN state" tax in July 2024
+to June 2025"). A year it cannot look back on gets no allowance and the 30th, and a note names the missing
+months. `--discount` and `--due-day` still win, and INTIME shows your real rate. Arkansas's rule GR-84 adds
+a 23rd preset: 2% of state tax when paid by the 20th, at most $1,000 for each month the return covers (city
+and county 2% uncapped, left to `--discount`). New Jersey's filing page, and the Rhode Island, Maine and
+Massachusetts statutes, confirm the dates already here and print no vendor discount. New Jersey's monthly
+rows are now explained as vouchers (required only above $30,000 a year), and Rhode Island's quarterly
+filing as needing written authorization. Every state item (8) listed has now been read on its own text.
+Quotes, worked figures and what refused: [`eval/state-pages-2026-11-14e.md`](eval/state-pages-2026-11-14e.md).
+Tests: `salestaxreturn.test.mjs` (3 new) and `cli-flags-once.test.mjs` (1 new, through the CLI). Not tax advice.
+
 **Maryland and Utah discounts, and Colorado's ended vendor fee (2026-11-14, fourth pass).** Three
 more hosts answered: mgaleg.maryland.gov, le.utah.gov and leg.colorado.gov. `--state MD` now applies
 Tax-General 11-105: 1.2% of the first $6,000 of tax on each timely return and 0.9% of the rest, at most

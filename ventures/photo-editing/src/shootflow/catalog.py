@@ -20,8 +20,10 @@ _PHOTO_EXTENSIONS = {
     ".jpg",
     ".nef",
     ".orf",
+    ".pef",
     ".raf",
     ".rw2",
+    ".srw",
     ".tif",
     ".tiff",
 }

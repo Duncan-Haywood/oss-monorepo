@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Third step (milestone 3): the estimation cannot reliably tell the
+through village leaders. **Latest step (milestone 4): whom to seed barely depends on which contagion model is right, and the best seeds are spread out, not clustered.** Scoring ten seeding rules under all three fitted models on the 43 real networks, one rule, greedy seeding under the threshold model, loses at most 0.5% of adopters against the best rule under every model; the structural rules rank almost the same under all three (Kendall &tau; 0.81 to 1.0). Seeding the highest-degree households loses 1.7 to 4.1%; the lender's actual leaders lose 6 to 10%; one clustered patch of neighbours loses 6 to 10.5%, even under the threshold model, where clustering was supposed to help. The greedy seeds have moderate degree (12 to 15 ties against 23 for the top-degree rule) and are rarely neighbours of each other. **Milestone 3b: the real villages cluster their adopters far more than the simple model allows, and a village random effect does not fix it; a threshold cascade model does.** Letting each village's base adoption rate vary (a random effect fitted to how much take-up varies between villages) adds nothing: the fitted spread is zero for all three models, because word of mouth alone already makes take-up vary as much between simulated villages as between real ones. The real held-out error (0.181) stays far above every synthetic dataset from the simple model (5&ndash;95%: 0.044&ndash;0.068), and 57% of it is one moment that measures adopters next to adopters' neighbours. A threshold model, where a household adopts once half its neighbours have, produces that clustering: 19% of its synthetic datasets reach the real error, and it now predicts held-out villages best (0.169 against 0.181 for the simple model and 0.210 for reinforcement). **Third step (milestone 3): the estimation cannot reliably tell the
 models apart, and the real villages fit none of them.** On 200 synthetic datasets per model,
 simulated on the real networks, the in-sample criterion picks the reinforcement model for 85%
 of datasets made by the simple model; leaving one village out recovers the true model 58.5%
@@ -179,6 +179,114 @@ anything optimistic. Plan logged before the run.
   than the simple-against-complex difference itself, so the next step adds village-level
   heterogeneity before any seeding comparison.
 
+## Milestone 3b: is it village heterogeneity? (`experiments/m3b_hetero/`)
+
+Milestone 3 found the real villages' held-out errors two to four times larger than any fitted
+model's own synthetic data. The obvious suspect was village-level heterogeneity in the base
+adoption rate, so every family gained &sigma;, the SD of a per-village, per-run shift of every
+household's logit, identified by a ninth moment (the squared non-leader take-up rate, which pins
+the cross-village variance of take-up). I and T also gained the intercept shift &delta; that
+R&delta; already had. Grid of 8,100 points; fit on nine moments, held-out loss on milestone 3's
+eight; 200 synthetic datasets from each family's real-data fit. Plan and hypotheses logged
+before the run; a per-moment breakdown was added after a smoke run on a tiny grid, and is
+labelled as such.
+
+![held-out squared error by moment, real villages against two models' synthetic villages](experiments/m3b_hetero/misfit_by_moment.svg)
+
+| | information (I) | threshold (T) | reinforcement (R&delta;) |
+|---|---|---|---|
+| in-sample fit, nine moments | q<sub>N</sub> 0.05, q<sub>P</sub> 0.3, &sigma; 0 | &theta; 0.50, &delta; &minus;0.25, &sigma; 0 | &gamma; 0.10, &delta; &minus;0.25, &sigma; 0 |
+| &sigma;-hat = 0 in bootstrap draws | 20.1% | 73.6% | 70.9% |
+| real held-out loss | 0.181 | 0.169 | 0.210 |
+| that model's synthetic held-out loss of I, 5&ndash;95% | 0.044&ndash;0.068 | 0.062&ndash;0.369 | 0.050&ndash;0.087 |
+| synthetic datasets reaching the real I loss | 0% | 19% | 0% |
+| recovered, leave one village out (milestone 3) | 37.0% (58.5%) | 77.5% (82.0%) | 49.5% (55.5%) |
+
+- **H6 refuted: there is no base-rate heterogeneity to find.** &sigma;-hat is 0 in every
+  family. With &sigma; = 0 the simple model already matches the mean squared village take-up
+  rate (residual &minus;0.0004): in a village of about 200 households, whether the news happens
+  to spread gives as much village-to-village variation in take-up as the data show.
+- **H7 refuted for the simple model:** no synthetic dataset from it, or from reinforcement,
+  reaches the real held-out loss. **The threshold model reaches it** (reported, not tested):
+  its outcomes are close to all-or-nothing village by village, and 19% of its datasets are as
+  far from the fit as the real villages are.
+- **Where the misfit is.** The real error is above the simple model's band in all nine moments,
+  and 57% of it is moment 5 (own adoption times second-neighbour adopters, divided by degree,
+  as the authors' `moments.m` computes it): 0.103 against 0.012&ndash;0.027. Moments 4 and 8
+  (adopters next to adopters; take-up with three or more adopting neighbours) are next. The
+  villages are not over-dispersed in how many households adopt but in *where* adoption sits.
+  The threshold band covers the real value in seven of nine moments.
+- **Identification gets worse, not better.** With &sigma; and &delta; free, leave-one-out
+  recovers the simple model in 37% of its datasets (calling it reinforcement 39% of the time),
+  and in sample still picks the bigger model. &sigma; itself is poorly recovered: with true
+  &sigma; = 0, the simple model's fit returns 0.25 or 0.5 in 58% of datasets.
+- Caveats: beta stays at the real-data leader logit and ignores the random effect; the
+  threshold model is the only one of three that fits the dispersion, and homophily (similar
+  households befriending each other) would also cluster adopters; moment 5's scale, a quirk
+  kept for faithfulness, dominates the identity-weighted criterion.
+
+## Milestone 4: whom should a rollout seed? (`experiments/m4_seeding/`)
+
+Ten seeding rules at each village's own leader budget (1,140 seeds in all), each scored under the
+three milestone-3b fits (I: q<sub>N</sub> 0.05, q<sub>P</sub> 0.3; T: &theta; 0.50, &delta;
+&minus;0.25, q<sub>N</sub> 0.075, q<sub>P</sub> 0.1; R&delta;: &gamma; 0.10, &delta; &minus;0.25,
+q<sub>N</sub> 0.10, q<sub>P</sub> 0.1) and two sensitivity points (T at &theta; 0.60; I at the
+published q<sub>N</sub> 0.10, q<sub>P</sub> 0.50). Seeds take the leaders' place in the model:
+told first, and adopting by the model's own rule. Rules (`src/civ_seeding/seeding.py`): the
+observed leaders, uniform random, top degree, top eigenvector and diffusion centrality
+(q = 1/&lambda;<sub>1</sub>, the village's period count; after Banerjee et al. 2013), one
+clustered ball grown breadth-first from the top-degree household, patches of four (a hub and its
+three best-connected neighbours, hubs not adjacent), and greedy influence maximisation (Kempe et
+al. 2003) under each of the three models. Greedy searched on 32 runs with common random numbers
+(a batched simulator that reproduces `complex.simulate` exactly, `tests/test_seeding.py`); every
+rule is then scored on 200 fresh runs per village. Regret is the share of expected adopters lost
+against the best rule under that model; intervals are a village Bayesian bootstrap (B = 1,000).
+Plan, hypotheses and predictions logged before the run.
+
+![regret of ten seeding rules under three models](experiments/m4_seeding/regret.svg)
+
+| rule | regret under I | under T | under R&delta; | worst case | mean seed degree |
+|---|---|---|---|---|---|
+| greedy under T | 0.5% | 0 | 0.2% | **0.5%** | 15.0 |
+| greedy under R&delta; | 0.3% | 1.0% | 0 | 1.0% | 14.6 |
+| greedy under I | 0 | 2.6% | 0.9% | 2.6% | 12.0 |
+| patches of four | 2.8% | 3.6% | 1.6% | 3.6% | 20.6 |
+| top degree | 3.2% | 4.1% | 1.7% | 4.1% | 23.1 |
+| diffusion centrality | 5.3% | 7.9% | 4.0% | 7.9% | 22.6 |
+| eigenvector | 6.7% | 10.0% | 5.5% | 10.0% | 22.0 |
+| observed leaders | 6.2% | 10.4% | 6.2% | 10.4% | 12.9 |
+| one clustered ball | 7.1% | 10.5% | 6.4% | 10.5% | 18.9 |
+| uniform random | 6.9% | 12.1% | 8.6% | 12.1% | 9.7 (all households) |
+
+Best rule's adopters per village: 44.7 (I), 43.9 (T), 45.5 (R&delta;), about 21% of households.
+
+- **H4 held only in its weak half.** Each model's own greedy set is best under it, so the best
+  rule differs; but the seven structural rules rank almost identically (Kendall &tau; 0.81, 0.81,
+  1.00 between the three model pairs; with greedy included, 0.78 to 0.96). The &tau; &lt; 0.6
+  half is refuted.
+- **H5 held.** Greedy under the threshold model is within 0.5% of the best rule under all three
+  models (bootstrap interval of its worst case 0.2&ndash;0.8%) and both sensitivity points, and is
+  the minimax-regret rule in 94% of draws. **For seeding, the identification problem of
+  milestones 2 to 3b does not bite.**
+- **Clustering does not help, even under the threshold model** (our prediction failed). The
+  clustered ball is about as bad as random seeding; greedy picks moderate-degree households that
+  are rarely neighbours (tie density among seeds 0.04&ndash;0.07, against 0.24 for top degree and
+  0.22 for the ball). Our reading, not tested: when information spreads from every seed and a
+  household decides when it is told, overlapping seeds waste budget, and a fractional threshold
+  of one half is reached more easily around a low-degree household than a hub.
+- **How much seeding is worth here:** the worst rule loses 7 to 12% of the best rule's adopters.
+  The lender's leaders give up 6 to 10%; top degree, which needs only a census of ties, gives up
+  2 to 4%.
+- Against the field evidence: Beaman et al. (2021) found seeds chosen for a threshold-2
+  contagion raised adoption of a farming technique in Malawi. Our threshold is fractional
+  (half of a household's ties), fitted to microfinance, and its seeds still favour spread over
+  clustering; the two results are about different products and different thresholds, and this
+  one is a model's counterfactual, not an experiment.
+- Caveats: point fits (parameter uncertainty only through the two sensitivity points); a fixed
+  budget equal to the leader count; homophily not modelled; greedy needs the whole network and a
+  fitted model, which a rollout rarely has. Complex centrality (Guilbeault and Centola 2021) is
+  not implemented yet.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -196,7 +304,7 @@ villages. Adoption is observed once, not over time, so homophily and contagion a
 
 ```
 python3 data/build_dataset.py "<mirror>/datav4.0/Matlab Replication"   # optional, rebuilds the data
-python3 -m pytest -q tests                                                # 19 tests, about 5 s
+python3 -m pytest -q tests                                                # 36 tests, about 5 s
 python3 experiments/m1_reproduce/run.py      # about 2 minutes on 4 cores, writes results.txt
 python3 experiments/m1_reproduce/twostep.py  # seconds, needs run.py's dgrid.npz
 python3 experiments/m1_reproduce/periods.py  # about 12 minutes, periods.txt
@@ -206,18 +314,23 @@ python3 experiments/m2_complex/refine.py     # about 4 minutes, refine.txt (post
 python3 experiments/m2_complex/figure.py
 python3 experiments/m3_identify/run.py       # about 2 minutes on 4 cores, results.txt
 python3 experiments/m3_identify/figure.py
+OMP_NUM_THREADS=1 python3 experiments/m3b_hetero/run.py   # about 16 minutes on 4 cores, results.txt
+python3 experiments/m3b_hetero/figure.py
+OMP_NUM_THREADS=1 python3 experiments/m4_seeding/run.py   # about 3 minutes on 4 cores, results.txt, regret.json
+python3 experiments/m4_seeding/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Village-level heterogeneity first: a random effect on the base adoption rate (and on q) per
-village, fitted by the same simulated method of moments, then milestones 2 and 3 again with it,
-checking that real held-out losses fall inside the synthetic spread. A moment that separates
-reinforcement from homophily (take-up by adopting neighbours within degree bands) is the next
-candidate. Then seeding rules under every model the data cannot reject (milestone 4), which on
-this evidence should be scored as a robust rule rather than under one chosen model.
+Milestone 4 finds the seeding advice robust to the model the data cannot pick. Next: score the
+rules over the bootstrap distribution of fitted parameters rather than three points; a cheap
+rule that mimics greedy (moderate degree, no two seeds adjacent) and how much network data it
+needs (a sampled survey instead of a census); complex centrality (Guilbeault and Centola 2021);
+and the two checks left from milestone 3b: moments standardised by their synthetic SD (or
+without moment 5's quirk), and a degree-band moment to separate a threshold cascade from
+homophily.
 
 ## References
 
@@ -226,5 +339,7 @@ this evidence should be scored as a robust rule rather than under one chosen mod
 - Beaman, L., BenYishay, A., Magruder, J., Mobarak, A. M. (2021). Can network theory-based targeting increase technology adoption? *American Economic Review* 111, 1918–1943. doi:10.1257/aer.20200295
 - Centola, D., Macy, M. (2007). Complex contagions and the weakness of long ties. *American Journal of Sociology* 113, 702–734. doi:10.1086/521848
 - Centola, D. (2010). The spread of behavior in an online social network experiment. *Science* 329, 1194–1197. doi:10.1126/science.1185231
+- Guilbeault, D., Centola, D. (2021). Topological measures for identifying and predicting the spread of complex contagions. *Nature Communications* 12, 4430. doi:10.1038/s41467-021-24704-6
 - Granovetter, M. (1978). Threshold models of collective behavior. *American Journal of Sociology* 83, 1420–1443. doi:10.1086/226707
+- Kempe, D., Kleinberg, J., Tardos, É. (2003). Maximizing the spread of influence through a social network. *Proc. KDD 2003*, 137–146. doi:10.1145/956750.956769
 - Shalizi, C. R., Thomas, A. C. (2011). Homophily and contagion are generically confounded in observational social network studies. *Sociological Methods & Research* 40, 211–239. doi:10.1177/0049124111404820
