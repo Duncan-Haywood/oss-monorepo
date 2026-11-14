@@ -9,6 +9,7 @@ where no C compiler can build the reader; the pure path's tests still run.
 from __future__ import annotations
 
 import os
+import random
 import sys
 import tempfile
 import unittest
@@ -142,8 +143,8 @@ class NativeDecoderTests(fast.FastDecoderTests):
 class NativePredictionTests(fast.FastDecoderTests):
     """Every encoder case with the prediction pass pinned to C (``ljpeg_native.predict``).
 
-    Point-transform cases keep the Python pass (the C pass is for pt 0); a silent
-    fall-back on any other case raises, so the test fails.
+    Point-transform cases run in C too (shifted there since 2026-11-14); a silent
+    fall-back on any case raises, so the test fails.
     """
 
     HUFFMAN = "native"
@@ -169,6 +170,39 @@ class NativePredictionTests(fast.FastDecoderTests):
                 self.check(9, 6, 2, 16, predictor, 7, 0, [fast.DEEP, fast.DEEP], "noise", predictor)
         self.assertEqual(calls, [True, True, True])
 
+    def test_c_prediction_is_taken_with_a_point_transform(self):
+        calls = []
+        real = ljpeg_native.predict
+
+        def spy(*a):
+            got = real(*a)
+            calls.append((a[-1], got is not None))
+            return got
+
+        with mock.patch.object(ljpeg_native, "predict", spy):
+            for pt, precision in ((1, 16), (2, 12), (4, 14), (15, 16)):
+                for predictor in (1, 6):
+                    self.check(9, 6, 2, precision, predictor, 7, pt, [fast.DEEP, fast.DEEP], "noise", pt * 10 + predictor)
+        self.assertEqual([c for c in calls if not c[1]], [])
+        self.assertEqual(sorted({c[0] for c in calls}), [1, 2, 4, 15])
+
+    def test_point_transform_shift_matches_python_and_declines_overflow(self):
+        # Differences straight into the C pass: shifted samples equal the Python pass's
+        # (out << pt); a stored sample whose shift would pass 16 bits makes C decline.
+        rng = random.Random(5)
+        width, height, nf = 7, 5, 2
+        for pt in (1, 3, 8):
+            top = (1 << (16 - pt)) - 1
+            samples = [rng.randint(0, top) for _ in range(width * height * nf)]
+            diffs = _diffs_for(samples, width, height, nf, 4, 1 << (15 - pt), 0)
+            got = ljpeg_native.predict(array("i", diffs), width, height, nf, 4, 1 << (15 - pt), 0, pt)
+            self.assertEqual(list(got), [v << pt for v in samples])
+            wide = samples[:]
+            wide[17] = top + 1  # one bit too many for this pt
+            diffs = _diffs_for(wide, width, height, nf, 4, 1 << (15 - pt), 0)
+            self.assertIsNone(ljpeg_native.predict(array("i", diffs), width, height, nf, 4, 1 << (15 - pt), 0, pt))
+        self.assertIsNone(ljpeg_native.predict(array("i", [0, 0]), 1, 1, 2, 1, 1, 0, 16))
+
     def test_predict_declines_python_lists(self):
         self.assertIsNone(ljpeg_native.predict([0, 0], 1, 1, 2, 1, 1 << 15, 0))
 
@@ -176,6 +210,21 @@ class NativePredictionTests(fast.FastDecoderTests):
 @unittest.skipUnless(HAVE_NATIVE and fast.HAVE_NUMPY, "needs the native reader and numpy")
 class NativeNumpyTests(fast.NumpyPredictionTests):
     HUFFMAN = "native"
+
+
+def _diffs_for(samples, width, height, nf, predictor, initial, restart):
+    """The differences that ``_predict_scan`` turns back into ``samples`` (16-bit wrap).
+
+    Sample i's prediction reads only samples before it, so each difference is solved in
+    order by re-running the reference pass with the differences found so far.
+    """
+
+    diffs = []
+    for i in range(len(samples)):
+        probe = diffs + [0] + [0] * (len(samples) - i - 1)
+        pred = rd._predict_scan(probe, width, height, nf, predictor, initial, restart)[i]
+        diffs.append((samples[i] - pred) & 0xFFFF)
+    return diffs
 
 
 class NativeSwitchTests(unittest.TestCase):

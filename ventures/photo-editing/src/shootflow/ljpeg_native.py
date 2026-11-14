@@ -174,11 +174,14 @@ long shootflow_huffman_scan(const uint8_t *d, long len, long pos, long mcus, lon
 }
 
 /* raw_develop._predict_scan in C: differences to samples for any predictor 1-7 and any
-   restart interval, masked to 16 bits (point transform 0). Returns 0, or -1 when a
-   reference would fall outside the image (the Python loop then decides). */
+   restart interval, masked to 16 bits, then shifted left by the point transform ``pt``
+   (0-15) as _decode_scan does after the Python pass. Returns 0, or -1 when a reference
+   would fall outside the image or a shifted sample would not fit in 16 bits (the Python
+   pass then decides, and keeps the wide value as it always has). */
 long shootflow_predict(const int32_t *diffs, long width, long height, int nf, int predictor,
-                       int initial, long restart, uint16_t *out)
+                       int initial, long restart, int pt, uint16_t *out)
 {
+    if (pt < 0 || pt > 15) return -1;
     long row_len = width * nf;
     long mcu = 0, k = 0, first_line = 0;
     for (long y = 0; y < height; y++) {
@@ -214,6 +217,16 @@ long shootflow_predict(const int32_t *diffs, long width, long height, int nf, in
                 }
                 out[at + c] = (uint16_t)((pred + diff) & 0xFFFF);
             }
+        }
+    }
+    if (pt) {
+        /* Shift only after every prediction: the predictors read the stored (unshifted)
+           neighbours. A sample with any of its top pt bits set would overflow. */
+        long n = row_len * height;
+        uint16_t high = (uint16_t)(0xFFFFu << (16 - pt));
+        for (long i = 0; i < n; i++) {
+            if (out[i] & high) return -1;
+            out[i] = (uint16_t)(out[i] << pt);
         }
     }
     return 0;
@@ -313,6 +326,7 @@ def _load():
         ctypes.c_int,
         ctypes.c_int,
         ctypes.c_long,
+        ctypes.c_int,
         ctypes.c_void_p,
     ]
     _STATE["predict"] = pred
@@ -443,23 +457,27 @@ def scan_run(data: bytes, pos: int, mcus: int, tables: list[dict[tuple[int, int]
     return out
 
 
-def predict(diffs: array, width: int, height: int, nf: int, predictor: int, initial: int, restart: int) -> array | None:
+def predict(
+    diffs: array, width: int, height: int, nf: int, predictor: int, initial: int, restart: int, pt: int = 0
+) -> array | None:
     """``raw_develop._predict_scan`` in C on an ``array('i')`` of differences: an ``array('H')``.
 
-    Point transform 0 only (the caller shifts otherwise). None when the C pass
-    declines, so the Python pass decides.
+    With a point transform ``pt`` (0-15) the samples come back already shifted left by it, as
+    ``_decode_scan`` shifts the Python pass's output. None when the C pass declines (a
+    reference outside the image, or a shifted sample wider than 16 bits), so the Python pass
+    decides.
     """
 
     fn: Any = _STATE.get("predict") if reader() is not None else None
     if fn is None or not isinstance(diffs, array) or diffs.typecode != "i":
         return None
     n = width * height * nf
-    if len(diffs) < n or not 1 <= predictor <= 7:
+    if len(diffs) < n or not 1 <= predictor <= 7 or not 0 <= pt <= 15:
         return None
-    out = array("H", bytes(2 * max(1, n)))
+    out = array("H", [0]) * max(1, n)  # one zeroed buffer, not a zeroed bytes copied in
     d_addr, _ = diffs.buffer_info()
     o_addr, _ = out.buffer_info()
-    if fn(d_addr, width, height, nf, predictor, initial, restart or 0, o_addr) < 0:
+    if fn(d_addr, width, height, nf, predictor, initial, restart or 0, pt, o_addr) < 0:
         return None
     if n == 0:
         del out[:]
