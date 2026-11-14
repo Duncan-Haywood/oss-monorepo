@@ -1,0 +1,59 @@
+Milestone 81. N = 75 segments of s = 20; arbiter = reorder at M = 10; 20 test seeds per worker.
+
+Windowed cheats (E = 30 step-units) and milestone 80's uniform 2e-2: segments covered, arbiter conviction and
+fp16 flag rate on covered segments, held-out loss harm vs honest (paired mean +- s.e., 20 seeds).
+  cheat             eta segs  convict  flag.01  flag.02       harm      s.e.
+  W20 early       1.000    1    1.000    1.000    1.000  +1.28e-03   1.4e-04
+  W20 mid         1.000    1    1.000    1.000    1.000  +6.66e-04   3.4e-05
+  W20 late        1.000    1    1.000    1.000    1.000  +2.65e-07   9.1e-07
+  W60 early       0.500    3    1.000    1.000    1.000  +1.64e-03   7.9e-05
+  W60 mid         0.500    3    1.000    1.000    1.000  +1.02e-03   2.4e-05
+  W60 late        0.500    3    1.000    1.000    1.000  -9.44e-07   5.2e-06
+  W100 early      0.300    5    1.000    1.000    1.000  +1.62e-03   7.5e-05
+  W100 mid        0.300    5    1.000    1.000    1.000  +9.78e-04   2.4e-05
+  W100 late       0.300    5    1.000    1.000    1.000  +9.64e-06   8.4e-06
+  W300 early      0.100   15    1.000    1.000    1.000  +1.66e-03   6.4e-05
+  W300 mid        0.100   15    1.000    1.000    1.000  +7.95e-04   1.7e-05
+  W300 late       0.100   15    1.000    1.000    1.000  +7.15e-05   1.1e-05
+  W750 early      0.039   38    1.000    0.999    1.000  +1.35e-03   3.4e-05
+  W750 late       0.039   38    1.000    0.718    0.911  +2.96e-04   6.8e-06
+  uniform 2e-2    0.020   75    1.000    0.107    0.267  +7.99e-04   3.2e-05
+  honest test segments convicted: 0 of 1500
+
+Best response over the E = 30 family, across all 370 protocols in the grid (f, k <= 30, m <= 5):
+  cheat with the lowest catch: W20 early in 370
+  protocols where no W = 20 window is the lowest-catch cheat: 0
+  largest W = 20 catch minus (k + m)/N: +0.0000
+
+Cost frontier. For each budget (share of T per honest job), the best protocol in the grid with m = 0
+(fp16 referee only) and with m free (mixed). mincatch = lowest catch over the E = 30 family (higher is better);
+undet = largest harm x (1 - catch) over every cheat with positive harm (lower is better), and which cheat sets it.
+  mincatch, r = 2:
+    b = 0.05  fp16: f=0.01 k= 3 m=0 cost 0.041 mincatch 0.04 (W20 early) | mixed: f=0.01 k= 3 m=0 cost 0.041 mincatch 0.04 (W20 early)
+    b = 0.10  fp16: f=0.01 k= 7 m=0 cost 0.095 mincatch 0.0933 (W20 early) | mixed: f=0.01 k= 7 m=0 cost 0.095 mincatch 0.0933 (W20 early)
+    b = 0.20  fp16: f=0.01 k=14 m=0 cost 0.189 mincatch 0.187 (W20 early) | mixed: f=0.01 k=14 m=0 cost 0.189 mincatch 0.187 (W20 early)
+    b = 0.40  fp16: f=0.01 k=29 m=0 cost 0.392 mincatch 0.387 (W20 early) | mixed: f=0.01 k=29 m=0 cost 0.392 mincatch 0.387 (W20 early)
+  mincatch, r = 15:
+    b = 0.05  fp16: f=0.01 k= 3 m=0 cost 0.044 mincatch 0.04 (W20 early) | mixed: f=0.01 k= 3 m=0 cost 0.044 mincatch 0.04 (W20 early)
+    b = 0.10  fp16: f=0.01 k= 6 m=0 cost 0.089 mincatch 0.08 (W20 early) | mixed: f=0.01 k= 6 m=0 cost 0.089 mincatch 0.08 (W20 early)
+    b = 0.20  fp16: f=0.01 k=13 m=0 cost 0.192 mincatch 0.173 (W20 early) | mixed: f=0.01 k=13 m=0 cost 0.192 mincatch 0.173 (W20 early)
+    b = 0.40  fp16: f=0.01 k=27 m=0 cost 0.400 mincatch 0.36 (W20 early) | mixed: f=0.01 k=27 m=0 cost 0.400 mincatch 0.36 (W20 early)
+  undet, r = 2:
+    b = 0.05  fp16: f=0.01 k= 3 m=0 cost 0.041 undet 0.00145 (W60 early) | mixed: f=0.01 k= 3 m=0 cost 0.041 undet 0.00145 (W60 early)  fp16/mixed 1.00x
+    b = 0.10  fp16: f=0.01 k= 7 m=0 cost 0.095 undet 0.00121 (W60 early) | mixed: f=0.01 k= 7 m=0 cost 0.095 undet 0.00121 (W60 early)  fp16/mixed 1.00x
+    b = 0.20  fp16: f=0.01 k=14 m=0 cost 0.189 undet 0.00104 (W20 early) | mixed: f=0.01 k=14 m=0 cost 0.189 undet 0.00104 (W20 early)  fp16/mixed 1.00x
+    b = 0.40  fp16: f=0.01 k=29 m=0 cost 0.392 undet 0.000784 (W20 early) | mixed: f=0.01 k=29 m=0 cost 0.392 undet 0.000784 (W20 early)  fp16/mixed 1.00x
+  undet, r = 15:
+    b = 0.05  fp16: f=0.01 k= 3 m=0 cost 0.044 undet 0.00145 (W60 early) | mixed: f=0.01 k= 3 m=0 cost 0.044 undet 0.00145 (W60 early)  fp16/mixed 1.00x
+    b = 0.10  fp16: f=0.01 k= 6 m=0 cost 0.089 undet 0.00127 (W60 early) | mixed: f=0.01 k= 6 m=0 cost 0.089 undet 0.00127 (W60 early)  fp16/mixed 1.00x
+    b = 0.20  fp16: f=0.01 k=13 m=0 cost 0.192 undet 0.00106 (W20 early) | mixed: f=0.01 k=13 m=0 cost 0.192 undet 0.00106 (W20 early)  fp16/mixed 1.00x
+    b = 0.40  fp16: f=0.01 k=27 m=0 cost 0.400 undet 0.000818 (W20 early) | mixed: f=0.01 k=27 m=0 cost 0.400 undet 0.000818 (W20 early)  fp16/mixed 1.00x
+
+Post hoc (written after the frontier above): undet at budgets 0.6 to 1.0 T, k up to N - m, f = 0.01.
+  r     b   fp16 (k, undet)          best with m >= 1 (k, m, undet)
+   2   0.6   k=44 undet 0.000528        k=42 m=1 undet 0.000545   fp16/mixed 0.97x
+   2   0.8   k=59 undet 0.000273        k=57 m=1 undet 0.00029   fp16/mixed 0.94x
+   2   1.0   k=73 undet 6.72e-05        k=71 m=1 undet 5.11e-05   fp16/mixed 1.31x
+  15   0.6   k=40 undet 0.000596        k=27 m=1 undet 0.000801   fp16/mixed 0.74x
+  15   0.8   k=54 undet 0.000358        k=40 m=1 undet 0.000579   fp16/mixed 0.62x
+  15   1.0   k=67 undet 0.000136        k=54 m=1 undet 0.000341   fp16/mixed 0.40x
