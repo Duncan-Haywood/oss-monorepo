@@ -3,7 +3,7 @@ title: "Can adoption data tell a simple contagion from a complex one? We simulat
 seo_title: "Telling simple from complex contagion in adoption data"
 date: 2026-11-14
 tags: [research, civ-seeding, networks, complex-contagion, identification]
-description: "On the 43 real village networks of the 2013 microfinance study, the estimation recovers the true contagion model 55 to 82% of the time out of sample, and the real villages fit none of the models."
+description: "On 43 real village networks, the estimation recovers the true contagion model 55 to 82% of the time out of sample, and the villages fit no model."
 ---
 
 Earlier today the `research/civ-seeding` programme found that two *complex* contagion models,
