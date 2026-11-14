@@ -251,13 +251,13 @@ class Selection(unittest.TestCase):
         import unwired_checks
         with mock.patch.object(rvt, "since_slugs", return_value=[]), \
                 mock.patch.object(unwired_checks, "unwired", return_value=["check_x.py"]), \
-                mock.patch.object(unwired_checks, "run_all",
+                mock.patch.object(unwired_checks, "run_everything",
                                   return_value=[("check_x.py", 1, "a.html: stray </head>")]), \
                 mock.patch("builtins.print") as printed:
             self.assertEqual(rvt.main(["--since", "abc123"]), 1)
         self.assertIn("stray </head>", " ".join(str(c.args[0]) for c in printed.call_args_list))
         with mock.patch.object(rvt, "since_slugs", return_value=[]), \
-                mock.patch.object(unwired_checks, "run_all") as ran, \
+                mock.patch.object(unwired_checks, "run_everything") as ran, \
                 mock.patch("sys.stdout"):
             self.assertEqual(rvt.main(["--since", "abc123", "--no-unwired"]), 0)
             # Unknown named slug: exit 1 (a typo must not read as a pass), and

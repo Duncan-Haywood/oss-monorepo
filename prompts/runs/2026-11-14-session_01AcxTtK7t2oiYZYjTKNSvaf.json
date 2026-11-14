@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "First background profile used /usr/bin/time, which this container lacks; reran with date arithmetic.",
-    "First compare harness failed: a module loaded from a path must be in sys.modules before a frozen dataclass is defined."
+    "First compare harness failed: a module loaded from a path must be in sys.modules before a frozen dataclass is defined.",
+    "changed-ventures red on main: PR #15891 renamed unwired_checks.run_all to run_everything but test_run_venture_tests.py still mocked run_all (AttributeError). Fixed forward in this PR: the test now mocks run_everything; 31 tests OK."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -48,7 +49,7 @@
     "docs/history/ci-perf-2026-11-14-open-tennis-hose-curve.md"
   ],
   "goal": "Cut CI runner time with byte-identical output",
-  "notes": "Metric: open-tennis-robots cad/tests wall time (the 'CAD checks and committed-package freshness' step, 12.5 job-min over 6 jobs in ci_profile --runs 300 at 2026-11-14 14:25-15:05Z). Before 264 s, after 195 s: `python -m unittest discover -s tests` in cad/, build123d 0.13.0 venv, 4 cores, back to back, 101 tests OK both times. One feeder package build 107 s -> 90 s (python -m otr_cad feeder --out ..., wall clock). Hose searches on 1,150 recorded argument sets: planar 45.7 s -> 6.0 s, 3-D 28.3 s -> 9.3 s, 0 mismatches by float.hex(). Package folders and unzipped archives diff -r identical before/after. Profile: cProfile of one feeder build. Local CI: run_workflow_locally.py --for-changes (see PR).",
+  "notes": "Metric: open-tennis-robots cad/tests wall time (the 'CAD checks and committed-package freshness' step, 12.5 job-min over 6 jobs in ci_profile --runs 300 at 2026-11-14 14:25-15:05Z). Before 264 s, after 195 s: `python -m unittest discover -s tests` in cad/, build123d 0.13.0 venv, 4 cores, back to back, 101 tests OK both times. One feeder package build 107 s -> 90 s (python -m otr_cad feeder --out ..., wall clock). Hose searches on 1,150 recorded argument sets: planar 45.7 s -> 6.0 s, 3-D 28.3 s -> 9.3 s, 0 mismatches by float.hex(). Package folders and unzipped archives diff -r identical before/after. Profile: cProfile of one feeder build. Local CI: run_workflow_locally.py --for-changes (see PR). CI on the merged head: cad job 15:42:27-15:46:39 (4 min 12 s incl. pip install; first push's run 2 min 48 s) vs 6 min 40 s after P066.",
   "corrections": [],
   "redteam": null,
   "usage": {
