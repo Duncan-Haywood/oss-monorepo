@@ -3,7 +3,7 @@ title: "Twelve teams at 132: the wall at 136 was a plateau"
 seo_title: "Round-robin carry-over at 12 teams: a 132 timetable from a C search"
 date: 2026-11-14
 tags: [league-schedule-generator, ventures, algorithms]
-description: "Two C searches stopped at 136 today and called it a likely wall. A third, walking plateaus instead of climbing, found a 12-team round robin at 132. The proved least is 124."
+description: "Two C searches stopped at 136 and called it a wall. A third, walking plateaus, found a 12-team round robin at 132; the proved least is 124."
 ---
 
 Carry-over is about who you play straight after whom. If every team that meets Ana in one round then meets Ben in the next, the teams that come after Ana all face a Ben who has just played the same opponent. A fair schedule spreads those pairs out. The [League Schedule Generator](https://marisstella.app/league-schedule-generator/) measures it with the usual score: sum the squares of the carry-over counts. For 12 teams, all playing, the score can't go below 120.
