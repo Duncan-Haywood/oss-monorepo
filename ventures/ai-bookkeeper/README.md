@@ -1196,7 +1196,29 @@ The credit-union layout read right with no code change (signed Amount, a Debit/C
 3. **Chase's "Professional Services" label stopped suggesting legal and professional fees.** The bank's own category is a last-resort hint when nothing else knows the merchant. On these files, 17 lines were suggested only by that label, and none read by eye as a legal or accounting fee: data APIs, AI tools, cloud storage, an e-commerce fee, a rent payment, a prop-trading shop, a person's name. Chase files Upwork, GitHub, Vercel and Facebook ads there too. The label now gives no suggestion, as the card network's own "professional services" name already did (`mcc.mjs`). Measured and kept: "Bills & Utilities" was right on 7 of 23 label-only lines (phone and fax, internet, a city utility), wrong on 10 (insurance, road tolls, domain names, Netflix) and unclear on 6 (web hosting, an unknown merchant). It stays because those lines are always sent to review, but it is the next label to look at.
 4. **US Bank checking pays its cards in words the rules did not know.** `INTERNET BANKING PAYMENT TO CREDIT CARD 1234` and `WEB AUTHORIZED PMT AMERICANEXPRESS` had no suggestion; both are now suggested as transfers. Only card issuers' names count after `PMT`: `WEB AUTHORIZED PMT PAYPAL` or a phone company's bill is still a bill.
 
-Pinned in `chase-business-card.test.mjs` (8 tests, rows written here under the real headers). Seen, not fixed: US Bank glues phone and reference numbers to the merchant (`SPRINT8006396111`), and the payee key drops any word with a digit, so that line has an empty key; changing the key would move every learned payee, so it needs its own measured slice. Still not tried: a business account at a bank other than Chase, and a Chase business checking file.
+Pinned in `chase-business-card.test.mjs` (8 tests, rows written here under the real headers). US Bank's glued phone and reference numbers (`SPRINT8006396111`) were seen here and fixed in the next section. Still not tried: a business account at a bank other than Chase, and a Chase business checking file.
+
+### Glued numbers in payee names (2026-11-14, fourth batch)
+
+Banks glue phone, store and reference numbers straight onto the merchant: US Bank writes `WEB AUTHORIZED PMT SPRINT8006396111`, others `SQ *CREPELANDIA210`, `707-652-3328ADAPTDMIND`, `NGRID37 NGRID37WEB`, and Mint exports `AMERICANAIR0012321621819 800-428-4322 TX` or `SIREN53313 CHICAGO IL`. The payee key dropped every word with a digit in it, so those lines had no payee at all (nothing remembered, no new-payee guess) or keyed on the city alone (`chicago`, so every Chicago merchant shared one memory).
+
+The rule now (`payeeTokens` in `categorize.mjs`): a token that is one run of three or more letters and one run of two or more digits, in either order, keeps its letters, but only while no clean payee word has come before it. After the merchant's name, glued tokens are store and city codes (`MARATHON PETRO13 MONROE6537`, `WALGREENS #1234 00CINCINNATI`): a first version that kept them everywhere split Walgreens and Marathon into one payee per town, and was dropped. Glued dates (`Jan29`, a Citi line in a Mint export) and mixed references (`2K3`, `IBEXHSDFR2`) are still dropped. The airline keyword now matches the glued `AMERICANAIR`, `DELTAAIR` and `UNITEDAIR` too.
+
+Old books keep working: memory saved under the old key still answers (`legacyPayeeKey`, tried when the new key misses), a line whose old key is known is not treated as a new payee, and a W-9 flag or payee merge saved under the old key is still found by `contractors1099`.
+
+Measured before and after, on the same files (all fetched at run time, none committed):
+
+| set | before | after |
+|---|---|---|
+| 63 real US exports, 5,767 rows: lines with no payee key | 45 | 36 (the rest say only "Debit", "Deposit", "Credit Card Payment") |
+| same: lines whose key changed | | 10 (9 from no key; 1 `bestbuy` to `bestbuycom bestbuy`) |
+| Mint, 10 exports, 2,926 lines scored online: right | 90.6% | 90.7% (2 American Airlines lines from blank or Meals to Travel; no line newly wrong) |
+| Mint first-seen payees right | 82.8% | 83.0% |
+| Toronto p-card, 4,284 lines: right | 85.3% | 85.5% |
+| Scottish Government cards, 11,087 lines: right | 78.8% | 78.8% (9 more lines count as first seen) |
+| Capital One card, Chase card (billcat) | | identical |
+
+The gain is small because glued names are rare in these sets, but each of those lines was a payee the books could never learn. Pinned in `glued-payee.test.mjs` (6 tests, descriptions written here in the real shapes). Not tried: a US Bank business checking download, where `WEB AUTHORIZED PMT` lines are commoner.
 
 ### PNC CSV (2026-10-22)
 

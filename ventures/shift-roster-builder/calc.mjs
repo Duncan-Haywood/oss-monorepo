@@ -202,15 +202,43 @@ export function parseSiteWage(spec) {
   return out;
 }
 export const siteRate = (wage, rule) => (rule ? Math.max(rule.min, Math.max(0, wage * (1 + rule.pct / 100) + rule.add)) : wage);
+// A person's own rate at one site (2026-11-14): a staff cell "wage at Airport: 24" (or "rate at Airport: +2", "+10%", "-1";
+// "wage @ Airport", "pay at Airport" read the same). An absolute figure is their hourly rate there; a signed one is relative to
+// their own wage. It replaces the site rule's dollar and percentage parts for that person, since a rate agreed with one person
+// is usually all-in, but never the site's floor: a city's minimum wage still applies. Returns { site, label, abs, add, pct } or
+// { error }.
+const SITE_PAY_CELL = /^(?:wage|rate|pay)\s+(?:at|@)\s+([^:]+?)\s*:/i;
+export function parsePersonSiteWage(cell) {
+  const m = SITE_PAY_CELL.exec(String(cell).trim());
+  if (!m || !siteKey(m[1])) return { error: `could not read "${cell}"; write it like "wage at Airport: 24" or "wage at Airport: +2"` };
+  const v = String(cell).trim().slice(m[0].length).trim().replace(/\s*(\/\s*h(ou)?r?|an hour)$/i, "");
+  const out = { site: siteKey(m[1]), label: m[1].trim(), abs: null, add: 0, pct: 0 };
+  const rel = /^([+-])\s*\$?(\d+(?:\.\d+)?)\s*(%?)$/.exec(v), abs = /^\$?\s*(\d+(?:\.\d+)?)$/.exec(v);
+  if (rel) { const x = (rel[1] === "-" ? -1 : 1) * Number(rel[2]); if (rel[3]) out.pct = x; else out.add = x; }
+  else if (abs) out.abs = Number(abs[1]);
+  else return { error: `could not read "${cell}"; write it like "wage at Airport: 24" (dollars an hour there) or "wage at Airport: +2"` };
+  if (out.pct <= -100) return { error: `"${cell}" takes the whole wage away` };
+  if (out.abs !== null && out.abs > 10000) return { error: `"${cell}": an hourly wage over $10,000 is probably a typo` };
+  return out;
+}
+// A person's rate on a shift at site key k: their own cell for k if they have one (the site floor still applies), else the
+// site rule, else their own wage.
+export function personSiteRate(person, k, rule) {
+  const own = k && person.siteWages ? person.siteWages.get(k) : null;
+  if (!own) return siteRate(person.wage, rule);
+  const v = own.abs !== null ? own.abs : Math.max(0, person.wage * (1 + own.pct / 100) + own.add);
+  return Math.max(rule ? rule.min : 0, v);
+}
 // Per-ctx rate table: at[p][i] is person p's hourly rate on shift i, low[p] the least of their rates and their own wage (the
 // floors below use it). Null when no rule changes anyone's rate on a shift this week, so builds stay byte-identical.
 function siteRateTable(o, staff, slots) {
   const sw = parseSiteWage(o.siteWage);
-  if (!sw.rules.length) return null;
+  if (!sw.rules.length && !staff.some((p) => p.siteWages)) return null;
   const rule = new Map(sw.rules.map((r) => [r.site, r]));
-  const slotRule = slots.map((s) => (s.site ? rule.get(siteKey(s.site)) || null : null));
+  const slotKey = slots.map((s) => (s.site ? siteKey(s.site) : ""));
+  const slotRule = slotKey.map((k) => (k ? rule.get(k) || null : null));
   let differs = false;
-  const at = staff.map((p) => Float64Array.from(slotRule, (r) => { const v = siteRate(p.wage, r); if (v !== p.wage) differs = true; return v; }));
+  const at = staff.map((p) => Float64Array.from(slotRule, (r, i) => { const v = personSiteRate(p, slotKey[i], r); if (v !== p.wage) differs = true; return v; }));
   if (!differs) return null;
   const low = Float64Array.from(staff, (p, k) => at[k].reduce((m, v) => Math.min(m, v), p.wage));
   const high = Float64Array.from(staff, (p, k) => at[k].reduce((m, v) => Math.max(m, v), p.wage));
@@ -380,6 +408,14 @@ export function parseStaff(text, { weekStart = null } = {}) {
     if (staff.some((s) => s.name.toLowerCase() === c[0].toLowerCase())) { errors.push(`${where}: "${c[0]}" is listed twice`); return; }
     const tail = c.slice(4);
     const roles = tail.filter((x) => ROLE_CELL.test(x)).flatMap(parseRoles);
+    let siteWages = null;
+    for (const cell of tail.filter((x) => SITE_PAY_CELL.test(x))) {
+      const w = parsePersonSiteWage(cell);
+      if (w.error) { errors.push(`${where} (${c[0]}): ${w.error}`); continue; }
+      siteWages = siteWages || new Map();
+      if (siteWages.has(w.site)) { errors.push(`${where} (${c[0]}): two wages at "${w.label}"; the first is used`); continue; }
+      siteWages.set(w.site, w);
+    }
     const siteCells = tail.filter((x) => SITES_CELL.test(x) || SITE_CELL.test(x));
     const sites = siteCells.length ? [...new Set(siteCells.flatMap(parseSites))] : null;
     if (siteCells.length && !sites.length) errors.push(`${where} (${c[0]}): "${siteCells[0]}" names no site; write it like "sites: Main | Harbour"`);
@@ -413,7 +449,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
       seniority = Number(senCell.replace(SENIORITY_CELL, "").trim());
       if (!Number.isFinite(seniority)) { errors.push(`${where} (${c[0]}): could not read "${senCell}"; write it like "seniority: 3" (higher = more senior)`); seniority = null; }
     }
-    const isExtra = (x) => SENIORITY_CELL.test(x) || STREAK_CELL.test(x) || ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x) || SITES_CELL.test(x) || SITE_CELL.test(x);
+    const isExtra = (x) => SENIORITY_CELL.test(x) || STREAK_CELL.test(x) || ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x) || SITES_CELL.test(x) || SITE_CELL.test(x) || SITE_PAY_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
@@ -445,7 +481,8 @@ export function parseStaff(text, { weekStart = null } = {}) {
         }
       }
     }
-    staff.push({ sites: sites && sites.length ? sites : null, seniority, age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
+    if (siteWages && sites && sites.length) for (const w of siteWages.values()) if (!sites.includes(w.site)) notes.push(`${c[0]}: "wage at ${w.label}" is not used, because their sites: cell does not list ${w.label}.`);
+    staff.push({ ...(siteWages ? { siteWages } : {}), sites: sites && sites.length ? sites : null, seniority, age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -3075,6 +3112,10 @@ function buildRosterOnce(staff, slots, options = {}) {
     for (const r of sw.rules) if (!named.has(r.site)) warnings.push(`site wage: no shift is at a site called "${r.label}", so its wage is not used.`);
     if (!ctx.rates && sw.rules.some((r) => named.has(r.site))) warnings.push("site wage: nobody's wage changes at the sites listed (every wage is already at or above the floor), so it changes nothing.");
   }
+  if (staff.some((p) => p.siteWages)) {
+    const named = new Set(slots.filter((s) => s.site).map((s) => siteKey(s.site)));
+    for (const p of staff) for (const w of (p.siteWages || new Map()).values()) if (!named.has(w.site)) warnings.push(`${p.name}: no shift is at a site called "${w.label}", so their wage there is not used.`);
+  }
   if (o.travelPay || o.travelAllowance > 0) {
     const tv = parseTravel(options.travel);
     if (!ctx.tripPay) warnings.push("travel pay: fewer than two shifts name a site, so there are no trips between sites to pay.");
@@ -3107,15 +3148,24 @@ function buildRosterOnce(staff, slots, options = {}) {
 function siteWageSummary(ctx, res) {
   const { o, slots, staff } = ctx;
   const sw = parseSiteWage(o.siteWage), burden = 1 + o.burdenPct / 100;
+  // Priced sites: every site rule, then every site where someone has their own rate (in the order the shifts name them).
+  const rows = sw.rules.map((r) => ({ site: r.label, key: r.site, add: r.add, pct: r.pct, min: r.min }));
+  for (const s of slots) {
+    const k = s.site ? siteKey(s.site) : "";
+    if (k && !rows.some((x) => x.key === k) && staff.some((p) => p.siteWages && p.siteWages.has(k))) rows.push({ site: s.site, key: k, add: 0, pct: 0, min: 0 });
+  }
   const sites = [];
-  for (const rule of sw.rules) {
+  for (const row of rows) {
     let hours = 0, extra = 0;
+    const own = new Set();
     res.owner.forEach((p, i) => {
-      if (p < 0 || !slots[i].site || siteKey(slots[i].site) !== rule.site) return;
+      if (p < 0 || !slots[i].site || siteKey(slots[i].site) !== row.key) return;
       const h = paidMinutes(o, slots[i]) / 60;
       hours += (slots[i].end - slots[i].start) / 60; extra += burden * h * (ctx.rates.at[p][i] - staff[p].wage);
+      if (staff[p].siteWages && staff[p].siteWages.has(row.key)) own.add(staff[p].name);
     });
-    sites.push({ site: rule.label, add: rule.add, pct: rule.pct, min: rule.min, hours, extra });
+    const { key, ...out } = row;
+    sites.push({ ...out, hours, extra, ...(own.size ? { ownRates: [...own].sort() } : {}) });
   }
   return { sites, extra: res.people.reduce((t, p) => t + (p.siteWageCost || 0), 0) };
 }

@@ -18,7 +18,7 @@ questions that come next, so a session can spend its time on judgment:
     python3 platform/ci/quality_audit.py metrics [--md]
     python3 platform/ci/quality_audit.py coverage
     python3 platform/ci/quality_audit.py census [--n 6] [--seed <date>]
-    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30] [--no-git]   # flags subjects changed since audit
+    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30] [--no-git] [--no-prs]   # flags subjects changed since audit or named by an open PR
     python3 platform/ci/quality_audit.py mode [--date <date>]
 
 Standard library only. Tests: platform/ci/test_quality_metrics.py.
@@ -402,6 +402,59 @@ def changes_since(subject: str, date: str, git=_git) -> dict:
     return {"status": "changed" if commits else "untouched", "commits": commits}
 
 
+# --- open PRs that already name a queued subject -------------------------------------
+
+def open_pr_titles(timeout: int = 20, pages: int = 3, run=None) -> list[tuple[int, str]] | None:
+    """(number, title) of open PRs in this repository, newest first, or None when the search failed.
+
+    The queue only knew fix PRs recorded in an audit's fix_prs, which happens at merge. Two fix
+    sessions took the same high defect (osrobot-pairprice) minutes apart on 2026-11-14, and two more
+    runs that day saw platform/agents listed as unfixed while PR #14674 sat open (run-record
+    doc_friction on this file and on duplicate-work.md). One `gh api` search per 100 PRs; it works
+    unauthenticated in cloud sessions."""
+    import subprocess
+
+    def default_run(page: int) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            ["gh", "api", "-X", "GET", "search/issues", "-f",
+             "q=repo:duncan-haywood/oss-monorepo is:pr is:open", "-f", "sort=created", "-f", "order=desc",
+             "-f", "per_page=100", "-f", f"page={page}", "--jq", '.items[] | "\\(.number)\\t\\(.title)"'],
+            capture_output=True, text=True, timeout=timeout)
+    run = run or default_run
+    out: list[tuple[int, str]] = []
+    for page in range(1, pages + 1):
+        try:
+            proc = run(page)
+        except Exception:
+            return out or None
+        if proc.returncode != 0:
+            return out or None
+        lines = [l for l in proc.stdout.splitlines() if "\t" in l]
+        for line in lines:
+            num, title = line.split("\t", 1)
+            if num.strip().isdigit():
+                out.append((int(num), title))
+        if len(lines) < 100:
+            break
+    return out
+
+
+def subject_names(subject: str) -> list[str]:
+    """Names a PR title would use for `subject`: the path itself, and its last part when that is
+    specific enough to mean it (a slug with a hyphen, or 8+ characters; "agents" alone is not)."""
+    names = [subject.rstrip("/")]
+    last = names[0].rsplit("/", 1)[-1]
+    if last != names[0] and ("-" in last or len(last) >= 8):
+        names.append(last)
+    return names
+
+
+def prs_naming(subject: str, prs: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """Open PRs whose title names `subject` (whole-word match on any of subject_names)."""
+    pats = [re.compile(r"(?<![\w/-])" + re.escape(n) + r"(?![\w-])", re.I) for n in subject_names(subject)]
+    return [(n, t) for n, t in prs if any(p.search(t) for p in pats)]
+
+
 # --- which mode is due ----------------------------------------------------------------
 
 MODES = {
@@ -594,8 +647,18 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             if note:
                 import sys
                 print(note, file=sys.stderr)
+        prs = None if getattr(args, "no_prs", False) else open_pr_titles()
+        if prs is None and not getattr(args, "no_prs", False):
+            import sys
+            print("(open-PR search failed: rows below may already have a PR in flight; search open PRs by subject)",
+                  file=sys.stderr)
+        in_flight = 0
         for r in rows[: args.limit]:
             print(f"[{r['severity']}] {r['subject']} ({r['audit']}#{r['index']}, {r['category']}): {r['what'][:200]}")
+            naming = prs_naming(r["subject"], prs or [])
+            if naming:
+                in_flight += 1
+                print("    open PR naming it: " + "; ".join(f"#{n} {t[:80]}" for n, t in naming[:3]))
             if getattr(args, "no_git", False):
                 continue
             key = (r["subject"], r["audit"][:10])
@@ -609,6 +672,9 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             elif c["status"] == "unknown":
                 print(f"    changed since audit: unknown ({c['why']})")
         print(f"{len(rows)} open defects at {args.severity} or worse (no fix PR recorded; source-only left out)")
+        if in_flight:
+            print(f"{in_flight} shown already have an open PR naming the subject: extend or wait for that PR,"
+                  " or pick another row (a fix PR that has not merged is not yet in fix_prs)")
         if changed:
             print(f"{changed} shown sit under a subject changed since its audit: check whether a commit already fixed"
                   " it, and if so record that PR in the audit's fix_prs instead of fixing it again")

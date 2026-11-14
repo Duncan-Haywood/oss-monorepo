@@ -53,12 +53,19 @@ closure to 17.3%, the same as the printer alone. By contrast, making the five
 NEMA17 motors in-house would add 22 points of mass closure and 26 of cost.
 The open question is rods, motors and electronics, not washers.
 
-## 2. Redesigning parts helps cost closure much more than mass
+## 2. Redesigning parts helps mass closure more than cost
 
 [`research/selfrep-redesign/`](../../research/selfrep-redesign/) searched over
 part substitutions such as printed idlers, printed nuts and wooden rods.
 Applying all seven took vitamin lines from 29 to 19 and closure to 60.4% of
-lines, 35.8% of mass and 47.7% of cost. Mass closure stays below 36% under
+lines, 35.8% of mass and 24.0% of cost.
+
+*Correction, 2026-11-14: this section first said redesign helped cost closure
+much more than mass, with 47.7% cost closure. That came from pricing every
+printed substitute at a flat 0.5, so 100 printed nuts were worth 50 against 3
+for the steel ones. Priced by filament mass instead, cost closure rises from
+15.9% to 24.0%, less than mass (22.4% to 35.8%). See
+[the fix post](2026-11-14-quality-fix-a-printed-nut-priced-like-a-bracket.md).* Mass closure stays below 36% under
 every set, because motors, electronics, threaded rods and the hot end remain
 vitamins.
 

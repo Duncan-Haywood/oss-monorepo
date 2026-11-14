@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVQ28uurFBABgStqpgH",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "scheduled routine: continue work on the repo (revenue products; merge when done)",
+  "input_sha256": "89bc95dc796775a7f9f2e45344c50431111a773161c2496baf8fda03db97c147",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T07:01:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "process critique from doc_friction",
+  "projects": [
+    "portfolio/router",
+    "portfolio/flagships.yaml"
+  ],
+  "pr": 15765,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ideas.py",
+      "issue": "Prints 'none open in requests.json' while five requests are status building, because it skips source: owner entries; CLAUDE.md's 'default is an open website request' then reads as contradicted. Control plane (prompts/), so not changed here; allocate.py now prints the mapping instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs record",
+      "why": "Left model null: the session's instructions say not to put a model identifier in pushed artifacts.",
+      "did": "model: null",
+      "result": "validate passes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-hyphen-at-the-end-of-a-line-broke-seven-paths.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog: owner rows only). Targets came from today's doc_friction: flagships.yaml next: editing (5 records) and allocate Start-here vs request queue (2 records). Found and fixed 7 hyphen-folded joins corrupting paths in next:. No backlog ids touched (no new item filed: fix shipped in the same PR). Local checks: test_allocate 99 OK; pytest router 20 passed; validate.py all 1363 valid; post checks clean; main_health 66/66.",
+  "corrections": [],
+  "redteam": null
+}

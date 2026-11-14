@@ -252,5 +252,38 @@ class ChangesSinceTest(unittest.TestCase):
         self.assertIn("failed", m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=late, git_run=lambda c: 128))
 
 
+class OpenPrTest(unittest.TestCase):
+    """queue marks rows an open PR already names: osrobot-pairprice was fixed twice in one morning
+    and platform/agents read as unfixed while PR #14674 sat open (2026-11-14 run records)."""
+
+    PRS = [(14674, "quality fix: platform/agents toJson writes shared references in full (control plane)"),
+           (15746, "quality fix: osrobot-pairprice pays the drone pilot"),
+           (15760, "ai-bookkeeper: (claim, work in progress)"),
+           (15000, "platform/agents-extra: something else"),
+           (15001, "research: osrobot-pairprice-v2 notes")]
+
+    def test_names(self):
+        self.assertEqual(m.subject_names("platform/agents"), ["platform/agents"])  # "agents" alone is too generic
+        self.assertEqual(m.subject_names("research/osrobot-pairprice"), ["research/osrobot-pairprice", "osrobot-pairprice"])
+
+    def test_matches_whole_names_only(self):
+        self.assertEqual([n for n, _ in m.prs_naming("platform/agents", self.PRS)], [14674])
+        self.assertEqual([n for n, _ in m.prs_naming("research/osrobot-pairprice", self.PRS)], [15746])
+        self.assertEqual([n for n, _ in m.prs_naming("ventures/ai-bookkeeper", self.PRS)], [15760])
+        self.assertEqual(m.prs_naming("ventures/agents", self.PRS), [])
+
+    def test_search_pages_and_fails_soft(self):
+        import subprocess
+        pages = {1: "\n".join(f"{i}\tt{i}" for i in range(100)), 2: "7\tlast"}
+        got = m.open_pr_titles(run=lambda p: subprocess.CompletedProcess([], 0, pages.get(p, ""), ""))
+        self.assertEqual(len(got), 101)
+        self.assertEqual(got[-1], (7, "last"))
+        self.assertIsNone(m.open_pr_titles(run=lambda p: subprocess.CompletedProcess([], 1, "", "rate limited")))
+
+        def boom(p):
+            raise OSError("no gh")
+        self.assertIsNone(m.open_pr_titles(run=boom))
+
+
 if __name__ == "__main__":
     unittest.main()

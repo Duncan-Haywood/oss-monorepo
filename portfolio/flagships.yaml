@@ -16,6 +16,10 @@
 # tells runs to take it only if they hold such an input. Remove the field when
 # a buildable item is added to `next:`.
 #
+# Edit a `next:` or `buildable:` with `python3 portfolio/router/flagship_field.py
+# <venture> --replace OLD NEW`: it rewraps safely (a hand wrap after a hyphen
+# reads back as "word- rest", and validate.py rejects it).
+#
 # `buildable: <items a cloud session can do now>` (optional) leads the row's
 # task as "BUILDABLE HERE", so a run need not read every full `next:` to find
 # a tractable item (seven runs on 2026-11-11 did). Name only items checked to
@@ -49,25 +53,28 @@ flagships:
       cutting-stock order within 0.02% of its LP bound on whole houses; page,
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
-      History, dates and how each slice was checked: ventures/wall-framing-
-      takeoff/README.md and ROADMAP.md (recent: whole-house run on the Schultz IFC
-      frames every wood wall on all three floors with `--whole-house`; `--stack`
-      2026-11-08 orders several floors' plans together (run on the Schultz floors
-      2026-11-08: 49 walls, 0.28% less than ordering apart); stepped walls, door
-      and window schedule, wall panels, schedule and cash flow; deck ledger
-      fastener check 2026-11-08; winder support boards 2026-11-08). Wanted, all needing real inputs: a real
-      builder's activity list and draw schedule for `--schedule` (payment lag,
-      retainage); a real permitted deck plan (deck framing, guards and stairs are
-      hand arithmetic only); stair stringer and landing post tables, winder radial
-      supports, lateral-load connector and anchor sizes; a real architect's DXF; a
-      real US wood-framed IFC and a framer's takeoff of the Schultz house to
-      compare with (Window Wall French door 39 in sill is in the model's placement, not the engine, ROADMAP 2026-11-09 later; open: 2nd Floor Int 1 and 3rd Floor Int 9 tees and door-near-
-      end cases, README); a plumber's real drain runs for `--drilling`; a real
-      foundation plan; ceiling steps against a real soffit; trim, drywall and
+      History, dates and how each slice was checked:
+      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent: whole-house
+      run on the Schultz IFC frames every wood wall on all three floors with
+      `--whole-house`; `--stack` 2026-11-08 orders several floors' plans together
+      (run on the Schultz floors 2026-11-08: 49 walls, 0.28% less than ordering
+      apart); stepped walls, door and window schedule, wall panels, schedule and
+      cash flow; deck ledger fastener check 2026-11-08; winder support boards
+      2026-11-08). Wanted, all needing real inputs: a real builder's activity list
+      and draw schedule for `--schedule` (payment lag, retainage); a real permitted
+      deck plan (deck framing, guards and stairs are hand arithmetic only); stair
+      stringer and landing post tables, winder radial supports, lateral-load
+      connector and anchor sizes; a real architect's DXF; a real US wood-framed IFC
+      and a framer's takeoff of the Schultz house to compare with (Window Wall
+      French door 39 in sill is in the model's placement, not the engine, ROADMAP
+      2026-11-09 later; open: 2nd Floor Int 1 and 3rd Floor Int 9 tees and
+      door-near-end cases, README); a plumber's real drain runs for `--drilling`; a
+      real foundation plan; ceiling steps against a real soffit; trim, drywall and
       siding against real orders and hangs; bid leveling on real bids and a real
-      sub's labor rates; gable sheathing nested on real sheets; insulation against
-      a real order. Cutting-stock speed is settled for now (exact steepest-edge weights measured, not worth building, ROADMAP 2026-11-09 later). When a slice lands, replace its item here and put its history
-      in the README.
+      sub's labor rates; gable sheathing nested on real sheets; insulation against a
+      real order. Cutting-stock speed is settled for now (exact steepest-edge
+      weights measured, not worth building, ROADMAP 2026-11-09 later). When a slice
+      lands, replace its item here and put its history in the README.
   - venture: ai-bookkeeper
     why: >-
       A double-entry ledger in integer cents with a four-layer categorizer that
@@ -79,7 +86,7 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) bank readers: 63 public US exports, Chase business cards (README); open: non-Chase business, US Bank glued-digit payees; (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
+      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) bank readers: 63 public US exports, Chase business cards (README); glued payees (README); open: other banks' business files; (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
       through real OCR (page SROIE 83.4%, CORD 50.5%, US 68.4%; CLI
@@ -179,7 +186,7 @@ flagships:
       pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; a real two-site export and staff list (README "Staff shared between sites"); travel, paid travel and wages by site landed (README "Wages by site"); next a per-person rate at a site, real trip times; whether the
+      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; a real two-site export and staff list (README "Staff shared between sites"); travel, paid travel and wages by site landed (README "Wages by site"); per-person rates at a site landed (README "A person's own rate at a site"); next the importers writing them from a per-location wage column, real trip times; whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
@@ -210,34 +217,33 @@ flagships:
       integer range; eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial
       there still need a unit the text does not give, or a real file.
     next: >-
-      History and every measurement: README and eval/ (ingest to masters;
-      DNG developer with DNG-spec colour, DCP tables, tone curves; Canon CR2;
-      camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
-      the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
-      matches the Leica T's preview to 0.18 px; WarpRectilinear2: on 5,411
-      rectilinear lensfun profiles the best even-only fit leaves over 1 px at
-      6000 px for 17%, eval/warp-rectilinear2-2026-11-12.md).
-      Lensfun distortion, TCA and vignetting for files with none (--lens-db;
-      eval/lensfun-*-2026-11-13.md); in the grade stage from color/lens-profiles/ since 2026-11-13 (eval/lens-pipeline-grade-2026-11-13.md).
-      Next, most valuable first: a real DNG and a vignetting-calibrated lens through the pipeline's lens stage;
-      a real evenly lit frame shot wide open
-      (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair (a zoom at several focal lengths);  a
-      real DNG carrying any opcode
-      run only on synthetic files so far, or the SDK to check them;
-      lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
-      newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
-      collection under their plain names); the DJI Phantom 4 DNG's vignette
-      lift against DJI's own render (eval/opcode-quality-flag-2026-11-13.md);
-      a real DNG with opcode flag bit 1 set; a phone DNG with its own JPEG of the frame (corrected corners); a real DNG 1.6 three-
-      light profile and the SDK's triple weights; a tungsten-lit colour chart
-      to say which colour model is closer (the 70D frame, 4,700 K and green-
-      tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
-      Adobe render of a known frame (settles `--default-tone-curve always`);
-      the grade-scope saving on real 4K footage; the native Huffman reader on
-      macOS;  a trained blink model and a
-      real shoot with a photographer's picks; photos with a real horizon and
-      human tilt labels.
+      History and every measurement: README and eval/ (ingest to masters; DNG
+      developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
+      DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with the 1.7.1.0
+      text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear matches the Leica
+      T's preview to 0.18 px; WarpRectilinear2: on 5,411 rectilinear lensfun
+      profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
+      eval/warp-rectilinear2-2026-11-12.md). Lensfun distortion, TCA and vignetting
+      for files with none (--lens-db; eval/lensfun-*-2026-11-13.md); in the grade
+      stage from color/lens-profiles/ since 2026-11-13
+      (eval/lens-pipeline-grade-2026-11-13.md). Next, most valuable first: a real
+      DNG and a vignetting-calibrated lens through the pipeline's lens stage; a real
+      evenly lit frame shot wide open (corners level after lensfun's vignetting?); a
+      second maker-against-lensfun DNG pair (a zoom at several focal lengths); a
+      real DNG carrying any opcode run only on synthetic files so far, or the SDK to
+      check them; lateral colour measured on a real frame with sharp corner edges; a
+      real Adobe `.dcp` through the profile chooser; newer CR2s (ColorData8-11: 5D
+      Mark IV, 80D, 90D; not found in that collection under their plain names); the
+      DJI Phantom 4 DNG's vignette lift against DJI's own render
+      (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
+      set; a phone DNG with its own JPEG of the frame (corrected corners); a real
+      DNG 1.6 three-light profile and the SDK's triple weights; a tungsten-lit
+      colour chart to say which colour model is closer (the 70D frame, 4,700 K and
+      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
+      Adobe render of a known frame (settles `--default-tone-curve always`); the
+      grade-scope saving on real 4K footage; the native Huffman reader on macOS; a
+      trained blink model and a real shoot with a photographer's picks; photos with
+      a real horizon and human tilt labels.
 
   - venture: quick-pick-survey
     why: >-
@@ -245,22 +251,28 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      History and every measurement: README, docs/INFORMATION-GAIN- SELECTOR.md, docs/CONVERGENCE.md and
-      docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list length, the closed pooled-prior
-      work, the sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time salience (b),
-      mid-session blocks (d), the panel curve, per-survey threshold and step test, the later-pass curve (d4), the
-      net-step test (d5), the wander bar (d6), the picks test (d7) and partway slot runs (d3) are written up there.
-      Latest (2026-11-14, "A slot run and a fast block in the same person"; docs/slot-fast-joint-2026-11-14.jsonl):
-      (d9) each fast turn's slots are tested as one pre-named candidate (slotRunsAtTurns, default on the route):
-      a 65% lean from the speed-up found 9% to 35%, honest flags added 0-0.2% where the time cut alone flags 2-7%,
-      never more than 0.0008 under the old default. Next, most valuable first: (c) the first real survey's answers:
-      msToAnswer against the answer-time model, panelWalkRatio on real times, whether times depend on which slot is
-      clicked (the d9 bound assumes not), whether real people have warm-ups, blocks, slot runs or spread-out
-      carelessness, and how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d10)
-      the other direction: a slot run's start as the one candidate for a timing step under wander, scored against
-      the panel's slow turns; (d8) a stronger pick signal under wander (staged pairs are near 50/50 late in a
-      session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to 0.030: decide
-      on a real panel's times.
+      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
+      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
+      staged-by-default at every list length, the closed pooled-prior work, the
+      sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time
+      salience (b), mid-session blocks (d), the panel curve, per-survey threshold
+      and step test, the later-pass curve (d4), the net-step test (d5), the wander
+      bar (d6), the picks test (d7) and partway slot runs (d3) are written up there.
+      Latest (2026-11-14, "A slot run and a fast block in the same person";
+      docs/slot-fast-joint-2026-11-14.jsonl): (d9) each fast turn's slots are tested
+      as one pre-named candidate (slotRunsAtTurns, default on the route): a 65% lean
+      from the speed-up found 9% to 35%, honest flags added 0-0.2% where the time
+      cut alone flags 2-7%, never more than 0.0008 under the old default. Next, most
+      valuable first: (c) the first real survey's answers: msToAnswer against the
+      answer-time model, panelWalkRatio on real times, whether times depend on which
+      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
+      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
+      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d10) the other
+      direction: a slot run's start as the one candidate for a timing step under
+      wander, scored against the panel's slow turns; (d8) a stronger pick signal
+      under wander (staged pairs are near 50/50 late in a session; anchor pairs?);
+      (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to 0.030:
+      decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
@@ -268,25 +280,30 @@ flagships:
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
-      (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
-      duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
-      squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor, three-round re-deals,
-      balanced least priced, faster break floor, exact home-and-away breaks, backward table, blackout fit:
-      README 2026-11-11 to 2026-11-14 sections). 2026-11-14 latest: least carry-over 94 at 10 teams, and
-      at 12 none below 124 (eval/carryover-bnb.c with a per-round matching bound and round 1 per cycle
-      type; the page says so); refill search in C (eval/refill-search.c): 14 teams 210 (starter 212), stored
-      and on the page; 631 climbs at 12 found nothing below 136. Next, most valuable first: the rest of the
-      20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now 2.1x cheaper again,
-      README "A backward table"; or a starter family climbed with the floor as its score); 24 and 25 teams
-      in the page (54-184 s since the predecessor cache and backward table; the step over wide spans is
-      ~94%: moves span 15 of 23 rounds, so narrower moves, or a step in WebAssembly); home-and-away breaks
-      exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT; eval/pair-exact.txt): next,
-      a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c, 2026-11-14 latest; two other C
-      searches stopped at 136): below 132, or 124-130 ruled out (~4 h on 4 cores; round reversal ~2x); 18 teams:
-      refill from the climbed starter (356 from circle, starter 318); close 24-40 (tabu, the literature's starters); a
-      real league's travel and blackout list; printed sheets on a real printer and paper.
+      Landed work and every measurement are in
+      ventures/league-schedule-generator/README.md and eval/ (multi-division
+      scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
+      CSVs, duty rota, team sheets; carry-over on 20 real seasons; starters, capped
+      breaks, frontier picker, squeezes, MaxSAT proof that the gaps are
+      timetable-bound, exact break floor, three-round re-deals, balanced least
+      priced, faster break floor, exact home-and-away breaks, backward table,
+      blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-14 sections).
+      2026-11-14 latest: minPlusStep's kernel in WebAssembly (wasm/minplus.c, SIMD,
+      same seasons, 903 s to 218 s over 11 page runs, eval/wasm-step.txt), so 23 to
+      25 teams now run the floor-priced step in the page (16-50 s); least carry-over
+      94 at 10 teams, at 12 none below 124; refill search in C: 14 teams 210,
+      stored. Next, most valuable first: the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 26 to 30 teams in the page (the
+      kernel is 62% of a 24-team run, the balanced walk 11%: a layout with the
+      eliminated bit on top needs no SIMD shuffle; or narrower moves, which span 15
+      of 23 rounds); home-and-away breaks exact since 2026-11-13 (pairLeastBreaks,
+      eval/pair-exact.txt): a floor-priced home-and-away timetable search on it, and
+      its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; 12 teams 124-132 open
+      (132 by eval/window-refill.c): below 132, or 124-130 ruled out; 18 teams:
+      refill from the climbed starter (356 from circle, starter 318); close 24-40
+      (tabu, the literature's starters); a real league's travel and blackout list;
+      printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
