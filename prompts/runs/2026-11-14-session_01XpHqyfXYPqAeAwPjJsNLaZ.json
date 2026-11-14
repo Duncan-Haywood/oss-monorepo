@@ -54,7 +54,7 @@
     "ventures/chant-forge/eval/liquescent-check-report.md"
   ],
   "goal": "Deepen a flagship: a held-out-tested liquescent detector so GABC transcriptions are checked against the printed book on more notes.",
-  "notes": "Liquescent rule set on 21 pieces (54/60, 2/4,584 false), frozen, then 11 pieces listed in eval/liquescent-fresh-pages.json before download: 20/26 read at pitch, 1/1,622 false + 1 unpaired added note. scan-check: +33 notes checked, no new disagreement. Same 11 pieces: rhombus 180/182 (5/1,428 false), quilisma 10/12 but 17/1,631 false (new top next: item). Verification: run_venture_tests.py chant-forge ok (21.3 s); shape-check and scan-check rerun against archive.org scans; venture-preflight.mjs chant-forge: "preflight clean", exit 0.",
+  "notes": "Liquescent rule set on 21 pieces (54/60, 2/4,584 false), frozen, then 11 pieces listed in eval/liquescent-fresh-pages.json before download: 20/26 read at pitch, 1/1,622 false + 1 unpaired added note. scan-check: +33 notes checked, no new disagreement. Same 11 pieces: rhombus 180/182 (5/1,428 false), quilisma 10/12 but 17/1,631 false (new top next: item). Verification: run_venture_tests.py chant-forge ok (21.3 s); shape-check and scan-check rerun against archive.org scans; venture-preflight.mjs chant-forge: preflight clean, exit 0.",
   "corrections": [],
   "redteam": null,
   "usage": {
