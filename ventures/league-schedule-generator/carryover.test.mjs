@@ -287,7 +287,12 @@ test("proved least carry-over: only on single non-cyclic round robins, and never
     const twice = opps(circleOpp(n), n).map((s) => [...s, ...s]);
     assert.equal(carryOverFromOpponents(twice).proven, null, "a double round robin has no proved least");
   }
-  assert.equal(carryOverFromOpponents(opps(circleOpp(12), 12)).proven, null, "12 teams: nothing proved yet");
+  // 12 teams: a proved lower bound (eval/carryover-bnb.c: none at 120 or 122), not a reached value
+  const c12 = carryOverFromOpponents(opps(circleOpp(12), 12));
+  assert.deepEqual(c12.proven, { least: 124, exact: false });
+  assert.ok(c12.value >= 124 && c12.lowerBound === 120);
+  assert.ok(lowCarryOverRounds(12, { seed: 1, effort: 0.3 }).coe >= 124, "12 teams: no search goes below the bound");
+  assert.equal(carryOverFromOpponents(opps(circleOpp(14), 14)).proven, null, "14 teams: nothing proved yet");
   // 8 teams: the proved least is the floor itself (the search above reaches it)
   assert.equal(carryOverFromOpponents(opps(circleOpp(8), 8)).lowerBound, PROVEN_LEAST[8].least);
 });

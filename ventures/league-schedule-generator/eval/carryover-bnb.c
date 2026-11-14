@@ -15,12 +15,20 @@
  * past EMAX is cut at once (E only grows). A round in which some unplaced team has no unused partner
  * left among the unplaced teams is cut too (forward check).
  *
- * Symmetry (relabelling the teams keeps the value, so one labelling of each timetable is enough):
- *  - round 0 is (0 1) (2 3) ... (n-2 n-1): any first round can be relabelled to it;
- *  - in round 1, team 0 meets team 2: the relabellings that keep round 0 and team 0 (so team 1)
- *    move team 2 to any team from 2 to n - 1;
- *  - in round 1, team 1 meets team 3 or team 4: those that also keep team 2 (so team 3) move team 4
- *    to any team from 4 to n - 1.
+ * Bound (2026-11-14, later). Inside one round every team is met exactly once, so each carry-over
+ * column gains exactly one entry and the costs of a round's pairs add without interacting. The
+ * least E that the teams still unplaced in a round can add is therefore an exact min-cost perfect
+ * matching, and a branch is cut when E plus it passes EMAX (can_pair: depth-first with the remaining
+ * budget, failures remembered per round start). It is checked at every node and when a round
+ * starts. Set NOBOUND=1 to turn it off.
+ *
+ * Symmetry (relabelling the teams keeps the value, so one labelling of each timetable is enough).
+ * Round 0 is (0 1) (2 3) ... (n-2 n-1): any first round can be relabelled to it. Rounds 0 and 1
+ * together form disjoint even cycles of length >= 4 that alternate between them, and the relabellings
+ * that keep round 0 (permute its pairs, swap inside a pair) take any round 1 to any other with the same
+ * cycle lengths. So round 1 is placed once per partition of n / 2 pairs into cycles of k >= 2 pairs
+ * (at 12 teams: 12, 8 + 4, 6 + 6, 4 + 4 + 4), not once per labelling (2026-11-14, later; the
+ * first version fixed only team 0's and team 1's round-1 opponents, OLDSYM=1 runs it).
  * Reversing the rounds transposes the carry-over matrix and keeps the value; it is not used.
  *
  * Build: cc -O3 -march=native -o carryover-bnb eval/carryover-bnb.c
@@ -48,6 +56,36 @@ static int cell[MAXN][MAXN];
 static int E;
 static long long nodes = 0, branch2 = 0;
 static int found = 0;
+static int use_bound = 1;
+/* best[r][mask]: least E any perfect matching of the teams in mask can add in round r, given rounds
+ * 0..r-1 as placed now (filled when round r starts). Within one round every team is met once, so
+ * each carry-over column gains exactly one entry and the pairs' costs add without interacting; the
+ * DP is therefore exact for the rest of the round. */
+static int failb[MAXN][1 << MAXN];      /* largest budget known to fail, valid when stamp matches */
+static unsigned stamp[MAXN][1 << MAXN], cur[MAXN];
+
+/* 1 if the teams in mask can be paired in round r (pairs not yet used) adding at most `budget` to E.
+ * Exact (depth-first over the lowest team's partners); failures are remembered per round start. */
+static int can_pair(int r, int mask, int budget) {
+  if (!mask) return 1;
+  if (stamp[r][mask] == cur[r] && failb[r][mask] >= budget) return 0;
+  int t = __builtin_ctz(mask), rest = mask & ~(1 << t);
+  int a = opp[r - 1][t];
+  for (int m = rest; m; m &= m - 1) {
+    int u = __builtin_ctz(m);
+    if (used[t][u]) continue;
+    int c = cell[a][u] + cell[opp[r - 1][u]][t];
+    if (c <= budget && can_pair(r, rest & ~(1 << u), budget - c)) return 1;
+  }
+  if (stamp[r][mask] != cur[r] || failb[r][mask] < budget) { stamp[r][mask] = cur[r]; failb[r][mask] = budget; }
+  return 0;
+}
+
+static int unplaced_mask(int r) {
+  int m = 0;
+  for (int t = 0; t < n; t++) if (opp[r][t] < 0) m |= 1 << t;
+  return m;
+}
 
 static void print_solution(void) {
   int c[MAXN][MAXN];
@@ -89,6 +127,10 @@ static void dfs(int r) {
     if (r == 2 && (branch2++ % parts) != part) return;
     if (r + 1 == R) { found = 1; print_solution(); return; }
     if (!round_ok(r + 1)) return;
+    if (use_bound) {
+      cur[r + 1]++;
+      if (!can_pair(r + 1, (1 << n) - 1, emax - E)) return;
+    }
     dfs(r + 1);
     return;
   }
@@ -106,11 +148,62 @@ static void dfs(int r) {
     }
     E += add;
     opp[r][t] = u; opp[r][u] = t; used[t][u] = used[u][t] = 1;
-    if (round_ok(r)) dfs(r);
+    if (round_ok(r) && (!use_bound || r == 0 || can_pair(r, unplaced_mask(r), emax - E))) dfs(r);
     opp[r][t] = -1; opp[r][u] = -1; used[t][u] = used[u][t] = 0;
     E -= add;
     if (r > 0) { cell[a][u]--; cell[b][t]--; }
     if (found) return;
+  }
+}
+
+/* Place round 1 as the cycle type `parts_k` (k1 + k2 + ... = n / 2, each >= 2): the pairs of round 0
+ * are taken k at a time and round 1 joins them into a cycle 2i, 2i+1, 2i+2, ..., 2i+2k-1, 2i. */
+static void place_pair(int r, int t, int u) {
+  int a = opp[r - 1][t], b = opp[r - 1][u];
+  E += cell[a][u] + cell[b][t];
+  cell[a][u]++; cell[b][t]++;
+  opp[r][t] = u; opp[r][u] = t; used[t][u] = used[u][t] = 1;
+}
+static void unplace_pair(int r, int t, int u) {
+  int a = opp[r - 1][t], b = opp[r - 1][u];
+  cell[a][u]--; cell[b][t]--;
+  E -= cell[a][u] + cell[b][t];
+  opp[r][t] = opp[r][u] = -1; used[t][u] = used[u][t] = 0;
+}
+static int kparts[MAXN], nk;
+static void try_round1(void) {
+  int i = 0;
+  for (int j = 0; j < nk; j++) {
+    int k = kparts[j];
+    for (int s = 0; s < k; s++) {
+      int t = 2 * (i + s) + 1, u = s + 1 < k ? 2 * (i + s + 1) : 2 * i;
+      place_pair(1, t < u ? t : u, t < u ? u : t);
+    }
+    i += k;
+  }
+  printf("round 1 cycle type");
+  for (int j = 0; j < nk; j++) printf(" %d", 2 * kparts[j]);
+  printf(": E %d\n", E);
+  fflush(stdout);
+  if (E <= emax && (!use_bound || (cur[2]++, can_pair(2, (1 << n) - 1, emax - E)))) dfs(2);
+  i = 0;
+  for (int j = 0; j < nk; j++) {
+    int k = kparts[j];
+    for (int s = 0; s < k; s++) {
+      int t = 2 * (i + s) + 1, u = s + 1 < k ? 2 * (i + s + 1) : 2 * i;
+      unplace_pair(1, t < u ? t : u, t < u ? u : t);
+    }
+    i += k;
+  }
+}
+/* Every partition of `left` pairs into parts >= 2, parts non-increasing. */
+static void each_type(int left, int maxk) {
+  if (found) return;
+  if (!left) { try_round1(); return; }
+  for (int k = left < maxk ? left : maxk; k >= 2; k--) {
+    kparts[nk++] = k;
+    each_type(left - k, k);
+    nk--;
   }
 }
 
@@ -120,13 +213,15 @@ int main(int argc, char **argv) {
   if (argc >= 5) { part = atoi(argv[3]); parts = atoi(argv[4]); }
   if (n < 6 || n > MAXN || n % 2 || emax < 0 || parts < 1 || part < 0 || part >= parts) return 2;
   R = n - 1;
+  if (getenv("NOBOUND")) use_bound = 0;
   memset(opp, -1, sizeof opp);
   for (int t = 0; t < n; t += 2) {
     opp[0][t] = t + 1; opp[0][t + 1] = t;
     used[t][t + 1] = used[t + 1][t] = 1;
   }
   clock_t c0 = clock();
-  dfs(1);
+  if (getenv("OLDSYM")) { cur[1]++; dfs(1); }
+  else each_type(n / 2, n / 2);
   double s = (double)(clock() - c0) / CLOCKS_PER_SEC;
   if (!found)
     printf("NONE: no %d-team round robin has non-cyclic carry-over <= %d (E <= %d)%s; "

@@ -18,3 +18,29 @@ FOUND value 94 (E 7), largest cell 2
 14608706 nodes, 2.0 s
 ## 12 teams (floor 120): ./carryover-bnb 12 0 P 4 for P = 0..3, one core each (shared with other work)
 no answer from any part; stopped after 1,388 s (23 min)
+# --- 2026-11-14, later: an exact per-round matching bound (can_pair) and round 1 fixed per cycle type.
+# Same container, one core each. Columns: the first version (OLDSYM=1 NOBOUND=1), the bound alone (OLDSYM=1),
+# the symmetry alone (NOBOUND=1), both (default). 10 teams, asked value <= 88 (E <= 4); every run says NONE:
+#   first version   246,093,831 nodes  33.5 s
+#   bound only       94,493,519 nodes  26.8 s
+#   symmetry only    27,868,791 nodes   3.9 s
+#   both             10,503,152 nodes   3.0 s
+## 10 teams, both (default), the same answers as the first version
+NONE: no 10-team round robin has non-cyclic carry-over <= 80 (E <= 0); 73009 nodes, 0.0 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 84 (E <= 2); 1393095 nodes, 0.4 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 88 (E <= 4); 10503152 nodes, 3.1 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 90 (E <= 5); 23536708 nodes, 6.6 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 92 (E <= 6); 47627348 nodes, 13.1 s
+FOUND value 94 (E 7), largest cell 2   (2,190,493 nodes, 0.7 s)
+## 6 and 8 teams: none at 40, a 42 found; the floor 48 found at 8
+## 12 teams (floor 120): ./carryover-bnb 12 E P 4 for P = 0..3, four processes on four cores
+NONE: no 12-team round robin has non-cyclic carry-over <= 120 (E <= 0) in this part; 455889176 nodes, 168.9 s
+NONE: no 12-team round robin has non-cyclic carry-over <= 120 (E <= 0) in this part; 460829317 nodes, 171.1 s
+NONE: no 12-team round robin has non-cyclic carry-over <= 120 (E <= 0) in this part; 461407331 nodes, 171.5 s
+NONE: no 12-team round robin has non-cyclic carry-over <= 120 (E <= 0) in this part; 463477319 nodes, 173.3 s
+NONE: no 12-team round robin has non-cyclic carry-over <= 122 (E <= 1) in this part; 3808746565 nodes, 1493.1 s
+NONE: no 12-team round robin has non-cyclic carry-over <= 122 (E <= 1) in this part; 3779032156 nodes, 1480.6 s
+NONE: no 12-team round robin has non-cyclic carry-over <= 122 (E <= 1) in this part; 3798280683 nodes, 1489.2 s
+NONE: no 12-team round robin has non-cyclic carry-over <= 122 (E <= 1) in this part; 3804399099 nodes, 1488.3 s
+# So the least at 12 teams is at least 124 (best known timetable: 136). 124 (E <= 2) was not run:
+# each step of 2 cost about 9x here, so about 4 h on four cores.
