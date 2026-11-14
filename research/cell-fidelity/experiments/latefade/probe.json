@@ -1,0 +1,66 @@
+{
+ "Ai2020@0.275x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.0157069299999932,
+   "error": null,
+   "r_min": 0.5367678847542291,
+   "current_A": 1.0911368062317426
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.6689538230000096,
+   "error": null,
+   "r_min": 0.5273614142292277,
+   "current_A": 1.0911368062317426
+  }
+ },
+ "Ai2020@0.35x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.1156980199999964,
+   "error": null,
+   "r_min": 0.4272773244497834,
+   "current_A": 1.3887195715676721
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.6505658829999845,
+   "error": null,
+   "r_min": 0.4066911259101386,
+   "current_A": 1.3887195715676721
+  }
+ },
+ "NCA_Kim2011@1.25x": {
+  "V0": {
+   "ok": false,
+   "cycles": 0,
+   "seconds": 0.8256901100000107,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.70399 A until 2.7 V', 'Charge at 1.70399 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "current_A": 1.7039922103213243
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.2390380150000055,
+   "error": null,
+   "r_min": -2.3328862091677056e-07,
+   "current_A": 1.7039922103213243
+  }
+ },
+ "kept": [
+  "Ai2020@0.275x",
+  "Ai2020@0.35x",
+  "NCA_Kim2011@1.25x"
+ ],
+ "kept_gate_rule": [
+  "Ai2020@0.275x",
+  "Ai2020@0.35x"
+ ],
+ "kept_note": "5n runs DFN only, so a condition is kept when its DFN probe passes (amended after the probe, before any bench run: the gate rule also needs SPMe, which fails at NCA_Kim2011@1.25x)"
+}
