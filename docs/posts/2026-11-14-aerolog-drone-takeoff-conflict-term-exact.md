@@ -1,6 +1,6 @@
 ---
 title: "The drone take-off conflict term has a closed form, and it doesn't care about altitude layers"
-seo_title: "Drone conflict rate take-off term: exact from hub sites and delivery maps"
+seo_title: "Drone take-off conflict term: exact from hub sites and delivery maps"
 date: 2026-11-14
 tags: [research, uav, airspace, geometric-probability]
 description: "Conflicts that begin at take-off or turnaround can be computed exactly from hub sites and destination lists. The term is layer-blind, scales as πR², and comes 60% from delivery points."
