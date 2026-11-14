@@ -28,6 +28,7 @@ MEDIA_EXTENSIONS = {
     ".mts",
     ".nef",
     ".orf",
+    ".pef",
     ".raf",
     ".r3d",
     ".rw2",

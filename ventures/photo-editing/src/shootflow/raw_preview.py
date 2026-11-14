@@ -25,7 +25,7 @@ import mmap
 import struct
 from pathlib import Path
 
-RAW_EXTENSIONS = frozenset({".arw", ".cr2", ".cr3", ".dng", ".nef", ".orf", ".raf", ".rw2", ".srw"})
+RAW_EXTENSIONS = frozenset({".arw", ".cr2", ".cr3", ".dng", ".nef", ".orf", ".pef", ".raf", ".rw2", ".srw"})
 MIN_PREVIEW_PIXELS = 160 * 120
 _SOI = b"\xff\xd8\xff"
 _SOF = frozenset(set(range(0xC0, 0xD0)) - {0xC4, 0xC8, 0xCC})
@@ -70,15 +70,19 @@ def is_srw_path(path: Path) -> bool:
     return path.suffix.lower() == ".srw"
 
 
-def needs_profile_path(path: Path) -> bool:
-    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CR2, ARW, NEF, ORF, RW2, SRW)."""
+def is_pef_path(path: Path) -> bool:
+    return path.suffix.lower() == ".pef"
 
-    return is_cr2_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path)
+
+def needs_profile_path(path: Path) -> bool:
+    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CR2, ARW, NEF, ORF, RW2, SRW, PEF)."""
+
+    return is_cr2_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path)
 
 
 def is_developable_path(path: Path) -> bool:
     """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
-    Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2 and Samsung SRW given a camera profile (``camera_profiles``)."""
+    Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW and Pentax PEF given a camera profile (``camera_profiles``)."""
 
     return is_dng_path(path) or needs_profile_path(path)
 

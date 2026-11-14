@@ -24,7 +24,8 @@ pure-Python decoder stays the reference (``tests/test_nef.py`` runs both), and
 (``tests/test_orf.py`` runs both), and ``shootflow_panasonic_run``, the whole
 Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both), and the three Samsung SRW
 decoders of ``shootflow.srw`` (``shootflow_samsung_rows_run``, ``_huffman_run``, ``_blocks_run``;
-``tests/test_srw.py`` runs both).
+``tests/test_srw.py`` runs both), and ``shootflow_pentax_run``, the Pentax PEF decode of
+``shootflow.pef`` (``tests/test_pef.py`` runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -505,6 +506,44 @@ long shootflow_samsung_huffman_run(const uint8_t *d, long len, long width, long 
     return 0;
 }
 
+/* Pentax PEF compression 65535 (shootflow.pef; dcraw's pentax_load_raw): lut is 4096 entries of
+   (code length << 8) | difference bits, from the maker note's 0x0220 table, read 12 bits ahead MSB first.
+   Returns 0, or -1 when a value leaves [0, 2^bits) or a code length is 0. */
+long shootflow_pentax_run(const uint8_t *d, long len, long width, long height, int bits,
+                          const uint16_t *lut, uint16_t *out)
+{
+    uint64_t acc = 0;
+    int nb = 0;
+    long p = 0, k = 0;
+    int vpred[2][2] = {{0, 0}, {0, 0}}, hpred[2] = {0, 0};
+    long limit = 1L << bits;
+#define PX_FILL(n) while (nb < (n)) { acc = acc << 8 | (p < len ? d[p] : 0); p++; nb += 8; }
+    for (long row = 0; row < height; row++) {
+        int *vp = vpred[row & 1];
+        for (long col = 0; col < width; col++) {
+            PX_FILL(12);
+            unsigned e = lut[(acc >> (nb - 12)) & 4095];
+            if (!(e >> 8)) return -1;
+            nb -= e >> 8;
+            int n = e & 0xFF;
+            int v = 0;
+            if (n) {
+                PX_FILL(n);
+                nb -= n;
+                v = (int)((acc >> nb) & ((1u << n) - 1));
+                if (!(v >> (n - 1))) v -= (1 << n) - 1;
+            }
+            if (col < 2) { vp[col] += v; hpred[col] = vp[col]; }
+            else hpred[col & 1] += v;
+            int h = hpred[col & 1];
+            if (h < 0 || h >= limit) return -1;
+            out[k++] = (uint16_t)h;
+        }
+    }
+#undef PX_FILL
+    return 0;
+}
+
 /* Compression 32773 (samsung3_load_raw). out holds (height + 2) * width sensels, the frame from row 2.
    Returns 0, or -1 on a bad bit length. */
 long shootflow_samsung_blocks_run(const uint8_t *d, long len, long start, long width, long height, uint16_t *out)
@@ -680,6 +719,7 @@ def _load():
         ("samsung_rows", [ctypes.c_char_p] + [ctypes.c_long] * 5 + [ctypes.c_void_p]),
         ("samsung_huffman", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
         ("samsung_blocks", [ctypes.c_char_p] + [ctypes.c_long] * 4 + [ctypes.c_void_p]),
+        ("pentax", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
     ):
         f = getattr(lib, f"shootflow_{name}_run")
         f.restype = ctypes.c_long
@@ -951,3 +991,23 @@ def samsung_blocks_run(data: bytes, start: int, width: int, height: int) -> arra
 
         raise DevelopError("SRW: the 32773 stream is invalid (bad bit length)")
     return out[2 * width :]
+
+
+def pentax_run(data: bytes, width: int, height: int, bits: int, lut: array) -> array | None:
+    """``shootflow.pef`` compression 65535 in C (``lut``: 4096 entries of ``(length << 8) | bits``): an
+    ``array('H')``, or None without the native library. Raises ``DevelopError`` where the Python reference would."""
+
+    fn: Any = _srw_call("pentax")
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    lut = array("H", lut)
+    if len(lut) != 4096:
+        raise ValueError("the Pentax lookup has 4096 entries")
+    out = array("H", [0]) * max(1, width * height)
+    if fn(data, len(data), width, height, bits, lut.buffer_info()[0], out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("PEF: the compressed stream is invalid (a value out of range or an unassigned code)")
+    del out[width * height :]
+    return out
