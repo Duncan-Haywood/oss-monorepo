@@ -96,6 +96,7 @@ import {
   surfaceExternalFetchHosts,
   CARD_FOOTER,
   CARD_FOOTER_EXCEPTION,
+  EXCEPTION_NOUN,
   COMPARE_PATH,
   RESEARCH_PATH,
   COMPARISON_FILE_PATTERN,
@@ -4697,7 +4698,7 @@ test('a category holding a documented external-call exception says so, not "noth
       // (privacyClaimParts); the line itself then counts them.
       const [, folded] = html.match(/<\/p>\s*<details class="count-exceptions">[\s\S]*?<p>([\s\S]*?)<\/p><\/details>/) ?? [];
       if (exceptions.length > 3) {
-        assert.ok(count.includes(`except on the ${exceptions.length} lookup tools listed below`), `${category.id}: "${count}"`);
+        assert.ok(count.includes(`except on the ${exceptions.length} ${EXCEPTION_NOUN} listed below`), `${category.id}: "${count}"`);
         assert.ok(folded, `${category.id} counts ${exceptions.length} exceptions but lists none under the count line`);
       }
       const named = exceptions.length > 3 ? folded : count;
@@ -4715,6 +4716,33 @@ test('a category holding a documented external-call exception says so, not "noth
         `${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded`,
         `${category.id} holds no exception, so its count line should make the unconditional claim`,
       );
+    }
+  }
+});
+
+test('the shared footer counts the external-call exceptions and folds their names, so its Privacy paragraph stays short', async () => {
+  // Inlined, the ~50 tool names and ~40 hosts made the footer's Privacy
+  // paragraph 499 words (1,742 px on a 390 px phone) on every page that
+  // carries it, and called every one of them "a live public API as its whole
+  // job", which most are not. polish-2026-11-14-footer-fold.md.
+  const { surfaces } = await site();
+  const exceptions = externalCallExceptions(surfaces);
+  assert.ok(exceptions.length > 1, 'expected several externalCallExceptions entries to exercise this test');
+  for (const page of [['index.html'], ['about', 'index.html']]) {
+    const html = await read(...page);
+    const footer = html.slice(html.lastIndexOf('<footer'));
+    const [, privacy] = footer.match(/<h2>Privacy<\/h2>\s*<p>([\s\S]*?)<\/p>/) ?? [];
+    assert.ok(privacy, `${page.join('/')}: no Privacy paragraph in the footer`);
+    const words = privacy.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+    assert.ok(words < 260, `${page.join('/')}: footer Privacy paragraph is ${words} words`);
+    assert.ok(privacy.includes(`Except on ${exceptions.length} ${EXCEPTION_NOUN}`), `${page.join('/')}: the paragraph must still count the exceptions`);
+    assert.doesNotMatch(privacy, /whole job/);
+    const [, folded] = footer.match(/<details class="pfs-exceptions">([\s\S]*?)<\/details>/) ?? [];
+    assert.ok(folded, `${page.join('/')}: the exception list is not in the footer`);
+    for (const x of exceptions) {
+      const name = toolProseName(x.title).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      assert.ok(folded.includes(name), `${page.join('/')}: footer list omits ${name}`);
+      for (const h of x.hosts) assert.ok(folded.includes(h), `${page.join('/')}: footer list omits host ${h}`);
     }
   }
 });
