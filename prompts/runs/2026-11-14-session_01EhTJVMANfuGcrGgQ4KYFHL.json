@@ -44,7 +44,7 @@
     "docs/posts/2026-11-14-lensfun-16-bit-stripes.md",
     "ventures/photo-editing/eval/lensfun-vignetting-paths-2026-11-14.md"
   ],
-  "goal": "Know which of liblensfun's five devignetting routines ShootFlow's float64 vignetting matches, and how far the others are off.",
+  "goal": "Know which of liblensfun's devignetting routines (plain, SSE, SSE2; float and 16-bit) ShootFlow's float64 vignetting matches, and how far the others are off.",
   "notes": "tools/lensfun_vignetting_paths_check.py drives liblensfun 0.3.4 (bundled with lensfunpy 1.18.0) through ctypes with RGBA rows, aligned (SIMD) or offset by one sample (plain control), on 40,730 cases (474 lenses) at 1,202 and 6,002 px. Float SSE equals plain to float rounding but scales the UNKNOWN/alpha channel (up to 6.9x); 16-bit plain truncates the gain to 1/1024 (mean -3.97 steps at 8192, model exact); 16-bit SSE2 lanes drift (p99 4.2% at 1,202 px, 0.91% at 6,002 px; worst 24.8%/7.1%) and the w%4 tail is wrong in every case; a numpy model with both faults matches the library on all 1,628 + 212 sampled cases within one fraction unit plus _mm_rcp_ps's bound. Same loop on lensfun master (read 2026-11-14). darktable's lens.cc confirmed to pass LF_CR_4 float rows. Local verification: venture suite via platform/ci/run_venture_tests.py photo-editing ok (149.9 s); new tests 8 pass with numpy+lensfunpy and skip under bare python3; 5 of 6 seeded faults caught (SSE2 fraction rounding is inside the rcp tolerance by design). Not filed upstream (outward-facing; left to the owner).",
   "corrections": [],
   "redteam": null

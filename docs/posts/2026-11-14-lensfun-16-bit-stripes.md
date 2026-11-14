@@ -1,14 +1,14 @@
 ---
 title: "Lensfun's 16-bit vignetting draws stripes every four pixels"
-seo_title: "lensfun SSE2 vignetting bug: 4-pixel stripes and a broken last column, measured on 40,730 cases"
+seo_title: "lensfun SSE2 vignetting: 4-pixel stripes on 40,730 cases"
 date: 2026-11-14
 tags: [photo-editing, ventures, raw, lensfun]
-description: "Lensfun 0.3.4 has five vignetting routines. We ran all of them through ctypes. The 16-bit SSE2 one drifts into 4-pixel stripes and gets each row's last pixels wrong."
+description: "We ran lensfun 0.3.4's float and 16-bit vignetting code through ctypes. Its 16-bit SSE2 loop draws 4-pixel stripes and breaks each row's end."
 ---
 
 [ShootFlow](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-editing) develops raw photos on your own machine. It brightens dark lens corners using [lensfun](https://lensfun.github.io/)'s open database of lens measurements. [Yesterday](2026-11-13-two-lensfuns-two-corners.md) we checked that correction against lensfun's compiled code: 97,382 cases, a median gap of about one part in a million.
 
-That check had a blind spot. We reached lensfun through its Python package, lensfunpy, which only accepts three-channel images. Lensfun itself has five vignetting routines. It picks one from the pixel type, the number of channels per pixel, and whether the image buffer starts on a 16-byte boundary. With three channels you always get the plain one. darktable passes four channels, so it gets a different routine. So "ShootFlow matches lensfun" only covered one of the five.
+That check had a blind spot. We reached lensfun through its Python package, lensfunpy, which only accepts three-channel images. Lensfun itself picks its vignetting code, a plain loop or an SSE or SSE2 one, from the pixel type, the number of channels per pixel, and whether the image buffer starts on a 16-byte boundary. With three channels you always get the plain one. darktable passes four channels, so it gets a different routine. So "ShootFlow matches lensfun" only covered the plain loop.
 
 ## Calling the library directly
 

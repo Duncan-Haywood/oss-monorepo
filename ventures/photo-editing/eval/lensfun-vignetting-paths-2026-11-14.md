@@ -8,7 +8,7 @@ Follow-up to `eval/lensfun-vignetting-released-2026-11-13.md`, whose next items 
 ShootFlow corrects vignetting in float64 (`lens_profiles.build_vignette` writes a FixVignetteRadial that the
 develop applies to float planes), then rounds to 16 bits once when it writes the master. The released check
 showed that our gains match lensfun's plain float32 loop. But a photographer comparing our corners with
-another program's isn't comparing with that loop. Lensfun picks one of five devignetting routines from the
+another program's isn't comparing with that loop. Lensfun picks its devignetting routine (the plain loop, SSE or SSE2) from the
 pixel format, the number of components and the buffer's alignment. darktable hands it four-component float
 rows, so it uses the SSE routine. A 16-bit RGBA caller gets the SSE2 one. Before we could say "our corners
 match lensfun", we had to know which lensfun.

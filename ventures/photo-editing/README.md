@@ -1755,7 +1755,7 @@ seeded faults all caught. Details: `eval/lensfun-vignetting-released-2026-11-13.
 ### Which lensfun? Its SSE, 16-bit and SSE2 paths (2026-11-14)
 
 The check above reached only lensfun's plain float32 loop, because lensfunpy takes 3-channel images.
-Lensfun 0.3.4 picks one of five devignetting routines from the pixel format, the component count and the
+Lensfun 0.3.4 picks its devignetting routine (plain, SSE or SSE2) from the pixel format, the component count and the
 buffer's alignment. `tools/lensfun_vignetting_paths_check.py` drives the bundled liblensfun through
 `ctypes` with RGBA rows, aligned and not, on 40,730 cases (474 lenses, 1,202 and 6,002 px wide):
 
