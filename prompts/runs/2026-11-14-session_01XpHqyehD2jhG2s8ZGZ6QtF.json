@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyehD2jhG2s8ZGZ6QtF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T19:39:22Z",
+  "ended": "2026-11-14T19:51:24Z",
+  "wall_minutes": 12.23,
+  "tokens_in": 8385886,
+  "tokens_out": 56420,
+  "cost_usd": 4.1082,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15958",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "System python's Pillow is broken (ImportError _imaging); worked around with pdfimages PPM output and a stdlib parser.",
+    "Digitiser first read the plot frame as the model line and mis-paired Figure 13's gridlines by one step; both caught by sanity checks before any efficiency was printed (LOG.md 6p)."
+  ],
+  "integrity_issues": [
+    "Predictions GB1 and GB2 were written after viewing the figures by eye; disclosed in LOG.md as not blind."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/HOSTS",
+      "issue": "Says huggingface.co is refused at CONNECT; it answered 200 this session, so the comment is stale between sessions."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No note that system python's Pillow can be broken (_imaging missing); raster digitisation needs a stdlib PPM route via pdfimages."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "why": "Stated method said stdlib plus Pillow; Pillow was broken",
+      "did": "stdlib PPM reader over pdfimages output",
+      "result": "worked; rerun from fresh fetch byte-identical"
+    },
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "why": "Excavator sweep not rerun at the bench efficiency, to keep the step to one PR",
+      "did": "bounded the share by the committed Casappa sweep (monotone in c): at least 94.8%",
+      "result": "conclusion stands as a bound; rerun listed as Next (b)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-gear-pump-on-the-bench-beats-its-catalogue.md",
+    "research/heavy-hydraulics/LOG.md (6p)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7p"
+  ],
+  "goal": null,
+  "notes": "Milestone 6p of heavy-hydraulics: bench-measured Casappa KP30 (Frosina et al. 2017) reads 0.913 overall at 150 bar, 2100 r/min (0.881 worst of six variants), above the 0.82-0.83 crux and 0.15 above Casappa's catalogue (0.764). Local checks: 72 tests pass (python3.13 pytest), check_numbers 314/0 missing, build_tex 0 problems, homepage build ok, md links ok, cite_check ok, post front matter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "719e401d-2cfa-569e-b41b-f0d222107d5b",
+    "transcripts": 1,
+    "first": "2026-11-14T19:39:22Z",
+    "last": "2026-11-14T19:51:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 127,
+        "output": 56420,
+        "thinking": 16703,
+        "cache_read": 8218824,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166935,
+        "api_equivalent_usd": 4.1082,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 127,
+      "output": 56420,
+      "thinking": 16703,
+      "cache_read": 8218824,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166935,
+      "api_equivalent_usd": 4.1082,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 61,
+      "Read": 4,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.23,
+      "active_minutes": 12.23,
+      "model_minutes": 8.93,
+      "tool_minutes": 3.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "finding the bench source, digitising three raster figures, analysis and paper section, as a hydraulics PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 243.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
