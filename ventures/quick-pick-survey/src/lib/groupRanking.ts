@@ -444,6 +444,35 @@ export function slotRunsAtTurns(answers: { participantId: string; result: string
   return out;
 }
 
+/**
+ * Fast turns read with fastBlockStarts' wander bar off (walkQ 0), every other bar as the default: the turns
+ * slotBlocksBackToTurns moves a slot run's cut back to. The wander bar is there so a wandering pace does not cut an
+ * honest person on their times alone; the move back cuts nobody on times alone (only someone the slot run test already
+ * flagged), so the bar would only hide real turns. Under a 0.08-0.12 log-per-answer walk it hides most of them.
+ */
+export function looseFastTurns(answers: (AnswerTime & Partial<Omit<ReplayAnswer, "participantId" | "ms">>)[]): Map<string, number> {
+  return fastBlockStarts(answers, FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, 0);
+}
+
+/**
+ * Slot blocks whose cut moves back to an earlier fast turn: for each respondent the slot run test flagged from `from`
+ * (slotBlockStarts), the turn in `turns` (looseFastTurns) when it comes before the run. A bored respondent often turns
+ * quick first and answers on a coin for a while before settling on one position; the run test sees only the run, so the
+ * coin-flip answers between the turn and the run stayed in the ranking. Nobody is flagged here who was not flagged
+ * already, so honest people are exposed only at the run test's own rate (0.01-0.16% in simulation). Under a wandering
+ * pace, where the run starts after the speed-up, it recovered +0.0008 Spearman on average over the default before it (up
+ * to +0.0045, never significantly below; docs/INFORMATION-GAIN-SELECTOR.md, "A slot run's cut moved back to an earlier
+ * fast turn").
+ */
+export function slotBlocksBackToTurns(from: Map<string, number>, turns: Map<string, number>): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const [id, at] of from) {
+    const t = turns.get(id);
+    if (t !== undefined && t < at) out.set(id, t);
+  }
+  return out;
+}
+
 /** One plain sentence for the owner when slot blocks were left out, or "". */
 export function slotBlockAdvice(people: number, answersLeftOut: number): string {
   if (people === 0) return "";

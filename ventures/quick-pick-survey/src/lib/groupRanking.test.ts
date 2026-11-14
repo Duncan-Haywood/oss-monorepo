@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, SLOT_BLOCK_ALPHA, SLOT_BLOCK_MIN, fairCoinTail, slotBlockAdvice, slotBlockStarts, slotFlags, SLOT_BLOCK_MIN_KEPT, slotRunsAtTurns, SLOT_AT_TURN_MIN, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, SLOT_BLOCK_ALPHA, SLOT_BLOCK_MIN, fairCoinTail, slotBlockAdvice, slotBlockStarts, slotFlags, SLOT_BLOCK_MIN_KEPT, slotRunsAtTurns, slotBlocksBackToTurns, looseFastTurns, SLOT_AT_TURN_MIN, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -297,6 +297,18 @@ describe("slotBlockStarts", () => {
     expect(slotRunsAtTurns(seq("short", honest(20) + "e".repeat(10) + "a".repeat(SLOT_AT_TURN_MIN - 1)), new Map([["short", 20]])).size).toBe(0);
     expect(() => slotRunsAtTurns([], new Map(), 0)).toThrow();
     expect(() => slotRunsAtTurns([], new Map(), 0.01, 0)).toThrow();
+  });
+  it("slotBlocksBackToTurns moves a slot run's cut back to an earlier turn, and flags nobody new", () => {
+    // Honest for 20, then quick and mostly on the bottom slot (a coin the run test cannot see), then 20 on the top slot.
+    const answers = seq("drift", honest(20) + "bbabbbabbbabbbabbbab" + "a".repeat(20));
+    const from = slotBlockStarts(answers);
+    expect(from.get("drift")).toBeGreaterThanOrEqual(30);
+    // From the turn the slots are 26 of 40 on top: not a lean slotRunsAtTurns takes, so only the move back cuts there.
+    expect(slotRunsAtTurns(answers, new Map([["drift", 20]])).size).toBe(0);
+    expect([...slotBlocksBackToTurns(from, new Map([["drift", 20], ["other", 5]]))]).toEqual([["drift", 20]]);
+    // A turn at or after the run's start, or none, leaves the run's own cut.
+    expect(slotBlocksBackToTurns(from, new Map([["drift", from.get("drift")!]])).size).toBe(0);
+    expect(slotBlocksBackToTurns(from, new Map()).size).toBe(0);
   });
   it("slotRunsAtTurns flags honest coin-flip slots at most alpha of the time, however the turns were chosen", () => {
     let s = 777;
@@ -628,6 +640,17 @@ describe("fastBlockStarts", () => {
     expect(flagged(blocks, 0)).toEqual(["p0", "p1", "p2"]);
     expect(flagged(blocks)).toEqual(["p0", "p1", "p2"]);
     expect(() => fastBlockStarts(wander, undefined, "auto", undefined, undefined, undefined, 1.5)).toThrow();
+  });
+  it("looseFastTurns reads the turns with the wander bar off, so a slot run can move back to a turn a wandering pace hides", () => {
+    // The same seeded panels: under wander the default reading names nobody and looseFastTurns names the three the bar
+    // removed (honest, and cut only if the slot run test flags them anyway); with nobody wandering the two agree.
+    const draws = (seed: number) => { let s = seed >>> 0; const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 2 ** 32; }; return () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u()); };
+    const seqs = (sd: number, blocks: number) => Array.from({ length: 20 }, (_, k) => { const z = draws(400 + k); let l = 0; return Array.from({ length: 60 }, (_, i) => { if (i) l += sd * z(); return 3000 * Math.exp(l + 0.35 * z() - (k < blocks && i >= 30 ? 0.6 : 0)); }); });
+    const answers = (q: number[][]): AnswerTime[] => Array.from({ length: 60 }, (_, i) => q.map((x, p) => ({ participantId: `p${p}`, ms: x[i] }))).flat();
+    const wander = answers(seqs(0.08, 0)), blocks = answers(seqs(0, 3));
+    expect(fastBlockStarts(wander).size).toBe(0);
+    expect([...looseFastTurns(wander).keys()].sort()).toEqual(["p11", "p18", "p3"]);
+    expect([...looseFastTurns(blocks)]).toEqual([...fastBlockStarts(blocks)]);
   });
   it("under a wandering pace, also counts a block whose picks stop agreeing with the panel (picks given)", () => {
     // Twenty people, 60 answers on random pairs of 12 items, everyone's pace wandering N(0, 0.08) log per answer (seeded).
