@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydJmdAxpTVBkEC1ARV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T21:39:54Z",
+  "ended": "2026-11-14T21:54:42Z",
+  "wall_minutes": 14.96,
+  "tokens_in": 12076851,
+  "tokens_out": 47633,
+  "cost_usd": 4.6073,
+  "tool_calls": 96,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15989",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/scan-check.mjs",
+      "issue": "Note names in the report used the piece's first clef for every note, so after a clef change the 'GABC note' column showed letters that are not in the file (3437 'hh' shown as 'j'); fixed this run by giving gabcSteps notes their clefLine."
+    },
+    {
+      "file": "ventures/chant-forge/eval/scan-cache.mjs",
+      "issue": "The default cache in /tmp was empty at the start of this session (a fresh container), so the first full run of the eight lists took ~15 min of downloads. That is expected, but the flagship row does not say so; start the baseline in the background first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-chant-clef-in-the-middle-of-the-line.md",
+    "ventures/chant-forge/eval/clef-change-check.md"
+  ],
+  "goal": null,
+  "notes": "Routed ventures/1; allocate.py picked flagship row 9 chant-forge. Looked at the largest remaining cluster of scan-vs-GABC differences (GregoBase 3437, 16 of 73): a mid-staff C clef the reader did not read. Added findClefChanges (scan.mjs) with 3 drawn-page tests. Earlier 74 piece checks: differences 73->57, no piece worse, 11/11 clefs found real (crops looked at). Held-out list of 14 pieces committed (separate commit) before download: differences 129->13, 12/12 clefs real. Found and corrected a GregoBase 3775 slip (f f f f transcribed, h h h h printed). Local verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok (22.7s); portfolio/router/validate.py valid.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c8f6e2f2-e566-5595-ac36-2b8c2989839a",
+    "transcripts": 1,
+    "first": "2026-11-14T21:39:54Z",
+    "last": "2026-11-14T21:54:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 93,
+        "input": 181,
+        "output": 47633,
+        "thinking": 12780,
+        "cache_read": 11917882,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158788,
+        "api_equivalent_usd": 4.6073,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 93,
+      "input": 181,
+      "output": 47633,
+      "thinking": 12780,
+      "cache_read": 11917882,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158788,
+      "api_equivalent_usd": 4.6073,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 78,
+      "Read": 6,
+      "Monitor": 3,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.96,
+      "active_minutes": 14.69,
+      "model_minutes": 8.06,
+      "tool_minutes": 6.62,
+      "waiting_on_human_minutes": 0.27,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OMR engineer diagnosing the fault, writing and validating a glyph detector on held-out pages and checking a transcription by eye",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 217.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
