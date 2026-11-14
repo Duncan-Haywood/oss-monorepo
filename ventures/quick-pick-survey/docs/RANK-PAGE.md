@@ -401,3 +401,84 @@ lists; the 60-option clear-cut and ordinary rows are in the data.
 Limits: simulated people only, evenly spaced true scores, no ties, no
 fatigue, warm-up or position habits. The favourite mode was not measured
 here.
+
+## Find my top k (2026-11-14)
+
+A common job is not "rank all 20" but "which 3 go on the shortlist": three
+candidates to interview, five features for the quarter, three names to test.
+The full-order mode was a poor fit for it, measured below: its stop rule
+counts every place equally, so it stops with the cut between place k and k+1
+often wrong.
+
+**The mode** ("Find my top k" on the setup screen, k from 2 to one less than
+the list; `site/rank-core.mjs`):
+
+- `topKChances`: each option's chance of being in the top k, from 600
+  posterior draws.
+- `nextPair(..., { mode: "top", k })` pairs only options that could still be
+  either side of the cut (1% to 99% chance of being in; `TOP_POOL`
+  "boundary"), with the usual information score inside that pool. A "live"
+  pool (everything with at least 1%) was measured too and was level or
+  slightly behind.
+- `topStopCheck`: stops when the shortlist is 90% settled, read as the mean
+  share of the shown k that a plausible order also puts in its top k
+  (`topSetConfidence`, `TOP_MEASURE` "overlap"), rechecked at the person's
+  own empirical-Bayes prior as `stopCheck` does. The exact-set chance was
+  tried first and almost never passed 0.9 for anyone who ever errs (the same
+  lapse allowance that sank "every neighbour settled", above).
+- The results line names the k with each one's chance of really being in
+  the top k, and the closest option left out with its chance.
+
+**The sweep** (`node scripts/top-k-sweep.mjs --runs 16`, rows in
+`docs/top-k-2026-11-14.jsonl`): 10, 15, 20 and 30 options, k = 3 and 5,
+spreads 100 (never wrong), 6 (ordinary) and 3 (close calls), 16 simulated
+people a cell, every arm on the same people and the same answer stream.
+Totals over the cells (exact = the shown top k is exactly the true top k as a
+set; share = the mean share of the shown k truly in it):
+
+| people | options | full order: exact / share / picks | full-order picker, shortlist stop | shortlist mode |
+|---|---|---|---|---|
+| never wrong | 10 | 32/32, 1.00, 66 | 32/32, 1.00, 85 | 32/32, 1.00, 78 |
+| never wrong | 15-30 | 91/96, 0.99, 465 | 96/96, 1.00, 1,013 | 96/96, 1.00, 558 |
+| ordinary | 10 | 26/32, 0.955, 102 | 28/32, 0.971, 109 | 27/32, 0.956, 98 |
+| ordinary | 15-30 | 25/96, 0.757, 656 | 31/96, 0.791, 1,146 | **54/96, 0.883, 1,039** |
+| close calls | 10 | 8/32, 0.768, 116 | 7/32, 0.768, 124 | 12/32, 0.833, 117 |
+| close calls | 15-30 | 12/96, 0.685, 905 | 15/96, 0.704, 1,171 | 23/96, 0.755, 1,164 |
+
+(picks are the sum of the cells' mean picks, so the columns compare directly.)
+
+What it says:
+
+- **Ordinary answerers on 15-30 options: the right shortlist twice as
+  often**, 56% against 26%, at about 1.6 times the questions. E.g. 20
+  options, top 3: 12/16 exact at 161 picks against 4/16 at 86; 20 options,
+  top 5: 7/16 against 0/16.
+- **The picker does the work, not just the stricter stop.** The full-order
+  picker run to the same shortlist stop reached 31/96 at 1,146 picks; the
+  shortlist picker 54/96 at 1,039.
+- **Clear-cut people pay about a fifth more questions** (558 against 465 on
+  15-30 options) for a shortlist the full order mostly had right anyway (the
+  full order missed 5 of 16 at 30 options, top 5).
+- **10 options: no gain for ordinary answerers**, a small one for close calls
+  (12/32 against 8/32). Short lists are already asked nearly every pair.
+- **Close calls on long lists: most runs hit the 2 n log2 n cap** in every
+  mode; the shortlist mode still gets more of it right (23/96 against 12/96).
+- **A looser stop (0.8) was rejected** (`docs/top-k-level-0.8-2026-11-14.jsonl`,
+  10-20 options, top 3): it asks about as many questions as the full order
+  (15 options, ordinary: 68 against 73) and is right about as often (5/16
+  against 4/16), so it buys nothing.
+- The stop reads 0.9 where the true share was 0.88 (ordinary, 15-30): close to
+  calibrated. Near coin flips never read settled (pinned by a test).
+
+Checks: three tests in `site/rank-core.test.mjs` (the picker asks about the
+options at the cut more than the full-order picker, red with the shortlist
+pool switched off; chances sum to k and a blank list is unsettled; the stop
+skips the prior search until the fixed read passes, reports the lower read,
+and never calls a 25-option coin-flip run settled). Browser (Chromium, 390 px):
+a k larger than the list is refused with a message; a scripted consistent
+respondent on 10 options stopped at 39 picks naming the true top 3; no
+horizontal scroll, no console errors. The page counts the mode chosen
+(`mode:<order|favourite|top>`, local only).
+
+Limits: simulated people, evenly spaced scores, no ties or fatigue; a shared
+link still opens in full-order mode.
