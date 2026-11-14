@@ -26,6 +26,10 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on leak 
 
 **Step 11 (2026-11-13): where is the leak? Ten times better than chance, no better than the obvious sensor.** Leak localisation with WNTR sensitivities on the nominal L-Town model (782 junctions simulated, correlation with the pressure residual) puts **31% (D1-F) and 36% (LILA) of the detected 2019 leaks within BattLeDIM's 300 m**, and 47% of all 32 leaks when localised at half-peak flow; a random junction manages about 4%. But naming the sensor whose pressure fell most does as well (13 of 32, median error 420 m against the model's 436 m; paired P = 0.75). Pre-registered H3 is inconclusive; an uncalibrated nominal model adds nothing on this benchmark ([step 11](#step-11-model-based-localisation-on-the-nominal-model-srcwater_leakslocalisepy-experimentsstep11-localise)).
 
+**Step 12 (2026-11-14): richer leak signatures make localisation worse.** Two textbook fixes to step 11's localiser, a time-resolved (hour-by-hour) signature and a leak size estimated from the inflow balance, put **12 of 32 leaks within 300 m** (step 11's 24 h mean: 15; the most-affected sensor: 13). Under the pre-registered primary method, H3 is **refuted** (23% and 29% of detected 2019 leaks). The inflow balance sizes only 12 of 32 leaks within a factor of 2, and the nominal model's pump control adds a 0.9 m artefact at one hour of the day. Along the way, a rounding defect in step 11's scoring is fixed; no step 11 count changes ([step 12](#step-12-time-resolved-and-size-matched-signatures-experimentsstep12-timesize)).
+
+![Cumulative localisation error, 32 oracle-timed leaks, four signature variants](experiments/step12-timesize/localisation_error.svg)
+
 We also found that **the released LILA identification code is not a blind detector**: its notebook writes in, for each known 2019 leak, the pipe, its most affected sensor and the calibration windows, and then dates that one leak (it prints a 0 h delay for p523). Our automatic version runs LILA's identification over a whole year without those inputs; we know of no earlier such run.
 
 ![D1 and automatic LILA against random alarms on the 2019 new leaks](experiments/step2-lila/lila_vs_chance.svg)
@@ -220,6 +224,28 @@ Plan, set before any simulation or localisation was computed: [`LOG.md`](LOG.md)
 - **Pre-registered predictions.** (a) H3 not held: **held**. (b) Oracle-timed localisation beats chance: **held**. (c) Model's median error below the sensor's: **failed**. (d) Same junction for q = 1, 5, 20 on &ge; 80% of leaks: **failed** (12%): signatures grow faster than q (largest 0.04, 0.32, 2.8 m) and neighbouring junctions look alike at 33 sensors, so the argmax moves between neighbours.
 - **Where it works and where it does not.** Of the 15 leaks that reach half their peak within an hour of onset, 10 are localised within 300 m (p523 22 m, p673 22 m, p426 25 m, p183 31 m); the slow ramps (p193, p277, p455, p123, p654) are 0.6 to 2.8 km off for every method.
 
+## Step 12: time-resolved and size-matched signatures (`experiments/step12-timesize/`)
+
+Plan, set before any new signature or localisation was computed: [`LOG.md`](LOG.md), 2026-11-14 (step 12).
+
+**Question.** Step 11's localiser averaged the leak signature over 24 h and assumed a 5 m³/h leak, and its argmax moved with the assumed size. Does keeping the signature hour by hour, or sizing the leak from the flow balance, put more leaks within 300 m?
+
+**Method.** As step 11, with each junction's pressure change at the 33 sensors kept for each of the 24 hours, at q = 1, 2, 5, 10, 20, 30 m³/h (4,692 EPANET runs). Time-resolved scoring correlates the 24 &times; 33 residual with each 24 &times; 33 signature, aligned by hour of day, each hour centred across sensors. Leak size q&#770;: the 24 h mean residual of the two reservoir inflows (p227 + p235) under the same regression, rounded to the nearest grid size in log scale. Methods: A (step 11: 24 h mean, q = 5), B (time-resolved, q = 5), C (24 h mean, q&#770;), **D (time-resolved, q&#770;; primary)**. A gate required A to reproduce step 11.
+
+**Results** (`experiments/step12-timesize/results.txt`, `leaks.tsv`; deterministic):
+
+| leaks localised | A | B | C | **D** | most-affected sensor | chance expects |
+|---|---|---|---|---|---|---|
+| D1-F's 13 detected (at alarm) | 4 | 2 | 3 | **3 (23%)** | 5 | 0.57 |
+| LILA-auto's 14 detected (at alarm) | 5 | 3 | 4 | **4 (29%)** | 5 | 0.59 |
+| all 32 scored leaks (oracle, half-peak) | 15 | 11 | 14 | **12** | 13 | 1.40 |
+| median error on the 32 | 437 m | 712 m | 613 m | 746 m | 420 m | |
+
+- **H3 refuted under D** (below the 30% line for both detectors); inconclusive under A, as in step 11. No method separates from the most-affected sensor (smallest Holm-adjusted sign-test P 1.000 in every set).
+- **Pre-registered predictions.** (a) q&#770; within a factor of 2 of the leak's flow for &ge; 70% of the 32: **failed** (12 of 32; q&#770; is negative for 6, because day-to-day inflow noise is the size of the leaks). (b) D beats A: **failed** (12 against 15). (c) No method beats the sensor: **held**. (d) H3 not held under D: **held**.
+- **Why** (after-the-run diagnostic, `diag_switch.txt`). In the nominal model PUMP_1 switches on tank T1's level. A leak at any of 92 junctions shifts the switch by an hour, which puts up to 0.87 m on sensor n54 at hour 17 even for a 1 m³/h leak (every other hour: at most 0.10 m). Leaving hours 15 to 17 out lowers B's and D's median errors to 581 and 563 m but not their 300 m hits (10 and 12). The rest is demand timing: the real network's hours do not follow the nominal patterns, and the 24 h mean averages that mismatch out.
+- **Scoring fix.** Junction n111's signature is a uniform shift at every sensor, so its Pearson score is undefined, and float32 rounding (~1e-5 m) decided it. `localise.scores` now scores signatures below 1e-4 m RMS as 0. Step 11 reruns with every count unchanged; only its D1-F stability-in-q line moves (23% to 31%). The first run is kept as `results_firstrun.txt`.
+
 ## Reproduce
 
 ```bash
@@ -241,15 +267,18 @@ PYTHONPATH=src python experiments/step9-windows/run.py       # 3 windows x 2 gat
 python experiments/step9-windows/figure.py                   # experiments/step9-windows/window_chance.svg
 PYTHONPATH=src python experiments/step10-crossfit/run.py     # reverse-fold grids, pooled chance and paired tests; about 5 min
 python experiments/step10-crossfit/figure.py                 # experiments/step10-crossfit/pooled_chance.svg
-pip install wntr==1.5.0                                      # step 11 only
+pip install wntr==1.5.0                                      # steps 11 and 12 only
 PYTHONPATH=src python experiments/step11-localise/run.py     # 2,346 EPANET runs, about 6 min on 4 cores (cached after)
 python experiments/step11-localise/figure.py                 # experiments/step11-localise/localisation_error.svg
+PYTHONPATH=src python experiments/step12-timesize/run.py     # 4,692 EPANET runs, about 4 min on 4 cores (cached after)
+PYTHONPATH=src python experiments/step12-timesize/diag_switch.py  # after-the-run pump-switch diagnostic
+python experiments/step12-timesize/figure.py                 # experiments/step12-timesize/localisation_error.svg
 ```
 
 ## Limitations
 
 - L-Town is a **simulated** network with simulated leaks and sensor noise; nothing here is a field result or an operational recommendation (drinking-water decisions need licensed engineers and the operator).
-- Localisation (step 11) uses the uncalibrated nominal model, a 24 h mean signature and one fixed leak size; LILA's own model-based localisation (LL-1 to LL-3) is not reimplemented. The 300 m rule is along pipes to the leak pipe's midpoint, our reading of BattLeDIM's rule.
+- Localisation (steps 11 and 12) uses the uncalibrated nominal model with its T1/PUMP_1 control and 1 h hydraulic steps; step 12 tried hourly signatures and a flow-balance leak size, neither of which helped; LILA's own model-based localisation (LL-1 to LL-3) is not reimplemented. The 300 m rule is along pipes to the leak pipe's midpoint, our reading of BattLeDIM's rule.
 - LILA-auto is our automation of LILA's identification, not the authors' procedure, which used per-leak inputs; its numbers are not the paper's. Hourly means, not 5-minute data. The paper's own 2019 figures were not read (paywalled), so this step does not check against them.
 - One tuning rule (2018, 30-day ungated match). Step 9 shows the chance level and three detectors' verdicts move with the window and gate; each detector's threshold has not yet been re-chosen under the rule it is scored by. Step 10 cross-fits thresholds across the two years (32 test leaks), still too few to separate detectors by a paired test.
 - MNF (steps 6 and 7) is tested with a two-week median/MAD baseline, a fixed 2018 weekday profile and the 82 AMR meters; other baselines (seasonal, regression on temperature) are untried. The H4 comparison is on 9 leaks, defined by peak flow, not the configuration file's leak types, and 2019 has now been seen through four night-flow detectors. The step-7 diagnosis of why uses the ground-truth leak flows and was done after the scores.

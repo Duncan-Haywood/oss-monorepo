@@ -1,0 +1,8 @@
+# step 12 after-the-run diagnostic: time-resolved signatures without the pump-switch hours 15-17
+largest |dp| at q = 1 over junctions and sensors (m), by hour of day: 0:0.03 1:0.03 2:0.04 3:0.02 4:0.03 5:0.03 6:0.04 7:0.06 8:0.06 9:0.07 10:0.07 11:0.08 12:0.08 13:0.09 14:0.09 15:0.10 16:0.10 17:0.87 18:0.06 19:0.06 20:0.05 21:0.05 22:0.04 23:0.04
+junctions whose q = 1 signature moves any sensor > 0.3 m in hours 15-17: 92 of 782; sensor carrying it: n54
+
+oracle-timed 32: B time-resolved, q = 5               within 300 m 11/32, median error   712 m
+oracle-timed 32: B without hours 15-17                within 300 m 10/32, median error   581 m
+oracle-timed 32: D time-resolved, q = flow balance    within 300 m 12/32, median error   746 m
+oracle-timed 32: D without hours 15-17                within 300 m 12/32, median error   563 m

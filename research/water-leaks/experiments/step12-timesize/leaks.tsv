@@ -1,0 +1,60 @@
+set	pipe	year	t	qhat	q_used	leak_mean_q	est_A	err_A_m	est_B	err_B_m	est_C	err_C_m	est_D	err_D_m	mas	err_mas_m	p_chance
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p523	2019	2019-01-16T21	26.44	30	28.19	n132	22	n132	22	n508	226	n493	179	n506	86	0.0460
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p827	2019	2019-01-30T20	44.85	30	26.17	n674	948	n675	993	n293	333	n293	333	n726	229	0.0332
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p280	2019	2019-02-14T21	-18.10	1	5.22	n357	299	n1	775	n4	457	n4	457	n4	457	0.0588
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p514	2019	2019-04-05T23	32.74	30	15.46	n164	331	n164	331	n164	331	n343	888	n613	1005	0.0703
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p331	2019	2019-04-23T09	20.91	20	10.59	n392	469	n77	790	n77	790	n441	880	n410	277	0.0256
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p193	2019	2019-05-29T02	-5.28	1	0.24	n671	949	n668	1094	n671	949	n668	1094	n410	2536	0.0332
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p142	2019	2019-06-16T16	35.34	30	26.54	n583	201	n599	398	n465	275	n583	201	n613	281	0.0575
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p680	2019	2019-07-10T19	8.97	10	5.36	n658	747	n638	301	n240	797	n638	301	n229	109	0.0448
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p800	2019	2019-08-21T07	10.86	10	1.20	n549	2411	n549	2411	n549	2411	n549	2411	n549	2411	0.0409
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p123	2019	2019-09-22T01	-13.36	1	0.12	n314	2166	n314	2166	n314	2166	n314	2166	n296	1925	0.0678
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p455	2019	2019-10-06T14	-23.45	1	0.02	n115	573	n476	580	n115	573	n115	573	n215	2541	0.0409
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p426	2019	2019-10-30T15	21.60	20	13.19	n776	120	n335	167	n776	120	n629	222	n54	705	0.0243
+detector-timed, D1-F (2019 new leaks it detected, at its alarm hour)	p879	2019	2019-12-05T14	11.22	10	1.54	n645	1395	n241	1318	n657	1363	n240	1084	n288	1132	0.0307
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p523	2019	2019-01-16T01	26.21	30	28.18	n132	22	n132	22	n508	226	n508	226	n506	86	0.0460
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p827	2019	2019-01-30T08	40.69	30	26.18	n289	280	n289	280	n289	280	n289	280	n726	229	0.0332
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p280	2019	2019-02-16T03	-16.95	1	5.21	n14	224	n529	1039	n9	387	n529	1039	n4	457	0.0588
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p710	2019	2019-03-27T15	10.19	10	5.51	n223	229	n343	1480	n223	229	n343	1480	n644	141	0.0448
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p514	2019	2019-04-11T00	14.68	20	15.45	n539	244	n160	281	n532	157	n160	281	n613	1005	0.0703
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p331	2019	2019-04-26T08	22.18	20	10.61	n392	469	n465	1294	n422	335	n82	184	n410	277	0.0256
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p277	2019	2019-06-12T09	9.51	10	0.23	n613	1645	n200	1599	n611	1740	n586	1369	n613	1645	0.0435
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p680	2019	2019-07-10T10	8.29	10	5.36	n240	797	n638	301	n240	797	n638	301	n229	109	0.0448
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p721	2019	2019-08-07T01	2.73	2	0.14	n54	1452	n153	1442	n54	1452	n559	1389	n54	1452	0.0320
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p800	2019	2019-08-24T15	4.31	5	3.22	n549	2411	n549	2411	n549	2411	n549	2411	n549	2411	0.0409
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p455	2019	2019-10-06T02	-35.97	1	0.02	n1	2201	n469	436	n469	436	n469	436	n215	2541	0.0409
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p762	2019	2019-10-22T22	4.96	5	1.02	n461	1160	n457	1142	n461	1160	n457	1142	n54	1840	0.0588
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p426	2019	2019-11-05T11	10.27	10	13.24	n632	467	n241	858	n632	467	n240	876	n429	387	0.0243
+detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour)	p879	2019	2019-11-29T10	4.75	5	0.56	n324	405	n285	1029	n324	405	n285	1029	n288	1132	0.0307
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p232	2018	2018-02-02T15	19.18	20	18.73	n577	157	n182	118	n578	70	n577	157	n613	404	0.0550
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p673	2018	2018-03-05T16	45.72	30	28.40	n623	22	n623	22	n640	158	n640	158	n229	66	0.0384
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p461	2018	2018-03-09T04	39.44	30	15.52	n237	2203	n234	2170	n641	2042	n641	2042	n229	2080	0.0486
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p427	2018	2018-04-18T21	-4.75	1	2.61	n6	1214	n4	1328	n4	1328	n747	1555	n4	1328	0.0230
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p628	2018	2018-05-12T08	19.80	20	19.51	n197	28	n591	73	n591	73	n591	73	n613	399	0.0435
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p538	2018	2018-05-18T09	64.72	30	32.43	n160	266	n160	266	n160	266	n160	266	n613	989	0.0614
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p866	2018	2018-06-01T09	4.02	5	20.30	n296	198	n296	198	n296	198	n296	198	n296	198	0.0486
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p31	2018	2018-07-23T18	3.51	5	8.44	n343	275	n455	929	n343	275	n455	929	n54	302	0.0435
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p183	2018	2018-08-07T03	17.33	20	16.26	n305	31	n305	31	n306	87	n299	31	n752	128	0.0627
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p654	2018	2018-08-26T14	-5.02	1	2.80	n314	2017	n343	1436	n314	2017	n314	2017	n752	1965	0.0281
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p810	2018	2018-10-05T14	0.77	1	3.50	n261	488	n746	1048	n260	540	n746	1048	n644	918	0.0396
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p158	2018	2018-10-06T03	10.96	10	24.48	n644	83	n644	83	n644	83	n644	83	n644	83	0.0499
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p369	2018	2018-10-26T02	-4.82	1	20.51	n410	435	n410	435	n31	685	n410	435	n410	435	0.0269
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p523	2019	2019-01-15T23	25.84	30	28.19	n132	22	n132	22	n508	226	n508	226	n506	86	0.0460
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p827	2019	2019-01-24T19	55.26	30	26.18	n661	893	n662	943	n244	923	n244	923	n726	229	0.0332
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p280	2019	2019-02-10T13	-28.28	1	5.18	n7	460	n111	1324	n1	775	n111	1324	n1	775	0.0588
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p710	2019	2019-03-24T14	6.67	5	5.46	n240	128	n680	393	n240	128	n680	393	n644	141	0.0448
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p514	2019	2019-04-02T21	24.82	30	15.45	n539	244	n160	281	n539	244	n149	200	n332	77	0.0703
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p653	2019	2019-04-07T12	28.46	30	9.39	n164	662	n160	692	n160	692	n160	692	n613	227	0.0294
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p331	2019	2019-04-20T10	33.86	30	10.54	n76	799	n74	731	n76	799	n76	799	n410	277	0.0256
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p142	2019	2019-06-12T20	20.99	20	26.59	n614	289	n600	443	n600	443	n584	254	n613	281	0.0575
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p193	2019	2019-07-05T22	19.59	20	5.29	n335	1811	n629	1756	n629	1756	n629	1756	n54	2682	0.0332
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p680	2019	2019-07-10T09	9.97	10	5.36	n223	439	n637	347	n656	689	n637	347	n229	109	0.0448
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p277	2019	2019-07-21T22	-10.58	1	3.80	n314	2788	n314	2788	n314	2788	n314	2788	n215	2223	0.0435
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p586	2019	2019-08-18T21	5.94	5	10.71	n172	82	n165	27	n172	82	n165	27	n549	193	0.0524
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p800	2019	2019-09-01T10	28.82	30	11.69	n627	991	n632	898	n632	898	n633	848	n54	2070	0.0409
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p721	2019	2019-09-08T03	28.98	30	6.71	n271	875	n271	875	n271	875	n271	875	n296	1140	0.0320
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p426	2019	2019-10-25T13	25.88	30	12.98	n462	25	n776	120	n340	74	n335	167	n54	705	0.0243
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p123	2019	2019-11-07T22	25.31	30	4.69	n776	1033	n335	987	n335	987	n629	932	n54	599	0.0678
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p762	2019	2019-11-17T03	17.17	20	7.99	n335	969	n462	1111	n629	914	n462	1111	n54	1840	0.0588
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p455	2019	2019-11-24T22	13.82	10	5.63	n632	2001	n632	2001	n632	2001	n633	2050	n54	1309	0.0409
+oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow)	p879	2019	2019-12-19T21	-7.93	1	5.66	n740	195	n4	3086	n740	195	n4	3086	n4	3086	0.0307
