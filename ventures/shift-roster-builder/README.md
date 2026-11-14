@@ -2099,3 +2099,41 @@ copies; `cliqueRoom: false` and `cliqueFloor: false` keep the half). Not claimed
 generated, single runs on one cloud machine; the clique LP's cost fit is still the one from eval/clique-floor.out.txt, and it runs
 about 10 s at 400 copies here against the fit's 14.6 s. Next: column generation's overrun past its share, and the rest of the
 100-person gap (376 against 359 with no budget).
+
+## Column generation keeps to its share (2026-11-14)
+
+On big weeks under a time budget the whole-score column generation gets a share of the time (half of what is left, or less to make
+room for the clique LP, README "Room for the clique LP on the biggest weeks"). It checked that limit only between rounds, and one
+round on a 300-400 copy week is an LP solve of up to 1.5 s plus 80-100 pricing calls, so it ran **0.6-1.2 s past its share** on
+8 of the 9 bench weeks it did not prove (60 to 100 people) (`eval/cg-overrun.out.txt`). On the 90 x 252 week 1 that overrun alone pushed the clique
+LP out of its own time gate, and on a loaded run of the 100 x 280 week 0 (the share was 1 s, the run took 1.7 s) it did the same.
+
+**What landed:** in `columnGenerationOpen` (bnp.mjs) the LP solves now take the limit as `solveLP`'s deadline, and the pricing loop
+checks it before each call. A round stopped part-way is inexact, so its Lagrangian value is never taken as a bound (the bound stays
+at the last complete round's) and the columns it found stay in the pool; a stopped LP ends the node with the bound it had, as a
+pivot limit does. `scoreCGHardStop: false` keeps the old check. `optimality.scoreCG` now also reports `shareMs`, `lpMs`, `maxLpMs`,
+`pricingMs`, `maxPricingMs`, `rounds`, `pricingCalls` and `stoppedMidRound`, which is how the overrun was found.
+
+| default 20 s budget (`eval/cg-overrun.out.txt`, single runs, one machine) | before: past the share | now: past the share | open hours before / now |
+|---|---|---|---|
+| 80 x 224 weeks 0-2 (304-326 copies) | 1.25, 1.02, 1.15 s | 0.00, 0.05, 0.07 s | 260 / 260, 332 / 332, 286 / 286 |
+| 90 x 252 weeks 0-2 (348-363 copies) | 0.02, 0.78, 0.56 s | 0.01, 0.01, 0.04 s | 355 / 355, 226 / 231, 374 / 377 |
+| 100 x 280 weeks 0-1 (400 copies) | 0.71, 0.63 s | 0.05, 0.05 s | 386 / 376, 347 / 351 |
+| 60 x 168 weeks 0-1 (238-245 copies) | 0.65 s; week 1 proven in 7.6 s, inside its share | 0.01 s; same | 300 / 300 (gap $6.68 both), 308 / 308 |
+
+Where the time freed went: on the 80-person weeks to the cover passes (coverPass 4.9 to 6.2 s and 3.6 to 5.5 s, same open hours); on the 90 x 252
+week 1 the clique LP now runs, so the proof gap fell from $9.8 M to $1.2 M, but the cover passes got 3.5 s instead of 8.1 s and
+the roster left **231 open hours instead of 226**. On the 100 x 280 week 0 the old run's overrun skipped the clique LP (386 h); the
+new run kept it (376 h), the same as README "Room for the clique LP". Week 1 went the other way, 347 to 351.
+
+**What this says.** The overrun was a bug (a budget that is not kept is not a budget), and it is fixed. The open hours it moved are
+not a win either way: they follow which of the clique LP and the cover passes got the seconds. On 350-400 copy weeks the clique LP
+takes 5-11 s and buys a far tighter bound, while the cover passes turn the same seconds into filled shifts, and in these runs
+neither wins every week. That is the next question: a rule for when the clique LP's bound is worth the cover passes' time (for
+example, run it only when its guide is used by the day sweeps, or cap the cover passes' share from below).
+
+Tests: `cg-hardstop.test.mjs` (on a 60 x 168 week given a 300 ms share column generation stops within 500 ms of it (0.01 s past it here) and inside a
+round; with the hard stop off it never stops inside a round; on seeded eight-person weeks a column generation stopped at 0 or 5 ms
+never reports a bound, or leaves buildRoster a lower bound, above the proven best). Not claimed: generated weeks only, single runs
+on one cloud machine; the open-hours moves above are within the run-to-run noise these big weeks show (README "Room for the
+clique LP": 90-person rows moved 1-3 h with no change at all).

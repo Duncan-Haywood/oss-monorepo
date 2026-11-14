@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVLdmRPWF9muDHgZeXr",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T23:11:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder flagship row 4: column generation kept to its time share on big weeks",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": 16007,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-time-budget-checked-between-rounds-is-not-a-budget.md"
+  ],
+  "goal": null,
+  "notes": "Found with new timing counters: whole-score column generation checked its time limit only between rounds and overran its share by 0.6-1.2 s on 8 of 9 unproven 60-100 person bench weeks. Fixed (LP deadline + clock check before each pricing call; inexact round never a bound). Now 0.01-0.07 s. Open hours moved both ways (90x252 w1 226->231 as the clique LP now runs and the cover passes lose time; 100x280 w0 386->376 in an A/B where the old code skipped the clique LP; w1 347->351), so the effect on rosters is a trade, written up as such. Tests: cg-hardstop.test.mjs 3/3 pass (65 s); run_venture_tests.py shift-roster-builder: ok (225.2 s, 0 failed); venture-preflight.mjs shift-roster-builder: preflight clean.",
+  "corrections": [],
+  "redteam": null
+}
