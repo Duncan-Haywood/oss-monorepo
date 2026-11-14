@@ -56,7 +56,7 @@
     "docs/posts/2026-11-14-redteam-oncall-timezone-flag.md"
   ],
   "goal": null,
-  "notes": "Guard: added tests for --tz parsing and the exit-0 path. Same silent-default class fixed in postgres-index-auditor (--min-mb) and bid-leveling-worksheet (--unknown). 15 venture CLIs use Number(args[i+1]); the calculator ones with validating calc.mjs were not checked. Local: the three venture suites pass (28/29/30). run_workflow_locally --for-changes: 9/12 pass; the front-matter and site-builder failures came from the post and were fixed; site-builder suite re-run in full.",
+  "notes": "Guard: added tests for --tz parsing and the exit-0 path. Same silent-default class fixed in postgres-index-auditor (--min-mb) and bid-leveling-worksheet (--unknown). 15 venture CLIs use Number(args[i+1]); the calculator ones with validating calc.mjs were not checked. Local: the three venture suites pass (28/29/30). run_workflow_locally --for-changes: 9/12 pass; the front-matter and site-builder failures came from the post and were fixed; site-builder suite re-run in full after the fix: 1616 pass, 1 fail ('an identical build produces an identical cache name', build.test.mjs:3437), which passes when run alone, so it is flaky under full-suite load and unrelated to this diff.",
   "corrections": [],
   "redteam": {
     "campaigns": [
