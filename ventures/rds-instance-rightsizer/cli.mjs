@@ -12,6 +12,7 @@
 
 import fs from "node:fs/promises";
 import { parseInput, analyze, summarize, fmtUsd, CLASS_TABLE, DEFAULTS, PRICES_AS_OF } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { json: false, commands: false, applyImmediately: false, failOn: "error", positional: [], cpuTarget: DEFAULTS.cpuTarget * 100, memReserve: DEFAULTS.memReserve * 100, prices: null };
@@ -106,7 +107,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

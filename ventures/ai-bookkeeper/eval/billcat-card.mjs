@@ -12,6 +12,7 @@
 // suggestion on the rest is counted separately and not marked wrong.
 import { readFileSync } from "node:fs";
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 export const MAP = {
   "Food & Drink": ["6130"], Gas: ["6160"], Travel: ["6120", "6160"], "Bills & Utilities": ["6140", "6060"],
@@ -49,7 +50,7 @@ export function score(rows) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const file = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "/tmp/billcat/cc_transactions.csv";
   const o = score(parseRows(readFileSync(file, "utf8")));

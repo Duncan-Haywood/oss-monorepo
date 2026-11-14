@@ -153,7 +153,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, summaryText, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, summaryText, sampleCsv, money, pct, dateStr, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -165,7 +165,7 @@
 
     function run(text) {
       const delim = detectDelimiter(text);
-      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", feeMode: $("#feemode").value });
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: detectDecimalComma(parseCsv(text, delim), delim), feeMode: $("#feemode").value });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
       const r = analyze(n.items, { costList: $("#costlist").value, from: day("#from"), to: day("#to") });

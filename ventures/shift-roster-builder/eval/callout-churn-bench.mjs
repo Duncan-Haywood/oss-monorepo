@@ -3,6 +3,7 @@
 // person coverOptions finds. Counts the shifts that change for other people and prices short-notice premiums
 // with scheduleChanges. Invented staff and wages. Run: node eval/callout-churn-bench.mjs
 import { parseStaff, parseShifts, buildRoster, rosterCsv, coverOptions, scheduleChanges, sampleStaff, sampleShifts } from "../calc.mjs";
+import { pathToFileURL } from "node:url";
 
 export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), changedAt = 1 * 1440 + 17 * 60, noticeHours = 336, exact = "auto", extra = {} } = {}) {
   const slots = parseShifts(shiftsText).slots;
@@ -39,7 +40,7 @@ export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), ch
   return { postedStatus: posted.optimality?.status, postedCost: posted.cost, postedOpen: posted.unfilled.length, rows };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const r = run({ exact: process.env.EXACT === "off" ? false : "auto" });
   console.log(`posted: $${r.postedCost}, ${r.postedOpen} open, ${r.postedStatus}`);
   for (const x of r.rows) console.log(x.person.padEnd(5), x.wedShifts, "rebuild", JSON.stringify(x.rebuild), "patch", JSON.stringify(x.patch));

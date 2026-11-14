@@ -20,6 +20,7 @@ import { resolveCnameChain } from './lookup.mjs';
 import { fetchHostname } from './probe.mjs';
 import { classify, buildReport, verdictFor, parseHostname } from './analyze.mjs';
 import { providerForChain } from './fingerprints.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function formatText(report) {
   const lines = [];
@@ -105,6 +106,6 @@ export async function main() {
   process.exit(verdictFor(report).exitCode);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

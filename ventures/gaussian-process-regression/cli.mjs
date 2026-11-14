@@ -3,6 +3,7 @@
 //   node cli.mjs data.csv [--x month] [--y value] [--kernel auto] [--mean linear] [--predict 2027-01] [--json | --csv]
 import { readFileSync } from "node:fs";
 import { analyze, toCsv, PAPERS, KERNELS, fmt } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `gaussian-process-regression: fit a smooth curve with an honest uncertainty band (Rasmussen & Williams 2006)
 
@@ -132,7 +133,7 @@ export function run(argv, stdinText = "") {
   return { code: 0, out: formatText(r) };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const argv = process.argv.slice(2);
   const flagWithValue = new Set(Object.keys(FLAGS));

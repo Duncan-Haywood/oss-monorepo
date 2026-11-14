@@ -146,7 +146,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -157,7 +157,7 @@
 
     function run(text) {
       const delim = detectDelimiter(text);
-      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", unit: $("#unit").value || undefined });
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: detectDecimalComma(parseCsv(text, delim), delim), unit: $("#unit").value || undefined });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
       const cpm = $("#cpm").value === "" ? 0 : Number($("#cpm").value);

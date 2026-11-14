@@ -9,6 +9,7 @@
 //   node eval/applecard.mjs a.csv b.csv [--misses 40]
 import { readFileSync } from "node:fs";
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 export const MAP = {
   Restaurants: ["6130"], Grocery: ["6130"], Gas: ["6160"], Transportation: ["6120"], Airlines: ["6120"],
@@ -31,7 +32,7 @@ export function score(files) {
   }
   return o;
 }
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const i = process.argv.indexOf("--misses");
   const files = process.argv.slice(2).filter((x, j) => !x.startsWith("--") && process.argv[j + 1] !== "--misses" || false).filter((x) => x.endsWith(".csv"));
   const o = score(files), p = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");

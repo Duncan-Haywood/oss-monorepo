@@ -287,6 +287,15 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    wall then slides on its 18 sill nails whatever the sheathing schedule, as Weiss observed. Escaped misses
    cost the same on the two-sheet wall (2.7% mean, 10.4% at the 99th percentile). Still open: a tested
    ultimate for end-nailed stud-to-plate joints, and the hold-downs' and anchor bolts' shear.
+18. **The anchor rods' shear path** (done 2026-11-14, `experiments/m18_holddown_shear/`): adding the HTT4
+   rods' shear through the sill stops milestone 17's slide at about 420 lb a rod (below the rod's 617 lb
+   design value), and then no end-nail strength fits the 3 in wall (64–74% kept against 34%). Fits need the
+   rods and end nails both below their design values.
+19. **The wall pushed over** (done 2026-11-14, `experiments/m19_wall_pushover/`): the same wall as a
+   displacement model (sourced nail curves, softening stud joints, rods that bear after a gap). It matches
+   the LP to 0.04%; a 1/16 in gap moves the decayed walls 0.1 point, early-peaking joints leave the 3 in wall
+   at 71%, and all 30 fits within 5 points (960 pushovers) need end nails at a quarter of the NDS ratio.
+   Still open: a tested end-nail ultimate and load-slip curve, and cyclic loading.
 
 ## Target venue
 

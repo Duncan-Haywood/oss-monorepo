@@ -15,6 +15,7 @@
 
 import { extractHreflangLinks, buildReport } from './engine.mjs';
 import { fetchPage } from './fetch-page.mjs';
+import { pathToFileURL } from 'node:url';
 
 const DEFAULT_MAX_ALTERNATES = 50;
 
@@ -153,6 +154,6 @@ async function main() {
   process.exit(failed ? 1 : 0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

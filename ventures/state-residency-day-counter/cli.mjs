@@ -23,6 +23,7 @@ import {
   parseStays, parseDate, analyze, tripImpact, sampleSpec, reportCsv, dailyLogCsv, auditReportHtml, deadlinesIcs,
   statusText, dayIso, fmtNum, fmtMoney, STATE_NAMES,
 } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Count days per state against the commonly published residency tests.
 
@@ -212,7 +213,7 @@ export async function run(argv, { stdin = readStdin, read = (f) => readFile(f, "
   return { out: render(spec, opts), code: opts.check && breaches(spec, opts) ? 1 : 0 };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   run(process.argv.slice(2)).then(
     ({ out, code }) => { process.stdout.write(out); process.exitCode = code; },
     (e) => { process.stderr.write(`error: ${e.message}\n\n${USAGE}`); process.exitCode = 2; },

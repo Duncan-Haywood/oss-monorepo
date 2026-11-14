@@ -26,6 +26,7 @@ import fs from 'fs';
 import path from 'path';
 import cp from 'child_process';
 import { createRequire } from 'module';
+import { pathToFileURL } from 'node:url';
 
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 const AT = new Date('2026-03-04T15:30:00Z');
@@ -205,4 +206,4 @@ async function main() {
   process.exit(hits.length ? 1 : 0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

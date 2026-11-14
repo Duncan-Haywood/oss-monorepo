@@ -1,4 +1,4 @@
-import os, tempfile, unittest
+import os, sys, tempfile, unittest
 import contextlib, io
 import subprocess
 from wait_for import main, wait, wait_until, wait_pid, pid_alive
@@ -162,12 +162,12 @@ class WaitFor(unittest.TestCase):
             self.assertIn("does not exist yet", progress(p))
             open(p, "w").write("step 1\nstep 2\n\n")
             mtime = os.stat(p).st_mtime
-            live = progress(p, now=lambda: mtime + 5)
+            live = progress(p, now=lambda: mtime + 5, who=lambda _: None)
             self.assertIn("15 bytes", live)
             self.assertIn("5s ago", live)
             self.assertIn("'step 2'", live)
             self.assertIn("still being written", live)
-            self.assertIn("buffering", progress(p, now=lambda: mtime + 600))
+            self.assertIn("buffering", progress(p, now=lambda: mtime + 600, who=lambda _: None))
             code, _, err = self._main(p, "--timeout", "0")
             self.assertEqual(code, 1)
             self.assertIn("last line: 'step 2'", err)
@@ -269,8 +269,45 @@ class PidProbe(unittest.TestCase):
             p = os.path.join(d, "o.log")
             open(p, "w").write("x\n")
             mtime = os.stat(p).st_mtime
-            self.assertIn("still being written", progress(p, now=lambda: mtime + 59.9))
-            self.assertIn("silent for a while", progress(p, now=lambda: mtime + 60))
+            self.assertIn("still being written", progress(p, now=lambda: mtime + 59.9, who=lambda _: None))
+            self.assertIn("silent for a while", progress(p, now=lambda: mtime + 60, who=lambda _: None))
+
+    def test_progress_names_the_process_holding_a_quiet_log(self):
+        from wait_for import progress
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").close()
+            mtime = os.stat(p).st_mtime
+            msg = progress(p, now=lambda: mtime + 600, who=lambda _: [(4000, "bash -c ..."), (4242, "python3 bench.py")])
+            self.assertIn("0 bytes", msg)
+            self.assertIn("pid 4242", msg)
+            self.assertIn("running, quietly", msg)
+            self.assertNotIn("stuck", msg)
+
+    def test_progress_says_a_log_nobody_holds_is_finished(self):
+        from wait_for import progress
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("Traceback\nValueError: x\n")
+            mtime = os.stat(p).st_mtime
+            msg = progress(p, now=lambda: mtime + 5, who=lambda _: [])
+            self.assertIn("no process has it open", msg)
+            self.assertIn("read the log", msg)
+
+    @unittest.skipUnless(os.path.isdir("/proc/self/fd"), "needs Linux /proc")
+    def test_holders_finds_a_real_writer_and_not_a_closed_file(self):
+        import subprocess
+        from wait_for import holders
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            with open(p, "w") as f:
+                child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"], stdout=f)
+            try:
+                self.assertIn(child.pid, [pid for pid, _ in holders(p)])
+            finally:
+                child.kill()
+                child.wait()
+            self.assertEqual(holders(p), [])
 
 
 class LongerHint(unittest.TestCase):

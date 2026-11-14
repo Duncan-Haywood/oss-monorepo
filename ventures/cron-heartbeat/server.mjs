@@ -9,6 +9,7 @@ import fs from "node:fs";
 import { createMonitor } from "./monitor.mjs";
 import { createNotifier, channelsFrom } from "./notify.mjs";
 import { dashboardHtml, publicStatusHtml, badgeSvg } from "./dashboard.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const port = Number(env.PORT || 8787);
@@ -61,7 +62,7 @@ export function handler(monitor, save, now = Date.now, opts = {}) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const monitor = createMonitor({ config: env.CHECKS_JSON ? JSON.parse(env.CHECKS_JSON) : readJson(configPath, {}), state: readJson(statePath, {}), notify: createNotifier(env) });
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(monitor.state)); fs.renameSync(`${statePath}.tmp`, statePath); };
   setInterval(async () => { await monitor.tick(Date.now()); save(); }, 30000).unref?.();

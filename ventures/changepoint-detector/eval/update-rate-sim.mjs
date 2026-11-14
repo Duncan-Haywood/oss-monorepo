@@ -29,6 +29,7 @@
 // Real series are descriptive only (eval/update-rate-real.mjs), run after this file's verdict.
 // usage: node eval/update-rate-sim.mjs > eval/update-rate-sim.out.txt
 import { partitionRates } from '../update-rate.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const KINDS = ['bernoulli', 'markov'];
 export const MULTS = [1, 1.5, 2, 3, 4];
@@ -76,7 +77,7 @@ export function runSeed(seed, settings, reps = 200) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const t0 = Date.now();
   const settings = KINDS.flatMap((kind) => MULTS.map((mult) => ({ kind, mult, minSegment: 20 })));
   const name = (s) => `${s.kind} m${s.mult}`;

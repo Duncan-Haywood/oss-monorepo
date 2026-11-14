@@ -854,7 +854,58 @@ squares. Details, the measurements and the crops' verdicts: `eval/quilisma-strok
 The same pieces were a clean test of the untouched rhombus rule: 417 of 420 rhombi, but 14 of
 2,641 squares called rhombi, more than before (looked at: next section).
 
-### Rhombus height floor (2026-11-14, latest)
+### Tilted pages straightened (2026-11-14, latest)
+
+```sh
+node ventures/chant-forge/eval/deskew-synthetic.mjs   # drawn pages, no network
+node ventures/chant-forge/eval/deskew-check.mjs       # every page scanned so far; needs archive.org
+```
+
+A page scanned a little turned prints its staff lines at a slope, and a line that drifts more
+than its own thickness across the staff stops being one band of rows: leaf 424 of the 1908
+Graduale shows 2 of its 9 staves. `readPage` now finds the slope (`estimateSkew`: shear the ink by
+trial slopes within 3 degrees, keep the sharpest row profile) and moves each column up or down a
+whole number of pixels (`shearColumns`, no resampling) before it looks for staves. Note `y` is
+given back on the page as scanned, each staff carries its `skew`, and `{ deskew: false }` reads
+square. A page is straightened only if the slope moves a line 10 px or more across it
+(`DESKEW_MIN_DRIFT`, 0.29 degrees at 2000 px), so pages that read square are read as before.
+
+On drawn pages (nine staves, 99 heads) the square reader holds to 0.3 to 0.4 degrees, reads 1
+or 36 heads at 0.5 and 4 at most from 0.8; straightened, all 99 from 0.3 to 2.5 degrees, the slope
+found to 0.01 degrees. **Not yet checked on a real page:** archive.org refused this session, so
+leaf 424 and the 185 pages already scanned wait for `eval/deskew-check.mjs`. Details, the
+threshold and the one cost found (specks touching a line once the mask is tight again):
+`eval/deskew-check.md`.
+
+### Staff lines at their own thickness (2026-11-14)
+
+```sh
+node ventures/chant-forge/eval/thick-line-check.mjs   # same scans and cache as scan-check
+```
+
+A staff line is a run of rows whose ink covers a fifth of the page. On a line crowded with heads
+(a recitation on one pitch) the heads alone do that in the rows beside it, so a 6 px line came
+out 19 px thick, and the reader, which drops a line's rows unless ink crosses them, erased the
+heads on it. The line's centre moved too, and the staff's even-spacing test then missed whole
+staves: 23 on 22 of the 185 pages scanned so far, plus two staves matched a line too low. Now
+each line is trimmed to the rows with long horizontal runs of ink (`trimLine` in `scan.mjs`),
+a staff's spacing is also taken from its outer two lines, and a "staff" far tighter than the
+page's own is dropped.
+
+| on the 185 pages | before | after |
+|---|---|---|
+| staves found | 1,361 | 1,384 |
+| lines half a staff space or more thick | 38 | 3 |
+| notes read | 46,079 | 47,864 |
+
+No piece agrees with its GABC on fewer notes; GregoBase 3407 goes from 207 to 216 of 219 and
+3429 from 208 of 210 to 286 of 287 (its missing staff found). Rhombi, quilismas and liquescents
+are read more often in every set, and squares called rhombi fall from 6 to 3 of the pieces the
+height floor was chosen on: several of the "worn squares" below were squares on an oversized
+line mask. Not held out (two thresholds were set on these pages). Tilted pages are next: leaf
+424 shows 2 of its 9 staves. Details: `eval/thick-line-check.md`.
+
+### Rhombus height floor (2026-11-14)
 
 ```sh
 node ventures/chant-forge/eval/rhombus-check.mjs --held-out --sweep   # same cache as scan-check

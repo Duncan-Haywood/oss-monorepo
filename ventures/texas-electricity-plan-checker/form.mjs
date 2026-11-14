@@ -7,18 +7,29 @@
 //   tou     "0 all 21-6; 5 weekends 0-24"   cents, days (all|weekdays|weekends), start-end hours
 //   label   "21.0 8.1 14.1"                 average cents at 500, 1,000, 2,000 kWh
 
-const n = (s) => Number(String(s).replace(/[,$¢]/g, '').trim());
+// A number as people type one: digits, commas only between thousands groups, an optional decimal part.
+// Anything else ("," alone, "1,,0", "1.2.3") is NaN, never a silent 0 (red team 2026-11-14).
+const NUMBER = /^(?:\d{1,3}(?:,\d{3})+|\d+)?(?:\.\d+)?$/;
+const n = (s) => {
+  const v = String(s).replace(/[$¢]/g, '').trim();
+  return v && /\d/.test(v) && NUMBER.test(v) ? Number(v.replace(/,/g, '')) : NaN;
+};
+const finite = (o, msg) => {
+  if (!Object.values(o).every((x) => typeof x !== 'number' || Number.isFinite(x))) throw new Error(msg);
+  return o;
+};
 const parts = (s) => String(s || '').split(/[;\n]+/).map((x) => x.trim()).filter(Boolean);
 
 export function energyToText(energy) {
   return (energy || []).map((t) => (t.upTo == null ? `${t.cents}` : `${t.cents} to ${t.upTo}`)).join(', ');
 }
 export function textToEnergy(s) {
-  const tiers = String(s || '').split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean).map((x) => {
+  const tiers = String(s || '').split(/(?:[;\n]|,(?!\d{3}(?!\d)))+/).map((x) => x.trim()).filter(Boolean).map((x) => {
     const m = /^([\d.]+)\s*(?:¢)?\s*(?:to|up to|<=?)\s*([\d,]+)$/i.exec(x);
-    if (m) return { cents: n(m[1]), upTo: n(m[2]) };
-    if (/^[\d.]+\s*¢?$/.test(x)) return { cents: n(x), upTo: null };
-    throw new Error(`energy charge "${x}": write cents, or "cents to kWh" for a tier`);
+    const msg = `energy charge "${x}": write cents, or "cents to kWh" for a tier`;
+    if (m) return finite({ cents: n(m[1]), upTo: n(m[2]) }, msg);
+    if (/^[\d.]+\s*¢?$/.test(x)) return finite({ cents: n(x), upTo: null }, msg);
+    throw new Error(msg);
   });
   return tiers.length ? tiers : [{ cents: 0, upTo: null }];
 }
@@ -29,8 +40,9 @@ export function creditsToText(credits) {
 export function textToCredits(s) {
   return parts(s).map((x) => {
     const m = /^\$?([\d.,]+)\s*(?:at|@|for)\s*([\d,]+)\s*(?:(\+)|(?:-|–|to)\s*([\d,]+))?\s*(?:kWh)?$/i.exec(x);
-    if (!m) throw new Error(`credit "${x}": write "amount at min-max" or "amount at min+"`);
-    return { amount: n(m[1]), min: n(m[2]), max: m[4] ? n(m[4]) : null };
+    const msg = `credit "${x}": write "amount at min-max" or "amount at min+"`;
+    if (!m) throw new Error(msg);
+    return finite({ amount: n(m[1]), min: n(m[2]), max: m[4] ? n(m[4]) : null }, msg);
   });
 }
 
@@ -40,8 +52,9 @@ export function feesToText(fees) {
 export function textToFees(s) {
   return parts(s).map((x) => {
     const m = /^\$?([\d.,]+)\s*(?:under|below|<)\s*([\d,]+)\s*(?:kWh)?$/i.exec(x);
-    if (!m) throw new Error(`fee "${x}": write "amount under kWh"`);
-    return { amount: n(m[1]), below: n(m[2]) };
+    const msg = `fee "${x}": write "amount under kWh"`;
+    if (!m) throw new Error(msg);
+    return finite({ amount: n(m[1]), below: n(m[2]) }, msg);
   });
 }
 
@@ -51,8 +64,9 @@ export function touToText(tou) {
 export function textToTou(s) {
   return parts(s).map((x) => {
     const m = /^([\d.]+)\s*¢?\s*(all|weekdays|weekends)\s*([\d.]+)\s*(?:-|–|to)\s*([\d.]+)$/i.exec(x);
-    if (!m) throw new Error(`time-of-use "${x}": write "cents days start-end", e.g. "0 all 21-6"`);
-    return { name: x, cents: n(m[1]), days: m[2].toLowerCase(), start: n(m[3]), end: n(m[4]) };
+    const msg = `time-of-use "${x}": write "cents days start-end", e.g. "0 all 21-6"`;
+    if (!m) throw new Error(msg);
+    return finite({ name: x, cents: n(m[1]), days: m[2].toLowerCase(), start: n(m[3]), end: n(m[4]) }, msg);
   });
 }
 

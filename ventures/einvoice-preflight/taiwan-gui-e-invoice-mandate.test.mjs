@@ -54,3 +54,16 @@ test("links to a neighbour and the hub and the sitemap entry is its own url bloc
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*taiwan-gui-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("keeps the facts read from the VAT Act, the Regulations and the time-limit table (2026-11-14)", () => {
+  const hub = fs.readFileSync(new URL("./e-invoicing-mandates-by-country.html", import.meta.url), "utf8");
+  assert.match(html, /Article 32\(4\)/);
+  assert.match(html, /one of five lawful kinds/);
+  assert.match(html, /within 7 days when the buyer is a business and within 2 days when the buyer is not/);
+  assert.match(html, /Article 48-2/);
+  // The 48 hours of vendor guides is named only as not in the table.
+  for (const m of html.matchAll(/[^.]*48 hours[^.]*\./g)) assert.match(m[0], /not in the table/);
+  const row = hub.match(/<tr><th scope="row"><a href="taiwan-gui-e-invoice-mandate\.html">.*?<\/tr>/)[0];
+  assert.doesNotMatch(row, /Disputed in sources|sources disagree/);
+  assert.match(row, /7 days \(B2B\) or 2 days \(B2C\)/);
+});

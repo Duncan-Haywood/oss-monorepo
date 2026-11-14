@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseCsv, parseNumber, parseWhen, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS } from "./calc.mjs";
+import { parseCsv, parseNumber, parseWhen, detectDelimiter, detectDecimalComma, decodeBuffer, normalizeRows, analyze, sampleCsv, MIN_ORDERS, DAYPARTS } from "./calc.mjs";
 
 const HEAD = "Order ID,Platform,Order date,Status,Subtotal,Commission,Delivery fee,Marketing fees,Ad spend,Error charges,Net payout\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
@@ -299,4 +299,61 @@ test("the example file is stable: same sales, orders and dates every load", () =
   const r = analyze(normalizeRows(parseCsv(sampleCsv())).orders, {});
   assert.equal(r.summary.gross.toFixed(2), "6259.53");
   assert.equal(r.summary.orders, 246);
+});
+
+// Red-team 2026-11-14 (second campaign): the decimal format came from the
+// delimiter, so a tab-delimited European export read "12,50" as 1250 and a
+// semicolon file with dot decimals read "1,234.56" as 1.23.
+test("the decimal format is read from the amounts, not from the delimiter", () => {
+  const tab = "Order date\tSubtotal\tCommission\n01.06.2026 12:00\t12,50\t-3,13\n02.06.2026 12:00\t1.234,56\t-308,64\n";
+  const t = parseCsv(tab, detectDelimiter(tab));
+  assert.equal(detectDecimalComma(t), true);
+  const n = normalizeRows(t, { decimalComma: "auto" });
+  assert.deepEqual(n.orders.map((o) => [o.gross, o.commission]), [[12.5, 3.13], [1234.56, 308.64]]);
+
+  const semi = "Order date;Subtotal;Commission\n2026-06-01 12:00;1,234.56;-308.64\n2026-06-02 12:00;20.00;-5.00\n";
+  const s = parseCsv(semi, ";");
+  assert.equal(detectDecimalComma(s), false);
+  assert.deepEqual(normalizeRows(s, { decimalComma: "auto" }).orders.map((o) => o.gross), [1234.56, 20]);
+
+  // No telling digit pattern: the delimiter decides, as before.
+  const whole = "Order date;Subtotal;Commission\n2026-06-01 12:00;20;-5\n";
+  assert.equal(detectDecimalComma(parseCsv(whole, ";"), ";"), true);
+  assert.equal(detectDecimalComma(parseCsv(whole.replace(/;/g, ",")), ","), false);
+});
+
+test("the page asks for the decimal format to be detected", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /decimalComma: "auto"/);
+});
+
+test("two platforms with the same take rate are both named in the comparison", () => {
+  const body = Array.from({ length: 10 }, (_, i) => `O${i},${i % 2 ? "DoorDash" : "Grubhub"},2026-06-0${(i % 9) + 1} 12:00,Delivered,20,-5,0,0,0,0,15`).join("\n");
+  const f = analyze(load(body + "\n").orders, {}).findings.find((x) => / cost .* of sales; /.test(x.title));
+  assert.ok(f, "comparison finding present");
+  assert.match(f.title, /DoorDash/);
+  assert.match(f.title, /Grubhub/);
+});
+
+test("an 11:00 order is lunch, not morning", () => {
+  const body = Array.from({ length: 6 }, (_, i) => `O${i},DoorDash,2026-06-0${i + 1} 11:30,Delivered,20,-5,0,0,0,0,15`).join("\n");
+  const r = analyze(load(body + "\n").orders, {});
+  assert.deepEqual(r.byDaypart.map((d) => d.key), ["lunch"]);
+  assert.equal(DAYPARTS.find((p) => p.key === "morning").to, 11);
+});
+
+test("a blank direct-order fee falls back to 3% + $0.30, not 0%", () => {
+  const orders = load("A,DoorDash,2026-06-01 12:00,Delivered,100,-25,0,0,0,0,75\n").orders;
+  for (const blankPct of ["", undefined, null]) {
+    const r = analyze(orders, { directPct: blankPct, directFlat: "" });
+    near(r.summary.directPct, 0.03, 1e-9);
+    near(r.summary.direct.fee, 3.3, 1e-9);
+  }
+});
+
+test("the example's ad charges span the $1 to $3.50 range the generator draws", () => {
+  const ads = normalizeRows(parseCsv(sampleCsv())).orders.map((o) => o.ads).filter((v) => v > 0);
+  assert.ok(ads.length > 10);
+  assert.ok(Math.max(...ads) > 2.5, `largest ad charge ${Math.max(...ads)}`);
+  assert.ok(Math.min(...ads) >= 1);
 });

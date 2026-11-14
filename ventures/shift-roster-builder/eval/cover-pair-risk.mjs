@@ -8,6 +8,7 @@
 //   node eval/cover-pair-risk.mjs      SETS=cafe,spare,salon,retail,clinic  PRICE=25  SEEDED=0
 import { parseStaff, parseShifts, buildContext, buildRoster, coverRisk, coverPairRisk } from "../calc.mjs";
 import { sets } from "./real-rate-week.mjs";
+import { pathToFileURL } from "node:url";
 
 const BASE = { minRestHours: 10 };
 
@@ -20,7 +21,7 @@ export function pairLine(staff, slots, r, opts = BASE) {
   return { one, two, ms };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const all = sets();
   const pick = (process.env.SETS || Object.keys(all).join(",")).split(",").filter(Boolean);
   const price = Number(process.env.PRICE ?? 25);

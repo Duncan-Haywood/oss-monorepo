@@ -54,3 +54,17 @@ test("links to a neighbour and the hub and the sitemap entry is its own url bloc
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*oman-fawtara-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("keeps the facts read from Decision 189/2026 (2026-11-14)", () => {
+  const hub = fs.readFileSync(new URL("./e-invoicing-mandates-by-country.html", import.meta.url), "utf8");
+  const which = fs.readFileSync(new URL("./whichapplies.mjs", import.meta.url), "utf8");
+  assert.match(html, /Official Gazette issue 1660 of 9 August 2026/);
+  assert.match(html, /1 April 2027/);
+  assert.match(html, /1 October 2027/);
+  assert.match(html, /within 15 days/);
+  // Fawtara, Peppol and PINT-OM are not in the decision: the page must still mark them as reported.
+  assert.match(html, /names neither Peppol nor PINT/);
+  // The stale claim that baisa lines draw false mismatches is gone (49 of 49 pass since 2026-11-12).
+  assert.doesNotMatch(html, /still misreads line amounts in baisa/);
+  for (const text of [hub, which]) assert.doesNotMatch(text, /Gazette text (is )?unread/);
+});

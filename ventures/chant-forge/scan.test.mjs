@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H } from './scan.mjs';
+import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -76,6 +76,37 @@ test('a speck inside a head does not split it', () => {
   img.data[(y + 1) * img.width + 310] = 225;
   const [st] = readPage(readPgm(toPgm(img)));
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [3]);
+});
+
+test('a line crowded with heads keeps its own thickness, and the heads on it are read', () => {
+  // a recitation on one line: the heads alone cover over a fifth of the page
+  // width in the rows just above and below it (leaf 747 of the 1908
+  // Graduale, eval/thick-line-check.md)
+  const img = canvas(1600, 700);
+  const crowd = [];
+  for (let x = 140; x < 1440; x += 30) crowd.push([x, 4]);
+  drawStaff(img, 120, crowd);
+  drawStaff(img, 420, [[300, 2]]);
+  const bin = binarize(img);
+  const staves = findStaves(bin);
+  assert.equal(staves.length, 2);
+  for (const l of staves[0].lines) assert.ok(l.bottom - l.top + 1 <= 5, `line ${l.top}-${l.bottom}`);
+  const page = readPage(readPgm(toPgm(img)));
+  assert.equal(page[0].notes.length, crowd.length);
+  assert.ok(page[0].notes.every((n) => n.rel === 4 - 6));
+  // trimLine on its own: a band of head rows around a 3 px line
+  const y = 120 + S - 1;
+  assert.deepEqual(trimLine(bin, y - 9, y + 11), [y - 1, y + 3]);
+});
+
+test('a staff whose second line sits a few pixels low is still found', () => {
+  // a tilted page moves one line's centre: the spacing from the first two
+  // lines then misses the last line, the spacing from the outer two does not
+  const img = canvas(1600, 400);
+  for (const [k, dy] of [[0, 0], [1, 4], [2, 0], [3, 0]]) rect(img, 60, 120 + k * S + dy - 1, 1440, 3);
+  const staves = findStaves(binarize(img));
+  assert.equal(staves.length, 1);
+  assert.ok(Math.abs(staves[0].space - S) < 1);
 });
 
 test('gabcSteps: clef-relative steps, custos and accidentals skipped, clef changes followed', () => {
@@ -205,4 +236,77 @@ test('a small note on a short thick stem is a liquescent, read after its head at
   const [st] = readPage(readPgm(toPgm(img)));
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 3, 4, 3, 4, 2, 4, 3]);
   assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'liquescent', 'square', 'liquescent', 'square', 'square', 'square', 'square']);
+});
+
+// turn a drawn page by `deg` degrees about its centre (bilinear, as a
+// scanner's slightly turned page would come out)
+function rotate(img, deg) {
+  const { width, height, data } = img;
+  const out = canvas(width, height);
+  const a = (deg * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
+  const cx = width / 2, cy = height / 2;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const u = c * (x - cx) + s * (y - cy) + cx, v = -s * (x - cx) + c * (y - cy) + cy;
+      const x0 = Math.floor(u), y0 = Math.floor(v);
+      if (x0 < 0 || y0 < 0 || x0 + 1 >= width || y0 + 1 >= height) continue;
+      const fx = u - x0, fy = v - y0, at = (i, j) => data[j * width + i];
+      out.data[y * width + x] = Math.round(
+        at(x0, y0) * (1 - fx) * (1 - fy) + at(x0 + 1, y0) * fx * (1 - fy) + at(x0, y0 + 1) * (1 - fx) * fy + at(x0 + 1, y0 + 1) * fx * fy);
+    }
+  }
+  return out;
+}
+function threeStaves() {
+  const img = canvas(1600, 1000);
+  const heads = [
+    [[200, 0], [300, 2], [400, 4], [500, 3], [600, 6], [700, 5], [800, 1], [1000, 2], [1200, 4], [1350, 3]],
+    [[220, 4], [320, 4], [420, 4], [520, 4], [620, 4], [720, 4], [820, 5], [920, 3], [1100, 2]],
+    [[200, 1], [330, 3], [460, 2], [590, -1], [720, 0], [850, 2], [980, 4], [1200, 6]],
+  ];
+  heads.forEach((h, k) => drawStaff(img, 160 + k * 280, h));
+  return { img, heads };
+}
+
+test('a square page is not straightened: estimateSkew gives 0 and readPage reads as before', () => {
+  const { img, heads } = threeStaves();
+  assert.equal(estimateSkew(binarize(img)), 0);
+  const page = readPage(img);
+  assert.deepEqual(page, readPage(img, { deskew: false }));
+  assert.deepEqual(page.map((st) => st.notes.map((n) => n.rel + 6)), heads.map((h) => h.map(([, p]) => p)));
+});
+
+for (const deg of [0.8, -1.2, 2.5]) {
+  test(`a page turned ${deg} degrees is straightened and every staff read (leaf 424)`, () => {
+    const { img, heads } = threeStaves();
+    const turned = rotate(img, deg);
+    const bin = binarize(turned);
+    const t = estimateSkew(bin);
+    // the shear that levels the lines undoes the turn: within 0.05 degrees
+    assert.ok(Math.abs((Math.atan(t) * 180) / Math.PI + deg) < 0.05, `estimated ${(Math.atan(t) * 180) / Math.PI}`);
+    const before = readPage(turned, { deskew: false });
+    const page = readPage(turned);
+    assert.equal(page.length, 3);
+    assert.deepEqual(page.map((st) => st.notes.map((n) => n.rel + 6)), heads.map((h) => h.map(([, p]) => p)));
+    assert.ok(Math.abs(page[0].skew + deg) < 0.05);
+    // without straightening the same page loses staves or notes
+    const want = heads.flat().length;
+    const got = (p) => p.reduce((s, st) => s + st.notes.length, 0);
+    assert.ok(before.length < 3 || got(before) < want || before.some((st, k) => st.notes.some((n, i) => n.rel + 6 !== heads[k]?.[i]?.[1])));
+    // note y is given on the page as scanned: the first head of each staff
+    // sits where the turned page has ink
+    for (const st of page) {
+      const n = st.notes[0];
+      assert.equal(bin.ink[n.y * bin.width + n.x], 1, `staff ${st.staff} first head at ${n.x},${n.y}`);
+    }
+  });
+}
+
+test('shearColumns moves whole columns and keeps every ink pixel on the page', () => {
+  const bin = { width: 10, height: 10, ink: new Uint8Array(100) };
+  bin.ink[5 * 10 + 0] = 1; bin.ink[5 * 10 + 9] = 1;
+  const out = shearColumns(bin, 0.4);
+  assert.equal(out.ink.reduce((a, b) => a + b, 0), 2);
+  assert.equal(out.ink[(5 - 2) * 10 + 0], 1); // column 0: (0 - 5) * 0.4 = -2
+  assert.equal(out.ink[(5 + 2) * 10 + 9], 1); // column 9: (9 - 5) * 0.4 = 1.6, rounds to 2
 });

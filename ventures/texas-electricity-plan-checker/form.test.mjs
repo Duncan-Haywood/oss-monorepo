@@ -34,3 +34,18 @@ test('share in windows is a percent in the form, a fraction in the plan', () => 
   assert.equal(p.touShare, 0.35);
   assert.equal(planToFields(p).touShare, '35');
 });
+
+// Red team 2026-11-14: "$, at ," read as a $0 credit from 0 kWh up, and "1.2.3 under ," as a NaN fee.
+test('a malformed number in a list field is an error, not a silent 0 or NaN', () => {
+  assert.throws(() => textToCredits('$, at ,'), /credit/);
+  assert.throws(() => textToCredits('125 at 1,,000-2000'), /credit/);
+  assert.throws(() => textToFees('1.2.3 under 500'), /fee/);
+  assert.throws(() => textToFees('9.95 under ,'), /fee/);
+  assert.throws(() => textToEnergy('8.2.1 to 1000'), /energy charge/);
+  assert.throws(() => textToEnergy('.'), /energy charge/);
+  assert.throws(() => textToTou('1.2.3 all 21-6'), /time-of-use/);
+  assert.deepEqual(textToCredits('$125 at 1,000-2,000'), [{ amount: 125, min: 1000, max: 2000 }]);
+  assert.deepEqual(textToFees('$9.95 under 1,000'), [{ amount: 9.95, below: 1000 }]);
+  // "1,000" is one number, not a 1 kWh tier and a 0¢ tier.
+  assert.deepEqual(textToEnergy('8.2¢ to 1,000, 12.9'), [{ cents: 8.2, upTo: 1000 }, { cents: 12.9, upTo: null }]);
+});
