@@ -1,0 +1,24 @@
+cell-fidelity milestone 5p: fade attribution over 20 DFN cycles (128 runs; fade from cycle 2 to 20)
+
+OKane2022@1x: 4 designs; median fade both 0.1344, sei 0.0008, plating 0.1346, none 0.0001; degradation adds 0.1344, plating alone 1.002, SEI alone 0.006 of it
+  lithium lost by cycle 20: plating-only 7.835% of inventory, SEI-only 0.0166%; true lost / side-reaction variable 1.0000 (parallel electrodes 1); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+Ai2020@0.3x: 4 designs; median fade both 0.2101, sei 0.0011, plating 0.2104, none 0.0000; degradation adds 0.1728, plating alone 0.999, SEI alone 0.002 of it
+  lithium lost by cycle 20: plating-only 13.159% of inventory, SEI-only 0.0586%; true lost / side-reaction variable 34.0000 (parallel electrodes 34); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+Ai2020@1x: 4 designs; median fade both 0.0707, sei 0.0163, plating 0.0717, none 0.0161; degradation adds 0.0520, plating alone 1.015, SEI alone 0.000 of it
+  lithium lost by cycle 20: plating-only 8.891% of inventory, SEI-only 0.0135%; true lost / side-reaction variable 34.0000 (parallel electrodes 34); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+Chen2020@1x: 4 designs; median fade both 0.1312, sei 0.0006, plating 0.1312, none 0.0000; degradation adds 0.1280, plating alone 1.000, SEI alone 0.004 of it
+  lithium lost by cycle 20: plating-only 7.939% of inventory, SEI-only 0.0172%; true lost / side-reaction variable 1.0000 (parallel electrodes 1); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+Ecker2015@1x: 3 designs; median fade both -0.0063, sei 0.0010, plating 0.0053, none 0.0025; degradation adds -0.0139, plating alone 0.886, SEI alone 0.103 of it
+  lithium lost by cycle 20: plating-only 0.724% of inventory, SEI-only 0.0101%; true lost / side-reaction variable 1.0000 (parallel electrodes 1); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+NCA_Kim2011@1x: 4 designs; median fade both 0.1948, sei -0.0503, plating 0.1936, none -0.0497; degradation adds 0.2445, plating alone 0.998, SEI alone -0.002 of it
+  lithium lost by cycle 20: plating-only 33.660% of inventory, SEI-only 0.1478%; true lost / side-reaction variable 1.0000 (parallel electrodes 1); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+Mohtat2020@1x: 4 designs; median fade both 0.0041, sei 0.0005, plating 0.0035, none 0.0000; degradation adds 0.0041, plating alone 0.860, SEI alone 0.135 of it
+  lithium lost by cycle 20: plating-only 0.573% of inventory, SEI-only 0.0588%; true lost / side-reaction variable 1.0000 (parallel electrodes 1); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+Marquis2019@1x: 4 designs; median fade both -0.0069, sei 0.0001, plating -0.0069, none 0.0000; degradation adds -0.0069, plating alone 0.903, SEI alone 0.107 of it
+  lithium lost by cycle 20: plating-only 0.528% of inventory, SEI-only 0.0071%; true lost / side-reaction variable 1.0000 (parallel electrodes 1); closed-form SEI / SEI-only run's loss - 1 = +0.0000
+
+H96 ratio / n_parallel over 93 degraded runs: min 1.00000, max 1.00000
+H97/H98 scored on 5 of 8 conditions (degradation adds more than 1% fade)
+H99 closed-form SEI relative error over 31 runs: max |e| 0.0000
+
+Verdicts: H96 supported, H97 supported, H98 supported, H99 supported

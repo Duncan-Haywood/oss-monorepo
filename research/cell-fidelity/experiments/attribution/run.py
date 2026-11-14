@@ -18,7 +18,8 @@ import os
 import statistics
 import sys
 import time
-from concurrent.futures import ProcessPoolExecutor
+import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -144,16 +145,30 @@ def _load(path):
     return [json.loads(l) for l in path.read_text().splitlines() if l.strip()] if path.exists() else []
 
 
+def _spawn(job, timeout=1800):
+    """One fresh process per run (a solver crash or a memory kill then fails one run, not the bench)."""
+    c, j, v, x = job
+    try:
+        p = subprocess.run([sys.executable, __file__, "child", json.dumps([c, j, v, list(map(float, x))])],
+                           capture_output=True, text=True, timeout=timeout)
+        if p.returncode == 0 and p.stdout.strip():
+            return json.loads(p.stdout.strip().splitlines()[-1])
+        err = f"exit {p.returncode}: {p.stderr.strip()[-160:]}"
+    except subprocess.TimeoutExpired:
+        err = f"timeout {timeout}s"
+    return dict(cond=c, j=j, variant=v, x=list(map(float, x)), ok=False, error=err, seconds=None)
+
+
 def bench():
     path = HERE / "bench.jsonl"
     done = {(r["cond"], r["j"], r["variant"]) for r in _load(path)}
     todo = [jb for jb in jobs() if (jb[0], jb[1], jb[2]) not in done]
     print(f"{len(todo)} runs to go", flush=True)
-    with ProcessPoolExecutor(WORKERS) as ex, path.open("a") as fh:
-        for r in ex.map(simulate, todo):
+    with ThreadPoolExecutor(WORKERS) as ex, path.open("a") as fh:
+        for r in ex.map(_spawn, todo):
             fh.write(json.dumps(r) + "\n")
             fh.flush()
-            print(r["cond"], r["j"], r["variant"], "ok" if r["ok"] else r["error"], f"{r['seconds']:.1f}s", flush=True)
+            print(r["cond"], r["j"], r["variant"], "ok" if r["ok"] else r["error"], flush=True)
 
 
 # ---------- report (stdlib) ----------
@@ -224,7 +239,9 @@ def report():
 
 if __name__ == "__main__":
     cmd = sys.argv[1:2]
-    if cmd == ["bench"]:
+    if cmd == ["child"]:
+        print(json.dumps(simulate(tuple(json.loads(sys.argv[2])))))
+    elif cmd == ["bench"]:
         bench()
     elif cmd == ["report"]:
         report()
