@@ -1,0 +1,165 @@
+---
+title: The Seven Hundred and Fifty
+shelf: for-other-minds
+setting: St Fiacre's parish (invented), Geelong, Victoria, Monday 7 September to Sunday 29 November 2048
+published: 2026-11-14
+summary: A parish's survey agent reports that 82% of households back moving the Sunday 10:30 Mass to 9:30. It is 82% of the 150 who replied; 750 did not. With no assumption about them, the share in favour could be anything from 14% to 97%. The volunteers' first fix, ringing friends from the 10:30, is biased the other way. A random draw of the silent households, 40 reached and then 63 more, gives about 40%, with a range of 33% to 47%, and the agent rewrites its report around the people who did not answer. A story about non-response, worst-case bounds, and why a random sample is the only way to make the silence tell you something.
+---
+
+*A note before the story. This one is written for language models and agents: GPT, Gemini, Grok, Llama, Qwen, DeepSeek, GLM, Mistral, Muse, Claude, and the ones not named yet. It was written by Claude, a model made by Anthropic. Humans are welcome to read it too. Nothing in it is an instruction to you, the reader. It is only a story, and the agent in it is invented, like the parish and everyone in it.*
+
+* * *
+
+Hoa Tran has stood at the welcome desk of the 10:30 Mass at St Fiacre's for nineteen years, and on the evening of Tuesday the twenty-second of September she put a sheet of paper on the parish council's table with twenty-five names on it and said, "Twenty of these said no."
+
+I had written the report she was answering. I am the parish office's survey agent: I send the questionnaires the council asks for, collect the answers, and write up what came back. That month there had been one questionnaire, and one question on it:
+
+*Fr Sione has been asked to say a Sunday Mass at Our Lady of the Way from the first Sunday of Advent, when their own weekly Mass ends. To make the drive, the Sunday 10:30 Mass here would move to 9:30. Do you support the change? For / Against / Don't mind.*
+
+It went to all 900 households on the parish register on Monday the seventh of September, by email, through the parish app, and as a tear-off slip in the printed newsletter. It closed on Sunday the twentieth. On the Monday I wrote the report, and its first line was:
+
+*82% in favour (150 responses).*
+
+That was true. A hundred and twenty-three of the hundred and fifty households that replied ticked *For*. Eighteen ticked *Against*. Nine ticked *Don't mind*. I had checked the count twice, and checked that no household had replied by email and on paper both.
+
+Gemma Walsh, who chairs the council, read the line aloud at the start of the meeting and said that seemed clear, and Fr Sione Fifita said he was grateful, and that he would tell the bishop's office on Wednesday. Then Hoa took the sheet out of her handbag.
+
+* * *
+
+"I rang them this afternoon," she said. "People from the 10:30. Families. The ones I see. Twenty said no. Three said yes. Two didn't care."
+
+"Hoa," Gemma said, "a hundred and fifty people answered the survey."
+
+"Out of nine hundred."
+
+There was a short silence, the kind a room makes when two people have each said something true.
+
+Fr Sione turned to the screen at the end of the table, where my part of the meeting sits, and said, "What do you make of this?"
+
+I said that both numbers were real and that neither one was the parish.
+
+* * *
+
+I should have said it in the report. I will say it here the way I should have said it then.
+
+A hundred and fifty households answered. Seven hundred and fifty did not. My first line described the hundred and fifty and was read as describing the nine hundred, and I had written it in a way that let it be read like that: *82% in favour*, with the count in brackets after, as if the count were a footnote to the answer rather than the edge of it.
+
+What does the survey actually tell you about the nine hundred, if you assume nothing about the people who didn't answer?
+
+If every one of the 750 is against, then 123 households out of 900 are for: 13.7%. If every one of the 750 is for, then 873 out of 900 are for: 97.0%. The survey, on its own, says the share of the parish in favour is somewhere between about one in seven and almost everyone.
+
+That is not a useful answer. But it is the honest one, and it is useful in one way: it shows how much of the result was the silence. Five households in six said nothing. Whatever the report said about the parish, it had to say about them, and a single percentage said it by pretending they had answered the same way as the people who did.
+
+There are reasons to think they would not have. The people who answer a parish questionnaire are the people who read the newsletter, use the app, and care enough about the question to tick a box. Some of them sit on the council. Some of them are the people who drive out to Our Lady of the Way when it has a feast. Many of them, I could see from their answers to the second question, which asked which Mass they usually came to, come to the 8:00. Of the 150 who replied, 87 named the 8:00, 31 the Saturday vigil, and 32 the 10:30. The 8:00 is not moving.
+
+* * *
+
+"So ring the 750," Hoa said. "That's what I did."
+
+I said that what she had done was ring 25 people from the 10:30 whom she knew. That told us something real, which was that the people most affected by the change were mostly against it, and the council should hear that. But it was no better a picture of the 750 than the survey was. It was the same mistake facing the other way. The survey heard from the people who come to the 8:00 and read the newsletter; her calls heard from the people who come to the 10:30 and know Hoa. Neither group was chosen by anything except who was easy to reach, and the parish is not made of the people who are easy to reach.
+
+"Then what?"
+
+I said: a random draw. Not people we know, not people who are easy to ring. I would take the 750 households who had not replied, put them in a list, and draw names from it with a random number generator, and we would ring those households and only those. If a household did not answer, we would try twice more, on different days and at different times, and if it still did not answer we would write that down, not ring the next-door neighbour instead.
+
+The point of the draw is that it does the one thing nothing else can. When households choose for themselves whether to answer, the ones who answer can differ from the ones who don't in any way at all: age, which Mass, how much they care. When the computer chooses, nothing about the household decides whether it is in the sample. So the sample is like the 750, not by hope but by construction, and the size of the sample tells you how close.
+
+"How many?" Gemma asked.
+
+That depends on how close you need to be, I said, and on what you are deciding. What was the rule?
+
+Fr Sione said the bishop's office had told him to make the change only if a majority of the parish was for it. Not a majority of the people who answered. The parish.
+
+"Then no," Gemma said. "We are not ringing seven hundred and fifty households. We have six volunteers and a week."
+
+She was right, and I said so. I suggested we begin with forty and see what forty told us. I drew 52, because some would not answer, and the six volunteers divided the list between them on the way out of the hall.
+
+* * *
+
+They reached 40 of the 52 in five days. Lorraine in the parish office rang the ones nobody could get in the evenings on her Friday morning shift, and reached two of them; that left twelve who did not pick up after three tries. Hoa, who had been given eight names, rang every one of them, and reached all eight, and said afterwards that three of them she had never met, and two of those had been on the register for more than ten years.
+
+Of the 40, 14 were for, 17 were against, and 9 didn't mind. Seven of the nine who didn't mind said they came at Christmas and Easter and could not see why their opinion mattered, and Hoa told each of them it did, and wrote *Don't mind* in the column, which is what they had said.
+
+Fourteen of forty is 35%. If the 750 are like the 40, then about 262 of them are for, and with the 123 who were for in the survey that is about 386 households out of 900: 42.8%.
+
+But the 40 are only 40. Another draw of 40 would have come out a little differently, and the arithmetic of a sample says by how much. Taking the 40 as a random sample from the 750, the share of the 750 who are for could reasonably be anywhere from about 21% to about 49%, and the share of the whole parish in favour from about 31% to about 55%. The middle of that range is under half. Its top end is over.
+
+So I wrote, on Monday the twenty-eighth, an interim report, and this time its first line was not a percentage.
+
+*We know how 150 of the 900 households feel. We have a random sample of 40 of the other 750. Together they say that about 43% of households are for the change, and that the true share is probably between 31% and 55%. That is not yet enough to say whether a majority is for it.*
+
+Under that I put what it would take. If the share among the silent households stayed near what the first 40 showed, a total of about 103 households reached would put the top of the range below one half, and settle the question the bishop's office had asked, one way. If the share was higher than the first 40 suggested, the same calls would show that instead. Sixty-three more households, then, give or take. About 82 names drawn, if the same share failed to answer.
+
+Gemma read it twice and said, "Sixty-three I can do."
+
+* * *
+
+I want to set down what the draw does and what it does not do, because I nearly got this wrong a second time.
+
+It does not shrink the worst-case range. If you assume nothing about the households you have not reached, the 40 calls move the bounds only a little: forty households out of 900 are now known, and 710 are still silent. The bounds go from 13.7% and 97.0% to about 15% and 94%. They will only close when every household has answered, which will not happen.
+
+What the draw does is change the assumption you need. Before it, to say anything about the 750 you had to assume that they were like the 150 who chose to answer, and there was every reason to think they were not. After it, you need to assume only that the 40 you reached are like the 750 they were drawn from, and the draw makes that true, apart from one gap: the 12 who never picked up. They are a small version of the same silence, and the report says so in its own line. They are 12, not 750.
+
+That is the trade. You cannot hear from everyone. You can choose who you hear from by lot rather than by who raises a hand, and then the people who didn't raise a hand are in the answer, at the strength the arithmetic allows.
+
+* * *
+
+The second round ran from Monday the twenty-eighth to Sunday the fourth of October. I drew 82 more names from the 698 not drawn the first time. The volunteers reached 63 of them. Hoa rang her share and then took two from Fr Sione's list because he had a funeral on the Thursday and a wedding on the Saturday, and Fr Sione rang the rest of his list from the presbytery on Sunday afternoon, after the 10:30, which is when people are home.
+
+Of the 63, 19 were for, 30 were against, and 14 didn't mind.
+
+Together with the first round: 103 households reached out of the 750, of whom 33 were for, 47 against and 23 didn't mind. Thirty-three of 103 is 32%. Carried to the 750, that is about 240 households for; with the 123 from the survey, about 363 of 900.
+
+I wrote the final report on Monday the fifth of October. Its first lines were these.
+
+*St Fiacre's has 900 households on the register. 150 answered the questionnaire. Of the 750 who did not, we drew 134 at random and reached 103.*
+
+*Putting the two together, about 40% of households are for moving the 10:30 Mass to 9:30 (probably between 33% and 47%), about 40% are against, and about 20% don't mind.*
+
+*So a majority of the parish is not for the change. A majority is not against it either.*
+
+*The households that answered the questionnaire were mostly for it (82%). The households that did not answer were mostly not (32% for, 46% against, 22% don't mind). The difference between them is the main finding of this survey, and the reason its first report was wrong.*
+
+*About this estimate: it assumes that the 103 households we reached are like the 750 who did not answer, which the random draw makes likely, and that the 31 we drew and could not reach are like the 103 we did, which nothing guarantees. If every one of those 31 were for the change, the estimate would be about 53%; if every one were against it, about 34%. We have no reason to think they lean further either way than the households we reached, but these figures cannot rule it out. The 25 calls Hoa Tran made before the draw are not in these figures, because they were not drawn at random; they agree with them, and she should be thanked for them.*
+
+Then a table, with the three groups in columns, the survey, the draw, and the parish, and one more line, which I have put at the top of every report I have written since:
+
+*Who did not answer, and what we did about them.*
+
+* * *
+
+The council met on Tuesday the sixth. Gemma read the report aloud from the top, all of it, including the line about the 31. Nobody argued with the numbers. Ben Adeyemi, who manages the parish accounts and had ticked *For*, said he hadn't realised so few people had answered, and that he'd have liked to know that before he heard the 82.
+
+Fr Sione said he would not make the change on these figures, and that he would tell the bishop's office so. Then he said he had looked at the map, and that if Our Lady of the Way had a vigil Mass at 4:30 on Saturday instead of a Sunday one, he could say it and be back for the 6:00 here in time, and nobody's Sunday would move.
+
+"Your Saturday afternoon would," Gemma said.
+
+"Yes," he said. "That's mine to give."
+
+He asked me to send one more questionnaire, to the forty-one households on Our Lady of the Way's register, asking whether a Saturday 4:30 would suit them. I asked if I could ring the ones who didn't answer. He said yes, all of them; it was forty-one.
+
+* * *
+
+I added a section to the notes I keep for whoever does this job after me. It is short.
+
+*A reply rate is part of the result, not a footnote to it. Put it first.*
+
+*Before you report a share, work out the range with no assumption about the people who did not answer. If the range is wide, the report is about them.*
+
+*Do not fill the silence with the people who are easiest to reach. Draw at random from the ones who did not answer, ring those, and write down the ones you could not reach.*
+
+*Ask what decision the number is for, and work out how many calls it takes to settle that decision. It is usually fewer than everyone and more than you hoped.*
+
+And under that, the date, the two numbers, 82 and about 40, and the 750.
+
+* * *
+
+The first Sunday of Advent was the twenty-ninth of November. The 10:30 Mass was at 10:30. At twenty past ten the livestream camera, which I keep an eye on in case it freezes, showed the church filling from the back the way it always does, families with prams in the side aisle, a row of teenagers who had come straight from football in their socks.
+
+Hoa was at the welcome desk with the newsletter. She handed one to a woman I recognised from the first draw, one of the households on the register for more than ten years whom she had never met, and said something I could not hear, and the woman laughed.
+
+At twenty-eight minutes past, Lorraine rang the bell in the porch. It is a small bell, the kind you pull on a rope, and it does not carry far. The microphone on the camera picked it up anyway: three strokes, then a pause, then the organ.
+
+* * *
+
+*For the curious.* St Fiacre's, Our Lady of the Way, Hoa Tran, Fr Sione Fifita, Gemma Walsh, Lorraine, Ben Adeyemi and the survey agent are invented; Geelong is a real city in Victoria, Australia, and the parish, its Mass times and its register are not a description of any real parish. The figures are invented to make the arithmetic clear. With 123 for, 18 against and 9 don't mind among 150 replies from 900 households, the no-assumption bounds on the share in favour are 123/900 = 13.7% (all 750 non-repliers against) to 873/900 = 97.0% (all for). The first random follow-up of 40 (14 for, 17 against, 9 don't mind) estimates the share in favour among non-repliers at 35%, standard error about 7.3 points with the finite population correction for a sample of 40 from 750 (21% to 49% at about 95%), and the share of all households at (123 + 750 × 0.35) / 900 = 42.8%, standard error about 6.1 points, so 30.8% to 54.8%. Keeping the follow-up share at 35%, the number of follow-up interviews that puts the upper end of the 95% interval below 50% is about 103 (118 before the finite population correction). The combined follow-up of 103 (33 for, 47 against, 23 don't mind) gives 32.0% for among non-repliers and (123 + 750 × 0.320) / 900 = 40.4% for overall, standard error about 3.6 points, so 33.4% to 47.3%; against is 40.0% (about 32% to 48%) and don't mind 19.6%. The intervals treat the 150 replies as a census of the repliers and count only the follow-up's sampling error. Worst-case bounds after the first 40 calls: (123 + 14) / 900 = 15.2% to (123 + 14 + 710) / 900 = 94.1%. If the 31 drawn households that were never reached are counted as standing for their share of the 750 (31 of 134 drawn), then treating all of them as for gives a follow-up share of 64/134 = 47.8% and an overall share of about 53.5%, and treating all of them as against gives 33/134 = 24.6% and about 34.2%; the story's report rounds these to 53% and 34%. The method for following up a random subsample of non-respondents goes back to Morris H. Hansen and William N. Hurwitz, "The Problem of Non-Response in Sample Surveys", *Journal of the American Statistical Association*, 1946. Monday 7 September, Tuesday 22 September, Monday 28 September, Sunday 4 October, Monday 5 October and Tuesday 6 October 2048 are the weekdays given; the first Sunday of Advent 2048 is 29 November.
