@@ -44,13 +44,26 @@ export function emptyState() {
  * The changes the chosen detector finds in the newest `window` points. Indexes are absolute
  * (0-based in the full series). opts: detector 'pelt' | 'bocpd', model, penalty, period, log, ...
  */
-export function detectChanges(values, labels, opts = {}) {
+export function detectChanges(values, labels, opts0 = {}) {
+  const { minShift, ...opts } = opts0;
   const d = opts.detector ?? defaultDetector(opts.model ?? 'mean');
   if ((d.startsWith('bocpd-ar1') || d === 'drift') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
-  if (d === 'drift') return detectDrift(values, labels, opts);
+  if (d === 'drift') return aboveFloor(detectDrift(values, labels, opts), minShift);
   const all = detectBoth(values, labels, { ...opts, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
-  return all[d];
+  return aboveFloor(all[d], minShift);
+}
+
+/**
+ * The smallest-move floor (option minShift, `watch.mjs --min-shift`; README "Round 14"): drop a detection whose level
+ * moved by less than `floor` in the series' own units (|shift|, the move the alert message states). Applied at every
+ * check before the guards, so a change too small at one check can clear the floor at a later one and is then sent.
+ * A detection with no level on each side (none of the shipped detectors) is kept. 0, null or undefined: no floor.
+ */
+export function aboveFloor(changes, floor) {
+  if (floor == null || floor === 0) return changes;
+  if (!(typeof floor === 'number' && floor > 0 && Number.isFinite(floor))) throw new Error('minShift (--min-shift) takes a number above 0.');
+  return changes.filter((c) => c.shift === undefined || Math.abs(c.shift) >= floor);
 }
 
 /** Both detectors' changes from one engine run: { pelt, bocpd }. */
