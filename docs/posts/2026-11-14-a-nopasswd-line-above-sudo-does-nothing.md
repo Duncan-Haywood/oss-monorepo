@@ -3,7 +3,7 @@ title: "A NOPASSWD line above %sudo does nothing: a free sudoers checker"
 seo_title: "Free sudoers checker: NOPASSWD, shell escapes, ALL minus su"
 date: 2026-11-14
 tags: [sudo, linux, security, self-hosting, devsec, open-source]
-description: "A free tool reads /etc/sudoers and sudoers.d for root shells hidden in vim, less and find rules, ALL minus su, NOPASSWD lines that never apply and skipped .conf files."
+description: "A free tool reads /etc/sudoers and sudoers.d for root shells hidden in vim, less and find rules, ALL minus su, and NOPASSWD lines that never apply."
 ---
 
 The [sudoers Check](../../ventures/sudoers-check/) is a new free tool in the
