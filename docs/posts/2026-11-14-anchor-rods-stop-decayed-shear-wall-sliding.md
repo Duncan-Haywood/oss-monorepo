@@ -2,7 +2,7 @@
 title: "The anchor rod that broke our explanation of a decayed shear wall"
 date: 2026-11-14
 tags: [buildbot-sheathing, shear-walls, timber-engineering, limit-analysis, negative-result]
-seo_title: "Do hold-down anchor rods stop a decayed shear wall sliding on its sill?"
+seo_title: "Do anchor rods stop a decayed shear wall sliding on its sill?"
 description: "Once the hold-downs' anchor rods are modelled, a decayed shear wall can't slide on its sill nails, and no end-nail strength fits the tested 3 in wall."
 ---
 
