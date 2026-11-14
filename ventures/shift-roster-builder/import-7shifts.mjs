@@ -394,7 +394,10 @@ export function import7shiftsStaff(inputs, opts = {}) {
 export async function fetch7shiftsStaff({ token, companyId, base = "https://api.7shifts.com", fetchImpl = globalThis.fetch, maxPages = 50, maxUsers = 500 }) {
   if (!token) throw new Error("Set SEVENSHIFTS_ACCESS_TOKEN to an access token from your own 7shifts account (7shifts API documentation: access tokens).");
   const one = async (path, params = {}) => {
-    const u = new URL(path + (Object.keys(params).length ? "?" + new URLSearchParams(params) : ""), base);
+    // API request parameters (not page state), set on the request URL for 7shifts.
+    const query = new URLSearchParams(params);
+    const request = Object.keys(params).length ? path + "?" + query : path;
+    const u = new URL(request, base);
     const res = await fetchImpl(u.toString(), { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } });
     if (!res.ok) throw new Error(`7shifts answered ${res.status} for ${u.pathname}${res.status === 401 ? " (check the access token)" : res.status === 403 ? " (the token lacks permission for this company; wages need a manager-level token)" : ""}.`);
     return res.json();
