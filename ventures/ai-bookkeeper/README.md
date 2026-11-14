@@ -1062,6 +1062,20 @@ list monthly and quarterly only, so `--state NC --freq annual` now says so. Geor
 vendor's compensation, until now from search excerpts, was read on Form ST-3 Part C itself. Quotes
 and what still refused: [`eval/state-pages-2026-11-14.md`](eval/state-pages-2026-11-14.md).
 
+**Michigan and Virginia discounts, from their 2026 forms (2026-11-14, third pass).** Both were
+left unapplied until now: Michigan's is a greater-of with a floor, and for Virginia only the statute
+had been read. Today michigan.gov and tax.virginia.gov answered. `--state MI` now applies the 2026
+Form 5080 rule for payment by the 20th: the greater of 0.5% of the 4% part of the tax (tax x .6667 x
+.005, at most $15,000 a period) and $6 for each month of the period ($18 a quarter), never more than
+2/3 of the tax; annual filers get $72, or 2/3 of a smaller tax (Form 5081). `--state VA` applies the
+Form ST-1 (Rev. 09/26) worksheet: taxable sales x 0.043 x .01116, .00837 or .00558, the rate picked
+by monthly taxable sales (a quarter's divided by 3). That is 1.116% to 0.558% of the state tax, not the
+statute's 4% to 2% of the first 3%, so the earlier choice not to apply the statute held up. Two new
+discount shapes carry them: `floorPerMonth`/`floorShare` and `onSales`/`bands`. Not applied: Michigan's
+0.75% for payment by the 12th and accelerated filers' uncapped rate; Virginia dealers notified that
+their average monthly liability exceeds $20,000 (remove it with `--discount "VA state=0"`). Quotes and
+the one place Michigan's form and statute differ: [`eval/state-pages-2026-11-14c.md`](eval/state-pages-2026-11-14c.md).
+
 **Missouri, New York, Ohio and Tennessee, and two new vendor discounts (2026-11-14, later).** A
 second pass the same day reached dor.mo.gov, tax.ny.gov, tn.gov and Ohio's statute on codes.ohio.gov.
 Every due date matched the preset already here (Missouri's month end, New York's 20 days after its
@@ -1101,9 +1115,9 @@ South Carolina) and `min` (a floor of the lesser of `min` and the tax, for Wisco
 `stateDiscountNote` adds what the preset leaves out to the CLI worksheet and the page's sales
 tax card. That covers the Wyoming 15th, Arizona and South Carolina's yearly caps, Florida's
 electronic-only rule and Texas's 1.25% prepayment discount. It also explains why no discount
-is applied for Michigan (a greater-of rule on the 4% part with monthly limits, MCL 205.54),
-Indiana (the rate depends on the prior July-June liability), Virginia (statute only; the
-rates in force not confirmed on tax.virginia.gov), Oklahoma (STS-20002-C has no discount
+is applied for Michigan (a greater-of rule on the 4% part with monthly limits, MCL 205.54; applied
+since 2026-11-14, above), Indiana (the rate depends on the prior July-June liability), Virginia (statute only; the
+rates in force not confirmed on tax.virginia.gov; applied from Form ST-1 since 2026-11-14, above), Oklahoma (STS-20002-C has no discount
 line) and New Mexico (TRD-41413 has none). Local-tax discounts are not applied; add them
 with `--discount "<label>=..."`.
 
