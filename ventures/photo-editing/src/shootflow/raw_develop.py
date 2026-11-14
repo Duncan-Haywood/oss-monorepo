@@ -969,7 +969,8 @@ class RawImage:
     values: array  # 'H' (or 'I'), row-major, samples interleaved
     ifd: Ifd
     ifd0: Ifd
-    # "dng", "cr2" for a Canon CR2 read by ``shootflow.cr2`` or "arw" for a Sony ARW read by ``shootflow.arw``
+    # "dng", "cr2" for a Canon CR2 read by ``shootflow.cr2``, "arw" for a Sony ARW read by ``shootflow.arw`` or
+    # "nef" for a Nikon NEF read by ``shootflow.nef``
     # (DNG-equivalent tags, no colour matrix).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
@@ -1076,14 +1077,16 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CR2's, or a Sony ARW's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CR2's, Sony ARW's or Nikon NEF's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2
+    from shootflow import arw, cr2, nef
 
     if cr2.is_cr2(data):
         return cr2.parse_cr2(data, cfa=cfa)
     if arw.is_arw(data):
         return arw.parse_arw(data)
+    if nef.is_nef(data):
+        return nef.parse_nef(data)
     reader = _Reader(data)
     ifds = _all_ifds(reader)
     if not ifds:
@@ -1091,7 +1094,7 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
     ifd0 = ifds[0]
     if ifd0.one(TAG_DNG_VERSION) is None:
         raise DevelopError(
-            "not a DNG, a Canon CR2 or a Sony ARW (no DNGVersion tag); convert other maker RAW files with Adobe DNG Converter"
+            "not a DNG, a Canon CR2, a Sony ARW or a Nikon NEF (no DNGVersion tag); convert other maker RAW files with Adobe DNG Converter"
         )
     ifd = _raw_ifd(ifds)
     width = ifd.one(TAG_WIDTH)
@@ -1724,10 +1727,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
     if settings.dcp is not None and profile is None:
         raise DevelopError("the camera profile has no ColorMatrix1")
-    if raw.source in ("cr2", "arw") and profile is None:
-        example = "Canon EOS 5D Mark II" if raw.source == "cr2" else "Sony ILCE-7M3"
+    if raw.source in ("cr2", "arw", "nef") and profile is None:
+        example = {"cr2": "Canon EOS 5D Mark II", "arw": "Sony ILCE-7M3", "nef": "Nikon D810"}[raw.source]
         raise DevelopError(
-            f"a{'n' if raw.source == 'arw' else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
+            f"a{'n' if raw.source in ('arw', 'nef') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
             f".dcp profile with --dcp (Adobe's free DNG Converter installs one per camera, e.g. '{example} Adobe "
             "Standard.dcp' under CameraRaw/CameraProfiles), or convert the file to DNG"
         )

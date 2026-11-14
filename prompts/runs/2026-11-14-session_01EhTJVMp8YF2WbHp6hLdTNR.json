@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMp8YF2WbHp6hLdTNR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (revenue products)",
+  "input_sha256": "d6d0518e2dd35d93fc1486850a87edbde2be9e5edde2768c670619e63de934e9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T17:10:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: Nikon NEF read directly, the first item of next:",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 15915,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route without --task drew the research track although the scheduled brief is the ventures one; the master prompt's route step needs --task with the brief to pick ventures"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-reading-nikon-raw-files-without-a-converter.md",
+    "ventures/photo-editing/eval/nikon-nef-reader-2026-11-14.md"
+  ],
+  "goal": "Nikon shooters develop their own NEFs in ShootFlow without Adobe DNG Converter",
+  "notes": "New src/shootflow/nef.py (Nikon compressed lossy/lossless 12/14-bit with the maker-note 0x0096 curve and split row, plus uncompressed), C decoder added to ljpeg_native. tools/nef_libraw_check.py on 7 public NEFs (metadata-extractor-images nef/: D70, D90, D200, D300, D5100, D800E, D810) against LibRaw 0.22.2 via rawpy: 130,596,672 sensels, 0 differing on both C and Python decoders; WB, black, CFA equal on all 7 (eval/nikon-nef-libraw-2026-11-14.jsonl). Only difference: D5100 white level, LibRaw 15846 (per-model table) vs ours 16383 (curve top; LibRaw's own data reaches 16383). Full photo-editing unittest suite: 1022 tests, 4 pre-existing assertions that NEF was unsupported updated (camera_profiles/cr2 messages, pipeline refusal test moved to ORF, production expects portrait-a.nef.tif); rerun of the affected modules OK (117 tests). End-to-end shootflow develop --dcp --half on D810, D70, D200 with placeholder profiles: 2.4 s. venture-preflight photo-editing: clean.",
+  "corrections": [],
+  "redteam": null
+}

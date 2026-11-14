@@ -17,6 +17,10 @@ and size category for every 16-bit prefix) and writes one signed difference
 per component per MCU. Past the end of the words the stream reads as zeros,
 as in the Python reader. An invalid code returns -1 and the caller raises.
 
+The same library carries ``shootflow_nikon_run``, the whole Nikon NEF decode
+(Huffman pass, prediction and linearisation curve) of ``shootflow.nef``, whose
+pure-Python decoder stays the reference (``tests/test_nef.py`` runs both).
+
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
 """
@@ -231,6 +235,58 @@ long shootflow_predict(const int32_t *diffs, long width, long height, int nf, in
     }
     return 0;
 }
+
+/* Nikon compressed NEF (shootflow.nef._decode_python in C): MSB-first bits with no
+   stuffing, past the end reading as zeros. lut/lut2: 65536-entry prefix tables, entry
+   (length << 8) | symbol, 0 for no code; lut2 (the after-split table) is used from row
+   `split` when split > 0. vpred: the four starting predictions; curve: 0x4000 entries.
+   Returns 0, or -1 on an invalid code. Runs without the GIL (ctypes). */
+long shootflow_nikon_run(const uint8_t *d, long len, long width, long height,
+                         const uint16_t *lut, const uint16_t *lut2, long split,
+                         const uint16_t *vpred_in, const uint16_t *curve, uint16_t *out)
+{
+    uint64_t acc = 0;
+    int nbits = 0;
+    long p = 0;
+    uint16_t vpred[2][2] = {{vpred_in[0], vpred_in[1]}, {vpred_in[2], vpred_in[3]}};
+    uint16_t hpred[2] = {0, 0};
+    const uint16_t *t = lut;
+    for (long row = 0; row < height; row++) {
+        if (split > 0 && row == split && lut2) t = lut2;
+        uint16_t *o = out + row * width;
+        for (long col = 0; col < width; col++) {
+            while (nbits < 40) {
+                acc = (acc << 8) | (p < len ? d[p] : 0);
+                p++;
+                nbits += 8;
+            }
+            uint16_t e = t[(acc >> (nbits - 16)) & 0xFFFF];
+            if (!e) return -1;
+            nbits -= e >> 8;
+            int sym = e & 0xFF, l = sym & 15, shl = sym >> 4, take = l - shl;
+            int32_t bits = 0;
+            if (take > 0) {
+                nbits -= take;
+                bits = (int32_t)((acc >> nbits) & ((1u << take) - 1));
+            }
+            int32_t diff = (((bits << 1) + 1) << shl) >> 1;
+            if (!l) diff = 0;
+            else if ((diff & (1 << (l - 1))) == 0) diff -= (1 << l) - (shl ? 0 : 1);
+            uint16_t v;
+            if (col < 2) {
+                v = (uint16_t)(vpred[row & 1][col] + diff);
+                vpred[row & 1][col] = v;
+                hpred[col] = v;
+            } else {
+                v = (uint16_t)(hpred[col & 1] + diff);
+                hpred[col & 1] = v;
+            }
+            int16_t s = (int16_t)v;
+            o[col] = curve[s < 0 ? 0 : (s > 0x3FFF ? 0x3FFF : s)];
+        }
+    }
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -330,6 +386,12 @@ def _load():
         ctypes.c_void_p,
     ]
     _STATE["predict"] = pred
+    nikon = lib.shootflow_nikon_run
+    nikon.restype = ctypes.c_long
+    nikon.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long] + [ctypes.c_void_p] * 2 + [
+        ctypes.c_long
+    ] + [ctypes.c_void_p] * 3
+    _STATE["nikon"] = nikon
     return fn
 
 
@@ -480,5 +542,32 @@ def predict(
     if fn(d_addr, width, height, nf, predictor, initial, restart or 0, pt, o_addr) < 0:
         return None
     if n == 0:
+        del out[:]
+    return out
+
+
+def nikon_run(data: bytes, width: int, height: int, lut: array, lut2: array | None, split: int, vpred, curve) -> array | None:
+    """``shootflow.nef._decode_python`` in C: an ``array('H')`` of curve-mapped sensels, or None on an
+    invalid code (the Python decoder then decides and raises)."""
+
+    fn: Any = _STATE.get("nikon") if reader() is not None else None
+    if fn is None:
+        return None
+    if not isinstance(data, bytes):
+        data = bytes(data)
+    out = array("H", [0]) * max(1, width * height)
+    vp = array("H", [int(v) & 0xFFFF for v in vpred[:4]])
+    cv = array("H", [int(v) & 0xFFFF for v in curve[:0x4000]])
+    if len(cv) < 0x4000:
+        cv.extend(range(len(cv), 0x4000))
+    l2 = lut2 if lut2 is not None else lut
+    o_addr, _ = out.buffer_info()
+    got = fn(
+        data, len(data), width, height, lut.buffer_info()[0], l2.buffer_info()[0], split if lut2 is not None else 0,
+        vp.buffer_info()[0], cv.buffer_info()[0], o_addr,
+    )
+    if got < 0:
+        return None
+    if width * height == 0:
         del out[:]
     return out
