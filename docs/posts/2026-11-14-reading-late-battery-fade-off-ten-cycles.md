@@ -3,7 +3,7 @@ title: "Reading late battery fade off the first ten cycles"
 date: 2026-11-14
 tags: [cell-fidelity, batteries, simulation, pybamm, design-search, capacity-fade, pre-registration]
 seo_title: "Can ten DFN cycles predict 100-cycle battery fade in a design search?"
-description: "A square-root-of-cycle fade fit over DFN cycles 5 to 10, kept beside the raw energy, found the best Li-ion electrode design to within 0.16% on three fresh PyBaMM pools."
+description: "A square-root-of-cycle fade fit over DFN cycles 5 to 10, beside the raw energy, found the best Li-ion design to within 0.16% on three fresh pools."
 ---
 
 The `cell-fidelity` programme asks how a lithium-ion electrode design search can spend less on PyBaMM's full DFN model without losing the best design. Two steps ago we found a cheap answer for most cells. Run DFN for 10 cycles on every design, then run the top 3 to cycle 100. It failed on one cell, `Ai2020` at low current, where it missed by 6 to 9%. There, the designs that start strongest fade fastest, and the eventual winner can rank 28th at cycle 10.
