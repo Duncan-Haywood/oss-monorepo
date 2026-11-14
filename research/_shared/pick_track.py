@@ -196,6 +196,19 @@ def refresh_origin_main(hours=6, run=subprocess.run):
     are untouched."""
     def git(*args, timeout=60):
         return run(["git", *args], cwd=RESEARCH, capture_output=True, text=True, timeout=timeout)
+
+    def fetch(cmd, timeout):
+        # Through platform/ci/shallow_repair.py: a first --shallow-since fetch can leave a bogus
+        # .git/shallow entry that makes every later one fail with "error in object: unshallow"
+        # (2026-11-14). With a stub `run` (tests), or if it cannot load, a plain git call.
+        if run is subprocess.run:
+            try:
+                sys.path.insert(0, str(RESEARCH.parent / "platform" / "ci"))
+                import shallow_repair
+                return shallow_repair.fetch(cmd[1:], cwd=RESEARCH, timeout=timeout)
+            except ImportError:
+                pass
+        return git(*cmd, timeout=timeout)
     try:
         remote = git("ls-remote", "origin", "refs/heads/main", timeout=20)
         tip = remote.stdout.split()[0] if remote.returncode == 0 and remote.stdout.strip() else None
@@ -208,14 +221,14 @@ def refresh_origin_main(hours=6, run=subprocess.run):
         cmd = ["fetch", "-q", "origin", "main"]
         if is_shallow() and not covered:
             cmd.insert(2, f"--shallow-since={hours + 1} hours ago")
-        if git(*cmd, timeout=120).returncode != 0:
+        if fetch(cmd, timeout=120).returncode != 0:
             return "`git " + " ".join(cmd) + "` failed"
         # A stale ref (a fresh clone's is often days old) reads as covered, so the plain fetch
         # above can leave only the ~4 h it brought in; re-check and deepen once (friction
         # 2026-11-13: CLAIM CHECK kept saying "shorter than 6h" after the fetch it suggested).
         if len(cmd) == 4 and is_shallow() and not history_covers(hours):
             cmd = ["fetch", "-q", f"--shallow-since={hours + 1} hours ago", "origin", "main"]
-            if git(*cmd, timeout=120).returncode != 0:
+            if fetch(cmd, timeout=120).returncode != 0:
                 return "`git " + " ".join(cmd) + "` failed"
     except (OSError, subprocess.SubprocessError) as e:
         return f"could not refresh origin/main ({type(e).__name__})"

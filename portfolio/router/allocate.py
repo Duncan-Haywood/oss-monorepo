@@ -609,6 +609,18 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
 FETCH_TIMEOUT_S = 50
 
 
+def _shallow_fetch(args, cwd, timeout=None):
+    """`git fetch <args>` through platform/ci/shallow_repair.py, which drops the bogus
+    `.git/shallow` entry a --shallow-since fetch can leave (every later fetch then failed with
+    "error in object: unshallow", 2026-11-14). Falls back to a plain fetch if it cannot load."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+        import shallow_repair
+        return shallow_repair.fetch(args, cwd=cwd, timeout=timeout, run=subprocess.run)
+    except ImportError:
+        return subprocess.run(["git", "fetch", *args], cwd=cwd, capture_output=True, text=True, timeout=timeout)
+
+
 def _history_reaches(cutoff: datetime, cwd: Path) -> bool:
     """True when origin/main's oldest reachable commit is already near `cutoff`, so a fetch adds
     nothing. --shallow-since leaves the clone shallow, so without this every run refetched
@@ -661,10 +673,8 @@ def deepen_to_window(days: int) -> bool:
             return False
         since = cutoff.strftime("%Y-%m-%d")
         print(f"(shallow clone: fetching main since {since} for 7-day commit counts)", file=sys.stderr)
-        return subprocess.run(
-            ["git", "fetch", "-q", f"--shallow-since={since}", "origin", "main"],
-            capture_output=True, timeout=FETCH_TIMEOUT_S, cwd=here,
-        ).returncode == 0
+        return _shallow_fetch(["-q", f"--shallow-since={since}", "origin", "main"],
+                              cwd=here, timeout=FETCH_TIMEOUT_S).returncode == 0
     except subprocess.TimeoutExpired:
         # Runs reported 10+ minutes of silence here (2026-10-19); rank on what is local instead.
         print(f"(fetch exceeded {FETCH_TIMEOUT_S}s; 7-day commit counts are partial. "

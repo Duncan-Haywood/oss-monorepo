@@ -1,7 +1,7 @@
 # Draft: when does rotor cant pay on a small quadrotor co-designed with its motors and controller?
 
 Status: **milestone 7, first draft (2026-11-14): outline of every section, section VI (stability of
-the side-force feed-forward) written in full. Not submittable.** Target: *IEEE Robotics and
+the side-force feed-forward, milestones 7c–7g) written in full. Not submittable.** Target: *IEEE Robotics and
 Automation Letters* (6 pages + 2), fallback ICUAS; an aim, not a claim of acceptance.
 
 Every number in this file is copied from a results file under `../experiments/` or from
@@ -150,7 +150,12 @@ corners instead of a 16-episode rollout.
 
 **What it does not fix.** At twice the trained lever a floor of 12–13 divergences in 384 remains at
 every bound from 0.8× down (Table VI-1, second row). No ki margin moves it, so it is not an
-integral-gain effect; its cause is the subject of milestone 7g (in progress). In the
+integral-gain effect. Milestone 7g traced it to torque authority (`m7g_lever2/results.txt`): every
+one of these flights tips past 60° rather than drifting, the gust torque peaks at a median 0.87–0.88
+of the plant's torque limit in the dying flights at 45° against 0.50 in the survivors, and an ideal
+mixer (no shared thrust polytope) cuts the pooled count of the three margin-trained sets from 37 to
+8; with an ideal mixer and twice the torque room none diverges. A frame whose centre of pressure
+may sit twice as far from the centre of mass as designed needs thrust headroom, not another tune. In the
 centre-of-pressure-below geometry the integrator carries almost no gain (k_i/k_p 0.09–0.24 per s),
 the bound does not bind, and the constraint acts only by requiring corner stability.
 
@@ -179,6 +184,6 @@ real tilt limit.
 ## Still to do before submission
 
 - Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
-- Section VI's lever-2 floor (milestone 7g) and a whole-loop margin (spectral radius bound below 1).
+- Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
 - Hardware check (milestone 8).

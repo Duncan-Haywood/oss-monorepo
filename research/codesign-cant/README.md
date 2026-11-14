@@ -4,11 +4,24 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Live page:** https://marisstella.app/research/codesign-cant/
 
+![Held-out flights that diverged at twice the trained centre-of-pressure lever, one probe at a time, at 20 and 45 degree tilt-command limits. Base: 12 and 37 of 1,152 for the margin-constrained designs with the centre of pressure above, 45 and 55 of 384 with it below. Raising the divergence bound to 85 degrees, halving the position gains or switching to an airmode mixer leave most of them; an ideal mixer removes two thirds; an ideal mixer with 1.25 to 1.5 times the torque removes them all.](experiments/m7g_lever2/m7g_lever2.png)
+
+## Milestone 7g: why do the stable designs still crash in a doubled gust lever? Thrust headroom
+
+**Question.** Milestone 7f's margin stops every divergence the tilt limit exposes, but at twice the trained centre-of-pressure lever 4 of 384 flights per arm still crash at a 20° tilt limit and 12-13 at 45°, at every margin, and 45 in the `below` geometry where the margin does not bind. What causes them: the mixer, too little torque, the 60° crash bound, or the position loop? No training: the 7b, 7e and 7f designs re-flown on the same 64 held-out flights under one probe at a time (four new `poshold.rollout` probes, bit-for-bit inert at their defaults).
+
+**Headline (`experiments/m7g_lever2/results.txt`, `headroom.txt`; simulated; 8 predictions committed first).**
+
+- **They tip over because the motors run out of differential thrust.** Every death is a roll or pitch past 60°. In diverged flights the attitude-priority mixer is scaling roll/pitch on 6-51% of steps (0% in survivors), and the gust torque reaches 0.87-1.13 of the plant's torque limit (0.50 in survivors).
+- **More room fixes it; nothing else does.** An ideal mixer cuts the constrained `above` deaths from 12 to 4 (20°) and 37 to 8 (45°); with 1.25× torque on top, to 0. A crash bound of 85° (12 → 8, 37 → 29), halved position gains (12 → 10, 37 → 12) and airmode (12 → 19, 37 → 40) do not.
+- **For a builder:** if the centre of pressure may sit twice as far from the centre of mass as designed, buy thrust-to-weight above 2. No gain tuning, stability margin or airmode recovers the authority. The `below` geometry needs about 1.5× (45 → 0).
+- Predictions: G1, G3, G4, G5 and G8 held; G2 (authority not the cause) and G6 (crash bound) refuted; G7 split (`LOG.md`).
+
 ![Left: held-out cost at the design wind and at the trained lever, paired against the unconstrained designs, as the ki bound is tightened from 1.0 to 0.6 times the linear ceiling: about 0.01 worse from 0.9 times on, flat beyond that. Right: held-out flights that diverged out of 384: with a 45 degree tilt limit, 13 unconstrained, 9 at 1.0 times, 3 at 0.9 times and none from 0.8 times on; at twice the trained lever the counts fall to a floor of 4 (20 degree limit) and 12 (45 degree) at 0.8 times and stay there.](experiments/m7f_sweep/m7f_sweep.png)
 
 ## Paper draft (milestone 7, started 2026-11-14): the tilt limit we tested at is PX4's minimum
 
-[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7f) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (34 checks; run by `tests/test_paper_numbers.py`).
+[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7g) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (35 checks; run by `tests/test_paper_numbers.py`).
 
 - **Writing it changed how the stability results read.** The simulator's default tilt-command limit is 20°. PX4's `MPC_TILTMAX_AIR` defaults to 45° with 20° as its floor, and ArduPilot's `ANGLE_MAX` defaults to 30° (both read from the autopilots' source on 2026-11-14). So the 45° condition in milestones 7d–7f is the stock PX4 setting, not a stress test: at it, designs CMA-ES tuned onto the linear ceiling diverge on 13 of 384 held-out flights and their position error rises from 0.105 to 0.257 m (`experiments/m7e_margin/tilt.txt`), and the 0.8× margin removes all 13 for 0.7% of cost.
 - No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, sections I–V written out, LaTeX, hardware) are listed at its end.
@@ -201,7 +214,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 ```bash
 cd research/codesign-cant
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
-"$PY" -m pytest -q tests                        # 39 tests; the ones in test_rotorpy_twin.py skip without RotorPy
+"$PY" -m pytest -q tests                        # 40 tests; the ones in test_rotorpy_twin.py skip without RotorPy
 "$PY" experiments/m1_allocation/run.py          # about 9 minutes on 4 cores; results.txt, results.json
 "$PY" experiments/m1_allocation/figure.py       # m1_allocation.png
 "$PY" experiments/m2_polytope/run.py            # about 20 minutes on 4 cores
@@ -247,7 +260,7 @@ python3 paper/check_numbers.py                  # stdlib; every number the paper
 
 ## Next steps
 
-Milestone 7d follow-up: a describing-function prediction of the oscillation the 20° tilt-command limit contains, to say when a linear instability stays bounded; milestone 7e follow-up: a margin sweep (0.6–1.0× the ceiling) to price the margin against tilt-limit robustness, the same constraint for milestone 7's commanded-torque feed-forward, and a lever-2 divergence analysis for the `below` geometry, where the linear gain test does not bind; a closed-form approximation of the ceiling in lat, motor lag and the position gains. Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
+Milestone 7g follow-up: retrain with thrust-to-weight free under the polytope mixer (milestone 3) and score at lever 2, or train on levers 0-2, since the residual lever-2 divergence is a thrust-headroom limit, not a stability one. Milestone 7d follow-up: a describing-function prediction of the oscillation the 20° tilt-command limit contains, to say when a linear instability stays bounded; milestone 7e follow-up: a margin sweep (0.6–1.0× the ceiling) to price the margin against tilt-limit robustness, the same constraint for milestone 7's commanded-torque feed-forward, and a lever-2 divergence analysis for the `below` geometry, where the linear gain test does not bind; a closed-form approximation of the ceiling in lat, motor lag and the position gains. Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
 
 ## Owner steps
 

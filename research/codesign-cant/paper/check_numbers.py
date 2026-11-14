@@ -52,12 +52,24 @@ def main():
         for rx in (rf"cap 20, lever 0: J [^;]*; minus unconstrained {dj:+.3f} ", rf"cap 45, lever 0: [^\n]*dead {d45} ", rf"cap 45, lever 2: [^\n]*dead {d45l2} "):
             if not re.search(rx, block):
                 bad.append(f"m7f_sweep/results.txt [{lab}] no longer matches {rx!r}")
+    m7g = open(os.path.join(EXP, "m7g_lever2", "results.txt")).read()
+    base45, ideal45, room45, peaks = 0, 0, 0, []
+    for lab in ("M=1.25", "M=1.43", "M=1.67"):
+        line = re.search(rf"\[above, {re.escape(lab)}\](?:\n[^\n]*)*?\n  cap 45: dead base (\d+); dead85 \d+; ideal mixer (\d+); ideal mixer, 2x torque (\d+)[^\n]*\n[^\n]*peak D ([\d.]+) S 0\.50", m7g)
+        if not line:
+            bad.append(f"m7g_lever2/results.txt: no cap-45 rows for [above, {lab}]"); continue
+        base45 += int(line[1]); ideal45 += int(line[2]); room45 += int(line[3]); peaks.append(line[4])
+    if (base45, ideal45, room45) != (37, 8, 0) or not all(p in ("0.87", "0.88") for p in peaks):
+        bad.append(f"m7g_lever2 pooled cap-45 counts {base45}/{ideal45}/{room45}, peaks {peaks}; draft quotes 37/8/0 and 0.87-0.88")
+    for q in ("from 37 to\n8", "0.87–0.88", "against 0.50 in the survivors"):
+        if q not in draft:
+            bad.append(f"DRAFT.md no longer quotes {q!r}")
     row = "| held-out J − unconstrained, 20°, trained lever | 0 | " + " | ".join(f"{a[1]:.3f}".replace("-", "−") for a in ARMS) + " |"
     if row not in draft:
         bad.append(f"DRAFT.md table row differs from results: expected {row!r}")
     for b in bad:
         print("FAIL", b)
-    print(f"{len(CHECKS) + 3 * len(ARMS) + 1 - len(bad)} of {len(CHECKS) + 3 * len(ARMS) + 1} checks ok")
+    print(f"{len(CHECKS) + 3 * len(ARMS) + 2 - len(bad)} of {len(CHECKS) + 3 * len(ARMS) + 2} checks ok")
     return 1 if bad else 0
 
 

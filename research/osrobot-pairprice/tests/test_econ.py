@@ -50,6 +50,18 @@ class T(unittest.TestCase):
         # labour reaches both machines; cap reaches only the inline robot
         self.assertLess(E.cost_model(fits, 1.0, labour=0.0)[0], E.cost_model(fits, 1.0)[0])
         self.assertEqual(E.cost_model(fits, 1.0, cap=9e9)[1], E.cost_model(fits, 1.0)[1])
+        # attend reaches both machines: inline gains 227.6 attended min/ha, the pair 91.2, so at 0.72 ha the pair is
+        # 0.69x the inline robot (Sweep 3b; by hand: inline 89.30, pair 62.02 USD/ha)
+        i, p, _ = E.cost_model(fits, 0.72, attend=True)
+        self.assertAlmostEqual(p / i, 0.69, places=2)
+        self.assertAlmostEqual(i / 0.72, 89.30, places=1)
+
+    def test_attend_charges_ground_minutes_on_both_architectures(self):
+        # inline: 60 attended ground min add 60/60*20 = 20 USD; pair: the treater's 30 min add 10 USD, held or not
+        self.assertAlmostEqual(E.inline_cost(60.0, 100.0, attend=True) - E.inline_cost(60.0, 100.0), 20.0)
+        self.assertAlmostEqual(E.pair_cost(30.0, 30.0, 0.0, attend=True) - E.pair_cost(30.0, 30.0, 0.0), 10.0)
+        self.assertAlmostEqual(E.pair_cost(30.0, 30.0, 0.0, held=True, attend=True)
+                               - E.pair_cost(30.0, 30.0, 0.0, held=True), 10.0)
 
     def test_held_costs_at_least_unheld(self):
         a = E.pair_cost(10.0, 15.0, 100.0)

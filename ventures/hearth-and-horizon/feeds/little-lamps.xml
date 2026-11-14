@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Catherine and the Queen of Fontebranda</title>
+      <link>https://example.invalid/hearth-and-horizon/catherine-and-the-queen-of-fontebranda.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/catherine-and-the-queen-of-fontebranda.html</guid>
+      <pubDate>Sat, 14 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Catherine of Siena, the dyer's daughter the neighbours called Joy, who said a Hail Mary on every step of the stairs, nursed a grumpy sick woman nobody else would go near, and sent letters to a Pope telling him to come home to Rome. Told from the Life by her confessor Raymond of Capua and from her own letters, with a note for grown-ups on what is history, what is tradition and what is our own. For ages 3 to 8, about ten minutes read aloud. Catherine is remembered on the 29th of April. Setting: Siena, in Italy, about six hundred and fifty years ago. Read the full text at https://example.invalid/hearth-and-horizon/catherine-and-the-queen-of-fontebranda.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Catherine of Siena, the dyer's daughter the neighbours called Joy, who said a Hail Mary on every step of the stairs, nursed a grumpy sick woman nobody else would go near, and sent letters to a Pope telling him to come home to Rome. Told from the Life by her confessor Raymond of Capua and from her own letters, with a note for grown-ups on what is history, what is tradition and what is our own. For ages 3 to 8, about ten minutes read aloud. Catherine is remembered on the 29th of April.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Dominic and the Books He Sold</title>
       <link>https://example.invalid/hearth-and-horizon/dominic-and-the-books-he-sold.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/dominic-and-the-books-he-sold.html</guid>

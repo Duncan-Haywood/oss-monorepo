@@ -65,7 +65,7 @@
     "research/codesign-cant/LOG.md (2026-11-14 milestone 7 entry)"
   ],
   "goal": null,
-  "notes": "Verification: pytest research/codesign-cant/tests 43 passed 1 skipped; paper/check_numbers.py 34/34; research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; post frontmatter/links/similarity ok; cite_check references.bib 18 ok* (cached), bartlett1988 unchecked. PX4 MPC_TILTMAX_AIR default 45 (min 20) and ArduPilot ANGLE_MAX default 30 read from raw.githubusercontent.com source. My unshipped 7g preview (independent of #15752): mixer bypass cut constrained lever-2/45deg deaths 37->8; no side force 37->29; ff off 37->31; all deaths by tilt; 34 of 37 in two flights (episodes 43, 46) that kill 13-17 of 18 designs; steady gust torque ~0.1 of the plant torque limit, so not authority. Left for #15752 to establish.",
+  "notes": "Verification: pytest research/codesign-cant/tests 44 passed 1 skipped; paper/check_numbers.py 35/35 (after merging main, 7g added to section VI); research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; post frontmatter/links/similarity ok; cite_check references.bib 18 ok* (cached), bartlett1988 unchecked. PX4 MPC_TILTMAX_AIR default 45 (min 20) and ArduPilot ANGLE_MAX default 30 read from raw.githubusercontent.com source. My unshipped 7g preview (independent of #15752): mixer bypass cut constrained lever-2/45deg deaths 37->8; no side force 37->29; ff off 37->31; all deaths by tilt; 34 of 37 in two flights (episodes 43, 46) that kill 13-17 of 18 designs; steady gust torque ~0.1 of the plant torque limit, so not authority. Left for #15752 to establish.",
   "corrections": [],
   "redteam": null,
   "usage": {

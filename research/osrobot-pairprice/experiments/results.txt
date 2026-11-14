@@ -3,6 +3,8 @@
 # Constants: inline 5000 USD; scout 2500 + treater 3500; 30%/yr over 500 occupied h; labour 20 USD/h;
 # set-up 3 min ground, 8 min scout; battery 20 min, swap 3 min; electricity 0.15 USD/kWh
 
+# Sweeps 1 and 2 not re-simulated: fits read from experiments/fits.json (written by the last full run)
+
 # Sweep 1: simulated minutes by field size (inline matched to the pair's kill share)
 field m        ha   kill     fly  ground  inline  pair Wh  inl Wh
 30x15       0.045  0.343     2.9     3.6    10.9       28      43
@@ -31,6 +33,18 @@ inline_wh       -1.93      985.6  1.0000
    1.620    12.18    28.67    33.20      2.35      2.73      0.79     1.16   simulated size
    5.000    11.74    27.42    31.99      2.34      2.73      0.72     1.11   extrapolated from fit
   20.000    11.58    26.85    31.41      2.32      2.71      0.68     1.08   extrapolated from fit
+
+# Sweep 3b: every machine attended. A person is charged for every ground minute of both architectures as well as the
+# pilot's flight minutes: the like-for-like case if a site will not let a ground robot run unwatched. USD per hectare
+      ha   inline     pair     held  pair/inl  held/inl   source
+   0.045   117.78   133.87   138.16      1.14      1.17   simulated size
+   0.180    95.00    74.00    78.27      0.78      0.82   simulated size
+   0.405    90.78    65.57    70.10      0.72      0.77   simulated size
+   0.720    89.30    62.02    66.58      0.69      0.75   simulated size
+   1.620    88.24    58.92    63.44      0.67      0.72   simulated size
+   5.000    87.67    57.77    62.33      0.66      0.71   extrapolated from fit
+  20.000    87.47    57.23    61.80      0.65      0.71   extrapolated from fit
+# attended, unheld: first crossing 0.07 ha, last 0.07, 1 crossing(s); cheaper above the last: pair
 
 # Sweep 4: field sizes (ha) where the pair's USD per field equals the inline robot's, by scout price; 0.01 to 200 ha scanned.
 # Battery swaps make the difference a sawtooth, so it can cross several times: first and last crossing, how many,
@@ -61,6 +75,7 @@ inline_wh       -1.93      985.6  1.0000
 change                        0.72 ha    5 ha
 reference                        2.46    2.34
 pilot not charged                0.98    0.72
+every machine attended           0.69    0.66
 hours/yr 100                     0.87    0.82
 hours/yr 2000                    6.45    7.45
 labour 0 USD/h                   0.42    0.43
