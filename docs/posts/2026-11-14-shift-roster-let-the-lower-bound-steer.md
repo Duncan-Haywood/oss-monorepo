@@ -3,7 +3,7 @@ title: "Let the lower bound steer: the LP that proves a roster's cost also helps
 seo_title: "Using an LP relaxation to guide staff schedule search"
 date: 2026-11-14
 tags: [scheduling, shift-roster-builder, optimization, operations-research]
-description: "The Shift Roster Builder solves an LP to prove how close its schedule is to the best. Using that LP's own solution to steer the search cut the remaining gap by half and filled open shifts on 3 of 9 test weeks."
+description: "Steering a staff schedule search with the LP behind its lower bound halved the remaining pay gap and filled open shifts on 3 of 9 test weeks."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) does two
