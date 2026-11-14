@@ -571,3 +571,15 @@ test('the CLI exits 2 on a typo rather than doing a dry run', () => {
   assert.equal(res.status, 2);
   assert.match(res.stderr, /unknown argument/);
 });
+
+test('the CLI prints one line, not a stack trace, for a bad --base-url or an unreadable ref', () =>
+  withFixtureDir(async (dir) => {
+    const bad = spawnSync(process.execPath, [SCRIPT, '--dir', dir, '--base-url', 'ftp://x.test/'], { encoding: 'utf8' });
+    assert.equal(bad.status, 1);
+    assert.match(bad.stderr, /^indexnow: --base-url must be http\(s\)/);
+    assert.doesNotMatch(bad.stderr, /\n\s+at /);
+    const ref = spawnSync(process.execPath, [SCRIPT, '--ref', 'no-such-ref-for-indexnow-test'], { encoding: 'utf8' });
+    assert.equal(ref.status, 1);
+    assert.match(ref.stderr, /^indexnow: could not read 'catalog\.json'/);
+    assert.doesNotMatch(ref.stderr, /\n\s+at /);
+  }));

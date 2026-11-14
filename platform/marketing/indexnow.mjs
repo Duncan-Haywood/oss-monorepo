@@ -562,16 +562,24 @@ if (isMain) {
     process.exit(2);
   }
   const readFile = readerFor(args);
-  const catalog = await readCatalog(readFile);
-
-  const resolved = resolveBaseUrl({
-    explicit: args.baseUrl,
-    catalog,
-    published: publishedBaseUrl(),
-    // publishedBaseUrl() reads the serving branch, so it is a second reading
-    // of *this* artifact only when this artifact is that branch's snapshot.
-    comparable: !args.dir && args.ref === SERVING_BRANCH,
-  });
+  // A missing ref or a bad --base-url is a user error with a message already
+  // written for it; print that, not a stack trace (audit 2026-11-07, defect 2).
+  let catalog;
+  let resolved;
+  try {
+    catalog = await readCatalog(readFile);
+    resolved = resolveBaseUrl({
+      explicit: args.baseUrl,
+      catalog,
+      published: publishedBaseUrl(),
+      // publishedBaseUrl() reads the serving branch, so it is a second reading
+      // of *this* artifact only when this artifact is that branch's snapshot.
+      comparable: !args.dir && args.ref === SERVING_BRANCH,
+    });
+  } catch (err) {
+    console.error(`indexnow: ${err?.message || err}`);
+    process.exit(1);
+  }
   if (resolved.source === 'conflict') {
     const { artifact, published, via } = resolved.conflict;
     console.error(

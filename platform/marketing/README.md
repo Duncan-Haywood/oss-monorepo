@@ -126,7 +126,8 @@ defect 0) showed a stray `<loc>` in any child sitemap went straight into the
 payload. `scopeToSite` now drops such URLs and the CLI prints how many and
 which. In the same change: an unknown flag or a flag with no value exits 2
 instead of falling through to a dry run (a `--sumbit` typo looked like
-success), and the sources line says `N of M published sitemap(s)` when some
+success), a missing ref or a bad `--base-url` prints one line instead of a
+stack trace, and the sources line says `N of M published sitemap(s)` when some
 children were skipped, instead of counting them as read.
 
 Still open from that audit: the full catalogue is resubmitted every run (no
