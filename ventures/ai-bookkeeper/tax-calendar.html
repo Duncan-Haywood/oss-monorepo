@@ -63,7 +63,7 @@
 </footer>
 <script type="module">
 import { taxCalendar, toIcs } from "./calendar.mjs";
-import { STATE_DUE_DAYS, STATE_SOURCES, STATE_SOURCES_READ, stateFilingNote } from "./salestaxreturn.mjs";
+import { STATE_DUE_DAYS, STATE_SOURCES, stateSourceRead, stateFilingNote } from "./salestaxreturn.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 const $ = (id) => document.getElementById(id);
 $("year").value = new Date().getFullYear();
@@ -76,7 +76,7 @@ const show = () => {
   $("stnote").hidden = !note; $("stnote").textContent = note ?? "";
   const src = STATE_SOURCES[state];
   $("stsrc").hidden = !state || NONE.includes(state);
-  if (src) { const a = document.createElement("a"); a.href = src.url; a.rel = "noopener"; a.textContent = new URL(src.url).hostname; $("stsrc").replaceChildren(`${state} dates checked against the state's own page (`, a, `) on ${STATE_SOURCES_READ}.`); }
+  if (src) { const a = document.createElement("a"); a.href = src.url; a.rel = "noopener"; a.textContent = new URL(src.url).hostname; $("stsrc").replaceChildren(`${state} dates checked against the state's own page (`, a, `) on ${stateSourceRead(state)}.`); }
   else $("stsrc").textContent = `${state} dates are not yet checked against the state's own page; they come from search excerpts and guides.`;
   events = taxCalendar(year, { state: NONE.includes(state) ? null : state || null, frequency, payroll: $("payroll").checked, contractors: $("contractors").checked });
   $("rows").replaceChildren(...events.map((e) => { const tr = document.createElement("tr"); const d = document.createElement("td"); d.textContent = e.date; const t = document.createElement("td"); t.textContent = e.title; tr.append(d, t); return tr; }));
