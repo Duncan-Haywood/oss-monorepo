@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmFESdMXgF3LM1VD4x",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T06:09:25Z",
+  "ended": "2026-11-14T06:20:41Z",
+  "wall_minutes": 11.5,
+  "tokens_in": 7955847,
+  "tokens_out": 43189,
+  "cost_usd": 3.8109,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15756",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Started codesign-cant milestone 7g (probes, predictions, a 10 s run) and then found sibling PR #15752 had claimed the same milestone 3 minutes earlier; closed my PR #15754 as a duplicate and switched to milestone 7 (paper draft)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Claim-before-build says open the PR 'within your first few minutes'; I pushed predictions and opened the PR about 10 minutes in and still lost a same-minute race to a sibling drawn onto the same programme. pick_track's CLAIM CHECK was clear at draw time; only claim_check.py after opening the PR caught it. Running claim_check.py before writing code, not after, would have saved the 7g work."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Two sessions started minutes apart drew the same programme (codesign-cant) and the same next milestone; the draw has no awareness of open draft PRs for that programme beyond the title search, which the sibling's PR had not yet hit."
+    },
+    {
+      "file": "research/codesign-cant/PROPOSAL.md",
+      "issue": "Lists Du et al. 2016 as 'Du, Zhu, Schulz, Bickel and Matusik'; my recollection is Du, Schulz, Zhu, Bickel, Matusik (used in paper/references.bib). Not machine-checkable this session (Crossref refused)."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Crossref and doi.org were both refused by the proxy (connect_rejected); cite_check's ok* cache covered every id except a new one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 (work through every open research PR first) was skipped: 103 open PRs, and the one that mattered (#15752, same programme) was found by claim_check.py.",
+      "did": "Yielded the duplicate milestone and took a non-overlapping milestone in the same programme.",
+      "result": "No collision with #15752; one deliverable landed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-drone-simulator-tilt-limit-was-px4s-minimum.md",
+    "research/codesign-cant/paper/DRAFT.md",
+    "research/codesign-cant/LOG.md (2026-11-14 milestone 7 entry)"
+  ],
+  "goal": null,
+  "notes": "Verification: pytest research/codesign-cant/tests 44 passed 1 skipped; paper/check_numbers.py 35/35 (after merging main, 7g added to section VI); research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; post frontmatter/links/similarity ok; cite_check references.bib 18 ok* (cached), bartlett1988 unchecked. PX4 MPC_TILTMAX_AIR default 45 (min 20) and ArduPilot ANGLE_MAX default 30 read from raw.githubusercontent.com source. My unshipped 7g preview (independent of #15752): mixer bypass cut constrained lever-2/45deg deaths 37->8; no side force 37->29; ff off 37->31; all deaths by tilt; 34 of 37 in two flights (episodes 43, 46) that kill 13-17 of 18 designs; steady gust torque ~0.1 of the plant torque limit, so not authority. Left for #15752 to establish.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "049bc8c6-7b4e-55d4-8e0d-53a07635887f",
+    "transcripts": 1,
+    "first": "2026-11-14T06:09:25Z",
+    "last": "2026-11-14T06:20:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 43189,
+        "thinking": 9985,
+        "cache_read": 7781953,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173786,
+        "api_equivalent_usd": 3.8109,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 43189,
+      "thinking": 9985,
+      "cache_read": 7781953,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173786,
+      "api_equivalent_usd": 3.8109,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__update_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.5,
+      "active_minutes": 11.5,
+      "model_minutes": 9.06,
+      "tool_minutes": 2.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "drafting a paper section from 4 milestones of results, a number checker, a bib and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 157.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

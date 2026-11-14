@@ -19,6 +19,13 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out cost at the design wind and at the trained lever, paired against the unconstrained designs, as the ki bound is tightened from 1.0 to 0.6 times the linear ceiling: about 0.01 worse from 0.9 times on, flat beyond that. Right: held-out flights that diverged out of 384: with a 45 degree tilt limit, 13 unconstrained, 9 at 1.0 times, 3 at 0.9 times and none from 0.8 times on; at twice the trained lever the counts fall to a floor of 4 (20 degree limit) and 12 (45 degree) at 0.8 times and stay there.](experiments/m7f_sweep/m7f_sweep.png)
 
+## Paper draft (milestone 7, started 2026-11-14): the tilt limit we tested at is PX4's minimum
+
+[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7g) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (35 checks; run by `tests/test_paper_numbers.py`).
+
+- **Writing it changed how the stability results read.** The simulator's default tilt-command limit is 20°. PX4's `MPC_TILTMAX_AIR` defaults to 45° with 20° as its floor, and ArduPilot's `ANGLE_MAX` defaults to 30° (both read from the autopilots' source on 2026-11-14). So the 45° condition in milestones 7d–7f is the stock PX4 setting, not a stress test: at it, designs CMA-ES tuned onto the linear ceiling diverge on 13 of 384 held-out flights and their position error rises from 0.105 to 0.257 m (`experiments/m7e_margin/tilt.txt`), and the 0.8× margin removes all 13 for 0.7% of cost.
+- No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, sections I–V written out, LaTeX, hardware) are listed at its end.
+
 ## Milestone 7f: how much stability margin should the tuner keep?
 
 **Question.** Milestone 7e made CMA-ES keep the attitude integral gain at or below 0.8× its linear stability ceiling and found it cheap and protective. Is 0.8× the right number? We trained the same designs (centre of pressure above, 6 seeds × 2 starts × 3,200 evaluations) with the bound at 1.0×, 0.9×, 0.7× and 0.6× of the ceiling, and scored all seven arms on the same 64 held-out flights at 20° and 45° tilt-command limits and at 0, 1 and 2× the trained centre-of-pressure lever.
@@ -207,7 +214,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 ```bash
 cd research/codesign-cant
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
-"$PY" -m pytest -q tests                        # 32 tests; the ones in test_rotorpy_twin.py skip without RotorPy
+"$PY" -m pytest -q tests                        # 40 tests; the ones in test_rotorpy_twin.py skip without RotorPy
 "$PY" experiments/m1_allocation/run.py          # about 9 minutes on 4 cores; results.txt, results.json
 "$PY" experiments/m1_allocation/figure.py       # m1_allocation.png
 "$PY" experiments/m2_polytope/run.py            # about 20 minutes on 4 cores
@@ -238,6 +245,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 "$PY" experiments/m7e_margin/tilt.py           # under 2 minutes; follow-up tilt-limit scoring, tilt.txt
 "$PY" experiments/m7e_margin/figure.py
 "$PY" experiments/m7d_clip/figure.py            # m7d_clip.png
+python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 
 ## Limitations
