@@ -349,10 +349,11 @@ export function notchRows(bin, x0, x1, c, s) {
 // not a quilisma when its centre falls by QUILISMA_MAX_FALL staff spaces or
 // more from its left end to its right (a piece of a porrectus stroke: every
 // real quilisma on the 32 scanned pieces falls 0.01 or less, every stroke
-// piece looked at 0.12 or more), when a head is printed straight under it,
+// piece looked at 0.13 or more), when a head is printed straight under it,
 // or when it carries a liquescent tail. Chosen on those 32 pieces (41 false
 // calls to 16, no quilisma lost) and then tested on pieces first scanned
-// after it was frozen (eval/quilisma-fresh-pages.json).
+// after it was frozen (eval/quilisma-fresh-pages.json: 29 of 3,080 other
+// heads called quilismas to 6, quilismas 47 of 55 under both versions).
 export const QUILISMA_ROWS = 3;
 export const QUILISMA_MAX_FALL = 0.06;
 export function isQuilisma(f) {

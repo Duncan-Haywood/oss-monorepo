@@ -116,12 +116,16 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   match, quilismas, rhombi and liquescents included (`corpus/scan-read-by-eye.json`). `scan.mjs` now calls each head a
   rhombus or a square (`headShape`; README "Rhombus or square"): 68/68 rhombi on the tuning pieces, 118/120 held out,
   1 false call in 2,501 squares (a print flaw). Quilismas and liquescents still read as squares or not at all.
-- 2026-11-13, latest: `scan.mjs` calls a saw-toothed head a quilisma (`notchRows`, README "Quilisma"). Rule fixed on
+- 2026-11-13: `scan.mjs` calls a saw-toothed head a quilisma (`notchRows`, README "Quilisma"). Rule fixed on
   the five tuning pieces (6/6), then nine fresh GregoBase pieces scanned for the first time
   (`eval/shape-fresh-pages.json`): 15 of 17 paired quilismas found; every crop of a false call looked at
   (`eval/quilisma-eye-check.md`). A stroke rule added after that look cuts fresh false calls 18 to 12 of 1,849, half of
   them real quilismas the alignment paired with a neighbour. The rhombus rule held on the fresh pieces: 243/245, 0
   false calls in 1,604 squares. Liquescents are still not read.
+- 2026-11-14: quilisma version 3 (`isQuilisma`, README "Quilisma version 3", `eval/quilisma-stroke-check.md`): a
+  notched head whose centre falls like a porrectus stroke, that sits straight on another head, or that carries a
+  liquescent tail is a square. Committed before eighteen never-scanned pieces were read
+  (`eval/quilisma-fresh-pages.json`): false calls 29 to 6 of 3,080, quilismas 47 of 55 under both versions.
 
 ## Next
 
