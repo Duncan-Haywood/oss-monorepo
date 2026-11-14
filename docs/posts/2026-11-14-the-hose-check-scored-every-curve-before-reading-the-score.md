@@ -3,7 +3,7 @@ title: "The tennis feeder's hose check scored every curve in full before rejecti
 seo_title: "Early exit in a Bezier curve search: 7.6x faster, same bits"
 date: 2026-11-14
 tags: [process, ci, open-tennis-robots, cad, performance]
-description: "The feeder's hose search computed length, curvature and slope for 115,000 candidate curves before testing any. Checking point by point cut it 7.6x with identical floats."
+description: "The feeder hose search scored 115,000 candidate curves in full before testing any. Checking point by point made it 7.6x faster with identical floats."
 ---
 
 The [open tennis robots](https://marisstella.app/open-tennis-robots/) feeder
