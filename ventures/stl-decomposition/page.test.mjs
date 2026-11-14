@@ -125,3 +125,18 @@ test("footer links the sibling research-algorithm tools", () => {
   assert.match(html, /href="\.\.\/gaussian-process-regression\/"/);
   for (const s of ["changepoint-detector", "conformal-prediction-intervals", "matrix-profile-explorer", "survival-analysis", "fdr-multiple-testing", "synthetic-control"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
 });
+
+test("the two-cycle example loads the bundled hourly load file and asks for 24, 168", async () => {
+  const { EXAMPLE_HOURLY_CSV } = await import("./example-data.mjs");
+  assert.equal(EXAMPLE_HOURLY_CSV, page("data/aep-hourly-load-2017.csv"));
+  assert.equal(EXAMPLE_HOURLY_CSV.trim().split("\n").length, 2017);
+  const html = page("index.html");
+  assert.match(html, /\$\("#csv"\)\.value = EXAMPLE_HOURLY_CSV/);
+  assert.match(html, /\$\("#period"\)\.value = "24, 168"/);
+  assert.match(html, /@misc\{bandara2021mstl,/);
+  assert.match(html, /statsmodels 0\.15\.0's <code>MSTL<\/code>/);
+  // The period box takes a list, so it must not be a numeric keypad (no comma on some phones).
+  assert.match(html, /<input id="period" inputmode="text"/);
+  assert.match(page("data/SOURCE.md"), /CC0/);
+  assert.match(page("llms.txt"), /MSTL/);
+});

@@ -38,7 +38,17 @@ export const PAPERS = [
     doi: "10.1007/s10618-005-0039-x",
     implemented:
       "Strength of trend F_T = max(0, 1 - Var(R) / Var(T + R)) and strength of seasonality F_S = max(0, 1 - Var(R) / Var(S + R)) from the decomposition, in the form given by Hyndman & Athanasopoulos, Forecasting: Principles and Practice (3rd ed.), section 4.3.",
-    deviations: "Computed on the STL components rather than on the paper's own decomposition.",
+    deviations: "Computed on the STL components rather than on the paper's own decomposition. With several periods, each cycle's strength is max(0, 1 - Var(R) / Var(S_i + R)).",
+  },
+  {
+    authors: "Kasun Bandara, Rob J Hyndman, Christoph Bergmeir",
+    title: "MSTL: A Seasonal-Trend Decomposition Algorithm for Time Series with Multiple Seasonal Patterns",
+    venue: "arXiv:2107.13462",
+    year: 2021,
+    url: "https://arxiv.org/abs/2107.13462",
+    implemented:
+      "Several seasonal periods: sort them ascending, then for each pass and each period add that component back to the deseasonalised series, refit it by STL at its own period and seasonal window, and subtract it again; trend and robustness weights from the last STL fit, remainder = deseasonalised series minus trend. Default windows 7 + 4i (11, 15, ...), 2 passes (1 for a single period), periods at or above half the series length dropped. Where the paper leaves a choice, statsmodels' MSTL (0.15.0) is followed and the tests pin the result to it.",
+    deviations: "No Box-Cox transform (decompose the logarithm instead when the swing grows with the level). One seasonal window given for several periods is applied to all of them (statsmodels would refuse it).",
   },
 ];
 
@@ -71,7 +81,11 @@ function est(y, n, len, ideg, xs, nleft, nright, w, userw, rw) {
     const r = Math.abs(j - xs);
     if (r <= h9) {
       if (r <= h1) w[j - 1] = 1;
-      else w[j - 1] = (1 - (r / h) ** 3) ** 3;
+      else {
+        const q = r / h;
+        const t = 1 - q * q * q;
+        w[j - 1] = t * t * t;
+      }
       if (userw) w[j - 1] *= rw[j - 1];
       a += w[j - 1];
     }
@@ -447,9 +461,13 @@ export function strengths(trend, seasonal, resid) {
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function positionLabel(time, interval, fallback) {
+function positionLabel(time, interval, fallback, period) {
   if (time === null || time === undefined) return `position ${fallback + 1}`;
   const d = new Date(time);
+  const hh = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  // A cycle longer than a day on sub-daily data, or longer than a week on daily data.
+  if ((interval === "hourly" && period > 24) || (interval === "half-hourly" && period > 48) || (interval === "quarter-hourly" && period > 96)) return `${WEEKDAYS[d.getUTCDay()]} ${hh}`;
+  if (interval === "daily" && period > 7) return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
   if (interval === "monthly") return MONTHS[d.getUTCMonth()];
   if (interval === "quarterly") return `Q${Math.floor(d.getUTCMonth() / 3) + 1}`;
   if (interval === "daily") return WEEKDAYS[d.getUTCDay()];
@@ -470,6 +488,78 @@ export function csvCell(c) {
   let s = String(c);
   if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** MSTL default seasonal windows: 11, 15, 19, ... for the shortest period first (Bandara et al. 2021). */
+export function defaultMstlWindows(count) {
+  return Array.from({ length: count }, (_, i) => 7 + 4 * (i + 1));
+}
+
+/**
+ * MSTL: several seasonal periods at once (Bandara, Hyndman & Bergmeir 2021).
+ * Periods are sorted from shortest to longest (each window travels with its
+ * period); periods at or above half the series length are dropped, as in
+ * statsmodels. Each pass adds one seasonal component back to the
+ * deseasonalised series, refits it with STL at its own period and window, and
+ * takes it out again; `iterate` passes (2 by default, 1 when only one period
+ * is left). The trend and weights are those of the last STL fit, and the
+ * remainder is the deseasonalised series minus that trend. Any other STL
+ * option (robust, trend, degrees, jumps, iterations) applies to every fit.
+ * Returns { trend, seasonal (the sum), seasonals: [{ period, window, seasonal }],
+ * resid, weights, params }.
+ */
+export function mstl(values, opts = {}) {
+  const y = Array.from(values, Number);
+  const n = y.length;
+  let periods = (Array.isArray(opts.periods) ? opts.periods : [opts.periods]).map(Number);
+  if (!periods.length || periods.some((p) => !Number.isInteger(p) || p < 2)) throw new Error("Each period must be a whole number of at least 2 (for hourly data: 24 for the day and 168 for the week).");
+  if (new Set(periods).size !== periods.length) throw new Error("A period is listed twice; give each seasonal cycle once.");
+  let windows = opts.windows === undefined || opts.windows === null ? null : (Array.isArray(opts.windows) ? opts.windows : [opts.windows]).map(Number);
+  if (windows && windows.length === 1 && periods.length > 1) windows = periods.map(() => windows[0]);
+  if (windows && windows.length !== periods.length) throw new Error(`Give one seasonal window per period (${periods.length} periods, ${windows.length} windows).`);
+  let pairs = periods.map((p, i) => [p, windows ? windows[i] : null]).sort((a, b) => a[0] - b[0]);
+  if (!windows) {
+    const w = defaultMstlWindows(pairs.length);
+    pairs = pairs.map((pr, i) => [pr[0], w[i]]);
+  }
+  const dropped = pairs.filter((pr) => pr[0] >= n / 2).map((pr) => pr[0]);
+  // statsmodels keeps the first windows after dropping (windows[:k]); with
+  // periods sorted ascending the dropped ones are the last, so the pairs match.
+  pairs = pairs.filter((pr) => pr[0] < n / 2);
+  if (!pairs.length) throw new Error(`Every period is at least half the series length (${n} points), so no full pair of cycles fits. Use a shorter period or a longer series.`);
+  periods = pairs.map((pr) => pr[0]);
+  windows = pairs.map((pr) => pr[1]);
+  const iterate = periods.length === 1 ? 1 : opts.iterate ?? 2;
+  if (!Number.isInteger(iterate) || iterate < 1) throw new Error("iterate must be a whole number of at least 1.");
+  const stlOpts = { ...opts };
+  for (const k of ["periods", "windows", "iterate", "period", "seasonal"]) delete stlOpts[k];
+
+  const seasonals = periods.map(() => new Float64Array(n));
+  const deseas = Float64Array.from(y);
+  let res;
+  for (let it = 0; it < iterate; it++) {
+    for (let i = 0; i < periods.length; i++) {
+      for (let t = 0; t < n; t++) deseas[t] += seasonals[i][t];
+      res = stl(deseas, { ...stlOpts, period: periods[i], seasonal: windows[i] });
+      for (let t = 0; t < n; t++) {
+        seasonals[i][t] = res.seasonal[t];
+        deseas[t] -= seasonals[i][t];
+      }
+    }
+  }
+  const trend = res.trend;
+  const resid = Array.from(deseas, (v, t) => v - trend[t]);
+  const seasonal = new Array(n).fill(0);
+  for (const s of seasonals) for (let t = 0; t < n; t++) seasonal[t] += s[t];
+  const { period: _p, seasonal: _s, ...last } = res.params;
+  return {
+    trend,
+    seasonal,
+    seasonals: periods.map((p, i) => ({ period: p, window: windows[i], seasonal: Array.from(seasonals[i]) })),
+    resid,
+    weights: res.weights,
+    params: { ...last, periods, windows, iterate, dropped },
+  };
 }
 
 const toInt = (v) => (v === undefined || v === null || v === "" ? undefined : Number(v));
@@ -551,7 +641,12 @@ export function analyze(input = {}) {
   // Period: given, or inferred from the dates.
   const hasDates = times.length > 0 && times.every((t) => t !== null);
   const guess = hasDates ? inferPeriod(times) : null;
-  let period = toInt(input.period);
+  // Several periods ("24, 168" or an array) switch to MSTL.
+  const listOf = (v) => (Array.isArray(v) ? v : String(v ?? "").trim() === "" ? [] : String(v).split(/[\s,;+]+/).filter(Boolean)).map(Number);
+  const periodList = input.periods !== undefined ? listOf(input.periods) : /[\s,;+]/.test(String(input.period ?? "").trim()) ? listOf(input.period) : null;
+  if (periodList && periodList.some((p) => !Number.isInteger(p) || p < 2)) return { error: "Each period must be a whole number of at least 2, separated by commas (for hourly data: 24, 168)." };
+  const multi = periodList !== null && periodList.length > 1;
+  let period = periodList ? periodList[0] : toInt(input.period);
   let periodSource = "given";
   if (period === undefined) {
     if (guess?.period) {
@@ -567,40 +662,64 @@ export function analyze(input = {}) {
     }
   }
   if (guess?.irregular) warnings.push(`${guess.irregular} step${guess.irregular === 1 ? " is" : "s are"} much longer or shorter than the usual ${guess.interval ?? ""} step: missing dates are not filled in, so the rows are treated as evenly spaced. Add the missing dates with empty values to have them interpolated.`);
+  const cycleName = (p) => (guess?.period === p ? guess.cycle : guess?.alternatives?.find((a) => a.period === p)?.cycle ?? null);
+  if (!multi && periodSource !== "given" && guess?.alternatives?.length) {
+    const alt = guess.alternatives.find((a) => a.period < raw.length / 2);
+    const ly = { day: "daily", week: "weekly", year: "yearly" };
+    if (alt) warnings.push(`${guess.interval[0].toUpperCase()}${guess.interval.slice(1)} data often has a ${ly[alt.cycle]} cycle as well as a ${ly[guess.cycle]} one. To fit both at once (MSTL), enter the periods ${period}, ${alt.period}.`);
+  }
   if (guess?.interval === "weekly" && period === 52) warnings.push("A year is 52.18 weeks, so a period of 52 lets the weekly calendar drift by about one week every five or six years; STL needs a whole-number period.");
 
   const opts = { period };
-  for (const k of ["seasonal", "trend", "lowPass", "seasonalDeg", "trendDeg", "lowPassDeg", "seasonalJump", "trendJump", "lowPassJump", "innerIter", "outerIter"]) {
+  for (const k of [...(multi ? [] : ["seasonal"]), "trend", "lowPass", "seasonalDeg", "trendDeg", "lowPassDeg", "seasonalJump", "trendJump", "lowPassJump", "innerIter", "outerIter"]) {
     const v = toInt(input[k]);
     if (v !== undefined) opts[k] = v;
   }
   opts.robust = input.robust === true || input.robust === "true" || input.robust === 1 || input.robust === "1";
+  if (multi) {
+    const w = input.windows !== undefined ? listOf(input.windows) : input.seasonal !== undefined && String(input.seasonal).trim() !== "" ? listOf(input.seasonal) : [];
+    if (w.length) opts.windows = w;
+    const it = toInt(input.iterate);
+    if (it !== undefined) opts.iterate = it;
+    opts.periods = periodList;
+    delete opts.period;
+  }
   let fit;
   try {
-    fit = stl(raw, opts);
+    fit = multi ? mstl(raw, opts) : stl(raw, opts);
   } catch (e) {
     return { error: e.message };
   }
   const { trend, seasonal, resid, weights, params } = fit;
   const n = raw.length;
+  if (multi) {
+    period = params.periods[0];
+    if (params.dropped.length) warnings.push(`The period${params.dropped.length === 1 ? "" : "s"} ${params.dropped.join(", ")} ${params.dropped.length === 1 ? "is" : "are"} at least half the series length (${n} points) and ${params.dropped.length === 1 ? "was" : "were"} left out, as MSTL does: a cycle needs at least two full repeats to be seen.`);
+  }
   const st = strengths(trend, seasonal, resid);
   const adjusted = raw.map((v, i) => v - seasonal[i]);
 
   // Seasonal profile: the latest full cycle, and the average over all cycles, by position.
-  const profile = [];
-  const lastStart = n - period;
-  for (let p = 0; p < period; p++) {
-    const idx = lastStart + p;
-    const pos = idx % period;
-    const all = [];
-    for (let i = pos; i < n; i += period) all.push(seasonal[i]);
-    profile.push({ position: pos + 1, label: positionLabel(times[idx], guess?.interval, pos), latest: seasonal[idx], average: mean(all), latestDate: labels[idx] });
-  }
-  const peak = profile.reduce((a, b) => (b.latest > a.latest ? b : a));
-  const trough = profile.reduce((a, b) => (b.latest < a.latest ? b : a));
-  const amplitude = peak.latest - trough.latest;
-  const firstCycle = seasonal.slice(0, period);
-  const firstAmp = Math.max(...firstCycle) - Math.min(...firstCycle);
+  const profileOf = (comp, per) => {
+    const prof = [];
+    const lastStart = n - per;
+    for (let p = 0; p < per; p++) {
+      const idx = lastStart + p;
+      const pos = idx % per;
+      const all = [];
+      for (let i = pos; i < n; i += per) all.push(comp[i]);
+      prof.push({ position: pos + 1, label: positionLabel(times[idx], guess?.interval, pos, per), latest: comp[idx], average: mean(all), latestDate: labels[idx] });
+    }
+    const pk = prof.reduce((a, b) => (b.latest > a.latest ? b : a));
+    const tr = prof.reduce((a, b) => (b.latest < a.latest ? b : a));
+    const first = comp.slice(0, per);
+    return { profile: prof, peak: pk, trough: tr, amplitude: pk.latest - tr.latest, firstAmp: Math.max(...first) - Math.min(...first) };
+  };
+  const comps = (multi ? fit.seasonals : [{ period, window: params.seasonal, seasonal }]).map((c) => {
+    const pr = profileOf(c.seasonal, c.period);
+    return { ...c, cycle: cycleName(c.period), strength: strengths(trend, c.seasonal, resid).seasonal, ...pr };
+  });
+  const { profile, peak, trough, amplitude, firstAmp } = comps[0];
 
   // Unusual points: robust z-score of the remainder (median / 1.4826 MAD).
   const zLimit = Number(input.outlierZ ?? DEFAULTS.outlierZ);
@@ -614,17 +733,24 @@ export function analyze(input = {}) {
   unusual.sort((a, b) => Math.abs(b.z) - Math.abs(a.z));
 
   // Trend movement over the last cycle and overall.
-  const trendChangeLastCycle = trend[n - 1] - trend[n - 1 - period];
+  const longest = comps[comps.length - 1].period;
+  const trendChangeLastCycle = trend[n - 1] - trend[n - 1 - longest];
   const trendChangeTotal = trend[n - 1] - trend[0];
   const level = mean(raw.map(Math.abs));
   const ampShare = level > 0 ? amplitude / level : null;
 
   const strengthWord = (s) => (s >= 0.9 ? "very strong" : s >= 0.64 ? "strong" : s >= 0.4 ? "moderate" : s >= 0.2 ? "weak" : "little or no");
-  const cycleWord = guess?.cycle && period === guess.period ? guess.cycle : `${period}-step cycle`;
+  const word = (p) => cycleName(p) ?? `${p}-step cycle`;
+  const swing = (c) => `the seasonal swing from the low (${c.trough.label}, ${fmt(c.trough.latest)}) to the high (${c.peak.label}, +${fmt(c.peak.latest)}) is ${fmt(c.amplitude)}`;
+  const share = (a) => (level > 0 ? `, about ${((a / level) * 100).toFixed(a / level < 0.1 ? 1 : 0)}% of the average level` : "");
   const summary = [
-    `Over ${n} points, the series has ${strengthWord(st.seasonal)} seasonality (strength ${st.seasonal.toFixed(2)} of 1) and ${strengthWord(st.trend)} trend (strength ${st.trend.toFixed(2)}).`,
-    `In the latest ${cycleWord}, the seasonal swing from the low (${trough.label}, ${fmt(trough.latest)}) to the high (${peak.label}, +${fmt(peak.latest)}) is ${fmt(amplitude)}${ampShare !== null ? `, about ${(ampShare * 100).toFixed(ampShare < 0.1 ? 1 : 0)}% of the average level` : ""}${firstAmp > 0 ? `; it was ${fmt(firstAmp)} in the first cycle` : ""}.`,
-    `The trend moved ${trendChangeLastCycle >= 0 ? "up" : "down"} ${fmt(Math.abs(trendChangeLastCycle))} over the last ${cycleWord} and ${trendChangeTotal >= 0 ? "up" : "down"} ${fmt(Math.abs(trendChangeTotal))} over the whole series.`,
+    multi
+      ? `Over ${n} points, MSTL fitted ${comps.length} seasonal cycles: ${comps.map((c) => `the ${word(c.period)} (period ${c.period}), ${strengthWord(c.strength)} (strength ${c.strength.toFixed(2)} of 1)`).join("; ")}. Together they give ${strengthWord(st.seasonal)} seasonality (strength ${st.seasonal.toFixed(2)}), and the trend is ${strengthWord(st.trend)} (strength ${st.trend.toFixed(2)}).`
+      : `Over ${n} points, the series has ${strengthWord(st.seasonal)} seasonality (strength ${st.seasonal.toFixed(2)} of 1) and ${strengthWord(st.trend)} trend (strength ${st.trend.toFixed(2)}).`,
+    multi
+      ? comps.map((c) => `In the latest ${word(c.period)}, ${swing(c)}${share(c.amplitude)}.`).join(" ")
+      : `In the latest ${word(period)}, ${swing(comps[0])}${ampShare !== null ? share(amplitude) : ""}${firstAmp > 0 ? `; it was ${fmt(firstAmp)} in the first cycle` : ""}.`,
+    `The trend moved ${trendChangeLastCycle >= 0 ? "up" : "down"} ${fmt(Math.abs(trendChangeLastCycle))} over the last ${word(longest)} and ${trendChangeTotal >= 0 ? "up" : "down"} ${fmt(Math.abs(trendChangeTotal))} over the whole series.`,
     unusual.length
       ? `${unusual.length} point${unusual.length === 1 ? " stands" : "s stand"} out from trend and season (remainder at least ${zLimit} robust standard deviations), the largest at ${unusual[0].date} (${unusual[0].resid >= 0 ? "+" : ""}${fmt(unusual[0].resid)}).`
       : `No point stands out from trend and season by ${zLimit} robust standard deviations or more.`,
@@ -638,6 +764,9 @@ export function analyze(input = {}) {
     interval: guess?.interval ?? null,
     period,
     periodSource,
+    method: multi ? "MSTL" : "STL",
+    periods: comps.map((c) => c.period),
+    components: comps.map((c) => ({ period: c.period, window: c.window, cycle: c.cycle, strength: c.strength, amplitude: c.amplitude, firstCycleAmplitude: c.firstAmp, peak: { label: c.peak.label, value: c.peak.latest }, trough: { label: c.trough.label, value: c.trough.latest }, seasonal: c.seasonal, profile: c.profile })),
     params,
     dates: labels,
     observed: raw,
