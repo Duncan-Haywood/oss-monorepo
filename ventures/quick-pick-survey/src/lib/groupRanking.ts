@@ -329,6 +329,98 @@ export function slotClickers(counts: SlotCounts[]): Set<string> {
   return out;
 }
 
+/** Decided answers a slot block must hold (slotBlockStarts). */
+export const SLOT_BLOCK_MIN = 15;
+/**
+ * The chance, per honest respondent, that slotBlockStarts flags them: an upper bound, not an estimate. Slots are
+ * shuffled per pair by a coin the respondent cannot see, so whatever an honest person prefers, which slot they pick
+ * is a fair coin on every answer, independent of the others. Every candidate block is tested against that exact
+ * binomial and the bar is split over the candidates (Bonferroni), so no panel, list or taste can raise the rate.
+ */
+export const SLOT_BLOCK_ALPHA = 0.01;
+
+const logFactorials: number[] = [0];
+function logFactorial(n: number): number {
+  for (let i = logFactorials.length; i <= n; i++) logFactorials.push(logFactorials[i - 1] + Math.log(i));
+  return logFactorials[n];
+}
+
+/** P(|X - n/2| >= |k - n/2|) for X ~ Binomial(n, 1/2): how often a fair coin lands this far from even, or further. */
+export function fairCoinTail(n: number, k: number): number {
+  if (!Number.isInteger(n) || n < 0 || !Number.isInteger(k) || k < 0 || k > n) throw new Error(`fairCoinTail needs 0 <= k <= n integers, got n=${n}, k=${k}`);
+  const lo = Math.min(k, n - k);
+  if (2 * lo === n) return 1;
+  let s = 0;
+  const ln2n = n * Math.LN2;
+  for (let j = 0; j <= lo; j++) s += Math.exp(logFactorial(n) - logFactorial(j) - logFactorial(n - j) - ln2n);
+  return Math.min(1, 2 * s);
+}
+
+/**
+ * Respondents who answered on the options for a while and then clicked one screen position from some point on, with
+ * the index (in their own answers, ties included, as ratingsWithoutAnswers counts them) where that run starts.
+ * slotClickers judges a whole session, so a block that starts partway is diluted by the honest answers before it: 20
+ * top-slot clicks after 40 honest answers is a 67% share, under the 70% bar, and those 20 picks still count. Here each
+ * tail of a person's decided answers at least `minBlock` long is a candidate; the one whose first-slot count a fair coin
+ * is least likely to give is kept when its two-sided binomial tail, times the number of candidates, is at most `alpha`
+ * and its share is at or beyond `minShare` either way. The answers before it count; the ones from it on are left out.
+ * Under SLOT_BLOCK_ALPHA an honest respondent is flagged at most 1% of the time, whatever they answered.
+ */
+export function slotBlockStarts(answers: { participantId: string; result: string }[], alpha = SLOT_BLOCK_ALPHA, minBlock = SLOT_BLOCK_MIN, minShare = SLOT_CLICK_SHARE): Map<string, number> {
+  const seqs = new Map<string, { firsts: boolean[]; at: number[]; n: number }>();
+  for (const a of answers) {
+    const s = seqs.get(a.participantId) ?? seqs.set(a.participantId, { firsts: [], at: [], n: 0 }).get(a.participantId)!;
+    if (a.result === "A" || a.result === "B") {
+      s.firsts.push(a.result === "A");
+      s.at.push(s.n);
+    }
+    s.n++;
+  }
+  const out = new Map<string, number>();
+  for (const [id, s] of seqs) {
+    const d = s.firsts.length;
+    if (d < minBlock) continue;
+    const candidates = d - minBlock + 1;
+    let f = 0;
+    let best: { p: number; k: number } | null = null;
+    // Walk the tails from the shortest up, so f is the first-slot count of firsts[k..].
+    for (let k = d - 1; k >= 0; k--) {
+      if (s.firsts[k]) f++;
+      const n = d - k;
+      if (n < minBlock) continue;
+      const share = f / n;
+      if (share < minShare && share > 1 - minShare) continue;
+      const p = fairCoinTail(n, f);
+      if (!best || p <= best.p) best = { p, k };
+    }
+    if (best && best.p * candidates <= alpha) out.set(id, s.at[best.k]);
+  }
+  return out;
+}
+
+/** Answers a slot block must leave before it for those answers to be kept; a run that starts sooner is a whole-session clicker. */
+export const SLOT_BLOCK_MIN_KEPT = 8;
+
+/**
+ * What the ranking does with each respondent's slots: `whole`, left out entirely (slotClickers, plus anyone whose
+ * one-position run starts within their first SLOT_BLOCK_MIN_KEPT answers), and `from`, the rest of the slot blocks,
+ * whose answers count up to the run and not from it on.
+ */
+export function slotFlags(answers: { participantId: string; result: string }[], counts: SlotCounts[]): { whole: Set<string>; from: Map<string, number> } {
+  const blocks = slotBlockStarts(answers);
+  const whole = new Set<string>();
+  const from = new Map<string, number>();
+  for (const [id, at] of blocks) (at < SLOT_BLOCK_MIN_KEPT ? whole.add(id) : from.set(id, at));
+  for (const id of slotClickers(counts)) if (!from.has(id)) whole.add(id);
+  return { whole, from };
+}
+
+/** One plain sentence for the owner when slot blocks were left out, or "". */
+export function slotBlockAdvice(people: number, answersLeftOut: number): string {
+  if (people === 0) return "";
+  return `${people} ${people === 1 ? "respondent" : "respondents"} answered on the options at first and then picked the same position on screen from some point on (a run a fair coin would give less than 1 time in 100); the ${answersLeftOut} ${answersLeftOut === 1 ? "answer" : "answers"} from that point on ${answersLeftOut === 1 ? "is" : "are"} left out of this ranking, and their earlier answers count.`;
+}
+
 /** One plain sentence for the owner when slot clickers were left out, or "". */
 export function slotClickerAdvice(left: number, participants: number): string {
   if (left === 0) return "";
@@ -493,7 +585,12 @@ export function fastAnswerCutMs(paces: RespondentPace[]): number | null {
  * second taste 0.002-0.019, the price of the honest answers it also drops.
  */
 export function ratingsWithoutFastAnswers(answers: ReplayAnswer[], cutMs: number): { rows: ParticipantRatingRow[]; dropped: number; people: number } {
-  return ratingsWithoutAnswers(answers, (a) => a.ms !== null && Number.isFinite(a.ms) && a.ms > 0 && a.ms < cutMs);
+  return ratingsWithoutAnswers(answers, (a) => isFastAnswer(a, cutMs));
+}
+
+/** ratingsWithoutFastAnswers' rule for one answer: a usable time under `cutMs` (no time, no cut). */
+export function isFastAnswer(a: { ms: number | null }, cutMs: number): boolean {
+  return a.ms !== null && Number.isFinite(a.ms) && a.ms > 0 && a.ms < cutMs;
 }
 
 /**

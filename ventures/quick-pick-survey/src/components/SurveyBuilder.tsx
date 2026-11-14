@@ -5,7 +5,7 @@ import type { AgreementSummary, Coverage, PaceSummary, RankedItem } from "@/lib/
 import { CHECKOUT_URL } from "@/lib/checkout";
 import { buyLink } from "@/lib/licence";
 
-type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; pace?: PaceSummary; leftOut?: { slotClickers: number; fast?: number; fastAnswers?: number; advice: string } };
+type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; pace?: PaceSummary; leftOut?: { slotClickers: number; slotBlocks?: number; slotBlockAnswers?: number; fast?: number; fastAnswers?: number; advice: string } };
 type Drop = "" | "fast" | "fast-answers" | "fast-blocks";
 
 const INPUT =

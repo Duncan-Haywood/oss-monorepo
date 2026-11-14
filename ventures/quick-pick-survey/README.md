@@ -167,7 +167,7 @@ Each item carries a 95% interval from a random-effects pool of the respondents' 
 (so disagreement widens it) and a best/worst rank range: items whose intervals overlap share a range
 rather than being ordered by noise. Respondents who clicked one screen position regardless
 of the options (first-slot share at or beyond 70% either way over 30+ answers; slots are shuffled
-per pair) are left out of the pool, and `leftOut` says how many. The response also carries `agreement`: each respondent's
+per pair) are left out of the pool, and `leftOut` says how many. Since 2026-11-14 a respondent who answered on the options and then clicked one position from some point on keeps the answers before that run and loses the run (`leftOut.slotBlocks`, `slotBlockAnswers`; `groupRanking.ts` `slotBlockStarts`): the run must be one a fair coin gives less than 1 time in 100, tested exactly against the binomial and split over every possible start, so on fair-coin slots it flagged 0.01-0.16% of honest respondents; in simulation it recovered what leaving out exactly the clicked answers would (docs/INFORMATION-GAIN-SELECTOR.md, "Clicking one position from partway through"). The response also carries `agreement`: each respondent's
 ratings are rank-correlated with everyone else's pool (leave one out), and when 5 or more could
 be scored and any fall under 0.2, a note says how many (shown in the builder and the report).
 It is a data-quality note, never a weight: careless clicking by something other than the

@@ -115,7 +115,7 @@ describe("admin survey ranking", () => {
     expect(rho).toBeGreaterThan(0.8);
     // Every participant answered ANSWERS_EACH pairs, and the route reads that from answered trials.
     expect(body.coverage.options).toBe(n);
-    expect(body.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(body.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(body.agreement.advice).toBe("");
   });
 
@@ -135,6 +135,26 @@ describe("admin survey ranking", () => {
     expect(1 - (6 * d2) / (n * (n * n - 1))).toBeGreaterThan(0.8);
   });
 
+  it("keeps the answers before a run of top-slot clicks that starts partway, and leaves out the run", async () => {
+    await runRespondents(4, ANSWERS_EACH);
+    // Two respondents who answer on the options for 20 picks, then click the top slot for 20 (a 75% share: slotClickers alone would drop them whole).
+    let turn = 0;
+    await runRespondents(2, ANSWERS_EACH, (a, b) => (turn++ % ANSWERS_EACH < 20 ? (a < b ? "A" : "B") : "A"));
+    setCookie(ADMIN_COOKIE_NAME, createSessionToken());
+    const body = await (await get(SURVEY)).json();
+    expect(body.leftOut.slotClickers).toBe(0);
+    expect(body.leftOut.slotBlocks).toBe(2);
+    // The run starts at answer 20, or a few answers sooner when their last honest picks happened to be the top slot too.
+    expect(body.leftOut.slotBlockAnswers).toBeGreaterThanOrEqual(40);
+    expect(body.leftOut.slotBlockAnswers).toBeLessThanOrEqual(50);
+    expect(body.leftOut.advice).toMatch(/^2 respondents answered on the options at first and then picked the same position on screen .* their earlier answers count\.$/);
+    // Their honest start is pooled with everyone else's.
+    expect(Math.max(...body.ranking.map((r: { respondents: number }) => r.respondents))).toBe(6);
+    const n = body.ranking.length;
+    const d2 = body.ranking.reduce((t: number, r: { itemId: string }, i: number) => t + (i - order.get(r.itemId)!) ** 2, 0);
+    expect(1 - (6 * d2) / (n * (n * n - 1))).toBeGreaterThan(0.8);
+  });
+
   it("reads answer times: notes fast, out-of-step respondents, and ranks without them only on ?drop=fast", async () => {
     const honest = await runRespondents(5, ANSWERS_EACH);
     // Two respondents who pick the reverse of everyone's order, at a quarter of the pace.
@@ -146,7 +166,7 @@ describe("admin survey ranking", () => {
     const all = await (await get(SURVEY)).json();
     expect(all.pace).toMatchObject({ checked: 7, fast: 2, lowAndFast: 2, typicalSeconds: 3 });
     expect(all.pace.advice).toMatch(/^2 respondents of 7 answered in under half the typical time per pick/);
-    expect(all.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(all.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(Math.max(...all.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
 
     const without = await (await get(SURVEY, "?drop=fast")).json();
@@ -168,7 +188,7 @@ describe("admin survey ranking", () => {
     setCookie(ADMIN_COOKIE_NAME, createSessionToken());
     const all = await (await get(SURVEY)).json();
     const replayed = await (await get(SURVEY, "?drop=fast-answers")).json();
-    expect(replayed.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(replayed.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     // Same answers, replayed in answer order through the same update: the same ranking (the pool sums rows in another order, so to 1e-6, not the last bit).
     type Row = { itemId: string; rank: number; bestRank: number; worstRank: number; respondents: number; rating: number; low: number; high: number };
     const shape = (r: Row[]) => r.map(({ itemId, rank, bestRank, worstRank, respondents }) => ({ itemId, rank, bestRank, worstRank, respondents }));

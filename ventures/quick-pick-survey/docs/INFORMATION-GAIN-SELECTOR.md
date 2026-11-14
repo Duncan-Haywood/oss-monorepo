@@ -3813,3 +3813,88 @@ Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --agree
 1.5,2,2.5,2:only --surveys 40 --items 15,30 --person-walk 0.08 --patterns
 salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (about
 fifteen minutes on one CPU).
+
+## Clicking one position from partway through (2026-11-14, latest; shipped as the default)
+
+Item (d3) on the flagship list. The ranking has always left out *slot clickers*
+(`slotClickers`): a first-slot share at or beyond 70% either way over 30+
+answers. That judges a whole session. A respondent who answers on the options
+for a while and then clicks the top (or bottom) slot from some point on is
+diluted by their own honest start: 20 top-slot clicks after 40 honest answers
+is a 67% share, under the bar, and all 20 clicks count. When the run is long
+enough to cross the bar, the opposite happens: the whole person is left out,
+honest start included.
+
+**The test** (`groupRanking.ts`, `slotBlockStarts`). Slots are shuffled per pair
+by a coin the respondent cannot see, so whatever an honest person prefers,
+which slot they pick is a fair coin on every answer, independent of the others.
+That gives an exact null, not a modelled one. Every tail of a person's decided
+answers at least 15 long is a candidate run; the one whose first-slot count a
+fair coin is least likely to give is kept when its two-sided binomial tail,
+times the number of candidates (Bonferroni), is at most 0.01 and its share is at
+or beyond 70% either way. The answers before the run count; the run does not.
+`slotFlags` puts it together for the route: a run that starts within the first
+8 answers is a whole-session clicker and is left out whole, as is anyone
+`slotClickers` flags without a run.
+
+Because the null is exact, the honest flag rate is bounded by 1% for any panel,
+list or taste. Measured on fair-coin sequences (`scripts/slot-block-null.ts`,
+20,000 people per length): 0.16% at 30 answers, 0.10% at 60, 0.055% at 120,
+0.01-0.02% at 240-480. `slotClickers`' own rate on the same sequences is 4.4% at
+30 answers and 0.27% at 60.
+
+**The sweep** (`scripts/slot-block-sweep.ts`; raw rows
+`docs/slot-blocks-2026-11-14.jsonl`, 107 cells, 100 surveys each, panels of
+20, the staged selector behind the route's slot shuffle). A share of the panel
+answers honestly for the first share `onset` of their answers and then, on a
+share `q` of answers, picks one slot. Schemes, as the paired Spearman
+difference from what shipped before (`slotClickers` alone):
+
+| case | none (count every answer) | the new default (`slotFlags`) | oracle: leave out exactly the run |
+|---|---|---|---|
+| whole-session clickers (onset 0, q = 1), 10-40% of the panel | -0.0008 to -0.0229 | -0.0001 to +0.0001 | -0.0001 to +0.0001 |
+| run from a quarter in, q = 1 | -0.0004 to -0.0118 | **+0.0005 to +0.0059** | +0.0005 to +0.0059 |
+| run from halfway, q = 1 (`slotClickers` caught 88-99% and dropped them whole) | -0.0075 to +0.0050 | **+0.0007 to +0.0091** | +0.0006 to +0.0096 |
+| run from three quarters in, q = 1 (`slotClickers` caught 1-13%) | -0.0005 to +0.0015 | **+0.0006 to +0.0082** (60 items, 240 answers: +0.0082 ± 0.0006) | +0.0006 to +0.0082 |
+| run with q = 0.8 (a 90% lean), onsets 0.25-0.75 | -0.0032 to +0.0023 | -0.0004 to +0.0034 | -0.0003 to +0.0032 |
+| second slot instead of first | -0.0054 to +0.0021 | +0.0007 to +0.0031 | +0.0009 to +0.0036 |
+| onsets spread +-0.25 around halfway | -0.0012 to +0.0023 | +0.0018 to +0.0034 | +0.0015 to +0.0037 |
+| nobody careless (cost) | 0 to +0.0001 | -0.0001 to 0 | 0 |
+| a 25-40% camp with a second taste (cost) | 0 to +0.0001 | 0 to +0.0002 | n/a (nobody to leave out) |
+
+Across all 94 cells with careless respondents the default sits within -0.0008
+to +0.0011 of the oracle. A second seed set (51000) agrees at 30 items. The
+first 52 cells (q1, q08, spread, second, dissent files) ran before the 8-answer
+whole-session rule was added and keep up to 7 answers of a run that starts at
+once; on the onset-0 rows the two differ by at most 0.0001.
+
+What it shows:
+
+- **Keeping the honest start is what pays.** Leaving the clickers out whole
+  (`oracle-drop`) is no better than what shipped and sometimes worse (-0.0075
+  to +0.0033 where the run starts partway), because it throws away good answers
+  with the bad. Cutting at the run's start recovers all of the ceiling.
+- **The gains are small in Spearman, as every slot result behind the shuffle
+  has been** ("Position bias behind the slot shuffle": shuffled slot clicks land
+  on both items about equally, so they mostly add noise). The largest is
+  +0.009, on 15-item lists with 40% of the panel turning at halfway. It costs
+  nothing measurable where nobody clicks, and leaves a camp alone because a
+  camp's slots are a fair coin too.
+- **The start lands close.** Mean distance from the true onset: 1-1.5 answers
+  at q = 1, 3-4 at q = 0.8.
+- **Weak runs are often missed, and missing them costs nothing measurable.** At
+  q = 0.6 (an 80% lean) from halfway it found 43-100% of runs; at q = 0.4 (a 70%
+  lean) 8-64%. But leaving out exactly those runs (`oracle-answers`) moved the
+  ranking by -0.0008 to +0.0016 there: most of a weak run's answers are honest.
+  So a more sensitive test is not worth building.
+
+**Decision.** Shipped as the default on the ranking route, not a comparison:
+`leftOut.slotBlocks` and `leftOut.slotBlockAnswers` count it, and the advice
+says the respondents' earlier answers count. The default ranking has always
+left slot clickers out; this refines who is left out and what of theirs, and
+its false-flag rate is bounded by construction rather than by a sweep.
+`ranking.integration.test.ts` has two respondents answer honestly for 20 picks
+and click the top slot for 20 through the real routes: the route now pools
+their first 20 answers; before, `slotClickers` caught one of the two whole and
+let the other's clicks count. Still synthetic: whether real respondents do this
+waits for item (c).

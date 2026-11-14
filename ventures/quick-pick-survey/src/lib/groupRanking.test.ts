@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, SLOT_BLOCK_ALPHA, SLOT_BLOCK_MIN, fairCoinTail, slotBlockAdvice, slotBlockStarts, slotFlags, SLOT_BLOCK_MIN_KEPT, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -231,6 +231,60 @@ describe("slotClickers", () => {
   it("advice names the count and is empty when nobody was left out", () => {
     expect(slotClickerAdvice(0, 12)).toBe("");
     expect(slotClickerAdvice(2, 12)).toMatch(/^2 of 12 respondents .* at least 70% .* left out of this ranking\.$/);
+  });
+});
+
+describe("slotBlockStarts", () => {
+  const seq = (id: string, results: string) => [...results].map((c) => ({ participantId: id, result: c === "a" ? "A" : c === "b" ? "B" : "EQUAL" }));
+  // A fair-coin-looking honest stretch: alternating slots with no long run.
+  const honest = (n: number) => Array.from({ length: n }, (_, i) => (i % 4 < 2 ? (i % 2 ? "a" : "b") : i % 2 ? "b" : "a")).join("");
+  it("fairCoinTail is the exact two-sided binomial tail", () => {
+    expect(fairCoinTail(10, 5)).toBe(1);
+    expect(fairCoinTail(4, 4)).toBeCloseTo(2 / 16, 12);
+    expect(fairCoinTail(4, 0)).toBeCloseTo(2 / 16, 12);
+    expect(fairCoinTail(20, 17)).toBeCloseTo((2 * (1 + 20 + 190 + 1140)) / 2 ** 20, 12);
+    expect(() => fairCoinTail(5, 6)).toThrow();
+  });
+  it("finds a run of top-slot clicks that starts partway, which the whole-session share misses", () => {
+    const answers = seq("late", honest(40) + "a".repeat(20));
+    expect(slotClickers([{ participantId: "late", first: 40 / 2 + 20, second: 40 / 2 }]).size).toBe(0); // 40 of 60 is 67%
+    const out = slotBlockStarts(answers);
+    expect(out.get("late")).toBeGreaterThanOrEqual(38);
+    expect(out.get("late")).toBeLessThanOrEqual(40);
+  });
+  it("reads either slot, and counts ties in the start index as ratingsWithoutAnswers does", () => {
+    const plain = slotBlockStarts(seq("bottom", honest(20) + "b".repeat(20))).get("bottom");
+    expect(plain).toBeGreaterThanOrEqual(18);
+    expect(plain).toBeLessThanOrEqual(20);
+    expect(slotBlockStarts(seq("bottom", "eee" + honest(20) + "b".repeat(20))).get("bottom")).toBe(plain! + 3);
+  });
+  it("leaves alone a run too short to be told from a coin, and an even session", () => {
+    expect(slotBlockStarts(seq("short", honest(40) + "a".repeat(SLOT_BLOCK_MIN - 1))).size).toBe(0);
+    expect(slotBlockStarts(seq("even", honest(120))).size).toBe(0);
+  });
+  it("flags honest coin-flip slots at most SLOT_BLOCK_ALPHA of the time", () => {
+    let s = 12345;
+    const rand = () => ((s = (s * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+    const answers = Array.from({ length: 2000 }, (_, p) => Array.from({ length: 60 }, () => ({ participantId: `h${p}`, result: rand() < 0.5 ? "A" : "B" }))).flat();
+    expect(slotBlockStarts(answers).size / 2000).toBeLessThanOrEqual(SLOT_BLOCK_ALPHA);
+  });
+  it("slotFlags keeps a late run's start, and leaves out whole a run from the first answers or a share-only clicker", () => {
+    const answers = [...seq("late", honest(30) + "a".repeat(20)), ...seq("always", "a".repeat(40)), ...seq("early", "b".repeat(SLOT_BLOCK_MIN_KEPT - 3) + "a".repeat(40)), ...seq("honest", honest(40))];
+    const counts = [
+      { participantId: "late", first: 35, second: 15 },
+      { participantId: "always", first: 40, second: 0 },
+      { participantId: "early", first: 40, second: SLOT_BLOCK_MIN_KEPT - 3 },
+      { participantId: "honest", first: 20, second: 20 },
+      { participantId: "share", first: 22, second: 9 }, // 71% over 31: slotClickers' rule, too weak for a block
+    ];
+    const { whole, from } = slotFlags(answers, counts);
+    expect([...whole].sort()).toEqual(["always", "early", "share"]);
+    expect([...from.keys()]).toEqual(["late"]);
+    expect(from.get("late")).toBeGreaterThanOrEqual(SLOT_BLOCK_MIN_KEPT);
+  });
+  it("advice names people and answers, and is empty when nobody was flagged", () => {
+    expect(slotBlockAdvice(0, 0)).toBe("");
+    expect(slotBlockAdvice(1, 20)).toMatch(/^1 respondent answered .* the 20 answers from that point on are left out/);
   });
 });
 
