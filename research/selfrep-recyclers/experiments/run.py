@@ -24,6 +24,14 @@ for sh, var in CASES:
     for name, (imp, sav, n) in paybacks(var, sh).items():
         w(f"{sh:28s} {name:18s} imports {imp:5.2f} kg, saves {sav:.3f} kg/copy -> payback {fmt(n)} copies")
 w("")
+w("== furnace: remelt credited only against castable bar stock (a crucible cannot make sheet) ==")
+cast = SHOPS["printer+cnc+laser+casting"]
+old = M.balance_credit_kg("lm8uu", cast)
+w(f"balance credit (sheet + bar, as selfrep-materials books it): {old:.4f} kg/copy -> payback {6.5 / old:.0f} copies (superseded)")
+for ml in (0.08, 0.15, 0.25, 0.40, 0.60, 0.70):
+    imp, sav, n = paybacks("lm8uu", "printer+cnc+laser+casting", with_params(m_loss=ml))["furnace"]
+    w(f"melt loss {ml:.2f}: castable saving {sav:.4f} kg/copy -> payback {fmt(n)} copies")
+w("")
 w("== plastic pair payback vs retired plastic per copy (eol), shop printer+cnc+laser ==")
 for eol in (0.0, 0.5, 1.0, 2.0):
     for phi in (0.3, 0.8):

@@ -2,7 +2,7 @@
 printer                      shredder+extruder  by mass   99 | by cost  111 (machines cost  216.3, 94% vitamins; saves 1.956/copy)
 printer+cnc+laser            shredder+extruder  by mass  116 | by cost   98 (machines cost  191.5, 84% vitamins; saves 1.956/copy)
 printer+cnc+laser+casting    shredder+extruder  by mass  116 | by cost   98 (machines cost  191.5, 84% vitamins; saves 1.956/copy)
-printer+cnc+laser+casting    furnace            by mass   94 | by cost  203 (machines cost   84.0, 100% vitamins; saves 0.414/copy)
+printer+cnc+laser+casting    furnace            by mass  227 | by cost  490 (machines cost   84.0, 100% vitamins; saves 0.171/copy)
 
 == plastic pair, shop printer+cnc+laser: payback in copies by cost vs retired plastic (eol) and phi ==
 eol=0.0 phi=0.3: 98 copies
@@ -19,6 +19,6 @@ N= 10 copies: breakeven filament price   572.6 per kg (base assumption 20)
 printer+cnc+laser            eol=0 shredder+extruder  payback copies 5/50/95%: 45 / 99 / 235
 printer+cnc+laser            eol=1 shredder+extruder  payback copies 5/50/95%: 12 / 27 / 62
 printer+cnc+laser+casting    eol=0 shredder+extruder  payback copies 5/50/95%: 45 / 99 / 231
-printer+cnc+laser+casting    eol=0 furnace            payback copies 5/50/95%: 80 / 202 / 510
+printer+cnc+laser+casting    eol=0 furnace            payback copies 5/50/95%: 193 / 487 / 1231
 printer+cnc+laser+casting    eol=1 shredder+extruder  payback copies 5/50/95%: 12 / 26 / 63
-printer+cnc+laser+casting    eol=1 furnace            payback copies 5/50/95%: 79 / 205 / 521
+printer+cnc+laser+casting    eol=1 furnace            payback copies 5/50/95%: 191 / 496 / 1259

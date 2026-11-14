@@ -17,7 +17,7 @@ for sib in ("selfrep-closure", "selfrep-materials"):
     sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", sib, "src"))
 from selfrep_closure.bom import SHOPS, Part  # noqa: E402
 from selfrep_closure.closure import makeable  # noqa: E402
-from selfrep_materials.balance import Params, balance  # noqa: E402
+from selfrep_materials.balance import Params, balance, parts_by_feedstock  # noqa: E402
 
 
 def _v(name, qty, kind, mass_g, why="vitamin: no shop process can make it"):
@@ -87,13 +87,45 @@ def machine_import_kg(names, processes, y_metal=Params().y_metal, s=Params().s):
     return v
 
 
+# Imported aluminium stock a crucible furnace can stand in for. A furnace pours ingots and cast
+# blanks; it cannot roll sheet or draw bar. Remelted metal can therefore replace only the stock of
+# parts whose blank can be cast and then machined (the pulleys, cut from "aluminium bar"), not the
+# washers cut from "aluminium sheet". ASSUMPTION: a cast blank needs the same metal as the bar stock
+# it replaces (same cutting yield), so the credit is capped at that bar stock.
+CASTABLE_AL = ("aluminium bar",)
+
+
+def furnace_saving_kg(variant, processes, prm=Params()):
+    """kg of imported aluminium a furnace avoids per printer copy: every aluminium offcut (sheet
+    and bar) is remelted with melt loss ``prm.m_loss``, but the metal can only replace stock in
+    ``CASTABLE_AL``. 0 without casting.
+
+    ``selfrep_materials.balance`` credits remelt against every aluminium line, sheet included,
+    which a crucible furnace cannot make (quality audit 2026-11-08, defect 0); this caps it."""
+    if "cast" not in set(processes):
+        return 0.0
+    off = balance(variant, processes, prm, recycle=False)["imports_kg"]
+    prod = parts_by_feedstock(variant, processes)
+    pool = sum(off[k] - prod.get(k, 0.0) for k in off if k.startswith("aluminium")) * (1 - prm.m_loss)
+    castable = sum(off.get(k, 0.0) for k in CASTABLE_AL)
+    return max(0.0, min(pool, castable))
+
+
 def per_copy_saving(variant, processes, prm=Params()):
-    """kg of imports avoided per printer copy by (plastic recycling, aluminium recycling)."""
+    """kg of imports avoided per printer copy by (plastic recycling, aluminium recycling).
+    The aluminium saving is ``furnace_saving_kg``, not the balance's sheet-and-bar credit."""
     off = balance(variant, processes, prm, recycle=False)["imports_kg"]
     on = balance(variant, processes, prm, recycle=True)["imports_kg"]
     plastic = off.get("filament (virgin)", 0.0) - on.get("filament (virgin)", 0.0)
-    metal = sum(off[k] - on[k] for k in off if k.startswith("aluminium"))
-    return plastic, metal
+    return plastic, furnace_saving_kg(variant, processes, prm)
+
+
+def balance_credit_kg(variant, processes, prm=Params()):
+    """The aluminium saving as ``selfrep_materials.balance`` books it (sheet and bar both replaced
+    by remelt). Kept only to show how far the earlier headline overstated the furnace."""
+    off = balance(variant, processes, prm, recycle=False)["imports_kg"]
+    on = balance(variant, processes, prm, recycle=True)["imports_kg"]
+    return sum(off[k] - on[k] for k in off if k.startswith("aluminium"))
 
 
 def paybacks(variant, shop, prm=Params()):
