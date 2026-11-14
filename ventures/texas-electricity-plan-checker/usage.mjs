@@ -5,8 +5,9 @@
 
 const STORAGE_KEY = 'texas-electricity-plan-checker-usage';
 
-// Merely reading the localStorage global throws when the visitor blocks site
-// data, so every default goes through this guard (platform/ci/check_storage_guard.py).
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, and a default parameter is evaluated before any try in
+// the body, so the defaults and the page's calls go through this instead.
 export function usageStorage() {
   try {
     return globalThis.localStorage ?? null;
