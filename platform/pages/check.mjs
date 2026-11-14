@@ -39,6 +39,7 @@ import { fileURLToPath } from 'node:url';
 import { SITE_COUNT_PAGES, ungroupedCounts } from './count.mjs';
 import { checkPageIdentity, loadPages } from './page-identity.mjs';
 import { doubleEscapedInChrome } from './entities.mjs';
+import { rawMarkdownLeaks } from './raw-markdown.mjs';
 import { mapLimit } from './share.mjs';
 import { servedPath } from './served-path.mjs';
 
@@ -1123,6 +1124,21 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     const found = doubleEscapedInChrome(html);
     if (found.length) {
       problems.push(`${relative}: entity escaped twice in a menu, title or heading (decode authored HTML before escapeHtml): ${found.slice(0, 5).join(' ')}`);
+    }
+  }
+
+  // ---- Markdown shown as source ------------------------------------------
+  //
+  // `code`, *emphasis* or [text](path) in a page's visible text means a renderer missed it:
+  // 40 pages did until 2026-11-14 (raw-markdown.mjs says which renderers). The engineering
+  // page is exempt: it lists commit titles as GitHub shows them, asterisks and all.
+  for (const relative of servedPages) {
+    if (relative.startsWith('engineering/')) continue;
+    const html = await readPage(relative);
+    if (!/[`*[]/.test(html)) continue;
+    const found = rawMarkdownLeaks(html);
+    if (found.length) {
+      problems.push(`${relative}: Markdown shown as source text (render it, or put it in <code>): ${found.join(' | ')}`);
     }
   }
 
