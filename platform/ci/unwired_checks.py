@@ -162,10 +162,11 @@ def skipped(results):
 # red one shows within hours, while a suite no workflow names is never run.
 ROOT = HERE.parents[1]
 NODE_TIMEOUT = 120
-# Suites too slow for every pull request: named skips, never passes.
-NODE_SLOW = {
-    "platform/distribution/ios.test.mjs": "its catalogue-wide plan test takes over 120 s",
-}
+# Suites too slow for every pull request: named skips, never passes. Empty
+# since 2026-11-14: ios.test.mjs took over 120 s because its catalogue-wide plan
+# drew the 1024 px app icon once per venture; offline.mjs's renderIcon now draws
+# each variant once per process, and the suite takes about 6 s.
+NODE_SLOW = {}
 
 _NODE_TEST = re.compile(r"node\s+--test\b([^\n;&|]*)")
 _CD = re.compile(r"\bcd\s+(\S+)\s*&&\s*node\s+--test\b")
@@ -250,23 +251,35 @@ def unwired_extra(here=HERE, workflows=WORKFLOWS):
     return [(here / name, *args) for name, *args in EXTRA if name not in text]
 
 
-def run_everything(checks_only=False):
-    """Checks, then (unless checks_only) suites and EXTRA: one sorted result list."""
-    results = run_all(unwired())
+def run_everything(checks_only=False, jobs=6):
+    """Checks, then (unless checks_only) suites and EXTRA: one sorted result list.
+
+    One pool for all four kinds (2026-11-14). Four pools in a row each waited
+    for their slowest item while the other workers sat idle: on a 4-core
+    container the checks took 20 s, the suites 21 s and the node suites 29 s,
+    each set by one item, 70 s in all for 305 s of work. The suites and node
+    suites go in first, since the long items are among them
+    (docs/history/ci-perf-2026-11-14-icon-memo-unwired-pool.md)."""
+    groups = []
     if not checks_only:
-        results += run_all(unwired_tests(), runner=run_suite)
-        results += run_all(unwired_node_suites(), runner=run_node_suite)
-        results += run_all(unwired_extra(), runner=lambda p, *a: main_health.run(p, *a))
-    return sorted(results)
+        groups += [(run_node_suite, unwired_node_suites()), (run_suite, unwired_tests())]
+    groups.append((main_health.run, unwired()))
+    if not checks_only:
+        groups.append((lambda p, *a: main_health.run(p, *a), unwired_extra()))
+    work = [(runner, p if isinstance(p, tuple) else (p,)) for runner, paths in groups for p in paths]
+    return sorted(run_mixed(work, jobs=jobs))
 
 
-def run_all(paths, runner=main_health.run, jobs=6, log=print):
-    """[(name, rc, output)] sorted by name; timeouts get one solo re-run. An
-    item of `paths` is a path or a (path, *args) tuple."""
-    work = [p if isinstance(p, tuple) else (p,) for p in paths]
+def run_mixed(work, jobs=6):
+    """[(name, rc, output)] for (runner, args) pairs run in one pool; a timeout
+    gets one solo re-run with its own runner."""
     with ThreadPoolExecutor(max_workers=jobs) as pool:
-        results = [f.result() for f in as_completed([pool.submit(runner, *j) for j in work])]
-    return sorted(main_health.rerun_timeouts(work, results, runner))
+        futures = {pool.submit(runner, *args): (runner, args) for runner, args in work}
+        done = [(futures[f], f.result()) for f in as_completed(futures)]
+    out = []
+    for (runner, args), result in done:
+        out += main_health.rerun_timeouts([args], [result], runner)
+    return out
 
 
 def report(results):
