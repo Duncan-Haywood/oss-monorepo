@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-14 · Milestone 2: does the BaSiGo 2013 corridor replicate the keep-right convention, and its collapse under assigned exits? (predictions written before any BaSiGo trajectory was analysed)
+- Data: BaSiGo bidirectional corridor (Düsseldorf, 2013; FZJ archive, doi:10.34735/ped.2013.5), 15 runs, 25 fps, a 4.0 m wide corridor along x between walls at y = 0 and 4 m. Variant A (5 runs, 12:41 to 12:56): no instruction about the lateral exits. Variant B (10 runs, 13:03 to 13:51): "choose your exit based on your wristband colour (red/yellow)"; b_09 and b_10 also had screen information. In four runs (a_01, b_01 to b_03) the metadata note "guide splitting pedestrian stream upon entering corridor". The archive answered this session (HTTPS; the plain-HTTP links 301 to it).
+- The run-order confound is not broken by this design either: every variant A run came before every variant B run, as at HERMES. What the data can still say: whether the share steps down at the A/B boundary or drifts down with time inside each variant.
+- Frame: the same handedness assumption as milestone 1 (PeTrack output, z is head height and positive, right-handed). Corridor coordinates are rotated by +90 degrees (a rotation, so handedness is kept): along-corridor = x, lateral = 400 cm - y, so a walker heading +x has their right at small y. The measured section is the middle 8 m (x = -4 to 4 m), as at HERMES.
+- Primary analysis (fixed before running): runs without the guide note, A = a_02 to a_05 and B = b_04 to b_10. The guide physically split the incoming stream, which can sort people laterally for reasons other than convention; the guided runs are reported separately as a sensitivity. Same measures and code as milestone 1 (`lanes.py`): per-walker share on own right, two-stage bootstrap over runs and walkers, lane order against 100 within-frame label shuffles, median speed.
+- **Predictions:**
+  - B1: variant A (primary) pooled share on own right exceeds 0.5 with the 95% interval excluding 0.5. Prior 75%.
+  - B2 (H2 replication): variant B (primary) is lower than variant A by at least 0.10, with the difference's 95% interval (bootstrap over runs and walkers in each variant) excluding 0. Prior 60%.
+  - B3: lane order exceeds the shuffled-label p97.5 in every measurable run. Prior 85%.
+  - B4 (step, not drift): within variant B (all 10 runs) the share does not fall with start time (Spearman not negative). Prior 55%.
+  - B5: the variant A share lies inside HERMES free-choice's interval [0.865, 0.993]. Prior 45% (the corridor is wider, 4.0 against 3.6 m, and milestone 1 found the convention weakest at the widest entrance).
+  - B6 (units and frame rate): median walker speed in the lowest-density run (b_01, entrance 0.6 m) lies within 1.0 to 1.6 m/s at 25 fps. Prior 70%.
+
 ## 2026-11-13 · Milestone 7 (taken early): do pedestrians keep right outside the lab, and does the side follow the local road rule? (predictions written before any in-the-wild trajectory was analysed)
 - Why now: milestone 2 needs BaSiGo 2013 from ped.fz-juelich.de, which the cloud session's egress proxy refused (HTTP 403 on CONNECT, also doi.org). The OpenTraj collection (Amirian et al. 2020, github.com/crowdbotp/OpenTraj, commit 97ec1d5e) is reachable and mirrors the ETH/Hotel (Zurich, 2009) and UCY Zara (Nicosia) trajectories, which is milestone 7's data. Taken out of order; milestone 2 stays next once the archive answers.
 - The contrast the proposal did not plan: Switzerland drives on the right and Cyprus on the left (Kincaid 1986, *The Rule of the Road*). If the corridor convention of milestone 1 is a local norm rather than a human universal, it should differ between the two cities.
