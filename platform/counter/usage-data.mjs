@@ -29,7 +29,10 @@ function git(args, opts = {}) {
 
 export function fetchBranch() {
   try {
-    git(['fetch', '-q', '--depth=1', 'origin', `${BRANCH}:refs/remotes/origin/${BRANCH}`]);
+    // `+`: the workflow adds a commit a day, and a depth-1 fetch cannot see that
+    // the new tip descends from the one already fetched, so without it git
+    // rejects the update as non-fast-forward and every later run exits 1.
+    git(['fetch', '-q', '--depth=1', 'origin', `+${BRANCH}:refs/remotes/origin/${BRANCH}`]);
     return true;
   } catch (e) {
     console.error(`Could not fetch origin/${BRANCH}: ${String(e.stderr || e.message).trim()}`);
