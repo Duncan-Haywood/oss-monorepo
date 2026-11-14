@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMTM8ygefhP2txDr1z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T09:12:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder (flagship 6): price a second call-out in the same week",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": 15794,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "an unbudgeted (budget Infinity) pair walk on the caf\u00e9 ran over 2 minutes and was killed",
+      "fix": "kept the 500-check budget; capped pairs are reported"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-shift-roster-twenty-weeks-was-not-enough.md"
+  ],
+  "goal": null,
+  "notes": "coverPairRisk + --second-callout-price (off by default, capped at 120 copies). Pair check vs played pairs: 337 pairs, 58.1% precision, 91.5% recall (eval/cover-pair-exposure.out.txt). All-pair exposure and 200-seed played weeks in eval/cover-pair-exposure-all.out.txt and eval/cover-price-200-*.out.txt. Spare caf\u00e9 at $1: open added 1,192->1,148, changes 1,275->821, premiums $20,776->$13,005 vs --cover-price alone. Cost: eval/cover-pair-cost.out.txt (40-person pass 3.1->43.6 s, hence the cap). Local checks: node --test cover-pair-risk.test.mjs (7 pass), cover-price.test.mjs + cli.test.mjs (47 pass), run_venture_tests.py shift-roster-builder and venture-preflight results in the PR body.",
+  "corrections": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "was": "caf\u00e9 priced roster 'a trade, not a win' over 20 seeded weeks",
+      "now": "at 200 seeds the priced caf\u00e9 roster wins at both rates (262->208, 1,824->1,727 open hours added); 20-week reversal was sampling noise"
+    }
+  ],
+  "redteam": null
+}

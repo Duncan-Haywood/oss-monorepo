@@ -168,7 +168,8 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
      clipping against streaming targets;
    - it runs locally and costs nothing per track.
    - landed 2026-11-03: `master-cli.mjs` (LUFS, true peak, mono, clipping).
-   - 2026-11-14: checked against EBU Tech 3341 Table 1 built from its text (cases 1-5, 9, 10, 12, 13, 15-23: 69 of 69 inside tolerance; `eval/ebu-tech3341.mjs`); momentary and short-term max added; Spotify's own page read and its headroom cap and -2 dBTP rule applied; the other services publish no level (eval/ebu-tech3341-2026-11-14.md). Open: the EBU's own WAV set and authentic programme files (403 here), loudness range (Tech 3342), a real mix.
+   - 2026-11-14: checked against EBU Tech 3341 Table 1 built from its text (cases 1-5, 9, 10, 12, 13, 15-23: 69 of 69 inside tolerance; `eval/ebu-tech3341.mjs`); momentary and short-term max added; Spotify's own page read and its headroom cap and -2 dBTP rule applied; the other services publish no level (eval/ebu-tech3341-2026-11-14.md). Open: the EBU's own WAV set and authentic programme files (403 here), a real mix.
+   - 2026-11-14: loudness range (EBU Tech 3342, read from tech.ebu.ch): `loudnessRange` in master.mjs, printed by master-cli; Table 1 cases 1-4 from the text 24 of 24 inside tolerance with a -10 LU gate control that fails; 11 of 12 within 0.2 LU of ffmpeg's ebur128, the 12th a percentile-rank difference (eval/ebu-tech3342-2026-11-14.md). Open: cases 5-6 (EBU's programme WAVs), a real mix.
 7. **Release kit:**
    - metadata, credits, ISRC slots, the AI-disclosure answers, cover-art spec
      and a per-track source note;
