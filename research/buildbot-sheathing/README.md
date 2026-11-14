@@ -329,6 +329,21 @@ is the input that would decide it.
 
 ![Decayed 3-12 wall's share kept against slack at the rods for four end-nail strengths; both decayed walls' shares against end-nail strength](experiments/m19_wall_pushover/figure.png)
 
+**Milestone 20: does cyclic loading explain why a decayed shear wall loses two thirds of its strength? No.**
+Weiss tested her walls cyclically (ASTM E2126, the CUREE protocol), and every model so far pushed them over once.
+Here the same 8 by 8 ft wall goes through the CUREE basic history (Krawinkler et al. 2001) with each nail on the
+ten-parameter SAWS hysteresis (Folz and Filiatrault 2001), its pinching and stiffness loss fitted to cyclic tests
+of nails through 7/16 in OSB into Douglas fir-larch, Weiss's own materials (Anderson et al. 2007). The hysteresis
+matches OpenSees' implementation to **2e-13** of a nail's peak. Cyclic loading moves the intact walls' peaks by
+**0.1%** and the decayed 3 in wall's share kept by **0.1 point** (70.6% against 70.5%; tested 34%). Across 96
+combinations of end-nail strength, joint slip and rod slack the median change is 0.2 point and the largest 3.0. In the
+decayed 3 in wall the anchor rods yield and their holes crush to 25–28 mm, but only after the peak. The only fits
+within 2 points again need end nails at a quarter of their code (NDS) ratio. So with the model class Weiss's own
+MCASHEW2 belongs to, cycles are not the answer. What is left is weak end-nailed joints, or damage such models
+have no term for (nail fatigue and tear-out at the unsupported bottom edge, the middle stud splitting).
+
+![Hysteresis loops of the intact and decayed 3 in walls under the CUREE history beside their monotonic pushes; decayed walls' share kept, cyclic against monotonic, over end-nail strength](experiments/m20_cyclic/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -772,6 +787,32 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   edge-nail lines one sheet reproduces milestone 16's pushover exactly; energy gradient against finite
   differences; the rod's gap carries nothing; more slack never adds strength (`tests/test_wall_push.py`).
 
+## Milestone 20 method (`src/buildbot_sheathing/wall_cyclic.py`)
+- **Question.** Weiss's tests were cyclic. Does the CUREE loading history, with fasteners that pinch and lose
+  stiffness as real nails do, take the decayed walls down to their tested shares where a monotonic push could not?
+- **Hysteresis.** The ten-parameter SAWS model (Folz and Filiatrault 2001): a Foschi envelope, unloading at r3 K0,
+  pinching lines through ±FI at r4 K0, reloading towards β times the last excursion at K0 (F0/(K0 δmax))^α, no
+  capacity past the point where the pinching line meets the falling branch. Written as bounds on the force
+  (vectorised over every spring) and checked against OpenSees' `SAWSMaterial` to 2e-13 FU (`ops_check.py`).
+- **Parameters, sourced.** Anderson et al. (2007), Table 4: cyclic single-nail tests of 0.113 in nails through
+  7/16 in OSB into DF-L, fyb 115 ksi row (K0 0.499 kN/mm, F0 1.11 kN, FI 0.14 kN, Δu 10.8 mm, r3 3.91, r4 0.028,
+  α 0.265, β 1.15); their 87, 145 and 241 ksi rows and Folz and Filiatrault's own set as sensitivity.
+- **Wall.** Milestone 19's bodies and penalties. Each sheathing nail an oriented spring pair (Judd and Fonseca
+  2005): two SAWS springs along and across the nail's slip in the linear wall. Each stud-to-plate joint a SAWS
+  spring scaled to m × 1.297 nails in force and λ in slip. Each anchor rod bears after a gap g at the NDS modulus up
+  to 2.55 nail peaks, and past that the hole crushes, so later cycles start with more slack. Newton on the
+  out-of-balance force at each 0.5 mm step from the committed states, with a line search on the step's
+  incremental potential.
+- **History.** The CUREE basic history exactly as W-02 Sec. 1.1 gives it (initiation cycles at 0.05Δ; primaries at
+  0.075 to 1.0Δ, then +0.5Δ, each with trailing cycles at 75%), Δ = 0.6 Δm from the intact wall's own monotonic
+  push, the decayed wall on its intact wall's Δ; stopped after the first primary past 1.0Δ that carries under 0.8
+  of the largest load so far, or after 3.0Δ. Peak = mean of the largest positive and negative loads.
+- **Grid.** m 0.25, 0.47, 0.75, 1.0; λ 0.25, 1; g 0, 1/16, 1/4 in; both schedules, intact and decayed, cyclic and
+  monotonic.
+- **Checks.** `tests/test_wall_cyclic.py`: the history's cycle counts and amplitudes; the envelope under monotonic
+  load; elastic response below the pinching intercept and the r3 K0 unloading slope; an OpenSees trace; the
+  envelope's energy; the pair against the radial spring while elastic; the rod hole's crushing.
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
@@ -820,6 +861,11 @@ python experiments/m17_weiss_wall/run.py > experiments/m17_weiss_wall/results.tx
 python experiments/m17_weiss_wall/figure.py
 python experiments/m18_holddown_shear/run.py > experiments/m18_holddown_shear/results.txt # ~5 min on 4 CPUs
 python experiments/m18_holddown_shear/figure.py
+python experiments/m19_wall_pushover/run.py > experiments/m19_wall_pushover/results.txt # ~10 min on 4 CPUs
+python experiments/m19_wall_pushover/figure.py
+ops/bin/python experiments/m20_cyclic/ops_check.py          # H93: needs a venv with openseespy (pip install openseespy numpy)
+python experiments/m20_cyclic/run.py > experiments/m20_cyclic/results.txt         # ~70 min on 4 CPUs
+python experiments/m20_cyclic/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -1242,7 +1288,31 @@ python paper/check_numbers.py                                # every number the 
   cannot settle every step (largest residual 3.6e2 Fp), which does not affect the peaks. The median share of nails
   whose slip fell before the peak is 0% (90th percentile 5.2%; in a few runs the peak came after a snap).
 
+## Milestone 20 results (`experiments/m20_cyclic/results.txt`)
+
+- **Code checks.** H93 held: the SAWS springs match OpenSees to 2e-13 FU rms on the CUREE history for all five
+  parameter sets. H94 refuted as registered: pushed once, the oriented pair carries 3.1–5.2% more than milestone
+  19's radial spring with the same envelope, the bias Judd and Fonseca report for uncoupled pairs; the shares kept
+  agree to 0.2 point (78.6%|70.2% against 78.4%|70.1%).
+- **Intact walls** (H95 held): cyclic peaks −0.1% and −0.0% of monotonic (Δ 37.2 and 39.9 mm).
+- **Decayed walls** (H96 held): at code-strength joints, the rods' design value and a 1/16 in gap, 77.8% and
+  **70.6%** kept cyclic against 78.3% and 70.5% monotonic (tested 56.5% and 33.9%).
+- **No near-code fit** (H97 held): no point with m ≥ 0.75 within 10 points of both; the closest keeps 76.3% and
+  43.3% (rms 15.5 points).
+- **Grid.** Cyclic loading moves a decayed share by a median 0.2 point, at most 3.0. Best cyclic fit: m 0.25, λ 1,
+  no gap, 57.6% and 31.4% (rms 1.9 points), decay ratio 1.04 (tested 1.12). With this envelope one point at
+  m 0.47 (λ 0.25, 1/4 in gap) also fits (rms 2.9), from the nail's envelope rather than the cycles: its monotonic
+  push gives 54.8% and 30.8%.
+- **Sensitivity.** Anderson's other rows move the registered shares by under a point; Folz and Filiatrault's set
+  keeps 74.3% and 66.2% cyclic (75.4%, 66.9% monotonic); Δ from the radial push and 1 mm steps change nothing to
+  0.1 point. In the decayed 3-12 wall the rods yield and their holes crush to 25–28 mm on one side, after the peak.
+
 ## Limitations
+- **The cyclic wall (milestone 20).** SAWS has no cumulative damage: the envelope a spring reaches under cycles is
+  its monotonic envelope, so nail fatigue and tear-out, which Anderson et al. and Weiss saw, are outside it.
+  Anderson's nails are 0.113 in, Weiss's 8d common 0.131 in (only shares are compared); the oriented pair
+  overstates the monotonic peak by 3–5% against a radial spring; the end-nail joint's curve is borrowed, with
+  strength and slip swept; Δ comes from this model's own push; rigid studs and sheets.
 - **The wall pushover (milestone 19).** Monotonic and path-independent (unloading reads back down the backbone),
   against cyclic tests; the end-nail joint's curve borrows the sheathing nail's shape, with its strength and slip
   scale swept, not measured; rigid studs and sheets; the rod stiffness is a design modulus; ties and bearing are
@@ -1373,7 +1443,10 @@ wall with slack at the rods (milestone 16's nail springs), checked against a tes
 Milestone 19 built that wall: neither slack nor early-peaking joints explain the 3 in wall, and every fit needs
 end nails at about a quarter of the NDS ratio. Next: a tested ultimate and load-slip curve for 16d end-nailed
 stud-to-plate joints (the one input every fit now hinges on), and a cyclic loading protocol (CUREE) with
-pinching and strength degradation, since Weiss's tests were cyclic. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+pinching and strength degradation, since Weiss's tests were cyclic. Milestone 20 ran the CUREE history with
+SAWS pinching nails fitted to Weiss's materials: cycles move the decayed 3 in wall by 0.1 point. Next: a
+tested 16d end-nail ultimate, and a degrading (cumulative-damage) nail model or tested curves of nails at an
+unsupported panel edge, to test fatigue and tear-out. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
