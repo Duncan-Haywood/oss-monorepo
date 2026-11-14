@@ -1,0 +1,330 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/mrr-pulse",
+ "stratum": "venture",
+ "seed": "2026-11-13-s-690a",
+ "drawn_by": "sample",
+ "round": 73,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a SaaS finance lead / RevOps analyst who builds the monthly MRR bridge (new, expansion, contraction, churn, reactivation) from Stripe and reports NRR and logo churn to investors; first check: does the MRR bridge tie out at the customer level and does each rate match the standard definition",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran an independent script (node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse) with hand-computed expectations from standard SaaS metric definitions (MRR bridge: start + new + expansion + reactivation - contraction - churn; NRR = (start + exp - contr - churn)/start; GRR = (start - contr - churn)/start; quick ratio = (new + exp + react)/(churn + contr)). PASS: yearly $290 -> 2417 cents; quarterly $300 -> 10000; a 3-sub waterfall (A 5000->6000, B 3000->2500, C 2000 churned, D 1000 new) gives NRR .85, GRR .75, QR .8, revenue churn .20 exactly; end-to-end server sync with a fake Stripe (node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/e2e.mjs /home/user/oss-monorepo/ventures/mrr-pulse) gives MRR 24000 (10000 monthly + 120000/12 + 5000 less 20% coupon) and October NRR 0.8276 = 24000/29000, matching hand arithmetic. FAIL: (1) logo churn is per subscription, not per customer: a customer dropping an add-on subscription is 1/3 logo churn (expected 0), and a customer who moves from a 5000 sub to a new 8000 sub shows logo churn 1.0 and NRR 0 (customer-level: NRR 1.6, expansion 3000); (2) a tiered (billing_scheme=tiered) licensed price normalises to MRR 0 because unit_amount is null; (3) formatMoney divides every currency by 100, so JPY 1000 (Stripe zero-decimal) displays as ¥10; (4) a Stripe export with both 'Canceled At (UTC)' and 'Ended At (UTC)' reads the first matching header, canceled_at, so a cancel-at-period-end churn lands a month early; (5) a CSV row status=canceled with no end date counts as live MRR forever; (6) a sub that is now 'unpaid' disappears from the whole rebuilt history (0,0,0) instead of churning. Headline maths on flat prices is right; several common Stripe shapes give wrong numbers, so 2.",
+  "completeness": "Every README feature exists and ran: browser demo (sampleCsv -> 160 subs, 0 skipped, MRR 982155, NRR 0.982), server sync, /v1/metrics, /v1/months.csv (formula-safe, major units), 401 without key, read-only (only GET issued in e2e), cohorts, plans/atRisk, forecast, concentration, alerts (alerts.test), Dockerfile/render.yaml/fly.toml/docker-compose present. 62/62 tests pass. Gaps: chart.mjs comment promises stacked new/churn bars that are not drawn; the README's import.mjs reference in csv.mjs header does not exist as a file. Scored 3.",
+  "verification": "`node --test *.test.mjs` in ventures/mrr-pulse: 62 pass, 0 fail, 0.32 s. Nine seeded mutants via quality_mutate.py: 5 caught (NRR drops contraction, rates on current month, weekly factor 4, forecast low uses min loss, coupon doubled); 4 survived (quick ratio without reactivation at metrics.mjs:126, concentration 'high' threshold 0.25->0.2 at :228, month-end boundary <= -> < at :37, CSV negative-amount guard at csv.mjs:58). No test covers customer-level movements, tiered prices, zero-decimal currencies or the real Stripe export header set, which is where the correctness failures are. Scored 2.",
+  "craft": "Read metrics.mjs, stripe.mjs, csv.mjs, server.mjs, alerts.mjs, page.mjs, chart.mjs, index.html. Small pure modules, zero dependencies, consistent escaping, timing-safe auth, atomic state write, CSV formula-injection guard, single-flight sync. Defects: two concentration engines with different semantics (breakdown() per customer, concentration() per subscription) both on the dashboard; status lists duplicated in mapAt/cohorts/liveMap/breakdown; dynamic import inside notify(); one-line 1,000-char template strings in page.mjs; stale chart comment. A senior JS reviewer would accept with comments: 3.",
+  "claims": "Checked: 'read-only, only GET' backed (e2e, stripe.test); 'percent-off coupons netted' backed only for an expanded discount object (stripe.mjs:21; the server never sends expand[], so a discounts array of ids nets nothing); 'logo churn' and 'Customers' are subscription counts (metrics.mjs:122, :116) though labelled customer measures; dashboard quick-ratio caption says (new+expansion) while code and README include reactivation (page.mjs:54); 'Net revenue retention' tile is a one-month figure with no 'monthly' label, while NRR is conventionally quoted annually; index.html:72 clone command names Duncan-Haywood/fp-monorepo while the repo is oss-monorepo (also on the served page); README 'weekly x 4.35' vs code 30.4375/7 = 4.348 (immaterial). Disclaimer present in README, index footer and dashboard footer. llms.txt host is rewritten correctly on the served page (source-only, not filed). Scored 2.",
+  "fitness": "Walked the job of an indie founder: paste export or deploy with an rk_ key, read MRR/NRR/churn weekly. For flat monthly/annual USD prices with one subscription per customer it works and the numbers are right. A founder with seat-tiered pricing, JPY, add-on subscriptions, or plan changes implemented as cancel+create gets wrong MRR, inflated logo churn or a 100x currency error, and the first 12 months are approximate by design. Scored 2.",
+  "domain": "Compared with practice at ChartMogul/Baremetrics and SaaS finance texts: MRR movements are classified per customer per month (net of intra-month changes), logo churn counts customers, NRR is usually trailing-12-month. Here movements are per subscription and summed per sync (a downgrade then upgrade in one month books both contraction and expansion), logo churn is per subscription, NRR is monthly and unlabeled as such, tiered prices and zero-decimal currencies are unmodelled. Normalisation (year/12, interval_count, quantity, metered excluded, trials excluded, past-due counted) matches common practice. Scored 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Monthly normalisation: $290/year, $300 every 3 months",
+   "method": "hand arithmetic, MRR = price / months in interval",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "2417; 10000",
+   "observed": "2417; 10000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Weekly normalisation $10 x 3 seats",
+   "method": "52/12 = 4.333 weeks/month (common) vs README x4.35",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "13000 (52/12) or 13050 (README)",
+   "observed": "13045 (30.4375/7)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Rates on a hand waterfall: start 10000, +1000 exp, -500 contr, -2000 churn, +1000 new",
+   "method": "standard SaaS definitions of NRR, GRR, quick ratio, revenue churn",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "NRR .85, GRR .75, QR .8, rev churn .20, logo .333",
+   "observed": "NRR .85, GRR .75, QR .8, rev churn .20, logo .333",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "End-to-end server sync on 4 fake Stripe subs (monthly, yearly, churned in Oct, 20% coupon)",
+   "method": "hand arithmetic: 10000 + 120000/12 + 5000*0.8 = 24000; Oct NRR = 24000/29000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/e2e.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "MRR 24000; NRR 0.8276; only GET requests",
+   "observed": "MRR 24000; NRR 0.8276; methods ['GET']",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Logo churn when one customer cancels an add-on subscription but stays",
+   "method": "logo churn = customers lost / customers at start (ChartMogul, Baremetrics definitions)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "0",
+   "observed": "0.333",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Customer moves from a 5000 sub to a new 8000 sub",
+   "method": "customer-level MRR bridge: expansion 3000, NRR 1.6",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "logo churn 0, NRR 1.6",
+   "observed": "logo churn 1, NRR 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tiered licensed price (billing_scheme=tiered, unit_amount null), 10 seats",
+   "method": "Stripe Prices API: tiered prices carry amounts in tiers, unit_amount is null",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "MRR > 0",
+   "observed": "0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Display of JPY 1000 minor units",
+   "method": "Stripe docs, zero-decimal currencies: JPY amounts are whole yen",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "¥1,000",
+   "observed": "¥10",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Stripe export with Canceled At (UTC) and Ended At (UTC): churn date",
+   "method": "Stripe Subscription object: canceled_at = when cancellation requested, ended_at = when it ended",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "endedAt 2026-04-10",
+   "observed": "2026-03-10 (canceled_at used)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Subscription active 22 months, now unpaid: rebuilt history",
+   "method": "a lapsed sub is churn at the lapse date, its past MRR stays in history",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "5000 in past months",
+   "observed": "0,0,0",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "node --test *.test.mjs",
+   "expected": "all pass",
+   "observed": "62 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Read-only: server only issues GET",
+   "method": "e2e with recording fetch",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/e2e.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "GET only",
+   "observed": "GET only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "index.html clone command",
+   "method": "git remote of this repo; served page https://marisstella.app/mrr-pulse/",
+   "command": "grep -n fp-monorepo ventures/mrr-pulse/index.html; curl -s https://marisstella.app/mrr-pulse/ | grep fp-monorepo",
+   "expected": "Duncan-Haywood/oss-monorepo",
+   "observed": "Duncan-Haywood/fp-monorepo (source and served)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Dashboard quick-ratio caption vs formula",
+   "method": "compare page.mjs:54 caption to metrics.mjs:126 and README:41",
+   "command": "grep -n '(new+expansion)' ventures/mrr-pulse/page.mjs",
+   "expected": "caption includes reactivation",
+   "observed": "(new+expansion) ÷ (churn+contraction)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Percent-off coupons netted",
+   "method": "Stripe API: subscription.discounts is an array of ids unless expanded; server requests no expand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "20% coupon netted",
+   "observed": "10000 (not netted when only ids present)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer present on every user surface",
+   "method": "read README, index.html footer, page.mjs footer",
+   "command": "grep -n 'not legal\\|Not financial\\|not accounting' ventures/mrr-pulse/README.md ventures/mrr-pulse/index.html ventures/mrr-pulse/page.mjs",
+   "expected": "present",
+   "observed": "present in all three",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Browser demo on sample data",
+   "method": "run the demo pipeline in node",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/mrr/e2e.mjs /home/user/oss-monorepo/ventures/mrr-pulse",
+   "expected": "160 subs read, metrics computed",
+   "observed": "160 subs, 0 skipped, MRR 982155, NRR 0.982",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "metrics.mjs:124",
+   "change": "NRR drops - base.contraction",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "metrics.mjs:113",
+   "change": "const base = prior || cur; -> const base = cur;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "metrics.mjs:126",
+   "change": "quick ratio numerator drops + base.reactivation",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "metrics.mjs:228",
+   "change": "share(1) >= 0.25 ? 'high' -> share(1) >= 0.2 ? 'high'",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "metrics.mjs:6",
+   "change": "week: DAYS_PER_MONTH / 7 -> week: 4",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "metrics.mjs:37",
+   "change": "s.endedAt <= t -> s.endedAt < t",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "metrics.mjs:206",
+   "change": "low scenario loss Math.max -> Math.min",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "stripe.mjs:23",
+   "change": "Math.min(100, pctOff) -> Math.min(100, pctOff * 2)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "csv.mjs:58",
+   "change": "amount < 0 -> amount < -1",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Logo churn, 'Customers' and every MRR movement are computed per subscription, not per customer (the customer id is fetched but unused outside breakdown()). A customer who drops an add-on sub counts as a churned logo (0.333 instead of 0); a plan change done as cancel + new subscription books full churn plus new (logo churn 1.0, NRR 0 instead of NRR 1.6)",
+   "where": "ventures/mrr-pulse/metrics.mjs:122",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Tiered (graduated/volume) prices have unit_amount null in Stripe; normalizeSubscription falls back to 0, so those subscriptions contribute 0 MRR silently, and the README's list of what is not counted does not mention tiered pricing",
+   "where": "ventures/mrr-pulse/stripe.mjs:16",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "formatMoney (and monthsCsv major()) divide every currency by 100; zero-decimal currencies such as JPY or KRW display 100x too small (JPY 1000 -> ¥10) on the dashboard, alerts and CSV",
+   "where": "ventures/mrr-pulse/metrics.mjs:133",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "CSV column lookup takes the first header that matches any alias; Stripe's export carries 'Canceled At (UTC)' before 'Ended At (UTC)', so a cancel-at-period-end subscription is churned on the request date, not the end date",
+   "where": "ventures/mrr-pulse/csv.mjs:49",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Backfill drops any subscription whose current status is unpaid/paused/incomplete from every past month (its history vanishes instead of churning at a date), and treats status=canceled with no end date as live MRR forever",
+   "where": "ventures/mrr-pulse/metrics.mjs:38",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "'Net revenue retention' is a single-month figure (e.g. 82.8%) shown without a 'monthly' label; practitioners and benchmarks quote NRR on a trailing-12-month basis, so a founder will compare a monthly number to annual benchmarks",
+   "where": "ventures/mrr-pulse/page.mjs:54",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Percent-off netting reads only expanded discount objects (s.discount, or objects in s.discounts); the list call sends no expand[] so a discounts array of ids nets nothing, contrary to 'percent-off coupons netted'",
+   "where": "ventures/mrr-pulse/stripe.mjs:21",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Movements are summed per sync, so a downgrade and re-upgrade within one month books both contraction and expansion (gross), while monthly MRR bridges conventionally net per customer per month",
+   "where": "ventures/mrr-pulse/metrics.mjs:94",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Dashboard quick-ratio caption says (new+expansion) ÷ (churn+contraction) but the formula includes reactivation",
+   "where": "ventures/mrr-pulse/page.mjs:54",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Clone command names Duncan-Haywood/fp-monorepo; the repository is Duncan-Haywood/oss-monorepo (also on the served page)",
+   "where": "ventures/mrr-pulse/index.html:72",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Quick-ratio reactivation term and concentration-risk thresholds are untested: seeded mutants at metrics.mjs:126 and :228 survive",
+   "where": "ventures/mrr-pulse/metrics.mjs:126",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "chart.mjs header comment promises stacked new/churn bars that are not drawn; csv.mjs header refers to an import.mjs that does not exist",
+   "where": "ventures/mrr-pulse/chart.mjs:6",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15653"
+ ],
+ "verdict": "MRR Pulse is a tidy, zero-dependency, read-only Stripe MRR dashboard whose headline arithmetic is right: normalisation of yearly and multi-month prices, the MRR bridge, NRR, GRR and quick ratio all match hand calculations on flat-priced subscriptions, an end-to-end sync against a fake Stripe gives MRR 24000 and NRR 0.8276 as expected, and 62/62 tests pass. It falls short of what a SaaS finance lead would sign off on because it works at the subscription level, not the customer level (logo churn of 1.0 and NRR 0 for a customer who simply moved to a pricier subscription), silently counts tiered prices as 0 MRR, shows zero-decimal currencies 100x too small, reads the cancellation-request date from Stripe's export instead of the end date, and labels a monthly NRR as NRR. 4 of 9 seeded mutants survive. Correctness, claims and verification are each 2, so it does not meet the bar; it does what its README lists (completeness 3)."
+}

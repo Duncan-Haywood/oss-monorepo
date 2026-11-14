@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyboAcqc6ADU8tL2jWF",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T23:39:06Z",
+  "ended": "2026-11-13T23:51:53Z",
+  "wall_minutes": 13.04,
+  "tokens_in": 11798221,
+  "tokens_out": 122940,
+  "cost_usd": 7.4467,
+  "tool_calls": 141,
+  "task": "quality audit round 73 (sample mode)",
+  "projects": [
+    "ventures/mrr-pulse",
+    "ventures/dupehound",
+    "research/flyingpixel-twin",
+    "research/qual-highrecall"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15653",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "quality_mutate.py baseline failed on the first try because the test command needed PYTHONPATH=src; passing `env PYTHONPATH=src ...` as the command fixed it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "The prompt says 'quality_audit.py sample' draws subjects, but the README says 'mode' picks among sample/census/fix/reflect first; the prompt does not mention mode."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "quality_mutate.py runs the test command from the subject root; a Python subject with src/ layout needs `env PYTHONPATH=src` in the command, which is not mentioned."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 asks for a test with every fix; the README wording fixes (beam std, coverage range, Known gaps/Limitations text) have none because there is no behaviour to test",
+      "did": "tested the behaviour fixes (dupehound line count, flyingpixel persistence/edge values, mrr-pulse labels and clone URL) and left prose-only edits untested",
+      "result": "4 new tests, each fails on the old code"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-73.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample (quality_audit.py mode). Seed 2026-11-13-s-690a, round 73. Subjects: ventures/mrr-pulse, ventures/dupehound, research/flyingpixel-twin, research/qual-highrecall (no flagship/platform drawn: all within re-audit windows). Share meeting the bar: 0 of 4; cumulative sampled 33 of 306 (Wilson 95% 8%-15%). Seeded mutations: 15 of 24 survived. Spot-checks I reran myself: flyingpixel kappa=10 band (2.2247 1.178 1.335, pass), mrr-pulse add-on logo churn (0.333, defect reproduced), qual-highrecall draw cap (200/180/140, defect reproduced), dupehound backslash-newline line drift (3-12 vs 4-13, reproduced; 4-13 after fix). Fix PR: #15653 (dupehound line-count fix + rebuilt wasm; flyingpixel units, runtime, 2 tests killing the surviving mutants, verified with quality_mutate.py; mrr-pulse caption/NRR label/clone URL/README + test + Known gaps; qual-highrecall README disclosures). Checks run: cargo test --release 27/27, cargo fmt --check, clippy -D warnings clean, node --test dupehound 19/19, mrr-pulse page.test 13/13, flyingpixel unittest 15/15, quality_audit.py validate 346 files 0 problems, check_post_frontmatter and check_post_links clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "812f5267-05ea-5e15-ae34-c8989a2ee225",
+    "transcripts": 5,
+    "first": "2026-11-13T23:39:06Z",
+    "last": "2026-11-13T23:52:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 137,
+        "input": 276,
+        "output": 122940,
+        "thinking": 33962,
+        "cache_read": 11307533,
+        "cache_write_5m": 399328,
+        "cache_write_1h": 91084,
+        "api_equivalent_usd": 7.4467,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 137,
+      "input": 276,
+      "output": 122940,
+      "thinking": 33962,
+      "cache_read": 11307533,
+      "cache_write_5m": 399328,
+      "cache_write_1h": 91084,
+      "api_equivalent_usd": 7.4467,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 141,
+    "tools": {
+      "Bash": 126,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.04,
+      "active_minutes": 5.35,
+      "model_minutes": 3.73,
+      "tool_minutes": 1.62,
+      "waiting_on_human_minutes": 7.69,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 20.66
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four independent audits with reruns, recomputation and seeded bugs (~2 h each) plus fixes and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 134.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

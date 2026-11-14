@@ -152,7 +152,7 @@ estimate falls from 396,673 to 283,122 removable lines, at the same 0.8 to
 ## Browser page
 
 [`index.html`](index.html) loads [`web/dupehound.mjs`](web/dupehound.mjs) and
-[`web/dupehound.wasm`](web/dupehound.wasm) (195 KB, plain C ABI, no
+[`web/dupehound.wasm`](web/dupehound.wasm) (about 250 KB, plain C ABI, no
 wasm-bindgen). Rebuild the `.wasm` after changing `src/`:
 
 ```sh

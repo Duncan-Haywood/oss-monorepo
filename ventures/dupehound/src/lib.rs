@@ -276,6 +276,10 @@ pub fn tokenize_with(src: &[u8], style: CommentStyle, normalize: bool) -> Vec<To
             while i < n && !(src[i] == b && i + 2 < n && src[i + 1] == b && src[i + 2] == b) {
                 if src[i] == b'\\' {
                     i += 1;
+                    // A backslash-newline continuation still ends a line.
+                    if i < n && src[i] == b'\n' {
+                        line += 1;
+                    }
                 } else if src[i] == b'\n' {
                     line += 1;
                 }
@@ -321,7 +325,13 @@ fn scan_template(src: &[u8], mut i: usize, line: &mut u32) -> usize {
     let n = src.len();
     while i < n {
         match src[i] {
-            b'\\' => i += 2,
+            b'\\' => {
+                // A backslash-newline continuation still ends a line.
+                if i + 1 < n && src[i + 1] == b'\n' {
+                    *line += 1;
+                }
+                i += 2;
+            }
             b'`' => return i + 1,
             b'\n' => {
                 *line += 1;
