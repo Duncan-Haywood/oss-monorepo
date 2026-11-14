@@ -3,7 +3,7 @@ title: "Twelve teams cannot reach 122: proving a carry-over lower bound with one
 seo_title: "A lower bound on carry-over for 12-team round robins"
 date: 2026-11-14
 tags: [ventures, league-schedule-generator, algorithms]
-description: "An exact bound for the rest of a round and a symmetry cut over round 1 made an exhaustive search 11x faster. It proves no 12-team round robin has carry-over below 124."
+description: "An exact bound for the rest of a round and a round-1 symmetry cut made an exhaustive search 11x faster; no 12-team round robin has carry-over below 124."
 ---
 
 **Carry-over** is the round-robin fairness measure we keep coming back to in the
