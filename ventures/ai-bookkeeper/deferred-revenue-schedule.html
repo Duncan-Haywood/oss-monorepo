@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deferred Revenue Schedule and Waterfall for Annual Plans and Retainers (Free)</title>
+<meta name="description" content="Collected $9,000.00 up front but earned only $2,890.49 so far? A worked example of a deferred revenue schedule and waterfall for annual plans and retainers, computed by a free, open-source bookkeeping tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./deferred-revenue-schedule.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deferred revenue for a small subscription business: a worked schedule and waterfall">
+<meta property="og:description" content="Three plans paid up front, $9,000.00 collected, $6,109.51 still owed in service: earned month by month, split current and long term.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is deferred revenue?", "acceptedAnswer": {"@type": "Answer", "text": "Money a customer paid before you delivered what it pays for: an annual plan, a retainer, a prepaid class pass. Until you deliver, you owe the service (or a refund), so it sits on the balance sheet as a liability called deferred or unearned revenue, and moves to income as the service is delivered."}}, {"@type": "Question", "name": "Why not count it as income when it arrives?", "acceptedAnswer": {"@type": "Answer", "text": "Because the month the cash lands then looks far more profitable than the months you actually serve the customer, and the balance sheet hides what you still owe. A lender, an investor or a buyer reading accrual statements expects the income spread over the service period. A cash-method tax filer may still count it when received for tax; that is a separate question for your preparer."}}, {"@type": "Question", "name": "Daily or monthly?", "acceptedAnswer": {"@type": "Answer", "text": "Daily spreads by days of service, so a plan starting on the 15th earns about half a month in its first month. Monthly gives each calendar month the period touches an equal share, a common simplification for retainers. Both close to the exact cent at the end of the period."}}, {"@type": "Question", "name": "What is a deferred revenue waterfall?", "acceptedAnswer": {"@type": "Answer", "text": "A table of what is still to be earned, month by month, from today forward. It shows the revenue already paid for in each coming month, and splits the balance into what will be earned in the next twelve months (current) and later (long term)."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Paid up front, earned over time: a deferred revenue schedule you can check</h1>
+<p class="lede">An annual plan or a retainer puts a year of cash in the bank in one day. If the books call it income that day, one month looks spectacular and the next eleven look like losses, and the balance sheet hides the service you still owe. A deferred revenue schedule spreads it over the months you deliver; a waterfall shows what is still to come.</p>
+</header>
+<section>
+<h2>Worked example: three plans, $9,000.00 collected</h2>
+<p>A <strong>synthetic</strong> small business sells three things paid in advance: Acme's annual plan ($1,200.00 from 15 January, earned by the day), Beta's six-month retainer ($3,000.00 from 1 March, equal monthly shares) and Gamma's two-year plan ($4,800.00 from 10 May, by the day). Each payment is filed to 2400 Unearned revenue. At 30 June the register reads:</p>
+<div class="table-wrap">
+<table>
+<caption>From <code>deferred import plans.csv</code> then <code>deferred --as-of 2026-06-30</code>. Synthetic data, not a real business.</caption>
+<thead><tr><th scope="col">Plan</th><th scope="col">Paid</th><th scope="col">Earned by 30 June</th><th scope="col">Still to earn</th></tr></thead>
+<tbody>
+<tr><th scope="row">Annual plan (Acme), 167 of 365 days</th><td>$1,200.00</td><td>$549.04</td><td>$650.96</td></tr>
+<tr><th scope="row">Six-month retainer (Beta), 4 of 6 months</th><td>$3,000.00</td><td>$2,000.00</td><td>$1,000.00</td></tr>
+<tr><th scope="row">Two-year plan (Gamma), 52 of 731 days</th><td>$4,800.00</td><td>$341.45</td><td>$4,458.55</td></tr>
+<tr class="total"><th scope="row">Total</th><td>$9,000.00</td><td>$2,890.49</td><td>$6,109.51</td></tr>
+</tbody>
+</table>
+</div>
+<p>Booked as cash, the first half shows $9,000.00 of income. Booked as earned, it shows $2,890.49, and the balance sheet carries $6,109.51 of service still owed. That second picture is the one a lender, an investor or a buyer of the business asks for, and the one that tells you whether this year's sales actually cover this year's costs.</p>
+</section>
+<section>
+<h2>The waterfall: what is already paid for, month by month</h2>
+<div class="table-wrap">
+<table>
+<caption>From <code>deferred waterfall --as-of 2026-06-30 --months 6</code>. Gamma's daily plan earns less in 30-day months.</caption>
+<thead><tr><th scope="col">Plan</th><th scope="col">Jul</th><th scope="col">Aug</th><th scope="col">Sep</th><th scope="col">Oct</th><th scope="col">Nov</th><th scope="col">Dec</th><th scope="col">Later</th></tr></thead>
+<tbody>
+<tr><th scope="row">Annual plan</th><td>101.91</td><td>101.92</td><td>98.63</td><td>101.92</td><td>98.63</td><td>101.92</td><td>46.03</td></tr>
+<tr><th scope="row">Six-month retainer</th><td>500.00</td><td>500.00</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><th scope="row">Two-year plan</th><td>203.55</td><td>203.56</td><td>196.99</td><td>203.56</td><td>196.99</td><td>203.55</td><td>3,250.35</td></tr>
+<tr class="total"><th scope="row">Total</th><td>805.46</td><td>805.48</td><td>295.62</td><td>305.48</td><td>295.62</td><td>305.47</td><td>3,296.38</td></tr>
+</tbody>
+</table>
+</div>
+<p>Of the $6,109.51 still owed, <strong>$4,047.67</strong> is earned in the next twelve months (a current liability) and <strong>$2,061.84</strong> after (long term). The drop after August is the retainer ending: revenue that has to be renewed or replaced, visible four months ahead.</p>
+</section>
+<section>
+<h2>How to do it</h2>
+<ol>
+<li><strong>Import your bank statement</strong> in <a href="./">AI Bookkeeper</a> and file each up-front payment to <strong>2400 Unearned revenue</strong> (or put 2400 on the invoice, if you invoice).</li>
+<li><strong>Register each plan</strong> on the page's "money paid up front" card, or from the command line: <code>deferred add Annual plan --amount 1200 --start 2026-01-15 --months 12 --customer Acme</code>. Many at once: <code>deferred import plans.csv</code> (name, amount, start, end or months; customer, date, account and method optional). For periods that end on the anniversary, as subscription billing exports often write them, add <code>--end-exclusive</code>.</li>
+<li><strong>Read the reports.</strong> The monthly entries move each share to income at month end; <code>deferred waterfall</code> prints the schedule (<code>--csv</code> for a spreadsheet). The close checks warn when 2400 in the ledger and the register disagree: a payment with no plan, or a plan with no payment.</li>
+<li><strong>Cancellations.</strong> <code>deferred cancel DR-1 --date 2026-09-10</code> stops earning that day and leaves the rest as a refund owed; <code>--keep</code> earns it instead, for a non-refundable plan. When you pay the refund, file it to 2400 and run <code>deferred refunded DR-1 --date ...</code>.</li>
+</ol>
+<p>A straight line is the simple case. Bundles, set-up fees, usage pricing and discounts have more rules (ASC 606 in the US, IFRS 15 elsewhere), and tax timing can differ from the books: a cash-method filer generally counts the payment when it arrives, and the tool's cash-basis report does exactly that. Tested on hand-made plans only; check the output against your contracts.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>What is deferred revenue?</h3>
+<p>Money a customer paid before you delivered what it pays for: an annual plan, a retainer, a prepaid class pass. Until you deliver, you owe the service (or a refund), so it sits on the balance sheet as a liability called deferred or unearned revenue, and moves to income as the service is delivered.</p>
+<h3>Why not count it as income when it arrives?</h3>
+<p>Because the month the cash lands then looks far more profitable than the months you actually serve the customer, and the balance sheet hides what you still owe. A lender, an investor or a buyer reading accrual statements expects the income spread over the service period. A cash-method tax filer may still count it when received for tax; that is a separate question for your preparer.</p>
+<h3>Daily or monthly?</h3>
+<p>Daily spreads by days of service, so a plan starting on the 15th earns about half a month in its first month. Monthly gives each calendar month the period touches an equal share, a common simplification for retainers. Both close to the exact cent at the end of the period.</p>
+<h3>What is a deferred revenue waterfall?</h3>
+<p>A table of what is still to be earned, month by month, from today forward. It shows the revenue already paid for in each coming month, and splits the balance into what will be earned in the next twelve months (current) and later (long term).</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and register your first plan.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. ASC 606 and IFRS 15 are named only to point at the standards; this project is not affiliated with their publishers.</p>
+</footer>
+</body>
+</html>

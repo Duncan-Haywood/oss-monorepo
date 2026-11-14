@@ -1228,6 +1228,30 @@ Verification: `migrate.test.mjs` (7 tests) on hand-written files laid out from t
 
 `prepaid.mjs` spreads an up-front payment (a year of insurance, software or rent) over the months it covers. File the bank line to Prepaid expenses (1400, now in the default chart), then register it: `cli.mjs prepaid add "State Farm policy" --amount 2400 --date 2026-03-01 --months 12 [--into 6030]`. The ledger then books one entry a month through the latest month in the books: debit the expense account (Insurance 6030 by default), credit 1400. Integer cents, the last month closes the amount exactly. `cli.mjs prepaid [--as-of D]` lists paid, expensed and still paid ahead. A close check ("prepaid") flags 1400 when the ledger and the register disagree. Test: `prepaid.test.mjs` (hand-written ledgers only; cash-basis tax treatment of prepaids, such as the 12-month rule, is for you or your preparer and is not modelled). The page has a card for it (item, first month, amount, months, expense account; register with expensed and still-paid-ahead; 2026-10-22, clicked through in headless Chromium with `eval/browser-click.mjs`: add, register totals, one-month item refused).
 
+## Deferred revenue (money paid up front)
+
+Added 2026-11-14. `deferred.mjs` is the prepaid register's mirror on the liability side: an annual plan, a retainer, a class pass or a support year that a customer pays for before it is delivered. File the payment (or the invoice) to **2400 Unearned revenue**, now in the default chart, then register the plan:
+
+```
+cli.mjs deferred add Annual plan --amount 1200 --start 2026-01-15 --months 12 --customer Acme   # or --end 2027-01-14
+cli.mjs deferred add Retainer --amount 3000 --start 2026-03-01 --months 6 --monthly
+cli.mjs deferred import plans.csv [--end-exclusive] [--monthly] [--into 4000]
+cli.mjs deferred [--as-of D]                       # paid, earned, still to earn, refund owed
+cli.mjs deferred waterfall [--as-of D] [--months 12] [--csv|--json]
+cli.mjs deferred cancel DR-1 --date 2026-09-10 [--keep]
+cli.mjs deferred refunded DR-1 --date 2026-09-20
+```
+
+- **Two methods.** *Daily* (default) earns by days of service: through any month end the amount earned is floor(cents x days served / days in the period), so a plan from 15 January earns 17/365 in January and the last month closes to the cent. *Monthly* gives each calendar month the period touches an equal share. One journal entry per month, dated at the month end (or the service end), debit 2400, credit the income account (4000 Sales by default); booked through the latest month in the books, like the prepaid register.
+- **Cancellation.** `cancel` stops earning on the date (a monthly plan earns the part month by its days); the rest is a refund owed until `refunded` records it paid, or with `--keep` is earned that day.
+- **Waterfall.** What is still to be earned in each month ahead, with the split a balance sheet needs: earned in the next twelve months (current) and after (long term). Refunds owed on cancelled plans are reported apart, not as revenue to come.
+- **CSV import** matches headers by name: name/description/product/plan, amount/total/price, start/period start, end/period end or months/term, and optional customer, date (received), account and method. "(UTC)" suffixes are ignored. `--end-exclusive` takes a day off ends written as the next anniversary. Bad rows are skipped with their line number.
+- **Close check** ("deferred"): 2400 in the ledger must equal the register's still-to-earn plus refunds owed; it names a payment with no plan, a plan with no payment, or a refund paid but not recorded.
+- **Cash method.** `cashBasis` drops the monthly earning entries and counts each plan in full on the day received (a refund of a cancelled plan is not taken off there; noted in the report).
+- **Page.** A "money paid up front" card: add one plan, paste a CSV, cancel from the register, and a twelve-month waterfall table. Guide page: `deferred-revenue-schedule.html` (a synthetic three-plan example whose every figure is pinned by a test).
+
+Verification: `deferred.test.mjs` (15 tests: cents close exactly for 1-36 months and both methods, booking and a balanced trial balance, the close check both ways, cancel with refund and with keep, a monthly part-month cancel, the waterfall's current/long-term split, CSV import with a bad row, an invoice filed to 2400, the cash method, refusals, the guide page's numbers) and `eval/browser-click.mjs` (add, register, waterfall drawn, cancel leaves a refund owed, zero months refused; headless Chromium, 2026-11-14). Hand-made plans only; no real subscription export has been read, and bundles, set-up fees and variable pricing (ASC 606 / IFRS 15) are not modelled.
+
 ## Fixed assets and depreciation
 
 `assets.mjs` is a register for equipment. You file the purchase to Equipment
