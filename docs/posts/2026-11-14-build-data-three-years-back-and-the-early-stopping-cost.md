@@ -2,7 +2,7 @@
 title: "Three years back fixes the choice; the validation set was the bigger leak"
 seo_title: "Early stopping on censored validation data costs more than selection"
 date: 2026-11-14
-description: "Picking a permit model's class encoding from data three years back cut regret to 0.31 days, but early-stopping on only the finished permits raised the loss by 1.3 days."
+description: "Choosing a permit model's encoding from data three years back cut regret to 0.31 days; early-stopping only on finished permits cost 1.3 days."
 tags: [research, build-data, construction, transfer-learning, censoring, model-selection, early-stopping]
 ---
 
