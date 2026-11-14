@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import {
   parseList, listId, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, order,
-  nextPair, rankTable, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, MAX_ITEMS,
+  nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, MAX_ITEMS,
 } from "./rank-core.mjs";
 import { buildEngineFile, ENGINE_FILES } from "../scripts/build-rank-engine.mjs";
 
@@ -163,4 +163,95 @@ test("combine weighs people equally and reports agreement and splits", () => {
   assert.equal(split.agreement, -1);
   assert.equal(split.order.find((r) => r.item === 0).best, 1);
   assert.equal(split.order.find((r) => r.item === 0).worst, 4);
+});
+
+// Red-team guards, 2026-11-14 (prompts/runs/2026-11-14-session_01E5sJKn8cM6ZR29gwutSEwY.json).
+
+test("a shared link decodes to exactly the creator's list, so result codes match (parseList is idempotent)", () => {
+  // The creator ranks parseList(typed); a respondent ranks decodeList(link), which
+  // parses again. If the second parse changes an option, listId differs and the
+  // creator's "combine" refuses every respondent's code as "for a different list".
+  const typed = [
+    "Tea",
+    "- - Water", // a nested bullet
+    "x".repeat(119) + " and more words after the 120-character cut", // cut lands after a space
+    "y".repeat(119) + "💧 the cut lands inside an emoji",
+    "1. 2) Juice",
+  ].join("\n");
+  const items = parseList(typed);
+  assert.deepEqual(parseList(items.join("\n")), items);
+  for (const item of items) {
+    assert.equal(item, item.trim(), JSON.stringify(item));
+    assert.ok(item.isWellFormed(), "no half emoji");
+  }
+  const back = decodeList(encodeList({ items }));
+  assert.equal(listId(back.items), listId(items));
+  const code = encodeAnswers({ items: back.items, answers: [[0, 1, false]] });
+  assert.deepEqual(decodeAnswers(code, items).answers, [[0, 1, false]]);
+});
+
+test("listId is pinned: codes made by an earlier release still match", () => {
+  assert.equal(listId(["Dark mode", "CSV export", "Faster search"]), "tebjp1");
+});
+
+test("a result code naming an option outside the list is refused", () => {
+  const items = ["a", "b", "c", "d"];
+  for (const answers of [[[0, 9, false]], [[9, 0, false]], [[2, 2, false]]]) {
+    assert.match(decodeAnswers(encodeAnswers({ items, answers }), items).error, /damaged/, JSON.stringify(answers));
+  }
+});
+
+test("chanceAbove is the normal CDF of the mean difference over its standard deviation", () => {
+  const f = { n: 3, mu: [1, 0, 0], cov: [1, 0, 0, 0, 1, 0, 0, 0, 1] };
+  // var(mu0 - mu1) = 2, z = 1/sqrt(2), Phi(z) = 0.76025
+  assert.ok(Math.abs(chanceAbove(f, 0, 1) - 0.76025) < 1e-4, chanceAbove(f, 0, 1));
+  assert.ok(Math.abs(chanceAbove(f, 1, 0) - 0.23975) < 1e-4, chanceAbove(f, 1, 0));
+  assert.ok(Math.abs(chanceAbove(f, 1, 2) - 0.5) < 1e-6);
+});
+
+test("on a fresh list nextPair can ask any pair", () => {
+  const f = fit(4, []);
+  const seen = new Set();
+  for (let seed = 1; seed <= 300; seed++) seen.add(nextPair(f, [], { seed }).sort().join(","));
+  assert.equal(seen.size, 6, [...seen].join(" "));
+});
+
+test("favourite mode with two contenders still asks them again after their last pair", () => {
+  const answers = [];
+  for (let r = 0; r < 6; r++) answers.push([0, 2, false], [1, 2, false]);
+  answers.push([0, 1, true]);
+  const pair = nextPair(fit(3, answers), answers, { mode: "favourite", seed: 3 });
+  assert.deepEqual([...pair].sort(), [0, 1]);
+});
+
+test("favourite chances sum to one and an unseen list gives each option a fair share", () => {
+  const n = 4;
+  const table = rankTable(fit(n, []), { draws: 4000 });
+  const total = table.reduce((a, r) => a + r.favourite, 0);
+  assert.ok(Math.abs(total - 1) < 1e-9, `sum ${total}`);
+  for (const r of table) assert.ok(Math.abs(r.favourite - 1 / n) < 0.04, `item ${r.item}: ${r.favourite}`);
+});
+
+test("the posterior sampler draws every option alike: three equal, independent options each come first and last a third of the time", () => {
+  // A wrong Box-Muller angle shrinks the odd-index draws: item 1 then came last 14% of the time.
+  const draws = 6000;
+  const { ranks, top } = sampleRanks({ n: 3, mu: [0, 0, 0], cov: [1, 0, 0, 0, 1, 0, 0, 0, 1] }, { draws });
+  for (let i = 0; i < 3; i++) {
+    assert.ok(Math.abs(top[i] / draws - 1 / 3) < 0.04, `item ${i} first ${top[i] / draws}`);
+    const last = ranks[i].filter((r) => r === 3).length / draws;
+    assert.ok(Math.abs(last - 1 / 3) < 0.04, `item ${i} last ${last}`);
+  }
+});
+
+test("combine: team scores are the mean of centred scores, ranks run 1..n, order follows scores not indexes", () => {
+  const items = ["a", "b", "c", "d"];
+  const reverse = [];
+  for (let r = 0; r < 6; r++) reverse.push([3, 2, false], [2, 1, false], [1, 0, false]);
+  const one = combine(items, [{ answers: reverse }]);
+  const two = combine(items, [{ answers: reverse }, { answers: reverse }]);
+  assert.deepEqual(two.order.map((r) => r.item), [3, 2, 1, 0]);
+  assert.deepEqual(two.order.map((r) => r.rank), [1, 2, 3, 4]);
+  assert.ok(Math.abs(two.order.reduce((a, r) => a + r.score, 0)) < 1e-9, "centred");
+  for (const r of two.order) assert.ok(Math.abs(r.score - one.order.find((x) => x.item === r.item).score) < 1e-9, "a mean, not a sum");
+  assert.equal(one.agreement, null);
 });
