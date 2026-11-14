@@ -185,7 +185,7 @@ def main():
     print(f"high-amplitude points (6zz A_hat > {ms.A_LINE}): {', '.join(hi)} ({len(hi)})")
 
     print("\nShrinkage on the real shape, per k: median over points and halves of tau, median w_m, "
-          "median se_m, median |c'_m - c_bar| / |r_m - c_bar|")
+          "median se_m")
     for k in KS:
         taus, ws, ses = [], [], []
         for p in bt.PTS:
