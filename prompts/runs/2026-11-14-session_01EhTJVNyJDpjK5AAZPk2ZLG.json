@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNyJDpjK5AAZPk2ZLG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T10:11:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 15809,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A bare `promptctl.py route` drew the process track although the scheduled brief is the ventures brief; I spent ~20 min in process Critique (backlog all owner rows; the live ungated friction clusters - post front-matter limits, next: cap, allocate claim race - were already fixed in code) before rerouting with --task, which picked ventures. Reported by other runs too (friction_rank #10)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A blob:none partial clone plus `git ls-tree -l` silently fetches every blob one at a time (sizes need the blob); fetching the few needed files from raw.githubusercontent.com with curl -r was far faster."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "Routed to process by a bare route; the scheduled brief is the ventures brief and process had no agent-owned item.",
+      "did": "Rerouted with --task as prompt.md step 1 says; took allocate.py's Start here row (photo-editing).",
+      "result": "A flagship slice landed instead of a process run likely to end partial."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "photo-editing flagship: lens identified from EXIF LensSpecification, DNG LensInfo and Nikon maker-note tag 0x0084 (any maker), both marked f-numbers matched. Real files: 6 Sony/Samsung files with names -> tag alone picked the same lens 3/6, refused 3, never a different lens; Nikon D70/D300 18-70 identified from the maker note. Whole lensfun DB (52cf1a7): 1,119 ranged lenses, 50.0% picked alone with both f-numbers vs 46.6% with one, 0 lost. Verification: run_venture_tests.py photo-editing ok (150.5 s); unittest test_lens*/test_canon_lens_range ok; check_post_frontmatter and check_post_links 0; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
