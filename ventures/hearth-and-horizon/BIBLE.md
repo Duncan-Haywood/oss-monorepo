@@ -287,6 +287,12 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
    down every named character's birth year and test it against each
    relative and dated event they mention; and make sure no scene quotes a
    result from a trial, flood or event that the plot places later.
+   The fourth pass (22 slips in 8 stories,
+   `docs/reports/hearth-and-horizon-revision-2026-11-14.md`) adds two:
+   count what a scene shows (lines drawn on paper, people counted on
+   fingers, including the speaker) as well as what the note computes; and
+   when a quantity changes through a scene (a depth, a temperature), work
+   it out again at the minute the character says it.
 9. Render audio (`render_audio.py`), regenerate (`node generate.mjs`), and run
    `node --test`. Audio size is checked first (`prompts/creative/prompt-0.md`).
 
