@@ -168,6 +168,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
      clipping against streaming targets;
    - it runs locally and costs nothing per track.
    - landed 2026-11-03: `master-cli.mjs` (LUFS, true peak, mono, clipping).
+   - 2026-11-14: checked against EBU Tech 3341 Table 1 built from its text (cases 1-5, 9, 10, 12, 13, 15-23: 69 of 69 inside tolerance; `eval/ebu-tech3341.mjs`); momentary and short-term max added; Spotify's own page read and its headroom cap and -2 dBTP rule applied; the other services publish no level (eval/ebu-tech3341-2026-11-14.md). Open: the EBU's own WAV set and authentic programme files (403 here), loudness range (Tech 3342), a real mix.
 7. **Release kit:**
    - metadata, credits, ISRC slots, the AI-disclosure answers, cover-art spec
      and a per-track source note;
