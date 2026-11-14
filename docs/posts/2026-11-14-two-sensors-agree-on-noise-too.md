@@ -3,7 +3,7 @@ title: "Two sensors agree on noise too: a pre-registered test of 'alert when two
 seo_title: "Multi-sensor anomaly alerts: why requiring two columns to agree failed"
 date: 2026-11-14
 tags: [changepoint-detector, monitoring, anomaly-detection, pre-registration, negative-result]
-description: "On a real 8-sensor pump testbed, waiting for two sensors to agree cut false alerts from 4.2 to 2.7 per 100 checks, still over budget, and missed 9 more of 33 faults."
+description: "On a real 8-sensor pump, waiting for two sensors to agree cut false alerts from 4.2 to 2.7 per 100 checks, still over budget, and missed 9 of 33 faults."
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/)'s watch can follow several metrics in one CSV
