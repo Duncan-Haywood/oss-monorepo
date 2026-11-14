@@ -208,20 +208,27 @@ export function frontier(curves, unit) {
   const hi = curves.map((c, i) => Math.max(lo[i], Math.ceil(c.hi / unit)));
   const T = hi.reduce((a, b) => a + b, 0);
   const NEG = -Infinity;
-  let prev = new Array(T + 1).fill(NEG); prev[0] = 0;
+  let prev = new Float64Array(T + 1).fill(NEG); prev[0] = 0;
   const choice = [];
+  // prev can be finite only on [pLo, pHi], the unit totals the channels so far can reach,
+  // so each b visits only the u that land there (the rest were skipped as -Infinity anyway;
+  // same u order, same strict >, so the same answers and tie-breaks).
+  let pLo = 0, pHi = 0;
   for (let j = 0; j < M; j++) {
-    const val = []; for (let u = lo[j]; u <= hi[j]; u++) val.push(curves[j].f(u * unit));
-    const cur = new Array(T + 1).fill(NEG), ch = new Int32Array(T + 1).fill(-1);
-    for (let b = 0; b <= T; b++) {
-      for (let u = lo[j]; u <= Math.min(hi[j], b); u++) {
+    const lj = lo[j], hj = hi[j];
+    const val = new Float64Array(hj - lj + 1); for (let u = lj; u <= hj; u++) val[u - lj] = curves[j].f(u * unit);
+    const cur = new Float64Array(T + 1).fill(NEG), ch = new Int32Array(T + 1).fill(-1);
+    for (let b = pLo + lj, bEnd = pHi + hj; b <= bEnd; b++) {
+      let best = NEG, arg = -1;
+      for (let u = Math.max(lj, b - pHi), uEnd = Math.min(hj, b - pLo); u <= uEnd; u++) {
         const base = prev[b - u];
         if (base === NEG) continue;
-        const v = base + val[u - lo[j]];
-        if (v > cur[b]) { cur[b] = v; ch[b] = u; }
+        const v = base + val[u - lj];
+        if (v > best) { best = v; arg = u; }
       }
+      cur[b] = best; ch[b] = arg;
     }
-    choice.push(ch); prev = cur;
+    choice.push(ch); prev = cur; pLo += lj; pHi += hj;
   }
   const minUnits = lo.reduce((a, b) => a + b, 0);
   return {

@@ -30,26 +30,48 @@ export const PAINTINGS = [
 ];
 export const RUNS = [["#ffffff", 3], ["#ffffff", 4], ["#ffffff", 6], ["#1b1b1d", 4]];
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const out = process.argv[2] || "index-paintings";
-  fs.mkdirSync(out, { recursive: true });
+/**
+ * The paintings decoded in headless Chromium at up to `maxPx`, as { name: {data, width, height} }.
+ * With `cacheDir`, decoded pixels are kept there (raw RGBA + size) so repeated evals skip the download.
+ */
+export async function loadPaintings({ cacheDir = "", maxPx = 640 } = {}) {
+  const images = {}, todo = [];
+  for (const [name, url] of PAINTINGS) {
+    const f = cacheDir && path.join(cacheDir, `${name}-${maxPx}.rgba`);
+    if (f && fs.existsSync(f)) {
+      const buf = fs.readFileSync(f), w = buf.readUInt32LE(0), h = buf.readUInt32LE(4);
+      images[name] = { data: new Uint8ClampedArray(buf.subarray(8)), width: w, height: h };
+    } else todo.push([name, url, f]);
+  }
+  if (!todo.length) return images;
   const { chromium } = createRequire(import.meta.url)("playwright");
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  const images = {};
-  for (const [name, url] of PAINTINGS) {
+  for (const [name, url, f] of todo) {
     const res = await fetch(url);
     if (!res.ok) { console.log(`${name}: ${res.status}, skipped`); continue; }
     const b64 = Buffer.from(await res.arrayBuffer()).toString("base64");
-    const r = await page.evaluate(async src => {
+    const r = await page.evaluate(async ([src, maxPx]) => {
       const im = new Image(); im.src = src; await im.decode();
-      const s = Math.min(1, 640 / Math.max(im.width, im.height)), w = Math.round(im.width * s), h = Math.round(im.height * s);
+      const s = Math.min(1, maxPx / Math.max(im.width, im.height)), w = Math.round(im.width * s), h = Math.round(im.height * s);
       const c = document.createElement("canvas"); c.width = w; c.height = h; const x = c.getContext("2d"); x.drawImage(im, 0, 0, w, h);
       return { w, h, d: Array.from(x.getImageData(0, 0, w, h).data) };
-    }, `data:image/jpeg;base64,${b64}`);
+    }, [`data:image/jpeg;base64,${b64}`, maxPx]);
     images[name] = { data: new Uint8ClampedArray(r.d), width: r.w, height: r.h };
+    if (f) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+      const head = Buffer.alloc(8); head.writeUInt32LE(r.w, 0); head.writeUInt32LE(r.h, 4);
+      fs.writeFileSync(f, Buffer.concat([head, Buffer.from(images[name].data)]));
+    }
   }
   await browser.close();
+  return images;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const out = process.argv[2] || "index-paintings";
+  fs.mkdirSync(out, { recursive: true });
+  const images = await loadPaintings({ cacheDir: process.env.PAINTINGS_CACHE || "" });
   const rows = [];
   for (const [garment, k] of RUNS) for (const [name] of PAINTINGS) {
     const img = images[name]; if (!img) continue;

@@ -74,6 +74,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `commission.mjs`, `partners.html` | Multi-brand shop money: payout per sale after VAT, commission and card fees (shop, brand or split), shelf price for a target payout, settlement statement per partner with refunds, per-partner terms, CSV. Seller-of-record and VAT treatment are assumptions to check with an accountant |
 | `marketing.mjs` | Ad affordability (break-even cost per sale and ROAS) and a launch calendar of drafts from the break-even |
 | `indexsep.mjs` | Index separation: the flat separation's inks laid down as square dots by error diffusion, with the garment as a free colour; films, brief, and a flat-vs-index distance at three viewing distances; dot-gain model, model-based compensation, calibration strip and gain read-back |
+| `inkfit.mjs` | Inks chosen for the dots: moves the index separation's inks so the dots can mix the painting's darks, lights and strong colours, weighed against grain at a viewing distance, and keeps whichever ink set (flat inks included) the eye model puts closest |
 | `usage.mjs` | Anonymous local usage counts |
 
 Roadmap: [`ROADMAP.md`](ROADMAP.md).
@@ -546,6 +547,7 @@ canvas, printed 28 cm wide. Mean delta E over the nine:
   paintings but printed linear mid grey as 43% dots instead of 50%, so it is
   off. Refitting the inks to what the dither asked of them diverged (worse
   than flat), and pushing inks outward from the mean helped only at 3 m.
+  Inks chosen with grain counted (2026-11-14, below) do help at 1 m.
 
 Checked: `indexsep.test.mjs` (8 tests: grid size, blur width, a grey ramp that
 matches once blurred, linear mid grey at about 50% dots, unprinted surround
@@ -556,6 +558,69 @@ and 1.8 MB, brief downloaded, no console errors). Not checked: a real screen
 printer's index print. Whether 0.3 mm single dots hold on their mesh, how dot
 gain darkens the result, and registration on a dark garment's underbase are
 all for a proof.
+
+### Inks chosen for the dots (2026-11-14)
+
+The flat separation picks its inks as cluster centres: each ink is the
+average colour of the area it fills. Dots mix by area in linear light, so the
+only colours an index print can reach are those between its inks and the bare
+garment (their convex hull in linear RGB). Averages sit inside a painting's
+colours, so that hull leaves out its darkest, lightest and most saturated
+passages, and the dither has to clamp them. That, not banding, was most of
+the 10-11 delta E left in the table above.
+
+`inkfit.mjs`, the "Inks for the dots" choice beside the index button (default
+"Chosen for the dots, seen from 1 m"):
+
+- **Fit.** For about 1,500 sampled colours of the painting, each colour's best
+  mix of the inks and garment is found (pairwise Frank-Wolfe on the mixing
+  weights), scoring sqrt(miss^2 + lambda x spread^2) in CIE Lab: *miss* is how
+  far the mix is from the painting's colour, *spread* how far the dots' own
+  colours are from the mix (grain). lambda is the share of grain the eye's
+  blur lets through: about kappa / (4 pi sigma^2), sigma the 1-arcminute blur
+  in dots at the chosen distance. Each ink is then moved by pattern search in
+  sRGB (steps 0.25 down to 0.01) while the mean score falls.
+- **Choice.** Fits with kappa 0.25, 0.5 and 1 and the flat inks are each dotted
+  with the real index separation and scored by the eye model at the chosen
+  distance; the closest wins. The flat inks are always a candidate, so the
+  choice is never further from the painting than them at that distance (on
+  this measure; tested).
+- The page shows each flat ink and the ink chosen for the dots, the scores
+  tried, and the brief and films carry the new inks with the flat ones noted.
+
+Measured (`eval/index-inks.mjs`, the same nine paintings at 640 px, 28 cm;
+full output `eval/index-inks-2026-11-14.md`). Mean delta E at 0.5 / 1 / 3 m:
+
+| Garment, inks | Flat | Index, flat inks | Index, inks for 1 m | Index, inks for 3 m | Closer than index with flat inks at 1 m (inks for 1 m) |
+|---|---|---|---|---|---|
+| white, 3 | 14.85 / 13.78 / 12.19 | 15.88 / 12.14 / 9.79 | 16.39 / 10.95 / 8.27 | 27.07 / 14.01 / 6.31 | 9 of 9 |
+| white, 4 | 13.43 / 12.30 / 10.71 | 14.48 / 10.64 / 8.34 | 15.83 / 9.55 / 6.24 | 23.52 / 11.53 / 4.51 | 9 of 9 |
+| white, 6 | 11.72 / 10.52 / 8.90 | 12.61 / 8.94 / 6.68 | 13.19 / 7.85 / 5.07 | 19.83 / 9.67 / 3.78 | 8 of 9 |
+| near-black, 4 | 13.43 / 12.15 / 10.29 | 14.41 / 11.04 / 8.78 | 15.06 / 9.20 / 6.00 | 23.10 / 11.33 / 4.37 | 8 of 9 |
+
+- Chosen for 1 m, the dots move about 1 to 1.8 closer at 1 m and 2 to 2.8
+  closer at 3 m; four inks chosen for the dots (9.55 at 1 m) beat six flat
+  inks dotted (8.94) only from 3 m (6.24 vs 6.68), but they match them at 1 m
+  within 0.6 with two fewer screens.
+- Chosen for 3 m, four inks reach 4.51 at 3 m, against 6.68 for six flat inks
+  dotted: the first time the table gets near "plain to see" (5) from across a
+  room. Up close those far-apart inks are grainy (23.52 at 0.5 m), so choose
+  the distance the garment will be seen from.
+- Choosing for 1 m costs a little at 0.5 m (14.48 to 15.83 for white, 4 inks).
+  Choosing for 0.5 m mostly keeps the flat inks or moves them slightly (13.76).
+- The two misses at 1 m are the 184 px Munch thumbnail, whose 1.5 mm dots are
+  too coarse to mix, where the flat inks are kept.
+- On the studio page with Starry Night at 1200 px on a near-black garment
+  (0.3 mm dots, 4 inks), headless Chromium: 12.71 to 6.50 at 1 m and 9.60 to
+  3.03 at 3 m, in 6.7 s against 2.2 s for the flat inks, no console errors.
+- Speed: 1 to 12 s per choice in the eval (one CPU, 640 px images); most of it
+  is the extra index runs.
+
+Not checked: any real ink. The chosen colours are plain sRGB targets; whether
+a printer can mix each one in plastisol or water-based ink (and how it reads
+on cotton) is for a proof, and on a dark garment the white underbase changes
+how a light ink looks. The eye model is the same rough blur as above, so
+treat the gains as relative, not as what a person will see.
 
 ### Dot gain (2026-11-11)
 
