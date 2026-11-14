@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H } from './scan.mjs';
+import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, estimateSkew, shearColumns, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H, STROKE_TOP_FALL } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -314,4 +314,43 @@ test('shearColumns moves whole columns and keeps every ink pixel on the page', (
 test('gabcSteps gives a bivirga or tristropha one step per printed head, each with its shape (2026-11-14)', () => {
   const s = gabcSteps('(c4) a(kvvJH) b(gsss) c(gv)');
   assert.deepEqual(s.map((n) => `${n.rel}${n.shape[0]}`), ['1v', '1v', '0r', '-2r', '-3s', '-3s', '-3s', '-3v']);
+});
+
+// A porrectus stroke cut short (eval/porrectus-top-check.md): its thin foot
+// falls under the head-height cut, so the piece left is narrower than 1.2
+// spaces and was read at its mean height, a step below the stroke's top.
+function stroke(img, x0, yTop, w, drop, h = H) {
+  for (let x = 0; x < w; x++) rect(img, x0 + x, yTop + (drop * x) / (w - 1) - h / 2, 1, h);
+}
+test('a porrectus stroke cut short is read at its top, its foot after it (2026-11-14)', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const y = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[300, 2], [640, 2]]);
+  // stem, then a stroke from pos 5 falling 0.55 spaces over 0.9 spaces, then
+  // its foot (pos 3) as a separate piece and the head on its stem (pos 4)
+  rect(img, 400, y(5) - H / 2, 3, 2.4 * S);
+  stroke(img, 403, y(5), Math.round(0.9 * S), 0.55 * S);
+  rect(img, 403 + Math.round(0.9 * S) + 3, y(3) - H / 2, 20, H);
+  rect(img, 403 + Math.round(0.9 * S) + 10, y(4) - H / 2, 20, H);
+  const [st] = readPage(readPgm(toPgm(img)));
+  assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 5, 3, 4, 2]);
+  assert.ok(STROKE_TOP_FALL > 0.06 && STROKE_TOP_FALL < 0.55);
+});
+test('a short whole stroke with no separate foot gives its top and its foot (2026-11-14)', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const y = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[300, 2], [640, 2]]);
+  rect(img, 400, y(5) - H / 2, 3, 2.4 * S);
+  stroke(img, 403, y(5), Math.round(1.1 * S), 1.0 * S);
+  rect(img, 403 + Math.round(1.1 * S) + 8, y(4) - H / 2, 20, H);
+  const [st] = readPage(readPgm(toPgm(img)));
+  assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 5, 3, 4, 2]);
+});
+test('a flat head is not a stroke top: squares keep their mean height (2026-11-14)', () => {
+  const img = canvas(1600, 400);
+  drawStaff(img, 120, [[300, 2], [400, 5], [430, 3], [460, 4], [640, 2]]);
+  const [st] = readPage(readPgm(toPgm(img)));
+  assert.deepEqual(st.notes.map((n) => n.rel + 6), [2, 5, 3, 4, 2]);
 });

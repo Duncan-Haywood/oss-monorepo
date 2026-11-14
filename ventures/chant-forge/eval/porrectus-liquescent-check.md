@@ -70,4 +70,4 @@ the scan-check report that command writes.
   pieces beyond these, so that it can be tested on pages it was not set on.
 - A small note that the reader takes for a full head (3831, *prin-*) could be recognised by its
   height next to its neighbour's. Not tried.
-- The 5 note differences on the new pieces need a look at the scan.
+- The 5 note differences on the new pieces were looked at on 2026-11-14: one transcription slip in 3912 (corrected) and four porrectus tops the reader read a step low (fixed); `porrectus-top-check.md`.

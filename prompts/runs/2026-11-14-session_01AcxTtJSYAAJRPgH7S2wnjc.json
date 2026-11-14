@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJSYAAJRPgH7S2wnjc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:05:38Z",
+  "ended": "2026-11-14T18:34:29Z",
+  "wall_minutes": 29.12,
+  "tokens_in": 10363769,
+  "tokens_out": 50428,
+  "cost_usd": 4.3524,
+  "tool_calls": 84,
+  "task": "chant-forge (flagship 11): look at the five open scan differences; fix the reader fault they showed",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15933",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/ROADMAP.md",
+      "issue": "The '## Next' list is stale: item 1 still asks for the remaining verses of Pange lingua and Veni Creator, which landed (pange-lingua-full.gabc, veni-creator-full.gabc). The flagships.yaml next: is the live list; ROADMAP Next misleads a run that reads it first."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "Two replacements each failed once on the 2000-character cap; a --dry-run that prints the new length before writing would save a round trip."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-porrectus-tops-read-a-step-low.md",
+    "ventures/chant-forge/eval/porrectus-top-check.md"
+  ],
+  "goal": "deepen flagship chant-forge: corpus hardening and scan-reader accuracy",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok (28.9s), 1 suite, 0 failed. New scan.test.mjs tests fail with the rule disabled (2 of 3) and pass with it. node eval/scan-check.mjs on all 8 manifests with and without --no-stroke-top: differ 88 -> 73, agree 13,917 -> 13,932, GABC-only 416 and scan-only 32 unchanged, planted-error control worse on 0 pieces, better on 8. shape-check: no rhombus/quilisma/liquescent change. porrectus-liquescent-check unchanged (16 of 19). Not held out: the touching-left condition was added after the first full run showed two regressions (3403, 3408). check_post_frontmatter, check_post_links, post_similarity clean. archive.org and gregobase.selapa.net answered from the cloud session.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "708aa576-4c41-5e5f-b2fc-3d9ba821dab1",
+    "transcripts": 1,
+    "first": "2026-11-14T18:05:38Z",
+    "last": "2026-11-14T18:34:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 152,
+        "output": 50428,
+        "thinking": 18216,
+        "cache_read": 10200736,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162881,
+        "api_equivalent_usd": 4.3524,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 152,
+      "output": 50428,
+      "thinking": 18216,
+      "cache_read": 10200736,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162881,
+      "api_equivalent_usd": 4.3524,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 74,
+      "Read": 6,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.12,
+      "active_minutes": 29.12,
+      "model_minutes": 11.13,
+      "tool_minutes": 17.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an OMR engineer: inspect five flagged spots on scans, diagnose the stroke fault from pixel runs, write and validate the rule over 74 piece checks, document",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 183.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

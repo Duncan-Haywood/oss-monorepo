@@ -44,7 +44,9 @@ def scan_text(text):
     """Line numbers (1-based) of validators that accept a rolled-over day."""
     # Literal prefilters, exact: NAN_CHECK cannot match without "isNaN(" and neither
     # DAY_RANGE spelling (" <= 31", " > 31") can match without " 31", so a file or line
-    # lacking them cannot hit. Most files lack both, which skips millions of searches.
+    # lacking them cannot hit. Most files lack both, which skips ~2M regex searches over the
+    # tree (docs/history/ci-perf-2026-11-14-calendar-dates-prefilter.md; " <= 31" there until
+    # the negated spelling was added the same day).
     nan_file = "isNaN(" in text
     range_file = " 31" in text
     if not nan_file and not range_file:

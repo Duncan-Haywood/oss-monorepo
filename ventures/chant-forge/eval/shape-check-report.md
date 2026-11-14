@@ -43,17 +43,17 @@ in `quilisma-fresh-pages.json`, listed and first scanned after version 3 was fro
 | held out | rhombus | 179 | 159 | 159 of 159 (100.0%) | 0 of 159 (0.0%) | 0 of 159 (0.0%) | 0 of 159 (0.0%) |
 | held out | quilisma | 31 | 21 | 0 of 21 (0.0%) | 21 of 21 (100.0%) | 0 of 21 (0.0%) | 0 of 21 (0.0%) |
 | held out | liquescent | 26 | 25 | 0 of 25 (0.0%) | 0 of 25 (0.0%) | 24 of 25 (96.0%) | 1 of 25 (4.0%) |
-| fresh | punctum | 1604 | 1583 | 0 of 1583 (0.0%) | 7 of 1583 (0.4%) | 1 of 1583 (0.1%) | 1522 of 1583 (96.1%) |
+| fresh | punctum | 1604 | 1588 | 0 of 1588 (0.0%) | 7 of 1588 (0.4%) | 1 of 1588 (0.1%) | 1527 of 1588 (96.2%) |
 | fresh | virga | 96 | 95 | 0 of 95 (0.0%) | 0 of 95 (0.0%) | 0 of 95 (0.0%) | 95 of 95 (100.0%) |
 | fresh | rhombus | 268 | 251 | 250 of 251 (99.6%) | 0 of 251 (0.0%) | 0 of 251 (0.0%) | 1 of 251 (0.4%) |
 | fresh | quilisma | 39 | 18 | 1 of 18 (5.6%) | 17 of 18 (94.4%) | 0 of 18 (0.0%) | 0 of 18 (0.0%) |
 | fresh | liquescent | 26 | 24 | 0 of 24 (0.0%) | 0 of 24 (0.0%) | 24 of 24 (100.0%) | 0 of 24 (0.0%) |
-| liquescent fresh | punctum | 1485 | 1439 | 2 of 1439 (0.1%) | 5 of 1439 (0.3%) | 1 of 1439 (0.1%) | 1403 of 1439 (97.5%) |
+| liquescent fresh | punctum | 1485 | 1441 | 2 of 1441 (0.1%) | 5 of 1441 (0.3%) | 1 of 1441 (0.1%) | 1405 of 1441 (97.5%) |
 | liquescent fresh | virga | 77 | 77 | 1 of 77 (1.3%) | 0 of 77 (0.0%) | 0 of 77 (0.0%) | 76 of 77 (98.7%) |
 | liquescent fresh | rhombus | 211 | 187 | 186 of 187 (99.5%) | 0 of 187 (0.0%) | 0 of 187 (0.0%) | 1 of 187 (0.5%) |
 | liquescent fresh | quilisma | 21 | 14 | 0 of 14 (0.0%) | 12 of 14 (85.7%) | 0 of 14 (0.0%) | 2 of 14 (14.3%) |
 | liquescent fresh | liquescent | 27 | 23 | 1 of 23 (4.3%) | 0 of 23 (0.0%) | 22 of 23 (95.7%) | 0 of 23 (0.0%) |
-| quilisma fresh | punctum | 2776 | 2689 | 1 of 2689 (0.0%) | 5 of 2689 (0.2%) | 1 of 2689 (0.0%) | 2584 of 2689 (96.1%) |
+| quilisma fresh | punctum | 2776 | 2691 | 1 of 2691 (0.0%) | 5 of 2691 (0.2%) | 1 of 2691 (0.0%) | 2586 of 2691 (96.1%) |
 | quilisma fresh | virga | 200 | 195 | 0 of 195 (0.0%) | 0 of 195 (0.0%) | 0 of 195 (0.0%) | 195 of 195 (100.0%) |
 | quilisma fresh | rhombus | 512 | 453 | 450 of 453 (99.3%) | 0 of 453 (0.0%) | 0 of 453 (0.0%) | 3 of 453 (0.7%) |
 | quilisma fresh | quilisma | 85 | 60 | 3 of 60 (5.0%) | 51 of 60 (85.0%) | 1 of 60 (1.7%) | 5 of 60 (8.3%) |
@@ -80,8 +80,8 @@ in `quilisma-fresh-pages.json`, listed and first scanned after version 3 was fro
 | GregoBase 3433 (Qui gloriatur) | fresh | 47 | 46 | 46 | 7 | 5 | 5 | 341 | 0 | 1 |
 | GregoBase 3408 (Quando orabas) | fresh | 20 | 20 | 20 | 6 | 1 | 1 | 177 | 0 | 2 |
 | GregoBase 3401 (Florete... et date) | fresh | 6 | 5 | 5 | 4 | 0 | 0 | 101 | 0 | 0 |
-| GregoBase 3448 (Diffusa est (All.)) | fresh | 40 | 38 | 38 | 3 | 1 | 1 | 136 | 0 | 0 |
-| GregoBase 3444 (Constitues eos principes (Grad.)) | fresh | 33 | 33 | 33 | 3 | 2 | 2 | 192 | 0 | 0 |
+| GregoBase 3448 (Diffusa est (All.)) | fresh | 40 | 38 | 38 | 3 | 1 | 1 | 139 | 0 | 0 |
+| GregoBase 3444 (Constitues eos principes (Grad.)) | fresh | 33 | 33 | 33 | 3 | 2 | 2 | 194 | 0 | 0 |
 | GregoBase 3412 (Stabat sancta Maria) | fresh | 40 | 38 | 37 | 3 | 1 | 1 | 215 | 0 | 2 |
 | GregoBase 3445 (Sapientia aedificavit) | fresh | 28 | 26 | 26 | 2 | 1 | 1 | 182 | 0 | 0 |
 | GregoBase 3438 (Protege Domine) | fresh | 33 | 28 | 28 | 2 | 0 | 0 | 198 | 0 | 2 |
@@ -93,8 +93,8 @@ in `quilisma-fresh-pages.json`, listed and first scanned after version 3 was fro
 | GregoBase 3417 (Audi filia et vide (Tract.)) | liquescent fresh | 30 | 30 | 30 | 5 | 4 | 3 | 312 | 0 | 1 |
 | GregoBase 3419 (Gaudeamus... Mariae... Boni Consilii) | liquescent fresh | 2 | 1 | 0 | 1 | 1 | 0 | 51 | 2 | 1 |
 | GregoBase 3428 (Erit quasi signum) | liquescent fresh | 8 | 5 | 5 | 3 | 2 | 2 | 137 | 0 | 0 |
-| GregoBase 3435 (Ave Maria (Alleluia)) | liquescent fresh | 49 | 45 | 45 | 2 | 1 | 1 | 146 | 0 | 0 |
-| GregoBase 3443 (Dominus dabit) | liquescent fresh | 12 | 8 | 8 | 0 | 0 | 0 | 98 | 0 | 0 |
+| GregoBase 3435 (Ave Maria (Alleluia)) | liquescent fresh | 49 | 45 | 45 | 2 | 1 | 1 | 147 | 0 | 0 |
+| GregoBase 3443 (Dominus dabit) | liquescent fresh | 12 | 8 | 8 | 0 | 0 | 0 | 99 | 0 | 0 |
 | GregoBase 3458 (Corona aurea) | liquescent fresh | 56 | 49 | 49 | 4 | 2 | 2 | 194 | 0 | 1 |
 | GregoBase 3400 (Factus est opprobrium) | quilisma fresh | 9 | 6 | 6 | 4 | 1 | 1 | 125 | 0 | 0 |
 | GregoBase 3402 (Omnis gloria) | quilisma fresh | 10 | 10 | 10 | 4 | 3 | 3 | 171 | 0 | 1 |
@@ -108,9 +108,9 @@ in `quilisma-fresh-pages.json`, listed and first scanned after version 3 was fro
 | GregoBase 3427 (Lingua pravorum) | quilisma fresh | 54 | 45 | 45 | 10 | 7 | 4 | 117 | 0 | 1 |
 | GregoBase 3430 (In medio Ecclesiae) | quilisma fresh | 2 | 0 | 0 | 1 | 1 | 1 | 151 | 0 | 1 |
 | GregoBase 3436 (Concupivit rex) | quilisma fresh | 48 | 39 | 39 | 8 | 6 | 4 | 116 | 0 | 0 |
-| GregoBase 3437 (Adhaesi) | quilisma fresh | 14 | 11 | 8 | 3 | 1 | 1 | 124 | 0 | 0 |
+| GregoBase 3437 (Adhaesi) | quilisma fresh | 14 | 11 | 8 | 3 | 1 | 1 | 125 | 0 | 0 |
 | GregoBase 3450 (Principes) | quilisma fresh | 8 | 8 | 8 | 3 | 3 | 3 | 115 | 0 | 0 |
-| GregoBase 3451 (Qui ambulat) | quilisma fresh | 59 | 54 | 54 | 8 | 7 | 6 | 262 | 0 | 0 |
+| GregoBase 3451 (Qui ambulat) | quilisma fresh | 59 | 54 | 54 | 8 | 7 | 6 | 263 | 0 | 0 |
 | GregoBase 3452 (Scitote quoniam) | quilisma fresh | 23 | 23 | 23 | 2 | 0 | 0 | 124 | 0 | 1 |
 | GregoBase 3455 (Diffusa est (Com.)) | quilisma fresh | 13 | 13 | 13 | 2 | 2 | 2 | 65 | 0 | 1 |
 | GregoBase 3459 (Emitte Spiritum) | quilisma fresh | 36 | 34 | 34 | 7 | 5 | 5 | 254 | 0 | 0 |

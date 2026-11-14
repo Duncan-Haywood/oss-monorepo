@@ -144,7 +144,12 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   epiphonus-like tail, not as a stroke, so the existing detector reads them: 8 of 9 on the tuning pieces, 8 of 10 on
   six pieces listed and committed before their pages were read, 1 of 1,060 other heads called liquescent. A looser
   end-width cap added false calls and gained nothing, so the rule is unchanged. Twelve more GregoBase 1908 pieces in
-  `corpus/gregobase-1908-checked/`; on them 2,030 notes agree with the book, 5 differ (not looked at).
+  `corpus/gregobase-1908-checked/`; on them 2,030 notes agree with the book, 5 differ (looked at, next entry).
+- 2026-11-14, latest: the 5 differences looked at on the scan (`eval/porrectus-top-check.md`). GregoBase 3912 had a
+  slip (`tres(feed...)`, printed e-c: corrected). The other four were porrectus tops read a step low: the stroke's thin
+  end falls under the head-height floor and the short piece left was read at its mean height. `STROKE_TOP_FALL` (0.4
+  spaces, from an unlabelled histogram) reads such a piece at its left end. Over the 74 piece checks, differences fell
+  from 88 to 73, with none added and no note lost (not held out: one condition was added after the first full run).
 
 ## Next
 
