@@ -149,3 +149,20 @@ test("buildRoster's guided pass never leaves a worse roster than the unguided pa
   }
   assert.ok(guided >= 1, "no week ran the guided descent");
 });
+
+// The open-hours LP as the guide (`dayGuideOpen`, README "A guide when the pay floor is skipped"): with the pay floor off, the
+// clique LP's person-shift values steer the sweeps; the roster keeps every rule and the pass never ends above where it started.
+test("with the pay floor skipped, the open-hours LP guides the pass, keeps every rule and never ends worse", () => {
+  let guided = 0;
+  for (let seed = 1; seed < 9; seed++) {
+    const { staff, slots } = seededWeek(seed * 7919, 8, 24, { mins: true, soft: seed % 2 === 1 });
+    const r = buildRoster(staff, slots, { exact: true, scoreCG: false, exactMs: 1, exactNodes: 1, cliqueFloor: true, scoreFloor: false, dayLNSMs: 200, seed });
+    const d = r.optimality.dayLNS;
+    if (!d) continue;
+    assert.ok(d.after <= d.before + 1e-6, `seed ${seed}: ${d.after} > ${d.before}`);
+    if (d.guide.length) { assert.equal(d.guideFrom, "cliqueFloor"); guided++; }
+    const off = buildRoster(staff, slots, { exact: true, scoreCG: false, exactMs: 1, exactNodes: 1, cliqueFloor: true, scoreFloor: false, dayGuideOpen: false, dayLNSMs: 200, seed });
+    assert.equal(off.optimality.dayLNS?.guideFrom ?? null, null, `seed ${seed}: dayGuideOpen: false still guided`);
+  }
+  assert.ok(guided >= 1, "no week ran the open-hours guide");
+});

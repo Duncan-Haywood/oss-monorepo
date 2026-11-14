@@ -1992,3 +1992,32 @@ with the proof cut short so the pass runs. Not claimed: single runs on one cloud
 on for eight of them; the HiGHS roster on week 0 is still $2.32 below what the engine posts. Next: run the pay floor (or the
 cheaper open-hours clique LP's solution as the guide) by default on 60-copy-plus weeks when the time budget allows, now that
 it fills open hours as well as proving them; the guide from the posted roster's column generation.
+
+## A guide when the pay floor is skipped (2026-11-14)
+
+The LP-guided day sweeps (README "Steering the day sweeps with the pay floor's LP") filled open hours that no one-day move
+reaches, but they ran only when the priced clique LP ran, and under the default 20 s budget its gate (about 4 s x (copies /
+245)^4.5 of time left) skips it on many 60-person weeks. The cheaper open-hours clique LP (about 1 s there) usually still runs, and
+its solution also says which person should hold which shift to cover the most hours. **What landed:** when the pay floor did not
+run, `dayLNS` takes its guide from the open-hours LP's person-shift values instead (`cliqueOpenFloor` now returns them).
+Everything else is as before: the same lams, each biased sweep followed by exact sweeps on the true score, a roster kept only if
+it scores less, inside the pass's own 2 s. `dayGuideOpen: false` turns this off; `optimality.dayLNS.guideFrom` says which LP
+guided the pass (`scoreFloor`, `cliqueFloor` or null).
+
+| 60 x 168, default 20 s budget (`eval/guide-open.out.txt`) | LPs that ran | before: open h, rest | now: open h, rest |
+|---|---|---|---|
+| seed 1 week 0 | open-hours only | 210, $20,171.13 | **208**, $20,197.93 |
+| seed 4 week 0 | open-hours only | 215, $21,564.21 | **214**, $21,571.18 |
+| seed 3 week 0 | priced before, open-hours only now (time gate) | 217, $21,775.02 (priced guide) | 217, $21,801.69 |
+| seed 3 week 1 | as above | 270, $22,174.85 (priced guide) | 270, $22,178.50 |
+| six other weeks | both, or proven before the pass | same | same |
+
+The rest goes up where open hours go down because two more shifts are staffed and paid; one open hour costs 100,000 in the
+score. On seed 3, where the time gate let the priced LP run in one configuration and not the other, the open-hours guide lands
+between no guide (`eval/day-guide.out.txt`: $21,808.25 and $22,182.02) and the priced guide. Total time was within a second on
+every week.
+
+Tests: `day-lns.test.mjs` adds that with the pay floor off the open-hours LP guides the pass on seeded eight-person weeks, the
+pass never ends above where it started, and `dayGuideOpen: false` leaves it unguided. Not claimed: single runs on one cloud
+machine, ten generated weeks. Next: fit the priced LP's time gate to more weeks (it skipped on seed 3 in one run of two), or
+start the priced LP from the open-hours LP's basis so it fits the budget more often.
