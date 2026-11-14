@@ -35,3 +35,11 @@ def test_flagship_next_over_cap_is_reported(tmp_path):
     errors = []
     validate.check_flagships(errors, p)
     assert len(errors) == 1 and "x `next:`" in errors[0]
+
+
+def test_flagship_hyphen_fold_is_reported(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    next: >-\n      see ventures/wall-\n      framing/README.md\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 1 and "flagships.yaml:4" in errors[0] and "flagship_field.py" in errors[0]

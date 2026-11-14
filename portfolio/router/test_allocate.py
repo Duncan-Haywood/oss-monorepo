@@ -5,6 +5,7 @@ Run with: python3 -m unittest portfolio/router/test_allocate.py
 (or: cd portfolio/router && python3 -m unittest test_allocate)
 """
 import copy
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -26,6 +27,7 @@ from allocate import (
     load_merit_scores,
     load_ventures as _load_ventures,
     next_task,
+    requests_line,
     rank,
     venture_report,
     count_by_venture,
@@ -992,3 +994,39 @@ class ClaimCheckTest(unittest.TestCase):
         mine = [self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
         lines = report(self.decide(mine, "x", mine=3), "x", now, 24)
         self.assertFalse(any("--allow-empty" in l for l in lines), lines)
+
+
+class RequestsLineTest(unittest.TestCase):
+    """The table names which open website requests are flagship rows."""
+
+    def write(self, reqs):
+        d = tempfile.mkdtemp()
+        p = Path(d) / "requests.json"
+        p.write_text(json.dumps({"requests": reqs}))
+        return p
+
+    queue = [{"venture": "ai-bookkeeper", "flagship": True},
+             {"venture": "tiny-tool", "flagship": False}]
+
+    def test_owner_requests_map_to_rows(self):
+        p = self.write([
+            {"id": "R-1", "status": "building", "source": "owner", "project": "ventures/ai-bookkeeper"},
+            {"id": "R-2", "status": "building", "source": "owner", "project": "portfolio/monetization"},
+            {"id": "R-3", "status": "shipped", "source": "owner", "project": "ventures/tiny-tool"},
+        ])
+        line = requests_line(self.queue, p)
+        self.assertIn("2 open", line)
+        self.assertIn("none from outside", line)
+        self.assertIn("R-1 = row 1 ai-bookkeeper", line)
+        self.assertIn("R-2 portfolio/monetization", line)
+        self.assertNotIn("R-3", line)
+
+    def test_outside_request_comes_first(self):
+        p = self.write([{"id": "R-9", "status": "received", "title": "A shop site"}])
+        line = requests_line(self.queue, p)
+        self.assertIn("1 from outside (R-9)", line)
+        self.assertIn("ideas.py", line)
+
+    def test_missing_or_empty_file_prints_nothing(self):
+        self.assertEqual(requests_line(self.queue, Path("/nonexistent/requests.json")), "")
+        self.assertEqual(requests_line(self.queue, self.write([])), "")

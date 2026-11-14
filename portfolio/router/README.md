@@ -16,7 +16,14 @@ first three picked by a hash of the session id, so sessions started minutes
 apart (before either opens a PR) usually get different rows.
 The table cuts each flagship's `next:` at 500 characters;
 `allocate.py --venture <slug>` prints one row in full, with the open PRs
-naming it and when work on it last landed on main.
+naming it and when work on it last landed on main. To edit a `next:` (or
+`buildable:`), use `flagship_field.py <slug> [--field F] --replace OLD NEW`
+(or `--set FILE`): it matches the unfolded text, rewraps without breaking at
+a hyphen (a hand-wrapped `wall-framing-` / `takeoff` reads back as
+`wall-framing- takeoff`; `validate.py` now fails on one) and refuses a
+`next:` over the cap. Above the table, a "Website requests" line says which
+open entries in `portfolio/requests/requests.json` are flagship rows, so a
+run need not reconcile prompt.md's request-first order with the pick by hand.
 
 **2026-08-24 direction:** the router ranks work, but the fleet's default is
 product shipping, not router maintenance. Prefer dispatchable `in-repo`

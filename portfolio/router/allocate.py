@@ -57,6 +57,8 @@ VENTURES_DIR = REPO_ROOT / "ventures"
 LEDGER_DIR = REPO_ROOT / "portfolio" / "ledger"
 SCORES_PATH = REPO_ROOT / "portfolio" / "scoring" / "venture-scores.yaml"
 FLAGSHIPS_PATH = REPO_ROOT / "portfolio" / "flagships.yaml"
+REQUESTS_PATH = REPO_ROOT / "portfolio" / "requests" / "requests.json"
+REQUEST_OPEN = ("building", "accepted", "received")
 
 # Stage at or beyond which a venture is no longer "early" for the protected
 # explore-budget split described in README.md.
@@ -511,7 +513,8 @@ def next_task(v: Venture) -> str:
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
-            f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append)."
+            f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
+            f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks)."
         )
     if not v.measured:
         claim = v.untested_hypothesis
@@ -949,6 +952,45 @@ def venture_report(name: str, ventures: list[Venture],
             lines.append(f"  #{num} opened {created}: {title}")
     return "\n".join(lines)
 
+def requests_line(queue: list[dict], path: Path = REQUESTS_PATH) -> str:
+    """One line tying portfolio/requests/requests.json to this table.
+
+    prompt.md puts website requests before flagships, but this table only
+    names flagships, so runs reconciled the two by hand (doc_friction,
+    2026-11-14, twice). Most open requests are owner-sourced and already are
+    flagship rows; say which, and name the ones that are not.
+    """
+    try:
+        reqs = json.loads(path.read_text()).get("requests", [])
+    except (OSError, ValueError):
+        return ""
+    live = [r for r in reqs if r.get("status") in REQUEST_OPEN]
+    if not live:
+        return ""
+    rows = {item["venture"]: i for i, item in enumerate(queue, 1) if item["flagship"]}
+    outside = [r for r in live if r.get("source") != "owner"]
+    on_rows, off_rows = [], []
+    for r in live:
+        project = str(r.get("project") or "")
+        slug = project.removeprefix("ventures/").strip("/")
+        if project.startswith("ventures/") and slug in rows:
+            on_rows.append(f"{r.get('id')} = row {rows[slug]} {slug}")
+        else:
+            off_rows.append(f"{r.get('id')} {project or r.get('title', '?')}")
+    parts = [f"Website requests ({len(live)} open in portfolio/requests/requests.json; "
+             "prompt.md ranks them before flagships):"]
+    if outside:
+        parts.append(f"{len(outside)} from outside ({', '.join(str(r.get('id')) for r in outside)}): "
+                     "take the oldest before a flagship row (`python3 prompts/ideas.py`).")
+    else:
+        parts.append("none from outside, so the flagship pick below stands.")
+    if on_rows:
+        parts.append("Owner requests built through flagship rows: " + "; ".join(on_rows) + ".")
+    if off_rows:
+        parts.append("Not a flagship row (take one only by choice): " + "; ".join(off_rows) + ".")
+    return " ".join(parts)
+
+
 def print_table(ventures: list[Venture], queue: list[dict],
                 recent: Optional[dict[str, int]] = None,
                 claims: Optional[dict[str, list]] = None) -> None:
@@ -987,6 +1029,9 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"Flagships ({len(flagships)}, portfolio/flagships.yaml): deepen these before "
             "adding another small tool -- owner, 2026-10-20."
         )
+    req = requests_line(queue)
+    if req:
+        print(req)
     sid = session_id()
     first = start_here(queue, claims, session=sid)
     if first:
