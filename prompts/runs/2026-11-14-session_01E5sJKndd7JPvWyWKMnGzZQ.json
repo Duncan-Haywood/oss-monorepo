@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 44,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "what": "sandbox auto-mode classifier refused running the extracted sshd binary, even in -T test mode (and the throwaway host key step)",
       "effect": "no parity check against sshd -T; parser follows servconf.c/match.c reading instead, said so in README and post"
+    },
+    {
+      "what": "changed-ventures CI failed: main's #15891 renamed unwired_checks.run_all to run_everything without updating platform/ci/test_run_venture_tests.py",
+      "effect": "fixed forward in this PR (two mock.patch.object targets); 31 tests OK locally"
     }
   ],
   "integrity_issues": [],
@@ -61,7 +65,7 @@
     "ventures/sshd-config-check/sshd-config-mistakes-explained.html"
   ],
   "goal": "devsec tool depth: a checker for the file that decides who can log in",
-  "notes": "Explore idea: sshd_config checker resolving Include order and first-value-wins (cloud-init PasswordAuthentication trap, unread non-.conf drop-ins, flush-left lines inside Match, PAM keyboard-interactive passwords), with Match evaluation for one connection. Found from servconf.c that PermitUserEnvironment uses strcmp, so 'Yes' is a pattern list. inherited_keys lint caught a real Object.prototype keyword lookup bug, fixed with test. Local checks: run_venture_tests.py sshd-config-check sudoers-check passed; run_workflow_locally --for-changes result recorded in PR. Next: sshd -T parity suite on a machine with sshd.",
+  "notes": "Explore idea: sshd_config checker resolving Include order and first-value-wins (cloud-init PasswordAuthentication trap, unread non-.conf drop-ins, flush-left lines inside Match, PAM keyboard-interactive passwords), with Match evaluation for one connection. Found from servconf.c that PermitUserEnvironment uses strcmp, so 'Yes' is a pattern list. inherited_keys lint caught a real Object.prototype keyword lookup bug, fixed with test. Local checks: run_venture_tests.py sshd-config-check sudoers-check passed; run_workflow_locally --for-changes result recorded in PR. Next: sshd -T parity suite on a machine with sshd. Also fixed main's test_run_venture_tests.py breakage from #15891 (run_all renamed run_everything).",
   "corrections": [],
   "redteam": null,
   "usage": {
