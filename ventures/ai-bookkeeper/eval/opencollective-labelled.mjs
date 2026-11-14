@@ -24,6 +24,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { suggest, trainClassifier, buildMemory, trainNewPayee, historyRecord, NEW_PAYEE } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 // Host category name -> chart accounts a careful bookkeeper could pick. Categories with
 // no counterpart in the small-business chart (grants, donations, "Administrative",
@@ -181,7 +182,7 @@ export function evaluate(rows, map, variant, { learn = true, amounts = false, sk
 const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");
 export const line = (o) => `n=${o.n} suggested ${pct(o.right + o.wrong, o.n)} right-of-suggested ${pct(o.right, o.right + o.wrong)} right-of-all ${pct(o.right, o.n)} auto-posted ${pct(o.auto, o.n)} (wrong ${o.autoWrong})`;
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const host = arg("--host", "opensource");
   const map = MAPS[host];

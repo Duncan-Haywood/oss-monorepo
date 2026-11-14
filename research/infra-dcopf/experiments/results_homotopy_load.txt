@@ -1,0 +1,13 @@
+After-the-run diagnostic (declared in LOG.md after the planned run; not pre-registered): load-scaling
+continuation to the DC dispatch. mu0 = first load scale with a cold PF; mu* = scale reached; H as in the
+planned arm, from the DC dispatch with the path's mu = 1 solution as the warm start. Other algorithms:
+PYPOWER fast-decoupled (XB, BX; 100 iterations) and Gauss-Seidel (1000) cold at the DC dispatch.
+
+case           kind FDXB FDBX  GS  mu0     mu*  PFs  H0 nOv/ang/V/Q    H  H+R  H best: nOv maxLd% slkMW nAng V Q       cost  H+R cost     s
+case300_ieee   typ     n    n   n  0.1  0.8547   18               -    -    -  -                                          -         -    26
+case1888_rte   typ     n    n   n None  0.0000   10               -    -    -  -                                          -         -   178
+case1888_rte   api     n    n   n None  0.0000   10               -    -    -  -                                          -         -   180
+case1888_rte   sad     n    n   n None  0.0000   10               -    -    -  -                                          -         -   181
+case1951_rte   typ     n    n   n None  0.0000   10               -    -    -  -                                          -         -   185
+case1951_rte   sad     n    n   n None  0.0000   10               -    -    -  -                                          -         -   187
+

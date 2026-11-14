@@ -67,7 +67,7 @@ from dataclasses import dataclass, field
 from itertools import accumulate
 from operator import add
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from shootflow import dng_colour as dc
 from shootflow import dng_opcodes
@@ -150,6 +150,10 @@ TAG_ILLUMINANT_DATA_3 = 52535
 TAG_HUE_SAT_MAP_DATA_3 = 52537
 # A .dcp camera profile is a TIFF-structured file with "RC" in place of 42.
 DCP_MAGIC = 0x4352
+# Olympus ORF headers write "IIRO" / "MMOR" (or "IIRS") where TIFF has 42; the IFDs after it are classic TIFF
+# (dcraw, LibRaw and Exiv2 all accept the same three values). Read for shot facts only: an ORF has no
+# DNGVersion, so ``develop`` still asks for a DNG.
+ORF_MAGICS = (0x4F52, 0x5352)
 
 PHOTOMETRIC_CFA = 32803
 PHOTOMETRIC_LINEAR_RAW = 34892
@@ -168,6 +172,10 @@ class Ifd:
     entries: dict[int, tuple] = field(default_factory=dict)
     # The file's byte order, for UNDEFINED tags with inner structure (IlluminantData).
     byte_order: str = "<"
+    # Where each tag's values start in ``source`` (the buffer the IFD was read from), for maker notes whose
+    # own offsets count from the file's TIFF header (old-style Olympus) rather than from the note.
+    offsets: dict[int, int] = field(default_factory=dict, repr=False, compare=False)
+    source: bytes | None = field(default=None, repr=False, compare=False)
 
     def get(self, tag: int, default=None):
         values = self.entries.get(tag)
@@ -188,7 +196,7 @@ class _Reader:
         else:
             raise DevelopError("not a TIFF/DNG file (no II/MM byte-order mark)")
         magic = struct.unpack_from(self.end + "H", data, 2)[0]
-        if magic not in (42, DCP_MAGIC):
+        if magic not in (42, DCP_MAGIC) + ORF_MAGICS:
             raise DevelopError(f"not a classic TIFF/DNG file (magic {magic})")
         self.magic = magic
 
@@ -200,7 +208,7 @@ class _Reader:
         if offset <= 0 or offset + 2 > len(data):
             raise DevelopError(f"IFD offset {offset} is outside the file")
         count = struct.unpack_from(end + "H", data, offset)[0]
-        ifd = Ifd(byte_order=end)
+        ifd = Ifd(byte_order=end, source=data)
         pos = offset + 2
         for _ in range(count):
             if pos + 12 > len(data):
@@ -212,6 +220,7 @@ class _Reader:
                 at = pos + 8 if total <= 4 else struct.unpack_from(end + "I", data, pos + 8)[0]
                 if at + total <= len(data):
                     ifd.entries[tag] = self._values(typ, n, at)
+                    ifd.offsets[tag] = at
             pos += 12
         following = struct.unpack_from(end + "I", data, pos)[0] if pos + 4 <= len(data) else 0
         return ifd, following
@@ -930,6 +939,28 @@ def _decode_scan_reference(data, pos, width, height, tables, predictor, precisio
 # --------------------------------------------------------------------------
 
 
+class LensHint(NamedTuple):
+    """What a file says about the lens when it gives no usable name.
+
+    From Canon's CameraSettings (``cr2.lens_hint``) or, for any maker, the EXIF LensSpecification or DNG
+    LensInfo tag (``lens_profiles.spec_hint``). ``short`` and ``long`` are the lens's focal range in mm (equal
+    for a prime); ``aperture`` is its widest f-number at the shot's focal length (a zoom's f/3.5-5.6 reports
+    5.6 at the long end), or None; ``lens_type`` is Canon's lens number (several lenses, Canon's and third
+    parties', share one), or None. ``marked`` is the lens's widest f-number at its short and at its long end
+    (the "f/3.5-5.6" of its name), when the file states both; ``source`` names the field, for notes.
+    """
+
+    short: float
+    long: float
+    aperture: float | None
+    lens_type: int | None = None
+    marked: tuple[float, float] | None = None
+    source: str = "maker note"
+    # A lens name the maker note carries beside the range (Olympus Equipment 0x0203), used only to break a
+    # tie among lenses that fit the range: generic ones such as "OLYMPUS 14-54mm Lens" match nothing.
+    name: str | None = None
+
+
 @dataclass
 class RawImage:
     width: int
@@ -942,6 +973,7 @@ class RawImage:
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
     exif: Ifd | None = None  # the EXIF IFD (lens name, focal length), when the file has one
+    lens_hint: LensHint | None = None  # the maker note's focal range and aperture (CR2), for a lens with no name
 
 
 def _unpack_bits(chunk: bytes, bits: int, count: int, row_samples: int) -> list[int]:
@@ -1772,7 +1804,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
 
             try:
                 corr = lens_profiles.correction_for(
-                    settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif), w, h,
+                    settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif, raw.lens_hint), w, h,
                     lens_name=settings.lens_name, focal=settings.lens_focal, crop=settings.lens_crop,
                     fill=settings.lens_fill, tca=settings.lens_tca, vignetting=settings.lens_vignetting,
                     aperture=settings.lens_aperture, distance=settings.lens_distance,

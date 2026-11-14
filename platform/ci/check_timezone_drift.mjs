@@ -25,6 +25,7 @@ import fs from 'fs';
 import path from 'path';
 import cp from 'child_process';
 import { createRequire } from 'module';
+import { pathToFileURL } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -125,4 +126,4 @@ async function main() {
   process.exit(hits.length ? 1 : 0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

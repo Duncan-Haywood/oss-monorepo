@@ -60,7 +60,7 @@
 // series and T3 fails on (a) by a tie or near tie.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Worker, isMainThread, parentPort } from 'node:worker_threads';
+import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
 import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { replayWatch } from '../watch-core.mjs';
@@ -73,7 +73,8 @@ const LADDER3 = ['eager', 'middle', 'quiet'];
 const LADDER4 = ['eager', 'drift', 'middle', 'quiet'];
 const POLICY = { confirm: 5, tolerance: 5, holdHistory: true, persist: 2, window: 1000 };
 
-if (!isMainThread) {
+// Answer only workers this file started: a script that imports this one starts workers with its own URL.
+if (!isMainThread && workerData === import.meta.url) {
   parentPort.on('message', ({ id, values, start, detector }) => {
     const t = Date.now();
     const r = replayWatch(values, null, { ...POLICY, detector, from: start, budget: BUDGET });
@@ -88,7 +89,7 @@ async function runAll(jobs) {
   const order = jobs.map((_, i) => i).sort((a, b) => jobs[b].values.length - jobs[a].values.length);
   await new Promise((resolve, reject) => {
     for (let w = 0; w < k; w++) {
-      const worker = new Worker(new URL(import.meta.url));
+      const worker = new Worker(new URL(import.meta.url), { workerData: import.meta.url });
       const feed = () => { if (next < order.length) { const id = order[next++]; const j = jobs[id]; worker.postMessage({ id, values: j.values, start: j.start, detector: j.detector }); } else worker.terminate(); };
       worker.on('message', (m) => { results[m.id] = m; done++; if (done % 10 === 0) process.stderr.write(`${done}/${jobs.length}\n`); if (done === jobs.length) resolve(); feed(); });
       worker.on('error', reject);

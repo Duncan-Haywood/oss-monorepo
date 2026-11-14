@@ -156,6 +156,7 @@
         line("Product sales, shipping and gift credits", s.gross),
         line("Promotions", s.promo), line("Referral fees", s.referral), line("FBA fees", s.fba), line("Other transaction fees", s.otherFees),
         line("Refunded sales", s.refundAmount), line("Referral fees returned on refunds", s.refundReferralBack),
+        Math.abs(s.unitemised) >= 0.005 ? line("Regulatory fees and taxes in the total", s.unitemised) : "",
         line("Advertising", a.advertising), line("Subscription", a.subscription), line("FBA storage and inventory fees", a["fba-inventory"]),
         line("Reimbursements", a.reimbursement), line("Claims, adjustments and other fees", a.claims + a["adjustment-negative"] + a["other-fees"] + a.other),
         line("Paid out by Amazon (before cost of goods)", s.operating, true),

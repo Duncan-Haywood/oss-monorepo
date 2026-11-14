@@ -61,3 +61,11 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("quote_run");
   assert.equal(readUsage().quote_run, 1);
 });
+
+test("a store that throws on read is not read as an opt-out", () => {
+  // The page disables its opt-out button when usageOptedOut() is true; blocked
+  // storage must not make it claim the visitor switched counting off.
+  const boom = () => { throw new Error("blocked"); };
+  globalThis.localStorage = { getItem: boom, setItem: boom, removeItem: boom };
+  assert.equal(usageOptedOut(), false);
+});

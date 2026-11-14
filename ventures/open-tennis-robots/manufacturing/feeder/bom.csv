@@ -62,6 +62,12 @@ cable_clip,print,1,PETG,"Slides onto the rear lower head standoff before it is b
 cable_gland,print,1,PETG,Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the bundle through its slot: the loop above it and the twisting run below it start here. The elevation actuator's wires leave the bundle here.
 cable_clamp,print,1,PETG,"M5 and a T-nut into the cable crossbar's front slot. Zip-tie the bundle at the bore: the run from here up to the gland twists as the head turns, so keep it free of ties."
 cable_crossbar,stock,1,"2020 T-slot, cut 280 mm","Between the two rear mast posts' inner faces (corner brackets, M5): carries the axis cable clamp."
+deck_cable_main,cots,1,"Deck-side run, electronics to the axis clamp: 6 launcher motor phases 14 AWG, 6 wheel tachometers 26 AWG, 1 shuttle servo signal 26 AWG, 2 shuttle servo supply and return 20 AWG, 2 elevation actuator 18 AWG, 3 elevation feedback pot 26 AWG (11.5 mm bundle; 12.7 mm on the deck with the stepper's and lift's leads), 729 mm routed; cut the head's wires 789 mm from their deck terminals to the clamp, plus the twisting run, the loop and the head's run. Spiral wrap; bends 30 mm",
+deck_cable_stepper,cots,1,"Azimuth stepper and home switch: 4 azimuth stepper coils 22 AWG, 2 azimuth home switch 26 AWG, 874 mm from the driver carrier on the deck (leaves the main run under the crossbar and rises to the stepper's underside); coil leads add 6.2% to the coil's resistance",
+deck_cable_lift,cots,1,"Lift gearmotor: 2 lift gearmotor 20 AWG, 916 mm from its MOSFET on the deck (leaves the main run on the deck, drops off the deck's front edge and runs under the side rail to the motor's back); 0.34 V drop at an assumed 5.5 A stall",
+deck_cable_saddle,print,5,PETG,"Strap saddles over the deck-side run: 3 on the deck (two M5 x 12 each through the deck's new 5.5 mm holes, nyloc below) and 2 on the +y rear mast post's inner face (two M5 x 10 into T-nuts in its slot). Print on the ears, no support."
+deck_cable_hanger,print,3,PETG,"Hold the deck-side run 32 mm under the cable crossbar (2, M5 x 10 into a T-nut in its bottom slot) and under the axis clamp's arm (1, a zip tie round the arm through its slot), so the run can turn up into the clamp's bore on a 30 mm bend. Snap the bundle up into the ring."
+stepper_driver_carrier,print,1,PETG,"Carries the azimuth stepper's StepStick driver (TMC2209 or A4988 class) in two 1x8 female headers on a scrap of 2.54 mm perfboard pushed into the windows, with a 4-way and a 2-way screw terminal (motor out, 24 V in) at the +y end and a 100 uF 35 V capacitor across 24 V at the terminal. Four M3 x 16 into the deck's M3 grid (40 x 30 mm). Set the driver's current to the manifest's stepper_amps and its microstep pins to firmware AZ_MICROSTEPS; stick its heatsink on; STEP/DIR to GPIO 14/21, EN to GND."
 trough_gutter_a,stock,1,"125 mm (5 in class) half-round gutter, cut 1636 mm (both runs come from one 3.05 m length: 2884 mm together); one end cap at the outer end",The -y run. Falls 3 deg to the sump from 204 mm (inside bottom) at its outer end. Sits in the hangers' saddles; lace the net's bottom edge to the back lip so a ball sliding down the net drops inside.
 trough_gutter_b,stock,1,"125 mm (5 in class) half-round gutter, cut 1248 mm (both runs come from one 3.05 m length: 2884 mm together); one end cap at the outer end",The +y run. Falls 3 deg to the sump from 184 mm (inside bottom) at its outer end. Sits in the hangers' saddles; lace the net's bottom edge to the back lip so a ball sliding down the net drops inside.
 trough_hanger_a,print,1,PETG,"At y = -1300 mm (saddle 192 mm up). Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
@@ -77,7 +83,7 @@ lift_base_plate,laser,1,aluminium 5052 5 mm,On the two mast rails at the lift (M
 lift_spine,stock,1,"2040 T-slot, cut 2328 mm","Stands inside the belt loop, 20 mm across x: a self-adhesive UHMW tape on each 20 mm face takes the belt's tooth side. Its 40 mm faces (+-y, outside the belt) carry the boot, the head, the rod clips and the strut."
 lift_belt,cots,1,"AT5 polyurethane timing belt, steel cords, 25 mm wide, 959 teeth (4795 mm), welded endless; 32 flights every 149.8 mm (printed: two 16 mm fingers 30 mm apart on a 30 mm base plate, two M3 through the belt between its cords, or welded cleats from the belt supplier)",
 lift_pulley,cots,2,"AT5 timing pulley, 16 teeth (pitch diameter 25.5 mm), flanged, for 25 mm belt: one with a 6 mm D bore (gearmotor), one with 8 mm bearings on an axle (drawn at the belt's tooth-tip circle)",
-lift_motor,cots,1,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft (the base drive's class; 0.6 N m rated assumed), on a MOSFET from GPIO 16",
+lift_motor,cots,1,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft (the base drive's class; 0.6 N m rated assumed), on a MOSFET from GPIO 12",
 lift_rod,stock,3,"10 mm aluminium rod, cut 2141 mm",The channel's front and two sides above the boot: a lifted ball is pushed against the front rod. Ends square and deburred; the top ends go 15 mm into the head.
 lift_clip,print,6,PETG,"Holds the three rods round the channel and bolts to the spine's +-y faces (M5 and T-nuts); the belt's up strand runs through it, clear of the fingers. The lowest one stands on the base plate."
 lift_head,print,1,PETG,"Bolts to the top of the spine (two M5 each side into its +-y slots; slot the holes to tension the belt). The top pulley turns on an 8 mm axle through it, 2420 mm up. Balls ride over the pulley under the hood and drop 115 deg past the top onto a 30 deg floor that falls toward the tub; the finger behind each ball pushes it down that floor. Print in two halves split on y = 300 if your printer is short of 178 mm."
@@ -129,12 +135,15 @@ M3 x 8 screw (lift),cots,4,M3 x 8 screw (lift),lift gearmotor's face to the boot
 "8 mm axle, 60 mm, + two 608 bearings + e-clips",cots,1,"8 mm axle, 60 mm, + two 608 bearings + e-clips",lift's top pulley in the head
 M3 x 10 screw + nyloc nut (flights),cots,64,M3 x 10 screw + nyloc nut (flights),"flights through the belt, between its cords"
 "UHMW-PE tape, 25 mm wide, self-adhesive",cots,1,"UHMW-PE tape, 25 mm wide, self-adhesive",both 20 mm faces of the lift spine (4.7 m)
-"Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",cots,1,"Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",lift gearmotor from GPIO 16
+"Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",cots,1,"Logic-level N-MOSFET module, 24 V 5 A, + flyback diode",lift gearmotor from GPIO 12 (module with a gate pull-down)
 M3 x 10 socket cap screw (agitator),cots,4,M3 x 10 socket cap screw (agitator),"agitator gearmotor's face to its mount, from the mount's counterbores"
 M4 x 10 button head (agitator),cots,3,M4 x 10 button head (agitator),"agitator motor mount up under the shelf, from above (the tub sits over the heads)"
 "M4 heat-set insert, 5.7 mm long (agitator)",cots,3,"M4 heat-set insert, 5.7 mm long (agitator)",agitator motor mount
 M3 x 6 set screw + M3 heat-set insert,cots,1,M3 x 6 set screw + M3 heat-set insert,agitator hub onto the shaft's flat
-"Logic-level N-MOSFET module, 24 V 2 A, + flyback diode",cots,1,"Logic-level N-MOSFET module, 24 V 2 A, + flyback diode",agitator gearmotor from GPIO 17
+"Logic-level N-MOSFET module, 24 V 2 A, + flyback diode",cots,1,"Logic-level N-MOSFET module, 24 V 2 A, + flyback diode",agitator gearmotor from GPIO 2 (module with a gate pull-down)
+M5 x 12 button head + nyloc nut (deck cables),cots,6,M5 x 12 button head + nyloc nut (deck cables),deck-side cable saddles through the deck
+M5 x 10 button head + T-nut (deck cables),cots,6,M5 x 10 button head + T-nut (deck cables),"cable saddles on the +y rear mast post, hangers under the cable crossbar"
+M3 x 16 screw + nut (stepper driver carrier),cots,4,M3 x 16 screw + nut (stepper driver carrier),carrier to the deck's M3 grid
 Raspberry Pi 5 (4 GB),cots,1,Raspberry Pi 5 (4 GB),vision + planning
 Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable,stereo bar
 ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"
@@ -143,9 +152,15 @@ ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmwa
 6 V 5 A buck converter (servo supply),cots,1,6 V 5 A buck converter (servo supply),"shuttle servo, on the deck beside the ESP32: 20 AWG supply and return to the servo (manifest cables line)"
 "Spiral wrap, 10 mm, 1 m",cots,1,"Spiral wrap, 10 mm, 1 m","the head's wires in the free loop: loose, so each wire bends on its own"
 Snap-in grommet for a 14 mm hole,cots,1,Snap-in grommet for a 14 mm hole,the head's wires through the motor plate
-"Zip ties, 2.5 mm",cots,10,"Zip ties, 2.5 mm","cable gland, clamp and clip"
+"Zip ties, 2.5 mm",cots,12,"Zip ties, 2.5 mm","cable gland, clamp and clip; the clamp arm's hanger"
 "Storage tub, about 440 x 340 x 250 mm",cots,1,"Storage tub, about 440 x 340 x 250 mm",hopper; see the part notes for the cut
-"Stepper driver, 2 A class (TMC2209 or A4988), 24 V",cots,1,"Stepper driver, 2 A class (TMC2209 or A4988), 24 V",azimuth stepper
+"Stepper driver, 2 A class (TMC2209 or A4988), StepStick format, + heatsink",cots,1,"Stepper driver, 2 A class (TMC2209 or A4988), StepStick format, + heatsink","azimuth stepper, on the printed carrier on the deck"
+"1x8 female header, 2.54 mm, + 2.54 mm perfboard scrap",cots,2,"1x8 female header, 2.54 mm, + 2.54 mm perfboard scrap",stepper driver carrier
+"Screw terminal blocks, 5.08 mm, 4-way and 2-way",cots,1,"Screw terminal blocks, 5.08 mm, 4-way and 2-way","stepper driver carrier: motor out, 24 V in"
+Electrolytic capacitor 100 uF 35 V,cots,1,Electrolytic capacitor 100 uF 35 V,across 24 V at the stepper driver
+Silicone wire 22 AWG (4 colours) and 26 AWG pair,cots,1,Silicone wire 22 AWG (4 colours) and 26 AWG pair,"azimuth stepper and home switch, deck to stepper (manifest stepper_lead_mm)"
+Silicone wire 20 AWG pair,cots,1,Silicone wire 20 AWG pair,"lift gearmotor, deck to motor (manifest lift_lead_mm)"
+"Spiral wrap, 12 mm, 1 m",cots,1,"Spiral wrap, 12 mm, 1 m","the deck-side run, deck to the axis clamp"
 TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers
 22 mm NC mushroom e-stop + 24 V contactor,cots,1,22 mm NC mushroom e-stop + 24 V contactor,hard power cut
 "Wireless e-stop relay remote, latching",cots,1,"Wireless e-stop relay remote, latching",second cut-off

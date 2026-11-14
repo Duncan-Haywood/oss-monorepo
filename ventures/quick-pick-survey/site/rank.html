@@ -38,6 +38,7 @@
     a{color:var(--accent)}
     footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
     label.inline{display:inline-flex;gap:.35rem;align-items:center}
+    .scroll-x{overflow-x:auto;max-width:100%}
   </style>
 </head>
 <body>
@@ -121,10 +122,11 @@
     <ul>
       <li><strong>The model</strong> is Bradley-Terry: each option has a hidden score, and the chance you pick A over B rises with the gap between their scores. After every answer the page refits all your answers at once (Newton's method, with a Laplace approximation for the uncertainty), the same code the Quick Pick survey app runs.</li>
       <li><strong>The next question</strong> is the pair whose answer is expected to tell the most about the order: two options the model cannot yet separate. Which side each appears on is random, so screen position cannot creep into the result.</li>
-      <li><strong>When to stop:</strong> "settled" is how closely the orders your answers still allow agree with the order shown (the average Spearman correlation over draws from the model). It stops at 90%. On simulated respondents who answer with ordinary noise, the order shown at that point matched their real order with a Spearman correlation of about 0.94. Two options you find genuinely close may never separate; the rank range shows that, and you can stop at any time.</li>
+      <li><strong>When to stop:</strong> "settled" is how closely the orders your answers still allow agree with the order shown (the average Spearman correlation over draws from the model). It stops at 90%. On simulated respondents who answer with ordinary noise, the order shown at that point matched their real order with a Spearman correlation of about 0.94. If many of your picks are close calls, it checks again with the model fitted to how strongly you seem to feel (an estimate from your own answers) and keeps asking until that read passes too, because a model that assumes strong likes reads noise as a settled order (on 25 simulated near-coin-flip options it had claimed 90% for an order that was right at about 0.56). Two options you find genuinely close may never separate; the rank range shows that, and you can stop at any time.</li>
       <li><strong>Full order or favourite?</strong> Full order spreads questions across the list and stops when the whole order is 90% settled; that can leave the top two close. "Be sure of the favourite" asks only among options that could still be the favourite and stops when one has a 90% chance. In simulation it took about a third more questions and named the right favourite 12 times out of 12, against 6 to 8 for the full-order stop.</li>
       <li><strong>Team results</strong> refit each person separately, then average their centred scores, so someone who answered 80 questions counts the same as someone who answered 30. The page shows how much people agree and where they split.</li>
     </ul>
+    <p class="muted">Ready lists to start from: <a href="use-feature-backlog.html">a feature backlog</a>, <a href="use-personal-values.html">your personal values</a>, <a href="use-name-shortlist.html">a name shortlist</a>, <a href="use-trip-shortlist.html">a group trip</a>.</p>
     <p class="muted">Running a survey with many respondents, demographic splits and an admin view? The full app is open source: <a href="./">deploy your own copy</a>.</p>
   </section>
 
@@ -141,7 +143,7 @@
   </footer>
 </main>
 <script type="module">
-  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, orderConfidence, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, listId, MIN_ITEMS } from "./rank-core.mjs";
+  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
   const $ = (s) => document.querySelector(s);
@@ -169,15 +171,17 @@
   function ask() {
     f = fit(state.items.length, state.answers);
     const n = state.items.length, cap = suggestedMax(n);
-    const p = state.answers.length ? orderConfidence(f) : 0;
-    const done = state.mode === "favourite" ? rankTable(f, { draws: 600 })[0].favourite >= 0.9 : p >= STOP_CONFIDENCE;
+    // Full order: stopCheck refits at the person's own prior once the fixed-prior read passes, so a list of close calls is not called settled too soon.
+    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f }) : null;
+    const p = sc ? sc.confidence : 0;
+    const done = state.mode === "favourite" ? rankTable(f, { draws: 600 })[0].favourite >= 0.9 : sc.done;
     if (state.until ? state.answers.length >= state.until : done || state.answers.length >= cap) return results(done);
     current = nextPair(f, state.answers, { mode: state.mode, seed: state.seed });
     $("#ask-title").textContent = state.title || "Which do you prefer?";
     $("#left").textContent = state.items[current[0]];
     $("#right").textContent = state.items[current[1]];
     $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, state.mode === "favourite" ? state.answers.length / Math.max(6, n) : p / STOP_CONFIDENCE)) * 100)}%`;
-    $("#status").textContent = `${state.answers.length} answered${state.mode === "order" ? `; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)` : ""}. Lists of ${n} usually take ${Math.ceil(n * Math.log2(n))} to ${Math.ceil(1.5 * n * Math.log2(n))} picks; stop whenever you like.`;
+    $("#status").textContent = `${state.answers.length} answered${state.mode === "order" ? `; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc && sc.phi !== null && !sc.done ? "; many of your picks are close calls, so it checks the order more strictly" : ""}` : ""}. Lists of ${n} usually take ${Math.ceil(n * Math.log2(n))} to ${Math.ceil(1.5 * n * Math.log2(n))} picks; stop whenever you like.`;
     $("#undo").disabled = state.answers.length === 0;
     show("#ask");
     $("#left").focus({ preventScroll: true });
@@ -245,11 +249,17 @@
     $("#team-err").textContent = errors.join(" ");
     if (people.length < 2) { $("#team-out").innerHTML = "<p>Paste at least one other person's code.</p>"; return; }
     const c = combine(state.items, people);
+    const t = teamRanges(state.items, people);
+    const tr = new Map(t.rows.map((r) => [r.item, r]));
+    const range = (lo, hi) => (lo === hi ? `${lo}` : `${lo}&ndash;${hi}`);
     const agree = c.agreement;
-    $("#team-out").innerHTML = `<p>${c.people} people. Agreement between their orders: <strong>${agree.toFixed(2)}</strong> (1 = identical, 0 = unrelated, negative = opposite).</p>
-      <table><thead><tr><th class="num">#</th><th>Option</th><th class="num">Ranked first by</th><th class="num">Best&ndash;worst place</th></tr></thead><tbody>${
-      c.order.map((r) => `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td></tr>`).join("")}</tbody></table>
-      <p class="muted">A wide best&ndash;worst spread marks an option the team splits on: worth a conversation before a vote.</p>`;
+    // tau is read low by the Laplace fit (true 2 reads 0.6-0.9, docs/RANK-PAGE.md "Team ranges"), so words, not the number.
+    const tauWords = t.tau < 0.2 ? "about the same likes" : t.tau < 0.5 ? "somewhat different likes" : "clearly different likes";
+    $("#team-out").innerHTML = `<p>${c.people} people. Agreement between their orders: <strong>${agree.toFixed(2)}</strong> (1 = identical, 0 = unrelated, negative = opposite). Read as a model, their picks fit people with <strong>${tauWords}</strong>.</p>
+      <div class="scroll-x"><table><thead><tr><th class="num">#</th><th>Option</th><th class="num" title="People who ranked it first">1st</th><th class="num" title="Best to worst place across people">Places</th><th class="num" title="90% rank range for this group">Group</th><th class="num" title="90% rank range for people like you">Wider</th></tr></thead><tbody>${
+      c.order.map((r) => { const x = tr.get(r.item); return `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td><td class="num">${range(x.low, x.high)}</td><td class="num">${range(x.popLow, x.popHigh)}</td></tr>`; }).join("")}</tbody></table></div>
+      <p class="muted"><strong>1st</strong>: people who ranked it first. <strong>Places</strong>: its best to worst place across people; a wide spread marks an option the team splits on, worth a conversation before a vote.</p>
+      <p class="muted"><strong>Group</strong> (90% rank range, this group): where the option sits in these ${c.people} people's average order, allowing only for each person having answered a limited number of pairs. <strong>Wider</strong> (90% rank range, people like you): if these ${c.people} stand for a wider group (customers, a department), where it would sit for that group; this one widens when people disagree, because a few more people could have tipped it.</p>`;
     record("team_combined");
   });
   document.addEventListener("keydown", (e) => {

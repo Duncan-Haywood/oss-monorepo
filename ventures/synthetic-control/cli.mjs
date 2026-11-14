@@ -4,6 +4,7 @@
 import { readFileSync } from "node:fs";
 import { analyze, PAPERS } from "./engine.mjs";
 import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `synthetic-control: did an intervention change one unit's outcome? (Abadie et al. synthetic control)
 
@@ -118,7 +119,7 @@ export function run(argv, stdin = "") {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const argv = process.argv.slice(2);
   const needsStdin = !argv.includes("--example") && !argv.includes("--help") && !argv.includes("-h") && !argv.some((a, i) => !a.startsWith("--") && !Object.keys(FLAGS).includes(argv[i - 1]) && a !== "-");
   const stdin = needsStdin ? readFileSync(0, "utf8") : "";

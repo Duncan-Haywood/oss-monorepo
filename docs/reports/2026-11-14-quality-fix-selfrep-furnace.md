@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [selfrep-recyclers]
+date: 2026-11-14
+tagged: auto
+---
 # Quality fix 2026-11-14: selfrep-recyclers furnace credit
 
 - Fixed defect 0 (high) of `portfolio/quality/audits/2026-11-08-selfrep-recyclers.json`; the fix PR is recorded in `fix_prs`.

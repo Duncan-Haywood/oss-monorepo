@@ -77,6 +77,26 @@ export function parseNumber(v, decimalComma = false) {
   return neg ? -n : n;
 }
 
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}
+
 // Wall-clock timestamps only: the file's own clock is the driver's clock, so no
 // time zone conversion is attempted. Returns { t (UTC ms of the wall clock),
 // hasTime } or null. `dmy` is decided once per file (see detectDmy).
@@ -160,7 +180,10 @@ export function platformFromText(s) {
 // column.
 // opts.platform: "auto" | "doordash" | "ubereats" | "grubhub" | "other".
 // opts.hint: text (a file name) used to name the platform when auto finds none.
-export function normalizeRows(table, { decimalComma = false, platform = "auto", hint = "" } = {}) {
+// opts.decimalComma: true | false | "auto" (detectDecimalComma; opts.delimiter
+// breaks a tie).
+export function normalizeRows(table, { decimalComma = false, platform = "auto", hint = "", delimiter = "," } = {}) {
+  if (decimalComma === "auto") decimalComma = detectDecimalComma(table, delimiter);
   const empty = { orders: [], skipped: [], cancelledCount: 0, columns: {}, dmy: false, platformSource: "none" };
   if (!table.length) return { ...empty, error: "The file is empty." };
   let h = -1;
@@ -409,7 +432,10 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   }
   const rated = byPlatform.filter((b) => b.takeRate !== null && b.orders >= MIN_ORDERS);
   if (rated.length >= 2) {
-    const a = [...rated].sort((x, y) => y.takeRate - x.takeRate)[0], b = [...rated].sort((x, y) => x.takeRate - y.takeRate)[0];
+    // One sort, both ends: two sorts each picked the first of equal rates, so
+    // a tie named the same platform twice.
+    const byRate = [...rated].sort((x, y) => y.takeRate - x.takeRate);
+    const a = byRate[0], b = byRate[byRate.length - 1];
     out.push({ severity: "info", title: `${a.label} cost ${p1(a.takeRate)} of sales; ${b.label} ${p1(b.takeRate)}`, detail: `On ${a.orders} and ${b.orders} orders. Net cash per order was ${usd(a.netPerOrder)} on ${a.label} against ${usd(b.netPerOrder)} on ${b.label}; average tickets differ (${usd(a.avgTicket)} and ${usd(b.avgTicket)}), so compare both columns.` });
   }
   if (s.costsEntered && s.lossOrders > 0) {

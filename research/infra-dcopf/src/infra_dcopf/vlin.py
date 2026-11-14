@@ -418,9 +418,10 @@ def shrink(lo, hi, m):
     return np.where(np.isfinite(lo), lo + d, lo), np.where(np.isfinite(hi), hi - d, hi)
 
 
-def check(ppc, pg, vg):
-    """Full AC check of (pg, vg): counts and worst excesses of every limit class, and AC cost."""
-    r = run_point(ppc, pg, vg)
+def check(ppc, pg, vg, warm=None):
+    """Full AC check of (pg, vg): counts and worst excesses of every limit class, and AC cost.
+    warm: a power-flow result whose bus voltages start Newton (default: the case file's)."""
+    r = run_point(ppc, pg, vg, warm)
     if r is None:
         return None
     br, bus, g = r["branch"], r["bus"], r["gen"]
@@ -466,18 +467,20 @@ VBOX = 0.03
 
 
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
-        record=False):
+        record=False, warm=None, warm_check=False):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
-    Each history entry keeps its point under "pg" and "vg"."""
+    Each history entry keeps its point under "pg" and "vg".
+    warm: a power-flow result whose voltages start round 1's Newton (and the start's check);
+    warm_check: start each new point's AC check at the current round's linearisation point.
+    Both default off, which is every arm before the homotopy start (LOG.md 2026-11-14)."""
     lay = Layout(ppc)
     g = ppc["gen"]
     ptrust = np.maximum(0.2 * (g[:, PMAX] - g[:, PMIN]), 0.1)
     vtrust = np.full(lay.nv, VBOX)
     pg, v = pg_start.copy(), lay.v_of(vg_start)
-    cur = check(ppc, pg, lay.vg_of(v))
+    cur = check(ppc, pg, lay.vg_of(v), warm)
     hist = []
-    warm = None
     for it in range(1, rounds + 1):
         lin = linearise(ppc, pg, v, lay, warm, analytic=analytic)
         if lin is None:
@@ -496,7 +499,7 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
             ptrust, vtrust = ptrust / 2, vtrust / 2
             continue
         vg = lay.vg_of(xv)
-        c = check(ppc, xp, vg)
+        c = check(ppc, xp, vg, warm if warm_check else None)
         if c is None:
             hist.append({"it": it, "status": "PF failed"})
             ptrust, vtrust = ptrust / 2, vtrust / 2

@@ -4,6 +4,7 @@
 // its events, and the customer portal. Exit 1 if any check fails.
 import { createStripe } from "./stripe.mjs";
 import { mailProblems, providerName } from "./mail.mjs";
+import { pathToFileURL } from "node:url";
 
 export const REQUIRED_EVENTS = [
   "invoice.payment_failed", "invoice.paid", "invoice.payment_succeeded", "invoice.voided",
@@ -117,7 +118,7 @@ export async function run(env, fetchImpl = fetch) {
   return { results, failed: results.filter((r) => r.level === "fail").length, warned: results.filter((r) => r.level === "warn").length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { results, failed, warned } = await run(process.env);
   console.log(render(results));
   console.log(`\n${failed} failed, ${warned} warnings. ${failed ? "Fix the failures before DRY_RUN=false." : "No blockers found; still test with a test-mode key and `stripe trigger invoice.payment_failed`."}`);

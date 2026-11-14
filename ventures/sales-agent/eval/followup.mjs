@@ -3,6 +3,7 @@
 //   node eval/followup.mjs [file.jsonl]
 import { readFileSync } from "node:fs";
 import { runFollowUp } from "../followup.mjs";
+import { pathToFileURL } from "node:url";
 
 const PROSPECTS = "email,first_name,company,status\ndana@brightline.example,Dana,Brightline,replied";
 
@@ -24,7 +25,7 @@ export function score(rows) {
   return { n: rows.length, right: rows.length - misses.length, accuracy: (rows.length - misses.length) / rows.length, misses, confusion };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const file = process.argv.find((a) => a.endsWith(".jsonl")) || new URL("./followup-notes-2026-10-24.jsonl", import.meta.url);
   const s = score(readFileSync(file, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)));
   console.log(`${s.right}/${s.n} right (${(s.accuracy * 100).toFixed(0)}%)`);

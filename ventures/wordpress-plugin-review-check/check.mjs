@@ -23,6 +23,7 @@ import {
   detectMissingNonceChecks,
   buildReport,
 } from './scan.mjs';
+import { pathToFileURL } from 'node:url';
 
 const PHP_EXTENSIONS = new Set(['.php']);
 const README_NAME = 'readme.txt';
@@ -226,6 +227,6 @@ function main() {
   process.exit(result.report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

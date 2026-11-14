@@ -14,6 +14,7 @@ import process from 'node:process';
 import { availableParallelism } from 'node:os';
 import { analyze, parseSeries, DEFAULTS, PAPERS } from './engine.mjs';
 import { NILE_CSV } from './example-data.mjs';
+import { pathToFileURL } from 'node:url';
 
 const USAGE = `Find when a time series changed level or volatility (PELT + Bayesian online changepoint detection).
 
@@ -258,7 +259,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   return 0;
 }
 
-const invoked = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const invoked = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invoked) {
   main(process.argv.slice(2)).then((code) => process.exit(code), (e) => { process.stderr.write(`error: ${e.message}\n`); process.exit(2); });
 }

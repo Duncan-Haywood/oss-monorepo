@@ -8,6 +8,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { readStatement, parseCents } from "../bank.mjs";
+import { pathToFileURL } from "node:url";
 
 const bal = (xml, code) => {
   const m = xml.match(new RegExp(`<Cd>${code}</Cd>[\\s\\S]*?<Amt[^>]*>([\\d.]+)</Amt>\\s*<CdtDbtInd>(CRDT|DBIT)`));
@@ -24,7 +25,7 @@ export function checkFile(xml, name = "") {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dir = process.argv[2];
   if (!dir) { console.error("usage: node eval/camt-corpus.mjs <directory of .xml files>"); process.exit(2); }
   for (const f of readdirSync(dir).filter((n) => n.endsWith(".xml")).sort()) {

@@ -19,7 +19,7 @@ const files = [
 const load = (f) => parseGabc(readFileSync(f, 'utf8')).events;
 const ev = (spec) => spec.split(' ').map((t) => (t === '|' ? { type: 'bar', kind: 'full', pulses: 1 } : { type: 'note', midi: Number(t), pulses: 1 }));
 
-test('every note is in its singers\' range on all 67 corpus files', () => {
+test('every note is in its singers\' range on all 68 corpus files', () => {
   let split = 0;
   for (const f of files) {
     const r = splitVoices(load(f));
@@ -31,7 +31,7 @@ test('every note is in its singers\' range on all 67 corpus files', () => {
     assert.equal(r.allNotes + r.tenorNotes + r.bassNotes, r.notes);
     if (r.split) split++;
   }
-  assert.equal(files.length, 67);
+  assert.equal(files.length, 68);
   assert.equal(split, 7); // the seven files with a 17-semitone ambitus, one more than C3-E4 holds
 });
 
@@ -103,7 +103,7 @@ const wev = (spec) => spec.split(' ').map((t) => {
   return { type: 'note', midi: Number(start ? t.slice(1) : t), pulses: 1, syllable: start ? 'w' : null, wordStart: start };
 });
 
-test('needed (the default) matches the bar-only split exactly on all 67 corpus files', () => {
+test('needed (the default) matches the bar-only split exactly on all 68 corpus files', () => {
   for (const f of files) {
     const a = splitVoices(load(f), { words: 'never' }), b = splitVoices(load(f));
     assert.equal(b.handoffs, 0, f);
@@ -187,7 +187,7 @@ test('the DP is exact: brute force over every word assignment on 300 random line
   }
 });
 
-test('octave-wide sections: words make 56 of the 67 corpus files singable, bars alone 50', () => {
+test('octave-wide sections: words make 56 of the 68 corpus files singable, bars alone 50', () => {
   const tenor = { low: 52, high: 64 }, bass = { low: 45, high: 57 };
   let never = 0, needed = 0, handoffs = 0;
   for (const f of files) {
@@ -293,7 +293,7 @@ const rangeOf = (voice, secs) => {
   return { low: Math.max(...names.map((n) => secs[n].low)), high: Math.min(...names.map((n) => secs[n].high)) };
 };
 
-test('three sections: every note is in the range of every section that sings it, on all 67 files and both range sets', () => {
+test('three sections: every note is in the range of every section that sings it, on all 68 files and both range sets', () => {
   for (const secs of [SECTIONS3, OCTAVE]) {
     for (const f of files) {
       const r = splitVoices(load(f), { ...secs, overlap: true });
@@ -309,10 +309,10 @@ test('three sections: every note is in the range of every section that sings it,
   }
 });
 
-test('three sections: octave-wide sections fit 64 of 67 files with baritones, 56 without', () => {
+test('three sections: octave-wide sections fit 65 of 68 files with baritones, 56 without', () => {
   const fit = (bar) => files.filter((f) => splitVoices(load(f), { ...OCTAVE, baritone: bar ? OCTAVE.baritone : null }).fits).length;
   assert.equal(fit(false), 56);
-  assert.equal(fit(true), 64);
+  assert.equal(fit(true), 65);
   assert.equal(splitVoices(load(join(corpus, 'dies-irae.gabc')), { tenor: OCTAVE.tenor, bass: OCTAVE.bass }).fits, false);
   assert.ok(splitVoices(load(join(corpus, 'dies-irae.gabc')), OCTAVE).fits);
 });
@@ -447,13 +447,13 @@ test('entrance cost: the DP is exact (brute force over every assignment of 150 r
   }
 });
 
-test('entrance cost on the corpus: 8 cuts changes of singer with three octave-wide sections (484 to 435)', () => {
+test('entrance cost on the corpus: 8 cuts changes of singer with three octave-wide sections (498 to 449; 484 to 435 before 3670.gabc joined)', () => {
   const total = (cost) => files.reduce((a, f) => {
     const r = splitVoices(load(f), { ...OCTAVE, overlap: true, entranceCost: cost });
     return r.fits ? a + r.changes : a;
   }, 0);
-  assert.equal(total(0), 484);
-  assert.equal(total(8), 435);
+  assert.equal(total(0), 498);
+  assert.equal(total(8), 449);
 });
 
 test('CLI --entrance-cost: passes through to the split and is checked', () => {
@@ -471,7 +471,7 @@ test('CLI --entrance-cost: passes through to the split and is checked', () => {
 const OCTAVE4 = { tenor: { low: 52, high: 64 }, tenor2: { low: 50, high: 62 }, baritone: { low: 48, high: 60 }, bass: { low: 45, high: 57 } };
 const SECTIONS4 = { tenor: TENOR_RANGE, tenor2: { low: 48, high: 67 }, baritone: BARITONE, bass: BASS_RANGE };
 
-test('four sections: every note is in the range of every section that sings it, on all 67 files and both range sets', () => {
+test('four sections: every note is in the range of every section that sings it, on all 68 files and both range sets', () => {
   for (const secs of [SECTIONS4, OCTAVE4]) {
     for (const f of files) {
       const r = splitVoices(load(f), { ...secs, overlap: true });
@@ -486,9 +486,9 @@ test('four sections: every note is in the range of every section that sings it, 
   }
 });
 
-test('four sections: octave-wide TTBB fits 65 of 67 files (3407.gabc gained), and fewer notes are left to one section', () => {
+test('four sections: octave-wide TTBB fits 66 of 68 files (3407.gabc gained), and fewer notes are left to one section', () => {
   const fits = files.filter((f) => splitVoices(load(f), OCTAVE4).fits);
-  assert.equal(fits.length, 65);
+  assert.equal(fits.length, 66);
   assert.ok(fits.some((f) => f.endsWith('3407.gabc')));
   assert.equal(splitVoices(load(fits.find((f) => f.endsWith('3407.gabc'))), { ...OCTAVE4, tenor2: null }).fits, false);
   // eval/four-sections-report.md: one section alone on 29.9% of notes with three, 13.7% with four
@@ -501,7 +501,7 @@ test('four sections: octave-wide TTBB fits 65 of 67 files (3407.gabc gained), an
     const lone = (r) => Object.entries(r.voiceNotes).filter(([v]) => v !== 'all' && !v.includes('+')).reduce((s, [, x]) => s + x, 0);
     lone3 += lone(a); lone4 += lone(b);
   }
-  assert.equal(n, 64);
+  assert.equal(n, 65);
   assert.ok(lone4 * 2 < lone3, `${lone4} vs ${lone3}`);
 });
 

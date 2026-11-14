@@ -6,6 +6,7 @@
 // (FDR), the share of runs with at least one false discovery (FWER) and the
 // mean share of true effects found (power); and the spread of Storey's pi0.
 import { analyze } from "../engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function mulberry32(seed) {
   return () => {
@@ -76,7 +77,7 @@ export function simulate({ m = 1000, m1 = 100, shift = 2.5, rho = 0, reps = 400,
   return { settings: { m, m1, shift, rho, reps, alpha, seed }, methods: out, pi0 };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const i = process.argv.indexOf("--reps");
   const reps = i > 0 ? Number(process.argv[i + 1]) : 400;

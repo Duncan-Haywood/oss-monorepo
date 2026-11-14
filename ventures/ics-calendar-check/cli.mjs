@@ -15,6 +15,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { decodeBuffer, validate, repair } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const IGNORE_DIRS = new Set(["node_modules", ".git"]);
 const HELP = `ics-calendar-check: lint .ics files and feeds
@@ -118,6 +119,6 @@ export async function main(argv, overrides = {}) {
   return failed ? 1 : 0;
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2)).then((c) => { process.exitCode = c; });
 }

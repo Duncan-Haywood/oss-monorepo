@@ -17,6 +17,7 @@
 //   ship and CATCHUP stays off.
 // usage: node eval/update-rate-catchup-2.mjs > eval/update-rate-catchup-2.out.txt
 import { run } from './update-rate-catchup.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const CALIBRATION_SEED = 2, CONFIRMATION_SEED = 20261214;
 const GRID = [];
@@ -36,7 +37,7 @@ export function calibrate() {
 
 export function confirm(pick) { return run(CONFIRMATION_SEED, 200, { minRun: pick.minRun, ratio: pick.ratio, minMoves: pick.minMoves }); }
 
-const invoked = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const invoked = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invoked) {
   const c = calibrate();
   console.log(`Step 1, calibration seed ${CALIBRATION_SEED}: max R catchUp share, min T catchUp share`);

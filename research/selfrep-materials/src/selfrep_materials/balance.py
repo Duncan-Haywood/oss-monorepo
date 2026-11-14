@@ -41,6 +41,11 @@ class Params:
     e_extrude: float = 1.0
     e_machine: float = 2.0   # router/laser, per kg of product
     furnace_eff: float = 0.25  # electric crucible furnace, share of heat reaching the metal
+    # part list: "placeholder" (selfrep-closure's assumed masses, box-size fasteners) or "sourced"
+    # (STL volumes x density x fill, per-printer fastener counts; see sourced.py)
+    bom: str = "placeholder"
+    density: float = 1.24  # g/cm3, printed plastic (sourced list only; PLA data sheet)
+    fill: float = 1.0      # share of the STL's solid volume actually printed (sourced list only; ASSUMED)
 
 
 # Handbook-order thermophysical values for aluminium (approximate; checked against a handbook is an owner step)
@@ -55,18 +60,29 @@ def melt_energy_kwh_per_kg(furnace_eff):
     return j / 3.6e6 / furnace_eff
 
 
-def parts_by_feedstock(variant, processes):
+def bom_parts(variant, prm=None):
+    """The part list ``prm.bom`` names (default: the placeholder list)."""
+    prm = prm or Params()
+    if prm.bom == "placeholder":
+        return parts_for(variant)
+    if prm.bom == "sourced":
+        from . import sourced
+        return sourced.parts_for(variant, prm.density, prm.fill)
+    raise ValueError(f"unknown bom {prm.bom!r}")
+
+
+def parts_by_feedstock(variant, processes, prm=None):
     """Product mass (kg) per feedstock class for makeable parts of one copy of the BOM."""
     out = {}
-    for p in parts_for(variant):
+    for p in bom_parts(variant, prm):
         if makeable(p, set(processes)):
             out[p.feedstock] = out.get(p.feedstock, 0.0) + p.qty * p.mass_g / 1000.0
     return out
 
 
-def vitamin_mass(variant, processes):
+def vitamin_mass(variant, processes, prm=None):
     t = 0.0
-    for p in parts_for(variant):
+    for p in bom_parts(variant, prm):
         if not makeable(p, set(processes)):
             t += p.qty * p.mass_g / 1000.0
     return t
@@ -74,8 +90,8 @@ def vitamin_mass(variant, processes):
 
 def balance(variant, processes, prm=Params(), recycle=True):
     """Return dict of imported masses (kg), scrap, energy for one copy."""
-    prod = parts_by_feedstock(variant, processes)
-    imp = {"vitamins": vitamin_mass(variant, processes)}
+    prod = parts_by_feedstock(variant, processes, prm)
+    imp = {"vitamins": vitamin_mass(variant, processes, prm)}
     energy = {}
     scrap_lost = 0.0
     eol_used = 0.0

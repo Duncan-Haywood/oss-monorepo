@@ -114,3 +114,26 @@ test("csv export defuses spreadsheet formulas in names", () => {
   assert.match(csv, /^'-2\+3,/m);
   assert.match(csv, /,3,3-5,167\.00,55\.67$/m);
 });
+
+test("a one-value bracket such as 0-0 is allowed", () => {
+  const r = parseFees("0-0: 10\n1-2: 55\n3+: 167");
+  assert.deepEqual(r.errors, []);
+  assert.equal(bracketFor(r.brackets, 0).fee, 10);
+  assert.equal(bracketFor(r.brackets, 1).fee, 55);
+  assert.match(parseFees("5-4: 10").errors[0], /max is below min/);
+});
+
+test("a registrant line needs a name even when the count and type are fine", () => {
+  assert.equal(parseEntities(", 5, motor-carrier").entities.length, 0);
+  assert.match(parseEntities(", 5, motor-carrier").errors[0], /need "name, number of vehicles, type"/);
+});
+
+// Red team 2026-11-14: the fee pattern [\d,]+ took a bare "," as $0 and "1,,0" as $10, silently.
+test("a fee must be a number: commas only as thousands separators", () => {
+  for (const bad of ["0-2: ,", "0-2: $,", "0-2: 1,,0", "0-2: ,55", "0-2: 55,", "0-2: 1,16,3"]) {
+    assert.match(parseFees(bad).errors[0] ?? "", /use "min-max: fee"/, bad);
+  }
+  assert.equal(parseFees("1001+: $54,165").brackets[0].fee, 54165);
+  assert.equal(parseFees("0-2: 1,234,567.50").brackets[0].fee, 1234567.5);
+  assert.equal(parseFees("0-2: 1163").brackets[0].fee, 1163);
+});

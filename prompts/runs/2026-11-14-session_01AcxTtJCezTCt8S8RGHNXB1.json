@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJCezTCt8S8RGHNXB1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T11:06:53Z",
+  "ended": "2026-11-14T11:12:47Z",
+  "wall_minutes": 6.21,
+  "tokens_in": 5009778,
+  "tokens_out": 23063,
+  "cost_usd": 2.3143,
+  "tool_calls": 52,
+  "task": "ai-bookkeeper flagship item (8): unread states' sales tax pages",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15828",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first test draft used dueDate('2026') for NY annual; NY annual periods are labelled by end month ('2026-02')",
+      "fix": "used the end-month label"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/state-pages-2026-11-14.md",
+      "issue": "said TN, NY, MO refused earlier today; a probe hours later reached all three plus Ohio's statute on codes.ohio.gov, so 'refused' lists go stale within a day and are worth re-probing before taking another item"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-two-sales-tax-discounts-nobody-had-wired-in.md",
+    "ventures/ai-bookkeeper/eval/state-pages-2026-11-14b.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS and website requests empty; routed ventures/1; allocate.py picked ai-bookkeeper. Read MO (dor.mo.gov FAQ), NY (TB-ST-275, TB-ST-925), OH (R.C. 5739.12, codes.ohio.gov), TN (tn.gov). All due dates matched presets; new discount presets MO 2% and NY 5%/$200 (not monthly). stateDiscounts takes frequency; CLI and index.html pass it. Verification: node --test salestaxreturn*.test.mjs calendar.test.mjs page.test.mjs all pass; run_venture_tests.py ai-bookkeeper ok (39.6s); venture-preflight run in background. NJ/MD/IN day still unread; CO, MA, ME, UT, AR, RI 403.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9bc3ee33-2300-5f94-94e9-416b339d9c97",
+    "transcripts": 1,
+    "first": "2026-11-14T11:06:53Z",
+    "last": "2026-11-14T11:13:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 23063,
+        "thinking": 3944,
+        "cache_read": 4900621,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109061,
+        "api_equivalent_usd": 2.3143,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 23063,
+      "thinking": 3944,
+      "cache_read": 4900621,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109061,
+      "api_equivalent_usd": 2.3143,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.21,
+      "active_minutes": 6.21,
+      "model_minutes": 4.28,
+      "tool_minutes": 1.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reading four states' pages and statute, two discount presets with tests, eval note, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 172.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

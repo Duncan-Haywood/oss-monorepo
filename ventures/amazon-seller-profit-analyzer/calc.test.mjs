@@ -50,7 +50,7 @@ test("per-SKU proceeds equal the sum of the file's totals and the waterfall reco
   assert.ok(Math.abs(skuSum - orderRefundTotals) < 0.01);
   const s = r.summary;
   // gross + promo + refunds' effect + fees == net proceeds
-  const built = s.gross + s.promo + s.referral + s.fba + s.otherFees + s.refundAmount + s.refundReferralBack;
+  const built = s.gross + s.promo + s.referral + s.fba + s.otherFees + s.refundAmount + s.refundReferralBack + s.unitemised;
   assert.ok(Math.abs(built - s.netProceeds) < 0.01, `${built} vs ${s.netProceeds}`);
   const monthNet = r.months.reduce((a, m) => a + m.net, 0);
   assert.ok(Math.abs(monthNet - (s.netProceeds + s.accountTotal)) < 0.01);
@@ -120,4 +120,49 @@ test("empty and one-type files do not crash", () => {
   const { r } = load(csv);
   assert.equal(r.summary.skuCount, 0);
   assert.equal(r.summary.account.subscription, -39.99);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-amazon-seller-profit-analyzer.json):
+// three defects the sample file (1-unit orders, no regulatory fee) could not show.
+const HEAD = '"date/time","type","order id","sku","description","quantity","fulfillment","product sales","Regulatory Fee","promotional rebates","selling fees","fba fees","other transaction fees","other","total"';
+
+test("refund admin fee counts only the refunded units' referral on a partial refund", () => {
+  // 2 units at $22, referral 15% = -6.60; one unit refunded, Amazon returns
+  // 80% of that unit's $3.30 referral = +2.64, so it kept $0.66 (not $3.96).
+  const csv = [HEAD,
+    '"Sep 1, 2026 9:00:00 AM PDT","Order","111-1","A","x","2","Amazon","44.00","0","0","-6.60","-8.00","0","0","29.40"',
+    '"Sep 8, 2026 9:00:00 AM PDT","Refund","111-1","A","x","1","Amazon","-22.00","0","0","2.64","0","0","0","-19.36"'].join("\n");
+  const { r } = load(csv);
+  assert.equal(r.summary.refundAdminOrders, 1);
+  assert.ok(Math.abs(r.summary.refundAdminKept - 0.66) < 0.005, String(r.summary.refundAdminKept));
+  // a full refund of a 1-unit order still counts the whole difference
+  const full = [HEAD,
+    '"Sep 1, 2026 9:00:00 AM PDT","Order","111-2","A","x","1","Amazon","20.00","0","0","-3.00","-3.00","0","0","14.00"',
+    '"Sep 8, 2026 9:00:00 AM PDT","Refund","111-2","A","x","1","Amazon","-20.00","0","0","2.40","0","0","0","-17.60"'].join("\n");
+  assert.ok(Math.abs(load(full).r.summary.refundAdminKept - 0.60) < 0.005);
+});
+
+test("a Regulatory Fee column is shown, so the waterfall ties to the total", () => {
+  const csv = [HEAD,
+    '"Sep 1, 2026 9:00:00 AM PDT","Order","111-3","A","x","1","Amazon","20.00","-0.04","0","-3.00","-3.22","0","0","13.74"'].join("\n");
+  const s = load(csv).r.summary;
+  assert.ok(Math.abs(s.unitemised + 0.04) < 0.005, String(s.unitemised));
+  const built = s.gross + s.promo + s.referral + s.fba + s.otherFees + s.refundAmount + s.refundReferralBack + s.unitemised;
+  assert.ok(Math.abs(built - s.netProceeds) < 0.005);
+});
+
+test("a refund of an order sold before the file starts charges no negative cost of goods", () => {
+  // the SKU has 1 refunded unit and none sold in the window: COGS is 0, not -cost
+  const csv = [HEAD,
+    '"Sep 8, 2026 9:00:00 AM PDT","Refund","111-4","B","x","1","Amazon","-20.00","0","0","2.40","0","0","0","-17.60"'].join("\n");
+  const b = load(csv, { costs: { B: 5 } }).r.skus.find((k) => k.sku === "B");
+  assert.equal(b.cogs, 0);
+  assert.ok(Math.abs(b.profit + 17.6) < 0.005);
+  // multi-unit order with one refunded, resellable: cost on the one unit kept
+  const two = [HEAD,
+    '"Sep 1, 2026 9:00:00 AM PDT","Order","111-5","C","x","2","Amazon","40.00","0","0","-6.00","-6.00","0","0","28.00"',
+    '"Sep 8, 2026 9:00:00 AM PDT","Refund","111-5","C","x","1","Amazon","-20.00","0","0","2.40","0","0","0","-17.60"'].join("\n");
+  const c = load(two, { costs: { C: 5 } }).r.skus[0];
+  assert.equal(c.cogs, 5);
+  assert.equal(load(two, { costs: { C: 5 }, returnsResellable: false }).r.skus[0].cogs, 10);
 });

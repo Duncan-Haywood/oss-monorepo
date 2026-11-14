@@ -227,18 +227,20 @@ def phys_gains(g):
     return np.concatenate([A.ctrl_gains(g[:, :6], "pid"), 10 ** (POS_LO + np.clip(g[:, 6:9], 0, 1) * (POS_HI - POS_LO))], axis=1)
 
 
-def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, lam=0.03, couple=True, gust_std=4.0, wind_step=WIND_STEP, parts=False, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd"):
+def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, lam=0.03, couple=True, gust_std=4.0, wind_step=WIND_STEP, parts=False, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", twr=None):
     """x (N,12): arm length, propeller diameter, cant (unit cube), six attitude PID gains, three position gains (unit cube);
     an optional 13th coordinate sets tau_ff log-uniformly on TAU_FF_RANGE (milestone 7).
     J = -C - lam * P_hover / 100 W with C = sqrt((pos/0.10 m)^2 + (yaw/10 deg)^2); lam = 0.03 per 100 W is milestone 4's 0.3 deg per
-    100 W, since one unit of C is 10 deg of yaw error. -99 when infeasible ($300 cap, propellers clear)."""
+    100 W, since one unit of C is 10 deg of yaw error. -99 when infeasible ($300 cap, propellers clear).
+    twr (milestone 7h): thrust-to-weight per design (scalar or (N,)); None keeps aero.TWR = 2. Motor mass, cost and the torque
+    limits follow it through `aero.size`, and so does hover power through the mass."""
     x = np.atleast_2d(x)
     if x.shape[1] == 13 and ff_mode == "cmd":                # milestone 7: the 13th coordinate is the feed-forward filter constant, log-uniform
         tau_ff = TAU_FF_RANGE[0] * (TAU_FF_RANGE[1] / TAU_FF_RANGE[0]) ** np.clip(x[:, 12], 0, 1)
     L = A.L_RANGE[0] + x[:, 0] * (A.L_RANGE[1] - A.L_RANGE[0])
     D = A.D_RANGE[0] + x[:, 1] * (A.D_RANGE[1] - A.D_RANGE[0])
     alpha = alpha_max * np.clip(x[:, 2], 0, 1)
-    sz = A.size(L, D, alpha, kappa_per_d=kappa_per_d, actuator="hover")
+    sz = A.size(L, D, alpha, kappa_per_d=kappa_per_d, twr=twr, actuator="hover")
     out = rollout(sz, phys_gains(x[:, 3:12]), kappa_per_d * D, episodes, seed, gust_std, couple=couple, wind_step=wind_step, sat=sat, dist_sign=dist_sign, lever_scale=lever_scale, ff=ff, tau_ff=tau_ff, ff_mode=ff_mode)
     C = np.sqrt((out["pos"] / POS_SCALE_M) ** 2 + (out["yaw"] / YAW_SCALE_DEG) ** 2)
     J = np.where(sz["feasible"], -C - lam * sz["power"] / 100.0, -99.0)

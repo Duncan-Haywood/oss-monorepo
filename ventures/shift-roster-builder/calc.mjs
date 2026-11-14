@@ -1443,6 +1443,11 @@ const COVER_STOP = { coverStop: true };
 // weeks (148-162 copies) they add 0.2-1.7 s to the pass; on the 60-person week (245 copies) 3.4 s became 14.3 s with no
 // move found. `coverPairsSlots` moves the cap, `coverPairs: false` turns them off.
 const COVER_PAIRS_SLOTS = 200;
+// Largest week (shift copies) --second-callout-price runs on by default (eval/cover-pair-cost.mjs, 2026-11-14): the pass
+// re-walks every pair of safe person-days for each candidate that passes the single-risk test, so it went from 0.4 s to
+// 4.3 s on a seeded 20-person week (75 copies) and from 3.1 s to 43.6 s on a 40-person week (149 copies, 29 moves).
+// `coverPairPriceSlots` moves the cap; above it the price is ignored and the slack line says so.
+const COVER_PAIR_PRICE_SLOTS = 120;
 // Call-out risk, the cheap stand-in for calloutExposure (2026-11-13). `calloutExposure` rebuilds the week once per
 // person-day, which is far too slow to sit inside a search. This counts the same cases and asks only the quickest of its
 // questions: if this person called out for this day, could someone else take each of their shifts that day with every hard
@@ -1549,16 +1554,133 @@ function coverDayJoint(ctx, lists, p, day, mine, chain, budget = Infinity, calle
   catch (e) { if (e !== COVER_STOP) throw e; for (let q = 0; q < lists.length; q++) lists[q] = saved[q]; return done(null); }
 }
 
+// Two call-outs in one week (2026-11-14). coverRisk asks about one call-out at a time, and the café's played weeks
+// ("The caller can take a later shift") showed where that misleads: a priced roster less exposed to any single call-out
+// lost more hours in weeks with several, because the cover found for one call-out was the slack the next one needed. This
+// counts that interference directly. For every pair of person-days A and B that are each safe on their own (coverRisk does
+// not flag them), it asks whether both callers' shifts can be covered at once, under the same rules as coverDayJoint: each
+// caller is off only on their own call-out day and may take a stand-in's later shift; a hand-over chain for a shift of A's
+// may pass on shifts from A's day on, one for B's from B's day on; at most `chain` passes per shift and `budget` checks per
+// pair (a pair past it counts as clashing, so the count stays on the same side as coverRisk's). Pairs on the same day are
+// included (two people off sick together). A clashing pair is charged the shorter of the two callers' hours that day: at
+// least one of the two days loses that much (a whole shift or more). Returns { pairs, clashing, hours, share, cases, capped }.
+// `single` passes in a coverRisk result already computed on the same roster; `maxPairs` stops the walk early; `keep` returns
+// every pair checked with its verdict ("direct", "chain", false, or null when the budget ran out) as `checked`.
+export function coverPairRisk(ctx, owner, { fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, callerTakes = true, single = null, maxPairs = Infinity, keep = false } = {}) {
+  const lists = Array.from({ length: ctx.P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
+  lists.forEach((l) => l.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b));
+  const one = single || coverRisk(ctx, owner, { fromDay, chain, budget, callerTakes });
+  const risky = new Set(one.cases.map((c) => c.person + "|" + c.day));
+  const days = [];
+  for (let p = 0; p < ctx.P; p++) {
+    const byDay = new Map();
+    for (const i of lists[p]) {
+      const d = ctx.slots[i].day;
+      if (d < fromDay) continue;
+      if (!byDay.has(d)) byDay.set(d, []);
+      byDay.get(d).push(i);
+    }
+    for (const [day, mine] of byDay) {
+      if (risky.has(p + "|" + day)) continue;
+      days.push({ person: p, day, mine, hours: mine.reduce((t, i) => t + (ctx.slots[i].end - ctx.slots[i].start) / 60, 0) });
+    }
+  }
+  const cases = [], checked = keep ? [] : null;
+  let pairs = 0, hours = 0, capped = 0;
+  outer: for (let a = 0; a < days.length; a++) {
+    for (let b = a + 1; b < days.length; b++) {
+      if (pairs >= maxPairs) break outer;
+      const A = days[a], B = days[b];
+      if (A.person === B.person && A.day === B.day) continue;
+      pairs++;
+      const how = coverGroupsJoint(ctx, lists, [A, B], chain, budget, callerTakes);
+      if (how === null) capped++;
+      if (checked) checked.push({ a: { person: A.person, day: A.day, hours: A.hours }, b: { person: B.person, day: B.day, hours: B.hours }, how });
+      if (!how) {
+        const h = Math.min(A.hours, B.hours);
+        hours += h;
+        cases.push({ a: { person: A.person, day: A.day }, b: { person: B.person, day: B.day }, hours: h });
+      }
+    }
+  }
+  return { pairs, clashing: cases.length, hours, share: pairs ? cases.length / pairs : 0, cases, capped, safeDays: days.length, checked };
+}
+
+// coverDayJoint for several call-outs at once: every caller's shifts handed out together, each caller off only on their own
+// day. `groups` are { person, day, mine }. Returns "direct", "chain", false, or null when the budget ran out; lists restored.
+function coverGroupsJoint(ctx, lists, groups, chain, budget = Infinity, callerTakes = false) {
+  let left = budget;
+  const saved = lists.slice();
+  // Each caller loses their call-out day's shifts; a person calling out twice loses both days.
+  for (const g of groups) lists[g.person] = lists[g.person].filter((x) => !g.mine.includes(x));
+  const offDays = new Map();
+  for (const g of groups) { if (!offDays.has(g.person)) offDays.set(g.person, []); offDays.get(g.person).push(g.day); }
+  // A caller may take a shift only after their (first) call-out day and never on a day they called out.
+  const callerOk = (q, i) => {
+    const off = offDays.get(q);
+    if (!off) return true;
+    if (!callerTakes) return false;
+    const d = ctx.slots[i].day;
+    return d > Math.min(...off) && !off.includes(d);
+  };
+  const by = ctx.eligBy || (ctx.eligBy = Array.from({ length: ctx.S }, (_, i) => { const out = []; for (let q = 0; q < ctx.P; q++) if (ctx.elig[q][i]) out.push(q); return out; }));
+  const work = [];
+  for (const g of groups) for (const i of g.mine) work.push({ i, day: g.day });
+  const place = (i, day, depth, rest) => {
+    const who = by[i];
+    for (let k = 0; k < who.length; k++) {
+      const q = who[k];
+      if (!callerOk(q, i)) continue;
+      if (--left < 0) throw COVER_STOP;
+      const Lq = lists[q];
+      if (!validWith(ctx, q, Lq, i)) continue;
+      lists[q] = insertSorted(ctx, Lq, i);
+      const ok = rest();
+      lists[q] = Lq;
+      if (ok) return true;
+    }
+    if (depth <= 0) return false;
+    for (let k = 0; k < who.length; k++) {
+      const q = who[k];
+      if (!callerOk(q, i)) continue;
+      const Lq = lists[q];
+      for (const j of Lq) {
+        if (ctx.slots[j].day < day) continue;
+        if (--left < 0) throw COVER_STOP;
+        if (!validWith(ctx, q, Lq, i, j)) continue;
+        lists[q] = insertSorted(ctx, Lq.filter((x) => x !== j), i);
+        const ok = place(j, day, depth - 1, rest);
+        lists[q] = Lq;
+        if (ok) return true;
+      }
+    }
+    return false;
+  };
+  const all = (k, depth) => (k === work.length ? true : place(work[k].i, work[k].day, depth, () => all(k + 1, depth)));
+  const restore = (v) => { for (let q = 0; q < lists.length; q++) lists[q] = saved[q]; return v; };
+  try {
+    if (all(0, 0)) return restore("direct");
+    if (chain <= 0) return restore(false);
+    return restore(all(0, chain) ? "chain" : false);
+  } catch (e) { if (e !== COVER_STOP) throw e; return restore(null); }
+}
+
 // Exposure priced inside the roster (2026-11-13). `--steady` chooses among rosters that already tie at the best score, so it
 // never gives anything up; the open question it left was what a manager could buy by giving something up. `coverPrice` is
 // dollars per hour at risk (coverRisk above): the pass hill-climbs on score + coverPrice x risk hours, so it will hand a
 // shift to someone else, or swap two, when the pay and fairness it costs is less than the price of the risk it clears.
 // Open hours cost BIG ($100,000) an hour inside the score, so no sane price trades coverage away. Moves are one hand-over or
 // one swap at a time, taken only when they improve the priced objective; the roster it starts from is kept when none does.
-export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true }) {
+export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, chain = COVER_CHAIN, budget = COVER_BUDGET, pairs = true, pairCap = 4000, callerTakes = true, pairPrice = 0 }) {
   let owner = owner0.slice();
   let score = scoreOwner(ctx, owner).total;
   let risk = coverRisk(ctx, owner, { fromDay, chain, budget, callerTakes });
+  // Second call-outs (2026-11-14, coverPairRisk): with `pairPrice` > 0 every move must also pay for the clashing-pair hours
+  // it adds (or earns what it clears), so a hand-over that uses up the slack a second call-out needed is charged for it.
+  const pairOf = (own, single) => (pairPrice > 0 ? coverPairRisk(ctx, own, { fromDay, chain, budget, callerTakes, single }).hours : 0);
+  let pairH = pairOf(owner, risk);
+  const pairBefore = pairH;
   // The budget makes the screening check cheap but can count a day at risk that a full search would cover, and a move that
   // only frees a capped search "clears" risk no call-out would see (4 such trades on the 60-person week, eval/cover-chain-
   // cost.mjs). So a move is kept only when the same check without the budget agrees it pays; that runs once per move that
@@ -1572,14 +1694,16 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     tried++;
     if (!ownerValid(ctx, cand)) return false;
     const s2 = scoreOwner(ctx, cand).total;
-    if (s2 - score >= price * (strict || risk).hours - 1e-9) return false; // cannot pay for itself even if it cleared every risky hour
+    if (s2 - score >= price * (strict || risk).hours + pairPrice * pairH - 1e-9) return false; // cannot pay for itself even if it cleared every risky hour
     const r2 = coverRisk(ctx, cand, { fromDay, chain, budget, callerTakes });
     if (needLess && r2.hours >= risk.hours - 1e-9) return false;
-    if (s2 + price * r2.hours >= score + price * risk.hours - 1e-9) return false;
+    if (s2 + price * r2.hours >= score + price * risk.hours + pairPrice * pairH - 1e-9) return false;
+    const p2 = pairOf(cand, r2);
+    if (s2 + price * r2.hours + pairPrice * p2 >= score + price * risk.hours + pairPrice * pairH - 1e-9) return false;
     const f2 = full(cand);
     if (needLess && f2 && f2.hours >= strict.hours - 1e-9) return false;
-    if (f2 && s2 + price * f2.hours >= score + price * strict.hours - 1e-9) return false;
-    owner = cand; score = s2; risk = r2; strict = f2; moves++;
+    if (f2 && s2 + price * f2.hours + pairPrice * p2 >= score + price * strict.hours + pairPrice * pairH - 1e-9) return false;
+    owner = cand; score = s2; risk = r2; strict = f2; pairH = p2; moves++;
     return true;
   };
   for (let round = 0; round < rounds; round++) {
@@ -1680,7 +1804,7 @@ export function coverSlackPass(ctx, owner0, { price, rounds = 40, fromDay = 1, c
     }
     if (!improved) break;
   }
-  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried };
+  return { owner, score, risk: strict || risk, before, moves, tried, pairMoves, relieves, trades, pairTried, pairHours: pairPrice > 0 ? pairH : null, pairHoursBefore: pairPrice > 0 ? pairBefore : null };
 }
 
 function search(ctx, restarts, iterations, first = 0) {
@@ -2412,21 +2536,146 @@ function earlyOpenFloor(ctx, incumbentScore, o = {}) {
 // of whole shift lengths at or above the dual bound (openSumLift) when the lengths are quarter hours.
 export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {}) {
   const t0 = Date.now();
+  const r = cliqueLP(ctx, { maxPivots });
+  if (!r) return null;
+  const floor = Number.isFinite(upTo) ? openSumLift(r.len, upTo + 1)(r.bound) : r.bound;
+  return { floor, lp: r.obj, bound: r.bound, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+}
+// Score floor from the same clique LP, priced (2026-11-14). The open-hours floor above says nothing about pay: once it proves
+// coverage on a big week, the score bound buildRoster can report is BIG x the floor, which counts every dollar of pay as open
+// (the 60 x 168 week 0 of eval/end-to-end.mjs: coverage proven at 300 h, gap $20,010 on a $19,119 pay bill). Here each column
+// x[p,s] costs a linear lower bound on what shift s adds to p's score, and open[s] costs BIG x its hours, as the score does:
+//   pay: (1 + burden) x (the shift's paid hours at p's rate there + its differential hours) x min(1, otMult, dtMult); overtime
+//     premiums, split premiums, paid trips and trip allowances only add, so they are left out;
+//   avoid: hours in p's avoid: window at avoidValue x wage (linear, exact); prefer and keep bonuses: subtracted (linear, exact);
+//   tough shifts: (w/100) x avgWage x (n^2 + 2 x before x n) >= (w/100) x avgWage x (1 + 2 x before) x n for whole n;
+//   fairness and shortfall, which depend on p's weekly hours h alone and are convex in h: one more set of columns per person,
+//     lam[p,k] for hour levels H_k (every quarter hour to p's cap, and p's minimum), with   sum_k lam[p,k] = 1   and
+//     sum_s len[s] x[p,s] + sum_k (1 - H_k) lam[p,k] = 1   (that is, h = sum_k H_k lam[p,k], written with a right-hand side of
+//     1 as solveLP needs). Column lam[p,k] costs f_p(H_k) - c x D^2 / 4, where c is the fairness weight and D the widest step:
+//     the line between two levels lies at most c x D^2 / 4 above the parabola, so the interpolant stays below f_p everywhere
+//     (the shortfall's kink is one of the levels, so its part is interpolated exactly).
+// Every person's score is at least the sum of these terms over the shifts held, so the LP is a lower bound on every roster's
+// score; the value used is a dual bound as above, so it holds whatever rounding the simplex leaves. Rules the LP drops (days in a
+// row, keep sets, weekly overtime) only lower it. Returns { bound, lp, open, rows, cols, pivots, ms } or null.
+export function cliqueScoreFloor(ctx, { maxPivots = 400000 } = {}) {
+  const t0 = Date.now();
+  const r = cliqueLP(ctx, { maxPivots, priced: true });
+  if (!r) return null;
+  return { bound: r.bound, lp: r.obj, open: r.open, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+}
+// Linear lower bound on what shift i adds to person p's score, apart from fairness and shortfall (cliqueScoreFloor).
+function shiftCostFloor(ctx, p, i) {
+  const { o, staff, slots, rates } = ctx;
+  const w = staff[p].wage;
+  const h = paidMinutes(o, slots[i]) / 60;
+  const mult = Math.min(1, o.otMult, o.dtMult);
+  let pay = (rates ? rates.at[p][i] : w) * h * Math.max(0, mult);
+  if (ctx.diffMin.length) pay += (ctx.diffMin[i] / 60) * (o.diffPerHour + (w * o.diffPct) / 100);
+  return Math.max(0, 1 + o.burdenPct / 100) * pay + toughPenalty(ctx, p, [i]) + avoidPenalty(ctx, p, [i]) - preferBonus(ctx, p, [i]);
+}
+// Min-cost assignment of n rows to m >= n columns (Hungarian method with potentials, O(n^2 m)). a is row-major n x m; returns
+// col[r], the column each row takes.
+function assignRows(a, n, m) {
+  const INF = Infinity, u = new Float64Array(n + 1), v = new Float64Array(m + 1), p = new Int32Array(m + 1), way = new Int32Array(m + 1);
+  for (let i = 1; i <= n; i++) {
+    p[0] = i;
+    let j0 = 0;
+    const minv = new Float64Array(m + 1).fill(INF), used = new Uint8Array(m + 1);
+    do {
+      used[j0] = 1;
+      const i0 = p[j0];
+      let delta = INF, j1 = -1;
+      for (let j = 1; j <= m; j++) {
+        if (used[j]) continue;
+        const cur = a[(i0 - 1) * m + (j - 1)] - u[i0] - v[j];
+        if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
+        if (minv[j] < delta) { delta = minv[j]; j1 = j; }
+      }
+      for (let j = 0; j <= m; j++) {
+        if (used[j]) { u[p[j]] += delta; v[j] -= delta; } else minv[j] -= delta;
+      }
+      j0 = j1;
+    } while (p[j0] !== 0);
+    do { const j1 = way[j0]; p[j0] = p[j1]; j0 = j1; } while (j0);
+  }
+  const col = new Int32Array(n).fill(-1);
+  for (let j = 1; j <= m; j++) if (p[j] > 0) col[p[j] - 1] = j - 1;
+  return col;
+}
+// Day-by-day exact reassignment (2026-11-14). On the 60 x 168 week 0 of eval/end-to-end.mjs the posted roster sat $28.97 above a
+// valid roster HiGHS found (eval/score-floor-milp.py): the two differ on 166 of 245 copies, mostly hours moved from dearer to
+// cheaper people through several swaps at once, which polishPay's single moves and swaps cannot make. Here every person's shifts
+// on other days stay put and one day is re-solved exactly: when each person holds at most one shift that day, the score splits
+// into one term per (person, shift) (personScore of the person's other shifts plus that one, less personScore without it) and
+// one per open shift (BIG x its hours), so the best way to staff the day is an assignment problem, solved by assignRows. A person
+// holding two or more shifts that day keeps them and sits the day out. Days are swept until a sweep changes nothing (at most
+// `rounds`); hard rules hold because each pair is checked by validWith against the person's other shifts. Returns the owner.
+function dayReassign(ctx, owner0, { rounds = 6, deadline = Infinity, jitter = 0, rng = null, only = null } = {}) {
+  const { P, S, slots, elig } = ctx;
+  const owner = Array.from(owner0);
+  const NO = 1e15;
+  const days = [...new Set(slots.map((s) => s.day))];
+  for (let round = 0; round < rounds; round++) {
+    let moved = false;
+    for (const d of days) {
+      if (only !== null && d !== only) continue;
+      if (Date.now() > deadline) return owner;
+      const lists = Array.from({ length: P }, () => []);
+      owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
+      const onDay = (p) => lists[p].filter((i) => slots[i].day === d);
+      const free = [], fixed = new Set();
+      for (let p = 0; p < P; p++) { const k = onDay(p); if (k.length >= 2) k.forEach((i) => fixed.add(i)); else free.push(p); }
+      const rows = [];
+      for (let i = 0; i < S; i++) if (slots[i].day === d && !fixed.has(i)) rows.push(i);
+      if (!rows.length) continue;
+      const n = rows.length, m = free.length + n;
+      const a = new Float64Array(n * m);
+      const baseOf = free.map((p) => lists[p].filter((i) => slots[i].day !== d).sort((x, y) => slots[x].start - slots[y].start || x - y));
+      const baseScore = free.map((p, k) => personScore(ctx, free[k], baseOf[k]));
+      let cur = 0;
+      for (let r = 0; r < n; r++) {
+        const i = rows[r], h = (slots[i].end - slots[i].start) / 60;
+        for (let k = 0; k < free.length; k++) {
+          const p = free[k];
+          a[r * m + k] = elig[p][i] && validWith(ctx, p, baseOf[k], i) ? personScore(ctx, p, insertSorted(ctx, baseOf[k], i)) - baseScore[k] + (jitter ? rng() * jitter : 0) : NO;
+        }
+        for (let t = 0; t < n; t++) a[r * m + free.length + t] = BIG * h;
+        const k = owner[i] >= 0 ? free.indexOf(owner[i]) : -1;
+        cur += k >= 0 ? a[r * m + k] : BIG * h;
+      }
+      const col = assignRows(a, n, m);
+      let next = 0;
+      for (let r = 0; r < n; r++) next += a[r * m + col[r]];
+      if (!jitter && (!(next < cur - 1e-6) || next >= NO)) continue;
+      if (next >= NO) continue;
+      for (let r = 0; r < n; r++) owner[rows[r]] = col[r] < free.length ? free[col[r]] : -1;
+      moved = true;
+    }
+    if (!moved) break;
+  }
+  return owner;
+}
+function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false } = {}) {
   const { P, S, slots, elig, staff, restMin } = ctx;
   if (!S) return null;
   const len = slots.map((s) => (s.end - s.start) / 60);
   const cols = [], cost = [], vals = [], init = [];
-  // rows 0..S-1: shift copies. Further rows are appended as they are made; each gets a slack column (cost 0) that starts the basis.
+  // rows 0..S-1: shift copies. Further rows are appended as they are made; each gets a slack column (cost 0) that starts the basis,
+  // except the priced LP's two equality rows per person, which start on an artificial.
   let m = S;
   const holds = Array.from({ length: S }, () => []); // per shift: column ids of x[., s], filled below
   const xcol = [];                                    // column id -> [p, s]
   const pending = []; // [colId, row, coefficient] entries added after each x column exists
+  const eqRows = new Set();
+  const lamCols = [];  // [p, rows [convexity, link], coefficients, cost]
+  const fairC = (o) => (o.balance / 100) * ctx.avgWage * 0.1;
   for (let p = 0; p < P; p++) {
     const ss = [];
     for (let i = 0; i < S; i++) if (elig[p][i] && validList(ctx, p, [i])) ss.push(i);
     if (!ss.length) continue;
     const ids = new Map();
-    for (const i of ss) { const j = cols.length; cols.push([i]); vals.push([1]); cost.push(0); ids.set(i, j); holds[i].push(j); xcol.push([p, i]); }
+    for (const i of ss) { const j = cols.length; cols.push([i]); vals.push([1]); cost.push(priced ? shiftCostFloor(ctx, p, i) : 0); ids.set(i, j); holds[i].push(j); xcol.push([p, i]); }
     const knap = (list, capMin) => {
       const tot = list.reduce((a, i) => a + slots[i].end - slots[i].start, 0);
       if (!(capMin < tot - 1e-9)) return;
@@ -2454,22 +2703,49 @@ export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {
       const r = m++;
       for (const i of alive) pending.push([ids.get(i), r, 1]);
     }
+    if (priced) {
+      // Hour levels: every quarter hour from 0 to the most p can hold (cap, and the sum of p's shifts), plus p's minimum.
+      const o = ctx.o, c = fairC(o), tp = ctx.target[p], mn = staff[p].minHours || 0;
+      const top = Math.min(staff[p].maxHours, ss.reduce((a, i) => a + len[i], 0));
+      const lv = new Set();
+      for (let k = 0; k * 0.25 < top - 1e-9; k++) lv.add(k * 0.25);
+      lv.add(top);
+      if (mn > 0 && mn < top) lv.add(mn);
+      const H = [...lv].sort((a, b) => a - b);
+      let D = 0;
+      for (let k = 1; k < H.length; k++) D = Math.max(D, H[k] - H[k - 1]);
+      const f = (h) => Math.max(0, mn - h) * o.shortfallValue + c * (h - tp) ** 2;
+      const conv = m++, link = m++;
+      eqRows.add(conv); eqRows.add(link);
+      for (const i of ss) pending.push([ids.get(i), link, len[i]]);
+      for (const h of H) lamCols.push([[conv, link], [1, 1 - h], f(h) - (c * D * D) / 4]);
+    }
   }
   for (const [j, r, a] of pending) { cols[j].push(r); vals[j].push(a); }
   const nx = cols.length;
+  for (const [rows, v, c] of lamCols) { cols.push(rows); vals.push(v); cost.push(c); }
   // open[s]
-  for (let i = 0; i < S; i++) { init[i] = cols.length; cols.push([i]); vals.push([1]); cost.push(len[i]); }
-  for (let r = S; r < m; r++) { init[r] = cols.length; cols.push([r]); vals.push([1]); cost.push(0); }
+  for (let i = 0; i < S; i++) { init[i] = cols.length; cols.push([i]); vals.push([1]); cost.push(priced ? BIG * len[i] : len[i]); }
+  for (let r = S; r < m; r++) {
+    if (eqRows.has(r)) { init[r] = -1; continue; }
+    init[r] = cols.length; cols.push([r]); vals.push([1]); cost.push(0);
+  }
   for (let j = 0; j < cols.length; j++) {
     // Rows in increasing order with their coefficients; a column of ones is passed as plain rows.
     const ord = cols[j].map((r, t) => [r, vals[j][t]]).sort((a, b) => a[0] - b[0]);
     cols[j] = ord.map((e) => e[0]);
     vals[j] = ord.every((e) => e[1] === 1) ? null : ord.map((e) => e[1]);
   }
+  // modelOnly (eval/score-floor-milp.mjs): the model itself, so an outside solver can take it as an integer program. Columns
+  // 0..nx-1 are x[p,s] (xcol gives [p, s]), then the lam columns, then open[s], then one slack per inequality row.
+  if (modelOnly) return { m, cols, vals, cost, eqRows: [...eqRows], nx, nLam: lamCols.length, S, xcol, len };
+  // The priced LP's artificials must cost more than any column: open shifts cost BIG per hour.
+  const bigM = priced ? Math.max(1e6, 10 * BIG * Math.max(...len)) : 1e6;
   let res;
-  try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM: 1e6 }); } catch { return null; }
+  try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM }); } catch { return null; }
   if (res.infeasible) return null;
-  // Dual bound: for any y, sum_r y_r + sum_j min(0, c_j - y.A_j) <= the LP's least value, because every column is at most 1.
+  // Dual bound: for any y, sum_r y_r + sum_j min(0, c_j - y.A_j) <= the LP's least value, because every column is at most 1
+  // (x, open and lam lie in [0, 1]; a slack is at most 1 because its row's other coefficients are not negative).
   let bound = 0;
   for (let r = 0; r < m; r++) bound += res.y[r];
   for (let j = 0; j < cols.length; j++) {
@@ -2478,9 +2754,10 @@ export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {
     for (let t = 0; t < rows.length; t++) rc -= res.y[rows[t]] * (v ? v[t] : 1);
     if (rc < 0) bound += rc;
   }
-  bound = Math.max(0, bound - 1e-7);
-  const floor = Number.isFinite(upTo) ? openSumLift(len, upTo + 1)(bound) : bound;
-  return { floor, lp: res.obj, bound, rows: m, cols: cols.length, people: nx, pivots: res.pivots, ms: Date.now() - t0 };
+  bound = priced ? bound - 1e-9 * Math.max(1, Math.abs(bound)) : Math.max(0, bound - 1e-7);
+  let open = null;
+  if (priced && res.x) { open = 0; for (let i = 0; i < S; i++) open += (res.x[nx + lamCols.length + i] || 0) * len[i]; }
+  return { bound, obj: res.obj, open, len, rows: m, cols: cols.length, people: nx, pivots: res.pivots };
 }
 function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, chainBound = true, ...cfg } = {}) {
   const len = ctx.slots.map((s) => (s.end - s.start) / 60);
@@ -2548,8 +2825,19 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
 }
 // Subgradient loop behind priceScoreBound. `fixed[i]` (when given) marks shifts a branch has already decided (held by a named person
 // or left open); their price is pinned at 0 and `constant` carries any open cost already paid, so the bound is for the sub-problem.
+// The sets are flattened once per call into one Int32Array per person (start offsets in `off`): the loop over sets runs every round,
+// and walking typed offsets instead of one small array per set ran 1.7x as many sets per millisecond on the call-out week
+// (docs/history/ci-perf-2026-11-14-shift-roster-flat-sets.md). Same order of subtraction, so the same floating-point sums.
+function flatSets(fs) {
+  const off = new Int32Array(fs.length + 1);
+  for (let k = 0; k < fs.length; k++) off[k + 1] = off[k] + fs[k].length;
+  const idx = new Int32Array(off[fs.length]);
+  for (let k = 0, t = 0; k < fs.length; k++) for (const i of fs[k]) idx[t++] = i;
+  return { off, idx };
+}
 function scoreDualCore(P, S, sets, vals, cap, fixed, constant, lam0, incumbent, rounds) {
   const lam = lam0.slice();
+  const flat = sets.map(flatSets);
   let best = -Infinity, theta = 1, stale = 0, bestLam = lam.slice();
   for (let r = 0; r < rounds; r++) {
     let L = constant;
@@ -2562,15 +2850,15 @@ function scoreDualCore(P, S, sets, vals, cap, fixed, constant, lam0, incumbent, 
     }
     for (let p = 0; p < P; p++) {
       let bestV = Infinity, bestK = -1;
-      const fs = sets[p], vp = vals[p];
-      for (let k = 0; k < fs.length; k++) {
+      const { off, idx } = flat[p], vp = vals[p], n = vp.length;
+      for (let k = 0; k < n; k++) {
         let v = vp[k];
-        for (const i of fs[k]) v -= lam[i];
+        for (let t = off[k], e = off[k + 1]; t < e; t++) v -= lam[idx[t]];
         if (v < bestV) { bestV = v; bestK = k; }
       }
       if (bestK < 0) return { best: Infinity, bestLam: lam.slice(), gr }; // a person with no valid set: this branch is infeasible
       L += bestV;
-      for (const i of fs[bestK]) if (!fixed || fixed[i] === -2) gr[i]--;
+      for (const i of sets[p][bestK]) if (!fixed || fixed[i] === -2) gr[i]--;
     }
     if (L > best + 1e-9) { best = L; stale = 0; bestLam = lam.slice(); } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
     let norm = 0;
@@ -3010,7 +3298,47 @@ function buildRosterOnce(staff, slots, options = {}) {
       const bonuses = ctx.staff.some((q) => q.prefer) || (ctx.keep && ctx.keep.some((k) => k && k.size));
       if (!bonuses) ex.rootBound = Math.max(ex.rootBound, BIG * clique.floor);
     }
+    // The pay floor (cliqueScoreFloor, 2026-11-14): the same clique LP with each person-shift costed at a floor of what it adds to
+    // the score, so the bound counts pay instead of treating the whole bill as open. Runs only when the clique LP ran and nothing
+    // proved the roster; under a time budget only when the time left covers its expected cost (about 4 s x (copies / 245)^4.5,
+    // from 1.9-3.9 s on the 60 x 168 weeks, eval/score-floor.out.txt). On the 60 x 168 week 0 it takes the gap from $20,010 to
+    // about $30. `scoreFloor: false` turns it off, `true` runs it whatever the time left.
+    let priced = null;
+    if (clique && !ex.proven && o.scoreFloor !== false && !over() &&
+        (o.scoreFloor === true || !(budgetMs > 0) || budgetMs - (Date.now() - tStart) >= 4000 * Math.pow(ctx.S / 245, 4.5))) {
+      priced = cliqueScoreFloor(ctx);
+      mark("scoreFloor");
+      if (priced && priced.bound > ex.rootBound) {
+        ex.rootBound = priced.bound;
+        if (priced.bound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
+        ex.coverOpen = Math.max(ex.coverOpen, Math.floor(clique.floor + 1e-9));
+      }
+    }
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
+    // Day-by-day reassignment (dayLNS, 2026-11-14), only when the proof is still open: exact day sweeps, then kicks (one day
+    // re-solved with costs jittered by about a third of the average wage) each followed by exact sweeps, keeping a roster only when
+    // it scores less. On the 60 x 168 week 0 the posted roster was $30.11 above the pay floor and HiGHS found one $0.36 above it
+    // (eval/score-floor-milp.py), so the gap was the search. It gets `dayLNSMs` (default 2 s) of its own, past the time budget if
+    // that is spent: the budget stops the earlier passes, and this one is short and only runs on weeks the proof left open.
+    // `dayLNS: false` turns it off.
+    let dayLNS = null;
+    if (!ex.proven && o.dayLNS !== false) {
+      const t0 = Date.now(), deadline = t0 + (o.dayLNSMs ?? 2000), before = best.score;
+      const rng = mulberry32(o.seed + 7919);
+      const days = [...new Set(ctx.slots.map((s) => s.day))];
+      let own = dayReassign(ctx, best.owner, { rounds: 30, deadline }), sc = scoreOwner(ctx, own).total, kicks = 0;
+      while (Date.now() < deadline && days.length) {
+        kicks++;
+        const kicked = dayReassign(ctx, own, { rounds: 1, jitter: Math.max(0.5, ctx.avgWage / 3), rng, only: days[Math.floor(rng() * days.length)], deadline });
+        const q = dayReassign(ctx, kicked, { rounds: 30, deadline });
+        const qs = scoreOwner(ctx, q).total;
+        if (qs < sc - 1e-9) { own = q; sc = qs; }
+      }
+      if (sc < best.score - 1e-9 && ownerValid(ctx, own)) best = { owner: own, score: sc };
+      if (ex.rootBound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
+      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0 };
+      mark("dayLNS");
+    }
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
     optimality = {
       status: ex.proven ? (gap > 1e-6 ? "improved" : "optimal") : "bounded",
@@ -3021,6 +3349,8 @@ function buildRosterOnce(staff, slots, options = {}) {
       scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
       earlyFloor: early,
       cliqueFloor: clique ? { floor: clique.floor, lp: clique.lp, rows: clique.rows, columns: clique.cols, pivots: clique.pivots, ms: clique.ms } : null,
+      dayLNS,
+      scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, ms: priced.ms } : null,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
@@ -3032,13 +3362,16 @@ function buildRosterOnce(staff, slots, options = {}) {
   // copies) and 1.06 s on the 60-person week 0 (245 copies), so it is capped at 250 copies; `coverPriceSlots` moves the cap.
   if (o.coverPrice > 0 && ctx.S <= (o.coverPriceSlots ?? 250)) {
     const chain = o.coverChain ?? COVER_CHAIN, budget = o.coverBudget ?? COVER_BUDGET;
-    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false });
+    const pairOn = o.coverPairPrice > 0 && ctx.S <= (o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS);
+    const out = coverSlackPass(ctx, best.owner, { price: o.coverPrice, chain, budget, pairs: o.coverPairs !== false && ctx.S <= (o.coverPairsSlots ?? COVER_PAIRS_SLOTS), callerTakes: o.coverCallerTakes !== false, pairPrice: pairOn ? o.coverPairPrice : 0 });
     const before = out.before;
     coverSlack = {
       price: o.coverPrice, riskHoursBefore: before.hours, riskHours: out.risk.hours,
       riskyDaysBefore: before.riskyDays, riskyDays: out.risk.riskyDays, personDays: before.personDays,
       scoreBefore: best.score, scoreAfter: out.score, moves: out.moves, candidates: out.tried,
       pairMoves: out.pairMoves, relieves: out.relieves, trades: out.trades,
+      pairPrice: pairOn ? o.coverPairPrice : 0, pairHoursBefore: out.pairHoursBefore, pairHours: out.pairHours,
+      pairSkipped: o.coverPairPrice > 0 && !pairOn ? { slots: ctx.S, cap: o.coverPairPriceSlots ?? COVER_PAIR_PRICE_SLOTS } : null,
       cases: out.risk.cases.map((c) => ({ person: c.person, day: c.day, hours: c.hours })),
     };
     if (out.moves > 0) {
@@ -4660,7 +4993,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, keptStart, BIG, memoKey };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
@@ -4818,7 +5151,7 @@ export function coverSlackText(cs, staff = null) {
   const left = cs.riskHours > 0
     ? `${num(cs.riskHours)} h on ${cs.riskyDays} of ${cs.personDays} person-days are still at risk${cs.cases && staff ? ` (${cs.cases.slice(0, 5).map(risky).join(", ")}${cs.cases.length > 5 ? ` and ${cs.cases.length - 5} more` : ""})` : ""}.`
     : "No single call-out leaves a shift nobody else can take.";
-  if (!cs.moves) return `Call-out slack: priced at ${money2(cs.price)} an hour at risk, no hand-over or swap paid for itself, so the best-scoring roster stands. ${left}`;
+  if (!cs.moves) return `Call-out slack: priced at ${money2(cs.price)} an hour at risk, no hand-over or swap paid for itself, so the best-scoring roster stands. ${left}${pairText(cs)}`;
   // Moves that free a stand-in (a relief, a two-shift trade, a relay) are named, since they change shifts of people who
   // are not themselves at risk.
   const two = [cs.relieves ? `${cs.relieves} freed a stand-in by moving one of their shifts` : "", cs.trades ? `${cs.trades} swapped two shifts between others so a stand-in had room` : "", cs.pairMoves ? `${cs.pairMoves} moved a shift and one of the stand-in's together` : ""].filter(Boolean);
@@ -4828,7 +5161,15 @@ export function coverSlackText(cs, staff = null) {
   const give = cs.scoreAfter - cs.scoreBefore;
   const paid = give < -0.005 ? `and saved ${money2(-give)} of score (pay plus penalties) the search had left` : `at ${money2(give)} of score (pay plus penalties)`;
   const head = two.length ? `${cs.moves} move${cs.moves === 1 ? "" : "s"} cut` : `${cs.moves} shift${cs.moves === 1 ? "" : "s"} changed hands to cut`;
-  return `Call-out slack: ${head} the hours at risk from ${num(cs.riskHoursBefore)} to ${num(cs.riskHours)}${how}, ${paid} at your price of ${money2(cs.price)} an hour at risk. ${left}`;
+  return `Call-out slack: ${head} the hours at risk from ${num(cs.riskHoursBefore)} to ${num(cs.riskHours)}${how}, ${paid} at your price of ${money2(cs.price)} an hour at risk. ${left}${pairText(cs)}`;
+}
+
+// The second-call-out term in words (--second-callout-price), appended to the slack line when it was priced.
+function pairText(cs) {
+  if (cs.pairSkipped) return ` Second call-outs were not priced: the week has ${cs.pairSkipped.slots} shift copies, over the ${cs.pairSkipped.cap} the pair check runs on.`;
+  if (!(cs.pairPrice > 0) || cs.pairHours == null) return "";
+  const moved = cs.pairHoursBefore !== cs.pairHours ? `from ${num(cs.pairHoursBefore)} to ${num(cs.pairHours)}` : `${num(cs.pairHours)}`;
+  return ` Second call-outs (priced at ${money2(cs.pairPrice)} an hour): pairs of call-outs that are each covered alone but not together carry ${moved} h.`;
 }
 
 // The call-out check in words (CLI --steady and the page).

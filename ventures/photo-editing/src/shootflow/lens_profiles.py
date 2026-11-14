@@ -58,11 +58,15 @@ import glob
 import math
 import os
 import re
+import struct
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from shootflow.dng_opcodes import VignetteRadial, WarpRectilinear2
+
+if TYPE_CHECKING:
+    from shootflow.raw_develop import LensHint
 
 DIAGONAL_35MM = math.hypot(36.0, 24.0)
 # Subject distance when the file gives none: far focus. Lensfun's interpolation reads distance as 0.1 / d, so
@@ -79,6 +83,7 @@ TAG_FNUMBER = 33437
 TAG_SUBJECT_DISTANCE = 37382
 TAG_FOCAL_LENGTH = 37386
 TAG_FOCAL_35MM = 41989
+TAG_LENS_SPECIFICATION = 42034
 TAG_LENS_MAKE = 42035
 TAG_LENS_MODEL = 42036
 TAG_DNG_LENS_INFO = 50736
@@ -449,6 +454,89 @@ def find_lenses(db: LensDb, name: str, camera: Camera | None = None, crop: float
         hits.append((score, lens))
     hits.sort(key=lambda t: -t[0])
     return hits
+
+
+def name_range(name: str) -> tuple[float, float, float, float] | None:
+    """The focal range and f-number range a lens name states: ``18-55mm f/3.5-5.6`` gives (18, 55, 3.5, 5.6).
+
+    Only lensfun's first name pattern (``NN[-NN]mm f/A[-B]``, ``lens_name_regexes[0]``) is read, the form nearly
+    every lensfun name takes; a prime or a constant-aperture zoom repeats its one number. None without both.
+    """
+
+    if any(w in name for w in ("adapter", "reducer", "booster", "extender", "converter", "magnifier")) \
+            or _EXTENDER_RE.fullmatch(name):
+        return None
+    m = _NAME_RANGE_RE.fullmatch(name.replace("\u2013", "-"))
+    if not m or m.group(5) is None:
+        return None
+    lo = _atof(m.group(1))
+    hi = _atof(m.group(2)) if m.group(2) is not None else lo
+    a1 = _atof(m.group(5))
+    a2 = _atof(m.group(6)[1:]) if m.group(6) is not None else a1
+    if not (lo > 0 and hi >= lo and a1 > 0 and a2 >= a1):
+        return None
+    return lo, hi, a1, a2
+
+
+# lensfun's first pattern, also taking "F2.8" and en dashes ("28\u2013200mm f/4\u20137.1"), as some names write them.
+_NAME_RANGE_RE = re.compile(_LENS_NAME_RES[0][0].pattern, re.IGNORECASE)
+_EXTENDER_WORDS = ("extender", "ext.", "converter", "teleplus", "\u00d7")
+
+
+def _with_extender(lens: Lens) -> bool:
+    """A lensfun entry for a lens with a teleconverter behind it (a Canon body then reports the multiplied range)."""
+
+    return any(any(w in m.lower() for w in _EXTENDER_WORDS) or _EXTENDER_RE.fullmatch(m) for m in lens.models)
+
+
+# Canon reports apertures in thirds of a stop; a name rounds to the marked f-number (f/4.5 is 4 1/3 stops, 4.49).
+_APERTURE_TOLERANCE = 2.0 ** (1.0 / 12.0)  # a sixth of a stop either way
+
+
+def find_lenses_by_range(db: LensDb, short: float, long: float, aperture: float | None,
+                         camera: Camera | None = None, crop: float | None = None,
+                         marked: tuple[float, float] | None = None) -> list[Lens]:
+    """Lenses whose name states exactly this focal range and an f-number range holding ``aperture``.
+
+    For a raw whose maker note gives the lens's focal range and widest f-number at the shot's focal length but
+    no name (a Canon 350D's CR2, or a 7D's "10-17mm"). The crop filter is ``find_lenses``'; mounts are the
+    camera's and its same-maker compatible ones (manual adapted mounts send no focal range). A zoom's
+    reported aperture lies between its marked f-numbers, so f/3.5-5.6 admits 3.5 to 5.6, each a sixth of a stop
+    wider. ``marked`` (the EXIF LensSpecification's f-numbers at the short and long end) is stricter: both
+    of the name's f-numbers must equal it within a sixth of a stop, so an f/2.8 zoom no longer fits an f/4
+    one's range. Lenses are distinct by main name; the caller takes one only when it is alone.
+    """
+
+    mounts: tuple[str, ...] = ()
+    if camera is not None and camera.mount:
+        # Only a lens that talks to the body fills in the maker note: its own mount, or an adapted mount of the
+        # same maker (EF on an RF body). M42, T2 and other manual mounts lensfun lists as compatible report nothing.
+        brand = camera.mount.split()[0].lower()
+        mounts = (camera.mount,) + tuple(m for m in db.compat.get(camera.mount, ()) if m.split()[0].lower() == brand)
+    cam_crop = camera.crop if camera is not None and camera.crop > 0 else (crop or 0.0)
+    out: dict[str, Lens] = {}
+    for lens in db.lenses:
+        if cam_crop and lens.calibrations and not _crop_score(cam_crop, lens):
+            continue
+        if lens.mounts and mounts and not any(m in lens.mounts for m in mounts):
+            continue
+        if _with_extender(lens):
+            continue
+        for model in lens.models:
+            r = name_range(model)
+            if r is None:
+                continue
+            lo, hi, a1, a2 = r
+            if abs(lo - short) > 0.5 or abs(hi - long) > 0.5:
+                continue
+            if aperture and not (a1 / _APERTURE_TOLERANCE <= aperture <= a2 * _APERTURE_TOLERANCE):
+                continue
+            if marked and not all(m / _APERTURE_TOLERANCE <= a <= m * _APERTURE_TOLERANCE
+                                  for a, m in ((a1, marked[0]), (a2, marked[1]))):
+                continue
+            out.setdefault(lens.name, lens)
+            break
+    return list(out.values())
 
 
 def fixed_lens(db: LensDb, camera: Camera) -> Lens | None:
@@ -970,15 +1058,18 @@ class ShotInfo:
     focal_35mm: float | None
     aperture: float | None = None
     distance: float | None = None  # metres
+    hint: LensHint | None = None  # raw_develop.LensHint: the maker note's focal range and aperture, when it names no lens
 
 
-def shot_info(ifd0, exif) -> ShotInfo:
+def shot_info(ifd0, exif, hint: LensHint | None = None) -> ShotInfo:
     """Camera, lens and focal length from IFD0 and the EXIF IFD (either may hold the EXIF tags in a DNG)."""
 
     def pick(fn, tag):
         return fn(exif, tag) or fn(ifd0, tag)
 
     focal = pick(_number, TAG_FOCAL_LENGTH)
+    if hint is None:
+        hint = spec_hint(ifd0, exif)
     if focal is None:
         info = ifd0.get(TAG_DNG_LENS_INFO) if ifd0 is not None else None
         if info and len(info) >= 2 and info[0] and info[0] == info[1]:
@@ -986,7 +1077,315 @@ def shot_info(ifd0, exif) -> ShotInfo:
     return ShotInfo(
         _ascii(ifd0, TAG_MAKE), _ascii(ifd0, TAG_MODEL), pick(_ascii, TAG_LENS_MODEL), pick(_ascii, TAG_LENS_MAKE),
         focal, pick(_number, TAG_FOCAL_35MM), pick(_number, TAG_FNUMBER), pick(_number, TAG_SUBJECT_DISTANCE),
+        hint,
     )
+
+
+def spec_hint(ifd0, exif) -> LensHint | None:
+    """The lens's focal range and marked f-numbers from EXIF LensSpecification (or DNG LensInfo), any maker.
+
+    Both tags hold four rationals: shortest and longest focal length, then the widest f-number at each end
+    (0/0 where unknown). Bodies since EXIF 2.3 write LensSpecification (the Sony and Samsung files checked
+    here), and DNG writers put LensInfo in IFD0, sometimes where no LensModel names the lens (the Leica X
+    Vario's own DNGs). Older Nikon bodies keep the same four values in their maker note only.
+    Unknown focal lengths give None; unknown f-numbers give a hint with none.
+    """
+
+    for ifd, tag, label in ((exif, TAG_LENS_SPECIFICATION, "LensSpecification"),
+                            (ifd0, TAG_LENS_SPECIFICATION, "LensSpecification"),
+                            (ifd0, TAG_DNG_LENS_INFO, "DNG LensInfo")):
+        v = ifd.get(tag) if ifd is not None else None
+        if not v or len(v) < 4:
+            continue
+        tag_hint = _four_values_hint(v, f"file's {label}")
+        if tag_hint is not None:
+            break
+    else:
+        tag_hint = None
+    if tag_hint is not None and tag_hint.marked:
+        return tag_hint
+    maker = _maker_note_hint(exif)
+    if maker is None:
+        note = dng_maker_note(ifd0)
+        maker = _maker_note_hint(note, ifd0, "converted DNG's ") if note is not None else None
+    if tag_hint is None:
+        return maker
+    # A tag with the range but no f-numbers ("18-55mm f/?", as Adobe DNG Converter writes LensInfo for some
+    # bodies): the maker note, when it gives the same range, adds the apertures (and Olympus's lens name).
+    if maker is not None and abs(maker.short - tag_hint.short) < 0.5 and abs(maker.long - tag_hint.long) < 0.5:
+        return maker
+    return tag_hint
+
+
+def _maker_note_hint(exif, ifd0=None, prefix: str = "") -> LensHint | None:
+    """The lens hint from whichever maker note ``exif`` holds: Nikon type 3, Olympus Equipment or (with
+    ``ifd0`` naming Canon as the make) Canon CameraSettings."""
+
+    hint = _nikon_lens_hint(exif) or _olympus_lens_hint(exif)
+    if hint is None and ifd0 is not None and (_ascii(ifd0, TAG_MAKE) or "").lower().startswith("canon"):
+        hint = _canon_note_hint(exif)
+    if hint is not None and prefix:
+        hint = hint._replace(source=prefix + hint.source)
+    return hint
+
+
+TAG_DNG_PRIVATE_DATA = 50740  # DNG spec 1.7.1.0, "DNGPrivateData": a null-terminated maker string, then private
+
+
+def dng_maker_note(ifd0):
+    """The camera's own maker note that Adobe DNG Converter keeps in a DNG's DNGPrivateData, as an EXIF-like
+    Ifd holding only the MakerNote tag, or None.
+
+    The DNG spec fixes only that the block starts with a null-terminated maker string. Adobe's ("Adobe\0")
+    is a run of records, each a four-letter name and a big-endian byte count; "MakN" holds the original
+    file's byte order (2 bytes), the big-endian offset the note sat at in the original file, then the note
+    (the layout ExifTool's DNG.pm reads, ProcessAdobeData and ProcessAdobeMakN). Canon and old-style Olympus
+    notes count their offsets from the original file's TIFF header, so the Ifd's ``source`` is that header in
+    the original byte order, zeros up to the original offset, then the note: those offsets land in the note
+    again, and ``offsets[MakerNote]`` is where it starts. Nikon type 3 and new-style Olympus notes carry their
+    own byte order and offsets, which the readers already use. Values the converter did not copy (data the
+    original note pointed to outside its own block, as ExifTool warns for Olympus and Sony) stay unreadable.
+    """
+
+    from shootflow.raw_develop import Ifd
+
+    raw = ifd0.get(TAG_DNG_PRIVATE_DATA) if ifd0 is not None else None
+    if not raw or len(raw) < 20:
+        return None
+    data = bytes(raw)
+    if not data.startswith(b"Adobe\0"):
+        return None
+    pos, block = 6, None
+    while pos + 8 <= len(data):
+        name, size = struct.unpack_from(">4sI", data, pos)
+        pos += 8
+        if pos + size > len(data):
+            return None
+        if name == b"MakN":
+            block = data[pos:pos + size]
+            break
+        pos += size
+    if block is None or len(block) < 8 or block[:2] not in (b"II", b"MM"):
+        return None
+    order = block[:2]
+    end = "<" if order == b"II" else ">"
+    original = struct.unpack_from(">I", block, 2)[0]
+    note = block[6:]
+    if note[:4] == b"\0\0\0\x01" and len(note) > 12:
+        # Camera Raw's DNGs made from camera JPEGs copy the note from 12 bytes too early (ExifTool's
+        # ProcessAdobeMakN, "still exists in Camera Raw 14.3"): skip them, as ExifTool does.
+        note = note[12:]
+    ifd = Ifd(entries={TAG_MAKER_NOTE: tuple(note)}, byte_order=end)
+    if 8 <= original <= MAX_MAKN_ORIGINAL_OFFSET:
+        header = order + struct.pack(end + "HI", 42, 8)
+        ifd.source = header + bytes(original - len(header)) + note
+        ifd.offsets[TAG_MAKER_NOTE] = original
+    return ifd
+
+
+# The zeros put in front of a relocated note cost memory; maker notes sit in a raw file's first few hundred kB.
+MAX_MAKN_ORIGINAL_OFFSET = 1 << 26
+
+
+def _canon_note_hint(exif) -> LensHint | None:
+    """Canon's CameraSettings hint (``cr2.hint_from_note``) from a relocated note (``dng_maker_note``)."""
+
+    from shootflow import cr2
+    from shootflow.raw_develop import DevelopError, _Reader
+
+    at = getattr(exif, "offsets", {}).get(TAG_MAKER_NOTE) if exif is not None else None
+    source = getattr(exif, "source", None) if exif is not None else None
+    if at is None or source is None:
+        return None
+    try:
+        note, _ = _Reader(source).read_ifd(at)
+    except (DevelopError, struct.error, IndexError, ValueError, OverflowError):
+        return None
+    hint = cr2.hint_from_note(note)
+    if hint is None:
+        return None
+    name = bytes(note.get(cr2.TAG_CANON_LENS_MODEL) or b"").split(b"\0", 1)[0].decode("latin-1").strip()
+    return hint._replace(source="Canon maker note's CameraSettings", name=name or None)
+
+
+def _four_values_hint(v, source: str) -> LensHint | None:
+    from shootflow.raw_develop import LensHint
+
+    try:
+        short, long_, a1, a2 = (float(x) for x in v[:4])
+    except (TypeError, ValueError):
+        return None
+    if not (math.isfinite(short) and math.isfinite(long_) and 0 < short <= long_ < 10000):
+        return None
+    marked = (a1, a2) if all(math.isfinite(a) and 0.5 <= a <= 64 for a in (a1, a2)) and a1 <= a2 else None
+    return LensHint(short, long_, None, None, marked, source)
+
+
+TAG_MAKER_NOTE = 37500
+NIKON_LENS = 0x0084  # Nikon maker note "Lens": the same four rationals as LensSpecification (Exiv2, ExifTool)
+
+
+def _nikon_lens_hint(exif) -> LensHint | None:
+    """LensSpecification's four values from a Nikon maker note (type 3: ``Nikon\\0`` + version + its own TIFF).
+
+    The seven NEFs checked here (D70 to D810) carry no EXIF LensSpecification, but each type-3 maker note
+    has tag 0x0084 with the same layout. Checked on seven real NEFs, D70 to D810
+    (eval/lens-specification-2026-11-14.md).
+    """
+
+    from shootflow.raw_develop import DevelopError, _Reader
+
+    mn = exif.get(TAG_MAKER_NOTE) if exif is not None else None
+    if not mn or len(mn) < 18:
+        return None
+    data = bytes(mn)
+    if not data.startswith(b"Nikon\0\x02"):
+        return None
+    try:
+        reader = _Reader(data[10:])
+        ifd, _ = reader.read_ifd(reader.first_ifd_offset())
+    except (DevelopError, struct.error, IndexError, ValueError):
+        return None
+    v = ifd.get(NIKON_LENS)
+    return _four_values_hint(v, "Nikon maker note") if v and len(v) >= 4 else None
+
+
+OLYMPUS_EQUIPMENT = 0x2010  # Olympus maker note: the Equipment sub-IFD (Exiv2 "Equipment", ExifTool "Equipment")
+# Tags inside it, as Exiv2 and ExifTool name them; metadata-extractor's dumps of 18 real ORFs agree (eval/).
+OLY_LENS_MODEL = 0x0203
+OLY_MAX_APERTURE_MIN_FOCAL = 0x0205
+OLY_MAX_APERTURE_MAX_FOCAL = 0x0206
+OLY_MIN_FOCAL = 0x0207
+OLY_MAX_FOCAL = 0x0208
+OLY_MAX_APERTURE = 0x020A  # widest f-number at the shot's focal length
+
+
+def olympus_equipment(exif):
+    """The Equipment IFD of an Olympus or OM System maker note, or None.
+
+    Three layouts. "OLYMPUS\0" + byte order + 3 (E-3 onwards, the PENs, the OM-Ds) and "OM SYSTEM\0\0\0" +
+    byte order + 4 (OM-1 onwards) start their IFD 12 or 16 bytes in, and every offset in them counts from the
+    start of the note. The older "OLYMP\0" + version (E-1, E-300 and the compacts) starts its IFD 8 bytes in
+    but counts offsets from the file's TIFF header, so it is read through the buffer the EXIF IFD came from.
+    Tag 0x2010 is either a pointer (type LONG or IFD) or, on the E-1, the sub-IFD's bytes inline (UNDEFINED).
+    """
+
+    from shootflow.raw_develop import DevelopError, _Reader
+
+    mn = exif.get(TAG_MAKER_NOTE) if exif is not None else None
+    if not mn or len(mn) < 16:
+        return None
+    data = bytes(mn)
+    try:
+        if data.startswith(b"OLYMPUS\0") or data.startswith(b"OM SYSTEM\0"):
+            start = 8 if data.startswith(b"OLYMPUS\0") else 12
+            order = data[start:start + 2]
+            if order not in (b"II", b"MM"):
+                return None
+            # A TIFF header written over the note's first bytes, so the note's own offsets read unchanged.
+            buf = order + struct.pack("<H" if order == b"II" else ">H", 42) + data[4:]
+            reader = _Reader(buf)
+            note, _ = reader.read_ifd(start + 4)
+        elif data.startswith(b"OLYMP\0"):
+            at = getattr(exif, "offsets", {}).get(TAG_MAKER_NOTE)
+            source = getattr(exif, "source", None)
+            if source is None or at is None:
+                return None
+            reader = _Reader(source)
+            note, _ = reader.read_ifd(at + 8)
+        else:
+            return None
+        ptr = note.get(OLYMPUS_EQUIPMENT)
+        if not ptr:
+            return None
+        where = int(ptr[0]) if len(ptr) == 1 else note.offsets.get(OLYMPUS_EQUIPMENT)
+        if not where:
+            return None
+        equipment, _ = reader.read_ifd(where)
+    except (DevelopError, struct.error, IndexError, ValueError, OverflowError):
+        return None
+    return equipment
+
+
+def _olympus_f_number(v) -> float | None:
+    """Olympus stores f-numbers as APEX-like steps: f = sqrt(2) ** (v / 256), 0 when unknown."""
+
+    if not v:
+        return None
+    try:
+        f = math.sqrt(2) ** (int(v[0]) / 256)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return round(f, 2) if 0.5 <= f <= 64 else None
+
+
+def _olympus_lens_hint(exif) -> LensHint | None:
+    """Focal range and f-numbers from an Olympus maker note's Equipment IFD (0x0205 to 0x020A).
+
+    Four Thirds and early Micro Four Thirds bodies (E-30, E-410, E-600, E-P3, E-PL1, E-PM1 among the real
+    ORFs read here) write no EXIF LensModel or LensSpecification; the Equipment IFD still holds the lens's
+    shortest and longest focal length (whole mm), its widest f-number at each end and at the shot's focal
+    length. A manual lens leaves them 0 (the E-PL7 frame here), which gives None.
+    """
+
+    from shootflow.raw_develop import LensHint
+
+    eq = olympus_equipment(exif)
+    if eq is None:
+        return None
+    short, long_ = eq.one(OLY_MIN_FOCAL), eq.one(OLY_MAX_FOCAL)
+    if not short or not long_ or not (0 < short <= long_ < 10000):
+        return None
+    a1 = _olympus_f_number(eq.get(OLY_MAX_APERTURE_MIN_FOCAL))
+    a2 = _olympus_f_number(eq.get(OLY_MAX_APERTURE_MAX_FOCAL))
+    marked: tuple[float, float] | None = None
+    if a1 is not None and a2 is not None and a1 <= a2 * _APERTURE_TOLERANCE:
+        marked = (a1, max(a1, a2))  # a rounding hair apart on a constant-aperture lens reads as constant
+    current = _olympus_f_number(eq.get(OLY_MAX_APERTURE))
+    raw_name = eq.get(OLY_LENS_MODEL)
+    name = bytes(raw_name).split(b"\0")[0].decode("ascii", "replace").strip() if raw_name else ""
+    return LensHint(float(short), float(long_), current, None, marked, "Olympus maker note's Equipment",
+                    name or None)
+
+
+def _lens_from_hint(db: LensDb, hint: LensHint, camera: Camera | None, crop: float, name: str | None,
+                    notes: list[str]) -> Lens | None:
+    """The one lens that fits the hint's focal range and aperture, or None with a note naming the field."""
+
+    said = _hint_said(hint)
+    found = find_lenses_by_range(db, hint.short, hint.long, hint.aperture, camera, crop, hint.marked)
+    if len(found) == 1:
+        notes.append(f"lens identified as {found[0].name} from the {hint.source} ({said}): the only lens in the "
+                     "database with that focal range and aperture (pass --lens if it is not)")
+        return found[0]
+    if len(found) > 1 and hint.name:
+        # The maker note's own lens name, scored as a file's lens name would be, among the lenses that fit.
+        fits = {lens.name: lens for lens in found}
+        hits = [(score, lens) for score, lens in find_lenses(db, hint.name, camera, crop) if lens.name in fits]
+        best = [lens for score, lens in hits if score == hits[0][0]] if hits else []
+        if len({lens.name for lens in best}) == 1:
+            notes.append(f"lens identified as {best[0].name} from the {hint.source} ({said}, which fits "
+                         f"{len(fits)} lenses in the database) and its lens name {hint.name!r} "
+                         "(pass --lens if it is not)")
+            return best[0]
+    if found:
+        names = sorted(lens.name for lens in found)
+        more = f" and {len(names) - 4} more" if len(names) > 4 else ""
+        raise LensProfileError(
+            f"the file {'names the lens only as ' + repr(name) if name else 'names no lens'}; its {hint.source} "
+            f"gives a {said} lens, which fits {len(names)} lenses in the database ({', '.join(names[:4])}{more}); "
+            "pass --lens")
+    return None
+
+
+def _hint_said(hint: LensHint) -> str:
+    """'105 mm at f/2.8 wide open', or '18-55 mm f/3.5-5.6' for a hint with marked f-numbers."""
+
+    rng = f"{hint.short:g} mm" if hint.short == hint.long else f"{hint.short:g}-{hint.long:g} mm"
+    if hint.marked:
+        a1, a2 = hint.marked
+        return rng + (f" f/{a1:.2g}" if a1 == a2 else f" f/{a1:.2g}-{a2:.2g}")
+    return rng + (f" at f/{hint.aperture:.2g} wide open" if hint.aperture else "")
 
 
 def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str | None = None,
@@ -1012,13 +1411,28 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
     if not focal:
         raise LensProfileError("focal length unknown: the file has no FocalLength tag; pass --lens-focal")
     name = lens_name or info.lens
-    if name and not lens_name and not specific(name):
+    lens: Lens | None = None
+    hint = info.hint if not lens_name else None
+    if hint is not None and hint.source != "maker note" and (
+            camera is None or not camera.mount or (not name and fixed_lens(db, camera) is not None)):
+        # A tag-only hint needs the body's mount to narrow the database (an unknown camera would match lenses
+        # on any mount), and a fixed-lens camera's own entry beats it.
+        hint = None
+    if hint is not None and (not name or not specific(name)):
+        lens = _lens_from_hint(db, hint, camera, crop, name, notes)
+        if lens is not None:
+            name = None
+    miss = ""
+    if lens is None and hint is not None:
+        miss = f" (no lens in the database has the {hint.source}'s {_hint_said(hint)})"
+    if lens is None and name and not lens_name and not specific(name):
         raise LensProfileError(
             f"the file's lens name {name!r} gives only numbers (a third-party lens, as Canon bodies write them), "
-            "which would match any lens of that focal length; pass --lens"
+            f"which would match any lens of that focal length{miss}; pass --lens"
         )
-    lens: Lens | None
-    if name:
+    if lens is not None:
+        pass
+    elif name:
         hits = find_lenses(db, name, camera, crop)
         if not hits:
             raise LensProfileError(f"no lens in the database matches {name!r}" + (
@@ -1030,7 +1444,7 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
     else:
         lens = fixed_lens(db, camera) if camera is not None else None
         if lens is None:
-            raise LensProfileError("the file names no lens and the camera is not a fixed-lens camera in the "
+            raise LensProfileError(f"the file names no lens{miss} and the camera is not a fixed-lens camera in the "
                                    "database; pass --lens")
         notes.append(f"fixed-lens camera: {lens.name}")
     vig = None

@@ -11,6 +11,7 @@
 // column, which is what a bank export gives us.
 import { readFileSync } from "node:fs";
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 // Their label -> accounts in the default chart that would be an acceptable answer.
 export const MAP = {
@@ -53,7 +54,7 @@ export function score(rows) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const dir = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "/tmp/qd";
   const rows = [];

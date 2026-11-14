@@ -5,6 +5,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { PRESETS, buildShed } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { writeFacts } from './workedfacts.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const SIZES = [
   [8, 8, '8x10'], [8, 10, '8x10'], [8, 16, '8x10'],
@@ -195,7 +196,7 @@ export function generate() {
   return { all, files };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { files } = generate();
   for (const [name, html] of Object.entries(files)) writeFileSync(new URL(name, import.meta.url), html);
   // Every hand-written page beside the tool (the marketing page, the HOA packet, any new one) goes in too, so a new page is never left out.

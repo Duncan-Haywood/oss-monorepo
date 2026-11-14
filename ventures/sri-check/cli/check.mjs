@@ -19,6 +19,7 @@
 
 import { extractCrossOriginAssets, buildReport } from '../sri.mjs';
 import { fetchText, fetchAllAssets } from './probe.mjs';
+import { pathToFileURL } from 'node:url';
 
 function parseArgs(argv) {
   const args = { page: null, json: false, timeoutMs: undefined, fetchAssets: true };
@@ -112,6 +113,6 @@ async function main() {
   process.exit(report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

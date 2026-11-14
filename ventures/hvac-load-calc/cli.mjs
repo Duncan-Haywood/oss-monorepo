@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { calculate, EXAMPLE } from './load.mjs';
 import { sizeDucts, designFromLoad, ductReport, EXAMPLE_DUCTS } from './duct.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function parseArgs(argv) {
   const o = { file: null, example: false, json: false, ducts: false };
@@ -50,7 +51,7 @@ export function report({ result: r }) {
   return lines.join('\n');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const opts = parseArgs(process.argv.slice(2));
   const out = run(opts);
   if (out.error) { console.error(out.error); process.exit(1); }

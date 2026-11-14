@@ -1711,7 +1711,7 @@ same at every price):
 | salon, clinic | 56 h, 38 h | none | 56 h, 30 h |
 
 On the café the stricter count makes three hand-overs that cost nothing (ties at the same score) and cut the single
-call-out exposure by 8 h. **Played through whole weeks of call-outs it is a trade, not a win** (the same seeded weeks as the
+call-out exposure by 8 h. **Played through whole weeks of call-outs it is a trade, not a win** (corrected 2026-11-14: at 200 seeds the priced café roster wins at both rates; see "A second call-out in the same week") (the same seeded weeks as the
 sections above, 20 seeds, kept reissues):
 
 | café, rate | open hours added, default → priced | changes to others | premiums |
@@ -1738,3 +1738,173 @@ at risk; the roster is left as found; and on whichever roster the build posts, t
 Not claimed: invented teams and seeded weeks; exposure is a model (one call-out at a time, 5pm notice, kept rebuild), and
 on the café the whole-week play disagrees with it. Next: price the risk of a second call-out in the same week, which is
 what the café's played weeks say the one-at-a-time count leaves out.
+
+## A second call-out in the same week (2026-11-14)
+
+The section above ended on a puzzle: on the café, the roster `--cover-price` posts is less exposed to any one call-out
+(100 → 92 h), yet in 20 seeded weeks of call-outs it lost more hours (155 → 188 at 8.4%). The guess was that cover found
+for one call-out uses up the slack a second one needs. This run built a check for that, measured it, and found the puzzle
+was mostly too few weeks.
+
+**The check.** `coverPairRisk` (in `calc.mjs`) takes every pair of person-days that are each safe alone (coverRisk does
+not flag either) and asks whether both callers' shifts can be covered *at once*, with the same rules as the single
+check: each caller off only on their own day, free to take a stand-in's later shift; up to two hand-over passes per shift;
+500 checks per pair, and a pair past that counts as clashing. Pairs on the same day count too (two people off sick
+together). A clashing pair is charged the shorter caller's hours.
+
+**Does it find the pairs that really open?** `node eval/cover-pair-exposure.mjs` (`eval/cover-pair-exposure.out.txt`)
+plays every pair of safe person-days the way the product handles them: the earlier call-out at 5pm the day before, a kept
+reissue, then the later one on the reissued roster. Over the five templates' default and priced rosters, 337 pairs:
+
+| | pairs | flagged | really open | precision | recall |
+|---|---|---|---|---|---|
+| all five templates, both rosters | 337 | 186 | 118 | 58.1% | 91.5% (10 missed) |
+
+The misses are pairs the joint search can cover only by knowing both call-outs in advance. In play, the first reissue
+picks its cover without knowing the second call-out, and the slack it spends is gone by the time the second one comes.
+
+**A yardstick with no draw in it.** The played weeks draw call-outs per person-day *worked in each roster*, so two
+rosters face different call-outs and 20 weeks is a small sample. `ALL=1` plays **every** pair of worked person-days, risky
+ones included, and sums the hours each pair adds (`eval/cover-pair-exposure-all.out.txt`):
+
+| team | default | `--cover-price 25` | + `--second-callout-price 1` | + 5 | + 25 |
+|---|---|---|---|---|---|
+| café | 2,218 h | **2,023 h** | 2,023 h (same roster) | 2,023 h | 2,218 h |
+| spare-part-timer café | 1,775 h | 1,751 h | **1,367 h** | 1,721 h | 1,775 h |
+| retail | 342 h | 210 h | 210 h (same roster) | **195 h** | 450 h |
+| salon, clinic | 872 h, 394 h | the same | the same | the same | the same |
+
+**The café's played weeks again, at 200 seeds** (`eval/cover-price-200-cafe.out.txt`):
+
+| café | open hours added, default → priced | changes to others | premiums |
+|---|---|---|---|
+| 1.0% sick-only (69 disrupted weeks) | 262 → **208** | 94 → **66** | $1,687 → **$1,212** |
+| 8.4% all-leave (198 disrupted weeks) | 1,824 → **1,727** | 709 → **595** | $12,587 → **$10,577** |
+
+With ten times the weeks, the priced café roster loses fewer hours at both rates, as the pair yardstick said. The reversal
+at 20 seeds was sampling noise. **The section above was wrong to call it "a trade, not a win" on the café.**
+
+**`--second-callout-price <$>`** (`coverPairPrice`; the page's "Also pay for a second call-out in the same week") adds the
+clashing-pair hours to the priced pass's objective. A move must then pay for the pair hours it adds, or it can earn its
+keep by clearing them. Played over 200 seeded weeks (`eval/cover-price-200-*.out.txt`):
+
+| team, rate | default | `--cover-price 25` | + `--second-callout-price` |
+|---|---|---|---|
+| spare café, 1.0% | 108 h, 118 changes, $2,018 | 119 h, 117, $1,909 | **$1: 73 h, 84, $1,316** |
+| spare café, 8.4% | 1,205 h, 1,252 changes, $20,766 | 1,192 h, 1,275, $20,776 | **$1: 1,148 h, 821, $13,005** |
+| retail, 1.0% | 66 h | 18 h | $5: 18 h |
+| retail, 8.4% | 354 h | 249 h | $5: 261 h |
+
+On the spare-part-timer café, $1 an hour bought 10 moves for $30.01 of score ($22 of payroll). In played weeks it cut the
+open hours call-outs added by 5-35%, the people moved by 29-36% and the premiums paid by 31-37% against the priced roster.
+`--cover-price` alone had bought almost nothing there. On retail, $5 was a wash in play (the pair yardstick had it 7%
+better) and $25 made things worse (450 h against 342 h unpriced): it trades single-call-out risk for pair hours.
+
+**Cost** (`node eval/cover-pair-cost.mjs`, `eval/cover-pair-cost.out.txt`): the pair walk takes 0-56 ms per roster on
+seeded 20- and 40-person weeks, but the pass runs it on every candidate that passes the single-risk test. On the 20-person
+week 2 the pass went from 0.4 s to 4.3 s and took 6 moves instead of 4. Clashing-pair hours fell from 3,119 to 1,127, and
+the score was $9.42 *lower* (better) than the priced roster's. On the 40-person week 0 (149 copies) the pass went from
+3.1 s to 43.6 s for 29 moves, clashing-pair hours 123 → 16, at $11.69 of score. Weeks 1 and 2 took 2.7 → 4.8 s and 0.7 → 13.9 s. On week 2, clashing-pair hours went 2,854 → 4, but
+all 521 of the priced roster's clashing pairs were budget-capped, not proven to clash. So the price runs only up to 120 shift
+copies by default (`coverPairPriceSlots` moves the cap). Above that it is skipped, and the slack line says so.
+
+**Defaults.** The second-call-out price stays off. $1 was never worse on the five templates and was the big win on the
+spare café. But it changed only one template's roster in play, and the evidence is invented teams. A manager who already
+uses the slack price and sees one spare person covering everyone is who it is for.
+
+Tests (`cover-pair-risk.test.mjs`): Ana (Tue) and Bo (Wed) with Cy able to stand in for either but capped at 8 h. Each
+day is safe alone, the pair clashes for 8 h, and the played week opens 8 h. With Cy at 16 h nothing clashes or opens.
+Risky days are left to the single count. A caller off Tuesday may take Wednesday's shift for the second call-out
+(`callerTakes: false` makes it clash). The CLI flag, the slack line's wording, and the page's select and usage event.
+
+Not claimed: invented teams and seeded weeks; exposure and play are the product's model (5pm notice, kept rebuild), not a
+real week; three or more call-outs are only in the played weeks, not the check; on the bigger rosters many clashing pairs are
+"capped", meaning the budget ran out (49% on the priced café, 72-100% on the spare café and the seeded weeks), so the
+pair hours there are an upper bound. The pair price may be buying moves that clear only capped pairs. Next: a budget or an order that
+leaves fewer pairs capped; the 40- and 60-person weeks' played result with the pair price; whether $1 suits a real
+manager's week.
+
+## A pay floor for big weeks (2026-11-14)
+
+On the 60 x 168 week 0 of `eval/end-to-end.mjs`, the clique LP proved the 300 open hours least (README "The 60-person week's
+300 open hours are the least"), but the whole-score column generation's root did not converge in the budget, so the only score
+bound left was 100,000 x 300: every dollar of the $19,119 pay bill counted as open, and the page reported a **$20,010 gap**.
+
+**What landed:** `cliqueScoreFloor` (calc.mjs) solves the same compact clique LP with costs. Open shifts cost 100,000 per hour,
+as in the score. Each column "person p holds shift s" costs a linear floor on what that shift adds to p's score: paid hours at
+p's rate there (site rates included) plus differential hours, times the burden and `min(1, otMult, dtMult)`; the hours in p's
+`avoid:` window; the linear part of the tough-shift penalty (`n^2 + 2 x before x n >= (1 + 2 x before) x n` for whole n); minus
+the `prefer:` and keep bonuses, which are linear and exact. Overtime premiums, split premiums and trip pay only add, so they
+are left out. Fairness and shortfall depend on a person's weekly hours alone and are convex in them, so each person gets one
+column per hour level (every quarter hour up to their cap, plus their minimum) with a convexity row and a row tying the levels
+to the hours held, both written with a right-hand side of 1 as the engine's simplex needs. Each level costs the penalty there
+minus c x D^2 / 4 (c the fairness weight, D the widest step), which keeps the interpolated line under the parabola. The value
+taken is the dual bound, as for the open-hours floor, so simplex rounding cannot lift it above the LP.
+
+In `buildRoster` it runs only when the clique LP ran and nothing proved the roster; under a time budget only when the time
+left covers about 4 s x (copies / 245)^4.5. It raises the score's lower bound and marks the roster proven if it comes within the
+tolerance. `optimality.scoreFloor` reports it; `scoreFloor: false` turns it off.
+
+| 60 x 168 week 0 (`eval/score-floor.out.txt`) | before | after |
+|---|---|---|
+| 20 s budget | 15.7 s, coverage proven, gap **$20,010** | 19.1 s, coverage proven, gap **$30.11** |
+| no budget | 38.7 s, gap $20,010 | 41.1 s, gap $30.11 |
+| week 1, 20 s budget (proven by column generation) | 8.5-10.5 s in earlier runs, proven | 8.5 s, proven, same roster (the LP is not run) |
+
+The LP alone, beside the open-hours LP, on the bench weeks (one cloud machine): 60 x 168 week 0, 4.0 s, 30,019,980.21; week 1,
+1.7 s, 30,819,981.32, which is $0.43 under the 30,819,981.75 column generation proves in 6-7 s, so inside the default $0.50
+tolerance; the three 80 x 224 weeks, 7-13 s. So $30.11 of a $19,119 bill (0.16%) is what is still open on week 0, against
+the whole bill before.
+
+Tests: `score-floor.test.mjs` checks the floor never exceeds the brute-force best score on 160 seeded three-person weeks
+across rest gaps, daily caps, last week's finishes, minimum hours, fairness weights 0-100, tough-shift balance, avoid and
+prefer windows, burden, weekly and daily overtime (including an overtime multiplier under 1), meal breaks, differentials and
+split premiums (within $0.50 on 38, median gap $12; the largest gaps are open hours the LP leaves fractional), that it is never
+under 100,000 x the open-hours LP when no bonus applies, and the two 60 x 168 values above. Not claimed: seeded synthetic
+weeks, one machine; site wages and paid trips are covered by the argument, not by the brute-force test; the remaining $30.11
+on week 0 is not split between the LP's looseness and a better roster the search misses. Next: run it before column generation
+on 60-copy-plus weeks, where on week 1 it would prove the roster in 1.7 s instead of 6-7 s, if the incumbent is already within
+the tolerance; branch on its fractional columns to close the $30.
+
+## Re-solving one day at a time (2026-11-14)
+
+After the pay floor landed, the 60 x 168 week 0 of `eval/end-to-end.mjs` was left $30.11 above its bound, and the README asked
+whether that was the LP's looseness or a cheaper roster the search missed. **It was the search.** `eval/score-floor-milp.mjs`
+dumps the priced clique model and `eval/score-floor-milp.py` solves it as an integer program with HiGHS (scipy 1.18.1): its
+optimum, 30,019,980.99, is only $0.78 above the LP, so branching on the LP could close at most that. HiGHS's roster is valid under
+every rule of the engine (`eval/score-floor-milp-check.mjs`) and scores 30,019,981.35: $28.97 less than the posted roster and $0.36
+above the integer program's bound, so it is proven best to within the default $0.50 tolerance (`eval/score-floor-milp.out.txt`).
+The two rosters differ on 166 of 245 shift copies: mostly equal shifts traded between people, with a few hours moved from
+$18-20 staff to $10-16 staff through several swaps at once, which the single moves and swaps of the pay polish cannot make.
+
+**What landed:** `dayReassign` (calc.mjs). Every person's shifts on other days stay put and one day is re-solved exactly. When
+each person holds at most one shift that day, the score splits into one term per (person, shift), the person's score with that
+shift less their score without it, plus 100,000 per hour for a shift left open, so the cheapest way to staff the day is an
+assignment problem; `assignRows` solves it (the Hungarian method). Days are swept until a sweep changes nothing. In `buildRoster`
+it runs only when the exact check left the roster unproven (`dayLNS`): exact sweeps, then kicks, each re-solving one random day
+with costs jittered by a third of the average wage and then sweeping exactly again, keeping a roster only when it scores less.
+It gets 2 s of its own (`dayLNSMs`), past the time budget when that is spent; `dayLNS: false` turns it off and
+`optimality.dayLNS` reports what it did.
+
+| 60 x 168 week 0, 20 s budget (`eval/day-lns.out.txt`) | score above the pay floor | total time |
+|---|---|---|
+| off (as before) | $30.11 | 18.5 s |
+| 0.5 s | $10.46 (31 kicks) | 19.2 s |
+| 2 s, the default | **$7.04** (124 kicks) | 21.1 s |
+| 5 s | $7.04 (366 kicks) | 22.7 s |
+
+On the bigger bench weeks, where coverage is not proven in the budget, the pass also covers more (`eval/day-lns-big.out.txt`,
+measured with the test suite running beside it, so the earlier passes' budget-cut results can differ run to run): the three
+80 x 224 weeks leave 260, 333 and 288 open hours instead of 261, 336 and 293; the two 100 x 280 weeks 385 and 354 instead of 388
+and 354 (the second $42 cheaper). Week 1 of 60 x 168, proven by column generation, does not run it.
+
+Tried and dropped: rounding the priced LP's own solution (take person-shifts by LP value, fill what is left greedily, polish).
+210 of its 308 nonzero person-shifts are fractional, and the rounded roster left 30-43 more hours open than the posted one; the
+day sweeps from it reached $17.92 above the floor on week 0, worse than from the posted roster.
+
+Tests: `day-lns.test.mjs` (assignRows matches brute force on 400 small cost matrices with forbidden cells; on 120 seeded
+three-person weeks across rest gaps, daily caps, last week's finishes, minimum hours, fairness, avoid and prefer windows and
+overtime, dayReassign keeps every rule, never raises the score, and leaves no day that brute force over that day's staffing can
+do better; a week the exact check proves does not run the pass). The full suite passes. Not claimed: seeded synthetic weeks and
+one cloud machine; $7.04 is still open on week 0 against a roster HiGHS shows exists $0.36 above the floor; a person holding two
+shifts on one day sits that day out of the re-solve.

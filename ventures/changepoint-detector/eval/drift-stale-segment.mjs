@@ -39,11 +39,12 @@ import { fMeasure, covering } from './tcpd-metrics.mjs';
 import { STICKY_TCPD, frozenJuice } from './drift-sticky-penalty.mjs';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export const MODELS = { shipped: {}, missing: { repeats: 'missing' }, segment: { repeats: 'missing', stale: 'segment' } };
 export const cuts = (values, model) => driftLevelChanges(values, { noise: 'ml', ...MODELS[model] }).changepoints;
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const DIR = process.argv[2] || 'tcpd-data';
   const t0 = Date.now();
   const r3 = (v) => v.toFixed(3);

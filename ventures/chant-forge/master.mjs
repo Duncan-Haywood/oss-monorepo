@@ -229,6 +229,8 @@ export function analyze({ rate, channels }, targets = TARGETS) {
     lufs, truePeakDb: db(tp), monoLossDb: mono, correlation: corr, clipRuns: clips,
     // loudest 400 ms and 3 s windows (EBU Tech 3341 momentary and short-term max)
     maxMomentaryLufs: maxWindowLoudness(channels, rate, 0.4), maxShortTermLufs: maxWindowLoudness(channels, rate, 3),
+    // EBU Tech 3342 loudness range: how far the short-term level moves (LU); reported, not checked
+    loudnessRange: loudnessRange(channels, rate).lra,
   };
   r.platforms = platformPlayback(lufs, PLATFORMS, r.truePeakDb);
   r.suggestedGainDb = suggestGain(lufs, r.truePeakDb, targets);
@@ -309,4 +311,40 @@ export function windowLoudnessRange(channels, fs, seconds, from = 0, hop = 1) {
     if (l > hi) hi = l;
   }
   return { min: lo, max: hi };
+}
+
+// Loudness range (LRA, EBU Tech 3342, November 2023, read from
+// tech.ebu.ch/docs/tech/tech3342.pdf on 2026-11-14). Input: ungated short-term
+// (3 s) loudness every `hopSeconds` (the text asks for at least 10 Hz, i.e. 2.9 s
+// of overlap; 0.1 s here, as in libebur128 and ffmpeg). Gates: -70 LUFS absolute,
+// then -20 LU under the power mean of what passed (not BS.1770's -10). LRA is the
+// 95th minus the 10th percentile, taken as the 3342 MATLAB listing does:
+// sorted(round((n - 1) * p / 100 + 1)), 1-based. Windows run from 0 to the last
+// full 3 s window; `tailSeconds` pads silence after the end first (the listing's
+// "followed by at least 1.5 s of silence" note is for a live meter's latency; 0 by
+// default, eval/ebu-tech3342-2026-11-14.md shows both). Returns
+// { lra, low, high, windows, kept, levels }: levels is the gated short-term loudness,
+// sorted; lra is null when nothing passes the -70 gate.
+// `relativeGateLu` exists to show the gate matters: with BS.1770's -10 LU, Tech 3342
+// case 3 drops its -40 dBFS tone (eval/ebu-tech3342.mjs).
+export function loudnessRange(channels, fs, { hopSeconds = 0.1, tailSeconds = 0, relativeGateLu = -20 } = {}) {
+  const pad = Math.round(tailSeconds * fs);
+  const src = pad > 0 ? channels.map((c) => { const y = new Float64Array(c.length + pad); y.set(c); return y; }) : channels;
+  const n = src[0].length, w = Math.round(3 * fs), hop = Math.max(1, Math.round(hopSeconds * fs));
+  const st = [];
+  if (n >= w) {
+    const cum = src.map((c) => kWeightedEnergy(c, fs));
+    for (let s = 0; s + w <= n; s += hop) {
+      let e = 0;
+      for (const c of cum) e += c[s + w] - c[s];
+      st.push(e > 0 ? -0.691 + 10 * Math.log10(e / w) : -Infinity);
+    }
+  }
+  const abs = st.filter((l) => l >= -70);
+  if (!abs.length) return { lra: null, low: null, high: null, windows: st.length, kept: 0, levels: [] };
+  const mean = 10 * Math.log10(abs.reduce((t, l) => t + 10 ** (l / 10), 0) / abs.length);
+  const kept = abs.filter((l) => l >= mean + relativeGateLu).sort((a, b) => a - b);
+  const pick = (p) => kept[Math.round((kept.length - 1) * p / 100 + 1) - 1];
+  const low = pick(10), high = pick(95);
+  return { lra: high - low, low, high, windows: st.length, kept: kept.length, levels: kept };
 }

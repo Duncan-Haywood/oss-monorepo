@@ -80,7 +80,10 @@ export function binarize(img, t = threshold(img)) {
 
 // Staff lines: rows whose ink covers at least `minCover` of the page width,
 // merged into lines, then grouped four at a time with even spacing.
-export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
+// `staffV1: true` gives the finder as it was before 2026-11-14 (no line
+// trimming, no outer-pair spacing, no median-spacing check), for
+// eval/thick-line-check.mjs.
+export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4, staffV1 = false } = {}) {
   const { width, height, ink } = bin;
   const rowInk = new Array(height).fill(0);
   for (let y = 0; y < height; y++) {
@@ -93,7 +96,8 @@ export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
     if (rowInk[y] < minCover * width) continue;
     const start = y;
     while (y + 1 < height && rowInk[y + 1] >= minCover * width) y++;
-    lines.push({ top: start, bottom: y, y: (start + y) / 2 });
+    const [top, bottom] = staffV1 ? [start, y] : trimLine(bin, start, y);
+    lines.push({ top, bottom, y: (top + bottom) / 2 });
   }
   // A staff is `linesPerStaff` lines at an even spacing. Other ink-heavy
   // rows (a page rule, a heavy line of text) may sit between candidates,
@@ -105,15 +109,28 @@ export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
     for (let j = i + 1; j < lines.length; j++) {
       const d = lines[j].y - lines[i].y;
       if (d < 6) continue;
-      if (d > 120) break;
+      if (d > 120 * (linesPerStaff - 1)) break;
       const idx = [i, j];
-      for (let k = 2; k < linesPerStaff; k++) {
+      for (let k = 2; k < linesPerStaff && d <= 120; k++) {
         const tol = Math.max(2, 0.12 * d);
         const m = lines.findIndex((l) => Math.abs(l.y - (lines[i].y + k * d)) <= tol);
         if (m < 0) break;
         idx.push(m);
       }
-      if (idx.length === linesPerStaff) cands.push({ idx, d });
+      if (idx.length === linesPerStaff && d <= 120) cands.push({ idx, d });
+      // the same test with i and j as the outer lines: on a tilted page one
+      // line's centre can sit a few pixels off, and the spacing taken from
+      // the outer pair is three times less sensitive to it than the
+      // first pair's (eval/thick-line-check.md, leaf 582)
+      const D = d / (linesPerStaff - 1);
+      if (staffV1 || D < 6) continue;
+      const o = [i];
+      for (let k = 1; k < linesPerStaff - 1; k++) {
+        const m = lines.findIndex((l) => Math.abs(l.y - (lines[i].y + k * D)) <= Math.max(2, 0.12 * D));
+        if (m < 0) break;
+        o.push(m);
+      }
+      if (o.length === linesPerStaff - 1) cands.push({ idx: [...o, j], d: D });
     }
   }
   // tightest spacing first: real staves beat chance alignments of a page
@@ -129,7 +146,48 @@ export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
     staves.push({ lines: group, space: mean, top: group[0].y, bottom: group[linesPerStaff - 1].y, ...extent });
   }
   staves.sort((p, q) => p.top - q.top);
-  return staves;
+  // one page prints one size of staff: a "staff" far tighter than the
+  // page's median is rows of text that happen to be evenly spaced
+  const sp = staves.map((s) => s.space).sort((p, q) => p - q);
+  const median = sp[Math.floor(sp.length / 2)];
+  return staffV1 ? staves : staves.filter((s) => s.space >= 0.7 * median);
+}
+
+// A staff line crowded with heads (a long recitation on one line) has rows
+// just above and below it where the heads alone cover a fifth of the page,
+// so findStaves took them as part of the line: on leaf 747 of the 1908
+// Graduale a 6 px line came out 19 px thick, and readStaff, which drops line
+// rows unless ink crosses them, wiped out every head sitting on it
+// (eval/thick-line-check.md). A head is at most a staff space wide; a line
+// row is ink in runs of hundreds of pixels. So the band is trimmed from
+// both ends to the rows whose ink in runs of LINE_MIN_RUN of the page width
+// or longer is at least LINE_TRIM of the band's best row, plus one row. Head-only rows
+// have none; a line's faint edge rows have 5% or more of its best row, and
+// must stay in the line, or descending rhombi touching it join up.
+export const LINE_MIN_RUN = 0.04;
+export const LINE_TRIM = 0.02;
+export function trimLine(bin, top, bottom) {
+  const { width, ink } = bin;
+  const minRun = Math.max(8, Math.round(LINE_MIN_RUN * width));
+  const long = [];
+  for (let y = top; y <= bottom; y++) {
+    let c = 0, run = 0;
+    for (let x = 0; x <= width; x++) {
+      if (x < width && ink[y * width + x]) { run++; continue; }
+      if (run >= minRun) c += run;
+      run = 0;
+    }
+    long.push(c);
+  }
+  const best = Math.max(...long);
+  if (!best) return [top, bottom];
+  let a = 0, b = long.length - 1;
+  while (a < b && long[a] < LINE_TRIM * best) a++;
+  while (b > a && long[b] < LINE_TRIM * best) b--;
+  // one row more each side, inside the band: a worn line's edge row can be
+  // ink in short pieces only (leaf 425 staff 2), and masking one head row
+  // costs nothing (a head on the line keeps ink above and below the mask)
+  return [top + Math.max(0, a - 1), top + Math.min(long.length - 1, b + 1)];
 }
 
 function staffExtent(bin, lines) {
@@ -476,10 +534,92 @@ export function findClef(bin, staff) {
   return { pos, x0: x, x1 };
 }
 
+// A page photographed or scanned a little turned prints its staff lines
+// at a slope. findStaves takes a line as rows that each hold a fifth of the
+// page width in ink, so a line that drifts several of its own thicknesses
+// across the staff is spread over more rows than it fills, stops being one
+// band, or is measured so thick that readStaff erases the heads on it
+// (leaf 424 of the 1908 Graduale: 2 of its 9 staves found,
+// eval/thick-line-check.md). The slope is found the usual way for printed
+// pages: shear the ink by each trial slope and keep the one whose row
+// profile is sharpest (sum of squared row counts), coarse then fine.
+// Ink is sampled every SKEW_STEP columns. A page is only straightened when
+// the slope moves a line DESKEW_MIN_DRIFT pixels or more across the page
+// (0.29 degrees at 2000 px), so a page the square reader already reads is
+// read exactly as before: on drawn pages the square reader holds to 0.3-0.4
+// degrees and fails from 0.5 (eval/deskew-synthetic-report.md). Below that
+// straightening gains nothing and can cost: it tightens the line mask, so
+// specks touching a line are no longer masked and can join a head (seen at
+// 0.2 degrees with a heavy one-in-400 speckle, eval/deskew-check.md).
+export const SKEW_MAX_DEG = 3;
+export const SKEW_STEP = 2;
+export const DESKEW_MIN_DRIFT = 10;
+export function estimateSkew(bin, { maxDeg = SKEW_MAX_DEG, minDrift = DESKEW_MIN_DRIFT } = {}) {
+  const { width, height, ink } = bin;
+  const xs = [], ys = [];
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x += SKEW_STEP) if (ink[row + x]) { xs.push(x - width / 2); ys.push(y); }
+  }
+  if (!xs.length) return 0;
+  const pad = Math.ceil(Math.tan((maxDeg * Math.PI) / 180) * width) + 2;
+  const hist = new Float64Array(height + 2 * pad);
+  const score = (t) => {
+    hist.fill(0);
+    for (let i = 0; i < xs.length; i++) hist[ys[i] + Math.round(xs[i] * t) + pad]++;
+    let q = 0;
+    for (let i = 0; i < hist.length; i++) q += hist[i] * hist[i];
+    return q;
+  };
+  const toT = (deg) => Math.tan((deg * Math.PI) / 180);
+  let best = 0, bestQ = score(0);
+  // coarse: 0.1 degree steps; then 0.01 degree steps around the best
+  for (let d = -maxDeg; d <= maxDeg + 1e-9; d += 0.1) {
+    const q = score(toT(d));
+    if (q > bestQ) { bestQ = q; best = d; }
+  }
+  const c = best;
+  for (let d = c - 0.1; d <= c + 0.1 + 1e-9; d += 0.01) {
+    const q = score(toT(d));
+    if (q > bestQ) { bestQ = q; best = d; }
+  }
+  const t = toT(best);
+  return Math.abs(t) * width >= minDrift ? t : 0;
+}
+
+// how far a point in column x of the straightened page sits below its
+// place on the page as scanned (shearColumns moves column x by the opposite)
+function shiftOf(x, t, width) {
+  return -Math.round((x - width / 2) * t);
+}
+
+// Straighten the ink by moving each column up or down a whole number of
+// pixels (a vertical shear). For the few degrees a page is turned this is a
+// rotation to within cos(3 deg) = 0.9986 horizontally, and no pixel is
+// resampled: every column, and so every head's vertical runs, is kept as
+// printed.
+export function shearColumns(bin, t) {
+  const { width, height, ink } = bin;
+  const out = new Uint8Array(width * height);
+  for (let x = 0; x < width; x++) {
+    const dy = Math.round((x - width / 2) * t);
+    for (let y = 0; y < height; y++) {
+      const ny = y + dy;
+      if (ny >= 0 && ny < height && ink[y * width + x]) out[ny * width + x] = 1;
+    }
+  }
+  return { width, height, ink: out };
+}
+
 // Scan values relative to the clef line, staff by staff. A trailing custos
 // (the small guide note at the right end) is dropped.
 export function readPage(img, opts = {}) {
-  const bin = binarize(img);
+  const raw = binarize(img);
+  // a tilted page is straightened first (estimateSkew, shearColumns); y
+  // values are given back on the page as scanned
+  const t = opts.deskew === false ? 0 : estimateSkew(raw);
+  const bin = t ? shearColumns(raw, t) : raw;
+  const back = (x, y) => y + shiftOf(x, t, raw.width);
   const staves = findStaves(bin, opts);
   return staves.map((staff, k) => {
     const heads = readStaff(bin, staff, opts);
@@ -493,8 +633,9 @@ export function readPage(img, opts = {}) {
       staff: k + 1,
       top: staff.top,
       space: staff.space,
+      skew: t ? Math.round(Math.atan(t) * 18000 / Math.PI) / 100 : 0,
       clefPos: clef ? clef.pos : null,
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
     };
   });
 }
@@ -528,7 +669,12 @@ export function gabcSteps(src) {
       // skip letters that are not pitches: custos (x+), accidentals (fx fy f#)
       if (g[i + 1] === '+') continue;
       if (g[i + 1] && 'xy#'.includes(g[i + 1])) { i++; continue; }
-      out.push({ rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2], shape: gabcShape(g, i) });
+      const note = { rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2], shape: gabcShape(g, i) };
+      out.push(note);
+      // gvv / gvvv / gss / gsss: a bivirga, trivirga, distropha or tristropha
+      // prints one head per shape letter, so each further letter is a note
+      const rep = /^(v{2,}|s{2,})/.exec(g.slice(i + 1));
+      if (rep) for (let k = 1; k < rep[0].length; k++) out.push({ ...note });
     }
   }
   return out;

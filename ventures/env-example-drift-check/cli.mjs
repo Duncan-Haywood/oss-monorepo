@@ -13,6 +13,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { parseExampleFile, scanSource, mergeReferenced, diffEnv, summarize } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const SCAN_EXTENSIONS = new Set([".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".py", ".rb", ".java", ".go"]);
 const IGNORE_DIRS = new Set([
@@ -164,7 +165,7 @@ export async function run(
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

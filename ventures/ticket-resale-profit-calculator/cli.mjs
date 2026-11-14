@@ -8,6 +8,7 @@
 
 import fs from "node:fs/promises";
 import { netIfSold, listForProfit, breakEvenList, expectedProfit, comparePlatforms, parseSales, analyzeSales, summarizeSales, MODEL_NOTE } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const FLAGS = { "--cost": "costPerTicket", "--qty": "qty", "--fee": "feePct", "--flat-fee": "flatFeePerTicket", "--delivery": "deliveryPerOrder", "--list": "list", "--target-profit": "targetProfit", "--p-sell": "pSell", "--salvage": "salvage", "--min-roi": "minRoi" };
 
@@ -100,6 +101,6 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   return { exitCode: 2, output: `Unknown subcommand "${args.sub}". Try --help.` };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   run(process.argv.slice(2)).then(({ exitCode, output }) => { console.log(output); process.exitCode = exitCode; });
 }

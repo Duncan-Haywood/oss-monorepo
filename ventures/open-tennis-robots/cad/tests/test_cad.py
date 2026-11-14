@@ -1264,5 +1264,129 @@ class LiftCadTest(unittest.TestCase):
                 self.assertEqual(clashes(moving + lift), [c for c in clashes(lift)], (elev, az))
 
 
+
+class DeckCableParamsTest(unittest.TestCase):
+    """The deck-side cable run (2026-11-14): routing, ties and lead losses on the routed lengths."""
+
+    def test_defaults_pass_and_the_route_adds_up(self):
+        p = Feeder()
+        self.assertEqual(p.check_deck_cables(), [])
+        d = p.deck_cable_route()
+        # every run's rounded length is its corner-to-corner length less what each corner's arc saves
+        for run in ("main", "stepper", "lift"):
+            pts = p.deck_cable_paths()[run]
+            sharp = sum(math.dist(a, b) for a, b in zip(pts, pts[1:]))
+            self.assertLess(d["len_mm"][run], sharp)
+            self.assertGreater(d["len_mm"][run], sharp - 4 * (2 - math.pi / 2) * d["bend_r"][run] - 1e-6)
+        # the drawn path is continuous and ends in the clamp's bore, vertical, on the axis
+        m = d["main"]
+        self.assertLess(max(math.dist(a, b) for a, b in zip(m, m[1:])), 400.0)
+        self.assertAlmostEqual(m[-1][0], p.head_x)
+        self.assertAlmostEqual(m[-1][1], 0.0)
+        self.assertAlmostEqual(m[-2][0], p.head_x, places=6)
+        self.assertGreaterEqual(d["straight_min_mm"], 0.0)
+        # the run lies on the saddles' base against the post's inner face
+        self.assertAlmostEqual(p.deck_cable_y + d["od_mm"]["deck"] / 2 + p.deck_saddle_base, p.post_half_y - p.rail_w)
+        self.assertGreater(d["od_mm"]["deck"], d["od_mm"]["post"])
+        self.assertGreater(d["od_mm"]["post"], d["od_mm"]["axis"])
+        # the servo's supply now runs along this route (it was a straight deck-to-axis estimate)
+        self.assertAlmostEqual(p.servo_supply(0.8, 376.0)["run_m"] * 1000,
+                               d["to_clamp_mm"] + p.cable_twist()["run_mm"] + 376.0
+                               + abs(p.cable_clip_x - p.crank_x) + abs(p.cable_clip_z - p.shuttle_zc) + p.servo_top_y, places=6)
+
+    def test_lead_losses_follow_the_wire_table(self):
+        p = Feeder()
+        e = p.deck_cable_electrics()
+        for awg, row in e["awg"].items():
+            ohm = AWG_OHM_PER_M[awg]
+            self.assertAlmostEqual(row["stepper_frac"], 2 * e["stepper_m"] * ohm / p.stepper_coil_ohm)
+            self.assertAlmostEqual(row["lift_drop_v"], p.lift_motor_stall_a * 2 * e["lift_m"] * ohm)
+            self.assertAlmostEqual(row["phase_mohm"], e["phase_m"] * ohm * 1000)
+        # the chosen gauges pass and the next thinner standard ones do not, for the stepper (26) and the phases (16)
+        self.assertLessEqual(e["stepper"]["stepper_frac"], p.stepper_lead_frac)
+        self.assertGreater(e["awg"][26]["stepper_frac"], p.stepper_lead_frac)
+        self.assertLessEqual(e["phase"]["phase_frac"], p.esc_phase_loss_frac)
+        self.assertGreater(e["awg"][16]["phase_frac"], p.esc_phase_loss_frac)
+        self.assertLessEqual(e["lift"]["lift_frac"], p.lift_drop_frac)
+        self.assertGreater(e["awg"][24]["lift_frac"], p.lift_drop_frac)
+        self.assertGreater(e["phase_m"], p.deck_cable_route()["to_clamp_mm"] / 1000)
+
+    def test_rules_catch_bad_changes(self):
+        cases = [
+            ({"deck_cable_bend_r": 15.0}, "bends at 15 mm"),
+            ({"deck_cable_z_low": 395.0}, "cannot turn up into the axis clamp"),
+            ({"deck_tie_max_mm": 50.0}, "ties are up to"),
+            ({"stepper_wires": (("azimuth stepper coils", 4, 26),)}, "stepper lead (26 AWG"),
+            ({"lift_wires": (("lift gearmotor", 2, 24),)}, "lift lead (24 AWG"),
+            ({"head_wires": (("launcher motor phases", 6, 16), ("wheel tachometers", 6, 26),
+                             ("shuttle servo signal", 1, 26), ("shuttle servo supply and return", 2, 20))},
+             "launcher phase extension (16 AWG"),
+        ]
+        for kw, msg in cases:
+            bad = Feeder(**kw).check_deck_cables()
+            self.assertTrue(any(msg in r for r in bad), (kw, bad))
+        self.assertTrue(any("deck cable" in r for r in Feeder(deck_cable_bend_r=15.0).check()))
+
+    def test_ties_hold_every_stretch(self):
+        p = Feeder()
+        t = p.deck_cable_ties()
+        seq = [q for k in ("deck", "post", "crossbar", "arm") for q in t[k]] + [(p.head_x, 0.0, p.cable_clamp_z)]
+        self.assertLessEqual(max(math.dist(a, b) for a, b in zip(seq, seq[1:])), p.deck_tie_max_mm)
+        # deck ties lie on the deck run, post ties on the post's face, hangers under the crossbar and the clamp arm
+        dz = p.deck_cable_route()["deck_z"]
+        for x, y, z in t["deck"]:
+            self.assertAlmostEqual(y, p.deck_cable_y)
+            self.assertGreater(z, dz)
+        for x, y, z in t["crossbar"] + t["arm"]:
+            self.assertAlmostEqual(z, p.deck_cable_z_low)
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class DeckCableCadTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F
+        cls.F = F
+        cls.p = Feeder()
+        cls.parts = F.all_parts(cls.p)
+
+    def _solids(self, name):
+        return next(x for x in self.parts if x.name == name).placed()
+
+    def test_runs_clear_every_part_and_the_head_at_the_actuator_limits(self):
+        # the build's sweeps walk -15..+45 deg; a runaway or a hand can take the head to the actuator's own limits,
+        # where its rear dips lowest, and turn it to the hard stops' reach
+        from otr_cad.package import clashes
+        p = self.p
+        mine = [(f"{n}[{i}]", s) for n in ("deck_cable_main", "deck_cable_stepper", "deck_cable_lift", "deck_cable_saddle",
+                                           "deck_cable_hanger", "stepper_driver_carrier")
+                for i, s in enumerate(self._solids(n))]
+        ext, ret = p.elev_act_limits()
+        for elev in (ext, ret):
+            for az in (-p.az_reach_deg, p.az_reach_deg):
+                moving, _ = self.F.turned_solids(p, elev, az)
+                self.assertEqual(clashes(moving + mine), clashes(mine) + clashes(moving), (elev, az))
+        self.assertEqual(clashes(mine), [])
+
+    def test_saddles_and_carrier_land_on_their_holes(self):
+        p = self.p
+        deck = next(x for x in self.parts if x.name == "base_deck")
+        circles = {(round(e.arc_center.X, 2), round(e.arc_center.Y, 2))
+                   for e in deck.flat.edges() if e.geom_type == GeomType.CIRCLE}
+        for x, y in self.F.deck_cable_saddle_holes(p):
+            self.assertIn((round(x, 2), round(y, 2)), circles)
+        cx, cy = self.F.CARRIER_XY
+        for hx, hy in self.F.CARRIER_HOLES:
+            self.assertIn((round(cx + hx, 2), round(cy + hy, 2)), circles)
+
+    def test_the_route_misses_a_shifted_run(self):
+        # the check can fail: the main run moved 40 mm toward the battery passes through it
+        from build123d import Location
+        from otr_cad.package import clashes
+        run = self._solids("deck_cable_main")[0].moved(Location((0, -40, 0)))
+        battery = self._solids("battery")[0]
+        self.assertNotEqual(clashes([("run", run), ("battery", battery)]), [])
+
+
 if __name__ == "__main__":
     unittest.main()

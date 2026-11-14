@@ -14,6 +14,7 @@ import { readFileSync, statSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { scanText, visualize } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const SKIP_DIRS = new Set([".git", "node_modules"]);
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -170,7 +171,7 @@ export async function run(argv, { readFile = (p) => readFileSync(p, "utf8"), dis
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

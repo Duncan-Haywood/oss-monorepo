@@ -134,7 +134,7 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
-    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); if (Number.isFinite(n)) o[k] = n; else { o[k] = DEFAULTS[k]; $(k).value = DEFAULTS[k]; } } return o; };
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const pct = (x) => (x * 100).toFixed(0) + "%";
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;

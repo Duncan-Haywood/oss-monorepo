@@ -12,6 +12,7 @@
 // Exit codes: 0 no errors, 1 errors (or warnings with --strict), 2 usage or read error.
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { analyze } from "./rrule.mjs";
+import { pathToFileURL } from "node:url";
 
 export function run(argv, { stdin = () => readFileSync(0, "utf8") } = {}) {
   const takes = new Set(["--start", "--tz", "--count", "--from"]);
@@ -62,7 +63,7 @@ function usage(unknown) {
   ].join("\n");
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { code, out } = run(process.argv.slice(2));
   (code === 2 ? console.error : console.log)(out);
   process.exitCode = code;

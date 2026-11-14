@@ -7,6 +7,7 @@ import fs from "node:fs";
 import { timingSafeEqual, createHmac } from "node:crypto";
 import * as E from "./engine.mjs";
 import { verifySignature } from "./stripe.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const RETRAIN_MS = 6 * 3_600_000;
@@ -156,7 +157,7 @@ function summary(t) {
 
 export function loadState(file) { try { return { ...E.newState(), ...JSON.parse(fs.readFileSync(file, "utf8")) }; } catch { return E.newState(); } }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const k of ["API_KEY", "ADMIN_KEY"]) if (!env[k] || env[k].length < 16) { console.error(`Set ${k} (16+ characters).`); process.exit(1); }
   const file = env.STATE || "/tmp/state.json", state = loadState(file);
   const save = () => { fs.writeFileSync(`${file}.tmp`, JSON.stringify(state)); fs.renameSync(`${file}.tmp`, file); };

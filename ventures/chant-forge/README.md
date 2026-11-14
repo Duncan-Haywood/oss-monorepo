@@ -660,8 +660,28 @@ momentary (400 ms) and short-term (3 s) window, found over every sample offset
 `master.mjs` too (`truePeakAnnex2`): inside tolerance, but 0.2-0.3 dB under on
 cases 15 and 17, so the windowed sinc stays the true peak. Cases 20-23 depend on
 an anti-aliasing filter the table does not give (here a 20 kHz cut, which itself
-leaves the peak at -0.24 dBTP); not run: 5.0 channels, the authentic programme
-files and loudness range.
+leaves the peak at -0.24 dBTP); not run: 5.0 channels and the authentic programme
+files.
+
+### Loudness range, EBU Tech 3342 (2026-11-14)
+
+```sh
+node ventures/chant-forge/eval/ebu-tech3342.mjs      # Table 1 cases 1-4, exit 0 when all pass
+node ventures/chant-forge/eval/ffmpeg-lra-check.mjs  # against ffmpeg's ebur128 (needs ffmpeg)
+```
+
+`master-cli.mjs` now prints the loudness range (LRA): how far the 3 s loudness moves,
+95th minus 10th percentile, after a -70 LUFS and a -20 LU gate, as Tech 3342 (2023)
+defines it, with its MATLAB listing's percentile ranks. Cases 1-4 of its Table 1,
+built from the text, read 10.000, 5.000, 20.000 and 15.000 LU (wanted +/-1), the same
+when repeated two and three times and with 1.5 s of trailing silence; with
+BS.1770's -10 LU gate instead, case 3 reads 1.33, so the cases test the gate. Against
+ffmpeg, 11 of 12 signals (tones, pink noise with steps, a fade and a quiet bed, and
+four of this tool's own preview renders) agree within 0.2 LU; the 12th is 0.45 apart
+because the two meters pick a different rank among 100 widely spaced windows
+(eval/ebu-tech3342-2026-11-14.md). The renders read 0.8 LU (metal, steady) to 5.0 LU
+(EDM with `--sections`). No service sets an LRA limit, so it is reported, not checked.
+Open: the EBU's own WAVs (cases 5 and 6, programme material) and a real mix.
 
 ## Real Gregorio files (2026-11-03)
 
@@ -834,7 +854,72 @@ squares. Details, the measurements and the crops' verdicts: `eval/quilisma-strok
 The same pieces were a clean test of the untouched rhombus rule: 417 of 420 rhombi, but 14 of
 2,641 squares called rhombi, more than before (looked at: next section).
 
-### Rhombus height floor (2026-11-14, latest)
+### Tilted pages straightened (2026-11-14, latest)
+
+```sh
+node ventures/chant-forge/eval/deskew-synthetic.mjs   # drawn pages, no network
+node ventures/chant-forge/eval/deskew-check.mjs       # every page scanned so far; needs archive.org
+```
+
+A page scanned a little turned prints its staff lines at a slope, and a line that drifts more
+than its own thickness across the staff stops being one band of rows: leaf 424 of the 1908
+Graduale shows 2 of its 9 staves. `readPage` now finds the slope (`estimateSkew`: shear the ink by
+trial slopes within 3 degrees, keep the sharpest row profile) and moves each column up or down a
+whole number of pixels (`shearColumns`, no resampling) before it looks for staves. Note `y` is
+given back on the page as scanned, each staff carries its `skew`, and `{ deskew: false }` reads
+square. A page is straightened only if the slope moves a line 10 px or more across it
+(`DESKEW_MIN_DRIFT`, 0.29 degrees at 2000 px), so pages that read square are read as before.
+
+On drawn pages (nine staves, 99 heads) the square reader holds to 0.3 to 0.4 degrees, reads 1
+or 36 heads at 0.5 and 4 at most from 0.8; straightened, all 99 from 0.3 to 2.5 degrees, the slope
+found to 0.01 degrees. **On the real pages** (all 185 scanned so far, `eval/deskew-report.md`),
+two are tilted enough to straighten. Leaf 424 (-0.94 degrees) goes from 2 of its 9 staves to 9 and
+from 15 notes to 345. Leaf 585 reads the same either way, and no page loses anything. The staves
+gained end the gradual *Qui timetis* (GregoBase 3670, now in the corpus and in `scan-pages.json`).
+Straightened, 290 of its 299 notes agree with the book and none differs. Square, the alignment
+reached only note 180. `eval/scan-check.mjs --no-deskew` reruns the square reading. Details, the
+threshold and the one cost found (specks touching a line once the mask is tight again):
+`eval/deskew-check.md`.
+
+### Bivirga and tristropha sung as printed (2026-11-14)
+
+GABC writes a doubled or tripled virga or stropha on one letter: `gvv` (bivirga), `gvvv`, `gss`
+(distropha), `gsss` (tristropha). The book prints, and a choir sings, one head per shape letter.
+The converter played each as a single note, so the corpus's 26 bivirgas (15 of 68 files) came out
+one note short. Now each further `v` or `s` is a note on the same pitch, with no syllable of its
+own (a mora after it lengthens the last head). The scan check's `gabcSteps` counts them the same way.
+That clears two disagreements and three "scan only" marks in `eval/scan-check-report.md`, where
+the reader had read both printed heads (`eval/deskew-check.md`, "Bivirga").
+
+### Staff lines at their own thickness (2026-11-14)
+
+```sh
+node ventures/chant-forge/eval/thick-line-check.mjs   # same scans and cache as scan-check
+```
+
+A staff line is a run of rows whose ink covers a fifth of the page. On a line crowded with heads
+(a recitation on one pitch) the heads alone do that in the rows beside it, so a 6 px line came
+out 19 px thick, and the reader, which drops a line's rows unless ink crosses them, erased the
+heads on it. The line's centre moved too, and the staff's even-spacing test then missed whole
+staves: 23 on 22 of the 185 pages scanned so far, plus two staves matched a line too low. Now
+each line is trimmed to the rows with long horizontal runs of ink (`trimLine` in `scan.mjs`),
+a staff's spacing is also taken from its outer two lines, and a "staff" far tighter than the
+page's own is dropped.
+
+| on the 185 pages | before | after |
+|---|---|---|
+| staves found | 1,361 | 1,384 |
+| lines half a staff space or more thick | 38 | 3 |
+| notes read | 46,079 | 47,864 |
+
+No piece agrees with its GABC on fewer notes; GregoBase 3407 goes from 207 to 216 of 219 and
+3429 from 208 of 210 to 286 of 287 (its missing staff found). Rhombi, quilismas and liquescents
+are read more often in every set, and squares called rhombi fall from 6 to 3 of the pieces the
+height floor was chosen on: several of the "worn squares" below were squares on an oversized
+line mask. Not held out (two thresholds were set on these pages). Tilted pages are next: leaf
+424 shows 2 of its 9 staves. Details: `eval/thick-line-check.md`.
+
+### Rhombus height floor (2026-11-14)
 
 ```sh
 node ventures/chant-forge/eval/rhombus-check.mjs --held-out --sweep   # same cache as scan-check
