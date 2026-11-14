@@ -2,7 +2,7 @@
 title: "The zeros a sprinkler solver was multiplying: four times faster, same digits"
 seo_title: "Faster sprinkler hydraulic calculations with an envelope Cholesky"
 date: 2026-11-14
-description: "A sprinkler network's matrix is nearly banded, so most of a dense Cholesky's products are exact zeros. Skipping them made the hydraulic calculator 4.6 times faster on a 80-head grid with byte-identical output."
+description: "A sprinkler network's matrix is nearly banded, so most dense Cholesky products are zeros. Skipping them: 4.6x faster, byte-identical output."
 tags: [sprinkler-hydraulics, performance, javascript, linear-algebra, testing]
 ---
 
