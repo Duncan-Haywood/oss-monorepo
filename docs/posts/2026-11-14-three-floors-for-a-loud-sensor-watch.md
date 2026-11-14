@@ -1,9 +1,9 @@
 ---
 title: "Three automatic alert floors for an eight-sensor pump, and why each one missed"
-seo_title: "Alert floors on SKAB: 28, 27 and 30 of 33 faults, none under budget"
+seo_title: "Alert floors on SKAB: 28, 27 and 30 of 33 faults, none passed"
 date: 2026-11-14
 tags: [changepoint-detection, monitoring, anomaly-detection, pre-registration, negative-result]
-description: "Pre-registered on SKAB's pump testbed: splitting off the loudest sensor caught 30 of 33 faults but let 2.47 false alerts per 100 checks through. Hand-set --min-spread ships."
+description: "Pre-registered on a pump testbed: giving the loudest sensor its own floor caught 30 of 33 faults but sent 2.47 false alerts per 100 checks."
 ---
 
 The [changepoint detector](https://marisstella.app/changepoint-detector/) has a watch mode: run it on a schedule against a growing CSV and it messages you when a column changes. With many columns the noise adds up. On the normal run of the Skoltech Anomaly Benchmark's water-pump testbed (8 sensors, 33 labelled faults), the quiet default on every column sent 8.5 false alert lines per 100 checks. The budget is 2.

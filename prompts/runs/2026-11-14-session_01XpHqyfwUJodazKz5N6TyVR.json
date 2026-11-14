@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfwUJodazKz5N6TyVR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T21:42:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship changepoint-detector (row 2 of allocate.py): round 16 of the watch, 'k without the loudest column', pre-registered on SKAB; hand-set --min-spread",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15988",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First create_pull_request call failed with an upstream connect error; the retry worked.",
+    "Two background wait commands were refused by the pgrep -f hook because the bracketed pattern also appeared elsewhere in the command line (the output-file path)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep -f bracket advice is not enough: the hook also refuses the command when the unbracketed name appears anywhere else in the line (e.g. an output path). A one-line note saying so would save a retry."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-three-floors-for-a-loud-sensor-watch.md",
+    "ventures/changepoint-detector/README.md 'Round 16'"
+  ],
+  "goal": null,
+  "notes": "Round 16 (eval/watch-skab-loud.mjs, pre-registered in commit 351384517 before the scored run): loud column split off with its own spread k. Thermocouple k 22.4, others 2.60. T12 FAILS on (a) 2.47 false/100 pre-fault checks vs 2 and (b) 30 vs 31 faults; (c) passes 50.5% vs 36.8%. Round 15's R re-run matches its committed output (27/33, 59.3%, 1.40). Hand-set watch.mjs --min-spread <k|col=k,...> ships either way as pre-registered. Local checks: watch-loud/spread/floor/watch/watch-page tests 52/52 pass; post front matter, links and similarity clean; run_venture_tests and venture-preflight results below.",
+  "corrections": [],
+  "redteam": null
+}
