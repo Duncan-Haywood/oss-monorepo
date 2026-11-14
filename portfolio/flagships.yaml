@@ -82,8 +82,8 @@ flagships:
       first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) bank readers: 22 public US exports all read (README); open: WF, US Bank, Chase downloads, a business account; (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
-      through real OCR (SROIE 83.4%, CORD photos 50.5%, US photos 68.4%,
-      README; next: curled paper, full-size photos); (6) payroll (941, Schedule B, 940,
+      through real OCR (page SROIE 83.4%, CORD 50.5%, US 68.4%; CLI
+      4-pass 80.5%, 66.8%; next: curled slips, full-size photos); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) IRIS
       NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
       return` (page card; no-sales-tax states warn): 26 more states read on their own
@@ -144,17 +144,14 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git. Open: ZATCA rules on a real sandbox invoice and
-      credit or debit note; MY tourism tax and JP-NTR/AE step-asides landed;
+      credit or debit note;
       FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
       eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
       Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though
       AMA's rules admit them: which validator does AT run?); Poland's FA(3) on
       a KSeF test-environment file and a real correction, advance or
       settlement file; the rules and a repair on a real ERP or Factur-X
-      export; PINT JP/MY/AE/OM rules and repair landed (README); AE VD
-      credit note (ibr-055-ae) closed; open: a real business's PINT file; BT-86, line
-      TaxTotal, CIUS-RO 1.3.8 base, ZATCA/A-NZ repair and INV-059 closed
-      (README); Saxon-to-plain hand-off closed; open: RO_CIUS on a real ANAF
+      export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real business's PINT file; open: RO_CIUS on a real ANAF
       file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP
       payload; primary-source mandate dates (IL, DK, CZ, LV, LU); Nigeria,
       Thailand, Taiwan, Oman, Pakistan and Jordan pages (excerpts; Taiwan,
@@ -162,9 +159,7 @@ flagships:
       codes (omawww blocked), a real payroll or export file, a PAC rejection
       compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
       PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
-      2026-11-13) landed (README); open: a real reform NF-e from a SEFAZ test
-      environment, the cCredPres table, a real SEFAZ rejection for a
-      cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
+      2026-11-13) landed (README); cCredPres rules (BR-058..061, cStat 1049-1175) and cClassTrib at IT 1.71 landed 2026-11-14 (eval/ccredpres-2026-11-14.md): open: the e211110 presumed-credit event, a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
       open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
@@ -184,7 +179,7 @@ flagships:
       pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; plain planner column generation first, one-week look-ahead, steady ties, old-order fallback (README "The planner picks a week's tie": 0 of 61 plans worse, 71% fewer changes); keep-usual-shifts on it 2026-11-14; a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
+      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; plain planner column generation first, one-week look-ahead, steady ties, old-order fallback (README "The planner picks a week's tie": 0 of 61 plans worse, 71% fewer changes); keep-usual-shifts on it 2026-11-14; a real two-site export and staff list (README "Staff shared between sites"); travel gaps, per-site wages; whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
@@ -276,20 +271,19 @@ flagships:
       duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor, three-round re-deals,
       balanced least priced, faster break floor, exact home-and-away breaks, backward table, blackout fit:
-      README 2026-11-11 to 2026-11-14 sections). 2026-11-14 latest: exact least carry-over at 10 teams is
-      94 (eval/carryover-bnb.c, a C branch and bound: none at 92 in 145 s where CaDiCaL stalled at 90; the
-      page now says its 10-team schedule reaches the proved least; README "The least carry-over at 10
-      teams is 94"). Blackout fit (2026-11-13) cut makeups 28% and moved matches 30%. Next, most valuable
-      first: the rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run,
-      now 2.1x cheaper again, README "A backward table"; or a starter family climbed with the floor as its
-      score); 24 and 25 teams in the page (54-184 s since the predecessor cache and backward table; the
-      step over wide spans is ~94%: moves span 15 of 23 rounds, so narrower moves, or a step in
-      WebAssembly); home-and-away breaks exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off
-      MaxSAT; eval/pair-exact.txt): next, a floor-priced home-and-away timetable search on it, and its
-      cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; a lower bound or a timetable below 136 at 12
-      (carryover-bnb.c does not finish at 12: add a bound on the carry-over the remaining rounds must
-      add); close 24-40 (tabu, the literature's starters); a real league's travel and blackout list;
-      printed sheets on a real printer and paper.
+      README 2026-11-11 to 2026-11-14 sections). 2026-11-14 latest: least carry-over 94 at 10 teams, and
+      at 12 none below 124 (eval/carryover-bnb.c with a per-round matching bound and round 1 per cycle
+      type, 11x faster at 10; README "12 teams cannot reach 122"; the page says so). Blackout fit
+      (2026-11-13) cut makeups 28% and moved matches 30%. Next, most valuable first: the rest of the
+      20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now 2.1x cheaper again,
+      README "A backward table"; or a starter family climbed with the floor as its score); 24 and 25 teams
+      in the page (54-184 s since the predecessor cache and backward table; the step over wide spans is
+      ~94%: moves span 15 of 23 rounds, so narrower moves, or a step in WebAssembly); home-and-away breaks
+      exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT; eval/pair-exact.txt): next,
+      a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
+      PAIR_EXACT_NODES) cut; 12 teams 124-136 open: a timetable below 136, or 124 ruled out (~4 h on 4
+      cores; round reversal ~2x, a bound across rounds); close 24-40 (tabu, the literature's starters); a
+      real league's travel and blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

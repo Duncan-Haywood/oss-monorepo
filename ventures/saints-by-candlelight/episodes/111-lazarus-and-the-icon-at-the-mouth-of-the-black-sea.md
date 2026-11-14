@@ -1,5 +1,5 @@
 ---
-number: 110
+number: 111
 slug: lazarus-and-the-icon-at-the-mouth-of-the-black-sea
 title: Lazarus and the Icon at the Mouth of the Black Sea
 published: 2026-11-14

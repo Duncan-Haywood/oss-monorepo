@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it answers
+
+The 2026 IRS standard mileage rate for business use is 72.5 cents a mile for miles driven January 1 to June 30 and 76 cents a mile from July 1 to December 31, so a year of miles cannot be multiplied by one rate. Business parking and tolls are deductible on top. Source: IRS, "Standard mileage rates" (IR-2025-128 and IR-2026-29). As of 2026-11-14.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/mileage-deduction-method-calculator/)

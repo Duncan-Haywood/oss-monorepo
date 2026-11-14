@@ -24,13 +24,22 @@
 //      published IBS/CBS table (cclasstrib.mjs): the code exists and belongs to the CST
 //      (BR-053), is allowed on this model (BR-054), is valid on dhEmi (BR-055), the item
 //      groups are ones the CST and code take (BR-056), and gRed/pRedAliq is the code's
-//      reduction and pAliqEfet the rate less it (BR-057).
+//      reduction and pAliqEfet the rate less it (BR-057). A gCredPresOper on a code that
+//      takes none is SEFAZ cStat 1175 (UB120-20), except on a used-goods item
+//      (indBemMovelUsado 1), as the rule says.
+//   8. the presumed credit (BR-058..BR-061): each item's gCredPresOper against the
+//      cCredPres table (ccredpres.mjs) and NT 2025.002's UB120-UB130: model and code
+//      (BR-058, cStat 1049/1055), the IBS and CBS groups the code takes (BR-059, cStat
+//      1050/1053/1054/1058), code 04's cap at vProd and the suspensive-condition value
+//      (BR-060, cStat 1056/1060/1107/1124), and, as warnings, what the table says that no
+//      rule rejects (BR-061).
 // An offline observation, not SEFAZ's authorisation, and not tax advice.
 
 import { COMPLEX, SIMPLE } from "./nfe-xsd-data.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
+import { checkCredPres } from "./ccredpres.mjs";
 
 export const NFE_NS = "http://www.portalfiscal.inf.br/nfe";
 
@@ -370,7 +379,37 @@ function checkClassification(inf, ide, out) {
       const path = p.kind === "group" ? `${base}/${p.group}` : p.kind === "red" ? `${base}/gIBSCBS/g${p.part}` : p.kind === "date" ? "/NFe/infNFe/ide/dhEmi" : `${base}/cClassTrib`;
       const rule = Object.hasOwn(CT_RULE, p.kind) ? CT_RULE[p.kind] : null;
       if (!rule) continue;
+      if (p.group === "gCredPresOper") {
+        // UB120-20: "Essa regra não se aplica no fornecimento de bem móvel usado".
+        if (txt(kid(det, "prod"), "indBemMovelUsado") === "1") continue;
+        if (doc === "nfe") { out.push(finding(rule, `Item ${det.attrs.nItem || i + 1}: ${p.message.replace(/\.$/, "")} (SEFAZ cStat 1175, UB120-20).`, p.fix, path)); continue; }
+      }
       out.push(finding(rule, `Item ${det.attrs.nItem || i + 1}: ${p.message}`, p.fix, path));
+    }
+  });
+}
+
+// BR-058..BR-061: each item's presumed credit against the cCredPres table (ccredpres.mjs).
+const CP_RULE = { code: "BR-058", group: "BR-059", value: "BR-060", table: "BR-061" };
+function checkPresumedCredit(inf, ide, out) {
+  const model = txt(ide, "mod"), date = txt(ide, "dhEmi").slice(0, 10);
+  kidsOf(inf, "det").forEach((det, i) => {
+    const cp = kid(kid(kid(det, "imposto"), "IBSCBS"), "gCredPresOper");
+    if (!cp) return;
+    const part = (name) => {
+      const g = kid(cp, name);
+      if (!g) return null;
+      const v = (k) => (kid(g, k) ? txt(g, k) : undefined);
+      return { pCredPres: v("pCredPres"), vCredPres: v("vCredPres"), vCredPresCondSus: v("vCredPresCondSus") };
+    };
+    const base = `/NFe/infNFe/det[${i + 1}]/imposto/IBSCBS/gCredPresOper`;
+    for (const p of checkCredPres({ model, date, code: txt(cp, "cCredPres"), vProd: txt(kid(det, "prod"), "vProd"), ibs: part("gIBSCredPres"), cbs: part("gCBSCredPres") })) {
+      const path = p.kind === "code" ? (model === "65" ? base : `${base}/cCredPres`) : p.part ? `${base}/g${p.part}CredPres` : `${base}/cCredPres`;
+      const rule = Object.hasOwn(CP_RULE, p.kind) ? CP_RULE[p.kind] : null;
+      if (!rule) continue;
+      const f = finding(rule, `Item ${det.attrs.nItem || i + 1}: ${p.message}`, p.fix, path);
+      if (p.severity) f.severity = p.severity;
+      out.push(f);
     }
   });
 }
@@ -494,6 +533,7 @@ export function checkNfe(text) {
   checkSums(inf, ide, findings);
   checkReform(inf, findings);
   checkClassification(inf, ide, findings);
+  checkPresumedCredit(inf, ide, findings);
   checkConsistency(inf, ide, emit, dest, findings);
   return { findings, skipped, meta };
 }

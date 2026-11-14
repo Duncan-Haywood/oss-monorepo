@@ -1,6 +1,8 @@
 // Builds a 10-team single round robin on the page with "Spread who you meet next" ticked and "the most even carry-over" kept, and reads
 // the carry-over line: since eval/carryover-bnb.c proved 94 the least at 10 teams, the page should
 // say the schedule reaches it (README "The least carry-over at 10 teams is 94").
+// `node eval/browser-proved-least.mjs 12` builds 12 teams instead: there 124 is a proved lower bound that no
+// known timetable reaches (README "12 teams cannot reach 122"), so the line must say 124 without "reaches it".
 // Needs Playwright and a Chromium: `node eval/browser-proved-least.mjs` (skips with exit 0 when
 // neither is installed).
 import { createServer } from "node:http";
@@ -30,6 +32,7 @@ const server = createServer(async (req, res) => {
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const url = `http://127.0.0.1:${server.address().port}/index.html`;
 
+const N = Number(process.argv[2] || 10);
 let failed = 0;
 const check = (ok, what) => { console.log(`${ok ? "ok  " : "FAIL"} ${what}`); if (!ok) failed++; };
 const OPTS = ["balance", "flip", "relocate", "swapNights"];
@@ -42,7 +45,7 @@ await page.goto(url);
 await page.click("#load-example");
 await page.waitForFunction(() => /Sample league/.test(document.querySelector("#form-status").textContent));
 for (const id of ["blackouts", "timeLimits", "grounds", "results", "courts", "times"]) await page.fill("#" + id, "").catch(() => {});
-await page.fill("#teams", Array.from({ length: 10 }, (_, i) => `Team ${i + 1}`).join("\n"));
+await page.fill("#teams", Array.from({ length: N }, (_, i) => `Team ${i + 1}`).join("\n"));
 const double = page.locator("#double");
 if (await double.count()) await double.uncheck().catch(() => {});
 await page.check("#carryOver");
@@ -53,8 +56,15 @@ const line = await page.waitForFunction(() => {
   return m && /searches for an even carry-over/.test(m[0]) ? m[0] : null;
 }, null, { timeout: 540000 }).then((h) => h.jsonValue());
 console.log(line);
-check(/^Carry-over: 94 /.test(line), "the 10-team search keeps 94");
-check(/no 10-team round robin can go below 94, and this schedule reaches it; an exhaustive search proved it/.test(line), "the line says 94 is the least and reached");
+if (N === 10) {
+  check(/^Carry-over: 94 /.test(line), "the 10-team search keeps 94");
+  check(/no 10-team round robin can go below 94, and this schedule reaches it; an exhaustive search proved it/.test(line), "the line says 94 is the least and reached");
+} else if (N === 12) {
+  const v = Number(line.match(/^Carry-over: (\d+)/)[1]);
+  check(v >= 124, `the 12-team search keeps ${v}, not below the proved 124`);
+  check(/120 is the floor for this many games, but no 12-team round robin can go below 124; an exhaustive search proved it/.test(line), "the line says 124 is the least possible");
+  check(!/reaches it|which is reachable/.test(line), "the line does not claim 124 is reached");
+}
 check(errors.length === 0, `no page errors${errors.length ? ": " + errors.join("; ") : ""}`);
 await browser.close();
 server.close();

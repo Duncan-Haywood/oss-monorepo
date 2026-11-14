@@ -61,12 +61,16 @@ export function carryOverFromOpponents(opponents, { cyclic = false } = {}) {
  * eval/carryover-bnb.c (none at 40 or under). 8: reaches the floor. 10: eval/carryover-bnb.c, an
  * exhaustive branch and bound, finds none at 92 or under (145 s; CaDiCaL had proved 88 and stopped
  * with no answer at 90 after 69 min) and finds a 94 in 2 s, so 94 is the least (README "The least
- * carry-over at 10 teams is 94").
+ * carry-over at 10 teams is 94"). 12: the same search with an exact per-round matching bound and
+ * round 1 fixed per cycle type finds none at 120 (4 x 3 min) or 122 (4 x 25 min); the best known
+ * timetable is 136, so the least is 124 to 136 and not known to be reached (README "12 teams cannot
+ * reach 122").
  */
 export const PROVEN_LEAST = {
   6: { least: 42, exact: true },
   8: { least: 48, exact: true },
   10: { least: 94, exact: true },
+  12: { least: 124, exact: false },
 };
 
 /** Each team's opponents in order from schedule rounds (`{ matches: [{ home, away }] }` or [h, a] pairs). */

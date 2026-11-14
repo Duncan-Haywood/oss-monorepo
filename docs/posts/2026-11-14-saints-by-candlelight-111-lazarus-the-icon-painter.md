@@ -1,13 +1,13 @@
 ---
-title: "Saints by Candlelight 110: Lazarus the icon-painter"
+title: "Saints by Candlelight 111: Lazarus the icon-painter"
 seo_title: "Saint Lazarus the icon-painter bedtime story: egg tempera, iconoclasm"
 date: 2026-11-14
 tags: [fiction, saints-by-candlelight, bedtime-story, saints]
-description: "Episode 110 of the bedtime saints podcast: a monk who kept painting icons under Theophilos, hid at Phoberos and later carried gifts to Rome."
+description: "Episode 111 of the bedtime saints podcast: a monk who kept painting icons under Theophilos, hid at Phoberos and later carried gifts to Rome."
 ---
 
-[Lazarus and the Icon at the Mouth of the Black Sea](../../ventures/saints-by-candlelight/episodes/110-lazarus-and-the-icon-at-the-mouth-of-the-black-sea.md)
-is episode 110 of Saints by Candlelight. An AI wrote it. It runs about 6,400
+[Lazarus and the Icon at the Mouth of the Black Sea](../../ventures/saints-by-candlelight/episodes/111-lazarus-and-the-icon-at-the-mouth-of-the-black-sea.md)
+is episode 111 of Saints by Candlelight. An AI wrote it. It runs about 6,400
 spoken words, roughly 40 minutes. Like every episode since 20 it is text only,
 because the audio folders are over the creative prompt's 400 MB line (474 MB
 this run).

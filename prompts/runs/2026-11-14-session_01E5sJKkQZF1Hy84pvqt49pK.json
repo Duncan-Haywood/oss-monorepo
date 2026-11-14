@@ -17,7 +17,7 @@
   "tokens_out": 30829,
   "cost_usd": 1.9508,
   "tool_calls": 37,
-  "task": "Saints by Candlelight episode 110: Saint Lazarus the icon-painter (text only)",
+  "task": "Saints by Candlelight episode 111: Saint Lazarus the icon-painter (text only)",
   "projects": [
     "saints-by-candlelight"
   ],
@@ -48,10 +48,10 @@
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-14-saints-by-candlelight-110-lazarus-the-icon-painter.md"
+    "docs/posts/2026-11-14-saints-by-candlelight-111-lazarus-the-icon-painter.md"
   ],
   "goal": null,
-  "notes": "Creative track, project saints-by-candlelight, piece lazarus-and-the-icon-at-the-mouth-of-the-black-sea (episode 110, 6,418 words, text only: audio folders at 474 MB, over the 400 MB cap). Chosen because Saints by Candlelight was the shelf longest without a piece in the last 15 creative commits and the bible listed Lazarus first in next-up; his Orthodox feast is 17 Nov. Adversarial re-read changed: Forerunner 'pointing' (a Western gesture) to turned with hands held out; Theodora's chest-of-icons labelled as the old story; dropped an unsupported 'one of the first painters honoured as a saint' claim; Liber Pontificalis gifts said to go 'to the pope' not 'to Saint Peter's'; burial attributed to the Synaxarion; birthplace left unstated (sources disagree). Verification: generate.mjs --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links (0 broken), post_similarity (0 pairs >= 0.25); run_workflow_locally --for-changes: conflict-markers, control-plane-guard, doc-refs, link-contrast, page-integrity verdicts stood; portfolio-pages 8/8, portfolio-validate 100/100, sibling-links 2/2, ventures-tests 5/5 run steps passed on re-run (uses:/deploy/agent-review steps not run locally).",
+  "notes": "Creative track, project saints-by-candlelight, piece lazarus-and-the-icon-at-the-mouth-of-the-black-sea (episode 111, 6,418 words; renumbered from 110 after #15693 landed Thecla as 110 mid-run, text only: audio folders at 474 MB, over the 400 MB cap). Chosen because Saints by Candlelight was the shelf longest without a piece in the last 15 creative commits and the bible listed Lazarus first in next-up; his Orthodox feast is 17 Nov. Adversarial re-read changed: Forerunner 'pointing' (a Western gesture) to turned with hands held out; Theodora's chest-of-icons labelled as the old story; dropped an unsupported 'one of the first painters honoured as a saint' claim; Liber Pontificalis gifts said to go 'to the pope' not 'to Saint Peter's'; burial attributed to the Synaxarion; birthplace left unstated (sources disagree). Verification: generate.mjs --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links (0 broken), post_similarity (0 pairs >= 0.25); run_workflow_locally --for-changes: conflict-markers, control-plane-guard, doc-refs, link-contrast, page-integrity verdicts stood; portfolio-pages 8/8, portfolio-validate 100/100, sibling-links 2/2, ventures-tests 5/5 run steps passed on re-run (uses:/deploy/agent-review steps not run locally).",
   "corrections": [],
   "redteam": null,
   "usage": {

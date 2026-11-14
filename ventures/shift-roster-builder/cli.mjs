@@ -26,7 +26,7 @@ import { import7shifts, fetch7shifts, within } from "./import-7shifts.mjs";
 import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays, readSales } from "./demand.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, siteSplit, siteSplitText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
   keepFromCsv,
   pinStarted,
@@ -100,7 +100,8 @@ Options:
                       --count tickets plans from distinct ticket/order/receipt numbers per hour instead (--splh is then tickets per labor
                       hour; --count rows counts each row); a file with a ticket column and no sales column is counted by ticket.
                       A Location (Store, Site, Outlet, Restaurant ...) column with several sites, as Square and Toast exports have:
-                      --location <name> plans that site alone, --each-location prints one plan per site (each under "# Location: name");
+                      --location <name> plans that site alone, --each-location prints one plan per site (each under "# Location: name", every line tagged "site: name",
+                      so the output builds as one roster across the sites with a shared staff list);
                       with neither, the sites are planned as one shop and a note lists them.
                       --standard "1.5/ticket + 0.02/sale + 0.3/item" plans from a labour standard instead: minutes of work per ticket,
                       per unit of money and per item, blended (any of the three); --splh is then minutes of work per labor hour
@@ -495,15 +496,16 @@ export function run(staffText, shiftsText, opts = {}) {
       code,
       out: JSON.stringify({
         payroll: r.cost, overtimeHours: r.otHours, unfilledShifts: r.unfilledSlots, unfilledHours: r.unfilledHours,
-        assignments: r.assignments.map((a) => ({ day: DAYS[a.slot.day], start: fmtClock(a.slot.startMin), end: fmtClock(a.slot.endMin), label: a.slot.label || "", role: a.slot.role || "", person: a.person })),
+        assignments: r.assignments.map((a) => ({ day: DAYS[a.slot.day], start: fmtClock(a.slot.startMin), end: fmtClock(a.slot.endMin), label: a.slot.label || "", role: a.slot.role || "", ...(a.slot.site ? { site: a.slot.site } : {}), person: a.person })),
         people: r.people.map((p) => ({ name: p.name, hours: p.hours, short: p.short })),
         unfilled: r.unfilled.map((u) => ({ day: DAYS[u.slot.day], start: fmtClock(u.slot.startMin), end: fmtClock(u.slot.endMin), why: u.text })),
         critical: r.critical, warnings: r.warnings, optimality: r.optimality || undefined, steady: r.steady || undefined,
-        coverSlack: r.coverSlack || undefined,
+        coverSlack: r.coverSlack || undefined, sites: siteSplit(r) || undefined,
       }, null, 2) + "\n",
     };
   }
-  return { code, out: reportText(r) + (r.steady ? "\n" + steadyText(r.steady) + "\n" : "") + (r.coverSlack ? "\n" + coverSlackText(r.coverSlack, st.staff) + "\n" : "") };
+  const bySite = siteSplit(r);
+  return { code, out: reportText(r) + (bySite ? "\n" + siteSplitText(bySite) + "\n" : "") + (r.steady ? "\n" + steadyText(r.steady) + "\n" : "") + (r.coverSlack ? "\n" + coverSlackText(r.coverSlack, st.staff) + "\n" : "") };
 }
 
 
@@ -665,7 +667,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         if (!r.shiftsText) { if (o.eachLocation) process.stdout.write("# (no shifts: see the notes)\n"); continue; }
         const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
         process.stderr.write(`${o.eachLocation ? `[${site}] ` : ""}${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week ${r.count === "minutes" ? "minutes of work" : r.count && r.count !== "sales" ? r.count : "sales"} ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
-        process.stdout.write(r.shiftsText + "\n");
+        // Each line carries "site: name" (2026-11-14), so the whole output pastes into one build with a shared staff list
+        // (a person's "sites:" cell says where they can work) and the hour caps hold across the sites.
+        const tag = o.eachLocation ? `, , site: ${String(site).replace(/[,\t]/g, " ").trim()}` : "";
+        process.stdout.write((tag ? r.shiftsText.split("\n").map((l) => l + tag).join("\n") : r.shiftsText) + "\n");
         code = 0;
       }
       process.exit(code);
