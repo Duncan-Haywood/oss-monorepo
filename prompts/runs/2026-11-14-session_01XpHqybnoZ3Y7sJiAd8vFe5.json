@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqybnoZ3Y7sJiAd8vFe5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T18:44:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 8 quick-pick-survey, item (k2): top-k numbers on the picks page, k in the shared link",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15940",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/scripts/build-picks-page.mjs",
+      "issue": "The generated module is a template literal inside a script; writing a doc comment with backticks through a Python heredoc doubled the escapes and briefly broke the template. Not a doc error, but a trap worth knowing when editing generators."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-quick-pick-survey-a-shortlist-link-that-keeps-its-question.md",
+    "ventures/quick-pick-survey/docs/RANK-PAGE.md (section 'Shortlist links and the shortlist's numbers')"
+  ],
+  "goal": "A team sent a shortlist link answers for the same cut; the shortlist mode's measured cost and accuracy are shown where people decide",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures (draw); allocate.py picked flagship row 6 quick-pick-survey; claim_check HOLD. Landed (k2): encodeList/decodeList carry mode+k (full-order links unchanged; unknown mode or misfit k opens full order with modeIgnored reason, per AGENTS.md reject-don't-coerce), rank.html notes to sender and respondent, status line quotes TOP_MEASURED via topPicksGuide, generated shortlist section + FAQ on how-many-pairwise-comparisons.html, three ready lists link top 3. Verification: node --test rank-core/picks-page/use-pages 58 pass; run_venture_tests.py quick-pick-survey ok; Chromium 390px round trip (top 4 of 12, 53 picks, true top 4; link reopened in top-4 mode; k=7 on 3 options explained); no overflow or console errors. New tests checked to fail on the old behaviour: old decodeList returns no mode, so the round-trip asserts fail.",
+  "corrections": [],
+  "redteam": null
+}

@@ -480,5 +480,58 @@ respondent on 10 options stopped at 39 picks naming the true top 3; no
 horizontal scroll, no console errors. The page counts the mode chosen
 (`mode:<order|favourite|top>`, local only).
 
-Limits: simulated people, evenly spaced scores, no ties or fatigue; a shared
-link still opens in full-order mode.
+Limits: simulated people, evenly spaced scores, no ties or fatigue. (A shared
+link opened in full-order mode until the section below.)
+
+## Shortlist links and the shortlist's numbers (2026-11-14, k2)
+
+The shortlist mode is most useful for a team ("which 3 features this
+quarter?"), and until now the link the sender copied dropped the mode: every
+respondent ranked the full order and the shortlist question was lost.
+
+- **The link carries the mode.** `encodeList({ title, items, mode, k })` adds
+  `m` ("favourite" or "top") and, for "top", `k` to the fragment's JSON. A
+  full-order link is byte-for-byte what it was, so old links and the ready-list
+  pages are unchanged. `decodeList` returns `mode` and `k` only when they fit
+  the de-duplicated list (k from 2 to n-1). A mode it does not know, or a k
+  that does not fit, is not guessed at: the list opens in the full order and
+  `modeIgnored` says why, and the page shows that sentence above the first
+  question. The respondent sees "Whoever sent this link asked for your top k";
+  the sender's share box says the link asks for the same cut.
+- **The status line quotes the shortlist mode's own numbers.** It used to say
+  "a shortlist takes more picks" with no figure. `site/picks-measured.mjs`
+  (generated) now also holds `TOP_MEASURED`, the shortlist arm of
+  `docs/top-k-2026-11-14.jsonl`, and `topPicksGuide(n, k)` reads it at the
+  nearest measured k (3 or 5, the larger on a tie), interpolating between 10,
+  15, 20 and 30 options and holding at the ends; the line says when it used a
+  different k or length.
+- **The answer page has a shortlist section.**
+  `site/how-many-pairwise-comparisons.html` ("Only need a shortlist?") shows
+  every measured cell, full order against shortlist mode, picks, exact
+  shortlists and runs at the cap, with four findings summed from the rows
+  (54/96 against 25/96 for ordinary people on 15-30 options at 1.6x the picks;
+  20% more picks for clear-cut people; little gain at 10 options; close calls
+  on long lists mostly at the cap and mostly wrong) and an FAQ entry ("How many
+  comparisons does it take to find the top 3 of 20?"). All of it is generated
+  by `scripts/build-picks-page.mjs`, and `site/picks-page.test.mjs` fails if
+  the page or module is stale.
+- **Three ready lists offer the shortlist link**: feature backlog, name
+  shortlist and customer pain points (`shortlist: { k: 3 }` in
+  `scripts/build-use-pages.mjs`), counted as `use_page_shortlist:<slug>`.
+
+Checks: `site/rank-core.test.mjs` (a full-order link is unchanged; top and
+favourite round-trip, also with `l=`; k of 5, 1, 2.5, "3", null and 99 on five
+options and an unknown mode open the full order with a reason; k is checked
+against the de-duplicated list), `site/picks-page.test.mjs` (the shortlist rows
+are the `order` and `boundary` arms, one cell cross-checked against the raw
+row; the lead finding holds in the data; `topPicksGuide` at measured cells,
+nearest k, held ends, interpolation) and `site/use-pages.test.mjs` (each
+shortlist link decodes to top mode with its k on the same list). Browser
+(Chromium, 390 px): a sender's top 4 of 12 stopped at 53 picks naming the true
+top 4; the copied link opened on a fresh page in top-4 mode with the note; a
+hand-made link with k = 7 on 3 options opened in full order with the reason;
+no horizontal scroll, no console errors.
+
+Limits: the saved progress for a list wins over a link's mode (someone who
+already ranked that list keeps their own mode); the measured k are only 3 and
+5, so a top 8 quotes the top-5 numbers and says so.

@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { USE_PAGES, renderUsePage, rankLink, SITE } from "../scripts/build-use-pages.mjs";
+import { USE_PAGES, renderUsePage, rankLink, shortlistLink, SITE } from "../scripts/build-use-pages.mjs";
 import { decodeList, parseList, MIN_ITEMS, MAX_ITEMS } from "./rank-core.mjs";
 
 test("every use page is the current output of scripts/build-use-pages.mjs", () => {
@@ -44,4 +44,19 @@ test("the ready-lists hub is current, links every use page, and every use page l
   }
   const index = readFileSync(join(SITE, "index.html"), "utf8");
   assert.ok(index.includes(`href="${HUB_SLUG}.html"`), "landing page links the hub");
+});
+
+test("a page's shortlist link opens the ranker in top-k mode on the same list, with a k that fits it", () => {
+  const withShortlist = USE_PAGES.filter((p) => p.shortlist);
+  assert.ok(withShortlist.length >= 1);
+  for (const page of USE_PAGES) {
+    const link = shortlistLink(page);
+    if (!page.shortlist) { assert.equal(link, null); assert.doesNotMatch(renderUsePage(page), /use_page_shortlist/); continue; }
+    const d = decodeList(link.split("#")[1]);
+    assert.equal(d.mode, "top", page.slug);
+    assert.equal(d.k, page.shortlist.k);
+    assert.equal(d.modeIgnored, undefined);
+    assert.deepEqual(d.items, page.items);
+    assert.ok(renderUsePage(page).includes(`record("use_page_shortlist:${page.slug}")`), "the click is counted");
+  }
 });
