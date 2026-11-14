@@ -163,3 +163,12 @@ test("processing fee is charged on price plus buyer shipping plus tax (hand sum)
   near(f.commission, 1.6, 1e-9);
   near(f.fee, 1.6 + 1.0714, 1e-9);
 });
+
+// Red-team 2026-11-14: Math.min(...items.map()) overflowed the call stack past
+// about 125k items.
+test("200,000 items are analysed without a stack overflow", () => {
+  const base = normalizeRows(parseCsv(sampleCsv())).items;
+  const items = Array.from({ length: 200000 }, (_, i) => ({ ...base[i % base.length] }));
+  const r = analyze(items);
+  assert.equal(r.summary.from, Math.min(...base.map((x) => x.t)));
+});

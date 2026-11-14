@@ -357,3 +357,50 @@ test("the example's ad charges span the $1 to $3.50 range the generator draws", 
   assert.ok(Math.max(...ads) > 2.5, `largest ad charge ${Math.max(...ads)}`);
   assert.ok(Math.min(...ads) >= 1);
 });
+
+// Red-team 2026-11-14: guards for mutants that escaped the suite, and a crash.
+test("a clock time with minute 60 is not a time", () => {
+  assert.equal(parseWhen("2026-06-01 12:60"), null);
+  assert.equal(parseWhen("2026-06-01 12:59").t, Date.UTC(2026, 5, 1, 12, 59));
+});
+
+test("a 21:00 order is late, not dinner", () => {
+  const body = Array.from({ length: 6 }, (_, i) => `O${i},DoorDash,2026-06-0${i + 1} 21:15,Delivered,20,-5,0,0,0,0,15`).join("\n");
+  const r = analyze(load(body + "\n").orders, {});
+  assert.deepEqual(r.byDaypart.map((d) => d.key), ["late"]);
+});
+
+test("average ticket is food sales over orders", () => {
+  const r = analyze(load("A,DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24\nB,DoorDash,2026-06-02 12:00,Delivered,10,-2,0,0,0,0,8\n").orders, {});
+  near(r.summary.avgTicket, 20);
+  near(r.byPlatform[0].avgTicket, 20);
+});
+
+test("a direct-order fee of 100% or more is rejected", () => {
+  const orders = load("A,DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24\n").orders;
+  assert.match(analyze(orders, { directPct: 100 }).invalid, /Direct-order fee/);
+  assert.match(analyze(orders, { directPct: 150 }).invalid, /Direct-order fee/);
+  assert.match(analyze(orders, { directPct: -1 }).invalid, /Direct-order fee/);
+});
+
+test("the loss finding states the food sales of the losing orders to the cent", () => {
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,12,-4,-1,-4,0,0,3\nB,DoorDash,2026-06-01 13:00,Delivered,50,-10,0,0,0,0,40\nC,DoorDash,2026-06-02 13:00,Delivered,10,-3,0,0,0,-8,-1\n");
+  const r = analyze(n.orders, { foodPct: 35, packaging: 0.5 });
+  assert.equal(r.lossOrders.gross, 22);
+  const f = r.findings.find((x) => /lost money after food cost/.test(x.title));
+  assert.match(f.detail, / on \$22\.00 of food sales/);
+});
+
+test("the example has orders with no ad spend, and Grubhub runs no ads", () => {
+  const r = analyze(normalizeRows(parseCsv(sampleCsv())).orders, {});
+  assert.equal(r.byPlatform.find((b) => b.key === "grubhub").ads, 0);
+});
+
+test("a file with 200,000 orders is analysed, not a stack overflow", () => {
+  const start = Date.UTC(2025, 0, 1);
+  const orders = Array.from({ length: 200000 }, (_, i) => ({ line: i + 2, id: `O${i}`, platform: "doordash", store: "", t: start + i * 120000, hasTime: true, hour: 12, cancelled: false, refund: false, gross: 20, commission: 5, delivery: 0, marketing: 0, ads: 0, errors: 0, payout: null }));
+  const r = analyze(orders, {});
+  assert.equal(r.summary.orders, 200000);
+  assert.equal(r.summary.from, start);
+  assert.equal(r.summary.to, Math.floor((start + 199999 * 120000) / 86400000) * 86400000);
+});

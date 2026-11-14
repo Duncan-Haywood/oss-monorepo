@@ -211,3 +211,12 @@ test("cohortRetention: repeat share and revenue by first-order month, unobserved
   assert.equal(cohorts[2].repeat[30], null);
   assert.deepEqual(cohortRetention([]).cohorts, []);
 });
+
+// Red-team 2026-11-14: Math.max(...orders.map()) overflowed the call stack
+// past about 125k orders, which a store's order export can easily hold.
+test("200,000 orders summarise and build cohorts without a stack overflow", () => {
+  const orders = Array.from({ length: 200000 }, (_, i) => ({ id: `c${i % 40000}`, day: 20000 + (i % 365), amount: 20 }));
+  const rows = summarize(orders);
+  assert.equal(rows.length, 40000);
+  assert.ok(cohortRetention(orders));
+});
