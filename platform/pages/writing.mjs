@@ -350,6 +350,12 @@ const STYLE = `
   #count { margin:0; font-size:.85rem; color:var(--muted); }
   .topic { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--accent); color:var(--accent); }
   .meta a.tag, .meta a.topic { text-decoration:none; }
+  /* A post's byline row: the topic pill, then date and reading time, then Source, each kept whole when the row wraps; tags on a row of their own. */
+  .post-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px .35em; line-height:1.5; }
+  .post-meta .topic { margin-right:.3em; }
+  .post-meta .when, .post-meta .src { white-space:nowrap; }
+  .post-meta .tags { flex-basis:100%; display:flex; flex-wrap:wrap; gap:6px; }
+  .post-meta .tag { margin:0; }
   .pager { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:2em 0 0; font-size:.92rem; }
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
@@ -858,7 +864,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
     },
     hero: `<h1>${esc(post.title)}</h1>
 <p class="dek">${esc(post.description)}</p>
-<p class="meta">${topic} <time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read&nbsp;·&nbsp;<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}${tags ? `<br>${tags}` : ''}</p>`,
+<p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="src"><span aria-hidden="true">·</span> <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span>${tags ? ` <span class="tags">${tags}</span>` : ''}</p>`,
     body: `<article>
 ${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), toRoot)}
 </article>

@@ -7964,11 +7964,13 @@ export function researchDirections(repoRoot = REPO_ROOT) {
 
 /** The `<option>`s of the research direction picker, grouped as `researchDirections` returns them. */
 function renderDirectionOptions({ programmes = [], themes = [] }) {
-  const cut = (t, n) => (t.length > n ? `${t.slice(0, n - 1).trimEnd()}…` : t);
+  // Titles arrive as authored HTML (`market&rsquo;s`): decode before escaping, or
+  // the menu shows the entity as text, and before cutting, so the cut counts characters.
+  const cut = (t, n) => { const s = decodeEntities(String(t)); return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s; };
   const progs = programmes.length
     ? `<optgroup label="Open research programmes">${programmes.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(`${p.slug}: ${p.question}`, 110))}</option>`).join('')}</optgroup>`
     : '';
-  return progs + themes.map((t) => `<optgroup label="${escapeHtml(`${t.name} (${t.projects.length})`)}">${t.projects.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(p.title, 110))}</option>`).join('')}</optgroup>`).join('');
+  return progs + themes.map((t) => `<optgroup label="${escapeHtml(`${decodeEntities(t.name)} (${t.projects.length})`)}">${t.projects.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(p.title, 110))}</option>`).join('')}</optgroup>`).join('');
 }
 
 /** The stages a request moves through, as the stepper draws them. `declined` is shown beside them, not on the line. */

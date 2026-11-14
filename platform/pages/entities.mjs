@@ -125,3 +125,22 @@ export function unknownNamedEntities(html) {
   }
   return [...unknown];
 }
+
+// A double-escaped reference (`&amp;rsquo;`) renders as the literal text
+// `&rsquo;`. In prose it can be deliberate (a post about entities shows one in a
+// code span), but never in a menu choice, a page title or a heading: those are
+// built from authored titles that already carry HTML, escaped a second time.
+// The custom-development direction picker did exactly that until 2026-11-14
+// (17 choices read "market&rsquo;s").
+const CHROME_TEXT = /<(option|title|h1|h2)\b[^>]*>([\s\S]*?)<\/\1>|<optgroup\b[^>]*\blabel="([^"]*)"/gi;
+const DOUBLE_ESCAPED = /&amp;(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);/gi;
+
+/** Double-escaped references inside `<option>`, `<title>`, `<h1>`, `<h2>` and optgroup labels, deduped, as visitors see them. */
+export function doubleEscapedInChrome(html) {
+  const found = new Set();
+  for (const m of String(html).matchAll(CHROME_TEXT)) {
+    const text = m[2] ?? m[3] ?? '';
+    for (const [, body] of text.matchAll(DOUBLE_ESCAPED)) found.add(`&${body};`);
+  }
+  return [...found];
+}
