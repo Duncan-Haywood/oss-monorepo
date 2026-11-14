@@ -85,3 +85,23 @@ test("the linked sibling ventures exist", () => {
     assert.doesNotThrow(() => readFileSync(new URL(`../${slug}/index.html`, import.meta.url)), slug);
   }
 });
+
+// Quality audit 2026-11-07 (defect 1): states were added to the calculator while
+// llms.txt and VENTURE.yaml kept the older list, and the page's project-type note
+// named Georgia, whose dates do not depend on project type. Both now come from calc.mjs.
+import { STATE_RULES } from "./calc.mjs";
+
+test("llms.txt and VENTURE.yaml name every state calc.mjs models", () => {
+  for (const file of ["llms.txt", "VENTURE.yaml"]) {
+    const text = page(file);
+    for (const { name } of Object.values(STATE_RULES)) assert.match(text, new RegExp(name), `${file} omits ${name}`);
+  }
+});
+
+test("the project-type note names exactly the states with a residential rule", () => {
+  const html = page("index.html").replace(/\s+/g, " ");
+  const note = html.match(/Project type changes the dates only in ([^.]+)\./)[1];
+  const named = Object.values(STATE_RULES).map((r) => r.name).filter((n) => note.includes(n)).sort();
+  const varying = Object.values(STATE_RULES).filter((r) => JSON.stringify(r).includes('"residential":')).map((r) => r.name).sort();
+  assert.deepEqual(named, varying);
+});
