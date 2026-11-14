@@ -7,6 +7,7 @@ import { dirname, join } from "node:path";
 import {
   parseList, listId, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, order,
   nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, stopCheck, STOP_CONFIDENCE, MAX_ITEMS,
+  personInfo, groupFit, populationFit, populationAt, teamRanges,
 } from "./rank-core.mjs";
 import { buildEngineFile, ENGINE_FILES } from "../scripts/build-rank-engine.mjs";
 
@@ -300,4 +301,49 @@ test("stopCheck holds back a near-coin-flip respondent the fixed prior would hav
   const s = stopCheck(n, history[k]);
   assert.ok(s.phi < 2, `own prior sd ${s.phi} is narrower than the fixed 2.01`);
   assert.equal(s.done, false, `held back at pick ${k + 1} (confidence ${s.confidence.toFixed(3)})`);
+});
+
+// Team ranges (docs/RANK-PAGE.md, "Team ranges").
+function chain(order, reps) {
+  const a = [];
+  for (let r = 0; r < reps; r++) for (let k = 0; k + 1 < order.length; k++) a.push([order[k], order[k + 1], false]);
+  return a;
+}
+
+test("team ranges: people who agree get tau near 0 and the two reads match", () => {
+  const items = ["a", "b", "c", "d", "e"];
+  const p = { answers: chain([0, 1, 2, 3, 4], 3) };
+  const t = teamRanges(items, [p, p, p]);
+  assert.ok(t.tau < 0.3, `tau ${t.tau}`);
+  assert.deepEqual(t.rows.map((r) => r.item), [0, 1, 2, 3, 4]);
+  for (const r of t.rows) assert.ok(r.popHigh - r.popLow <= r.high - r.low + 1, `item ${r.item}`);
+});
+
+test("team ranges: people who disagree widen the 'people like you' read, not the group's", () => {
+  const items = ["a", "b", "c", "d", "e"];
+  const up = { answers: chain([0, 1, 2, 3, 4], 4) }, down = { answers: chain([4, 3, 2, 1, 0], 4) };
+  const t = teamRanges(items, [up, down, up, down]);
+  assert.ok(t.tau > 1, `tau ${t.tau}`);
+  // At tau = 0 the same codes would be read as one confident mixed person.
+  const infos = [up, down, up, down].map((p) => personInfo(5, p.answers));
+  const fixed = populationAt(5, infos, 0), fitted = populationFit(5, infos);
+  assert.ok(fitted.logLik > fixed.logLik, "the fitted tau explains the codes better than tau = 0");
+  const v = (f) => f.cov.reduce((a, x, k) => a + (k % 6 === 0 ? x : 0), 0);
+  assert.ok(v(fitted) > v(fixed), "and is less sure of the group's scores");
+  assert.ok(v(fitted) > 2 * v(groupFit(5, infos)), "than of this group's own mean, which disagreement does not blur");
+});
+
+test("team ranges: the group posterior is the mean of the refits with summed covariance / m^2", () => {
+  const a = { answers: chain([0, 1, 2, 3], 2) }, b = { answers: chain([1, 0, 3, 2], 1) };
+  const fa = fit(4, a.answers), fb = fit(4, b.answers);
+  const g = groupFit(4, [a, b]);
+  for (let i = 0; i < 4; i++) assert.ok(Math.abs(g.mu[i] - (fa.mu[i] + fb.mu[i]) / 2) < 1e-12);
+  for (let k = 0; k < 16; k++) assert.ok(Math.abs(g.cov[k] - (fa.cov[k] + fb.cov[k]) / 4) < 1e-12);
+});
+
+test("team ranges: at tau = 0 the population read is close to one refit of everyone's answers", () => {
+  const a = chain([0, 1, 2, 3, 4], 2), b = chain([0, 2, 1, 3, 4], 2);
+  const pooled = fit(5, [...a, ...b]);
+  const r = populationAt(5, [personInfo(5, a), personInfo(5, b)], 0);
+  for (let i = 0; i < 5; i++) assert.ok(Math.abs(r.mu[i] - pooled.mu[i]) < 0.25, `item ${i}: ${r.mu[i]} vs ${pooled.mu[i]}`);
 });
