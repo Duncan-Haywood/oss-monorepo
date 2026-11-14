@@ -42,12 +42,20 @@ SKIP_PARTS = {"node_modules", ".next", "dist", "build", "vendor"}
 
 def scan_text(text):
     """Line numbers (1-based) of validators that accept a rolled-over day."""
+    # Literal prefilters, exact: NAN_CHECK cannot match without "isNaN(" and neither
+    # DAY_RANGE spelling (" <= 31", " > 31") can match without " 31", so a file or line
+    # lacking them cannot hit. Most files lack both, which skips millions of searches.
+    nan_file = "isNaN(" in text
+    range_file = " 31" in text
+    if not nan_file and not range_file:
+        return []
     lines = text.splitlines()
     hits = []
     for i, line in enumerate(lines, 1):
-        if SHAPE.search(line) and NAN_CHECK.search(line) and not ROUND_TRIP.search(line):
+        if nan_file and "isNaN(" in line and SHAPE.search(line) and NAN_CHECK.search(line) \
+                and not ROUND_TRIP.search(line):
             hits.append(i)
-        elif DAY_RANGE.search(line) and MONTH_RANGE.search(line) \
+        elif range_file and " 31" in line and DAY_RANGE.search(line) and MONTH_RANGE.search(line) \
                 and not CALENDAR.search("\n".join(lines[i - 1:i + WINDOW])):
             hits.append(i)
     return hits
