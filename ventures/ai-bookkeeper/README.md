@@ -1176,6 +1176,17 @@ The 2026-11-12 batch had no Wells Fargo, US Bank or Chase download and no busine
 
 Pinned in `us-bank-downloads-2.test.mjs` (6 tests, rows written here under the real headers). Not tried yet: a US Bank checking download, a Chase business card, a credit union, and a business account at any bank other than Chase. A PNC sample with a hand-mangled row (`"$50.00$1234.56"`) is left out of the count; the reader names the row and skips it.
 
+### Credit unions and the US Bank memo (2026-11-14, later)
+
+`node eval/us-bank-exports.mjs` now reads 48 files (7 more, fetched at run time, none committed): a US Bank card download with ISO dates (57 rows, real merchants), a US Bank layout sample, and five files in a layout several US credit unions' online banking writes (`Transaction ID, Posting Date, Effective Date, Transaction Type, Amount, Check Number, Reference Number, Description, Transaction Category, Type, Balance, Memo, Extended Description`; the first column is missing in some): a 1,086-row checking download from a New Mexico credit union, a credit-union card download from Oregon, and three test files from other projects. Totals: 4,506 rows read, 48 of 48 layouts named, no unexplained skip, no payment or deposit row with the wrong sign.
+
+Two findings, one a fault with a money consequence:
+
+1. **The US Bank card download read 0 rows.** Its memo is `24269794038500527407893; 05411; ; ; ;`: five semicolons in every data line against four commas, so the delimiter picker chose the semicolon and found no date or amount column. A delimiter that splits some line of the file into two or more known column names now beats one that does not; with no recognisable header the old count decides, as before. After: 57 of 57 rows.
+2. **That memo carries the card network's merchant category code** (the second field: 05411 on grocers, 05542 on fuel, 05814 on coffee shops, 05712 on furniture), and the categorizer already uses an MCC when a file has a column for one. It is now read from a memo of that shape (a 15 to 30 digit reference, then a four-digit code with a leading zero). On the real file, purchases with a suggestion on first sight go from 18 of 55 to 33 of 55; no suggestion that the payee names already gave changes. Read by eye, 13 of the 15 new ones are right; the two doubtful ones are a bookshop (MCC 5942) and a university museum (MCC 8220), both sent to Education and dues.
+
+The credit-union layout read right with no code change (signed Amount, a Debit/Credit type) and is now named `credit-union`. Its running balance chains except where something is missing: the 1,086-row download breaks at exactly the two places where its owner blanked out rows (`,,,,,,,` lines), and the card file prints what is owed, which chains once flipped, as `importStatement` already does for card accounts. The three test files break where their authors' made-up balances do not add up. Pinned in `credit-union-usbank-memo.test.mjs` (7 tests, rows written here under the real headers). Still not tried: a US Bank checking download, a Chase business card, and a business account at any bank other than Chase.
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.
