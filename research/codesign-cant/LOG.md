@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 7j: why do the retrained `above` designs diverge with no gust torque at all? (predictions written and committed before `experiments/m7j_lever0/run.py` was run on the held-out seed; outcome below)
+
+- Why: milestones 7h and 7i left it unexplained. At lever 0 the centre of pressure sits on the centre of mass: the gust drags but exerts no torque. Yet at the 45° tilt-command limit (PX4's `MPC_TILTMAX_AIR` default) the retrained `above` designs diverge at lever 0 on 9 (7h `free`), 3 (`aware TWR=2.0`) and 12 (`aware TWR free`) of 384 held-out flights, where 7e's designs, trained the same way at thrust-to-weight 2, diverge on none, and all pass the linear test with margin 1.25. 7h guessed the larger propellers' slower motors (lag scales as D^1.5). A crash with no disturbance torque at the stock PX4 limit is the kind of finding a builder needs explained before trusting any design here.
+- Plan (`experiments/m7j_lever0/run.py`, no training): the 48 designs milestone 7i scored (7e, 7h `free`, `aware TWR=2.0`, `aware TWR free`, 6 seeds, both rigid geometries) on the 64 held-out episodes (seed 9999), lever 0, integ feed-forward, side force on, tilt-command limits 30° and 45° (20° base only, as a control), under one probe at a time: base; divergence bound 85°; ideal mixer; position gains x0.5; side force off (`couple=False`); integrator feed-forward off; every motor's lag x0.9 (about the gap between 7h's propellers and 7e's: nominal lag 15.4 ms against 14.0 ms in the smoke run). The base run records why and when each episode died (before or after the 3 s wind step) and the saturation shares.
+- Looked at before writing these: one smoke run (8 episodes on seed 4242, not the held-out seed): it runs in 13 s and nothing diverged in any set, so it says nothing about the probes; it printed the nominal lags above.
+- Predictions ("retrained" = the 18 `above` designs of 7h `free`, `aware TWR=2.0` and `aware TWR free`, pooled; base count at 45° is 24 if J1 holds):
+  - J1 (prior 95%): base reproduces milestone 7i's lever-0 counts exactly (`above` 45°: 0 / 9 / 3 / 12; 30°: 0 / 0 / 0 / 1; `below` 45°: 1 / 2 / 0 / 0; 30°: 0 / 2 / 0 / 0; 20°: all 0).
+  - J2 (prior 80%): every retrained `above` death at 45° is a tilt-over (past 60°), none a 5 m drift.
+  - J3 (prior 70%): at least 2/3 of them happen after the wind step (3 s), when the position loop asks for a large lean against a 6 m/s mean wind.
+  - J4 (prior 55%): position gains x0.5 cut the retrained 45° count at least in half.
+  - J5 (prior 50%): the ideal mixer cuts it at least in half.
+  - J6 (prior 35%): lag x0.9 cuts it at least in half (7h's guess).
+  - J7 (prior 30%): switching the side force off cuts it at least in half.
+  - J8 (prior 40%): switching the integrator feed-forward off cuts it at least in half.
+  - J9 (prior 25%): the 85° bound cuts it at least in half (the 60° bound scoring recoverable excursions).
+  - J10 (prior 60%): no probe makes 7e's `above` designs diverge at 45° on more than 2 of 384.
+- Analysis: counts per set, probe and limit; why and when; saturation shares in diverged against surviving flights; the plant draws of diverged episodes. No test beyond counts: six seeds, one held-out set.
+
 ## 2026-11-14 · Milestone 7i: a lever-aware objective, train on levers 0-2 with thrust-to-weight fixed and free (predictions written and committed before `experiments/m7i_aware/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7h's first next step. 7h found that a tuner given thrust-to-weight as a free coordinate buys a little (2.05-2.55) and spends it on efficiency, and is no more robust at twice the trained lever: nothing in an objective trained at lever 1 asks for robustness to an uncertain centre of pressure. Does putting levers 0-2 in the objective make the co-design buy authority, and does that remove the lever-2 tilt-overs 7g diagnosed?
