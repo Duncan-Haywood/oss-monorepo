@@ -79,6 +79,7 @@
     <p></p>
     <div class="bar" aria-hidden="true"><div id="bar"></div></div>
     <p class="muted" id="status"></p>
+    <p class="muted"><a href="how-many-pairwise-comparisons.html">How many picks a list takes, measured</a></p>
     <p class="muted">Keys: &larr; left, &rarr; right, &#8595; about equal, U undo.</p>
   </section>
 
@@ -143,6 +144,7 @@
   </footer>
 </main>
 <script type="module">
+  import { picksGuide } from "./picks-measured.mjs";
   import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -168,6 +170,12 @@
     ask();
   }
 
+  // Measured on simulated people running this page's own picker and stop rule (how-many-pairwise-comparisons.html).
+  function picksLine(n) {
+    const g = picksGuide(n);
+    return `Lists of ${n} took about ${g.clear} picks for someone sure of every answer, ${g.ordinary} typically and ${g.close} when the options are close calls, in simulations`;
+  }
+
   function ask() {
     f = fit(state.items.length, state.answers);
     const n = state.items.length, cap = suggestedMax(n);
@@ -181,7 +189,7 @@
     $("#left").textContent = state.items[current[0]];
     $("#right").textContent = state.items[current[1]];
     $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, state.mode === "favourite" ? state.answers.length / Math.max(6, n) : p / STOP_CONFIDENCE)) * 100)}%`;
-    $("#status").textContent = `${state.answers.length} answered${state.mode === "order" ? `; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc && sc.phi !== null && !sc.done ? "; many of your picks are close calls, so it checks the order more strictly" : ""}` : ""}. Lists of ${n} usually take ${Math.ceil(n * Math.log2(n))} to ${Math.ceil(1.5 * n * Math.log2(n))} picks; stop whenever you like.`;
+    $("#status").textContent = `${state.answers.length} answered${state.mode === "order" ? `; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc && sc.phi !== null && !sc.done ? "; many of your picks are close calls, so it checks the order more strictly" : ""}` : ""}. ${picksLine(n)}; stop whenever you like.`;
     $("#undo").disabled = state.answers.length === 0;
     show("#ask");
     $("#left").focus({ preventScroll: true });

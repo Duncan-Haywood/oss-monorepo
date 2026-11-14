@@ -328,3 +328,50 @@ are the first step on the flagship's "get the rank page in front of people"
 item: search entry points for intents the generic page does not name.
 Checked in Chromium at 390 px: no horizontal scroll, and each link opens the
 ranker on its own question and list.
+
+## How many picks it takes (2026-11-14)
+
+The ranker's status line said "Lists of n usually take n log2 n to 1.5 n
+log2 n picks". Nobody had measured it. `scripts/picks-needed.mjs` runs the
+page's own loop (`nextPair`, `stopCheck`, `suggestedMax`) on simulated people
+at 4 to 60 options and three kinds of answerer: clear-cut (never wrong),
+ordinary (true scores over 6 logits) and close calls (3 logits), 24 people a
+cell, and, for the same people, the order from asking every pair exactly once
+and refitting the same way. Rows: `docs/picks-needed-2026-11-14.jsonl`.
+
+`node scripts/build-picks-page.mjs` turns the rows into the public answer
+page `site/how-many-pairwise-comparisons.html` (every number and every
+verdict sentence there is computed from the rows) and `site/picks-measured.mjs`,
+which the status line now reads ("Lists of 15 took about 51 picks for someone
+sure of every answer, 73 typically and 104 when the options are close calls,
+in simulations"). `site/picks-page.test.mjs` fails if either is stale.
+
+What it found, ordinary answerers unless said:
+
+- **Long lists: about half to a fifth of the questions, a slightly worse
+  order.** 20 options: 93 picks (Spearman 0.94) against 190 for every pair
+  once (0.95). 40: 204 (0.92) against 780 (0.97). 60: 366 (0.94) against
+  1,770 (0.98). Every pair once is more accurate from about 15 options up;
+  it is also more questions than anyone answers.
+- **Short lists: more questions than every pair, and a better order for
+  them.** Below 12 options the ranker asked more than n(n-1)/2 (5 options: 21
+  against 10), because it re-asks close pairs. Those extra questions bought
+  0.07 Spearman on average over every pair once (5 options: 0.98 against
+  0.88). An earlier idea, stopping as soon as every pair had been answered
+  once with no cycle, was tried and dropped: the picker rarely covers every
+  pair (it re-asks neighbours instead), so the rule fired only at 4 options,
+  where it saved 2-3 picks and cost 0.025 Spearman on close calls.
+- **Close calls often never settle.** At 4 to 6 options, 78% of close-call
+  runs hit the cap without reaching 0.9; at 20 to 40 about half did.
+- **Clear-cut people run into, then under, the sorting bound.** log2(n!) is
+  the fewest questions that sort exactly. At 30 options the ranker asked 112
+  against 108; from 40 options it stops below it (150 against 160; 229
+  against 273 at 60), because it stops at a 90%-settled order (Spearman
+  0.99), not an exact one.
+- The old status-line range was roughly right for clear-cut and ordinary
+  people on mid-length lists and low for close calls (15 options: it said
+  59-88; measured 51, 73 and 104).
+
+Limits: simulated people only, evenly spaced true scores, no ties, no
+fatigue, warm-up or position habits. The favourite mode was not measured
+here.
