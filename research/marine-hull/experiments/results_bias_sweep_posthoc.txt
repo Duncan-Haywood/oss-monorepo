@@ -1,0 +1,41 @@
+Milestone 6zv post hoc: paired cells at matched effective bias (T at s vs R at s - 0.02)
+  C kWh  T s / R s  eff T / R    | PS  T R | PSS T R | dflt T R | safe tau T R
+    2.5  1.00 / 0.98  0.989 / 0.991 | y  y  |  y y  |  y y  |  60  60
+    2.5  1.01 / 0.99  0.999 / 1.001 | y  y  |  y y  |  y y  |  60  60
+    2.5  1.02 / 1.00  1.009 / 1.011 | n  n  |  y y  |  y y  |  60  30
+    2.5  1.03 / 1.01  1.019 / 1.021 | n  n  |  y n  |  y n  |  30  30
+    5.0  1.00 / 0.98  0.989 / 0.991 | y  y  |  y y  |  y y  |  60  30
+    5.0  1.01 / 0.99  0.999 / 1.001 | y  y  |  y y  |  y y  |  30  30
+    5.0  1.02 / 1.00  1.009 / 1.011 | y  n  |  y y  |  y n  |  30  30
+    5.0  1.03 / 1.01  1.019 / 1.021 | n  n  |  y y  |  n n  |  30  20
+   10.0  1.00 / 0.98  0.989 / 0.991 | y  y  |  y y  |  y y  |  30  30
+   10.0  1.01 / 0.99  0.999 / 1.001 | y  y  |  y y  |  n n  |  30  30
+   10.0  1.02 / 1.00  1.009 / 1.011 | n  n  |  y y  |  n n  |  30  20
+   10.0  1.03 / 1.01  1.019 / 1.021 | n  n  |  y y  |  n n  |  20  20
+   20.0  1.00 / 0.98  0.989 / 0.991 | y  y  |  y y  |  y y  |  30  30
+   20.0  1.01 / 0.99  0.999 / 1.001 | y  y  |  y y  |  y y  |  30  30
+   20.0  1.02 / 1.00  1.009 / 1.011 | y  y  |  y y  |  n y  |  30  30
+   20.0  1.03 / 1.01  1.019 / 1.021 | n  n  |  y y  |  n n  |  20  30
+  agreement over the 16 pairs: PS 15/16, PSS 15/16, default 13/16, longest safe tau equal 11/16, within one grid step 16/16
+
+Effective-bias range over which each rule dominates B (both halves pooled, 14 cells per pack)
+  PS       2.5 kWh: dominates at eff 0.979 to 1.001 (6 of 14 cells); contiguous
+  PS       5.0 kWh: dominates at eff 0.969 to 1.009 (8 of 14 cells); contiguous
+  PS      10.0 kWh: dominates at eff 0.969 to 1.001 (7 of 14 cells); contiguous
+  PS      20.0 kWh: dominates at eff 0.969 to 1.011 (9 of 14 cells); contiguous
+  PSS      2.5 kWh: dominates at eff 0.980 to 1.019 (8 of 14 cells); contiguous
+  PSS      5.0 kWh: dominates at eff 0.980 to 1.021 (9 of 14 cells); contiguous
+  PSS     10.0 kWh: dominates at eff 0.980 to 1.021 (9 of 14 cells); contiguous
+  PSS     20.0 kWh: dominates at eff 0.979 to 1.031 (10 of 14 cells); fails inside at [0.98]
+  default  2.5 kWh: dominates at eff 0.980 to 1.019 (8 of 14 cells); contiguous
+  default  5.0 kWh: dominates at eff 0.969 to 1.009 (8 of 14 cells); contiguous
+  default 10.0 kWh: dominates at eff 0.960 to 0.991 (6 of 14 cells); contiguous
+  default 20.0 kWh: dominates at eff 0.960 to 1.011 (9 of 14 cells); fails inside at [1.009]
+
+Longest safe tau by effective bias (both halves pooled, all packs)
+  eff [0.000, 0.985): 16 cells, safe tau [30, 30, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]
+  eff [0.985, 0.995):  8 cells, safe tau [30, 30, 30, 30, 30, 60, 60, 60]
+  eff [0.995, 1.005):  8 cells, safe tau [30, 30, 30, 30, 30, 30, 60, 60]
+  eff [1.005, 1.015):  8 cells, safe tau [20, 30, 30, 30, 30, 30, 30, 60]
+  eff [1.015, 1.025):  8 cells, safe tau [20, 20, 20, 20, 30, 30, 30, 30]
+  eff [1.025, 1.100):  8 cells, safe tau [0, 10, 10, 10, 10, 20, 20, 20]
