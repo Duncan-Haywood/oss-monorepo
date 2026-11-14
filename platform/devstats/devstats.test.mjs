@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect, ciActivity, outcomeOf, countRunsByDay, fromCI, COUNT_CAP, delivery, fromDelivery } from './devstats.mjs';
+import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect, ciActivity, outcomeOf, countRunsByDay, fromCI, COUNT_CAP, delivery, fromDelivery, codeownersRegex, parseCodeowners, isOwned, ownerHeld } from './devstats.mjs';
 import { renderDashboard, barChart, stackedChart } from './render.mjs';
 
 const NOW = Date.parse('2026-10-16T12:00:00Z');
@@ -331,4 +331,49 @@ test('github: each list stops at its page budget, and the top failing workflows 
   assert.equal(gh.branches.count, 3000);
   assert.equal(gh.branches.capped, true);
   assert.equal(gh.ci_main.failing_workflows.length, 8);
+});
+
+test('CODEOWNERS patterns match as control_plane_guard.py reads them; the last match wins', () => {
+  const rules = parseCodeowners([
+    '# comment', '/CLAUDE.md @o', '**/AGENTS.md @o', '/prompts/ @o', '/.github/ @o',
+    '/platform/ci/agent_review/ @o', '/prompts/runs/', 'docs/*.md @o',
+  ].join('\n'));
+  for (const f of ['CLAUDE.md', 'ventures/x/AGENTS.md', 'AGENTS.md', 'prompts/promptctl.py', '.github/workflows/a.yml', 'platform/ci/agent_review/x.py', 'docs/a.md']) assert.ok(isOwned(f, rules), f);
+  for (const f of ['ventures/CLAUDE.md', 'prompts/runs/r.json', 'prompts', 'platform/ci/x.py', 'docs/posts/a.md', 'xprompts/a']) assert.ok(!isOwned(f, rules), f);
+  assert.ok(codeownersRegex('*.yml').test('a/b/c.yml'));
+  assert.ok(!codeownersRegex('/a.b').test('aXb'));
+});
+
+test('owner-held: same-repo open PRs touching an owned path, oldest first; forks are never read', async () => {
+  const iso = (d) => new Date(NOW - d * 86_400_000).toISOString();
+  const open = [
+    { number: 3, title: 'new held', created_at: iso(1), head: { repo: { full_name: 'o/r' } } },
+    { number: 1, title: 'old held', created_at: iso(9), head: { repo: { full_name: 'O/R' } } },
+    { number: 2, title: 'product', created_at: iso(5), head: { repo: { full_name: 'o/r' } } },
+    { number: 4, title: 'fork', created_at: iso(20), head: { repo: { full_name: 'x/r' } } },
+  ];
+  const files = { 1: ['prompts/promptctl.py', 'docs/posts/a.md'], 2: ['ventures/a/index.html', 'prompts/runs/r.json'], 3: ['.github/workflows/w.yml'] };
+  const asked = [];
+  const fetch = async (url) => {
+    const n = Number(/pulls\/(\d+)\/files/.exec(url)[1]);
+    asked.push(n);
+    return { ok: true, json: async () => files[n].map((filename) => ({ filename })) };
+  };
+  const held = await ownerHeld(open, { codeowners: '/prompts/ @o\n/.github/ @o\n/prompts/runs/\n', repo: 'o/r', now: NOW, token: 't', api: 'https://api.github.com/repos/o/r', fetch });
+  assert.deepEqual(asked, [1, 2, 3]);
+  assert.deepEqual([held.count, held.checked, held.of], [2, 3, 3]);
+  assert.deepEqual(held.prs.map((p) => [p.number, p.age_days, p.owned_count, p.also_unowned]), [[1, 9, 1, 1], [3, 1, 1, 0]]);
+  assert.equal((await ownerHeld(open, { codeowners: '', repo: 'o/r', now: NOW, fetch })).available, false);
+});
+
+test('github: an owner-held failure leaves the rest of the snapshot available', async () => {
+  const fetch = async (url) => {
+    if (/\/files/.test(url)) return { ok: false, status: 403 };
+    if (/\/pulls\?state=open/.test(url)) return { ok: true, json: async () => [{ number: 9, created_at: new Date(NOW).toISOString(), head: { repo: { full_name: 'o/r' } } }] };
+    return { ok: true, json: async () => (/actions\/runs/.test(url) ? { workflow_runs: [] } : []) };
+  };
+  const gh = await fromGitHub({ token: 't', repo: 'o/r', now: NOW, fetch, codeowners: '/prompts/ @o' });
+  assert.equal(gh.available, true);
+  assert.equal(gh.owner_held.available, false);
+  assert.match(gh.owner_held.reason, /403/);
 });
