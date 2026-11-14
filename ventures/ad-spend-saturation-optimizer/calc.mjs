@@ -276,7 +276,10 @@ export function parseDay(s) {
     if (a > 12) { d = a; mo = b; } else { mo = a; d = b; }
   } else return NaN;
   if (mo < 1 || mo > 12 || d < 1 || d > 31) return NaN;
-  return Math.floor(Date.UTC(y, mo - 1, d) / DAY_MS);
+  const t = Date.UTC(y, mo - 1, d);
+  // Date.UTC rolls 30 February over to 2 March; refuse a day the month does not have.
+  if (new Date(t).getUTCDate() !== d) return NaN;
+  return Math.floor(t / DAY_MS);
 }
 
 export function dayToIso(day) { return new Date(day * DAY_MS).toISOString().slice(0, 10); }

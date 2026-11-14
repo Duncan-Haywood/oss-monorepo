@@ -709,3 +709,13 @@ test("TR accepts a 10-digit VKN and an 11-digit TCKN, each with its own check di
   assert.equal(bad("10000000146"), false); // valid T.C. Kimlik number (stdnum tckimlik docs)
   assert.equal(bad("10000000147"), true);
 });
+
+test("a Czech 10-digit birth number must name a real day, not 31 February", () => {
+  // 850231/0003 passes mod 11 but 31 February 1985 never happened; 855231/0008 is the same for a woman (+50).
+  for (const vat_id of ["CZ8502310003", "CZ8552310008"]) {
+    const findings = inspectPartyVat({ id: "S1", name: "A", vat_id }, "supplier");
+    assert.equal(findings.length, 1, vat_id);
+    assert.equal(findings[0].rule, "INV-023");
+  }
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "CZ8402290006" }, "supplier"), []);
+});

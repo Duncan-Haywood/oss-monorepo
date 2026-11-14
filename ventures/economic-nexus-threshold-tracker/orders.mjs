@@ -120,8 +120,11 @@ export function parseDate(value) {
   if (!raw) return null;
   let m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (m) {
-    const t = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-    return Number.isNaN(t) ? null : t;
+    const month = Number(m[2]), day = Number(m[3]);
+    const t = Date.UTC(Number(m[1]), month - 1, day);
+    // Date.UTC rolls 2026-02-30 over to 2 March and 2026-13-01 into the next year; refuse both.
+    const back = new Date(t);
+    return back.getUTCMonth() === month - 1 && back.getUTCDate() === day ? t : null;
   }
   m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})/);
   if (m) {
@@ -129,7 +132,9 @@ export function parseDate(value) {
     const month = Number(m[1]);
     const day = Number(m[2]);
     if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-    return Date.UTC(year, month - 1, day);
+    const t = Date.UTC(year, month - 1, day);
+    // Date.UTC rolls 30 February over to 2 March, which would count the order in the wrong month.
+    return new Date(t).getUTCDate() === day ? t : null;
   }
   return null;
 }

@@ -443,3 +443,9 @@ test("compareSnapshot reads follow-through from last time's recommendation", () 
   assert.deepEqual(gone.dropped, ["Podcast"]);
   assert.ok(describeComparison(cmp).some((t) => t.startsWith(mover.name) && /You made 100%/.test(t)));
 });
+
+test("parseDay refuses a day the month does not have instead of rolling it into the next month", () => {
+  assert.ok(Number.isNaN(parseDay("2026-02-30")));
+  assert.ok(Number.isNaN(parseDay("4/31/2026")));
+  assert.equal(dayToIso(parseDay("2024-02-29")), "2024-02-29");
+});

@@ -116,3 +116,9 @@ test("the synthetic example is a full clean year with a stable peak", () => {
   assert.equal(m.monthly.length, 12);
   close(m.peakKw, 10.388, 1e-6);
 });
+
+test("parseTimestamp refuses 30 February instead of reading it as 2 March", () => {
+  assert.ok(Number.isNaN(parseTimestamp("2026-02-30 10:00")));
+  assert.ok(Number.isNaN(parseTimestamp("04/31/2026 10:00")));
+  assert.equal(parseTimestamp("2024-02-29 10:00"), Date.UTC(2024, 1, 29, 10, 0));
+});

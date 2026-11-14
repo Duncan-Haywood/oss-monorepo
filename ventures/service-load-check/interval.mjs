@@ -32,6 +32,8 @@ function mk(y, mo, d, h, mi, ap) {
   if (a === "PM" && hh < 12) hh += 12;
   if (a === "AM" && hh === 12) hh = 0;
   if (mo < 1 || mo > 12 || d < 1 || d > 31 || hh > 24) return NaN;
+  // Date.UTC rolls 30 February over to 2 March; refuse a day the month does not have.
+  if (new Date(Date.UTC(y, mo - 1, d)).getUTCDate() !== d) return NaN;
   return Date.UTC(y, mo - 1, d, hh, +(mi || 0));
 }
 

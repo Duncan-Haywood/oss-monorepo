@@ -13,9 +13,12 @@ isNaN(new Date(...).getTime()), and does not round-trip it (toISOString().slice(
 getUTCDate or getUTCMonth) on the same line.
 
 The second pattern is the hand-rolled range check: a line that tests a month
-(`<= 12` or `< 12`) and a day with `d >= 1 && d <= 31`, and no calendar check
+(`<= 12`, `< 12` or `> 12`) and a day with `d >= 1 && d <= 31` or its negation
+`d < 1 || d > 31` (added 2026-11-14, when 31 copies of the negated form had
+gone unchecked and seven of them accepted 30 February), and no calendar check
 (a Date.UTC round trip, a month-length table, a realDay/calDate helper) on that
-line or the four after it. Every month then has 31 days. The red-team run of
+line or the twelve after it (four until 2026-11-14; parsers that read a time of
+day first put the round trip about ten lines down). Every month then has 31 days. The red-team run of
 2026-11-12 found it in the bank-statement converter (02/30 exported as
 2026-02-30) and five import checkers and categorizers. Exit 1 lists each hit.
 Usage: python3 platform/ci/check_calendar_dates.py [root ...]
@@ -28,10 +31,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SHAPE = re.compile(r"\\d\{4\}-\\d\{2\}-\\d\{2\}|T00:00:00Z")
 NAN_CHECK = re.compile(r"isNaN\((?:Date\.parse\(|new Date\()")
 ROUND_TRIP = re.compile(r"toISOString\(\)\.slice\(0, ?10\)|getUTCDate\(\)|getUTCMonth\(\)")
-DAY_RANGE = re.compile(r"([\w.+\[\]]+) >= 1 && \1 <= 31\b")
-MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b")
-CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|calDate\(|validDate\(")
-WINDOW = 4
+DAY_RANGE = re.compile(r"([\w.+\[\]]+) >= 1 && \1 <= 31\b|([\w.+\[\]]+) < 1 \|\| \2 > 31\b")
+MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b|> ?12\b|monthOk")
+CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|getUTCMonth\(\)|getMonth\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|"
+                      r"realDate\(|calDate\(|validDate\(|[cC]hecked\(")
+WINDOW = 12
 SUFFIXES = {".mjs", ".js", ".cjs", ".ts"}
 SKIP_PARTS = {"node_modules", ".next", "dist", "build", "vendor"}
 

@@ -84,3 +84,9 @@ test("bundled example parses and produces a plausible result", () => {
   assert.ok(a.caps.some((c) => c.saving > 0));
   assert.match(toCsv(a), /^month,peak_kw/);
 });
+
+test("parseTimestamp refuses 30 February instead of reading it as 2 March", () => {
+  assert.ok(Number.isNaN(parseTimestamp("2026-02-30 10:00")));
+  assert.ok(Number.isNaN(parseTimestamp("02/30/2026 10:00 AM")));
+  assert.equal(parseTimestamp("2024-02-29 10:15"), Date.UTC(2024, 1, 29, 10, 15));
+});
