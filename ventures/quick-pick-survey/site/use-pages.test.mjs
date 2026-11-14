@@ -31,3 +31,17 @@ test("pages carry the disclaimer, a canonical URL, a usage counter and a descrip
     assert.equal(new Set(USE_PAGES.map((p) => p.slug)).size, USE_PAGES.length);
   }
 });
+
+test("the ready-lists hub is current, links every use page, and every use page links back to it", async () => {
+  const { renderHub, HUB_SLUG } = await import("../scripts/build-use-pages.mjs");
+  const hub = renderHub();
+  assert.equal(readFileSync(join(SITE, `${HUB_SLUG}.html`), "utf8"), hub);
+  assert.match(hub, /<strong>Disclaimer\.<\/strong>/);
+  assert.match(hub, new RegExp(`rel="canonical" href="https://marisstella.app/quick-pick-survey/${HUB_SLUG}.html"`));
+  for (const page of USE_PAGES) {
+    assert.ok(hub.includes(`href="${page.slug}.html"`), `hub links ${page.slug}`);
+    assert.ok(renderUsePage(page).includes(`href="${HUB_SLUG}.html"`), `${page.slug} links the hub`);
+  }
+  const index = readFileSync(join(SITE, "index.html"), "utf8");
+  assert.ok(index.includes(`href="${HUB_SLUG}.html"`), "landing page links the hub");
+});

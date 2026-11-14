@@ -338,15 +338,16 @@ flagships:
       are measured on the page's own loop (site/how-many-pairwise-comparisons.html,
       RANK-PAGE.md "How many picks it takes": 20 options 93 picks vs 190 for every
       pair, Spearman 0.94 vs 0.95). Next, most valuable first: (r) get the rank page
-      in front of people (more answer pages for real search questions), then (c) the
-      first real survey's answers: msToAnswer against the answer-time model,
-      panelWalkRatio on real times, whether times depend on which slot is clicked
-      (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
-      runs or spread-out carelessness, and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the d10 turn's
-      split search; (d8) a stronger pick signal under wander (staged pairs are near
-      50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at
-      q = 1 but taxes a camp by up to 0.030: decide on a real panel's times.
+      seen: 10 ready lists + hub landed (RANK-PAGE.md "Six more"); next, read which
+      draw visits, then (c) the first real survey's answers: msToAnswer against the
+      answer-time model, panelWalkRatio on real times, whether times depend on which
+      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
+      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
+      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the
+      d10 turn's split search; (d8) a stronger pick signal under wander (staged
+      pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop beat
+      both pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real
+      panel's times.
 
   - venture: league-schedule-generator
     why: >-
