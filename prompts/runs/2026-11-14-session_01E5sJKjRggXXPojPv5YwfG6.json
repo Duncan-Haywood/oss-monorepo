@@ -1,0 +1,291 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKjRggXXPojPv5YwfG6",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T17:18:14Z",
+  "ended": "2026-11-14T17:19:05Z",
+  "wall_minutes": 3.74,
+  "tokens_in": 2105037,
+  "tokens_out": 11269,
+  "cost_usd": 1.1033,
+  "tool_calls": 30,
+  "task": "redteam campaign on ventures/stl-decomposition/engine.mjs",
+  "projects": [
+    "stl-decomposition"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15923",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 11 entries, all control-plane workflow edits already sitting in open owner-gated PRs; the list does not show that a PR exists, so each run re-checks by searching. redteam.py open could print the open PR covering each entry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard; the Number(x ?? default) shape occurs 49 times in ventures but nearly all default to 0, where blank-as-0 is correct, so a lint would be mostly false positives.",
+      "did": "Fixed the instance with a test; no lint added.",
+      "result": "Defect patched; no class guard."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-a-blank-box-that-flagged-every-point.md"
+  ],
+  "goal": null,
+  "notes": "Campaign: 10 mutants on engine.mjs (suite ~4 s), 8 caught, 1 equivalent (line 634), 1 gap (line 777) now caught_after_fix. Real defect: outlierZ blank/0/negative/NaN, patched. Local: node --test engine/cli/page/usage tests 54/54 pass. Step 0 entries all control-plane with open PRs (#14808, #14877, #15248, #15561, #15871).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/stl-decomposition/engine.mjs",
+        "test": "node --test ventures/stl-decomposition/**/*.test.mjs  (in .)",
+        "seed": 26983965,
+        "commit": "00ca63f2f",
+        "sites": 920,
+        "baseline_seconds": 4.1,
+        "mutants": [
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 107,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "for (let j = nleft; j <= nright; j++) ys += w[j - 1] * y[j - 1];",
+            "after": "for (let j = nleft; j <= nright; j++) ys += w[j - 1] * y[j - 2];",
+            "line_text": "  for (let j = nleft; j <= nright; j++) ys += w[j - 1] * y[j - 1];",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 134,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "if (i > nsh && nright !== n) {",
+            "after": "if (i > nsh || nright !== n) {",
+            "line_text": "      if (i > nsh && nright !== n) {",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 165,
+            "col": 28,
+            "operator": "minus-to-plus",
+            "before": "const delta = (ys[n - 1] - ys[k - 1]) / (n - k);",
+            "after": "const delta = (ys[n + 1] - ys[k - 1]) / (n - k);",
+            "line_text": "        const delta = (ys[n - 1] - ys[k - 1]) / (n - k);",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 291,
+            "col": 32,
+            "operator": "plus-to-minus",
+            "before": "const w1 = new Float64Array(n + 2 * np);",
+            "after": "const w1 = new Float64Array(n - 2 * np);",
+            "line_text": "  const w1 = new Float64Array(n + 2 * np);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 317,
+            "col": 46,
+            "operator": "minus-to-plus",
+            "before": "for (let i = 0; i < n; i++) resid[i] = y[i] - trendOut[i] - season[i];",
+            "after": "for (let i = 0; i < n; i++) resid[i] = y[i] + trendOut[i] - season[i];",
+            "line_text": "  for (let i = 0; i < n; i++) resid[i] = y[i] - trendOut[i] - season[i];",
+            "caught": true,
+            "seconds": 3.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 404,
+            "col": 78,
+            "operator": "div-to-times",
+            "before": "for (let i = 1; i < times.length; i++) steps.push((times[i] - times[i - 1]) / DAY);",
+            "after": "for (let i = 1; i < times.length; i++) steps.push((times[i] - times[i - 1]) * DAY);",
+            "line_text": "  for (let i = 1; i < times.length; i++) steps.push((times[i] - times[i - 1]) / DAY);",
+            "caught": true,
+            "seconds": 3.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 634,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "const sortedOrder = [...order].sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "after": "const sortedOrder = [...order].sort((a, b) => a[0] - b[0] || a[2] - b[1]);",
+            "line_text": "        const sortedOrder = [...order].sort((a, b) => a[0] - b[0] || a[1] - b[1]);",
+            "caught": false,
+            "seconds": 3.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "a[2] is undefined, so the tie-break becomes NaN, which sort treats as 0; Array.prototype.sort is stable (ES2019), so equal dates keep input order exactly as the i-index tie-break does, and equal dates are then rejected as duplicates anyway."
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 643,
+            "col": 38,
+            "operator": "ge-to-gt",
+            "before": "labels = rows.map((r, i) => (dj >= 0 ? r[dj] : String(i + 1)));",
+            "after": "labels = rows.map((r, i) => (dj > 0 ? r[dj] : String(i + 1)));",
+            "line_text": "      labels = rows.map((r, i) => (dj >= 0 ? r[dj] : String(i + 1)));",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 717,
+            "col": 103,
+            "operator": "eq-flip",
+            "before": "opts.robust = input.robust === true || input.robust === \"true\" || input.robust === 1 || input.robust === \"1\";",
+            "after": "opts.robust = input.robust === true || input.robust === \"true\" || input.robust === 1 || input.robust !== \"1\";",
+            "line_text": "  opts.robust = input.robust === true || input.robust === \"true\" || input.robust === 1 || input.robust === \"1\";",
+            "caught": true,
+            "seconds": 9.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/stl-decomposition/engine.mjs",
+            "line": 777,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const trendChangeTotal = trend[n - 1] - trend[0];",
+            "after": "const trendChangeTotal = trend[n - 1] - trend[1];",
+            "line_text": "  const trendChangeTotal = trend[n - 1] - trend[0];",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The only test bounded trendChangeTotal to 90..110 ppm on CO2, so trend[1] vs trend[0] (~0.1 ppm) slipped through; new test pins it to trend[n-1]-trend[0] exactly (and the last-cycle change too)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/stl-decomposition/engine.mjs",
+        "issue": "outlierZ was read with Number(x ?? 3.5): '' (a blank --outlier-z or form field) and 0 or a negative listed every point as unusual ('48 points stand out ... at least 0 robust standard deviations'), and a non-number gave 'by NaN robust standard deviations'. Now blank means the default and anything not a positive finite number is an error; test 'the unusual-point threshold must be a positive number'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a6aa3bf3-3e64-5ca5-a828-2b280a9ac6d1",
+    "transcripts": 1,
+    "first": "2026-11-14T17:18:14Z",
+    "last": "2026-11-14T17:21:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 11269,
+        "thinking": 1844,
+        "cache_read": 2046433,
+        "cache_write_5m": 0,
+        "cache_write_1h": 58545,
+        "api_equivalent_usd": 1.1033,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 11269,
+      "thinking": 1844,
+      "cache_read": 2046433,
+      "cache_write_5m": 0,
+      "cache_write_1h": 58545,
+      "api_equivalent_usd": 1.1033,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.74,
+      "active_minutes": 3.74,
+      "model_minutes": 2.32,
+      "tool_minutes": 1.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "mutation campaign, triage, one bug fix with tests, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 181.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
