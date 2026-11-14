@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycpTJLhj3BeJznCV3E",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:38:19Z",
+  "ended": "2026-11-14T01:04:52Z",
+  "wall_minutes": 26.88,
+  "tokens_in": 10157429,
+  "tokens_out": 54537,
+  "cost_usd": 4.3619,
+  "tool_calls": 78,
+  "task": "Deepen (flagship 8) quick-pick-survey: item (d6), a fast-block test a random-walk pace cannot pass",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15668",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First grid summary reused the old scheme list because two waiters raced on the same sed edit; caught by identical tables and rerun",
+      "cost_minutes": 2
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: is a folded YAML scalar wrapped at ~114 columns, so a plain string replace of an item fails; had to unfold, edit and rewrap (a small helper in validate.py or allocate.py to rewrite one flagship's next: would save each run this)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The sub-prompt's brief points toward revenue, deploys and marketing; the allocator's flagship row (quick-pick-survey item d6) is a statistics item with no revenue step",
+      "did": "Followed the allocator's flagship default, as the sub-prompt itself says to",
+      "result": "Landed the item with a shipped default, tests and a measured grid"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-quick-pick-survey-a-wandering-pace-is-not-boredom.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (section 'A step a wandering pace cannot make')"
+  ],
+  "goal": "Close flagship item (d6): stop ?drop=fast-blocks flagging honest respondents whose pace wanders as a random walk",
+  "notes": "New: stepOverWalk (step vs local-level-with-trend likelihood ratio, exact GLS via Kalman-filtered columns), autoWalkMin (bar from the panel's slow turns), panelWalkRatio (pooled walk ratio). Three grids of 120 cells each (40 surveys): always-on bar cost 11 points of ceiling with no wander; slow-turn-quantile engage did not fix it; pooled-ratio engage at 0.008 did (96% vs 97% no wander; walk 0.08 honest flags 17.1% -> 3.4%). Shipped FAST_BLOCK_WALK_Q=0.9, ENGAGE=0.008. Verification: npm run verify in ventures/quick-pick-survey exit 0 (typecheck, lint, 553 tests, build); new end-to-end test fails with FAST_BLOCK_WALK_Q=0; sweep's autoBlockStarts cross-check against the library passes; post front matter, links and similarity checks pass; node platform/pages/venture-preflight.mjs quick-pick-survey: preflight clean, exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6ab8cd41-0b3b-52f5-9d87-393784f42401",
+    "transcripts": 1,
+    "first": "2026-11-14T00:38:19Z",
+    "last": "2026-11-14T01:05:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 146,
+        "output": 54537,
+        "thinking": 13944,
+        "cache_read": 9998426,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158857,
+        "api_equivalent_usd": 4.3619,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 146,
+      "output": 54537,
+      "thinking": 13944,
+      "cache_read": 9998426,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158857,
+      "api_equivalent_usd": 4.3619,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.88,
+      "active_minutes": 26.88,
+      "model_minutes": 8.74,
+      "tool_minutes": 18.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a statistician designing a state-space step test, running three simulation grids and writing it up: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 275.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
