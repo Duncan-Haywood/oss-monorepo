@@ -1,0 +1,25 @@
+{
+  "id": "P067",
+  "title": "ventures-tests.yml's path filter misses the modules its runner unit tests import, so a change to one goes untested until a venture PR",
+  "status": "open",
+  "owner": "owner",
+  "effect": 2,
+  "cost": 1,
+  "problem": "ventures-tests.yml runs `python3 -m unittest test_run_venture_tests` (step 'Runner unit tests') only when ventures/**, run_venture_tests.py, its test or the workflow change. The test imports unwired_checks, inherited_keys, run_workflow_locally, pyenv and main_health too. #15891 (2026-11-14) renamed unwired_checks.run_all to run_everything; ventures-tests did not trigger, so the test that patched run_all went red on main unseen and the next venture PR (#15894) inherited the failure and had to fix it. main_health.py does not run platform/ci unit tests, so it stayed green (73/73). The edit is in .github/, which CODEOWNERS holds for the owner.",
+  "evidence": [
+    "git show a6e0395db --stat (#15891): platform/ci/unwired_checks.py changed, no ventures/ path",
+    "git show db42abad7 (#15894), third commit: 'test_run_venture_tests: patch unwired_checks.run_everything (renamed from run_all in #15891, broke changed-ventures on main)'",
+    "local: transitive platform/ci imports of test_run_venture_tests.py (ast walk, 2026-11-14): inherited_keys, main_health, pyenv, run_venture_tests, run_workflow_locally, unwired_checks"
+  ],
+  "change": "Add platform/ci/{unwired_checks,inherited_keys,run_workflow_locally,pyenv,main_health}.py to both `paths:` lists of ventures-tests.yml. Longer term, a check that every workflow running a platform/ci unit test lists that test's local imports in its path filter would catch the next one.",
+  "touches": [
+    ".github/workflows/ventures-tests.yml"
+  ],
+  "metric": "commits on main where test_run_venture_tests fails while the last ventures-tests run on main was green",
+  "baseline": "1 known (#15891 to #15894, 2026-11-14, about 16 minutes)",
+  "opened": "2026-11-14",
+  "source": "process run 2026-11-14 (this file's PR)",
+  "pr": null,
+  "result": null,
+  "history": []
+}
