@@ -32,7 +32,7 @@
   "tests_added": 0,
   "outcome": "success",
   "errors": [
-    "main was red: ventures-tests 'Runner unit tests' failed because PR #15891 renamed unwired_checks.run_all to run_everything while test_run_venture_tests.py still patched run_all; fixed in this PR (31/31 pass)"
+    "ventures-tests 'Runner unit tests' was red at this branch's base: PR #15891 renamed unwired_checks.run_all to run_everything while test_run_venture_tests.py still patched run_all. I made the one-line fix; a concurrent commit on main made the identical change, so the diff is a no-op against main"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,7 +46,7 @@
       "file": "prompts/creative/prompt-0.md",
       "why": "the creative track scopes a run to fiction, but main's ventures-tests job was red for every PR",
       "did": "fixed the stale mock in platform/ci/test_run_venture_tests.py in the same PR (not a CODEOWNERS path)",
-      "result": "python3 -m unittest test_run_venture_tests: 31 tests OK"
+      "result": "31/31 tests OK locally; main had landed the identical fix meanwhile, so it merges as a no-op (time spent: a few minutes)"
     }
   ],
   "writeups": [
