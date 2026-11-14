@@ -148,6 +148,26 @@ def completed_by(d, decision):
     return d[d.y.to_numpy(float) <= win]
 
 
+def ipcw_completed(d, decision, floor=0.05):
+    """Session 88: the rows of d completed by `decision` (as completed_by) and their inverse-probability-of-
+    censoring weights 1/G(y), G(t) = share of the same city-year's permits issued at least t days before the
+    decision date. The feed lists every issued permit, finished or not, so each city-year's issue-day (window)
+    distribution is known in full at the decision date; G is computed per city (column `city`, if present)
+    and calendar year, floored at `floor` (weight <= 1/floor). Returns (rows, weights)."""
+    s = pd.to_datetime(d.start).dt.date
+    c = np.array([(decision - x).days for x in s], dtype=float)
+    y = d.y.to_numpy(float)
+    key = (d["city"].astype(str) + ":" if "city" in d else "") + d.year.astype(str)
+    w = np.zeros(len(d))
+    for k in pd.unique(key):
+        m = (key == k).to_numpy()
+        cs = np.sort(c[m])
+        g = 1.0 - np.searchsorted(cs, y[m], side="left") / len(cs)
+        w[m] = 1.0 / np.maximum(g, floor)
+    seen = y <= c
+    return d[seen], w[seen]
+
+
 def deploy_rounds(tr_r, va_r, seeds):
     """Session 86: boosting rounds per quantile and seed, chosen by early stopping a model trained on
     the sources' years <= Y-4 on their year Y-3 (both cut to rows completed by the decision date, which
