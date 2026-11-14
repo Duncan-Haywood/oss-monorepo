@@ -98,7 +98,7 @@ He listened all the way to the end, with the niece's hands over his eyes half th
 
 The readings came that night: sixty-four days, every one of them, from the pump's own meter, which the bank had wanted photographed weekly and which Iván, being Iván, had photographed every morning. Thirty-three litres a second, twenty hours a day, two thousand four hundred cubic metres a day, to within a few per cent.
 
-Nivel put them into the oldest piece of arithmetic it knew about wells, a formula an American hydrologist named Theis had worked out in 1935 by borrowing the mathematics of heat flowing through a metal plate. It assumes the ground is the same in every direction and goes on for ever, which the Llano does not; it is wrong in its details everywhere it is used, and it has been used for ninety years because it is right about the shape. Nivel put in the pumping and the distance, a thousand metres, and the two numbers from the 2029 report.
+Nivel put them into the oldest piece of arithmetic it knew about wells, a formula an American hydrologist named Theis had worked out in 1935 by borrowing the mathematics of heat flowing through a metal plate. It assumes the ground is the same in every direction and goes on for ever, which the Llano does not; it is wrong in its details everywhere it is used, and it has been used for more than a hundred years because it is right about the shape. Nivel put in the pumping and the distance, a thousand metres, and the two numbers from the 2029 report.
 
 The formula said: nothing for the first fortnight, a centimetre or two, too small for the logger. Three centimetres by New Year's Eve. Twenty-five by Candlemas.
 
@@ -120,7 +120,7 @@ Lupita did it on her fingers. "Minus seven."
 
 "Minus seven. The pump trips. From about the fifth of June to the eleventh, every time it starts, it would draw the water down to the electrode within a few minutes and stop. The tank would not fill. That's the middle. The ends are wider: at one end there is no trip at all; at the other the pump starts tripping in the second week of May and goes on for six weeks."
 
-Iván said, "The end of March. That's when I stop. That's three weeks before Easter. You're talking about June."
+Iván said, "The end of March. That's when I stop. That's two weeks before Easter. You're talking about June."
 
 "Yes," said Nivel. "That's the part I most need you to hear, and it's the hardest to believe, so I'm going to say it plainly. The water that empties our well in June is water you have already pumped, or will pump in the next four weeks. It isn't coming from June. When your pump stops, the funnel round your well stops getting deeper near your well, and the ground near your well starts to fill back in, from the sides. But the edge of the funnel keeps moving outward for weeks, because the ground out here is still giving up water to fill the hole you've made. A kilometre out, the level keeps falling after you stop. On my numbers, if you stop on the thirty-first of March, our well keeps going down from your pumping until about the middle of May, and stays nearly that low into July."
 
@@ -196,7 +196,7 @@ Nivel said it all again, from the phone on a stand on the table, and Lupita proj
 
 Iván stood up.
 
-He did not make a speech. He said that he had worked it out with Nivel on Friday, and that he was going to turn the pump off tomorrow morning, the eleventh, at six, which was when it had been turned on, and that he would lose the second block, and that he was not asking anybody for anything. He said it looking at Doña Eustolia, because she was the only person in the room he could look at.
+He did not make a speech. He said that he had worked it out with Nivel the Friday before last, and that he was going to turn the pump off tomorrow morning, the eleventh, at six, which was when it had been turned on, and that he would lose the second block, and that he was not asking anybody for anything. He said it looking at Doña Eustolia, because she was the only person in the room he could look at.
 
 Don Aurelio got up from the back of the hall and walked out.
 
