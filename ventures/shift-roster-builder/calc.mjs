@@ -2539,7 +2539,7 @@ export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {
   const r = cliqueLP(ctx, { maxPivots });
   if (!r) return null;
   const floor = Number.isFinite(upTo) ? openSumLift(r.len, upTo + 1)(r.bound) : r.bound;
-  return { floor, lp: r.obj, bound: r.bound, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+  return { floor, lp: r.obj, bound: r.bound, xs: r.xs, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
 }
 // Score floor from the same clique LP, priced (2026-11-14). The open-hours floor above says nothing about pay: once it proves
 // coverage on a big week, the score bound buildRoster can report is BIG x the floor, which counts every dollar of pay as open
@@ -2756,9 +2756,10 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
   }
   bound = priced ? bound - 1e-9 * Math.max(1, Math.abs(bound)) : Math.max(0, bound - 1e-7);
   let open = null, xs = null;
-  if (priced && res.x) {
-    open = 0; for (let i = 0; i < S; i++) open += (res.x[nx + lamCols.length + i] || 0) * len[i];
-    // The LP's person-shift values, person-major (xs[p * S + s]), for the LP-guided day kicks in buildRoster's dayLNS.
+  if (priced && res.x) { open = 0; for (let i = 0; i < S; i++) open += (res.x[nx + lamCols.length + i] || 0) * len[i]; }
+  if (res.x) {
+    // The LP's person-shift values, person-major (xs[p * S + s]), for the LP-guided day sweeps in buildRoster's dayLNS. The
+    // open-hours LP's values serve as the guide when the priced one is skipped (README "A guide when the pay floor is skipped").
     xs = new Float64Array(P * S);
     for (let j = 0; j < nx; j++) { const v = res.x[j] || 0; if (v > 1e-9) xs[xcol[j][0] * S + xcol[j][1]] = v; }
   }
@@ -3331,7 +3332,8 @@ function buildRosterOnce(staff, slots, options = {}) {
       const t0 = Date.now(), deadline = t0 + (o.dayLNSMs ?? 2000), before = best.score;
       const rng = mulberry32(o.seed + 7919);
       const days = [...new Set(ctx.slots.map((s) => s.day))];
-      const guide = priced?.xs && o.dayGuide !== false ? priced.xs : null;
+      const guideFrom = o.dayGuide === false ? null : priced?.xs ? "scoreFloor" : clique?.xs && o.dayGuideOpen !== false ? "cliqueFloor" : null;
+      const guide = guideFrom === "scoreFloor" ? priced.xs : guideFrom === "cliqueFloor" ? clique.xs : null;
       let own = dayReassign(ctx, best.owner, { rounds: 30, deadline }), sc = scoreOwner(ctx, own).total, kicks = 0;
       // LP-guided descent (2026-11-14, README "Steering the day sweeps with the pay floor's LP"): when the pay floor ran, sweep
       // every day with each person-shift's cost lowered by lam x the average wage x its value in that LP's solution, for lam from
@@ -3339,6 +3341,9 @@ function buildRosterOnce(staff, slots, options = {}) {
       // the week-wide trade no one-day move finds (README "Past the day sweeps"); a one-day kick toward it was undone by the next
       // sweep, a whole-week biased descent is not. eval/day-guide.out.txt: never worse on the 8 weeks where it ran, 2-5 fewer open
       // hours on three. `dayGuide: false` turns it off; `dayGuideWeights` sets the lams.
+      // When the pay floor was skipped (its time gate fails on many 60-person weeks), the open-hours clique LP's values guide instead
+      // (README "A guide when the pay floor is skipped", eval/guide-open.out.txt: 1-2 fewer open hours on 2 of 10 weeks, none worse).
+      // `dayGuideOpen: false` turns that off.
       const guideLog = [];
       if (guide) {
         for (const lam of o.dayGuideWeights ?? [8, 4, 2, 1, 0.5, 0.25, 0.12]) {
@@ -3359,7 +3364,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       }
       if (sc < best.score - 1e-9 && ownerValid(ctx, own)) best = { owner: own, score: sc };
       if (ex.rootBound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
-      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0, guide: guideLog };
+      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0, guide: guideLog, guideFrom };
       mark("dayLNS");
     }
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);

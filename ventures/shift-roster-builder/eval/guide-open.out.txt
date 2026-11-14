@@ -1,0 +1,25 @@
+# eval/guide-open.mjs, 2026-11-14, one cloud machine, single runs, default 20 s budget (test suite not running beside them).
+# {"dayGuideOpen":false} is the engine before this change; {} is the new default. 'guide' lists [lam, open hours after that lam's biased + exact sweeps].
+# The priced LP's gate depends on the time left, so it ran in one config and not the other on seed 3's two weeks.
+
+## for s in 1 2 3 4 20261022; do for w in 0 1; do SEED=$s node eval/guide-open.mjs 60 168 $w; done; done
+seed 1: 60 x 168 week 0 {"dayGuideOpen":false}: open 210 h (floor 205.0), rest $20171.13, bounded; LPs: clique 1123 ms, priced skipped; pass open 217 -> 210, guide from none [], 201 kicks; 19735 ms
+seed 1: 60 x 168 week 0 {}: open 208 h (floor 205.0), rest $20197.93, bounded; LPs: clique 1291 ms, priced skipped; pass open 217 -> 208, guide from cliqueFloor [[8,211],[4,208],[2,208],[1,208],[0.5,208],[0.25,208],[0.12,208]], 165 kicks; 19762 ms
+seed 1: 60 x 168 week 1 {"dayGuideOpen":false}: open 227 h (floor 217.0), rest $18809.64, bounded; LPs: clique 1152 ms, priced 2997 ms; pass open 236 -> 227, guide from scoreFloor [[8,229],[4,229],[2,229],[1,229],[0.5,229],[0.25,229],[0.12,229]], 217 kicks; 21661 ms
+seed 1: 60 x 168 week 1 {}: open 227 h (floor 217.0), rest $18809.64, bounded; LPs: clique 998 ms, priced 2936 ms; pass open 236 -> 227, guide from scoreFloor [[8,229],[4,229],[2,229],[1,229],[0.5,229],[0.25,229],[0.12,229]], 198 kicks; 20893 ms
+seed 2: 60 x 168 week 0 {"dayGuideOpen":false}: open 283 h (floor -), rest $20987.52, improved; LPs: clique skipped, priced skipped; 9986 ms
+seed 2: 60 x 168 week 0 {}: open 283 h (floor -), rest $20987.52, improved; LPs: clique skipped, priced skipped; 9752 ms
+seed 2: 60 x 168 week 1 {"dayGuideOpen":false}: open 176 h (floor 175.0), rest $20895.31, bounded; LPs: clique 989 ms, priced 3670 ms; pass open 176 -> 176, guide from scoreFloor [[8,176],[4,176],[2,176],[1,176],[0.5,176],[0.25,176],[0.12,176]], 152 kicks; 21340 ms
+seed 2: 60 x 168 week 1 {}: open 176 h (floor 175.0), rest $20895.31, bounded; LPs: clique 928 ms, priced 3329 ms; pass open 176 -> 176, guide from scoreFloor [[8,176],[4,176],[2,176],[1,176],[0.5,176],[0.25,176],[0.12,176]], 159 kicks; 21673 ms
+seed 3: 60 x 168 week 0 {"dayGuideOpen":false}: open 217 h (floor 212.0), rest $21775.02, bounded; LPs: clique 1281 ms, priced 3890 ms; pass open 219 -> 217, guide from scoreFloor [[8,217],[4,217],[2,217],[1,217],[0.5,217],[0.25,217],[0.12,217]], 148 kicks; 21520 ms
+seed 3: 60 x 168 week 0 {}: open 217 h (floor 212.0), rest $21801.69, bounded; LPs: clique 1072 ms, priced skipped; pass open 219 -> 217, guide from cliqueFloor [[8,219],[4,219],[2,219],[1,218],[0.5,218],[0.25,218],[0.12,217]], 140 kicks; 19192 ms
+seed 3: 60 x 168 week 1 {"dayGuideOpen":false}: open 270 h (floor 270.0), rest $22174.85, bounded; LPs: clique 694 ms, priced 4296 ms; pass open 271 -> 270, guide from scoreFloor [[8,270],[4,270],[2,270],[1,270],[0.5,270],[0.25,270],[0.12,270]], 132 kicks; 21597 ms
+seed 3: 60 x 168 week 1 {}: open 270 h (floor 270.0), rest $22178.50, bounded; LPs: clique 678 ms, priced skipped; pass open 271 -> 270, guide from cliqueFloor [[8,270],[4,270],[2,270],[1,270],[0.5,270],[0.25,270],[0.12,270]], 134 kicks; 18693 ms
+seed 4: 60 x 168 week 0 {"dayGuideOpen":false}: open 215 h (floor 208.0), rest $21564.21, bounded; LPs: clique 771 ms, priced skipped; pass open 217 -> 215, guide from none [], 179 kicks; 19928 ms
+seed 4: 60 x 168 week 0 {}: open 214 h (floor 208.0), rest $21571.18, bounded; LPs: clique 745 ms, priced skipped; pass open 217 -> 214, guide from cliqueFloor [[8,216],[4,216],[2,215],[1,215],[0.5,215],[0.25,215],[0.12,215]], 146 kicks; 18652 ms
+seed 4: 60 x 168 week 1 {"dayGuideOpen":false}: open 255 h (floor 255.0), rest $20994.91, bounded; LPs: clique 714 ms, priced 3768 ms; pass open 255 -> 255, guide from scoreFloor [[8,255],[4,255],[2,255],[1,255],[0.5,255],[0.25,255],[0.12,255]], 124 kicks; 20021 ms
+seed 4: 60 x 168 week 1 {}: open 255 h (floor 255.0), rest $20994.91, bounded; LPs: clique 635 ms, priced 3923 ms; pass open 255 -> 255, guide from scoreFloor [[8,255],[4,255],[2,255],[1,255],[0.5,255],[0.25,255],[0.12,255]], 118 kicks; 19402 ms
+seed 20261022: 60 x 168 week 0 {"dayGuideOpen":false}: open 300 h (floor 300.0), rest $19983.67, bounded; LPs: clique 1031 ms, priced 4744 ms; pass open 300 -> 300, guide from scoreFloor [[8,300],[4,300],[2,300],[1,300],[0.5,300],[0.25,300],[0.12,300]], 118 kicks; 20597 ms
+seed 20261022: 60 x 168 week 0 {}: open 300 h (floor 300.0), rest $19983.67, bounded; LPs: clique 1029 ms, priced 3943 ms; pass open 300 -> 300, guide from scoreFloor [[8,300],[4,300],[2,300],[1,300],[0.5,300],[0.25,300],[0.12,300]], 126 kicks; 20243 ms
+seed 20261022: 60 x 168 week 1 {"dayGuideOpen":false}: open 308 h (floor -), rest $19981.75, improved; LPs: clique skipped, priced skipped; 6321 ms
+seed 20261022: 60 x 168 week 1 {}: open 308 h (floor -), rest $19981.75, improved; LPs: clique skipped, priced skipped; 6394 ms
