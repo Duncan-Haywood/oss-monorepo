@@ -3,7 +3,7 @@ title: "The sample file works, the real export crashes: Math.max(...rows) in fiv
 seo_title: "Math.max spread crashes past 125,000 rows in JavaScript"
 date: 2026-11-14
 tags: [redteam, javascript, reliability, csv]
-description: "Five of our CSV analyzers crashed on a file of about 125,000 rows. The cause was one idiom, Math.max(...rows.map(f)). Fixed with loops, and a lint now stops new copies."
+description: "Five of our CSV analyzers crashed on files of about 125,000 rows, all from one idiom: Math.max(...rows.map(f)). Fixed with loops; a lint stops new copies."
 ---
 
 A red-team run today seeded twelve bugs into the
