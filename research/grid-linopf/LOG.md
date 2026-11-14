@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-11-14 · Milestone 6 Next (1): a start with an AC power flow. The planned dispatch homotopy fails at its first point; the DC dispatch looks past the loading limit on all six no-power-flow cases
+- Plan, predictions and outcome: `research/infra-dcopf/LOG.md` (2026-11-14); numbers in `research/infra-dcopf/experiments/results_homotopy.txt`, `results_homotopy_load.txt`, `results_homotopy_dcangle.txt`.
+- **Planned run:** dispatch homotopy from the case file's dispatch to the DC point. Q1 to Q4 refuted (0 of 6), Q5 untestable. PGLib's file dispatch is not an operating point (generation 2.0 to 18.3 GW, 3 to 23 %, short of load), and it has no power flow on any of the six cases.
+- **Declared diagnostics:** Newton from DC power-flow angles solves all six at no load (PYPOWER and pandapower fail from flat starts on the RTE networks). Scaling load and the DC dispatch up together then stalls at **48 to 85 %** of load on every case, with the lowest voltage falling to 0.72 to 0.79 pu, which looks like the nose of a loadability curve. On case300 TYP the AC optimum's dispatch at the same voltage setpoints reaches full load, so the DC dispatch is the obstacle.
+- Reading: the RTE failures are decided before the first QP, as milestone 6 said, and no power-flow start fixes them. The start must move the dispatch or the voltages. Next: a load-continuation repair (J at &mu;*, then step &mu; up), and a Jacobian fold test.
+
 ## 2026-11-13 · Milestone 6: held-out 500 to 2,000-bus cases. H2 as written refuted (0 of 12 within 10 rounds); 6 of 12 within 20, 8 of 12 with the voltage stage
 - The eight PGLib-OPF v23.07 networks of 500 to 2,000 buses, TYP, API and SAD (24 cases no rule was set on), with J-m-a frozen and the 20-round budget fixed by milestone 7. Pre-registered (plan, two amendments made before any repair outcome was read, and the outcome are in `research/infra-dcopf/LOG.md`; numbers in `research/infra-dcopf/experiments/results_heldout.txt`).
 - **Scaling fix first:** the full QP did not finish one case in 25 minutes at 2,000 buses. Constraint generation on Clarabel reproduces the full-QP repair exactly on all 34 development cases (same statuses round by round, 0.0000 pp cost difference) at 11x the speed, and is what ran.

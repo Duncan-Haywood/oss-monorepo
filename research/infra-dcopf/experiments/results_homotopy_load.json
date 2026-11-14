@@ -1,0 +1,125 @@
+[
+ {
+  "case": "case300_ieee",
+  "kind": "typ",
+  "nbus": 300,
+  "ref_moved": null,
+  "ref": "PIPS",
+  "ac": 565219.99224243,
+  "start_rule": "DC+ang",
+  "algs": {
+   "FDXB": false,
+   "FDBX": false,
+   "GS": false
+  },
+  "mu0": 0.1,
+  "mu": 0.8546875,
+  "n_pf": 18,
+  "secs": 26.484494924545288
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "typ",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 1402500.0,
+  "start_rule": "DC+ang",
+  "algs": {
+   "FDXB": false,
+   "FDBX": false,
+   "GS": false
+  },
+  "mu0": null,
+  "mu": 0.0,
+  "n_pf": 10,
+  "secs": 177.6095802783966
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "api",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2019700.0,
+  "start_rule": "DC, no ang",
+  "algs": {
+   "FDXB": false,
+   "FDBX": false,
+   "GS": false
+  },
+  "mu0": null,
+  "mu": 0.0,
+  "n_pf": 10,
+  "secs": 179.77414631843567
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "sad",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 1413900.0,
+  "start_rule": "DC+ang",
+  "algs": {
+   "FDXB": false,
+   "FDBX": false,
+   "GS": false
+  },
+  "mu0": null,
+  "mu": 0.0,
+  "n_pf": 10,
+  "secs": 180.80513334274292
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "typ",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2085600.0,
+  "start_rule": "DC+ang",
+  "algs": {
+   "FDXB": false,
+   "FDBX": false,
+   "GS": false
+  },
+  "mu0": null,
+  "mu": 0.0,
+  "n_pf": 10,
+  "secs": 184.8267741203308
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "sad",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2092400.0,
+  "start_rule": "DC, no ang",
+  "algs": {
+   "FDXB": false,
+   "FDBX": false,
+   "GS": false
+  },
+  "mu0": null,
+  "mu": 0.0,
+  "n_pf": 10,
+  "secs": 187.36003160476685
+ }
+]
