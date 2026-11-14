@@ -684,6 +684,11 @@ export function analyze(input = {}) {
     periodList = null;
   }
   if (periodList && periodList.some((p) => !Number.isInteger(p) || p < 2)) return { error: "Each period must be a whole number of at least 2, separated by commas (for hourly data: 24, 168)." };
+  // Blank means the default; anything else must be a positive, finite number
+  // (0, a negative or "" read as 0 would list every point as unusual).
+  const zText = input.outlierZ === undefined || input.outlierZ === null ? "" : String(input.outlierZ).trim();
+  const zLimit = zText === "" ? DEFAULTS.outlierZ : Number(zText);
+  if (!Number.isFinite(zLimit) || zLimit <= 0) return { error: `The threshold for unusual points must be a positive number of robust standard deviations (the default is ${DEFAULTS.outlierZ}); got "${zText}".` };
   const multi = periodList !== null && periodList.length > 1;
   let period = periodList ? periodList[0] : toInt(input.period);
   let periodSource = "given";
@@ -761,7 +766,6 @@ export function analyze(input = {}) {
   const { profile, peak, trough, amplitude, firstAmp } = comps[0];
 
   // Unusual points: robust z-score of the remainder (median / 1.4826 MAD).
-  const zLimit = Number(input.outlierZ ?? DEFAULTS.outlierZ);
   const med = median(resid);
   const mad = median(resid.map((r) => Math.abs(r - med))) * 1.4826;
   const unusual = [];

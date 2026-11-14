@@ -342,3 +342,25 @@ test("period lists: '24,168' is two periods on short data, '8,760' one period wh
   assert.equal(one.period, 1200);
   assert.ok(one.warnings.some((w) => /"1,200" was read as one number, 1200/.test(w)));
 });
+
+test("trend change totals are measured from the first and last trend points exactly", () => {
+  const r = analyze({ csv: CO2 });
+  const n = r.trend.length;
+  assert.equal(r.trendChangeTotal, r.trend[n - 1] - r.trend[0]);
+  assert.equal(r.trendChangeLastCycle, r.trend[n - 1] - r.trend[n - 1 - 12]);
+});
+
+test("the unusual-point threshold must be a positive number; blank means the default", () => {
+  const v = Array.from({ length: 48 }, (_, i) => 10 + Math.sin((i * Math.PI) / 6) * 3 + i * 0.1 + (i === 20 ? 9 : 0));
+  for (const z of ["abc", 0, -1, "0", Infinity, NaN]) {
+    const r = analyze({ values: v, period: 12, outlierZ: z });
+    assert.match(r.error ?? "", /threshold for unusual points must be a positive number/, `outlierZ ${String(z)}`);
+  }
+  for (const z of ["", null, undefined, "  "]) {
+    const r = analyze({ values: v, period: 12, outlierZ: z });
+    assert.equal(r.error, undefined);
+    assert.equal(r.outlierZ, DEFAULTS.outlierZ);
+    assert.ok(r.unusual.length < 10);
+  }
+  assert.equal(analyze({ values: v, period: 12, outlierZ: "2.5" }).outlierZ, 2.5);
+});
