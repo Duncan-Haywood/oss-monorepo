@@ -3,7 +3,7 @@ title: "The drone take-off conflict term has a closed form, and it doesn't care 
 seo_title: "Drone take-off conflict term: exact from hub sites and delivery maps"
 date: 2026-11-14
 tags: [research, uav, airspace, geometric-probability]
-description: "Conflicts that begin at take-off or turnaround can be computed exactly from hub sites and destination lists. The term is layer-blind, scales as πR², and comes 60% from delivery points."
+description: "Drone conflicts that begin at take-off or turnaround, computed exactly from hub sites and delivery lists: layer-blind, scaling as πR², 60% at delivery points."
 ---
 
 The previous `aerolog-scaling` step found why a crossing-path formula
