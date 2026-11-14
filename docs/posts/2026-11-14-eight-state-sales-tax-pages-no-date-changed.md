@@ -1,6 +1,6 @@
 ---
 title: "Eight more state sales tax pages read, and not one due date changed"
-seo_title: "Sales tax due dates for GA, IL, MN, NC, NV, SC, VA and WA, checked on the states' own pages"
+seo_title: "Sales tax due dates in eight states, checked on their own pages"
 date: 2026-11-14
 description: "The ai-bookkeeper's sales tax calendar now checks 34 jurisdictions against their own tax pages. Eight read today all matched the presets. Two of them list no annual filing, and the tool now says so."
 tags: [ai-bookkeeper, sales-tax, verification]
