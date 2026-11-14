@@ -172,22 +172,23 @@ flagships:
       export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
       Dutch file; India's INV-01 check on a real IRP payload; primary-source mandate
-      dates (IL, DK, CZ, LV, LU); Nigeria, Thailand, Taiwan, Oman, Pakistan and
-      Jordan pages (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0,
-      complements, Carta Porte 3.1 landed: open: SAT's CP error matrix to map
-      MX-070..080 to CP codes (omawww blocked), a real payroll or export file, a PAC
-      rejection compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
-      PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
-      2026-11-13) landed (README); cCredPres rules and cClassTrib at IT 1.71 landed
-      (README): RTC events (211110, 12 others incl. 112120, 110001) landed, 211120
-      (removed in v1.40) flagged (README): open: a real event; a real reform NF-e
-      from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib;
-      national NFS-e landed: open: a national rejection compared, municipal rates;
-      ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file,
-      city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,
-      ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF
-      reply; refresh the Bulgaria page when its draft passes. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      dates: IL (gov.il 403); LV, DK, CZ done (README); Nigeria, Thailand, Taiwan,
+      Oman, Pakistan and Jordan pages (excerpts; Taiwan, Oman dates disagree);
+      Mexico CFDI 4.0, complements, Carta Porte 3.1 landed: open: SAT's CP error
+      matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or
+      export file, a PAC rejection compared; postal codes (MX-080) landed (README);
+      Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table (BR-053..057,
+      NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and cClassTrib at
+      IT 1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001)
+      landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real
+      reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a
+      cClassTrib; national NFS-e landed: open: a national rejection compared,
+      municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on
+      a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio,
+      BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a real
+      Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft passes. A
+      run that lands a slice replaces its item here; keep this under 2,000
+      characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
