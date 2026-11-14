@@ -22,7 +22,7 @@ check would catch.
 | Salve Regina (solemn tone) | Antiphonale Romanum, Vatican 1912 | 56, 57 | 219 | 219 | 0 | 12 | 0 | 94.8% of 231 GABC notes | 195 of 200 |
 | GregoBase 3434 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 353, leaf 354, 329, leaf 356 | 1288 | 217 | 0 | 12 | 1 | 94.8% of 229 GABC notes | 192 of 200 |
 | GregoBase 3407 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 420, leaf 421, 396, leaf 423 | 1367 | 216 | 0 | 3 | 1 | 98.6% of 219 GABC notes | 199 of 200 |
-| GregoBase 3426 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 424, leaf 425, 400, leaf 427 | 908 | 160 | 0 | 0 | 0 | 100.0% of 160 GABC notes | 199 of 200 |
+| GregoBase 3426 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 424, leaf 425, 400, leaf 427 | 1238 | 160 | 0 | 0 | 0 | 100.0% of 160 GABC notes | 199 of 200 |
 | GregoBase 3403 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 512, leaf 513, 488, leaf 515 | 824 | 113 | 1 | 1 | 0 | 98.3% of 115 GABC notes | 198 of 200 |
 | GregoBase 3453 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 537, leaf 538, 513, leaf 540 | 896 | 137 | 0 | 5 | 0 | 96.5% of 142 GABC notes | 200 of 200 |
 | GregoBase 3418 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 579, leaf 580, 555, leaf 582 | 624 | 154 | 0 | 13 | 0 | 92.2% of 167 GABC notes | 196 of 200 |

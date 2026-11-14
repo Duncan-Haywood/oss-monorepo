@@ -292,6 +292,23 @@
           "leaf": 874
         }
       ]
+    },
+    {
+      "name": "GregoBase 3670 (Qui timetis, tilted page)",
+      "gabc": "corpus/gregobase-1908/3670.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "398",
+          "leaf": 423
+        },
+        {
+          "page": "399",
+          "leaf": 424
+        }
+      ]
     }
   ]
 }
