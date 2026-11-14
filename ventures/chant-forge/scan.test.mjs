@@ -310,3 +310,8 @@ test('shearColumns moves whole columns and keeps every ink pixel on the page', (
   assert.equal(out.ink[(5 - 2) * 10 + 0], 1); // column 0: (0 - 5) * 0.4 = -2
   assert.equal(out.ink[(5 + 2) * 10 + 9], 1); // column 9: (9 - 5) * 0.4 = 1.6, rounds to 2
 });
+
+test('gabcSteps gives a bivirga or tristropha one step per printed head, each with its shape (2026-11-14)', () => {
+  const s = gabcSteps('(c4) a(kvvJH) b(gsss) c(gv)');
+  assert.deepEqual(s.map((n) => `${n.rel}${n.shape[0]}`), ['1v', '1v', '0r', '-2r', '-3s', '-3s', '-3s', '-3v']);
+});

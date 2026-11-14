@@ -159,3 +159,21 @@ test('the CLI writes a multi-track file with --genre and refuses a genre without
   const bad = run([join(here, 'examples/dies-irae-incipit.gabc'), '-o', out, '--genre', 'polka']);
   assert.equal(bad.code, 2);
 });
+
+test('a bivirga, trivirga, distropha or tristropha is sung as one note per printed head (2026-11-14)', () => {
+  // Gregorio: gvv bivirga, gvvv trivirga, gss distropha, gsss tristropha.
+  // Until 2026-11-14 each played as one note; the 1908 Graduale prints two or
+  // three heads (leaf 423, "lau-date" of Qui timetis, GregoBase 3670).
+  const one = (g) => notes(parseGabc(`(c4) a(${g})`)).map((n) => `${n.letter}${n.pulses}${n.syllable ?? ''}`).join(' ');
+  assert.equal(one('kvvJH'), 'k1a k1 j1 h1');
+  assert.equal(one('gvvv'), 'g1a g1 g1');
+  assert.equal(one('gss'), 'g1a g1');
+  assert.equal(one('gsss.'), 'g1a g1 g2'); // the mora lengthens the last head
+  assert.equal(one('gv'), 'g1a');
+  assert.equal(one('gs'), 'g1a');
+  // the corpus's 26 bivirgas: every file that writes vv gains one note per vv
+  const f = join(here, 'corpus', 'gregobase-1908', '3407.gabc');
+  const src = readFileSync(f, 'utf8');
+  const plain = src.replace(/([a-m])vv/g, '$1v');
+  assert.equal(notes(parseGabc(src)).length - notes(parseGabc(plain)).length, (src.match(/[a-m]vv/g) || []).length);
+});
