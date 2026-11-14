@@ -37,7 +37,7 @@ test('every page carries the no-warranty clause; the tool carries privacy, opt-o
 
 test('loading the page does not count as a use', () => {
   assert.match(script, /loadExample\(false\);\s*<?\/?$|loadExample\(false\);/);
-  assert.match(script, /if \(count\) recordUsage\(localStorage, el\('optOut'\)\.checked, 'analysis_run'\)/);
+  assert.match(script, /if \(count\) recordUsage\(usageStorage\(\), el\('optOut'\)\.checked, 'analysis_run'\)/);
 });
 
 test('sitemap lists every published page', () => {

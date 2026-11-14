@@ -156,7 +156,7 @@
   <script type="module">
     import { parseUsage, parseEFL, compare, curve, shapeFromLabel, labelCheck, EXAMPLE } from './engine.mjs';
     import { planToFields, fieldsToPlan } from './form.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = (id) => document.getElementById(id);
     const NUMS = ['q500', 'q1000', 'q2000'];
@@ -306,7 +306,7 @@
         addRow(mt.querySelector('thead'), ['Month', 'kWh', ...ok.map((r) => r.plan.name)], 'th');
         usage.months.forEach((m, i) => addRow(mt.querySelector('tbody'), [m.month, Math.round(m.kwh).toLocaleString('en-US'), ...ok.map((r) => money(r.rows[i].total) + (r.rows[i].credits ? ' ✓' : ''))]));
         drawChart(results, usage.months);
-        if (count) recordUsage(localStorage, el('optOut').checked, 'analysis_run');
+        if (count) recordUsage(usageStorage(), el('optOut').checked, 'analysis_run');
       } catch (e) { setText(el('error'), e.message); }
     }
 
@@ -322,14 +322,14 @@
       a.href = URL.createObjectURL(new Blob([lines.join('\n') + '\n'], { type: 'text/csv' }));
       a.download = 'electricity-plan-comparison.csv';
       a.click();
-      recordUsage(localStorage, el('optOut').checked, 'report_downloaded');
+      recordUsage(usageStorage(), el('optOut').checked, 'report_downloaded');
     }
 
     function loadExample(count = true) {
       el('usage').value = EXAMPLE.usage;
       clear(el('plans'));
       for (const p of EXAMPLE.plans) addPlan(p);
-      if (count) recordUsage(localStorage, el('optOut').checked, 'example_loaded');
+      if (count) recordUsage(usageStorage(), el('optOut').checked, 'example_loaded');
       run(false);
     }
 
@@ -337,7 +337,7 @@
       const { plan, notes } = parseEFL(el('efl').value);
       addPlan(plan);
       setText(el('eflNotes'), notes.length ? 'Check by hand: ' + notes.join('; ') + '.' : 'Read. Check the fields against the label.');
-      recordUsage(localStorage, el('optOut').checked, 'label_read');
+      recordUsage(usageStorage(), el('optOut').checked, 'label_read');
     });
     el('addPlan').addEventListener('click', () => addPlan({ name: 'New plan', energy: [{ upTo: null, cents: 0 }] }));
     el('example').addEventListener('click', () => loadExample());
@@ -345,8 +345,8 @@
     el('download').addEventListener('click', download);
     el('usageFile').addEventListener('change', async (ev) => { const f = ev.target.files[0]; if (f) { el('usage').value = await f.text(); run(); } });
     for (const id of NUMS) el(id).addEventListener('input', updateShape);
-    el('optOut').checked = readOptOut(localStorage);
-    el('optOut').addEventListener('change', () => writeOptOut(localStorage, el('optOut').checked));
+    el('optOut').checked = readOptOut(usageStorage());
+    el('optOut').addEventListener('change', () => writeOptOut(usageStorage(), el('optOut').checked));
     updateShape();
     loadExample(false);
   </script>
