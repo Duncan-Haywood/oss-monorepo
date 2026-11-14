@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
@@ -121,4 +121,15 @@ test("the results table shows how far toward each state's line the seller is", (
   assert.match(html, /import \{ percentUsed \} from '\.\/orders\.mjs'/);
   assert.match(html, /<th>Of threshold<\/th><th>Status<\/th>/);
   assert.match(html, /\$\{pctCell\(r\)\}/);
+});
+
+test("the jump row under the intro points at sections that exist and at pages that exist", () => {
+  const row = html.match(/<nav class="pf-jump"[^>]*>([\s\S]*?)<\/nav>/);
+  assert.ok(row, "jump row missing");
+  const hrefs = [...row[1].matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(hrefs.length >= 4);
+  for (const h of hrefs) {
+    if (h.startsWith("#")) assert.match(html, new RegExp(`id="${h.slice(1)}"`), `${h} has no target`);
+    else assert.ok(existsSync(new URL(h.endsWith("/") ? h + "index.html" : h, import.meta.url)), `${h} does not exist`);
+  }
 });
