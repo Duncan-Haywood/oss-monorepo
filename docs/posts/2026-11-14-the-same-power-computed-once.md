@@ -3,7 +3,7 @@ title: "The same power, computed once per guess instead of once per week"
 seo_title: "Speeding up a Hill curve fit without changing one digit"
 date: 2026-11-14
 tags: [ad-spend-saturation-optimizer, performance, curve-fitting]
-description: "Our ad-spend optimizer fits a saturation curve per channel hundreds of times. Hoisting one Math.pow out of the inner loop cut fit time by a quarter with bit-identical answers."
+description: "Hoisting one Math.pow out of our ad-spend optimizer's curve-fit loop cut fit time by a quarter, and every answer stayed bit-identical."
 ---
 
 The [ad-spend saturation optimizer](../../ventures/ad-spend-saturation-optimizer/README.md)
@@ -30,4 +30,4 @@ Fit-heavy work got 25% faster, and the product's test suite went from 10.0 to
 Making those cheaper would mean answers that differ in the last digit, and
 that is a product decision, not a perf one. The full write-up, with the ranked
 list of what we did not change, is in
-[`docs/history/ci-perf-2026-11-14-ad-spend-bound-curves.md`](../history/ci-perf-2026-11-14-ad-spend-bound-curves.md).
+[`docs/history/ci-perf-2026-11-14-ad-spend-bound-curves.md`](../../docs/history/ci-perf-2026-11-14-ad-spend-bound-curves.md).
