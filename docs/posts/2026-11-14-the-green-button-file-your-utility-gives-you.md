@@ -3,7 +3,7 @@ title: "The Green Button File Your Utility Gives You, and Two Ways a Tool Can Mi
 seo_title: "Reading Green Button CSV and XML Interval Data Correctly"
 date: 2026-11-14
 tags: [energy, demand-charges, green-button, website]
-description: "Our demand-charge analyzer rejected the most common Green Button CSV layout outright and could not open the XML. Both are fixed, with daylight saving read from the file."
+description: "Our demand-charge analyzer refused a common Green Button CSV layout and could not open the XML. Both are fixed, with daylight saving read from the file."
 ---
 
 Most US utilities let a customer download their meter's 15-minute readings through Green Button "Download My Data". The [demand charge analyzer](/demand-charge-interval-analyzer/) is built on that file: it finds each month's peak, the charge it set, and what a battery would save. Everything it reports depends on reading the file correctly. Two things were wrong.
