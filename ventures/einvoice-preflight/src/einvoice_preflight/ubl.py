@@ -219,6 +219,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         or _text(root, "DebitNoteTypeCode", required=False)
     )
     original = _billing_reference(root)
+    reasons = _credit_reason_codes(root)
     invoice = {
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
@@ -227,6 +228,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         "document_type": document_type,
         **({"document_code": type_code} if type_code else {}),
         **({"original_invoice": original} if original else {}),
+        **({"credit_reason_codes": reasons} if reasons else {}),
         "currency": _text(root, "DocumentCurrencyCode"),
         "supplier": _party(supplier),
         "customer": _party(customer),
@@ -445,6 +447,21 @@ def _invoice_period(root: ElementTree.Element) -> dict[str, str] | None:
                 period["end"] = end
             return period
     return None
+
+
+def _credit_reason_codes(root: ElementTree.Element) -> list[str]:
+    """Header-level DiscrepancyResponse/ResponseCode values (BTAE-03); mirrors ubl.mjs."""
+    codes: list[str] = []
+    for child in root:
+        if child.tag.rsplit("}", 1)[-1] != "DiscrepancyResponse":
+            continue
+        for code in child:
+            if code.tag.rsplit("}", 1)[-1] == "ResponseCode":
+                value = (code.text or "").strip()
+                if value:
+                    codes.append(value)
+                break
+    return codes
 
 
 def _billing_reference(root: ElementTree.Element) -> str:

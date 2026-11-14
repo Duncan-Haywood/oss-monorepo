@@ -30,11 +30,16 @@ export const ASIDE = {
   jpNtr: ["INV-018", "INV-038"],
   // The UAE states 5% on a reverse-charge (AE) or margin-scheme (N) row and charges none.
   aeZeroAtRate: ["INV-018", "INV-038"],
+  // A UAE credit note for a volume discount (reason code VD, BTAE-03) names no
+  // preceding invoice: ibr-055-ae requires the reference on every other credit note
+  // and forbids it on a VD one, since a period discount may cover many invoices.
+  aeVolumeDiscount: ["INV-033"],
   // A simplified (B2C) invoice names no buyer; notes are Invoices with 381/383; ZATCA's
   // cut of EN 16931 leaves out BR-33 (INV-052) and BR-61 (INV-045).
   zatca: ["INV-024", "INV-022", "INV-005", "INV-006", "INV-034", "INV-045", "INV-052"],
 };
 
+const volumeDiscount = (invoice) => (invoice?.credit_reason_codes || []).some((c) => String(c).trim() === "VD");
 const zeroAtRate = (row) => ["AE", "N"].includes(String(row?.tax_category || "").toUpperCase()) && Number(row?.tax) === 0 && Number(row?.tax_percent) > 0;
 
 export function steppedAside(invoice) {
@@ -46,6 +51,7 @@ export function steppedAside(invoice) {
   if (PINT_LOCAL.test(spec)) add(ASIDE.local);
   if (PINT_JP_NTR.test(spec)) add(ASIDE.jpNtr);
   if (PINT_AE.test(spec) && (invoice?.tax_breakdown || []).some(zeroAtRate)) add(ASIDE.aeZeroAtRate);
+  if (PINT_AE.test(spec) && volumeDiscount(invoice)) add(ASIDE.aeVolumeDiscount);
   if (ZATCA.test(profile)) add(ASIDE.zatca);
   return out;
 }
