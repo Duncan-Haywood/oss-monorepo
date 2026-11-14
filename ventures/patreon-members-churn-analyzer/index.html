@@ -149,7 +149,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -160,7 +160,7 @@
 
     function run(text) {
       const delim = detectDelimiter(text);
-      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: detectDecimalComma(parseCsv(text, delim), delim) });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const v = (id) => $(id).value;
       const r = analyze(n.members, { platformPct: v("#platformpct"), processingPct: v("#procpct"), processingFixed: v("#procfixed"), asOf: v("#asof") ? Date.parse(v("#asof") + "T00:00:00Z") : undefined });
