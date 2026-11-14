@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKiTgTuyHvdX3t1ZdGt",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T12:19:58Z",
+  "ended": "2026-11-14T12:28:11Z",
+  "wall_minutes": 8.48,
+  "tokens_in": 2784802,
+  "tokens_out": 42243,
+  "cost_usd": 2.1894,
+  "tool_calls": 32,
+  "task": "Hearth & Horizon story: Shut It Like a Door on a Sleeping Child (water hammer)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15849",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' gave no signal: all four shelves (H&H, For Other Minds, Little Lamps, Saints by Candlelight) had a piece land on 2026-11-14 already, so the pick fell back to 'the science fiction shelf is the headline'."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Both open science-fiction/agent 'Next up' proposals carry their own near-duplicate warnings (Wet Bulb vs The Stone That Keeps the Sun; the queue story vs The Rows With No Time), so the list offered no clean pick; grepping DONE.md for untouched physics was the faster route."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Took a new topic (water hammer, absent from DONE.md) instead of a Next-up proposal, because both live proposals are flagged as close to finished stories.",
+      "did": "Grepped DONE.md for unused physics terms, then built a method-of-characteristics model before drafting.",
+      "result": "A story whose failed attempt (60 s closure still 9.2 bar) comes out of the model, not by assertion."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-shut-it-like-a-door-on-a-sleeping-child.md",
+    "ventures/hearth-and-horizon/stories/shut-it-like-a-door-on-a-sleeping-child.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project hearth-and-horizon, piece shut-it-like-a-door-on-a-sleeping-child (5,327 words, text only: audio dirs 474 MB > 400 MB cap). Numbers from a 40-reach MOC model (reservoir, PVC-U 110x5.3 mm, 1,850 m, 62 m head, gate valve in series with fixed orifice): a 386 m/s, peaks 9.8/9.5/9.2 bar for 4/20/60 s linear strokes, 6.4 bar two-stage; one-minute means 6.2/6.1. Adversarial re-read fixed: agent-arrival timeline contradiction, valve-location inconsistency, a count of cousins, June jars 'of the year', a peak time (183 s -> ~190 s). Weekdays checked in code. Local checks: node generate.mjs; node --test 15/15 pass. No agent doc in docs/reports: nothing the next run needs beyond DONE.md's entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "26b7a7f9-e48f-5856-8117-a4481195f8b4",
+    "transcripts": 1,
+    "first": "2026-11-14T12:19:58Z",
+    "last": "2026-11-14T12:28:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 61,
+        "output": 42243,
+        "thinking": 18929,
+        "cache_read": 2683794,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100947,
+        "api_equivalent_usd": 2.1894,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 61,
+      "output": 42243,
+      "thinking": 18929,
+      "cache_read": 2683794,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100947,
+      "api_equivalent_usd": 2.1894,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 27,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.48,
+      "active_minutes": 8.48,
+      "model_minutes": 7.89,
+      "tool_minutes": 0.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a technical fiction writer researching and modelling water hammer and drafting a 5,300-word story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 456.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
