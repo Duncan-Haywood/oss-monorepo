@@ -1,0 +1,20 @@
+# Elevator Traffic Analysis: up-peak round trip time, lift design search and simulated waits
+
+> Free tool for architects, building services engineers, developers and students: type the floors above the lobby, their populations and the lifts, and get the up-peak round trip time, interval and five-minute handling capacity (Barney and dos Santos formulae with Peters 2000 corrections: jerk-limited flight times, unequal floor heights and populations, express zones), the smallest designs over 1-8 lifts, common loads and speeds that meet your targets, and a random-arrival simulation of waiting times. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates, not engineering advice; a qualified lift consultant checks a real design.
+
+## Pages
+
+- [The tool](https://marisstella.app/elevator-traffic-analysis/): lifts, dynamics, door times, floors and targets in; RTT, interval, handling capacity, stops, reversal floor, passing designs and a wait-versus-demand chart out.
+- [How it works](https://marisstella.app/elevator-traffic-analysis/how-it-works.html): the formulae step by step, the Monte Carlo check (formula within -0.83% to +1.39% of sampled trips over 27 buildings), and simulated waits: about half the interval at 80% of the formula's handling capacity, about the whole interval at 100%.
+
+## How to use the engine
+
+- `engine.mjs` exports `upPeak(input)` (rtt, interval, handling, pctPop, S, H, ts, components), `flightTime(d, {speed, acceleration, jerk, startDelay})`, `reversalAndStops(populations, P)`, `searchDesigns(input, {maxInterval, minPctPop})`, `personsFromLoad(kg)`, `EXAMPLE`.
+- `sim.mjs` exports `tripSample(input)`, `simulate(input, {demandPct, dwell, duration, seed})`, `demandSweep(input)`.
+- `cli.mjs`: `node cli.mjs building.json --interval 30 --pct 12 --search --simulate --json`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/elevator-traffic-analysis): MIT licensed.
