@@ -248,7 +248,8 @@
       {
         "file": ".github/workflows/portfolio-validate.yml",
         "issue": "check_calendar_dates.py (extended 2026-11-12 to the d <= 31 shape) runs in no PR workflow; only main_health.py by hand. Fix: in the validate job add `python3 platform/ci/check_calendar_dates.py` and a `working-directory: platform/ci` step `python3 -m unittest test_check_calendar_dates` (needs node; ventures/**/*.mjs and *.js are already in paths). Same PR can carry check_unreachable_exit (open entry from 2026-11-12). Control plane: own PR, owner approval; this session could push only its own branch.",
-        "patched": false
+        "patched": true,
+        "patched_in": "PR_URL"
       }
     ]
   },

@@ -421,6 +421,37 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_jsonld
 
+      # Four checks that ran only through main_health.py by hand, so a PR could
+      # break them unseen (open red-team entries of 2026-11-11, 2026-11-12 x3).
+      # Each passed on main on 2026-11-14; together they take about 15 s.
+      - name: Check no page loads a script or style over plain http
+        run: python3 platform/ci/check_insecure_refs.py
+
+      - name: Insecure-refs checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_insecure_refs
+
+      - name: Check URL checkers exit non-zero on an unreachable host
+        run: python3 platform/ci/check_unreachable_exit.py
+
+      - name: Unreachable-exit checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_unreachable_exit
+
+      - name: Check CSV exporters guard against formula injection
+        run: python3 platform/ci/check_csv_formula_guard.py
+
+      - name: CSV formula guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_csv_formula_guard
+
+      - name: Check no date validator accepts an impossible day
+        run: python3 platform/ci/check_calendar_dates.py
+
+      - name: Calendar-dates checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_calendar_dates
+
       # The visible side of "Honest marketing": no "trusted by N", star
       # ratings or award claims the repo cannot back (competitor claims that
       # are attributed to the competitor are allowed).

@@ -342,7 +342,8 @@
       {
         "file": ".github/workflows/portfolio-validate.yml",
         "issue": "No PR workflow runs check_insecure_refs.py or test_check_insecure_refs.py; only main_health.py run by hand. Fix: in portfolio-validate.yml's validate job (already triggered by ventures/**/*.html, *.css and platform/ci/**) add `python3 platform/ci/check_insecure_refs.py` and a `working-directory: platform/ci` step `python3 -m unittest test_check_insecure_refs`. Control plane: own PR from this branch after #14804 lands.",
-        "patched": false
+        "patched": true,
+        "patched_in": "PR_URL"
       }
     ]
   },
