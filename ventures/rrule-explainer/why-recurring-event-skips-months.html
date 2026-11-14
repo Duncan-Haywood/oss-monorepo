@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23345a8a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%86%BB%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why a Recurring Event Skips Months, or Shows Up Twice (RRULE)</title>
+  <meta name="description" content="Four ways an iCalendar RRULE does something its author did not mean: the 31st that skips five months, the extra first meeting on DTSTART, the 02:30 that moves to 03:30, and the every-other-week rule that depends on WKST. Each with the fixed rule.">
+  <meta property="og:title" content="Why a recurring event skips months, or shows up twice">
+  <link rel="canonical" href="./why-recurring-event-skips-months.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does an event that repeats monthly on the 31st skip months?", "acceptedAnswer": {"@type": "Answer", "text": "RFC 5545 ignores a date that does not exist instead of moving it, so FREQ=MONTHLY from 2026-01-31 gives January, March, May, July, August, October and December: seven dates a year. BYMONTHDAY=-1 gives the last day of every month."}}, {"@type": "Question", "name": "Why does my weekly Tuesday meeting also appear on the Monday I created it?", "acceptedAnswer": {"@type": "Answer", "text": "DTSTART is always the first occurrence in RFC 5545, even when the rule would not produce it, and it uses up one of COUNT. Libraries such as python-dateutil drop it instead. Set DTSTART to the first Tuesday."}}, {"@type": "Question", "name": "Why did my 02:30 event happen at 03:30?", "acceptedAnswer": {"@type": "Answer", "text": "On the day clocks jump from 02:00 to 03:00, 02:30 does not exist. RFC 5545 reads it with the offset in force before the jump, which lands at 03:30 on the new clock."}}]}</script>
+  <style>
+    :root { font: 17px Georgia, serif; color: #1b1b2b; background: #f4f5f9; }
+    body { max-width: 720px; margin: auto; padding: 28px; }
+    h1 { font: 700 clamp(1.7rem, 4.5vw, 2.4rem)/1.1 system-ui, sans-serif; color: #233b5c; }
+    h2, h3 { font-family: system-ui, sans-serif; color: #233b5c; }
+    h2 { margin-top: 2em; }
+    p, li { line-height: 1.6; overflow-wrap: anywhere; }
+    a { color: #2d5d93; }
+    code, pre { font: 0.86em ui-monospace, Menlo, Consolas, monospace; background: #e9ecf4; border-radius: 4px; }
+    code { padding: 1px 4px; overflow-wrap: anywhere; }
+    pre { padding: 12px; overflow-x: auto; }
+    .note, footer { font: .86rem system-ui, sans-serif; color: #4f5670; }
+    footer { margin-top: 32px; border-top: 1px solid #d9deea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">RRULE Explainer</a> · guide</p>
+  <h1>Why a recurring event skips months, or shows up twice</h1>
+  <p>An iCalendar recurrence rule is a small program. <code>RRULE:FREQ=MONTHLY</code> reads like "every month", but the dates it makes come from RFC 5545's rules, not from what the words suggest. Four of those rules catch people most often. Every date below was produced by the <a href="./">RRULE Explainer</a>, and you can paste each rule there to check it.</p>
+
+  <h2>1. The 31st skips five months</h2>
+  <pre>DTSTART:20260131T090000
+RRULE:FREQ=MONTHLY;COUNT=7</pre>
+  <p>gives 2026-01-31, 2026-03-31, 2026-05-31, 2026-07-31, 2026-08-31, 2026-10-31 and 2026-12-31. February, April, June, September and November have no 31st, and the standard says a date that does not exist is ignored, not moved. Starting on the 29th or 30th does the same to February.</p>
+  <p>For the last day of every month write <code>BYMONTHDAY=-1</code>. For "the 30th, or the last day when the month is shorter" collect the candidates and keep the last one: <code>FREQ=MONTHLY;BYMONTHDAY=28,29,30;BYSETPOS=-1</code>, which from 2026-01-30 gives 2026-01-30, 2026-02-28 and 2026-03-30.</p>
+  <h3>Why does an event that repeats monthly on the 31st skip months?</h3>
+  <p>RFC 5545 ignores a date that does not exist instead of moving it, so FREQ=MONTHLY from 2026-01-31 gives January, March, May, July, August, October and December: seven dates a year. BYMONTHDAY=-1 gives the last day of every month.</p>
+
+  <h2>2. The start date is always an occurrence</h2>
+  <pre>DTSTART:20260105T090000
+RRULE:FREQ=WEEKLY;BYDAY=TU;COUNT=3</pre>
+  <p>2026-01-05 is a Monday. RFC 5545 says DTSTART is the first instance of the recurrence set, so the dates are 2026-01-05, 2026-01-06 and 2026-01-13: the Monday counts as one of the three. python-dateutil, used by a lot of Python calendar code, leaves the Monday out and gives 2026-01-06, 2026-01-13 and 2026-01-20. Two programs reading the same event disagree on four of the dates between them.</p>
+  <p>The fix is to start on a date the rule makes: here DTSTART on Tuesday 2026-01-06.</p>
+  <h3>Why does my weekly Tuesday meeting also appear on the Monday I created it?</h3>
+  <p>DTSTART is always the first occurrence in RFC 5545, even when the rule would not produce it, and it uses up one of COUNT. Libraries such as python-dateutil drop it instead. Set DTSTART to the first Tuesday.</p>
+
+  <h2>3. 02:30 happens at 03:30 once a year</h2>
+  <pre>DTSTART;TZID=America/New_York:20260306T023000
+RRULE:FREQ=DAILY;COUNT=4</pre>
+  <p>On 2026-03-08 New York clocks go from 02:00 straight to 03:00, so 02:30 does not exist. RFC 5545 reads such a time with the UTC offset in force before the jump (-05:00), which is 07:30 UTC, or 03:30 on the new clock. On the day clocks go back, 01:30 happens twice and the rule means the first one. Apps do not all follow this; some move the event earlier and some drop it, so a recurring event in the small hours is worth avoiding.</p>
+  <h3>Why did my 02:30 event happen at 03:30?</h3>
+  <p>On the day clocks jump from 02:00 to 03:00, 02:30 does not exist. RFC 5545 reads it with the offset in force before the jump, which lands at 03:30 on the new clock.</p>
+
+  <h2>4. "Every other week" depends on the day the week starts</h2>
+  <pre>DTSTART:19970805T090000
+RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU</pre>
+  <p>With weeks starting on Monday (<code>WKST=MO</code>, the default) the dates are August 5, 10, 19 and 24, 1997. With <code>WKST=SU</code> they are August 5, 17, 19 and 31. The Sunday that belongs to "this" week under one start day belongs to the skipped week under the other. RFC 5545 uses this exact rule to show WKST at work. If a rule has an INTERVAL above 1 and more than one BYDAY, write WKST explicitly.</p>
+
+  <h2>One more: mixing BYDAY=MO with BYDAY=2TU</h2>
+  <p>The standard lets a monthly rule list plain and numbered weekdays together, as in <code>FREQ=MONTHLY;BYDAY=MO,2TU</code> (every Monday, and the second Tuesday). python-dateutil 4.0.0 instead keeps only days that match both kinds at once. On 100 random monthly and yearly rules of this shape it returned no dates at all for 92. If other software has to read the event, split such a rule into two.</p>
+
+  <p><a href="./">Paste your own rule into the RRULE Explainer</a> to see its dates and these checks.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not legal or professional advice. Dates come from this project's own reading of RFC 5545; calendar apps differ, so check the app your attendees use.</p>
+  <p><strong>Independent.</strong> Not affiliated with or endorsed by the IETF, CalConnect, Google, Microsoft, Apple or the python-dateutil maintainers.</p>
+  <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

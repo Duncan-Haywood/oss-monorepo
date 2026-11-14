@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23345a8a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%86%BB%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RRULE Explainer — See Every Date an iCalendar Recurrence Rule Makes</title>
+  <meta name="description" content="Free RRULE tester: paste an iCalendar recurrence rule (RFC 5545) and see every date it makes, in plain English, with time zones and DST. It flags months the rule skips, rules that never fire, a DTSTART outside the rule and WKST surprises. Runs in your browser.">
+  <meta property="og:title" content="RRULE Explainer — every date your recurrence rule makes">
+  <meta property="og:description" content="Why does my monthly event skip February? Why does my calendar show an extra first meeting? Paste the RRULE and see each date, the DST shifts and what the rule really says.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "RRULE Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Expands an iCalendar recurrence rule (RFC 5545 RRULE with DTSTART, RDATE and EXDATE) into its dates, describes it in English, converts each date through its time zone with the RFC's rules for clock changes, and flags months the rule skips, rules that never fire, a DTSTART the rule does not produce and week-start (WKST) sensitivity. Runs in your browser.", "featureList": "RRULE expansion per RFC 5545, plain-English description, time zones and DST gaps and overlaps, COUNT and UNTIL, RDATE and EXDATE, BYSETPOS, BYWEEKNO, python-dateutil compatibility mode, findings with suggested fixes, CSV download, command-line version"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my monthly recurring event skip some months?", "acceptedAnswer": {"@type": "Answer", "text": "Because RFC 5545 drops dates that do not exist rather than moving them. A rule that repeats monthly from the 31st (FREQ=MONTHLY with DTSTART on the 31st, or BYMONTHDAY=31) fires only in the seven months that have a 31st. For the last day of every month write BYMONTHDAY=-1; for the 30th, or the last day of a shorter month, write BYMONTHDAY=28,29,30;BYSETPOS=-1. The tool prints the fixed rule for your case."}}, {"@type": "Question", "name": "Why does my calendar show an extra occurrence on the start date?", "acceptedAnswer": {"@type": "Answer", "text": "RFC 5545 makes DTSTART the first occurrence even when the rule would not produce that date, and it counts toward COUNT. FREQ=WEEKLY;BYDAY=TU with a DTSTART on a Monday happens on that Monday too. Libraries such as python-dateutil leave the Monday out, so apps disagree. Move DTSTART to the first date the rule makes."}}, {"@type": "Question", "name": "What happens to a recurring event at a time the clocks skip?", "acceptedAnswer": {"@type": "Answer", "text": "RFC 5545 reads a local time that a forward clock change skips with the UTC offset in force before the change, so a daily 02:30 event in New York happens at 03:30 on the day clocks spring forward. A time that happens twice when clocks go back means the first of the two. The tool marks each such date and gives its UTC time."}}, {"@type": "Question", "name": "What does WKST do in an RRULE?", "acceptedAnswer": {"@type": "Answer", "text": "WKST names the day weeks start on (Monday by default). It only matters for a WEEKLY rule with an INTERVAL above 1 and several BYDAY days, and for BYWEEKNO. FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,SU from Tuesday 1997-08-05 gives the 5th, 10th, 19th and 24th with WKST=MO but the 5th, 17th, 19th and 31st with WKST=SU. The tool warns when your rule depends on it."}}, {"@type": "Question", "name": "How do I write every last weekday of the month as an RRULE?", "acceptedAnswer": {"@type": "Answer", "text": "FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1. BYDAY collects every weekday in the month and BYSETPOS=-1 keeps the last one. BYSETPOS=1 gives the first weekday."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The rule is expanded in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1b2b; background: #f4f5f9; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2d5d93; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #233b5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #233b5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; overflow-wrap: anywhere; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e9ecf4; padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #4f5670; }
+    .card { background: #fff; border: 1px solid #d9deea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #233b5c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #737b9a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 9em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2d5d93; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f2; color: #233b5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e9ecf4; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4f5670; }
+    .finding { border-bottom: 1px solid #e9ecf4; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding p { margin: 0 0 4px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.error { background: #f8dcd6; color: #7a1f10; }
+    .pill.warning { background: #fdf0d5; color: #6e520c; }
+    .pill.info { background: #e4e8f2; color: #233b5c; }
+    .say { font-size: 1.08rem; background: #eef2fa; border-left: 4px solid #2d5d93; padding: 10px 14px; border-radius: 6px; }
+    .scroll { overflow-x: auto; }
+    td code { white-space: nowrap; overflow-wrap: normal; }
+    .flag { color: #7a1f10; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d9deea; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RRULE EXPLAINER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>See every date your recurrence rule makes</h1>
+    <p>Paste an iCalendar <code>RRULE</code> (with its <code>DTSTART</code>, and any <code>RDATE</code> or <code>EXDATE</code>) from an .ics file, a calendar API or your own code. You get <strong>the rule in plain English</strong>, <strong>each date it produces</strong> with its UTC time and the <strong>clock changes</strong> it crosses, and <strong>what will surprise you</strong>: months a monthly rule skips, a rule that never fires, a start date the rule does not make, and rules whose dates depend on which day the week starts.</p>
+    <p class="note">Expanded by this tool's own implementation of RFC 5545, checked against python-dateutil on 1,600 random rules (see the README). Nothing you paste leaves this browser tab.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. The recurrence</h2>
+    <label for="text">RRULE, with DTSTART and any RDATE / EXDATE lines</label>
+    <textarea id="text" spellcheck="false" autocomplete="off" placeholder="DTSTART;TZID=America/New_York:20260105T090000&#10;RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;COUNT=10"></textarea>
+    <p class="note">A bare <code>FREQ=...</code> works too: then give the start below. A pasted event or whole .ics file is fine; the first event's recurrence is read.</p>
+    <div class="grid">
+      <div>
+        <label for="dtstart">Start, if the text has no DTSTART</label>
+        <input id="dtstart" spellcheck="false" autocomplete="off" placeholder="2026-01-05 09:00">
+      </div>
+      <div>
+        <label for="tzid">Time zone, if the text has none</label>
+        <input id="tzid" spellcheck="false" autocomplete="off" list="zones" placeholder="Europe/London">
+        <datalist id="zones"><option value="America/New_York"><option value="America/Chicago"><option value="America/Denver"><option value="America/Los_Angeles"><option value="Europe/London"><option value="Europe/Paris"><option value="Europe/Berlin"><option value="Asia/Kolkata"><option value="Asia/Tokyo"><option value="Australia/Sydney"><option value="UTC"></datalist>
+      </div>
+      <div>
+        <label for="after">Show from (optional)</label>
+        <input id="after" spellcheck="false" autocomplete="off" placeholder="2027-01-01">
+      </div>
+      <div>
+        <label for="limit">How many dates</label>
+        <select id="limit"><option>10</option><option selected>25</option><option>100</option><option>500</option></select>
+      </div>
+    </div>
+    <label for="flavor">Read the rule as</label>
+    <select id="flavor"><option value="rfc">RFC 5545 (calendar apps that follow the standard)</option><option value="dateutil">python-dateutil 4.0 (DTSTART only if the rule makes it)</option></select>
+    <p>
+      <button type="button" id="run">Show the dates</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>2. What the rule says</h2>
+    <div id="describe"></div>
+    <div id="findings"></div>
+    <h3 id="dates-title">Dates</h3>
+    <div class="scroll"><table><thead><tr><th>#</th><th>Local date and time</th><th>Day</th><th>UTC</th><th>Note</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p id="more" class="note"></p>
+    <p><button type="button" class="secondary" id="csv">Download CSV</button> <button type="button" class="secondary" id="copy">Copy the dates</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Common rules, written correctly</h2>
+    <ul>
+      <li>Last day of every month: <code>FREQ=MONTHLY;BYMONTHDAY=-1</code></li>
+      <li>The 30th, or the last day when the month is shorter: <code>FREQ=MONTHLY;BYMONTHDAY=28,29,30;BYSETPOS=-1</code></li>
+      <li>Last weekday (Monday to Friday) of the month: <code>FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1</code></li>
+      <li>Second Tuesday of every month: <code>FREQ=MONTHLY;BYDAY=2TU</code></li>
+      <li>Every other week on Tuesday and Thursday: <code>FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,TH;WKST=MO</code> (write WKST; it decides which weeks pair up)</li>
+      <li>US Thanksgiving: <code>FREQ=YEARLY;BYMONTH=11;BYDAY=4TH</code></li>
+    </ul>
+    <p class="note">Checking a whole .ics file for import errors (missing UID, bad line folding, wrong value types)? Use the <a href="../ics-calendar-check/">ICS calendar checker</a>. Guide: <a href="why-recurring-event-skips-months.html">why a recurring event skips months, or shows up twice</a>. Scheduling a cron job across a clock change instead? The <a href="../cron-dst-drift-check/">cron DST drift check</a> shows which runs a DST change skips or doubles.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why does my monthly recurring event skip some months?</h3>
+    <p>Because RFC 5545 drops dates that do not exist rather than moving them. A rule that repeats monthly from the 31st (FREQ=MONTHLY with DTSTART on the 31st, or BYMONTHDAY=31) fires only in the seven months that have a 31st. For the last day of every month write BYMONTHDAY=-1; for the 30th, or the last day of a shorter month, write BYMONTHDAY=28,29,30;BYSETPOS=-1. The tool prints the fixed rule for your case.</p>
+    <h3>Why does my calendar show an extra occurrence on the start date?</h3>
+    <p>RFC 5545 makes DTSTART the first occurrence even when the rule would not produce that date, and it counts toward COUNT. FREQ=WEEKLY;BYDAY=TU with a DTSTART on a Monday happens on that Monday too. Libraries such as python-dateutil leave the Monday out, so apps disagree. Move DTSTART to the first date the rule makes.</p>
+    <h3>What happens to a recurring event at a time the clocks skip?</h3>
+    <p>RFC 5545 reads a local time that a forward clock change skips with the UTC offset in force before the change, so a daily 02:30 event in New York happens at 03:30 on the day clocks spring forward. A time that happens twice when clocks go back means the first of the two. The tool marks each such date and gives its UTC time.</p>
+    <h3>What does WKST do in an RRULE?</h3>
+    <p>WKST names the day weeks start on (Monday by default). It only matters for a WEEKLY rule with an INTERVAL above 1 and several BYDAY days, and for BYWEEKNO. FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,SU from Tuesday 1997-08-05 gives the 5th, 10th, 19th and 24th with WKST=MO but the 5th, 17th, 19th and 31st with WKST=SU. The tool warns when your rule depends on it.</p>
+    <h3>How do I write every last weekday of the month as an RRULE?</h3>
+    <p>FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1. BYDAY collects every weekday in the month and BYSETPOS=-1 keeps the last one. BYSETPOS=1 gives the first weekday.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The rule is expanded in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>From the command line, or an agent</h2>
+    <p>The same engine with no dependencies and no network: <code>node cli.mjs 'FREQ=MONTHLY;BYDAY=-1FR' --start 2026-01-30T17:00 --tz Europe/London</code> prints the dates and findings, <code>--json</code> for scripts, <code>--strict</code> to fail a CI job on warnings. Pipe an event in with <code>-</code>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rrule-explainer">Source and README</a>.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice. Dates come from this tool's own reading of RFC 5545 and your browser's time-zone data; calendar apps and libraries do not all read rules the same way, and the tool does not run any of them. Check the dates in the app your attendees use before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by the IETF, CalConnect, Google, Microsoft, Apple or the python-dateutil maintainers.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>rule_expanded</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>dates_copied</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, EXAMPLE } from "./rrule.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const status = $("#form-status");
+    let last = null;
+
+    function note(o) {
+      if (o.zone === "gap") return `<span class="flag">Clocks skip this time; it happens at ${esc(o.actualLocal)}</span>`;
+      if (o.zone === "overlap") return "This time happens twice; the first one";
+      if (o.source === "dtstart") return "DTSTART (not made by the rule)";
+      if (o.source === "rdate") return "From RDATE";
+      return "";
+    }
+
+    function run() {
+      const input = { text: $("#text").value, dtstart: $("#dtstart").value, tzid: $("#tzid").value.trim(), after: $("#after").value.trim(), limit: Number($("#limit").value), dtstartMode: $("#flavor").value === "dateutil" ? "rule" : "rfc" };
+      if (!input.text.trim()) { status.textContent = "Paste a rule first, or load the example."; return; }
+      last = analyze(input);
+      $("#describe").innerHTML = last.description.map((d) => `<p class="say">${esc(d)}</p>`).join("");
+      $("#findings").innerHTML = `<h3>Findings</h3>` + (last.findings.length ? last.findings.map((f) => `<div class="finding"><p><span class="pill ${f.level}">${f.level}</span><strong>${esc(f.title)}</strong></p><p class="note">${esc(f.detail)}</p>${f.fix ? `<p><code>${esc(f.fix)}</code></p>` : ""}</div>`).join("") : "<p>Nothing to flag: the rule reads the way it is written.</p>");
+      const zoned = last.occurrences.some((o) => o.utc);
+      $("#dates-title").textContent = last.tz ? `Dates (${last.tz})` : last.allDay ? "Dates (all day)" : "Dates";
+      $("#rows").innerHTML = last.occurrences.map((o, i) => `<tr><td>${i + 1 + (last.skippedBefore || 0)}</td><td><code>${esc(o.date)}</code></td><td>${esc(o.weekday)}</td><td>${zoned ? `<code>${esc(o.utc)}</code>` : '<span class="note">floating</span>'}</td><td>${note(o)}</td></tr>`).join("") || '<tr><td colspan="5" class="note">No dates.</td></tr>';
+      $("#more").textContent = last.truncated ? `More dates follow; showing ${last.occurrences.length}. Raise "How many dates" or set "Show from" to see later ones.` : last.occurrences.length ? "That is every date in the recurrence." : "";
+      $("#report").hidden = false;
+      const errors = last.findings.filter((f) => f.level === "error").length;
+      status.textContent = `${last.occurrences.length} date${last.occurrences.length === 1 ? "" : "s"} listed${errors ? `, ${errors} error${errors === 1 ? "" : "s"}` : ""}.`;
+      record("rule_expanded");
+    }
+
+    $("#run").addEventListener("click", run);
+    for (const id of ["dtstart", "tzid", "after"]) $("#" + id).addEventListener("keydown", (ev) => { if (ev.key === "Enter") run(); });
+    $("#example").addEventListener("click", () => {
+      $("#text").value = EXAMPLE.text; $("#dtstart").value = ""; $("#tzid").value = ""; $("#after").value = ""; $("#flavor").value = "rfc";
+      record("example_loaded");
+      run();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["text", "dtstart", "tzid", "after"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; last = null; });
+    $("#csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "rrule-dates.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#copy").addEventListener("click", async () => {
+      if (!last) return;
+      try {
+        await navigator.clipboard.writeText(last.occurrences.map((o) => o.date).join("\n") + "\n");
+        status.textContent = "Dates copied.";
+        record("dates_copied");
+      } catch {
+        status.textContent = "Copying was blocked by the browser; use Download CSV.";
+      }
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
