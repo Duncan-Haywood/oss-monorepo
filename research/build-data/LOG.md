@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 86, 2026-11-14: a transfer model built only from what was known on 1 January (PENDING)
+
+Why: session 85 made the selector deployable (Y-3, IPCW, gate; 0.31 days mean regret) but found that early-stopping the borrowed model on only the source permits completed by D = 1 January Y raises the best candidate's loss by 1.29 days on average, and the training rows (sources' years <= Y-2) still carried labels completed after D. Its "Next" asked for a whole pipeline using only information available at D.
+- New: `transfer.run(..., deploy=True)`. Training rows are the sources' years <= Y-2 completed by D (`transfer.completed_by`); there is no early-stopping year. Each quantile's round count is fixed per seed by `transfer.deploy_rounds`: a model trained on the sources' years <= Y-4 early-stopped on their year Y-3, both cut to rows completed by D. `boosted.fit_predict(fixed=...)` trains exactly that many rounds and reads no validation set. `src/select_deploy.py --deploy` writes `results/select_deploy_dep_<held>_i2c_<year>.json`; `compare` now also reports each cell's best-candidate loss change in days. 2 new tests.
+Design (fixed before any run): as session 85 (candidates cascade2, type, cascade2_minsupdrop1000; H = austin, sf, seattle; Y = 2021, 2022; q0.5 and q0.9: 12 cells; 3 seeds; fresh pull). `python3.13 src/select_deploy.py DIR --held H --test-year Y --deploy`, then `--summarise` against session 84's files (complete-label model) and, separately, session 85's.
+Predictions (written before any run):
+- (D1) The best candidate's test-year loss is within 0.3 days of session 84's in at least 10 of 12 cells (session 85's "Next").
+- (D2) The mean best-candidate loss change against session 84 is at most 0.65 days (half of session 85's 1.29).
+- (D3) Austin 2022 q0.9: the best candidate's loss rises by less than 2 days against session 84 (session 85: +6.87).
+- (D4) ipcw3's gated mean regret under this model is <= 0.35 days.
+- (D5) The end-to-end deployable pipeline (this model, ipcw3, gate) averages less loss over the 12 cells than session 85's (83.45 days).
+Refuted if any part fails.
+
 ## Session 85, 2026-11-14: choosing the class from the target's year Y-3 fixes Seattle's tail miss (ipcw3 gated 0.31 days mean regret, 1.75 at worst), but early-stopping on only the source permits completed by 1 January costs the best candidate 1.3 days, more than the selector's whole regret (R3, R4 held; R1, R2, R5 refuted)
 
 Why: session 84 found the deployable selector's regret sits in the long builds that a year Y-1 or Y-2 selection set has not yet seen at the decision date D = 1 January Y, and that the oracle full2 was as good as full1 (the loss is truncation, not staleness). Its "Next" asked for year Y-3, nearly complete at D, scored with a transfer model whose sources' early-stopping year is also cut as a deployment would see it.
