@@ -3,7 +3,7 @@ title: "Shift scheduling: the steadier plan's extra churn came from its anchor, 
 seo_title: "Keeping staff on their usual shifts with a faster exact scheduler"
 date: 2026-11-14
 tags: [ventures, shift-roster-builder, scheduling, optimization, open-source]
-description: "Moving 'keep people on their usual shifts' to column generation first moved 4-20% more shifts. The cause was the usual week it anchors to. Fixed: same plans, 1.3-1.8x faster."
+description: "Keep-usual-shifts plans moved 4-20% more shifts when solved column generation first. The cause was their anchor week. Fixed: same plans, 1.3-1.8x faster."
 ---
 
 The [shift roster builder](../../ventures/shift-roster-builder/) plans a month of
