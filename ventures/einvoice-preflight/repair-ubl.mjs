@@ -33,7 +33,7 @@
 // decimals the file wrote. PINT Malaysia's ItemPriceExtension amount is left as
 // written: LHDN's samples tie it to nothing (100.00 on a 5,000.00 line).
 
-import { checkInvoice, roundHalfUpToCents } from "./checks.mjs";
+import { checkInvoice, roundHalfUpToCents, wholeUnitTaxAgrees } from "./checks.mjs";
 import { parseUblInvoice } from "./ubl.mjs";
 
 export const fmt = (n) => roundHalfUpToCents(n).toFixed(2);
@@ -175,6 +175,24 @@ export function repairUbl(source) {
   if (!computable) {
     skipped.push("Some line has no quantity or price to compute from; nothing was recomputed.");
     return finish();
+  }
+
+  // A line net the header already agrees with is kept (2026-11-14, eval/repair-real-files.mjs):
+  // when every line states a net and they add up to the stated sum of line nets (BT-106,
+  // BR-CO-10), the totals corroborate the nets, so a quantity x price that disagrees points
+  // at the price or quantity, not the net (KoSIT's gross-price insurance samples, CEN
+  // example 1's -109.98 for 6 x 18.33). Rewriting the nets there changed the amount billed
+  // on files the official rules accept.
+  const lmFirst = blocks(xml, "LegalMonetaryTotal")[0];
+  const statedLines = lmFirst ? num(firstChild(lmFirst.inner, "LineExtensionAmount")?.value) : null;
+  const off = lines.filter((l) => l.fixed && l.written !== null && roundHalfUpToCents(l.written) !== roundHalfUpToCents(l.net));
+  if (!oman && off.length && statedLines !== null && lines.every((l) => l.written !== null && !Number.isNaN(l.written))
+      && roundHalfUpToCents(lines.reduce((s, l) => s + l.written, 0)) === roundHalfUpToCents(statedLines)) {
+    for (const l of off) {
+      skipped.push(`Line ${lines.indexOf(l) + 1}'s net (${fmt(l.written)}) is not quantity times price (${fmt(l.net)}), but the line nets add up to the stated total of lines (BT-106), so the net was kept: check the line's price or quantity.`);
+      l.net = l.written;
+      l.fixed = false;
+    }
   }
 
   lines.forEach((l, i) => {
@@ -333,8 +351,9 @@ export function repairUbl(source) {
       const extTotal = ext ? blocks(ext.inner, "TaxTotal")[0] : null;
       const lv = l.vat !== undefined ? l.vat : extTotal ? num(firstChild(extTotal.inner, "TaxAmount")?.value) : null;
       const plausible = lv !== null && !Number.isNaN(lv) && Math.abs(lv - (zeroTax(id) ? 0 : (l.net * rate) / 100)) < 0.01 + 1e-9;
-      const g = groups.get(key) || { pct: rate, taxable: 0, lineTax: 0, lineTaxAll: true };
+      const g = groups.get(key) || { pct: rate, taxable: 0, lineTax: 0, lineTaxAll: true, count: 0 };
       g.taxable += l.net;
+      g.count++;
       if (plausible) g.lineTax += lv;
       else g.lineTaxAll = false;
       groups.set(key, g);
@@ -373,7 +392,16 @@ export function repairUbl(source) {
         // one that rounds to the right cent is kept as written, as a line net is.
         const kept = written !== null && ((taxableOk && zatca && Math.abs(written - t) <= tolerance + 1e-9) || written === lineSum
           || (pint && !Number.isNaN(written) && roundHalfUpToCents(written) === t));
-        if (kept) t = written;
+        // A tax a cent or so off taxable x rate is the seller's per-line rounding, which
+        // EN 16931 accepts (BR-CO-17 and BR-S-09 allow up to one currency unit): kept when
+        // the taxable amount is right and the gap is at most a cent per line in the group
+        // (KoSIT's 01.06 minimal test, 757.41 for 3,986.34 at 19%).
+        const slack = 0.01 * Math.max(1, g.count || 0);
+        const huf = !kept && taxableOk && wholeUnitTaxAgrees(docCurrency, written, (g.taxable * g.pct) / 100) && written !== t;
+        if (huf) skipped.push(`Tax subtotal ${j + 1} (${written}) is ${fmt(t)} rounded to the whole forint, as Hungarian VAT is stated; kept.`);
+        const rounding = huf || !kept && written !== null && !Number.isNaN(written) && taxableOk && !zero && !oman && !zatca && Math.abs(written - t) <= slack + 1e-9 && written !== t;
+        if (rounding && !huf) skipped.push(`Tax subtotal ${j + 1} (${fmt(written)}) is ${fmt(Math.abs(written - t))} off taxable x rate (${fmt(t)}); within a cent per line, as per-line rounding gives, so it was kept (EN 16931 BR-CO-17 accepts up to 1.00).`);
+        if (kept || rounding) t = written;
         // Oman's category tax is the sum of its lines' VAT, so a wrong one is rewritten to that.
         else if (oman && !zero && lineSum !== null) t = lineSum;
         tax = roundHalfUpToCents(tax + t);
@@ -382,7 +410,7 @@ export function repairUbl(source) {
         // A PINT subtotal written with more decimals (532.1645) is rewritten with as many.
         const writtenText = firstChild(s.inner, "TaxAmount", ["TaxCategory"])?.value;
         const exact = pint && !zero && t === roundHalfUpToCents((g.taxable * g.pct) / 100) && /\.\d{3,}/.test(writtenText || "") ? fmtAs((g.taxable * g.pct) / 100, writtenText) : fmt(t);
-        if (!kept) set(s, "TaxAmount", ["TaxCategory"], `/tax_breakdown/${j}/tax`, exact, oman && !zero && lineSum !== null && t === lineSum ? "Tax is the sum of this category's line VAT amounts (BTOM-016; ALIGNED-IBRP-S-09-OM)." : zero ? `Tax in category ${subKey[j].split("|")[0]} is 0 whatever the stated rate (the buyer accounts for it, or it is a margin scheme).` : `Tax is the taxable amount times ${g.pct}%, rounded half up.`);
+        if (!kept && !rounding) set(s, "TaxAmount", ["TaxCategory"], `/tax_breakdown/${j}/tax`, exact, oman && !zero && lineSum !== null && t === lineSum ? "Tax is the sum of this category's line VAT amounts (BTOM-016; ALIGNED-IBRP-S-09-OM)." : zero ? `Tax in category ${subKey[j].split("|")[0]} is 0 whatever the stated rate (the buyer accounts for it, or it is a margin scheme).` : `Tax is the taxable amount times ${g.pct}%, rounded half up.`);
       });
       set(total, "TaxAmount", ["TaxSubtotal"], "/totals/tax", fmt(tax), "Document tax is the sum of the tax subtotals.");
       if (repeats.length) {
@@ -413,7 +441,11 @@ export function repairUbl(source) {
       setLm("TaxInclusiveAmount", fmt(gross), "/totals/gross", "Gross is net plus tax.");
       const pre = num(firstChild(lm.inner, "PrepaidAmount")?.value) ?? 0;
       const rnd = num(firstChild(lm.inner, "PayableRoundingAmount")?.value) ?? 0;
-      setLm("PayableAmount", fmt(roundHalfUpToCents(gross - pre + rnd)), "/totals/due", "Amount due is gross minus prepaid plus rounding.");
+      // XRechnung's extension lets third-party payments (BG-DEX-09, cac:PrepaidPayment)
+      // move the amount due (BR-DEX-09), so the due is left as written there.
+      const thirdParty = blocks(xml, "PrepaidPayment").some((b) => !inLine(b.start));
+      if (thirdParty) skipped.push("The amount due was left as written: the file lists third-party payments (cac:PrepaidPayment, XRechnung extension BG-DEX-09), which change it.");
+      else setLm("PayableAmount", fmt(roundHalfUpToCents(gross - pre + rnd)), "/totals/due", "Amount due is gross minus prepaid plus rounding.");
       if (zatca && prepayRows && Math.abs(pre - prepaySum) > 0.005) {
         skipped.push(`The prepaid amount (BT-113, ${fmt(pre)}) is not the advances' taxable amounts plus their VAT (KSA-31 + KSA-32, ${fmt(prepaySum)}; BR-KSA-80). Left for a person: what was paid is a fact, not arithmetic.`);
       }

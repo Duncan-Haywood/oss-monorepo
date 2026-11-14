@@ -112,6 +112,17 @@ class SignalsTest(unittest.TestCase):
         self.assertEqual([r["what"] for r in rows], ["wrong Section 179 cap"])
         self.assertEqual(len(m.queue([a], "low")), 2)
 
+    def test_queue_reads_fixed_by_per_defect(self):
+        url = "https://example.test/pull/1"
+        a = audit(fix_prs=[url], defects=[{"severity": "medium", "what": "fixed one", "fixed_by": url},
+                                          {"severity": "medium", "what": "left open"}])
+        self.assertEqual([r["what"] for r in m.queue([a], "medium")], ["left open"])
+        self.assertEqual([r["fixed"] for r in m.defect_rows([a])], [True, False])
+        legacy = dict(a, defects=[{"severity": "medium", "what": "x"}, {"severity": "high", "what": "y"}])
+        self.assertEqual(m.queue([legacy], "medium"), [])
+        self.assertEqual(len(m.unmarked_fixes([legacy], "medium")), 1)
+        self.assertEqual(m.unmarked_fixes([a], "medium"), [])
+
 
 class CoverageTest(unittest.TestCase):
     POP = {"flagship": ["ventures/a"], "venture": ["ventures/a", "ventures/b", "ventures/c"],

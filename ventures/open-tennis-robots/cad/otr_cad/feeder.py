@@ -1952,10 +1952,17 @@ COTS_EXTRA = [
     ("Silicone wire 20 AWG pair", 1, "lift gearmotor, deck to motor (manifest lift_lead_mm)"),
     ("Spiral wrap, 12 mm, 1 m", 1, "the deck-side run, deck to the axis clamp"),
     ("TCRT5000 reflective sensor", 2, "wheel tachometers"),
-    ("22 mm NC mushroom e-stop + 24 V contactor", 1, "hard power cut"),
+    ("22 mm NC mushroom e-stop + 24 V coil contactor, 30 A DC or more", 1, "hard power cut; everything but the Pi's buck is after it; its coil through the on-delay timer (manifest inrush line)"),
+    ("Precharge resistor 4.7 ohm, aluminium-housed 50 W class", 1, "across the contactor's contacts in series with the precharge relay; must survive the manifest inrush line's fault energy or fail open"),
+    ("24 V relay, 10 A contacts", 1, "precharge relay: its coil through the e-stop, ahead of the contactor"),
+    ("24 V on-delay timer relay module, set 0.5 s", 1, "closes the contactor's coil after the precharge (manifest inrush line)"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
-    ("30 A blade fuse + holder", 1, "battery positive"),
+    ("30 A fuse (ATO/ATC blade or MIDI) + inline holder", 1, "battery positive, within 150 mm of the terminal (manifest power line)"),
+    ("Blade fuse block, 8-way, with a negative bus", 1, "on the deck after the contactor; branch fuses and gauges in the manifest power line"),
+    ("ATO blade fuses: 15 A x2, 7.5 A, 3 A, 2 A x2, 1 A x2", 1, "launcher ESCs, H-bridge, lift, servo and Pi bucks, agitator and stepper (manifest power line)"),
+    ("Inline ATO fuse holder", 1, "the Pi's buck, between the main fuse and the contactor, so the Pi and ESP32 stay up through an e-stop"),
+    ("Silicone wire 12 AWG red and black, 1 m each", 1, "battery to the main fuse, contactor and fuse block"),
     ("Knotless netting, 25-35 mm mesh", 1, "about 3.5 x 3 m"),
     ("Ballast (sand bags or water cells), see manifest", 1, "tip-over margin"),
 ]
@@ -2058,6 +2065,37 @@ def deck_cable_line(p: Feeder) -> str:
             f"{e['phase_m']:.2f} m of {e['gauges']['phase']} AWG, {ph['phase_mohm']:.0f} mOhm: {ph['phase_frac']:.1%} of a "
             f"motor's {p.launcher_peak_w:g} W at an assumed {p.esc_phase_peak_a:g} A spin-up ({e['awg'][16]['phase_frac']:.1%} "
             f"at 16 AWG)")
+
+
+def power_line(p: Feeder) -> str:
+    d = p.power_distribution()
+    fuses = "; ".join(f"{b['name']} {b['run_a']:.1f} A, {b['fuse_a']:g} A fuse, {b['awg']} AWG" for b in d["branches"])
+    return (f"power: {p.main_feed_awg} AWG battery feed ({d['main_drop_v']:.2f} V drop at {d['total_a']:.1f} A) through a "
+            f"{d['main_fuse_a']:g} A main fuse within 150 mm of the terminal and an e-stop contactor rated {d['contactor_a']:g} A "
+            f"DC or more, to a fuse block on the deck. Branches (running current with every load on at "
+            f"{p.battery_v_min:g} V; assumed figures): {fuses}. Every load at once: {d['total_a']:.1f} A, "
+            f"{p.bms_use_frac:.0%} of the BMS's assumed {p.bms_cont_a:g} A is {d['budget_a']:.1f} A. The launcher ESCs "
+            f"draw what the firmware's spin-up ramp allows ({p.wheel_spinup_w:g} W of shaft power per wheel, up to "
+            f"{d['spinup_w_max']:.0f} W fits; from rest to {max(p.launch_rpm):.0f} rpm in {d['spinup_s']['launch']:.1f} s); "
+            f"at the motor's {p.launcher_peak_w:g} W peak, unramped, each would ask {d['unramped_esc_a']:.0f} A")
+
+
+def inrush_line(p: Feeder) -> str:
+    d = p.contactor_inrush()
+    dr, pre, cl = d["direct"], d["precharge"], d["closing"]
+    s = (f"inrush: closing the contactor onto the empty bus at the charger's {p.battery_v_max:g} V (assumed loop "
+         f"{d['r_ohm'] * 1e3:.0f} mOhm, {d['l_h'] * 1e6:.2f} uH, {d['c_f'] * 1e6:.0f} uF; damping {d['damping']:.2f}) would "
+         f"peak at {dr['peak_a']:.0f} A after {dr['t_peak_us']:.0f} us and stay over the BMS's assumed {p.bms_sc_a:g} A "
+         f"short-circuit trip for {dr['bms_over_us']:.0f} us (assumed delay {p.bms_sc_delay_us:g} us); "
+         f"I^2 t {dr['i2t']:.1f} A^2 s, {d['esc_branch_i2t']:.1f} in each ESC fuse")
+    if pre:
+        s += (f". Precharge: a relay through the e-stop charges the bus through {p.precharge_ohm:g} ohm ({pre['peak_a']:.1f} A "
+              f"peak, time constant {pre['tau_ms']:.1f} ms, {pre['energy_j']:.2f} J in the resistor); an on-delay timer "
+              f"closes the contactor after {p.precharge_delay_s:g} s with {pre['residual_v']:.2f} V left (the idle loads' "
+              f"{p.bus_idle_a:g} A across the resistor), so it makes {cl['peak_a']:.1f} A, under its assumed "
+              f"{p.contactor_make_a:g} A. A short on the bus during precharge puts {pre['fault_w']:.0f} W in the resistor "
+              f"for {p.precharge_delay_s:g} s ({pre['fault_j']:.0f} J) before the contactor closes onto it and the fuses open")
+    return s
 
 
 def structure_kg(p: Feeder, mass_g: float) -> float:
@@ -2185,6 +2223,8 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, shuttle_line(p))
         checks.insert(-3, cable_line(p))
     checks.insert(-3, deck_cable_line(p))
+    checks.insert(-3, power_line(p))
+    checks.insert(-3, inrush_line(p))
     checks.insert(-3, trough_line(p))
     checks.insert(-3, lift_line(p))
     checks.insert(-3, agitator_line(p))
@@ -2218,6 +2258,18 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                     "stepper_lead_frac": round(de["stepper"]["stepper_frac"], 3),
                     "lift_lead_drop_v": round(de["lift"]["lift_drop_v"], 2),
                     "phase_extension_m": round(de["phase_m"], 2), "phase_extension_mohm": round(de["phase"]["phase_mohm"], 1)})
+    pd = p.power_distribution()
+    derived.update({"power_total_a": round(pd["total_a"], 1), "power_budget_a": round(pd["budget_a"], 1),
+                    "main_fuse_a": pd["main_fuse_a"], "contactor_a": pd["contactor_a"],
+                    "main_feed_drop_v": round(pd["main_drop_v"], 2), "esc_supply_a": round(pd["esc_a"], 1),
+                    "wheel_inertia_kgm2": round(pd["inertia_kgm2"], 5), "wheel_spinup_w_max": round(pd["spinup_w_max"]),
+                    "wheel_spinup_s": round(pd["spinup_s"]["launch"], 2),
+                    "branch_fuses": {b["name"]: {"fuse_a": b["fuse_a"], "awg": b["awg"]} for b in pd["branches"]}})
+    ci = p.contactor_inrush()
+    derived.update({"inrush_direct_a": round(ci["direct"]["peak_a"]), "inrush_direct_bms_us": round(ci["direct"]["bms_over_us"]),
+                    "inrush_closing_a": round(ci["closing"]["peak_a"], 1), "precharge_ohm": p.precharge_ohm,
+                    "precharge_delay_s": p.precharge_delay_s,
+                    "precharge_residual_v": round(ci["precharge"]["residual_v"], 2) if ci["precharge"] else None})
     ad = p.agitator_design()
     derived.update({"agitator_torque_nm": round(ad["torque_nm"], 3), "agitator_torque_margin": round(ad["torque_margin"], 2),
                     "agitator_passes_per_min": ad["passes_per_min"], "agitator_wall_clear_mm": round(ad["wall_clear_mm"], 1),

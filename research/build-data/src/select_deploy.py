@@ -25,6 +25,10 @@ Session 85 adds year Y-3 (full3, cc3, ipcw3: windows of 2 to 3 years, nearly com
 --es-truncate, which early-stops the transfer model on only the sources' year Y-1 rows completed by D,
 as a deployment would; results then go to select_deploy_es_<held>_i2c_<year>.json.
 
+Session 86 adds --deploy (rounds fixed from older years); session 87 adds --es3: the transfer model trains on
+the sources' years <= Y-4 and Y-2 and early-stops on their Y-3, all cut to rows completed by D, and every
+run now saves the transfer model's boosting rounds (transfer_rounds); results to select_deploy_es3_*.json.
+
 Run (one call per held-out city and test year):
   python3.13 src/select_deploy.py DIR --held austin --test-year 2021
   python3.13 src/select_deploy.py --summarise results/select_deploy_*_i2c_20*.json
@@ -157,6 +161,8 @@ if __name__ == "__main__":
     ap.add_argument("--es-truncate", action="store_true", help="session 85: early-stop on the sources' Y-1 rows completed by D")
     ap.add_argument("--deploy", action="store_true", help="session 86: train on source rows completed by D, rounds "
                     "fixed from years <= Y-4 early-stopped on Y-3; results to select_deploy_dep_<held>_i2c_<year>.json")
+    ap.add_argument("--es3", action="store_true", help="session 87: train on source years <= Y-4 and Y-2, early-stop "
+                    "on their Y-3, all completed by D; results to select_deploy_es3_<held>_i2c_<year>.json")
     ap.add_argument("--summary-name", default="select_deploy_summary.json")
     ap.add_argument("--baseline", nargs="+", help="with --summarise: session 84 result files to compare test losses with")
     a = ap.parse_args()
@@ -173,7 +179,7 @@ if __name__ == "__main__":
             print(c)
         sys.exit()
     R = ce.fit(a.data_dir, a.held, a.test_year, a.seeds, a.classes, select=True, es_truncate=a.es_truncate,
-               deploy=a.deploy)
+               deploy=a.deploy, es3=a.es3)
     by_tau, labels = evaluate(R, a.classes, a.test_year)
     res = dict(held_out=a.held, target="i2c", test_year=a.test_year, decision_date=f"{a.test_year}-01-01",
                seeds=a.seeds, classes=a.classes, n_test=int(len(R[a.classes[0]]["y"])), labels=labels,
@@ -182,8 +188,9 @@ if __name__ == "__main__":
                     "days of mean pinball loss; regret = picked minus best candidate's test loss",
                minsup=getattr(ce.fit, "folds", {}), es_truncate=a.es_truncate,
                source_es_rows={k: R[k].get("_es") for k in a.classes}, deploy=a.deploy,
-               deploy_detail={k: R[k].get("_deploy") for k in a.classes}, by_tau=by_tau)
-    tag = "_dep" if a.deploy else "_es" if a.es_truncate else ""
+               deploy_detail={k: R[k].get("_deploy") for k in a.classes}, es3=a.es3,
+               transfer_rounds={k: R[k].get("_rounds") for k in a.classes}, by_tau=by_tau)
+    tag = "_es3" if a.es3 else "_dep" if a.deploy else "_es" if a.es_truncate else ""
     out = os.path.join(res_dir, f"select_deploy{tag}_{a.held}_i2c_{a.test_year}.json")
     json.dump(res, open(out, "w"), indent=1, default=lambda o: sorted(o) if isinstance(o, set) else str(o))
     print(json.dumps(labels))

@@ -1,0 +1,27 @@
+  ... 200 of 1304 lenses, 7564 cases
+  ... 400 of 1304 lenses, 12152 cases
+  ... 600 of 1304 lenses, 17374 cases
+  ... 800 of 1304 lenses, 25016 cases
+  ... 1000 of 1304 lenses, 29658 cases
+  ... 1200 of 1304 lenses, 38642 cases
+cases: 40730 on 474 lenses, frame 1202 px wide, flat 16-bit value 8192 (168 skipped: gain over 31x, clipped at 8192, near-singular or not applied; 171 lens names not matched one to one)
+  float SSE (RGBA, aligned) vs plain float32:       p50 0.0003292%, p90 0.001892%, p99 0.005212%, p100 0.04496%
+  float SSE changes the UNKNOWN (alpha) channel in 40730 of 40730 cases (plain loop: never); largest change 6.93
+  16-bit plain vs the float gain x 8192: largest 8.0 steps, mean bias -3.97 steps; model differs by at most 0 steps
+  16-bit SSE2, first 4*floor(w/4) pixels (rel.):    p50 0.3622%, p90 1.643%, p99 4.159%, p100 24.75%
+    lane 0:                                       p50 0.09396%, p90 0.09764%, p99 0.1122%, p100 0.2053%
+    lane 1:                                       p50 0.1731%, p90 0.5721%, p99 1.409%, p100 8.954%
+    lane 2:                                       p50 0.2662%, p90 1.103%, p99 2.787%, p100 17.18%
+    lane 3:                                       p50 0.3622%, p90 1.643%, p99 4.159%, p100 24.75%
+  16-bit SSE2, last w % 4 pixels (rel.):            p50 100%, p90 100%, p99 100%, p100 100%
+  model of the SSE2 loop vs the library, 1628 cases: largest 16 steps (tolerance: one fraction unit, 8 steps at 8192, plus _mm_rcp_ps's bound); within it in 1628
+  the same loop with both faults fixed (rel.):      p50 0.09678%, p90 0.09741%, p99 0.09872%, p100 0.1128%
+  SSE2 body 24.753% (gain up to 7.93)  Canon PowerShot SX220 HS & compatibles, with CHDK's DNG @ 5.6 mm f/4.1 10 m crop 5.6
+  SSE2 body 24.753% (gain up to 7.93)  Canon PowerShot SX220 HS & compatibles, with CHDK's DNG @ 5.6 mm f/4.1 1000 m crop 5.6
+  SSE2 body 22.834% (gain up to 7.59)  E 16-55mm f/2.8 G @ 16 mm f/22 1000 m crop 1.53
+  SSE2 body 22.622% (gain up to 7.83)  E 16-55mm f/2.8 G @ 16 mm f/8 0.6 m crop 1.53
+  SSE2 body 21.978% (gain up to 7.70)  14-150mm F/3.5-5.8 DiIII C001: @ 14 mm f/16 10 m crop 2
+
+real	0m42.761s
+user	2m32.837s
+sys	0m0.293s

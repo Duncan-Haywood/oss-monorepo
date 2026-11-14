@@ -281,8 +281,10 @@ def claim_check(slug, hours=6):
     lines = []
     recent = recent_programme_commits(slug, hours)
     if recent:
-        lines.append(f"CLAIM CHECK: origin/main touched research/{slug} in the last {hours}h; "
-                     "pick a milestone these do not cover:")
+        # These are merged commits, i.e. finished work, not claims: a run read "touched" as
+        # "someone is on it" and had to open LOG.md to tell (friction 2026-11-14).
+        lines.append(f"CLAIM CHECK: merged to origin/main under research/{slug} in the last {hours}h "
+                     "(finished work, not a claim; take the next milestone past these):")
         lines += [f"  {line}" for line in recent[:5]]
     age = origin_main_age_hours()
     if age is None:
@@ -297,6 +299,9 @@ def claim_check(slug, hours=6):
         prs = [f"#{n} {t}" for n, t in titles if slug in t]
         lines += [f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {p}"
                   for p in prs]
+        if recent and not prs:
+            lines.append(f"CLAIM CHECK: no open PR names {slug} (none of {len(titles)}), so nothing is in flight "
+                         "that this check can see; a sibling that has not pushed yet is invisible to it")
         if not recent and not prs and age is not None and age <= hours:
             if history_covers(hours):
                 lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug}); "

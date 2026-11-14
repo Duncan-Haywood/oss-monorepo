@@ -160,13 +160,15 @@ export function analyze(trades) {
       sale.disallowed = disallowed;
       sale.allowed = r2(loss - disallowed);
       if (matched > 0) {
+        // Each replacement takes its rounded share and the last takes what is left, so the shares sum to the
+        // disallowed loss exactly (100.01 over three buys is 33.34 + 33.34 + 33.33, not a phantom 100.02).
         let left = disallowed;
-        for (const rep of sale.replacements) {
-          const share = r2(disallowed * (rep.qty / matched));
+        sale.replacements.forEach((rep, i) => {
+          const share = i === sale.replacements.length - 1 ? left : r2(disallowed * (rep.qty / matched));
           rep.disallowedShare = share; left = r2(left - share);
           if (rep.ira) sale.permanent = r2(sale.permanent + share);
           else { rep.buy.added += share; (rep.buy.carried ||= []).push({ qty: rep.qty, perShare: share / rep.qty }); rep.adjustedBasisPerShare = r2(rep.buy.price + share / rep.qty); }
-        }
+        });
       }
     }
     sales.push(sale);

@@ -46,5 +46,24 @@ class TestLanes(unittest.TestCase):
         self.assertTrue(0.5 < lo <= 0.9 <= hi <= 1.0)
 
 
+    def test_rotate_x_corridor_keeps_handedness(self):
+        # heading +x near y = 50 (low y): right-handed z-up, right of +x is -y, so on own right
+        rows = [(1, f, -390.0 + 30 * f, 50.0) for f in range(20)]
+        rows += [(2, f, 390.0 - 30 * f, 50.0) for f in range(20)]   # heading -x at low y: on own left
+        ws = L.walkers(L.rotate_x_corridor(rows, 400.0), 400.0)
+        self.assertEqual(ws[1][0], 1)
+        self.assertEqual(ws[2][0], -1)
+        self.assertGreater(L.mean_right_offset(*ws[1], 400.0), 0)
+        self.assertLess(L.mean_right_offset(*ws[2], 400.0), 0)
+
+    def test_bootstrap_diff_clustered(self):
+        rng = random.Random(1)
+        a = [[1] * 18 + [0] * 2] * 4
+        b = [[1] * 10 + [0] * 10] * 4
+        lo, hi = L.bootstrap_diff_clustered(a, b, 400, rng)
+        self.assertLess(lo, 0.4)
+        self.assertGreater(hi, 0.4)
+        self.assertGreater(lo, 0.1)
+
 if __name__ == "__main__":
     unittest.main()

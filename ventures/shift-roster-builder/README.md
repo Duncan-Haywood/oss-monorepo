@@ -1865,3 +1865,88 @@ weeks, one machine; site wages and paid trips are covered by the argument, not b
 on week 0 is not split between the LP's looseness and a better roster the search misses. Next: run it before column generation
 on 60-copy-plus weeks, where on week 1 it would prove the roster in 1.7 s instead of 6-7 s, if the incumbent is already within
 the tolerance; branch on its fractional columns to close the $30.
+
+## Re-solving one day at a time (2026-11-14)
+
+After the pay floor landed, the 60 x 168 week 0 of `eval/end-to-end.mjs` was left $30.11 above its bound, and the README asked
+whether that was the LP's looseness or a cheaper roster the search missed. **It was the search.** `eval/score-floor-milp.mjs`
+dumps the priced clique model and `eval/score-floor-milp.py` solves it as an integer program with HiGHS (scipy 1.18.1): its
+optimum, 30,019,980.99, is only $0.78 above the LP, so branching on the LP could close at most that. HiGHS's roster is valid under
+every rule of the engine (`eval/score-floor-milp-check.mjs`) and scores 30,019,981.35: $28.97 less than the posted roster and $0.36
+above the integer program's bound, so it is proven best to within the default $0.50 tolerance (`eval/score-floor-milp.out.txt`).
+The two rosters differ on 166 of 245 shift copies: mostly equal shifts traded between people, with a few hours moved from
+$18-20 staff to $10-16 staff through several swaps at once, which the single moves and swaps of the pay polish cannot make.
+
+**What landed:** `dayReassign` (calc.mjs). Every person's shifts on other days stay put and one day is re-solved exactly. When
+each person holds at most one shift that day, the score splits into one term per (person, shift), the person's score with that
+shift less their score without it, plus 100,000 per hour for a shift left open, so the cheapest way to staff the day is an
+assignment problem; `assignRows` solves it (the Hungarian method). Days are swept until a sweep changes nothing. In `buildRoster`
+it runs only when the exact check left the roster unproven (`dayLNS`): exact sweeps, then kicks, each re-solving one random day
+with costs jittered by a third of the average wage and then sweeping exactly again, keeping a roster only when it scores less.
+It gets 2 s of its own (`dayLNSMs`), past the time budget when that is spent; `dayLNS: false` turns it off and
+`optimality.dayLNS` reports what it did.
+
+| 60 x 168 week 0, 20 s budget (`eval/day-lns.out.txt`) | score above the pay floor | total time |
+|---|---|---|
+| off (as before) | $30.11 | 18.5 s |
+| 0.5 s | $10.46 (31 kicks) | 19.2 s |
+| 2 s, the default | **$7.04** (124 kicks) | 21.1 s |
+| 5 s | $7.04 (366 kicks) | 22.7 s |
+
+On the bigger bench weeks, where coverage is not proven in the budget, the pass also covers more (`eval/day-lns-big.out.txt`,
+measured with the test suite running beside it, so the earlier passes' budget-cut results can differ run to run): the three
+80 x 224 weeks leave 260, 333 and 288 open hours instead of 261, 336 and 293; the two 100 x 280 weeks 385 and 354 instead of 388
+and 354 (the second $42 cheaper). Week 1 of 60 x 168, proven by column generation, does not run it.
+
+Tried and dropped: rounding the priced LP's own solution (take person-shifts by LP value, fill what is left greedily, polish).
+210 of its 308 nonzero person-shifts are fractional, and the rounded roster left 30-43 more hours open than the posted one; the
+day sweeps from it reached $17.92 above the floor on week 0, worse than from the posted roster.
+
+Tests: `day-lns.test.mjs` (assignRows matches brute force on 400 small cost matrices with forbidden cells; on 120 seeded
+three-person weeks across rest gaps, daily caps, last week's finishes, minimum hours, fairness, avoid and prefer windows and
+overtime, dayReassign keeps every rule, never raises the score, and leaves no day that brute force over that day's staffing can
+do better; a week the exact check proves does not run the pass). The full suite passes. Not claimed: seeded synthetic weeks and
+one cloud machine; $7.04 is still open on week 0 against a roster HiGHS shows exists $0.36 above the floor; a person holding two
+shifts on one day sits that day out of the re-solve.
+
+## Past the day sweeps: the gap is one big trade (2026-11-14)
+
+The day sweeps took the 60 x 168 week 0 to $7.04 above the pay floor, against a roster HiGHS found $0.36 above its own
+integer bound (README "Re-solving one day at a time"). The section asked whether two-day or person-pair moves would close the
+rest. **They do not, and the reason is the shape of the gap.** `eval/beyond-day-sweeps.mjs` takes the roster posted with the
+day sweeps off, runs the sweeps, and then tries three wider moves (none shipped; the engine is unchanged apart from two
+exports and the clique model's start basis, which the script reads):
+
+| 60 x 168 week 0 (`eval/beyond-day-sweeps.out.txt`) | above the pay floor | time |
+|---|---|---|
+| posted, day sweeps off | $30.11 | |
+| one round of day sweeps | $15.51 | 46 ms |
+| + person-pair sweeps (two people's shifts pooled, every split tried) in turn with day sweeps | $14.83 | 57 ms |
+| + cyclic exchanges across days, up to 2 arcs, open as a holder (Thompson and Orlin's improvement graph) | $15.51 | 0.4 s |
+| cyclic exchanges up to 3 arcs (probe run) | no move found | 17.8 s |
+| LP dive on the priced clique model, then day sweeps | **$4.24** (the dive itself left 317 open hours, not 300) | 25.5 s |
+| the shipped dayLNS (sweeps and 124 kicks, 2 s) | $7.04 | 2 s |
+| HiGHS's roster (`eval/highs-owner-60x168-week0.json`) | $1.14 | 92 s in HiGHS |
+
+Putting the pair sweeps inside the shipped dayLNS loop instead of nothing gave $7.74, $7.45 and $6.83 at 0.5, 2 and 5 s
+(single runs, against $7.04 for the shipped 2 s), which is noise, so they were not kept.
+
+**Why:** the script lines the day-swept roster up with HiGHS's (identical copies matched to the same holder where they can be)
+and splits the difference into connected trades, copies joined when they share a person. 137 copies differ. 8 of them form two
+small trades that change nothing (ties). The other **129 copies form one trade through 52 of the 60 people, on all five days,
+covering or opening 10 copies along the way, worth $14.37**. No piece of it improves the score alone. A move that reaches it has
+to change most of the week at once, which is what an integer program does and no neighbourhood of a few people or days does.
+
+**The dive** (solve the priced LP, fix every copy at 1, fix the largest fractional pair, solve again from the last basis; only
+costs change, so the basis stays feasible and each re-solve takes tens of pivots) held the LP at its first value for the first
+37 solves, then hit pairs the LP allowed fractionally but the rules refuse together. With one level of backtracking it finished
+on week 0 with 17 more open hours, which the day sweeps then refilled to $4.24, the best of anything tried here; on week 1
+(already proven by column generation, $0.43) it left 119 more open hours and the sweeps refilled only 96 of them. A
+depth-first branch-and-bound on the same dive (cut a branch once the LP rises $1, $5 or $30 above its first value) found no
+roster in 400 solves (about 100 s). So the dive's fixes are only good while the LP stays flat, and the useful next step is
+branching, not a better neighbourhood.
+
+Not claimed: one generated week each, single runs on one cloud machine; the probe code lives in the eval script, not in the
+engine. Next: column generation on the whole score started from the posted roster's columns and the priced clique LP's duals
+(the 60 x 168 week 0 root did not converge in the budget, README "A pay floor for big weeks"), or a branch-and-bound that
+branches on a person's hours rather than single pairs.

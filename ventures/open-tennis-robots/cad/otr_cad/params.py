@@ -121,6 +121,66 @@ def _hose_curve_range_3d(o: tuple, m: tuple, u: tuple, r_min: float, slope_min: 
 # fine-strand hook-up wire of that gauge (an assumption: read your reel). Used by the cable checks (2026-11-13).
 AWG_OHM_PER_M = {14: 8.29e-3, 16: 13.2e-3, 18: 20.9e-3, 20: 33.3e-3, 22: 52.9e-3, 24: 84.2e-3, 26: 134e-3}
 AWG_OD_MM = {14: 3.0, 16: 2.5, 18: 2.0, 20: 1.7, 22: 1.5, 24: 1.3, 26: 1.1}
+# Heavier gauges for the battery feed (same standard table), kept apart so the lead-loss tables above stay as they were.
+FEED_AWG_OHM_PER_M = {12: 5.21e-3, 10: 3.28e-3, 8: 2.06e-3}
+# Current each gauge may carry in a tied bundle on the deck, the figure a branch fuse must not exceed (2026-11-14). An
+# assumption on the low side of published chassis-wiring tables: silicone hook-up wire is often rated well above it, so
+# read your wire's rating before fusing a branch higher.
+AWG_AMPS = {8: 55.0, 10: 40.0, 12: 30.0, 14: 20.0, 16: 15.0, 18: 10.0, 20: 7.5, 22: 5.0, 24: 3.5, 26: 2.2}
+# Blade (ATO/ATC) fuse ratings, then MIDI bolt-down ratings above 40 A.
+FUSE_SIZES_A = (1.0, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 50.0, 60.0, 80.0, 100.0)
+
+
+def fuse_for(amps: float) -> float:
+    """Smallest standard fuse rating at or above `amps`."""
+    return next(f for f in FUSE_SIZES_A if f >= amps - 1e-9)
+
+
+def gauge_for(amps: float) -> int:
+    """Thinnest gauge in AWG_AMPS that may carry `amps` (a branch wire sized to its fuse)."""
+    return max(g for g, a in AWG_AMPS.items() if a >= amps - 1e-9)
+
+
+def rlc_step(v: float, r: float, l: float, c: float):
+    """Current into an uncharged capacitor C switched onto a source V through series R and L, closed form (2026-11-14,
+    the contactor inrush). Returns (i(t), t_peak, i_peak). Over-, under- and critically damped cases are each solved
+    exactly; tests check them against a brute-force integration."""
+    a, w0 = r / (2 * l), 1 / math.sqrt(l * c)
+    if a > w0 * (1 + 1e-9):
+        d = math.sqrt(a * a - w0 * w0)
+        s1, s2 = -a + d, -a - d
+        def i(t):
+            return v / (l * (s1 - s2)) * (math.exp(s1 * t) - math.exp(s2 * t))
+        tp = math.log(s2 / s1) / (s1 - s2)
+    elif a < w0 * (1 - 1e-9):
+        wd = math.sqrt(w0 * w0 - a * a)
+        def i(t):
+            return v / (l * wd) * math.exp(-a * t) * math.sin(wd * t)
+        tp = math.atan2(wd, a) / wd
+    else:
+        def i(t):
+            return v / l * t * math.exp(-a * t)
+        tp = 1 / a
+    return i, tp, i(tp)
+
+
+def time_above(i, tp: float, level: float, horizon: float) -> float:
+    """How long a single-humped current i(t) (peak at tp) stays above `level`, by bisection on each side of the peak.
+    An underdamped ring's later humps are lower than the first and are ignored (the BMS's delay timer restarts)."""
+    if i(tp) <= level:
+        return 0.0
+    lo, hi = 0.0, tp
+    for _ in range(200):
+        m = (lo + hi) / 2
+        lo, hi = (lo, m) if i(m) > level else (m, hi)
+    t_on = hi
+    lo, hi = tp, tp + horizon
+    if i(hi) > level:
+        return horizon
+    for _ in range(200):
+        m = (lo + hi) / 2
+        lo, hi = (m, hi) if i(m) > level else (lo, m)
+    return lo - t_on
 
 
 @functools.lru_cache(maxsize=4096)
@@ -641,6 +701,73 @@ class Feeder:
     esc_phase_peak_a: float = 30.0    # launcher phase current (RMS) during spin-up (assumption: log yours)
     esc_phase_loss_frac: float = 0.05  # phase extension loss at that current at most this share of the motor's 1 kW peak
     launcher_peak_w: float = 1000.0
+    # Power distribution (2026-11-14, `power_distribution`, `check_power`): one fuse per branch after the e-stop
+    # contactor, each branch's current from the loads' figures, every load drawing at once (the worst case: a drill
+    # starting, wheels spinning up while the base moves and the head aims) held under the BMS's continuous limit. Every
+    # current below is an assumption from the part classes in the BOM: read your parts' datasheets and log your build.
+    battery_v_min: float = 24.0       # currents are sized at the low-battery cut (firmware config LOW_BATTERY_MV)
+    bms_cont_a: float = 30.0          # BMS continuous discharge limit (assumption: a 20 Ah 8S LiFePO4 pack's class)
+    bms_use_frac: float = 0.8         # the worst simultaneous load at most this share of it
+    launch_wheel_kg: float = 0.40     # one launcher wheel with its hub (assumption: weigh yours)
+    launch_wheel_k: float = 0.6       # I / (m r^2) of a wheel: tread mass toward the rim (a solid disc is 0.5)
+    launch_rotor_kgm2: float = 2.0e-4  # outrunner rotor (assumption: 63 mm e-skate class)
+    launch_drag_w: float = 30.0       # shaft power that holds a wheel at speed, bearings and air (assumption: log yours)
+    esc_eff: float = 0.85             # battery to shaft through the ESC and motor (assumption)
+    esc_fuse_factor: float = 2.0      # ESC fuse over its ramped peak: room for the speed loop's recovery after a ball
+    wheel_spinup_w: float = 100.0     # firmware cap on each wheel's spin-up shaft power (config WHEEL_SPINUP_W)
+    wheel_ramp_max_rpm_s: float = 1500.0  # and on its ramp at low speed (config WHEEL_RAMP_MAX_RPM_S): the once-per-rev
+                                          # tach reads 0 for the first revolutions, and a faster start let the speed
+                                          # loop push the wheel past its ramp (tests/spinup_ramp_sweep.py)
+    pi_w: float = 12.0                # Pi 5 and cameras (hardware/electronics.md power budget)
+    pi_buck_w: float = 25.0           # the Pi's 5 V 5 A buck at its limit
+    buck_eff: float = 0.9             # both bucks (assumption)
+    lift_motor_run_a: float = 2.0     # lift gearmotor running (assumption: 37 mm 24 V class near its rated torque)
+    agit_motor_run_a: float = 0.8     # agitator gearmotor running (assumption)
+    agit_motor_stall_a: float = 2.0   # and stalled (assumption)
+    elev_act_run_a: float = 2.0       # elevation actuator at its rated push (assumption: 50 lb 24 V class)
+    elev_act_stall_a: float = 3.0     # and at its end stops or stalled (assumption)
+    base_motor_run_a: float = 2.0     # each base gearmotor moving the base (assumption: same 37 mm class as the lift)
+    base_motor_stall_a: float = 5.5   # and stalled or starting
+    hbridge_cont_a: float = 10.0      # dual H-bridge (MDD10A class): base on one channel, elevation on the other
+    hbridge_peak_a: float = 30.0      # its peak per channel (a few seconds)
+    motor_start_factor: float = 2.0   # a motor starts at its stall current for a few ms: fuse at least stall / this
+    main_feed_mm: float = 600.0       # battery terminal to the main fuse, contactor and fuse block, each conductor
+                                      # (battery at x -450, the electronics at -600, risers and slack: an estimate)
+    main_feed_awg: int = 12
+    branch_awg_min: int = 20          # no branch thinner than this: screw terminals and handling (a choice)
+    main_feed_drop_frac: float = 0.02
+    servo_buck_a: float = 5.0         # the servo's 6 V buck at its limit (BOM: 6 V 5 A)
+    # Contactor inrush and precharge (2026-11-14, `contactor_inrush`, `check_inrush`). Closing the contactor connects the
+    # ESCs' discharged input capacitors straight to the pack: a series R-L-C whose only limit is the loop's few tens of
+    # milliohms. Every figure below except the charger's voltage is an assumption: measure your build (a current clamp
+    # or a shunt and a scope on the first closing) and read your parts' datasheets.
+    battery_v_max: float = 29.2       # the charger's end voltage (BOM: 29.2 V LiFePO4 charger), the worst case
+    pack_ohm: float = 0.040           # pack internal resistance with its BMS FETs and busbars (assumption: 8 cells of
+                                      # a 20 Ah LiFePO4 class at a few milliohms each)
+    pack_uh: float = 0.2              # pack's own loop inductance (assumption)
+    loop_uh_per_m: float = 0.6        # inductance per metre of a two-wire run, out and back counted once (assumption:
+                                      # wires laid side by side; twisting lowers it)
+    main_fuse_ohm: float = 0.0019     # 30 A ATO blade, cold (the figure a distributor listing gives for Littelfuse
+                                      # 0257030, not read on Littelfuse's own sheet: read yours)
+    branch_fuse_ohm: float = 0.005    # 15 A ATO blade, cold (assumption)
+    contactor_ohm: float = 0.003      # closed contacts and terminals (assumption)
+    esc_cap_uf: float = 1000.0        # each launcher ESC's input capacitance (assumption: e-skate ESCs carry several
+                                      # hundred uF to about 2,000 uF; count the cans on yours)
+    esc_cap_esr_ohm: float = 0.010    # those capacitors' ESR in parallel (assumption)
+    esc_lead_mm: float = 400.0        # fuse block to each ESC, each conductor (an estimate on the deck layout)
+    bus_other_cap_uf: float = 300.0   # every other switched input: the stepper driver's 100 uF and the bucks' and
+                                      # H-bridge's own capacitors (assumption), lumped at the ESCs' node
+    contactor_make_a: float = 60.0    # current the contactor may make without eroding or welding its contacts
+                                      # (assumption: twice its 30 A rating; few small DC contactors state a
+                                      # capacitive make rating, so read yours or ask the maker)
+    bms_sc_a: float = 150.0           # BMS short-circuit trip current (assumption: five times its continuous rating)
+    bms_sc_delay_us: float = 200.0    # and how long the current must stay above it (assumption: read your BMS's
+                                      # settings; many expose it, often a few hundred microseconds)
+    precharge_ohm: float = 4.7        # resistor that charges the bus before the contactor closes (0: none)
+    precharge_delay_s: float = 0.5    # on-delay between the precharge relay and the contactor (a timer module)
+    precharge_relay_a: float = 10.0   # the small relay that switches the resistor
+    bus_idle_a: float = 0.3           # what the switched loads draw idling while the bus precharges (assumption):
+                                      # it holds the bus below the pack by idle x resistor
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -1176,6 +1303,8 @@ class Feeder:
         bad += self.check_az_stops()
         bad += self.check_cables()
         bad += self.check_deck_cables()
+        bad += self.check_power()
+        bad += self.check_inrush()
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_agitator()
@@ -2096,6 +2225,170 @@ class Feeder:
         if e["phase"]["phase_frac"] > self.esc_phase_loss_frac:
             bad.append(f"launcher phase extension ({e['gauges']['phase']} AWG, {e['phase_m']:.2f} m) loses "
                        f"{e['phase']['phase_frac']:.1%} of a motor's peak at {self.esc_phase_peak_a:g} A: heavier wire")
+        return bad
+
+    # ---- power distribution (2026-11-14) ---------------------------------------
+    @property
+    def launch_wheel_kgm2(self) -> float:
+        """One launcher wheel and its motor's rotor, turning together."""
+        r = self.wheel_head_d / 2000
+        return self.launch_wheel_k * self.launch_wheel_kg * r * r + self.launch_rotor_kgm2
+
+    def spinup_s(self, rpm: float, power_w: float | None = None) -> float:
+        """Seconds the firmware's ramp (`controller.SpinupRamp`) takes a wheel from rest to `rpm`: a constant
+        `wheel_ramp_max_rpm_s` until the shaft power I w a reaches `power_w` (default `wheel_spinup_w`), then constant
+        power, so rpm^2 grows at 2 k with k = P / I (60 / 2 pi)^2."""
+        p = self.wheel_spinup_w if power_w is None else power_w
+        k = p / self.launch_wheel_kgm2 * (60 / (2 * math.pi)) ** 2
+        rpm_c = k / self.wheel_ramp_max_rpm_s
+        if rpm <= rpm_c:
+            return rpm / self.wheel_ramp_max_rpm_s
+        return rpm_c / self.wheel_ramp_max_rpm_s + (rpm * rpm - rpm_c * rpm_c) / (2 * k)
+
+    def power_distribution(self) -> dict:
+        """Branch currents, fuses and wire gauges after the main fuse, the contactor's and main fuse's ratings, and the
+        worst simultaneous draw against the BMS (2026-11-14). A branch fuse is the smallest standard rating at or above
+        1.25 times its running current and at or above a motor's stall current over `motor_start_factor` (a motor
+        starts at stall current for a few ms; a blade fuse at twice its rating takes 0.15 s or more to open), and its
+        wire the thinnest gauge in AWG_AMPS that carries the fuse's rating. The launcher ESCs draw what the firmware's
+        spin-up ramp allows, (WHEEL_SPINUP_W + drag) / (efficiency x volts), fused at `esc_fuse_factor` times that, since
+        the speed loop's recovery after each ball is not modelled. The Pi's buck sits before the contactor, so the Pi and
+        the ESP32 it feeds stay up through an e-stop and report it; every other branch is switched."""
+        v, eff = self.battery_v_min, self.buck_eff
+        e = self.deck_cable_electrics()
+        coil = self.stepper_coil_ohm * (1 + e["stepper"]["stepper_frac"])
+        esc_a = (self.wheel_spinup_w + self.launch_drag_w) / (self.esc_eff * v)
+        stepper_a = 2 * self.stepper_amps ** 2 * coil / (eff * v)
+        rows = [
+            # name, running A, peak A, least fuse A, switched
+            ("launcher ESC, top", esc_a, esc_a, self.esc_fuse_factor * esc_a, True),
+            ("launcher ESC, bottom", esc_a, esc_a, self.esc_fuse_factor * esc_a, True),
+            ("dual H-bridge: base (two gearmotors) and elevation actuator",
+             2 * self.base_motor_run_a + self.elev_act_run_a, 2 * self.base_motor_stall_a + self.elev_act_stall_a, None, True),
+            ("lift gearmotor MOSFET", self.lift_motor_run_a, self.lift_motor_stall_a, None, True),
+            ("agitator gearmotor MOSFET", self.agit_motor_run_a, self.agit_motor_stall_a, None, True),
+            ("azimuth stepper driver", stepper_a, stepper_a, None, True),
+            ("servo buck, 6 V", self.servo_supply_v * self.servo_stall_a / (eff * v), self.servo_supply_v * self.servo_stall_a / (eff * v),
+             1.25 * self.servo_supply_v * self.servo_buck_a / (eff * v), True),
+            ("Pi buck, 5 V (before the contactor)", self.pi_w / (eff * v), self.pi_w / (eff * v), 1.25 * self.pi_buck_w / (eff * v), False),
+        ]
+        branches = []
+        for name, run, peak, least, switched in rows:
+            if least is None:
+                least = max(1.25 * run, peak / self.motor_start_factor)
+            fuse = fuse_for(least)
+            branches.append({"name": name, "run_a": run, "peak_a": peak, "fuse_a": fuse, "awg": min(gauge_for(fuse), self.branch_awg_min),
+                             "switched": switched})
+        total = sum(b["run_a"] for b in branches)
+        switched = sum(b["run_a"] for b in branches if b["switched"])
+        others = total - 2 * esc_a
+        budget = self.bms_use_frac * self.bms_cont_a
+        main = fuse_for(1.25 * total)
+        ohm = {**AWG_OHM_PER_M, **FEED_AWG_OHM_PER_M}[self.main_feed_awg]
+        drop = total * 2 * self.main_feed_mm / 1000 * ohm
+        top = self.wheel_rpm_max
+        return {"branches": branches, "esc_a": esc_a, "total_a": total, "switched_a": switched, "budget_a": budget,
+                "spinup_w_max": (budget - others) * self.esc_eff * v / 2 - self.launch_drag_w,
+                "main_fuse_a": main, "contactor_a": main, "main_drop_v": drop, "main_drop_frac": drop / v,
+                "inertia_kgm2": self.launch_wheel_kgm2, "spinup_s": {"launch": self.spinup_s(max(self.launch_rpm)),
+                                                                      "top": self.spinup_s(top)},
+                "unramped_esc_a": (self.launcher_peak_w / self.esc_eff) / v,
+                "hbridge": {"base_run_a": 2 * self.base_motor_run_a, "base_peak_a": 2 * self.base_motor_stall_a,
+                            "elev_run_a": self.elev_act_run_a, "elev_peak_a": self.elev_act_stall_a}}
+
+    def check_power(self) -> list[str]:
+        bad = []
+        d = self.power_distribution()
+        if d["total_a"] > d["budget_a"] + 1e-9:
+            bad.append(f"every load at once draws {d['total_a']:.1f} A, over {self.bms_use_frac:.0%} of the BMS's "
+                       f"{self.bms_cont_a:g} A ({d['budget_a']:.1f} A): lower wheel_spinup_w to {max(d['spinup_w_max'], 0):.0f} W or less")
+        if d["main_fuse_a"] > AWG_AMPS[self.main_feed_awg] + 1e-9:
+            bad.append(f"main fuse {d['main_fuse_a']:g} A is over what the {self.main_feed_awg} AWG battery feed carries "
+                       f"({AWG_AMPS[self.main_feed_awg]:g} A): heavier feed")
+        if d["main_drop_frac"] > self.main_feed_drop_frac + 1e-9:
+            bad.append(f"battery feed drops {d['main_drop_v']:.2f} V at {d['total_a']:.1f} A "
+                       f"({self.main_feed_drop_frac:.0%} of {self.battery_v_min:g} V allowed): heavier or shorter feed")
+        by = {b["name"]: b for b in d["branches"]}
+        g_lift = self.lift_wires[0][2]
+        if by["lift gearmotor MOSFET"]["fuse_a"] > AWG_AMPS[g_lift] + 1e-9:
+            bad.append(f"lift lead ({g_lift} AWG, {AWG_AMPS[g_lift]:g} A) is under its {by['lift gearmotor MOSFET']['fuse_a']:g} A fuse")
+        g_step = self.stepper_wires[0][2]
+        if self.stepper_amps > AWG_AMPS[g_step] + 1e-9:
+            bad.append(f"stepper coils ({g_step} AWG, {AWG_AMPS[g_step]:g} A) under the driver's {self.stepper_amps:g} A")
+        if self.servo_buck_a > AWG_AMPS[self.servo_lead_awg] + 1e-9:
+            bad.append(f"servo supply ({self.servo_lead_awg} AWG, {AWG_AMPS[self.servo_lead_awg]:g} A) is under the "
+                       f"buck's {self.servo_buck_a:g} A limit")
+        h = d["hbridge"]
+        for ch, run, peak in (("base", h["base_run_a"], h["base_peak_a"]), ("elevation", h["elev_run_a"], h["elev_peak_a"])):
+            if run > self.hbridge_cont_a + 1e-9 or peak > self.hbridge_peak_a + 1e-9:
+                bad.append(f"H-bridge {ch} channel: {run:g} A running and {peak:g} A peak, over its "
+                           f"{self.hbridge_cont_a:g} A / {self.hbridge_peak_a:g} A")
+        return bad
+
+    def contactor_inrush(self) -> dict:
+        """Current through the contactor when it closes onto the switched bus (2026-11-14), with and without the
+        precharge. The loop is a series R-L-C: the pack, the 12 AWG feed out and back, the main fuse and the contactor,
+        then the two launcher ESC branches in parallel (each its fuse, its 16 AWG lead out and back and its capacitors'
+        ESR) into every switched capacitor at once. A direct close starts from an empty bus at the charger's voltage.
+        With the precharge, a relay first charges the bus through `precharge_ohm` while the idle loads draw
+        `bus_idle_a`, then an on-delay closes the contactor across what is left:
+        idle x R + (V - idle x R) exp(-t / RC). The current that heats a fuse is the same for any damping,
+        integral of i^2 dt = C V^2 / (2 R), a quarter of it in each ESC branch."""
+        v = self.battery_v_max
+        ohm = {**AWG_OHM_PER_M, **FEED_AWG_OHM_PER_M}
+        feed_m = 2 * self.main_feed_mm / 1000
+        esc_m = 2 * self.esc_lead_mm / 1000
+        g_esc = next(b["awg"] for b in self.power_distribution()["branches"] if b["name"] == "launcher ESC, top")
+        r_branch = esc_m * ohm[g_esc] + self.branch_fuse_ohm + self.esc_cap_esr_ohm
+        r = self.pack_ohm + feed_m * ohm[self.main_feed_awg] + self.main_fuse_ohm + self.contactor_ohm + r_branch / 2
+        l = (self.pack_uh + self.loop_uh_per_m * (feed_m / 2 + esc_m / 4)) * 1e-6
+        c = (2 * self.esc_cap_uf + self.bus_other_cap_uf) * 1e-6
+
+        def event(step_v: float, extra_a: float = 0.0) -> dict:
+            if step_v <= 0:
+                return {"step_v": 0.0, "peak_a": extra_a, "t_peak_us": 0.0, "bms_over_us": 0.0, "i2t": 0.0}
+            i, tp, ip = rlc_step(step_v, r, l, c)
+            over = time_above(lambda t: i(t) + extra_a, tp, self.bms_sc_a, 50 * r * c + 50 * math.sqrt(l * c))
+            return {"step_v": step_v, "peak_a": ip + extra_a, "t_peak_us": tp * 1e6, "bms_over_us": over * 1e6,
+                    "i2t": c * step_v ** 2 / (2 * r)}
+
+        direct = event(v)
+        zeta = r / (2 * math.sqrt(l / c))
+        # an underdamped loop rings the bus past the pack's voltage (the capacitors' rating must cover it)
+        overshoot = math.exp(-math.pi * zeta / math.sqrt(1 - zeta * zeta)) if zeta < 1 else 0.0
+        out = {"r_ohm": r, "l_h": l, "c_f": c, "r_branch_ohm": r_branch, "tau_us": r * c * 1e6,
+               "damping": zeta, "bus_peak_v": v * (1 + overshoot), "direct": direct,
+               "esc_branch_i2t": direct["i2t"] / 4, "precharge": None}
+        if self.precharge_ohm > 0:
+            rp = self.precharge_ohm + r
+            tau = rp * c
+            held = min(self.bus_idle_a * rp, v)
+            residual = held + (v - held) * math.exp(-self.precharge_delay_s / tau)
+            out["precharge"] = {"peak_a": v / rp, "tau_ms": tau * 1e3, "residual_v": residual,
+                                "energy_j": 0.5 * c * v * v, "fault_w": v * v / self.precharge_ohm,
+                                "fault_j": v * v / self.precharge_ohm * self.precharge_delay_s,
+                                "close": event(residual, self.bus_idle_a)}
+        out["closing"] = out["precharge"]["close"] if out["precharge"] else direct
+        return out
+
+    def check_inrush(self) -> list[str]:
+        bad = []
+        d = self.contactor_inrush()
+        cl, pre = d["closing"], d["precharge"]
+        how = "closing onto the precharged bus" if pre else "closing onto an empty bus"
+        fix = "" if pre else ": add the precharge (precharge_ohm)"
+        if cl["peak_a"] > self.contactor_make_a + 1e-9:
+            bad.append(f"contactor makes {cl['peak_a']:.0f} A {how}, over the {self.contactor_make_a:g} A it may make{fix}"
+                       + (f" or lengthen precharge_delay_s ({cl['step_v']:.2f} V left)" if pre else ""))
+        if cl["bms_over_us"] > self.bms_sc_delay_us + 1e-9:
+            bad.append(f"inrush stays over the BMS's {self.bms_sc_a:g} A short-circuit trip for {cl['bms_over_us']:.0f} us "
+                       f"{how}, past its {self.bms_sc_delay_us:g} us delay: the BMS would cut the Pi too{fix}")
+        if pre:
+            if pre["peak_a"] > self.precharge_relay_a + 1e-9:
+                bad.append(f"precharge relay makes {pre['peak_a']:.1f} A, over its {self.precharge_relay_a:g} A: "
+                           f"a larger precharge_ohm")
+            if pre["peak_a"] > self.bms_sc_a:
+                bad.append(f"precharge current {pre['peak_a']:.0f} A is over the BMS's short-circuit trip")
         return bad
 
     def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:

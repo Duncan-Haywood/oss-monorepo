@@ -168,8 +168,11 @@ easy failure is grading the README instead of the thing. So:
   below a 3-file one that is right.
 - **Fix forward, separately.** A defect you find gets its own fix PR (or a
   line in the subject's ROADMAP if it is large); the audit records the
-  score *before* the fix, and `fix_prs` lists the fixes. Re-auditing after a
-  fix is a new audit file, so the trend is honest.
+  score *before* the fix, and `fix_prs` lists the fixes. Mark each defect a
+  PR fixed with `"fixed_by": "<that PR's URL>"`: once one defect carries it,
+  `queue` shows the rest as open. An audit with `fix_prs` and no `fixed_by`
+  counts every defect as fixed, which hid the two a partial fix left (PR
+  #15848). Re-auditing after a fix is a new audit file, so the trend is honest.
 
 - **Check what ships, not only the source.** The Pages build rewrites hosts
   in `llms.txt`, sitemaps and canonical links at deploy

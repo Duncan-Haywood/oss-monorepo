@@ -82,3 +82,7 @@ test("the guide's worked drop-in is the CLI's real output", () => {
     .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
   assert.equal(block.trim(), dropIn.trim());
 });
+
+test("the footer links its sibling sudoers-check", () => {
+  assert.match(readFileSync(path.join(here, "index.html"), "utf8"), /href="\.\.\/sudoers-check\/"/);
+});

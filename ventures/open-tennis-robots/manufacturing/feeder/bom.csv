@@ -162,9 +162,16 @@ Silicone wire 22 AWG (4 colours) and 26 AWG pair,cots,1,Silicone wire 22 AWG (4 
 Silicone wire 20 AWG pair,cots,1,Silicone wire 20 AWG pair,"lift gearmotor, deck to motor (manifest lift_lead_mm)"
 "Spiral wrap, 12 mm, 1 m",cots,1,"Spiral wrap, 12 mm, 1 m","the deck-side run, deck to the axis clamp"
 TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers
-22 mm NC mushroom e-stop + 24 V contactor,cots,1,22 mm NC mushroom e-stop + 24 V contactor,hard power cut
+"22 mm NC mushroom e-stop + 24 V coil contactor, 30 A DC or more",cots,1,"22 mm NC mushroom e-stop + 24 V coil contactor, 30 A DC or more",hard power cut; everything but the Pi's buck is after it; its coil through the on-delay timer (manifest inrush line)
+"Precharge resistor 4.7 ohm, aluminium-housed 50 W class",cots,1,"Precharge resistor 4.7 ohm, aluminium-housed 50 W class",across the contactor's contacts in series with the precharge relay; must survive the manifest inrush line's fault energy or fail open
+"24 V relay, 10 A contacts",cots,1,"24 V relay, 10 A contacts","precharge relay: its coil through the e-stop, ahead of the contactor"
+"24 V on-delay timer relay module, set 0.5 s",cots,1,"24 V on-delay timer relay module, set 0.5 s",closes the contactor's coil after the precharge (manifest inrush line)
 "Wireless e-stop relay remote, latching",cots,1,"Wireless e-stop relay remote, latching",second cut-off
 5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
-30 A blade fuse + holder,cots,1,30 A blade fuse + holder,battery positive
+30 A fuse (ATO/ATC blade or MIDI) + inline holder,cots,1,30 A fuse (ATO/ATC blade or MIDI) + inline holder,"battery positive, within 150 mm of the terminal (manifest power line)"
+"Blade fuse block, 8-way, with a negative bus",cots,1,"Blade fuse block, 8-way, with a negative bus",on the deck after the contactor; branch fuses and gauges in the manifest power line
+"ATO blade fuses: 15 A x2, 7.5 A, 3 A, 2 A x2, 1 A x2",cots,1,"ATO blade fuses: 15 A x2, 7.5 A, 3 A, 2 A x2, 1 A x2","launcher ESCs, H-bridge, lift, servo and Pi bucks, agitator and stepper (manifest power line)"
+Inline ATO fuse holder,cots,1,Inline ATO fuse holder,"the Pi's buck, between the main fuse and the contactor, so the Pi and ESP32 stay up through an e-stop"
+"Silicone wire 12 AWG red and black, 1 m each",cots,1,"Silicone wire 12 AWG red and black, 1 m each","battery to the main fuse, contactor and fuse block"
 "Knotless netting, 25-35 mm mesh",cots,1,"Knotless netting, 25-35 mm mesh",about 3.5 x 3 m
 "Ballast (sand bags or water cells), see manifest",cots,1,"Ballast (sand bags or water cells), see manifest",tip-over margin

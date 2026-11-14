@@ -1,0 +1,22 @@
+# node eval/beyond-day-sweeps.mjs 60 168 0 eval/highs-owner-60x168-week0.json (one cloud machine, 2026-11-14)
+60 x 168 week 0: 245 copies; pay floor 30019980.21 (5700 ms)
+  posted (day sweeps off): 30.11 above the floor, valid true
+  day sweeps: 15.51 above the floor, valid true, 46 ms
+  pair sweeps and day sweeps in turn (1 rounds that helped): 14.83 above the floor, valid true, 57 ms
+  cyclic exchanges up to 2 arcs and day sweeps in turn: 15.51 above the floor, valid true, 407 ms
+  dive: 136 solves, 37 backtracks, open 317 h against 300 h
+  dive alone: 1700030.95 above the floor, valid true, 25533 ms
+  dive then day sweeps: 4.24 above the floor, valid true
+  HiGHS roster: 1.14 above the floor, valid true
+  difference, day-swept to HiGHS (identical copies matched): 137 copies in 3 connected trades
+    129 copies, 52 people, 10 copies opened or covered, days Mon Tue Wed Thu Fri, alone it changes the score by -14.37
+    4 copies, 1 people, 4 copies opened or covered, days Mon Tue, alone it changes the score by 0.00
+    4 copies, 3 people, 0 copies opened or covered, days Wed Thu, alone it changes the score by 0.00
+# node eval/beyond-day-sweeps.mjs 60 168 1 (MOVES=day,pairs,dive)
+60 x 168 week 1: 238 copies; pay floor 30819981.32 (2724 ms)
+  posted (day sweeps off): 0.43 above the floor, valid true
+  day sweeps: 0.43 above the floor, valid true, 23 ms
+  pair sweeps and day sweeps in turn (0 rounds that helped): 0.43 above the floor, valid true, 17 ms
+  dive: 253 solves, 105 backtracks, open 427 h against 308 h
+  dive alone: 11898717.41 above the floor, valid true, 26568 ms
+  dive then day sweeps: 2299669.09 above the floor, valid true

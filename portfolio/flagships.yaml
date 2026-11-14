@@ -105,13 +105,13 @@ flagships:
       slips, full-size photos); (6) payroll (README; journal layout 11-14): a real
       Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: 38 states read on their own pages, MO 2% and NY 5%/$200 discounts
-      (README); open: IN's day, MD, NJ + 6 refused; a real return layout; (8b)
-      `annualized` (Schedule AI): penalty both ways, box D, 2026 draft read
-      (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025 EIC
-      Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
-      2,000 characters.
+      return`: 38 states' pages, discounts for 18 states (README); open: IN's day,
+      MD, NJ, UT, AR, RI, CO, ME, MA (hosts refused 2026-11-14), MI/IN/VA discounts;
+      a real return layout; (8b) `annualized` (Schedule AI): penalty both ways, box
+      D, 2026 draft read (README); open: line 9b once the 2026 instructions print;
+      (9) EITC: 2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026
+      table once printed. A run that lands a slice replaces its item here; keep this
+      under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -185,33 +185,33 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git. Open: ZATCA rules on a real sandbox invoice and
-      credit or debit note; FatturaPA tolerances and SdI codes read from spec 1.9
-      (2026-11-13, eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection
-      receipt; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though
-      AMA's rules admit them: which validator does AT run?); Poland's FA(3): receipt
+      History: README and git (latest: Peppol BIS 3.0.22, 1,048/1,048 unit asserts).
+      Open: ZATCA rules on a real sandbox invoice and credit or debit note;
+      FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
+      eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
+      Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's
+      rules admit them: which validator does AT run?); Poland's FA(3): receipt
       checks landed (README); open: a real KSeF rejection, a real correction,
-      advance or settlement file; the rules and a repair on a real ERP or Factur-X
-      export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
-      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
-      Dutch file; India's INV-01 check on a real IRP payload; primary-source mandate
-      dates: IL (gov.il 403); LV, DK, CZ done (README); TW, OM read from the law
-      (README); PK, NG, JO, TH read (README): open: NRS notice (CAPTCHA), SRO 1852,
-      Jordan Reg. 2/2025; Mexico CFDI 4.0, complements, Carta Porte 3.1 landed:
-      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a
-      real payroll or export file, a PAC rejection compared; postal codes (MX-080)
-      landed (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
-      (BR-053..057, NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and
-      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
-      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
-      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
-      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
-      compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS
-      retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file
-      1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a
-      real Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft
-      passes. A run that lands a slice replaces its item here; keep this under 2,000
-      characters.
+      advance or settlement file; repair on real files landed (README): open: CII
+      header allowances in it, veraPDF; PINT JP/MY/AE/OM rules and repair landed
+      (README); open: a real business's PINT file; open: RO_CIUS on a real ANAF
+      file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP payload;
+      mandate texts read (README); open: IL (gov.il 403), ES, SK (hosts blocked
+      2026-11-14), NRS notice (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI
+      4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww
+      blocked), a real payroll or export file, a PAC rejection compared; postal
+      codes (MX-080) landed (README); Brazil NF-e 4.00, PL_010 reform sums and the
+      cClassTrib table (BR-053..057, NFSE-034..036, 2026-11-13) landed (README);
+      cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110,
+      12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged
+      (README): open: a real event; a real reform NF-e from a SEFAZ test
+      environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed:
+      open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04
+      landed (README): open: ISS retained on a real file, city provider schemas,
+      1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README):
+      open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the
+      Bulgaria page when its draft passes. A run that lands a slice replaces its
+      item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -229,21 +229,22 @@ flagships:
       (README "A whole week of call-outs at a real roster's rates", 2026-11-13):
       kept reissues cut changes 56-66%, open hours path-dependent both ways. Next:
       whether a real manager would set keepShift above 1; close the 100-person gaps
-      (tree, not bound: README same section); cuts or branching that move the score
-      LP on the 60-person pay week ($1.22 open); week 0 pay $30 open (README "A pay
-      floor for big weeks"); re-run the keep-usual-shifts sweep on real dated leave
-      records; a manager's read on whether the steadier plan is the one they would
-      post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
-      directly"); a real When I Work account or response through --import-wheniwork
-      (README "Reading When I Work directly"); Homebase (docs need an account);
-      --cover-price moves two shifts together (README "Moving two shifts together":
-      20-person week exposure 113 to 68 h for $35.27); second call-outs priced
-      (README "A second call-out in the same week", off by default); next: fewer
-      capped pairs, pair price past 120 copies; a real two-site export and staff
-      list (README "Staff shared between sites"); own and site rates read from staff
-      CSVs and 7shifts (README "Per-location pay from an export"); next a real wages
-      export, real trip times; whether the priced cut's r = 1 default suits a real
-      manager; a manager's real task list for the fixed minutes.
+      (tree, not bound: README same section); week 0 pay $7.04 open: one 129-copy
+      trade through 52 people, beyond local moves (README "Past the day sweeps");
+      next column generation from the posted roster; re-run the keep-usual-shifts
+      sweep on real dated leave records; a manager's read on whether the steadier
+      plan is the one they would post; a real 7shifts account through
+      --import-7shifts (README "Reading 7shifts directly"); a real When I Work
+      account or response through --import-wheniwork (README "Reading When I Work
+      directly"); Homebase (docs need an account); --cover-price moves two shifts
+      together (README "Moving two shifts together": 20-person week exposure 113 to
+      68 h for $35.27); second call-outs priced (README "A second call-out in the
+      same week", off by default); next: fewer capped pairs, pair price past 120
+      copies; a real two-site export and staff list (README "Staff shared between
+      sites"); own and site rates read from staff CSVs and 7shifts (README
+      "Per-location pay from an export"); next a real wages export, real trip times;
+      whether the priced cut's r = 1 default suits a real manager; a manager's real
+      task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -252,10 +253,11 @@ flagships:
       The DNG 1.7.1.0 specification PDF is reachable from a cloud session
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
       memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
-      liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
-      the SSE path (four-component float32 images through lensfunpy, if it allows
-      them) and a 16-bit fixed-point output check; CR2s with no lens name are
-      matched by the maker note's focal range and aperture since 2026-11-14
+      liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); its SSE,
+      16-bit and SSE2 paths measured 2026-11-14 via ctypes
+      (eval/lensfun-vignetting-paths-2026-11-14.md: SSE scales alpha; SSE2 lanes
+      drift, w%4 tail wrong); CR2s with no lens name are matched by the maker note's
+      focal range and aperture since 2026-11-14
       (eval/canon-lens-from-range-2026-11-14.md: one lens in 38% of lensfun's
       Canon-mount cases, the rest refused as ties); any maker's LensSpecification,
       DNG LensInfo and Nikon's maker-note lens tag are matched the same way, both
@@ -266,19 +268,21 @@ flagships:
       metadata-extractor names it); converted DNGs' maker notes from DNGPrivateData
       MakN (Canon, Nikon, Olympus) since 2026-11-14
       (eval/dng-maker-note-2026-11-14.md: ExifTool's real 350D DNG read as ExifTool
-      decodes it); next: Pentax lens numbers and its 'PENTAX' private data, a real
-      converted Nikon or Olympus DNG; the whole numpy develop runs in threaded bands
-      and packed raws unpack in numpy since 2026-11-13
-      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
-      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
-      (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
-      of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
-      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
-      table, prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs,
-      eval/native-destuff-2026-11-13.md; tiles are placed on the decode threads with
-      one numpy copy since 2026-11-13 (4-thread read 1.3-1.4x faster,
-      eval/parallel-tile-placing-2026-11-13.md); point-transform scans predict in C
-      and the plane is one buffer since 2026-11-14,
+      decodes it); Pentax lens numbers (AOC/PENTAX/RICOH notes, Pentax DNG private
+      data) and --lens-memory since 2026-11-14
+      (eval/pentax-lens-memory-2026-11-14.md: K10D matches ExifTool; next: a real
+      K-5 or K-30 file for the 91/80-byte LensInfo, a real converted Nikon or
+      Olympus DNG); the whole numpy develop runs in threaded bands and packed raws
+      unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same
+      bytes at every thread count and band height); lossless-JPEG DNG tiles decode
+      on a thread pool since 2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a
+      real Pixel 3 XL lossless DNG, 0 of 12.2 M sensels differ from LibRaw; read
+      0.33 s to 0.21 s on 4 CPUs; since 2026-11-13 later the whole tile decode
+      (de-stuffing, restart walk, 12-bit table, prediction) runs in C, read 0.21 s
+      to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md; tiles are placed on
+      the decode threads with one numpy copy since 2026-11-13 (4-thread read
+      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform
+      scans predict in C and the plane is one buffer since 2026-11-14,
       eval/point-transform-c-2026-11-14.md), and sensor normalisation runs in bands
       since 2026-11-14 (0.24 s to 0.05 s on 4 CPUs,
       eval/normalised-plane-bands-2026-11-14.md); MapTable and ScalePerRow/Column
@@ -333,17 +337,18 @@ flagships:
       prior (docs/RANK-PAGE.md "Noisy answerers"); some coin-flippers still stop
       early. Since 2026-11-14 team combine shows two 90% rank ranges, this group and
       the wider group (random effects, iterated Laplace; simulated cover 0.90-1.00,
-      docs/RANK-PAGE.md "Team ranges"); tau reads low (2 as 0.6-0.9). Next, most
-      valuable first: (r) get the rank page in front of people, then (c) the first
-      real survey's answers: msToAnswer against the answer-time model,
+      docs/RANK-PAGE.md "Team ranges"); tau read low (PQL dropped the expansion
+      constant); since 2026-11-14 later it is the Laplace read (true 2 reads
+      2.0-2.3, Wider cover 0.955-1.00, docs/RANK-PAGE.md "Laplace, not PQL"). Next,
+      most valuable first: (r) get the rank page in front of people, then (c) the
+      first real survey's answers: msToAnswer against the answer-time model,
       panelWalkRatio on real times, whether times depend on which slot is clicked
       (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
       runs or spread-out carelessness, and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (t) correct the team tau's
-      low bias; (d11) bound the d10 turn's split search; (d8) a stronger pick signal
-      under wander (staged pairs are near 50/50 late in a session; anchor pairs?);
-      (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to 0.030:
-      decide on a real panel's times.
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the d10 turn's
+      split search; (d8) a stronger pick signal under wander (staged pairs are near
+      50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at
+      q = 1 but taxes a camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
@@ -379,11 +384,11 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min): the elevation actuator's short lead from the gland to its
-      motor and pot; a power-distribution model from the routed lead lengths
-      (cad/README.md "Deck-side cables", 2026-11-14): a fuse per branch (ESCs, lift,
-      agitator, stepper driver, bucks), the contactor's rating and each branch's
-      gauge; the lift flight as a printed part and the top pulley's tensioner if PR
-      15456 has not landed.
+      motor and pot; contact bounce on the contactor after the precharge (inrush and
+      precharge landed 2026-11-14, cad/README.md "Contactor inrush and precharge")
+      and the bucks' start-up current while the bus rises through the resistor;
+      regenerative current from braking ESCs; the lift flight as a printed part and
+      the top pulley's tensioner if PR 15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -392,30 +397,25 @@ flagships:
       History and every measurement: cad/README.md (feeder CAD package; azimuth and
       elevation drives; shuttle drive; home switch; hard stops; cables; catch
       trough; ball lift; deck cables; collision sweeps) and the README ("Running a
-      drill on the machine", "Wheel speed loop"). Latest, 2026-11-13: ball lift
-      (cad/README.md "Ball lift"): a cleated AT5 belt with 16 mm printed finger
-      flights in a column between the mast rails at y = 300 carries balls from the
-      sump (moved off centre to y = +193.5, outlet raised to 80 mm, into the boot
-      through a 90 deg inlet turn) 2.36 m up and over a hooded top pulley into a
-      chute that ends 34 mm above the tub's rim; about 53 balls a minute, 0.13 N m
-      and 2.8 W on assumed figures; checked clear of the head at every pose;
-      firmware LiftRun runs it 16 s after each ball fed. Hopper agitator, 2026-11-13
-      (cad/README.md "Hopper agitator"): two printed arms at a ball's centre height
-      over the tub outlet on a 25 mm gearmotor under the shelf, 40 passes a minute,
-      run while balls are fed. Next, needing a person: fill the tub over a bare
-      outlet and count how often balls bridge it, motor off and on; build the boot
-      and one flight and feed it balls from a gutter (a ball half-in when a finger
-      arrives; the inlet turn's friction); tilt a gutter with a ball to measure
-      rolling resistance and count bounce-outs down a net; log a real wheel's tach
-      on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head
-      and measure the hose's torque, the stepper's pull-out, the actuator's real
-      lengths, the column's load on the shuttle and the servo's loaded stroke time
-      and stall current; click the home switch on a printed sector to calibrate
-      AZ_HOME_DEG; push a sector into a stop with a scale; hang a real hose from a
-      tube; bend a built cable loop through the actuator's travel. Buildable: the
-      flight as a printed part and the tensioner (PR 15456); the actuator's lead
-      from the gland; branch fuses and contactor from the routed leads
-      (cad/README.md "Deck-side cables").
+      drill on the machine", "Wheel speed loop"). Latest, 2026-11-14: power
+      distribution (cad/README.md "Power distribution"): branch fuses and gauges, a
+      30 A main fuse and contactor, every load at once (23.3 A) under 80% of an
+      assumed 30 A BMS, and a firmware spin-up ramp (SpinupRamp): unramped, two
+      wheels starting from rest could ask about 98 A. Next, needing a person: fill
+      the tub over a bare outlet and count how often balls bridge it, motor off and
+      on; build the boot and one flight and feed it balls from a gutter (a ball
+      half-in when a finger arrives; the inlet turn's friction); tilt a gutter with
+      a ball to measure rolling resistance and count bounce-outs down a net; log a
+      real wheel's tach and the battery current on spin-up and rerun
+      tests/wheel_loop_sweep.py and spinup_ramp_sweep.py with its lag; weigh a
+      launcher wheel for WHEEL_INERTIA_KGM2; weigh the head and measure the hose's
+      torque, the stepper's pull-out, the actuator's real lengths, the column's load
+      on the shuttle and the servo's loaded stroke time and stall current; click the
+      home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
+      stop with a scale; hang a real hose from a tube; bend a built cable loop
+      through the actuator's travel. Buildable: the flight as a printed part and the
+      tensioner (PR 15456); the actuator's lead from the gland; ESC inrush when the
+      contactor closes.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
@@ -438,18 +438,18 @@ flagships:
       cappella verse and whether the key lift sounds like a lift); --lrc in a real
       player and --markers/--stems in a DAW; --cues (and its section lines),
       RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum correction. master-cli passed
-      EBU Tech 3341/3342 from their text; open: the EBU's WAVs (403),
-      Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas, liquescents,
-      lines at true thickness; tilted pages straightened, 2 of 185 real pages
-      (eval/deskew-check.md); next: a fresh worn-page set (new GABC needed), mottled
-      squares, liquescents after a porrectus end; --split-voices (by phrase or at a
-      word, --split-words, eval/word-split-report.md) and --overlap (both sections
-      sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
-      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
-      and of a one-note overlap against a clean handoff; --baritones,
-      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
-      --choir presets, --singers (a choir's range test CSV) and --sit-out N (README
-      "Letting a singer sit a note out") landed. Next: a real choir's range test
-      through --singers, and a director's word on --sit-out (N, the quarter
-      warning).
+      against a distributor's real form; the Te Deum and GregoBase 3427 corrections
+      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
+      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
+      rhombi, quilismas, liquescents, lines at true thickness; tilted pages
+      straightened, 2 of 185 real pages (eval/deskew-check.md); next: a fresh
+      worn-page set (new GABC needed), mottled squares, liquescents after a
+      porrectus end; --split-voices (by phrase or at a word, --split-words,
+      eval/word-split-report.md) and --overlap (both sections sing the seam note at
+      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
+      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
+      overlap against a clean handoff; --baritones, --entrance-cost N and
+      --second-tenors (TTBB; README) need the same check. --choir presets, --singers
+      (a choir's range test CSV) and --sit-out N (README "Letting a singer sit a
+      note out") landed. Next: a real choir's range test through --singers, and a
+      director's word on --sit-out (N, the quarter warning).

@@ -6,6 +6,13 @@ ROLLER_DUTY = 0.7               # collector pickup roller PWM duty
 BATTERY_DIVIDER = 11.0          # battery volts per ADC volt (100k/10k divider)
 LOW_BATTERY_MV = 24000          # 8S LiFePO4 (25.6 V nominal): ~3.0 V/cell under load
 WHEEL_RPM_FULL = 9000          # launcher wheel free speed at full ESC throttle, no ball (measure it with the tach)
+# Launcher spin-up ramp (cad: Feeder.power_distribution): each wheel's target rises at most WHEEL_RAMP_MAX_RPM_S, and
+# above that at WHEEL_SPINUP_W of shaft power, so two wheels spinning up with everything else running stay under the
+# BMS's continuous limit. WHEEL_INERTIA_KGM2 is one wheel and its motor's rotor (cad Feeder.launch_wheel_kgm2): weigh
+# your wheel and update both here and in cad/otr_cad/params.py.
+WHEEL_SPINUP_W = 100.0
+WHEEL_INERTIA_KGM2 = 0.00155
+WHEEL_RAMP_MAX_RPM_S = 1500.0
 AZ_MICROSTEPS = 4               # azimuth driver's microstep setting (match its MS pins)
 AZ_RATIO = 10.0                 # 150-tooth sector over the 15-tooth pinion
 AZ_VMAX_DEG_S = 60.0            # peak turntable speed: 30 deg in 1 s, triangular (cad: Feeder.azimuth_drive)

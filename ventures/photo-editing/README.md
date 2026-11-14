@@ -1752,6 +1752,27 @@ release and on master disagree there. The FixVignetteRadial we ship is within 1.
 the 99th percentile on an 800 px frame. 6 tests (`tests/test_lensfun_vignetting_released.py`); four
 seeded faults all caught. Details: `eval/lensfun-vignetting-released-2026-11-13.md`.
 
+### Which lensfun? Its SSE, 16-bit and SSE2 paths (2026-11-14)
+
+The check above reached only lensfun's plain float32 loop, because lensfunpy takes 3-channel images.
+Lensfun 0.3.4 picks its devignetting routine (plain, SSE or SSE2) from the pixel format, the component count and the
+buffer's alignment. `tools/lensfun_vignetting_paths_check.py` drives the bundled liblensfun through
+`ctypes` with RGBA rows, aligned and not, on 40,730 cases (474 lenses, 1,202 and 6,002 px wide):
+
+- **float SSE** (what four-component float callers get) matches the plain loop to float rounding, but it
+  also multiplies the alpha (`UNKNOWN`) channel, by up to 6.9x, which the plain loop leaves alone;
+- **16-bit plain** truncates the gain to 1/1024: up to 8 steps low at 8,192, 4 on average (0.05% darker),
+  matched by our model to the step;
+- **16-bit SSE2** has two faults, still in lensfun's master branch. The four lanes' radii drift apart along
+  the row, giving 4-pixel stripes: p99 4.2% at 1,202 px and 0.9% at 6,002 px, up to 25% on a 7.9x corner.
+  And the last `w % 4` pixels of every row are computed as if far outside the frame. A numpy model of the
+  loop with both faults matches the library on every sampled case; with them fixed it is within 0.12%.
+
+ShootFlow corrects in float64 and rounds once when it writes the 16-bit master, so it matches lensfun's
+float routines. Against lensfun's 16-bit ones the differences above are lensfun's. 8 tests
+(`tests/test_lensfun_vignetting_paths.py`); five of six seeded faults caught. Details:
+`eval/lensfun-vignetting-paths-2026-11-14.md`.
+
 ### Lens correction in the overnight pipeline (2026-11-13, latest)
 
 Until now only `shootflow develop --lens-db` corrected lenses; the overnight pipeline's grade stage
@@ -1843,6 +1864,25 @@ notes back at their original offset so their file-relative pointers work, and us
 tags give no lens or give the range with no f-numbers (`18-55mm f/?`). On ExifTool's real 350D DNG every value
 read (18-55 mm, f/4 at the shot's 55 mm, lens type n/a) matches ExifTool's own decode; camera-native DNGs
 read exactly as before. Details: `eval/dng-maker-note-2026-11-14.md`.
+
+### Pentax lens numbers, and a lens memory (2026-11-14)
+
+Pentax files name no lens in EXIF (not even the 2018 K-1 Mark II); the maker note holds only the number the
+lens reports. ShootFlow now reads it from all four places a Pentax file keeps it ("AOC", "PENTAX" and "RICOH"
+notes, a Pentax DNG's private data, a converted DNG's MakN record), with the lens's own focal length and
+f-numbers: on ExifTool's K10D file every value matches ExifTool's decode, and on five more real Pentax files
+each focal length matches EXIF. A number is not a name, and ShootFlow ships no table of them; instead
+`--lens-memory FILE` remembers the lens you name once with `--lens` under the body's number (Pentax's, or
+Canon's lens type with the range) and uses it on every later frame with that number:
+
+```bash
+shootflow develop IMGP0001.DNG --lens-db lensfun/ --lens-memory lens-memory.json \
+  --lens "smc PENTAX DA* 60-250mm F4 [IF] SDM" --out masters/
+shootflow develop IMGP*.DNG --lens-db lensfun/ --lens-memory lens-memory.json --out masters/
+```
+
+The overnight pipeline reads `color/lens-profiles/lens-memory.json`. Details:
+`eval/pentax-lens-memory-2026-11-14.md`.
 
 ## The lensfun port against the real lensfun library (2026-11-13)
 

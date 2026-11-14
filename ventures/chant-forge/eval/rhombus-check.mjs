@@ -12,12 +12,12 @@
 // before (w < 0.42 and taper < 0.8) and after (the same and h >= RHOMBUS_MIN_H).
 // --sweep prints the counts for a range of floors on the pieces the floor
 // was chosen on. Needs curl and ffmpeg, like scan-check.mjs.
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { readPgm, readPage, gabcSteps, align, alignLocal, RHOMBUS_MIN_H } from '../scan.mjs';
+import { readPage, gabcSteps, align, alignLocal, RHOMBUS_MIN_H } from '../scan.mjs';
+import { scanCache } from './scan-cache.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
@@ -27,13 +27,7 @@ const cache = opt('--cache', join(tmpdir(), 'chant-forge-scans'));
 const out = opt('--out', join(here, 'rhombus-height-report.md'));
 mkdirSync(cache, { recursive: true });
 
-function page(item, leaf, width = 2000) {
-  const jpg = join(cache, `${item}-n${leaf}-w${width}.jpg`);
-  const pgm = jpg.replace(/\.jpg$/, '.pgm');
-  if (!existsSync(jpg)) execFileSync('curl', ['-sSfL', '-m', '120', '-o', jpg, `https://archive.org/download/${item}/page/n${leaf}_w${width}.jpg`]);
-  if (!existsSync(pgm)) execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', jpg, '-pix_fmt', 'gray', pgm]);
-  return readPgm(readFileSync(pgm));
-}
+const { page, prefetch } = scanCache(cache);
 
 const load = (f, set) => JSON.parse(readFileSync(join(here, f), 'utf8')).pieces.map((p) => ({ ...p, set }));
 const pieces = [
@@ -46,6 +40,7 @@ const pieces = [
 
 const oldRule = (f) => f.w < 0.42 && f.taper < 0.8;
 const newRule = (f, H = RHOMBUS_MIN_H, T = Infinity) => oldRule(f) && f.h >= H && f.h <= T;
+await prefetch(pieces.flatMap((p) => p.pages.map((pg) => [p.archive, pg.leaf])));
 const heads = []; // { set, piece, want, f, where }
 for (const piece of pieces) {
   const g = gabcSteps(readFileSync(join(root, piece.gabc), 'utf8'));

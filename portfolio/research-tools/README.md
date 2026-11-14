@@ -59,6 +59,11 @@ as tools".
 | `README.md`, `VENTURE.yaml`, `LICENSE` | As for any venture; the README opens with what the tool answers, in a searcher's words, links the live page, and has a "Verification" section. |
 | `*.test.mjs` | Tests against a **published or independently computed reference** (the paper's own example, a textbook result, or another implementation's output with its provenance), plus property tests (invariances, edge cases), plus `page.test.mjs`. |
 
+Before merging a new tool, run `node platform/pages/venture-preflight.mjs <slug>`: it
+catches the repository-wide steps a tool's own tests cannot see (the launch date in
+`launched.json`, a link from a sibling tool, the privacy-switch count), each of which
+otherwise surfaces as a red CI job (run record, 2026-11-14).
+
 Agents get each tool for free: `node platform/agents/tools.mjs search
 changepoint`, `describe <slug>` (prints `PAPERS`), `call <slug> analyze
 --input '{...}'`, and the same through the MCP server. The page is eligible

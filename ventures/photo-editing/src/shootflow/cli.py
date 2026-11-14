@@ -727,6 +727,15 @@ def _load_lens_db(path: str):
         raise DevelopError(str(exc)) from None
 
 
+def _load_lens_memory(path: str) -> dict:
+    from shootflow import lens_profiles
+
+    try:
+        return lens_profiles.load_lens_memory(path)
+    except lens_profiles.LensProfileError as exc:
+        raise DevelopError(str(exc)) from None
+
+
 def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     wb = None
     if args.wb:
@@ -758,12 +767,15 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         lens_vignetting=not args.no_lens_vignetting,
         lens_aperture=args.lens_aperture,
         lens_distance=args.lens_distance,
+        lens_memory=_load_lens_memory(args.lens_memory) if args.lens_memory else None,
     )
-    if (args.lens or args.lens_focal or args.lens_crop or args.lens_aperture or args.lens_distance) and not args.lens_db:
+    if (args.lens or args.lens_focal or args.lens_crop or args.lens_aperture or args.lens_distance
+            or args.lens_memory) and not args.lens_db:
         raise DevelopError(
-            "--lens, --lens-focal, --lens-crop, --lens-aperture and --lens-distance need --lens-db "
+            "--lens, --lens-focal, --lens-crop, --lens-aperture, --lens-distance and --lens-memory need --lens-db "
             "(a folder of lensfun XML files)"
         )
+    memory_before = dict(settings.lens_memory) if settings.lens_memory is not None else None
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
     results = []
@@ -776,6 +788,10 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
             chosen = {"camera_profile": str(choice.path), "camera_profile_rule": choice.rule}
         report = develop_file(source, destination, file_settings, png_bits=16 if args.format == "png16" else 8)
         results.append({"source": str(source), "master": str(destination), **asdict(report), **chosen})
+    if settings.lens_memory is not None and settings.lens_memory != memory_before:
+        from shootflow import lens_profiles
+
+        lens_profiles.save_lens_memory(args.lens_memory, settings.lens_memory)
     stdout.write(json.dumps({"developed": results}, sort_keys=True) + "\n")
 
 
@@ -1356,6 +1372,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--lens-distance",
         type=float,
         help="Subject distance in metres for the vignetting correction (default: EXIF, else 1000) (needs --lens-db).",
+    )
+    develop.add_argument(
+        "--lens-memory",
+        help="JSON file of lenses remembered by the number the body reports (Pentax lens numbers, Canon lens types). "
+        "Frames with a remembered number get that lens; with --lens, the lens is remembered for the frame's number "
+        "(created if absent) (needs --lens-db).",
     )
 
     create_demo = subparsers.add_parser(

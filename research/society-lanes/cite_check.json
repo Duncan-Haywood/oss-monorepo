@@ -55,6 +55,10 @@
   "checked": "2026-11-13",
   "title": "Unfreezing the robot: Navigation in dense, interacting crowds (2010)"
  },
+ "doi:10.1111/j.1467-8659.2007.01089.x": {
+  "checked": "2026-11-14",
+  "title": "Crowds by Example (2007)"
+ },
  "doi:10.1126/sciadv.abe7758": {
   "checked": "2026-11-13",
   "title": "Mutual anticipation can contribute to self-organization in human crowds (2021)"
@@ -74,6 +78,14 @@
  "doi:10.1177/0278364920917446": {
   "checked": "2026-11-13",
   "title": "Human motion trajectory prediction: a survey (2020)"
+ },
+ "doi:10.34735/ped.2009.10": {
+  "checked": "2026-11-14",
+  "title": "Bidirectional flow, ordered destination, asymmetric flow rate (2009)"
+ },
+ "doi:10.34735/ped.2009.11": {
+  "checked": "2026-11-14",
+  "title": "Bidirectional flow, ordered destination, symmetric flow rate (2009)"
  },
  "doi:10.34735/ped.2009.12": {
   "checked": "2026-11-13",

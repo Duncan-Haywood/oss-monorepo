@@ -1,4 +1,7 @@
-// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew]
+// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--manifest FILE]
+//
+// --manifest reads another list of pieces in scan-pages.json's format (e.g.
+// eval/offfinal-supplement-pages.json) instead of scan-pages.json.
 //
 // --no-deskew reads every page square (readPage's { deskew: false }), to
 // compare against the reader as it is (eval/deskew-real-pages.md).
@@ -11,12 +14,12 @@
 // found, how many agree with the GABC, and every disagreement with its page,
 // staff and x position, so a person (or a later run) can look at exactly
 // those spots on the scan.
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { readPgm, readPage, gabcSteps, align, alignLocal } from '../scan.mjs';
+import { readPage, gabcSteps, align, alignLocal } from '../scan.mjs';
+import { scanCache } from './scan-cache.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
@@ -31,17 +34,9 @@ mkdirSync(cache, { recursive: true });
 
 const NAMES = 'abcdefghijklm';
 
-function page(item, leaf, width = 2000) {
-  const jpg = join(cache, `${item}-n${leaf}-w${width}.jpg`);
-  const pgm = jpg.replace(/\.jpg$/, '.pgm');
-  if (!existsSync(jpg)) {
-    execFileSync('curl', ['-sSfL', '-m', '120', '-o', jpg, `https://archive.org/download/${item}/page/n${leaf}_w${width}.jpg`]);
-  }
-  if (!existsSync(pgm)) execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', jpg, '-pix_fmt', 'gray', pgm]);
-  return readPgm(readFileSync(pgm));
-}
+const { page, prefetch } = scanCache(cache);
 
-const manifest = JSON.parse(readFileSync(join(here, 'scan-pages.json'), 'utf8'));
+const manifest = JSON.parse(readFileSync(opt('--manifest', join(here, 'scan-pages.json')), 'utf8'));
 const lines = [
   '# Corpus against the printed book, read off the scans',
   '',
@@ -61,6 +56,7 @@ const lines = [
   '| piece | book | pages | notes read | agree | differ | GABC only | scan only | agreement | one-step errors caught |',
   '|---|---|---|---|---|---|---|---|---|---|',
 ];
+await prefetch(manifest.pieces.filter((p) => !only || p.name === only).flatMap((p) => p.pages.map((pg) => [p.archive, pg.leaf])));
 const details = [];
 const summary = [];
 for (const piece of manifest.pieces) {

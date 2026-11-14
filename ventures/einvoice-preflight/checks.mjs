@@ -32,7 +32,7 @@ export function roundHalfUpToCents(value) {
 // Hungarian VAT is stated in whole forints, so a HUF invoice may round its tax
 // total to the unit instead of the cent. Accepted only when the stated total is
 // a whole number equal to the computed tax rounded half up to the unit.
-function wholeUnitTaxAgrees(currency, stated, expected) {
+export function wholeUnitTaxAgrees(currency, stated, expected) {
   if (currency !== "HUF" || stated === null || expected === null) return false;
   return Number.isInteger(stated) && stated === Math.round(expected);
 }

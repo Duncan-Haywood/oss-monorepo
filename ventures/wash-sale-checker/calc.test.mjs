@@ -340,3 +340,97 @@ test("Fidelity and Schwab history exports are read with their own headers", () =
     '"02/10/2025","Buy","ABC","ABC CORP","10","$70.00","","-$700.00"'].join("\n"));
   assert.equal(sch.summary.disallowed, 200);
 });
+
+// Red-team 2026-11-14: guards for mutants that escaped and for one real defect.
+test("a disallowed loss split over replacements adds exactly that loss to basis, no phantom cent", () => {
+  // 100.01 over three one-share buys rounds to 33.34 each (100.02); the last share takes the remainder.
+  const rows = ["2025-01-02,X,buy,3,100,Taxable", "2025-02-03,X,sell,3,66.6633,Taxable",
+    "2025-02-10,X,buy,1,50,Taxable", "2025-02-11,X,buy,1,50,Taxable", "2025-02-12,X,buy,1,50,Taxable"];
+  const s = evaluate(csv(...rows)).sales[0];
+  assert.equal(s.disallowed, 100.01);
+  assert.equal(Math.round(s.replacements.reduce((a, x) => a + x.disallowedShare, 0) * 100) / 100, 100.01);
+  const later = evaluate(csv(...rows, "2025-06-01,X,sell,3,50,Taxable")).sales[1];
+  assert.equal(later.basis, 250.01); // 3 x 50 plus the 100.01 carried, not 250.02
+  // the same holds for a loss lost for good in IRAs
+  const ira = evaluate(csv("2025-01-02,X,buy,3,100,Taxable", "2025-02-03,X,sell,3,66.6633,Taxable",
+    "2025-02-10,X,buy,1,50,Roth IRA", "2025-02-11,X,buy,1,50,Roth IRA", "2025-02-12,X,buy,1,50,Roth IRA"));
+  assert.equal(ira.summary.permanent, 100.01);
+});
+
+test("a gain sale reports no allowed loss", () => {
+  const s = evaluate(csv("2025-01-02,X,buy,10,100,Taxable", "2025-02-03,X,sell,10,120,Taxable")).sales[0];
+  assert.equal(s.allowed, 0);
+});
+
+test("two sells on one day are taken in file order, FIFO against the lots", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,10,100,Taxable", "2025-01-03,X,buy,10,50,Taxable",
+    "2025-06-01,X,sell,10,60,Taxable", "2025-06-01,X,sell,10,60,Taxable", "2025-06-01,X,sell,1,60,Taxable"));
+  assert.deepEqual(r.sales.map((s) => [s.line, s.basis]), [[4, 1000], [5, 500], [6, 0]]);
+});
+
+test("a sale fully covered by earlier buys gets no unknown-basis note", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,10,100,Taxable", "2025-06-01,X,sell,10,80,Taxable"));
+  assert.deepEqual(r.notes, []);
+});
+
+test("shares bought the same day before a sale are the shares sold", () => {
+  const r = evaluate(csv("2025-06-01,X,buy,10,100,Taxable", "2025-06-01,X,sell,10,80,Taxable"));
+  assert.equal(r.sales[0].basis, 1000);
+  assert.deepEqual(r.notes, []);
+});
+
+test("a lot bought after the sale is never its basis, even when earlier lots run short", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,5,100,Taxable", "2025-06-01,X,sell,10,80,Taxable", "2025-12-01,X,buy,10,10,Taxable"));
+  assert.equal(r.sales[0].basis, 500); // 5 known at 100, 5 unknown at zero; not 5 x 10 from December
+});
+
+test("a buy already sold off is not listed as a zero-share replacement", () => {
+  // the January 20 lot is sold on February 1, so it cannot replace the February 10 loss sale
+  const r = evaluate(csv("2025-01-02,X,buy,10,100,Taxable", "2025-01-20,X,buy,10,100,Taxable",
+    "2025-02-01,X,sell,20,90,Taxable", "2025-02-05,X,buy,10,80,Taxable", "2025-02-10,X,sell,10,70,Taxable"));
+  for (const s of r.sales) for (const rep of s.replacements) assert.ok(rep.qty > 0, `line ${s.line}: zero-share replacement`);
+  assert.ok(!reportCsv(r).includes(" x0"));
+});
+
+test("a list with no readable trade returns the first row's error", () => {
+  const r = evaluate(csv("2025-13-45,X,buy,10,100,Taxable", "2025-01-02,,buy,10,100,Taxable"));
+  assert.equal(r.error, "Line 2: date not readable (use YYYY-MM-DD or MM/DD/YYYY).");
+});
+
+test("same-day sells are ordered by line even when the trades arrive out of order", () => {
+  const p = parseTrades(csv("2025-01-02,X,buy,10,100,Taxable", "2025-01-03,X,buy,10,50,Taxable",
+    "2025-06-01,X,sell,10,60,Taxable", "2025-06-01,X,sell,10,60,Taxable"));
+  const r = analyze([...p.trades].reverse());
+  assert.deepEqual(r.sales.map((s) => [s.line, s.basis]), [[4, 1000], [5, 500]]);
+});
+
+test("a dust buy of a billionth of a share is not a replacement", () => {
+  const r = evaluate(csv("2025-01-02,X,buy,10,100,Taxable", "2025-06-01,X,sell,10,80,Taxable", "2025-06-05,X,buy,0.000000001,80,Taxable"));
+  assert.deepEqual(r.sales[0].replacements, []);
+});
+
+// Class guard (red-team 2026-11-14): for random lists with cent prices and several small buys around each sale, every
+// loss sale's replacement shares add up to its disallowed loss to the cent, and the IRA part to its permanent loss.
+test("random lists: replacement shares sum exactly to each sale's disallowed and permanent loss", () => {
+  let seed = 20261114;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return Math.floor((seed / 2147483648) * n); };
+  const c = (x) => Math.round(x * 100);
+  let split = 0;
+  for (let trial = 0; trial < 400; trial++) {
+    const rows = []; let day = 0;
+    const date = () => new Date(Date.UTC(2025, 0, 2) + day * 86400000).toISOString().slice(0, 10);
+    rows.push(`${date()},X,buy,${3 + rnd(20)},${(10000 + rnd(5000)) / 100},Taxable`);
+    for (let k = 0; k < 3 + rnd(6); k++) {
+      day += 1 + rnd(12);
+      const price = ((2000 + rnd(9000)) / 100 + 0.0033).toFixed(4);
+      rows.push(rnd(3) ? `${date()},X,buy,${1 + rnd(3)},${price},${rnd(4) ? "Taxable" : "Roth IRA"}` : `${date()},X,sell,${1 + rnd(4)},${price},Taxable`);
+    }
+    const r = evaluate(csv(...rows));
+    for (const s of r.sales) {
+      if (s.replacements.length > 1) split++;
+      assert.equal(c(s.replacements.reduce((a, x) => a + (x.disallowedShare || 0), 0)), c(s.disallowed), `trial ${trial} line ${s.line}\n${rows.join("\n")}`);
+      assert.equal(c(s.replacements.filter((x) => x.ira).reduce((a, x) => a + x.disallowedShare, 0)), c(s.permanent), `trial ${trial} line ${s.line}`);
+    }
+  }
+  assert.ok(split > 50, `only ${split} sales split over several buys; the generator no longer tests the rounding`);
+});

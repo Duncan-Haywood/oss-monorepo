@@ -32,7 +32,9 @@ would give that test 6.1% false alarms. With a reference derived from that model
 nothing, the test stays at 0.2–0.5% false alarms and catches the 2% change in 19% of splits. That model
 ignores the views' geometry: a reference drawn from a linearisation of the unit's own 13-view solve,
 which a robot gets from solves it already ran, predicts most of the jackknife's small-set inflation and
-lifts detection to 33% at 0.4–1.4% false alarms; a tail
+lifts detection to 33% at 0.4–1.4% false alarms. On two further cameras (a Kinect and an Xtion from the
+TUM RGB-D benchmark), the same reference with nothing tuned stays at 0.06–0.80% false alarms with 5–6 new
+views but over-alarms at 4 (3.3–4.7%), and its power there is 10%, not 33%; a tail
 threshold borrowed from the sibling camera, which looked better on a 60-split sample (61%),
 reaches 43% on every split. The jackknife's
 overstatement is a small-set effect (7–8× at 4 views, 1.1–1.4× at 10), while the solver's own σ is
@@ -291,6 +293,25 @@ jackknife does as well), and one threshold per design does almost as well as one
 per-split thresholds vary 1.65–1.67× from the 10th to the 90th percentile but barely track the real
 statistics (Spearman 0.24 / 0.10). What the twin contributes is the right tail for the design.
 
+**Two more units (milestone 4j, pre-registered).** Every number above comes from one stereo rig. The
+TUM RGB-D benchmark (Sturm et al. 2012) publishes a checkerboard sequence for each of its cameras with the authors' own
+calibration; we took the Kinect (fr1) and the Xtion (fr3), picked 13 views of each by a rule fixed
+before any solve (full 8×6 detections with corners at least 15 px apart, the most foreshortened of the
+sharper half of each of 13 blocks in time), solved every subset of 3–7 views with the same solver, and
+ran milestones 4g and 4i's code unchanged. The Xtion's 13-view f is within 0.64% of TUM's; the Kinect's
+is 1.85% high, because its lens needs more than k<sub>1</sub>. Against each split's twin threshold the
+robust test fires on 0.80% / 0.76% (fr1) and 0.62% / 0.06% (fr3) of unchanged updates at 5 / 6 new views,
+but on 3.27% and 4.73% at 4, where every delete-one set has 3 views: the linearisation breaks there and
+the real solves fail most often (12 and 49 of 286 three-view sets did not converge). A 2% change from 6
+views is caught in 10.0% of splits. These units fix f less precisely (robust spread over 6-view sets
+0.73% / 0.51% of f, against 0.51% / 0.30% on OpenCV's cameras), and the cold-start solver lands more than
+5% away on 8 and 30 of their 1,716 six-view sets, against none here; on the Kinect it also leaves the
+linear regime at 7 views on synthetic corners. The units' focal lengths differ by 1.40%, and the old-from-
+the-other-unit test fires on 6.3% / 7.9% of splits, between its ±1% (2.0%) and ±2% (10.0%) rates on
+scaled focal lengths: a real change behaves like a scaled one of the same size. Four of five predictions
+failed (only the anchor held), and they failed in a useful direction: the false-alarm rate transfers at
+5–6 new views, the power does not.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -299,7 +320,9 @@ statistics (Spearman 0.24 / 0.10). What the twin contributes is the right tail f
    linearised solve.** The gains of every view subset come from the Jacobians of solves the robot already
    ran; ten thousand draws of the unit's own residual patterns give each design's 99th percentile of z²
    (about 11–13 at 7 + 6 views with the robust jackknife). That test keeps false alarms at 0.4–1.4% and
-   catches a 2% change from 6 views in 33% of splits, with nothing borrowed; the plain jackknife against
+   catches a 2% change from 6 views in 33% of splits, with nothing borrowed (on two TUM RGB-D cameras it
+   stays at 0.06–0.80% false alarms with 5–6 new views, but power falls to 10%: power is a property of the
+   unit); the plain jackknife against
    its own twin reference does as well (34.7%). The independent-offset reference (18.45 at 7 + 6 views)
    is safe but catches 19%. Against χ²<sub>1</sub> the robust test catches 54% at 2.3% here, but that is
    an approximately 2–6% test, not a 1% one, and its rate should be checked on each unit. The
@@ -313,15 +336,18 @@ statistics (Spearman 0.24 / 0.10). What the twin contributes is the right tail f
    borrowed test from 61% power and 11% false alarms on a sample to 43% and 4.4% on every split. A
    tail from 4 + 3 split-halves of a 7-view old set is not enough either: it overstates the spread 3–5×.
 5. **Collect at least 6 new views before testing, and about 10 before trusting a jackknife σ.** Below
-   6 views the solver's σ is 4–6× too small and the jackknife's 2–8× too large.
+   6 views the solver's σ is 4–6× too small and the jackknife's 2–8× too large, and with 4 new views the
+   twin reference over-alarms (3.3–4.7% on the TUM cameras). Guard every subset solve against far minima
+   (warm start or a basin check): on hand-held captures they decide much of the test's behaviour.
 
 ## 9. Limitations
 
-One stereo rig, one board, one tutorial image set; 13 views per camera, so the splits reuse views
+One stereo rig, one board, one tutorial image set for Sections 3–7; two more units (TUM RGB-D) only for
+the update test, each one hand-held sequence of about 50 s; 13 views per camera, so the splits reuse views
 and the intervals are too narrow, and a 99th percentile from 180 statistics rests on about two of
 them (Section 7 shows how far that moved one result). Scoring every split removes the sampling of
-splits, not the reuse of views: it says nothing about a fresh set of views. The focal and principal-point changes are exact model transforms; the swap is the only real
-change. The corners are checkerboard corners without mismatches; natural features (SIFT) are not yet
+splits, not the reuse of views: it says nothing about a fresh set of views. The focal and principal-point changes are exact model transforms; the swaps (here and between the
+two TUM units) are the only real changes. The corners are checkerboard corners without mismatches; natural features (SIFT) are not yet
 tested. The renders leave out the bend, the clipboard and background clutter, vignetting and the
 sensor's own noise. Several findings (the half-width cause, the f-alone power figures in Section 5)
 were found after a pre-registered prediction failed and are labelled so in the log.
@@ -333,9 +359,10 @@ were found after a pre-registered prediction failed and are labelled so in the l
   estimate each unit's own tail on views the test never touches.
 - Natural-feature correspondences (milestone 3b) on an openly licensed multi-view set with a target
   calibration of the same camera.
-- The twin reference (Section 7) pre-registered on a second unit's views, to see whether it stays at or
-  below nominal there; and a twin that models the right camera's extra spread (a per-view offset term
-  fitted to the unit's own jackknife) to bring that camera up to 1%.
+- Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
+  views. Still needed: the same after warm-started subset solves, which should remove the far minima that
+  cost most of the power there, and a twin that models the right camera's extra spread (a per-view offset
+  term fitted to the unit's own jackknife) to bring that camera up to 1%.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
   false alarms survive a unit with more views, where the model says they should rise. Every split of

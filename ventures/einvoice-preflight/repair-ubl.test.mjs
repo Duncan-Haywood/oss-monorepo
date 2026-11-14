@@ -152,7 +152,14 @@ test("a document allowance in a category with no subtotal stops the tax part", (
 test("a line's own allowance is part of its net; a price-level discount is not", () => {
   const base = ex("ubl-invoice.xml");
   const lineAc = '<cac:AllowanceCharge><cbc:ChargeIndicator>false</cbc:ChargeIndicator><cbc:Amount currencyID="EUR">20.00</cbc:Amount></cac:AllowanceCharge>';
-  const src = base.replace(/(<cac:InvoiceLine>[\s\S]*?<\/cbc:LineExtensionAmount>)/, `$1${lineAc}`);
+  const added = base.replace(/(<cac:InvoiceLine>[\s\S]*?<\/cbc:LineExtensionAmount>)/, `$1${lineAc}`);
+  // The stated sum of line nets (BT-106, 350.00) still agrees with the old net, so the
+  // header corroborates the net and the repair keeps it, saying so.
+  const kept = repairUbl(added);
+  assert.ok(!kept.changes.some((c) => c.path === "/lines/0/net"));
+  assert.ok(kept.skipped.some((s) => /Line 1's net \(200\.00\) is not quantity times price \(180\.00\)/.test(s)));
+  // When the header already takes the allowance off (BT-106 330.00), the net is the outlier.
+  const src = added.replace('<cbc:LineExtensionAmount currencyID="EUR">350.00', '<cbc:LineExtensionAmount currencyID="EUR">330.00');
   const r = repairUbl(src);
   assert.equal(r.changes[0].path, "/lines/0/net");
   assert.equal(r.changes[0].to, (Number(r.changes[0].from) - 20).toFixed(2));
@@ -201,4 +208,28 @@ test("a line with a zero base quantity stops the whole recompute; no total is to
   assert.deepEqual(r.changes, []);
   assert.equal(r.xml, src);
   assert.ok(r.skipped.some((s) => /no quantity or price/.test(s)));
+});
+
+// Found on real, valid files (eval/repair-real-files.mjs, 2026-11-14).
+test("a tax subtotal a cent off from per-line rounding is kept", () => {
+  const clean = ex("ubl-invoice.xml");
+  const src = clean.replace('<cbc:TaxAmount currencyID="EUR">38.00', '<cbc:TaxAmount currencyID="EUR">38.01')
+    .replace('<cbc:TaxAmount currencyID="EUR">48.50', '<cbc:TaxAmount currencyID="EUR">48.51')
+    .replace('<cbc:TaxInclusiveAmount currencyID="EUR">398.50', '<cbc:TaxInclusiveAmount currencyID="EUR">398.51')
+    .replace(/(<cbc:PayableAmount currencyID="EUR">)300\.00/, "$1300.01");
+  assert.ok(src.includes(">300.01</cbc:PayableAmount>"));
+  const r = repairUbl(src);
+  assert.deepEqual(r.changes, []);
+  assert.ok(r.skipped.some((s) => /Tax subtotal 1 \(38\.01\) is 0\.01 off taxable x rate \(38\.00\)/.test(s)), r.skipped.join("\n"));
+});
+
+test("XRechnung third-party payments (cac:PrepaidPayment) leave the amount due as written", () => {
+  // KoSIT's extension case 05.01a: gross 336.90, two third-party payments, due 366.86.
+  const clean = ex("ubl-invoice.xml");
+  const third = '<cac:PrepaidPayment><cbc:ID>MobilesBezahlen</cbc:ID><cbc:PaidAmount currencyID="EUR">29.96</cbc:PaidAmount></cac:PrepaidPayment>\n  <cac:TaxTotal>';
+  const src = clean.replace("<cac:TaxTotal>", third).replace(/(<cbc:PayableAmount currencyID="EUR">)300\.00/, "$1270.04");
+  assert.ok(src.includes(">270.04</cbc:PayableAmount>"));
+  const r = repairUbl(src);
+  assert.ok(!r.changes.some((c) => c.path === "/totals/due"));
+  assert.ok(r.skipped.some((s) => /third-party payments/.test(s)));
 });

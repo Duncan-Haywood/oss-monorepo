@@ -277,6 +277,14 @@ class ClaimCheckTest(unittest.TestCase):
         lines = self._run([(9, "research/cell-fidelity: m2")], recent=["abc 1 hour ago: x"])
         self.assertTrue(any("#9" in l for l in lines))
         self.assertTrue(any("abc" in l for l in lines))
+        self.assertFalse(any("no open PR names" in l for l in lines))
+
+    def test_merged_commits_read_as_finished_not_claimed(self):
+        # 2026-11-14 friction: "touched" did not say whether it was a finished milestone or a claim.
+        lines = self._run([(1, "other")], recent=["abc 1 hour ago: m4 merged"])
+        self.assertIn("finished work, not a claim", lines[0])
+        self.assertTrue(any("no open PR names cell-fidelity" in l for l in lines))
+        self.assertFalse(any("clear" in l.split(":", 1)[1][:7] for l in lines))
 
 
 class CliTest(unittest.TestCase):

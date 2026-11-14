@@ -1,0 +1,38 @@
+Milestone 2: side preference and lane order, BaSiGo bidirectional corridor (FZJ, 2013)
+doi:10.34735/ped.2013.5; seed 20261114, bootstrap 2000, label shuffles 100, lane order every 12 frames at 25 fps, 30 cm bins
+section: middle 8 m (x = -4..4 m), corridor width 4.0 m; lateral = 4 m - y, so heading +x has the right at small y
+2013bidirectional_trajectories_txt.zip sha256 bdec17c9549b1790fcc02c98a31a62d1adbd96fa756ed540f07ce636ce97df7e
+z column in bi_corr_400_a_01.txt: min 176, max 176 cm (a fixed head height, so it says nothing about the frame's handedness)
+
+Per run, in start order (share of walkers whose mean offset is on their own right; 95% bootstrap over walkers):
+  bi_corr_400_a_01  12:41 A guided screen=none  L=22 m entr=1.8 m exit=5 m  walkers  377  right 0.920 [0.891, 0.947]  offset +x +0.415 -x +0.428  lane 0.947 null 0.242 (p97.5 0.254)  speed 0.60 m/s
+  bi_corr_400_a_02  12:44 A        screen=none  L=22 m entr=  3 m exit=5 m  walkers  521  right 0.979 [0.965, 0.990]  offset +x +0.414 -x +0.469  lane 0.827 null 0.170 (p97.5 0.177)  speed 0.33 m/s
+  bi_corr_400_a_03  12:47 A        screen=none  L=22 m entr=  4 m exit=5 m  walkers  541  right 0.965 [0.948, 0.980]  offset +x +0.412 -x +0.430  lane 0.835 null 0.155 (p97.5 0.162)  speed 0.31 m/s
+  bi_corr_400_a_04  12:52 A        screen=none  L=17 m entr=  4 m exit=2.5 m  walkers  544  right 0.879 [0.851, 0.906]  offset +x +0.356 -x +0.410  lane 0.771 null 0.156 (p97.5 0.162)  speed 0.28 m/s
+  bi_corr_400_a_05  12:56 A        screen=none  L=12 m entr=  4 m exit=0 m  walkers  559  right 0.878 [0.850, 0.905]  offset +x +0.322 -x +0.310  lane 0.819 null 0.149 (p97.5 0.156)  speed 0.28 m/s
+  bi_corr_400_b_01  13:03 B guided screen=none  L=22 m entr=0.6 m exit=5 m  walkers  141  right 0.745 [0.674, 0.816]  offset +x +0.236 -x +0.305  lane 0.942 null 0.625 (p97.5 0.651)  speed 1.36 m/s
+  bi_corr_400_b_02  13:05 B guided screen=none  L=22 m entr=0.9 m exit=5 m  walkers  259  right 0.579 [0.517, 0.641]  offset +x +0.176 -x +0.196  lane 0.883 null 0.499 (p97.5 0.517)  speed 1.25 m/s
+  bi_corr_400_b_03  13:07 B guided screen=none  L=22 m entr=1.2 m exit=5 m  walkers  480  right 0.754 [0.717, 0.794]  offset +x +0.256 -x +0.264  lane 0.840 null 0.363 (p97.5 0.376)  speed 1.02 m/s
+  bi_corr_400_b_04  13:11 B        screen=none  L=22 m entr=1.8 m exit=5 m  walkers  741  right 0.687 [0.653, 0.721]  offset +x +0.201 -x +0.190  lane 0.789 null 0.203 (p97.5 0.209)  speed 0.46 m/s
+  bi_corr_400_b_05  13:15 B        screen=none  L=22 m entr=2.4 m exit=5 m  walkers  641  right 0.532 [0.496, 0.571]  offset +x +0.034 -x +0.087  lane 0.756 null 0.183 (p97.5 0.188)  speed 0.42 m/s
+  bi_corr_400_b_06  13:19 B        screen=none  L=22 m entr=  3 m exit=5 m  walkers  827  right 0.594 [0.559, 0.628]  offset +x +0.116 -x +0.179  lane 0.675 null 0.150 (p97.5 0.154)  speed 0.31 m/s
+  bi_corr_400_b_07  13:24 B        screen=none  L=22 m entr=  4 m exit=5 m  walkers  605  right 0.588 [0.549, 0.626]  offset +x -0.034 -x +0.056  lane 0.626 null 0.165 (p97.5 0.170)  speed 0.29 m/s
+  bi_corr_400_b_08  13:29 B        screen=none  L=12 m entr=  4 m exit=0 m  walkers  701  right 0.505 [0.469, 0.542]  offset +x +0.092 -x +0.073  lane 0.737 null 0.172 (p97.5 0.176)  speed 0.24 m/s
+  bi_corr_400_b_09  13:48 B        screen=given L=22 m entr=2.4 m exit=5 m  walkers  483  right 1.000 [1.000, 1.000]  offset +x +0.445 -x +0.486  lane 0.984 null 0.251 (p97.5 0.261)  speed 0.68 m/s
+  bi_corr_400_b_10  13:51 B        screen=given L=22 m entr=  4 m exit=5 m  walkers  735  right 0.992 [0.985, 0.997]  offset +x +0.435 -x +0.477  lane 0.937 null 0.175 (p97.5 0.180)  speed 0.39 m/s
+
+Pooled A, primary (no guide): 2001/2165 on own right = 0.924, 95% two-stage bootstrap [0.877, 0.973] (4 runs)
+Pooled B, primary (no guide): 3263/4733 on own right = 0.689, 95% two-stage bootstrap [0.566, 0.839] (7 runs)
+Pooled A, all 5 runs: 2348/2542 on own right = 0.924, 95% two-stage bootstrap [0.885, 0.961] (5 runs)
+Pooled B, all 10 runs: 3880/5613 on own right = 0.691, 95% two-stage bootstrap [0.587, 0.817] (10 runs)
+Pooled guided runs (a_01, b_01..b_03): 964/1257 on own right = 0.767, 95% two-stage bootstrap [0.626, 0.885] (4 runs)
+Pooled B with screen information (b_09, b_10): 1212/1218 on own right = 0.995, 95% two-stage bootstrap [0.988, 1.000] (2 runs)
+A - B (primary): +0.235, 95% [+0.073, +0.365]
+A - B (all runs, sensitivity): +0.232, 95% [+0.099, +0.343]
+
+B1 (A share > 0.5, interval excludes 0.5): held (0.924 [0.877, 0.973])
+B2 (A - B >= 0.10 and interval excludes 0): held (+0.235 [+0.073, +0.365])
+B3 (lane order above shuffled p97.5 in every measurable run): held (15 of 15)
+B4 (Spearman start time vs share within B not negative): held (rho = +0.18, n = 10; within A, not registered: rho = -0.70, n = 5)
+B5 (A share inside HERMES free-choice interval (0.865, 0.993)): held (0.924)
+B6 (median speed in b_01 within 1.0 to 1.6 m/s): held (1.36 m/s, 141 walkers)

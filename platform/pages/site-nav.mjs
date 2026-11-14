@@ -485,6 +485,15 @@ const SITE_TOKENS_CSS = `
  * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1. `code` gets the
  * band's own fill: a page's light `code` background (lab.mjs's #efede6) under
  * the band's #a8c7f0 link colour measured 1.48:1 on /lab/ (2026-11-11).
+ *
+ * Every link in the band takes the band's link colour, whatever token the
+ * page's own `a{}` rule reads. The research project pages colour links with
+ * `--accent-ink` (#1f47b0 in light mode), which the band did not redefine
+ * (on other pages `--accent-ink` means ink *on* the accent, so redefining it
+ * would be wrong there): their "github.com/..." credit line sat at 2.24:1 on
+ * the band on 1,111 research pages (measured 2026-11-14). The selector is
+ * (0,1,2), above a page's bare `a{}` or `.wrap a`; no footer link carries a
+ * class of its own.
  */
 const SITE_FOOTER_CSS = `
 footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-top:64px;padding:40px 0 34px;border-top:0;
@@ -495,6 +504,7 @@ footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-
   box-shadow:0 0 0 100vmax #0b1626;clip-path:inset(0 -100vmax -100vmax)}
 footer:has(.pfs-foot)>:not(.pfs-foot){max-width:84ch}
 footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
+footer:has(.pfs-foot) a{color:var(--pfs-accent)}
 footer:has(.pfs-foot) code{background:rgba(148,170,210,.16);color:inherit}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
