@@ -7,7 +7,7 @@
 // same rules as JSON, run by fontoxpath (MIT), which does ship in the
 // repository and so works on any static host, this one included. With neither,
 // every call returns "unavailable", never a pass.
-import { FILES, detectSyntax, matchingAddons, parseSvrl } from "./schematron-core.mjs";
+import { FILES, detectSyntax, matchingAddons, parseSvrl, plainOnlySets } from "./schematron-core.mjs";
 import { PLAIN_DIR, createPlainRunner } from "./plain-schematron.mjs";
 
 export const BROWSER_DIR = "browser/";
@@ -51,8 +51,11 @@ function defaultParse(xml) {
 }
 
 // Resolves to an async (xml) => { status, syntax, findings, sets } runner, or
-// null when this host has neither a ./browser/ folder nor ./plain/.
-export async function loadBrowserRunner({ base = "", fetchFn = globalThis.fetch, load = loadScript, saxon = () => globalThis.SaxonJS, plain = true } = {}) {
+// null when this host has neither a ./browser/ folder nor ./plain/. With Saxon present,
+// a file whose rule sets have no Saxon form (PINT, ZATCA, the national add-ons) still
+// goes to ./plain/; `plainRunner` (a function returning that runner or null) is
+// injectable for tests.
+export async function loadBrowserRunner({ base = "", fetchFn = globalThis.fetch, load = loadScript, saxon = () => globalThis.SaxonJS, plain = true, plainRunner } = {}) {
   let manifest;
   try {
     const res = await fetchFn(`${base}${BROWSER_DIR}manifest.json`);
@@ -70,8 +73,21 @@ export async function loadBrowserRunner({ base = "", fetchFn = globalThis.fetch,
     return parseSvrl(out.principalResult, source);
   };
 
+  let plainPromise;
+  const getPlain = () => {
+    if (!plain) return null;
+    plainPromise ??= Promise.resolve(plainRunner ? plainRunner() : loadPlainRunner({ base, fetchFn }));
+    return plainPromise;
+  };
+
   return async function run(xml) {
     const syntax = detectSyntax(xml);
+    const plainOnly = plainOnlySets(xml, syntax);
+    if (plainOnly.length) {
+      // Never the EU base alone in their place: the plain route, or "unavailable".
+      const runPlain = await getPlain();
+      return runPlain ? runPlain(xml) : { status: "unavailable", syntax, findings: [], sets: [], plainOnly };
+    }
     if (!syntax || !has(FILES[syntax])) return { status: "unavailable", syntax, findings: [], sets: [] };
     const findings = await transform(FILES[syntax], xml, "en16931-schematron");
     const sets = ["en16931"];
