@@ -60,9 +60,12 @@ import os
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 from shootflow.dng_opcodes import VignetteRadial, WarpRectilinear2
+
+if TYPE_CHECKING:
+    from shootflow.raw_develop import LensHint
 
 DIAGONAL_35MM = math.hypot(36.0, 24.0)
 # Subject distance when the file gives none: far focus. Lensfun's interpolation reads distance as 0.1 / d, so
@@ -1047,10 +1050,10 @@ class ShotInfo:
     focal_35mm: float | None
     aperture: float | None = None
     distance: float | None = None  # metres
-    hint: object | None = None  # raw_develop.LensHint: the maker note's focal range and aperture, when it names no lens
+    hint: LensHint | None = None  # raw_develop.LensHint: the maker note's focal range and aperture, when it names no lens
 
 
-def shot_info(ifd0, exif, hint=None) -> ShotInfo:
+def shot_info(ifd0, exif, hint: LensHint | None = None) -> ShotInfo:
     """Camera, lens and focal length from IFD0 and the EXIF IFD (either may hold the EXIF tags in a DNG)."""
 
     def pick(fn, tag):
@@ -1068,7 +1071,7 @@ def shot_info(ifd0, exif, hint=None) -> ShotInfo:
     )
 
 
-def _lens_from_hint(db: LensDb, hint, camera: Camera | None, crop: float, name: str | None,
+def _lens_from_hint(db: LensDb, hint: LensHint, camera: Camera | None, crop: float, name: str | None,
                     notes: list[str]) -> Lens | None:
     """The one lens that fits the maker note's focal range and aperture, or None with a note naming the field."""
 
