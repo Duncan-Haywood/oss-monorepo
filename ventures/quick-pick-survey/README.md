@@ -9,7 +9,9 @@ couldn't state directly if asked.
 **Use it now, no install:** [rank a list by picking pairs](https://marisstella.app/quick-pick-survey/rank.html)
 runs the same Bradley-Terry refit in your browser, shows a 90% rank range per
 option, and combines a team's picks from shareable result codes, with rank
-ranges for the group itself and for the wider group it stands for. Nothing is
+ranges for the group itself and for the wider group it stands for. A "find my
+top k" mode (since 2026-11-14) asks about the options near the cut instead of
+the whole order, for when you need a shortlist. Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
 
 ## Deploy your own copy
