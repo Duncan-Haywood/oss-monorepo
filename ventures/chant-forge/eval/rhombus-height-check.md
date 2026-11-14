@@ -1,5 +1,11 @@
 # Rhombus height floor: worn squares read as rhombi (2026-11-14)
 
+**Later the same day:** part of the cause below was the reader, not the print. Lines crowded with
+heads were measured several times their thickness and the oversized line mask cut the edge columns
+of squares on them (the Magnificat staff's top line: 17 px). With lines at their own thickness the
+width-and-taper rule calls 8 squares rhombi instead of 18, and the floor 3 instead of 6:
+`thick-line-check.md`.
+
 Figures from `node eval/rhombus-check.mjs --held-out --sweep` (full table:
 `rhombus-height-report.md`). The rule is `headShape` in `scan.mjs`, constant `RHOMBUS_MIN_H`.
 
