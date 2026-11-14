@@ -266,28 +266,49 @@ EM = re.compile(r"(?<![\w*])\*(?=[^\s*])([^*]*?[^\s*])\*(?![\w*])")
 STRONG = re.compile(r"(?<![\w*])\*\*(?=\S)(.+?)(?<=\S)\*\*(?![\w*])")
 
 
-def md_spans(text, links=False):
+# A code span is a run of backticks closed by a run of the same length, so ``` `` `x` `` ``` shows
+# `x` with its backticks (CommonMark; one space either side is trimmed). Single runs only before
+# 2026-11-14, which left double-backtick spans as raw text.
+CODE = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)")
+# [text](target): http(s) kept; a relative path is a file in the project, linked on GitHub.
+LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+
+
+def md_spans(text, links=False, slug=None):
     """Escape (keeping typed entities), then `code`, **bold**, *em* and, with links, [text](url).
 
-    Code spans are set aside first so an asterisk or bracket inside one stays literal."""
+    Code spans are set aside first so an asterisk or bracket inside one stays literal. With
+    `slug`, a relative link ("paper/draft.md") goes to that file in research/<slug>/ on GitHub;
+    without it a relative link shows its text only (it used to show as raw "[...](...)": three
+    sensing-selfcal log lines did until 2026-11-14)."""
     t = ENTITY.sub(r"&\1;", html.escape(text, quote=False))
     codes = []
 
     def keep(m):
-        codes.append(f"<code>{m.group(1)}</code>")
+        code = m.group(2)
+        if len(code) > 2 and code[0] == " " and code[-1] == " " and code.strip():
+            code = code[1:-1]
+        codes.append(f"<code>{code}</code>")
         return f"\x00{len(codes) - 1}\x00"
 
-    t = re.sub(r"`([^`]+)`", keep, t)
+    t = CODE.sub(keep, t)
     t = STRONG.sub(r"<strong>\1</strong>", t)
     t = EM.sub(r"<em>\1</em>", t)
     if links:
-        t = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', t)
+        def link(m):
+            label, href = m.group(1), html.unescape(m.group(2))
+            if re.match(r"https?://", href):
+                return f'<a href="{html.escape(href)}">{label}</a>'
+            if slug and not re.match(r"[a-z][a-z0-9+.-]*:", href, re.I) and not href.startswith(("/", "#")) and ".." not in href:
+                return f'<a href="{REPO_URL}/blob/main/research/{slug}/{html.escape(href.lstrip("./"))}">{label}</a>'
+            return label
+        t = LINK.sub(link, t)
     return re.sub(r"\x00(\d+)\x00", lambda m: codes[int(m.group(1))], t)
 
 
-def inline_md(text):
+def inline_md(text, slug=None):
     """The four inline forms a log uses: `code`, **bold**, *em* and [text](url)."""
-    return md_spans(text, links=True)
+    return md_spans(text, links=True, slug=slug)
 
 
 def read_log(slug):
@@ -320,16 +341,16 @@ def log_html(slug):
     out = ['  <h2 id="log">Research log</h2>',
            f'  <p class="log-intro">Ongoing: each run adds a batch and an entry, newest first. Source: <a href="{REPO_URL}/blob/main/research/{slug}/LOG.md">LOG.md</a>.</p>']
     for head, body in entries:
-        out.append(f'  <article class="log-entry"><h3>{inline_md(head)}</h3>')
+        out.append(f'  <article class="log-entry"><h3>{inline_md(head, slug)}</h3>')
         items, paras = [], []
         for kind, text in body:
             if kind == "li":
-                items.append(f"<li>{inline_md(text)}</li>")
+                items.append(f"<li>{inline_md(text, slug)}</li>")
             else:
                 if items:
                     paras.append("<ul>" + "".join(items) + "</ul>")
                     items = []
-                paras.append(f"<p>{inline_md(text)}</p>")
+                paras.append(f"<p>{inline_md(text, slug)}</p>")
         if items:
             paras.append("<ul>" + "".join(items) + "</ul>")
         out.append("    " + "\n    ".join(paras) + "\n  </article>")

@@ -37,7 +37,7 @@ import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
-import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
+import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
 import { fixPostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
@@ -8181,7 +8181,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
       return `
           <tr data-status="${escapeHtml(r.status)}" data-text="${escapeHtml(text)}">
             <td><a href="${escapeHtml(`${r.id}/`)}">${escapeHtml(r.id)}</a></td>
-            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${escapeHtml(note)}` : ''}</td>
+            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${descriptionHtml(note)}` : ''}</td>
             <td><span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span><br><small>${escapeHtml(r.updated)}</small></td>
             <td>${links}</td>
           </tr>`;
@@ -8359,7 +8359,7 @@ export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, re
     <main class="prose">
       <h2>Where it is</h2>
       ${renderRequestStepper(r.status)}
-      ${note ? `<p><strong>${r.status === 'declined' ? 'Why' : 'Still open'}:</strong> ${escapeHtml(note)}</p>` : ''}
+      ${note ? `<p><strong>${r.status === 'declined' ? 'Why' : 'Still open'}:</strong> ${descriptionHtml(note)}</p>` : ''}
 
       <h2>Follow it</h2>
       <ul>
