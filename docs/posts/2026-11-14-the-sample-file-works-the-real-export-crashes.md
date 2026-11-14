@@ -42,7 +42,7 @@ input:
 | [customer-lifetime-value-predictor](../../ventures/customer-lifetime-value-predictor/) | a store's order history (8 spreads, in the summary, backtest and cohort code) |
 | [stripe-failed-payment-recovery-analyzer](../../ventures/stripe-failed-payment-recovery-analyzer/) | a year of charges for a mid-size subscription business |
 | [trial-conversion-timing-analyzer](../../ventures/trial-conversion-timing-analyzer/) | trial sign-ups for a large SaaS |
-| [whatnot-sales-report-analyzer](../../ventures/whatnot-sales-report-analyzer/) | item rows for a high-volume live seller |
+| [whatnot-sales-report-analyzer](../../ventures/whatnot-sales-report-analyzer/) | item rows for a high-volume live seller (the copy vendored into reseller-books is fixed too) |
 
 Each fix is a loop or a `reduce`, which uses no extra stack:
 
@@ -59,7 +59,7 @@ crashed. Each test failed before the fix and passes after it.
 A red-team run happens on about one session in fourteen, so a fix that waits
 for the next one is too slow. `platform/ci/check_row_spread.py` flags a
 row-named array spread into `Math.min` or `Math.max` in any venture file that
-parses an upload. The 20 files it still finds (its name list is a little wider than the first search) are listed in a
+parses an upload. The 19 files it still finds (its name list is a little wider than the first search) are listed in a
 baseline. Mostly they hold smaller data, like a rent roll or a month-by-month
 series. The baseline can only shrink: a new copy fails, and so does a listed
 file that is fixed but still on the list. CI's unwired-checks step runs every

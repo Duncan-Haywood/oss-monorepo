@@ -32,12 +32,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
   "errors": [
-    "CLV probe script ran the full BG/NBD fit on 40k customers and hit the 120 s tool timeout; switched to calling summarize/cohortRetention directly"
+    "CLV probe script ran the full BG/NBD fit on 40k customers and hit the 120 s tool timeout; switched to calling summarize/cohortRetention directly",
+    "First CI run red (real, not starved): reseller-books vendors whatnot-sales-report-analyzer/calc.mjs byte for byte and its drift test failed; re-copied, baseline down to 19"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -55,7 +56,7 @@
     "docs/posts/2026-11-14-the-sample-file-works-the-real-export-crashes.md"
   ],
   "goal": null,
-  "notes": "Target picked from files changed on main in the last 3 days (0.1 s suite). Guard added: platform/ci/check_row_spread.py (ratchet, 20 baselined files), run by unwired_checks.py; on its first run against the pre-fix copies it flagged all five fixed files. Local verification: run_venture_tests.py on the 5 slugs: 5 suites run, 0 failed; python3 -m unittest test_check_row_spread: OK. No agent doc in docs/reports: the lint docstring and baseline carry what the next run needs.",
+  "notes": "Target picked from files changed on main in the last 3 days (0.1 s suite). Guard added: platform/ci/check_row_spread.py (ratchet, 19 baselined files), run by unwired_checks.py; on its first run against the pre-fix copies it flagged all five fixed files. Local verification: run_venture_tests.py on the 5 slugs: 5 suites run, 0 failed; python3 -m unittest test_check_row_spread: OK. No agent doc in docs/reports: the lint docstring and baseline carry what the next run needs. CI changed-ventures failed once on the reseller-books vendored-copy test; fixed by re-copying engines/whatnot.mjs.",
   "corrections": [],
   "redteam": {
     "campaigns": [
