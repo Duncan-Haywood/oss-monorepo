@@ -1,6 +1,6 @@
 ---
 title: "Hearth & Horizon: a water main, a valve that shuts in four seconds, and a log too slow to see it"
-seo_title: "Water hammer science fiction story: Shut It Like a Door on a Sleeping Child"
+seo_title: "Water hammer sci-fi story: Shut It Like a Door on a Sleeping Child"
 date: 2026-11-14
 tags: [fiction, hearth-and-horizon, science-fiction, water-hammer, hydraulics]
 description: "A new Hearth & Horizon story: a Sicilian village's water agent bursts its own main with water hammer, and a one-minute log hides every spike."
