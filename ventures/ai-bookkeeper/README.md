@@ -1062,6 +1062,18 @@ list monthly and quarterly only, so `--state NC --freq annual` now says so. Geor
 vendor's compensation, until now from search excerpts, was read on Form ST-3 Part C itself. Quotes
 and what still refused: [`eval/state-pages-2026-11-14.md`](eval/state-pages-2026-11-14.md).
 
+**Missouri, New York, Ohio and Tennessee, and two new vendor discounts (2026-11-14, later).** A
+second pass the same day reached dor.mo.gov, tax.ny.gov, tn.gov and Ohio's statute on codes.ohio.gov.
+Every due date matched the preset already here (Missouri's month end, New York's 20 days after its
+March-to-February periods, Ohio's 23rd, Tennessee's 20th and January 20). Two discounts are new:
+Missouri's 2% timely payment allowance on "all sales tax returns filed and paid by the required due
+date" (`--state MO`, no cap printed), and New York's vendor collection credit, 5% of the tax up to $200
+per return for quarterly and annual filers only (`--state NY`; `--freq monthly` gets none, as the
+bulletin says). Ohio's 0.75% and $750-a-month cap, until now from search excerpts, are now quoted from
+R.C. 5739.12 itself. Both new presets apply to the "MO state" or "NY state" label only; a return's
+local tax under other labels needs its own `--discount`. New Jersey, Maryland and Indiana's day still
+have no due-date text on the pages reached. Quotes: [`eval/state-pages-2026-11-14b.md`](eval/state-pages-2026-11-14b.md).
+
 **Refunds and write-offs.** A bank line for the exact amount left on a credit
 note nobody applied (money out for a customer's credit, money in for a
 supplier's), with the credit's number or the party's name in the description,

@@ -143,12 +143,18 @@ export const STATE_SOURCES = {
   SC: { url: "https://dor.sc.gov/tax/sales", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
   VA: { url: "https://www.tax.virginia.gov/retail-sales-and-use-tax", freqs: ["monthly", "quarterly"], read: "2026-11-14" },
   WA: { url: "https://dor.wa.gov/file-pay-taxes/filing-frequencies-due-dates", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  // Second 2026-11-14 batch (eval/state-pages-2026-11-14b.md): four states that refused or moved their pages on the first pass.
+  // All four match the presets already here; Missouri's 2% and New York's vendor collection credit are new discount presets.
+  MO: { url: "https://dor.mo.gov/faq/taxation/business/sales-tax-filing.html", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  NY: { url: "https://www.tax.ny.gov/pubs_and_bulls/tg_bulletins/st/filing_requirements_for_sales_and_use_tax_returns.htm", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
+  OH: { url: "https://codes.ohio.gov/ohio-revised-code/section-5739.12", read: "2026-11-14" },
+  TN: { url: "https://www.tn.gov/revenue/taxes/sales-and-use-tax/due-dates-and-tax-rates.html", freqs: ["monthly", "quarterly", "annual"], read: "2026-11-14" },
 };
 export const STATE_SOURCES_READ = "2026-11-12";
 // The day a state's page was read: its own `read`, else the first batch's date.
 export const stateSourceRead = (s) => STATE_SOURCES[s]?.read ?? STATE_SOURCES_READ;
 const FREQ_WORD = { monthly: "monthly", quarterly: "quarterly", semiannual: "semiannual", annual: "annual" };
-const STATE_NAME = { AL: "Alabama", AZ: "Arizona", CA: "California", CT: "Connecticut", DC: "The District of Columbia", GA: "Georgia", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IL: "Illinois", IN: "Indiana", KS: "Kansas", KY: "Kentucky", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", NC: "North Carolina", ND: "North Dakota", NM: "New Mexico", NV: "Nevada", OK: "Oklahoma", PA: "Pennsylvania", SC: "South Carolina", TX: "Texas", VA: "Virginia", VT: "Vermont", WA: "Washington", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" };
+const STATE_NAME = { AL: "Alabama", AZ: "Arizona", CA: "California", CT: "Connecticut", DC: "The District of Columbia", GA: "Georgia", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IL: "Illinois", IN: "Indiana", KS: "Kansas", KY: "Kentucky", MI: "Michigan", MN: "Minnesota", MO: "Missouri", MS: "Mississippi", NC: "North Carolina", ND: "North Dakota", NM: "New Mexico", NV: "Nevada", NY: "New York", OH: "Ohio", OK: "Oklahoma", PA: "Pennsylvania", SC: "South Carolina", TN: "Tennessee", TX: "Texas", VA: "Virginia", VT: "Vermont", WA: "Washington", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" };
 
 // A frequency the state's own page does not offer: say so and name the ones it does.
 function frequencyNote(s, frequency) {
@@ -193,11 +199,17 @@ function stateRuleNote(s, frequency) {
 }
 // Timely-filing discounts pinned in tests (IL ST-1 R-01/26, TX comptroller, FL Rule 12A-1.056), keyed by the
 // "<ST> state" label; the CLI applies them under --state unless --discount names that label. Check yours.
-export function stateDiscounts(state) {
+export function stateDiscounts(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
+  // MO timely payment allowance (dor.mo.gov sales tax filing FAQ, read 2026-11-14): "On all sales tax returns filed and paid by the required
+  // due date, you are granted a 2 percent timely payment allowance. Take the amount of tax due times 2 percent." No cap is printed.
+  // NY vendor collection credit (Tax Bulletin TB-ST-925, tax.ny.gov, read 2026-11-14): quarterly (ST-100) and annual (ST-101) filers who
+  // file and pay in full on time; "the credit equals 5% of the taxes and fees reported on your return, up to a maximum of $200 for each
+  // quarterly or annual reporting period". Monthly (part-quarterly, ST-809/ST-810) filers get none, so no preset for --freq monthly.
+  if (s === "NY") return frequency === "monthly" ? {} : { "NY state": { rate: 0.05, cap: 20000 } };
   // GA vendor's compensation (Form ST-3 Rev. 07/25/22 and its instructions, read on dor.georgia.gov 2026-11-14; earlier from search 2026-10-28): Part C prints 3% on the first $3,000 of state and local tax on non-motor-fuel sales and .5% on the rest, only when return and payment are both timely. A 2026 fiscal note describes a proposal to raise the $3,000 step to $10,000: unconfirmed, not modelled. The tax of one return is the whole base here, local tax included only if booked under the same label.
-  // OH vendor discount (R.C. 5739.12, ODT notice ST 2025-02 via search excerpts 2026-10-29; tax.ohio.gov not reachable): 0.75% of tax, capped at $750 per vendor's license per month covered, on returns due on or after 2026-01-01; motor vehicle dealers' vehicle sales are uncapped (not modelled); timely return and payment required.
-  const d = { OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
+  // OH vendor discount (R.C. 5739.12, read whole on codes.ohio.gov 2026-11-14; earlier from search excerpts and ODT notice ST 2025-02): (B)(1) "a discount of three-fourths of one per cent of the amount shown to be due on the return", not exceeding "seven hundred fifty dollars per vendor's license for each month covered by the return" on sales other than motor vehicles (vehicle sales uncapped, not modelled); return filed and tax paid by the due date; (A)(1) monthly returns "on or before the twenty-third day of each month". No discount if a certified service provider receives the monetary allowance.
+  const d = { MO: { rate: 0.02 }, OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
   return d ? { [`${s} state`]: { ...d } } : {};
 }
 export function stateEndMonth(state, frequency = "quarterly") {
