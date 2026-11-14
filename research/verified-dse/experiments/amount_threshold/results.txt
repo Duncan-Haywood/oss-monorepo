@@ -1,0 +1,15 @@
+# Milestone 122: the amount-depth threshold, tested blind from both sides of k = 8 on three new shifter families
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 122.
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_cells | mux_share | SWD(8) | SWDG(8)
+chainsh2 | 128 | 4 | 4 | 0.675 | True | True
+chainsh8 | 128 | 16 | 16 | 0.552 | False | False
+pcnsh24 | 128 | 23 | 23 | 0.803 | False | True
+pcnsh6 | 128 | 5 | 5 | 0.933 | True | True
+tzcsh4 | 128 | 10 | 13 | 0.306 | False | False
+tzcsh8 | 128 | 22 | 29 | 0.405 | False | False
+
+## Blind test: no table yet

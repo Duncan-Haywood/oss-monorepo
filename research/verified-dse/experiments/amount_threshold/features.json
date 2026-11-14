@@ -1,0 +1,38 @@
+{
+ "chainsh2": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "mux_share": 0.6746,
+  "shift_width": 128
+ },
+ "chainsh8": {
+  "amount_cells": 16,
+  "amount_depth": 16,
+  "mux_share": 0.5516,
+  "shift_width": 128
+ },
+ "pcnsh24": {
+  "amount_cells": 23,
+  "amount_depth": 23,
+  "mux_share": 0.8034,
+  "shift_width": 128
+ },
+ "pcnsh6": {
+  "amount_cells": 5,
+  "amount_depth": 5,
+  "mux_share": 0.9332,
+  "shift_width": 128
+ },
+ "tzcsh4": {
+  "amount_cells": 13,
+  "amount_depth": 10,
+  "mux_share": 0.3059,
+  "shift_width": 128
+ },
+ "tzcsh8": {
+  "amount_cells": 29,
+  "amount_depth": 22,
+  "mux_share": 0.4054,
+  "shift_width": 128
+ }
+}
