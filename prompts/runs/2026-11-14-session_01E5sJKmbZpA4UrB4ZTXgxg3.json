@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmbZpA4UrB4ZTXgxg3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T05:18:47Z",
+  "ended": "2026-11-14T05:28:28Z",
+  "wall_minutes": 9.95,
+  "tokens_in": 6609025,
+  "tokens_out": 37411,
+  "cost_usd": 3.2031,
+  "tool_calls": 56,
+  "task": "advance programme sensing-selfcal (pick_track draw): milestone 4h, a model-derived reference for the robust-jackknife update test",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15741",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "pytest collection failed under the first interpreter (no cv2) for two pre-existing test files; reran with pyenv.py ... opencv-python-headless: 36 passed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md / PROPOSAL.md (sensing-selfcal milestone 3b)",
+      "issue": "Milestone 3b needs an openly licensed multi-view set with a target calibration; TUM RGB-D (cvg.cit.tum.de, vision.in.tum.de) and ETH3D return 403 through the proxy and robotics.ethz.ch (EuRoC) does not resolve; the one GitHub-hosted set tried (openMVG ImageDataset_SceauxCastle) is copyright with no licence and no target calibration. A note of which hosts fail would save the next run ~5 min."
+    },
+    {
+      "file": "paper/check_numbers.py (sensing-selfcal)",
+      "issue": "claims are matched verbatim in draft.md, so a line wrap inside a quoted phrase fails the check (twice this run); harmless but costs a rerun."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 (land open research PRs first): the three open research PRs (#15735, #15737, #15738) were opened 15-20 minutes earlier by live sibling sessions, so I left them to their owners rather than taking them over.",
+      "did": "advanced the drawn programme instead",
+      "result": "no conflict; my PR touches only research/sensing-selfcal and one post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-two-errors-cancelled-in-our-camera-update-test.md",
+    "research/sensing-selfcal/LOG.md (4h plan and result)",
+    "research/sensing-selfcal/paper/draft.md (Section 7, abstract, recommendation 2, Section 10 revised)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered H56-H58 (commit 30cc2914b) before any real-data statistic; all three held. Model 99th pct of z_R^2 = 18.45 at 7+6 (chi2_1 6.63); chi2_1 would give 6.1% false alarms under the model; real 3.1%/0.2% because R overstates the real spread. Model reference: 0.45%/0.20% false alarms, +/-2% at k=6 caught in 18.6% (was 53.8% vs chi2_1). Checks: project tests 36 passed; paper/check_numbers.py 142 of 142; research/_homepage/build.py ok; check_md_links ok; research_live_links --write no change; post front matter, links and similarity checks pass. No agent doc in docs/reports: the LOG entry and README next steps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "16b2f9c6-f4ea-594c-ae40-67d2b22ede24",
+    "transcripts": 1,
+    "first": "2026-11-14T05:18:47Z",
+    "last": "2026-11-14T05:28:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 105,
+        "output": 37411,
+        "thinking": 10411,
+        "cache_read": 6463710,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145210,
+        "api_equivalent_usd": 3.2031,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 105,
+      "output": 37411,
+      "thinking": 10411,
+      "cache_read": 6463710,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145210,
+      "api_equivalent_usd": 3.2031,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 49,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.95,
+      "active_minutes": 9.95,
+      "model_minutes": 8.11,
+      "tool_minutes": 1.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician deriving and Monte-Carlo-checking a small-sample reference, rescoring 37k splits, and revising a paper section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 187.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
