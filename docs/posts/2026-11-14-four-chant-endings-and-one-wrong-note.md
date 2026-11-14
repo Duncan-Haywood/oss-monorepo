@@ -1,6 +1,6 @@
 ---
 title: "Four chant endings from the 1908 supplement, and the one that was wrong"
-seo_title: "Checking Gregorian chant transcriptions against a 1908 scan: off-final endings"
+seo_title: "Checking 1908 chant transcriptions against the scan: odd endings"
 date: 2026-11-14
 tags: [music, gregorian-chant, optical-music-recognition, gabc, open-source, chant-forge]
 description: "Eleven 1908 Graduale transcriptions end off their mode's final. Ten do so because the book does. The eleventh had its last three notes a step low."

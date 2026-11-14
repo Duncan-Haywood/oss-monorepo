@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJb6NGeyUZEhJ7fh9s",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T12:20:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 11): chant-forge, allocate.py row 9; the open corpus item 'find the four supplement-page off-final pieces'",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15842",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "check_post_frontmatter.py failed: seo_title 78 characters (limit 70)",
+      "fix": "shortened"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/scan-check-verdicts.md",
+      "issue": "Said the 1908 scan lacks the supplement's bracketed pages; three other eval page lists already scanned them (leaf = page + 585). The stale claim kept the off-final item open in ROADMAP for a day."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally hands long jobs off and forbids editing tracked files until done, so a front-matter failure found in its first second has to wait minutes for the rest before it can be fixed; running platform/ci/check_post_frontmatter.py before the full run would have saved that wait."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship's listed buildable items are mostly scan-reader refinements needing new data; I took a ROADMAP 'Next' corpus item (the four supplement off-final pieces) whose premise turned out stale, because it could be closed outright in one run.",
+      "did": "Read the four pieces against the scan and corrected one transcription error.",
+      "result": "11 of 11 off-final endings now read against the book: 10 as printed, 1 corrected."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-four-chant-endings-and-one-wrong-note.md",
+    "ventures/chant-forge/eval/scan-check-verdicts.md (agent doc: verdicts for 3402, 3419, 3427, 3451)"
+  ],
+  "goal": "chant-forge corpus correctness (the arrangement engine picks harmony from the final)",
+  "notes": "Verification: node --test *.test.mjs in ventures/chant-forge: 206 pass, 0 fail. scan-check --manifest eval/offfinal-supplement-pages.json: 3402 185/187 agree, 3419 middle 33/33 and pp. 486-487 165 agree 0 differ, 3427 after correction 169/182 0 differ (was 166/179 with last 3 unpaired), 3451 325/332, 1 differ (reader, looked at by eye). shape-check rerun: only 3427's paired-punctum count changes (114 to 117). The 3427 fix was read by eye on leaf 746 staff 4 (c3 clef: clivis f-e, punctum e); GregoBase's live file still has the old notes (not reported upstream: outward action). A second human reader is wanted for the correction.",
+  "corrections": [],
+  "redteam": null
+}
