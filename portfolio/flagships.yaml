@@ -188,8 +188,8 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git (latest: Peppol BIS 3.0.22, 1,048/1,048 unit asserts).
-      Open: ZATCA rules on a real sandbox invoice and credit or debit note;
-      FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
+      Open: ZATCA stamp check landed (README): a real taxpayer's KSA note; FatturaPA
+      tolerances and SdI codes read from spec 1.9 (2026-11-13,
       eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
       Croatia HR-CIUS landed (README): open: a real HR invoice, HRFISK20Data in the
       creator; CIUS-PT: which validator does AT run (AA/RED codes)?; Poland's FA(3):
