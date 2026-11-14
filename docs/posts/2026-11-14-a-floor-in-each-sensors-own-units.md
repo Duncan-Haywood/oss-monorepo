@@ -1,9 +1,9 @@
 ---
 title: "Measure each alert against how much its sensor was wandering: fewer false alarms, more missed faults"
-seo_title: "Spread-relative alert floor on SKAB: false alerts 6.3 to 1.4 per 100 checks"
+seo_title: "Spread-relative alert floor on SKAB: 6.3 to 1.4 false alerts per 100"
 date: 2026-11-14
 tags: [changepoint-detection, monitoring, anomaly-detection, pre-registration, negative-result]
-description: "Pre-registered on SKAB's 33 pump faults: one alert floor for every sensor, in units of its recent spread, cut false alerts to 1.40 per 100 checks but caught 27 of 33 faults."
+description: "Pre-registered on SKAB pump faults: one alert floor per sensor, in units of its recent spread, cut false alerts to 1.40 per 100 checks but caught 27 of 33."
 ---
 
 The [changepoint detector's](https://marisstella.app/changepoint-detector/) watch can follow every column of a sheet at once. On a real eight-sensor water-pump testbed (the Skoltech Anomaly Benchmark, SKAB) that is too loud. With nothing wrong, the quiet default sent 6.3 false alert lines per 100 checks, and the budget is 2.
