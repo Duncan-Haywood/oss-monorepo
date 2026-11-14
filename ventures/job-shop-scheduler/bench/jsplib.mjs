@@ -45,7 +45,7 @@ console.log(`Same value as JSPLIB's recorded optimum: ${equal} of ${withKnown}`)
 console.log(`Proved optimal by this engine within the limits: ${proved} of ${meta.length}`);
 console.log(`Worse than JSPLIB's optimum or upper bound: ${worseThanUpper}; better than its upper bound: ${betterThanUpper}; below its lower bound: ${belowLower}`);
 console.log(`Mean gap to JSPLIB's optimum or upper bound: ${(100 * mean).toFixed(2)}%\n`);
-console.log(`JSPLIB values as recorded in its instances.json (some upper bounds have since been improved in the literature).\n`);
+console.log(`Mean over the ${gaps.length} instances with an optimum or upper bound in JSPLIB. JSPLIB values as recorded in its instances.json; several bounds there have since been improved in the literature, so "better than its upper bound" is not a new best known result.\n`);
 console.log('| Instance | Size | JSPLIB optimum (or bounds) | This engine | Proved lower bound | Proved optimal | Gap |');
 console.log('|---|---|---|---|---|---|---|');
 for (const r of rows) console.log(r);

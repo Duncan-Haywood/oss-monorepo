@@ -74,8 +74,8 @@ test('CLI: example, JSON, Gantt, files, errors, and the disclaimer', () => {
   assert.match(json.disclaimer, /not engineering/);
   assert.match(report(run(parseArgs(['--example', '--ms', '500'])), false, true), /Key: A=Bracket/);
   const csv = 'job,machine,time\nA,Saw,3\nA,Mill,2\nB,Mill,4\nB,Saw,1\n';
-  assert.match(report(run(parseArgs(['shop.csv']), () => csv)), /Makespan 5 \(proved/);
-  assert.match(report(run(parseArgs(['ft.txt']), () => '2 2\n0 3 1 2\n1 4 0 1\n')), /Makespan 5 \(proved/);
+  assert.match(report(run(parseArgs(['shop.csv']), () => csv)), /Makespan 6 \(proved/);
+  assert.match(report(run(parseArgs(['ft.txt']), () => '2 2\n0 3 1 2\n1 4 0 1\n')), /Makespan 6 \(proved/);
   assert.match(run(parseArgs([])).error, /Usage/);
   assert.match(run(parseArgs(['--frobnicate'])).error, /unknown option/);
   assert.match(run(parseArgs(['x.csv']), () => 'A, Saw, 3\nB, Mill, x\n').error, /could not read x\.csv/);

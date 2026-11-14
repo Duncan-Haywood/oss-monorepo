@@ -53,15 +53,15 @@
     <table>
       <thead><tr><th>JSPLIB, 4 s per instance</th><th>Instances</th></tr></thead>
       <tbody>
-        <tr><td>Same makespan as JSPLIB's recorded optimum</td><td id="bAgree">AGREE</td></tr>
-        <tr><td>Proved optimal by this engine within the limit</td><td id="bProved">PROVED</td></tr>
-        <tr><td>Longer than JSPLIB's optimum or best upper bound</td><td id="bWorse">WORSE</td></tr>
-        <tr><td>Shorter than JSPLIB's best upper bound</td><td id="bBetter">BETTER</td></tr>
-        <tr><td>Mean gap to JSPLIB's optimum or upper bound</td><td id="bGap">GAP%</td></tr>
+        <tr><td>Same makespan as JSPLIB's recorded optimum</td><td id="bAgree">66 of 103</td></tr>
+        <tr><td>Proved optimal by this engine within the limit</td><td id="bProved">54 of 162</td></tr>
+        <tr><td>Longer than JSPLIB's optimum or best upper bound</td><td id="bWorse">85</td></tr>
+        <tr><td>Shorter than JSPLIB's best upper bound</td><td id="bBetter">1</td></tr>
+        <tr><td>Mean gap to JSPLIB's optimum or upper bound (152 instances that have one)</td><td id="bGap">1.01%</td></tr>
       </tbody>
     </table>
   </div>
-  <p id="benchText">BENCHTEXT</p>
+  <p id="benchText">By family: all three Fisher and Thompson instances at their optima, including ft10 (930) and ft20 (1165); Lawrence's la01 to la40 at the optimum on 30 of 40, with a mean gap of 0.19% and the worst 1.7%; Applegate and Cook's orb at 7 of 10. The harder families are further off: abz 2 of 5 (mean gap 1.4%), swv 5 of 20 (2.4%, worst 5.5%), yn 0 of 4 (1.4%) and Taillard's ta01 to ta70 at 1.2% on average, worst 4.4%. Most of the proofs come from the schedule meeting the lower bound, which is common on instances with many more jobs than machines. On Taillard's ten largest (ta71 to ta80, 100 jobs on 20 machines), for which JSPLIB records no value, the engine met its own lower bound, and so proved its schedule optimal, on 9 of 10. On ta29 its 1627 is below JSPLIB's recorded upper bound of 1635; that bound is out of date, and better schedules for ta29 have been published since, so this is not a new record. Published state-of-the-art methods get much closer to the best known values, usually with far longer runs; a plain tabu search at 4 seconds on one browser thread does not, and the table shows where. On every unproved row the page says "best found" and gives the bound.</p>
 
   <h2>6. What it does not model</h2>
   <p>This is the classic problem: each operation on one named machine, fixed times, no setup or changeover times, no transport between machines, every job available at time zero, and the goal is the makespan rather than due dates. Real shops have alternative machines, shifts, breakdowns and rush orders. Use the answer as a sequence to start from and a measure of what the routings allow, and check it on the floor.</p>
