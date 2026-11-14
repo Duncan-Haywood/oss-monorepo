@@ -2,7 +2,7 @@
 title: "Nine extractions of every post: a test from 13 seconds to 4.5"
 seo_title: "Memoising a pure function cut a Node test from 13 s to 4.5 s"
 date: 2026-11-14
-description: "The distribution hub pulled the findings out of each of 4,549 posts nine times per run. Remembering the answer made its test three times faster, output unchanged."
+description: "The distribution hub extracted the findings of each of 4,549 posts nine times. Remembering the answer made its test three times faster, output unchanged."
 tags: [performance, javascript, testing, ci]
 ---
 
