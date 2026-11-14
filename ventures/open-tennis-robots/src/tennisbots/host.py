@@ -36,7 +36,8 @@ HEARTBEAT_S = 0.1
 FRESH_S = 0.25
 RPM_TOL = 0.05                 # the firmware's own feed-gate tolerance
 FAULT_FLAGS = {P.FLAG_ESTOP: "e-stop", P.FLAG_WATCHDOG: "watchdog (heartbeats missed)",
-               P.FLAG_ELEV_FAULT: "elevation actuator fault"}
+               P.FLAG_ELEV_FAULT: "elevation actuator fault",
+               P.FLAG_BUS_OFF: "switched bus off (contactor open: wireless e-stop, its coil wire or the timer)"}
 
 
 @dataclass
@@ -175,8 +176,9 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
     try:
         # The watchdog has usually tripped before the Pi starts talking; the first heartbeats clear it.
         start = clock()
-        t0 = wait(lambda t: t.t >= start + FRESH_S and not t.flags & P.FLAG_WATCHDOG, 2.0, "connect",
-                  ignore=P.FLAG_WATCHDOG)
+        # The switched bus comes up 0.5 s after the e-stop's release plus the firmware's settle time: wait for it too.
+        t0 = wait(lambda t: t.t >= start + FRESH_S and not t.flags & (P.FLAG_WATCHDOG | P.FLAG_BUS_OFF), 2.0, "connect",
+                  ignore=P.FLAG_WATCHDOG | P.FLAG_BUS_OFF)
         fed = t0.balls_fed
         last_release = None
         for k, shot in enumerate(shots):

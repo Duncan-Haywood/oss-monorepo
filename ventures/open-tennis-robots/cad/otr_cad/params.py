@@ -815,16 +815,25 @@ class Feeder:
     # Start-up loads during the precharge (2026-11-14, `precharge_bus`). A buck or a chopper drive draws constant power
     # once its input passes its start threshold, so it takes more current the lower the bus, and through 4.7 ohm the
     # most a bus can pass is V^2 / 4R (31 W at 24 V). Two loads can start while the bus charges: the stepper driver,
-    # whose ENABLE is not wired (it holds its phase current from the moment it has power), and the shuttle servo's
-    # buck, if the firmware sends a pulse at rest (before 2026-11-14 it held GATE_LO_US from power-up, so a servo left
-    # anywhere but home sought it at stall current). Figures are assumptions: read your driver's and buck's sheets.
+    # if its ENABLE is tied to GND (it holds its phase current from the moment it has power; wired to GPIO 5 since
+    # 2026-11-14 and held off until the contactor closes), and the shuttle servo's buck, if the firmware sends a pulse
+    # at rest (before 2026-11-14 it held GATE_LO_US from power-up, so a servo left anywhere but home sought it at stall
+    # current). Figures are assumptions: read your driver's and buck's sheets.
     switched_start_v: float = 8.0     # bus volts at which a buck or the stepper driver starts (A4988/DRV8825 class
                                       # need 8 V; small bucks' undervoltage lockouts sit near there)
     switched_stop_v: float = 7.0      # and stops again (hysteresis)
     servo_seek_s: float = 0.68        # a seek from anywhere to home at stall current: the loaded back stroke
                                       # (GATE_BACK_MS's cad figure), the worst case after a cut mid-stroke
     servo_pulse_at_rest: bool = False  # firmware: True is the pre-2026-11-14 gate, pulsed from power-up
-    stepper_holds_at_power_up: bool = True  # its ENABLE pin is not wired (electronics.md pin map)
+    stepper_holds_at_power_up: bool = False  # True: ENABLE tied to GND, the pre-2026-11-14 wiring. Since then the
+                                      # driver's ENABLE is on GPIO 5 with a pull-up to 3.3 V (off while the ESP32
+                                      # boots), and the firmware pulls it low only once the contactor's coil has been
+                                      # energised for `stepper_enable_after_ms` (opto on the coil into GPIO 15)
+    # Contact bounce (2026-11-14, `contactor_bounce`). The opto sees the coil, not the contacts: the contacts close one
+    # pull-in time later and then bounce. Figures are assumptions for a small 24 V DC contactor: read yours.
+    contactor_pull_in_ms: float = 50.0  # coil energised to contacts first touching (small DC contactors: 15-50 ms)
+    contactor_bounce_ms: float = 10.0   # contacts first touching to staying closed (each bounce opens them)
+    stepper_enable_after_ms: float = 150.0  # firmware CONTACTOR_SETTLE_MS: coil seen on this long before ENABLE
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -2493,8 +2502,44 @@ class Feeder:
                           for k, (nm, w, dur) in enumerate(loads)],
                 "max_w": v_pack ** 2 / (4 * rp)}
 
+    def contactor_bounce(self) -> dict:
+        """What the contactor makes when it bounces after the precharge (2026-11-14). While the contacts are open the
+        precharge relay is still closed, so the bus does not collapse: it relaxes from the pack's volts toward
+        Vpack - I x Rp with the precharge time constant, I being what the switched loads draw. Each re-close is then
+        an R-L-C step across that gap, with I flowing on top. One bounce of `contactor_bounce_ms` (the whole bounce
+        open, the worst case) is solved with the idle loads only and with the stepper driver enabled too (as it would
+        be if the firmware enabled it the moment the coil was energised). Also checks that the firmware's delay
+        before ENABLE outlasts pull-in and bounce, so the driver's step load never lands on bouncing contacts."""
+        d = self.contactor_inrush()
+        r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
+        rp = self.precharge_ohm + r if self.precharge_ohm > 0 else math.inf
+        tau = rp * c
+        stepper = next(b for b in self.power_distribution()["branches"] if b["name"] == "azimuth stepper driver")
+        out = {"tau_ms": tau * 1e3, "open_ms": self.contactor_bounce_ms,
+               "settle_ms": self.contactor_pull_in_ms + self.contactor_bounce_ms,
+               "enable_after_ms": self.stepper_enable_after_ms,
+               "enable_margin_ms": self.stepper_enable_after_ms - self.contactor_pull_in_ms - self.contactor_bounce_ms}
+        for name, load in (("idle", self.bus_idle_a), ("stepper enabled", self.bus_idle_a + stepper["run_a"])):
+            if math.isinf(rp):  # no precharge: an open contact leaves the loads on the capacitors alone
+                gap = min(load * self.contactor_bounce_ms / 1e3 / c, self.battery_v_max)
+            else:
+                gap = load * rp * (1 - math.exp(-self.contactor_bounce_ms / 1e3 / tau))
+            peak = (rlc_step(gap, r, l, c)[2] if gap > 0 else 0.0) + load
+            out[name] = {"load_a": load, "gap_v": gap, "peak_a": peak}
+        return out
+
     def check_inrush(self) -> list[str]:
         bad = []
+        if not self.stepper_holds_at_power_up:
+            cb = self.contactor_bounce()
+            if cb["enable_margin_ms"] < 0:
+                bad.append(f"firmware enables the stepper driver {cb['enable_after_ms']:g} ms after the contactor's coil, "
+                           f"before its contacts have closed and stopped bouncing ({self.contactor_pull_in_ms:g} ms pull-in "
+                           f"+ {self.contactor_bounce_ms:g} ms bounce): raise CONTACTOR_SETTLE_MS / stepper_enable_after_ms")
+            worst = max(cb["idle"]["peak_a"], cb["stepper enabled"]["peak_a"])
+            if worst > self.contactor_make_a + 1e-9:
+                bad.append(f"contactor makes {worst:.0f} A re-closing after a {self.contactor_bounce_ms:g} ms bounce, over the "
+                           f"{self.contactor_make_a:g} A it may make")
         d = self.contactor_inrush()
         cl, pre = d["closing"], d["precharge"]
         how = "closing onto the precharged bus" if pre else "closing onto an empty bus"
@@ -2502,7 +2547,7 @@ class Feeder:
             b = max(d["startup"].values(), key=lambda x: x["close"]["peak_a"])
             names = ", ".join(x["name"] for x in b["loads"] if x["on_at_close"]) or "the start-up loads"
             how = (f"closing at {b['v_pack']:g} V onto a bus held {b['gap_v']:.1f} V short by {names} "
-                   f"(firmware: no servo pulse at rest; or wire the stepper's ENABLE)")
+                   f"(firmware: no servo pulse at rest, stepper ENABLE held off until the contactor closes)")
         fix = "" if pre else ": add the precharge (precharge_ohm)"
         if cl["peak_a"] > self.contactor_make_a + 1e-9:
             bad.append(f"contactor makes {cl['peak_a']:.0f} A {how}, over the {self.contactor_make_a:g} A it may make{fix}"

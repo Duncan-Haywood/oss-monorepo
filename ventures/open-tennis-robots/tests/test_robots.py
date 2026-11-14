@@ -243,6 +243,64 @@ class FirmwareTest(unittest.TestCase):
         self.assertFalse(any(e[0] == "drive" for e in hw.log))
         self.assertEqual(c.rejected, 1)
 
+    def test_power_gate_enables_only_after_the_coil_settles(self):
+        # 2026-11-14: the stepper driver's ENABLE stays off through the precharge and until the contactor's coil has been
+        # on for settle_ms (pull-in plus bounce); any drop turns it off at once and is reported once.
+        g = controller.PowerGate(150)
+        self.assertFalse(g.update(False, 0))
+        self.assertFalse(g.enabled)
+        g.update(True, 500)               # the timer closes the coil
+        g.update(True, 649)
+        self.assertFalse(g.enabled)
+        g.update(True, 650)
+        self.assertTrue(g.enabled)
+        self.assertTrue(g.update(False, 700))    # e-stop: lost, reported once
+        self.assertFalse(g.enabled)
+        self.assertFalse(g.update(False, 710))
+        self.assertEqual(g.losses, 1)
+        # a coil that flickers (a loose wire) restarts the wait each time
+        for t in (800, 900, 1000):
+            g.update(True, t)
+            g.update(False, t + 100 - 1)
+        self.assertFalse(g.enabled)
+        self.assertEqual(g.losses, 1)
+
+    def test_bus_loss_halts_and_drops_the_feed_queue(self):
+        # A wireless e-stop cuts the coil without the board seeing its switch; bus_tick reports it and the controller
+        # halts, so a FEED queued before the cut cannot start the servo during the next precharge.
+        class BusHw(FakeHw):
+            def __init__(self):
+                super().__init__()
+                self.lost_at = None
+
+            def bus_tick(self, now):
+                return now == self.lost_at
+
+        hw = BusHw()
+        c = controller.Controller(hw, controller.ROLE_FEEDER, 0)
+        c.tick(protocol.encode(protocol.FEED, 2), 10)
+        hw.log.clear()
+        hw.lost_at = 20
+        c.tick(protocol.encode(protocol.HEARTBEAT), 20)
+        self.assertIn(("stop_all",), hw.log)
+        hw.log.clear()
+        c.tick(protocol.encode(protocol.HEARTBEAT), 30)
+        self.assertNotIn(("stop_all",), hw.log)
+
+    def test_unpowered_stepper_must_home_again(self):
+        ax = controller.StepperAxis(55.6, 60.0, 120.0, -32.0, -30.0, 30.0)
+        ax.homed, ax.pos = True, 10.0
+        ax.unpowered()
+        self.assertFalse(ax.homed)
+        self.assertFalse(ax.settled)
+
+    def test_settle_time_matches_the_cad_model(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
+        from otr_cad.params import Feeder
+        import config
+        self.assertEqual(config.CONTACTOR_SETTLE_MS, Feeder.stepper_enable_after_ms)
+        self.assertFalse(Feeder.stepper_holds_at_power_up)
+
     def test_watchdog_stops_and_recovers(self):
         hw = FakeHw()
         c = controller.Controller(hw, controller.ROLE_FEEDER, 0)
@@ -601,7 +659,7 @@ class FirmwareTest(unittest.TestCase):
         """main.py's FeederHw on stand-in machine/time modules: each elevation mode builds, aims and stops, and the
         feed gate stays shut until the aim has arrived (the layer has never run on a board)."""
         import types
-        state = {"adc": 30000}
+        state = {"adc": 30000, "coil": False}
 
         class Pin:
             IN, OUT, PULL_UP, IRQ_RISING, IRQ_FALLING = 0, 1, 2, 4, 8
@@ -611,6 +669,8 @@ class FirmwareTest(unittest.TestCase):
 
             def value(self, v=None):
                 if v is None:
+                    if self.n == 15:
+                        return 0 if state["coil"] else 1  # contactor coil sense: low while energised
                     return 0 if self.n == 22 else self.v   # azimuth home switch closed; e-stop (4) not pressed
                 self.v = v
 
@@ -662,6 +722,28 @@ class FirmwareTest(unittest.TestCase):
                         sys.modules.pop(k, None)
                     else:
                         sys.modules[k] = v
+            # Bus precharging, contactor open (2026-11-14): the stepper driver is held off, nothing is driven even with
+            # a FEED queued, and telemetry says why.
+            state["coil"] = False
+            hw.set_aim(1000, 0)
+            hw.feed(1)
+            for t in range(0, 100, 10):
+                self.assertFalse(hw.bus_tick(t), mode)
+                hw.update(10, t)
+            self.assertEqual(hw.az_enable.v, 1, mode)
+            self.assertEqual(hw.gate.pwm.duty, 0, mode)
+            self.assertTrue(hw.flags() & protocol.FLAG_BUS_OFF, mode)
+            # the timer closes the coil; ENABLE waits CONTACTOR_SETTLE_MS for the contacts to close and stop bouncing
+            state["coil"] = True
+            hw.bus_tick(100)
+            hw.update(10, 100)
+            self.assertEqual(hw.az_enable.v, 1, mode)
+            self.assertEqual(hw.gate.pwm.duty, 0, mode)
+            hw.bus_tick(100 + cfg.CONTACTOR_SETTLE_MS)
+            self.assertEqual(hw.az_enable.v, 0, mode)
+            self.assertFalse(hw.flags() & protocol.FLAG_BUS_OFF, mode)
+            hw.stop_all()                      # what Controller does when the watchdog clears, say: queue dropped
+            hw.gate_homed = False
             # No FEED yet: the shuttle's servo gets no pulse, so it draws nothing while the bus precharges (2026-11-14)
             for t in range(0, 100, 10):
                 hw.update(10, t)
@@ -677,6 +759,14 @@ class FirmwareTest(unittest.TestCase):
             self.assertEqual(hw.gate.pwm.duty, 0, mode)
             self.assertFalse(hw.gate_homed, mode)            # the next FEED runs a back stroke first
             self.assertFalse(hw.flags() & protocol.FLAG_ELEV_FAULT, mode)
+            # the coil drops (a wireless e-stop): ENABLE off at once, the azimuth must home again
+            state["coil"] = False
+            self.assertTrue(hw.bus_tick(5000), mode)
+            self.assertEqual(hw.az_enable.v, 1, mode)
+            self.assertFalse(hw.azim.homed, mode)
+            state["coil"] = True
+            hw.bus_tick(6000)
+            hw.bus_tick(6000 + cfg.CONTACTOR_SETTLE_MS)
             if mode == controller.ELEV_POT:
                 state["adc"] = 0               # wiper off: below the calibrated span
                 hw.update(10, 10)

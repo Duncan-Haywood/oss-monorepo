@@ -1957,6 +1957,8 @@ COTS_EXTRA = [
     ("Precharge resistor 4.7 ohm, aluminium-housed 50 W class", 1, "across the contactor's contacts in series with the precharge relay; must survive the manifest inrush line's fault energy or fail open"),
     ("24 V relay, 10 A contacts", 1, "precharge relay: its coil through the e-stop, ahead of the contactor"),
     ("24 V on-delay timer relay module, set 0.5 s", 1, "closes the contactor's coil after the precharge (manifest inrush line)"),
+    ("PC817 optocoupler + 10k 0.5 W resistor", 1, "contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md \"Stepper ENABLE after the contactor\")"),
+    ("4.7k resistor", 1, "stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
     ("30 A fuse (ATO/ATC blade or MIDI) + inline holder", 1, "battery positive, within 150 mm of the terminal (manifest power line)"),
@@ -2103,11 +2105,21 @@ def inrush_line(p: Feeder) -> str:
             names = " and ".join(f"{x['name']} ({x['w']:.0f} W)" for x in b["loads"]) or "no start-up loads"
             parts.append(f"at {b['v_pack']:g} V with {names} the bus is {b['gap_v']:.2f} V short at the closing and the "
                          f"contactor makes {b['close']['peak_a']:.1f} A (the resistor passes at most {b['max_w']:.0f} W)")
-        old = dataclasses.replace(p, servo_pulse_at_rest=True).contactor_inrush()["startup"]["low"]
+        old = dataclasses.replace(p, servo_pulse_at_rest=True, stepper_holds_at_power_up=True).contactor_inrush()["startup"]["low"]
+        tied = dataclasses.replace(p, stepper_holds_at_power_up=True).contactor_inrush()["closing"]["peak_a"]
         s += (". Start-up loads (constant power from " f"{p.switched_start_v:g} V): " + "; ".join(parts)
               + f". The firmware sends the shuttle servo no pulse until a FEED: pulsed from power-up, a servo seeking home "
               f"at stall would leave the bus {old['gap_v']:.1f} V short at {old['v_pack']:g} V, chattering at its threshold "
               f"({old['loads'][-1]['starts']} restarts), and the contactor would make {old['close']['peak_a']:.0f} A")
+        if not p.stepper_holds_at_power_up:
+            cb = p.contactor_bounce()
+            s += (f". The stepper driver's ENABLE (GPIO 5, pulled up: off through reset) goes low only once an opto on the "
+                  f"contactor's coil (GPIO 15) has seen it on for {p.stepper_enable_after_ms:g} ms (firmware "
+                  f"CONTACTOR_SETTLE_MS; assumed pull-in {p.contactor_pull_in_ms:g} ms + bounce {p.contactor_bounce_ms:g} ms, "
+                  f"{cb['enable_margin_ms']:.0f} ms to spare); with ENABLE tied to GND its holding draw made the contactor take "
+                  f"{tied:.1f} A. A {p.contactor_bounce_ms:g} ms bounce re-closes onto a {cb['idle']['gap_v']:.2f} V gap "
+                  f"({cb['idle']['peak_a']:.1f} A; the precharge relay holds the bus meanwhile), "
+                  f"{cb['stepper enabled']['peak_a']:.1f} A if the driver were already enabled")
     return s
 
 
@@ -2281,7 +2293,8 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     ci = p.contactor_inrush()
     derived.update({"inrush_direct_a": round(ci["direct"]["peak_a"]), "inrush_direct_bms_us": round(ci["direct"]["bms_over_us"]),
                     "inrush_closing_a": round(ci["closing"]["peak_a"], 1), "precharge_ohm": p.precharge_ohm,
-                    "precharge_delay_s": p.precharge_delay_s,
+                    "precharge_delay_s": p.precharge_delay_s, "stepper_enable_after_ms": p.stepper_enable_after_ms,
+                    "bounce_reclose_a": round(p.contactor_bounce()["idle"]["peak_a"], 1),
                     "precharge_residual_v": round(ci["precharge"]["residual_v"], 2) if ci["precharge"] else None})
     ad = p.agitator_design()
     derived.update({"agitator_torque_nm": round(ad["torque_nm"], 3), "agitator_torque_margin": round(ad["torque_margin"], 2),

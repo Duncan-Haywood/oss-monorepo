@@ -382,13 +382,10 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min): the elevation actuator's short lead from the gland to its
-      motor and pot; wire the azimuth stepper driver's ENABLE to a pin held off
-      until the contactor has closed (its holding draw during the precharge makes
-      the contactor take 28 to 66 A, over an assumed 60 A with a 20 mOhm pack:
-      cad/README.md "Start-up loads during the precharge", 2026-11-14); contact
-      bounce on the contactor after the precharge; regenerative current from braking
-      ESCs; the lift flight as a printed part and the top pulley's tensioner if PR
-      15456 has not landed.
+      motor and pot; regenerative current from braking ESCs (the bus with the
+      contactor open is now sensed, cad/README.md "Stepper ENABLE after the
+      contactor"); several bounces in a row on the contactor; the lift flight as a
+      printed part and the top pulley's tensioner if PR 15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -413,11 +410,11 @@ flagships:
       on the shuttle and the servo's loaded stroke time and stall current; click the
       home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
       stop with a scale; hang a real hose from a tube; bend a built cable loop
-      through the actuator's travel. Buildable: the stepper driver's ENABLE pin
-      (start-up loads during the precharge landed 2026-11-14: the servo is unpulsed
-      until a FEED, which cut the contactor's make from 136-328 A to 28-66 A in the
-      sweep); the flight as a printed part and the tensioner (PR 15456); the
-      actuator's lead from the gland; contact bounce.
+      through the actuator's travel. Stepper ENABLE on GPIO 5 after an opto on the
+      contactor's coil (GPIO 15) landed 2026-11-14: contactor makes 12-29 A in the
+      sweep, a 10 ms bounce re-closes at 5-21 A; scope a real contactor's pull-in
+      and bounce. Buildable: regenerative braking current; the flight as a printed
+      part and the tensioner (PR 15456); the actuator's lead from the gland.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

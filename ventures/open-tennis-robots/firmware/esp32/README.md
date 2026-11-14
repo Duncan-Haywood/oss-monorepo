@@ -118,6 +118,20 @@ turned by hand past the sector's end, or if a seek runs 82 deg without a click.
 Set `AZ_HOME_DEG` from your build: aim at a mark straight ahead after homing
 and correct it by the error.
 
+**Stepper ENABLE and the switched bus (2026-11-14).** The azimuth driver's EN
+is on GPIO 5 with a 4.7k pull-up to 3.3 V, so the driver is off while the
+board boots and while the bus precharges. An optocoupler across the
+contactor's coil pulls GPIO 15 low while the coil is energised. Every
+controller tick, e-stop or not, `FeederHw.bus_tick` feeds it to
+`controller.PowerGate`: EN goes low once the coil has been on for
+`CONTACTOR_SETTLE_MS` (150 ms, longer than the contactor's pull-in and bounce),
+and high the moment it drops. A drop halts the board (the feed queue too) and
+clears the azimuth's home, since an unpowered stepper holds nothing. Until the
+bus is back and settled the board drives nothing, and telemetry sets
+`FLAG_BUS_OFF` (1024); the Pi's drill runner waits for it to clear at connect
+and aborts if it comes back mid-drill. The reasoning and numbers are in
+`cad/README.md`, "Stepper ENABLE after the contactor, and contact bounce".
+
 Whatever the mode, the feed gate now waits for the aim: a ball is released only
 when the wheels are within 5% of their speeds **and** both the elevation and
 the azimuth have arrived. Telemetry sets `FLAG_AIM_SETTLING` (128) while either

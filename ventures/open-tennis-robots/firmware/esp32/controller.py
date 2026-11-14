@@ -18,6 +18,10 @@ with a fake hardware object), so it touches hardware only through `hw`.
     rpm() -> (top, bottom)
     battery_mv() -> int
     balls_fed() -> int               feeder only: balls released through the gate since power-up (sent mod 256)
+
+and may provide:
+    bus_tick(now_ms) -> bool         feeder: read the contactor's coil sense; True on the tick the switched bus is lost
+                                     (an e-stop the board did not see, such as the wireless fob): the controller halts
 """
 
 import math
@@ -101,6 +105,13 @@ class StepperAxis:
         self.v = 0.0
         if self.homed:
             self.goal = self.pos
+
+    def unpowered(self):
+        """The driver lost power or its ENABLE (2026-11-14): an unpowered stepper holds nothing, so the position is
+        gone and the axis homes again once it is back."""
+        self.homed = False
+        self._phase = None
+        self.v = 0.0
 
     def _emit(self):
         n = round(self.pos * self.k) - self._sent
@@ -548,6 +559,42 @@ class AgitatorRun:
         return self.duty
 
 
+class PowerGate:
+    """Holds the azimuth stepper driver off until the contactor has closed (2026-11-14, cad/README.md "Stepper ENABLE
+    after the contactor").
+
+    The driver's ENABLE is pulled up (driver off) and wired to an ESP32 output; an optocoupler across the contactor's
+    coil pulls a sense input low while the coil is energised. The coil comes on when the 0.5 s on-delay timer closes,
+    after the precharge, and its contacts touch one pull-in time later and then bounce. So ENABLE goes low only once
+    the coil has been seen on continuously for `settle_ms` (longer than pull-in plus bounce); a powered driver held
+    off draws next to nothing, so the bus reaches the pack before the contactor closes on it. When the coil drops
+    (any e-stop, including a wireless fob that cuts the coil without the board seeing a switch) ENABLE goes high at
+    once and `update` reports the loss once, so the caller can halt and the azimuth can drop its position: an
+    unpowered stepper holds nothing, and the head may be pushed by hand.
+    """
+
+    def __init__(self, settle_ms=150):
+        self.settle_ms = settle_ms
+        self.enabled = False
+        self.losses = 0
+        self._on_since = None
+
+    def update(self, coil_on, now_ms):
+        """Returns True on the tick the bus is lost (it was enabled and the coil has dropped)."""
+        if not coil_on:
+            self._on_since = None
+            if self.enabled:
+                self.enabled = False
+                self.losses += 1
+                return True
+            return False
+        if self._on_since is None:
+            self._on_since = now_ms
+        if not self.enabled and now_ms - self._on_since >= self.settle_ms:
+            self.enabled = True
+        return False
+
+
 class Controller:
     def __init__(self, hw, role, now_ms):
         if role not in (ROLE_FEEDER, ROLE_COLLECTOR):
@@ -618,6 +665,9 @@ class Controller:
 
     def tick(self, rx_bytes, now_ms):
         """Process received bytes and safety checks; returns bytes to transmit (maybe empty)."""
+        bus_tick = getattr(self.hw, "bus_tick", None)
+        if bus_tick is not None and bus_tick(now_ms):
+            self._halt()          # the switched bus went: drop every queued motion, the FEED queue included
         for cmd, values in self.decoder.feed(rx_bytes):
             self.handle(cmd, values, now_ms)
         if self.hw.estop_pressed() and not self.estop:

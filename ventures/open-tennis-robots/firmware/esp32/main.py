@@ -23,6 +23,14 @@ ROLE = getattr(config, "ROLE", controller.ROLE_FEEDER)
 # selects 1.8 V flash and does not boot. tests/test_pins.py checks the map.
 LIFT_PIN = 12
 AGIT_PIN = 2
+# Azimuth stepper ENABLE and the contactor's coil sense (2026-11-14, cad/README.md "Stepper ENABLE after the
+# contactor"). The driver's EN is active low; a 4.7k pull-up to 3.3 V holds it off while the ESP32 boots (GPIO 5 is a
+# strapping pin that must not be low at reset, which the pull-up also guarantees). A PC817 optocoupler's LED sits
+# across the contactor's coil through 10k; its transistor pulls GPIO 15 low while the coil is energised (GPIO 15 low at
+# reset only silences the boot log, and the coil is never on that early: the timer's 0.5 s runs from the e-stop's
+# release, and a mid-run reset of the board leaves at worst a quiet boot).
+AZ_EN_PIN = 5
+COIL_SENSE_PIN = 15
 
 
 class Encoder:
@@ -144,6 +152,9 @@ class FeederHw:
         self.elev_pot = ADC(Pin(39), atten=ADC.ATTN_11DB) if mode == controller.ELEV_POT else None
         # Azimuth: NEMA 17 through the 15:150 gear sector (cad/README.md, "Azimuth drive"), homed on a switch.
         self.azim_pins = StepDir(14, 21, 22)
+        self.az_enable = Pin(AZ_EN_PIN, Pin.OUT, value=1)       # 1 = driver off
+        self.coil_sense = Pin(COIL_SENSE_PIN, Pin.IN, Pin.PULL_UP)
+        self.power = controller.PowerGate(getattr(config, "CONTACTOR_SETTLE_MS", 150))
         self.azim = controller.StepperAxis(200 * config.AZ_MICROSTEPS * config.AZ_RATIO / 360, config.AZ_VMAX_DEG_S,
                                            config.AZ_ACCEL_DEG_S2, config.AZ_HOME_DEG, -30.0, 30.0)
         self.base = Motor(32, 33)
@@ -222,6 +233,15 @@ class FeederHw:
         else:
             self.elev_out.set(0)
 
+    def bus_tick(self, now):
+        """Read the contactor's coil and drive the stepper's ENABLE (controller.PowerGate). Runs on every controller
+        tick, e-stop or not, so the driver is off whenever the bus is precharging. True when the bus has just gone."""
+        lost = self.power.update(self.coil_sense.value() == 0, now)
+        self.az_enable.value(0 if self.power.enabled else 1)
+        if lost:
+            self.azim.unpowered()
+        return lost
+
     def set_launch_rpm(self, top, bottom):
         self.target_rpm = (top, bottom)
 
@@ -255,6 +275,8 @@ class FeederHw:
             f |= protocol.FLAG_ELEV_FAULT
         if not self.wheels_steady.steady:
             f |= protocol.FLAG_WHEELS_SETTLING
+        if not self.power.enabled:
+            f |= protocol.FLAG_BUS_OFF
         return f
 
     def balls_fed(self):
@@ -281,6 +303,10 @@ class FeederHw:
         return int(self.adc.read_uv() / 1000 * config.BATTERY_DIVIDER)
 
     def update(self, dt, now):
+        if not self.power.enabled:
+            # The motors have no power (or the contacts are still settling): drive nothing, so no step is lost and no
+            # queued FEED starts the servo while the next precharge is under way.
+            return
         self.azim_pins.pulse(self.azim.update(dt, self.azim_pins.home_closed()))
         out = self.elev.update(dt, self.elev_feedback_mm() if self.elev_pot else None)
         if self.elev.mode == controller.ELEV_RC:
