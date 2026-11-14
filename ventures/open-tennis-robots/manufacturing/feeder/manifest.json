@@ -282,6 +282,35 @@
     "esc_phase_peak_a": 30.0,
     "esc_phase_loss_frac": 0.05,
     "launcher_peak_w": 1000.0,
+    "battery_v_min": 24.0,
+    "bms_cont_a": 30.0,
+    "bms_use_frac": 0.8,
+    "launch_wheel_kg": 0.4,
+    "launch_wheel_k": 0.6,
+    "launch_rotor_kgm2": 0.0002,
+    "launch_drag_w": 30.0,
+    "esc_eff": 0.85,
+    "esc_fuse_factor": 2.0,
+    "wheel_spinup_w": 100.0,
+    "wheel_ramp_max_rpm_s": 1500.0,
+    "pi_w": 12.0,
+    "pi_buck_w": 25.0,
+    "buck_eff": 0.9,
+    "lift_motor_run_a": 2.0,
+    "agit_motor_run_a": 0.8,
+    "agit_motor_stall_a": 2.0,
+    "elev_act_run_a": 2.0,
+    "elev_act_stall_a": 3.0,
+    "base_motor_run_a": 2.0,
+    "base_motor_stall_a": 5.5,
+    "hbridge_cont_a": 10.0,
+    "hbridge_peak_a": 30.0,
+    "motor_start_factor": 2.0,
+    "main_feed_mm": 600.0,
+    "main_feed_awg": 12,
+    "branch_awg_min": 20,
+    "main_feed_drop_frac": 0.02,
+    "servo_buck_a": 5.0,
     "trough_w": 125.0,
     "trough_wall": 1.8,
     "trough_x0": 30.0,
@@ -415,6 +444,49 @@
     "lift_lead_drop_v": 0.34,
     "phase_extension_m": 1.81,
     "phase_extension_mohm": 15.0,
+    "power_total_a": 23.3,
+    "power_budget_a": 24.0,
+    "main_fuse_a": 30.0,
+    "contactor_a": 30.0,
+    "main_feed_drop_v": 0.15,
+    "esc_supply_a": 6.4,
+    "wheel_inertia_kgm2": 0.00155,
+    "wheel_spinup_w_max": 107,
+    "wheel_spinup_s": 4.82,
+    "branch_fuses": {
+      "launcher ESC, top": {
+        "fuse_a": 15.0,
+        "awg": 16
+      },
+      "launcher ESC, bottom": {
+        "fuse_a": 15.0,
+        "awg": 16
+      },
+      "dual H-bridge: base (two gearmotors) and elevation actuator": {
+        "fuse_a": 7.5,
+        "awg": 20
+      },
+      "lift gearmotor MOSFET": {
+        "fuse_a": 3.0,
+        "awg": 20
+      },
+      "agitator gearmotor MOSFET": {
+        "fuse_a": 1.0,
+        "awg": 20
+      },
+      "azimuth stepper driver": {
+        "fuse_a": 1.0,
+        "awg": 20
+      },
+      "servo buck, 6 V": {
+        "fuse_a": 2.0,
+        "awg": 20
+      },
+      "Pi buck, 5 V (before the contactor)": {
+        "fuse_a": 2.0,
+        "awg": 20
+      }
+    },
     "agitator_torque_nm": 0.443,
     "agitator_torque_margin": 3.39,
     "agitator_passes_per_min": 40.0,
@@ -464,8 +536,8 @@
     "levelling_foot": 0.0
   },
   "files": {
-    "README.txt": "e3c49b7526dc9feaa49013ace99a4be41ac7456af26b3a3900553e403bd09da4",
-    "bom.csv": "e5bd5cfddbde40453eaf919d758143eae8098f285c25fb670ec4829cb6224d25",
+    "README.txt": "dbc87233bd73e3a86e7edc5cc65b656e32d98a015273fb10b88d6b410b7e7946",
+    "bom.csv": "858128948c920493daffd010ce1cbddcc713d374a6221e4ae0b6ec5c46bda0ff",
     "cut_list.csv": "a2b718b388db887626e387116c24a47df043fbf15afa1169b9e556306748c3db",
     "drawings/assembly_front.svg": "4abff2f3c38860bba2b6f26c26cc5ed0ae65d4e69e279a98baffc435b4d20ffb",
     "drawings/assembly_side.svg": "7a0126ab13a1059976ad19147dfb6b27185dcb2d81523f82fefd5da231335ae2",

@@ -18,9 +18,11 @@ Knotless netting,1,"25-35 mm mesh, ~3.5 x 3 m",40,
 Hopper + chute,1,"PETG sheet or cut tub, 70 mm tube",30,
 LiFePO4 battery,1,"24 V (8S) 20 Ah with BMS",220,
 Charger,1,29.2 V LiFePO4,40,
-E-stop switch + contactor,1,NC mushroom + 24 V contactor,30,
+E-stop switch + contactor,1,"NC mushroom + 24 V coil contactor, 30 A DC or more",30,
 Wireless e-stop relay remote,1,latching,25,
 5 V 5 A buck converter,1,for the Pi,12,
 6-7.4 V BEC,1,for servos,10,
-Fuse holder + fuses,1,30 A,10,
+Main fuse + inline holder,1,30 A (ATO blade or MIDI),10,battery positive within 150 mm of the terminal
+Blade fuse block + fuses,1,"8-way with negative bus; 15 A x2, 7.5 A, 3 A, 2 A x2, 1 A x2",15,branch fuses (hardware/electronics.md)
+Inline ATO fuse holder,1,for the Pi's 2 A fuse,3,before the contactor
 Wiring + connectors + fasteners,1,,50,

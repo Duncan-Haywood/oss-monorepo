@@ -121,6 +121,24 @@ def _hose_curve_range_3d(o: tuple, m: tuple, u: tuple, r_min: float, slope_min: 
 # fine-strand hook-up wire of that gauge (an assumption: read your reel). Used by the cable checks (2026-11-13).
 AWG_OHM_PER_M = {14: 8.29e-3, 16: 13.2e-3, 18: 20.9e-3, 20: 33.3e-3, 22: 52.9e-3, 24: 84.2e-3, 26: 134e-3}
 AWG_OD_MM = {14: 3.0, 16: 2.5, 18: 2.0, 20: 1.7, 22: 1.5, 24: 1.3, 26: 1.1}
+# Heavier gauges for the battery feed (same standard table), kept apart so the lead-loss tables above stay as they were.
+FEED_AWG_OHM_PER_M = {12: 5.21e-3, 10: 3.28e-3, 8: 2.06e-3}
+# Current each gauge may carry in a tied bundle on the deck, the figure a branch fuse must not exceed (2026-11-14). An
+# assumption on the low side of published chassis-wiring tables: silicone hook-up wire is often rated well above it, so
+# read your wire's rating before fusing a branch higher.
+AWG_AMPS = {8: 55.0, 10: 40.0, 12: 30.0, 14: 20.0, 16: 15.0, 18: 10.0, 20: 7.5, 22: 5.0, 24: 3.5, 26: 2.2}
+# Blade (ATO/ATC) fuse ratings, then MIDI bolt-down ratings above 40 A.
+FUSE_SIZES_A = (1.0, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 50.0, 60.0, 80.0, 100.0)
+
+
+def fuse_for(amps: float) -> float:
+    """Smallest standard fuse rating at or above `amps`."""
+    return next(f for f in FUSE_SIZES_A if f >= amps - 1e-9)
+
+
+def gauge_for(amps: float) -> int:
+    """Thinnest gauge in AWG_AMPS that may carry `amps` (a branch wire sized to its fuse)."""
+    return max(g for g, a in AWG_AMPS.items() if a >= amps - 1e-9)
 
 
 @functools.lru_cache(maxsize=4096)
@@ -641,6 +659,42 @@ class Feeder:
     esc_phase_peak_a: float = 30.0    # launcher phase current (RMS) during spin-up (assumption: log yours)
     esc_phase_loss_frac: float = 0.05  # phase extension loss at that current at most this share of the motor's 1 kW peak
     launcher_peak_w: float = 1000.0
+    # Power distribution (2026-11-14, `power_distribution`, `check_power`): one fuse per branch after the e-stop
+    # contactor, each branch's current from the loads' figures, every load drawing at once (the worst case: a drill
+    # starting, wheels spinning up while the base moves and the head aims) held under the BMS's continuous limit. Every
+    # current below is an assumption from the part classes in the BOM: read your parts' datasheets and log your build.
+    battery_v_min: float = 24.0       # currents are sized at the low-battery cut (firmware config LOW_BATTERY_MV)
+    bms_cont_a: float = 30.0          # BMS continuous discharge limit (assumption: a 20 Ah 8S LiFePO4 pack's class)
+    bms_use_frac: float = 0.8         # the worst simultaneous load at most this share of it
+    launch_wheel_kg: float = 0.40     # one launcher wheel with its hub (assumption: weigh yours)
+    launch_wheel_k: float = 0.6       # I / (m r^2) of a wheel: tread mass toward the rim (a solid disc is 0.5)
+    launch_rotor_kgm2: float = 2.0e-4  # outrunner rotor (assumption: 63 mm e-skate class)
+    launch_drag_w: float = 30.0       # shaft power that holds a wheel at speed, bearings and air (assumption: log yours)
+    esc_eff: float = 0.85             # battery to shaft through the ESC and motor (assumption)
+    esc_fuse_factor: float = 2.0      # ESC fuse over its ramped peak: room for the speed loop's recovery after a ball
+    wheel_spinup_w: float = 100.0     # firmware cap on each wheel's spin-up shaft power (config WHEEL_SPINUP_W)
+    wheel_ramp_max_rpm_s: float = 1500.0  # and on its ramp at low speed (config WHEEL_RAMP_MAX_RPM_S): the once-per-rev
+                                          # tach reads 0 for the first revolutions, and a faster start let the speed
+                                          # loop push the wheel past its ramp (tests/spinup_ramp_sweep.py)
+    pi_w: float = 12.0                # Pi 5 and cameras (hardware/electronics.md power budget)
+    pi_buck_w: float = 25.0           # the Pi's 5 V 5 A buck at its limit
+    buck_eff: float = 0.9             # both bucks (assumption)
+    lift_motor_run_a: float = 2.0     # lift gearmotor running (assumption: 37 mm 24 V class near its rated torque)
+    agit_motor_run_a: float = 0.8     # agitator gearmotor running (assumption)
+    agit_motor_stall_a: float = 2.0   # and stalled (assumption)
+    elev_act_run_a: float = 2.0       # elevation actuator at its rated push (assumption: 50 lb 24 V class)
+    elev_act_stall_a: float = 3.0     # and at its end stops or stalled (assumption)
+    base_motor_run_a: float = 2.0     # each base gearmotor moving the base (assumption: same 37 mm class as the lift)
+    base_motor_stall_a: float = 5.5   # and stalled or starting
+    hbridge_cont_a: float = 10.0      # dual H-bridge (MDD10A class): base on one channel, elevation on the other
+    hbridge_peak_a: float = 30.0      # its peak per channel (a few seconds)
+    motor_start_factor: float = 2.0   # a motor starts at its stall current for a few ms: fuse at least stall / this
+    main_feed_mm: float = 600.0       # battery terminal to the main fuse, contactor and fuse block, each conductor
+                                      # (battery at x -450, the electronics at -600, risers and slack: an estimate)
+    main_feed_awg: int = 12
+    branch_awg_min: int = 20          # no branch thinner than this: screw terminals and handling (a choice)
+    main_feed_drop_frac: float = 0.02
+    servo_buck_a: float = 5.0         # the servo's 6 V buck at its limit (BOM: 6 V 5 A)
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -1176,6 +1230,7 @@ class Feeder:
         bad += self.check_az_stops()
         bad += self.check_cables()
         bad += self.check_deck_cables()
+        bad += self.check_power()
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_agitator()
@@ -2096,6 +2151,104 @@ class Feeder:
         if e["phase"]["phase_frac"] > self.esc_phase_loss_frac:
             bad.append(f"launcher phase extension ({e['gauges']['phase']} AWG, {e['phase_m']:.2f} m) loses "
                        f"{e['phase']['phase_frac']:.1%} of a motor's peak at {self.esc_phase_peak_a:g} A: heavier wire")
+        return bad
+
+    # ---- power distribution (2026-11-14) ---------------------------------------
+    @property
+    def launch_wheel_kgm2(self) -> float:
+        """One launcher wheel and its motor's rotor, turning together."""
+        r = self.wheel_head_d / 2000
+        return self.launch_wheel_k * self.launch_wheel_kg * r * r + self.launch_rotor_kgm2
+
+    def spinup_s(self, rpm: float, power_w: float | None = None) -> float:
+        """Seconds the firmware's ramp (`controller.SpinupRamp`) takes a wheel from rest to `rpm`: a constant
+        `wheel_ramp_max_rpm_s` until the shaft power I w a reaches `power_w` (default `wheel_spinup_w`), then constant
+        power, so rpm^2 grows at 2 k with k = P / I (60 / 2 pi)^2."""
+        p = self.wheel_spinup_w if power_w is None else power_w
+        k = p / self.launch_wheel_kgm2 * (60 / (2 * math.pi)) ** 2
+        rpm_c = k / self.wheel_ramp_max_rpm_s
+        if rpm <= rpm_c:
+            return rpm / self.wheel_ramp_max_rpm_s
+        return rpm_c / self.wheel_ramp_max_rpm_s + (rpm * rpm - rpm_c * rpm_c) / (2 * k)
+
+    def power_distribution(self) -> dict:
+        """Branch currents, fuses and wire gauges after the main fuse, the contactor's and main fuse's ratings, and the
+        worst simultaneous draw against the BMS (2026-11-14). A branch fuse is the smallest standard rating at or above
+        1.25 times its running current and at or above a motor's stall current over `motor_start_factor` (a motor
+        starts at stall current for a few ms; a blade fuse at twice its rating takes 0.15 s or more to open), and its
+        wire the thinnest gauge in AWG_AMPS that carries the fuse's rating. The launcher ESCs draw what the firmware's
+        spin-up ramp allows, (WHEEL_SPINUP_W + drag) / (efficiency x volts), fused at `esc_fuse_factor` times that, since
+        the speed loop's recovery after each ball is not modelled. The Pi's buck sits before the contactor, so the Pi and
+        the ESP32 it feeds stay up through an e-stop and report it; every other branch is switched."""
+        v, eff = self.battery_v_min, self.buck_eff
+        e = self.deck_cable_electrics()
+        coil = self.stepper_coil_ohm * (1 + e["stepper"]["stepper_frac"])
+        esc_a = (self.wheel_spinup_w + self.launch_drag_w) / (self.esc_eff * v)
+        stepper_a = 2 * self.stepper_amps ** 2 * coil / (eff * v)
+        rows = [
+            # name, running A, peak A, least fuse A, switched
+            ("launcher ESC, top", esc_a, esc_a, self.esc_fuse_factor * esc_a, True),
+            ("launcher ESC, bottom", esc_a, esc_a, self.esc_fuse_factor * esc_a, True),
+            ("dual H-bridge: base (two gearmotors) and elevation actuator",
+             2 * self.base_motor_run_a + self.elev_act_run_a, 2 * self.base_motor_stall_a + self.elev_act_stall_a, None, True),
+            ("lift gearmotor MOSFET", self.lift_motor_run_a, self.lift_motor_stall_a, None, True),
+            ("agitator gearmotor MOSFET", self.agit_motor_run_a, self.agit_motor_stall_a, None, True),
+            ("azimuth stepper driver", stepper_a, stepper_a, None, True),
+            ("servo buck, 6 V", self.servo_supply_v * self.servo_stall_a / (eff * v), self.servo_supply_v * self.servo_stall_a / (eff * v),
+             1.25 * self.servo_supply_v * self.servo_buck_a / (eff * v), True),
+            ("Pi buck, 5 V (before the contactor)", self.pi_w / (eff * v), self.pi_w / (eff * v), 1.25 * self.pi_buck_w / (eff * v), False),
+        ]
+        branches = []
+        for name, run, peak, least, switched in rows:
+            if least is None:
+                least = max(1.25 * run, peak / self.motor_start_factor)
+            fuse = fuse_for(least)
+            branches.append({"name": name, "run_a": run, "peak_a": peak, "fuse_a": fuse, "awg": min(gauge_for(fuse), self.branch_awg_min),
+                             "switched": switched})
+        total = sum(b["run_a"] for b in branches)
+        switched = sum(b["run_a"] for b in branches if b["switched"])
+        others = total - 2 * esc_a
+        budget = self.bms_use_frac * self.bms_cont_a
+        main = fuse_for(1.25 * total)
+        ohm = {**AWG_OHM_PER_M, **FEED_AWG_OHM_PER_M}[self.main_feed_awg]
+        drop = total * 2 * self.main_feed_mm / 1000 * ohm
+        top = self.wheel_rpm_max
+        return {"branches": branches, "esc_a": esc_a, "total_a": total, "switched_a": switched, "budget_a": budget,
+                "spinup_w_max": (budget - others) * self.esc_eff * v / 2 - self.launch_drag_w,
+                "main_fuse_a": main, "contactor_a": main, "main_drop_v": drop, "main_drop_frac": drop / v,
+                "inertia_kgm2": self.launch_wheel_kgm2, "spinup_s": {"launch": self.spinup_s(max(self.launch_rpm)),
+                                                                      "top": self.spinup_s(top)},
+                "unramped_esc_a": (self.launcher_peak_w / self.esc_eff) / v,
+                "hbridge": {"base_run_a": 2 * self.base_motor_run_a, "base_peak_a": 2 * self.base_motor_stall_a,
+                            "elev_run_a": self.elev_act_run_a, "elev_peak_a": self.elev_act_stall_a}}
+
+    def check_power(self) -> list[str]:
+        bad = []
+        d = self.power_distribution()
+        if d["total_a"] > d["budget_a"] + 1e-9:
+            bad.append(f"every load at once draws {d['total_a']:.1f} A, over {self.bms_use_frac:.0%} of the BMS's "
+                       f"{self.bms_cont_a:g} A ({d['budget_a']:.1f} A): lower wheel_spinup_w to {max(d['spinup_w_max'], 0):.0f} W or less")
+        if d["main_fuse_a"] > AWG_AMPS[self.main_feed_awg] + 1e-9:
+            bad.append(f"main fuse {d['main_fuse_a']:g} A is over what the {self.main_feed_awg} AWG battery feed carries "
+                       f"({AWG_AMPS[self.main_feed_awg]:g} A): heavier feed")
+        if d["main_drop_frac"] > self.main_feed_drop_frac + 1e-9:
+            bad.append(f"battery feed drops {d['main_drop_v']:.2f} V at {d['total_a']:.1f} A "
+                       f"({self.main_feed_drop_frac:.0%} of {self.battery_v_min:g} V allowed): heavier or shorter feed")
+        by = {b["name"]: b for b in d["branches"]}
+        g_lift = self.lift_wires[0][2]
+        if by["lift gearmotor MOSFET"]["fuse_a"] > AWG_AMPS[g_lift] + 1e-9:
+            bad.append(f"lift lead ({g_lift} AWG, {AWG_AMPS[g_lift]:g} A) is under its {by['lift gearmotor MOSFET']['fuse_a']:g} A fuse")
+        g_step = self.stepper_wires[0][2]
+        if self.stepper_amps > AWG_AMPS[g_step] + 1e-9:
+            bad.append(f"stepper coils ({g_step} AWG, {AWG_AMPS[g_step]:g} A) under the driver's {self.stepper_amps:g} A")
+        if self.servo_buck_a > AWG_AMPS[self.servo_lead_awg] + 1e-9:
+            bad.append(f"servo supply ({self.servo_lead_awg} AWG, {AWG_AMPS[self.servo_lead_awg]:g} A) is under the "
+                       f"buck's {self.servo_buck_a:g} A limit")
+        h = d["hbridge"]
+        for ch, run, peak in (("base", h["base_run_a"], h["base_peak_a"]), ("elevation", h["elev_run_a"], h["elev_peak_a"])):
+            if run > self.hbridge_cont_a + 1e-9 or peak > self.hbridge_peak_a + 1e-9:
+                bad.append(f"H-bridge {ch} channel: {run:g} A running and {peak:g} A peak, over its "
+                           f"{self.hbridge_cont_a:g} A / {self.hbridge_peak_a:g} A")
         return bad
 
     def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:

@@ -1952,10 +1952,14 @@ COTS_EXTRA = [
     ("Silicone wire 20 AWG pair", 1, "lift gearmotor, deck to motor (manifest lift_lead_mm)"),
     ("Spiral wrap, 12 mm, 1 m", 1, "the deck-side run, deck to the axis clamp"),
     ("TCRT5000 reflective sensor", 2, "wheel tachometers"),
-    ("22 mm NC mushroom e-stop + 24 V contactor", 1, "hard power cut"),
+    ("22 mm NC mushroom e-stop + 24 V coil contactor, 30 A DC or more", 1, "hard power cut; everything but the Pi's buck is after it"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
-    ("30 A blade fuse + holder", 1, "battery positive"),
+    ("30 A fuse (ATO/ATC blade or MIDI) + inline holder", 1, "battery positive, within 150 mm of the terminal (manifest power line)"),
+    ("Blade fuse block, 8-way, with a negative bus", 1, "on the deck after the contactor; branch fuses and gauges in the manifest power line"),
+    ("ATO blade fuses: 15 A x2, 7.5 A, 3 A, 2 A x2, 1 A x2", 1, "launcher ESCs, H-bridge, lift, servo and Pi bucks, agitator and stepper (manifest power line)"),
+    ("Inline ATO fuse holder", 1, "the Pi's buck, between the main fuse and the contactor, so the Pi and ESP32 stay up through an e-stop"),
+    ("Silicone wire 12 AWG red and black, 1 m each", 1, "battery to the main fuse, contactor and fuse block"),
     ("Knotless netting, 25-35 mm mesh", 1, "about 3.5 x 3 m"),
     ("Ballast (sand bags or water cells), see manifest", 1, "tip-over margin"),
 ]
@@ -2058,6 +2062,19 @@ def deck_cable_line(p: Feeder) -> str:
             f"{e['phase_m']:.2f} m of {e['gauges']['phase']} AWG, {ph['phase_mohm']:.0f} mOhm: {ph['phase_frac']:.1%} of a "
             f"motor's {p.launcher_peak_w:g} W at an assumed {p.esc_phase_peak_a:g} A spin-up ({e['awg'][16]['phase_frac']:.1%} "
             f"at 16 AWG)")
+
+
+def power_line(p: Feeder) -> str:
+    d = p.power_distribution()
+    fuses = "; ".join(f"{b['name']} {b['run_a']:.1f} A, {b['fuse_a']:g} A fuse, {b['awg']} AWG" for b in d["branches"])
+    return (f"power: {p.main_feed_awg} AWG battery feed ({d['main_drop_v']:.2f} V drop at {d['total_a']:.1f} A) through a "
+            f"{d['main_fuse_a']:g} A main fuse within 150 mm of the terminal and an e-stop contactor rated {d['contactor_a']:g} A "
+            f"DC or more, to a fuse block on the deck. Branches (running current with every load on at "
+            f"{p.battery_v_min:g} V; assumed figures): {fuses}. Every load at once: {d['total_a']:.1f} A, "
+            f"{p.bms_use_frac:.0%} of the BMS's assumed {p.bms_cont_a:g} A is {d['budget_a']:.1f} A. The launcher ESCs "
+            f"draw what the firmware's spin-up ramp allows ({p.wheel_spinup_w:g} W of shaft power per wheel, up to "
+            f"{d['spinup_w_max']:.0f} W fits; from rest to {max(p.launch_rpm):.0f} rpm in {d['spinup_s']['launch']:.1f} s); "
+            f"at the motor's {p.launcher_peak_w:g} W peak, unramped, each would ask {d['unramped_esc_a']:.0f} A")
 
 
 def structure_kg(p: Feeder, mass_g: float) -> float:
@@ -2185,6 +2202,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, shuttle_line(p))
         checks.insert(-3, cable_line(p))
     checks.insert(-3, deck_cable_line(p))
+    checks.insert(-3, power_line(p))
     checks.insert(-3, trough_line(p))
     checks.insert(-3, lift_line(p))
     checks.insert(-3, agitator_line(p))
@@ -2218,6 +2236,13 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                     "stepper_lead_frac": round(de["stepper"]["stepper_frac"], 3),
                     "lift_lead_drop_v": round(de["lift"]["lift_drop_v"], 2),
                     "phase_extension_m": round(de["phase_m"], 2), "phase_extension_mohm": round(de["phase"]["phase_mohm"], 1)})
+    pd = p.power_distribution()
+    derived.update({"power_total_a": round(pd["total_a"], 1), "power_budget_a": round(pd["budget_a"], 1),
+                    "main_fuse_a": pd["main_fuse_a"], "contactor_a": pd["contactor_a"],
+                    "main_feed_drop_v": round(pd["main_drop_v"], 2), "esc_supply_a": round(pd["esc_a"], 1),
+                    "wheel_inertia_kgm2": round(pd["inertia_kgm2"], 5), "wheel_spinup_w_max": round(pd["spinup_w_max"]),
+                    "wheel_spinup_s": round(pd["spinup_s"]["launch"], 2),
+                    "branch_fuses": {b["name"]: {"fuse_a": b["fuse_a"], "awg": b["awg"]} for b in pd["branches"]}})
     ad = p.agitator_design()
     derived.update({"agitator_torque_nm": round(ad["torque_nm"], 3), "agitator_torque_margin": round(ad["torque_margin"], 2),
                     "agitator_passes_per_min": ad["passes_per_min"], "agitator_wall_clear_mm": round(ad["wall_clear_mm"], 1),

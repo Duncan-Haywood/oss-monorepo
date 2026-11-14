@@ -1409,13 +1409,38 @@ class SweepExitCode(unittest.TestCase):
 
     def test_out_of_budget_alone_is_not_a_pass(self):
         code, out = self.sweep(runner.BUDGET_SPENT)
-        self.assertEqual(code, 1)
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertNotIn(code, (0, 1))
         self.assertIn("ran out of budget with no verdict", out)
+        self.assertIn("NO VERDICT", out)
 
     def test_no_verdict_after_a_skipped_step_alone_is_not_a_pass(self):
         code, out = self.sweep(runner.AFTER_SKIP)
-        self.assertEqual(code, 1)
+        self.assertEqual(code, runner.NO_VERDICT)
         self.assertIn("no verdict after a skipped step", out)
+
+    def test_no_verdict_is_distinct_from_every_other_exit(self):
+        # 1 failed, 2 usage error, 3 handed off: a reader (or a script)
+        # must be able to tell "unverifiable here" from all three.
+        self.assertNotIn(runner.NO_VERDICT,
+                         (0, 1, 2, runner.HANDED_OFF))
+
+    def test_a_failure_beside_a_no_verdict_still_exits_1(self):
+        real_report, real_fp = runner.report, runner.checkout_fingerprint
+        codes = iter([1, runner.BUDGET_SPENT])
+        runner.report = lambda *a, **k: next(codes)
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("a.yml", wf, {"j"}), ("b.yml", wf, {"j"})], [])
+        finally:
+            runner.report, runner.checkout_fingerprint = real_report, real_fp
+        self.assertEqual(code, 1)
+        self.assertNotIn("NO VERDICT", out.getvalue())
 
     def test_a_clean_workflow_passes(self):
         code, _ = self.sweep(0)

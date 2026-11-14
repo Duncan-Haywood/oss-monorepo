@@ -14,7 +14,7 @@ try:
 except ImportError:  # pragma: no cover
     HAVE_CAD = False
 
-from otr_cad.params import AWG_OHM_PER_M, Collector, Feeder
+from otr_cad.params import AWG_AMPS, AWG_OHM_PER_M, FUSE_SIZES_A, Collector, Feeder, fuse_for, gauge_for
 
 HERE = Path(__file__).resolve().parent
 COMMITTED = HERE.parent.parent / "manufacturing" / "collector-package.zip"
@@ -1263,6 +1263,82 @@ class LiftCadTest(unittest.TestCase):
                 moving, _ = self.F.turned_solids(p, elev, az)
                 self.assertEqual(clashes(moving + lift), [c for c in clashes(lift)], (elev, az))
 
+
+
+class PowerParamsTest(unittest.TestCase):
+    """Power distribution (2026-11-14): branch fuses and gauges, the main fuse and contactor, the BMS budget."""
+
+    def test_defaults_pass_and_the_branches_add_up(self):
+        p = Feeder()
+        self.assertEqual(p.check_power(), [])
+        d = p.power_distribution()
+        self.assertAlmostEqual(d["total_a"], sum(b["run_a"] for b in d["branches"]))
+        self.assertLessEqual(d["total_a"], p.bms_use_frac * p.bms_cont_a)
+        self.assertGreaterEqual(d["main_fuse_a"], 1.25 * d["total_a"])
+        self.assertLessEqual(d["main_fuse_a"], AWG_AMPS[p.main_feed_awg])
+        self.assertEqual(d["main_fuse_a"], 30.0)            # the 30 A the wiring notes always named, now derived
+        self.assertGreaterEqual(d["contactor_a"], d["main_fuse_a"])
+        for b in d["branches"]:
+            self.assertIn(b["fuse_a"], FUSE_SIZES_A)
+            self.assertGreaterEqual(b["fuse_a"], 1.25 * b["run_a"] - 1e-9, b["name"])
+            self.assertGreaterEqual(b["fuse_a"] * p.motor_start_factor, b["peak_a"] - 1e-9, b["name"])
+            self.assertGreaterEqual(AWG_AMPS[b["awg"]], b["fuse_a"], b["name"])   # every fuse protects its wire
+            self.assertLessEqual(b["awg"], p.branch_awg_min)
+        # only the Pi's buck is upstream of the contactor, so the Pi and ESP32 see the e-stop
+        self.assertEqual([b["name"] for b in d["branches"] if not b["switched"]], ["Pi buck, 5 V (before the contactor)"])
+        # the ESCs draw what the ramp allows; a spin-up at the motor's peak would ask over 3x the BMS for two wheels
+        self.assertAlmostEqual(d["esc_a"], (p.wheel_spinup_w + p.launch_drag_w) / (p.esc_eff * p.battery_v_min))
+        self.assertGreater(2 * d["unramped_esc_a"], 3 * p.bms_cont_a)
+
+    def test_spinup_time_is_the_ramp_integrated(self):
+        p = Feeder()
+        k = p.wheel_spinup_w / p.launch_wheel_kgm2 * (60 / (2 * math.pi)) ** 2
+        rpm, t, dt = 0.0, 0.0, 1e-4
+        while rpm < 6000:
+            rpm = min(rpm + p.wheel_ramp_max_rpm_s * dt, math.sqrt(rpm * rpm + 2 * k * dt), 6000)
+            t += dt
+        self.assertAlmostEqual(p.spinup_s(6000), t, delta=2e-3)
+        self.assertAlmostEqual(p.spinup_s(500), 500 / p.wheel_ramp_max_rpm_s)
+        self.assertAlmostEqual(p.launch_wheel_kgm2, p.launch_wheel_k * p.launch_wheel_kg * (p.wheel_head_d / 2000) ** 2
+                               + p.launch_rotor_kgm2)
+
+    def test_fuse_and_gauge_tables(self):
+        self.assertEqual(fuse_for(2.5), 3.0)
+        self.assertEqual(fuse_for(30.0), 30.0)
+        self.assertEqual(fuse_for(30.01), 35.0)
+        self.assertEqual(gauge_for(15.0), 16)
+        self.assertEqual(gauge_for(15.01), 14)
+        self.assertEqual(gauge_for(1.0), 26)
+
+    def test_rules_catch_bad_changes(self):
+        cases = [
+            ({"wheel_spinup_w": 200.0}, "lower wheel_spinup_w to 107 W"),
+            ({"bms_cont_a": 20.0}, "over 80% of the BMS's 20 A"),
+            ({"main_feed_awg": 14}, "main fuse 30 A is over what the 14 AWG"),
+            ({"main_feed_mm": 3000.0}, "battery feed drops"),
+            ({"lift_wires": (("lift gearmotor", 2, 26),)}, "lift lead (26 AWG"),
+            ({"servo_lead_awg": 24}, "servo supply (24 AWG"),
+            ({"stepper_amps": 6.0}, "stepper coils (22 AWG"),
+            ({"base_motor_stall_a": 16.0}, "H-bridge base channel"),
+            ({"elev_act_run_a": 12.0}, "H-bridge elevation channel"),
+        ]
+        for kw, msg in cases:
+            bad = Feeder(**kw).check_power()
+            self.assertTrue(any(msg in r for r in bad), (kw, bad))
+        self.assertTrue(any("BMS" in r for r in Feeder(wheel_spinup_w=200.0).check()))
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class PowerBomTest(unittest.TestCase):
+    def test_bom_fuse_list_is_the_model_s(self):
+        from collections import Counter
+        from otr_cad.feeder import COTS_EXTRA
+        row = next(name for name, _, _ in COTS_EXTRA if name.startswith("ATO blade fuses: "))
+        listed = Counter()
+        for item in row.split(": ", 1)[1].split(", "):
+            amps, _, rest = item.partition(" A")
+            listed[float(amps)] += int(rest.strip(" x") or 1)
+        self.assertEqual(listed, Counter(b["fuse_a"] for b in Feeder().power_distribution()["branches"]))
 
 
 class DeckCableParamsTest(unittest.TestCase):

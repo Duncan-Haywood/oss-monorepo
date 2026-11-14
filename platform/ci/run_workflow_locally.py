@@ -35,6 +35,10 @@ each step's `working-directory`, and reports which passed.
 
 Under an agent harness a run still going after 100 s detaches and prints
 its log path and a `wait_for.py` line (exit 3); `--foreground` stays attached.
+A sweep exits 0 when every selected workflow passed, 1 when a step failed
+(or the checkout moved, or nothing was selected), and 5 (NO_VERDICT) when
+nothing failed but a workflow ran out of budget or stopped after a skipped
+step: not a pass, and not a failure either.
 
 `--for-changes` and `--tree` ask different questions and the difference
 matters. The first is "is my diff sound?" and on a clean checkout it
@@ -1476,6 +1480,15 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
 BUDGET_SPENT = 3
 # report()'s exit when steps failed only after a step of their job was skipped.
 AFTER_SKIP = 4
+# The sweep's exit (`--for-changes`, `--tree`) when no step failed but some
+# workflow reached no verdict (BUDGET_SPENT or AFTER_SKIP). Still not a pass,
+# but not 1 either: through 2026-11-14 a text-only diff ended `DONE exit 1`
+# because portfolio-pages.yml's site-builder suite outran the 300 s budget,
+# and some twenty run records in two days had to read the log to learn that
+# nothing had failed ("an exit code that separates 'failed' from
+# 'unverifiable here' would save a reading pass"). 5, not 2 or 3: 2 is a
+# usage error and 3 is HANDED_OFF.
+NO_VERDICT = 5
 
 
 def report(name, steps, uses_skipped, forced) -> int:
@@ -2007,7 +2020,17 @@ def _run_selected(args, selected, held, absent=()) -> int:
                   "not a reading of anything. Re-run on a checkout nothing else "
                   "is writing to, and do not report either result.")
         return 1
-    return 1 if failures or out_of_budget or after_skip else 0
+    if failures:
+        return 1
+    if out_of_budget or after_skip:
+        unverified = out_of_budget + after_skip
+        print(f"\n  NO VERDICT (exit {NO_VERDICT}): no step failed, but "
+              + ", ".join(unverified) + " reached no verdict here. Not a pass:"
+              "\n  the pull request's CI is the verdict for "
+              + ("it" if len(unverified) == 1 else "them")
+              + "; say so in the PR, or re-run by name (above) to get one.")
+        return NO_VERDICT
+    return 0
 
 
 # Handing a long run to the background. The 120 s default of a foreground

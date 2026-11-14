@@ -154,6 +154,9 @@ class FeederHw:
         self.esc_cmd = [0.0, 0.0]
         rpm_full = getattr(config, "WHEEL_RPM_FULL", 9000)
         self.wheel_loops = (controller.WheelLoop(rpm_full), controller.WheelLoop(rpm_full))
+        ramp = (getattr(config, "WHEEL_SPINUP_W", 100.0), getattr(config, "WHEEL_INERTIA_KGM2", 0.00155),
+                getattr(config, "WHEEL_RAMP_MAX_RPM_S", 1500.0))
+        self.wheel_ramps = (controller.SpinupRamp(*ramp), controller.SpinupRamp(*ramp))
         self.wheels_steady = controller.SteadyGate()
         self.base_target = 0
         self.base_vmax = 0
@@ -180,6 +183,8 @@ class FeederHw:
         self.esc_cmd = [0.0, 0.0]
         for loop in self.wheel_loops:
             loop.i = 0.0
+        for ramp in self.wheel_ramps:
+            ramp.rpm = 0.0
         self.wheels_steady.ok_ms = 0
         self.arm()
         self.base.set(0)
@@ -268,7 +273,8 @@ class FeederHw:
         self.tach_top.update(dt)
         self.tach_bottom.update(dt)
         for i, (esc, tach) in enumerate(((self.esc_top, self.tach_top), (self.esc_bottom, self.tach_bottom))):
-            self.esc_cmd[i] = self.wheel_loops[i].update(self.target_rpm[i], tach.rpm, dt)
+            ramped = self.wheel_ramps[i].update(self.target_rpm[i], tach.rpm, dt)
+            self.esc_cmd[i] = self.wheel_loops[i].update(ramped, tach.rpm, dt)
             esc.frac(self.esc_cmd[i])
         steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         # Base: proportional position control capped at vmax (trapezoid in practice
