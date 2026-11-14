@@ -34,6 +34,10 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on leak 
 
 ![SICAMS-auto's statistic over 2019 with its alarms and the leak onsets](experiments/step13-sicams/sicams_2019.svg)
 
+**Step 14 (2026-11-14): the same network with no leaks. The pressure detectors go silent; the night-flow detectors do not.** BattLeDIM's organisers published `L-TOWN_Real.inp`, the model their data were generated from, without leaks. Simulated over 2018-19 in EPANET, it reproduces the published pressures to the 0.01 m they are rounded to (99.6% of the first week's 5-minute readings exactly), so **the benchmark's SCADA data are model output plus leaks, with no sensor noise**, and the simulation is its exact no-leak counterfactual. On it, with every threshold frozen at its 2018 setting, the pressure CUSUM D1 raises **0 alarms in 716 days** and LILA **1**, against 26 each on the real data. The night-flow detectors raise as many as before (M1 28 against 25, M3 31 against 29), and **scored against the real leak list, M3's leak-free alarms are credited with 14 of the 19 new 2019 leaks**, one more than its real alarms and the same as random alarms (median 13). So the pressure detectors' near-chance counts come from matching alarms to overlapping leaks, not from false alarms, and steps 6 to 10's night-flow scores, step 8's P = 0.001 included, carry no evidence of detection. Two of four pre-registered predictions failed ([step 14](#step-14-leak-free-l-town-from-l-town_realinp-and-the-frozen-detectors-on-it-srcwater_leakssimulatepy-experimentsstep14-leakfree)).
+
+![Each detector's alarms on the real data and on the leak-free simulation](experiments/step14-leakfree/null_alarms.svg)
+
 We also found that **the released LILA identification code is not a blind detector**: its notebook writes in, for each known 2019 leak, the pipe, its most affected sensor and the calibration windows, and then dates that one leak (it prints a 0 h delay for p523). Our automatic version runs LILA's identification over a whole year without those inputs; we know of no earlier such run.
 
 ![D1 and automatic LILA against random alarms on the 2019 new leaks](experiments/step2-lila/lila_vs_chance.svg)
@@ -273,6 +277,32 @@ Plan, set before any SICAMS statistic was computed: [`LOG.md`](LOG.md), 2026-11-
 - **For H1:** a third method, and the first published entry's own times, confirm the restated claim: detection-only counts on L-Town sit at or near chance, and location and timeliness carry the signal. For H2: a false-alarm rate tuned on 2018 does not transfer to 2019 (1 to 26 here), which is the case for a rate certified on leak-free operation.
 - **Not reproduced:** the paper's manual retraining of area C before p31 and p277, its hand-picked training intervals beyond the stated rule, its 5-minute resolution, and Algorithm 2's unstated &alpha; and &delta; (fixed here at 0.05 and a grid). p680's detection time is misprinted in the paper's Table 1 (before onset); its &Delta;t (2 h) was used.
 
+## Step 14: leak-free L-Town from `L-TOWN_Real.inp`, and the frozen detectors on it (`src/water_leaks/simulate.py`, `experiments/step14-leakfree/`)
+
+Plan, set before any simulation was run (with one amendment before any detector ran on it): [`LOG.md`](LOG.md), 2026-11-14 (step 14). Milestone 4.
+
+**Question.** Steps 1 to 13 could compare a detector only with alarms at random times. BattLeDIM's README says `L-TOWN_Real.inp` (Zenodo 4017659, 177 MB) is "the model of the network used to generate the datasets" and "does not contain any leakages". Simulated, it is the benchmark's own no-leak year. What does each detector do on it, and what would the harness credit those alarms with?
+
+**Method.** EPANET 2.2 through WNTR 1.5.0's toolkit wrapper, the file's own options and its PUMP_1/T1 control, stepped hydraulically and read at the 33 pressure sensors, the three SCADA flows and T1 every 5 minutes (`simulate.run_year`; a test checks it on a reservoir-pipe-junction case against Hazen-Williams). The file holds one year of 5-minute patterns per node; each year runs from the file's initial state (primary), or as one continuous two-year run (`--continuous`, a sensitivity added after the results). Rounded to the published files' 0.01 resolution, then hourly means. Step 8's six detectors at their frozen 2018 settings, first on the real data (reproducing step 8's alarm lists), then on the simulation. Null alarms are scored by step 1's harness against the real leak list (30-day window, ungated).
+
+**Results** (`experiments/step14-leakfree/results.txt`; deterministic apart from the seeded chance draws):
+
+| detector | real alarms (per 90 d) | leak-free alarms (per 90 d) | leak-free alarms credited, of 19 new 2019 leaks | random alarms at that count: median (95%) | real 2019 detections | real alarms within 48 h of a leak-free one |
+|---|---|---|---|---|---|---|
+| D1-F (pressure CUSUM) | 26 (3.3) | **0** (0.0) | 0 | n/a | 13 | 0 of 26 |
+| LILA-auto | 26 (3.3) | **1** (0.1) | 0 | 0 (0 to 1) | 14 | 0 of 26 |
+| M1 (night flow) | 25 (3.1) | 28 (3.5) | 9 | 12 (9 to 14) | 10 | 6 of 25 |
+| M2 (M1, weekday) | 15 (1.9) | 4 (0.5) | 1 | 2 (0 to 4) | 7 | 1 of 15 |
+| **M3** (night flow less AMR) | 29 (3.6) | **31** (3.9) | **14** | 13 (10 to 15) | 13 | 8 of 29 |
+| M4 (M3, weekday) | 25 (3.1) | 18 (2.3) | 8 | 8 (5 to 11) | 10 | 4 of 25 |
+
+- **Fidelity.** Over the 336 low-leak hours of 2018 (total leak flow under 1 m&sup3;/h), the median hourly |published &minus; simulated| pressure is at most 0.0008 m at every sensor; flows agree to 0.015 m&sup3;/h and T1 to 0.001 m. Over all hours, the published pressures sit a median 0.5 to 0.6 m below the leak-free ones at the most affected sensors (n229, n429, n54, n410): the leaks' signature. The published data carry no measurement noise beyond rounding.
+- **Pressure detectors are silent without leaks.** Every one of D1-F's 26 alarms and LILA-auto's 26 disappears when the leaks are removed (LILA-auto's one leak-free alarm, 2019-01-10 at n31, matches none of its real ones). Their unmatched alarms on the real data respond to leaks the 30-day matching does not credit, which is why their detection-only counts sit near chance.
+- **Night-flow detectors alarm on the demand year itself.** M1 and M3 raise more alarms with no leaks than with them, and their leak-free alarms earn the same credit random alarms do. The null alarms recur on the same calendar dates in 2018 and 2019 (one year of demand patterns, repeated). Steps 6 to 10's night-flow scores therefore carry no evidence of detection on this benchmark.
+- **The New Year restart does not matter.** The published T1 level is continuous across New Year, but the continuous two-year run gives identical alarm lists for all six detectors (`results_continuous.txt`).
+- **Pre-registered predictions.** (a) fidelity under 0.1 m at 30 or more sensors: **held** (33). (b) both pressure detectors raise at least one leak-free alarm: **failed** (D1-F 0). (c) every detector's leak-free count below its real count: **failed** (M1, M3). (d) some detector's leak-free alarms credited with 3 or more leaks: **held** (M3, 14).
+- **For H2:** without demand uncertainty, L-Town's leak-free false-alarm rate for the residual detectors is close to zero at their 2018 thresholds, so a certified &alpha; on this null is easy and says little. A useful null needs demand and parameter uncertainty that the generator did not add (next steps). Interpretation, not tested: a residual against the public `L-TOWN_Real.inp` would be an oracle detector, and L-Town results that used that file are not comparable with blind ones.
+
 ## Reproduce
 
 ```bash
@@ -303,11 +333,15 @@ python experiments/step12-timesize/figure.py                 # experiments/step1
 pip install scipy                                            # step 13
 PYTHONPATH=src python experiments/step13-sicams/run.py       # SICAMS-auto grid and the published times; about 2 min
 PYTHONPATH=src python experiments/step13-sicams/figure.py    # experiments/step13-sicams/sicams_2019.svg
+pip install wntr==1.5.0                                      # step 14: EPANET via the toolkit; fetches L-TOWN_Real.inp (177 MB) once
+PYTHONPATH=src python experiments/step14-leakfree/run.py     # two simulated years (about 4 min, cached) and the six detectors (about 3 min)
+PYTHONPATH=src python experiments/step14-leakfree/run.py --continuous   # the continuous two-year sensitivity
+PYTHONPATH=src python experiments/step14-leakfree/figure.py  # experiments/step14-leakfree/null_alarms.svg
 ```
 
 ## Limitations
 
-- L-Town is a **simulated** network with simulated leaks and sensor noise; nothing here is a field result or an operational recommendation (drinking-water decisions need licensed engineers and the operator).
+- L-Town is a **simulated** network with simulated leaks; step 14 found its SCADA data carry no sensor noise beyond 0.01 m rounding, so every result here is on noise-free data; nothing here is a field result or an operational recommendation (drinking-water decisions need licensed engineers and the operator).
 - Localisation (steps 11 and 12) uses the uncalibrated nominal model with its T1/PUMP_1 control and 1 h hydraulic steps; step 12 tried hourly signatures and a flow-balance leak size, neither of which helped; LILA's own model-based localisation (LL-1 to LL-3) is not reimplemented. The 300 m rule is along pipes to the leak pipe's midpoint, our reading of BattLeDIM's rule.
 - LILA-auto is our automation of LILA's identification, not the authors' procedure, which used per-leak inputs; its numbers are not the paper's. Hourly means, not 5-minute data. The paper's own 2019 figures were not read (paywalled), so this step does not check against them.
 - One tuning rule (2018, 30-day ungated match). Step 9 shows the chance level and three detectors' verdicts move with the window and gate; each detector's threshold has not yet been re-chosen under the rule it is scored by. Step 10 cross-fits thresholds across the two years (32 test leaks), still too few to separate detectors by a paired test.
@@ -316,6 +350,6 @@ PYTHONPATH=src python experiments/step13-sicams/figure.py    # experiments/step1
 
 ## Next steps
 
-H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 is done (step 13: SICAMS reimplemented and its published times chance-corrected); next for SICAMS, an online (causal) PELT and retraining after each declared leak, and its 2018 FP rate measured on leak-free simulated years. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
+Step 14 (milestone 4) gives the exact leak-free counterfactual: next, a null with the uncertainty the generator left out (demand multipliers perturbed per node and day, roughness and diameters within the README's 10%, sensor noise), seeded 20 or more times, for the e-process threshold (milestone 5, H2); and the oracle residual (published minus leak-free) as an upper bound on detection delay and on localisation for each leak. H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 is done (step 13: SICAMS reimplemented and its published times chance-corrected); next for SICAMS, an online (causal) PELT and retraining after each declared leak, and its 2018 FP rate measured on leak-free simulated years. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
 
 AI-assisted research (Claude); no affiliation with the BattLeDIM organisers is implied. Code MIT; BattLeDIM data CC-BY-4.0 (Vrachimis et al.), not redistributed here.
