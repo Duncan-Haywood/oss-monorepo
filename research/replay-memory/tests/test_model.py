@@ -43,6 +43,33 @@ class T(unittest.TestCase):
             m, _, tot = best_split(d, r, 1.0)
             self.assertEqual(m, r)
 
+    def test_fixed_buffer_endpoints(self):
+        d, r = 32, 4
+        c0 = curve(d, r, lambda t: 0, 30)
+        for k in range(1, 31):
+            self.assertAlmostEqual(c0[k - 1], forget(d, r, k), places=12)
+        self.assertAlmostEqual(total_bernoulli(d, r, 0.25, r), replay_law.total_bernoulli(d, r, 0.25), places=12)
+        self.assertAlmostEqual(total_periodic(d, r, 5, r), replay_law.total_periodic(d, r, 5), places=10)
+        for m in (1, 2, 3):  # one replay: buffer and fresh subset are the same
+            self.assertAlmostEqual(total_one_shot(d, r, 4, m), total_one_shot(d, r, 4, m, fresh=True), places=12)
+
+    def test_fixed_buffer_needs_one_size(self):
+        with self.assertRaises(ValueError):
+            curve(12, 4, lambda t: t % 3, 6)
+
+    def test_fixed_buffer_law_not_the_fresh_one_matches_a_kept_buffer(self):
+        # Quality audit 2026-11-08 (portfolio/quality/audits/2026-11-08-replay-memory.json, defect 0): the 2x2 closure
+        # resamples V at each replay; a kept buffer differs from it by 16% at step 6 (0.0061 vs 0.0071 at 300k runs).
+        d, r, m, T = 12, 4, 2, 6
+        sched = lambda t, *g: m if t % 3 == 0 else 0
+        fixed, fresh = curve(d, r, sched, T), curve(d, r, sched, T, fresh=True)
+        self.assertGreater(fixed[5] - fresh[5], 0.0008)
+        sim = simulate_curve(d, r, sched, T, 12000, random.Random(7))
+        self.assertLess(abs(sim[5] - fixed[5]), 0.0004)
+        self.assertGreater(abs(sim[5] - fresh[5]), 0.0006)
+        simf = simulate_curve(d, r, sched, T, 12000, random.Random(8), fresh=True)
+        self.assertLess(abs(simf[5] - fresh[5]), 0.0004)
+
     def test_simulation_matches_exact_curve(self):
         rng = random.Random(4)
         d, r, m = 9, 3, 2
