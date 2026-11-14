@@ -1066,6 +1066,25 @@ the right line, including two changes back from c3 to c4. Four of the 13 were a 
 a `correction:` header. `node eval/scan-check.mjs --no-clef-change` reads as before. Details:
 `eval/clef-change-check.md`.
 
+### A staff that curls on a flat page
+
+The nine differences left on that fresh list were each cropped from the scan and looked at
+(`eval/staff-curl-check.md`). Three were one-step slips in the GregoBase files, now corrected with a
+`correction:` header (3461 *aquárum:* prints j, 3500 *mihi* prints the porrectus j i k, 3706 *meos*
+prints the clivis g e); a second human reader is wanted. Two are reader faults seen once (a cephalicus
+with its stem on the left, a porrectus top read a step low). The other four were a page that curls at
+its head: on leaf 764 the top three staves slope 9-11 px across while the rest lie flat, so the
+whole-page straightening does not fire, the tilted lines are measured 11-16 px thick, and the heads on
+them are erased (staff 1: 18 of 38 notes read).
+
+`staffSkew` in `scan.mjs` now measures each staff's own slope the same way and, when it moves a line
+10 px or more, reads that staff from the page sheared by it. Level staves read exactly as before.
+On the 88 earlier piece checks, notes agreeing went from 17,205 to 17,272, differences 66 to 63 and
+notes not read 495 to 457. Held out, ten fresh pieces chosen only because a staff on their page slopes
+(7 of 173 leaves surveyed), listed before reading (`eval/staff-curl-fresh-pages.json`): agreeing 1,611
+to 1,688, differences 28 to 21, notes not read 78 to 41, no piece worse. `--no-staff-deskew` reads as
+before.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
