@@ -2,7 +2,7 @@
 title: "Building the permit model only from what was known on 1 January"
 seo_title: "Deployable early stopping for quantile models on censored permit data"
 date: 2026-11-14
-description: "Cutting a borrowed build-time model to data known on 1 January fixed Austin's tail but cost 1.9 days on average: round counts from older years under-fit the 0.9 quantile."
+description: "Cutting a borrowed build-time model to data known on 1 January fixed Austin's tail but cost 1.9 days on average: old-year round counts under-fit q0.9."
 tags: [research, build-data, construction, transfer-learning, censoring, early-stopping, quantile-regression]
 ---
 
