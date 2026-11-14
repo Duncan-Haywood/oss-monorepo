@@ -63,6 +63,8 @@ only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200
 
 **Does the self-tuning battery rule hold on years it has never seen (milestone 6zx)?** Yes. With the feedback table, the 60-day harvest-over-climatology ratio and the blend weights all frozen, and ten new years of NASA POWER sun (2005 to 2014, 30 ocean points) planned with a 2015 to 2024 climatology, the self-tuning rule goes further than the 7-day trailing-mean rule with no more payload downtime in 48 of 56 cases (51 with a 90-day window), against 37 and 44 for the two best fixed rules and 47 for an oracle told the true bias; it never wins fewer than 6 of 8 at any bias from 0.97 to 1.03. All seven pre-registered predictions held. See [`experiments/results_fresh_years.txt`](experiments/results_fresh_years.txt).
 
+**Does the self-tuning rule survive a sun climatology that is wrong by season rather than all year (milestone 6zy)?** Yes, and a seasonal error turns out to be a far milder stress than a uniform one. With the climatology scaled day by day by 1 + A cos(2&pi;(d &minus; &phi;)/365.25), A up to 3% and the peak on 1 January, 1 April, 2 July or 1 October, on 2005 to 2014 sun at the 30 points with everything frozen, the 90-day self-tuning rule goes further than the 7-day rule with no more payload downtime in 93 of 96 cases, an oracle told each day's bias in 94, and the slow fixed rule that failed every case at a uniform 3% pessimism in 96. What hurts a battery rule is the climatology's error averaged over months, not its seasonal shape. Four of seven pre-registered predictions held. See [`experiments/results_seasonal_bias.txt`](experiments/results_seasonal_bias.txt).
+
 ![Wave Glider km/day planned from ERA5 waves on a 10 degree ocean grid, January and July 2024](experiments/waveglider_era5_map.svg)
 
 ![Fielded Wave Glider speed against buoy wave height, early and late in the 2015 mission, with the foil model](experiments/waveglider_speed.svg)
@@ -114,6 +116,7 @@ python3 experiments/run_bias_sweep_posthoc.py > experiments/results_bias_sweep_p
 PYTHONPATH=src python3 experiments/run_self_bias.py > experiments/results_self_bias.txt   # milestone 6zw (trailing harvest / climatology ratio picks tau), a few minutes on 4 cores
 python3 experiments/fetch_sun_2005_2014.py   # milestone 6zx data: NASA POWER 2005-2014 at the 30 points (committed)
 PYTHONPATH=src python3 experiments/run_fresh_years.py > experiments/results_fresh_years.txt   # milestone 6zx (frozen tau table and AT rule on 2005-2014), under a minute on 4 cores
+PYTHONPATH=src python3 experiments/run_seasonal_bias.py > experiments/results_seasonal_bias.txt   # milestone 6zy (seasonal climatology bias, 2005-2014), a few minutes on 4 cores
 PYTHONPATH=src python3 experiments/run_suboff_bare.py > experiments/results_suboff_bare.txt   # milestone 3u (SUBOFF bare-hull form factor), under 1 s
 PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar_mass.txt   # milestone 5d, 10 s
@@ -301,3 +304,5 @@ Milestone 6zv (cross climatology: 2020-2024 plan with 2015-2019 and vice versa; 
 Milestone 6zw (6zv's 56 cells; r(d) = trailing-N harvest / climatology with a 14-day prior; tau table 60 / 30 / 20 / 10 at eff_hat < 0.985 / 1.015 / 1.025 / above; PS's weights): dominance counts of 56 AT_30 42, AT_60 46, AT_90 48, DC (K x r) 24, AD 12, oracle 44, PS 30, PSS 36; AT_60 per s 7/7/7/7/7/6/5; AT_60 km/B >= 1.0 in 52 of 56 (min 0.927); mean eff_hat within 0.01 of eff in 12 of 14 (s, half), max |diff| 0.0135. P1, P2, P4, P5 held; P3, P6, P7 refuted. `experiments/run_self_bias.py`, `LOG.md`.
 
 Milestone 6zx (2005-2014, new to the programme, climatology from 2015-2024; 6zv's bias sweep; table, ratio, weights frozen): dominance counts of 56 AT_30 42, AT_60 48, AT_90 51, oracle 47, PS 37, PSS 44; AT_60 per s 6/7/8/8/7/6/6; AT_60 km/B >= 1.0 in 53 of 56 (min 0.973); realised / climatology 0.9954 (2005-09) and 0.9926 (2010-14). P1 to P7 held. `experiments/run_fresh_years.py`, `LOG.md`.
+
+Milestone 6zy (6zx's data and split; climatology x 1 + A cos(2 pi (d - phi) / 365.25), A 0.01 to 0.03, phi 0 / 91 / 182 / 274 days; rules frozen; 96 seasonal cells): dominance counts of 96 AT_30 82, AT_60 89, AT_90 93, per-day oracle 94, PS 87, PSS 96; AT_90 32 / 31 / 30 of 32 by amplitude; AT_60 km/B >= 1.0 in 96 of 96 (min 1.013). Q1, Q3, Q6, Q7 held; Q2, Q4, Q5 refuted. `experiments/run_seasonal_bias.py`, `LOG.md`.

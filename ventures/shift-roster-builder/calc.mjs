@@ -2574,7 +2574,89 @@ function shiftCostFloor(ctx, p, i) {
   if (ctx.diffMin.length) pay += (ctx.diffMin[i] / 60) * (o.diffPerHour + (w * o.diffPct) / 100);
   return Math.max(0, 1 + o.burdenPct / 100) * pay + toughPenalty(ctx, p, [i]) + avoidPenalty(ctx, p, [i]) - preferBonus(ctx, p, [i]);
 }
-function cliqueLP(ctx, { maxPivots = 200000, priced = false } = {}) {
+// Min-cost assignment of n rows to m >= n columns (Hungarian method with potentials, O(n^2 m)). a is row-major n x m; returns
+// col[r], the column each row takes.
+function assignRows(a, n, m) {
+  const INF = Infinity, u = new Float64Array(n + 1), v = new Float64Array(m + 1), p = new Int32Array(m + 1), way = new Int32Array(m + 1);
+  for (let i = 1; i <= n; i++) {
+    p[0] = i;
+    let j0 = 0;
+    const minv = new Float64Array(m + 1).fill(INF), used = new Uint8Array(m + 1);
+    do {
+      used[j0] = 1;
+      const i0 = p[j0];
+      let delta = INF, j1 = -1;
+      for (let j = 1; j <= m; j++) {
+        if (used[j]) continue;
+        const cur = a[(i0 - 1) * m + (j - 1)] - u[i0] - v[j];
+        if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
+        if (minv[j] < delta) { delta = minv[j]; j1 = j; }
+      }
+      for (let j = 0; j <= m; j++) {
+        if (used[j]) { u[p[j]] += delta; v[j] -= delta; } else minv[j] -= delta;
+      }
+      j0 = j1;
+    } while (p[j0] !== 0);
+    do { const j1 = way[j0]; p[j0] = p[j1]; j0 = j1; } while (j0);
+  }
+  const col = new Int32Array(n).fill(-1);
+  for (let j = 1; j <= m; j++) if (p[j] > 0) col[p[j] - 1] = j - 1;
+  return col;
+}
+// Day-by-day exact reassignment (2026-11-14). On the 60 x 168 week 0 of eval/end-to-end.mjs the posted roster sat $28.97 above a
+// valid roster HiGHS found (eval/score-floor-milp.py): the two differ on 166 of 245 copies, mostly hours moved from dearer to
+// cheaper people through several swaps at once, which polishPay's single moves and swaps cannot make. Here every person's shifts
+// on other days stay put and one day is re-solved exactly: when each person holds at most one shift that day, the score splits
+// into one term per (person, shift) (personScore of the person's other shifts plus that one, less personScore without it) and
+// one per open shift (BIG x its hours), so the best way to staff the day is an assignment problem, solved by assignRows. A person
+// holding two or more shifts that day keeps them and sits the day out. Days are swept until a sweep changes nothing (at most
+// `rounds`); hard rules hold because each pair is checked by validWith against the person's other shifts. Returns the owner.
+function dayReassign(ctx, owner0, { rounds = 6, deadline = Infinity, jitter = 0, rng = null, only = null } = {}) {
+  const { P, S, slots, elig } = ctx;
+  const owner = Array.from(owner0);
+  const NO = 1e15;
+  const days = [...new Set(slots.map((s) => s.day))];
+  for (let round = 0; round < rounds; round++) {
+    let moved = false;
+    for (const d of days) {
+      if (only !== null && d !== only) continue;
+      if (Date.now() > deadline) return owner;
+      const lists = Array.from({ length: P }, () => []);
+      owner.forEach((p, i) => { if (p >= 0) lists[p].push(i); });
+      const onDay = (p) => lists[p].filter((i) => slots[i].day === d);
+      const free = [], fixed = new Set();
+      for (let p = 0; p < P; p++) { const k = onDay(p); if (k.length >= 2) k.forEach((i) => fixed.add(i)); else free.push(p); }
+      const rows = [];
+      for (let i = 0; i < S; i++) if (slots[i].day === d && !fixed.has(i)) rows.push(i);
+      if (!rows.length) continue;
+      const n = rows.length, m = free.length + n;
+      const a = new Float64Array(n * m);
+      const baseOf = free.map((p) => lists[p].filter((i) => slots[i].day !== d).sort((x, y) => slots[x].start - slots[y].start || x - y));
+      const baseScore = free.map((p, k) => personScore(ctx, free[k], baseOf[k]));
+      let cur = 0;
+      for (let r = 0; r < n; r++) {
+        const i = rows[r], h = (slots[i].end - slots[i].start) / 60;
+        for (let k = 0; k < free.length; k++) {
+          const p = free[k];
+          a[r * m + k] = elig[p][i] && validWith(ctx, p, baseOf[k], i) ? personScore(ctx, p, insertSorted(ctx, baseOf[k], i)) - baseScore[k] + (jitter ? rng() * jitter : 0) : NO;
+        }
+        for (let t = 0; t < n; t++) a[r * m + free.length + t] = BIG * h;
+        const k = owner[i] >= 0 ? free.indexOf(owner[i]) : -1;
+        cur += k >= 0 ? a[r * m + k] : BIG * h;
+      }
+      const col = assignRows(a, n, m);
+      let next = 0;
+      for (let r = 0; r < n; r++) next += a[r * m + col[r]];
+      if (!jitter && (!(next < cur - 1e-6) || next >= NO)) continue;
+      if (next >= NO) continue;
+      for (let r = 0; r < n; r++) owner[rows[r]] = col[r] < free.length ? free[col[r]] : -1;
+      moved = true;
+    }
+    if (!moved) break;
+  }
+  return owner;
+}
+function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false } = {}) {
   const { P, S, slots, elig, staff, restMin } = ctx;
   if (!S) return null;
   const len = slots.map((s) => (s.end - s.start) / 60);
@@ -2654,6 +2736,9 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false } = {}) {
     cols[j] = ord.map((e) => e[0]);
     vals[j] = ord.every((e) => e[1] === 1) ? null : ord.map((e) => e[1]);
   }
+  // modelOnly (eval/score-floor-milp.mjs): the model itself, so an outside solver can take it as an integer program. Columns
+  // 0..nx-1 are x[p,s] (xcol gives [p, s]), then the lam columns, then open[s], then one slack per inequality row.
+  if (modelOnly) return { m, cols, vals, cost, eqRows: [...eqRows], nx, nLam: lamCols.length, S, xcol, len };
   // The priced LP's artificials must cost more than any column: open shifts cost BIG per hour.
   const bigM = priced ? Math.max(1e6, 10 * BIG * Math.max(...len)) : 1e6;
   let res;
@@ -3230,6 +3315,30 @@ function buildRosterOnce(staff, slots, options = {}) {
       }
     }
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
+    // Day-by-day reassignment (dayLNS, 2026-11-14), only when the proof is still open: exact day sweeps, then kicks (one day
+    // re-solved with costs jittered by about a third of the average wage) each followed by exact sweeps, keeping a roster only when
+    // it scores less. On the 60 x 168 week 0 the posted roster was $30.11 above the pay floor and HiGHS found one $0.36 above it
+    // (eval/score-floor-milp.py), so the gap was the search. It gets `dayLNSMs` (default 2 s) of its own, past the time budget if
+    // that is spent: the budget stops the earlier passes, and this one is short and only runs on weeks the proof left open.
+    // `dayLNS: false` turns it off.
+    let dayLNS = null;
+    if (!ex.proven && o.dayLNS !== false) {
+      const t0 = Date.now(), deadline = t0 + (o.dayLNSMs ?? 2000), before = best.score;
+      const rng = mulberry32(o.seed + 7919);
+      const days = [...new Set(ctx.slots.map((s) => s.day))];
+      let own = dayReassign(ctx, best.owner, { rounds: 30, deadline }), sc = scoreOwner(ctx, own).total, kicks = 0;
+      while (Date.now() < deadline && days.length) {
+        kicks++;
+        const kicked = dayReassign(ctx, own, { rounds: 1, jitter: Math.max(0.5, ctx.avgWage / 3), rng, only: days[Math.floor(rng() * days.length)], deadline });
+        const q = dayReassign(ctx, kicked, { rounds: 30, deadline });
+        const qs = scoreOwner(ctx, q).total;
+        if (qs < sc - 1e-9) { own = q; sc = qs; }
+      }
+      if (sc < best.score - 1e-9 && ownerValid(ctx, own)) best = { owner: own, score: sc };
+      if (ex.rootBound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
+      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0 };
+      mark("dayLNS");
+    }
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
     optimality = {
       status: ex.proven ? (gap > 1e-6 ? "improved" : "optimal") : "bounded",
@@ -3240,6 +3349,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
       earlyFloor: early,
       cliqueFloor: clique ? { floor: clique.floor, lp: clique.lp, rows: clique.rows, columns: clique.cols, pivots: clique.pivots, ms: clique.ms } : null,
+      dayLNS,
       scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, ms: priced.ms } : null,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
@@ -4883,7 +4993,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, keptStart, BIG, memoKey };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 

@@ -130,15 +130,22 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   worn squares whose flecks make them narrow and tapered are not rhombi unless 0.62 spaces tall. Chosen on 50 pieces
   (false calls 18 to 6 of 7,501, 2 of 1,026 rhombi lost); on six held-out pieces listed before download, 103 of 103
   rhombi kept, false calls 1 to 1 (too few worn squares there to show the gain).
+- 2026-11-14, latest: the four off-final pieces from the supplement read against the book. The 1908 scan does
+  carry the "pro aliquibus locis" supplement (leaf = bracketed page + 585); the verdicts had said it did not.
+  3402 and 3451 end as printed (185/187 and 325/332 agree, 0 GABC errors; 3451's one difference is the reader on a
+  porrectus top). 3419's page [157] prints only the changed middle (33/33 agree) and sends the singer to *Gaudeamus*,
+  p. 486, where 165 notes agree and the ending is the book's. 3427's last three notes were a step low in the GABC
+  (`ni(ed) tas.(d)`; the book prints `ni(fe) tas.(e)`, ending on the mode-7 final): corrected, and the reader then pairs
+  them. 10 of 10 remaining off-final endings are the book's (eval/offfinal-supplement-report.md,
+  eval/scan-check-verdicts.md). `scan-check.mjs --manifest FILE` reads another piece list.
 
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
    Creator (the 1908 book prints them as text under the first verse's
-   melody), find the four supplement-page off-final pieces in a scan that has
-   the "pro aliquibus locis" supplement, teach the reader quilismas and
+   melody), teach the reader quilismas and
    liquescents (rhombi landed 2026-11-13), and have a person look at the Te Deum
-   correction.
+   and 3427 corrections.
 2. **Real-file robustness:** run the converter over a batch of Gregorio files
    and fix whatever it misreads:
    - multi-clef pieces;

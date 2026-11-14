@@ -10,8 +10,24 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (162 of 162,
-revised with milestones 4e–4i) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (175 of 175,
+revised with milestones 4e–4j) and a list of what a submission still needs.
+
+**Milestone 4j headline** (does the update test hold on other cameras? the first data beyond
+OpenCV's stereo pair): **its false-alarm rate does at 5–6 new views; its power does not.** Two cameras from
+the [TUM RGB-D benchmark](https://cvg.cit.tum.de/data/datasets/rgbd-dataset) (CC BY 4.0), a Kinect
+(fr1) and an Xtion (fr3), each with its own checkerboard sequence: 13 views picked by a rule fixed before
+any solve, 11,442 subset solves, and milestone 4i's twin reference with no change. Self-calibration lands
+within 0.64% of TUM's own calibration on the Xtion (+1.85% on the Kinect, whose strong distortion the
+one-term lens model cannot follow). **Against each split's twin threshold the robust jackknife test fires
+on 0.06–0.80% of unchanged updates at 5 and 6 new views, but on 3.3% and 4.7% at 4**, where the delete-one
+sets are 3-view and both the twin and the solver leave their linear regime. **A 2% focal change from 6
+new views is caught in 10% of splits, not 33%**: these hand-held 640×480 captures fix f less precisely
+(0.5–0.7% spread over 6-view sets, against 0.3–0.5%) and the cold-start solver falls into far minima on
+some subsets. The real 1.4% focal difference between the two units is caught in 6–8% of splits, between
+the test's ±1% and ±2% rates on scaled focal lengths. Four of five predictions refuted.
+
+![left: distribution of each split's twin threshold on the two TUM cameras; right: detection against applied focal change at 7 old and 6 new views, with the real unit swap marked](experiments/m4j_tum/reference.png)
 
 **Milestone 4i headline** (can a camera's own bundle adjustment supply the reference for its update
 test? no new real solve): **yes, and it nearly doubles the honest power.** Linearising the unit's
@@ -776,6 +792,12 @@ python3 experiments/m4g_allsplits/analyse.py   # seconds, no new solve; summary.
 python3 experiments/m4h_modelref/analyse.py    # ~30 s, no new solve; summary.json, reference.png
 python3 experiments/m4i_geomref/analyse.py     # ~4 min, no new real solve; summary.json, reference.png
 OMP_NUM_THREADS=1 python3 experiments/m4i_geomref/check.py  # ~25 min on 4 cores; check.json (H59, the linearisation)
+sh experiments/m4j_tum/fetch.sh /tmp/tum                    # milestone 4j: TUM RGB-D fr1 and fr3 sequences (~1.6 GB)
+python3 experiments/m4j_tum/prepare.py fr1 /tmp/tum/rgbd_dataset_freiburg1_rgb_calibration    # corners_fr1.json
+python3 experiments/m4j_tum/prepare.py fr3 /tmp/tum/rgbd_dataset_freiburg3_calibration_rgb_depth  # corners_fr3.json
+OMP_NUM_THREADS=1 python3 experiments/m4j_tum/run.py        # ~2 h on 4 cores; results.json.gz (stored)
+python3 experiments/m4j_tum/analyse.py                      # ~5 min; summary.json, reference.png
+OMP_NUM_THREADS=1 python3 experiments/m4j_tum/check.py      # ~8 min; check.json (H64)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -846,11 +868,15 @@ borrows nothing and is quiet, but catches a 2% change in 19% at 6 views): render
 rather than plain independent offsets (done in milestone 4i: a linearised twin of the unit's own solve;
 33% at 6 views, 0.4–1.4% false alarms). After milestone 4i: add a per-view offset term to the twin, fitted
 to the unit's own jackknife, so the right camera's extra spread is modelled; pre-register the twin
-reference on a second unit.
+reference on a second unit (done in milestone 4j on two TUM RGB-D cameras: quiet at 5–6 new views,
+3–5% false alarms at 4, 10% power at ±2%). After milestone 4j: warm-start the subset solves from the
+unit's own full solve (or reject far minima with a basin check) and re-score both TUM units, pre-registered;
+fit k1 + k2 on the Kinect; add TUM's third RGB unit (fr2); and use only k ≥ 5 new views for the
+twin-referenced test.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),

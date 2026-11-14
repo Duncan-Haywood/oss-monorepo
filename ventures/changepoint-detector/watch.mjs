@@ -40,6 +40,9 @@ Options:
                             all new changes go out as one webhook message. With --detector auto or --suggest each column
                             is picked against the whole budget, as a one-column watch would be (splitting it across the
                             columns was tested and failed, README "Several metrics in one watch").
+                            Every column is one more chance for noise: on the normal run of an 8-sensor pump testbed
+                            (SKAB), Quiet on all 8 columns sent 8.5 alert lines per 100 checks, over 4 times the
+                            default budget (README "Round 12"). Replay with --suggest first and drop the loud columns.
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)

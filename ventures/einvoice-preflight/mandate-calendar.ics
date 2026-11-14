@@ -356,22 +356,6 @@ URL:https://example.invalid/einvoice-preflight/mauritius-e-invoice-mandat
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:45cbb2e1077b29b3@einvoice-preflight
-DTSTAMP:20260101T000000Z
-DTSTART;VALUE=DATE:20240531
-DTEND;VALUE=DATE:20240601
-SUMMARY:Jordan: launched December 2022\, universal registration due 31 Ma
- y 2024\, mandatory issuance thro...
-DESCRIPTION:Jordan (In force (scope of later phases unclear)). launched D
- ecember 2022\, universal registration due 31 May 2024\, mandatory issuan
- ce through JoFotara from April 2025 (Regulation No. 2 of 2025\, reported
- ). Detail and sources: https://example.invalid/einvoice-preflight/jordan
- -jofotara-e-invoice-mandate.html. Not legal or tax advice.
-URL:https://example.invalid/einvoice-preflight/jordan-jofotara-e-invoice-
- mandate.html
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:44ef227e74efe02c@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20240701
@@ -594,6 +578,22 @@ URL:https://example.invalid/einvoice-preflight/costa-rica-hacienda-e-invo
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:540a424f44596a8f@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20250901
+DTEND;VALUE=DATE:20250902
+SUMMARY:Pakistan: S.R.O. 1413(I)/2025 (read) set e-invoicing for all regi
+ stered persons by category\, from...
+DESCRIPTION:Pakistan (In force (all registered persons)). S.R.O. 1413(I)/
+ 2025 (read) set e-invoicing for all registered persons by category\, fro
+ m 1 Sep 2025 for large companies and importers. Detail and sources: http
+ s://example.invalid/einvoice-preflight/pakistan-fbr-e-invoice-mandate.ht
+ ml. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/pakistan-fbr-e-invoice-man
+ date.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:38082c1286a145a5@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20251006
@@ -621,6 +621,34 @@ DESCRIPTION:Singapore (In force\, phasing in). GST InvoiceNow: new volunt
   legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/singapore-invoicenow-e-inv
  oice-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:970527fcc04befdf@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20251201
+DTEND;VALUE=DATE:20251202
+SUMMARY:Pakistan: 1 Dec 2025 for everyone else
+DESCRIPTION:Pakistan (In force (all registered persons)). 1 Dec 2025 for 
+ everyone else. Detail and sources: https://example.invalid/einvoice-pref
+ light/pakistan-fbr-e-invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/pakistan-fbr-e-invoice-man
+ date.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d51d2ff0fe3ed9f4@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20251231
+DTEND;VALUE=DATE:20260101
+SUMMARY:Pakistan: S.R.O. 1852(I)/2025 is reported to move the last date t
+ o 31 Dec 2025 (not read)
+DESCRIPTION:Pakistan (In force (all registered persons)). S.R.O. 1852(I)/
+ 2025 is reported to move the last date to 31 Dec 2025 (not read). Detail
+  and sources: https://example.invalid/einvoice-preflight/pakistan-fbr-e-
+ invoice-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/pakistan-fbr-e-invoice-man
+ date.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
@@ -931,6 +959,20 @@ URL:https://example.invalid/einvoice-preflight/saudi-arabia-zatca-e-invoi
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:a3fdd93f16f48fdb@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260701
+DTEND;VALUE=DATE:20260702
+SUMMARY:Nigeria: medium taxpayers from 1 Jul 2026
+DESCRIPTION:Nigeria (Phased (medium from 1 Jul 2026\, emerging from 1 Jul
+  2027)). medium taxpayers from 1 Jul 2026. Detail and sources: https://e
+ xample.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mandate.html. No
+ t legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mand
+ ate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:07971bb225d1a1a8@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260717
@@ -960,6 +1002,23 @@ DESCRIPTION:Luxembourg (Upcoming). Draft law No. 8815 (approved by the Go
  g-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
  te.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5e33fd2c427b3a41@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260731
+DTEND;VALUE=DATE:20260801
+SUMMARY:Nigeria: Clearance through the Nigeria Revenue Service's Merchant
+  Buyer Solution (IRN and QR cod...
+DESCRIPTION:Nigeria (Phased (medium from 1 Jul 2026\, emerging from 1 Jul
+  2027)). Clearance through the Nigeria Revenue Service's Merchant Buyer 
+ Solution (IRN and QR code)\, phased by turnover: large taxpayers live fr
+ om November 2025\, reported deadline 31 Jul 2026. Detail and sources: ht
+ tps://example.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mandate.h
+ tml. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mand
+ ate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
@@ -1436,6 +1495,22 @@ DESCRIPTION:Oman (Mandate set for 2027\; pilot reported). Decision 189/20
  Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
  date.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:906f754c2f26d2ba@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20270701
+DTEND;VALUE=DATE:20270702
+SUMMARY:Nigeria: emerging taxpayers from 1 Jul 2027 (NRS notice of Februa
+ ry 2026 as reproduced by advise...
+DESCRIPTION:Nigeria (Phased (medium from 1 Jul 2026\, emerging from 1 Jul
+  2027)). emerging taxpayers from 1 Jul 2027 (NRS notice of February 2026
+  as reproduced by advisers\; MBS portal read). Detail and sources: https
+ ://example.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mandate.html
+ . Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/nigeria-mbs-e-invoice-mand
+ ate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT

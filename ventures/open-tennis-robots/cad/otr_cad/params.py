@@ -619,6 +619,28 @@ class Feeder:
     servo_lead_awg: int = 20          # servo supply and return from the buck to the servo
     servo_vih: float = 2.4            # servo's signal input threshold (assumption: many accept 3.3 V logic; check yours)
     logic_high_v: float = 3.3         # the ESP32's output high
+    # Deck-side cable run (2026-11-14): from the electronics on the deck to the axis clamp, with the azimuth stepper's and
+    # the lift gearmotor's leads branching off it. Fixed wiring, tied every `deck_tie_max_mm` or less: along the deck at
+    # y = `deck_cable_y`, up the +y rear mast post's inner face, 30 mm under the cable crossbar to y = 0, under the
+    # clamp arm to the axis and up into the clamp's bore (`deck_cable_route`). The stepper and its home switch peel
+    # off under the crossbar and drop from the stepper; the lift's lead leaves on the deck and runs under the rear mast
+    # rail's end to the gearmotor's back. The stepper driver sits on the deck with the ESP32 (`stepper_driver_carrier`).
+    stepper_wires: tuple = (("azimuth stepper coils", 4, 22), ("azimuth home switch", 2, 26))
+    lift_wires: tuple = (("lift gearmotor", 2, 20),)
+    deck_saddle_base: float = 3.0     # the run lies on the saddles' base plates, this thick, on the deck and the post
+    deck_cable_z_low: float = 378.0   # the run's height under the crossbar and the clamp arm
+    deck_cable_bend_r: float = 30.0   # fixed run's bend radius (centre line) at its corners
+    deck_static_bend_factor: float = 6.0  # a tied (not moving) wire may bend to this times its own diameter (assumption)
+    deck_tie_max_mm: float = 200.0    # ties (saddles, hangers, the clamp web) at most this far apart along the run
+    stepper_coil_ohm: float = 1.5     # 17HS4401 class coil resistance (assumption: read yours)
+    stepper_amps: float = 1.5         # phase current set on the driver (17HS4401 class is rated 1.7 A)
+    stepper_lead_frac: float = 0.10   # lead resistance (out and back) at most this share of the coil's
+    lift_motor_stall_a: float = 5.5   # 37 mm 24 V gearmotor class stall current (assumption: read yours)
+    lift_drop_frac: float = 0.03      # lift lead drop at stall at most this share of the 24 V supply
+    supply_v: float = 24.0
+    esc_phase_peak_a: float = 30.0    # launcher phase current (RMS) during spin-up (assumption: log yours)
+    esc_phase_loss_frac: float = 0.05  # phase extension loss at that current at most this share of the motor's 1 kW peak
+    launcher_peak_w: float = 1000.0
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -1153,6 +1175,7 @@ class Feeder:
         bad += self.check_home_switch()
         bad += self.check_az_stops()
         bad += self.check_cables()
+        bad += self.check_deck_cables()
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_agitator()
@@ -1836,8 +1859,9 @@ class Feeder:
         cut = cut_mm if cut_mm is not None else 400.0
         servo_x, servo_z = self.crank_x, self.shuttle_zc
         head = abs(self.cable_clip_x - servo_x) + abs(self.cable_clip_z - servo_z) + self.servo_top_y
-        run = (abs(self.electronics_x - self.head_x) + (self.turntable_top + self.cable_gland_h - self.rail_top - self.plate_t)
-               + cut + head) / 1000
+        # deck to the clamp along the routed deck-side run (2026-11-14; a straight deck-to-axis estimate until then), the
+        # twisting run up to the gland, the free loop, and the head
+        run = (self.deck_cable_route()["to_clamp_mm"] + self.cable_twist()["run_mm"] + cut + head) / 1000
         r_motor = self.servo_supply_v / self.servo_stall_a
         rows = {}
         for awg, ohm in sorted(AWG_OHM_PER_M.items()):
@@ -1873,6 +1897,205 @@ class Feeder:
             if s["signal_high_v"] < self.servo_vih + 0.3:
                 bad.append(f"servo ground rises {s['ground_shift_v']:.2f} V at stall, leaving the signal {s['signal_high_v']:.2f} V "
                            f"against a {self.servo_vih:g} V threshold: heavier servo leads")
+        return bad
+
+    # ---- deck-side cable run (2026-11-14) ------------------------------------------
+    @property
+    def deck_cable_y(self) -> float:
+        """The run's centre line (y) on the deck and up the post: on the saddles' base plates against the +y rear
+        mast post's inner face."""
+        od = self.bundle_od(self.head_wires + self.turntable_wires + self.stepper_wires + self.lift_wires)
+        return self.post_half_y - self.rail_w - self.deck_saddle_base - od / 2
+
+    @property
+    def deck_cable_end_z(self) -> float:
+        """Where the drawn run stops, 1 mm under the axis clamp's bore (the bundle carries on up through it)."""
+        return self.cable_clamp_z - 11.0
+
+    def deck_cable_paths(self) -> dict[str, tuple]:
+        """Corner points (world x, y, z) of the three fixed runs, before their corners are rounded:
+        "main" from the electronics to the axis clamp's underside, "stepper" from the stepper's underside to the main
+        run under the crossbar, "lift" from the main run on the deck to the lift gearmotor's back end."""
+        dt = self.rail_top + self.plate_t                     # deck top
+        y = self.deck_cable_y
+        r = self.bundle_od(self.head_wires + self.turntable_wires + self.stepper_wires + self.lift_wires) / 2 + self.deck_saddle_base
+        zl = self.deck_cable_z_low
+        post_x = self.head_x - self.post_dx                   # rear mast posts' centre (x), the crossbar's too
+        x0 = self.electronics_x + 40.0
+        main = ((x0, y, dt + r), (post_x, y, dt + r), (post_x, y, zl), (post_x, 0.0, zl), (self.head_x, 0.0, zl),
+                (self.head_x, 0.0, self.deck_cable_end_z))
+        sx = self.head_x
+        sy = self.az_centre_dist
+        stepper = ((sx, sy, self.mast_top_z - self.stepper_body_mm - 2.0), (sx, sy, zl), (post_x + 6.0, sy, zl))
+        rl = self.bundle_od(self.lift_wires) / 2
+        ly = self.lift_y + self.lift_depth / 2 + self.lift_wall + self.gearmotor_len      # gearmotor's back end
+        lx = self.lift_x_pulley
+        xg = post_x - self.rail_w / 2 - 10.0                  # the gap between the deck's front edge and the rear mast rail
+        y_turn = self.base_half_w - self.rail_w - 20.0        # inside the side rail
+        z_motor = self.lift_z_bottom
+        lift = ((post_x - 60.0, y, dt + rl), (post_x - 60.0, y_turn, dt + rl), (xg, y_turn, dt + rl), (xg, y_turn, z_motor),
+                (xg, ly + 10.0, z_motor), (lx, ly + 10.0, z_motor))
+        return {"main": main, "stepper": stepper, "lift": lift}
+
+    @staticmethod
+    def _rounded(pts: tuple, rad: float, n_arc: int = 6) -> tuple[list, float, float]:
+        """`pts` with every inner corner replaced by an arc of radius `rad` tangent to both legs (points along it).
+        Returns (points, length along the rounded path, the shortest leg left straight)."""
+        def sub(a, b):
+            return tuple(a[i] - b[i] for i in range(3))
+        def norm(v):
+            m = math.sqrt(sum(c * c for c in v))
+            return (tuple(c / m for c in v) if m > 1e-12 else v), m
+        out = [pts[0]]
+        length = 0.0
+        prev = pts[0]
+        straight_min = math.inf
+        for k in range(1, len(pts) - 1):
+            a, b, c = pts[k - 1], pts[k], pts[k + 1]
+            u, _ = norm(sub(b, a))
+            w, _ = norm(sub(c, b))
+            cosang = max(-1.0, min(1.0, sum(u[i] * w[i] for i in range(3))))
+            turn = math.acos(cosang)
+            if turn < 1e-9:
+                continue
+            t = rad * math.tan(turn / 2)
+            p0 = tuple(b[i] - u[i] * t for i in range(3))
+            p1 = tuple(b[i] + w[i] * t for i in range(3))
+            leg = norm(sub(p0, prev))[1] if p0 != prev else 0.0
+            straight_min = min(straight_min, leg)
+            length += leg
+            # arc centre: from p0 along the bisector direction toward the inside
+            bis, _ = norm(tuple(w[i] - u[i] for i in range(3)))
+            centre = tuple(b[i] + bis[i] * rad / math.cos(turn / 2) for i in range(3))
+            v0, _ = norm(sub(p0, centre))
+            v1, _ = norm(sub(p1, centre))
+            for j in range(n_arc + 1):
+                f = j / n_arc
+                # slerp between v0 and v1
+                om = turn
+                s0, s1 = math.sin((1 - f) * om) / math.sin(om), math.sin(f * om) / math.sin(om)
+                out.append(tuple(centre[i] + rad * (s0 * v0[i] + s1 * v1[i]) for i in range(3)))
+            length += rad * turn
+            prev = p1
+        leg = norm(sub(pts[-1], prev))[1]
+        straight_min = min(straight_min, leg)
+        length += leg
+        out.append(pts[-1])
+        return out, length, straight_min
+
+    def deck_cable_route(self) -> dict:
+        """The deck-side cable run (2026-11-14): each run's rounded path, its length, its bundle's diameter and the
+        lengths each wire group is cut to, from the electronics on the deck. The head's wires then add the twisting run
+        on the axis, the free loop and the head's own run (`servo_supply` uses the routed length)."""
+        paths = self.deck_cable_paths()
+        rad = self.deck_cable_bend_r
+        r_lift = max(12.0, self.deck_static_bend_factor * max(AWG_OD_MM[g] for _, _, g in self.lift_wires))
+        r_step = max(12.0, self.deck_static_bend_factor * max(AWG_OD_MM[g] for _, _, g in self.stepper_wires))
+        main, l_main, s_main = self._rounded(paths["main"], rad)
+        step, l_step, s_step = self._rounded(paths["stepper"], r_step)
+        lift, l_lift, s_lift = self._rounded(paths["lift"], r_lift)
+        # where the branches leave the main run, measured along it
+        dt = self.rail_top + self.plate_t
+        lift_at = abs(paths["lift"][0][0] - paths["main"][0][0])
+        p = paths["main"]
+        rise = (p[2][2] - p[1][2])
+        step_at = (abs(p[1][0] - p[0][0]) + rise + abs(p[2][1] - self.az_centre_dist)) - rad * (2 - math.pi / 2)
+        grip = 60.0                                            # tails at each end: terminals, connectors, slack
+        head_axis = l_main + grip                              # electronics to the clamp's bore
+        stepper_len = step_at + l_step + grip
+        lift_len = lift_at + l_lift + grip
+        thickest = max(AWG_OD_MM[g] for _, _, g in self.head_wires + self.turntable_wires + self.stepper_wires + self.lift_wires)
+        return {
+            "main": main, "stepper": step, "lift": lift,
+            "len_mm": {"main": l_main, "stepper": l_step, "lift": l_lift},
+            "straight_min_mm": min(s_main, s_step, s_lift),
+            "bend_r": {"main": rad, "stepper": r_step, "lift": r_lift},
+            "bend_min_mm": self.deck_static_bend_factor * thickest,
+            "od_mm": {"deck": self.bundle_od(self.head_wires + self.turntable_wires + self.stepper_wires + self.lift_wires),
+                      "post": self.bundle_od(self.head_wires + self.turntable_wires + self.stepper_wires),
+                      "axis": self.bundle_od(self.head_wires + self.turntable_wires),
+                      "stepper": self.bundle_od(self.stepper_wires), "lift": self.bundle_od(self.lift_wires)},
+            "to_clamp_mm": head_axis, "stepper_lead_mm": stepper_len, "lift_lead_mm": lift_len,
+            "deck_z": dt,
+        }
+
+    def deck_cable_ties(self) -> dict[str, list]:
+        """Where the fixed run is held (2026-11-14): saddles on the deck (M3 into new deck holes), T-nut saddles in the
+        post's inner slot, hangers on the crossbar's underside and the clamp arm's web, as world (x, y, z) of the
+        bundle's centre at each tie."""
+        paths = self.deck_cable_paths()
+        m = paths["main"]
+        (x0, y, zd), (xp, _, _), (_, _, zl) = m[0], m[1], m[2]
+        rad = self.deck_cable_bend_r
+        deck_end = xp - rad - 15.0
+        n = max(2, math.ceil((deck_end - x0) / self.deck_tie_max_mm) + 1)
+        deck = [(x0 + (deck_end - x0) * i / (n - 1), y, zd) for i in range(n)]
+        z_lo, z_hi = zd + rad + 15.0, zl - rad - 15.0
+        k = max(2, math.ceil((z_hi - z_lo) / self.deck_tie_max_mm) + 1)
+        post = [(xp, y, z_lo + (z_hi - z_lo) * i / (k - 1)) for i in range(k)]
+        bar = [(xp, yy, zl) for yy in (y - rad - 15.0, rad + 15.0)]
+        arm = [((xp + self.head_x) / 2, 0.0, zl)]
+        return {"deck": deck, "post": post, "crossbar": bar, "arm": arm}
+
+    def deck_cable_electrics(self) -> dict:
+        """Lead losses on the routed lengths (2026-11-14): the stepper's coils, the lift motor at stall and the launcher
+        phases' extension (ESCs on the deck), each for every AWG in the table, with the chosen gauge's verdict."""
+        d = self.deck_cable_route()
+        loop = self.cable_loop_design()
+        cut = loop["cut_mm"] if loop and loop.get("window") else 400.0
+        head_run = abs(self.cable_clip_x) + abs(self.cable_clip_z - self.head_z0) + self.plate_half_y + self.plate_t + 100.0
+        phase_m = (d["to_clamp_mm"] + self.cable_twist()["run_mm"] + cut + head_run) / 1000
+        step_m, lift_m = d["stepper_lead_mm"] / 1000, d["lift_lead_mm"] / 1000
+        rows = {}
+        for awg, ohm in sorted(AWG_OHM_PER_M.items()):
+            r_coil = 2 * step_m * ohm
+            r_lift = 2 * lift_m * ohm
+            r_phase = phase_m * ohm
+            rows[awg] = {"stepper_frac": r_coil / self.stepper_coil_ohm,
+                         "stepper_w": 2 * self.stepper_amps ** 2 * r_coil,
+                         "lift_drop_v": self.lift_motor_stall_a * r_lift,
+                         "lift_frac": self.lift_motor_stall_a * r_lift / self.supply_v,
+                         "phase_mohm": r_phase * 1000,
+                         "phase_w": 2 * 3 * self.esc_phase_peak_a ** 2 * r_phase,       # two motors, three phases
+                         "phase_frac": 3 * self.esc_phase_peak_a ** 2 * r_phase / self.launcher_peak_w}
+        g_step = next(g for _, _, g in self.stepper_wires[:1])
+        g_lift = self.lift_wires[0][2]
+        g_phase = self.head_wires[0][2]
+        return {"stepper_m": step_m, "lift_m": lift_m, "phase_m": phase_m, "awg": rows,
+                "stepper": rows[g_step], "lift": rows[g_lift], "phase": rows[g_phase],
+                "gauges": {"stepper": g_step, "lift": g_lift, "phase": g_phase}}
+
+    def check_deck_cables(self) -> list[str]:
+        bad = []
+        d = self.deck_cable_route()
+        for run, r in d["bend_r"].items():
+            groups = {"main": self.head_wires + self.turntable_wires + self.stepper_wires + self.lift_wires,
+                      "stepper": self.stepper_wires, "lift": self.lift_wires}[run]
+            need = self.deck_static_bend_factor * max(AWG_OD_MM[g] for _, _, g in groups)
+            if r < need - 1e-9:
+                bad.append(f"deck cable {run} run bends at {r:g} mm, under {need:g} mm for its thickest wire")
+        if d["straight_min_mm"] < 0:
+            bad.append("deck cable corners overlap: a leg is shorter than its two bends need")
+        if self.deck_cable_z_low + self.deck_cable_bend_r > self.deck_cable_end_z + 1e-6:
+            bad.append("deck cable cannot turn up into the axis clamp: lower deck_cable_z_low")
+        if self.deck_cable_z_low + d["od_mm"]["deck"] / 2 > self.cable_clamp_z - 10.0 - 2.0:
+            bad.append("deck cable under the crossbar touches it")
+        t = self.deck_cable_ties()
+        seq = [q for name in ("deck", "post", "crossbar", "arm") for q in t[name]]
+        seq.append((self.head_x, 0.0, self.cable_clamp_z))            # the clamp itself holds the end
+        gap = max(math.dist(a, b) for a, b in zip(seq, seq[1:]))
+        if gap > self.deck_tie_max_mm + 1e-6:
+            bad.append(f"deck cable ties are up to {gap:.0f} mm apart ({self.deck_tie_max_mm:g} allowed)")
+        e = self.deck_cable_electrics()
+        if e["stepper"]["stepper_frac"] > self.stepper_lead_frac:
+            bad.append(f"stepper lead ({e['gauges']['stepper']} AWG, {e['stepper_m']:.2f} m) is {e['stepper']['stepper_frac']:.0%} "
+                       f"of the coil's resistance ({self.stepper_lead_frac:.0%} allowed): heavier wire")
+        if e["lift"]["lift_frac"] > self.lift_drop_frac:
+            bad.append(f"lift lead ({e['gauges']['lift']} AWG, {e['lift_m']:.2f} m) drops {e['lift']['lift_drop_v']:.2f} V at the "
+                       f"{self.lift_motor_stall_a:g} A stall ({self.lift_drop_frac:.0%} of {self.supply_v:g} V allowed): heavier wire")
+        if e["phase"]["phase_frac"] > self.esc_phase_loss_frac:
+            bad.append(f"launcher phase extension ({e['gauges']['phase']} AWG, {e['phase_m']:.2f} m) loses "
+                       f"{e['phase']['phase_frac']:.1%} of a motor's peak at {self.esc_phase_peak_a:g} A: heavier wire")
         return bad
 
     def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:

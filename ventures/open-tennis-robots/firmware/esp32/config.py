@@ -29,11 +29,11 @@ GATE_LO_US = 500                # retracted; many servos turn 180 deg over 500-2
 GATE_HI_US = 2500               # does not buzz against its own stop at either end
 GATE_OUT_MS = 900               # forward stroke: cad 0.76 s loaded, plus 0.1 s held while the wheels take the ball
 GATE_BACK_MS = 850              # back stroke: cad 0.68 s, plus 0.14 s for the next ball to drop into the pocket
-# Ball lift (cad: Feeder.lift_design): its gearmotor on a MOSFET from GPIO 16 runs this long after each ball is fed,
+# Ball lift (cad: Feeder.lift_design): its gearmotor on a MOSFET from GPIO 12 runs this long after each ball is fed,
 # so balls still in the trough or on the belt reach the tub (manifest "ball lift" line: run-on).
 LIFT_RUN_ON_MS = 16000
 LIFT_DUTY = 1.0
-# Hopper agitator (cad: Feeder.agitator_design): its gearmotor on a MOSFET from GPIO 17 stirs the outlet while balls
+# Hopper agitator (cad: Feeder.agitator_design): its gearmotor on a MOSFET from GPIO 2 stirs the outlet while balls
 # are queued or on their way, and this long after, for two more passes of its arms (manifest "hopper agitator" line).
 AGIT_RUN_ON_MS = 3000
 AGIT_DUTY = 1.0

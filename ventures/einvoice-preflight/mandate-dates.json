@@ -164,13 +164,6 @@
    "status": "In force, phasing in"
   },
   {
-   "date": "2024-05-31",
-   "country": "Jordan",
-   "page": "jordan-jofotara-e-invoice-mandate.html",
-   "note": "launched December 2022, universal registration due 31 May 2024, mandatory issuance through JoFotara from April 2025 (Regulation No. 2 of 2025, reported)",
-   "status": "In force (scope of later phases unclear)"
-  },
-  {
    "date": "2024-07-01",
    "country": "Zambia",
    "page": "zambia-smart-invoice-e-invoice-mandate.html",
@@ -276,6 +269,13 @@
    "status": "In force (version 4.4)"
   },
   {
+   "date": "2025-09-01",
+   "country": "Pakistan",
+   "page": "pakistan-fbr-e-invoice-mandate.html",
+   "note": "S.R.O. 1413(I)/2025 (read) set e-invoicing for all registered persons by category, from 1 Sep 2025 for large companies and importers",
+   "status": "In force (all registered persons)"
+  },
+  {
    "date": "2025-10-06",
    "country": "Costa Rica",
    "page": "costa-rica-hacienda-e-invoice-mandate.html",
@@ -288,6 +288,20 @@
    "page": "singapore-invoicenow-e-invoice-mandate.html",
    "note": "GST InvoiceNow: new voluntary registrants from 1 Nov 2025",
    "status": "In force, phasing in"
+  },
+  {
+   "date": "2025-12-01",
+   "country": "Pakistan",
+   "page": "pakistan-fbr-e-invoice-mandate.html",
+   "note": "1 Dec 2025 for everyone else",
+   "status": "In force (all registered persons)"
+  },
+  {
+   "date": "2025-12-31",
+   "country": "Pakistan",
+   "page": "pakistan-fbr-e-invoice-mandate.html",
+   "note": "S.R.O. 1852(I)/2025 is reported to move the last date to 31 Dec 2025 (not read)",
+   "status": "In force (all registered persons)"
   },
   {
    "date": "2026-01-01",
@@ -437,6 +451,13 @@
    "status": "In force, in waves"
   },
   {
+   "date": "2026-07-01",
+   "country": "Nigeria",
+   "page": "nigeria-mbs-e-invoice-mandate.html",
+   "note": "medium taxpayers from 1 Jul 2026",
+   "status": "Phased (medium from 1 Jul 2026, emerging from 1 Jul 2027)"
+  },
+  {
    "date": "2026-07-17",
    "country": "Luxembourg",
    "page": "luxembourg-e-invoice-mandate.html",
@@ -449,6 +470,13 @@
    "page": "luxembourg-e-invoice-mandate.html",
    "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, in committee and not yet law at the dossier's October 2026 update): receive from 1 Jan 2028",
    "status": "Upcoming"
+  },
+  {
+   "date": "2026-07-31",
+   "country": "Nigeria",
+   "page": "nigeria-mbs-e-invoice-mandate.html",
+   "note": "Clearance through the Nigeria Revenue Service's Merchant Buyer Solution (IRN and QR code), phased by turnover: large taxpayers live from November 2025, reported deadline 31 Jul 2026",
+   "status": "Phased (medium from 1 Jul 2026, emerging from 1 Jul 2027)"
   },
   {
    "date": "2026-08-01",
@@ -666,6 +694,13 @@
    "page": "oman-fawtara-e-invoice-mandate.html",
    "note": "Decision 189/2026 (Official Gazette 1660, read): electronic tax invoices from 1 April 2027 (annual supplies above OMR 5 million)",
    "status": "Mandate set for 2027; pilot reported"
+  },
+  {
+   "date": "2027-07-01",
+   "country": "Nigeria",
+   "page": "nigeria-mbs-e-invoice-mandate.html",
+   "note": "emerging taxpayers from 1 Jul 2027 (NRS notice of February 2026 as reproduced by advisers; MBS portal read)",
+   "status": "Phased (medium from 1 Jul 2026, emerging from 1 Jul 2027)"
   },
   {
    "date": "2027-07-01",

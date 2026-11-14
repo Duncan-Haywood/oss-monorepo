@@ -3,5 +3,7 @@ office-part:Alleluia;
 mode:7;
 book:Graduale Romanum, 1908, p. [161];
 transcriber:Andrew Hinkley;
+gregobase:3427 (download.php?id=3427&format=gabc&elem=1, unchanged on 2026-11-14);
+correction:sá-ni-tas (end of the verse) ni(ed) tas(d) to ni(fe) tas(e), as printed on p. [161], staff 4 (archive.org item gradualesacrosan0000cath, leaf 746): the clivis starts on the f line and the last punctum sits in the space below it, so the verse ends on the mode-7 final like the jubilus (eval/offfinal-supplement-report.md);
 %%
-(c3) AL(ef!gw!hvEC)LE(fe)LÚ(hi!jw!kvJIH)IA.(i) *(;) (hi/jijIHiwj!kvJI) (,) (hi/jijIH/iwj!kvJIGgf/hiivHFE) (,) (gf/hiivHFEfgffe) <sp>V/</sp>.(::) Lin(ef!gw!hvGE)gua(fe) pra(h)vó(hi!jw!kvJIH)rum(i) (;) pe(ih)rí(hi/jijIHiwj!kvJI , hi/jijIHiwj!kv)bit:(ji) (:) lin(jvIG)gua(gf) au(hiivHFE//gf/hiivHFEfg)tem(fe) (,) sa(hg)pi(hi)én(i!jw!kvJI)ti(hi)um(i) *(;) est(ih) sá(hi/jijIHiwj!kvJI,hi/jijIHiwj!kvJIGgf/hiivHFE,gf/hiivHFEfg)ni(ed)tas.(d) (::)
+(c3) AL(ef!gw!hvEC)LE(fe)LÚ(hi!jw!kvJIH)IA.(i) *(;) (hi/jijIHiwj!kvJI) (,) (hi/jijIH/iwj!kvJIGgf/hiivHFE) (,) (gf/hiivHFEfgffe) <sp>V/</sp>.(::) Lin(ef!gw!hvGE)gua(fe) pra(h)vó(hi!jw!kvJIH)rum(i) (;) pe(ih)rí(hi/jijIHiwj!kvJI , hi/jijIHiwj!kv)bit:(ji) (:) lin(jvIG)gua(gf) au(hiivHFE//gf/hiivHFEfg)tem(fe) (,) sa(hg)pi(hi)én(i!jw!kvJI)ti(hi)um(i) *(;) est(ih) sá(hi/jijIHiwj!kvJI,hi/jijIHiwj!kvJIGgf/hiivHFE,gf/hiivHFEfg)ni(fe)tas.(e) (::)

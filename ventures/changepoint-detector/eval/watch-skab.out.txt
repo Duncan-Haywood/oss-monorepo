@@ -1,0 +1,98 @@
+Round 12: the watch on SKAB, 33 fault runs and 1 anomaly-free run, 8 sensors each, in 5-second buckets (7244 points a column on the fault runs, 1881 on the normal run), checked after every point from point 20.
+
+  anomaly-free run, alert lines per 100 checks by column (quiet / middle / drift / eager) and the picks
+  Accelerometer1RMS        2.10   1.99   2.26   4.78   hint3 middle hintNN middle
+  Accelerometer2RMS        1.24   0.81   0.54   4.03   hint3 middle hintNN middle
+  Current                  0.00   0.21   0.11   0.97   hint3 eager  hintNN eager
+  Pressure                 0.16   0.00   0.00   0.21   hint3 eager  hintNN eager
+  Temperature              1.45  10.85   4.03  11.77   hint3 quiet  hintNN quiet
+  Thermocouple             2.26   4.84   1.99   9.99   hint3 quiet  hintNN drift
+  Voltage                  0.11   0.05   0.00   0.16   hint3 eager  hintNN eager
+  Volume Flow RateRMS      1.24   1.72   1.02   5.32   hint3 middle hintNN middle
+
+  Chance: 23.1% of scored points lie inside a mark window.
+
+  per run: n, marks, start; faults caught by quiet / middle / drift / eager / hint3, and alert lines
+  valve1/0.csv      229  4  114   Y  8  Y 28  Y 25  Y 96  Y 30
+  valve1/1.csv      229  4  114   Y 13  Y 31  Y 27  Y 95  Y 38
+  valve1/2.csv      215  3  113   Y 14  Y 31  Y 38  Y100  Y 47
+  valve1/3.csv      229  4  114   Y  8  Y 38  Y 21  Y 88  Y 36
+  valve1/4.csv      219  4  114   Y 10  Y 46  Y 33  Y 93  Y 41
+  valve1/5.csv      230  4  115   Y  9  Y 41  Y 41  Y 98  Y 42
+  valve1/6.csv      230  4  115   Y 13  Y 40  Y 40  Y106  Y 45
+  valve1/7.csv      218  4  115   Y  8  Y 28  Y 23  Y 87  Y 35
+  valve1/8.csv      228  4  114   Y 12  Y 38  Y 37  Y102  Y 49
+  valve1/9.csv      229  4  114   Y 14  Y 29  Y 37  Y 87  Y 37
+  valve1/10.csv     229  4  114   Y 14  Y 35  Y 35  Y 99  Y 43
+  valve1/11.csv     228  4  114   Y 13  Y 28  Y 25  Y 95  Y 40
+  valve1/12.csv     228  4  114   Y 14  Y 36  Y 34  Y 85  Y 34
+  valve1/13.csv     228  4  114   Y  8  Y 40  Y 38  Y107  Y 43
+  valve1/14.csv     227  4  113   Y  9  Y 36  Y 31  Y 87  Y 37
+  valve1/15.csv     230  4  114   Y 13  Y 35  Y 32  Y 96  Y 35
+  valve2/1.csv      212  4  112   Y 16  Y 27  Y 41  Y 95  Y 37
+  valve2/2.csv      225  4  113   Y  9  Y 27  Y 30  Y 96  Y 37
+  valve2/3.csv      199  4  112   Y 13  Y 33  Y 28  Y 97  Y 41
+  other/1.csv       149  2  111   Y 15  Y 19  Y 22  Y 55  Y 18
+  other/2.csv       156  4   20   Y 15  Y 29  Y 36  Y 63  Y 25
+  other/3.csv       227  4  113   Y 15  Y 35  Y 37  Y 85  Y 20
+  other/4.csv       238  3  159   Y 17  Y 32  Y 32  Y 96  Y 25
+  other/5.csv       231  2  114   Y 20  Y 46  Y 41  Y102  Y 31
+  other/6.csv       229  4  114   Y 16  Y 50  Y 29  Y 93  Y 24
+  other/7.csv       218  4  114   Y 15  Y 45  Y 50  Y 84  Y 22
+  other/8.csv       229  3  114   Y 19  Y 47  Y 50  Y 93  Y 25
+  other/9.csv       228  4  114   Y 23  Y 44  Y 48  Y100  Y 32
+  other/10.csv      265  4  114   Y 19  Y 50  Y 48  Y112  Y 30
+  other/11.csv      238  3  114   Y 17  Y 40  Y 34  Y 95  Y 19
+  other/12.csv      209  4  113   Y 18  Y 46  Y 47  Y 81  Y 22
+  other/13.csv      184  4   99   Y 21  Y 45  Y 30  Y 70  Y 24
+  other/14.csv      181  3  114   Y  9  Y 28  Y 33  Y 57  Y 12
+
+  policy (33 fault runs, 8 columns)  alert lines  at a mark (share)  per 1000 checks  marks reached  faults caught  median delay s  null per 100
+  fixed quiet (default)                   457      168 (36.8%)        69.4       97/123       33/33         30        8.54
+  fixed middle                           1203      314 (26.1%)       182.7      115/123       33/33         25        20.47
+  fixed drift                            1153      297 (25.8%)       175.1      112/123       33/33         25        9.94
+  fixed eager                            2995      740 (24.7%)       454.9      123/123       33/33         20        37.24
+  hint3, B = 2                           1076      306 (28.4%)       163.4      118/123       33/33         25        9.56
+  hintNN, B = 2                          1229      332 (27.0%)       186.7      118/123       33/33         25        9.30
+
+  T6 hint3 vs quiet: (a) 118 vs 97 PASS; (b) 163.4 vs middle 182.7 PASS; (c) 28.4% vs 36.8% - 5 FAIL. NOT CONFIRMED.
+  T7 drift vs quiet: (a) 25.8% vs 36.8% + 2 FAIL; (b) 175.1 vs 69.4 FAIL. FAILS.
+  T8 quiet on all 8 columns of the normal run: 8.54 lines per 100 checks vs 2 FAIL. FAILS.
+
+  Reported only, deciding nothing.
+
+  by column, fixed quiet: alert lines, at a mark, faults caught (alone)
+  Accelerometer1RMS         74    26 (35.1%)  13/33
+  Accelerometer2RMS         77    29 (37.7%)  14/33
+  Current                   12     1 (8.3%)  0/33
+  Pressure                   0     0 (0.0%)  0/33
+  Temperature               97    18 (18.6%)  5/33
+  Thermocouple              76    21 (27.6%)  10/33
+  Voltage                    3     0 (0.0%)  0/33
+  Volume Flow RateRMS      118    73 (61.9%)  29/33
+
+  valve1 (16): faults caught / marks reached / share at a mark
+  quiet    16/16  48/63  33.9%  (180 lines)
+  middle   16/16  61/63  24.1%  (560 lines)
+  drift    16/16  57/63  21.9%  (517 lines)
+  eager    16/16  63/63  23.6%  (1521 lines)
+  hint3    16/16  63/63  25.3%  (632 lines)
+  hintNN   16/16  63/63  23.9%  (711 lines)
+
+  valve2 (3): faults caught / marks reached / share at a mark
+  quiet    3/3  8/12  42.1%  (38 lines)
+  middle   3/3  9/12  20.7%  (87 lines)
+  drift    3/3  10/12  19.2%  (99 lines)
+  eager    3/3  12/12  26.0%  (288 lines)
+  hint3    3/3  11/12  26.1%  (115 lines)
+  hintNN   3/3  11/12  22.6%  (137 lines)
+
+  other (14): faults caught / marks reached / share at a mark
+  quiet    14/14  41/48  38.1%  (239 lines)
+  middle   14/14  45/48  29.0%  (556 lines)
+  drift    14/14  45/48  30.7%  (537 lines)
+  eager    14/14  48/48  25.8%  (1186 lines)
+  hint3    14/14  44/48  35.3%  (329 lines)
+  hintNN   14/14  44/48  34.4%  (381 lines)
+
+1001 s wall, 4003 s of replays on 4 cores.

@@ -277,9 +277,12 @@ export function plan(parsed, options = {}) {
     return { ...e, net, shortfall, reason, breakEven: breakEvenSales(e, o), forcedPlan: forced.total };
   }).sort((a, b) => a.start - b.start);
 
-  // Negotiable: a skipped event that is positive on its own and would win with this much off the fee.
-  const negotiable = skipped.filter((s) => s.net > 0 && s.shortfall > 0 && s.shortfall < s.net * 1.5)
-    .map((s) => ({ name: s.name, day: s.day, shortfall: s.shortfall, feeAsk: s.shortfall }))
+  // Negotiable: a skipped event that is positive on its own and would win with more than `shortfall`
+  // off its fee. Only events whose whole fee (flat plus the percentage at expected sales) exceeds the
+  // shortfall qualify: a cut cannot exceed the fee, and a cut of exactly the shortfall only ties.
+  const negotiable = skipped.map((s) => ({ ...s, fee: s.flat + s.sales * s.pct / 100 }))
+    .filter((s) => s.net > 0 && s.shortfall > 0 && s.shortfall < s.net * 1.5 && s.fee > s.shortfall)
+    .map((s) => ({ name: s.name, day: s.day, shortfall: s.shortfall, feeAsk: s.shortfall, fee: s.fee }))
     .sort((a, b) => a.shortfall - b.shortfall).slice(0, 3);
 
   const order = events.map((e) => e.id);
@@ -305,7 +308,7 @@ export function plan(parsed, options = {}) {
     findings.push({ severity: "info", rule: "plan-flips", message: `If sales come in at ${o.downside}% of your estimates, a different set of events is best (${money(downBest.total)} vs ${money(totals.downsidePlan)} for this plan), so the sales figures matter more than the fees.` });
   }
   if (negotiable.length) {
-    findings.push({ severity: "info", rule: "negotiable", message: `A fee cut of ${negotiable.map((n) => `${money(n.feeAsk)} would make ${n.name} the better pick`).join("; ")}.` });
+    findings.push({ severity: "info", rule: "negotiable", message: `A fee cut of ${negotiable.map((n) => `more than ${money(n.feeAsk)} (of its ${money(n.fee)} fee) would make ${n.name} the better pick`).join("; ")}.` });
   }
   const weeks = new Map();
   for (const c of chosen) weeks.set(c.week, (weeks.get(c.week) || 0) + c.hours + o.setupHours + o.teardownHours);
