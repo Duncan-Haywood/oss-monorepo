@@ -51,6 +51,6 @@
    "where": "ventures/lash-studio-profit-calculator/VENTURE.yaml:35, index.html footer"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15848"],
  "verdict": "The arithmetic is right: the sample studio's overhead ($12.82/hr), per-service profit ($94.91 classic set, $42.18/hr), price for target ($156.95), client lifetime ($198.49, $34.29/hr, floor $217.94) and monthly profit ($4,141.06) all reproduce from an independently written model, and the page runs clean in Chromium at phone width with no external requests. It does not meet the bar because two required dimensions fall short: verification (a seeded error in the monthly-profit headline survived all 23 tests, because the strong randomised tests check the engine against itself and only the hourly figures are pinned by the guide) and claims (llms.txt, sitemap, robots and canonical point at retired or relative URLs). It is finished against what its README promises. As a tool for a studio owner it is a competent solo price screen; it models one set and one fill per client, a flat rebooking rate and no assistants or tax, so a practicing studio accountant would use it for a first look, not to set a price list. Market inputs (75% rebook, 8% no-show) were not checked against any external source."
 }
