@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 43,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "file": "portfolio/research-tools/README.md",
       "issue": "Candidates list does not say which candidates another open PR has claimed; had to search PR titles by keyword to check."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "'What a tool ships' omits three repo-wide steps that CI enforces on a new venture: `node platform/pages/launched.mjs --write` (check.mjs fails without a launch date), a link from at least one sibling tool (siblings.test.mjs orphan budget 0), and bumping SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs. Found each from a red CI job."
     }
   ],
   "deviations": [],
@@ -47,7 +51,7 @@
     "ventures/wasserstein-distance/README.md"
   ],
   "goal": null,
-  "notes": "Explore idea: Sinkhorn optimal transport (Cuturi 2013) as the twelfth research-algorithms tool, wasserstein-distance. Exact 1-D W1/W2 with moved-up/moved-down split and W2^2 location/spread/shape; several columns by stabilised Sinkhorn with a certified bracket on the exact cost (AWR 2017 rounding above, double c-transform dual below); energy permutation test. Verified vs POT 0.9.7/SciPy 1.17.1: 1-D to 1e-12, plan to 1e-10, bracket contains ot.emd2 on all cases. Finding: Central Park July nights 1991-2020 vs 1951-1980 up 0.789 C at every quantile (p 0.001), days unchanged (p 0.445); 2-D W1 bracket 0.843-0.891 contains exact 0.8747. No agent doc: nothing the next run needs beyond the README and research-tools candidate list (updated).",
+  "notes": "Explore idea: Sinkhorn optimal transport (Cuturi 2013) as the twelfth research-algorithms tool, wasserstein-distance. Exact 1-D W1/W2 with moved-up/moved-down split and W2^2 location/spread/shape; several columns by stabilised Sinkhorn with a certified bracket on the exact cost (AWR 2017 rounding above, double c-transform dual below); energy permutation test. Verified vs POT 0.9.7/SciPy 1.17.1: 1-D to 1e-12, plan to 1e-10, bracket contains ot.emd2 on all cases. Finding: Central Park July nights 1991-2020 vs 1951-1980 up 0.789 C at every quantile (p 0.001), days unchanged (p 0.445); 2-D W1 bracket 0.843-0.891 contains exact 0.8747. No agent doc: nothing the next run needs beyond the README and research-tools candidate list (updated). First CI push failed on a missing launched.json date and a crawlable orphan; fixed by launched.mjs --write and footer links from isolation-forest and gaussian-process-regression.",
   "corrections": [],
   "redteam": null,
   "usage": {
