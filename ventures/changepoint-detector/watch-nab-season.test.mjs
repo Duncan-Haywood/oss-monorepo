@@ -51,3 +51,16 @@ test('the period-24 watch replays on a daily cycle: the cycle sends nothing, an 
   assert.equal(a[0].index, 140);
   assert.ok(a[0].reportedAt <= 145);
 });
+
+test('each job gets one reply, from this file\'s worker, with its period applied (the first run of round 11 crashed on two)', async () => {
+  const { runAll } = await import('./eval/watch-nab-season.mjs');
+  const { replayWatch } = await import('./watch-core.mjs');
+  const values = Array.from({ length: 150 }, (_, i) => 10 * Math.sin((2 * Math.PI * i) / 24) + (i > 110 ? 6 : 0) + ((i * 7919) % 13) / 13);
+  const jobs = [{ values, start: 48, detector: 'bocpd-ar1-window', period: 24 }, { values, start: 48, detector: 'bocpd-ar1-window', period: 0 }];
+  const res = await runAll(jobs);
+  const POLICY = { confirm: 5, tolerance: 5, holdHistory: true, persist: 2, window: 1000, from: 48, budget: Infinity };
+  const direct = (period) => replayWatch(values, null, { ...POLICY, detector: 'bocpd-ar1-window', ...(period ? { period } : {}) }).alerts.map((a) => ({ index: a.index, at: a.reportedAt }));
+  assert.notDeepEqual(direct(24), direct(0)); // the made-up series tells the two apart
+  assert.deepEqual(res[0].alerts, direct(24));
+  assert.deepEqual(res[1].alerts, direct(0));
+});

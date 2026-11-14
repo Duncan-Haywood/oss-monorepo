@@ -49,7 +49,7 @@
 // because NAB's anomalies include slow failures drift reads well (machine_temperature, ec2_request_latency), so T5
 // fails on (b); it reaches about as many windows as drift.
 import { readFileSync } from 'node:fs';
-import { Worker, isMainThread, parentPort } from 'node:worker_threads';
+import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
 import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { replayWatch } from '../watch-core.mjs';
@@ -70,7 +70,8 @@ const LADDER24 = ['eager24', 'middle24', 'quiet24'];
 const POLICY = { confirm: 5, tolerance: 5, holdHistory: true, persist: 2, window: 1000 };
 export const startFor = (h) => Math.max(2 * PERIOD, Math.floor(0.2 * h));
 
-if (!isMainThread) {
+// Answer only workers this file started: a script that imports this one starts workers with its own URL.
+if (!isMainThread && workerData === import.meta.url) {
   parentPort.on('message', ({ id, values, start, detector, period }) => {
     const t = Date.now();
     const r = replayWatch(values, null, { ...POLICY, detector, ...(period ? { period } : {}), from: start, budget: Infinity });
@@ -78,16 +79,16 @@ if (!isMainThread) {
   });
 }
 
-async function runAll(jobs) {
+export async function runAll(jobs) {
   const results = new Array(jobs.length);
   const k = Math.max(1, Math.min(jobs.length, availableParallelism()));
   let next = 0, done = 0;
   const order = jobs.map((_, i) => i).sort((a, b) => jobs[b].values.length - jobs[a].values.length);
   await new Promise((resolve, reject) => {
     for (let w = 0; w < k; w++) {
-      const worker = new Worker(new URL(import.meta.url));
+      const worker = new Worker(new URL(import.meta.url), { workerData: import.meta.url });
       const feed = () => { if (next < order.length) { const id = order[next++]; const j = jobs[id]; worker.postMessage({ id, values: j.values, start: j.start, detector: j.detector, period: j.period }); } else worker.terminate(); };
-      worker.on('message', (m) => { results[m.id] = m; done++; if (done % 10 === 0) process.stderr.write(`${done}/${jobs.length}\n`); if (done === jobs.length) resolve(); feed(); });
+      worker.on('message', (m) => { if (results[m.id]) { reject(new Error(`job ${m.id} answered twice`)); return; } results[m.id] = m; done++; if (done % 10 === 0) process.stderr.write(`${done}/${jobs.length}\n`); if (done === jobs.length) resolve(); feed(); });
       worker.on('error', reject);
       feed();
     }
