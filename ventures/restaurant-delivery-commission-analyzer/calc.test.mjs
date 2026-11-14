@@ -249,3 +249,54 @@ test("a file that shows charges as positive numbers reads a negative one as a cr
   near(r.summary.net, 40);
   near(r.summary.takeRate, 20 / 60);
 });
+
+// Red-team 2026-11-14: defects and escaped mutants from the campaign on calc.mjs.
+test("a minus sign after a currency symbol or code still makes the amount negative", () => {
+  assert.equal(parseNumber("$-12.50"), -12.5);
+  assert.equal(parseNumber("USD -3.00"), -3);
+  assert.equal(parseNumber("€-1.234,50", true), -1234.5);
+  assert.equal(parseNumber("-$4"), -4);
+  assert.equal(parseNumber("$4"), 4);
+  // In a file of negative charges, a "$-" charge is a cost, not a credit.
+  const n = load("A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\nB,DoorDash,2026-06-02 12:00,Delivered,20,$-5.00,0,0,0,0,15\n");
+  assert.deepEqual(n.orders.map((o) => o.commission), [5, 5]);
+});
+
+test("an order that breaks even to the cent is not a loss, and no amount prints as -$0.00", () => {
+  // 10.10 - 0.30 - 9.80 is -1.8e-15 in floating point.
+  const rows = Array.from({ length: 6 }, (_, i) => `O${i},DoorDash,2026-06-0${i + 1} 12:00,Delivered,10.10,-0.30,0,0,0,0,9.80`).join("\n");
+  const r = analyze(load(rows + "\n").orders, { packaging: 9.8 });
+  assert.equal(r.summary.lossOrders, 0);
+  assert.equal(r.lossOrders.count, 0);
+  assert.ok(r.findings.some((f) => /No order lost money/.test(f.title)));
+  for (const f of r.findings) assert.doesNotMatch(f.title + f.detail, /-\$0\.00/);
+});
+
+test("zero amounts print without a minus sign in the findings", () => {
+  const r = analyze(load("A,DoorDash,2026-06-01 12:00,Delivered,20,-5,0,0,0,0,15\n").orders, {});
+  const take = r.findings.find((f) => /kept .* of food sales/.test(f.title));
+  assert.match(take.detail, /ad spend \$0\.00/);
+});
+
+test("an order with food sales under a dollar still counts as an order", () => {
+  const r = analyze(load("A,DoorDash,2026-06-01 12:00,Delivered,0.75,-0.20,0,0,0,0,0.55\n").orders, {});
+  assert.equal(r.summary.orders, 1);
+});
+
+test("the summary date range runs from the first order's day to the last's", () => {
+  const r = analyze(load("A,DoorDash,2026-06-03 12:00,Delivered,20,-5,0,0,0,0,15\nB,DoorDash,2026-06-01 09:00,Delivered,20,-5,0,0,0,0,15\nC,DoorDash,2026-06-09 23:30,Delivered,20,-5,0,0,0,0,15\n").orders, {});
+  assert.equal(new Date(r.summary.from).toISOString().slice(0, 10), "2026-06-01");
+  assert.equal(new Date(r.summary.to).toISOString().slice(0, 10), "2026-06-09");
+});
+
+test("a single losing order gets the loss finding", () => {
+  const r = analyze(load("A,DoorDash,2026-06-01 12:00,Delivered,10,-3,0,0,0,-8,-1\nB,DoorDash,2026-06-02 12:00,Delivered,50,-10,0,0,0,0,40\n").orders, { foodPct: 30 });
+  assert.equal(r.summary.lossOrders, 1);
+  assert.ok(r.findings.some((f) => /^1 of 2 orders lost money/.test(f.title)));
+});
+
+test("the example file is stable: same sales, orders and dates every load", () => {
+  const r = analyze(normalizeRows(parseCsv(sampleCsv())).orders, {});
+  assert.equal(r.summary.gross.toFixed(2), "6259.53");
+  assert.equal(r.summary.orders, 246);
+});

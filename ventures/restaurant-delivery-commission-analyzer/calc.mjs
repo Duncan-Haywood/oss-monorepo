@@ -64,11 +64,12 @@ export function parseCsv(text, delim = ",") {
   return rows;
 }
 
-// "1,234.56", "$12", "(5.00)", "-5" and blanks (0). NaN only for non-numbers.
+// "1,234.56", "$12", "$-12", "USD -3", "(5.00)", "-5" and blanks (0). NaN only
+// for non-numbers. A minus anywhere before the first digit makes it negative.
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -282,6 +283,10 @@ function markupNeeded(b, markupNow) {
 // ad spend and error/refund charges. Net after costs also takes off food cost
 // and packaging. Cancelled orders with no charges are dropped and counted;
 // cancelled orders that carry a charge stay as cost with no food or packaging.
+// A loss is at least half a cent below zero: an order that breaks even to the
+// cent can come out at -1.8e-15 in floating point and is not a loss.
+const isLoss = (r) => r.counted && r.netAfter < -0.005;
+
 export function analyze(orders, opts = {}) {
   const foodPct = Number(opts.foodPct) || 0, packaging = Number(opts.packaging) || 0;
   const markupNow = (Number(opts.markupNow) || 0) / 100;
@@ -344,7 +349,7 @@ export function analyze(orders, opts = {}) {
     cancelledDropped: dropped, cancelledKept: rows.filter((r) => r.cancelled).length,
     from: Math.floor(Math.min(...list.map((x) => x.t)) / DAY) * DAY, to: Math.floor(Math.max(...list.map((x) => x.t)) / DAY) * DAY,
     costsEntered: foodPct > 0 || packaging > 0,
-    lossOrders: rows.filter((r) => r.counted && r.netAfter < 0).length,
+    lossOrders: rows.filter(isLoss).length,
     refunds: rows.filter((r) => r.refund).length, refundTotal: rows.filter((r) => r.refund).reduce((t, r) => t + r.gross, 0),
     payoutGap: total.payoutRows === total.records && total.records > 0 ? total.payout - total.net : null,
     payoutRows: total.payoutRows, foodPct, packaging, markupNow, directPct, directFlat,
@@ -377,7 +382,7 @@ export function analyze(orders, opts = {}) {
   const byWeekday = [...weekdays.values()].map(finish).sort((a, b) => a.key - b.key);
   const byDaypart = DAYPARTS.map((p) => dayparts.get(p.key)).filter(Boolean).map(finish);
   const worstOrders = [...live].sort((a, b) => a.netAfter - b.netAfter).slice(0, 10);
-  const lossList = live.filter((r) => r.netAfter < 0);
+  const lossList = live.filter(isLoss);
   const noTimes = !list.some((x) => x.hasTime);
 
   return {
@@ -387,7 +392,10 @@ export function analyze(orders, opts = {}) {
   };
 }
 
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+// Rounded to the cent before the sign is chosen, so float noise such as
+// -1.8e-15 prints "$0.00", not "-$0.00".
+const cents = (n) => Math.round(n * 100) / 100;
+const usd = (n) => (cents(n) < 0 ? "-" : "") + "$" + Math.abs(cents(n)).toFixed(2);
 const p0 = (n) => (n * 100).toFixed(0) + "%";
 const p1 = (n) => (n * 100).toFixed(1) + "%";
 
@@ -446,7 +454,7 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 
