@@ -30,7 +30,7 @@ junctions within 300 m of a leak pipe (share), median over leak pipes: 0.043
   descriptive: nearest of the model's top 10 junctions within 300 m for 5/13; median 380 m
   paired, 300 m hits: model only 2, most-affected sensor only 3, exact sign test P = 1.000
   paired errors: model closer on 8, sensor closer on 5, ties 0
-  stability in q: same junction at q = 1, 5 and 20 for 23% of leaks (q=1: 54%, q=20: 38%)
+  stability in q: same junction at q = 1, 5 and 20 for 31% of leaks (q=1: 62%, q=20: 46%)
 
 ## detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour): 14 leaks
   pipe   year localised at       +h  peak  | model (Pearson) err m | cosine err m | most-affected sensor err m | alarm sensor err m | p_chance  best-of-top-10 m

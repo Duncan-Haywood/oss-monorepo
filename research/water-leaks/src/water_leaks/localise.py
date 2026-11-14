@@ -19,7 +19,7 @@ import numpy as np
 from water_leaks import detect
 
 
-def _sim(inp, sensors, extra, prefix):
+def _sim(inp, sensors, extra, prefix, hourly=False):
     import wntr  # noqa: PLC0415 (heavy, optional)
 
     wn = wntr.network.WaterNetworkModel(inp)
@@ -30,25 +30,28 @@ def _sim(inp, sensors, extra, prefix):
         wn.get_node(node).add_demand(q_m3h / 3600.0, None, "leak")   # m3/s, constant
     res = wntr.sim.EpanetSimulator(wn).run_sim(file_prefix=prefix)
     p = res.node["pressure"][sensors].to_numpy()
+    if hourly:
+        return p[:24]            # [24, sensors], hours 0..23 from 00:00
     return p[:24].mean(axis=0)   # hours 0..23 (the 25th report is 24:00)
 
 
 def _worker(args):
-    inp, sensors, nodes, q, wid = args
+    inp, sensors, nodes, q, wid, hourly = args
     d = tempfile.mkdtemp(prefix=f"wl{wid}_")
     out = []
     for k, j in enumerate(nodes):
-        out.append(_sim(inp, sensors, (j, q), os.path.join(d, f"s{k}")))
+        out.append(_sim(inp, sensors, (j, q), os.path.join(d, f"s{k}"), hourly))
     return out
 
 
-def signatures(inp, sensors, nodes, q, procs=4):
-    """[len(nodes), len(sensors)] 24 h mean pressure change (m) for a leak of q m3/h at each node."""
-    base = _sim(inp, sensors, None, os.path.join(tempfile.mkdtemp(prefix="wlb_"), "base"))
+def signatures(inp, sensors, nodes, q, procs=4, hourly=False):
+    """Pressure change (m) at the sensors for a constant leak of q m3/h at each node:
+    [nodes, sensors] as a 24 h mean, or [nodes, 24, sensors] hour by hour (step 12)."""
+    base = _sim(inp, sensors, None, os.path.join(tempfile.mkdtemp(prefix="wlb_"), "base"), hourly)
     chunks = [nodes[i::procs] for i in range(procs)]
     with ProcessPoolExecutor(procs) as ex:
-        parts = list(ex.map(_worker, [(inp, sensors, c, q, i) for i, c in enumerate(chunks)]))
-    S = np.zeros((len(nodes), len(sensors)))
+        parts = list(ex.map(_worker, [(inp, sensors, c, q, i, hourly) for i, c in enumerate(chunks)]))
+    S = np.zeros((len(nodes),) + base.shape)
     for i, part in enumerate(parts):
         S[i::procs] = np.array(part) - base
     return S
@@ -59,6 +62,11 @@ def residual(P, A, t, W=14, g=7, span=24):
 
     The model is fitted on the days [max(0, d - g - W), d - g), d = t // 24 (step 1's window),
     at least 7 of them."""
+    return residual_hourly(P, A, t, W, g, span).mean(axis=0)
+
+
+def residual_hourly(P, A, t, W=14, g=7, span=24):
+    """(pressure - prediction) per hour and sensor over hours [t, t + span): [span, sensors]."""
     d = t // 24
     lo = max(0, d - g - W)
     if d - g - lo < 7:
@@ -66,24 +74,53 @@ def residual(P, A, t, W=14, g=7, span=24):
     tr = slice(lo * 24, (d - g) * 24)
     coef, *_ = np.linalg.lstsq(A[tr], P[tr], rcond=None)
     te = slice(t, t + span)
-    return (P[te] - A[te] @ coef).mean(axis=0)
+    return P[te] - A[te] @ coef
 
 
 def design_noflow(hrs, level):
     return detect.design(hrs, level)
 
 
-def scores(r, S, kind="pearson"):
-    """Similarity of r with each signature row: Pearson correlation or cosine."""
+TOL = 1e-4   # m, RMS; EPANET reports pressure in float32, so ~1e-5 m differences are rounding
+
+
+def scores(r, S, kind="pearson", tol=TOL):
+    """Similarity of r with each signature row: Pearson correlation or cosine.
+
+    A row whose (centred, for Pearson) RMS is below `tol` metres scores 0: its correlation is
+    set by float32 rounding, not hydraulics (step 12: junction n111's 24 h mean signature is a
+    uniform shift, exactly constant from one route and 5e-7 m of noise from another)."""
     if kind == "pearson":
         rc = r - r.mean()
         Sc = S - S.mean(axis=1, keepdims=True)
     else:
         rc, Sc = r, S
     num = Sc @ rc
-    den = np.linalg.norm(Sc, axis=1) * np.linalg.norm(rc)
-    den[den == 0] = np.inf
+    nS = np.linalg.norm(Sc, axis=1)
+    den = nS * np.linalg.norm(rc)
+    den[(den == 0) | (nS < tol * np.sqrt(Sc.shape[1]))] = np.inf
     return num / den
+
+
+def aligned(SH, hod0):
+    """Hourly signatures [nodes, 24, s] re-ordered so row k is hour of day (hod0 + k) % 24."""
+    return SH[:, (hod0 + np.arange(24)) % 24, :]
+
+
+def scores_tr(R, SH):
+    """Step 12: Pearson correlation of a [24, s] residual with each [24, s] signature over all
+    24 x s entries, each hour's row first centred by its own mean across sensors (so a common
+    pressure shift in one hour, e.g. from demand, does not count)."""
+    Rc = R - R.mean(axis=1, keepdims=True)
+    Sc = SH - SH.mean(axis=2, keepdims=True)
+    return scores(Rc.ravel(), Sc.reshape(len(SH), -1), "cosine")
+
+
+def nearest_q(qhat, grid):
+    """Grid value nearest qhat in log scale, qhat clipped to the grid's range."""
+    g = np.asarray(grid, float)
+    q = min(max(qhat, g.min()), g.max())
+    return float(g[np.argmin(np.abs(np.log(g) - np.log(q)))])
 
 
 def estimate(r, S, kind="pearson"):

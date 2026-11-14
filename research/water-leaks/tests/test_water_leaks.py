@@ -300,3 +300,37 @@ def test_residual_sees_a_step_drop():
     P[t:, 0] -= 0.5
     r = localise.residual(P, A, t)
     assert abs(r[0] + 0.5) < 1e-6 and abs(r[1]) < 1e-6
+
+
+def test_nearest_q_log_scale_and_clip():
+    g = [1, 2, 5, 10, 20, 30]
+    assert localise.nearest_q(3.0, g) == 2.0     # log 3 is nearer log 2 than log 5
+    assert localise.nearest_q(3.3, g) == 5.0
+    assert localise.nearest_q(-4.0, g) == 1.0    # negative estimates clip to the smallest
+    assert localise.nearest_q(99.0, g) == 30.0
+
+
+def test_aligned_rotates_hours_and_scores_tr_matches():
+    rng = np.random.default_rng(3)
+    SH = rng.normal(size=(4, 24, 5))
+    al = localise.aligned(SH, 21)
+    assert np.array_equal(al[:, 0], SH[:, 21]) and np.array_equal(al[:, 3], SH[:, 0])
+    R = 2.0 * al[2] + 7.0                       # scaled copy plus a common shift per hour
+    assert int(np.argmax(localise.scores_tr(R, al))) == 2
+
+
+def test_residual_mean_equals_hourly_mean():
+    rng = np.random.default_rng(4)
+    H = 24 * 30
+    A = np.hstack([np.eye(24)[np.arange(H) % 24], rng.normal(size=(H, 1))])
+    P = rng.normal(size=(H, 3))
+    t = 24 * 25 + 5
+    assert np.allclose(localise.residual(P, A, t), localise.residual_hourly(P, A, t).mean(axis=0))
+    assert localise.residual_hourly(P, A, t).shape == (24, 3)
+
+
+def test_scores_ignore_signatures_below_rounding():
+    rng = np.random.default_rng(5)
+    r = rng.normal(size=33)
+    S = np.vstack([0.5 * r + 0.1 * rng.normal(size=33), 1e-6 * r + 2.0])   # row 1: a uniform shift plus noise
+    assert localise.scores(r, S)[1] == 0.0 and localise.estimate(r, S) == 0
