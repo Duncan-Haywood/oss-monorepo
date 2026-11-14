@@ -117,3 +117,20 @@ entries:
         at 1280 and 390 px with no console errors. Not yet checked against a
         consultant's real analysis.
     mrr_end: 0
+  - venture: texas-electricity-plan-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/texas-electricity-plan-checker,
+        which bills a household's own months (Smart Meter Texas CSV or monthly
+        kWh) on each retail plan's EFL terms (base, tiers, TDU, credit bands,
+        minimum-usage fees, time-of-use windows), reads pasted EFL text, checks
+        every plan against its label's own 500/1,000/2,000 kWh prices, and reads
+        a credit from the three prices alone. On 200 ResStock AMY2018 homes
+        (simulated) in five Oncor/CenterPoint counties, the invented credit plan
+        with the lowest 1,000 kWh price (8.1 cents) was cheapest for 54 and
+        dearest for 138; median home collected its credit 4.5 of 12 months. 29
+        tests; driven in headless Chromium at 1280 and 390 px with no console
+        errors. Not yet checked on a real EFL PDF or a real SMT download.
+    mrr_end: 0
