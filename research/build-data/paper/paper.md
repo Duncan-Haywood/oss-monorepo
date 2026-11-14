@@ -420,6 +420,14 @@ reaches 0.58 days and is within a day of the best in 11 of 12 cells. Its one mis
 already completed the plain permit type looks better (&minus;1.4 days, interval &minus;2.8 to &minus;0.1,
 against +4.8 on complete labels). The censoring bias of 4.4b (session 79) thus reaches the selection set
 too. A significance gate does not catch it, and IPCW cannot repair a tail that lies past the longest window.
+Session 85 (`../results/select_deploy_es_summary.json`; five predictions written before the run) moved the
+selection set to the target's year Y-3, 93 to 99% complete on 1 January, and also early-stopped the borrowed
+model on only the source permits completed by then. On Y-3 the gate keeps the work-type class in Seattle's
+tail (&minus;1.0 days, interval &minus;2.5 to +0.4), and the selector's mean regret is 0.31 days (1.75 at
+worst, Austin's median in both years, where even the hindsight choice is wrong), within 0.14 days of the
+hindsight choice under the same model. The early-stopping cut is the larger cost: the best candidate's
+test loss rises by 1.29 days on average over the 12 cells, up to 6.9 days in Austin's 0.9 quantile, because
+a validation set without long builds stops the tail model too early.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
@@ -531,8 +539,10 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 If you do borrow a build-time model from other cities, choose how it encodes the work type from
 the target city's own earlier permits, scored with the borrowed model: two years back, reweighted for the
 permits not yet completed, and keeping the default unless another encoding wins clearly (4.4b; mean
-regret 0.6 days over 12 cells). Distrust that choice for the 0.9 quantile where the city's long builds
-outlast the two-year window.
+regret 0.6 days over 12 cells). Three years back is better: it keeps the 0.9-quantile choice from chasing
+permits that have not finished yet (mean regret 0.3 days, session 85). Do not early-stop the borrowed model
+on the sources' latest year as it stands on the decision date: without its long builds the tail model stops
+too early (1.3 days of mean loss, session 85).
 
 ## 7 To do before submission
 
