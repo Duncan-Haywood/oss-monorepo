@@ -3,7 +3,7 @@ title: "Three small arrays in a colour mixer"
 seo_title: "A faster JavaScript Frank-Wolfe loop with bit-identical output"
 date: 2026-11-14
 tags: [performance, javascript, screen-printing, open-source, clothing-design-studio]
-description: "The clothing studio's ink picker spent most of its time in a tiny Frank-Wolfe loop. Writing it on plain numbers instead of 3-element arrays cut each ink choice by about 18%, with byte-identical answers."
+description: "Writing a tiny Frank-Wolfe loop on plain numbers instead of 3-element arrays made each ink choice 18% faster, with byte-identical answers."
 ---
 
 The [clothing design studio](https://marisstella.app/clothing-design-studio/) can print a painting on a shirt as an index separation: a few inks laid down as dots, mixed by the eye. Which inks to use is a search. For each candidate ink set it works out, for 1,500 sampled colours of the painting, the closest colour the dots can mix, then moves one ink a little and tries again. The page does this in your browser, and the venture's tests do it four times.
