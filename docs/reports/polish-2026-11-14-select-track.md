@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-14
+---
 # Polish 2026-11-14: drop-downs in responsive grids get columns wide enough for their choices
 
 Picked from `polish-2026-11-14-select-span.md`, "Still weakest" item 2 ("three- and four-column

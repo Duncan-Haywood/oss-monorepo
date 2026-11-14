@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
-    "First pass took the max track width over a grid, so one over-long choice vetoed the whole grid (12 tools missed); switched to per-choice and re-ran."
+    "First pass took the max track width over a grid, so one over-long choice vetoed the whole grid (12 tools missed); switched to per-choice and re-ran.",
+    "changed-ventures CI failed on doc_index: the new docs/reports note lacked `kind` front matter; added it. Local run_workflow_locally --for-changes did not catch it (doc_index runs only inside changed-ventures)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -43,6 +44,10 @@
     {
       "file": "prompts/polish/prompt-0.md",
       "issue": "Suggests screenshotting hub/flagship/research/stories/post before choosing; with eight polish runs already today, the previous report's 'Still weakest' list was the better starting point, so I skipped the survey screenshots."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Asks for a docs/reports note but does not mention the required front matter (kind/topics/date) that doc_index.py checks; cost one red CI round."
     }
   ],
   "deviations": [
