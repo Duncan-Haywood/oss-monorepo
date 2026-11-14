@@ -86,7 +86,7 @@ class ProductionPlanningTests(unittest.TestCase):
             carousel.inputs,
             (
                 "analysis/instagram_storylines.json",
-                "graded/grade_asset_00002/portrait-a.nef",
+                "graded/grade_asset_00002/portrait-a.nef.tif",
                 "graded/grade_asset_00003/portrait-b.jpg",
                 "graded/grade_asset_00004/portrait-c.arw.tif",
             ),

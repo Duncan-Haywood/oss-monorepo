@@ -1252,12 +1252,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
     develop = subparsers.add_parser(
         "develop",
-        help="Develop DNG (or Canon CR2, with --dcp) raw files into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
+        help="Develop DNG (or Canon CR2, Sony ARW or Nikon NEF, with --dcp) raw files into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
     )
     develop.add_argument(
         "files",
         nargs="+",
-        help="DNG files, or Canon CR2 files with --dcp (convert CR3/NEF/ARW with Adobe DNG Converter).",
+        help="DNG files, or Canon CR2, Sony ARW or Nikon NEF files with --dcp (convert CR3 and others with Adobe DNG Converter).",
     )
     develop.add_argument("--out", required=True, help="Folder for the masters; existing files are never overwritten.")
     develop.add_argument("--format", choices=("tif", "png", "png16"), default="tif", help="tif (16-bit, default), png (8-bit) or png16.")
@@ -1282,9 +1282,9 @@ def _build_parser() -> argparse.ArgumentParser:
     develop.add_argument(
         "--dcp",
         help="A .dcp camera profile (Adobe DNG Converter, dcamprof, RawTherapee) used in place of the DNG's "
-        "own profile: its matrices, hue/saturation map and look table. dng colour only. Required for a CR2, "
-        "which carries no colour matrix (DNG Converter installs one per camera under CameraRaw/CameraProfiles). "
-        "A folder of profiles picks one per CR2 by its camera: <camera>.dcp, else the profile tagged for "
+        "own profile: its matrices, hue/saturation map and look table. dng colour only. Required for a CR2, ARW "
+        "or NEF, which carries no colour matrix (DNG Converter installs one per camera under CameraRaw/CameraProfiles). "
+        "A folder of profiles picks one per CR2, ARW or NEF by its camera: <camera>.dcp, else the profile tagged for "
         "that camera, else its Adobe Standard.",
     )
     develop.add_argument(
