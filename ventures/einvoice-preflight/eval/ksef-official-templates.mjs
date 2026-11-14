@@ -29,7 +29,7 @@ const fill = (t) => t
   .replace(/#invoice_number#/g, "FV-2026-0001").replace(/#invoicing_date#/g, "2026-03-01")
   .replace(/#(nip_podmiot2|nip2_podmiot3)#/g, "5252344078")
   .replace(/#(nip\w*|selfInvocingNip|subject\dnip|subject3IdentifierValue)#/g, "5260250274")
-  .replace(/#(idWewnetrzne|idwew\d_podmiot3)#/g, "5260250274-12345");
+  .replace(/#(idWewnetrzne|idwew\d_podmiot3)#/g, "5260250274-12341") // a valid KSeF internal-id check digit (fa3.mjs internalIdValid);
 
 const seen = new Set();
 let n = 0, agree = 0, clean = 0;

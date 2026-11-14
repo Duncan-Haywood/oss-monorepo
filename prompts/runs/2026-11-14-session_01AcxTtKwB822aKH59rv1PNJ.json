@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKwB822aKH59rv1PNJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T08:06:34Z",
+  "ended": "2026-11-14T08:19:12Z",
+  "wall_minutes": 12.91,
+  "tokens_in": 11776425,
+  "tokens_out": 56207,
+  "cost_usd": 4.8387,
+  "tool_calls": 85,
+  "task": "Deepen (flagship 5): einvoice-preflight, Poland FA(3): KSeF's receipt checks beyond the XSD",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 15782,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "Eval regexes first misread the Ministry's C# (third range clause not matched, '% 11' from IsValidNip taken as the internal-id modulus); caught because the run reported mismatches, fixed before landing.",
+    "First draft of the mojibake explanation said Windows-1250; U+009B actually comes from ISO-8859-2 (cp1250 maps 0x9B to U+203A). Corrected in code, eval doc, test and post before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/poland-ksef-e-invoice-mandate.html",
+      "issue": "The page and its test asserted 'does not run the full FA(3) XSD' for three weeks after the XSD gate shipped (2026-10-25); the page test pinned the stale claim, so it never failed."
+    },
+    {
+      "file": "ventures/einvoice-preflight/eval/ksef-official-templates.mjs",
+      "issue": "Filled IDWew placeholders with 5260250274-12345, which fails the Ministry's own internal-id check digit; any rule on that digit looked like a false positive on official templates."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Installing the .NET SDK via dotnet-install.sh into the scratchpad (to run the Ministry's MIT validator differentially) was refused by the auto-mode classifier; no doc says which toolchain installs are allowed, so the differential reads the C# source by pattern instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-invisible-character-ksef-refuses.md",
+    "ventures/einvoice-preflight/eval/ksef-acceptance-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Source: CIRFMF/ksef-docs faktury/weryfikacja-faktury.md (09.04.2026, ce3670e). Reference validator: CIRFMF/ksef-client-csharp d628369 (MIT), ValidationHelper.cs, XmlUnicodeValidator.cs, IdentifierValidators.cs, ValidationHelperTests.cs. eval/ksef-acceptance.mjs: 1,112,064/1,112,064 code points, 2,000/2,000 ids, 90,000/90,000 id-tail mutants, 8/8 test cases, 31/31 probes. eval/ksef-official-templates.mjs: 14/14 schema verdicts agree with xmllint, 10 clean. run_venture_tests.py einvoice-preflight ok; fa3.test.mjs 23/23; poland page test 8/8; headless Chromium: PL-018 and PL-022 shown, no console errors. Found: the Ministry's page says the internal-id check is on its NIP part, while its C# client checks the id's own 1,3 mod 10 digit; both are run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c7f03034-59b0-571b-8aed-14b25fb90856",
+    "transcripts": 1,
+    "first": "2026-11-14T08:06:34Z",
+    "last": "2026-11-14T08:19:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 157,
+        "output": 56207,
+        "thinking": 11408,
+        "cache_read": 11602078,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174190,
+        "api_equivalent_usd": 4.8387,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 157,
+      "output": 56207,
+      "thinking": 11408,
+      "cache_read": 11602078,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174190,
+      "api_equivalent_usd": 4.8387,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 80,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.91,
+      "active_minutes": 12.91,
+      "model_minutes": 10.05,
+      "tool_minutes": 2.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "reading the Ministry's verification page and C# client, implementing six checks, a differential script and tests, a page fix and a post: about a working day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 206.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

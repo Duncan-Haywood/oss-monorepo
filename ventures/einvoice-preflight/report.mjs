@@ -8,7 +8,7 @@ import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
-import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
+import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 import { checkNfe, looksLikeNfe } from "./nfe.mjs";
 import { checkNfeEvent, looksLikeNfeEvent } from "./nfe-event.mjs";
@@ -72,6 +72,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
     };
   }
 
+  const fa3Seen = new Map(); // KSeF duplicate key (seller NIP, RodzajFaktury, P_2) -> first file name
   for (const input of inputs) {
     const name = input.name || "invoice.json";
     const source = input.source ?? "";
@@ -104,7 +105,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       }
       if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {
         // Poland's KSeF FA(3) is its own schema, not EN 16931: own rules, no UBL/CII reading.
-        const polish = checkFa3(peek);
+        // The bytes, not the decoded text: KSeF's byte-order-mark, UTF-8 and size checks need them.
+        const polish = checkFa3(source);
+        const dupKey = fa3DuplicateKey(peek);
+        if (dupKey && fa3Seen.has(dupKey)) {
+          polish.findings.push({ rule: "PL-022", message: `This file has the same seller NIP, RodzajFaktury and invoice number (P_2) as ${fa3Seen.get(dupKey)}; KSeF refuses the second as a duplicate (error 440), and keeps the check for ten years.`,
+            fix: "Give each invoice its own P_2 within the seller's numbering; branches issuing for one NIP must share one numbering scheme.", path: "/Faktura/Fa/P_2" });
+        } else if (dupKey) fa3Seen.set(dupKey, name);
         reports.push({ file: name, errors: polish.findings, envelope: "Read as Polish KSeF FA(3), not EN 16931", ...(polish.skipped.length ? { skipped: polish.skipped } : {}) });
         continue;
       }
