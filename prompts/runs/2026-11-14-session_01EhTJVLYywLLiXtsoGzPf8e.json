@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVLYywLLiXtsoGzPf8e",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T08:36:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship quick-pick-survey: first hosted, usable surface (rank a list by picking pairs in the browser)",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": 15779,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First stop rule (every neighbour 90% settled) never finished under ordinary noise; replaced with posterior expected Spearman at 0.9 after measuring"
+    },
+    {
+      "what": "Favourite mode was labelled 'fewer questions'; measurement showed more questions but 12/12 favourite right, relabelled"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "route sent a scheduled venture-focused prompt to the research track; the stored task asks for revenue products, so the run did venture work"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The scheduled task's own prompt is product/revenue work; followed it and the allocator's flagship pick instead of the routed research sub-prompt",
+      "did": "Venture work on flagship quick-pick-survey",
+      "result": "Shipped a usable public page"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed next items (d11, d8 simulation refinements) are diminishing returns with zero real users; deploy-first in ventures/CLAUDE.md outranks them",
+      "did": "Built the browser rank page instead",
+      "result": "New item (r) added to next:"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-quick-pick-survey-rank-a-list-in-your-browser.md",
+    "ventures/quick-pick-survey/docs/RANK-PAGE.md"
+  ],
+  "goal": "Give the flagship a way for strangers to use it without deploying Next.js and Postgres",
+  "notes": "Local checks: node --test site/rank-core.test.mjs 11/11 (favourite-mode test shown red with the mode disabled). Playwright e2e at 390px: example list, picks, results, shared link opened by a second person, team combine with a damaged code, no console errors; consistent respondent finishes 8 options in 25 picks (48 before stop-rule change). run_workflow_locally --for-changes: all run steps pass except quick-pick-survey-ci Integration tests and Migrations parity (both need a Postgres server at 127.0.0.1:5432, absent here; no src/ or prisma/ change). platform/pages site-builder suite run alone: 1669/1670, the one failure (&darr; named entity) fixed and re-run green. check_post_frontmatter, check_csv_formula_guard, clauses.mjs pass after fixes.",
+  "corrections": [],
+  "redteam": null
+}
