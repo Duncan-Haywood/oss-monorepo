@@ -87,6 +87,7 @@ for the browser-extension, iOS and Android packagers.
 | [`wasserstein-distance`](../../ventures/wasserstein-distance/) | Cuturi 2013; Altschuler, Weed & Rigollet 2017; Peyré & Cuturi 2019; Székely & Rizzo 2013 | How far apart are two groups' distributions in my units, what moved up and what moved down, and across several columns, how far by optimal transport, with a certified range on the exact value? |
 | [`ranked-ballot-counter`](../../ventures/ranked-ballot-counter/) | Schulze 2011; Droop 1881 | Who won our ranked-choice vote: by instant runoff, by STV for several seats, and by Schulze, and is there a candidate who beats every other head to head? |
 | [`assembly-line-balancer`](../../ventures/assembly-line-balancer/) | Sewell & Jacobson 2012; Scholl & Klein 1997; Jackson 1956; Helgeson & Birnie 1961 | How few stations can this line run on at takt (or how short a cycle on the stations I have), and is that proved optimal or only the best found? |
+| [`job-shop-scheduler`](../../ventures/job-shop-scheduler/) | Nowicki & Smutnicki 1996; Taillard 1994; Giffler & Thompson 1960; Carlier 1982 | Which order should each machine run its jobs in so the last one finishes soonest, and how far from the best possible is that schedule? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the

@@ -612,6 +612,7 @@ ventures/janitorial-bid-calculator/usage.mjs
 ventures/job-application-tracker/usage.mjs
 ventures/job-margin-variance/usage.mjs
 ventures/job-offer-total-comp-calculator/usage.mjs
+ventures/job-shop-scheduler/usage.mjs
 ventures/json-ld-rich-result-validator/usage.mjs
 ventures/json-to-types-generator/usage.mjs
 ventures/junk-car-buyer-offer-calculator/usage.mjs
