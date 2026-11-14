@@ -114,7 +114,11 @@ const WRITE_PATTERNS = [
       const match = /\.search\s*=\s*(.*)$/.exec(line);
       if (!match) return false;
       const rhs = match[1].trim().replace(/;$/, "").trim();
-      return !/^(""|''|``)$/.test(rhs);
+      if (/^(""|''|``)$/.test(rhs)) return false;
+      // A boolean, number or null is never a query string: it is an options
+      // object's `search` flag (`opts.search = true` in a venture CLI read as a
+      // share leak and first went red in CI; run-record doc friction, 2026-11-14).
+      return !/^(true|false|null|undefined|-?\d+(\.\d+)?)$/.test(rhs);
     },
     why: "assigns a non-empty query string, which the server sees",
   },
