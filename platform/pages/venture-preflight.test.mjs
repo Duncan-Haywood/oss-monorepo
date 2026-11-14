@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs } from './venture-preflight.mjs';
+import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -121,4 +121,24 @@ test('router inputs: validate.py runs only when flagships.yaml or a VENTURE.yaml
   assert.equal(touchesRouterInputs('ventures/chant-forge/README.md\nventures/a/b/VENTURE.yaml\n'), false);
   assert.equal(routerProblem(0, 'All valid.'), null);
   assert.match(routerProblem(1, 'flagships.yaml: x `next:` is 2050 characters (cap 2000).'), /2050 characters/);
+});
+
+test('treeCheckProblem is silent on exit 0 and lists each red check with its tail', () => {
+  assert.equal(treeCheckProblem(0, 'ok   check_a.py (1/2)\nDONE', 'lift-calc'), null);
+  const out = [
+    'ok   check_a.py (1/3)', 'FAIL check_step_grid.py (2/3)', 'ok   check_c.py (3/3)',
+    'FAIL check_step_grid.py (exit 1)', '1 number input(s) whose step grid excludes whole numbers:', '', '  - ventures/lift-calc/index.html: capacityFactor min=1 step=5', '',
+    'FAIL check_doc_counts.py (exit 1)', 'PRODUCT_PLAYBOOK.md:12: ventures 1338, tree 1366', '',
+    '1/3 checks pass', 'DONE',
+  ].join('\n');
+  const p = treeCheckProblem(1, out, 'lift-calc');
+  assert.match(p, /the output names lift-calc/);
+  assert.match(p, /FAIL check_step_grid\.py \(exit 1\)\n\s+1 number input\(s\)[^\n]*\n\s+- ventures\/lift-calc\/index\.html/);
+  assert.match(p, /FAIL check_doc_counts\.py \(exit 1\)\n\s+PRODUCT_PLAYBOOK/);
+  assert.doesNotMatch(p, /\(2\/3\)|checks pass|DONE/);
+  assert.match(treeCheckProblem(1, out, 'other-tool'), /none of the output names other-tool/);
+});
+
+test('treeCheckProblem falls back to the output tail when no block parses', () => {
+  assert.match(treeCheckProblem(2, 'Traceback\nboom', 'x'), /boom/);
 });

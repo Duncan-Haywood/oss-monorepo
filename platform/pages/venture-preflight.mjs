@@ -28,6 +28,11 @@
 //      portfolio/flagships.yaml or a VENTURE.yaml: a flagship `next:` over its
 //      2000-character cap failed CI for runs that appended to it (three run
 //      records on 2026-11-13).
+//      Also every argument-free platform/ci/check_*.py, through
+//      `main_health.py` (about 20 s on 4 cores): the elevator-traffic run
+//      (#15700, 2026-11-14) passed this preflight and then failed CI on
+//      check_step_grid.py and check_doc_counts.py, two of the ~60 tree checks
+//      CI runs that the steps above did not.
 //   4. The site's own tests, the same `node --test "*.test.mjs"
 //      "cloudflare/*.test.mjs"` glob CI's "Test the site builder" step runs,
 //      minus the two files that build the whole site (SITE_BUILD_TESTS, about
@@ -35,16 +40,19 @@
 //      venture page (FAQ markup shown on the page, heading order, schema,
 //      post rules): 1,249 tests in about 35 s on 4 cores. A preflight that
 //      passed while CI failed faq-visible.test.mjs on the new page cost a
-//      ventures run a CI round (run record, 2026-11-12).
+//      ventures run a CI round (run record, 2026-11-12). Also
+//      platform/privacy/*.test.mjs (112 tests, about 5 s), which CI's validate
+//      job runs over every venture's source (share-location.test.mjs failed
+//      #15700 in CI only).
 //
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
-// Takes about six minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
+// Takes about six and a half minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
 // slug. Exit 1: a problem names the slug, the launch date / counts are
 // wrong, or a site test fails (CI runs the same tests on the PR, so a red
 // one fails it whoever caused it; the message says whether it names the slug).
 // Problems check.mjs finds on other slugs are printed as notes and do not fail you.
-// `--skip-build` runs steps 1, 3 and 4 only (under a minute).
+// `--skip-build` runs steps 1, 3 and 4 only (about a minute).
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -173,6 +181,35 @@ export function checkProblems(checked, slug) {
   return { failures, other };
 }
 
+/**
+ * null when main_health.py passed; else each red check's block (its
+ * `FAIL|TIME <name> (exit n)` line and the output tail main_health prints under
+ * it) and whether the slug is named, as for the site tests.
+ */
+export function treeCheckProblem(status, output, slug) {
+  if (status === 0) return null;
+  const lines = (output || '').split('\n');
+  const blocks = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^(FAIL|TIME)\s+\S+ \(exit -?\d+\)$/.test(lines[i])) continue;
+    const block = [lines[i]];
+    // A block runs to the next red header or the summary line; a check's own
+    // output can hold blank lines (check_step_grid.py puts one after its count).
+    for (let j = i + 1; j < lines.length && !/^(FAIL|TIME)\s+\S+ \(exit -?\d+\)$|^\d+\/\d+ checks pass$/.test(lines[j]); j++) {
+      if (lines[j].trim()) block.push(lines[j]);
+    }
+    blocks.push(block);
+  }
+  const named = new RegExp(`(^|[^A-Za-z0-9_-])${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`).test(output);
+  const who = named
+    ? `the output names ${slug}`
+    : `none of the output names ${slug}; if main fails the same way it is not yours, but CI will still be red`;
+  const body = blocks.length
+    ? blocks.map((b) => b.map((l) => `      ${l}`).join('\n')).join('\n')
+    : (output || '').trim().split('\n').slice(-15).map((l) => `      ${l}`).join('\n');
+  return `repository checks failed (platform/ci/main_health.py; ${who}); rerun one with \`python3 platform/ci/<name>\`:\n${body}`;
+}
+
 /** Site tests that build the whole site; the preflight's own build covers that ground. */
 export const SITE_BUILD_TESTS = ['build.test.mjs', 'custom-domain.test.mjs'];
 
@@ -223,7 +260,7 @@ async function main(argv) {
 
   // The count checks take seconds and the build takes minutes, so answer
   // them first and stop early.
-  console.log('1b/3 hand-written counts (--check), inherited keys, section placement, changed posts\' front matter, router inputs');
+  console.log('1b/3 hand-written counts (--check), inherited keys, section placement, changed posts\' front matter, repository checks, router inputs');
   for (const check of COUNT_CHECKS) {
     const r = spawnSync('python3', [check.script, '--check'], { cwd: ROOT, encoding: 'utf8' });
     const problem = countProblem(check, r.status);
@@ -245,6 +282,12 @@ async function main(argv) {
     const problem = postProblem(r.status, (r.stdout || '') + (r.stderr || ''));
     if (problem) failures.push(problem);
   }
+  {
+    console.log('   repository checks (platform/ci/main_health.py, about 20 s)');
+    const r = spawnSync('python3', ['platform/ci/main_health.py'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 });
+    const problem = treeCheckProblem(r.status, (r.stdout || '') + (r.stderr || ''), slug);
+    if (problem) failures.push(problem);
+  }
   if (touchesRouterInputs(...changedText('portfolio/flagships.yaml', 'ventures/*/VENTURE.yaml'))) {
     const r = spawnSync('python3', ['portfolio/router/validate.py'], { cwd: ROOT, encoding: 'utf8' });
     const problem = routerProblem(r.status, (r.stdout || '') + (r.stderr || ''));
@@ -257,6 +300,12 @@ async function main(argv) {
     });
     const problem = siteTestProblem(r, slug);
     if (problem) failures.push(problem);
+    console.log('   privacy tests (platform/privacy/*.test.mjs, about 5 s)');
+    const privacy = fs.readdirSync(path.join(ROOT, 'platform', 'privacy'))
+      .filter((f) => f.endsWith('.test.mjs')).sort().map((f) => `platform/privacy/${f}`);
+    const pr = spawnSync('node', ['--test', '--test-reporter=tap', ...privacy], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 28 });
+    const privacyProblem = siteTestProblem(pr, slug);
+    if (privacyProblem) failures.push(privacyProblem.replace('site tests failed', 'privacy tests failed').replace('cd platform/pages && ', 'cd platform/privacy && '));
   }
   if (failures.length) {
     console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build; fix, then rerun):`);
