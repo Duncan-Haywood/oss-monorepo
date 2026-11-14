@@ -20,6 +20,7 @@ const AMOUNT_DC = /^[-(−]?\$?\s?\d{1,3}(?:\.\d{3})*,\d{2}\)?-?(?:\s?(?:CR|DR))
 const IN_HEAD = /\b(deposits?|credits?|payments? (?:and|&) (?:other )?credits|additions|payments? received|money in|received)\b/i;
 const OUT_HEAD = /\b(withdrawals?|debits?|purchases?|checks? paid|checks?|fees?|charges|subtractions|payments? (?:and|&) (?:other )?debits|money out|electronic payments?|other withdrawals)\b/i;
 const NOISE = /^(page \d|continued|statement (?:period|date)|account (?:number|summary)|customer service|member fdic|date\s+description|total\b|subtotal)/i;
+const CARD_CUE = /\b(credit limit|minimum payment|payment due date|card(?:member| ending| account| number)|credit card|rewards card|new balance)\b/i;
 const BALANCE_LINE = /^(beginning|opening|previous|starting|ending|closing|balance)\b.*balance|^balance (?:forward|brought forward|carried forward)/i;
 
 function splitTail(line, dc) {
@@ -124,13 +125,24 @@ export function readStatementText(text, { dayFirst = false, decimalComma = false
     }
     if (!sign && section) sign = section;
     if (!sign) { sign = -1; undirected++; guessed.push(rows.length); }
-    const row = { line: i + 1, date: iso, desc: rest, cents: sign * mag, balance: Number.isFinite(balance) ? balance : null };
+    const row = { line: i + 1, date: iso, desc: rest, cents: sign * mag, balance: Number.isFinite(balance) ? balance : null, ...(explicit && !cd && !section ? { minus: true } : {}) };
     if (row.cents === 0) { last = null; continue; }
     rows.push(row); last = row;
   }
   if (!rows.length && problems.length) return { rows: [], problems: [...new Set(problems.map((x) => x.replace(/^Line \d+: /, "").replace(/"[^"]*"/, "the dates")))].slice(0, 3).concat(problems.length > 1 ? [`${problems.length} lines were skipped for the same reason.`] : []), columns: null };
   if (!rows.length) return { rows: [], problems: ["No transaction lines were found. A line should start with a date and end with an amount, like \"03/09 CAFE LUNA 12.50\"."], columns: null };
   for (const r of rows) r.desc = r.desc.replace(/\s+/g, " ").trim().replace(/\s[$€£]$/, "");
+  // A card statement with no section headings prints purchases bare and payments
+  // and credits with a minus ("07/06 PAYMENT THANK YOU -1,238.92"): the minus is the
+  // card issuer's credit, not money out. Read that way only when the header says
+  // card, no row has a running balance, and the minus rows are the minority.
+  let cardFlip = 0;
+  const minus = rows.filter((r) => r.minus);
+  if (minus.length && minus.length < rows.length / 2 && guessed.length && rows.every((r) => r.balance === null) && CARD_CUE.test(text.slice(0, 4000))) {
+    for (const r of minus) r.cents = Math.abs(r.cents);
+    cardFlip = minus.length; undirected -= guessed.length; guessed.length = 0;
+  }
+  for (const r of rows) delete r.minus;
   // Unsigned rows with no running balance: the opening and closing balance fix the
   // total, so if exactly one in/out assignment of them reaches it, that is the answer.
   let byBalance = 0;
@@ -149,6 +161,10 @@ export function readStatementText(text, { dayFirst = false, decimalComma = false
     const hit = ways.get(want);
     if (hit && hit.n === 1) { guessed.forEach((k, j) => { rows[k].cents = hit.signs[j] * Math.abs(rows[k].cents); }); byBalance = guessed.length; undirected -= guessed.length; }
   }
-  const inferred = byBalance ? `${byBalance} unsigned rows were read as money in or out from the statement's opening and closing balance (only one split adds up).` : undirected ? `${undirected} of ${rows.length} rows had no sign, no running balance and no section heading, so they were read as money out. Check them.` : null;
-  return { rows, problems, columns: null, bank: "text", inferred };
+  const inferred = cardFlip ? `A card statement: ${cardFlip} rows printed with a minus were read as payments and credits (money in) and the rest as purchases.` : byBalance ? `${byBalance} unsigned rows were read as money in or out from the statement's opening and closing balance (only one split adds up).` : undirected ? `${undirected} of ${rows.length} rows had no sign, no running balance and no section heading, so they were read as money out. Check them.` : null;
+  // The statement's own totals: opening plus every row should reach the closing
+  // balance. A scan read by OCR can misread a digit; this is how it shows.
+  const check = opening !== null && closing !== null ? { opening, closing, rowsTotal: rows.reduce((a, r) => a + r.cents, 0) } : null;
+  if (check) { check.ok = opening + check.rowsTotal === closing; if (!check.ok) check.off = closing - opening - check.rowsTotal; }
+  return { rows, problems, columns: null, bank: "text", inferred, ...(check ? { check } : {}) };
 }

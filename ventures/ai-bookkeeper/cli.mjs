@@ -37,7 +37,7 @@ import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { payeeReport } from "./payees.mjs";
-import { receiptTextFromFile, receiptPassesFromFile, statementTextFromFile } from "./ocr.mjs";
+import { receiptTextFromFile, receiptPassesFromFile, statementTextFromFile, readStatementFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { cashBasis } from "./cashbasis.mjs";
@@ -61,7 +61,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
   import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--year Y] [--auto 0.85]
-  import FILE.txt|FILE.pdf                    statement text copied from a PDF, or the PDF itself via pdftotext (date, description, amount per line)
+  import FILE.txt|FILE.pdf|FILE.png           statement text copied from a PDF, the PDF itself via pdftotext, or a scanned PDF or page photo via OCR (pdftoppm + tesseract; checked against the statement's balances)
   import FILE.ofx --map OFXID=CODE,OFXID=CODE   a multi-account OFX file, one chart code per account
   review                 list lines waiting for an account
   confirm ID=CODE ...    file lines (and learn from them)
@@ -222,10 +222,17 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`${r.accounts.filter((a) => a.code).length} of ${r.accounts.length} accounts imported: ${r.added} lines added, ${r.skipped} already in the books.`);
 } else if (cmd === "import") {
   if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
-  const r = importStatement(books, statementTextFromFile(rest[0]), account, opts);
+  const read = readStatementFile(rest[0], opts);
+  const r = importStatement(books, read.text, account, opts);
   books = r.books;
   save();
   for (const p of r.problems) console.error(p);
+  if (read.ocr) {
+    const o = read.ocr;
+    console.log(`Read by OCR (${o.tool}, ${o.pages} page${o.pages === 1 ? "" : "s"}${o.passes > 1 ? `, read twice${o.chose ? ` and the ${o.chose} reading kept` : ""}` : ""}): ${o.score === 0 ? "the statement's own balances agree with the rows read." : o.score === null ? "the statement carries no running balance or opening and closing balance, so no row could be checked; compare the rows with the page." : `${o.score} balance check${o.score === 1 ? "" : "s"} still fail${o.score === 1 ? "s" : ""}, so a digit was probably misread; compare the flagged rows with the page.`}`);
+  }
+  const total = readStatement(read.text, opts).check;
+  if (total && !total.ok) console.log(`Opening ${fmt(total.opening)} plus the rows read (${fmt(total.rowsTotal)}) misses the closing balance ${fmt(total.closing)} by ${fmt(total.off)}: a row is missing, doubled or misread.`);
   const s = status(books);
   console.log(`${r.added} lines added, ${r.skipped} already in the books. ${s.auto} posted by rule or memory, ${s.transfer} transfer lines paired, ${s.review} waiting for review.`);
   if (r.balanceCheck?.checked) console.log(r.balanceCheck.breaks.length ? `The running balance breaks at ${r.balanceCheck.breaks.length} line(s), first at line ${r.balanceCheck.breaks[0].line}: a row may be missing or doubled.` : "The statement's running balance agrees with every row.");

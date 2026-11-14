@@ -1260,7 +1260,10 @@ amounts and a running balance (the hardest case) and reads them back: 5 seeds,
 1,094 rows, 0 wrong in cents, date or description. That checks the parser
 against the author's own rendering, not against a bank's real layouts; PDF text
 from a two-column statement, or one where the extractor reorders columns, is not
-covered. Scanned (image) PDFs have no text to copy.
+covered. Scanned (image) PDFs have no text to copy; the CLI reads them by OCR
+(next section).
+
+<!-- SCANNED -->
 
 ## Switching from QuickBooks or Xero
 
@@ -1408,7 +1411,7 @@ The bank match learnt the two ways a provider pays contractors: as their own deb
 
 ## Not modelled
 
-Payroll filings (runs are booked, see below, but no filing, wage bases or state rules) and sales tax filings, inventory across several locations or with serial numbers (single-location stock is below), foreign-currency invoices and bills are modelled (see below, 2026-10-22; a credit note in the invoice's own foreign currency is applied in that currency, 2026-10-26; an instalment plan on a foreign invoice closes on the last payment within 10%, 2026-10-26) (foreign bank accounts too; the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`. Receipts can be a PDF or a photo (see below).
+Payroll filings (runs are booked, see below, but no filing, wage bases or state rules) and sales tax filings, inventory across several locations or with serial numbers (single-location stock is below), foreign-currency invoices and bills are modelled (see below, 2026-10-22; a credit note in the invoice's own foreign currency is applied in that currency, 2026-10-26; an instalment plan on a foreign invoice closes on the last payment within 10%, 2026-10-26) (foreign bank accounts too; the VAT worksheet is UK-layout, invoice basis). A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`; a scanned (image-only) one, or a photo of a page, is read by OCR in the CLI (see "Scanned statements" below; not yet on the page). Receipts can be a PDF or a photo (see below).
 
 ## Foreign-currency bank accounts
 
