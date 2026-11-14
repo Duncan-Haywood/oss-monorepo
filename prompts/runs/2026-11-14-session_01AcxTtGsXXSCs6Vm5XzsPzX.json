@@ -1,0 +1,438 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGsXXSCs6Vm5XzsPzX",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T05:07:05Z",
+  "ended": "2026-11-14T05:08:20Z",
+  "wall_minutes": 14.18,
+  "tokens_in": 11527791,
+  "tokens_out": 49555,
+  "cost_usd": 4.4191,
+  "tool_calls": 101,
+  "task": "redteam: usage.mjs + browser-signals campaigns; blocked-site-data crash sweep",
+  "projects": [
+    "platform/ci",
+    "platform/privacy",
+    "platform/proposal",
+    "ventures"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15740",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Pass-one sweep regex matched only bare `localStorage`, missing `globalThis.localStorage` args and two modules without defaults",
+      "fix": "the new guard caught 22 call sites; second pass fixed them"
+    },
+    {
+      "what": "15 page tests pinned the old call text (regexes on recordUsage(localStorage ...)) and one regex `recordUsage\\([^)]*\\)` stopped at usageStorage()'s paren",
+      "fix": "updated the regexes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_storage_guard.py",
+      "issue": "Docstring declared the parameter design 'out of scope' while describing exactly how it crashes; an explicit known-gap note in a guard should be a backlog/open defect entry, not a docstring, or it is never picked up."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 12 entries, all control-plane (owner approval), so a run cannot act on any of them; the step could say to skip control-plane entries already described."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open defects first; all 12 are control-plane edits (.github/workflows, prompts/, control_plane_guard.py) needing owner approval and several already have their own PRs.",
+      "did": "left them open, spent the run on new defects",
+      "result": "one large class fixed and guarded"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "This PR touches ~560 files mechanically (one helper, call-site rewrite); split was considered but the guard needs every call site fixed to start green.",
+      "did": "one PR",
+      "result": "see PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-blocked-site-data.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 (random draw) music-teacher usage.mjs 6/8 caught; campaign 2 platform/privacy/browser-signals.mjs 5/8. After triage: 2 equivalent, 5 gaps, all caught_after_fix. The usage escape is already covered repo-wide by usage_contract.mjs. Hunt: usage_contract skipped 264 modules of other designs; a probe over the 209 recordUsage(storage,...) copies found the blocked/full/corrupt-store throws. Guard added: check_storage_guard.py bare_storage_args + exemption removed (runs in portfolio-validate.yml already). Verification: run_venture_tests.py over all 253 changed ventures, platform/privacy and platform/proposal suites, test_check_storage_guard (28 OK), check_storage_guard.py and usage_contract.mjs clean, all 5 privacy catalogue checkers clean, Chromium blocked-storage check on artificial-turf-bid-calculator (main: preset ignored, 2 errors; fixed: updates, 0 errors).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+        "test": "node --test ventures/music-teacher-studio-profit-calculator/**/*.test.mjs  (in .)",
+        "seed": 434078850,
+        "commit": "903643a5",
+        "sites": 24,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 11,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "return typeof localStorage === \"undefined\";",
+            "after": "return typeof localStorage !== \"undefined\";",
+            "line_text": "    return typeof localStorage === \"undefined\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 13,
+            "col": 11,
+            "operator": "true-to-false",
+            "before": "return true;",
+            "after": "return false;",
+            "line_text": "    return true;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "noStorage() catch branch: when reading the localStorage global throws, every later access (usageOptedOut, record, readUsage, setUsageOptOut) is itself inside try/catch and falls back to the same result ({} / no write / not opted out), so returning false instead of true changes nothing a visitor sees."
+          },
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 34,
+            "col": 79,
+            "operator": "true-to-false",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return false;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 38,
+            "col": 9,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "  return false;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 45,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "after": "current = JSON.parse(localStorage.getItem(KEY) && \"{}\");",
+            "line_text": "    current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 49,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current === \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/music-teacher-studio-profit-calculator/usage.mjs",
+            "line": 62,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed === \"object\" || !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Venture suite only stored objects or unparseable text. Added usage.test.mjs test storing 5, \"text\", true, [1,2], null. The class is already guarded repo-wide by platform/ci/usage_contract.mjs (via check_storage_guard.py in portfolio-validate.yml), which stores the same non-object values."
+          }
+        ]
+      },
+      {
+        "target": "platform/privacy/browser-signals.mjs",
+        "test": "node --test platform/privacy/browser-signals.test.mjs  (in .)",
+        "seed": 174609801,
+        "commit": "903643a5",
+        "sites": 40,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 58,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "maxBuffer: 1 << 28,",
+            "after": "maxBuffer: 2 << 28,",
+            "line_text": "      maxBuffer: 1 << 28,",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "maxBuffer doubled from 256 MiB to 512 MiB; ls-files output for ventures/ is a few hundred KB, so the larger cap is never reached."
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 69,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "if (paths.length === 0) return new Set();",
+            "after": "if (paths.length === 1) return new Set();",
+            "line_text": "  if (paths.length === 0) return new Set();",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The dist test always passed two untracked paths. Added \"discovery skips build output even when it is the only untracked file\"."
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 147,
+            "col": 65,
+            "operator": "true-to-false",
+            "before": "Object.defineProperty(globalThis, \"navigator\", { configurable: true, value: navigatorValue });",
+            "after": "Object.defineProperty(globalThis, \"navigator\", { configurable: false, value: navigatorValue });",
+            "line_text": "  Object.defineProperty(globalThis, \"navigator\", { configurable: true, value: navigatorValue });",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 164,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (made && typeof made === \"object\") callRecorders(made, storage, eventNames);",
+            "after": "if (made || typeof made === \"object\") callRecorders(made, storage, eventNames);",
+            "line_text": "        if (made && typeof made === \"object\") callRecorders(made, storage, eventNames);",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No fixture had a create* factory returning null; with || null reaches Object.entries and the module reads as error. Added \"a factory that returns null is skipped...\"."
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 230,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (control.length === 0) return { name, status: \"undrivable\" };",
+            "after": "if (control.length !== 0) return { name, status: \"undrivable\" };",
+            "line_text": "  if (control.length === 0) return { name, status: \"undrivable\" };",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 272,
+            "col": 46,
+            "operator": "plus-to-minus",
+            "before": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "after": "process.exit(failed.length + errored.length - undrivable.length > 0 ? 1 : 0);",
+            "line_text": "  process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 272,
+            "col": 66,
+            "operator": "gt-to-ge",
+            "before": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "after": "process.exit(failed.length + errored.length + undrivable.length >= 0 ? 1 : 0);",
+            "line_text": "  process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 272,
+            "col": 72,
+            "operator": "const-plus-one",
+            "before": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "after": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 2 : 0);",
+            "line_text": "  process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/*/usage.mjs + pages (247 modules, 301 pages)",
+        "issue": "Parameter-design usage counters defaulted to `storage = globalThis.localStorage` and pages called recordUsage/readOptOut/writeOptOut(localStorage, ...): with site data blocked, reading the global throws SecurityError at the call site, so the calculator's change handler threw before update(). Reproduced in Chromium on artificial-turf-bid-calculator (preset change left the bid unchanged; 2 page errors). Fixed: exported usageStorage() guard, defaults and call sites use it.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15740"
+      },
+      {
+        "file": "ventures/*/usage.mjs (122 recordUsage bodies)",
+        "issue": "recordUsage(storage, ...) threw on a full store (setItem QuotaExceeded) or corrupt stored JSON (118) or a stored number/null (3), all origins share marisstella.app's quota. Probe drove every copy. Fixed: body wrapped in try.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15740"
+      },
+      {
+        "file": "platform/proposal/adopt.mjs + 120 pages",
+        "issue": "Generated proposal block called loadCompany/saveCompany/forgetCompany(localStorage, ...) unguarded; restoreCompany() at load threw with site data blocked, skipping the rest of setup, and the forget-details button threw before clearing fields. Fixed in the template and all generated/hand-ported pages via companyStorage().",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15740"
+      },
+      {
+        "file": "ventures/notary-trip-quote/usage.mjs",
+        "issue": "recordUsage read localStorage.getItem(OPT_OUT) outside any try and wrote to the parsed counter with no shape check. Surfaced by check_storage_guard once its exemption was removed. Fixed.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15740"
+      },
+      {
+        "file": "platform/ci/check_storage_guard.py",
+        "issue": "Skipped every usage.mjs containing `storage = globalThis.localStorage` and never looked at pages, so the bare-read crash above passed CI on 247 modules. Fixed: exemption removed, new bare_storage_args rule over pages importing ./usage.mjs (found 22 more call sites in 9 ventures on first run), 6 new tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15740"
+      },
+      {
+        "file": "ventures/*/*.html (58 pages)",
+        "issue": "165 bare `localStorage` reads outside try remain in non-usage helpers (saveBid/clearBid x50 each, drafts, scenarios, handoffs): each is a control that throws for a visitor blocking site data. Measure: for each tracked ventures html, run check_storage_guard.unguarded_reads over each inline <script> body. Fix: route through a guarded getter like usageStorage()/companyStorage(), then extend bare_storage_args (or unguarded_reads over inline scripts) to pages generally with a zero baseline.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cf186f69-4725-5e19-86bd-1b90293334d1",
+    "transcripts": 1,
+    "first": "2026-11-14T05:07:05Z",
+    "last": "2026-11-14T05:21:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 99,
+        "input": 190,
+        "output": 49555,
+        "thinking": 13948,
+        "cache_read": 11383794,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143807,
+        "api_equivalent_usd": 4.4191,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 99,
+      "input": 190,
+      "output": 49555,
+      "thinking": 13948,
+      "cache_read": 11383794,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143807,
+      "api_equivalent_usd": 4.4191,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 98,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.18,
+      "active_minutes": 14.18,
+      "model_minutes": 9.28,
+      "tool_minutes": 4.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "probe + sweep of ~560 files, lint, browser repro",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 226.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
