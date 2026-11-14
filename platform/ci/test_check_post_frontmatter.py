@@ -113,7 +113,7 @@ class T(unittest.TestCase):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):  # a named report is checked alone, posts skipped
                 self.assertEqual(main(["--root", d, str(good)]), 0)
-            self.assertEqual(out.getvalue(), "")
+            self.assertEqual(out.getvalue(), "ok: front matter clean on 1 report\n")
             bare.write_text("---\nkind: note\n---\n# fixed\n")
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(main(["--root", d]), 0)
@@ -186,7 +186,7 @@ class T(unittest.TestCase):
         return code, out.getvalue()
 
     def test_main_exit_zero_when_clean(self):
-        self.assertEqual(self._run({"2026-10-24-x.md": GOOD}), (0, ""))
+        self.assertEqual(self._run({"2026-10-24-x.md": GOOD}), (0, "ok: front matter clean on 1 post\n"))
 
     def test_main_exit_one_and_names_each_problem(self):
         bad = GOOD.replace("tags: [a, b]\n", "")
