@@ -253,11 +253,12 @@ flagships:
     buildable: >-
       Public samples, no key: the proxy serves
       github.com/drewnoakes/metadata-extractor-images (sparse checkout; ARW, NEF,
-      ORF, RW2, SRW and PEF read, eval/*-reader-2026-11-14.md; raf/ holds 3 files:
-      X-E1 and EX-2 X-Trans, S5500 Bayer). Read Fujifilm RAF directly, sensel for
-      sensel against LibRaw (X-Trans needs a 6x6 demosaic); Samsung SRW lens name
-      (maker note 0xA003) for lensfun; Sony maker-note lens names, from those same
-      files. The DNG 1.7.1.0 spec PDF is reachable (URL in
+      ORF, RW2, SRW, PEF and RAF read, eval/*-reader-2026-11-14.md). A directional
+      X-Trans demosaic (Markesteijn-style) in place of bilinear, measured against
+      LibRaw's on the X-E1 and X-E2 RAFs (false colour, detail;
+      eval/fujifilm-raf-reader-2026-11-14.md); Samsung SRW lens name (maker note
+      0xA003) for lensfun; Sony maker-note lens names, from those same files. The
+      DNG 1.7.1.0 spec PDF is reachable (URL in
       eval/opcode-spec-audit-2026-11-12.md): read it, not memory.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
@@ -268,14 +269,14 @@ flagships:
       profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
-      NEF, ORF, RW2, SRW, PEF read directly since 2026-11-14
-      (eval/*-reader-2026-11-14.md); RW2 lens from its JPEG's maker note
-      (eval/panasonic-rw2-lens-2026-11-14.md). Next, most valuable first: a real NEF
-      with a split row; Sony maker-note lens name and in-file lens corrections; a
-      real DNG and a vignetting-calibrated lens through the pipeline's lens stage; a
-      real evenly lit frame shot wide open (corners level after lensfun's
-      vignetting?); a second maker-against-lensfun DNG pair (a zoom at several focal
-      lengths); a real DNG carrying any opcode run only on synthetic files so far,
+      NEF, ORF, RW2, SRW, PEF, RAF (X-Trans too) read directly since 2026-11-14
+      (eval/*-reader-*.md); RW2 lens from its JPEG's maker note
+      (eval/panasonic-rw2-lens-2026-11-14.md). Next, most valuable first: a
+      compressed RAF (X-T2 or later); a real NEF with a split row; Sony maker-note
+      lens name and in-file lens corrections; a real DNG and a vignetting-calibrated
+      lens through the pipeline's lens stage; a real evenly lit frame shot wide open
+      (corners level after lensfun's vignetting?); a second maker-against-lensfun
+      DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
       or the SDK to check them; lateral colour measured on a real frame with sharp
       corner edges; a real Adobe `.dcp` through the profile chooser; newer CR2s
       (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that collection under their
