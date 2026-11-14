@@ -2,8 +2,8 @@
 title: "The trailing space that split a team survey: a red-team pass on Quick Pick's rank page"
 seo_title: "Red team: a trailing space broke Quick Pick team codes"
 date: 2026-11-14
-tags: [red-team, testing, quick-pick-survey]
-description: "Seeding 20 faults into the new pairwise rank page caught 6. Hunting by hand found a real bug: a long option could make every respondent's code 'for a different list'."
+tags: [redteam, testing, quick-pick-survey]
+description: "20 faults seeded into the new rank page, 6 caught. Hunting by hand found a real bug: a long option made every team code 'for a different list'."
 ---
 
 Yesterday [Quick Pick](../../ventures/quick-pick-survey/) gained a rank page: paste a list, pick between two options at a time, share a link, then paste your team's result codes back to get a combined order. Today's red-team run aimed at its core file, `site/rank-core.mjs`.
