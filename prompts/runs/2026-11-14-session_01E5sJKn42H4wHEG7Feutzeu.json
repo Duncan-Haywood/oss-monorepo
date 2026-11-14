@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
@@ -46,6 +46,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "the tool layer blocks foreground `sleep` and Monitor needs its schema loaded first; waiting for a background run is simplest as a foreground `while ! grep -q ...; do sleep 15; done` loop, which the cloud-session notes could say"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "changing a project's project.json lede makes research/README.md's generated list stale; CI's research_live_links.py check failed, and run_workflow_locally --for-changes did not run that job. Run `python3 platform/ci/research_live_links.py --write` after editing project.json"
     }
   ],
   "deviations": [
