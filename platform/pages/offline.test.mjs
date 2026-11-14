@@ -15,7 +15,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { injectOfflineSupport, linksManifest } from './offline.mjs';
+import { injectOfflineSupport, linksManifest, renderIcon } from './offline.mjs';
+import { renderMarkIcon } from './sharecard.mjs';
 
 const page = (head, body = '<p>hi</p>') =>
   `<!doctype html><html lang="en"><head><meta charset="utf-8">${head}</head><body>${body}</body></html>`;
@@ -103,4 +104,18 @@ test('rootRel is carried into every injected URL, so a subpath page resolves', (
   const { html } = injectOfflineSupport(page(''), '../');
   assert.match(html, /href="\.\.\/manifest\.webmanifest"/);
   assert.match(html, /register\('\.\.\/sw\.js'\)/);
+});
+
+// renderIcon draws each variant once per process (2026-11-14). The memo must
+// hand back the same bytes the drawing does, and a copy per call: a caller
+// that writes into its buffer must not change the next caller's icon.
+test('renderIcon returns the drawn bytes, a fresh copy each call', () => {
+  for (const opts of [{ size: 48 }, { size: 48, maskable: true }, { size: 48, opaque: true }]) {
+    const drawn = renderMarkIcon(opts);
+    const a = renderIcon(opts);
+    assert.ok(a.equals(drawn), JSON.stringify(opts));
+    a.fill(0);
+    assert.ok(renderIcon(opts).equals(drawn), `copy isolated: ${JSON.stringify(opts)}`);
+  }
+  assert.ok(!renderIcon({ size: 48 }).equals(renderIcon({ size: 48, opaque: true })));
 });

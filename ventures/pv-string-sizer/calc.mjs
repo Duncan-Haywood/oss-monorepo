@@ -269,9 +269,9 @@ export function analyze(input = {}) {
   };
 }
 
-function csvCell(v) {
+export function csvCell(v) {
   const s = v === null || v === undefined ? "" : String(v);
-  const t = /^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s) ? "'" + s : s;
+  const t = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(s) ? "'" + s : s;
   return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 }
 

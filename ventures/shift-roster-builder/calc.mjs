@@ -2562,7 +2562,7 @@ export function cliqueScoreFloor(ctx, { maxPivots = 400000 } = {}) {
   const t0 = Date.now();
   const r = cliqueLP(ctx, { maxPivots, priced: true });
   if (!r) return null;
-  return { bound: r.bound, lp: r.obj, open: r.open, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+  return { bound: r.bound, lp: r.obj, open: r.open, xs: r.xs, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
 }
 // Linear lower bound on what shift i adds to person p's score, apart from fairness and shortfall (cliqueScoreFloor).
 function shiftCostFloor(ctx, p, i) {
@@ -2611,7 +2611,7 @@ function assignRows(a, n, m) {
 // one per open shift (BIG x its hours), so the best way to staff the day is an assignment problem, solved by assignRows. A person
 // holding two or more shifts that day keeps them and sits the day out. Days are swept until a sweep changes nothing (at most
 // `rounds`); hard rules hold because each pair is checked by validWith against the person's other shifts. Returns the owner.
-function dayReassign(ctx, owner0, { rounds = 6, deadline = Infinity, jitter = 0, rng = null, only = null } = {}) {
+function dayReassign(ctx, owner0, { rounds = 6, deadline = Infinity, jitter = 0, rng = null, only = null, guide = null, guideWeight = 0 } = {}) {
   const { P, S, slots, elig } = ctx;
   const owner = Array.from(owner0);
   const NO = 1e15;
@@ -2638,7 +2638,7 @@ function dayReassign(ctx, owner0, { rounds = 6, deadline = Infinity, jitter = 0,
         const i = rows[r], h = (slots[i].end - slots[i].start) / 60;
         for (let k = 0; k < free.length; k++) {
           const p = free[k];
-          a[r * m + k] = elig[p][i] && validWith(ctx, p, baseOf[k], i) ? personScore(ctx, p, insertSorted(ctx, baseOf[k], i)) - baseScore[k] + (jitter ? rng() * jitter : 0) : NO;
+          a[r * m + k] = elig[p][i] && validWith(ctx, p, baseOf[k], i) ? personScore(ctx, p, insertSorted(ctx, baseOf[k], i)) - baseScore[k] + (jitter ? rng() * jitter : 0) - (guide ? guideWeight * guide[p * S + i] : 0) : NO;
         }
         for (let t = 0; t < n; t++) a[r * m + free.length + t] = BIG * h;
         const k = owner[i] >= 0 ? free.indexOf(owner[i]) : -1;
@@ -2755,9 +2755,14 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
     if (rc < 0) bound += rc;
   }
   bound = priced ? bound - 1e-9 * Math.max(1, Math.abs(bound)) : Math.max(0, bound - 1e-7);
-  let open = null;
-  if (priced && res.x) { open = 0; for (let i = 0; i < S; i++) open += (res.x[nx + lamCols.length + i] || 0) * len[i]; }
-  return { bound, obj: res.obj, open, len, rows: m, cols: cols.length, people: nx, pivots: res.pivots };
+  let open = null, xs = null;
+  if (priced && res.x) {
+    open = 0; for (let i = 0; i < S; i++) open += (res.x[nx + lamCols.length + i] || 0) * len[i];
+    // The LP's person-shift values, person-major (xs[p * S + s]), for the LP-guided day kicks in buildRoster's dayLNS.
+    xs = new Float64Array(P * S);
+    for (let j = 0; j < nx; j++) { const v = res.x[j] || 0; if (v > 1e-9) xs[xcol[j][0] * S + xcol[j][1]] = v; }
+  }
+  return { bound, obj: res.obj, open, xs, len, rows: m, cols: cols.length, people: nx, pivots: res.pivots };
 }
 function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, chainBound = true, ...cfg } = {}) {
   const len = ctx.slots.map((s) => (s.end - s.start) / 60);
@@ -3326,7 +3331,25 @@ function buildRosterOnce(staff, slots, options = {}) {
       const t0 = Date.now(), deadline = t0 + (o.dayLNSMs ?? 2000), before = best.score;
       const rng = mulberry32(o.seed + 7919);
       const days = [...new Set(ctx.slots.map((s) => s.day))];
+      const guide = priced?.xs && o.dayGuide !== false ? priced.xs : null;
       let own = dayReassign(ctx, best.owner, { rounds: 30, deadline }), sc = scoreOwner(ctx, own).total, kicks = 0;
+      // LP-guided descent (2026-11-14, README "Steering the day sweeps with the pay floor's LP"): when the pay floor ran, sweep
+      // every day with each person-shift's cost lowered by lam x the average wage x its value in that LP's solution, for lam from
+      // 8 down to 0.12, each followed by exact sweeps on the true score; keep a roster only when it scores less. The LP holds
+      // the week-wide trade no one-day move finds (README "Past the day sweeps"); a one-day kick toward it was undone by the next
+      // sweep, a whole-week biased descent is not. eval/day-guide.out.txt: never worse on the 8 weeks where it ran, 2-5 fewer open
+      // hours on three. `dayGuide: false` turns it off; `dayGuideWeights` sets the lams.
+      const guideLog = [];
+      if (guide) {
+        for (const lam of o.dayGuideWeights ?? [8, 4, 2, 1, 0.5, 0.25, 0.12]) {
+          if (Date.now() > deadline) break;
+          const g = dayReassign(ctx, own, { rounds: 30, deadline, guide, guideWeight: lam * ctx.avgWage });
+          const q = dayReassign(ctx, g, { rounds: 30, deadline });
+          const qs = scoreOwner(ctx, q).total;
+          guideLog.push([lam, qs]);
+          if (qs < sc - 1e-9) { own = q; sc = qs; }
+        }
+      }
       while (Date.now() < deadline && days.length) {
         kicks++;
         const kicked = dayReassign(ctx, own, { rounds: 1, jitter: Math.max(0.5, ctx.avgWage / 3), rng, only: days[Math.floor(rng() * days.length)], deadline });
@@ -3336,7 +3359,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       }
       if (sc < best.score - 1e-9 && ownerValid(ctx, own)) best = { owner: own, score: sc };
       if (ex.rootBound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
-      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0 };
+      dayLNS = { before, after: best.score, kicks, ms: Date.now() - t0, guide: guideLog };
       mark("dayLNS");
     }
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);

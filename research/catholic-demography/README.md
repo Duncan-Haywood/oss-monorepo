@@ -34,6 +34,18 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Do immigrant mothers explain the model's missing Catholics? (milestone 5b, 2026-11-14)
+
+Only for older immigrant families, and fixing them exposes a gap among US-born ones. The m5h model gave every US-born adult's mother
+the Catholic share of all US women of her cohort. Here immigrants' children get the share of foreign-born GSS women, and
+US-born mothers' children the share of US-born women. Children of immigrant mothers born 1925-64 then fit (mothers 52.7%
+Catholic, model 49.9%, gap +2.7 [-6.4, +12.0], down from +28). Children of US-born mothers do not: their mothers were 26.9%
+Catholic against a model of 22.8%, **+4.1 [+2.5, +5.7]**. The overall gap rises from +2.6 to **+4.1 [+2.5, +5.6]**, so 2 of 5
+predictions are refuted. In families where both parents were US-born the model would need Catholic mothers to have had 1.27
+times the children of others, against the 1.05 that GSS women report (post hoc). H4 is unaffected: fertility's
+contribution to the 1990-99 to 2010-18 change is -0.32 [-0.60, +0.04] with nativity-specific fertility (m5h: -0.37), and
+immigration's is +1.07. Code `experiments/m5m_mothers_nativity/run.py`, tables `t35` to `t38`, details in `LOG.md`.
+
 ## Do children of mixed Catholic marriages explain the extra Catholics? (milestone 5b, 2026-11-13)
 
 Only a little. m5h's model (children take their mother's religion; Catholic mothers have more children) leaves 2-4 points
