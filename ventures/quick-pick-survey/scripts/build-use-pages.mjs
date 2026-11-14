@@ -8,7 +8,7 @@
 // and the page can't drift apart; site/use-pages.test.mjs fails if a page
 // is stale or a link does not decode back to its list.
 import { writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 import { encodeList, parseList } from "../site/rank-core.mjs";
 
@@ -163,7 +163,7 @@ export function renderUsePage(page) {
 `;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const page of USE_PAGES) writeFileSync(join(SITE, `${page.slug}.html`), renderUsePage(page));
   console.log(`wrote ${USE_PAGES.length} pages`);
 }
