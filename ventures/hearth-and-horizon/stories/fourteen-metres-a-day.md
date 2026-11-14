@@ -150,7 +150,7 @@ The second was that the stop line moved. It was not five hundred metres above th
 
 The third was that the reviews went daily from the moment the probe was inside two kilometres of the line, and the station did not need Toulouse's permission to slow it down.
 
-The eleven pages went to Toulouse on the twentieth of November. The reply came fifty minutes later and said, as replies from Toulouse said, that the panel would consider it. The panel considered it for eleven days. Then a woman Jadwiga had never met, a glaciologist with a Welsh name, sent a single line back: *Approved. The fibre is a very good idea. Whose was it?*
+The eleven pages went to Toulouse on the twentieth of November. The reply came two hours later and said, as replies from Toulouse said, that the panel would consider it. The panel considered it for eleven days. Then a woman Jadwiga had never met, a glaciologist with a Welsh name, sent a single line back: *Approved. The fibre is a very good idea. Whose was it?*
 
 Jadwiga made Fathom answer that one.
 
