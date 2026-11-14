@@ -125,15 +125,27 @@ function briefAt(f, level) {
   sections.push({ id: 'health', heading: 'Health: CI, main and the queue', blocks: health });
 
   // 3. Decisions
-  if (f.asks) {
+  const held = f.snapshot?.owner_held ?? null;
+  if (f.asks || held) {
     const asks = f.asks;
-    const blocks = asks.length
-      ? [
-        p(`${plural(asks.length, 'decision')} only the owner can make ${asks.length === 1 ? 'is' : 'are'} queued. In the decision queue’s own order, highest leverage first:`),
-        ul(asks.slice(0, level.asks).map((a) => ({ text: `${a.id}, waiting ${a.age_days ?? 'an unknown number of'} days${a.gates ? `, gates ${a.gates}` : ''}${a.blocked ? ', blocked by another ask' : ''}: ${a.action}` }))),
-      ]
-      : [p('The owner’s decision queue is empty.')];
-    if (asks.length > level.asks) blocks.push(p(`The other ${asks.length - level.asks} are listed by the decision-queue tool.`));
+    const blocks = !asks ? []
+      : asks.length
+        ? [
+          p(`${plural(asks.length, 'decision')} only the owner can make ${asks.length === 1 ? 'is' : 'are'} queued. In the decision queue’s own order, highest leverage first:`),
+          ul(asks.slice(0, level.asks).map((a) => ({ text: `${a.id}, waiting ${a.age_days ?? 'an unknown number of'} days${a.gates ? `, gates ${a.gates}` : ''}${a.blocked ? ', blocked by another ask' : ''}: ${a.action}` }))),
+        ]
+        : [p('The owner’s decision queue is empty.')];
+    if (asks && asks.length > level.asks) blocks.push(p(`The other ${asks.length - level.asks} are listed by the decision-queue tool.`));
+    // Control-plane pull requests (a path in .github/CODEOWNERS) wait for the
+    // owner's approval and appear in no decision-queue row: PR #14686, the fix
+    // for the router's stale review claim, waited three days unseen.
+    if (held?.count) {
+      blocks.push(p(`${plural(held.count, 'pull request')} ${held.count === 1 ? 'changes' : 'change'} control-plane files (agent instructions, prompts, hooks or CI) and ${held.count === 1 ? 'waits' : 'wait'} for your approval. Oldest first:`));
+      blocks.push(ul(held.prs.slice(0, level.asks).map((h) => ({ text: `#${h.number}, waiting ${plural(h.age_days, 'day')}: ${h.title}${h.also_unowned ? ` (also holds ${plural(h.also_unowned, 'unowned file')})` : ''}` }))));
+      if (held.count > level.asks) blocks.push(p(`The other ${held.count - level.asks} are listed by platform/ci/owner_held_prs.py.`));
+    } else if (held) {
+      blocks.push(p(`No open pull request waits on your approval${held.checked < held.of ? ` among the ${held.checked} oldest checked` : ''}.`));
+    }
     sections.push({ id: 'decisions', heading: 'Decisions waiting on you', blocks });
   }
 
@@ -187,6 +199,7 @@ function briefAt(f, level) {
   if (f.reverts.length) watch.push(`Check why ${f.reverts.length === 1 ? 'the revert' : 'the reverts'} happened before the same change lands again.`);
   if (r.friction[0]) watch.push(`${r.friction[0].file} keeps slowing runs down; a clearer page there pays back on every run.`);
   if (f.snapshot?.open_prs?.older_than_7d) watch.push(`${plural(f.snapshot.open_prs.older_than_7d, 'pull request')} older than a week: land or close.`);
+  if (held?.count) watch.push(`${plural(held.count, 'control-plane pull request')} ${held.count === 1 ? 'waits' : 'wait'} for your approval; the oldest, #${held.prs[0].number}, has waited ${plural(held.prs[0].age_days, 'day')}.`);
   const topAsk = f.asks?.[0];
   if (topAsk) watch.push(`The highest-leverage owner decision, ${topAsk.id}, has waited ${topAsk.age_days} days.`);
   if (!watch.length) watch.push('Nothing flagged. Keep shipping.');

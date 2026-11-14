@@ -121,6 +121,27 @@ test('the brief covers health, decisions, areas, fleet and a watch list, within 
   assert.match(JSON.stringify(archived), /from the archive/);
 });
 
+test('control-plane PRs waiting on the owner are listed under decisions and in the watch list', () => {
+  const held = { available: true, count: 2, checked: 2, of: 2, prs: [
+    { number: 14686, title: 'Control plane: stale review claim', age_days: 3, also_unowned: 0 },
+    { number: 13906, title: 'process: record path', age_days: 1, also_unowned: 1 },
+  ] };
+  const s = { ...stats, github: { ...stats.github, owner_held: held } };
+  const e = collectEditions(repo, { now: NOW, days: 1, stats: s }).editions[0];
+  assert.deepEqual(e.snapshot.owner_held, held);
+  const text = JSON.stringify(composeBrief(e));
+  // No asks passed: the decisions section still appears, for the held PRs alone.
+  assert.match(text, /2 pull requests change control-plane files/);
+  assert.match(text, /#14686, waiting 3 days: Control plane: stale review claim/);
+  assert.match(text, /\(also holds 1 unowned file\)/);
+  assert.match(text, /the oldest, #14686, has waited 3 days/);
+  // An unavailable reading prints nothing rather than "none waiting".
+  const off = { ...stats, github: { ...stats.github, owner_held: { available: false, reason: 'x' } } };
+  assert.equal(collectEditions(repo, { now: NOW, days: 1, stats: off }).editions[0].snapshot.owner_held, null);
+  const none = { ...stats, github: { ...stats.github, owner_held: { available: true, count: 0, checked: 3, of: 3, prs: [] } } };
+  assert.match(JSON.stringify(composeBrief(collectEditions(repo, { now: NOW, days: 1, stats: none }).editions[0])), /No open pull request waits on your approval\./);
+});
+
 test('a huge day is trimmed to the word budget', () => {
   const big = structuredClone(today);
   const m = today.products[0].merges[0];

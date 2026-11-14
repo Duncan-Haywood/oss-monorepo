@@ -11,7 +11,8 @@
 //      (fromCI) every completed workflow run of the last two weeks: passed,
 //      failed and cancelled per day, by workflow and trigger, durations,
 //      re-runs, what is red on main now and how long main took to recover,
-//      and (fromDelivery) the DORA delivery metrics over the last 3 days.
+//      and (fromDelivery) the DORA delivery metrics over the last 3 days, and
+//      (ownerHeld) the open PRs that touch a CODEOWNERS path and wait on the owner.
 // A metric whose source was unavailable is reported as `null` with the reason,
 // never as zero.
 
@@ -21,6 +22,8 @@ import path from 'node:path';
 import { fromAllocation } from './allocation.mjs';
 
 const DAY = 86_400_000;
+
+const readText = (file) => { try { return readFileSync(file, 'utf8'); } catch { return null; } };
 
 // Tallies keyed by text from outside (a fork's branch name, a workflow's `name:`)
 // start with no prototype, so `__proto__` or `constructor` is an ordinary key.
@@ -496,7 +499,79 @@ export async function fromDelivery({ token, repo, gitRepo, now = Date.now(), fet
   }
 }
 
-export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchImpl = globalThis.fetch } = {}) {
+// ---------------------------------------------------------------------------
+// Pull requests that wait on the owner: open, from this repository, and
+// touching a path `.github/CODEOWNERS` gives an owner (agent instructions,
+// prompts, hooks, CI). Agents open these and move on, and the owner's daily
+// brief never listed them: on 2026-11-14 the fix for a router bug that had
+// kept the review track from running for 3,232 runs (PR #14686) had waited
+// three days, and three `prompts: review` PRs from 2026-10-31 and 2026-11-01
+// were still open. platform/ci/owner_held_prs.py is the full, local listing;
+// this is the same rule, read on every publish so the brief can show it.
+
+/** CODEOWNERS pattern to RegExp: the subset control_plane_guard.py's
+ * pattern_regex covers (anchoring, trailing-slash directories, `*`, `**`, `?`). */
+export function codeownersRegex(pattern) {
+  const anchored = pattern.startsWith('/') || pattern.replace(/\/+$/, '').includes('/');
+  const body = pattern.replace(/^\/+|\/+$/g, '');
+  const dirOnly = pattern.endsWith('/');
+  let out = '';
+  for (let i = 0; i < body.length;) {
+    if (body.startsWith('**/', i)) { out += '(?:.*/)?'; i += 3; }
+    else if (body.startsWith('/**', i) && i + 3 === body.length) { out += '/.*'; i += 3; }
+    else if (body[i] === '*') { out += '[^/]*'; i += 1; }
+    else if (body[i] === '?') { out += '[^/]'; i += 1; }
+    else { out += body[i].replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'); i += 1; }
+  }
+  return new RegExp(`${anchored ? '^' : '^(?:.*/)?'}${out}${dirOnly ? '/.*$' : '(?:/.*)?$'}`);
+}
+
+export function parseCodeowners(text) {
+  const rules = [];
+  for (const raw of String(text ?? '').split('\n')) {
+    const line = raw.split('#')[0].trim();
+    if (!line) continue;
+    const [pattern, ...owners] = line.split(/\s+/);
+    rules.push([codeownersRegex(pattern), owners]);
+  }
+  return rules;
+}
+
+/** True when the last matching rule names an owner (an owner-less rule unowns, as on GitHub). */
+export function isOwned(file, rules) {
+  let owners = [];
+  for (const [re, o] of rules) if (re.test(file)) owners = o;
+  return owners.length > 0;
+}
+
+// Each PR costs one files request; the oldest are checked first, since a held
+// PR is by definition one that has waited. The publish's token allows 1,000
+// requests an hour and the rest of this collector makes about 130.
+export const OWNER_HELD_MAX = 120;
+
+export async function ownerHeld(open, { codeowners, repo, now, token, api, fetch: fetchImpl }) {
+  const rules = parseCodeowners(codeowners);
+  if (!rules.length) return { available: false, reason: 'no .github/CODEOWNERS in this checkout' };
+  const mine = open
+    .filter((p) => String(p.head?.repo?.full_name ?? '').toLowerCase() === repo.toLowerCase())
+    .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+  const checked = mine.slice(0, OWNER_HELD_MAX);
+  const held = [];
+  for (const p of checked) {
+    const files = await ghPages(fetchImpl, token, `${api}/pulls/${p.number}/files`, 1);
+    const owned = files.map((f) => f.filename).filter((f) => f && isOwned(f, rules));
+    if (!owned.length) continue;
+    held.push({
+      number: p.number, title: p.title, draft: Boolean(p.draft),
+      age_days: Math.floor((now - Date.parse(p.created_at)) / DAY),
+      owned_files: owned.slice(0, 5), owned_count: owned.length,
+      also_unowned: files.length - owned.length,
+    });
+  }
+  return { available: true, count: held.length, checked: checked.length, of: mine.length, prs: held };
+}
+
+export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchImpl = globalThis.fetch, codeowners = null } = {}) {
   if (!token || !repo) return { available: false, reason: 'no GITHUB_TOKEN in this build (the publish workflow supplies one)' };
   const api = `https://api.github.com/repos/${repo}`;
   try {
@@ -551,6 +626,14 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
     for (const r of mainRuns.filter((x) => x.conclusion === 'failure')) failingWorkflows[r.name] = (failingWorkflows[r.name] ?? 0) + 1;
 
     const branches = await ghPages(fetchImpl, token, `${api}/branches`, 30);
+    // Its own try: a failure here must not take the rest of the snapshot with it.
+    let held;
+    try {
+      held = codeowners == null ? { available: false, reason: 'no CODEOWNERS text passed' }
+        : await ownerHeld(open, { codeowners, repo, now, token, api, fetch: fetchImpl });
+    } catch (err) {
+      held = { available: false, reason: err.message };
+    }
     const openAges = open.map((p) => hours(p.created_at, new Date(now).toISOString()) / 24);
     return {
       available: true,
@@ -582,6 +665,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
         branches_seen: Object.keys(byBranch).length,
       },
       branches: { count: branches.length, capped: branches.length >= 3000 },
+      owner_held: held,
     };
   } catch (err) {
     return { available: false, reason: err.message };
@@ -596,7 +680,7 @@ export async function collect(repo, { now = Date.now(), token, ghRepo, fetch, pr
     git: fromGit(repo, { now }),
     runs: fromRuns(repo, { now }),
     allocation: fromAllocation(repo, { now }),
-    github: await fromGitHub({ token, repo: ghRepo, now, fetch }),
+    github: await fromGitHub({ token, repo: ghRepo, now, fetch, codeowners: readText(path.join(repo, '.github', 'CODEOWNERS')) }),
     ci: await fromCI({ token, repo: ghRepo, now, fetch, previous: previous?.ci?.available ? previous.ci : null }),
     delivery: await fromDelivery({ token, repo: ghRepo, gitRepo: repo, now, fetch }),
   };
