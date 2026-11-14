@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 8,
@@ -51,7 +51,7 @@
     "docs/posts/2026-11-14-two-pins-and-a-missing-cable.md"
   ],
   "goal": "Land the flagship's buildable CAD item: route the fixed cables from the deck to the axis clamp with the stepper's and lift's leads, a driver mount, and checks the build enforces.",
-  "notes": "Landed: deck-side cable run (main, stepper, lift) as swept solids in all_parts, 5 saddles, 3 hangers, StepStick carrier, 6 new deck holes; Feeder.deck_cable_paths/route/ties/electrics/check_deck_cables wired into check() and the manifest; servo_supply uses the routed length (1.79 m, was 1.71). Firmware: lift/agitator moved from GPIO 16/17 (UART2 to the Pi, which run() opens last) to GPIO 12/2; tests/test_pins.py loads main.py against a fake machine module and checks the pin map for both roles (fails on the old code at exactly 16 and 17). Verification: full feeder build (all sweeps) design_rules [] collisions []; committed package regenerated in place; run_venture_tests open-tennis-robots passes; DeckCable* tests 7/7 under build123d 0.13.0; full cad suite and venture-preflight run locally (results appended below).",
+  "notes": "Landed: deck-side cable run (main, stepper, lift) as swept solids in all_parts, 5 saddles, 3 hangers, StepStick carrier, 6 new deck holes; Feeder.deck_cable_paths/route/ties/electrics/check_deck_cables wired into check() and the manifest; servo_supply uses the routed length (1.79 m, was 1.71). Firmware: lift/agitator moved from GPIO 16/17 (UART2 to the Pi, which run() opens last) to GPIO 12/2; tests/test_pins.py loads main.py against a fake machine module and checks the pin map for both roles (fails on the old code at exactly 16 and 17). Verification: full feeder build (all sweeps) design_rules [] collisions []; committed package regenerated in place; run_venture_tests open-tennis-robots passes; DeckCable* tests 7/7 under build123d 0.13.0; full cad suite under build123d 0.13.0: 87 passed in 263 s, including the committed feeder package matching a fresh build byte for byte; venture-preflight: its only failures were this PR's post front matter (fixed in the next commit) and check_cli_entry on quick-pick-survey, already fixed on main and cleared by merging main; after the merge main_health.py 71/71, validate.py and promptctl validate ok. Pin test fails on the old main.py at exactly GPIO 16 and 17.",
   "corrections": [],
   "redteam": null
 }
