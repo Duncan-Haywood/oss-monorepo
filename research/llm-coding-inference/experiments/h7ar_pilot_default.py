@@ -64,6 +64,15 @@ import h7ao_two_phase as T  # noqa: E402
 RULES = [("pooledA", "A", 0.5), ("shipped30", "A", 0.3), ("shipped40", "A", 0.4), ("shipped50", "A", 0.5),
          ("pooledB", "B", 0.7), ("shipped50B", "B", 0.5), ("shipped60", "B", 0.6), ("shipped70", "B", 0.7)]
 OUT = HERE / "h7ar_pilot_default_draws.txt"
+# Post hoc (exploratory, written after the summary above was read; it decides nothing). Reading the 0.7 result, a check
+# of `plan_audit` found that a cells plan's top-ups are max(0, allocation - pilot) per cell, so a pilot holding more of
+# one cell than its allocation makes the plan label more than n items. This mode reruns both schemes recording the labels
+# each draw spent, and adds budget-capped rules (`plan_audit(..., budget_cap=True)`, new in this PR, default off).
+# name, scheme, share, budget_cap
+POSTHOC = [("pooledA", "A", 0.5, False), ("shipped40", "A", 0.4, False), ("shipped50", "A", 0.5, False),
+           ("shipped50c", "A", 0.5, True), ("pooledB", "B", 0.7, False), ("shipped60", "B", 0.6, False),
+           ("shipped70", "B", 0.7, False), ("shipped60c", "B", 0.6, True), ("shipped70c", "B", 0.7, True)]
+OUT_PH = HERE / "h7ar_posthoc_draws.txt"
 HEAD = T.HEAD
 
 
@@ -71,7 +80,8 @@ def k_of(share, n):
     return n // 2 if share == 0.5 else round(share * n)
 
 
-def run(c, reps):
+def run(c, reps, rules=None, top=0.7):
+    rules = rules or RULES
     h, f, n = c["h"], c["f"], c["n"]
     N, truth = len(h), sum(h) / len(h)
     rr = random.Random(c["seed"] + 5)
@@ -80,9 +90,9 @@ def run(c, reps):
     for d in range(reps):
         seen = set(pa[d])
         pb.append(pa[d] + random.Random(c["seed"] + 11 * d).sample([i for i in range(N) if i not in seen],
-                                                                   round(0.7 * n) - n // 2))
+                                                                   round(top * n) - n // 2))
     res = {}
-    for name, scheme, share in RULES:
+    for name, scheme, share, *cap in rules:
         out = []
         pooled = name.startswith("pooled")
         k = k_of(share, n)
@@ -93,7 +103,7 @@ def run(c, reps):
             passed = sum(1 for i in pilot if h[i] and not f[i]) >= A.NEG_GUARD
             plan = A.plan_audit(f, labels, n, tau=2.0 if pooled else A.TAU, guard=0, neg_guard=0 if pooled else 3,
                                 width_margin=0.0, pseudo=0.0, fallback_pseudo=None, two_phase=False,
-                                fallback_two_phase=False)
+                                fallback_two_phase=False, budget_cap=bool(cap and cap[0]))
             if plan["design"] == "pooled" and k < len(full):
                 labels = {i: h[i] for i in full}  # common random numbers with the scheme's pooled reference (7aq)
                 plan = dict(plan, to_label=[n - len(labels)])
@@ -101,17 +111,18 @@ def run(c, reps):
                 for i in sb.sample([i for i in cell if i not in labels], t):
                     labels[i] = h[i]
             est, lo, hi = A.audit_interval(plan, f, labels)
-            out.append(((hi - lo) / 2, lo <= truth <= hi, plan["design"] == "cells", False, passed))
+            out.append(((hi - lo) / 2, lo <= truth <= hi, plan["design"] == "cells", len(labels), passed))
         res[name] = out
     return res
 
 
 def one_cell(args):
-    c, reps = args
-    res = run(c, reps)
-    ref = {s: sum(x[0] for x in res["pooled" + s]) / reps for s in "AB"}
+    c, reps, *ph = args
+    rules, top = (POSTHOC if ph else RULES), 0.7
+    res = run(c, reps, rules, top)
+    ref = {s: sum(x[0] for x in res["pooled" + s]) / reps for s in {r[1] for r in rules}}
     lines = []
-    for name, scheme, _s in RULES:
+    for name, scheme, *_s in rules:
         r = res[name]
         w = sum(x[0] for x in r) / reps
         gp = [x for x in r if x[2] and x[4]]
@@ -121,7 +132,9 @@ def one_cell(args):
             return f"{100 * sum(x[1] for x in xs) / len(xs):.1f}" if xs else "nan"
         lines.append(f"{c['label']} | {c['n']} | {c['J']:.3f} | {name} | {100 * sum(x[2] for x in r) / reps:.1f} | "
                      f"0.0 | {100 * sum(x[1] for x in r) / reps:.1f} | {100 * w:.3f} | {w / ref[scheme]:.3f} | "
-                     f"{len(gp)} | {cov(gp)} | {len(gf)} | {cov(gf)}")
+                     f"{len(gp)} | {cov(gp)} | {len(gf)} | {cov(gf)}"
+                     + (f" | {sum(x[3] for x in r) / reps / c['n']:.4f} | {max(x[3] for x in r) / c['n']:.4f}" if ph
+                        else ""))
     print("\n".join(lines), flush=True)
     return lines
 
@@ -131,6 +144,40 @@ def draws(reps):
     with Pool(4) as p:
         got = p.map(one_cell, [(c, reps) for c in cs], chunksize=1)
     OUT.write_text("\n".join([HEAD] + [l for g in got for l in g]) + "\n")
+
+
+def posthoc_draws(reps):
+    cs = list(T.cells())
+    with Pool(4) as p:
+        got = p.map(one_cell, [(c, reps, True) for c in cs], chunksize=1)
+    OUT_PH.write_text("\n".join([HEAD] + [l for g in got for l in g]) + "\n")
+
+
+def posthoc_summary():
+    by = {}
+    for line in OUT_PH.read_text().splitlines()[1:]:
+        x = [s.strip() for s in line.split("|")]
+        by[(x[0], int(x[1]), x[3])] = dict(obs=float(x[4]), cov=float(x[6]), ratio=float(x[8]), gp=int(x[9]),
+                                            gpc=float(x[10]) if x[10] != "nan" else None, lab=float(x[13]),
+                                            labmax=float(x[14]))
+    keys = list(dict.fromkeys((k[0], k[1]) for k in by))
+    part = parts()
+    go = [k for k in keys if part[k[0]] == "goemo"]
+    na = [k for k in keys if part[k[0]] != "goemo"]
+    out = ["POST HOC, exploratory (written after reading h7ar_pilot_default.txt; decides nothing). Labels are the mean "
+           "and max per draw as a share of the budget n."]
+    for nm in [r[0] for r in POSTHOC if not r[0].startswith("pooled")]:
+        g = lambda ks: sum(1 - by[(*k, nm)]["ratio"] for k in ks)  # noqa: E731
+        low = [(k, by[(*k, nm)]["cov"]) for k in keys if by[(*k, nm)]["cov"] < 93.0]
+        gpl = [(k, by[(*k, nm)]["gp"], by[(*k, nm)]["gpc"]) for k in keys
+               if by[(*k, nm)]["gp"] >= 50 and by[(*k, nm)]["gpc"] < 88.0]
+        overs = sorted(((k, by[(*k, nm)]["lab"], by[(*k, nm)]["labmax"]) for k in keys if by[(*k, nm)]["lab"] > 1.0005),
+                       key=lambda t: -t[1])
+        out.append(f"{nm}: gain all {g(keys):.3f} (GoEmotions {g(go):.3f}, NaijaSenti {g(na):.3f}); min coverage "
+                   f"{min(by[(*k, nm)]['cov'] for k in keys):.1f}; under 93%: {low}; guard-pass >= 50 draws under "
+                   f"88%: {gpl}; max labels {max(by[(*k, nm)]['labmax'] for k in keys):.3f}; cells over budget on "
+                   f"average: {len(overs)}, worst {overs[:4]}")
+    text = "\n".join(out); print(text); (HERE / "h7ar_posthoc.txt").write_text(text + "\n")
 
 
 def parts():
@@ -220,6 +267,9 @@ def main():
     mode = ARGS[0] if ARGS else "summary"
     if mode == "summary":
         summary()
+    elif mode == "posthoc":
+        posthoc_draws(int(ARGS[1]) if len(ARGS) > 1 else 1000)
+        posthoc_summary()
     elif mode == "smoke":
         c = next(c for c in T.cells() if c["part"] != "goemo")
         print("\n".join(one_cell((c, int(ARGS[1]) if len(ARGS) > 1 else 10))))

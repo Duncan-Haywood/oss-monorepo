@@ -622,3 +622,30 @@ def test_no_info_sends_an_unreadable_pilot_to_pooled():
     kw = dict(fallback_pseudo=2.0, fallback_two_phase=True, price_floor=True, width_margin=0.0)
     assert S.plan_audit(f, pilot, n, **kw)["design"] == "cells"
     assert S.plan_audit(f, pilot, n, no_info=float("inf"), **kw)["design"] == "pooled"
+
+
+def test_budget_cap_keeps_cells_plan_within_n():
+    """LOG.md 7ar: a pilot that holds more of one coder cell than its Neyman allocation made an uncapped cells plan
+    label more than n items; budget_cap=True keeps the total at n and leaves an in-budget plan unchanged."""
+    from llmci import audit_design as A
+    assert A.cap_to_budget([10, 5], 20) == [10, 5]
+    assert A.cap_to_budget([30, 0], 20) == [20, 0]
+    assert sum(A.cap_to_budget([7, 7, 7], 10)) == 10
+    assert A.cap_to_budget([5, 5], -3) == [0, 0]
+    rng = random.Random(3)
+    N, n = 4000, 400
+    h = [1 if rng.random() < 0.3 else 0 for _ in range(N)]
+    f = [y if rng.random() < 0.85 else 1 - y for y in h]
+    over = 0
+    for seed in range(40):
+        pilot = random.Random(seed).sample(range(N), 280)
+        lab = {i: h[i] for i in pilot}
+        kw = dict(tau=A.TAU, guard=0, neg_guard=3, width_margin=None, pseudo=0.0, fallback_pseudo=None)
+        loose = A.plan_audit(f, lab, n, **kw)
+        tight = A.plan_audit(f, lab, n, budget_cap=True, **kw)
+        assert loose["design"] == tight["design"] == "cells"
+        assert len(lab) + sum(tight["to_label"]) <= n
+        over += len(lab) + sum(loose["to_label"]) > n
+        if len(lab) + sum(loose["to_label"]) <= n:
+            assert loose["to_label"] == tight["to_label"]
+    assert over > 0  # the uncapped plan does overspend at a 0.7n pilot here

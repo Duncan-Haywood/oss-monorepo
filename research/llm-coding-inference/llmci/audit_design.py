@@ -224,7 +224,7 @@ def priced_two_phase(n, cells, pilot_y, s2, floor=FLOOR, neg_only=False, pseudo=
 
 def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
                pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO, two_phase=False, fallback_two_phase=FALLBACK_TWO_PHASE,
-               price_floor=PRICE_FLOOR, no_info=1.0):
+               price_floor=PRICE_FLOOR, no_info=1.0, budget_cap=False):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -249,13 +249,15 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     labels. price_floor (LOG.md 7ap, default PRICE_FLOOR): a two-phase plan's allocation and width forecast price the
     pseudo-count floor at the second-phase size (`priced_two_phase`). The plan then also carries "phase2", one flag
     per cell. no_info (LOG.md 7ap, post hoc): passed to `predicted_ratio`; float("inf") sends a pilot the forecast cannot
-    read to pooled instead of letting the margin-0 gate accept it."""
+    read to pooled instead of letting the margin-0 gate accept it. budget_cap (LOG.md 7ar, default False): a one-phase
+    cells plan never labels more than n items in all (`cap_to_budget`); without it a pilot larger than a cell's
+    allocation overspends."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
     if fallback_pseudo is not None and neg_guard and sum(1 for a, b in zip(y, f) if a and not b) < neg_guard:
         plan = plan_audit(f_all, pilot_y, n, tau, guard, floor, 0, width_margin, fallback_pseudo, None,
-                          two_phase or fallback_two_phase, False, price_floor, no_info)
+                          two_phase or fallback_two_phase, False, price_floor, no_info, budget_cap)
         plan["fallback"] = True
         return plan
     design = screen(y, f, tau, guard, neg_guard)
@@ -282,9 +284,26 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
         return {"design": "cells", "cells": cells, "pseudo": pseudo, "two_phase": True, "pilot": sorted(pilot_y),
                 "to_label": [min(a, R) for a, R in zip(k, rest)], "ceiling": pilot_ceiling(y, f)}
     alloc = cell_allocation(n, [len(c) for c in cells], s2, floor)
-    return {"design": "cells", "cells": cells, "pseudo": pseudo,
-            "to_label": [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)],
-            "ceiling": pilot_ceiling(y, f)}
+    need = [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)]
+    if budget_cap:
+        need = cap_to_budget(need, n - len(pilot_y))
+    return {"design": "cells", "cells": cells, "pseudo": pseudo, "to_label": need, "ceiling": pilot_ceiling(y, f)}
+
+
+def cap_to_budget(need, rest):
+    """Scale per-cell top-ups down so they sum to at most `rest` (largest remainders get the leftover units). When the
+    pilot already holds more of one cell than its allocation, `cell_allocation`'s top-ups sum to more than n minus the
+    pilot, so an uncapped cells plan labels more than n items. LOG.md 7ar: at a pilot of 0.7n that reached 18% over
+    budget (1.5B gratitude n 1,000); at 0.5n and below it did not occur in the cells checked. Off by default
+    (`plan_audit(..., budget_cap=False)`) so every committed experiment replays."""
+    rest, tot = max(0, rest), sum(need)
+    if tot <= rest:
+        return list(need)
+    raw = [x * rest / tot for x in need]
+    out = [int(r) for r in raw]
+    for j in sorted(range(len(raw)), key=lambda j: raw[j] - out[j], reverse=True)[:rest - sum(out)]:
+        out[j] += 1
+    return out
 
 
 def audit_interval(plan, f_all, labels, z=1.959964):
