@@ -600,9 +600,43 @@ test("vendor discounts read 2026-11-12: tiers, caps, steps and floors per state"
   assert.equal(run("FL", 100000), 2500);               // 2.5% of $1,000
   assert.equal(run("FL", 200000), 3000);               // 2.5% of the first $1,200 = $30 at most
   assert.equal(run("TX", 100000), 500);                // 0.5%
-  for (const st of ["MI", "IN", "VA", "OK", "NM"]) assert.deepEqual(stateDiscounts(st), {}, st);
+  for (const st of ["IN", "OK", "NM"]) assert.deepEqual(stateDiscounts(st), {}, st);
   assert.match(stateDiscountNote("OK"), /no vendor discount line/);
   assert.match(stateDiscountNote("wy"), /postmarked by the 15th/);
   assert.equal(stateDiscountNote("CA"), null);
   assert.throws(() => salesTaxReturn(mk("SC", 100), { discounts: { "SC state": { rate: 0.02, steps: [{ rate: 3 }] } } }));
+});
+
+// Read on the states' own sites 2026-11-14 (eval/state-pages-2026-11-14c.md): Michigan's 2026 Form 5080 and 5081 instructions and
+// MCL 205.54; Virginia's Form ST-1 instructions, Rev. 09/26. Every figure below is worked by hand from those worksheets.
+test("MI discount: the greater of 0.5% of the 4% part and $6 a month, never more than 2/3 of the tax (2026 Form 5080, 5081)", async () => {
+  const { salesTaxReturn, stateDiscounts, stateDiscountNote } = await import("./salestaxreturn.mjs");
+  const mk = (salesCents, taxCents) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-03-10,,A Co,${(salesCents / 100).toFixed(2)},4000,Goods\ninvoice,1,2026-03-10,,A Co,${(taxCents / 100).toFixed(2)},2100,MI state\n`).books;
+  const run = (freq, taxCents) => salesTaxReturn(mk(taxCents / 0.06, taxCents), { frequency: freq, discounts: stateDiscounts("MI", freq) }).periods[0].rows[0].discount;
+  assert.equal(run("monthly", 600), 400);              // under $9: $6 x 2/3 = $4
+  assert.equal(run("monthly", 90000), 600);            // $9 to $1,800 paid by the 20th: $6
+  assert.equal(run("monthly", 600000), 2000);          // $6,000 x .6667 x .005 = $20.00
+  assert.equal(run("monthly", 600000000), 1500000);    // $6,000,000 x .6667 x .005 = $20,001, at most $15,000 a period
+  assert.equal(run("quarterly", 100000), 1800);        // quarterly $27 to $5,400: $18
+  assert.equal(run("quarterly", 2400), 1600);          // quarterly under $27: $24 x 2/3 = $16
+  assert.equal(run("annual", 50000), 7200);            // annual, $108 or more: $72
+  assert.equal(run("annual", 9000), 6000);             // annual under $108: $90 x 2/3 = $60
+  assert.match(stateDiscountNote("MI"), /12th/);
+  assert.throws(() => salesTaxReturn(mk(100, 6), { discounts: { "MI state": { rate: 0.003, floorPerMonth: -1 } } }));
+});
+
+test("VA dealer discount: taxable sales x 0.043 x a rate picked by monthly taxable sales (Form ST-1, Rev. 09/26)", async () => {
+  const { salesTaxReturn, stateDiscounts, stateDiscountNote } = await import("./salestaxreturn.mjs");
+  const mk = (salesCents, taxCents) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-03-10,,A Co,${(salesCents / 100).toFixed(2)},4000,Goods\ninvoice,1,2026-03-10,,A Co,${(taxCents / 100).toFixed(2)},2100,VA state\n`).books;
+  const run = (freq, salesCents) => salesTaxReturn(mk(salesCents, Math.round(salesCents * 0.053)), { frequency: freq, discounts: stateDiscounts("VA", freq) }).periods[0].rows[0].discount;
+  assert.equal(run("monthly", 1000000), 480);          // $10,000 x 0.043 x .01116 = $4.80
+  assert.equal(run("monthly", 10000000), 3599);        // $100,000 a month: x .00837 = $35.99
+  assert.equal(run("monthly", 30000000), 7198);        // $300,000 a month: x .00558 = $71.98
+  assert.equal(run("monthly", 6250000), 2999);         // $62,500 is still the first band ("less than $62,501"): x .01116 = $29.99
+  assert.equal(run("quarterly", 15000000), 7198);      // $150,000 a quarter is $50,000 a month: x .01116 = $71.98
+  assert.equal(run("monthly", 15000000), 5399);        // the same $150,000 in one month: x .00837 = $53.99
+  assert.match(stateDiscountNote("VA"), /\$20,000/);
+  assert.equal(salesTaxReturn(mk(1000000, 53000), { frequency: "monthly", discounts: { "VA state": { rate: 0 } } }).periods[0].rows[0].discount, 0);
 });

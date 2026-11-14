@@ -174,9 +174,9 @@ const DISCOUNT_NOTES = {
   PA: "Pennsylvania's discount cap is shared between state and local tax in proportion to each; here it is applied to \"PA state\" alone.",
   LA: "Louisiana's 0.84% is figured on state tax due plus excess tax collected; parish taxes are filed separately and are not covered here.",
   NE: "Nebraska's 2.5% collection fee is on state and local sales tax together (Form 10 line 8, $75 at most); book both under \"NE state\" or add a --discount for the local label.",
-  MI: "Michigan's discount is not applied: it is 0.75% (by the 12th) or 0.5% (by the 20th) of the 4% part of the tax, or the tax on $150 if greater, with monthly limits (MCL 205.54). Add it with --discount once you have figured it.",
+  MI: "Michigan's discount is applied for payment by the 20th (2026 Form 5080): the greater of 0.5% of the 4% part of the tax (2/3 of it), at most $15,000 a period, and $6 a month of the period ($18 a quarter, $72 a year for annual filers, or 2/3 of the tax when less). Paid by the 12th it is 0.75% with a $20,000 maximum, and accelerated filers have no maximum; neither is applied here. Use tax booked under \"MI state\" is discounted the same way.",
   IN: "Indiana's collection allowance is not applied: its rate (0.73%, 0.53% or 0.26%) depends on your tax for the 12 months to June 30 of the previous year (in.gov handbook). Add yours with --discount \"IN state=0.73\".",
-  VA: "Virginia's dealer discount is not applied: the statute (Code 58.1-622) sets percentages of the first 3% of the tax, but the rates in force were not confirmed on tax.virginia.gov. Use the rate on your ST-9.",
+  VA: "Virginia's dealer discount is applied from the Form ST-1 worksheet (Rev. 09/26): taxable sales x 0.043 x .01116, .00837 or .00558 by monthly taxable sales (a quarter divided by 3; under $62,501, under $208,001, more), figured on the \"VA state\" line's taxable sales. It assumes those are your total taxable general sales across all your returns. Dealers notified that their average monthly liability exceeds $20,000, and consumer's use accounts (numbers starting 14), get none: remove it with --discount \"VA state=0\".",
   OK: "Oklahoma's current return (STS-20002-C, from August 2024) has no vendor discount line.",
   NM: "New Mexico's gross receipts tax return (TRD-41413) has no vendor discount line.",
 };
@@ -226,6 +226,17 @@ export function stateDiscounts(state, frequency = "quarterly") {
   // file and pay in full on time; "the credit equals 5% of the taxes and fees reported on your return, up to a maximum of $200 for each
   // quarterly or annual reporting period". Monthly (part-quarterly, ST-809/ST-810) filers get none, so no preset for --freq monthly.
   if (s === "NY") return frequency === "monthly" ? {} : { "NY state": { rate: 0.05, cap: 20000 } };
+  // MI (2026 Form 5080 instructions, Rev. 12-25, and 2026 Form 5081 instructions, read on michigan.gov 2026-11-14; MCL 205.54 on
+  // legislature.mi.gov the same day): "Discounts apply only to 2/3 (0.6667) of the sales and/or use tax collected at the 6 percent tax
+  // rate." Monthly: under $9 of tax, tax x 2/3; $9 to $1,800 paid by the 20th, $6; more, "(Tax x .6667 x .005). The maximum discount is
+  // $15,000 for the tax period." Quarterly the same with $27, $18 and $5,400. Annual (Form 5081 line 10): "$72 if the tax due on line 9
+  // is $108 or more", else tax x 2/3. Paying by the 12th (0.75%, $20,000) and accelerated filers (no maximum) are in the note.
+  if (s === "MI") return { "MI state": frequency === "annual" ? { rate: 0, floorPerMonth: 600, floorShare: 0.6667 } : { rate: 0.6667 * 0.005, cap: 1500000, floorPerMonth: 600, floorShare: 0.6667 } };
+  // VA (Form ST-1 instructions, Rev. 09/26, "For tax returns filed for return filing periods beginning on or after January 1, 2025",
+  // read on tax.virginia.gov 2026-11-14): "1. Multiply Line 5 by 0.043", "2. Enter your rate", "3. Multiply Line 1 by Line 2", the
+  // rate .01116 for monthly taxable sales under $62,501, .00837 under $208,001, .00558 above; "If you file on a quarterly basis, divide
+  // the taxable sales by 3". Line 5 is total taxable general sales; the discount "applies only to state sales and use taxes".
+  if (s === "VA") return { "VA state": { rate: 0, onSales: 0.043, bands: [{ belowMonthlySales: 6250100, rate: 0.01116 }, { belowMonthlySales: 20800100, rate: 0.00837 }, { rate: 0.00558 }] } };
   // GA vendor's compensation (Form ST-3 Rev. 07/25/22 and its instructions, read on dor.georgia.gov 2026-11-14; earlier from search 2026-10-28): Part C prints 3% on the first $3,000 of state and local tax on non-motor-fuel sales and .5% on the rest, only when return and payment are both timely. A 2026 fiscal note describes a proposal to raise the $3,000 step to $10,000: unconfirmed, not modelled. The tax of one return is the whole base here, local tax included only if booked under the same label.
   // OH vendor discount (R.C. 5739.12, read whole on codes.ohio.gov 2026-11-14; earlier from search excerpts and ODT notice ST 2025-02): (B)(1) "a discount of three-fourths of one per cent of the amount shown to be due on the return", not exceeding "seven hundred fifty dollars per vendor's license for each month covered by the return" on sales other than motor vehicles (vehicle sales uncapped, not modelled); return filed and tax paid by the due date; (A)(1) monthly returns "on or before the twenty-third day of each month". No discount if a certified service provider receives the monetary allowance.
   // Read on the states' own sites 2026-11-12 (saved and quote-checked; README "Vendor discounts read on the states' own pages"):
@@ -353,7 +364,7 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
   if (!(dd === "last" || (Number.isInteger(dd) && dd >= 1 && dd <= (dueDay?.after != null ? 366 : 31)))) throw new Error('due day must be a whole day from 1 to 31 or "last"');
   for (const [j, d] of Object.entries(discounts)) {
     const okCap = (c) => c == null || (Number.isFinite(c) && c >= 0);
-    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below)))))) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
+    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below))))) || !(d.onSales == null || (Number.isFinite(d.onSales) && d.onSales >= 0 && d.onSales <= 1)) || !(d.bands == null || (Array.isArray(d.bands) && d.bands.length && d.bands.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.belowMonthlySales == null || okCap(t.belowMonthlySales))))) || !okCap(d.floorPerMonth) || !(d.floorShare == null || (Number.isFinite(d.floorShare) && d.floorShare >= 0 && d.floorShare <= 1))) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
   }
   const cells = new Map();
   const cell = (period, j) => {
@@ -396,6 +407,16 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
     if (disc?.steps && r.tax > 0) raw = r.tax * (disc.steps.find((t) => t.below == null || r.tax < t.below) ?? disc.steps[disc.steps.length - 1]).rate;
     // min: a floor of the lesser of `min` and the tax itself (Wisconsin: the lesser of $10 or the tax)
     if (disc?.min != null && r.tax > 0) raw = Math.max(raw, Math.min(disc.min, r.tax));
+    // onSales and bands: the discount is figured on taxable sales, not on the tax (Virginia ST-1: Line 5 x 0.043 x a rate picked by
+    // monthly taxable sales, a quarter's sales divided by 3). `belowMonthlySales` is the band's ceiling in cents of sales a month.
+    if (disc?.onSales != null && r.tax > 0) {
+      const monthly = Math.max(0, r.taxableSales) / months;
+      const band = disc.bands ? (disc.bands.find((t) => t.belowMonthlySales == null || monthly < t.belowMonthlySales) ?? disc.bands[disc.bands.length - 1]) : disc;
+      raw = Math.max(0, r.taxableSales) * disc.onSales * band.rate;
+    }
+    // floorPerMonth: the greater of the percentage and a fixed amount per month of the period, never more than floorShare of the tax
+    // (Michigan Form 5080: $6 a month, $18 a quarter, $72 a year, or 2/3 of the tax when that is less)
+    if (disc?.floorPerMonth != null && r.tax > 0) raw = Math.max(raw, Math.min(disc.floorPerMonth * months, r.tax * (disc.floorShare ?? 1)));
     r.discount = disc && r.tax > 0 ? Math.min(Math.round(raw), cap) : 0;
     r.payable = r.tax - r.discount;
     const want = rates[r.jurisdiction];

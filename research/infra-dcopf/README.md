@@ -238,6 +238,25 @@ Milestone 2b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). Every QP the repair
 - **PIPS's failures on the elastic QP are mostly spurious.** An elastic QP has a slack on every row and is almost always feasible; PIPS failed 36 of 99, Clarabel solved 26 of those. On case24 API and case73 SAD the repair had been halving its step box after these failures; with Clarabel both finish. Hard-QP failures are mostly real: Clarabel solves 5 of PIPS's 75.
 - **Clarabel is the solver for later milestones** (`solver="clarabel"`; the default stays PIPS so earlier scripts reproduce): never worse here, about 5x faster. Screening is exact but uses PIPS, and inherits its elastic failures.
 
+## Is the stall a loading limit? A fold test, and a repair that walks up in load (added 2026-11-14, `experiments/run_fold.py`, `src/infra_dcopf/fold.py`, `results_fold.txt`, `results_fold_fallback.txt`, `fold_sigma.svg`)
+Milestone 6's Next (1) and (2) of [`grid-linopf`](../grid-linopf/PROPOSAL.md), pre-registered in `LOG.md` (2026-11-14). On the six cases where the DC dispatch has no AC power flow (case300 TYP; case1888_rte TYP, API, SAD; case1951_rte TYP, SAD), scaling load and the DC dispatch up together stalls at 48 to 85 % of load. Is that a voltage-collapse fold, and can the repair be walked past it?
+
+![Smallest singular value of the power-flow Jacobian along the load continuation](experiments/fold_sigma.svg)
+
+| case | stall &mu;* | &sigma;<sub>min</sub>(&mu;*) / &sigma;<sub>min</sub>(0) | fitted fold &mu;<sub>f</sub> (R<sup>2</sup>) | lowest V at &mu;* | repair-and-continue reaches |
+|---|---|---|---|---|---|
+| case300 TYP | 0.855 | 0.056 | 0.856 (1.000) | 0.72 pu | **&mu; = 1, fully clean, +0.83 %** (with the declared fallback) |
+| case1888_rte TYP | 0.798 | 0.053 | 0.801 (0.996) | 0.78 pu | 0.920, then every round's power flow fails |
+| case1888_rte API | 0.475 | 0.086 | 0.478 (0.996) | 0.79 pu | 0.594, then the same |
+| case1888_rte SAD | 0.798 | 0.080 | 0.802 (0.996) | 0.78 pu | 0.930, then the same |
+| case1951_rte TYP | 0.572 | 0.066 | 0.574 (0.997) | 0.78 pu | 0.572 (stall) |
+| case1951_rte SAD | 0.572 | 0.066 | 0.574 (0.997) | 0.78 pu | 0.572 (stall) |
+
+- **It is a fold (F1, F2, F3 held).** The smallest singular value of the Newton Jacobian falls to 5 to 9 % of its no-load value at every stall, and &sigma;<sub>min</sub><sup>2</sup> is linear in load over the last 0.1 (R<sup>2</sup> &ge; 0.996), the square-root nose of a saddle-node bifurcation (Dobson 1992), with the fitted fold 0.001 to 0.004 past where the continuation stopped. At the AC optimum's dispatch on case300 TYP the same quantity stays at 0.84 at full load. So the DC dispatch at the file's voltage setpoints is past the network's loading limit on all six; no Newton start, damping or continuation could have found a power flow.
+- **Walking the repair up in load does not rescue the RTE networks (M1 to M3 refuted; M4 held on the one clean point).** Repaired at the fold, the first linearisation sits on a near-singular Jacobian and its step has no power flow on every case; the stage's best point breaks 331 to 453 voltage limits on the RTE cases. Continuation from it gains 0.12 in load on case1888 and none on case1951, and the next stage finds no point with a power flow at all. On case300 TYP the repair moves off the fold (&sigma;<sub>min</sub> 0.0024 to 0.036, lowest V 0.94 pu), and four repair-and-continue stages reach full load, where the frozen 20-round repair is fully clean at round 14 at **+0.83 %** over the AC optimum: the first feasible point from the DC start on a case whose DC dispatch has no power flow.
+- **Caveat on that case:** as pre-registered, case300 stopped after stage 1 because its repaired point was re-solved warm from the path's last (near-fold) solution, which Newton could not leave. Re-solving it cold from the file's voltages, a fallback declared after the run, is the only change in `--fallback`; it alters no RTE verdict (`results_fold_fallback.txt`). The planned run is in `results_fold.txt`.
+- **Reading:** a first-order repair needs a well-conditioned Jacobian, and at the loading limit it has none. On the RTE networks the start has to change the voltage schedule or the dispatch before the first power flow, by something that knows about voltage (a reactive pre-stage at reduced load, or an AC OPF warm start), not by walking in load.
+
 ## Analytic sensitivities from the power-flow Jacobian (added 2026-11-13, `experiments/check_sens.py`, `results_sens.txt`, `run_vlin.py --margin --analytic`, `results_vlin_margin_analytic.txt`)
 Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens` takes every sensitivity J-m uses (slack P, |S| at both branch ends, angle differences, PQ-bus voltages, unit Q; with respect to unit P and generator voltage setpoints) from the Newton Jacobian at the base power flow, by the implicit function theorem: one sparse LU and one solve per round, instead of n_gen + n_vbus extra power flows. Plan and predictions logged before the run.
 
@@ -260,7 +279,7 @@ Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens`
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 49)
+## Checks (`tests/`, 59)
 - `tests/test_converge.py` (4): the traced repair reproduces `vlin.slp`'s history on case14 API, halving a step quarters the linearisation remainder (second order), broken rows are flagged on the side they break, and misses are classed elastic, curvature or other.
 - `tests/test_lpac.py` (4, 8 cases): LPAC's branch coefficients with the exact trigonometric terms reproduce PYPOWER's flows at the AC optimum on case14 TYP, case30 API and case118 SAD and with a 5-degree phase shifter added; LPAC-C solves case14 TYP and API and case30 SAD inside its voltage bands with positive losses and a cost within 5 % of the AC optimum; SCS and Clarabel agree on its objective to 1e-5.
 - `tests/test_vlin.py` (10): the screened QP returns the full QP's solution (hard and elastic) with fewer rows, and Clarabel and PIPS solve the same QP to the same point; the analytic sensitivities match central finite differences to 1e-4 (scaled) on case14 API and case30 SAD, and an analytic linearisation runs one power flow; the joint check is clean at the AC optimum and returns its cost, per-bus setpoints round-trip to per-unit VG, a 0.004 pu setpoint move is predicted to first order, the bound-shrinking helper stops at the midpoint, and the method repairs case14 API from 1.0 pu at the optimum's cost (within 0.1 %).
@@ -396,6 +415,8 @@ python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 
 ## References
+- Dobson, I. (1992), Observations on the geometry of saddle node bifurcation and voltage collapse in electrical power systems, *IEEE Trans. Circuits and Systems I* 39(3):240&ndash;243, doi:10.1109/81.128018 (the singular Jacobian at the loading limit; the square-root nose that `fold.fold_fit` fits).
+- Ajjarapu, V., Christy, C. (1992), The continuation power flow: a tool for steady state voltage stability analysis, *IEEE Trans. Power Systems* 7(1):416&ndash;423, doi:10.1109/59.141737 (why simple load stepping stalls before a fold).
 - Coffrin, C., Van Hentenryck, P. (2014), A linear-programming approximation of AC power flows, *INFORMS Journal on Computing* 26(4):718-734, doi:10.1287/ijoc.2014.0594 (arXiv:1206.3614).
 - O'Donoghue, B., Chu, E., Parikh, N., Boyd, S. (2016), Conic optimization via operator splitting and homogeneous self-dual embedding, *Journal of Optimization Theory and Applications* 169(3):1042-1068, doi:10.1007/s10957-016-0892-3 (SCS).
 (DOIs from memory; the DOI resolver was unreachable through the proxy, so they were not looked up in this run. 2026-11-11: the PowerModels.jl DOI and bibliographic data were checked against the BibTeX in its README; the PGLib arXiv id was checked against the PGLib-OPF README, which links it as the library's report and asks users to cite it, but arxiv.org was unreachable, so its author list and title are from memory.)

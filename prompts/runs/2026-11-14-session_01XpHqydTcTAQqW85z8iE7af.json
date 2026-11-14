@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydTcTAQqW85z8iE7af",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T17:39:21Z",
+  "ended": "2026-11-14T17:53:24Z",
+  "wall_minutes": 14.77,
+  "tokens_in": 8660999,
+  "tokens_out": 40109,
+  "cost_usd": 3.7705,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15928",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_fold.py's stage glue re-solved the repaired point warm from the near-fold path solution, which stopped case300 TYP after stage 1; a cold-start fallback was declared after the run and reported separately (--fallback)",
+    "figure_fold.py first passed (name, points) pairs to linefig and filtered every row out; fixed before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/linefig.py",
+      "issue": "x ticks are the data's x values thinned to 8, so continuation paths with dense uneven steps print overlapping labels (0.79687, 0.853125); added an optional xticks argument"
+    },
+    {
+      "file": "research/infra-dcopf/README.md",
+      "issue": "'Checks (tests/, 49)' heading had drifted from the 55 test functions already present; updated to 59"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/LOG.md (plan)",
+      "why": "the pre-registered stage glue failed on case300 for a mechanical reason (warm start), not a method one",
+      "did": "kept the planned run as the headline verdict and ran a declared --fallback variant on all six, reported side by side",
+      "result": "case300 TYP reaches full load fully clean at +0.83 %; no RTE verdict changes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-dc-dispatch-sits-past-a-voltage-collapse-fold.md",
+    "research/infra-dcopf/LOG.md",
+    "research/grid-linopf/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Advanced research/grid-linopf (track 21 draw; water-leaks had a sibling 3 h earlier). Fold test F1-F3 held 6/6; repair-and-continue M1-M3, M5 refuted, M4 held on case300 only. Tests: infra-dcopf suite with python3.13; build.py ok; research_live_links, check_md_links, post checks ok; cite_check: both new DOIs ok (Dobson's DOI corrected from memory 10.1109/81.126283 to 10.1109/81.128018 via Crossref).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c4d3d3cb-47c2-55da-89c2-262564f9404a",
+    "transcripts": 1,
+    "first": "2026-11-14T17:39:21Z",
+    "last": "2026-11-14T17:54:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 116,
+        "output": 40109,
+        "thinking": 7487,
+        "cache_read": 8502468,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158415,
+        "api_equivalent_usd": 3.7705,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 116,
+      "output": 40109,
+      "thinking": 7487,
+      "cache_read": 8502468,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158415,
+      "api_equivalent_usd": 3.7705,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 56,
+      "Read": 3,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.77,
+      "active_minutes": 14.77,
+      "model_minutes": 6.48,
+      "tool_minutes": 8.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an experienced power-systems researcher: fold diagnostic code and tests, staged repair experiment, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 265.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

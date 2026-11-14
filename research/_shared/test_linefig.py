@@ -68,5 +68,13 @@ class LineFig(unittest.TestCase):
         self.assertEqual((exp / "claim_vs_real.svg").read_bytes(), before)
 
 
+    def test_xticks_override_replaces_data_ticks(self):
+        svg = linefig.svg_lines("t", "a", "x", "y", [("s", [0.0, 0.79687, 0.853125], [1.0, 0.5, 0.1])],
+                                xticks=[0, 0.5, 1.0])
+        self.assertIn(">0.5<", svg)
+        self.assertNotIn(">0.853125<", svg)
+
+
 if __name__ == "__main__":
     unittest.main()
+

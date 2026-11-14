@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import {
   parseList, listId, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, order,
+  topKChances, topSetConfidence, topStopCheck, topK,
   nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, stopCheck, STOP_CONFIDENCE, MAX_ITEMS,
   personInfo, groupFit, populationFit, populationAt, teamRanges, linearize,
 } from "./rank-core.mjs";
@@ -141,6 +142,54 @@ test("favourite mode spends its questions on the front-runners", () => {
   };
   const fav = topShare("favourite"), full = topShare("order");
   assert.ok(fav > full, `top-three pairs: favourite ${fav.toFixed(2)} vs order ${full.toFixed(2)}`);
+});
+
+test("top-k mode spends its questions near the cut", () => {
+  // Measured in docs/RANK-PAGE.md, "Find my top k". True ranks 3 and 4 (items 2
+  // and 3) straddle a top-3 cut; after the first 8 picks the shortlist picker
+  // asks about them more than the full-order picker does.
+  const n = 10, picks = 24;
+  const cutShare = (mode) => {
+    let near = 0, all = 0;
+    for (let s = 1; s <= 4; s++) for (const [w, l] of simulate(n, picks, 700 + s, mode).slice(8)) { all++; if (w === 2 || w === 3 || l === 2 || l === 3) near++; }
+    return near / all;
+  };
+  const top = cutShare("top"), full = cutShare("order");
+  assert.ok(top > full, `pairs touching ranks 3-4: top ${top.toFixed(2)} vs order ${full.toFixed(2)}`);
+});
+
+test("top-k chances sum to k, and an unseen list reads an unsettled shortlist", () => {
+  const f = fit(6, []);
+  const p = topKChances(f, 2, { draws: 600 });
+  assert.ok(Math.abs(p.reduce((a, b) => a + b, 0) - 2) < 1e-9);
+  assert.ok(topSetConfidence(f, 2) < 0.6, "a blank list's shortlist is a guess");
+  const chain = [];
+  for (let r = 0; r < 6; r++) for (let i = 0; i + 1 < 6; i++) chain.push([i, i + 1, false]);
+  const g = fit(6, chain);
+  assert.deepEqual(topK(g, 2), [0, 1]);
+  const overlap = topSetConfidence(g, 2), exact = topSetConfidence(g, 2, { measure: "exact" });
+  assert.ok(overlap >= exact, `overlap ${overlap} reads at least the exact-set chance ${exact}`);
+  assert.ok(overlap > 0.9, `a consistent chain settles the shortlist (${overlap.toFixed(3)})`);
+});
+
+test("topStopCheck skips the prior search until the fixed read passes, then reads no higher than the fixed rule", () => {
+  const s = topStopCheck(6, [[0, 1, false]], 2);
+  assert.equal(s.phi, null);
+  assert.equal(s.done, false);
+  assert.equal(topStopCheck(6, [], 2).confidence, 0);
+  // An ordinary respondent (spread 6, 10 options): once the fixed read passes, the
+  // own-prior recheck runs and the confidence reported is the lower of the two.
+  const n = 10;
+  const history = simulateHistory(n, 6, 11, 60);
+  const k = history.findIndex((ans) => topSetConfidence(fit(n, ans), 3) >= STOP_CONFIDENCE);
+  assert.ok(k >= 0, "the fixed prior settles this shortlist within 60 picks");
+  const f = fit(n, history[k]);
+  const t = topStopCheck(n, history[k], 3, { fixedFit: f });
+  assert.notEqual(t.phi, null, "the recheck ran");
+  assert.ok(t.confidence <= topSetConfidence(f, 3) + 1e-12);
+  // Near coin flips (25 options, spread 1.5): the shortlist rule does not call the cut settled in 140 picks.
+  const noisy = simulateHistory(25, 1.5, 5, 140).at(-1);
+  assert.equal(topStopCheck(25, noisy, 5).done, false);
 });
 
 test("results CSV quotes options and lists every item", () => {
