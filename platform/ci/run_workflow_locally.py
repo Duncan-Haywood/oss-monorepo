@@ -644,6 +644,41 @@ EVENT_TERM = re.compile(
     r"^github\.event_name\s*(==|!=)\s*'([a-z_]+)'$")
 
 
+# Why `&&` is split only outside parentheses. Until 2026-11-14 any `||` in an
+# `if:` made the whole condition unknown, so portfolio-pages.yml's `deploy`
+# job -- `... && (needs.gate.outputs.cloudflare != 'true' || ...) && ... &&
+# github.event_name != 'pull_request' && ...` -- ran locally, and its
+# "Announce the deployed site to IndexNow" step reached `indexnow.mjs
+# --submit`; it failed only because the artifact it unpacks was missing. A
+# `||` inside a parenthesised group cannot rescue a false top-level term.
+def top_level_terms(text: str) -> list[str] | None:
+    """`text` split at `&&` outside parentheses and quotes, or None if a
+    top-level `||` (or unbalanced brackets) means no single term decides it."""
+    terms, depth, quote, start, i = [], 0, None, 0, 0
+    while i < len(text):
+        ch = text[i]
+        if quote:
+            quote = None if ch == quote else quote
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth < 0:
+                return None
+        elif depth == 0 and text.startswith("||", i):
+            return None
+        elif depth == 0 and text.startswith("&&", i):
+            terms.append(text[start:i])
+            start = i + 2
+            i += 1
+        i += 1
+    if depth or quote:
+        return None
+    return terms + [text[start:]]
+
+
 def false_on_pull_request(condition) -> bool:
     """True when an `if:` cannot hold on a `pull_request` event."""
     if not isinstance(condition, str):
@@ -651,9 +686,10 @@ def false_on_pull_request(condition) -> bool:
     text = condition.strip()
     if text.startswith("${{") and text.endswith("}}"):
         text = text[3:-2].strip()
-    if "||" in text:
+    terms = top_level_terms(text)
+    if terms is None:
         return False
-    for term in text.split("&&"):
+    for term in terms:
         hit = EVENT_TERM.match(term.strip())
         if hit and (hit.group(1) == "==") != (hit.group(2) == "pull_request"):
             return True
@@ -697,6 +733,56 @@ def job_order(jobs: dict) -> list[str]:
     return order
 
 
+# Why an `actions/cache` restore gets a local stand-in. `runner.temp` resolves
+# to a fresh temp directory per process, so the share-card cache that
+# portfolio-pages.yml restores into `${{ runner.temp }}/share-cards` was empty
+# on every local run: each of the site-builder suite's four full builds drew
+# all ~7,300 cards again. Cold, that step took 330 s here, past the sweep's
+# 300 s per-workflow budget, so every venture or post diff ended NO_VERDICT
+# for portfolio-pages (12 sessions' doc friction, 2026-11-10..14), and each
+# run also left ~350 MB of cards in /tmp. A restored path under `runner.temp`
+# is now a link to one directory under PIN_CACHE that outlives the process.
+# That is as safe as the cache it stands in for: a workflow that restores a
+# cache must already accept stale contents (restore-keys hand back an older
+# entry), and the share cards are keyed by what they are drawn from.
+# Measured: one site build 111 s cold, 47 s warm (process run 2026-11-14,
+# docs/history/run-workflow-locally-card-cache-2026-11-14.md).
+CACHE_ACTION = re.compile(r"^actions/cache(/restore)?@")
+RUNNER_TEMP_PATH = re.compile(r"^\$\{\{\s*runner\.temp\s*\}\}/(.+)$")
+
+
+def local_cache_dirs(raw: dict, root: str | None = None,
+                     temp: str | None = None) -> list[str]:
+    """Link each `runner.temp` path an `actions/cache` restore names to a kept directory.
+
+    Returns the relative paths it linked (for the skip note); other `uses:`
+    steps, and cache paths outside `runner.temp` (which persist on this
+    machine anyway), return [].
+    """
+    if not CACHE_ACTION.match(str(raw.get("uses") or "")):
+        return []
+    root = root or os.path.join(PIN_CACHE, "actions-cache")
+    linked = []
+    for line in str((raw.get("with") or {}).get("path") or "").splitlines():
+        match = RUNNER_TEMP_PATH.match(line.strip())
+        if not match:
+            continue
+        rel = os.path.normpath(match.group(1))
+        if rel.startswith("..") or os.path.isabs(rel):
+            continue
+        kept = os.path.join(root, rel)
+        target = os.path.join(temp or local_context("runner.temp"), rel)
+        try:
+            os.makedirs(kept, exist_ok=True)
+            if not os.path.lexists(target):
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                os.symlink(kept, target)
+        except OSError:
+            continue  # no stand-in: the step reads an empty cache, as before
+        linked.append(f"{rel} kept in {kept}")
+    return linked
+
+
 def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[str]]:
     """Every `run:` step in job order (`job_order`), plus a note for each skipped step.
 
@@ -724,7 +810,9 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
         for raw in job.get("steps") or []:
             name = raw.get("name") or raw.get("uses") or "(unnamed)"
             if "run" not in raw:
-                skipped.append(f"{job_id} / {name}: uses: step, not run:")
+                kept = local_cache_dirs(raw)
+                skipped.append(f"{job_id} / {name}: uses: step, not run:"
+                               + (f" (local stand-in: {', '.join(kept)})" if kept else ""))
                 continue
             if false_on_pull_request(raw.get("if")):
                 skipped.append(f"{job_id} / {name}: if: is false on a pull request")
