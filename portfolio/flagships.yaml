@@ -305,14 +305,15 @@ flagships:
       from the turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up
       to +0.0045, over d9 where the run follows the speed-up; flags nobody new.
       Since 2026-11-14 site/rank.html ranks a list in the browser on the same refit,
-      with team codes (docs/RANK-PAGE.md); its stop rule overstates certainty for
-      very noisy answerers. Next, most valuable first: (r) get the rank page in
-      front of people, then (c) the first real survey's answers: msToAnswer against
-      the answer-time model, panelWalkRatio on real times, whether times depend on
-      which slot is clicked (the d9 bound assumes not), whether real people have
-      warm-ups, blocks, slot runs or spread-out carelessness, and how noisy real
-      pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11)
-      the d10 turn is still a split search: score one candidate from the run's start
+      with team codes (docs/RANK-PAGE.md); its stop rule rechecks at the person's
+      own EB prior (docs/RANK-PAGE.md "Noisy answerers"); some coin-flippers still
+      stop early. Next, most valuable first: (r) get the rank page in front of
+      people, then (c) the first real survey's answers: msToAnswer against the
+      answer-time model, panelWalkRatio on real times, whether times depend on which
+      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
+      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
+      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) the d10
+      turn is still a split search: score one candidate from the run's start
       backwards so a wander step's chance of moving a cut is bounded; (d8) a
       stronger pick signal under wander (staged pairs are near 50/50 late in a
       session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes
