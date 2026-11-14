@@ -65,3 +65,12 @@ test("high expense-ratio funds are named and CSV totals match", () => {
   const csv = toCsv(r);
   assert.match(csv, new RegExp(`total,${r.total.toFixed(2)},`));
 });
+
+// Red team 2026-11-14: "[\d,]+" read "$,-$,: 1" as a 0-0 band and "1.2.3%" as NaN, with no error.
+test("benchmark bands need real numbers: commas only between thousands", () => {
+  for (const bad of ["$,-$,: 1", "1,,000-5000: 1", "0-5,00: 1", "0-1000: 1.2.3", "0-1000: ."]) {
+    assert.ok(parseBenchmarks(bad).errors.length, bad);
+  }
+  const ok = parseBenchmarks("$0-$1,000,000: 1.25%\n1,000,001+: .5");
+  assert.deepEqual(ok.errors, []);
+});
