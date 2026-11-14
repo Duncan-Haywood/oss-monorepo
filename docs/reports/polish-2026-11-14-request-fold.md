@@ -1,3 +1,7 @@
+---
+kind: polish
+date: 2026-11-14
+---
 # Polish, 2026-11-14: custom development pages fold long requests
 
 Picked after screenshotting `/custom-development/` at 390 and 1,280 px. It's the page where a
