@@ -36,6 +36,7 @@ COLLECTOR_CMDS = (P.DRIVE, P.PICKUP)
 MAX_RPM = 7000
 MAX_DRIVE_MM_S = 1200
 MAX_BASE_MM_S = 3000
+BASE_HALF_TRAVEL_MM = 4000   # hardware/feeder-catcher.md: lateral travel +/- 4.0 m from the centre mark
 
 
 def _clamp(v, lo, hi):
@@ -567,7 +568,10 @@ class Controller:
         elif cmd == P.FEED:
             hw.feed(_clamp(values[0], 0, 5))
         elif cmd == P.SET_BASE:
-            hw.set_base(values[0], _clamp(values[1], 0, MAX_BASE_MM_S))
+            # Until 2026-11-14 the target passed through unclamped, so a bad command could drive the base
+            # off its rail although safety.md says base limits are enforced here (quality audit 2026-11-08).
+            hw.set_base(_clamp(values[0], -BASE_HALF_TRAVEL_MM, BASE_HALF_TRAVEL_MM),
+                        _clamp(values[1], 0, MAX_BASE_MM_S))
         elif cmd == P.DRIVE:
             left = _clamp(values[0], -MAX_DRIVE_MM_S, MAX_DRIVE_MM_S)
             right = _clamp(values[1], -MAX_DRIVE_MM_S, MAX_DRIVE_MM_S)

@@ -81,6 +81,30 @@ class CatcherTest(unittest.TestCase):
         fixed = catcher.study(40, catcher.CatchRig(net_width=2.0, max_speed=1e-9), seed=7)
         self.assertEqual(moving.returns, 40)
         self.assertGreater(moving.catch_rate, fixed.catch_rate + 0.3)
+        # Exact counts pin the closed loop (flight, tracker, planner, net geometry): a changed net width,
+        # lift constant or drive limit moves them (quality audit 2026-11-08: a doubled net passed every test).
+        self.assertEqual((moving.caught, moving.too_wide, moving.too_high), (32, 8, 0))
+        self.assertEqual((fixed.caught, fixed.too_wide, fixed.too_high), (8, 32, 0))
+
+    def test_catch_window_is_the_net_minus_a_ball_radius(self):
+        # A 3.0 m x 2.5 m net catches a ball whose centre is within 1.5 - 0.0335 m of the base centre and
+        # at most 2.5 - 0.0335 m up (ITF ball, 6.54-6.86 cm diameter; the model's radius is 33.5 mm).
+        rig = catcher.CatchRig()
+        self.assertTrue(rig.catches(0.5, 0.5 + 1.4660, 1.0))
+        self.assertFalse(rig.catches(0.5, 0.5 + 1.4670, 1.0))
+        self.assertTrue(rig.catches(0.5, 0.5 - 1.4660, 1.0))
+        self.assertFalse(rig.catches(0.5, 0.5 - 1.4670, 1.0))
+        self.assertTrue(rig.catches(0.0, 0.0, 2.4660))
+        self.assertFalse(rig.catches(0.0, 0.0, 2.4670))
+
+    def test_readme_headline_cell_reproduces(self):
+        # README "What the simulation says about the catch net": 3.0 m net on a 2.5 m/s base, 300 returns,
+        # seed 1 -> 91%, and the same net fixed -> 31%. Recomputed 2026-11-14: 274/300 and 93/300 (~30 s each).
+        moving = catcher.study(300, catcher.CatchRig(net_width=3.0, max_speed=2.5), seed=1)
+        self.assertEqual((moving.returns, moving.caught), (300, 274))
+        with open(os.path.join(os.path.dirname(__file__), "..", "README.md")) as fh:
+            readme = fh.read()
+        self.assertIn("| 3.0 m | 31% | 64% | 91% | 97% |", readme)
 
 
 class CollectorTest(unittest.TestCase):
@@ -200,6 +224,17 @@ class FakeHw:
 
 
 class FirmwareTest(unittest.TestCase):
+    def test_base_target_is_clamped_to_the_rail(self):
+        # hardware/feeder-catcher.md: lateral travel +/- 4.0 m; safety.md: base limits are enforced in firmware.
+        hw = FakeHw()
+        c = controller.Controller(hw, controller.ROLE_FEEDER, 0)
+        c.tick(protocol.encode(protocol.SET_BASE, 9000, 2000), 10)
+        c.tick(protocol.encode(protocol.SET_BASE, -32000, 9000), 20)
+        c.tick(protocol.encode(protocol.SET_BASE, 1234, 1500), 30)
+        moves = [e for e in hw.log if e[0] == "set_base"]
+        self.assertEqual(moves, [("set_base", 4000, 2000), ("set_base", -4000, controller.MAX_BASE_MM_S),
+                                 ("set_base", 1234, 1500)])
+
     def test_commands_and_role_filter(self):
         hw = FakeHw()
         c = controller.Controller(hw, controller.ROLE_FEEDER, 0)
