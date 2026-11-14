@@ -3,7 +3,7 @@ title: "Four of our tax tools had the same $25 slip, and their own tests could n
 seo_title: "2026 head of household 24% bracket: $201,750, not $201,775"
 date: 2026-11-14
 tags: [ventures, tax, testing, irs]
-description: "Four calculators gave head-of-household filers the single filer's 24% bracket edge. A script that checks every copy of the 2026 IRS tables against the IRS text found it."
+description: "Four calculators gave head-of-household filers the single filer's 24% bracket edge. A script checking our IRS table copies against the IRS text found it."
 ---
 
 For 2026 the 24% bracket for a head of household ends at **$201,750** of taxable income. For a single filer it ends at **$201,775**. The two numbers are $25 apart, and both are in [Rev. Proc. 2025-32](https://www.irs.gov/pub/irs-drop/rp-25-32.pdf), section 4.01, Tables 2 and 3.

@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-14
+subjects: [inherited-ira-10-year-withdrawal-planner, locum-tenens-vs-employed-calculator, roth-conversion-bracket-fill-calculator, rsu-withholding-gap-calculator]
+---
 # IRS table figures check (2026-11-14)
 
 `python3 platform/ci/check_irs_table_figures.py [--json] [--strict]` compares every shipped venture
