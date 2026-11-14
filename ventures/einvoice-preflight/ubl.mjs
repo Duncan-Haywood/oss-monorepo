@@ -336,6 +336,21 @@ function lineAmountWithVat(line) {
   return amount ? amount.text.trim() : "";
 }
 
+// BTAE-03 and the like: the reason codes of the document's own DiscrepancyResponse
+// (header level only; a line's DiscrepancyResponse is about that line). PINT AE's
+// ibr-055-ae reads them: a credit note with reason VD (volume discount) names no
+// preceding invoice, since a period discount may cover many (aside.mjs).
+function creditReasonCodes(root) {
+  const codes = [];
+  for (const child of root.children) {
+    if (child.name !== "DiscrepancyResponse") continue;
+    const code = child.children.find((c) => c.name === "ResponseCode");
+    const value = code ? code.text.trim() : "";
+    if (value) codes.push(value);
+  }
+  return codes;
+}
+
 function billingReference(root) {
   for (const ref of descendants(root, "BillingReference")) {
     for (const invoiceRef of descendants(ref, "InvoiceDocumentReference")) {
@@ -413,6 +428,7 @@ export function parseUblInvoice(source) {
     || textOf(root, "CreditNoteTypeCode", false)
     || textOf(root, "DebitNoteTypeCode", false);
   const original = billingReference(root);
+  const reasons = creditReasonCodes(root);
   const invoice = {
     invoice_number: textOf(root, "ID"),
     issue_date: textOf(root, "IssueDate"),
@@ -421,6 +437,7 @@ export function parseUblInvoice(source) {
     document_type: kind.type,
     ...(typeCode ? { document_code: typeCode } : {}),
     ...(original ? { original_invoice: original } : {}),
+    ...(reasons.length ? { credit_reason_codes: reasons } : {}),
     currency: textOf(root, "DocumentCurrencyCode"),
     supplier: party(supplier),
     customer: party(customer),

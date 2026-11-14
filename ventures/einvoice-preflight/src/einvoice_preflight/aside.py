@@ -23,6 +23,7 @@ ASIDE = {
     "local": ["INV-022", "INV-027", "INV-034"],
     "jpNtr": ["INV-018", "INV-038"],
     "aeZeroAtRate": ["INV-018", "INV-038"],
+    "aeVolumeDiscount": ["INV-033"],
     "zatca": ["INV-024", "INV-022", "INV-005", "INV-006", "INV-034", "INV-045", "INV-052"],
 }
 
@@ -60,6 +61,9 @@ def stepped_aside(invoice: Any) -> set[str]:
     breakdown = invoice.get("tax_breakdown") or []
     if _PINT_AE.search(spec) and isinstance(breakdown, list) and any(_zero_at_rate(r) for r in breakdown):
         out.update(ASIDE["aeZeroAtRate"])
+    reasons = invoice.get("credit_reason_codes") or []
+    if _PINT_AE.search(spec) and isinstance(reasons, list) and any(str(c).strip() == "VD" for c in reasons):
+        out.update(ASIDE["aeVolumeDiscount"])
     if _ZATCA.search(profile):
         out.update(ASIDE["zatca"])
     return out
