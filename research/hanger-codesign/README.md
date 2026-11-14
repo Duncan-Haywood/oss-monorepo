@@ -96,11 +96,23 @@ seed of seven. 3c's chains, unchanged, on 1.875 mm; 3c's 3.75 mm chains rerun wi
 
 ![Drape coefficient change with mesh at sourced stiffness: seed mean and lowest-energy seed](experiments/m3d_local_hessian/dc_rule_vs_mesh.svg)
 
-POSTHOC_PLACEHOLDER
+- **Post hoc, not registered: the missing 7-fold pattern exists on 1.875 mm and is the lowest found.**
+  `posthoc.py` reruns 3c's seed-0 suiting chain at 2.5 mm with 3c's own solver (it reproduces 3c's
+  row exactly: 7 folds, DC 0.5807, same energy), carries that state's displacements onto the 1.875 mm
+  lattice and re-solves at 1,896 N/m. It stays 7-fold, converges to a minimum (smallest eigenvalue
+  positive), has **DC 0.5848, +0.004 from 2.5 mm**, and is lower in energy than all seven 1.875 mm
+  seeds, by 1.3×10⁻⁵ J below the 8-fold one the rule picked. On the jersey the same transfer (3c's
+  lowest, seed 6, 10 folds) gives DC 0.1638 (+0.005) but ranks last in energy among eight; there the
+  1.875 mm seeds found lower patterns. So the rule failed on the suiting because seven seeds did not
+  sample its lowest pattern, not because that pattern moved: the lowest pattern found across both
+  lattices' searches is mesh-flat to 0.004 on the suiting.
 
-What it means: a seed mean over seven solves, not the lowest of them, is the summary that converges
-in mesh on both fabrics at 1.875 mm, and that is the quantity to compare with a multi-specimen
-measured DC. The lowest-energy rule needs a search that is not at the mercy of a seven-sample draw.
+What it means: two summaries now converge at 2.5 mm on both fabrics: the seed mean of seven solves
+(registered, within 0.008 of 1.875 mm) and the lowest-energy pattern when each lattice's search is
+seeded with the other lattice's patterns too (post hoc, within 0.004 on the suiting). The plain
+lowest of seven seeds per lattice does not, because which pattern a solve finds depends on the
+solver's rounding. The seed mean is the quantity to compare with a multi-specimen measured DC; a
+lowest-energy rule needs a pooled, cross-mesh search.
 
 Limits: seven seeds; one start family; three lattices, the 2.5 mm one from 3c's solver and the 3.75
 and 1.875 mm ones from the new Hessian, so the S1 to S3 changes mix a mesh step with a solver change

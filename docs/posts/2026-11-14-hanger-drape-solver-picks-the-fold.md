@@ -48,8 +48,17 @@ What happened to the predictions written before the run:
 
 So which fold pattern a cloth solve settles into is decided by the random
 start *and* by rounding inside the solver. Taking the lowest of a few starts
-is a statistic of a small, solver-dependent sample. That is why it jumped.
-The seed mean is the stable summary. It is also what a lab Cusick test
+is a statistic of a small, solver-dependent sample.
+
+One check after the fact settled why the rule jumped. I took yesterday's
+7-fold suiting state from the 2.5 mm mesh, carried it onto the 1.875 mm mesh
+and solved again. It stayed 7-fold. Its energy was lower than all seven
+fresh starts, and its DC moved by only +0.004. So the lowest pattern did not
+move with the mesh. Seven starts simply never found it. A lowest-energy rule
+can work, but only if each mesh's search also starts from the patterns found
+on the other meshes. That is the next prediction to register.
+
+For now the seed mean is the stable summary. It is also what a lab Cusick test
 reports: an average over several specimens, with a node count. So the next
 step is to calibrate against a measured drape with the seed mean and the
 fold-count distribution on the 2.5 mm mesh.
