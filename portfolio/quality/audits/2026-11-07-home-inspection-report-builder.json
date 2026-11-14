@@ -24,6 +24,6 @@
     {"severity": "low", "what": "Import cap of 500 findings is untested (mutation to 5 survived); no tests for toText/toHtml ordering or the page's DOM wiring", "where": "ventures/home-inspection-report-builder/calc.test.mjs"},
     {"severity": "medium", "what": "Report has no limitations/scope section, no 'not inspected' record and no safety summary at the top, which a professional report requires", "where": "ventures/home-inspection-report-builder/calc.mjs:146"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15848"],
   "verdict": "A small, honest, tidy client-side tool whose arithmetic and ordering are right (cost totals, counts and severity order all matched hand computation, and four of five seeded bugs were caught by the 24 passing tests), with correct disclaimers and no data leaving the browser. It does not meet the bar: the headline claim of a safety-first report is true only within each system, the promised priority summary is not rendered, a malformed cost or severity is silently coerced, the library is thin, and the report lacks the scope, limitations and top-of-report safety summary a working inspector expects. Not finished (completeness 2), median 2. Small safe fix: render summarize().sorted (or a 'Priority items' list of safety and major findings) at the top of toHtml and toText, switch llms.txt to the marisstella.app URL, and add tests for ordering and the 500 cap."
 }

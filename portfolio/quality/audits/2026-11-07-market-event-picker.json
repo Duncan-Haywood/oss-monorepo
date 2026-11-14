@@ -56,6 +56,6 @@
    "where": "ventures/market-event-picker/index.html (EXAMPLE_SOURCE), fixtures/events.csv"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15848"],
  "verdict": "A small, genuinely correct tool: the optimiser matches an independent Python brute force on the 10-event fixture (8,721.00, same six events, all ten per-event nets), per-event nets and break-evens were recomputed by hand, four of five seeded engine mutations (weekly cap, overlap tolerance, weekly clustering, week boundary) were caught by the 29 passing tests, and the page loads cleanly in Chromium with local-only usage counting that the opt-out really stops. It does not meet the bar because claims scores 2: the advisory 'a fee cut of $480.00 would make Harvest Fair the better pick' is impossible for a $150 fee (and only ties at that figure), the CLI promises exit 2 on bad input but silently turns --cogs 150 into 35, llms.txt is calculator boilerplate pointing at the retired host, and the sitemap, robots and canonical URLs are relative so they likely do not work. The untested advisory layer (a seeded change to the negotiable threshold passed all tests) is where the one wrong output lives. Correctness 3, verification 3, claims 2 (so not at the bar); finished (completeness 3). Fixes are small: cap and pad the fee-cut finding, reject out-of-range options, fix llms.txt and the SEO URLs."
 }

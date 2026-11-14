@@ -88,7 +88,6 @@ export function summarize(findings) {
   const list = findings.map(normalise).filter((f) => f.title);
   const counts = Object.fromEntries(SEVERITIES.map((s) => [s.id, 0]));
   for (const f of list) counts[f.severity]++;
-  const priority = list.filter((f) => f.severity === "safety" || f.severity === "major");
   const sorted = [...list].sort((a, b) => sevRank(a.severity) - sevRank(b.severity) || SYSTEMS.indexOf(a.system) - SYSTEMS.indexOf(b.system));
   const bySystem = SYSTEMS.map((s) => ({ system: s, items: list.filter((f) => f.system === s).sort((a, b) => sevRank(a.severity) - sevRank(b.severity)) }))
     .concat([{ system: "Other", items: list.filter((f) => !SYSTEMS.includes(f.system)) }])
@@ -98,7 +97,9 @@ export function summarize(findings) {
     counts,
     sorted,
     bySystem,
-    priorityCount: priority.length,
+    // Safety and major items across every system, safety first: the list the report opens with.
+    priority: sorted.filter((f) => f.severity === "safety" || f.severity === "major"),
+    priorityCount: sorted.filter((f) => f.severity === "safety" || f.severity === "major").length,
     costLow: list.reduce((a, f) => a + f.costLow, 0),
     costHigh: list.reduce((a, f) => a + f.costHigh, 0),
     hasCosts: list.some((f) => f.costHigh > 0),
@@ -112,6 +113,10 @@ export function toText(header, findings) {
   for (const [k, l] of [["property", "Property"], ["client", "Client"], ["date", "Inspection date"], ["inspector", "Inspector"], ["license", "License / ID"]]) if (header[k]) out.push(`${l}: ${header[k]}`);
   out.push("", `SUMMARY: ${s.total} finding(s) - ` + SEVERITIES.map((v) => `${s.counts[v.id]} ${v.label.toLowerCase()}`).join(", "));
   if (s.hasCosts) out.push(`Inspector's repair cost range, as entered: ${money(s.costLow)} to ${money(s.costHigh)}`);
+  if (s.priority.length) {
+    out.push("", "SAFETY AND MAJOR ITEMS (details under each system below)");
+    for (const f of s.priority) out.push(`- [${sevLabel(f.severity)}] ${f.title} (${f.system || "Other"})`);
+  }
   for (const g of s.bySystem) {
     out.push("", g.system.toUpperCase());
     for (const f of g.items) {
@@ -133,6 +138,10 @@ export function toHtml(header, findings) {
   let h = `<h2>Home inspection report</h2><table class="meta">${meta}</table>`;
   h += `<p><strong>${s.total}</strong> finding(s): ` + SEVERITIES.map((v) => `${s.counts[v.id]} ${esc(v.label.toLowerCase())}`).join(", ") + ".</p>";
   if (s.hasCosts) h += `<p>Inspector's repair cost range, as entered: <strong>${money(s.costLow)} to ${money(s.costHigh)}</strong></p>`;
+  if (s.priority.length) {
+    h += `<h3>Safety and major items</h3><p>Details under each system below.</p><ul class="priority">` +
+      s.priority.map((f) => `<li><span class="pill">${esc(sevLabel(f.severity))}</span> ${esc(f.title)} (${esc(f.system || "Other")})</li>`).join("") + `</ul>`;
+  }
   for (const g of s.bySystem) {
     h += `<h3>${esc(g.system)}</h3>`;
     for (const f of g.items) {
