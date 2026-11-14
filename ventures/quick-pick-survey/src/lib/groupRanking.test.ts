@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -383,6 +383,62 @@ describe("stepNetOfTrend", () => {
   });
 });
 
+describe("stepOverWalk", () => {
+  // Seeded draws, so the counts below are fixed.
+  const draws = (seed: number) => { let s = seed >>> 0; const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 2 ** 32; }; return () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u()); };
+  const walk = (seed: number, sd: number, n = 60, step = 0) => { const z = draws(seed); let l = 0; return Array.from({ length: n }, (_, i) => { if (i) l += sd * z(); return l - (i >= n / 2 ? step : 0) + 0.35 * z(); }); };
+  it("scores a held-still pace with one step far above a pace that drifts down in many small moves", () => {
+    const noise = (i: number) => 0.1 * Math.sin(i * 1.7);
+    const step = Array.from({ length: 40 }, (_, i) => noise(i) - (i >= 20 ? 0.5 : 0));
+    const stairs = Array.from({ length: 40 }, (_, i) => noise(i) - 0.0625 * Math.floor(i / 5)); // 0.5 down in eight small moves
+    expect(stepOverWalk(step, 20)).toBeGreaterThan(30);
+    expect(stepOverWalk(stairs, 20)).toBeLessThan(3);
+  });
+  it("leaves most splits a wandering pace makes under a bar a held-still block clears", () => {
+    // Of 400 sequences of 60 answers whose pace wanders N(0, 0.08) per answer, the ones whose best split already passes
+    // the gap and t tests mostly score under 12; of 400 with a 0.51 step halfway and no wander, most score over it.
+    let walkFlagged = 0, walkOver = 0, stepFlagged = 0, stepOver = 0;
+    for (let k = 0; k < 400; k++) {
+      for (const [x, isStep] of [[walk(1000 + k, 0.08), false], [walk(5000 + k, 0, 60, 0.51), true]] as const) {
+        const b = bestFastSplit(x)!;
+        if (b.t < 4 || b.gap < 0.45) continue;
+        const over = stepOverWalk(x, b.at) >= 12;
+        if (isStep) { stepFlagged++; if (over) stepOver++; } else { walkFlagged++; if (over) walkOver++; }
+      }
+    }
+    expect(walkFlagged).toBeGreaterThan(40);
+    expect(walkOver / walkFlagged).toBeLessThan(0.35);
+    expect(stepOver / stepFlagged).toBeGreaterThan(0.25);
+    expect(stepOver / stepFlagged).toBeGreaterThan(2 * (walkOver / walkFlagged));
+  });
+  it("is zero for a split at either end or a sequence too short to fit", () => {
+    const x = walk(7, 0.05, 20);
+    expect(stepOverWalk(x, 0)).toBe(0);
+    expect(stepOverWalk(x, 20)).toBe(0);
+    expect(stepOverWalk([0, 1, 0, 1, 0], 2)).toBe(0);
+  });
+  it("autoWalkMin sets a higher bar for a panel whose pace wanders, ignores quick turns, and needs AGREEMENT_MIN_RESPONDENTS", () => {
+    const quiet = Array.from({ length: 20 }, (_, k) => walk(300 + k, 0));
+    const wander = Array.from({ length: 20 }, (_, k) => walk(300 + k, 0.08));
+    expect(autoWalkMin(wander, 0.9)!).toBeGreaterThan(autoWalkMin(quiet, 0.9)! + 1);
+    const quickTurns = quiet.map((x, k) => (k < 6 ? x.map((v, i) => (i >= 30 ? v - 0.8 : v)) : x));
+    expect(autoWalkMin(quickTurns, 1)).toBe(autoWalkMin(quiet, 1));
+    expect(autoWalkMin(quiet, 1, 50)).toBe(50);
+    expect(autoWalkMin(quiet.slice(0, AGREEMENT_MIN_RESPONDENTS - 1), 1)).toBeNull();
+    // With `engage`, a panel whose pace does not wander gets no bar at all; one that wanders gets the same bar as without.
+    expect(autoWalkMin(quiet, 0.9, 0, 0.003)).toBe(0);
+    expect(autoWalkMin(wander, 0.9, 0, 0.003)).toBe(autoWalkMin(wander, 0.9));
+  });
+  it("panelWalkRatio reads 0 for a panel that holds still or drifts along lines, even with blocks in it, and more for one that wanders", () => {
+    const lines = Array.from({ length: 20 }, (_, k) => walk(700 + k, 0).map((v, i) => v - (k % 5 - 2) * 0.3 * (i / 59)));
+    const blocked = lines.map((x, k) => (k < 8 ? x.map((v, i) => (i >= 30 ? v - 0.51 : v)) : x));
+    expect(panelWalkRatio(lines)).toBe(0);
+    expect(panelWalkRatio(blocked)).toBe(0);
+    expect(panelWalkRatio(Array.from({ length: 20 }, (_, k) => walk(700 + k, 0.08)))).toBeGreaterThanOrEqual(0.01);
+    expect(panelWalkRatio([[0, 1, 2]])).toBe(0);
+  });
+});
+
 describe("autoFastBlockMinLog", () => {
   const seq = (k: number) => Array.from({ length: 30 }, (_, i) => (i % 2 ? 0.05 : -0.05) * (1 + k / 10));
   it("sits at the floor for a quiet panel, at FAST_BLOCK_MIN_LOG for one whose people slow down by 0.5 or more, and in between otherwise", () => {
@@ -449,6 +505,22 @@ describe("fastBlockStarts", () => {
     // A step of 0.45 on top of the same line is still a block.
     expect([...fastBlockStarts(panel(10, 40, ms(0.45)))].sort()).toEqual([["p0", 20], ["p1", 20]]);
     expect(() => fastBlockStarts(panel(10, 40, ms(0.3)), undefined, "auto", undefined, undefined, -1)).toThrow();
+  });
+  it("asks for a step a wandering pace would not make, but only when the panel's pace is seen to wander", () => {
+    // Twenty people, 60 answers each, 0.35 log noise (seeded). In the first panel everyone's pace wanders as a random walk
+    // of N(0, 0.08) log per answer and nobody is careless: without the wander test (walkQ 0, the rule before 2026-11-14)
+    // three honest people are flagged, with it none. In the second nobody wanders and three turn 0.55x quick at answer
+    // 30: the panel's walk ratio reads 0, the test is not engaged, and the same three are found either way.
+    const draws = (seed: number) => { let s = seed >>> 0; const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 2 ** 32; }; return () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u()); };
+    const seqs = (sd: number, blocks: number) => Array.from({ length: 20 }, (_, k) => { const z = draws(400 + k); let l = 0; return Array.from({ length: 60 }, (_, i) => { if (i) l += sd * z(); return 3000 * Math.exp(l + 0.35 * z() - (k < blocks && i >= 30 ? 0.6 : 0)); }); });
+    const answers = (q: number[][]): AnswerTime[] => Array.from({ length: 60 }, (_, i) => q.map((x, p) => ({ participantId: `p${p}`, ms: x[i] }))).flat();
+    const flagged = (a: AnswerTime[], walkQ?: number) => [...fastBlockStarts(a, undefined, "auto", undefined, undefined, undefined, walkQ).keys()].sort();
+    const wander = answers(seqs(0.08, 0)), blocks = answers(seqs(0, 3));
+    expect(flagged(wander, 0)).toEqual(["p11", "p18", "p3"]);
+    expect(flagged(wander)).toEqual([]);
+    expect(flagged(blocks, 0)).toEqual(["p0", "p1", "p2"]);
+    expect(flagged(blocks)).toEqual(["p0", "p1", "p2"]);
+    expect(() => fastBlockStarts(wander, undefined, "auto", undefined, undefined, undefined, 1.5)).toThrow();
   });
   it("does not take one person's steady speed-up over the whole session for a block", () => {
     // p0 gets steadily quicker, to 0.3x by the last answer: a split finds a gap over 0.5 with a large t, but a line fits

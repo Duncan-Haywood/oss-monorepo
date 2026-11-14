@@ -216,10 +216,15 @@ person's own pace drifting by 0.6 log, honest flags fell from 7.5% to 4.8% at th
 harm recovered. Since the last change that day a turn must also leave a step of that size once the
 person's own steady speed-up or slow-down is fitted alongside it, which cut honest flags under the
 same drift from about 5% to about 2%, again at the same share of the harm recovered (and 97% rather
-than 99% where nobody drifts). A pace that wanders at random rather than steadily still fools it
-more often. A comparison for now (same file, "Carelessness that starts
+than 99% where nobody drifts). Since 2026-11-14, when the panel's pace is seen to wander at
+random (one walk-to-noise ratio fitted to everyone's times at once), a turn must also be a step a
+wandering pace would not make, scored against the panel's own slow turns: with everyone's pace
+wandering 0.08 log per answer, honest flags fell from 17% to 3.4%; where nobody wanders the test
+stays off (96% of the harm recovered against 97%). Under such wander it also finds fewer of the
+careless, so timing alone stays weak there. A comparison for now (same file, "Carelessness that starts
 mid-session", "A panel curve the careless cannot drag down", "A threshold from the panel's own
-slow turns", "A later-pass curve that drift cannot lift" and "A step net of the person's own trend").
+slow turns", "A later-pass curve that drift cannot lift", "A step net of the person's own trend"
+and "A step a wandering pace cannot make").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once

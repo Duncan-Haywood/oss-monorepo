@@ -250,32 +250,21 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      History and every measurement: README, docs/INFORMATION-GAIN-
-      SELECTOR.md, docs/CONVERGENCE.md and docs/REAL-RANKINGS.md.
-      Insights screen, staged-by-default at every list length, the
-      closed pooled-prior work, the sparse long-list overclaim (f), the
-      uncapped weighted schemes (g), half-time salience (b), mid-session
-      blocks (d), the upper-quantile panel curve, the per-survey
-      threshold with the step test, the later-pass median curve (d4) and
-      the net-step test (d5) are written up there. Latest (2026-11-13,
-      "A step net of the person's own trend";
-      docs/fast-blocks-net-step-2026-11-13.jsonl): a block must leave a
-      step of at least the gap threshold on top of the person's own
-      line (FAST_BLOCK_NET_SHARE); under 0.6 log drift honest flags 5.4%
-      to 2.0%, same ceiling share; drift 0 keeps 97% vs 99%. A pace that
-      wanders as a random walk still fools it (--person-walk 0.08: 20%
-      honest flagged). Next, most valuable first: (c) the first real
-      survey's answers: msToAnswer against the answer-time model, how
-      much each person's own pace drifts or wanders (decides whether
-      fast-blocks should be offered at all), whether real people have
-      warm-ups, blocks or spread-out carelessness, and how noisy real
-      pairwise answers are (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d6) a block test a random-walk pace cannot pass
-      (e.g. a change-point model against a local-level model, or a
-      sup-F threshold set from each panel's own slow turns); (d3)
-      position bias that starts mid-session; (h) share-drop beat both
-      pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a
-      real panel's times.
+      History and every measurement: README, docs/INFORMATION-GAIN- SELECTOR.md, docs/CONVERGENCE.md and
+      docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list length, the closed pooled-prior
+      work, the sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time salience (b),
+      mid-session blocks (d), the upper-quantile panel curve, the per-survey threshold with the step test, the
+      later-pass median curve (d4) and the net-step test (d5) are written up there. Latest (2026-11-14, "A step a
+      wandering pace cannot make"; docs/fast-blocks-walk-2026-11-14.jsonl): when panelWalkRatio >= 0.008 a block
+      must beat a random-walk level (stepOverWalk) at the 0.9 quantile of the panel's slow turns; walk 0.08:
+      honest flags 17.1% to 3.4%, careless found 0.47 to 0.18; no wander 96% vs 97%. Next, most valuable first:
+      (c) the first real survey's answers: msToAnswer against the answer-time model, panelWalkRatio on real times
+      (decides whether fast-blocks is worth offering), whether real people have warm-ups, blocks or spread-out
+      carelessness, and how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d3)
+      position bias that starts mid-session; (d7) under wander, a block test that reads answers as well as times
+      (a block's picks agree less with the panel); (h) share-drop beat both pace cuts at q = 1 but taxes a camp by
+      up to 0.030: decide on a real panel's times.
+
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
