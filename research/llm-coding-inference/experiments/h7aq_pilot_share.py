@@ -94,7 +94,7 @@ def run(c, reps):
             pilot, sb = pilots[d][:k], random.Random(c["seed"] + 7 * d)
             labels = {i: h[i] for i in pilot}
             passed = sum(1 for i in pilot if h[i] and not f[i]) >= A.NEG_GUARD
-            plan = A.plan_audit(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=0.0, pseudo=0.0,
+            plan = A.plan_audit_pre7ar(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=0.0, pseudo=0.0,
                                 fallback_pseudo=fb, two_phase=False, fallback_two_phase=ftp, price_floor=pf,
                                 no_info=ni)
             if plan["design"] == "pooled" and k < len(pilots[d]):

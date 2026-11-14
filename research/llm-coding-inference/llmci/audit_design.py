@@ -10,9 +10,13 @@ TAU = 0.1  # minimum pilot informedness J_hat for coder cells (LOG.md 7ah, 7ai: 
 GUARD = 0  # minimum human positives in the pilot (6al set 20; LOG.md 7ai: at 1% prevalence that sent every draw to
 #           pooled and gave up 15% of width; NEG_GUARD and TAU now do its job; guard=20 restores the 6al screen)
 TAU_6AM, GUARD_6AM = 0.3, 20  # the screen shipped from 6am to 7ah; experiments before 7ai compare against it
-PILOT_SHARE = 0.3  # suggested pilot share (no function reads it). LOG.md 7aq: on 39 GoEmotions cells 0.3 keeps only 67% of
-#                   the shipped rule's width gain at 0.5 (coverage unchanged), because the 3-miss guard passes less often; prefer
-#                   a pilot of about n/2. The value stays until a pre-registered check changes it.
+PILOT_SHARE = 0.7  # suggested pilot share (no function reads it). LOG.md 7ar (pre-registered, 51 cells): the shipped rule's
+#                   summed width gain rises with the pilot (0.3: 3.007, 0.5: 4.418, 0.7: 5.506) at 93% coverage or more, as
+#                   the 3-miss guard passes more often; with the plan held to n labels (BUDGET_CAP, post hoc) 0.7 still gains
+#                   5.140. Was 0.3 until 7ar (7aq: 0.3 keeps only 67% of the gain at 0.5). Use it with BUDGET_CAP on.
+PILOT_SHARE_PRE7AR = 0.3  # the suggested share before 7ar; experiments before 7ar read it so each replays as committed
+BUDGET_CAP = True  # plan_audit's default: a cells plan never labels more than n items (`cap_to_budget`; LOG.md 7ar found an
+#                   uncapped plan up to 20% over budget at a 0.7n pilot). Experiments before 7ar call `plan_audit_pre7ar`.
 NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7w); the default since 7w, neg_guard=0 turns it off
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)
 WIDTH_MARGIN = 0.0  # keep cells only if the pilot's `predicted_ratio` <= 1 - WIDTH_MARGIN (LOG.md 7ak: removed all 7 cells
@@ -224,7 +228,7 @@ def priced_two_phase(n, cells, pilot_y, s2, floor=FLOOR, neg_only=False, pseudo=
 
 def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
                pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO, two_phase=False, fallback_two_phase=FALLBACK_TWO_PHASE,
-               price_floor=PRICE_FLOOR, no_info=1.0, budget_cap=False):
+               price_floor=PRICE_FLOOR, no_info=1.0, budget_cap=BUDGET_CAP):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -249,7 +253,7 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     labels. price_floor (LOG.md 7ap, default PRICE_FLOOR): a two-phase plan's allocation and width forecast price the
     pseudo-count floor at the second-phase size (`priced_two_phase`). The plan then also carries "phase2", one flag
     per cell. no_info (LOG.md 7ap, post hoc): passed to `predicted_ratio`; float("inf") sends a pilot the forecast cannot
-    read to pooled instead of letting the margin-0 gate accept it. budget_cap (LOG.md 7ar, default False): a one-phase
+    read to pooled instead of letting the margin-0 gate accept it. budget_cap (LOG.md 7ar, default BUDGET_CAP = True): a one-phase
     cells plan never labels more than n items in all (`cap_to_budget`); without it a pilot larger than a cell's
     allocation overspends."""
     idx = sorted(pilot_y)
@@ -294,8 +298,8 @@ def cap_to_budget(need, rest):
     """Scale per-cell top-ups down so they sum to at most `rest` (largest remainders get the leftover units). When the
     pilot already holds more of one cell than its allocation, `cell_allocation`'s top-ups sum to more than n minus the
     pilot, so an uncapped cells plan labels more than n items. LOG.md 7ar: at a pilot of 0.7n that reached 18% over
-    budget (1.5B gratitude n 1,000); at 0.5n and below it did not occur in the cells checked. Off by default
-    (`plan_audit(..., budget_cap=False)`) so every committed experiment replays."""
+    budget (1.5B gratitude n 1,000; 23 of 51 cells over budget on average); at 0.5n one cell was, by 0.06% on average,
+    and at 0.4n none. On by default since 7ar; `plan_audit_pre7ar` turns it off so earlier experiments replay."""
     rest, tot = max(0, rest), sum(need)
     if tot <= rest:
         return list(need)
@@ -304,6 +308,12 @@ def cap_to_budget(need, rest):
     for j in sorted(range(len(raw)), key=lambda j: raw[j] - out[j], reverse=True)[:rest - sum(out)]:
         out[j] += 1
     return out
+
+
+def plan_audit_pre7ar(*args, **kw):
+    """`plan_audit` as it was before LOG.md 7ar (no budget cap), for the experiments committed before it."""
+    kw.setdefault("budget_cap", False)
+    return plan_audit(*args, **kw)
 
 
 def audit_interval(plan, f_all, labels, z=1.959964):

@@ -641,8 +641,8 @@ def test_budget_cap_keeps_cells_plan_within_n():
         pilot = random.Random(seed).sample(range(N), 280)
         lab = {i: h[i] for i in pilot}
         kw = dict(tau=A.TAU, guard=0, neg_guard=3, width_margin=None, pseudo=0.0, fallback_pseudo=None)
-        loose = A.plan_audit(f, lab, n, **kw)
-        tight = A.plan_audit(f, lab, n, budget_cap=True, **kw)
+        loose = A.plan_audit_pre7ar(f, lab, n, **kw)
+        tight = A.plan_audit(f, lab, n, **kw)  # BUDGET_CAP is on by default since 7ar
         assert loose["design"] == tight["design"] == "cells"
         assert len(lab) + sum(tight["to_label"]) <= n
         over += len(lab) + sum(loose["to_label"]) > n

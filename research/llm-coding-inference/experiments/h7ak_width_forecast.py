@@ -136,13 +136,13 @@ def run(c, reps):
             if c["part"] == "goemo":
                 pilot, sb = pilots[d], random.Random(c["seed"] + 7 * d)
             else:
-                pilot, sb = rr.sample(range(N), round(A.PILOT_SHARE * n)), rr
+                pilot, sb = rr.sample(range(N), round(A.PILOT_SHARE_PRE7AR * n)), rr
             labels = {i: h[i] for i in pilot}
             ps = [labels[i] for i in sorted(labels)]
             fs = [f[i] for i in sorted(labels)]
             admit = name != "pooled" and A.screen(ps, fs, tau, 0, ng) == "cells"
             pr = A.predicted_ratio(f, labels, n) if admit else None
-            plan = A.plan_audit(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=m)
+            plan = A.plan_audit_pre7ar(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=m)
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb.sample([i for i in cell if i not in labels], t):
                     labels[i] = h[i]
