@@ -56,6 +56,7 @@ from __future__ import annotations
 
 import struct
 from array import array
+from typing import Any
 
 from shootflow import raw_develop as rd
 
@@ -170,6 +171,7 @@ def unpack12_le(buf: bytes, count: int) -> array:
     """Two sensels in three bytes, the first in the low 12 bits: (b0 | (b1 & 15) << 8), (b1 >> 4 | b2 << 4)."""
 
     out = array("H", [0]) * count
+    np: Any
     try:
         import numpy as np
     except ImportError:
