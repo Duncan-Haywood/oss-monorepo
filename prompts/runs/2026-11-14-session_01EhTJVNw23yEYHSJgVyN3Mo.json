@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNw23yEYHSJgVyN3Mo",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products prompt); routed to creative/0",
+  "input_sha256": "2f2741dc5cbf65efa654a22863a53f9f721c410f76c23fa84d0677a80e99a7b5",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T14:02:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Saints by Candlelight episode 116 (Acts 19)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 15872,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The scheduled input asks for revenue-generating software, but the router drew the creative track (weight 0.1). I followed the router as the owner's allocation system; the two instructions pull in different directions."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-saints-by-candlelight-116-silversmiths-riot-at-ephesus.md"
+  ],
+  "goal": null,
+  "notes": "Project saints-by-candlelight, piece paul-and-the-silversmiths-in-the-theatre-at-ephesus (episode 116, sequel to 115). Text only: audio folders at 474 MB > 400 MB cap. Checks: node generate.mjs --check-script ok (7989 words incl. front matter); node generate.mjs wrote 3 files; node --test in ventures/saints-by-candlelight: 0 failures. Adversarial re-read fixed: 'knelt on the beach' (that is Acts 21:5 at Tyre, not Miletus) removed; Paul's short-and-bald looks attributed to the Acts of Paul and Thecla in the notes; Colossians 1:7 and 4:13 added for Epaphras and the Lycus valley churches.",
+  "corrections": [],
+  "redteam": null
+}
