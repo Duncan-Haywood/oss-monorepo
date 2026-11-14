@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T05:05:30Z",
   "ended": "2026-11-14T06:06:07Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 75.03,
+  "tokens_in": 10224656,
+  "tokens_out": 51383,
+  "cost_usd": 4.4136,
+  "tool_calls": 77,
   "task": "research/buildbot-sheathing milestone 16: softening nails (tested 8d-in-OSB backbone) against Weiss's missing-nail walls",
   "projects": [
     "research/buildbot-sheathing"
@@ -59,5 +61,85 @@
   "goal": null,
   "notes": "Routed research by draw; ideas inbox, website requests and security queue empty. pick_track drew buildbot-sheathing (the aerolog-scaling draw was redrawn for an open PR). Milestone 16 results: H70 (reduces to milestone 14, 0.000%), H71 (spacing ratios within 6%), H73 and H74 held; H72 (softening explains Weiss) refuted: 20.1-20.4% loss at every backbone, against 20.4% rigid-plastic. Mechanism: the perimeter nails slip 11-12 mm together at the sheet's peak. Backbone from Shameli Derakshan, Zhou and Ni 2019 (MOC Summit), Table 2, read from its PDF. Checks run here: pytest tests/test_softnail.py, test_racking.py and test_paper.py (12 passed); cite_check ok; build.py, research_live_links and check_md_links (see the PR). No agent doc: the LOG.md entry is what the next run reads (pick_track points there).",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dfbc711c-b34f-5424-b5b7-81797a9f945b",
+    "transcripts": 1,
+    "first": "2026-11-14T05:05:30Z",
+    "last": "2026-11-14T06:20:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 142,
+        "output": 51383,
+        "thinking": 12519,
+        "cache_read": 10052664,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171850,
+        "api_equivalent_usd": 4.4136,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 142,
+      "output": 51383,
+      "thinking": 12519,
+      "cache_read": 10052664,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171850,
+      "api_equivalent_usd": 4.4136,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 59,
+      "Write": 5,
+      "WebSearch": 4,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 75.03,
+      "active_minutes": 75.03,
+      "model_minutes": 9.29,
+      "tool_minutes": 65.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a structural engineer sourcing a nail backbone, writing and verifying a nonlinear pushover solver, running the sweep and writing up: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 543.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
