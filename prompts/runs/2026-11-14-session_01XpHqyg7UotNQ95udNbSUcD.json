@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyg7UotNQ95udNbSUcD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T05:39:00Z",
+  "ended": "2026-11-14T05:53:17Z",
+  "wall_minutes": 14.49,
+  "tokens_in": 10687185,
+  "tokens_out": 72748,
+  "cost_usd": 5.2656,
+  "tool_calls": 73,
+  "task": "Deepen (flagship 5) einvoice-preflight: the other NT 2025.002 RTC events",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15745",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "venture test run first exited 1 on platform/ci/inherited_keys.py: an unguarded TYPE_TEXT[spec.type] lookup; the same pattern on RTC_EVENTS[tpEvento] was a real crash for tpEvento 'constructor'. Fixed with Object.hasOwn and a test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: was at 1948 of 2000 characters, so replacing one item needed shortening a second landed item to fit the cap."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-einvoice-brazil-reform-events-one-word.md",
+    "ventures/einvoice-preflight/eval/nfe-rtc-events-2026-11-14.md"
+  ],
+  "goal": "ship a deeper Brazil reform-event check on the flagship",
+  "notes": "Sources: 12 event XSDs + tiposBasico from the stackin-io/data-source mirror of the official v1.40 package (SHA-256 pinned); NT 2025.002 v1.51 section 8 and MOC 5.8.4 from higajooj/dfe_law_reference. Verification: eval/nfe-rtc-events-xsd-diff.mjs 3516/3516 agree with xmllint (2672 invalid); eval/nfe-event-xsd-diff.mjs 199/199 after refactor; public corpus 48 files, 38 read, 29 distinct, 0 schema faults; nfe-rtc-events.test.mjs 11 tests + nfe-event/report tests pass; Playwright smoke of the Brazil page at 375px, no console errors. Finding: 212110/212120 schemas say 'Opera\u00e7\u00e3o' where the NT prints 'Opera\u00e7\u00f5es'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4bd0e06f-1c51-5576-bf65-757652338878",
+    "transcripts": 1,
+    "first": "2026-11-14T05:39:00Z",
+    "last": "2026-11-14T05:53:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 126,
+        "output": 72748,
+        "thinking": 10763,
+        "cache_read": 10472601,
+        "cache_write_5m": 0,
+        "cache_write_1h": 214458,
+        "api_equivalent_usd": 5.2656,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 126,
+      "output": 72748,
+      "thinking": 10763,
+      "cache_read": 10472601,
+      "cache_write_5m": 0,
+      "cache_write_1h": 214458,
+      "api_equivalent_usd": 5.2656,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 65,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.49,
+      "active_minutes": 14.49,
+      "model_minutes": 10.58,
+      "tool_minutes": 3.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a developer reading 12 Portuguese schemas and NT sections, writing the checker, differential and corpus run",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 303.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

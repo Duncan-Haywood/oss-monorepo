@@ -1,9 +1,9 @@
 ---
 title: "Brazil's reform events: twelve schemas, and one word the manual gets wrong"
-seo_title: "NF-e reform events 112110-212120 and 110001: schema checks and a description trap"
+seo_title: "NF-e reform events 112110 to 212120: schema checks and a trap"
 date: 2026-11-14
 tags: [einvoice-preflight, ventures]
-description: "The checker now reads every NF-e event of Brazil's IBS/CBS reform that has a schema, and the cancellation. The technical note prints one description differently from its schema."
+description: "Every NF-e reform event with a schema is now checked, plus the cancellation. The NT prints one event description differently from its schema."
 ---
 
 Brazil's IBS/CBS reform adds more to the NF-e than new tax groups. It also adds a family of
