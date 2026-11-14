@@ -5,6 +5,7 @@ import { basename } from 'node:path';
 import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize } from './gabc.mjs';
 import { eventsToMidi } from './midi.mjs';
 import { lrc } from './lrc.mjs';
+import { eventsToMusicXml } from './musicxml.mjs';
 import { cueSheet } from './cues.mjs';
 import { suggestFinal, splitVoices, describeSplit, MENS_RANGE, TENOR_RANGE, BASS_RANGE, BARITONE_RANGE, TENOR2_RANGE, CHOIRS, CHOIR_NAMES, choirUnison, fewestSections } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
@@ -14,7 +15,7 @@ import { parseSingers, singersChoir, singersReport, fewestSectionsForSingers, si
 import { pathToFileURL } from 'node:url';
 
 const USAGE = `usage: node cli.mjs --singers FILE.csv [--sit-out N]   (report the section ranges a range test gives, and exit)
-       node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--choir NAME] [--singers FILE.csv] [--sit-out N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--second-tenors] [--tenor LOW-HIGH] [--tenor2 LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
+       node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--choir NAME] [--singers FILE.csv] [--sit-out N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--second-tenors] [--tenor LOW-HIGH] [--tenor2 LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--musicxml FILE] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
@@ -43,6 +44,7 @@ const USAGE = `usage: node cli.mjs --singers FILE.csv [--sit-out N]   (report th
   --drone   add a held drone on the final, an octave below
   --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file; with --sections, a guidance line opens each section (backing, first note to pitch from, the band's entry, the lifted key)
   --lrc     write timed lyrics (LRC, one line per phrase) to this file
+  --musicxml  write the choir's score (MusicXML 4.0: one part per section with --split-voices, Latin under the notes, 4/4 with ties across barlines, section names as rehearsal marks) to this file, for MuseScore, Dorico, Sibelius or Finale
   --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
   --auto-final  transpose to the recommended final from --suggest-final (a chant wider than E2-E4 is refused)
   --intro   N bars of silence before the chant (the backing plays under them; cues, lyrics and markers shift to match)
@@ -86,6 +88,7 @@ export function run(argv) {
     else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
     else if (a === '--lrc') args.lrc = argv[++i];
+    else if (a === '--musicxml') args.musicxml = argv[++i];
     else if (a === '--suggest-final') args.suggest = true;
     else if (a === '--auto-final') args.auto = true;
     else if (a === '--intro') args.intro = Number(argv[++i]);
@@ -309,6 +312,11 @@ export function run(argv) {
     writeFileSync(args.lrc, lrc(events, { bpm: args.bpm }, parsed.header.name || ''));
     summary.lrc = args.lrc;
   }
+  if (args.musicxml) {
+    if (!hasNotes) return { code: 2, text: '--musicxml: no notes' };
+    writeFileSync(args.musicxml, eventsToMusicXml(events, { title: parsed.header.name || basename(args.file, '.gabc'), bpm: args.bpm, plan }));
+    summary.musicxml = args.musicxml;
+  }
   if (args.out) {
     const title = parsed.header.name || basename(args.file, '.gabc');
     let backing = null;
@@ -340,8 +348,10 @@ export function run(argv) {
         ...(summary.singers?.sittingOut.length ? [`sitting out: ${summary.singers.sittingOut.map((t) => `${t.name} ${t.notes} of ${t.of} notes (${t.pitches})`).join('; ')}`] : []),
         ...summary.warnings.map((w) => `warning: ${w}`),
         ...(summary.wrote ? [`wrote ${summary.wrote}`] : []),
+        ...(summary.musicxml ? [`wrote ${summary.musicxml}`] : []),
       ].join('\n');
-  return { code: 0, text };
+  // the final events go back to callers (eval/musicxml-check.mjs), not to the terminal
+  return { code: 0, text, events };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

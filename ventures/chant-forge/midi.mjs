@@ -42,6 +42,9 @@ function track(timed) {
   return chunk('MTrk', out);
 }
 
+// does a note tagged `voice` ('all', 'tenor', 'tenor+baritone', ...) belong to section `keep`?
+export const sings = (voice, keep) => voice === 'all' || (typeof voice === 'string' && voice.split('+').includes(keep));
+
 export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'chant', drone = false, velocity = 80, backing = null, markers = false } = {}) {
   const ticksPerPulse = PPQ / pulsesPerBeat;
   const usPerBeat = Math.round(60_000_000 / bpm);
@@ -89,7 +92,6 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
   // With baritones (voices like 'tenor+baritone') a Baritones track (channel 6) sits between them
   // and a note goes to every section its voice names.
   const split = events.some((e) => e.type === 'note' && e.voice);
-  const sings = (voice, keep) => voice === 'all' || (typeof voice === 'string' && voice.split('+').includes(keep));
   const baritones = split && events.some((e) => e.type === 'note' && sings(e.voice, 'baritone') && e.voice !== 'all');
   // With second tenors (voices like 'tenor2+baritone') a Second tenors track (channel 7) follows
   // the first tenors' track, which is then named First tenors.
