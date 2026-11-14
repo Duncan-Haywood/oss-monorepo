@@ -128,7 +128,9 @@ def maker_note(reader: rd._Reader, exif: rd.Ifd | None) -> tuple[rd._Reader, rd.
     note's start, the older "OLYMP\\0" from the file's TIFF header.
     """
 
-    mn = exif.get(TAG_MAKER_NOTE) if exif is not None else None
+    if exif is None:
+        return None
+    mn = exif.get(TAG_MAKER_NOTE)
     if not mn or len(mn) < 16:
         return None
     note = bytes(mn)
