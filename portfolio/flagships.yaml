@@ -7,7 +7,9 @@
 #
 # `portfolio/router/allocate.py` ranks these first, in this order, with the
 # task "Deepen (flagship N): <next>". A run that lands a slice of `next`
-# rewrites it to the following milestone in the same PR. The owner can
+# rewrites it to the following milestone in the same PR
+# (`python3 portfolio/router/flagship_next.py replace <venture> OLD NEW` edits
+# the folded text without rewrapping and checks the 2,000-character cap). The owner can
 # reorder, add or drop entries; agents may too, with the evidence in the PR.
 #
 # `inputs_only: <what is missing>` marks a flagship whose every listed item

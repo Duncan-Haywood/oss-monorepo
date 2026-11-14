@@ -17,6 +17,10 @@ apart (before either opens a PR) usually get different rows.
 The table cuts each flagship's `next:` at 500 characters;
 `allocate.py --venture <slug>` prints one row in full, with the open PRs
 naming it and when work on it last landed on main.
+`flagship_next.py show|replace|set <venture>` edits one flagship's `next:`
+(or `buildable:`, `inputs_only:`, `why:`) as plain text: it rewraps the
+folded scalar, refuses a `next:` over validate.py's 2,000-character cap, and
+re-reads the file to prove no other field moved.
 
 **2026-08-24 direction:** the router ranks work, but the fleet's default is
 product shipping, not router maintenance. Prefer dispatchable `in-repo`

@@ -992,3 +992,62 @@ class ClaimCheckTest(unittest.TestCase):
         mine = [self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
         lines = report(self.decide(mine, "x", mine=3), "x", now, 24)
         self.assertFalse(any("--allow-empty" in l for l in lines), lines)
+
+
+class FlagshipNextEditTest(unittest.TestCase):
+    """flagship_next.py rewrites one folded field and nothing else."""
+
+    def setUp(self):
+        import flagship_next
+        self.f = flagship_next
+        self.text = Path(FLAGSHIPS_PATH).read_text()
+        self.rows = flagship_next.load(self.text)
+
+    def test_cap_matches_validate(self):
+        import validate
+        self.assertEqual(self.f.NEXT_MAX, validate.FLAGSHIP_NEXT_MAX)
+
+    def test_rewrite_round_trips_every_field_of_the_real_file(self):
+        text = self.text
+        for v, row in self.rows.items():
+            for field in self.f.FIELDS:
+                if row.get(field):
+                    text = self.f.rewrite(text, v, field, row[field])
+        self.assertEqual(self.f.load(text), self.rows)
+
+    def test_only_the_edited_block_changes(self):
+        v = next(iter(self.rows))
+        out = self.f.rewrite(self.text, v, "next", "Open: (1) one item; (2) another.")
+        self.assertEqual(self.f.load(out)[v]["next"], "Open: (1) one item; (2) another.")
+        old, new = self.text.split("\n"), out.split("\n")
+        a, b, _ = self.f.locate(old, v, "next")
+        self.assertEqual(old[:a], new[:a])
+        self.assertEqual(old[b:], new[a + 2:])
+
+    def test_over_cap_and_spacing_are_refused_or_kept(self):
+        v = next(iter(self.rows))
+        with self.assertRaises(self.f.EditError):
+            self.f.rewrite(self.text, v, "next", "x " * 1001)
+        odd = "two  spaces kept; " + "word " * 60 + "end"
+        out = self.f.rewrite(self.text, v, "next", odd)
+        self.assertEqual(self.f.load(out)[v]["next"], odd)
+
+    def test_replace_cli_deletes_an_item_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "f.yaml"
+            p.write_text(self.text)
+            v = next(iter(self.rows))
+            words = self.rows[v]["next"].split(" ")
+            item = " ".join(words[3:6])
+            if self.rows[v]["next"].count(item) != 1:
+                self.skipTest("sample item not unique")
+            rc = self.f.main(["--file-path", str(p), "replace", v, item, ""])
+            self.assertEqual(rc, 0)
+            got = self.f.load(p.read_text())[v]["next"]
+            self.assertNotIn(item, got)
+            self.assertNotIn("  ", got.replace(self.rows[v]["next"], ""))
+            self.assertEqual(self.f.main(["--file-path", str(p), "replace", v, "zzz-absent", "y"]), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

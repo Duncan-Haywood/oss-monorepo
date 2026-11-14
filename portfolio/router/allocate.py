@@ -511,7 +511,8 @@ def next_task(v: Venture) -> str:
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
-            f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append)."
+            f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
+            "`python3 portfolio/router/flagship_next.py replace <venture> OLD NEW` edits it without rewrapping)."
         )
     if not v.measured:
         claim = v.untested_hypothesis
@@ -928,7 +929,8 @@ def venture_report(name: str, ventures: list[Venture],
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
         lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
-                     "so replace the item you land rather than appending)")
+                     "so replace the item you land rather than appending: "
+                     "portfolio/router/flagship_next.py show|replace|set edits the folded text and checks the cap)")
         lines.append(v.flagship_next or "(none written)")
     else:
         lines.append("task: " + next_task(v))
