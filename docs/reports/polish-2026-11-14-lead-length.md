@@ -1,3 +1,7 @@
+---
+kind: polish
+date: 2026-11-14
+---
 # Polish 2026-11-14: answer-lead length cap
 
 Picked from `polish-2026-11-13-answer-lead-style.md`, item 2 ("Long leads").
