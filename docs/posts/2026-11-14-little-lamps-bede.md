@@ -1,6 +1,6 @@
 ---
 title: "Little Lamps: Bede and the last sentence"
-seo_title: "Saint Bede bedtime story for children: the monk who counted on his fingers"
+seo_title: "Saint Bede bedtime story: the monk who counted on his fingers"
 date: 2026-11-14
 tags: [fiction, little-lamps, bedtime-story, saints]
 description: "A new Little Lamps bedtime story: Saint Bede of Jarrow, who counted on his fingers, spread our way of counting years and finished his last sentence."
