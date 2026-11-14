@@ -3,7 +3,7 @@ title: "The gap was the search: an integer program, a missed roster, and re-solv
 seo_title: "Is the optimality gap the bound or the search? A shift scheduling case"
 date: 2026-11-14
 tags: [scheduling, shift-roster-builder, optimization, operations-research]
-description: "A 60-person week sat $30.11 above its proven lower bound. HiGHS showed a valid roster $0.36 above it, so the search was at fault. Re-solving each day as an assignment problem closes most of it in 2 seconds."
+description: "A 60-person week sat $30.11 above its bound. HiGHS found a valid roster $0.36 above it; re-solving one day at a time closes most of that in 2 s."
 ---
 
 The [Shift Roster Builder](../../ventures/shift-roster-builder/) proves its
