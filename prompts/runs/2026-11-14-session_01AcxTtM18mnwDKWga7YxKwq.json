@@ -33,7 +33,8 @@
   "tests_added": 5,
   "outcome": "success",
   "errors": [
-    "An uncapped min-width:max-content first draft made service-load-check's table overflow its card at 1,280px. The before/after screenshot caught it, and calc-size() capped it at 15em before the commit."
+    "An uncapped min-width:max-content first draft made service-load-check's table overflow its card at 1,280px. The before/after screenshot caught it, and calc-size() capped it at 15em before the commit.",
+    "Report front matter used subject 'platform/pages'; test_doc_index requires a bare directory name ('pages'). Caught by run_workflow_locally --for-changes and fixed in the PR."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -65,7 +66,7 @@
     "docs/reports/polish-2026-11-14-select-clip.md"
   ],
   "goal": null,
-  "notes": "select-clip.mjs on built dist, 606 pages with a select. Before: 390px 139 pages/268 selects/70 crushed; 1280px 192/379/59. After: 390px 135/206/6; 1280px 188/347/34. check.mjs: publishable, 9421 pages, no dead links. node --test platform/pages/select-fit.test.mjs: 5/5. node --test platform/pages/*.test.mjs: 1636 tests, 1610 pass, 0 fail (the rest skipped).",
+  "notes": "select-clip.mjs on built dist, 606 pages with a select. Before: 390px 139 pages/268 selects/70 crushed; 1280px 192/379/59. After: 390px 135/206/6; 1280px 188/347/34. check.mjs: publishable, 9421 pages, no dead links. node --test platform/pages/select-fit.test.mjs: 5/5. node --test platform/pages/*.test.mjs: 1636 tests, 1610 pass, 0 fail (the rest skipped). run_workflow_locally --for-changes: only failure was test_doc_index (fixed); wall-framing-takeoff node --test: 1205 pass, 0 fail. No GitHub check runs appeared on the PR, so it merged on these local checks.",
   "corrections": [],
   "redteam": null,
   "usage": {
