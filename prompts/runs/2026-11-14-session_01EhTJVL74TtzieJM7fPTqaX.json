@@ -47,7 +47,7 @@
     "docs/posts/2026-11-14-a-3-kb-webassembly-loop-brought-24-team-leagues-into-the-page.md"
   ],
   "goal": "flagship deepening: the 'next' item '24 and 25 teams in the page (... or a step in WebAssembly)'",
-  "notes": "minPlusStep's inner loop moved to a 3 KB WebAssembly SIMD module (wasm/minplus.c, wasm/build.sh, embedded base64), with the table permutations inside it and homeMasks built one xor per entry. The same tables bit for bit (Float64 sums kept in the JS order). Step 0.80 -> 0.15 ms at 12 matches. Page floor-priced step old vs new, same cached lists, 11 runs at 20-25 teams: 903 s -> 218 s, the same runs/results/frontier in all (eval/wasm-step.txt). carryOverFloorPriced maxTeams 22 -> 25. Headless Chromium: the module loads on the page thread and in a module worker and equals the JS loop. Verification: run_venture_tests.py league-schedule-generator (517 tests; see PR) and venture-preflight.",
+  "notes": "minPlusStep's inner loop moved to a 3 KB WebAssembly SIMD module (wasm/minplus.c, wasm/build.sh, embedded base64), with the table permutations inside it and homeMasks built one xor per entry. The same tables bit for bit (Float64 sums kept in the JS order). Step 0.80 -> 0.15 ms at 12 matches. Page floor-priced step old vs new, same cached lists, 11 runs at 20-25 teams: 903 s -> 218 s, the same runs/results/frontier in all (eval/wasm-step.txt). carryOverFloorPriced maxTeams 22 -> 25. Headless Chromium: the module loads on the page thread and in a module worker and equals the JS loop. Verification: run_venture_tests.py league-schedule-generator (1 suite run, 0 failed); venture-preflight.mjs league-schedule-generator: preflight clean.",
   "corrections": [],
   "redteam": null
 }
