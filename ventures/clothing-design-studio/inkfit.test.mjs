@@ -86,8 +86,10 @@ test("inks given to the index separation are used for the dots; the flat column 
 test("chosen inks are never further from the painting than the flat inks at the distance chosen for", () => {
   const im = card();
   const base = separate(im, { colours: 3, garment: "#ffffff", widthCm: 14, minFeatureMm: 1 });
+  let atThree;
   for (const metres of [1, 3]) {
     const pick = chooseIndexInks(im, base, { metres });
+    if (metres === 3) atThree = pick;
     assert.equal(pick.candidates[0].label, "flat inks");
     const flat = pick.candidates[0].deltaE;
     const got = perceivedDeltaE(pick.idx, pick.idx.labels, sigmaAt(metres));
@@ -95,6 +97,9 @@ test("chosen inks are never further from the painting than the flat inks at the 
     assert.equal(pick.refit, pick.inks.join() !== base.inks.map(i => i.hex).join());
     if (metres === 3) assert.ok(pick.refit && got < flat - 0.5, `3 m: refit should help a wide ramp (${flat} -> ${got})`);
   }
-  // repeatable
-  assert.deepEqual(chooseIndexInks(im, base, { metres: 3 }).inks, chooseIndexInks(im, base, { metres: 3 }).inks);
+  // repeatable: a second call gives the same inks and scores as the one above (two calls, not three: each
+  // 3 m choice is about 1.2 s)
+  const again = chooseIndexInks(im, base, { metres: 3 });
+  assert.deepEqual(again.inks, atThree.inks);
+  assert.deepEqual(again.candidates, atThree.candidates);
 });
