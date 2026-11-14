@@ -115,6 +115,14 @@ MUTANTS = {
     "opt-out keeps counters": (
         'try { localStorage.removeItem(KEY); } catch { /* storage is optional */ }', '',
     ),
+    # 2026-11-14: the red-team escape, and the persistence no suite reloaded to see.
+    "blocked storage read as an opt-out": (
+        "    // A blocked or full store must never be read as consent.\n    return false;",
+        "    // A blocked or full store must never be read as consent.\n    return true;",
+    ),
+    "opt-out forgotten on the next page load": (
+        'try { localStorage.setItem(OPT_OUT, "1"); } catch { /* storage is optional */ }', '',
+    ),
 }
 
 
@@ -129,6 +137,7 @@ EVENT_MUTANTS = {
     "Do Not Track ignored": ("navigator.doNotTrack === '1' || ", ""),
     "opt-out ignored": ("return ls.getItem(OPT_OUT) !== 'true';", "return true;"),
     "blocked storage throws": ("  } catch {\n    return null;\n  }", "  } finally {}"),
+    "opt-out forgotten on the next page load": ("ls.setItem(OPT_OUT, enabled ? 'false' : 'true');", ""),
 }
 
 
