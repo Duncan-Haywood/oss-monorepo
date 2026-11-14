@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -22,6 +22,8 @@ import {
   isEgressRefusal,
   originFromCatalog,
   resolveBaseUrl,
+  scopeToSite,
+  parseArgs,
 } from './indexnow.mjs';
 import { INDEXNOW_KEY, indexNowKeyFileName } from '../pages/build.mjs';
 
@@ -522,4 +524,50 @@ test('the hint it prints is a command git accepts', () => {
   // Either shape of "no such branch" is fine; what must NOT appear is the
   // doubled tracking name the old hint produced.
   assert.doesNotMatch(stderr, /origin\/definitely-not-a-branch-xyz/);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-marketing.json):
+// a foreign or out-of-path <loc> made IndexNow reject the whole request, a
+// typo'd flag fell through to a dry run, and the summary counted skipped
+// child sitemaps as read.
+test('scopeToSite keeps only URLs on the base host and under its path', () => {
+  const { kept, dropped } = scopeToSite(
+    [`${BASE}a/`, 'https://evil.test/site/a/', 'https://example.test/outside/', 'http://example.test/site/b/', 'not a url', BASE],
+    BASE,
+  );
+  assert.deepEqual(kept, [`${BASE}a/`, BASE]);
+  assert.equal(dropped.length, 4);
+});
+
+test('the CLI leaves foreign and out-of-path sitemap URLs out of the payload, and says so', () =>
+  withFixtureDir(async (dir) => {
+    await fs.writeFile(
+      path.join(dir, 'shop-rate-calculator/sitemap.xml'),
+      urlset([`${BASE}shop-rate-calculator/`, 'https://evil.test/site/x/', 'https://example.test/outside/']),
+    );
+    const res = spawnSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
+    assert.equal(res.status, 0, res.stderr);
+    assert.match(res.stdout, /indexnow: 8 URL\(s\)/); // 5 catalogue + 3 sitemap-only
+    assert.match(res.stderr, /2 URL\(s\) are not under/);
+    assert.doesNotMatch(res.stdout, /evil\.test/);
+  }));
+
+test('the CLI reports how many child sitemaps it actually read', () =>
+  withFixtureDir(async (dir) => {
+    await fs.rm(path.join(dir, 'shop-rate-calculator/sitemap.xml'));
+    const out = execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8', stdio: 'pipe' });
+    assert.match(out, /from 2 of 3 published sitemap\(s\)/);
+  }));
+
+test('parseArgs refuses unknown flags and a flag with no value', () => {
+  assert.throws(() => parseArgs(['--sumbit']), /unknown argument "--sumbit"/);
+  assert.throws(() => parseArgs(['--ref']), /--ref needs a value/);
+  assert.throws(() => parseArgs(['--dir', '--submit']), /--dir needs a value/);
+  assert.deepEqual(parseArgs(['--submit', '--ref', 'x']), { submit: true, ref: 'x', dir: null, baseUrl: null });
+});
+
+test('the CLI exits 2 on a typo rather than doing a dry run', () => {
+  const res = spawnSync(process.execPath, [SCRIPT, '--sumbit'], { encoding: 'utf8' });
+  assert.equal(res.status, 2);
+  assert.match(res.stderr, /unknown argument/);
 });
