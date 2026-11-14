@@ -1743,7 +1743,8 @@ const RELATIVE_SELF = relative(
 // +1: `water-supply-sizing` graduated.
 // +1: `estate-item-divider` graduated.
 // +1: `gaussian-process-regression` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1326;
+// +1: `rrule-explainer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1327;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.

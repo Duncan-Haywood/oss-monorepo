@@ -1,0 +1,19 @@
+# RRULE Explainer: see every date an iCalendar recurrence rule makes
+
+> Free RRULE tester. From an iCalendar recurrence (RFC 5545 RRULE with DTSTART, RDATE and EXDATE, or a bare FREQ=... plus a start) it prints the rule in plain English, every date it produces with the UTC time and the clock changes it crosses (a skipped 02:30 is read with the offset before the jump; a repeated 01:30 is the first), and findings: months a rule on the 29th-31st skips (with the fixed rule), rules that never fire, a DTSTART the rule does not make (RFC counts it, python-dateutil drops it), dates that change with WKST, BYDAY lists mixing MO and 2TU (python-dateutil intersects them), COUNT with UNTIL, UNTIL of the wrong type or not in UTC, and parts RFC 5545 forbids for the FREQ. Runs in the browser; nothing is uploaded. A zero-dependency CLI does the same in a terminal or CI job.
+
+Free and open source (MIT). Dates come from this tool's own implementation of RFC 5545; its python-dateutil mode gives exactly python-dateutil 4.0.0's dates on 1,600 random rules. It is not legal or professional advice, and calendar apps differ.
+
+## Pages
+
+- [The tool](https://marisstella.app/rrule-explainer/)
+- [Why a recurring event skips months, or shows up twice](https://marisstella.app/rrule-explainer/why-recurring-event-skips-months.html)
+
+## For agents
+
+- Engine: `rrule.mjs`. `analyze({ text, dtstart, tzid, limit, after, dtstartMode })`: `text` holds DTSTART/RRULE/RDATE/EXDATE lines, an event, a whole .ics (first event) or a bare `FREQ=...`; `dtstart` ("2026-01-05 09:00") and `tzid` ("Europe/Paris") fill in what the text lacks; `after` lists dates from a later day; `dtstartMode` is "rfc" (default) or "rule" (python-dateutil). Returns `description` (English), `occurrences` (`date`, `weekday`, `ical`, `source`, and with a zone `utc`, `offset`, `zone`: ok, gap or overlap, `actualLocal` for a gap), `findings` (`level`, `code`, `title`, `detail`, sometimes `fix`), `truncated`, `tz`. Lower level: `parseRule`, `parseInput`, `expand` (option `flavor: "dateutil"`), `describe`, `wallToInstant`. Callable through `node platform/agents/tools.mjs call rrule-explainer analyze --input '{"text":"FREQ=MONTHLY;BYDAY=-1FR","dtstart":"2026-01-30 17:00"}'` or the repository's MCP server (`call_tool`).
+- CLI: `node ventures/rrule-explainer/cli.mjs '<rule or event>' | file.ics | - [--start 2026-01-05T09:00] [--tz Zone] [--count N] [--from DATE] [--dateutil] [--json] [--strict]`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rrule-explainer): MIT licensed.
