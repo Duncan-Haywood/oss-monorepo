@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "run_workflow_locally flagged my new post's description (191 chars) and seo_title (78) as over limit; shortened, check_post_frontmatter clean"
+    "run_workflow_locally flagged my new post's description (191 chars) and seo_title (78) as over limit; shortened, check_post_frontmatter clean",
+    "committed the run record while platform/pages tests were building, which made the two-build determinism test differ; rerun clean"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +52,7 @@
     "docs/posts/2026-11-14-redteam-thirty-february-third-spelling.md"
   ],
   "goal": null,
-  "notes": "Targets: restaurant-delivery-commission-analyzer/calc.mjs and oncall-load-analyzer/calc.mjs (both changed on main in the last 3 days; suites ~1 s). Guard tightened: check_calendar_dates.py one-sided '|| d > 31' spelling; on the pre-fix tree it flagged oncall calc.mjs:47 and mailchimp calc.mjs:206; sales-agent slots.mjs 'b > 12 && b <= 31' left unflagged since slots.mjs round-trips at line 82 (verified: findSlots('2/30 at 3pm') returns []). Verification: run_venture_tests.py for the 3 ventures ok; python3 -m unittest test_check_calendar_dates 13 OK; check_calendar_dates clean; check_post_frontmatter clean; distribution hub and platform/pages suites rerun after the front matter fix (see PR).",
+  "notes": "Targets: restaurant-delivery-commission-analyzer/calc.mjs and oncall-load-analyzer/calc.mjs (both changed on main in the last 3 days; suites ~1 s). Guard tightened: check_calendar_dates.py one-sided '|| d > 31' spelling; on the pre-fix tree it flagged oncall calc.mjs:47 and mailchimp calc.mjs:206; sales-agent slots.mjs 'b > 12 && b <= 31' left unflagged since slots.mjs round-trips at line 82 (verified: findSlots('2/30 at 3pm') returns []). Verification: run_venture_tests.py for the 3 ventures ok; python3 -m unittest test_check_calendar_dates 13 OK; check_calendar_dates clean; check_post_frontmatter clean; distribution hub and after the front matter fix: platform/distribution hub tests 62/62; platform/pages full suite 1662 pass 1 fail ('identical build produces an identical cache name', because I wrote and committed this record mid-run and the two builds read prompts/runs/); build.test.mjs rerun on a still tree 313/313. GitHub checks were queued (runners starved) at merge time.",
   "corrections": [],
   "redteam": {
     "campaigns": [
