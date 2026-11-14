@@ -344,6 +344,23 @@ CHECKS = [
     ('crosses 50% at c 1.0914, index 2 0.8283', 'excavator_gear_pump_bench_results.txt', '50% crossing: c 1.0914, index 2 0.8283'),
     ('at the bench ratio c = 1.195 it gives 100.0%', 'excavator_gear_pump_bench_results.txt', 'c 1.195: central 9.033 L/h; median 7.43; beats 3.986: 100.0%'),
     ('median break-even rest-of-machine fuel rate of 8.08 L/h', 'excavator_gear_pump_bench_results.txt', 'S = 0.38: central 8.820 L/h at q_p 107.5; median 8.08'),
+    # milestone 6r: section 3.7r, the new abstract and section 6
+    ('RMS residual 5.62 points)', 'gear_pump_evidence_results.txt', 'pooled (29 points): E50 0.8212, w 0.0270; RMS residual 5.62 points'),
+    ('crosses 50% at 0.821;', 'gear_pump_evidence_results.txt', 'E50 0.8212'),
+    ("third maker's crossing within 0.012.", 'gear_pump_evidence_results.txt', 'GE2 every left-out crossing within 0.015: held (worst 0.0118)'),
+    ('E<sub>50</sub> 0.8212 and w 0.0270', 'gear_pump_evidence_results.txt', 'E50 0.8212, w 0.0270'),
+    ('(Casappa 4.19, Danfoss 5.60, Marzocchi 6.75; the largest single residual 13.43 points', 'gear_pump_evidence_results.txt', 'marzocchi: RMS 6.75, max |residual| 13.43 points'),
+    ('by &minus;0.0091 (Casappa), &minus;0.0118 (Danfoss) and +0.0062 (Marzocchi)', 'gear_pump_evidence_results.txt', 'marzocchi own crossing 0.8188, error +0.0062'),
+    ('worst left-out RMS residual is 8.91 points', 'gear_pump_evidence_results.txt', 'GE4 every left-out RMS < 10 points: held (8.91)'),
+    ('between 0.7619 and 0.8805', 'gear_pump_evidence_results.txt', '10% to 90% of geometries between E 0.7619 and 0.8805'),
+    ('Casappa catalogue 9.9% against 9.1%', 'gear_pump_evidence_results.txt', 'share 9.9%, curve 9.1%'),
+    ('Danfoss 70.1% against 73.3%', 'gear_pump_evidence_results.txt', 'share 70.1%, curve 73.3%'),
+    ('Marzocchi 99.5% against 94.4%', 'gear_pump_evidence_results.txt', 'share 99.5%, curve 94.4%'),
+    ('the bench family 100.0% against 96.8%', 'gear_pump_evidence_results.txt', 'share 100.0%, curve 96.8%'),
+    ('lies 7.3 points above it', 'gear_pump_evidence_results.txt', 'GE5 piston point within 15 points: held (+7.3)'),
+    ('crosses 50% at 0.8212.*', 'gear_pump_evidence_results.txt', 'E50 0.8212'),
+    ("the same pump at 0.759, 0.849 and 0.898", "excavator_gear_pump_marzocchi_results.txt", "index 2 (at Q20 85 L/min): 0.8975"),
+    ("best size (53.5 cc) still burns 11.5% more", "measured_fuel_time_results.txt", "53.5 cc, open-centre +107.9 mL (+11.5% of load-sensing fuel)"),
 ]
 
 
