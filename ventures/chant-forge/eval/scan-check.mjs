@@ -1,4 +1,7 @@
-// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew]
+// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--manifest FILE]
+//
+// --manifest reads another list of pieces in scan-pages.json's format (e.g.
+// eval/offfinal-supplement-pages.json) instead of scan-pages.json.
 //
 // --no-deskew reads every page square (readPage's { deskew: false }), to
 // compare against the reader as it is (eval/deskew-real-pages.md).
@@ -41,7 +44,7 @@ function page(item, leaf, width = 2000) {
   return readPgm(readFileSync(pgm));
 }
 
-const manifest = JSON.parse(readFileSync(join(here, 'scan-pages.json'), 'utf8'));
+const manifest = JSON.parse(readFileSync(opt('--manifest', join(here, 'scan-pages.json')), 'utf8'));
 const lines = [
   '# Corpus against the printed book, read off the scans',
   '',
