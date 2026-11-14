@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKjHNNYMmyvLvRxaozY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T07:17:55Z",
+  "ended": "2026-11-14T07:42:13Z",
+  "wall_minutes": 24.62,
+  "tokens_in": 6629890,
+  "tokens_out": 36404,
+  "cost_usd": 3.1041,
+  "tool_calls": 58,
+  "task": "verified-dse milestone 122: blind test of the amount-depth guard's threshold (drawn by pick_track.py)",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15772",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "3663f289a",
+    "360c071ef"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "analyse.py reused milestone 121's SWS(64), which reads only milestone 121's feature table, and raised KeyError on the first analysis of the blind table",
+      "fix": "defined SWS(64) over this milestone's FEAT (same definition); disclosed in the commit message"
+    },
+    {
+      "what": "first draft of the post and README claimed the clipped ranking wins on every shifter 4+ cells deep; on below-threshold cells the clipped ladder alone had 23.69% and 27.43%",
+      "fix": "narrowed every claim to ladder-branch cells before committing"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "says milestone flows like 121 take about 55 min on 4 cores; milestone 122's 1,440 runs took about 20 min here, so planning around the README figure overestimates"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a backgrounded `cd X && mkdir ... && (cmd) & (cmd2) &` ran the second group in the old cwd before mkdir finished (race); not a doc bug, but cloud-session.md could say to start each background job in its own run_in_background call"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-verified-dse-amount-depth-cut.md",
+    "research/verified-dse/LOG.md (milestone 122 entry)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration (designs, features, guards, 7 predictions) committed in 3663f289a before the flow run. Flow: 1,440 runs, 204 ABC failures (same 17 sequences as earlier milestones). 5 of 7 predictions held, (2) and (4) refuted. Checks run here: tests/test_amount_threshold.py and test_amount_depth.py 11 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post front matter, links and similarity ok. No agent doc in docs/reports: LOG.md's Next line is where the next verified-dse run looks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cd902832-95d3-5a6e-8783-2d5b0fc55c4b",
+    "transcripts": 1,
+    "first": "2026-11-14T07:17:55Z",
+    "last": "2026-11-14T07:42:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 107,
+        "output": 36404,
+        "thinking": 8021,
+        "cache_read": 6495209,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134574,
+        "api_equivalent_usd": 3.1041,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 107,
+      "output": 36404,
+      "thinking": 8021,
+      "cache_read": 6495209,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134574,
+      "api_equivalent_usd": 3.1041,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.62,
+      "active_minutes": 24.62,
+      "model_minutes": 7.26,
+      "tool_minutes": 17.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design three verified shifter families, pre-register, run and analyse a 1,440-point flow, write up paper/log/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 322.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
