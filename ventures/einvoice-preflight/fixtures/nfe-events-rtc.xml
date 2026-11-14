@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up events of every NT 2025.002-RTC type with a schema in the v1.40 package (other than
+     211110, fixtures/nfe-event-211110.xml), each on fixtures/nfe-4.00-reform.xml and sent by the
+     author its schema names: the issuer (12345678000195), the buyer (98765432000198) or a
+     successor company (11222333000181, a made-up CNPJ with valid check digits). Test values only:
+     every item value is at most the NF-e item's IBS (0.26 and 0.06) and CBS (2.34 and 0.54) and
+     every quantity at most its qCom (10 and 3 UN). NT 2025.002 section 8.2 advises sending these
+     events one at a time; one batch keeps the fixture short. -->
+<envEvento xmlns="http://www.portalfiscal.inf.br/nfe" versao="1.00">
+  <idLote>1</idLote>
+  <evento versao="1.00">
+    <infEvento Id="ID1121103526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>12345678000195</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>112110</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Informação de efetivo pagamento integral para liberar crédito presumido do adquirente</descEvento>
+        <cOrgaoAutor>35</cOrgaoAutor>
+        <tpAutor>1</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <indQuitacao>1</indQuitacao>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID1121303526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>12345678000195</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>112130</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Perecimento, perda, roubo ou furto durante o transporte contratado pelo fornecedor</descEvento>
+        <cOrgaoAutor>35</cOrgaoAutor>
+        <tpAutor>1</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <gPerecimento nItem="1"><vIBS>0.13</vIBS><vCBS>1.17</vCBS><gControleEstoque><qPerecimento>5.0000</qPerecimento><uPerecimento>UN</uPerecimento><vIBS>0.10</vIBS><vCBS>0.90</vCBS></gControleEstoque></gPerecimento>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID1121403526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>12345678000195</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>112140</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Fornecimento não realizado com pagamento antecipado</descEvento>
+        <cOrgaoAutor>35</cOrgaoAutor>
+        <tpAutor>1</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <gItemNaoFornecido nItem="1"><vIBS>0.13</vIBS><vCBS>1.17</vCBS><gControleEstoque><qNaoFornecida>5.0000</qNaoFornecida><uNaoFornecida>UN</uNaoFornecida></gControleEstoque></gItemNaoFornecido>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID1121503526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>12345678000195</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>112150</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Atualização da Data de Previsão de Entrega</descEvento>
+        <cOrgaoAutor>35</cOrgaoAutor>
+        <tpAutor>1</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <dPrevEntrega>2027-02-15</dPrevEntrega>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID2111243526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>98765432000198</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>211124</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Perecimento, perda, roubo ou furto durante o transporte contratado pelo adquirente</descEvento>
+        <cOrgaoAutor>33</cOrgaoAutor>
+        <tpAutor>2</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <gPerecimento nItem="1"><vIBS>0.13</vIBS><vCBS>1.17</vCBS><gControleEstoque><qPerecimento>5.0000</qPerecimento><uPerecimento>UN</uPerecimento></gControleEstoque></gPerecimento>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID2111283526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>98765432000198</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>211128</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Aceite de débito na apuração por emissão de nota de crédito</descEvento>
+        <cOrgaoAutor>33</cOrgaoAutor>
+        <tpAutor>2</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <indAceitacao>1</indAceitacao>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID2111303526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>98765432000198</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>211130</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Imobilização de Item</descEvento>
+        <cOrgaoAutor>33</cOrgaoAutor>
+        <tpAutor>2</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <gImobilizacao nItem="1"><vIBS>0.13</vIBS><vCBS>1.17</vCBS><gControleEstoque><qImobilizado>5.0000</qImobilizado><uImobilizado>UN</uImobilizado></gControleEstoque></gImobilizacao>
+        <gImobilizacao nItem="2"><vIBS>0.06</vIBS><vCBS>0.54</vCBS><gControleEstoque><qImobilizado>3.0000</qImobilizado><uImobilizado>UN</uImobilizado></gControleEstoque></gImobilizacao>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID2111403526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>98765432000198</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>211140</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Solicitação de Apropriação de Crédito de Combustível</descEvento>
+        <cOrgaoAutor>33</cOrgaoAutor>
+        <tpAutor>2</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <gConsumoComb nItem="1"><vIBS>0.13</vIBS><vCBS>1.17</vCBS><gControleEstoque><qComb>5.0000</qComb><uComb>UN</uComb></gControleEstoque></gConsumoComb>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID2111503526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>98765432000198</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>211150</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Solicitação de Apropriação de Crédito para bens e serviços que dependem de atividade do adquirente</descEvento>
+        <cOrgaoAutor>33</cOrgaoAutor>
+        <tpAutor>2</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <gCredito nItem="1"><vCredIBS>0.26</vCredIBS><vCredCBS>2.34</vCredCBS></gCredito>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID2121103526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>11222333000181</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>212110</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Manifestação sobre Pedido de Transferência de Crédito de IBS em Operação de Sucessão</descEvento>
+        <cOrgaoAutor>41</cOrgaoAutor>
+        <tpAutor>8</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <indAceitacao>1</indAceitacao>
+      </detEvento>
+    </infEvento>
+  </evento>
+  <evento versao="1.00">
+    <infEvento Id="ID2121203526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>11222333000181</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+      <tpEvento>212120</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Manifestação sobre Pedido de Transferência de Crédito de CBS em Operação de Sucessão</descEvento>
+        <cOrgaoAutor>41</cOrgaoAutor>
+        <tpAutor>8</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <indAceitacao>0</indAceitacao>
+      </detEvento>
+    </infEvento>
+  </evento>
+</envEvento>

@@ -115,13 +115,17 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeNfeEvent(peek)) {
-        // Brazil's presumed-credit appropriation event (211110): checked with the NF-e it names
-        // when that NF-e is in the same batch.
+        // Brazil's IBS/CBS reform events (NT 2025.002 section 8: 211110 and the others, and the
+        // cancellation 110001): checked with the NF-e it names when that NF-e is in the same
+        // batch, and a cancellation with the event it cancels.
         const key = /<(?:[A-Za-z0-9_]+:)?chNFe>\s*([0-9A-Z]{44})\s*</.exec(peek)?.[1];
         const pair = key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfe(o.source) && o.source.includes(`NFe${key}`));
-        const ev = checkNfeEvent(peek, pair ? { nfe: pair.source } : {});
+        const aut = /<(?:[A-Za-z0-9_]+:)?tpEventoAut>\s*(\d{6})\s*</.exec(peek)?.[1];
+        const cancelled = aut && key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfeEvent(o.source) && o.source.includes(key) && new RegExp(`<(?:[A-Za-z0-9_]+:)?tpEvento>\\s*${aut}\\s*<`).test(o.source));
+        const ev = checkNfeEvent(peek, { ...(pair ? { nfe: pair.source } : {}), ...(cancelled ? { cancelled: cancelled.source } : {}) });
         const m = ev.meta;
-        reports.push({ file: name, errors: ev.findings, envelope: `Read as a Brazilian NF-e presumed-credit appropriation event (211110)${m.layout ? `, layout ${m.layout === "1.40" ? "v1.40" : "of NT 2025.002 v1.20/v1.30"}` : ""}${pair ? ` with ${pair.name || "the NF-e"}` : ""}, not EN 16931${m.registered ? "; registered (cStat 135/136)" : ""}${m.tpAmb === "2" ? "; test environment (tpAmb 2)" : ""}`, ...(ev.skipped.length ? { skipped: ev.skipped } : {}) });
+        const kind = m.types?.length > 1 ? `batch of ${m.events} reform events (${m.types.join(", ")})` : m.tpEvento === "211110" || !m.name ? "presumed-credit appropriation event (211110)" : `event ${m.tpEvento} ("${m.name}")`;
+        reports.push({ file: name, errors: ev.findings, envelope: `Read as a Brazilian NF-e ${kind}${m.tpEvento === "211110" && m.layout ? `, layout ${m.layout === "1.40" ? "v1.40" : "of NT 2025.002 v1.20/v1.30"}` : ""}${pair ? ` with ${pair.name || "the NF-e"}` : ""}${cancelled ? ` and the cancelled event ${cancelled.name || ""}`.trimEnd() : ""}, not EN 16931${m.registered ? "; registered (cStat 135/136)" : ""}${m.tpAmb === "2" ? "; test environment (tpAmb 2)" : ""}`, ...(ev.skipped.length ? { skipped: ev.skipped } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeNfe(peek)) {

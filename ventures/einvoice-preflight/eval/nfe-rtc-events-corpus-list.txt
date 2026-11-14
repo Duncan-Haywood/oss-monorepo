@@ -1,0 +1,51 @@
+# Public NF-e reform-event XMLs GitHub code search returned on 2026-11-14 for gImobilizacao,
+# gConsumoComb, indQuitacao, gPerecimento, gItemNaoFornecido, dPrevEntrega, tpEventoAut,
+# vCredIBS and indAceitacao (extension:xml). owner/repo<TAB>path; files are downloaded, not copied.
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_110001-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_112110-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_112130-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_112140-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_112150-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_211124-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_211128-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_211130-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_211140-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_211150-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_212110-ped-eve.xml
+Unimake/Uninfe	exemplos xml/NFe e NFCe 4.00/Eventos/Evento_212120-ped-eve.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 110001.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 112110.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 112130.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 112140.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 112150.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 211124.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 211128 - 212110 - 212120.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 211130.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 211140.xml
+migrate-company/integracao-InvoiCy-BR	Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 211150.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_110001.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_112110.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_112130.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_112140.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_211124.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_211128.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_211130.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_211140.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_211150.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_212110.xml
+Unimake/DFe	source/Unimake.DFe.Test/NFe/Resources/envEvento_212120.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_110001.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_112110.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_112130.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_112140.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_211124.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_211128.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_211130.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_211140.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_211150.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_212110.xml
+Unimake/DFe	source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_212120.xml
+freecorps/freecorpsNFE	tests/fixtures/nfe/4.00/event-112110.xml
+freecorps/freecorpsNFE	tests/fixtures/nfe/4.00/event-112110-other-author.xml
+freecorps/freecorpsNFE	tests/fixtures/nfe/4.00/event-112130.xml
+freecorps/freecorpsNFE	tests/fixtures/nfe/4.00/event-112140.xml
