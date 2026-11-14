@@ -1819,6 +1819,21 @@ of 6 and refused the other 3; it never picked a different one. Across lensfun's 
 state a range, the four values pick one lens in 50.0% of cases (one f-number, as Canon gives: 46.6%).
 Details: `eval/lens-specification-2026-11-14.md`.
 
+### Olympus: lenses found from the maker note's Equipment IFD (2026-11-14)
+
+Olympus bodies of the Four Thirds and early Micro Four Thirds years (E-1 to E-600, the first PENs) write no
+EXIF lens name or LensSpecification, so their files gave nothing to match. Their maker note has an Equipment
+block with the lens's focal range, its widest f-number at each end and usually a name. ShootFlow now reads it
+in all three layouts Olympus has used (the E-1's, the E-3-to-OM-D one and OM System's), and ORF files are
+read for these facts (their header magic was refused before). The range picks a lens when one lensfun lens
+fits; when several do, the maker note's own name ("OLYMPUS M.14-42mm F3.5-5.6 II R") breaks the tie among
+them, and a generic one ("OLYMPUS 14-54mm Lens") leaves it refused with the list.
+
+On 18 real ORFs and four Olympus JPEGs, eight frames from seven bodies that gave no lens before are now
+identified, and every pick is the lens metadata-extractor's independent decoder names for the same file.
+Develop still takes DNG or CR2, so this reaches ORF and JPEG shot facts and a future ORF developer.
+Details: `eval/olympus-equipment-2026-11-14.md`.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its

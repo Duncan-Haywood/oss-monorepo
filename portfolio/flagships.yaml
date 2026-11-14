@@ -237,11 +237,14 @@ flagships:
       Canon-mount cases, the rest refused as ties); any maker's LensSpecification,
       DNG LensInfo and Nikon's maker-note lens tag are matched the same way, both
       f-numbers, since 2026-11-14 (eval/lens-specification-2026-11-14.md: 50% of
-      lensfun's ranged lenses alone); next: Olympus's Equipment IFD (ORF magic) and
-      Pentax lens numbers; the whole numpy develop runs in threaded bands and packed
-      raws unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md:
-      same bytes at every thread count and band height); lossless-JPEG DNG tiles
-      decode on a thread pool since 2026-11-13
+      lensfun's ranged lenses alone); Olympus's Equipment IFD (3 layouts, ORF magic,
+      its lens name as tie-break) since 2026-11-14
+      (eval/olympus-equipment-2026-11-14.md: 8 real frames identified, each as
+      metadata-extractor names it); next: DNGPrivateData MakN for converted DNGs'
+      maker notes, Pentax lens numbers; the whole numpy develop runs in threaded
+      bands and packed raws unpack in numpy since 2026-11-13
+      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
+      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
       of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
       2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit

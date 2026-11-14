@@ -1100,7 +1100,7 @@ def spec_hint(ifd0, exif) -> LensHint | None:
         hint = _four_values_hint(v, f"file's {label}")
         if hint is not None:
             return hint
-    return _nikon_lens_hint(exif)
+    return _nikon_lens_hint(exif) or _olympus_lens_hint(exif)
 
 
 def _four_values_hint(v, source: str) -> LensHint | None:
@@ -1145,6 +1145,104 @@ def _nikon_lens_hint(exif) -> LensHint | None:
     return _four_values_hint(v, "Nikon maker note") if v and len(v) >= 4 else None
 
 
+OLYMPUS_EQUIPMENT = 0x2010  # Olympus maker note: the Equipment sub-IFD (Exiv2 "Equipment", ExifTool "Equipment")
+# Tags inside it, as Exiv2 and ExifTool name them; metadata-extractor's dumps of 18 real ORFs agree (eval/).
+OLY_LENS_MODEL = 0x0203
+OLY_MAX_APERTURE_MIN_FOCAL = 0x0205
+OLY_MAX_APERTURE_MAX_FOCAL = 0x0206
+OLY_MIN_FOCAL = 0x0207
+OLY_MAX_FOCAL = 0x0208
+OLY_MAX_APERTURE = 0x020A  # widest f-number at the shot's focal length
+
+
+def olympus_equipment(exif):
+    """The Equipment IFD of an Olympus or OM System maker note, or None.
+
+    Three layouts. "OLYMPUS\0" + byte order + 3 (E-3 onwards, the PENs, the OM-Ds) and "OM SYSTEM\0\0\0" +
+    byte order + 4 (OM-1 onwards) start their IFD 12 or 16 bytes in, and every offset in them counts from the
+    start of the note. The older "OLYMP\0" + version (E-1, E-300 and the compacts) starts its IFD 8 bytes in
+    but counts offsets from the file's TIFF header, so it is read through the buffer the EXIF IFD came from.
+    Tag 0x2010 is either a pointer (type LONG or IFD) or, on the E-1, the sub-IFD's bytes inline (UNDEFINED).
+    """
+
+    from shootflow.raw_develop import DevelopError, _Reader
+
+    mn = exif.get(TAG_MAKER_NOTE) if exif is not None else None
+    if not mn or len(mn) < 16:
+        return None
+    data = bytes(mn)
+    try:
+        if data.startswith(b"OLYMPUS\0") or data.startswith(b"OM SYSTEM\0"):
+            start = 8 if data.startswith(b"OLYMPUS\0") else 12
+            order = data[start:start + 2]
+            if order not in (b"II", b"MM"):
+                return None
+            # A TIFF header written over the note's first bytes, so the note's own offsets read unchanged.
+            buf = order + struct.pack("<H" if order == b"II" else ">H", 42) + data[4:]
+            reader = _Reader(buf)
+            note, _ = reader.read_ifd(start + 4)
+        elif data.startswith(b"OLYMP\0"):
+            at = getattr(exif, "offsets", {}).get(TAG_MAKER_NOTE)
+            source = getattr(exif, "source", None)
+            if source is None or at is None:
+                return None
+            reader = _Reader(source)
+            note, _ = reader.read_ifd(at + 8)
+        else:
+            return None
+        ptr = note.get(OLYMPUS_EQUIPMENT)
+        if not ptr:
+            return None
+        where = int(ptr[0]) if len(ptr) == 1 else note.offsets.get(OLYMPUS_EQUIPMENT)
+        if not where:
+            return None
+        equipment, _ = reader.read_ifd(where)
+    except (DevelopError, struct.error, IndexError, ValueError, OverflowError):
+        return None
+    return equipment
+
+
+def _olympus_f_number(v) -> float | None:
+    """Olympus stores f-numbers as APEX-like steps: f = sqrt(2) ** (v / 256), 0 when unknown."""
+
+    if not v:
+        return None
+    try:
+        f = math.sqrt(2) ** (int(v[0]) / 256)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return round(f, 2) if 0.5 <= f <= 64 else None
+
+
+def _olympus_lens_hint(exif) -> LensHint | None:
+    """Focal range and f-numbers from an Olympus maker note's Equipment IFD (0x0205 to 0x020A).
+
+    Four Thirds and early Micro Four Thirds bodies (E-30, E-410, E-600, E-P3, E-PL1, E-PM1 among the real
+    ORFs read here) write no EXIF LensModel or LensSpecification; the Equipment IFD still holds the lens's
+    shortest and longest focal length (whole mm), its widest f-number at each end and at the shot's focal
+    length. A manual lens leaves them 0 (the E-PL7 frame here), which gives None.
+    """
+
+    from shootflow.raw_develop import LensHint
+
+    eq = olympus_equipment(exif)
+    if eq is None:
+        return None
+    short, long_ = eq.one(OLY_MIN_FOCAL), eq.one(OLY_MAX_FOCAL)
+    if not short or not long_ or not (0 < short <= long_ < 10000):
+        return None
+    a1 = _olympus_f_number(eq.get(OLY_MAX_APERTURE_MIN_FOCAL))
+    a2 = _olympus_f_number(eq.get(OLY_MAX_APERTURE_MAX_FOCAL))
+    marked = (a1, a2) if a1 and a2 and a1 <= a2 * _APERTURE_TOLERANCE else None
+    if marked and a1 > a2:
+        marked = (a1, a1)  # a rounding hair apart on a constant-aperture lens
+    current = _olympus_f_number(eq.get(OLY_MAX_APERTURE))
+    raw_name = eq.get(OLY_LENS_MODEL)
+    name = bytes(raw_name).split(b"\0")[0].decode("ascii", "replace").strip() if raw_name else ""
+    return LensHint(float(short), float(long_), current, None, marked, "Olympus maker note's Equipment",
+                    name or None)
+
+
 def _lens_from_hint(db: LensDb, hint: LensHint, camera: Camera | None, crop: float, name: str | None,
                     notes: list[str]) -> Lens | None:
     """The one lens that fits the hint's focal range and aperture, or None with a note naming the field."""
@@ -1155,6 +1253,16 @@ def _lens_from_hint(db: LensDb, hint: LensHint, camera: Camera | None, crop: flo
         notes.append(f"lens identified as {found[0].name} from the {hint.source} ({said}): the only lens in the "
                      "database with that focal range and aperture (pass --lens if it is not)")
         return found[0]
+    if len(found) > 1 and hint.name:
+        # The maker note's own lens name, scored as a file's lens name would be, among the lenses that fit.
+        fits = {lens.name: lens for lens in found}
+        hits = [(score, lens) for score, lens in find_lenses(db, hint.name, camera, crop) if lens.name in fits]
+        best = [lens for score, lens in hits if score == hits[0][0]] if hits else []
+        if len({lens.name for lens in best}) == 1:
+            notes.append(f"lens identified as {best[0].name} from the {hint.source} ({said}, which fits "
+                         f"{len(fits)} lenses in the database) and its lens name {hint.name!r} "
+                         "(pass --lens if it is not)")
+            return best[0]
     if found:
         names = sorted(lens.name for lens in found)
         more = f" and {len(names) - 4} more" if len(names) > 4 else ""
