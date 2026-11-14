@@ -244,7 +244,9 @@ function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
     date,
     title: meta.title,
     seoTitle: meta.seo_title ? String(meta.seo_title) : (String(meta.title).length > TITLE_BUDGET ? autoSeoTitle(String(meta.title)) : undefined),
-    description: meta.description,
+    // Plain for <meta>, feeds, JSON-LD and the finder; `descriptionHtml` keeps `code` for the dek and cards.
+    description: plainDescription(meta.description),
+    descriptionHtml: descriptionHtml(meta.description),
     tags,
     topic: topicOf(tags, meta.topic, projects),
     source: `${POSTS_DIR}/${name}`,
@@ -374,6 +376,23 @@ export { TITLE_BUDGET };
 export function postPageTitle(headline) {
   const full = `${headline} · ${SITE_NAME}`;
   return full.length <= TITLE_BUDGET ? full : headline;
+}
+
+// A description may quote code (`curl | bash`). Before 2026-11-14 it went through esc() only, so the
+// dek, the blog cards and every search snippet showed the backticks; six posts did. Code spans only:
+// a description is one plain sentence, so emphasis and links are not read.
+const DESC_CODE = /(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)/g;
+const trimTicks = (c) => (c.length > 2 && c.startsWith(' ') && c.endsWith(' ') && c.trim() ? c.slice(1, -1) : c);
+export const plainDescription = (d) => String(d ?? '').replace(DESC_CODE, (_, _t, c) => trimTicks(c));
+export function descriptionHtml(d) {
+  const src = String(d ?? '');
+  let out = '';
+  let last = 0;
+  for (const m of src.matchAll(DESC_CODE)) {
+    out += esc(src.slice(last, m.index)) + `<code>${esc(trimTicks(m[2]))}</code>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(src.slice(last));
 }
 
 function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing', robots = '' }) {
@@ -603,7 +622,7 @@ export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes 
     .map(
       (p) => `<li data-slug="${esc(p.slug)}" data-topic="${esc(p.topic)}" data-tags="${esc(p.tags.join(' '))}" data-date="${p.date}" data-mins="${p.minutes}" data-text="${esc(cardText(p))}">
   <h2><a href="${up}${esc(p.slug)}/">${esc(p.title)}</a></h2>
-  <p>${esc(p.description)}</p>
+  <p>${p.descriptionHtml ?? esc(p.description)}</p>
   <p class="meta"><span class="topic">${esc(topicLabel(p.topic))}</span> <span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${p.minutes} min read</span></p>
 </li>`,
     )
@@ -864,7 +883,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
         : {}),
     },
     hero: `<h1>${esc(post.title)}</h1>
-<p class="dek">${esc(post.description)}</p>
+<p class="dek">${post.descriptionHtml ?? esc(post.description)}</p>
 <p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="tail">${tags ? `<span class="tags">${tags}</span> ` : ''}<span class="src"><a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span></span></p>`,
     body: `<article>
 ${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), toRoot)}
