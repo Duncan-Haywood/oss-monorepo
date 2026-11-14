@@ -2,7 +2,8 @@
 // noise a reader can see: "0.30000000000000004", "1.2999999999999998",
 // "14.000000000000002". It reads the rendered text on load, then again after
 // re-firing input/change on every field (so pages that compute on input have
-// computed) and after clicking each calculate-looking button.
+// computed), after clicking each calculate-looking button, and after nudging
+// each number field to an awkward decimal (a reader types 12.1, not 12).
 //
 // Why: the NaN/Infinity/undefined sweeps (check_page_runtime.js,
 // check_blank_inputs.js, ...) pass a page that prints an unrounded float,
@@ -13,6 +14,7 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import cp from 'child_process';
 import { createRequire } from 'module';
 
@@ -76,6 +78,8 @@ async function main() {
         await p.waitForTimeout(120);
         note('load', await read(p));
         await p.evaluate(() => {
+          // Keep submits on the page: the page's own handler still runs.
+          document.addEventListener('submit', (e) => e.preventDefault(), true);
           for (const e of document.querySelectorAll('input, select, textarea')) {
             if (['hidden', 'file', 'submit', 'button'].includes(e.type)) continue;
             for (const t of ['input', 'change']) try { e.dispatchEvent(new Event(t, { bubbles: true })); } catch (x) {}
@@ -94,13 +98,34 @@ async function main() {
           await p.evaluate((i) => {
             const b = document.querySelector(`[data-fn-click="${i}"]`);
             if (!b) return;
-            const form = b.closest('form');
-            if (form) form.addEventListener('submit', (e) => e.preventDefault(), { once: true });
             b.click();
           }, i).catch(() => {});
           await p.waitForTimeout(60);
         }
         if (n) note('click', await read(p));
+        // Nudge: give each filled number field an awkward decimal (12 -> 12.1,
+        // 0.5 -> 0.7), the inputs that make 0.1 + 0.2 show up in a sum.
+        const nudged = await p.evaluate(() => {
+          let k = 0;
+          for (const e of document.querySelectorAll('input[type=number], input[inputmode=decimal]')) {
+            const v = parseFloat(e.value);
+            if (!Number.isFinite(v) || e.readOnly || e.disabled) continue;
+            const step = e.getAttribute('step');
+            if (step && step !== 'any' && Number.isInteger(+step)) continue; // whole-number fields
+            e.value = String(v >= 1 ? Math.round(v * 10 + 1) / 10 : Math.round(v * 10 + 2) / 10);
+            for (const t of ['input', 'change']) try { e.dispatchEvent(new Event(t, { bubbles: true })); } catch (x) {}
+            k++;
+          }
+          return k;
+        });
+        if (nudged) {
+          await p.waitForTimeout(80);
+          for (let i = 0; i < n; i++) {
+            await p.evaluate((i) => { const b = document.querySelector(`[data-fn-click="${i}"]`); if (b) b.click(); }, i).catch(() => {});
+            await p.waitForTimeout(60);
+          }
+          note('nudge', await read(p));
+        }
       } catch (e) { /* navigation timeouts are other sweeps' business */ }
       if (seen.size) hits.push({ f, hits: [...seen].slice(0, 3).map(([h, s]) => `${s}: ${h}`) });
       if (p.url() !== 'about:blank') await p.goto('about:blank').catch(() => {});
@@ -116,4 +141,4 @@ async function main() {
   process.exit(hits.length ? 1 : 0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

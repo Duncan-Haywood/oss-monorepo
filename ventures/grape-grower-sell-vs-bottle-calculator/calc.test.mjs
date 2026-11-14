@@ -106,3 +106,10 @@ test("csv has four blocks", () => {
   assert.equal(csv.split("\n\n").length, 4);
   assert.match(csv, /sell_through_pct,wine_net,fruit_net/);
 });
+
+test("ladder labels stay rounded (row() used to spread the raw 3.5 * 0.8 back over them)", () => {
+  const a = analyze(DEFAULTS);
+  assert.deepEqual(a.yield.map((x) => x.tonsPerAcre), [2.1, 2.8, 3.5, 4.2]);
+  for (const x of a.grapePrice) assert.equal(x.grapePrice, Math.round(x.grapePrice));
+  assert.doesNotMatch(toCsv(a), /\.\d*(0{6,}[1-9]|9{6,}[0-8])/);
+});

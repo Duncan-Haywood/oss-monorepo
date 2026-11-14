@@ -135,6 +135,7 @@ const money = (n) => {
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 const percent = (n) => n === null ? 'n/a' : `${n.toFixed(1)}%`;
+const hours = (n) => String(Math.round(n * 100) / 100); // 4.7 x 3 is 14.100000000000001 in float
 const OUT_IDS = ['totalLine', 'flowerCostOut', 'flowerCostPerStemOut', 'roundingGapOut',
   'flowerRevenueOut', 'revenueGapOut', 'hardGoodsOut', 'designLaborOut', 'installLaborOut',
   'laborRuleOut', 'deliveryOut', 'minimumOut', 'cashCostOut', 'grossProfitOut', 'marginOut',
@@ -157,7 +158,7 @@ function update(count = false) {
     el('revenueGapOut').textContent = money(r.flowerRevenueGap);
     el('hardGoodsOut').textContent = money(r.hardGoodsRevenue);
     el('designLaborOut').textContent = money(r.designLabor);
-    el('installLaborOut').textContent = `${money(r.installLabor)} (${r.onSiteCrewHours} crew-hours)`;
+    el('installLaborOut').textContent = `${money(r.installLabor)} (${hours(r.onSiteCrewHours)} crew-hours)`;
     el('laborRuleOut').textContent = money(r.laborByPercentRule);
     el('deliveryOut').textContent = money(r.deliveryRevenue);
     el('minimumOut').textContent = money(r.minimumTopUp);
