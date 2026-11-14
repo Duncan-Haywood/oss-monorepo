@@ -367,6 +367,29 @@ def test_e23_horn_countermodel_definition_level():
     assert not e23.check(R2, 3, 2, 1)["d_fails"]
 
 
+
+def test_e24_separability_block_algebra():
+    """H28: separability is the exact no-A4a condition over complement-closed collections."""
+    import itertools
+    e24 = _load("e24_block_separation")
+    # E21's example miss (2 -> 0, 0 -> {0, 1}, 1 -> 1): no back witness, yet not separable
+    R = (0b011, 0b010, 0b001)
+    assert not e24.back(R, 3, 2, 0) and next(e24.separations(R, 3, 2, 0), None) is None
+    # 0 -> 0, 1 -> 0, 2 -> 1: v = 1 separable from w = 2; the four-block model fails there
+    R2 = (0b001, 0b001, 0b010)
+    wit = next(e24.separations(R2, 3, 2, 1))
+    r, nblocks = e24.check(R2, 3, 2, 1, *wit)
+    assert all(r.values()) and nblocks <= 4
+    # at 3 worlds: 36 (relation, world) pairs with a separable successor, none with a back witness
+    pairs = set()
+    for Rr in itertools.product(range(1, 8), repeat=3):
+        for w in range(3):
+            for v in range(3):
+                if Rr[w] >> v & 1 and next(e24.separations(Rr, 3, w, v), None) is not None:
+                    assert not e24.back(Rr, 3, w, v)
+                    pairs.add((Rr, w))
+    assert len(pairs) == 36
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

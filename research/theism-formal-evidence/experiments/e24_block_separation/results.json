@@ -1,0 +1,36 @@
+{
+ "by_size": {
+  "1": {
+   "relation_world_pairs": 1,
+   "back_condition_fails": 0,
+   "separable": 0
+  },
+  "2": {
+   "relation_world_pairs": 18,
+   "back_condition_fails": 0,
+   "separable": 0
+  },
+  "3": {
+   "relation_world_pairs": 1029,
+   "back_condition_fails": 60,
+   "separable": 36
+  },
+  "4": {
+   "relation_world_pairs": 202500,
+   "back_condition_fails": 14688,
+   "separable": 10464
+  }
+ },
+ "checked": 11628,
+ "all_ok": 11628,
+ "bad": [],
+ "sep_with_back": 0,
+ "max_blocks": 3,
+ "e21_misses": 24,
+ "e21_seen_pairs": 36,
+ "separable_pairs_3": 36,
+ "separable_not_seen": [],
+ "seen_not_separable": [],
+ "e21_match": true,
+ "seconds": 14.4
+}
