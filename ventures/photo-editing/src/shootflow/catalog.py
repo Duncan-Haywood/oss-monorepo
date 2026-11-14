@@ -22,6 +22,7 @@ _PHOTO_EXTENSIONS = {
     ".orf",
     ".raf",
     ".rw2",
+    ".srw",
     ".tif",
     ".tiff",
 }

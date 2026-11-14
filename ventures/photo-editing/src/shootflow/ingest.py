@@ -31,6 +31,7 @@ MEDIA_EXTENSIONS = {
     ".raf",
     ".r3d",
     ".rw2",
+    ".srw",
     ".tif",
     ".tiff",
     ".wav",

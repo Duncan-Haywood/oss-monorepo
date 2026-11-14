@@ -253,12 +253,12 @@ flagships:
     buildable: >-
       Public samples, no key: the proxy serves
       github.com/drewnoakes/metadata-extractor-images (a sparse checkout gave the
-      ARW, NEF, ORF and RW2 bodies, eval/*-reader-2026-11-14.md; it also holds pef/
-      4, raf/ 9 and srw/ 12 files). Read Pentax PEF, Fujifilm RAF or Samsung SRW
-      directly, sensel for sensel against LibRaw; RW2 lens from its JpgFromRaw maker
-      note and Sony maker-note lens names, from those same files. The DNG 1.7.1.0
-      spec PDF is reachable (URL in eval/opcode-spec-audit-2026-11-12.md): read it,
-      not memory.
+      ARW, NEF, ORF, RW2 and SRW bodies, eval/*-reader-2026-11-14.md; it also holds
+      pef/ 1 file (K-1 Mark II) and raf/ 3 (X-E1 and EX-2 X-Trans, S5500)). Read
+      Pentax PEF or Fujifilm RAF directly, sensel for sensel against LibRaw; Samsung
+      SRW lens name (maker note 0xA003) for lensfun; Sony maker-note lens names,
+      from those same files. The DNG 1.7.1.0 spec PDF is reachable (URL in
+      eval/opcode-spec-audit-2026-11-12.md): read it, not memory.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -268,18 +268,18 @@ flagships:
       profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
-      NEF, ORF, RW2 read directly since 2026-11-14 (eval/*-reader-2026-11-14.md);
-      RW2 lens from its JPEG's maker note (eval/panasonic-rw2-lens-2026-11-14.md).
-      Next, most valuable first: a real NEF with a split row; Sony maker-note lens
-      name and in-file lens corrections; a real DNG and a vignetting-calibrated lens
-      through the pipeline's lens stage; a real evenly lit frame shot wide open
-      (corners level after lensfun's vignetting?); a second maker-against-lensfun
-      DNG pair (a zoom at several focal lengths); a real DNG carrying any opcode run
-      only on synthetic files so far, or the SDK to check them; lateral colour
-      measured on a real frame with sharp corner edges; a real Adobe `.dcp` through
-      the profile chooser; newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not
-      found in that collection under their plain names); the DJI Phantom 4 DNG's
-      vignette lift against DJI's own render
+      NEF, ORF, RW2, SRW read directly since 2026-11-14
+      (eval/*-reader-2026-11-14.md); RW2 lens from its JPEG's maker note
+      (eval/panasonic-rw2-lens-2026-11-14.md). Next, most valuable first: a real NEF
+      with a split row; Sony maker-note lens name and in-file lens corrections; a
+      real DNG and a vignetting-calibrated lens through the pipeline's lens stage; a
+      real evenly lit frame shot wide open (corners level after lensfun's
+      vignetting?); a second maker-against-lensfun DNG pair (a zoom at several focal
+      lengths); a real DNG carrying any opcode run only on synthetic files so far,
+      or the SDK to check them; lateral colour measured on a real frame with sharp
+      corner edges; a real Adobe `.dcp` through the profile chooser; newer CR2s
+      (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that collection under their
+      plain names); the DJI Phantom 4 DNG's vignette lift against DJI's own render
       (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
       set; a phone DNG with its own JPEG of the frame (corrected corners); a
       tungsten-lit colour chart to say which colour model is closer (the 70D frame,
