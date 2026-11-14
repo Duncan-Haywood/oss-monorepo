@@ -21,6 +21,10 @@ candidate) and gated (keep the first candidate unless another beats it with a 95
 weights held fixed, entirely below zero). The test year is scored on all its rows (the reference) and
 regret is the picked candidate's test loss minus the best candidate's.
 
+Session 85 adds year Y-3 (full3, cc3, ipcw3: windows of 2 to 3 years, nearly complete at D) and
+--es-truncate, which early-stops the transfer model on only the sources' year Y-1 rows completed by D,
+as a deployment would; results then go to select_deploy_es_<held>_i2c_<year>.json.
+
 Run (one call per held-out city and test year):
   python3.13 src/select_deploy.py DIR --held austin --test-year 2021
   python3.13 src/select_deploy.py --summarise results/select_deploy_*_i2c_20*.json
@@ -33,7 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import censored_eval as ce  # noqa: E402
 
 TAUS = (0.5, 0.9)
-SETS = ("full1", "cc1", "ipcw1", "full2", "cc2", "ipcw2")
+SETS = ("full1", "cc1", "ipcw1", "full2", "cc2", "ipcw2", "full3", "cc3", "ipcw3")
 FLOOR = 0.05  # censored_eval's default weight floor (weight <= 20), not tuned here
 
 
@@ -71,13 +75,14 @@ def choose(loss, weeks, w, classes, tau):
 def evaluate(R, classes, test_year, taus=TAUS, floor=FLOOR):
     """R: censored_eval.fit(..., select=True) output carrying _select (year Y-1) and _select2 (Y-2)."""
     a = classes[0]
-    for key in ("_select", "_select2"):
+    keys = [(k, t) for k, t in (("_select", "1"), ("_select2", "2"), ("_select3", "3")) if k in R[a]]
+    for key, _ in keys:
         for k in classes[1:]:
             if not np.array_equal(R[k][key]["permit_id"], R[a][key]["permit_id"]):
                 raise SystemExit(f"configurations have different {key} rows")
     decision = datetime.date(test_year, 1, 1)
     sets, labels = {}, {}
-    for key, tag in (("_select", "1"), ("_select2", "2")):
+    for key, tag in keys:
         ws, labels["Y-" + tag] = set_weights(R[a][key], decision, floor)
         for name, w in ws.items():
             sets[name + tag] = (key, w)
@@ -87,7 +92,7 @@ def evaluate(R, classes, test_year, taus=TAUS, floor=FLOOR):
         best = min(classes, key=lambda k: (test[k], classes.index(k)))
         reg = {f"always_{k}": test[k] - test[best] for k in classes}
         by_set = {}
-        for s in SETS:
+        for s in [x for x in SETS if x in sets]:
             key, w = sets[s]
             loss = {k: R[k][key]["loss"] for k in classes}
             argmin, gated, table = choose(loss, R[a][key]["weeks"], w, classes, t)
@@ -108,10 +113,10 @@ def summarise(paths):
                                   cells_within_1day=int(sum(x <= 1 for x in reg)))
     out["agree_with_full1_argmin"] = {
         s: int(sum(t["sets"][s]["picks"]["argmin"] == t["sets"]["full1"]["picks"]["argmin"]
-                   for r in rows for t in r["by_tau"].values())) for s in SETS}
+                   for r in rows for t in r["by_tau"].values())) for s in SETS if s in rows[0]["by_tau"]["0.5"]["sets"]}
     out["cells"] = [dict(held=r["held_out"], year=r["test_year"], tau=t, best=v["test_best"],
-                         argmin={s: v["sets"][s]["picks"]["argmin"] for s in SETS},
-                         gated={s: v["sets"][s]["picks"]["gated"] for s in SETS})
+                         argmin={s: v["sets"][s]["picks"]["argmin"] for s in v["sets"]},
+                         gated={s: v["sets"][s]["picks"]["gated"] for s in v["sets"]})
                     for r in rows for t, v in r["by_tau"].items()]
     out["labels"] = {f'{r["held_out"]} {r["test_year"]}': r["labels"] for r in rows}
     return out
@@ -125,28 +130,32 @@ if __name__ == "__main__":
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--classes", nargs="+", default=["cascade2", "type", "cascade2_minsupdrop1000"], type=ce.class_arg)
     ap.add_argument("--summarise", nargs="+", help="result files to pool instead of fitting")
+    ap.add_argument("--es-truncate", action="store_true", help="session 85: early-stop on the sources' Y-1 rows completed by D")
+    ap.add_argument("--summary-name", default="select_deploy_summary.json")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
     if a.summarise:
         s = summarise(a.summarise)
-        json.dump(s, open(os.path.join(res_dir, "select_deploy_summary.json"), "w"), indent=1)
+        json.dump(s, open(os.path.join(res_dir, a.summary_name), "w"), indent=1)
         print(json.dumps(s["policies"], indent=1))
         print(json.dumps(s["agree_with_full1_argmin"]))
         for c in s["cells"]:
             print(c)
         sys.exit()
-    R = ce.fit(a.data_dir, a.held, a.test_year, a.seeds, a.classes, select=True)
+    R = ce.fit(a.data_dir, a.held, a.test_year, a.seeds, a.classes, select=True, es_truncate=a.es_truncate)
     by_tau, labels = evaluate(R, a.classes, a.test_year)
     res = dict(held_out=a.held, target="i2c", test_year=a.test_year, decision_date=f"{a.test_year}-01-01",
                seeds=a.seeds, classes=a.classes, n_test=int(len(R[a.classes[0]]["y"])), labels=labels,
                note="selection sets from the held-out city's years Y-1 and Y-2 (never read by the transfer "
                     "model); cc/ipcw keep rows completed by the decision date; test = all rows of year Y; "
                     "days of mean pinball loss; regret = picked minus best candidate's test loss",
-               minsup=getattr(ce.fit, "folds", {}), by_tau=by_tau)
-    out = os.path.join(res_dir, f"select_deploy_{a.held}_i2c_{a.test_year}.json")
+               minsup=getattr(ce.fit, "folds", {}), es_truncate=a.es_truncate,
+               source_es_rows={k: R[k].get("_es") for k in a.classes}, by_tau=by_tau)
+    tag = "_es" if a.es_truncate else ""
+    out = os.path.join(res_dir, f"select_deploy{tag}_{a.held}_i2c_{a.test_year}.json")
     json.dump(res, open(out, "w"), indent=1, default=lambda o: sorted(o) if isinstance(o, set) else str(o))
     print(json.dumps(labels))
     for t, v in by_tau.items():
         print(a.held, a.test_year, t, "best", v["test_best"], "test", {k: round(x, 2) for k, x in v["test_loss"].items()})
-        for s in SETS:
+        for s in v["sets"]:
             print("  ", s, v["sets"][s]["picks"], {k: round(x, 2) for k, x in v["sets"][s]["mean"].items()}, flush=True)

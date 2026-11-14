@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 85, 2026-11-14: (pre-registered; outcome below once the runs finish) a year Y-3 selection set and a transfer model that early-stops on what a deployment sees
+
+Why: session 84 found the deployable selector's regret sits in the long builds that a year Y-1 or Y-2 selection set has not yet seen at the decision date D = 1 January Y, and that the oracle full2 was as good as full1 (the loss is truncation, not staleness). Its "Next" asked for year Y-3, nearly complete at D, scored with a transfer model whose sources' early-stopping year is also cut as a deployment would see it.
+- New: `transfer.run(..., es_truncate=True)` early-stops on only the sources' year Y-1 rows completed by D (`transfer.completed_by`); the training rows (years <= Y-2) are unchanged. `select=True` also returns the held-out city's year Y-3 (`_select3`). `src/select_deploy.py --es-truncate` scores nine selection sets (session 84's six plus full3, cc3, ipcw3) and writes `results/select_deploy_es_<held>_i2c_<year>.json`. 2 new tests.
+Design (fixed before any run): candidates cascade2, type, cascade2_minsupdrop1000; `python3.13 src/select_deploy.py DIR --held H --test-year Y --es-truncate` for H = austin, sf, seattle and Y = 2021, 2022; q0.5 and q0.9: 12 cells; 3 seeds. Fresh pull of all three cities. Regret as session 84 (test year on all rows; picked minus best of three under this model).
+Predictions (written before any run):
+- (R1) ipcw3's gated rule has regret <= 0.2 days in 12 of 12 cells (session 84's "Next" bar).
+- (R2) The test-year best candidate under the truncated-ES model matches session 84's in at least 10 of 12 cells.
+- (R3) At least 85% of the target's Y-3 rows are completed by D in every city-year.
+- (R4) ipcw3's gated mean regret is lower than ipcw2's gated mean regret in the same runs.
+- (R5) Truncated early stopping moves each candidate's test-year loss by less than 2% (relative to session 84) in at least 30 of the 36 candidate-cells.
+Refuted if any part fails.
+
 ## Session 84, 2026-11-13: scored on the labels a deployment would have on 1 January, the per-city class selector's mean regret rises from 0.05 days to 0.58 at best, and in Seattle's tail the truncated year reverses the class contrast with an interval below zero (P1, P4, P5 held; P2, P3 refuted)
 
 Why: session 83's selector scored the target city's year Y-1 on complete labels from today's pull. A model shipped on 1 January of the test year sees only the Y-1 permits already completed by then, which removes the long builds that carry Austin's q0.9 advantage for the plain permit type (sessions 77 and 78). Its "Next" asked whether the picks survive that truncation.

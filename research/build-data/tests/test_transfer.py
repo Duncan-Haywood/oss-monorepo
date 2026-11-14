@@ -119,6 +119,23 @@ class Paired(unittest.TestCase):
         self.assertEqual(len(r1["_select2"]["start"]), n22)
         self.assertTrue(all(str(s).startswith("2022") for s in r1["_select2"]["start"]))
         np.testing.assert_array_equal(r1["_select"]["y"], fc["seattle"][fc["seattle"].year == 2023].y.to_numpy(float))
+        # session 85: and year Y-3
+        n21 = int((fc["seattle"].year == 2021).sum())
+        self.assertEqual(len(r1["_select3"]["loss"][0.9]), n21)
+        self.assertTrue(all(str(s).startswith("2021") for s in r1["_select3"]["start"]))
+
+    def test_es_truncate_keeps_only_source_rows_completed_by_the_decision_date(self):
+        """Session 85: es_truncate early-stops on the sources' year Y-1 rows completed by 1 January Y."""
+        import datetime
+        import pandas as pd
+        fc = self.frames("cascade2")
+        r = transfer.run(fc, "seattle", 2024, 1, select=True, es_truncate=True)
+        ca = pd.concat([fc[c][fc[c].year == 2023] for c in r["sources"]])
+        kept = transfer.completed_by(ca, datetime.date(2024, 1, 1))
+        self.assertEqual(r["n_source_es"], len(kept))
+        self.assertEqual(r["n_source_es_full"], len(ca))
+        end = pd.to_datetime(kept.start) + pd.to_timedelta(kept.y, unit="D")
+        self.assertTrue((end <= pd.Timestamp("2024-01-01")).all())
 
     def test_different_test_rows_are_refused(self):
         ft = self.frames("type")
