@@ -1,9 +1,9 @@
 ---
 title: "Why a crossing-path formula undercounts drone conflicts by 7%, and the one term that fixes it"
-seo_title: "Drone conflict rate closed form bias: Steiner's formula and the take-off term"
+seo_title: "Drone conflict closed-form bias: Steiner formula and the take-off term"
 date: 2026-11-14
 tags: [research, uav, airspace, geometric-probability]
-description: "Counting only crossing paths misses conflicts that begin at take-off. Steiner's formula gives the missing piR² term; adding it brings a closed form to 0.25% of the exact count."
+description: "A crossing-path formula misses drone conflicts that begin at take-off. Steiner's formula gives the missing πR² term; adding it closes a 7% gap to 0.25%."
 ---
 
 The `aerolog-scaling` programme estimates how often delivery drones from
