@@ -3,7 +3,7 @@ title: "The fade was plating all along"
 date: 2026-11-14
 tags: [cell-fidelity, batteries, simulation, pybamm, lithium-plating, sei, degradation, pre-registration]
 seo_title: "SEI or lithium plating: what drives fade in PyBaMM's DFN model?"
-description: "An ablation of PyBaMM's degradation options on 31 Li-ion electrode designs: irreversible plating causes 99 to 100% of 20-cycle fade, SEI under 1%. PyBaMM's lithium-loss variables also under-count."
+description: "Ablating PyBaMM's degradation options on 31 Li-ion designs: plating causes 99 to 100% of the fade, SEI under 1%, and a loss variable under-counts."
 ---
 
 The `cell-fidelity` programme looks for cheap ways to find the best lithium-ion electrode design without running PyBaMM's full DFN model on every candidate. For the last few steps the hard part has been capacity fade. On some cells, the designs that start with the most energy lose it fastest, so a short run picks the wrong winner.
