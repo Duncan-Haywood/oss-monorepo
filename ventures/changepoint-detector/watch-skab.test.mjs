@@ -69,3 +69,16 @@ test('the rules on made-up totals: ties in (a) of T6 fail, T7 needs 2 points of 
   x = rules({ quiet: t(50, 20, 30), middle: t(55, 18, 50), drift: t(40, 21.9, 20), hint3: t(51, 15, 40) }, 2.01);
   assert.deepEqual([x.T6, x.T7, x.T8], [true, false, false]);
 });
+
+test('round 12 as run: all three rules fail, and the hint and --columns texts say so', async () => {
+  const out = readFileSync(new URL('./eval/watch-skab.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /33 fault runs and 1 anomaly-free run, 8 sensors each/);
+  assert.match(out, /T6 hint3 vs quiet: \(a\) 118 vs 97 PASS; \(b\) 163\.4 vs middle 182\.7 PASS; \(c\) 28\.4% vs 36\.8% - 5 FAIL\. NOT CONFIRMED\./);
+  assert.match(out, /T7 drift vs quiet: \(a\) 25\.8% vs 36\.8% \+ 2 FAIL; \(b\) 175\.1 vs 69\.4 FAIL\. FAILS\./);
+  assert.match(out, /T8 quiet on all 8 columns of the normal run: 8\.54 lines per 100 checks vs 2 FAIL\. FAILS\./);
+  const { eagernessReplay, eagernessText } = await import('./watch-core.mjs');
+  const v = Array.from({ length: 120 }, (_, i) => Math.sin(i / 3) + (i > 80 ? 4 : 0));
+  assert.match(eagernessText(eagernessReplay(v)), /Nor on a third: .*118 of 123 marked changes against the default's 97, but only 28\.4%/);
+  assert.match(readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8'), /Quiet on all 8 columns sent 8\.5 alert lines per 100 checks/);
+  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /all eight columns sent 8\.5 alert lines per 100 checks/);
+});

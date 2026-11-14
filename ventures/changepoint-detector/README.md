@@ -4258,3 +4258,69 @@ a third labelled set, not a third look at NAB.
 Tests: `watch-nab-season.test.mjs` (8: the settings, the start, gap-free marking, the period-ladder hint, the rules on
 made-up totals, a period-24 replay on a daily cycle, one reply per worker job with its period applied, and the
 committed output's verdicts with Quiet and drift checked against round 10's).
+
+## Round 12: a third labelled set, SKAB's 33 pump faults, every sensor watched (2026-11-14, pre-registered; all three rules fail)
+
+Rounds 10 and 11 ended on "the next useful round is a third labelled set, not a third look at NAB". This is that round, and
+the first with labels on several columns at once. The Skoltech Anomaly Benchmark (SKAB v0.9; Katser and Kozitsin 2020,
+doi:10.34740/KAGGLE/DSV/1693952; GPL-3.0, so fetched and not committed) logs 8 sensors of a water-circulation testbed
+once a second: two accelerometers, motor current, pressure, motor temperature, fluid thermocouple, voltage and flow rate.
+33 runs each hold one fault made on purpose: a valve closed at the pump's inlet (16) or outlet (3), and 14 others (leaks,
+rotor imbalance of five shapes, water added, cavitation, hot water). Each run marks the fault's start, the end of its
+transition, the start of the return and the return: 123 marks. A separate 2.6-hour run is anomaly-free. `sh
+eval/skab-fetch.sh skab-data && node eval/watch-skab.mjs skab-data` (output `eval/watch-skab.out.txt`, 1,001 s on 4
+cores). The rules, design and predictions were committed in this PR's first commit, before any run that printed a score.
+
+**Design.** 5-second buckets (a check after every 1-second row would have taken about 6 hours; a timing-only pilot chose
+this), about 230 points a run. All 8 columns are watched, as `--columns all` does, under the shipped policy, replayed
+after every point from point 20. The hint reads the anomaly-free run (a person sets up a watch on a machine by replaying
+a normal day), so each column's pick is made once and applied to all 33 fault runs. A mark's window runs from 5 s before
+to 60 s after it (SKAB's own leaderboard uses 60 s after). An alert line is one column's alert.
+
+| policy (33 fault runs, 8 columns, 123 marks) | alert lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | normal run, lines per 100 checks |
+|---|---|---|---|---|---|---|---|
+| fixed Quiet (default) | 457 | 168 (**36.8%**) | **69.4** | 97 | 33/33 | 30 s | **8.54** |
+| fixed Middle | 1,203 | 314 (26.1%) | 182.7 | 115 | 33/33 | 25 s | 20.47 |
+| fixed drift ("Wandering level") | 1,153 | 297 (25.8%) | 175.1 | 112 | 33/33 | 25 s | 9.94 |
+| fixed Eager | 2,995 | 740 (24.7%) | 454.9 | **123** | 33/33 | 20 s | 37.24 |
+| hint3, B = 2 (shipped) | 1,076 | 306 (28.4%) | 163.4 | 118 | 33/33 | 25 s | 9.56 (in-sample) |
+| hintNN, B = 2 | 1,229 | 332 (27.0%) | 186.7 | 118 | 33/33 | 25 s | 9.30 (in-sample) |
+
+Chance for "at a mark" is 23.1% (the share of scored points inside a mark window).
+
+- **T6, the hint on a third set: not confirmed.** (a) 118 marks against Quiet's 97 and (b) 163.4 lines per 1,000 checks
+  against Middle's 182.7 both pass; (c) fails: 28.4% of its alerts sat at a mark against Quiet's 36.8%, more than the 5
+  points allowed. The normal run is calm on current, pressure and voltage, so the hint picked Eager there and Middle on
+  three more columns. That reached more of the transition and return marks and sent more than twice Quiet's lines. As
+  pre-registered, `eagernessText` (the page, `--suggest`, the agent tool) now says it was not confirmed on SKAB either.
+- **T7, NAB's drift reading: fails** on both parts. Drift's share at a mark was 25.8%, against Quiet's 36.8% and
+  chance's 23.1%, and it sent 2.5 times Quiet's lines. NAB's 20.5% does not carry to a second set, so nothing new is said
+  about drift.
+- **T8, unsplit `--columns all` on a real normal run: fails.** Quiet on all 8 columns sent 8.54 lines per 100 whole-watch
+  checks of the anomaly-free run, every one of them false, against the budget of 2. As pre-registered, `watch.mjs --help`
+  and the watch page now say so, and to replay with `--suggest` first. The page also says which columns to drop.
+- Nothing in the default changes.
+
+**Predictions, scored.** T6: predicted (a) pass and (b) fail; (a) passed, (b) passed too, and (c), which I expected to
+hold, failed. T7: predicted to pass on both parts with drift catching fewer faults. Wrong on all three: it failed both
+and caught all 33. T8: predicted to fail; it did, at 8.54.
+
+**What the round says (deciding nothing).** Every setting caught all 33 faults. A closed valve or a drained tank moves the
+flow rate a lot, and every detector sees it. The settings differ on the other marks and on noise. Quiet sat at a mark
+1.6 times as often as chance and was the most precise setting here, the reverse of NAB, where it sat near chance. One
+column did most of the work. Watched alone under Quiet, flow rate caught 29 of the 33 faults with 118 lines, 61.9% of
+them at a mark. Pressure, voltage and current sent 15 lines between them and caught none alone. Motor temperature sent
+97 lines, 18.6% at a mark, and the thermocouple 76 at 27.6%. Both drift with the room over a run, and they are the loud
+columns on the normal run. So the advice the page now gives (replay first, keep the columns that matter) comes from this
+table, not from a rule. A budget for the whole watch that is not per column is still open: the split failed on
+synthetic noise (README "Several metrics in one watch"), and here even Quiet, the floor of the ladder, is over budget on
+the normal run, so a split could not have fixed it.
+
+Caveats. The runs are short (about 19 minutes each in 5-second buckets) and 16 of the 33 are near-copies of one valve
+fault (the inlet valve closed). The hint's history is a different run from the scored ones. The 5-second buckets smooth the accelerometers. SKAB
+labels collective anomalies, not every level move. The anomaly-free run has 556 two-second gaps between rows; buckets are
+by row count, so those buckets span more than 5 s.
+
+Tests: `watch-skab.test.mjs` (8: the round's settings, the file parser, buckets, marks and the fault start, the score on
+made-up alerts, the hint rules, the three rules on made-up totals, the committed output's verdicts, and the hint and
+`--columns` texts).
