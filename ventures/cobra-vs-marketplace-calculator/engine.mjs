@@ -62,6 +62,7 @@ export function deadlines({ lossDate, noticeDate }) {
     marketplaceWindowEnds: iso(addDays(loss, 60)),
     marketplaceNoGapPickBy: iso(lastOfMonth(loss)),
     marketplaceStartsIfPickedByThen: iso(firstOfNextMonth(loss)),
+    // month-overflow: ok (the Math.min with the 19th month's day 0 clamps it)
     maxCobraEnds: iso(new Date(Math.min(Date.UTC(loss.getUTCFullYear(), loss.getUTCMonth() + 18, loss.getUTCDate()), Date.UTC(loss.getUTCFullYear(), loss.getUTCMonth() + 19, 0)))),
     electionNoticeBasis: notice && notice > loss ? "the date the election notice was sent" : "the date coverage ended",
   };
