@@ -1006,7 +1006,27 @@ The same eleven pieces also test the older rules: rhombi 180 of 182, 5 of 1,428 
 called rhombi; quilismas 10 of 12, 17 of 1,631 other heads called quilismas (more than
 before, not looked at yet). Details and the false calls, looked at on the scan:
 `eval/liquescent-check-report.md`. **Not done:** epiphonus and cephalicus are told apart only
-by direction, `<` and `>` are not, and a liquescent after a porrectus end is not looked for.
+by direction, and `<` and `>` are not.
+
+### Liquescents that end a porrectus
+
+These were listed as "not looked for", on the guess that the 1908 type hangs the small note off a
+porrectus stroke. It does not: a porrectus liquescent (`hfg~`, `dcd~`) is printed as two separate
+heads, the second carrying the same short rising tail as an epiphonus, so `liquescentTail` already
+covers it. Measured on twelve more GregoBase 1908 pieces (every piece with one among ids 3461-3999,
+split into a tuning half and a held-out half, both lists committed before any page was read) plus the
+three such notes in pieces scanned earlier:
+
+| set | porrectus liquescents | read as liquescent at their pitch | other heads called liquescent |
+|---|---|---|---|
+| tuning (6 new pieces) and earlier pieces | 9 | 8 | 0 of 939 (new pieces) |
+| held out (6 pieces) | 10 | 8 | 1 of 1,060 |
+
+A looser end-width cap gained no liquescent on the 50 earlier pieces and added false calls, so the
+rule is unchanged. Two of the three misses are a one-step hook whose small note sits on a staff line;
+the third is a print fleck. The scan note check on the twelve new pieces: 2,030 notes agree with the
+book, 5 differ, not yet looked at. Details: `eval/porrectus-liquescent-check.md`; run
+`node eval/porrectus-liquescent-check.mjs`.
 
 ## Not checked yet
 
