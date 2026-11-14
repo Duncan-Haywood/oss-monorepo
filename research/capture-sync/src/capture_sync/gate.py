@@ -13,6 +13,11 @@ calibration and test windows are i.i.d. draws from one distribution:
   correction needed) and stop at the first lam whose p-value exceeds delta; return the last lam
   that passed (or +inf, abstain on everything, when even the strictest fails).
 
+Thresholds that accept fewer than m_min = ceil(log delta / log(1 - alpha)) windows are skipped, not
+tested: there even zero failures cannot reject H0 (230 windows at alpha 1%, delta 0.1), so testing them
+would end the sequence at once. Which thresholds are skipped depends on the scores only, never on the
+labels. (Step 3's first scoring pass tested from m = 1 and abstained everywhere; see LOG.md.)
+
 Stdlib + numpy only; the binomial CDF is summed in log space so m in the tens of thousands is fine.
 """
 import math
@@ -37,9 +42,16 @@ def binom_cdf(k, m, p):
     return min(1.0, math.exp(top) * sum(math.exp(t - top) for t in terms))
 
 
-def ltt_threshold(score, bad, grid, alpha=0.01, delta=0.1, min_keep=1):
+def min_accept(alpha, delta):
+    """Smallest m at which m accepted windows with no failure reject H0: R > alpha at level delta."""
+    return int(math.ceil(math.log(delta) / math.log1p(-alpha)))
+
+
+def ltt_threshold(score, bad, grid, alpha=0.01, delta=0.1, min_keep=None):
     """Learn-then-Test threshold: the loosest lam in `grid` reached by fixed-sequence testing from the
     strictest. `grid` must be fixed before seeing the calibration data. Returns +inf if none passes."""
+    if min_keep is None:
+        min_keep = min_accept(alpha, delta)
     score = np.asarray(score, float)
     bad = np.asarray(bad, bool)
     order = np.argsort(-score, kind="mergesort")
@@ -48,7 +60,7 @@ def ltt_threshold(score, bad, grid, alpha=0.01, delta=0.1, min_keep=1):
     for lam in sorted(grid, reverse=True):
         m = int(np.searchsorted(-s_sorted, -lam, side="right"))  # number with score >= lam
         if m < min_keep:
-            continue  # nothing accepted yet: no evidence either way, keep walking down
+            continue  # too few accepted to reject even with no failure: skip, keep walking down
         k = int(b_cum[m - 1])
         if binom_cdf(k, m, alpha) > delta:
             break

@@ -54,7 +54,7 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 ```bash
 pip install numpy scipy pytest matplotlib
 cd research/capture-sync
-python -m pytest -q tests                                     # 15 tests (13 synthetic; 2 check committed step 2b outputs)
+python -m pytest -q tests                                     # 22 tests (20 synthetic; 2 check committed step 2b outputs)
 python experiments/real-devices/fetch.py ~/libriwasn 200_0S 800_0S   # ~1 GB, phone channels only
 python experiments/real-devices/run.py ~/libriwasn --trials 40 --procs 4   # ~25 min on 4 cores
 python experiments/real-devices/figure.py
@@ -67,6 +67,9 @@ python experiments/threshold/figure.py
 OMP_NUM_THREADS=1 python experiments/threshold/libriwasn.py ~/libriwasn --procs 4   # step 2b, ~38 min on 4 cores
 python experiments/threshold/libriwasn_score.py               # scores the step 2b predictions
 python experiments/threshold/libriwasn_figure.py
+OMP_NUM_THREADS=1 python experiments/gate/run.py collect ~/libriwasn /tmp/windows.npz --procs 4   # step 3, ~33 min
+python experiments/gate/run.py score /tmp/windows.npz          # ~5 s; results.txt, summary.json
+python experiments/gate/figure.py
 ```
 
 ## Results (from [`experiments/real-devices/results.txt`](experiments/real-devices/results.txt))
@@ -155,6 +158,46 @@ Prior, search and failure rule are as in step 1. A cell is scored if it has at l
 
 **Limits of step 2a.** The rooms are statistical, not measured, and each device gets an independent tail. The delays and starts are simulated. The babble is independent per device, while in a real room both devices hear the same crowd. Each source stretch is a random cut from 37 minutes, so windows overlap. The spectra are oracle-aligned for the H4 score, which an estimator in the field cannot do (hence the blind variant in (d)). No intervals are reported on the agreement counts.
 
+**Step 3 (2026-11-14): can a sync confidence carry a guaranteed failure rate to another room, phone or noise level?** A Learn-then-Test gate (Angelopoulos et al. 2021) on the peak-to-sidelobe ratio, set for at most 1% wrong among accepted windows, calibrated in one condition and tested in another on the same 96,000 phone windows (step 1 replayed exactly):
+
+- **Room and phone shifts mostly hold.** For 2 s windows with gamma 0.25, calibrating in one room and testing in the other gives **1.45% and 0.57%** wrong among accepted (keeping 97 to 98% of windows); holding out each phone in turn gives 0.49% to 1.30%.
+- **A noise shift breaks it.** Calibrated on the recordings as published and at 0 dB, then tested at -10 dB, the gate lets through **4.7% (200 ms room) and 7.3% (800 ms room)** wrong windows. On cleaner audio almost every window is right, so the threshold falls to the floor and the gate accepts everything. A gate calibrated on a mix of conditions controls the mix, not each condition, and the deployed gate cannot see the noise level.
+- **Requiring PHAT and gamma 0.25 to agree is the more robust gate** (post hoc): under the same noise shift it lets through 1.4% and 2.6%, keeping 84% and 68% of 2 s windows. At 1 s it is worse than the PSR gate (4.7% and 11.3%).
+- **Session clustering costs part of the guarantee.** Within one room, 13% of random session splits ended above 1% (the i.i.d. bound is 10%), against 33% for step 1's plug-in threshold; none went above 2%.
+
+![Wrong among accepted 2 s windows by shift](experiments/gate/gate_shifts.png)
+
+## Step 3: a Learn-then-Test gate across rooms, phones and noise (`src/capture_sync/gate.py`, `experiments/gate/`)
+
+**Question.** Milestone 3: step 1's peak-to-sidelobe (PSR) gate used a plug-in threshold with no guarantee and broke at -10 dB from room to room. With a distribution-free threshold, which shifts keep the failure rate and which break it? Plan and six predictions in `LOG.md`, written before the run.
+
+**Method.** Accept a window when its score is at least lam. Learn then Test (Angelopoulos, Bates, Cand&egrave;s, Jordan and Lei 2021) picks lam on calibration windows: for each threshold on a fixed grid (241 values, PSR 2 to 400, geometric) it tests H0 "more than 1% of accepted windows are wrong" with an exact binomial p-value and walks from the strictest threshold to the loosest, stopping at the first that fails at delta 0.1. Under i.i.d. windows, P(failure among accepted > 1%) &le; 0.1. Thresholds accepting fewer than 230 windows are skipped, because there even zero failures cannot reject H0 (a fix made after the first scoring pass abstained everywhere; see `LOG.md`). Scores: the PSR of PHAT, the PSR of gamma 0.25, and *agree*: gamma 0.25's PSR when the PHAT and gamma 0.25 estimates land within a frame of each other, otherwise refused. Shifts: S1 random 5/5 session splits within a room (50 per room), S2 room to room, S3 leave one phone out (both rooms), S4 as recorded and 0 dB to -10 dB. Calibration pools the noise levels except in S4. Step 1's plug-in rule on the same grid is reported beside it.
+
+**Results** (2 s windows; [`experiments/gate/results.txt`](experiments/gate/results.txt) has every window length and gate):
+
+| calibrate &rarr; test | PSR gate, gamma 0.25: kept, wrong among kept | agree gate: kept, wrong among kept | no gate: wrong |
+|---|---|---|---|
+| 200 ms &rarr; 800 ms room, pooled noise | 97.9%, **1.45%** | 88.2%, 0.70% | 2.9% |
+| 200 ms &rarr; 800 ms room, -10 dB | 94.6%, **3.38%** | 68.0%, 2.57% | 7.2% |
+| 800 ms &rarr; 200 ms room, pooled noise | 97.0%, 0.57% | 92.4%, 0.53% | 2.5% |
+| 800 ms &rarr; 200 ms room, -10 dB | 94.6%, 0.98% | 84.2%, 1.43% | 5.0% |
+| leave one phone out (worst: Xiaomi) | 97.1%, 1.30% | 87.2%, 0.84% | 3.2% |
+| no -10 dB &rarr; -10 dB, 200 ms room | 99.5%, **4.65%** | 84.2%, 1.43% | 5.0% |
+| no -10 dB &rarr; -10 dB, 800 ms room | 100%, **7.25%** | 68.0%, 2.57% | 7.2% |
+
+Within a room (S1), averaged over window lengths and gates, 13.2% of splits ended above 1% wrong among accepted (gamma 0.25 alone 19.8%, agree 9.0%), against 33.1% for the plug-in rule; no split went above 2%.
+
+**Predictions** (`LOG.md`, 2026-11-14):
+
+- (a) Replay, raw failure shares equal step 1's: **held** (120/120 identical).
+- (b) S1, at most 15% of splits above 1% for LTT and more for the plug-in rule: **held** (13.2% against 33.1%), though above the i.i.d. bound of 10%.
+- (c) S2, 2 s, gamma 0.25: at or under 2% pooled in both directions and over 2% at -10 dB in at least one: **held** (1.45% and 0.57%; 3.38% from 200 to 800 ms).
+- (d) S4, 2 s, gamma 0.25: over 2% in both rooms: **held** (4.65% and 7.25%).
+- (e) S3, 2 s, gamma 0.25: at or under 2% for at least 4 of 5 phones: **held** (5/5).
+- (f) Agree keeps more windows than PSR alone under S2 at 2 s: **failed**; it keeps fewer and is wrong less often.
+
+**What it means, and what it does not.** The guarantee is marginal: calibrate on a mix of noise levels and it holds for the mix, while the noisiest part of a deployment gets 3 to 7 times the target. Rooms and phones are not where it breaks; the noise level is, and a deployed gate does not observe it. The fix this points to is calibration conditional on something the window can measure (an estimated SNR, Mondrian-style), and the agree check is a cheap extra guard at 2 s and above. Two rooms, five phones and white added noise; the session clustering means the i.i.d. bound itself is not met (S1), so a session-level calibration is the honest next version. No intervals on the S2 to S4 shares: each is one calibration and one test set.
+
 ## Step 2b: threshold theory on the real phones (`experiments/threshold/libriwasn.py`)
 
 **Question.** H4 proper: does the gross-error model of step 2a predict how often a window misses on real devices, rooms and clocks? The harness was written in step 2a and not changed; the plan and five predictions were written to `LOG.md` before the run.
@@ -204,7 +247,7 @@ The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cell
 
 - Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
-- A conformal gate across the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set, and where exchangeability breaks.
+- The gate conditional on a measurable window SNR (Mondrian calibration), with session-level calibration so the within-room bound holds (step 3); then the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.
 - Real ambient noise (licensed recordings) shared between devices, then owner camera clips with a clapper reference.
 
@@ -216,7 +259,7 @@ Record two or more of your own cameras with a clap at the start and end and a ti
 
 The Rice (1944) DOI and the MS-SNSD arXiv id were checked by web search on 2026-11-13, because `cite_check.py` could not reach doi.org or arxiv.org from that session.
 
-The full related-work list, each entry checked, is in [`PROPOSAL.md`](PROPOSAL.md). Cited here: Knapp and Carter (1976), [doi:10.1109/TASSP.1976.1162830](https://doi.org/10.1109/TASSP.1976.1162830); Schmalenstroeer, Gburrek and Haeb-Umbach (2023), LibriWASN, [arXiv:2308.10682](https://arxiv.org/abs/2308.10682); Chen et al. (2020), LibriCSS, [arXiv:2001.11482](https://arxiv.org/abs/2001.11482); Kammerl et al. (2014), [doi:10.1109/ICASSP.2014.6854474](https://doi.org/10.1109/ICASSP.2014.6854474); Ianniello (1982), [doi:10.1109/TASSP.1982.1163992](https://doi.org/10.1109/TASSP.1982.1163992); Rice (1944), "Mathematical analysis of random noise", *Bell System Technical Journal* 23(3), [doi:10.1002/j.1538-7305.1944.tb00874.x](https://doi.org/10.1002/j.1538-7305.1944.tb00874.x); Polack (1993), "Playing billiard in the concert hall: the mathematical foundations of geometrical room acoustics", *Applied Acoustics* 38, 235-244 (DOI not checked: doi.org was unreachable from this session; details from the author's publication list); Reddy et al. (2019), "A scalable noisy speech dataset and online subjective test framework" (MS-SNSD), Interspeech, 1816-1820, [arXiv:1909.08050](https://arxiv.org/abs/1909.08050).
+The full related-work list, each entry checked, is in [`PROPOSAL.md`](PROPOSAL.md). Cited here: Knapp and Carter (1976), [doi:10.1109/TASSP.1976.1162830](https://doi.org/10.1109/TASSP.1976.1162830); Schmalenstroeer, Gburrek and Haeb-Umbach (2023), LibriWASN, [arXiv:2308.10682](https://arxiv.org/abs/2308.10682); Chen et al. (2020), LibriCSS, [arXiv:2001.11482](https://arxiv.org/abs/2001.11482); Kammerl et al. (2014), [doi:10.1109/ICASSP.2014.6854474](https://doi.org/10.1109/ICASSP.2014.6854474); Ianniello (1982), [doi:10.1109/TASSP.1982.1163992](https://doi.org/10.1109/TASSP.1982.1163992); Rice (1944), "Mathematical analysis of random noise", *Bell System Technical Journal* 23(3), [doi:10.1002/j.1538-7305.1944.tb00874.x](https://doi.org/10.1002/j.1538-7305.1944.tb00874.x); Polack (1993), "Playing billiard in the concert hall: the mathematical foundations of geometrical room acoustics", *Applied Acoustics* 38, 235-244 (DOI not checked: doi.org was unreachable from this session; details from the author's publication list); Angelopoulos, Bates, Cand&egrave;s, Jordan and Lei (2021), "Learn then Test: calibrating predictive algorithms to achieve risk control", [arXiv:2110.01052](https://arxiv.org/abs/2110.01052); Reddy et al. (2019), "A scalable noisy speech dataset and online subjective test framework" (MS-SNSD), Interspeech, 1816-1820, [arXiv:1909.08050](https://arxiv.org/abs/1909.08050).
 
 ## Outside dependencies
 

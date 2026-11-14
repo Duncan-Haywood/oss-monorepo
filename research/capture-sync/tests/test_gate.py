@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-from capture_sync.gate import binom_cdf, ltt_threshold, naive_threshold, apply_gate
+from capture_sync.gate import min_accept, binom_cdf, ltt_threshold, naive_threshold, apply_gate
 
 
 def test_binom_cdf_matches_direct_sum():
@@ -50,3 +50,19 @@ def test_apply_gate():
     kept, fk, n = apply_gate([1, 2, 3, 4], [True, False, True, False], 3)
     assert (kept, fk, n) == (0.5, 0.5, 2)
     assert np.isnan(apply_gate([1, 2], [0, 0], 9)[1])
+
+
+def test_min_accept_is_where_zero_failures_first_reject():
+    m = min_accept(0.01, 0.1)
+    assert m == 230
+    assert binom_cdf(0, m, 0.01) <= 0.1 < binom_cdf(0, m - 1, 0.01)
+
+
+def test_sparse_top_scores_do_not_end_the_sequence():
+    # a few very high scores with no failure used to stop the walk at the strictest threshold
+    rng = np.random.default_rng(1)
+    s = np.concatenate([rng.uniform(50, 60, 20000), [300.0, 350.0, 390.0]])
+    bad = np.zeros(len(s), bool)
+    bad[:100] = True  # 0.5% failures, all at moderate scores
+    lam = ltt_threshold(s, bad, np.geomspace(2, 400, 241), 0.01, 0.1)
+    assert lam < 60
