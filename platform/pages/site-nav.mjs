@@ -509,12 +509,18 @@ footer:has(.pfs-foot) code{background:rgba(148,170,210,.16);color:inherit}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
 .pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}
-footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:4px 24px;
+footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:6px 24px;
   margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.6}
 footer .pfs-foot>span{display:none}
 footer .pfs-foot+*{margin-top:16px}
+footer .pfs-foot+.pfs-foot{display:block}
+@media (max-width:560px){footer .pfs-foot{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px}footer .pfs-foot+.pfs-foot{display:block}}
 footer .pfs-foot a{text-decoration:none}
 footer .pfs-foot a:hover,footer .pfs-foot a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+footer .pfs-exceptions{margin:-4px 0 16px;font-size:14px;line-height:1.6}
+footer .pfs-exceptions summary{cursor:pointer;color:var(--pfs-accent);width:fit-content;max-width:100%}
+footer .pfs-exceptions summary:focus-visible{outline:2px solid var(--pfs-accent);outline-offset:3px;border-radius:2px}
+footer .pfs-exceptions p{margin:8px 0 0;color:var(--soft)}
 `;
 
 /**
