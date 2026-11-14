@@ -1426,3 +1426,12 @@ Four country pages were checked against the law itself (`eval/mandate-primary-so
 - **Luxembourg**: dossier 8815 is still in committee at its 23 October 2026 update; row added.
 
 The hub table, `mandate-dates.json`, the `.ics` feed and the 2027 deadlines page were regenerated from it. Israel stays open (gov.il answers 403).
+
+## Mandate texts read: Taiwan and Oman (2026-11-14, later)
+
+Both pages had "sources disagree" on the basic question (`eval/mandate-primary-sources-taiwan-oman-2026-11-14.md`):
+
+- **Taiwan** (law.moj.gov.tw, and the Executive Yuan Gazette of 12 December 2024): e-invoicing is **not a general duty**. VAT Act Art. 32(4) and the Uniform Invoice Regulations Art. 7 make the e-invoice one of five lawful invoice kinds; only foreign e-service sellers to individuals must issue cloud invoices (Art. 7-1). A business that does issue e-invoices must send them to the platform within **7 days (B2B) or 2 days (B2C)** from the day after issue, not the "48 hours" of vendor guides, with a fine of TWD 1,500 to 15,000 (Art. 48-2) since 1 January 2025.
+- **Oman** (Decision 189/2026 on qanoon.om, Gazette issue 1660 of 9 August 2026): electronic tax invoices from **1 April 2027** above OMR 5 million of annual supplies and **1 October 2027** for the rest, issued within 15 days, with exemptions on request. The decision names no format: Fawtara, Peppol, PINT-OM and the 2026 pilot stay marked as reported. The page's stale "4 of 49 baisa examples fail" line and the hub's "no PINT-OM rules" were corrected.
+
+The hub, `mandate-dates.json`, the `.ics` feed, the 2027 deadlines page and the which-applies page were regenerated.
