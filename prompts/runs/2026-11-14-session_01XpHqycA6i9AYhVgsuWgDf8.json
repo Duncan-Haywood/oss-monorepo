@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycA6i9AYhVgsuWgDf8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T01:38:52Z",
+  "ended": "2026-11-14T02:21:48Z",
+  "wall_minutes": 43.32,
+  "tokens_in": 8899693,
+  "tokens_out": 50516,
+  "cost_usd": 3.9723,
+  "tool_calls": 75,
+  "task": "research/llm-coding-inference milestone 7ar: should the library's suggested pilot share change (pre-registered, 51 cells)",
+  "projects": [
+    "research/llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15684",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first post front matter failed check_post_frontmatter (seo_title 79 chars, description 215 chars)",
+      "fix": "shortened both; checks pass"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "issue": "The pre-registered decision rule picked PILOT_SHARE 0.7, but a check after reading the summary found that uncapped cells plans label more than n items at large pilots (23 of 51 cells over budget at 0.7n, up to 19.7%), so the rule's comparison was not at equal budgets.",
+      "handling": "Disclosed in LOG.md, README, paper and post; added an opt-in-then-default budget_cap, reran post hoc with label counts; capped 0.7n still beats 0.6n and 0.5n by more than the pre-registered margins; a fresh pre-registered check on unseen cells is the logged next step."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Said no open programme names track 19 or starts with `qual-`, while research/PROGRAMMES.md lists llm-coding-inference with `qual-*` in its slug-prefix column; I nearly opened a duplicate programme."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pyenv.py hint says a first install can take over 120 s; here it returned /usr/bin/python3.13 in seconds, which already had numpy (plain python3 did not). Fine, just noting that the right interpreter differs from `python3`."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/llm-coding-inference/experiments/h7ar_pilot_default.py",
+      "why": "The decision rule said to set PILOT_SHARE to s* = 0.7 and pin scripts; taken literally that would ship a share whose gain was partly bought with up to 20% extra labels.",
+      "did": "Adopted 0.7 together with a budget cap made the default (pre-7ar scripts pinned to the uncapped plan and verified to replay byte-identically on two scripts), and reported both the pre-registered and capped numbers.",
+      "result": "Capped 0.7n gains 5.140 vs 4.417 at 0.5n with coverage >= 93% in all 51 cells; library and tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-bigger-pilot-and-a-budget-leak.md",
+    "research/llm-coding-inference/LOG.md (7ar entry)"
+  ],
+  "goal": "advance an open research programme by one pre-registered step",
+  "notes": "Security queue empty; IDEAS.md and website requests empty. Routed research/0 by draw; pick_track drew track 19 (qual), advanced llm-coding-inference (7aq next step 1). Pre-registered run 16 min, post hoc run 18 min on 4 cores. Checks: test_llmci.py 38 passed; research/_homepage/build.py ok; check_md_links ok; programme_check ok; post front matter, links and similarity ok; run_workflow_locally --for-changes: 8/9 workflows passed, portfolio-pages re-run alone: 1 of 1,649 site-builder tests failed ('the hash must not depend on build order or paths') and passed when rerun by itself (node --test --test-name-pattern), so flaky, not this diff (which touches no platform/pages code). No new citations, so cite_check had nothing new to check.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "11f8712a-d011-5005-b226-07cd803abf2c",
+    "transcripts": 1,
+    "first": "2026-11-14T01:38:52Z",
+    "last": "2026-11-14T02:22:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 135,
+        "output": 50516,
+        "thinking": 14266,
+        "cache_read": 8748083,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151475,
+        "api_equivalent_usd": 3.9723,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 135,
+      "output": 50516,
+      "thinking": 14266,
+      "cache_read": 8748083,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151475,
+      "api_equivalent_usd": 3.9723,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 69,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 43.32,
+      "active_minutes": 43.32,
+      "model_minutes": 8.05,
+      "tool_minutes": 35.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, running and writing up a pre-registered simulation study plus a library fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 251.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
