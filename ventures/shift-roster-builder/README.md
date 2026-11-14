@@ -2021,3 +2021,49 @@ Tests: `day-lns.test.mjs` adds that with the pay floor off the open-hours LP gui
 pass never ends above where it started, and `dayGuideOpen: false` leaves it unguided. Not claimed: single runs on one cloud
 machine, ten generated weeks. Next: fit the priced LP's time gate to more weeks (it skipped on seed 3 in one run of two), or
 start the priced LP from the open-hours LP's basis so it fits the budget more often.
+
+## The pay floor from the open-hours LP's basis (2026-11-14)
+
+The pay floor (`cliqueScoreFloor`, README "A pay floor for big weeks") solved its LP from the slack basis, every shift open, even
+though the open-hours clique LP has just been solved on the same rows. **What landed:** `warmBasis` (calc.mjs) carries the
+open-hours LP's optimal basis into the priced LP. The two LPs share the x columns in the same order and every row (matched by a
+row name, since the priced LP numbers its rows differently); the priced LP adds, per person, a convexity row and an hours link,
+and the hour-level columns. The start basis is the open-hours basis renumbered, plus for each person the two hour levels around
+the hours that person holds in the open-hours optimum. Ordered (old rows, new rows) that basis is block lower triangular, so it
+is nonsingular, and it is primal feasible (the old rows keep the open-hours optimum; the two levels take the convex weights of
+the hours). If the basis does not map or the solve fails from it, the LP is solved cold as before. The value used is still the
+dual bound, so it holds whatever basis the simplex starts from. `scoreFloorWarm: false` starts it cold; `optimality.scoreFloor.warm`
+says whether the warm start took.
+
+| priced LP (`eval/warm-score-floor.out.txt`) | cold: pivots | warm: pivots | same bound |
+|---|---|---|---|
+| 60 x 168 week 0 | 3,655 | 2,281 | yes |
+| 60 x 168 week 1 | 1,860 | **107** | yes |
+| 80 x 224 week 0 | 6,711 | 4,017 | yes |
+| 80 x 224 week 1 | 3,896 | **232** | yes |
+| 80 x 224 week 2 | 5,337 | **353** | yes |
+| 60 seeded 4-12 person weeks (test) | 6,887 in all | 3,374 in all, fewer on every week | yes |
+
+In time (measured beside another benchmark, so contended): 1.4 s to 0.16 s on 60 x 168 week 1, 6.6 to 0.7 s and 10.1 to 1.0 s on
+80 x 224 weeks 1 and 2; weeks 0 save a quarter to a third (4.2 to 2.9 s, 11.7 to 8.5 s). On the two week-0s the priced optimum
+sits far from the open-hours one, so the simplex still walks most of the way. A tie-break that charges the open-hours LP a
+millionth of the pay (so its optimum lands nearer the priced one) was tried and dropped: it cut the warm pivots on week 0 from
+2,281 to 1,574-1,928, but its bound for pure open hours fell from 300 to 294-299.9, which costs the open-hours proof.
+
+**The gate.** Under a time budget the pay floor ran only when the time left covered about 4 s x (copies / 245)^4.5, sized for a
+cold solve. A week the gate would skip now tries the warm solve anyway, with the simplex stopped at the budget's end (`solveLP`'s
+new `deadline`, checked every 64 pivots; a stopped solve is skipped as before and never falls back cold). `scoreFloorTry: false`
+keeps the old skip; `optimality.scoreFloorTried` says whether a try ran and finished. On ten 60 x 168 weeks at the default 20 s
+budget (`eval/score-floor-try.out.txt`, single runs) the try ran past the gate on three weeks and finished each time in 1.9-2.4 s:
+on seed 1 week 0 the open hours stayed 208 and the rest fell $20,197.93 to $20,176.95; on seed 3 week 0 it was the same roster;
+on seed 4 week 0 it posted 215 open hours where the run guided by the open-hours LP posted 214 (single runs; the day sweeps' kicks are time-bound). In a rerun, the same two weeks' gate
+decisions flipped with machine load (seed 1 tried and ran out of time; seed 4 passed the gate outright), so the effect is
+timing-bound and small either way: where coverage is not proven the gap is open hours, not pay.
+
+Tests: `warm-score-floor.test.mjs` (on 60 seeded weeks across daily caps, last week's finishes, avoid and prefer windows, tough
+shifts, minimum hours, fairness, burden, overtime and differentials the warm start always takes and reaches the cold LP value
+and dual bound to 1e-6; a basis from another week is refused and the LP is solved cold; `buildRoster` reports the warm start and
+`scoreFloorWarm: false` turns it off, with the same bound). Not claimed: five generated big weeks and single runs on one machine;
+the time gate itself is unchanged and still sized for the cold solve. Next: a gate sized for the warm solve, which needs more
+week-0-like weeks to see how often the open-hours optimum is far from the priced one; carry the priced LP's basis into the
+dayLNS guide's re-solves.

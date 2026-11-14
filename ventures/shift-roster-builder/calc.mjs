@@ -2539,7 +2539,7 @@ export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {
   const r = cliqueLP(ctx, { maxPivots });
   if (!r) return null;
   const floor = Number.isFinite(upTo) ? openSumLift(r.len, upTo + 1)(r.bound) : r.bound;
-  return { floor, lp: r.obj, bound: r.bound, xs: r.xs, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+  return { floor, lp: r.obj, bound: r.bound, xs: r.xs, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, carry: r.carry, ms: Date.now() - t0 };
 }
 // Score floor from the same clique LP, priced (2026-11-14). The open-hours floor above says nothing about pay: once it proves
 // coverage on a big week, the score bound buildRoster can report is BIG x the floor, which counts every dollar of pay as open
@@ -2558,11 +2558,11 @@ export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {
 // Every person's score is at least the sum of these terms over the shifts held, so the LP is a lower bound on every roster's
 // score; the value used is a dual bound as above, so it holds whatever rounding the simplex leaves. Rules the LP drops (days in a
 // row, keep sets, weekly overtime) only lower it. Returns { bound, lp, open, rows, cols, pivots, ms } or null.
-export function cliqueScoreFloor(ctx, { maxPivots = 400000 } = {}) {
+export function cliqueScoreFloor(ctx, { maxPivots = 400000, warm = null, deadline = Infinity, coldFallback = true } = {}) {
   const t0 = Date.now();
-  const r = cliqueLP(ctx, { maxPivots, priced: true });
+  const r = cliqueLP(ctx, { maxPivots, priced: true, warm, deadline, coldFallback });
   if (!r) return null;
-  return { bound: r.bound, lp: r.obj, open: r.open, xs: r.xs, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+  return { bound: r.bound, lp: r.obj, open: r.open, xs: r.xs, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, warm: r.warm, ms: Date.now() - t0 };
 }
 // Linear lower bound on what shift i adds to person p's score, apart from fairness and shortfall (cliqueScoreFloor).
 function shiftCostFloor(ctx, p, i) {
@@ -2656,11 +2656,16 @@ function dayReassign(ctx, owner0, { rounds = 6, deadline = Infinity, jitter = 0,
   }
   return owner;
 }
-function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false } = {}) {
+function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false, warm = null, deadline = Infinity, coldFallback = true } = {}) {
   const { P, S, slots, elig, staff, restMin } = ctx;
   if (!S) return null;
   const len = slots.map((s) => (s.end - s.start) / 60);
   const cols = [], cost = [], vals = [], init = [];
+  // rowKey[r] names row r the same way in the open-hours and the priced LP (their rows are numbered differently, because the priced
+  // LP adds two rows per person), so a basis can be carried from one to the other (warmBasis below).
+  const rowKey = [];
+  for (let i = 0; i < S; i++) rowKey.push(i);
+  const lamOf = new Map(); // priced: p -> { conv, link, first: index into lamCols, H }
   // rows 0..S-1: shift copies. Further rows are appended as they are made; each gets a slack column (cost 0) that starts the basis,
   // except the priced LP's two equality rows per person, which start on an artificial.
   let m = S;
@@ -2676,18 +2681,19 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
     if (!ss.length) continue;
     const ids = new Map();
     for (const i of ss) { const j = cols.length; cols.push([i]); vals.push([1]); cost.push(priced ? shiftCostFloor(ctx, p, i) : 0); ids.set(i, j); holds[i].push(j); xcol.push([p, i]); }
-    const knap = (list, capMin) => {
+    const knap = (list, capMin, key) => {
       const tot = list.reduce((a, i) => a + slots[i].end - slots[i].start, 0);
       if (!(capMin < tot - 1e-9)) return;
       const r = m++;
+      rowKey[r] = key;
       for (const i of list) pending.push([ids.get(i), r, (slots[i].end - slots[i].start) / capMin]);
     };
-    knap(ss, Math.max(1e-6, staff[p].maxHours * 60));
+    knap(ss, Math.max(1e-6, staff[p].maxHours * 60), `h${p}`);
     const dcap = dailyCapMin(ctx, p);
     if (dcap !== Infinity) {
       const byDay = new Map();
       for (const i of ss) (byDay.get(slots[i].day) || byDay.set(slots[i].day, []).get(slots[i].day)).push(i);
-      for (const list of byDay.values()) knap(list, dcap);
+      for (const [day, list] of byDay) knap(list, dcap, `d${p}:${day}`);
     }
     // Maximal cliques of the intervals [start, end + rest): the set alive at each start point, kept when no later start point's
     // set contains it (sets alive at successive starts only gain members by starts, so a set is maximal iff the next start point
@@ -2701,6 +2707,7 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
       const nt = starts[k + 1];
       if (nt !== undefined && alive.every((i) => nt < slots[i].end + restMin)) continue; // the next point's set contains it
       const r = m++;
+      rowKey[r] = `c${p}:${t}`;
       for (const i of alive) pending.push([ids.get(i), r, 1]);
     }
     if (priced) {
@@ -2716,7 +2723,9 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
       for (let k = 1; k < H.length; k++) D = Math.max(D, H[k] - H[k - 1]);
       const f = (h) => Math.max(0, mn - h) * o.shortfallValue + c * (h - tp) ** 2;
       const conv = m++, link = m++;
+      rowKey[conv] = `v${p}`; rowKey[link] = `l${p}`;
       eqRows.add(conv); eqRows.add(link);
+      lamOf.set(p, { first: lamCols.length, H });
       for (const i of ss) pending.push([ids.get(i), link, len[i]]);
       for (const h of H) lamCols.push([[conv, link], [1, 1 - h], f(h) - (c * D * D) / 4]);
     }
@@ -2741,8 +2750,21 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
   if (modelOnly) return { m, cols, vals, cost, eqRows: [...eqRows], nx, nLam: lamCols.length, S, xcol, len, init };
   // The priced LP's artificials must cost more than any column: open shifts cost BIG per hour.
   const bigM = priced ? Math.max(1e6, 10 * BIG * Math.max(...len)) : 1e6;
-  let res;
-  try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM }); } catch { return null; }
+  // Warm start (2026-11-14): the priced LP from the open-hours LP's optimal basis (warmBasis). If that basis cannot be used (it
+  // does not map, is singular, or the solve fails from it) the LP is solved from the slack basis as before.
+  let res = null, warmUsed = false;
+  const start = priced && warm ? warmBasis(warm, { m, rowKey, nx, nLam: lamCols.length, S, lamOf, len, cols, init }) : null;
+  if (start) {
+    try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM, warm: start, deadline }); warmUsed = !res.infeasible; } catch (e) {
+      res = null;
+      if (String(e?.message).includes("deadline")) return null; // out of time: a cold solve would only take longer
+    }
+    if (res && res.infeasible) res = null;
+  }
+  if (!res) {
+    if (start && !coldFallback) return null;
+    try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM, deadline }); } catch { return null; }
+  }
   if (res.infeasible) return null;
   // Dual bound: for any y, sum_r y_r + sum_j min(0, c_j - y.A_j) <= the LP's least value, because every column is at most 1
   // (x, open and lam lie in [0, 1]; a slack is at most 1 because its row's other coefficients are not negative).
@@ -2763,7 +2785,51 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
     xs = new Float64Array(P * S);
     for (let j = 0; j < nx; j++) { const v = res.x[j] || 0; if (v > 1e-9) xs[xcol[j][0] * S + xcol[j][1]] = v; }
   }
-  return { bound, obj: res.obj, open, xs, len, rows: m, cols: cols.length, people: nx, pivots: res.pivots };
+  // What the priced LP needs to start from this one's optimum (open-hours LP only): its basis, row names, x count and values.
+  const carry = !priced && res.basis ? { basis: res.basis, rowKey, nx, S, xs, P } : null;
+  return { bound, obj: res.obj, open, xs, len, rows: m, cols: cols.length, people: nx, pivots: res.pivots, carry, warm: warmUsed };
+}
+// The priced clique LP's starting basis from the open-hours clique LP's optimal one (2026-11-14). The priced LP has the same x
+// columns in the same order and every row of the open-hours LP (matched by rowKey), plus two equality rows per person (convexity
+// and the hours link) and the hour-level columns lam. Take the open-hours basis, renumbered (x columns keep their ids; open[s] and
+// the slacks move past the lam columns; an artificial moves to its row's new number), and add, for each person, the two hour
+// levels around the hours h that person holds in the open-hours optimum, H_a <= h <= H_b. Ordered as (old rows, new rows), the
+// basis matrix is block lower triangular, [[B0, 0], [L, Lam]] (lam columns touch only the new rows), with Lam = [[1, 1],
+// [1 - H_a, 1 - H_b]] per person, so it is nonsingular when B0 is; and it is primal feasible: the old rows keep the open-hours
+// optimum, and lam_a, lam_b = the convex weights of h between H_a and H_b, both in [0, 1]. The simplex then only has to reprice
+// from a covering roster the LP already likes, instead of starting from every shift open. Returns the basis or null.
+function warmBasis(w, { m, rowKey, nx, nLam, S, lamOf, len, cols }) {
+  if (w.nx !== nx || w.S !== S) return null;
+  const rowAt = new Map();
+  rowKey.forEach((k, r) => rowAt.set(k, r));
+  // Slack column of each priced inequality row: the columns past the open ones, one per row past S that is not an equality row.
+  const slackOf = new Map();
+  for (let j = nx + nLam + S; j < cols.length; j++) slackOf.set(cols[j][0], j);
+  const out = [];
+  const wn = w.basis.length; // the open-hours LP's rows
+  for (const j of w.basis) {
+    if (j < 0) { const r = rowAt.get(w.rowKey[-1 - j]); if (r === undefined) return null; out.push(-1 - r); continue; }
+    if (j < nx) { out.push(j); continue; }
+    if (j < nx + S) { out.push(nx + nLam + (j - nx)); continue; }
+    // A slack: the open-hours LP adds one per row past S, in row order, so slack j covers its (j - nx - S)-th row past S.
+    const k = w.rowKey[S + (j - nx - S)];
+    const r = rowAt.get(k);
+    const sj = r === undefined ? undefined : slackOf.get(r);
+    if (sj === undefined) return null;
+    out.push(sj);
+  }
+  if (out.length !== wn) return null;
+  for (const [p, { first, H }] of lamOf) {
+    let h = 0;
+    for (let s = 0; s < S; s++) h += len[s] * (w.xs ? w.xs[p * S + s] : 0);
+    let a = 0;
+    while (a + 1 < H.length && H[a + 1] <= h + 1e-9) a++;
+    if (a === H.length - 1) a = Math.max(0, a - 1);
+    if (H.length < 2) return null;
+    out.push(nx + first + a, nx + first + a + 1);
+  }
+  if (out.length !== m || new Set(out).size !== m) return null;
+  return out;
 }
 function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, chainBound = true, ...cfg } = {}) {
   const len = ctx.slots.map((s) => (s.end - s.start) / 60);
@@ -3309,10 +3375,20 @@ function buildRosterOnce(staff, slots, options = {}) {
     // proved the roster; under a time budget only when the time left covers its expected cost (about 4 s x (copies / 245)^4.5,
     // from 1.9-3.9 s on the 60 x 168 weeks, eval/score-floor.out.txt). On the 60 x 168 week 0 it takes the gap from $20,010 to
     // about $30. `scoreFloor: false` turns it off, `true` runs it whatever the time left.
-    let priced = null;
-    if (clique && !ex.proven && o.scoreFloor !== false && !over() &&
-        (o.scoreFloor === true || !(budgetMs > 0) || budgetMs - (Date.now() - tStart) >= 4000 * Math.pow(ctx.S / 245, 4.5))) {
-      priced = cliqueScoreFloor(ctx);
+    // Started from the open-hours LP's optimal basis (warmBasis, 2026-11-14; `scoreFloorWarm: false` starts it cold): the same
+    // bound, in 107 pivots instead of 1,860 on the 60 x 168 week 1 and 232-353 instead of 3,896-5,337 on two of three 80 x 224
+    // weeks (eval/warm-score-floor.out.txt); on the other weeks it saves a third of the pivots. Because the warm solve is usually
+    // far quicker than the time gate expects, a week the gate would skip now tries it anyway, warm only, against the time budget's
+    // end (the solve stops there and the pass is skipped as before): `scoreFloorTry: false` keeps the old skip.
+    let priced = null, pricedTried = null;
+    const pricedLeft = budgetMs - (Date.now() - tStart);
+    const pricedFits = o.scoreFloor === true || !(budgetMs > 0) || pricedLeft >= 4000 * Math.pow(ctx.S / 245, 4.5);
+    const pricedTry = !pricedFits && o.scoreFloorTry !== false && o.scoreFloorWarm !== false && !!clique?.carry && pricedLeft > 250;
+    if (clique && !ex.proven && o.scoreFloor !== false && !over() && (pricedFits || pricedTry)) {
+      priced = cliqueScoreFloor(ctx, pricedTry
+        ? { warm: clique.carry, deadline: tStart + budgetMs, coldFallback: false }
+        : { warm: o.scoreFloorWarm === false ? null : clique.carry });
+      if (pricedTry) pricedTried = { finished: !!priced, ms: Date.now() - tStart - (budgetMs - pricedLeft) };
       mark("scoreFloor");
       if (priced && priced.bound > ex.rootBound) {
         ex.rootBound = priced.bound;
@@ -3378,7 +3454,8 @@ function buildRosterOnce(staff, slots, options = {}) {
       earlyFloor: early,
       cliqueFloor: clique ? { floor: clique.floor, lp: clique.lp, rows: clique.rows, columns: clique.cols, pivots: clique.pivots, ms: clique.ms } : null,
       dayLNS,
-      scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, ms: priced.ms } : null,
+      scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, warm: priced.warm, tried: !!pricedTried, ms: priced.ms } : null,
+      scoreFloorTried: pricedTried,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }

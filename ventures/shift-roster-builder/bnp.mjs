@@ -22,7 +22,9 @@ const EPS = 1e-9;
 // `vals` (optional, 2026-11-12): vals[j] null or missing means column j is 0/1 as above; otherwise vals[j][t] is the coefficient of
 // row cols[j][t]. The right-hand side stays 1 on every row, so a row with other coefficients is scaled to a right-hand side of 1
 // by its caller (columnGenerationOpen's open-hours row: sum of len[s] / F over open shifts, minus a surplus, = 1).
-export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, bigM = 1e6, vals = null } = {}) {
+// `deadline` (optional, 2026-11-14): a Date.now() value; past it the solve throws "simplex deadline" (checked at each refactor, every
+// 64 pivots), as it throws past maxPivots.
+export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, bigM = 1e6, vals = null, deadline = Infinity } = {}) {
   const n = cols.length;
   const colVals = (j) => (vals && j < n ? vals[j] : null);
   const BIG_M = bigM;
@@ -122,7 +124,10 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
     inBasis[enter] = 1;
     // A pivot changes only the leaving row and the rows it updated, so only their basic values are summed again (an unchanged
     // row gives the same sum); after a refactor every row is.
-    if (++sinceRefactor >= 64) { refactor(); sinceRefactor = 0; computeX(); }
+    if (++sinceRefactor >= 64) {
+      if (Date.now() > deadline) throw new Error("simplex deadline");
+      refactor(); sinceRefactor = 0; computeX();
+    }
     else for (let r = 0; r < m; r++) if (r === leave || Math.abs(d[r]) >= 1e-15) rowX(r);
     if (++pivots > maxPivots) throw new Error("simplex pivot limit");
   }

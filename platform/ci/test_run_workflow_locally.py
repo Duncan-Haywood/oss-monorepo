@@ -96,6 +96,24 @@ class Collect(unittest.TestCase):
         self.assertEqual(len(skipped), 3)
         self.assertTrue(all("pull request" in note for note in skipped))
 
+    def test_an_or_inside_parentheses_does_not_hide_a_false_event_term(self):
+        """portfolio-pages' deploy job ran locally and reached IndexNow's
+        --submit because its if: holds a parenthesised `||`."""
+        f = runner.false_on_pull_request
+        self.assertTrue(f("${{ !cancelled() && (a != 'true' || b == 'success') "
+                          "&& github.event_name != 'pull_request' }}"))
+        self.assertTrue(f("x == 'a || b' && github.event_name == 'push'"))
+        self.assertFalse(f("(github.event_name == 'push') || inputs.x"))
+        self.assertFalse(f("github.event_name == 'push' || inputs.x"))
+        self.assertFalse(f("(a && github.event_name == 'push'"))
+        self.assertFalse(f("a && (b || c) && github.event_name == 'pull_request'"))
+
+    def test_this_repositorys_deploy_jobs_are_skipped_locally(self):
+        path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
+        steps, skipped = runner.collect(runner.load_workflow(path))
+        self.assertFalse([s.label for s in steps if s.job in ("deploy", "deploy-cloudflare")])
+        self.assertIn("deploy: job's if: is false on a pull request", skipped)
+
     def test_this_repositorys_pages_build_reaches_frontmatter_before_suite(self):
         path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
         steps, _ = runner.collect(runner.load_workflow(path))
@@ -1198,6 +1216,37 @@ class LocalContext(unittest.TestCase):
         steps, _ = runner.collect(workflow)
         self.assertNotEqual(steps[0].status, "skipped")
         self.assertNotIn("${{", steps[0].env["BASE"])
+
+    def test_a_cache_restored_under_runner_temp_outlives_the_process(self):
+        """portfolio-pages' share cards were redrawn on every local run (330 s
+        cold, past the 300 s budget) because runner.temp is a fresh directory."""
+        with tempfile.TemporaryDirectory() as kept_root, \
+                tempfile.TemporaryDirectory() as temp:
+            raw = {"uses": "actions/cache/restore@0123abc",
+                   "with": {"path": "${{ runner.temp }}/share-cards\n~/.npm\n"
+                                    "${{ runner.temp }}/../escape"}}
+            notes = runner.local_cache_dirs(raw, root=kept_root, temp=temp)
+            self.assertEqual(len(notes), 1)
+            target = os.path.join(temp, "share-cards")
+            kept = os.path.join(kept_root, "share-cards")
+            self.assertEqual(os.path.realpath(target), os.path.realpath(kept))
+            # A second collect in the same process keeps the existing link.
+            self.assertEqual(len(runner.local_cache_dirs(raw, root=kept_root, temp=temp)), 1)
+
+    def test_only_cache_restores_get_a_stand_in(self):
+        for uses in ("actions/cache/save@0123abc", "actions/checkout@0123abc", ""):
+            raw = {"uses": uses, "with": {"path": "${{ runner.temp }}/x"}}
+            self.assertEqual(runner.local_cache_dirs(raw, root="/nonexistent"), [], uses)
+
+    def test_portfolio_pages_restores_its_share_cards_locally(self):
+        path = os.path.join(runner.WORKFLOWS, "portfolio-pages.yml")
+        with tempfile.TemporaryDirectory() as kept_root, \
+                mock.patch.object(runner, "PIN_CACHE", kept_root):
+            steps, skipped = runner.collect(runner.load_workflow(path), only={"test"})
+        self.assertTrue(any("share-cards kept in" in note for note in skipped), skipped)
+        tests = [s for s in steps if s.name == "Test the site builder"]
+        self.assertEqual(len(tests), 1)
+        self.assertTrue(tests[0].env["PAGES_CARD_CACHE"].endswith("/share-cards"))
 
     def test_naming_a_workflow_and_for_changes_together_is_refused(self):
         self.assertEqual(runner.main(["portfolio-validate.yml", "--for-changes"]), 2)

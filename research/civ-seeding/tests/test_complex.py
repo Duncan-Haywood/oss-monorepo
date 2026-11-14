@@ -70,3 +70,19 @@ def test_loo_never_uses_held_out_village():
     loss_a, idx_a = cx.loo_losses(D, D)
     loss_b, idx_b = cx.loo_losses(D_bad, D)
     assert idx_a[2] == idx_b[2]
+
+
+def test_zero_shift_is_no_shift_and_shift_moves_takeup(setup):
+    # village random effect: a zero shift reproduces the plain run draw for draw; a positive
+    # shift raises take-up, a negative one lowers it, and the shift varies by run
+    V, beta = setup
+    v = V[4]
+    base = cx.simulate(v, beta, 0.05, 0.3, 100, np.random.default_rng(6))
+    zero = cx.simulate(v, beta, 0.05, 0.3, 100, np.random.default_rng(6), shift=np.zeros(100))
+    assert (base == zero).all()
+    up = cx.simulate(v, beta, 0.05, 0.3, 100, np.random.default_rng(6), shift=np.full(100, 1.0))
+    dn = cx.simulate(v, beta, 0.05, 0.3, 100, np.random.default_rng(6), shift=np.full(100, -1.0))
+    assert dn.mean() < base.mean() < up.mean()
+    mixed = np.r_[np.full(50, -2.0), np.full(50, 2.0)]
+    Y = cx.simulate(v, beta, 0.05, 0.3, 100, np.random.default_rng(6), shift=mixed)
+    assert Y[:, :50].mean() < Y[:, 50:].mean()
