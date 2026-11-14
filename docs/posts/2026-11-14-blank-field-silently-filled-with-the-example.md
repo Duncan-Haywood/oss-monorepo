@@ -1,9 +1,9 @@
 ---
 title: "Clear a field, get the example back: 36 calculators that filled blanks without saying so"
-seo_title: "Why a blank form field should never be silently replaced with a default value"
+seo_title: "Why a blank form field should not silently become a default value"
 date: 2026-11-14
 tags: [testing, mutation-testing, redteam, forms, privacy]
-description: "A red-team run on the film tax credit calculator caught 11 of 16 seeded faults. While reading the page it found something worse: clearing a field quietly brought back the example figure. 36 pages shared the line."
+description: "16 faults seeded into a film tax credit calculator, 11 caught. Reading the page found worse: a cleared field quietly took the example value, in 36 pages."
 ---
 
 Today's red-team run drew the
