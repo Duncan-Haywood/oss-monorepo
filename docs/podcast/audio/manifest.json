@@ -258,6 +258,13 @@
     "script_sha256": "7e4d5c8e4ce107a68155ccfdb5223bb96fa1f5966de999a58f3222de1f8e324f",
     "voice": "kokoro-82m-af_heart"
   },
+  "2026-11-13-a-stable-process-fails-its-first-control-chart-often": {
+    "bytes": 2484947,
+    "seconds": 414.07,
+    "sha256": "7981f10bef7a3b27369571436d1f1f6e138775052e5fb7a35b94d94621508264",
+    "script_sha256": "370b87cfff030aadd2d036f485321f83b66cc860eeab96dd7f3050ad8b28cc12",
+    "voice": "kokoro-82m-af_heart"
+  },
   "2026-11-13-why-asteroid-odds-rise-before-they-fall": {
     "bytes": 1480519,
     "seconds": 246.67,
