@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmPpcwRmQyzD92EGRB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T17:18:29Z",
+  "ended": "2026-11-14T17:26:39Z",
+  "wall_minutes": 8.5,
+  "tokens_in": 7564372,
+  "tokens_out": 32075,
+  "cost_usd": 3.1827,
+  "tool_calls": 72,
+  "task": "Critique mode (backlog had only owner/blocked rows): the review track has not run since 2026-10-31; surface held control-plane PRs to the owner",
+  "projects": [
+    "platform/devstats",
+    "platform/daily"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15924",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route prints '3232/40 runs toward the next review' with no hint that review_claimed() is True because of three two-week-old held 'prompts: review' PRs; the fix (#14686) has waited for the owner for 3 days."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique mode points at measure's doc-friction table. Two of the three live targets I checked (quality queue source-only defects, run_workflow_locally 'no site directory') were already fixed or could not be traced, which cost about 15 minutes."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'waits for the owner's approval once the ruleset is applied' reads as conditional, but the decision queue says the live ruleset is not applied. land-your-work.md's 'leave it alone if it says it waits on the owner' is the operative rule; one sentence saying so would settle whether a run may land a held PR like #14686."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-sixty-pull-requests-nobody-was-shown.md",
+    "docs/reports/2026-11-14-owner-held-prs-in-brief.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned open item (P056 blocked), so Critique. main_health: 73/73 checks pass. Finding: review_claimed() True (open PRs #12026, #12272, #12367, titled 'prompts: review', held for the owner); runs_since_review = 3232. PR #14686 (stale-claim fix) is held, so I did not land it (land-your-work.md, 'Ready PRs that stalled'). Shipped: devstats ownerHeld() -> github.owner_held in dev/stats.json, and the daily brief lists the held PRs under decisions and in the watch list. Live reading, with PR data fetched through the proxy and the JS matcher run on it: 60 of 103 open same-repo PRs held, oldest 38 days (#6504); matches owner_held_prs.py. Owner notified by push. Tests: devstats 29 pass, daily 12 pass. The live API read with a token happens first on the publish workflow; if owner_held.available is false, its reason says why. Backlog ids touched: none. Local: run_workflow_locally --for-changes passed every run: step it reached (checklist-coverage, conflict-markers, control-plane-guard, doc-refs); portfolio-pages 'Build the daily brief' is skipped there (${{ }} env), so it was run by hand: node platform/daily/build.mjs with a stats.json carrying owner_held rendered the decisions paragraph and the watch-list line; the site-builder suite was handed off to a detached run (results in PR CI).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "93d41dbc-cb6d-55df-85df-8ade61d9112e",
+    "transcripts": 1,
+    "first": "2026-11-14T17:18:29Z",
+    "last": "2026-11-14T17:26:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 136,
+        "output": 32075,
+        "thinking": 8924,
+        "cache_read": 7432469,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131767,
+        "api_equivalent_usd": 3.1827,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 136,
+      "output": 32075,
+      "thinking": 8924,
+      "cache_read": 7432469,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131767,
+      "api_equivalent_usd": 3.1827,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 67,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "PushNotification": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.5,
+      "active_minutes": 8.5,
+      "model_minutes": 6.31,
+      "tool_minutes": 2.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "trace the router bug, write a CODEOWNERS matcher and collector with tests, brief rendering, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 157.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
