@@ -1,6 +1,6 @@
 ---
 title: "A blank box that flagged every point as unusual"
-seo_title: "Mutation testing an STL decomposition tool: a blank outlier threshold read as zero"
+seo_title: "Mutation testing STL decomposition: a blank threshold read as zero"
 date: 2026-11-14
 description: "10 seeded faults in the STL decomposition engine, 2 uncaught (1 harmless), and a real bug: a blank or zero outlier threshold listed every point as unusual."
 tags: [redteam, testing, mutation-testing, stl, time-series]
