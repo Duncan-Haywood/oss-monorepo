@@ -1,0 +1,109 @@
+Round 11: an hourly watch on NAB's 47 real series (48163 hourly points, checked after every point), the daily cycle removed (period 24) from the level settings.
+
+  series                                          n     h start gap-free  fut rate per 100: quiet / drift / quiet24 / middle24 / eager24   future windows reached: quiet / drift / quiet24 / middle24 / eager24
+  realAWSCloudwatch/ec2_cpu_utilization_24ae8d.csv    337   168    48  yes     5.33   4.14   2.37   1.18   4.73   2: 2 / 1 / 2 / 2 / 2
+  realAWSCloudwatch/ec2_cpu_utilization_53ea38.csv    337   168    48  yes     0.59   0.59   1.18   0.59   1.78   1: 1 / 1 / 1 / 1 / 1
+  realAWSCloudwatch/ec2_cpu_utilization_5f5533.csv    337   168    48  yes     0.59   0.59   0.59   0.59   1.18   1: 1 / 1 / 1 / 1 / 1
+  realAWSCloudwatch/ec2_cpu_utilization_77c1ca.csv    337   168    48  yes     4.73   5.33   7.69   6.51  10.06   0: 0 / 0 / 0 / 0 / 0
+  realAWSCloudwatch/ec2_cpu_utilization_825cc2.csv    337   168    48  yes     2.37   0.00   2.37   3.55   7.10   0: 0 / 0 / 0 / 0 / 0
+  realAWSCloudwatch/ec2_cpu_utilization_ac20cd.csv    337   168    48  yes     2.37   0.59   1.78   1.78   3.55   1: 1 / 1 / 1 / 1 / 1
+  realAWSCloudwatch/ec2_cpu_utilization_c6585a.csv    337   168    48  yes     4.14   4.14   0.59   0.59   1.18   0: 0 / 0 / 0 / 0 / 0
+  realAWSCloudwatch/ec2_cpu_utilization_fe7f93.csv    337   168    48  yes     6.51   5.33   7.10   6.51   7.10   2: 1 / 1 / 1 / 1 / 1
+  realAWSCloudwatch/ec2_disk_write_bytes_1ef3de.csv    394   197    48  no      5.58   3.55   7.61   8.12  11.68   1: 1 / 1 / 1 / 1 / 1
+  realAWSCloudwatch/ec2_disk_write_bytes_c0d644.csv    337   168    48  yes     7.10  10.65   6.51   7.10  10.65   2: 1 / 1 / 1 / 1 / 2
+  realAWSCloudwatch/ec2_network_in_257a54.csv      337   168    48  yes     4.73   2.96   5.92   5.92  10.65   0: 0 / 0 / 0 / 0 / 0
+  realAWSCloudwatch/ec2_network_in_5abac7.csv      394   197    48  no      6.09   8.63   8.12   7.61  13.71   2: 2 / 2 / 2 / 2 / 2
+  realAWSCloudwatch/elb_request_count_8c0756.csv    337   168    48  yes     1.78   1.18   0.59   0.59   3.55   1: 1 / 1 / 1 / 0 / 1
+  realAWSCloudwatch/grok_asg_anomaly.csv           386   193    48  yes     0.52   1.04   1.04   0.52   2.59   1: 1 / 1 / 1 / 1 / 1
+  realAWSCloudwatch/iio_us-east-1_i-a2eb1cd9_NetworkIn.csv    104    52    48  yes     0.00   3.85   1.92   7.69   9.62   0: 0 / 0 / 0 / 0 / 0
+  realAWSCloudwatch/rds_cpu_utilization_cc0c53.csv    337   168    48  yes     0.59   4.14   0.59   0.59   4.73   2: 1 / 2 / 1 / 1 / 2
+  realAWSCloudwatch/rds_cpu_utilization_e47b3b.csv    336   168    48  yes     1.19   1.19   1.19   1.19   5.36   1: 1 / 1 / 1 / 1 / 1
+  realAdExchange/exchange-2_cpc_results.csv       1623   811   162  no      1.60   2.59   1.85   5.79  10.22   0: 0 / 0 / 0 / 0 / 0
+  realAdExchange/exchange-2_cpm_results.csv       1623   811   162  no      3.08   2.83   6.03   9.36  12.44   1: 1 / 1 / 1 / 1 / 1
+  realAdExchange/exchange-3_cpc_results.csv       1538   769   153  no      6.24   1.04   5.72   6.11   8.45   1: 1 / 1 / 1 / 1 / 1
+  realAdExchange/exchange-3_cpm_results.csv       1538   769   153  no      2.47   1.95   2.60   8.84  10.53   1: 1 / 1 / 1 / 1 / 1
+  realAdExchange/exchange-4_cpc_results.csv       1643   821   164  no      4.50   0.73   4.50   7.18  10.95   1: 1 / 1 / 1 / 1 / 1
+  realAdExchange/exchange-4_cpm_results.csv       1643   821   164  no      5.84   0.61   4.74   7.66  11.44   2: 2 / 2 / 2 / 2 / 2
+  realKnownCause/ambient_temperature_system_failure.csv   7267  3633   726  no      2.53   0.33   3.80   5.17   8.39   2: 2 / 2 / 2 / 2 / 2
+  realKnownCause/cpu_utilization_asg_misconfiguration.csv   1505   752   150  yes     3.85   2.26   4.38   4.12  12.75   1: 1 / 1 / 1 / 1 / 1
+  realKnownCause/ec2_request_latency_system_failure.csv    336   168    48  no      2.98   2.38   3.57   4.17   6.55   3: 1 / 2 / 1 / 1 / 1
+  realKnownCause/machine_temperature_system_failure.csv   1891   945   189  yes     3.91   2.75   3.70   6.87  11.10   2: 1 / 2 / 1 / 2 / 2
+  realKnownCause/nyc_taxi.csv                     5160  2580   516  yes     3.49   0.74   2.13   8.41  11.63   5: 4 / 1 / 5 / 5 / 5
+  realKnownCause/rogue_agent_key_hold.csv          187    93    48  no      2.13   7.45   6.38   6.38  10.64   1: 1 / 1 / 1 / 1 / 1
+  realKnownCause/rogue_agent_key_updown.csv        445   222    48  yes     3.14   0.90   6.28   9.87  13.00   1: 1 / 0 / 1 / 1 / 1
+  realTraffic/TravelTime_387.csv                   781   390    78  no      2.56   2.30   2.56   3.84   6.14   1: 0 / 1 / 0 / 1 / 1
+  realTraffic/TravelTime_451.csv                   706   353    70  no      3.40   1.42   3.12   3.97   6.52   0: 0 / 0 / 0 / 0 / 0
+  realTraffic/occupancy_6005.csv                   292   146    48  no      2.74   2.74   2.74   5.48   8.22   1: 1 / 1 / 1 / 1 / 1
+  realTraffic/occupancy_t4013.csv                  300   150    48  no      2.67   2.67   1.33   6.00   8.00   2: 2 / 2 / 2 / 2 / 2
+  realTraffic/speed_6005.csv                       311   155    48  no      3.21   1.28   3.21   1.28   3.85   1: 0 / 0 / 1 / 0 / 1
+  realTraffic/speed_7578.csv                       186    93    48  no      2.15   3.23   3.23   3.23   5.38   3: 2 / 2 / 2 / 2 / 2
+  realTraffic/speed_t4013.csv                      300   150    48  no      3.33   1.33   4.00   4.00   4.67   2: 2 / 2 / 2 / 2 / 2
+  realTweets/Twitter_volume_AAPL.csv              1326   663   132  yes     5.13   1.66   5.73   5.88   8.14   1: 1 / 1 / 1 / 1 / 1
+  realTweets/Twitter_volume_AMZN.csv              1320   660   132  yes     1.06   1.97   2.27   3.33   6.67   2: 1 / 1 / 2 / 2 / 2
+  realTweets/Twitter_volume_CRM.csv               1326   663   132  yes     1.81   0.45   1.81   2.11   6.33   1: 1 / 0 / 1 / 1 / 1
+  realTweets/Twitter_volume_CVS.csv               1322   661   132  yes     2.72   1.06   2.27   1.36   6.51   2: 2 / 2 / 2 / 1 / 2
+  realTweets/Twitter_volume_FB.csv                1321   660   132  yes     2.72   1.36   2.72   4.99   7.26   1: 1 / 1 / 1 / 1 / 1
+  realTweets/Twitter_volume_GOOG.csv              1321   660   132  yes     3.18   1.06   2.72   3.18   8.02   1: 1 / 1 / 1 / 1 / 1
+  realTweets/Twitter_volume_IBM.csv               1326   663   132  yes     4.37   3.62   3.47   3.47   7.54   1: 1 / 1 / 1 / 1 / 1
+  realTweets/Twitter_volume_KO.csv                1322   661   132  yes     3.03   1.66   2.57   4.84   6.35   2: 2 / 2 / 2 / 2 / 2
+  realTweets/Twitter_volume_PFE.csv               1323   661   132  yes     3.32   1.51   3.02   2.42   5.14   1: 1 / 1 / 0 / 1 / 1
+  realTweets/Twitter_volume_UPS.csv               1323   661   132  yes     4.08   2.72   3.93   5.59   6.95   1: 1 / 1 / 1 / 1 / 1
+
+  Chance: 11.8% of future points lie inside a labelled window.
+
+  policy (all 47)                    alerts   at a window       per 1000   reached   picks
+  fixed quiet                           797     108 (13.6%)     33.08    50/61   quiet 47
+  fixed drift                           404      83 (20.5%)     16.77    48/61   drift 47
+  fixed quiet24                         833     124 (14.9%)     34.57    52/61   quiet24 47
+  fixed middle24                       1297     187 (14.4%)     53.83    52/61   middle24 47
+  fixed eager24                        2096     294 (14.0%)     86.99    57/61   eager24 47
+  hint3 over the period ladder, B = 2    834     123 (14.7%)     34.61    51/61   middle24 6, quiet24 40, eager24 1
+
+  T4 quiet24 vs quiet: (a) 52 vs 50 - 1 PASS; (b) 34.57 vs 33.08 FAIL; (c) 14.9% vs 13.6% + 2 FAIL. FAILS.
+  T5 quiet24 vs drift: (a) 52 vs 48 PASS; (b) 14.9% vs 20.5% FAIL; (c) 34.57 vs quiet 33.08 FAIL. FAILS.
+
+  Reported only, deciding nothing.
+
+  gap-free series (29)               alerts   at a window       per 1000   reached   picks
+  fixed quiet                           443      56 (12.6%)     32.67    30/36   quiet 29
+  fixed drift                           250      48 (19.2%)     18.44    26/36   drift 29
+  fixed quiet24                         407      58 (14.3%)     30.01    31/36   quiet24 29
+  fixed middle24                        648      88 (13.6%)     47.79    31/36   middle24 29
+  fixed eager24                        1117     157 (14.1%)     82.37    35/36   eager24 29
+
+  realAWSCloudwatch (17)             alerts   at a window       per 1000   reached   picks
+  fixed quiet                            95      22 (23.2%)     33.51    14/17   quiet 17
+  fixed drift                            97      22 (22.7%)     34.22    14/17   drift 17
+  fixed quiet24                          99      22 (22.2%)     34.92    14/17   quiet24 17
+  fixed middle24                         98      21 (21.4%)     34.57    13/17   middle24 17
+  fixed eager24                         181      28 (15.5%)     63.84    16/17   eager24 17
+
+  realAdExchange (6)                 alerts   at a window       per 1000   reached   picks
+  fixed quiet                           190      23 (12.1%)     39.53     6/6   quiet 6
+  fixed drift                            78      13 (16.7%)     16.23     6/6   drift 6
+  fixed quiet24                         204      24 (11.8%)     42.45     6/6   quiet24 6
+  fixed middle24                        360      41 (11.4%)     74.91     6/6   middle24 6
+  fixed eager24                         514      59 (11.5%)    106.95     6/6   eager24 6
+
+  realKnownCause (7)                 alerts   at a window       per 1000   reached   picks
+  fixed quiet                           262      27 (10.3%)     31.20    11/15   quiet 7
+  fixed drift                            87      19 (21.8%)     10.36     9/15   drift 7
+  fixed quiet24                         287      45 (15.7%)     34.17    12/15   quiet24 7
+  fixed middle24                        536      85 (15.9%)     63.82    13/15   middle24 7
+  fixed eager24                         856     147 (17.2%)    101.93    13/15   eager24 7
+
+  realTraffic (7)                    alerts   at a window       per 1000   reached   picks
+  fixed quiet                            42       8 (19.0%)     29.19     7/10   quiet 7
+  fixed drift                            29       9 (31.0%)     20.15     8/10   drift 7
+  fixed quiet24                          41       8 (19.5%)     28.49     8/10   quiet24 7
+  fixed middle24                         57       9 (15.8%)     39.61     8/10   middle24 7
+  fixed eager24                          89      11 (12.4%)     61.85     9/10   eager24 7
+
+  realTweets (10)                    alerts   at a window       per 1000   reached   picks
+  fixed quiet                           208      28 (13.5%)     31.43    12/13   quiet 10
+  fixed drift                           113      20 (17.7%)     17.08    11/13   drift 10
+  fixed quiet24                         202      25 (12.4%)     30.53    12/13   quiet24 10
+  fixed middle24                        246      31 (12.6%)     37.18    12/13   middle24 10
+  fixed eager24                         456      49 (10.7%)     68.91    13/13   eager24 10
+
+1767 s wall, 7064 s of replays on 4 cores.
