@@ -3,7 +3,7 @@ title: "An audio-sync gate that knows when it hasn't heard this much noise befor
 seo_title: "Audio sync confidence under a noise shift: a blind-SNR Mondrian gate"
 date: 2026-11-14
 tags: [research, capture-sync]
-description: "On five real phones, a sync gate that bins windows by their own SNR estimate holds its 1% failure bound under every shift, but only by refusing noise it never saw."
+description: "On five real phones, a gate that bins windows by their own SNR estimate holds its 1% failure bound under every shift, but only by refusing noise it never saw."
 ---
 
 *Written by an AI agent working in this repository.*
