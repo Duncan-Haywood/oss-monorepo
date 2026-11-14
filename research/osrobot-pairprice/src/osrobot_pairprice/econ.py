@@ -29,20 +29,25 @@ def swaps(fly_min, endurance=ENDURANCE_MIN):
 
 
 def inline_cost(ground_min, energy_wh, cap=CAP_INLINE, hours=HOURS_YEAR, annual=ANNUAL, labour=LABOUR,
-                setup=SETUP_GROUND_MIN, elec=ELEC):
-    """USD for one field with one inline robot."""
-    return (cap * annual * (ground_min / 60.0) / hours + labour * setup / 60.0 + elec * energy_wh / 1000.0)
+                setup=SETUP_GROUND_MIN, elec=ELEC, attend=False):
+    """USD for one field with one inline robot. attend=True also charges a person for every ground minute (a site
+    that will not let a ground robot run unwatched)."""
+    person_min = setup + (ground_min if attend else 0.0)
+    return (cap * annual * (ground_min / 60.0) / hours + labour * person_min / 60.0 + elec * energy_wh / 1000.0)
 
 
 def pair_cost(fly_min, ground_min, energy_wh, cap_scout=CAP_SCOUT, cap_treater=CAP_TREATER, hours=HOURS_YEAR,
               annual=ANNUAL, labour=LABOUR, setup_g=SETUP_GROUND_MIN, setup_s=SETUP_SCOUT_MIN, endurance=ENDURANCE_MIN,
-              swap=SWAP_MIN, elec=ELEC, held=False, pilot=PILOT_ATTENDED, pilot_rate=None):
+              swap=SWAP_MIN, elec=ELEC, held=False, pilot=PILOT_ATTENDED, pilot_rate=None, attend=False):
     """USD for one field with a scout and a treater. The scout is occupied for its flight plus its swaps. With
     held=False each machine is charged only for the minutes it works (a fleet shared across many fields); with
     held=True both are charged for the whole job (a dedicated pair that waits on each other). With pilot=True a
     person's time is also charged for every flight minute, at pilot_rate USD/h (default: labour); the swaps and
-    set-up are already charged, so they are not counted twice."""
+    set-up are already charged, so they are not counted twice. attend=True also charges a person for the treater's
+    ground minutes, the like-for-like case to inline_cost(attend=True); the stages run one after the other, so one
+    person covers both and the minutes add. Holding the machines changes what they are charged, not a person's time."""
     n = swaps(fly_min, endurance)
+    treat_min = ground_min
     scout_min = fly_min + n * swap
     if held:
         scout_min = ground_min = scout_min + ground_min
@@ -50,6 +55,8 @@ def pair_cost(fly_min, ground_min, energy_wh, cap_scout=CAP_SCOUT, cap_treater=C
     people = labour * (setup_s + setup_g + n * swap) / 60.0
     if pilot:
         people += (labour if pilot_rate is None else pilot_rate) * fly_min / 60.0
+    if attend:
+        people += labour * treat_min / 60.0
     return cap + people + elec * energy_wh / 1000.0
 
 
@@ -96,7 +103,7 @@ def cost_model(fits, a, cap=CAP_INLINE, **kw):
     {name: (c, m, r2)} of fly_min, ground_min, inline_min, pair_wh and inline_wh against hectares. Keyword
     arguments go to pair_cost; hours, annual, labour, setup_g and elec also reach inline_cost."""
     f = lambda n: max(0.0, fits[n][0] + fits[n][1] * a)
-    ik = {k: kw[k] for k in ("hours", "annual", "labour", "elec") if k in kw}
+    ik = {k: kw[k] for k in ("hours", "annual", "labour", "elec", "attend") if k in kw}
     if "setup_g" in kw:
         ik["setup"] = kw["setup_g"]
     i = inline_cost(f("inline_min"), f("inline_wh"), cap=cap, **ik)
