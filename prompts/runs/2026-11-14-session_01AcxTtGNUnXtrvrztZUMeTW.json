@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGNUnXtrvrztZUMeTW",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T20:05:41Z",
+  "ended": "2026-11-14T20:12:40Z",
+  "wall_minutes": 7.12,
+  "tokens_in": 2829284,
+  "tokens_out": 34688,
+  "cost_usd": 2.0599,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15968",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'git log -- ventures/saints-by-candlelight' on the shallow clone shows only an unrelated chant-forge commit, so recency had to be read from episode numbers and PRODUCTION.md's done list instead"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-saints-by-candlelight-118-agabus-belt-at-caesarea.md"
+  ],
+  "goal": null,
+  "notes": "Project: Saints by Candlelight; piece: episode 118, agabus-and-the-belt-in-the-house-at-caesarea (Acts 21:1-16), text only because the audio folders are at 474 MB, over the 400 MB line. Security queue empty, IDEAS.md and website requests empty. Checks: check-script ok (7962 words); node --test 14/14 pass; post front matter, links and similarity are clean. Self-review corrected dates (Herod's Caesarea, Alexander's siege, Nicholas's birth) and the Pilate-inscription claim before commit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ee041ec6-5a47-53b4-aa46-f15888758b1b",
+    "transcripts": 1,
+    "first": "2026-11-14T20:05:41Z",
+    "last": "2026-11-14T20:12:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 61,
+        "output": 34688,
+        "thinking": 10305,
+        "cache_read": 2726653,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102570,
+        "api_equivalent_usd": 2.0599,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 61,
+      "output": 34688,
+      "thinking": 10305,
+      "cache_read": 2726653,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102570,
+      "api_equivalent_usd": 2.0599,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 25,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.12,
+      "active_minutes": 7.12,
+      "model_minutes": 6.78,
+      "tool_minutes": 0.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer drafting and checking an ~8,000-word researched script",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 291.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
