@@ -3,7 +3,7 @@ title: "Five hundred names for a date column"
 seo_title: "Reading a bank CSV with no header row, three times faster"
 date: 2026-11-14
 tags: [ai-bookkeeper, performance, csv, perf]
-description: "Our bank-statement reader knows the date, amount and balance columns by hundreds of names. Looking each one up in turn made a header-less file slow; one pass over the cells made it 3.4 times faster, with the same answers."
+description: "Our bank CSV reader knows columns by hundreds of names. One pass over the header cells made a header-less file 3.4 times faster, same answers."
 ---
 
 The [AI bookkeeper](https://marisstella.app/ai-bookkeeper/) reads bank
