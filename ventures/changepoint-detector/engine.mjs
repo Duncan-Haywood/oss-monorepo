@@ -1107,17 +1107,22 @@ export function robustSd(x) {
   return Math.sqrt(v) || 1;
 }
 
+// Lanczos coefficients (g = 7, n = 9), built once: lgamma runs millions of times inside bocpd, and a literal
+// array in its body was rebuilt on every call (docs/history/ci-perf-2026-11-14-changepoint-bocpd-hoists.md).
+const LANCZOS_G = 7;
+const LANCZOS_C = new Float64Array([0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+  -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7]);
+const HALF_LOG_2PI = 0.5 * Math.log(2 * Math.PI);
+
 function lgamma(z) {
   // Lanczos approximation (g = 7, n = 9), accurate to ~1e-15 for z > 0.
-  const g = 7;
-  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  const g = LANCZOS_G, c = LANCZOS_C;
   if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lgamma(1 - z);
   z -= 1;
   let a = c[0];
   const t = z + g + 0.5;
   for (let i = 1; i < g + 2; i++) a += c[i] / (z + i);
-  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(a);
+  return HALF_LOG_2PI + (z + 0.5) * Math.log(t) - t + Math.log(a);
 }
 export { lgamma };
 
@@ -1548,17 +1553,16 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
   // Poisson counts: Gamma(alpha, beta) rate prior, negative-binomial predictive; mu and kappa are unused.
   const p0 = prior ?? (useNb ? defaultNbPrior(x, nbSize) : pois ? defaultPoissonPrior(x) : defaultPrior(x));
   // Parallel arrays over current run lengths r = 0..R-1 (index = run length, possibly pruned to a tail).
-  let mu = [p0.mu];
-  let kappa = [p0.kappa];
-  let alpha = [p0.alpha];
-  let beta = [p0.beta];
-  let rl = [0];
-  let logR = [0];
+  let mu = Float64Array.of(p0.mu);
+  let kappa = Float64Array.of(p0.kappa);
+  let alpha = Float64Array.of(p0.alpha);
+  let beta = Float64Array.of(p0.beta);
+  let rl = Int32Array.of(0);
+  let logR = Float64Array.of(0);
   const mapRun = new Int32Array(n);
   const expRun = new Float64Array(n);
   const changeProb = new Float64Array(n);
-  // Posterior P(r_t = r) for the last lag + 1 steps, as maps keyed by run length.
-  const window = [];
+  const logH = Math.log(H), log1mH = Math.log1p(-H), logPrune = Math.log(prune);
   let logEvidence = 0;
   for (let t = 0; t < n; t++) {
     const xt = x[t];
@@ -1601,13 +1605,16 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     let cpTerms = -Infinity;
     for (let i = 0; i < m; i++) {
       const a = logR[i] + logPred[i];
-      grow[i] = a + Math.log1p(-H);
-      cpTerms = logAdd(cpTerms, a + Math.log(H));
+      grow[i] = a + log1mH;
+      cpTerms = logAdd(cpTerms, a + logH);
     }
-    // New run-length list: 0 then each old run length + 1.
-    let nrl = [0, ...rl.map((r) => r + 1)];
-    let nlog = [cpTerms, ...grow];
-    let nmu = [p0.mu], nk = [p0.kappa], na = [p0.alpha], nb = [p0.beta];
+    // New run-length list: 0 then each old run length + 1, in typed arrays of m + 1 filled in one pass (the per-step
+    // spreads, pushes, maps and filters of plain arrays were most of bocpd's own time; the arithmetic is unchanged,
+    // docs/history/ci-perf-2026-11-14-changepoint-bocpd-hoists.md).
+    const m1 = m + 1;
+    let nrl = new Int32Array(m1), nlog = new Float64Array(m1);
+    let nmu = new Float64Array(m1), nk = new Float64Array(m1), na = new Float64Array(m1), nb = new Float64Array(m1);
+    nlog[0] = cpTerms; nmu[0] = p0.mu; nk[0] = p0.kappa; na[0] = p0.alpha; nb[0] = p0.beta;
     let ngrids = null;
     if (useNbGrid) {
       ngrids = [priorGrid];
@@ -1618,65 +1625,75 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
       }
     }
     for (let i = 0; i < m; i++) {
+      const j = i + 1;
+      nrl[j] = rl[i] + 1;
+      nlog[j] = grow[i];
       if (rho && !pois) {
         const a = aAt(i), z = zAt(i), k1 = kappa[i] + a * a;
-        nmu.push((kappa[i] * mu[i] + a * z) / k1);
-        nk.push(k1);
-        na.push(alpha[i] + 0.5);
-        nb.push(beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 * k1));
+        nmu[j] = (kappa[i] * mu[i] + a * z) / k1;
+        nk[j] = k1;
+        na[j] = alpha[i] + 0.5;
+        nb[j] = beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 * k1);
         continue;
       }
       const k1 = kappa[i] + 1;
-      nmu.push((kappa[i] * mu[i] + xt) / k1);
-      nk.push(k1);
+      nmu[j] = (kappa[i] * mu[i] + xt) / k1;
+      nk[j] = k1;
       if (useNbGrid) {
-        na.push(0); nb.push(0);
+        na[j] = 0; nb[j] = 0;
       } else if (useNb) {
-        na.push(alpha[i] + nbSize);
-        nb.push(beta[i] + xt);
+        na[j] = alpha[i] + nbSize;
+        nb[j] = beta[i] + xt;
       } else if (pois) {
-        na.push(alpha[i] + xt / phi);
-        nb.push(beta[i] + (exposure ? exposure[t] : 1) / phi);
+        na[j] = alpha[i] + xt / phi;
+        nb[j] = beta[i] + (exposure ? exposure[t] : 1) / phi;
       } else {
-        na.push(alpha[i] + 0.5);
-        nb.push(beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1));
+        na[j] = alpha[i] + 0.5;
+        nb[j] = beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1);
       }
     }
     let z = -Infinity;
-    for (const v of nlog) z = logAdd(z, v);
+    for (let i = 0; i < m1; i++) z = logAdd(z, nlog[i]);
     logEvidence += z;
-    nlog = nlog.map((v) => v - z);
-    // Prune negligible run lengths, always keeping r = 0.
-    const keep = nlog.map((v, i) => i === 0 || v > Math.log(prune));
-    if (keep.some((k) => !k)) {
-      const f = (arr) => arr.filter((_, i) => keep[i]);
-      nrl = f(nrl); nmu = f(nmu); nk = f(nk); na = f(na); nb = f(nb); nlog = f(nlog);
-      if (ngrids) ngrids = f(ngrids);
+    // Normalise, and prune negligible run lengths in place, always keeping r = 0.
+    let k = 0;
+    for (let i = 0; i < m1; i++) {
+      const v = nlog[i] - z;
+      if (i !== 0 && !(v > logPrune)) continue;
+      nrl[k] = nrl[i]; nmu[k] = nmu[i]; nk[k] = nk[i]; na[k] = na[i]; nb[k] = nb[i]; nlog[k] = v;
+      if (ngrids) ngrids[k] = ngrids[i];
+      k++;
+    }
+    if (k < m1) {
+      nrl = nrl.subarray(0, k); nmu = nmu.subarray(0, k); nk = nk.subarray(0, k);
+      na = na.subarray(0, k); nb = nb.subarray(0, k); nlog = nlog.subarray(0, k);
+      if (ngrids) ngrids.length = k;
       let z2 = -Infinity;
-      for (const v of nlog) z2 = logAdd(z2, v);
-      nlog = nlog.map((v) => v - z2);
+      for (let i = 0; i < k; i++) z2 = logAdd(z2, nlog[i]);
+      for (let i = 0; i < k; i++) nlog[i] -= z2;
     }
     rl = nrl; mu = nmu; kappa = nk; alpha = na; beta = nb; logR = nlog;
     if (ngrids) grids = ngrids;
-    let best = 0, bestV = -Infinity, e = 0;
-    const post = new Map();
+    let best = 0, bestV = -Infinity, e = 0, pLag = 0;
     for (let i = 0; i < rl.length; i++) {
       const p = Math.exp(logR[i]);
-      post.set(rl[i], p);
+      if (rl[i] === lag + 1) pLag = p;
       e += p * rl[i];
       if (logR[i] > bestV) { bestV = logR[i]; best = rl[i]; }
     }
     mapRun[t] = best;
     expRun[t] = e;
-    window.push(post);
-    if (window.length > lag + 1) window.shift();
     // r_t counts the points of the current run up to and including x[t], so
-    // the run started at x[t - lag] iff r_t = lag + 1.
-    if (t - lag >= 1) changeProb[t - lag] = post.get(lag + 1) ?? 0;
+    // the run started at x[t - lag] iff r_t = lag + 1. Run lengths are distinct, so
+    // pLag is P(r_t = lag + 1), 0 when pruned (as the per-step Map of the posterior gave;
+    // only the last step's posterior is read again, below).
+    if (t - lag >= 1) changeProb[t - lag] = pLag;
   }
   // Points within `lag` of the end are scored with the data available.
-  for (let i = Math.max(0, n - lag); i < n; i++) {
-    changeProb[i] = window[window.length - 1]?.get(n - i) ?? 0;
+  if (n > 0) {
+    const last = new Map();
+    for (let i = 0; i < rl.length; i++) last.set(rl[i], Math.exp(logR[i]));
+    for (let i = Math.max(0, n - lag); i < n; i++) changeProb[i] = last.get(n - i) ?? 0;
   }
   changeProb[0] = 0; // The series starts a segment by definition; not a change.
   return { mapRun: [...mapRun], expectedRun: [...expRun], changeProb: [...changeProb], logEvidence, prior: p0, hazard: H };
