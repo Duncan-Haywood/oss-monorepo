@@ -64,3 +64,14 @@ test('each job gets one reply, from this file\'s worker, with its period applied
   assert.deepEqual(res[0].alerts, direct(24));
   assert.deepEqual(res[1].alerts, direct(0));
 });
+
+test('round 11 as run: both rules fail, and quiet and drift match round 10 to within one alert', () => {
+  const out = readFileSync(new URL('./eval/watch-nab-season.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /an hourly watch on NAB's 47 real series \(48163 hourly points/);
+  assert.match(out, /T4 quiet24 vs quiet: \(a\) 52 vs 50 - 1 PASS; \(b\) 34\.57 vs 33\.08 FAIL; \(c\) 14\.9% vs 13\.6% \+ 2 FAIL\. FAILS\./);
+  assert.match(out, /T5 quiet24 vs drift: \(a\) 52 vs 48 PASS; \(b\) 14\.9% vs 20\.5% FAIL; .* FAILS\./);
+  const r10 = readFileSync(new URL('./eval/watch-nab.out.txt', import.meta.url), 'utf8');
+  const alerts = (txt, k) => Number(txt.match(new RegExp(`fixed ${k}(?: \\(default\\))?\\s+(\\d+)`))[1]);
+  assert.ok(Math.abs(alerts(out, 'quiet') - alerts(r10, 'quiet')) <= 1);
+  assert.ok(Math.abs(alerts(out, 'drift') - alerts(r10, 'drift')) <= 1);
+});
