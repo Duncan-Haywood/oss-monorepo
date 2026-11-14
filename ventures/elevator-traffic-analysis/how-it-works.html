@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230f4c81'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Elevator Round Trip Time Is Calculated | Up-Peak Method Explained</title>
+  <meta name="description" content="The up-peak round trip time method step by step: passengers per trip, probable stops, highest reversal floor, jerk-limited flight times, interval and handling capacity, how this tool checks the formula by simulation, and what the simulation says about waiting times near capacity.">
+  <meta property="og:title" content="How elevator round trip time is calculated">
+  <meta property="og:description" content="The up-peak method step by step, checked against 20,000 simulated trips per building, and what random arrivals do to waits near the formula's handling capacity.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="./how-it-works.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"How elevator round trip time is calculated","about":"Up-peak lift traffic analysis: round trip time, interval, handling capacity","isPartOf":{"@type":"WebSite","name":"Elevator Traffic Analysis"}}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #15202b; background: #eef2f6; --accent: #0f4c81; --ink2: #4d5b69; --line: #cdd6df; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; letter-spacing: -.03em; }
+    h2 { margin-top: 30px; font-size: 1.25rem; }
+    p, li { line-height: 1.55; }
+    code, .eq { font-family: ui-monospace, Menlo, monospace; font-size: .88rem; }
+    .eq { display: block; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
+    th, td { border-bottom: 1px solid var(--line); padding: 5px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    a { color: var(--accent); }
+    footer { margin-top: 30px; font-size: .82rem; color: var(--ink2); }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Elevator traffic analysis tool</a></p>
+  <h1>How elevator round trip time is calculated</h1>
+  <p>The up-peak round trip time (RTT) is the standard first check of a lift (elevator) design: the morning rush, everyone arriving at the lobby and going up. This page sets out the method the tool uses, how the tool checks it, and one thing the check turned up about waiting times.</p>
+
+  <h2>Sources</h2>
+  <p>The formulae are the ones Barney and dos Santos formalised (G. C. Barney and S. M. dos Santos, <em>Elevator Traffic Analysis Design and Control</em>, 2nd edn, 1985), as restated with improvements by R. D. Peters, <a href="https://download.peters-research.com/library/Improvements_to_the_Up_Peak_Round_Trip_Time_Calculation.pdf">"Improvements to the Up Peak Round Trip Time Calculation"</a>, <em>International Journal of Elevator Engineers</em> 3(1), 2000. Equation numbers below are Peters'. The code is our own implementation of the published formulae; this tool is not affiliated with or endorsed by either author.</p>
+
+  <h2>1. Passengers per trip</h2>
+  <p>A car rated for CC persons is assumed to leave the lobby with P = CF/100 &times; CC passengers, where the capacity factor CF is conventionally 80% (eq 1). Rated persons default to the rated load divided by 75 kg, rounded down, the way EN 81-20 counts them: 1,000 kg is 13 persons, 1,275 kg is 17.</p>
+
+  <h2>2. Probable stops and highest reversal floor</h2>
+  <p>With N served floors of population U<sub>i</sub> (total U), each passenger goes to floor i with probability U<sub>i</sub>/U. The expected number of distinct floors the car stops at, and the expected highest floor it reaches, are (eqs 3 and 4):</p>
+  <span class="eq">S = N − Σ<sub>i=1..N</sub> (1 − U<sub>i</sub>/U)<sup>P</sup>
+H = N − Σ<sub>j=1..N−1</sub> (Σ<sub>i=1..j</sub> U<sub>i</sub>/U)<sup>P</sup></span>
+  <p>For equal floors these become the familiar S = N[1 − (1 − 1/N)<sup>P</sup>] and H = N − Σ (j/N)<sup>P</sup>.</p>
+
+  <h2>3. Flight times from the lift's dynamics</h2>
+  <p>A lift accelerates with limited jerk j up to an acceleration a and a rated speed v. Peters gives the time to fly a distance d in three cases, depending on whether the move is long enough to reach a and v (eqs 13 to 15), plus a motor start allowance:</p>
+  <span class="eq">d ≥ a·v/j + v²/a           t = d/v + a/j + v/a
+2a³/j² ≤ d &lt; a·v/j + v²/a   t = (a/j)(1 + √(1 + 4dj²/a³))
+d &lt; 2a³/j²                t = ∛(32d/j)</span>
+  <p>The tool's tests integrate the motion numerically and agree with these to 10<sup>−6</sup> s in all three cases.</p>
+
+  <h2>4. Time per stop and the round trip</h2>
+  <p>The car travels to the reversal floor, a distance d<sub>H</sub> found by adding the floor heights up to H (eq 17), with S stops on the way, so the average flight between stops is d<sub>H</sub>/S. Each stop costs the extra time that flight takes over running the same distance at rated speed, plus the doors (eq 18):</p>
+  <span class="eq">t<sub>s</sub> = t<sub>f</sub>(d<sub>H</sub>/S) − d<sub>H</sub>/(S·v) + t<sub>c</sub> + t<sub>o</sub> − t<sub>a</sub>
+RTT = 2(d<sub>H</sub> + d<sub>X</sub>)/v + (S + 1)·t<sub>s</sub> + 2·P·t<sub>p</sub>          (eq 20)</span>
+  <p>Here t<sub>c</sub> and t<sub>o</sub> are door closing and opening, t<sub>a</sub> any advance opening, d<sub>X</sub> an express zone the car passes without stopping, and t<sub>p</sub> the mean of the boarding and alighting time per person. The extra stop is the return to the lobby. The tool can add a percentage for losses, as some designers do.</p>
+  <p>Then the interval is RTT / L for L lifts (eq 10), the five-minute handling capacity is 300·P·L / RTT persons (eq 11), and as a share of the population, 100 × that / U (eq 12).</p>
+
+  <h2>5. Checking the formula by simulation</h2>
+  <p>The formula uses averages: average stops, an average top floor and an average gap between stops. The tool checks it by running 20,000 trips under the formula's own assumptions (P passengers, destinations drawn by population, the same kinematics and door times, each stop flown at its real distance) and averaging. Over 27 test buildings (6, 12 and 20 floors; 2 &times; 1,000 kg, 4 &times; 1,275 kg and 6 &times; 1,600 kg; 1.6, 2.5 and 4 m/s) the formula ran from 0.83% below to 1.39% above the mean of the sampled trips. That is close enough that the averaging is not where an up-peak design goes wrong.</p>
+
+  <h2>6. What the RTT method cannot tell you: waiting time</h2>
+  <p>The interval is how often a car leaves the lobby. It is not how long people wait. To see the waits, the tool simulates an hour of passengers arriving at random (a Poisson process) at a chosen rate, with a deliberately plain lobby dispatcher: cars fill in turn and leave when full or a dwell time after their doors open. Across the same 27 buildings, the median of mean wait divided by interval was:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Arrivals, as a share of the formula's handling capacity</th><th>Dwell 4 s</th><th>Dwell 8 s</th><th>Dwell 15 s</th></tr></thead>
+    <tbody>
+      <tr><td>50%</td><td>0.27</td><td>0.24</td><td>0.20</td></tr>
+      <tr><td>80%</td><td>0.50</td><td>0.51</td><td>0.51</td></tr>
+      <tr><td>100%</td><td>0.92</td><td>0.98</td><td>1.03</td></tr>
+    </tbody>
+  </table></div>
+  <p>So in this model, arrivals at 80% of the formula's capacity give waits of about half the interval, close to the rule of thumb Peters quotes from Strakosch (waiting is about 55 to 60% of the interval, depending on the control system). At 100% the mean wait is about the whole interval, and in 2 of the 27 buildings the cars were leaving full and the queue was growing. The formula's handling capacity is near the knee of the curve, not a comfortable operating point. The full table is in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/elevator-traffic-analysis/bench/grid.md"><code>bench/grid.md</code></a>, generated by <code>node bench/grid.mjs</code>.</p>
+  <p>Limits of that finding: the dispatcher is ours and simple, real group controllers and destination dispatch behave differently, and arrivals in a real building come in bursts (people arrive in groups) rather than one at a time, which makes waits longer. Treat it as a reason to run the simulation on your own building, not as a constant.</p>
+
+  <h2>What the tool does not do</h2>
+  <ul>
+    <li>Lunch-time, down-peak and inter-floor traffic, which are often the harder patterns in modern offices.</li>
+    <li>Multiple entrance floors, basements and car parks, double-deck cars and destination dispatch.</li>
+    <li>Car sizes and shaft dimensions, accessibility, fire-fighting and evacuation lifts, or any code compliance.</li>
+  </ul>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not engineering advice and not a substitute for a lift consultant's traffic analysis.</strong> Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="./">Back to the tool</a>.</p>
+  </footer>
+</body>
+</html>

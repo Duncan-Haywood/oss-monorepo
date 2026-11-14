@@ -101,3 +101,19 @@ entries:
         tests; driven in headless Chromium at 1280 and 390 px with no console
         errors. Not yet checked against a designer's real calculation.
     mrr_end: 0
+  - venture: elevator-traffic-analysis
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/elevator-traffic-analysis,
+        up-peak lift round trip time by the Barney and dos Santos formulae with
+        Peters (2000) corrections (jerk-limited flight times in three regimes,
+        unequal floors, express zone), a design search over lifts, loads and
+        speeds, and a Poisson-arrival lobby simulation. Formula within -0.83%
+        to +1.39% of 20,000 sampled trips over 27 buildings; simulated mean
+        wait about 0.5 of the interval at 80% of the formula's handling
+        capacity and about 1.0 at 100%. 22 tests; driven in headless Chromium
+        at 1280 and 390 px with no console errors. Not yet checked against a
+        consultant's real analysis.
+    mrr_end: 0
