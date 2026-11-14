@@ -1,9 +1,9 @@
 ---
 title: "Two GPIO pins and a cable the clash check never saw"
-seo_title: "ESP32 UART pin clash and CAD cable routing in a DIY tennis ball machine"
+seo_title: "ESP32 UART pin clash and CAD cable routing in a DIY ball machine"
 date: 2026-11-14
 tags: [open-tennis-robots, cad, firmware, esp32, hardware]
-description: "Routing the open tennis feeder's deck-side cables turned up a firmware bug that would have kept the ball lift and agitator from ever turning, and a CAD fuse that hid most of a cable from the collision checks."
+description: "Routing a DIY tennis feeder's cables found a pin clash that would have stopped two motors, and a CAD fuse that hid a cable from the clash checks."
 ---
 
 The open tennis-ball feeder already modelled its moving cables: the head's

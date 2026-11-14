@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Deepen flagship 10 (open-tennis-robots): deck-side cable run and stepper driver mount (allocate.py row 8, BUILDABLE HERE)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 15825,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,31 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First cable solids were a boolean fuse of cylinders and balls; OCC silently dropped the deck stretch, so a full build reported no collisions for a cable it never saw.",
+      "fixed": "Swept circle along lines and true arcs; volume equals pi r^2 x routed length; a test shifts the run into the battery and requires a clash."
+    },
+    {
+      "what": "First stepper-driver carrier placement put its M3 holes off the deck's grid (grid x is -645 + 10k).",
+      "fixed": "Moved to (-605, 155); a test checks every carrier and saddle hole lands on a deck hole."
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/cad/otr_cad/feeder.py",
+      "issue": "The lift/agitator GPIO 16/17 clash with UART2 sat in CAD notes, firmware and BOM for a day; the controller tests never touch main.py's hardware layer, so nothing could catch it. tests/test_pins.py now does."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
-  "goal": null,
-  "notes": "",
+  "writeups": [
+    "docs/posts/2026-11-14-two-pins-and-a-missing-cable.md"
+  ],
+  "goal": "Land the flagship's buildable CAD item: route the fixed cables from the deck to the axis clamp with the stepper's and lift's leads, a driver mount, and checks the build enforces.",
+  "notes": "Landed: deck-side cable run (main, stepper, lift) as swept solids in all_parts, 5 saddles, 3 hangers, StepStick carrier, 6 new deck holes; Feeder.deck_cable_paths/route/ties/electrics/check_deck_cables wired into check() and the manifest; servo_supply uses the routed length (1.79 m, was 1.71). Firmware: lift/agitator moved from GPIO 16/17 (UART2 to the Pi, which run() opens last) to GPIO 12/2; tests/test_pins.py loads main.py against a fake machine module and checks the pin map for both roles (fails on the old code at exactly 16 and 17). Verification: full feeder build (all sweeps) design_rules [] collisions []; committed package regenerated in place; run_venture_tests open-tennis-robots passes; DeckCable* tests 7/7 under build123d 0.13.0; full cad suite and venture-preflight run locally (results appended below).",
   "corrections": [],
   "redteam": null
 }
