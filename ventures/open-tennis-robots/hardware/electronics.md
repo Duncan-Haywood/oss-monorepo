@@ -175,6 +175,20 @@ never thinner than 20 AWG.
   pulse or one that fails open. Every figure but the charger's voltage is an
   assumption: put a current clamp and a scope on the first closing, and read
   your BMS's short-circuit settings.
+- **Loads that start during the precharge (2026-11-14, `Feeder.precharge_bus`).**
+  The 20 A above assumes the switched loads idle at 0.3 A while the bus
+  charges. A buck or a stepper driver draws constant power once it starts
+  (assumed at 8 V), and 4.7 ohm can pass at most 30 W into the bus at 24 V.
+  The firmware used to pulse the shuttle servo from power-up, so a servo
+  stopped mid-stroke by an e-stop sought home at stall (about 20 W) while the
+  bus charged: at 24 V that held the bus near 8 V and the contactor would make
+  about 223 A (136 to 328 A across the sweep). Since 2026-11-14 the servo gets
+  no pulse until a FEED, and rests unpowered at the crank's dead centres. The
+  azimuth stepper driver still holds from power-up (its ENABLE is not wired):
+  about 8 W, so the contactor makes about 45 A at 24 V (28 to 66 A across the
+  sweep, over an assumed 60 A with a 20 mOhm pack). Wiring the driver's
+  ENABLE to a pin the firmware holds off until the contactor has closed is the
+  next step.
 - **Not modelled:** regenerative current from braking ESCs, and every load's
   real current. Log the battery current on the first build with an inline
   meter.

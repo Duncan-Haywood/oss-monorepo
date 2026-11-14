@@ -214,7 +214,7 @@ export function sampleList() {
 // like a spreadsheet formula (CSV injection), since a symbol comes straight from the uploaded file.
 const cell = (v) => {
   let s = String(v);
-  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

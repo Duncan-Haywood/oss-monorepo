@@ -50,11 +50,21 @@ def is_cr2_path(path: Path) -> bool:
     return path.suffix.lower() == ".cr2"
 
 
+def is_arw_path(path: Path) -> bool:
+    return path.suffix.lower() == ".arw"
+
+
+def needs_profile_path(path: Path) -> bool:
+    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CR2, ARW)."""
+
+    return is_cr2_path(path) or is_arw_path(path)
+
+
 def is_developable_path(path: Path) -> bool:
     """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
-    Canon CR2 given a camera profile (``camera_profiles``)."""
+    Canon CR2 and Sony ARW given a camera profile (``camera_profiles``)."""
 
-    return is_dng_path(path) or is_cr2_path(path)
+    return is_dng_path(path) or needs_profile_path(path)
 
 
 def extract_preview(path: Path) -> bytes | None:

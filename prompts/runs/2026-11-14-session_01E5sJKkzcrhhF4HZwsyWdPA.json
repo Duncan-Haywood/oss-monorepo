@@ -1,0 +1,395 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKkzcrhhF4HZwsyWdPA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T15:18:33Z",
+  "ended": "2026-11-14T15:20:23Z",
+  "wall_minutes": 26.62,
+  "tokens_in": 4724018,
+  "tokens_out": 16888,
+  "cost_usd": 1.9764,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15895",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First run_workflow_locally sweep failed on my post's description (194 chars > 160); the same bad front matter also turned the site-builder and shorts.test.mjs steps red. Fixed the description; the second sweep was green apart from a budget timeout on the site-builder step, which was run directly.",
+    "Committed the run record while platform/pages tests were running, which turned the build-hash determinism test red; rerun alone it passed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests aiming --target at files that just changed on main, but none of the 20 recent .mjs/.py changes (repair-cii.mjs, five calc.mjs files, whatnot.mjs) were in `redteam.py targets`, so the random draw was the only option."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 11 entries, all control-plane workflow edits with open owner-approval PRs already; the step reads as if a run should fix them, but no session can land them. A 'pending owner PR' state in redteam.py open would save the check each run."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "tally printed after the second campaign showed only that campaign (seeded 8, redteam_runs 1), not the record's 16 mutants, which first read as the second campaign overwriting the first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs without a red-team run; the gaps found were per-function (message text, exit code), with no class lint that would catch them at useful precision.",
+      "did": "Added the targeted tests only; noted the pattern (tests check the decision, not the output a person or CI reads) in the post.",
+      "result": "Six gaps closed; no new automated class check."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: every open entry already has an open control-plane PR awaiting owner approval.",
+      "did": "Checked the open PR list and left the entries unchanged.",
+      "result": "No duplicate control-plane PRs opened."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-the-follow-up-that-sent-the-last-nudge-first.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 ventures/babysitting-business-kit/references.mjs: 4/8 caught, 4 gaps, 8/8 after. Campaign 2 platform/ci/dogfood_workflows.py: 4/8 caught, 2 equivalent (timeout 300->301, JSON indent), 2 gaps on main()'s exit code, 6/6 after. No real defects. Verification: references.test.mjs 10/10; test_dogfood_workflows 5/5; run_workflow_locally.py --for-changes second sweep 6/7 workflows passed, portfolio-pages site-builder step ran out of the 300 s sweep budget and was run directly (node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\" in platform/pages). Direct run: 1647/1648 pass; the one failure ('an identical build produces an identical cache name') was caused by committing this record while the suite ran, so the two builds it compares saw different trees; rerun alone it passes. PR CI jobs were all queued (runners starved), so this local verification is the merge basis.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/babysitting-business-kit/references.mjs",
+        "test": "node --test ventures/babysitting-business-kit/**/*.test.mjs  (in .)",
+        "seed": 837852686,
+        "commit": "d1ab0610f",
+        "sites": 184,
+        "baseline_seconds": 6.5,
+        "mutants": [
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 34,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (scope === \"contact\") return `New families may contact me. ${me} may give my name, how I know ${me}, and the contact details I give here (or, if I leave them blank, the phone or email ${me} already has for me) to families thinking of hiring ${me}, so they can ask me about their babysitting.`;",
+            "after": "if (scope !== \"contact\") return `New families may contact me. ${me} may give my name, how I know ${me}, and the contact details I give here (or, if I leave them blank, the phone or email ${me} already has for me) to families thinking of hiring ${me}, so they can ask me about their babysitting.`;",
+            "line_text": "  if (scope === \"contact\") return `New families may contact me. ${me} may give my name, how I know ${me}, and the contact details I give here (or, if I leave them blank, the phone or email ${me} already has for me) to families thinking of hiring ${me}, so they can ask me about their babysitting.`;",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 52,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "return diff === 0 && a.length > 0;",
+            "after": "return diff === 0 || a.length > 0;",
+            "line_text": "  return diff === 0 && a.length > 0;",
+            "caught": true,
+            "seconds": 5.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 100,
+            "col": 39,
+            "operator": "or-to-and",
+            "before": "if (!Array.isArray(out.consentLog) || !out.consentLog.some((e) => e && e.scope === scope)) continue;",
+            "after": "if (!Array.isArray(out.consentLog) && !out.consentLog.some((e) => e && e.scope === scope)) continue;",
+            "line_text": "    if (!Array.isArray(out.consentLog) || !out.consentLog.some((e) => e && e.scope === scope)) continue;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 136,
+            "col": 58,
+            "operator": "true-to-false",
+            "before": "if (field(fields, \"website\")) return { ok: false, spam: true };",
+            "after": "if (field(fields, \"website\")) return { ok: false, spam: false };",
+            "line_text": "  if (field(fields, \"website\")) return { ok: false, spam: true };",
+            "caught": true,
+            "seconds": 5.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 142,
+            "col": 86,
+            "operator": "or-to-and",
+            "before": "const allowPublic = fields.consentPublic === \"yes\" || fields.consentPublic === \"on\" || fields.consentPublic === true;",
+            "after": "const allowPublic = fields.consentPublic === \"yes\" || fields.consentPublic === \"on\" && fields.consentPublic === true;",
+            "line_text": "  const allowPublic = fields.consentPublic === \"yes\" || fields.consentPublic === \"on\" || fields.consentPublic === true;",
+            "caught": false,
+            "seconds": 5.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test passed a boolean consent to readSubmission (the exported contract accepts true; the server only sends strings)."
+          },
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 201,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "contact: r.refereeContact || r.contact || \"\",",
+            "after": "contact: r.refereeContact || r.contact && \"\",",
+            "line_text": "    contact: r.refereeContact || r.contact || \"\",",
+            "caught": false,
+            "seconds": 5.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no packet test had a contact-consenting referee with no submitted contact, so the fallback to the sitter's stored contact was untested."
+          },
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 285,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (ref.invite && inviteState(ref, nowMs) === \"expired\") return { action: \"follow up\", note: \"link expired: make a new one first\", due, step: sent + 1, message: followUpText(ref, profile, sent + 1) };",
+            "after": "if (ref.invite || inviteState(ref, nowMs) === \"expired\") return { action: \"follow up\", note: \"link expired: make a new one first\", due, step: sent + 1, message: followUpText(ref, profile, sent + 1) };",
+            "line_text": "  if (ref.invite && inviteState(ref, nowMs) === \"expired\") return { action: \"follow up\", note: \"link expired: make a new one first\", due, step: sent + 1, message: followUpText(ref, profile, sent + 1) };",
+            "caught": false,
+            "seconds": 5.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no follow-up test had an invite, so an open link being treated as expired went unseen."
+          },
+          {
+            "file": "ventures/babysitting-business-kit/references.mjs",
+            "line": 286,
+            "col": 155,
+            "operator": "plus-to-minus",
+            "before": "return { action: \"follow up\", note: `asked ${daysBetween(ref.requested, today)} days ago`, due, step: sent + 1, message: followUpText(ref, profile, sent + 1, { link }) };",
+            "after": "return { action: \"follow up\", note: `asked ${daysBetween(ref.requested, today)} days ago`, due, step: sent + 1, message: followUpText(ref, profile, sent - 1, { link }) };",
+            "line_text": "  return { action: \"follow up\", note: `asked ${daysBetween(ref.requested, today)} days ago`, due, step: sent + 1, message: followUpText(ref, profile, sent + 1, { link }) };",
+            "caught": false,
+            "seconds": 5.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the first follow-up's wording was never asserted, only its step number."
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/dogfood_workflows.py",
+        "test": "/usr/local/bin/python3 -m unittest test_dogfood_workflows  (in platform/ci)",
+        "seed": 300737739,
+        "commit": "d1ab0610f",
+        "sites": 18,
+        "baseline_seconds": 1.4,
+        "mutants": [
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 61,
+            "col": 18,
+            "operator": "div-to-times",
+            "before": "script = root / \"ventures\" / slug / \"check.py\"",
+            "after": "script = root * \"ventures\" / slug / \"check.py\"",
+            "line_text": "    script = root / \"ventures\" / slug / \"check.py\"",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 64,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "capture_output=True, text=True, cwd=root, timeout=300,",
+            "after": "capture_output=True, text=True, cwd=root, timeout=301,",
+            "line_text": "        capture_output=True, text=True, cwd=root, timeout=300,",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "subprocess timeout 300 -> 301 s: each checker finishes in about a second, so the limit never binds; no user-visible change."
+          },
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 66,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if proc.returncode not in (0, 2):",
+            "after": "if proc.returncode not in (1, 2):",
+            "line_text": "    if proc.returncode not in (0, 2):",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 68,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "return json.loads(proc.stdout or \"[]\")",
+            "after": "return json.loads(proc.stdout and \"[]\")",
+            "line_text": "    return json.loads(proc.stdout or \"[]\")",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 90,
+            "col": 56,
+            "operator": "and-to-or",
+            "before": "stale = sorted(k for k in accepted if k not in seen and k[0] in checkers)",
+            "after": "stale = sorted(k for k in accepted if k not in seen or k[0] in checkers)",
+            "line_text": "    stale = sorted(k for k in accepted if k not in seen and k[0] in checkers)",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 100,
+            "col": 90,
+            "operator": "const-plus-one",
+            "before": "print(json.dumps({\"new\": new, \"stale_accepted\": [list(k) for k in stale]}, indent=2))",
+            "after": "print(json.dumps({\"new\": new, \"stale_accepted\": [list(k) for k in stale]}, indent=3))",
+            "line_text": "        print(json.dumps({\"new\": new, \"stale_accepted\": [list(k) for k in stale]}, indent=2))",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "json.dumps indent 2 -> 3 changes only whitespace in --json output; any reader parses it identically."
+          },
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 108,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if new or stale else 0",
+            "after": "return 2 if new or stale else 0",
+            "line_text": "    return 1 if new or stale else 0",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: main()'s exit code was never asserted (tests called audit() directly); added test_main_exits_1_on_a_new_finding_or_a_stale_entry_and_0_when_clean."
+          },
+          {
+            "file": "platform/ci/dogfood_workflows.py",
+            "line": 108,
+            "col": 20,
+            "operator": "or-to-and",
+            "before": "return 1 if new or stale else 0",
+            "after": "return 1 if new and stale else 0",
+            "line_text": "    return 1 if new or stale else 0",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: main()'s exit code was never asserted (tests called audit() directly); added test_main_exits_1_on_a_new_finding_or_a_stale_entry_and_0_when_clean."
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "77530078-96eb-5842-a5d4-320a16603187",
+    "transcripts": 1,
+    "first": "2026-11-14T15:18:33Z",
+    "last": "2026-11-14T15:45:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 16888,
+        "thinking": 3691,
+        "cache_read": 4635012,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88908,
+        "api_equivalent_usd": 1.9764,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 16888,
+      "thinking": 3691,
+      "cache_read": 4635012,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88908,
+      "api_equivalent_usd": 1.9764,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.62,
+      "active_minutes": 26.62,
+      "model_minutes": 3.71,
+      "tool_minutes": 22.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "two mutation campaigns triaged and five new test cases across a node and a python suite, plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 151.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

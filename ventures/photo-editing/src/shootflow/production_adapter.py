@@ -30,7 +30,7 @@ from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.camera_profiles import CAMERA_PROFILES_DIR, profile_for
 from shootflow.lens_profiles import LENS_MEMORY_FILE, LENS_PROFILES_DIR, LensProfileError, load_db, load_lens_memory
 from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, still_for_review
-from shootflow.raw_preview import is_cr2_path, is_developable_path, is_raw_path
+from shootflow.raw_preview import is_developable_path, is_raw_path, needs_profile_path
 from shootflow.production_status import (
     ProductionJobStatus,
     ProductionStatusError,
@@ -1235,7 +1235,7 @@ def _materialize_ffmpeg_grade_production_outputs(
                 developed = Path(scratch) / "developed.tif"
                 try:
                     lens_db = _workspace_lens_db(root)
-                    dcp = _camera_profile(root, source_path).profile if is_cr2_path(source_path) else None
+                    dcp = _camera_profile(root, source_path).profile if needs_profile_path(source_path) else None
                     memory = _workspace_lens_memory(root) if lens_db is not None else None
                     settings = (DevelopSettings(dcp=dcp, lens_db=lens_db, lens_memory=memory)
                                 if dcp or lens_db else None)

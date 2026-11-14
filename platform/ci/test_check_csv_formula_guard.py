@@ -64,5 +64,34 @@ class CsvFormulaGuard(unittest.TestCase):
         self.assertEqual(g.compare(g.scan(g.ROOT), g.read_baseline(g.BASELINE)), ([], []))
 
 
+
+class WeakNumberExemption(unittest.TestCase):
+    # 2026-11-14: wash-sale-checker exempted /^-?\d/ (unanchored), so "-1+CMD|..." reached the sheet raw.
+    def test_unanchored_exemption_is_flagged(self):
+        for line in ('if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d/.test(s)) s = "\'" + s;',
+                     'const t = /^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d/.test(s) ? "\'" + s : s;',
+                     'if (/^[=+\\-@]/.test(v) && !/^[-+]?[\\d.]+/i.test(v)) v = "\'" + v;'):
+            self.assertTrue(g.weak_exemptions(line), line)
+
+    def test_anchored_exemptions_and_plain_guards_pass(self):
+        for line in ('if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s)) s = "\'" + s;',
+                     'const defuse = (s) => (/^[=+\\-@\\t\\r]/.test(s) && !/^[+-]?\\d[\\d.,]*$/.test(s) ? "\'" + s : s);',
+                     'if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?(e[-+]?\\d+)?$/i.test(s)) s = `\'${s}`;',
+                     'if (/^[=+\\-@\\t\\r]/.test(s)) s = "\'" + s;'):
+            self.assertEqual(g.weak_exemptions(line), [], line)
+
+    def test_main_fails_on_a_weak_exemption_with_no_baseline_escape(self):
+        d = Path(tempfile.mkdtemp())
+        p = d / "ventures" / "x" / "calc.mjs"
+        p.parent.mkdir(parents=True)
+        p.write_text('const cell = (s) => (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d/.test(s) ? "\'" + s : s);\n'
+                     'export function reportCsv(r) { return r.map(cell).join(","); }\n')
+        (d / "base.txt").write_text("")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = g.main(["--root", str(d), "--baseline", str(d / "base.txt")])
+        self.assertEqual(code, 1)
+        self.assertIn("ventures/x/calc.mjs:1", out.getvalue())
+
 if __name__ == "__main__":
     unittest.main()

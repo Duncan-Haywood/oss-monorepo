@@ -1,0 +1,18 @@
+{
+ "arxiv:1608.03983": {
+  "checked": "2026-11-14",
+  "title": "SGDR: Stochastic Gradient Descent with Warm Restarts (2016)"
+ },
+ "arxiv:1905.07479": {
+  "checked": "2026-11-14",
+  "title": "Incentive Design for Efficient Federated Learning in Mobile Networks: A Contract Theory Approach (2019)"
+ },
+ "arxiv:1911.12560": {
+  "checked": "2026-11-14",
+  "title": "Free-riders in Federated Learning: Attacks and Defenses (2019)"
+ },
+ "arxiv:2405.18392": {
+  "checked": "2026-11-14",
+  "title": "Scaling Laws and Compute-Optimal Training Beyond Fixed Training Durations (2024)"
+ }
+}

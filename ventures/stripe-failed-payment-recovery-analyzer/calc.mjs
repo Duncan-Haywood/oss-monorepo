@@ -136,7 +136,10 @@ export function buildCases(events, windowDays = 14) {
     if (!byKey.has(e.key)) byKey.set(e.key, []);
     byKey.get(e.key).push(e);
   }
-  const lastAt = Math.max(...events.map((e) => e.at.getTime()));
+  // A loop, not Math.max(...events.map()): spreading 125k+ values overflows
+  // the call stack.
+  let lastAt = -Infinity;
+  for (const e of events) { const t = e.at.getTime(); if (t > lastAt) lastAt = t; }
   const cases = [];
   for (const list of byKey.values()) {
     list.sort((a, b) => a.at - b.at);
@@ -178,8 +181,9 @@ export function analyze(events, { windowDays = 14, uplift = 0.1 } = {}) {
   const settled = cases.filter((c) => c.status !== "open");
   const openCount = cases.length - settled.length;
   const total = bucket(cases);
-  const times = events.map((e) => e.at.getTime());
-  const spanDays = Math.max(1, (Math.max(...times) - Math.min(...times)) / DAY);
+  let tMin = Infinity, tMax = -Infinity;
+  for (const e of events) { const t = e.at.getTime(); if (t < tMin) tMin = t; if (t > tMax) tMax = t; }
+  const spanDays = Math.max(1, (tMax - tMin) / DAY);
   const perYear = 365 / spanDays;
   const groups = (fn) => {
     const m = new Map();

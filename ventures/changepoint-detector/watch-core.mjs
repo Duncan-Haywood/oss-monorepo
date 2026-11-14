@@ -467,3 +467,25 @@ export function chooseDetector(values, labels = null, opts = {}) {
     ? `even Quiet sent more than ${fb} alerts per 100 checks on the history, so Quiet`
     : `the most eager setting at or under ${fb} alerts per 100 checks on the history`, replay: r };
 }
+
+/**
+ * Agreement across columns (Round 13, eval/watch-skab-agree.mjs): turn several columns' alert lines into whole-watch
+ * alerts that need `k` distinct columns to agree. lines: [{ column, index, at }] (the change's point and the point whose
+ * arrival sent the line). Taken in the order they were sent, a line becomes a whole-watch alert when, counting it and
+ * every line sent at or before it whose change lies within `within` points of its change, at least `k` distinct
+ * columns have alerted, and no whole-watch alert was already sent for a change within `within` points of it. With
+ * k = 1 this only merges near-simultaneous lines into one message, the like-for-like baseline. Returns
+ * [{ index, at, columns }] in the order sent.
+ */
+export function agreeAlerts(lines, k = 2, within = 12) {
+  if (!Number.isInteger(k) || k < 1) throw new Error('agreement takes a whole number of columns, 1 or more.');
+  const order = [...lines].sort((a, b) => a.at - b.at || a.index - b.index);
+  const seen = [], sent = [];
+  for (const l of order) {
+    seen.push(l);
+    if (sent.some((s) => Math.abs(s.index - l.index) <= within)) continue;
+    const cols = new Set(seen.filter((x) => Math.abs(x.index - l.index) <= within).map((x) => x.column));
+    if (cols.size >= k) sent.push({ index: l.index, at: l.at, columns: [...cols] });
+  }
+  return sent;
+}

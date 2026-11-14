@@ -86,7 +86,8 @@ export function analyze(rows, opts = {}) {
   const warnings = [];
   const L = Math.round(opts.trialDays ?? 14);
   if (!(L >= 2 && L <= 120)) return { error: "Trial length must be between 2 and 120 days." };
-  const latest = Math.max(...rows.map((r) => r.paid ?? r.start));
+  // A reduce, not Math.max(...rows.map()): spreading 125k+ values overflows the call stack.
+  const latest = rows.reduce((m, r) => Math.max(m, r.paid ?? r.start), -Infinity);
   let asOf = opts.asOf ? parseDate(opts.asOf) : latest;
   if (asOf === null) return { error: "As-of date must look like 2026-03-14." };
   // Only trials whose window has closed can be judged. A trial still running

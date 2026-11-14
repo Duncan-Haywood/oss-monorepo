@@ -366,12 +366,16 @@ export function analyze(orders, opts = {}) {
   };
   const byPlatform = [...plats.values()].map((b) => ({ ...finish(b), markup: markupNeeded(b, markupNow), direct: directOf(b), payoutGap: b.payoutRows === b.records && b.records > 0 ? b.payout - b.net : null }))
     .sort((a, b) => b.gross - a.gross);
+  // A loop, not Math.min(...list): spreading 125k+ values overflows the call
+  // stack, and a busy restaurant's year of orders is that many.
+  let tMin = Infinity, tMax = -Infinity;
+  for (const x of list) { if (x.t < tMin) tMin = x.t; if (x.t > tMax) tMax = x.t; }
   const total = blank("all", "All platforms");
   for (const r of rows) add(total, r);
   const summary = {
     ...finish(total), markup: markupNeeded(total, markupNow), direct: directOf(total), platforms: byPlatform.length,
     cancelledDropped: dropped, cancelledKept: rows.filter((r) => r.cancelled).length,
-    from: Math.floor(Math.min(...list.map((x) => x.t)) / DAY) * DAY, to: Math.floor(Math.max(...list.map((x) => x.t)) / DAY) * DAY,
+    from: Math.floor(tMin / DAY) * DAY, to: Math.floor(tMax / DAY) * DAY,
     costsEntered: foodPct > 0 || packaging > 0,
     lossOrders: rows.filter(isLoss).length,
     refunds: rows.filter((r) => r.refund).length, refundTotal: rows.filter((r) => r.refund).reduce((t, r) => t + r.gross, 0),
@@ -409,10 +413,11 @@ export function analyze(orders, opts = {}) {
   const lossList = live.filter(isLoss);
   const noTimes = !list.some((x) => x.hasTime);
 
+  const lossOrders = { count: lossList.length, total: lossList.reduce((s, r) => s + r.netAfter, 0), gross: lossList.reduce((s, r) => s + r.gross, 0) };
+
   return {
-    summary, byPlatform, byWeekday, byDaypart, promo, worstOrders, noTimes,
-    lossOrders: { count: lossList.length, total: lossList.reduce((s, r) => s + r.netAfter, 0), gross: lossList.reduce((s, r) => s + r.gross, 0) },
-    findings: findings({ summary, byPlatform, byWeekday, byDaypart, promo, noTimes, lossOrders: { count: lossList.length, total: lossList.reduce((t, r) => t + r.netAfter, 0), gross: lossList.reduce((t, r) => t + r.gross, 0) } }),
+    summary, byPlatform, byWeekday, byDaypart, promo, worstOrders, noTimes, lossOrders,
+    findings: findings({ summary, byPlatform, byWeekday, byDaypart, promo, noTimes, lossOrders }),
   };
 }
 

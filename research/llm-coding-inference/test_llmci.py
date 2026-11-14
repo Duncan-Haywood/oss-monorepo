@@ -666,3 +666,17 @@ def test_post_stratified_estimate_equals_pooled_control_variate():
     for seed in range(20):
         lab = {i: h[i] for i in random.Random(seed).sample(range(N), 500)}
         assert abs(A.audit_interval(cells, f, lab)[0] - A.audit_interval(pooled, f, lab)[0]) < 1e-12
+
+
+def test_j_lower_bound_of_7at():
+    """LOG.md 7at: the l-rules' Wald lower bound on Youden's J equals informedness at z = 0, falls as z grows, and is
+    -1 when the pilot has no positive (J undefined), so such a pilot is never admitted."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    from llmci import audit_design as A
+    import h7at_weak_admit as W
+    rng = random.Random(3)
+    y = [int(rng.random() < 0.2) for _ in range(400)]
+    f = [int(rng.random() < (0.7 if t else 0.1)) for t in y]
+    assert abs(W.j_lower(y, f, 0.0) - A.informedness(y, f)) < 1e-12
+    assert W.j_lower(y, f, 1.645) < W.j_lower(y, f, 1.0) < W.j_lower(y, f, 0.0)
+    assert W.j_lower([0] * 50, [1] * 5 + [0] * 45, 1.0) == -1.0

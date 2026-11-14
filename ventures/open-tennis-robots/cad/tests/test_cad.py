@@ -1063,6 +1063,87 @@ class TroughParamsTest(unittest.TestCase):
         self.assertIn(Feeder(trough_w=90.0).check_trough()[0], Feeder(trough_w=90.0).check())
 
 
+def _ref_hose_curve_range(ox, oz, mx, mz, tilt_rad, r_min, slope_min, step=25.0):
+    """`_hose_curve_range` as written before the 2026-11-14 speed-up: every curve's full stats, then the test."""
+    from otr_cad.params import _bezier_stats
+    lo = hi = None
+    n = int(900 / step)
+    for i in range(1, n + 1):
+        for j in range(1, n + 1):
+            l0, l1 = i * step, j * step
+            pts = ((ox, oz), (ox, oz - l0), (mx - l1 * math.sin(tilt_rad), mz + l1 * math.cos(tilt_rad)), (mx, mz))
+            length, kmax, smin = _bezier_stats(pts)
+            if kmax <= 1 / r_min and smin >= slope_min:
+                lo = length if lo is None else min(lo, length)
+                hi = length if hi is None else max(hi, length)
+    return None if lo is None else (lo, hi)
+
+
+def _ref_hose_curve_range_3d(o, m, u, r_min, slope_min, step=25.0, n=24):
+    """`_hose_curve_range_3d` as written before the 2026-11-14 speed-up (list arithmetic, coefficients per point)."""
+    kcap, tan_min = 1 / r_min, math.tan(math.radians(slope_min))
+    ts = [k / n for k in range(n + 1)]
+    lo = hi = None
+    cnt = int(900 / step)
+    for i in range(1, cnt + 1):
+        p0, p1 = o, (o[0], o[1], o[2] - i * step)
+        for j in range(1, cnt + 1):
+            l1 = j * step
+            p2, p3 = (m[0] + l1 * u[0], m[1] + l1 * u[1], m[2] + l1 * u[2]), m
+            d01 = [p1[c] - p0[c] for c in range(3)]
+            d12 = [p2[c] - p1[c] for c in range(3)]
+            d23 = [p3[c] - p2[c] for c in range(3)]
+            s0 = [p2[c] - 2 * p1[c] + p0[c] for c in range(3)]
+            s1 = [p3[c] - 2 * p2[c] + p1[c] for c in range(3)]
+            ok = True
+            for t in ts:
+                w = 1 - t
+                a = [3 * w * w * d01[c] + 6 * w * t * d12[c] + 3 * t * t * d23[c] for c in range(3)]
+                if abs(a[2]) < tan_min * math.hypot(a[0], a[1]) - 1e-12:
+                    ok = False
+                    break
+                b = [6 * w * s0[c] + 6 * t * s1[c] for c in range(3)]
+                cx, cy, cz = a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]
+                sp = math.sqrt(a[0] ** 2 + a[1] ** 2 + a[2] ** 2)
+                if sp > 1e-9 and math.sqrt(cx * cx + cy * cy + cz * cz) > kcap * sp ** 3:
+                    ok = False
+                    break
+            if not ok:
+                continue
+            length, prev = 0.0, p0
+            for t in ts[1:]:
+                w = 1 - t
+                q = tuple(w ** 3 * p0[c] + 3 * w * w * t * p1[c] + 3 * w * t * t * p2[c] + t ** 3 * p3[c] for c in range(3))
+                length += math.dist(prev, q)
+                prev = q
+            lo = length if lo is None else min(lo, length)
+            hi = length if hi is None else max(hi, length)
+    return None if lo is None else (lo, hi)
+
+
+class HoseCurveSearchTest(unittest.TestCase):
+    """The hose-curve searches were sped up on 2026-11-14 (early exit, hoisted coefficients). They must give the same
+    floats, bit for bit, as the straightforward code they replaced, on fitting and non-fitting poses alike."""
+
+    def test_fast_searches_match_the_reference(self):
+        from otr_cad.params import _hose_curve_range, _hose_curve_range_3d
+        p = Feeder()
+        oz = p.sleeve_take_up_design()["start_z"]
+        seen = set()
+        for e, r_min, slope in ((p.elev_min, p.hose_min_bend, p.feed_min_slope_deg), (p.elev_max, p.hose_min_bend, 40.0),
+                                (20.0, 400.0, p.feed_min_slope_deg)):
+            mx, mz = p.mouth_world(e)
+            a = _hose_curve_range.__wrapped__(p.hopper_out_x, oz, mx, mz, math.radians(e), r_min, slope)
+            b = _ref_hose_curve_range(p.hopper_out_x, oz, mx, mz, math.radians(e), r_min, slope)
+            self.assertEqual(a, b)
+            m, u = p.mouth_world_3d(e, p.az_max)
+            a3 = _hose_curve_range_3d.__wrapped__((p.hopper_out_x, 0.0, oz), m, u, r_min, slope)
+            b3 = _ref_hose_curve_range_3d((p.hopper_out_x, 0.0, oz), m, u, r_min, slope)
+            self.assertEqual(a3, b3)
+            seen |= {a is None, a3 is None}
+        self.assertEqual(seen, {True, False})       # both a fitting and a non-fitting pose were compared
+
+
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class TroughCadTest(unittest.TestCase):
     @classmethod
@@ -1404,6 +1485,56 @@ class InrushTest(unittest.TestCase):
         for kw, msg in cases:
             bad = Feeder(**kw).check_inrush()
             self.assertTrue(any(msg in r for r in bad), (kw, bad))
+
+
+class PrechargeStartupTest(unittest.TestCase):
+    """Start-up loads during the precharge (2026-11-14): the stepped bus against closed forms, and the firmware's
+    servo gate."""
+
+    def test_no_start_up_loads_is_the_closed_form(self):
+        p = Feeder(stepper_holds_at_power_up=False)
+        d = p.contactor_inrush()
+        for delay in (0.005, 0.02, 0.5):
+            q = Feeder(stepper_holds_at_power_up=False, precharge_delay_s=delay)
+            b = q.precharge_bus(q.battery_v_max)
+            held = q.bus_idle_a * (q.precharge_ohm + d["r_ohm"])
+            want = held + (q.battery_v_max - held) * math.exp(-delay / ((q.precharge_ohm + d["r_ohm"]) * d["c_f"]))
+            self.assertAlmostEqual(b["gap_v"], want, delta=1e-4 * q.battery_v_max, msg=delay)
+
+    def test_a_constant_power_load_settles_on_the_quadratic_root(self):
+        # V (Vp - V) / R - idle V = P, the upper root, once the delay is long
+        for vp in (24.0, 29.2):
+            p = Feeder(precharge_delay_s=2.0)
+            b = p.precharge_bus(vp)
+            rp = p.precharge_ohm + p.contactor_inrush()["r_ohm"]
+            w = b["loads"][0]["w"]
+            a, bb = 1 / rp, -(vp / rp - p.bus_idle_a)
+            v = (-bb + math.sqrt(bb * bb - 4 * a * w)) / (2 * a)
+            self.assertAlmostEqual(b["bus_v"], v, delta=1e-3, msg=vp)
+            self.assertLess(w, b["max_w"])
+
+    def test_the_old_servo_gate_fails_and_the_new_one_passes(self):
+        old = Feeder(servo_pulse_at_rest=True)
+        bad = old.check_inrush()
+        self.assertTrue(any("bus held" in r and "shuttle servo seeking home" in r for r in bad), bad)
+        low = old.contactor_inrush()["startup"]["low"]
+        # at the low end the servo and stepper ask more than the resistor can pass: the bus chatters at their threshold
+        self.assertGreater(sum(x["w"] for x in low["loads"]), low["max_w"] - old.bus_idle_a * old.battery_v_min)
+        self.assertGreater(low["loads"][0]["starts"], 10)
+        self.assertGreater(low["close"]["peak_a"], 3 * old.contactor_make_a)
+        new = Feeder()
+        self.assertEqual(new.check_inrush(), [])
+        d = new.contactor_inrush()
+        plain = Feeder(stepper_holds_at_power_up=False).contactor_inrush()["closing"]["peak_a"]
+        # the stepper's holding current alone doubles what the contactor makes, still under its assumed limit
+        self.assertGreater(d["closing"]["peak_a"], 2 * plain)
+        self.assertLess(d["closing"]["peak_a"], new.contactor_make_a)
+
+    def test_firmware_gives_the_servo_no_pulse_before_a_feed(self):
+        src = (Path(__file__).resolve().parents[2] / "firmware" / "esp32" / "main.py").read_text()
+        self.assertNotIn("hold the shuttle retracted (also from power-up)", src)
+        self.assertIn("self.gate.pwm.duty_u16(0)", src)
+        self.assertFalse(Feeder.servo_pulse_at_rest)
 
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")

@@ -16,8 +16,8 @@ import math
 from dataclasses import dataclass, field
 
 
-def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
-    """(length mm, peak curvature 1/mm, flattest slope deg) of a planar cubic Bezier through control points `pts`."""
+def _bezier_length(pts: tuple, n: int = 24) -> float:
+    """Length (mm) of a planar cubic Bezier through control points `pts`, as `n` chords."""
     def at(t):
         u = 1 - t
         return tuple(u**3 * pts[0][i] + 3 * u * u * t * pts[1][i] + 3 * u * t * t * pts[2][i] + t**3 * pts[3][i] for i in (0, 1))
@@ -27,6 +27,12 @@ def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
         q = at(k / n)
         length += math.dist(prev, q)
         prev = q
+    return length
+
+
+def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
+    """(length mm, peak curvature 1/mm, flattest slope deg) of a planar cubic Bezier through control points `pts`."""
+    length = _bezier_length(pts, n)
     kmax, smin = 0.0, 90.0
     for k in range(n + 1):
         t = k / n
@@ -49,17 +55,47 @@ def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: floa
     """Shortest and longest hose (mm) that leaves the outlet straight down and enters the socket mouth along
     the column axis (tilted `tilt_rad` with the head), as a cubic Bezier with handle lengths from `step` to 900 mm,
     never bending tighter than `r_min` and never flatter than `slope_min` degrees. None if no such curve exists."""
+    # The same test as `_bezier_stats(pts)` followed by `kmax <= 1 / r_min and smin >= slope_min`, bit for bit
+    # (2026-11-14, perf): the bend and fall are checked point by point and the first failing point rejects the curve,
+    # the t-only coefficients are hoisted, and the length is only measured for curves that fit. Every float is formed
+    # by the same operations in the same order as in `_bezier_stats`, so the range is identical
+    # (tests/test_cad.py, "matches the reference"; docs/history/ci-perf-2026-11-14-open-tennis-hose-curve.md).
+    nseg = 24
+    ts = [k / nseg for k in range(nseg + 1)]
+    deriv = [(3 * (1 - t) * (1 - t), 6 * (1 - t) * t, 3 * t * t, 6 * (1 - t), 6 * t) for t in ts]
+    cap = 1 / r_min
+    if not (0.0 <= cap and 90.0 >= slope_min):      # kmax starts at 0 and smin at 90 in `_bezier_stats`
+        return None
+    st, ct = math.sin(tilt_rad), math.cos(tilt_rad)
     lo = hi = None
     n = int(900 / step)
     for i in range(1, n + 1):
         l0 = i * step
+        p1z = oz - l0
         for j in range(1, n + 1):
             l1 = j * step
-            pts = ((ox, oz), (ox, oz - l0), (mx - l1 * math.sin(tilt_rad), mz + l1 * math.cos(tilt_rad)), (mx, mz))
-            length, kmax, smin = _bezier_stats(pts)
-            if kmax <= 1 / r_min and smin >= slope_min:
-                lo = length if lo is None else min(lo, length)
-                hi = length if hi is None else max(hi, length)
+            pts = ((ox, oz), (ox, p1z), (mx - l1 * st, mz + l1 * ct), (mx, mz))
+            (x0, z0), (x1, z1), (x2, z2), (x3, z3) = pts
+            dx01, dx12, dx23 = x1 - x0, x2 - x1, x3 - x2
+            dz01, dz12, dz23 = z1 - z0, z2 - z1, z3 - z2
+            sx0, sx1 = x2 - 2 * x1 + x0, x3 - 2 * x2 + x1
+            sz0, sz1 = z2 - 2 * z1 + z0, z3 - 2 * z2 + z1
+            ok = True
+            for c0, c1, c2, e0, e1 in deriv:
+                ax = c0 * dx01 + c1 * dx12 + c2 * dx23
+                az = c0 * dz01 + c1 * dz12 + c2 * dz23
+                sp = math.hypot(ax, az)
+                if sp > 1e-9:
+                    bx = e0 * sx0 + e1 * sx1
+                    bz = e0 * sz0 + e1 * sz1
+                    if abs(ax * bz - az * bx) / sp ** 3 > cap or math.degrees(math.atan2(abs(az), abs(ax))) < slope_min:
+                        ok = False
+                        break
+            if not ok:
+                continue
+            length = _bezier_length(pts, nseg)
+            lo = length if lo is None else min(lo, length)
+            hi = length if hi is None else max(hi, length)
     return None if lo is None else (lo, hi)
 
 
@@ -70,46 +106,54 @@ def _hose_curve_range_3d(o: tuple, m: tuple, u: tuple, r_min: float, slope_min: 
     mouth `m` along the unit column axis `u` (pointing out of the socket, up the column), which need not lie in the
     x-z plane once the head turns in azimuth. Same Bezier family, bend limit and fall limit; the fall is measured
     from the horizontal plane (tangent's z against its horizontal length). Shortest and longest fitting hose, or None."""
+    # 2026-11-14 (perf): the per-t coefficients are hoisted and the 3-vectors unrolled. Each float is formed by the same
+    # operations in the same order as before (e.g. 3 * w * w * d is (3 * w * w) * d), so the range is bit-identical.
     kcap = 1 / r_min
     tan_min = math.tan(math.radians(slope_min))
     ts = [k / n for k in range(n + 1)]
+    deriv = [(3 * (1 - t) * (1 - t), 6 * (1 - t) * t, 3 * t * t, 6 * (1 - t), 6 * t) for t in ts]
+    place = [((1 - t) ** 3, 3 * (1 - t) * (1 - t) * t, 3 * (1 - t) * t * t, t ** 3) for t in ts[1:]]
+    ox, oy, oz = o
+    mx, my, mz = m
+    ux, uy, uz = u
     lo = hi = None
     cnt = int(900 / step)
     for i in range(1, cnt + 1):
         l0 = i * step
-        p0 = o
-        p1 = (o[0], o[1], o[2] - l0)
+        p1x, p1y, p1z = ox, oy, oz - l0
         for j in range(1, cnt + 1):
             l1 = j * step
-            p2 = (m[0] + l1 * u[0], m[1] + l1 * u[1], m[2] + l1 * u[2])
-            p3 = m
-            d01 = [p1[c] - p0[c] for c in range(3)]
-            d12 = [p2[c] - p1[c] for c in range(3)]
-            d23 = [p3[c] - p2[c] for c in range(3)]
-            s0 = [p2[c] - 2 * p1[c] + p0[c] for c in range(3)]
-            s1 = [p3[c] - 2 * p2[c] + p1[c] for c in range(3)]
+            p2x, p2y, p2z = mx + l1 * ux, my + l1 * uy, mz + l1 * uz
+            d01x, d01y, d01z = p1x - ox, p1y - oy, p1z - oz
+            d12x, d12y, d12z = p2x - p1x, p2y - p1y, p2z - p1z
+            d23x, d23y, d23z = mx - p2x, my - p2y, mz - p2z
+            s0x, s0y, s0z = p2x - 2 * p1x + ox, p2y - 2 * p1y + oy, p2z - 2 * p1z + oz
+            s1x, s1y, s1z = mx - 2 * p2x + p1x, my - 2 * p2y + p1y, mz - 2 * p2z + p1z
             ok = True
-            for t in ts:
-                w = 1 - t
-                a = [3 * w * w * d01[c] + 6 * w * t * d12[c] + 3 * t * t * d23[c] for c in range(3)]
-                h = math.hypot(a[0], a[1])
-                if abs(a[2]) < tan_min * h - 1e-12:      # flatter than the fall limit
+            for c0, c1, c2, e0, e1 in deriv:
+                a0 = c0 * d01x + c1 * d12x + c2 * d23x
+                a1 = c0 * d01y + c1 * d12y + c2 * d23y
+                a2 = c0 * d01z + c1 * d12z + c2 * d23z
+                h = math.hypot(a0, a1)
+                if abs(a2) < tan_min * h - 1e-12:      # flatter than the fall limit
                     ok = False
                     break
-                b = [6 * w * s0[c] + 6 * t * s1[c] for c in range(3)]
-                cx = a[1] * b[2] - a[2] * b[1]
-                cy = a[2] * b[0] - a[0] * b[2]
-                cz = a[0] * b[1] - a[1] * b[0]
-                sp = math.sqrt(a[0] ** 2 + a[1] ** 2 + a[2] ** 2)
+                b0 = e0 * s0x + e1 * s1x
+                b1 = e0 * s0y + e1 * s1y
+                b2 = e0 * s0z + e1 * s1z
+                cx = a1 * b2 - a2 * b1
+                cy = a2 * b0 - a0 * b2
+                cz = a0 * b1 - a1 * b0
+                sp = math.sqrt(a0 ** 2 + a1 ** 2 + a2 ** 2)
                 if sp > 1e-9 and math.sqrt(cx * cx + cy * cy + cz * cz) > kcap * sp ** 3:
                     ok = False
                     break
             if not ok:
                 continue
-            length, prev = 0.0, p0
-            for t in ts[1:]:
-                w = 1 - t
-                q = tuple(w ** 3 * p0[c] + 3 * w * w * t * p1[c] + 3 * w * t * t * p2[c] + t ** 3 * p3[c] for c in range(3))
+            length, prev = 0.0, o
+            for k0, k1, k2, k3 in place:
+                q = (k0 * ox + k1 * p1x + k2 * p2x + k3 * mx, k0 * oy + k1 * p1y + k2 * p2y + k3 * my,
+                     k0 * oz + k1 * p1z + k2 * p2z + k3 * mz)
                 length += math.dist(prev, q)
                 prev = q
             lo = length if lo is None else min(lo, length)
@@ -768,6 +812,19 @@ class Feeder:
     precharge_relay_a: float = 10.0   # the small relay that switches the resistor
     bus_idle_a: float = 0.3           # what the switched loads draw idling while the bus precharges (assumption):
                                       # it holds the bus below the pack by idle x resistor
+    # Start-up loads during the precharge (2026-11-14, `precharge_bus`). A buck or a chopper drive draws constant power
+    # once its input passes its start threshold, so it takes more current the lower the bus, and through 4.7 ohm the
+    # most a bus can pass is V^2 / 4R (31 W at 24 V). Two loads can start while the bus charges: the stepper driver,
+    # whose ENABLE is not wired (it holds its phase current from the moment it has power), and the shuttle servo's
+    # buck, if the firmware sends a pulse at rest (before 2026-11-14 it held GATE_LO_US from power-up, so a servo left
+    # anywhere but home sought it at stall current). Figures are assumptions: read your driver's and buck's sheets.
+    switched_start_v: float = 8.0     # bus volts at which a buck or the stepper driver starts (A4988/DRV8825 class
+                                      # need 8 V; small bucks' undervoltage lockouts sit near there)
+    switched_stop_v: float = 7.0      # and stops again (hysteresis)
+    servo_seek_s: float = 0.68        # a seek from anywhere to home at stall current: the loaded back stroke
+                                      # (GATE_BACK_MS's cad figure), the worst case after a cut mid-stroke
+    servo_pulse_at_rest: bool = False  # firmware: True is the pre-2026-11-14 gate, pulsed from power-up
+    stepper_holds_at_power_up: bool = True  # its ENABLE pin is not wired (electronics.md pin map)
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -2369,17 +2426,88 @@ class Feeder:
                                 "fault_j": v * v / self.precharge_ohm * self.precharge_delay_s,
                                 "close": event(residual, self.bus_idle_a)}
         out["closing"] = out["precharge"]["close"] if out["precharge"] else direct
+        if self.precharge_ohm > 0:
+            # The same closing with the switched loads that start during the precharge, at both ends of the battery's
+            # range: constant-power loads hurt most at the low end, the step's energy at the high one.
+            out["startup"] = {}
+            for name, vp in (("full", v), ("low", self.battery_v_min)):
+                b = self.precharge_bus(vp, r, c)
+                b["close"] = event(b["gap_v"], b["load_a"])
+                out["startup"][name] = b
+            worst = max(out["startup"].values(), key=lambda b: b["close"]["peak_a"])
+            if worst["close"]["peak_a"] > out["closing"]["peak_a"]:
+                out["closing"] = worst["close"]
         return out
+
+    def startup_loads(self, v_pack: float) -> list[tuple[str, float, float]]:
+        """Constant-power loads that start while the bus precharges: (name, input watts, seconds or inf)."""
+        loads = []
+        if self.stepper_holds_at_power_up:
+            d = self.power_distribution()
+            stepper = next(b for b in d["branches"] if b["name"] == "azimuth stepper driver")
+            loads.append(("stepper driver holding", stepper["run_a"] * self.battery_v_min, math.inf))
+        if self.servo_pulse_at_rest:
+            loads.append(("shuttle servo seeking home", self.servo_supply_v * self.servo_stall_a / self.buck_eff,
+                          self.servo_seek_s))
+        return loads
+
+    def precharge_bus(self, v_pack: float, r_loop: float | None = None, c_bus: float | None = None) -> dict:
+        """The bus during the precharge with the start-up loads (2026-11-14): C dV/dt = (Vpack - V) / R - idle - sum
+        P / V over the loads that have started (above `switched_start_v`, until they fall below `switched_stop_v`;
+        a seeking servo for `servo_seek_s` of powered time), stepped at a 400th of the time constant to the
+        contactor's on-delay. With no start-up loads it is the closed form in `contactor_inrush`, which the tests check.
+        Returns the gap left when the contactor closes, the loads' current then, the loads' restarts (a bus that
+        cannot carry them chatters at their threshold) and the highest V^2 / 4R power the resistor can pass."""
+        if r_loop is None or c_bus is None:
+            d = self.contactor_inrush()
+            r_loop, c_bus = d["r_ohm"], d["c_f"]
+        rp = self.precharge_ohm + r_loop
+        loads = self.startup_loads(v_pack)
+        dt = rp * c_bus / 400
+        n = int(math.ceil(self.precharge_delay_s / dt))
+        dt = self.precharge_delay_s / n
+        vb, on, used, starts = 0.0, [False] * len(loads), [0.0] * len(loads), [0] * len(loads)
+
+        def draw(vx):
+            a = self.bus_idle_a
+            for k, (_, w, dur) in enumerate(loads):
+                if on[k] and used[k] < dur:
+                    a += w / max(vx, 1e-6)
+            return a
+
+        for _ in range(n):
+            for k in range(len(loads)):
+                if on[k] and vb < self.switched_stop_v:
+                    on[k] = False
+                elif not on[k] and vb >= self.switched_start_v:
+                    on[k] = True
+                    starts[k] += 1
+            k1 = ((v_pack - vb) / rp - draw(vb)) / c_bus
+            vm = vb + k1 * dt / 2
+            vb += ((v_pack - vm) / rp - draw(vm)) / c_bus * dt
+            for k in range(len(loads)):
+                if on[k]:
+                    used[k] += dt
+        return {"v_pack": v_pack, "bus_v": vb, "gap_v": v_pack - vb, "load_a": draw(vb),
+                "loads": [{"name": nm, "w": w, "starts": starts[k], "on_at_close": on[k] and used[k] < dur}
+                          for k, (nm, w, dur) in enumerate(loads)],
+                "max_w": v_pack ** 2 / (4 * rp)}
 
     def check_inrush(self) -> list[str]:
         bad = []
         d = self.contactor_inrush()
         cl, pre = d["closing"], d["precharge"]
         how = "closing onto the precharged bus" if pre else "closing onto an empty bus"
+        if pre and cl is not pre["close"]:
+            b = max(d["startup"].values(), key=lambda x: x["close"]["peak_a"])
+            names = ", ".join(x["name"] for x in b["loads"] if x["on_at_close"]) or "the start-up loads"
+            how = (f"closing at {b['v_pack']:g} V onto a bus held {b['gap_v']:.1f} V short by {names} "
+                   f"(firmware: no servo pulse at rest; or wire the stepper's ENABLE)")
         fix = "" if pre else ": add the precharge (precharge_ohm)"
         if cl["peak_a"] > self.contactor_make_a + 1e-9:
             bad.append(f"contactor makes {cl['peak_a']:.0f} A {how}, over the {self.contactor_make_a:g} A it may make{fix}"
-                       + (f" or lengthen precharge_delay_s ({cl['step_v']:.2f} V left)" if pre else ""))
+                       + (f" or lengthen precharge_delay_s ({pre['close']['step_v']:.2f} V left with no start-up loads)"
+                          if pre and pre["close"]["peak_a"] > self.contactor_make_a + 1e-9 else ""))
         if cl["bms_over_us"] > self.bms_sc_delay_us + 1e-9:
             bad.append(f"inrush stays over the BMS's {self.bms_sc_a:g} A short-circuit trip for {cl['bms_over_us']:.0f} us "
                        f"{how}, past its {self.bms_sc_delay_us:g} us delay: the BMS would cut the Pi too{fix}")

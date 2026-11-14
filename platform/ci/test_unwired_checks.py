@@ -45,12 +45,53 @@ class Unwired(unittest.TestCase):
                     mock.patch.object(u, "unwired_tests", return_value=[]), \
                     mock.patch.object(u, "unwired_extra", return_value=[]), \
                     mock.patch.object(u, "unwired_node_suites", return_value=[]), \
-                    mock.patch.object(u, "run_all", side_effect=[results, [], [], []]), \
+                    mock.patch.object(u, "run_mixed", return_value=results), \
                     redirect_stdout(io.StringIO()) as out:
                 rc = u.main([])
             self.assertEqual(rc, 0 if case == "green" else 1, case)
             passed = sum(r[1] == 0 for r in results)
             self.assertIn(f"{passed}/{len(results)} unwired", out.getvalue())
+
+    def test_run_everything_runs_every_kind_in_one_pool_with_its_own_runner(self):
+        """One pool for checks, suites, node suites and EXTRA (2026-11-14); each
+        item keeps its runner, and a timeout is re-run alone with that runner."""
+        seen = []
+        calls = {"n": 0}
+
+        def check(p):
+            seen.append(("check", p))
+            return p, 0, ""
+
+        def suite(p):
+            calls["n"] += 1
+            seen.append(("suite", p))
+            # The first call times out; the solo re-run passes.
+            return p, (u.main_health.TIMED_OUT if calls["n"] == 1 else 0), ""
+
+        def node(p):
+            seen.append(("node", p))
+            return p, 0, ""
+
+        with mock.patch.object(u, "unwired", return_value=["check_a.py"]), \
+                mock.patch.object(u, "unwired_tests", return_value=["test_b.py"]), \
+                mock.patch.object(u, "unwired_node_suites", return_value=["c.test.mjs"]), \
+                mock.patch.object(u, "unwired_extra", return_value=[]), \
+                mock.patch.object(u.main_health, "label", side_effect=lambda p: p), \
+                mock.patch.object(u.main_health, "run", side_effect=check), \
+                mock.patch.object(u, "run_suite", side_effect=suite), \
+                mock.patch.object(u, "run_node_suite", side_effect=node), \
+                redirect_stdout(io.StringIO()):
+            results = u.run_everything()
+        self.assertEqual([r[:2] for r in results],
+                         [("c.test.mjs", 0), ("check_a.py", 0), ("test_b.py", 0)])
+        self.assertEqual(seen.count(("suite", "test_b.py")), 2)
+        self.assertIn(("check", "check_a.py"), seen)
+        self.assertIn(("node", "c.test.mjs"), seen)
+        with mock.patch.object(u, "unwired", return_value=["check_a.py"]), \
+                mock.patch.object(u.main_health, "run", side_effect=check), \
+                mock.patch.object(u, "unwired_tests") as tests:
+            self.assertEqual([r[0] for r in u.run_everything(checks_only=True)], ["check_a.py"])
+        tests.assert_not_called()
 
     def test_report_keeps_the_last_eight_lines_of_a_red_output(self):
         out = "\n".join(f"line{i}" for i in range(20))

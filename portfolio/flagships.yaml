@@ -157,11 +157,11 @@ flagships:
       / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
       (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
       box and "Wandering level" (drift) shipped; Rounds 10-12 (NAB; SKAB, 33 pump
-      faults, 8 sensors): every rule failed; on SKAB Quiet was most precise (36.8%
-      at a mark, chance 23.1%), drift's NAB lead did not carry, 8 columns sent 8.5
-      false lines per 100 checks on a normal run; next a whole-watch budget or a
-      column screen; a real deployer's repository on GitHub Actions (the emulated
-      run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data
+      faults, 8 sensors): every rule failed; 8 SKAB columns sent 8.5 false lines per
+      100 checks on a normal run; Round 13 (two columns agree) failed: coupled
+      sensors agree on noise (2.69/100), 22 of 33 faults vs 31; next a budget by
+      sensor group; a real deployer's repository on GitHub Actions (the emulated run
+      is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data
       (0.564 on TCPD's 3, a lead), a season and a trend term per column (README
       "Wide sets in print"); (b) sticky series on a drifting level: four repeat
       treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc
@@ -192,26 +192,26 @@ flagships:
       Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's
       rules admit them: which validator does AT run?); Poland's FA(3): receipt
       checks landed (README); open: a real KSeF rejection, a real correction,
-      advance or settlement file; repair on real files landed (README): open: CII
-      header allowances in it, veraPDF; PINT JP/MY/AE/OM rules and repair landed
-      (README); open: a real business's PINT file; open: RO_CIUS on a real ANAF
-      file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP payload;
-      mandate texts read (README); open: IL (gov.il 403), ES, SK (hosts blocked
-      2026-11-14), NRS notice (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI
-      4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww
-      blocked), a real payroll or export file, a PAC rejection compared; postal
-      codes (MX-080) landed (README); Brazil NF-e 4.00, PL_010 reform sums and the
-      cClassTrib table (BR-053..057, NFSE-034..036, 2026-11-13) landed (README);
-      cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110,
-      12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged
-      (README): open: a real event; a real reform NF-e from a SEFAZ test
-      environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed:
-      open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04
-      landed (README): open: ISS retained on a real file, city provider schemas,
-      1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README):
-      open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the
-      Bulgaria page when its draft passes. A run that lands a slice replaces its
-      item here; keep this under 2,000 characters.
+      advance or settlement file; repair incl. CII header allowances landed
+      (README): open: veraPDF; PINT JP/MY/AE/OM rules and repair landed (README);
+      open: a real business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS
+      on a real Dutch file; India's INV-01 check on a real IRP payload; mandate
+      texts read (README); open: IL (gov.il 403), ES, SK (hosts blocked 2026-11-14),
+      NRS notice (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed:
+      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a
+      real payroll or export file, a PAC rejection compared; postal codes (MX-080)
+      landed (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
+      (BR-053..057, NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and
+      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
+      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
+      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
+      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
+      compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS
+      retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file
+      1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a
+      real Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft
+      passes. A run that lands a slice replaces its item here; keep this under 2,000
+      characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -229,22 +229,21 @@ flagships:
       (README "A whole week of call-outs at a real roster's rates", 2026-11-13):
       kept reissues cut changes 56-66%, open hours path-dependent both ways. Next:
       whether a real manager would set keepShift above 1; close the 100-person gaps
-      (tree, not bound: README same section); week 0 pay $7.04 open: one 129-copy
-      trade through 52 people, beyond local moves (README "Past the day sweeps");
-      next column generation from the posted roster; re-run the keep-usual-shifts
-      sweep on real dated leave records; a manager's read on whether the steadier
-      plan is the one they would post; a real 7shifts account through
-      --import-7shifts (README "Reading 7shifts directly"); a real When I Work
-      account or response through --import-wheniwork (README "Reading When I Work
-      directly"); Homebase (docs need an account); --cover-price moves two shifts
-      together (README "Moving two shifts together": 20-person week exposure 113 to
-      68 h for $35.27); second call-outs priced (README "A second call-out in the
-      same week", off by default); next: fewer capped pairs, pair price past 120
-      copies; a real two-site export and staff list (README "Staff shared between
-      sites"); own and site rates read from staff CSVs and 7shifts (README
-      "Per-location pay from an export"); next a real wages export, real trip times;
-      whether the priced cut's r = 1 default suits a real manager; a manager's real
-      task list for the fixed minutes.
+      (tree, not bound: README same section); week 0 pay gap $3.46 after LP-guided
+      day sweeps (README "Steering the day sweeps"); next: pay floor on by default
+      when the budget allows; re-run the keep-usual-shifts sweep on real dated leave
+      records; a manager's read on whether the steadier plan is the one they would
+      post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
+      directly"); a real When I Work account or response through --import-wheniwork
+      (README "Reading When I Work directly"); Homebase (docs need an account);
+      --cover-price moves two shifts together (README "Moving two shifts together":
+      20-person week exposure 113 to 68 h for $35.27); second call-outs priced
+      (README "A second call-out in the same week", off by default); next: fewer
+      capped pairs, pair price past 120 copies; a real two-site export and staff
+      list (README "Staff shared between sites"); own and site rates read from staff
+      CSVs and 7shifts (README "Per-location pay from an export"); next a real wages
+      export, real trip times; whether the priced cut's r = 1 default suits a real
+      manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -296,27 +295,26 @@ flagships:
       text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear matches the Leica
       T's preview to 0.18 px; WarpRectilinear2: on 5,411 rectilinear lensfun
       profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
-      eval/warp-rectilinear2-2026-11-12.md). Lensfun distortion, TCA and vignetting
-      for files with none (--lens-db; eval/lensfun-*-2026-11-13.md); in the grade
-      stage from color/lens-profiles/ since 2026-11-13
-      (eval/lens-pipeline-grade-2026-11-13.md). Next, most valuable first: a real
-      DNG and a vignetting-calibrated lens through the pipeline's lens stage; a real
-      evenly lit frame shot wide open (corners level after lensfun's vignetting?); a
-      second maker-against-lensfun DNG pair (a zoom at several focal lengths); a
-      real DNG carrying any opcode run only on synthetic files so far, or the SDK to
-      check them; lateral colour measured on a real frame with sharp corner edges; a
-      real Adobe `.dcp` through the profile chooser; newer CR2s (ColorData8-11: 5D
-      Mark IV, 80D, 90D; not found in that collection under their plain names); the
-      DJI Phantom 4 DNG's vignette lift against DJI's own render
-      (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
-      set; a phone DNG with its own JPEG of the frame (corrected corners); a real
-      DNG 1.6 three-light profile and the SDK's triple weights; a tungsten-lit
-      colour chart to say which colour model is closer (the 70D frame, 4,700 K and
-      green-tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
-      Adobe render of a known frame (settles `--default-tone-curve always`); the
-      grade-scope saving on real 4K footage; the native Huffman reader on macOS; a
-      trained blink model and a real shoot with a photographer's picks; photos with
-      a real horizon and human tilt labels.
+      eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
+      grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). Sony ARW
+      read directly since 2026-11-14 (6 bodies equal LibRaw,
+      eval/sony-arw-reader-2026-11-14.md). Next, most valuable first: Nikon NEF read
+      directly (public NEFs; LibRaw as the check); Sony maker-note lens name and
+      in-file lens corrections; a real DNG and a vignetting-calibrated lens through
+      the pipeline's lens stage; a real evenly lit frame shot wide open (corners
+      level after lensfun's vignetting?); a second maker-against-lensfun DNG pair (a
+      zoom at several focal lengths); a real DNG carrying any opcode run only on
+      synthetic files so far, or the SDK to check them; lateral colour measured on a
+      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
+      chooser; newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
+      collection under their plain names); the DJI Phantom 4 DNG's vignette lift
+      against DJI's own render (eval/opcode-quality-flag-2026-11-13.md); a real DNG
+      with opcode flag bit 1 set; a phone DNG with its own JPEG of the frame
+      (corrected corners); a tungsten-lit colour chart to say which colour model is
+      closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the
+      Nexus 5X carries ForwardMatrix); an Adobe render of a known frame (settles
+      `--default-tone-curve always`); a trained blink model and a real shoot with a
+      photographer's picks; photos with a real horizon and human tilt labels.
 
   - venture: quick-pick-survey
     why: >-
@@ -384,11 +382,13 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min): the elevation actuator's short lead from the gland to its
-      motor and pot; contact bounce on the contactor after the precharge (inrush and
-      precharge landed 2026-11-14, cad/README.md "Contactor inrush and precharge")
-      and the bucks' start-up current while the bus rises through the resistor;
-      regenerative current from braking ESCs; the lift flight as a printed part and
-      the top pulley's tensioner if PR 15456 has not landed.
+      motor and pot; wire the azimuth stepper driver's ENABLE to a pin held off
+      until the contactor has closed (its holding draw during the precharge makes
+      the contactor take 28 to 66 A, over an assumed 60 A with a 20 mOhm pack:
+      cad/README.md "Start-up loads during the precharge", 2026-11-14); contact
+      bounce on the contactor after the precharge; regenerative current from braking
+      ESCs; the lift flight as a printed part and the top pulley's tensioner if PR
+      15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -413,9 +413,11 @@ flagships:
       on the shuttle and the servo's loaded stroke time and stall current; click the
       home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
       stop with a scale; hang a real hose from a tube; bend a built cable loop
-      through the actuator's travel. Buildable: the flight as a printed part and the
-      tensioner (PR 15456); the actuator's lead from the gland; ESC inrush when the
-      contactor closes.
+      through the actuator's travel. Buildable: the stepper driver's ENABLE pin
+      (start-up loads during the precharge landed 2026-11-14: the servo is unpulsed
+      until a FEED, which cut the contactor's make from 136-328 A to 28-66 A in the
+      sweep); the flight as a printed part and the tensioner (PR 15456); the
+      actuator's lead from the gland; contact bounce.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

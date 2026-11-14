@@ -270,7 +270,7 @@ class ReadTests(unittest.TestCase):
             rd.parse_raw(make_cr2()[0], cfa="RGBG")
 
     def test_not_a_cr2_still_names_dng(self):
-        with self.assertRaisesRegex(rd.DevelopError, "not a DNG or a Canon CR2"):
+        with self.assertRaisesRegex(rd.DevelopError, "not a DNG, a Canon CR2 or a Sony ARW"):
             rd.parse_raw(b"II*\0" + struct.pack("<I", 8) + _ifd_bytes([(256, 3, (1,))], 8))
 
 

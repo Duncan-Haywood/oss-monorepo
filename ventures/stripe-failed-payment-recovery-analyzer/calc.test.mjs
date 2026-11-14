@@ -105,3 +105,11 @@ test("the sample yields findings that name the action by category", () => {
   assert.match(titles, /card that needs updating/);
   assert.ok(r.whatIf.extraPerYear > 0);
 });
+
+// Red-team 2026-11-14: Math.max(...events.map()) overflowed the call stack
+// past about 125k rows; a year of charges for a mid-size SaaS is more.
+test("200,000 charge events build cases without a stack overflow", () => {
+  const events = Array.from({ length: 200000 }, (_, i) => ({ line: i + 2, at: new Date(Date.UTC(2026, 0, 1) + i * 60000), amount: 30, ok: i % 3 !== 0, key: `in${i % 70000}`, byInvoice: true, customer: `cu${i % 50000}`, reason: "card_declined", currency: "USD" }));
+  assert.ok(buildCases(events).length > 0);
+  assert.ok(!analyze(events).invalid);
+});
