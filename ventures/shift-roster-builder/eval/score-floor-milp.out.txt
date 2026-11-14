@@ -1,0 +1,10 @@
+# node eval/score-floor-milp.mjs 60 168 0 > m.json (buildRoster with timeBudgetMs 20000, before dayLNS landed) && OWNER_OUT=o.json python3 eval/score-floor-milp.py m.json
+# scipy 1.18.1 (HiGHS), one cloud machine
+week 0: 676 rows, 13779 columns; posted score 30,020,010.32; engine lower bound 30,019,980.21
+  LP (HiGHS) 30,019,980.24 in 0.3s
+  posted roster: open 300.00 h; shift terms 19,119.00; score above open and shift terms 891.32 (fairness, shortfall, overtime, the rest)
+  MILP: status 0 (Optimization terminated successfully. (HiGHS Status 7: Optim), value 30,019,980.99, dual bound 30,019,980.99, 77.7s
+  MILP roster: open 300.00 h; shift terms 19,106.00; hour-level terms 874.99
+  posted score - MILP dual bound: 29.33 (tolerance 0.50)
+# node eval/score-floor-milp-check.mjs o.json: the MILP's roster under the engine's own rules and score
+week 0: valid true; score 30019981.35; open 300 h
