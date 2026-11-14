@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { solve, analyze, validate, supplyPressure, requiredGpm, headLossCheck, pipeId, NFPA, EPANET, EXAMPLE } from './hydraulics.mjs';
+import { solve, analyze, validate, supplyPressure, requiredGpm, headLossCheck, pipeId, NFPA, EPANET, EXAMPLE, cholSolve } from './hydraulics.mjs';
 import { cases } from './check/cases.mjs';
 import { parse, serialize } from './format.mjs';
 
@@ -141,4 +141,50 @@ test('the text format round-trips the example and reports bad lines', () => {
   assert.match(parse('node A elev=high').errors[0], /must be a number/);
   assert.match(parse('valve V').errors[0], /not "valve"/);
   assert.match(parse('supply static=40 residual=50 at=500').errors[0], /static > residual/);
+});
+
+test('envelope Cholesky is bit-for-bit the dense loops, on banded, arrowhead and ladder matrices', () => {
+  // The dense loops the envelope solve replaced, kept here as the reference.
+  const dense = (A, b) => {
+    const n = b.length;
+    const L = A.map(r => r.slice());
+    for (let j = 0; j < n; j++) {
+      let s = L[j][j];
+      for (let k = 0; k < j; k++) s -= L[j][k] * L[j][k];
+      L[j][j] = Math.sqrt(s);
+      for (let i = j + 1; i < n; i++) {
+        let t = L[i][j];
+        for (let k = 0; k < j; k++) t -= L[i][k] * L[j][k];
+        L[i][j] = t / L[j][j];
+      }
+    }
+    const y = new Array(n);
+    for (let i = 0; i < n; i++) { let s = b[i]; for (let k = 0; k < i; k++) s -= L[i][k] * y[k]; y[i] = s / L[i][i]; }
+    const x = new Array(n);
+    for (let i = n - 1; i >= 0; i--) { let s = y[i]; for (let k = i + 1; k < n; k++) s -= L[k][i] * x[k]; x[i] = s / L[i][i]; }
+    return x;
+  };
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  // A weighted graph Laplacian plus a positive diagonal: the shape solve() builds.
+  const laplacian = (n, edges) => {
+    const A = Array.from({ length: n }, () => new Array(n).fill(0));
+    for (let i = 0; i < n; i++) A[i][i] = 0.01 + rnd();
+    for (const [a, b] of edges) { const w = 0.1 + 10 * rnd(); A[a][a] += w; A[b][b] += w; A[a][b] -= w; A[b][a] -= w; }
+    return A;
+  };
+  const cases = [];
+  for (const n of [1, 2, 5, 17, 40]) {
+    cases.push(laplacian(n, Array.from({ length: n - 1 }, (_, i) => [i, i + 1]))); // chain
+    cases.push(laplacian(n, Array.from({ length: n - 1 }, (_, i) => [0, i + 1]))); // arrowhead: row i reaches column 0
+    const e = [];
+    for (let i = 1; i < n; i++) { e.push([i - 1, i]); if (i >= 4) e.push([i - 4, i]); if (i % 7 === 0) e.push([0, i]); }
+    cases.push(laplacian(n, e)); // ladder with long ties
+  }
+  for (const A of cases) {
+    const b = A.map(() => rnd() * 100 - 50);
+    const want = dense(A, b);
+    const rows = A.map(r => Float64Array.from(r));
+    assert.deepEqual(cholSolve(rows, b), want);
+  }
 });
