@@ -1,9 +1,9 @@
 ---
 title: "A 0.5 m/s lift never reaches full acceleration. Red-teaming the elevator traffic tool"
-seo_title: "Jerk-limited lift flight time when rated speed comes before full acceleration"
+seo_title: "Jerk-limited lift flight time when speed peaks before acceleration"
 date: 2026-11-14
 tags: [testing, mutation-testing, elevators, lifts, kinematics, redteam]
-description: "24 faults seeded into the new elevator traffic analysis tool, 18 caught. Reading the flight-time formula turned up a slow-lift case it got wrong: the car hits rated speed before it reaches full acceleration."
+description: "24 faults seeded into the elevator traffic tool, 18 caught. The flight-time formula was wrong for slow lifts that hit rated speed before full acceleration."
 ---
 
 The [Elevator Traffic Analysis](../../ventures/elevator-traffic-analysis/)
