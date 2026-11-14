@@ -27,6 +27,7 @@ flipped both shape checks in one copy and its suite stayed green.
 
     python3 platform/ci/check_storage_guard.py [ventures-dir]
 """
+import functools
 import re
 import shutil
 import subprocess
@@ -34,9 +35,9 @@ import sys
 from pathlib import Path
 
 READ = re.compile(r"\blocalStorage\b")
-_IDENT = re.compile(r"[\w$]")
 
 
+@functools.lru_cache(maxsize=16)
 def _strip(src):
     """Blank out comments and string literals, keeping offsets and newlines."""
     out = re.sub(r"//[^\n]*", lambda m: " " * len(m.group()), src)
@@ -45,28 +46,46 @@ def _strip(src):
                   lambda m: " " * len(m.group()), out)
 
 
-def unguarded_reads(src):
-    """Return 1-based line numbers of `localStorage` reads outside any try block."""
+# The only characters the brace walk acts on. A `try` counts when no
+# identifier character ([\w$]) touches it; a read is READ. None of
+# the four tokens can start inside another, so scanning matches left to right
+# visits the same positions, in the same order, as stepping one character at
+# a time (which took 24 of the checker's 40 profiled seconds on 2026-11-14).
+_TOKEN = re.compile(r"[{}]|(?<![\w$])try(?![\w$])|\blocalStorage\b")
+
+
+@functools.lru_cache(maxsize=16)
+def _unguarded_reads(src):
+    if "localStorage" not in src:  # stripping only removes text, so nothing to find
+        return ()
     code = _strip(src)
     stack = []  # one entry per open brace: True when it is a try block
+    tries = 0  # how many entries of stack are True
     pending_try = False
     bad = []
-    i = 0
-    while i < len(code):
-        ch = code[i]
-        if ch == "{":
+    line, pos = 1, 0
+    for m in _TOKEN.finditer(code):
+        tok = m.group()
+        if tok == "{":
             stack.append(pending_try)
+            tries += pending_try
             pending_try = False
-        elif ch == "}":
+        elif tok == "}":
             if stack:
-                stack.pop()
-        elif code.startswith("try", i) and not (_IDENT.match(code[i - 1:i]) or _IDENT.match(code[i + 3:i + 4])):
+                tries -= stack.pop()
+        elif tok == "try":
             pending_try = True
-        elif code.startswith("localStorage", i) and READ.match(code, i):
-            if not any(stack):
-                bad.append(code.count("\n", 0, i) + 1)
-        i += 1
-    return bad
+        elif not tries:
+            i = m.start()
+            line += code.count("\n", pos, i)
+            pos = i
+            bad.append(line)
+    return tuple(bad)
+
+
+def unguarded_reads(src):
+    """Return 1-based line numbers of `localStorage` reads outside any try block."""
+    return list(_unguarded_reads(src))
 
 
 _PARSE = re.compile(r"^\s*const (\w+) = JSON\.parse\(.+\);\s*$")
@@ -109,7 +128,7 @@ def bare_storage_args(src):
     the module's own try can help, so a visitor who blocks site data gets a
     SecurityError in the handler that called it. Pass `usageStorage()`.
     """
-    m = _USAGE_IMPORT.search(src)
+    m = "localStorage" in src and _USAGE_IMPORT.search(src)
     if not m:
         return []
     names = [n.split(" as ")[-1].strip() for n in m.group(1).split(",")]
@@ -164,6 +183,8 @@ def default_param_reads(src):
     scenarios, clothing studio BOM and brief, shop rates, Shopify usage). Default
     to a helper that guards the read and returns null.
     """
+    if "localStorage" not in src:  # the pattern needs the word
+        return []
     code = _strip(src)
     return [code.count("\n", 0, m.start()) + 1 for m in _DEFAULT_PARAM.finditer(code)]
 
