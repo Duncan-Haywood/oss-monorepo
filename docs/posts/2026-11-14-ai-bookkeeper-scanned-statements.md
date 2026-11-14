@@ -1,8 +1,8 @@
 ---
 title: "A scanned bank statement carries its own checksum, so the OCR can be checked"
-seo_title: "Import a scanned bank statement PDF with OCR, checked against the running balance"
+seo_title: "Scanned bank statement PDFs: OCR checked by the running balance"
 date: 2026-11-14
-description: "The ai-bookkeeper CLI now reads image-only statement PDFs with tesseract and repairs misread digits from the running balance: 36 of 40 synthetic scans read perfectly, and only 1 bad one goes unflagged."
+description: "ai-bookkeeper now reads image-only statement PDFs by OCR and fixes misread digits from the running balance: 36 of 40 synthetic scans read perfectly."
 tags: [ai-bookkeeper, ocr, bank-statements, evaluation]
 ---
 
