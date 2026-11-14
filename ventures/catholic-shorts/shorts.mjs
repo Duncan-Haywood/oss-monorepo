@@ -103,7 +103,7 @@ const pageUrl = (s) => `${SITE}${s.slug}.html`;
 const newestFirst = (list) => [...list].sort((a, b) => b.published.localeCompare(a.published) || b.number - a.number);
 
 const CSS = `
-:root{--bg:#f8f5ee;--ink:#1d1a16;--muted:#5d554a;--card:#fff;--line:#e2dacb;--accent:#7a1f2b;--gold:#9a6b10}
+:root{--bg:#f8f5ee;--ink:#1d1a16;--muted:#5d554a;--card:#fff;--line:#e2dacb;--accent:#7a1f2b;--gold:#8f6310}
 @media (prefers-color-scheme:dark){:root{--bg:#14161c;--ink:#eee8dc;--muted:#b6ab99;--card:#1d212b;--line:#2d3340;--accent:#e88a96;--gold:#e2b35c}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 Georgia,"Iowan Old Style",serif}
 .wrap{max-width:760px;margin:0 auto;padding:0 16px}a{color:var(--accent)}
