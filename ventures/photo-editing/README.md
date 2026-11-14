@@ -1164,6 +1164,13 @@ for every three sensels and writes each value through the decoder's block addres
 several blocks and all four shifts, and runs both decoders, the profile chooser, the crop and the
 CLI.
 
+Lens: the RW2's own EXIF names no lens, so since 2026-11-14 the lens comes from the JPEG the camera
+embeds (tag 0x2E, JpgFromRaw): its EXIF maker note's LensType ("LUMIX G 20/F1.7") becomes LensModel,
+and `--lens-db` (or the grade stage's `color/lens-profiles/`) corrects the frame with no `--lens`.
+On the GF1, GF3 and GF7 the name and serial equal metadata-extractor's and the lensfun pick equals
+the compiled lensfun 0.3.4's (`tools/rw2_lens_check.py`, `eval/panasonic-rw2-lens-2026-11-14.md`);
+the fixed-lens LX7 uses lensfun's camera entry as before.
+
 Not done: colour is only as good as the profile you supply; the GF7's own colour matrix (tags
 0x11C-0x120) is not read yet. The GF1's white level is 4095, where LibRaw takes 3986 from a
 per-model table. RawFormat 5 and later (the 14-bit and newer 12-bit blocks of the GH5 era on) and
