@@ -249,18 +249,18 @@ flagships:
       docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list length, the closed pooled-prior
       work, the sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time salience (b),
       mid-session blocks (d), the panel curve, per-survey threshold and step test, the later-pass curve (d4), the
-      net-step test (d5), the wander bar (d6), the picks test (d7) and partway slot runs (d3) are written up there.
-      Latest (2026-11-14, "A slot run and a fast block in the same person"; docs/slot-fast-joint-2026-11-14.jsonl):
-      (d9) each fast turn's slots are tested as one pre-named candidate (slotRunsAtTurns, default on the route):
-      a 65% lean from the speed-up found 9% to 35%, honest flags added 0-0.2% where the time cut alone flags 2-7%,
-      never more than 0.0008 under the old default. Next, most valuable first: (c) the first real survey's answers:
-      msToAnswer against the answer-time model, panelWalkRatio on real times, whether times depend on which slot is
-      clicked (the d9 bound assumes not), whether real people have warm-ups, blocks, slot runs or spread-out
-      carelessness, and how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d10)
-      the other direction: a slot run's start as the one candidate for a timing step under wander, scored against
-      the panel's slow turns; (d8) a stronger pick signal under wander (staged pairs are near 50/50 late in a
-      session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to 0.030: decide
-      on a real panel's times.
+      net-step test (d5), the wander bar (d6), the picks test (d7), partway slot runs (d3) and the slot-at-turn
+      test (d9) are written up there. Latest (2026-11-14, "A slot run's cut moved back to an earlier fast
+      turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run that starts after a fast turn (read without the
+      wander bar) is cut from the turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to +0.0045,
+      over d9 where the run follows the speed-up; flags nobody new. Next, most valuable first: (c) the first real
+      survey's answers: msToAnswer against the answer-time model, panelWalkRatio on real times, whether times
+      depend on which slot is clicked (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
+      runs or spread-out carelessness, and how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d11) the d10 turn is still a split search: score one candidate from the run's start
+      backwards so a wander step's chance of moving a cut is bounded; (d8) a stronger pick signal under wander
+      (staged pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1
+      but taxes a camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
