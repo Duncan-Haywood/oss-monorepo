@@ -415,6 +415,35 @@ export function slotFlags(answers: { participantId: string; result: string }[], 
   return { whole, from };
 }
 
+/** Decided answers from a fast turn on that slotRunsAtTurns needs before it tests them. */
+export const SLOT_AT_TURN_MIN = 10;
+
+/**
+ * Respondents whose slots, from a point named in advance (a fast turn found by fastBlockStarts from their times and
+ * picks), lean to one position more than a fair coin gives `alpha` of the time; each mapped to that point. Because the
+ * point is named before the slots are read, there is one candidate per person, not one per tail, so no Bonferroni split
+ * and no share floor: under the shuffle an honest person's slots are a fair coin whatever their times or picks were, so
+ * the chance this flags them is at most `alpha` however often the turn was wrong. It lets the default ranking use the
+ * timing evidence that is only a comparison on its own (docs/INFORMATION-GAIN-SELECTOR.md, "A slot run and a fast
+ * block in the same person").
+ */
+export function slotRunsAtTurns(answers: { participantId: string; result: string }[], turns: Map<string, number>, alpha = SLOT_BLOCK_ALPHA, minDecided = SLOT_AT_TURN_MIN): Map<string, number> {
+  if (!(alpha > 0 && alpha < 1)) throw new Error(`alpha must be between 0 and 1, got ${alpha}`);
+  if (!(Number.isInteger(minDecided) && minDecided >= 1)) throw new Error(`minDecided must be a positive integer, got ${minDecided}`);
+  const tally = new Map<string, { n: number; first: number; seen: number }>();
+  for (const a of answers) {
+    const at = turns.get(a.participantId);
+    if (at === undefined) continue;
+    const t = tally.get(a.participantId) ?? tally.set(a.participantId, { n: 0, first: 0, seen: 0 }).get(a.participantId)!;
+    if (t.seen++ < at) continue;
+    if (a.result === "A") { t.n++; t.first++; }
+    else if (a.result === "B") t.n++;
+  }
+  const out = new Map<string, number>();
+  for (const [id, t] of tally) if (t.n >= minDecided && fairCoinTail(t.n, t.first) <= alpha) out.set(id, turns.get(id)!);
+  return out;
+}
+
 /** One plain sentence for the owner when slot blocks were left out, or "". */
 export function slotBlockAdvice(people: number, answersLeftOut: number): string {
   if (people === 0) return "";

@@ -3898,3 +3898,91 @@ and click the top slot for 20 through the real routes: the route now pools
 their first 20 answers; before, `slotClickers` caught one of the two whole and
 let the other's clicks count. Still synthetic: whether real respondents do this
 waits for item (c).
+
+## A slot run and a fast block in the same person (2026-11-14, last; shipped as the default)
+
+Item (d9) on the flagship list: a bored respondent often turns quick *and*
+clicks one screen position. The default ranking reads only the slots
+(`slotFlags`); the time reading (`fastBlockStarts`) is a comparison behind
+`?drop=fast-blocks`, because under a wandering pace it flags some honest people.
+Does either test find such a person sooner when the other has?
+
+**The idea.** The slot run test (`slotBlockStarts`) has to look for a run at
+every possible start, so it pays a Bonferroni split over 25-100 starts and a 70%
+share floor. A fast turn names one start in advance. Tested from that point
+only, the slots need no split and no floor (`groupRanking.ts`,
+`slotRunsAtTurns`: an exact two-sided binomial tail at most 0.01 over 10+
+decided answers from the turn). And because slots are shuffled by a coin the
+respondent cannot see, an honest person's slots after the turn are a fair coin
+whatever their times or picks were. So the test adds at most 1% honest flags *no
+matter how often the turn was wrong*: the timing's false alarms cannot leak
+through. That lets the default ranking use timing evidence that is only a
+comparison on its own.
+
+**The sweep** (`scripts/slot-fast-joint-sweep.ts`; raw rows
+`docs/slot-fast-joint-2026-11-14.jsonl`, 153 cells, 30 surveys each (100 for
+the honest panels), panels of 20, the staged selector behind the route's slot
+shuffle, timed as the answer-time sweep times them). A share of the panel answers
+honestly for half their session, then answers at `ratio` x their pace; from a
+point `lag` (share of the session) after that they click the top slot on a share
+`q` of answers, and their other careless answers are a coin (or honest, `--rest
+honest`). `--walk` makes everyone's pace wander. Paired Spearman difference from
+the default before this change (`slot`):
+
+| case | fast-blocks comparison (slot + time cut) | the new default (slot + slot-at-turn) | oracle |
+|---|---|---|---|
+| strong run (q = 1), any lag, no wander | -0.0010 to +0.0082 | -0.0008 to +0.0079 | -0.0003 to +0.0082 |
+| strong run, pace wandering 0.08 log per answer | -0.0023 to +0.0046 | -0.0005 to +0.0053 | -0.0003 to +0.0082 |
+| 80% lean (q = 0.6), no wander | 0 to +0.0088 | 0 to +0.0076 | +0.0013 to +0.0088 |
+| 80% lean, wander 0.08 | -0.0019 to +0.0048 | -0.0007 to +0.0036 | +0.0013 to +0.0088 |
+| 65% lean (q = 0.3), no wander | +0.0013 to +0.0183 | -0.0007 to +0.0052 | +0.0015 to +0.0177 |
+| 65% lean, wander 0.08 | -0.0021 to +0.0082 | -0.0004 to +0.0026 | +0.0015 to +0.0177 |
+| no slot lean at all (q = 0) | -0.0026 to +0.0134 | -0.0001 to +0.0003 | +0.0023 to +0.0168 |
+| nobody careless, wander 0 to 0.12 | -0.0009 to 0 | 0 to +0.0001 | 0 |
+
+Detection of the careless, the default before and after (a selection):
+
+| case | slot test alone | with the slot-at-turn test | honest people flagged: by the time cut / added by the new test |
+|---|---|---|---|
+| 80% lean from the speed-up, 0.4x pace, 15 items | 53% | 74% | 0% / 0% |
+| 65% lean from the speed-up, 0.4x pace, 30 items | 9% | 35% | 0% / 0% |
+| 65% lean, 40% of the panel careless, 30 items | 10% | 36% | 0% / 0% |
+| 80% lean, 0.4x pace, wander 0.08, 15 items | 53% | 67% | 5.3% / 0% |
+| 65% lean, 0.4x pace, wander 0.08, 30 items | 9% | 25% | 4.0% / 0% |
+| honest panels, wander 0.08-0.12, 15-60 items | n/a | n/a | 5.2-7.4% / 0-0.2% |
+
+What it shows:
+
+- **Each test does find the person sooner when the other has, in one
+  direction.** When the slot run starts after the speed-up (a stretch of quick
+  coin-flip answers first, lag 0.25), the cut lands 3-35 answers earlier (24-35 on 30-item lists) with
+  the turn than with the slot run alone, and on 30-item lists with a strong run
+  that is worth +0.005 to +0.008 Spearman, all of what the time cut gets. When
+  the slot run starts first (lag -0.25), the slot test already has it and the
+  turn adds nothing.
+- **It is safe where the time cut is not.** Under a wandering pace the time cut
+  flags 2.4-7.4% of honest people and scores below the old default in 27 of 72
+  careless cells (13 by more than 0.001, down to -0.0031); the new default never
+  falls more than 0.0008 below it in any of the 144 careless cells, and the
+  honest people it adds are 0-0.2%. A second seed set (51000, 24 cells) agrees.
+- **It is not the time cut.** Where the careless lean on a slot weakly or not at
+  all, most of what `?drop=fast-blocks` recovers (up to +0.018) stays with the
+  comparison: the new test needs the slots to say so. Its job is to promote the
+  timing to the default only where a second, exact signal agrees.
+- **Honest rest or random rest.** When the careless answers off the slot are
+  honest (`--rest honest`, the slot-block sweep's model), there is little to
+  recover anyway (oracle at most +0.0024); the new default is within -0.0004 to
+  +0.0013 of the old.
+
+**Decision.** Shipped as the default on the ranking route: the route now runs
+`fastBlockStarts` on every request, tests each turn's slots
+(`slotRunsAtTurns`), and adds the ones that lean to the slot blocks, cut from
+the turn; `leftOut.slotBlocksAtTurns` counts them (also counted in
+`slotBlocks`). `ranking.integration.test.ts` has two respondents answer on the
+options for 30 picks, then turn quick and pick the top slot on 23 of their last
+30 (77%, under both the run test and `slotClickers`' whole-session bar): the
+route cuts both from the turn, and at an even pace leaves them alone. A caveat
+the simulation cannot see: if real people's *times* depend on which slot they
+click (the top one faster, say), the turn is no longer independent of the
+slots and the bound is no longer exact. Item (c), the first real survey,
+checks it: compare times on top-slot and bottom-slot picks.
