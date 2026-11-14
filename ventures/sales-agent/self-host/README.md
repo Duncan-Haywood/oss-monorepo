@@ -51,6 +51,10 @@ Messages you sent yourself are skipped. Each message is read once (Message-ID);
 duplicates are ignored. Endpoints: `/` queue, `/api/queue`, `/api/audit`,
 `/api/prospects.csv`, `/api/suppression.csv`, `POST /api/poll`, `POST /api/decide`, `POST /api/send`.
 
+## Against real mail servers (2026-11-14)
+
+Besides the fakes, the whole loop (poll, triage, suppress, a real bounce, approve, send once, threading) has run against a real Dovecot 2.3 and Postfix 3.8 behind a private CA: 32 of 32 checks, and two bugs it found are fixed. Steps to repeat it and the full result: [`real-servers/`](real-servers/README.md). Not yet tried: Gmail, Microsoft 365 or another hosted provider.
+
 ## One-click deploy (2026-10-28)
 
 Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`. Render builds `ventures/sales-agent/Dockerfile` in **your** account with a 1 GB disk for the queue and audit log, generates `ADMIN_TOKEN`, and asks you for `IMAP_HOST`, `IMAP_USER` and `IMAP_PASS` (an app password); `SMTP_*` and a model key are optional. Nothing runs on the author's accounts and your mailbox password goes from your Render settings to your mail server. Fly.io steps are at the top of `fly.toml`. Open `https://<your-app>/?token=<ADMIN_TOKEN>`; Render and Fly terminate TLS.

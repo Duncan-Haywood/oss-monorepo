@@ -18,7 +18,7 @@ const encWord = (s) => (/^[\x20-\x7e]*$/.test(s) ? s : `=?UTF-8?B?${Buffer.from(
 export function buildMessage({ from, to, subject, body, inReplyTo, references, unsubscribe, date = new Date(), domain }) {
   const f = addr(from), t = addr(to);
   if (!f || !t) throw new Error("from and to must be email addresses");
-  const u = addr(unsubscribe || f);
+  const u = addr(String(unsubscribe || f).replace(/^\s*<?\s*mailto:/i, "").replace(/[?>].*$/s, "")); // a bare address or a whole "<mailto:...?subject=...>" both give one clean header
   const id = `<${randomUUID()}@${domain || f.split("@")[1]}>`;
   const h = [
     `From: ${noCtl(from)}`, `To: ${t}`, `Subject: ${encWord(noCtl(subject))}`, `Date: ${date.toUTCString().replace("GMT", "+0000")}`, `Message-ID: ${id}`,

@@ -1077,7 +1077,7 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
 
   for (const [i, reply] of replies.entries()) {
     const known = byEmail.get(reply.failed || reply.from);
-    const p = known || { email: reply.failed || reply.from, first_name: reply.name.split(/\s+/)[0] || "", company: "", status: "" };
+    const p = known || { email: reply.failed || reply.from, first_name: reply.failed ? "" : reply.name.split(/\s+/)[0] || "" /* a bounce's name is the mail system's ("Mail Delivery System"), not the person's */, company: "", status: "" };
     if (!known && p.email) { table.push(p); byEmail.set(p.email, p); }
     const t = triageFn(reply, today);
     const applied = [];

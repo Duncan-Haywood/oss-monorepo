@@ -30,9 +30,9 @@
    "source": "owner",
    "ask": "I want to make ai sales agents this is a long term process",
    "status": "building",
-   "updated": "2026-10-30",
+   "updated": "2026-11-14",
    "project": "ventures/sales-agent",
-   "next": "Long-running; see the project README for what is measured and what is not."
+   "next": "Long-running; see the project README. 2026-11-14: the self-hosted agent ran its whole loop against a real Dovecot IMAP and Postfix SMTP pair (32 of 32, ventures/sales-agent/self-host/real-servers/) and two bugs it found are fixed. Next: a hosted provider (Gmail, Microsoft 365) on a deployer's own account, IMAP STARTTLS on port 143."
   },
   {
    "id": "R-0004",
