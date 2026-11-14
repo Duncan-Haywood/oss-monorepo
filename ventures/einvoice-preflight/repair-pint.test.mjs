@@ -265,3 +265,14 @@ test("a reverse-charge header allowance at AE 0% beside AE 5% lines still reache
   assert.equal(c["/totals/tax"], "0.00");
   assert.equal(c["/totals/gross"], "900.00");
 });
+
+// Red team 2026-11-14: the 0.01 tolerance's float slack (1e-9) was untested; at
+// two-million-rial lines a difference of exactly 0.01 reads as 0.0100000002.
+test("an Oman BTOM-017 exactly 0.01 off on a large line is still kept", () => {
+  const xml = invoice({
+    category: "Z", percent: "0",
+    lines: [{ qty: "1", price: "2097154.67", net: "2097154.67", vat: "0.00", amount: "2097154.68" }],
+    taxable: "2097154.67", rowTax: "0.00",
+  });
+  assert.equal(changed(repairUbl(xml))["/lines/0/amount_with_vat"], undefined);
+});

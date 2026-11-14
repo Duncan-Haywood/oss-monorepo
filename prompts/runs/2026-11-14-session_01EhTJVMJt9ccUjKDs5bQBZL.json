@@ -1,0 +1,180 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMJt9ccUjKDs5bQBZL",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled)",
+  "input_sha256": "22ad619f9509f3b95d15aa5aec6eb43d01c80a2b2fc6623eadb43ae7f245ba82",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T00:57:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15674",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 10 open entries that are all owner-gated control-plane PRs already open; `redteam.py open` could note the open PR per entry so runs don't re-check each one."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-repair-button-that-broke-valid-invoices.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: all 10 open entries are control-plane workflow edits; each already has an owner-gated PR open (#14612, #14698, #14808, #14877, #14894, #14911, #15201, #15248, #15561 and others), so none was re-opened here. Campaign: repair-ubl.mjs (changed on main in the last 2 days), 8 mutants, 4 caught (0.50); 3 gaps got tests, 1 equivalent; rerun: catch_rate_after_fix 1.0. Hunt: the sibling repair.mjs (JSON repair) disagreed with checks.mjs in 4 ways and turned valid invoices invalid; fixed by making the checker the single source of truth. Guard (4b): a seeded 300-invoice fuzz in repair.test.mjs runs on every ventures-tests PR (no agent needed): a repaired invoice passes, repairs idempotently, and repair never adds a finding. Also an over-all-examples invariant test. Verification: node --test 'ventures/einvoice-preflight/**/*.test.mjs' 1729 pass, 0 fail, 69 skipped (the PINT/ZATCA optional-dependency tests, open entry 2026-11-11 #4).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/repair-ubl.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 539959234,
+        "commit": "4a3d245f9",
+        "sites": 365,
+        "baseline_seconds": 8.6,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 56,
+            "col": 51,
+            "operator": "times-to-div",
+            "before": "const v = (sign * Math.round(Number((Math.abs(n) * f).toPrecision(12)))) / f;",
+            "after": "const v = (sign * Math.round(Number((Math.abs(n) / f).toPrecision(12)))) / f;",
+            "line_text": "  const v = (sign * Math.round(Number((Math.abs(n) * f).toPrecision(12)))) / f;",
+            "caught": true,
+            "seconds": 8.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 113,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "return { xml: out, changes, skipped, before, remaining, repaired: changes.length > 0 };",
+            "after": "return { xml: out, changes, skipped, before, remaining, repaired: changes.length > 1 };",
+            "line_text": "    return { xml: out, changes, skipped, before, remaining, repaired: changes.length > 0 };",
+            "caught": false,
+            "seconds": 8.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a UBL repair with exactly one change; added \"a single fix still counts as repaired\" (PayableAmount only)."
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 166,
+            "col": 64,
+            "operator": "false-to-true",
+            "before": "if (q === null || p === null || !(base > 0)) { computable = false; lines.push({ b, net: null, written, fixed: false }); return; }",
+            "after": "if (q === null || p === null || !(base > 0)) { computable = true; lines.push({ b, net: null, written, fixed: false }); return; }",
+            "line_text": "    if (q === null || p === null || !(base > 0)) { computable = false; lines.push({ b, net: null, written, fixed: false }); return; }",
+            "caught": false,
+            "seconds": 8.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The parser refuses a missing or empty PriceAmount, so the branch is reached by BaseQuantity 0; added \"a line with a zero base quantity stops the whole recompute\" (with the mutant the totals were recomputed without that line)."
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 208,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "if (amount !== null && (Number.isNaN(amount) || Math.abs(amount - (l.net + vat)) > 0.01 + 1e-9)) {",
+            "after": "if (amount !== null && (Number.isNaN(amount) || Math.abs(amount - (l.net + vat)) > 0.01 + 1e-10)) {",
+            "line_text": "    if (amount !== null && (Number.isNaN(amount) || Math.abs(amount - (l.net + vat)) > 0.01 + 1e-9)) {",
+            "caught": false,
+            "seconds": 8.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Float slack of the 0.01 BTOM-017 tolerance: at 2,097,154.67 OMR a difference of exactly 0.01 reads 0.0100000002, kept with 1e-9 and rewritten with 1e-10. Added a large-line test in repair-pint.test.mjs."
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 298,
+            "col": 33,
+            "operator": "eq-flip",
+            "before": "adjust.push({ charge: charge === \"true\", amount, key: groupKey(id, rate) });",
+            "after": "adjust.push({ charge: charge !== \"true\", amount, key: groupKey(id, rate) });",
+            "line_text": "    adjust.push({ charge: charge === \"true\", amount, key: groupKey(id, rate) });",
+            "caught": true,
+            "seconds": 8.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 301,
+            "col": 100,
+            "operator": "const-plus-one",
+            "before": "const charges = adjust.filter((a) => a.charge).reduce((s, a) => roundHalfUpToCents(s + a.amount), 0);",
+            "after": "const charges = adjust.filter((a) => a.charge).reduce((s, a) => roundHalfUpToCents(s + a.amount), 1);",
+            "line_text": "  const charges = adjust.filter((a) => a.charge).reduce((s, a) => roundHalfUpToCents(s + a.amount), 0);",
+            "caught": true,
+            "seconds": 8.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 335,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "const plausible = lv !== null && !Number.isNaN(lv) && Math.abs(lv - (zeroTax(id) ? 0 : (l.net * rate) / 100)) < 0.01 + 1e-9;",
+            "after": "const plausible = lv !== null && !Number.isNaN(lv) && Math.abs(lv - (zeroTax(id) ? 1 : (l.net * rate) / 100)) < 0.01 + 1e-9;",
+            "line_text": "      const plausible = lv !== null && !Number.isNaN(lv) && Math.abs(lv - (zeroTax(id) ? 0 : (l.net * rate) / 100)) < 0.01 + 1e-9;",
+            "caught": false,
+            "seconds": 8.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only affects lineTaxAll for zeroTax categories (AE, UAE N). Their groups are keyed at rate 0 and their tax is forced to 0 at line 366; with lineSum null the subtotal is not kept but rewritten to 0, and set() skips a numerically equal value, so the output XML and changes are identical."
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+            "line": 415,
+            "col": 79,
+            "operator": "const-plus-one",
+            "before": "const rnd = num(firstChild(lm.inner, \"PayableRoundingAmount\")?.value) ?? 0;",
+            "after": "const rnd = num(firstChild(lm.inner, \"PayableRoundingAmount\")?.value) ?? 1;",
+            "line_text": "      const rnd = num(firstChild(lm.inner, \"PayableRoundingAmount\")?.value) ?? 0;",
+            "caught": true,
+            "seconds": 8.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/repair.mjs",
+        "issue": "repairInvoice (the page's Repair button, server /repair, repair-cli) kept its own arithmetic and rewrote invoices checkInvoice passes into failing ones: unit price rounded to cents before multiplying (1000 x 0.125 -> 130.00, not 125.00), price_base_quantity ignored (10 x 50 per 100 -> 500.00, not 5.00), VAT summed per line instead of per rate (BR-CO-17; 3 x 0.10 at 5% -> 0.03, not 0.02), totals.rounding dropped from due, and a negative tax written when a line allowance exceeds the line. Fixed: rewrite a value only when checkInvoice flags it, using linenet.mjs helpers; stop the totals on a negative line net. 9 new tests fail on the old code, including a 300-case seeded fuzz.",
+        "patched": true
+      }
+    ]
+  }
+}
