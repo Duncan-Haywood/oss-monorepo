@@ -1,9 +1,9 @@
 ---
 title: "The swap the call-out check forgot, and why fixing it made a café worse"
-seo_title: "Covering a sick call: when the person who called out can take a later shift"
+seo_title: "Covering a sick call: the caller can take a later shift"
 date: 2026-11-14
 tags: [shift-roster-builder, product, measurement]
-description: "A cheap check for 'could anyone cover this call-out?' never let the caller take a later shift. Fixing it sharpened the count, and on a short-staffed café it showed where one-at-a-time thinking breaks."
+description: "A quick call-out cover check never let the caller take a later shift. Fixing it sharpened the count, then made a short-staffed café's weeks worse."
 ---
 
 [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) has an optional setting, "Pay for call-out slack". You give it a price per hour, and it will give up a little pay or fairness to make the week easier to patch when someone calls in sick. To do that inside the search it needs a quick way to ask, for every person and every day they work: if they called out, could someone else take the shift? The honest answer comes from rebuilding the week once per person-day, which takes about a second each. So the search uses a cheap stand-in check and keeps the slow one for measuring.
