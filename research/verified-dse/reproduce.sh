@@ -49,3 +49,4 @@ $PY experiments/shift_power/analyse.py   # milestone 120 (no flow; about 20 s; c
 $PY experiments/amount_depth/analyse.py   # milestone 121 (no flow; about 20 s; features.py and check_designs.py need yosys, run.py re-runs the 1,440-point flow, about 55 min on 4 cores)
 $PY experiments/amount_threshold/analyse.py   # milestone 122 (no flow; about 25 s; features.py and check_designs.py need yosys, run.py re-runs the 1,440-point flow, about 20 min on 4 cores)
 $PY experiments/amount_cut/analyse.py   # milestone 123 (no flow; about 25 s; features.py and check_designs.py need yosys, run.py re-runs the 1,440-point flow, about 38 min on 4 cores)
+$PY experiments/amount_place/analyse.py   # milestone 124 (no flow; about 30 s; features.py and check_designs.py need yosys, run.py re-runs the 1,680-point flow, about 45 min on 4 cores)
