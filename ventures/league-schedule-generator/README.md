@@ -931,6 +931,34 @@ to `eval/carryover-bnb.c` make it finish there, and they keep every answer it ga
 - Not claimed: the gap from 124 to 136 is open. Round reversal is still unused (about 2x), and so is
   any bound across rounds; nothing here was compared with published carry-over tables.
 
+## Freeing up to 8 rounds at once: 136 at 12 teams and 212 at 14 hold (2026-11-14, latest)
+
+The refill search (above) re-deals 2 to 5 rounds per move. `eval/carryover-lns.c` frees more: each
+move keeps the first k rounds of the current timetable, or of its reversal (reversing the rounds
+transposes the carry-over matrix and keeps the value), and the exact search of `carryover-bnb.c`,
+with its per-round matching bound, completes the last w = 4 to 8 rounds from the games left. So a
+move tries every way to deal those games into w rounds in any order, within a node cap (2 to 8 M per
+move), asks first for strictly less carry-over, then may take a different completion at the same
+value, and after 200 idle moves swaps two rounds. Every result is rescored from its opponents alone
+and checked to be a round robin. Raw output: `eval/carryover-lns.txt`.
+
+- **Checked where the answer is known.** 10 teams from the circle method (value 374): 94, the proved
+  least, after 19 moves and 4 s.
+- **12 teams** (four runs of 1,500 s on four shared cores): from the stored 136, two runs (2,523 moves,
+  423 at the same value) found nothing lower. From the circle method (768), one run reached **136 on
+  its own, by a different timetable** (not checked for relabelling equivalence), after 1,120 s; the other
+  stopped at 150. So two unrelated searches, the refill and this one, both stop at 136.
+- **14 teams** (four runs of 1,200 s): from the stored starter at 212, three runs (4,662 moves freeing
+  4 to 8 of the 13 rounds) found no completion below 212; from the circle method (1,378) one run
+  reached 224, against the refill's 220. The floor is 168.
+- **What it changes.** Nothing on the page: no stored timetable improved, so `TIMETABLES` and
+  `PROVEN_LEAST` are unchanged. It is evidence, not proof, that 136 is hard to beat: re-dealing up to
+  8 of the 11 rounds from either end found nothing lower, so the next step at 12 teams is the proof
+  side, 124 to 134 by the exact search (round reversal, a cross-round bound), rather than more local
+  search.
+- Not claimed: moves that hit the node cap were not counted, so "nothing lower" is "nothing found",
+  not a proof that the stored timetables are optimal within 8 rounds.
+
 ## Starters picked with their breaks (2026-11-11, latest)
 
 The open item above was "pick the start by carry-over + weight x breaks when a weight is set". Two
