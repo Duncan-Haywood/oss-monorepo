@@ -758,6 +758,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         opcodes=not args.no_opcodes,
         preview_quality=args.preview_quality,
         warp_kernel=args.warp_kernel,
+        demosaic=args.demosaic,
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
@@ -1324,6 +1325,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help=(
             "Skip the DNG's opcode lists (GainMap lens shading as phones write it, WarpRectilinear and WarpRectilinear2 "
             "lens distortion, WarpFisheye, FixVignetteRadial, MapPolynomial); by default they run."
+        ),
+    )
+    develop.add_argument(
+        "--demosaic",
+        choices=("auto", "bilinear", "directional"),
+        default="auto",
+        help=(
+            "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the directional demosaic on "
+            "Fujifilm X-Trans files when numpy is installed and bilinear otherwise; 'directional' (X-Trans, numpy) "
+            "builds green along four directions and keeps the most even, which cuts the false colour bilinear "
+            "leaves on edges; 'bilinear' averages each 3x3 window (both engines, same bytes)."
         ),
     )
     develop.add_argument(
