@@ -203,8 +203,8 @@ flagships:
       2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit table,
       prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md;
       tiles are placed on the decode threads with one numpy copy since 2026-11-13 (4-thread read
-      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); next on speed: the plane's
-      double allocation in parse_raw and C prediction for point-transform scans), and the serial
+      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform scans
+      predict in C and the plane is one buffer since 2026-11-14, eval/point-transform-c-2026-11-14.md), and the serial
       _normalised_plane (about 0.2-0.4 s);
       MapTable and ScalePerRow/Column run in OpcodeList1 since 2026-11-13 (spec's
       integer range; eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial
