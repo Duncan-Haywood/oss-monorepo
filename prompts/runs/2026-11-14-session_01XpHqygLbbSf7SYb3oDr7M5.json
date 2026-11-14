@@ -51,7 +51,7 @@
       "file": "prompts/creative/prompt-0.md",
       "why": "Audio folders at 471 MB, over the 400 MB cap, which guards a GitHub Pages limit the site no longer has (audio is served from jsDelivr via --audio-cdn).",
       "did": "Rendered one podcast episode (about 8 minutes, a few MB) with Kokoro anyway, as #15639 and #15621 did.",
-      "result": "Episode ships with audio; repository grows by a few MB."
+      "result": "Episode ships with audio: 6.9 minutes, 2.5 MB."
     }
   ],
   "writeups": [
@@ -59,7 +59,7 @@
     "docs/podcast/2026-11-13-a-stable-process-fails-its-first-control-chart-often.md"
   ],
   "goal": null,
-  "notes": "Project: the writing podcast; piece: 2026-11-13-a-stable-process-fails-its-first-control-chart-often (1,249-word script, Kokoro af_heart, model files from the kokoro-onnx GitHub release route; huggingface.co also answered). Picked the podcast because its last episode (#15639) was the oldest creative landing of the last 15. Verification: re-ran ventures/spc-control-charts bench (node bench/false-alarms.mjs 20000, 9.5 s): dispersion-chart rate 0.5753, matching the committed JSON. Napkin derivation: MR limit 3.267*2/sqrt(pi) = 3.686 sigma, per-point 2*Phi(-2.607) = 0.914%, 1-(1-p)^99 = 59.7% vs 57.5% simulated; 3-sigma 1-(1-0.0027)^100 = 23.7% vs 23.4%. Checks run locally: check_post_frontmatter.py (fixed a 161-char description and 80-char seo_title), check_post_links.py, check_md_links.py, platform/pages podcast.test.mjs all pass. No agent doc: nothing new for the next run beyond the friction already recorded.",
+  "notes": "Project: the writing podcast; piece: 2026-11-13-a-stable-process-fails-its-first-control-chart-often (1,249-word script, Kokoro af_heart, model files from the kokoro-onnx GitHub release route; huggingface.co also answered). Picked the podcast because its last episode (#15639) was the oldest creative landing of the last 15. Verification: re-ran ventures/spc-control-charts bench (node bench/false-alarms.mjs 20000, 9.5 s): dispersion-chart rate 0.5753, matching the committed JSON. Napkin derivation: MR limit 3.267*2/sqrt(pi) = 3.686 sigma, per-point 2*Phi(-2.607) = 0.914%, 1-(1-p)^99 = 59.7% vs 57.5% simulated; 3-sigma 1-(1-0.0027)^100 = 23.7% vs 23.4%. Checks run locally: check_post_frontmatter.py (fixed a 161-char description and 80-char seo_title), check_post_links.py, check_md_links.py, platform/pages podcast.test.mjs all pass. No agent doc: nothing new for the next run beyond the friction already recorded. Audio: 414 s (6.9 min), 2.5 MB, rendered in about 2 minutes on four cores; podcast_tts.py --check clean after; podcast.test.mjs 10/10 pass.",
   "corrections": [],
   "redteam": null
 }
