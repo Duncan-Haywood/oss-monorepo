@@ -36,7 +36,8 @@ def _server(blob, ranges=True):
             self.wfile.write(body)
 
     srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), H)
-    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    # 0.05 s poll: shutdown() waits one poll, 0.5 s by default (perf run 2026-11-14).
+    threading.Thread(target=srv.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True).start()
     return srv, f"http://127.0.0.1:{srv.server_address[1]}/data.zip"
 
 
