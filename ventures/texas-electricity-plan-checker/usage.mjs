@@ -5,6 +5,17 @@
 
 const STORAGE_KEY = 'texas-electricity-plan-checker-usage';
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, and a default parameter is evaluated before any try in
+// the body, so the defaults and the page's calls go through this instead.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function honorsBrowserSignal() {
   try {
     return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;
@@ -13,7 +24,7 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'analysis_run') {
+export function recordUsage(storage = usageStorage(), optedOut = false, event = 'analysis_run') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -33,7 +44,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
 // directly as well as taking the caller's argument -- a stored preference
 // that only one line of page wiring reads is one line away from being
 // forgotten, which is the defect this change exists to fix.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem(`${STORAGE_KEY}-opt-out`) === '1';
   } catch {
@@ -42,7 +53,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   // Independent writes, counters first: sharing one try means a setItem
   // that throws on a full quota skips the delete entirely, and the
