@@ -23,6 +23,7 @@ export const DEFAULT_ACCOUNTS = [
   { code: "2100", name: "Sales tax payable", type: "liability" },
   { code: "2200", name: "Loan payable", type: "liability" },
   { code: "2300", name: "Payroll liabilities", type: "liability" },
+  { code: "2400", name: "Unearned revenue", type: "liability" },
   { code: "3000", name: "Opening balance equity", type: "equity" },
   { code: "3010", name: "Owner contributions", type: "equity" },
   { code: "3100", name: "Owner draws", type: "equity" },

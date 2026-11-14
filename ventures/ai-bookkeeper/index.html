@@ -181,6 +181,29 @@
     <div class="scroll" id="pp-register"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-deferred">
+    <h2 id="h-deferred">Optional: money paid up front (deferred revenue)</h2>
+    <p class="note">An annual plan, a retainer or a class pass is paid before you deliver it. File the customer's payment (or the invoice) to 2400 Unearned revenue, then register it here: income is earned by the day (or in equal monthly shares) over the service period, and the balance sheet shows what you still owe in service. Cancel a plan to stop earning on a date; what is left is a refund you owe. Accounting standards (ASC 606, IFRS 15) say more about bundles and set-up fees than a straight line does, and a cash-method tax filer counts the payment when it arrives.</p>
+    <div class="grid">
+      <div><label for="dr-name">Plan or service</label><input id="dr-name" autocomplete="off" placeholder="e.g. Annual support plan"></div>
+      <div><label for="dr-customer">Customer (optional)</label><input id="dr-customer" autocomplete="off"></div>
+      <div><label for="dr-amount">Amount paid</label><input id="dr-amount" inputmode="decimal" autocomplete="off" placeholder="1200.00"></div>
+      <div><label for="dr-start">Service starts</label><input id="dr-start" type="date"></div>
+      <div><label for="dr-months">Months of service</label><input id="dr-months" inputmode="numeric" value="12"></div>
+      <div><label for="dr-method">Earned</label><select id="dr-method"><option value="daily">by the day</option><option value="monthly">in equal monthly shares</option></select></div>
+      <div><label for="dr-account">Income account</label><select id="dr-account"></select></div>
+    </div>
+    <button type="button" id="dr-add">Add to the register</button>
+    <details><summary>Add many from a CSV (name, amount, start, end or months; customer, date, account, method optional)</summary>
+      <label for="dr-csv">Up-front sales CSV</label><textarea id="dr-csv" rows="4" placeholder="name,customer,amount,start,months&#10;Pro annual,Acme,1200,2026-01-15,12"></textarea>
+      <label><input type="checkbox" id="dr-exclusive"> The end date is the first day after service (a period from one anniversary to the next)</label>
+      <button type="button" id="dr-import">Add these rows</button>
+    </details>
+    <p id="dr-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="dr-register"></div>
+    <div class="scroll" id="dr-waterfall"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-inv">
     <h2 id="h-inv">Optional: stock you resell</h2>
     <p class="note">If you buy goods and sell them later, the cost of what you sold is an expense in the month of the sale, not the month of the purchase. File the supplier payment to 1450 Inventory, record the purchase here, then record each sale (or lost or damaged stock) by quantity: the cost moves to 5000 Cost of goods sold, first-in first-out or at the moving average. Whether to count your stock this way for tax is for you or your preparer.</p>
@@ -449,7 +472,7 @@
     <h2 id="h-guides">Guides, with worked examples</h2>
     <p class="note">Each guide books one month from a bank or platform file and shows the entries, so you can check your own the same way.</p>
     <h3>Start here</h3>
-    <ul class="pf-guide-list"><li><a href="./how-to-do-bookkeeping-from-bank-statements.html">How to do bookkeeping from bank statements, with a worked example</a></li><li><a href="./vs-quickbooks-xero-wave.html">Where it fits next to QuickBooks, Xero and Wave</a></li><li><a href="./bank-statement-to-quickbooks-xero.html">Bank statement to QuickBooks or Xero</a></li><li><a href="./mint-export-to-business-books.html">A Mint-style export to business books</a></li><li><a href="./form-1099-k-reconciliation.html">A 1099-K that does not match your books</a></li><li><a href="./tax-calendar.html">Free small-business tax calendar (.ics)</a></li></ul>
+    <ul class="pf-guide-list"><li><a href="./how-to-do-bookkeeping-from-bank-statements.html">How to do bookkeeping from bank statements, with a worked example</a></li><li><a href="./vs-quickbooks-xero-wave.html">Where it fits next to QuickBooks, Xero and Wave</a></li><li><a href="./bank-statement-to-quickbooks-xero.html">Bank statement to QuickBooks or Xero</a></li><li><a href="./mint-export-to-business-books.html">A Mint-style export to business books</a></li><li><a href="./form-1099-k-reconciliation.html">A 1099-K that does not match your books</a></li><li><a href="./deferred-revenue-schedule.html">Deferred revenue schedule and waterfall for annual plans</a></li><li><a href="./tax-calendar.html">Free small-business tax calendar (.ics)</a></li></ul>
     <h3>Selling online: book the sale, not the payout</h3>
     <ul class="pf-guide-list pf-cols"><li><a href="./stripe-bookkeeping.html">Stripe</a></li><li><a href="./shopify-bookkeeping.html">Shopify</a></li><li><a href="./square-bookkeeping.html">Square</a></li><li><a href="./paypal-bookkeeping.html">PayPal</a></li><li><a href="./amazon-seller-bookkeeping.html">Amazon sellers</a></li><li><a href="./etsy-bookkeeping.html">Etsy</a></li><li><a href="./ebay-bookkeeping.html">eBay</a></li><li><a href="./reseller-bookkeeping.html">Poshmark, Mercari and Depop</a></li><li><a href="./airbnb-bookkeeping.html">Airbnb hosts</a></li></ul>
     <h3>By kind of business (35)</h3>
@@ -487,6 +510,7 @@
   <script type="module">
     import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, nec1099IrisCsv, rents1099, misc1099IrisCsv, markW9, mergePayees } from "./taxforms.mjs";
+    import { addDeferral, importDeferralsCsv, cancelDeferral, deferredRegister, deferredWaterfall } from "./deferred.mjs";
     import { newBooks, importStatement, importOfxAccounts, importQifAccounts, importCsvAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { decodeBytes } from "./textcodec.mjs";
@@ -783,6 +807,44 @@
         const r = addPrepaid(books, { name: $("#pp-name").value, date: $("#pp-date").value, amount: $("#pp-amount").value, months: $("#pp-months").value, expenseAccount: $("#pp-account").value });
         books = categorize(r.books, opts()); record("prepaid_added"); render(); $("#pp-status").textContent = `${r.prepaid.id} ${r.prepaid.name} added: ${fmt(r.prepaid.cents)} over ${r.prepaid.months} months. File the payment to 1400 if you have not.`;
       } catch (e) { $("#pp-status").textContent = e.message; }
+    });
+
+    function renderDeferred() {
+      const sel = $("#dr-account"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.type === "income").map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      sel.value = keep || "4000";
+      const r = deferredRegister(books);
+      if (!r.rows.length) { $("#dr-register").replaceChildren(); $("#dr-waterfall").replaceChildren(); return; }
+      const cancelBtn = (d) => d.cancelled ? el("td", { text: `cancelled ${d.cancelled.date}${d.refundDue ? `, refund ${fmt(d.refundDue)} owed` : ""}` }) : el("td", {}, el("button", { type: "button", class: "dr-cancel", "data-id": d.id, text: "Cancel…" }));
+      const rows = r.rows.map((d) => el("tr", {}, el("td", { text: `${d.id} ${d.name}${d.customer ? ` (${d.customer})` : ""}` }), el("td", { class: "n", text: `${d.start} to ${d.end}` }), el("td", { class: "n", text: fmt(d.cents) }), el("td", { class: "n", text: fmt(d.earned) }), el("td", { class: "n", text: fmt(d.unearned) }), cancelBtn(d)));
+      $("#dr-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Plan", "Service", "Paid", "Earned", "Still to earn", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: `Total as of ${r.asOf}` }), el("td"), el("td", { class: "n", text: fmt(r.cents) }), el("td", { class: "n", text: fmt(r.earned) }), el("td", { class: "n", text: fmt(r.unearned) }), el("td", { text: r.refundDue ? `refunds owed ${fmt(r.refundDue)}` : "" })))));
+      const w = deferredWaterfall(books, { horizon: 12 });
+      if (!w.rows.length) { $("#dr-waterfall").replaceChildren(); return; }
+      const wrows = w.rows.map((d) => el("tr", {}, el("td", { text: `${d.id} ${d.name}` }), ...d.byMonth.map((v) => el("td", { class: "n", text: v ? fmt(v) : "-" })), el("td", { class: "n", text: d.later ? fmt(d.later) : "-" })));
+      $("#dr-waterfall").replaceChildren(el("p", { class: "note", text: `Still to earn ${fmt(w.unearned)}: ${fmt(w.current)} in the next 12 months (a current liability), ${fmt(w.longTerm)} after (long term).${w.refund ? ` Refunds owed on cancelled plans: ${fmt(w.refund)}.` : ""}` }), el("table", {}, el("caption", { text: "Deferred revenue waterfall: what is earned in each month ahead" }), el("thead", {}, el("tr", {}, el("th", { scope: "col", text: "Plan" }), ...w.months.map((m) => el("th", { scope: "col", text: m })), el("th", { scope: "col", text: "Later" }))), el("tbody", {}, ...wrows, el("tr", { class: "total" }, el("th", { scope: "row", text: "Total" }), ...w.totals.map((v) => el("td", { class: "n", text: fmt(v) })), el("td", { class: "n", text: fmt(w.later) })))));
+    }
+    $("#dr-add").addEventListener("click", () => {
+      try {
+        const r = addDeferral(books, { name: $("#dr-name").value, customer: $("#dr-customer").value, amount: $("#dr-amount").value, start: $("#dr-start").value, months: $("#dr-months").value, method: $("#dr-method").value, incomeAccount: $("#dr-account").value });
+        books = categorize(r.books, opts()); record("deferral_added"); render(); $("#dr-status").textContent = `${r.deferral.id} ${r.deferral.name} added: ${fmt(r.deferral.cents)} earned from ${r.deferral.start} to ${r.deferral.end}. File the customer's payment to 2400 if you have not.`;
+      } catch (e) { $("#dr-status").textContent = e.message; }
+    });
+    $("#dr-import").addEventListener("click", () => {
+      const r = importDeferralsCsv(books, $("#dr-csv").value, { method: $("#dr-method").value, endExclusive: $("#dr-exclusive").checked, incomeAccount: $("#dr-account").value || "4000" });
+      if (r.added) { books = categorize(r.books, opts()); record("deferrals_imported"); render(); }
+      $("#dr-status").textContent = `${r.added} added.${r.problems.length ? " " + r.problems.join(" ") : ""}`;
+    });
+    $("#dr-register").addEventListener("click", (ev) => {
+      const b = ev.target.closest?.(".dr-cancel");
+      if (!b) return;
+      const date = window.prompt(`Cancel ${b.dataset.id}: last day of service (YYYY-MM-DD)?`);
+      if (!date) return;
+      const keep = confirm_("Is the rest non-refundable? OK earns it on that day; Cancel leaves it as a refund you owe.");
+      try {
+        const r = cancelDeferral(books, b.dataset.id, { date: date.trim(), keep });
+        books = categorize(r.books, opts()); record("deferral_cancelled"); render();
+        $("#dr-status").textContent = keep ? `${b.dataset.id} cancelled; the rest is earned on ${date}.` : `${b.dataset.id} cancelled; ${fmt(r.refund)} is owed back. File the refund payment to 2400.`;
+      } catch (e) { $("#dr-status").textContent = e.message; }
     });
 
     function renderInventory() {
@@ -1108,7 +1170,7 @@
     $("#misc-iris-csv").addEventListener("click", () => { record("rents_iris_downloaded"); download(misc1099IrisCsv(rents1099(books, { year: necYear() })).csv, "rents-1099-misc-iris-template.csv", "text/csv"); });
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderCompare(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderCompare(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderDeferred(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
