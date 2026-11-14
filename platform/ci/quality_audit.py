@@ -420,6 +420,23 @@ def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None =
 
 # --- cli ---------------------------------------------------------------------
 
+def mode_note(date: str, audits: list[dict]) -> str | None:
+    """A first line for `sample` when today's mode is not `sample`, else None.
+
+    The track prompt (prompts/quality/prompt-0.md, step 1) says run `sample`;
+    the README's "Four modes" says run `mode` first. Ten quality runs in five
+    days reported the two procedures (friction_rank.py, 2026-11-10..14), and
+    the prompt is owner-held, so the tool that runs first says it.
+    """
+    sys.path.insert(0, str(Path(__file__).parent))
+    import quality_metrics as qm
+    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")))
+    if m["mode"] == "sample":
+        return None
+    return (f"NOTE: today's mode is `{m['mode']}`, not sample ({m['why']}): {qm.MODES[m['mode']]}. "
+            "portfolio/quality/README.md, \"Four modes\", says how; a sample round today is a deviation to record.")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -461,6 +478,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.json:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
         else:
+            note = None if args.seed else mode_note(dt.date.today().isoformat(), local)
+            if note:
+                print(note)
             print(f"seed {seed}   round {rnd} (next post: docs/posts/<date>-quality-audit-round-{rnd}.md)")
             if not args.offline:
                 held_txt = ", ".join(f"{r}/{sd or '?'}" for r, sd in sorted(prs)) or "none"
