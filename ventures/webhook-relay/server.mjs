@@ -12,6 +12,7 @@ import { verify, SCHEMES } from "./verify.mjs";
 import { DEFAULT_POLICY, newState, ingest, due, throttle, recordAttempt, replay, replayDead, summary, metrics } from "./relay.mjs";
 import { ADMIN_HTML } from "./admin.mjs";
 import { validateFilter, matches } from "./filter.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const MAX_BODY = 1_000_000;
@@ -201,7 +202,7 @@ async function alert(text) {
   if (env.ALERT_WEBHOOK_URL) await fetch(env.ALERT_WEBHOOK_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, content: text }) }).catch(() => {});
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY) { console.error("missing env: ADMIN_KEY"); process.exit(1); }
   let routes;
   try { routes = parseRoutes(env.ROUTES_JSON, env); } catch (e) { console.error(`ROUTES_JSON: ${e.message}`); process.exit(1); }

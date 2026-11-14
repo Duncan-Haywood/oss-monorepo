@@ -16,10 +16,11 @@
 import { parseStaff, parseShifts, buildRoster, calloutExposure, coverSlackText } from "../calc.mjs";
 import { drawWeek, sets } from "./real-rate-week.mjs";
 import { playFrom } from "./steady-for-callouts.mjs";
+import { pathToFileURL } from "node:url";
 
 const BASE = { minRestHours: 10 };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const seeds = Number(process.argv[2] || 20);
   const all = sets();
   const pick = (process.env.SETS || Object.keys(all).join(",")).split(",");

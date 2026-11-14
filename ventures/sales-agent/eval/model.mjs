@@ -13,6 +13,7 @@ import { createHash } from "node:crypto";
 import { triage, CATEGORIES, stripQuoted } from "../engine.mjs";
 import { modelTriage, mergeTriage } from "../ai.mjs";
 import { configFromEnv, isConfigured } from "../byok.mjs";
+import { pathToFileURL } from "node:url";
 
 const TODAY = "2026-10-21";
 export const replyKey = (r) => createHash("sha256").update(`${r.subject || ""}\n${r.body}`).digest("hex").slice(0, 16);
@@ -60,7 +61,7 @@ export function scoreSet(rows, answers, today = TODAY) {
 
 const loadRows = (f) => readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
   const cachePath = opt("--cache");

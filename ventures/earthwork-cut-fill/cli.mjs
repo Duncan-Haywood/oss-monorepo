@@ -12,6 +12,7 @@
 // Not engineering advice: a TIN is only as good as its shots.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { run as compute, toCsv, exampleCsv, EXAMPLE_BOUNDARY } from './earthwork.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function parseArgs(argv) {
   const a = { file: null, proposed: null, boundary: null, units: 'ft', format: 'auto', pad: {}, json: false, csv: null, example: false, balance: false };
@@ -67,7 +68,7 @@ export function report(r) {
   return L.join('\n');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const a = parseArgs(process.argv.slice(2));
   if (a.help || (!a.example && !a.file)) {
     console.log('usage: node cli.mjs existing.csv (--pad ELEV | --balance | --proposed finished.csv) [--boundary b.csv] [--units ft|m] [--shrink %] [--swell %] [--truck CY] [--json] [--csv out.csv]\n       node cli.mjs --example --balance --shrink 15');

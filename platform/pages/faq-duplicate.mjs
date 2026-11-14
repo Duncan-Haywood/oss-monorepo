@@ -34,6 +34,7 @@
 //   node platform/pages/faq-duplicate.mjs <slug>    # one venture
 
 import { collectPages, unknownVenture } from './clauses.mjs';
+import { pathToFileURL } from 'node:url';
 
 /** Headings that label an FAQ section rather than ask a question. */
 const SECTION_LABEL = /^(common questions|faq|faqs|frequently asked questions|questions)$/;
@@ -133,6 +134,6 @@ export async function main(argv = process.argv.slice(2)) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exitCode = await main();
 }

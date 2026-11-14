@@ -14,6 +14,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { RULES, auditFiles, summarise } from './audit.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const DISCLAIMER = 'No warranty. Liability Audit is free, as-is software and not legal, tax or financial advice. '
   + 'It pattern-matches files and can miss problems or flag non-problems; a clear report is not a finding that anything is lawful. '
@@ -196,6 +197,6 @@ export async function main(argv, { stdout = (s) => process.stdout.write(`${s}\n`
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2)).then((code) => { process.exitCode = code; });
 }

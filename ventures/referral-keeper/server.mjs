@@ -10,6 +10,7 @@ import { timingSafeEqual } from "node:crypto";
 import { verifySignature } from "./stripe.mjs";
 import { newState, program, addAffiliate, setStatus, byPortal, click, applyEvent, balances, createPayouts, markPaid, voidPayout } from "./engine.mjs";
 import { adminPage, portalPage, joinPage, payoutsCsv, trackerJs, esc, layout } from "./pages.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 
@@ -152,7 +153,7 @@ function readJson(path, fallback) {
   try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const missing = ["STRIPE_WEBHOOK_SECRET", "ADMIN_KEY", "PUBLIC_URL"].filter((k) => !env[k]);
   if (missing.length) { console.error(`missing env: ${missing.join(", ")}`); process.exit(1); }
   const statePath = env.STATE || "state.json";

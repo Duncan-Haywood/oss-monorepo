@@ -12,6 +12,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { checkDisclosure, summarize } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const IGNORE_DIRS = new Set(["node_modules", ".git", ".next", ".vercel", "vendor"]);
 
@@ -143,7 +144,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stat
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

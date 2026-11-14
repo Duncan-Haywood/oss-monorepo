@@ -9,6 +9,7 @@
 // first name, last name and postcode match exactly after trimming and lower-casing.
 import { readFileSync, existsSync } from "node:fs";
 import { analyze, parseCsv } from "../engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export function truthPairs(rows) {
   const by = new Map();
@@ -47,7 +48,7 @@ export function evaluate(file, opts = {}) {
   return { rows: rows.length, ms, candidatePairs: r.candidatePairs, reviewCount: r.reviewCount, tool: score(truth, pairsOf(r.groups.map((g) => g.members))), baseline: score(truth, exactBaseline(header, rows)) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dir = process.argv[2];
   const files = [["Febrl 1", new URL("../data/febrl1.csv", import.meta.url).pathname]];
   if (dir) for (const n of [2, 3]) if (existsSync(`${dir}/dataset${n}.csv`)) files.push([`Febrl ${n}`, `${dir}/dataset${n}.csv`]);
@@ -63,7 +64,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 // Harder: drop date of birth and the ID number, leaving what a contact list holds (name and address).
 export const NAME_ADDRESS_ONLY = ["ignore", "given", "surname", "housenumber", "street", "text", "city", "postcode", "state", "ignore", "ignore"];
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dir = process.argv[2];
   const files = [["Febrl 1", new URL("../data/febrl1.csv", import.meta.url).pathname]];
   if (dir) for (const n of [2, 3]) if (existsSync(`${dir}/dataset${n}.csv`)) files.push([`Febrl ${n}`, `${dir}/dataset${n}.csv`]);

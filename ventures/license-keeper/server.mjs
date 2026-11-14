@@ -11,6 +11,7 @@ import { verifySignature, createStripe } from "./stripe.mjs";
 import { applyEvent, deliver } from "./engine.mjs";
 import { newState, issue, revoke, activate, deactivate, status, claimsOf, summary } from "./store.mjs";
 import { generateKeyPair, signLicense, verifyLicense, parseLicense } from "./token.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 
@@ -125,7 +126,7 @@ async function sendResend(msg) {
   if (!res.ok) throw new Error(`resend ${res.status}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const missing = ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "ADMIN_KEY", "PLANS_JSON"].filter((k) => !env[k]);
   if (missing.length) { console.error(`missing env: ${missing.join(", ")}`); process.exit(1); }
   const dryRun = env.DRY_RUN !== "false";

@@ -13,6 +13,7 @@
 import { parseStaff, parseShifts, buildContext, buildRoster, coverRisk, coverPairRisk, DAYS } from "../calc.mjs";
 import { sets } from "./real-rate-week.mjs";
 import { playFrom } from "./steady-for-callouts.mjs";
+import { pathToFileURL } from "node:url";
 
 const BASE = { minRestHours: 10 };
 
@@ -57,7 +58,7 @@ export function allPairExposure(stf, shf, r, opts = BASE) {
   return { personDays: days.length, pairs, open, hours, staff: staff.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const all = sets();
   const pick = (process.env.SETS || Object.keys(all).join(",")).split(",").filter(Boolean);
   const price = Number(process.env.PRICE ?? 25), max = Number(process.env.MAX ?? 200);

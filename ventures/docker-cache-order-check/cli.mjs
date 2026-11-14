@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { scanText, hasRisk, summarize, describeFinding } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 /** Every `Dockerfile`, `Dockerfile.*`, and `*.dockerfile` under `root`,
  * skipping `.git` and `node_modules`, sorted for stable output. */
@@ -110,7 +111,7 @@ export async function run(argv, { readFile = (p) => readFileSync(p, "utf8"), dis
   return { exitCode: args.failOnRisk && hasRisk(findings) ? 2 : 0, output };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

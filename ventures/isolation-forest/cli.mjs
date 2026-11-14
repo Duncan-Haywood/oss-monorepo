@@ -3,6 +3,7 @@
 //   node cli.mjs data.csv [--columns a,b,c] [--contamination 0.05] [--json | --csv]
 import { readFileSync } from "node:fs";
 import { analyze, toCsv, PAPERS, fmt } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `isolation-forest: rank the rows of a table from most to least unusual (Liu, Ting & Zhou 2008)
 
@@ -116,7 +117,7 @@ export function run(argv, stdinText = "") {
   return { code: 0, out: formatText(r) };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const argv = process.argv.slice(2);
   const flagWithValue = new Set(Object.keys(FLAGS));

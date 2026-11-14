@@ -62,6 +62,7 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const REPO_ROOT = new URL("../../", import.meta.url).pathname;
 const VENTURES = join(REPO_ROOT, "ventures");
@@ -412,7 +413,7 @@ export function claimsUsageCounter(pagePath) {
   return PROMISE.test(readFileSync(pagePath, "utf8"));
 }
 
-if (import.meta.url === `file://${process.argv[1] ?? ""}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const results = checkAllInline();
   const unguarded = results.filter((r) => r.status === "unguarded");
   for (const r of unguarded) {

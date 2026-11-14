@@ -26,6 +26,7 @@
 // usage: node eval/update-rate-rounding.mjs > eval/update-rate-rounding.out.txt
 import { updateRateChanges } from '../update-rate.mjs';
 import { makeRng } from './update-rate-sim.mjs';
+import { pathToFileURL } from 'node:url';
 
 const N = 300, AT = 150, REPS = 200, SEED = 20261212;
 const gauss = (rnd) => { let u = 0; while (u === 0) u = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rnd()); };
@@ -71,7 +72,7 @@ export function run(seed = SEED, reps = REPS) {
   return { cells: out, q1, q2, ships: q1 && q2 };
 }
 
-const invoked = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const invoked = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invoked) {
   const r = run();
   console.log(`seed ${SEED}, ${REPS} series a cell, n ${N}, change at ${AT}`);
