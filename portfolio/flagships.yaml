@@ -106,12 +106,12 @@ flagships:
       slips, full-size photos); (6) payroll (README; journal layout 11-14): a real
       Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: 38 states' pages, discounts for 22 (MD, UT statutes; CO's ended 2026,
-      README); open: IN's day and allowance, NJ, AR, RI, ME, MA; a real return
-      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
-      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
-      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
+      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
+      discounts, IN's band and day from the book (README); open: AR statutes, a real
+      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
+      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
+      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
+      once printed. A run that lands a slice replaces its item here; keep this under
       2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term

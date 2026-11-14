@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
-import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning } from "./salestaxreturn.mjs";
+import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning, stateHistoryPresets } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
 import { addDeferral, importDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferredRegister, deferredWaterfall, waterfallCsv } from "./deferred.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
@@ -1004,10 +1004,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   // flag() removes what it reads, so each flag is read once (before 2026-11-12 only the first --state read saw it:
   // due days, NY/PA/DC periods and the state notes all fell back to the defaults)
   const state = flag("--state"), freq = flag("--freq") ?? "quarterly", endMonthFlag = flag("--end-month"), dueDayFlag = flag("--due-day");
-  for (const [k, d] of Object.entries(stateDiscounts(state, freq))) if (!(k in discounts)) discounts[k] = d;
-  try { t = salesTaxReturn(books, { frequency: freq, endMonth: endMonthFlag ? Number(endMonthFlag) : stateEndMonth(state, freq), dueDay: dueDayFlag ? Number(dueDayFlag) : stateDueDay(state, freq), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
+  // Indiana's allowance band and due day come from the book's own past tax (stateHistoryPresets); an explicit flag still wins
+  const hist = stateHistoryPresets(state, books, freq, { from, to });
+  for (const [k, d] of Object.entries({ ...stateDiscounts(state, freq), ...hist.discounts })) if (!(k in discounts)) discounts[k] = d;
+  try { t = salesTaxReturn(books, { frequency: freq, endMonth: endMonthFlag ? Number(endMonthFlag) : stateEndMonth(state, freq), dueDay: dueDayFlag ? Number(dueDayFlag) : hist.dueDay ?? stateDueDay(state, freq), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   const stateNote = stateFilingNote(state, t.frequency);
   if (stateNote) t.warnings.push(stateNote);
+  t.warnings.push(...hist.notes);
   // a preset that matched no tax line says so instead of the note that calls it applied (red team 2026-11-14)
   const presetMiss = presetDiscountWarning(state, t.frequency, t, discounts);
   const discNote = stateDiscountNote(state);
