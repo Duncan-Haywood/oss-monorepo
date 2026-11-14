@@ -436,6 +436,52 @@ written; what only your profile wants (a Leitweg-ID, a seller contact) is a
 *warning*. Every file is read back through the same readers and rules as the
 checker, and the API returns that result as `preflight`.
 
+**Factur-X / ZUGFeRD PDF (2026-11-14, `facturx-pdf.mjs`).** `--format facturx`
+(CLI), `"format":"facturx"` (`POST /v1/generate`, returns `pdf_base64`) or the
+"Factur-X / ZUGFeRD PDF" format on `create.html` writes one PDF/A-3b file: a
+printed A4 page (seller, buyer, lines, VAT breakdown, totals, payment details;
+long invoices flow onto numbered pages) with the CII XML embedded as
+`factur-x.xml` (profile `en16931`, ConformanceLevel `EN 16931`) or
+`xrechnung.xml` (profile `xrechnung`, level `XRECHNUNG`). Peppol is refused:
+it travels as XML over the network, not as a PDF. The page is drawn from the
+same document the XML is written from, so the two cannot disagree.
+
+```sh
+node generate-cli.mjs examples/draft-invoice.json -f facturx -o RE-2026-001.pdf   # EN 16931
+node generate-cli.mjs examples/draft-invoice.json -f facturx -p xrechnung -o x.pdf
+```
+
+What makes it PDF/A-3b, all written here with no dependency: the two fonts
+are embedded as glyph subsets (Type0 / CIDFontType2, Identity-H, with a
+ToUnicode map so text copies out; `fonts/PreflightSans-*.ttf`, Liberation
+Sans 2 cut to Latin, Greek and Cyrillic and renamed as its SIL OFL 1.1
+requires, rebuilt by `fonts/build-fonts.py`); an sRGB output intent whose
+small ICC v2 profile is generated in code; an XMP packet with `pdfaid` part 3
+conformance B and the Factur-X extension schema; a trailer `/ID`; the XML as
+an associated file (`/AF`, `/AFRelationship /Alternative`, `text/xml`). No
+Info dictionary, so nothing can disagree with the XMP. Characters outside the
+fonts (CJK, for one) print as `?` on the page; the XML keeps them.
+
+Checked (`node eval/facturx-pdf-verapdf.mjs <dir> <verapdf>`): **veraPDF
+1.30.4 passes all 8 test PDFs as PDF/A-3b** (plain EN 16931 and XRechnung, a
+credit note, an 80-line invoice over 6 pages, Polish, Greek and Cyrillic
+names, CJK in a note, reverse charge plus exempt lines, a prepayment with a
+long note), and the PDF downloaded from `create.html` in headless Chromium
+passes too. The embedded XML is byte-identical to the CII the creator writes;
+the repo's own checker reads each PDF with no finding (envelope checks
+included); the official EN 16931 CII Schematron (compiled set, `plain/`)
+reports nothing on the EN 16931 file, and on the XRechnung file only the
+informational XRechnung note that no delivery date (BT-72) or period is given (the sample draft has none). A PDF
+with a seeded wrong tax total, written by this writer and fixed by
+`repair-cli.mjs`, still passes veraPDF after the incremental update, as do
+155 of 155 real corpus PDFs seeded and repaired the same way. Details:
+`eval/facturx-pdf-verapdf-2026-11-14.md`.
+Not checked: Mustang's validator (its Maven path came back empty through the
+build host's proxy), Acrobat, a real receiver. veraPDF came from Maven
+Central (`org.verapdf.apps:cli`, main class
+`org.verapdf.apps.GreenfieldCliWrapper`); software.verapdf.org is blocked
+from cloud sessions. Tests: `facturx-pdf.test.mjs` (13).
+
 Not a certified invoicing system: it does not sign, archive, transmit, look
 up a Leitweg-ID or a Peppol participant, or do document-level allowances
 (put discounts into the line price). It is a preflight-grade writer, not a
@@ -1219,7 +1265,7 @@ since 2026-11-14 on 358 seeded copies of the real Factur-X / ZUGFeRD PDFs in the
 ZUGFeRD corpus and Mustang, written by qpdf in both layouts: qpdf passes every
 repaired PDF and reads back the original XML byte for byte from 248; the other
 110 are declined with the reason printed (see "The repair on real files" below).
-veraPDF (PDF/A-3 after the update) is the open check.
+**veraPDF passes every repaired PDF it passed before (2026-11-14): 155 of 155** real corpus PDFs (PDF/A-3a, 3b, 3u and one 4f), seeded and repaired, stay valid (`eval/facturx-pdf-verapdf-2026-11-14.md`, `eval/repair-verapdf-corpus.py`).
 Same contract as UBL: only amounts are edited, in place: each line's
 `LineTotalAmount` (quantity x net price / basis quantity), each header
 `ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the

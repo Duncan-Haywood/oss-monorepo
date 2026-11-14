@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Free XRechnung &amp; Peppol invoice creator — UBL and CII XML</title>
-  <meta name="description" content="Fill in a form, download a valid XRechnung 3.0, Peppol BIS 3.0 or EN 16931 e-invoice as UBL or CII XML. Totals and the VAT breakdown are computed for you, then the file is checked before you download it. Free, open source, and nothing leaves your browser.">
+  <title>Free XRechnung, Peppol &amp; Factur-X invoice creator — UBL, CII or PDF/A-3</title>
+  <meta name="description" content="Fill in a form, download a valid XRechnung 3.0, Peppol BIS 3.0 or EN 16931 e-invoice as UBL or CII XML, or a Factur-X / ZUGFeRD PDF/A-3 with the XML inside. Totals and the VAT breakdown are computed for you, then the file is checked before you download it. Free, open source, and nothing leaves your browser.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Free XRechnung &amp; Peppol invoice creator">
   <meta property="og:description" content="Create a compliant UBL or CII e-invoice in your browser. Computes VAT, checks the result, no account, no upload.">
@@ -42,12 +42,12 @@
 <main>
   <p class="eyebrow">E-INVOICING · FREE · NO ACCOUNT</p>
   <h1>Create an XRechnung or Peppol e-invoice</h1>
-  <p>Germany already requires businesses to <em>receive</em> structured e-invoices, and sending becomes mandatory from 2027 (2028 for smaller firms); Belgium, Poland and France follow. A PDF is no longer enough. Fill in the form, get a UBL or CII XML file, and see it checked against <a href="index.html">the preflight rules</a> before you download it. Totals and the per-rate VAT breakdown are worked out for you. Nothing is uploaded.</p>
+  <p>Germany already requires businesses to <em>receive</em> structured e-invoices, and sending becomes mandatory from 2027 (2028 for smaller firms); Belgium, Poland and France follow. A plain PDF is no longer enough. Fill in the form, get a UBL or CII XML file, or a Factur-X / ZUGFeRD PDF (a printable PDF/A-3 page with the CII XML inside, the hybrid format France and Germany both accept), and see it checked against <a href="index.html">the preflight rules</a> before you download it. Totals and the per-rate VAT breakdown are worked out for you. Nothing is uploaded.</p>
 
   <section>
     <h2>Document</h2>
     <div class="grid">
-      <label>Format <select id="format"><option value="ubl">UBL 2.1 XML</option><option value="cii">UN/CEFACT CII XML</option></select></label>
+      <label>Format <select id="format"><option value="ubl">UBL 2.1 XML</option><option value="cii">UN/CEFACT CII XML</option><option value="facturx">Factur-X / ZUGFeRD PDF (PDF/A-3, CII inside)</option></select></label>
       <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option></select></label>
       <label>Type <select id="document_type"><option value="invoice">Invoice</option><option value="credit_note">Credit note</option></select></label>
       <label>Invoice number <input id="number" value="RE-2026-001"></label>
@@ -126,6 +126,7 @@
 
   <script type="module">
     import { generateInvoice } from "./generate.mjs";
+    import { generateFacturX, FACTURX_PROFILES } from "./facturx-pdf.mjs";
     import { parseInvoiceSource, preflightDocuments, buildJsonReport } from "./report.mjs";
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
@@ -169,7 +170,15 @@
       d.payment = pay;
       return d;
     }
-    const opts = () => ({ format: $("format").value, profile: $("profile").value });
+    const opts = () => ({ format: $("format").value === "facturx" ? "cii" : $("format").value, profile: $("profile").value });
+    let fontBytes = null;
+    const loadFonts = async () => {
+      if (fontBytes) return fontBytes;
+      const get = async (n) => new Uint8Array(await (await fetch(`fonts/PreflightSans-${n}.ttf`)).arrayBuffer());
+      fontBytes = { regular: await get("Regular"), bold: await get("Bold") };
+      return fontBytes;
+    };
+    let lastBlob = null;
     const money = (n, c) => new Intl.NumberFormat("en", { style: "currency", currency: /^[A-Z]{3}$/.test(c) ? c : "EUR" }).format(n);
     const li = (items, cls) => items.length ? `<ul class="msgs ${cls}">${items.map((m) => `<li>${esc(m.path)}: ${esc(m.message)}</li>`).join("")}</ul>` : "";
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -183,22 +192,38 @@
 
     $("generate").onclick = async () => {
       safe(() => recordUsage(usageStorage(), optedOut(), "einvoice_create_attempted"));
-      const r = generateInvoice(draft(), opts());
+      const pdfWanted = $("format").value === "facturx";
+      if (pdfWanted && !Object.hasOwn(FACTURX_PROFILES, $("profile").value)) {
+        $("result").innerHTML = `<p class="err"><b>Factur-X takes the XRechnung or EN 16931 profile.</b> Peppol BIS travels as XML over the Peppol network, not as a PDF: pick UBL or CII for it.</p>`;
+        return;
+      }
+      let r = generateInvoice(draft(), opts());
+      if (r.ok && pdfWanted) {
+        try {
+          r = generateFacturX(draft(), { profile: $("profile").value, fonts: await loadFonts() });
+        } catch (e) {
+          $("result").innerHTML = `<p class="err">Could not build the PDF: ${esc(e.message)}</p>`;
+          return;
+        }
+      }
       const out = $("result"), pre = $("xml");
       $("download").disabled = true; pre.hidden = true;
       if (!r.ok) { out.innerHTML = `<p class="err"><b>Not created yet — fix these first:</b></p>${li(r.errors, "err")}${li(r.warnings, "warn")}`; return; }
       lastXml = r.xml; lastName = r.filename;
-      const check = buildJsonReport(await preflightDocuments([{ name: r.filename, source: r.xml }]));
+      lastBlob = pdfWanted ? new Blob([r.pdf], { type: "application/pdf" }) : new Blob([r.xml], { type: "application/xml" });
+      const check = buildJsonReport(await preflightDocuments([{ name: r.filename, source: pdfWanted ? r.pdf : r.xml }]));
       const findings = check.errors || [];
       out.innerHTML = `<p class="ok">E-invoice created.</p>${li(r.warnings, "warn") ? `<p class="warn"><b>Your chosen profile also expects:</b></p>${li(r.warnings, "warn")}` : ""}` +
         (findings.length ? `<p class="err"><b>Preflight found ${findings.length} issue(s) in the generated file:</b></p><ul class="msgs err">${findings.map((f) => `<li>${esc(f.rule)} ${esc(f.message)}</li>`).join("")}</ul>` : `<p class="ok">Preflight: no findings.</p>`) +
+        (pdfWanted ? `<p class="muted">The PDF is PDF/A-3b with the CII XML embedded as ${esc(FACTURX_PROFILES[$("profile").value].filename)}; the XML is shown below. Writer output checked with veraPDF; the printed page is drawn from the same data.</p>` : "") +
         `<p class="muted">Preflight is a shape and arithmetic check, not a full schema or Schematron validation. Run it through your network's validator (e.g. the KoSIT validator for XRechnung) before sending.</p>`;
       pre.textContent = r.xml; pre.hidden = false; $("download").disabled = false;
-      safe(() => recordUsage(usageStorage(), optedOut(), "einvoice_created"));
+      safe(() => recordUsage(usageStorage(), optedOut(), pdfWanted ? "einvoice_facturx_created" : "einvoice_created"));
+      $("download").textContent = pdfWanted ? "Download PDF" : "Download XML";
     };
     $("download").onclick = () => {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([lastXml], { type: "application/xml" })); a.download = lastName; a.click();
+      a.href = URL.createObjectURL(lastBlob || new Blob([lastXml], { type: "application/xml" })); a.download = lastName; a.click();
       URL.revokeObjectURL(a.href);
     };
     $("example").onclick = () => {
