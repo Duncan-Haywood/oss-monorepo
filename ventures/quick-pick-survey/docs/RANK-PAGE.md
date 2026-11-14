@@ -10,7 +10,10 @@ uploaded.
 ## What it does
 
 - Paste 3 to 60 options (`parseList`: bullets, blanks and case-insensitive
-  repeats dropped). Pick between two at a time; "About equal" is a tie, Undo
+  repeats dropped, each option cut to 120 characters). `parseList` is
+  idempotent, because the shared link is parsed again on the respondent's
+  side and any change there would give respondents a different list
+  fingerprint from the creator's (fixed 2026-11-14). Pick between two at a time; "About equal" is a tie, Undo
   and arrow keys work.
 - After every answer it refits all answers with `refitRatings` from
   `src/lib/btRefit.ts` (Bradley-Terry, Laplace posterior, the app's prior).
