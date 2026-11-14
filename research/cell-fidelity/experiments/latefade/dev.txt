@@ -1,0 +1,101 @@
+cell-fidelity milestone 5n, development (30 conditions seen by milestones 5b to 5m; 5b to 5l charged k/100 of each DFN@100 run's time, 5m's three at their measured segments)
+
+Ai2020@0.25x: n 51; Spearman with DFN@100: raw cycle 10 +0.08, sqrt-extrapolated +0.65, log-extrapolated +0.79, raw cycle 20 +0.41
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.252, 8 resumed [4, 6, 13, 17, 34, 40, 52, 60], best 34
+  5m ladder 0.0000 (0.216); fixed DFN@10 top 3 0.0716 (0.156); union with log 0.0000 (0.252); sqrt top 3 alone 0.0000
+Ai2020@0.375x: n 62; Spearman with DFN@100: raw cycle 10 +0.58, sqrt-extrapolated +0.68, log-extrapolated +0.78, raw cycle 20 +0.74
+  union screen (top 4 raw + top 4 sqrt): gap 0.0003, wall / all-DFN@100 0.194, 6 resumed [11, 16, 23, 31, 34, 51], best 18
+  5m ladder 0.0000 (0.194); fixed DFN@10 top 3 0.0597 (0.147); union with log 0.0204 (0.194); sqrt top 3 alone 0.0003
+Ai2020@0.3x: n 53; Spearman with DFN@100: raw cycle 10 +0.24, sqrt-extrapolated +0.76, log-extrapolated +0.80, raw cycle 20 +0.48
+  union screen (top 4 raw + top 4 sqrt): gap 0.0032, wall / all-DFN@100 0.301, 8 resumed [18, 19, 26, 32, 42, 43, 60, 61], best 3
+  5m ladder 0.0271 (0.286); fixed DFN@10 top 3 0.0876 (0.218); union with log 0.0000 (0.302); sqrt top 3 alone 0.0032
+Ai2020@0.4375x: n 64; Spearman with DFN@100: raw cycle 10 +0.76, sqrt-extrapolated +0.69, log-extrapolated +0.87, raw cycle 20 +0.89
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.258, 7 resumed [9, 23, 39, 45, 47, 49, 54], best 23
+  5m ladder 0.0000 (0.254); fixed DFN@10 top 3 0.0130 (0.201); union with log 0.0000 (0.244); sqrt top 3 alone 0.0000
+Ai2020@0.5x: n 64; Spearman with DFN@100: raw cycle 10 +0.89, sqrt-extrapolated +0.73, log-extrapolated +0.90, raw cycle 20 +0.95
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.219, 8 resumed [5, 27, 35, 37, 50, 56, 61, 63], best 5
+  5m ladder 0.0000 (0.192); fixed DFN@10 top 3 0.0236 (0.146); union with log 0.0000 (0.205); sqrt top 3 alone 0.0000
+Ai2020@0.625x: n 64; Spearman with DFN@100: raw cycle 10 +0.97, sqrt-extrapolated +0.58, log-extrapolated +0.93, raw cycle 20 +0.99
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.194, 6 resumed [3, 4, 6, 8, 24, 60], best 3
+  5m ladder 0.0000 (0.195); fixed DFN@10 top 3 0.0000 (0.147); union with log 0.0000 (0.194); sqrt top 3 alone 0.0108
+Ai2020@0.75x: n 64; Spearman with DFN@100: raw cycle 10 +0.96, sqrt-extrapolated +0.48, log-extrapolated +0.96, raw cycle 20 +0.99
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.195, 6 resumed [9, 11, 23, 47, 49, 51], best 51
+  5m ladder 0.0000 (0.196); fixed DFN@10 top 3 0.0000 (0.148); union with log 0.0000 (0.179); sqrt top 3 alone 0.0000
+Ai2020@1x: n 64; Spearman with DFN@100: raw cycle 10 +0.94, sqrt-extrapolated +0.33, log-extrapolated +0.95, raw cycle 20 +0.96
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.195, 6 resumed [9, 11, 16, 21, 23, 45], best 45
+  5m ladder 0.0000 (0.195); fixed DFN@10 top 3 0.0000 (0.148); union with log 0.0000 (0.194); sqrt top 3 alone 0.0000
+Chen2020@0.5x: n 64; Spearman with DFN@100: raw cycle 10 +0.98, sqrt-extrapolated +0.75, log-extrapolated +0.99, raw cycle 20 +0.99
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.197, 6 resumed [3, 24, 31, 39, 48, 57], best 3
+  5m ladder 0.0000 (0.197); fixed DFN@10 top 3 0.0000 (0.149); union with log 0.0000 (0.180); sqrt top 3 alone 0.0000
+Chen2020@1.5x: n 64; Spearman with DFN@100: raw cycle 10 +0.93, sqrt-extrapolated +0.69, log-extrapolated +0.84, raw cycle 20 +0.95
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.259, 8 resumed [3, 23, 24, 29, 31, 35, 47, 56], best 31
+  5m ladder 0.0000 (0.176); fixed DFN@10 top 3 0.0000 (0.136); union with log 0.0000 (0.259); sqrt top 3 alone 0.2587
+Chen2020@1x: n 64; Spearman with DFN@100: raw cycle 10 +0.98, sqrt-extrapolated +0.89, log-extrapolated +0.98, raw cycle 20 +0.98
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.190, 6 resumed [11, 16, 23, 29, 45, 51], best 11
+  5m ladder 0.0000 (0.195); fixed DFN@10 top 3 0.0000 (0.148); union with log 0.0000 (0.166); sqrt top 3 alone 0.0000
+Chen2020@2x: n 64; Spearman with DFN@100: raw cycle 10 +0.90, sqrt-extrapolated +0.57, log-extrapolated +0.76, raw cycle 20 +0.95
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.222, 8 resumed [3, 5, 7, 15, 19, 34, 35, 47], best 5
+  5m ladder 0.0000 (0.165); fixed DFN@10 top 3 0.0000 (0.133); union with log 0.0000 (0.215); sqrt top 3 alone 0.1349
+Ecker2015@0.5x: n 64; Spearman with DFN@100: raw cycle 10 +0.90, sqrt-extrapolated +0.95, log-extrapolated +0.92, raw cycle 20 +0.92
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.199, 6 resumed [8, 16, 32, 40, 44, 48], best 48
+  5m ladder 0.0000 (0.200); fixed DFN@10 top 3 0.0235 (0.148); union with log 0.0235 (0.178); sqrt top 3 alone 0.0235
+Ecker2015@0.75x: n 64; Spearman with DFN@100: raw cycle 10 +0.95, sqrt-extrapolated +0.98, log-extrapolated +0.96, raw cycle 20 +0.95
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.223, 5 resumed [18, 26, 42, 46, 62], best 26
+  5m ladder 0.0000 (0.244); fixed DFN@10 top 3 0.0000 (0.194); union with log 0.0000 (0.223); sqrt top 3 alone 0.0000
+Ecker2015@1.5x: n 64; Spearman with DFN@100: raw cycle 10 +0.99, sqrt-extrapolated +0.99, log-extrapolated +0.99, raw cycle 20 +0.99
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.170, 5 resumed [12, 16, 27, 40, 54], best 40
+  5m ladder 0.0000 (0.184); fixed DFN@10 top 3 0.0000 (0.142); union with log 0.0000 (0.170); sqrt top 3 alone 0.0000
+Ecker2015@1x: n 64; Spearman with DFN@100: raw cycle 10 +0.96, sqrt-extrapolated +0.99, log-extrapolated +0.98, raw cycle 20 +0.97
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.176, 5 resumed [9, 14, 18, 25, 50], best 14
+  5m ladder 0.0000 (0.192); fixed DFN@10 top 3 0.0000 (0.148); union with log 0.0000 (0.161); sqrt top 3 alone 0.0000
+Ecker2015@2x: n 64; Spearman with DFN@100: raw cycle 10 +1.00, sqrt-extrapolated +0.99, log-extrapolated +0.99, raw cycle 20 +1.00
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.158, 4 resumed [2, 7, 21, 35], best 7
+  5m ladder 0.0000 (0.188); fixed DFN@10 top 3 0.0000 (0.143); union with log 0.0000 (0.158); sqrt top 3 alone 0.0000
+Marquis2019@1x: n 64; Spearman with DFN@100: raw cycle 10 +0.99, sqrt-extrapolated +1.00, log-extrapolated +0.99, raw cycle 20 +0.99
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.167, 4 resumed [0, 24, 32, 40], best 40
+  5m ladder 0.0000 (0.202); fixed DFN@10 top 3 0.0000 (0.152); union with log 0.0000 (0.167); sqrt top 3 alone 0.0000
+Marquis2019@2x: n 64; Spearman with DFN@100: raw cycle 10 +1.00, sqrt-extrapolated +1.00, log-extrapolated +1.00, raw cycle 20 +1.00
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.161, 4 resumed [11, 27, 35, 52], best 11
+  5m ladder 0.0000 (0.194); fixed DFN@10 top 3 0.0000 (0.146); union with log 0.0000 (0.161); sqrt top 3 alone 0.0000
+Mohtat2020@1x: n 64; Spearman with DFN@100: raw cycle 10 +1.00, sqrt-extrapolated +1.00, log-extrapolated +1.00, raw cycle 20 +1.00
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.165, 4 resumed [3, 11, 31, 59], best 11
+  5m ladder 0.0000 (0.199); fixed DFN@10 top 3 0.0000 (0.150); union with log 0.0000 (0.165); sqrt top 3 alone 0.0000
+Mohtat2020@2x: n 64; Spearman with DFN@100: raw cycle 10 +1.00, sqrt-extrapolated +1.00, log-extrapolated +1.00, raw cycle 20 +1.00
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.166, 4 resumed [4, 36, 52, 60], best 36
+  5m ladder 0.0000 (0.197); fixed DFN@10 top 3 0.0000 (0.151); union with log 0.0000 (0.166); sqrt top 3 alone 0.0000
+Mohtat2020@3x: n 64; Spearman with DFN@100: raw cycle 10 +1.00, sqrt-extrapolated +1.00, log-extrapolated +1.00, raw cycle 20 +1.00
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.161, 4 resumed [12, 16, 27, 36], best 12
+  5m ladder 0.0000 (0.193); fixed DFN@10 top 3 0.0000 (0.144); union with log 0.0000 (0.161); sqrt top 3 alone 0.0000
+NCA_Kim2011@0.5x: n 64; Spearman with DFN@100: raw cycle 10 +0.85, sqrt-extrapolated -0.02, log-extrapolated +0.58, raw cycle 20 +0.90
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.223, 8 resumed [0, 6, 28, 29, 32, 34, 56, 57], best 29
+  5m ladder 0.0000 (0.184); fixed DFN@10 top 3 0.0000 (0.142); union with log 0.0000 (0.197); sqrt top 3 alone 0.0909
+NCA_Kim2011@0.75x: n 64; Spearman with DFN@100: raw cycle 10 +0.95, sqrt-extrapolated -0.33, log-extrapolated +0.48, raw cycle 20 +0.97
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.225, 8 resumed [18, 19, 21, 31, 45, 47, 59, 60], best 45
+  5m ladder 0.0000 (0.173); fixed DFN@10 top 3 0.0000 (0.138); union with log 0.0000 (0.219); sqrt top 3 alone 0.0989
+NCA_Kim2011@1x: n 64; Spearman with DFN@100: raw cycle 10 +0.96, sqrt-extrapolated -0.60, log-extrapolated +0.50, raw cycle 20 +0.99
+  union screen (top 4 raw + top 4 sqrt): gap 0.0023, wall / all-DFN@100 0.207, 8 resumed [6, 11, 18, 26, 31, 37, 42, 55], best 34
+  5m ladder 0.0023 (0.166); fixed DFN@10 top 3 0.0037 (0.133); union with log 0.0023 (0.201); sqrt top 3 alone 0.0504
+OKane2022@1.25x: n 64; Spearman with DFN@100: raw cycle 10 +0.93, sqrt-extrapolated +0.90, log-extrapolated +0.93, raw cycle 20 +0.95
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.213, 7 resumed [11, 21, 31, 35, 40, 51, 52], best 52
+  5m ladder 0.0000 (0.199); fixed DFN@10 top 3 0.0000 (0.150); union with log 0.0000 (0.201); sqrt top 3 alone 0.0252
+OKane2022@1.5x: n 64; Spearman with DFN@100: raw cycle 10 +0.91, sqrt-extrapolated +0.72, log-extrapolated +0.85, raw cycle 20 +0.94
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.237, 8 resumed [3, 17, 31, 43, 47, 48, 51, 57], best 47
+  5m ladder 0.0000 (0.189); fixed DFN@10 top 3 0.0000 (0.144); union with log 0.0000 (0.200); sqrt top 3 alone 0.1817
+OKane2022@1.75x: n 64; Spearman with DFN@100: raw cycle 10 +0.92, sqrt-extrapolated +0.56, log-extrapolated +0.69, raw cycle 20 +0.94
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.237, 8 resumed [4, 12, 23, 24, 32, 40, 60, 63], best 24
+  5m ladder 0.0000 (0.195); fixed DFN@10 top 3 0.0000 (0.146); union with log 0.0000 (0.220); sqrt top 3 alone 0.0867
+OKane2022@1x: n 128; Spearman with DFN@100: raw cycle 10 +0.96, sqrt-extrapolated +0.92, log-extrapolated +0.96, raw cycle 20 +0.97
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.160, 7 resumed [12, 16, 40, 72, 79, 84, 110], best 12
+  5m ladder 0.0000 (0.150); fixed DFN@10 top 3 0.0000 (0.124); union with log 0.0000 (0.151); sqrt top 3 alone 0.0000
+OKane2022@2x: n 64; Spearman with DFN@100: raw cycle 10 +0.90, sqrt-extrapolated +0.57, log-extrapolated +0.73, raw cycle 20 +0.94
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.230, 8 resumed [3, 5, 15, 34, 35, 47, 59, 61], best 5
+  5m ladder 0.0000 (0.186); fixed DFN@10 top 3 0.0000 (0.143); union with log 0.0000 (0.228); sqrt top 3 alone 0.1495
+
+Pooled over conditions (median, max, exact):
+  gap: 0.0000, 0.0032, 27 of 30
+  t_ratio: 0.1976, 0.3011, 0 of 30
+  ladder_gap: 0.0000, 0.0271, 28 of 30
+  ladder_t_ratio: 0.1945, 0.2863, 0 of 30
+  fixed10_gap: 0.0000, 0.0876, 23 of 30
+  union_log_gap: 0.0000, 0.0235, 27 of 30
+  ext_only3_gap: 0.0000, 0.2587, 17 of 30
