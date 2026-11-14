@@ -1,9 +1,9 @@
 ---
 title: "The moving-range chart's false alarms, worked out on a napkin"
-seo_title: "Moving range chart false alarm rate: why D4 = 3.267 is crossed 0.91% of the time"
+seo_title: "Moving range chart false alarms: why 3.267 is crossed 0.91% of points"
 date: 2026-11-14
 tags: [spc-control-charts, podcast, statistics, manufacturing]
-description: "Two lines of arithmetic predict the 57.5% false-alarm rate our 20,000-run simulation found for a 100-point moving-range chart: 59.7%. Plus a new podcast episode."
+description: "Two lines of arithmetic predict the 57.5% false-alarm rate a 20,000-run simulation found for a 100-point moving-range chart: 59.7%. Plus a podcast episode."
 ---
 
 The podcast has a new episode,
