@@ -266,6 +266,10 @@ def main(argv=None):
         bad += 1
     if own:  # a post's own field failed: show every cap, so one rewrite fixes them all
         print(limits_line())
+    if not bad:
+        # Silent success read the same as a run that never started (doc friction 2026-11-14).
+        checked = len(named) + len(reports) if args.posts else len(texts)
+        print(f"ok: {checked} file(s) pass the front-matter check")
     return 1 if bad else 0
 
 
