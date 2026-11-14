@@ -49,3 +49,10 @@ test("SMTP STARTTLS: upgrades before AUTH, delivers, and an untrusted certificat
   assert.ok(!smtp.log.some((l) => l.startsWith("AUTH")), "no AUTH sent over an untrusted channel");
   await smtp.close();
 });
+
+test("List-Unsubscribe: a bare address or a whole <mailto:...> URI both give one clean header", () => {
+  for (const u of [undefined, "me@example.com", "<mailto:me@example.com?subject=unsubscribe>", "mailto:me@example.com"]) {
+    const raw = buildMessage({ from: "me@example.com", to: "pat@x.example", subject: "Hi", body: "Hello", unsubscribe: u }).raw;
+    assert.match(raw, /^List-Unsubscribe: <mailto:me@example\.com\?subject=unsubscribe>\r$/m, String(u));
+  }
+});

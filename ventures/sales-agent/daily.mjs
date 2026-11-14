@@ -14,7 +14,10 @@ const truthy = (v) => /^(1|y|yes|true|x)$/i.test(String(v || "").trim());
 // A subject as a reply or forward would carry it: "Re: Fwd: Route planning at X" and "route planning at x" are the same.
 export const baseSubject = (s) => { let t = String(s || "").trim(); for (let k = 0; k < 5; k++) { const n = t.replace(/^\s*(re|aw|sv|vs|antw|antwort|r|rif|res|resp|odp|fw|fwd|wg|tr|rv|enc)\s*(\[\d+\])?\s*:\s*/i, ""); if (n === t) break; t = n; } return t.replace(/\s+/g, " ").replace(/[.!?\s]+$/, "").toLowerCase(); };
 // Sent mail from a file (mailfile.mjs) as rows, or a CSV with date,to,subject (to may list several, ; or space separated).
-const sentRows = (x) => (Array.isArray(x) ? x : parseCsv(x || "")).map((r) => ({ date: String(r.date || "").slice(0, 10), subject: r.subject || "", to: (Array.isArray(r.to) ? r.to : String(r.to || "").split(/[;\s]+/)).map((a) => String(a).trim().toLowerCase()).filter((a) => a.includes("@")) })).filter((r) => r.to.length);
+const ADDR = /[^\s<>",;:()\[\]]+@[^\s<>",;:()\[\]]+\.[^\s<>",;:()\[\]]+/g;
+const sentRows = (x) => (Array.isArray(x) ? x : parseCsv(x || "")).map((r) => ({ date: String(r.date || "").slice(0, 10), subject: r.subject || "", to: [...new Set((Array.isArray(r.to) ? r.to.join(",") : String(r.to || "")).toLowerCase().match(ADDR) || [])] })).filter((r) => r.to.length);
+// Bare addresses only: a "to" of "Pat Rivera <pat@x.example>" (a reply's From header, as the self-host agent records its own
+// sends) is keyed pat@x.example, so it matches the plan's email column (found 2026-11-14 on a real Postfix/Dovecot round trip).
 const stepKey = (email, step) => `${String(email || "").toLowerCase()}|${String(step || "").trim().toLowerCase()}`;
 
 /**
