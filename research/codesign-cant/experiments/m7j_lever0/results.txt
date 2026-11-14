@@ -1,0 +1,85 @@
+Milestone 7j: lever 0 (no gust torque), 64 held-out episodes (seed 9999), integrator feed-forward, side force on.
+dead = diverged episodes summed over the 6 seeds (of 384); each probe is one change from base. Designs: milestone 7i's.
+Diagnosis (base run): why = deaths by tilt / by position; when = deaths before / after the wind step at 3 s;
+mix, tilt, integ, ffi = median share of alive steps with the mixer scaling roll/pitch, the tilt command at its limit, the attitude
+integrator at its clip, the integrator feed-forward at its clip, over diverged (D) and surviving (S) episodes.
+
+[above, 7e] D 0.1211 m; nominal lag 13.96 ms (13.82, 13.44, 14.08, 14.32, 13.55, 14.58)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 45: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+
+[above, 7h free] D 0.1291 m; nominal lag 15.38 ms (15.71, 15.35, 14.68, 15.52, 16.42, 14.57)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 45: dead base 9; dead85 9; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 2
+          per seed [4, 2, 0, 0, 2, 1]
+          why tilt 9 / pos 0; when before 9 / after 0 (median 0.39 s); mix D 0.84 S 0.00; tilt D 0.20 S 0.00; integ D 0.00 S 0.00; ffi D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.82 (all 0.83), mass 1.10 (1.05), lag 1.91 (1.59); distinct episodes 4
+
+[above, aware TWR=2.0] D 0.1260 m; nominal lag 14.82 ms (14.70, 15.00, 14.70, 15.64, 14.64, 14.25)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 45: dead base 3; dead85 2; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [1, 0, 1, 0, 1, 0]
+          why tilt 3 / pos 0; when before 3 / after 0 (median 0.39 s); mix D 0.74 S 0.00; tilt D 0.05 S 0.00; integ D 0.00 S 0.00; ffi D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.88 (all 0.83), mass 1.23 (1.05), lag 1.91 (1.59); distinct episodes 1
+
+[above, aware TWR free] D 0.1241 m; nominal lag 14.50 ms (14.26, 14.87, 15.71, 12.92, 14.39, 14.87)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 1; dead85 1; ideal mixer 0; pos x0.5 0; side force off 1; ff off 2; lag x0.9 0
+          per seed [0, 0, 0, 0, 1, 0]
+          why tilt 1 / pos 0; when before 1 / after 0 (median 0.56 s); mix D 0.80 S 0.00; tilt D 0.24 S 0.00; integ D 0.00 S 0.00; ffi D 0.18 S 0.00
+          diverged episodes' plant: torque scale 0.80 (all 0.83), mass 1.29 (1.05), lag 1.95 (1.59); distinct episodes 1
+  cap 45: dead base 12; dead85 12; ideal mixer 0; pos x0.5 0; side force off 1; ff off 2; lag x0.9 6
+          per seed [3, 0, 1, 0, 7, 1]
+          why tilt 12 / pos 0; when before 12 / after 0 (median 0.38 s); mix D 0.83 S 0.00; tilt D 0.19 S 0.00; integ D 0.00 S 0.00; ffi D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.81 (all 0.83), mass 1.16 (1.05), lag 1.91 (1.59); distinct episodes 7
+
+[below, 7e] D 0.1285 m; nominal lag 15.27 ms (14.92, 15.46, 16.26, 14.93, 13.98, 16.05)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 45: dead base 1; dead85 1; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 1, 0, 0, 0, 0]
+          why tilt 1 / pos 0; when before 1 / after 0 (median 1.47 s); mix D 0.73 S 0.00; tilt D 0.00 S 0.00; integ D 0.00 S 0.00; ffi D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.88 (all 0.83), mass 1.23 (1.05), lag 1.91 (1.59); distinct episodes 1
+
+[below, 7h free] D 0.1291 m; nominal lag 15.37 ms (14.82, 16.23, 14.83, 14.86, 14.98, 16.50)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 2; dead85 2; ideal mixer 0; pos x0.5 0; side force off 1; ff off 1; lag x0.9 0
+          per seed [0, 2, 0, 0, 0, 0]
+          why tilt 2 / pos 0; when before 2 / after 0 (median 0.79 s); mix D 0.77 S 0.00; tilt D 0.12 S 0.00; integ D 0.00 S 0.00; ffi D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.74 (all 0.83), mass 1.03 (1.05), lag 1.92 (1.59); distinct episodes 2
+  cap 45: dead base 2; dead85 2; ideal mixer 0; pos x0.5 0; side force off 1; ff off 1; lag x0.9 0
+          per seed [0, 2, 0, 0, 0, 0]
+          why tilt 2 / pos 0; when before 2 / after 0 (median 0.78 s); mix D 0.77 S 0.00; tilt D 0.00 S 0.00; integ D 0.00 S 0.00; ffi D 0.00 S 0.00
+          diverged episodes' plant: torque scale 0.74 (all 0.83), mass 1.03 (1.05), lag 1.92 (1.59); distinct episodes 2
+
+[below, aware TWR=2.0] D 0.1271 m; nominal lag 15.02 ms (14.89, 15.33, 15.34, 14.20, 15.72, 14.62)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 45: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+
+[below, aware TWR free] D 0.1307 m; nominal lag 15.67 ms (15.65, 15.27, 17.88, 13.96, 15.19, 16.09)
+  cap 20: dead base 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 30: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+  cap 45: dead base 0; dead85 0; ideal mixer 0; pos x0.5 0; side force off 0; ff off 0; lag x0.9 0
+          per seed [0, 0, 0, 0, 0, 0]
+
+wall time 39 s
