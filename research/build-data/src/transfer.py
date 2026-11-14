@@ -148,14 +148,43 @@ def completed_by(d, decision):
     return d[d.y.to_numpy(float) <= win]
 
 
-def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_truncate=False):
+def deploy_rounds(tr_r, va_r, seeds):
+    """Session 86: boosting rounds per quantile and seed, chosen by early stopping a model trained on
+    the sources' years <= Y-4 on their year Y-3 (both cut to rows completed by the decision date, which
+    leaves Y-3 93 to 99% complete). Returns {seed: {tau: rounds}}."""
+    out = {}
+    for s in range(seeds):
+        _, _, r, _ = boosted.fit_predict(feats(tr_r), tr_r.y.to_numpy(float), feats(va_r), va_r.y.to_numpy(float),
+                                         feats(va_r.iloc[:1]), seed=s, classifier=False)
+        out[s] = r
+    return out
+
+
+def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_truncate=False, deploy=False):
+    """deploy (session 86): the whole transfer model uses only what was known on D = 1 January Y.
+    Training rows are the sources' years <= Y-2 completed by D; there is no early-stopping year:
+    each quantile's round count is fixed from deploy_rounds (sources' years <= Y-4 early-stopped on Y-3,
+    both completed by D). The held-out city is still never read."""
+    import datetime
+    D = datetime.date(test_year, 1, 1)
     src = [c for c in CITIES if c != held and c in frames]
     tr = pd.concat([frames[c][frames[c].year <= test_year - 2] for c in src])
     ca = pd.concat([frames[c][frames[c].year == test_year - 1] for c in src])
     n_es_full = len(ca)
     if es_truncate:  # session 85: the sources' early-stopping year as a deployment on 1 January Y sees it
-        import datetime
-        ca = completed_by(ca, datetime.date(test_year, 1, 1))
+        ca = completed_by(ca, D)
+    fixed, dep = {}, None
+    if deploy:
+        n_tr_full = len(tr)
+        tr = completed_by(tr, D)
+        tr_r = completed_by(pd.concat([frames[c][frames[c].year <= test_year - 4] for c in src]), D)
+        va_r = pd.concat([frames[c][frames[c].year == test_year - 3] for c in src])
+        n_va_full = len(va_r)
+        va_r = completed_by(va_r, D)
+        fixed = deploy_rounds(tr_r, va_r, seeds)
+        dep = dict(n_train_full=n_tr_full, n_train=len(tr), n_rounds_train=len(tr_r), n_rounds_val=len(va_r),
+                   n_rounds_val_full=n_va_full, rounds={str(s): {str(t): int(v) for t, v in r.items()}
+                                                        for s, r in fixed.items()})
     own = frames[held]
     otr, oca, te = own[own.year <= test_year - 2], own[own.year == test_year - 1], own[own.year == test_year]
     if not all(len(d) for d in (tr, ca, otr, oca, te)):
@@ -168,7 +197,7 @@ def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_trunca
                n_own_train=len(otr), n_test=len(te), seeds=seeds, es_truncate=es_truncate,
                n_source_es=len(ca), n_source_es_full=n_es_full, features=list(feats(te).columns),
                class_share_test={c: float((te.cls == c).mean()) for c in CLASSES},
-               class_share_source_train={c: float((tr.cls == c).mean()) for c in CLASSES})
+               class_share_source_train={c: float((tr.cls == c).mean()) for c in CLASSES}, deploy=dep)
     P = {"transfer": {t: [] for t in TAUS}, "own_boosted": {t: [] for t in TAUS}}
     S = {t: [] for t in TAUS}  # session 83: transfer predictions on the held-out city's year Y-1 (selection year)
     S2 = {t: [] for t in TAUS}  # session 84: and on its year Y-2 (also never read by the transfer model)
@@ -179,8 +208,12 @@ def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_trunca
     for s in range(seeds):
         for name, (a, b) in (("transfer", (tr, ca)), ("own_boosted", (otr, oca))):
             xt = pd.concat([feats(te), feats(oca), feats(o2), feats(o3)]) if (select and name == "transfer") else feats(te)
-            pr, _, _, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), feats(b), b.y.to_numpy(float),
-                                              xt, seed=s)
+            if deploy and name == "transfer":
+                pr, _, _, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), None, None, xt, seed=s,
+                                                  fixed=fixed[s])
+            else:
+                pr, _, _, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), feats(b), b.y.to_numpy(float),
+                                                  xt, seed=s)
             for t in TAUS:
                 P[name][t].append(pr[t][:len(te)])
                 if select and name == "transfer":

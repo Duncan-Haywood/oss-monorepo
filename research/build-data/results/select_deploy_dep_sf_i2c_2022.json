@@ -1,0 +1,636 @@
+{
+ "held_out": "sf",
+ "target": "i2c",
+ "test_year": 2022,
+ "decision_date": "2022-01-01",
+ "seeds": 3,
+ "classes": [
+  "cascade2",
+  "type",
+  "cascade2_minsupdrop1000"
+ ],
+ "n_test": 17730,
+ "labels": {
+  "Y-1": {
+   "n": 18709,
+   "n_seen": 9405,
+   "share_seen": 0.5026992356619808,
+   "window_min": 1.0,
+   "window_max": 362.0,
+   "q90_full": 657.0,
+   "q90_cc": 190.0
+  },
+  "Y-2": {
+   "n": 13803,
+   "n_seen": 11845,
+   "share_seen": 0.8581467796855756,
+   "window_min": 366.0,
+   "window_max": 730.0,
+   "q90_full": 672.0,
+   "q90_cc": 371.0
+  },
+  "Y-3": {
+   "n": 23496,
+   "n_seen": 22071,
+   "share_seen": 0.9393513789581205,
+   "window_min": 732.0,
+   "window_max": 1095.0,
+   "q90_full": 715.0,
+   "q90_cc": 549.0
+  }
+ },
+ "note": "selection sets from the held-out city's years Y-1 and Y-2 (never read by the transfer model); cc/ipcw keep rows completed by the decision date; test = all rows of year Y; days of mean pinball loss; regret = picked minus best candidate's test loss",
+ "minsup": {
+  "cascade2_minsupdrop1000": {
+   "k": 1000,
+   "into": "_missing",
+   "fold": {
+    "sign": "_missing",
+    "fire": "_missing"
+   },
+   "n_source": {
+    "new_construction": 265674,
+    "alteration": 280024,
+    "electrical": 547982,
+    "plumbing": 417108,
+    "mechanical": 416481,
+    "demolition": 22111,
+    "sign": 525,
+    "fire": 75,
+    "other": 15683
+   }
+  }
+ },
+ "es_truncate": false,
+ "source_es_rows": {
+  "cascade2": {
+   "n": 71019,
+   "n_full": 71019
+  },
+  "type": {
+   "n": 71019,
+   "n_full": 71019
+  },
+  "cascade2_minsupdrop1000": {
+   "n": 71019,
+   "n_full": 71019
+  }
+ },
+ "deploy": true,
+ "deploy_detail": {
+  "cascade2": {
+   "n_train_full": 1965663,
+   "n_train": 1956412,
+   "n_rounds_train": 1823354,
+   "n_rounds_val": 72319,
+   "n_rounds_val_full": 73964,
+   "rounds": {
+    "0": {
+     "0.1": 30,
+     "0.5": 231,
+     "0.9": 10
+    },
+    "1": {
+     "0.1": 31,
+     "0.5": 141,
+     "0.9": 11
+    },
+    "2": {
+     "0.1": 40,
+     "0.5": 234,
+     "0.9": 10
+    }
+   }
+  },
+  "type": {
+   "n_train_full": 1965663,
+   "n_train": 1956412,
+   "n_rounds_train": 1823354,
+   "n_rounds_val": 72319,
+   "n_rounds_val_full": 73964,
+   "rounds": {
+    "0": {
+     "0.1": 30,
+     "0.5": 132,
+     "0.9": 10
+    },
+    "1": {
+     "0.1": 28,
+     "0.5": 100,
+     "0.9": 11
+    },
+    "2": {
+     "0.1": 35,
+     "0.5": 182,
+     "0.9": 10
+    }
+   }
+  },
+  "cascade2_minsupdrop1000": {
+   "n_train_full": 1965063,
+   "n_train": 1955812,
+   "n_rounds_train": 1822758,
+   "n_rounds_val": 72315,
+   "n_rounds_val_full": 73960,
+   "rounds": {
+    "0": {
+     "0.1": 30,
+     "0.5": 268,
+     "0.9": 14
+    },
+    "1": {
+     "0.1": 30,
+     "0.5": 174,
+     "0.9": 11
+    },
+    "2": {
+     "0.1": 34,
+     "0.5": 121,
+     "0.9": 13
+    }
+   }
+  }
+ },
+ "by_tau": {
+  "0.5": {
+   "test_loss": {
+    "cascade2": 81.20908463342623,
+    "type": 93.1419501118968,
+    "cascade2_minsupdrop1000": 81.2831864548009
+   },
+   "test_best": "cascade2",
+   "regret": {
+    "always_cascade2": 0.0,
+    "always_type": 11.932865478470575,
+    "always_cascade2_minsupdrop1000": 0.07410182137466848,
+    "full1:argmin": 0.0,
+    "full1:gated": 0.0,
+    "cc1:argmin": 0.0,
+    "cc1:gated": 0.0,
+    "ipcw1:argmin": 0.0,
+    "ipcw1:gated": 0.0,
+    "full2:argmin": 0.0,
+    "full2:gated": 0.0,
+    "cc2:argmin": 0.0,
+    "cc2:gated": 0.0,
+    "ipcw2:argmin": 0.0,
+    "ipcw2:gated": 0.0,
+    "full3:argmin": 0.0,
+    "full3:gated": 0.0,
+    "cc3:argmin": 0.0,
+    "cc3:gated": 0.0,
+    "ipcw3:argmin": 0.0,
+    "ipcw3:gated": 0.0
+   },
+   "sets": {
+    "full1": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 90.57630136404445,
+      "type": 101.03427285808299,
+      "cascade2_minsupdrop1000": 90.65103479797897
+     },
+     "minus_first": {
+      "type": {
+       "diff": 10.457971494038533,
+       "lo": 9.492111959974757,
+       "hi": 11.523401356550748
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.0747334339345105,
+       "lo": -0.004425875034496857,
+       "hi": 0.15465347205334726
+      }
+     }
+    },
+    "cc1": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 41.15929818773825,
+      "type": 79.37936972336638,
+      "cascade2_minsupdrop1000": 41.212620408214626
+     },
+     "minus_first": {
+      "type": {
+       "diff": 38.220071535628136,
+       "lo": 36.4970949216169,
+       "hi": 40.00536613258599
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.05332222047638205,
+       "lo": -0.07320031405525468,
+       "hi": 0.16083035499112006
+      }
+     }
+    },
+    "ipcw1": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 41.324582858421515,
+      "type": 68.62264242712565,
+      "cascade2_minsupdrop1000": 41.47444466080116
+     },
+     "minus_first": {
+      "type": {
+       "diff": 27.29805956870415,
+       "lo": 22.28730041898456,
+       "hi": 32.33257867866058
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.14986180237964553,
+       "lo": 0.013474976345085769,
+       "hi": 0.26977003233193103
+      }
+     }
+    },
+    "full2": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 97.05109484765335,
+      "type": 106.14676565801533,
+      "cascade2_minsupdrop1000": 97.1833774502018
+     },
+     "minus_first": {
+      "type": {
+       "diff": 9.095670810361973,
+       "lo": 7.195583326635818,
+       "hi": 11.031932554673725
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.13228260254846647,
+       "lo": 0.02191491510387633,
+       "hi": 0.23887630718270092
+      }
+     }
+    },
+    "cc2": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 53.48833753988681,
+      "type": 69.48698740936342,
+      "cascade2_minsupdrop1000": 53.56762161048775
+     },
+     "minus_first": {
+      "type": {
+       "diff": 15.998649869476607,
+       "lo": 13.591063248043502,
+       "hi": 18.384576442130673
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.07928407060094081,
+       "lo": -0.037331756369950876,
+       "hi": 0.1934852275933587
+      }
+     }
+    },
+    "ipcw2": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 64.07290062424654,
+      "type": 76.09928685787615,
+      "cascade2_minsupdrop1000": 64.27222415538301
+     },
+     "minus_first": {
+      "type": {
+       "diff": 12.026386233629607,
+       "lo": 8.565452694631732,
+       "hi": 15.623556860023472
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.19932353113646745,
+       "lo": 0.024261367941405817,
+       "hi": 0.41142866494833474
+      }
+     }
+    },
+    "full3": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 101.58008803956233,
+      "type": 113.29265141817781,
+      "cascade2_minsupdrop1000": 101.65573472011528
+     },
+     "minus_first": {
+      "type": {
+       "diff": 11.712563378615494,
+       "lo": 10.53200818944447,
+       "hi": 12.884793567454107
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.07564668055294058,
+       "lo": 0.004966803309040222,
+       "hi": 0.14628970324653165
+      }
+     }
+    },
+    "cc3": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 72.80887532885555,
+      "type": 87.22877088954104,
+      "cascade2_minsupdrop1000": 72.87641709359812
+     },
+     "minus_first": {
+      "type": {
+       "diff": 14.419895560685509,
+       "lo": 13.27517342931426,
+       "hi": 15.50818395372757
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.06754176474258619,
+       "lo": -0.003689890024640423,
+       "hi": 0.13995260426126702
+      }
+     }
+    },
+    "ipcw3": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 79.78235439156059,
+      "type": 92.99266852358377,
+      "cascade2_minsupdrop1000": 79.8584725718082
+     },
+     "minus_first": {
+      "type": {
+       "diff": 13.210314132023191,
+       "lo": 12.133494106604878,
+       "hi": 14.258225962529922
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.07611818024760297,
+       "lo": 0.003707918227677909,
+       "hi": 0.14816142305131735
+      }
+     }
+    }
+   }
+  },
+  "0.9": {
+   "test_loss": {
+    "cascade2": 60.59631210642736,
+    "type": 67.69015703991025,
+    "cascade2_minsupdrop1000": 59.85410970444651
+   },
+   "test_best": "cascade2_minsupdrop1000",
+   "regret": {
+    "always_cascade2": 0.7422024019808546,
+    "always_type": 7.836047335463739,
+    "always_cascade2_minsupdrop1000": 0.0,
+    "full1:argmin": 0.0,
+    "full1:gated": 0.0,
+    "cc1:argmin": 0.7422024019808546,
+    "cc1:gated": 0.7422024019808546,
+    "ipcw1:argmin": 0.7422024019808546,
+    "ipcw1:gated": 0.7422024019808546,
+    "full2:argmin": 0.0,
+    "full2:gated": 0.0,
+    "cc2:argmin": 0.7422024019808546,
+    "cc2:gated": 0.7422024019808546,
+    "ipcw2:argmin": 0.7422024019808546,
+    "ipcw2:gated": 0.7422024019808546,
+    "full3:argmin": 0.0,
+    "full3:gated": 0.0,
+    "cc3:argmin": 0.0,
+    "cc3:gated": 0.0,
+    "ipcw3:argmin": 0.0,
+    "ipcw3:gated": 0.0
+   },
+   "sets": {
+    "full1": {
+     "picks": {
+      "argmin": "cascade2_minsupdrop1000",
+      "gated": "cascade2_minsupdrop1000"
+     },
+     "mean": {
+      "cascade2": 74.05911452239054,
+      "type": 76.32390799835426,
+      "cascade2_minsupdrop1000": 73.00319011639401
+     },
+     "minus_first": {
+      "type": {
+       "diff": 2.264793475963717,
+       "lo": 0.985221735766411,
+       "hi": 3.60219409575639
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": -1.055924405996533,
+       "lo": -1.1828175254054085,
+       "hi": -0.9381664244544395
+      }
+     }
+    },
+    "cc1": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 38.41410977073755,
+      "type": 65.91184791032177,
+      "cascade2_minsupdrop1000": 39.37117784715163
+     },
+     "minus_first": {
+      "type": {
+       "diff": 27.49773813958423,
+       "lo": 26.935817309259747,
+       "hi": 28.070487128393466
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.9570680764140764,
+       "lo": 0.8731848594925138,
+       "hi": 1.0275480963230457
+      }
+     }
+    },
+    "ipcw1": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 35.525718147583355,
+      "type": 64.1087410508607,
+      "cascade2_minsupdrop1000": 36.51116719770429
+     },
+     "minus_first": {
+      "type": {
+       "diff": 28.58302290327735,
+       "lo": 27.960089078051062,
+       "hi": 29.18493383745592
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.9854490501209358,
+       "lo": 0.8986293122007015,
+       "hi": 1.059179172482611
+      }
+     }
+    },
+    "full2": {
+     "picks": {
+      "argmin": "cascade2_minsupdrop1000",
+      "gated": "cascade2_minsupdrop1000"
+     },
+     "mean": {
+      "cascade2": 82.48097136959865,
+      "type": 83.65446372942434,
+      "cascade2_minsupdrop1000": 81.63171098987567
+     },
+     "minus_first": {
+      "type": {
+       "diff": 1.1734923598256919,
+       "lo": -0.7172570565005468,
+       "hi": 3.0029481868553844
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": -0.8492603797229803,
+       "lo": -1.0298037310294503,
+       "hi": -0.6688962171517477
+      }
+     }
+    },
+    "cc2": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 33.907695436954526,
+      "type": 59.29523813370539,
+      "cascade2_minsupdrop1000": 34.70359898885102
+     },
+     "minus_first": {
+      "type": {
+       "diff": 25.38754269675086,
+       "lo": 24.411305895612387,
+       "hi": 26.373311284655887
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.7959035518964916,
+       "lo": 0.6434437305212148,
+       "hi": 0.9673297468272326
+      }
+     }
+    },
+    "ipcw2": {
+     "picks": {
+      "argmin": "cascade2",
+      "gated": "cascade2"
+     },
+     "mean": {
+      "cascade2": 37.60690451018179,
+      "type": 59.178647958475096,
+      "cascade2_minsupdrop1000": 38.50427928639017
+     },
+     "minus_first": {
+      "type": {
+       "diff": 21.571743448293294,
+       "lo": 18.511759447427742,
+       "hi": 24.377192165663093
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": 0.8973747762083814,
+       "lo": 0.09046069993658251,
+       "hi": 2.0106984205629326
+      }
+     }
+    },
+    "full3": {
+     "picks": {
+      "argmin": "cascade2_minsupdrop1000",
+      "gated": "cascade2_minsupdrop1000"
+     },
+     "mean": {
+      "cascade2": 88.2234613069705,
+      "type": 86.92824227609798,
+      "cascade2_minsupdrop1000": 86.85268752798079
+     },
+     "minus_first": {
+      "type": {
+       "diff": -1.2952190308725113,
+       "lo": -2.687449841563463,
+       "hi": 0.007685349605902768
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": -1.3707737789896963,
+       "lo": -1.524383968301257,
+       "hi": -1.2188436157267506
+      }
+     }
+    },
+    "cc3": {
+     "picks": {
+      "argmin": "cascade2_minsupdrop1000",
+      "gated": "cascade2_minsupdrop1000"
+     },
+     "mean": {
+      "cascade2": 48.07087287102041,
+      "type": 61.401757144029574,
+      "cascade2_minsupdrop1000": 47.58278595337269
+     },
+     "minus_first": {
+      "type": {
+       "diff": 13.33088427300916,
+       "lo": 12.024001760262118,
+       "hi": 14.54334610343602
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": -0.4880869176477222,
+       "lo": -0.6470356199589038,
+       "hi": -0.3410933488576443
+      }
+     }
+    },
+    "ipcw3": {
+     "picks": {
+      "argmin": "cascade2_minsupdrop1000",
+      "gated": "cascade2_minsupdrop1000"
+     },
+     "mean": {
+      "cascade2": 56.01071249435148,
+      "type": 64.00763372738433,
+      "cascade2_minsupdrop1000": 55.17986694956523
+     },
+     "minus_first": {
+      "type": {
+       "diff": 7.996921233032849,
+       "lo": 4.53432380483763,
+       "hi": 11.038670504226712
+      },
+      "cascade2_minsupdrop1000": {
+       "diff": -0.8308455447862497,
+       "lo": -1.0668189283480616,
+       "hi": -0.5966691134819829
+      }
+     }
+    }
+   }
+  }
+ }
+}
