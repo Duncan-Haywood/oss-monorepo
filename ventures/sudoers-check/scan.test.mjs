@@ -266,7 +266,18 @@ test("CLI: text, json and --fail-on-risk", () => {
     "No risky patterns found in what was pasted (not proof the policy is safe). (2 files read)");
 });
 
-test("fixtures are accepted by visudo where it is installed", { skip: (() => { try { execFileSync("visudo", ["-V"], { stdio: "pipe" }); return false; } catch { return "visudo not installed"; } })() }, () => {
+// Only the original sudo's visudo (it prints "Sudoers policy plugin version").
+// A CI runner's visudo with different messages rejected wildcard arguments,
+// a negative timestamp_timeout and !authenticate, which sudo 1.9.15 accepts;
+// the fixtures target sudo 1.9.15.
+function originalVisudo() {
+  try {
+    const v = execFileSync("visudo", ["-V"], { encoding: "utf8", stdio: "pipe" });
+    return /Sudoers policy plugin version|visudo version 1\./.test(v) ? false : "visudo here is not the original sudo's";
+  } catch { return "visudo not installed"; }
+}
+
+test("fixtures are accepted by the original sudo's visudo where it is installed", { skip: originalVisudo() }, () => {
   for (const f of ["risky/sudoers", "risky/sudoers.d/90-cloud-init-users", "ubuntu/sudoers", "sudo-manual-example/sudoers"]) {
     execFileSync("visudo", ["-c", "-q", "-f", path.join(here, "fixtures", f)], { stdio: "pipe" });
   }

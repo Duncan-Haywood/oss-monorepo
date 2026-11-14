@@ -128,8 +128,12 @@ node parity-gen.mjs     # regenerate parity-expected.json (needs visudo and cvts
 `fixtures/ubuntu/` is the stock `/etc/sudoers` and `/etc/sudoers.d/README` of
 Ubuntu 24.04 with sudo 1.9.15p5, and has no findings. `fixtures/risky/` has
 one of most rule-level mistakes. `fixtures/sudo-manual-example/` is the
-sudoers(5) EXAMPLES section; `scan.test.mjs` pins what is reported on it. Where `visudo` is installed, the tests also
-check that it accepts the fixtures.
+sudoers(5) EXAMPLES section; `scan.test.mjs` pins what is reported on it. Where the original sudo's `visudo` is installed, the tests also
+check that it accepts the fixtures. Another `visudo` on a GitHub Actions
+runner, whose messages differ from sudo 1.9.15's, rejected the risky fixture's
+wildcard arguments, negative `timestamp_timeout` and `!authenticate` outright,
+so what this tool reads is sudo 1.9.x syntax; another implementation may refuse
+some of these rules rather than run them.
 
 ## Licence
 

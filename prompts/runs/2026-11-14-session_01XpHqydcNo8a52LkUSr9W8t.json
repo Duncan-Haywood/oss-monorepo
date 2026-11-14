@@ -27,14 +27,16 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 91,
   "outcome": "success",
   "errors": [
     "First local sweep: ventures-tests failed on platform/ci/inherited_keys.py (SEVERITY_ORDER[x] unguarded lookup in scan.mjs); fixed with Object.hasOwn.",
     "First push blocked by the post front-matter hook: description 167 characters (limit 160); shortened.",
-    "cvtsudoers 1.9.15p5 printed invalid JSON for a rule with CWD=; that parity case is recorded as skipped rather than hand-repaired."
+    "cvtsudoers 1.9.15p5 printed invalid JSON for a rule with CWD=; that parity case is recorded as skipped rather than hand-repaired.",
+    "CI sibling-links and portfolio-pages test failed: sudoers-check had no inbound sibling link (orphan budget 0); nginx and systemd checker footers now link it, with tests.",
+    "CI changed-ventures failed: the runner's visudo (different messages from sudo 1.9.15) rejected the risky fixture's wildcard args, negative timestamp_timeout and !authenticate; the visudo fixture test now runs only against the original sudo's visudo, and the README notes the difference."
   ],
   "integrity_issues": [],
   "doc_friction": [
