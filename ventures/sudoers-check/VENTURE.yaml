@@ -1,0 +1,52 @@
+name: sudoers-check
+description: 'Free, read-only checker for /etc/sudoers and /etc/sudoers.d: NOPASSWD ALL, editors, pagers, shells and interpreters that give a root shell, ALL minus su, commands in user-writable directories, wildcard arguments, SETENV and env_keep LD_PRELOAD, NOPASSWD rules a later rule overrides and drop-ins sudo skips, with file:line, the fix and who can become root; parser checked against sudo''s own cvtsudoers; browser or zero-dependency Node CLI, no upload, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. Nothing in ventures/ reads a sudoers file:
+# systemd-unit-hardening-check, nginx-config-security-check and
+# docker-compose-security-check ask the same kind of question of other
+# files, and ubuntu-agent-server only mentions sudoers in its setup notes.
+# Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a read-only parser of the user's own files, no advice-of-record, no
+# probing of anyone else's system, no data leaving the device. Labelled not a
+# security audit and not visudo, with no warranty; a clean scan is never
+# called safe. The shell-escape program list is our own; GTFOBins is credited
+# as the detailed catalogue, and no text from it is used.
+#
+# First visitor channel: search for "sudoers NOPASSWD not working",
+# "sudoers.d file ignored", "sudoers ALL except su", "sudo vim privilege
+# escalation" and "sudoers security checker" (man pages, Stack Exchange
+# answers and GTFOBins pages, with no checker that reads a whole sudoers
+# policy in a browser), and admins hardening a VPS or a cloud image.
+hypotheses:
+  - claim: 'An admin will paste a sudoers file here and remove a rule they did not know gave a root shell, or fix a NOPASSWD rule that never applied.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team that keeps sudoers drop-ins in configuration management will wire check.mjs --fail-on-risk into CI.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.mjs or scan.mjs within 90 days.
+
+links:
+  production: https://marisstella.app/sudoers-check/
+  analytics: null
