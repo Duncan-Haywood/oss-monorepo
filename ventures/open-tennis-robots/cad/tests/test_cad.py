@@ -657,8 +657,9 @@ class FeederGeometryTest(unittest.TestCase):
     def test_elevation_sweep_can_fail(self):
         from otr_cad.package import elevation_sweep
         bad = Feeder(mast_top_z=700.0)  # turntable raised into the head's path
-        # the rules see only that the cable loop no longer fits under the head (2026-11-13); the sweep sees the clash
-        self.assertEqual([r for r in bad.check() if "cable length" not in r], [])
+        # the rules see only that the cable loop (2026-11-13) and the actuator's lead (2026-11-14) no longer fit; the
+        # sweep sees the clash
+        self.assertEqual([r for r in bad.check() if "cable length" not in r and "actuator's lead" not in r], [])
         self.assertTrue(any("turntable" in c for c in elevation_sweep(bad, steps=2)))
 
     def test_head_gravity_moment_from_the_cad_is_a_rigid_rotation(self):
