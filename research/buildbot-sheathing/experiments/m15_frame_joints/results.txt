@@ -1,0 +1,66 @@
+# Milestone 15: framing joints of finite strength (buildbot-sheathing)
+rigid-body limit analysis (LP, HiGHS): bottom plate fixed, top plate, 4 studs and the sheet as bodies; sheathing nails rigid-plastic (capacity F, 64-gon); stud-to-plate joints of lateral capacity rho F, bearing in compression, opening against omega F; hold-downs on the end studs. 4x8 sheet, 6 in edge / 12 in field (62 nails). Capacities in units of F per unit top displacement unless said.
+
+## A. Joint strength from the NDS yield-limit equations (R_d = 2.2, single shear)
+DF-L framing (G 0.50): 8d common through 15/32 in OSB, Z = 74.0 lb (mode IIIs); 16d common through 1.5 in plate, Z = 140.7 lb (mode IV); 2 end nails x C_eg 0.67 = 188.5 lb; rho = 2.549
+SPF framing (G 0.42): 8d common through 15/32 in OSB, Z = 68.8 lb (mode IIIs); 16d common through 1.5 in plate, Z = 119.8 lb (mode IV); 2 end nails x C_eg 0.67 = 160.6 lb; rho = 2.335
+registered model: rho = 2.549 (DF-L), omega = 0 (NDS allows no end-grain withdrawal)
+
+## B. H65: with rigid joints the LP reproduces milestone 14
+intact sheet: LP 10.2432, milestone 14 work / H 10.1202 (ratio 1.0122); with the joint studs under the joint-edge nails (no 3/8 in eccentricity) 0.9996
+201 patterns (200 distinct three-read miss patterns and the Weiss pattern): ratio LP / milestone 14 max |dev| 0.0862%, mean 0.0299%; Weiss 0.7970 against 0.7963
+H65 (within 0.5%): held
+
+## C. H66: the intact sheet with finite joints (relative to rigid joints at the same spacing)
+edge in   rigid      NDS joints   change    SDPWS ratio  model ratio (NDS)
+      6    10.243        9.505    -7.21%         1.000       1.000
+      4    14.776       14.006    -5.21%         1.536       1.474
+      3    19.308       18.482    -4.28%         1.964       1.944
+      2    28.373       27.263    -3.91%         2.607       2.868
+H66 (each change under 2%): refuted; H60's spacing check at NDS joints (within 10%): fails
+intact 6 in sheet against omega (rho = NDS), relative to rigid joints: 0:0.9279, 0.25:0.9386, 0.5:0.9490, 1:0.9680, 2:0.9956, 4:1.0000
+mechanism at NDS joints: stud bottoms lift by -0.0000, +0.1473, +0.0000, +0.0000 (per unit top slide); top plate rotation -0.18127 rad
+
+## D. H67: every nail below 12 in omitted (Weiss 2017)
+rho     omega 0     omega 0.5   omega 1     omega 2      (loss against the intact sheet with the same joints)
+ 0.25        87.5%       87.5%       87.5%       87.5%
+ 0.50        77.4%       77.6%       77.8%       77.8%
+ 0.75        67.3%       67.9%       68.5%       69.4%
+ 1.00        57.2%       58.1%       59.0%       60.5%
+ 1.25        47.0%       48.2%       49.3%       50.9%
+ 1.50        36.9%       38.3%       39.5%       41.2%
+ 1.75        26.4%       28.0%       29.4%       31.4%
+ 2.00        22.3%       20.2%       20.0%       21.6%
+ 2.55        21.1%       20.0%       19.7%       20.0%
+ 3.00        21.1%       20.0%       19.7%       20.0%
+ 4.00        21.1%       20.0%       19.7%       20.0%
+ 8.00        21.1%       20.0%       19.7%       20.0%
+at NDS joints: loss 21.1%; studs' bottom slide -0.000, -0.000, -0.000, -0.000 per unit top slide
+rho for a 40% loss: 1.423 (0.56 of NDS); for 50%: 1.177 (0.46 of NDS) (omega 0)
+no hold-downs (not scored): intact 0.184 of the held-down sheet, Weiss loss 100.0% (omega 0); omega 1: intact 0.289, Weiss loss 63.6%
+H67 (loss at least 40% at NDS joints): refuted
+
+## E. One nail missed alone (NDS joints, relative to the intact sheet with the same joints)
+joint edges  : mean 2.38% (max 3.18%) against milestone 14's 2.08%
+field studs  : mean 0.27% (max 0.47%) against milestone 14's 0.85%
+bottom plate : mean 1.40% (max 2.60%) against milestone 14's 1.42%
+top plate    : mean 0.91% (max 1.42%) against milestone 14's 1.42%
+
+## F. H68: every miss escapes, NDS joints (20,000 sheets, seed 7, measured studs, ledger)
+single 2x, three reads : mean loss 2.73% (m14 2.34%), p99 loss 16.66% (m14 11.49%); 2261 distinct patterns
+single 2x, full stack  : mean loss 0.73% (m14 0.63%), p99 loss 6.54% (m14 6.33%); 619 distinct patterns
+H68 (three reads within 1 point of milestone 14 on both): refuted
+
+## G. H69: joint edges at 4 in (25 a side), every miss escapes, NDS joints
+intact 4 in-joint sheet 1.365 of the intact 6 in sheet (milestone 14: 1.318); with misses mean 1.3279, p1 1.1615, min 0.7102
+H69 (>= the intact 6 in sheet in 99% of sheets): P = 0.9989: held
+
+## H. Post hoc, not registered: the top plate only slides (a continuous double top plate over a wall line)
+Section C's intact-sheet loss comes from a lone sheet's top plate lifting and tilting while an interior stud separates (omega 0). Here the top plate is held to a pure slide; everything else as registered.
+intact change against rigid joints at 6, 4, 3, 2 in: +0.00%, +0.00%, -0.14%, -1.48%
+Weiss loss at NDS joints 20.3%; rho for 40%: 1.536 (0.60 of NDS), 50%: 1.279 (0.50 of NDS)
+single 2x, three reads : mean loss 2.34%, p99 loss 11.51%
+single 2x, full stack  : mean loss 0.63%, p99 loss 6.36%
+4 in joint edges: intact 1.318, P(>= intact 6 in) 0.9998, p1 1.1590
+
+648.6 s
