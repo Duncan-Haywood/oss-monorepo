@@ -33,11 +33,11 @@
       "note": "The file is the simple tone. The solemn tone on pp. 22*-25* differs from the first half-verse's second half on (te Dóminum confitémur: e gh h h g hi ivHG g against the simple tone's h h h g h i h g)."
     },
     {
-      "file": "gregobase-1908/3407.gabc", "sha256": "0ccefdf8ea84258d", "notes": 219, "scope": "ending only",
+      "file": "gregobase-1908/3407.gabc", "sha256": "0ccefdf8ea84258d", "notes": 220, "scope": "ending only",
       "witness": "Graduale Romanum, Vatican edition, 1908, p. 396",
       "scan": "https://archive.org/details/graduale-romanum-1908/page/n419", "leaves": "419",
       "result": "match", "differences": 0,
-      "note": "The verse ends on D (d-e-d after 'bellum') in the book as in the file; the Alleluia before it ends on E, the mode-3 final."
+      "note": "The verse ends on D (d-e-d after 'bellum') in the book as in the file; the Alleluia before it ends on E, the mode-3 final. Count 219 to 220 on 2026-11-14 with the file unchanged: the parser now sings the bivirga (cd!fvvDCd) as the two heads the book prints, as eval/scan-check.mjs pairs them on leaves 420-423."
     },
     {
       "file": "te-deum.gabc", "sha256": "037322933534e602", "notes": 637, "scope": "every note",

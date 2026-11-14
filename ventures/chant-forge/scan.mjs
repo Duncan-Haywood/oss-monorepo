@@ -669,7 +669,12 @@ export function gabcSteps(src) {
       // skip letters that are not pitches: custos (x+), accidentals (fx fy f#)
       if (g[i + 1] === '+') continue;
       if (g[i + 1] && 'xy#'.includes(g[i + 1])) { i++; continue; }
-      out.push({ rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2], shape: gabcShape(g, i) });
+      const note = { rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2], shape: gabcShape(g, i) };
+      out.push(note);
+      // gvv / gvvv / gss / gsss: a bivirga, trivirga, distropha or tristropha
+      // prints one head per shape letter, so each further letter is a note
+      const rep = /^(v{2,}|s{2,})/.exec(g.slice(i + 1));
+      if (rep) for (let k = 1; k < rep[0].length; k++) out.push({ ...note });
     }
   }
   return out;

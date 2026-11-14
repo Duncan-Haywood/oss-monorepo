@@ -142,7 +142,7 @@
           "leaf": 354
         },
         {
-          "page": "329",
+          "page": "330",
           "leaf": 355
         },
         {
@@ -167,7 +167,7 @@
           "leaf": 421
         },
         {
-          "page": "396",
+          "page": "397",
           "leaf": 422
         },
         {
@@ -192,7 +192,7 @@
           "leaf": 425
         },
         {
-          "page": "400",
+          "page": "401",
           "leaf": 426
         },
         {
@@ -217,7 +217,7 @@
           "leaf": 513
         },
         {
-          "page": "488",
+          "page": "489",
           "leaf": 514
         },
         {
@@ -242,7 +242,7 @@
           "leaf": 538
         },
         {
-          "page": "513",
+          "page": "514",
           "leaf": 539
         },
         {
@@ -267,7 +267,7 @@
           "leaf": 580
         },
         {
-          "page": "555",
+          "page": "556",
           "leaf": 581
         },
         {
@@ -290,6 +290,23 @@
         {
           "page": "leaf 874",
           "leaf": 874
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3670 (Qui timetis, tilted page)",
+      "gabc": "corpus/gregobase-1908/3670.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "398",
+          "leaf": 423
+        },
+        {
+          "page": "399",
+          "leaf": 424
         }
       ]
     }

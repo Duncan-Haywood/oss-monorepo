@@ -30,6 +30,11 @@ alleluias, 12 introits, 10 communions, 9 graduals, 6 tracts, 5 offertories and a
 few others. Pre-1929 source, CC0 transcription. `batch.test.mjs` and
 `node eval/batch-check.mjs` run the converter over them.
 
+`gregobase-1908/3670.gabc` (*Qui timetis*, gradual, mode 1, p. 398, transcriber Andrew Hinkley)
+was added on 2026-11-14, an unmodified download like the rest. It is the piece printed on leaf 424
+of the archive.org scan, the tilted page whose staves the reader could not find until pages were
+straightened (`../eval/deskew-check.md`), and it is in `../eval/scan-pages.json`. 60 files in all.
+
 ## Licence of the GregoBase files
 
 GregoBase's FAQ (gregobase.selapa.net, read 2026-11-03) says: "All chant

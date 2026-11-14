@@ -872,10 +872,24 @@ square. A page is straightened only if the slope moves a line 10 px or more acro
 
 On drawn pages (nine staves, 99 heads) the square reader holds to 0.3 to 0.4 degrees, reads 1
 or 36 heads at 0.5 and 4 at most from 0.8; straightened, all 99 from 0.3 to 2.5 degrees, the slope
-found to 0.01 degrees. **Not yet checked on a real page:** archive.org refused this session, so
-leaf 424 and the 185 pages already scanned wait for `eval/deskew-check.mjs`. Details, the
+found to 0.01 degrees. **On the real pages** (all 185 scanned so far, `eval/deskew-report.md`),
+two are tilted enough to straighten. Leaf 424 (-0.94 degrees) goes from 2 of its 9 staves to 9 and
+from 15 notes to 345. Leaf 585 reads the same either way, and no page loses anything. The staves
+gained end the gradual *Qui timetis* (GregoBase 3670, now in the corpus and in `scan-pages.json`).
+Straightened, 290 of its 299 notes agree with the book and none differs. Square, the alignment
+reached only note 180. `eval/scan-check.mjs --no-deskew` reruns the square reading. Details, the
 threshold and the one cost found (specks touching a line once the mask is tight again):
 `eval/deskew-check.md`.
+
+### Bivirga and tristropha sung as printed (2026-11-14)
+
+GABC writes a doubled or tripled virga or stropha on one letter: `gvv` (bivirga), `gvvv`, `gss`
+(distropha), `gsss` (tristropha). The book prints, and a choir sings, one head per shape letter.
+The converter played each as a single note, so the corpus's 26 bivirgas (15 of 68 files) came out
+one note short. Now each further `v` or `s` is a note on the same pitch, with no syllable of its
+own (a mora after it lengthens the last head). The scan check's `gabcSteps` counts them the same way.
+That clears two disagreements and three "scan only" marks in `eval/scan-check-report.md`, where
+the reader had read both printed heads (`eval/deskew-check.md`, "Bivirga").
 
 ### Staff lines at their own thickness (2026-11-14)
 

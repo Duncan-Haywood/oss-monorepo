@@ -1,4 +1,7 @@
-// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE]
+// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew]
+//
+// --no-deskew reads every page square (readPage's { deskew: false }), to
+// compare against the reader as it is (eval/deskew-real-pages.md).
 //
 // Compares corpus GABC files with page scans of the printed book they cite,
 // note by note, using scan.mjs. Pages come from archive.org (public-domain
@@ -23,6 +26,7 @@ const cache = opt('--cache', join(tmpdir(), 'chant-forge-scans'));
 const only = opt('--only', null);
 const out = opt('--out', join(here, 'scan-check-report.md'));
 const trials = Number(opt('--trials', 200));
+const readOpts = args.includes('--no-deskew') ? { deskew: false } : {};
 mkdirSync(cache, { recursive: true });
 
 const NAMES = 'abcdefghijklm';
@@ -66,7 +70,7 @@ for (const piece of manifest.pieces) {
   if (piece.clefLine === undefined) { const c = /\(([cf])b?([1-4])\)/.exec(src.slice(src.indexOf('%%'))); piece.clefLine = 3 + 2 * (Number(c[2]) - 1); }
   const scanNotes = [];
   for (const p of piece.pages) {
-    const staves = readPage(page(piece.archive, p.leaf));
+    const staves = readPage(page(piece.archive, p.leaf), readOpts);
     const [from, to] = p.staves || [1, staves.length];
     for (const s of staves.slice(from - 1, to)) {
       for (const n of s.notes) if (n.rel !== null) scanNotes.push({ ...n, page: p.page, leaf: p.leaf, staff: s.staff });

@@ -5,7 +5,8 @@
 // that last to the end of the word or the next bar, the punctum mora (.) and
 // horizontal episema (_), custodes (f+) which are not sung, and the four bars
 // (, ; : ::). Neume shapes (virga, quilisma, oriscus, liquescents...) are read
-// as plain notes: their pitch matters here, their nuance does not yet.
+// as plain notes: their pitch matters here, their nuance does not yet; a
+// bivirga, trivirga, distropha or tristropha is two or three of them.
 // Unknown characters are skipped, never guessed at.
 
 const DEGREE_SEMITONES = [0, 2, 4, 5, 7, 9, 11]; // do re mi fa sol la ti
@@ -148,6 +149,18 @@ export function parseGabc(src, opts = {}) {
         lyricPending = false;
         events.push(lastNote);
         i += 1;
+        // A doubled or tripled virga or stropha (gvv bivirga, gvvv trivirga,
+        // gss distropha, gsss tristropha) prints two or three heads on the
+        // pitch, each one sung: the first shape letter belongs to this note,
+        // each further one is a new note on the same pitch.
+        const rep = /^(v{2,}|s{2,})/.exec(neumes.slice(i));
+        if (rep) {
+          for (let k = 1; k < rep[0].length; k++) {
+            lastNote = { ...lastNote, syllable: null, wordStart: false };
+            events.push(lastNote);
+          }
+          i += rep[0].length;
+        }
         continue;
       }
       if (ch === '.' && lastNote) {
