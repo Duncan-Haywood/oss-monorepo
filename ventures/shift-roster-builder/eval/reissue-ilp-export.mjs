@@ -15,6 +15,7 @@
 import { parseStaff, parseShifts, buildContext, buildRoster, rosterCsv, scheduleChanges, keepFromCsv, sampleStaff, sampleShifts, TEMPLATES, DAYS } from "../calc.mjs";
 import { pinPast, VARIANTS } from "./reissue-posted.mjs";
 import { seededWeeks } from "./reissue-scale.mjs";
+import { pathToFileURL } from "node:url";
 
 const staffOf = (text) => { const p = parseStaff(text); if (p.errors.length) throw new Error(p.errors[0]); return p.staff; };
 export const ILP_VARIANTS = { rebuild: {}, "keep/shift 1": { keepShift: 1 }, "keep/shift 20": { keepShift: 20 } };
@@ -69,7 +70,7 @@ export function weeks({ variants = ILP_VARIANTS, base = { minRestHours: 10 } } =
   return [["sample", sampleStaff()], ["spare", sampleStaff() + "\nHal, 15, 24, 0, any"]].flatMap(([set, text]) => exportWeek(set, text, shifts, { variants, base }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = process.argv.slice(2);
   const pick = (dflt) => Object.fromEntries((process.env.VARIANTS || dflt).split(",").map((k) => [k, VARIANTS[k]]));
   const log = (w) => process.stderr.write(`${w.set} ${w.case}: ${Object.entries(w.engine).map(([k, v]) => `${k} ${v.open} h ${v.changes} changes ${v.status} ${v.ms} ms`).join("; ")}\n`);

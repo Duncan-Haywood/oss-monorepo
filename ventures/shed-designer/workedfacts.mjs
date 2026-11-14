@@ -8,7 +8,7 @@
 // even when the committed copy is a step behind; marketing.test.mjs still
 // fails on a stale committed copy so it gets refreshed.
 import { readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildShed, defaultDesign, normalize, PRESETS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
@@ -109,7 +109,7 @@ export function writeFacts(dir = fileURLToPath(new URL('.', import.meta.url))) {
   return changed;
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (process.argv.includes('--write')) {
     const changed = writeFacts();
     console.log(changed.length ? `refreshed ${changed.join(', ')}` : 'worked-example facts already current');

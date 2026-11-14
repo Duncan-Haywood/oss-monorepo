@@ -5,6 +5,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { parseMessage, toReplyBlock } from "../self-host/imap.mjs";
 import { parseReplies, triage } from "../engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const DIR = new URL("./bounce-corpus/", import.meta.url);
 // Not hard bounces, set by reading each one: DSN Status 4.x.x / "postponed" notices (delivery delayed, no address change),
@@ -28,7 +29,7 @@ export function score(today = "2026-10-24") {
   return { n: rows.length, right, missedBounces, misses: rows.filter((r) => r.want !== r.got) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const s = score();
   console.log(`real messages: ${s.right}/${s.n} read right; hard bounces missed ${s.missedBounces.length}`);
   for (const m of s.misses) console.log(`  ${m.file}: wanted ${m.want}, got ${m.got}`);

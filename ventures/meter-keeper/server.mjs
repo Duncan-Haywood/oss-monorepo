@@ -7,6 +7,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual, createHmac } from "node:crypto";
 import * as E from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 
@@ -97,7 +98,7 @@ export function handler(cfg) {
 
 export function loadState(file) { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return E.newState(); } }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const k of ["API_KEY", "ADMIN_KEY"]) if (!env[k] || env[k].length < 16) { console.error(`Set ${k} (16+ characters).`); process.exit(1); }
   let config; try { config = env.CONFIG_JSON ? JSON.parse(env.CONFIG_JSON) : JSON.parse(fs.readFileSync(env.CONFIG || "./meter-config.json", "utf8")); } catch (e) { console.error(`Cannot read the meter config: ${e.message}`); process.exit(1); }
   const errors = E.validateConfig(config); if (errors.length) { console.error("Config problems:\n- " + errors.join("\n- ")); process.exit(1); }

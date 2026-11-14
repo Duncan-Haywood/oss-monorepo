@@ -13,6 +13,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { parseInstructions, diffFileRefs, diffScriptRefs, summarize } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { root: ".", json: false, positional: [] };
@@ -144,7 +145,7 @@ export async function run(
 // because file existence is an async syscall in Node.
 export { diffFileRefs };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

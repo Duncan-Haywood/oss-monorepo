@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKo8jaMtyaBzxvoaWuF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T09:18:39Z",
+  "ended": "2026-11-14T10:53:46Z",
+  "wall_minutes": 95.53,
+  "tokens_in": 4810132,
+  "tokens_out": 19865,
+  "cost_usd": 2.0651,
+  "tool_calls": 55,
+  "task": "changepoint-detector flagship (w): adopt orphan draft PR #15440's pre-registered round 11 (NAB hourly, period 24 vs drift) and run it",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15802",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First scored run (~60 min) crashed: eval/watch-nab-season.mjs imported eval/watch-nab.mjs, whose worker_threads listener also answered every job (without the period), doubling replies. Fixed with workerData-scoped listeners plus a duplicate-reply guard and a real-worker test; rerun 1,767 s."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Monitor/pgrep hook refuses a bracketed pattern if the same word appears elsewhere in the command (e.g. in a file path); the bracket advice in CLAUDE.md does not say so."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Fails on doc_index.py for docs/reports/2026-11-14-quality-fix-selfrep-furnace.md, a report from another PR already on main; it says so, but the run still reads as failed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "An orphan draft (#15440, untouched 24 h+) held this flagship's top item, pre-registered but never run. Copying its two files onto my branch and running it was worth more than starting a fresh item.",
+      "did": "Adopted its eval script and test unchanged (credited in the README and PR), fixed a harness bug before the scored run, ran it, wrote it up; #15440 to be closed pointing here.",
+      "result": "Round 11 landed with both rules failing as recorded; pre-registration kept intact."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-taking-out-the-daily-cycle-did-not-fix-the-alerts.md",
+    "ventures/changepoint-detector/README.md (Round 11)"
+  ],
+  "goal": null,
+  "notes": "Round 11 on NAB's 47 hourly series: Quiet 797 alerts 13.6% at a window 50/61 reached; drift 404 20.5% 48; quiet24 833 14.9% 52; middle24 14.4% 52; eager24 14.0% 57. T4 FAIL (b,c), T5 FAIL (b,c). Quiet/drift match round 10 within one alert. Local checks: node --test watch*.test.mjs 68/68 pass; validate.py ok; check_post_frontmatter ok after shortening description; venture-preflight rerun pending at record time. No agent doc in docs/reports: the README section carries everything the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c0870cfa-a7bf-5d0d-8e60-5fe63594c24d",
+    "transcripts": 1,
+    "first": "2026-11-14T09:18:39Z",
+    "last": "2026-11-14T10:54:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 112,
+        "output": 19865,
+        "thinking": 3393,
+        "cache_read": 4719595,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90425,
+        "api_equivalent_usd": 2.0651,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 112,
+      "output": 19865,
+      "thinking": 3393,
+      "cache_read": 4719595,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90425,
+      "api_equivalent_usd": 2.0651,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 46,
+      "Monitor": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 95.53,
+      "active_minutes": 7.99,
+      "model_minutes": 5.71,
+      "tool_minutes": 2.28,
+      "waiting_on_human_minutes": 87.55,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "adopt a pre-registered eval, find and fix a worker-thread harness bug, run a 30-min benchmark, write up results",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 242.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

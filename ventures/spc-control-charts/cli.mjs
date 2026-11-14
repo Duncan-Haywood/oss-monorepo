@@ -3,6 +3,7 @@
 //   node cli.mjs data.txt [--type xbar-r] [--rules 1,2,5,6] [--lsl 24.9 --usl 25.1] [--csv out.csv] [--json]
 import { readFileSync, writeFileSync } from "node:fs";
 import { analyze, toCsv, PAPERS, CHART_TYPES, RULES } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `spc-control-charts: Shewhart control charts with the eight Nelson run rules
 and process capability (Cp, Cpk, Pp, Ppk)
@@ -82,7 +83,7 @@ export function run(argv, readStdin = () => readFileSync(0, "utf8")) {
   return { out: lines.join("\n"), code: res.signals.length ? 1 : 0 };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { out, code } = run(process.argv.slice(2));
     console.log(out);

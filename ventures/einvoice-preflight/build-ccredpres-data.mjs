@@ -15,6 +15,7 @@
 // the data module keeps only the fields the checks read.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
 export const SOURCE_REPO = "biuspoly/RNFe";
 export const SOURCE_COMMIT = "b744e7d4cd9b1d5ba14a3cf3b2408ea6f2bfd47b";
@@ -52,7 +53,7 @@ export function parseCsv(text) {
   return rows.filter((r) => r.some((c) => c !== ""));
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const text = await load();
   const sha = createHash("sha256").update(text).digest("hex");

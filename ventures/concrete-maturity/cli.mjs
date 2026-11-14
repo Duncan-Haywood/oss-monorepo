@@ -11,6 +11,7 @@
 // every estimate against field-cured specimens or other in-place tests.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parseLoggerCsv, parseCalibrationText, calibrationPoints, fitStrength, estimate, indexUnit, toCsv, exampleCsv, EXAMPLE_CALIBRATION } from './maturity.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function parseArgs(argv) {
   const a = { file: null, cal: null, target: null, method: 'nurse-saul', model: 'auto', unit: 'auto', json: false, index: false, csv: null, example: false };
@@ -62,7 +63,7 @@ export function report(r, strengthUnit = 'psi') {
   return lines.join('\n');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const a = parseArgs(process.argv.slice(2));
   if (a.help || (!a.example && (!a.file || !a.cal))) {
     console.log('usage: node cli.mjs logger.csv --cal breaks.txt [--target 3000] [--method nurse-saul|equivalent-age] [--json] [--csv out.csv]\n       node cli.mjs --example --target 3000');

@@ -15,6 +15,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { separate } from "../separation.mjs";
 import { indexSeparate, compareFlatIndex } from "../indexsep.mjs";
+import { pathToFileURL } from "node:url";
 
 const RAW = "https://raw.githubusercontent.com", LFS = "https://media.githubusercontent.com/media";
 export const PAINTINGS = [
@@ -68,7 +69,7 @@ export async function loadPaintings({ cacheDir = "", maxPx = 640 } = {}) {
   return images;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const out = process.argv[2] || "index-paintings";
   fs.mkdirSync(out, { recursive: true });
   const images = await loadPaintings({ cacheDir: process.env.PAINTINGS_CACHE || "" });

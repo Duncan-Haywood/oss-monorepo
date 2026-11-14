@@ -11,6 +11,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
 import { ADMIN_HTML, ADMIN_CSP } from "./admin.mjs";
 import { applyEvent, tick, summary, newState } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 
@@ -98,7 +99,7 @@ async function alert(text) {
   if (env.ALERT_WEBHOOK_URL) await fetch(env.ALERT_WEBHOOK_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text, content: text }) }).catch(() => {});
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const missing = ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "ADMIN_KEY", "LINK_SECRET"].filter((k) => !env[k]);
   if (missing.length) { console.error(`missing env: ${missing.join(", ")}`); process.exit(1); }
   const dryRun = env.DRY_RUN !== "false";

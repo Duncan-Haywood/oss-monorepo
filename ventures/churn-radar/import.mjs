@@ -7,6 +7,7 @@
 import fs from "node:fs";
 import { createHash } from "node:crypto";
 import { parseCsv } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const hash = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
 
@@ -43,7 +44,7 @@ export async function upload({ url, key, events, outcomes, revenue = [], fetchIm
   return tally;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [evFile, chFile, mrrFile] = process.argv.slice(2), { RADAR_URL: url, RADAR_API_KEY: key } = process.env;
   if (!evFile || !url || !key) { console.error("usage: RADAR_URL=... RADAR_API_KEY=... node import.mjs events.csv [cancellations.csv [mrr.csv]]"); process.exit(2); }
   const p = plan(fs.readFileSync(evFile, "utf8"), chFile ? fs.readFileSync(chFile, "utf8") : "", mrrFile ? fs.readFileSync(mrrFile, "utf8") : "");

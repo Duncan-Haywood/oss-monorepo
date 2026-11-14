@@ -1889,7 +1889,7 @@ export function rainoutOptions(f) {
 }
 
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --deadline DATE for whether the season ends in time (exit 2 if not), --bookings for a per-venue facility booking request, --cost rates.txt [--extra N] [--split games] for the season facility cost and a fee per team (exit 2 if a venue has no rate), --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
-if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
+if (typeof process !== "undefined" && process.argv && process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
   if (!file) { console.error("usage: node divisions.mjs spec.json [--csv]"); process.exit(2); }

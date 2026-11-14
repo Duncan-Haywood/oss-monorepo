@@ -17,6 +17,7 @@
 
 import fs from "node:fs/promises";
 import { parseInput, rowFromRegistryResponse, summarizeReport, mapWithConcurrency, registryUrl } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const CONCURRENCY = 6;
 
@@ -124,7 +125,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   return { exitCode: 0, output: renderHuman(filtered, summary) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

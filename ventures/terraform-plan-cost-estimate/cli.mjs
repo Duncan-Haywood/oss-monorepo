@@ -23,6 +23,7 @@ import {
   REGION_MULTIPLIERS,
   BASE_REGION,
 } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const DISCLAIMER =
   "Estimate from an approximate bundled us-east-1 on-demand price table, not a quote or billing advice. " +
@@ -177,7 +178,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8") } = {
   return { exitCode, output: renderHuman(report, budget) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

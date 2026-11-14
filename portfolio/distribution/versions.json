@@ -50,12 +50,12 @@
       "hash": "sha256-f93661e04a45c5717cfa8c0c108aa8a169b53d21a7f03eb264a836599fd173e6"
     },
     "agent-instructions-drift-check": {
-      "version": "0.1.2",
-      "hash": "sha256-f7d75e7c8217a000cbfc7f26d5ff9f1bb339fe831c54dbfa2d517ba7c6d1483b"
+      "version": "0.1.3",
+      "hash": "sha256-f1e136aa5df3f081bb33ac96fe649c40cf3d3f1bfac68c23cc124456931ab1cb"
     },
     "agent-permission-config-check": {
-      "version": "0.1.2",
-      "hash": "sha256-4a805489cd55e19434ec3b3c86bacdc20bcd2a945064c70ee3d8f24d0d71d0c7"
+      "version": "0.1.3",
+      "hash": "sha256-69c0d0f69bd55042aa4d8d25ebcf773f4888db5c8382504d4bc521078dfb7e58"
     },
     "coverage-drop-check": {
       "version": "0.1.2",
@@ -66,8 +66,8 @@
       "hash": "sha256-c61cd5870065d10c716935d450e5fd15b82883032bb3c6b356e2511e075aefb2"
     },
     "devsec-toolkit": {
-      "version": "0.1.3",
-      "hash": "sha256-7dfca7085b52b6cd9544e7aa50d4b326cd59ddb24b0e9e280b7e39576ce7e059"
+      "version": "0.1.4",
+      "hash": "sha256-e3052f3afe648f3d24c4fa991cc9b555d889de9f47b40cee49f35482e3db513d"
     },
     "docker-base-image-eol-check": {
       "version": "0.1.0",
@@ -86,8 +86,8 @@
       "hash": "sha256-a5cf1283d4e2d8b837d6c429c868cac1d2cf645391de6376cc3d076662b9226f"
     },
     "env-example-drift-check": {
-      "version": "0.1.2",
-      "hash": "sha256-2413547022878931b3ababfd31d18f87ae4cfaebbc1630aaa88f761c1ab20f91"
+      "version": "0.1.3",
+      "hash": "sha256-32b907b90e7008566455b816510c42ceaa1eb6dfe803c93795d9414ad32a2d24"
     },
     "flaky-test-finder": {
       "version": "0.1.2",
@@ -102,16 +102,16 @@
       "hash": "sha256-16433f01b25c74f97b97bf57d496add13adf0acfa2e4254e13c2b1a304ef1be4"
     },
     "llm-spend-guard": {
-      "version": "0.1.4",
-      "hash": "sha256-369290e8e93bbb0ac2548288b1b994480bec3ec238c69a5e89ee959d59f047a2"
+      "version": "0.1.5",
+      "hash": "sha256-8973ebbe770ab7a1f5240907841fea8a985b291e3beab061a7b972143ecd3672"
     },
     "llms-txt-generator": {
-      "version": "0.1.2",
-      "hash": "sha256-924266b40a4314ad00d1c018655a72e8ebb4e1a9f99bc8e4525aed0a7817f39d"
+      "version": "0.1.3",
+      "hash": "sha256-14893490d2b6f52ae0a94fc96d3e40efeba20c2bb7085bf497159e6c43253f27"
     },
     "npm-lifecycle-script-check": {
-      "version": "0.1.3",
-      "hash": "sha256-4a8312a4d79f09b1a158f8eb9daaac5ecdabcaab764da7d3ccbdaaf390018e78"
+      "version": "0.1.4",
+      "hash": "sha256-2736407e141cb6534c2bd7065299c5afb07ccc498bd2c7e59af87b3478bace7c"
     },
     "pinned-actions-check": {
       "version": "0.1.1",
@@ -122,8 +122,8 @@
       "hash": "sha256-144e46f650e90fd47190181b512f93953c65293d4d4f78baeede55da11299614"
     },
     "slopsquatting-check": {
-      "version": "0.1.2",
-      "hash": "sha256-3d13509c9d6e10607aff504c9c25ab0741b6af316d94e251b395983ac43cb8ef"
+      "version": "0.1.3",
+      "hash": "sha256-56d667696963ebc59fbc12f38fbb88d9a6c3f36bc5916acd6d8796203f786a2f"
     }
   }
 }

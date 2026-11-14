@@ -10,6 +10,7 @@
 //   node ventures/ai-bookkeeper/eval/benchmark.mjs [--seeds 5] [--auto 0.85] [--json]
 import { generateYear, toCsv } from "./synth.mjs";
 import { newBooks, importStatement, confirm } from "../engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
 const SEEDS = +arg("--seeds", 5), AUTO = +arg("--auto", 0.85);
@@ -52,7 +53,7 @@ export function runSeed(seed, autoPost = AUTO, extra = {}) {
   return months;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const all = Array.from({ length: SEEDS }, (_, i) => runSeed(i + 1));
   const sum = (m, k) => all.reduce((a, s) => a + s[m][k], 0);
   const table = all[0].map((_, m) => ({ month: all[0][m].month, lines: sum(m, "lines"), auto: sum(m, "auto"), autoWrong: sum(m, "autoWrong"), transfer: sum(m, "transfer"), transferWrong: sum(m, "transferWrong"), suggested: sum(m, "suggested"), suggestedRight: sum(m, "suggestedRight"), blank: sum(m, "blank") }));

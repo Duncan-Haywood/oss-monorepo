@@ -6,7 +6,7 @@
 // set the Next.js app and its tests use, not a hand-kept copy.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { stripTypeScriptTypes } from "node:module";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,7 +19,7 @@ export function buildEngineFile(name) {
   return `// GENERATED from src/lib/${name}.ts by scripts/build-rank-engine.mjs. Do not edit.\n${js}`;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const check = process.argv.includes("--check");
   const out = join(root, "site/engine");
   mkdirSync(out, { recursive: true });

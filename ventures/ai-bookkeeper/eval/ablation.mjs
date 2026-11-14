@@ -7,6 +7,7 @@
 //
 //   node ventures/ai-bookkeeper/eval/ablation.mjs [--seeds 5] [--json]
 import { runSeed } from "./benchmark.mjs";
+import { pathToFileURL } from "node:url";
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
 const SEEDS = +arg("--seeds", 5);
@@ -29,7 +30,7 @@ export function ablate(seeds = SEEDS) {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const rows = ablate();
   if (process.argv.includes("--json")) { console.log(JSON.stringify({ seeds: SEEDS, rows }, null, 2)); process.exit(0); }
   const pct = (a, b) => (b ? `${((100 * a) / b).toFixed(1)}%` : "-");

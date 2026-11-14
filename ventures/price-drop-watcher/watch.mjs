@@ -4,6 +4,7 @@
 // node watch.mjs [--config watch.json] [--state state.json] [--dry-run]
 import { readFile, writeFile } from "node:fs/promises";
 import { extractProduct, diffReading, robotsAllows, money } from "./extract.mjs";
+import { pathToFileURL } from "node:url";
 
 const UA = "price-drop-watcher/1.0 (+https://github.com/Duncan-Haywood/oss-monorepo; personal price watching; honours robots.txt)";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -81,7 +82,7 @@ export async function main(argv, env = process.env, io = {}) {
   return alerts.length ? 10 : 0; // 10 = something changed worth knowing; the workflow treats it as success
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const code = await main(process.argv.slice(2));
   process.exit(code === 10 ? 0 : code);
 }

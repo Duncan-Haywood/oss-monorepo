@@ -3,6 +3,7 @@
 //   node cli.mjs contacts.csv [--threshold 0.9] [--annotated out.csv] [--merged out.csv] [--json]
 import { readFileSync, writeFileSync } from "node:fs";
 import { analyze, annotatedCsv, mergedCsv, parseCsv, PAPERS, FIELD_TYPES, guessTypes, fmtPct } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `fuzzy-dedupe: find duplicate people or companies in a CSV, even when names, emails
 and addresses are spelled differently (Fellegi-Sunter record linkage with EM-learned weights)
@@ -85,7 +86,7 @@ export function run(argv, readInput = (f) => readFileSync(f === "-" || !f ? 0 : 
   return { out: lines.join("\n"), code: 0, files };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { out, code, files } = run(process.argv.slice(2));
     for (const [f, text] of Object.entries(files || {})) writeFileSync(f, text);

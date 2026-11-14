@@ -16,6 +16,7 @@
 
 import fs from "node:fs/promises";
 import { extractDependencies, classifyMetadata, registryUrl } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { json: false, strict: false, path: "package.json" };
@@ -150,7 +151,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), fetc
   return { exitCode, output: renderHuman(results) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

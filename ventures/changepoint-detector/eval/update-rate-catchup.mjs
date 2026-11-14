@@ -35,6 +35,7 @@
 import { updateRateChanges } from '../update-rate.mjs';
 import { makeRng } from './update-rate-sim.mjs';
 import { CELLS as ROUNDING_CELLS } from './update-rate-rounding.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const N = 300, AT = 150, REPS = 200, SEED = 20261213;
 const gauss = (rnd) => { let u = 0; while (u === 0) u = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rnd()); };
@@ -79,7 +80,7 @@ export function run(seed = SEED, reps = REPS, catchUp = ROUND_ONE) {
   return { cells: out, judged, k1, k2, k3, ships: k1 && k2 && k3 };
 }
 
-const invoked = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const invoked = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invoked) {
   const r = run();
   console.log(`seed ${SEED}, ${REPS} series a cell, n ${N}, change at ${AT}`);

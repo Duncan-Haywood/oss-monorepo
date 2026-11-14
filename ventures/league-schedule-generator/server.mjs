@@ -8,6 +8,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const MAX_BODY = 64 * 1024;
 const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring"];
@@ -177,7 +178,7 @@ export function handler(state, save, env = process.env) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const statePath = process.env.STATE || "state.json";
   let state = emptyState();
   try { state = { ...state, ...JSON.parse(fs.readFileSync(statePath, "utf8")) }; } catch (e) { if (e.code !== "ENOENT") throw e; }

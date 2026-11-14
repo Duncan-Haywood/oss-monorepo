@@ -7,6 +7,7 @@ import { timingSafeEqual } from "node:crypto";
 import { createStripe } from "./stripe.mjs";
 import { schedule, summary, journal, journalCsv } from "./revrec.mjs";
 import { renderDashboard } from "./page.mjs";
+import { pathToFileURL } from "node:url";
 
 export const newState = () => ({ lines: {}, lastSyncAt: null, currency: null, skipped: 0 });
 
@@ -73,7 +74,7 @@ function readJson(path, fallback) {
   try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const env = process.env;
   const missing = ["STRIPE_SECRET_KEY", "ADMIN_KEY"].filter((k) => !env[k]);
   if (missing.length) { console.error(`missing env: ${missing.join(", ")}`); process.exit(1); }

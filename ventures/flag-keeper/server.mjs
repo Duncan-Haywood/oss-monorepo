@@ -7,6 +7,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import * as E from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const readBody = (req, max = 200_000) => new Promise((resolve, reject) => {
@@ -150,7 +151,7 @@ export function handler(cfg) {
   return handle;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY || env.ADMIN_KEY.length < 16) { console.error("Set ADMIN_KEY (16+ characters)."); process.exit(1); }
   for (const k of ["SERVER_KEY", "CLIENT_KEY"]) if (env[k] && env[k].length < 16) { console.error(`${k} must be 16+ characters (or unset).`); process.exit(1); }
   if (!env.CLIENT_KEY) console.warn("CLIENT_KEY is not set: web and mobile apps cannot evaluate flags (the admin key must never ship in an app).");
