@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { stl, analyze, csvCell, parseDate, inferPeriod, defaultTrend, defaultLowPass, strengths, PAPERS, DEFAULTS } from "./engine.mjs";
+import { stl, mstl, defaultMstlWindows, parseNumberList, analyze, csvCell, parseDate, inferPeriod, defaultTrend, defaultLowPass, strengths, PAPERS, DEFAULTS } from "./engine.mjs";
 
 const ref = JSON.parse(readFileSync(new URL("./eval/reference.json", import.meta.url), "utf8"));
 const KEYS = { period: "period", seasonal: "seasonal", trend: "trend", low_pass: "lowPass", seasonal_deg: "seasonalDeg", trend_deg: "trendDeg", low_pass_deg: "lowPassDeg", seasonal_jump: "seasonalJump", trend_jump: "trendJump", low_pass_jump: "lowPassJump", robust: "robust" };
@@ -186,8 +186,9 @@ test("strengths are 0 when the remainder is everything and near 1 when it is not
   assert.ok(s.trend > 0.999 && s.seasonal > 0.999);
 });
 
-test("PAPERS cite STL, loess and the strength measures", () => {
-  assert.equal(PAPERS.length, 3);
+test("PAPERS cite STL, loess, the strength measures and MSTL", () => {
+  assert.equal(PAPERS.length, 4);
+  assert.match(PAPERS[3].title, /^MSTL/);
   assert.match(PAPERS[0].title, /STL/);
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.title} ${k}`);
 });
@@ -198,4 +199,146 @@ test("CSV cells are guarded against spreadsheet formulas, numbers are not", () =
   assert.equal(csvCell(-1.5), "-1.5");
   assert.equal(csvCell(-2e-7), "-2e-7");
   assert.equal(csvCell('a,"b"'), '"a,""b"""');
+});
+
+// ---------------------------------------------------------------- MSTL
+const HOURLY = readFileSync(new URL("./data/aep-hourly-load-2017.csv", import.meta.url), "utf8");
+const BIRTHS = readFileSync(new URL("./data/us-births-daily.csv", import.meta.url), "utf8");
+const STL_KEYS = { robust: "robust", trend: "trend", seasonal_jump: "seasonalJump", trend_jump: "trendJump", low_pass_jump: "lowPassJump", seasonal_deg: "seasonalDeg" };
+
+test("MSTL matches statsmodels MSTL on every reference case", () => {
+  assert.equal(ref.mstl.length, 7);
+  for (const c of ref.mstl) {
+    const opts = { periods: c.settings.periods, windows: c.settings.windows, iterate: c.settings.iterate };
+    for (const [k, v] of Object.entries(c.settings.stl ?? {})) opts[STL_KEYS[k]] = v;
+    const r = mstl(c.y, opts);
+    assert.deepEqual(r.params.periods, c.periods, c.name);
+    assert.deepEqual(r.params.windows, c.windows, c.name);
+    assert.equal(r.params.dropped.length > 0, c.warned.length > 0, c.name);
+    for (const k of ["trend", "resid", "weights"]) {
+      const d = maxDiff(r[k], c[k]);
+      assert.ok(d < 1e-7, `${c.name} ${k}: max difference ${d}`);
+    }
+    c.seasonal.forEach((s, i) => {
+      const d = maxDiff(r.seasonals[i].seasonal, s);
+      assert.ok(d < 1e-7, `${c.name} seasonal ${c.periods[i]}: max difference ${d}`);
+    });
+  }
+});
+
+test("MSTL: periods sorted with their windows, default windows 11, 15, 19, too-long periods dropped", () => {
+  assert.deepEqual(defaultMstlWindows(3), [11, 15, 19]);
+  const y = ref.mstl.find((c) => c.name === "three-periods-unsorted-windows-iterate3").y;
+  const r = mstl(y, { periods: [30, 5, 12], windows: [9, 13, 21] });
+  assert.deepEqual(r.params.periods, [5, 12, 30]);
+  assert.deepEqual(r.params.windows, [13, 21, 9]);
+  assert.equal(r.params.iterate, 2);
+  assert.deepEqual(mstl(y, { periods: [5, 12], windows: 13 }).params.windows, [13, 13]);
+  const short = mstl(y.slice(0, 100), { periods: [4, 60] });
+  assert.deepEqual(short.params.dropped, [60]);
+  assert.equal(short.params.iterate, 1);
+  assert.throws(() => mstl(y.slice(0, 40), { periods: [20, 30] }), /half the series length/);
+  assert.throws(() => mstl(y, { periods: [7, 7] }), /listed twice/);
+  assert.throws(() => mstl(y, { periods: [7, 1.5] }), /whole number/);
+  assert.throws(() => mstl(y, { periods: [7, 12], windows: [11, 15, 19] }), /one seasonal window per period/);
+});
+
+test("MSTL components add back up, and one period is plain STL with window 11", () => {
+  const y = ref.mstl[0].y;
+  const r = mstl(y, { periods: [24, 168] });
+  for (let i = 0; i < y.length; i++) {
+    const s = r.seasonals[0].seasonal[i] + r.seasonals[1].seasonal[i];
+    assert.ok(Math.abs(s - r.seasonal[i]) < 1e-9);
+    assert.ok(Math.abs(r.trend[i] + s + r.resid[i] - y[i]) < 1e-8);
+  }
+  const one = ref.mstl.find((c) => c.name === "single-period-default-window").y;
+  const a = mstl(one, { periods: [12] });
+  const b = stl(one, { period: 12, seasonal: 11 });
+  assert.ok(maxDiff(a.trend, b.trend) < 1e-12 && maxDiff(a.seasonal, b.seasonal) < 1e-12);
+});
+
+test("MSTL recovers two planted cycles on a line", () => {
+  const d = [4, -1, -3, 0, 2, -2];
+  const w = Array.from({ length: 42 }, (_, i) => 5 * Math.sin((2 * Math.PI * i) / 42));
+  const y = Array.from({ length: 42 * 8 }, (_, i) => 100 + 0.1 * i + d[i % 6] + w[i % 42]);
+  const r = mstl(y, { periods: [6, 42], iterate: 4 });
+  // The middle of the series, away from the end effects of loess.
+  for (let i = 84; i < y.length - 84; i++) {
+    assert.ok(Math.abs(r.seasonals[0].seasonal[i] - d[i % 6]) < 0.15, `daily ${i}`);
+    assert.ok(Math.abs(r.seasonals[1].seasonal[i] - w[i % 42]) < 0.15, `weekly ${i}`);
+  }
+});
+
+test("analyze: hourly load with periods 24, 168 runs MSTL with a strength and profile per cycle", () => {
+  const r = analyze({ csv: HOURLY, period: "24, 168" });
+  assert.equal(r.error, undefined);
+  assert.equal(r.method, "MSTL");
+  assert.deepEqual(r.periods, [24, 168]);
+  assert.deepEqual(r.components.map((c) => c.cycle), ["day", "week"]);
+  assert.deepEqual(r.components.map((c) => c.profile.length), [24, 168]);
+  assert.equal(r.components[0].profile[0].label, "00:00");
+  assert.equal(r.components[1].profile[0].label, "Mon 00:00");
+  assert.match(r.components[1].trough.label, /^Sun /);
+  for (const c of r.components) assert.ok(c.strength > 0.5 && c.strength <= 1, `${c.period} ${c.strength}`);
+  assert.match(r.summary, /MSTL fitted 2 seasonal cycles: the day \(period 24\)/);
+  assert.match(r.summary, /over the last week/);
+  // Memorial Day 2017 (Monday 29 May) is not in either cycle, so it is in the remainder.
+  assert.ok(r.unusual.some((u) => u.date.startsWith("2017-05-29")));
+  // Array input and the periods key give the same answer.
+  const same = analyze({ csv: HOURLY, periods: [168, 24] });
+  assert.ok(maxDiff(same.trend, r.trend) === 0);
+});
+
+test("analyze: one inferred period suggests the second cycle when the data can hold it", () => {
+  const r = analyze({ csv: HOURLY });
+  assert.equal(r.method, "STL");
+  assert.equal(r.components.length, 1);
+  assert.ok(r.warnings.some((w) => /weekly cycle as well as a daily one.*24, 168/.test(w)));
+  const b = analyze({ csv: BIRTHS });
+  assert.ok(b.warnings.some((w) => /yearly cycle as well as a weekly one.*7, 365/.test(w)));
+  const short = analyze({ csv: HOURLY.split("\n").slice(0, 300).join("\n") });
+  assert.ok(!short.warnings.some((w) => /MSTL/.test(w)), "no hint when two weeks do not fit");
+});
+
+test("analyze: daily births with 7, 365; yearly labels are month and day; fixed holidays sit in the yearly cycle", () => {
+  const r = analyze({ csv: BIRTHS, period: "7,365" });
+  assert.equal(r.method, "MSTL");
+  assert.equal(r.components[1].trough.label, "Dec 24");
+  assert.equal(r.components[0].trough.label, "Sun");
+  const one = analyze({ csv: BIRTHS, period: 7 });
+  const xmas = (x) => x.unusual.filter((u) => u.date.endsWith("-12-25")).length;
+  assert.ok(xmas(r) < xmas(one), `${xmas(r)} vs ${xmas(one)}`);
+});
+
+test("analyze: MSTL settings, dropped periods and bad lists", () => {
+  const r = analyze({ csv: HOURLY, period: "24,168", seasonal: "13, 21", iterate: 3, robust: true });
+  assert.deepEqual(r.params.windows, [13, 21]);
+  assert.equal(r.params.iterate, 3);
+  assert.equal(r.params.outerIter, 15);
+  const all = analyze({ csv: HOURLY, period: "24 168", seasonal: 9 });
+  assert.deepEqual(all.params.windows, [9, 9]);
+  const dropped = analyze({ csv: HOURLY, period: "24, 1200" });
+  assert.ok(dropped.warnings.some((w) => /1200 is at least half the series length/.test(w)));
+  assert.match(analyze({ csv: HOURLY, period: "24, x" }).error, /whole number of at least 2/);
+  assert.match(analyze({ csv: HOURLY, period: "24, 24" }).error, /listed twice/);
+});
+
+test("period lists: '24,168' is two periods on short data, '8,760' one period when it fits", () => {
+  assert.deepEqual(parseNumberList("24, 168").values, [24, 168]);
+  assert.deepEqual(parseNumberList("24 168;7").values, [24, 168, 7]);
+  assert.deepEqual(parseNumberList("24,168", 1008).values, [24, 168]);
+  assert.deepEqual(parseNumberList("24,168", 30000).values, [24168]);
+  assert.deepEqual(parseNumberList("8,760, 24", 20000), { values: [8760, 24], grouped: ["8,760"] });
+  assert.deepEqual(parseNumberList("13,21").values, [13, 21]);
+  assert.deepEqual(parseNumberList([168, 24]).values, [168, 24]);
+  // On the 2,016-hour example "24,168" cannot be one period of 24,168, so it is two.
+  const r = analyze({ csv: HOURLY, period: "24,168" });
+  assert.deepEqual(r.periods, [24, 168]);
+  assert.ok(!r.warnings.some((w) => /read as one number/.test(w)));
+  // A grouped single number becomes plain STL with a note.
+  const vals = Array.from({ length: 2600 }, (_, i) => Math.sin((2 * Math.PI * i) / 1200) + 0.001 * i);
+  const one = analyze({ values: vals, period: "1,200" });
+  assert.equal(one.method, "STL");
+  assert.equal(one.period, 1200);
+  assert.ok(one.warnings.some((w) => /"1,200" was read as one number, 1200/.test(w)));
 });

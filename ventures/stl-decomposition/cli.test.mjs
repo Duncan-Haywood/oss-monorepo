@@ -57,3 +57,20 @@ test("runs as a real process from a pipe", () => {
   const out = execFileSync(process.execPath, [CLI, "--period", "4"], { input: vals, encoding: "utf8" });
   assert.match(out, /seasonality/);
 });
+
+test("several periods run MSTL: text, --csv columns and list parsing", () => {
+  const HOURLY = fileURLToPath(new URL("./data/aep-hourly-load-2017.csv", import.meta.url));
+  const r = run([HOURLY, "--period", "24,168"]);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /MSTL, periods 24, 168 \(2 passes\); seasonal windows 11, 15/);
+  assert.match(r.out, /period 168 \(week\): strength/);
+  assert.match(r.out, /Seasonal profile for period 24/);
+  const csv = run([HOURLY, "--period=24,168", "--seasonal", "13,21", "--iterate", "3", "--csv"]).out.split("\n");
+  assert.equal(csv[0], "date,observed,trend,seasonal,seasonal_24,seasonal_168,remainder,seasonally_adjusted,robustness_weight,interpolated");
+  assert.equal(csv.length, 2017);
+  const j = JSON.parse(run([HOURLY, "--period", "24, 168", "--json"]).out);
+  assert.deepEqual(j.params.periods, [24, 168]);
+  assert.equal(parseArgs(["--period", "7,365"]).period, "7,365");
+  assert.throws(() => parseArgs(["--period", "7,year"]), /comma-separated/);
+  assert.match(HELP, /Bandara, Hyndman & Bergmeir/);
+});

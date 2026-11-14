@@ -6,7 +6,9 @@ description: >-
   (seasonal-trend decomposition by loess, Cleveland et al. 1990). Shows the
   seasonally adjusted series, the strength of trend and seasonality, the
   seasonal profile and the points that stand out; robust mode for outliers.
-  Checked against statsmodels. Nothing is uploaded.
+  Several cycles at once (a day and a week, a week and a year) with MSTL
+  (Bandara, Hyndman & Bergmeir 2021). Checked against statsmodels. Nothing
+  is uploaded.
 stage: prototype
 owner: duncan
 
