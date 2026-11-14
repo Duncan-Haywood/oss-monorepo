@@ -9,7 +9,11 @@ const file = args.find((a, i) => !a.startsWith("--") && (uAt < 0 || i !== uAt + 
 if (!file) { console.error("usage: node cli.mjs bids.csv [--unknown <weight 0-1>] [--json]"); process.exit(2); }
 const parsed = parseBids(readFileSync(file, "utf8"));
 if (parsed.error) { console.error(parsed.error); process.exit(2); }
-const r = level(parsed, { unknownWeight: uAt >= 0 ? Number(args[uAt + 1]) : 1 });
+const uRaw = uAt >= 0 ? args[uAt + 1] : "1";
+const unknownWeight = uRaw === undefined || uRaw.trim() === "" ? NaN : Number(uRaw);
+// An unreadable --unknown is refused rather than silently read as 1.
+if (!Number.isFinite(unknownWeight) || unknownWeight < 0 || unknownWeight > 1) { console.error(`--unknown needs a weight from 0 to 1, got ${JSON.stringify(uRaw ?? "")}`); process.exit(2); }
+const r = level(parsed, { unknownWeight });
 if (r.error) { console.error(r.error); process.exit(2); }
 if (args.includes("--json")) console.log(JSON.stringify(r, null, 2));
 else {
