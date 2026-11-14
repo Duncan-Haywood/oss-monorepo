@@ -141,6 +141,48 @@ def gauge_for(amps: float) -> int:
     return max(g for g, a in AWG_AMPS.items() if a >= amps - 1e-9)
 
 
+def rlc_step(v: float, r: float, l: float, c: float):
+    """Current into an uncharged capacitor C switched onto a source V through series R and L, closed form (2026-11-14,
+    the contactor inrush). Returns (i(t), t_peak, i_peak). Over-, under- and critically damped cases are each solved
+    exactly; tests check them against a brute-force integration."""
+    a, w0 = r / (2 * l), 1 / math.sqrt(l * c)
+    if a > w0 * (1 + 1e-9):
+        d = math.sqrt(a * a - w0 * w0)
+        s1, s2 = -a + d, -a - d
+        def i(t):
+            return v / (l * (s1 - s2)) * (math.exp(s1 * t) - math.exp(s2 * t))
+        tp = math.log(s2 / s1) / (s1 - s2)
+    elif a < w0 * (1 - 1e-9):
+        wd = math.sqrt(w0 * w0 - a * a)
+        def i(t):
+            return v / (l * wd) * math.exp(-a * t) * math.sin(wd * t)
+        tp = math.atan2(wd, a) / wd
+    else:
+        def i(t):
+            return v / l * t * math.exp(-a * t)
+        tp = 1 / a
+    return i, tp, i(tp)
+
+
+def time_above(i, tp: float, level: float, horizon: float) -> float:
+    """How long a single-humped current i(t) (peak at tp) stays above `level`, by bisection on each side of the peak.
+    An underdamped ring's later humps are lower than the first and are ignored (the BMS's delay timer restarts)."""
+    if i(tp) <= level:
+        return 0.0
+    lo, hi = 0.0, tp
+    for _ in range(200):
+        m = (lo + hi) / 2
+        lo, hi = (lo, m) if i(m) > level else (m, hi)
+    t_on = hi
+    lo, hi = tp, tp + horizon
+    if i(hi) > level:
+        return horizon
+    for _ in range(200):
+        m = (lo + hi) / 2
+        lo, hi = (m, hi) if i(m) > level else (lo, m)
+    return lo - t_on
+
+
 @functools.lru_cache(maxsize=4096)
 def _cable_loop_range(f: tuple, h: tuple, d: tuple, elev_deg: float, shape: tuple, r_min: float, rb: float,
                       step: float = 10.0, hmax: float = 360.0, n: int = 32,
@@ -695,6 +737,37 @@ class Feeder:
     branch_awg_min: int = 20          # no branch thinner than this: screw terminals and handling (a choice)
     main_feed_drop_frac: float = 0.02
     servo_buck_a: float = 5.0         # the servo's 6 V buck at its limit (BOM: 6 V 5 A)
+    # Contactor inrush and precharge (2026-11-14, `contactor_inrush`, `check_inrush`). Closing the contactor connects the
+    # ESCs' discharged input capacitors straight to the pack: a series R-L-C whose only limit is the loop's few tens of
+    # milliohms. Every figure below except the charger's voltage is an assumption: measure your build (a current clamp
+    # or a shunt and a scope on the first closing) and read your parts' datasheets.
+    battery_v_max: float = 29.2       # the charger's end voltage (BOM: 29.2 V LiFePO4 charger), the worst case
+    pack_ohm: float = 0.040           # pack internal resistance with its BMS FETs and busbars (assumption: 8 cells of
+                                      # a 20 Ah LiFePO4 class at a few milliohms each)
+    pack_uh: float = 0.2              # pack's own loop inductance (assumption)
+    loop_uh_per_m: float = 0.6        # inductance per metre of a two-wire run, out and back counted once (assumption:
+                                      # wires laid side by side; twisting lowers it)
+    main_fuse_ohm: float = 0.0019     # 30 A ATO blade, cold (the figure a distributor listing gives for Littelfuse
+                                      # 0257030, not read on Littelfuse's own sheet: read yours)
+    branch_fuse_ohm: float = 0.005    # 15 A ATO blade, cold (assumption)
+    contactor_ohm: float = 0.003      # closed contacts and terminals (assumption)
+    esc_cap_uf: float = 1000.0        # each launcher ESC's input capacitance (assumption: e-skate ESCs carry several
+                                      # hundred uF to about 2,000 uF; count the cans on yours)
+    esc_cap_esr_ohm: float = 0.010    # those capacitors' ESR in parallel (assumption)
+    esc_lead_mm: float = 400.0        # fuse block to each ESC, each conductor (an estimate on the deck layout)
+    bus_other_cap_uf: float = 300.0   # every other switched input: the stepper driver's 100 uF and the bucks' and
+                                      # H-bridge's own capacitors (assumption), lumped at the ESCs' node
+    contactor_make_a: float = 60.0    # current the contactor may make without eroding or welding its contacts
+                                      # (assumption: twice its 30 A rating; few small DC contactors state a
+                                      # capacitive make rating, so read yours or ask the maker)
+    bms_sc_a: float = 150.0           # BMS short-circuit trip current (assumption: five times its continuous rating)
+    bms_sc_delay_us: float = 200.0    # and how long the current must stay above it (assumption: read your BMS's
+                                      # settings; many expose it, often a few hundred microseconds)
+    precharge_ohm: float = 4.7        # resistor that charges the bus before the contactor closes (0: none)
+    precharge_delay_s: float = 0.5    # on-delay between the precharge relay and the contactor (a timer module)
+    precharge_relay_a: float = 10.0   # the small relay that switches the resistor
+    bus_idle_a: float = 0.3           # what the switched loads draw idling while the bus precharges (assumption):
+                                      # it holds the bus below the pack by idle x resistor
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -1231,6 +1304,7 @@ class Feeder:
         bad += self.check_cables()
         bad += self.check_deck_cables()
         bad += self.check_power()
+        bad += self.check_inrush()
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_agitator()
@@ -2249,6 +2323,72 @@ class Feeder:
             if run > self.hbridge_cont_a + 1e-9 or peak > self.hbridge_peak_a + 1e-9:
                 bad.append(f"H-bridge {ch} channel: {run:g} A running and {peak:g} A peak, over its "
                            f"{self.hbridge_cont_a:g} A / {self.hbridge_peak_a:g} A")
+        return bad
+
+    def contactor_inrush(self) -> dict:
+        """Current through the contactor when it closes onto the switched bus (2026-11-14), with and without the
+        precharge. The loop is a series R-L-C: the pack, the 12 AWG feed out and back, the main fuse and the contactor,
+        then the two launcher ESC branches in parallel (each its fuse, its 16 AWG lead out and back and its capacitors'
+        ESR) into every switched capacitor at once. A direct close starts from an empty bus at the charger's voltage.
+        With the precharge, a relay first charges the bus through `precharge_ohm` while the idle loads draw
+        `bus_idle_a`, then an on-delay closes the contactor across what is left:
+        idle x R + (V - idle x R) exp(-t / RC). The current that heats a fuse is the same for any damping,
+        integral of i^2 dt = C V^2 / (2 R), a quarter of it in each ESC branch."""
+        v = self.battery_v_max
+        ohm = {**AWG_OHM_PER_M, **FEED_AWG_OHM_PER_M}
+        feed_m = 2 * self.main_feed_mm / 1000
+        esc_m = 2 * self.esc_lead_mm / 1000
+        g_esc = next(b["awg"] for b in self.power_distribution()["branches"] if b["name"] == "launcher ESC, top")
+        r_branch = esc_m * ohm[g_esc] + self.branch_fuse_ohm + self.esc_cap_esr_ohm
+        r = self.pack_ohm + feed_m * ohm[self.main_feed_awg] + self.main_fuse_ohm + self.contactor_ohm + r_branch / 2
+        l = (self.pack_uh + self.loop_uh_per_m * (feed_m / 2 + esc_m / 4)) * 1e-6
+        c = (2 * self.esc_cap_uf + self.bus_other_cap_uf) * 1e-6
+
+        def event(step_v: float, extra_a: float = 0.0) -> dict:
+            if step_v <= 0:
+                return {"step_v": 0.0, "peak_a": extra_a, "t_peak_us": 0.0, "bms_over_us": 0.0, "i2t": 0.0}
+            i, tp, ip = rlc_step(step_v, r, l, c)
+            over = time_above(lambda t: i(t) + extra_a, tp, self.bms_sc_a, 50 * r * c + 50 * math.sqrt(l * c))
+            return {"step_v": step_v, "peak_a": ip + extra_a, "t_peak_us": tp * 1e6, "bms_over_us": over * 1e6,
+                    "i2t": c * step_v ** 2 / (2 * r)}
+
+        direct = event(v)
+        zeta = r / (2 * math.sqrt(l / c))
+        # an underdamped loop rings the bus past the pack's voltage (the capacitors' rating must cover it)
+        overshoot = math.exp(-math.pi * zeta / math.sqrt(1 - zeta * zeta)) if zeta < 1 else 0.0
+        out = {"r_ohm": r, "l_h": l, "c_f": c, "r_branch_ohm": r_branch, "tau_us": r * c * 1e6,
+               "damping": zeta, "bus_peak_v": v * (1 + overshoot), "direct": direct,
+               "esc_branch_i2t": direct["i2t"] / 4, "precharge": None}
+        if self.precharge_ohm > 0:
+            rp = self.precharge_ohm + r
+            tau = rp * c
+            held = min(self.bus_idle_a * rp, v)
+            residual = held + (v - held) * math.exp(-self.precharge_delay_s / tau)
+            out["precharge"] = {"peak_a": v / rp, "tau_ms": tau * 1e3, "residual_v": residual,
+                                "energy_j": 0.5 * c * v * v, "fault_w": v * v / self.precharge_ohm,
+                                "fault_j": v * v / self.precharge_ohm * self.precharge_delay_s,
+                                "close": event(residual, self.bus_idle_a)}
+        out["closing"] = out["precharge"]["close"] if out["precharge"] else direct
+        return out
+
+    def check_inrush(self) -> list[str]:
+        bad = []
+        d = self.contactor_inrush()
+        cl, pre = d["closing"], d["precharge"]
+        how = "closing onto the precharged bus" if pre else "closing onto an empty bus"
+        fix = "" if pre else ": add the precharge (precharge_ohm)"
+        if cl["peak_a"] > self.contactor_make_a + 1e-9:
+            bad.append(f"contactor makes {cl['peak_a']:.0f} A {how}, over the {self.contactor_make_a:g} A it may make{fix}"
+                       + (f" or lengthen precharge_delay_s ({cl['step_v']:.2f} V left)" if pre else ""))
+        if cl["bms_over_us"] > self.bms_sc_delay_us + 1e-9:
+            bad.append(f"inrush stays over the BMS's {self.bms_sc_a:g} A short-circuit trip for {cl['bms_over_us']:.0f} us "
+                       f"{how}, past its {self.bms_sc_delay_us:g} us delay: the BMS would cut the Pi too{fix}")
+        if pre:
+            if pre["peak_a"] > self.precharge_relay_a + 1e-9:
+                bad.append(f"precharge relay makes {pre['peak_a']:.1f} A, over its {self.precharge_relay_a:g} A: "
+                           f"a larger precharge_ohm")
+            if pre["peak_a"] > self.bms_sc_a:
+                bad.append(f"precharge current {pre['peak_a']:.0f} A is over the BMS's short-circuit trip")
         return bad
 
     def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:
