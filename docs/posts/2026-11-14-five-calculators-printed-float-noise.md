@@ -44,7 +44,7 @@ and `row()` returns `{ ...ov, wine, fruit, gain }`, so the unrounded `3.5 × 0.8
 
 The Etsy fix changes an answer, not just its spelling. Break-even listings was a fraction (12.5 listings at some inputs); it is now the first whole number of listings that covers the Plus fee, 13 in that case, which is the question a seller is asking.
 
-Each fix has a regression test in its venture's suite that fails on the old code.
+The four fixes in `calc.mjs` each carry a regression test in that venture's suite; the florist fix is a display formatter in the page itself, and the sweep is its test.
 
 ## Why the earlier sweeps missed it
 
@@ -56,4 +56,4 @@ They test for values that are not numbers. Float noise is a number that is not *
 node platform/ci/check_float_noise.mjs [out.json] [--limit N] [--only <path substring>]
 ```
 
-It takes about four minutes for every venture page on a cloud container and exits 1 on any hit. After these fixes it reports 0 of 3,862.
+It took 175 seconds for every venture page on a cloud container and exits 1 on any hit. After these fixes it reports 0 of 3,862.

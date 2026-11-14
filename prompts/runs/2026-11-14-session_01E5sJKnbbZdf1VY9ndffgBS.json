@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKnbbZdf1VY9ndffgBS",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T21:18:23Z",
+  "ended": "2026-11-14T21:31:58Z",
+  "wall_minutes": 16.76,
+  "tokens_in": 6984722,
+  "tokens_out": 27553,
+  "cost_usd": 2.752,
+  "tool_calls": 79,
+  "task": "explore: a browser sweep for visible floating-point noise on venture pages, and fixes for what it found",
+  "projects": [
+    "platform/ci",
+    "etsy-profit-calculator",
+    "grape-grower-sell-vs-bottle-calculator",
+    "junk-car-buyer-offer-calculator",
+    "pension-lump-sum-vs-annuity-calculator",
+    "wedding-florist-proposal-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15986",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "first draft of check_float_noise.mjs used a file:// string entry guard; check_cli_entry.py (via unwired_checks.py) caught it and it was fixed before merge"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "its list of already-clean sweeps names static checks but not the dozen browser sweeps in platform/ci (check_page_runtime.js, check_blank_inputs.js, page_js_errors.mjs, ...); my first idea (a console-error sweep) already existed and cost a few minutes to find"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-five-calculators-printed-float-noise.md"
+  ],
+  "goal": "quality of shipped venture pages",
+  "notes": "Idea: float-noise sweep (platform/ci/check_float_noise.mjs + test_check_float_noise.mjs). Loads 3,862 venture HTML pages offline, reads text on load, after input/change, after clicking calculate-like buttons, and after nudging number fields to awkward decimals. First full run (no nudge): 1 hit (grape-grower yield ladder 2.8000000000000003). With nudge: 3 more (etsy-profit break-even 11.999999999999998 listings; wedding-florist 14.100000000000001 crew-hours; pension grid 3.0999999999999996%). A source grep for the grape-grower pattern (rounded label then ...row(o, ov) spread overwrites it) found the same bug in junk-car-buyer's three ladders. All five fixed; four carry a regression test in calc.test.mjs (failure on old code checked for junk-car); the wedding-florist fix is an inline display formatter in index.html, verified by the sweep only. Etsy break-even is now a whole listing count (Math.ceil(x - 1e-9)), which changes the answer for fractional cases (12.5 -> 13). After fixes: 0 of 3,862, 175 s. Venture suites: run_venture_tests.py on the 5 slugs, 5 ok. unwired_checks.py: 150/165 pass, 15 skipped (pytest absent). Not wired into a workflow (control-plane edit); it is a .mjs, so unwired_checks.py does not pick it up either. Next if it pays off: a browser_checks-style registration so it runs on PRs touching ventures.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9a85c933-bbb3-5af9-a64c-951687c02286",
+    "transcripts": 1,
+    "first": "2026-11-14T21:18:23Z",
+    "last": "2026-11-14T21:35:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 143,
+        "output": 27553,
+        "thinking": 4689,
+        "cache_read": 6881577,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103002,
+        "api_equivalent_usd": 2.752,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 143,
+      "output": 27553,
+      "thinking": 4689,
+      "cache_read": 6881577,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103002,
+      "api_equivalent_usd": 2.752,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 71,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Grep": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.76,
+      "active_minutes": 16.76,
+      "model_minutes": 5.74,
+      "tool_minutes": 11.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer writing a Playwright sweep, triaging 3,862 pages and fixing five calculators with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 218.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
