@@ -1,0 +1,110 @@
+# Milestone 4: seeding rules under each fitted model
+villages 43, seeds 1140 (each village's leader count); greedy S = 32 with common random numbers; scoring S = 200 (seed 5); random = 200 independent seed sets, one run each; bootstrap B = 1000
+model I: {'qN': 0.05, 'qP': 0.3}
+model T: {'qN': 0.075, 'qP': 0.1, 'theta': 0.5, 'delta': -0.25}
+model R: {'qN': 0.1, 'qP': 0.1, 'gamma': 0.1, 'delta': -0.25}
+model T60: {'qN': 0.075, 'qP': 0.1, 'theta': 0.6}
+model Ipub: {'qN': 0.1, 'qP': 0.5}
+greedy searches done in 169 s
+
+## sanity: leaders rule, simulated non-leader take-up (data 0.1868)
+  I 0.1946, T 0.1820, R 0.1973, T60 0.1959, Ipub 0.2279
+
+## seed-set overlap (share of seeds in common, pooled over villages)
+  degree       leaders 0.25  degree 1.00  greedy-I 0.29  greedy-T 0.39
+  diffusion    leaders 0.25  degree 0.82  greedy-I 0.24  greedy-T 0.32
+  ball         leaders 0.21  degree 0.49  greedy-I 0.19  greedy-T 0.23
+  patches      leaders 0.24  degree 0.65  greedy-I 0.27  greedy-T 0.38
+  greedy-I     leaders 0.14  degree 0.29  greedy-I 1.00  greedy-T 0.42
+  greedy-T     leaders 0.17  degree 0.39  greedy-I 0.42  greedy-T 1.00
+  greedy-R     leaders 0.16  degree 0.38  greedy-I 0.46  greedy-T 0.50
+  mean seed degree: leaders 12.9, degree 23.1, eigenvector 22.0, diffusion 22.6, ball 18.9, patches 20.6, greedy-I 12.0, greedy-T 15.0, greedy-R 14.6; all households 9.7
+  tie density among seeds: leaders 0.083, degree 0.236, eigenvector 0.303, diffusion 0.284, ball 0.224, patches 0.175, greedy-I 0.040, greedy-T 0.066, greedy-R 0.063
+
+## adopters (mean per village; share of households) and regret against the best rule
+### model I: best rule greedy-I
+  greedy-I       44.67 (0.2105)  regret  0.000  [0.000, 0.000]  best in 0.996 of draws
+  greedy-R       44.53 (0.2098)  regret  0.003  [0.001, 0.005]  best in 0.000 of draws
+  greedy-T       44.45 (0.2094)  regret  0.005  [0.002, 0.008]  best in 0.003 of draws
+  patches        43.40 (0.2045)  regret  0.028  [0.025, 0.032]  best in 0.000 of draws
+  degree         43.23 (0.2037)  regret  0.032  [0.028, 0.037]  best in 0.000 of draws
+  diffusion      42.32 (0.1994)  regret  0.053  [0.045, 0.061]  best in 0.000 of draws
+  leaders        41.90 (0.1974)  regret  0.062  [0.053, 0.075]  best in 0.000 of draws
+  eigenvector    41.68 (0.1964)  regret  0.067  [0.057, 0.080]  best in 0.000 of draws
+  random         41.60 (0.1960)  regret  0.069  [0.034, 0.105]  best in 0.001 of draws
+  ball           41.52 (0.1956)  regret  0.071  [0.058, 0.088]  best in 0.000 of draws
+### model T: best rule greedy-T
+  greedy-T       43.91 (0.2069)  regret  0.000  [0.000, 0.000]  best in 1.000 of draws
+  greedy-R       43.50 (0.2049)  regret  0.010  [0.006, 0.013]  best in 0.000 of draws
+  greedy-I       42.79 (0.2016)  regret  0.026  [0.021, 0.030]  best in 0.000 of draws
+  patches        42.34 (0.1995)  regret  0.036  [0.031, 0.042]  best in 0.000 of draws
+  degree         42.11 (0.1984)  regret  0.041  [0.034, 0.048]  best in 0.000 of draws
+  diffusion      40.46 (0.1906)  regret  0.079  [0.067, 0.092]  best in 0.000 of draws
+  eigenvector    39.52 (0.1862)  regret  0.100  [0.085, 0.119]  best in 0.000 of draws
+  leaders        39.34 (0.1853)  regret  0.104  [0.092, 0.120]  best in 0.000 of draws
+  ball           39.31 (0.1852)  regret  0.105  [0.088, 0.126]  best in 0.000 of draws
+  random         38.61 (0.1819)  regret  0.121  [0.072, 0.166]  best in 0.000 of draws
+### model R: best rule greedy-R
+  greedy-R       45.50 (0.2144)  regret  0.000  [0.000, 0.000]  best in 0.910 of draws
+  greedy-T       45.42 (0.2140)  regret  0.002  [0.000, 0.004]  best in 0.090 of draws
+  greedy-I       45.08 (0.2124)  regret  0.009  [0.007, 0.012]  best in 0.000 of draws
+  patches        44.79 (0.2110)  regret  0.016  [0.013, 0.019]  best in 0.000 of draws
+  degree         44.75 (0.2108)  regret  0.017  [0.013, 0.020]  best in 0.000 of draws
+  diffusion      43.69 (0.2059)  regret  0.040  [0.033, 0.048]  best in 0.000 of draws
+  eigenvector    42.98 (0.2025)  regret  0.055  [0.045, 0.069]  best in 0.000 of draws
+  leaders        42.69 (0.2012)  regret  0.062  [0.052, 0.077]  best in 0.000 of draws
+  ball           42.58 (0.2006)  regret  0.064  [0.050, 0.083]  best in 0.000 of draws
+  random         41.56 (0.1958)  regret  0.086  [0.053, 0.121]  best in 0.000 of draws
+### model T60: best rule greedy-R
+  greedy-R       46.53 (0.2192)  regret  0.000  [0.000, 0.003]  best in 0.563 of draws
+  greedy-T       46.52 (0.2192)  regret  0.000  [0.000, 0.003]  best in 0.437 of draws
+  greedy-I       46.07 (0.2171)  regret  0.010  [0.007, 0.015]  best in 0.000 of draws
+  patches        45.15 (0.2127)  regret  0.030  [0.026, 0.035]  best in 0.000 of draws
+  degree         44.96 (0.2118)  regret  0.034  [0.030, 0.040]  best in 0.000 of draws
+  diffusion      43.47 (0.2048)  regret  0.066  [0.057, 0.078]  best in 0.000 of draws
+  leaders        42.54 (0.2004)  regret  0.086  [0.076, 0.101]  best in 0.000 of draws
+  eigenvector    42.52 (0.2004)  regret  0.086  [0.073, 0.105]  best in 0.000 of draws
+  ball           42.29 (0.1993)  regret  0.091  [0.077, 0.111]  best in 0.000 of draws
+  random         41.35 (0.1948)  regret  0.111  [0.074, 0.147]  best in 0.000 of draws
+### model Ipub: best rule greedy-I
+  greedy-I       49.89 (0.2351)  regret  0.000  [0.000, 0.000]  best in 0.975 of draws
+  greedy-R       49.65 (0.2339)  regret  0.005  [0.003, 0.006]  best in 0.000 of draws
+  greedy-T       49.54 (0.2334)  regret  0.007  [0.005, 0.010]  best in 0.000 of draws
+  patches        48.85 (0.2302)  regret  0.021  [0.019, 0.023]  best in 0.000 of draws
+  degree         48.81 (0.2300)  regret  0.022  [0.019, 0.024]  best in 0.000 of draws
+  diffusion      48.42 (0.2281)  regret  0.029  [0.026, 0.034]  best in 0.000 of draws
+  leaders        48.15 (0.2269)  regret  0.035  [0.029, 0.044]  best in 0.000 of draws
+  random         48.15 (0.2269)  regret  0.035  [0.005, 0.066]  best in 0.025 of draws
+  eigenvector    48.11 (0.2267)  regret  0.036  [0.030, 0.043]  best in 0.000 of draws
+  ball           47.92 (0.2258)  regret  0.039  [0.032, 0.050]  best in 0.000 of draws
+
+## H4: does the policy depend on the model? (fitted models I, T, R)
+  best: I greedy-I, T greedy-T, R greedy-R
+  Kendall tau (ten rules): I-T 0.778, I-R 0.822, T-R 0.956
+  Kendall tau (seven structural rules): I-T 0.810, I-R 0.810, T-R 1.000
+H4: held
+
+## H5: is some rule within 10% of the best under every fitted model?
+  greedy-T     worst-case regret 0.005  [0.002, 0.008]  I 0.005  T 0.000  R 0.002  |  sensitivity T60 0.000  Ipub 0.007
+  greedy-R     worst-case regret 0.010  [0.006, 0.013]  I 0.003  T 0.010  R 0.000  |  sensitivity T60 0.000  Ipub 0.005
+  greedy-I     worst-case regret 0.026  [0.021, 0.030]  I 0.000  T 0.026  R 0.009  |  sensitivity T60 0.010  Ipub 0.000
+  patches      worst-case regret 0.036  [0.031, 0.042]  I 0.028  T 0.036  R 0.016  |  sensitivity T60 0.030  Ipub 0.021
+  degree       worst-case regret 0.041  [0.034, 0.048]  I 0.032  T 0.041  R 0.017  |  sensitivity T60 0.034  Ipub 0.022
+  diffusion    worst-case regret 0.079  [0.067, 0.092]  I 0.053  T 0.079  R 0.040  |  sensitivity T60 0.066  Ipub 0.029
+  eigenvector  worst-case regret 0.100  [0.085, 0.119]  I 0.067  T 0.100  R 0.055  |  sensitivity T60 0.086  Ipub 0.036
+  leaders      worst-case regret 0.104  [0.092, 0.120]  I 0.062  T 0.104  R 0.062  |  sensitivity T60 0.086  Ipub 0.035
+  ball         worst-case regret 0.105  [0.088, 0.126]  I 0.071  T 0.105  R 0.064  |  sensitivity T60 0.091  Ipub 0.039
+  random       worst-case regret 0.121  [0.073, 0.166]  I 0.069  T 0.121  R 0.086  |  sensitivity T60 0.111  Ipub 0.035
+minimax-regret rule: greedy-T (worst-case 0.005; minimax in 0.944 of draws)
+H5: held
+
+## cross-model: optimise for one model, lose under another (regret of greedy-X under Y)
+  greedy-I: I 0.000  T 0.026  R 0.009  T60 0.010  Ipub 0.000
+  greedy-T: I 0.005  T 0.000  R 0.002  T60 0.000  Ipub 0.007
+  greedy-R: I 0.003  T 0.010  R 0.000  T60 0.000  Ipub 0.005
+
+## per village: share of villages where each rule is best (fitted models)
+  I: greedy-I 17, random 12, greedy-T 9, greedy-R 5
+  T: greedy-T 23, random 12, greedy-R 7, patches 1
+  R: greedy-R 13, greedy-T 13, random 10, greedy-I 5, degree 2
+runtime 174 s
