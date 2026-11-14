@@ -38,7 +38,7 @@ import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
-import { fixPostTitleClashes } from './page-identity.mjs';
+import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildLab } from './lab.mjs';
@@ -53,7 +53,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { addShareCards, cardTitle, mapLimit, renderCards, siteAddress } from './share.mjs';
+import { cardTitle, drawPlannedCards, mapLimit, renderCards, shareTagsFor, siteAddress } from './share.mjs';
 import {
   MARK_GEOMETRY,
   renderSiteCard,
@@ -4192,6 +4192,54 @@ export async function markSponsorsAndNoscriptIn(outDir) {
     return next;
   });
   return { sponsored, noscripted };
+}
+
+/**
+ * The title-clash fix (`fixPostTitleClashes`), the sponsor and notice pass
+ * (`markSponsorsAndNoscriptIn`) and the share-tag pass (`addShareCards`), in
+ * one read and at most one write per page, then the share cards drawn.
+ *
+ * Measured 2026-11-14 (docs/history/pages-build-perf-2026-11-14-one-walk-finish.md):
+ * the three passes read all ~9,800 pages (254 MB) three times and wrote nearly
+ * all of them twice, and `writeFileUtf8` was the build's largest self time.
+ * Per page the steps are: the retitle, if any; the sponsor marker; the
+ * notice; the share tags. The build used to retitle after the sponsor and
+ * notice pass; the two commute (the retitle touches only `<title>` and
+ * `content="..."` values equal to the old title, which the marker attribute and
+ * the notice never contain, and neither changes a title or an `<h1>`), so the
+ * pages come out byte for byte as before (a full build compared file by file,
+ * and the one-walk test in `noscript-notice.test.mjs`).
+ */
+export async function finishPagesInOneWalk(outDir, { baseUrl, siteName, siteCard, log = () => {} }) {
+  const pages = await loadPages(outDir);
+  const changes = resolvePostTitleClashes(pages);
+  const retitledHtml = new Map(changes.map((c) => [c.rel, c.html]));
+  const changeOf = new Map(changes.map((c) => [c.rel, c]));
+  const sponsored = [], noscripted = [], shareResults = [];
+  for (const [relative, original] of pages) {
+    const file = path.join(outDir, relative);
+    const titled = retitledHtml.get(relative) ?? original;
+    const marked = markSponsorLinks(titled);
+    const noticed = addNoscriptNotice(marked);
+    const { next, plan } = shareTagsFor(noticed, relative, { baseUrl, siteName, siteCard });
+    if (marked !== titled) sponsored.push(file);
+    if (noticed !== marked) noscripted.push(file);
+    // Reported as the separate pass reported it: the page as retitled after
+    // the sponsor and notice pass, before the share tags.
+    if (changeOf.has(relative)) changeOf.get(relative).html = noticed;
+    shareResults.push({ relative, plan, changed: next !== noticed });
+    if (next !== original) writeFileSync(file, next);
+  }
+  for (const { rel, from, to } of changes) {
+    log(`warning: ${rel} reused the title "${from}" of another page; retitled "${to}". Give the post its own seo_title.`);
+  }
+  const shareCards = await drawPlannedCards(outDir, shareResults);
+  return {
+    sponsored: sponsored.map((f) => path.relative(outDir, f)),
+    noscripted: noscripted.map((f) => path.relative(outDir, f)),
+    retitled: changes,
+    shareCards,
+  };
 }
 
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
@@ -12719,22 +12767,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // After the chrome pass, which writes the sponsor line into the footer of
   // every page it wraps -- marking before it would leave those unmarked and
-  // uncounted. Before the offline layer below, for the reason stated there:
-  // this rewrites HTML, so a cache named from a hash taken earlier would ship
-  // pages that no longer match it.
-  // One walk for both (`markSponsorsAndNoscriptIn`): the notice pass reads the
-  // same pages straight after.
-  const { sponsored, noscripted } = await markSponsorsAndNoscriptIn(outDir);
-
-  // After every generator has written its pages and the chrome has wrapped
-  // them: a card for each page still on the site-wide one (research, writing,
-  // comparisons, the section front pages), and complete share tags on all of
-  // them. Before the offline layer, which hashes the finished HTML.
-  // Before the share cards, which headline a page with its title: a post that
-  // reused a tool page's title is renamed here rather than failing check.mjs
-  // and holding back every deploy (page-identity.mjs).
-  const retitled = await fixPostTitleClashes(outDir, { log });
-  const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
+  // uncounted. After every generator has written its pages: a card for each
+  // page still on the site-wide one (research, writing, comparisons, the
+  // section front pages), and complete share tags on all of them. Before the
+  // share cards, which headline a page with its title: a post that reused a
+  // tool page's title is renamed here rather than failing check.mjs and
+  // holding back every deploy (page-identity.mjs). Before the offline layer
+  // below, which hashes the finished HTML: a cache named from a hash taken
+  // earlier would ship pages that no longer match it.
+  // One read and one write per page for all four (`finishPagesInOneWalk`).
+  const { sponsored, noscripted, retitled, shareCards } = await finishPagesInOneWalk(outDir, {
+    baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE, log,
+  });
 
   // Before the offline layer, which hashes the finished site: this rewrites
   // pages and feeds and removes the files it moved.
