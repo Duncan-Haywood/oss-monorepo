@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 22,
   "outcome": "success",
   "errors": [
     "Own simulator first let only one car board at a time, which made the lobby the bottleneck when the interval was shorter than a full car's boarding time (6 x 1600 kg on 6 floors showed wait/interval up to 9). Fixed before any number was published: the next car opens to the queue once the current one has a full load boarding.",
     "Post front matter failed writing.test.mjs twice (description 169 > 160 chars, seo_title 79 > 70); caught by venture-preflight before push.",
-    "First CI run red on two checks venture-preflight does not run: check_step_grid.py (capacityFactor min=1 step=5) and check_doc_counts.py (PRODUCT_PLAYBOOK.md venture count 1338 vs tree 1366, drift that predates this PR). Both fixed in a follow-up commit."
+    "First CI run red on two checks venture-preflight does not run: check_step_grid.py (capacityFactor min=1 step=5) and check_doc_counts.py (PRODUCT_PLAYBOOK.md venture count 1338 vs tree 1366, drift that predates this PR). Both fixed in a follow-up commit.",
+    "platform/privacy/share-location.test.mjs flagged cli.mjs's `o.search = true` (a CLI option field) as writing share state to the URL query string, a false positive of its regex. Renamed the field to `designs`."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,6 +50,10 @@
     {
       "file": "platform/pages/venture-preflight.mjs",
       "issue": "Preflight reported clean, yet CI's changed-ventures and validate jobs failed on check_doc_counts.py and check_step_grid.py; neither is in the preflight, so a 'clean' preflight still meant a red first CI run."
+    },
+    {
+      "file": "platform/privacy/share-location.test.mjs",
+      "issue": "Matches any `<x>.search =` assignment, so a CLI options object with a `search` flag reads as a location.search write; venture-preflight does not run platform/privacy tests, so it first showed in CI."
     }
   ],
   "deviations": [],
