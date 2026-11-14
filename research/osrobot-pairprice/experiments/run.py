@@ -110,6 +110,15 @@ for a in (0.045, 0.18, 0.405, 0.72, 1.62, 5.0, 20.0):
     _, p0, h0 = model(a, pilot=False)
     print(f"{a:>8.3f}{i / a:>9.2f}{p / a:>9.2f}{h / a:>9.2f}{p / i:>10.2f}{h / i:>10.2f}{p0 / i:>10.2f}{h0 / i:>9.2f}   {'simulated size' if a <= SIM_MAX else 'extrapolated from fit'}")
 
+print("\n# Sweep 3b: every machine attended. A person is charged for every ground minute of both architectures as well as the")
+print("# pilot's flight minutes: the like-for-like case if a site will not let a ground robot run unwatched. USD per hectare")
+print(f"{'ha':>8}{'inline':>9}{'pair':>9}{'held':>9}{'pair/inl':>10}{'held/inl':>10}   source")
+for a in (0.045, 0.18, 0.405, 0.72, 1.62, 5.0, 20.0):
+    i, p, h = model(a, attend=True)
+    print(f"{a:>8.3f}{i / a:>9.2f}{p / a:>9.2f}{h / a:>9.2f}{p / i:>10.2f}{h / i:>10.2f}   {'simulated size' if a <= SIM_MAX else 'extrapolated from fit'}")
+r = breakeven(1, attend=True)
+print(f"# attended, unheld: first crossing {r[0]} ha, last {r[1]}, {r[2]} crossing(s); cheaper above the last: {r[3]}")
+
 print("\n# Sweep 4: field sizes (ha) where the pair's USD per field equals the inline robot's, by scout price; 0.01 to 200 ha scanned.")
 print("# Battery swaps make the difference a sawtooth, so it can cross several times: first and last crossing, how many,")
 print("# and which side is cheaper above the last one. * = beyond the 1.62 ha simulated range (extrapolated).")
@@ -122,7 +131,7 @@ for cs in (1000, 1500, 2500, 4000, 6000):
 
 print("\n# Sweep 5: pair USD per hectare over inline USD per hectare, one factor moved at a time (unheld, pilot charged; at 0.72 ha, and 5 ha extrapolated)")
 print(f"{'change':<28}{'0.72 ha':>9}{'5 ha':>8}")
-cases = [("reference", {}), ("pilot not charged", dict(pilot=False)), ("hours/yr 100", dict(hours=100.0)), ("hours/yr 2000", dict(hours=2000.0)),
+cases = [("reference", {}), ("pilot not charged", dict(pilot=False)), ("every machine attended", dict(attend=True)), ("hours/yr 100", dict(hours=100.0)), ("hours/yr 2000", dict(hours=2000.0)),
          ("labour 0 USD/h", dict(labour=0.0)), ("labour 40 USD/h", dict(labour=40.0)), ("scout set-up 2 min", dict(setup_s=2.0)),
          ("battery 45 min", dict(endurance=45.0)), ("battery 10 min", dict(endurance=10.0)), ("swap 0 min", dict(swap=0.0)),
          ("annual charge 15%", dict(annual=0.15)), ("treater 2500 USD", dict(cap_treater=2500.0)), ("treater 4500 USD", dict(cap_treater=4500.0)),
