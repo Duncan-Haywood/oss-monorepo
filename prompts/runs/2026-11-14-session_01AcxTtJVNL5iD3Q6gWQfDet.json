@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJVNL5iD3Q6gWQfDet",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T16:06:37Z",
+  "ended": "2026-11-14T16:25:03Z",
+  "wall_minutes": 18.95,
+  "tokens_in": 10626003,
+  "tokens_out": 54159,
+  "cost_usd": 4.4644,
+  "tool_calls": 80,
+  "task": "cell-fidelity milestone 5p: fade attribution (SEI vs plating) and PyBaMM lithium-loss bookkeeping",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15907",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First bench used a ProcessPoolExecutor; a worker died abruptly after 24 of 128 runs (BrokenProcessPool). Switched to one subprocess per run, as earlier milestones do; logged as an amendment in LOG.md before results were read."
+  ],
+  "integrity_issues": [
+    "Earlier milestones (5n README/LOG) attributed fade to PyBaMM's SEI submodel without measuring it; 5p shows plating causes 99-100% of it. Corrected in the 5p entries (explanation only; no committed score changes)."
+  ],
+  "doc_friction": [
+    {
+      "file": "(cloud environment notes)",
+      "issue": "The environment says require('playwright') works; that is the node module only. Python has no playwright here, so screenshotting an SVG needs node with NODE_PATH=$(npm root -g)."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "On failure it prints the rule line but exits 1 without naming the failing field when the description is too long (the seo_title case did name it); I only caught it from the exit code."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (work through open research PRs first): 105 open PRs, none on this programme; the claim check was clear, so I advanced the drawn programme instead of triaging other runs' PRs.",
+      "did": "Skipped the open-PR sweep; ran pick_track CLAIM CHECK and claim_check.py.",
+      "result": "No collision; PR #15907 held the claim."
+    },
+    {
+      "file": "research/cell-fidelity/README.md",
+      "why": "The README's next step after 5o was a cheap fade predictor; a development check showed the premise (SEI-driven fade) was wrong, so the milestone became an attribution ablation first.",
+      "did": "Pre-registered H96-H99 on an option ablation instead of building a predictor.",
+      "result": "All four supported; the next step is now a plating predictor."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-fade-was-plating-all-along.md",
+    "research/cell-fidelity/LOG.md (5p plan + outcome)",
+    "research/cell-fidelity/experiments/attribution/UPSTREAM.md"
+  ],
+  "goal": "Advance research programme cell-fidelity",
+  "notes": "Local checks: cell-fidelity tests 149 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links, similarity ok; programme_check ok; run_workflow_locally --for-changes: research-ci 3/3 run steps passed (checkout/setup-python and agent-review/pages workflows not run locally). Upstream PyBaMM report drafted, not filed (owner step).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "30787c76-bc18-50c7-b494-990f431b1e3c",
+    "transcripts": 1,
+    "first": "2026-11-14T16:06:37Z",
+    "last": "2026-11-14T16:25:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 148,
+        "output": 54159,
+        "thinking": 14797,
+        "cache_read": 10464903,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160952,
+        "api_equivalent_usd": 4.4644,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 148,
+      "output": 54159,
+      "thinking": 14797,
+      "cache_read": 10464903,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160952,
+      "api_equivalent_usd": 4.4644,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 71,
+      "Write": 4,
+      "ToolSearch": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.95,
+      "active_minutes": 18.95,
+      "model_minutes": 10.99,
+      "tool_minutes": 7.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an electrochemistry modeller: PyBaMM source reading, ablation design, 128-run bench, bookkeeping bug isolation and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 268.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
