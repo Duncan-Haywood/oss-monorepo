@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKoCJtKk6xKB5aoQJnd",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T09:18:38Z",
+  "ended": "2026-11-14T09:56:48Z",
+  "wall_minutes": 49.04,
+  "tokens_in": 15932795,
+  "tokens_out": 85072,
+  "cost_usd": 6.4676,
+  "tool_calls": 116,
+  "task": "explore: new venture ranked-ballot-counter (IRV, STV, Schulze ballot counts)",
+  "projects": [
+    "ventures/ranked-ballot-counter"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15804",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 36,
+  "outcome": "success",
+  "errors": [
+    "IRV recounted every ballot from scratch, reviving ballots exhausted on an equal ranking; property test (IRV vs 1-seat STV) caught it on random seed 35, fixed.",
+    "Format detection read a preference-line file where most voters rank one candidate as CSV; caught by the independent Python recount (2,999/3,000), fixed.",
+    "A numbered ID column in a grid export was read as a candidate; caught in the Chromium run, fixed with a metadata-column list.",
+    "Post description was 185 chars; check_post_frontmatter.py's last line (the rule summary) hid the actual error when I tailed one line, so the first local build failed on it."
+  ],
+  "integrity_issues": [
+    "Could not fetch Wikipedia or the Scottish Order (hosts outside the network allowlist). The 45-voter Schulze profile and result were confirmed via search snippets and its pairwise counts recomputed in Python; the STV food example's Wikipedia version could not be confirmed, so it is described as hand-counted, not as a Wikipedia example; the Scottish rules' 5-decimal truncation could not be confirmed from the statute, so it is stated as this tool's own choice."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "On failure it prints the error line then a rule-summary line; `| tail -1` shows only the summary, which looks like success output. Exit code is the reliable signal."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "portfolio-pages.yml 'Build the site' step is reported as skip under --for-changes and by name, so the real build + check.mjs had to be run by hand (node build.mjs --out=DIR --audio-cdn; node check.mjs DIR)."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "Definition of done asks for an inline-SVG chart and data/SOURCE.md; neither fits a ballot counter whose example is a textbook profile (no dataset), so judgement was needed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "why": "No inline-SVG chart and no data/ directory: the result is round tables and a head-to-head matrix, and the example is a four-line textbook profile embedded in the engine with its source cited.",
+      "did": "Round tables, a coloured head-to-head table and a plain-language summary instead.",
+      "result": "Page reviewed in Chromium at 390 px; no chart needed to read the count."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-one-set-of-ballots-three-winners.md"
+  ],
+  "goal": "Ship a new, verifiable free tool nobody in the portfolio covers.",
+  "notes": "Explore idea: ranked-ballot counter (instant runoff, multi-seat STV with Droop quota + WIGM transfers, Schulze) for clubs/boards/unions/student elections; browser page + CLI + agent engine, filed under Research algorithms & ML. Verification: four-city IRV/Condorcet and Schulze 45-voter examples, hand-counted STV, property tests on 300 random elections in suite (5,000 one-off), independent Python recount (crosscheck/) 1,909/1,909 IRV and 3,000/3,000 Schulze. Local checks: venture tests 36/36; doc-refs, portfolio-validate (pytest steps unrun), control-plane-guard ran; sibling-links fixed by linking from quick-pick-survey; site build exit 0 and check.mjs 'publishable: 1361 products, no dead links'; platform/pages suite 1,646 pass / 1 fail of 1,673: 'an identical build produces an identical cache name' failed in the full run (likely contention with a concurrent build in this container) and passed when rerun alone. STV not checked against another STV program (none offline). No agent doc written: the README and run record carry what a next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "15539866-4e94-501a-bbdd-0f3ca6cec9b0",
+    "transcripts": 1,
+    "first": "2026-11-14T09:18:38Z",
+    "last": "2026-11-14T10:07:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 194,
+        "output": 85072,
+        "thinking": 16412,
+        "cache_read": 15730187,
+        "cache_write_5m": 0,
+        "cache_write_1h": 202414,
+        "api_equivalent_usd": 6.4676,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 194,
+      "output": 85072,
+      "thinking": 16412,
+      "cache_read": 15730187,
+      "cache_write_5m": 0,
+      "cache_write_1h": 202414,
+      "api_equivalent_usd": 6.4676,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 116,
+    "tools": {
+      "Bash": 92,
+      "Write": 8,
+      "WebSearch": 5,
+      "ToolSearch": 3,
+      "WebFetch": 3,
+      "Edit": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 49.04,
+      "active_minutes": 49.04,
+      "model_minutes": 14.67,
+      "tool_minutes": 34.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "engine with three counting methods and CSV/Forms parsing, 36 tests, independent Python recount, page, guide, CLI, docs: a senior engineer's estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 216.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

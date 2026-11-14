@@ -1,0 +1,50 @@
+name: ranked-ballot-counter
+description: >-
+  Free browser tool and CLI that counts ranked ballots for clubs, boards,
+  co-ops, unions and student elections: instant runoff round by round,
+  multi-seat STV (Droop quota, weighted inclusive Gregory transfers), the
+  Schulze ranking and Condorcet winner, and the head-to-head table. Reads
+  A > B > C lines and Google Forms or spreadsheet CSV exports. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-14 in an explore run. duplicate_check.py: top score 0.12
+# (tournament-pairing-manager), nothing near the 0.45 bar; no venture counts
+# votes. quick-pick-survey ranks a list from pairwise picks, a different job.
+#
+# Why a tool and not a chatbot answer: a count has to be exact and
+# reproducible, show every round so members can check it, read a messy form
+# export, and break ties by a stated rule. A from-memory answer to "who won
+# our 140-ballot STV vote" is not something a committee can certify.
+#
+# First visitor: club secretaries and student-union returning officers
+# searching "count ranked choice votes google forms", "STV calculator",
+# "instant runoff calculator"; volume not measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      People running small ranked-choice elections will paste a form export
+      into a free counter that shows every round, rather than count by hand
+      in a spreadsheet or pay for a hosted voting service.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows ballots where the count disagrees with the stated rules and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/ranked-ballot-counter/
+  analytics: null

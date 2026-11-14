@@ -200,11 +200,19 @@
       h += "<p>Battery: " + esc(sizeNote) + ". Saves " + money(r.demandSaving) + " a year in demand charges and " + money(r.energySaving) + " in energy, " + money(r.saving) + " in all, scaled to a year using " + a.monthsUsed + " complete month(s).</p>";
       h += table(["Part of the bill (per year)", "Now", "With battery"], [["Facility demand", money(y.before.facility), money(y.after.facility)], ["On-peak demand", money(y.before.onDemand), money(y.after.onDemand)], ["Energy", money(y.before.energy), money(y.after.energy)]]);
       h += table(["Month", "Peak now", "Peak after", "On-peak peak now", "On-peak peak after", "Bill now", "Bill after", "Best plan"], r.months.map((m) => [m.month + (m.complete ? "" : " (partial)"), kw(m.before.facKw), kw(m.after.facKw), kw(m.before.onKw), kw(m.after.onKw), money(m.before.total), money(m.after.total), m.method]));
+      const rp = r.ratchetPlan;
+      if (rp && rp.skipped) h += "<p>Ratchet: no month's bill with the battery is set by the ratchet floor, so planning each month alone is already the best plan for the whole period (each month is at its own lowest bill, which the ratchet can only raise).</p>";
+      else if (rp && rp.used) h += "<p>Ratchet: in at least one month the floor from an earlier peak sets the bill, so the whole period was also planned as one programme with the ratchet inside it. That plan bills " + money((rp.monthByMonth - rp.wholePeriod) * 12 / a.monthsUsed) + " a year less than planning month by month, by not spending the battery on peaks the floor already bills, and it is the one shown.</p>";
+      else if (rp) h += "<p>Ratchet: the whole period was also planned as one programme with the ratchet inside it; planning month by month did as well, and is shown.</p>";
       h += "<p>Each month the battery is planned by a linear programme that weighs demand charges and energy prices together, so it will accept a slightly higher peak when spending the battery on on-peak energy saves more. That answer is exact for this model (on 684 real building-months it matched an independent solver, HiGHS, to within 3 cents). It is compared with peak shaving alone (the lowest caps the battery can hold), energy trading alone and no battery, and the cheapest is shown. It starts each month full, pays to refill at month end, never exports, and knows the month's load in advance, so a real controller will save somewhat less. Energy prices here exclude fixed and per-kWh riders not tied to time of day.</p></div>";
       return h;
     }
     fill(DEFAULTS);
-    $("run").addEventListener("click", run);
+    $("run").addEventListener("click", () => {
+      // Planning a year with a binding ratchet can take 10 s or more: say so, let the label paint, then run.
+      const btn = $("run"); btn.disabled = true; btn.textContent = "Working (a year with a ratchet can take 10 to 20 s)...";
+      setTimeout(() => { try { run(); } finally { btn.disabled = false; btn.textContent = "Analyze"; } }, 30);
+    });
     $("example").addEventListener("click", () => { fill(EXAMPLE_SETTINGS); $("data").value = exampleCsv(); record("example_loaded"); run(); });
     $("file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("data").value = await f.text(); });
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
