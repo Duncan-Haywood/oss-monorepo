@@ -1,8 +1,8 @@
 ---
-kind: note
+kind: analysis
 subjects: [selfrep-materials]
-topics: [research-integrity]
 date: 2026-11-14
+tagged: auto
 ---
 # Quality fix: selfrep-materials sourced part list (2026-11-14)
 

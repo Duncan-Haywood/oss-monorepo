@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H } from './scan.mjs';
+import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, trimLine, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -76,6 +76,37 @@ test('a speck inside a head does not split it', () => {
   img.data[(y + 1) * img.width + 310] = 225;
   const [st] = readPage(readPgm(toPgm(img)));
   assert.deepEqual(st.notes.map((n) => n.rel + 6), [3]);
+});
+
+test('a line crowded with heads keeps its own thickness, and the heads on it are read', () => {
+  // a recitation on one line: the heads alone cover over a fifth of the page
+  // width in the rows just above and below it (leaf 747 of the 1908
+  // Graduale, eval/thick-line-check.md)
+  const img = canvas(1600, 700);
+  const crowd = [];
+  for (let x = 140; x < 1440; x += 30) crowd.push([x, 4]);
+  drawStaff(img, 120, crowd);
+  drawStaff(img, 420, [[300, 2]]);
+  const bin = binarize(img);
+  const staves = findStaves(bin);
+  assert.equal(staves.length, 2);
+  for (const l of staves[0].lines) assert.ok(l.bottom - l.top + 1 <= 5, `line ${l.top}-${l.bottom}`);
+  const page = readPage(readPgm(toPgm(img)));
+  assert.equal(page[0].notes.length, crowd.length);
+  assert.ok(page[0].notes.every((n) => n.rel === 4 - 6));
+  // trimLine on its own: a band of head rows around a 3 px line
+  const y = 120 + S - 1;
+  assert.deepEqual(trimLine(bin, y - 9, y + 11), [y - 1, y + 3]);
+});
+
+test('a staff whose second line sits a few pixels low is still found', () => {
+  // a tilted page moves one line's centre: the spacing from the first two
+  // lines then misses the last line, the spacing from the outer two does not
+  const img = canvas(1600, 400);
+  for (const [k, dy] of [[0, 0], [1, 4], [2, 0], [3, 0]]) rect(img, 60, 120 + k * S + dy - 1, 1440, 3);
+  const staves = findStaves(binarize(img));
+  assert.equal(staves.length, 1);
+  assert.ok(Math.abs(staves[0].space - S) < 1);
 });
 
 test('gabcSteps: clef-relative steps, custos and accidentals skipped, clef changes followed', () => {
