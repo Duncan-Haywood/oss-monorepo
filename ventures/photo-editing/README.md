@@ -79,8 +79,8 @@ TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no emb
 gets its proxy and its scores from a half-size development instead of failing. Since
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
-2026-11-14 a Sony ARW the same way ("Sony ARW" below). Other RAW
-formats (CR3, NEF, ORF, RAF, RW2, ...) are still scored from their preview but stop at the grade
+2026-11-14 a Sony ARW and a Nikon NEF the same way ("Sony ARW" and "Nikon NEF" below). Other RAW
+formats (CR3, ORF, RAF, RW2, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -916,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2 and Sony ARW with a `.dcp` profile (CR2 since 2026-11-12, ARW since 2026-11-14, "Sony ARW" below; convert CR3 and NEF with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW and Nikon NEF with a `.dcp` profile (CR2 since 2026-11-12, ARW and NEF since 2026-11-14, "Sony ARW" and "Nikon NEF" below; convert CR3 with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1135,6 +1135,45 @@ Not done: colour is only as good as the profile you supply (no profile ships her
 (LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
 Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
 applied, and Sony's lens name in the maker note is not read yet.
+
+## Nikon NEF (2026-11-14)
+
+Nikon's raw files no longer need Adobe's DNG Converter either. `shootflow develop DSC_0001.NEF
+--dcp PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for CR2 and ARW) reads the NEF itself,
+and the pipeline's grade stage develops NEF stills with the workspace's `color/camera-profiles/`
+(`src/shootflow/nef.py`).
+
+What it reads: Nikon's compressed NEF (compression 34713, every body from the D1X/D100 on), lossy
+or lossless, 12- or 14-bit: a Huffman-coded difference per sensel from one of six fixed code
+tables, predicted from two columns left (or two rows up at the start of a row) and mapped through
+the linearisation curve the maker note's tag 0x0096 stores (in full, or as points interpolated
+linearly, with the "split row" after which a second, scaling code table takes over). And
+uncompressed NEFs, packed 12/14-bit or 16-bit. As-shot white balance comes from the maker note's
+WB_RBLevels (0x000C), black level from its BlackLevel (0x003D) on bodies that write one (D810:
+600; older bodies store black-subtracted data), white level from the top of the stored curve. The
+decode runs in C through the same optional ctypes library as the lossless-JPEG reader (0.1-0.6 s
+per file), with a pure-Python reference that gives the same sensels (4-29 s).
+
+Like a CR2 or an ARW, a NEF carries no colour matrix the DNG colour model can use, so it needs the
+camera's `.dcp` (Adobe's free DNG Converter installs one per body, e.g. `Nikon D810 Adobe
+Standard.dcp`).
+
+How it was checked (`tools/nef_libraw_check.py`, `eval/nikon-nef-reader-2026-11-14.md`): seven real
+NEFs from seven bodies (D70 lossy with a full curve; D90 and D5100 lossy with a stepped curve; D300,
+D800E and D810 lossless; D200 uncompressed), from the public metadata-extractor-images collection.
+Against LibRaw 0.22 through rawpy: every one of 130.6 M sensels equal on both decoders, and the
+as-shot white balance, black level and CFA pattern equal on all seven. The one difference is the
+D5100's white level: LibRaw takes 15,846 from a per-model table, but its own sensor data for that
+frame reaches 16,383, the top of the file's curve, which is the value used here (no clipping of
+values the camera stored). `tests/test_nef.py` (11 tests) writes NEFs with an encoder of its own in
+every storage, including a split row coded with the scaling table, and runs the profile chooser,
+the CLI and both decoders.
+
+Not done: colour is only as good as the profile you supply (no profile ships here); none of the
+seven real files has a non-zero split row, so the after-split tables are checked on synthetic files
+only; masked columns LibRaw trims by a per-model table are developed (D800E: 7,424 stored, 7,378
+visible); Nikon's high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to
+convert to DNG.
 
 ## The CR2 brightness gap was the check (2026-11-12)
 

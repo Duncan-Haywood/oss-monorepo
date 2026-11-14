@@ -221,6 +221,11 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
       err("period", "Period end is before its start.");
     }
   }
+  const delivery = text(d.delivery_date);
+  if (delivery && !dateOk(delivery)) err("delivery_date", "Delivery date must be a real date as YYYY-MM-DD.");
+  if (profile === "xrechnung" && !delivery && !(period && (period.start || period.end))) {
+    warn("delivery_date", "XRechnung asks for the date of supply: an actual delivery date (BT-72) or an invoicing period (BG-14) (BR-DE-TMP-32). German law (§14 (4) no. 6 UStG) also requires it on the invoice.");
+  }
 
   const pay = d.payment && typeof d.payment === "object" ? d.payment : {};
   const iban = text(pay.iban).replace(/\s+/g, "").toUpperCase();
@@ -242,6 +247,7 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
       buyer_reference: text(d.buyer_reference), order_reference: text(d.order_reference),
       original_invoice: text(d.original_invoice), note: text(d.note),
       period: period && (period.start || period.end) ? { start: text(period.start), end: text(period.end) } : null,
+      delivery_date: delivery && dateOk(delivery) ? delivery : "",
       seller, buyer, lines, breakdown, payment,
       totals: { net: netTotal, tax: taxTotal, gross, prepaid, due: due_amount },
     },
@@ -320,6 +326,7 @@ export function toUbl(doc) {
   }
   o.push(`  <cac:AccountingSupplierParty>\n    <cac:Party>\n${ublParty(doc.seller)}\n    </cac:Party>\n  </cac:AccountingSupplierParty>`);
   o.push(`  <cac:AccountingCustomerParty>\n    <cac:Party>\n${ublParty(doc.buyer)}\n    </cac:Party>\n  </cac:AccountingCustomerParty>`);
+  if (doc.delivery_date) o.push(`  <cac:Delivery><cbc:ActualDeliveryDate>${doc.delivery_date}</cbc:ActualDeliveryDate></cac:Delivery>`);
 
   const p = doc.payment;
   if (p.means) {
@@ -447,7 +454,15 @@ export function toCii(doc) {
   o.push(ciiParty("BuyerTradeParty", doc.buyer));
   if (doc.order_reference) o.push(`      <ram:BuyerOrderReferencedDocument><ram:IssuerAssignedID>${esc(doc.order_reference)}</ram:IssuerAssignedID></ram:BuyerOrderReferencedDocument>`);
   o.push(`    </ram:ApplicableHeaderTradeAgreement>`);
-  o.push(`    <ram:ApplicableHeaderTradeDelivery/>`);
+  // ApplicableHeaderTradeDelivery is mandatory in the CII schema; empty only when
+  // there is nothing to put in it (PEPPOL-EN16931-R008 then warns, as Mustang does).
+  if (doc.delivery_date) {
+    o.push(`    <ram:ApplicableHeaderTradeDelivery>`);
+    o.push(`      <ram:ActualDeliverySupplyChainEvent><ram:OccurrenceDateTime>\n  ${ciiDate(doc.delivery_date)}\n      </ram:OccurrenceDateTime></ram:ActualDeliverySupplyChainEvent>`);
+    o.push(`    </ram:ApplicableHeaderTradeDelivery>`);
+  } else {
+    o.push(`    <ram:ApplicableHeaderTradeDelivery/>`);
+  }
   o.push(`    <ram:ApplicableHeaderTradeSettlement>`);
   const p = doc.payment;
   if (p.reference) o.push(`      <ram:PaymentReference>${esc(p.reference)}</ram:PaymentReference>`);

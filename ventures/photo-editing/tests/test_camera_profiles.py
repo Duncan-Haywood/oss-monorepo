@@ -105,7 +105,7 @@ class ChooseTests(unittest.TestCase):
         self.assertEqual(camera_of(src), CAMERA)
         nef = self.dir / "IMG_0002.NEF"
         nef.write_bytes(b"II*\0" + b"\0" * 32)
-        with self.assertRaisesRegex(rd.DevelopError, "CR2 and Sony ARW files only"):
+        with self.assertRaisesRegex(rd.DevelopError, "Sony ARW and Nikon NEF files only"):
             camera_of(nef)
 
 

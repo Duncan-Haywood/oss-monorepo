@@ -42,6 +42,8 @@ add("exempt-and-reverse", "en16931", (d) => ({
     { description: "Training (exempt)", quantity: 2, unit: "days", unit_price: 600, tax_percent: 0, tax_category: "E", tax_reason: "Exempt under Article 132 of Directive 2006/112/EC" },
   ],
 }));
+add("no-delivery-date", "en16931", (d) => { delete d.delivery_date; return d; });
+add("service-period-xrechnung", "xrechnung", (d) => { delete d.delivery_date; d.period = { start: "2026-10-01", end: "2026-10-31" }; return d; });
 add("prepaid-long-note", "en16931", (d) => ({ ...d, prepaid: 100, note: "Thank you for your order. ".repeat(40) }));
 
 const out = process.argv[2];

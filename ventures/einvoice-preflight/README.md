@@ -476,8 +476,15 @@ with a seeded wrong tax total, written by this writer and fixed by
 `repair-cli.mjs`, still passes veraPDF after the incremental update, as do
 155 of 155 real corpus PDFs seeded and repaired the same way. Details:
 `eval/facturx-pdf-verapdf-2026-11-14.md`.
-Not checked: Mustang's validator (its Maven path came back empty through the
-build host's proxy), Acrobat, a real receiver. veraPDF came from Maven
+Mustang 2.26.0 (Maven Central, 2026-11-14) passes all of them too, PDF/A-3b
+and XML. It first warned on every file: the writer left the CII delivery
+element empty (PEPPOL-EN16931-R008) and XRechnung files had no date of
+supply (BR-DE-TMP-32). Drafts now take a `delivery_date` (BT-72; the create
+page also gained service-period fields), XRechnung drafts without a date or
+period get a warning, and 9 of 10 test PDFs come back with no failed rule (the
+10th is the no-date control). `eval/facturx-pdf-mustang-2026-11-14.md`,
+`node eval/facturx-pdf-mustang.mjs <jar> <pdfs>`.
+Not checked: Acrobat, a real receiver. veraPDF came from Maven
 Central (`org.verapdf.apps:cli`, main class
 `org.verapdf.apps.GreenfieldCliWrapper`); software.verapdf.org is blocked
 from cloud sessions. Tests: `facturx-pdf.test.mjs` (13).

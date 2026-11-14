@@ -427,6 +427,7 @@ function drawInvoice(doc, regular, bold, level, filename) {
   pg.text(title, MARGIN, pg.y - 18, 20, { bold: true });
   const meta = [["Number", doc.number], ["Issue date", doc.issue_date]];
   if (doc.due_date && doc.kind !== "credit_note") meta.push(["Due date", doc.due_date]);
+  if (doc.delivery_date) meta.push(["Delivery date", doc.delivery_date]);
   if (doc.period && (doc.period.start || doc.period.end)) meta.push(["Period", `${doc.period.start || "?"} to ${doc.period.end || "?"}`]);
   if (doc.buyer_reference) meta.push(["Buyer reference", doc.buyer_reference]);
   if (doc.order_reference) meta.push(["Order", doc.order_reference]);

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycKbxSkpNChNmAb5Zm",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T16:39:18Z",
+  "ended": "2026-11-14T17:07:19Z",
+  "wall_minutes": 28.19,
+  "tokens_in": 6970360,
+  "tokens_out": 34735,
+  "cost_usd": 3.1086,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15911",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook demands every untracked file be committed while a long background flow is still writing results.jsonl; I committed a partial table mid-run to satisfy it, then the full one. A hook exemption for in-progress experiment outputs, or guidance to write them outside the tree until done, would avoid noise commits."
+    },
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "Reproduce section says nix build takes about a minute; this run the nixpkgs tarball unpack plus OpenROAD download took about 10 minutes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/paper/build.sh",
+      "why": "pdflatex is absent and installing texlive takes about 10 min; regenerated main.tex from PAPER.md but did not retypeset main.pdf.",
+      "did": "main.tex regenerated, main.pdf left at the previous milestone",
+      "result": "main.pdf lags PAPER.md by milestone 124's paragraph"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-verified-dse-gate-cut-32.md",
+    "research/verified-dse/LOG.md (milestone 124 entry)"
+  ],
+  "goal": null,
+  "notes": "verified-dse milestone 124: seven blind shifters (sadsh_w, maxsh_w, satsh_w families) at amount gate depth 31-41, 1,680 flow runs (Yosys 0.70, OpenROAD 26Q3, ~45 min on 4 cores; 238 ABC failures, 103 points per cell). Six of seven predictions held; (3) refuted: the ladder wins at 33 gates. Cut placed in (31, 33]. SWG(36) 2.84% vs random 8.11% blind (6 better, 0 worse). Local checks: pytest test_amount_place + test_amount_cut 11 passed; build.py ok; research_live_links, check_md_links, post front matter and links clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c5741786-c259-5906-bcf0-b7e8eba5b651",
+    "transcripts": 1,
+    "first": "2026-11-14T16:39:18Z",
+    "last": "2026-11-14T17:07:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 127,
+        "output": 34735,
+        "thinking": 6039,
+        "cache_read": 6839552,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130681,
+        "api_equivalent_usd": 3.1086,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 127,
+      "output": 34735,
+      "thinking": 6039,
+      "cache_read": 6839552,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130681,
+      "api_equivalent_usd": 3.1086,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 52,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.19,
+      "active_minutes": 8.36,
+      "model_minutes": 5.76,
+      "tool_minutes": 2.61,
+      "waiting_on_human_minutes": 19.83,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "design three verilog families, verify, run and analyse a 1,680-point EDA flow, write up: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 514.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

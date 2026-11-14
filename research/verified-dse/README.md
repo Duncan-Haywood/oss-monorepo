@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 123 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 124 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -118,6 +118,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   0.02% random, while two chained 12-bit multiplies (2 cells, 159 gates) give it 0.00%. All seven registered predictions held.
   Over milestones 121 to 123's 36 blind cells SWG(36) has 2.25% against 3.94% random (better in 17, worse in 1):
   [`experiments/amount_cut/`](experiments/amount_cut/results.txt).
+- **The gate cut sits between 31 and 33, not at 36 (milestone 124, flow run, seven blind 128- and 64-bit shifters from three new
+  families with 31 to 41 gates in front of the amount).** In this test the clipped ladder reaches 0.00 to 1.59% regret on every
+  ladder-branch cell from 33 gates up (against 3.25 to 22.73% for random routing), including two the registered SWG(36) routes randomly; at 31
+  gates (an 8-bit absolute difference) it loses at the tight clock (27.73% against 4.32%). SWG(36) still beats random routing in 6
+  cells and loses in none (2.84% against 8.11%); post hoc SWG(32) has 1.38%. Six of seven predictions held; the refuted one said
+  the ladder would lose at 33 gates. The 64-bit twin falls under the routing-cost threshold, so width scaling stays untested.
+  Over milestones 121 to 124's 50 blind cells SWG(36) has 2.41% against 5.11% random (better in 23, worse in 1):
+  [`experiments/amount_place/`](experiments/amount_place/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

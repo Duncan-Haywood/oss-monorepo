@@ -1035,6 +1035,25 @@ design-bootstrap interval -3.01 to -0.59 points). The threshold is
 placed only within (30, 41{]}, and one cell (the 32-bit sum, tight
 clock) goes against it.
 
+\textbf{Where the gate cut lies (milestone 124; flow run).} We kept
+SWG(36) and ran seven shifters from three more new families whose
+amounts sit 31 to 41 gates deep: a sum of absolute differences (31 and
+40 gates), the largest of three fields (33 and 36, and the 36-gate cone
+again in front of a 64-bit shifter) and chained saturating adds (35 and
+41), 1,680 flow runs. Six of seven predictions held. The refuted one
+placed the 33-gate design on the losing side: the clipped ladder reaches
+0.00\% there at both clocks, and on every ladder-branch cell from 33
+gates up (0.00\% to 1.59\% against 3.25\% to 22.73\% for random
+routing). At 31 gates it loses at the tight clock (27.7\% against
+4.3\%). So the cut lies in (31, 33{]}, and SWG(36) is cautious: 2.84\%
+blind regret against 8.11\% for random routing (better in 6 cells, worse
+in none), where a threshold of 32 would have had 1.38\%. Over the 50
+blind cells of milestones 121 to 124 SWG(36) has 2.41\% against 5.11\%
+for random routing (better in 23, worse in 1; design-bootstrap interval
+-4.88 to -0.98 points). The 64-bit twin has a routed-to-mapped cost
+ratio of 2.6 against 3.8 at 128 bits, under the switch's cost threshold,
+so whether the cut scales with width is still open.
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1134,12 +1153,11 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  Where the gate-depth cut lies. Milestone 123 showed that gates in
-  front of the shift amount, not word-level cells, separate the shifters
-  the ladder ranks from those it does not (all seven predictions held),
-  with a threshold chosen as the midpoint of (30, 41{]} on seen data. A
-  blind test should place it with amounts of about 30 to 45 gates from
-  several families and check whether it scales with shift width.
+  The gate-depth cut and shift width. Milestone 124 placed the cut in
+  (31, 33{]} at 128 bits, blind, below the registered 36. A threshold of
+  32 should be fixed and tested blind on new families at 29 to 35 gates,
+  and the width question needs 64-bit shifters dear enough to reach the
+  ladder branch.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point
