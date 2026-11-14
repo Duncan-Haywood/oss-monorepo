@@ -208,3 +208,34 @@ test("one string is a layout: 10 modules make one string of 10", () => {
   assert.equal(a.layouts[0].strings, 1);
   assert.deepEqual(a.layouts[0].perMppt, [1]);
 });
+
+test("strings per MPPT: an exact division is not rounded down", () => {
+  const a = analyze({ ...sampleInput(), mpptMaxIsc: "25.75" }); // 25.75 / 12.875 = 2
+  assert.equal(a.current.perMpptIsc, 2);
+  assert.equal(a.current.perMppt, 2);
+});
+
+test("no MPPT count means one input", () => {
+  const a = analyze({ ...sampleInput(), mpptCount: "" });
+  assert.equal(a.current.mppts, 1);
+  // 2 strings fit on the one input: 24 modules -> 2 x 12 is over the limit, best is 2 x 10.
+  assert.equal(a.layouts[0].strings, 2);
+  assert.deepEqual(a.layouts[0].perMppt, [2]);
+});
+
+test("the MPPT short-circuit finding appears only when one string is over it", () => {
+  assert.ok(!analyze(sampleInput()).findings.some((f) => /short-circuit limit/.test(f.title)));
+});
+
+test("layouts that tie on unused modules prefer cold MPPT tracking over a longer string", () => {
+  // mpptMax 400 -> lengths 9 and 10 leave the window on cold mornings.
+  const a = analyze({ ...sampleInput(), mpptMax: "400", modules: "20" });
+  assert.equal(a.layouts[0].stringLength, 5); // 5 x 4 tracks; 10 x 2 does not
+  assert.equal(a.layouts[0].coldTracking, true);
+  assert.ok(a.layouts.some((l) => l.stringLength === 10 && l.unused === 0));
+});
+
+test("Fahrenheit temperatures are reported in C to two decimals", () => {
+  const a = analyze({ ...sampleInput(), tempUnit: "F", tMin: "0", tHigh: "95" });
+  assert.equal(a.temps.tMinC, -17.78);
+});
