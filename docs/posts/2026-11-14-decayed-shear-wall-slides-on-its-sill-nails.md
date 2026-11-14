@@ -2,8 +2,8 @@
 title: "Why a shear wall with a rotted bottom foot loses half its strength: it slides on its sill nails"
 date: 2026-11-14
 tags: [buildbot-sheathing, construction-robotics, shear-wall, timber-engineering, real-data]
-seo_title: "Why do shear walls with decayed bottom sheathing lose half their capacity?"
-description: "Weiss's tested 8x8 ft walls, rebuilt in a limit analysis: code-strength framing joints keep 80%, but end nails at half the NDS ratio make the wall slide on its sill and match both tests."
+seo_title: "Why shear walls with rotted bottom sheathing lose half their strength"
+description: "Weiss's tested 8x8 ft walls in a limit analysis: code-strength joints keep 80%, but half-strength end nails let the wall slide on its sill and match both tests."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can nail wall sheathing to code tolerance, and what a missed nail costs. Its shear-wall model had one open problem. With every nail in the bottom foot left out, a sheet lost **20%** of its strength. Weiss (2017, Washington State University) tested walls with their bottom 12 in unnailed, to simulate rot, and they lost **about half**. Two earlier steps today ruled out code-strength framing joints and softening nails as the cause.
