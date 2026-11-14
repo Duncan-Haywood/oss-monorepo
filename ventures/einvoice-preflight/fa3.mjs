@@ -56,16 +56,131 @@ export function nipValid(value) {
   return r !== 10 && r === Number(value[9]);
 }
 
-function checkParty(label, node, path, out) {
+function checkParty(label, node, path, out, ksefOnly = false) {
   const nip = txt(node, "DaneIdentyfikacyjne", "NIP");
+  const prod = ksefOnly ? " KSeF's production environment checks it (the test environment does not)." : "";
   if (nip && !nipValid(nip)) {
-    out.push(finding("PL-002", `The ${label}'s NIP fails its check digit.`,
+    out.push(finding("PL-002", `The ${label}'s NIP fails its check digit.${prod}`,
       `Re-key the ${label}'s NIP from a registration document (10 digits, no PL prefix or dashes).`, `${path}/DaneIdentyfikacyjne/NIP`));
+  }
+  // Podmiot3's internal id (IDWew) is NIP-nnnnn. The verification page checks the NIP part's
+  // check digit; the Ministry's own client (KSeF.Client IdentifierValidators.IsValidInternalId)
+  // checks the id's last digit instead. Both are run, each named.
+  const idw = txt(node, "DaneIdentyfikacyjne", "IDWew");
+  if (ksefOnly && /^\d{10}-\d{5}$/.test(idw)) {
+    if (!nipValid(idw.slice(0, 10))) {
+      out.push(finding("PL-002", `The NIP inside the ${label}'s internal id (IDWew) fails its check digit.${prod}`,
+        "IDWew is the parent taxpayer's NIP, a dash and five digits: re-key the NIP part.", `${path}/DaneIdentyfikacyjne/IDWew`));
+    } else if (!internalIdValid(idw)) {
+      out.push(finding("PL-002", `The ${label}'s internal id (IDWew) fails its own check digit (the last of the five digits).${prod}`,
+        "KSeF issues internal ids with a check digit (weights 1,3,1,3... over the 14 digits before it, sum mod 10); copy the id from KSeF rather than re-keying it.", `${path}/DaneIdentyfikacyjne/IDWew`));
+    }
   }
 }
 
-export function checkFa3(source) {
-  const text = typeof source === "string" ? source : new TextDecoder().decode(source);
+/** KSeF internal id NIP-nnnnn: the last digit is the 1,3,1,3... weighted sum of the 14 before it, mod 10 (as KSeF.Client checks it). */
+export function internalIdValid(value) {
+  if (!/^\d{10}-\d{5}$/.test(value)) return false;
+  const d = value.replace("-", "");
+  let sum = 0;
+  for (let i = 0; i < 14; i++) sum += Number(d[i]) * (i % 2 ? 3 : 1);
+  return sum % 10 === Number(d[14]);
+}
+
+// KSeF's own acceptance checks beyond the XSD, read from the Ministry of Finance's
+// "Weryfikacja faktury" (CIRFMF/ksef-docs, faktury/weryfikacja-faktury.md, dated
+// 09.04.2026, read at commit ce3670e). Rules PL-018..PL-022 are this tool's ids.
+export const KSEF_MAX_BYTES = 1_000_000;
+export const KSEF_MAX_BYTES_WITH_ATTACHMENT = 3_000_000;
+// The "discouraged" code points KSeF refuses (XML 1.0 section 2.2), as the document lists them.
+const DISCOURAGED = [[0x7f, 0x84], [0x86, 0x9f], [0xfdd0, 0xfdef],
+  ...Array.from({ length: 16 }, (_, i) => [(i + 1) * 0x10000 + 0xfffe, (i + 1) * 0x10000 + 0xffff])];
+// XML 1.0's Char production: what may appear in a document at all.
+export const isXmlChar = (cp) => cp === 9 || cp === 10 || cp === 13 || (cp >= 0x20 && cp <= 0xd7ff) || (cp >= 0xe000 && cp <= 0xfffd) || (cp >= 0x10000 && cp <= 0x10ffff);
+export const isKsefDiscouraged = (cp) => DISCOURAGED.some(([a, b]) => cp >= a && cp <= b);
+const hex = (cp) => "U+" + cp.toString(16).toUpperCase().padStart(4, "0");
+
+/** Today's date in Poland (Europe/Warsaw), yyyy-mm-dd: KSeF compares P_1 with the day it receives the file. */
+export function warsawToday(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+  const get = (t) => parts.find((p) => p.type === t).value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+/** The triple KSeF uses to spot a duplicate (error 440): seller NIP, RodzajFaktury, P_2. Null if any is missing. */
+export function fa3DuplicateKey(text) {
+  const nip = /<(?:[A-Za-z0-9_]+:)?Podmiot1[\s>][\s\S]*?<(?:[A-Za-z0-9_]+:)?NIP>\s*([^<]*?)\s*</.exec(text)?.[1];
+  const kind = /<(?:[A-Za-z0-9_]+:)?RodzajFaktury>\s*([^<]*?)\s*</.exec(text)?.[1];
+  const nr = /<(?:[A-Za-z0-9_]+:)?P_2>\s*([^<]*?)\s*</.exec(text)?.[1];
+  return nip && kind && nr ? `${nip}|${kind}|${nr}` : null;
+}
+
+function checkKsefTransport(source, text, root, out) {
+  const bytes = typeof source === "string" ? null : source;
+  const size = bytes ? bytes.length : new TextEncoder().encode(text).length;
+  if (bytes && bytes.length >= 2 && ((bytes[0] === 0xff && bytes[1] === 0xfe) || (bytes[0] === 0xfe && bytes[1] === 0xff))) {
+    out.push(finding("PL-018", "The file is UTF-16 (it starts with a UTF-16 byte-order mark); KSeF takes UTF-8 only.",
+      "Save the XML as UTF-8 without a byte-order mark.", "/"));
+    return;
+  }
+  if ((bytes && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) || text.charCodeAt(0) === 0xfeff) {
+    out.push(finding("PL-018", "The file starts with a UTF-8 byte-order mark (EF BB BF); KSeF rejects a file with one.",
+      "Save the XML as UTF-8 without BOM (in most editors: \"UTF-8\", not \"UTF-8 with BOM\"; in .NET, new UTF8Encoding(false)).", "/"));
+  }
+  if (bytes) {
+    try { new TextDecoder("utf-8", { fatal: true }).decode(bytes); } catch {
+      out.push(finding("PL-018", "The file is not valid UTF-8 (a byte sequence does not decode); KSeF takes UTF-8 only.",
+        "Re-export the XML as UTF-8; a file saved as Windows-1250 or ISO-8859-2 shows this.", "/"));
+    }
+  }
+  const decl = /^\uFEFF?\s*<\?xml\s[^?]*?encoding\s*=\s*["']([^"']*)["']/.exec(text);
+  if (decl && !/^utf-8$/i.test(decl[1])) {
+    out.push(finding("PL-018", `The XML declaration names encoding "${decl[1]}"; KSeF accepts a prolog only if it names UTF-8.`,
+      "Write the file as UTF-8 and set encoding=\"UTF-8\" in the declaration, or drop the declaration.", "/"));
+  }
+  // Processing instructions other than the XML declaration (comments and CDATA removed first).
+  const bare = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+  const realPis = [...bare.matchAll(/<\?([A-Za-z_:][\w.:-]*)/g)].filter((m, i) => !(m[1] === "xml" && i === 0 && /^\uFEFF?\s*$/.test(bare.slice(0, m.index))));
+  if (realPis.length) {
+    const names = [...new Set(realPis.map((m) => m[1]))].join(", ");
+    out.push(finding("PL-018", `The file holds ${realPis.length} processing instruction${realPis.length > 1 ? "s" : ""} (<?${names} ...?>); KSeF rejects any.`,
+      "Remove them (an <?xml-stylesheet?> line is the usual one); only the XML declaration at the very start is allowed.", "/"));
+  }
+  let count = 0, first = 0, line = 1, firstLine = 0;
+  let bad = 0, firstBad = 0, firstBadLine = 0;
+  for (const ch of text) {
+    const cp = ch.codePointAt(0);
+    if (cp === 10) line++;
+    else if (!isXmlChar(cp)) { if (!bad) { firstBad = cp; firstBadLine = line; } bad++; }
+    else if (isKsefDiscouraged(cp)) { if (!count) { first = cp; firstLine = line; } count++; }
+  }
+  if (bad) {
+    out.push(finding("PL-019", `The file holds ${bad} character${bad > 1 ? "s" : ""} that XML 1.0 does not allow at all (first: ${hex(firstBad)} on line ${firstBadLine}); KSeF cannot parse it.`,
+      "Remove them; control characters below U+0020 (other than tab, line feed and carriage return), U+FFFE, U+FFFF and unpaired surrogates usually come from a database field copied raw.", "/"));
+  }
+  if (count) {
+    const mojibake = /[\u00c2\u00c3\u00c4\u00c5\u0139\u0102][\u0080-\u009f]/.test(text);
+    out.push(finding("PL-019", `The file holds ${count} character${count > 1 ? "s" : ""} from the ranges KSeF refuses (first: ${hex(first)} on line ${firstLine}).`,
+      mojibake
+        ? "The text looks double-encoded (UTF-8 read as ISO-8859-2 or Latin-1 and saved again: \"Ĺ\" or \"Ä\" followed by a hidden control character where a Polish letter was). Fix the export's encoding at the source, then re-issue; deleting the hidden characters alone leaves the names garbled."
+        : "Remove them; C1 control characters (U+0080-U+009F) usually come from text pasted out of an older system's code page.", "/"));
+  }
+  const attached = Boolean(child(root, "Zalacznik"));
+  const cap = attached ? KSEF_MAX_BYTES_WITH_ATTACHMENT : KSEF_MAX_BYTES;
+  if (size > cap) {
+    out.push(finding("PL-020", `The file is ${size.toLocaleString("en-US")} bytes; KSeF's cap for an invoice ${attached ? "with" : "without"} an attachment (Zalacznik) is ${cap.toLocaleString("en-US")} bytes.`,
+      attached ? "Shorten the attachment's data, or move it out of the invoice." : "Split the invoice, or shorten the line descriptions; the cap is 3,000,000 bytes only with a Zalacznik block.", "/"));
+  }
+  if (attached) {
+    out.push({ ...finding("PL-020", "The invoice has an attachment (Zalacznik): KSeF takes it in a batch session only, and only once the seller has enabled attachments in e-Urząd Skarbowy.",
+      "Send it in a batch session, after registering for attachments in e-Urząd Skarbowy; an interactive session refuses it.", "/Faktura/Zalacznik"), severity: "note" });
+  }
+}
+
+export function checkFa3(source, { today = warsawToday() } = {}) {
+  // A UTF-16 file (KSeF refuses it, PL-018) is still decoded as UTF-16 so the rest can be read.
+  const utf16 = typeof source !== "string" && source.length >= 2 && ((source[0] === 0xff && source[1] === 0xfe) ? "utf-16le" : (source[0] === 0xfe && source[1] === 0xff) ? "utf-16be" : "");
+  const text = typeof source === "string" ? source : new TextDecoder(utf16 || "utf-8").decode(source);
   const tree = parseXmlTree(text);
   const root = tree.children.find((c) => c.name === "Faktura");
   if (!root) throw new Error("Not a FA(3) Faktura document");
@@ -74,6 +189,7 @@ export function checkFa3(source) {
   const out = checkAgainstFa3Schema(root, text).filter((f) => !(f.rule === "PL-015" && /\/P_12$/.test(f.path)));
   if (out.some((f) => f.rule === "PL-017")) return { findings: out, skipped: ["every other check (the XML is cut off)"] };
   const skipped = [];
+  checkKsefTransport(source, text, root, out);
   const head = child(root, "Naglowek");
   const variant = txt(head, "WariantFormularza");
   if (variant !== "3") {
@@ -82,11 +198,19 @@ export function checkFa3(source) {
   }
   checkParty("seller", child(root, "Podmiot1"), "/Faktura/Podmiot1", out);
   checkParty("buyer", child(root, "Podmiot2"), "/Faktura/Podmiot2", out);
+  kids(root, "Podmiot3").forEach((p, i) => checkParty(`third party ${i + 1} (Podmiot3)`, p, `/Faktura/Podmiot3[${i + 1}]`, out, true));
+  const pu = child(root, "PodmiotUpowazniony");
+  if (pu) checkParty("authorised party (PodmiotUpowazniony)", pu, "/Faktura/PodmiotUpowazniony", out, true);
 
   const fa = child(root, "Fa");
   if (!fa) {
     out.push(finding("PL-001", "The file has no Fa block.", "Add the Fa block with the invoice number, dates, totals and lines.", "/Faktura"));
     return { findings: out, skipped };
+  }
+  const issued = txt(fa, "P_1");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(issued) && today && issued > today) {
+    out.push(finding("PL-021", `The issue date P_1 (${issued}) is after today in Poland (${today}); KSeF refuses an invoice dated later than the day it receives it.`,
+      "Set P_1 to the day the invoice is issued, or send it on or after that date.", "/Faktura/Fa/P_1"));
   }
   const currency = txt(fa, "KodWaluty");
   const kind = txt(fa, "RodzajFaktury");
