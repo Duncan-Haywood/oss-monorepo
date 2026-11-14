@@ -54,3 +54,19 @@ test("links to a neighbour and the hub and the sitemap entry is its own url bloc
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*pakistan-fbr-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("keeps the facts read from the FBR's notifications (2026-11-14)", () => {
+  const hub = fs.readFileSync(new URL("./e-invoicing-mandates-by-country.html", import.meta.url), "utf8");
+  assert.match(html, /S\.R\.O\. 69\(I\)\/2025 of 29 January 2025/);
+  assert.match(html, /S\.R\.O\. 1413\(I\)\/2025 of 1 August 2025, superseding S\.R\.O\. 709\(I\)\/2025/);
+  assert.match(html, /by 1 September 2025/);
+  assert.match(html, /everyone else by 1 December 2025/);
+  assert.match(html, /within 72 hours of generation/);
+  assert.match(html, /section 33 of the Sales Tax Act/);
+  // S.R.O. 1852 was not read: the page must keep it marked as reported.
+  assert.match(html, /Reported, not read: S\.R\.O\. 1852\(I\)\/2025/);
+  // The old Tier-1-retailers-only framing and the vendor "60 percent" claim as fact are gone.
+  assert.doesNotMatch(html, /Tier-1 retailers first/);
+  assert.match(html, /60 percent input tax cut that vendor guides mention is not in the rules read/);
+  assert.doesNotMatch(hub, /FBR notices unread/);
+});

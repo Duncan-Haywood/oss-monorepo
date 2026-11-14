@@ -1834,6 +1834,16 @@ identified, and every pick is the lens metadata-extractor's independent decoder 
 Develop still takes DNG or CR2, so this reaches ORF and JPEG shot facts and a future ORF developer.
 Details: `eval/olympus-equipment-2026-11-14.md`.
 
+### Converted DNGs: the camera's maker note from DNGPrivateData (2026-11-14)
+
+Adobe DNG Converter drops the camera's EXIF maker note and keeps it in the DNG's private data instead, so the
+Canon, Nikon and Olympus lens readers above reached the camera's own raw files but not the DNGs ShootFlow
+develops. ShootFlow now reads Adobe's "MakN" record (layout as ExifTool reads it), puts Canon and old Olympus
+notes back at their original offset so their file-relative pointers work, and uses the note when the DNG's own
+tags give no lens or give the range with no f-numbers (`18-55mm f/?`). On ExifTool's real 350D DNG every value
+read (18-55 mm, f/4 at the shot's 55 mm, lens type n/a) matches ExifTool's own decode; camera-native DNGs
+read exactly as before. Details: `eval/dng-maker-note-2026-11-14.md`.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its

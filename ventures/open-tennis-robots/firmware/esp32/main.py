@@ -16,6 +16,13 @@ import controller
 import protocol
 
 ROLE = getattr(config, "ROLE", controller.ROLE_FEEDER)
+# Lift and agitator MOSFETs (feeder role). Until 2026-11-14 they were on GPIO 16 and 17, which are UART2 to the Pi:
+# run() opens the UART after FeederHw, so it took the pins back and neither motor would ever have turned. 12 and 2 are
+# the free outputs that the ESP32 holds low through reset (so the motors stay off while it boots); the MOSFET module
+# must pull its input down (most do; else add 10k to GND) and nothing may pull GPIO 12 high at reset, or the ESP32
+# selects 1.8 V flash and does not boot. tests/test_pins.py checks the map.
+LIFT_PIN = 12
+AGIT_PIN = 2
 
 
 class Encoder:
@@ -155,12 +162,12 @@ class FeederHw:
         self.gate_open_until = 0      # forward stroke ends (the ball is at the wheels)
         self.gate_ready_at = 0        # back stroke ends and the next ball has dropped into the pocket
         self.gate_out = False
-        # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 16, PWM) runs on after each ball fed.
-        self.lift_pwm = PWM(Pin(16), freq=20000, duty_u16=0)
+        # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 12, PWM) runs on after each ball fed.
+        self.lift_pwm = PWM(Pin(LIFT_PIN), freq=20000, duty_u16=0)
         self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0))
-        # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 17, PWM) stirs the tub's
+        # Hopper agitator (cad/README.md, "Hopper agitator"): a gearmotor on a MOSFET (GPIO 2, PWM) stirs the tub's
         # outlet while balls are being fed, so a bridge of balls over it cannot leave the column empty.
-        self.agit_pwm = PWM(Pin(17), freq=20000, duty_u16=0)
+        self.agit_pwm = PWM(Pin(AGIT_PIN), freq=20000, duty_u16=0)
         self.agit = controller.AgitatorRun(getattr(config, "AGIT_RUN_ON_MS", 3000), getattr(config, "AGIT_DUTY", 1.0))
         self.arm()
 

@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycGWfgzLVyUAicSXQV",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T11:38:01Z",
+  "ended": "2026-11-14T11:48:51Z",
+  "wall_minutes": 11.15,
+  "tokens_in": 7002351,
+  "tokens_out": 32519,
+  "cost_usd": 3.0386,
+  "tool_calls": 68,
+  "task": "photo-editing (flagship 7): read converted DNGs' maker notes from DNGPrivateData MakN",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15835",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git clone --filter=blob:none of Exiv2 then `git ls-tree -l` lazily fetched every blob and hung past 120 s",
+      "fix": "stopped it; `ls-tree --name-only` answers without blobs"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py prints the interpreter path only; ventures/photo-editing tests also need PYTHONPATH=src:tests, which nothing in the cloud-session notes says (run_venture_tests.py handles it, so prefer that for the full run)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-maker-note-a-dng-keeps.md",
+    "ventures/photo-editing/eval/dng-maker-note-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Adobe MakN layout taken from ExifTool DNG.pm (the DNG 1.7.1.0 spec, read this run, only fixes the null-terminated maker string). Real file: ExifTool t/images/DNG.dng (Canon 350D via Adobe DNG Converter): Canon note at original offset 700, 18-55 mm, f/4 at 55 mm, lens type n/a, all as ExifTool's t/DNG_2.out decodes it; lensfun pick unchanged (7-way 18-55 tie, refused before and after). Camera-native DNGs (5 metadata-extractor files, Exiv2 IMG_1361.dng) diffed identical before/after. Verification: tests/test_dng_maker_note.py 12 passed; `python3 platform/ci/run_venture_tests.py photo-editing` -> ok (154.6 s), 1 suites run, 0 failed; venture-preflight run in background (result in PR body). No converted Nikon/Olympus DNG found in public corpora.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "df3c7f30-b50f-51b9-8124-7663bd31fa30",
+    "transcripts": 1,
+    "first": "2026-11-14T11:38:01Z",
+    "last": "2026-11-14T11:49:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 122,
+        "output": 32519,
+        "thinking": 7935,
+        "cache_read": 6875648,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126581,
+        "api_equivalent_usd": 3.0386,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 122,
+      "output": 32519,
+      "thinking": 7935,
+      "cache_read": 6875648,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126581,
+      "api_equivalent_usd": 3.0386,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 2,
+      "TaskStop": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.15,
+      "active_minutes": 11.15,
+      "model_minutes": 5.37,
+      "tool_minutes": 5.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "format research in ExifTool/DNG spec, relocation reader, 12 tests, real-file check and write-up for a raw-format engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 197.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

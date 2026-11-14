@@ -550,7 +550,13 @@ def lens_hint(reader: rd._Reader, ifd0: rd.Ifd) -> rd.LensHint | None:
     aperture is the one at the focal length shot, not the lens's widest at its short end.
     """
 
-    note = _maker_note(reader, ifd0)
+    return hint_from_note(_maker_note(reader, ifd0))
+
+
+def hint_from_note(note: rd.Ifd | None) -> rd.LensHint | None:
+    """``lens_hint`` from a Canon maker note already read (a CR2's, or the one a converted DNG keeps in
+    DNGPrivateData, ``lens_profiles.dng_maker_note``)."""
+
     cs = note.get(CANON_CAMERA_SETTINGS) if note is not None else None
     if not cs or len(cs) <= CS_MAX_APERTURE:
         return None

@@ -40,7 +40,15 @@ button released *and* a `CLEAR_ESTOP` command.
 | 18 / 19 | Base encoder A / B |
 | 4 | E-stop sense (NC switch to GND, pull-up: high = pressed) |
 | 36 | Battery voltage via 100k/10k divider |
+| 12 | Ball lift gearmotor MOSFET (PWM). The module must pull its input down: GPIO 12 high at reset makes the ESP32 pick 1.8 V flash and not boot |
+| 2 | Hopper agitator gearmotor MOSFET (PWM; low through reset, so the motor stays off while the board boots) |
 | 17 / 16 | UART2 TX / RX to the Pi |
+
+Until 2026-11-14 the lift and agitator were on GPIO 16 and 17, the UART's
+own pins: the UART, opened last, took them back, so neither motor would have
+turned. `tests/test_pins.py` now loads `firmware/esp32/main.py` against a fake
+board and fails on any pin claimed twice, a flash or input-only pin driven, a
+strapping pin that floats high at boot, or a feeder pin missing from this table.
 
 ## ESP32 pins, collector role
 
@@ -83,10 +91,20 @@ Measure your build with an inline power meter and update this table.
   keep ties off the run between the axis clamp and the gland
   (`cad/README.md`, "Cables to the head").
 - **Servo supply:** a 6 V 5 A buck on the deck, with 20 AWG supply and
-  return to the servo. A stock 26 AWG servo extension over the 1.7 m run
-  lifts the servo's ground about 0.56 V at stall, which leaves a 3.3 V
+  return to the servo. A stock 26 AWG servo extension over the 1.8 m run
+  lifts the servo's ground about 0.58 V at stall, which leaves a 3.3 V
   signal little margin. Standard-size servos of this class are rated to about
   6.8 V, so do not run them from a 7.4 V BEC.
+
+- **Deck-side run (2026-11-14):** from the electronics along the deck, up
+  the +y rear mast post's inner face, under the crossbar and the clamp arm,
+  and up into the axis clamp (`cad/README.md`, "Deck-side cables"). Cut the
+  head's wires 789 mm from their deck terminals to the clamp. The azimuth
+  stepper's StepStick driver sits on a printed carrier on the deck's M3 grid
+  (STEP/DIR on GPIO 14/21, EN to GND, 100 uF across 24 V); its coils run
+  874 mm of 22 AWG with the home switch's 26 AWG pair. The lift gearmotor's
+  lead is 916 mm of 20 AWG. Twist each tachometer pair: they share the
+  bundle with the launcher phases.
 
 - Fuse the battery positive within 15 cm of the terminal (feeder ~30 A,
   collector ~15 A).

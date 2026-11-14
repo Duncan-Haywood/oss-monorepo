@@ -156,29 +156,29 @@ flagships:
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped
       / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
       (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
-      box and "Wandering level" (drift) shipped; Rounds 10-11, NAB's 47 series
-      hourly (eval/watch-nab*.mjs): every rule failed; period 24 left Quiet near
-      chance (14.9% vs 11.8%, 52 windows), drift 20.5% (48); next a third labelled
-      set (also for `--columns`, README "Several metrics in one watch"); a real
-      deployer's repository on GitHub Actions (the emulated run is in the README);
-      (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a
-      lead), a season and a trend term per column (README "Wide sets in print"); (b)
-      sticky series on a drifting level: four repeat treatments failed the
-      frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34
-      non-sticky), test it on fresh labelled data; update-rate check: date a
-      documented collection change. One-tick stale feeds (README): next its power in
-      n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode;
-      joint drift (measured, not offered) and its 2x penalty on fresh multi-column
-      labelled data; long labelled series from outside TCPD (none over 991 points).
-      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
-      absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks:
-      `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real
-      step inside a cycle, a cycle check not tied to rho, real documented ramps and
-      close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3)
-      `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the
-      GARCH search"): re-test scoring breaks with false alarms, new seeds; (4)
-      driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a
-      yearly term.
+      box and "Wandering level" (drift) shipped; Rounds 10-12 (NAB; SKAB, 33 pump
+      faults, 8 sensors): every rule failed; on SKAB Quiet was most precise (36.8%
+      at a mark, chance 23.1%), drift's NAB lead did not carry, 8 columns sent 8.5
+      false lines per 100 checks on a normal run; next a whole-watch budget or a
+      column screen; a real deployer's repository on GitHub Actions (the emulated
+      run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data
+      (0.564 on TCPD's 3, a lead), a season and a trend term per column (README
+      "Wide sets in print"); (b) sticky series on a drifting level: four repeat
+      treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc
+      (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data;
+      update-rate check: date a documented collection change. One-tick stale feeds
+      (README): next its power in n, or a rounded-walk likelihood. Next: apple's
+      volume in several-columns mode; joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data; long labelled series from outside
+      TCPD (none over 991 points). Open: (0) drift model: t-walk increments,
+      biweight on fresh data, why it absorbs seat belts and quality control 4, its
+      AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual
+      guard, a second hinge; a real step inside a cycle, a cycle check not tied to
+      rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell
+      under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line
+      (README "Heavy tails in the GARCH search"): re-test scoring breaks with false
+      alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a
+      shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -196,21 +196,22 @@ flagships:
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
       Dutch file; India's INV-01 check on a real IRP payload; primary-source mandate
       dates: IL (gov.il 403); LV, DK, CZ done (README); TW, OM read from the law
-      (README); Nigeria, Thailand, Pakistan and Jordan pages (excerpts); Mexico CFDI
-      4.0, complements, Carta Porte 3.1 landed: open: SAT's CP error matrix to map
-      MX-070..080 to CP codes (omawww blocked), a real payroll or export file, a PAC
-      rejection compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
-      PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
-      2026-11-13) landed (README); cCredPres rules and cClassTrib at IT 1.71 landed
-      (README): RTC events (211110, 12 others incl. 112120, 110001) landed, 211120
-      (removed in v1.40) flagged (README): open: a real event; a real reform NF-e
-      from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib;
-      national NFS-e landed: open: a national rejection compared, municipal rates;
-      ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file,
-      city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,
-      ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF
-      reply; refresh the Bulgaria page when its draft passes. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      (README); PK, NG, JO, TH read (README): open: NRS notice (CAPTCHA), SRO 1852,
+      Jordan Reg. 2/2025; Mexico CFDI 4.0, complements, Carta Porte 3.1 landed:
+      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a
+      real payroll or export file, a PAC rejection compared; postal codes (MX-080)
+      landed (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
+      (BR-053..057, NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and
+      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
+      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
+      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
+      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
+      compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS
+      retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file
+      1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a
+      real Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft
+      passes. A run that lands a slice replaces its item here; keep this under 2,000
+      characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -263,9 +264,12 @@ flagships:
       lensfun's ranged lenses alone); Olympus's Equipment IFD (3 layouts, ORF magic,
       its lens name as tie-break) since 2026-11-14
       (eval/olympus-equipment-2026-11-14.md: 8 real frames identified, each as
-      metadata-extractor names it); next: DNGPrivateData MakN for converted DNGs'
-      maker notes, Pentax lens numbers; the whole numpy develop runs in threaded
-      bands and packed raws unpack in numpy since 2026-11-13
+      metadata-extractor names it); converted DNGs' maker notes from DNGPrivateData
+      MakN (Canon, Nikon, Olympus) since 2026-11-14
+      (eval/dng-maker-note-2026-11-14.md: ExifTool's real 350D DNG read as ExifTool
+      decodes it); next: Pentax lens numbers and its 'PENTAX' private data, a real
+      converted Nikon or Olympus DNG; the whole numpy develop runs in threaded bands
+      and packed raws unpack in numpy since 2026-11-13
       (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
       band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
@@ -375,33 +379,44 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the deck-side cable run from the deck's edge to the
-      axis clamp, with the lift motor's lead to the boot and the stepper
-      driver's mount; the lift
-      flight's own CAD (fingers and base plate as a printed part, M3 through
-      the belt between its cords) and the top pulley's belt tensioner.
+      venv, about 2 min): the elevation actuator's short lead from the gland to its
+      motor and pot; a power-distribution model from the routed lead lengths
+      (cad/README.md "Deck-side cables", 2026-11-14): a fuse per branch (ESCs, lift,
+      agitator, stepper driver, bucks), the contactor's rating and each branch's
+      gauge; the lift flight as a printed part and the top pulley's tensioner if PR
+      15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      History and every measurement: cad/README.md (feeder CAD package; azimuth and elevation drives; shuttle
-      drive; home switch; hard stops; cables; catch trough; ball lift; collision sweeps) and the README ("Running
-      a drill on the machine", "Wheel speed loop"). Latest, 2026-11-13: ball lift (cad/README.md "Ball lift"):
-      a cleated AT5 belt with 16 mm printed finger flights in a column between the mast rails at y = 300 carries
-      balls from the sump (moved off centre to y = +193.5, outlet raised to 80 mm, into the boot through a
-      90 deg inlet turn) 2.36 m up and over a hooded top pulley into a chute that ends 34 mm above the tub's
-      rim; about 53 balls a minute, 0.13 N m and 2.8 W on assumed figures; checked clear of the head at every
-      pose; firmware LiftRun runs it 16 s after each ball fed. Hopper agitator, 2026-11-13 (cad/README.md "Hopper agitator"): two printed arms at a ball's centre height over the tub outlet on a 25 mm gearmotor under the shelf, 40 passes a minute, run while balls are fed. Next, needing a person: fill the tub over a bare outlet and count how often balls bridge it, motor off and on; build the boot and one
-      flight and feed it balls from a gutter (a ball half-in when a finger arrives; the inlet turn's friction);
-      tilt a gutter with a ball to measure rolling resistance and count bounce-outs down a net; log a real
-      wheel's tach on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head and measure the
-      hose's torque, the stepper's pull-out, the actuator's real lengths, the column's load on the shuttle and
-      the servo's loaded stroke time and stall current; click the home switch on a printed sector to calibrate
-      AZ_HOME_DEG; push a sector into a stop with a scale; hang a real hose from a tube; bend a built cable loop
-      through the actuator's travel. Buildable: the deck-side cable run (deck edge to the axis clamp, plus the
-      lift motor's lead) and the stepper driver's mount; the flight as a printed part and
-      the top pulley's tensioner.
+      History and every measurement: cad/README.md (feeder CAD package; azimuth and
+      elevation drives; shuttle drive; home switch; hard stops; cables; catch
+      trough; ball lift; deck cables; collision sweeps) and the README ("Running a
+      drill on the machine", "Wheel speed loop"). Latest, 2026-11-13: ball lift
+      (cad/README.md "Ball lift"): a cleated AT5 belt with 16 mm printed finger
+      flights in a column between the mast rails at y = 300 carries balls from the
+      sump (moved off centre to y = +193.5, outlet raised to 80 mm, into the boot
+      through a 90 deg inlet turn) 2.36 m up and over a hooded top pulley into a
+      chute that ends 34 mm above the tub's rim; about 53 balls a minute, 0.13 N m
+      and 2.8 W on assumed figures; checked clear of the head at every pose;
+      firmware LiftRun runs it 16 s after each ball fed. Hopper agitator, 2026-11-13
+      (cad/README.md "Hopper agitator"): two printed arms at a ball's centre height
+      over the tub outlet on a 25 mm gearmotor under the shelf, 40 passes a minute,
+      run while balls are fed. Next, needing a person: fill the tub over a bare
+      outlet and count how often balls bridge it, motor off and on; build the boot
+      and one flight and feed it balls from a gutter (a ball half-in when a finger
+      arrives; the inlet turn's friction); tilt a gutter with a ball to measure
+      rolling resistance and count bounce-outs down a net; log a real wheel's tach
+      on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head
+      and measure the hose's torque, the stepper's pull-out, the actuator's real
+      lengths, the column's load on the shuttle and the servo's loaded stroke time
+      and stall current; click the home switch on a printed sector to calibrate
+      AZ_HOME_DEG; push a sector into a stop with a scale; hang a real hose from a
+      tube; bend a built cable loop through the actuator's travel. Buildable: the
+      flight as a printed part and the tensioner (PR 15456); the actuator's lead
+      from the gland; branch fuses and contactor from the routed leads
+      (cad/README.md "Deck-side cables").
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
