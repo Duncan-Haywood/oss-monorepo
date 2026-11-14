@@ -66,11 +66,12 @@ def table(text, section, xcol, ycols, maxrows=None, sep=None):
     return xs, ys
 
 
-def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=None, vline=None):
+def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=None, vline=None, xticks=None):
     """A line plot as SVG text. `hline` draws a dashed reference line at that y; `vline`
     one at that x (a number, or a list of them), e.g. a break-even or design value
     (friction 2026-11-13: a decision curve could not mark its 1.48 L/h reference).
-    A vline outside the data's x range widens the axis to show it."""
+    A vline outside the data's x range widens the axis to show it. `xticks` overrides the x tick
+    positions (default: the data's x values, thinned to 8), for series on uneven, dense x grids."""
     vlines = [] if vline is None else ([vline] if isinstance(vline, (int, float)) else list(vline))
     W, H, L, R, T, B = 640, 380, 64, 16, 56, 56
     fx = math.log10 if logx else (lambda v: v)
@@ -106,6 +107,8 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
         xt = dec if len(dec) >= 3 else xt
     if len(xt) > 8:
         xt = xt[:: math.ceil(len(xt) / 8)]
+    if xticks is not None:
+        xt = list(xticks)
     for v in xt:
         o.append(f'<text x="{px(v):.1f}" y="{H-B+16}" text-anchor="middle" {f} font-size="11">{v:g}</text>')
     o.append(f'<text x="{(L+W-R)/2}" y="{H-12}" text-anchor="middle" {f} font-size="12">{xlabel}</text>')

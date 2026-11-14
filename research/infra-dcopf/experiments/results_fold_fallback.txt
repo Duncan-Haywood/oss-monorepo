@@ -1,0 +1,37 @@
+Past the loading limit (research/grid-linopf; plan in LOG.md 2026-11-14). F: smallest singular value of
+the Newton Jacobian (per unit) along the DC-angle load continuation of the DC dispatch; fold fit
+sigma^2 = a (mu_f - mu) over the last 0.1 in mu. M: repair at mu*, continue in load, repeat.
+
+case           kind     mu*    sig(0)  sig(mu*)    ratio    mu_f  mu_f-mu*     R2   n  control ratio
+case300_ieee   typ   0.8547 4.353e-02 2.444e-03   0.0561  0.8560    0.0013  1.000   4  0.838 (mu* 1.0000)
+case1888_rte   typ   0.7984 2.213e-03 1.169e-04   0.0528  0.8011    0.0027  0.996   7  -
+case1888_rte   api   0.4750 2.213e-03 1.896e-04   0.0857  0.4784    0.0034  0.996   3  -
+case1888_rte   sad   0.7984 2.213e-03 1.760e-04   0.0795  0.8021    0.0036  0.996   7  -
+case1951_rte   typ   0.5719 2.140e-03 1.416e-04   0.0662  0.5743    0.0024  0.997   5  -
+case1951_rte   sad   0.5719 2.140e-03 1.416e-04   0.0662  0.5743    0.0024  0.997   5  -
+
+M stages (mu at the stage -> mu reached by the continuation after it; clean round or 'no'):
+case300_ieee/typ: 0.8547 -> 0.8953 [no]; 0.8953 -> 0.9391 [no]; 0.9391 -> 0.9859 [no]; 0.9859 -> 1.0000 [no]; 1.0000 [@14]
+case1888_rte/typ: 0.7984 -> 0.9203 [no]; 0.9203 [no] no checked round
+case1888_rte/api: 0.4750 -> 0.5938 [no]; 0.5938 [no] no checked round
+case1888_rte/sad: 0.7984 -> 0.9297 [no]; 0.9297 [no] no checked round
+case1951_rte/typ: 0.5719 -> 0.5719 [no] stall
+case1951_rte/sad: 0.5719 -> 0.5719 [no] stall
+
+case           kind  mu_end    M  M+R  final: nOv maxLd% slkMW nAng V Q       cost  M+R cost     s
+case300_ieee   typ   1.0000  @14    y    0   99.90    0.0    0   0   0     +0.830%         -    27
+case1888_rte   typ   0.9203    -    -  -                                         -         -   189
+case1888_rte   api   0.5938    -    -  -                                         -         -   219
+case1888_rte   sad   0.9297    -    -  -                                         -         -   172
+case1951_rte   typ   0.5719    -    -  -                                         -         -   111
+case1951_rte   sad   0.5719    -    -  -                                         -         -   113
+
+Scored cases: 6 of 6
+F1 sigma(mu*) <= 0.1 sigma(0) on >= 5: 6/6 -> HELD
+F2 fit R2 >= 0.9 and 0 <= mu_f - mu* <= 0.01 on >= 5: 6/6 -> HELD
+F3 control ratio > 0.1: 0.838 -> HELD
+M1 path reaches mu = 1 on >= 3: 1/6 -> REFUTED
+M2 M fully clean on >= 2: 1/6 -> REFUTED
+M3 M or M+R fully clean on >= 3: 1/6 -> REFUTED
+M4 every clean point within +1 %: +0.830% -> HELD
+M5 stages before the last that gain >= 0.005: 7/12 = 0.58 -> REFUTED
