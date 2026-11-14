@@ -285,6 +285,27 @@ CHECKS = [
     ("the share would be 95.6%", "excavator_gear_pump_results.txt", "S = 0.38: central 6.545 L/h at q_p 101.0; median 5.97 (p10 4.45, p90 12.35); beats 3.986: 95.6%"),
     ("28.6% at c = 1.05, 54.9% at 1.10 and 94.8% at 1.15", "excavator_gear_pump_results.txt", "c 1.15: central 6.987 L/h; median 5.79; beats 3.986: 94.8%"),
     ("against the piston fit's 7.86", "excavator_gear_pump_results.txt", "zero-stroke drag k0 7.86 bar"),
+    # milestone 6n: sections 3.7m and 3.7n, abstract
+    ('0.496 to 0.862, median 0.835', 'excavator_gear_pump_danfoss_results.txt', '0.496 to 0.862, median 0.835'),
+    ('a median +0.068 above Casappa at 150 bar (&minus;0.014 to +0.130), a ratio of 1.089', 'excavator_gear_pump_danfoss_results.txt', '150 bar median +0.068 (range -0.014 to +0.130)'),
+    ('a ratio of 1.089', 'excavator_gear_pump_danfoss_results.txt', 'median ratio 1.089'),
+    ('in 70.1% of geometries (Casappa 9.9%, piston 74.0%), median threshold 4.73 L/h and central 5.156 L/h', 'excavator_gear_pump_danfoss_results.txt', 'S = 0.38: central 5.156 L/h at q_p 90.5; median 4.73 (p10 3.37, p90 9.22); beats 3.986: 70.1%'),
+    ('68.8% to 90.4%', 'excavator_gear_pump_danfoss_results.txt', 'share beating 3.986 L/h over the 18 settings: 68.8% to 90.4%'),
+    ("Casappa's idle drag 72.7%", 'excavator_gear_pump_danfoss_results.txt', 'S = 0.38: central 4.628 L/h at q_p 90.5; median 4.74 (p10 3.30, p90 9.14); beats 3.986: 72.7%'),
+    ('29.9% at c = 0.94', 'excavator_gear_pump_danfoss_results.txt', 'c 0.94: central 3.327 L/h; median 2.99; beats 3.986: 29.9%'),
+    ('50.5% at 0.98', 'excavator_gear_pump_danfoss_results.txt', 'c 0.98: central 4.571 L/h; median 4.04; beats 3.986: 50.5%'),
+    ('99.7% at 1.05', 'excavator_gear_pump_danfoss_results.txt', 'c 1.05: central 6.521 L/h; median 6.96; beats 3.986: 99.7%'),
+    ('Casappa 0.7605 over eight sizes, Danfoss 0.8320 over seven', 'gear_pump_crux_results.txt', 'index 1 (median) 0.8320'),
+    ('Casappa 0.7605', 'gear_pump_crux_results.txt', 'index 1 (median) 0.7605'),
+    ('are 0.8295 (Casappa) and 0.8147 (Danfoss), a gap of 0.0147', 'gear_pump_crux_results.txt', 'index 1 crossings: casappa 0.8295, danfoss 0.8147; gap -0.0147'),
+    ('(Casappa 0.7593, Danfoss 0.8485)', 'gear_pump_crux_results.txt', 'index 2 (at Q20 85 L/min) 0.8485'),
+    ('they are 0.8281 and 0.8309, a gap of 0.0028', 'gear_pump_crux_results.txt', 'index 2 crossings: casappa 0.8281, danfoss 0.8309; gap +0.0028'),
+    ('to 0.8066', 'gear_pump_crux_results.txt', 'index 1 crossing 0.8066'),
+    ('the Casappa sweep gives 58.5% and the Danfoss sweep 75.8%', 'gear_pump_crux_results.txt', 'casappa 58.5%, danfoss 75.8%'),
+    ('cross 50% at 0.8281 and 0.8309', 'gear_pump_crux_results.txt', 'casappa 0.8281, danfoss 0.8309'),
+    ('0.815 to 0.831 overall efficiency', 'gear_pump_crux_results.txt', 'danfoss 0.8147'),
+    ('within 0.003 of each other', 'gear_pump_crux_results.txt', 'gap +0.0028'),
+    ('in 70% (69 to 90%)', 'excavator_gear_pump_danfoss_results.txt', '68.8% to 90.4%'),
 ]
 
 
