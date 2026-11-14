@@ -459,6 +459,7 @@ def main(argv: list[str] | None = None) -> int:
     qu.add_argument("--severity", choices=SEVERITIES, default="medium")
     qu.add_argument("--limit", type=int, default=40)
     qu.add_argument("--no-git", action="store_true", help="skip the per-subject 'changed since audit' git check")
+    qu.add_argument("--no-prs", action="store_true", help="skip the open-PR search that marks rows another PR already names")
     qu.add_argument("--no-fetch", action="store_true",
                     help="in a shallow clone, do not fetch main back to the oldest shown audit (the check may say unknown)")
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
