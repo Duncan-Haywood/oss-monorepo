@@ -4198,3 +4198,63 @@ these same 47 series, which are now seen. Another option is a third labelled set
 
 Tests: `watch-nab.test.mjs` (6: hourly buckets, step 1, the two hint rules on made-up rates, the committed output's
 three verdicts, and the hint text's NAB line).
+
+## Round 11: the daily cycle removed, on the same 47 NAB series (2026-11-14, pre-registered; both rules fail)
+
+Round 10 ended on a caveat: no setting removed the daily cycle, although NAB's server, traffic, taxi and Twitter series
+cycle daily and the level settings take `--period`. So perhaps Quiet's alerts sat near chance because they were alerting
+on the cycle itself. This round tests that. `sh eval/nab-fetch.sh nab-data && node eval/watch-nab-season.mjs nab-data`
+(output `eval/watch-nab-season.out.txt`, 1,767 s on 4 cores). The rules, predictions and code were committed in PR #15440
+on 2026-11-13, before any run that printed a score. This PR adopted that PR's branch after its session stopped, and ran it.
+
+**Design.** Round 10's, with five settings: Quiet and drift with no period, and Quiet, Middle and Eager with period 24
+(`quiet24`, `middle24`, `eager24`). Every setting starts after two full days (`max(48, 0.2 h)`). The 47 series have now
+been seen once, so this is a second look at a seen set.
+
+**One fix before the scored run.** The first run crashed after about an hour, before it printed anything.
+`watch-nab-season.mjs` imports `watch-nab.mjs`, and that file's worker listener also answered every job, with no
+period. So each job got two replies, and the job count reached its total at about half the work. If the timing had gone the other
+way, the period-24 rows could have been silently scored with no period. Each script's listener now answers only workers
+it started, and a second reply for the same job is an error. A test runs two real worker jobs and checks that each gets
+the same alerts as a direct call with its own period. The rules, settings and data are unchanged. As a consistency
+check, Quiet and drift came out within one alert of round 10 (797 against 798, 404 against 405) despite the later start.
+
+| setting (future halves, 47 series, 61 windows) | alerts | at a window | per 1,000 hourly checks | windows reached |
+|---|---|---|---|---|
+| Quiet, no period (default) | 797 | 108 (13.6%) | 33.1 | 50 |
+| drift ("Wandering level") | 404 | 83 (**20.5%**) | **16.8** | 48 |
+| Quiet, period 24 | 833 | 124 (14.9%) | 34.6 | 52 |
+| Middle, period 24 | 1,297 | 187 (14.4%) | 53.8 | 52 |
+| Eager, period 24 | 2,096 | 294 (14.0%) | 87.0 | **57** |
+
+Chance is 11.8% (the share of future points inside a labelled window).
+
+- **T4, the season helps the default: fails.** Quiet with period 24 reached two more windows (52 against 50), but it sent
+  slightly *more* alerts (34.6 against 33.1 per 1,000), and its share at a window rose 1.3 points, short of the 2 the
+  rule asked. As pre-registered, the page, `watch.mjs --help`, the standalone repository's README and the agent tool say
+  nothing new about period 24 for hourly metrics.
+- **T5, the level watch with the season against drift: fails** on share (14.9% against 20.5%) and on alert rate. It
+  does reach four more windows than drift (52 against 48). With T4 failed, there is no new advice for this to rank.
+- Nothing in the default or the hint changes.
+
+**Predictions, scored.** T4: I predicted about two thirds of Quiet's alerts, 16-18% at a window, and a window or two
+fewer. All three were wrong in direction: alerts went up, the share rose only to 14.9%, and two more windows were reached.
+T5: predicted to fail on (b) because drift's share is out of the season's reach; it did. But I predicted it would reach
+about as many windows as drift, and it reached four more.
+
+**What the round says (deciding nothing).** The daily cycle was not what kept Quiet's alerts near chance. Taking it out
+moved the share from 13.6% to 14.9%, still close to 11.8%, and the alert count barely changed. On these hourly server
+and traffic metrics, the level watch alerts at about the same rate with or without the cycle. Its alerts mostly mark
+level moves that NAB does not label as anomalies. Where the season did help, it helped on reach. `nyc_taxi`, which decided round 10 against drift
+(holiday dips a day or two long), went from 4 of 5 windows to 5 of 5 with period 24, and the known-cause folder's share
+went from 10.3% to 15.7%. Drift stays the setting whose alerts point at anomalies (20.5%, 1.7 times chance, at half the
+alerts), and the level settings, with or without the season, are the ones that reach more windows. On the 29 series with no missing hour,
+the picture is the same (Quiet 12.6%, Quiet period 24 14.3%, drift 19.2%).
+
+So neither the season nor the eagerness ladder makes the level watch a good anomaly pointer on NAB, and the trade
+between drift's precision and the level settings' reach is real, not an artefact of the cycle. The next useful round is
+a third labelled set, not a third look at NAB.
+
+Tests: `watch-nab-season.test.mjs` (8: the settings, the start, gap-free marking, the period-ladder hint, the rules on
+made-up totals, a period-24 replay on a daily cycle, one reply per worker job with its period applied, and the
+committed output's verdicts with Quiet and drift checked against round 10's).

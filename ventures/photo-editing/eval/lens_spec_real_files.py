@@ -1,12 +1,12 @@
 """Which real raw files name no lens but carry LensSpecification or DNG LensInfo, and what ShootFlow picks.
 
 Reads IFD0 and the EXIF IFD of each file given (DNG, NEF, ARW, PEF, ORF, RW2, SRW: all TIFF-shaped; only the
-first few MB are needed), prints make, model, LensModel, the four LensSpecification / LensInfo values and,
+first few MB are needed; a camera JPEG's EXIF segment is read the same way), prints make, model, LensModel, the four LensSpecification / LensInfo values and,
 with a lensfun database, what ``lens_profiles.correction_for`` would do with the tags alone (lens name
 dropped), next to what it does with the file's own name.
 
 Usage: PYTHONPATH=src python3 eval/lens_spec_real_files.py LENSFUN_DB_DIR FILE...
-Results: eval/lens-specification-2026-11-14.md
+Results: eval/lens-specification-2026-11-14.md, eval/olympus-equipment-2026-11-14.md (ORFs and Olympus JPEGs)
 """
 
 from __future__ import annotations
@@ -20,6 +20,8 @@ from shootflow import raw_develop as rd
 
 def tags(path: str):
     data = open(path, "rb").read()
+    if data[:2] == b"\xff\xd8":  # a JPEG: its APP1 "Exif\0\0" segment holds the same TIFF structure
+        data = data[data.index(b"Exif\0\0") + 6:]
     reader = rd._Reader(data)
     ifd0, _ = reader.read_ifd(reader.first_ifd_offset())
     exif = None

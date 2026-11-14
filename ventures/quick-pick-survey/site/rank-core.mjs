@@ -1,7 +1,7 @@
 // The rank page's logic, pure and DOM-free so node --test can run it
 // (rank-core.test.mjs). The model is the app's own: site/engine/ is generated
 // from src/lib/btRefit.ts and favouriteSet.ts by scripts/build-rank-engine.mjs.
-import { refitRatings, cholesky, empiricalPriorPhi, REFIT_PRIOR_PHI } from "./engine/btRefit.mjs";
+import { refitRatings, cholesky, cholSolve, cholInverse, empiricalPriorPhi, REFIT_PRIOR_PHI } from "./engine/btRefit.mjs";
 import { favouriteSet } from "./engine/favouriteSet.mjs";
 
 export const MAX_ITEMS = 60;
@@ -359,5 +359,193 @@ export function combine(items, people) {
     order: teamOrder.map((i, k) => ({ item: i, rank: k + 1, score: team[i], best: spread[i].best, worst: spread[i].worst, firsts: ranks.filter((r) => r[i] === 0).length })),
     agreement: pairs ? sum / pairs : null,
     people: people.length,
+  };
+}
+
+/*
+ * Team rank ranges (2026-11-14, docs/RANK-PAGE.md "Team ranges").
+ *
+ * `combine` gives a team order but no uncertainty. Two different questions
+ * have different answers here:
+ *
+ * - "this group": the order of the members' own average likes. People's
+ *   differences are part of the answer, not noise, so the only uncertainty is
+ *   each person's own (few picks). Under the refit's independent priors the
+ *   mean of the members' scores has posterior mean = mean of their refits and
+ *   covariance = sum of their covariances / m^2. `groupFit`.
+ * - "people like these": the order for the wider group they were drawn from
+ *   (the customers five interviews stand for). Then disagreement is sampling
+ *   noise and must widen the ranges. Each person's scores are the group's
+ *   plus their own N(0, tau^2) deviation per option; tau is fitted to the
+ *   codes by marginal likelihood (`populationFit`). This is the pooled model
+ *   the app's survey ranking uses (random effects, groupRanking.ts pool), done
+ *   jointly over the options on the refit's Gaussian approximation.
+ */
+
+const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+
+/**
+ * One person's Bradley-Terry log likelihood as a quadratic around a point c:
+ * curvature J (p(1 - p) per answer, at c) and linear term h = grad + J c, so
+ * the likelihood is about exp(-b'Jb/2 + h'b). J is singular for options they
+ * never saw, which the Woodbury form below handles without inverting it.
+ */
+export function linearize(n, answers, c) {
+  const J = new Float64Array(n * n);
+  const grad = new Array(n).fill(0);
+  for (const [w, l, t] of answers) {
+    const p = sigmoid(c[w] - c[l]);
+    const v = p * (1 - p), score = t ? 0.5 : 1;
+    grad[w] += score - p; grad[l] -= score - p;
+    J[w * n + w] += v; J[l * n + l] += v; J[w * n + l] -= v; J[l * n + w] -= v;
+  }
+  const h = grad.map((g, i) => {
+    let s = g;
+    for (let j = 0; j < n; j++) s += J[i * n + j] * c[j];
+    return s;
+  });
+  return { J, h };
+}
+
+/** One person's refit and their likelihood linearised at it (the starting point of populationAt). */
+export function personInfo(n, answers) {
+  const f = fit(n, answers);
+  return { f, answers, ...linearize(n, answers, f.mu) };
+}
+
+/** A person's posterior mode under the prior N(m0, s2 I): Newton, which the Gaussian prior keeps concave. */
+export function modeAround(n, answers, m0, s2, start = m0) {
+  let b = start.slice();
+  for (let it = 0; it < 50; it++) {
+    const { J, h } = linearize(n, answers, b);
+    // Newton: (J + I/s2) b_new = h + m0/s2 (h already holds grad + J b).
+    const H = Float64Array.from(J, (x, k) => x + (k % (n + 1) === 0 ? 1 / s2 : 0));
+    const next = cholSolve(cholesky(H, n), n, h.map((x, i) => x + m0[i] / s2));
+    const moved = Math.max(...next.map((x, i) => Math.abs(x - b[i])));
+    b = next;
+    if (moved < 1e-8) break;
+  }
+  return b;
+}
+
+/** "This group": the posterior of the members' mean scores. */
+export function groupFit(n, people) {
+  const fits = people.map((p) => (p.f ? p.f : fit(n, p.answers)));
+  const m = Math.max(1, fits.length);
+  const mu = Array.from({ length: n }, (_, i) => fits.reduce((a, f) => a + f.mu[i], 0) / m);
+  const cov = new Float64Array(n * n);
+  for (const f of fits) for (let k = 0; k < n * n; k++) cov[k] += f.cov[k] / (m * m);
+  return { mu, cov, n };
+}
+
+function solveColumns(l, n, M) {
+  const out = new Float64Array(n * n);
+  for (let c = 0; c < n; c++) {
+    const col = cholSolve(l, n, Array.from({ length: n }, (_, r) => M[r * n + c]));
+    for (let r = 0; r < n; r++) out[r * n + c] = col[r];
+  }
+  return out;
+}
+
+/**
+ * The population posterior at a given tau (logits) and its log marginal
+ * likelihood (up to a constant that does not depend on tau). With
+ * B_p = I + tau^2 J_p: precision P = sum B_p^-1 J_p + I / phi^2, mean
+ * P^-1 sum B_p^-1 h_p, and
+ * log L = sum_p (-log|B_p| / 2 + tau^2 h_p' B_p^-1 h_p / 2) - log|P| / 2 + g' P^-1 g / 2.
+ * tau = 0 is every answer in one fit (no disagreement allowed).
+ */
+function populationFromInfos(n, infos, tau, phi) {
+  const t2 = tau * tau;
+  const P = new Float64Array(n * n);
+  const g = new Array(n).fill(0);
+  let ll = 0;
+  for (const { J, h } of infos) {
+    const B = Float64Array.from(J, (x, k) => t2 * x + (k % (n + 1) === 0 ? 1 : 0));
+    const L = cholesky(B, n);
+    for (let i = 0; i < n; i++) ll -= Math.log(L[i * n + i]);
+    const Ah = cholSolve(L, n, h);
+    for (let i = 0; i < n; i++) { g[i] += Ah[i]; ll += 0.5 * t2 * h[i] * Ah[i]; }
+    const M = t2 === 0 ? J : solveColumns(L, n, J);
+    for (let k = 0; k < n * n; k++) P[k] += M[k];
+  }
+  for (let i = 0; i < n; i++) for (let j = 0; j < i; j++) { const s = (P[i * n + j] + P[j * n + i]) / 2; P[i * n + j] = s; P[j * n + i] = s; }
+  for (let i = 0; i < n; i++) P[i * n + i] += 1 / (phi * phi);
+  const LP = cholesky(P, n);
+  for (let i = 0; i < n; i++) ll -= Math.log(LP[i * n + i]);
+  const mu = cholSolve(LP, n, g);
+  for (let i = 0; i < n; i++) ll += 0.5 * g[i] * mu[i];
+  return { mu, cov: cholInverse(LP, n), n, tau, logLik: ll };
+}
+
+/**
+ * The Laplace read: each person's likelihood is linearised at their mode
+ * given the current group estimate and tau (modeAround), not at their own
+ * refit. Linearised at the refit alone (its prior pulls every score toward 0,
+ * so p(1 - p) and the curvature come out too high), the marginal likelihood
+ * put tau near 0 for 10 people who truly differed by 2 logits; the same
+ * formula on Gaussian data with the same J recovered it (docs/RANK-PAGE.md,
+ * "Team ranges"). tau = 0 is every answer read as one person's.
+ */
+export function populationAt(n, people, tau, { phi = REFIT_PRIOR_PHI, passes = TEAM_PASSES } = {}) {
+  let infos = people.map((p) => (p.J ? p : personInfo(n, p.answers)));
+  if (tau === 0) {
+    const all = infos.flatMap((p) => p.answers);
+    const m = modeAround(n, all, new Array(n).fill(0), phi * phi);
+    return populationFromInfos(n, [linearize(n, all, m)], 0, phi);
+  }
+  let r = populationFromInfos(n, infos, tau, phi);
+  let modes = infos.map((p) => (p.f ? p.f.mu : r.mu));
+  for (let k = 0; k < passes; k++) {
+    modes = infos.map((p, i) => modeAround(n, p.answers, r.mu, tau * tau, modes[i]));
+    infos = infos.map((p, i) => ({ answers: p.answers, ...linearize(n, p.answers, modes[i]) }));
+    r = populationFromInfos(n, infos, tau, phi);
+  }
+  return r;
+}
+
+/** Relinearisation passes in populationAt. */
+export const TEAM_PASSES = 4;
+
+/** tau = 0 is tried, then golden-section steps on log tau over [TEAM_TAU_MIN, TEAM_TAU_MAX] logits. */
+export const TEAM_TAU_MIN = 0.05;
+export const TEAM_TAU_MAX = 5;
+export const TEAM_TAU_STEPS = 10;
+
+/** "People like these": the population posterior at the tau that best explains the codes. */
+export function populationFit(n, people, { steps = TEAM_TAU_STEPS } = {}) {
+  const infos = people.map((p) => (p.J ? p : personInfo(n, p.answers)));
+  const memo = new Map();
+  const at = (tau) => {
+    if (!memo.has(tau)) memo.set(tau, populationAt(n, infos, tau));
+    return memo.get(tau);
+  };
+  const gr = (Math.sqrt(5) - 1) / 2;
+  let a = Math.log(TEAM_TAU_MIN), b = Math.log(TEAM_TAU_MAX);
+  let c = b - gr * (b - a), d = a + gr * (b - a);
+  for (let k = 0; k < steps; k++) {
+    if (at(Math.exp(c)).logLik >= at(Math.exp(d)).logLik) { b = d; d = c; c = b - gr * (b - a); }
+    else { a = c; c = d; d = a + gr * (b - a); }
+  }
+  let best = at(0);
+  for (const r of memo.values()) if (r.logLik > best.logLik) best = r;
+  return best;
+}
+
+/**
+ * Both team reads with 90% rank ranges, in the group's order. `tau` is the
+ * fitted spread of people's likes around the group's (logits; 0 = the codes
+ * are consistent with everyone wanting the same).
+ */
+export function teamRanges(items, people, options = {}) {
+  const n = items.length;
+  const infos = people.map((p) => personInfo(n, p.answers));
+  const g = groupFit(n, infos);
+  const pop = populationFit(n, infos);
+  const gt = rankTable(g, options), pt = rankTable(pop, options);
+  const popBy = new Map(pt.map((r) => [r.item, r]));
+  return {
+    tau: pop.tau,
+    rows: gt.map((r) => ({ item: r.item, rank: r.rank, low: r.low, high: r.high, favourite: r.favourite, popLow: popBy.get(r.item).low, popHigh: popBy.get(r.item).high, popFavourite: popBy.get(r.item).favourite })),
   };
 }

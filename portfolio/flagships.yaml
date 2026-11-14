@@ -105,13 +105,13 @@ flagships:
       slips, full-size photos); (6) payroll (README; journal layout 11-14): a real
       Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return` (page card; no-sales-tax states warn): 34 states read on their own
-      pages (README; HI, IA fixed); open: IN's day, MD, NJ, NY, TN, OH, MO + 6
-      refused; a real return layout; (8b) `annualized` (Schedule AI): penalty both
-      ways, box D, 2026 draft read (README); open: line 9b once the 2026
-      instructions print; (9) EITC: 2025 EIC Table matched on all 10,992 cells
-      (HISTORY); open: the 2026 table once printed. A run that lands a slice
-      replaces its item here; keep this under 2,000 characters.
+      return`: 38 states read on their own pages, MO 2% and NY 5%/$200 discounts
+      (README); open: IN's day, MD, NJ + 6 refused; a real return layout; (8b)
+      `annualized` (Schedule AI): penalty both ways, box D, 2026 draft read
+      (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025 EIC
+      Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
+      printed. A run that lands a slice replaces its item here; keep this under
+      2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -153,9 +153,32 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and every measurement: README and git (TCPD consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727).
-      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget box and "Wandering level" (drift) shipped; Round 10, NAB's 47 series hourly (eval/watch-nab.mjs): hint unconfirmed (49 vs 50 windows), drift>middle dropped (48 vs 52), non-nested hint 48 vs 49; level settings near chance (13.7% vs 11.8%), drift 20.5%; next --period 24 against drift on NAB, or a third labelled set (also for `--columns`, README "Several metrics in one watch"); a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
-      Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the GARCH search"): re-test scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
+      History and every measurement: README and git (TCPD consensus F1 0.702 shipped
+      / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
+      (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
+      box and "Wandering level" (drift) shipped; Rounds 10-11, NAB's 47 series
+      hourly (eval/watch-nab*.mjs): every rule failed; period 24 left Quiet near
+      chance (14.9% vs 11.8%, 52 windows), drift 20.5% (48); next a third labelled
+      set (also for `--columns`, README "Several metrics in one watch"); a real
+      deployer's repository on GitHub Actions (the emulated run is in the README);
+      (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a
+      lead), a season and a trend term per column (README "Wide sets in print"); (b)
+      sticky series on a drifting level: four repeat treatments failed the
+      frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34
+      non-sticky), test it on fresh labelled data; update-rate check: date a
+      documented collection change. One-tick stale feeds (README): next its power in
+      n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode;
+      joint drift (measured, not offered) and its 2x penalty on fresh multi-column
+      labelled data; long labelled series from outside TCPD (none over 991 points).
+      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
+      absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks:
+      `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real
+      step inside a cycle, a cycle check not tied to rho, real documented ramps and
+      close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3)
+      `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the
+      GARCH search"): re-test scoring breaks with false alarms, new seeds; (4)
+      driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a
+      yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -206,21 +229,20 @@ flagships:
       kept reissues cut changes 56-66%, open hours path-dependent both ways. Next:
       whether a real manager would set keepShift above 1; close the 100-person gaps
       (tree, not bound: README same section); cuts or branching that move the score
-      LP on the 60-person pay week ($1.22 open); the 60x168 week 0's pay half (open
-      hours proven 2026-11-13); re-run the keep-usual-shifts sweep on real dated
-      leave records; a manager's read on whether the steadier plan is the one they
-      would post; a real 7shifts account through --import-7shifts (README "Reading
-      7shifts directly"); a real When I Work account or response through
-      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
-      need an account); --cover-price moves two shifts together (README "Moving two
-      shifts together": 20-person week exposure 113 to 68 h for $35.27); second
-      call-outs priced (README "A second call-out in the same week", off by
-      default); next: fewer capped pairs, pair price past 120 copies; a real
-      two-site export and staff list (README "Staff shared between sites"); own and
-      site rates read from staff CSVs and 7shifts (README "Per-location pay from an
-      export"); next a real wages export, real trip times; whether the priced cut's
-      r = 1 default suits a real manager; a manager's real task list for the fixed
-      minutes.
+      LP on the 60-person pay week ($1.22 open); week 0 pay $30 open (README "A pay
+      floor for big weeks"); re-run the keep-usual-shifts sweep on real dated leave
+      records; a manager's read on whether the steadier plan is the one they would
+      post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
+      directly"); a real When I Work account or response through --import-wheniwork
+      (README "Reading When I Work directly"); Homebase (docs need an account);
+      --cover-price moves two shifts together (README "Moving two shifts together":
+      20-person week exposure 113 to 68 h for $35.27); second call-outs priced
+      (README "A second call-out in the same week", off by default); next: fewer
+      capped pairs, pair price past 120 copies; a real two-site export and staff
+      list (README "Staff shared between sites"); own and site rates read from staff
+      CSVs and 7shifts (README "Per-location pay from an export"); next a real wages
+      export, real trip times; whether the priced cut's r = 1 default suits a real
+      manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -237,11 +259,14 @@ flagships:
       Canon-mount cases, the rest refused as ties); any maker's LensSpecification,
       DNG LensInfo and Nikon's maker-note lens tag are matched the same way, both
       f-numbers, since 2026-11-14 (eval/lens-specification-2026-11-14.md: 50% of
-      lensfun's ranged lenses alone); next: Olympus's Equipment IFD (ORF magic) and
-      Pentax lens numbers; the whole numpy develop runs in threaded bands and packed
-      raws unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md:
-      same bytes at every thread count and band height); lossless-JPEG DNG tiles
-      decode on a thread pool since 2026-11-13
+      lensfun's ranged lenses alone); Olympus's Equipment IFD (3 layouts, ORF magic,
+      its lens name as tie-break) since 2026-11-14
+      (eval/olympus-equipment-2026-11-14.md: 8 real frames identified, each as
+      metadata-extractor names it); next: DNGPrivateData MakN for converted DNGs'
+      maker notes, Pentax lens numbers; the whole numpy develop runs in threaded
+      bands and packed raws unpack in numpy since 2026-11-13
+      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
+      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
       of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
       2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
@@ -292,31 +317,29 @@ flagships:
       deploy-to-your-own-Vercel button.
     next: >-
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
-      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
-      staged-by-default at every list length, the closed pooled-prior work, the
-      sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time
-      salience (b), mid-session blocks (d), the panel curve, per-survey threshold
-      and step test, the later-pass curve (d4), the net-step test (d5), the wander
-      bar (d6), the picks test (d7), partway slot runs (d3) and the slot-at-turn
-      test (d9) are written up there. Latest (2026-11-14, "A slot run's cut moved
-      back to an earlier fast turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a
-      slot run that starts after a fast turn (read without the wander bar) is cut
-      from the turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up
-      to +0.0045, over d9 where the run follows the speed-up; flags nobody new.
-      Since 2026-11-14 site/rank.html ranks a list in the browser on the same refit,
-      with team codes (docs/RANK-PAGE.md); its stop rule rechecks at the person's
-      own EB prior (docs/RANK-PAGE.md "Noisy answerers"); some coin-flippers still
-      stop early. Next, most valuable first: (r) get the rank page in front of
-      people, then (c) the first real survey's answers: msToAnswer against the
-      answer-time model, panelWalkRatio on real times, whether times depend on which
-      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
-      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
-      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) the d10
-      turn is still a split search: score one candidate from the run's start
-      backwards so a wander step's chance of moving a cut is bounded; (d8) a
-      stronger pick signal under wander (staged pairs are near 50/50 late in a
-      session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes
-      a camp by up to 0.030: decide on a real panel's times.
+      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Closed items (insights, staged
+      default, pooled prior, f, g, b, d, d3-d7, d9, panel and later-pass curves) are
+      written up there. Latest (2026-11-14, "A slot run's cut moved back to an
+      earlier fast turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run
+      that starts after a fast turn (read without the wander bar) is cut from the
+      turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to
+      +0.0045, over d9 where the run follows the speed-up; flags nobody new. Since
+      2026-11-14 site/rank.html ranks a list in the browser on the same refit, with
+      team codes (docs/RANK-PAGE.md); its stop rule rechecks at the person's own EB
+      prior (docs/RANK-PAGE.md "Noisy answerers"); some coin-flippers still stop
+      early. Since 2026-11-14 team combine shows two 90% rank ranges, this group and
+      the wider group (random effects, iterated Laplace; simulated cover 0.90-1.00,
+      docs/RANK-PAGE.md "Team ranges"); tau reads low (2 as 0.6-0.9). Next, most
+      valuable first: (r) get the rank page in front of people, then (c) the first
+      real survey's answers: msToAnswer against the answer-time model,
+      panelWalkRatio on real times, whether times depend on which slot is clicked
+      (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
+      runs or spread-out carelessness, and how noisy real pairwise answers are
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (t) correct the team tau's
+      low bias; (d11) bound the d10 turn's split search; (d8) a stronger pick signal
+      under wander (staged pairs are near 50/50 late in a session; anchor pairs?);
+      (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to 0.030:
+      decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-

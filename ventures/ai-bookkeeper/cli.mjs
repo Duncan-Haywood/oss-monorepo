@@ -1000,7 +1000,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const rates = parseRateSpecs(specs("--rate"));
   let t;
   const discounts = parseDiscountSpecs(specs("--discount"));
-  for (const [k, d] of Object.entries(stateDiscounts(flag("--state")))) if (!(k in discounts)) discounts[k] = d;
+  for (const [k, d] of Object.entries(stateDiscounts(flag("--state"), flag("--freq") ?? "quarterly"))) if (!(k in discounts)) discounts[k] = d;
   try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   const stateNote = stateFilingNote(flag("--state"), t.frequency);
   if (stateNote) t.warnings.push(stateNote);

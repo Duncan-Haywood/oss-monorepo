@@ -194,3 +194,17 @@ def test_milestone_7g_probes_leave_the_default_rollout_unchanged_and_label_each_
     c = poshold.rollout(sz, g, kap, 8, 5, torque_room=2.0, **kw)
     d = poshold.rollout(sz, g, kap, 8, 5, pos_scale=0.5, **kw)
     assert not np.array_equal(a["pos_ep"], c["pos_ep"]) and not np.array_equal(a["pos_ep"], d["pos_ep"])
+
+
+def test_milestone_7h_twr_default_is_bit_for_bit_and_headroom_adds_torque():
+    """twr=None and twr=2.0 reproduce the default score and linear test exactly; more headroom gives a larger torque limit and a
+    heavier vehicle (motor mass), and the sizing closure runs away (20 kg clamp) well before thrust-to-weight 4 on this airframe."""
+    from codesign_cant import linstab
+    x = np.atleast_2d(_m7b_above_design()["x"][:12])
+    kw = dict(dist_sign=poshold.cop_signs(1.0), ff=1.0, ff_mode="integ", parts=True)
+    a = poshold.score(x, 4, 5, **kw); b = poshold.score(x, 4, 5, twr=2.0, **kw)
+    assert np.array_equal(a[0], b[0]) and np.array_equal(a[2]["pos"], b[2]["pos"])
+    assert np.array_equal(linstab.design_params(x)["tmax"], linstab.design_params(x, twr=2.0)["tmax"])
+    c = poshold.score(x, 4, 5, twr=2.05, **kw)
+    assert c[1]["tau_max"][0] > a[1]["tau_max"][0] and c[1]["mass"][0] > a[1]["mass"][0]
+    assert poshold.score(x, 4, 5, twr=4.0, **kw)[1]["mass"][0] >= 19.0

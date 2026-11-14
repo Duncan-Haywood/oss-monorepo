@@ -162,11 +162,96 @@ top pick's chance.
 
 - A real person's answers: none yet. The page counts anonymous local events
   only (`site/usage.mjs`); site page views come from the shared beacon.
-- Team combine averages refits; it does not use the app's random-effects pool
-  (`pooling.ts`), which would widen intervals where people disagree.
+- Team combine's ranges (below) read tau low; see "Team ranges".
 - `orderConfidence` overstates certainty for very noisy respondents on short
   lists (table above); a lapse-aware prior or the app's `lapseEstimate` could
   correct it.
+
+## Team ranges (2026-11-14)
+
+`combine` gave a team order with no uncertainty. The team table now has two
+90% rank ranges per option, because "where does it sit?" has two answers:
+
+- **Group** (`groupFit`): the order of *these* people's average likes. Their
+  differences are the answer, not noise, so only each person's own
+  uncertainty (a limited number of picks) counts. Under the refit's
+  independent priors the members' mean score has posterior mean = the mean of
+  their refits and covariance = the sum of their covariances / m^2.
+- **Wider** (`populationFit`): the order for the group they stand for
+  (customers, a department). Each person's scores are the group's plus their
+  own N(0, tau^2) deviation per option, the random-effects model the app's
+  survey ranking uses (`groupRanking.ts` `pool`), done jointly over options.
+  tau is fitted by marginal likelihood (golden section on log tau over
+  0.05-5 logits, and tau = 0), with each person's Bradley-Terry likelihood
+  linearised at their mode under the current group estimate
+  (`modeAround`, 4 passes): an iterated Laplace approximation.
+
+**A bug found on the way.** Linearised once at each person's own refit, the
+marginal likelihood put tau near 0 for 10 simulated people who truly
+differed by 2 logits (0.03), and the estimate *fell* as people were added.
+The same formula on Gaussian pseudo-data with the same curvatures recovered
+tau, so the formula was right and the expansion point wrong: the refit's
+prior pulls every score toward 0, so p(1 - p) and the curvature come out too
+high and each person looks surer than they are. Relinearising fixed the
+direction. tau is still read low (true 2 reads 0.6-0.9), the usual Laplace
+bias for a variance component with binary answers, so the page states it in
+words ("about the same / somewhat different / clearly different likes"), not
+as a number.
+
+**Measured** (`node scripts/team-ranges-calibration.mjs --runs 40`, every
+cell in `docs/team-ranges-2026-11-14.jsonl`): group true scores spread over 4
+logits; each of m people adds N(0, tau^2) per option and answers the page's
+own `nextPair` questions for n log2 n picks (24 at 8 options, 59 at 15).
+Coverage is the share of options whose true rank falls in the 90% range; the
+"group" truth is the members' mean scores, every other column's is the wider
+group's. "Naive" is the Group range read as if it were the Wider one;
+"tau = 0" is every answer read as one person's.
+
+| options | people | true tau | Group: cover / width | naive cover | tau = 0: cover / width | Wider: cover / width | tau read |
+|---|---|---|---|---|---|---|---|
+| 8 | 3 | 0 | 0.994 / 3.4 | 0.994 | 0.997 / 3.4 | 0.997 / 3.4 | 0.17 |
+| 8 | 3 | 1 | 0.972 / 3.6 | 0.928 | 0.934 / 3.8 | 0.950 / 4.0 | 0.45 |
+| 8 | 3 | 2 | 0.988 / 4.1 | 0.850 | 0.916 / 4.7 | 0.953 / 5.1 | 0.81 |
+| 8 | 5 | 0 | 1.000 / 2.9 | 1.000 | 1.000 / 2.8 | 1.000 / 2.8 | 0.13 |
+| 8 | 5 | 1 | 0.997 / 3.1 | 0.953 | 0.963 / 3.4 | 0.969 / 3.6 | 0.45 |
+| 8 | 5 | 2 | 0.994 / 3.6 | 0.887 | 0.925 / 4.2 | 0.956 / 4.4 | 0.71 |
+| 8 | 10 | 0 | 0.997 / 2.2 | 0.997 | 0.997 / 2.1 | 0.997 / 2.2 | 0.10 |
+| 8 | 10 | 1 | 0.997 / 2.5 | 0.969 | 0.969 / 2.7 | 0.972 / 2.8 | 0.39 |
+| 8 | 10 | 2 | 0.991 / 3.1 | 0.863 | 0.950 / 3.8 | 0.959 / 4.0 | 0.67 |
+| 15 | 3 | 0 | 0.955 / 5.2 | 0.955 | 0.958 / 5.4 | 0.965 / 5.5 | 0.16 |
+| 15 | 3 | 1 | 0.950 / 5.8 | 0.853 | 0.913 / 7.0 | 0.928 / 7.3 | 0.49 |
+| 15 | 3 | 2 | 0.972 / 6.3 | 0.745 | 0.860 / 8.5 | 0.903 / 9.0 | 0.85 |
+| 15 | 5 | 0 | 0.967 / 4.4 | 0.967 | 0.968 / 4.6 | 0.973 / 4.6 | 0.15 |
+| 15 | 5 | 1 | 0.967 / 4.9 | 0.872 | 0.930 / 6.0 | 0.943 / 6.2 | 0.45 |
+| 15 | 5 | 2 | 0.978 / 5.8 | 0.742 | 0.908 / 8.3 | 0.920 / 8.5 | 0.75 |
+| 15 | 10 | 0 | 0.982 / 3.4 | 0.982 | 0.985 / 3.6 | 0.985 / 3.6 | 0.06 |
+| 15 | 10 | 1 | 0.983 / 3.9 | 0.895 | 0.952 / 4.8 | 0.960 / 4.9 | 0.36 |
+| 15 | 10 | 2 | 0.985 / 4.7 | 0.820 | 0.940 / 6.8 | 0.955 / 6.9 | 0.61 |
+
+- The Group range holds what it claims: 0.95-1.00 in every cell (it is
+  conservative, like the one-person ranges).
+- Read as the wider group's range, it would mislead exactly when people
+  disagree: 0.74-0.89 at tau = 2. That is why the page shows both and says
+  which to read.
+- The Wider range holds 0.90-1.00 in every cell, widening with
+  disagreement (15 options, 3 people, tau 2: 6.3 places wide against 9.0).
+  Pooling everyone's answers as one person (tau = 0) already widens a lot,
+  because conflicting answers compress the scores, but falls to 0.86 at 15 x 3
+  x tau 2 and 0.92 at 8 x 3; the fitted tau brings those to 0.90 and 0.95.
+- The order itself does not change: the shown order is still `combine`'s
+  (its Spearman with the members' and the wider group's true orders match
+  `groupFit`'s and `populationFit`'s to 0.01).
+
+Cost in Node: 0.2 s at 25 options x 5 people, 0.8 s at 60 x 5, 1.2 s at
+60 x 10, run once per Combine click. Pinned by four tests in
+`site/rank-core.test.mjs`; the disagreement one fails with tau forced to 0
+(checked). Browser: Chromium at 390 px, 3 agreeing codes and 1 reversed:
+Group ranges 1-2 ... 5-6, Wider 1-3 ... 4-6, no horizontal scroll, no console
+errors.
+
+Open: tau's low bias (an importance-sampled marginal or a moment estimator
+could correct it); the Wider range assumes the members are a random draw
+from the wider group, which a team that picked itself is not.
 
 ## Ready-list pages (2026-11-14)
 

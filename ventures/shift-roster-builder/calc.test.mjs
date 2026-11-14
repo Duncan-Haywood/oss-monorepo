@@ -264,7 +264,10 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
   // Hours terms inside the coverage flow (tangent lines under each person's convex hours curve): who can work when is priced with the
   // balance targets, and the gap falls to cents. The same flow without them (flowBalance: false) leaves the older Lagrangian gap.
   assert.ok(r.score - r.optimality.lowerBound < 1, `flow gap ${r.score - r.optimality.lowerBound}`);
-  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false, scoreCG: false });
+  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false, scoreCG: false, scoreFloor: false });
+  // With the priced clique LP on (cliqueScoreFloor, 2026-11-14) the bound is never lower and never above the roster.
+  const priced = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false, scoreCG: false, deferCover: false });
+  assert.ok(priced.optimality.lowerBound <= priced.score + 1e-6 && priced.optimality.lowerBound >= old.optimality.lowerBound - 1e-6);
   assert.ok(old.score - old.optimality.lowerBound > 50);
   // Random tight weeks (caps, overlaps, rest rules all biting): the exact answer still equals brute force.
   let seed = 7;
