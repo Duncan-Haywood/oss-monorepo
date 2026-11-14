@@ -791,7 +791,7 @@ the annealing search from both starts. `eval/round-refill.mjs` searches all roun
   bye) tied the circle search at 115. 14 teams stopped at 220 from the circle start, worse than the
   starter's 212. Past 12 teams the refill DFS has many more splits per move, so it needs a longer
   run or a starter start.
-- Open: 12 teams at 136 against a proved 124 (2026-11-14, below; a 12-team timetable below 136, or 124 to 134 ruled out); the refill
+- Open: 12 teams at 132 (was 136; "12 teams at 132" below) against a proved 124 (a timetable below 132, or 124 to 130 ruled out); the refill
   from the climbed starters at 14 to 18 teams; refilling the second leg of a season.
 
 ## SAT bounds: 10 teams cannot go below 90 (2026-11-12)
@@ -921,14 +921,14 @@ to `eval/carryover-bnb.c` make it finish there, and they keep every answer it ga
   3.0 s. The proof that 94 is the least now takes 13 s at 92 instead of 145 s.
 - **12 teams** (four parts on four cores): none at 120 (about 3 min each, 1.8 billion nodes in all),
   none at 122 (about 25 min each, 15.2 billion nodes). So **no 12-team round robin has non-cyclic
-  carry-over below 124**, and the best known timetable is 136 (README "Refilled rounds"). 124 itself
+  carry-over below 124**, and the best known timetable was 136 (README "Refilled rounds"; 132 since "12 teams at 132" below). 124 itself
   was not asked: each step of 2 cost about 9x, about 4 hours on four cores.
 - **On the page.** `PROVEN_LEAST[12]` is `{ least: 124, exact: false }`, so a 12-team single round
   robin's report now says "120 is the floor for this many games, but no 12-team round robin can go
   below 124; an exhaustive search proved it", and does not claim a schedule reaches it. Tests
   (`carryover.test.mjs`): the circle method and the plain search at 12 teams stay at or above 124, and
   14 teams have nothing proved.
-- Not claimed: the gap from 124 to 136 is open. Round reversal is still unused (about 2x), and so is
+- Not claimed: the gap from 124 to 136 is open (124 to 132 since the next section). Round reversal is still unused (about 2x), and so is
   any bound across rounds; nothing here was compared with published carry-over tables.
 
 ## Freeing up to 8 rounds at once: 136 at 12 teams and 212 at 14 hold (2026-11-14, latest)
@@ -988,7 +988,7 @@ to be a round robin; the page's `carryOverFromOpponents` agrees):
 - **12 teams**: no climb out of 631 went below 136, and the lowest five all landed on it. That does
   not prove 136 is the least (the exact search above proves only 124), but four independent runs and a
   different program hitting the same wall make a 12-team timetable below 136 look unlikely to come from
-  more of this search. The useful next step there is the proof side: 124 to 134 ruled out.
+  more of this search. (Later the same day `eval/window-refill.c`, the section after next, found 132.) The useful next step there is the proof side: 124 to 134 ruled out.
 - **14 teams: 210**, two below the starter, found by two separate runs (seeds 44 and 51). Every count is
   1, 2 or 3 (129 cells at 1, 18 at 2, one at 3). It is stored as `TIMETABLES[14].even` in
   `carryover.mjs`, so the page's search starts from it beside the circle method and the starter and
@@ -1017,6 +1017,59 @@ to be a round robin; the page's `carryOverFromOpponents` agrees):
   starter at every start, and the search from it returns 210 or less.
 - Not claimed: 210 is a heuristic result, not a proved least at 14 teams; nothing here was compared with
   published carry-over tables.
+## 12 teams at 132: a window refill that walks plateaus (2026-11-14, latest)
+
+The two sections above stopped at 136 at 12 teams and called it a likely wall. It is not:
+`eval/window-refill.c` (plain C, no dependencies; written in parallel with `eval/refill-search.c` and
+landed after it) finds **132**, so the least at 12 teams is now 124 to 132. It is a close cousin of
+`refill-search.c`; the differences are in what a move accepts and where a stalled search restarts:
+
+- it takes the *first* refill its randomised DFS finds under the target, not the least one, with the
+  target one below the incumbent and then equal to it, so most moves are uniform-ish random steps
+  across a plateau of equal value rather than a best-refill climb;
+- the removed rounds are anywhere half the time (not only adjacent), and a stall restarts from the
+  best timetable with two rounds swapped or all reversed, never from a fresh circle method.
+
+Which of these matters was not tested.
+
+- **Move.** Take w rounds out (w from 2 to 6; contiguous half the time). Their games form a w-regular
+  graph; refill the w rounds with a split of it into perfect matchings by depth-first search, rounds in
+  order, the lowest unplaced team first, partners in random order. A game placed in round r adds the
+  carry-over cells from round r - 1 and, when r + 1 is not refilled, into round r + 1; a cell already
+  holding c costs c, so a branch is cut as soon as the total passes the target. The target is first one
+  below the incumbent (an improvement), then equal to it (a plateau step), or, 2% of the time, 1 or 2
+  above (a kick). Each search stops after a node limit; after a stall the search restarts from the best
+  with two rounds swapped or all reversed. Every new best is re-scored from its opponents and checked to
+  be a round robin.
+- **Checked:** at 10 teams it reaches the proved least, 94, from the circle method in under 0.1 s.
+- **12 teams** (`eval/window-refill.txt`; one process per core): four 120 s runs stopped at 136 to 140.
+  Of four 900 s runs, three found 132 (after 107, 369 and 575 s) and one stopped at 140; the two with
+  small windows (w 2 to 4, 50,000 nodes) both found it. A further 600 s from the 132 found nothing lower.
+  At 132 six cells hold 2 and the rest 0 or 1. `TIMETABLES[12].even` is now this timetable.
+- **The page keeps every setting at or below what it gave.** With the 132 alone, the carry-over-only
+  home-and-away season at seed 1 got worse (530 / 68 to 538 / 62): as with the 136 before it, a leg with
+  less carry-over can seed a worse season. So the 136 stays as a fourth start (`TIMETABLES[12].evenAlt`,
+  "second timetable" in `constructionStarts`) and the best of all starts is kept, as before. Through the
+  search (`node eval/field-start.mjs 12`, seed 1, effort 1; carry-over / breaks):
+
+  | 12 teams | Before | Now |
+  |---|---|---|
+  | Single, carry-over only | 136 / 20 | **132 / 18** |
+  | Single, break weight 10 | 170 / 14 | 170 / 14 |
+  | Season, carry-over only | 530 / 68 | 530 / 68 |
+  | Season, break weight 10 | 602 / 40 (score 1,002) | **576 / 40** (score 976) |
+
+  A 12-team search now runs from five starts (circle, starter, two timetables, and the weighted starter
+  when a break weight is set); `field-start.mjs 12` took 12 s for all four settings.
+- **Past 12 teams it did not help.** From the built-in starters at their best start, 600 s each: 14 teams
+  212, 18 teams 318, 24 teams 570, all unchanged (floors 168, 288, 528). From the circle method it got no
+  nearer than 220, 396 and 770 in about 3 minutes. The DFS has far more splits per window at these
+  sizes; a cheaper bound inside the refill, or windows chosen by where the cells at 2 sit, is the next
+  thing to try there.
+- Tests (`starter.test.mjs`): both stored 12-team timetables are round robins, their values are pinned
+  (132 and 136), each is below the starter, and the search from them returns no more than the value.
+- Not claimed: whether 124 to 130 is reachable; nothing here was compared with published carry-over
+  tables.
 
 ## Starters picked with their breaks (2026-11-11, latest)
 
