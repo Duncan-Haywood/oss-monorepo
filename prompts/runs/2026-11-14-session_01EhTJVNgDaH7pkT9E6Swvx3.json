@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNgDaH7pkT9E6Swvx3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work ... revenue generating software products ...)",
+  "input_sha256": "f1cc5a8ddd7bfde3e749a3d291fae652bcd0904a894ba8cfdc46bd24b1ccb0bd",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T04:55:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9): league-schedule-generator, 12 teams 124-136 open (allocator row 1 was ai-bookkeeper)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15717",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper row 1 has no item a cloud session can do here: state tax sites, irs.gov and huggingface.co refuse the proxy, and the permission classifier refuses fetching third-party real bank exports (credit union, two LLCs' Mercury files) from public GitHub. Not marked inputs_only because other sessions' network policy differs and it has 69 commits in 7 days."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocator sent this session to ai-bookkeeper; every open item needed a blocked host or a refused data source here, so the run took league-schedule-generator's open 12-team question instead",
+      "did": "built eval/carryover-lns.c and ran 8 x 20-25 min searches",
+      "result": "negative: 136 (12 teams) and 212 (14 teams) not beaten; 136 reached independently from the circle method"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-freeing-eight-rounds-of-a-league-found-nothing-better.md"
+  ],
+  "goal": "close the 12-team carry-over gap (124 proved, 136 known)",
+  "notes": "New eval/carryover-lns.c: LNS keeping a prefix (or reversed prefix) and completing 4-8 rounds exactly with carryover-bnb's matching bound. 10 teams circle -> 94 (proved least) in 4 s. 12 teams: stored 136 unchanged over 2,523 moves; circle start reached 136 by a different timetable in 1,120 s. 14 teams: starter 212 unchanged over 4,662 moves; circle 224. Raw output eval/carryover-lns.txt. No page change. Venture tests: see PR body.",
+  "corrections": [],
+  "redteam": null
+}
