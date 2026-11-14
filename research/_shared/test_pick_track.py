@@ -189,6 +189,18 @@ class ShallowAndRefreshTest(unittest.TestCase):
         self.assertEqual(len(fetch), 1)
         self.assertTrue(any(a.startswith("--shallow-since=") for a in fetch[0]))
 
+    def test_refresh_deepens_when_plain_fetch_leaves_history_short(self):
+        # A days-old ref reads as covered, the plain fetch replaces it with ~4 h of history.
+        from unittest import mock
+        run, calls = self._fake_git("new", "old")
+        with mock.patch.object(pick_track, "history_covers", side_effect=[True, False]), \
+             mock.patch.object(pick_track, "is_shallow", return_value=True):
+            self.assertIsNone(pick_track.refresh_origin_main(run=run))
+        fetch = [c for c in calls if c[1] == "fetch"]
+        self.assertEqual(len(fetch), 2)
+        self.assertFalse(any(a.startswith("--shallow-since=") for a in fetch[0]))
+        self.assertIn("--shallow-since=7 hours ago", fetch[1])
+
     def test_refresh_reports_unreachable_origin_and_failed_fetch(self):
         from unittest import mock
         run, _ = self._fake_git(None, "abc")
@@ -254,6 +266,12 @@ class ClaimCheckTest(unittest.TestCase):
         lines = self._run([], age=30)
         self.assertTrue(any("30h old" in l for l in lines))
         self.assertFalse(any("clear" in l for l in lines))
+
+    def test_short_history_suggests_a_window_wider_than_the_check(self):
+        # --shallow-since='6 hours ago' cannot fetch a commit older than 6 h, so suggesting it
+        # for a 6 h check repeated the warning forever.
+        lines = self._run([], covers=False)
+        self.assertTrue(any("--shallow-since='7 hours ago'" in l for l in lines))
 
     def test_claims_listed(self):
         lines = self._run([(9, "research/cell-fidelity: m2")], recent=["abc 1 hour ago: x"])
