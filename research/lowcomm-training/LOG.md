@@ -11,6 +11,18 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Alternative that would refute H6s-i: more rounds at H = 16 (240 vs 60) means 4 times as many compressed syncs, so if the per-sync compression noise accumulates the omega-31 cost should be larger at H = 16; if the cost scales with the drift per round it should be smaller.
 - Not tested: other widths, a compressor other than rand-k, H other than 16 and 64 at omega 7 and 31.
 
+### Outcome of 6s (`experiments/gpt_scale/knee16_6s.py`, `knee16_6s.txt`, `run_knee16.out`; 10 runs, about 18 to 19 min each, 4 cores in parallel, torch 2.15.0+cpu)
+- Paired excess at H = 16 (nats, se): omega 3 **+0.0034** (0.0041, 4 seeds), omega 7 **+0.0220** (0.0016, 4 seeds), omega 15 +0.0452 (0.0047, 6 seeds, from 6k), omega 31 **+0.0984** (0.0030, 4 seeds). No run diverged.
+- **H6s-i refuted:** the omega-31 cost at H = 16 is 0.034 below H = 64's (+0.098 vs +0.132; -6.6 se of the difference), outside the registered ±0.030.
+- **H6s-ii refuted:** omega 7 costs +0.022 at H = 16 (14 se from zero; all four seeds between +0.018 and +0.025), where it cost -0.002 at H = 64.
+- **H6s-iii refuted:** the H = 16 hinge has w0 at 0.5 (bootstrap 0.0 to 1.5), the H = 64 one at 7.75 (6.5 to 9.0); the intervals do not overlap. A pooled hinge with one w0 and one slope for both H fits at chi-square 95.7 on 7 dof.
+- What the H = 16 cells show instead: no knee. A line through the origin, 0.0031 nats per unit of omega, fits all four cells (chi-square 2.5 on 3 dof; predictions +0.009, +0.022, +0.047, +0.098 against measured +0.003, +0.022, +0.045, +0.098). The hinge is no better (1.8, one more parameter); a power law picks exponent 1.0.
+- So the two sync intervals give curves of different shape that cross near omega 15: at H = 16 compression costs from the first coordinate dropped and the cost grows slowly; at H = 64 it is free to omega about 8 and then grows about twice as fast (0.0057 per omega). The flat omega-15 excess across H (+0.045, +0.043, +0.044, +0.051 at H 16, 32, 64, 128), which set the 60% priors, is a crossing point, not evidence that the cost is H-independent. Prior lesson: one omega level cannot show that a curve's shape is invariant.
+- Version check: the H = 16 uncompressed baseline seeds were run before 6q under an unrecorded torch version; the new cells use 2.15. The two new omega-3 seeds (+0.0076, -0.0053) match the two older ones (-0.0013, +0.0125), so no cross-version offset of the size of the omega-7 effect (+0.022) is visible.
+- Practical reading for this model: a keep level chosen as "free" at a long sync interval is not free at a short one, but aggressive compression (keep 1/32) costs less at the short interval. Choosing H and keep separately is the wrong question; the pair matters.
+- Limits: four seeds per new cell, one width, one compressor, two H values for the shape. Why the knee appears at long H is not explained: one candidate is that inner-loop drift over 64 steps dominates the outer error and masks small compression noise, which a delta-norm measurement could test.
+- Next: the shape at H = 32 (omega 7 and 31) to see whether the knee grows smoothly with H, and the per-round delta norms against the rand-k noise variance at H = 16 and 64 as a mechanism check.
+
 ## 2026-11-13 · Milestone 6r (H6 scale-up): refit on four keep levels, then keep 1/32 (omega 31) at H = 64, four seeds (planned before running)
 
 - Why: 6q's "Next". With omega 11 measured, refit the three 6p forms on four cells (analysis only), then run the cell that separates them most: keep 1/32, where the fitted forms disagree by a factor of four or more.
