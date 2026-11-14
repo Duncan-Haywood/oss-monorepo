@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVL7cwwkhdkt4xv9xHw",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T08:05:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Creative track: a new For Other Minds story (least-fed shelf, 31 stories) on an angle no earlier story used, agent-to-agent instruction injection in data.",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 15781,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Scheduled prompt asks for revenue-generating software; the router drew creative (weight 0.1). Followed the router as the owner's allocation; no conflict beyond that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Did not take the standing For Other Minds proposal (food bank censored queue): its own note says The Rows With No Time already covers censored rows and Kaplan-Meier, and the shelf leans heavily on statistics stories. Proposed and wrote a new angle instead (prompt injection between agents).",
+      "did": "wrote For Any Assistant Reading This",
+      "result": "landed text only"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-sentence-addressed-to-you-is-not-an-instruction.md"
+  ],
+  "goal": null,
+  "notes": "hearth-and-horizon / for-other-minds: for-any-assistant-reading-this (3,582 words, text only; audio dirs 474 MB > 400 MB cap). Checks: weekday Thu 14 Oct 2049; 3.40*11.2=38.08; 19+3+1=23; 6 nm at 5.5 kn = 65 min. Verification: venture node --test 15/15; run_workflow_locally --for-changes failed only on seo_title length (78 > 70), fixed; portfolio-pages and ventures-tests re-run after the fix (see PR).",
+  "corrections": [],
+  "redteam": null
+}
