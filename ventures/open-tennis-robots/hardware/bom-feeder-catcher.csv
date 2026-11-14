@@ -8,6 +8,7 @@ ESC for BLDC,2,"24 V, 50 A+, servo-pulse input",35,
 Launcher wheel,2,"150 mm, polyurethane tread",20,
 IR reflective sensor,2,TCRT5000 module or similar,2,tachometers
 High-torque servo or linear actuator,1,elevation,30,
+Ceramic capacitor,1,"1 uF X7R, 10 V or more",0.2,"elevation pot wiper (GPIO 39) to GND at the ESP32: the actuator's PWM in the same lead (cad/README.md, ""The pot's pickup"")"
 Servo,2,standard metal gear,15,azimuth + feed gate
 DC gearmotor with encoder,2,"24 V, ~200 rpm",35,base drive
 Dual H-bridge driver,1,"Cytron MDD10A or similar, 10 A/ch",30,

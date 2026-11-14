@@ -286,7 +286,10 @@ class FeederHw:
         return self.elev.settled and self.azim.settled
 
     def elev_feedback_mm(self):
-        raw = self.elev_pot.read_u16()
+        # several readings, the extremes dropped (controller.trimmed_mean): a reading caught on one of the actuator's
+        # PWM edges cannot move the position or fault the axis on its own (cad/README.md, "The pot's pickup")
+        n = getattr(config, "ELEV_POT_READS", 8)
+        raw = controller.trimmed_mean([self.elev_pot.read_u16() for _ in range(n)])
         lo, hi = config.ELEV_POT_RAW_RETRACTED, config.ELEV_POT_RAW_EXTENDED
         margin = abs(hi - lo) * 0.01
         if not min(lo, hi) - margin <= raw <= max(lo, hi) + margin:

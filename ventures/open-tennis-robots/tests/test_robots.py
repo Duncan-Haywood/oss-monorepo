@@ -566,8 +566,39 @@ class FirmwareTest(unittest.TestCase):
         self.assertFalse(ax.settled)
         ax = self._elev(controller.ELEV_POT)
         ax.target(0.0)
-        self.assertEqual(ax.update(10, None), 0.0)  # pot wire off
+        d = ax.update(10, 60.0)
+        self.assertNotEqual(d, 0.0)
+        self.assertEqual(ax.update(10, None), d)    # one or two missing readings: the last duty is held
+        self.assertEqual(ax.update(10, None), d)
+        self.assertFalse(ax.fault)
+        self.assertEqual(ax.update(10, None), 0.0)  # the third in a row (pot wire off): fault
         self.assertTrue(ax.fault)
+
+    def test_elevation_pot_missing_readings_do_not_hide_a_stall(self):
+        """2026-11-14: a reading that drops out every other tick (a PWM edge caught with no filter capacitor) must
+        not reset the stall timer, or a jammed actuator never faults (tests/pot_pickup_sweep.py)."""
+        ax = self._elev(controller.ELEV_POT)
+        ax.target(0.0)
+        for k in range(100):                        # jammed at 60 mm for 1 s, every other reading lost
+            ax.update(10, None if k % 2 else 60.0)
+            if ax.fault:
+                break
+        self.assertTrue(ax.fault)
+        self.assertLessEqual(k, 70)
+        ax = self._elev(controller.ELEV_POT)        # moving normally with the same dropouts: no fault
+        ax.target(0.0)
+        pos = 60.0
+        for k in range(100):
+            d = ax.update(10, None if k % 2 else pos)
+            pos += 22.0 * d * 0.01
+        self.assertFalse(ax.fault)
+
+    def test_trimmed_mean_drops_the_extremes(self):
+        self.assertEqual(controller.trimmed_mean([10, 11, 12, 13, 14, 15, 0, 65535]), 12.5)
+        self.assertEqual(controller.trimmed_mean([7]), 7)
+        self.assertEqual(controller.trimmed_mean([1, 2, 3], trim=1), 2)
+        with self.assertRaises(ValueError):
+            controller.trimmed_mean([1, 2], trim=1)
 
     def test_elevation_timed_homes_then_dead_reckons(self):
         g = controller.ElevationGeometry()
@@ -770,6 +801,9 @@ class FirmwareTest(unittest.TestCase):
             if mode == controller.ELEV_POT:
                 state["adc"] = 0               # wiper off: below the calibrated span
                 hw.update(10, 10)
+                hw.update(10, 20)
+                self.assertFalse(hw.flags() & protocol.FLAG_ELEV_FAULT)   # two ticks could be a PWM edge (2026-11-14)
+                hw.update(10, 30)
                 self.assertTrue(hw.flags() & protocol.FLAG_ELEV_FAULT)
                 state["adc"] = 30000
 
