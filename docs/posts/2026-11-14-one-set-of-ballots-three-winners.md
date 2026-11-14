@@ -3,7 +3,7 @@ title: "One set of ballots, three winners: a free ranked-choice counter"
 seo_title: "Free ranked-choice vote counter: instant runoff, STV and Schulze"
 date: 2026-11-14
 tags: [tools, voting, algorithms, ranked-ballot-counter]
-description: "A new free tool counts ranked ballots by instant runoff, STV and Schulze and shows every round. Checking it against a separate Python recount caught a parsing bug before anyone used it."
+description: "A free tool counts ranked ballots by instant runoff, STV and Schulze, every round shown. A separate Python recount caught a parsing bug first."
 ---
 
 A club secretary with ranked ballots in a Google Sheet has two choices: count
