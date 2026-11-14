@@ -334,7 +334,18 @@ CHECKS = [
     ('sits 1.9% and 3.6% above', 'kp30_bench_results.txt', '1500 +1.9%, 2500 +3.6%'),
     ('reads 0.913 at 150 bar and 2100 r/min (0.881 in the least favourable', 'kp30_bench_results.txt', 'central 0.9130; lowest variant 0.8811'),
     ('reads 0.913 (0.881 at worst)', 'kp30_bench_results.txt', 'central 0.9130; lowest variant 0.8811'),
+    # milestone 6q: section 3.7q, the abstract, threat 7 and settle (h)
+    ('reads 0.9130 at 150 bar and a zero-pressure drag of 6.67 bar', 'excavator_gear_pump_bench_results.txt', '0.9130     0.9156     0.9145               6.67'),
+    ('equals load-sensing standby at q_p 87.6 L/min', 'excavator_gear_pump_bench_results.txt', 'bench idle power equals load-sensing standby (2.96 kW) at q_p 87.6 L/min'),
+    ('(central 8.820 L/h at q_p 107.5; median 8.08)', 'excavator_gear_pump_bench_results.txt', 'S = 0.38: central 8.820 L/h at q_p 107.5; median 8.08'),
+    ('and 5.06 L/h in 98.7%', 'excavator_gear_pump_bench_results.txt', 'beats 3.986: 100.0%, 5.056: 98.7%; median maximising q_p 85.0'),
+    ('100.0% in every one of the 18 idle settings', 'excavator_gear_pump_bench_results.txt', 'over the 18 settings: 100.0% to 100.0%'),
+    ('catalogue moving with the bench\'s drag only 13.3%', 'excavator_gear_pump_bench_results.txt', 'S = 0.38: central 2.256 L/h at q_p 86.0; median 2.10 (p10 1.32, p90 4.39); beats 3.986: 13.3%'),
+    ('crosses 50% at c 1.0914, index 2 0.8283', 'excavator_gear_pump_bench_results.txt', '50% crossing: c 1.0914, index 2 0.8283'),
+    ('at the bench ratio c = 1.195 it gives 100.0%', 'excavator_gear_pump_bench_results.txt', 'c 1.195: central 9.033 L/h; median 7.43; beats 3.986: 100.0%'),
+    ('median break-even rest-of-machine fuel rate of 8.08 L/h', 'excavator_gear_pump_bench_results.txt', 'S = 0.38: central 8.820 L/h at q_p 107.5; median 8.08'),
 ]
+
 
 
 def main():

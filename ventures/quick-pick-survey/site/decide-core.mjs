@@ -1,0 +1,376 @@
+// The "weigh criteria" page's logic (site/decide.html), pure and DOM-free so
+// node --test can run it (decide-core.test.mjs).
+//
+// A weighted decision matrix built from pairwise picks instead of typed
+// numbers. Two kinds of question:
+//   - "Which matters more to you: Price or Location?" (criteria), and
+//   - "On Location, which is better: Flat A or Flat B?" (options, per criterion).
+// Each kind is fitted with the same Bradley-Terry refit the list ranker uses
+// (rank-core.mjs `fit`, the app's src/lib/btRefit.ts). A criterion's weight is
+// its Luce share, exp(s_c) / sum exp(s), so "Price beats Location 3 times in
+// 4" reads as Price's weight being about 3 times Location's. An option's
+// overall score is the weighted sum of its centred per-criterion scores.
+// Uncertainty flows through by drawing from every fit's Gaussian posterior at
+// once, so a rank range covers doubt about the weights as well as the scores.
+//
+// The next question is picked across both kinds by a linearised expected
+// information score: how much the answer is expected to shrink the variance
+// of the overall score gaps between neighbouring options, weighted by how
+// likely each neighbouring pair is still the wrong way round. Measured on
+// simulated people in docs/DECIDE-PAGE.md (scripts/decide-sim.mjs).
+import { fit, parseList, listId, suggestedMax, csvCell, STOP_CONFIDENCE } from "./rank-core.mjs";
+import { cholesky } from "./engine/btRefit.mjs";
+
+export const MIN_OPTIONS = 2;
+export const MAX_OPTIONS = 20;
+export const MIN_CRITERIA = 2;
+export const MAX_CRITERIA = 8;
+export const DECIDE_DRAWS = 1500;
+export { STOP_CONFIDENCE };
+
+/** Options and criteria from two pasted lists (rank-core's parser: bullets, blanks, repeats dropped), capped. */
+export function parseSetup(optionsText, criteriaText) {
+  return {
+    options: parseList(optionsText).slice(0, MAX_OPTIONS),
+    criteria: parseList(criteriaText).slice(0, MAX_CRITERIA),
+  };
+}
+
+/** What is wrong with a setup, in words, or "" when it can start. */
+export function setupError({ options, criteria }) {
+  if (options.length < MIN_OPTIONS) return `Add at least ${MIN_OPTIONS} different options, one per line.`;
+  if (criteria.length < MIN_CRITERIA) return `Add at least ${MIN_CRITERIA} different criteria, one per line (with one criterion, the list ranker is the simpler tool).`;
+  return "";
+}
+
+/** Fingerprint of a decision (options and criteria), so codes for another decision are refused. */
+export function decisionId(options, criteria) {
+  return listId([...options, "\u0000", ...criteria]);
+}
+
+function toBase64Url(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function fromBase64Url(s) {
+  const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4));
+  return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+}
+
+/** The decision as a URL fragment ("d=" + base64url JSON); fragments never reach a server. */
+export function encodeDecision({ title = "", options, criteria }) {
+  return "d=" + toBase64Url(JSON.stringify({ v: 1, t: title, o: options, c: criteria }));
+}
+export function decodeDecision(fragment) {
+  try {
+    const d = JSON.parse(fromBase64Url(String(fragment).replace(/^#/, "").replace(/^d=/, "")));
+    if (!d || d.v !== 1 || !Array.isArray(d.o) || !Array.isArray(d.c)) return null;
+    const setup = parseSetup(d.o.map(String).join("\n"), d.c.map(String).join("\n"));
+    if (setupError(setup)) return null;
+    return { title: Array.from(String(d.t || "")).slice(0, 200).join(""), ...setup };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Answers: { crit: [[w, l, tie]], opt: [[c, w, l, tie]] }, indices into the
+ * criteria and options. A result code is "QD1." + base64url JSON with the
+ * decision fingerprint, an optional name and both answer lists.
+ */
+export function encodeAnswers({ options, criteria, answers, name = "" }) {
+  const t = (x) => (x ? "=" : "");
+  const w = answers.crit.map(([a, b, tie]) => `${a.toString(36)}.${b.toString(36)}${t(tie)}`).join(",");
+  const a = answers.opt.map(([c, x, y, tie]) => `${c.toString(36)}.${x.toString(36)}.${y.toString(36)}${t(tie)}`).join(",");
+  return "QD1." + toBase64Url(JSON.stringify({ l: decisionId(options, criteria), n: Array.from(String(name)).slice(0, 60).join(""), w, a }));
+}
+export function decodeAnswers(code, options, criteria) {
+  const m = /^QD1\.([A-Za-z0-9_-]+)$/.exec(String(code).trim());
+  if (!m) return { error: "not a Quick Pick decision code" };
+  const damaged = { error: "the code is damaged (copy it again in full)" };
+  let d;
+  try { d = JSON.parse(fromBase64Url(m[1])); } catch { return damaged; }
+  if (!d || typeof d !== "object" || Array.isArray(d)) return damaged;
+  if (d.l !== decisionId(options, criteria)) return { error: "this code is for a different decision" };
+  const crit = [], opt = [];
+  for (const part of String(d.w || "").split(",").filter(Boolean)) {
+    const pm = /^([0-9a-z]+)\.([0-9a-z]+)(=?)$/.exec(part);
+    if (!pm) return damaged;
+    const a = parseInt(pm[1], 36), b = parseInt(pm[2], 36);
+    if (a >= criteria.length || b >= criteria.length || a === b) return damaged;
+    crit.push([a, b, pm[3] === "="]);
+  }
+  for (const part of String(d.a || "").split(",").filter(Boolean)) {
+    const pm = /^([0-9a-z]+)\.([0-9a-z]+)\.([0-9a-z]+)(=?)$/.exec(part);
+    if (!pm) return damaged;
+    const c = parseInt(pm[1], 36), x = parseInt(pm[2], 36), y = parseInt(pm[3], 36);
+    if (c >= criteria.length || x >= options.length || y >= options.length || x === y) return damaged;
+    opt.push([c, x, y, pm[4] === "="]);
+  }
+  return { name: Array.from(String(d.n || "")).slice(0, 60).join(""), answers: { crit, opt } };
+}
+
+const softmax = (s) => {
+  const m = Math.max(...s);
+  const e = s.map((x) => Math.exp(x - m));
+  const z = e.reduce((a, b) => a + b, 0);
+  return e.map((x) => x / z);
+};
+const centre = (v) => {
+  const m = v.reduce((a, b) => a + b, 0) / v.length;
+  return v.map((x) => x - m);
+};
+
+/**
+ * The fits behind a decision: one over the criteria, one per criterion over
+ * the options, plus the plug-in weights and overall scores at the posterior
+ * mode (what the page shows as the order).
+ */
+export function decisionFit(nOptions, nCriteria, answers) {
+  const crit = fit(nCriteria, answers.crit);
+  const opts = Array.from({ length: nCriteria }, (_, c) => fit(nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t]) => [x, y, t])));
+  const weights = softmax(crit.mu);
+  const centred = opts.map((f) => centre(f.mu));
+  const score = Array.from({ length: nOptions }, (_, i) => centred.reduce((a, mu, c) => a + weights[c] * mu[i], 0));
+  return { n: nOptions, C: nCriteria, crit, opts, weights, centred, score };
+}
+
+/** Options in overall order at the posterior mode, best first (index breaks ties). */
+export function overallOrder(df) {
+  return df.score.map((s, i) => [s, i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).map(([, i]) => i);
+}
+
+const dv = (f, i, j) => Math.max(f.cov[i * f.n + i] + f.cov[j * f.n + j] - 2 * f.cov[i * f.n + j], 1e-12);
+const normalCdf = (z) => {
+  const t = 1 / (1 + 0.3275911 * Math.abs(z) / Math.SQRT2);
+  const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-(z * z) / 2);
+  return z >= 0 ? (1 + y) / 2 : (1 - y) / 2;
+};
+
+/**
+ * Linearised view of each neighbouring gap g = S_i - S_j in the overall
+ * order: its value, its gradient with respect to the criterion logits
+ * (dg/ds_a = w_a (D_a - g), D_a the gap on criterion a, from the softmax),
+ * and its variance (option-score part plus weight part).
+ */
+function neighbourGaps(df) {
+  const ord = overallOrder(df);
+  const { C, crit, opts, weights, centred } = df;
+  const gaps = [];
+  for (let k = 0; k + 1 < ord.length; k++) {
+    const i = ord[k], j = ord[k + 1];
+    const g = df.score[i] - df.score[j];
+    const grad = weights.map((w, a) => w * (centred[a][i] - centred[a][j] - g));
+    let v = 0;
+    for (let c = 0; c < C; c++) v += weights[c] ** 2 * dv(opts[c], i, j);
+    for (let a = 0; a < C; a++) for (let b = 0; b < C; b++) v += grad[a] * grad[b] * crit.cov[a * C + b];
+    v = Math.max(v, 1e-12);
+    gaps.push({ i, j, g, grad, v, wrong: normalCdf(-Math.abs(g) / Math.sqrt(v)) });
+  }
+  return gaps;
+}
+
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * The next question: { kind: "crit", pair: [a, b] } or { kind: "opt", c,
+ * pair: [x, y] }, sides by coin flip. Every candidate is scored by the sum,
+ * over neighbouring pairs in the overall order, of the chance that pair is
+ * the wrong way round times the share of its gap variance the answer is
+ * expected to remove (cov(g, d)^2 I / (1 + I var d), I = p(1 - p), over var
+ * g). A small penalty per repeat spreads the questions, and the last
+ * question is never asked twice in a row. `strategy: "random"` picks a
+ * uniformly random question instead (the baseline in the simulations).
+ */
+export function nextQuestion(df, answers, { seed = 1, strategy = "adaptive" } = {}) {
+  const { n, C, crit, opts, weights } = df;
+  const rand = mulberry32(seed * 2654435761 + answers.crit.length * 7919 + answers.opt.length);
+  const flip = (p) => (rand() < 0.5 ? p : [p[1], p[0]]);
+  if (strategy === "random") {
+    const nCrit = (C * (C - 1)) / 2, nOpt = C * ((n * (n - 1)) / 2);
+    let r = Math.floor(rand() * (nCrit + nOpt));
+    if (r < nCrit) {
+      for (let a = 0; a < C; a++) for (let b = a + 1; b < C; b++) if (r-- === 0) return { kind: "crit", pair: flip([a, b]) };
+    }
+    r -= nCrit;
+    const c = Math.floor(r / ((n * (n - 1)) / 2));
+    let q = r % ((n * (n - 1)) / 2);
+    for (let x = 0; x < n; x++) for (let y = x + 1; y < n; y++) if (q-- === 0) return { kind: "opt", c, pair: flip([x, y]) };
+  }
+  const gaps = neighbourGaps(df);
+  const asked = new Map();
+  for (const [a, b] of answers.crit) asked.set(`w${Math.min(a, b)},${Math.max(a, b)}`, (asked.get(`w${Math.min(a, b)},${Math.max(a, b)}`) || 0) + 1);
+  for (const [c, x, y] of answers.opt) asked.set(`${c}:${Math.min(x, y)},${Math.max(x, y)}`, (asked.get(`${c}:${Math.min(x, y)},${Math.max(x, y)}`) || 0) + 1);
+  const lastC = answers.lastKind === "crit" ? answers.crit.at(-1) : null;
+  const lastO = answers.lastKind === "opt" ? answers.opt.at(-1) : null;
+  let best = null, bestScore = -Infinity;
+  const consider = (q, key, covs, v, p) => {
+    const info = p * (1 - p);
+    let s = 0;
+    for (let k = 0; k < gaps.length; k++) s += gaps[k].wrong * (covs[k] * covs[k] * info) / (1 + info * v) / gaps[k].v;
+    s = s / (1 + 0.5 * (asked.get(key) || 0)) * (1 + 1e-6 * rand());
+    if (s > bestScore) { bestScore = s; best = q; }
+  };
+  // Criteria pairs: cov(g, s_a - s_b) = grad . (Sigma_s[:, a] - Sigma_s[:, b]).
+  for (let a = 0; a < C; a++) for (let b = a + 1; b < C; b++) {
+    if (lastC && Math.min(lastC[0], lastC[1]) === a && Math.max(lastC[0], lastC[1]) === b) continue;
+    const covs = gaps.map(({ grad }) => { let x = 0; for (let k = 0; k < C; k++) x += grad[k] * (crit.cov[k * C + a] - crit.cov[k * C + b]); return x; });
+    consider({ kind: "crit", pair: [a, b] }, `w${a},${b}`, covs, dv(crit, a, b), 1 / (1 + Math.exp(-(crit.mu[a] - crit.mu[b]))));
+  }
+  // Option pairs on criterion c: cov(g_ij, x_cx - x_cy) = w_c (S[i,x] - S[i,y] - S[j,x] + S[j,y]).
+  for (let c = 0; c < C; c++) {
+    const f = opts[c], cv = f.cov, w = weights[c];
+    for (let x = 0; x < n; x++) for (let y = x + 1; y < n; y++) {
+      if (lastO && lastO[0] === c && Math.min(lastO[1], lastO[2]) === x && Math.max(lastO[1], lastO[2]) === y) continue;
+      const covs = gaps.map(({ i, j }) => w * (cv[i * n + x] - cv[i * n + y] - cv[j * n + x] + cv[j * n + y]));
+      consider({ kind: "opt", c, pair: [x, y] }, `${c}:${x},${y}`, covs, dv(f, x, y), 1 / (1 + Math.exp(-(f.mu[x] - f.mu[y]))));
+    }
+  }
+  return { ...best, pair: flip(best.pair) };
+}
+
+/** Joint draws from every fit's posterior: overall scores per draw, and weights per draw. */
+export function sampleDecision(df, { draws = DECIDE_DRAWS, seed = 0xdec1 } = {}) {
+  const { n, C } = df;
+  const rand = mulberry32(seed);
+  const gauss = () => { const u = 1 - rand(), v = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const chol = (f) => cholesky(Float64Array.from(f.cov, (x, k) => x + (k % (f.n + 1) === 0 ? 1e-9 : 0)), f.n);
+  const lc = chol(df.crit), lo = df.opts.map(chol);
+  const draw = (f, l) => {
+    const z = Array.from({ length: f.n }, gauss);
+    return f.mu.map((m, a) => { let x = m; for (let b = 0; b <= a; b++) x += l[a * f.n + b] * z[b]; return x; });
+  };
+  const scores = [], weights = [];
+  for (let d = 0; d < draws; d++) {
+    const w = softmax(draw(df.crit, lc));
+    const s = new Float64Array(n);
+    for (let c = 0; c < C; c++) {
+      const x = centre(draw(df.opts[c], lo[c]));
+      for (let i = 0; i < n; i++) s[i] += w[c] * x[i];
+    }
+    scores.push(s); weights.push(w);
+  }
+  return { scores, weights, draws };
+}
+
+const ranksOf = (s) => {
+  const idx = Array.from(s.keys()).sort((p, q) => s[q] - s[p]);
+  const r = new Array(s.length);
+  idx.forEach((item, k) => (r[item] = k + 1));
+  return r;
+};
+
+/**
+ * The results: options in overall order with a 90% rank range and chance of
+ * being best; criteria with their weight (plug-in) and a 90% range; and
+ * `confidence`, the posterior mean Spearman between a drawn order and the
+ * one shown (rank-core's orderConfidence, over the joint draws).
+ */
+export function decisionTable(df, options = {}) {
+  const { scores, weights, draws } = sampleDecision(df, options);
+  const { n, C } = df;
+  const ord = overallOrder(df);
+  const shown = new Array(n);
+  ord.forEach((item, k) => (shown[item] = k + 1));
+  const ranks = Array.from({ length: n }, () => []);
+  const best = new Array(n).fill(0);
+  let sp = 0;
+  for (const s of scores) {
+    const r = ranksOf(s);
+    let d2 = 0;
+    for (let i = 0; i < n; i++) { ranks[i].push(r[i]); if (r[i] === 1) best[i]++; d2 += (r[i] - shown[i]) ** 2; }
+    sp += n > 1 ? 1 - (6 * d2) / (n * (n * n - 1)) : 1;
+  }
+  const lo = Math.floor(0.05 * draws), hi = Math.min(draws - 1, Math.ceil(0.95 * draws) - 1);
+  const rows = ord.map((i, k) => {
+    const r = ranks[i].sort((a, b) => a - b);
+    return { item: i, rank: k + 1, low: r[lo], high: r[hi], best: best[i] / draws, score: df.score[i] };
+  });
+  const crit = Array.from({ length: C }, (_, c) => {
+    const w = weights.map((x) => x[c]).sort((a, b) => a - b);
+    return { item: c, weight: df.weights[c], low: w[lo], high: w[hi] };
+  }).sort((a, b) => b.weight - a.weight || a.item - b.item);
+  return { rows, crit, confidence: sp / draws };
+}
+
+/**
+ * Per criterion, the option the person rates best there, or -1 when it is
+ * not clear: the leader must beat the runner-up with at least `level`
+ * posterior chance. Without the bar, a criterion the picker barely asked
+ * about (because its weight is small) named a "best" from one answer; in
+ * the browser check a scripted person's least-liked option was shown as
+ * strongest on three criteria that way.
+ */
+export function bestPerCriterion(df, { level = 0.75 } = {}) {
+  return df.opts.map((f) => {
+    const ord = f.mu.map((m, i) => [m, i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]).map(([, i]) => i);
+    if (ord.length < 2) return ord[0] ?? -1;
+    const [i, j] = ord;
+    return normalCdf((f.mu[i] - f.mu[j]) / Math.sqrt(dv(f, i, j))) >= level ? i : -1;
+  });
+}
+
+/**
+ * A soft cap on questions: a full-order budget for the criteria plus one for
+ * the options on each criterion, at 2 n log2 n per list (rank-core's
+ * suggestedMax), halved, because the picker stops asking about parts of the
+ * matrix that cannot change the overall order. Stop whenever you like.
+ */
+export function decisionMax(n, C) {
+  return Math.ceil((suggestedMax(Math.max(C, 2)) + C * suggestedMax(Math.max(n, 2))) / 2);
+}
+
+/** Stop once the overall order is STOP_CONFIDENCE settled (from `decisionTable`) with at least one answer of each kind. */
+export function decisionDone(table, answers) {
+  return answers.crit.length > 0 && answers.opt.length > 0 && table.confidence >= STOP_CONFIDENCE;
+}
+
+/** The results as CSV, with the weights below the order. Every text cell goes through rank-core's csvCell, its formula-injection guard. */
+export function decisionCsv(options, criteria, table, df) {
+  const q = csvCell;
+  const best = bestPerCriterion(df);
+  const rows = [["rank", "option", "rank_range_90", "chance_best", ...criteria.map((c) => `best_on_${c}`)].map(q).join(",")];
+  for (const r of table.rows) rows.push([r.rank, q(options[r.item]), q(r.low === r.high ? `${r.low}` : `${r.low}-${r.high}`), r.best.toFixed(3), ...best.map((b) => (b === r.item ? "yes" : ""))].join(","));
+  rows.push("");
+  rows.push(["criterion", "weight", "weight_range_90"].join(","));
+  for (const c of table.crit) rows.push([q(criteria[c.item]), c.weight.toFixed(3), q(`${c.low.toFixed(3)}-${c.high.toFixed(3)}`)].join(","));
+  return rows.join("\n") + "\n";
+}
+
+/**
+ * A team's decision from several people's codes: each person's overall
+ * scores (posterior mode) are centred and averaged with equal weight per
+ * person, their weights averaged the same way, and `agreement` is the mean
+ * pairwise Spearman between people's overall orders.
+ */
+export function combineDecisions(nOptions, nCriteria, people) {
+  const dfs = people.map((p) => decisionFit(nOptions, nCriteria, p.answers));
+  const sc = dfs.map((d) => centre(d.score));
+  const team = Array.from({ length: nOptions }, (_, i) => sc.reduce((a, s) => a + s[i], 0) / dfs.length);
+  const weights = Array.from({ length: nCriteria }, (_, c) => dfs.reduce((a, d) => a + d.weights[c], 0) / dfs.length);
+  const ranks = dfs.map((d) => { const r = new Array(nOptions); overallOrder(d).forEach((it, k) => (r[it] = k + 1)); return r; });
+  let sum = 0, pairs = 0;
+  for (let a = 0; a < ranks.length; a++) for (let b = a + 1; b < ranks.length; b++) {
+    let d2 = 0;
+    for (let i = 0; i < nOptions; i++) d2 += (ranks[a][i] - ranks[b][i]) ** 2;
+    sum += nOptions > 1 ? 1 - (6 * d2) / (nOptions * (nOptions * nOptions - 1)) : 1; pairs++;
+  }
+  const order = team.map((s, i) => [s, i]).sort((x, y) => y[0] - x[0] || x[1] - y[1]).map(([, i], k) => ({
+    item: i, rank: k + 1,
+    firsts: ranks.filter((r) => r[i] === 1).length,
+    bestPlace: Math.min(...ranks.map((r) => r[i])),
+    worstPlace: Math.max(...ranks.map((r) => r[i])),
+  }));
+  return { people: dfs.length, order, weights, agreement: pairs ? sum / pairs : 1 };
+}

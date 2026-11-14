@@ -18,6 +18,12 @@ shortlisted it (on 432 simulated teams the model's pick was right 78% of the
 time, a show of hands 72%). Nothing is
 uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
 
+**Choosing on several criteria?** [Weigh criteria by picking pairs](https://marisstella.app/quick-pick-survey/decide.html)
+(since 2026-11-14) is a weighted decision matrix with nothing typed: it asks
+"which matters more?" and "on this criterion, which is better?", fits both with
+the same refit and shows rank ranges that include doubt about the weights.
+Model, simulations and what is still open: [docs/DECIDE-PAGE.md](docs/DECIDE-PAGE.md).
+
 ## Deploy your own copy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo&root-directory=ventures%2Fquick-pick-survey&env=ADMIN_KEY%2CADMIN_SESSION_SECRET&envDescription=Two%20long%20random%20strings%20you%20make%20up%3A%20ADMIN_KEY%20is%20your%20admin%20password%2C%20ADMIN_SESSION_SECRET%20signs%20admin%20cookies.%20Generate%20each%20with%20%60openssl%20rand%20-hex%2032%60.&envLink=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo%2Ftree%2Fmain%2Fventures%2Fquick-pick-survey%23deploy-your-own-copy&project-name=quick-pick-survey&stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D)

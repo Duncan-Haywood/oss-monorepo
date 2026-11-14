@@ -39,6 +39,8 @@ ELEV_SPEED_EXT_MM_S = 18.0      # timed/rc: measured extending (nose down, again
 ELEV_SPEED_RET_MM_S = 22.0      # measured retracting (nose up, the weight helps)
 ELEV_POT_RAW_RETRACTED = 1500   # pot: read_u16() at full retract (measure it)
 ELEV_POT_RAW_EXTENDED = 63000   # pot: read_u16() at full extension (measure it)
+ELEV_POT_READS = 8              # pot: readings per tick; the 2 highest and 2 lowest are dropped and the rest averaged
+#   (the PWM's pickup and the ESP32 ADC's own noise; the 1 uF capacitor on GPIO 39 is the real fix, cad check_elev_pot)
 ELEV_SELF_LOCKING = True        # timed: False if the head sinks when power is cut (then every stop re-homes)
 # Feed shuttle servo (cad: Feeder.shuttle_drive): a crank turned 180 deg between these pulses moves the shuttle from
 # retracted (pocket under the column) to forward (ball at the wheels); both ends are the crank's dead centres.

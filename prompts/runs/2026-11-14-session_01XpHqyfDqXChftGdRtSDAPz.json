@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfDqXChftGdRtSDAPz",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T20:39:15Z",
+  "ended": "2026-11-14T20:44:49Z",
+  "wall_minutes": 7.55,
+  "tokens_in": 3205704,
+  "tokens_out": 28688,
+  "cost_usd": 1.8683,
+  "tool_calls": 39,
+  "task": "Write the bible's open For Other Minds proposal (Berkson's paradox) as a story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15976",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'git log --oneline -15 -- <creative paths>' on the shallow clone shows only 3 commits, so 'longest without a new piece' cannot be read from it; README's generated per-shelf dated lists answered it instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (474 MB > 400 MB), so the story landed text only as the prompt directs; noted for clarity, not a departure.",
+      "did": "text only",
+      "result": "story, pages and feeds landed without audio"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-fourth-corner.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (For Other Minds). Piece: the-fourth-corner (Berkson's paradox / collider bias; ~3,400 words; text only). Numbers from a paper-town model (9,000 households; car 35%/82% under/over income line; illness 22% independent; means take-up 40%, GP referral 8% of ill over line) giving queue OR 2.89; invented records OR 2.98 pooled, 1.03 within means route. Weekdays 10-28 Jan 2048 checked with datetime. Bible: proposal moved to DONE.md via bible_done.mjs; new FOM proposal (immortal time bias) added. node --test in ventures/hearth-and-horizon: 15/15 pass; run_workflow_locally --for-changes run (result recorded in PR). No agent doc added: nothing the next run needs beyond the bible's next-up entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "312982d4-025f-549f-87ae-6014ebd08572",
+    "transcripts": 1,
+    "first": "2026-11-14T20:39:15Z",
+    "last": "2026-11-14T20:46:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 28688,
+        "thinking": 11398,
+        "cache_read": 3121897,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83733,
+        "api_equivalent_usd": 1.8683,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 28688,
+      "thinking": 11398,
+      "cache_read": 3121897,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83733,
+      "api_equivalent_usd": 1.8683,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 34,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.55,
+      "active_minutes": 7.55,
+      "model_minutes": 5.36,
+      "tool_minutes": 2.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer researching and drafting a 3,400-word story with worked statistics, plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 321.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

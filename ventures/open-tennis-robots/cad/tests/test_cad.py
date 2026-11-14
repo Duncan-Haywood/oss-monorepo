@@ -1531,6 +1531,62 @@ class RegenTest(unittest.TestCase):
         self.assertAlmostEqual(d["wheel_j"] / p.launch_drag_w * 2 / d["coast_to_rest_s"], 1.0, places=6)
 
 
+class PotPickupParamsTest(unittest.TestCase):
+    """The elevation pot's pickup from the motor pair's PWM (2026-11-14, `elev_pot_pickup`, `check_elev_pot`)."""
+
+    def test_defaults_pass_and_the_cable_check_runs_it(self):
+        import inspect
+        p = Feeder()
+        self.assertEqual(p.check_elev_pot(), [])
+        self.assertIn("self.check_elev_pot()", inspect.getsource(Feeder))
+        d = p.elev_pot_pickup()
+        self.assertAlmostEqual(d["run_m"], p.elev_lead_design()["run_m"])
+        self.assertAlmostEqual(d["step_v"], p.battery_v_max * d["cm_pf"] / (d["c_nf"] * 1e3 + d["cm_pf"]), places=9)
+        self.assertLess(d["err_mm"], 0.1)
+        self.assertEqual(d["bad_read_frac"], 0.0)
+
+    def test_the_closed_form_matches_stepping_the_node(self):
+        p = Feeder()
+        for nf in (0.0, 100.0, 1000.0):
+            n = p._elev_pot_node(nf)
+            for duty in (0.4, 0.7):
+                # step the RC node edge by edge for many periods from zero error
+                e, steps = 0.0, 400
+                dt = n["period"] / steps
+                trace = []
+                for k in range(steps * 400):
+                    ph = (k % steps) / steps
+                    if k % steps == 0:
+                        e += n["a"]
+                    if k % steps == round(duty * steps):
+                        e -= n["a"]
+                    if k >= steps * 399:
+                        trace.append((ph, e))
+                    e *= math.exp(-dt / n["tau"])
+                for ph, v in trace[::37]:
+                    self.assertAlmostEqual(p.elev_pot_error_v(duty, ph, filter_nf=nf), v, delta=1e-6 + 1e-4 * n["a"])
+                # the mean over a period is zero: many readings at random phase average to the true position
+                self.assertLess(abs(sum(v for _, v in trace) / len(trace)), 0.01 * n["a"] + 1e-6)
+
+    def test_rules_catch_a_small_or_missing_filter_and_a_slow_one(self):
+        bad = Feeder(elev_pot_filter_nf=100.0).check_elev_pot()     # ESP-IDF's example bypass capacitor
+        self.assertTrue(any("deadband" in r for r in bad), bad)
+        self.assertTrue(any("stall check" in r for r in bad), bad)
+        none = Feeder(elev_pot_filter_nf=0.0)
+        self.assertTrue(none.elev_pot_pickup()["clips_rail"])
+        self.assertGreater(none.elev_pot_pickup()["bad_read_frac"], 0.05)
+        self.assertTrue(any("lags" in r for r in Feeder(elev_pot_filter_nf=10000.0).check_elev_pot()))
+        # the chosen 1 uF holds over the assumptions' spread
+        for r in (2500.0, 20000.0):
+            for pf in (10.0, 60.0):
+                self.assertEqual(Feeder(elev_pot_ohm=r, elev_lead_mutual_pf_m=pf).check_elev_pot(), [], (r, pf))
+        # at the default assumptions 220 nF to 2.3 uF passes: 1 uF sits inside with room for the pot and the bundle
+        self.assertTrue(Feeder(elev_pot_filter_nf=200.0).check_elev_pot())
+        self.assertEqual(Feeder(elev_pot_filter_nf=220.0).check_elev_pot(), [])
+        self.assertEqual(Feeder(elev_pot_filter_nf=2200.0).check_elev_pot(), [])
+        self.assertTrue(Feeder(elev_pot_filter_nf=2400.0).check_elev_pot())
+
+
 class InrushTest(unittest.TestCase):
     """Contactor inrush and precharge (2026-11-14): the closed-form R-L-C against brute force, and the checks."""
 
