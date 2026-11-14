@@ -275,16 +275,16 @@ flagships:
       balanced least priced, faster break floor, exact home-and-away breaks, backward table, blackout fit:
       README 2026-11-11 to 2026-11-14 sections). 2026-11-14 latest: least carry-over 94 at 10 teams, and
       at 12 none below 124 (eval/carryover-bnb.c with a per-round matching bound and round 1 per cycle
-      type, 11x faster at 10; README "12 teams cannot reach 122"; the page says so). Blackout fit
-      (2026-11-13) cut makeups 28% and moved matches 30%. Next, most valuable first: the rest of the
+      type; the page says so); refill search in C (eval/refill-search.c): 14 teams 210 (starter 212), stored
+      and on the page; 631 climbs at 12 found nothing below 136. Next, most valuable first: the rest of the
       20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now 2.1x cheaper again,
       README "A backward table"; or a starter family climbed with the floor as its score); 24 and 25 teams
       in the page (54-184 s since the predecessor cache and backward table; the step over wide spans is
       ~94%: moves span 15 of 23 rounds, so narrower moves, or a step in WebAssembly); home-and-away breaks
       exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT; eval/pair-exact.txt): next,
       a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-136 open: a timetable below 136, or 124 ruled out (~4 h on 4
-      cores; round reversal ~2x, a bound across rounds); close 24-40 (tabu, the literature's starters); a
+      PAIR_EXACT_NODES) cut; 12 teams: 124-134 ruled out (~4 h on 4 cores; round reversal ~2x, a bound
+      across rounds); 18 teams: refill from the climbed starter (356 from circle, starter 318); close 24-40 (tabu, the literature's starters); a
       real league's travel and blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
     buildable: >-

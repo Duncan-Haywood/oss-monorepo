@@ -931,6 +931,59 @@ to `eval/carryover-bnb.c` make it finish there, and they keep every answer it ga
 - Not claimed: the gap from 124 to 136 is open. Round reversal is still unused (about 2x), and so is
   any bound across rounds; nothing here was compared with published carry-over tables.
 
+## The refill search in C: 14 teams at 210, and 12 teams' 136 again (2026-11-14, latest)
+
+`eval/round-refill.mjs` found 136 at 12 teams in 3 of 4 seven-minute runs, and stopped at the
+starter's 212 at 14 and 318 at 18. `eval/refill-search.c` (plain C, no dependencies) is the same
+move with three changes, to ask whether those numbers are walls or just where a slow search stopped.
+
+- **The move** is unchanged: take 2 to `WMAX` rounds out, refill them with the least-carry-over split
+  of their games into perfect matchings, in any order, by a depth-first search that cuts a branch as
+  soon as its carry-over passes the budget (a node cap of 20,000 per move).
+- **Acceptance**: the budget is the current value plus a slack drawn from an exponential with mean 1
+  (rounded down to even), so a slightly worse refill is taken only when nothing in the budget is better.
+- **Kicks and restarts**: after 2,000 moves with no new best for the climb, back to the climb's best and
+  2 to 5 random refills within a wide budget (a kick); after 30 kicks with no new best, a fresh climb
+  from the circle method with its rounds shuffled. `CLIMBS=1` prints each climb's best.
+- **Speed**: about 1,300 moves a second at `WMAX` 5 and 47,000 at `WMAX` 3 (12 teams, one core), against
+  the Node script measured no rate; `WMAX` 3 turned out the better setting at 12 and 14 teams.
+
+Measured on four shared cores (`eval/refill-search.txt`, every best re-scored from scratch and checked
+to be a round robin; the page's `carryOverFromOpponents` agrees):
+
+| Teams | Runs | Climbs | Best | How often | Before | Proved floor |
+|---|---|---|---|---|---|---|
+| 12 | 4 (2 x 900 s at `WMAX` 5, 2 x 600 s at `WMAX` 3) | 631 | 136 | every run; 5 of the 598 climbs at `WMAX` 3 | 136 | 124 (README above) |
+| 14 | 8 (240 to 900 s) | 865 at `WMAX` 3 | **210** | 2 of 8 runs (one climb each) | 212 (starter) | 168 (counting floor) |
+| 18 | 2 x 900 s | 173 | 356 | both runs | 318 (starter) | 288 |
+
+- **12 teams**: no climb out of 631 went below 136, and the lowest five all landed on it. That does
+  not prove 136 is the least (the exact search above proves only 124), but four independent runs and a
+  different program hitting the same wall make a 12-team timetable below 136 look unlikely to come from
+  more of this search. The useful next step there is the proof side: 124 to 134 ruled out.
+- **14 teams: 210**, two below the starter, found by two separate runs (seeds 44 and 51). Every count is
+  1, 2 or 3 (129 cells at 1, 18 at 2, one at 3). It is stored as `TIMETABLES[14].even` in
+  `carryover.mjs`, so the page's search starts from it beside the circle method and the starter and
+  keeps whichever ends best (`eval/stored-14.mjs`, seeds 1 to 3, effort 1):
+
+  | 14 teams | Before | Now |
+  |---|---|---|
+  | Single round robin, carry-over only | 212 / 32 breaks | **210 / 26** (fewer breaks too) |
+  | Single, break weight 10 | 252 / 18, 240 / 18, 238 / 20 | the same (the starter is kept) |
+  | Home and away, either setting | 732 / 84 ... 842 / 54 | the same |
+
+  Nothing got worse at any seed or setting. As 12 teams showed (README "Refilled rounds"), a leg with
+  less carry-over does not always make a better season, which is why it is a third start, not a
+  replacement. At 13 teams the same timetable with one team as the bye scores 179, worse than the 169
+  the search already finds, so it is stored for 14 only.
+- **18 teams**: from the circle method the search stops at 356, well above the starter's 318. Past 14
+  teams a climb from scratch is too slow; the next try is the refill started from the climbed starters
+  (`start` takes a timetable file) with restarts that re-shuffle the starter rather than the circle.
+- Tests (`starter.test.mjs`): the stored 14-team timetable is a round robin, scores 210, is below the
+  starter at every start, and the search from it returns 210 or less.
+- Not claimed: 210 is a heuristic result, not a proved least at 14 teams; nothing here was compared with
+  published carry-over tables.
+
 ## Starters picked with their breaks (2026-11-11, latest)
 
 The open item above was "pick the start by carry-over + weight x breaks when a weight is set". Two
