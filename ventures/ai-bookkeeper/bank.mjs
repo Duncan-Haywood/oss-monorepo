@@ -522,6 +522,11 @@ export function sniffBank(rows) {
     // Aggregator exports (headers from memory): Mint writes Description (cleaned), Original Description, unsigned Amount and a debit/credit Transaction Type; Monarch writes Merchant, Original Statement and a signed Amount.
     if (/^date\|description\|original description\|amount\|transaction type\|category\|account name/.test(h)) return "mint";
     if (/^date\|merchant\|category\|account\|original statement\|notes\|amount/.test(h)) return "monarch";
+    // Rocket Money (formerly Truebill) writes every account in one file, money out as a positive Amount and
+    // refunds and deposits as negative, on cards and checking alike (a real business Amex export read
+    // 2026-11-14, eval/aggregator-exports.mjs: 944 of 958 lines positive, the 14 negative ones airline and
+    // hotel refunds; two other projects' test files agree). Before, a card's spend was booked as income.
+    if (/^date\|original date\|account type\|account name\|account number\|institution name\|name\|custom name\|amount\|description\|category/.test(h)) return "rocket-money";
     if (/^date\|description\|type\|amount\|current balance\|status/.test(h)) return "sofi";
     if (/^transferwise id\|date\|(date time\|)?amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
@@ -1056,6 +1061,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // RBC puts a US-dollar movement in its own USD$ column and leaves CAD$ blank.
   const rbcUsd = bank === "rbc" ? hdr.indexOf("usd$") : -1;
   if (bank === "monzo") columns.desc = hdr.indexOf("name");
+  // Monarch: the bank's own text ("Original Statement") is read, not Monarch's cleaned Merchant, which
+  // folds "KROGER FUEL #3532" and "KROGER #532" into one "Kroger" and "EXXON 7-ELEVEN" into "7-Eleven".
+  // On a real 2025 Monarch export (eval/aggregator-exports.mjs, 502 scored lines) the learning loop went
+  // 88.2% to 91.0% right and 10.2% to 6.8% wrong. A row with no statement text keeps the Merchant.
+  const monarchMerchant = bank === "monarch" && hdr.indexOf("original statement") !== -1 ? columns.desc : -1;
+  if (monarchMerchant !== -1) columns.desc = hdr.indexOf("original statement");
   // Cash App: the fee sits in its own column, so the net amount is what moved.
   // The payee column beats the free-text note.
   // PayPal activity: the Net column is what moved the balance (Gross less Fee); only Completed rows count.
@@ -1222,6 +1233,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     }
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
     let desc = String(r[columns.desc] ?? "").trim().replace(/\s+/g, " ");
+    if (!desc && monarchMerchant !== -1) desc = String(r[monarchMerchant] ?? "").trim().replace(/\s+/g, " ");
     if (hdr.includes("wallet txn id") && columns.desc === hdr.indexOf("activity")) desc = [desc, String(r[hdr.indexOf("comment")] ?? "").trim()].filter(Boolean).join(" ").replace(/\s+/g, " ");
     if (bank === "cash-app") {
       const who = String(r[hdr.indexOf("name of sender/receiver")] ?? "").trim();
@@ -1288,8 +1300,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1 && drcrCol === -1 && !sidesAgree(out, sides)) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
-    const pos = chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
-    if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
+    const pos = bank === "rocket-money" || (chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null));
+    if (pos) { flip = true; inferred = bank === "rocket-money" ? "Rocket Money lists money out as positive amounts and refunds and deposits as negative, so signs were flipped." : "Charges were positive (the payment rows are negative), so signs were flipped."; }
     // A merchant category column means a card file, and a purchasing-card report (Toronto's PCard
     // report, Durham's procurement-card file) lists charges as positive and refunds as negative, with
     // no payment rows for the test above to find. Before this, a month of card spend was booked as income.
