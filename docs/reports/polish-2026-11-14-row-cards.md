@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, forms]
+topics: [design]
 date: 2026-11-14
 ---
 # Polish 2026-11-14: the bid calculators' row editors stop cutting their own choices
