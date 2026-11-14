@@ -92,6 +92,17 @@
     footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
     .sr { position: absolute; left: -9999px; }
   </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.row > div:has(> #fabric),
+    div.row > div:has(> #sel-method),
+    div.row > div:has(> #garment),
+    div.row > div:has(> #sel-area) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
 <main>
