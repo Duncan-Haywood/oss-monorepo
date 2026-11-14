@@ -296,6 +296,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    the LP to 0.04%; a 1/16 in gap moves the decayed walls 0.1 point, early-peaking joints leave the 3 in wall
    at 71%, and all 30 fits within 5 points (960 pushovers) need end nails at a quarter of the NDS ratio.
    Still open: a tested end-nail ultimate and load-slip curve, and cyclic loading.
+20. **The wall under the CUREE protocol** (done 2026-11-14, `experiments/m20_cyclic/`): SAWS pinching nails
+   fitted to Weiss's materials (Anderson et al. 2007), checked against OpenSees to 2e-13. Cyclic loading
+   moves the intact peaks 0.1% and the decayed 3 in wall's share 0.1 point (70.6% against 34% tested); fits
+   still need end nails at a quarter of NDS. Still open: a tested end-nail ultimate, and nail fatigue and
+   tear-out (a degrading nail model).
 
 ## Target venue
 
