@@ -419,6 +419,21 @@ class TrackProgrammesTest(unittest.TestCase):
         # Every row that says "track N" in the live table maps back to it.
         self.assertIn("sensing-selfcal", pick_track.track_programmes(15))
 
+    def test_builds_on_glob_names_the_track(self):
+        # llm-coding-inference builds on `qual-*`; its slug has no qual- prefix.
+        table = ("## Open programmes\n\n| Programme | Question | Builds on | Venue |\n|---|---|---|---|\n"
+                 "| [`llm-coding-inference`](x) | Q | `qual-*` | V |\n"
+                 "| [`verified-dse`](x) | Q | `eda-*`, `chip-*` and `accel-*` | V |\n"
+                 "| [`sim2real-inference`](x) | Q | `*-twin`, `twin-*` and `mimic-twin*` | V |\n")
+        tp = pick_track.track_programmes
+        idx = pick_track.PREFIX.index
+        self.assertEqual(tp(idx("qual") + 1, table), ["llm-coding-inference"])
+        self.assertEqual(tp(idx("eda") + 1, table), ["verified-dse"])
+        self.assertEqual(tp(idx("accel") + 1, table), ["verified-dse"])
+        self.assertEqual(tp(idx("mimic") + 1, table), ["sim2real-inference"])
+        self.assertEqual(tp(idx("swe") + 1, table), [])
+        self.assertIn("llm-coding-inference", tp(idx("qual") + 1))
+
 
 class FreeChoiceTest(unittest.TestCase):
     def test_free_choice_says_where_the_work_goes(self):

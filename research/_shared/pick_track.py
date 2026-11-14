@@ -324,7 +324,8 @@ def programmes():
 
 def track_programmes(t, text=None):
     """Open programmes for track `t`: a row whose "Builds on" names the track ("track 15",
-    "tracks 12 and 20") or whose slug starts with the track's prefix (`sensing-selfcal`).
+    "tracks 12 and 20"), whose slug starts with the track's prefix (`sensing-selfcal`), or
+    whose "Builds on" names a project or glob with that prefix (`qual-*`).
 
     Track draws printed milestones and project lists but never the programme the track
     already has, so runs had to map the draw to a PROGRAMMES.md row by hand, and one took a
@@ -341,7 +342,12 @@ def track_programmes(t, text=None):
         named = set()
         for phrase in re.findall(r"\btracks? ([\d ,and]+)", builds_on):
             named.update(int(n) for n in re.findall(r"\d+", phrase))
-        if t in named or slug.split("-")[0] == PREFIX[t - 1]:
+        # A backticked project or glob in "Builds on" (`qual-*`, `eda-*`, `mimic-twin*`)
+        # names the track whose prefix it starts with: before 2026-11-14 the qual track
+        # printed "no open programme" although llm-coding-inference builds on `qual-*`,
+        # and chip, eda, accel, mimic and osrobot draws missed theirs the same way.
+        globs = {re.split(r"[-*]", g)[0] for g in re.findall(r"`([\w*-]+)`", builds_on)}
+        if t in named or slug.split("-")[0] == PREFIX[t - 1] or PREFIX[t - 1] in globs:
             out.append(slug)
     return out
 
