@@ -570,6 +570,10 @@ export const SERVED_EXTENSIONS = new Map([
   ['.mp3', 'stock'],
   // The research pages' self-hosted fonts; mime.types lists font/woff2 woff2.
   ['.woff2', 'stock'],
+  // einvoice-preflight's Factur-X writer fetches fonts/PreflightSans-*.ttf as bytes (arrayBuffer, so the type
+  // does not gate it); mime-db, which Cloudflare's asset server uses, types .ttf as font/ttf. nginx's stock
+  // mime.types has no ttf line, hence 'conf'.
+  ['.ttf', 'conf'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],

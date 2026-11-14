@@ -14,6 +14,8 @@
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
 //                            "peppol"|"en16931"} -> { ok, errors, warnings, totals,
 //                            xml, filename, preflight }. See examples/draft-invoice.json.
+//                            "format":"facturx" (profile en16931 or xrechnung) also
+//                            returns pdf_base64: a Factur-X PDF/A-3b with the CII inside.
 //   GET  /healthz            liveness probe.
 //   GET  /                   the browser checker (index.html), if present.
 //
@@ -31,6 +33,8 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { timingSafeEqual } from "node:crypto";
 import { generateInvoice } from "./generate.mjs";
+import { generateFacturX } from "./facturx-pdf.mjs";
+import { readFontsSync } from "./facturx-pdf-node.mjs";
 import { buildJsonReport, preflightDocuments } from "./report.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -262,6 +266,17 @@ export function createApp(config = loadConfig()) {
       }
       if (!parsed || typeof parsed !== "object" || typeof parsed.draft !== "object" || parsed.draft === null) {
         throw new HttpError(400, 'Expected {"draft":{...}}.');
+      }
+      if (parsed.format === "facturx" || parsed.format === "pdf") {
+        const fx = generateFacturX(parsed.draft, { profile: parsed.profile || "en16931", fonts: readFontsSync() });
+        const { pdf, ...rest } = fx;
+        if (!fx.ok) {
+          send(res, 422, { ...rest, disclaimer: DISCLAIMER });
+          return;
+        }
+        const check = buildJsonReport(await preflightDocuments([{ name: fx.filename, source: pdf }], { maxBytes: config.maxBytes, maxFiles: 1 }));
+        send(res, 200, { ...rest, pdf_base64: Buffer.from(pdf).toString("base64"), preflight: { status: check.status, findings: check.errors }, disclaimer: DISCLAIMER });
+        return;
       }
       const made = generateInvoice(parsed.draft, { format: parsed.format || "ubl", profile: parsed.profile || "xrechnung" });
       if (!made.ok) {
