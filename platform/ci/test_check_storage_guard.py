@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_storage_guard import check_tree, main, run_contract, unguarded_reads, unshaped_parses
+from check_storage_guard import bare_storage_args, check_tree, main, run_contract, unguarded_reads, unshaped_parses
 
 
 class UnguardedReads(unittest.TestCase):
@@ -182,3 +182,41 @@ class Contract(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BareStorageArgs(unittest.TestCase):
+    """Red team 2026-11-14: 292 pages passed the bare global to usage.mjs."""
+
+    PAGE = "import { recordUsage, readOptOut as ro } from './usage.mjs';\n{}\n"
+
+    def test_flags_each_spelling_of_the_global(self):
+        for arg in ("localStorage", "window.localStorage", "globalThis.localStorage", " localStorage"):
+            with self.subTest(arg=arg):
+                self.assertEqual(bare_storage_args(self.PAGE.replace("{}", f"recordUsage({arg}, false, 'x');")), [2])
+
+    def test_flags_an_aliased_import(self):
+        self.assertEqual(bare_storage_args(self.PAGE.replace("{}", "ro(localStorage);")), [2])
+
+    def test_the_guarded_helper_and_other_modules_pass(self):
+        self.assertEqual(bare_storage_args(self.PAGE.replace("{}", "recordUsage(usageStorage(), false, 'x');")), [])
+        self.assertEqual(bare_storage_args(self.PAGE.replace("{}", "saveScenario(localStorage, s);")), [])
+        self.assertEqual(bare_storage_args("recordUsage(localStorage);\n"), [], "no usage.mjs import, not ours")
+
+    def test_comments_do_not_count(self):
+        self.assertEqual(bare_storage_args(self.PAGE.replace("{}", "// recordUsage(localStorage) was the bug")), [])
+
+    def test_a_default_parameter_reading_the_global_is_flagged(self):
+        self.assertEqual(unguarded_reads("export function recordUsage(storage = globalThis.localStorage) {\n}\n"), [1])
+
+    def test_tree_reports_pages_and_skips_tests_and_node_modules(self):
+        with tempfile.TemporaryDirectory() as d:
+            v = Path(d) / "a"
+            (v / "node_modules").mkdir(parents=True)
+            (v / "usage.mjs").write_text("export function usageStorage() { try { return globalThis.localStorage; } catch { return null; } }\n")
+            bad = self.PAGE.replace("{}", "recordUsage(localStorage);")
+            (v / "page.test.mjs").write_text(bad)
+            (v / "node_modules" / "x.mjs").write_text(bad)
+            self.assertEqual(check_tree(d), [])
+            (v / "index.html").write_text(bad)
+            self.assertEqual(len(check_tree(d)), 1)
+

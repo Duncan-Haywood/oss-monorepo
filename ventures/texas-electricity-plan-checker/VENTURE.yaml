@@ -1,0 +1,59 @@
+name: texas-electricity-plan-checker
+description: >-
+  Free browser tool for Texas households in the competitive electricity market: paste each plan's Electricity Facts
+  Label and a year of Smart Meter Texas usage, and see what every plan would have cost month by month (bill credits,
+  energy tiers, minimum-usage fees, free-nights windows, TDU delivery charges), with each label's terms checked
+  against its own 500, 1,000 and 2,000 kWh average prices. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-14 in an explore-track session. duplicate_check.py: nothing >= 0.45 (top 0.17, cloud bill
+# estimators). The portfolio had a commercial demand-charge analyzer and solar payback but nothing for choosing a
+# retail electricity plan.
+#
+# Why this niche: millions of Texas homes in the competitive areas choose a retail provider, and plan lists show the average
+# price at exactly 500, 1,000 and 2,000 kWh, which bill credits can be set to hit. Paid services (plan-switching subscriptions,
+# broker sites paid by providers) exist because the comparison is hard; a neutral, open checker that bills the
+# household's own months and verifies the label is the free version.
+#
+# First visitor: searches for "electricity facts label explained", "texas electricity bill credit trap",
+# "best electricity plan for my usage texas", "smart meter texas data compare plans", "free nights plan worth it".
+# Volume not measured.
+#
+# Liability boundary: arithmetic on terms the user pastes; examples are invented and say so; no provider's prices
+# are stored or claimed; "not financial or legal advice" and "not affiliated" on every page.
+#
+# Path to revenue (payment rails stay off): donations now. Later options, each needing the owner: a paid renewal
+# reminder that re-ranks plans when a contract ends; referral fees from providers or brokers (would need a clear
+# disclosure and must never change the ranking).
+
+hypotheses:
+  - claim: >-
+      Texas households shopping for a plan will paste EFLs and their Smart Meter Texas usage into a free checker.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      For a realistic spread of Texas homes, the plan with the lowest 1,000 kWh price is often not the cheapest on
+      the home's own year (check/resstock-results.md measures this on simulated homes and invented plans).
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a real EFL whose terms, read correctly, do not reproduce its own average prices under this model.
+
+links:
+  production: https://marisstella.app/texas-electricity-plan-checker/
+  analytics: null

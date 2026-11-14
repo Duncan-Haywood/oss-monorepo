@@ -130,7 +130,7 @@ micro, 430, 808, 1656, 108</textarea></label>
 
   <script type="module">
     import { planPortfolio, toCsv, toIcs, encodeState, decodeState } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const FIELDS = ['patents','asOf','horizonYears','warnDays','fees'];
     const $ = (id) => document.getElementById(id);
@@ -217,8 +217,8 @@ micro, 430, 808, 1656, 108</textarea></label>
     {
       const control = $('usageOptOut');
       try {
-        control.checked = readOptOut(localStorage);
-        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+        control.checked = readOptOut(usageStorage());
+        control.addEventListener('change', () => writeOptOut(usageStorage(), control.checked));
       } catch { /* storage blocked: counting stays off the persisted path */ }
     }
     render(false);

@@ -198,7 +198,7 @@
   <script type="module">
     import { calculateQuote, COST_IDS, UNIT_FIELDS, UNIT_PRESETS } from './calc.mjs';
     import { encodeInputs, decodeInputs, formValues, carriesAnything } from './share.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = (id) => document.getElementById(id);
     const money = (value) => {
@@ -207,7 +207,7 @@
     };
 
     const optedOut = () => el('usageOptOut').checked;
-    const count = (event) => recordUsage(localStorage, optedOut(), event);
+    const count = (event) => recordUsage(usageStorage(), optedOut(), event);
 
     // The opening example: 2 standard bounce houses and 1 water slide, so the
     // page shows a real, non-zero quote before anyone types anything.
@@ -390,8 +390,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

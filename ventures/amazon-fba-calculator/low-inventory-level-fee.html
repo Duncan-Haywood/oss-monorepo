@@ -176,7 +176,7 @@
   </footer>
   <script type="module">
     import { compareLowInventory, lowInventoryNote } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, usageStorage } from "./usage.mjs";
 
     const ids = [
       "onHandUnits", "soldLast30Days", "soldLast90Days", "monthlyUnits",
@@ -236,7 +236,7 @@
     [...ids, ...flags].forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, false, "low_inventory_compared");
+        recordUsage(usageStorage(), false, "low_inventory_compared");
       });
     });
     update();

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 604 322" width="604" height="322" font-family="system-ui, sans-serif" font-size="12" role="img" aria-labelledby="t d">
+<title id="t">Which model the estimation picks, by the model that made the data</title>
+<desc id="d">Two 3 by 3 confusion matrices over 200 synthetic datasets per model on the 43 real village networks. In sample with the BCDJ moments, reinforcement is chosen for most datasets whatever made them. Leaving one village out, recovery is 58.5% for information, 82% for threshold and 55.5% for reinforcement data.</desc>
+<rect width="604" height="322" fill="#ffffff"/>
+<text x="216.0" y="22" text-anchor="middle" font-weight="600">In sample, BCDJ five moments</text>
+<text x="216.0" y="40" text-anchor="middle" fill="#555">family chosen</text>
+<text x="152.0" y="62" text-anchor="middle">inform.</text>
+<text x="216.0" y="62" text-anchor="middle">thresh.</text>
+<text x="280.0" y="62" text-anchor="middle">reinfo.</text>
+<text x="112" y="106.0" text-anchor="end">information</text>
+<rect x="120" y="70" width="62" height="62" fill="rgb(226,229,255)" stroke="#000"/>
+<text x="151.0" y="106.0" text-anchor="middle" fill="#111">0.14</text>
+<rect x="184" y="70" width="62" height="62" fill="rgb(254,254,255)" stroke="none"/>
+<text x="215.0" y="106.0" text-anchor="middle" fill="#111">0.01</text>
+<rect x="248" y="70" width="62" height="62" fill="rgb(85,106,255)" stroke="none"/>
+<text x="279.0" y="106.0" text-anchor="middle" fill="#fff">0.85</text>
+<text x="112" y="170.0" text-anchor="end">threshold</text>
+<rect x="120" y="134" width="62" height="62" fill="rgb(191,199,255)" stroke="none"/>
+<text x="151.0" y="170.0" text-anchor="middle" fill="#111">0.32</text>
+<rect x="184" y="134" width="62" height="62" fill="rgb(238,240,255)" stroke="#000"/>
+<text x="215.0" y="170.0" text-anchor="middle" fill="#111">0.09</text>
+<rect x="248" y="134" width="62" height="62" fill="rgb(136,150,255)" stroke="none"/>
+<text x="279.0" y="170.0" text-anchor="middle" fill="#fff">0.59</text>
+<text x="112" y="234.0" text-anchor="end">reinforcement</text>
+<rect x="120" y="198" width="62" height="62" fill="rgb(221,225,255)" stroke="none"/>
+<text x="151.0" y="234.0" text-anchor="middle" fill="#111">0.17</text>
+<rect x="184" y="198" width="62" height="62" fill="rgb(254,254,255)" stroke="none"/>
+<text x="215.0" y="234.0" text-anchor="middle" fill="#111">0.01</text>
+<rect x="248" y="198" width="62" height="62" fill="rgb(90,110,255)" stroke="#000"/>
+<text x="279.0" y="234.0" text-anchor="middle" fill="#fff">0.82</text>
+<text x="478.0" y="22" text-anchor="middle" font-weight="600">Leave one village out, eight moments</text>
+<text x="478.0" y="40" text-anchor="middle" fill="#555">family chosen</text>
+<text x="414.0" y="62" text-anchor="middle">inform.</text>
+<text x="478.0" y="62" text-anchor="middle">thresh.</text>
+<text x="542.0" y="62" text-anchor="middle">reinfo.</text>
+<rect x="382" y="70" width="62" height="62" fill="rgb(138,152,255)" stroke="#000"/>
+<text x="413.0" y="106.0" text-anchor="middle" fill="#fff">0.58</text>
+<rect x="446" y="70" width="62" height="62" fill="rgb(221,225,255)" stroke="none"/>
+<text x="477.0" y="106.0" text-anchor="middle" fill="#111">0.17</text>
+<rect x="510" y="70" width="62" height="62" fill="rgb(206,212,255)" stroke="none"/>
+<text x="541.0" y="106.0" text-anchor="middle" fill="#111">0.24</text>
+<rect x="382" y="134" width="62" height="62" fill="rgb(224,227,255)" stroke="none"/>
+<text x="413.0" y="170.0" text-anchor="middle" fill="#111">0.15</text>
+<rect x="446" y="134" width="62" height="62" fill="rgb(91,111,255)" stroke="#000"/>
+<text x="477.0" y="170.0" text-anchor="middle" fill="#fff">0.82</text>
+<rect x="510" y="134" width="62" height="62" fill="rgb(250,250,255)" stroke="none"/>
+<text x="541.0" y="170.0" text-anchor="middle" fill="#111">0.03</text>
+<rect x="382" y="198" width="62" height="62" fill="rgb(209,214,255)" stroke="none"/>
+<text x="413.0" y="234.0" text-anchor="middle" fill="#111">0.23</text>
+<rect x="446" y="198" width="62" height="62" fill="rgb(212,217,255)" stroke="none"/>
+<text x="477.0" y="234.0" text-anchor="middle" fill="#111">0.21</text>
+<rect x="510" y="198" width="62" height="62" fill="rgb(144,157,255)" stroke="#000"/>
+<text x="541.0" y="234.0" text-anchor="middle" fill="#fff">0.56</text>
+<text x="12" y="166.0" transform="rotate(-90 12 166.0)" text-anchor="middle" fill="#555">model that made the data</text>
+<text x="302.0" y="304" text-anchor="middle" fill="#555">share of 200 synthetic datasets per row; outlined cells are correct picks</text>
+</svg>

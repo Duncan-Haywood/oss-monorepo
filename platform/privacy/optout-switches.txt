@@ -1143,6 +1143,7 @@ ventures/terraform-plan-blast-radius-check/usage.mjs
 ventures/terraform-plan-cost-estimate/usage.mjs
 ventures/terraform-plan-secret-exposure-check/usage.mjs
 ventures/testimonial-keeper/usage.mjs
+ventures/texas-electricity-plan-checker/usage.mjs
 ventures/tfsa-over-contribution-checker/usage.mjs
 ventures/therapy-8-minute-rule-calculator/usage.mjs
 ventures/thrift-haul-buy-picker/usage.mjs

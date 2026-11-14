@@ -173,11 +173,11 @@ publish-kit audiobook check &amp;&amp; publish-kit audiobook m4b --run &amp;&amp
   import { buildEpub, checkCover, paperbackCover, lintBook } from './book.mjs';
   import { checkAcx } from './audiobook.mjs';
   import { uuidv4 } from './util.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const count = (event) => recordUsage(localStorage, $('usageOptOut')?.checked ?? false, event);
+  const count = (event) => recordUsage(usageStorage(), $('usageOptOut')?.checked ?? false, event);
   const showFindings = (el, findings, okText) => {
     el.innerHTML = findings.length
       ? findings.map((f) => `<div class="finding ${f.severity}"><strong>${esc(f.field)}</strong>: ${esc(f.message)}${f.fix ? `<br><small>→ ${esc(f.fix)}</small>` : ''}</div>`).join('')
@@ -290,8 +290,8 @@ publish-kit audiobook check &amp;&amp; publish-kit audiobook m4b --run &amp;&amp
   });
 
   const usageControl = $('usageOptOut');
-  usageControl.checked = readOptOut(localStorage);
-  usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+  usageControl.checked = readOptOut(usageStorage());
+  usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
 </script>
 </body>
 </html>

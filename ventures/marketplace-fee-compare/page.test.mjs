@@ -93,7 +93,7 @@ test("keystroke bursts settle into one event rather than counting per character"
 
 test("usage counting is opt-out from the page and honors the checkbox", () => {
   assert.match(markup, /id="usageOptOut"/);
-  assert.match(scriptSource, /recordUsage\(localStorage, el\("usageOptOut"\)\.checked/);
+  assert.match(scriptSource, /recordUsage\(usageStorage\(\), el\("usageOptOut"\)\.checked/);
 });
 
 test("visitor-supplied values are escaped before they reach innerHTML", () => {

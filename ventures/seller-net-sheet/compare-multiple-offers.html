@@ -163,7 +163,7 @@
   <style>.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }</style>
   <script type="module">
     import { rankOffers } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const MAX_OFFERS = 12;
     const el = (id) => document.getElementById(id);
@@ -183,7 +183,7 @@
     ];
 
     let optedOutNow = false;
-    const count = (event) => { try { recordUsage(localStorage, optedOutNow, event); } catch { /* storage is optional */ } };
+    const count = (event) => { try { recordUsage(usageStorage(), optedOutNow, event); } catch { /* storage is optional */ } };
 
     function addRow(values = {}) {
       const body = el("offerRows");
@@ -305,10 +305,10 @@
     for (const id of ["loanPayoff", "listingRate", "titleFlat", "transferTaxRate", "otherClosing", "carryPerDay", "fallbackDays", "fallbackPrice"]) {
       el(id).addEventListener("input", update);
     }
-    try { el("usageOptOut").checked = readOptOut(localStorage); optedOutNow = el("usageOptOut").checked; } catch { /* storage is optional */ }
+    try { el("usageOptOut").checked = readOptOut(usageStorage()); optedOutNow = el("usageOptOut").checked; } catch { /* storage is optional */ }
     el("usageOptOut").addEventListener("change", () => {
       optedOutNow = el("usageOptOut").checked;
-      try { writeOptOut(localStorage, optedOutNow); } catch { /* storage is optional */ }
+      try { writeOptOut(usageStorage(), optedOutNow); } catch { /* storage is optional */ }
     });
     SEED.forEach(addRow);
     update();

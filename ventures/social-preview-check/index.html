@@ -173,7 +173,7 @@
 
 <script type="module">
   import { buildReport, FACEBOOK_MIN, FACEBOOK_RECOMMENDED, TWITTER_LARGE_MIN, TWITTER_LARGE_RECOMMENDED } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -249,7 +249,7 @@
     }
     render(report);
     els.status.textContent = '';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, event);
   }
 
   $('#check').addEventListener('click', () => {
@@ -315,7 +315,7 @@
       els.imageStatus.innerHTML = `<strong>${width}x${height}</strong><br>${notes.map(escapeHtml).join('<br>')}`;
       els.imagePreview.src = url;
       els.imagePreview.style.display = 'block';
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'image_size_checked');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'image_size_checked');
     };
     img.onerror = () => {
       els.imageStatus.innerHTML = '<span class="error">Could not load that URL as an image.</span>';
@@ -331,8 +331,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>

@@ -314,7 +314,7 @@ test('Download comparison CSV is wired to the calculated results', () => {
 
 test('following a handoff is counted, and honours the opt-out', () => {
   const render = html.slice(html.indexOf('function renderContinue'), html.indexOf('function update()'));
-  assert.match(render, /recordUsage\(localStorage, optedOut\(\), `handoff_\$\{offer\.channel\}`\)/,
+  assert.match(render, /recordUsage\(usageStorage\(\), optedOut\(\), `handoff_\$\{offer\.channel\}`\)/,
     'the counter takes the opt-out the same way every other event on this page does');
   // The event name carries the destination and nothing about the item.
   assert.ok(!/recordUsage\([^)]*price|recordUsage\([^)]*itemCost/.test(render));

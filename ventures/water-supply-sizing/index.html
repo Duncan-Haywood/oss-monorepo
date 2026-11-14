@@ -183,7 +183,7 @@
   <script type="module">
     import { sizeSystem, EXAMPLE_SYSTEM, MATERIALS } from './pipe.mjs';
     import { demand, HUNTER_1940, probabilityOf } from './demand.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     const make = (tag, attrs = {}, kids = []) => {
@@ -296,7 +296,7 @@
       el('errors').textContent = '';
       last = r;
       show(r, whole);
-      recordUsage(globalThis.localStorage, el('optOut').checked, 'demand_sized');
+      recordUsage(usageStorage(), el('optOut').checked, 'demand_sized');
     }
 
     function download(name, text, type) {
@@ -324,7 +324,7 @@
       download('pipe-sizes.csv', lines.join('\n') + '\n', 'text/csv');
     });
     el('optOut').checked = readOptOut();
-    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+    el('optOut').addEventListener('change', () => writeOptOut(usageStorage(), el('optOut').checked));
 
     setForm(EXAMPLE_SYSTEM);
     run();

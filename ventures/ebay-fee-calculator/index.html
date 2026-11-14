@@ -834,7 +834,7 @@
   </footer>
   <script type="module">
     import { calculateOrder, calculateSourcingCeiling, calculateRepricingTable, calculatePromotedTable, maxAffordablePromotedRate, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareCombinedShipping, combinedShippingNote, compareSellerInitiatedOffer, sellerInitiatedOfferNote, comparePromotedOffsite, promotedOffsiteNote, comparePromotedStandard, promotedStandardNote, comparePromotedAdvanced, promotedAdvancedNote, compareQuantityDiscount, quantityDiscountNote, compareSellerCoupon, sellerCouponNote, compareImmediatePayment, immediatePaymentNote, compareTopRatedPlus, topRatedPlusNote, compareManagedReturns, managedReturnsNote, compareGlobalShipping, globalShippingNote, compareStoreTiers, storeTiersNote, compareBestOffer, bestOfferNote, compareFreeShipping, freeShippingNote, compareInternational, internationalNote, comparePackageProtection, packageProtectionNote, compareEbayLabels, ebayLabelsNote, INPUT_FIELDS as ids } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { repricingCsv } from './csv.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     import { whereToSellUrl } from './to-where-to-sell.mjs';
@@ -888,7 +888,7 @@
       document.getElementById('scenariosEmpty').hidden = true;
       if (sellerEditedInputs && !sensitivityCounted) {
         sensitivityCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed');
       }
     }
     function renderListingFormat(input) {
@@ -908,7 +908,7 @@
       document.getElementById('listingFormatTable').hidden = false;
       if (sellerEditedInputs && !listingFormatCounted) {
         listingFormatCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'listing_format_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'listing_format_compared');
       }
     }
     function renderPartialRefund(input) {
@@ -927,7 +927,7 @@
       document.getElementById('partialRefundTable').hidden = false;
       if (sellerEditedInputs && !partialRefundCounted) {
         partialRefundCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'partial_refund_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'partial_refund_compared');
       }
     }
     function renderLocalPickup(input) {
@@ -947,7 +947,7 @@
       document.getElementById('localPickupTable').hidden = false;
       if (sellerEditedInputs && !localPickupCounted) {
         localPickupCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'local_pickup_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'local_pickup_compared');
       }
     }
     function renderLotVsSingles(input) {
@@ -967,7 +967,7 @@
       document.getElementById('lotVsSinglesTable').hidden = false;
       if (sellerEditedInputs && !lotVsSinglesCounted) {
         lotVsSinglesCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'lot_vs_singles_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'lot_vs_singles_compared');
       }
     }
     function renderStandardEnvelope(input) {
@@ -987,7 +987,7 @@
       document.getElementById('standardEnvelopeTable').hidden = false;
       if (sellerEditedInputs && !standardEnvelopeCounted) {
         standardEnvelopeCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'standard_envelope_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'standard_envelope_compared');
       }
     }
     function renderCombinedShipping(input) {
@@ -1007,7 +1007,7 @@
       document.getElementById('combinedShippingTable').hidden = false;
       if (sellerEditedInputs && !combinedShippingCounted) {
         combinedShippingCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'combined_shipping_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'combined_shipping_compared');
       }
     }
     function renderSellerInitiatedOffer(input) {
@@ -1026,7 +1026,7 @@
       document.getElementById('sellerInitiatedOfferTable').hidden = false;
       if (sellerEditedInputs && !sellerInitiatedOfferCounted) {
         sellerInitiatedOfferCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'seller_initiated_offer_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'seller_initiated_offer_compared');
       }
     }
     function renderPromotedOffsite(input) {
@@ -1046,7 +1046,7 @@
       document.getElementById('promotedOffsiteTable').hidden = false;
       if (sellerEditedInputs && !promotedOffsiteCounted) {
         promotedOffsiteCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_offsite_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'promoted_offsite_compared');
       }
     }
     function renderPromotedStandard(input) {
@@ -1080,7 +1080,7 @@
       document.getElementById('promotedRateCap').textContent = capLine;
       if (sellerEditedInputs && !promotedStandardCounted) {
         promotedStandardCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_standard_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'promoted_standard_compared');
       }
     }
     function renderPromotedAdvanced(input) {
@@ -1100,7 +1100,7 @@
       document.getElementById('promotedAdvancedTable').hidden = false;
       if (sellerEditedInputs && !promotedAdvancedCounted) {
         promotedAdvancedCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_advanced_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'promoted_advanced_compared');
       }
     }
     function renderQuantityDiscount(input) {
@@ -1120,7 +1120,7 @@
       document.getElementById('quantityDiscountTable').hidden = false;
       if (sellerEditedInputs && !quantityDiscountCounted) {
         quantityDiscountCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'quantity_discount_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'quantity_discount_compared');
       }
     }
     function renderSellerCoupon(input) {
@@ -1140,7 +1140,7 @@
       document.getElementById('sellerCouponTable').hidden = false;
       if (sellerEditedInputs && !sellerCouponCounted) {
         sellerCouponCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'seller_coupon_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'seller_coupon_compared');
       }
     }
     function renderImmediatePayment(input) {
@@ -1160,7 +1160,7 @@
       document.getElementById('immediatePaymentTable').hidden = false;
       if (sellerEditedInputs && !immediatePaymentCounted) {
         immediatePaymentCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'immediate_payment_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'immediate_payment_compared');
       }
     }
     function renderTopRatedPlus(input) {
@@ -1180,7 +1180,7 @@
       document.getElementById('topRatedPlusTable').hidden = false;
       if (sellerEditedInputs && !topRatedPlusCounted) {
         topRatedPlusCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'top_rated_plus_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'top_rated_plus_compared');
       }
     }
     function renderManagedReturns(input) {
@@ -1198,7 +1198,7 @@
       document.getElementById('managedReturnsTable').hidden = false;
       if (sellerEditedInputs && !managedReturnsCounted) {
         managedReturnsCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'managed_returns_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'managed_returns_compared');
       }
     }
     function renderGlobalShipping(input) {
@@ -1218,7 +1218,7 @@
       document.getElementById('globalShippingTable').hidden = false;
       if (sellerEditedInputs && !globalShippingCounted) {
         globalShippingCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'global_shipping_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'global_shipping_compared');
       }
     }
     function renderStoreTiers(input) {
@@ -1236,8 +1236,8 @@
       document.getElementById('storeTiersTable').hidden = false;
       if (sellerEditedInputs && !storeTiersCounted) {
         storeTiersCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'store_compared');
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'store_comparison_viewed');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'store_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'store_comparison_viewed');
       }
     }
     function renderBestOffer(input) {
@@ -1255,7 +1255,7 @@
       document.getElementById('bestOfferTable').hidden = false;
       if (sellerEditedInputs && !bestOfferCounted) {
         bestOfferCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'best_offer_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'best_offer_compared');
       }
     }
     function renderInternational(input) {
@@ -1274,7 +1274,7 @@
       document.getElementById('internationalShippingTable').hidden = false;
       if (sellerEditedInputs && !internationalShippingCounted) {
         internationalShippingCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'international_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'international_compared');
       }
     }
 
@@ -1295,7 +1295,7 @@
       document.getElementById('packageProtectionTable').hidden = false;
       if (sellerEditedInputs && !packageProtectionCounted) {
         packageProtectionCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'package_protection_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'package_protection_compared');
       }
     }
 
@@ -1316,7 +1316,7 @@
       document.getElementById('ebayLabelsTable').hidden = false;
       if (sellerEditedInputs && !ebayLabelsCounted) {
         ebayLabelsCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'ebay_labels_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'ebay_labels_compared');
       }
     }
 
@@ -1336,7 +1336,7 @@
       document.getElementById('freeShippingTable').hidden = false;
       if (sellerEditedInputs && !freeShippingCounted) {
         freeShippingCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'free_shipping_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'free_shipping_compared');
       }
     }
 
@@ -1357,7 +1357,7 @@
       document.getElementById('authenticityTable').hidden = false;
       if (sellerEditedInputs && !authenticityCounted) {
         authenticityCounted = true;
-        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'authenticity_compared');
+        recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'authenticity_compared');
       }
     }
     function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
@@ -1565,13 +1565,13 @@
       link.download = 'ebay-repricing-scenarios.csv';
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 0);
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'repricing_csv_downloaded');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'repricing_csv_downloaded');
     }
     function shareLink() {
       const link = `${location.href.split('#')[0]}#${encodeInputs(readInputs())}`;
       try { history.replaceState(null, '', link); } catch { /* file URLs may reject it */ }
       if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).catch(() => {});
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'share_link_copied');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'share_link_copied');
       window.prompt('Copy this private link:', link);
     }
     function resetInputs() {
@@ -1581,7 +1581,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'targetProfit' ? 'target_profit_calculated' : id === 'costOfGoods' ? 'max_acquisition_cost_calculated' : id === 'targetRoi' ? 'sourcing_ceiling_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : (id === 'authenticityFeeRate' || id === 'authenticityExtraShip' || id === 'withoutAgSellThroughPct' || id === 'authenticitySellThroughPct' || id === 'authenticityReturnRatePercent' || id === 'monthlyAgListings') ? 'authenticity_compared' : (id === 'shipSellThroughPct' || id === 'pickupSellThroughPct' || id === 'pickupNoShowPct' || id === 'pickupMinutes' || id === 'pickupHourlyWage' || id === 'pickupFeeCharged' || id === 'pickupPackagingCost' || id === 'pickupReturnRatePercent' || id === 'monthlyPickupListings') ? 'local_pickup_compared' : (id === 'lotPieceCount' || id === 'singleExpectedPrice' || id === 'lotSellThroughPct' || id === 'singleSellThroughPct' || id === 'lotInsertionFee' || id === 'singleInsertionFee' || id === 'singleShippingCharged' || id === 'singleShippingCost' || id === 'singlePackagingCost' || id === 'lotListingMinutes' || id === 'singleListingMinutes' || id === 'lotListingWage' || id === 'monthlyLotDecisions') ? 'lot_vs_singles_compared' : (id === 'envelopeShippingCost' || id === 'envelopePackagingCost' || id === 'envelopeClaimRatePercent' || id === 'envelopeFeeRefundOnClaimPercent' || id === 'trackedSellThroughPct' || id === 'envelopeSellThroughPct' || id === 'monthlyEnvelopeListings') ? 'standard_envelope_compared' : (id === 'combinedItemCount' || id === 'combinedShippingCharged' || id === 'combinedShippingCost' || id === 'combinedPackagingCost' || id === 'combinedReturnShippingCost' || id === 'combinedFixedFee' || id === 'combinedReturnRatePercent' || id === 'monthlyCombinedOrders') ? 'combined_shipping_compared' : (id === 'offerPercent' || id === 'waitSellThroughPct' || id === 'offerAcceptPct' || id === 'monthlyOffers') ? 'seller_initiated_offer_compared' : (id === 'offsiteSpend' || id === 'offsiteExtraOrders' || id === 'offsitePromotedRate' || id === 'monthlyOffsiteCampaigns') ? 'promoted_offsite_compared' : (id === 'promotedStandardRate' || id === 'promotedStandardExtraOrders' || id === 'monthlyPromotedListings') ? 'promoted_standard_compared' : (id === 'advancedCpc' || id === 'advancedClicks' || id === 'advancedExtraOrders' || id === 'advancedPromotedRate' || id === 'monthlyAdvancedCampaigns') ? 'promoted_advanced_compared' : (id === 'qtyDiscountUnits' || id === 'qtyDiscountPercent' || id === 'qtyShippingCharged' || id === 'qtyShippingCost' || id === 'qtyPackagingCost' || id === 'qtyReturnShippingCost' || id === 'qtyFixedFee' || id === 'qtyReturnRatePercent' || id === 'singlesSellThroughPct' || id === 'qtyTakePct' || id === 'monthlyQtyOrders') ? 'quantity_discount_compared' : (id === 'couponPercent' || id === 'couponRedeemPct' || id === 'listedSellThroughPct' || id === 'couponSellThroughPct' || id === 'dropSellThroughPct' || id === 'monthlyCouponListings') ? 'seller_coupon_compared' : (id === 'unpaidRatePercent' || id === 'laterSellThroughPct' || id === 'immediateSellThroughPct' || id === 'unpaidRelistFee' || id === 'unpaidMinutes' || id === 'unpaidHourlyWage' || id === 'monthlyImmediateListings') ? 'immediate_payment_compared' : (id === 'trsDiscountPct' || id === 'standardSellThroughPct' || id === 'trsSellThroughPct' || id === 'standardReturnRatePercent' || id === 'trsReturnRatePercent' || id === 'standardReturnShippingCost' || id === 'trsReturnShippingCost' || id === 'trsHandlingMinutes' || id === 'trsHandlingWage' || id === 'monthlyTrsListings') ? 'top_rated_plus_compared' : (id === 'selfReturnShippingCost' || id === 'selfReturnRatePercent' || id === 'managedReturnFee' || id === 'managedReturnRatePercent' || id === 'buyerPaysReturnRatePercent' || id === 'monthlyManagedListings') ? 'managed_returns_compared' : (id === 'gspReturnRatePercent' || id === 'gspSellThroughPct' || id === 'selfShipShippingCharged' || id === 'selfShipShippingCost' || id === 'selfShipReturnShippingCost' || id === 'selfShipIntlFeeRate' || id === 'selfShipReturnRatePercent' || id === 'selfShipClaimRatePercent' || id === 'selfShipSellThroughPct' || id === 'monthlyGspListings') ? 'global_shipping_compared' : (id === 'monthlyStoreOrders' || id === 'monthlyStoreFee') ? 'store_compared' : (id === 'incomingBestOffer' || id === 'incomingWaitChancePct') ? 'best_offer_compared' : (id === 'freeShipPrice' || id === 'buyerPaysSellThroughPct' || id === 'freeShipSellThroughPct' || id === 'monthlyFreeShipListings') ? 'free_shipping_compared' : id === 'intlExtraShipping' ? 'international_compared' : 'order_profit_calculated');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'targetProfit' ? 'target_profit_calculated' : id === 'costOfGoods' ? 'max_acquisition_cost_calculated' : id === 'targetRoi' ? 'sourcing_ceiling_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : (id === 'authenticityFeeRate' || id === 'authenticityExtraShip' || id === 'withoutAgSellThroughPct' || id === 'authenticitySellThroughPct' || id === 'authenticityReturnRatePercent' || id === 'monthlyAgListings') ? 'authenticity_compared' : (id === 'shipSellThroughPct' || id === 'pickupSellThroughPct' || id === 'pickupNoShowPct' || id === 'pickupMinutes' || id === 'pickupHourlyWage' || id === 'pickupFeeCharged' || id === 'pickupPackagingCost' || id === 'pickupReturnRatePercent' || id === 'monthlyPickupListings') ? 'local_pickup_compared' : (id === 'lotPieceCount' || id === 'singleExpectedPrice' || id === 'lotSellThroughPct' || id === 'singleSellThroughPct' || id === 'lotInsertionFee' || id === 'singleInsertionFee' || id === 'singleShippingCharged' || id === 'singleShippingCost' || id === 'singlePackagingCost' || id === 'lotListingMinutes' || id === 'singleListingMinutes' || id === 'lotListingWage' || id === 'monthlyLotDecisions') ? 'lot_vs_singles_compared' : (id === 'envelopeShippingCost' || id === 'envelopePackagingCost' || id === 'envelopeClaimRatePercent' || id === 'envelopeFeeRefundOnClaimPercent' || id === 'trackedSellThroughPct' || id === 'envelopeSellThroughPct' || id === 'monthlyEnvelopeListings') ? 'standard_envelope_compared' : (id === 'combinedItemCount' || id === 'combinedShippingCharged' || id === 'combinedShippingCost' || id === 'combinedPackagingCost' || id === 'combinedReturnShippingCost' || id === 'combinedFixedFee' || id === 'combinedReturnRatePercent' || id === 'monthlyCombinedOrders') ? 'combined_shipping_compared' : (id === 'offerPercent' || id === 'waitSellThroughPct' || id === 'offerAcceptPct' || id === 'monthlyOffers') ? 'seller_initiated_offer_compared' : (id === 'offsiteSpend' || id === 'offsiteExtraOrders' || id === 'offsitePromotedRate' || id === 'monthlyOffsiteCampaigns') ? 'promoted_offsite_compared' : (id === 'promotedStandardRate' || id === 'promotedStandardExtraOrders' || id === 'monthlyPromotedListings') ? 'promoted_standard_compared' : (id === 'advancedCpc' || id === 'advancedClicks' || id === 'advancedExtraOrders' || id === 'advancedPromotedRate' || id === 'monthlyAdvancedCampaigns') ? 'promoted_advanced_compared' : (id === 'qtyDiscountUnits' || id === 'qtyDiscountPercent' || id === 'qtyShippingCharged' || id === 'qtyShippingCost' || id === 'qtyPackagingCost' || id === 'qtyReturnShippingCost' || id === 'qtyFixedFee' || id === 'qtyReturnRatePercent' || id === 'singlesSellThroughPct' || id === 'qtyTakePct' || id === 'monthlyQtyOrders') ? 'quantity_discount_compared' : (id === 'couponPercent' || id === 'couponRedeemPct' || id === 'listedSellThroughPct' || id === 'couponSellThroughPct' || id === 'dropSellThroughPct' || id === 'monthlyCouponListings') ? 'seller_coupon_compared' : (id === 'unpaidRatePercent' || id === 'laterSellThroughPct' || id === 'immediateSellThroughPct' || id === 'unpaidRelistFee' || id === 'unpaidMinutes' || id === 'unpaidHourlyWage' || id === 'monthlyImmediateListings') ? 'immediate_payment_compared' : (id === 'trsDiscountPct' || id === 'standardSellThroughPct' || id === 'trsSellThroughPct' || id === 'standardReturnRatePercent' || id === 'trsReturnRatePercent' || id === 'standardReturnShippingCost' || id === 'trsReturnShippingCost' || id === 'trsHandlingMinutes' || id === 'trsHandlingWage' || id === 'monthlyTrsListings') ? 'top_rated_plus_compared' : (id === 'selfReturnShippingCost' || id === 'selfReturnRatePercent' || id === 'managedReturnFee' || id === 'managedReturnRatePercent' || id === 'buyerPaysReturnRatePercent' || id === 'monthlyManagedListings') ? 'managed_returns_compared' : (id === 'gspReturnRatePercent' || id === 'gspSellThroughPct' || id === 'selfShipShippingCharged' || id === 'selfShipShippingCost' || id === 'selfShipReturnShippingCost' || id === 'selfShipIntlFeeRate' || id === 'selfShipReturnRatePercent' || id === 'selfShipClaimRatePercent' || id === 'selfShipSellThroughPct' || id === 'monthlyGspListings') ? 'global_shipping_compared' : (id === 'monthlyStoreOrders' || id === 'monthlyStoreFee') ? 'store_compared' : (id === 'incomingBestOffer' || id === 'incomingWaitChancePct') ? 'best_offer_compared' : (id === 'freeShipPrice' || id === 'buyerPaysSellThroughPct' || id === 'freeShipSellThroughPct' || id === 'monthlyFreeShipListings') ? 'free_shipping_compared' : id === 'intlExtraShipping' ? 'international_compared' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');
@@ -1593,7 +1593,7 @@
     document.getElementById('whereToSellLink').addEventListener('click', () => {
       // Records only that the handoff happened, never the item — this is the
       // one signal that will say whether the reverse handoff is worth keeping.
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'handoff_where_to_sell');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut').checked, 'handoff_where_to_sell');
     });
     restoreInputs();
     update();
@@ -1606,8 +1606,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

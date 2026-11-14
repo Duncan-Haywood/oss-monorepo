@@ -107,7 +107,7 @@
 
   <script type="module">
     import { WCAG21_AA_CRITERIA, buildReport, reportAsText } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const DRAFT_KEY = 'vpat-acr-generator-draft';
     const body = document.querySelector('#criteriaBody');
@@ -260,7 +260,7 @@
     document.querySelector('#generate').addEventListener('click', () => {
       latest = buildReport(currentInput());
       render(latest);
-      recordUsage(localStorage, optout.checked, 'report_generated');
+      recordUsage(usageStorage(), optout.checked, 'report_generated');
     });
 
     document.querySelector('#download').addEventListener('click', () => {
@@ -272,7 +272,7 @@
       link.download = `vpat-acr-${datedName}.txt`;
       link.click();
       URL.revokeObjectURL(link.href);
-      recordUsage(localStorage, optout.checked, 'report_downloaded');
+      recordUsage(usageStorage(), optout.checked, 'report_downloaded');
     });
 
     document.querySelector('#copy').addEventListener('click', async () => {
@@ -281,13 +281,13 @@
         await navigator.clipboard.writeText(reportAsText(latest));
         const btn = document.querySelector('#copy');
         btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = 'Copy report'; }, 1500);
-        recordUsage(localStorage, optout.checked, 'report_copied');
+        recordUsage(usageStorage(), optout.checked, 'report_copied');
       } catch { /* clipboard API unavailable (older browser, insecure context): Download .txt still works */ }
     });
 
     document.querySelector('#printBtn').addEventListener('click', () => {
       if (!latest) { latest = buildReport(currentInput()); render(latest); }
-      recordUsage(localStorage, optout.checked, 'report_printed');
+      recordUsage(usageStorage(), optout.checked, 'report_printed');
       window.print();
     });
 
@@ -299,16 +299,16 @@
     {
       const usageControl = document.getElementById('optout');
       if (usageControl && 'checked' in usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
-          usageControl.textContent = readOptOut(localStorage)
+          usageControl.textContent = readOptOut(usageStorage())
             ? 'Usage counting is off'
             : 'Turn off local usage counting';
         };
         usageControl.addEventListener('click', () => {
-          writeOptOut(localStorage, !readOptOut(localStorage));
+          writeOptOut(usageStorage(), !readOptOut(usageStorage()));
           paint();
         });
         paint();

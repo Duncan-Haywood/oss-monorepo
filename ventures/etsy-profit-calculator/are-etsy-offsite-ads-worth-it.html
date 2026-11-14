@@ -90,7 +90,7 @@
   </footer>
   <script type="module">
     import { compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const FIELD_IDS = [
       'price', 'shippingCharged', 'listingFee', 'transactionRate', 'paymentRate',
@@ -201,8 +201,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

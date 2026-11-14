@@ -11,6 +11,10 @@
   "checked": "2026-11-13",
   "title": "A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification (2021)"
  },
+ "arxiv:2110.01052": {
+  "checked": "2026-11-14",
+  "title": "Learn then Test: Calibrating Predictive Algorithms to Achieve Risk Control (2021)"
+ },
  "arxiv:2210.07055": {
   "checked": "2026-11-13",
   "title": "Sparse in Space and Time: Audio-visual Synchronisation with Trainable Selectors (2022)"

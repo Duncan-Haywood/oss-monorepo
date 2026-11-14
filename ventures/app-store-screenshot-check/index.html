@@ -163,7 +163,7 @@ node check.mjs ./screenshots --strict   # notices fail too</pre>
   <script type="module">
     import { classifyAssets, roleFromName } from './engine.mjs';
     import { readImageInfo } from './image.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -269,7 +269,7 @@ node check.mjs ./screenshots --strict   # notices fail too</pre>
       }
       els.status.textContent = '';
       render();
-      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), $('#usageOptOut')?.checked ?? false, 'check_run');
     });
 
     // A worked example that needs no files: three screenshots where one was
@@ -289,7 +289,7 @@ node check.mjs ./screenshots --strict   # notices fail too</pre>
       els.store.value = 'ios';
       render();
       els.status.textContent = 'Worked example: an icon with an alpha channel, one screenshot regenerated at a different size, and a HEIC that was renamed to .png.';
-      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'example_loaded');
+      recordUsage(usageStorage(), $('#usageOptOut')?.checked ?? false, 'example_loaded');
     });
 
     $('#clear').addEventListener('click', () => {
@@ -309,8 +309,8 @@ node check.mjs ./screenshots --strict   # notices fail too</pre>
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>
