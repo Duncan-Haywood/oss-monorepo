@@ -649,3 +649,20 @@ def test_budget_cap_keeps_cells_plan_within_n():
         if len(lab) + sum(loose["to_label"]) <= n:
             assert loose["to_label"] == tight["to_label"]
     assert over > 0  # the uncapped plan does overspend at a 0.7n pilot here
+
+
+def test_post_stratified_estimate_equals_pooled_control_variate():
+    """LOG.md 7as: on the same simple random sample, the cells (post-stratified) estimate equals the pooled
+    control-variate estimate exactly. With a 0/1 coder code, the regression of y on f passes through both cell means, so
+    the regression estimator is the post-stratified one (when lambda is not clipped). A pilot of the whole audit
+    therefore buys nothing: the cells design gains only through the Neyman allocation of the unpiloted labels."""
+    from llmci import audit_design as A
+    rng = random.Random(1)
+    N = 5000
+    f = [int(rng.random() < 0.1) for _ in range(N)]
+    h = [int(rng.random() < (0.6 if x else 0.03)) for x in f]
+    cells = {"design": "cells", "cells": [[i for i in range(N) if f[i] == k] for k in (0, 1)], "pseudo": 0.0}
+    pooled = {"design": "pooled", "cells": [list(range(N))]}
+    for seed in range(20):
+        lab = {i: h[i] for i in random.Random(seed).sample(range(N), 500)}
+        assert abs(A.audit_interval(cells, f, lab)[0] - A.audit_interval(pooled, f, lab)[0]) < 1e-12
