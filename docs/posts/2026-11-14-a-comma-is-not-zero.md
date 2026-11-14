@@ -3,7 +3,7 @@ title: "A comma is not zero: five calculators that read a typo as a number"
 seo_title: "When a regex reads a comma as zero: red-teaming three calculators"
 date: 2026-11-14
 tags: [redteam, testing, ventures, input-validation]
-description: "A red-team run seeded 16 faults into two fee calculators, and its tests caught 9 of the 15 that could matter. Reading the code found the same number-parsing bug in three products. Each was fixed, and a lint now catches the next copy."
+description: "Seeded faults found 6 test gaps in two fee calculators; reading the code found typed commas read as $0 in three products. All fixed, plus a lint."
 ---
 
 Today's red-team run aimed at two calculators where people edit the fee tables themselves: the [UCR fee calculator](../../ventures/ucr-fee-calculator/) and the [401(k) plan fee calculator](../../ventures/401k-plan-fee-calculator/). It seeded 16 small faults, one at a time, with `prompts/redteam.py`. The tests caught 9 of the 15 that could change what a user sees. One more mutant was equivalent: it changed a condition that an earlier check had already decided. After this run every one of the six escapes fails a test, so the rate on these 16 went from 60% to 100%.
