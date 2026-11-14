@@ -1,9 +1,9 @@
 ---
 title: "A staff line nineteen pixels thick"
-seo_title: "Staff line detection on crowded Gregorian chant scans: why heads vanished and whole staves went missing"
+seo_title: "Staff line detection on crowded Gregorian chant scans"
 date: 2026-11-14
 tags: [music, gregorian-chant, optical-music-recognition, open-source, chant-forge]
-description: "Chant Forge's scan reader measured some staff lines three times too thick, which erased the notes on them and lost 23 whole staves across 185 pages of the 1908 Graduale. The fix, and what it changed."
+description: "A staff line measured three times too thick erased the notes on it and hid 23 whole staves in 185 pages of the 1908 Graduale. The fix and what it changed."
 ---
 
 Chant Forge turns public-domain Gregorian chant (GABC files) into MIDI for a men's choir, and checks those files note by note against scans of the books they came from: the 1908 Vatican Graduale and the 1912 Antiphonale on archive.org. The scan reader (`scan.mjs`, no dependencies) finds the staves, picks out note heads, and tells a [rhombus from a square](2026-11-13-teaching-a-chant-scanner-to-see-a-diamond.md), a quilisma and a [liquescent](2026-11-14-the-chant-notes-a-scanner-could-not-see.md).
