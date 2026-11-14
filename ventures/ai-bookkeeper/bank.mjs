@@ -474,6 +474,8 @@ export function sniffBank(rows) {
     const h = r.map(norm).join("|").replace(/^\|(?=[a-z])/, "");
     if (/^details\|posting date\|description\|amount\|type\|balance/.test(h)) return "chase-checking";
     if (/^transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-card";
+    // Chase's business card puts the last four digits of each cardholder's card first (six real downloads, 2026-11-14).
+    if (/^card\|transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-business-card";
     if (/^account type\|account number\|transaction date\|cheque number\|description 1\|description 2\|cad\$/.test(h)) return "rbc";
     if (/^bank account\|date\|narrative\|debit amount\|credit amount\|balance/.test(h)) return "westpac";
     if (/^date\|amount\|account number\|\|transaction type\|transaction details\|balance/.test(h)) return "nab";
@@ -1076,6 +1078,10 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const mccNameCol = mccCodeCol !== -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(mch\.)?(mcc description|merchant category|merchant category name|merchant category description|merchant type description|mcc name)$/.test(x));
   const mccCol = mccCodeCol !== -1 ? mccCodeCol : mccNameCol;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
+  // Which card on a business account made the charge: Chase's business card writes the last four
+  // digits of each employee's card in a "Card" column, Brex "Card Last Four". Only the last four
+  // digits are kept, never a full number or a name.
+  const cardCol = hdr.findIndex((x, ix) => ix !== columns.desc && ix !== columns.amount && /^(card|card last four|card last 4|card last 4 digits|last 4 digits|card no\.?|card number)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   // ICICI credit-card CSV: every amount is unsigned and BillingAmountSign says "CR" on a credit; blank is a charge.
   const billSignCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("billingamountsign") : -1;
@@ -1224,8 +1230,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     // reference number: "24269794038500527407893; 05411; ; ; ;" (a real download read
     // 2026-11-14, eval/us-bank-exports.mjs: 05411 on grocers, 05542 on fuel, 05814 on fast food).
     if (!mcc && mccCol === -1) for (const ix of memoCols) { const m = /^\s*\d{15,30}\s*;\s*0?(\d{4})\s*;/.exec(String(r[ix] ?? "")); if (m) { mcc = m[1]; break; } }
+    const card = cardCol === -1 ? "" : (/(\d{4})\D*$/.exec(String(r[cardCol] ?? "").trim()) ?? [])[1] ?? "";
     if (typeSideCol !== -1) { const w = sideWord(r[typeSideCol]); if (w) sides.set(out.length, w); }
-    out.push({ line: lineOf(i), date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}), ...(mcc ? { mcc } : {}) });
+    out.push({ line: lineOf(i), date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}), ...(mcc ? { mcc } : {}), ...(card ? { card } : {}) });
   }
   if (tradesSkipped) problems.push(`${tradesSkipped} brokerage buy/sell line${tradesSkipped === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest, fees and transfers in the file are booked.`);
   else if (bank === "schwab-brokerage" && !out.length) problems.push("The file has the Schwab transactions header but no transaction rows (an empty period).");

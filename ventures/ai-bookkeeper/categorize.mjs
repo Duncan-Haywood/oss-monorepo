@@ -517,6 +517,10 @@ export const BUILT_IN = [
   // is not a move between your own accounts: leaving it unsuggested keeps a $97,000 payment out of the transfer clearing account.
   ["transfer", "any", /(?<!wire )\btransfer\b(?!.*\b(?:via|a\/c|b\/o):)|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
   ["transfer", "any", /payment thank you|^autopay|autopay payment|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
+  // A real US Bank checking download (eval/us-bank-exports.mjs, 2026-11-14) pays its cards as
+  // "INTERNET BANKING PAYMENT TO CREDIT CARD 1234" and "WEB AUTHORIZED PMT AMERICANEXPRESS": both had no suggestion.
+  // Only card issuers' names after PMT: "WEB AUTHORIZED PMT PAYPAL" or "... SPRINT" is a bill, not a transfer.
+  ["transfer", "out", /payment to credit card|\b(pmt|payment)\b.*\b(american ?express|amex|discover (card|bank|fin)|citi ?card|barclaycard|synchrony bank)\b/],
   ["3100", "out", /personal|venmo cashout/],
   ["3010", "in", /owner contribution|capital contribution|owner deposit/],
   ["6010", "out", /\bach (pmnts?|payments?) (initial |origination |return )?fee|stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee|analysis charge|analysis fee/],
@@ -830,7 +834,10 @@ export const BANK_CATEGORY = [
   ["6030", /^insurance$/i],
   ["6060", /^(software|subscriptions?|software & subscriptions)$/i],
   ["6000", /^(advertising|marketing)$/i],
-  ["6050", /^(legal|accounting|professional services)$/i],
+  // Not "Professional Services": on six real Chase business card downloads (2026-11-14) that label held
+  // GitHub, Vercel, data APIs, AI tools, Upwork and a rent payment, and none of its 17 label-only lines
+  // read by eye as a legal or accounting fee. The MCC names skip it for the same reason (mcc.mjs NAME_SKIP).
+  ["6050", /^(legal|accounting)$/i],
   ["6100", /^(home improvement|hardware)$/i],
   ["6170", /^(education|training)$/i],
   ["6070", /^(office supplies|office)$/i],
