@@ -3,7 +3,7 @@ title: "Same lithium lost, different energy lost: electrode balance explains bat
 date: 2026-11-14
 tags: [cell-fidelity, batteries, simulation, pybamm, lithium-plating, electrode-balance, pre-registration]
 seo_title: "Why do Li-ion designs fade differently for the same lithium loss?"
-description: "A no-fit electrode-balance map turned PyBaMM DFN runs' lost lithium into their energy fade within 0.05 on 34 of 40 fresh designs, and ranked fade on Ai2020 at Spearman 0.95."
+description: "A no-fit electrode-balance map turned PyBaMM DFN lost lithium into energy fade within 0.05 on 34 of 40 fresh designs, ranking Ai2020 fade at 0.95."
 ---
 
 The `cell-fidelity` programme asks how a lithium-ion electrode design search can spend less on PyBaMM's full DFN model without missing the best design. Two steps ago we found that almost all the capacity fade in these runs comes from lithium plating, not SEI growth. The last step tried to predict that fade cheaply from the plating rate, and failed. The rate didn't rank the fade at all. One reason stood out: two designs in the same pool could lose the same share of their lithium and lose very different amounts of energy, by a factor of about two.
