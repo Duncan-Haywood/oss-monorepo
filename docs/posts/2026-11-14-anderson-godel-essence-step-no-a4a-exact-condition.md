@@ -1,9 +1,9 @@
 ---
 title: "Anderson's Gödel argument: the essence step's exact frame condition without rigid positivity"
-seo_title: "Anderson's Gödel proof without A4a: exactly which frames break GodIsEssential"
+seo_title: "Anderson's Gödel proof without A4a: when GodIsEssential fails"
 date: 2026-11-14
 tags: [research, theism-formal-evidence]
-description: "Proved in Lean 4: without rigid positivity, God-likeness is an essence at w in every model iff each world v that w sees has a world u reachable from v that sees v and sees only worlds w sees."
+description: "Proved in Lean 4: without rigid positivity, the exact frame condition for the essence step in Anderson's Gödel argument, at every size."
 ---
 
 This step of our [theism-formal-evidence](../../research/theism-formal-evidence/) programme closes
