@@ -214,6 +214,40 @@ class PeriodTach:
         return int(60000000 / period + 0.5)
 
 
+class SpinupRamp:
+    """Moves a launcher wheel's speed target toward the asked speed at a capped shaft power (2026-11-14).
+
+    Without it a new target went straight into the speed loop, whose feedforward steps the ESC's throttle at once, so
+    a wheel starting from rest could take the motor's peak, about 1 kW, from the battery: two wheels at 24 V would ask
+    about 98 A of a pack whose BMS allows about 30 A continuous (cad: Feeder.power_distribution), and a BMS that cuts
+    out takes the Pi and the ESP32 down with it. Here the target rises at most `max_rpm_s` per second, and above the
+    speed where that would need more than `power_w` (P = I w a) it rises at constant power: rpm^2 grows by 2 k dt with
+    k = P / I (60 / 2 pi)^2. Lowering a target is ramped the same way (an ESC that brakes would push the energy back
+    into the pack). A zero target is not ramped: stopping stays immediate. After a stop the ramp starts from the
+    wheel's measured speed, so a wheel still coasting is not braked down to restart from rest.
+    """
+
+    def __init__(self, power_w, inertia_kgm2, max_rpm_s):
+        self.k = power_w / inertia_kgm2 * (60 / (2 * math.pi)) ** 2
+        self.max = max_rpm_s
+        self.rpm = 0.0
+
+    def update(self, target, measured, dt_ms):
+        if target <= 0:
+            self.rpm = 0.0
+            return 0
+        dt = dt_ms / 1000
+        if self.rpm <= 0:
+            self.rpm = min(float(measured), float(target))
+        r = self.rpm
+        if target > r:
+            r = min(r + self.max * dt, math.sqrt(r * r + 2 * self.k * dt), target)
+        elif target < r:
+            r = max(r - self.max * dt, math.sqrt(max(r * r - 2 * self.k * dt, 0.0)), target)
+        self.rpm = r
+        return r
+
+
 class WheelLoop:
     """One launcher wheel's ESC command from its target and measured rpm: feedforward plus PI (2026-11-11).
 

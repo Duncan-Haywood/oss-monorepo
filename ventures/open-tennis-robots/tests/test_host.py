@@ -208,8 +208,88 @@ class WheelLoopTest(unittest.TestCase):
         for max_rpm, tau in ((7000, 0.8), (11000, 0.2), (9000, 0.4)):
             first, err, _ = sweep.trial(max_rpm, tau, (5531, 1958))
             self.assertIsNotNone(first)
-            self.assertLess(first, 3.0)
+            # from rest the spin-up ramp (2026-11-14) sets the pace: the CAD's ramp time to the faster wheel, plus the
+            # loop's settling and the gate's hold (3.0 s flat before the ramp; the BMS allows no faster start)
+            self.assertLess(first, _feeder().spinup_s(5531) + 1.0)
             self.assertLess(err, 0.035)
+
+
+def _feeder():
+    import sys
+    sys.path.insert(0, os.path.join(HERE, "..", "cad"))
+    from otr_cad.params import Feeder  # pure dataclass, no CAD kernel needed
+    return Feeder()
+
+
+class SpinupRampTest(unittest.TestCase):
+    """The launcher spin-up ramp (2026-11-14): capped shaft power, immediate stop, and the CAD's numbers."""
+
+    def test_constant_power_above_the_low_speed_cap(self):
+        inertia, power = 0.00155, 100.0
+        ramp = controller.SpinupRamp(power, inertia, 1500.0)
+        k = power / inertia * (60 / (2 * 3.141592653589793)) ** 2
+        rpm_c = k / 1500.0
+        t, r = 0.0, 0.0
+        while r < 5000:
+            r2 = ramp.update(5000, 0, 10)
+            t += 0.01
+            # the shaft power I w a of each step's target never passes the cap (by more than one step's rounding)
+            a = (r2 - r) / 0.01 * 2 * 3.141592653589793 / 60
+            self.assertLessEqual(inertia * r2 * 2 * 3.141592653589793 / 60 * a, power * 1.01 + 1e-9)
+            r = r2
+        self.assertEqual(r, 5000)
+        self.assertAlmostEqual(t, _feeder().spinup_s(5000), delta=0.02)
+        self.assertGreater(rpm_c, 0)
+
+    def test_low_speed_cap_and_targets_reached_exactly(self):
+        ramp = controller.SpinupRamp(100.0, 0.00155, 1500.0)
+        self.assertAlmostEqual(ramp.update(3000, 0, 100), 150.0)       # 1500 rpm/s at low speed
+        for _ in range(1000):
+            ramp.update(1000, 0, 10)
+        self.assertEqual(ramp.rpm, 1000)                               # never overshoots a target
+
+    def test_lowering_is_ramped_and_stopping_is_not(self):
+        ramp = controller.SpinupRamp(100.0, 0.00155, 1500.0)
+        ramp.rpm = 6000.0
+        self.assertGreater(ramp.update(2000, 6000, 10), 5900)          # down at the same capped power
+        self.assertEqual(ramp.update(0, 6000, 10), 0)                  # a stop goes straight through
+        self.assertEqual(ramp.rpm, 0.0)
+
+    def test_restart_starts_from_the_coasting_speed(self):
+        ramp = controller.SpinupRamp(100.0, 0.00155, 1500.0)
+        r = ramp.update(5000, 4200, 10)                                # wheel still at 4200 after a stop
+        self.assertGreater(r, 4200)
+        self.assertLess(r, 4300)
+        ramp = controller.SpinupRamp(100.0, 0.00155, 1500.0)
+        self.assertLessEqual(ramp.update(3000, 4200, 10), 3000)        # coasting faster than the new target
+
+    def test_firmware_config_matches_the_cad(self):
+        import config
+        p = _feeder()
+        self.assertEqual(config.WHEEL_SPINUP_W, p.wheel_spinup_w)
+        self.assertEqual(config.WHEEL_RAMP_MAX_RPM_S, p.wheel_ramp_max_rpm_s)
+        self.assertAlmostEqual(config.WHEEL_INERTIA_KGM2, p.launch_wheel_kgm2, places=6)
+        self.assertEqual(p.check_power(), [])
+        self.assertLessEqual(p.wheel_spinup_w, p.power_distribution()["spinup_w_max"])
+        self.assertEqual(config.LOW_BATTERY_MV, p.battery_v_min * 1000)
+
+    def test_the_board_ramps_and_stops_at_once(self):
+        sim = SimFeeder()
+        sim.write(P.encode(P.HEARTBEAT) + P.encode(P.SET_WHEELS, 5000, 2000))
+        sim.run_ms(500)
+        self.assertLess(sim.hw.wheel_ramps[0].rpm, 1000)                # half a second in: still low on the ramp
+        sim.estop_button = True
+        sim.run_ms(20)
+        self.assertEqual(sim.hw.esc_cmd, [0.0, 0.0])
+        self.assertEqual(sim.hw.wheel_ramps[0].rpm, 0.0)
+
+    def test_simulated_peak_stays_near_the_cap(self):
+        import spinup_ramp_sweep as sweep
+        p = _feeder()
+        for max_rpm, tau in sweep.PLANTS:
+            first, peak = sweep.trial(max_rpm, tau, (6500, 1500))
+            self.assertIsNotNone(first)
+            self.assertLess(peak, 1.15 * p.wheel_spinup_w, (max_rpm, tau))
 
 
 class TelemetryTest(unittest.TestCase):
