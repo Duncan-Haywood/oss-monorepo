@@ -157,6 +157,27 @@ class Paired(unittest.TestCase):
         np.testing.assert_array_equal(r0["_rows"]["loss"]["own_baseline"][0.5], r["_rows"]["loss"]["own_baseline"][0.5])
         self.assertIsNone(r0["deploy"])
 
+    def test_es3_trains_on_older_years_and_early_stops_on_y3_known_at_the_decision_date(self):
+        """Session 87: es3 trains on the sources' years <= Y-4 and Y-2 and early-stops on their Y-3, all cut
+        to rows completed by 1 January Y; its rounds are saved; the test rows are untouched."""
+        import datetime
+        import numpy as np, pandas as pd
+        fc = self.frames("cascade2")
+        r0 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True)
+        r = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True, es3=True)
+        D = datetime.date(2024, 1, 1)
+        tr = pd.concat([fc[c][(fc[c].year <= 2020) | (fc[c].year == 2022)] for c in r["sources"]])
+        va = pd.concat([fc[c][fc[c].year == 2021] for c in r["sources"]])
+        self.assertEqual(r["n_source_train"], len(transfer.completed_by(tr, D)))
+        self.assertEqual(r["n_source_es"], len(transfer.completed_by(va, D)))
+        self.assertEqual(r["n_source_es_full"], len(va))
+        self.assertEqual(r["deploy"]["mode"], "es3")
+        for x in (r0, r):
+            self.assertTrue(all(1 <= v <= 300 for v in x["transfer_rounds"]["0"].values()))
+        np.testing.assert_array_equal(r0["_rows"]["y"], r["_rows"]["y"])
+        with self.assertRaises(SystemExit):
+            transfer.run(fc, "seattle", 2024, 1, es3=True, deploy=True)
+
     def test_fixed_rounds_read_no_validation_set(self):
         """Session 86: boosted.fit_predict(fixed=...) trains exactly that many rounds without Xca."""
         import boosted

@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 87, 2026-11-14 (planned): early-stop the borrowed model on the sources' year Y-3, which is nearly complete on 1 January Y, instead of carrying a round count from older years
+
+Why: session 86 found the deployable model's loss sits in its round count: rounds fixed from years <= Y-4 early-stopped on Y-3 stop the q0.9 models after 7 to 28 rounds and cost Seattle 2021 q0.9 10.9 days. Its "Next" asked for an early-stopping set that keeps long builds without future labels.
+- New: `transfer.run(..., es3=True)` trains on the sources' years <= Y-4 and Y-2 and early-stops on their Y-3, all cut to rows completed by D = 1 January Y (Y-1, about half complete at D, is not used). Every mode now saves the transfer model's rounds per seed and quantile (`transfer_rounds`). `src/select_deploy.py --es3` writes `results/select_deploy_es3_<held>_i2c_<year>.json`. 1 new test.
+Design (fixed before any run): as sessions 84 to 86 (candidates cascade2, type, cascade2_minsupdrop1000; H = austin, sf, seattle; Y = 2021, 2022; q0.5 and q0.9: 12 cells; 3 seeds; fresh pull). `--summarise` against session 84's files (complete-label model); session 86 comparisons with `select_deploy.compare` on the `_dep` files.
+Predictions (written before any run):
+- (E1) The q0.9 best-candidate loss is within 1 day of session 84's in at least 5 of 6 city-years (session 86's "Next").
+- (E2) The mean best-candidate loss change against session 84 over the 12 cells is at most 0.65 days.
+- (E3) cascade2's q0.9 round count (mean of 3 seeds) is higher than session 86's in at least 5 of 6 city-years.
+- (E4) ipcw3's gated mean regret under this model is <= 0.4 days.
+- (E5) The end-to-end pipeline (this model, ipcw3, gate) averages less loss over the 12 cells than session 85's (83.45 days) and session 86's (84.07).
+Refuted if any part fails.
+
 ## Session 86, 2026-11-14: a borrowed model built only from what was known on 1 January fixes Austin's tail (+0.79 days against the complete-label model, session 85 +6.87) but its round counts, fixed from older years, stop the 0.9-quantile models after 7 to 28 rounds and cost Seattle 2021 10.9 days; mean best-candidate loss +1.86 days (D3 held; D1, D2, D4, D5 refuted)
 
 Why: session 85 made the selector deployable (Y-3, IPCW, gate; 0.31 days mean regret) but found that early-stopping the borrowed model on only the source permits completed by D = 1 January Y raises the best candidate's loss by 1.29 days on average, and the training rows (sources' years <= Y-2) still carried labels completed after D. Its "Next" asked for a whole pipeline using only information available at D.

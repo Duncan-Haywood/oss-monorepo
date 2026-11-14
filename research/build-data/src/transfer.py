@@ -160,8 +160,14 @@ def deploy_rounds(tr_r, va_r, seeds):
     return out
 
 
-def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_truncate=False, deploy=False):
-    """deploy (session 86): the whole transfer model uses only what was known on D = 1 January Y.
+def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_truncate=False, deploy=False,
+        es3=False):
+    """es3 (session 87): also only what was known on D = 1 January Y, but early stopping is kept and moved:
+    the transfer model trains on the sources' years <= Y-4 and Y-2 and early-stops on their year Y-3, all
+    cut to rows completed by D (Y-3 is 93 to 99% complete at D, so its long builds are still there). Its
+    Y-1 is not used at all (about half complete at D). No round count is carried between models.
+    Every mode now records the transfer model's rounds per seed and quantile (res["transfer_rounds"]).
+    deploy (session 86): the whole transfer model uses only what was known on D = 1 January Y.
     Training rows are the sources' years <= Y-2 completed by D; there is no early-stopping year:
     each quantile's round count is fixed from deploy_rounds (sources' years <= Y-4 early-stopped on Y-3,
     both completed by D). The held-out city is still never read."""
@@ -174,6 +180,16 @@ def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_trunca
     if es_truncate:  # session 85: the sources' early-stopping year as a deployment on 1 January Y sees it
         ca = completed_by(ca, D)
     fixed, dep = {}, None
+    if es3:
+        if deploy or es_truncate:
+            raise SystemExit("es3 excludes deploy and es_truncate")
+        n_tr_full = len(tr)
+        tr = completed_by(pd.concat([frames[c][(frames[c].year <= test_year - 4) | (frames[c].year == test_year - 2)]
+                                     for c in src]), D)
+        ca = pd.concat([frames[c][frames[c].year == test_year - 3] for c in src])
+        n_es_full = len(ca)
+        ca = completed_by(ca, D)
+        dep = dict(mode="es3", n_train_full_y_le_2=n_tr_full, n_train=len(tr), n_es=len(ca), n_es_full=n_es_full)
     if deploy:
         n_tr_full = len(tr)
         tr = completed_by(tr, D)
@@ -197,7 +213,8 @@ def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_trunca
                n_own_train=len(otr), n_test=len(te), seeds=seeds, es_truncate=es_truncate,
                n_source_es=len(ca), n_source_es_full=n_es_full, features=list(feats(te).columns),
                class_share_test={c: float((te.cls == c).mean()) for c in CLASSES},
-               class_share_source_train={c: float((tr.cls == c).mean()) for c in CLASSES}, deploy=dep)
+               class_share_source_train={c: float((tr.cls == c).mean()) for c in CLASSES}, deploy=dep,
+               es3=es3, transfer_rounds={})
     P = {"transfer": {t: [] for t in TAUS}, "own_boosted": {t: [] for t in TAUS}}
     S = {t: [] for t in TAUS}  # session 83: transfer predictions on the held-out city's year Y-1 (selection year)
     S2 = {t: [] for t in TAUS}  # session 84: and on its year Y-2 (also never read by the transfer model)
@@ -209,11 +226,13 @@ def run(frames, held, test_year, seeds, keep_rows=False, select=False, es_trunca
         for name, (a, b) in (("transfer", (tr, ca)), ("own_boosted", (otr, oca))):
             xt = pd.concat([feats(te), feats(oca), feats(o2), feats(o3)]) if (select and name == "transfer") else feats(te)
             if deploy and name == "transfer":
-                pr, _, _, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), None, None, xt, seed=s,
-                                                  fixed=fixed[s])
+                pr, _, rd, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), None, None, xt, seed=s,
+                                                   fixed=fixed[s])
             else:
-                pr, _, _, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), feats(b), b.y.to_numpy(float),
-                                                  xt, seed=s)
+                pr, _, rd, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), feats(b), b.y.to_numpy(float),
+                                                   xt, seed=s, classifier=name != "transfer")
+            if name == "transfer":
+                res["transfer_rounds"][str(s)] = {str(t): int(v) for t, v in rd.items()}
             for t in TAUS:
                 P[name][t].append(pr[t][:len(te)])
                 if select and name == "transfer":
