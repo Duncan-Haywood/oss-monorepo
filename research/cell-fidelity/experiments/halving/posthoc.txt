@@ -1,0 +1,23 @@
+cell-fidelity milestone 5m, post hoc (after the verdicts; no verdicts)
+
+Ai2020@0.3x: pool best design 3 ranks 28 at cycle 10, 23 at 20, 1 at 50 (of 53); share of the 100-cycle wall time per segment [0.17, 0.129, 0.313, 0.388] (k/100 would be [0.1, 0.1, 0.3, 0.5])
+  5m (10->16, 20->8, 50->3): gap 0.0271, wall / all-DFN@100 0.286
+  10->16, 20->8, 50->5: gap 0.0271, wall / all-DFN@100 0.301
+  10->24, 20->8, 50->3: gap 0.0271, wall / all-DFN@100 0.305
+  10->16, 20->12, 50->3: gap 0.0271, wall / all-DFN@100 0.309
+  10->32, 20->16, 50->4: gap 0.0087, wall / all-DFN@100 0.381
+  DFN@50 top 3: gap 0.0000, wall / all-DFN@100 0.635
+Ai2020@0.4375x: pool best design 23 ranks 10 at cycle 10, 3 at 20, 1 at 50 (of 64); share of the 100-cycle wall time per segment [0.157, 0.122, 0.315, 0.407] (k/100 would be [0.1, 0.1, 0.3, 0.5])
+  5m (10->16, 20->8, 50->3): gap 0.0000, wall / all-DFN@100 0.254
+  10->16, 20->8, 50->5: gap 0.0000, wall / all-DFN@100 0.269
+  10->24, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.270
+  10->16, 20->12, 50->3: gap 0.0000, wall / all-DFN@100 0.275
+  10->32, 20->16, 50->4: gap 0.0000, wall / all-DFN@100 0.333
+  DFN@50 top 3: gap 0.0000, wall / all-DFN@100 0.615
+Ecker2015@0.75x: pool best design 26 ranks 3 at cycle 10, 3 at 20, 2 at 50 (of 64); share of the 100-cycle wall time per segment [0.149, 0.099, 0.287, 0.465] (k/100 would be [0.1, 0.1, 0.3, 0.5])
+  5m (10->16, 20->8, 50->3): gap 0.0000, wall / all-DFN@100 0.244
+  10->16, 20->8, 50->5: gap 0.0000, wall / all-DFN@100 0.257
+  10->24, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.257
+  10->16, 20->12, 50->3: gap 0.0000, wall / all-DFN@100 0.267
+  10->32, 20->16, 50->4: gap 0.0000, wall / all-DFN@100 0.318
+  DFN@50 top 3: gap 0.0000, wall / all-DFN@100 0.561

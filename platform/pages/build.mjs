@@ -132,6 +132,7 @@ import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import { JUMP_ROW_CSS } from './jump-row.mjs';
 import { ANSWER_LEAD_CSS } from './answer-lead-style.mjs';
+import { SELECT_FIT_CSS } from './select-fit.mjs';
 import {
   SITE_NAME,
   MARK_BG,
@@ -10190,8 +10191,10 @@ export function renderChromeStyle() {
   // then the scroll hint for a stuck result card that pf-site.js capped
   // (sticky-fit.mjs, STICKY_FIT_CSS), then the shared jump row and guide list
   // a tool page adopts with markup alone (jump-row.mjs, JUMP_ROW_CSS), and the
-  // "quick answer" look of an answer-first lead (answer-lead-style.mjs).
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}`;
+  // "quick answer" look of an answer-first lead (answer-lead-style.mjs), and the
+  // floor that keeps a select in a table cell readable (select-fit.mjs; it must
+  // follow REFLOW_CSS, whose narrow-screen min-width:0 it overrides).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were

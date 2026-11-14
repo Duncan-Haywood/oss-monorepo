@@ -1,0 +1,25 @@
+cell-fidelity milestone 5m: successive halving over resumed DFN runs, on fresh conditions
+
+Probe (baseline design, 2 cycles): Ai2020@0.3x ok, Ai2020@0.4375x ok, Ecker2015@0.75x ok
+
+Ai2020@0.3x: n 53; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.09, 10 +0.24, 20 +0.48, 50 +0.91; cycle 5 ~ cycle 10 +0.97, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0271, wall / all-DFN@100 0.286, picked [9, 32, 6], best 3
+  fixed DFN@10 top 3 0.0876 (0.218); fixed DFN@20 top 3 0.0432 (0.341); halving 10->16, 20->3 0.0432 (0.255) (all resumed)
+  dropped: [7, 11, 23, 31, 39, 45, 47, 49, 51, 54, 59]; median segment seconds [5.0, 3.8, 9.3, 11.5]; resume check on 7 designs: max relative difference 0.00e+00, resumed / uninterrupted time median 0.970
+Ai2020@0.4375x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.66, 10 +0.76, 20 +0.89, 50 +0.98; cycle 5 ~ cycle 10 +0.97, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.254, picked [23, 54, 9], best 23
+  fixed DFN@10 top 3 0.0130 (0.201); fixed DFN@20 top 3 0.0000 (0.316); halving 10->16, 20->3 0.0000 (0.227) (all resumed)
+  dropped: []; median segment seconds [4.2, 3.3, 8.4, 11.0]; resume check on 8 designs: max relative difference 0.00e+00, resumed / uninterrupted time median 0.850
+Ecker2015@0.75x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.94, 10 +0.95, 20 +0.95, 50 +0.99; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.244, picked [42, 26, 62], best 26
+  fixed DFN@10 top 3 0.0000 (0.194); fixed DFN@20 top 3 0.0000 (0.287); halving 10->16, 20->3 0.0000 (0.217) (all resumed)
+  dropped: []; median segment seconds [2.3, 1.5, 4.3, 7.0]; resume check on 8 designs: max relative difference 0.00e+00, resumed / uninterrupted time median 0.916
+
+Pooled over conditions (median, max, exact):
+  gap: 0.0000, 0.0271, 2 of 3
+  t_ratio: 0.2541, 0.2863, 0 of 3
+  fixed10_gap: 0.0130, 0.0876, 1 of 3
+  fixed20_gap: 0.0000, 0.0432, 2 of 3
+  half_10_20_gap: 0.0000, 0.0432, 2 of 3
+
+Verdicts: H82 mixed, H83 mixed, H84 supported, H85 supported, H86 supported

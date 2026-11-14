@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtLCX7ETjbiKUkJzimy",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:07:06Z",
+  "ended": "2026-11-14T00:17:58Z",
+  "wall_minutes": 18.17,
+  "tokens_in": 3641250,
+  "tokens_out": 37759,
+  "cost_usd": 2.2634,
+  "tool_calls": 42,
+  "task": "creative: new Hearth & Horizon story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15663",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The only Hearth & Horizon 'Next up' proposal (The Wet Bulb) carries its own note that it is too close to a finished story, so the shelf effectively had no usable proposal; I wrote an original one (Benford's law) after grepping DONE.md (393 lines) for overlaps."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes reported UNSTABLE CHECKOUT and voided five workflows even though nothing was edited after it started (only a commit ran alongside, which its own hand-off note says is fine); PR CI was already green by then, so the local sweep cost ~10 minutes for no verdict."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No open proposal fit (the one H&H proposal flags itself as a near-duplicate), so I chose an unproposed topic, Benford's law misapplied to a small ledger, after checking DONE.md for overlap.",
+      "did": "Wrote 'Not Enough Ones' and added a DONE.md entry and a BIBLE timeline row directly instead of going through a proposal.",
+      "result": "Tests pass; post_similarity finds no near-duplicate post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-when-benfords-law-flags-an-honest-ledger.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (headline SF shelf). Piece: not-enough-ones, about 4,900 words, text only (audio du 471 MB > 400 MB cap). Numbers come from a seeded scratch script: a 500-line ledger, 200 of the lines at nine fixed amounts; MAD 0.0638 for all lines, 0.0203 for the 300 variable lines, chi-square 11.6 on 8 df (p 0.17); a 5,000-draw simulation gives P(MAD>0.015) of 34% at n=300 and 7% at n=500. Verification: node --test in the venture 15/15; check_post_frontmatter, check_post_links and post_similarity pass; PR CI green on every job that ran (deploy and review jobs skipped as usual). No agent doc in docs/reports: nothing the next run needs beyond DONE.md/BIBLE.md.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ec6dcf2e-687d-50a9-b75e-644089be5c22",
+    "transcripts": 1,
+    "first": "2026-11-14T00:07:06Z",
+    "last": "2026-11-14T00:25:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 77,
+        "output": 37759,
+        "thinking": 13267,
+        "cache_read": 3541213,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99960,
+        "api_equivalent_usd": 2.2634,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 77,
+      "output": 37759,
+      "thinking": 13267,
+      "cache_read": 3541213,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99960,
+      "api_equivalent_usd": 2.2634,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.17,
+      "active_minutes": 18.17,
+      "model_minutes": 7.24,
+      "tool_minutes": 10.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a professional writer drafting and fact-checking a 4,900-word story with worked statistics, plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 353.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
