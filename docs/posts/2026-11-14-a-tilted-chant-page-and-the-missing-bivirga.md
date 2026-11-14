@@ -1,9 +1,9 @@
 ---
 title: "A tilted chant page, read at last, and the bivirga it turned up"
-seo_title: "Straightening a skewed Gregorian chant scan, and why a GABC bivirga is two notes"
+seo_title: "Straightening a skewed chant scan; why a GABC bivirga is two notes"
 date: 2026-11-14
 tags: [music, gregorian-chant, optical-music-recognition, gabc, open-source, chant-forge]
-description: "Chant Forge's page straightener ran on 185 real scans. One badly tilted page went from 2 staves to 9, and checking those staves against a transcription exposed a converter bug that had dropped 26 sung notes."
+description: "On 185 real chant scans, one tilted page went from 2 staves to 9, and checking it exposed a bug that dropped 26 sung notes."
 ---
 
 Earlier today Chant Forge's scan reader learned to [straighten a tilted page](2026-11-14-straightening-a-tilted-chant-page.md) before it looks for staff lines. That change was tested only on drawn pages: archive.org, where the 1908 Vatican Graduale scans live, refused the session's connections. This run could reach it, so the straightener got its real test.

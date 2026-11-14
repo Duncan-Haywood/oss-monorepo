@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKTqpSh43ZgDPPqM1B",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T11:06:59Z",
+  "ended": "2026-11-14T11:24:06Z",
+  "wall_minutes": 17.55,
+  "tokens_in": 12347112,
+  "tokens_out": 41816,
+  "cost_usd": 4.502,
+  "tool_calls": 101,
+  "task": "Deepen flagship chant-forge (allocator row 9): run the real-page deskew check that the previous run could not (archive.org 403), then follow what it found.",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15830",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A backgrounded shell command used `cd /home/user/oss-monorepo && (A) & (cd ventures/chant-forge && B) & ...`; the cd prefix applied only to the first group, so scan-check and shape-check silently did not run and an earlier log was misread as fresh",
+      "fix": "reran each check from an absolute path"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/thick-line-check.md",
+      "issue": "says leaf 424 is p. 398 / 'GregoBase 3426's first page'; the running head reads 399 and 3426 is on p. 400 (leaf 425), so the newly read staves had no transcription in scan-pages.json and one had to be found"
+    },
+    {
+      "file": "ventures/chant-forge/eval/scan-pages.json",
+      "issue": "the six off-final pieces labelled their third leaf with the GABC's page; the printed page there is one higher in every case (leaf = page + 25). Labels only; corrected."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge next: said archive.org 403 'here'; this session archive.org returned 200. Host blocks are per-session, so a 'blocked' item is worth one probe before it is skipped"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-tilted-chant-page-and-the-missing-bivirga.md",
+    "ventures/chant-forge/eval/deskew-check.md (real-page and bivirga sections)",
+    "ventures/chant-forge/eval/deskew-report.md"
+  ],
+  "goal": "depth on a flagship: real-data verification of a shipped scan-reader change, plus a converter bug fix found by it",
+  "notes": "deskew-check on 185 real pages: 2 straightened (leaf 424 -0.94 deg: 2->9 staves, 15->345 notes; leaf 585 0.64 deg: unchanged); nothing lost; shape-check byte-identical. Added GregoBase 3670 (Qui timetis, CC0) to corpus + scan-pages.json: straightened 290/299 agree 0 differ, square alignment reaches only note 180 (177 agree). The one disagreement was a printed bivirga (kvv) the parsers counted as one note: parseGabc and gabcSteps now emit one note per repeated v/s (bivirga, trivirga, distropha, tristropha); 26 bivirgas in 15 of 68 corpus files had each lost a sung note. scan-check: 3407 217/220 (was 216/219), 3429 289/290 0 differ (was 286/287, 1 differ). split.test corpus totals updated for the 68th file (bivirga alone changes none of them: checked by running with 3670 removed). scan-read-by-eye.json 3407 count 219->220, file unchanged. Local checks: run_venture_tests.py chant-forge ok (206 tests); venture-preflight run; post front matter/links/similarity checks clean. Not regenerated: eval reports that quote corpus-wide counts of 67 files (four-sections, choir-presets, entrance-cost, etc.).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c14fbc0f-827b-5d3c-83ae-3dae93d2da70",
+    "transcripts": 1,
+    "first": "2026-11-14T11:06:59Z",
+    "last": "2026-11-14T11:24:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 104,
+        "input": 213,
+        "output": 41816,
+        "thinking": 12198,
+        "cache_read": 12193636,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153263,
+        "api_equivalent_usd": 4.502,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 104,
+      "input": 213,
+      "output": 41816,
+      "thinking": 12198,
+      "cache_read": 12193636,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153263,
+      "api_equivalent_usd": 4.502,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 87,
+      "Read": 9,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.55,
+      "active_minutes": 11.83,
+      "model_minutes": 9.6,
+      "tool_minutes": 2.23,
+      "waiting_on_human_minutes": 5.72,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an OMR/music-software engineer: fetch and check 185 real pages, find and add the matching transcription, diagnose the bivirga on the scan, fix two parsers with tests, update reports and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 177.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
