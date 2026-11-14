@@ -266,19 +266,21 @@ flagships:
       metadata-extractor names it); converted DNGs' maker notes from DNGPrivateData
       MakN (Canon, Nikon, Olympus) since 2026-11-14
       (eval/dng-maker-note-2026-11-14.md: ExifTool's real 350D DNG read as ExifTool
-      decodes it); next: Pentax lens numbers and its 'PENTAX' private data, a real
-      converted Nikon or Olympus DNG; the whole numpy develop runs in threaded bands
-      and packed raws unpack in numpy since 2026-11-13
-      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
-      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
-      (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
-      of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
-      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
-      table, prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs,
-      eval/native-destuff-2026-11-13.md; tiles are placed on the decode threads with
-      one numpy copy since 2026-11-13 (4-thread read 1.3-1.4x faster,
-      eval/parallel-tile-placing-2026-11-13.md); point-transform scans predict in C
-      and the plane is one buffer since 2026-11-14,
+      decodes it); Pentax lens numbers (AOC/PENTAX/RICOH notes, Pentax DNG private
+      data) and --lens-memory since 2026-11-14
+      (eval/pentax-lens-memory-2026-11-14.md: K10D matches ExifTool; next: a real
+      K-5 or K-30 file for the 91/80-byte LensInfo, a real converted Nikon or
+      Olympus DNG); the whole numpy develop runs in threaded bands and packed raws
+      unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same
+      bytes at every thread count and band height); lossless-JPEG DNG tiles decode
+      on a thread pool since 2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a
+      real Pixel 3 XL lossless DNG, 0 of 12.2 M sensels differ from LibRaw; read
+      0.33 s to 0.21 s on 4 CPUs; since 2026-11-13 later the whole tile decode
+      (de-stuffing, restart walk, 12-bit table, prediction) runs in C, read 0.21 s
+      to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md; tiles are placed on
+      the decode threads with one numpy copy since 2026-11-13 (4-thread read
+      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform
+      scans predict in C and the plane is one buffer since 2026-11-14,
       eval/point-transform-c-2026-11-14.md), and sensor normalisation runs in bands
       since 2026-11-14 (0.24 s to 0.05 s on 4 CPUs,
       eval/normalised-plane-bands-2026-11-14.md); MapTable and ScalePerRow/Column

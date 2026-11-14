@@ -28,7 +28,7 @@ from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.camera_profiles import CAMERA_PROFILES_DIR, profile_for
-from shootflow.lens_profiles import LENS_PROFILES_DIR, LensProfileError, load_db
+from shootflow.lens_profiles import LENS_MEMORY_FILE, LENS_PROFILES_DIR, LensProfileError, load_db, load_lens_memory
 from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, still_for_review
 from shootflow.raw_preview import is_cr2_path, is_developable_path, is_raw_path
 from shootflow.production_status import (
@@ -1236,7 +1236,9 @@ def _materialize_ffmpeg_grade_production_outputs(
                 try:
                     lens_db = _workspace_lens_db(root)
                     dcp = _camera_profile(root, source_path).profile if is_cr2_path(source_path) else None
-                    settings = DevelopSettings(dcp=dcp, lens_db=lens_db) if dcp or lens_db else None
+                    memory = _workspace_lens_memory(root) if lens_db is not None else None
+                    settings = (DevelopSettings(dcp=dcp, lens_db=lens_db, lens_memory=memory)
+                                if dcp or lens_db else None)
                     report = develop_file(source_path, developed, settings)
                 except (DevelopError, OSError, ValueError) as exc:
                     raise ProductionAdapterError(f"could not develop {source_path.name}: {exc}") from exc
@@ -1267,6 +1269,21 @@ def _materialize_ffmpeg_grade_production_outputs(
 
 _LENS_DB_CACHE: dict[tuple, object] = {}
 _LENS_DB_LOCK = threading.Lock()  # grade jobs run on several threads; parse a database once
+
+
+def _workspace_lens_memory(root: Path) -> dict | None:
+    """The shoot's lens memory, ``color/lens-profiles/lens-memory.json`` (``shootflow develop --lens-memory``
+    writes one), read only: the grade stage uses remembered lenses and never adds to them. None when absent."""
+
+    path = root / LENS_PROFILES_DIR / LENS_MEMORY_FILE
+    if path.is_symlink():
+        raise DevelopError(f"{path.relative_to(root)} is a symlink; lens profiles must live in the workspace")
+    if not path.is_file():
+        return None
+    try:
+        return load_lens_memory(str(path))
+    except LensProfileError as exc:
+        raise DevelopError(str(exc)) from None
 
 
 def _workspace_lens_db(root: Path):

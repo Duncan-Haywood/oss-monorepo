@@ -973,6 +973,9 @@ class Correction:
     scale: float
     notes: list[str]
     vignette: VignetteCorrection | None = None
+    # The file's lens key (ShotInfo.lens_key) and whether the lens came from the lens memory under it.
+    lens_key: str | None = None
+    remembered: bool = False
 
     def opcodes(self) -> list:
         """For OpcodeList3, in lensfun's order: the vignette on the uncorrected image, then the warp."""
@@ -1059,6 +1062,9 @@ class ShotInfo:
     aperture: float | None = None
     distance: float | None = None  # metres
     hint: LensHint | None = None  # raw_develop.LensHint: the maker note's focal range and aperture, when it names no lens
+    # The lens's number as the body reports it ("Pentax lens 8 227", "Canon lens type 137, 18-55 mm"), the key a
+    # lens memory (``load_lens_memory``) remembers a lensfun lens under; None when the file gives none.
+    lens_key: str | None = None
 
 
 def shot_info(ifd0, exif, hint: LensHint | None = None) -> ShotInfo:
@@ -1077,8 +1083,25 @@ def shot_info(ifd0, exif, hint: LensHint | None = None) -> ShotInfo:
     return ShotInfo(
         _ascii(ifd0, TAG_MAKE), _ascii(ifd0, TAG_MODEL), pick(_ascii, TAG_LENS_MODEL), pick(_ascii, TAG_LENS_MAKE),
         focal, pick(_number, TAG_FOCAL_35MM), pick(_number, TAG_FNUMBER), pick(_number, TAG_SUBJECT_DISTANCE),
-        hint,
+        hint, lens_key(ifd0, exif, hint),
     )
+
+
+def lens_key(ifd0, exif, hint: LensHint | None = None) -> str | None:
+    """The body's number for the lens, as a lens memory key, or None.
+
+    Pentax: the maker note's lens number (``pentax_lens``), the only lens identity a Pentax file carries.
+    Canon: CameraSettings' lens type with the focal range, since one type number covers several lenses
+    (third parties' especially); a photographer's own kit rarely has two that share both.
+    """
+
+    pentax = pentax_lens(ifd0, exif)
+    if pentax is not None:
+        return pentax.key
+    if hint is not None and hint.lens_type is not None:
+        rng = f"{hint.short:g} mm" if hint.short == hint.long else f"{hint.short:g}-{hint.long:g} mm"
+        return f"Canon lens type {hint.lens_type}, {rng}"
+    return None
 
 
 def spec_hint(ifd0, exif) -> LensHint | None:
@@ -1348,6 +1371,204 @@ def _olympus_lens_hint(exif) -> LensHint | None:
                     name or None)
 
 
+# --- Pentax (and Ricoh, and Samsung's K-mount GX bodies) -------------------------------------------------------------
+#
+# Pentax bodies write no EXIF LensModel or LensSpecification (the K-1 Mark II of 2018 still writes neither; the
+# K10D, *ist D and 645D here neither); the lens is only in the maker note, as the lens's own number (a "series"
+# and a "model" byte the lens's ROM reports), plus lens codes LC0-LC15 read from its contacts. Layouts as
+# ExifTool's Pentax.pm and MakerNotes.pm read them (tag numbers, byte positions and formulas; ExifTool's table
+# of lens names is not copied: see lens_memory below for how a number becomes a lens).
+PENTAX_LENS_REC = 0x003F  # LensRec: LensType as two bytes (series, model)
+PENTAX_LENS_INFO = 0x0207  # LensInfo: LensType (wider model field on newer bodies), then LensData (LC0-LC15)
+
+
+@dataclass(frozen=True)
+class PentaxLens:
+    """What a Pentax maker note says about the lens: its number, and what its lens codes give for this shot."""
+
+    series: int
+    model: int
+    focal: float | None  # LensData LC8: the lens's focal length at the shot, without an adapter
+    max_aperture: float | None  # LensData LC13: widest f-number at the shot's focal length
+    nominal_max: float | None  # LensData LC9: nominal widest f-number (changes with focal length on a zoom)
+    source: str
+
+    @property
+    def key(self) -> str:
+        return f"Pentax lens {self.series} {self.model}"
+
+
+def pentax_note(exif):
+    """The main IFD of a Pentax-style maker note in ``exif`` (an EXIF IFD, or ``pentax_private_data``'s), or None.
+
+    "PENTAX \\0" or "SAMSUNG\\0" + byte order (K-1, K-3, Q and later JPEGs and raws; Pentax's own DNGs keep the
+    same block in DNGPrivateData) start the IFD 10 bytes in, and their offsets count from the note's start;
+    "RICOH\\0" + byte order the same 8 bytes in. "AOC\\0" + byte order (K10D, *ist D, 645D, K-5 JPEGs) starts
+    the IFD 6 bytes in, and its offsets count from the file's TIFF header, so it is read through the buffer
+    the EXIF IFD came from, with the note's own byte order.
+    """
+
+    from shootflow.raw_develop import DevelopError, _Reader
+
+    mn = exif.get(TAG_MAKER_NOTE) if exif is not None else None
+    if not mn or len(mn) < 16:
+        return None
+    data = bytes(mn)
+    try:
+        for magic, start in ((b"PENTAX \0", 10), (b"SAMSUNG\0", 10), (b"RICOH\0", 8)):
+            if data.startswith(magic):
+                order = data[start - 2:start]
+                if order not in (b"II", b"MM"):
+                    return None
+                buf = order + struct.pack("<H" if order == b"II" else ">H", 42) + data[4:]
+                return _Reader(buf).read_ifd(start)[0]
+        if data.startswith(b"AOC\0"):
+            order = data[4:6]
+            at = getattr(exif, "offsets", {}).get(TAG_MAKER_NOTE)
+            source = getattr(exif, "source", None)
+            if order not in (b"II", b"MM") or at is None or source is None:
+                return None
+            buf = order + struct.pack("<H" if order == b"II" else ">H", 42) + source[4:]
+            return _Reader(buf).read_ifd(at + 6)[0]
+    except (DevelopError, struct.error, IndexError, ValueError, OverflowError):
+        return None
+    return None
+
+
+def pentax_private_data(ifd0):
+    """A Pentax camera DNG's maker note, kept in DNGPrivateData ("PENTAX \\0", "SAMSUNG\\0" or "RICOH\\0" then
+    the note as the maker note tag would hold it; ExifTool's Exif.pm, DNGPrivateData), as an EXIF-like Ifd."""
+
+    from shootflow.raw_develop import Ifd
+
+    raw = ifd0.get(TAG_DNG_PRIVATE_DATA) if ifd0 is not None else None
+    if not raw or len(raw) < 16:
+        return None
+    data = bytes(raw)
+    if not data.startswith((b"PENTAX \0", b"SAMSUNG\0", b"RICOH\0")):
+        return None
+    return Ifd(entries={TAG_MAKER_NOTE: tuple(data)})
+
+
+def _pentax_lens_data(d: bytes, new_layout: bool, model: str) -> tuple[float | None, float | None, float | None]:
+    """Focal length (LC8), widest f-number at the shot (LC13) and nominal widest f-number (LC9) from LensData.
+
+    Formulas as ExifTool's Pentax.pm (LensData): LC8 = v, focal 10 * (v >> 2) * 4 ** ((v & 3) - 2) mm (not on
+    the 645Z); LC9's high nibble n, nominal f = 2 ** (n / 4); LC13's low 7 bits v > 1, f = 2 ** ((v - 1) / 32)
+    (not on the K-5). The K-r, K-5 and K-5 II insert a byte after LC11, so LC13 sits one byte later.
+    """
+
+    focal = nominal = widest = None
+    if len(d) > 9 and "645Z" not in model:
+        v = d[9]
+        f = 10 * (v >> 2) * 4 ** ((v & 3) - 2)
+        focal = float(f) if 1 <= f <= 2000 else None
+    if len(d) > 10 and d[10] >> 4:
+        nominal = round(2 ** ((d[10] >> 4) / 4), 2)
+    at = 15 if new_layout else 14
+    if len(d) > at and (d[at] & 0x7F) > 1 and model.strip() != "K-5":
+        f = 2 ** (((d[at] & 0x7F) - 1) / 32)
+        widest = round(f, 2) if 0.5 <= f <= 64 else None
+    return focal, widest, nominal
+
+
+def pentax_lens(ifd0, exif) -> PentaxLens | None:
+    """The lens number and lens codes from a Pentax maker note (the file's own, or a Pentax DNG's private data,
+    or a converted DNG's MakN copy), or None.
+
+    LensInfo (0x0207) layouts by its byte count, as ExifTool's Pentax.pm tells them apart: the *ist bodies,
+    the GX-1 and (with 0xff or 00 00 at byte 20) the K100D and K110D keep two type bytes at 0 and LensData at
+    3; 90 bytes (645D): four type bytes at 1, LensData at 13; 91 (K-r, K-5, K-5 II): four at 1, LensData at 12
+    with the extra byte; 80 or 128 (K-01, K-30, K-50, K-3, K-3 II and on): five at 1, LensData at 15; 168 (GR
+    III) is not read; any other count (K10D, K20D, K-7 ...): four at 0, LensData at 4. Of four type bytes the
+    series is the first's low nibble and the model the last two, high byte first; of five, the last two again.
+    LensRec (0x003f) holds the two bytes alone and is used when LensInfo is missing or unreadable.
+    """
+
+    note = None
+    source = "Pentax maker note"
+    for candidate, label in ((exif, "Pentax maker note"),
+                             (pentax_private_data(ifd0), "Pentax DNG's private maker note"),
+                             (dng_maker_note(ifd0), "converted DNG's Pentax maker note")):
+        if candidate is None:
+            continue
+        note = pentax_note(candidate)
+        if note is not None:
+            source = label
+            break
+    if note is None:
+        return None
+    model = (_ascii(ifd0, TAG_MODEL) or "").replace("PENTAX", "").strip()
+    info = note.get(PENTAX_LENS_INFO)
+    series = number = None
+    data = b""
+    new_layout = False
+    if info and isinstance(info[0], int):
+        b = bytes(info)
+        n = len(b)
+        old = bool(re.search(r"\*ist|GX-1[LS]", model)) or (
+            bool(re.search(r"K100D|K110D", model)) and len(b) > 21 and (b[20] == 0xFF or b[20:22] == b"\0\0"))
+        if old and n >= 3:
+            series, number, data = b[0], b[1], b[3:20]
+        elif n == 90:
+            series, number, data = b[1] & 0x0F, b[3] * 256 + b[4], b[13:30]
+        elif n == 91:
+            series, number, data, new_layout = b[1] & 0x0F, b[3] * 256 + b[4], b[12:30], True
+        elif n in (80, 128):
+            series, number, data = b[1] & 0x0F, b[4] * 256 + b[5], b[15:32]
+        elif n != 168 and n >= 21:
+            series, number, data = b[0] & 0x0F, b[2] * 256 + b[3], b[4:21]
+    rec = note.get(PENTAX_LENS_REC)
+    if series is None and rec and len(rec) >= 2 and isinstance(rec[0], int):
+        series, number = rec[0], rec[1]
+    if series is None or number is None or (series == 0 and number == 0):
+        return None  # 0 0 is a manual lens (M42, K or adapted): no number to go by
+    focal, widest, nominal = _pentax_lens_data(data, new_layout, model) if data else (None, None, None)
+    return PentaxLens(int(series), int(number), focal, widest, nominal, source)
+
+
+# --- Lens memory: the photographer's own lenses, by the number the body reports ---------------------------------------
+#
+# A Pentax file names its lens only by number, and Canon's numbers each cover several lenses. Rather than ship a
+# table of every maker's numbers, ShootFlow remembers the lens a photographer names once: develop a frame with
+# --lens and --lens-memory FILE, and every later frame whose body reports the same number gets the same lensfun
+# lens, with a note saying so. A photographer owns a handful of lenses, so the table that matters is theirs.
+LENS_MEMORY_FILE = "lens-memory.json"  # in the shoot workspace's color/lens-profiles/, read by the grade stage
+LENS_MEMORY_VERSION = 1
+
+
+def load_lens_memory(path: str) -> dict[str, str]:
+    """``{lens key: lensfun lens name}`` from a lens memory file; an absent file is an empty memory."""
+
+    import json
+
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as exc:
+        raise LensProfileError(f"lens memory {path}: {exc}") from None
+    lenses = doc.get("lenses") if isinstance(doc, dict) else None
+    if not isinstance(doc, dict) or doc.get("version") != LENS_MEMORY_VERSION or not isinstance(lenses, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) and v.strip() for k, v in lenses.items()):
+        raise LensProfileError(f"lens memory {path}: expected {{\"version\": {LENS_MEMORY_VERSION}, \"lenses\": "
+                               "{\"<lens key>\": \"<lens name>\"}}")
+    return dict(lenses)
+
+
+def save_lens_memory(path: str, memory: dict[str, str]) -> None:
+    """Write the memory (sorted, so it diffs well), replacing the file only once the new one is complete."""
+
+    import json
+
+    tmp = f"{path}.tmp-{os.getpid()}"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump({"version": LENS_MEMORY_VERSION, "lenses": dict(sorted(memory.items()))}, fh, indent=2)
+        fh.write("\n")
+    os.replace(tmp, path)
+
+
 def _lens_from_hint(db: LensDb, hint: LensHint, camera: Camera | None, crop: float, name: str | None,
                     notes: list[str]) -> Lens | None:
     """The one lens that fits the hint's focal range and aperture, or None with a note naming the field."""
@@ -1391,10 +1612,20 @@ def _hint_said(hint: LensHint) -> str:
 def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str | None = None,
                    focal: float | None = None, crop: float | None = None, fill: bool = True,
                    tca: bool = True, vignetting: bool = True, aperture: float | None = None,
-                   distance: float | None = None) -> Correction:
-    """Choose the lens and build its warp; ``lens_name``, ``focal`` and ``crop`` override the file's tags."""
+                   distance: float | None = None, memory: dict[str, str] | None = None) -> Correction:
+    """Choose the lens and build its warp; ``lens_name``, ``focal`` and ``crop`` override the file's tags.
+
+    ``memory`` (``load_lens_memory``) supplies the lens for a file whose body reports a lens number it holds,
+    when neither ``lens_name`` nor a specific lens name in the file says otherwise.
+    """
 
     notes: list[str] = []
+    remembered = False
+    key = info.lens_key
+    if not lens_name and key and memory and key in memory and not (info.lens and specific(info.lens)):
+        lens_name = memory[key]
+        remembered = True
+        notes.append(f"lens {lens_name} from the lens memory, remembered for {key} (pass --lens if it is not)")
     camera = find_camera(db, info.make, info.model)
     if crop is None:
         if camera is not None and camera.crop > 0:
@@ -1425,6 +1656,10 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
     miss = ""
     if lens is None and hint is not None:
         miss = f" (no lens in the database has the {hint.source}'s {_hint_said(hint)})"
+    if lens is None and key and not name and not lens_name and (camera is None or fixed_lens(db, camera) is None):
+        raise LensProfileError(
+            f"the file names the lens only by the body's number for it ({key}){miss}; pass --lens once with "
+            "--lens-memory FILE, and later frames with that number use the same lens")
     if lens is None and name and not lens_name and not specific(name):
         raise LensProfileError(
             f"the file's lens name {name!r} gives only numbers (a third-party lens, as Canon bodies write them), "
@@ -1478,6 +1713,7 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
         result = Correction(None, lens, None, crop, 1.0, [f"no distortion correction: {lens.name} has no distortion "
                                                           f"calibration for crop factor {crop:g}"])
     result.notes = notes + result.notes
+    result.lens_key, result.remembered = key, remembered
     if vig is not None:
         result.vignette = vig
         result.notes.append(
