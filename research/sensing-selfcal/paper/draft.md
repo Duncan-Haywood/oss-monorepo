@@ -2,7 +2,8 @@
 
 *First full draft (milestone 7 of the `sensing-selfcal` programme), 2026-11-13; revised the same day
 with milestones 4e–4g (set size, every disjoint split, a robust jackknife) and on 2026-11-14 with
-milestone 4h (a reference for the robust jackknife derived from a model). Target venue: IEEE
+milestone 4h (a reference for the robust jackknife derived from a model) and milestone 4i (a reference
+from the unit's own linearised bundle adjustment). Target venue: IEEE
 Robotics and Automation Letters (an aim, not a claim of acceptance). Every number below comes from a
 file under `../experiments/`; `python3 paper/check_numbers.py` checks each one against that file.
 Citations are listed in `references.bib`; their DOIs could not be looked up from the session that
@@ -28,7 +29,10 @@ focal length alone tested with a robust view jackknife (the MAD of the delete-on
 plain χ²<sub>1</sub> reference detects a 2% focal change from 6 new views in 54% of splits at 2.3%
 false alarms, but only because two errors cancel: under independent per-view offsets χ²<sub>1</sub>
 would give that test 6.1% false alarms. With a reference derived from that model, which borrows
-nothing, the test stays at 0.2–0.5% false alarms and catches the 2% change in 19% of splits; a tail
+nothing, the test stays at 0.2–0.5% false alarms and catches the 2% change in 19% of splits. That model
+ignores the views' geometry: a reference drawn from a linearisation of the unit's own 13-view solve,
+which a robot gets from solves it already ran, predicts most of the jackknife's small-set inflation and
+lifts detection to 33% at 0.4–1.4% false alarms; a tail
 threshold borrowed from the sibling camera, which looked better on a 60-split sample (61%),
 reaches 43% on every split. The jackknife's
 overstatement is a small-set effect (7–8× at 4 views, 1.1–1.4× at 10), while the solver's own σ is
@@ -254,20 +258,51 @@ milestone 4h):
 | ±4% detected (per camera and sign) | 92.2–94.3% | 66.4–75.1% | |
 | false alarms, k = 4–6, left / right | 3.4% / 1.2% | 0.45% / 0.20% | |
 
-The robust scale still doubles the power of the plain one once both have a derived reference, and the
-gap between 19% and the borrowed threshold's 43% is what borrowing nothing costs at 6 new views on this
+The robust scale doubles the power of the plain one against this model reference, and the gap between
+19% and the borrowed threshold's 43% looked like the cost of borrowing nothing at 6 new views on this
 rig.
+
+**A reference that knows the geometry.** Most of that gap is the model, not the information. The
+independent-offset model ignores what milestone 4f found: the delete-one solves of a small set sit near
+the critical configuration and swing far, which inflates the jackknife in a way that depends on which
+views are in the set. The unit's own 13-view solve already describes that geometry. For any view subset
+S, its first-order change in f under a pixel perturbation ε is g<sub>S</sub>·ε, with
+g<sub>S</sub> = J<sub>S</sub>(J<sub>S</sub><sup>T</sup>J<sub>S</sub>)<sup>−1</sup>e<sub>f</sub> from the
+subset problem's Jacobian at the 13-view solution (f is gauge-invariant, so the subset's gauge does not
+matter). One matrix product then draws every set's f and delete-one f's, and so z², for each
+(old, new) split; we feed it the unit's own 13 residual patterns, reassigned to views at random with
+random signs. On 9,600 cold-start nonlinear solves of synthetic corners from this twin, the linear
+prediction's spread matches the solver's to within 0.2% for 4 to 7 views (it fails for some 3-view
+sets). The twin reproduces most of the real jackknife's overstatement from geometry alone (R's
+predicted-to-real ratio 0.75 / 0.76 at 7 + 6, against 0.88 / 0.48 measured), and its 99th percentile of
+z<sub>R</sub>² is 10.93 / 12.49 at 7 + 6 (median over splits), not 18.45. Against it (pre-registered,
+milestone 4i):
+
+| f alone, 5×5 corners, every split, k = 6 | robust J, model reference | robust J, twin per split | J, twin per split | robust J, twin per design |
+|---|---|---|---|---|
+| ±2% detected (pooled) | 18.6% | 33.1% | 34.7% | 30.8% |
+| ±4% detected (per camera and sign) | 66.4–75.1% | 81.2–84.7% | | |
+| false alarms, k = 4–6, left / right | 0.45% / 0.20% | 1.44% / 0.37% | 1.59% / 0.35% | 1.60% / 0.66% |
+
+The right camera stays below nominal because its jackknife overstates the real spread about 1.6× more
+than its twin predicts, the same excess the independent-offset model missed there (Section 4). Two
+things change. With a reference that knows the geometry, the MAD no longer buys power (the plain
+jackknife does as well), and one threshold per design does almost as well as one per split: the
+per-split thresholds vary 1.65–1.67× from the 10th to the 90th percentile but barely track the real
+statistics (Spearman 0.24 / 0.10). What the twin contributes is the right tail for the design.
 
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
    view-clustered sandwich give 36–74% false alarms on an unchanged camera; the jackknife 1.7–2.5%.
-2. **Test the focal length on its own, with a robust jackknife and a reference computed for the set
-   sizes.** The MAD of the delete-one focal lengths in place of their standard deviation, against the
-   99th percentile of z² under independent per-view offsets (18.45 at 7 + 6 views; a second of Monte
-   Carlo for any sizes), keeps false alarms at 0.2–0.5% and catches a 2% change from 6 views in 19% of
-   splits, with nothing borrowed. Against χ²<sub>1</sub> it catches 54% at 2.3% here, but that is an
-   approximately 2–6% test, not a 1% one, and its rate should be checked on each unit. The
+2. **Test the focal length on its own, with a view jackknife and a reference drawn from the unit's own
+   linearised solve.** The gains of every view subset come from the Jacobians of solves the robot already
+   ran; ten thousand draws of the unit's own residual patterns give each design's 99th percentile of z²
+   (about 11–13 at 7 + 6 views with the robust jackknife). That test keeps false alarms at 0.4–1.4% and
+   catches a 2% change from 6 views in 33% of splits, with nothing borrowed; the plain jackknife against
+   its own twin reference does as well (34.7%). The independent-offset reference (18.45 at 7 + 6 views)
+   is safe but catches 19%. Against χ²<sub>1</sub> the robust test catches 54% at 2.3% here, but that is
+   an approximately 2–6% test, not a 1% one, and its rate should be checked on each unit. The
    three-parameter test is information-limited at 4–6 views. Keep W for principal-point moves (the swap lives in
    c<sub>x</sub>).
 3. **Check the corners before the statistics.** On a board with cut-short end squares, size the
@@ -298,6 +333,9 @@ were found after a pre-registered prediction failed and are labelled so in the l
   estimate each unit's own tail on views the test never touches.
 - Natural-feature correspondences (milestone 3b) on an openly licensed multi-view set with a target
   calibration of the same camera.
+- The twin reference (Section 7) pre-registered on a second unit's views, to see whether it stays at or
+  below nominal there; and a twin that models the right camera's extra spread (a per-view offset term
+  fitted to the unit's own jackknife) to bring that camera up to 1%.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
   false alarms survive a unit with more views, where the model says they should rise. Every split of

@@ -222,3 +222,23 @@ def figure(REF, res, path):
 
 if __name__ == "__main__":
     main()
+
+
+def scale_ratios(model="resid", n_draws=2_000, seed=SEED + 1):
+    """Post hoc (added after the scored run): under the twin, sd of f_new - f_old over the root mean
+    predicted variance (R and J), per design, the quantity milestone 4g's H53 measured on the real views
+    (real: R 0.88 / 0.48, J 0.57 / 0.31 at 7 + 6). Pooled over splits and draws."""
+    out = {}
+    for cam in CAMS:
+        tw = load_cam(cam)[0]
+        G, idx = twin.gain_matrix(tw)
+        F, Jm, Rm = twin_sets(G, idx, twin.noise(np.random.default_rng([seed, CAMS.index(cam)]), model, n_draws, tw))
+        for des in DESIGNS:
+            om, nm = m4g.splits(*des)
+            io = np.array([idx[int(m)] for m in om]); inn = np.array([idx[int(m)] for m in nm])
+            sel = np.random.default_rng(0).choice(len(io), min(len(io), 1716), replace=False)
+            io, inn = io[sel], inn[sel]
+            d = F[inn].astype(float) - F[io]
+            for est, V in (("R", Rm), ("J", Jm)):
+                out[f"{des[0]}+{des[1]}/{cam}/{est}"] = float(np.sqrt(np.mean(d ** 2)) / np.sqrt(np.mean(V[io] + V[inn])))
+    return out
