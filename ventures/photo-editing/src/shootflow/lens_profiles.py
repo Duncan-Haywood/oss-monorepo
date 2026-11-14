@@ -1233,9 +1233,9 @@ def _olympus_lens_hint(exif) -> LensHint | None:
         return None
     a1 = _olympus_f_number(eq.get(OLY_MAX_APERTURE_MIN_FOCAL))
     a2 = _olympus_f_number(eq.get(OLY_MAX_APERTURE_MAX_FOCAL))
-    marked = (a1, a2) if a1 and a2 and a1 <= a2 * _APERTURE_TOLERANCE else None
-    if marked and a1 > a2:
-        marked = (a1, a1)  # a rounding hair apart on a constant-aperture lens
+    marked: tuple[float, float] | None = None
+    if a1 is not None and a2 is not None and a1 <= a2 * _APERTURE_TOLERANCE:
+        marked = (a1, max(a1, a2))  # a rounding hair apart on a constant-aperture lens reads as constant
     current = _olympus_f_number(eq.get(OLY_MAX_APERTURE))
     raw_name = eq.get(OLY_LENS_MODEL)
     name = bytes(raw_name).split(b"\0")[0].decode("ascii", "replace").strip() if raw_name else ""
