@@ -1,7 +1,7 @@
 ---
 title: "The drone crashed with no gust at all"
 date: 2026-11-14
-tags: [codesign-cant, quadrotor, co-design, tilt-limit, px4, ardupilot, mixer-saturation, pre-registration]
+tags: [codesign-cant, quadrotor, co-design, tilt-limit, PX4, ArduPilot, mixer-saturation, pre-registration]
 seo_title: "Quadrotor tilt limit: why tuned gains crash at PX4's 45°"
 description: "Retrained quadrotor designs crashed at a 45° tilt limit with no gust torque. The cause was a position gain at its search bound, not thrust-to-weight."
 ---
