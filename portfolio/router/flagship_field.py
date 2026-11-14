@@ -31,7 +31,7 @@ import yaml
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from validate import FLAGSHIP_NEXT_MAX, FLAGSHIPS_PATH  # noqa: E402
+from validate import FLAGSHIP_BUILDABLE_MAX, FLAGSHIP_NEXT_MAX, FLAGSHIPS_PATH  # noqa: E402
 
 INDENT = " " * 6
 WIDTH = 84
@@ -90,6 +90,9 @@ def set_value(text: str, venture: str, field: str, value: str) -> str:
     if field == "next" and len(value) > FLAGSHIP_NEXT_MAX:
         raise ValueError(f"`next:` would be {len(value)} of {FLAGSHIP_NEXT_MAX} characters: "
                          "replace what you landed, don't append")
+    if field == "buildable" and len(value) > FLAGSHIP_BUILDABLE_MAX:
+        raise ValueError(f"`buildable:` would be {len(value)} of {FLAGSHIP_BUILDABLE_MAX} characters: "
+                         "name only items a session can start now; landed work goes in the README or eval/")
     lines = text.splitlines(keepends=True)
     a, b = _span(lines, venture, field)
     out = "".join(lines[:a] + wrap(field, value) + lines[b:])

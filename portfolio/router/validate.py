@@ -21,6 +21,11 @@ VENTURES_DIR = REPO_ROOT / "ventures"
 _LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 FLAGSHIPS_PATH = REPO_ROOT / "portfolio" / "flagships.yaml"
 FLAGSHIP_NEXT_MAX = 2000
+# `buildable:` leads the row in allocate.py's table uncut, so every venture
+# session reads it. With no cap it became a second history log: photo-editing's
+# reached 2,711 characters (2026-11-14), mostly work already landed, which also
+# let its `next:` dodge FLAGSHIP_NEXT_MAX. Items a session can start, no more.
+FLAGSHIP_BUILDABLE_MAX = 600
 
 VALID_STAGES = {"idea", "prototype", "launched", "revenue", "scaling", "winding-down"}
 LEAN_STAGES = {"idea", "prototype"}
@@ -154,6 +159,13 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"{FLAGSHIP_NEXT_MAX}). Replace the item your slice landed instead of "
                 f"appending (portfolio/router/flagship_field.py <venture> --replace OLD NEW); "
                 f"history belongs in the venture's README."
+            )
+        n = len(str(entry.get("buildable") or "").strip())
+        if n > FLAGSHIP_BUILDABLE_MAX:
+            errors.append(
+                f"flagships.yaml: {entry.get('venture')} `buildable:` is {n} characters (cap "
+                f"{FLAGSHIP_BUILDABLE_MAX}). Name only items a cloud session can start now and "
+                f"drop each one when it lands; landed work belongs in the README or eval/."
             )
 
 

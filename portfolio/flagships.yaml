@@ -23,7 +23,8 @@
 # `buildable: <items a cloud session can do now>` (optional) leads the row's
 # task as "BUILDABLE HERE", so a run need not read every full `next:` to find
 # a tractable item (seven runs on 2026-11-11 did). Name only items checked to
-# need no key, account or person; drop or rewrite it when they land.
+# need no key, account or person; drop or rewrite it when they land. validate.py
+# caps it at 600 characters (FLAGSHIP_BUILDABLE_MAX): it is not a history log.
 #
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
@@ -249,45 +250,14 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      The DNG 1.7.1.0 specification PDF is reachable from a cloud session
-      (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
-      memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
-      liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); its SSE,
-      16-bit and SSE2 paths measured 2026-11-14 via ctypes
-      (eval/lensfun-vignetting-paths-2026-11-14.md: SSE scales alpha; SSE2 lanes
-      drift, w%4 tail wrong); CR2s with no lens name are matched by the maker note's
-      focal range and aperture since 2026-11-14
-      (eval/canon-lens-from-range-2026-11-14.md: one lens in 38% of lensfun's
-      Canon-mount cases, the rest refused as ties); any maker's LensSpecification,
-      DNG LensInfo and Nikon's maker-note lens tag are matched the same way, both
-      f-numbers, since 2026-11-14 (eval/lens-specification-2026-11-14.md: 50% of
-      lensfun's ranged lenses alone); Olympus's Equipment IFD (3 layouts, ORF magic,
-      its lens name as tie-break) since 2026-11-14
-      (eval/olympus-equipment-2026-11-14.md: 8 real frames identified, each as
-      metadata-extractor names it); converted DNGs' maker notes from DNGPrivateData
-      MakN (Canon, Nikon, Olympus) since 2026-11-14
-      (eval/dng-maker-note-2026-11-14.md: ExifTool's real 350D DNG read as ExifTool
-      decodes it); Pentax lens numbers (AOC/PENTAX/RICOH notes, Pentax DNG private
-      data) and --lens-memory since 2026-11-14
-      (eval/pentax-lens-memory-2026-11-14.md: K10D matches ExifTool; next: a real
-      K-5 or K-30 file for the 91/80-byte LensInfo, a real converted Nikon or
-      Olympus DNG); the whole numpy develop runs in threaded bands and packed raws
-      unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same
-      bytes at every thread count and band height); lossless-JPEG DNG tiles decode
-      on a thread pool since 2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a
-      real Pixel 3 XL lossless DNG, 0 of 12.2 M sensels differ from LibRaw; read
-      0.33 s to 0.21 s on 4 CPUs; since 2026-11-13 later the whole tile decode
-      (de-stuffing, restart walk, 12-bit table, prediction) runs in C, read 0.21 s
-      to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md; tiles are placed on
-      the decode threads with one numpy copy since 2026-11-13 (4-thread read
-      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform
-      scans predict in C and the plane is one buffer since 2026-11-14,
-      eval/point-transform-c-2026-11-14.md), and sensor normalisation runs in bands
-      since 2026-11-14 (0.24 s to 0.05 s on 4 CPUs,
-      eval/normalised-plane-bands-2026-11-14.md); MapTable and ScalePerRow/Column
-      run in OpcodeList1 since 2026-11-13 (spec's integer range;
-      eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial there still
-      need a unit the text does not give, or a real file.
+      Public samples, no key: the proxy serves
+      github.com/drewnoakes/metadata-extractor-images (a sparse checkout gave the
+      ARW, NEF, ORF and RW2 bodies, eval/*-reader-2026-11-14.md; it also holds pef/
+      4, raf/ 9 and srw/ 12 files). Read Pentax PEF, Fujifilm RAF or Samsung SRW
+      directly, sensel for sensel against LibRaw; RW2 lens from its JpgFromRaw maker
+      note and Sony maker-note lens names, from those same files. The DNG 1.7.1.0
+      spec PDF is reachable (URL in eval/opcode-spec-audit-2026-11-12.md): read it,
+      not memory.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
