@@ -237,7 +237,9 @@ export function plusBreakEvenListings({
   const remaining = plusFee - Math.min(spend, ads) - other;
   if (remaining <= 0) return 0;
   if (fee <= 0) return null;
-  const needed = remaining / fee;
+  // Listings come whole: the first count that covers the fee. The 1e-9 keeps
+  // float error (1.2 / 0.1 = 11.999999999999998) from rounding up a listing.
+  const needed = Math.ceil(remaining / fee - 1e-9);
   if (needed > credits) return null;
   return needed;
 }
