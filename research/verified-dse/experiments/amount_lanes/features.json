@@ -1,0 +1,66 @@
+{
+ "avg5": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 31,
+  "amount_gates": 65,
+  "mux_share": 0.7466,
+  "shift_width": 128
+ },
+ "avg6": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 35,
+  "amount_gates": 77,
+  "mux_share": 0.7502,
+  "shift_width": 128
+ },
+ "lane2k2": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 48,
+  "amount_gates": 84,
+  "mux_share": 0.7356,
+  "shift_width": 64
+ },
+ "lane4k1": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 25,
+  "amount_gates": 41,
+  "mux_share": 0.7911,
+  "shift_width": 64
+ },
+ "lane4k2": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 48,
+  "amount_gates": 84,
+  "mux_share": 0.7721,
+  "shift_width": 64
+ },
+ "pmul3": {
+  "amount_cells": 1,
+  "amount_depth": 1,
+  "amount_gate_depth": 28,
+  "amount_gates": 88,
+  "mux_share": 0.7279,
+  "shift_width": 128
+ },
+ "pmul4": {
+  "amount_cells": 1,
+  "amount_depth": 1,
+  "amount_gate_depth": 36,
+  "amount_gates": 130,
+  "mux_share": 0.6752,
+  "shift_width": 128
+ },
+ "sel64": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 33,
+  "amount_gates": 378,
+  "mux_share": 0.6339,
+  "shift_width": 128
+ }
+}
