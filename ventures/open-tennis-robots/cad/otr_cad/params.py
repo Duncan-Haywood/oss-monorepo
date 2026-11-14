@@ -768,6 +768,19 @@ class Feeder:
     precharge_relay_a: float = 10.0   # the small relay that switches the resistor
     bus_idle_a: float = 0.3           # what the switched loads draw idling while the bus precharges (assumption):
                                       # it holds the bus below the pack by idle x resistor
+    # Start-up loads during the precharge (2026-11-14, `precharge_bus`). A buck or a chopper drive draws constant power
+    # once its input passes its start threshold, so it takes more current the lower the bus, and through 4.7 ohm the
+    # most a bus can pass is V^2 / 4R (31 W at 24 V). Two loads can start while the bus charges: the stepper driver,
+    # whose ENABLE is not wired (it holds its phase current from the moment it has power), and the shuttle servo's
+    # buck, if the firmware sends a pulse at rest (before 2026-11-14 it held GATE_LO_US from power-up, so a servo left
+    # anywhere but home sought it at stall current). Figures are assumptions: read your driver's and buck's sheets.
+    switched_start_v: float = 8.0     # bus volts at which a buck or the stepper driver starts (A4988/DRV8825 class
+                                      # need 8 V; small bucks' undervoltage lockouts sit near there)
+    switched_stop_v: float = 7.0      # and stops again (hysteresis)
+    servo_seek_s: float = 0.68        # a seek from anywhere to home at stall current: the loaded back stroke
+                                      # (GATE_BACK_MS's cad figure), the worst case after a cut mid-stroke
+    servo_pulse_at_rest: bool = False  # firmware: True is the pre-2026-11-14 gate, pulsed from power-up
+    stepper_holds_at_power_up: bool = True  # its ENABLE pin is not wired (electronics.md pin map)
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -2369,17 +2382,88 @@ class Feeder:
                                 "fault_j": v * v / self.precharge_ohm * self.precharge_delay_s,
                                 "close": event(residual, self.bus_idle_a)}
         out["closing"] = out["precharge"]["close"] if out["precharge"] else direct
+        if self.precharge_ohm > 0:
+            # The same closing with the switched loads that start during the precharge, at both ends of the battery's
+            # range: constant-power loads hurt most at the low end, the step's energy at the high one.
+            out["startup"] = {}
+            for name, vp in (("full", v), ("low", self.battery_v_min)):
+                b = self.precharge_bus(vp, r, c)
+                b["close"] = event(b["gap_v"], b["load_a"])
+                out["startup"][name] = b
+            worst = max(out["startup"].values(), key=lambda b: b["close"]["peak_a"])
+            if worst["close"]["peak_a"] > out["closing"]["peak_a"]:
+                out["closing"] = worst["close"]
         return out
+
+    def startup_loads(self, v_pack: float) -> list[tuple[str, float, float]]:
+        """Constant-power loads that start while the bus precharges: (name, input watts, seconds or inf)."""
+        loads = []
+        if self.stepper_holds_at_power_up:
+            d = self.power_distribution()
+            stepper = next(b for b in d["branches"] if b["name"] == "azimuth stepper driver")
+            loads.append(("stepper driver holding", stepper["run_a"] * self.battery_v_min, math.inf))
+        if self.servo_pulse_at_rest:
+            loads.append(("shuttle servo seeking home", self.servo_supply_v * self.servo_stall_a / self.buck_eff,
+                          self.servo_seek_s))
+        return loads
+
+    def precharge_bus(self, v_pack: float, r_loop: float | None = None, c_bus: float | None = None) -> dict:
+        """The bus during the precharge with the start-up loads (2026-11-14): C dV/dt = (Vpack - V) / R - idle - sum
+        P / V over the loads that have started (above `switched_start_v`, until they fall below `switched_stop_v`;
+        a seeking servo for `servo_seek_s` of powered time), stepped at a 400th of the time constant to the
+        contactor's on-delay. With no start-up loads it is the closed form in `contactor_inrush`, which the tests check.
+        Returns the gap left when the contactor closes, the loads' current then, the loads' restarts (a bus that
+        cannot carry them chatters at their threshold) and the highest V^2 / 4R power the resistor can pass."""
+        if r_loop is None or c_bus is None:
+            d = self.contactor_inrush()
+            r_loop, c_bus = d["r_ohm"], d["c_f"]
+        rp = self.precharge_ohm + r_loop
+        loads = self.startup_loads(v_pack)
+        dt = rp * c_bus / 400
+        n = int(math.ceil(self.precharge_delay_s / dt))
+        dt = self.precharge_delay_s / n
+        vb, on, used, starts = 0.0, [False] * len(loads), [0.0] * len(loads), [0] * len(loads)
+
+        def draw(vx):
+            a = self.bus_idle_a
+            for k, (_, w, dur) in enumerate(loads):
+                if on[k] and used[k] < dur:
+                    a += w / max(vx, 1e-6)
+            return a
+
+        for _ in range(n):
+            for k in range(len(loads)):
+                if on[k] and vb < self.switched_stop_v:
+                    on[k] = False
+                elif not on[k] and vb >= self.switched_start_v:
+                    on[k] = True
+                    starts[k] += 1
+            k1 = ((v_pack - vb) / rp - draw(vb)) / c_bus
+            vm = vb + k1 * dt / 2
+            vb += ((v_pack - vm) / rp - draw(vm)) / c_bus * dt
+            for k in range(len(loads)):
+                if on[k]:
+                    used[k] += dt
+        return {"v_pack": v_pack, "bus_v": vb, "gap_v": v_pack - vb, "load_a": draw(vb),
+                "loads": [{"name": nm, "w": w, "starts": starts[k], "on_at_close": on[k] and used[k] < dur}
+                          for k, (nm, w, dur) in enumerate(loads)],
+                "max_w": v_pack ** 2 / (4 * rp)}
 
     def check_inrush(self) -> list[str]:
         bad = []
         d = self.contactor_inrush()
         cl, pre = d["closing"], d["precharge"]
         how = "closing onto the precharged bus" if pre else "closing onto an empty bus"
+        if pre and cl is not pre["close"]:
+            b = max(d["startup"].values(), key=lambda x: x["close"]["peak_a"])
+            names = ", ".join(x["name"] for x in b["loads"] if x["on_at_close"]) or "the start-up loads"
+            how = (f"closing at {b['v_pack']:g} V onto a bus held {b['gap_v']:.1f} V short by {names} "
+                   f"(firmware: no servo pulse at rest; or wire the stepper's ENABLE)")
         fix = "" if pre else ": add the precharge (precharge_ohm)"
         if cl["peak_a"] > self.contactor_make_a + 1e-9:
             bad.append(f"contactor makes {cl['peak_a']:.0f} A {how}, over the {self.contactor_make_a:g} A it may make{fix}"
-                       + (f" or lengthen precharge_delay_s ({cl['step_v']:.2f} V left)" if pre else ""))
+                       + (f" or lengthen precharge_delay_s ({pre['close']['step_v']:.2f} V left with no start-up loads)"
+                          if pre and pre["close"]["peak_a"] > self.contactor_make_a + 1e-9 else ""))
         if cl["bms_over_us"] > self.bms_sc_delay_us + 1e-9:
             bad.append(f"inrush stays over the BMS's {self.bms_sc_a:g} A short-circuit trip for {cl['bms_over_us']:.0f} us "
                        f"{how}, past its {self.bms_sc_delay_us:g} us delay: the BMS would cut the Pi too{fix}")
