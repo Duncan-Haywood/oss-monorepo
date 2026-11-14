@@ -188,3 +188,15 @@ def test_rake_one_covariate_is_poststratification():
     # The selection the covariate carries is removed exactly: target-group mean is matched when outcome depends
     # only on the covariate.
     assert rake.kish_deff(np.ones(10)) == 1.0 and rake.kish_deff(r) > 1.0
+
+
+def test_mother_nativity_from_parborn():
+    # gssrdoc codes: 0 both US-born, 1 mother yes / father no, 2 mother no / father yes, 3 mother yes / father DK,
+    # 4 mother no / father DK, 5 mother DK / father yes, 6 mother DK / father no, 7 both DK, 8 neither US-born.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'm5m', Path(__file__).parent / 'experiments' / 'm5m_mothers_nativity' / 'run.py')
+    m5m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m5m)
+    got = m5m.mother_nativity([0, 1, 2, 3, 4, 5, 6, 7, 8, np.nan])
+    assert list(got) == ['US mother', 'US mother', 'FB mother', 'US mother', 'FB mother', '', '', '', 'FB mother', '']
