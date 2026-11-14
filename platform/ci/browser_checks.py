@@ -217,12 +217,19 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
+SERVE_POLL = 0.05
+
+
 def serve(directory: str, port: int):
     """Start a background HTTP server for `directory`. Returns the server."""
     handler = lambda *a, **kw: _QuietHandler(*a, directory=directory, **kw)  # noqa: E731
     httpd = socketserver.ThreadingTCPServer(("127.0.0.1", port), handler)
     httpd.daemon_threads = True
-    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    # serve_forever's default 0.5 s poll is how long shutdown() waits for the
+    # loop to notice; at 0.05 s it is 0.05 s. Idle cost: 20 select() calls a
+    # second. test_browser_checks.py went 8.6 s to 1.0 s (perf run 2026-11-14).
+    threading.Thread(target=httpd.serve_forever, kwargs={"poll_interval": SERVE_POLL},
+                     daemon=True).start()
     return httpd
 
 
