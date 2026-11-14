@@ -1,6 +1,6 @@
 ---
 title: "A solar boat that remembers last years' sun matches the oracle"
-seo_title: "Learned seasonal sun-forecast correction for solar USV energy management"
+seo_title: "Learned seasonal sun-forecast correction for solar USV energy"
 date: 2026-11-14
 tags: [research, marine-hull]
 description: "Scaling the sun climatology by the boat's own month-by-month harvest ratio from five earlier years lifts a solar boat's battery rule from 104 to 120 of 128 cases, level with an oracle."
