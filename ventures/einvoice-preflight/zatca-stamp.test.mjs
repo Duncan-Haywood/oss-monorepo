@@ -221,3 +221,87 @@ test("only ZATCA files are stamp-checked", async () => {
   const { reports } = await preflightDocuments([{ name: "sg.xml", source: peppol }]);
   assert.equal(reports[0].errors.some((e) => /^KSA-STAMP/.test(e.rule)), false);
 });
+
+// ---- red team 2026-11-14: inputs a stranger's file can carry ----
+
+test("a DigestValue that is not base64 (base64url, say) is reported, not thrown", async () => {
+  // A signer writing base64url ('-' and '_') put the check itself into an exception
+  // that took the whole file's report down with it.
+  const xml = sign(EXAMPLE, keys, { tamper: { digest: "abc-_def" } });
+  const got = rules(xml);
+  assert.ok(got.includes("KSA-STAMP-01"), got.join(","));
+  assert.ok(got.includes("KSA-STAMP-03"), got.join(","));
+  const { reports, readErrors } = await preflightDocuments([{ name: "url.xml", source: xml }]);
+  assert.deepEqual(readErrors, []);
+  assert.ok(reports[0].errors.some((e) => e.rule === "KSA-STAMP-01"));
+});
+
+test("a QR TLV cut off inside a long-form length is reported (04), not read as an empty field", () => {
+  for (const bytes of [[1, 0x81], [1, 0x82, 5]]) {
+    assert.throws(() => decodeQrTlv(Uint8Array.from(bytes)), /length/);
+  }
+  const xml = EXAMPLE.replace(/(<cbc:ID>QR<\/cbc:ID>\s*<cac:Attachment>\s*<cbc:EmbeddedDocumentBinaryObject[^>]*>)[^<]*/, `$1${Buffer.from([1, 0x82, 5]).toString("base64")}`);
+  assert.deepEqual(rules(xml), ["KSA-STAMP-04"]);
+});
+
+test("the chain ignores an invoice with no counter: it is not ICV 0", () => {
+  // Number("") is 0, so a file with no ICV reference used to stand in for counter 0 and
+  // fail the device's first invoice (ICV 1, first-invoice PIH) with a false KSA-STAMP-20.
+  const items = [{ file: "noicv.xml", meta: { icv: "", hash: "AAAA", pih: "" } }, { file: "first.xml", meta: { icv: "1", hash: "BBBB", pih: FIRST_PIH } }];
+  assert.equal(checkZatcaChain(items).size, 0);
+  // A counter must be a plain decimal integer: "1e1" or "0x10" is not ICV 10 or 16.
+  const odd = [{ file: "a.xml", meta: { icv: "9", hash: "AAAA" } }, { file: "b.xml", meta: { icv: "1e1", hash: "BBBB", pih: "CCCC" } }];
+  assert.equal(checkZatcaChain(odd).size, 0);
+});
+
+test("a certificate dated 2050 or later (GeneralizedTime) is read with the right dates", () => {
+  const gen = (d) => tlv(0x18, Buffer.from(d.toISOString().replace(/[-:T]/g, "").slice(0, 14) + "Z"));
+  const { publicKey } = crypto.generateKeyPairSync("ec", { namedCurve: "secp256k1" });
+  const spki = publicKey.export({ type: "spki", format: "der" });
+  const notAfter = new Date("2051-06-30T23:59:59Z");
+  const tbs = seq(tlv(0xa0, tlv(0x02, Buffer.from([2]))), tlv(0x02, Buffer.from([1])), ECDSA_SHA256, name("Test CA"), seq(utc(new Date("2024-01-01T00:00:00Z")), gen(notAfter)), name("TST"), spki);
+  const cert = seq(tbs, ECDSA_SHA256, tlv(0x03, Buffer.from([0, 0x30, 0])));
+  assert.equal(readCertificate(cert).notAfter?.toISOString(), notAfter.toISOString());
+});
+
+test("with no embedded certificate, the QR's own key (8) and signature (7) are checked", () => {
+  const dropCert = (xml) => xml.replace(/<ds:KeyInfo>[\s\S]*?<\/ds:KeyInfo>/, "");
+  const good = dropCert(sign(EXAMPLE, keys));
+  assert.ok(checkZatcaStamp(good).meta.checked.includes("signature (QR key)"));
+  assert.deepEqual(rules(good), []);
+  const wrong = dropCert(sign(EXAMPLE, keys, { tamper: { otherKey: makeKeyAndCert().privateKey } }));
+  assert.deepEqual(rules(wrong), ["KSA-STAMP-03"]);
+  // No tag 7: report the missing tag, and do not try to verify a signature that is not there.
+  const noSig = dropCert(sign(EXAMPLE, keys, { tamper: { dropQr: [7] } }));
+  assert.deepEqual(rules(noSig), ["KSA-STAMP-05"]);
+  assert.equal(checkZatcaStamp(noSig).meta.checked.includes("signature (QR key)"), false);
+});
+
+test("C14N sorts namespace declarations by prefix and attributes by namespace URI, then local name", () => {
+  const decls = parseXmlDom(`<a xmlns:z="http://z" xmlns:y="http://y" xmlns:x="http://x" xmlns:w="http://w"/>`);
+  assert.equal(canonicalize(decls), `<a xmlns:w="http://w" xmlns:x="http://x" xmlns:y="http://y" xmlns:z="http://z"></a>`);
+  // Two prefixes for one namespace: the local name orders them, not the prefix.
+  const attrs = parseXmlDom(`<a xmlns:p="urn:p" xmlns:q="urn:p" p:b="1" q:a="2"/>`);
+  assert.equal(canonicalize(attrs), `<a xmlns:p="urn:p" xmlns:q="urn:p" q:a="2" p:b="1"></a>`);
+});
+
+test("no field of a signed file, mangled or cut short, makes the stamp check throw", () => {
+  // The class behind the base64url crash: report.mjs turns a throw into "could not read
+  // the file" and drops every finding, so each stranger-typed field must come back as a finding.
+  const signed = sign(EXAMPLE, keys);
+  const fields = ["ds:DigestValue", "ds:SignatureValue", "ds:X509Certificate", "xades:SigningTime", "cbc:UUID", "cbc:IssueTime"];
+  for (const tag of fields) {
+    for (const junk of ["", "abc-_def", "====", "A", "MAA=", "\u0000", "9".repeat(400)]) {
+      const xml = signed.replace(new RegExp(`(<${tag}[^>]*>)[^<]*`), `$1${junk.replace(/\u0000/g, "&#x1;")}`);
+      assert.doesNotThrow(() => checkZatcaStamp(xml), `${tag} = ${JSON.stringify(junk)}`);
+    }
+  }
+  const qr = /(<cbc:ID>QR<\/cbc:ID>\s*<cac:Attachment>\s*<cbc:EmbeddedDocumentBinaryObject[^>]*>)([^<]*)/;
+  const bytes = Buffer.from(qr.exec(signed)[2], "base64");
+  for (let n = 1; n < bytes.length; n++) {
+    const xml = signed.replace(qr, `$1${bytes.subarray(0, n).toString("base64")}`);
+    let got;
+    assert.doesNotThrow(() => { got = rules(xml); }, `QR cut at ${n}`);
+    assert.ok(got.includes("KSA-STAMP-04") || got.includes("KSA-STAMP-05"), `QR cut at ${n}: ${got}`);
+  }
+});
