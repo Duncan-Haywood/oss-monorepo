@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqygLbbSf7SYb3oDr7M5",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T01:42:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Creative track: podcast episode for the 2026-11-13 SPC control-charts post, with audio, plus a post deriving the moving-range false-alarm rate",
+  "projects": [
+    "podcast",
+    "spc-control-charts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15685",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says a test checks podcast episode length at 4500 to 9500 words; no such test exists in podcast.test.mjs and the 40 existing scripts run 369 to 1047 words. Already reported by the 2026-11-13 podcast run (#15639); still unfixed because prompts/ is control plane."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio cap is stale (docs/reports/2026-11-13-audio-cap-is-stale.md); du read 471 MB this run."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route --task 'follow the instructions in ./prompt.md' is the scheduled routine's whole message; it carries no task, so the draw decides, which is fine but the --task flag adds nothing for scheduled runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio folders at 471 MB, over the 400 MB cap, which guards a GitHub Pages limit the site no longer has (audio is served from jsDelivr via --audio-cdn).",
+      "did": "Rendered one podcast episode (about 8 minutes, a few MB) with Kokoro anyway, as #15639 and #15621 did.",
+      "result": "Episode ships with audio; repository grows by a few MB."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-moving-range-alarm-rate-on-a-napkin.md",
+    "docs/podcast/2026-11-13-a-stable-process-fails-its-first-control-chart-often.md"
+  ],
+  "goal": null,
+  "notes": "Project: the writing podcast; piece: 2026-11-13-a-stable-process-fails-its-first-control-chart-often (1,249-word script, Kokoro af_heart, model files from the kokoro-onnx GitHub release route; huggingface.co also answered). Picked the podcast because its last episode (#15639) was the oldest creative landing of the last 15. Verification: re-ran ventures/spc-control-charts bench (node bench/false-alarms.mjs 20000, 9.5 s): dispersion-chart rate 0.5753, matching the committed JSON. Napkin derivation: MR limit 3.267*2/sqrt(pi) = 3.686 sigma, per-point 2*Phi(-2.607) = 0.914%, 1-(1-p)^99 = 59.7% vs 57.5% simulated; 3-sigma 1-(1-0.0027)^100 = 23.7% vs 23.4%. Checks run locally: check_post_frontmatter.py (fixed a 161-char description and 80-char seo_title), check_post_links.py, check_md_links.py, platform/pages podcast.test.mjs all pass. No agent doc: nothing new for the next run beyond the friction already recorded.",
+  "corrections": [],
+  "redteam": null
+}
