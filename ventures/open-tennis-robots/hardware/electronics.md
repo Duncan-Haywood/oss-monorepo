@@ -12,7 +12,9 @@ independently of any software.
             +---------+---------+                               |  watchdog, e-stop sense|
                       | 5 V 5 A buck                            +-----+-----------+-----+
                       |  [2 A]                                        |           |
- 24 V LiFePO4 --[30 A]--+--[e-stop contactor]--[fuse block]--+-- ESCs / H-bridge --+
+ 24 V LiFePO4 --[30 A]--+--[e-stop contactor]--+--[fuse block]--+-- ESCs / H-bridge --+
+                        |                       |
+                        +--[relay]--[4.7 ohm]---+   precharge (2026-11-14)
                                                              +-- lift, agitator, stepper driver
                                                              +-- shuttle servo (via 6 V buck) ---+
 ```
@@ -23,7 +25,11 @@ branch is after the contactor.
 
 The e-stop is a normally-closed mushroom switch in series with the
 contactor coil: pressing it (or a broken wire) opens the contactor and
-de-energises every motor. The ESP32 also reads the switch (GPIO 4) so it
+de-energises every motor. Since 2026-11-14 the switch feeds two coils: a
+small precharge relay, which closes at once and charges the switched bus
+through a 4.7 ohm resistor, and a 0.5 s on-delay timer module, which then
+closes the contactor's coil. Pressing the e-stop drops both. The wireless
+e-stop relay stays in series ahead of them. The ESP32 also reads the switch (GPIO 4) so it
 latches a software e-stop and reports it in telemetry; clearing needs the
 button released *and* a `CLEAR_ESTOP` command.
 
@@ -150,11 +156,28 @@ never thinner than 20 AWG.
 - **The contactor** must be rated 30 A DC or more at 24 V (its coil on 24 V,
   through the NC mushroom switch), so the main fuse protects it.
 - **The battery feed:** 12 AWG, about 0.6 m each way, drops 0.15 V at 23.3 A.
-- **Not modelled:** the ESCs' input-capacitor inrush when the contactor
-  closes (it is hard on the contacts and on a BMS's short-circuit trip; look for
-  a contactor rated for capacitive loads, or ESCs with an anti-spark
-  connector), regenerative current from braking ESCs, and every load's real
-  current. Log the battery current on the first build with an inline meter.
+- **Precharge (2026-11-14, `Feeder.contactor_inrush`, the manifest's
+  "inrush" line).** Closing the contactor straight onto the ESCs' empty input
+  capacitors is a short through the loop's few tens of milliohms. On assumed
+  figures (40 mOhm pack, 1,000 uF per ESC, 0.68 uH loop) at the charger's
+  29.2 V it peaks near 394 A after about 31 us, 13 times the contactor's
+  30 A rating, and stays over an assumed 150 A BMS short-circuit trip for
+  170 us. Across 27 combinations of pack resistance, ESC capacitance and loop
+  inductance (`tests/inrush_sweep.py`) it peaks at 242 to 589 A and outlasts an
+  assumed 200 us BMS delay in 9, which would cut the Pi too. The fuses do not
+  care: the pulse's I^2 t is about 15 A^2 s in all, under 4 in each ESC fuse.
+  With the precharge the relay makes about 6 A, the bus is within 1.4 V of
+  the pack after 0.5 s (45 time constants; what is left is the idle loads'
+  assumed 0.3 A across the resistor), and the contactor makes about 20 A
+  (29 A at worst in the sweep). The resistor takes about 1 J per closing. If
+  the bus is shorted it takes 181 W for the 0.5 s delay, 91 J, before the
+  contactor closes onto the short and the fuses open: choose one rated for that
+  pulse or one that fails open. Every figure but the charger's voltage is an
+  assumption: put a current clamp and a scope on the first closing, and read
+  your BMS's short-circuit settings.
+- **Not modelled:** regenerative current from braking ESCs, and every load's
+  real current. Log the battery current on the first build with an inline
+  meter.
 - Common ground between the Pi, ESP32, ESCs and drivers; run the UART on a
   short twisted pair.
 - ESCs: calibrate the throttle range once, with the wheels removed.

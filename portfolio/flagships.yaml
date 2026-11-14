@@ -383,11 +383,11 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min): the elevation actuator's short lead from the gland to its
-      motor and pot; the ESCs' input-capacitor inrush when the contactor closes
-      (power model landed 2026-11-14, cad/README.md "Power distribution": does a 30
-      A contactor survive it, and does the BMS's short-circuit trip see it?); the
-      lift flight as a printed part and the top pulley's tensioner if PR 15456 has
-      not landed.
+      motor and pot; contact bounce on the contactor after the precharge (inrush and
+      precharge landed 2026-11-14, cad/README.md "Contactor inrush and precharge")
+      and the bucks' start-up current while the bus rises through the resistor;
+      regenerative current from braking ESCs; the lift flight as a printed part and
+      the top pulley's tensioner if PR 15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
