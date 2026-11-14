@@ -24,7 +24,7 @@
 // of the cap, the shown order's Spearman with the true order and whether the
 // shown best is the true best; and where the winner stop (decisionDone, page
 // defaults) would have ended: picks, the shown best, and its true shortfall.
-import { decisionFit, nextQuestion, decisionTable, decisionDone, decisionMax, overallOrder, GRADED_TAU, BIT, MUCH } from "../site/decide-core.mjs";
+import { decisionFit, nextQuestion, decisionTable, decisionDone, decisionDoneGraded, decisionMax, overallOrder, GRADED_TAU, BIT, MUCH } from "../site/decide-core.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((a, x, i, all) => (x.startsWith("--") ? [...a, [x.slice(2), all[i + 1]]] : a), []));
 const RUNS = Number(args.runs || 24);
@@ -32,6 +32,7 @@ const CONFIG = args.config || "ordinal";
 const TAU_TRUE = args["tau-true"] || "2";
 const TAU_MODEL = args["tau-model"] === "auto" ? "auto" : Number(args["tau-model"] || GRADED_TAU);
 const GRADE = args.grade || "both";
+const GUARD = args.guard ? (args.guard === "auto" ? "auto" : Number(args.guard)) : null; // --guard <tau>|auto: stop through decisionDoneGraded (auto: min(1, the person's estimateTau), the page)
 if (!["ignore", "double", "ordinal"].includes(CONFIG)) throw new Error("--config ignore|double|ordinal");
 
 function mulberry32(seed) {
@@ -90,9 +91,10 @@ for (const { n, C, spread } of pick) {
     for (let t = 0; t <= max; t++) {
       if (!stop) {
         const table = decisionTable(df, { draws: 400 });
-        if (decisionDone(table, answers) || t === max) {
+        const done = GUARD ? decisionDoneGraded(n, C, answers, table, { guardTau: GUARD }).done : decisionDone(table, answers);
+        if (done || t === max) {
           const shown = overallOrder(df)[0];
-          stop = { picks: t, atCap: !decisionDone(table, answers), bestRight: shown === p.truth[0] ? 1 : 0, shortfall: +(p.total[p.truth[0]] - p.total[shown]).toFixed(4), safe: +table.safe.toFixed(3) };
+          stop = { picks: t, atCap: !done, bestRight: shown === p.truth[0] ? 1 : 0, shortfall: +(p.total[p.truth[0]] - p.total[shown]).toFixed(4), safe: +table.safe.toFixed(3) };
         }
       }
       if (budgets.includes(t)) { const o = overallOrder(df); at.push({ t, spearman: +spearman(o, p.truth).toFixed(4), bestRight: o[0] === p.truth[0] ? 1 : 0 }); }
@@ -102,6 +104,6 @@ for (const { n, C, spread } of pick) {
       if (last) { graded++; if (last === MUCH) much++; }
       df = decisionFit(n, C, answers, fitOptions);
     }
-    console.log(JSON.stringify({ n, C, spread, run, seed: 1000 + run, config: CONFIG, tauTrue: TAU_TRUE, tauModel: TAU_MODEL, grade: GRADE, max, muchShare: graded ? +(much / graded).toFixed(3) : null, tauFitted: typeof df.tau === "number" ? +df.tau.toFixed(3) : null, at, stop }));
+    console.log(JSON.stringify({ n, C, spread, run, seed: 1000 + run, config: CONFIG, tauTrue: TAU_TRUE, tauModel: TAU_MODEL, grade: GRADE, guard: GUARD, max, muchShare: graded ? +(much / graded).toFixed(3) : null, tauFitted: typeof df.tau === "number" ? +df.tau.toFixed(3) : null, at, stop }));
   }
 }

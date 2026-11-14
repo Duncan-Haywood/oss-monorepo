@@ -150,7 +150,10 @@ const fitAnswers = (n, list, { grades = "ordinal", tau = GRADED_TAU } = {}) => {
 
 export function decisionFit(nOptions, nCriteria, answers, fitOptions = {}) {
   const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
-  let tau = fitOptions.tau ?? "auto";
+  // Fixed GRADED_TAU by default: the per-person estimate ("auto") recovered
+  // tau on simulated people but did no better on the decision (DECIDE-PAGE.md
+  // "Graded answers") at about 15 times the fits per answer.
+  let tau = fitOptions.tau ?? GRADED_TAU;
   if (tau === "auto") tau = (fitOptions.grades ?? "ordinal") === "ordinal" ? estimateTau(lists) : GRADED_TAU;
   const fo = { ...fitOptions, tau };
   const crit = fitAnswers(nCriteria, lists[0][1], fo);
@@ -388,6 +391,33 @@ export const DECIDE_MARGIN = 0.25;
 export function decisionDone(table, answers, { rule = "winner" } = {}) {
   if (!(answers.crit.length > 0 && answers.opt.length > 0)) return false;
   return table.confidence >= STOP_CONFIDENCE || (rule === "winner" && table.safe >= STOP_CONFIDENCE);
+}
+
+/**
+ * The stop for graded answers. The ordinal fit trusts "much" by the tau it is
+ * given, and a person who says "much" more freely than that tau assumes would
+ * be read as surer than they are: on simulated people who said "much" for 63%
+ * of picks, the winner stop at tau 2 kept its 90% promise in only 77% of the
+ * runs that stopped (docs/DECIDE-PAGE.md "Graded answers"). So once the usual
+ * check passes, the answers are refit at GUARD_TAU, a reading in which "much"
+ * counts for little and "a bit" for close to a tie, and the page stops only
+ * if that refit passes too (the list ranker's second check, the same shape).
+ * With guardTau "auto" (the default) the guard reads at the lower of GUARD_TAU
+ * and the person's own estimateTau. Ungraded answers skip the second fit. Returns { done, table } with the
+ * table the decision rests on (the guard's, when it ran).
+ */
+export const GUARD_TAU = 1;
+export function decisionDoneGraded(nOptions, nCriteria, answers, table, { rule = "winner", guardTau = "auto", draws = 400 } = {}) {
+  if (!decisionDone(table, answers, { rule })) return { done: false, table };
+  const graded = [...answers.crit, ...answers.opt.map(([, x, y, t, g]) => [x, y, t, g])];
+  if (!hasGrades(graded)) return { done: true, table };
+  // A person who says "much" for most picks can sit below GUARD_TAU too, so the guard
+  // reads at their own estimated tau when that is lower (estimateTau tracked tau 1,
+  // 2 and 3 at 1.2, 2.3 and 3.4 on simulated people).
+  const lists = [[nCriteria, answers.crit], ...Array.from({ length: nCriteria }, (_, c) => [nOptions, answers.opt.filter((a) => a[0] === c).map(([, x, y, t, g]) => [x, y, t, g])])];
+  const tau = guardTau === "auto" ? Math.min(GUARD_TAU, estimateTau(lists)) : guardTau;
+  const guard = decisionTable(decisionFit(nOptions, nCriteria, answers, { tau }), { draws });
+  return { done: decisionDone(guard, answers, { rule }), table: guard };
 }
 
 /**

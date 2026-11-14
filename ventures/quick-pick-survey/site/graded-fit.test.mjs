@@ -6,7 +6,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gradedFit, estimateTau, hasGrades, BIT, MUCH, GRADED_TAU } from "./graded-fit.mjs";
 import { fit } from "./rank-core.mjs";
-import { encodeAnswers, decodeAnswers, decisionFit, overallOrder } from "./decide-core.mjs";
+import { encodeAnswers, decodeAnswers, decisionFit, overallOrder, decisionTable, decisionDone, decisionDoneGraded, nextQuestion } from "./decide-core.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -73,9 +73,36 @@ test("decisionFit reads grades: a 'much' answer outweighs two 'a bit' answers ag
   assert.equal(typeof decisionFit(2, 2, answers).tau, "number");
 });
 
+test("the graded stop rechecks at a cautious tau: never stops where the plain check would not, and reads lower", () => {
+  // A person who says "much" for every pick, answering the page's own questions until the plain check passes.
+  const n = 4, C = 2, x = [[1.2, 0.4, -0.3, -1.3], [0.8, -0.6, 0.3, -0.5]], s = [0.9, -0.9];
+  const answers = { crit: [], opt: [] };
+  let df = decisionFit(n, C, answers), table = decisionTable(df, { draws: 400 }), k = 0;
+  while (!decisionDone(table, answers) && k++ < 60) {
+    const q = nextQuestion(df, answers, { seed: 3 });
+    const [a, b] = q.pair;
+    const d = q.kind === "crit" ? s[a] - s[b] : x[q.c][a] - x[q.c][b];
+    const [w, l] = d > 0 ? [a, b] : [b, a];
+    if (q.kind === "crit") answers.crit.push([w, l, false, MUCH]); else answers.opt.push([q.c, w, l, false, MUCH]);
+    answers.lastKind = q.kind;
+    df = decisionFit(n, C, answers); table = decisionTable(df, { draws: 400 });
+  }
+  assert.ok(decisionDone(table, answers), "the plain check passes within 60 picks");
+  const g = decisionDoneGraded(n, C, answers, table);
+  assert.notEqual(g.table, table, "the guard refit ran");
+  assert.ok(g.table.safe <= table.safe + 1e-9, `guard ${g.table.safe} vs ${table.safe}`);
+  // with no grades the guard does not run
+  const plain = { crit: answers.crit.map(([w, l]) => [w, l, false]), opt: answers.opt.map(([c, w, l]) => [c, w, l, false]) };
+  const pt = decisionTable(decisionFit(n, C, plain), { draws: 400 });
+  assert.equal(decisionDoneGraded(n, C, plain, pt).table, pt);
+  // and before the plain check passes it never stops
+  assert.equal(decisionDoneGraded(n, C, { crit: [], opt: [] }, decisionTable(decisionFit(n, C, { crit: [], opt: [] }), { draws: 100 })).done, false);
+});
+
 test("the page offers both grades for each side and keys for them", () => {
   const html = readFileSync(join(here, "decide.html"), "utf8");
   for (const id of ["left-much", "left-bit", "right-bit", "right-much"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /answer\("left", MUCH\)/);
   assert.match(html, /Shift\+&larr;/);
+  assert.match(html, /decisionDoneGraded\(n, C, state\.answers, table\)/, "the page stops through the graded guard");
 });

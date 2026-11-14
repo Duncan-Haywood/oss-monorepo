@@ -141,12 +141,12 @@
       <li><strong>Two models in one.</strong> "Which matters more?" answers fit a Bradley-Terry model over the criteria; a criterion's weight is its share, so the weights add to 100%. "Which is better on Commute?" answers fit a Bradley-Terry model over the options for that criterion. An option's overall score is the weighted sum of its scores. It is the same refit the <a href="rank.html">list ranker</a> and the Quick Pick survey app run.</li>
       <li><strong>The next question</strong> is whichever one, of either kind, is expected to do most to settle the overall order: it targets neighbouring options that could still swap, and asks about the weight or the criterion that decides between them. Questions about a criterion that cannot change the order are skipped. Sides are random, so screen position cannot creep in.</li>
       <li><strong>Ranges include doubt about the weights.</strong> The page draws thousands of plausible weightings and scores consistent with your answers; the rank range is where 90% of them put each option, and "Best" is how often it came first.</li>
-      <li><strong>When it stops:</strong> as soon as there is under a 10% chance that any option beats the leader by more than a practical tie (a weighted edge of about 56 to 44 in a head-to-head pick), or when the whole order is 90% settled, or at a cap. You came to choose one option, so it does not wait for the order below the winner to settle; with only the order rule, nearly every simulated run hit the cap. You can stop at any time. Measured on simulated people: <a href="#measured">below</a>.</li>
+      <li><strong>When it stops:</strong> as soon as there is under a 10% chance that any option beats the leader by more than a practical tie (a weighted edge of about 56 to 44 in a head-to-head pick), or when the whole order is 90% settled, or at a cap. You came to choose one option, so it does not wait for the order below the winner to settle; with only the order rule, nearly every simulated run hit the cap. With "much" answers it checks once more before stopping, reading your "much" as cautiously as it can, so someone who says "much" freely is not taken as surer than they are. You can stop at any time. Measured on simulated people: <a href="#measured">below</a>.</li>
       <li><strong>"Much" or "a bit".</strong> Each pick says how big the gap feels. The page reads that with an ordinal model: a "much" answer means the gap felt past your own threshold, and that threshold is estimated from your answers, so someone who says "much" for nearly everything has each "much" count for less. On simulated people the graded answers named the true best more often and stopped sooner than plain picks (<a href="#measured">measured</a>).</li>
       <li><strong>Why not type the weights?</strong> People are poor at stating weights directly but consistent at comparing two things. This is the idea behind AHP (the analytic hierarchy process), without its full table of every pair: the picker asks only the comparisons that matter.</li>
     </ul>
     <h3 id="measured">Measured</h3>
-    <p id="measured-text" class="muted">Simulated people with random weights and scores, answering with ordinary noise, are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/DECIDE-PAGE.md">docs/DECIDE-PAGE.md</a>, with the script that produced them.</p>
+    <p id="measured-text" class="muted">Simulated people with random weights and scores, answering with ordinary noise, are in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/DECIDE-PAGE.md">docs/DECIDE-PAGE.md</a>, with the script that produced them. Graded answers ("much" or "a bit"), on 300 simulated people: the true best came first 182 to 203 times against 165 with plain picks, at about the same number of picks, and the stop kept its 90% promise for people who use "much" sparingly, normally or inconsistently.</p>
     <p class="muted">One list and one question? The <a href="rank.html">list ranker</a> is simpler. Running a survey with many respondents? The full app is open source: <a href="./">deploy your own copy</a>.</p>
   </section>
 
@@ -163,7 +163,7 @@
   </footer>
 </main>
 <script type="module">
-  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionMax, bestPerCriterion, decisionCsv, combineDecisions, decisionId, whatWouldChange, STOP_CONFIDENCE, BIT, MUCH } from "./decide-core.mjs";
+  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionDoneGraded, decisionMax, bestPerCriterion, decisionCsv, combineDecisions, decisionId, whatWouldChange, STOP_CONFIDENCE, BIT, MUCH } from "./decide-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
   const $ = (s) => document.querySelector(s);
@@ -197,7 +197,7 @@
     const n = state.options.length, C = state.criteria.length, cap = decisionMax(n, C);
     df = decisionFit(n, C, state.answers);
     const table = decisionTable(df, { draws: 400 });
-    const done = decisionDone(table, state.answers);
+    const done = decisionDoneGraded(n, C, state.answers, table).done;
     if (state.until ? total() >= state.until : done || total() >= cap) return results(done);
     current = nextQuestion(df, state.answers, { seed: state.seed });
     const [a, b] = current.pair;
