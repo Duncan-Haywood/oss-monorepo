@@ -1,0 +1,364 @@
+cell-fidelity milestone 5q, development: 2-cycle SPMe with SEI + plating on the committed designs of 36 seen conditions (gap to the pool's DFN@100 best, and wall time / all-DFN@100 in brackets; the predictor's measured time is charged on every design)
+
+Ai2020@0.25x (seen): n 51, predictor ran on 44 (not on the DFN-best design); Spearman with DFN@100: w2 -0.06, linear n/a, limited +0.35, u -0.29; best design's rank: w2 29, linear 44, limited 15, u 35
+  Spearman(p2, DFN fade 2->100) +0.59, (limited fade, DFN fade) +0.54; median DFN fade 0.607, limited's 0.821
+  top-K DFN@100 by w2: K3 0.0716 (0.100); K4 0.0716 (0.122); K6 0.0716 (0.163); K8 0.0716 (0.201)
+  keep share by w2 then union: 0.25 0.0000 (0.227); 0.5 0.0000 (0.247)
+  top-K DFN@100 by linear: K3 0.0743 (0.091); K4 0.0743 (0.110); K6 0.0743 (0.149); K8 0.0119 (0.192)
+  keep share by linear then union: 0.25 0.0000 (0.226); 0.5 0.0000 (0.246)
+  top-K DFN@100 by limited: K3 0.0910 (0.094); K4 0.0688 (0.111); K6 0.0688 (0.147); K8 0.0465 (0.185)
+  keep share by limited then union: 0.25 0.0000 (0.205); 0.5 0.0000 (0.226)
+  5n union 0.0000 (0.252); 5o floor 0.0000 (0.252); predictor 1.10 s per design, 0.037 of all-DFN@100 on the pool
+Ai2020@0.275x (seen): n 51, predictor ran on 45 (not on the DFN-best design); Spearman with DFN@100: w2 +0.08, linear n/a, limited +0.34, u -0.25; best design's rank: w2 36, linear 45, limited 36, u 43
+  Spearman(p2, DFN fade 2->100) +0.51, (limited fade, DFN fade) +0.43; median DFN fade 0.591, limited's 0.806
+  top-K DFN@100 by w2: K3 0.0919 (0.094); K4 0.0919 (0.115); K6 0.0845 (0.154); K8 0.0309 (0.194)
+  keep share by w2 then union: 0.25 0.0016 (0.224); 0.5 0.0016 (0.261)
+  top-K DFN@100 by linear: K3 0.0402 (0.090); K4 0.0402 (0.109); K6 0.0402 (0.148); K8 0.0402 (0.188)
+  keep share by linear then union: 0.25 0.0016 (0.221); 0.5 0.0016 (0.258)
+  top-K DFN@100 by limited: K3 0.0426 (0.087); K4 0.0426 (0.106); K6 0.0317 (0.145); K8 0.0317 (0.180)
+  keep share by limited then union: 0.25 0.0000 (0.200); 0.5 0.0016 (0.237)
+  5n union 0.0016 (0.315); 5o floor 0.0016 (0.312); predictor 1.02 s per design, 0.034 of all-DFN@100 on the pool
+Ai2020@0.35x (seen): n 59, predictor ran on 57; Spearman with DFN@100: w2 +0.36, linear n/a, limited +0.15, u -0.24; best design's rank: w2 33, linear 57, limited 38, u 45
+  Spearman(p2, DFN fade 2->100) +0.32, (limited fade, DFN fade) +0.07; median DFN fade 0.545, limited's 0.793
+  top-K DFN@100 by w2: K3 0.0617 (0.088); K4 0.0617 (0.105); K6 0.0206 (0.140); K8 0.0206 (0.173)
+  keep share by w2 then union: 0.25 0.0206 (0.175); 0.5 0.0039 (0.215)
+  top-K DFN@100 by linear: K3 0.0335 (0.084); K4 0.0335 (0.101); K6 0.0335 (0.135); K8 0.0335 (0.167)
+  keep share by linear then union: 0.25 0.0335 (0.200); 0.5 0.0000 (0.240)
+  top-K DFN@100 by limited: K3 0.0584 (0.082); K4 0.0584 (0.096); K6 0.0584 (0.128); K8 0.0584 (0.160)
+  keep share by limited then union: 0.25 0.0584 (0.178); 0.5 0.0206 (0.238)
+  5n union 0.0000 (0.286); 5o floor 0.0000 (0.272); predictor 1.05 s per design, 0.035 of all-DFN@100 on the pool
+Ai2020@0.375x (seen): n 62, predictor ran on 59; Spearman with DFN@100: w2 +0.46, linear n/a, limited +0.21, u -0.21; best design's rank: w2 23, linear 59, limited 27, u 43
+  Spearman(p2, DFN fade 2->100) +0.31, (limited fade, DFN fade) +0.03; median DFN fade 0.521, limited's 0.790
+  top-K DFN@100 by w2: K3 0.0418 (0.086); K4 0.0418 (0.102); K6 0.0268 (0.134); K8 0.0268 (0.167)
+  keep share by w2 then union: 0.25 0.0188 (0.143); 0.5 0.0204 (0.182)
+  top-K DFN@100 by linear: K3 0.0495 (0.082); K4 0.0495 (0.100); K6 0.0495 (0.131); K8 0.0188 (0.165)
+  keep share by linear then union: 0.25 0.0042 (0.174); 0.5 0.0204 (0.183)
+  top-K DFN@100 by limited: K3 0.0678 (0.081); K4 0.0678 (0.095); K6 0.0678 (0.124); K8 0.0678 (0.151)
+  keep share by limited then union: 0.25 0.0268 (0.151); 0.5 0.0401 (0.195)
+  5n union 0.0003 (0.194); 5o floor 0.0003 (0.187); predictor 1.00 s per design, 0.034 of all-DFN@100 on the pool
+Ai2020@0.3x (seen): n 53, predictor ran on 51; Spearman with DFN@100: w2 +0.22, linear n/a, limited +0.25, u -0.28; best design's rank: w2 34, linear 51, limited 24, u 48
+  Spearman(p2, DFN fade 2->100) +0.55, (limited fade, DFN fade) +0.37; median DFN fade 0.570, limited's 0.808
+  top-K DFN@100 by w2: K3 0.0884 (0.095); K4 0.0652 (0.114); K6 0.0652 (0.152); K8 0.0508 (0.191)
+  keep share by w2 then union: 0.25 0.0032 (0.216); 0.5 0.0032 (0.260)
+  top-K DFN@100 by linear: K3 0.0317 (0.088); K4 0.0000 (0.108); K6 0.0000 (0.146); K8 0.0000 (0.186)
+  keep share by linear then union: 0.25 0.0000 (0.196); 0.5 0.0000 (0.253)
+  top-K DFN@100 by limited: K3 0.0637 (0.086); K4 0.0637 (0.104); K6 0.0536 (0.139); K8 0.0395 (0.174)
+  keep share by limited then union: 0.25 0.0032 (0.201); 0.5 0.0000 (0.230)
+  5n union 0.0032 (0.301); 5o floor 0.0032 (0.295); predictor 1.00 s per design, 0.034 of all-DFN@100 on the pool
+Ai2020@0.4375x (seen): n 64, predictor ran on 63; Spearman with DFN@100: w2 +0.74, linear n/a, limited +0.31, u -0.03; best design's rank: w2 24, linear 63, limited 53, u 49
+  Spearman(p2, DFN fade 2->100) +0.35, (limited fade, DFN fade) +0.03; median DFN fade 0.504, limited's 0.788
+  top-K DFN@100 by w2: K3 0.0582 (0.092); K4 0.0215 (0.109); K6 0.0130 (0.144); K8 0.0130 (0.178)
+  keep share by w2 then union: 0.25 0.0008 (0.161); 0.5 0.0000 (0.214)
+  top-K DFN@100 by linear: K3 0.0514 (0.085); K4 0.0475 (0.100); K6 0.0475 (0.131); K8 0.0312 (0.163)
+  keep share by linear then union: 0.25 0.0008 (0.179); 0.5 0.0000 (0.222)
+  top-K DFN@100 by limited: K3 0.0996 (0.085); K4 0.0996 (0.099); K6 0.0345 (0.129); K8 0.0345 (0.157)
+  keep share by limited then union: 0.25 0.0008 (0.149); 0.5 0.0215 (0.231)
+  5n union 0.0000 (0.258); 5o floor 0.0000 (0.241); predictor 1.13 s per design, 0.042 of all-DFN@100 on the pool
+Ai2020@0.5x (seen): n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.81, linear n/a, limited +0.36, u -0.08; best design's rank: w2 24, linear 64, limited 48, u 52
+  Spearman(p2, DFN fade 2->100) +0.37, (limited fade, DFN fade) -0.17; median DFN fade 0.485, limited's 0.821
+  top-K DFN@100 by w2: K3 0.0300 (0.088); K4 0.0300 (0.105); K6 0.0236 (0.138); K8 0.0236 (0.169)
+  keep share by w2 then union: 0.25 0.0236 (0.155); 0.5 0.0000 (0.208)
+  top-K DFN@100 by linear: K3 0.0217 (0.085); K4 0.0217 (0.101); K6 0.0000 (0.136); K8 0.0000 (0.168)
+  keep share by linear then union: 0.25 0.0000 (0.171); 0.5 0.0000 (0.212)
+  top-K DFN@100 by limited: K3 0.0641 (0.080); K4 0.0455 (0.096); K6 0.0455 (0.126); K8 0.0455 (0.152)
+  keep share by limited then union: 0.25 0.0455 (0.116); 0.5 0.0236 (0.189)
+  5n union 0.0000 (0.219); 5o floor 0.0000 (0.205); predictor 1.09 s per design, 0.037 of all-DFN@100 on the pool
+Ai2020@0.625x (seen): n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.91, linear -0.25, limited +0.52, u -0.02; best design's rank: w2 1, linear 64, limited 14, u 18
+  Spearman(p2, DFN fade 2->100) +0.40, (limited fade, DFN fade) -0.43; median DFN fade 0.446, limited's 0.864
+  top-K DFN@100 by w2: K3 0.0000 (0.094); K4 0.0000 (0.114); K6 0.0000 (0.147); K8 0.0000 (0.179)
+  keep share by w2 then union: 0.25 0.0000 (0.165); 0.5 0.0000 (0.190)
+  top-K DFN@100 by linear: K3 0.2002 (0.083); K4 0.2002 (0.095); K6 0.0375 (0.127); K8 0.0000 (0.163)
+  keep share by linear then union: 0.25 0.0000 (0.162); 0.5 0.0000 (0.202)
+  top-K DFN@100 by limited: K3 0.0834 (0.085); K4 0.0834 (0.099); K6 0.0314 (0.129); K8 0.0314 (0.161)
+  keep share by limited then union: 0.25 0.0000 (0.156); 0.5 0.0000 (0.199)
+  5n union 0.0000 (0.194); 5o floor 0.0000 (0.172); predictor 1.01 s per design, 0.044 of all-DFN@100 on the pool
+Ai2020@0.75x (seen): n 64, predictor ran on 63; Spearman with DFN@100: w2 +0.84, linear n/a, limited +0.48, u -0.01; best design's rank: w2 5, linear 63, limited 25, u 45
+  Spearman(p2, DFN fade 2->100) +0.46, (limited fade, DFN fade) -0.69; median DFN fade 0.428, limited's 0.934
+  top-K DFN@100 by w2: K3 0.0259 (0.088); K4 0.0259 (0.105); K6 0.0000 (0.141); K8 0.0000 (0.170)
+  keep share by w2 then union: 0.25 0.0000 (0.159); 0.5 0.0000 (0.184)
+  top-K DFN@100 by linear: K3 0.0887 (0.091); K4 0.0887 (0.104); K6 0.0887 (0.138); K8 0.0813 (0.170)
+  keep share by linear then union: 0.25 0.0345 (0.174); 0.5 0.0259 (0.214)
+  top-K DFN@100 by limited: K3 0.1499 (0.078); K4 0.1499 (0.093); K6 0.0943 (0.121); K8 0.0943 (0.150)
+  keep share by limited then union: 0.25 0.0345 (0.134); 0.5 0.0000 (0.197)
+  5n union 0.0000 (0.195); 5o floor 0.0000 (0.164); predictor 1.01 s per design, 0.037 of all-DFN@100 on the pool
+Ai2020@0.875x (seen): n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.82, linear n/a, limited +0.58, u -0.07; best design's rank: w2 2, linear 64, limited 10, u 33
+  Spearman(p2, DFN fade 2->100) +0.60, (limited fade, DFN fade) -0.87; median DFN fade 0.402, limited's 1.140
+  top-K DFN@100 by w2: K3 0.0000 (0.098); K4 0.0000 (0.115); K6 0.0000 (0.148); K8 0.0000 (0.180)
+  keep share by w2 then union: 0.25 0.0000 (0.174); 0.5 0.0000 (0.225)
+  top-K DFN@100 by linear: K3 0.0247 (0.093); K4 0.0247 (0.110); K6 0.0247 (0.144); K8 0.0247 (0.173)
+  keep share by linear then union: 0.25 0.0247 (0.168); 0.5 0.0000 (0.192)
+  top-K DFN@100 by limited: K3 0.0615 (0.094); K4 0.0615 (0.110); K6 0.0615 (0.140); K8 0.0615 (0.168)
+  keep share by limited then union: 0.25 0.0000 (0.166); 0.5 0.0000 (0.235)
+  5n union 0.0000 (0.249); 5o floor 0.0000 (0.195); predictor 1.10 s per design, 0.047 of all-DFN@100 on the pool
+Ai2020@1x (seen): n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.80, linear n/a, limited +0.46, u -0.04; best design's rank: w2 3, linear 64, limited 21, u 50
+  Spearman(p2, DFN fade 2->100) +0.65, (limited fade, DFN fade) -0.90; median DFN fade 0.369, limited's 1.346
+  top-K DFN@100 by w2: K3 0.0000 (0.102); K4 0.0000 (0.120); K6 0.0000 (0.154); K8 0.0000 (0.186)
+  keep share by w2 then union: 0.25 0.0000 (0.170); 0.5 0.0000 (0.196)
+  top-K DFN@100 by linear: K3 0.1193 (0.099); K4 0.1193 (0.115); K6 0.1193 (0.147); K8 0.1193 (0.176)
+  keep share by linear then union: 0.25 0.0586 (0.164); 0.5 0.0586 (0.194)
+  top-K DFN@100 by limited: K3 0.1684 (0.094); K4 0.1684 (0.108); K6 0.0710 (0.140); K8 0.0710 (0.167)
+  keep share by limited then union: 0.25 0.0710 (0.150); 0.5 0.0000 (0.194)
+  5n union 0.0000 (0.195); 5o floor 0.0000 (0.151); predictor 1.03 s per design, 0.050 of all-DFN@100 on the pool
+Chen2020@0.5x (seen): n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.95, linear n/a, limited +0.59, u +0.99; best design's rank: w2 5, linear 64, limited 64, u 5
+  Spearman(p2, DFN fade 2->100) +0.84, (limited fade, DFN fade) +0.85; median DFN fade 0.501, limited's 0.662
+  top-K DFN@100 by w2: K3 0.0248 (0.192); K4 0.0248 (0.208); K6 0.0000 (0.242); K8 0.0000 (0.278)
+  keep share by w2 then union: 0.25 0.0000 (0.246); 0.5 0.0000 (0.285)
+  top-K DFN@100 by linear: K3 0.1383 (0.183); K4 0.0000 (0.201); K6 0.0000 (0.231); K8 0.0000 (0.262)
+  keep share by linear then union: 0.25 0.0000 (0.250); 0.5 0.0000 (0.282)
+  top-K DFN@100 by limited: K3 0.0650 (0.189); K4 0.0650 (0.210); K6 0.0650 (0.244); K8 0.0617 (0.281)
+  keep share by limited then union: 0.25 0.0617 (0.276); 0.5 0.0413 (0.288)
+  5n union 0.0000 (0.197); 5o floor 0.0000 (0.197); predictor 0.90 s per design, 0.136 of all-DFN@100 on the pool
+Chen2020@1.5x: n 64, predictor ran on 46; Spearman with DFN@100: w2 +0.49, linear -0.63, limited -0.13, u +0.93; best design's rank: w2 1, linear 46, limited 8, u 4
+  Spearman(p2, DFN fade 2->100) +0.35, (limited fade, DFN fade) +0.11; median DFN fade 0.377, limited's 0.661
+  top-K DFN@100 by w2: K3 0.0000 (0.156); K4 0.0000 (0.170); K6 0.0000 (0.193); K8 0.0000 (0.217)
+  keep share by w2 then union: 0.25 0.0000 (0.335); 0.5 0.0000 (0.349)
+  top-K DFN@100 by linear: K3 0.3231 (0.154); K4 0.3231 (0.166); K6 0.3231 (0.190); K8 0.3231 (0.213)
+  keep share by linear then union: 0.25 0.0478 (0.347); 0.5 0.0444 (0.358)
+  top-K DFN@100 by limited: K3 0.0444 (0.158); K4 0.0444 (0.170); K6 0.0444 (0.195); K8 0.0000 (0.219)
+  keep share by limited then union: 0.25 0.0000 (0.337); 0.5 0.0000 (0.350)
+  5n union 0.0000 (0.259); 5o floor 0.0000 (0.146); predictor 0.85 s per design, 0.118 of all-DFN@100 on the pool
+Chen2020@1.75x: n 64, predictor ran on 32; Spearman with DFN@100: w2 +0.43, linear -0.59, limited +0.00, u +0.94; best design's rank: w2 28, linear 32, limited 32, u 2
+  Spearman(p2, DFN fade 2->100) -0.09, (limited fade, DFN fade) -0.09; median DFN fade 0.364, limited's 0.607
+  top-K DFN@100 by w2: K3 0.0930 (0.132); K4 0.0930 (0.143); K6 0.0930 (0.163); K8 0.0930 (0.186)
+  keep share by w2 then union: 0.25 0.0611 (0.370); 0.5 0.0611 (0.387)
+  top-K DFN@100 by linear: K3 0.3692 (0.129); K4 0.3200 (0.139); K6 0.3200 (0.158); K8 0.2958 (0.179)
+  keep share by linear then union: 0.25 0.0611 (0.376); 0.5 0.0611 (0.391)
+  top-K DFN@100 by limited: K3 0.1198 (0.135); K4 0.1198 (0.144); K6 0.1198 (0.164); K8 0.0930 (0.186)
+  keep share by limited then union: 0.25 0.0611 (0.373); 0.5 0.0611 (0.390)
+  5n union 0.0000 (0.328); 5o floor 0.0000 (0.153); predictor 0.77 s per design, 0.099 of all-DFN@100 on the pool
+Chen2020@1x: n 64, predictor ran on 61; Spearman with DFN@100: w2 +0.85, linear -0.47, limited +0.49, u +0.95; best design's rank: w2 2, linear 61, limited 46, u 4
+  Spearman(p2, DFN fade 2->100) +0.27, (limited fade, DFN fade) +0.24; median DFN fade 0.411, limited's 0.587
+  top-K DFN@100 by w2: K3 0.0000 (0.175); K4 0.0000 (0.193); K6 0.0000 (0.221); K8 0.0000 (0.252)
+  keep share by w2 then union: 0.25 0.0000 (0.234); 0.5 0.0000 (0.259)
+  top-K DFN@100 by linear: K3 0.2225 (0.177); K4 0.2225 (0.191); K6 0.2225 (0.216); K8 0.2225 (0.244)
+  keep share by linear then union: 0.25 0.0645 (0.222); 0.5 0.0000 (0.266)
+  top-K DFN@100 by limited: K3 0.0611 (0.172); K4 0.0611 (0.188); K6 0.0611 (0.216); K8 0.0611 (0.243)
+  keep share by limited then union: 0.25 0.0611 (0.251); 0.5 0.0356 (0.257)
+  5n union 0.0000 (0.190); 5o floor 0.0000 (0.190); predictor 0.86 s per design, 0.129 of all-DFN@100 on the pool
+Chen2020@2x: n 64, predictor ran on 22 (not on the DFN-best design); Spearman with DFN@100: w2 +0.38, linear -0.74, limited -0.04, u +0.94; best design's rank: w2 20, linear 22, limited 16, u 1
+  Spearman(p2, DFN fade 2->100) -0.10, (limited fade, DFN fade) -0.35; median DFN fade 0.348, limited's 0.569
+  top-K DFN@100 by w2: K3 0.0932 (0.097); K4 0.0932 (0.107); K6 0.0932 (0.127); K8 0.0932 (0.146)
+  keep share by w2 then union: 0.25 0.0000 (0.275); 0.5 0.0000 (0.279)
+  top-K DFN@100 by linear: K3 0.4364 (0.096); K4 0.4364 (0.105); K6 0.3641 (0.123); K8 0.2702 (0.142)
+  keep share by linear then union: 0.25 0.0000 (0.277); 0.5 0.0000 (0.279)
+  top-K DFN@100 by limited: K3 0.0932 (0.097); K4 0.0932 (0.107); K6 0.0932 (0.125); K8 0.0932 (0.144)
+  keep share by limited then union: 0.25 0.0000 (0.274); 0.5 0.0000 (0.279)
+  5n union 0.0000 (0.222); 5o floor 0.0000 (0.103); predictor 0.74 s per design, 0.069 of all-DFN@100 on the pool
+Ecker2015@0.5x: n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.89, linear +0.49, limited +0.52, u +0.88; best design's rank: w2 5, linear 41, limited 33, u 5
+  Spearman(p2, DFN fade 2->100) +0.01, (limited fade, DFN fade) -0.16; median DFN fade 0.046, limited's 0.170
+  top-K DFN@100 by w2: K3 0.0235 (0.115); K4 0.0235 (0.132); K6 0.0000 (0.169); K8 0.0000 (0.204)
+  keep share by w2 then union: 0.25 0.0000 (0.188); 0.5 0.0000 (0.214)
+  top-K DFN@100 by linear: K3 0.0536 (0.111); K4 0.0536 (0.128); K6 0.0536 (0.160); K8 0.0235 (0.194)
+  keep share by linear then union: 0.25 0.0235 (0.180); 0.5 0.0235 (0.206)
+  top-K DFN@100 by limited: K3 0.0536 (0.111); K4 0.0536 (0.128); K6 0.0235 (0.164); K8 0.0235 (0.194)
+  keep share by limited then union: 0.25 0.0235 (0.180); 0.5 0.0235 (0.206)
+  5n union 0.0000 (0.199); 5o floor 0.0000 (0.199); predictor 0.96 s per design, 0.061 of all-DFN@100 on the pool
+Ecker2015@0.75x: n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.95, linear +0.79, limited +0.80, u +0.93; best design's rank: w2 3, linear 7, limited 7, u 3
+  Spearman(p2, DFN fade 2->100) -0.11, (limited fade, DFN fade) -0.27; median DFN fade -0.002, limited's 0.109
+  top-K DFN@100 by w2: K3 0.0000 (0.112); K4 0.0000 (0.129); K6 0.0000 (0.165); K8 0.0000 (0.200)
+  keep share by w2 then union: 0.25 0.0000 (0.177); 0.5 0.0000 (0.216)
+  top-K DFN@100 by linear: K3 0.0390 (0.109); K4 0.0390 (0.125); K6 0.0099 (0.162); K8 0.0000 (0.201)
+  keep share by linear then union: 0.25 0.0000 (0.175); 0.5 0.0000 (0.213)
+  top-K DFN@100 by limited: K3 0.0390 (0.109); K4 0.0390 (0.125); K6 0.0099 (0.162); K8 0.0000 (0.201)
+  keep share by limited then union: 0.25 0.0000 (0.176); 0.5 0.0000 (0.213)
+  5n union 0.0000 (0.223); 5o floor 0.0000 (0.223); predictor 0.96 s per design, 0.062 of all-DFN@100 on the pool
+Ecker2015@1.5x: n 64, predictor ran on 60; Spearman with DFN@100: w2 +0.78, linear +0.85, limited +0.83, u +0.46; best design's rank: w2 14, linear 11, limited 11, u 27
+  Spearman(p2, DFN fade 2->100) -0.09, (limited fade, DFN fade) -0.24; median DFN fade -0.013, limited's 0.057
+  top-K DFN@100 by w2: K3 0.0238 (0.098); K4 0.0238 (0.115); K6 0.0238 (0.145); K8 0.0238 (0.178)
+  keep share by w2 then union: 0.25 0.0000 (0.151); 0.5 0.0000 (0.175)
+  top-K DFN@100 by linear: K3 0.0238 (0.092); K4 0.0238 (0.106); K6 0.0238 (0.143); K8 0.0238 (0.178)
+  keep share by linear then union: 0.25 0.0000 (0.150); 0.5 0.0000 (0.174)
+  top-K DFN@100 by limited: K3 0.0238 (0.092); K4 0.0238 (0.111); K6 0.0238 (0.143); K8 0.0238 (0.178)
+  keep share by limited then union: 0.25 0.0000 (0.150); 0.5 0.0000 (0.174)
+  5n union 0.0000 (0.170); 5o floor 0.0000 (0.170); predictor 0.97 s per design, 0.047 of all-DFN@100 on the pool
+Ecker2015@1x: n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.96, linear +0.90, limited +0.91, u +0.83; best design's rank: w2 6, linear 8, limited 8, u 12
+  Spearman(p2, DFN fade 2->100) -0.12, (limited fade, DFN fade) -0.26; median DFN fade -0.011, limited's 0.085
+  top-K DFN@100 by w2: K3 0.0211 (0.115); K4 0.0211 (0.130); K6 0.0000 (0.166); K8 0.0000 (0.197)
+  keep share by w2 then union: 0.25 0.0000 (0.165); 0.5 0.0000 (0.191)
+  top-K DFN@100 by linear: K3 0.0211 (0.110); K4 0.0211 (0.124); K6 0.0211 (0.160); K8 0.0000 (0.197)
+  keep share by linear then union: 0.25 0.0000 (0.163); 0.5 0.0000 (0.189)
+  top-K DFN@100 by limited: K3 0.0211 (0.110); K4 0.0211 (0.124); K6 0.0211 (0.160); K8 0.0000 (0.197)
+  keep share by limited then union: 0.25 0.0000 (0.163); 0.5 0.0000 (0.189)
+  5n union 0.0000 (0.176); 5o floor 0.0000 (0.176); predictor 0.99 s per design, 0.062 of all-DFN@100 on the pool
+Ecker2015@2x: n 64, predictor ran on 48; Spearman with DFN@100: w2 +0.80, linear +0.83, limited +0.82, u +0.30; best design's rank: w2 13, linear 14, limited 15, u 29
+  Spearman(p2, DFN fade 2->100) +0.20, (limited fade, DFN fade) +0.29; median DFN fade -0.001, limited's 0.047
+  top-K DFN@100 by w2: K3 0.0089 (0.095); K4 0.0089 (0.114); K6 0.0089 (0.149); K8 0.0089 (0.184)
+  keep share by w2 then union: 0.25 0.0089 (0.170); 0.5 0.0000 (0.170)
+  top-K DFN@100 by linear: K3 0.0649 (0.095); K4 0.0089 (0.112); K6 0.0089 (0.148); K8 0.0089 (0.179)
+  keep share by linear then union: 0.25 0.0089 (0.169); 0.5 0.0000 (0.169)
+  top-K DFN@100 by limited: K3 0.0649 (0.095); K4 0.0089 (0.112); K6 0.0089 (0.148); K8 0.0089 (0.180)
+  keep share by limited then union: 0.25 0.0089 (0.170); 0.5 0.0000 (0.169)
+  5n union 0.0000 (0.158); 5o floor 0.0000 (0.158); predictor 0.93 s per design, 0.044 of all-DFN@100 on the pool
+Marquis2019@1x: n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.99, linear +0.98, limited +0.98, u +0.97; best design's rank: w2 2, linear 3, limited 3, u 2
+  Spearman(p2, DFN fade 2->100) -0.00, (limited fade, DFN fade) -0.12; median DFN fade -0.025, limited's 0.065
+  top-K DFN@100 by w2: K3 0.0000 (0.167); K4 0.0000 (0.185); K6 0.0000 (0.221); K8 0.0000 (0.257)
+  keep share by w2 then union: 0.25 0.0000 (0.206); 0.5 0.0000 (0.232)
+  top-K DFN@100 by linear: K3 0.0000 (0.167); K4 0.0000 (0.186); K6 0.0000 (0.221); K8 0.0000 (0.258)
+  keep share by linear then union: 0.25 0.0000 (0.206); 0.5 0.0000 (0.232)
+  top-K DFN@100 by limited: K3 0.0000 (0.167); K4 0.0000 (0.185); K6 0.0000 (0.221); K8 0.0000 (0.257)
+  keep share by limited then union: 0.25 0.0000 (0.206); 0.5 0.0000 (0.232)
+  5n union 0.0000 (0.167); 5o floor 0.0000 (0.167); predictor 1.01 s per design, 0.110 of all-DFN@100 on the pool
+Marquis2019@2x: n 64, predictor ran on 57; Spearman with DFN@100: w2 +0.91, linear +0.92, limited +0.92, u +0.83; best design's rank: w2 5, linear 4, limited 4, u 12
+  Spearman(p2, DFN fade 2->100) -0.49, (limited fade, DFN fade) -0.39; median DFN fade 0.003, limited's 0.034
+  top-K DFN@100 by w2: K3 0.0042 (0.164); K4 0.0042 (0.181); K6 0.0000 (0.215); K8 0.0000 (0.250)
+  keep share by w2 then union: 0.25 0.0000 (0.211); 0.5 0.0000 (0.233)
+  top-K DFN@100 by linear: K3 0.0042 (0.163); K4 0.0000 (0.180); K6 0.0000 (0.215); K8 0.0000 (0.250)
+  keep share by linear then union: 0.25 0.0000 (0.211); 0.5 0.0000 (0.233)
+  top-K DFN@100 by limited: K3 0.0042 (0.163); K4 0.0000 (0.180); K6 0.0000 (0.215); K8 0.0000 (0.250)
+  keep share by limited then union: 0.25 0.0000 (0.211); 0.5 0.0000 (0.233)
+  5n union 0.0000 (0.161); 5o floor 0.0000 (0.156); predictor 1.01 s per design, 0.112 of all-DFN@100 on the pool
+Mohtat2020@1x: n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.99, linear +0.99, limited +0.99, u +0.95; best design's rank: w2 1, linear 1, limited 1, u 1
+  Spearman(p2, DFN fade 2->100) -0.29, (limited fade, DFN fade) -0.32; median DFN fade 0.021, limited's 0.035
+  top-K DFN@100 by w2: K3 0.0000 (0.152); K4 0.0000 (0.170); K6 0.0000 (0.204); K8 0.0000 (0.237)
+  keep share by w2 then union: 0.25 0.0000 (0.188); 0.5 0.0000 (0.214)
+  top-K DFN@100 by linear: K3 0.0000 (0.150); K4 0.0000 (0.170); K6 0.0000 (0.203); K8 0.0000 (0.237)
+  keep share by linear then union: 0.25 0.0000 (0.188); 0.5 0.0000 (0.214)
+  top-K DFN@100 by limited: K3 0.0000 (0.152); K4 0.0000 (0.170); K6 0.0000 (0.204); K8 0.0000 (0.237)
+  keep share by limited then union: 0.25 0.0000 (0.188); 0.5 0.0000 (0.214)
+  5n union 0.0000 (0.165); 5o floor 0.0000 (0.165); predictor 0.79 s per design, 0.096 of all-DFN@100 on the pool
+Mohtat2020@2x: n 64, predictor ran on 64; Spearman with DFN@100: w2 +0.99, linear +0.99, limited +0.99, u +0.87; best design's rank: w2 1, linear 1, limited 1, u 1
+  Spearman(p2, DFN fade 2->100) -0.04, (limited fade, DFN fade) -0.11; median DFN fade 0.023, limited's 0.035
+  top-K DFN@100 by w2: K3 0.0000 (0.147); K4 0.0000 (0.165); K6 0.0000 (0.197); K8 0.0000 (0.233)
+  keep share by w2 then union: 0.25 0.0000 (0.184); 0.5 0.0000 (0.210)
+  top-K DFN@100 by linear: K3 0.0000 (0.146); K4 0.0000 (0.161); K6 0.0000 (0.197); K8 0.0000 (0.230)
+  keep share by linear then union: 0.25 0.0000 (0.184); 0.5 0.0000 (0.210)
+  top-K DFN@100 by limited: K3 0.0000 (0.146); K4 0.0000 (0.164); K6 0.0000 (0.197); K8 0.0000 (0.230)
+  keep share by limited then union: 0.25 0.0000 (0.184); 0.5 0.0000 (0.210)
+  5n union 0.0000 (0.166); 5o floor 0.0000 (0.166); predictor 0.76 s per design, 0.091 of all-DFN@100 on the pool
+Mohtat2020@3x: n 64, predictor ran on 60; Spearman with DFN@100: w2 +0.88, linear +0.88, limited +0.88, u +0.77; best design's rank: w2 4, linear 3, limited 3, u 23
+  Spearman(p2, DFN fade 2->100) +0.32, (limited fade, DFN fade) +0.41; median DFN fade 0.029, limited's 0.045
+  top-K DFN@100 by w2: K3 0.0209 (0.153); K4 0.0000 (0.169); K6 0.0000 (0.201); K8 0.0000 (0.233)
+  keep share by w2 then union: 0.25 0.0000 (0.192); 0.5 0.0000 (0.215)
+  top-K DFN@100 by linear: K3 0.0000 (0.149); K4 0.0000 (0.165); K6 0.0000 (0.200); K8 0.0000 (0.231)
+  keep share by linear then union: 0.25 0.0000 (0.192); 0.5 0.0000 (0.215)
+  top-K DFN@100 by limited: K3 0.0000 (0.149); K4 0.0000 (0.165); K6 0.0000 (0.200); K8 0.0000 (0.231)
+  keep share by limited then union: 0.25 0.0000 (0.192); 0.5 0.0000 (0.215)
+  5n union 0.0000 (0.161); 5o floor 0.0000 (0.154); predictor 0.79 s per design, 0.098 of all-DFN@100 on the pool
+NCA_Kim2011@0.5x: n 64, predictor ran on 51; Spearman with DFN@100: w2 +0.88, linear -0.14, limited +0.80, u -0.04; best design's rank: w2 3, linear 51, limited 3, u 38
+  Spearman(p2, DFN fade 2->100) +0.05, (limited fade, DFN fade) -0.55; median DFN fade 0.542, limited's 0.650
+  top-K DFN@100 by w2: K3 0.0000 (0.112); K4 0.0000 (0.126); K6 0.0000 (0.155); K8 0.0000 (0.185)
+  keep share by w2 then union: 0.25 0.0000 (0.239); 0.5 0.0000 (0.259)
+  top-K DFN@100 by linear: K3 0.0275 (0.119); K4 0.0275 (0.134); K6 0.0228 (0.162); K8 0.0228 (0.190)
+  keep share by linear then union: 0.25 0.0228 (0.238); 0.5 0.0000 (0.259)
+  top-K DFN@100 by limited: K3 0.0000 (0.115); K4 0.0000 (0.132); K6 0.0000 (0.162); K8 0.0000 (0.191)
+  keep share by limited then union: 0.25 0.0000 (0.240); 0.5 0.0000 (0.259)
+  5n union 0.0000 (0.223); 5o floor 0.0000 (0.199); predictor 0.98 s per design, 0.069 of all-DFN@100 on the pool
+NCA_Kim2011@0.75x: n 64, predictor ran on 32; Spearman with DFN@100: w2 +0.63, linear +0.28, limited +0.59, u +0.16; best design's rank: w2 3, linear 32, limited 3, u 7
+  Spearman(p2, DFN fade 2->100) +0.11, (limited fade, DFN fade) +0.05; median DFN fade 0.523, limited's 0.658
+  top-K DFN@100 by w2: K3 0.0000 (0.105); K4 0.0000 (0.117); K6 0.0000 (0.142); K8 0.0000 (0.168)
+  keep share by w2 then union: 0.25 0.0000 (0.258); 0.5 0.0000 (0.268)
+  top-K DFN@100 by linear: K3 0.0074 (0.107); K4 0.0074 (0.120); K6 0.0074 (0.146); K8 0.0074 (0.168)
+  keep share by linear then union: 0.25 0.0074 (0.259); 0.5 0.0074 (0.270)
+  top-K DFN@100 by limited: K3 0.0000 (0.107); K4 0.0000 (0.119); K6 0.0000 (0.143); K8 0.0000 (0.170)
+  keep share by limited then union: 0.25 0.0000 (0.258); 0.5 0.0000 (0.268)
+  5n union 0.0000 (0.225); 5o floor 0.0000 (0.151); predictor 0.94 s per design, 0.067 of all-DFN@100 on the pool
+NCA_Kim2011@0.875x: n 64, predictor ran on 20; Spearman with DFN@100: w2 +0.84, linear -0.18, limited +0.60, u +0.19; best design's rank: w2 1, linear 20, limited 5, u 20
+  Spearman(p2, DFN fade 2->100) +0.09, (limited fade, DFN fade) -0.13; median DFN fade 0.517, limited's 0.650
+  top-K DFN@100 by w2: K3 0.0000 (0.087); K4 0.0000 (0.100); K6 0.0000 (0.122); K8 0.0000 (0.147)
+  keep share by w2 then union: 0.25 0.0000 (0.288); 0.5 0.0000 (0.298)
+  top-K DFN@100 by linear: K3 0.0202 (0.090); K4 0.0202 (0.101); K6 0.0202 (0.123); K8 0.0202 (0.146)
+  keep share by linear then union: 0.25 0.0202 (0.290); 0.5 0.0202 (0.300)
+  top-K DFN@100 by limited: K3 0.0202 (0.089); K4 0.0142 (0.102); K6 0.0000 (0.125); K8 0.0000 (0.147)
+  keep share by limited then union: 0.25 0.0000 (0.288); 0.5 0.0000 (0.298)
+  5n union 0.0000 (0.266); 5o floor 0.0000 (0.149); predictor 0.79 s per design, 0.052 of all-DFN@100 on the pool
+NCA_Kim2011@1.25x: n 64, predictor ran on 8 (not on the DFN-best design); Spearman with DFN@100: w2 +0.60, linear -0.08, limited +0.26, u +0.00; best design's rank: w2 5, linear 8, limited 8, u 2
+  Spearman(p2, DFN fade 2->100) -0.52, (limited fade, DFN fade) +0.33; median DFN fade 0.498, limited's 0.625
+  top-K DFN@100 by w2: K3 0.0233 (0.069); K4 0.0233 (0.079); K6 0.0229 (0.102); K8 0.0229 (0.125)
+  keep share by w2 then union: 0.25 0.0000 (0.273); 0.5 0.0000 (0.273)
+  top-K DFN@100 by linear: K3 0.0309 (0.070); K4 0.0233 (0.080); K6 0.0229 (0.103); K8 0.0229 (0.125)
+  keep share by linear then union: 0.25 0.0000 (0.273); 0.5 0.0000 (0.273)
+  top-K DFN@100 by limited: K3 0.0233 (0.069); K4 0.0233 (0.079); K6 0.0233 (0.102); K8 0.0229 (0.125)
+  keep share by limited then union: 0.25 0.0000 (0.273); 0.5 0.0000 (0.273)
+  5n union 0.0000 (0.239); 5o floor 0.0000 (0.097); predictor 0.78 s per design, 0.039 of all-DFN@100 on the pool
+NCA_Kim2011@1x: n 64, predictor ran on 16; Spearman with DFN@100: w2 +0.69, linear n/a, limited +0.57, u +0.54; best design's rank: w2 1, linear 16, limited 4, u 7
+  Spearman(p2, DFN fade 2->100) +0.47, (limited fade, DFN fade) -0.03; median DFN fade 0.508, limited's 0.648
+  top-K DFN@100 by w2: K3 0.0000 (0.080); K4 0.0000 (0.092); K6 0.0000 (0.115); K8 0.0000 (0.135)
+  keep share by w2 then union: 0.25 0.0000 (0.237); 0.5 0.0023 (0.243)
+  top-K DFN@100 by linear: K3 0.0023 (0.079); K4 0.0023 (0.091); K6 0.0023 (0.114); K8 0.0023 (0.136)
+  keep share by linear then union: 0.25 0.0023 (0.238); 0.5 0.0023 (0.242)
+  top-K DFN@100 by limited: K3 0.0023 (0.081); K4 0.0000 (0.092); K6 0.0000 (0.115); K8 0.0000 (0.135)
+  keep share by limited then union: 0.25 0.0000 (0.238); 0.5 0.0023 (0.243)
+  5n union 0.0023 (0.207); 5o floor 0.0023 (0.110); predictor 0.81 s per design, 0.045 of all-DFN@100 on the pool
+OKane2022@1.25x: n 64, predictor ran on 53; Spearman with DFN@100: w2 +0.58, linear -0.56, limited +0.25, u +0.95; best design's rank: w2 1, linear 53, limited 37, u 2
+  Spearman(p2, DFN fade 2->100) +0.43, (limited fade, DFN fade) +0.06; median DFN fade 0.397, limited's 0.639
+  top-K DFN@100 by w2: K3 0.0000 (0.083); K4 0.0000 (0.101); K6 0.0000 (0.129); K8 0.0000 (0.163)
+  keep share by w2 then union: 0.25 0.0000 (0.192); 0.5 0.0000 (0.225)
+  top-K DFN@100 by linear: K3 0.2571 (0.075); K4 0.2571 (0.087); K6 0.2419 (0.112); K8 0.2419 (0.142)
+  keep share by linear then union: 0.25 0.0577 (0.158); 0.5 0.0252 (0.225)
+  top-K DFN@100 by limited: K3 0.0186 (0.083); K4 0.0186 (0.096); K6 0.0186 (0.124); K8 0.0186 (0.154)
+  keep share by limited then union: 0.25 0.0186 (0.204); 0.5 0.0186 (0.224)
+  5n union 0.0000 (0.213); 5o floor 0.0000 (0.202); predictor 0.89 s per design, 0.037 of all-DFN@100 on the pool
+OKane2022@1.5x: n 64, predictor ran on 41 (not on the DFN-best design); Spearman with DFN@100: w2 +0.66, linear -0.59, limited +0.05, u +0.96; best design's rank: w2 13, linear 41, limited 41, u 4
+  Spearman(p2, DFN fade 2->100) +0.24, (limited fade, DFN fade) +0.33; median DFN fade 0.382, limited's 0.633
+  top-K DFN@100 by w2: K3 0.0601 (0.079); K4 0.0601 (0.094); K6 0.0601 (0.123); K8 0.0601 (0.153)
+  keep share by w2 then union: 0.25 0.0000 (0.214); 0.5 0.0000 (0.242)
+  top-K DFN@100 by linear: K3 0.3542 (0.071); K4 0.3542 (0.083); K6 0.3214 (0.107); K8 0.3110 (0.131)
+  keep share by linear then union: 0.25 0.0000 (0.220); 0.5 0.0000 (0.229)
+  top-K DFN@100 by limited: K3 0.0601 (0.077); K4 0.0601 (0.093); K6 0.0601 (0.121); K8 0.0601 (0.149)
+  keep share by limited then union: 0.25 0.0000 (0.212); 0.5 0.0000 (0.226)
+  5n union 0.0000 (0.237); 5o floor 0.0000 (0.157); predictor 0.85 s per design, 0.034 of all-DFN@100 on the pool
+OKane2022@1.75x: n 64, predictor ran on 30 (not on the DFN-best design); Spearman with DFN@100: w2 +0.62, linear -0.57, limited +0.21, u +0.91; best design's rank: w2 14, linear 30, limited 30, u 4
+  Spearman(p2, DFN fade 2->100) +0.06, (limited fade, DFN fade) +0.09; median DFN fade 0.366, limited's 0.559
+  top-K DFN@100 by w2: K3 0.0743 (0.087); K4 0.0743 (0.100); K6 0.0743 (0.126); K8 0.0743 (0.153)
+  keep share by w2 then union: 0.25 0.0000 (0.252); 0.5 0.0000 (0.261)
+  top-K DFN@100 by linear: K3 0.3495 (0.078); K4 0.3115 (0.091); K6 0.3115 (0.114); K8 0.1226 (0.141)
+  keep share by linear then union: 0.25 0.0000 (0.252); 0.5 0.0000 (0.261)
+  top-K DFN@100 by limited: K3 0.1729 (0.084); K4 0.1395 (0.098); K6 0.1395 (0.124); K8 0.1395 (0.149)
+  keep share by limited then union: 0.25 0.0000 (0.253); 0.5 0.0000 (0.261)
+  5n union 0.0000 (0.237); 5o floor 0.0000 (0.129); predictor 0.91 s per design, 0.044 of all-DFN@100 on the pool
+OKane2022@1x: n 128, predictor ran on 122; Spearman with DFN@100: w2 +0.85, linear -0.42, limited +0.54, u +0.97; best design's rank: w2 8, linear 122, limited 113, u 7
+  Spearman(p2, DFN fade 2->100) +0.31, (limited fade, DFN fade) -0.06; median DFN fade 0.419, limited's 0.592
+  top-K DFN@100 by w2: K3 0.0101 (0.060); K4 0.0101 (0.069); K6 0.0101 (0.085); K8 0.0000 (0.102)
+  keep share by w2 then union: 0.25 0.0000 (0.118); 0.5 0.0000 (0.141)
+  top-K DFN@100 by linear: K3 0.2542 (0.055); K4 0.2542 (0.061); K6 0.2419 (0.075); K8 0.2419 (0.089)
+  keep share by linear then union: 0.25 0.0936 (0.121); 0.5 0.0000 (0.131)
+  top-K DFN@100 by limited: K3 0.0564 (0.058); K4 0.0564 (0.066); K6 0.0276 (0.084); K8 0.0276 (0.107)
+  keep share by limited then union: 0.25 0.0276 (0.116); 0.5 0.0101 (0.147)
+  5n union 0.0000 (0.160); 5o floor 0.0000 (0.157); predictor 0.90 s per design, 0.033 of all-DFN@100 on the pool
+OKane2022@2x: n 64, predictor ran on 23 (not on the DFN-best design); Spearman with DFN@100: w2 +0.32, linear -0.75, limited -0.07, u +0.92; best design's rank: w2 20, linear 23, limited 17, u 1
+  Spearman(p2, DFN fade 2->100) -0.19, (limited fade, DFN fade) -0.24; median DFN fade 0.341, limited's 0.543
+  top-K DFN@100 by w2: K3 0.1107 (0.070); K4 0.1107 (0.083); K6 0.1107 (0.111); K8 0.1072 (0.137)
+  keep share by w2 then union: 0.25 0.0000 (0.236); 0.5 0.0000 (0.244)
+  top-K DFN@100 by linear: K3 0.4458 (0.061); K4 0.4458 (0.072); K6 0.3647 (0.096); K8 0.2886 (0.123)
+  keep share by linear then union: 0.25 0.0000 (0.238); 0.5 0.0000 (0.247)
+  top-K DFN@100 by limited: K3 0.1107 (0.069); K4 0.1107 (0.081); K6 0.1107 (0.109); K8 0.1107 (0.134)
+  keep share by limited then union: 0.25 0.0000 (0.239); 0.5 0.0000 (0.243)
+  5n union 0.0000 (0.230); 5o floor 0.0000 (0.148); predictor 0.77 s per design, 0.028 of all-DFN@100 on the pool
+
+Pooled (median, min, max over conditions):
+  unseen (24 conditions):
+    rho_w2: 0.8185, 0.3192, 0.9944
+    rho_limited: 0.5797, -0.1296, 0.9931
+    rho_linear: -0.0825, -0.7471, 0.9891
+    rho_p2_fade: 0.0255, -0.5238, 0.4735
+    keep50_gap: 0.0000, 0.0000, 0.0611
+    keep50_over_union_t: 1.1515, 0.9166, 1.4478
+    top8_limited_gap: 0.0044, 0.0000, 0.1395
+    top8_w2_gap: 0.0000, 0.0000, 0.1072
+    union_gap: 0.0000, 0.0000, 0.0023
+    t_pred_share: 0.0616, 0.0283, 0.1287
+  seen (12 conditions):
+    rho_w2: 0.7701, -0.0589, 0.9498
+    rho_limited: 0.3543, 0.1525, 0.5948
+    rho_linear: -0.2458, -0.2458, -0.2458
+    rho_p2_fade: 0.4829, 0.3050, 0.8369
+    keep50_gap: 0.0008, 0.0000, 0.0413
+    keep50_over_union_t: 0.9199, 0.7518, 1.4643
+    top8_limited_gap: 0.0524, 0.0314, 0.0943
+    top8_w2_gap: 0.0168, 0.0000, 0.0716
+    union_gap: 0.0000, 0.0000, 0.0032
+    t_pred_share: 0.0368, 0.0336, 0.1358
+
+5p's plating-only runs: energy fade per unit of lithium lost (share of inventory), cycles 2 to 20:
+  Ai2020@0.3x: j0 1.82 (fade 0.200, Li 0.110), j1 0.94 (fade 0.221, Li 0.236), j2 2.08 (fade 0.239, Li 0.115), j3 0.98 (fade 0.108, Li 0.111)
+  Ai2020@1x: j0 2.23 (fade 0.118, Li 0.053), j1 -0.68 (fade -0.075, Li 0.111), j2 1.99 (fade 0.123, Li 0.062), j3 0.26 (fade 0.025, Li 0.096)
+  Chen2020@1x: j0 2.35 (fade 0.131, Li 0.056), j1 1.67 (fade 0.132, Li 0.079), j2 2.01 (fade 0.124, Li 0.062), j3 1.71 (fade 0.132, Li 0.077)
+  Ecker2015@1x: j0 0.82 (fade 0.005, Li 0.006), j1 3.07 (fade 0.035, Li 0.012), j2 0.98 (fade 0.008, Li 0.008), j3 -1.87 (fade -0.012, Li 0.006)
+  Marquis2019@1x: j0 0.47 (fade 0.003, Li 0.007), j1 -1.84 (fade -0.008, Li 0.004), j2 -2.19 (fade -0.006, Li 0.003), j3 -1.46 (fade -0.008, Li 0.005)
+  Mohtat2020@1x: j0 0.72 (fade 0.004, Li 0.005), j1 -0.02 (fade -0.000, Li 0.005), j2 1.13 (fade 0.004, Li 0.003), j3 0.66 (fade 0.004, Li 0.005)
+  NCA_Kim2011@1x: j0 1.12 (fade 0.160, Li 0.143), j1 1.49 (fade 0.228, Li 0.153), j2 2.03 (fade 0.371, Li 0.183), j3 -0.32 (fade -0.043, Li 0.136)
+  OKane2022@1x: j0 1.75 (fade 0.150, Li 0.086), j1 1.81 (fade 0.139, Li 0.077), j2 2.15 (fade 0.130, Li 0.060), j3 2.23 (fade 0.106, Li 0.047)
+
+Designs whose predictor run failed (dropped): Ai2020@0.25x [4, 6, 13, 15, 17, 34, 40]; Ai2020@0.275x [1, 3, 24, 29, 39, 57]; Ai2020@0.35x [1, 17]; Ai2020@0.375x [19, 31, 51]; Ai2020@0.3x [60, 61]; Ai2020@0.4375x [59]; Ai2020@0.75x [13]; Chen2020@1.5x [0, 7, 11, 12, 16, 18, 23, 24, 28, 32, 36, 40, 47, 48, 51, 52, 56, 60]; Chen2020@1.75x [0, 3, 4, 7, 8, 9, 11, 12, 14, 16, 19, 20, 23, 24, 27, 28, 30, 32, 35, 36, 40, 44, 46, 47, 48, 49, 51, 52, 54, 56, 59, 60]; Chen2020@1x [0, 23, 40]; Chen2020@2x [0, 2, 3, 4, 5, 8, 10, 11, 12, 15, 16, 17, 18, 19, 20, 24, 26, 27, 28, 31, 32, 34, 35, 36, 39, 40, 42, 43, 44, 46, 47, 48, 50, 51, 52, 53, 55, 56, 58, 59, 60, 63]; Ecker2015@1.5x [4, 32, 52, 60]; Ecker2015@2x [0, 3, 4, 8, 10, 12, 19, 20, 24, 36, 43, 44, 48, 53, 59, 60]; Marquis2019@2x [4, 12, 20, 24, 36, 44, 48]; Mohtat2020@3x [4, 28, 32, 52]; NCA_Kim2011@0.5x [3, 4, 8, 16, 24, 28, 31, 32, 40, 44, 48, 52, 62]; NCA_Kim2011@0.75x [0, 1, 4, 7, 9, 11, 12, 14, 15, 16, 19, 23, 25, 27, 28, 31, 32, 35, 36, 39, 40, 42, 47, 49, 51, 52, 54, 55, 56, 57, 59, 63]; NCA_Kim2011@0.875x [0, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 20, 21, 23, 24, 27, 28, 30, 32, 35, 36, 38, 39, 40, 42, 44, 45, 46, 47, 48, 49, 51, 52, 54, 55, 56, 58, 59, 60, 62, 63]; NCA_Kim2011@1.25x [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 49, 50, 52, 53, 54, 56, 57, 58, 59, 60, 61, 62]; NCA_Kim2011@1x [0, 1, 2, 3, 4, 5, 7, 9, 11, 12, 14, 15, 16, 17, 19, 20, 21, 23, 24, 25, 27, 28, 30, 31, 33, 35, 36, 37, 38, 39, 40, 41, 43, 44, 45, 47, 48, 49, 51, 52, 54, 55, 56, 58, 59, 60, 61, 63]; OKane2022@1.25x [0, 12, 16, 18, 23, 24, 36, 40, 48, 51, 56]; OKane2022@1.5x [0, 3, 4, 8, 12, 16, 19, 20, 24, 28, 31, 32, 39, 40, 44, 47, 48, 52, 55, 56, 59, 60, 62]; OKane2022@1.75x [0, 1, 4, 7, 8, 9, 11, 12, 14, 15, 16, 19, 23, 24, 25, 27, 28, 31, 32, 35, 36, 39, 40, 43, 47, 49, 51, 52, 54, 55, 56, 57, 59, 63]; OKane2022@1x [16, 23, 63, 71, 83, 119]; OKane2022@2x [0, 2, 3, 4, 5, 8, 10, 11, 12, 15, 16, 18, 19, 20, 24, 26, 27, 28, 31, 32, 34, 35, 36, 39, 40, 42, 43, 44, 46, 47, 48, 50, 51, 52, 53, 55, 56, 58, 59, 60, 63]
+
+Verdicts (on the 24 unseen conditions): H100 refuted, H101 refuted, H102 refuted, H103 refuted
