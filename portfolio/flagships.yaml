@@ -255,10 +255,9 @@ flagships:
       ORF, RW2, SRW, PEF and RAF read, eval/*-reader-2026-11-14.md). X-Trans
       demosaic toward LibRaw's three-pass (2-6 dB short; a noisy known truth for the
       real-frame luma gap; a C path;
-      eval/xtrans-directional-demosaic-2026-11-14.md); Samsung SRW lens name (maker
-      note 0xA003) for lensfun; Sony maker-note lens names, from those same files.
-      The DNG 1.7.1.0 spec PDF is reachable (URL in
-      eval/opcode-spec-audit-2026-11-12.md): read it, not memory.
+      eval/xtrans-directional-demosaic-2026-11-14.md); Sony's in-file lens
+      corrections (ARW 0x7032, 0x7035, 0x7037) against lensfun on the A7 III/IV
+      files. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -269,22 +268,21 @@ flagships:
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
       grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans, directional) read directly since
-      2026-11-14 (eval/*-reader-*.md); RW2 lens from its JPEG's maker note
-      (eval/panasonic-rw2-lens-2026-11-14.md). Next: a compressed RAF (X-T2 or
-      later); a real NEF with a split row; Sony maker-note lens name and in-file
-      lens corrections; a real DNG and a vignetting-calibrated lens through the
-      pipeline's lens stage; a real evenly lit frame shot wide open (corners level
-      after lensfun's vignetting?); a second maker-against-lensfun DNG pair; a real
-      DNG carrying any opcode run only on synthetic files so far, or the SDK to
-      check them; lateral colour measured on a real frame with sharp corner edges; a
-      real Adobe `.dcp` through the profile chooser; newer CR2s (ColorData8-11: 5D
-      Mark IV, 80D, 90D; not found in that collection under their plain names); the
-      DJI Phantom 4 DNG's vignette lift against DJI's own render
-      (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
-      set; a phone DNG with its own JPEG of the frame (corrected corners); a
-      tungsten-lit colour chart to say which colour model is closer (the 70D frame,
-      4,700 K and green-tinted, is where they part most; the Nexus 5X carries
-      ForwardMatrix); an Adobe render of a known frame (settles
+      2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from maker notes
+      (eval/*-lens-2026-11-14.md). Next: a compressed RAF (X-T2 or later); a real
+      NEF with a split row; Sony's in-file lens corrections; a real DNG and a
+      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
+      lit frame shot wide open (corners level after lensfun's vignetting?); a second
+      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
+      synthetic files so far, or the SDK to check them; lateral colour measured on a
+      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
+      chooser; newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
+      collection under their plain names); the DJI Phantom 4 DNG's vignette lift
+      against DJI's own render (eval/opcode-quality-flag-2026-11-13.md); a real DNG
+      with opcode flag bit 1 set; a phone DNG with its own JPEG of the frame
+      (corrected corners); a tungsten-lit colour chart to say which colour model is
+      closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the
+      Nexus 5X carries ForwardMatrix); an Adobe render of a known frame (settles
       `--default-tone-curve always`); a trained blink model and a real shoot with a
       photographer's picks; photos with a real horizon and human tilt labels.
 
