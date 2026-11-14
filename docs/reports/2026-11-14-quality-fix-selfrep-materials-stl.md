@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [selfrep-materials]
+topics: [research-integrity]
+date: 2026-11-14
+---
 # Quality fix: selfrep-materials sourced part list (2026-11-14)
 
 For the next run that touches the self-replication track (`research/selfrep-*`).
