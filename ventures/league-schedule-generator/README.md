@@ -880,14 +880,20 @@ dependencies) settles it by depth-first search over the timetable itself.
   look at the same ten tries as before and keep the same season; the new one joins the list a person
   can pick from. At 10 teams "the most even carry-over" now keeps 94 / 14 instead of 106 / 10, and the
   report says "80 is the floor for this many games, but no 10-team round robin can go below 94, and
-  this schedule reaches it; an exhaustive search proved it". `bestCarryOverRounds` takes `pure: true`
+  this schedule reaches it; an exhaustive search proved it". The same holds wherever the stored
+  timetables and starters beat the weighted tries (`bestCarryOverRounds`, 8 weighted + 2 capped tries,
+  seed 1, carry-over / breaks kept by "the most even carry-over"): 9 teams 89 / 5 to **69 / 12**, 10
+  teams 106 / 10 to **94 / 14**, 12 teams 168 / 14 to **136 / 20**; with a break weight of 10 the kept
+  season is the same with and without it at all three. It costs one more search after the others: at
+  20 teams 0.9 s for a single round robin (360 / 52) and 1.6 s for a home-and-away season (1,460 / 126),
+  measured in Node on a busy container. `bestCarryOverRounds` takes `pure: true`
   for the same on the command line (off by default, so earlier results are unchanged).
 - Tests (`carryover.test.mjs`): the timetable the search found is a round robin and scores 94; the
   plain search at seed 1 reaches it; with `pure` "the most even carry-over" keeps 94 and the other
   choices keep what they kept. `eval/browser-proved-least.mjs` builds the 10-team league in Chromium
   and reads the line.
 - **12 teams.** The same search does not finish: asked only whether the floor (120) is reachable,
-  four parts on four cores were stopped after 50 minutes with no answer (`eval/carryover-bnb.txt`).
+  four parts (`./carryover-bnb 12 0 P 4`) on four shared cores were stopped after 23 minutes with no answer (`eval/carryover-bnb.txt`).
   Each step of 2 cost about 2x at 10 teams, so the 12-team tree is the problem, not the bound. Next:
   a lower bound on the carry-over the remaining rounds must add (each team's remaining opponents
   are known), which would cut far higher in the tree.

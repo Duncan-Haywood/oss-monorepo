@@ -51,7 +51,7 @@ A solver sees that through a stack of counters (a totalizer per cell, then one
 over all of them), and it learns it again on every branch. The search gets it in
 a single addition. The search does have weaknesses: it uses no clause learning
 and almost no lookahead. That's also why it doesn't finish at 12 teams: four
-cores for 50 minutes didn't even rule out the floor. What it needs there is a
+cores for 23 minutes didn't even rule out the floor. What it needs there is a
 bound on how much carry-over the rounds not yet placed must add.
 
 **The page wasn't reaching it.** Checking the page in a browser turned up a gap.
@@ -59,7 +59,7 @@ Each of the page's searches trades carry-over against back-to-back home games,
 and none of them searches carry-over alone. At ten teams, "the most even
 carry-over" kept 106. So the page now runs one more search, on
 carry-over alone, and lets that choice pick from everything it searched. The
-other choices keep exactly what they kept before. The new season also joins the
+other choices keep exactly what they kept before. The same fix helps elsewhere: at nine teams the most even season went from 89 to 69, and at twelve from 168 to 136. The new season also joins the
 list an organiser can pick from.
 
 **What changed for an organiser.** Tick "Spread who you meet next" with ten
