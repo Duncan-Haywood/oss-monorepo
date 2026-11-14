@@ -2,7 +2,7 @@
 title: "Eight more state sales tax pages read, and not one due date changed"
 seo_title: "Sales tax due dates in eight states, checked on their own pages"
 date: 2026-11-14
-description: "The ai-bookkeeper's sales tax calendar now checks 34 jurisdictions against their own tax pages. Eight read today all matched the presets. Two of them list no annual filing, and the tool now says so."
+description: "ai-bookkeeper now checks 34 jurisdictions' sales tax due dates on their own pages. Eight read today all matched; NC and VA list no annual filing."
 tags: [ai-bookkeeper, sales-tax, verification]
 ---
 
