@@ -1,9 +1,9 @@
 ---
 title: "The servo that would have undone the tennis feeder's precharge"
-seo_title: "Precharge and constant-power loads: why a 4.7 ohm resistor stalls a robot's bus"
+seo_title: "Precharge and constant-power loads: why a robot bus can stall"
 date: 2026-11-14
 tags: [open-tennis-robots, hardware, electronics, firmware]
-description: "A servo seeking home while the bus precharged would hold the tennis feeder's bus near 8 V and send about 223 A through the contactor on assumed figures. Since this change the firmware leaves the servo unpulsed until the first feed."
+description: "A servo seeking home during the precharge would leave the tennis feeder's bus 16 V short, so the contactor would make ~223 A. Now it waits for a feed."
 ---
 
 Earlier today the open tennis-ball feeder gained a precharge
