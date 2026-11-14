@@ -22,7 +22,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
-import { import7shifts, fetch7shifts, within } from "./import-7shifts.mjs";
+import { import7shifts, fetch7shifts, within, import7shiftsStaff, fetch7shiftsStaff } from "./import-7shifts.mjs";
 import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays, readSales } from "./demand.mjs";
 import {
@@ -143,7 +143,13 @@ Options:
                       the last 4 weeks only. --score-open-hours scores the old way (minimum staff needed in every hour the plan
                       staffs; auto then chooses among the weightings only); --score-closed is the default and kept as a name
                       --last-weeks <n>: plan from the last n weeks of dated sales only
-  --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
+  --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr.
+                      A Location column (one row per person per location) or per-location rate columns ("Wage at Airport", "Airport rate")
+                      become sites: and "wage at <site>:" cells
+  --import-7shifts-staff <json>  convert saved 7shifts users, roles, locations and each user's assignments and wages (with user_id) to staff
+                      lines with roles, sites: and "wage at <location>:" cells; repeat for more files; --location <name> plans one location
+                      at its rates; --wages-as-of <YYYY-MM-DD> applies upcoming wages in force by then
+  --fetch-7shifts-staff  the same, fetched with SEVENSHIFTS_ACCESS_TOKEN (two requests per person); --save <file> keeps the responses
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
                       --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
@@ -226,6 +232,9 @@ export function parseArgs(argv) {
       if (!Number.isFinite(v) || v < 0) throw new Error(`${a} needs a number`);
       (o.demand ||= {})[{ "--min-staff": "minStaff", "--min-shift": "minShift", "--max-shift": "maxShift", "--open": "open", "--close": "close" }[a]] = v;
     }
+    else if (a === "--import-7shifts-staff") { const f = argv[++i]; if (!f) throw new Error("--import-7shifts-staff needs a JSON file"); (o.import7Staff ||= []).push(f); }
+    else if (a === "--fetch-7shifts-staff") o.fetch7Staff = true;
+    else if (a === "--wages-as-of") { o.wagesAsOf = argv[++i]; if (!/^\d{4}-\d{2}-\d{2}$/.test(o.wagesAsOf || "")) throw new Error("--wages-as-of takes a date like 2026-11-16"); }
     else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
     else if (a === "--swap") { o.swap = argv[++i]; if (!o.swap) throw new Error('--swap needs two shifts like "Tue 17:00,Sat 09:00"'); }
@@ -656,6 +665,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.import7Staff || o.fetch7Staff) {
+      let inputs;
+      if (o.fetch7Staff) {
+        const got = await fetch7shiftsStaff({ token: process.env.SEVENSHIFTS_ACCESS_TOKEN, companyId: process.env.SEVENSHIFTS_COMPANY_ID });
+        if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
+        inputs = got.responses;
+      } else inputs = await Promise.all(o.import7Staff.map((f) => readFile(f, "utf8")));
+      const r = import7shiftsStaff(inputs, { asOf: o.wagesAsOf, location: o.importLocation });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.staffText + "\n"); process.exit(0);
     }
     if (o.importWiw || o.fetchWiw) {
       let inputs;
