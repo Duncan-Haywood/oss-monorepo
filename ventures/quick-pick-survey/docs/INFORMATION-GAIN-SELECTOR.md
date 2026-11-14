@@ -3523,7 +3523,7 @@ Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --later-q 0.5,0.6
 --surveys 40 --person-drift 0.6 --patterns salience,random --careless 0.25,0.4
 --ratio 0.6 --onset 0.25,0.5,0.75` (a few minutes on 4 CPUs).
 
-## A step net of the person's own trend (2026-11-13, latest; shipped)
+## A step net of the person's own trend (2026-11-13; shipped)
 
 Item (d5) on the flagship list. After the later-pass median, `?drop=fast-blocks`
 still flagged about 5% of honest respondents when each person's own pace drifts
@@ -3616,3 +3616,107 @@ Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --net-share
 0.75,1,1.25 --surveys 40 --items 15,30 --person-drift 0.6 --patterns
 salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (a few
 minutes on 4 CPUs).
+
+## A step a wandering pace cannot make (2026-11-14, latest; shipped)
+
+Item (d6) on the flagship list. Under each person's own pace wandering as a
+random walk of N(0, 0.08) log per answer (`--person-walk 0.08`),
+`?drop=fast-blocks` flagged 17-20% of honest respondents under every earlier
+setting. A random walk is a run of small steps, and a 40-60-answer walk can hold
+one as large as a bored person's, so no gap, line or net-step test removes it.
+
+**The test.** `stepOverWalk(x, at)` compares two models of the person's log-time
+residuals, each with a straight-line trend and a level that may wander as a
+random walk: one with a step at the split and one without. Each is fitted at its
+own best walk-to-noise variance ratio (`WALK_RATIOS`: 0, then 0.001 to 1), and
+the score is twice the gain in log likelihood from adding the step. The fixed
+effects are fitted exactly by running each column through the same Kalman filter
+as the data (the gains depend only on the ratio) and regressing the filtered
+innovations, so ratio 0 is ordinary least squares on a line. A bored respondent
+holds still on either side of one step, which a walk can only take as one
+improbably large move, so the score is large. A wandering pace's "step" is
+absorbed by the walk, so the score stays small.
+
+**First check, bare sequences** (`scripts/walk-step-check.ts`, 2,000 sequences
+per row, N(0, 0.35) noise). Of the sequences the shipped rule flagged, a walk of
+0.08 at 60 answers scored a median of 7.7 and a 0.51 step with no wander 10.5 to
+11.3. A fixed bar of 12 still flagged 22-27% of the step sequences and 1.6% of the
+walks (the earlier rule alone: 63-65% and 13.8%). The scores grow
+with the sequence's length, so a fixed bar does not carry across list sizes.
+
+**The bar, from the panel's own slow turns** (`autoWalkMin`). Nobody careless
+turns slow partway through, so each respondent's best slow split, scored the
+same way, shows how strong a step honest wandering makes in this survey. Panels
+of 20 at 60 answers (bare): the 0.9 quantile of those scores was about 2 with no
+wander and 7.5 at walk 0.08.
+
+**Grid.** `scripts/answer-time-sweep.ts --walk q:floor[:engage]` adds a
+`shift-drop-wQQ-fFF[-eEEE]` scheme per triple. Cells as on 2026-11-13, at person
+drift 0 and 0.6 and walk 0.04 and 0.08: salience and random patterns, 25% and
+40% careless at 0.6x with onsets 0.25, 0.5 and 0.75; cost cells with nobody
+careless and a 25-40% camp with a second taste. Panels of 20 on 15 and 30 items,
+4 answers per item, 40 surveys per cell, 120 cells. Raw rows:
+`docs/fast-blocks-walk-2026-11-14.jsonl`; in that file `shift-drop` is the rule
+before this change.
+
+Means over cells, as in the last section ("ceiling", "found", "honest" mean /
+worst cell; for the cost cells the Spearman change and honest flags):
+
+| cells | before | q 0.9, always | q 1, always | **q 0.9, engage at 0.008 (shipped)** | q 1, engage at 0.008 |
+|---|---|---|---|---|---|
+| careless, drift 0 (24) | 97%, 0.90, 0.0 / 0.2% | 86%, 0.82, 0.0 / 0.2% | 69%, 0.62, 0.0 / 0.2% | **96%, 0.89, 0.0 / 0.2%** | 96%, 0.89, 0.0 / 0.2% |
+| no one careless or a camp, drift 0 (6) | 0.0000, 0.0 / 0.1% | 0.0000, 0.0 / 0.0% | 0.0000, 0.0 / 0.0% | **0.0000, 0.0 / 0.1%** | 0.0000, 0.0 / 0.1% |
+| careless, drift 0.6 (24) | 54%, 0.51, 1.8 / 2.7% | 47%, 0.46, 1.3 / 2.3% | 39%, 0.36, 0.8 / 1.9% | **54%, 0.50, 1.8 / 2.7%** | 54%, 0.49, 1.6 / 2.5% |
+| same, drift 0.6 (6) | -0.0006, 1.5 / 2.6% | -0.0005, 1.0 / 1.5% | -0.0001, 0.4 / 1.0% | **-0.0006, 1.5 / 2.6%** | -0.0006, 1.5 / 2.6% |
+| careless, walk 0.04 (24) | 59%, 0.60, 4.5 / 7.8% | 46%, 0.40, 1.8 / 3.2% | 30%, 0.23, 0.7 / 1.7% | **48%, 0.48, 2.3 / 4.0%** | 41%, 0.39, 1.5 / 3.2% |
+| same, walk 0.04 (6) | -0.0015, 5.4 / 8.7% | -0.0007, 2.0 / 3.5% | -0.0005, 0.9 / 1.6% | **-0.0016, 4.6 / 7.0%** | -0.0015, 4.3 / 6.3% |
+| careless, walk 0.08 (24) | 29%, 0.47, 17.1 / 26.5% | 19%, 0.18, 3.1 / 4.7% | 7%, 0.07, 1.2 / 2.1% | **18%, 0.18, 3.4 / 4.7%** | 6%, 0.07, 1.4 / 2.1% |
+| same, walk 0.08 (6) | -0.0045, 19.5 / 24.6% | -0.0014, 3.7 / 4.5% | -0.0006, 1.2 / 1.5% | **-0.0018, 4.1 / 4.5%** | -0.0010, 1.8 / 2.8% |
+
+(The drift-0.6 rows here have no warm-up cells, so they differ from the last
+section's 66%.)
+
+What it shows:
+
+- **Always on, the bar cost 11 points of the ceiling where nobody wanders**
+  (86% against 97%), most of it at 15 items with 40% careless. A large group
+  turning quick together moves the panel's curve, the honest then look like slow
+  turners, and their scores lift the bar over real blocks. A floor of 6 changed
+  nothing, and engaging only when the slow-turn quantile itself was high (4 to
+  11) did not separate the cases either (76-87% with no wander).
+- **So the switch reads the wander directly.** `panelWalkRatio` fits one
+  walk-to-noise ratio to every respondent's residuals at once (summed log
+  likelihoods, each with its own line). One sequence of 60 answers rarely tells
+  a 0.05 ratio from 0, and its own best ratio is 0 in over half of draws; twenty
+  together do. On bare panels it read 0 at every quantile with no wander, with
+  or without 8 of 20 holding a block, 0 to 0.010 at walk 0.04 and 0.010 to
+  0.063 at walk 0.08 (10th to 90th percentile) (60 answers; the estimate runs low, as variance-ratio
+  estimates do). The wander bar is set only when it is at least 0.008.
+- **Shipped (q 0.9, engage 0.008):** where nobody wanders 96% of the ceiling
+  against 97%, and under straight-line drift no change. Under walk 0.08 honest
+  flags fall from 17.1% to 3.4% (19.5% to 4.1% with nobody careless) and the
+  cost to an honest panel from 0.0045 to 0.0018 Spearman. Under walk 0.04
+  (often not detected at 60 answers) honest flags fall from 4.5% to 2.3%.
+- **What it gives up.** Under a wandering pace it finds far fewer of the
+  careless (0.47 to 0.18), and the share of the ceiling recovered falls from 29%
+  to 18%. The old 29% came with 17% of honest people named as having turned
+  careless, which is a claim to a survey owner that is wrong one time in five or
+  more. Under wander, a block test on timing alone is weak whatever is chosen.
+  q 1 is stricter still (1.4% honest flagged, 6% of the ceiling).
+
+**Decision.** `FAST_BLOCK_WALK_Q = 0.9` and `FAST_BLOCK_WALK_ENGAGE = 0.008`
+ship as the defaults of `fastBlockStarts`. The sweep's `autoBlockStarts` copy
+follows them, and its check against the library passes. The `--curve-q`,
+`--trend-f`, `--later-q` and `--net-share` schemes pass `walkQ` 0, so their
+earlier rows reproduce. A new unit test pins both sides on seeded panels of 20
+by 60 answers: with everyone wandering at 0.08 and nobody careless, the rule
+before this change flags three honest people and the default none; with nobody
+wandering and three turning 0.55x quick at answer 30, both find the same three.
+It fails with `FAST_BLOCK_WALK_Q` set to 0. The view stays a comparison, not the
+default ranking. Whether real people's pace wanders, and by how much, is still
+for the first real survey (item c); `panelWalkRatio` is the number to read off it.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --walk
+0.9:0:0.008 --surveys 40 --items 15,30 --person-walk 0.08 --patterns
+salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (about
+ten minutes on one CPU).

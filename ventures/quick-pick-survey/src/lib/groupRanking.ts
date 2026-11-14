@@ -568,6 +568,25 @@ export const FAST_BLOCK_LATER_Q = 0.5;
  */
 export const FAST_BLOCK_NET_SHARE = 1;
 
+/**
+ * Which quantile of the panel's slow-turn scores (autoWalkMin) a block's stepOverWalk must reach, once the panel's pace
+ * is seen to wander (FAST_BLOCK_WALK_ENGAGE); 0 turns the test off. A pace that wanders as a random walk is a run of
+ * small steps and can hold one as large as a bored person's, which no gap, line or net-step test removes. In the
+ * answer-time sweep with each person's pace wandering N(0, 0.08) log per answer it cut honest flags from 17.1% to 3.4%
+ * with a careless share and from 19.5% to 4.1% without, and the Spearman cost to a panel with nobody careless from
+ * 0.0045 to 0.0018; where nobody wanders it kept 96% of the ceiling against 97%, and under straight-line drift it
+ * changed nothing (docs/INFORMATION-GAIN-SELECTOR.md, "A step a wandering pace cannot make", 2026-11-14).
+ */
+export const FAST_BLOCK_WALK_Q = 0.9;
+/** The lowest bar autoWalkMin may set (0: the panel's own slow turns decide). */
+export const FAST_BLOCK_WALK_FLOOR = 0;
+/**
+ * The panel's walk-to-noise ratio (panelWalkRatio) below which no wander bar is set. Without it the bar cost 11 points of
+ * the ceiling where nobody wanders, because a large group turning quick together moves the panel's curve and makes the
+ * honest look like slow turners; the pooled ratio reads 0 for such a panel (same section).
+ */
+export const FAST_BLOCK_WALK_ENGAGE = 0.008;
+
 /** Passes over the panel's curve in fastBlockStarts (each leaves out the blocks the last found). */
 export const FAST_BLOCK_PASSES = 3;
 
@@ -598,11 +617,28 @@ export function bestFastSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG): { at: n
  * `minSeg` long), returned when the later side is at least `minLog` faster
  * and t >= `tMin`; otherwise null.
  */
-export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T, trendF = 0, netShare = 0): number | null {
+export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T, trendF = 0, netShare = 0, walkMin = 0): number | null {
   const best = bestFastSplit(x, minSeg);
   if (!best || best.t < tMin || best.gap < minLog) return null;
   if (trendF > 0 && stepOverTrend(x, best.at) < trendF) return null;
-  return netShare > 0 && stepNetOfTrend(x, best.at) < netShare * minLog ? null : best.at;
+  if (netShare > 0 && stepNetOfTrend(x, best.at) < netShare * minLog) return null;
+  return walkMin > 0 && stepOverWalk(x, best.at) < walkMin ? null : best.at;
+}
+
+/**
+ * A per-survey bar for stepOverWalk, from the panel's own slow turns: each respondent's best slow split (the split
+ * search on the negated residuals) scored by stepOverWalk, and the `q` quantile of those scores, at least `floor`.
+ * Nobody careless turns slow partway through, so these show how strong a step honest wandering makes in this survey:
+ * a panel whose pace holds still sets a low bar, one whose pace wanders sets a high one. With `engage` above 0 the bar
+ * is 0 (no test) unless the panel's walk ratio (panelWalkRatio) reaches it, so a panel whose pace does not wander
+ * keeps every block. Null when fewer than
+ * AGREEMENT_MIN_RESPONDENTS sequences are long enough.
+ */
+export function autoWalkMin(residuals: number[][], q: number, floor = 0, engage = 0): number | null {
+  if (engage > 0 && residuals.length >= AGREEMENT_MIN_RESPONDENTS && panelWalkRatio(residuals) < engage) return 0;
+  const scores = residuals.map((x) => x.map((v) => -v)).map((neg) => ({ neg, b: bestFastSplit(neg) })).filter((r) => r.b !== null).map((r) => stepOverWalk(r.neg, r.b!.at));
+  if (scores.length < AGREEMENT_MIN_RESPONDENTS) return null;
+  return Math.max(floor, quantileOf(scores, q));
 }
 
 /**
@@ -626,6 +662,98 @@ export function stepNetOfTrend(x: number[], at: number): number {
   const det = tt * ss - ts * ts;
   if (!(det > 1e-9 * tt * ss)) return 0;
   return -(tt * sy - ts * ty) / det;
+}
+
+/**
+ * The walk-to-noise variance ratios stepOverWalk profiles over: 0 (no wander), then geometric from 0.001 to about 1.
+ * The sweep's walk 0.08 against 0.35 log noise is a ratio of 0.052.
+ */
+export const WALK_RATIOS = [0, ...Array.from({ length: 16 }, (_, i) => 0.001 * Math.pow(10, (3 * i) / 15))];
+
+/**
+ * The best Gaussian log likelihood (variance concentrated out, constants dropped) of a sequence under a local-level
+ * model, a level that wanders as a random walk with innovation variance `ratio` times the noise variance, plus fixed
+ * effects for the columns of `cols`, at that `ratio`. Conditioned on the first value (the level's diffuse start), so
+ * it reads n - 1 innovations. The fixed effects are fitted by generalised least squares on the filtered innovations
+ * (each column runs through the same Kalman filter as the data, whose gains depend only on the ratio), which is exact.
+ */
+function walkLogLik(x: number[], cols: number[][], ratio: number): number {
+  const n = x.length, k = cols.length;
+  const series = [x, ...cols];
+  const a = series.map((s) => s[0]);
+  let p = 1 + ratio;
+  const v: number[][] = series.map(() => []);
+  const f: number[] = [];
+  for (let t = 1; t < n; t++) {
+    const F = p + 1, K = p / F;
+    f.push(F);
+    for (let j = 0; j <= k; j++) { const e = series[j][t] - a[j]; v[j].push(e); a[j] += K * e; }
+    p = p * (1 - K) + ratio;
+  }
+  const m = n - 1;
+  // Weighted least squares of the data's innovations on the columns' innovations (weights 1/F), by normal equations.
+  const xtx = Array.from({ length: k }, () => new Array<number>(k).fill(0)), xty = new Array<number>(k).fill(0);
+  let yy = 0, logDet = 0;
+  for (let t = 0; t < m; t++) {
+    const w = 1 / f[t];
+    logDet += Math.log(f[t]);
+    yy += w * v[0][t] * v[0][t];
+    for (let i = 0; i < k; i++) { xty[i] += w * v[i + 1][t] * v[0][t]; for (let j = 0; j < k; j++) xtx[i][j] += w * v[i + 1][t] * v[j + 1][t]; }
+  }
+  const beta = solveSmall(xtx, xty);
+  let sse = yy;
+  for (let i = 0; i < k; i++) sse -= beta[i] * xty[i];
+  return -0.5 * logDet - (m / 2) * Math.log(Math.max(sse / m, 1e-12));
+}
+
+/** Solves a small symmetric system by Gaussian elimination with partial pivoting; a singular column gets 0. */
+function solveSmall(A: number[][], b: number[]): number[] {
+  const k = b.length, M = A.map((r, i) => [...r, b[i]]);
+  for (let c = 0; c < k; c++) {
+    let piv = c;
+    for (let r = c + 1; r < k; r++) if (Math.abs(M[r][c]) > Math.abs(M[piv][c])) piv = r;
+    [M[c], M[piv]] = [M[piv], M[c]];
+    if (Math.abs(M[c][c]) < 1e-12) continue;
+    for (let r = 0; r < k; r++) if (r !== c) { const g = M[r][c] / M[c][c]; for (let j = c; j <= k; j++) M[r][j] -= g * M[c][j]; }
+  }
+  return M.map((r, i) => (Math.abs(r[i]) < 1e-12 ? 0 : r[k] / r[i]));
+}
+
+/**
+ * How much a panel's pace wanders: the walk-to-noise variance ratio (from WALK_RATIOS) that best fits every sequence at
+ * once, each as a random walk with its own straight-line trend and no step (summed log likelihoods). One sequence of 60
+ * answers rarely tells a 0.05 ratio from 0 (its own best is 0 more often than not); twenty together do. Zero for a panel
+ * whose people hold still or move along lines. Sequences under 6 long are skipped.
+ */
+export function panelWalkRatio(seqs: number[][]): number {
+  const use = seqs.filter((x) => x.length >= 6);
+  if (!use.length) return 0;
+  let best = -Infinity, at = 0;
+  for (const r of WALK_RATIOS) {
+    const ll = use.reduce((a, x) => a + walkLogLik(x, [x.map((_, i) => i)], r), 0);
+    if (ll > best + 1e-9) { best = ll; at = r; }
+  }
+  return at;
+}
+
+/**
+ * Whether a step at `at` is still worth having once the person's pace is allowed to wander: twice the gain in log
+ * likelihood from adding the step to a model whose level is a random walk with a straight-line trend, each model at its
+ * own best walk ratio (WALK_RATIOS, 0 included, so a person who does not wander is read as a step on a line). A pace
+ * that wanders is a run of small steps, and a 40-60-answer walk can hold one as large as a bored person's; the walk
+ * model absorbs that step, so the gain stays small. A bored respondent's pace holds still on either side of one step,
+ * which the walk can only take as one improbably large move, so the gain is large. Zero for a split at either end.
+ */
+export function stepOverWalk(x: number[], at: number): number {
+  const n = x.length;
+  if (at <= 0 || at >= n || n < 6) return 0;
+  const trend = x.map((_, i) => i), step = x.map((_, i) => (i >= at ? 1 : 0));
+  let best0 = -Infinity, best1 = -Infinity;
+  for (const r of WALK_RATIOS) {
+    best0 = Math.max(best0, walkLogLik(x, [trend], r));
+    best1 = Math.max(best1, walkLogLik(x, [trend, step], r));
+  }
+  return Math.max(0, 2 * (best1 - best0));
 }
 
 /**
@@ -748,11 +876,17 @@ export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q
  * drift honest flags fell from about 5% to about 2%. A pace that wanders as a
  * random walk can still hold a step of its own and is flagged more often.
  *
+ * Since 2026-11-14, when the panel's pace is seen to wander (panelWalkRatio at least FAST_BLOCK_WALK_ENGAGE), a split
+ * must also be a step a wandering pace would not make: its stepOverWalk score must reach the FAST_BLOCK_WALK_Q quantile
+ * of the panel's own slow turns' scores (`walkQ`, autoWalkMin). Under a 0.08-log-per-answer walk honest flags fell from
+ * 17% to 3.4%; where nobody wanders the test is not engaged.
+ *
  * Needs AGREEMENT_MIN_RESPONDENTS respondents with timed answers; otherwise
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q, netShare = FAST_BLOCK_NET_SHARE): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q, netShare = FAST_BLOCK_NET_SHARE, walkQ = FAST_BLOCK_WALK_Q, walkFloor = FAST_BLOCK_WALK_FLOOR, walkEngage = FAST_BLOCK_WALK_ENGAGE): Map<string, number> {
+  if (!(walkQ >= 0 && walkQ <= 1)) throw new Error(`walkQ must be between 0 and 1, got ${walkQ}`);
   if (!(netShare >= 0)) throw new Error(`netShare must be 0 or more, got ${netShare}`);
   if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
   if (!(laterQ > 0 && laterQ < 1)) throw new Error(`laterQ must be between 0 and 1, got ${laterQ}`);
@@ -781,9 +915,10 @@ export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE
     const curve = atPos.map((_, i) => medianOf(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
     const residuals = people.map(([, list]) => list.map((x, i) => Math.log(x.ms) - curve[i]));
     const gapMin = minLog === "auto" ? (autoFastBlockMinLog(residuals) ?? FAST_BLOCK_MIN_LOG) : minLog;
+    const walkMin = walkQ > 0 ? (autoWalkMin(residuals, walkQ, walkFloor, walkEngage) ?? 0) : 0;
     const next = new Map<string, number>();
     people.forEach(([participantId], j) => {
-      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF, netShare);
+      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF, netShare, walkMin);
       if (split !== null) next.set(participantId, split);
     });
     const same = next.size === splits.size && [...next].every(([id, k]) => splits.get(id) === k);

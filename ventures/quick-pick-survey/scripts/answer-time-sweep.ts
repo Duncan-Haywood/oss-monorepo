@@ -88,6 +88,8 @@
  *   `--person-drift sd`: each person's own speed-up or slow-down over the session, N(0, sd) log
  *   shift-drop-lNN `--later-q 0.NN`: the shipped reading with passes after the first at the 0.NN quantile
  *   shift-drop-nNN `--net-share 0.NN`: the shipped reading whose split must also leave a step net of the person's own line (stepNetOfTrend) of at least 0.NN x the gap threshold
+ *   (since 2026-11-14 shift-drop includes the wander test, FAST_BLOCK_WALK_Q; the qNN, tfNN, lNN and nNN schemes run without it, so their rows reproduce)
+ *   shift-drop-wQQ-fFF[-eEEE] `--walk 0.QQ:FF[:engage]`: the shipped reading whose split must also reach the 0.QQ quantile (at least FF) of the panel's slow-turn stepOverWalk scores
  *   `--person-walk sd`: each person's pace also wanders as a random walk, N(0, sd) log per answer
  *
  * `--onset-spread s` (2026-11-13): each careless person's onset is drawn
@@ -99,7 +101,7 @@
 import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE, applyComparison, type GlickoState } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
-import { autoFastBlockMinLog, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
+import { autoFastBlockMinLog, autoWalkMin, FAST_BLOCK_WALK_ENGAGE, FAST_BLOCK_WALK_FLOOR, FAST_BLOCK_WALK_Q, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
@@ -153,12 +155,15 @@ const laterQs = nums(opt("--later-q", "")).filter((x) => x > 0 && x < 1);
 // `--net-share s,...` (2026-11-13, flagship item d5): a shift-drop-nNN scheme per value, the shipped reading whose split must
 // also leave a step net of the person's own straight-line trend (stepNetOfTrend) of at least s x the gap threshold.
 const netShares = nums(opt("--net-share", "")).filter((x) => x >= 0);
+// `--walk q:floor,...` (2026-11-14, flagship item d6): a shift-drop-wQQ-fFF scheme per pair, the shipped reading whose split
+// must also reach the q quantile (at least floor) of the panel's slow-turn stepOverWalk scores (autoWalkMin); `q:floor:engage` sets no bar unless the panel's walk ratio (panelWalkRatio) reaches engage.
+const walks = opt("--walk", "").split(",").filter(Boolean).map((t) => { const [q, f = 0, e = 0] = t.split(":").map(Number); return { q, f, e, key: `shift-drop-w${Math.round(q * 100)}-f${Math.round(f)}${e ? `-e${Math.round(e * 1000)}` : ""}` }; }).filter((w) => w.q > 0 && w.q <= 1 && w.f >= 0);
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
 const ownBlockStart = (ms: number[]) => fastBlockSplit(ms.map((v) => Math.log(v)), minSeg, shiftMin, shiftT);
 
-const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`), ...laterQs.map((lq) => `shift-drop-l${Math.round(lq * 100)}`), ...netShares.map((ns) => `shift-drop-n${Math.round(ns * 100)}`)];
+const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`), ...laterQs.map((lq) => `shift-drop-l${Math.round(lq * 100)}`), ...netShares.map((ns) => `shift-drop-n${Math.round(ns * 100)}`), ...walks.map((w) => w.key)];
 
 /**
  * fastBlockStarts with a per-survey gap threshold, for people who all answered in order with every answer timed (as
@@ -179,7 +184,8 @@ function autoBlockStarts(seqs: number[][], q: number, floor: number, cap: number
     const curve = atPos.map((_, i) => median(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
     const res = seqs.map((s) => s.map((ms, i) => Math.log(ms) - curve[i]));
     minLog = autoFastBlockMinLog(res, q, floor, cap) ?? FAST_BLOCK_MIN_LOG;
-    const next = res.map((x) => fastBlockSplit(x, 8, minLog, 4, trendF, FAST_BLOCK_NET_SHARE));
+    const walkMin = FAST_BLOCK_WALK_Q > 0 ? (autoWalkMin(res, FAST_BLOCK_WALK_Q, FAST_BLOCK_WALK_FLOOR, FAST_BLOCK_WALK_ENGAGE) ?? 0) : 0;
+    const next = res.map((x) => fastBlockSplit(x, 8, minLog, 4, trendF, FAST_BLOCK_NET_SHARE, walkMin));
     const same = next.every((k, j) => k === splits[j]);
     next.forEach((k, j) => (splits[j] = k));
     if (same) break;
@@ -350,20 +356,24 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 // `--curve-q`: the same reading against an upper quantile of the panel's times at each position, which a
                 // large share turning quick at once drags down less than the median.
                 for (const cq of curveQs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq, FAST_BLOCK_MIN_LOG, 0, cq, 0);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq, FAST_BLOCK_MIN_LOG, 0, cq, 0, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-q${Math.round(cq * 100)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const f of trendFs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, f, FAST_BLOCK_CURVE_Q, 0);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, f, FAST_BLOCK_CURVE_Q, 0, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-tf${Math.round(f * 10)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const lq of laterQs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, lq, 0);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, lq, 0, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-l${Math.round(lq * 100)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const ns of netShares) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, ns);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, ns, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-n${Math.round(ns * 100)}`] = st.get(`p${i}`) ?? null));
+                }
+                for (const w of walks) {
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, w.q, w.f, w.e);
+                  people.forEach((p, i) => (p.qBlockAt[w.key] = st.get(`p${i}`) ?? null));
                 }
                 for (const a of autos) {
                   const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f, a.c, a.tf);
