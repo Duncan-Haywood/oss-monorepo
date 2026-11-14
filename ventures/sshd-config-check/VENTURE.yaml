@@ -1,0 +1,49 @@
+name: sshd-config-check
+description: 'Free, read-only checker for sshd_config and its Include drop-ins, read in OpenSSH''s order: the value that wins for each setting (sshd keeps the first), lines it ignores, sshd_config.d files it never reads, flush-left lines that still belong to a Match block, keywords that stop sshd starting, PermitRootLogin yes, password and PAM keyboard-interactive logins, weak ciphers and other risky options, with file:line and the fix; parser follows OpenSSH 9.6p1 servconf.c; browser or zero-dependency Node CLI, no upload, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. Nothing in ventures/ reads sshd_config:
+# sudoers-check, systemd-unit-hardening-check and nginx-config-security-check
+# ask the same kind of question of other files. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a read-only parser of the user's own files, no advice-of-record, no
+# probing of anyone else's server, no data leaving the device. Labelled not a
+# security audit and not sshd -T, with no warranty; a clean scan is never
+# called safe. Every fix says to test with sshd -t and keep a session open.
+#
+# First visitor channel: search for "PasswordAuthentication no not working",
+# "sshd_config.d not read", "50-cloud-init.conf PasswordAuthentication",
+# "sshd_config Match block end" and "sshd_config checker" (Stack Exchange and
+# Ask Ubuntu answers and the man page, with no checker that resolves Include
+# order and first-value-wins in a browser), and admins hardening a VPS.
+hypotheses:
+  - claim: 'An admin will paste sshd_config and its drop-ins here and find a PasswordAuthentication or PermitRootLogin line that sshd ignores.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team that ships sshd_config drop-ins from configuration management will wire check.mjs --fail-on-risk into CI.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.mjs or scan.mjs within 90 days.
+
+links:
+  production: https://marisstella.app/sshd-config-check/
+  analytics: null
