@@ -150,6 +150,50 @@ def unguarded_typeof(src):
     return [n for n in unguarded_reads(src) if _TYPEOF.search(code[n - 1])]
 
 
+_DEFAULT_PARAM = re.compile(
+    r"\(([^()]|\([^()]*\))*?\b\w+\s*=\s*(?:(?:window|globalThis|self)\.)?localStorage\b(?!\s*\?\?)"
+    r"([^()]|\([^()]*\))*\)\s*(?:\{|=>)")
+
+
+def default_param_reads(src):
+    """Return 1-based lines where a function's default parameter reads the global.
+
+    `function load(storage = globalThis.localStorage)` reads it when called
+    with no argument, outside any try in the function body, so the caller's
+    script stops. 18 functions in 8 page modules did it on 2026-11-14 (amazon
+    scenarios, clothing studio BOM and brief, shop rates, Shopify usage). Default
+    to a helper that guards the read and returns null.
+    """
+    code = _strip(src)
+    return [code.count("\n", 0, m.start()) + 1 for m in _DEFAULT_PARAM.finditer(code)]
+
+
+_SAFE_CALL = re.compile(r"\bsafe\(\s*\(\)\s*=>[^;]*$")
+_SAFE_DEF = re.compile(r"\bsafe\s*=\s*\(?\s*(\w+)\s*\)?\s*=>\s*\{\s*try\s*\{\s*(?:return\s+)?\1\(\)|function\s+safe\s*\(\s*(\w+)\s*\)\s*\{\s*try\s*\{\s*(?:return\s+)?\2\(\)")
+
+
+def inline_reads(src):
+    """Return 1-based lines of an inline page script reading the global outside try.
+
+    Any such read throws for a visitor who blocks site data: at start-up it
+    stops the page, in a handler it breaks that control. The 2026-11-14 sweep
+    fixed the last of them (from 165 to 0), so inline scripts are held at zero.
+    A read inside `safe(() => ...)` passes when the script defines `safe` as a
+    function that calls its argument inside try.
+    """
+    code = _strip(src)
+    lines = code.split("\n")
+    has_safe = bool(_SAFE_DEF.search(code))
+    bad = []
+    for n in sorted(set(unguarded_reads(src))):
+        line = lines[n - 1]
+        reads = [m.start() for m in READ.finditer(line)]
+        if has_safe and reads and all(_SAFE_CALL.search(line[:at]) for at in reads):
+            continue
+        bad.append(n)
+    return bad
+
+
 def _pages(root):
     for path in sorted(Path(root).rglob("*")):
         if path.suffix not in (".html", ".mjs", ".js") or path.name == "usage.mjs" or ".test." in path.name:
@@ -176,8 +220,17 @@ def check_tree(root):
         for line in bare_storage_args(src):
             problems.append(f"{path}:{line}: bare `localStorage` passed to the usage module (pass usageStorage())")
         for start, code in script_sources(path, src):
+            seen = set()
+            for line in default_param_reads(code):
+                seen.add(line)
+                problems.append(f"{path}:{start + line - 1}: default parameter reads `localStorage` outside try")
             for line in unguarded_typeof(code):
+                seen.add(line)
                 problems.append(f"{path}:{start + line - 1}: `typeof localStorage` outside try throws when site data is blocked")
+            if path.suffix == ".html":
+                for line in inline_reads(code):
+                    if line not in seen:
+                        problems.append(f"{path}:{start + line - 1}: inline script reads `localStorage` outside try")
     return problems
 
 

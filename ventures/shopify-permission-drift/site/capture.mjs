@@ -5,6 +5,13 @@
  * `declared_scopes` and never fill the granted `scopes` list.
  */
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+export function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 const REQUIRED = ["captured_at", "api_version", "source", "authorization_state", "apps"];
 const USAGE_KEY = "shopify-permission-drift-usage";
 // The opt-out lives in its own key, not in the counters: opting out *removes*
@@ -381,7 +388,7 @@ export function captureSummary(inventory) {
   return lines.join("\n");
 }
 
-export function recordCaptureUsage(event, storage = globalThis.localStorage, optOut = false) {
+export function recordCaptureUsage(event, storage = browserStorage(), optOut = false) {
   if (optOut || !storage || usageOptedOut(storage)) return;
   let current = {};
   try {
@@ -399,7 +406,7 @@ export function recordCaptureUsage(event, storage = globalThis.localStorage, opt
 }
 
 /** Whether counting is switched off, including on a later visit. */
-export function usageOptedOut(storage = globalThis.localStorage) {
+export function usageOptedOut(storage = browserStorage()) {
   if (globalThis.__usageOptOut) return true;
   try {
     return storage?.getItem(USAGE_OPT_OUT) === "1";
@@ -409,7 +416,7 @@ export function usageOptedOut(storage = globalThis.localStorage) {
   }
 }
 
-export function setUsageOptOut(value, storage = globalThis.localStorage) {
+export function setUsageOptOut(value, storage = browserStorage()) {
   const off = Boolean(value);
   globalThis.__usageOptOut = off;
   if (!storage) return;

@@ -123,7 +123,7 @@
         catch { /* as above */ }
       });
     })();
-    import { quoteRemediation, quoteAsText, recordQuoteUsage, money } from './quote.mjs';
+    import { quoteRemediation, quoteAsText, recordQuoteUsage, money, browserStorage } from './quote.mjs';
 
     const input = document.getElementById('input');
     const rate = document.getElementById('rate');
@@ -168,7 +168,7 @@
           themeMultiplier: theme.value,
         });
         render(quote);
-        recordQuoteUsage(localStorage, optout.checked, 'quote_generated');
+        recordQuoteUsage(browserStorage(), optout.checked, 'quote_generated');
       } catch (err) {
         // Invalid or non-axe JSON must not leave the last valid quote on
         // screen next to a silent failure -- a visitor who misses the error
@@ -190,7 +190,7 @@
       try {
         await navigator.clipboard.writeText(quoteAsText(latest));
         copyStatus.textContent = 'Copied. Paste it into a proposal — then review the hours before you send it.';
-        recordQuoteUsage(localStorage, optout.checked, 'quote_copied');
+        recordQuoteUsage(browserStorage(), optout.checked, 'quote_copied');
       } catch {
         copyStatus.textContent = 'Clipboard is blocked. Select the quote text below and copy it.';
       }
@@ -203,7 +203,7 @@
       link.download = `accessibility-remediation-quote-${latest.date}.txt`;
       link.click();
       URL.revokeObjectURL(link.href);
-      recordQuoteUsage(localStorage, optout.checked, 'quote_downloaded');
+      recordQuoteUsage(browserStorage(), optout.checked, 'quote_downloaded');
     });
   
 </script>

@@ -175,7 +175,7 @@
         catch { /* as above */ }
       });
     })();
-    import { groupByThemeArea, themeAreasAsText, recordThemeAreaUsage } from './theme-areas.mjs';
+    import { groupByThemeArea, themeAreasAsText, recordThemeAreaUsage, browserStorage } from './theme-areas.mjs';
 
     function escapeHtml(value) {
       return String(value)
@@ -222,7 +222,7 @@
         render(grouped);
         errorEl.textContent = '';
         copyStatus.textContent = '';
-        recordThemeAreaUsage(localStorage, optOut(), 'theme_areas_generated');
+        recordThemeAreaUsage(browserStorage(), optOut(), 'theme_areas_generated');
       } catch (error) {
         // Invalid or non-axe JSON must not leave the last valid punch list
         // on screen next to a silent failure -- a visitor who misses the
@@ -246,7 +246,7 @@
       try {
         await navigator.clipboard.writeText(themeAreasAsText(latest));
         copyStatus.textContent = 'Punch list copied.';
-        recordThemeAreaUsage(localStorage, optOut(), 'theme_areas_copied');
+        recordThemeAreaUsage(browserStorage(), optOut(), 'theme_areas_copied');
       } catch {
         copyStatus.textContent = 'Clipboard is blocked; download the .txt instead.';
       }
@@ -263,7 +263,7 @@
       link.download = `theme-areas-${latest.date}.txt`;
       link.click();
       URL.revokeObjectURL(link.href);
-      recordThemeAreaUsage(localStorage, optOut(), 'theme_areas_downloaded');
+      recordThemeAreaUsage(browserStorage(), optOut(), 'theme_areas_downloaded');
     });
   
 </script>

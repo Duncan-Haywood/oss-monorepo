@@ -54,11 +54,11 @@
       });
     })();
 import {EVIDENCE_KEYS,buildPacket,buildWorkingNotes,labelFor,rulesFor,safeFileStem} from './packet.mjs';
-const key='chargeback-packet-events'; const draftKey='chargeback-packet-draft'; const privacySignal=navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true; const getEvents=()=>JSON.parse(localStorage.getItem(key)||'[]');
-function event(name){if(!document.querySelector('#optout').checked&&!privacySignal){const e=getEvents();e.push(name);localStorage.setItem(key,JSON.stringify(e.slice(-100)));}renderUsage()}
+const key='chargeback-packet-events'; const draftKey='chargeback-packet-draft'; const privacySignal=navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true; const getEvents=()=>{try{const e=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(e)?e:[]}catch{return[]}};
+function event(name){if(!document.querySelector('#optout').checked&&!privacySignal){const e=getEvents();e.push(name);try{localStorage.setItem(key,JSON.stringify(e.slice(-100)))}catch{}}renderUsage()}
 function renderUsage(){document.querySelector('#usage').textContent=`${getEvents().length} anonymous feature events recorded in this browser.`}
 if(privacySignal)document.querySelector('#optout').checked=true;
-document.querySelector('#optout').onchange=()=>{if(document.querySelector('#optout').checked)localStorage.removeItem(key);renderUsage()};renderUsage();
+document.querySelector('#optout').onchange=()=>{if(document.querySelector('#optout').checked){try{localStorage.removeItem(key)}catch{}}renderUsage()};renderUsage();
 document.querySelector('#copy').onclick=async()=>{const draft=document.querySelector('#draft');let copied=false;try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(draft.value);copied=true}}catch(error){copied=false}if(!copied){draft.focus();draft.select();copied=document.execCommand('copy')}document.querySelector('#status').textContent=copied?' Draft copied.':' Select the draft and copy it manually.';if(copied)event('draft_copied')};
 function readDraft(){return {order:document.querySelector('#order').value,date:document.querySelector('#date').value,amount:document.querySelector('#amount').value,deadline:document.querySelector('#deadline').value,reason:document.querySelector('#reason').value,facts:document.querySelector('#facts').value,checked:[...document.querySelectorAll('.checks input:checked')].map(x=>x.value)}}
 document.querySelector('#save').onclick=()=>{try{localStorage.setItem(draftKey,JSON.stringify(readDraft()));document.querySelector('#saveStatus').textContent=' Draft saved only in this browser.';event('draft_saved')}catch(error){document.querySelector('#saveStatus').textContent=' This browser blocked saving a draft; copy the text instead.'}};

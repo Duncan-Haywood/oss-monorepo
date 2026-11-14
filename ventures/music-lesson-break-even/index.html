@@ -69,6 +69,6 @@
      async function writeClipboard(text){try{await navigator.clipboard.writeText(text);}catch{const fallback=document.createElement('textarea');fallback.value=text;fallback.setAttribute('readonly','');fallback.style.position='fixed';fallback.style.opacity='0';document.body.append(fallback);fallback.select();document.execCommand('copy');fallback.remove();}}
      async function copyShare(){const hash=encodeShare(values());const url=`${location.origin}${location.pathname}#${hash}`;await writeClipboard(url);history.replaceState(null,'',`#${hash}`);recordUsage(undefined,false,'share_copied');const status=document.querySelector('#share-status');status.textContent='Share link copied';setTimeout(()=>{status.textContent='';},2500);}
      document.querySelector('#copy-share').addEventListener('click',()=>{copyShare().catch(()=>{document.querySelector('#share-status').textContent='Copy failed.';});});
-     form.addEventListener('submit',event=>{event.preventDefault();update(true)}); document.querySelector('#reset').addEventListener('click',()=>{localStorage.removeItem(storageKey); form.reset(); update()}); update();
+     form.addEventListener('submit',event=>{event.preventDefault();update(true)}); document.querySelector('#reset').addEventListener('click',()=>{try{localStorage.removeItem(storageKey)}catch{} form.reset(); update()}); update();
   </script>
 </body></html>

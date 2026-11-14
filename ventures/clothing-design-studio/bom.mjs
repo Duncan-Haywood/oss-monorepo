@@ -19,6 +19,13 @@
  * is a real supplier's price. Not procurement advice.
  */
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 const cents = v => Math.round(v * 100) / 100;
 
 export const EXAMPLE_LINES = Object.freeze([
@@ -173,11 +180,11 @@ export function sheetExtras(lines, byGroup = defaultGroup) {
   return { trimsPerUnit: b.groups.trims || 0, packagingPerUnit: b.groups.packaging || 0, fabricPerGarment: b.groups.fabric || 0, total: b.total };
 }
 
-export function saveBomExtras(extras, storage = globalThis.localStorage) {
+export function saveBomExtras(extras, storage = browserStorage()) {
   try { storage.setItem(BOM_KEY, JSON.stringify({ trimsPerUnit: extras.trimsPerUnit, packagingPerUnit: extras.packagingPerUnit })); return true; } catch { return false; }
 }
 
-export function loadBomExtras(storage = globalThis.localStorage) {
+export function loadBomExtras(storage = browserStorage()) {
   try {
     const e = JSON.parse(storage.getItem(BOM_KEY) || "null");
     const ok = v => typeof v === "number" && Number.isFinite(v) && v >= 0;
@@ -188,12 +195,12 @@ export function loadBomExtras(storage = globalThis.localStorage) {
 const RUN_KEY = "cds.runQty";
 
 /** The run the order matrix plans (cut pieces, spares included), kept for the bill of materials page. */
-export function saveRunQty(qty, storage = globalThis.localStorage) {
+export function saveRunQty(qty, storage = browserStorage()) {
   if (!Number.isInteger(qty) || qty < 1 || qty > 1e6) return false;
   try { storage.setItem(RUN_KEY, String(qty)); return true; } catch { return false; }
 }
 
-export function loadRunQty(storage = globalThis.localStorage) {
+export function loadRunQty(storage = browserStorage()) {
   try {
     const n = Number(storage.getItem(RUN_KEY));
     return Number.isInteger(n) && n >= 1 && n <= 1e6 ? n : null;

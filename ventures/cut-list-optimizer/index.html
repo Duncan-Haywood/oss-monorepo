@@ -397,6 +397,12 @@ Top: 31.5 x 11.25 x 2</textarea>
     import { recordUsage, clearUsage, usageStorage } from './usage.mjs';
     import { loadDraft, saveDraft, clearDraft, DRAFT_FIELDS } from './draft.mjs';
     import { decodeInputs, shareUrl, isSafeLength } from './share.mjs';
+    // Reading the `localStorage` global throws SecurityError when the visitor
+    // blocks site data; pass this, never the bare global, so the page still runs.
+    function pageStorage() {
+      try { return globalThis.localStorage ?? null; } catch { return null; }
+    }
+
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $('optout').checked;
@@ -796,7 +802,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     }
 
     function restoreDraft() {
-      const draft = loadDraft(localStorage);
+      const draft = loadDraft(pageStorage());
       if (!draft) return false;
       recordUsage(usageStorage(), optedOut(), 'draft-restores');
       DRAFT_FIELDS.forEach((id) => {
@@ -811,7 +817,7 @@ Top: 31.5 x 11.25 x 2</textarea>
       if (optedOut()) return;
       // Counted on the settled 'change' edit that calls this, not per keystroke,
       // so draft-saves stays comparable to the run counts beside it.
-      if (saveDraft(localStorage, draftValues())) recordUsage(usageStorage(), optedOut(), 'draft-saves');
+      if (saveDraft(pageStorage(), draftValues())) recordUsage(usageStorage(), optedOut(), 'draft-saves');
     }
 
     function wireInputs(ids, render, mode, runEvent) {
@@ -904,7 +910,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     $('optout').addEventListener('change', () => {
       if (optedOut()) {
         clearUsage(usageStorage());
-        clearDraft(localStorage);
+        clearDraft(pageStorage());
       } else {
         persistDraft();
       }
@@ -913,7 +919,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     });
 
     $('clear-draft').addEventListener('click', () => {
-      clearDraft(localStorage);
+      clearDraft(pageStorage());
       $('draft-status').textContent = 'Saved draft cleared.';
       setTimeout(() => { $('draft-status').textContent = ''; }, 4000);
     });

@@ -211,9 +211,14 @@ test('user-supplied part labels are escaped before they reach innerHTML', () => 
 // calling it -- the same blind spot that let the unclosed <textarea> above ship
 // three times. This checks the page is actually wired to it.
 test('draft recovery is visible and wired to the local-only module', () => {
-  assert.match(scriptSource, /saveDraft\(localStorage/, 'the page never saves a draft');
-  assert.match(scriptSource, /loadDraft\(localStorage/, 'the page never restores a draft');
-  assert.match(scriptSource, /clearDraft\(localStorage/, 'the page never clears a draft');
+  // Through pageStorage(), never the bare global: reading `localStorage`
+  // throws when site data is blocked, and loadDraft runs at start-up, so a
+  // bare read stopped the whole page (red team 2026-11-14).
+  assert.match(scriptSource, /saveDraft\(pageStorage\(\)/, 'the page never saves a draft');
+  assert.match(scriptSource, /loadDraft\(pageStorage\(\)/, 'the page never restores a draft');
+  assert.match(scriptSource, /clearDraft\(pageStorage\(\)/, 'the page never clears a draft');
+  assert.doesNotMatch(scriptSource, /(?:save|load|clear)Draft\(\s*localStorage/, 'a draft call reads the bare global');
+  assert.match(scriptSource, /function pageStorage\(\) \{\s*try \{ return globalThis\.localStorage \?\? null; \} catch \{ return null; \}/);
   assert.match(html, /id="draft-status"[^>]*>Drafts are saved only on this device/);
   assert.match(html, /id="draft-status"[^>]*role="status"[^>]*aria-live="polite"/);
 });

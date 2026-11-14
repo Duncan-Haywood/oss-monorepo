@@ -263,7 +263,8 @@ function update(){const input=readInput();const r=calculateChangeOrder(input);$(
   // Saved from SHARE_FIELDS rather than `input`: the draft key also holds the
   // proposal panel's deposit and terms (see restoreDraft above), and `input`
   // is just the calculator's own fields.
-  localStorage.setItem('change-order-draft',JSON.stringify(Object.fromEntries(SHARE_FIELDS.map(id=>[id,$(id).value]))));
+  // Inside try: with site data blocked, reading the global throws, and update() would stop before its count.
+  try { localStorage.setItem('change-order-draft',JSON.stringify(Object.fromEntries(SHARE_FIELDS.map(id=>[id,$(id).value])))); } catch { /* not remembered */ }
   clearTimeout(countTimer);countTimer=setTimeout(()=>count('calculated'),800)}
 // SHARE_FIELDS, not just `ids`: editing the proposal panel's deposit or terms
 // must also re-save the draft (see the draft write inside update() above), or

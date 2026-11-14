@@ -240,7 +240,7 @@
     }
 
     $("#clear-draft").addEventListener("click", () => {
-      clearDraft(localStorage);
+      clearDraft((() => { try { return localStorage; } catch { return null; } })());
       document.querySelectorAll("input, textarea").forEach((el) => { el.value = ""; });
       $("#draft-status").textContent = "Cleared the saved draft.";
       record("draft_cleared");
