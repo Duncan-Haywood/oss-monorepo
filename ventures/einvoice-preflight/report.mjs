@@ -11,6 +11,7 @@ import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 import { checkNfe, looksLikeNfe } from "./nfe.mjs";
+import { checkNfeEvent, looksLikeNfeEvent } from "./nfe-event.mjs";
 import { checkNfse, looksLikeNfse } from "./nfse.mjs";
 import { checkAbrasf, looksLikeAbrasf } from "./abrasf.mjs";
 import { checkDsf, looksLikeDsf } from "./dsf.mjs";
@@ -111,6 +112,16 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         // Mexico's CFDI 4.0 is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const mexican = checkCfdi(peek);
         reports.push({ file: name, errors: mexican.findings, envelope: `Read as Mexican CFDI ${mexican.meta.version || ""} (SAT), not EN 16931${mexican.meta.stamped ? "; stamped by a PAC" : "; not stamped"}`, ...(mexican.skipped.length ? { skipped: mexican.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeNfeEvent(peek)) {
+        // Brazil's presumed-credit appropriation event (211110): checked with the NF-e it names
+        // when that NF-e is in the same batch.
+        const key = /<(?:[A-Za-z0-9_]+:)?chNFe>\s*([0-9A-Z]{44})\s*</.exec(peek)?.[1];
+        const pair = key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfe(o.source) && o.source.includes(`NFe${key}`));
+        const ev = checkNfeEvent(peek, pair ? { nfe: pair.source } : {});
+        const m = ev.meta;
+        reports.push({ file: name, errors: ev.findings, envelope: `Read as a Brazilian NF-e presumed-credit appropriation event (211110)${m.layout ? `, layout ${m.layout === "1.40" ? "v1.40" : "of NT 2025.002 v1.20/v1.30"}` : ""}${pair ? ` with ${pair.name || "the NF-e"}` : ""}, not EN 16931${m.registered ? "; registered (cStat 135/136)" : ""}${m.tpAmb === "2" ? "; test environment (tpAmb 2)" : ""}`, ...(ev.skipped.length ? { skipped: ev.skipped } : {}) });
         continue;
       }
       if (!looksLikePdf(name, source) && looksLikeNfe(peek)) {

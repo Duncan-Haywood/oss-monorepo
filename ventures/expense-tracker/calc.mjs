@@ -29,7 +29,7 @@ export const RECEIPT_THRESHOLD_CENTS = 7500;
 
 export function toCents(v) {
   const s = String(v ?? "").trim();
-  const neg = /^\(.*\)$/.test(s) || s.startsWith("-");
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
   const n = Number(s.replace(/[$,()\s-]/g, ""));
   if (!Number.isFinite(n) || n <= 0) return 0;
   return Math.round(n * 100) * (neg ? -1 : 1);

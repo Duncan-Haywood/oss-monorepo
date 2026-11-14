@@ -44,15 +44,26 @@
     {
       "file": "CLAUDE.md",
       "issue": "The pkill hook refuses a bracketed pattern if the unbracketed name also appears later in the same command line (e.g. './bnb' in a following launch); had to split kill and relaunch into separate calls"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 7 showed league-schedule-generator free and claim_check said HOLD, but PRs #15716 and #15717 (titled chant-forge / ai-bookkeeper claims at the time) were retitled to league-schedule-generator and landed the same C refill idea in parallel, so the title claim missed them; found only at merge time via an add/add conflict on eval/carryover-lns.c"
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged with no CI check runs registered on the PR (runners starved/none triggered)",
+      "did": "Ran the venture suite (twice, before and after merging main) and venture-preflight locally",
+      "result": "suite ok 203.7 s and 165.6 s after merge; preflight clean"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-14-twelve-teams-at-132.md",
-    "ventures/league-schedule-generator/README.md (12 teams at 132)"
+    "ventures/league-schedule-generator/README.md (12 teams at 132: a window refill that walks plateaus)"
   ],
   "goal": "Close the 12-team non-cyclic carry-over gap (proved >= 124, best 136)",
-  "notes": "eval/carryover-lns.c: 3 of 4 900 s runs found 132 at 12 teams (seeds 11, 13, 14); stored seed 14 as TIMETABLES[12].even, kept 136 as evenAlt because the 132 alone worsened the carry-over-only season at seed 1 (530/68 -> 538/62). field-start.mjs 12 before/after: single 136/20 -> 132/18; single w10 170/14 same; season 530/68 same; season w10 602/40 -> 576/40. node --test starter.test.mjs carryover.test.mjs: 40/40 pass. 14/18/24 starters unchanged after 600 s each. Full venture suite (run_venture_tests.py league-schedule-generator) ok in 203.7 s; venture-preflight clean.",
+  "notes": "eval/window-refill.c (renamed from carryover-lns.c at merge: a parallel PR #15717 landed a different program under that name): 3 of 4 900 s runs found 132 at 12 teams (seeds 11, 13, 14); stored seed 14 as TIMETABLES[12].even, kept 136 as evenAlt because the 132 alone worsened the carry-over-only season at seed 1 (530/68 -> 538/62). field-start.mjs 12 before/after: single 136/20 -> 132/18; single w10 170/14 same; season 530/68 same; season w10 602/40 -> 576/40. node --test starter.test.mjs carryover.test.mjs: 40/40 pass. 14/18/24 starters unchanged after 600 s each. Full venture suite (run_venture_tests.py league-schedule-generator) ok in 203.7 s; venture-preflight clean. After merging main (which added TIMETABLES[14] at 210 from PR #15716): field-start.mjs 12 unchanged (132/18, 170/14, 530/68, 576/40); suite ok 165.6 s.",
   "corrections": [],
   "redteam": null,
   "usage": {

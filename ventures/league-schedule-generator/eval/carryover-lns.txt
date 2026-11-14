@@ -1,30 +1,31 @@
-# eval/carryover-lns.c, 2026-11-14 (latest). Build: cc -O3 -march=native -o carryover-lns eval/carryover-lns.c
-# Non-cyclic carry-over of a single round robin, all teams playing. One process per core, 4 cores
-# shared by the runs in each block. Settings: "small windows" = NODELIM=50000 WMIN=2 WMAX=4 STALL=5000;
-# "default" = WMIN=3 WMAX=6 STALL=20000 with the NODELIM given.
-## Check against the proved least at 10 teams (94, eval/carryover-bnb.c)
-./carryover-lns 10 1 20 (default, NODELIM=200000, circle start): 94 after 24 moves (under 0.1 s)
-## 12 teams (floor 120, proved least >= 124, previous best 136 from eval/round-refill.mjs)
-120 s runs:
-  seed 2  NODELIM=20000 default, circle start      136
-  seed 3  NODELIM=200000 WMAX=5, circle start      140
-  seed 4  small windows, circle start              136
-  seed 5  NODELIM=50000 default, from the 136      136
-900 s runs:
-  seed 11 NODELIM=20000 default, circle start      132 (found at 575 s; 1,006,880 moves)
-  seed 12 NODELIM=20000 default, circle start      140
-  seed 13 small windows, circle start              132 (found at 369 s; 12,411,622 moves)
-  seed 14 small windows, circle start              132 (found at 107 s; 14,128,050 moves) <- stored as TIMETABLES[12].even
-600 s from the stored 132 (seed 22, small windows): 132, no lower (9,673,919 moves)
-Every result re-scored from its opponents by the program and checked to be a round robin; the stored
-one re-scored by carryOverFromOpponents (value 132, largest cell 2, 6 cells at 2).
-## 14, 18, 24 teams from the built-in starter at its best start (small windows; 24: NODELIM=200000 WMAX=3), 600 s
-14 teams: 212 -> 212 (floor 168)     18 teams: 318 -> 318 (floor 288)     24 teams: 570 -> 570 (floor 528)
-From the circle start (600 s, killed early at about 3 min): 14 teams 220, 18 teams 396, 24 teams 770.
-So past 12 teams this move does not beat the starters in 10 minutes.
-## Through the search (node eval/field-start.mjs 12, seed 1, effort 1; carry-over / breaks)
-                                 before (136 stored)   after (132 stored, 136 kept as second timetable)
-single, carry-over only          136 / 20              132 / 18
-single, break weight 10          170 / 14              170 / 14
-season, carry-over only          530 / 68              530 / 68   (538 / 62 with the 132 alone)
-season, break weight 10          602 / 40              576 / 40
+# eval/carryover-lns.c, 2026-11-14. Build: cc -O3 -march=native -o carryover-lns eval/carryover-lns.c
+# Four processes on four shared cores, ~1,500 s each (CPU time). Values are non-cyclic carry-over; E = (value - n(n-2)) / 2.
+## 10 teams, circle start: ./carryover-lns 10 1 30 (CIRCLE=1)
+BEST value 94 (E 7) after 19 moves, 4.1 s
+END best value 94 (E 7); 58 moves, 16 improving, 10 plateau, 0 kicks, 31 s
+## 12 teams (floor 120, proved least >= 124, stored 136)
+# stored 136 start, seed 11, w 5-7, 4M nodes/move
+END best value 136 (E 8); 1969 moves, 2 improving, 358 plateau, 9 kicks, 1502 s
+[[8, 7, 3, 2, 11, 9, 10, 1, 0, 5, 6, 4], [4, 9, 5, 8, 0, 2, 7, 6, 3, 1, 11, 10], [9, 4, 7, 6, 1, 11, 3, 2, 10, 0, 8, 5], [3, 6, 4, 0, 2, 7, 1, 5, 11, 10, 9, 8], [7, 8, 11, 9, 6, 10, 4, 0, 1, 3, 5, 2], [6, 3, 9, 1, 10, 8, 0, 11, 5, 2, 4, 7], [5, 11, 10, 7, 9, 0, 8, 3, 6, 4, 2, 1], [10, 2, 1, 5, 7, 3, 11, 4, 9, 8, 0, 6], [2, 10, 0, 11, 8, 6, 5, 9, 4, 7, 1, 3], [1, 0, 6, 10, 5, 4, 2, 8, 7, 11, 3, 9], [11, 5, 8, 4, 3, 1, 9, 10, 2, 6, 7, 0]]
+# stored 136 start, seed 12, w 6-8, 8M nodes/move
+END best value 136 (E 8); 554 moves, 0 improving, 65 plateau, 2 kicks, 1505 s
+[[8, 7, 3, 2, 11, 9, 10, 1, 0, 5, 6, 4], [4, 9, 5, 8, 0, 2, 7, 6, 3, 1, 11, 10], [9, 4, 7, 6, 1, 11, 3, 2, 10, 0, 8, 5], [3, 6, 4, 0, 2, 7, 1, 5, 11, 10, 9, 8], [7, 8, 11, 9, 6, 10, 4, 0, 1, 3, 5, 2], [6, 3, 9, 1, 10, 8, 0, 11, 5, 2, 4, 7], [5, 11, 10, 7, 9, 0, 8, 3, 6, 4, 2, 1], [10, 2, 1, 5, 7, 3, 11, 4, 9, 8, 0, 6], [2, 10, 0, 11, 8, 6, 5, 9, 4, 7, 1, 3], [1, 0, 6, 10, 5, 4, 2, 8, 7, 11, 3, 9], [11, 5, 8, 4, 3, 1, 9, 10, 2, 6, 7, 0]]
+# circle start, seed 13, w 5-7, 2M nodes/move
+END best value 150 (E 15); 2277 moves, 22 improving, 293 plateau, 11 kicks, 1501 s
+[[9, 7, 4, 6, 2, 11, 3, 1, 10, 0, 8, 5], [8, 5, 7, 4, 3, 1, 9, 2, 0, 6, 11, 10], [6, 4, 5, 11, 1, 2, 0, 8, 7, 10, 9, 3], [3, 6, 8, 0, 11, 9, 1, 10, 2, 5, 7, 4], [10, 11, 9, 5, 7, 3, 8, 4, 6, 2, 0, 1], [1, 0, 10, 7, 6, 8, 4, 3, 5, 11, 2, 9], [5, 8, 11, 9, 10, 0, 7, 6, 1, 3, 4, 2], [11, 3, 6, 1, 8, 10, 2, 9, 4, 7, 5, 0], [4, 2, 1, 10, 0, 6, 5, 11, 9, 8, 3, 7], [2, 10, 0, 8, 9, 7, 11, 5, 3, 4, 1, 6], [7, 9, 3, 2, 5, 4, 10, 0, 11, 1, 6, 8]]
+# circle start, seed 14, w 5-8, 4M nodes/move
+END best value 136 (E 8); 1222 moves, 26 improving, 162 plateau, 4 kicks, 1503 s
+[[3, 6, 8, 0, 9, 10, 1, 11, 2, 4, 5, 7], [9, 2, 1, 7, 10, 11, 8, 3, 6, 0, 4, 5], [8, 5, 11, 4, 3, 1, 9, 10, 0, 6, 7, 2], [10, 8, 4, 5, 2, 3, 7, 6, 1, 11, 0, 9], [5, 3, 9, 1, 7, 0, 11, 4, 10, 2, 8, 6], [6, 7, 5, 9, 8, 2, 0, 1, 4, 3, 11, 10], [1, 0, 7, 11, 6, 8, 4, 2, 5, 10, 9, 3], [7, 11, 10, 6, 5, 4, 3, 0, 9, 8, 2, 1], [2, 10, 0, 8, 11, 6, 5, 9, 3, 7, 1, 4], [4, 9, 3, 2, 0, 7, 10, 5, 11, 1, 6, 8], [11, 4, 6, 10, 1, 9, 2, 8, 7, 5, 3, 0]]
+## 14 teams (floor 168, stored starter 212; eval/round-refill.mjs: 220 from circle, 212 from the starter), 1,200 s each, built with MAXN 18
+# starter 212 start, seed 21, w 5-7, 3M
+END best value 212 (E 22); 983 moves, 0 improving, 88 plateau, 4 kicks, 1200 s
+[[13, 2, 1, 6, 11, 9, 3, 12, 10, 5, 8, 4, 7, 0], [6, 9, 13, 4, 3, 8, 0, 11, 5, 1, 12, 7, 10, 2], [9, 12, 8, 11, 13, 6, 5, 10, 2, 0, 7, 3, 1, 4], [5, 3, 11, 1, 10, 0, 13, 8, 7, 12, 4, 2, 9, 6], [4, 11, 7, 5, 0, 3, 12, 2, 13, 10, 9, 1, 6, 8], [3, 8, 6, 0, 9, 7, 2, 5, 1, 4, 13, 12, 11, 10], [1, 0, 5, 10, 8, 2, 11, 9, 4, 7, 3, 6, 13, 12], [8, 13, 3, 2, 7, 12, 10, 4, 0, 11, 6, 9, 5, 1], [11, 7, 10, 13, 5, 4, 9, 1, 12, 6, 2, 0, 8, 3], [2, 10, 0, 9, 12, 13, 7, 6, 11, 3, 1, 8, 4, 5], [10, 6, 4, 12, 2, 11, 1, 13, 9, 8, 0, 5, 3, 7], [7, 5, 12, 8, 6, 1, 4, 0, 3, 13, 11, 10, 2, 9], [12, 4, 9, 7, 1, 10, 8, 3, 6, 2, 5, 13, 0, 11]]
+# starter 212 start, seed 22, w 4-6, 2M
+END best value 212 (E 22); 3049 moves, 0 improving, 603 plateau, 15 kicks, 1200 s
+[[13, 2, 1, 6, 11, 9, 3, 12, 10, 5, 8, 4, 7, 0], [6, 9, 13, 4, 3, 8, 0, 11, 5, 1, 12, 7, 10, 2], [9, 12, 8, 11, 13, 6, 5, 10, 2, 0, 7, 3, 1, 4], [5, 3, 11, 1, 10, 0, 13, 8, 7, 12, 4, 2, 9, 6], [4, 11, 7, 5, 0, 3, 12, 2, 13, 10, 9, 1, 6, 8], [3, 8, 6, 0, 9, 7, 2, 5, 1, 4, 13, 12, 11, 10], [1, 0, 5, 10, 8, 2, 11, 9, 4, 7, 3, 6, 13, 12], [8, 13, 3, 2, 7, 12, 10, 4, 0, 11, 6, 9, 5, 1], [11, 7, 10, 13, 5, 4, 9, 1, 12, 6, 2, 0, 8, 3], [2, 10, 0, 9, 12, 13, 7, 6, 11, 3, 1, 8, 4, 5], [10, 6, 4, 12, 2, 11, 1, 13, 9, 8, 0, 5, 3, 7], [7, 5, 12, 8, 6, 1, 4, 0, 3, 13, 11, 10, 2, 9], [12, 4, 9, 7, 1, 10, 8, 3, 6, 2, 5, 13, 0, 11]]
+# starter 212 start, seed 23, w 5-8, 4M
+END best value 212 (E 22); 630 moves, 0 improving, 49 plateau, 3 kicks, 1201 s
+[[13, 2, 1, 6, 11, 9, 3, 12, 10, 5, 8, 4, 7, 0], [6, 9, 13, 4, 3, 8, 0, 11, 5, 1, 12, 7, 10, 2], [9, 12, 8, 11, 13, 6, 5, 10, 2, 0, 7, 3, 1, 4], [5, 3, 11, 1, 10, 0, 13, 8, 7, 12, 4, 2, 9, 6], [4, 11, 7, 5, 0, 3, 12, 2, 13, 10, 9, 1, 6, 8], [3, 8, 6, 0, 9, 7, 2, 5, 1, 4, 13, 12, 11, 10], [1, 0, 5, 10, 8, 2, 11, 9, 4, 7, 3, 6, 13, 12], [8, 13, 3, 2, 7, 12, 10, 4, 0, 11, 6, 9, 5, 1], [11, 7, 10, 13, 5, 4, 9, 1, 12, 6, 2, 0, 8, 3], [2, 10, 0, 9, 12, 13, 7, 6, 11, 3, 1, 8, 4, 5], [10, 6, 4, 12, 2, 11, 1, 13, 9, 8, 0, 5, 3, 7], [7, 5, 12, 8, 6, 1, 4, 0, 3, 13, 11, 10, 2, 9], [12, 4, 9, 7, 1, 10, 8, 3, 6, 2, 5, 13, 0, 11]]
+# circle start, seed 24, w 4-7, 2M
+END best value 224 (E 28); 1976 moves, 27 improving, 218 plateau, 9 kicks, 1200 s
+[[7, 8, 13, 10, 5, 4, 9, 0, 1, 6, 3, 12, 11, 2], [2, 11, 0, 8, 7, 10, 12, 4, 3, 13, 5, 1, 6, 9], [8, 13, 6, 7, 9, 12, 2, 3, 0, 4, 11, 10, 5, 1], [5, 12, 10, 6, 13, 0, 3, 8, 7, 11, 2, 9, 1, 4], [13, 5, 4, 12, 2, 1, 7, 6, 11, 10, 9, 8, 3, 0], [10, 6, 12, 13, 11, 8, 1, 9, 5, 7, 0, 4, 2, 3], [6, 7, 11, 5, 12, 3, 0, 1, 9, 8, 13, 2, 4, 10], [9, 10, 7, 4, 3, 13, 11, 2, 12, 0, 1, 6, 8, 5], [11, 3, 8, 1, 6, 9, 4, 10, 2, 5, 7, 0, 13, 12], [3, 4, 9, 0, 1, 6, 5, 11, 13, 2, 12, 7, 10, 8], [12, 9, 3, 2, 8, 11, 10, 13, 4, 1, 6, 5, 0, 7], [4, 2, 1, 11, 0, 7, 13, 5, 10, 12, 8, 3, 9, 6], [1, 0, 5, 9, 10, 2, 8, 12, 6, 3, 4, 13, 7, 11]]

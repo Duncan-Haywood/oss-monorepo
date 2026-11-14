@@ -98,26 +98,42 @@ export function validate(model) {
   return errors;
 }
 
-// Dense symmetric positive definite solve (Cholesky). Networks drawn by
-// hand have tens to a few hundred nodes, so a dense matrix is plenty.
-function cholSolve(A, b) {
+// Symmetric positive definite solve (Cholesky) on the matrix's envelope.
+// Row i of A is zero left of its first nonzero column first[i], and so is
+// row i of L (fill-in stays inside the envelope), so every product the dense
+// loops would take left of max(first[i], first[j]) is an exact zero and is
+// skipped. The products that remain are taken in the same k order from the
+// same start value, so the answer is the dense loops' answer bit for bit
+// (the test "envelope Cholesky ..." pins this). Sprinkler networks number
+// nodes along their branch lines, so the envelope is narrow: a 10-line,
+// 80-head ladder does about a fifteenth of the dense work. Works in place:
+// A is overwritten with L.
+export function cholSolve(A, b) {
   const n = b.length;
-  const L = A.map(r => r.slice());
+  const L = A;
+  const first = new Int32Array(n);
+  for (let i = 0; i < n; i++) { const r = L[i]; let f = 0; while (f < i && r[f] === 0) f++; first[i] = f; }
   for (let j = 0; j < n; j++) {
-    let s = L[j][j];
-    for (let k = 0; k < j; k++) s -= L[j][k] * L[j][k];
+    const Lj = L[j];
+    const fj = first[j];
+    let s = Lj[j];
+    for (let k = fj; k < j; k++) s -= Lj[k] * Lj[k];
     if (!(s > 0)) throw new Error('singular network matrix');
-    L[j][j] = Math.sqrt(s);
+    const d = Math.sqrt(s);
+    Lj[j] = d;
     for (let i = j + 1; i < n; i++) {
-      let t = L[i][j];
-      for (let k = 0; k < j; k++) t -= L[i][k] * L[j][k];
-      L[i][j] = t / L[j][j];
+      const fi = first[i];
+      if (fi > j) continue; // L[i][j] is outside row i's envelope: zero
+      const Li = L[i];
+      let t = Li[j];
+      for (let k = fi > fj ? fi : fj; k < j; k++) t -= Li[k] * Lj[k];
+      Li[j] = t / d;
     }
   }
   const y = new Array(n);
-  for (let i = 0; i < n; i++) { let s = b[i]; for (let k = 0; k < i; k++) s -= L[i][k] * y[k]; y[i] = s / L[i][i]; }
+  for (let i = 0; i < n; i++) { const Li = L[i]; let s = b[i]; for (let k = first[i]; k < i; k++) s -= Li[k] * y[k]; y[i] = s / Li[i]; }
   const x = new Array(n);
-  for (let i = n - 1; i >= 0; i--) { let s = y[i]; for (let k = i + 1; k < n; k++) s -= L[k][i] * x[k]; x[i] = s / L[i][i]; }
+  for (let i = n - 1; i >= 0; i--) { let s = y[i]; for (let k = i + 1; k < n; k++) if (first[k] <= i) s -= L[k][i] * x[k]; x[i] = s / L[i][i]; }
   return x;
 }
 
@@ -139,6 +155,9 @@ export function solve(model, sourcePsi, opts = {}) {
     r: hw.coef * (p.lengthFt + (p.fittingsFt || 0)) / (Math.pow(p.c, hw.qExp) * Math.pow(pipeId(p), hw.dExp)),
   }));
   for (const nd of nodes) if (nd.k) links.push({ kind: 'emitter', node: nd, a: nd.id, b: null, n: 2, r: 1 / (nd.k * nd.k), Hb: g * nd.elevationFt });
+  // Junction index of each end, looked up once (undefined: the source, or
+  // an emitter's open end).
+  for (const l of links) { l.ia = index.get(l.a); l.ib = l.b === null ? undefined : index.get(l.b); }
   const demand = new Array(junctions.length).fill(0);
   for (const nd of junctions) demand[index.get(nd.id)] = nd.demandGpm || 0;
   let Q = links.map(l => (l.kind === 'emitter' ? 15 : 20));
@@ -147,9 +166,13 @@ export function solve(model, sourcePsi, opts = {}) {
   const tol = opts.tol ?? 1e-10;
   let iterations = 0;
   let converged = false;
+  const m = junctions.length;
+  // One matrix for the whole solve, zeroed each step (cholSolve overwrites
+  // it with its factor); rows are views into one buffer.
+  const buf = new Float64Array(m * m);
+  const A = Array.from({ length: m }, (_, i) => buf.subarray(i * m, (i + 1) * m));
   for (; iterations < (opts.maxIter ?? 200); iterations++) {
-    const m = junctions.length;
-    const A = Array.from({ length: m }, () => new Array(m).fill(0));
+    buf.fill(0);
     const F = demand.map(d => -d);
     const P = new Array(links.length);
     const Y = new Array(links.length);
@@ -162,8 +185,7 @@ export function solve(model, sourcePsi, opts = {}) {
       const d = Math.max(l.n * l.r * Math.pow(aq, l.n - 1), 1e-7);
       P[k] = 1 / d;
       Y[k] = (l.r * Math.pow(aq, l.n) * Math.sign(q)) / d;
-      const ia = index.get(l.a);
-      const ib = l.b === null ? undefined : index.get(l.b);
+      const { ia, ib } = l;
       const qy = q - Y[k];
       // Link leaves a and enters b.
       if (ia !== undefined) { A[ia][ia] += P[k]; F[ia] -= qy; }
@@ -177,8 +199,8 @@ export function solve(model, sourcePsi, opts = {}) {
     let qsum = 0;
     let statusChanged = false;
     const Qn = links.map((l, k) => {
-      const Ha = head(l.a);
-      const Hb = l.b === null ? l.Hb : head(l.b);
+      const Ha = l.ia === undefined ? H0 : H[l.ia];
+      const Hb = l.b === null ? l.Hb : l.ib === undefined ? H0 : H[l.ib];
       // A sprinkler cannot draw water back in: like a check valve, its
       // link closes when its node's pressure would be negative and opens
       // again when the pressure comes back.

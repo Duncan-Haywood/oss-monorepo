@@ -136,11 +136,14 @@ def compare(paths, base_paths):
             bv = b["by_tau"][t]
             d = {k: (v["test_loss"][k] - bv["test_loss"][k]) / bv["test_loss"][k] for k in v["test_loss"]}
             rel += list(d.values())
+            ab = min(v["test_loss"].values()) - min(bv["test_loss"].values())  # session 86, days
             cells.append(dict(held=r["held_out"], year=r["test_year"], tau=t, best=v["test_best"],
-                              best_baseline=bv["test_best"], rel_change=d))
+                              best_baseline=bv["test_best"], rel_change=d, best_loss_change=ab))
     return dict(n_cells=len(cells), same_best=sum(c["best"] == c["best_baseline"] for c in cells),
                 n_candidate_cells=len(rel), within_2pct=int(sum(abs(x) < .02 for x in rel)),
-                max_abs_rel_change=float(max(map(abs, rel))), cells=cells)
+                max_abs_rel_change=float(max(map(abs, rel))),
+                best_loss_change_mean=float(np.mean([c["best_loss_change"] for c in cells])),
+                best_within_0_3day=int(sum(abs(c["best_loss_change"]) <= .3 for c in cells)), cells=cells)
 
 
 if __name__ == "__main__":
@@ -152,6 +155,8 @@ if __name__ == "__main__":
     ap.add_argument("--classes", nargs="+", default=["cascade2", "type", "cascade2_minsupdrop1000"], type=ce.class_arg)
     ap.add_argument("--summarise", nargs="+", help="result files to pool instead of fitting")
     ap.add_argument("--es-truncate", action="store_true", help="session 85: early-stop on the sources' Y-1 rows completed by D")
+    ap.add_argument("--deploy", action="store_true", help="session 86: train on source rows completed by D, rounds "
+                    "fixed from years <= Y-4 early-stopped on Y-3; results to select_deploy_dep_<held>_i2c_<year>.json")
     ap.add_argument("--summary-name", default="select_deploy_summary.json")
     ap.add_argument("--baseline", nargs="+", help="with --summarise: session 84 result files to compare test losses with")
     a = ap.parse_args()
@@ -167,7 +172,8 @@ if __name__ == "__main__":
         for c in s["cells"]:
             print(c)
         sys.exit()
-    R = ce.fit(a.data_dir, a.held, a.test_year, a.seeds, a.classes, select=True, es_truncate=a.es_truncate)
+    R = ce.fit(a.data_dir, a.held, a.test_year, a.seeds, a.classes, select=True, es_truncate=a.es_truncate,
+               deploy=a.deploy)
     by_tau, labels = evaluate(R, a.classes, a.test_year)
     res = dict(held_out=a.held, target="i2c", test_year=a.test_year, decision_date=f"{a.test_year}-01-01",
                seeds=a.seeds, classes=a.classes, n_test=int(len(R[a.classes[0]]["y"])), labels=labels,
@@ -175,8 +181,9 @@ if __name__ == "__main__":
                     "model); cc/ipcw keep rows completed by the decision date; test = all rows of year Y; "
                     "days of mean pinball loss; regret = picked minus best candidate's test loss",
                minsup=getattr(ce.fit, "folds", {}), es_truncate=a.es_truncate,
-               source_es_rows={k: R[k].get("_es") for k in a.classes}, by_tau=by_tau)
-    tag = "_es" if a.es_truncate else ""
+               source_es_rows={k: R[k].get("_es") for k in a.classes}, deploy=a.deploy,
+               deploy_detail={k: R[k].get("_deploy") for k in a.classes}, by_tau=by_tau)
+    tag = "_dep" if a.deploy else "_es" if a.es_truncate else ""
     out = os.path.join(res_dir, f"select_deploy{tag}_{a.held}_i2c_{a.test_year}.json")
     json.dump(res, open(out, "w"), indent=1, default=lambda o: sorted(o) if isinstance(o, set) else str(o))
     print(json.dumps(labels))

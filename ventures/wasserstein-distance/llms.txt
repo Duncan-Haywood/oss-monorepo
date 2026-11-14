@@ -1,0 +1,27 @@
+# Wasserstein distance: earth mover's distance between two groups in a CSV
+
+> Free online Wasserstein distance (earth mover's distance) calculator. Paste a CSV with a group column and numeric columns; per column it gives the exact W1 and W2 in your units, mass moved up and down, the W2 split into location, spread and shape, quantile shifts and a permutation p-value. Across several columns at once it solves optimal transport with log-stabilised Sinkhorn iterations (Cuturi 2013) and certifies a range for the exact distance: a rounded feasible plan (Altschuler, Weed & Rigollet 2017) above, a c-transformed dual below. Energy distance permutation test (Szekely & Rizzo 2013). Checked against POT 0.9.7 and SciPy 1.17.1. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A distance or a p-value is not proof of a cause.
+
+## Pages
+
+- [The tool](https://marisstella.app/wasserstein-distance/)
+
+## Use it from code
+
+- `node cli.mjs data.csv --group period [--groups before,after] [--columns a,b] [--cost euclidean|sqeuclidean] [--scale auto|sd|none] [--blur 0.01] [--permutations 999] [--seed 42] [--csv|--json]`
+- `node platform/agents/tools.mjs call wasserstein-distance analyze --input '{"csv":"period,x\nbefore,1.2\nafter,1.9\n...","group":"period"}'`
+- From JavaScript: `wasserstein1d(x, y, {p, wx, wy})` for weighted samples on the line; `transport(X, Y, {cost, blur})` for point clouds, returning `distanceLower`, `distanceUpper` and the plan.
+
+## What it answers
+
+- How different are these two distributions, in the data's own units?
+- Did the whole distribution move, or did it change shape (spread, tails) without moving on average?
+- Which quantiles moved, and by how much?
+- Across several columns, how far apart are the groups and which column carries the difference?
+- Is the difference more than chance?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wasserstein-distance): MIT licensed.

@@ -68,7 +68,7 @@ export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   s = s.replace(/^[<>]\s*/, "");
-  const neg = /^\(.*\)$/.test(s) || s.startsWith("-");
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);

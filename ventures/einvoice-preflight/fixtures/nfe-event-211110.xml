@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up presumed-credit appropriation event (tpEvento 211110, NT 2025.002 v1.40 layout)
+     on fixtures/nfe-4.00-reform.xml, sent by its buyer. Test values only, worked by hand:
+     item 1 base 1500.00 x 1.0000% = 15.00 IBS and CBS (cCredPres 01). -->
+<envEvento xmlns="http://www.portalfiscal.inf.br/nfe" versao="1.00">
+  <idLote>1</idLote>
+  <evento versao="1.00">
+    <infEvento Id="ID2111103526111234567800019555001000004217131415926101">
+      <cOrgao>92</cOrgao>
+      <tpAmb>2</tpAmb>
+      <CNPJ>98765432000198</CNPJ>
+      <chNFe>35261112345678000195550010000042171314159261</chNFe>
+      <dhEvento>2027-01-15T09:00:00-03:00</dhEvento>
+      <tpEvento>211110</tpEvento>
+      <nSeqEvento>1</nSeqEvento>
+      <verEvento>1.00</verEvento>
+      <detEvento versao="1.00">
+        <descEvento>Solicitação de Apropriação de crédito presumido</descEvento>
+        <cOrgaoAutor>33</cOrgaoAutor>
+        <tpAutor>2</tpAutor>
+        <verAplic>einvoice-preflight</verAplic>
+        <gCredPresOper nItem="1">
+          <vBCCredPres>1500.00</vBCCredPres>
+          <cCredPres>01</cCredPres>
+          <gIBSCredPres>
+            <pCredPres>1.0000</pCredPres>
+            <vCredPres>15.00</vCredPres>
+          </gIBSCredPres>
+          <gCBSCredPres>
+            <pCredPres>1.0000</pCredPres>
+            <vCredPres>15.00</vCredPres>
+          </gCBSCredPres>
+        </gCredPresOper>
+      </detEvento>
+    </infEvento>
+  </evento>
+</envEvento>

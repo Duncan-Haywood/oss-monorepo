@@ -63,7 +63,7 @@ export function carryOverFromOpponents(opponents, { cyclic = false } = {}) {
  * with no answer at 90 after 69 min) and finds a 94 in 2 s, so 94 is the least (README "The least
  * carry-over at 10 teams is 94"). 12: the same search with an exact per-round matching bound and
  * round 1 fixed per cycle type finds none at 120 (4 x 3 min) or 122 (4 x 25 min); the best known
- * timetable is 132 (eval/carryover-lns.c; 136 before), so the least is 124 to 132 and not known to
+ * timetable is 132 (eval/window-refill.c; 136 before), so the least is 124 to 132 and not known to
  * be reached (README "12 teams cannot reach 122", "12 teams at 132").
  */
 export const PROVEN_LEAST = {
@@ -381,7 +381,7 @@ export function starterApplies(N) {
 // Below 22 teams no starter found by sampling, annealing or the O(p) climb reaches the floor, and
 // at 12 teams none goes below 156 (floor 120). eval/round-refill.mjs searches every round robin
 // instead: it takes 2 to 5 rounds out and refills their games with the least-carry-over split, by
-// depth-first search (eval/carryover-lns.c does the same move in C, 2026-11-14: 12 teams 136 -> 132).
+// depth-first search (eval/window-refill.c does the same move in C, 2026-11-14: 12 teams 136 -> 132).
 // Its best timetables are stored here whole, as opp[r][t] (team t meets
 // opp[r][t] in round r; team N - 1 is the bye in "odd"). The search runs from it as a third start,
 // beside the circle method and the starter, and keeps the best result (constructionStarts).
@@ -393,7 +393,7 @@ export function starterApplies(N) {
  */
 export const TIMETABLES = {
   12: {
-    even: [ // non-cyclic carry-over 132 (floor 120, proved least >= 124), eval/carryover-lns.c seed 14
+    even: [ // non-cyclic carry-over 132 (floor 120, proved least >= 124), eval/window-refill.c seed 14
       [9, 11, 6, 10, 5, 4, 2, 8, 7, 0, 3, 1],
       [3, 4, 11, 0, 1, 10, 7, 6, 9, 8, 5, 2],
       [7, 2, 1, 9, 6, 11, 4, 0, 10, 3, 8, 5],
@@ -420,6 +420,23 @@ export const TIMETABLES = {
       [2, 10, 0, 11, 8, 6, 5, 9, 4, 7, 1, 3],
       [1, 0, 6, 10, 5, 4, 2, 8, 7, 11, 3, 9],
       [11, 5, 8, 4, 3, 1, 9, 10, 2, 6, 7, 0],
+    ],
+  },
+  14: {
+    even: [ // non-cyclic carry-over 210 (floor 168; the starter's 212), eval/refill-search.c WMAX=3 seed 44
+      [3, 2, 1, 0, 10, 11, 8, 9, 6, 7, 4, 5, 13, 12],
+      [4, 3, 13, 1, 0, 12, 11, 10, 9, 8, 7, 6, 5, 2],
+      [12, 11, 10, 9, 8, 7, 13, 5, 4, 3, 2, 1, 0, 6],
+      [8, 7, 6, 5, 13, 3, 2, 1, 0, 12, 11, 10, 9, 4],
+      [10, 9, 8, 7, 6, 13, 4, 3, 2, 1, 0, 12, 11, 5],
+      [7, 6, 5, 4, 3, 2, 1, 0, 12, 11, 13, 9, 8, 10],
+      [6, 5, 4, 13, 2, 1, 0, 12, 11, 10, 9, 8, 7, 3],
+      [11, 10, 9, 8, 12, 6, 5, 13, 3, 2, 1, 0, 4, 7],
+      [5, 4, 3, 2, 1, 0, 12, 11, 10, 13, 8, 7, 6, 9],
+      [9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 12, 13, 10, 11],
+      [2, 13, 0, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 1],
+      [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+      [1, 0, 12, 11, 7, 9, 10, 4, 13, 5, 6, 3, 2, 8],
     ],
   },
   10: {

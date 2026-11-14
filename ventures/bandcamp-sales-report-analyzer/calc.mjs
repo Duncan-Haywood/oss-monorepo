@@ -45,7 +45,7 @@ export function parseCsv(text, delim = ",") {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−]/.test(s);
   const m = s.match(/\d[\d.,]*/);
   if (!m) return NaN;
   s = m[0];

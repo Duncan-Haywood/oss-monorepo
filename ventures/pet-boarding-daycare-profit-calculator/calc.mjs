@@ -46,7 +46,7 @@ export function parse(raw) {
   if (!(occPct >= 0 && occPct <= 100)) errors.push("Average boarding occupancy must be 0 to 100 percent.");
   if (!(dayFillPct >= 0 && dayFillPct <= 100)) errors.push("Average daycare fill must be 0 to 100 percent.");
   if (!(stayNights >= 1 && stayNights <= 60)) errors.push("Average stay must be 1 to 60 nights.");
-  if (!(daysOpen >= 1 && daysOpen <= 31)) errors.push("Daycare days open per month must be 1 to 31.");
+  if (!(daysOpen >= 1 && daysOpen <= BOARDING_DAYS)) errors.push(`Daycare days open per month must be 1 to ${BOARDING_DAYS}: the page models a ${BOARDING_DAYS}-day month.`);
   if (!(feesPct >= 0 && feesPct < 30)) errors.push("Card and booking-software fees must be from 0 to under 30 percent of revenue.");
   if (!(dogsPerAttendant >= 1 && dogsPerAttendant <= 60)) errors.push("Enter dogs per attendant (1 to 60). Use the ratio your insurer, your state or your own standard requires.");
   if (!(openHours > 0 && openHours <= 24)) errors.push("Staffed hours per day must be more than 0 and no more than 24.");

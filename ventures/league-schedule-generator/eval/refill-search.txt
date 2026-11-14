@@ -1,0 +1,162 @@
+# eval/refill-search.c runs, 2026-11-14 (4 shared cores, Intel Xeon 2.10 GHz; cc -O3 -march=native)
+# args: N SECONDS SEED START STALL TEMP; env WMAX, KICKS, CLIMBS. 'climb' = best of one climb before a fresh restart.
+# commands (seconds, seed, start, stall, temp):
+#   r12a: ./refill-search 12 900 21 circle 2000 1        r12b: ./refill-search 12 900 22 circle 1000 1
+#   w12_41/42: CLIMBS=1 WMAX=3 ./refill-search 12 600 41|42 circle 2000 1
+#   c14a: 14 240 31 circle 2000 1; c14b: CAP=200000 14 240 32 circle 2000 1; c14c: WMAX=3 14 240 33 circle 2000 1;
+#   c14d: CAP=200000 KICKS=100000 14 240 34 <the 14-team starter> 2000 2
+#   w14_43/44: CLIMBS=1 WMAX=3 14 600 43|44 circle 2000 1   x14_51/52: same, 900 s, seeds 51|52
+#   x18_53/54: CLIMBS=1 WMAX=3 18 900 53|54 circle 2000 1
+# Earlier, not kept: from the stored 12-team 136 and from the 14- and 18-team starters (212, 318), 15-20 min each
+# with restarts off, nothing lower was found.
+
+## r12a
+start 768
+final 136 (moves 1233920, kicks 580, restarts 14, 900 s)
+best 148 at 95.4 s (moves 137234, kicks 65, restarts 1)
+best 144 at 96.1 s (moves 138214, kicks 65, restarts 1)
+best 136 at 367.6 s (moves 489292, kicks 230, restarts 5)
+
+## r12b
+start 768
+final 136 (moves 1208064, kicks 1149, restarts 19, 900 s)
+best 144 at 91.3 s (moves 126406, kicks 121, restarts 3)
+best 140 at 109.4 s (moves 154656, kicks 149, restarts 3)
+best 136 at 109.4 s (moves 154707, kicks 149, restarts 3)
+
+## w12_41
+start 768
+final 136 (moves 28085760, kicks 13480, restarts 304, 600 s)
+best 144 at 13.3 s (moves 620455, kicks 296, restarts 7)
+best 140 at 13.8 s (moves 638182, kicks 304, restarts 7)
+best 136 at 275.1 s (moves 12717325, kicks 6108, restarts 134)
+climb histogram (count value), lowest 6:
+      3 climb 136
+      5 climb 140
+      8 climb 144
+      9 climb 148
+      9 climb 150
+     18 climb 152
+
+## w12_42
+start 768
+final 136 (moves 27957760, kicks 13435, restarts 294, 600 s)
+best 144 at 89.4 s (moves 4097309, kicks 1975, restarts 43)
+best 140 at 201.9 s (moves 9289831, kicks 4469, restarts 95)
+best 136 at 206.3 s (moves 9520162, kicks 4581, restarts 96)
+climb histogram (count value), lowest 6:
+      2 climb 136
+      4 climb 140
+      9 climb 144
+      7 climb 148
+      7 climb 150
+     19 climb 152
+
+## c14a
+start 1378
+final 216 (moves 200448, kicks 97, restarts 1, 240 s)
+best 220 at 187.7 s (moves 155904, kicks 75, restarts 1)
+best 218 at 187.7 s (moves 155915, kicks 75, restarts 1)
+best 216 at 197.5 s (moves 164022, kicks 79, restarts 1)
+
+## c14b
+start 1378
+final 222 (moves 34304, kicks 15, restarts 0, 240 s)
+best 230 at 4.9 s (moves 716, kicks 0, restarts 0)
+best 226 at 6.6 s (moves 974, kicks 0, restarts 0)
+best 222 at 21.4 s (moves 2949, kicks 0, restarts 0)
+
+## c14c
+start 1378
+final 212 (moves 5629952, kicks 2696, restarts 67, 240 s)
+best 220 at 1.2 s (moves 33334, kicks 16, restarts 0)
+best 216 at 8.9 s (moves 221396, kicks 106, restarts 3)
+best 212 at 132.2 s (moves 3118205, kicks 1495, restarts 37)
+
+## c14d
+start 212
+final 212 (moves 35328, kicks 17, restarts 0, 240 s)
+
+## w14_43
+start 1378
+final 212 (moves 14406656, kicks 6880, restarts 180, 600 s)
+best 216 at 22.8 s (moves 524238, kicks 250, restarts 6)
+best 214 at 22.9 s (moves 527227, kicks 251, restarts 6)
+best 212 at 394.5 s (moves 9284144, kicks 4432, restarts 115)
+climb histogram (count value), lowest 6:
+      1 climb 212
+      7 climb 214
+     11 climb 216
+     24 climb 218
+     26 climb 220
+     42 climb 222
+
+## w14_44
+start 1378
+final 210 (moves 14497280, kicks 6946, restarts 175, 600 s)
+best 216 at 0.0 s (moves 244, kicks 0, restarts 0)
+best 214 at 70.4 s (moves 1638161, kicks 784, restarts 20)
+best 210 at 70.5 s (moves 1640812, kicks 785, restarts 20)
+climb histogram (count value), lowest 6:
+      1 climb 210
+      2 climb 212
+      3 climb 214
+     16 climb 216
+     24 climb 218
+     39 climb 220
+
+## x14_51
+start 1378
+final 210 (moves 21038336, kicks 10072, restarts 254, 900 s)
+best 218 at 5.5 s (moves 114111, kicks 54, restarts 1)
+best 216 at 17.2 s (moves 390379, kicks 186, restarts 5)
+best 210 at 99.3 s (moves 1758732, kicks 841, restarts 21)
+climb histogram (count value), lowest 6:
+      1 climb 210
+      4 climb 212
+      5 climb 214
+     19 climb 216
+     33 climb 218
+     32 climb 220
+
+## x14_52
+start 1378
+final 212 (moves 20814848, kicks 9952, restarts 256, 900 s)
+best 216 at 7.5 s (moves 175941, kicks 84, restarts 2)
+best 214 at 9.4 s (moves 233315, kicks 112, restarts 2)
+best 212 at 377.6 s (moves 8178791, kicks 3916, restarts 105)
+climb histogram (count value), lowest 6:
+      3 climb 212
+      1 climb 214
+     16 climb 216
+     29 climb 218
+     45 climb 220
+     41 climb 222
+
+## x18_53
+start 3438
+final 356 (moves 6355968, kicks 3019, restarts 82, 900 s)
+best 378 at 25.6 s (moves 163109, kicks 79, restarts 1)
+best 362 at 33.9 s (moves 225647, kicks 109, restarts 2)
+best 356 at 72.5 s (moves 378325, kicks 179, restarts 4)
+climb histogram (count value), lowest 6:
+      5 climb 356
+      7 climb 358
+      2 climb 360
+      7 climb 362
+      7 climb 364
+      5 climb 366
+
+## x18_54
+start 3438
+final 356 (moves 6494464, kicks 3095, restarts 91, 900 s)
+best 360 at 37.8 s (moves 288974, kicks 137, restarts 4)
+best 358 at 246.9 s (moves 1595711, kicks 760, restarts 22)
+best 356 at 538.9 s (moves 3680920, kicks 1754, restarts 51)
+climb histogram (count value), lowest 6:
+      2 climb 356
+      2 climb 358
+      7 climb 360
+      9 climb 362
+     11 climb 364
+      6 climb 366

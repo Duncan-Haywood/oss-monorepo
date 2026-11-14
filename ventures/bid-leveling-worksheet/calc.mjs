@@ -24,7 +24,7 @@ export function parseCsv(text) {
 export function parseMoney(s) {
   const t = String(s ?? "").trim();
   if (!t) return null;
-  const neg = /^\(.*\)$/.test(t) || /^-/.test(t);
+  const neg = /^\(.*\)$/.test(t) || /^[^0-9]*[-−]/.test(t);
   const n = Number(t.replace(/[()$,\s-]/g, ""));
   return Number.isFinite(n) && /\d/.test(t) ? (neg ? -n : n) : null;
 }

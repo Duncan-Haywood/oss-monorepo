@@ -98,7 +98,7 @@ const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8,
 export function parseMoney(s) {
   const t = String(s ?? "").trim();
   if (t === "" || /^-+$/.test(t)) return null;
-  const neg = /^\(.*\)$/.test(t) || /^[-−]/.test(t) || /[-−]$/.test(t);
+  const neg = /^\(.*\)$/.test(t) || /^[^0-9]*[-−]/.test(t) || /[-−]$/.test(t);
   const core = t.replace(/[^0-9.,]/g, "");
   if (!core) return NaN;
   const v = parseAmount(core);

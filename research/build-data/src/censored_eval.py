@@ -125,7 +125,7 @@ def score(diffs, weeks, w, mask):
     return out
 
 
-def fit(data_dir, held, test_year, seeds, classes, select=False, es_truncate=False):
+def fit(data_dir, held, test_year, seeds, classes, select=False, es_truncate=False, deploy=False):
     import transfer
     cities = [c for c in transfer.CITIES if c != "chicago"  # Chicago has no completion date
               and os.path.exists(os.path.join(data_dir, f"{c}.csv"))]
@@ -151,9 +151,11 @@ def fit(data_dir, held, test_year, seeds, classes, select=False, es_truncate=Fal
                 frames = transfer.drop_source_rows(frames, held)
         else:
             key = (k, ())
-        r = transfer.run(frames, held, test_year, seeds, keep_rows=True, select=select, es_truncate=es_truncate)
+        r = transfer.run(frames, held, test_year, seeds, keep_rows=True, select=select, es_truncate=es_truncate,
+                         deploy=deploy)
         R[k] = done[key] = dict(r["_rows"], _select=r["_select"], _select2=r["_select2"], _select3=r["_select3"],
-                                _es=dict(n=r["n_source_es"], n_full=r["n_source_es_full"])) if select else r["_rows"]
+                                _es=dict(n=r["n_source_es"], n_full=r["n_source_es_full"]),
+                                _deploy=r.get("deploy")) if select else r["_rows"]
         print(held, test_year, k, "n_test", r["n_test"], flush=True)
     fit.folds = FOLDS
     a = R[classes[0]]
