@@ -477,14 +477,34 @@ export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'soc
   const results = files.map((file) => {
     const relative = path.relative(outDir, file).split(path.sep).join('/');
     const html = readFileSync(file, 'utf8');
-    const plan = pageCardPlan(html, relative, { baseUrl, siteCard });
-    const depth = relative.split('/').length - 1;
-    const toRoot = '../'.repeat(depth);
-    const url = baseUrl ? `${baseUrl}${servedPath(relative)}` : '';
-    const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
+    const { next, plan } = shareTagsFor(html, relative, { baseUrl, siteName, siteCard });
     if (next !== html) writeFileSync(file, next);
     return { relative, plan, changed: next !== html };
   });
+  return drawPlannedCards(outDir, results);
+}
+
+/**
+ * One page's share step, with no file access: its card plan (or null) and the
+ * page with complete share tags. `addShareCards` runs it over a tree;
+ * `build.mjs` runs it inside its one-walk page finish (`finishPagesInOneWalk`),
+ * so a full build reads and writes each page once for the title, sponsor,
+ * notice and share passes together.
+ */
+export function shareTagsFor(html, relative, { baseUrl, siteName, siteCard = 'social-card.png' }) {
+  const plan = pageCardPlan(html, relative, { baseUrl, siteCard });
+  const depth = relative.split('/').length - 1;
+  const toRoot = '../'.repeat(depth);
+  const url = baseUrl ? `${baseUrl}${servedPath(relative)}` : '';
+  const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
+  return { next, plan };
+}
+
+/**
+ * Draws the cards `results` plan (`{ relative, plan, changed }` per page, in
+ * walk order) and returns what `addShareCards` reports.
+ */
+export async function drawPlannedCards(outDir, results) {
   const jobs = results.filter((r) => r.plan).map((r) => ({ file: path.join(outDir, r.plan.file), options: r.plan.options }));
   const changed = results.filter((r) => r.changed).map((r) => r.relative);
   await renderCards(jobs);
