@@ -1,9 +1,9 @@
 ---
 title: "Our e-invoice repair changed 69 valid invoices. Now it changes 2."
-seo_title: "Repairing e-invoice arithmetic without changing valid invoices (EN 16931, Factur-X)"
+seo_title: "E-invoice repair that leaves valid invoices alone (EN 16931)"
 date: 2026-11-14
 tags: [einvoice-preflight, ventures]
-description: "We ran our e-invoice arithmetic repair over 529 real, valid UBL, CII and Factur-X files. It changed 69 of them and the amount due on 53. Why, and what a repair should leave alone."
+description: "Run over 529 real, valid UBL, CII and Factur-X files, our e-invoice repair changed 69 and the amount due on 53. Why, and what a repair must leave alone."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) has a repair button. Give it a UBL, CII or Factur-X invoice whose sums don't add up and it recomputes the line totals, VAT and amount due in place, editing nothing but amounts. Until today it had only been tested on invoices we wrote ourselves.
