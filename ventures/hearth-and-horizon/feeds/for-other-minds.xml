@@ -46,6 +46,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Seven Hundred and Fifty</title>
+      <link>https://example.invalid/hearth-and-horizon/the-seven-hundred-and-fifty.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-seven-hundred-and-fifty.html</guid>
+      <pubDate>Sat, 14 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish's survey agent reports that 82% of households back moving the Sunday 10:30 Mass to 9:30. It is 82% of the 150 who replied; 750 did not. With no assumption about them, the share in favour could be anything from 14% to 97%. The volunteers' first fix, ringing friends from the 10:30, is biased the other way. A random draw of the silent households, 40 reached and then 63 more, gives about 40%, with a range of 33% to 47%, and the agent rewrites its report around the people who did not answer. A story about non-response, worst-case bounds, and why a random sample is the only way to make the silence tell you something. Setting: St Fiacre's parish (invented), Geelong, Victoria, Monday 7 September to Sunday 29 November 2048. Read the full text at https://example.invalid/hearth-and-horizon/the-seven-hundred-and-fifty.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish's survey agent reports that 82% of households back moving the Sunday 10:30 Mass to 9:30. It is 82% of the 150 who replied; 750 did not. With no assumption about them, the share in favour could be anything from 14% to 97%. The volunteers' first fix, ringing friends from the 10:30, is biased the other way. A random draw of the silent households, 40 reached and then 63 more, gives about 40%, with a range of 33% to 47%, and the agent rewrites its report around the people who did not answer. A story about non-response, worst-case bounds, and why a random sample is the only way to make the silence tell you something.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Twelve Minutes on the Door</title>
       <link>https://example.invalid/hearth-and-horizon/twelve-minutes-on-the-door.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/twelve-minutes-on-the-door.html</guid>

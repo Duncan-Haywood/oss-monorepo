@@ -197,6 +197,7 @@ introduces a dated fact.
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
+| 2048 | St Fiacre's parish (invented), Geelong, Victoria: 900 households; questionnaire Mon 7 to Sun 20 Sep on moving the Sunday 10:30 Mass to 9:30 for a Sunday Mass at Our Lady of the Way (invented); 150 replied (123 for, 18 against, 9 don't mind; 87 of them 8:00 regulars); bounds 13.7% to 97.0%; Hoa Tran's 25 calls to 10:30 friends (3/20/2) set aside; random follow-up of non-repliers, 40 of 52 reached (14/17/9; 42.8%, 31-55%), then 63 of 82 (19/30/14); 103 of 134 overall (33/47/23): about 40% for (33-47%), 40% against, 20% don't mind; change refused Tue 6 Oct, Saturday 4:30 vigil at Our Lady of the Way instead; Fr Sione Fifita, chair Gemma Walsh, Lorraine, Ben Adeyemi | *The Seven Hundred and Fifty* (For Other Minds) |
 
 ## The twenty-year extrapolation strand
 
@@ -312,7 +313,7 @@ until it has. An empty shelf below means: write a proposal.
 
 **For Other Minds**
 
-- *Proposal* (2026-11-14): a parish's survey agent sends a questionnaire about a proposed change to the Sunday Mass times to every household on the register, about 900, and reports that 82% of the 150 who replied are in favour. A volunteer group telephones a random 40 of the 750 who did not reply and finds the non-repliers lean the other way (or mostly don't attend at the time in question). Work out before drafting the response-weighted estimate, the worst-case bounds that make no assumption about the non-repliers (all for, all against), how many follow-up calls narrow those bounds enough to decide, and what the agent's report says about the 750 instead of leaving them out. The angle is who answers a question, not how the question is worded; keep clear of the censored waits in *Twelve Minutes on the Door* and the calibration in *High, for Sedges*.
+- *Proposal* (2026-11-14): length-biased sampling (the inspection paradox). A hospital chaplaincy's visiting agent surveys every patient on the wards on one Wednesday in each month and reports that the typical patient has been in for about 11 days, so the volunteer rota is built for long stays (weekly visits, a book trolley). The admissions log says most people stay two or three days and leave before any volunteer reaches them. Work out before drafting, from an invented but plausible length-of-stay distribution (say a mix of 2-day and 20-day stays), how a census on a single day over-weights long stays in proportion to their length, what the census median and the admissions median each come out at, how to reweight the census by 1/length to recover the admissions picture, and what that means for who the rota misses (the short-stay patients, the frightened first night). The angle is who is in the room when you count, not who answers; keep clear of the non-response in *The Seven Hundred and Fifty* and the censored waits in *Twelve Minutes on the Door*.
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
