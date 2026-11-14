@@ -170,13 +170,18 @@ export function analyze(rows, { costs = {}, returnsResellable = true } = {}) {
 
   const sku = (k) => {
     const key = k || "(no SKU)";
-    if (!skus.has(key)) skus.set(key, { sku: key, unitsSold: 0, unitsRefunded: 0, orders: 0, gross: 0, promo: 0, referral: 0, fba: 0, otherFees: 0, refundAmount: 0, refundReferralBack: 0, netProceeds: 0, fbaUnits: 0, fbmUnits: 0 });
+    if (!skus.has(key)) skus.set(key, { sku: key, unitsSold: 0, unitsRefunded: 0, orders: 0, gross: 0, promo: 0, referral: 0, fba: 0, otherFees: 0, refundAmount: 0, refundReferralBack: 0, unitemised: 0, netProceeds: 0, fbaUnits: 0, fbmUnits: 0 });
     return skus.get(key);
   };
   const month = (k) => {
     if (!months.has(k)) months.set(k, { key: k, gross: 0, promo: 0, fees: 0, refunds: 0, account: 0, net: 0, units: 0 });
     return months.get(k);
   };
+
+  // Columns the waterfall does not itemise (Regulatory Fee, tax lines the
+  // file nets into "total"): whatever "total" holds beyond the itemised
+  // columns, so the waterfall still sums to what Amazon paid.
+  const residual = (r) => r.total - (r.sales + r.shipCredits + r.giftCredits + r.promo + r.sellingFees + r.fbaFees + r.otherTxnFees + r.other);
 
   for (const r of rows) {
     const m = month(r.month);
@@ -190,12 +195,14 @@ export function analyze(rows, { costs = {}, returnsResellable = true } = {}) {
       s.referral += r.sellingFees;
       s.fba += r.fbaFees;
       s.otherFees += r.otherTxnFees + r.other;
+      s.unitemised += residual(r);
       s.netProceeds += r.total;
       if (r.fulfillment.includes("amazon") || r.fulfillment === "afn") s.fbaUnits += r.quantity; else s.fbmUnits += r.quantity;
       m.gross += gross; m.promo += r.promo; m.fees += r.sellingFees + r.fbaFees + r.otherTxnFees + r.other; m.net += r.total; m.units += r.quantity;
       if (r.orderId) {
-        const o = orders.get(r.orderId) || { referral: 0, refundReferral: 0, refunded: false, sku: r.sku };
+        const o = orders.get(r.orderId) || { referral: 0, refundReferral: 0, units: 0, refundedUnits: 0, refunded: false, sku: r.sku };
         o.referral += r.sellingFees;
+        o.units += r.quantity;
         orders.set(r.orderId, o);
       }
     } else if (r.typeKey === "refund") {
@@ -205,11 +212,13 @@ export function analyze(rows, { costs = {}, returnsResellable = true } = {}) {
       s.refundReferralBack += r.sellingFees;
       s.fba += r.fbaFees;
       s.otherFees += r.otherTxnFees + r.other;
+      s.unitemised += residual(r);
       s.netProceeds += r.total;
       m.refunds += r.sales + r.shipCredits + r.giftCredits + r.promo; m.fees += r.fbaFees + r.otherTxnFees + r.other + r.sellingFees; m.net += r.total;
       if (r.orderId) {
-        const o = orders.get(r.orderId) || { referral: 0, refundReferral: 0, refunded: true, sku: r.sku };
+        const o = orders.get(r.orderId) || { referral: 0, refundReferral: 0, units: 0, refundedUnits: 0, refunded: true, sku: r.sku };
         o.refundReferral += r.sellingFees;
+        o.refundedUnits += r.quantity;
         o.refunded = true;
         orders.set(r.orderId, o);
       }
@@ -223,12 +232,17 @@ export function analyze(rows, { costs = {}, returnsResellable = true } = {}) {
   }
 
   // Referral fee Amazon kept on refunded orders: the order paid referral R
-  // (negative), the refund gave back part of it. Difference is the
-  // refund administration fee. Only orders seen on both sides count.
+  // (negative) on its units, the refund gave back part of the referral on
+  // the refunded units. Only the refunded units' share of R is compared, so
+  // a partial refund of a multi-unit order does not count the referral on
+  // the units the buyer kept (2 units, R -6.60, 1 refunded, +2.64 back:
+  // kept 0.66, not 3.96). Without both quantities the whole order counts.
+  // Only orders seen on both sides count.
   let refundAdminKept = 0, refundAdminOrders = 0;
   for (const o of orders.values()) {
     if (o.refunded && o.referral < 0 && o.refundReferral > 0) {
-      const kept = -(o.referral + o.refundReferral);
+      const share = o.units > 0 && o.refundedUnits > 0 ? Math.min(1, o.refundedUnits / o.units) : 1;
+      const kept = -(o.referral * share + o.refundReferral);
       if (kept > 0.005) { refundAdminKept += kept; refundAdminOrders++; }
     }
   }
@@ -254,7 +268,7 @@ export function analyze(rows, { costs = {}, returnsResellable = true } = {}) {
   }).sort((a, b) => b.gross - a.gross);
 
   const t = {
-    gross: 0, promo: 0, referral: 0, fba: 0, otherFees: 0, refundAmount: 0, refundReferralBack: 0, netProceeds: 0, unitsSold: 0, unitsRefunded: 0,
+    gross: 0, promo: 0, referral: 0, fba: 0, otherFees: 0, refundAmount: 0, refundReferralBack: 0, unitemised: 0, netProceeds: 0, unitsSold: 0, unitsRefunded: 0,
   };
   for (const s of list) for (const k of Object.keys(t)) t[k] += s[k];
   const accountTotal = Object.values(account).reduce((a, b) => a + b, 0);
@@ -318,7 +332,7 @@ function findings(s, list, months) {
   }
 
   if (s.refundAdminKept > 1) {
-    add("info", `Amazon kept ${$(s.refundAdminKept)} of referral fees on ${s.refundAdminOrders} refunded orders`,
+    add("info", `Amazon kept ${$(s.refundAdminKept)} of referral fees on ${s.refundAdminOrders} refunded ${s.refundAdminOrders === 1 ? "order" : "orders"}`,
       `When an order is refunded Amazon gives back the referral fee less an administration fee. Matching each refund to its order in this file, the part not returned comes to ${$(s.refundAdminKept)}. It is a cost of refunds you can lower by resolving issues before a refund, and it is invisible in Seller Central's summary.`);
   }
 
