@@ -320,6 +320,20 @@ CHECKS = [
     ('is 0.950 to 0.996 of displacement', 'excavator_gear_pump_marzocchi_results.txt', '0.97-1.03 for every size: refuted (0.950 to 0.996)'),
     ('three held)', 'excavator_gear_pump_marzocchi_results.txt', 'GM5 median P/(Mn/9549) at 2000 r/min in 0.97-1.03: held'),
     ('(a smaller fixed pump wins in 99.5% of geometries), and scaled down they cross 50% at 0.819', 'excavator_gear_pump_marzocchi_results.txt', 'index 2 0.8188'),
+    # milestone 6p: section 3.7p, the abstract, threat 7 and settle (h)
+    ('the measured torque is 109.08, 110.72 and 113.25 Nm', 'kp30_bench_results.txt', '1000     150    109.08'),
+    ('110.72 and 113.25 Nm against an ideal V p / 2&pi; of 105.04 Nm', 'kp30_bench_results.txt', '2500     150    113.25  108.83         105.04'),
+    ('volumetric efficiencies of 0.9673 and 0.9811', 'kp30_bench_results.txt', '150 bar: 1500 r/min 0.9673, 2500 r/min 0.9811'),
+    ('recovered as 2461 to 2530 r/min', 'kp30_bench_results.txt', '50 bar 2461, 150 bar 2496, 250 bar 2530'),
+    ('hydro-mechanical 0.9359 and overall **0.9130**', 'kp30_bench_results.txt', '0.9756     0.9894        0.9359      0.8011       0.9130'),
+    ('(0.7926 from its torque curves)', 'kp30_bench_results.txt', 'from the torque curves as above 0.7926'),
+    ('1.155 to 1.182 times the bench', 'kp30_bench_results.txt', '1000 r/min 1.156, 1500 r/min 1.155, 2500 r/min 1.182'),
+    ('stays at 0.8811 or above, 0.050 over', 'kp30_bench_results.txt', 'lowest variant 0.8811, +0.0502'),
+    ('that is c = 1.195', 'kp30_bench_results.txt', 'bench / catalogue at 150 bar = 1.195'),
+    ('(c = 1.15, 94.8% of geometries)', 'kp30_bench_results.txt', 'reaches c 1.15 with 94.8% of geometries'),
+    ('sits 1.9% and 3.6% above', 'kp30_bench_results.txt', '1500 +1.9%, 2500 +3.6%'),
+    ('reads 0.913 at 150 bar and 2100 r/min (0.881 in the least favourable', 'kp30_bench_results.txt', 'central 0.9130; lowest variant 0.8811'),
+    ('reads 0.913 (0.881 at worst)', 'kp30_bench_results.txt', 'central 0.9130; lowest variant 0.8811'),
 ]
 
 

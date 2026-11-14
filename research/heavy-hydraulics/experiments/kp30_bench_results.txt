@@ -1,0 +1,52 @@
+Milestone 6p: a bench-measured Casappa KP30 (44 cm3/r; Frosina, Senatore, Rigosi 2017, Energies 10:1113, Figs. 11-13, CC BY 4.0) against the 0.83 crux and Casappa's KAPPA catalogue curves (KP 30.43)
+
+Bench torque, read by pixel (Nm): measured (torque meter) and CFD model (pressure only, no friction)
+  r/min   p bar  measured  model  ideal V p/2pi  measured-model  Fig. 12 delta  eta_hm
+   1000      50     37.97   34.82          35.01            3.15           3.26  0.9222
+   1000     150    109.08  104.05         105.04            5.03           5.07  0.9630
+   1000     250    180.19  173.18         175.07            7.00           7.49  0.9716
+   1500      50     39.91   37.76          35.01            2.15           3.62  0.8773
+   1500     150    110.72  107.08         105.04            3.64           5.55  0.9487
+   1500     250    181.52  176.04         175.07            5.48           7.75  0.9645
+   2500      50     40.91   38.62          35.01            2.29           4.56  0.8559
+   2500     150    113.25  108.83         105.04            4.42           6.56  0.9275
+   2500     250    185.58  178.04         175.07            7.55          10.04  0.9433
+
+Bench volumetric efficiency (Figure 13, 50 C; normalised flow / (n / 2500))
+  base check, speed-independent leakage: Q_norm x B = V n - L gives B = 1000 / (q2500 - q1500) r/min x V: 50 bar 2461, 150 bar 2496, 250 bar 2530
+   50 bar: 1500 r/min 0.9820, 2500 r/min 0.9956
+  150 bar: 1500 r/min 0.9673, 2500 r/min 0.9811
+  250 bar: 1500 r/min 0.9523, 2500 r/min 0.9666
+
+At 2100 r/min (linear in speed between 1500 and 2500 r/min), bench against catalogue KP 30.43 (catalogue at 2100 r/min from the committed curves):
+  p bar  bench T Nm  cat T Nm  T ratio  bench eta_v  cat eta_v  bench eta_hm  cat eta_hm  bench eta_t  cat eta_t
+     50       40.51     47.38    1.170       0.9902     1.0064        0.8643      0.7387       0.8558     0.7434
+    150      112.24    131.07    1.168       0.9756     0.9894        0.9359      0.8011       0.9130     0.7926
+    250      183.96    213.10    1.158       0.9609     0.9724        0.9517      0.8212       0.9145     0.7985
+  catalogue/bench torque at the bench's own speeds, 150 bar: 1000 r/min 1.156, 1500 r/min 1.155, 2500 r/min 1.182
+
+Sensitivity of the bench overall efficiency at 150 bar, 2100 r/min:
+  friction from Figure 12's delta added to the ideal torque: 0.9216
+  eta_hm at 2500 r/min (the lowest of the three speeds): 0.9049
+  eta_v from the catalogue (KP 30.43) instead of Figure 13: 0.9260
+  eta_v 0.95, Marzocchi's sizing advice (6o): 0.8891
+  both worst: eta_hm at 2500 r/min and eta_v 0.95: 0.8811
+  V 2% under nominal (43.12 cm3/r) in eta_hm, eta_v unchanged: 0.8948
+  central 0.9130; lowest variant 0.8811
+
+Against the crux (6n/6o: 50% crossings on the 85 L/min index, a smaller fixed pump beats load-sensing at S = 0.38 in half of 384 geometries):
+  crossings: casappa 0.8281, danfoss 0.8309, marzocchi 0.8188
+  bench KP30 at 150 bar, 2100 r/min: 0.9130, +0.0821 above the highest crossing; lowest variant 0.8811, +0.0502
+  bench KP30 flow at 2100 r/min, 50 bar: 91.5 L/min (the index is read at 85 L/min of 20 bar flow; 6n's central optimum picks 85 to 93 L/min)
+  6k's KP 30.43 eta_t at 150 bar from the power curves (what the sweeps scale): 0.764; from the torque curves as above 0.7926 (6k: power over torque x n is 1.037 for this size)
+  as a scale on Casappa's catalogue curves (6k's c): bench / catalogue at 150 bar = 1.195; the committed Casappa sweep reaches c 1.15 with 94.8% of geometries, and the share rises with c (a higher efficiency only lowers the fixed pump's fuel), so at the bench efficiency it is at least that
+
+Predictions (LOG.md 6p):
+  GB1 bench eta_t at 150 bar, 2100 r/min above 0.83: held (0.9130)
+  GB2 bench eta_hm at 150 bar exceeds the catalogue's 0.801 by at least 0.10: held (0.9359, +0.1349; catalogue here 0.8011)
+  GB3 model torque at 150 bar within 2% of 105.04 Nm at all speeds: refuted (1000 -0.9%, 1500 +1.9%, 2500 +3.6%)
+  GB4 Figure 11 measured-model within 1 Nm of Figure 12 at 150 bar: refuted (1000 -0.04, 1500 -1.91, 2500 -2.15)
+  GB5 bench eta_v at 150 bar, 2500 r/min in 0.95-0.99: held (0.9811)
+  GB6 friction torque at 150 bar rises with speed: refuted on Figure 11 (5.03, 3.64, 4.42); Figure 12 held (5.07, 5.55, 6.56)
+
+Sources: Frosina, Senatore, Rigosi (2017), doi:10.3390/en10081113 (CC BY 4.0); Casappa KAPPA catalogue K 05 T A (2012), pp. 4 and 9-11 (6k); crossings from 6n and 6o.
