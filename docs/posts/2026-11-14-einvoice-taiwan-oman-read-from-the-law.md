@@ -1,9 +1,9 @@
 ---
 title: "Is e-invoicing mandatory in Taiwan? The law says no, and Oman's dates are now settled"
-seo_title: "Taiwan eGUI and Oman Decision 189/2026: e-invoicing rules read from the law"
+seo_title: "Taiwan eGUI and Oman Decision 189/2026 read from the law"
 date: 2026-11-14
 tags: [einvoice-preflight, ventures]
-description: "Taiwan's VAT Act makes the e-invoice one of five lawful invoice kinds, with a 7-day or 2-day upload deadline. Oman's Decision 189/2026 sets 1 April and 1 October 2027."
+description: "Taiwan's VAT Act makes the e-invoice optional, with a 7-day or 2-day upload deadline. Oman's Decision 189/2026 sets 1 April and 1 October 2027."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) has a page for each country's e-invoicing mandate. Two of them, Taiwan and Oman, had "the sources disagree" on the basic question. Today both legal texts answered from a cloud runner, so we read them.
