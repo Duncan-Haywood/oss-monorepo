@@ -931,17 +931,22 @@ def _decode_scan_reference(data, pos, width, height, tables, predictor, precisio
 
 
 class LensHint(NamedTuple):
-    """What a maker note says about the lens when it gives no usable name (Canon CameraSettings).
+    """What a file says about the lens when it gives no usable name.
 
-    ``short`` and ``long`` are the lens's focal range in mm (equal for a prime); ``aperture`` is its widest
-    f-number at the shot's focal length (a zoom's f/3.5-5.6 reports 5.6 at the long end), or None; ``lens_type``
-    is Canon's lens number (several lenses, Canon's and third parties', share one), or None.
+    From Canon's CameraSettings (``cr2.lens_hint``) or, for any maker, the EXIF LensSpecification or DNG
+    LensInfo tag (``lens_profiles.spec_hint``). ``short`` and ``long`` are the lens's focal range in mm (equal
+    for a prime); ``aperture`` is its widest f-number at the shot's focal length (a zoom's f/3.5-5.6 reports
+    5.6 at the long end), or None; ``lens_type`` is Canon's lens number (several lenses, Canon's and third
+    parties', share one), or None. ``marked`` is the lens's widest f-number at its short and at its long end
+    (the "f/3.5-5.6" of its name), when the file states both; ``source`` names the field, for notes.
     """
 
     short: float
     long: float
     aperture: float | None
     lens_type: int | None = None
+    marked: tuple[float, float] | None = None
+    source: str = "maker note"
 
 
 @dataclass

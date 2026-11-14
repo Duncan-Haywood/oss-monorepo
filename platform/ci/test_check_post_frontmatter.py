@@ -91,6 +91,33 @@ class T(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(main(["--root", d, str(posts / "nope.md")]), 1)
 
+    def test_reports_need_doc_index_front_matter(self):
+        # 43 of 131 reports added to main 2026-11-07..14 had no `kind`: doc_index's
+        # check ran in no workflow a research or docs PR triggers. This one does.
+        import json
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "docs" / "posts").mkdir(parents=True)
+            (root / "docs" / "posts" / "2026-10-24-x.md").write_text(GOOD)
+            (root / "docs" / "reports").mkdir()
+            (root / "docs" / "taxonomy.json").write_text(json.dumps({"topics": [], "report_kinds": {"note": ""}}))
+            good = root / "docs" / "reports" / "ok.md"
+            good.write_text("---\nkind: note\ndate: 2026-11-14\n---\n# ok\n")
+            bare = root / "docs" / "reports" / "bare.md"
+            bare.write_text("# no front matter\n")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d]), 1)
+            self.assertIn("docs/reports/bare.md: no front matter with `kind`", out.getvalue())
+            self.assertNotIn("ok.md", out.getvalue())
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):  # a named report is checked alone, posts skipped
+                self.assertEqual(main(["--root", d, str(good)]), 0)
+            self.assertEqual(out.getvalue(), "")
+            bare.write_text("---\nkind: note\n---\n# fixed\n")
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["--root", d]), 0)
+
     def test_good(self):
         self.assertEqual(problems("2026-10-24-x.md", GOOD), [])
 

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import {
   parseList, listId, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, order,
-  nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, MAX_ITEMS,
+  nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, stopCheck, STOP_CONFIDENCE, MAX_ITEMS,
 } from "./rank-core.mjs";
 import { buildEngineFile, ENGINE_FILES } from "../scripts/build-rank-engine.mjs";
 
@@ -27,6 +27,7 @@ test("parseList trims bullets, drops blanks and case-insensitive repeats, caps t
 test("list links round-trip unicode and reject junk", () => {
   const list = { title: "Qué café?", items: ["Café ☕", "Té", "Agua 💧"] };
   assert.deepEqual(decodeList("#" + encodeList(list)), list);
+  assert.deepEqual(decodeList("#l=" + encodeList(list)), list, "the l= form the ready-list pages link with");
   assert.equal(decodeList("#nonsense"), null);
   assert.equal(decodeList(encodeList({ items: ["one", "two"] })), null, "fewer than 3 items");
 });
@@ -254,4 +255,49 @@ test("combine: team scores are the mean of centred scores, ranks run 1..n, order
   assert.ok(Math.abs(two.order.reduce((a, r) => a + r.score, 0)) < 1e-9, "centred");
   for (const r of two.order) assert.ok(Math.abs(r.score - one.order.find((x) => x.item === r.item).score) < 1e-9, "a mean, not a sum");
   assert.equal(one.agreement, null);
+});
+
+// The stop rule's second check (docs/RANK-PAGE.md, "Noisy answerers"): a
+// simulated respondent whose 25 options are spread over only 1.5 logits
+// (near coin flips) reaches the fixed-prior 0.9 well before the order is
+// right; the empirical-Bayes refit must hold the page back there.
+function simulateHistory(n, spread, seed, picks) {
+  let a = seed >>> 0;
+  const rand = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const truth = Array.from({ length: n }, (_, i) => -spread / 2 + (spread * i) / (n - 1));
+  const answers = [];
+  const out = [];
+  while (answers.length < picks) {
+    const [x, y] = nextPair(fit(n, answers), answers, { seed });
+    answers.push(rand() < 1 / (1 + Math.exp(-(truth[x] - truth[y]))) ? [x, y, false] : [y, x, false]);
+    out.push(answers.slice());
+  }
+  return out;
+}
+
+test("stopCheck skips the prior search until the fixed-prior read passes", () => {
+  const f = fit(6, [[0, 1, false]]);
+  const s = stopCheck(6, [[0, 1, false]], { fixedFit: f });
+  assert.equal(s.phi, null);
+  assert.equal(s.done, false);
+  assert.equal(stopCheck(6, []).confidence, 0);
+});
+
+test("stopCheck agrees with the fixed rule for a consistent respondent", () => {
+  const chain = [];
+  for (let r = 0; r < 6; r++) chain.push([0, 1, false], [1, 2, false], [2, 3, false], [0, 2, false], [1, 3, false]);
+  const f = fit(4, chain);
+  const s = stopCheck(4, chain, { fixedFit: f });
+  assert.ok(orderConfidence(f) >= STOP_CONFIDENCE);
+  assert.equal(s.done, true);
+});
+
+test("stopCheck holds back a near-coin-flip respondent the fixed prior would have stopped", () => {
+  const n = 25;
+  const history = simulateHistory(n, 1.5, 5, 120);
+  const k = history.findIndex((ans) => orderConfidence(fit(n, ans)) >= STOP_CONFIDENCE);
+  assert.ok(k >= 0, "the fixed prior reads 0.9 on this respondent (the overclaim this guards against)");
+  const s = stopCheck(n, history[k]);
+  assert.ok(s.phi < 2, `own prior sd ${s.phi} is narrower than the fixed 2.01`);
+  assert.equal(s.done, false, `held back at pick ${k + 1} (confidence ${s.confidence.toFixed(3)})`);
 });

@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 H = os.path.dirname(os.path.abspath(__file__))
 sections, cur, label = {}, None, None
 for line in open(os.path.join(H, 'results.txt')):
+    if line.startswith('######## PLACEHOLDER'):
+        break  # the headline figure uses the sourced part list only
     if line.startswith('== recycling'):
         cur = 'off' if 'OFF' in line else 'on'
         sections[cur] = []
@@ -35,6 +37,6 @@ for ax, key in zip(axes, ('off', 'on')):
     ax.set_title(f'recycling {key.upper()}', fontsize=9)
 axes[0].set_ylabel('imported kg per printer copy')
 axes[1].legend(fontsize=6)
-fig.suptitle('selfrep-materials: imported mass per copy (assumed parameters)', fontsize=9)
+fig.suptitle('selfrep-materials: imported mass per copy (sourced part list, assumed process parameters)', fontsize=9)
 fig.tight_layout()
 fig.savefig(os.path.join(H, 'figure.png'), dpi=130)

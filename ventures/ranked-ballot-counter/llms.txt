@@ -1,0 +1,24 @@
+# Ranked-Choice Ballot Counter: count ranked ballots by instant runoff, STV and Schulze
+
+> Free ranked-choice vote counter for clubs, associations, co-ops, boards, unions, student bodies and polls. Paste ranked ballots (A > B > C lines, one row per ballot, or a Google Forms multiple choice grid CSV) and it gives the instant-runoff winner round by round, a multi-seat single transferable vote count (Droop quota, weighted inclusive Gregory transfers, 5-decimal values), the Schulze ranking with the Condorcet winner if there is one, the head-to-head table, and the candidate with most first choices. Every round is shown and downloadable as CSV; ties are broken by earlier rounds, then by a seeded lot. Runs in the browser; nothing is uploaded. Not certified election software and not for public elections.
+
+Free and open source (MIT). Checked against published worked examples, property tests on random elections, and a separately written Python recount (3,000 elections, all agreeing). Not legal or professional advice; an organisation's own rules decide the method and the tie rule.
+
+## Pages
+
+- [The tool](https://marisstella.app/ranked-ballot-counter/)
+- [Why instant runoff and Condorcet can pick different winners](https://marisstella.app/ranked-ballot-counter/instant-runoff-vs-condorcet-four-city-example.html)
+
+## For agents
+
+- Engine: `ballots.mjs`. `analyze({ ballots, seats, seed })`: `ballots` is the pasted text or CSV; `seats` (default 1) sets the STV count; `seed` (default 1) seeds the lot for exact ties. Returns `parsed` (candidates, total, format), `warnings`, `irv` (`winner`, `rounds` with votes, exhausted, action), `stv` (`seats`, `quota`, `elected`, `rounds`; vote values are integers in 1/100000 of a vote), `schulze` (`winners`, `ranking`, `condorcetWinner`, `pairwise`, `strongestPaths`), `firstPreferences` and `plurality`. Also `parseBallots`, `irv`, `stv`, `schulze`, `pairwise`, `reportCsv`, `PAPERS`.
+- CLI: `node ventures/ranked-ballot-counter/cli.mjs <file | -> [--seats N] [--seed N] [--json] [--csv]`.
+
+## Citations
+
+- M. Schulze, Social Choice and Welfare 36(2), 267-303, 2011. doi:10.1007/s00355-010-0475-4
+- H. R. Droop, Journal of the Statistical Society of London 44(2), 141-202, 1881. doi:10.2307/2339223
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ranked-ballot-counter): MIT licensed.
