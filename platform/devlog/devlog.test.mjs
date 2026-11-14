@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { collect, parseExperiments, summariseRuns, verdictOf } from './devlog.mjs';
+import { collect, parseExperiments, readDocs, summariseRuns, verdictOf } from './devlog.mjs';
 import { inline, renderMarkdown, resolveHref, summaryOf, titleOf } from './markdown.mjs';
 import { headlines, renderDoc, renderExperiments, renderIndex, toJson } from './render.mjs';
 
@@ -154,4 +154,32 @@ test('a study without a README is skipped', () => {
   writeFileSync(path.join(dir, 'portfolio', 'research', 'real', 'README.md'), '# Real study\n\nMeasured on 2026-10-14 with real data and code.\n');
   const a = collect(dir);
   assert.deepEqual(a.studies.map((s) => [s.slug, s.date]), [['real', '2026-10-14']]);
+});
+
+test('friction ranks by count, then by file name, whatever order records arrive in', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'devlog-rank-'));
+  const rec = (name, r) => writeFileSync(path.join(dir, name), JSON.stringify(r));
+  // a.json sorts first, so its once-reported files are tallied before the twice-reported one.
+  rec('2026-10-15-a.json', { date: '2026-10-15', track: 'ventures', doc_friction: [{ file: 'z.md', issue: '1' }, { file: 'b.md', issue: '1' }] });
+  rec('2026-10-16-b.json', { date: '2026-10-16', track: 'ventures', doc_friction: [{ file: 'm.md', issue: '1' }, { file: 'm.md', issue: '2' }] });
+  const s = summariseRuns(dir);
+  assert.deepEqual(s.friction.map((f) => [f.file, f.count]), [['m.md', 2], ['b.md', 1], ['z.md', 1]]);
+});
+
+test('by_day counts runs per track', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'devlog-tracks-'));
+  const rec = (name, r) => writeFileSync(path.join(dir, name), JSON.stringify(r));
+  rec('2026-10-15-a.json', { date: '2026-10-15', track: 'ventures' });
+  rec('2026-10-15-b.json', { date: '2026-10-15', track: 'ventures' });
+  rec('2026-10-15-c.json', { date: '2026-10-15', track: 'research' });
+  const d = summariseRuns(dir).by_day['2026-10-15'];
+  assert.equal(d.runs, 3);
+  assert.deepEqual(d.tracks, { ventures: 2, research: 1 });
+});
+
+test('docs sort newest date first, and same-day docs by slug descending; undated last', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'devlog-docs-'));
+  for (const f of ['2026-10-14-a.md', '2026-10-15-a.md', '2026-10-15-b.md', '2026-10-13-z.md', 'zeta.md'])
+    writeFileSync(path.join(dir, f), `# ${f}\n`);
+  assert.deepEqual(readDocs(dir, dir).map((d) => d.slug), ['2026-10-15-b', '2026-10-15-a', '2026-10-14-a', '2026-10-13-z', 'zeta']);
 });
