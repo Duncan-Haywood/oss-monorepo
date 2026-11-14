@@ -13,6 +13,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { cleanOcr } from "../cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "../receipts.mjs";
 import { settleReadings } from "../photoocr.mjs";
+import { pathToFileURL } from "node:url";
 
 // A label in the receipt's own style ("60.000", "28,000", "91000", "1.234,50")
 // as a number in minor units. Rupiah are written with no decimals, so a lone
@@ -63,7 +64,7 @@ export function score(rows, { settled = false } = {}) {
   return r;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const file = process.argv[2];
   let rows = readFileSync(file, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
   const oi = process.argv.indexOf("--ocr");

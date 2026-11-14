@@ -34,6 +34,7 @@ import {
   steadyText,
   coverSlackText,
 } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Build a weekly roster that respects availability, hour limits and rest, covers as many shifts as it can, and avoids overtime.
 
@@ -651,7 +652,7 @@ export function runPlan(staffText, shiftsText, opts = {}) {
   return { code, out: lines.join("\n") + "\n" };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const o = parseArgs(process.argv.slice(2));
     if (o.help) { process.stdout.write(USAGE); process.exit(0); }

@@ -2,6 +2,7 @@
 // grids (ladders of branch lines between two cross mains) with uneven
 // elevations, sizes and K factors, and random trees.
 import { EXAMPLE, PIPE_ID } from '../hydraulics.mjs';
+import { pathToFileURL } from 'node:url';
 
 function rng(seed) {
   let s = seed >>> 0;
@@ -63,4 +64,4 @@ export function cases() {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) console.log(JSON.stringify(cases().map(c => ({ ...c, pipes: c.pipes.map(p => ({ ...p })) }))));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) console.log(JSON.stringify(cases().map(c => ({ ...c, pipes: c.pipes.map(p => ({ ...p })) }))));

@@ -20,6 +20,7 @@ import process from 'node:process';
 import { parseSeries } from './engine.mjs';
 import { parseColumns } from './multivariate.mjs';
 import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector } from './watch-core.mjs';
+import { pathToFileURL } from 'node:url';
 
 // The logic lives in watch-core.mjs (no file or network access, so the page and the agent tool import it too).
 export * from './watch-core.mjs';
@@ -272,7 +273,7 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
   return failOnAlert && alerting.length ? 1 : 0;
 }
 
-const invoked = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const invoked = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invoked) {
   main(process.argv.slice(2)).then((code) => process.exit(code), (e) => { process.stderr.write(`error: ${e.message}\n`); process.exit(2); });
 }

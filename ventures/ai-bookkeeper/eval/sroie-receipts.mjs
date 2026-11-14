@@ -16,6 +16,7 @@ import { cleanOcr } from "../cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "../receipts.mjs";
 import { settleReadings } from "../photoocr.mjs";
 import { labelCents } from "./cord-receipts.mjs";
+import { pathToFileURL } from "node:url";
 
 const norm = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
@@ -100,7 +101,7 @@ export function score(rows, { settled = false } = {}) {
   return r;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const oi = process.argv.indexOf("--ocr");
   const rows = load(process.argv[2], oi > 0 ? process.argv[oi + 1] : null);
   const r = score(rows, { settled: process.argv.includes("--settled") });

@@ -8,6 +8,7 @@ import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { newState, normalize, score, createForm, addSubmission, recentFingerprints, markSpam, removeSubmission, removeForm, submissions, toCsv, notification, autoReply, purgeOlderThan } from "./forms.mjs";
 import { adminPage, formPage, thanksPage } from "./render.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 
@@ -153,7 +154,7 @@ async function sendResend(msg) {
   if (!res.ok) throw new Error(`resend ${res.status}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY || env.ADMIN_KEY.length < 12) { console.error("ADMIN_KEY (12+ characters) is required"); process.exit(1); }
   if (env.ALERT_WEBHOOK_URL && !/^https:\/\//.test(env.ALERT_WEBHOOK_URL)) { console.error("ALERT_WEBHOOK_URL must be https"); process.exit(1); }
   const dryRun = env.DRY_RUN !== "false";

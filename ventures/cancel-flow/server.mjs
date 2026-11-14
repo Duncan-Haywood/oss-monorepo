@@ -11,6 +11,7 @@ import { decide, describeOffer, summarize, summarizeExperiments, assignVariant, 
 import { renderCancelPage } from "./page.mjs";
 import { renderAdminPage } from "./admin.mjs";
 import { runWinback, summarizeWinback, readUnsubToken } from "./winback.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const MAX_SESSIONS = 20000;
@@ -188,7 +189,7 @@ function readJson(path, fallback) {
   try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const missing = ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "ADMIN_KEY", "LINK_SECRET", "PUBLIC_URL"].filter((k) => !env[k]);
   if (missing.length) { console.error(`missing env: ${missing.join(", ")}`); process.exit(1); }
   const dryRun = env.DRY_RUN !== "false";

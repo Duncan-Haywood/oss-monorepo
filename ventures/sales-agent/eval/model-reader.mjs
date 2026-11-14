@@ -19,6 +19,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { walk, read, readAsServer } from "./enron.mjs";
+import { pathToFileURL } from "node:url";
 
 export const LABELS = ["unsubscribe", "not_interested", "out_of_office", "left_company", "bounce", "none", "ambiguous"];
 const STOPS = new Set(LABELS.slice(0, 5));
@@ -83,7 +84,7 @@ export function compare(files) {
 
 const writeOut = (p, note, rows) => fs.writeFileSync(p, JSON.stringify({ note, rows }, null, 1) + "\n");
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [cmd, ...args] = process.argv.slice(2);
   const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : null);
   if (cmd === "compare") {

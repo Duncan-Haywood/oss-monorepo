@@ -21,6 +21,7 @@ import {
   resolveBaseUrl,
   extractMarkdownSummary,
 } from "./generator.mjs";
+import { pathToFileURL } from "node:url";
 
 const HELP = `Usage:
   node cli.mjs --dir <path> --title "Site Name" [--base-url URL] [--summary "..."] [--out FILE]
@@ -166,7 +167,7 @@ export async function run(
   return { exitCode: 0, output };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

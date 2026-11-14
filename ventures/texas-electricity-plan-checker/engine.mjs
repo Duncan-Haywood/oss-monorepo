@@ -340,13 +340,14 @@ export function parseUsage(text) {
     });
     return { months, kind: timeCol >= 0 ? 'interval' : 'daily', warnings };
   }
-  // Month lines or bare numbers.
+  // Month lines or bare numbers. A kWh figure is digits with commas only between thousands groups, so "," or
+  // "1,,0" is an error rather than a silent 0 or 10 kWh month (red team 2026-11-14).
   const months = [];
   let idx = 0;
   for (const line of lines) {
-    const iso = /^(\d{4})-(\d{1,2})\b[\s,;:\t]+([\d,]+(?:\.\d+)?)/.exec(line);
-    const named = /^([a-z]{3})[a-z]*\.?\s*(\d{4})?[\s,;:\t]+([\d,]+(?:\.\d+)?)/i.exec(line);
-    const bare = /^([\d,]+(?:\.\d+)?)$/.exec(line);
+    const iso = /^(\d{4})-(\d{1,2})\b[\s,;:\t]+(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)(?![\d.]|,,)/.exec(line);
+    const named = /^([a-z]{3})[a-z]*\.?\s*(\d{4})?[\s,;:\t]+(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)(?![\d.]|,,)/i.exec(line);
+    const bare = /^(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)$/.exec(line);
     if (iso) months.push({ month: `${iso[1]}-${iso[2].padStart(2, '0')}`, kwh: num(iso[3]) });
     else if (named && MONTHS.includes(named[1].toLowerCase())) months.push({ month: named[2] ? `${named[2]}-${String(MONTHS.indexOf(named[1].toLowerCase()) + 1).padStart(2, '0')}` : named[1][0].toUpperCase() + named[1].slice(1, 3).toLowerCase(), kwh: num(named[3]) });
     else if (bare) months.push({ month: `Month ${++idx}`, kwh: num(bare[1]) });

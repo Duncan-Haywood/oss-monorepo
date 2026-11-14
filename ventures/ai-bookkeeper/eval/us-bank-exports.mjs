@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { readStatement, checkRunningBalance } from "../bank.mjs";
+import { pathToFileURL } from "node:url";
 
 // kind: "download" = looks like a person's own statement download (real merchants,
 // dated statement-period file names); "layout" = anonymised or sample rows in the
@@ -127,7 +128,7 @@ export function analyse(text, src) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const cache = arg("--cache", "/tmp/us-bank-exports");
   mkdirSync(cache, { recursive: true });

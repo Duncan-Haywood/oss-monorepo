@@ -17,6 +17,7 @@
 //   node eval/steady-for-callouts.mjs [seeds=40]     SETS=cafe,spare,salon,retail,clinic  CALL=0.01,0.084  EXTRA=0,0.109
 import { parseStaff, parseShifts, buildRoster, rosterCsv, scheduleChanges, keepFromCsv, pinStarted, addTimeOff, steadyRoster, DAYS } from "../calc.mjs";
 import { drawWeek, sets } from "./real-rate-week.mjs";
+import { pathToFileURL } from "node:url";
 
 const BASE = { minRestHours: 10 };
 const PREM = { noticeHours: 336, premiumHours: 1 };
@@ -53,7 +54,7 @@ export function hindsight(staffText, shiftsText, events, callersByDay, base = BA
   return { open: r.unfilledHours, proven: proven(r) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const seeds = Number(process.argv[2] || 40);
   const all = sets();
   const pick = (process.env.SETS || Object.keys(all).join(",")).split(",");

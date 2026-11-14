@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { sizeSystem, EXAMPLE_SYSTEM, MATERIALS } from './pipe.mjs';
 import { demand } from './demand.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function parseArgs(argv) {
   const o = { file: null, example: false, json: false, trim: false };
@@ -48,7 +49,7 @@ export function report({ result: r, whole }) {
   return lines.join('\n');
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const opts = parseArgs(process.argv.slice(2));
   const out = run(opts);
   if (out.error) { console.error(out.error); process.exit(1); }

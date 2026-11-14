@@ -15,9 +15,10 @@ import { separate } from "../separation.mjs";
 import { indexSeparate, compareFlatIndex } from "../indexsep.mjs";
 import { chooseIndexInks } from "../inkfit.mjs";
 import { loadPaintings, PAINTINGS, RUNS } from "./index-paintings.mjs";
+import { pathToFileURL } from "node:url";
 
 const DIST = [0.5, 1, 3];
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const out = process.argv[2] || "index-inks";
   fs.mkdirSync(out, { recursive: true });
   const images = await loadPaintings({ cacheDir: process.env.PAINTINGS_CACHE || "" });

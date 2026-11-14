@@ -9,6 +9,7 @@
 // on 1..4), hold = 1. These are invented cases for comparing methods, not anyone's sales.
 
 import { wagnerWhitin, silverMeal, periodOrderQuantity, lotForLot } from "./lotsize.mjs";
+import { pathToFileURL } from "node:url";
 
 export function bench({ cases = 2000, periods = 12, spreads = [0.2, 0.6, 1.2], seed = 0x2026 } = {}) {
   let a = seed;
@@ -34,7 +35,7 @@ export function bench({ cases = 2000, periods = 12, spreads = [0.2, 0.6, 1.2], s
   return rows;
 }
 
-if (process.argv[1] && import.meta.url === new URL(process.argv[1], "file://").href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const p = (x) => (x * 100).toFixed(1).padStart(6) + "%";
   console.log("spread  method  mean extra cost   90th pct      worst   cases optimal");
   for (const r of bench()) console.log(`${r.spread.toFixed(1).padStart(6)}  ${r.method.padEnd(6)}  ${p(r.mean).padStart(15)}  ${p(r.p90).padStart(9)}  ${p(r.max).padStart(9)}  ${p(r.optimal).padStart(14)}`);

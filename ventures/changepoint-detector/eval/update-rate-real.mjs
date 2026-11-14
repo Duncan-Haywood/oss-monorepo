@@ -8,6 +8,7 @@
 import { updateRateChanges } from '../update-rate.mjs';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const pct = (v) => `${(100 * v).toFixed(0)}%`;
 export function describe(name, values, labels) {
@@ -20,7 +21,7 @@ export function describe(name, values, labels) {
   return { u, text: `${head}  ${u.changes.length} change(s): ${ch}\n${''.padEnd(28)}stretches: ${parts}` };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const DIR = process.argv[2] || 'tcpd-data';
   const ann = JSON.parse(readFileSync(join(DIR, 'annotations.json'), 'utf8'));
   let fired = 0, ran = 0, total = 0;

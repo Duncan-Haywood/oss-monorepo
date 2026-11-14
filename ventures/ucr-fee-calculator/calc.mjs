@@ -16,7 +16,7 @@ export function parseFees(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*:\s*\$?([\d,]+(?:\.\d+)?)$/.exec(line);
+    const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*:\s*\$?(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)$/.exec(line);
     if (!m) return errors.push(`Fee line ${i + 1}: use "min-max: fee" or "min+: fee".`);
     const min = Number(m[1]);
     const max = m[3] ? Infinity : Number(m[2]);

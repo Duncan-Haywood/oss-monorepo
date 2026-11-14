@@ -9,6 +9,7 @@
 import { readFileSync } from "node:fs";
 import { parseStaff, parseShifts, buildRoster, keepFromCsv } from "../calc.mjs";
 import { VARIANTS } from "./reissue-posted.mjs";
+import { pathToFileURL } from "node:url";
 
 const OPEN = "(nobody: open)";
 export function scoreOwner(w, owner, extra) {
@@ -18,7 +19,7 @@ export function scoreOwner(w, owner, extra) {
   return { score: r.optimality?.bestScore ?? null, pay: r.cost, open: r.unfilledHours, same: r.owner.every((o, i) => o === owner[i]) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const W = JSON.parse(readFileSync(process.argv[2], "utf8"));
   const ilp = Object.fromEntries(JSON.parse(readFileSync(process.argv[3], "utf8")).map((d) => [`${d.set} ${d.case}`, d]));
   const v = process.argv[4] || "keep/shift 1";

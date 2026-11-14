@@ -5,6 +5,7 @@
 // about 28 s each).   node eval/callout-ilp-export.mjs > /tmp/w.json && python3 eval/callout-ilp-check.py /tmp/w.json
 import { parseStaff, parseShifts, buildContext, buildRoster, sampleShifts, DAYS } from "../calc.mjs";
 import { SAMPLE, WITH_SPARE } from "./callout-cover-study.mjs";
+import { pathToFileURL } from "node:url";
 
 export function weeks(engine = false) {
   const slots = parseShifts(sampleShifts()).slots;
@@ -25,4 +26,4 @@ export function weeks(engine = false) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) console.log(JSON.stringify(weeks(!!process.env.ENGINE)));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) console.log(JSON.stringify(weeks(!!process.env.ENGINE)));

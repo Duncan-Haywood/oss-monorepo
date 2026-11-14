@@ -6,6 +6,7 @@
 //   node ventures/gaussian-process-regression/eval/holdout.mjs
 import { readFileSync, writeFileSync } from "node:fs";
 import { KERNELS, parseCsv, decimalYear, fitKernel, predict, predictLinearMean, olsLine } from "../engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const SPLIT = "2023-09";
 const csv = readFileSync(new URL("../data/mauna-loa-co2-2010-2026.csv", import.meta.url), "utf8");
@@ -32,7 +33,7 @@ export function scoreKernel(name, meanKind) {
   return { kernel: name, mean: meanKind, lml: fit.lml, rmse: Math.sqrt(sq / test.length), meanError: bias, maxAbsError: absMax, coverage95: inside / test.length };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const results = {};
   for (const m of ["constant", "linear"]) results[m] = Object.keys(KERNELS).map((k) => scoreKernel(k, m)).sort((a, b) => b.lml - a.lml);

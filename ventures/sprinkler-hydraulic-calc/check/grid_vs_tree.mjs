@@ -6,6 +6,7 @@
 // a building of 10 lines where only the 4 far lines are in the design area
 // (heads on lines 5 to 10 stay shut but their pipe still carries water).
 import { analyze } from '../hydraulics.mjs';
+import { pathToFileURL } from 'node:url';
 
 export function ladder(n, grid, lines = 4) {
   const nodes = [{ id: 'S', elevationFt: 0 }, { id: 'R', elevationFt: 12 }];
@@ -41,7 +42,7 @@ export function table() {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.log('                 4 lines, all open                       10 lines, far 4 open');
   console.log('heads/line  grid psi  grid gpm  tree psi  tree gpm  saved   grid psi  tree psi  saved');
   for (const r of table()) console.log(`${String(r.heads).padStart(10)}${r.gridPsi.toFixed(1).padStart(10)}${r.gridGpm.toFixed(0).padStart(10)}${r.treePsi.toFixed(1).padStart(10)}${r.treeGpm.toFixed(0).padStart(10)}${(r.treePsi - r.gridPsi).toFixed(1).padStart(7)}${r.grid10Psi.toFixed(1).padStart(11)}${r.tree10Psi.toFixed(1).padStart(10)}${(r.tree10Psi - r.grid10Psi).toFixed(1).padStart(7)}`);

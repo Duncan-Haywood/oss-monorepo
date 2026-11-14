@@ -11,6 +11,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 const CANDIDATE_LOCATIONS = ['CODEOWNERS', '.github/CODEOWNERS', 'docs/CODEOWNERS'];
 
@@ -64,7 +65,7 @@ function main() {
 
 // Only run as a CLI when executed directly -- importing this module (the
 // test file does) must not shell out to git or touch the filesystem.
-const isMain = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   try {
     main();

@@ -33,6 +33,7 @@ import { parseCsv } from "../bank.mjs";
 import { replay, fmt } from "./scotgov-card.mjs";
 import { MCC_MEMORY } from "../categorize.mjs";
 import { mccAccount } from "../mcc.mjs";
+import { pathToFileURL } from "node:url";
 
 // Detailed expense type (lower case, trailing ledger code dropped) -> chart accounts
 // a careful bookkeeper could accept. Equipment may be expensed or capitalised; food
@@ -105,7 +106,7 @@ export function loadDurham(texts, { field = "code", department = null, division 
   return out.sort((a, b) => a.date.localeCompare(b.date));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d = null) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const dir = arg("--dir");
   const texts = readdirSync(dir).filter((f) => /\.csv$/i.test(f)).sort().map((f) => decode(readFileSync(join(dir, f))));

@@ -1,6 +1,7 @@
 // How often the block-variance rangeWarning fires on a series whose steps are all real: a staircase of k true
 // level changes in white noise (sd 1), seeded. Run: node eval/staircase-warning.mjs
 import { analyze } from '../engine.mjs';
+import { pathToFileURL } from 'node:url';
 
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 function gauss(r) { return Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r()); }
@@ -28,7 +29,7 @@ export function table(seeds = 20) {
   return rows;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.log('shape        true steps  jump(sd)  warning fired  mean steps found');
   for (const r of table()) console.log(`${r.shape.padEnd(12)} ${String(r.k).padStart(10)}  ${String(r.jump).padStart(8)}  ${String(r.fired).padStart(6)}/${r.seeds}      ${r.meanFound}`);
 }
