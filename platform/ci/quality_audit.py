@@ -266,6 +266,8 @@ def validate_audit(a: dict) -> list[str]:
             errs.append(f"{name}: defects[{i}].severity must be one of {SEVERITIES}")
         if not d.get("what"):
             errs.append(f"{name}: defects[{i}] needs 'what'")
+        if "fixed_by" in d and d["fixed_by"] not in (a.get("fix_prs") or []):
+            errs.append(f"{name}: defects[{i}].fixed_by must be one of the URLs in fix_prs")
     if not isinstance(a.get("fix_prs", []), list):
         errs.append(f"{name}: fix_prs must be a list")
     if a.get("drawn_by", "sample") not in DRAWN_BY:

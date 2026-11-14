@@ -55,6 +55,8 @@ class QualityAuditTest(unittest.TestCase):
         assert any("date" in e for e in q.validate_audit(audit(_file="2026-11-08-ai-bookkeeper.json")))
         assert any("not a path" in e for e in q.validate_audit(audit(subject="ventures/no-such-thing-xyz", _file="2026-11-07-no-such-thing-xyz.json")))
         assert any("severity" in e for e in q.validate_audit(audit(defects=[{"severity": "huge", "what": "x"}])))
+        assert any("fixed_by" in e for e in q.validate_audit(audit(defects=[{"severity": "low", "what": "x", "fixed_by": "u"}])))
+        assert q.validate_audit(audit(fix_prs=["u"], defects=[{"severity": "low", "what": "x", "fixed_by": "u"}])) == []
 
 
     def test_unauditable_needs_no_scores(self):
