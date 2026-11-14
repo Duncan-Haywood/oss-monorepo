@@ -26,7 +26,7 @@ import { import7shifts, fetch7shifts, within } from "./import-7shifts.mjs";
 import { importWhenIWork, fetchWhenIWork, within as withinWiw } from "./import-wheniwork.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays, readSales } from "./demand.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, siteSplit, siteSplitText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, parseTravel, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, siteSplit, siteSplitText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
   keepFromCsv,
   pinStarted,
@@ -42,6 +42,8 @@ Usage:
 
 Options:
   --rest <h>          hours of rest between shifts (default 10)
+  --travel <spec>     travel time between sites: "30" (minutes between any two) or "30; Main to Airport 60"; a person's shifts at
+                      two sites need max(rest, travel) between them (matters when --rest is lowered for split shifts)
   --consec <n>        most days in a row (default 6)
   --daily <h>         daily hour cap (default none)
   --ot-after <h>      weekly overtime threshold (default 40)
@@ -181,6 +183,7 @@ export function parseArgs(argv) {
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
     else if (a === "--location") { o.importLocation = argv[++i]; if (!o.importLocation) throw new Error("--location needs a location name from the export"); }
     else if (a === "--each-location") o.eachLocation = true;
+    else if (a === "--travel") { const v = argv[++i]; const tv = parseTravel(v ?? ""); if (!v || tv.errors.length) throw new Error(tv.errors[0] || '--travel needs minutes like "30" or "30; Main to Airport 60"'); o.options.travel = v; }
     else if (a === "--use") { o.importUse = argv[++i]; if (!["schedule", "final", "initial", "timesheet", "plain"].includes(o.importUse)) throw new Error("--use takes schedule, final, initial, timesheet or plain"); }
     else if (a === "--import-7shifts") { const f = argv[++i]; if (!f) throw new Error("--import-7shifts needs a JSON file"); (o.import7 ||= []).push(f); }
     else if (a === "--fetch-7shifts") o.fetch7 = true;
