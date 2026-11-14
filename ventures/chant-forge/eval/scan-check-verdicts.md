@@ -69,4 +69,37 @@ quilismas, liquescents and notes on ledger lines.
   transcription slips: the introits end on the psalm-tone differentia and
   the graduals and alleluias on their verse. The other four (3402, 3419,
   3427, 3451) cite bracketed pages from the supplement for particular
-  places, which this scan does not include.
+  places, which this scan does not include. *(Wrong, corrected
+  2026-11-14: the scan does include the supplement, at leaf = bracketed page
+  + 585; see the next item.)*
+- **Off-final endings in the supplement (2026-11-14):** the four bracketed-page
+  pieces read off leaves 742-753 (`offfinal-supplement-pages.json`,
+  `offfinal-supplement-report.md`, `node eval/scan-check.mjs --manifest
+  eval/offfinal-supplement-pages.json`):
+  - **3402** (*Omnis gloria*, introit, p. [167]): 185 of 187 notes agree, 0
+    differ, the whole ending (h g h i g h) read: the book's.
+  - **3451** (*Qui ambulat*, gradual, p. [161]): 325 of 332 agree, ending
+    (h g f g h f) read: the book's. The one difference (`lén`, porrectus
+    `hfg`, read g for h, leaf 746 staff 5) was looked at: the stroke starts on
+    the h line, so it is the reader (a porrectus top read a step low), not the
+    GABC.
+  - **3419** (*Gaudeamus ... Boni Consilii*, introit, p. [157]): the page
+    prints only the changed middle ("sub honore beatae Mariae Virginis, Boni
+    Consilii Matris") and says "Gaudeamus, 486" for the rest. The middle: 33
+    of 33 agree. The rest, read on pp. 486-487 (the Gaudeamus of Our Lady of
+    Mount Carmel, leaves 511-512): 165 agree, 0 differ, and the ending (f f d
+    c d f, the psalm-tone differentia) is the book's. So the GregoBase file is
+    the book's two places put together, as the rubric asks.
+  - **3427** (*Lingua pravorum*, alleluia, mode 7, p. [161]): 166 of 179
+    agree and the last three GABC notes (`ni(ed) tas.(d)`) pair with nothing.
+    Looked at on leaf 746, staff 4 (c3 clef): the clivis on "ni" starts on the
+    f line and falls to the space below, and "tas" is in that space: f e | e,
+    a step higher than the GABC, ending on the mode-7 final like the jubilus
+    before the verse. **Transcription error; corrected to `ni(fe) tas.(e)` in
+    `corpus/gregobase-1908/3427.gabc`** (its `correction:` header; the live
+    GregoBase file was still the old one on 2026-11-14). With the correction
+    the reader pairs all three (f/f e/e e/e) and 169 of 182 agree, 0 differ.
+    A second reader is wanted, as for the Te Deum note.
+  So of the 11 files that ended off their mode's final, 10 end as the book
+  prints them and 1 was a slip; `offfinal-report.md` lists the 10 with what
+  each reading found.

@@ -988,7 +988,12 @@ by direction, `<` and `>` are not, and a liquescent after a porrectus end is not
   alleluias and offertories finish on a psalm-tone differentia or a verse). `node eval/offfinal-report.mjs` lists them with last notes and syllables
   (`eval/offfinal-report.md`); 5 are introits ending on "euouae". Seven of the
   11 were read against the 1908 scan on 2026-11-13 (next section): their
-  endings are the book's.
+  endings are the book's. The other four cite the supplement's bracketed pages, which
+  the same scan does carry (leaf = page + 585); read on 2026-11-14
+  (`eval/offfinal-supplement-report.md`), three end as printed (3419's page prints only its
+  changed middle and sends the singer to *Gaudeamus*, p. 486, where its ending is) and one,
+  3427, was a transcription slip: its last three notes were a step low, now corrected, and it
+  ends on its mode final. So 10 files end off the final because the book does.
 - `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
   MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.

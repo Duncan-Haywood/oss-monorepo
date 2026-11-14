@@ -53,7 +53,7 @@ in `quilisma-fresh-pages.json`, listed and first scanned after version 3 was fro
 | liquescent fresh | rhombus | 211 | 187 | 186 of 187 (99.5%) | 0 of 187 (0.0%) | 0 of 187 (0.0%) | 1 of 187 (0.5%) |
 | liquescent fresh | quilisma | 21 | 14 | 0 of 14 (0.0%) | 12 of 14 (85.7%) | 0 of 14 (0.0%) | 2 of 14 (14.3%) |
 | liquescent fresh | liquescent | 27 | 23 | 1 of 23 (4.3%) | 0 of 23 (0.0%) | 22 of 23 (95.7%) | 0 of 23 (0.0%) |
-| quilisma fresh | punctum | 2773 | 2686 | 1 of 2686 (0.0%) | 5 of 2686 (0.2%) | 1 of 2686 (0.0%) | 2581 of 2686 (96.1%) |
+| quilisma fresh | punctum | 2776 | 2689 | 1 of 2689 (0.0%) | 5 of 2689 (0.2%) | 1 of 2689 (0.0%) | 2584 of 2689 (96.1%) |
 | quilisma fresh | virga | 200 | 195 | 0 of 195 (0.0%) | 0 of 195 (0.0%) | 0 of 195 (0.0%) | 195 of 195 (100.0%) |
 | quilisma fresh | rhombus | 512 | 453 | 450 of 453 (99.3%) | 0 of 453 (0.0%) | 0 of 453 (0.0%) | 3 of 453 (0.7%) |
 | quilisma fresh | quilisma | 85 | 60 | 3 of 60 (5.0%) | 51 of 60 (85.0%) | 1 of 60 (1.7%) | 5 of 60 (8.3%) |
@@ -105,7 +105,7 @@ in `quilisma-fresh-pages.json`, listed and first scanned after version 3 was fro
 | GregoBase 3414 (Vere tu es) | quilisma fresh | 36 | 36 | 36 | 2 | 2 | 2 | 96 | 0 | 0 |
 | GregoBase 3416 (Statuit) | quilisma fresh | 6 | 6 | 6 | 1 | 1 | 1 | 122 | 0 | 0 |
 | GregoBase 3422 (Confiteantur tibi) | quilisma fresh | 24 | 19 | 19 | 1 | 0 | 0 | 223 | 0 | 0 |
-| GregoBase 3427 (Lingua pravorum) | quilisma fresh | 54 | 45 | 45 | 10 | 7 | 4 | 114 | 0 | 1 |
+| GregoBase 3427 (Lingua pravorum) | quilisma fresh | 54 | 45 | 45 | 10 | 7 | 4 | 117 | 0 | 1 |
 | GregoBase 3430 (In medio Ecclesiae) | quilisma fresh | 2 | 0 | 0 | 1 | 1 | 1 | 151 | 0 | 1 |
 | GregoBase 3436 (Concupivit rex) | quilisma fresh | 48 | 39 | 39 | 8 | 6 | 4 | 116 | 0 | 0 |
 | GregoBase 3437 (Adhaesi) | quilisma fresh | 14 | 11 | 8 | 3 | 1 | 1 | 124 | 0 | 0 |
