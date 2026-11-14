@@ -316,12 +316,14 @@
       {
         "file": "platform/ci/control_plane_guard.py",
         "issue": "--audit-commit counted any APPROVED review ever left on the PR: an owner approval later withdrawn (CHANGES_REQUESTED or DISMISSED) or given to an older commit than the merged head still passed. Reproduced with mocked reviews (audit_verdict returned 0 for all three). Fix and tests written (current_approvers: latest decisive review per login, commit_id must equal pr.head.sha). Control plane, so it goes in its own PR from claude/cool-franklin-d9clqm after #15724 lands; patch also in that branch's history.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15728"
       },
       {
         "file": "platform/ci/control_plane_guard.py",
         "issue": "--audit-commit read only the first page of GET /commits/{sha} files (300 per page), so a squash touching 301+ files could hide an owned file on page 2. Reproduced with a mocked two-page response (main returned 0). Fix (commit_files pages up to 10x300) with a failing-first test is in the same control-plane follow-up PR.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15728"
       }
     ]
   },
