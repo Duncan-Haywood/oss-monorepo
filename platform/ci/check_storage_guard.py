@@ -121,6 +121,35 @@ def bare_storage_args(src):
     return [code.count("\n", 0, c.start()) + 1 for c in call.finditer(code)]
 
 
+_SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script\s*>", re.S | re.I)
+_TYPEOF = re.compile(r"\btypeof\s+(?:(?:window|globalThis|self)\.)?localStorage\b")
+
+
+def script_sources(path, src):
+    """Yield (first line, code) for each script in a page; a module is one script."""
+    if path.suffix != ".html":
+        yield 1, src
+        return
+    for m in _SCRIPT.finditer(src):
+        if re.search(r"""type\s*=\s*["']?application/(?:ld\+)?json""", m.group(1), re.I):
+            continue
+        yield src.count("\n", 0, m.start(2)) + 1, m.group(2)
+
+
+def unguarded_typeof(src):
+    """Return 1-based lines where `typeof localStorage` runs outside any try.
+
+    The probe meant to make a script safe is the line that kills it: with site
+    data blocked, evaluating the `localStorage` getter throws `SecurityError`
+    even under `typeof`. 21 copies of a preference-restoring snippet did it at
+    the top of their page script on 2026-11-14, so the whole page (calculator,
+    share link, draft restore) stopped before it started. Wrap the probe:
+    `try { if (typeof localStorage === 'undefined') return; } catch { return; }`.
+    """
+    code = _strip(src).split("\n")
+    return [n for n in unguarded_reads(src) if _TYPEOF.search(code[n - 1])]
+
+
 def _pages(root):
     for path in sorted(Path(root).rglob("*")):
         if path.suffix not in (".html", ".mjs", ".js") or path.name == "usage.mjs" or ".test." in path.name:
@@ -146,6 +175,9 @@ def check_tree(root):
             continue
         for line in bare_storage_args(src):
             problems.append(f"{path}:{line}: bare `localStorage` passed to the usage module (pass usageStorage())")
+        for start, code in script_sources(path, src):
+            for line in unguarded_typeof(code):
+                problems.append(f"{path}:{start + line - 1}: `typeof localStorage` outside try throws when site data is blocked")
     return problems
 
 

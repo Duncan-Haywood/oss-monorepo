@@ -2,7 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_storage_guard import bare_storage_args, check_tree, main, run_contract, unguarded_reads, unshaped_parses
+from check_storage_guard import (bare_storage_args, check_tree, main, run_contract, script_sources, unguarded_reads,
+                                 unguarded_typeof, unshaped_parses)
 
 
 class UnguardedReads(unittest.TestCase):
@@ -220,3 +221,47 @@ class BareStorageArgs(unittest.TestCase):
             (v / "index.html").write_text(bad)
             self.assertEqual(len(check_tree(d)), 1)
 
+
+class UnguardedTypeof(unittest.TestCase):
+    """Red team 2026-11-14: 21 page scripts died at the top on a bare `typeof localStorage`."""
+
+    SNIPPET = ("(() => {\n"
+               "  if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;\n"
+               "  try { localStorage.getItem('k'); } catch {}\n"
+               "})();\n")
+    FIXED = SNIPPET.replace(
+        "if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;",
+        "if (typeof document === 'undefined') return;\n  try { if (typeof localStorage === 'undefined') return; } catch { return; }")
+
+    def test_flags_the_snippet_and_each_spelling(self):
+        self.assertEqual(unguarded_typeof(self.SNIPPET), [2])
+        for g in ("window.", "globalThis.", "self."):
+            self.assertEqual(unguarded_typeof(f"if (typeof {g}localStorage !== 'undefined') x();\n"), [1], g)
+
+    def test_the_wrapped_probe_passes(self):
+        self.assertEqual(unguarded_typeof(self.FIXED), [])
+
+    def test_other_bare_reads_are_not_this_check(self):
+        self.assertEqual(unguarded_typeof("localStorage.getItem('k');\n"), [])
+
+    def test_html_scripts_are_read_one_by_one_and_json_is_skipped(self):
+        html = ("<p>Don't worry, it's typeof localStorage in prose</p>\n"
+                '<script type="application/ld+json">{"a": "typeof localStorage"}</script>\n'
+                "<script>\n" + self.SNIPPET + "</script>\n")
+        found = [(start + n - 1) for start, code in script_sources(Path("x.html"), html) for n in unguarded_typeof(code)]
+        self.assertEqual(found, [5])
+
+    def test_tree_reports_html_and_modules_and_skips_tests(self):
+        with tempfile.TemporaryDirectory() as d:
+            v = Path(d) / "a"
+            v.mkdir()
+            (v / "app.test.mjs").write_text(self.SNIPPET)
+            self.assertEqual(check_tree(d), [])
+            (v / "app.js").write_text(self.SNIPPET)
+            (v / "index.html").write_text("<script>\n" + self.SNIPPET + "</script>\n")
+            got = sorted(p.split(d)[1] for p in check_tree(d))
+            self.assertEqual(got, ["/a/app.js:2: `typeof localStorage` outside try throws when site data is blocked",
+                                   "/a/index.html:3: `typeof localStorage` outside try throws when site data is blocked"])
+            (v / "app.js").write_text(self.FIXED)
+            (v / "index.html").write_text("<script>\n" + self.FIXED + "</script>\n")
+            self.assertEqual(check_tree(d), [])
