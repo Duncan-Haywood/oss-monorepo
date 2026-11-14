@@ -1,9 +1,9 @@
 ---
 title: "When the tennis feeder slows its wheels, the energy has to go somewhere"
-seo_title: "Regenerative braking on a 24 V robot bus: an e-stop, a full pack and one Schottky diode"
+seo_title: "Regenerative braking on a 24 V robot bus: e-stop, full pack, a diode"
 date: 2026-11-14
 tags: [open-tennis-robots, hardware, electronics, firmware]
-description: "Braking ESCs push up to 170 W back onto the tennis feeder's bus. With the contactor open, that passes the H-bridge's 30 V in under a millisecond. A diode and a firmware rule fix it."
+description: "Braking ESCs push up to 170 W back onto the tennis feeder's bus; with the contactor open it passes 30 V in under 1 ms. A diode and a firmware rule fix it."
 ---
 
 The open tennis-ball feeder throws balls between two wheels, each spun by an
