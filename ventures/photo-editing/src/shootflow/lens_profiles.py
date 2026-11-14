@@ -451,6 +451,83 @@ def find_lenses(db: LensDb, name: str, camera: Camera | None = None, crop: float
     return hits
 
 
+def name_range(name: str) -> tuple[float, float, float, float] | None:
+    """The focal range and f-number range a lens name states: ``18-55mm f/3.5-5.6`` gives (18, 55, 3.5, 5.6).
+
+    Only lensfun's first name pattern (``NN[-NN]mm f/A[-B]``, ``lens_name_regexes[0]``) is read, the form nearly
+    every lensfun name takes; a prime or a constant-aperture zoom repeats its one number. None without both.
+    """
+
+    if any(w in name for w in ("adapter", "reducer", "booster", "extender", "converter", "magnifier")) \
+            or _EXTENDER_RE.fullmatch(name):
+        return None
+    m = _NAME_RANGE_RE.fullmatch(name.replace("\u2013", "-"))
+    if not m or m.group(5) is None:
+        return None
+    lo = _atof(m.group(1))
+    hi = _atof(m.group(2)) if m.group(2) is not None else lo
+    a1 = _atof(m.group(5))
+    a2 = _atof(m.group(6)[1:]) if m.group(6) is not None else a1
+    if not (lo > 0 and hi >= lo and a1 > 0 and a2 >= a1):
+        return None
+    return lo, hi, a1, a2
+
+
+# lensfun's first pattern, also taking "F2.8" and en dashes ("28\u2013200mm f/4\u20137.1"), as some names write them.
+_NAME_RANGE_RE = re.compile(_LENS_NAME_RES[0][0].pattern, re.IGNORECASE)
+_EXTENDER_WORDS = ("extender", "ext.", "converter", "teleplus", "\u00d7")
+
+
+def _with_extender(lens: Lens) -> bool:
+    """A lensfun entry for a lens with a teleconverter behind it (a Canon body then reports the multiplied range)."""
+
+    return any(any(w in m.lower() for w in _EXTENDER_WORDS) or _EXTENDER_RE.fullmatch(m) for m in lens.models)
+
+
+# Canon reports apertures in thirds of a stop; a name rounds to the marked f-number (f/4.5 is 4 1/3 stops, 4.49).
+_APERTURE_TOLERANCE = 2.0 ** (1.0 / 12.0)  # a sixth of a stop either way
+
+
+def find_lenses_by_range(db: LensDb, short: float, long: float, aperture: float | None,
+                         camera: Camera | None = None, crop: float | None = None) -> list[Lens]:
+    """Lenses whose name states exactly this focal range and an f-number range holding ``aperture``.
+
+    For a raw whose maker note gives the lens's focal range and widest f-number at the shot's focal length but
+    no name (a Canon 350D's CR2, or a 7D's "10-17mm"). The crop filter is ``find_lenses``'; mounts are the
+    camera's and its same-maker compatible ones (manual adapted mounts send no focal range). A zoom's
+    reported aperture lies between its marked f-numbers, so f/3.5-5.6 admits 3.5 to 5.6, each a sixth of a stop
+    wider. Lenses are distinct by main name; the caller takes one only when it is alone.
+    """
+
+    mounts: tuple[str, ...] = ()
+    if camera is not None and camera.mount:
+        # Only a lens that talks to the body fills in the maker note: its own mount, or an adapted mount of the
+        # same maker (EF on an RF body). M42, T2 and other manual mounts lensfun lists as compatible report nothing.
+        brand = camera.mount.split()[0].lower()
+        mounts = (camera.mount,) + tuple(m for m in db.compat.get(camera.mount, ()) if m.split()[0].lower() == brand)
+    cam_crop = camera.crop if camera is not None and camera.crop > 0 else (crop or 0.0)
+    out: dict[str, Lens] = {}
+    for lens in db.lenses:
+        if cam_crop and lens.calibrations and not _crop_score(cam_crop, lens):
+            continue
+        if lens.mounts and mounts and not any(m in lens.mounts for m in mounts):
+            continue
+        if _with_extender(lens):
+            continue
+        for model in lens.models:
+            r = name_range(model)
+            if r is None:
+                continue
+            lo, hi, a1, a2 = r
+            if abs(lo - short) > 0.5 or abs(hi - long) > 0.5:
+                continue
+            if aperture and not (a1 / _APERTURE_TOLERANCE <= aperture <= a2 * _APERTURE_TOLERANCE):
+                continue
+            out.setdefault(lens.name, lens)
+            break
+    return list(out.values())
+
+
 def fixed_lens(db: LensDb, camera: Camera) -> Lens | None:
     """The camera's built-in lens: the one lens on its own mount that lensfun names "fixed lens" in a language variant.
 
@@ -970,9 +1047,10 @@ class ShotInfo:
     focal_35mm: float | None
     aperture: float | None = None
     distance: float | None = None  # metres
+    hint: object | None = None  # raw_develop.LensHint: the maker note's focal range and aperture, when it names no lens
 
 
-def shot_info(ifd0, exif) -> ShotInfo:
+def shot_info(ifd0, exif, hint=None) -> ShotInfo:
     """Camera, lens and focal length from IFD0 and the EXIF IFD (either may hold the EXIF tags in a DNG)."""
 
     def pick(fn, tag):
@@ -986,7 +1064,29 @@ def shot_info(ifd0, exif) -> ShotInfo:
     return ShotInfo(
         _ascii(ifd0, TAG_MAKE), _ascii(ifd0, TAG_MODEL), pick(_ascii, TAG_LENS_MODEL), pick(_ascii, TAG_LENS_MAKE),
         focal, pick(_number, TAG_FOCAL_35MM), pick(_number, TAG_FNUMBER), pick(_number, TAG_SUBJECT_DISTANCE),
+        hint,
     )
+
+
+def _lens_from_hint(db: LensDb, hint, camera: Camera | None, crop: float, name: str | None,
+                    notes: list[str]) -> Lens | None:
+    """The one lens that fits the maker note's focal range and aperture, or None with a note naming the field."""
+
+    rng = f"{hint.short:g} mm" if hint.short == hint.long else f"{hint.short:g}-{hint.long:g} mm"
+    said = rng + (f" at f/{hint.aperture:.2g} wide open" if hint.aperture else "")
+    found = find_lenses_by_range(db, hint.short, hint.long, hint.aperture, camera, crop)
+    if len(found) == 1:
+        notes.append(f"lens identified as {found[0].name} from the maker note ({said}): the only lens in the "
+                     "database with that focal range and aperture (pass --lens if it is not)")
+        return found[0]
+    if found:
+        names = sorted(lens.name for lens in found)
+        more = f" and {len(names) - 4} more" if len(names) > 4 else ""
+        raise LensProfileError(
+            f"the file {'names the lens only as ' + repr(name) if name else 'names no lens'}; its maker note gives "
+            f"a {said} lens, which fits {len(names)} lenses in the database ({', '.join(names[:4])}{more}); "
+            "pass --lens")
+    return None
 
 
 def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str | None = None,
@@ -1012,13 +1112,25 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
     if not focal:
         raise LensProfileError("focal length unknown: the file has no FocalLength tag; pass --lens-focal")
     name = lens_name or info.lens
-    if name and not lens_name and not specific(name):
+    lens: Lens | None = None
+    hint = info.hint if not lens_name else None
+    if hint is not None and (not name or not specific(name)):
+        lens = _lens_from_hint(db, hint, camera, crop, name, notes)
+        if lens is not None:
+            name = None
+    miss = ""
+    if lens is None and hint is not None:
+        rng = f"{hint.short:g} mm" if hint.short == hint.long else f"{hint.short:g}-{hint.long:g} mm"
+        miss = f" (no lens in the database has the maker note's {rng}" + (
+            f" at f/{hint.aperture:.2g} wide open)" if hint.aperture else ")")
+    if lens is None and name and not lens_name and not specific(name):
         raise LensProfileError(
             f"the file's lens name {name!r} gives only numbers (a third-party lens, as Canon bodies write them), "
-            "which would match any lens of that focal length; pass --lens"
+            f"which would match any lens of that focal length{miss}; pass --lens"
         )
-    lens: Lens | None
-    if name:
+    if lens is not None:
+        pass
+    elif name:
         hits = find_lenses(db, name, camera, crop)
         if not hits:
             raise LensProfileError(f"no lens in the database matches {name!r}" + (
@@ -1030,7 +1142,7 @@ def correction_for(db: LensDb, info: ShotInfo, w: int, h: int, *, lens_name: str
     else:
         lens = fixed_lens(db, camera) if camera is not None else None
         if lens is None:
-            raise LensProfileError("the file names no lens and the camera is not a fixed-lens camera in the "
+            raise LensProfileError(f"the file names no lens{miss} and the camera is not a fixed-lens camera in the "
                                    "database; pass --lens")
         notes.append(f"fixed-lens camera: {lens.name}")
     vig = None

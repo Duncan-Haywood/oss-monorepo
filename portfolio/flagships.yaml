@@ -231,11 +231,12 @@ flagships:
       memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
       liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
       the SSE path (four-component float32 images through lensfunpy, if it allows
-      them) and a 16-bit fixed-point output check; Canon's maker-note lens number
-      (CameraSettings index 22) mapped to a name for CR2s whose maker note gives no
-      usable name (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095
-      are read since 2026-11-13); the whole numpy develop runs in threaded bands and
-      packed raws unpack in numpy since 2026-11-13
+      them) and a 16-bit fixed-point output check; CR2s with no lens name are
+      matched by the maker note's focal range and aperture since 2026-11-14
+      (eval/canon-lens-from-range-2026-11-14.md: one lens in 38% of lensfun's
+      Canon-mount cases, the rest refused as ties); next: the same fields from
+      Nikon's LensData or Sony's maker note; the whole numpy develop runs in
+      threaded bands and packed raws unpack in numpy since 2026-11-13
       (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
       band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
