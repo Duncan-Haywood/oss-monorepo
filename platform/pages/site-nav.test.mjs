@@ -251,3 +251,21 @@ test('the chrome CSS gives no length a bare number (the browser would drop the r
   assert.deepEqual(unitlessLengths(SITE_HEADER_CSS), []);
   assert.deepEqual(unitlessLengths(VENTURE_CHROME_CSS), []);
 });
+
+test('every link in the dark footer band takes the band link colour, at AA on the band', () => {
+  // Research project pages colour links with --accent-ink, which the band does
+  // not redefine: their repo credit link sat at 2.24:1 on 1,111 pages until
+  // the band coloured every link itself (2026-11-14).
+  const css = renderSiteStyle();
+  const rule = css.match(/footer:has\(\.pfs-foot\) a\{color:var\(--pfs-accent\)\}/);
+  assert.ok(rule, 'footer:has(.pfs-foot) a{color:var(--pfs-accent)} is missing from the site style');
+  const band = css.match(/footer:has\(\.pfs-foot\)\{[^}]*--pfs-accent:(#[0-9a-f]{6})[^}]*?(#[0-9a-f]{6});\s*box-shadow/i);
+  assert.ok(band, 'band link colour and fill not found');
+  const lum = (hex) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const [hi, lo] = [lum(band[1]), lum(band[2])].sort((a, b) => b - a);
+  assert.ok((hi + 0.05) / (lo + 0.05) >= 4.5, `band link ${band[1]} on ${band[2]} is under 4.5:1`);
+});
