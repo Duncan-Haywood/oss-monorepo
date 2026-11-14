@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqygMGnDNFVBYXyryGer",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T23:39:13Z",
+  "ended": "2026-11-14T23:48:27Z",
+  "wall_minutes": 15.86,
+  "tokens_in": 2487442,
+  "tokens_out": 31850,
+  "cost_usd": 1.8612,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16021",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "'Publishing' says audio is served from jsDelivr and 'no longer counts against' the Pages limit, while the creative prompt still caps audio at 400 MB by du; the two disagree on whether the cap still binds. Followed the prompt (text only)."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a two-file creative change spent its budget on portfolio-pages 'Test the site builder' and returned exit 1 with no verdict; relied on PR CI for that workflow."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-saints-by-candlelight-119-speech-on-the-steps.md"
+  ],
+  "goal": null,
+  "notes": "Creative track: Saints by Candlelight, episode 119, slug paul-and-the-speech-on-the-steps-of-the-fortress (Acts 21:17-22:29), the sequel the series list named. 7,532 words, text only (audio folders 474 MB > 400 MB). Saints was the creative project longest without a new piece; no open creative PRs. Fact pass corrected: the seven companions hedged to Trophimus certain, balustrade 'three cubits', cohort size, Cenchreae vow attribution, Cicero date. Local: venture node --test 14/14; run_workflow_locally --for-changes 9/10 passed, portfolio-pages out of budget (no verdict). No agent doc: nothing new for the next run beyond PRODUCTION.md's updated next-up line.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b1d6eac2-1ead-545d-99c8-aa4f197e3a17",
+    "transcripts": 1,
+    "first": "2026-11-14T23:39:13Z",
+    "last": "2026-11-14T23:55:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 57,
+        "output": 31850,
+        "thinking": 8259,
+        "cache_read": 2394248,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93137,
+        "api_equivalent_usd": 1.8612,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 57,
+      "output": 31850,
+      "thinking": 8259,
+      "cache_read": 2394248,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93137,
+      "api_equivalent_usd": 1.8612,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.963,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 25,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.86,
+      "active_minutes": 15.86,
+      "model_minutes": 5.41,
+      "tool_minutes": 10.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a 7,500-word researched script for a professional writer: about a day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 322.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
