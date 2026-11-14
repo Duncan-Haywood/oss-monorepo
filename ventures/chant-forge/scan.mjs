@@ -682,15 +682,49 @@ export function shearColumns(bin, t) {
 
 // Scan values relative to the clef line, staff by staff. A trailing custos
 // (the small guide note at the right end) is dropped.
+// A staff that slopes on a page that does not. Scanned books curl near the
+// spine and at the head and foot of a leaf, so one or two staves can drift
+// 10-12 px across while the rest of the page lies flat: on leaf 764 of the
+// 1908 Graduale staff 1 falls 11 px from left to right, staff 2 9 px, staff
+// 5 none, and estimateSkew, which scores the whole page, finds no slope.
+// The tilted staff's lines are then measured as bands 11-16 px thick, and
+// readStaff, which drops line rows unless ink crosses them, wipes out the
+// heads sitting on them (eight notes of *sunt reliquiae* lost,
+// eval/staff-curl-check.md). So each staff's own rows, from half a space
+// above its top line to half a space below its bottom line, are scored the
+// same way, and a slope that moves a line DESKEW_MIN_DRIFT px or more across
+// the page is returned, to be added to the page's.
+export function staffSkew(bin, staff, { minDrift = DESKEW_MIN_DRIFT } = {}) {
+  const { width, height, ink } = bin;
+  const ya = Math.max(0, Math.floor(staff.top - 0.5 * staff.space));
+  const yb = Math.min(height - 1, Math.ceil(staff.bottom + 0.5 * staff.space));
+  const band = { width, height: yb - ya + 1, ink: ink.subarray(ya * width, (yb + 1) * width) };
+  return estimateSkew(band, { minDrift });
+}
+
 export function readPage(img, opts = {}) {
   const raw = binarize(img);
   // a tilted page is straightened first (estimateSkew, shearColumns); y
   // values are given back on the page as scanned
-  const t = opts.deskew === false ? 0 : estimateSkew(raw);
-  const bin = t ? shearColumns(raw, t) : raw;
-  const back = (x, y) => y + shiftOf(x, t, raw.width);
-  const staves = findStaves(bin, opts);
-  return staves.map((staff, k) => {
+  const t0 = opts.deskew === false ? 0 : estimateSkew(raw);
+  const bin0 = t0 ? shearColumns(raw, t0) : raw;
+  const staves = findStaves(bin0, opts);
+  return staves.map((staff0, k) => {
+    // a staff tilted on its own (the page curls near its top or bottom
+    // edge, so the whole-page slope stays under the threshold) is
+    // straightened by its own slope and read from that shear
+    // (staffSkew; eval/staff-curl-check.md)
+    let staff = staff0, bin = bin0, t = t0;
+    if (opts.deskew !== false && opts.staffDeskew !== false) {
+      const r = staffSkew(bin0, staff0);
+      if (r) {
+        const b2 = shearColumns(raw, t0 + r);
+        const mid = (staff0.top + staff0.bottom) / 2;
+        const near = findStaves(b2, opts).filter((q) => Math.abs((q.top + q.bottom) / 2 - mid) < staff0.space && Math.abs(q.space - staff0.space) < 0.15 * staff0.space);
+        if (near.length) { staff = near[0]; bin = b2; t = t0 + r; }
+      }
+    }
+    const back = (x, y) => y + shiftOf(x, t, raw.width);
     const heads = readStaff(bin, staff, opts);
     const clef = findClef(bin, staff);
     let notes = clef ? heads.filter((h) => h.x0 > clef.x1) : heads;

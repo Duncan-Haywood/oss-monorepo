@@ -1,8 +1,10 @@
-// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--no-stroke-top] [--no-clef-change] [--manifest FILE]
+// node eval/scan-check.mjs [--cache DIR] [--only NAME] [--out FILE] [--no-deskew] [--no-stroke-top] [--no-clef-change] [--no-staff-deskew] [--manifest FILE]
 //
 // --no-stroke-top reads a cut-short porrectus stroke as before 2026-11-14
 // (readStaff's { strokeTop: false }; eval/porrectus-top-check.md).
 //
+// --no-staff-deskew reads a staff that slopes on a flat page unstraightened,
+// as the reader did before 2026-11-14 (eval/staff-curl-check.md)
 // --no-clef-change ignores a C clef printed inside a staff, as the reader did
 // before 2026-11-14 (readPage's { clefChange: false }; eval/clef-change-check.md).
 //
@@ -35,7 +37,7 @@ const cache = opt('--cache', join(tmpdir(), 'chant-forge-scans'));
 const only = opt('--only', null);
 const out = opt('--out', join(here, 'scan-check-report.md'));
 const trials = Number(opt('--trials', 200));
-const readOpts = { ...(args.includes('--no-deskew') ? { deskew: false } : {}), ...(args.includes('--no-stroke-top') ? { strokeTop: false } : {}), ...(args.includes('--no-clef-change') ? { clefChange: false } : {}) };
+const readOpts = { ...(args.includes('--no-deskew') ? { deskew: false } : {}), ...(args.includes('--no-stroke-top') ? { strokeTop: false } : {}), ...(args.includes('--no-clef-change') ? { clefChange: false } : {}), ...(args.includes('--no-staff-deskew') ? { staffDeskew: false } : {}) };
 mkdirSync(cache, { recursive: true });
 
 const NAMES = 'abcdefghijklm';
