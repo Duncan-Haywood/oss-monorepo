@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNb3mbK32oynY5oL8k",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (prompts/ventures/prompt-1.md brief)",
+  "input_sha256": "20b6aad4c7749bfe57783787f0f3f9a9b8479b84f65050c730d7f1e9113b4831",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T00:18:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: inks chosen for the index dots (open item 'inks chosen for the dither rather than the flat clusters')",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 15657,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocator named shift-roster-builder; prompt.md puts website requests first, so took R-0005's open item instead",
+      "did": "built inkfit.mjs for R-0005",
+      "result": "measured gain on nine real paintings"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-inks-chosen-for-the-dots.md",
+    "ventures/clothing-design-studio/eval/index-inks-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node eval/index-inks.mjs on nine public-domain paintings (36 runs): inks chosen for 1 m closer than flat-ink dots at 1 m on 34 of 36; white 4 inks 10.64->9.55 at 1 m, 8.34->6.24 at 3 m; chosen for 3 m 4.51. Never worse than flat inks at the chosen distance (by construction, tested). Plain FW projection converged slowly on hull faces; switched to pairwise FW. compareFlatIndex now scores the flat column with the flat palette (it used the index palette, which would have been wrong once inks differ). Page checked in headless Chromium with Starry Night at 1200 px: 12.71->6.50 at 1 m, 6.7 s, no console errors. run_venture_tests clothing-design-studio ok; venture-preflight run (see PR). No real ink or proof.",
+  "corrections": [],
+  "redteam": null
+}
