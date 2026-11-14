@@ -966,6 +966,19 @@ class Feeder:
     regen_diode_a: float = 20.0       # and its forward current rating
     regen_brake_max_v: float = 27.6   # firmware REGEN_BRAKE_MAX_MV: above this pack reading the ramp coasts instead of
                                       # braking (3.45 V a cell, the top few percent of a LiFePO4's charge)
+    # Brakes in a row (2026-11-14, `regen_guard`). The board reads the pack on GPIO 36 every 10 ms tick, and braking
+    # lifts that very reading by the charge current x the pack-side resistance (about 0.26 V), so a guard with one
+    # threshold flips brake, coast, brake every tick for any pack resting within that rise of it. The firmware keeps a
+    # band: braking stops when the reading passes REGEN_BRAKE_MAX_MV and starts again only under it less
+    # REGEN_BRAKE_HYST_MV.
+    regen_brake_hyst_v: float = 0.7   # firmware REGEN_BRAKE_HYST_MV
+    battery_adc_noise_v: float = 0.15  # peak noise on the battery reading, at the battery (assumption: +-14 mV at the
+                                      # ESP32's pin through the 11:1 divider; log yours with the motors running)
+    pack_wh: float = 512.0            # 24 V 20 Ah LiFePO4 class (hardware/electronics.md power budget)
+    # Several bounces in a row (2026-11-14, `contactor_bounce_train`): the bounce window split into n opens, each
+    # followed by a re-close, for these counts and these fractions of the window spent open (assumptions: scope yours).
+    bounce_counts: tuple = (1, 2, 3, 4, 6, 10)
+    bounce_open_fracs: tuple = (0.2, 0.5, 0.8, 1.0)   # 1.0: zero-length closes, one open as long as the window
 
     # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
     # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
@@ -2904,6 +2917,70 @@ class Feeder:
             out[name] = {"load_a": load, "gap_v": gap, "peak_a": peak}
         return out
 
+    def contactor_bounce_train(self, load_a: float, n: int, open_frac: float) -> dict:
+        """The contactor's bounce as n opens in a row (2026-11-14). `contactor_bounce` takes the whole window as one
+        open after a close that had fully charged the bus. Here the window `contactor_bounce_ms` starts at the first
+        touch and alternates close (1 - open_frac) x window / n, open open_frac x window / n, n times, then stays shut.
+        Closed: L di/dt = Vpack - R i - v and C dv/dt = i + (Vpack - v) / Rp - load, from the precharged bus and no
+        current (R, L, C as `contactor_inrush`; the precharge relay stays closed throughout). Open: the contact
+        current stops (its 1/2 L i^2 goes into the arc) and the bus relaxes toward Vpack - load x Rp. A short close can
+        open before the bus has caught up, so a re-close can start from a larger gap than one long bounce leaves.
+        Returns each make's peak and each break's current. RK4 at a 60th of the loop's fastest time constant."""
+        d = self.contactor_inrush()
+        r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
+        vp = self.battery_v_max
+        rp = self.precharge_ohm + r if self.precharge_ohm > 0 else math.inf
+        v = vp - (d["precharge"]["residual_v"] if d["precharge"] else vp)
+        i = 0.0
+        win = self.contactor_bounce_ms / 1e3
+        t_open, t_shut = open_frac * win / n, (1 - open_frac) * win / n
+        settle = 20 * max(r * c, math.sqrt(l * c))
+        h0 = min(math.sqrt(l * c), r * c, l / r) / 60
+
+        def deriv(vv, ii):
+            ip = (vp - vv) / rp if rp != math.inf else 0.0
+            return (ii + ip - load_a) / c, (vp - r * ii - vv) / l
+
+        makes, breaks, arc_j = [], [], 0.0
+        for k in range(n + 1):
+            dur = t_shut if k < n else settle
+            steps = max(int(math.ceil(dur / h0)), 1)
+            h, peak, gap = dur / steps, 0.0, vp - v
+            for _ in range(steps):
+                a1, b1 = deriv(v, i)
+                a2, b2 = deriv(v + a1 * h / 2, i + b1 * h / 2)
+                a3, b3 = deriv(v + a2 * h / 2, i + b2 * h / 2)
+                a4, b4 = deriv(v + a3 * h, i + b3 * h)
+                v += (a1 + 2 * a2 + 2 * a3 + a4) * h / 6
+                i += (b1 + 2 * b2 + 2 * b3 + b4) * h / 6
+                peak = max(peak, i)
+            makes.append({"gap_v": gap, "peak_a": peak})
+            if k == n:
+                break
+            breaks.append(i)
+            arc_j += 0.5 * l * i * i
+            i = 0.0
+            if rp == math.inf:
+                v = max(v - load_a * t_open / c, 0.0)
+            else:
+                floor = vp - load_a * rp
+                v = floor + (v - floor) * math.exp(-t_open / (rp * c))
+        return {"n": n, "open_frac": open_frac, "makes": makes, "breaks_a": breaks, "arc_j": arc_j,
+                "peak_a": max(m["peak_a"] for m in makes), "max_gap_v": max(m["gap_v"] for m in makes),
+                "break_a": max(breaks) if breaks else 0.0}
+
+    def contactor_bounces(self) -> dict:
+        """Every bounce train in `bounce_counts` x `bounce_open_fracs`, with the idle loads and with the stepper driver
+        enabled, and the worst make and break of each."""
+        stepper = next(b for b in self.power_distribution()["branches"] if b["name"] == "azimuth stepper driver")
+        out = {}
+        for name, load in (("idle", self.bus_idle_a), ("stepper enabled", self.bus_idle_a + stepper["run_a"])):
+            runs = [self.contactor_bounce_train(load, n, f) for n in self.bounce_counts for f in self.bounce_open_fracs]
+            worst = max(runs, key=lambda x: x["peak_a"])
+            out[name] = {"runs": runs, "worst": worst, "break_a": max(x["break_a"] for x in runs),
+                         "arc_j": max(x["arc_j"] for x in runs), "makes_max": max(len(x["makes"]) for x in runs)}
+        return out
+
     def check_inrush(self) -> list[str]:
         bad = []
         if not self.stepper_holds_at_power_up:
@@ -2915,6 +2992,11 @@ class Feeder:
             worst = max(cb["idle"]["peak_a"], cb["stepper enabled"]["peak_a"])
             if worst > self.contactor_make_a + 1e-9:
                 bad.append(f"contactor makes {worst:.0f} A re-closing after a {self.contactor_bounce_ms:g} ms bounce, over the "
+                           f"{self.contactor_make_a:g} A it may make")
+            tr = self.contactor_bounces()["idle"]["worst"]
+            if tr["peak_a"] > self.contactor_make_a + 1e-9:
+                bad.append(f"contactor makes {tr['peak_a']:.0f} A re-closing in a train of {tr['n']} bounces "
+                           f"({tr['open_frac']:.0%} of {self.contactor_bounce_ms:g} ms open), over the "
                            f"{self.contactor_make_a:g} A it may make")
         d = self.contactor_inrush()
         cl, pre = d["closing"], d["precharge"]
@@ -2998,6 +3080,51 @@ class Feeder:
                "coast_to_rest_s": self.coast_s(top, 0.0)}
         return out
 
+    def regen_guard(self, hyst_v: float | None = None) -> dict:
+        """The firmware's brake-or-coast choice over a slow-down (2026-11-14). Each 10 ms tick reads the pack (GPIO 36,
+        between the main fuse and the contactor), and that reading carries the last tick's current across the pack-side
+        resistance: while both wheels brake it reads high by the charge current x R (`regen_braking`'s case 1), while
+        they coast it reads low by the Pi's and idle loads' draw x R, and on top of either sits up to
+        `battery_adc_noise_v`, taken alternating high and low (the worst for flipping). The guard stops braking when the
+        reading passes `regen_brake_max_v` and allows it again only under that less `hyst_v` (0: one threshold, the
+        first firmware). Swept over resting pack voltages around the threshold for the 20% slow-down's length;
+        a flip is one change of mode. Also: how much one slow-down charges the pack, so brakes in a row cannot creep
+        it toward the cut."""
+        hyst = self.regen_brake_hyst_v if hyst_v is None else hyst_v
+        d = self.regen_braking()
+        rpk = d["r_pack_ohm"]
+        rise = d["brake"]["charge_a"] * rpk
+        pi_a = self.pi_w / (self.buck_eff * self.battery_v_max)
+        sag = (pi_a + self.bus_idle_a) * rpk
+        hold_sag = (2 * self.launch_drag_w / (self.esc_eff * self.battery_v_min) + pi_a + self.bus_idle_a) * rpk
+        top = self.regen_brake_max_v
+        ticks = max(int(math.ceil(d["slow_20pct"]["brake_s"] / 0.01)), 2)
+        noise = self.battery_adc_noise_v
+        sweep, flips_max, band = [], 0, []
+        steps = int(round((rise + sag + 2 * noise + 0.4) / 0.005))
+        for k in range(steps + 1):
+            ocv = top - rise - noise - 0.2 + 0.005 * k
+            ok, braked, flips = True, False, 0
+            for t in range(ticks):
+                reading = ocv + (rise if braked else -sag) + (noise if t % 2 else -noise)
+                if ok and reading > top + 1e-12:
+                    ok, flips = False, flips + 1
+                elif not ok and reading < top - hyst - 1e-12:
+                    ok, flips = True, flips + 1
+                braked = ok
+            sweep.append((ocv, flips))
+            flips_max = max(flips_max, flips)
+            if flips > 1:
+                band.append(ocv)
+        slow_j = 2 * (d["wheel_j"] - 0.5 * self.launch_wheel_kgm2 * (0.8 * d["top_rpm"] * 2 * math.pi / 60) ** 2) \
+            * self.regen_eff
+        return {"hyst_v": hyst, "rise_v": rise, "coast_sag_v": sag, "hold_sag_v": hold_sag, "noise_v": noise,
+                "needed_hyst_v": rise + sag + 2 * noise, "ticks": ticks, "flips_max": flips_max,
+                "chatter_band_v": (min(band), max(band)) if band else None, "sweep": sweep,
+                "slow_j": slow_j, "slows_per_pct": self.pack_wh * 3600 * 0.01 / slow_j,
+                # a loaded reading admits braking from a pack resting higher than the threshold: the top cell then
+                "loaded_top_cell_v": (top + hold_sag + rise) / self.pack_cells + self.cell_spread_v}
+
     def check_regen(self) -> list[str]:
         bad = []
         d = self.regen_braking()
@@ -3013,6 +3140,17 @@ class Feeder:
         if b["bus_v"] > self.switched_v_max + 1e-9:
             bad.append(f"braking into the pack holds the bus at {b['bus_v']:.2f} V, over the switched parts' "
                        f"{self.switched_v_max:g} V")
+        if self.regen_brake_max_v < self.battery_v_max:
+            g = self.regen_guard()
+            if g["flips_max"] > 1:
+                bad.append(f"the brake guard flips {g['flips_max']} times in one slow-down for a pack resting at "
+                           f"{g['chatter_band_v'][0]:.2f} to {g['chatter_band_v'][1]:.2f} V: braking lifts its own reading "
+                           f"{g['rise_v']:.2f} V and the reading carries {g['noise_v']:g} V of noise; widen "
+                           f"regen_brake_hyst_v / REGEN_BRAKE_HYST_MV to at least {g['needed_hyst_v']:.2f} V")
+            if g["loaded_top_cell_v"] > cut - 0.02 + 1e-9:
+                bad.append(f"a slow-down that starts while the wheels hold speed reads the pack {g['hold_sag_v']:.2f} V low, "
+                           f"so braking can start from a pack resting above the threshold and lift the highest cell to "
+                           f"{g['loaded_top_cell_v']:.2f} V, at the BMS's {cut:g} V cut (lower regen_brake_max_v)")
         es = d["estop"]["brake"]
         if not self.regen_diode:
             if es["peak_v"] > self.switched_v_max + 1e-9:

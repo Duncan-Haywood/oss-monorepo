@@ -2179,6 +2179,17 @@ def regen_line(p: Feeder) -> str:
           f"WHEEL_BRAKE = False to coast. Slowing a wheel 20% from {d['top_rpm']:.0f} rpm: "
           f"{d['slow_20pct']['brake_s']:.1f} s braking, at least {d['slow_20pct']['coast_s']:.1f} s coasting; after a stop or "
           f"an e-stop the wheels ({d['wheel_j']:.0f} J each) coast for at least {d['coast_to_rest_s']:.0f} s")
+    if p.regen_brake_max_v < p.battery_v_max:
+        g, g0 = p.regen_guard(), p.regen_guard(0.0)
+        band = (f"{g0['chatter_band_v'][0]:.2f} to {g0['chatter_band_v'][1]:.2f} V" if g0["chatter_band_v"] else "none")
+        s += (f". Brakes in a row: braking lifts the pack reading {g['rise_v']:.2f} V (charge current x "
+              f"{d['r_pack_ohm'] * 1e3:.0f} mOhm), so a single threshold flipped brake and coast up to {g0['flips_max']} times "
+              f"in one slow-down for a pack resting at {band} (with an assumed {g['noise_v']:g} V of reading noise); "
+              f"braking now resumes only {g['hyst_v'] * 1e3:.0f} mV under the threshold (REGEN_BRAKE_HYST_MV; "
+              f"{g['needed_hyst_v'] * 1e3:.0f} mV needed): {g['flips_max']} flip at most. Each 20% slow-down returns "
+              f"{g['slow_j']:.0f} J, {g['slows_per_pct']:.0f} slow-downs per 1% of a {p.pack_wh:g} Wh pack. A slow-down that "
+              f"starts while the wheels hold speed reads {g['hold_sag_v']:.2f} V low, so the highest cell can reach "
+              f"{g['loaded_top_cell_v']:.2f} V")
     return s
 
 
@@ -2219,6 +2230,15 @@ def inrush_line(p: Feeder) -> str:
                   f"{tied:.1f} A. A {p.contactor_bounce_ms:g} ms bounce re-closes onto a {cb['idle']['gap_v']:.2f} V gap "
                   f"({cb['idle']['peak_a']:.1f} A; the precharge relay holds the bus meanwhile), "
                   f"{cb['stepper enabled']['peak_a']:.1f} A if the driver were already enabled")
+            tb = p.contactor_bounces()
+            wi, ws = tb["idle"], tb["stepper enabled"]
+            s += (f". Several bounces in a row ({min(p.bounce_counts)} to {max(p.bounce_counts)} opens, "
+                  f"{min(p.bounce_open_fracs):.0%} to {max(p.bounce_open_fracs):.0%} of the window open): with the idle "
+                  f"loads no make exceeds {wi['worst']['peak_a']:.1f} A, the precharge closing itself (a short close "
+                  f"leaves at most the precharge's {wi['worst']['max_gap_v']:.2f} V gap); with the driver enabled "
+                  f"{ws['worst']['peak_a']:.1f} A ({ws['worst']['n']} open of {ws['worst']['open_frac']:.0%} of the window "
+                  f"after a touch too short to charge the bus: the one-bounce figure above is optimistic); breaks open at most {max(wi['break_a'], ws['break_a']):.1f} A, "
+                  f"{max(wi['arc_j'], ws['arc_j']) * 1e6:.0f} uJ of loop energy per train into the arcs")
     return s
 
 
@@ -2396,6 +2416,9 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                     "inrush_closing_a": round(ci["closing"]["peak_a"], 1), "precharge_ohm": p.precharge_ohm,
                     "precharge_delay_s": p.precharge_delay_s, "stepper_enable_after_ms": p.stepper_enable_after_ms,
                     "bounce_reclose_a": round(p.contactor_bounce()["idle"]["peak_a"], 1),
+                    "bounce_train_max_a": round(p.contactor_bounces()["idle"]["worst"]["peak_a"], 1),
+                    "regen_brake_hyst_mv": round(p.regen_brake_hyst_v * 1000),
+                    "regen_guard_flips_max": p.regen_guard()["flips_max"],
                     "precharge_residual_v": round(ci["precharge"]["residual_v"], 2) if ci["precharge"] else None})
     ad = p.agitator_design()
     derived.update({"agitator_torque_nm": round(ad["torque_nm"], 3), "agitator_torque_margin": round(ad["torque_margin"], 2),

@@ -283,6 +283,28 @@ class SpinupRamp:
         return r
 
 
+class BrakeGuard:
+    """Whether the launcher ESCs may brake, from the pack reading, with a band (2026-11-14, cad: Feeder.regen_guard).
+
+    The board reads the pack every tick, and braking lifts that very reading: the charge current crosses the pack's
+    resistance, its feed and its fuse, about 0.26 V at the threshold. With one threshold (the first firmware) a pack
+    resting within that rise of REGEN_BRAKE_MAX_MV made the guard flip brake, coast, brake on every 10 ms tick, about
+    126 flips in one slow-down, and the reading's own noise widened the band to about 0.6 V. So braking stops when the
+    reading passes `max_mv` and is allowed again only once it reads under `max_mv - hyst_mv`. The upper threshold is
+    unchanged, so the pack is never braked into above it."""
+
+    def __init__(self, max_mv, hyst_mv):
+        self.max_mv, self.hyst_mv = max_mv, hyst_mv
+        self.ok = True
+
+    def update(self, mv):
+        if self.ok and mv > self.max_mv:
+            self.ok = False
+        elif not self.ok and mv < self.max_mv - self.hyst_mv:
+            self.ok = True
+        return self.ok
+
+
 class WheelLoop:
     """One launcher wheel's ESC command from its target and measured rpm: feedforward plus PI (2026-11-11).
 

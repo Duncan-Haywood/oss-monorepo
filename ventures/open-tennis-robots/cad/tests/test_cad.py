@@ -1531,6 +1531,77 @@ class RegenTest(unittest.TestCase):
         self.assertAlmostEqual(d["wheel_j"] / p.launch_drag_w * 2 / d["coast_to_rest_s"], 1.0, places=6)
 
 
+class BrakesAndBouncesInARowTest(unittest.TestCase):
+    """Several ESC brakes in a row against the firmware's guard, and several contact bounces in a row (2026-11-14)."""
+
+    def test_single_threshold_chatters_and_the_band_does_not(self):
+        p = Feeder()
+        old = p.regen_guard(0.0)
+        self.assertGreaterEqual(old["flips_max"], old["ticks"] - 2)      # flips every tick inside the band
+        lo, hi = old["chatter_band_v"]
+        self.assertLess(lo, p.regen_brake_max_v - old["rise_v"])
+        self.assertGreater(hi - lo, old["rise_v"])
+        new = p.regen_guard()
+        self.assertLessEqual(new["flips_max"], 1)
+        self.assertIsNone(new["chatter_band_v"])
+        self.assertGreater(p.regen_brake_hyst_v, new["needed_hyst_v"])
+        # just under the needed band still flips; just over does not
+        self.assertGreater(p.regen_guard(new["needed_hyst_v"] - 0.01)["flips_max"], 1)
+        self.assertLessEqual(p.regen_guard(new["needed_hyst_v"] + 0.01)["flips_max"], 1)
+        bad = Feeder(regen_brake_hyst_v=0.0).check_regen()
+        self.assertTrue(any("REGEN_BRAKE_HYST_MV" in r for r in bad), bad)
+        self.assertEqual(p.check_regen(), [])
+
+    def test_brakes_in_a_row_do_not_creep_the_pack(self):
+        p = Feeder()
+        g = p.regen_guard()
+        d = p.regen_braking()
+        # a 20% slow-down of both wheels returns 36% of their energy, less the ESC's loss
+        self.assertAlmostEqual(g["slow_j"], 2 * 0.36 * d["wheel_j"] * p.regen_eff, delta=1e-6)
+        self.assertGreater(g["slows_per_pct"], 50)
+        # a loaded reading lets braking start from a pack resting above the threshold, still short of the cut
+        self.assertGreater(g["loaded_top_cell_v"], d["brake"]["top_cell_v"])
+        self.assertLess(g["loaded_top_cell_v"], p.bms_cell_ovp_v - 0.02)
+        bad = Feeder(regen_brake_max_v=28.0).check_regen()
+        self.assertTrue(any("hold speed" in r for r in bad), bad)
+
+    def test_bounce_train_matches_the_closed_form(self):
+        p = Feeder()
+        d = p.contactor_inrush()
+        # one make with no bounce: the precharge closing, as the closed form gives it (the relay's own path adds
+        # under the idle load's worth)
+        one = p.contactor_bounce_train(p.bus_idle_a, 1, 1.0)
+        self.assertAlmostEqual(one["makes"][-1]["peak_a"], d["precharge"]["close"]["peak_a"], delta=p.bus_idle_a + 0.05)
+        # a single long bounce after a long close: the re-close sees contactor_bounce's gap
+        long = Feeder(contactor_bounce_ms=200.0, bounce_counts=(1,), bounce_open_fracs=(0.5,))
+        tr = long.contactor_bounce_train(p.bus_idle_a, 1, 0.5)
+        rp = p.precharge_ohm + d["r_ohm"]
+        want = p.bus_idle_a * rp * (1 - math.exp(-0.1 / (rp * d["c_f"])))
+        self.assertAlmostEqual(tr["makes"][1]["gap_v"], want, delta=0.01)
+
+    def test_several_bounces_never_make_more_than_the_first_closing(self):
+        p = Feeder()
+        b = p.contactor_bounces()
+        first = p.contactor_bounce_train(p.bus_idle_a, 1, 1.0)["makes"][-1]["peak_a"]
+        for run in b["idle"]["runs"]:
+            for m in run["makes"][1:]:
+                self.assertLessEqual(m["gap_v"], p.contactor_inrush()["precharge"]["residual_v"] + 1e-6)
+        for case in b.values():
+            self.assertLess(case["worst"]["peak_a"], p.contactor_make_a)
+        # with the driver enabled its load drags the bus further while a bounce is open, and a touch too short to have
+        # charged the bus leaves the open starting from the precharge's gap: worse than contactor_bounce's one bounce
+        # after a full charge (24.9 A at the defaults), still under the make limit
+        single = p.contactor_bounce()["stepper enabled"]["peak_a"]
+        self.assertGreater(b["stepper enabled"]["worst"]["peak_a"], single + 5)
+        self.assertGreater(b["stepper enabled"]["worst"]["max_gap_v"], p.contactor_bounce()["stepper enabled"]["gap_v"])
+        self.assertAlmostEqual(b["idle"]["worst"]["peak_a"], first, delta=0.5)
+        self.assertEqual(b["idle"]["makes_max"], max(p.bounce_counts) + 1)
+        self.assertEqual(p.check_inrush(), [])
+        # with no precharge every make of the train is a full inrush: the check names it
+        bad = Feeder(precharge_ohm=0.0).check_inrush()
+        self.assertTrue(any("bounces" in r for r in bad), bad)
+
+
 class PotPickupParamsTest(unittest.TestCase):
     """The elevation pot's pickup from the motor pair's PWM (2026-11-14, `elev_pot_pickup`, `check_elev_pot`)."""
 
