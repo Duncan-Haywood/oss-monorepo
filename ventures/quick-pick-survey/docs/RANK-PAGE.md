@@ -372,6 +372,12 @@ What it found, ordinary answerers unless said:
   people on mid-length lists and low for close calls (15 options: it said
   59-88; measured 51, 73 and 104).
 
+The 60-option close-call cell was not run to the end (each 50-60 option
+close-call cell takes 35 minutes or more: a prior search on every pick up to
+a 565-709 cap), so the page's tables stop at 50 options and the status line
+quotes the 50-option numbers, labelled "the longest measured", for longer
+lists; the 60-option clear-cut and ordinary rows are in the data.
+
 Limits: simulated people only, evenly spaced true scores, no ties, no
 fatigue, warm-up or position habits. The favourite mode was not measured
 here.

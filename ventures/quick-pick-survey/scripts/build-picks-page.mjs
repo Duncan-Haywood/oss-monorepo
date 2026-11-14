@@ -50,16 +50,23 @@ export function renderModule(table) {
 // running the ranker's own question picker, stop rule and cap.
 export const PICKS_MEASURED = ${JSON.stringify(compact)};
 
-/** Measured picks for a list of n options, interpolated between measured lengths: { clear, ordinary, close }. */
+/**
+ * Measured picks for a list of n options, interpolated between measured
+ * lengths: { at, clear, ordinary, close }. Past the longest measured list it
+ * returns that list's numbers with \`at\` set to its length, so the caller
+ * can say so rather than extrapolate.
+ */
 export function picksGuide(n) {
   const t = PICKS_MEASURED;
+  const longest = t.at(-1);
+  if (n > longest[0]) return { at: longest[0], clear: longest[1], ordinary: longest[2], close: longest[3] };
   let i = t.findIndex((r) => r[0] >= n);
   if (i === -1) i = t.length - 1;
   if (i === 0) i = 1;
   const [n0, ...a] = t[i - 1], [n1, ...b] = t[i];
   const w = Math.min(1, Math.max(0, (n - n0) / (n1 - n0)));
   const at = (k) => Math.max(1, Math.round(a[k] + w * (b[k] - a[k])));
-  return { clear: at(0), ordinary: at(1), close: at(2) };
+  return { at: n, clear: at(0), ordinary: at(1), close: at(2) };
 }
 `;
 }
@@ -163,7 +170,7 @@ export function renderPage(table) {
   <section>
     <h2>What the numbers say</h2>
     <ul>
-      <li><strong>Past a handful of options, adaptive asks far fewer questions for nearly the same order.</strong> At ${F.mid.n} options, an ordinary person took ${F.mid.ordinary.mean} picks against ${F.mid.allPairs} for every pair, and the order shown scored ${F.mid.ordinary.spearman.toFixed(2)} Spearman against ${F.mid.ordinary.onceSpearman.toFixed(2)} for asking every pair once; at ${F.big.n}, ${F.big.ordinary.mean} picks against ${F.big.allPairs}, ${F.big.ordinary.spearman.toFixed(2)} against ${F.big.ordinary.onceSpearman.toFixed(2)}. Every pair once is a little more accurate when someone will sit through it; almost nobody answers ${F.big.allPairs} questions.</li>
+      <li><strong>Past a handful of options, adaptive asks far fewer questions for nearly the same order.</strong> At ${F.mid.n} options, an ordinary person took ${F.mid.ordinary.mean} picks against ${F.mid.allPairs} for every pair, and the order shown scored ${F.mid.ordinary.spearman.toFixed(2)} Spearman against ${F.mid.ordinary.onceSpearman.toFixed(2)} for asking every pair once; at ${F.big.n}, ${F.big.ordinary.mean} picks against ${F.big.allPairs}, ${F.big.ordinary.spearman.toFixed(2)} against ${F.big.ordinary.onceSpearman.toFixed(2)}. Every pair once gives the more accurate order when someone will sit through it; almost nobody answers ${F.big.allPairs} questions.</li>
       <li><strong>On short lists, every pair once is fewer questions.</strong> ${F.firstBeat ? `The ranker asked an ordinary person fewer questions than every-pair-once only from ${F.firstBeat.n} options up.` : "The ranker never beat every-pair-once in this table."} Below that it re-asks close pairs to be sure of them. Asking each pair once instead gave ${F.short.map((r) => `${r.ordinary.onceSpearman.toFixed(2)} at ${r.n}`).join(", ")} Spearman for an ordinary person, against the ranker's ${F.short.map((r) => `${r.ordinary.spearman.toFixed(2)}`).join(", ")} (table below): ${shortVerdict(F.short)}</li>
       <li><strong>Close calls cost the most, and some never settle.</strong> When the options are close calls for someone, ${pct(Math.round(F.capShare * 1000), 1000)} of short-list runs (4 to 6 options) reached the cap without the order reaching 90%. That is the honest answer: their answers don't contain a firm order. The result then shows wide rank ranges rather than a false one.</li>
       <li><strong>For a consistent person it lands near the sorting minimum, and on long lists below it.</strong> ${sortVerdict(table)}</li>
@@ -210,7 +217,7 @@ export function renderPage(table) {
 }
 
 export function description(F) {
-  return `Measured with a real ranker on simulated people: ${F.mid.n} options took about ${F.mid.ordinary.mean} picks, not ${F.mid.allPairs}; ${F.big.n} took ${F.big.ordinary.mean}, not ${F.big.allPairs}. Under ${F.firstBeat ? F.firstBeat.n : 10} options, just ask every pair.`;
+  return `Measured with a real ranker on simulated people: ${F.mid.n} options took about ${F.mid.ordinary.mean} picks, not ${F.mid.allPairs}; ${F.big.n} took ${F.big.ordinary.mean}, not ${F.big.allPairs}. Under ${F.firstBeat ? F.firstBeat.n : 10} options it asks more, for a better order.`;
 }
 
 export { SITE, SLUG };

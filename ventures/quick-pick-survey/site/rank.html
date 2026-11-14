@@ -173,7 +173,7 @@
   // Measured on simulated people running this page's own picker and stop rule (how-many-pairwise-comparisons.html).
   function picksLine(n) {
     const g = picksGuide(n);
-    return `Lists of ${n} took about ${g.clear} picks for someone sure of every answer, ${g.ordinary} typically and ${g.close} when the options are close calls, in simulations`;
+    return `Lists of ${g.at}${g.at < n ? " (the longest measured)" : ""} took about ${g.clear} picks for someone sure of every answer, ${g.ordinary} typically and ${g.close} when the options are close calls, in simulations`;
   }
 
   function ask() {

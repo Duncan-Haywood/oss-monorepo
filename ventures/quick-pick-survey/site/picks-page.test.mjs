@@ -28,13 +28,14 @@ test("every measured list length has all three kinds of person, and the baseline
 });
 
 test("picksGuide gives the measured means at measured lengths and stays between neighbours elsewhere", () => {
-  for (const [n, clear, ordinary, close] of PICKS_MEASURED) assert.deepEqual(picksGuide(n), { clear, ordinary, close });
+  for (const [n, clear, ordinary, close] of PICKS_MEASURED) assert.deepEqual(picksGuide(n), { at: n, clear, ordinary, close });
   const a = PICKS_MEASURED[3], b = PICKS_MEASURED[4];
   const mid = picksGuide(Math.floor((a[0] + b[0]) / 2));
   if (b[0] - a[0] > 1) assert.ok(mid.ordinary >= Math.min(a[2], b[2]) && mid.ordinary <= Math.max(a[2], b[2]));
   assert.ok(picksGuide(3).clear >= 1);
   const last = PICKS_MEASURED.at(-1);
-  assert.deepEqual(picksGuide(last[0] + 100), picksGuide(last[0]), "past the longest measured list it holds the last row");
+  assert.deepEqual(picksGuide(last[0] + 10), picksGuide(last[0]), "past the longest measured list it returns that row, at its own length");
+  assert.equal(picksGuide(last[0] + 10).at, last[0]);
 });
 
 test("the short-list verdict follows the numbers rather than a fixed sentence", () => {
