@@ -1308,6 +1308,10 @@ class DevelopSettings:
     lens_vignetting: bool = True
     lens_aperture: float | None = None
     lens_distance: float | None = None
+    # Lens memory (lens_profiles.load_lens_memory), {lens key: lens name}: a frame whose body reports a remembered
+    # lens number gets that lens; with lens_name given, its lens is remembered under the frame's key (this dict is
+    # updated in place, and the caller saves it).
+    lens_memory: dict | None = None
 
 
 @dataclass
@@ -1331,6 +1335,7 @@ class DevelopReport:
     # and the notes about it (why none ran, or what was corrected). Both stay empty without a database.
     lens: str | None = None
     lens_notes: list[str] = field(default_factory=list)
+    lens_key: str | None = None  # the body's number for the lens (lens_profiles.lens_key), when it gives one
 
 
 def _cfa_pattern(ifd: Ifd) -> tuple[int, int, int, int]:
@@ -1795,6 +1800,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         elif op_plan.notes:
             notes.append("opcode lists not run (opcodes off)")
     lens_used: str | None = None
+    lens_key: str | None = None
     lens_notes: list[str] = []
     if settings.lens_db is not None:
         if any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
@@ -1808,13 +1814,20 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                     lens_name=settings.lens_name, focal=settings.lens_focal, crop=settings.lens_crop,
                     fill=settings.lens_fill, tca=settings.lens_tca, vignetting=settings.lens_vignetting,
                     aperture=settings.lens_aperture, distance=settings.lens_distance,
+                    memory=settings.lens_memory,
                 )
             except lens_profiles.LensProfileError as exc:
                 lens_notes.append(f"no lens correction: {exc}")
             else:
                 warps = list(warps) + corr.opcodes()
                 lens_used = corr.lens.name
+                lens_key = corr.lens_key
                 lens_notes.extend(corr.notes)
+                memory = settings.lens_memory
+                if memory is not None and settings.lens_name and corr.lens_key and \
+                        memory.get(corr.lens_key) != corr.lens.name:
+                    memory[corr.lens_key] = corr.lens.name
+                    lens_notes.append(f"lens memory: {corr.lens_key} is now {corr.lens.name}")
         notes.extend(lens_notes)
     # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
     half_f = 0.5 if (settings.half and not linear_raw) else 1.0
@@ -1932,7 +1945,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
             look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
         )
-        report.lens, report.lens_notes = lens_used, lens_notes
+        report.lens, report.lens_notes, report.lens_key = lens_used, lens_notes, lens_key
         return nw, nh, npx, report
 
     out = array("H")
@@ -1999,6 +2012,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         cct=None if cct is None else round(cct, 1),
         profile=profile_label,
         lens=lens_used,
+        lens_key=lens_key,
         lens_notes=lens_notes,
     )
     return report_w, report_h, out, report
