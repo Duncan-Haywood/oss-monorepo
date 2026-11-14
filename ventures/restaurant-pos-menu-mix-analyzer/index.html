@@ -145,7 +145,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeSales, parseCostList, analyze, reportCsv, summaryText, sampleCsv, money } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeSales, parseCostList, analyze, reportCsv, summaryText, sampleCsv, money, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -157,7 +157,7 @@
 
     function run(salesText, costText) {
       const d = detectDelimiter(salesText);
-      const s = normalizeSales(parseCsv(salesText, d), { decimalComma: d === ";" });
+      const s = normalizeSales(parseCsv(salesText, d), { decimalComma: detectDecimalComma(parseCsv(salesText, d), d) });
       if (s.error) { status.textContent = s.error; report.hidden = true; return false; }
       const list = parseCostList(costText);
       const a = analyze(s.items, { costList: list.map, defaultCostPct: num("#fc", 32), priceIncreasePct: num("#rise", 5), volumeLossPct: num("#loss", 3), periodWeeks: num("#weeks", NaN) });

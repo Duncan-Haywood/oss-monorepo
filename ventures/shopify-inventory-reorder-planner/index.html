@@ -148,7 +148,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeSales, normalizeStock, analyze, summaryText, poCsv, sampleSales, SAMPLE_STOCK, money, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeSales, normalizeStock, analyze, summaryText, poCsv, sampleSales, SAMPLE_STOCK, money, dateStr, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -160,12 +160,12 @@
 
     function run(salesText, stockText) {
       const sd = detectDelimiter(salesText);
-      const n = normalizeSales(parseCsv(salesText, sd), { decimalComma: sd === ";" });
+      const n = normalizeSales(parseCsv(salesText, sd), { decimalComma: detectDecimalComma(parseCsv(salesText, sd), sd) });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       let st = { items: [], skipped: [] };
       if (stockText.trim()) {
         const td = detectDelimiter(stockText);
-        st = normalizeStock(parseCsv(stockText, td), { decimalComma: td === ";" });
+        st = normalizeStock(parseCsv(stockText, td), { decimalComma: detectDecimalComma(parseCsv(stockText, td), td) });
         if (st.error) { status.textContent = st.error; report.hidden = true; return false; }
       }
       const num = (id, d) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : d; };

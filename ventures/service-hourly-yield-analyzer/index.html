@@ -151,7 +151,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, normalizeBookings, analyze, reportCsv, summaryText, sampleCsv, money, decodeBuffer } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, normalizeBookings, analyze, reportCsv, summaryText, sampleCsv, money, decodeBuffer, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -171,7 +171,7 @@
 
     function run(text) {
       const d = detectDelimiter(text);
-      const n = normalizeBookings(parseCsv(text, d), { decimalComma: d === ";", dateOrder: $("#dateorder").value });
+      const n = normalizeBookings(parseCsv(text, d), { decimalComma: detectDecimalComma(parseCsv(text, d), d), dateOrder: $("#dateorder").value });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const a = analyze(n.records, { lowYieldPct: num("#lowpct", 75), priceUpPct: num("#up", 0), volumeLossPct: num("#loss", 0), openHoursPerWeek: num("#open", 0) });
       if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
