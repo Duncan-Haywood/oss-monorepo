@@ -50,7 +50,9 @@ Other small things the schemas say and the field tables don't make obvious:
 - The supplier's loss event (`112130`) carries a second `vIBS`/`vCBS` pair inside
   `gControleEstoque`: the credit to reverse. The buyer's version (`211124`) has none.
 - The cancellation's own list of cancellable types includes `112120` and `211120`, but the
-  package has no schema for either.
+  package has no schema for either. *(Correction, later the same day: `112120`'s schema is in the package,
+  published as `e112120_v1.00 .xsd` with a space, and is now checked; `211120` was removed by
+  NT v1.40. See [the follow-up](2026-11-14-einvoice-nfe-event-112120-space-in-filename.md).)*
 
 ## What is checked
 
