@@ -100,10 +100,10 @@
     </table></div>
     <h3>How much each criterion counted</h3>
     <div class="scroll-x"><table>
-      <thead><tr><th>Criterion</th><th class="num">Weight</th><th class="num" title="90% range of the weight, from your answers">Range</th><th></th></tr></thead>
+      <thead><tr><th>Criterion</th><th class="num">Weight</th><th class="num" title="90% range of the weight, from your answers">Range</th><th></th><th title="The weight this criterion would need, the others keeping their proportions, for another option to come out best">Would change the winner</th></tr></thead>
       <tbody id="weights"></tbody>
     </table></div>
-    <p class="muted">A criterion's weight comes from how often you said it matters more than the others: if you pick Rent over Space 3 times in 4, Rent counts about 3 times as much. The ranges are honest about how little a handful of answers pins down; a wide weight range is the usual reason a rank range stays wide.</p>
+    <p class="muted">A criterion's weight comes from how often you said it matters more than the others: if you pick Rent over Space 3 times in 4, Rent counts about 3 times as much. The ranges are honest about how little a handful of answers pins down; a wide weight range is the usual reason a rank range stays wide. <strong>Would change the winner</strong>: the weight this criterion would need (the others keeping their proportions) for another option to come out best. If that weight sits inside the range, the decision really does turn on how much you care about it.</p>
     <div class="row">
       <button id="more">Answer more</button>
       <button class="secondary" id="csv">Download CSV</button>
@@ -134,7 +134,7 @@
       <li><strong>Two models in one.</strong> "Which matters more?" answers fit a Bradley-Terry model over the criteria; a criterion's weight is its share, so the weights add to 100%. "Which is better on Commute?" answers fit a Bradley-Terry model over the options for that criterion. An option's overall score is the weighted sum of its scores. It is the same refit the <a href="rank.html">list ranker</a> and the Quick Pick survey app run.</li>
       <li><strong>The next question</strong> is whichever one, of either kind, is expected to do most to settle the overall order: it targets neighbouring options that could still swap, and asks about the weight or the criterion that decides between them. Questions about a criterion that cannot change the order are skipped. Sides are random, so screen position cannot creep in.</li>
       <li><strong>Ranges include doubt about the weights.</strong> The page draws thousands of plausible weightings and scores consistent with your answers; the rank range is where 90% of them put each option, and "Best" is how often it came first.</li>
-      <li><strong>When it stops:</strong> when the overall order is 90% settled (the average Spearman correlation between a plausible order and the one shown), or at a cap. You can stop at any time. Measured on simulated people: <a href="#measured">below</a>.</li>
+      <li><strong>When it stops:</strong> as soon as there is under a 10% chance that any option beats the leader by more than a practical tie (a weighted edge of about 56 to 44 in a head-to-head pick), or when the whole order is 90% settled, or at a cap. You came to choose one option, so it does not wait for the order below the winner to settle; with only the order rule, nearly every simulated run hit the cap. You can stop at any time. Measured on simulated people: <a href="#measured">below</a>.</li>
       <li><strong>Why not type the weights?</strong> People are poor at stating weights directly but consistent at comparing two things. This is the idea behind AHP (the analytic hierarchy process), without its full table of every pair: the picker asks only the comparisons that matter.</li>
     </ul>
     <h3 id="measured">Measured</h3>
@@ -155,7 +155,7 @@
   </footer>
 </main>
 <script type="module">
-  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionMax, bestPerCriterion, decisionCsv, combineDecisions, decisionId, STOP_CONFIDENCE } from "./decide-core.mjs";
+  import { parseSetup, setupError, encodeDecision, decodeDecision, encodeAnswers, decodeAnswers, decisionFit, nextQuestion, decisionTable, decisionDone, decisionMax, bestPerCriterion, decisionCsv, combineDecisions, decisionId, whatWouldChange, STOP_CONFIDENCE } from "./decide-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
   const $ = (s) => document.querySelector(s);
@@ -202,8 +202,10 @@
       $("#ask-title").textContent = `On ${state.criteria[current.c]} alone, which is better?`;
       $("#left").textContent = state.options[a]; $("#right").textContent = state.options[b];
     }
-    $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, table.confidence / STOP_CONFIDENCE)) * 100)}%`;
-    $("#status").textContent = `${total()} answered (${state.answers.crit.length} about criteria); overall order ${Math.round(Math.max(0, table.confidence) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}% or after ${cap}). Stop whenever you like.`;
+    // Progress follows whichever stop is nearer: the winner being safe, or the whole order settled.
+    const read = Math.max(table.safe, table.confidence);
+    $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, read / STOP_CONFIDENCE)) * 100)}%`;
+    $("#status").textContent = `${total()} answered (${state.answers.crit.length} about criteria); ${Math.round(table.safe * 100)}% sure no option beats the leader by more than a practical tie, whole order ${Math.round(Math.max(0, table.confidence) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}% on either, or after ${cap}). Stop whenever you like.`;
     $("#undo").disabled = total() === 0;
     show("#ask");
     $("#left").focus({ preventScroll: true });
@@ -234,12 +236,20 @@
     const best = bestPerCriterion(df);
     const top = table.rows[0];
     $("#verdict").innerHTML = total() === 0 ? "No answers yet." :
-      `After ${total()} picks, <strong>${esc(state.options[top.item])}</strong> comes out best overall, with a ${pct(top.best)} chance of really being the best given your answers${settled ? "." : ". Some places are still close: answer more to separate them."}`;
+      `After ${total()} picks, <strong>${esc(state.options[top.item])}</strong> comes out best overall, with a ${pct(top.best)} chance of really being the best given your answers and a ${pct(table.safe)} chance that nothing beats it by more than a practical tie${settled ? "." : ". It is still close at the top: answer more to separate the front-runners."}`;
     $("#table").innerHTML = table.rows.map((r) => {
       const strong = best.map((b, c) => (b === r.item ? esc(state.criteria[c]) : null)).filter(Boolean).join(", ");
       return `<tr><td class="num">${r.rank}</td><td>${esc(state.options[r.item])}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${pct(r.best)}</td><td>${strong}</td></tr>`;
     }).join("");
-    $("#weights").innerHTML = table.crit.map((c) => `<tr><td>${esc(state.criteria[c.item])}</td><td class="num">${Math.round(c.weight * 100)}%</td><td class="num">${Math.round(c.low * 100)}&ndash;${Math.round(c.high * 100)}%</td><td style="width:35%"><span class="wbar" style="width:${Math.round(c.weight * 100)}%"></span></td></tr>`).join("");
+    const change = whatWouldChange(df);
+    // A criterion asked about too little to link every option has flat scores, so "nothing changes" would be a guess.
+    const optCount = (c) => state.answers.opt.filter((a) => a[0] === c).length;
+    const changeText = (c) => {
+      const ch = change[c];
+      if (ch.needed !== null) return `${esc(state.options[ch.rival])} at ${Math.round(ch.needed * 100)}%`;
+      return optCount(c) < n - 1 ? `Too few picks on it to tell` : `No weight changes it`;
+    };
+    $("#weights").innerHTML = table.crit.map((c) => `<tr><td>${esc(state.criteria[c.item])}</td><td class="num">${Math.round(c.weight * 100)}%</td><td class="num">${Math.round(c.low * 100)}&ndash;${Math.round(c.high * 100)}%</td><td style="width:25%"><span class="wbar" style="width:${Math.round(c.weight * 100)}%"></span></td><td>${changeText(c.item)}</td></tr>`).join("");
     show("#ask", false); show("#results"); show("#share");
     $("#share-link").textContent = location.href;
     refreshCode();

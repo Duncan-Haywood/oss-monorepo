@@ -155,12 +155,13 @@ const normalCdf = (z) => {
  * (dg/ds_a = w_a (D_a - g), D_a the gap on criterion a, from the softmax),
  * and its variance (option-score part plus weight part).
  */
-function neighbourGaps(df) {
+function neighbourGaps(df, focus = "order") {
   const ord = overallOrder(df);
   const { C, crit, opts, weights, centred } = df;
   const gaps = [];
-  for (let k = 0; k + 1 < ord.length; k++) {
-    const i = ord[k], j = ord[k + 1];
+  // "winner": the leader against every rival instead of each neighbouring pair.
+  const pairs = focus === "winner" ? ord.slice(1).map((j) => [ord[0], j]) : ord.slice(0, -1).map((i, k) => [i, ord[k + 1]]);
+  for (const [i, j] of pairs) {
     const g = df.score[i] - df.score[j];
     const grad = weights.map((w, a) => w * (centred[a][i] - centred[a][j] - g));
     let v = 0;
@@ -192,8 +193,14 @@ function mulberry32(seed) {
  * g). A small penalty per repeat spreads the questions, and the last
  * question is never asked twice in a row. `strategy: "random"` picks a
  * uniformly random question instead (the baseline in the simulations).
+ * `focus: "winner"` (the default since 2026-11-14) scores the gaps between
+ * the leader and each rival instead of neighbouring pairs, the question the
+ * winner stop asks; "order" is the first picker (docs/DECIDE-PAGE.md,
+ * "The winner stop").
  */
-export function nextQuestion(df, answers, { seed = 1, strategy = "adaptive" } = {}) {
+export const DECIDE_FOCUS = "winner";
+
+export function nextQuestion(df, answers, { seed = 1, strategy = "adaptive", focus = DECIDE_FOCUS } = {}) {
   const { n, C, crit, opts, weights } = df;
   const rand = mulberry32(seed * 2654435761 + answers.crit.length * 7919 + answers.opt.length);
   const flip = (p) => (rand() < 0.5 ? p : [p[1], p[0]]);
@@ -208,7 +215,7 @@ export function nextQuestion(df, answers, { seed = 1, strategy = "adaptive" } = 
     let q = r % ((n * (n - 1)) / 2);
     for (let x = 0; x < n; x++) for (let y = x + 1; y < n; y++) if (q-- === 0) return { kind: "opt", c, pair: flip([x, y]) };
   }
-  const gaps = neighbourGaps(df);
+  const gaps = neighbourGaps(df, focus);
   const asked = new Map();
   for (const [a, b] of answers.crit) asked.set(`w${Math.min(a, b)},${Math.max(a, b)}`, (asked.get(`w${Math.min(a, b)},${Math.max(a, b)}`) || 0) + 1);
   for (const [c, x, y] of answers.opt) asked.set(`${c}:${Math.min(x, y)},${Math.max(x, y)}`, (asked.get(`${c}:${Math.min(x, y)},${Math.max(x, y)}`) || 0) + 1);
@@ -273,21 +280,28 @@ const ranksOf = (s) => {
 
 /**
  * The results: options in overall order with a 90% rank range and chance of
- * being best; criteria with their weight (plug-in) and a 90% range; and
+ * being best; criteria with their weight (plug-in) and a 90% range;
  * `confidence`, the posterior mean Spearman between a drawn order and the
- * one shown (rank-core's orderConfidence, over the joint draws).
+ * one shown (rank-core's orderConfidence, over the joint draws); and `safe`,
+ * the share of draws in which no option beats the option shown first by
+ * more than `margin` (DECIDE_MARGIN) on the overall score.
  */
 export function decisionTable(df, options = {}) {
   const { scores, weights, draws } = sampleDecision(df, options);
+  const margin = options.margin ?? DECIDE_MARGIN;
   const { n, C } = df;
   const ord = overallOrder(df);
   const shown = new Array(n);
   ord.forEach((item, k) => (shown[item] = k + 1));
   const ranks = Array.from({ length: n }, () => []);
   const best = new Array(n).fill(0);
-  let sp = 0;
+  let sp = 0, beaten = 0;
+  const lead = ord[0];
   for (const s of scores) {
     const r = ranksOf(s);
+    let top = -Infinity;
+    for (let i = 0; i < n; i++) if (s[i] > top) top = s[i];
+    if (top - s[lead] > margin) beaten++;
     let d2 = 0;
     for (let i = 0; i < n; i++) { ranks[i].push(r[i]); if (r[i] === 1) best[i]++; d2 += (r[i] - shown[i]) ** 2; }
     sp += n > 1 ? 1 - (6 * d2) / (n * (n * n - 1)) : 1;
@@ -301,7 +315,7 @@ export function decisionTable(df, options = {}) {
     const w = weights.map((x) => x[c]).sort((a, b) => a - b);
     return { item: c, weight: df.weights[c], low: w[lo], high: w[hi] };
   }).sort((a, b) => b.weight - a.weight || a.item - b.item);
-  return { rows, crit, confidence: sp / draws };
+  return { rows, crit, confidence: sp / draws, safe: 1 - beaten / draws, margin };
 }
 
 /**
@@ -331,9 +345,58 @@ export function decisionMax(n, C) {
   return Math.ceil((suggestedMax(Math.max(C, 2)) + C * suggestedMax(Math.max(n, 2))) / 2);
 }
 
-/** Stop once the overall order is STOP_CONFIDENCE settled (from `decisionTable`) with at least one answer of each kind. */
-export function decisionDone(table, answers) {
-  return answers.crit.length > 0 && answers.opt.length > 0 && table.confidence >= STOP_CONFIDENCE;
+/**
+ * The practical-tie margin for the winner stop, on the overall score's logit
+ * scale: 0.25 is a weighted edge of about 56% to 44% in a head-to-head pick.
+ * Chosen from 0.15, 0.25 and 0.4 on simulated people (docs/DECIDE-PAGE.md,
+ * "The winner stop").
+ */
+export const DECIDE_MARGIN = 0.25;
+
+/**
+ * Stop, with at least one answer of each kind, once either the whole order
+ * is STOP_CONFIDENCE settled or (rule "winner", the default) there is under
+ * a 1 - STOP_CONFIDENCE chance that any option beats the leader by more than
+ * DECIDE_MARGIN (`table.safe`). The order rule alone hit the cap in 58 of 60
+ * simulated runs: a weighted average pulls options together, so neighbours
+ * further down rarely separate, and the person came to choose one.
+ */
+export function decisionDone(table, answers, { rule = "winner" } = {}) {
+  if (!(answers.crit.length > 0 && answers.opt.length > 0)) return false;
+  return table.confidence >= STOP_CONFIDENCE || (rule === "winner" && table.safe >= STOP_CONFIDENCE);
+}
+
+/**
+ * What would change the winner, at the posterior mode: for each criterion,
+ * the weight it would need (the others scaled to fill the rest in their
+ * current proportions) for another option to overtake the leader. With the
+ * others in proportion every overall score is linear in that one weight x,
+ * S_o(x) = x D_o + (1 - x) R_o (D_o its centred score on the criterion, R_o
+ * its weighted score on the rest), so each crossing is solved exactly.
+ * Returns, per criterion, { item, weight, needed, rival }; needed and rival
+ * are null when no weight from 0 to 1 changes the winner.
+ */
+export function whatWouldChange(df) {
+  const { n, weights, centred } = df;
+  const a = overallOrder(df)[0];
+  return weights.map((wd, c) => {
+    const rest = 1 - wd;
+    const R = (o) => (rest < 1e-12 ? 0 : weights.reduce((acc, wk, k) => acc + (k === c ? 0 : wk * centred[k][o]), 0) / rest);
+    const Ra = R(a), Da = centred[c][a];
+    let best = null;
+    for (let o = 0; o < n; o++) {
+      if (o === a) continue;
+      const Ro = R(o), Do = centred[c][o], den = (Da - Ra) - (Do - Ro);
+      if (Math.abs(den) < 1e-12) continue;
+      const x = (Ro - Ra) / den;
+      if (!(x >= 0 && x <= 1)) continue;
+      // Past the crossing, in the direction away from today's weight, o must really lead.
+      const xs = Math.min(1, Math.max(0, x + (x > wd ? 1e-6 : -1e-6)));
+      if (xs * Do + (1 - xs) * Ro <= xs * Da + (1 - xs) * Ra) continue;
+      if (!best || Math.abs(x - wd) < Math.abs(best.needed - wd)) best = { needed: x, rival: o };
+    }
+    return { item: c, weight: wd, needed: best ? best.needed : null, rival: best ? best.rival : null };
+  });
 }
 
 /** The results as CSV, with the weights below the order. Every text cell goes through rank-core's csvCell, its formula-injection guard. */

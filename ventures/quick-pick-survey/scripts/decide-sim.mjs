@@ -12,6 +12,8 @@
 //      questions, at the same number of answers;
 //   2. the stop rule: picks until decisionDone (or decisionMax), with the
 //      confidence read against the true Spearman at the stop.
+// The picker is the page default (focus "winner" since 2026-11-14 later);
+// docs/decide-sim-2026-11-14.jsonl was written with the first, "order" focus.
 import { writeFileSync } from "node:fs";
 import { decisionFit, nextQuestion, decisionTable, decisionDone, decisionMax, overallOrder } from "../site/decide-core.mjs";
 
