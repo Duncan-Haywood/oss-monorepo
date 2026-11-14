@@ -6,9 +6,18 @@
 // a bank account or a party; those findings stay in `remaining` for a person.
 // Every change is logged with its path, old value and new value, and the
 // repaired invoice is re-checked so the caller sees what is still wrong.
+//
+// The checker is the one source of truth for the arithmetic: a value is
+// rewritten only when checkInvoice flags it, and the new value comes from the
+// same helpers the checker uses (linenet.mjs). An earlier version recomputed
+// everything its own way (unit price rounded to cents first, no price base
+// quantity, VAT per line instead of per rate) and so turned valid invoices
+// into invalid ones: 1,000 x 0.125 became 130.00 instead of 125.00 (red team,
+// 2026-11-14).
 
 import { headerAdjustmentNetDelta } from "./adjustment.mjs";
 import { checkInvoice, roundHalfUpToCents } from "./checks.mjs";
+import { expectedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 
 function num(value) {
   if (value === undefined || value === null || value === "") return null;
@@ -20,6 +29,8 @@ const cents = (value) => {
   const n = num(value);
   return n === null ? null : roundHalfUpToCents(n);
 };
+
+const flagged = (invoice, rules, path) => checkInvoice(invoice).some((e) => rules.includes(e.rule) && e.path === path);
 
 export function repairInvoice(invoice) {
   const before = checkInvoice(invoice);
@@ -39,32 +50,52 @@ export function repairInvoice(invoice) {
   }
 
   const lines = Array.isArray(fixed.lines) ? fixed.lines : [];
-  let net = 0;
-  let tax = 0;
   let computable = lines.length > 0;
+  const lineFlags = new Set(checkInvoice(fixed).filter((e) => e.rule === "INV-012").map((e) => e.path));
   lines.forEach((line, index) => {
     if (!line || typeof line !== "object" || Array.isArray(line)) { computable = false; return; }
     const quantity = num(line.quantity);
-    const price = cents(line.unit_price);
-    const rate = num(line.tax_percent);
+    const price = num(line.unit_price);
+    const rate = taxPercentOf(line);
     if (quantity === null || quantity <= 0 || price === null || price < 0) { computable = false; return; }
-    const lineNet = roundHalfUpToCents(quantity * price);
-    set(line, "net", `/lines/${index}/net`, lineNet, "Line net is quantity times unit price.");
-    net = roundHalfUpToCents(net + lineNet);
-    if (rate === null || rate < 0 || rate > 100) { computable = false; return; }
-    tax = roundHalfUpToCents(tax + roundHalfUpToCents((lineNet * rate) / 100));
+    const path = `/lines/${index}/net`;
+    const lineNet = expectedLineNet(line);
+    if (lineFlags.has(path) && lineNet !== null) {
+      set(line, "net", path, lineNet, "Line net is quantity times unit price (per price base quantity, after line allowances and charges).");
+    }
+    if (rate === null || rate < 0 || rate > 100) computable = false;
+    // An allowance larger than the line leaves a negative net on a positive line, which
+    // the totals cannot carry (no negative tax on an ordinary invoice): a person decides.
+    if (lineNet === null || (lineNet < 0 && !isNegativeInvoice(fixed))) computable = false;
   });
 
   if (computable) {
-    net = Math.max(0, roundHalfUpToCents(net + headerAdjustmentNetDelta(fixed)));
     const totals = fixed.totals && typeof fixed.totals === "object" && !Array.isArray(fixed.totals) ? fixed.totals : (fixed.totals = {});
-    const gross = roundHalfUpToCents(net + tax);
-    set(totals, "net", "/totals/net", net, "Net total is the sum of line nets after header allowances and charges.");
-    set(totals, "tax", "/totals/tax", tax, "Tax total is the sum of per-line tax at each line's own percentage.");
-    set(totals, "gross", "/totals/gross", gross, "Gross is net plus tax.");
+    let net = roundHalfUpToCents(lines.reduce((sum, line) => sum + summedLineNet(line, fixed), 0) + headerAdjustmentNetDelta(fixed));
+    if (net < 0 && !isNegativeInvoice(fixed)) net = 0;
+    if (flagged(fixed, ["INV-013", "INV-014"], "/totals/net")) {
+      set(totals, "net", "/totals/net", net, "Net total is the sum of line nets after header allowances and charges.");
+    }
+    // VAT per rate on the summed taxable amount (EN 16931 BR-CO-17), as the checker
+    // works it; a header allowance it cannot place in a rate leaves the tax alone.
+    const groups = taxGroups(fixed);
+    const flat = flatTaxTotal(fixed);
+    if (!groups.unattributed && flat !== null && flagged(fixed, ["INV-015", "INV-018"], "/totals/tax")) {
+      let tax = flat;
+      for (const group of groups.groups.values()) tax = roundHalfUpToCents(tax + group.tax);
+      set(totals, "tax", "/totals/tax", tax, "Tax total is each rate applied to that rate's summed taxable amount.");
+    }
+    if (flagged(fixed, ["INV-016", "INV-017"], "/totals/gross")) {
+      const stated = cents(totals.net);
+      const tax = cents(totals.tax) ?? 0;
+      if (stated !== null) set(totals, "gross", "/totals/gross", roundHalfUpToCents(stated + tax), "Gross is net plus tax.");
+    }
+    const gross = cents(totals.gross);
     const prepaid = totals.prepaid === undefined || totals.prepaid === null || totals.prepaid === "" ? 0 : cents(totals.prepaid);
-    if ("due" in totals && totals.due !== null && totals.due !== "" && prepaid !== null && prepaid >= 0) {
-      set(totals, "due", "/totals/due", Math.max(0, roundHalfUpToCents(gross - prepaid)), "Amount due is gross minus prepaid.");
+    const rounding = totals.rounding === undefined || totals.rounding === null || totals.rounding === "" ? 0 : cents(totals.rounding);
+    if ("due" in totals && totals.due !== null && totals.due !== "" && gross !== null && prepaid !== null && prepaid >= 0
+        && rounding !== null && flagged(fixed, ["INV-029"], "/totals/due")) {
+      set(totals, "due", "/totals/due", Math.max(0, roundHalfUpToCents(gross - prepaid + rounding)), "Amount due is gross minus prepaid plus rounding.");
     }
   }
 

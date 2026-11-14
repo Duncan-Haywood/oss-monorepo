@@ -182,3 +182,23 @@ test("BT-111 in another currency is left for a person, with the reason", () => {
   assert.ok(r.skipped.some((s) => /BT-111, USD/.test(s)));
   assert.ok(r.xml.includes('currencyID="USD">4.00'));
 });
+
+// Red team 2026-11-14 (escaped mutants at repair-ubl.mjs:113 and :166).
+test("a single fix still counts as repaired", () => {
+  const src = ex("ubl-invoice.xml").replace(/(<cbc:PayableAmount currencyID="EUR">)300\.00/, "$1301.00");
+  assert.notEqual(src, ex("ubl-invoice.xml"));
+  const r = repairUbl(src);
+  assert.equal(r.changes.length, 1);
+  assert.equal(r.repaired, true);
+  assert.equal(r.xml, ex("ubl-invoice.xml"));
+});
+
+test("a line with a zero base quantity stops the whole recompute; no total is touched", () => {
+  const src = ex("ubl-invoice.xml")
+    .replace(/(<cbc:PriceAmount currencyID="EUR">50\.00<\/cbc:PriceAmount>)/, '$1<cbc:BaseQuantity unitCode="C62">0</cbc:BaseQuantity>')
+    .replace(/(<cbc:PayableAmount currencyID="EUR">)300\.00/, "$1301.00");
+  const r = repairUbl(src);
+  assert.deepEqual(r.changes, []);
+  assert.equal(r.xml, src);
+  assert.ok(r.skipped.some((s) => /no quantity or price/.test(s)));
+});
