@@ -234,7 +234,9 @@
         <p class="muted">Paintings are shaded, and flat inks flatten the shading. An index separation prints the same inks as a scatter of square dots, one per finest dot the mesh holds, so the eye mixes them with the bare garment into the in-between tones. Same screens, finer films.</p>
         <div class="row3">
           <div><label for="ix-gain">Dot gain on press (% of a dot's area, 0 = none)</label><input id="ix-gain" type="number" min="0" max="100" step="1" value="0"></div>
+          <div><label for="ix-inks">Inks for the dots</label><select id="ix-inks"><option value="0">The flat separation's inks</option><option value="0.5">Chosen for the dots, seen from 0.5 m</option><option value="1" selected>Chosen for the dots, seen from 1 m</option><option value="3">Chosen for the dots, seen from 3 m</option></select></div>
         </div>
+        <p class="muted">Dots can only mix colours between their inks and the garment, and the flat separation's inks are averages, so they sit inside the painting's colours. "Chosen for the dots" tries inks moved outwards to reach the painting's darks, lights and strong colours, weighed against how grainy far-apart inks look from that distance, and keeps whichever set (the flat inks included) comes out closest to the painting. It takes a few seconds longer.</p>
         <details id="ix-calib">
           <summary>Measure dot gain from a proof</summary>
           <p class="muted">Ink spreads on press, so dots print larger than their film and the print comes out darker. Download the calibration strip (per ink: a solid square, a 50% checkerboard of single dots, a bare square), ask the printer to run it on your garment, photograph it flat in even light, and pick the three colours from that one photo (the middle of the checkerboard). The gain it shows goes into the box above and the next index separation spaces its dots to allow for it.</p>
@@ -554,6 +556,7 @@
     import { inkTradeoff } from "./inktradeoff.mjs";
     import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
+    import { chooseIndexInks } from "./inkfit.mjs";
     import { indexSeparate, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, calibrationFilms, gainFromPatch } from "./indexsep.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -931,7 +934,7 @@
     const slugify = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "design";
 
     // ---- colour separation ----
-    let lastSep = null, lastPixels = null, lastIndex = null, lastIndexCmp = [];
+    let lastSep = null, lastPixels = null, lastIndex = null, lastIndexCmp = [], lastInkPick = null;
     function sepExtras() {
       const p = $("#sep-crop").value.split(/[ ,]+/).filter(Boolean).map(Number);
       if (p.length && (p.length !== 4 || p.some(v => !(v >= 0 && v <= 90)))) throw new Error("Trim edges needs four percentages from 0 to 90, e.g. 0,0,10,0.");
@@ -994,7 +997,9 @@
     $("#sep-index").addEventListener("click", () => {
       if (!lastSep || !lastPixels) return;
       try {
-        lastIndex = indexSeparate(lastPixels, lastSep, { crop: sepExtras().crop, dotGainPct: Number($("#ix-gain").value) || 0 });
+        const ixo = { crop: sepExtras().crop, dotGainPct: Number($("#ix-gain").value) || 0 }, forM = Number($("#ix-inks").value) || 0;
+        lastInkPick = forM ? chooseIndexInks(lastPixels, lastSep, { ...ixo, metres: forM }) : null;
+        lastIndex = lastInkPick ? lastInkPick.idx : indexSeparate(lastPixels, lastSep, ixo);
         lastIndexCmp = compareFlatIndex(lastSep, lastIndex, [0.5, 1, 3]);
       } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); return; }
       const ix = lastIndex, c = document.createElement("canvas");
@@ -1003,6 +1008,7 @@
       $("#sep-out").insertAdjacentHTML("beforeend", `<h3>Index separation</h3><img id="sep-index-preview" alt="Index separation preview: square dots of each ink on the garment colour" src="${c.toDataURL()}" style="max-width:100%;border:1px solid #888">
         <p><strong>${ix.screens} screens</strong>, square dots of ${ix.dotMm} mm (${ix.width} x ${ix.height}), ${ix.garmentPct}% bare garment between them${ix.dotGainPct ? `, spaced for ${ix.dotGainPct}% dot gain (distances below are for a press with that gain)` : ""}.</p>
         <table id="sep-index-table"><caption>Distance from the painting (mean delta E after a rough eye blur; lower is closer)</caption><tr><th>Seen from</th><th>Flat inks</th><th>Index dots</th></tr>${lastIndexCmp.map(r => `<tr><td>${r.metres} m</td><td>${r.flat}</td><td${r.index < r.flat ? ' style="font-weight:bold"' : ""}>${r.index}</td></tr>`).join("")}</table>
+        ${lastInkPick ? `<p id="sep-index-inks">${lastInkPick.refit ? `<strong>Inks chosen for the dots</strong> (closest seen from ${lastInkPick.metres} m): ${ix.inks.map(i => `<span style="display:inline-block;width:1em;height:1em;background:${i.flatHex};border:1px solid #888"></span> ${i.flatHex} &rarr; <span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888"></span> ${i.hex}`).join("; ")}. Ask the printer to match these, not the flat ones.` : `The flat separation's inks stayed closest seen from ${lastInkPick.metres} m, so they are kept.`} <span class="muted">Tried: ${lastInkPick.candidates.map(c => `${esc(c.label)} ${c.deltaE}`).join(", ")}.</span></p>` : ""}
         <ul class="muted">${ix.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`);
       $("#sep-index-films").disabled = false; $("#sep-index-brief").disabled = false; $("#ix-calib-films").disabled = false;
       recordUsage("separation_index");

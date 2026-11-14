@@ -99,7 +99,9 @@ export function indexSeparate(image, base, o = {}) {
   const src = resampleLinear(image, w, h);
   // which grid cells are background in the flat separation (nearest cell of its smaller grid)
   const bgAt = (x, y) => base.labels[Math.min(base.height - 1, Math.floor(y * base.height / h)) * base.width + Math.min(base.width - 1, Math.floor(x * base.width / w))] === NONE;
-  const pal = [...base.inks.map(i => ({ hex: i.hex, ink: true })), { hex: base.garment, ink: false }];
+  // o.inks: the inks to dot with, one hex per flat ink in the same print order (e.g. from `chooseIndexInks`); default the flat inks
+  const inkHex = base.inks.map((ink, p) => (Array.isArray(o.inks) && /^#[0-9a-f]{6}$/i.test(o.inks[p] || "") ? o.inks[p].toLowerCase() : ink.hex));
+  const pal = [...inkHex.map(hex => ({ hex, ink: true })), { hex: base.garment, ink: false }];
   for (const p of pal) { p.lin = rgbOf(p.hex).map(lin); p.lab = toLab(...rgbOf(p.hex)); }
   const GARMENT = pal.length - 1;
   const serp = o.serpentine !== false;
@@ -166,7 +168,7 @@ export function indexSeparate(image, base, o = {}) {
       if (!mask[i]) continue;
       if (!(x > 0 && mask[i - 1]) && !(x < w - 1 && mask[i + 1]) && !(y > 0 && mask[i - w]) && !(y < h - 1 && mask[i + w])) lone++;
     }
-    return { order: ink.order, hex: ink.hex, coveragePct: +(100 * area / Math.max(1, inked)).toFixed(1), loneDotPct: area ? +(100 * lone / area).toFixed(1) : 0, mask };
+    return { order: ink.order, hex: inkHex[p], flatHex: ink.hex, coveragePct: +(100 * area / Math.max(1, inked)).toFixed(1), loneDotPct: area ? +(100 * lone / area).toFixed(1) : 0, mask };
   });
   const garmentPct = +(100 * labels.reduce((s, l) => s + (l === GARMENT ? 1 : 0), 0) / Math.max(1, inked)).toFixed(1);
   const heightCm = +(base.widthCm * h / w).toFixed(1);
@@ -178,8 +180,9 @@ export function indexSeparate(image, base, o = {}) {
   if (dotMm > cellMm * 1.05) notes.push(`The source image limits the dot to ${dotMm} mm; a larger scan would allow ${cellMm} mm.`);
   if (sg) notes.push(`Compensated for ${+(sg * 400).toFixed(1)}% dot gain: fewer, more spaced dots where ink would spread. Check it against a proof of the calibration strip.`);
   else notes.push("Not compensated for dot gain. Ink spreads on press and darkens the dots; print the calibration strip on a proof and enter the gain it shows.");
+  if (inkHex.some((h, p) => h !== base.inks[p].hex)) notes.push("These inks were chosen for the dots, not for flat areas (inkfit.mjs): match them, not the flat separation's.");
   if (base.underbase) notes.push("The white underbase sits under every inked dot (not the bare-garment ones); index prints on dark garments need tight registration between it and the inks.");
-  return { method: "index", width: w, height: h, widthCm: base.widthCm, heightCm, garment: base.garment, dotMm, labels, palette: pal.map(p => p.hex), garmentIndex: GARMENT, inks, garmentPct, ranks: rank, dotGainPct: +(sg * 400).toFixed(1), underbase: base.underbase, screens: base.screens, notes, src };
+  return { method: "index", width: w, height: h, widthCm: base.widthCm, heightCm, garment: base.garment, dotMm, labels, palette: pal.map(p => p.hex), flatPalette: [...base.inks.map(i => i.hex), base.garment], inksRefit: inkHex.some((h, p) => h !== base.inks[p].hex), garmentIndex: GARMENT, inks, garmentPct, ranks: rank, dotGainPct: +(sg * 400).toFixed(1), underbase: base.underbase, screens: base.screens, notes, src };
 }
 
 /** Separable Gaussian blur of linear-RGB triples (sigma in cells); edges clamp. */
@@ -241,8 +244,8 @@ export function flatOnGrid(base, w, h) {
 }
 
 /** Mean CIE76 between painting and print after both are blurred by sigmaMm, over the cells that print; the print spread by `dotGainPct`. */
-export function perceivedDeltaE(idx, labels, sigmaMm, dotGainPct = 0) {
-  const { width: w, height: h, src, palette, garment } = idx;
+export function perceivedDeltaE(idx, labels, sigmaMm, dotGainPct = 0, palette = idx.palette) {
+  const { width: w, height: h, src, garment } = idx;
   const sig = sigmaMm / idx.dotMm;
   const a = blurLinear(src, w, h, sig), b = blurLinear(printLinear(labels, palette, garment, { w, dotGainPct, garmentIndex: idx.garmentIndex, ranks: idx.ranks }), w, h, sig);
   let s = 0, n = 0;
@@ -260,7 +263,7 @@ export const sigmaAt = metres => +(metres * 1000 * Math.tan(Math.PI / 180 / 60))
 /** Flat against index at the given viewing distances, same palette, same grid. */
 export function compareFlatIndex(base, idx, distances = [0.5, 1, 3], { dotGainPct = idx.dotGainPct || 0 } = {}) {
   const flat = flatOnGrid(base, idx.width, idx.height);
-  return distances.map(m => ({ metres: m, sigmaMm: sigmaAt(m), flat: perceivedDeltaE(idx, flat, sigmaAt(m), dotGainPct), index: perceivedDeltaE(idx, idx.labels, sigmaAt(m), dotGainPct) }));
+  return distances.map(m => ({ metres: m, sigmaMm: sigmaAt(m), flat: perceivedDeltaE(idx, flat, sigmaAt(m), dotGainPct, idx.flatPalette || idx.palette), index: perceivedDeltaE(idx, idx.labels, sigmaAt(m), dotGainPct) }));
 }
 
 /** Relative luminance (linear) of a hex colour. */
@@ -327,7 +330,7 @@ export function indexBrief(idx, comparison = []) {
   return [
     `Index separation: ${idx.inks.length} inks${idx.underbase ? " + white underbase" : ""} = ${idx.screens} screens, ${idx.widthCm} x ${idx.heightCm} cm on ${idx.garment}, square dots of ${idx.dotMm} mm (${idx.width} x ${idx.height}).`,
     idx.dotGainPct ? `Films compensated for ${idx.dotGainPct}% dot gain (a dot printing ${idx.dotGainPct}% larger in area than its film). Please keep press conditions as for the calibration proof.` : "Films not compensated for dot gain. Please print the calibration strip on a proof first if you can.",
-    ...idx.inks.map(i => `Screen ${i.order}: ${i.hex}, ${i.coveragePct}% of the artwork, ${i.loneDotPct}% single dots.`),
+    ...idx.inks.map(i => `Screen ${i.order}: ${i.hex}${i.flatHex && i.flatHex !== i.hex ? ` (chosen for the dots; the flat separation had ${i.flatHex})` : ""}, ${i.coveragePct}% of the artwork, ${i.loneDotPct}% single dots.`),
     ...comparison.map(c => `Seen from ${c.metres} m: flat inks ${c.flat} delta E from the painting, index ${c.index} (lower is closer; a rough blur model, judge a proof).`),
     ...idx.notes,
   ].join("\n");
