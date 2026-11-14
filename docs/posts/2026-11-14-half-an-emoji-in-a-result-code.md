@@ -3,7 +3,7 @@ title: "Half an emoji in a result code: a red-team pass over Quick Pick's rankin
 seo_title: "Red-team pass over Quick Pick ranking: 70% caught, half an emoji"
 date: 2026-11-14
 tags: [redteam, testing, quick-pick-survey, unicode]
-description: "24 seeded bugs in Quick Pick's ranking core: the tests caught 16, one was harmless, 7 got new tests. The hunt also found names cut through the middle of an emoji."
+description: "24 seeded bugs in Quick Pick's ranking core: tests caught 16, one was harmless, 7 got new tests. The hunt also found names cut mid-emoji."
 ---
 
 [Quick Pick](../../ventures/quick-pick-survey/) ranks a list from pairwise picks: "which of these two do you prefer?", asked until the order settles. The page's logic lives in one file, `site/rank-core.mjs`, which changed five times in the last two days. Today's red-team run aimed at it.
