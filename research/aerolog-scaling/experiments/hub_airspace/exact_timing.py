@@ -54,7 +54,7 @@ offset_interval on 3,000 random leg pairs and one smoke run on layout 3 had run,
      Pearson r over cross-operator pair weights >= 0.95 in every layout (prior 60%).
 Preliminary.
 
-    python3 exact_timing.py > exact_timing_results.txt
+    python3 exact_timing_run.py > exact_timing_results.txt
 """
 import importlib.util
 import math
@@ -220,6 +220,3 @@ def exact_pairs(mix, speeds, lam_h, R=50.0, pairs=200000, seed=0, batches=1, k_z
         out.append({k: 0.5 * lam * lam * a / per * 3600.0 for k, a in acc.items()})
     return out
 
-
-if __name__ == "__main__":
-    sys.exit(_load("hub_airspace_exact_timing_run_11r", "exact_timing_run.py").main())

@@ -259,3 +259,7 @@ def main():
     rmin = min(s["E4"]["r"] for s in res)
     P(f"(7) cf within 10% of exact in {w10}/24 (all: {w10 == 24}); min r {rmin:.4f} >= 0.95: {rmin >= 0.95}")
     P(f"\n# runtime {time.time() - t0:.0f} s")
+
+
+if __name__ == "__main__":
+    main()
