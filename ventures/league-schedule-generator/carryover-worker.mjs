@@ -16,9 +16,9 @@
 //
 // Whole-search mode (older pages, kept for cached copies): In { n, double, seed, tries, capped, pick }.
 // Out: { type: "try", i, tries, candidate } per search, then { type: "done", rounds, summary }.
-import { bestCarryOverRounds, carryOverSummary, carryOverTry, carryOverSqueeze, carryOverPolish, carryOverFloorPriced } from "./carryover.mjs";
+import { bestCarryOverRounds, carryOverSummary, carryOverTry, carryOverSqueeze, carryOverPolish, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
 self.onmessage = (e) => {
-  const { n, double, seed, tries, capped, pick, indices, weighted, squeeze, polish, floorPriced, results } = e.data || {};
+  const { n, double, seed, tries, capped, pick, indices, weighted, squeeze, polish, floorPriced, pure, results } = e.data || {};
   try {
     if (Number.isInteger(squeeze) && Array.isArray(results)) {
       const all = [...results].sort((a, b) => a.index - b.index);
@@ -33,7 +33,11 @@ self.onmessage = (e) => {
         self.postMessage({ type: "try", i: result.index, candidate: { coe: result.coe, breaks: result.breaks, breakWeight: null, maxBreaks: null }, result });
       }
       if (Number.isInteger(floorPriced) && floorPriced > 0) for (const result of carryOverFloorPriced(n, all, { seed, count: floorPriced })) {
+        all.push(result);
         self.postMessage({ type: "try", i: result.index, candidate: { coe: result.coe, breaks: result.breaks, breakWeight: null, maxBreaks: result.maxBreaks }, result });
+      }
+      if (pure) for (const result of carryOverPure(n, all, { seed })) {
+        self.postMessage({ type: "try", i: result.index, candidate: { coe: result.coe, breaks: result.breaks, breakWeight: 0, maxBreaks: null }, result });
       }
       self.postMessage({ type: "done" });
       return;

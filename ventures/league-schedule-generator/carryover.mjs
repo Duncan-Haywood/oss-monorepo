@@ -48,7 +48,7 @@ export function carryOverFromOpponents(opponents, { cyclic = false } = {}) {
   const q = Math.floor(total / cells), r = total - q * cells;
   const lowerBound = cells ? r * (q + 1) ** 2 + (cells - r) * q * q : 0;
   // A single round robin, all n teams playing, non-cyclic: the floor above is not always reachable,
-  // and for some n a SAT solver has proved a higher least value (PROVEN_LEAST).
+  // and for some n an exact search has proved a higher least value (PROVEN_LEAST).
   const single = !cyclic && !diagonal && n % 2 === 0 && opponents.every((s) => s.length === n - 1);
   const proven = single ? PROVEN_LEAST[n] || null : null;
   return { matrix, value, max, pairs, total, lowerBound, repeats: diagonal, proven };
@@ -57,14 +57,16 @@ export function carryOverFromOpponents(opponents, { cyclic = false } = {}) {
 /**
  * Least non-cyclic carry-over of a single round robin with n teams, all playing, as far as it is
  * proved. `least` is a value no such round robin goes below; `exact` says a round robin reaches it.
- * 6: all 720 ordered 1-factorizations enumerated (carryover.test.mjs) and eval/carryover-sat.py
- * (no round robin at 40 or under). 8: reaches the floor. 10: eval/carryover-sat.py proves none at
- * 88 or under (UNSAT); the best known, from the refill search, is 94 (README "SAT bounds").
+ * 6: all 720 ordered 1-factorizations enumerated (carryover.test.mjs), eval/carryover-sat.py and
+ * eval/carryover-bnb.c (none at 40 or under). 8: reaches the floor. 10: eval/carryover-bnb.c, an
+ * exhaustive branch and bound, finds none at 92 or under (145 s; CaDiCaL had proved 88 and stopped
+ * with no answer at 90 after 69 min) and finds a 94 in 2 s, so 94 is the least (README "The least
+ * carry-over at 10 teams is 94").
  */
 export const PROVEN_LEAST = {
   6: { least: 42, exact: true },
   8: { least: 48, exact: true },
-  10: { least: 90, exact: false, best: 94 },
+  10: { least: 94, exact: true },
 };
 
 /** Each team's opponents in order from schedule rounds (`{ matches: [{ home, away }] }` or [h, a] pairs). */
@@ -1492,7 +1494,7 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
  * of the trade the weights do not reach (eval/capped-breaks.txt).
  */
-export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, polish = 0, floorPriced = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, squeeze = 0, polish = 0, floorPriced = 0, pure = false, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   checkBestOfK(tries, pick);
   if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
   if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
@@ -1528,7 +1530,13 @@ export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, ca
     results.push(t);
     if (onTry) onTry(t.index, candidateOf(t, pick));
   }
-  return combineCarryOverTries(results, pick, { among: tries + capped, keep });
+  // `pure`: one more season searched on carry-over alone (carryOverPure); "the most even carry-over"
+  // (pick 0) chooses among every season, so it can keep this one, the other choices cannot
+  if (pure) for (const t of carryOverPure(n, results, { seed, effort })) {
+    results.push(t);
+    if (onTry) onTry(t.index, candidateOf(t, pick));
+  }
+  return combineCarryOverTries(results, pick, { among: pick === 0 && pure ? Infinity : tries + capped, keep });
 }
 
 function checkBestOfK(tries, pick) {
@@ -2244,6 +2252,26 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
   let breaks = 0;
   for (let t = 0; t < n; t++) breaks += teamBreaks(x.venues, c.opp, t, n);
   return { rounds, coe: c.coe, circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, floor: x.floor, leastProved: x.proved, maxBreaks, iterations: it, floors, walks, dealt, floorPriced: true };
+}
+
+/**
+ * The carry-over-only season the page adds last (README "The least carry-over at 10 teams is 94"):
+ * every other try weighs breaks against carry-over (CARRY_OVER_PICK's weights 10 to 80, or a cap), so
+ * none of them searches carry-over alone, and at 10 teams the best of them was 102 where 94, the
+ * proved least, is reachable. This runs lowCarryOverRounds (or the double) with no break weight at the
+ * base seed and returns it numbered after the others, or nothing when an earlier try already has
+ * carry-over at or under it (nothing new for the list). It is added after every other season so the
+ * squeezes, polishes and floor-priced seasons, which read the frontier, are unchanged.
+ */
+export function carryOverPure(n, results, { seed = 1, effort = 1 } = {}) {
+  const base = [...results].sort((a, b) => a.index - b.index);
+  if (!base.length || base.some((t) => t.pure)) return [];
+  const N = n % 2 === 0 ? n : n + 1;
+  const double = base[0].rounds.length === 2 * (N - 1);
+  const r = double ? lowCarryOverDoubleRounds(n, { seed, effort, breakWeight: 0 }) : lowCarryOverRounds(n, { seed, effort, breakWeight: 0 });
+  const score = (t) => t.coe + (t.repeats || 0) * REPEAT_PENALTY;
+  if (base.some((t) => score(t) <= score(r))) return [];
+  return [{ ...r, index: base.length, seed, breakWeight: 0, pure: true }];
 }
 
 /** Floor-priced seasons the page adds after its regrounded ones, at most (carryOverFloorPriced). */
