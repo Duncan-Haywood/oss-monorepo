@@ -86,3 +86,7 @@ test("the page's worked example finds what its status line promises", async () =
   for (const t of ["alias-path-traversal", "cors-reflects-any-origin", "ssrf-upstream-from-request", "crlf-injection-uri",
     "status-page-public", "add-header-drops-inherited", "ssl-protocol-deprecated", "server-tokens-on"]) assert.ok(types.has(t), t);
 });
+
+test("the footer links its sibling sudoers-check", () => {
+  assert.match(readFileSync(path.join(here, "index.html"), "utf8"), /href="\.\.\/sudoers-check\/"/);
+});
