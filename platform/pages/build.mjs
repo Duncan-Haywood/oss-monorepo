@@ -43,7 +43,7 @@ import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
-import { buildQueue, QUEUE_PATH } from './queue.mjs';
+import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
   FEED_MAX_ENTRIES,
@@ -7911,6 +7911,50 @@ const FEEDBACK_STYLE = `
 `;
 
 /** Where the open custom development page is served, relative to the site root. */
+/**
+ * Request notes grow into running logs (R-0005's was 8,767 characters, its
+ * ask 1,158), and the list showed every word of them, so the page a business
+ * lands on ran to 16,000 px on a phone. The list shows a clipped excerpt with
+ * a link to the request's page; that page shows a short lead and the rest in
+ * a `<details>`, split into sentences so it reads as a log, not a wall.
+ */
+export const REQUEST_ASK_CLIP = 220;
+export const REQUEST_NOTE_CLIP = 300;
+const REQUEST_NOTE_LEAD = 600;
+const wordCount = (t) => String(t ?? '').trim().split(/\s+/).filter(Boolean).length;
+
+/** Split a long note into sentences, at ". " before a capital or digit, keeping parentheses intact. */
+export function noteSentences(text) {
+  const t = String(text ?? '').replace(/\s+/g, ' ').trim();
+  const out = [];
+  let depth = 0, start = 0;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (c === '(') depth++;
+    else if (c === ')') depth = Math.max(0, depth - 1);
+    else if (c === '.' && depth === 0 && t[i + 1] === ' ' && /[A-Z0-9]/.test(t[i + 2] || '') && !/\b(?:e\.g|i\.e|vs|etc|No|St|Dr|Mr|Ms|Inc|Ltd)$/.test(t.slice(start, i))) {
+      out.push(t.slice(start, i + 1));
+      start = i + 2;
+    }
+  }
+  if (start < t.length) out.push(t.slice(start));
+  return out.filter(Boolean);
+}
+
+export function requestNoteHtml(label, note) {
+  const flat = String(note ?? '').replace(/\s+/g, ' ').trim();
+  if (flat.length <= REQUEST_NOTE_LEAD * 1.5) return `<p><strong>${escapeHtml(label)}:</strong> ${descriptionHtml(flat)}</p>`;
+  const sentences = noteSentences(flat);
+  const lead = [];
+  let used = 0;
+  while (sentences.length && (lead.length === 0 || used + sentences[0].length <= REQUEST_NOTE_LEAD)) {
+    used += sentences[0].length;
+    lead.push(sentences.shift());
+  }
+  return `<p><strong>${escapeHtml(label)}:</strong> ${descriptionHtml(lead.join(' '))}</p>${sentences.length ? `
+      <details class="cd-more"><summary>The full log (${sentences.length} more entries, ${wordCount(sentences.join(' '))} words)</summary><ul class="cd-log">${sentences.map((x) => `<li>${descriptionHtml(x)}</li>`).join('')}</ul></details>` : ''}`;
+}
+
 export const CUSTOM_DEV_PATH = 'custom-development/';
 
 /** A request's own page, relative to the site root: `custom-development/R-0001/`. */
@@ -8181,7 +8225,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
       return `
           <tr data-status="${escapeHtml(r.status)}" data-text="${escapeHtml(text)}">
             <td><a href="${escapeHtml(`${r.id}/`)}">${escapeHtml(r.id)}</a></td>
-            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${descriptionHtml(note)}` : ''}</td>
+            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(clip(r.ask, REQUEST_ASK_CLIP))}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${descriptionHtml(clip(note, REQUEST_NOTE_CLIP))}${clip(note, REQUEST_NOTE_CLIP) !== String(note).replace(/\s+/g, ' ').trim() ? ` <a href="${escapeHtml(`${r.id}/`)}">Full status</a>` : ''}` : ''}</td>
             <td><span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span><br><small>${escapeHtml(r.updated)}</small></td>
             <td>${links}</td>
           </tr>`;
@@ -8352,14 +8396,15 @@ export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, re
     <header class="pf-hero">
       <p class="eyebrow">Request ${escapeHtml(r.id)} · <span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span></p>
       <h1>${escapeHtml(r.title)}</h1>
-      <p class="lede">“${escapeHtml(r.ask)}”</p>
+      <p class="lede">“${escapeHtml(clip(r.ask, REQUEST_ASK_CLIP))}”</p>${clip(r.ask, REQUEST_ASK_CLIP).length < String(r.ask).trim().length ? `
+      <details class="cd-more"><summary>The whole request (${wordCount(r.ask)} words)</summary><p>“${escapeHtml(r.ask)}”</p></details>` : ''}
       <p class="cd-ask">From ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, received ${escapeHtml(r.received)}, last updated ${escapeHtml(r.updated)}.</p>
     </header>
 
     <main class="prose">
       <h2>Where it is</h2>
       ${renderRequestStepper(r.status)}
-      ${note ? `<p><strong>${r.status === 'declined' ? 'Why' : 'Still open'}:</strong> ${descriptionHtml(note)}</p>` : ''}
+      ${note ? requestNoteHtml(r.status === 'declined' ? 'Why' : 'Where it stands', note) : ''}
 
       <h2>Follow it</h2>
       <ul>
@@ -8385,6 +8430,9 @@ const CUSTOM_DEV_STYLE = `
     .cd-table table { border-collapse: collapse; width: 100%; }
     .cd-table th, .cd-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
     .cd-ask { color: var(--muted); font-size: .92em; }
+    .cd-more { margin: 8px 0 14px; } .cd-more summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+    .pf-hero .cd-more summary { color: inherit; text-decoration: underline; }
+    .cd-log { margin: 8px 0 0; padding-left: 1.2em; } .cd-log li { margin: 4px 0; }
     .cd-st { display: inline-block; font-weight: 600; font-size: .85em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); }
     .cd-building, .cd-accepted { border-color: var(--accent); color: var(--accent); }
     .cd-cta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 18px 0 0; }

@@ -3,7 +3,7 @@
 // portfolio/requests/requests.json with nothing in it unescaped.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderCustomDevelopmentPage, renderCustomRequestPage, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap } from './build.mjs';
+import { renderCustomDevelopmentPage, renderCustomRequestPage, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap, REQUEST_ASK_CLIP, REQUEST_NOTE_CLIP, noteSentences } from './build.mjs';
 import { FEEDBACK_TYPES } from '../edge/feedback.mjs';
 import { injectChrome } from './build.mjs';
 import { renderSiteFooterNav } from './site-nav.mjs';
@@ -137,4 +137,39 @@ test('a research request can name any existing research direction, grouped and e
   assert.ok(!evil.includes('<script>y</script>') && !evil.includes('<b>t</b>'));
   // With no directions there is no empty picker.
   assert.ok(!renderCustomDevelopmentPage({ baseUrl: base, requests: [], surfaces, feedbackUrl: 'https://edge.example' }).includes('cdf-dir'));
+});
+
+test('a long request is clipped in the list and folded on its own page', () => {
+  const sentence = (i) => `Feature ${i} landed 2026-11-0${i % 9 + 1} (with a note, e.g. a caveat. Still inside).`;
+  const long = {
+    id: 'R-0042', title: 'Long one', source: 'owner', status: 'building', received: '2026-11-01', updated: '2026-11-14',
+    ask: 'word '.repeat(300).trim(),
+    next: Array.from({ length: 80 }, (_, i) => sentence(i)).join(' '),
+  };
+  const list = renderCustomDevelopmentPage({ baseUrl: base, requests: [long] });
+  const row = list.slice(list.indexOf('<tr data-status'), list.indexOf('</tr>', list.indexOf('<tr data-status')));
+  const visible = row.replace(/data-text="[^"]*"/, '').replace(/<[^>]+>/g, '');
+  assert.ok(visible.length < REQUEST_ASK_CLIP + REQUEST_NOTE_CLIP + 200, `row text is ${visible.length} characters`);
+  assert.match(row, /href="R-0042\/">Full status<\/a>/);
+  assert.match(row, /data-text="[^"]*feature 79 landed/, 'search still sees the whole note');
+
+  const page = renderCustomRequestPage({ request: long, baseUrl: base, requests: [long] });
+  assert.match(page, /<details class="cd-more"><summary>The whole request \(300 words\)/);
+  assert.match(page, /<summary>The full log \(\d+ more entries/);
+  assert.ok(page.includes('Feature 79 landed'), 'the full log is on the page');
+  const items = page.match(/<ul class="cd-log">([\s\S]*?)<\/ul>/)[1].match(/<li>/g).length;
+  assert.ok(items > 60 && items < 80, `${items} log entries`);
+});
+
+test('noteSentences keeps parentheses and abbreviations whole', () => {
+  assert.deepEqual(noteSentences('A landed (x. Y). B, e.g. C, too. 3 more.'), ['A landed (x. Y).', 'B, e.g. C, too.', '3 more.']);
+});
+
+test('a short request is shown whole, with no fold', () => {
+  const short = { id: 'R-0043', title: 'Short', source: 'owner', status: 'building', received: '2026-11-01', updated: '2026-11-14', ask: 'Make a thing.', next: 'Ship it.' };
+  const list = renderCustomDevelopmentPage({ baseUrl: base, requests: [short] });
+  assert.ok(!list.includes('Full status'));
+  const page = renderCustomRequestPage({ request: short, baseUrl: base, requests: [short] });
+  assert.ok(!page.includes('cd-more"><summary'));
+  assert.match(page, /Where it stands:<\/strong> Ship it\./);
 });
