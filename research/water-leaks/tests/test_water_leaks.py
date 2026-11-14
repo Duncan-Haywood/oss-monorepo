@@ -334,3 +334,40 @@ def test_scores_ignore_signatures_below_rounding():
     r = rng.normal(size=33)
     S = np.vstack([0.5 * r + 0.1 * rng.normal(size=33), 1e-6 * r + 2.0])   # row 1: a uniform shift plus noise
     assert localise.scores(r, S)[1] == 0.0 and localise.estimate(r, S) == 0
+
+
+def test_sicams_pelt_finds_mean_steps():
+    from water_leaks import sicams
+    rng = np.random.default_rng(0)
+    x = np.concatenate([rng.normal(0, 1, 200), rng.normal(5, 1, 150), rng.normal(1, 1, 200)])
+    cps = sicams.pelt(x, 3 * np.log(len(x)), min_size=24)
+    assert len(cps) == 2 and abs(cps[0] - 200) <= 3 and abs(cps[1] - 350) <= 3
+
+
+def test_sicams_classify_start_and_end():
+    from water_leaks import sicams
+    rng = np.random.default_rng(1)
+    x = np.concatenate([rng.normal(0, 1, 200), rng.normal(5, 1, 150), rng.normal(0, 1, 200)])
+    lab = sicams.classify(x, [200, 350])
+    assert lab == [(200, "start"), (350, "end")]
+
+
+def test_sicams_t2f_is_f_distributed_under_h0():
+    from water_leaks import sicams
+    from scipy import stats
+    rng = np.random.default_rng(2)
+    s, n = 4, 400
+    A = rng.normal(size=(s, s))
+    X = rng.normal(size=(2 * n, s)) @ A
+    cl = np.zeros(2 * n, int)
+    tr = np.arange(2 * n) < n
+    m = sicams.Model(X, cl, tr)
+    t2f = m.t2f(X[~tr], cl[~tr])
+    assert abs(t2f.mean() - (n - s) / (n - s - 2)) < 0.15       # eq. 14
+    assert abs((t2f > stats.f.ppf(0.95, s, n - s)).mean() - 0.05) < 0.03
+
+
+def test_sicams_hysteresis_one_alarm_per_episode():
+    from water_leaks import sicams
+    m = np.array([0, 0, 5, 6, 3, 5, 0.5, 0, 6, 0])
+    assert sicams.hysteresis(m, th1=4, th0=1) == [2, 8]

@@ -1,0 +1,81 @@
+variant	alarm_time	sensor	matched_pipe	delay_h	pipe_m
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-16T03	n296	p123	12	1925
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-06-13T04	n613	p142	9	281
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-04-21T01	n613	p331	15	1266
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-10-26T03	n752	p426	14	1677
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-04-03T01	n332	p514	5	77
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-01-16T05	n506	p523	6	86
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-07-10T16	n215	p680	8	288
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-04-15T03	n332	p710	517	1551
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-08-28T04	n752	p721	601	1004
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-11-02T03	n752	p762	546	610
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-08-22T04	n752	p800	126	646
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-01-25T00	n726	p827	6	229
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-11-23T03	n752	p879	42	598
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-01T02	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-04T03	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-06T02	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-07T03	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-10T02	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-13T03	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-19T03	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-22T02	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-25T02	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-09-30T02	n296			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-11-07T04	n752			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-11-12T03	n752			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-11-14T04	n752			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-11-17T03	n752			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-11-27T04	n752			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-03T03	n752			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-06T04	n752			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-10T03	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-13T03	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-17T03	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-21T03	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-25T02	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-26T02	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-27T03	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-28T04	n769			
+SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05	2019-12-31T00	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-16T03	n296	p123	12	1925
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-06-13T04	n613	p142	9	281
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-02-10T21	n4	p280	8	457
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-04-21T01	n613	p331	15	1266
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-10-26T03	n752	p426	14	1677
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-04-03T01	n332	p514	5	77
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-01-16T05	n506	p523	6	86
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-04-15T03	n332	p710	517	1551
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-08-28T04	n752	p721	601	1004
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-11-02T03	n752	p762	546	610
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-08-22T04	n752	p800	126	646
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-01-25T00	n726	p827	6	229
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-11-23T03	n752	p879	42	598
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-01-03T03	n1			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-07-04T17	n1			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-01T02	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-04T03	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-06T02	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-07T03	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-10T02	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-13T03	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-19T03	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-22T02	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-25T02	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-09-30T02	n296			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-11-07T04	n752			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-11-12T03	n752			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-11-14T04	n752			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-11-17T03	n752			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-11-27T04	n752			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-03T03	n752			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-06T04	n752			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-10T03	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-13T03	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-17T03	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-21T03	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-25T02	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-26T02	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-27T03	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-28T04	n769			
+SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04	2019-12-31T00	n769			
