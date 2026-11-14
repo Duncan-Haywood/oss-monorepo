@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T04:05:39Z",
   "ended": "2026-11-14T04:06:24Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 8.72,
+  "tokens_in": 5766948,
+  "tokens_out": 27166,
+  "cost_usd": 2.5452,
+  "tool_calls": 56,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15723",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "overwrote the existing tracked platform/ci/check_money_sign.py with a new lint of the same name via a shell heredoc",
+      "fix": "restored with git checkout and renamed the new lint to check_parse_sign.py before committing"
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0 lists 10 open entries, and every one is a control-plane edit that already has an owner-gated PR open; the list can't move without the owner, so each red-team run re-reads it and fixes nothing. redteam.py open could show the PR that holds each entry and leave out entries that are already queued"
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-minus-after-the-dollar-sign.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Guard added: platform/ci/check_parse_sign.py (+ test), run by unwired_checks.py on venture PRs; on its first run against the unpatched tree it found 2 more copies (economic-nexus-threshold-tracker/orders.mjs, restaurant-labor-cost-daypart-analyzer/calc.mjs) beyond the grep sweep. Verification: run_venture_tests.py over 44 touched ventures, 44 suites 0 failed; target 45/45; test_check_parse_sign and test_check_money_sign OK. Catch rate 3/8 before, 8/8 after.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -69,9 +83,9 @@
             "line_text": "    const counted = !x.cancelled && x.gross > 0;",
             "caught": false,
             "seconds": 0.2,
-            "triage": null,
+            "triage": "gap",
             "caught_after_fix": true,
-            "note": ""
+            "note": "gap: no order under $1 of food sales was tested; new test counts a $0.75 order"
           },
           {
             "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
@@ -97,9 +111,9 @@
             "line_text": "    from: Math.floor(Math.min(...list.map((x) => x.t)) / DAY) * DAY, to: Math.floor(Math.max(...list.map((x) => x.t)) / DAY) * DAY,",
             "caught": false,
             "seconds": 0.2,
-            "triage": null,
+            "triage": "gap",
             "caught_after_fix": true,
-            "note": ""
+            "note": "gap: summary.to never asserted; new test checks first and last day"
           },
           {
             "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
@@ -111,9 +125,9 @@
             "line_text": "const usd = (n) => (n < 0 ? \"-\" : \"\") + \"$\" + Math.abs(n).toFixed(2);",
             "caught": false,
             "seconds": 0.2,
-            "triage": null,
-            "caught_after_fix": null,
-            "note": " [rerun: line changed; triage by hand]"
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no negative or zero rendering asserted. Line rewritten by the -$0.00 fix (rerun: line changed); re-applied by hand as cents(n) <= 0 and two new tests fail"
           },
           {
             "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
@@ -125,9 +139,9 @@
             "line_text": "  if (s.costsEntered && s.lossOrders > 0) {",
             "caught": false,
             "seconds": 0.2,
-            "triage": null,
+            "triage": "gap",
             "caught_after_fix": true,
-            "note": ""
+            "note": "gap: only the 2-loss case was tested; new test covers exactly one losing order"
           },
           {
             "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
@@ -153,13 +167,101 @@
             "line_text": "      const gross = cancelled ? 0 : Math.round((10 + rnd() * rnd() * 60) * 100) / 100;",
             "caught": false,
             "seconds": 0.2,
-            "triage": null,
+            "triage": "gap",
             "caught_after_fix": true,
-            "note": ""
+            "note": "gap: the example file was not pinned; new test pins its sales and order count"
           }
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "parseNumber read \"$-12.50\" and \"USD -3.00\" as positive (sign test only at position 0, then the minus was stripped). Same copy in 39 sibling parsers, plus 6 that missed \"USD -\"; all 46 fixed, guarded by platform/ci/check_parse_sign.py",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15723"
+      },
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "float noise (10.10-0.30-9.80 = -1.8e-15) counted a break-even order as a loss order and printed -0.00 / -$0.00",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15723"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a9b0edac-57d4-5d67-96e6-0f6e11690e51",
+    "transcripts": 1,
+    "first": "2026-11-14T04:05:39Z",
+    "last": "2026-11-14T04:14:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 107,
+        "output": 27166,
+        "thinking": 6119,
+        "cache_read": 5658114,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108727,
+        "api_equivalent_usd": 2.5452,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 107,
+      "output": 27166,
+      "thinking": 6119,
+      "cache_read": 5658114,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108727,
+      "api_equivalent_usd": 2.5452,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.72,
+      "active_minutes": 8.72,
+      "model_minutes": 5.42,
+      "tool_minutes": 3.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "seeding and triaging 8 mutants, two fixes with tests, a 46-site sweep across 44 ventures with suite runs, and a new lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 235.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
   }
 }

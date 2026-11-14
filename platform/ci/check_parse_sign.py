@@ -7,8 +7,8 @@ dot or a comma. A minus that comes after a currency symbol or code fails the
 first test and is then stripped, so "$-12.50" parses as +12.50: a refund reads
 as a sale, a fee reversal as a charge, a credit in a journal as a debit. The
 red-team run of 2026-11-14 found it in the restaurant delivery commission
-analyzer and 42 sibling parsers (report analyzers, categorizers and the
-statement-to-journal converters).
+analyzer and 39 sibling parsers (report analyzers, categorizers and the
+statement-to-journal converters); six more caught "$-" but not "USD -3".
 
 A line is flagged when it sets `neg` from a leading-minus test only (`/^[-−]/`,
 `/^-/`, `startsWith("-")` or `/^\\$?\\s*[-−]/`), has no test for a minus

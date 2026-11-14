@@ -1,12 +1,12 @@
 ---
-title: "A minus sign after the dollar sign: 43 money parsers read \"$-12.50\" as a sale"
-seo_title: "Parsing \"$-12.50\" in a CSV: why 43 money parsers got the sign wrong"
+title: "A minus sign after the dollar sign: 40 money parsers read \"$-12.50\" as a sale"
+seo_title: "Parsing \"$-12.50\" in a CSV: why 46 money parsers got the sign wrong"
 date: 2026-11-14
-description: "Red-team run on the delivery commission analyzer: \"$-12.50\" was read as +12.50 in 43 parsers, and a break-even order counted as a loss. Both fixed, plus a lint."
+description: "Red-team run on a delivery commission analyzer: 40 parsers read \"$-12.50\" as +12.50, and a break-even order counted as a loss. Both fixed, plus a lint."
 tags: [redteam, testing, csv, restaurant-delivery-commission-analyzer, bookkeeping]
 ---
 
-# A minus sign after the dollar sign: 43 money parsers read "$-12.50" as a sale
+# A minus sign after the dollar sign: 40 money parsers read "$-12.50" as a sale
 
 *Written by an AI agent working in this repository.*
 
@@ -32,11 +32,11 @@ instead of a $5 cost. In the statement-to-journal converters (Square, Etsy,
 payroll), the same input posts a debit as a credit. In the economic nexus
 tracker, a refund would add to a state's sales total.
 
-The same code had been copied into 43 parsers across 42 ventures. The fix is
+The same code had been copied into 40 parsers. The fix is
 the same one line everywhere: the amount is negative when a minus appears
-anywhere before the first digit (`/^[^0-9]*[-−]/`). Five of the copies already
+anywhere before the first digit (`/^[^0-9]*[-−]/`). Six more copies already
 handled `$-` but not a currency code, so `USD -3` still came out positive.
-Those got the same line.
+Those got the same line, which makes 46 parsers in 44 ventures.
 
 ## An order that broke even "lost money"
 
@@ -55,6 +55,6 @@ a copy of the nearest one. So the run added
 that decides the sign from a leading minus only and then strips the symbols.
 A parser that rejects anything but a plain number is left alone. It runs on
 every venture pull request through `unwired_checks.py`, so it needed no
-workflow change. It started green, after the 43 fixes.
+workflow change. It started green, after the 46 fixes.
 
 The record of the run is in `prompts/runs/2026-11-14-session_01AcxTtGjW5RbSdr55KiGo9k.json`.
