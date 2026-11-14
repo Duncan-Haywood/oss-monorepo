@@ -336,7 +336,7 @@ export function decisionDone(table, answers) {
   return answers.crit.length > 0 && answers.opt.length > 0 && table.confidence >= STOP_CONFIDENCE;
 }
 
-/** The results as CSV, with the weights below the order. */
+/** The results as CSV, with the weights below the order. Every text cell goes through rank-core's csvCell, its formula-injection guard. */
 export function decisionCsv(options, criteria, table, df) {
   const q = csvCell;
   const best = bestPerCriterion(df);
