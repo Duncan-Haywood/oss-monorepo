@@ -14,8 +14,11 @@
 //     and the business rules of 8.6.3 (211130), 8.7.3 (211140), 8.8.3 (211150) and 8.13.3
 //     (110001); the general event rules from the same repository's MOC 5.8.4 transcription.
 //
-// The package has no schema for 112120 (ALC/ZFM import not converted into exemption) or for
-// 211120, although 110001's tpEventoAut lists both; those are named, not checked.
+// 112120 (ALC/ZFM import not converted into exemption, section 8.14) is in the same package,
+// under the file name "e112120_v1.00 .xsd" (a space before the extension, as published). 211120
+// ("Destinação de item para consumo pessoal", in the v1.30 package of 2025-10-07) was removed
+// by NT 2025.002 v1.40 (change history: "Eliminação do Evento 211120"), though 110001's
+// tpEventoAut still lists it; an event of that type is reported, not checked.
 //
 // An offline observation, not SEFAZ's answer, and not tax advice.
 
@@ -58,6 +61,8 @@ const stockItem = (q, u, reversal = false) => [
 export const RTC_EVENTS = {
   "112110": { section: "8.3", desc: "Informação de efetivo pagamento integral para liberar crédito presumido do adquirente", tpAutor: "1", author: "the NF-e's issuer", sha256: "10bf7c0df0038155201ea37d9c12b68b4cbea02867370afa3c4863af729b6016",
     body: [["indQuitacao", 1, 1, leaf({ enum: ["1"] })]] },
+  "112120": { section: "8.14", desc: "Importação em ALC/ZFM não convertida em isenção", tpAutor: "1", author: "the NF-e's issuer (the importer in the ALC/ZFM)", file: "e112120_v1.00 .xsd", sha256: "27e654b1c7eee2feb4fffa694f0b5ee16618f61f7f849517a714c60cfd1e450c",
+    item: { group: "gConsumo", kids: stockItem("qtde", "unidade") } },
   "112130": { section: "8.16", desc: "Perecimento, perda, roubo ou furto durante o transporte contratado pelo fornecedor", tpAutor: "1", author: "the NF-e's issuer", sha256: "1c1f5e024bc6fba5d5dc2ea01d49b20d089ec5870dc89bc7f17135610e7ca4e8",
     item: { group: "gPerecimento", kids: stockItem("qPerecimento", "uPerecimento", true) } },
   "112140": { section: "8.17", desc: "Fornecimento não realizado com pagamento antecipado", tpAutor: "1", author: "the issuer of the advance-payment debit note", sha256: "ec52646b5d7931dc87a41d6f11c585534d49bdf3d63ded6acbb52dc1b6bb4090",
@@ -83,9 +88,11 @@ export const RTC_EVENTS = {
   "110001": { section: "8.13", desc: "Cancelamento de Evento", tpAutor: null, author: "the author of the event it cancels", sha256: "d2e14b5d7215b64d2a893703143e158bc282084c08a08a794aded9bc6e834fe9",
     body: [["tpEventoAut", 1, 1, leaf({ enum: ["112110", "112120", "112130", "112140", "112150", "211110", "211120", "211124", "211128", "211130", "211140", "211150", "212110", "212120", "412120", "412130"] })], ["nProtEvento", 1, 1, leaf({ type: "TProt" })]] },
 };
+// Removed from the NT: { code: [what it was, the version that removed it, the last schema's package] }.
+export const RTC_ELIMINATED = { "211120": ["Destinação de item para consumo pessoal", "1.40", "the v1.30 events package of 2025-10-07"] };
 export const TIPOS_BASICO_SHA256 = "f20b13ad50eac1235aac2114fd1a98d89527c4bf895cb4e7a73342eaf53780da";
-// Named in NT 2025.002 section 8.1 (or in 110001's list) but with no schema in the package.
-export const RTC_NO_SCHEMA = { "112120": "Importação em ALC/ZFM não convertida em isenção", "211120": "(listed in 110001's tpEventoAut only)", "412120": "Manifestação do Fisco (IBS), sent by the tax authority", "412130": "Manifestação do Fisco (CBS), sent by the tax authority" };
+// Named in NT 2025.002 section 8.1 (or in 110001's list) but with no schema in the v1.40 package.
+export const RTC_NO_SCHEMA = { "412120": "Manifestação do Fisco (IBS), sent by the tax authority", "412130": "Manifestação do Fisco (CBS), sent by the tax authority" };
 
 function finding(rule, message, fix, path, severity) {
   const f = { rule, message, fix, path };

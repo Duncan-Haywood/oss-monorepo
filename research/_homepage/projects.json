@@ -1713,12 +1713,12 @@
     {
      "slug": "robofab-edgeconv",
      "title": "Once the solver is converged, is the time-optimal carry's edge over a tuned trapezoid still positive in all twelve speed-limited rows?",
-     "summary": "A follow-up to <code>robofab-scurvefine</code> (stylised). Re-solving the time-optimal carry at 400, 1600 and 6400 nodes lowers the six-part total by 0.01 to 0.46%, and the edge over a ramp-resolved trapezoid, negative in 7 of 12 rows at 400 nodes, becomes +0.11 to +0.88% in every row at 6400. A one-step extrapolation moves it by at most 0.03 percentage points. The trapezoid's own ramp grid is not re-converged, which can only shrink the edge, and every parameter is assumed."
+     "summary": "A follow-up to <code>robofab-scurvefine</code> (stylised). Re-solving the time-optimal carry at 400, 1600 and 6400 nodes lowers the six-part total by 0.01 to 0.46%, and the edge over a ramp-resolved trapezoid, negative in 7 of 12 rows at 400 nodes, becomes +0.11 to +0.88% over the grid-tuned trapezoid at 6400. Corrected 2026-11-14: once the trapezoid's ramp fraction is converged as well (search down to 1e-5; the grid stopped at 0.002), the edge is &minus;0.02 to +0.26%, negative in 2 of 12 rows and at most +0.03% in 7, so a tuned trapezoid essentially matches the time-optimal carry unless torque or jaw force binds. Every parameter is assumed."
     },
     {
      "slug": "robofab-rampopt",
      "title": "Does tuning the trapezoid's ramp fraction beyond a grid shrink the time-optimal carry's edge, and is it still positive?",
-     "summary": "A follow-up to <code>robofab-edgeconv</code> (stylised). Golden-section refinement of the trapezoid's ramp fraction lowers its six-part total by 0.00 to 0.60% across the twelve speed-limited rows. With the solver at 6400 nodes the time-optimal edge, +0.11 to +0.88% over the grid-tuned trapezoid, falls to +0.05 to +0.28% over the refined one, still positive in every row. The smallest edges are comparable to the solver's residual discretisation error, so their sign is not firmly established. One planar arm, assumed parameters, no motor dynamics; simulated only."
+     "summary": "A follow-up to <code>robofab-edgeconv</code> (stylised). Golden-section refinement of the trapezoid's ramp fraction lowers its six-part total by 0.00 to 0.60% across the twelve speed-limited rows. With the solver at 6400 nodes the time-optimal edge, +0.11 to +0.88% over the grid-tuned trapezoid, falls to +0.05 to +0.28% over the refined one. Corrected 2026-11-14: the refinement could not go below the grid floor of 0.002; a full search (<code>robofab-edgeconv/experiments/trapconv.py</code>) gives &minus;0.02 to +0.26%, negative in 2 of 12 rows. The smallest edges are comparable to the solver's residual discretisation error, so their sign is not firmly established. One planar arm, assumed parameters, no motor dynamics; simulated only."
     },
     {
      "slug": "robofab-motorconv",

@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, headShape, isQuilisma, QUILISMA_MAX_FALL } from './scan.mjs';
+import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves, headShape, isQuilisma, QUILISMA_MAX_FALL, RHOMBUS_MIN_H } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -168,6 +168,20 @@ test('a notched head that falls like a stroke, sits on another head or carries a
   assert.equal(headShape({ ...q, notch: 2 }), 'square');
   // features measured before version 3 (no fall, under or liq) keep their old reading
   assert.equal(headShape({ w: 0.5, h: 0.6, fill: 0.6, taper: 1, notch: 4, afterStroke: false }), 'quilisma');
+});
+
+// The rhombus height floor (eval/rhombus-height-check.md): a worn square
+// whose white flecks cut its edge columns measures narrow and tapered like
+// a rhombus but stands no taller than a square, so it stays a square. The
+// measurements are of real heads on the 1908 scan (leaf:staff:x).
+test('a narrow, tapered head as short as a square is a square, not a rhombus', () => {
+  const worn = { w: 0.37, h: 0.58, fill: 0.87, taper: 0.76, notch: 0 }; // 754:7:367
+  const rhombus = { w: 0.35, h: 0.74, fill: 0.76, taper: 0.65, notch: 0 }; // 754:7:918
+  assert.equal(headShape(worn), 'square');
+  assert.equal(headShape(rhombus), 'rhombus');
+  assert.equal(headShape({ ...worn, h: RHOMBUS_MIN_H }), 'rhombus');
+  assert.equal(headShape({ ...rhombus, h: 1.04 }), 'rhombus'); // a rhombus touching its neighbour reads tall
+  assert.equal(headShape({ ...rhombus, w: 0.5 }), 'square');
 });
 
 // Liquescents as printed in the 1908 type: a small note hung off the head's

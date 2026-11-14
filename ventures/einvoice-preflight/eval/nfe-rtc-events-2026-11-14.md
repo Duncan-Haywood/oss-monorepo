@@ -14,9 +14,10 @@ main report and the Brazil page. README, "Brazil: the other reform events".
 | Authors, field tables, rules 2P21-10, 2P24-10, 2P25-10, 2P26-10, 2P28-10, 2P29-10 (sections 8.6-8.8) and 1P06-10, 1P10-10, 1P20-10, 1P24-10, P23-10 (8.13) | NT 2025.002 v1.51 sections 8.1-8.18 transcribed at `higajooj/dfe_law_reference@7871ab40116f` `src/nfe/nt2025-002/08-eventos/` | |
 | General event rules P12-14..P12-44 and 3P15-10 | MOC 5.8.4 as transcribed in the same repository (`src/nfe/moc-nfe/05-web-services/05-08-recepcaoevento-parte-geral.md`) | |
 
-The package has no `e112120_v1.00.xsd` (ALC/ZFM import not converted into exemption) and no
-`e211120`, although 110001's own schema lists both as cancellable types; those are named in
-`skipped`, not checked. 412120/412130 are sent by the tax authority and are not read.
+*Corrected later the same day (see "112120 and 211120" below):* the package does hold 112120's
+schema, as `e112120_v1.00 .xsd` with a space before the extension; the first pass asked for
+`e112120_v1.00.xsd` and concluded it was missing. 211120 has no schema in v1.40 because NT
+2025.002 v1.40 removed the event. 412120/412130 are sent by the tax authority and are not read.
 
 ## What the schemas say that the NT does not
 
@@ -89,3 +90,45 @@ rule text it cites.
   debit-note type is not checked against it.
 - MOC 5.8.4's rules that need SEFAZ's database (duplicate across batches, the NF-e's status,
   the receiving state) and P13-10 (event dated in the future).
+
+## 112120 and 211120 (later on 2026-11-14)
+
+**112120 was there all along.** A GitHub code search for `e112120 in:path` found the schema in
+sped-nfe (`schemes/PL_010g/e112120_v1.00 .xsd`), Unimake, Zeus, Java_NFe and go-nfe-validator,
+always with a space before `.xsd`. The stackin-io mirror of the v1.40 package has the same file
+under the same spaced name (SHA-256 `27e654b1...e450c`, 4,516 bytes); it is the PROCERGS
+schema, and sped-nfe's copy is the same apart from whitespace. The v1.30 package of 2025-10-07
+(`data/svrs/nfe/documentos/2025-10-07_pacote-de-schemas-eventos-da-nt-2025.002-v1.30-rtc/`,
+portal URL `dfe-portal.svrs.rs.gov.br/NFE/DownloadArquivoEstatico/?...nomeArquivo=Eventos_RTC.zip`)
+has byte-identical copies of it and of every other v1.40 event file except 211110 (changed) and
+211120 (dropped).
+
+`RTC_EVENTS["112120"]` now carries `file: "e112120_v1.00 .xsd"`, and the differential fetches and
+pins that name. The layout matches section 8.14 of the NT (v1.51 transcription,
+`08-14-importacao-alc-zfm-nao-convertida-isencao.md`): tpAutor 1 only, `gConsumo` 1 to 990 with
+`nItem`, `vIBS`, `vCBS` and `gControleEstoque` (`qtde` TDec_1104, `unidade` TString 1-6). The
+section gives no item rule, so an `nItem` the NF-e lacks is a warning and the values are not
+compared with the NF-e item's.
+
+```
+112120: 348 mutants, 0 disagree
+event types: 13, mutants: 3864 (2926 invalid under xmllint), agree: 3864, disagree: 0
+```
+
+(the other twelve lines are unchanged; 211110's own differential still gives 199 of 199).
+
+**Public 112120 files.** GitHub code search for the event's description in XML files returned
+four: Unimake/Uninfe `exemplos xml/.../Evento_112120-ped-eve.xml`, Unimake/DFe's two test copies
+(the same bytes as the Uninfe sample apart from one file) and freecorpsNFE
+`tests/fixtures/nfe/4.00/event-112120.xml`. All four `detEvento`s validate under xmllint and the
+checker gives no BRE-030. Unimake's three carry the Id `ID110001...` (a cancellation's Id on a
+112120 event, 572) and the made-up key seen in its other samples (236, 618, 616, 619).
+freecorpsNFE's reads clean. All four are library samples, not real events.
+
+**211120 was removed.** The NT 2025.002 change history (transcribed in `higajooj/dfe_law_reference`
+`src/nfe/nt2025-002/historico-de-alteracoes-cronograma/index.md`) lists, for v1.40, "Eliminação do
+Evento 211120". Its v1.30 schema (`e211120_v1.00.xsd`, SHA-256 `ad4a4fee...c9d385`) described
+"Destinação de item para consumo pessoal" (tpAutor 1 or 2, `gConsumo` with `qConsumo`,
+`uConsumo` and a `DFeReferenciado`). Section 8.1 of v1.51 no longer lists it, yet 110001's v1.40
+schema still enumerates it in `tpEventoAut`. An event of type 211120 is now a warning
+(`BRE-035`): the NT gives no rejection code, so the checker does not claim one.

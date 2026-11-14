@@ -4,6 +4,7 @@
 Exits non-zero with a per-file report on the first invalid portfolio.
 Usage: python3 portfolio/router/validate.py
 """
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -130,11 +131,19 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
     """Fail fast on a `next:` over the cap; test_allocate only catches it after ~100 s."""
     if not path.is_file():
         return
+    text = path.read_text()
     try:
-        data = yaml.load(path.read_text(), Loader=_LOADER) or {}
+        data = yaml.load(text, Loader=_LOADER) or {}
     except yaml.YAMLError as e:
         errors.append(f"flagships.yaml: not valid YAML: {e}")
         return
+    # A folded line ending in "word-" reads back as "word- next" (a broken path).
+    for m in re.finditer(r"[A-Za-z0-9]-\n {6}\S", text):
+        errors.append(
+            f"flagships.yaml:{text.count(chr(10), 0, m.start()) + 1}: folded line ends in a "
+            "hyphen, which YAML reads as '- '; edit with portfolio/router/flagship_field.py, "
+            "which rewraps without breaking at hyphens."
+        )
     for entry in data.get("flagships") or []:
         if not isinstance(entry, dict):
             continue
@@ -143,7 +152,8 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
             errors.append(
                 f"flagships.yaml: {entry.get('venture')} `next:` is {n} characters (cap "
                 f"{FLAGSHIP_NEXT_MAX}). Replace the item your slice landed instead of "
-                f"appending; history belongs in the venture's README."
+                f"appending (portfolio/router/flagship_field.py <venture> --replace OLD NEW); "
+                f"history belongs in the venture's README."
             )
 
 
