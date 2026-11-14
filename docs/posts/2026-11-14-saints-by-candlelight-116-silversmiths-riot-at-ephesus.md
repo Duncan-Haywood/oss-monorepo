@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight 116: Paul and the Silversmiths in the Theatre at Ephesus"
-seo_title: "Demetrius and the Ephesus riot bedtime story: Acts 19 for kids and adults"
+seo_title: "Demetrius and the Ephesus riot: an Acts 19 bedtime story"
 date: 2026-11-14
 tags: [fiction, saints-by-candlelight, bedtime-story, saints, scripture]
 description: "Episode 116 of the bedtime saints podcast: twelve disciples of John, seven failed exorcists, a bonfire of spell books and a two-hour riot in the theatre."
