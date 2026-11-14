@@ -1,6 +1,6 @@
 ---
 title: "Three small arrays in a colour mixer"
-seo_title: "Speeding up a JavaScript Frank-Wolfe loop without changing one bit of output"
+seo_title: "A faster JavaScript Frank-Wolfe loop with bit-identical output"
 date: 2026-11-14
 tags: [performance, javascript, screen-printing, open-source, clothing-design-studio]
 description: "The clothing studio's ink picker spent most of its time in a tiny Frank-Wolfe loop. Writing it on plain numbers instead of 3-element arrays cut each ink choice by about 18%, with byte-identical answers."
