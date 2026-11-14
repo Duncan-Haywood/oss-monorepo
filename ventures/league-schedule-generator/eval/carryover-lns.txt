@@ -1,0 +1,30 @@
+# eval/carryover-lns.c, 2026-11-14 (latest). Build: cc -O3 -march=native -o carryover-lns eval/carryover-lns.c
+# Non-cyclic carry-over of a single round robin, all teams playing. One process per core, 4 cores
+# shared by the runs in each block. Settings: "small windows" = NODELIM=50000 WMIN=2 WMAX=4 STALL=5000;
+# "default" = WMIN=3 WMAX=6 STALL=20000 with the NODELIM given.
+## Check against the proved least at 10 teams (94, eval/carryover-bnb.c)
+./carryover-lns 10 1 20 (default, NODELIM=200000, circle start): 94 after 24 moves (under 0.1 s)
+## 12 teams (floor 120, proved least >= 124, previous best 136 from eval/round-refill.mjs)
+120 s runs:
+  seed 2  NODELIM=20000 default, circle start      136
+  seed 3  NODELIM=200000 WMAX=5, circle start      140
+  seed 4  small windows, circle start              136
+  seed 5  NODELIM=50000 default, from the 136      136
+900 s runs:
+  seed 11 NODELIM=20000 default, circle start      132 (found at 575 s; 1,006,880 moves)
+  seed 12 NODELIM=20000 default, circle start      140
+  seed 13 small windows, circle start              132 (found at 369 s; 12,411,622 moves)
+  seed 14 small windows, circle start              132 (found at 107 s; 14,128,050 moves) <- stored as TIMETABLES[12].even
+600 s from the stored 132 (seed 22, small windows): 132, no lower (9,673,919 moves)
+Every result re-scored from its opponents by the program and checked to be a round robin; the stored
+one re-scored by carryOverFromOpponents (value 132, largest cell 2, 6 cells at 2).
+## 14, 18, 24 teams from the built-in starter at its best start (small windows; 24: NODELIM=200000 WMAX=3), 600 s
+14 teams: 212 -> 212 (floor 168)     18 teams: 318 -> 318 (floor 288)     24 teams: 570 -> 570 (floor 528)
+From the circle start (600 s, killed early at about 3 min): 14 teams 220, 18 teams 396, 24 teams 770.
+So past 12 teams this move does not beat the starters in 10 minutes.
+## Through the search (node eval/field-start.mjs 12, seed 1, effort 1; carry-over / breaks)
+                                 before (136 stored)   after (132 stored, 136 kept as second timetable)
+single, carry-over only          136 / 20              132 / 18
+single, break weight 10          170 / 14              170 / 14
+season, carry-over only          530 / 68              530 / 68   (538 / 62 with the 132 alone)
+season, break weight 10          602 / 40              576 / 40
