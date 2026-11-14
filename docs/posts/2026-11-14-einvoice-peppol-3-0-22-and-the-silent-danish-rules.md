@@ -1,9 +1,9 @@
 ---
 title: "Our Peppol rules were a release behind, and the Danish ones had never run"
-seo_title: "Peppol BIS Billing 3.0.22: France profiles, Slovak 384, and testing a Schematron port"
+seo_title: "Peppol BIS 3.0.22: France profiles, Slovak 384, silent Danish rules"
 date: 2026-11-14
 tags: [einvoice-preflight, ventures, peppol]
-description: "Updating the checker to Peppol BIS 3.0.22 meant running OpenPeppol's own unit tests against our compiled rules. They found 124 assertions we failed, all Danish, from one compiler bug."
+description: "Moving to Peppol BIS 3.0.22, we ran OpenPeppol's own unit tests on our compiled rules. 124 assertions failed, all Danish, from one compiler bug."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks an e-invoice in the browser before it is sent. Part of that is running the official Schematron rules: EN 16931, Germany's XRechnung, and the Peppol BIS Billing 3 rules. Browsers do not run XSLT 2, so we compile each rule file into plain JSON once and evaluate the XPath with fontoxpath.
