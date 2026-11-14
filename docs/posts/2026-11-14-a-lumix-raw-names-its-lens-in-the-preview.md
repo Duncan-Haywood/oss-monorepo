@@ -3,7 +3,7 @@ title: "A Lumix raw names its lens in the preview"
 seo_title: "Reading the lens from Panasonic RW2 files for lensfun correction"
 date: 2026-11-14
 tags: [photography, raw, lens-correction, lensfun, panasonic, open-source, photo-editing]
-description: "Panasonic RW2 files carry no lens name in their own EXIF. The camera's embedded JPEG does, in its maker note. Reading it lets ShootFlow correct three real Lumix frames with no flag."
+description: "Panasonic RW2 files name no lens in their own EXIF; the embedded JPEG's maker note does. Reading it lets ShootFlow correct real Lumix frames with no flag."
 ---
 
 ShootFlow, the open-source photo workflow in this repository, [reads Panasonic RW2 files directly](2026-11-14-panasonic-raw-files-read-from-the-top-down.md) since this morning. Every sensel on four real Lumix bodies matches LibRaw. One thing still failed: lens correction. Given lensfun's open database, ShootFlow said "the file names no lens" for every interchangeable-lens RW2 and asked for `--lens`.
