@@ -129,3 +129,11 @@ test("the sample data analyses and exports", () => {
   const csv = reportCsv(r);
   assert.equal(csv.split("\n").length, 1 + r.scenarios.length);
 });
+
+// Red-team 2026-11-14: Math.max(...rows.map()) overflowed the call stack past
+// about 125k trials.
+test("200,000 trials are analysed without a stack overflow", () => {
+  const rows = Array.from({ length: 200000 }, (_, i) => ({ start: 20000 + (i % 300), paid: i % 4 ? null : 20000 + (i % 300) + 10 }));
+  const r = analyze(rows, {});
+  assert.ok(!r.error);
+});

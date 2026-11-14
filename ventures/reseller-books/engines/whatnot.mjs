@@ -324,7 +324,7 @@ export function analyze(rawItems, { costList = "", from = null, to = null, minGr
   return {
     items, byShow, byCategory, byMonth, worstItems, bestItems, rankBasis, findings, stopShows, stopCategories, thinCategories, unmatched, costList: { count: parsedList.count, errors: parsedList.errors },
     summary: {
-      ...total, from: Math.min(...items.map((x) => x.t)), to: Math.max(...items.map((x) => x.t)), shows: byShow.filter((g) => !g.label.startsWith("(")).length, categories: byCategory.filter((g) => !g.label.startsWith("(")).length,
+      ...total, from: items.reduce((m, x) => Math.min(m, x.t), Infinity), to: items.reduce((m, x) => Math.max(m, x.t), -Infinity), shows: byShow.filter((g) => !g.label.startsWith("(")).length, categories: byCategory.filter((g) => !g.label.startsWith("(")).length,
       losingItems: losing.length, cheapItems: cheap.length, deductionItems: deducted.length, feeMismatches: feeMismatch.length,
     },
   };
