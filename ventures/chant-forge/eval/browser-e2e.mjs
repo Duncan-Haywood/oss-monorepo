@@ -151,6 +151,11 @@ await page.click("#go");
   const [dm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
   const mid = fs.readFileSync(await dm.path());
   ok(mid.equals(fs.readFileSync(path.join(tmp, "s.mid"))) && mid.includes("Tenors") && mid.includes("Basses"), `split MIDI equals the CLI's (${mid.length} bytes, Tenors and Basses tracks)`);
+  // the score download is the CLI's --musicxml for the same options, byte for byte
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--split-voices", "--fit", "8", "--stretch", "--musicxml", path.join(tmp, "s.musicxml")]);
+  const [dx] = await Promise.all([page.waitForEvent("download"), page.click("#dlxml")]);
+  const score = fs.readFileSync(await dx.path(), "utf8");
+  ok(score === fs.readFileSync(path.join(tmp, "s.musicxml"), "utf8") && score.includes("<part-name>Basses</part-name>"), `split score equals the CLI's --musicxml (${score.length} characters, Tenors and Basses parts)`);
   // handing over at a word too: equals the CLI's --split-words
   await page.selectOption("#final", "splitwords");
   await page.click("#go");

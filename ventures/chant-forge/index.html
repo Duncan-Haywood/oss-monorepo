@@ -70,6 +70,7 @@
     <button id="dlwav" type="button" disabled>Download preview WAV</button>
     <button id="dlcues" type="button" disabled>Download singer's cue sheet</button>
     <button id="dllrc" type="button" disabled>Download timed lyrics (LRC)</button>
+    <button id="dlxml" type="button" disabled>Download the score (MusicXML)</button>
     <button id="dlstems" type="button" disabled>Download stems (ZIP of WAVs)</button>
   </form>
   <pre id="out" aria-live="polite">Press Convert.</pre>
@@ -82,6 +83,7 @@
     <li><strong>Arranges:</strong> deep house, EDM, hard rock or metal drums, bass and chords in the chant's mode.</li>
     <li><strong>Exports:</strong> a MIDI file with lyrics, plus a plain synthesised WAV to hear tempo and range. The preview is not a release master and the "choir" is a synthesiser.</li>
     <li><strong>Cues the singers:</strong> a plain-text cue sheet with the bar, beat, time, note and syllable of every sung note, and timed lyrics (LRC) for a lyric display. With song sections on, a line above each section says what the band does under it, the first note to pitch from and how far it is from the last one, when the band comes in after an a cappella verse, and the new key's first note after a key lift. The same sheet as the command line's <code>--cues</code>.</li>
+    <li><strong>Prints the parts:</strong> the score download is a MusicXML file with one part per section (tenors, second tenors, baritones, basses when the choir is split), the Latin under the notes, the same pitches and timing as the MIDI in 4/4, and the song sections as rehearsal marks. MuseScore (free), Dorico, Sibelius and Finale open it, so a director can print each section's part. The same file as the command line's <code>--musicxml</code>.</li>
     <li><strong>Hands the session to a DAW:</strong> with phrase markers on, the MIDI carries a locator at the start of each phrase (and at each song section), and the stems download is one WAV per part (choir, bass, chords, drums, organ drone) in a ZIP. The stems sum to the preview mix, so they line up from one start point. The same files as the command line's <code>--markers</code> and <code>render-cli.mjs --stems</code>.</li>
   </ol>
 
@@ -110,6 +112,7 @@
     import { sectionPlan, liftEvents } from "./sections.mjs";
     import { cueSheet, sectionCues } from "./cues.mjs";
     import { lrc } from "./lrc.mjs";
+    import { eventsToMusicXml } from "./musicxml.mjs";
     import { parseSingers, singersChoir, fewestSectionsForSingers, sitOutNotes, SECTION_LABEL } from "./singers.mjs";
     import { wavBytes, zipStored } from "./files.mjs";
 
@@ -129,7 +132,7 @@ mode: 1;
       try { $("src").value = await (await fetch(PIECES[k])).text(); } catch { $("out").textContent = "Could not load that sample here; paste GABC instead."; }
     };
 
-    let midi = null, wav = null, cues = null, lyrics = null, ctx = null, node = null;
+    let midi = null, wav = null, cues = null, lyrics = null, score = null, ctx = null, node = null;
     const download = (bytes, name, type) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([bytes], { type }));
@@ -228,6 +231,7 @@ mode: 1;
       const title = parsed.header.name || "chant";
       cues = cueSheet(events, { bpm, pulsesPerBar: 8, plan });
       lyrics = lrc(events, { bpm }, title);
+      score = eventsToMusicXml(events, { title, bpm, plan });
       const guides = plan ? sectionCues(events, { bpm, pulsesPerBar: 8, plan }) : [];
       lines.unshift(`${sum.name || "Chant"}: ${sum.notes} notes, ${sum.lowest}-${sum.highest} (ambitus ${sum.ambitus} semitones), final ${sum.final}`,
         `Mode ${sum.mode ?? "not given"}${modeOk === false ? " (the final does not match the mode: check the transcription)" : ""}`,
@@ -238,11 +242,11 @@ mode: 1;
       if (guides.length) lines.push("", "Singer cues (also in the cue sheet download):", ...guides.map((c) => `${c.section}, bar ${c.bar}, ${c.seconds.toFixed(2)} s: ${c.text}`));
       return lines.join("\n");
     }
-    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc", "dlstems"];
+    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc", "dlxml", "dlstems"];
     $("go").onclick = () => {
       stop();
       try { $("out").textContent = convert(); for (const id of BUTTONS) $(id).disabled = false; }
-      catch (e) { $("out").textContent = e.message; for (const id of BUTTONS) $(id).disabled = true; midi = wav = cues = lyrics = null; }
+      catch (e) { $("out").textContent = e.message; for (const id of BUTTONS) $(id).disabled = true; midi = wav = cues = lyrics = score = null; }
     };
     $("play").onclick = () => {
       if (!wav) return;
@@ -259,6 +263,7 @@ mode: 1;
     $("dlwav").onclick = () => wav && download(wavBytes(wav), "chant-preview.wav", "audio/wav");
     $("dlcues").onclick = () => cues && download(new TextEncoder().encode(cues), "chant-cues.txt", "text/plain");
     $("dllrc").onclick = () => lyrics && download(new TextEncoder().encode(lyrics), "chant.lrc", "text/plain");
+    $("dlxml").onclick = () => score && download(new TextEncoder().encode(score), "chant.musicxml", "application/vnd.recordare.musicxml+xml");
     // one WAV per voice (choir, bass, chords, drums, organ), rendered on demand from the same MIDI as the
     // preview; they sum to the preview mix, so drop them all on one DAW start point. The same files as
     // `node render-cli.mjs chant.mid -o chant.wav --stems DIR`.

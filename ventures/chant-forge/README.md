@@ -268,6 +268,40 @@ drums) equal `render-cli.mjs chant.mid --stems DIR` file for file; and the stems
 within 2 steps of 32,767 at every sample (each file rounds to 16 bits on its own). Whether the markers land where a
 producer wants them and whether the stems import cleanly is for someone with a DAW to say.
 
+### A score for the choir: `--musicxml` (2026-11-14)
+
+The MIDI file is for a DAW; a choir director prints parts. `--musicxml FILE` writes the same
+line as a MusicXML 4.0 score that MuseScore (free), Dorico, Sibelius and Finale open, and the
+studio page has the same file as "Download the score (MusicXML)":
+
+```sh
+node ventures/chant-forge/cli.mjs corpus/dies-irae.gabc --split-voices --baritones --second-tenors --musicxml dies-irae.musicxml
+```
+
+- **One part per section**, the same split as the MIDI tracks: Choir in unison, or Tenors (First and
+  Second tenors with `--second-tenors`), Baritones and Basses. A note the full choir sings is in
+  every part, so each part is complete on its own; elsewhere a part rests. Tenors read the
+  treble clef an octave down, baritones and basses the bass clef.
+- **Words under the notes**: each syllable a lyric with its syllabic (begin, middle, end,
+  single) from the GABC word starts, and an extender under a melisma.
+- **Timing as the track has it**: 4/4 at the backing's bar, one chant note an eighth, a note
+  across a barline tied, rests for `--fit` padding and the `--intro`/`--outro` bars, a breath
+  mark at each GABC bar, the tempo, and with `--sections` the section names (Verse, Drop,
+  Breakdown) as rehearsal marks.
+- **Spelling**: the key signature (6 flats to 6 sharps) whose scale holds the most of the
+  line's notes, so a chant moved to any final reads without accidentals but its own B flats;
+  `--key-lift` gets its own key from the bar of the first lifted note. Accidentals hold for
+  their bar and octave, with a courtesy accidental the bar after a change.
+
+Checked (`eval/musicxml-check-report.md`): all 68 corpus files under five option sets
+(unison, stretched, half time, TTBB with overlaps and word handoffs, a full song with
+sections, key lift, intro and outro), 304 scores in all, are valid against the MusicXML 4.0 XSD, and
+music21, an independent parser, reads back every one of their 97,705 part-notes at the
+pitch, onset, length and syllable the MIDI has. The accidentals printed match music21's
+own rule on 97,923 of 97,929 printed notes (a tied note counts once per piece). The other six are a cross-octave style choice. Planted
+wrong pitches, syllables and ties fail the check. Not done: no notation program has opened a
+file here, and no choir has sung from one.
+
 ## Tenors and basses by phrase (2026-11-13)
 
 `--split-voices` is for a chant that a full men's choir cannot sing in unison. The E2-E4 range above is the textbook
