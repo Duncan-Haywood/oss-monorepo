@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmUF2sKupjLYU1B7ZT",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T12:20:02Z",
+  "ended": "2026-11-14T12:24:01Z",
+  "wall_minutes": 4.19,
+  "tokens_in": 3242276,
+  "tokens_out": 16969,
+  "cost_usd": 1.6202,
+  "tool_calls": 38,
+  "task": "quality track, fix mode: three medium defects from 2026-11-07 audits",
+  "projects": [
+    "ventures/market-event-picker",
+    "ventures/home-inspection-report-builder",
+    "ventures/lash-studio-profit-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15848",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`queue` still lists a defect after its audit's fix_prs carries a PR (40 medium rows before and after), so a fix session cannot see from the queue which defects it closed; partial fixes of a multi-defect audit are not tracked per defect."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-quality-fix-a-fee-cut-bigger-than-the-fee.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode seeded draw for 2026-11-14; 0 high defects open). Sample seed printed: 2026-11-14-5883 (not used, fix mode). Fixed: market-event-picker defects 0+1 (negotiable fee cut capped at fee, 'more than'; 4 tests; mutation `* 1.5`->`* 3` now caught), home-inspection-report-builder defect 0 (safety/major summary in both renderers; mutation sorted->list caught), lash-studio-profit-calculator defect 0 (hand-worked monthly profit test; mutation *52/12 -> *4 caught). New tests fail on old code (checked for market-event-picker by swapping engine.mjs back: 2 fail). Verification: run_venture_tests.py on the three slugs: 3 suites, 0 failed; quality_audit.py validate: 346 files, 0 problems; check_post_frontmatter.py rc 0. Share meeting the bar: not measured (fix session). Fix PRs: #15848. Left open: lash #1, home-inspection #1 and #5.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c5fbf308-b99f-5b01-b186-80fd46ae3551",
+    "transcripts": 1,
+    "first": "2026-11-14T12:20:02Z",
+    "last": "2026-11-14T12:24:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 16969,
+        "thinking": 2509,
+        "cache_read": 3161168,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81036,
+        "api_equivalent_usd": 1.6202,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 16969,
+      "thinking": 2509,
+      "cache_read": 3161168,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81036,
+      "api_equivalent_usd": 1.6202,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.19,
+      "active_minutes": 4.19,
+      "model_minutes": 3.1,
+      "tool_minutes": 1.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "three small venture fixes with hand-worked tests and a post, about 1 h each plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 246.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

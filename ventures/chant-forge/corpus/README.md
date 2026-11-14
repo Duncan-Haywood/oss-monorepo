@@ -18,7 +18,10 @@ book and page it was transcribed from.
 
 Files are unmodified GregoBase downloads (`download.php?id=N&format=gabc&elem=1`),
 except `te-deum.gabc` (header lines added, and `si(f)ne` corrected to `si(e)ne` as
-printed on p. 120*; see its `correction:` header).
+printed on p. 120*; see its `correction:` header) and `gregobase-1908/3427.gabc`
+(2026-11-14: the verse's last three notes `ni(ed) tas.(d)` corrected to `ni(fe) tas.(e)` as
+printed on p. [161], so the mode-7 alleluia ends on its final; `gregobase:` and
+`correction:` header lines added; `../eval/scan-check-verdicts.md`).
 Their headers carry the original transcribers. `chant-forge.test.mjs` parses
 every file here and checks the final against the `mode:` header.
 

@@ -93,3 +93,29 @@ test("export then import round-trips; bad files are refused", () => {
   assert.ok(parseImport('{"app":"other","findings":[]}').error);
   assert.deepEqual(parseImport(JSON.stringify({ app: "home-inspection-report-builder", findings: [1, null, { title: "t", severity: "zzz" }] })).findings.map((f) => f.severity), ["info"]);
 });
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-home-inspection-report-builder.json, defect 0):
+// the page promised a report with safety and major items first, but both renderers only grouped by system.
+test("both reports open with every safety and major item, safety first, before the system sections", () => {
+  const fs = [
+    newFinding("roof-debris"),
+    newFinding("roof-worn"),
+    newFinding("elec-gfci"),
+    newFinding(null, { title: "Loose pool fence", system: "Pool", severity: "safety" }),
+  ];
+  const s = summarize(fs);
+  assert.deepEqual(s.priority.map((f) => f.severity), ["safety", "safety", "major"]);
+  const t = toText({}, fs);
+  const head = t.indexOf("SAFETY AND MAJOR ITEMS");
+  assert.ok(head > 0 && head < t.indexOf("\nROOF"));
+  const block = t.slice(head, t.indexOf("\nROOF")).trim().split("\n").slice(1);
+  assert.equal(block.length, 3);
+  assert.match(block[0], /^- \[Safety/);
+  assert.match(block[2], /^- \[Major/);
+  assert.ok(block.some((l) => /Loose pool fence \(Pool\)$/.test(l)));
+  assert.ok(!block.some((l) => l.includes(fs[0].title)));
+  const h = toHtml({}, fs);
+  assert.ok(h.indexOf("Safety and major items") < h.indexOf("<h3>Roof</h3>"));
+  assert.equal((h.match(/<ul class="priority">(.*?)<\/ul>/)[1].match(/<li>/g) || []).length, 3);
+  assert.doesNotMatch(toText({}, [newFinding("roof-debris")]), /SAFETY AND MAJOR/);
+});

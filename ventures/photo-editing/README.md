@@ -1844,6 +1844,25 @@ tags give no lens or give the range with no f-numbers (`18-55mm f/?`). On ExifTo
 read (18-55 mm, f/4 at the shot's 55 mm, lens type n/a) matches ExifTool's own decode; camera-native DNGs
 read exactly as before. Details: `eval/dng-maker-note-2026-11-14.md`.
 
+### Pentax lens numbers, and a lens memory (2026-11-14)
+
+Pentax files name no lens in EXIF (not even the 2018 K-1 Mark II); the maker note holds only the number the
+lens reports. ShootFlow now reads it from all four places a Pentax file keeps it ("AOC", "PENTAX" and "RICOH"
+notes, a Pentax DNG's private data, a converted DNG's MakN record), with the lens's own focal length and
+f-numbers: on ExifTool's K10D file every value matches ExifTool's decode, and on five more real Pentax files
+each focal length matches EXIF. A number is not a name, and ShootFlow ships no table of them; instead
+`--lens-memory FILE` remembers the lens you name once with `--lens` under the body's number (Pentax's, or
+Canon's lens type with the range) and uses it on every later frame with that number:
+
+```bash
+shootflow develop IMGP0001.DNG --lens-db lensfun/ --lens-memory lens-memory.json \
+  --lens "smc PENTAX DA* 60-250mm F4 [IF] SDM" --out masters/
+shootflow develop IMGP*.DNG --lens-db lensfun/ --lens-memory lens-memory.json --out masters/
+```
+
+The overnight pipeline reads `color/lens-profiles/lens-memory.json`. Details:
+`eval/pentax-lens-memory-2026-11-14.md`.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its

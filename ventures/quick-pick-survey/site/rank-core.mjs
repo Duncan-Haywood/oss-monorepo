@@ -96,6 +96,7 @@ export function decodeAnswers(code, items) {
   } catch {
     return { error: "the code is damaged (copy it again in full)" };
   }
+  if (!d || typeof d !== "object" || Array.isArray(d)) return { error: "the code is damaged (copy it again in full)" };
   if (d.l !== listId(items)) return { error: "this code is for a different list" };
   const answers = [];
   for (const part of String(d.a || "").split(",").filter(Boolean)) {
