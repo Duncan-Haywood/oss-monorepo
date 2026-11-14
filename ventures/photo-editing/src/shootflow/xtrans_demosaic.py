@@ -158,10 +158,13 @@ def directional(
     h = c.shape[0]
     if scale is None:
         scale = float(np.percentile(c, 99.9)) or 1.0
-    kw = dict(scale=scale, keep=keep, median_passes=median_passes, passes=passes)
+
+    def piece_of(part, part_pat):
+        return _directional_piece(part, part_pat, scale=scale, keep=keep, median_passes=median_passes, passes=passes)
+
     overlap = OVERLAP * (passes + 1)
     if band_rows is None or h <= band_rows + 2 * overlap:
-        return _directional_piece(c, pat, **kw)
+        return piece_of(c, pat)
     band_rows = max(6, band_rows - band_rows % 6)
     out = np.empty(c.shape + (3,), dtype=np.float64)
 
@@ -169,7 +172,7 @@ def directional(
         y1 = min(h, y0 + band_rows)
         a = max(0, y0 - overlap)  # a multiple of 6, as overlap and y0 are
         b = min(h, y1 + overlap)
-        piece = _directional_piece(c[a:b], _rotate_rows(pat, a), **kw)
+        piece = piece_of(c[a:b], _rotate_rows(pat, a))
         out[y0:y1] = piece[y0 - a : y1 - a]
 
     if threads is None:

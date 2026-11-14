@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 9,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "Assumed half size would hide the demosaic difference and coded a bilinear-at-half-size rule before measuring",
       "fix": "measured (directional wins 1.1-13.4 dB at half size), reverted the rule"
+    },
+    {
+      "what": "CI lint (mypy 1.19.1) rejected passing a dict of mixed float/int settings as **kw to _directional_piece",
+      "fix": "explicit keyword arguments; ruff 0.15.8 and mypy 1.19.1 (CI's pins) clean locally"
     }
   ],
   "integrity_issues": [],
