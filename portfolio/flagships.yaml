@@ -105,13 +105,13 @@ flagships:
       slips, full-size photos); (6) payroll (README; journal layout 11-14): a real
       Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: 38 states' pages, discounts for 20 (MI, VA from 2026 forms, README);
-      open: IN's day and allowance, MD, NJ, UT, AR, RI, CO, ME, MA (hosts refused);
-      a real return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31
-      rule, 2026 draft (README); open: line 9b once the 2026 instructions print; (9)
-      EITC: 2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026
-      table once printed. A run that lands a slice replaces its item here; keep this
-      under 2,000 characters.
+      return`: 38 states' pages, discounts for 22 (MD, UT statutes; CO's ended 2026,
+      README); open: IN's day and allowance, NJ, AR, RI, ME, MA; a real return
+      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
+      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
+      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
+      printed. A run that lands a slice replaces its item here; keep this under
+      2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -296,24 +296,23 @@ flagships:
       T's preview to 0.18 px; WarpRectilinear2: on 5,411 rectilinear lensfun
       profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
       eval/warp-rectilinear2-2026-11-12.md). Lensfun lens correction (--lens-db,
-      grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW and
-      NEF read directly since 2026-11-14 (eval/sony-arw-reader-2026-11-14.md,
-      eval/nikon-nef-reader-2026-11-14.md). Next, most valuable first: ORF or RW2
-      read directly (public files, LibRaw check); a real NEF with a split row; Sony
-      maker-note lens name and in-file lens corrections; a real DNG and a
-      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
-      lit frame shot wide open (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair (a zoom at several focal lengths); a real DNG
-      carrying any opcode run only on synthetic files so far, or the SDK to check
-      them; lateral colour measured on a real frame with sharp corner edges; a real
-      Adobe `.dcp` through the profile chooser; newer CR2s (ColorData8-11: 5D Mark
-      IV, 80D, 90D; not found in that collection under their plain names); the DJI
-      Phantom 4 DNG's vignette lift against DJI's own render
-      (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
-      set; a phone DNG with its own JPEG of the frame (corrected corners); a
-      tungsten-lit colour chart to say which colour model is closer (the 70D frame,
-      4,700 K and green-tinted, is where they part most; the Nexus 5X carries
-      ForwardMatrix); an Adobe render of a known frame (settles
+      grade stage; eval/lensfun-*, eval/lens-pipeline-grade-2026-11-13.md). ARW,
+      NEF, ORF read directly since 2026-11-14 (eval/*-reader-2026-11-14.md). Next,
+      most valuable first: RW2 read directly (GF1, GF3, GF7, LX7 public; LibRaw
+      check); a real NEF with a split row; Sony maker-note lens name and in-file
+      lens corrections; a real DNG and a vignetting-calibrated lens through the
+      pipeline's lens stage; a real evenly lit frame shot wide open (corners level
+      after lensfun's vignetting?); a second maker-against-lensfun DNG pair (a zoom
+      at several focal lengths); a real DNG carrying any opcode run only on
+      synthetic files so far, or the SDK to check them; lateral colour measured on a
+      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
+      chooser; newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
+      collection under their plain names); the DJI Phantom 4 DNG's vignette lift
+      against DJI's own render (eval/opcode-quality-flag-2026-11-13.md); a real DNG
+      with opcode flag bit 1 set; a phone DNG with its own JPEG of the frame
+      (corrected corners); a tungsten-lit colour chart to say which colour model is
+      closer (the 70D frame, 4,700 K and green-tinted, is where they part most; the
+      Nexus 5X carries ForwardMatrix); an Adobe render of a known frame (settles
       `--default-tone-curve always`); a trained blink model and a real shoot with a
       photographer's picks; photos with a real horizon and human tilt labels.
 

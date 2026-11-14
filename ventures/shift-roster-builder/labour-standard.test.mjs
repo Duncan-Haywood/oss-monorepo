@@ -240,3 +240,18 @@ test("CLI --standard accepts after-close work", () => {
   const out = execFileSync(process.execPath, ["cli.mjs", "--from-sales", f, "--standard", "1/ticket + 45/after-close", "--min-shift", "1", "--half-life", "none"], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   assert.match(out, /Mon, 9:00, 14:00, 1/);
 });
+
+// Red team 2026-11-14: the labour-standard reader settles the date order itself, and two mutants there (reading every
+// stamp as blank, and never marking a file month first) escaped. 25 March 2026 is a Wednesday, 5 March a Thursday and
+// 3 May a Sunday.
+test("labour standard: the file's own dates settle day first or month first, and a settled file says nothing", () => {
+  const mk = (dates) => ["date,time,ticket_number,article,Quantity,unit_price", ...dates.map((d, i) => `${d},10:05,${i + 1},BAGUETTE,1,"0,90 €"`)].join("\n");
+  const dmy = hourlySales(mk(["25/03/2026", "05/03/2026"]), { standard: "2/ticket" });
+  assert.deepEqual(dmy.observed, [0, 0, 1, 1, 0, 0, 0]); // 05/03 is 5 March, not 3 May
+  assert.ok(dmy.notes.some((n) => /Dates read day first/.test(n)));
+  const mdy = hourlySales(mk(["03/25/2026", "03/05/2026"]), { standard: "2/ticket" });
+  assert.deepEqual(mdy.observed, [0, 0, 1, 1, 0, 0, 0]);
+  assert.ok(!mdy.notes.some((n) => /could be/.test(n)), mdy.notes.join(" | ")); // 03/25 settles it: no ambiguity note
+  const unsure = hourlySales(mk(["03/05/2026", "04/06/2026"]), { standard: "2/ticket" });
+  assert.ok(unsure.notes.some((n) => /could be/.test(n)));
+});

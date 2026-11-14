@@ -1062,6 +1062,19 @@ list monthly and quarterly only, so `--state NC --freq annual` now says so. Geor
 vendor's compensation, until now from search excerpts, was read on Form ST-3 Part C itself. Quotes
 and what still refused: [`eval/state-pages-2026-11-14.md`](eval/state-pages-2026-11-14.md).
 
+**Maryland and Utah discounts, and Colorado's ended vendor fee (2026-11-14, fourth pass).** Three
+more hosts answered: mgaleg.maryland.gov, le.utah.gov and leg.colorado.gov. `--state MD` now applies
+Tax-General 11-105: 1.2% of the first $6,000 of tax on each timely return and 0.9% of the rest, at most
+$500 a return (a $20,000 month gets $72 + $126 = $198). `--state UT --freq monthly` applies Utah Code
+59-12-108: monthly filers "may retain each month 1.31%" of the state and local sales tax; quarterly and
+annual filers retain nothing, so they get no preset. Colorado was about to be added at the 2024 statute's
+4% (at most $1,000 a period), but the signed HB25B-1005 (August 2025) adds 39-26-105(1)(d)(V): from
+January 1, 2026 "a retailer is not permitted to retain any money" for collecting state sales tax. So
+`--state CO` applies nothing and its note gives the pre-2026 rule as a `--discount` for older periods.
+Still open: Indiana's due day and its allowance (in.gov's bulletins and INTIME guide print neither),
+New Jersey, Arkansas, Rhode Island, Maine's discount (its statute confirms the 15th, nothing on a
+discount was read) and Massachusetts. Quotes: [`eval/state-pages-2026-11-14d.md`](eval/state-pages-2026-11-14d.md).
+
 **Michigan and Virginia discounts, from their 2026 forms (2026-11-14, third pass).** Both were
 left unapplied until now: Michigan's is a greater-of with a floor, and for Virginia only the statute
 had been read. Today michigan.gov and tax.virginia.gov answered. `--state MI` now applies the 2026

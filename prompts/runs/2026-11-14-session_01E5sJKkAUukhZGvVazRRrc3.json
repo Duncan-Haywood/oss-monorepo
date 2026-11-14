@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKkAUukhZGvVazRRrc3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:09:43Z",
+  "ended": "2026-11-14T18:17:31Z",
+  "wall_minutes": 8.06,
+  "tokens_in": 3420524,
+  "tokens_out": 24298,
+  "cost_usd": 1.9478,
+  "tool_calls": 36,
+  "task": "marine-hull milestone 6zza: a seasonal climatology correction learned from the boat's own earlier years",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15936",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first test draft used point name 'A+00'; the dataset names it 'A+0'",
+      "fix": "renamed in the test before committing"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "milestone naming past 6zz is not documented (7a..7r already exist as paper-fold steps), so 6zza was chosen by analogy"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-marine-hull-solar-boat-learned-seasonal-correction.md",
+    "research/marine-hull/LOG.md (6zza entry)"
+  ],
+  "goal": "advance programme marine-hull drawn by pick_track.py",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research (draw), pick_track drew marine-hull. Predictions L1-L7 committed in e142f8dfa before the run; full run about 10 min on 4 cores; all seven held: LC_90 120 of 128 combined (AT_90 104, OR 120), 158 of 168 overall; real shape at 9 high-amplitude points LC_90 5 / AT_90 1 / LCP 7 of 8. Local checks: research/_homepage/build.py ok, research_live_links ok, check_md_links ok, tests test_learned_season + test_mean_seasonal_bias OK. No agent doc in docs/reports: LOG.md's Next carries the handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "42ea35b5-8c73-5401-bc7b-54be8aa39832",
+    "transcripts": 1,
+    "first": "2026-11-14T18:09:43Z",
+    "last": "2026-11-14T18:17:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 64,
+        "output": 24298,
+        "thinking": 5048,
+        "cache_read": 3320781,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99679,
+        "api_equivalent_usd": 1.9478,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 64,
+      "output": 24298,
+      "thinking": 5048,
+      "cache_read": 3320781,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99679,
+      "api_equivalent_usd": 1.9478,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 32,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.06,
+      "active_minutes": 8.06,
+      "model_minutes": 4.86,
+      "tool_minutes": 3.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code and run a pre-registered simulation sweep and write it up, by a researcher familiar with the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 308.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -31,7 +31,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from shootflow import arw, cr2, nef
+from shootflow import arw, cr2, nef, orf
 from shootflow import raw_develop as rd
 
 CAMERA_PROFILES_DIR = "color/camera-profiles"
@@ -51,7 +51,7 @@ def _norm(name: str) -> str:
 
 
 def camera_of(source: Path | str) -> str:
-    """The camera name of a RAW file that needs a profile (a CR2, an ARW or a NEF)."""
+    """The camera name of a RAW file that needs a profile (a CR2, an ARW, a NEF or an ORF)."""
 
     data = Path(source).read_bytes()
     if cr2.is_cr2(data):
@@ -60,9 +60,11 @@ def camera_of(source: Path | str) -> str:
         kind, camera = "ARW", arw.camera_model(data)
     elif nef.is_nef(data):
         kind, camera = "NEF", nef.camera_model(data)
+    elif orf.is_orf(data):
+        kind, camera = "ORF", orf.camera_model(data)
     else:
         raise rd.DevelopError(
-            f"{Path(source).name}: camera profiles are chosen for Canon CR2, Sony ARW and Nikon NEF files only"
+            f"{Path(source).name}: camera profiles are chosen for Canon CR2, Sony ARW, Nikon NEF and Olympus ORF files only"
         )
     if not camera:
         raise rd.DevelopError(f"{Path(source).name}: the {kind} names no camera (no Make or Model tag)")

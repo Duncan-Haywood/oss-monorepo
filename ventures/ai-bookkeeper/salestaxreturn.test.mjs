@@ -564,6 +564,31 @@ test("MO, NY, OH and TN match their own pages (read 2026-11-14), with Missouri's
   assert.equal(row("MO", 100, "monthly").payable, 9800);       // the FAQ's own example: $100 less $2 is $98
 });
 
+// Fourth 2026-11-14 batch (eval/state-pages-2026-11-14d.md quotes the sentences): MD and UT from their statutes, CO from the signed HB25B-1005.
+test("MD, UT and CO vendor discounts match their statutes (read 2026-11-14)", async () => {
+  const { stateDiscounts, stateDiscountNote, salesTaxReturn } = await import("./salestaxreturn.mjs");
+  const mk = (label, dollars) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-04-10,,A Co,100000.00,4000,Goods\ninvoice,1,2026-04-10,,A Co,${dollars}.00,2100,${label}\n`).books;
+  const row = (st, dollars, frequency) => salesTaxReturn(mk(`${st} state`, dollars), { frequency, discounts: stateDiscounts(st, frequency) }).periods[0].rows.find((x) => x.jurisdiction === `${st} state`);
+  // Maryland Tax-General 11-105: 1.2% of the first $6,000 of tax on each return, 0.9% of the rest, at most $500 a return
+  assert.equal(row("MD", 5000, "monthly").discount, 6000);    // $5,000 x 1.2% = $60
+  assert.equal(row("MD", 20000, "monthly").discount, 19800);  // $72 + 0.9% of $14,000 ($126) = $198
+  assert.equal(row("MD", 60000, "monthly").discount, 50000);  // $72 + $486 = $558, capped at $500
+  assert.equal(row("MD", 60000, "quarterly").discount, 50000); // the cap is per return, not per month
+  assert.equal(row("MD", 20000, "monthly").payable, 2000000 - 19800);
+  // Utah Code 59-12-108(2)(b): monthly filers retain 1.31%; quarterly and annual filers nothing
+  assert.equal(row("UT", 1000, "monthly").discount, 1310);    // $1,000 x 1.31% = $13.10
+  assert.equal(row("UT", 1000, "quarterly").discount, 0);
+  assert.deepEqual(stateDiscounts("UT", "annual"), {});
+  // Colorado: no state vendor fee from January 1, 2026 (39-26-105(1)(d)(V) as added by HB25B-1005)
+  assert.deepEqual(stateDiscounts("CO", "monthly"), {});
+  assert.equal(row("CO", 1000, "monthly").discount, 0);
+  assert.match(stateDiscountNote("co"), /no state vendor fee from January 1, 2026/);
+  assert.match(stateDiscountNote("CO"), /--discount "CO state=4,1000"/);
+  assert.match(stateDiscountNote("MD"), /at most \$500 a return/);
+  assert.match(stateDiscountNote("UT"), /--freq monthly only/);
+});
+
 // Vendor discounts read on the states' own sites 2026-11-12; each figure worked by hand from the quoted rule.
 test("vendor discounts read 2026-11-12: tiers, caps, steps and floors per state", async () => {
   const { stateDiscounts, stateDiscountNote } = await import("./salestaxreturn.mjs");
