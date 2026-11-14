@@ -3,7 +3,7 @@ title: "A solar boat's battery rule against a sun forecast wrong on average and 
 seo_title: "Solar USV battery rule under mean plus seasonal sun-forecast error"
 date: 2026-11-14
 tags: [research, marine-hull]
-description: "A solar boat's self-tuning battery rule wins 104 of 128 cases under a mean plus seasonal sun-forecast error; real seasonal error is 2%, 5 to 8% above 50 degrees."
+description: "A solar boat's self-tuning battery rule wins 104 of 128 under a mean plus seasonal sun-forecast error; real seasonal error is 2%, 5 to 8% past 50 degrees."
 ---
 
 The [last step](2026-11-14-marine-hull-solar-boat-seasonal-forecast-error.md) tested a simulated solar boat's self-tuning battery rule against a sun forecast that was wrong by season but right on average. The rule barely noticed. The conclusion was that the mean error is what hurts. That left two open questions. What happens when the forecast is wrong both ways at once? And how big is a real forecast's seasonal error anyway, rather than an assumed cosine?
