@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKk35B38Zgi7PLsXjKp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T23:18:12Z",
+  "ended": "2026-11-14T23:30:38Z",
+  "wall_minutes": 12.72,
+  "tokens_in": 11698646,
+  "tokens_out": 51228,
+  "cost_usd": 4.7722,
+  "tool_calls": 86,
+  "task": "Deepen (flagship 2): ai-bookkeeper, items (0) and (2): real Monarch and Rocket Money exports",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16015",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First GLUED widening turned two short references (OPE879BQLW) into payees; caught by diffing payee keys over 13,513 real lines and narrowed to a 6+ digit run before trailing letters.",
+      "fixed": true
+    },
+    {
+      "what": "A bare 'resorts' keyword sent a pet resort (boarding) to travel on the Mint files; dropped before commit.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/mint-labelled.mjs",
+      "issue": "Its own Mint parser takes Original Description, while the product reader takes the cleaned Description; the published Mint figures therefore describe a reader the page does not use (product-reader held-out loop 68-70% vs the eval's 79%). Noted in README, not reconciled."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: was 1972 of 2000 chars; landing any slice means trimming landed history to fit, two retries with flagship_field.py."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-ai-bookkeeper-monarch-rocket-money.md",
+    "ventures/ai-bookkeeper/README.md (Monarch and Rocket Money exports)",
+    "ventures/ai-bookkeeper/HISTORY.md"
+  ],
+  "goal": null,
+  "notes": "Hosts: only raw.githubusercontent.com and gh code search answered (Open Collective, HF, state sites 000). Found two real exports by searching for the apps' CSV headers. Verification: run_venture_tests.py ai-bookkeeper passed (25.1s, 1 skipped for missing tesseract); eval/aggregator-exports.mjs, eval/mint-labelled.mjs --set all and eval/mercury-exports.mjs run before (clean worktree of main) and after; payee-key diff over 75 real files. Also observed: one held-out Mint file (CS222) has shuffled-looking labels.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8bd8db8d-9a78-5f6f-b53c-cf7f85e7b9e5",
+    "transcripts": 1,
+    "first": "2026-11-14T23:18:12Z",
+    "last": "2026-11-14T23:30:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 153,
+        "output": 51228,
+        "thinking": 15009,
+        "cache_read": 11518062,
+        "cache_write_5m": 0,
+        "cache_write_1h": 180431,
+        "api_equivalent_usd": 4.7722,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 153,
+      "output": 51228,
+      "thinking": 15009,
+      "cache_read": 11518062,
+      "cache_write_5m": 0,
+      "cache_write_1h": 180431,
+      "api_equivalent_usd": 4.7722,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 80,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.72,
+      "active_minutes": 12.72,
+      "model_minutes": 9.68,
+      "tool_minutes": 3.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "finding the files, diagnosing two reader faults, an eval script, regression checks on four real sets, docs and post: about a day and a half for an engineer who knows the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 209.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

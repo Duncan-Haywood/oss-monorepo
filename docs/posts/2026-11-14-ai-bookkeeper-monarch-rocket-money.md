@@ -1,8 +1,8 @@
 ---
 title: "A Rocket Money export booked a firm's card spending as income"
-seo_title: "Monarch and Rocket Money CSV exports to business books: what went wrong"
+seo_title: "Monarch and Rocket Money CSV exports to business books: two faults"
 date: 2026-11-14
-description: "ai-bookkeeper read two real budgeting-app exports. Rocket Money's sign convention turned four months of Amex charges into income, and Monarch's tidy merchant names hid fuel."
+description: "Rocket Money writes spending as positive amounts, so four months of a firm's Amex charges imported as income. Monarch's tidy merchant names hid fuel."
 tags: [ai-bookkeeper, bank-statements, evaluation, monarch, rocket-money]
 ---
 
