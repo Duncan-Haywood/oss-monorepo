@@ -79,6 +79,7 @@ for the browser-extension, iOS and Android packagers.
 | [`spc-control-charts`](../../ventures/spc-control-charts/) | Shewhart 1931; Nelson 1984; Tippett 1925; Bissell 1990; Rigdon, Cruthis & Champ 1994 | Has this process changed or is it noise: which points break which run rule, are the subgroups hiding batch-to-batch variation, and is Cpk worth quoting? |
 | [`isolation-forest`](../../ventures/isolation-forest/) | Liu, Ting & Zhou 2008, 2012 | Which rows of this table are unusual across all their numeric columns at once, how unusual, and which columns make each one stand out? |
 | [`gaussian-process-regression`](../../ventures/gaussian-process-regression/) | Rasmussen & Williams 2006; Liu & Nocedal 1989; MacKay 1998 | What smooth curve runs through these points, how sure is it at each x, what are its length scale, period and noise in my units, which kernel do the data favour, and how honest is the band? |
+| [`wasserstein-distance`](../../ventures/wasserstein-distance/) | Cuturi 2013; Altschuler, Weed & Rigollet 2017; Peyré & Cuturi 2019; Székely & Rizzo 2013 | How far apart are two groups' distributions in my units, what moved up and what moved down, and across several columns, how far by optimal transport, with a certified range on the exact value? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -88,10 +89,11 @@ slug there when a tool lands.
 
 Next papers to implement, each a job someone has: augmented synthetic
 control (Ben-Michael, Feller & Rothstein 2021) as a bias-corrected mode for
-`synthetic-control`; Sinkhorn optimal
-transport (Cuturi 2013) for comparing distributions; several input columns
+`synthetic-control`; several input columns
 with automatic relevance determination, and a forecast-calibrated mean, as
 modes of `gaussian-process-regression`;
+the debiased Sinkhorn divergence (Genevay, Peyré & Cuturi 2018) and unbalanced
+transport as modes of `wasserstein-distance`;
 robust PCA by principal component
 pursuit (Candès et al. 2011); MSTL for several seasonal periods at once
 (Bandara, Hyndman & Bergmeir) as a mode of `stl-decomposition`;
