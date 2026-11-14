@@ -55,7 +55,7 @@
     "ventures/ai-bookkeeper/eval/state-pages-2026-11-14d.md"
   ],
   "goal": "Move flagship ai-bookkeeper's sales tax worksheet closer to correct for more states, from primary texts",
-  "notes": "Verification: node --test salestaxreturn.test.mjs 63/63 pass (new MD/UT/CO test with hand-worked figures); python3 platform/ci/run_venture_tests.py ai-bookkeeper: ok (36.4s, 1 skipped for missing tesseract); CLI end-to-end: MD $20,000 tax gives a $198 discount, UT monthly $1,000 gives $13.10, CO prints its note; validate.py passes; post front matter, links and similarity checks clean. venture-preflight.mjs ai-bookkeeper: "preflight clean for ai-bookkeeper" (exit 0).",
+  "notes": "Verification: node --test salestaxreturn.test.mjs 63/63 pass (new MD/UT/CO test with hand-worked figures); python3 platform/ci/run_venture_tests.py ai-bookkeeper: ok (36.4s, 1 skipped for missing tesseract); CLI end-to-end: MD $20,000 tax gives a $198 discount, UT monthly $1,000 gives $13.10, CO prints its note; validate.py passes; post front matter, links and similarity checks clean. venture-preflight.mjs ai-bookkeeper: preflight clean (exit 0).",
   "corrections": [],
   "redteam": null,
   "usage": {
