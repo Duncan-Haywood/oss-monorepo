@@ -208,3 +208,32 @@ test("request templates fit the relationship and follow up twice, then stop", ()
   assert.equal(R.nextStep({ ...ref, followUps: 2 }, "2026-12-30", p).action, "stop");
   assert.equal(R.nextStep({ ...ref, received: "2026-11-03" }, "2026-11-05", p).action, "done");
 });
+
+// Red-team guards (2026-11-14): four seeded faults in references.mjs went uncaught.
+test("follow-ups use the right step and keep an open link; a boolean consent counts; the packet falls back to the sitter's contact", () => {
+  const p = { name: "Grace Example" };
+  const ref = { name: "Pat Lee", requested: "2026-11-01" };
+  // The first follow-up is the gentle one, not the "last nudge".
+  const f1 = R.nextStep(ref, "2026-11-06", p);
+  assert.match(f1.message, /it's Grace Example again/);
+  assert.doesNotMatch(f1.message, /last nudge/);
+  // An open link goes into the follow-up; only an expired one says to make a new link.
+  const open = R.createInvite(ref, "2026-11-01T12:00:00.000Z", { token: "tok_followup_aaaaaaaaaaaa" });
+  const withLink = R.nextStep(open, "2026-11-06", p, { serverUrl: "https://d.example" });
+  assert.equal(withLink.note, "asked 5 days ago");
+  assert.match(withLink.message, /https:\/\/d\.example\/ref\/tok_followup_aaaaaaaaaaaa/);
+  const old = R.createInvite(ref, "2026-11-01T12:00:00.000Z", { token: "tok_followup_bbbbbbbbbbbb", days: 2 });
+  const expired = R.nextStep(old, "2026-11-06", p, { serverUrl: "https://d.example" });
+  assert.equal(expired.note, "link expired: make a new one first");
+  assert.doesNotMatch(expired.message, /\/ref\//);
+  // readSubmission takes a real boolean as well as a form "yes"/"on".
+  const sub = R.readSubmission({ words: "Kind and careful.", consentPublic: true, consentContact: true }, { name: "Pat Lee" }, "Grace", ISO);
+  assert.equal(sub.ok, true);
+  assert.deepEqual(sub.submission.consent.map((c) => c.granted), [true, true]);
+  // A referee who agreed to contact but left the box blank: the packet uses the phone the sitter has.
+  const d = desk();
+  const i = d.references.findIndex((r) => r.id === "ref_t");
+  d.references[i] = { ...R.handleRef(d, "POST", d.references[i].invite.token, { words: "", consentContact: "yes" }, NOW).ref, contact: "555-0123-SITTER-HAS" };
+  const row = R.packetEntries(d).find((r) => r.name === "Teresa Teacher");
+  assert.equal(row.contact, "555-0123-SITTER-HAS");
+});
