@@ -2,7 +2,7 @@
 title: "Half a second of nothing, fifteen times: a test file goes from 8.7 s to 1.0 s"
 seo_title: "Python serve_forever poll_interval makes shutdown slow in tests"
 date: 2026-11-14
-description: "Python's socketserver checks its stop flag every 0.5 s by default, so every test that stops a server waits half a second. One keyword argument took a CI test file from 8.7 s to 1.0 s."
+description: "Python socketserver checks its stop flag every 0.5 s, so every test that stops a server waits. One argument took a test file from 8.7 s to 1.0 s."
 tags: [performance, python, testing, ci]
 ---
 
