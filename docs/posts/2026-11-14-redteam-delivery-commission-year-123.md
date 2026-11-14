@@ -1,9 +1,9 @@
 ---
 title: "An order placed in the year 123. Red-teaming the delivery commission analyzer"
-seo_title: "Mutation testing a CSV date parser: three-digit years and NaN validation"
+seo_title: "Mutation testing a CSV date parser: three-digit years and NaN checks"
 date: 2026-11-14
 tags: [testing, mutation-testing, redteam, restaurants, csv]
-description: "22 faults seeded into the delivery commission analyzer, 10 caught. The hunt turned up two real bugs: a mistyped year read as 0123, and a fee that was not a number getting through validation."
+description: "22 faults seeded into the delivery commission analyzer, 10 caught. Two real bugs: a mistyped year read as 0123, and a non-number fee passing validation."
 ---
 
 Today's red-team run aimed at `ventures/restaurant-delivery-commission-analyzer/calc.mjs`,
