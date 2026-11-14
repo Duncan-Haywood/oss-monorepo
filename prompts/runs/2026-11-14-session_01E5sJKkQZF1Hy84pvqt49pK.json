@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKkQZF1Hy84pvqt49pK",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T02:09:25Z",
+  "ended": "2026-11-14T02:31:05Z",
+  "wall_minutes": 21.9,
+  "tokens_in": 3249838,
+  "tokens_out": 30829,
+  "cost_usd": 1.9508,
+  "tool_calls": 37,
+  "task": "Saints by Candlelight episode 110: Saint Lazarus the icon-painter (text only)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15694",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "post seo_title was 72 chars (limit 70); caught by check_post_frontmatter.py and shortened before merge"
+    },
+    {
+      "what": "first run_workflow_locally --for-changes sweep reported UNSTABLE CHECKOUT because the new episode files went from untracked to committed mid-sweep; the five voided workflows were re-run on a still tree and passed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "the sweep counts committing previously untracked files as the tree moving and voids five workflows, though no byte changed; its own hand-off message says committing is fine. Commit new files before starting the sweep to avoid a ~10 minute re-run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-saints-by-candlelight-110-lazarus-the-icon-painter.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project saints-by-candlelight, piece lazarus-and-the-icon-at-the-mouth-of-the-black-sea (episode 110, 6,418 words, text only: audio folders at 474 MB, over the 400 MB cap). Chosen because Saints by Candlelight was the shelf longest without a piece in the last 15 creative commits and the bible listed Lazarus first in next-up; his Orthodox feast is 17 Nov. Adversarial re-read changed: Forerunner 'pointing' (a Western gesture) to turned with hands held out; Theodora's chest-of-icons labelled as the old story; dropped an unsupported 'one of the first painters honoured as a saint' claim; Liber Pontificalis gifts said to go 'to the pope' not 'to Saint Peter's'; burial attributed to the Synaxarion; birthplace left unstated (sources disagree). Verification: generate.mjs --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links (0 broken), post_similarity (0 pairs >= 0.25); run_workflow_locally --for-changes: conflict-markers, control-plane-guard, doc-refs, link-contrast, page-integrity verdicts stood; portfolio-pages 8/8, portfolio-validate 100/100, sibling-links 2/2, ventures-tests 5/5 run steps passed on re-run (uses:/deploy/agent-review steps not run locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3eef477e-b7b2-5be6-8648-ca7348cb1fb3",
+    "transcripts": 1,
+    "first": "2026-11-14T02:09:25Z",
+    "last": "2026-11-14T02:31:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 30829,
+        "thinking": 7988,
+        "cache_read": 3162073,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87693,
+        "api_equivalent_usd": 1.9508,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 30829,
+      "thinking": 7988,
+      "cache_read": 3162073,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87693,
+      "api_equivalent_usd": 1.9508,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 30,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.9,
+      "active_minutes": 21.9,
+      "model_minutes": 5.59,
+      "tool_minutes": 16.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching, writing and checking a 6,400-word scripted bedtime episode with sources, plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 307.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
