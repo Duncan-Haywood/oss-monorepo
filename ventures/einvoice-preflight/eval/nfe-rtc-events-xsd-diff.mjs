@@ -20,13 +20,15 @@ import { RTC_EVENTS, TIPOS_BASICO_SHA256 } from "../nfe-rtc-events.mjs";
 const here = new URL("..", import.meta.url).pathname;
 const MIRROR = "https://raw.githubusercontent.com/stackin-io/data-source/master/data/nfe/esquemas-xml/2026-07-27_esquema-xml-nf-enfc-e-schema-dos-eventos-da-nt-2025.002-v.1.40-rtc-zip.-publicado-em-27072026/Eventos_RTC/Eventos_RTC/";
 const PIN = { "tiposBasico_v1.03.xsd": TIPOS_BASICO_SHA256 };
-for (const [code, e] of Object.entries(RTC_EVENTS)) PIN[`e${code}_v1.00.xsd`] = e.sha256;
+// 112120's file is published as "e112120_v1.00 .xsd" (a space before the extension).
+const fileOf = (code) => RTC_EVENTS[code].file || `e${code}_v1.00.xsd`;
+for (const code of Object.keys(RTC_EVENTS)) PIN[fileOf(code)] = RTC_EVENTS[code].sha256;
 
 let dir = process.argv[2];
 if (!dir) {
   dir = mkdtempSync(join(tmpdir(), "rtc-events-"));
   for (const [f, sha] of Object.entries(PIN)) {
-    const res = await fetch(MIRROR + f);
+    const res = await fetch(MIRROR + encodeURIComponent(f));
     if (!res.ok) throw new Error(`${f}: HTTP ${res.status}`);
     const buf = Buffer.from(await res.arrayBuffer());
     const got = createHash("sha256").update(buf).digest("hex");
@@ -74,7 +76,7 @@ const tmp = mkdtempSync(join(tmpdir(), "rtc-m-"));
 function xmllintOk(code, det) {
   const f = join(tmp, "det.xml");
   writeFileSync(f, `<?xml version="1.0" encoding="UTF-8"?>\n${det.replace("<detEvento", '<detEvento xmlns="http://www.portalfiscal.inf.br/nfe"')}`);
-  try { execFileSync("xmllint", ["--noout", "--schema", join(dir, `e${code}_v1.00.xsd`), f], { stdio: "pipe" }); return true; } catch { return false; }
+  try { execFileSync("xmllint", ["--noout", "--schema", join(dir, fileOf(code)), f], { stdio: "pipe" }); return true; } catch { return false; }
 }
 const ours = (s, det) => !checkNfeEvent(s.pre + det + s.post).findings.some((f) => f.rule === "BRE-030" && /detEvento/.test(f.path));
 

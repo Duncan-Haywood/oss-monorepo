@@ -24,7 +24,7 @@ const msgs = (text, opts) => checkNfeEvent(text, opts).findings.map((f) => `${f.
 
 test("every made-up reform event is clean, alone and with its NF-e", () => {
   const codes = Object.keys(RTC_EVENTS).filter((c) => c !== "110001");
-  assert.equal(codes.length, 11);
+  assert.equal(codes.length, 12);
   for (const c of codes) {
     const t = one(c);
     assert.deepEqual(checkNfeEvent(t).findings, [], c);
@@ -36,8 +36,8 @@ test("every made-up reform event is clean, alone and with its NF-e", () => {
   const all = checkNfeEvent(batch, { nfe });
   assert.deepEqual(all.findings, []);
   assert.deepEqual(all.skipped, []);
-  assert.equal(all.meta.events, 11);
-  assert.equal(all.meta.types.length, 11);
+  assert.equal(all.meta.events, 12);
+  assert.equal(all.meta.types.length, 12);
 });
 
 test("schema: description, author type, state code, order and number formats (cStat 493)", () => {
@@ -130,11 +130,35 @@ test("the cancellation (110001) alone and against the event it cancels (459, 111
   assert.match(msgs(swap(cancel, "<nProtEvento>135270000012345", "<nProtEvento>1352700000123")), /nProtEvento "1352700000123" is not a protocol number of 15 or 17 digits/);
 });
 
-test("types the package has no schema for are named, not misread", () => {
-  const t = swap(swap(one("211128"), "<tpEvento>211128", "<tpEvento>112120"), `ID211128${KEY}`, `ID112120${KEY}`);
+test("112120, published as \"e112120_v1.00 .xsd\", is read like the other item events", () => {
+  const t = one("112120");
+  assert.deepEqual(checkNfeEvent(t).findings, []);
+  assert.equal(checkNfeEvent(t).meta.name, "Importação em ALC/ZFM não convertida em isenção");
+  assert.equal(RTC_EVENTS["112120"].file, "e112120_v1.00 .xsd");
+  assert.match(msgs(swap(t, "<tpAutor>1", "<tpAutor>2")), /BRE-030 tpAutor is "2"; event 112120 is sent by the NF-e's issuer \(the importer in the ALC\/ZFM\), tpAutor 1/);
+  assert.match(msgs(swap(t, "<qtde>5.0000", "<qtde>5.5")), /qtde "5.5" is not a quantity with four decimals/);
+  assert.match(msgs(swap(t, "<unidade>UN</unidade>", "")), /BRE-030 unidade is missing/);
+  assert.match(msgs(swap(t, "<descEvento>Importação em ALC/ZFM não convertida em isenção", "<descEvento>Importacao em ALC/ZFM nao convertida em isencao")), /the schema allows only "Importação em ALC\/ZFM não convertida em isenção"/);
+  // Section 8.14 states no item rule, so an nItem the NF-e lacks is a warning, and the values are not compared.
+  const w = checkNfeEvent(swap(t, 'gConsumo nItem="1"', 'gConsumo nItem="7"'), { nfe }).findings;
+  assert.equal(w.length, 1);
+  assert.equal(w[0].severity, "warning");
+  assert.match(w[0].message, /no det with nItem 7\. Section 8\.14 lists no rule/);
+  assert.deepEqual(checkNfeEvent(swap(t, "<vIBS>0.13</vIBS>", "<vIBS>99.13</vIBS>"), { nfe }).findings, []);
+  // The issuer in the key, as for every tpAutor 1 event (574).
+  assert.match(msgs(swap(t, "<CNPJ>12345678000195", "<CNPJ>98765432000198")), /BRE-012 .*not the issuer in chNFe.*cStat 574/);
+});
+
+test("211120, removed by NT 2025.002 v1.40, is reported; others with no schema are named, not misread", () => {
+  const t = swap(swap(one("211128"), "<tpEvento>211128", "<tpEvento>211120"), `ID211128${KEY}`, `ID211120${KEY}`);
   const r = checkNfeEvent(t);
-  assert.deepEqual(r.findings, []);
-  assert.match(r.skipped.join(" "), /112120 \(Importação em ALC\/ZFM não convertida em isenção\) has no schema in the NT 2025.002 v1.40 events package/);
+  assert.equal(r.findings.length, 1);
+  assert.equal(r.findings[0].rule, "BRE-035");
+  assert.equal(r.findings[0].severity, "warning");
+  assert.match(r.findings[0].message, /"Destinação de item para consumo pessoal"\) was removed .* NT 2025.002 v1.40 .*"Eliminação do Evento 211120"/);
+  const f = swap(swap(one("211128"), "<tpEvento>211128", "<tpEvento>412120"), `ID211128${KEY}`, `ID412120${KEY}`);
+  assert.deepEqual(checkNfeEvent(f).findings, []);
+  assert.match(checkNfeEvent(f).skipped.join(" "), /412120 \(Manifestação do Fisco \(IBS\), sent by the tax authority\) has no schema/);
   for (const odd of ["constructor", "toString", "__proto__"]) {
     const o = checkNfeEvent(swap(one("211128"), "<tpEvento>211128", `<tpEvento>${odd}`));
     assert.deepEqual(o.findings, [], odd);
@@ -150,7 +174,7 @@ test("a monophase (fuel) item's IBS and CBS come from gIBSCBSMono", () => {
 test("the main report: a batch with its NF-e, and a cancellation with the event it cancels", async () => {
   const r = await preflightDocuments([{ name: "events.xml", source: batch }, { name: "nfe.xml", source: nfe }]);
   const ev = r.reports.find((x) => x.file === "events.xml");
-  assert.match(ev.envelope, /batch of 11 reform events/);
+  assert.match(ev.envelope, /batch of 12 reform events/);
   assert.match(ev.envelope, /with nfe\.xml/);
   assert.deepEqual(ev.errors, []);
   const c = await preflightDocuments([{ name: "cancel.xml", source: swap(cancel, "<cOrgaoAutor>33", "<cOrgaoAutor>35") }, { name: "imob.xml", source: proc }]);

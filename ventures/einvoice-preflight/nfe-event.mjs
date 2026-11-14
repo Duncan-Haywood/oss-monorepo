@@ -31,7 +31,7 @@ import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { lookupCredPres, TABLE } from "./ccredpres.mjs";
 import { keyCheckDigit, NFE_NS, UF_CODE } from "./nfe.mjs";
-import { checkCancelAgainst, checkRtcDetEvento, RTC_EVENTS, RTC_NO_SCHEMA, sequence } from "./nfe-rtc-events.mjs";
+import { checkCancelAgainst, checkRtcDetEvento, RTC_ELIMINATED, RTC_EVENTS, RTC_NO_SCHEMA, sequence } from "./nfe-rtc-events.mjs";
 
 export const EVENT_TYPE = "211110";
 export const DESC = "Solicitação de Apropriação de crédito presumido";
@@ -137,8 +137,13 @@ function checkOne(ev, nfe, out, skipped) {
   if (!inf) { out.push(finding("BRE-002", "The event has no infEvento.", "Build the event with infEvento holding cOrgao, tpAmb, the author's CNPJ or CPF, chNFe, dhEvento, tpEvento, nSeqEvento, verEvento and detEvento.", path)); return {}; }
   const tpEvento = txt(inf, "tpEvento");
   const rtc = tpEvento !== EVENT_TYPE && Object.hasOwn(RTC_EVENTS, tpEvento) ? RTC_EVENTS[tpEvento] : null;
+  if (tpEvento !== EVENT_TYPE && !rtc && Object.hasOwn(RTC_ELIMINATED, tpEvento)) {
+    const [was, ver, last] = RTC_ELIMINATED[tpEvento];
+    out.push(finding("BRE-035", `tpEvento ${tpEvento} ("${was}") was removed from the reform events by NT 2025.002 v${ver} (its change history: "Eliminação do Evento ${tpEvento}"); its schema is only in ${last}, so a current SEFAZ is not expected to register it. The rejection code is not given in the NT, so this is a warning.`, `Stop sending ${tpEvento}; check NT 2025.002 section 8 for the event that now covers the case.`, `${base}/tpEvento`, "warning"));
+    return { tpEvento };
+  }
   if (tpEvento !== EVENT_TYPE && !rtc) {
-    skipped.push(`${base}: tpEvento ${tpEvento || "(none)"}${Object.hasOwn(RTC_NO_SCHEMA, tpEvento) ? ` (${RTC_NO_SCHEMA[tpEvento]}) has no schema in the NT 2025.002 v1.40 events package, so it is not read` : " is not one of the NT 2025.002 reform events this check reads (211110, 112110, 112130, 112140, 112150, 211124, 211128, 211130, 211140, 211150, 212110, 212120, and the cancellation 110001)"}`);
+    skipped.push(`${base}: tpEvento ${tpEvento || "(none)"}${Object.hasOwn(RTC_NO_SCHEMA, tpEvento) ? ` (${RTC_NO_SCHEMA[tpEvento]}) has no schema in the NT 2025.002 v1.40 events package, so it is not read` : " is not one of the NT 2025.002 reform events this check reads (211110, 112110, 112120, 112130, 112140, 112150, 211124, 211128, 211130, 211140, 211150, 212110, 212120, and the cancellation 110001)"}`);
     return { tpEvento };
   }
   const name = rtc ? rtc.desc : DESC;
