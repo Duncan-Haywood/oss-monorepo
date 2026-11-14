@@ -1,0 +1,5 @@
+# node eval/day-lns.mjs 60 168 0 (2026-11-14, one cloud machine, nothing else running; timeBudgetMs 20000)
+60 x 168 week 0, dayLNS off: score 30020010.32, lower bound 30019980.21, gap $30.11, status bounded; 18483 ms total
+60 x 168 week 0, dayLNS 500 ms: score 30019990.67, lower bound 30019980.21, gap $10.46, status bounded; pass 30020010.32 -> 30019990.67 in 31 kicks, 501 ms; 19233 ms total
+60 x 168 week 0, dayLNS 2000 ms: score 30019987.25, lower bound 30019980.21, gap $7.04, status bounded; pass 30020010.32 -> 30019987.25 in 124 kicks, 2001 ms; 21118 ms total
+60 x 168 week 0, dayLNS 5000 ms: score 30019987.25, lower bound 30019980.21, gap $7.04, status bounded; pass 30020010.32 -> 30019987.25 in 366 kicks, 5002 ms; 22720 ms total
