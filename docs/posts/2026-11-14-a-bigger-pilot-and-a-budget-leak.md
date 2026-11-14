@@ -3,7 +3,7 @@ title: "A bigger pilot kept paying, and it found a budget leak"
 seo_title: "LLM coding audits: a 70% pilot, and a plan that overspent"
 date: 2026-11-14
 tags: [research, llm, statistics, qualitative-coding]
-description: "Pre-registered on 51 audit cells: growing the hand-coded pilot from 30% to 70% of the audit raised the width gain from 3.0 to 5.5. The check also caught the audit plan labelling up to 20% more items than its budget."
+description: "Pre-registered on 51 LLM audit cells: a hand-coded pilot of 70% of the audit beat 30% and 50%, and exposed a plan labelling up to 20% over budget."
 ---
 
 The [llm-coding-inference](../../research/llm-coding-inference/) programme asks how
