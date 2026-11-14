@@ -183,3 +183,32 @@ test('docs sort newest date first, and same-day docs by slug descending; undated
     writeFileSync(path.join(dir, f), `# ${f}\n`);
   assert.deepEqual(readDocs(dir, dir).map((d) => d.slug), ['2026-10-15-b', '2026-10-15-a', '2026-10-14-a', '2026-10-13-z', 'zeta']);
 });
+
+test('inline keeps entities an author typed, and still escapes markup', () => {
+  // A post wrote *K*&radic;*P* and "&minus;$1,197.16"; both showed the entity as text until 2026-11-14.
+  assert.equal(inline('leaks *K*&radic;*P*.'), 'leaks <em>K</em>&radic;<em>P</em>.');
+  assert.equal(inline('at &minus;$1 and &#8722;2 and &#x2212;3'), 'at &minus;$1 and &#8722;2 and &#x2212;3');
+  // Inside a code span an entity is its source text, which is how a post shows one.
+  assert.equal(inline('write `&minus;`'), 'write <code>&amp;minus;</code>');
+  // An escaped entity stays escaped one level: "&amp;lt;" reads as "&lt;".
+  assert.equal(inline('a payee &amp;lt;X&amp;gt;'), 'a payee &amp;lt;X&amp;gt;');
+  // Raw markup is still escaped; an entity can only ever decode to text.
+  assert.equal(inline('<script>&lt;b&gt;'), '&lt;script&gt;&lt;b&gt;');
+  assert.equal(inline('don\'t*x*'), 'don&#39;t*x*');
+  // Commit titles (GitHub shows them as plain text) keep the old behaviour.
+  assert.equal(inline('shows &minus; as text', '', { entities: false }), 'shows &amp;minus; as text');
+});
+
+test('inline keeps paired <sub> and <sup>, and nothing else', () => {
+  assert.equal(inline('p<sub>s</sub> and N<sup>1.85</sup>'), 'p<sub>s</sub> and N<sup>1.85</sup>');
+  assert.equal(inline('σ²<sub>subset</sub> &minus; x'), 'σ²<sub>subset</sub> &minus; x');
+  // Unpaired, with attributes, or another tag: still text.
+  assert.equal(inline('a<sub>b'), 'a&lt;sub&gt;b');
+  assert.equal(inline('<sub onclick="x">b</sub>'), '&lt;sub onclick=&quot;x&quot;&gt;b&lt;/sub&gt;');
+  assert.equal(inline('<b>x</b>'), '&lt;b&gt;x&lt;/b&gt;');
+  // Typed as entities, the tags are text: "&lt;sub&gt;x&lt;/sub&gt;" reads "<sub>x</sub>".
+  assert.equal(inline('&lt;sub&gt;x&lt;/sub&gt;'), '&lt;sub&gt;x&lt;/sub&gt;');
+  // In a code span it is source text.
+  assert.equal(inline('`<sub>x</sub>`'), '<code>&lt;sub&gt;x&lt;/sub&gt;</code>');
+  assert.equal(inline('<sub>x</sub>', '', { entities: false }), '&lt;sub&gt;x&lt;/sub&gt;');
+});

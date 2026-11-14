@@ -407,7 +407,7 @@ function entryHtml(e, toRoot, { pill = true } = {}) {
   const pages = e.pages
     .map((p) => `<a class="goto" href="${esc(toRoot + p.href)}">${p.kind === 'tool' ? 'Open' : 'Read'} ${esc(p.label)} →</a>`)
     .join(' ');
-  return `<li data-kind="${e.kind}">${pill ? `<span class="pill k-${e.kind}">${esc(KIND_LABEL[e.kind])}</span>` : ''}${inline(e.title, '', { linkPrs: false })}
+  return `<li data-kind="${e.kind}">${pill ? `<span class="pill k-${e.kind}">${esc(KIND_LABEL[e.kind])}</span>` : ''}${inline(e.title, '', { linkPrs: false, entities: false })}
 <span class="meta"> · ${pr}</span>${pages ? `<br>${pages}` : ''}</li>`;
 }
 
