@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVLaMnMgipGmZAM5ZdH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T10:09:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 8): quick-pick-survey rank page stop rule for noisy answerers; ready-list landing pages for distribution",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15808",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The pkill hook also refuses a bracketed pattern if the plain word appears anywhere else in the same command (e.g. an earlier `python3 -m http.server`); start and stop servers in separate calls."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-quick-pick-survey-close-calls-are-not-a-settled-order.md"
+  ],
+  "goal": "Make the free rank page's 'settled' claim honest for noisy answerers and give it search entry points",
+  "notes": "Sweep (scripts/rank-stop-calibration.mjs --runs 12, docs/rank-stop-eb-2026-11-14.jsonl): fixed stop rule at 25 options read 0.90 vs true Spearman 0.79 (spread 3) and 0.56 (spread 1.5). Hold-for-3/6-picks rules moved truth <=0.01, so the cause is the wide fixed prior, not optional stopping. stopCheck (empirical-Bayes prior recheck after the fixed check passes) cuts the gap to 0.041 / 0.241; consistent respondents unchanged (8 options still 25 picks in Chromium e2e), ordinary noise +14 picks at 25. Fixed narrow prior rejected (phi 1.0: 51 -> 93 picks for a never-wrong 15-option respondent). New test fails on old behaviour (checked). Four generated ready-list pages (site/use-*.html) with usage counters and disclaimer; Chromium at 390px: no overflow, CTA opens ranker on the right list. run_venture_tests.py quick-pick-survey: ok. node --test site/*.test.mjs: 26 pass. vitest suite not run (no node_modules; src/ untouched).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,7 +1,7 @@
 // The rank page's logic, pure and DOM-free so node --test can run it
 // (rank-core.test.mjs). The model is the app's own: site/engine/ is generated
 // from src/lib/btRefit.ts and favouriteSet.ts by scripts/build-rank-engine.mjs.
-import { refitRatings, cholesky } from "./engine/btRefit.mjs";
+import { refitRatings, cholesky, empiricalPriorPhi, REFIT_PRIOR_PHI } from "./engine/btRefit.mjs";
 import { favouriteSet } from "./engine/favouriteSet.mjs";
 
 export const MAX_ITEMS = 60;
@@ -111,6 +111,42 @@ const ids = (n) => Array.from({ length: n }, (_, i) => String(i));
 export function fit(n, answers) {
   const r = refitRatings(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })));
   return { mu: r.mu, cov: r.cov, n };
+}
+
+/** The same refit at another prior sd (internal logit scale; the fixed one is REFIT_PRIOR_PHI, 2.01). */
+export function fitAt(n, answers, priorPhi) {
+  const r = refitRatings(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { priorPhi });
+  return { mu: r.mu, cov: r.cov, n };
+}
+
+/** Golden-section steps for the stop rule's prior search; 8 is the insights route's (phi within about 4.5%). */
+export const STOP_EB_STEPS = 8;
+
+/**
+ * The stop rule. The fixed prior (sd 2.0 logits) is wider than a noisy
+ * person's real spread of likes, so on its own orderConfidence read 0.77
+ * where the shown order's true Spearman was 0.66 (8 options, spread 3).
+ * Once the fixed-prior confidence passes STOP_CONFIDENCE, the answers are
+ * refit at the person's own empirical-Bayes prior sd (empiricalPriorPhi,
+ * the insights route's favourite-set prior, never wider than the fixed one)
+ * and the page stops only if that refit's confidence passes too. The
+ * narrower prior shrinks noisy scores together, so the order reads less
+ * settled; a consistent person's estimate sits at the ceiling and nothing
+ * changes. Measured in docs/RANK-PAGE.md, "Noisy answerers".
+ *
+ * Returns { done, confidence, phi }: `confidence` is the lower of the two
+ * reads once the second has run (else the fixed one), `phi` the prior sd used
+ * (null when the search did not run). The search runs only after the fixed
+ * check passes, so most picks cost nothing extra. `force` runs it anyway.
+ */
+export function stopCheck(n, answers, { fixedFit, fixedConfidence, force = false, steps = STOP_EB_STEPS } = {}) {
+  const f = fixedFit || fit(n, answers);
+  const cf = fixedConfidence ?? (answers.length ? orderConfidence(f) : 0);
+  if (!answers.length || (!force && cf < STOP_CONFIDENCE)) return { done: false, confidence: cf, phi: null };
+  const phi = empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps });
+  const ce = phi >= REFIT_PRIOR_PHI * 0.999 ? cf : orderConfidence(fitAt(n, answers, phi));
+  const confidence = Math.min(cf, ce);
+  return { done: confidence >= STOP_CONFIDENCE, confidence, phi };
 }
 
 const normalCdf = (z) => {

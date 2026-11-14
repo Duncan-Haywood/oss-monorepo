@@ -43,7 +43,7 @@ noise (true scores spread over 6 logits) it hit the 2 n log2 n cap in 8 of 8
 runs at every threshold from 0.75 to 0.85, at 8 and at 15 options. It never
 stopped.
 
-It now stops on `orderConfidence`: the posterior mean Spearman correlation
+It now stops on `orderConfidence` (with a second check at the person's own prior since 2026-11-14, below): the posterior mean Spearman correlation
 between a drawn order and the order shown, at 0.9 (`STOP_CONFIDENCE`), with
 the cap kept. Mean over 6 simulated respondents per row, picks fixed (not
 stopped), confidence against the order's true Spearman with the respondent's
@@ -62,6 +62,68 @@ It is conservative for consistent people and somewhat optimistic for very
 noisy ones on short lists (0.77 read against 0.66 true). In the browser
 end-to-end run (a scripted consistent respondent, 8 options) the page now
 finishes in 25 picks; before the change it ran to the 48-pick cap.
+
+## Noisy answerers: a second check at the person's own prior (2026-11-14)
+
+The table above showed the stop rule reading 0.77 where the true Spearman
+was 0.66 (8 options, spread 3). A wider sweep found the overclaim is worst
+on long lists: 25 options, spread 3, the page stopped at 115 picks reading
+0.90 while the order's true Spearman was 0.79; at spread 1.5 (near coin
+flips) it stopped at 111 picks reading 0.90 against 0.56.
+
+**Cause: the prior, not optional stopping.** Checking every pick and
+stopping at the first pass could bias the read upward, so two rules that
+need the 0.9 held for 3 or 6 picks in a row were run too: they moved the
+true Spearman by 0.01 at most (25 x 3: 0.78 and 0.79). The fixed prior sd
+(2.0 logits, Glicko's 350) is far wider than a noisy person's spread of
+likes, so answer noise reads as real separation.
+
+**Fix** (`stopCheck` in `site/rank-core.mjs`): once the fixed-prior
+confidence passes 0.9, refit at the person's own empirical-Bayes prior sd
+(`empiricalPriorPhi`, the insights route's favourite-set prior: sampled
+evidence, golden section on log phi in [0.3, 2.01], 8 steps) and stop only
+if that refit also reads 0.9. The status line then shows the lower read and
+says many picks are close calls. A fixed narrower prior was the obvious
+alternative and was rejected: at sd 1.0 a never-wrong respondent with 15
+options needed 93 picks instead of 51, at 0.6 every consistent run hit the
+cap.
+
+Mean of 12 simulated respondents per row (`node
+scripts/rank-stop-calibration.mjs --runs 12`, seeds from 1000; every rule
+in `docs/rank-stop-eb-2026-11-14.jsonl`). Picks to stop / confidence read /
+true Spearman (runs that hit the 2 n log2 n cap count at the cap):
+
+| options | spread | fixed rule (before) | with the second check | runs at cap before / after |
+|---|---|---|---|---|
+| 8 | 100 | 25.7 / 0.904 / 1.000 | same | 0 / 0 |
+| 8 | 6 | 34.8 / 0.900 / 0.938 | same | 1 / 1 |
+| 8 | 3 | 47.3 / 0.853 / 0.913 | 47.8 / 0.851 / 0.915 | 10 / 11 |
+| 15 | 100 | 51.3 / 0.902 / 1.000 | same | 0 / 0 |
+| 15 | 6 | 67.3 / 0.901 / 0.948 | 69.8 / 0.902 / 0.947 | 0 / 0 |
+| 15 | 3 | 98.0 / 0.894 / 0.905 | 107.5 / 0.887 / 0.909 | 4 / 10 |
+| 15 | 1.5 | 103.3 / 0.833 / 0.661 | 109.3 / 0.830 / 0.669 | 8 / 9 |
+| 25 | 100 | 91.8 / 0.901 / 0.996 | same | 0 / 0 |
+| 25 | 6 | 109.8 / 0.901 / 0.925 | 123.8 / 0.904 / 0.932 | 0 / 0 |
+| 25 | 3 | 115.3 / 0.901 / 0.786 | 160.2 / 0.875 / 0.834 | 0 / 5 |
+| 25 | 1.5 | 111.3 / 0.901 / 0.561 | 189.8 / 0.886 / 0.645 | 0 / 8 |
+
+The gap between read and truth at 25 options drops from 0.115 to 0.041
+(spread 3) and from 0.340 to 0.241 (spread 1.5). Consistent respondents pay
+nothing; ordinary noise at 25 options pays 14 more picks. **Still open:** one
+person's empirical-Bayes estimate is noisy, so some near-coin-flip
+respondents get an estimate at the ceiling and stop as before (3 of 10
+seeds at 25 x 1.5 in a spot check). The 8 x 1.5 row is unchanged because
+every run hits the cap either way. A pooled prior across a team's codes
+would steady it; not built.
+
+Cost: the search runs only after the fixed check passes, about 64 ms at 8
+options, 110 ms at 25 x 150 answers and 330 ms at 60 x 350 in Node. In a
+browser run (Chromium, a scripted consistent respondent, 8 options) the page
+still finished in 25 picks; a coin-flipping respondent on 25 options ran to
+the 233-pick cap with the "close calls" note shown and "Some places are
+still close" on the results. Pinned by three tests in
+`site/rank-core.test.mjs`. The last one fails if `stopCheck` returns the
+fixed read alone (checked).
 
 ## Favourite mode: more questions, not fewer
 
@@ -105,3 +167,20 @@ top pick's chance.
 - `orderConfidence` overstates certainty for very noisy respondents on short
   lists (table above); a lapse-aware prior or the app's `lapseEstimate` could
   correct it.
+
+## Ready-list pages (2026-11-14)
+
+Four landing pages, each a common job a pairwise ranking does well, with a
+starter list and one link that opens the ranker filled in:
+`site/use-feature-backlog.html`, `use-personal-values.html`,
+`use-name-shortlist.html`, `use-trip-shortlist.html`. They are generated by
+`node scripts/build-use-pages.mjs` (the list, question, copy and
+alternatives live there), and the link's fragment is made by the ranker's
+own `encodeList`, so the pages are plain HTML and the list never reaches a
+server. `site/use-pages.test.mjs` fails if a page is stale or its link does
+not decode back to its list. Each page counts `use_page_viewed:<slug>` and
+`use_page_start:<slug>` in local storage (same opt-outs as the ranker). They
+are the first step on the flagship's "get the rank page in front of people"
+item: search entry points for intents the generic page does not name.
+Checked in Chromium at 390 px: no horizontal scroll, and each link opens the
+ranker on its own question and list.
