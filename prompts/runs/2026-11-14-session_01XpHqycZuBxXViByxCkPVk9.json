@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycZuBxXViByxCkPVk9",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T15:38:37Z",
+  "ended": "2026-11-14T15:50:41Z",
+  "wall_minutes": 12.2,
+  "tokens_in": 4945096,
+  "tokens_out": 20479,
+  "cost_usd": 2.0812,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15898",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Reported 73/73 green while test_run_venture_tests was red on main (#15891 renamed unwired_checks.run_all); it runs no platform/ci unit tests, so 'main is healthy' did not cover them. #15894 fixed the test; root cause filed as P067."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure's top run_venture_tests row (0.4 s ok for open-tennis-robots) could not be reproduced: the tool now runs the workflow's Python steps (~2 min); the record named no flags, so it cost one 2-minute rerun to tell stale from live."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-pass-that-skipped-half-its-cad-tests.md"
+  ],
+  "goal": null,
+  "notes": "Backlog P067 filed (owner). Critique mode from doc friction: run_venture_tests skip counts (open-tennis-robots: 49 of 100 CAD tests skipped, build123d absent), check_post_frontmatter ok line. Tests: unittest test_run_venture_tests test_check_post_frontmatter OK; discover -s prompts OK; main_health 73/73 before changes. No separate agent doc: the backlog item carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "55ad1b0e-bda4-5fc5-a79b-c9be0751287c",
+    "transcripts": 1,
+    "first": "2026-11-14T15:38:37Z",
+    "last": "2026-11-14T15:50:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 104,
+        "output": 20479,
+        "thinking": 5214,
+        "cache_read": 4857524,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87468,
+        "api_equivalent_usd": 2.0812,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 104,
+      "output": 20479,
+      "thinking": 5214,
+      "cache_read": 4857524,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87468,
+      "api_equivalent_usd": 2.0812,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.2,
+      "active_minutes": 12.2,
+      "model_minutes": 3.6,
+      "tool_minutes": 8.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "reproduce runner gap, parser + tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 96.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

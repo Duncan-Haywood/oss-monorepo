@@ -153,6 +153,12 @@ test("results CSV quotes options and lists every item", () => {
   for (const cell of ['"\'=HYPERLINK(""x"")"', '"\'+1 call"', '"\'@sum"', '"\'-5 degrees"']) assert.ok(risky.includes(cell), cell);
 });
 
+test("results CSV prints chance_favourite to three decimals, the column a spreadsheet sorts on", () => {
+  const f = fit(3, [[0, 1, false], [1, 2, false]]);
+  const lines = resultsCsv(["a", "b", "c"], f, rankTable(f, { draws: 200 })).trim().split("\n").slice(1);
+  for (const line of lines) assert.match(line.split(",")[3], /^[01]\.\d{3}$/, line);
+});
+
 test("combine weighs people equally and reports agreement and splits", () => {
   const items = ["a", "b", "c", "d"];
   const lover = []; // prefers a > b > c > d, answered a lot

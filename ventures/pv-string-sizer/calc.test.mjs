@@ -130,6 +130,13 @@ test("CSV has a row per length and per layout, and neutralises formulas", () => 
   assert.match(csv, /,2\+2,/);
 });
 
+test("CSV cells: numbers (negative and exponent too) stay bare, a minus-digit formula is defused", async () => {
+  const { csvCell } = await import("./calc.mjs");
+  assert.equal(csvCell(-4.5), "-4.5");
+  assert.equal(csvCell(-1e-7), "-1e-7");
+  assert.equal(csvCell("-1+CMD|x"), "'-1+CMD|x");
+});
+
 test("extreme inputs stay finite", () => {
   for (const [k, v] of [["modules", "100000"], ["invMaxV", "1e9"], ["mpptMaxIsc", "1e9"], ["tMin", "-60"]]) {
     const a = analyze({ ...sampleInput(), [k]: v });

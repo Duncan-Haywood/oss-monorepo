@@ -251,13 +251,13 @@ class Selection(unittest.TestCase):
         import unwired_checks
         with mock.patch.object(rvt, "since_slugs", return_value=[]), \
                 mock.patch.object(unwired_checks, "unwired", return_value=["check_x.py"]), \
-                mock.patch.object(unwired_checks, "run_all",
+                mock.patch.object(unwired_checks, "run_everything",
                                   return_value=[("check_x.py", 1, "a.html: stray </head>")]), \
                 mock.patch("builtins.print") as printed:
             self.assertEqual(rvt.main(["--since", "abc123"]), 1)
         self.assertIn("stray </head>", " ".join(str(c.args[0]) for c in printed.call_args_list))
         with mock.patch.object(rvt, "since_slugs", return_value=[]), \
-                mock.patch.object(unwired_checks, "run_all") as ran, \
+                mock.patch.object(unwired_checks, "run_everything") as ran, \
                 mock.patch("sys.stdout"):
             self.assertEqual(rvt.main(["--since", "abc123", "--no-unwired"]), 0)
             # Unknown named slug: exit 1 (a typo must not read as a pass), and
@@ -403,6 +403,28 @@ class Elsewhere(unittest.TestCase):
                                              rvt.ROOT, {}, 10)
         self.assertFalse(ok)
         self.assertIn("pyenv.py pytest", out)
+
+
+class Skipped(unittest.TestCase):
+    """A suite that skips for want of a package says so on its ok line."""
+
+    def test_unittest_verbose_counts_and_reason(self):
+        out = ("test_a ... skipped 'build123d not installed'\n"
+               "test_b ... skipped 'build123d not installed'\n"
+               "test_c ... skipped 'slow'\n----\nRan 96 tests in 1.0s\n\nOK (skipped=3)\n")
+        self.assertEqual(rvt.skipped(out), (3, "build123d not installed"))
+        self.assertEqual(rvt.skipped_note(out), "; 3 tests skipped (most: 'build123d not installed')")
+
+    def test_tap_and_pytest_totals_add_up(self):
+        out = ("ok 1 - draws # SKIP no browser\n# tests 4\n# skipped 1\n"
+               "======= 5 passed, 2 skipped in 1.20s =======\n")
+        self.assertEqual(rvt.skipped(out), (3, "no browser"))
+
+    def test_nothing_skipped_says_nothing(self):
+        self.assertEqual(rvt.skipped_note("# tests 3\n# skipped 0\nRan 4 tests\n\nOK\n"), "")
+
+    def test_failed_run_still_counts_skips(self):
+        self.assertEqual(rvt.skipped("FAILED (failures=1, skipped=2)\n")[0], 2)
 
 
 if __name__ == "__main__":

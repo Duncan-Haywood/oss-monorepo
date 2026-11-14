@@ -4324,3 +4324,53 @@ by row count, so those buckets span more than 5 s.
 Tests: `watch-skab.test.mjs` (8: the round's settings, the file parser, buckets, marks and the fault start, the score on
 made-up alerts, the hint rules, the three rules on made-up totals, the committed output's verdicts, and the hint and
 `--columns` texts).
+
+## Round 13: wait for two columns to agree (2026-11-14, pre-registered on a seen set; fails, not offered)
+
+Round 12 left the many-column watch over budget: on SKAB's anomaly-free run, Quiet on all 8 sensors sent 8.54 alert lines
+per 100 checks, all false, and a budget split could not help because Quiet is already the floor of the ladder. A column
+screen by loudness would have kept the sensors that caught nothing (pressure, voltage, current) and risked dropping flow
+rate, which caught 29 of 33 faults alone. So this round tested a rule on the whole watch instead: send a message only when
+at least two columns date a change within 12 points (60 s) of each other. Independent noise rarely lands on the same
+point twice; a fault on a machine usually moves more than one sensor. `agreeAlerts` (watch-core.mjs) is the rule;
+`sh eval/skab-fetch.sh skab-data && node eval/watch-skab-agree.mjs skab-data` runs the round (output
+`eval/watch-skab-agree.out.txt`, 1,233 s on 4 cores). The rule, design and predictions were committed in this PR's
+second commit, before any scored run. It is a second look at a seen set: round 12's per-column output was known, which
+columns' alerts coincide was not.
+
+The baseline is the same lines merged into one message per change (A1, k = 1), so both arms are counted the same way.
+
+| every column on Quiet (33 fault runs, 123 marks) | messages | at a mark | per 1,000 checks | marks reached | faults caught | median delay | normal run, per 100 checks |
+|---|---|---|---|---|---|---|---|
+| A1, one message per change | 238 | 31.5% | 36.1 | 81 | 31/33 | 30 s | 4.19 |
+| **A2, two columns agree** | 129 | 37.2% | 19.6 | 54 | **22/33** | 50 s | **2.69** |
+| A3, three agree | 52 | 46.2% | 7.9 | 30 | 12/33 | 58 s | 1.13 |
+| A2 on Middle | 312 | 25.6% | 47.4 | 88 | 31/33 | 45 s | 4.41 |
+| A2 on Drift | 286 | 26.2% | 43.4 | 83 | 28/33 | 50 s | 2.58 |
+
+- **T9 fails on two of three parts.** (a) the normal run still sent 2.69 messages per 100 checks, over the budget of 2;
+  (b) A2 caught 22 faults against A1's 31 (the rule allowed losing 2); (c) its share at a mark rose, 37.2% against 31.5%.
+  As pre-registered, nothing ships: `watch.mjs --help` under `--columns` and the watch page record the result.
+
+**Predictions, scored.** (a) I predicted about 1.5 and "could fail": it failed, at 2.69. (b) I predicted 30 or more caught:
+wrong, 22. The inlet-valve faults decided it: A2 caught 8 of 16, because a closed inlet valve moves the flow rate
+clearly and the other sensors often do not alert within 60 s of it. (c) I predicted about 50% against 37%: it rose, but only to
+37.2% against 31.5%.
+
+**Why the noise still agrees (deciding nothing).** The pairs that completed A2's false messages on the normal run were
+mostly coupled sensors: the two accelerometers (8 of the run's 50 messages), accelerometer 1
+with flow rate (8), the thermocouple with flow rate (7). On a real machine the columns are not independent, so their
+noise is not either. On synthetic noise (5 independent N(0,1) columns) Quiet sent one column line in 2,400 checks, so
+the synthetic check could not tell the rules apart; only the real normal run could. Agreement trades away exactly the
+faults a single sensor sees best. Three columns (A3) brought the normal run under budget (1.13) and caught 12 of 33.
+
+Caveat on the baseline. A1 caught 31 faults, not round 12's 33, though it is built from the same lines: merging drops
+a line whose change lies within 12 points of a change already sent, and on two runs the message already sent was dated
+just before the fault's window. Both arms carry the same merging, so the rule's comparison stands.
+
+Open: a whole-watch budget that respects sensor groups (agreement only across groups that measure different things,
+named by the person who sets the watch up), or a per-column rate cap from the normal history. Neither is pre-registered.
+
+Tests: `watch-agree.test.mjs` (7: agreement on made-up lines, k = 1 as one message per change, order and argument
+checks, the round's window, T9 on made-up totals, the seeded noise, and the committed output's verdict with the help
+and page texts).

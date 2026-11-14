@@ -1,5 +1,8 @@
 import tempfile
+import contextlib
+import io
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import dogfood_workflows as d
@@ -41,6 +44,14 @@ class Dogfood(unittest.TestCase):
         self.assertEqual(d.audit(root=root, accepted={key: "x"}), ([], []))
         _, stale = d.audit(root=make_repo(GOOD), accepted={key: "x"})
         self.assertEqual(stale, [key])
+
+    def test_main_exits_1_on_a_new_finding_or_a_stale_entry_and_0_when_clean(self):
+        # Red-team guard (2026-11-14): `return 2 if ...` and `new and stale` both escaped.
+        finding = {"checker": "actions-timeout-check", "file": "ci.yml", "line": 3, "type": "job-missing-timeout"}
+        stale_key = ("actions-timeout-check", "ci.yml", "job-missing-timeout")
+        for audited, code in ((([finding], []), 1), (([], [stale_key]), 1), (([finding], [stale_key]), 1), (([], []), 0)):
+            with mock.patch.object(d, "audit", return_value=audited), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(d.main([]), code, audited)
 
 
 if __name__ == "__main__":
