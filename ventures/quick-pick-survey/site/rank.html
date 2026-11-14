@@ -57,6 +57,7 @@
     <div class="row">
       <label class="inline"><input type="radio" name="mode" value="order" checked> Full order</label>
       <label class="inline"><input type="radio" name="mode" value="favourite"> Be sure of the favourite (more questions on the front-runners; the rest of the order stays rough)</label>
+      <label class="inline"><input type="radio" name="mode" value="top"> <span>Find my top <input type="number" id="topk" min="2" max="59" value="3" inputmode="numeric" aria-label="How many to shortlist" style="width:3.5em;display:inline-block;padding:2px 4px"> (a shortlist: questions go to the options near the cut)</span></label>
     </div>
     <div class="row">
       <button id="start">Start picking</button>
@@ -145,27 +146,33 @@
 </main>
 <script type="module">
   import { picksGuide } from "./picks-measured.mjs";
-  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS } from "./rank-core.mjs";
+  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
   const $ = (s) => document.querySelector(s);
   const show = (id, on = true) => $(id).classList.toggle("hidden", !on);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const RANK_SHORTLIST_DRAWS = 1500;
   const EXAMPLE = { title: "Which feature should we build next?", items: ["Dark mode", "CSV export", "Faster search", "Mobile app", "Team accounts", "Calendar sync", "Offline mode", "Single sign-on"] };
 
-  let state = null; // { title, items, mode, answers, seed }
+  let state = null; // { title, items, mode, k, answers, seed }
   let current = null, f = null;
 
   const storeKey = (items) => `quick-pick-rank:${listId(items)}`;
-  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode })); } catch {} };
+  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode, k: state.k })); } catch {} };
   const load = (items) => { try { return JSON.parse(localStorage.getItem(storeKey(items)) || "null"); } catch { return null; } };
 
-  function begin(title, items, mode, fromLink = false) {
+  // The shortlist size: a whole number from 2 to one less than the list, else null (the mode needs options left out).
+  const shortlistSize = (k, n) => (Number.isInteger(k) && k >= 2 && k < n ? k : null);
+
+  function begin(title, items, mode, fromLink = false, k = 3) {
     const saved = load(items);
-    state = { title, items, mode: saved?.mode || mode, answers: Array.isArray(saved?.answers) ? saved.answers : [], seed: (Math.random() * 1e9) >>> 0 };
+    state = { title, items, mode: saved?.mode || mode, k: shortlistSize(saved?.k, items.length) ?? shortlistSize(k, items.length) ?? Math.min(3, items.length - 1), answers: Array.isArray(saved?.answers) ? saved.answers : [], seed: (Math.random() * 1e9) >>> 0 };
+    if (state.mode === "top" && !shortlistSize(state.k, items.length)) state.mode = "order";
     $("#title").value = title; $("#list").value = items.join("\n");
     history.replaceState(null, "", "#" + encodeList({ title, items }));
     record(fromLink ? "shared_list_opened" : "list_started");
+    if (!fromLink) record(`mode:${state.mode}`);
     show("#setup", false); show("#results", false); show("#share", false); show("#team", false);
     ask();
   }
@@ -180,16 +187,18 @@
     f = fit(state.items.length, state.answers);
     const n = state.items.length, cap = suggestedMax(n);
     // Full order: stopCheck refits at the person's own prior once the fixed-prior read passes, so a list of close calls is not called settled too soon.
-    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f }) : null;
+    // Top k: the same two-step check on the shortlist (the mean share of the shown k that a plausible order also puts in its top k).
+    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f }) : state.mode === "top" ? topStopCheck(n, state.answers, state.k, { fixedFit: f }) : null;
     const p = sc ? sc.confidence : 0;
     const done = state.mode === "favourite" ? rankTable(f, { draws: 600 })[0].favourite >= 0.9 : sc.done;
     if (state.until ? state.answers.length >= state.until : done || state.answers.length >= cap) return results(done);
-    current = nextPair(f, state.answers, { mode: state.mode, seed: state.seed });
+    current = nextPair(f, state.answers, { mode: state.mode, seed: state.seed, k: state.k });
     $("#ask-title").textContent = state.title || "Which do you prefer?";
     $("#left").textContent = state.items[current[0]];
     $("#right").textContent = state.items[current[1]];
     $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, state.mode === "favourite" ? state.answers.length / Math.max(6, n) : p / STOP_CONFIDENCE)) * 100)}%`;
-    $("#status").textContent = `${state.answers.length} answered${state.mode === "order" ? `; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc && sc.phi !== null && !sc.done ? "; many of your picks are close calls, so it checks the order more strictly" : ""}` : ""}. ${picksLine(n)}; stop whenever you like.`;
+    const what = state.mode === "top" ? `top-${state.k} shortlist` : "order";
+    $("#status").textContent = `${state.answers.length} answered${sc ? `; ${what} ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)${sc.phi !== null && !sc.done ? `; many of your picks are close calls, so it checks the ${what} more strictly` : ""}` : ""}. ${state.mode === "top" ? "A shortlist takes more picks than the full order but gets the cut right more often (measured on simulated people, below)" : picksLine(n)}; stop whenever you like.`;
     $("#undo").disabled = state.answers.length === 0;
     show("#ask");
     $("#left").focus({ preventScroll: true });
@@ -207,7 +216,13 @@
     f = fit(state.items.length, state.answers);
     const table = rankTable(f);
     const top = table[0];
-    $("#verdict").innerHTML = state.answers.length === 0 ? "No answers yet." :
+    const shortlist = () => {
+      const pIn = topKChances(f, state.k, { draws: RANK_SHORTLIST_DRAWS });
+      const names = table.slice(0, state.k).map((r) => `<strong>${esc(state.items[r.item])}</strong> (${pIn[r.item] >= 0.995 ? "&gt;99" : Math.round(pIn[r.item] * 100)}%)`);
+      const next = table[state.k];
+      return `After ${state.answers.length} picks, your top ${state.k}: ${names.join(", ")}. The percentages are each one's chance of really being in your top ${state.k}; the closest one left out is <strong>${esc(state.items[next.item])}</strong> (${Math.round(pIn[next.item] * 100)}%)${settled ? "." : ". The cut is still close: answer more to settle it."}`;
+    };
+    $("#verdict").innerHTML = state.answers.length === 0 ? "No answers yet." : state.mode === "top" ? shortlist() :
       `After ${state.answers.length} picks, <strong>${esc(state.items[top.item])}</strong> is your top pick with a ${Math.round(top.favourite * 100)}% chance of being the true favourite${settled ? "." : ". Some places are still close: answer more to separate them."}`;
     $("#table").innerHTML = table.map((r) => `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${r.favourite >= 0.005 ? Math.round(r.favourite * 100) + "%" : "&lt;1%"}</td></tr>`).join("");
     show("#ask", false); show("#results"); show("#share"); show("#team");
@@ -226,8 +241,11 @@
   $("#start").addEventListener("click", () => {
     const items = parseList($("#list").value);
     if (items.length < MIN_ITEMS) { $("#setup-err").textContent = `Add at least ${MIN_ITEMS} different options, one per line.`; return; }
+    const mode = document.querySelector("input[name=mode]:checked").value;
+    const k = Number($("#topk").value);
+    if (mode === "top" && !shortlistSize(k, items.length)) { $("#setup-err").textContent = `A shortlist needs a whole number from 2 to ${items.length - 1} (one less than your ${items.length} options).`; return; }
     $("#setup-err").textContent = "";
-    begin($("#title").value.trim(), items, document.querySelector("input[name=mode]:checked").value);
+    begin($("#title").value.trim(), items, mode, false, k);
   });
   $("#example").addEventListener("click", () => { $("#title").value = EXAMPLE.title; $("#list").value = EXAMPLE.items.join("\n"); record("example_loaded"); });
   $("#left").addEventListener("click", () => answer("left"));

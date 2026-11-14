@@ -199,12 +199,17 @@ function mulberry32(seed) {
  * which option sits on the left is a coin flip, so screen position cannot
  * build up into the ranking. Returns [left, right] indices.
  */
-export function nextPair(f, answers, { mode = "order", seed = 1 } = {}) {
+export function nextPair(f, answers, { mode = "order", seed = 1, k = 3, topPool = TOP_POOL } = {}) {
   const n = f.n;
   let pool = Array.from({ length: n }, (_, i) => i);
   if (mode === "favourite") {
     const fav = favouriteSet(f.mu, f.cov, { level: 0.99, draws: 1000, seed: 0x5eed + answers.length });
     if (fav.members.length >= 2) pool = fav.members;
+  } else if (mode === "top" && k >= 1 && k < n) {
+    const pIn = topKChances(f, k, { draws: TOP_DRAWS, seed: 0x70b + answers.length });
+    const lo = 0.01, hi = topPool === "boundary" ? 0.99 : Infinity;
+    const live = pool.filter((i) => pIn[i] >= lo && pIn[i] <= hi);
+    if (live.length >= 2) pool = live;
   }
   const last = answers.at(-1);
   const asked = new Map();
@@ -226,6 +231,56 @@ export function nextPair(f, answers, { mode = "order", seed = 1 } = {}) {
     }
   }
   return rand() < 0.5 ? best : [best[1], best[0]];
+}
+
+/** Posterior draws behind the top-k mode's pair picker and stop rule. */
+export const TOP_DRAWS = 600;
+/** Which options the top-k mode pairs: "boundary" (could be in or out) or "live" (could still be in). */
+export const TOP_POOL = "boundary";
+/** What the shortlist stop reads: "overlap" (mean share of the shown k in a draw's top k) or "exact" (the whole set). */
+export const TOP_MEASURE = "overlap";
+
+/** Each item's chance of being in the top k under the posterior (draws from sampleRanks). */
+export function topKChances(f, k, { draws = TOP_DRAWS, seed = 0x70b } = {}) {
+  const { ranks } = sampleRanks(f, { draws, seed });
+  return ranks.map((r) => { let c = 0; for (const x of r) if (x <= k) c++; return c / draws; });
+}
+
+/** The top k in posterior-mode order (the shortlist the page shows). */
+export function topK(f, k) {
+  return order(f).slice(0, k);
+}
+
+/**
+ * How settled the shortlist is: the posterior chance that the top k, as a
+ * set, is exactly the set shown. Order inside the shortlist does not count.
+ */
+export function topSetConfidence(f, k, { draws = TOP_DRAWS, seed = 0x5e7, measure = TOP_MEASURE } = {}) {
+  const shown = topK(f, k);
+  const { ranks } = sampleRanks(f, { draws, seed });
+  let sum = 0;
+  for (let d = 0; d < draws; d++) {
+    let in_ = 0;
+    for (const i of shown) if (ranks[i][d] <= k) in_++;
+    sum += measure === "exact" ? (in_ === k ? 1 : 0) : in_ / k;
+  }
+  return sum / draws;
+}
+
+/**
+ * The top-k mode's stop rule, built like stopCheck: the shortlist must read
+ * STOP_CONFIDENCE at the fixed prior and, once it does, again at the
+ * person's own empirical-Bayes prior, so a run of close calls is not read as
+ * a settled shortlist. Returns { done, confidence, phi }.
+ */
+export function topStopCheck(n, answers, k, { fixedFit, force = false, steps = STOP_EB_STEPS, measure = TOP_MEASURE, level = STOP_CONFIDENCE } = {}) {
+  const f = fixedFit || fit(n, answers);
+  const cf = answers.length ? topSetConfidence(f, k, { measure }) : 0;
+  if (!answers.length || (!force && cf < level)) return { done: false, confidence: cf, phi: null };
+  const phi = empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps });
+  const ce = phi >= REFIT_PRIOR_PHI * 0.999 ? cf : topSetConfidence(fitAt(n, answers, phi), k, { measure });
+  const confidence = Math.min(cf, ce);
+  return { done: confidence >= level, confidence, phi };
 }
 
 /**

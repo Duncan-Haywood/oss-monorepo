@@ -1,0 +1,9 @@
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":10,"k":3,"spread":100,"runs":16,"cap":67,"picksMean":26.6,"atCap":0,"setRight":16,"hitsMean":3,"firstRight":16,"seconds":1.2}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":10,"k":3,"spread":6,"runs":16,"cap":67,"picksMean":34.4,"atCap":0,"setRight":11,"hitsMean":2.69,"firstRight":12,"seconds":2.1}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":10,"k":3,"spread":3,"runs":16,"cap":67,"picksMean":36.3,"atCap":2,"setRight":6,"hitsMean":2.31,"firstRight":6,"seconds":2.1}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":15,"k":3,"spread":100,"runs":16,"cap":118,"picksMean":47.5,"atCap":0,"setRight":16,"hitsMean":3,"firstRight":16,"seconds":2.3}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":15,"k":3,"spread":6,"runs":16,"cap":118,"picksMean":68.3,"atCap":0,"setRight":5,"hitsMean":2.31,"firstRight":10,"seconds":4.1}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":15,"k":3,"spread":3,"runs":16,"cap":118,"picksMean":103.3,"atCap":10,"setRight":5,"hitsMean":2,"firstRight":4,"seconds":6.6}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":20,"k":3,"spread":100,"runs":16,"cap":173,"picksMean":67.2,"atCap":0,"setRight":16,"hitsMean":3,"firstRight":16,"seconds":4.1}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":20,"k":3,"spread":6,"runs":16,"cap":173,"picksMean":109.9,"atCap":1,"setRight":6,"hitsMean":2.38,"firstRight":8,"seconds":9.6}
+{"run":"top-k","seed0":4100,"measure":"overlap","level":0.8,"arm":"boundary","n":20,"k":3,"spread":3,"runs":16,"cap":173,"picksMean":132,"atCap":6,"setRight":4,"hitsMean":2.06,"firstRight":6,"seconds":12.4}
