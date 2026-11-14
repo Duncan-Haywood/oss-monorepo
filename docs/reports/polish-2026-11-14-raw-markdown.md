@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, seo]
+date: 2026-11-14
+---
 # Polish 2026-11-14: Markdown shown as source text
 
 Picked from `polish-2026-11-14-footer-link-contrast.md`, item 1 ("related-project cards on research
