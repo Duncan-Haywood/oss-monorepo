@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { parseEvents, plan, summarize, eventNet, breakEvenSales, dayNumber, weekOf, parseHour, money } from "./engine.mjs";
 
 const OPTS = { cogsPct: 35, crewRate: 15, setupHours: 1, teardownHours: 0.5, maxPerWeek: 0, downside: 70 };
@@ -121,4 +122,54 @@ test("optimiser matches brute force on 300 random seasons", () => {
 test("too many entangled events is a clear error, not a hang", () => {
   const rows = Array.from({ length: 30 }, (_, i) => `E${i},2026-09-12,09:00,17:00,1000`).join("\n");
   assert.throws(() => plan(parseEvents(rows), OPTS), /handles up to 24/);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-market-event-picker.json, defects 0 and 1):
+// the negotiable finding once told a vendor a $480 cut would make Harvest Fair win although its whole fee is $150.
+test("negotiable never asks for a cut bigger than the event's fee", () => {
+  const p = plan(parseEvents(fs.readFileSync(new URL("./fixtures/events.csv", import.meta.url), "utf8")), OPTS);
+  const harvest = p.skipped.find((s) => s.name === "Harvest Fair");
+  assert.ok(Math.abs(harvest.shortfall - 480) < 1e-6);
+  assert.ok(!p.negotiable.some((n) => n.name === "Harvest Fair"));
+  assert.ok(!p.findings.some((f) => f.rule === "negotiable"));
+  for (const n of p.negotiable) assert.ok(n.fee > n.feeAsk);
+});
+
+test("a cut just over the ask flips the pick; a cut of exactly the ask only ties", () => {
+  const csv = (bFlat) => `A,2026-09-12,09:00,17:00,3000,600,0,0\nB,2026-09-12,10:00,16:00,2600,${bFlat},0,0`;
+  const p = plan(parseEvents(csv(500)), OPTS);
+  assert.deepEqual(p.chosen.map((c) => c.name), ["A"]);
+  assert.equal(p.negotiable.length, 1);
+  const n = p.negotiable[0];
+  assert.equal(n.name, "B");
+  assert.ok(Math.abs(n.feeAsk - 130) < 1e-6);
+  assert.equal(n.fee, 500);
+  const f = p.findings.find((x) => x.rule === "negotiable");
+  assert.equal(f.message, "A fee cut of more than $130.00 (of its $500.00 fee) would make B the better pick.");
+  const over = plan(parseEvents(csv(500 - n.feeAsk - 1)), OPTS);
+  assert.deepEqual(over.chosen.map((c) => c.name), ["B"]);
+  const tie = plan(parseEvents(csv(500 - n.feeAsk)), OPTS);
+  assert.ok(Math.abs(tie.chosen.reduce((t, c) => t + c.net, 0) - p.totals.plan) < 1e-6);
+});
+
+test("a skipped event whose shortfall is over 1.5 times its own net is not offered as negotiable", () => {
+  // B nets $377.50 and is $830 short (2.2x its net); its $1,200 fee could cover the cut, but the rule keeps
+  // the finding to events that are close calls.
+  const p = plan(parseEvents("A,2026-09-12,09:00,17:00,3000,600,0,0\nB,2026-09-12,10:00,16:00,2600,1200,0,0"), OPTS);
+  const b = p.skipped.find((s) => s.name === "B");
+  assert.ok(Math.abs(b.net - 377.5) < 1e-6 && Math.abs(b.shortfall - 830) < 1e-6);
+  assert.equal(p.negotiable.length, 0);
+});
+
+test("long-week and plan-flips findings fire on the cases they describe", () => {
+  // Three 18-hour days in one week: 3 x (18 + 1.5) = 58.5 h is under 60; four is 78 h.
+  const long = (n) => Array.from({ length: n }, (_, i) => `D${i},2026-09-1${4 + i},05:00,23:00,5000,0,0,0`).join("\n");
+  assert.ok(!plan(parseEvents(long(3)), OPTS).findings.some((f) => f.rule === "long-week"));
+  const lw = plan(parseEvents(long(4)), OPTS).findings.find((f) => f.rule === "long-week");
+  assert.match(lw.message, /^1 week in the plan run over 60 booth-and-setup hours \(week of 2026-09-14: 78 h\)/);
+  // High-sales, high-fee A beats B at full sales; at 70% of sales B wins.
+  const flip = plan(parseEvents("A,2026-09-12,09:00,17:00,10000,4500,0,0\nB,2026-09-12,10:00,16:00,3000,200,0,0"), OPTS);
+  assert.deepEqual(flip.chosen.map((c) => c.name), ["A"]);
+  assert.deepEqual(flip.downsideChosen, ["B"]);
+  assert.ok(flip.findings.some((f) => f.rule === "plan-flips"));
 });
