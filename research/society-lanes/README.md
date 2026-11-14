@@ -8,7 +8,11 @@
 
 **Outside the lab (milestone 7, real data).** On city pavements filmed from above, pedestrians passing head-on kept right in **65%** of encounters in Zurich (473 of 723; ETH and Hotel scenes; 95% interval 0.59 to 0.74) and **68%** in Nicosia (334 of 491; Zara scenes; 0.57 to 0.80), even though Cyprus drives on the left. The same encounter measure gives 0.935 on the HERMES no-instruction runs and 0.526 with exits assigned, matching milestone 1 by an independent route. So the keep-right bias exists in the wild, but it is far weaker than in a laboratory corridor, and on these Nicosia pavements it did not follow the left-hand road rule.
 
+**Replication (milestone 2, real data).** In the independent BaSiGo corridor experiment (Jülich, Düsseldorf 2013, 15 runs, 8,155 walkers, 4 m corridor), people with no exit instruction kept right **92.4%** of the time (2,001 of 2,165; 0.877 to 0.973), inside the HERMES interval. Telling each person which side exit to use cut it to **0.689** (0.566 to 0.839; difference +0.235, 0.073 to 0.365): the collapse replicates in direction, though less deeply than at HERMES. The share stepped down when the instruction began and did not keep drifting with run order. In the last two runs, which kept the exit instruction and added information on screens (content not documented by the archive), **1,212 of 1,218 walkers (99.5%)** kept right, the strongest convention in either experiment.
+
 ![Share of walkers on their own right per run](experiments/m1_hermes_sides.svg)
+
+![Share on own right per run in start order, BaSiGo 2013](experiments/m2_basigo_sides.svg)
 
 ![Share of head-on encounters that kept right: lab and street](experiments/m7_wild_sides.svg)
 
@@ -32,6 +36,14 @@ In-the-wild data (milestone 7): the ETH and Hotel sequences of the ETH Walking P
 
 Reproduce: `python3 research/society-lanes/experiments/m1_hermes_sides.py` (stdlib, about 12 s plus a 12 MB download). Tests: `python3 -m unittest discover -s research/society-lanes/tests`.
 
+## Method (milestone 2)
+
+- The same code and measures as milestone 1 (`lanes.py`). The BaSiGo corridor runs along x between walls at y = 0 and 4 m, so its coordinates are rotated by +90 degrees (`lanes.rotate_x_corridor`, which keeps handedness) and the middle 8 m (x from -4 to 4 m) is the section.
+- Primary comparison: the runs without a guide splitting the entering stream (variant A: a_02 to a_05; variant B: b_04 to b_10). The four guided runs are reported separately. The A minus B difference has a two-stage bootstrap interval in each variant (`lanes.bootstrap_diff_clustered`).
+- Predictions B1 to B6 were registered in `LOG.md` before any BaSiGo trajectory was read. Data: doi:10.34735/ped.2013.5 (CC BY 4.0), 25 fps, fetched by script and not redistributed.
+
+Reproduce: `python3 research/society-lanes/experiments/m2_basigo_sides.py` (stdlib, about 45 s plus a 54 MB download).
+
 ## Method (milestone 7)
 
 - **Head-on encounter:** two walkers not listed as one group, both faster than 0.3 m/s, headings more than 135 degrees apart at their closest approach, closest approach under 2.0 m and strictly inside the time both are tracked (so they approached and then parted). At that moment each walker either has the other on their left (the pair kept right) or on their right (kept left).
@@ -50,6 +62,18 @@ Reproduce: `python3 research/society-lanes/experiments/m7_wild_sides.py` (stdlib
 
 Registered predictions: L1 (a right majority in free choice, interval excluding 0.5) **held**. L2 (share of at least 0.65) **held**. L3 (lane order above the null in every measurable run, 23 of 23) **held**. L4 (the share does not fall with density) **refuted**: it fell to 0.82 at the widest entrance. L5 (free speed 1.1 to 1.5 m/s) **refuted**: 1.73 m/s in the free-speed run. Per-run figures are in `experiments/m1_hermes_sides_runs.csv`.
 
+Milestone 2, BaSiGo 2013 (per run: `experiments/m2_basigo_sides_runs.csv`):
+
+| Set | Runs | Walkers | Share on own right (95% CI) | Lane order (shuffled null) |
+|---|---|---|---|---|
+| A: no exit instruction (unguided) | 4 | 2,165 | 0.924 (0.877, 0.973) | 0.77 to 0.84 (0.15 to 0.17) |
+| B: exit by wristband (unguided, no screens) | 5 | 3,515 | 0.505 to 0.687 per run | 0.63 to 0.79 (0.15 to 0.20) |
+| B: exit by wristband, screen information given | 2 | 1,218 | 0.995 (0.988, 1.000) | 0.94 to 0.98 (0.18 to 0.25) |
+| B: all 7 unguided runs (registered B2) | 7 | 4,733 | 0.689 (0.566, 0.839) | |
+| Guided entry (a_01; b_01 to b_03) | 4 | 1,257 | 0.767 (0.626, 0.885) | 0.84 to 0.95 |
+
+Registered predictions: B1 (variant A keeps right) **held**. B2 (A minus B at least 0.10, interval excluding 0) **held**, +0.235 (0.073, 0.365). B3 (lane order above the null in every run, 15 of 15) **held**. B4 (no further decline with time inside variant B) **held**, Spearman +0.18. B5 (variant A inside the HERMES free-choice interval) **held**. B6 (1.0 to 1.6 m/s in the sparsest run) **held**, 1.36 m/s. Not registered: inside variant A the share fell from 0.98 to 0.88 as the corridor was shortened from 22 to 12 m, so order and length are confounded there.
+
 Milestone 7, share of head-on encounters in which both walkers kept right:
 
 | Scene | Encounters (decided) | Kept right (95% CI) |
@@ -63,8 +87,8 @@ Registered predictions: W0 (the encounter measure reproduces the lab result) **h
 
 ## Limitations
 
-- "Right" assumes the archive's coordinate frame is right-handed with z up, which head heights being positive suggests. If the frame is mirrored, people kept left. That both directions chose the same relative side does not depend on the frame.
-- The free-choice and assigned-exit runs differ in more than the instruction. All 3.0 m runs had assigned exits, and run order was not randomised. The collapse is descriptive until milestone 2 replicates it on BaSiGo 2013, whose variants A and B differ only in the exit instruction.
+- "Right" assumes the archive's coordinate frame is right-handed with z up, which head heights being positive suggests for HERMES (in BaSiGo the z column is a constant 176 cm and says nothing). If the frame is mirrored, people kept left. That both directions chose the same relative side does not depend on the frame.
+- The free-choice and assigned-exit runs differ in more than the instruction. All 3.0 m runs had assigned exits, and run order was not randomised. BaSiGo 2013 (milestone 2) replicates the collapse in direction, but it also ran every instruction-free run first, so no data set here randomises order. The screen information in its last two runs is not documented; the 0.995 share there is a lead, not a mechanism.
 - The participants were students in a hall in Germany in 2009, and laboratory crowds are not street crowds (milestone 7 checks data recorded in the wild).
 - Lane order uses one bin width (30 cm). Speeds rely on the archive's stated 16 fps, which this step cannot check independently.
 - The street data are two scenes per city, 6 to 13 one-minute blocks each. Scene layout (shop doors, a side street, a tram stop) can push walkers to one side for reasons other than a norm, so the Nicosia result says only that these pavements showed no keep-left norm, not that Cypriots keep right. HERMES pair encounters in a dense run are numerous and dependent; their intervals cluster by run.
@@ -72,9 +96,9 @@ Registered predictions: W0 (the encounter measure reproduces the lab result) **h
 
 ## Next steps
 
-1. BaSiGo 2013 bidirectional corridor (926 participants, variants A and B): replicate, and separate the instruction from run order (blocked in cloud sessions while ped.fz-juelich.de is refused by the proxy).
+1. Find what the BaSiGo b_09 and b_10 screens displayed (the PhD thesis by S. Holl, FZJ IAS Series vol. 32, which the archive cites for this experiment), and whether a displayed sign can restore the convention among walkers with lateral goals. If it can, signage is a fleet operator's lever alongside robot behaviour.
 2. Robot experiments should sweep the human side bias from 0.53 to 0.94, with the street value 0.65 as the reference, since a twin fitted only to the lab's free-choice runs overstates the convention.
-3. Fit a social-force model (JuPedSim or a checked implementation) on the free-choice runs, then test it on the assigned-exit runs without refitting (PROPOSAL.md, H3 and H4).
+3. Fit a social-force model (JuPedSim or a checked implementation) on the free-choice runs of both experiments, then test it on the assigned-exit runs without refitting (PROPOSAL.md, H3 and H4).
 4. Fit ORCA and the anticipatory power law the same way.
 
 ## References
