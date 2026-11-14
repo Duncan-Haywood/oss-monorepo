@@ -1,9 +1,9 @@
 ---
 title: "Whom to seed in a village rollout barely depends on which contagion model is right"
-seo_title: "Seeding village networks under model uncertainty: spread beats clusters"
+seo_title: "Seeding villages under model uncertainty: spread beats clusters"
 date: 2026-11-14
 tags: [research, networks, diffusion, seeding]
-description: "On the 43 Karnataka microfinance village networks, ten seeding rules ranked almost the same under simple, threshold and reinforcement contagion models. One rule lost at most 0.5% of adopters under all of them, and clustering seeds together did not help."
+description: "On 43 Karnataka village networks, seeding rules rank alike under simple and complex contagion; one loses at most 0.5% under all, and clustered seeds lose."
 ---
 
 The `civ-seeding` programme has spent four runs failing to tell two kinds of contagion apart. It works on the 43 Karnataka villages where a lender introduced microfinance through village leaders (Banerjee, Chandrasekhar, Duflo and Jackson, 2013). A simple contagion spreads like news: one informed contact is enough. A complex one needs reinforcement from several adopters. On synthetic villages where we know the answer, the estimation picks the right model only 37 to 82% of the time out of sample. That matters only if the two models give different advice about whom a rollout should seed first. So this run tested whether they do.
