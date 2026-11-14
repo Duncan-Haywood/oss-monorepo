@@ -374,12 +374,13 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (57 stories)
+### Little Lamps (58 stories)
 
 - [Bede and the Last Sentence](stories/bede-and-the-last-sentence.md) (2026-11-14; 11 min read, text only)
 - [Boniface and the Oak at Geismar](stories/boniface-and-the-oak-at-geismar.md) (2026-11-14; 9 min read, text only)
 - [Catherine and the Queen of Fontebranda](stories/catherine-and-the-queen-of-fontebranda.md) (2026-11-14; 11 min read, text only)
 - [Dominic and the Books He Sold](stories/dominic-and-the-books-he-sold.md) (2026-11-14; 9 min read, text only)
+- [Gregory and the Boys in the Market](stories/gregory-and-the-boys-in-the-market.md) (2026-11-14; 11 min read, text only)
 - [Rose and the Hut in the Garden](stories/rose-and-the-hut-in-the-garden.md) (2026-11-14; 10 min read, text only)
 - [Blaise and the Boy with the Fishbone](stories/blaise-and-the-boy-with-the-fishbone.md) (2026-11-13; 9 min read, text only)
 - [Jerome Emiliani and the Children at the Door](stories/jerome-emiliani-and-the-children-at-the-door.md) (2026-11-13; 9 min read, text only)
