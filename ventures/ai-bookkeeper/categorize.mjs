@@ -37,13 +37,43 @@ export function achCompact(desc) {
   return m ? `${m[1]} ${m[2]}`.replace(/\s+/g, " ").trim() : null;
 }
 
-export function payeeTokens(desc) {
+// Some banks glue a phone, store or reference number straight onto the merchant: US Bank writes
+// "WEB AUTHORIZED PMT SPRINT8006396111", others "SQ *CREPELANDIA210" or "707-652-3328ADAPTDMIND".
+// Dropping the whole token left those lines with no payee at all, so nothing was learned from them.
+// A token that is one run of three or more letters and one run of two or more digits, in either
+// order, keeps its letters, but only while no clean payee word has come before it: after the
+// merchant's name the glued tokens are store and city codes ("WALGREENS #1234 CINCINNATI 00CINCINNATI",
+// "MARATHON PETRO13 MONROE6537"), which would split one merchant into one payee per store.
+// Shorter runs, glued dates ("JAN29") and mixed tokens ("2K3", "IBEXHSDFR2", "PB1") are still dropped: on the 63 real US
+// exports (eval/us-bank-exports.mjs) the mixed ones are random references.
+const GLUED = /^(?:([a-z&]{3,})\d{2,}|\d{2,}([a-z&]{3,}))$/;
+// "Pending DEBIT PURCHASE Jan29 05:21p" (a Mint export of a Citi line): a glued date is not a payee.
+const DATE_WORD = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december|mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)$/;
+const keep = (t) => t.length >= 2 && !NOISE.has(t) && !/^x+$/.test(t);
+const tokenize = (desc, glued) => {
   desc = achCompact(desc) ?? desc;
   const s = String(desc ?? "").toLowerCase().replace(/[’']/g, "").replace(/purchase authorized on \d{1,2}\/\d{1,2}/g, " ");
-  return s.split(/[\s,;:#|*_./\\()\[\]-]+/).filter((t) => t && !/\d/.test(t)).map((t) => t.replace(/[^a-z&]+/g, "")).filter((t) => t.length >= 2 && !NOISE.has(t) && !/^x+$/.test(t));
-}
+  const out = [];
+  for (const raw of s.split(/[\s,;:#|*_./\\()\[\]-]+/)) {
+    if (!raw) continue;
+    if (/\d/.test(raw)) {
+      const m = glued && !out.length ? GLUED.exec(raw) : null;
+      const t = m && !DATE_WORD.test(m[1] ?? m[2]) ? m[1] ?? m[2] : "";
+      if (t && keep(t)) out.push(t);
+      continue;
+    }
+    const t = raw.replace(/[^a-z&]+/g, "");
+    if (keep(t)) out.push(t);
+  }
+  return out;
+};
 
+export const payeeTokens = (desc) => tokenize(desc, true);
 export const payeeKey = (desc) => payeeTokens(desc).slice(0, 2).join(" ");
+// The key before 2026-11-14, which dropped glued tokens whole. Books saved then hold memory
+// under it, so a memory miss on the new key tries this one (suggest) before the line counts
+// as a new payee.
+export const legacyPayeeKey = (desc) => tokenize(desc, false).slice(0, 2).join(" ");
 const dir = (cents) => (cents >= 0 ? "in" : "out");
 const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.abs(cents) / 100 + 1)))}`;
 
@@ -546,7 +576,7 @@ export const BUILT_IN = [
   ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|property management|miete\b|loyer\b|alquiler|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
   ["6110", "out", /business licen[cs]e|secretary of|annual report|franchise tax|permit fee/],
-  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest(?!\s+grill)|southwes\s{2,}\d|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta ?air|united ?air|american ?air|southwest(?!\s+grill)|southwes\s{2,}\d|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
   // Real Mint exports (2026-11-10, eval/mint-labelled.mjs, "tune" files only): restaurant words and chains on bank
   // lines, Seamless's glued descriptor ("SEAMLSSTHEMILL"), and the airline rule no longer fires on "Moe's Southwest Grill".
   ["6130", "out", /\bseamle?ss|\bkitchen\b(?!\s*(supply|store|aid|cabinet|collection))|\bgrille\b|\bpub\b|\btavern\b|\bcantina\b|\btrattoria\b|\bpizzeria\b|\bcreperie\b|\bcrepes?\b|\bbarb[ae]c?(ue|que)\b|\bsoup\b|\bsandwich|\bqdoba\b|\bsweetgreen\b|\bcava mezze\b|\bbrioche doree\b|\beurest\b|\bmeatball shop\b|\bburgers?\b(?!\s*king)/],
@@ -887,8 +917,13 @@ export function suggest(txn, model) {
   const d = dir(txn.cents);
   if (!off.has("rule")) for (const r of model.rules ?? []) if (r.re.test(text)) return { account: r.account, confidence: 1, source: "rule", reason: `your rule "${r.text}"`, alternatives: [] };
 
-  const key = payeeKey(txn.desc);
-  const mem = key && !off.has("memory") ? model.memory?.get(`${key}|${d}`) : null;
+  let key = payeeKey(txn.desc);
+  let mem = key && !off.has("memory") ? model.memory?.get(`${key}|${d}`) : null;
+  if (!mem && !off.has("memory")) {
+    const old = legacyPayeeKey(txn.desc);
+    const m = old && old !== key ? model.memory?.get(`${old}|${d}`) : null;
+    if (m) { key = old; mem = m; }
+  }
   if (mem) {
     const total = [...mem.values()].reduce((a, v) => a + v, 0);
     const [account, n] = [...mem].sort((a, b) => b[1] - a[1])[0];
@@ -934,7 +969,8 @@ export function suggest(txn, model) {
   // for measurement. When on it comes just before the new-payee layer, at low confidence.
   const split = !MCC_MEMORY.plurality || off.has("mcc-plurality") ? null : mccPlurality(txn, model, ranked, off, d);
   if (split) return split;
-  if (key && !off.has("new-payee") && model.newPayee && !model.memory?.has(`${key}|in`) && !model.memory?.has(`${key}|out`)) {
+  const seen = (k) => model.memory?.has(`${k}|in`) || model.memory?.has(`${k}|out`);
+  if (key && !off.has("new-payee") && model.newPayee && !seen(key) && !seen(legacyPayeeKey(txn.desc))) {
     const opts = model.newPayeeOpts ?? NEW_PAYEE;
     const g = guessNewPayee(model.newPayee, txn, (a) => model.codes?.has(a) ?? true, opts);
     if (g) {

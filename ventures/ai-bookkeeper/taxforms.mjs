@@ -9,7 +9,7 @@
 
 import { mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
 import { journal } from "./engine.mjs";
-import { payeeKey } from "./categorize.mjs";
+import { payeeKey, legacyPayeeKey } from "./categorize.mjs";
 import { nextBusinessDay } from "./salestaxreturn.mjs";
 import { accountMap, profitAndLoss } from "./ledger.mjs";
 
@@ -181,7 +181,9 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   const byKey = new Map();
   const warnings = [];
   const get = (t) => {
-    const raw = payeeKey(t.desc) || t.desc.toLowerCase();
+    const now = payeeKey(t.desc) || t.desc.toLowerCase(), was = legacyPayeeKey(t.desc) || t.desc.toLowerCase();
+    // A W-9 flag or merge saved before 2026-11-14 sits under the old payee key (glued digits dropped).
+    const raw = !books.vendors?.[now] && books.vendors?.[was] ? was : now;
     const key = books.vendors?.[raw]?.mergeInto ?? raw;
     if (!byKey.has(key)) byKey.set(key, { key, names: new Map(), cents: 0, count: 0, cardCents: 0 });
     const p = byKey.get(key);
