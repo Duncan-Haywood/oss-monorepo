@@ -32,10 +32,10 @@ def readme_ledes():
     text = (RESEARCH / "README.md").read_text()
     ledes = {}
     for slug, lede in re.findall(r"^- \[`research/([\w-]+)`\]\([^)]*\)\s*[—-]+\s*(.+)$", text, re.M):
-        # Escape, then turn `code` spans into <code>.
+        # Escape (keeping the entities authors write, like &minus;), then `code` and *em*.
         lede = lede.strip()
         lede = lede[:1].upper() + lede[1:]
-        ledes[slug] = re.sub(r"`([^`]+)`", r"<code>\1</code>", html.escape(lede, quote=False))
+        ledes[slug] = md_spans(lede)
     return ledes
 
 
@@ -227,13 +227,36 @@ def project_links(slug):
     return links
 
 
+# An HTML entity an author typed (&minus;, &times;, &#8722;) survives escaping as itself, so the
+# page shows "−" rather than the literal text "&minus;" (157 log lines and ledes did, 2026-11-14).
+ENTITY = re.compile(r"&amp;(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});")
+# *em* only around a word: "η*=0.25" or "a*b and c*d" stay as typed.
+EM = re.compile(r"(?<![\w*])\*(?=[^\s*])([^*]*?[^\s*])\*(?![\w*])")
+STRONG = re.compile(r"(?<![\w*])\*\*(?=\S)(.+?)(?<=\S)\*\*(?![\w*])")
+
+
+def md_spans(text, links=False):
+    """Escape (keeping typed entities), then `code`, **bold**, *em* and, with links, [text](url).
+
+    Code spans are set aside first so an asterisk or bracket inside one stays literal."""
+    t = ENTITY.sub(r"&\1;", html.escape(text, quote=False))
+    codes = []
+
+    def keep(m):
+        codes.append(f"<code>{m.group(1)}</code>")
+        return f"\x00{len(codes) - 1}\x00"
+
+    t = re.sub(r"`([^`]+)`", keep, t)
+    t = STRONG.sub(r"<strong>\1</strong>", t)
+    t = EM.sub(r"<em>\1</em>", t)
+    if links:
+        t = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', t)
+    return re.sub(r"\x00(\d+)\x00", lambda m: codes[int(m.group(1))], t)
+
+
 def inline_md(text):
-    """Escape, then the four inline forms a log uses: `code`, **bold**, *em* and [text](url)."""
-    t = html.escape(text, quote=False)
-    t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
-    t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
-    t = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", t)
-    return re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', t)
+    """The four inline forms a log uses: `code`, **bold**, *em* and [text](url)."""
+    return md_spans(text, links=True)
 
 
 def read_log(slug):

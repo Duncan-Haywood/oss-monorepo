@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydmHpX3QXuL6PaW9yA",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T14:39:33Z",
+  "ended": "2026-11-14T14:44:08Z",
+  "wall_minutes": 5.08,
+  "tokens_in": 5664206,
+  "tokens_out": 22011,
+  "cost_usd": 2.2664,
+  "tool_calls": 65,
+  "task": "polish: research pages' double-escaped HTML entities and raw *emphasis* (from item 1 of polish-2026-11-14-footer-link-contrast.md)",
+  "projects": [
+    "research/_homepage"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15883",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "64e567b43"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Started the site build with a trailing '&' inside a run_in_background command, so the harness reported it finished at once while build.mjs kept running detached",
+      "fix": "Checked ps; the build finished on its own. Used research/_homepage/build.py directly (2.5 s) for before/after, which was all this change needed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "'Pick one piece of work' asks for a full build.mjs + screenshots of five surfaces first (3 to 20 min). For a research-page fix, research/_homepage/build.py builds in 2.5 s and old-vs-new could be compared by stashing; a line saying so would save time"
+    },
+    {
+      "file": "platform/ci/test_research_homepage_publish.py",
+      "issue": "Has to be run from platform/ci (python3 -m unittest test_research_homepage_publish); 'python3 -m unittest platform/ci/...' from the repo root fails because 'platform' shadows the stdlib module, and the bare python3 has no pytest"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot the hub, a flagship, the Stories page and a blog post before choosing; the last polish report named a concrete research-page defect, and grepping the built dist turned up a much larger version of it (1,075 hits)",
+      "did": "Measured the defect class across all research output instead, and took element screenshots of before and after",
+      "result": "Found and fixed 1,075 escaped entities on 91 files plus ~125 false italic runs, with a regression test"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-research-pages-printed-minus-as-a-word.md",
+    "docs/reports/polish-2026-11-14-research-entities.md"
+  ],
+  "goal": "impressive sites: research pages read correctly",
+  "notes": "Old vs new research build: escaped entities 1,075 -> 0; <code> 13,591 and external links 5,904 unchanged; <strong> 4,803 -> 4,805; per-page <em>: 128 removed (false runs over formulas), 35 added (ledes). test_research_homepage_publish: 14 OK; on the old builder 1 fail + 3 errors. Post checks: check_post_frontmatter OK, check_post_links 0 broken, post_similarity 0 pairs >= 0.25, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0e55fc05-2f03-5ec8-84a4-2a46787344b8",
+    "transcripts": 1,
+    "first": "2026-11-14T14:39:33Z",
+    "last": "2026-11-14T14:44:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 121,
+        "output": 22011,
+        "thinking": 3541,
+        "cache_read": 5575249,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88836,
+        "api_equivalent_usd": 2.2664,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 121,
+      "output": 22011,
+      "thinking": 3541,
+      "cache_read": 5575249,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88836,
+      "api_equivalent_usd": 2.2664,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 59,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.08,
+      "active_minutes": 5.08,
+      "model_minutes": 3.9,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "find the escaping fault across 1,080 projects, patch the builder, write the test, compare builds, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 132.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

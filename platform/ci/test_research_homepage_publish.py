@@ -154,6 +154,45 @@ class ResearchIndexLengthTest(unittest.TestCase):
         self.assertIn("new URLSearchParams(location.search).get('q')", index)
 
 
+    def test_no_page_shows_an_escaped_entity_or_raw_emphasis(self):
+        # Authors type &minus; and *word* in LOG.md and README ledes; the page must show
+        # "−" and italics, not "&minus;" or literal asterisks (1,075 did before 2026-11-14).
+        bad = re.compile(r"&amp;(#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]*);")
+        hits = [f"{p.relative_to(self.out)}: {m.group(0)}" for p in sorted(self.out.rglob("*.html"))
+                for m in bad.finditer(p.read_text())]
+        self.assertEqual(hits[:5], [], f"{len(hits)} double-escaped entities")
+        page = (self.out / "abstention-scoring" / "index.html").read_text()
+        self.assertNotIn("Eliciting drift *variance*", page)
+
+
+class InlineMarkdownTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("research_homepage_build", BUILD)
+        cls.b = importlib.util.module_from_spec(spec)
+        sys.path.insert(0, str(BUILD.parent))
+        try:
+            spec.loader.exec_module(cls.b)
+        finally:
+            sys.path.remove(str(BUILD.parent))
+
+    def test_entities_survive_and_markup_is_escaped(self):
+        self.assertEqual(self.b.md_spans("r &lt; &minus;0.2 &#8722; <b>"), "r &lt; &minus;0.2 &#8722; &lt;b&gt;")
+        self.assertEqual(self.b.md_spans("AT&T & co"), "AT&amp;T &amp; co")
+
+    def test_emphasis_only_around_words(self):
+        self.assertEqual(self.b.md_spans("drift *variance* here"), "drift <em>variance</em> here")
+        self.assertEqual(self.b.md_spans("(η*=0.25) and 10*32*3"), "(η*=0.25) and 10*32*3")
+        self.assertEqual(self.b.md_spans("a *b and c* d"), "a <em>b and c</em> d")
+        self.assertEqual(self.b.md_spans("at **&mu;* = 0.855** (x)"), "at <strong>&mu;* = 0.855</strong> (x)")
+
+    def test_code_spans_keep_asterisks_and_links_are_opt_in(self):
+        self.assertEqual(self.b.md_spans("`a*b*c` *x*"), "<code>a*b*c</code> <em>x</em>")
+        self.assertEqual(self.b.md_spans("[t](https://e.x)"), "[t](https://e.x)")
+        self.assertEqual(self.b.inline_md("[t](https://e.x)"), '<a href="https://e.x">t</a>')
+
+
 class LogFormatTest(unittest.TestCase):
     """A research LOG.md with no `## <date> · <title>` entry is silently dropped from its project page
     and from the index (2026-11-12: research/marine-colregs fell out that way)."""
