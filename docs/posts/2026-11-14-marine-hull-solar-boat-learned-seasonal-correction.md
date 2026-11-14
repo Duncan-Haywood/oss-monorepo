@@ -3,7 +3,7 @@ title: "A solar boat that remembers last years' sun matches the oracle"
 seo_title: "Learned seasonal sun-forecast correction for solar USV energy"
 date: 2026-11-14
 tags: [research, marine-hull]
-description: "Scaling the sun climatology by the boat's own month-by-month harvest ratio from five earlier years lifts a solar boat's battery rule from 104 to 120 of 128 cases, level with an oracle."
+description: "A solar boat that scales its sun climatology by its own monthly harvest ratio from earlier years wins 120 of 128 cases, level with an oracle."
 ---
 
 The [last step](2026-11-14-marine-hull-solar-boat-seasonal-forecast-error.md) left a gap. A solar boat plans each day's speed from the average sun for that day of the year (the climatology) and its own recent harvest. It picks its battery feedback time from a 90-day ratio of harvest to climatology. When the climatology was wrong both on average and by season, that self-tuning rule beat the plain 7-day rule in 104 of 128 cases. An oracle told each day's bias won 120. The last step also measured the real seasonal error of a ten-year NASA POWER climatology. It was small at most points but 4.5 to 8.5% above 50 degrees latitude.
