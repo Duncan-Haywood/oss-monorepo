@@ -263,9 +263,12 @@ flagships:
       lensfun's ranged lenses alone); Olympus's Equipment IFD (3 layouts, ORF magic,
       its lens name as tie-break) since 2026-11-14
       (eval/olympus-equipment-2026-11-14.md: 8 real frames identified, each as
-      metadata-extractor names it); next: DNGPrivateData MakN for converted DNGs'
-      maker notes, Pentax lens numbers; the whole numpy develop runs in threaded
-      bands and packed raws unpack in numpy since 2026-11-13
+      metadata-extractor names it); converted DNGs' maker notes from DNGPrivateData
+      MakN (Canon, Nikon, Olympus) since 2026-11-14
+      (eval/dng-maker-note-2026-11-14.md: ExifTool's real 350D DNG read as ExifTool
+      decodes it); next: Pentax lens numbers and its 'PENTAX' private data, a real
+      converted Nikon or Olympus DNG; the whole numpy develop runs in threaded bands
+      and packed raws unpack in numpy since 2026-11-13
       (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
       band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0

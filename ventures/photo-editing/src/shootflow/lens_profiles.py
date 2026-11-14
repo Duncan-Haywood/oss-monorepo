@@ -1097,10 +1097,115 @@ def spec_hint(ifd0, exif) -> LensHint | None:
         v = ifd.get(tag) if ifd is not None else None
         if not v or len(v) < 4:
             continue
-        hint = _four_values_hint(v, f"file's {label}")
-        if hint is not None:
-            return hint
-    return _nikon_lens_hint(exif) or _olympus_lens_hint(exif)
+        tag_hint = _four_values_hint(v, f"file's {label}")
+        if tag_hint is not None:
+            break
+    else:
+        tag_hint = None
+    if tag_hint is not None and tag_hint.marked:
+        return tag_hint
+    maker = _maker_note_hint(exif)
+    if maker is None:
+        note = dng_maker_note(ifd0)
+        maker = _maker_note_hint(note, ifd0, "converted DNG's ") if note is not None else None
+    if tag_hint is None:
+        return maker
+    # A tag with the range but no f-numbers ("18-55mm f/?", as Adobe DNG Converter writes LensInfo for some
+    # bodies): the maker note, when it gives the same range, adds the apertures (and Olympus's lens name).
+    if maker is not None and abs(maker.short - tag_hint.short) < 0.5 and abs(maker.long - tag_hint.long) < 0.5:
+        return maker
+    return tag_hint
+
+
+def _maker_note_hint(exif, ifd0=None, prefix: str = "") -> LensHint | None:
+    """The lens hint from whichever maker note ``exif`` holds: Nikon type 3, Olympus Equipment or (with
+    ``ifd0`` naming Canon as the make) Canon CameraSettings."""
+
+    hint = _nikon_lens_hint(exif) or _olympus_lens_hint(exif)
+    if hint is None and ifd0 is not None and (_ascii(ifd0, TAG_MAKE) or "").lower().startswith("canon"):
+        hint = _canon_note_hint(exif)
+    if hint is not None and prefix:
+        hint = hint._replace(source=prefix + hint.source)
+    return hint
+
+
+TAG_DNG_PRIVATE_DATA = 50740  # DNG spec 1.7.1.0, "DNGPrivateData": a null-terminated maker string, then private
+
+
+def dng_maker_note(ifd0):
+    """The camera's own maker note that Adobe DNG Converter keeps in a DNG's DNGPrivateData, as an EXIF-like
+    Ifd holding only the MakerNote tag, or None.
+
+    The DNG spec fixes only that the block starts with a null-terminated maker string. Adobe's ("Adobe\0")
+    is a run of records, each a four-letter name and a big-endian byte count; "MakN" holds the original
+    file's byte order (2 bytes), the big-endian offset the note sat at in the original file, then the note
+    (the layout ExifTool's DNG.pm reads, ProcessAdobeData and ProcessAdobeMakN). Canon and old-style Olympus
+    notes count their offsets from the original file's TIFF header, so the Ifd's ``source`` is that header in
+    the original byte order, zeros up to the original offset, then the note: those offsets land in the note
+    again, and ``offsets[MakerNote]`` is where it starts. Nikon type 3 and new-style Olympus notes carry their
+    own byte order and offsets, which the readers already use. Values the converter did not copy (data the
+    original note pointed to outside its own block, as ExifTool warns for Olympus and Sony) stay unreadable.
+    """
+
+    from shootflow.raw_develop import Ifd
+
+    raw = ifd0.get(TAG_DNG_PRIVATE_DATA) if ifd0 is not None else None
+    if not raw or len(raw) < 20:
+        return None
+    data = bytes(raw)
+    if not data.startswith(b"Adobe\0"):
+        return None
+    pos, block = 6, None
+    while pos + 8 <= len(data):
+        name, size = struct.unpack_from(">4sI", data, pos)
+        pos += 8
+        if pos + size > len(data):
+            return None
+        if name == b"MakN":
+            block = data[pos:pos + size]
+            break
+        pos += size
+    if block is None or len(block) < 8 or block[:2] not in (b"II", b"MM"):
+        return None
+    order = block[:2]
+    end = "<" if order == b"II" else ">"
+    original = struct.unpack_from(">I", block, 2)[0]
+    note = block[6:]
+    if note[:4] == b"\0\0\0\x01" and len(note) > 12:
+        # Camera Raw's DNGs made from camera JPEGs copy the note from 12 bytes too early (ExifTool's
+        # ProcessAdobeMakN, "still exists in Camera Raw 14.3"): skip them, as ExifTool does.
+        note = note[12:]
+    ifd = Ifd(entries={TAG_MAKER_NOTE: tuple(note)}, byte_order=end)
+    if 8 <= original <= MAX_MAKN_ORIGINAL_OFFSET:
+        header = order + struct.pack(end + "HI", 42, 8)
+        ifd.source = header + bytes(original - len(header)) + note
+        ifd.offsets[TAG_MAKER_NOTE] = original
+    return ifd
+
+
+# The zeros put in front of a relocated note cost memory; maker notes sit in a raw file's first few hundred kB.
+MAX_MAKN_ORIGINAL_OFFSET = 1 << 26
+
+
+def _canon_note_hint(exif) -> LensHint | None:
+    """Canon's CameraSettings hint (``cr2.hint_from_note``) from a relocated note (``dng_maker_note``)."""
+
+    from shootflow import cr2
+    from shootflow.raw_develop import DevelopError, _Reader
+
+    at = getattr(exif, "offsets", {}).get(TAG_MAKER_NOTE) if exif is not None else None
+    source = getattr(exif, "source", None) if exif is not None else None
+    if at is None or source is None:
+        return None
+    try:
+        note, _ = _Reader(source).read_ifd(at)
+    except (DevelopError, struct.error, IndexError, ValueError, OverflowError):
+        return None
+    hint = cr2.hint_from_note(note)
+    if hint is None:
+        return None
+    name = bytes(note.get(cr2.TAG_CANON_LENS_MODEL) or b"").split(b"\0", 1)[0].decode("latin-1").strip()
+    return hint._replace(source="Canon maker note's CameraSettings", name=name or None)
 
 
 def _four_values_hint(v, source: str) -> LensHint | None:
