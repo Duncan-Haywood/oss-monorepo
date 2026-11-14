@@ -1,0 +1,86 @@
+# Milestone 11q: headline rules re-scored on a pooled 5 x 200,000-flight reference; 11g's 24 layouts.
+# Ratios are to the closed form's split; 200k = 11g's single scoring run (seed 8000 + layout); ref = pooled over five new runs (seeds 70000 + 1000 k + layout) with a 95% t half-width over per-run ratios.
+
+## Rule means: 11g's 200k run against the 1M reference
+rule                   200k mean  ref mean    diff  200k w5%  ref w5%  ref max  sig>1  sig<1
+gas_pj                    1.0331    1.0312 -0.0019    18/24    19/24    1.240      5      0
+gas_d                     1.0007    1.0000 -0.0007    24/24    24/24    1.012      0      0
+stable(share)             1.0088    1.0056 -0.0032    22/24    23/24    1.054      1      0
+stable2(influence)        1.0042    1.0017 -0.0025    23/24    24/24    1.025      0      0
+best200k                  0.9975    1.0023 +0.0048    24/24    24/24    1.021      1      0
+sim20k                    1.0089    1.0093 +0.0004    69/72    68/72    1.148      -      -
+sim100k                   1.0031    1.0026 -0.0005    71/72    72/72    1.031      -      -
+g5 guardall(share)        1.0025    1.0017 -0.0008    72/72    72/72    1.027      -      -
+halfbest (runs 2-4)            -    1.0015       -         -    24/24    1.023
+mean kept en-route conflicts of cf's split per 200,000-flight reference run: 2170
+
+## Per layout: ratio 200k -> ref +- 95% half-width ('=' when the rule picks cf's split)
+idx                    gas_pj                     gas_d             stable(share)        stable2(influence)                  best200k                  halfbest
+  0     1.213 -> 1.240+-0.071                         =     0.997 -> 1.007+-0.018     0.997 -> 1.007+-0.018     0.997 -> 1.007+-0.018                         =
+  1                         =                         =                         =                         =                         =                         =
+  2     1.021 -> 1.012+-0.034     1.021 -> 1.012+-0.034     1.021 -> 1.012+-0.034     1.021 -> 1.012+-0.034                         =          ref 1.023+-0.073
+  3     1.184 -> 1.182+-0.017                         =     1.002 -> 1.000+-0.001                         =     0.979 -> 1.008+-0.019                         =
+  4     0.998 -> 1.005+-0.006                         =                         =                         =     0.998 -> 1.005+-0.006                         =
+  5     1.077 -> 1.097+-0.026     0.995 -> 0.995+-0.006     0.995 -> 0.995+-0.006     0.995 -> 0.995+-0.006     0.995 -> 0.995+-0.006          ref 0.992+-0.002
+  6     0.985 -> 1.021+-0.026                         =     0.985 -> 1.021+-0.026                         =     0.985 -> 1.021+-0.026                         =
+  7                         =                         =                         =                         =                         =                         =
+  8                         =                         =                         =                         =                         =                         =
+  9                         =                         =                         =                         =     0.992 -> 1.009+-0.019                         =
+ 10                         =                         =                         =                         =                         =                         =
+ 11                         =                         =                         =                         =                         =                         =
+ 12     1.021 -> 1.017+-0.018                         =     1.021 -> 1.017+-0.018                         =                         =                         =
+ 13     0.999 -> 1.000+-0.003     0.999 -> 1.000+-0.003     0.999 -> 1.000+-0.003     0.999 -> 1.000+-0.003     0.996 -> 1.009+-0.004          ref 1.014+-0.019
+ 14                         =                         =                         =                         =                         =                         =
+ 15                         =                         =                         =                         =                         =                         =
+ 16     1.061 -> 1.022+-0.033                         =     1.067 -> 1.025+-0.026     1.067 -> 1.025+-0.026                         =                         =
+ 17     1.103 -> 1.054+-0.013                         =     1.103 -> 1.054+-0.013                         =                         =                         =
+ 18                         =                         =                         =                         =                         =                         =
+ 19     1.087 -> 1.072+-0.045                         =                         =                         =                         =                         =
+ 20                         =                         =                         =                         =                         =                         =
+ 21                         =                         =                         =                         =                         =                         =
+ 22     1.045 -> 1.027+-0.028                         =                         =                         =                         =                         =
+ 23                         =     1.001 -> 0.993+-0.034     1.023 -> 1.002+-0.047     1.023 -> 1.002+-0.047                         =          ref 1.006+-0.130
+
+## Per layout, replicated rules (ref ratio per replicate)
+  0  sim20k 1.000 1.007 1.000  sim100k 1.000 1.007 1.000  g5 guardall(share) 1.000 1.007 1.000
+  1  sim20k 1.000 1.000 1.148  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+  2  sim20k 1.012 1.000 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.012 1.012 1.012
+  3  sim20k 1.000 1.000 1.012  sim100k 1.008 1.000 1.000  g5 guardall(share) 1.009 1.000 1.000
+  4  sim20k 1.005 1.000 1.010  sim100k 1.005 1.000 1.015  g5 guardall(share) 1.005 1.000 1.005
+  5  sim20k 0.995 0.995 1.058  sim100k 0.995 0.995 0.995  g5 guardall(share) 0.995 0.995 0.995
+  6  sim20k 1.000 1.065 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+  7  sim20k 1.000 1.000 1.000  sim100k 1.000 1.000 1.009  g5 guardall(share) 1.000 1.000 1.000
+  8  sim20k 1.000 1.000 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+  9  sim20k 1.000 1.009 1.058  sim100k 1.000 1.000 1.009  g5 guardall(share) 1.000 1.000 1.000
+ 10  sim20k 1.013 1.000 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 11  sim20k 1.000 1.031 1.000  sim100k 1.000 1.031 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 12  sim20k 1.017 1.000 1.000  sim100k 1.000 1.017 1.000  g5 guardall(share) 1.000 1.017 1.000
+ 13  sim20k 1.009 1.005 1.008  sim100k 1.009 1.005 1.005  g5 guardall(share) 1.000 1.005 1.005
+ 14  sim20k 1.025 1.029 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 15  sim20k 1.000 1.013 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 16  sim20k 1.005 1.031 1.022  sim100k 1.029 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 17  sim20k 1.000 1.000 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 18  sim20k 1.001 1.001 1.001  sim100k 1.001 1.000 1.001  g5 guardall(share) 1.000 1.000 1.000
+ 19  sim20k 1.000 1.000 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 20  sim20k 1.000 1.000 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 21  sim20k 1.000 1.000 1.000  sim100k 1.000 1.000 1.000  g5 guardall(share) 1.000 1.000 1.000
+ 22  sim20k 1.035 1.027 1.027  sim100k 1.000 1.027 1.027  g5 guardall(share) 1.000 1.027 1.027
+ 23  sim20k 1.002 0.993 1.000  sim100k 1.000 0.993 1.000  g5 guardall(share) 1.000 0.993 1.000
+
+## Sign tests on the reference (per layout, two-sided, ties dropped)
+gas_d vs stable2(influence): better in 3, worse in 0, p = 0.250
+stable2(influence) vs stable(share): better in 4, worse in 0, p = 0.125
+stable(share) vs gas_pj: better in 6, worse in 2, p = 0.289
+gas_d vs best200k: better in 7, worse in 1, p = 0.070
+
+## Prediction checks
+(1) |ref - 200k| <= 0.005: gas_pj 0.0019, gas_d 0.0007, stable(share) 0.0032, stable2(influence) 0.0025: True
+(2) gas_d 1.0000 <= stable2(influence) 1.0017 <= stable(share) 1.0056 <= gas_pj 1.0312: True
+(3) layout 22 gas_pj ref 1.0274 in [1.005, 1.035]: True
+(4) layouts 16, 17 stable(share) 1.025+-0.026, 1.054+-0.013: False
+(5) best200k 200k 0.9975 vs ref 1.0023, gap 0.0048 >= 0.01: False
+(6) gas_d interval contains or lies below 1 in 24/24 >= 20: True
+(7) median half-width over 10 layouts where stable(share) != cf: 0.0177 in [0.005, 0.03]: True
+(8) halfbest < 0.98 in 0/24 <= 4: True
+
+# runtime 179 s
