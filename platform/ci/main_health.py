@@ -14,6 +14,18 @@ A check that times out in the parallel pass is re-run once alone before it
 counts as red, and its line says TIME, not FAIL: run beside a full venture-suite
 run (load ~34 on 4 cores), check_js_syntax.py hit the 300 s cap and read like a
 real red check (run record 2026-11-11T22:23).
+
+It also runs each platform/ci/test_*.py file (`python -m unittest <file>` from
+platform/ci, one job per file; `--checks-only` skips them). Those tests run in CI
+only on the workflows whose path filters name the module, so a change elsewhere
+can leave one red on main unseen: #15891 renamed `unwired_checks.run_all` and
+test_run_venture_tests.py stayed red until #15894 while this script printed 73/73
+(run record 2026-11-14T08:57, P067). All 133 files pass alone in about 187 s of
+serial time; with them the whole script took 72 s on an idle 4-core container
+(206/206 green, 2026-11-14). One
+`unittest discover` over the folder is not used: it also descends into
+agent_review/, whose test_review.py imports `review` from its own folder and fails
+that way (it has its own workflow), so it reports 1 error that is not a fault.
 """
 import subprocess
 import sys
@@ -42,10 +54,23 @@ TIMED_OUT = 124
 TIMEOUT = 300
 
 
+def is_test(path):
+    return Path(path).parent.resolve() == HERE and Path(path).name.startswith("test_")
+
+
+def command(path, *args):
+    """(argv, cwd) for one job: a unit-test file runs under unittest from platform/ci,
+    as its CI workflow does (`python3 -m unittest platform/ci/...` from the root fails:
+    `platform` shadows the stdlib module)."""
+    if is_test(path):
+        return [sys.executable, "-m", "unittest", Path(path).stem], HERE
+    return [sys.executable, str(path), *args], ROOT
+
+
 def run(path, *args, timeout=TIMEOUT):
+    argv, cwd = command(path, *args)
     try:
-        r = subprocess.run([sys.executable, str(path), *args], cwd=ROOT, capture_output=True,
-                           text=True, timeout=timeout)
+        r = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, timeout=timeout)
         return label(path), r.returncode, (r.stdout + r.stderr).strip()
     except subprocess.TimeoutExpired:
         return label(path), TIMED_OUT, f"timed out after {timeout} s"
@@ -73,12 +98,19 @@ def rerun_timeouts(jobs, results, runner=run):
     return out
 
 
-def main():
+def main(argv=None):
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--checks-only", action="store_true",
+                    help="skip the platform/ci/test_*.py unit-test files")
+    opts = ap.parse_args(argv)
     site = (ROOT / "_site").is_dir()
     checks = [p for p in sorted(HERE.glob("check_*.py"))
               if p.name not in NEEDS_SITE or (site and p.name == "check_built_site.py")]
     jobs = [(p,) for p in checks] + [(ROOT / "prompts" / "promptctl.py", "validate")] \
         + [(ROOT / p, *a) for p, *a in EXTRA]
+    if not opts.checks_only:
+        jobs += [(p,) for p in sorted(HERE.glob("test_*.py"))]
     with ThreadPoolExecutor(max_workers=6) as pool:
         futures = [pool.submit(run, *j) for j in jobs]
         results = []
@@ -90,7 +122,9 @@ def main():
     bad = [r for r in results if r[1] != 0]
     for name, rc, out in bad:
         print(f"{status(rc)} {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
-    print(f"{len(results) - len(bad)}/{len(results)} checks pass")
+    tests = sum(1 for j in jobs if is_test(j[0]))
+    print(f"{len(results) - len(bad)}/{len(results)} checks pass"
+          + (f" ({len(jobs) - tests} checks, {tests} platform/ci test files)" if tests else ""))
     print("DONE", flush=True)
     return 1 if bad else 0
 

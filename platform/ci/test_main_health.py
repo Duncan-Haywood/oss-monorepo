@@ -37,5 +37,22 @@ class RerunTimeouts(unittest.TestCase):
         self.assertEqual(mh.status(0).strip(), "ok")
 
 
+class UnitTestJobs(unittest.TestCase):
+    def test_test_file_runs_under_unittest_from_platform_ci(self):
+        argv, cwd = mh.command(mh.HERE / "test_main_health.py")
+        self.assertEqual(argv[1:], ["-m", "unittest", "test_main_health"])
+        self.assertEqual(cwd, mh.HERE)
+
+    def test_check_runs_as_a_script_from_the_root(self):
+        argv, cwd = mh.command(mh.HERE / "check_x.py", "--flag")
+        self.assertEqual(argv[1:], [str(mh.HERE / "check_x.py"), "--flag"])
+        self.assertEqual(cwd, mh.ROOT)
+
+    def test_only_platform_ci_tests_count(self):
+        self.assertTrue(mh.is_test(mh.HERE / "test_a.py"))
+        self.assertFalse(mh.is_test(mh.ROOT / "prompts" / "test_promptctl.py"))
+        self.assertFalse(mh.is_test(mh.HERE / "check_a.py"))
+
+
 if __name__ == "__main__":
     unittest.main()
