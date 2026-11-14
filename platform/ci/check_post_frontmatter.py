@@ -16,6 +16,13 @@ false `datePublished`) and that `tags` is a non-empty list.
 Named posts are checked alone, and the cross-post checks (tag spellings,
 shared descriptions) report only groups that include one of them. Runs kept
 passing a file and getting a usage error (two friction reports, 2026-11-10).
+
+Agent reports in docs/reports/ get `doc_index.py`'s front-matter check here
+too (every report when no post is named; a named docs/reports/ file alone).
+That check ran in no workflow a research or docs PR triggers, so 43 of the
+131 reports added to main from 2026-11-07 to 2026-11-14 arrived without
+`kind` and main_health stayed red until a later run backfilled them. This
+script already runs on every PR that carries a post, which most do.
 """
 import argparse
 import datetime
@@ -184,6 +191,20 @@ def landed_broken(since, ref="origin/main", root=ROOT):
     return out
 
 
+def report_problems(root, names=None):
+    """doc_index's front-matter problems for docs/reports/ (all, or just `names`); [] when it cannot run."""
+    try:
+        import doc_index  # beside this file; absent when prompts' tests copy this file alone
+        tax, slugs = doc_index.load_taxonomy(root), doc_index.project_slugs(root)
+    except (ImportError, OSError, ValueError, KeyError):
+        return []
+    files = [Path(n) for n in names] if names is not None else doc_index.report_files(root)
+    out = []
+    for f in files:
+        out += doc_index.report_problems(root, f, tax, slugs)
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
@@ -203,17 +224,20 @@ def main(argv=None):
         return 0
     bad, own = 0, False
     texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
-    named = set()
+    named, reports = set(), []
     for p in args.posts:
         f = Path(p)
         if not f.is_file():
             print(f"{p}: no such file")
             bad += 1
             continue
+        if f.resolve().parent.name == "reports" and f.resolve().parent.parent.name == "docs":
+            reports.append(f.resolve())
+            continue
         texts[f.name] = f.read_text(encoding="utf-8")
         named.add(f.name)
     for name, text in texts.items():
-        if named and name not in named:
+        if args.posts and name not in named:
             continue
         for p in problems(name, text):
             print(f"{name}: {p}")
@@ -225,7 +249,7 @@ def main(argv=None):
         own_tags |= {t.strip().strip("\"'") for t in (m.group(1).split(",") if m else [])}
     for spellings in tag_uses(texts).values():
         group = sorted(spellings)
-        if len(group) < 2 or (named and not own_tags & set(group)):
+        if len(group) < 2 or (args.posts and not own_tags & set(group)):
             continue
         print(f"tag spelled {len(group)} ways: {', '.join(group)}; pick one")
         fix = tag_fix(spellings)
@@ -233,9 +257,12 @@ def main(argv=None):
             print(fix)
         bad += 1
     for group in duplicate_descriptions(texts):
-        if named and not named & set(group):
+        if args.posts and not named & set(group):
             continue
         print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
+        bad += 1
+    for line in report_problems(Path(args.root), reports if args.posts else None):
+        print(line)
         bad += 1
     if own:  # a post's own field failed: show every cap, so one rewrite fixes them all
         print(limits_line())

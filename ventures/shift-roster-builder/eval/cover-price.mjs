@@ -12,7 +12,7 @@
 // it plays the same seeded weeks of call-outs as eval/steady-for-callouts.mjs (5pm notice, started shifts pinned, kept
 // reissues) against the priced roster and against the default one, and reports the open hours the week's events add.
 // Arithmetic on invented teams with rates from one real file (eval/real-rate-week.mjs header).
-//   node eval/cover-price.mjs [seeds=20]   SETS=cafe,spare,salon,retail,clinic  PRICES=0,25,50,100,200,400  CALL=0.01,0.084  EXTRA=0
+//   node eval/cover-price.mjs [seeds=20]   SETS=cafe,spare,salon,retail,clinic  PRICES=0,25,50,100,200,400  CALL=0.01,0.084  EXTRA=0  PAIR=<$>
 import { parseStaff, parseShifts, buildRoster, calloutExposure, coverSlackText } from "../calc.mjs";
 import { drawWeek, sets } from "./real-rate-week.mjs";
 import { playFrom } from "./steady-for-callouts.mjs";
@@ -32,7 +32,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const built = [];
     for (const price of prices) {
       const t0 = Date.now();
-      const r = buildRoster(staff, slots, { ...BASE, coverPrice: price });
+      // PAIR=<$> (2026-11-14) also prices second call-outs (coverPairPrice) on every priced build.
+      const r = buildRoster(staff, slots, { ...BASE, coverPrice: price, ...(price > 0 && process.env.PAIR ? { coverPairPrice: Number(process.env.PAIR) } : {}) });
       const x = calloutExposure(staff, slots, r, BASE);
       const cs = r.coverSlack;
       built.push({ price, r, exposure: x.exposure });

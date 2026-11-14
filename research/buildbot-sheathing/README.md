@@ -313,6 +313,22 @@ average and 9–11% at the 99th percentile under every anchorage model.
 
 ![Decayed walls' share kept against end-nail strength with and without the rods' shear path; best-fit end-nail strength against the rod's shear capacity](experiments/m18_holddown_shear/figure.png)
 
+**Milestone 19: does slack in the anchor rod's hole, or a stud joint that peaks early, explain why a decayed
+shear wall loses two thirds of its strength? No.** Milestones 17 and 18 were rigid-plastic. Here the same
+8 by 8 ft wall is a displacement model pushed to 150 mm: each sheathing nail follows a tested load-slip curve,
+the 16d stud-to-plate joints soften too, and each anchor rod bears only after a gap (NDS stiffness, capped at
+its design value). It reproduces the rigid-plastic limit to **0.04%** and milestone 16's sheet exactly with the
+pins on the nail lines. Softening alone moves the decayed walls by under a point (79.5% and 72.8% kept at
+code-strength joints). Opening the gap to 1/16 in moves them by **0.1 point**, and even 1/4 in with joints that
+peak at a quarter of the nails' slip leaves the 3 in wall at **52–63%** kept against 34% tested. Across 960
+pushovers no joint strength at 0.75 of the NDS ratio or above comes within 10 points of both tested groups.
+The 30 fits within 5 points all have the end nails at **a quarter of the NDS ratio**, which is milestone 18's
+rigid-plastic answer found again by a different model. So the remaining explanations are weak end-nail joints
+or what a monotonic model leaves out (cyclic tear-out, the middle stud splitting), and a tested end-nail ultimate
+is the input that would decide it.
+
+![Decayed 3-12 wall's share kept against slack at the rods for four end-nail strengths; both decayed walls' shares against end-nail strength](experiments/m19_wall_pushover/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -737,6 +753,24 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   controls imply.
 - **Checks.** s = 0 equals milestone 17 exactly; capacity is monotone in s; a rigid path blocks the whole-wall
   slide (`tests/test_wall_lp.py`).
+
+## Milestone 19 method (`src/buildbot_sheathing/wall_push.py`)
+- **Question.** Milestones 17 and 18 are rigid-plastic, so every fastener carries its capacity at once and nothing
+  has slack. Does slack in the anchor rods' holes, or stud-to-plate joints that peak at a different slip from the
+  sheathing nails, explain Weiss's decayed walls?
+- **Model.** Milestone 17's bodies (sill fixed; top plate pushed along the wall without rotating; seven studs,
+  two sheets; small rigid motions) joined by springs: milestone 16's sourced 8d backbone along each sheathing
+  nail's slip; each 16d end-nail joint a 1-D backbone along the wall, peak m × 1.297 Fp a nail and slip scale λ
+  (same shape as the sheathing nail, since no tested end-nail curve was found); stiff one-sided bearing and
+  stiff ties at the held-down end-stud bottoms (10⁵ times a nail's initial stiffness); at each held-down
+  bottom an anchor rod that carries nothing over a gap g, then the NDS load/slip modulus for a dowel with a
+  steel side member (2 × 270,000 D^1.5 lb/in = 46.7 kN/mm at D = 5/8 in) up to a cap c Fp. Pushed to 150 mm in
+  0.5 mm steps; at each step a damped Newton finds the least-energy state from the last one; the load is dE/dD.
+- **Grid.** m 0.25, 0.47, 0.75, 1.0; λ 0.25, 0.5, 1; g 0, 1/32, 1/16, 1/8, 1/4 in; c 2.55 and 5.1 F (the rod's
+  design value and twice it); δp 6 and 12 mm; both schedules, intact and decayed: 960 pushovers.
+- **Checks.** Elastic-perfectly-plastic springs reach the wall LP's capacity (H87, 16 cases); with pins on the
+  edge-nail lines one sheet reproduces milestone 16's pushover exactly; energy gradient against finite
+  differences; the rod's gap carries nothing; more slack never adds strength (`tests/test_wall_push.py`).
 
 ## Reproduce
 ```bash
@@ -1188,7 +1222,31 @@ python paper/check_numbers.py                                # every number the 
 - **Escaped misses** (first 2,000 walls): 2.74% mean, 10.77% p99 in milestone 17's model; 2.13% and 9.02%
   with a rigid path at the 0.17 fit.
 
+## Milestone 19 results (`experiments/m19_wall_pushover/results.txt`)
+
+- **Code checks.** H87 held: elastic-perfectly-plastic springs reach the LP capacity within 0.044% in all 16
+  cases. H88 refuted as registered: on milestone 15's studs the pushover is 1.2–1.3% stiffer than milestone 16,
+  because a rigid stud pinned on its centre line also moves the edge nails 3/8 in off that line vertically; with
+  the pins on the nail lines the two agree to 1e-7.
+- **Softening alone** (H89 held): at code-strength joints and the rod's design value, 79.5% and 72.8% kept,
+  against the LP's 79.5% and 73.5%.
+- **Slack** (H90 held): 1/16 in moves the decayed shares by 0.1 point at the 0.47 joints. The most any gap up to
+  1/4 in moves the 3 in wall is about 9 points, and only with joints that peak early.
+- **Joints that peak at a quarter of the nails' slip** (H91 refuted): the decayed 3 in wall keeps 71.3% (6 in: 79.6%).
+- **Near-code fit** (H92 refuted): no grid point with m ≥ 0.75 is within 10 points of both tested shares; the
+  closest keeps 78.0% and 52.0% (rms 19.9 points).
+- **Post hoc fit.** 30 grid points are within 5 points rms, all at m = 0.25. The best: 57.8% and 32.5% kept
+  (tested 56.5% and 33.9%), decay ratio 1.05 (tested 1.12), intact 3-12 over 6-12 1.87 (tested 1.87); there 56% of
+  the sheathing nails' energy is on the double end studs and 26% on the middle stud.
+- **Numerics.** Every pushover settled to 1e-7 Fp up to its peak; after the peak some walls snap and Newton
+  cannot settle every step (largest residual 3.6e2 Fp), which does not affect the peaks. The median share of nails
+  whose slip fell before the peak is 0% (90th percentile 5.2%; in a few runs the peak came after a snap).
+
 ## Limitations
+- **The wall pushover (milestone 19).** Monotonic and path-independent (unloading reads back down the backbone),
+  against cyclic tests; the end-nail joint's curve borrows the sheathing nail's shape, with its strength and slip
+  scale swept, not measured; rigid studs and sheets; the rod stiffness is a design modulus; ties and bearing are
+  stiff penalties, not the HTT4's measured stiffness.
 - **The rods' shear path (milestone 18).** A design equation, not a tested ultimate, engaged with no slack;
   the steel side member's thickness is swept, not read; the same rigid-plastic, monotonic model as
   milestone 17, so slip in an oversized rod hole and cyclic tear-out are outside it.
@@ -1311,7 +1369,11 @@ NDS ratio fit both tested groups, because the decayed wall slides on its sill. T
 ultimate for 16d end-nailed stud-to-plate joints (to check the 0.47 independently) and the shear the
 hold-downs and anchor bolts carry. Milestone 18 added the rods' shear path: it stops the slide below the
 rod's design value, and then no end-nail strength fits the 3 in wall, so the next model is a displacement-based
-wall with slack at the rods (milestone 16's nail springs), checked against a tested end-nail ultimate. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+wall with slack at the rods (milestone 16's nail springs), checked against a tested end-nail ultimate.
+Milestone 19 built that wall: neither slack nor early-peaking joints explain the 3 in wall, and every fit needs
+end nails at about a quarter of the NDS ratio. Next: a tested ultimate and load-slip curve for 16d end-nailed
+stud-to-plate joints (the one input every fit now hinges on), and a cyclic loading protocol (CUREE) with
+pinching and strength degradation, since Weiss's tests were cyclic. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
