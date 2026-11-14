@@ -242,3 +242,62 @@ test("BR-053..BR-057: CST and cClassTrib against the classification table", asyn
   const r = ct(rswap("<CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", `<CST>${ended[1].cst}</CST><cClassTrib>${ended[0]}</cClassTrib><gIBSCBS><vBC>260`));
   assert.ok(r.includes("BR-055"), r.join());
 });
+
+test("BR-058..BR-061: the presumed credit against the cCredPres table and NT 2025.002 UB120-UB130", async () => {
+  const { TABLE, CODES } = await import("./ccredpres-data.mjs");
+  assert.equal(TABLE.codes, 13);
+  assert.equal(TABLE.version, "1.70");
+  // the table as IT 2025.002 1.70 states it: 01 and 03 by event only since 1.70, 02 since 1.21
+  assert.deepEqual(["01", "02", "03"].map((c) => CODES[c].inDoc), [false, false, false]);
+  assert.deepEqual(["05", "06", "10", "13"].map((c) => [CODES[c].ibs, CODES[c].cbs]), [[false, true], [false, true], [false, true], [false, true]]);
+  assert.deepEqual(["07", "08", "09", "11", "12"].map((c) => [CODES[c].ibs, CODES[c].cbs]), Array(5).fill([true, false]));
+  const cp = (rules) => rules.filter((r) => /^BR-0(5[6-9]|6[01])$/.test(r));
+  const fs = (t) => checkNfe(t).findings.filter((f) => /^BR-0(5[6-9]|6[01])$/.test(f.rule));
+  // a CST 000 cClassTrib that takes a presumed credit (000003, the automotive regime)
+  const { CODES: CT } = await import("./cclasstrib-data.mjs");
+  const withCred = Object.entries(CT).find(([, c]) => c.credPres && c.nfe && c.cst === "000")[0];
+  const g = (name, v, extra = "") => `<g${name}CredPres><pCredPres>1.0000</pCredPres>${extra || `<vCredPres>${v}</vCredPres>`}</g${name}CredPres>`;
+  const item = (code, ibs, cbs, cct = withCred) => rswap("<cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260.00</vBC>", `<cClassTrib>${cct}</cClassTrib><gIBSCBS><vBC>260.00</vBC>`)
+    .replace("<vCBS>2.34</vCBS></gCBS></gIBSCBS></IBSCBS>", `<vCBS>2.34</vCBS></gCBS></gIBSCBS><gCredPresOper><vBCCredPres>255.00</vBCCredPres><cCredPres>${code}</cCredPres>${ibs}${cbs}</gCredPresOper></IBSCBS>`);
+  // 05 (automotive, CBS only, in the document) on its own cClassTrib: only the 2027 start warning
+  const ok = fs(item("05", "", g("CBS", "2.55")));
+  assert.deepEqual(ok.map((f) => [f.rule, f.severity]), [["BR-061", "warning"]]);
+  assert.match(ok[0].message, /starts the CBS presumed credit of cCredPres 05 on 2027-01-01/);
+  // dated 2027: clean
+  const in2027 = (t) => t.replace("<dhEmi>2026-11-12", "<dhEmi>2027-02-01");
+  assert.deepEqual(fs(in2027(item("05", "", g("CBS", "2.55")))), []);
+  // unknown code (1055), IBS group on a CBS-only code (1053), CBS group missing (1058)
+  assert.match(fs(in2027(item("14", "", g("CBS", "2.55"))))[0].message, /cStat 1055/);
+  const both = fs(in2027(item("05", g("IBS", "2.55"), "")));
+  assert.deepEqual(both.map((f) => f.rule), ["BR-059", "BR-059"]);
+  assert.match(both.map((f) => f.message).join(" "), /cStat 1053[\s\S]*cStat 1058/);
+  // CBS group on an IBS-only code (1050) and IBS missing (1054)
+  const zfm = fs(in2027(item("07", "", g("CBS", "2.55")))).filter((f) => f.rule === "BR-059");
+  assert.match(zfm.map((f) => f.message).join(" "), /cStat 1054[\s\S]*cStat 1050|cStat 1050[\s\S]*cStat 1054/);
+  // code 04: vCredPres above vProd (255.00) is 1107 / 1124
+  const over = fs(in2027(item("04", g("IBS", "255.01"), g("CBS", "300.00")))).filter((f) => f.rule === "BR-060");
+  assert.match(over.map((f) => f.message).join(" "), /cStat 1107[\s\S]*cStat 1124/);
+  assert.deepEqual(fs(in2027(item("04", g("IBS", "255.00"), g("CBS", "255.00")))).filter((f) => f.rule === "BR-060"), []);
+  // vCredPresCondSus: CBS only from 2027 with code 04 (1060); IBS only from 2033 (1056)
+  const cs = (v) => `<vCredPresCondSus>${v}</vCredPresCondSus>`;
+  assert.deepEqual(fs(in2027(item("04", g("IBS", "1.00"), g("CBS", "", cs("1.00"))))).filter((f) => f.rule === "BR-060"), []);
+  assert.match(fs(in2027(item("05", "", g("CBS", "", cs("1.00"))))).find((f) => f.rule === "BR-060").message, /only code 04[\s\S]*cStat 1060/);
+  assert.match(fs(in2027(item("04", g("IBS", "", cs("1.00")), g("CBS", "1.00")))).find((f) => f.rule === "BR-060").message, /from 2033[\s\S]*cStat 1056/);
+  // an event-only code in the document, and a code not marked for the NF-e (02): warnings, not errors
+  const ev = fs(in2027(item("02", g("IBS", "1.00"), g("CBS", "1.00"))));
+  assert.ok(ev.every((f) => f.severity === "warning" && f.rule === "BR-061"), JSON.stringify(ev));
+  assert.match(ev.map((f) => f.message).join(" "), /not mark cCredPres 02[\s\S]*appropriated by event[\s\S]*since IT 2025\.002 1\.21/);
+  // on an NFC-e: 1049
+  const nfce = fs(in2027(item("05", "", g("CBS", "2.55"))).replace("<mod>55</mod>", "<mod>65</mod>")).filter((f) => f.rule === "BR-058");
+  assert.match(nfce[0].message, /cStat 1049/);
+  // UB120-20 (1175): gCredPresOper on a cClassTrib that takes none (410014 since 1.70) ...
+  assert.equal(CT["410014"].credPres, false);
+  const plain = fs(in2027(item("05", "", g("CBS", "2.55"), "000001"))).filter((f) => f.rule === "BR-056");
+  assert.match(plain[0].message, /does not take a presumed credit[\s\S]*cStat 1175, UB120-20\)\.$/);
+  // ... except on a used good (indBemMovelUsado 1, after the first item's indTot)
+  const plainT = in2027(item("05", "", g("CBS", "2.55"), "000001"));
+  const usedT = plainT.replace("<indTot>1</indTot>", "<indTot>1</indTot><indBemMovelUsado>1</indBemMovelUsado>");
+  assert.notEqual(usedT, plainT);
+  assert.deepEqual(cp(rules(usedT)).filter((r) => r === "BR-056"), []);
+  assert.ok(!rules(usedT).includes("BR-002"), rules(usedT).join());
+});
