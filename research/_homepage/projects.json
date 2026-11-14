@@ -2157,7 +2157,7 @@
     {
      "slug": "selfrep-redesign",
      "title": "Which part substitutions cut a printer's vitamins most, within a performance budget?",
-     "summary": "Follow-up to selfrep-closure that changes the machine instead of the shop. Seven assumed substitutions (printed bushings and nuts, wooden rods, a printed drive) are searched exhaustively, greedily and at random under an assumed penalty budget. All seven together take the Prusa Mendel&rsquo;s vitamin lines from 29 to 19 and closure from 43/22/16% to 60/36/48% (lines/mass/cost) for the printer, router and laser shop; mass closure stays below 36% because motors, electronics and threaded rods remain. Cost closure responds most, and the best set depends on the assumed penalties. Stylised: substitutions, masses and penalties are all assumed and no part was tested."
+     "summary": "Follow-up to selfrep-closure that changes the machine instead of the shop. Seven assumed substitutions (printed bushings and nuts, wooden rods, a printed drive) are searched exhaustively, greedily and at random under an assumed penalty budget. All seven together take the Prusa Mendel&rsquo;s vitamin lines from 29 to 19 and closure from 43/22/16% to 60/36/24% (lines/mass/cost) for the printer, router and laser shop; mass closure stays below 36% because motors, electronics and threaded rods remain. Cost closure moves least once printed parts are costed per gram (a 2026-11-14 correction: a flat price per printed part had shown 48%), and the best set depends on the assumed penalties. Stylised: substitutions, masses and penalties are all assumed and no part was tested."
     },
     {
      "slug": "selfrep-rodbeam",
