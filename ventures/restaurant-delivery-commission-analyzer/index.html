@@ -110,7 +110,7 @@
   <section class="card">
     <h2>The model, and what it leaves out</h2>
     <ul>
-      <li><strong>Effective take rate</strong> is commission plus delivery and service fees plus promotions you funded plus ad spend plus error and refund charges, over food sales. Charges are read as costs whatever their sign in the file.</li>
+      <li><strong>Effective take rate</strong> is commission plus delivery and service fees plus promotions you funded plus ad spend plus error and refund charges, over food sales. Each charge column's sign is read from the file: if most of its amounts are negative (fees shown as deductions), a positive amount in it is a credit, such as a reversed error charge. A row with negative food sales is a refund: it lowers food sales and is not counted as an order.</li>
       <li><strong>Reconciles.</strong> The per-platform rows add up to the totals at the top. Net cash is food sales minus those charges; net after costs also takes off food cost and packaging.</li>
       <li><strong>Payout column.</strong> If the file has one it is compared with food sales minus charges and any gap is reported, but net cash never uses it: it can include sales tax, tips and adjustments this tool does not read.</li>
       <li><strong>Promo and ad return</strong> is profit before the spend per $1 spent, on the orders that carried spend, assuming every one of them was an order you would not otherwise have had. That is the best case; under $1 means the spend lost money even then. The file cannot show which orders were truly new.</li>
