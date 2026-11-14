@@ -131,6 +131,18 @@ export function truePeak(x, factor = 4, half = 16, floor = 0) {
   let gain = 0;
   for (let p = 1; p < factor; p++) { let a = 0; for (let j = 0; j < width; j++) a += Math.abs(taps[p][j]); gain = Math.max(gain, a); }
   gain *= 1 + 1e-9;
+  // A second, tighter bound per phase: the taps nearest the interpolated point
+  // carry most of the weight, so sum those exactly (lo..hi-1) and bound the rest by
+  // sum|outer taps| times the window maximum. Limited audio sits near its ceiling
+  // everywhere, which defeats the block bound above; this one still skips most
+  // points. slack covers rounding in both sums (each error is below 64 ulp of
+  // sum|x*t| <= gain * M), many orders above what doubles can lose here.
+  const lo = Math.max(0, half - 2), hi = Math.min(width, half + 2), outer = [];
+  for (let p = 0; p < factor; p++) {
+    let a = 0;
+    for (let j = 0; j < width; j++) if (j < lo || j >= hi) a += Math.abs(taps[p][j]);
+    outer.push(a + gain * 1e-9);
+  }
   const blocks = Math.ceil(n / width), bmax = new Float64Array(blocks + 1);
   for (let b = 0; b < blocks; b++) {
     let m = 0;
@@ -140,10 +152,14 @@ export function truePeak(x, factor = 4, half = 16, floor = 0) {
   for (let i = 0; i < n; i++) {
     if (i >= first && i < last) {
       const base = i - half + 1, b = (base / width) | 0; // the window spans blocks b and b+1
-      if (gain * Math.max(bmax[b], bmax[b + 1]) < peak) continue;
+      const M = Math.max(bmax[b], bmax[b + 1]);
+      if (gain * M < peak) continue;
       // inside x: the same products in the same order as the checked loop below
       for (let p = 1; p < factor; p++) {
         const t = taps[p];
+        let c = 0;
+        for (let j = lo; j < hi; j++) c += x[base + j] * t[j];
+        if (Math.abs(c) + outer[p] * M < peak) continue; // |s| cannot reach peak
         let s = 0;
         for (let j = 0; j < width; j++) s += x[base + j] * t[j];
         peak = Math.max(peak, Math.abs(s));

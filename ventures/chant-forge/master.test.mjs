@@ -127,6 +127,12 @@ test('truePeak returns the reference value bit for bit: random, bursty, short, c
     signals.push(Float64Array.from({ length: n }, (_, i) => 0.8 * Math.sin(Math.PI * (i + 0.5) / 2.03)));
   }
   const withNaN = Float64Array.from({ length: 200 }, rnd); withNaN[150] = NaN; signals.push(withNaN);
+  // limited audio: every sample near a ceiling under the inter-sample peak, the case
+  // the central-taps bound exists for (most points skipped, the peaks not)
+  for (const n of [1000, 4097]) {
+    signals.push(Float64Array.from({ length: n }, (_, i) => Math.max(-0.77, Math.min(0.77, 1.4 * Math.sin(i / 3.1) * rnd()))));
+    signals.push(Float64Array.from({ length: n }, (_, i) => Math.max(-0.77, Math.min(0.77, Math.sin(Math.PI * i / 2.2) + 0.3 * rnd()))));
+  }
   for (const x of signals) {
     for (const [factor, half] of [[4, 16], [2, 8], [8, 4]]) {
       assert.ok(Object.is(truePeak(x, factor, half), truePeakReference(x, factor, half)), `n=${x.length} factor=${factor} half=${half}`);
@@ -144,6 +150,12 @@ test('truePeak with a floor is Math.max(floor, truePeak) bit for bit, including 
     signals.push(Float64Array.from({ length: n }, (_, i) => (i % 2 ? 1 : -1) * (0.9 + 0.1 * Math.abs(rnd()))));
   }
   const withNaN = Float64Array.from({ length: 200 }, rnd); withNaN[150] = NaN; signals.push(withNaN);
+  // limited audio: every sample near a ceiling under the inter-sample peak, the case
+  // the central-taps bound exists for (most points skipped, the peaks not)
+  for (const n of [1000, 4097]) {
+    signals.push(Float64Array.from({ length: n }, (_, i) => Math.max(-0.77, Math.min(0.77, 1.4 * Math.sin(i / 3.1) * rnd()))));
+    signals.push(Float64Array.from({ length: n }, (_, i) => Math.max(-0.77, Math.min(0.77, Math.sin(Math.PI * i / 2.2) + 0.3 * rnd()))));
+  }
   for (const x of signals) {
     const own = truePeak(x);
     for (const floor of [0, 0.01, 0.5, own * 0.999, own, own * 1.001, 1.5, NaN]) {
