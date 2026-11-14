@@ -35,6 +35,13 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .edit td { padding: 3px 3px; }
     .edit input, .edit select { padding: 5px 6px; font-size: 14px; min-width: 64px; }
+    /* A select in a table row sizes to its longest option, so "window", "Front" and "2x10" are never
+       cut to "windo", "Fron" and "2x1" (measured 2026-11-14: 57 clipped selects here). The table
+       already scrolls inside its card on a phone. The cap keeps a long typed wall name from widening the column. */
+    .edit select { min-width: max-content; min-width: calc-size(max-content, min(size, 14em)); }
+    /* Settings whose default option is longer than one grid track take two tracks, from the width
+       at which the grid has two columns (below it, span 2 would add a column). */
+    @media (min-width: 480px) { .grid > .wide { grid-column: span 2; } }
     .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 12px; }
     .big div { background: #f5f2ea; border-radius: 9px; padding: 10px; }
     .big strong { display: block; font-size: 1.35rem; color: #33302a; }
@@ -62,7 +69,7 @@
   <section class="card" aria-labelledby="h-settings">
     <h2 id="h-settings">1. Wall settings</h2>
     <div class="grid">
-      <div><label for="height">Wall height</label>
+      <div class="wide"><label for="height">Wall height</label>
         <select id="height"><option value="8ft">8 ft wall (92-5/8" precut studs)</option><option value="9ft">9 ft wall (104-5/8" precut)</option><option value="10ft">10 ft wall (116-5/8" precut)</option><option value="custom">Custom stud length</option></select></div>
       <div><label for="studLength">Stud length</label><input id="studLength" value="92-5/8"></div>
       <div><label for="spacing">Stud spacing on center</label>
@@ -76,8 +83,8 @@
       <div><label for="cornerStuds">Extra studs at a corner</label><input id="cornerStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="teeStuds">Extra studs where a wall meets this one</label><input id="teeStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="blockRows">Rows of blocking between studs</label><input id="blockRows" type="number" min="0" max="6" step="1" value="0"></div>
-      <div><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
-      <div><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
+      <div class="wide"><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
+      <div class="wide"><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
       <div><label for="cullPct">Spare boards for culls (% of each size)</label><input id="cullPct" type="number" min="0" max="50" step="0.5" value="0"></div>
       <div><label for="fireBlock">Fire blocking</label><select id="fireBlock"><option value="">Only the rows above</option><option value="fire">Add rows so no stud run passes 10 ft</option></select></div>
     </div>
