@@ -44,6 +44,27 @@ export const SOURCES = [
   { bank: "amex", kind: "download", card: true, path: "bartonhammond/finance-nue/HEAD/data/amex/activity.csv" },
   { bank: "chase-checking", kind: "layout", path: "kielpedia/expat-finance/HEAD/sample_data/chase_checking.csv" },
   { bank: "us-bank", kind: "layout", path: "kmark43/budgeting/HEAD/sample.csv" },
+  // Added 2026-11-14 (README "More real US exports: Wells Fargo, Chase, Ally, Apple Card"): the
+  // Wells Fargo, Chase and US Bank downloads the first batch lacked, and the first business account.
+  { bank: "chase-checking", kind: "download", business: true, path: "kanema20/primeorca/HEAD/Chase7573_Activity_20230828.CSV" },
+  { bank: "chase-checking", kind: "download", path: "loftusa/General-Projects-And-Scripts/HEAD/Analyses/b-info/activity-big.csv" },
+  { bank: "chase-checking", kind: "download", path: "briggstwitchell/resume/HEAD/transaction_processor/chasedebit.csv" },
+  { bank: "chase-checking", kind: "layout", path: "Denzil10/pocket-budget/HEAD/samples/Chase4826_Activity_20261031.CSV" },
+  { bank: "chase-checking", kind: "layout", business: true, path: "just-every/run-pantry/HEAD/fixtures/bank/operating-checking-2026-09.csv" },
+  { bank: "chase-card", kind: "download", card: true, path: "baoquang98/Monthly_Finance/HEAD/Chase9938_Activity20251228.CSV" },
+  { bank: "chase-card", kind: "download", card: true, path: "mren08/Personal-Finance-Assistant/HEAD/nov25_statement.CSV" },
+  { bank: "chase-card", kind: "download", card: true, path: "hoffmanaiden/finances/HEAD/csv/joint/ChaseJoint_2026-07.csv" },
+  { bank: "chase-card", kind: "download", card: true, path: "blakeb211/billcat-local-llm/HEAD/data/cc_transactions.csv" },
+  { bank: "wells-fargo", kind: "download", path: "wolfedr/Finances/HEAD/Data/Archive/Checking1.csv" },
+  { bank: "wells-fargo", kind: "download", path: "ronknighton/Budgeter/HEAD/Budgeter/Uploads/05.17.52.566721_Checking1.csv" },
+  { bank: "wells-fargo", kind: "download", path: "marzdevs/PythonProjects/HEAD/ExpenseTracker/Checking1.csv" },
+  { bank: "wells-fargo", kind: "layout", path: "Denzil10/pocket-budget/HEAD/samples/Checking1.csv" },
+  { bank: "ally", kind: "download", path: "davydog187/finances/HEAD/exports/ally_savings.csv" },
+  { bank: "ally", kind: "download", path: "davydog187/finances/HEAD/exports/ally_spending.csv" },
+  { bank: "ally", kind: "download", path: "dcapps4140/Keyword-Categorization/HEAD/transactions.csv" },
+  { bank: "ally", kind: "layout", path: "EliRibble/budgery/HEAD/tests/import_data/ally.csv" },
+  { bank: "apple-card", kind: "download", card: true, path: "lonelytango/swiss-finance/HEAD/personal_finance/input/credit/apple/4_2024.csv" },
+  { bank: "us-bank", kind: "download", card: true, path: "livingkurt/Copper-rt/HEAD/client/public/Expenses/Fidelity-1-1-20.csv" },
 ];
 
 const PAY_IN_CARD = /\b(payment|thank you|autopay|auto pay|directpay)\b/i;

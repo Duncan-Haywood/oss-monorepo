@@ -27,7 +27,18 @@ const NOISE = new Set(("pos ach debit credit card purchase checkcard visa master
 // "SQ *BLUE BOTTLE 0412 OAKLAND CA" -> tokens ["blue","bottle","oakland"], key "blue bottle".
 // Tokens with digits are references and store numbers ("1gh4qe", "#0412"),
 // dropped whole rather than stripped to a misleading fragment.
+// Chase writes an ACH line as the whole NACHA addenda: "ORIG CO NAME:STRIPE ORIG ID:1800948598 DESC DATE:
+// CO ENTRY DESCR:TRANSFER SEC:CCD TRACE#:... IND NAME:...". The payee is the originator's name and the entry
+// description says what the entry is; the rest is ids. Read from a real Chase download of a Stripe-funded LLC
+// account (eval/us-bank-exports.mjs, 2026-11-14): before, every ACH line keyed to "orig name" and a Stripe
+// payout read as a transfer from its entry description.
+export function achCompact(desc) {
+  const m = /orig co name:\s*(.*?)\s+orig id:.*?co entry descr:\s*(.*?)\s*sec:/i.exec(String(desc ?? ""));
+  return m ? `${m[1]} ${m[2]}`.replace(/\s+/g, " ").trim() : null;
+}
+
 export function payeeTokens(desc) {
+  desc = achCompact(desc) ?? desc;
   const s = String(desc ?? "").toLowerCase().replace(/[’']/g, "").replace(/purchase authorized on \d{1,2}\/\d{1,2}/g, " ");
   return s.split(/[\s,;:#|*_./\\()\[\]-]+/).filter((t) => t && !/\d/.test(t)).map((t) => t.replace(/[^a-z&]+/g, "")).filter((t) => t.length >= 2 && !NOISE.has(t) && !/^x+$/.test(t));
 }
@@ -893,7 +904,7 @@ export function suggest(txn, model) {
 
   // Processor and bank wrappers hide the merchant behind words the keyword
   // rules read as something else: "PAYPAL INST XFER NETFLIX" is not a transfer.
-  const bi = text.replace(/paypal\s+inst\s+xfer\s*/, "paypal ").replace(/(withdrawal from|subscription payment:|preapproved payment bill user payment:|buyer payment:)\s*/, "");
+  const bi = (achCompact(text)?.toLowerCase() ?? text).replace(/paypal\s+inst\s+xfer\s*/, "paypal ").replace(/(withdrawal from|subscription payment:|preapproved payment bill user payment:|buyer payment:)\s*/, "");
   // A wire names its counterparty after VIA:, A/C: or B/O:, and those names trip unrelated keyword rules (a bank's
   // name read as a utility). Whose money it is only a person can say, so it waits unsuggested.
   const thirdPartyWire = !off.has("built-in") && /\b(wire transfer|chips credit|fedwire|book transfer (credit|debit))\b/.test(bi) && /\b(via|a\/c|b\/o):/.test(bi);
