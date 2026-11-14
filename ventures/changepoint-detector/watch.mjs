@@ -49,7 +49,9 @@ Options:
                             (README "Round 13"; not offered). A floor per column read off the normal run (--min-shift,
                             below) cut false lines out of sample from 6.3 to 2.3 per 100 checks but lost 5 of 33 faults:
                             set the floor by hand on the loud columns that do not matter, not on the one that sees the
-                            faults (README "Round 14"; the automatic version is not offered).
+                            faults (README "Round 14"; the automatic version is not offered). One floor for all columns
+                            in units of each column's spread over the 5 minutes before the move cut false lines to 1.4
+                            per 100 checks, but lost 6 of 33 faults (README "Round 15"; not offered).
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)

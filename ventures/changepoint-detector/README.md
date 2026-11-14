@@ -4430,3 +4430,53 @@ normal window so a new day's temperature level does not trip them. Neither is pr
 Tests: `watch-floor.test.mjs` (8: the floor on made-up changes, a replay with and without a floor, `--min-shift`
 parsing and refusals, the CLI with a per-column floor, the round's floor rule, pre-fault counting, T10 on made-up
 totals, and the committed output's verdict with the help and page texts).
+
+## Round 15: one floor for every column, in units of its own recent spread (2026-11-14, pre-registered on a seen set; fails on faults caught, not offered)
+
+Round 14's floor gave each column an equal share of the budget, so flow rate, the column that sees the faults, was
+floored as hard as the thermocouple, and temperature's floor, read off one day, did not carry to the fault runs' other
+days. Its own suggestion, an unequal split, needs labelled faults. This round tested a label-free one: measure each move
+against how much its column wandered just before it. A detection is dropped when its |shift| is under k times the
+column's spread over the 60 points (5 minutes) before the change (1.4826 times the MAD, or the SD when the MAD is 0;
+`minSpreadRatio`, `spreadBefore`, `aboveSpreadFloor` in watch-core.mjs). One k serves all 8 columns, read off the normal
+run so that at most 37 of the whole watch's lines clear it (2 per 100 of 1,861 checks); nothing is set per column. The
+floor sits in the watch at every check, as round 14's did, and the scoring, the out-of-sample null (each fault run's
+stretch before its fault, 2,997 checks) and the three-part rule are round 14's. `sh eval/skab-fetch.sh skab-data && node
+eval/watch-skab-spread.mjs skab-data` (output `eval/watch-skab-spread.out.txt`, 618 s on 4 cores). The rule, design,
+predictions and the code were committed in this PR's second commit, before any scored run. k came out at 4.94.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 (in-sample) |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| **R, spread floor in the watch** | 150 | **59.3%** | 22.8 | 75 | **27/33** | 50 s | **1.40** (42) | 2.69 |
+| P, Q's lines with the spread floor after the fact | 105 | 67.6% | 15.9 | 66 | 24/33 | 35 s | 0.83 (25) | 1.99 |
+| F, round 14's equal-split floors (quoted) | 198 | 46.5% | 30.1 | 74 | 28/33 | 52.5 s | 2.27 (68) | 1.93 |
+
+- **T11 fails on one of three parts.** (a) passes: 1.40 false lines per 100 pre-fault checks, the first whole-watch rule
+  in rounds 12-15 under the budget of 2 out of sample; (c) passes: 59.3% of its lines sat at a mark, against Q's 36.8%
+  and round 14's 46.5%; (b) fails: 27 faults caught, against the 31 the rule allowed (Q 33, round 14 28). As
+  pre-registered, nothing ships to the CLI; `watch.mjs --help` under `--columns` and the watch page record the result,
+  and the option stays in watch-core.mjs for later rounds.
+
+**Predictions, scored.** (b) I predicted 31 or more and more than round 14's 28: wrong on both, 27. (c) I predicted about
+45%: it was 59.3%, better than predicted. (a) I called a coin flip near 2.0: 1.40, a clear pass.
+
+**What the round says (deciding nothing).** The ratio did make the split unequal without a label, and mostly in the
+right direction: temperature's normal-run lines had a median ratio of 0.64 (slow drift, about one spread) and all 27 of
+them fell; flow rate kept 60 of its 118 fault-run lines, 75% of them at a mark, and caught 19 faults alone against
+round 14's 18. But one column set k: the thermocouple's normal-run moves were sharp steps on a flat trace (median ratio
+7.90), so 31 of its 42 lines cleared a k that the other seven columns' noise alone would have set much lower, and that
+k cost the inlet-valve folder 4 of its 16 faults (12/16, against round 14's 13). The normal run's in-sample rate (2.69)
+is over budget though k was read off it: k came from the lines Q sent, and with the floor in the watch a move that is
+small at first can clear it a few checks later, as round 14 found. Putting the floor in the watch again caught more than
+filtering afterwards (27 against 24 faults), at a longer median delay (50 s against 35 s).
+
+So the two floors fail on opposite sides of the same bar: round 14's let too much noise through, this one cuts too many
+faults. Open, neither pre-registered: k read with the loudest column's lines left out (a k for the other seven would
+have been lower, keeping more valve faults), or a ratio floor only on the columns whose own normal-run lines are mostly
+small ratios (drift), leaving the sharp ones to the detector. Both are second looks at the same set; a fresh labelled
+multi-sensor set is still the stronger test.
+
+Tests: `watch-spread.test.mjs` (6: the spread on made-up noise, quantized and constant stretches and the window; one k
+keeping a move on a flat column and dropping it on a wandering one; a replay with the floor; the k rule and T11 on
+made-up totals; the committed output's verdict with the help and page texts).
