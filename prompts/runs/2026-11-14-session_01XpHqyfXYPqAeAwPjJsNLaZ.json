@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfXYPqAeAwPjJsNLaZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:39:20Z",
+  "ended": "2026-11-14T00:54:50Z",
+  "wall_minutes": 15.83,
+  "tokens_in": 7715270,
+  "tokens_out": 48685,
+  "cost_usd": 3.6857,
+  "tool_calls": 75,
+  "task": "Deepen flagship 11 (chant-forge): liquescent detector in the scan reader (allocate.py row 9)",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15669",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first full run of eval/shape-check.mjs with the new fresh manifest exited with a Node error after printing the manifest (a download on first fetch, most likely); a rerun with the pages cached completed",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/shape-fresh-pages.json",
+      "issue": "Bracketed GregoBase pages ([n], Missae votivae / Pro aliquibus locis) had no leaf offset recorded anywhere; found by probing leaves (leaf 701 = [116], offset 585), now in liquescent-fresh-pages.json's note."
+    },
+    {
+      "file": "ventures/chant-forge/README.md",
+      "issue": "The 'seven off-final pieces 972 read / 971 agree' row could not be reproduced from scan-check.mjs's per-piece output (the agreeing counts sum to 1,171); left the dated table as it was and reported the new figures as before/after sums in a new section."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-chant-notes-a-scanner-could-not-see.md",
+    "ventures/chant-forge/eval/liquescent-check-report.md"
+  ],
+  "goal": "Deepen a flagship: a held-out-tested liquescent detector so GABC transcriptions are checked against the printed book on more notes.",
+  "notes": "Liquescent rule set on 21 pieces (54/60, 2/4,584 false), frozen, then 11 pieces listed in eval/liquescent-fresh-pages.json before download: 20/26 read at pitch, 1/1,622 false + 1 unpaired added note. scan-check: +33 notes checked, no new disagreement. Same 11 pieces: rhombus 180/182 (5/1,428 false), quilisma 10/12 but 17/1,631 false (new top next: item). Verification: run_venture_tests.py chant-forge ok (21.3 s); shape-check and scan-check rerun against archive.org scans; venture-preflight: PREFLIGHT.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1b1cf3c7-5561-5baa-ba70-772f1936132a",
+    "transcripts": 1,
+    "first": "2026-11-14T00:39:20Z",
+    "last": "2026-11-14T00:55:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 118,
+        "output": 48685,
+        "thinking": 15794,
+        "cache_read": 7565340,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149812,
+        "api_equivalent_usd": 3.6857,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 118,
+      "output": 48685,
+      "thinking": 15794,
+      "cache_read": 7565340,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149812,
+      "api_equivalent_usd": 3.6857,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 62,
+      "Read": 10,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.83,
+      "active_minutes": 15.83,
+      "model_minutes": 7.95,
+      "tool_minutes": 7.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OMR engineer designing, tuning and held-out testing a glyph detector on scanned chant pages, with report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 271.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
