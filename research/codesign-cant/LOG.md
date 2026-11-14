@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 7j: why do the retrained `above` designs diverge at lever 0 with a 45° tilt limit, where no gust torque acts? (predictions written and committed before `experiments/m7j_lever0/run.py` was run on the held-out seed; outcome below)
+
+- Why: milestones 7h and 7i left one result unexplained. At the 45° tilt-command limit (PX4's `MPC_TILTMAX_AIR` default) the retrained `above` designs diverge at lever 0 on 9 (`7h free`), 3 (`aware TWR=2.0`) and 12 (`aware TWR free`) of 384 held-out flights, where 7e's designs diverge on none, and every one of them passes the linear test with margin 1.25. At lever 0 the gust torque is zero by construction (`lever_scale` multiplies it), so 7g's diagnosis (gust torque outgrowing the hover polytope) cannot be the cause. 7h guessed at the larger propellers' slower motors (lag scales as D^1.5). A builder who flies these gains at PX4's default would meet this failure, so its cause decides whether the co-design result is safe to adopt.
+- Plan (`experiments/m7j_lever0/run.py`, no training): the four `above` sets re-scored in 7i (7e, 7h free, aware TWR=2.0, aware TWR free; 24 designs) and, as a control, the four `below` sets, re-run with `poshold.rollout` on 7i's held-out episodes (64, seed 9999), integrator feed-forward, side force on. Base runs at tilt limits 30, 35, 40 and 45° and levers 0 and 1 (onset). At 45°, lever 0, one change at a time: `dead85` (85° counts as divergence), ideal mixer, side force off (`couple=False`), integrator feed-forward off (`ff=0`), position gains x0.5, motor lag x0.9 (nominal and plant), and the same airframe and gains re-sized at thrust-to-weight 2.0. The base run records why each flight died, when, and the mixer, tilt-limit and integrator saturation shares (7g's diagnostics).
+- Looked at before writing these: only 7i's per-seed counts (`results.json`) and the rollout code; no simulation has been run for this milestone.
+- Predictions (counts are diverged flights of 384 per set at 45°, lever 0, summed over the three retrained `above` sets, 24 in base):
+  - J1 (prior 90%): the base run reproduces 7i's counts exactly (9, 3, 12; 7e 0).
+  - J2 (prior 70%): every one of the 24 is a tilt-over (roll or pitch past 60°), none a position loss.
+  - J3 (prior 60%): the ideal mixer removes at least half (12 or more).
+  - J4 (prior 50%): switching the side force off removes at least half.
+  - J5 (prior 55%): position gains x0.5 remove at least half.
+  - J6 (prior 35%): motor lag x0.9 removes at least half (7h's candidate).
+  - J7 (prior 45%): re-sizing the two TWR-free sets at thrust-to-weight 2.0 removes at least half of their 21.
+  - J8 (prior 55%): `dead85` removes fewer than half (the flights really diverge, not a scored excursion past 60° that recovers).
+  - J9 (prior 65%): the diverged flights are concentrated: at most 8 distinct episodes of the 64 across the three sets.
+  - J10 (prior 60%): the onset is sharp: at 40° the three sets diverge on at most a third of their 45° count.
+- Analysis: counts per set, probe and limit; per diverged flight, cause, death time and the plant draw (torque scale, mass, lag); distinct episodes. No test beyond counts.
+
 ## 2026-11-14 · Milestone 7i: a lever-aware objective, train on levers 0-2 with thrust-to-weight fixed and free (predictions written and committed before `experiments/m7i_aware/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7h's first next step. 7h found that a tuner given thrust-to-weight as a free coordinate buys a little (2.05-2.55) and spends it on efficiency, and is no more robust at twice the trained lever: nothing in an objective trained at lever 1 asks for robustness to an uncertain centre of pressure. Does putting levers 0-2 in the objective make the co-design buy authority, and does that remove the lever-2 tilt-overs 7g diagnosed?
