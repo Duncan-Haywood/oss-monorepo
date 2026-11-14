@@ -1,6 +1,6 @@
 ---
 title: "Eight sensors, eight chances for noise: the change watch on 33 real pump faults"
-seo_title: "Watching 8 sensors for change: 33 of 33 pump faults, 4x the false alarms"
+seo_title: "Watching 8 sensors: 33 of 33 pump faults caught, 4x the false alarms"
 date: 2026-11-14
 tags: [changepoint-detection, monitoring, anomaly-detection, pre-registration, negative-result]
 description: "Pre-registered on SKAB's 33 pump faults: the default watch caught all 33, but on a normal run all 8 sensors together sent 8.5 false alerts per 100 checks."
