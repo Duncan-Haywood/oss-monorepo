@@ -264,7 +264,7 @@
 
   <script type="module">
     import { calculateBid, markupToMargin, marginToMarkup, overrunToBreakEven, money } from './engine.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { takeoffTotals, fromPreset } from './takeoff.mjs';
     import { PRESETS, GROUPS } from './presets.mjs';
     import { COMPANY_FIELDS, buildProposal, loadCompany, saveCompany, forgetCompany, renderProposalHtml } from './proposal.mjs';
@@ -278,7 +278,7 @@
     let lines = [];
     let lastTakeoff = null;
     const fmtH = h => `${Math.round(h * 100) / 100} h`;
-    const count = event => { try { recordUsage(localStorage, el('usageOptOut').checked, event); } catch {} };
+    const count = event => { try { recordUsage(usageStorage(), el('usageOptOut').checked, event); } catch {} };
 
     // Trade picker, grouped the way a contractor browses.
     for (const group of GROUPS) {
@@ -422,7 +422,7 @@
           ? `At ${money(r.offer.price)} you lose ${money(-r.offer.profit)} on this job. Walk away or change the scope.`
           : `At ${money(r.offer.price)} you keep ${money(r.offer.profit)} (${r.offer.marginPct}% margin)${r.offer.belowTarget ? ', below your target margin' : ', at or above your target margin'}.`;
       } else { v.hidden = true; }
-      if (!counted) { counted = true; try { recordUsage(localStorage, el('usageOptOut').checked, 'bid_calculated'); } catch {} }
+      if (!counted) { counted = true; try { recordUsage(usageStorage(), el('usageOptOut').checked, 'bid_calculated'); } catch {} }
     }
     function convert() {
       el('convMargin').textContent = `${markupToMargin(el('convMarkup').value)}%`;
@@ -531,8 +531,8 @@
     suggestScope();
 
     try {
-      el('usageOptOut').checked = readOptOut(localStorage);
-      el('usageOptOut').addEventListener('change', () => writeOptOut(localStorage, el('usageOptOut').checked));
+      el('usageOptOut').checked = readOptOut(usageStorage());
+      el('usageOptOut').addEventListener('change', () => writeOptOut(usageStorage(), el('usageOptOut').checked));
     } catch {}
 
     fetch('./trades.json').then(r => r.json()).then(trades => {
@@ -564,7 +564,7 @@
         el('count').textContent = trades.length;
         el('none').hidden = shown.length > 0;
       };
-      el('search').addEventListener('input', e => { render(e.target.value); try { recordUsage(localStorage, el('usageOptOut').checked, 'directory_searched'); } catch {} });
+      el('search').addEventListener('input', e => { render(e.target.value); try { recordUsage(usageStorage(), el('usageOptOut').checked, 'directory_searched'); } catch {} });
       render('');
     }).catch(() => { el('none').hidden = false; el('none').textContent = 'The trade list could not load; the studio above still works.'; });
   </script>

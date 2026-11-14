@@ -261,7 +261,7 @@
 
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
-    import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
+    import { readOptOut, recordUsage, writeOptOut, usageStorage } from "./usage.mjs";
     import { buildSpec, encodeShare, saveShare, clearShare, restoreShare } from "./share.mjs";
 
     const SHARED_FIELDS = ["ticketPrice", "foodCost", "hourlyWage", "monthlyOrders"];
@@ -386,7 +386,7 @@
           update();
         });
         input.addEventListener("change", () => {
-          recordUsage(localStorage, optedOut(), "channel_rates_edited");
+          recordUsage(usageStorage(), optedOut(), "channel_rates_edited");
           persist();
         });
       }
@@ -402,7 +402,7 @@
             if (el) el.open = true;
           }
           update();
-          recordUsage(localStorage, optedOut(), "channel_toggled");
+          recordUsage(usageStorage(), optedOut(), "channel_toggled");
           persist();
         });
       }
@@ -468,12 +468,12 @@
     for (const id of SHARED_FIELDS) {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, optedOut(), "comparison_calculated");
+        recordUsage(usageStorage(), optedOut(), "comparison_calculated");
         persist();
       });
     }
     document.getElementById("usageOptOut").addEventListener("change", (event) => {
-      writeOptOut(localStorage, event.target.checked);
+      writeOptOut(usageStorage(), event.target.checked);
     });
     document.getElementById("copySummary").addEventListener("click", async () => {
       if (!lastComparison) {
@@ -494,7 +494,7 @@
       try {
         await navigator.clipboard.writeText(lines.join("\n"));
         document.getElementById("copyStatus").textContent = " Summary copied.";
-        recordUsage(localStorage, optedOut(), "summary_copied");
+        recordUsage(usageStorage(), optedOut(), "summary_copied");
       } catch {
         document.getElementById("copyStatus").textContent = " Clipboard unavailable; use the table above.";
       }
@@ -523,7 +523,7 @@
       }
       document.getElementById("linkStatus").textContent =
         " Link copied — it reopens this ticket and every path's rates, not just the summary.";
-      recordUsage(localStorage, optedOut(), "link_copied");
+      recordUsage(usageStorage(), optedOut(), "link_copied");
     });
 
     document.getElementById("reset").addEventListener("click", () => {
@@ -540,7 +540,7 @@
       update();
     });
 
-    document.getElementById("usageOptOut").checked = readOptOut(localStorage);
+    document.getElementById("usageOptOut").checked = readOptOut(usageStorage());
 
     const restored = restoreShare(SHARE_SPEC, {
       hash: location.hash,

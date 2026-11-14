@@ -410,7 +410,7 @@
     priceJob,
     reviewJob,
   } from './calc.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
   import {
     DENSITY_FIELD_ID, FIELD_IDS, PROPOSAL_TERM_NUMBERS, PROPOSAL_TERM_TEXT,
     decodeInputs, shareUrl,
@@ -426,7 +426,7 @@
 
   /** One anonymous, device-local tally. Named `count` because
    * platform/proposal/adopt.mjs generates a call to it. */
-  function count(event) { recordUsage(globalThis.localStorage, el('optout').checked, event); }
+  function count(event) { recordUsage(usageStorage(), el('optout').checked, event); }
 
   // The one list of numeric field ids, imported rather than restated -- a
   // field that exists on the page but not in FIELD_IDS would be read by this
@@ -689,8 +689,15 @@
       };
     }
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -719,7 +726,7 @@
     function showProposal() {
       const result = priceJob(readInputs());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -775,7 +782,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -794,8 +801,8 @@
     {
       const usageControl = el('optout');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 

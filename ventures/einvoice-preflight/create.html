@@ -127,7 +127,7 @@
   <script type="module">
     import { generateInvoice } from "./generate.mjs";
     import { parseInvoiceSource, preflightDocuments, buildJsonReport } from "./report.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $("usageOptOut").checked;
@@ -182,7 +182,7 @@
     document.querySelectorAll("input,select").forEach((el) => el.addEventListener("input", showTotals));
 
     $("generate").onclick = async () => {
-      safe(() => recordUsage(localStorage, optedOut(), "einvoice_create_attempted"));
+      safe(() => recordUsage(usageStorage(), optedOut(), "einvoice_create_attempted"));
       const r = generateInvoice(draft(), opts());
       const out = $("result"), pre = $("xml");
       $("download").disabled = true; pre.hidden = true;
@@ -194,7 +194,7 @@
         (findings.length ? `<p class="err"><b>Preflight found ${findings.length} issue(s) in the generated file:</b></p><ul class="msgs err">${findings.map((f) => `<li>${esc(f.rule)} ${esc(f.message)}</li>`).join("")}</ul>` : `<p class="ok">Preflight: no findings.</p>`) +
         `<p class="muted">Preflight is a shape and arithmetic check, not a full schema or Schematron validation. Run it through your network's validator (e.g. the KoSIT validator for XRechnung) before sending.</p>`;
       pre.textContent = r.xml; pre.hidden = false; $("download").disabled = false;
-      safe(() => recordUsage(localStorage, optedOut(), "einvoice_created"));
+      safe(() => recordUsage(usageStorage(), optedOut(), "einvoice_created"));
     };
     $("download").onclick = () => {
       const a = document.createElement("a");
@@ -216,7 +216,7 @@
     $("issue_date").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     lineRow();
     showTotals();
-    safe(() => { $("usageOptOut").checked = readOptOut(localStorage); $("usageOptOut").addEventListener("change", () => writeOptOut(localStorage, $("usageOptOut").checked)); });
+    safe(() => { $("usageOptOut").checked = readOptOut(usageStorage()); $("usageOptOut").addEventListener("change", () => writeOptOut(usageStorage(), $("usageOptOut").checked)); });
   </script>
 </body>
 </html>

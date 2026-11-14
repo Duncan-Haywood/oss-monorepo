@@ -93,7 +93,7 @@
   </footer>
   <script type="module">
     import { compareDeductions } from './tax.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     const IDS = ["grossIncome", "businessMiles", "totalMiles", "mpg", "gasPrice", "maintenancePerMile", "insuranceAnnual", "depreciationAnnual", "parkingTolls", "otherDeductible", "standardRate", "incomeTaxRatePercent", "otherWages", "socialSecurityWageBase"];
     const el = id => document.getElementById(id);
     const usd = v => (v < 0 ? '-' : '') + '$' + Math.round(Math.abs(v)).toLocaleString('en-US');
@@ -114,11 +114,11 @@
       el('actTax').textContent = usd(r.actual.totalTax);
       el('qtr').textContent = `${usd(r.standard.quarterly)} / ${usd(r.actual.quarterly)}`;
       el('breakEven').textContent = r.breakEvenPerMile === null ? 'n/a' : '$' + r.breakEvenPerMile.toFixed(3) + '/mi';
-      if (!counted) { counted = true; try { recordUsage(localStorage, el('usageOptOut').checked, 'tax_compared'); } catch {} }
+      if (!counted) { counted = true; try { recordUsage(usageStorage(), el('usageOptOut').checked, 'tax_compared'); } catch {} }
     }
     IDS.forEach(id => el(id).addEventListener('input', update));
-    try { el('usageOptOut').checked = readOptOut(localStorage); } catch {}
-    el('usageOptOut').addEventListener('change', () => { try { writeOptOut(localStorage, el('usageOptOut').checked); } catch {} });
+    try { el('usageOptOut').checked = readOptOut(usageStorage()); } catch {}
+    el('usageOptOut').addEventListener('change', () => { try { writeOptOut(usageStorage(), el('usageOptOut').checked); } catch {} });
     update();
   </script>
 </body>

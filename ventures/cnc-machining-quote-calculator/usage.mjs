@@ -13,6 +13,19 @@
  * off with no action from the visitor at all.
  */
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export const USAGE_KEY = "cnc-machining-quote-usage";
 export const OPT_OUT_KEY = "cnc-machining-quote-usage-off";
 
@@ -35,11 +48,11 @@ function read(storage, key) {
   }
 }
 
-export function usageOptedOut(storage = globalThis.localStorage) {
+export function usageOptedOut(storage = usageStorage()) {
   return read(storage, OPT_OUT_KEY) === "1" || browserSignalsNo();
 }
 
-export function setUsageOptOut(value, storage = globalThis.localStorage) {
+export function setUsageOptOut(value, storage = usageStorage()) {
   if (!storage) return;
   try {
     if (value) {
@@ -53,7 +66,7 @@ export function setUsageOptOut(value, storage = globalThis.localStorage) {
   }
 }
 
-export function recordUsage(event = "quote", storage = globalThis.localStorage) {
+export function recordUsage(event = "quote", storage = usageStorage()) {
   if (!storage || usageOptedOut(storage)) return;
   let current;
   try {
@@ -71,7 +84,7 @@ export function recordUsage(event = "quote", storage = globalThis.localStorage) 
   }
 }
 
-export function readUsage(storage = globalThis.localStorage) {
+export function readUsage(storage = usageStorage()) {
   try {
     const parsed = JSON.parse(read(storage, USAGE_KEY) || "{}");
     return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};

@@ -327,7 +327,7 @@
     import { auditPackHtml } from "./auditpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
       invoice_number: "INV-1001",
@@ -553,7 +553,7 @@
     document.getElementById("check").addEventListener("click", async () => {
       inputError.textContent = "";
       copyStatus.textContent = "";
-      recordUsage(localStorage, optedOut(), "invoice_preflight_attempted");
+      recordUsage(usageStorage(), optedOut(), "invoice_preflight_attempted");
       const inputs = await readFiles();
       if (!inputs.length) {
         inputError.textContent = "Drop a file or paste a JSON invoice first.";
@@ -573,7 +573,7 @@
       if (document.getElementById("official").checked) await addOfficialFindings(result, inputs, { profile });
       render(result);
       for (const report of result.reports) {
-        recordUsage(localStorage, optedOut(), "invoice_preflight_checked");
+        recordUsage(usageStorage(), optedOut(), "invoice_preflight_checked");
       }
     });
 
@@ -655,7 +655,7 @@
       try {
         await copyText(text);
         copyStatus.textContent = "Checklist copied. It contains filenames and rule IDs, not invoice values.";
-        recordUsage(localStorage, optedOut(), "checklist_copied");
+        recordUsage(usageStorage(), optedOut(), "checklist_copied");
       } catch {
         copyStatus.textContent = "Clipboard is blocked in this browser. Use Download Markdown instead.";
       }
@@ -663,17 +663,17 @@
     downloadMd.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight.md", buildMarkdown(latest), "text/markdown");
-      recordUsage(localStorage, optedOut(), "report_downloaded");
+      recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
     downloadJson.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight.json", JSON.stringify(buildJsonReport(latest), null, 2) + "\n", "application/json");
-      recordUsage(localStorage, optedOut(), "report_downloaded");
+      recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
     downloadRemediationCsv.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight-remediation.csv", buildRemediationCsv(latest), "text/csv");
-      recordUsage(localStorage, optedOut(), "report_downloaded");
+      recordUsage(usageStorage(), optedOut(), "report_downloaded");
     });
 
     // Remember the visitor's usage-counting choice between visits. The
@@ -684,8 +684,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

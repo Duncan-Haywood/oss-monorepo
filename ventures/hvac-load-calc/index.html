@@ -206,7 +206,7 @@
 
   <script type="module">
     import { calculate, EXAMPLE, DEFAULTS, FACINGS } from './load.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     const SITE = Object.keys(DEFAULTS.site);
@@ -344,7 +344,7 @@
       el('errors').textContent = '';
       last = r;
       show(r);
-      recordUsage(globalThis.localStorage, el('optOut').checked, 'load_calculated');
+      recordUsage(usageStorage(), el('optOut').checked, 'load_calculated');
     }
 
     function download(name, text, type) {
@@ -371,7 +371,7 @@
       download('room-loads.csv', lines.join('\n') + '\n', 'text/csv');
     });
     el('optOut').checked = readOptOut();
-    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+    el('optOut').addEventListener('change', () => writeOptOut(usageStorage(), el('optOut').checked));
 
     setForm(EXAMPLE);
     run();

@@ -160,7 +160,7 @@ Fuel surcharge,1,,480.00</textarea></label>
 
   <script type="module">
     import { auditFromFlat, disputeNote, toCsv, encodeState, decodeState } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const FIELDS = ["receivingPerPallet", "receivingPerCarton", "storagePerPalletMonth", "storagePerBinMonth", "longTermStoragePerPalletMonth", "pickFirst", "pickAdditional", "packPerOrder", "returnsPerUnit", "kittingPerKit", "accountMinimum", "fuelSurchargePct", "handlingSurchargePct", "ordersShipped", "unitsShipped", "palletsReceived", "cartonsReceived", "avgPalletsOnHand", "avgBinsOnHand", "longTermPallets", "returnsProcessed", "kitsAssembled", "invoiceCsv", "threePl", "invoiceNumber", "brand"];
     const $ = (id) => document.getElementById(id);
@@ -252,8 +252,8 @@ Fuel surcharge,1,,480.00</textarea></label>
     {
       const control = $('usageOptOut');
       try {
-        control.checked = readOptOut(localStorage);
-        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+        control.checked = readOptOut(usageStorage());
+        control.addEventListener('change', () => writeOptOut(usageStorage(), control.checked));
       } catch { /* storage blocked: counting stays off the persisted path */ }
     }
     render(false);

@@ -141,7 +141,7 @@ node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
 
   <script type="module">
     import { classifyChain, parseHopsText } from './engine.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -200,7 +200,7 @@ node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
       }
       els.status.textContent = '';
       render();
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     });
 
     const EXAMPLE = [
@@ -214,7 +214,7 @@ node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
       els.text.value = EXAMPLE;
       render();
       els.status.textContent = 'Worked example: a chain that upgrades scheme/host with temporary codes and then loops back to its own starting URL.';
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
     });
 
     $('#clear').addEventListener('click', () => {
@@ -233,8 +233,8 @@ node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

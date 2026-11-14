@@ -1,6 +1,19 @@
 // A browser-level opt-out is an opt-out. Chrome and Firefox send Do Not Track,
 // and Global Privacy Control is treated as a valid opt-out signal under CCPA
 // and several state privacy laws, so honour both before counting anything.
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function honorsBrowserSignal() {
   try {
     return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;
@@ -9,7 +22,7 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, eventName = 'bid_calculated') {
+export function recordUsage(storage = usageStorage(), optedOut = false, eventName = 'bid_calculated') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
     let current = JSON.parse(storage.getItem('mobile-detailing-usage') || '{}');
@@ -26,7 +39,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
 // directly as well as taking the caller's argument -- a stored preference
 // that only one line of page wiring reads is one line away from being
 // forgotten, which is the defect this change exists to fix.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem('mobile-detailing-usage-opt-out') === '1';
   } catch {
@@ -35,7 +48,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   // Independent writes, counters first: sharing one try means a setItem
   // that throws on a full quota skips the delete entirely, and the

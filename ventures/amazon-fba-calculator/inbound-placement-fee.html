@@ -143,7 +143,7 @@
   </footer>
   <script type="module">
     import { compareInboundPlacement, placementSummary } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, usageStorage } from "./usage.mjs";
 
     const ids = [
       "units", "freightMinimal", "freightPartial", "freightOptimized",
@@ -177,7 +177,7 @@
     ids.forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, false, "inbound_placement_compared");
+        recordUsage(usageStorage(), false, "inbound_placement_compared");
       });
     });
     update();

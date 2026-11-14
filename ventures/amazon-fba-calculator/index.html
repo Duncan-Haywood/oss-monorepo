@@ -1059,7 +1059,7 @@
       prepSummary,
       subscribeSaveSummary,
     } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { deleteScenario, listScenarios, saveScenario } from "./scenarios.mjs";
     import { decodeInputs, encodeInputs, ENUM_FIELDS } from "./share.mjs";
     import { whereToSellUrl } from "./to-where-to-sell.mjs";
@@ -1310,13 +1310,13 @@
           if (radio) radio.checked = true;
         }
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_loaded");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_loaded");
       }));
       list.querySelectorAll("[data-delete]").forEach((button) => {
         button.addEventListener("click", () => {
           deleteScenario(localStorage, button.dataset.delete);
           renderScenarios();
-          recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_deleted");
+          recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_deleted");
         });
       });
     }
@@ -1737,14 +1737,14 @@
       const filled = applyCategoryPreset({}, document.getElementById("category").value);
       document.getElementById("referralRate").value = filled.referralRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "category_preset_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "category_preset_applied");
     }
 
     function applyStorage() {
       const filled = applyStoragePreset({}, document.getElementById("storageSeason").value);
       document.getElementById("storageRate").value = filled.storageRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "storage_season_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "storage_season_applied");
     }
 
     function syncPlacementRates(sizeTier, sizeTierLabel) {
@@ -1810,8 +1810,7 @@
       update();
     }));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
-      recordUsage(
-        localStorage,
+      recordUsage(usageStorage(),
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
           : id === "adsPerUnit" ? "break_even_acos_calculated"
@@ -1836,18 +1835,18 @@
     }));
     document.getElementById("lowPriceEligible").addEventListener("change", () => {
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_price_fba_compared");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "low_price_fba_compared");
     });
     ["groceryExempt", "newFnskuExempt"].forEach((id) => {
       document.getElementById(id).addEventListener("change", () => {
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_inventory_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "low_inventory_compared");
       });
     });
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
@@ -1856,7 +1855,7 @@
         saveScenario(localStorage, document.getElementById("scenarioName").value, readInput());
         document.getElementById("scenarioName").value = "";
         renderScenarios();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_saved");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_saved");
       } catch (error) {
         document.getElementById("scenarioName").setCustomValidity(error.message);
         document.getElementById("scenarioName").reportValidity();
@@ -1868,7 +1867,7 @@
         const text = decisionSummary();
         if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
         else window.prompt("Copy this decision summary:", text);
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "decision_summary_copied");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "decision_summary_copied");
       } catch {
         return;
       }
@@ -1921,7 +1920,7 @@
         if (radio) { radio.checked = true; applied += 1; }
       }
       if (applied > 0) {
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shared_link_opened");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "shared_link_opened");
         document.getElementById("shareStatus").textContent =
           `Loaded ${applied} value${applied === 1 ? "" : "s"} from the link. Everything else is this page's own starting figure — check the referral rate and size tier against your own fee preview.`;
       }
@@ -1938,7 +1937,7 @@
         // back button carry the scenario even if the clipboard was refused.
         location.hash = query;
         status.textContent = "Link copied. It carries your inputs and nothing else.";
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "share_link_copied");
       } catch {
         status.textContent = "Could not reach the clipboard — the address bar now holds the same link.";
         location.hash = query;
@@ -1948,7 +1947,7 @@
     document.getElementById("whereToSellLink").addEventListener("click", () => {
       // Records only that the handoff happened, never the item — this is the
       // one signal that will say whether the reverse handoff is worth keeping.
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
     });
 
     applySharedLink();
@@ -1963,8 +1962,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

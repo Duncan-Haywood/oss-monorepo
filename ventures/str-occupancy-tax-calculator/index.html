@@ -232,7 +232,7 @@
 
   <script type="module">
     import { calculateTax, round2, LAYER_COUNT, LAYER_FIELDS, GLOBAL_INPUT_IDS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const el = (id) => document.getElementById(id);
@@ -242,7 +242,7 @@
     };
 
     const optedOut = () => el('usageOptOut').checked;
-    const count = (event) => recordUsage(localStorage, optedOut(), event);
+    const count = (event) => recordUsage(usageStorage(), optedOut(), event);
 
     const cell = (row, field) => document.querySelector(`.${field}[data-row="${row}"]`);
 
@@ -477,8 +477,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

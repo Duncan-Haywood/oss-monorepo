@@ -177,7 +177,7 @@
   </footer>
   <script type="module">
     import { compareOpenHouse, openHouseNote } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, usageStorage } from "./usage.mjs";
 
     const ids = [
       "unitWholesale", "quantity", "unitCogs", "openingDiscountRate",
@@ -216,7 +216,7 @@
     ids.forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, false, "open_house_compared");
+        recordUsage(usageStorage(), false, "open_house_compared");
       });
     });
     update();

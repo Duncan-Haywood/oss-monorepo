@@ -210,7 +210,7 @@
 
   <script type="module">
     import { compareExclusiveVsWide, exclusiveNote, FORM_FIELD_IDS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs, hasSharedInputs, formValues } from './share.mjs';
 
     // Imported rather than restated: `share.mjs` needs the same list, and a
@@ -321,8 +321,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

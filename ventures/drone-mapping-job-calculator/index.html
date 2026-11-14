@@ -273,7 +273,7 @@
 
 <script type="module">
   import { PART_107_CEILING_M, SENSOR_PRESETS, money, priceJob, reviewPlan } from './calc.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const form = document.getElementById('job');
   const $ = (id) => document.getElementById(id);
@@ -439,8 +439,8 @@
       li.append(strong, document.createTextNode(note.detail));
       list.append(li);
     }
-    recordUsage(globalThis.localStorage, $('optout').checked, 'job_priced');
-    recordUsage(globalThis.localStorage, $('optout').checked, 'overlap_compared');
+    recordUsage(usageStorage(), $('optout').checked, 'job_priced');
+    recordUsage(usageStorage(), $('optout').checked, 'overlap_compared');
   }
 
   form.addEventListener('submit', (event) => {
@@ -502,8 +502,8 @@
     {
       const usageControl = document.getElementById('optout');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>
