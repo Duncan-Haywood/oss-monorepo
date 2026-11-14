@@ -110,3 +110,8 @@ test("an invoice (type I) is untouched by the payroll rules, and an old Nómina 
   const old = ordinary.replaceAll("http://www.sat.gob.mx/nomina12", "http://www.sat.gob.mx/nomina");
   assert.ok(rules(old).includes("MX-050"));
 });
+
+test("seniorityFits clamps a month-end start date (31 Aug + 6 months is 28 Feb)", () => {
+  assert.ok(seniorityFits("P6M0D", "2025-08-31", "2026-02-28")); // used to land on 3 March and fail
+  assert.ok(!seniorityFits("P6M1D", "2025-08-31", "2026-02-27"));
+});
