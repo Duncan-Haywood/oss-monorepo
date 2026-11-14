@@ -1,0 +1,67 @@
+# Milestone 18: the hold-down's shear path on Weiss's decayed wall (buildbot-sheathing)
+Milestone 17's wall LP (wall_lp.Wall: sill fixed, top plate without rotation, 7 studs and 2 sheets as rigid bodies, rigid-plastic sheathing nails F and 16d end-nail joints, rigid vertical hold-downs at the double end studs) with one addition: each held-down stud bottom also resists sliding along the sill with hd_shear = s F (the HTT4's anchor rod bearing in the sill; s = 0 is milestone 17, s = inf no slide). Decay = every nail below 12 in omitted. Capacities in units of F per unit top-plate displacement.
+
+## A. Inputs
+lat at the NDS ratio = 1.2971 F per 16d end nail (milestone 17); implied F = 246 lb (6-12 control), 238 lb (3-12 control)
+anchor rod, 5/8 in (F_yb 45,000 psi), bearing parallel to grain in a 1.5 in DF-L sill (F_e 11,200 G = 5,600 psi, G 0.50), steel side member (F_e 1.5 F_u = 87,000 psi, A36): Z = 617 lb (mode II, steel 0.125 in), 729 lb (mode II, steel 0.25 in), 1137 lb (mode II, steel 0.5 in)
+so one rod's design value is 2.55 F at the implied F (mean 242 lb); a tested ultimate is some multiple of that (1-5 x Z gives 2.6-12.8 F)
+
+## B. H81: code check
+s = 0 against milestone 17's registered capacities (4 cases): max relative difference 0.0e+00
+capacity never falls as s rises (2 schedules x 3 joint strengths x 5 values of s): True
+s = inf against s = 10,000 F: max relative difference 6.7e-16
+H81: held
+
+## C. H82: a rigid shear path at NDS-ratio joints
+intact 6-12 19.07 F, decay 15.17 F: keeps 79.5% (tested 56.5%; milestone 17 79.5%)
+intact 3-12 36.83 F, decay 27.06 F: keeps 73.5% (tested 33.9%; milestone 17 63.4%)
+decay 3-12 over decay 6-12 1.783 (tested 1.123)
+H82 (47-67% and 24-44%): refuted
+
+## D. H83-H84: refit the joint strength with a rigid shear path (multiples of the NDS ratio, 0.05-1.50 by 0.01)
+best fit 0.17 x NDS: keeps 68.9% (tested 56.5%) and 63.6% (tested 33.9%); rms 22.8%; decay ratio 1.771 (tested 1.123); intact 3-12 over 6-12 1.919 (tested 1.872)
+H83 (rms <= 5 points): refuted; H84 (decay ratio 1.02-1.25): refuted
+joint multiples within 5 points rms: none
+decay 6-12: 12.20 F x 246 lb = 2,998 lb against 2,649 lb (walls 2,786, 2,220, 2,942)
+decay 3-12: 21.60 F x 238 lb = 5,147 lb against 2,974 lb (walls 3,058, 2,890)
+
+### Share kept 6-12 | 3-12 and decay ratio, by shear path s (rows) and joint multiple (columns)
+s (F)                     0.20                 0.30                 0.40                 0.50                 0.60                 0.80                 1.00                 1.20
+     0        26.3%|13.7% 1.00     38.1%|19.9% 1.00     50.0%|26.0% 1.00     61.7%|32.0% 1.00     73.5%|38.2% 1.00     79.2%|50.8% 1.24     79.5%|63.4% 1.54     79.6%|73.7% 1.79
+     1        37.2%|19.4% 1.00     48.9%|25.5% 1.00     60.6%|31.5% 1.00     72.3%|37.5% 1.00     77.5%|43.7% 1.08     79.2%|56.3% 1.37     79.5%|68.8% 1.67     79.6%|74.0% 1.80
+     2        48.3%|25.1% 1.00     59.8%|31.0% 1.00     71.3%|37.0% 1.00     76.0%|42.9% 1.09     77.5%|49.1% 1.22     79.2%|61.7% 1.50     79.5%|73.4% 1.78     79.6%|74.0% 1.80
+     4        69.0%|36.7% 1.02     72.0%|42.2% 1.13     74.2%|48.0% 1.25     76.0%|53.9% 1.37     77.5%|60.0% 1.49     79.2%|72.1% 1.75     79.5%|73.5% 1.78     79.6%|74.0% 1.80
+     8        69.5%|59.8% 1.66     72.0%|64.3% 1.72     74.2%|66.9% 1.74     76.0%|68.5% 1.74     77.5%|70.2% 1.74     79.2%|72.3% 1.76     79.5%|73.5% 1.78     79.6%|74.0% 1.80
+    16        69.5%|63.6% 1.76     72.0%|65.1% 1.75     74.2%|66.9% 1.74     76.0%|68.5% 1.74     77.5%|70.2% 1.74     79.2%|72.3% 1.76     79.5%|73.5% 1.78     79.6%|74.0% 1.80
+   inf        69.5%|63.6% 1.76     72.0%|65.1% 1.75     74.2%|66.9% 1.74     76.0%|68.5% 1.74     77.5%|70.2% 1.74     79.2%|72.3% 1.76     79.5%|73.5% 1.78     79.6%|74.0% 1.80
+best fit per s (0.05 grid): s 0: 0.45 x NDS, rms 3.5%, ratio 1.00; s 1: 0.40 x NDS, rms 3.4%, ratio 1.00; s 2: 0.30 x NDS, rms 3.1%, ratio 1.00; s 4: 0.05 x NDS, rms 4.2%, ratio 1.00; s 8: 0.05 x NDS, rms 18.4%, ratio 1.58; s 16: 0.15 x NDS, rms 22.8%, ratio 1.78; s inf: 0.15 x NDS, rms 22.8%, ratio 1.78
+
+## E. H85: where the decayed wall's sheathing nails do their work (share of sheathing-nail dissipation)
+decay 6-12, fit 0.17, rigid path               cap  12.20, sheathing nails  10.61: end studs 69%, middle stud 11%, other studs 0%, sill 0%, top plate 19% | stud slides -0.00 +0.58 +0.58 +0.54 +0.54 +0.54 -0.00
+decay 3-12, fit 0.17, rigid path               cap  21.60, sheathing nails  19.48: end studs 85%, middle stud 0%, other studs 2%, sill 0%, top plate 12% | stud slides -0.00 +0.73 +0.75 +0.75 +0.75 +0.73 -0.00
+decay 6-12, 0.47, no path (milestone 17 fit)   cap  10.97, sheathing nails   0.00: end studs 0%, middle stud 0%, other studs 0%, sill 0%, top plate 0% | stud slides +1.00 +1.00 +1.00 +1.00 +1.00 +1.00 +1.00
+decay 6-12, NDS, rigid path                    cap  15.17, sheathing nails  15.11: end studs 38%, middle stud 39%, other studs 10%, sill 0%, top plate 13% | stud slides -0.00 -0.00 -0.00 +0.02 -0.00 -0.00 -0.00
+H85 (end studs carry at least half at the fit, 6-12): held
+
+## F. H86: how strong a shear path stops the slide at milestone 17's fit (0.47 x NDS), decay 6-12
+s  0.00 F: cap  10.97, keeps 58.2% of the intact wall at the same s, end studs slide 1.00
+s  1.00 F: cap  12.97, keeps 68.8% of the intact wall at the same s, end studs slide 1.00
+s  2.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.01
+s  3.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.00
+s  4.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.00
+s  6.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.00
+s  8.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.00
+s 12.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.00
+s 20.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.00
+s 30.00 F: cap  14.25, keeps 75.5% of the intact wall at the same s, end studs slide 0.00
+slide stops (end studs below half the top plate's slide) at s = 1.75 F = 423 lb a rod; NDS design value of the rod path 2.55 F (617 lb)
+H86: held
+post hoc, best joint multiple by shear path: s 0: 0.45, rms 3.5%; s 0.25: 0.45, rms 2.9%; s 0.5: 0.45, rms 3.6%; s 0.75: 0.40, rms 2.9%; s 1: 0.40, rms 3.4%; s 1.25: 0.35, rms 3.0%; s 1.5: 0.35, rms 3.2%; s 1.75: 0.30, rms 3.0%; s 2: 0.30, rms 3.1%; s 2.25: 0.25, rms 3.1%; s 2.5: 0.25, rms 3.0%; s 2.75: 0.20, rms 3.1%; s 3: 0.20, rms 3.0%; s 3.25: 0.15, rms 2.9%; s 3.5: 0.15, rms 3.1%; s 3.75: 0.10, rms 3.6%; s 4: 0.05, rms 4.2%
+strongest shear path with a fit within 5 points: s = 4.0 F = 968 lb a rod (NDS design value 617-1137 lb)
+
+## G. Escaped misses (milestone 17's H80) at the new fit, rigid shear path, first 2,000 walls
+milestone 17 model, NDS joints      : 1116 distinct walls; mean loss 2.74%, 99th-percentile loss 10.77%, min 0.8335
+rigid path, 0.17 x NDS              : 1116 distinct walls; mean loss 2.13%, 99th-percentile loss 9.02%, min 0.8428
+milestone 17 (10,000 walls, NDS joints): mean 2.73%, p99 10.41%
+
+273.3 s
