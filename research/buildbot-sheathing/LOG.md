@@ -1,5 +1,18 @@
 # buildbot-sheathing research log
 
+## 2026-11-14 · Milestone 16 result: softening nails do not explain Weiss's walls either; a racking sheet slips its perimeter nails almost equally
+
+`experiments/m16_soft_nails/` (run.py, results.txt, results.json, figure.py, figure.png); `src/buildbot_sheathing/softnail.py` (pushover of milestone 14's sheet with each nail a nonlinear spring along its slip); `tests/test_softnail.py` (5 tests). About 25 min on one CPU (about 7,000 pushovers of 600 steps).
+
+- **One change from the plan, made before any capacity was computed:** the rise of the backbone is P = Fp(1 − (1 − δ/δp)^n) instead of Foschi's exponential, because it peaks smoothly at δp with three numbers that the test paper gives or the sweep sets (Fp, the secant stiffness at 0.4 Fp, δp); the fall is as planned. n = 3.65–9.52 over the sweep.
+- **H70 held.** Elastic-perfectly-plastic nails yielding at 0.01 mm give milestone 14's capacity to 0.000% on the intact sheet, the Weiss pattern and 200 three-read miss patterns.
+- **H71 held.** At the tested backbone (δp 12 mm) the 4, 3 and 2 in sheets carry 1.444, 1.888 and 2.775 of the 6 in sheet, against SDPWS's 1.536, 1.964 and 2.607 (−6%, −4%, +6%), milestone 14's ratios to within 0.006. Every spacing peaks at 55–56 mm of drift (2.3%). The 6 in sheet peaks at 9.80 kN, 551 plf at the tested Fp, beside 560 plf nominal for the heavier 15/32 in Structural I panel (not a like-for-like check, but the right size).
+- **H72 refuted, firmly.** With every nail below 12 in omitted the sheet loses 20.1–20.4% at every δp from 6 to 15 mm and both the monotonic and cyclic Δu (23.4–23.8% at z ≤ 12 in), against 20.4% rigid-plastic. Post hoc (section G), a near-brittle nail that falls to 0.8 Fp 1 mm past its peak gives 20.4% too. The reason: at the sheet's peak the perimeter nails all slip 11–12 mm (median 11.0, max 12.3 mm) and only the field nails near the centre of rotation lag (3–4 mm), so the nails reach their peaks together and the ratio is the rigid-plastic one. No nail unloads before the sheet's peak, so the path-independent spring is exact up to it.
+- **H73 held.** Three reads on measured studs, every miss escaping: mean loss 2.39%, 99th percentile 11.80% (milestone 14: 2.34%, 11.49%); a 4-sheet wall's 1st percentile 0.932 (0.934). The cyclic Δu gives 2.40% and 11.81%.
+- **H74 held.** 4 in joint edges: intact 1.320 of the 6 in sheet; with misses left in, 99.98% of sheets at or above the intact 6 in sheet.
+- **What it means for the programme.** Milestone 15 left three candidates for why the model loses 20% where Weiss's walls lost about half: the framing joints, the nails' softening and the anchorage. Code-strength framing joints (milestone 15) and softening nails (here) are now both ruled out with sourced inputs, and in milestone 15 removing hold-downs moved the loss to 64–100%. So the anchorage is the remaining candidate: the next step is a model with hold-down and sill-plate stiffness and uplift, or Weiss's full text to read how her walls were held down. Milestone 14's escaped-miss figures and the 4 in joint-edge schedule stand under a tested nail curve, which is what a panel-line integrator would act on.
+- **Inputs not sourced:** the slip at peak δp (swept 6–15 mm; not tabulated in the test paper); the fall beyond 0.8 Fp (straight to zero at δp + 5(Δu − δp)). Monotonic loading only.
+
 ## 2026-11-14 · Milestone 16 planned: do softening nails explain why the model understated Weiss's walls?
 
 Written before any milestone-16 capacity was computed. Inputs: milestone 14's nail layout, kinematics (pinned framing, rigid sheet, full anchorage) and miss patterns (20,000 sheets, seed 7, measured studs).
