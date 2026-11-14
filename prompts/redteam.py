@@ -240,14 +240,24 @@ def list_targets(repo: Path = REPO, under: str | None = None) -> list[Path]:
 def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tuple[bool, float]:
     """(passed, seconds). A timeout counts as a failure: the suite noticed."""
     start = time.monotonic()
+    # No .pyc written: a same-size mutant's pyc (mtime+size match) would
+    # keep serving the mutant after the file is restored.
+    env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+    # Its own process group, killed whole afterwards: `node --test` runs each test file in a
+    # child, and killing only the parent on a timeout left a looping mutant's children spinning
+    # for 10+ minutes into later mutants (red team 2026-11-14), slow enough to time those out too.
+    proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                            env=env, start_new_session=True)
     try:
-        # No .pyc written: a same-size mutant's pyc (mtime+size match) would
-        # keep serving the mutant after the file is restored.
-        env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
-        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, timeout=timeout, env=env)
-        passed = proc.returncode == 0
+        passed = proc.wait(timeout=timeout) == 0
     except subprocess.TimeoutExpired:
         passed = False
+    finally:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            pass
+        proc.wait()
     return passed, round(time.monotonic() - start, 1)
 
 

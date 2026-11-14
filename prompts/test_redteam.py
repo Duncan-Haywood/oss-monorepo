@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 from pathlib import Path
@@ -55,6 +57,27 @@ class SitesTest(unittest.TestCase):
         found = redteam.sites("x = a == b and max(c, 2)\n# y = a == b\n", "py")
         self.assertEqual({s.operator for s in found},
                          {"eq-flip", "and-to-or", "max-to-min", "const-plus-one"})
+
+
+class RunSuiteTest(unittest.TestCase):
+    def test_a_timeout_kills_the_children_too(self):
+        # `node --test` runs each file in a child; on a timeout the old code killed only the
+        # parent, and a looping mutant's children kept running (red team 2026-11-14).
+        with tempfile.TemporaryDirectory() as tmp:
+            pidfile = Path(tmp) / "child.pid"
+            script = f"import subprocess, sys, time; c = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)']); open({str(pidfile)!r}, 'w').write(str(c.pid)); time.sleep(60)"
+            passed, seconds = redteam.run_suite([sys.executable, "-c", script], Path(tmp), timeout=2)
+            self.assertFalse(passed)
+            self.assertLess(seconds, 30)
+            child = int(pidfile.read_text())
+            time.sleep(0.2)
+            alive = Path(f"/proc/{child}").exists() and "Z" not in Path(f"/proc/{child}/stat").read_text().split()[2]
+            self.assertFalse(alive, "the suite's child process outlived the timeout")
+
+    def test_pass_and_fail_are_the_exit_code(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertTrue(redteam.run_suite([sys.executable, "-c", "pass"], Path(tmp))[0])
+            self.assertFalse(redteam.run_suite([sys.executable, "-c", "raise SystemExit(1)"], Path(tmp))[0])
 
 
 class SuiteForTest(unittest.TestCase):
