@@ -1,6 +1,6 @@
 ---
 title: "Checking a free loudness meter against EBU Tech 3341, and what Spotify's page actually says"
-seo_title: "EBU Tech 3341 test signals in code: a LUFS and true-peak meter checked, plus streaming targets"
+seo_title: "A LUFS and true-peak meter checked against EBU Tech 3341"
 date: 2026-11-14
 description: "Chant Forge's mix check passed 69 of 69 EBU Tech 3341 readings built from the spec's own text. Of six streaming services, only Spotify's page gives a loudness level."
 tags: [chant-forge, audio, loudness, evaluation]
