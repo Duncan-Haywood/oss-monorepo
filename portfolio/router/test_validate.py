@@ -37,6 +37,15 @@ def test_flagship_next_over_cap_is_reported(tmp_path):
     assert len(errors) == 1 and "x `next:`" in errors[0]
 
 
+def test_flagship_buildable_over_cap_is_reported(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    buildable: " + "a" * 700 + "\n    next: ok\n"
+                 "  - venture: y\n    buildable: short\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 1 and "x `buildable:`" in errors[0]
+
+
 def test_flagship_hyphen_fold_is_reported(tmp_path):
     p = tmp_path / "flagships.yaml"
     p.write_text("flagships:\n  - venture: x\n    next: >-\n      see ventures/wall-\n      framing/README.md\n")

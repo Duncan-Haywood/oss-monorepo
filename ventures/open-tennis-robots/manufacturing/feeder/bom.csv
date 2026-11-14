@@ -168,6 +168,7 @@ TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers
 "24 V on-delay timer relay module, set 0.5 s",cots,1,"24 V on-delay timer relay module, set 0.5 s",closes the contactor's coil after the precharge (manifest inrush line)
 PC817 optocoupler + 10k 0.5 W resistor,cots,1,PC817 optocoupler + 10k 0.5 W resistor,"contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md ""Stepper ENABLE after the contactor"")"
 4.7k resistor,cots,1,4.7k resistor,"stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"
+"Schottky diode, 45 V 20 A or more (TO-220 class)",cots,1,"Schottky diode, 45 V 20 A or more (TO-220 class)","regen return across the contactor and precharge relay: anode on the switched bus, cathode between the main fuse and the contactor (manifest regen line)"
 "Wireless e-stop relay remote, latching",cots,1,"Wireless e-stop relay remote, latching",second cut-off
 5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
 30 A fuse (ATO/ATC blade or MIDI) + inline holder,cots,1,30 A fuse (ATO/ATC blade or MIDI) + inline holder,"battery positive, within 150 mm of the terminal (manifest power line)"

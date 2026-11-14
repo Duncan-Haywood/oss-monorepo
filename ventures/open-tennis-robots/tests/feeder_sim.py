@@ -40,6 +40,7 @@ class SimFeeder:
         self.fob_cut = False           # wireless e-stop: drops the contactor's coil, the board sees no switch (2026-11-14)
         self.drop_cmd = None           # set to a command byte to lose the next such frame on the wire
         self.pot_broken = False
+        self.pack_mv = 25630           # battery reading; above REGEN_BRAKE_MAX_MV the wheels coast down (2026-11-14)
         state = self
         sim = self
 
@@ -81,8 +82,8 @@ class SimFeeder:
                 lo, hi = cfg.ELEV_POT_RAW_RETRACTED, cfg.ELEV_POT_RAW_EXTENDED
                 return int(lo + state.elev_true / cfg.ELEV_STROKE_MM * (hi - lo))
 
-            def read_uv(self):
-                return 2_330_000
+            def read_uv(self):          # GPIO 36, the battery divider (100k/10k)
+                return int(sim.pack_mv * 1000 / 11)
 
         machine = types.SimpleNamespace(Pin=Pin, PWM=PWM, ADC=ADC, UART=object)
         fake_time = types.SimpleNamespace(sleep_us=lambda us: None, sleep_ms=lambda ms: None,

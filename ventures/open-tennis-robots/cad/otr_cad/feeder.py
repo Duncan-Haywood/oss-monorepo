@@ -1959,6 +1959,7 @@ COTS_EXTRA = [
     ("24 V on-delay timer relay module, set 0.5 s", 1, "closes the contactor's coil after the precharge (manifest inrush line)"),
     ("PC817 optocoupler + 10k 0.5 W resistor", 1, "contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md \"Stepper ENABLE after the contactor\")"),
     ("4.7k resistor", 1, "stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"),
+    ("Schottky diode, 45 V 20 A or more (TO-220 class)", 1, "regen return across the contactor and precharge relay: anode on the switched bus, cathode between the main fuse and the contactor (manifest regen line)"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
     ("5 V 5 A buck converter", 1, "Pi supply"),
     ("30 A fuse (ATO/ATC blade or MIDI) + inline holder", 1, "battery positive, within 150 mm of the terminal (manifest power line)"),
@@ -2081,6 +2082,28 @@ def power_line(p: Feeder) -> str:
             f"draw what the firmware's spin-up ramp allows ({p.wheel_spinup_w:g} W of shaft power per wheel, up to "
             f"{d['spinup_w_max']:.0f} W fits; from rest to {max(p.launch_rpm):.0f} rpm in {d['spinup_s']['launch']:.1f} s); "
             f"at the motor's {p.launcher_peak_w:g} W peak, unramped, each would ask {d['unramped_esc_a']:.0f} A")
+
+
+def regen_line(p: Feeder) -> str:
+    d = p.regen_braking()
+    b, es = d["brake"], d["estop"]["brake"]
+    s = (f"regen: the firmware lowers a wheel's target at {p.wheel_spinup_w:g} W of shaft power, so ESCs that brake put up to "
+         f"{d['bus_w']:.0f} W on the bus ({b['bus_a']:.1f} A at {b['pack_v']:g} V; assumed {p.regen_eff:.0%} back). Into the pack "
+         f"that is {b['charge_a']:.1f} A of charge (BMS's assumed {p.bms_charge_a:g} A) and the highest cell reaches "
+         f"{b['top_cell_v']:.2f} V (cut {p.bms_cell_ovp_v:g} V); braking at a full {p.battery_v_max:g} V pack would lift it to "
+         f"{d['unguarded']['top_cell_v']:.2f} V, so the firmware coasts instead of braking above "
+         f"{p.regen_brake_max_v:g} V (REGEN_BRAKE_MAX_MV). An e-stop mid-brake leaves about {es['window_ms']:.0f} ms of "
+         f"braking ({es['joules']:.1f} J) after the contacts open: into the bus's {d['c_f'] * 1e6:.0f} uF alone it passes the "
+         f"switched parts' {p.switched_v_max:g} V in {es['to_limit_ms']:.1f} ms (energy enough for {es['peak_v']:.0f} V)")
+    if p.regen_diode:
+        s += (f"; a {p.regen_diode_vr:g} V {p.regen_diode_a:g} A Schottky across the contactor and precharge relay (anode on the "
+              f"bus) holds it at {d['diode_bus_v']:.1f} V and cannot feed the bus from the pack")
+    s += (f". A pack that stops taking charge for another reason (a cold BMS's charge block) lifts the bus to "
+          f"{p.switched_v_max:g} V in {d['refused']['to_limit_ms']:.1f} ms, faster than the firmware can act: set "
+          f"WHEEL_BRAKE = False to coast. Slowing a wheel 20% from {d['top_rpm']:.0f} rpm: "
+          f"{d['slow_20pct']['brake_s']:.1f} s braking, at least {d['slow_20pct']['coast_s']:.1f} s coasting; after a stop or "
+          f"an e-stop the wheels ({d['wheel_j']:.0f} J each) coast for at least {d['coast_to_rest_s']:.0f} s")
+    return s
 
 
 def inrush_line(p: Feeder) -> str:
@@ -2250,6 +2273,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     checks.insert(-3, deck_cable_line(p))
     checks.insert(-3, power_line(p))
     checks.insert(-3, inrush_line(p))
+    checks.insert(-3, regen_line(p))
     checks.insert(-3, trough_line(p))
     checks.insert(-3, lift_line(p))
     checks.insert(-3, agitator_line(p))

@@ -64,6 +64,13 @@ PANA_BLACK = (0x1C, 0x1D, 0x1E)
 PANA_WB_LEVELS = (0x24, 0x25, 0x26)
 PANA_RAW_FORMAT = 0x2D
 PANA_RAW_OFFSET = 0x118
+PANA_JPG_FROM_RAW = 0x2E  # the camera's own JPEG of the frame, with the full EXIF (maker note included)
+
+TAG_EXIF_MAKER_NOTE = 0x927C
+TAG_LENS_MODEL = 0xA434
+PANA_NOTE_LENS_TYPE = 0x0051  # Panasonic maker note: the lens's name ("LUMIX G 20/F1.7"; ExifTool LensType)
+PANA_NOTE_LENS_SERIAL = 0x0052
+PANA_NOTE_MAGIC = b"Panasonic\0\0\0"
 
 BLACK_OFFSET = 15  # dcraw and LibRaw add 15 to tags 0x1C-0x1E
 BLOCK = 0x4000
@@ -265,8 +272,105 @@ def parse_rw2(data: bytes, engine: str = "auto") -> rd.RawImage:
         synth.entries[rd.TAG_AS_SHOT_NEUTRAL] = tuple(1.0 / v for v in as_shot)
     head = rd.Ifd(entries=dict(ifd0.entries), byte_order=reader.end)
     head.entries[rd.TAG_UNIQUE_CAMERA_MODEL] = tuple(camera_model(data).encode("latin-1")) + (0,)
-    exif = rd.exif_ifd(reader, ifd0)
+    exif, lens_note = rw2_exif(data, reader, ifd0)
+    if lens_note:
+        notes.append(lens_note)
     return rd.RawImage(width, height, 1, values, synth, head, source="rw2", notes=notes, exif=exif)
+
+
+# --------------------------------------------------------------------------
+# The embedded JPEG's EXIF: where an RW2 keeps its lens
+
+
+def _jpeg_exif(jpg: bytes) -> bytes | None:
+    """The TIFF block of a JPEG's first APP1 "Exif" segment, or None."""
+
+    if jpg[:2] != b"\xff\xd8":
+        return None
+    pos = 2
+    while pos + 4 <= len(jpg):
+        if jpg[pos] != 0xFF:
+            return None
+        marker = jpg[pos + 1]
+        if marker == 0xFF:  # fill byte
+            pos += 1
+            continue
+        if marker in (0xD9, 0xDA):  # end of image, start of scan: no EXIF before the picture data
+            return None
+        size = struct.unpack_from(">H", jpg, pos + 2)[0]
+        if size < 2:
+            return None
+        body = jpg[pos + 4 : pos + 2 + size]
+        if marker == 0xE1 and body[:6] == b"Exif\0\0":
+            return body[6:]
+        pos += 2 + size
+    return None
+
+
+def embedded_exif(data: bytes, ifd0: rd.Ifd) -> tuple[rd.Ifd | None, rd.Ifd | None]:
+    """The EXIF IFD and the Panasonic maker note of the JPEG an RW2 embeds (tag 0x2E, JpgFromRaw).
+
+    The RW2's own EXIF IFD (0x8769) holds exposure and focal length but, on the four bodies checked here
+    (GF1, GF3, GF7, LX7), no LensModel and no maker note. The camera writes the full EXIF into the JPEG
+    preview it embeds instead, and its maker note ("Panasonic\\0\\0\\0", then an IFD whose offsets count
+    from that EXIF's TIFF header; ExifTool's Panasonic.pm, Exiv2's panasonicmn) names the lens in tag
+    0x51, LensType. Either half is None when the file does not have it.
+    """
+
+    at = ifd0.offsets.get(PANA_JPG_FROM_RAW)
+    values = ifd0.entries.get(PANA_JPG_FROM_RAW)
+    if at is None or not values:
+        return None, None
+    tiff = _jpeg_exif(data[at : at + len(values)])
+    if not tiff:
+        return None, None
+    try:
+        reader = rd._Reader(tiff)
+        if reader.magic != 42:
+            return None, None
+        jifd0 = reader.read_ifd(reader.first_ifd_offset())[0]
+    except (rd.DevelopError, struct.error):
+        return None, None
+    exif = rd.exif_ifd(reader, jifd0)
+    if exif is None:
+        return None, None
+    note = None
+    note_at = exif.offsets.get(TAG_EXIF_MAKER_NOTE)
+    if note_at is not None and tiff[note_at : note_at + len(PANA_NOTE_MAGIC)] == PANA_NOTE_MAGIC:
+        try:
+            note = reader.read_ifd(note_at + len(PANA_NOTE_MAGIC))[0]
+        except (rd.DevelopError, struct.error):
+            note = None
+    return exif, note
+
+
+def rw2_exif(data: bytes, reader, ifd0: rd.Ifd) -> tuple[rd.Ifd | None, str | None]:
+    """The RW2's EXIF IFD completed from the embedded JPEG's: tags the raw's own EXIF lacks are added, and
+    the maker note's LensType becomes LensModel when neither EXIF names the lens. Returns the IFD and a
+    note saying where the lens name came from (None when it came from nowhere new)."""
+
+    own = rd.exif_ifd(reader, ifd0)
+    jexif, note = embedded_exif(data, ifd0)
+    if jexif is None:
+        return own, None
+    merged = rd.Ifd(byte_order=own.byte_order if own is not None else reader.end)
+    if own is not None:
+        merged.entries = dict(own.entries)
+        merged.offsets, merged.source = dict(own.offsets), own.source
+    for tag, values in jexif.entries.items():
+        # The JPEG's maker note stays out: its offsets count from the JPEG's EXIF, not from this file.
+        if tag not in merged.entries and tag != TAG_EXIF_MAKER_NOTE:
+            merged.entries[tag] = values
+    lens_note = None
+    if _text(merged.get(TAG_LENS_MODEL)):
+        if TAG_LENS_MODEL not in (own.entries if own is not None else {}):
+            lens_note = f"RW2: lens {_text(merged.get(TAG_LENS_MODEL))!r} from the embedded JPEG's EXIF"
+    elif note is not None:
+        name = _text(note.get(PANA_NOTE_LENS_TYPE))
+        if name:
+            merged.entries[TAG_LENS_MODEL] = tuple(name.encode("latin-1")) + (0,)
+            lens_note = f"RW2: lens {name!r} from the embedded JPEG's Panasonic maker note (LensType)"
+    return merged, lens_note
 
 
 def sensor_crop(ifd0: rd.Ifd, width: int, height: int) -> tuple[int, int, int, int] | None:
@@ -284,8 +388,10 @@ __all__ = [
     "black_per_position",
     "camera_model",
     "decode_panasonic",
+    "embedded_exif",
     "is_rw2",
     "parse_rw2",
     "rotated_blocks",
+    "rw2_exif",
     "sensor_crop",
 ]

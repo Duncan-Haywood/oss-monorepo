@@ -37,6 +37,10 @@ loss, damage or injury arising from its use.
 
 - Guard both launcher wheels fully; never reach into the head unless the
   e-stop is pressed and the wheels have stopped.
+  The wheels are not braked to a stop: after a stop or an e-stop they coast,
+  and from the drill's top speed that takes at least 20 seconds (a lower
+  bound on an assumed drag, `Feeder.regen_braking`). Watch them stop; do not
+  count on the e-stop to stop them.
 - Test new drills at low speed first; stand to the side, not in front of
   the muzzle, while the feeder spins up.
 - Nobody but the player on the court while the feeder runs. Children and

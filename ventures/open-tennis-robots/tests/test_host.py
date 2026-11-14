@@ -307,6 +307,51 @@ class SpinupRampTest(unittest.TestCase):
         self.assertEqual(sim.hw.esc_cmd, [0.0, 0.0])
         self.assertEqual(sim.hw.wheel_ramps[0].rpm, 0.0)
 
+    def test_coasting_when_braking_is_off(self):
+        ramp = controller.SpinupRamp(100.0, 0.00155, 1500.0)
+        ramp.rpm = 6000.0
+        self.assertEqual(ramp.update(3000, 5900, 10, brake=False), 5900)   # follows the wheel, not the power cap
+        self.assertTrue(ramp.coasting)
+        self.assertEqual(ramp.update(3000, 4000, 10, brake=False), 4000)
+        self.assertEqual(ramp.update(3000, 2950, 10, brake=False), 3000)   # arrived: the loop takes over at the target
+        self.assertFalse(ramp.coasting)
+        self.assertGreater(ramp.update(5000, 3000, 10, brake=False), 3000)  # raising is ramped as before
+        self.assertFalse(ramp.coasting)
+
+    def _slow_down(self, pack_mv):
+        sim = SimFeeder()
+        sim.pack_mv = pack_mv
+        sim.write(P.encode(P.HEARTBEAT) + P.encode(P.SET_WHEELS, 5000, 2000))
+        for _ in range(120):
+            sim.write(P.encode(P.HEARTBEAT))
+            sim.run_ms(100)
+        self.assertTrue(sim.hw.wheels_steady.steady)
+        sim.write(P.encode(P.HEARTBEAT) + P.encode(P.SET_WHEELS, 3000, 2000))
+        sim.run_ms(50)
+        return sim
+
+    def test_the_board_coasts_on_a_nearly_full_pack(self):
+        import config
+        braking = self._slow_down(config.REGEN_BRAKE_MAX_MV - 1000)
+        self.assertGreater(braking.hw.esc_cmd[0], 0.0)                  # ramped down under power: the ESC brakes
+        self.assertFalse(braking.hw.wheel_ramps[0].coasting)
+        full = self._slow_down(config.REGEN_BRAKE_MAX_MV + 600)
+        self.assertEqual(full.hw.esc_cmd[0], 0.0)                       # zero throttle: nothing to brake on
+        self.assertTrue(full.hw.wheel_ramps[0].coasting)
+        self.assertGreater(full.hw.esc_cmd[1], 0.0)                     # the bottom wheel's target did not change
+        for _ in range(60):
+            full.write(P.encode(P.HEARTBEAT))
+            full.run_ms(100)
+        self.assertFalse(full.hw.wheel_ramps[0].coasting)               # arrived, and held by the loop again
+        self.assertAlmostEqual(full.wheel[0], 3000, delta=150)
+
+    def test_regen_config_matches_the_cad(self):
+        import config
+        p = _feeder()
+        self.assertEqual(config.REGEN_BRAKE_MAX_MV, p.regen_brake_max_v * 1000)
+        self.assertTrue(config.WHEEL_BRAKE)
+        self.assertEqual(p.check_regen(), [])
+
     def test_simulated_peak_stays_near_the_cap(self):
         import spinup_ramp_sweep as sweep
         p = _feeder()

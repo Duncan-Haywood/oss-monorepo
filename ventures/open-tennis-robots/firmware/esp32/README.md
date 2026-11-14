@@ -132,6 +132,18 @@ bus is back and settled the board drives nothing, and telemetry sets
 and aborts if it comes back mid-drill. The reasoning and numbers are in
 `cad/README.md`, "Stepper ENABLE after the contactor, and contact bounce".
 
+**Lowering a wheel's speed: brake or coast (2026-11-14).** `SpinupRamp` lowers
+a target at the same capped power it raises one, so an ESC that brakes sends
+up to about 170 W back to the pack. `FeederHw.update` allows that only while
+the battery reads at or under `REGEN_BRAKE_MAX_MV` (27,600 mV) and
+`WHEEL_BRAKE` is True. Otherwise the ramp coasts: it sets `coasting`, follows
+the wheel's measured speed down, and the board sends zero throttle until the
+wheel reaches its target, then the speed loop takes over (a throttle matching
+the wheel's speed would only hold it there). Braking into a nearly full pack
+lifts a cell to the BMS's cut, after which the energy has nowhere to go but
+the bus. Set the ESCs' brake at zero throttle off; a stop and an e-stop
+coast. Numbers: `cad/README.md`, "Regenerative braking".
+
 Whatever the mode, the feed gate now waits for the aim: a ball is released only
 when the wheels are within 5% of their speeds **and** both the elevation and
 the azimuth have arrived. Telemetry sets `FLAG_AIM_SETTLING` (128) while either

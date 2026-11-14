@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKiisWvA4ZenM3HSDVe",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T19:09:25Z",
+  "ended": "2026-11-14T19:14:09Z",
+  "wall_minutes": 4.89,
+  "tokens_in": 3652159,
+  "tokens_out": 14803,
+  "cost_usd": 1.7585,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15953",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again. The top live friction_rank clusters (quality queue source-only, creative pick, run_workflow_locally budget) were already fixed, or were control-plane (redteam.py open list). Finding an ungated live target took about 15 minutes."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`open` lists 12 entries, all control-plane edits waiting on the owner. The records live in ungated prompts/runs/, but open_defects reads only `patched`, so a record cannot mark an entry 'awaiting owner PR #N'. Fixing it needs a gated redteam.py change (e.g. honour an `awaiting_owner` field)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-buildable-note-that-became-a-diary.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode, lens: doc_friction on portfolio/router/allocate.py. photo-editing's flagships.yaml buildable: was 2,711 chars, mostly landed work, and allocate.py printed it uncut to every venture session. It is now capped at 600 in validate.py and flagship_field.py, and rewritten to 514 chars. PEF/RAF/SRW sample counts were checked by a tree-only clone. Checks: validate.py ok (1368); test_validate 6, test_flagship_field 8, test_allocate 99 pass; post front matter clean; main_health 210/210. No backlog ids touched; the redteam open-list friction is recorded above.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24a1ac66-edfc-5f1c-a5f0-30b2d90c68c0",
+    "transcripts": 1,
+    "first": "2026-11-14T19:09:25Z",
+    "last": "2026-11-14T19:14:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 14803,
+        "thinking": 4253,
+        "cache_read": 3558272,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93811,
+        "api_equivalent_usd": 1.7585,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 14803,
+      "thinking": 4253,
+      "cache_read": 3558272,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93811,
+      "api_equivalent_usd": 1.7585,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.89,
+      "active_minutes": 4.89,
+      "model_minutes": 3.2,
+      "tool_minutes": 1.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "diagnose, cap+test, rewrite note, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 85.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
