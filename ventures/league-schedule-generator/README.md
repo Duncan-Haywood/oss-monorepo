@@ -972,7 +972,13 @@ to be a round robin; the page's `carryOverFromOpponents` agrees):
   | Single, break weight 10 | 252 / 18, 240 / 18, 238 / 20 | the same (the starter is kept) |
   | Home and away, either setting | 732 / 84 ... 842 / 54 | the same |
 
-  Nothing got worse at any seed or setting. As 12 teams showed (README "Refilled rounds"), a leg with
+  Nothing got worse at any seed or setting. The page's own weighted tries (`carryOverTry(14, i, { seed: 1,
+  weighted: 8 })`) moved too, and each of the seven that changed scores lower on its own weight (carry-over
+  + weight x breaks): single round robin try 1 (weight 20) 250 / 18 to 244 / 18, try 3 (weight 80) 238 / 20 to
+  250 / 18, try 5 (weight 20) 244 / 20 to 250 / 18; home and away try 2 (weight 40) 1,290 / 42 to 1,030 / 46,
+  try 3 (weight 80) 1,014 / 46 to 1,078 / 42, try 5 (weight 20) 880 / 52 to 942 / 46, try 7 (weight 80)
+  1,118 / 44 to 908 / 46. The two MaxSAT-checked 14-team seasons in `orient.test.mjs` are now rebuilt
+  without the stored start, so the proofs still apply to the timetables they were run on. As 12 teams showed (README "Refilled rounds"), a leg with
   less carry-over does not always make a better season, which is why it is a third start, not a
   replacement. At 13 teams the same timetable with one team as the bye scores 179, worse than the 169
   the search already finds, so it is stored for 14 only.
