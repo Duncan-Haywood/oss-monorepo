@@ -54,6 +54,15 @@
     @media print { body > :not(#doc-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #doc-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #doc-card .noprint { display: none !important; } #doc { border: 0; padding: 0; } }
     footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.grid:has(#f-ip) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

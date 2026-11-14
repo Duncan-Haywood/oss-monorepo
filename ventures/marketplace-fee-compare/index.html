@@ -158,6 +158,15 @@
     .handoff .rank { color: var(--muted); font-size: .87rem; }
     @media (max-width: 640px) { .wrap { padding: 1.2rem .8rem 3rem; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.fields:has(#categoryId) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 261px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
 <div class="wrap">

@@ -21,6 +21,15 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 
 ![Predicted against observed miss rate per cell](experiments/threshold/pred_vs_obs.png)
 
+**Step 2b (2026-11-14): does that theory hold on the real phones? No.** The same model, run window for window on the five LibriWASN phones of step 1 (96,000 windows replayed exactly; every one of step 1's 96 miss rates reproduced to the digit):
+
+- **H4 is refuted on real devices.** The model predicts the miss rate within a factor of two in **41 of 94 scored cells (44%)**, against the pre-registered 75%. Rice's variant does no better (39/94).
+- **It now errs high, not low**: median predicted/observed 2.2, and no scored cell is underpredicted by more than x2. On the simulated rooms of step 2a it ran low.
+- **The error grows with window length**: 0.5 s windows agree in 24 of 24 cells (median ratio 0.98), 1 s in 14 of 24, 2 s in 1 of 24 and 4 s in 2 of 22 (median ratio 5). Real recordings get better with a longer window much faster than the theory says. For an engineer this means the model is a usable miss-rate estimate for sub-second windows and a pessimistic bound beyond that.
+- **Raw-bin PHAT again misses more than its smoothed form**, in all 8 window-room cells at -10 dB (e.g. 800 ms room, 2 s: 34% against 17%).
+
+![Predicted against observed miss rate per cell, real phones](experiments/threshold/libriwasn_pred_vs_obs.png)
+
 ## What is and is not real
 
 | input | value | source |
@@ -45,7 +54,7 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on **aud
 ```bash
 pip install numpy scipy pytest matplotlib
 cd research/capture-sync
-python -m pytest -q tests                                     # 13 tests, synthetic, no data needed
+python -m pytest -q tests                                     # 15 tests (13 synthetic; 2 check committed step 2b outputs)
 python experiments/real-devices/fetch.py ~/libriwasn 200_0S 800_0S   # ~1 GB, phone channels only
 python experiments/real-devices/run.py ~/libriwasn --trials 40 --procs 4   # ~25 min on 4 cores
 python experiments/real-devices/figure.py
@@ -55,7 +64,9 @@ git clone --depth 1 --filter=blob:none --no-checkout https://github.com/microsof
 cd ~/ms-snsd && git sparse-checkout init --no-cone && printf '/clean_test/clnsp1[0-9].wav\n/clean_test/clnsp[2-9][0-9].wav\n/clean_test/clnsp1[0-9][0-9].wav\n/noise_test/Babble_*\n' > .git/info/sparse-checkout && git checkout HEAD && cd -
 OMP_NUM_THREADS=1 python experiments/threshold/run.py ~/ms-snsd --trials 250 --procs 4   # ~15 min on 4 cores
 python experiments/threshold/figure.py
-python experiments/threshold/libriwasn.py ~/libriwasn            # step 2b, not yet run
+OMP_NUM_THREADS=1 python experiments/threshold/libriwasn.py ~/libriwasn --procs 4   # step 2b, ~38 min on 4 cores
+python experiments/threshold/libriwasn_score.py               # scores the step 2b predictions
+python experiments/threshold/libriwasn_figure.py
 ```
 
 ## Results (from [`experiments/real-devices/results.txt`](experiments/real-devices/results.txt))
@@ -100,7 +111,7 @@ Averaged over noise levels the transferred gate lands within 2% of failures. In 
 
 **Question.** Does Ianniello's (1982) gross-error model predict how often a short window lands on a wrong lag (H4)? The pre-registered plan and predictions are in `LOG.md`, written before the full run.
 
-**Why not LibriWASN.** This session's egress proxy refused zenodo.org (403), so the real-device check of H4 is step 2b. `experiments/threshold/libriwasn.py` is ready for it: it replays step 1's windows and noise draws exactly and adds the predictions. It ran end to end on a fake LibriWASN-shaped tree, but it has not been run on the real data.
+**Why not LibriWASN.** This session's egress proxy refused zenodo.org (403), so the real-device check of H4 is step 2b. `experiments/threshold/libriwasn.py` is ready for it: it replays step 1's windows and noise draws exactly and adds the predictions. It was run on the real data in step 2b (below).
 
 **Model.** The correlator weight is W = (G<sub>xx</sub>G<sub>yy</sub>)<sup>-gamma/2</sup>, taken from smoothed spectra (gamma 1 is the SCOT weighting of Knapp and Carter 1976). The mean output at the true lag is mu = max over &plusmn;1 ms of &int;W Re(G<sub>xy</sub>e<sup>j2&pi;f&tau;</sup>)df. The spreads are sigma<sub>1</sub><sup>2</sup> = (1/2L)&int;W<sup>2</sup>G<sub>xx</sub>G<sub>yy</sub>df at wrong lags and sigma<sub>0</sub><sup>2</sup> = (1/2L)&int;W<sup>2</sup>(G<sub>xx</sub>G<sub>yy</sub> + Re G<sub>xy</sub><sup>2</sup>)df at the true lag. The largest of the wrong-lag outputs over 2.93 s of lag comes from M = 2B<sub>eff</sub>T independent cells (Ianniello's model, scored for H4) or from Rice's (1944) upcrossing rate. The spectra are Welch estimates (512-sample Hann segments, no overlap) of the two windows aligned at the true lag. Tests check the model against the textbook output SNR &radic;(2LB)/(1+N/S) and a Gaussian Monte Carlo.
 
@@ -144,6 +155,36 @@ Prior, search and failure rule are as in step 1. A cell is scored if it has at l
 
 **Limits of step 2a.** The rooms are statistical, not measured, and each device gets an independent tail. The delays and starts are simulated. The babble is independent per device, while in a real room both devices hear the same crowd. Each source stretch is a random cut from 37 minutes, so windows overlap. The spectra are oracle-aligned for the H4 score, which an estimator in the field cannot do (hence the blind variant in (d)). No intervals are reported on the agreement counts.
 
+## Step 2b: threshold theory on the real phones (`experiments/threshold/libriwasn.py`)
+
+**Question.** H4 proper: does the gross-error model of step 2a predict how often a window misses on real devices, rooms and clocks? The harness was written in step 2a and not changed; the plan and five predictions were written to `LOG.md` before the run.
+
+**Design.** Step 1 replayed exactly: LibriWASN 200_0S and 800_0S, 10 sessions each, 10 phone pairs, 40 seeded window times, a prior error uniform in &plusmn;1 s, noise as recorded or independent white at 0 and -10 dB, windows of 0.5, 1, 2 and 4 s. For gamma 1, 0.5, 0.25 and 0 each window gets step 1's raw-bin GCC, the smooth-weight GCC the model describes, and the cells and Rice predictions from Welch spectra of the two windows aligned at step 1's reference line. 96 cells of 4,000 windows each; 94 have at least 10 failures and are scored. Run time 38 min on 4 cores.
+
+**Results** (from [`experiments/threshold/libriwasn_score.txt`](experiments/threshold/libriwasn_score.txt)):
+
+| smooth-weight GCC vs cells model | agree within x2 | over x2 | under x0.5 | median predicted/observed |
+|---|---|---|---|---|
+| all scored cells | **41/94 (44%)** | 53 | 0 | 2.23 |
+| 200 ms room | 17/48 | 31 | 0 | 2.61 |
+| 800 ms room | 24/46 | 22 | 0 | 1.57 |
+| 0.5 s windows | 24/24 | 0 | 0 | 0.98 |
+| 1 s windows | 14/24 | 10 | 0 | 1.84 |
+| 2 s windows | 1/24 | 23 | 0 | 3.63 |
+| 4 s windows | 2/22 | 20 | 0 | 5.04 |
+
+The pattern holds for every weighting: at 2 and 4 s, PHAT agrees in 3 of 12 cells and gamma 0.5, 0.25 and 0 in none (median ratios 3.4 to 4.6). Example: as recorded, 200 ms room, 4 s, gamma 0.25, the model predicts 6.1% and 0.6% of windows miss.
+
+**Predictions** (`LOG.md`, 2026-11-14):
+
+- (a) Replay check, raw-bin failure rates equal step 1's: **held** (96/96 cells, identical).
+- (b) H4, at least 75% of scored cells agree: **failed** (44%). H4 is refuted on these devices by the proposal's own criterion.
+- (c) The prediction runs low (median below 1): **failed**; it runs high (2.23).
+- (d) The 800 ms room agrees at least as often as the 200 ms room: **held** (52% against 35%).
+- (e) Raw-bin PHAT misses more than smooth-weight PHAT in at least 3 of 4 window lengths at -10 dB in each room: **held** (4/4 in both).
+
+**What it means, and what it does not.** The model's error is not a constant factor: it is right for half-second windows and increasingly pessimistic as the window grows, on both rooms and all weightings. Step 2a's statistical rooms and simulated delays did not show this, so the simulated benchmark was the wrong place to calibrate it. Why the real recordings improve faster with window length than the theory says is open. The model treats a window as stationary Gaussian with averaged spectra; speech is bursty, and the cell count M of the wrong-lag maximum does not depend on L, so a mis-modelled scaling of the true-lag peak with L is the first suspect. Testing that needs per-window outputs, which this harness pools; that is the next step. No intervals are reported on the agreement counts.
+
 ## Pre-registered predictions, step 1 (`LOG.md`)
 
 - (a) H1, -10 dB, 2 s, the 800 ms room fails more than the 200 ms room: **held** for PHAT (0.336 vs 0.169) and for gamma 0.25 (0.072 vs 0.050; the intervals touch at 0.063).
@@ -161,7 +202,7 @@ Prior, search and failure rule are as in step 1. A cell is scored if it has at l
 
 ## Next steps (milestones in `PROPOSAL.md`)
 
-- Step 2b: run `experiments/threshold/libriwasn.py` on the LibriWASN phones (H4 on real devices) from a session that can reach zenodo.org.
+- Why the threshold model overpredicts long windows on real phones (step 2b): keep per-window outputs, regress predicted against observed failure on window SNR, speech activity and L, and try a nonstationary (segment-wise) version of the true-lag peak variance.
 - Babble shared between devices (one crowd heard by both), and why PHAT wins in babble: a whitening that adapts to the noise spectrum, not a fixed gamma.
 - A conformal gate across the overlap subsets (two talkers at once) and the Paderborn time-varying-SRO set, and where exchangeability breaks.
 - Baselines on equal windows: a Kammerl et al. (2014) style fingerprint sync and `paderwasn`'s online tracker.

@@ -49,6 +49,15 @@
     :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
     :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.grid:has(#preset) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 325px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

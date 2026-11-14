@@ -1,5 +1,21 @@
 # capture-sync research log
 
+## 2026-11-14 · Step 2b outcome: on the real phones the threshold model is refuted (41/94 cells within x2), right at 0.5 s and up to x5 pessimistic at 2-4 s
+- **Ran as planned**, no code changed. zenodo.org reachable; the phone channels of 200_0S and 800_0S fetched by range requests (one rename race from two fetches started by mistake into the same directory; the rerun skipped the complete files and fetched none). 96,000 windows, 4 gammas, 38 min on 4 cores.
+- **(a) Replay: held.** All 96 raw-bin miss rates equal step 1's.
+- **(b) H4 on real devices: failed.** 41 of 94 scored cells (44%) within x2 under the cells model, 39/94 under Rice's. H4 is refuted by the proposal's criterion (more than a quarter outside x2).
+- **(c) Runs low: failed.** It runs high: median predicted/observed 2.23, 53 cells over x2 and none under x0.5.
+- **(d) 800 ms room agrees at least as often: held** (24/46 against 17/48).
+- **(e) Raw-bin PHAT worse than smooth-weight PHAT at -10 dB: held**, 4/4 window lengths in both rooms.
+- **Post hoc, not predicted:** the error is a function of window length, for every gamma: 0.5 s 24/24 agree (median ratio 0.98), 1 s 14/24, 2 s 1/24, 4 s 2/22 (ratio 5.0). At 2-4 s PHAT agrees in 3/12 cells and the other weightings in 0/34.
+- **What it changes.** The model is usable as a miss-rate estimate for sub-second windows and as a pessimistic bound beyond. Step 2a's simulated rooms hid this, so the step 2a calibration does not transfer to real devices. Next: keep per-window outputs and find what the true-lag peak's L-scaling misses (speech activity, a segment-wise variance).
+
+## 2026-11-14 · Step 2b plan (threshold theory on the real LibriWASN phones), written before the run
+- **Why now.** Step 2a tested H4 on real speech with simulated rooms and delays because zenodo.org was refused; this session's proxy reaches it (HTTP 200 on the record page), so H4 proper can run on the phones of step 1: real clocks, real rooms, real delays.
+- **Design, fixed in advance by `experiments/threshold/libriwasn.py`** (unchanged since step 2a merged). Replays step 1 exactly: 200_0S and 800_0S, 10 sessions each, 10 pairs, 40 seeded window times, prior error uniform in +-1 s, noise as recorded and independent white at 0 and -10 dB, windows 0.5/1/2/4 s. For gamma 1, 0.5, 0.25 and 0 it records step 1's raw-bin GCC, the smooth-weight GCC the model describes, and the cells and Rice predictions from Welch spectra of the two windows aligned at the reference line. A cell (room x noise x window x gamma) is scored if it has at least 10 observed failures; "agrees" means predicted/observed in [0.5, 2].
+- **Seen before writing this.** Step 1's and step 2a's results only. Nothing from this run.
+- **Predictions (to be reported held or failed).** (a) Replay check: the raw-bin GCC failure rates equal step 1's `results.txt` for the same cells (same seeds); if they do not, the run is not a replay and the rest is reported as such. (b) H4 on real devices, smooth-weight GCC, cells model: at least 75% of scored cells agree (the proposal refutes H4 if more than a quarter fall outside x2). (c) The prediction runs low, as on speech in step 2a: median predicted/observed below 1. (d) As in step 2a, the 800 ms room agrees at least as often as the 200 ms room. (e) Raw-bin PHAT fails more often than the smooth-weight PHAT in at least 3 of the 4 window lengths at -10 dB in each room.
+
 ## 2026-11-13 · Step 2a outcome: the threshold model predicts real-speech miss rates within x2 in 80% of cells, underpredicting; raw-bin PHAT adds misses; in babble PHAT wins
 - **Ran as planned**, with one change before any result was seen: the first full run was stopped after 22 min because `np.convolve` with 0.8 s impulse responses would have taken another hour. It was rerun with `scipy.signal.fftconvolve`, with the same seeds and the same maths. 84,000 windows, 4 gammas each, about 15 min on 4 cores.
 - **(a) Gaussian implementation check: failed narrowly.** 8 of 9 scored cells agree for every gamma (89%, the bar was 90%). The one miss is the same cell for all four gammas (-10 dB, 0.5 s), where the prediction is 0.15 to 0.17 against 0.07 to 0.08 observed. Median predicted/observed is 0.84.

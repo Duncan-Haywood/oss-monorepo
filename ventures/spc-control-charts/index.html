@@ -60,6 +60,15 @@
     pre.bib { white-space: pre-wrap; font-size: .8rem; background: #f4f5f7; padding: 10px; border-radius: 8px; }
   </style>
 <style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.grid:has(#type) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 384px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

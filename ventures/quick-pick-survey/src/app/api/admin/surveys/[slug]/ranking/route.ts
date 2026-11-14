@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { agreementSummary, coverage, fastAnswerCutMs, fastAnswerers, fastBlockStarts, ratingsWithoutAnswers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, respondentPace, slotClickerAdvice, slotClickers } from "@/lib/groupRanking";
+import { agreementSummary, coverage, fastAnswerCutMs, fastAnswerers, fastBlockStarts, ratingsWithoutAnswers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, isFastAnswer, respondentPace, slotBlockAdvice, slotClickerAdvice, slotFlags } from "@/lib/groupRanking";
 import { CHECKOUT_URL, VALIDATE_URL } from "@/lib/checkout";
 import { reportGate } from "@/lib/reportAccess";
 import { resultsReportHtml } from "@/lib/resultsReport";
@@ -14,6 +14,9 @@ import { resultsReportHtml } from "@/lib/resultsReport";
  * rebuilding each person's ratings from the answers kept (groupRanking.ts, ratingsWithoutFastAnswers).
  * `?drop=fast-blocks` keeps everyone and leaves out what each person answered after turning quick
  * partway through, read against the panel's time at the same point in the session (groupRanking.ts, fastBlockStarts).
+ * Always, whatever `drop` says: a respondent who started clicking one screen position partway through keeps the answers
+ * before that run and loses the run (groupRanking.ts, slotBlockStarts); one who clicked a position all session without
+ * such a run is left out whole (slotClickers).
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const store = await cookies();
@@ -51,8 +54,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       else c.second += r._count._all;
       bySlot.set(r.participantId, c);
     }
-    const clickers = slotClickers([...bySlot.values()]);
-    const unclicked = clickers.size ? ratings.filter((r) => !clickers.has(r.participantId)) : ratings;
     // Time per pick: a note beside agreement (groupRanking.ts, paceSummary), and the ranking without the fast answerers on ?drop=fast.
     // In answer order, so ?drop=fast-answers can replay each person's ratings exactly as the answer route built them.
     const times = await prisma.trial.findMany({
@@ -61,6 +62,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       orderBy: [{ answeredAt: "asc" }, { id: "asc" }],
       take: 200000,
     });
+    // A run of one-position clicks that starts partway: the answers before it count, the run does not (slotBlockStarts).
+    // Whole-session clickers without such a run are left out whole, as before.
+    const { whole: clickers, from: slotBlocks } = slotFlags(times.map((t) => ({ participantId: t.participantId, result: t.result! })), [...bySlot.values()]);
+    const unclicked = clickers.size ? ratings.filter((r) => !clickers.has(r.participantId)) : ratings;
     const paces = respondentPace(times.filter((t) => !clickers.has(t.participantId)).map((t) => ({ participantId: t.participantId, ms: t.msToAnswer })));
     const fast = fastAnswerers(paces);
     const agreements = respondentAgreement(unclicked);
@@ -68,20 +73,34 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const cut = drop.fastAnswers ? fastAnswerCutMs(paces) : null;
     const inOrder = () => times.filter((t) => !clickers.has(t.participantId)).map((t) => ({ participantId: t.participantId, itemAId: t.itemAId, itemBId: t.itemBId, result: t.result!, ms: t.msToAnswer }));
     const blocks = drop.fastBlocks ? fastBlockStarts(inOrder()) : null;
-    const replayed = cut !== null
-      ? ratingsWithoutFastAnswers(inOrder(), cut)
+    const inSlotBlock = (a: { participantId: string }, i: number) => i >= (slotBlocks.get(a.participantId) ?? Infinity);
+    const slotOnly = slotBlocks.size ? ratingsWithoutAnswers(inOrder(), inSlotBlock) : null;
+    const slotDropped = slotOnly ? slotOnly.dropped : 0;
+    const timeCut: ((a: { participantId: string; ms: number | null }, i: number) => boolean) | null = cut !== null
+      ? (a) => isFastAnswer(a, cut)
       : blocks && blocks.size
-        ? ratingsWithoutAnswers(inOrder(), (a, i) => i >= (blocks.get(a.participantId) ?? Infinity))
+        ? (a, i) => i >= (blocks.get(a.participantId) ?? Infinity)
         : null;
-    const kept = replayed ? replayed.rows : drop.fast && fast.size ? unclicked.filter((r) => !fast.has(r.participantId)) : unclicked;
+    const fastReplay = timeCut ? ratingsWithoutAnswers(inOrder(), timeCut) : null;
+    // With slot blocks too, the time cut is replayed on top of them; `dropped` then counts only what the time cut added.
+    const replayed = fastReplay && slotBlocks.size
+      ? { ...ratingsWithoutAnswers(inOrder(), (a, i) => inSlotBlock(a, i) || timeCut!(a, i)), people: fastReplay.people }
+      : fastReplay;
+    if (replayed && replayed !== fastReplay) replayed.dropped -= slotDropped;
+    // Everyone else keeps the ratings the answer route stored; only the people with a slot block are replayed.
+    const base = slotOnly ? [...unclicked.filter((r) => !slotBlocks.has(r.participantId)), ...slotOnly.rows.filter((r) => slotBlocks.has(r.participantId))] : unclicked;
+    const kept = replayed ? replayed.rows : drop.fast && fast.size ? base.filter((r) => !fast.has(r.participantId)) : base;
     const ranked = groupRanking(survey.items, kept);
     const leftOut = {
       slotClickers: clickers.size,
+      slotBlocks: slotBlocks.size,
+      slotBlockAnswers: slotDropped,
       fast: drop.fast ? fast.size : 0,
       fastAnswers: cut !== null && replayed ? replayed.dropped : 0,
       fastBlocks: blocks ? blocks.size : 0,
       advice: [
         slotClickerAdvice(clickers.size, survey._count.participants),
+        slotBlockAdvice(slotBlocks.size, slotDropped),
         drop.fast && fast.size ? `${fast.size} fast ${fast.size === 1 ? "answerer is" : "answerers are"} left out of this ranking, as asked.` : "",
         cut !== null && replayed && replayed.dropped
           ? `${replayed.dropped} ${replayed.dropped === 1 ? "answer" : "answers"} given in under ${Math.round(cut! / 100) / 10} s (half the typical time per pick), from ${replayed.people} ${replayed.people === 1 ? "respondent" : "respondents"}, ${replayed.dropped === 1 ? "is" : "are"} left out of this ranking, as asked; everyone's other answers count.`

@@ -41,6 +41,15 @@
     pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #faf8fc; border: 1px solid #ddd4e6; border-radius: 8px; padding: 16px; overflow-x: auto; }
     footer { margin-top: 28px; border-top: 1px solid #ddd4e6; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#tier) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 404px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

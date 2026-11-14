@@ -71,6 +71,15 @@
     .pf-jump { --jump-fg: #17394a; --jump-line: #c9d6db; --jump-bg: #fff; --jump-hover: #1f4e5f; --jump-margin: 8px 0 0; }
     #guides h3 { font-size: 1rem; margin: 16px 0 6px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.row3:has(#otrule) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 427px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

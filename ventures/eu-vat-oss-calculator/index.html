@@ -49,6 +49,15 @@
     details summary { cursor: pointer; font-weight: 600; }
     .chk { color: #9a3412; font-weight: 700; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#seller) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 414px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <main>

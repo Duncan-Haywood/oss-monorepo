@@ -42,12 +42,22 @@ export function personsFromLoad(ratedLoadKg) {
   return Math.floor(ratedLoadKg / 75 + 1e-9);
 }
 
+// Shortest move (m) in which a lift starting and ending at rest reaches rated
+// speed. A slow lift (v < a^2/j) reaches rated speed before it reaches full
+// acceleration, so its peak acceleration is sqrt(vj) instead of a.
+export function ratedSpeedDistance({ speed: v, acceleration, jerk: j }) {
+  const a = Math.min(acceleration, Math.sqrt(v * j));
+  return (a * a * v + v * v * j) / (j * a);
+}
+
 // Flight time over a distance d for a lift with rated speed v, acceleration a
 // and jerk j, starting and ending at rest (Peters 2000, eqs 13-15), plus a
-// motor start allowance.
-export function flightTime(d, { speed: v, acceleration: a, jerk: j, startDelay = 0 }) {
+// motor start allowance. For a slow lift the same formulae hold with the
+// peak acceleration sqrt(vj) in place of a (see ratedSpeedDistance).
+export function flightTime(d, { speed: v, acceleration, jerk: j, startDelay = 0 }) {
   if (!(d > 0)) return 0;
-  if (d >= (a * a * v + v * v * j) / (j * a)) return d / v + a / j + v / a + startDelay; // reaches rated speed
+  const a = Math.min(acceleration, Math.sqrt(v * j));
+  if (d >= ratedSpeedDistance({ speed: v, acceleration, jerk: j })) return d / v + a / j + v / a + startDelay; // reaches rated speed
   if (d >= (2 * a ** 3) / (j * j)) return (a / j) * (1 + Math.sqrt(1 + (4 * d * j * j) / a ** 3)) + startDelay; // reaches a, not v
   return Math.cbrt((32 * d) / j) + startDelay; // never reaches a
 }
@@ -77,11 +87,14 @@ export function normalise(input) {
   const floors = input.floors;
   if (!Array.isArray(floors) || floors.length === 0) throw new Error('add at least one served floor above the lobby');
   if (floors.length > 200) throw new Error('at most 200 served floors');
-  const f = floors.map((fl, i) => ({
-    name: String(fl.name ?? `Floor ${i + 1}`).slice(0, 40),
-    rise: num(fl.rise, `floor ${i + 1} rise`, { min: 0.5, max: 50 }),
-    population: num(fl.population, `floor ${i + 1} population`, { min: 0, max: 100000 }),
-  }));
+  const f = floors.map((fl, i) => {
+    if (!fl || typeof fl !== 'object') throw new Error(`floor ${i + 1} must have a rise and a population`);
+    return {
+      name: String(fl.name ?? `Floor ${i + 1}`).slice(0, 40),
+      rise: num(fl.rise, `floor ${i + 1} rise`, { min: 0.5, max: 50 }),
+      population: num(fl.population, `floor ${i + 1} population`, { min: 0, max: 100000 }),
+    };
+  });
   const out = {
     lifts: num(input.lifts, 'number of lifts', { min: 1, max: 32, integer: true }),
     ratedLoad: num(input.ratedLoad, 'rated load', { min: 150, max: 10000 }),
@@ -167,7 +180,7 @@ export function upPeak(raw) {
     interval,
     handling,
     pctPop,
-    reachesSpeedBetweenStops: hop >= (x.acceleration ** 2 * x.speed + x.speed ** 2 * x.jerk) / (x.jerk * x.acceleration),
+    reachesSpeedBetweenStops: hop >= ratedSpeedDistance(kin),
   };
 }
 

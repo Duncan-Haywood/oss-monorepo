@@ -4,7 +4,11 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **First step (milestone 1): a Python port of the authors' own
+through village leaders. **Second step (milestone 2): reinforcement and threshold models fit the villages better in
+sample (reinforcement &gamma; = 0.10, positive in 99.5% of bootstrap draws; criterion 41% lower)
+but predict held-out villages worse than the simple information model (better in 13 and 19 of
+43 villages), while take-up by number of adopting neighbours (8% with none, 35% with four or
+more) is more convex than the simple model's.** First step (milestone 1): a Python port of the authors' own
 estimation code reproduces their data (non-leader take-up 18.7% against the published 18.5%,
 leaders 24.7% against 24.8%), their finding that adopters pass the news on more than
 non-adopters (q<sub>P</sub> &gt; q<sub>N</sub> in 98.4% of 1,000 bootstrap draws) and the published
@@ -89,32 +93,82 @@ is flat in q<sub>P</sub> (within a factor of 2 of the minimum from 0.25 to 0.50 
 q<sub>N</sub> = 0.05), so the published q<sub>P</sub> is not far out in fit; q<sub>N</sub> = 0.10
 is (2 to 16 times the minimum at every q<sub>P</sub>).
 
+## Milestone 2: simple or complex contagion? (`experiments/m2_complex/`)
+
+Two complex-contagion families next to the information model (I), on the same information
+spread (`src/civ_seeding/complex.py`): **reinforcement** (R), where an informed household's
+logit gains &gamma; per adopting neighbour and it can adopt in any later period as that count
+grows (&gamma; = 0 is I exactly), and a **fractional threshold** (T, after Granovetter 1978), where an informed household
+also adopts once a share &theta; of its neighbours has. Fitted by the same simulated method of
+moments, on the BCDJ five moments and an extended set of eight that adds take-up among
+households with 1, 2 and 3+ adopting neighbours. Compared out of sample by leaving each
+village out in turn: fit on 42 villages with one simulation seed, score the held-out village
+with another, paired Bayesian bootstrap over villages. Plan logged before the run.
+
+| comparison (extended moments) | in-sample criterion | held-out loss (mean, 43 villages) | complex model better in | verdict |
+|---|---|---|---|---|
+| I: q<sub>N</sub> 0.05, q<sub>P</sub> 0.3 | 4.22e&minus;3 | 0.174 | | |
+| T: &theta; 0.60, q<sub>N</sub> 0.075, q<sub>P</sub> 0.1 | 3.45e&minus;3 | 0.184 | 23.8% of paired draws, 19/43 villages | H3b held |
+| R, pre-registered grid, beta fixed | = I (&gamma;-hat 0) | 0.174 | 0% | H3 held, uninformative |
+| R&delta;, post-hoc fine grid, free intercept: &gamma; 0.10, &delta; &minus;0.25, q<sub>N</sub> 0.10, q<sub>P</sub> 0.1 | 2.47e&minus;3 | 0.191 | 12.2% of paired draws, 13/43 villages | prediction held |
+
+**Reinforcement fits these villages better and predicts them worse.** With a fine grid and a
+free intercept, &gamma;-hat is 0.10 and positive in 99.5% of 1,000 bootstrap draws, and the
+in-sample criterion falls 41%; but a model fitted on 42 villages scores the 43rd worse than the
+plain information model in 30 of 43 cases. The threshold model behaves the same way. So far the
+data do not let either complex contagion beat the simple one where it counts, out of sample.
+Freeing &gamma; also moves the fitted q<sub>P</sub> from 0.3 to 0.1: reinforcement and adopters'
+word of mouth stand in for each other, which is the identification question of milestone 3.
+
+The pre-registered reinforcement grid (&gamma; in steps of 0.25, beta fixed by the leader logit)
+could not see a small &gamma;: with the level already matched, any &gamma; &ge; 0.25 adds adoption
+that nothing absorbs, and the criterion rises 13-fold. That is a design fault the run found;
+the free-intercept, fine-grid re-run (`refine.py`) is labelled post hoc in the log.
+
+![take-up by adopting neighbours](experiments/m2_complex/takeup_by_k.svg)
+
+The descriptive that does stand out: take-up among non-leaders rises from 8.3% with no
+adopting neighbour to 35.0% with four or more, a steeper, more convex curve than the fitted
+information model's (8.1% to 27.2%). The model puts too many adopters next to exactly one
+adopter (0.184 against 0.143, gap interval [&minus;0.063, &minus;0.018]) and too few next to four or
+more (0.272 against 0.350, [+0.037, +0.117]). That is the shape reinforcement predicts, and also
+the shape homophily or a degree effect would leave in one cross-section.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
-pinned q<sub>P</sub>. It does not yet test complex contagion, identification or seeding (milestones
-2 to 4). Adoption is observed once, not over time, so homophily and contagion are confounded
+pinned q<sub>P</sub>. Milestone 2 says two
+complex-contagion models fit better in sample and predict held-out villages no better (worse
+on average), and that the take-up curve by adopting neighbours is more convex than the simple
+model's. It does not say adoption is a simple contagion: it says these moments, on 43
+villages, do not reward the extra parameter out of sample. Identification and seeding come in
+milestones 3 and 4. Adoption is observed once, not over time, so homophily and contagion are confounded
 (Shalizi and Thomas 2011); every model here is a fitted description of these 43 villages.
 
 ## Run it
 
 ```
 python3 data/build_dataset.py "<mirror>/datav4.0/Matlab Replication"   # optional, rebuilds the data
-python3 -m pytest -q tests                                                # 10 tests, about 1 s
+python3 -m pytest -q tests                                                # 16 tests, about 5 s
 python3 experiments/m1_reproduce/run.py      # about 2 minutes on 4 cores, writes results.txt
 python3 experiments/m1_reproduce/twostep.py  # seconds, needs run.py's dgrid.npz
 python3 experiments/m1_reproduce/periods.py  # about 12 minutes, periods.txt
 python3 experiments/m1_reproduce/figure.py
+python3 experiments/m2_complex/run.py        # about 2 minutes, results.txt
+python3 experiments/m2_complex/refine.py     # about 4 minutes, refine.txt (post hoc)
+python3 experiments/m2_complex/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Milestone 2: a reinforcement model (adoption probability rising with the number of adopting
-informers) and a fractional-threshold model, fitted with the same moments plus take-up by
-number of adopting neighbours, compared out of sample. Then the identification study
-(milestone 3) and seeding rules under every model the data cannot reject (milestone 4).
+Milestone 3: the identification study. Simulate synthetic villages on the real networks from
+each fitted model (I; T at &theta; 0.60; R&delta; at &gamma; 0.10), refit all three, and report how often
+the criterion picks the true family (programme H2), with the Jacobian of the moment map around
+the q<sub>P</sub>&ndash;&gamma; trade-off. A moment that separates reinforcement from homophily (take-up
+by adopting neighbours within degree bands) is the first candidate to add. Then seeding rules
+under every model the data cannot reject (milestone 4).
 
 ## References
 
@@ -123,4 +177,5 @@ number of adopting neighbours, compared out of sample. Then the identification s
 - Beaman, L., BenYishay, A., Magruder, J., Mobarak, A. M. (2021). Can network theory-based targeting increase technology adoption? *American Economic Review* 111, 1918–1943. doi:10.1257/aer.20200295
 - Centola, D., Macy, M. (2007). Complex contagions and the weakness of long ties. *American Journal of Sociology* 113, 702–734. doi:10.1086/521848
 - Centola, D. (2010). The spread of behavior in an online social network experiment. *Science* 329, 1194–1197. doi:10.1126/science.1185231
+- Granovetter, M. (1978). Threshold models of collective behavior. *American Journal of Sociology* 83, 1420–1443. doi:10.1086/226707
 - Shalizi, C. R., Thomas, A. C. (2011). Homophily and contagion are generically confounded in observational social network studies. *Sociological Methods & Research* 40, 211–239. doi:10.1177/0049124111404820
