@@ -75,6 +75,16 @@ test("passes a fragment-based share link", () => {
   );
 });
 
+test("passes a `search` flag set to a boolean, number or null, which is no query string", () => {
+  assert.deepEqual(checkSource("opts.search = true;"), []);
+  assert.deepEqual(checkSource("args.search = false"), []);
+  assert.deepEqual(checkSource("config.search = 3;"), []);
+  assert.deepEqual(checkSource("state.search = null;"), []);
+  // A value that could carry a payload is still a finding.
+  assert.equal(checkSource("url.search = params.toString();").length, 1);
+  assert.equal(checkSource("url.search = qs;").length, 1);
+});
+
 test("passes `url.search = ''`, the documented way to clear a query string", () => {
   // This is the idiom every venture fixed on 2026-09-06 uses immediately
   // before assigning the fragment. Flagging it would make the fix unwritable.
