@@ -77,6 +77,12 @@ test('platform playback gain: turn-down everywhere, turn-up only where the servi
   const quiet = Object.fromEntries(platformPlayback(-20).map((p) => [p.name, p.gainDb]));
   assert.equal(quiet.Spotify, 6); assert.equal(quiet.YouTube, 0); assert.equal(quiet.Tidal, 0);
   assert.equal(platformPlayback(-Infinity), null);
+  // Spotify's own example: -20 LUFS with a -5 dBFS true peak is lifted only to -16
+  const capped = platformPlayback(-20, undefined, -5).find((p) => p.name === 'Spotify');
+  assert.equal(capped.gainDb, 4); assert.equal(capped.capped, true); assert.equal(capped.published, true);
+  assert.equal(platformPlayback(-20, undefined, -10).find((p) => p.name === 'Spotify').gainDb, 6);
+  assert.equal(platformPlayback(-20, undefined, -0.5).find((p) => p.name === 'Spotify').gainDb, 0);
+  assert.deepEqual(platformPlayback(-20).filter((p) => p.published).map((p) => p.name), ['Spotify']);
   const s = sine(0.1, 5);
   const r = analyze({ rate: 48000, channels: [s, s] });
   assert.equal(r.platforms.length, 6);
@@ -159,4 +165,35 @@ test('kWeightedEnergy is the running sum of squares of kWeight, bit for bit', ()
       for (let i = 0; i <= n; i++) assert.ok(Object.is(got[i], ref[i]), `fs=${fs} n=${n} i=${i}`);
     }
   }
+});
+
+test('a master louder than -14 LUFS gets the -2 dBTP ceiling Spotify asks for', () => {
+  const s = sine(0.5, 5); // about -9 LUFS stereo, true peak -6 dBTP: passes -2
+  const r = analyze({ rate: 48000, channels: [s, s] });
+  assert.match(r.checks.find((c) => c.name === 'true peak').note, /ceiling -2/);
+  const t = sine(0.85, 5); // -1.4 dBTP: under -1, over -2
+  const r2 = analyze({ rate: 48000, channels: [t, t] });
+  assert.equal(r2.checks.find((c) => c.name === 'true peak').ok, false);
+  const q = sine(0.1, 5); // quiet: the ordinary -1 ceiling
+  assert.match(analyze({ rate: 48000, channels: [q, q] }).checks.find((c) => c.name === 'true peak').note, /ceiling -1$/);
+});
+
+test('momentary and short-term max: a 1 kHz tone reads its level, a short burst raises momentary not short-term', async () => {
+  const { maxWindowLoudness, windowLoudnessRange, truePeakAnnex2 } = await import('./master.mjs');
+  const fs = 48000, a = 10 ** (-23 / 20), x = new Float64Array(5 * fs);
+  for (let i = 0; i < x.length; i++) x[i] = a * Math.sin(2 * Math.PI * 1000 * i / fs);
+  assert.ok(Math.abs(maxWindowLoudness([x, x], fs, 0.4) - -23) < 0.1);
+  assert.ok(Math.abs(maxWindowLoudness([x, x], fs, 3) - -23) < 0.1);
+  const r = windowLoudnessRange([x, x], fs, 0.4, 1);
+  assert.ok(r.max - r.min < 0.02);
+  const y = new Float64Array(10 * fs);
+  for (let i = 4 * fs; i < 4.4 * fs; i++) y[i] = a * Math.sin(2 * Math.PI * 1000 * i / fs);
+  assert.ok(Math.abs(maxWindowLoudness([y, y], fs, 0.4) - -23) < 0.1);
+  assert.ok(Math.abs(maxWindowLoudness([y, y], fs, 3) - (-23 + 10 * Math.log10(0.4 / 3))) < 0.1);
+  assert.equal(maxWindowLoudness([new Float64Array(100)], fs, 0.4), -Infinity);
+  // Annex 2 FIR on an fs/4 sine at 45 degrees (Tech 3341 case 16): within +0.2/-0.4 of -6 dBTP
+  const z = new Float64Array(fs);
+  for (let i = 0; i < z.length; i++) z[i] = 0.5 * Math.sin(Math.PI * i / 2 + Math.PI / 4);
+  const tp = 20 * Math.log10(truePeakAnnex2(z));
+  assert.ok(tp <= -5.8 && tp >= -6.4, String(tp));
 });
