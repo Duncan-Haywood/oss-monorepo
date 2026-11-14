@@ -1,0 +1,95 @@
+Own rates at a site: the city shop's $21.30 floor priced in every build; a share g of 40 made-up 10-person teams has its own +$1-$4 at the city shop.
+City: 2 open 7-3 + 2 close 3-11 daily (224 h); Suburb: 1 on 11-7 Mon-Thu, 2 Fri-Sun (80 h). Wages $17.13-$23.13; everyone may work at both.
+
+seed  1 g=0.3 | rule only:  32 h open, built as $5635.84, true $5758.40,  64 h at own premium | own rates:  32 h open, $5723.84,  56 h at own premium | saves $34.56
+seed  1 g=0.6 | rule only:  32 h open, built as $5635.84, true $5896.96, 120 h at own premium | own rates:  32 h open, $5855.76, 104 h at own premium | saves $41.20
+seed  2 g=0.3 | rule only:   8 h open, built as $6196.24, true $6416.00,  72 h at own premium | own rates:   8 h open, $6341.44,  32 h at own premium | saves $74.56
+seed  2 g=0.6 | rule only:   8 h open, built as $6196.24, true $6539.92, 160 h at own premium | own rates:   8 h open, $6465.36, 160 h at own premium | saves $74.56
+seed  3 g=0.3 | rule only:   8 h open, built as $6237.76, true $6328.32,  64 h at own premium | own rates:   8 h open, $6300.40,  40 h at own premium | saves $27.92
+seed  3 g=0.6 | rule only:   8 h open, built as $6237.76, true $6354.88,  96 h at own premium | own rates:   8 h open, $6312.32,  64 h at own premium | saves $42.56
+seed  4 g=0.3 | rule only:  16 h open, built as $6075.20, true $6384.32,  96 h at own premium | own rates:  16 h open, $6243.20,  24 h at own premium | saves $141.12
+seed  4 g=0.6 | rule only:  16 h open, built as $6075.20, true $6494.80, 160 h at own premium | own rates:  16 h open, $6353.68, 112 h at own premium | saves $141.12
+seed  5 g=0.3 | rule only:  32 h open, built as $5805.04, true $5910.24,  56 h at own premium | own rates:  32 h open, $5872.96,  32 h at own premium | saves $37.28
+seed  5 g=0.6 | rule only:  32 h open, built as $5805.04, true $6080.80, 112 h at own premium | own rates:  32 h open, $5984.80,  96 h at own premium | saves $96.00
+seed  6 g=0.3 | rule only:  24 h open, built as $5731.52, true $5819.36,  80 h at own premium | own rates:  24 h open, $5799.44,  56 h at own premium | saves $19.92
+seed  6 g=0.6 | rule only:  24 h open, built as $5731.52, true $5943.28, 176 h at own premium | own rates:  24 h open, $5923.36, 176 h at own premium | saves $19.92
+seed  7 g=0.3 | rule only:   8 h open, built as $6148.24, true $6148.24,   0 h at own premium | own rates:   8 h open, $6148.24,   0 h at own premium | saves $0.00
+seed  7 g=0.6 | rule only:   8 h open, built as $6148.24, true $6438.80, 120 h at own premium | own rates:   8 h open, $6380.24, 104 h at own premium | saves $58.56
+seed  8 g=0.3 | rule only:   8 h open, built as $6127.12, true $6127.12,   0 h at own premium | own rates:   8 h open, $6127.12,   0 h at own premium | saves $0.00
+seed  8 g=0.6 | rule only:   8 h open, built as $6127.12, true $6456.00, 168 h at own premium | own rates:   8 h open, $6404.08, 168 h at own premium | saves $51.92
+seed  9 g=0.3 | rule only:   0 h open, built as $6350.64, true $6394.56,  24 h at own premium | own rates:   0 h open, $6387.92,  16 h at own premium | saves $6.64
+seed  9 g=0.6 | rule only:   0 h open, built as $6350.64, true $6510.48, 104 h at own premium | own rates:   0 h open, $6458.56,  88 h at own premium | saves $51.92
+seed 10 g=0.3 | rule only:   0 h open, built as $6249.52, true $6401.36, 104 h at own premium | own rates:   0 h open, $6388.08,  88 h at own premium | saves $13.28
+seed 10 g=0.6 | rule only:   0 h open, built as $6249.52, true $6401.36, 184 h at own premium | own rates:   0 h open, $6388.08, 176 h at own premium | saves $13.28
+seed 11 g=0.3 | rule only:   0 h open, built as $6321.52, true $6514.56, 128 h at own premium | own rates:   0 h open, $6445.44,  80 h at own premium | saves $69.12
+seed 11 g=0.6 | rule only:   0 h open, built as $6321.52, true $6602.40, 176 h at own premium | own rates:   0 h open, $6509.28, 136 h at own premium | saves $93.12
+seed 12 g=0.3 | rule only:  16 h open, built as $5891.36, true $6024.48, 112 h at own premium | own rates:  16 h open, $6011.20,  88 h at own premium | saves $13.28
+seed 12 g=0.6 | rule only:  16 h open, built as $5891.36, true $6072.48, 152 h at own premium | own rates:  16 h open, $6059.20, 144 h at own premium | saves $13.28
+seed 13 g=0.3 | rule only:  48 h open, built as $5215.04, true $5245.68,  32 h at own premium | own rates:  48 h open, $5239.04,  24 h at own premium | saves $6.64
+seed 13 g=0.6 | rule only:  48 h open, built as $5215.04, true $5289.60, 112 h at own premium | own rates:  48 h open, $5282.96, 104 h at own premium | saves $6.64
+seed 14 g=0.3 | rule only:   0 h open, built as $6165.60, true $6292.08,  56 h at own premium | own rates:   0 h open, $6249.52,  24 h at own premium | saves $42.56
+seed 14 g=0.6 | rule only:   0 h open, built as $6165.60, true $6362.56, 112 h at own premium | own rates:   0 h open, $6320.00,  80 h at own premium | saves $42.56
+seed 15 g=0.3 | rule only:   0 h open, built as $6266.72, true $6382.64,  48 h at own premium | own rates:   0 h open, $6361.36,  32 h at own premium | saves $21.28
+seed 15 g=0.6 | rule only:   0 h open, built as $6266.72, true $6382.64,  48 h at own premium | own rates:   0 h open, $6361.36,  32 h at own premium | saves $21.28
+seed 16 g=0.3 | rule only:  32 h open, built as $5590.40, true $5658.32,  48 h at own premium | own rates:  32 h open, $5658.32,  48 h at own premium | saves $0.00
+seed 16 g=0.6 | rule only:  32 h open, built as $5590.40, true $5748.88,  80 h at own premium | own rates:  32 h open, $5714.32,  48 h at own premium | saves $34.56
+seed 17 g=0.3 | rule only:  16 h open, built as $5959.28, true $6081.68,  80 h at own premium | own rates:  16 h open, $6039.12,  48 h at own premium | saves $42.56
+seed 17 g=0.6 | rule only:  16 h open, built as $5959.28, true $6101.60, 104 h at own premium | own rates:  16 h open, $6059.04,  72 h at own premium | saves $42.56
+seed 18 g=0.3 | rule only:  16 h open, built as $6117.76, true $6392.32,  96 h at own premium | own rates:  16 h open, $6295.12,  48 h at own premium | saves $97.20
+seed 18 g=0.6 | rule only:  16 h open, built as $6117.76, true $6444.24, 120 h at own premium | own rates:  16 h open, $6379.04,  72 h at own premium | saves $65.20
+seed 19 g=0.3 | rule only:   0 h open, built as $6294.64, true $6358.64,  64 h at own premium | own rates:   0 h open, $6358.64,  64 h at own premium | saves $0.00
+seed 19 g=0.6 | rule only:   0 h open, built as $6294.64, true $6531.76, 160 h at own premium | own rates:   0 h open, $6525.12, 152 h at own premium | saves $6.64
+seed 20 g=0.3 | rule only:   0 h open, built as $6268.08, true $6400.00,  56 h at own premium | own rates:   0 h open, $6384.00,  48 h at own premium | saves $16.00
+seed 20 g=0.6 | rule only:   0 h open, built as $6268.08, true $6400.00,  56 h at own premium | own rates:   0 h open, $6384.00,  48 h at own premium | saves $16.00
+seed 21 g=0.3 | rule only:   8 h open, built as $6126.96, true $6326.80,  64 h at own premium | own rates:   8 h open, $6269.60,  24 h at own premium | saves $57.20
+seed 21 g=0.6 | rule only:   8 h open, built as $6126.96, true $6499.92, 152 h at own premium | own rates:   8 h open, $6426.72, 144 h at own premium | saves $73.20
+seed 22 g=0.3 | rule only:   8 h open, built as $6019.04, true $6067.04,  24 h at own premium | own rates:   8 h open, $6067.04,  24 h at own premium | saves $0.00
+seed 22 g=0.6 | rule only:   8 h open, built as $6019.04, true $6139.04, 120 h at own premium | own rates:   8 h open, $6139.04, 128 h at own premium | saves $0.00
+seed 23 g=0.3 | rule only:  24 h open, built as $5796.88, true $5972.56, 136 h at own premium | own rates:  24 h open, $5944.64, 112 h at own premium | saves $27.92
+seed 23 g=0.6 | rule only:  24 h open, built as $5796.88, true $5972.56, 136 h at own premium | own rates:  24 h open, $5944.64, 112 h at own premium | saves $27.92
+seed 24 g=0.3 | rule only:   8 h open, built as $6269.44, true $6362.72,  48 h at own premium | own rates:   8 h open, $6333.44,  32 h at own premium | saves $29.28
+seed 24 g=0.6 | rule only:   8 h open, built as $6269.44, true $6497.36, 136 h at own premium | own rates:   8 h open, $6474.72, 136 h at own premium | saves $22.64
+seed 25 g=0.3 | rule only:  16 h open, built as $6020.40, true $6020.40,  32 h at own premium | own rates:  16 h open, $6020.40,  32 h at own premium | saves $0.00
+seed 25 g=0.6 | rule only:  16 h open, built as $6020.40, true $6240.32, 136 h at own premium | own rates:  16 h open, $6213.76, 128 h at own premium | saves $26.56
+seed 26 g=0.3 | rule only:  16 h open, built as $5951.28, true $6105.84,  64 h at own premium | own rates:  16 h open, $6084.56,  48 h at own premium | saves $21.28
+seed 26 g=0.6 | rule only:  16 h open, built as $5951.28, true $6105.84,  64 h at own premium | own rates:  16 h open, $6084.56,  48 h at own premium | saves $21.28
+seed 27 g=0.3 | rule only:  24 h open, built as $5792.96, true $5959.28, 128 h at own premium | own rates:  24 h open, $5959.28, 128 h at own premium | saves $0.00
+seed 27 g=0.6 | rule only:  24 h open, built as $5792.96, true $6036.56, 176 h at own premium | own rates:  24 h open, $6029.92, 168 h at own premium | saves $6.64
+seed 28 g=0.3 | rule only:   8 h open, built as $6104.32, true $6280.32,  80 h at own premium | own rates:   8 h open, $6260.40,  64 h at own premium | saves $19.92
+seed 28 g=0.6 | rule only:   8 h open, built as $6104.32, true $6324.24, 128 h at own premium | own rates:   8 h open, $6284.40,  88 h at own premium | saves $39.84
+seed 29 g=0.3 | rule only:   0 h open, built as $6244.08, true $6480.00,  80 h at own premium | own rates:   0 h open, $6452.08,  56 h at own premium | saves $27.92
+seed 29 g=0.6 | rule only:   0 h open, built as $6244.08, true $6543.84, 136 h at own premium | own rates:   0 h open, $6523.92, 136 h at own premium | saves $19.92
+seed 30 g=0.3 | rule only:   0 h open, built as $6529.20, true $6715.76,  64 h at own premium | own rates:   0 h open, $6597.28,   0 h at own premium | saves $118.48
+seed 30 g=0.6 | rule only:   0 h open, built as $6529.20, true $6795.76, 104 h at own premium | own rates:   0 h open, $6706.56,  56 h at own premium | saves $89.20
+seed 31 g=0.3 | rule only:  32 h open, built as $5614.40, true $5746.16,  72 h at own premium | own rates:  32 h open, $5723.52,  56 h at own premium | saves $22.64
+seed 31 g=0.6 | rule only:  32 h open, built as $5614.40, true $5886.08, 144 h at own premium | own rates:  32 h open, $5864.80, 128 h at own premium | saves $21.28
+seed 32 g=0.3 | rule only:   0 h open, built as $6363.92, true $6538.40, 104 h at own premium | own rates:   0 h open, $6510.48,  80 h at own premium | saves $27.92
+seed 32 g=0.6 | rule only:   0 h open, built as $6363.92, true $6692.96, 160 h at own premium | own rates:   0 h open, $6643.76, 120 h at own premium | saves $49.20
+seed 33 g=0.3 | rule only:  32 h open, built as $5684.88, true $5792.80,  56 h at own premium | own rates:  32 h open, $5763.52,  40 h at own premium | saves $29.28
+seed 33 g=0.6 | rule only:  32 h open, built as $5684.88, true $5792.80,  72 h at own premium | own rates:  32 h open, $5763.52,  56 h at own premium | saves $29.28
+seed 34 g=0.3 | rule only:   0 h open, built as $6221.60, true $6318.80,  64 h at own premium | own rates:   0 h open, $6298.88,  40 h at own premium | saves $19.92
+seed 34 g=0.6 | rule only:   0 h open, built as $6221.60, true $6481.20, 144 h at own premium | own rates:   0 h open, $6481.20, 144 h at own premium | saves $0.00
+seed 35 g=0.3 | rule only:   0 h open, built as $6352.00, true $6629.12, 144 h at own premium | own rates:   0 h open, $6602.56, 128 h at own premium | saves $26.56
+seed 35 g=0.6 | rule only:   0 h open, built as $6352.00, true $6673.04, 192 h at own premium | own rates:   0 h open, $6630.48, 176 h at own premium | saves $42.56
+seed 36 g=0.3 | rule only:   0 h open, built as $6184.16, true $6184.16,  40 h at own premium | own rates:   0 h open, $6184.16,  40 h at own premium | saves $0.00
+seed 36 g=0.6 | rule only:   0 h open, built as $6184.16, true $6228.08,  64 h at own premium | own rates:   0 h open, $6214.80,  64 h at own premium | saves $13.28
+seed 37 g=0.3 | rule only:   0 h open, built as $6333.28, true $6366.48,  48 h at own premium | own rates:   0 h open, $6353.20,  40 h at own premium | saves $13.28
+seed 37 g=0.6 | rule only:   0 h open, built as $6333.28, true $6622.48, 184 h at own premium | own rates:   0 h open, $6589.28, 168 h at own premium | saves $33.20
+seed 38 g=0.3 | rule only:   0 h open, built as $6382.64, true $6455.84,  40 h at own premium | own rates:   0 h open, $6442.56,  24 h at own premium | saves $13.28
+seed 38 g=0.6 | rule only:   0 h open, built as $6382.64, true $6682.40, 128 h at own premium | own rates:   0 h open, $6662.48, 104 h at own premium | saves $19.92
+seed 39 g=0.3 | rule only:   0 h open, built as $6208.16, true $6300.08,  24 h at own premium | own rates:   0 h open, $6256.16,   0 h at own premium | saves $43.92
+seed 39 g=0.6 | rule only:   0 h open, built as $6208.16, true $6513.20, 104 h at own premium | own rates:   0 h open, $6418.72,  72 h at own premium | saves $94.48
+seed 40 g=0.3 | rule only:  16 h open, built as $6036.56, true $6087.12,  72 h at own premium | own rates:  16 h open, $6079.12,  64 h at own premium | saves $8.00
+seed 40 g=0.6 | rule only:  16 h open, built as $6036.56, true $6300.24, 136 h at own premium | own rates:  16 h open, $6249.68, 120 h at own premium | saves $50.56
+
+g = 0.3, totals over 40 weeks (true payroll = floor and own premiums paid, overtime on the week's average rate):
+  rule only  open 456 h, true payroll $247748.00 (the builder said $242883.68, $4864.32 short); 2664 city hours at someone's own premium
+  own rates  open 456 h, payroll $246577.28; 1880 city hours at someone's own premium
+  pricing own rates saved $1170.72 (0.47% of payroll); cheaper in 32 of 40 weeks, the same in 8, dearer in 0
+
+g = 0.6, totals over 40 weeks (true payroll = floor and own premiums paid, overtime on the week's average rate):
+  rule only  open 456 h, true payroll $252081.36 (the builder said $242883.68, $9197.68 short); 5136 city hours at someone's own premium
+  own rates  open 456 h, payroll $250467.52; 4432 city hours at someone's own premium
+  pricing own rates saved $1613.84 (0.64% of payroll); cheaper in 38 of 40 weeks, the same in 2, dearer in 0
+
+(16 s)
