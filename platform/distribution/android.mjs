@@ -18,7 +18,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readMeta, toolUrl, BASE_URL } from './bluesky.mjs';
+import { readMeta, toolUrl, BASE_URL, PUBLISHER } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
 import { extensionName } from './webext.mjs';
 import { renderIcon, THEME_COLOR } from '../pages/offline.mjs';
@@ -37,8 +37,8 @@ export function appName(title) {
 }
 
 /** Reverse-DNS package id from the host owner and slug: com.github.<owner>.<slug as words>. */
-export function packageId(slug, baseUrl = BASE_URL) {
-  const owner = new URL(baseUrl).hostname.split('.')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+export function packageId(slug, publisher = PUBLISHER) {
+  const owner = publisher.replace(/[^a-z0-9]/gi, '').toLowerCase();
   const part = slug.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
     .map((w) => (/^\d/.test(w) ? `n${w}` : w)).join('');
   return `io.github.${owner}.${part}`;
@@ -60,7 +60,7 @@ export async function buildAndroid({ slug, dir, baseUrl = BASE_URL }) {
   if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
   if (/(?:src|href)\s*=\s*["'](?:https?:)?\/\//i.test(html.replace(/<a\b[^>]*>/gi, ''))) return { skip: 'loads a file from another origin' };
   const name = appName(meta.title);
-  const id = packageId(slug, baseUrl);
+  const id = packageId(slug);
   const host = new URL(baseUrl).host;
   const startUrl = `${new URL(baseUrl).pathname}${slug}/`;
   const twa = {
@@ -102,7 +102,7 @@ export async function buildAndroid({ slug, dir, baseUrl = BASE_URL }) {
     LICENSE: license,
   };
   files['store-listing.md'] = `# ${name}\n\n**Short description (${shortDescription(meta.description).length}/80):** ${shortDescription(meta.description)}\n\n## Full description\n\n${meta.description}\n\nFree and open source (MIT). It runs on your device: it asks for no permissions beyond the network, has no account, no ads and no tracking, and collects nothing.\n\nAn aid, not legal, tax, financial or professional advice. No warranty.\n\n## Data safety form\n\n- Collects or shares user data: **No**\n- Data encrypted in transit: Yes (https)\n- Account or data deletion: not applicable, there is no account\n\n## Links\n\n- Web version: ${tagUrl(toolUrl(slug), 'android')}\n- Source: ${REPO_URL}/tree/main/ventures/${slug}\n- Privacy: nothing is collected, so there is nothing to disclose; point the Play privacy-policy field at ${toolUrl(slug)}\n\n## Category\n\nTools (or Business / Finance, whichever fits the tool). Content rating questionnaire: no violence, no user-generated content, no ads.\n`;
-  files['BUILD.md'] = `# Build ${name} for Google Play\n\nThis folder is the input to [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap), Google's open-source Trusted Web Activity builder. Nothing here is signed or uploaded; those steps belong to the account holder.\n\n1. Install JDK 17 and \`npm i -g @bubblewrap/cli\` (it fetches the Android SDK on first run).\n2. Publish \`icon-512.png\` next to the tool page so \`iconUrl\` resolves, or edit \`iconUrl\` in \`twa-manifest.json\` to a hosted copy.\n3. \`bubblewrap build\` in this folder. It creates \`android.keystore\` on first run: **keep it and its password private and backed up; losing it means you cannot update the app.**\n4. Take the SHA-256 fingerprint it prints (\`bubblewrap fingerprint\`) and put it in \`assetlinks.template.json\`.\n5. Serve that file as \`https://${host}/.well-known/assetlinks.json\`. The file must be at the **origin root**. A project page such as \`${BASE_URL}\` is on a subpath, so this needs a user site (\`<owner>.github.io\` repository) or a custom domain; without it the app opens with a browser address bar instead of full screen.\n6. Upload \`app-release-bundle.aab\` in the Play Console, using \`store-listing.md\` for the listing.\n\nPlay requires a developer account (one-time registration fee, identity verification) and, for new personal accounts, a closed test before production. Read the current Play Developer Program Policies, in particular the minimum-functionality and spam rules: publish a few tools people return to, not a hundred near-identical listings.\n\nThe iOS route is node platform/distribution/ios.mjs --build <slug> <outDir>, an Xcode project input that bundles the page for a Mac with a paid developer account (or the page added to the Home Screen).\n`;
+  files['BUILD.md'] = `# Build ${name} for Google Play\n\nThis folder is the input to [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap), Google's open-source Trusted Web Activity builder. Nothing here is signed or uploaded; those steps belong to the account holder.\n\n1. Install JDK 17 and \`npm i -g @bubblewrap/cli\` (it fetches the Android SDK on first run).\n2. Publish \`icon-512.png\` next to the tool page so \`iconUrl\` resolves, or edit \`iconUrl\` in \`twa-manifest.json\` to a hosted copy.\n3. \`bubblewrap build\` in this folder. It creates \`android.keystore\` on first run: **keep it and its password private and backed up; losing it means you cannot update the app.**\n4. Take the SHA-256 fingerprint it prints (\`bubblewrap fingerprint\`) and put it in \`assetlinks.template.json\`.\n5. Serve that file as \`https://${host}/.well-known/assetlinks.json\`. The file must be at the **origin root**. If the site is served on a subpath (a GitHub project page), this needs a user site or a custom domain; without it the app opens with a browser address bar instead of full screen.\n6. Upload \`app-release-bundle.aab\` in the Play Console, using \`store-listing.md\` for the listing.\n\nPlay requires a developer account (one-time registration fee, identity verification) and, for new personal accounts, a closed test before production. Read the current Play Developer Program Policies, in particular the minimum-functionality and spam rules: publish a few tools people return to, not a hundred near-identical listings.\n\nThe iOS route is node platform/distribution/ios.mjs --build <slug> <outDir>, an Xcode project input that bundles the page for a Mac with a paid developer account (or the page added to the Home Screen).\n`;
   return { name, packageId: id, files };
 }
 

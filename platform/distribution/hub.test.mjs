@@ -175,6 +175,11 @@ test('metrics: readings carry template and page; bluesky reader needs no login',
   assert.match(status.threads, /skipped/);
 });
 
+test('metrics: a post linking the retired github.io host is filed under the served page', () => {
+  const r = reading('bluesky', { id: 'old', text: 'See https://duncan-haywood.github.io/oss-monorepo/mileage-log/?ref=bluesky', metrics: {} });
+  assert.equal(r.page, 'https://marisstella.app/mileage-log/');
+});
+
 test('scoreboard: unmeasured arrivals are null, small samples are not ranked, shrinkage tames lucky posts', () => {
   const mk = (platform, n, eng, template = 'launch') => Array.from({ length: n }, (_, i) => ({ ...reading(platform, { id: `${platform}${i}`, text: `${TEMPLATES.tool.find((t) => t.id === template).marker}x`, metrics: { likes: eng } }) }));
   const readings = [...mk('threads', 2, 50), ...mk('bluesky', 20, 5, 'plain'), ...mk('mastodon', 10, 5, 'launch')];
