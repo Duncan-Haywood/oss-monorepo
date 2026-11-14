@@ -86,6 +86,7 @@ ventures/artificial-turf-bid-calculator/usage.mjs
 ventures/asbestos-abatement-bid-calculator/usage.mjs
 ventures/asphalt-driveway-pave-bid-calculator/usage.mjs
 ventures/asphalt-sealcoat-bid-calculator/usage.mjs
+ventures/assembly-line-balancer/usage.mjs
 ventures/atm-route-margin/usage.mjs
 ventures/ats-resume-checker/usage.mjs
 ventures/attic-insulation-bid-calculator/usage.mjs
