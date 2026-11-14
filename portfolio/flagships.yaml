@@ -298,29 +298,30 @@ flagships:
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Closed items (insights, staged
       default, pooled prior, f, g, b, d, d3-d7, d9, panel and later-pass curves) are
-      written up there. Latest (2026-11-14, "A slot run's cut moved back to an
-      earlier fast turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run
-      that starts after a fast turn (read without the wander bar) is cut from the
-      turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to
-      +0.0045, over d9 where the run follows the speed-up; flags nobody new.
-      site/rank.html ranks a list in the browser on the same refit, with team codes;
-      its stop rule rechecks at the person's own EB prior (docs/RANK-PAGE.md "Noisy
-      answerers"). Team combine: 90% rank ranges for this group and wider ("Team
-      ranges"); a top-k link leads with the team top k, chances and a show of hands
-      (k3: model 338/432 right, tally 311). "Find my top k" mode since 2026-11-14
-      (RANK-PAGE.md "Find my top k"): exact shortlist 54/96 vs 25/96 (ordinary,
-      15-30 options, 1.6x picks); since 2026-11-14 (k2) a link carries the mode and
-      k (RANK-PAGE.md "Shortlist links"), the picks page tables it, 3 ready lists
-      link top 3. Next, most valuable first: (r) get the rank page seen: 10 ready
-      lists + hub landed (RANK-PAGE.md "Six more"); next, read which draw visits,
-      then (c) the first real survey's answers: msToAnswer against the answer-time
-      model, panelWalkRatio on real times, whether times depend on which slot is
-      clicked (the d9 bound assumes not), whether real people have warm-ups, blocks,
-      slot runs or spread-out carelessness, and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the d10 turn's
-      split search; (d8) a stronger pick signal under wander (staged pairs are near
-      50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at
-      q = 1 but taxes a camp by up to 0.030: decide on a real panel's times.
+      written up there. d10 (slot run cut from a fast turn):
+      docs/slot-turn-back-2026-11-14.jsonl. site/decide.html (2026-11-14,
+      docs/DECIDE-PAGE.md) weighs criteria by pairwise picks: adaptive beats random
+      by 0.11-0.26 Spearman at the cap; option scores are the bottleneck (true ones
+      lift 0.70 to 0.90). site/rank.html ranks a list in the browser on the same
+      refit, with team codes; its stop rule rechecks at the person's own EB prior
+      (docs/RANK-PAGE.md "Noisy answerers"). Team combine: 90% rank ranges for this
+      group and wider ("Team ranges"); a top-k link leads with the team top k,
+      chances and a show of hands (k3: model 338/432 right, tally 311). "Find my top
+      k" mode since 2026-11-14 (RANK-PAGE.md "Find my top k"): exact shortlist 54/96
+      vs 25/96 (ordinary, 15-30 options, 1.6x picks); since 2026-11-14 (k2) a link
+      carries the mode and k (RANK-PAGE.md "Shortlist links"), the picks page tables
+      it, 3 ready lists link top 3. Next, most valuable first: (m) graded option
+      answers on decide.html (DECIDE-PAGE.md "Open"); (r) get the rank page seen: 10
+      ready lists + hub landed (RANK-PAGE.md "Six more"); next, read which draw
+      visits, then (c) the first real survey's answers: msToAnswer against the
+      answer-time model, panelWalkRatio on real times, whether times depend on which
+      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
+      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
+      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the
+      d10 turn's split search; (d8) a stronger pick signal under wander (staged
+      pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop beat
+      both pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a real
+      panel's times.
 
   - venture: league-schedule-generator
     why: >-
