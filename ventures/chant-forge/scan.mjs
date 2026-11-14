@@ -214,7 +214,13 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     if (w <= 1.2 * s) {
       const c = mean(h.cs);
       const feat = headFeatures(isInk, h.x0, h.lastX, c, s, y0, y1);
-      if (feat) feat.notch = notchRows(bin, h.x0, h.lastX, c, s);
+      if (feat) {
+        feat.notch = notchRows(bin, h.x0, h.lastX, c, s);
+        // how far the piece's centre falls from its left end to its right,
+        // in staff spaces: a porrectus stroke falls, a quilisma does not
+        const k = Math.max(2, Math.round(0.15 * s));
+        feat.fall = (mean(h.cs.slice(-k)) - mean(h.cs.slice(0, k))) / s;
+      }
       out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c), feat });
       continue;
     }
@@ -243,6 +249,16 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
   for (const o of out) {
     const t = liquescentTail(isInk, o, out, staff, y0, y1);
     if (t) o.liq = t;
+  }
+  // Two more things a quilisma never is (eval/quilisma-stroke-check.md):
+  // the top note of a stack (a quilisma is the lowest note of its neume, so
+  // nothing is printed straight under it; two stacked squares with a white
+  // seam between them otherwise look notched), and a head carrying a
+  // liquescent tail (an epiphonus head's concave top looks like teeth).
+  for (const o of out) {
+    if (!o.feat) continue;
+    o.feat.under = out.some((t) => t !== o && Math.abs(t.x - o.x) < 0.3 * s && t.y - o.y > 0.3 * s && t.y - o.y < 0.8 * s);
+    o.feat.liq = !!o.liq;
   }
   // reading order: left to right; heads sharing columns are read bottom-up
   out.sort((p, q) => p.x - q.x);
@@ -328,11 +344,27 @@ export function notchRows(bin, x0, x1, c, s) {
 // notched rows (notchRows) is a quilisma: set on the same five pieces (6 of
 // 6 quilismas, 3 of 1,538 other heads), checked on pieces that played no
 // part in it (same report). Liquescents are found separately (liquescentTail).
+//
+// Version 3 (2026-11-14, eval/quilisma-stroke-check.md): a notched head is
+// not a quilisma when its centre falls by QUILISMA_MAX_FALL staff spaces or
+// more from its left end to its right (a piece of a porrectus stroke: every
+// real quilisma on the 32 scanned pieces falls 0.01 or less, every stroke
+// piece looked at 0.13 or more), when a head is printed straight under it,
+// or when it carries a liquescent tail. Chosen on those 32 pieces (41 false
+// calls to 16, no quilisma lost) and then tested on pieces first scanned
+// after it was frozen (eval/quilisma-fresh-pages.json: 29 of 3,080 other
+// heads called quilismas to 6, quilismas 47 of 55 under both versions).
 export const QUILISMA_ROWS = 3;
+export const QUILISMA_MAX_FALL = 0.06;
+export function isQuilisma(f) {
+  if (!f || f.notch < QUILISMA_ROWS || f.afterStroke) return false;
+  if (f.fall >= QUILISMA_MAX_FALL || f.under || f.liq) return false;
+  return true;
+}
 export function headShape(f) {
   if (!f) return null;
   if (f.w < 0.42 && f.taper < 0.8) return 'rhombus';
-  if (f.notch >= QUILISMA_ROWS && !f.afterStroke) return 'quilisma';
+  if (isQuilisma(f)) return 'quilisma';
   return 'square';
 }
 

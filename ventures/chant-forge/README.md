@@ -748,7 +748,7 @@ held out, and calls 58 and 63 squares quilismas. Liquescents are mostly not read
 stem and falls under the reader's minimum head height. Both need a dedicated detector.
 (Quilismas: done, next section.)
 
-### Quilisma (2026-11-13, latest)
+### Quilisma (2026-11-13)
 
 A quilisma in the 1908 type is a small saw-tooth: two or three teeth on its upper edge with
 white notches between them, over a solid base. The earlier edge-zigzag measure looked at the
@@ -782,6 +782,31 @@ rhombus rule, untouched, read 243 of 245 rhombi and called none of 1,604 squares
 **Not done** (then): liquescents (25 in the fresh GABC, none paired; done 2026-11-14, next section). Pairing is also the limit for
 quilismas: 22 of the 39 fresh ones are not paired by pitch, so a GABC that drops a quilisma's
 `w` is only caught where the reader and the alignment both find the note.
+
+### Quilisma version 3 (2026-11-14, latest)
+
+The eleven pieces scanned for liquescents showed more false quilismas than before (17 of 1,631
+other heads). Each was cropped and looked at: five were pieces of a porrectus stroke read as one
+head, seven were one of two heads stacked a step apart, one an epiphonus head whose concave top
+looks like teeth, four mottled squares. Measured on all 32 pieces scanned so far, three things
+separate them from real quilismas: a stroke piece's centre **falls** from left to right (every
+real quilisma falls 0.01 spaces or less; it is level, or rises when merged with the note above),
+a quilisma never has a head printed **straight under** it (it is the lowest note of its neume),
+and it never carries a **liquescent tail**. `isQuilisma` in `scan.mjs` drops a notched head that
+falls 0.06 spaces or more, sits on another head, or has a tail. The rule was committed and then
+run on eighteen pieces listed beforehand and never scanned before
+(`eval/quilisma-fresh-pages.json`):
+
+| held-out set (18 pieces) | version 2 | version 3 |
+|---|---|---|
+| paired quilismas read as quilismas | 47 of 55 | 47 of 55 |
+| other heads called quilismas | 29 of 3,080 (0.94%) | 6 of 3,080 (0.19%) |
+
+Of the six left, one is a real quilisma the alignment paired with a neighbour, one a porrectus
+end falling 0.05 (just under the cut), one the lower head of a stacked pair and three mottled
+squares. Details, the measurements and the crops' verdicts: `eval/quilisma-stroke-check.md`.
+The same pieces were a clean test of the untouched rhombus rule: 417 of 420 rhombi, but 14 of
+2,641 squares called rhombi, more than before and not looked at yet.
 
 ### Liquescent (2026-11-14)
 
