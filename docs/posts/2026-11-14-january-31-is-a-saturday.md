@@ -2,7 +2,7 @@
 title: "January 31, 2026 is a Saturday"
 seo_title: "Form 2210 January 31 rule in 2026: the last day is February 2"
 date: 2026-11-14
-description: "The rule that forgives the January estimated-tax penalty if you file and pay by January 31 moves past a weekend. For 2025 returns that makes the last day Monday, February 2, 2026."
+description: "Filing and paying by January 31 forgives the January estimate's penalty. That day moves past a weekend, so for 2025 returns it is February 2, 2026."
 tags: [ai-bookkeeper, tax, estimated-tax, self-employed]
 ---
 
