@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 121 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 122 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -105,6 +105,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   randomly on a 64-bit-plus shifter whose amount is under 8 word-level cells deep", SWD(8), has 2.89% blind regret against 3.34%
   for random routing and 7.30% for the unguarded rule (better in 4 cells, worse in none); the primary "pins only" version was too
   literal: [`experiments/amount_depth/`](experiments/amount_depth/results.txt).
+- **The cut is between depth 2 and 4, not 8 (milestone 122, flow run, three new 128-bit families run blind from both sides of
+  k = 8).** On every cell where the rule takes its ladder branch, the clipped ladder reaches 0.00% regret, against 2.79 to 5.65%
+  for random routing, including an amount only 4 word-level cells deep (a short xor-add chain) that SWD(8) wrongly routes randomly.
+  Over the 24 blind cells of milestones 121 and 122, SWD(8) has 2.99% against 3.94% random and 4.93% unguarded, better than random
+  in 8 cells and worse in none (sign p = 0.008); post hoc, SWD(3) does better (2.73%):
+  [`experiments/amount_threshold/`](experiments/amount_threshold/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

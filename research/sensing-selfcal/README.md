@@ -10,8 +10,23 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (142 of 142,
-revised with milestones 4e–4h) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (162 of 162,
+revised with milestones 4e–4i) and a list of what a submission still needs.
+
+**Milestone 4i headline** (can a camera's own bundle adjustment supply the reference for its update
+test? no new real solve): **yes, and it nearly doubles the honest power.** Linearising the unit's
+13-view self-calibration gives, for every view subset, the first-order change in focal length per pixel
+of corner error; on 9,600 nonlinear solves of synthetic corners that prediction matches the real solver
+within 0.2% for 4–7 views. Drawing the unit's own residual patterns through it gives each split its own
+threshold (median 10.9 / 12.5 at 7 + 6 views, against the independent-offset model's 18.45). **Against
+it the robust jackknife test fires on 1.44% / 0.37% of unchanged updates and catches a 2% focal change
+from 6 new views in 33.1% of splits** (milestone 4h: 18.6%), with nothing borrowed. The twin explains
+most of the jackknife's small-set inflation from geometry alone; the right camera has an extra spread its
+twin does not show, so it stays below the 0.5% bar (one of four predictions refuted). With this
+reference the plain jackknife does as well as the robust one (34.7%), and one threshold per design
+almost as well as one per split (30.8%).
+
+![left: distribution over 1,716 splits of each split's twin threshold, against chi-squared and the independent-offset model; right: detection against focal change with per-split and per-design twin references, 7 old and 6 new views](experiments/m4i_geomref/reference.png)
 
 **Milestone 4h headline** (is χ²<sub>1</sub> the right reference for the robust jackknife update
 test? no new solve): **no. Milestone 4g's 54% power came from two errors cancelling.** If each view
@@ -759,6 +774,8 @@ OMP_NUM_THREADS=1 python3 experiments/m4f_setsize/run.py  # ~30 min on 4 cores a
 python3 experiments/m4f_setsize/analyse.py     # seconds; summary.json, ratio.png
 python3 experiments/m4g_allsplits/analyse.py   # seconds, no new solve; summary.json, power.png
 python3 experiments/m4h_modelref/analyse.py    # ~30 s, no new solve; summary.json, reference.png
+python3 experiments/m4i_geomref/analyse.py     # ~4 min, no new real solve; summary.json, reference.png
+OMP_NUM_THREADS=1 python3 experiments/m4i_geomref/check.py  # ~25 min on 4 cores; check.json (H59, the linearisation)
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
@@ -826,7 +843,10 @@ also make the error bar itself honest on the right camera. After milestone 4h (d
 borrows nothing and is quiet, but catches a 2% change in 19% at 6 views): render or capture a unit with
 10–20 views per set to see whether the robust test against χ²<sub>1</sub> drifts up towards the model's
 3.8–2.2%, and fit a reference that models the near-critical small-set behaviour milestone 4f found
-rather than plain independent offsets.
+rather than plain independent offsets (done in milestone 4i: a linearised twin of the unit's own solve;
+33% at 6 views, 0.4–1.4% false alarms). After milestone 4i: add a per-view offset term to the twin, fitted
+to the unit's own jackknife, so the right camera's extra spread is modelled; pre-register the twin
+reference on a second unit.
 
 ## References
 

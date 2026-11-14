@@ -170,7 +170,7 @@ CHECKS = [
     ("log", "every variant is weak (13% at most)", "13% of splits at most"),
     # Section 7, abstract and recommendations, milestone 4h (model reference for the robust jackknife)
     ("json", "m4h_modelref/summary.json", "references/normal/7+6/R", 18.45, 2, None, "18.45 at 7 + 6 views"),
-    ("json", "m4h_modelref/summary.json", "references/normal/7+6/R", 18.45, 2, None, "(18.45 at 7 + 6 views;"),
+    ("json", "m4h_modelref/summary.json", "references/normal/7+6/R", 18.45, 2, None, "reference (18.45 at 7 + 6 views)"),
     ("json", "m4h_modelref/summary.json", "references/normal/7+4/R", 25.84, 2, None, "(25.84 at 7 + 4)"),
     ("json", "m4h_modelref/summary.json", "references/normal/7+6/pR_chi2", 6.1, 1, pct, "fires on 6.1% of unchanged updates"),
     ("json", "m4h_modelref/summary.json", "references/normal/7+6/pR_chi2", 6.1, 1, pct, "would give that test 6.1% false alarms"),
@@ -185,7 +185,28 @@ CHECKS = [
     ("json", "m4h_modelref/summary.json", "hypotheses/H56/right", 0.20, 2, pct, "| 0.45% / 0.20% |"),
     ("log", "the plain jackknife against its own model reference catches ±2% at k = 6 in only 8.6% pooled", "| 53.8% | 18.6% | 8.6% |"),
     ("log", "catches ±4% in 66.4–75.1% of splits (χ²<sub>1</sub>: 92.2–94.3%)", "| 92.2–94.3% | 66.4–75.1% |"),
-    ("log", "0.45% (left) and 0.20% (right) false alarms", "keeps false alarms at 0.2–0.5%"),
+    ("log", "0.45% (left) and 0.20% (right) false alarms", "the test stays at 0.2–0.5% false alarms"),
+    # Section 7, abstract and recommendations, milestone 4i (a reference from the unit's linearised twin)
+    ("json", "m4i_geomref/summary.json", "hypotheses/H61/R_geom_pm2_k6", 33.1, 1, pct, "| 18.6% | 33.1% | 34.7% | 30.8% |"),
+    ("json", "m4i_geomref/summary.json", "hypotheses/H61/R_geom_pm2_k6", 33, 0, pct, "catches a 2% change from 6 views in 33% of splits"),
+    ("json", "m4i_geomref/summary.json", "hypotheses/H61/R_geom_pm2_k6", 33, 0, pct, "lifts detection to 33% at 0.4–1.4% false alarms"),
+    ("json", "m4i_geomref/summary.json", "hypotheses/H60/left", 1.44, 2, pct, "| 1.44% / 0.37% |"),
+    ("json", "m4i_geomref/summary.json", "hypotheses/H60/right", 0.37, 2, pct, "| 1.44% / 0.37% |"),
+    ("json", "m4i_geomref/summary.json", "hypotheses/H62/left", 1.67, 2, None, "vary 1.65–1.67×"),
+    ("json", "m4i_geomref/summary.json", "hypotheses/H62/right", 1.65, 2, None, "vary 1.65–1.67×"),
+    ("json", "m4i_geomref/summary.json", "spearman_q_vs_real_z2_k6/left", 0.24, 2, None, "(Spearman 0.24 / 0.10)"),
+    ("json", "m4i_geomref/summary.json", "spearman_q_vs_real_z2_k6/right", 0.10, 2, None, "(Spearman 0.24 / 0.10)"),
+    ("json", "m4i_geomref/summary.json", "posthoc_twin_scale_ratio/7+6/left/R", 0.75, 2, None, "0.75 / 0.76 at 7 + 6"),
+    ("json", "m4i_geomref/summary.json", "posthoc_twin_scale_ratio/7+6/right/R", 0.76, 2, None, "0.75 / 0.76 at 7 + 6"),
+    ("json", "m4g_allsplits/summary.json", "hypotheses/H53/left", 0.88, 2, None, "against 0.88 / 0.48 measured"),
+    ("json", "m4g_allsplits/summary.json", "hypotheses/H53/right", 0.48, 2, None, "against 0.88 / 0.48 measured"),
+    ("json", "m4i_geomref/summary.json", "references/resid/7+6/left/own/qR_quantiles/2", 10.93, 2, None, "10.93 / 12.49 at 7 + 6"),
+    ("json", "m4i_geomref/summary.json", "references/resid/7+6/right/own/qR_quantiles/2", 12.49, 2, None, "10.93 / 12.49 at 7 + 6"),
+    ("json", "m4i_geomref/check.json", "H59/holds", True, 0, None, "matches the solver's to within 0.2% for 4 to 7 views"),
+    ("log", "R 30.8% at 1.60% / 0.66%", "| 1.60% / 0.66% |"),
+    ("log", "±2% at k = 6 in 34.7%, false alarms 1.59% / 0.35%", "| 1.59% / 0.35% |"),
+    ("log", "±4% at k = 6: 81.2–84.7%", "| 81.2–84.7% |"),
+    ("log", "9,600 cold-start nonlinear solves", "On 9,600 cold-start nonlinear solves"),
 ]
 
 

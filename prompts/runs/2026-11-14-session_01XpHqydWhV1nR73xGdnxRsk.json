@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydWhV1nR73xGdnxRsk",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T07:47:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "creative: new Hearth & Horizon story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15778",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Next up list's only Hearth & Horizon proposal (The Wet Bulb) carries its own note that it is too close to a finished story, so it is not a usable pick; with 346 finished pieces, checking a new idea against DONE.md took a grep of a dozen keywords."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The audio cap has been exceeded for many runs (474 MB), so every creative run is text only; the prompt still leads with audio rendering as the normal path."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Did not take the listed Hearth & Horizon proposal because its own note flags it as overlapping The Stone That Keeps the Sun.",
+      "did": "Wrote an original groundwater story (delayed Theis pulse after pumping stops), checked against DONE.md for The Second Slope and Fifteen Minutes, and said how it differs in the DONE entry.",
+      "result": "Story landed, tests pass."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over the 400 MB cap (474 MB).",
+      "did": "Text only, as the prompt directs.",
+      "result": "No audio."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-water-already-taken.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (headline SF shelf). Piece: the-water-already-taken (about 5,000 words, text only). Theis model with superposition recovery computed in a scratch script before drafting: Q 2,400 m3/day, r 1 km, T 100 m2/day, Sy 0.033; full season -7 cm vs early stop +10 cm on the worst day; ranges over a 3x3 grid. Verification: node --test in ventures/hearth-and-horizon 15/15 pass; run_workflow_locally --for-changes run (see PR). No agent doc: nothing for the next run beyond the BIBLE timeline row and DONE entry.",
+  "corrections": [],
+  "redteam": null
+}

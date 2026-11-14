@@ -71,7 +71,7 @@
     const fromLink=decodeInputs(location.hash||location.search);
     ids.forEach(id=>{if(Object.prototype.hasOwnProperty.call(fromLink,id)) document.querySelector('#'+id).value=fromLink[id];});
     if(Object.keys(fromLink).length) document.querySelector('#linkStatus').textContent='Opened a shared classroom. Review the numbers before you price it.';
-    form.addEventListener('submit',event=>{event.preventDefault();update(true)}); document.querySelector('#reset').addEventListener('click',()=>{localStorage.removeItem(storageKey); history.replaceState(null,'',location.pathname); form.reset(); document.querySelector('#linkStatus').textContent='Reset to defaults.'; update()});
+    form.addEventListener('submit',event=>{event.preventDefault();update(true)}); document.querySelector('#reset').addEventListener('click',()=>{try{localStorage.removeItem(storageKey)}catch{} history.replaceState(null,'',location.pathname); HTMLFormElement.prototype.reset.call(form); document.querySelector('#linkStatus').textContent='Reset to defaults.'; update()});
     document.querySelector('#copyLink').addEventListener('click',async()=>{const query=encodeInputs(values());const url=`${location.pathname}${location.search}${query?`#${query}`:''}`;history.replaceState(null,'',url);try{await navigator.clipboard.writeText(location.href);document.querySelector('#linkStatus').textContent='Link copied.';}catch{document.querySelector('#linkStatus').textContent='Copy was blocked — the link is now in your address bar.';}recordUsage(undefined,false,'link_copied');});
     update();
   </script>

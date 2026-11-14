@@ -176,18 +176,32 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price and column generation
-      prove 20-80 person weeks; the exact check is on by default at every size. Forecast side (--from-sales, eight real
-      files incl. real Square and Toast exports, 2026-11-13: eval/real-pos-exports.mjs): backtest, closure score,
-      half-life auto, priced cut, tickets, labour standard, shut-door work, multi-file pastes. Posted weeks: reissues hold started and posted shifts (README "Is 91 the least?" to "Giving up two clashing shifts"); a whole week at the Deputy file's rates (README "A whole
-      week of call-outs at a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent
-      both ways. Next: whether a real manager would set keepShift
-      above 1; close the 100-person gaps (tree, not bound: README same section); cuts or branching that move the score LP on the 60-person
-      pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13); re-run the
-      keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
-      would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); --cover-price moves two shifts together (README "Moving two shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it, the café's 23 flagged vs 11 open days, pairs past 200 copies; a real two-site export and staff list (README "Staff shared between sites"); travel, paid travel and wages by site landed (README "Wages by site"); per-person rates at a site landed (README "A person's own rate at a site"); next the importers writing them from a per-location wage column, real trip times; whether the
-      priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
+      Landed work and every measurement are in the README and eval/*. Exact side:
+      branch-and-price and column generation prove 20-80 person weeks; the exact
+      check is on by default at every size. Forecast side (--from-sales, eight real
+      files incl. real Square and Toast exports, 2026-11-13:
+      eval/real-pos-exports.mjs): backtest, closure score, half-life auto, priced
+      cut, tickets, labour standard, shut-door work, multi-file pastes. Posted
+      weeks: reissues hold started and posted shifts (README "Is 91 the least?" to
+      "Giving up two clashing shifts"); a whole week at the Deputy file's rates
+      (README "A whole week of call-outs at a real roster's rates", 2026-11-13):
+      kept reissues cut changes 56-66%, open hours path-dependent both ways. Next:
+      whether a real manager would set keepShift above 1; close the 100-person gaps
+      (tree, not bound: README same section); cuts or branching that move the score
+      LP on the 60-person pay week ($1.22 open); the 60x168 week 0's pay half (open
+      hours proven 2026-11-13); re-run the keep-usual-shifts sweep on real dated
+      leave records; a manager's read on whether the steadier plan is the one they
+      would post; a real 7shifts account through --import-7shifts (README "Reading
+      7shifts directly"); a real When I Work account or response through
+      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
+      need an account); --cover-price moves two shifts together (README "Moving two
+      shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it,
+      the café's 23 flagged vs 11 open days, pairs past 200 copies; a real two-site
+      export and staff list (README "Staff shared between sites"); own and site
+      rates read from staff CSVs and 7shifts (README "Per-location pay from an
+      export"); next a real wages export, real trip times; whether the priced cut's
+      r = 1 default suits a real manager; a manager's real task list for the fixed
+      minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -254,25 +268,27 @@ flagships:
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
       staged-by-default at every list length, the closed pooled-prior work, the
-      sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time
-      salience (b), mid-session blocks (d), the panel curve, per-survey threshold
-      and step test, the later-pass curve (d4), the net-step test (d5), the wander
-      bar (d6), the picks test (d7) and partway slot runs (d3) are written up there.
-      Latest (2026-11-14, "A slot run and a fast block in the same person";
-      docs/slot-fast-joint-2026-11-14.jsonl): (d9) each fast turn's slots are tested
-      as one pre-named candidate (slotRunsAtTurns, default on the route): a 65% lean
-      from the speed-up found 9% to 35%, honest flags added 0-0.2% where the time
-      cut alone flags 2-7%, never more than 0.0008 under the old default. Next, most
-      valuable first: (c) the first real survey's answers: msToAnswer against the
-      answer-time model, panelWalkRatio on real times, whether times depend on which
-      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
-      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
-      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d10) the other
-      direction: a slot run's start as the one candidate for a timing step under
-      wander, scored against the panel's slow turns; (d8) a stronger pick signal
-      under wander (staged pairs are near 50/50 late in a session; anchor pairs?);
-      (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to 0.030:
-      decide on a real panel's times.
+      sparse long-list overclaim (f), the uncapped weighted schemes (g),
+      half-time salience (b), mid-session blocks (d), the panel curve,
+      per-survey threshold and step test, the later-pass curve (d4), the
+      net-step test (d5), the wander bar (d6), the picks test (d7), partway slot
+      runs (d3) and the slot-at-turn test (d9) are written up there. Latest
+      (2026-11-14, "A slot run's cut moved back to an earlier fast turn";
+      docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run that starts after
+      a fast turn (read without the wander bar) is cut from the turn
+      (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to
+      +0.0045, over d9 where the run follows the speed-up; flags nobody new.
+      Next, most valuable first: (c) the first real survey's answers: msToAnswer
+      against the answer-time model, panelWalkRatio on real times, whether times
+      depend on which slot is clicked (the d9 bound assumes not), whether real
+      people have warm-ups, blocks, slot runs or spread-out carelessness, and
+      how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d11) the d10 turn is still a split search: score one
+      candidate from the run's start backwards so a wander step's chance of
+      moving a cut is bounded; (d8) a stronger pick signal under wander (staged
+      pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop
+      beat both pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a
+      real panel's times.
 
   - venture: league-schedule-generator
     why: >-

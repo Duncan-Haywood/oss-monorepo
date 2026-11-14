@@ -110,7 +110,7 @@ function run(count = true) {
   result.innerHTML = rows.filter(Boolean).join('') + verdict(p);
   if (count) recordUsage('scenario_planned', usage.checked);
 }
-form.addEventListener('submit', (e) => { e.preventDefault(); run(); }); document.querySelector('#save').addEventListener('click', () => { localStorage.setItem('subcontractor-cashflow-draft', JSON.stringify(Object.fromEntries(new FormData(form)))); run(false); }); document.querySelector('#export').addEventListener('click', () => { if (!latest) run(false); const blob = new Blob([`field,value\n${csvRow(latest).split(',').map((v,i)=>`${CSV_FIELDS[i]},${v}`).join('\n')}`], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'subcontractor-cashflow-scenario.csv'; a.click(); recordUsage('csv_exported', usage.checked); });
+form.addEventListener('submit', (e) => { e.preventDefault(); run(); }); document.querySelector('#save').addEventListener('click', () => { try { localStorage.setItem('subcontractor-cashflow-draft', JSON.stringify(Object.fromEntries(new FormData(form)))); } catch { /* site data blocked or full: not saved */ } run(false); }); document.querySelector('#export').addEventListener('click', () => { if (!latest) run(false); const blob = new Blob([`field,value\n${csvRow(latest).split(',').map((v,i)=>`${CSV_FIELDS[i]},${v}`).join('\n')}`], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'subcontractor-cashflow-scenario.csv'; a.click(); recordUsage('csv_exported', usage.checked); });
 document.querySelector('#shareLink').addEventListener('click', async () => {
   const fragment = encodeInputs(Object.fromEntries(new FormData(form)));
   const shareUrl = `${location.href.split('#')[0]}#${fragment}`;
@@ -125,7 +125,10 @@ document.querySelector('#shareLink').addEventListener('click', async () => {
 });
 const shared = decodeInputs(location.hash);
 const openedFromShareLink = Object.keys(shared).length > 0;
-const draft = openedFromShareLink ? null : JSON.parse(localStorage.getItem('subcontractor-cashflow-draft') || 'null');
+// Inside try: reading the global throws when site data is blocked, and a bad draft must not stop the page.
+let draft = null;
+if (!openedFromShareLink) { try { draft = JSON.parse(localStorage.getItem('subcontractor-cashflow-draft') || 'null'); } catch { draft = null; } }
+if (!draft || typeof draft !== 'object') draft = null;
 const restored = openedFromShareLink ? shared : draft;
 if (restored) for (const [key, value] of Object.entries(restored)) if (form.elements[key]) form.elements[key].value = value;
 run(false);

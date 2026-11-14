@@ -13,6 +13,13 @@
  * designer's supplier sheet and plan already said.
  */
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 export const BRIEF_KEY = "clothing-design-studio-brief";
 
 const r2 = v => Math.round(v * 100) / 100;
@@ -156,12 +163,12 @@ export function prefillFor(page, b) {
   return out;
 }
 
-export function saveBrief(brief, storage = globalThis.localStorage, now = new Date()) {
+export function saveBrief(brief, storage = browserStorage(), now = new Date()) {
   if (!brief) return false;
   try { storage.setItem(BRIEF_KEY, JSON.stringify({ ...brief, savedAt: now.toISOString() })); return true; } catch { return false; }
 }
 
-export function loadBrief(storage = globalThis.localStorage) {
+export function loadBrief(storage = browserStorage()) {
   try {
     const b = JSON.parse(storage.getItem(BRIEF_KEY) || "null");
     if (!b || b.version !== 1 || !(b.quantity > 0)) return null;
@@ -173,7 +180,7 @@ export function loadBrief(storage = globalThis.localStorage) {
  * Fill a page's boxes from the saved brief and say so. Call before the first render.
  * Returns the note to show, or "" when there is no brief.
  */
-export function applyBrief(page, doc = globalThis.document, storage = globalThis.localStorage) {
+export function applyBrief(page, doc = globalThis.document, storage = browserStorage()) {
   const b = loadBrief(storage);
   const values = prefillFor(page, b);
   const ids = Object.keys(values);
