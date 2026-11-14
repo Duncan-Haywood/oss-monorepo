@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVPHPALSjUF95cXi9ND",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo to develop, deploy, market, sell and support revenue-generating software products; merge when done.",
+  "input_sha256": "31d372f7289cc56efe49060a73bcaaaff21eb47fc0c6997bde298096df79c09b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T18:11:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7): photo-editing, top next: item 'ORF or RW2 read directly (public files, LibRaw check)'",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15930",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "First size rule for 'compressed' (strip under 12 bits per sensel) failed on the test encoder's noisy field at 12.7 bits/sensel; replaced with dcraw's rule (anything not exactly 12 or 16 bits per sensel).",
+    "First full venture test run: 2 failures, tests pinning the old 'Sony ARW and Nikon NEF' message text; updated."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The bare `promptctl.py route` drew the research track though the scheduled prompt asks for revenue products; only `route --task \"<message>\"` routes it to ventures. A scheduled routine's stored prompt is the task, so the step-1 example could say to pass it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-olympus-raw-files-without-the-converter.md",
+    "ventures/photo-editing/eval/olympus-orf-reader-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Olympus ORF reader (compressed + 12-bit packed interlaced) with C and Python decoders. tools/orf_libraw_check.py on the 18 ORFs in drewnoakes/metadata-extractor-images against LibRaw 0.22.2 (rawpy): 219,600,432 sensels, 0 differing on both engines; WB, per-position black and CFA equal on all 18 (eval/olympus-orf-libraw-2026-11-14.jsonl). Maker-note crop used as DefaultCrop (drops masked right columns on E-30/E-600/E-PL1 and dim ones on TG-6/TG-7). Local checks: tests/test_orf.py 9 passed; run_venture_tests.py photo-editing (see PR); check_md_links ok; check_code_refs exit 0; page-integrity, conflict-markers, duplicate-symbols, sibling-links, link-contrast run locally: run: steps passed.",
+  "corrections": [],
+  "redteam": null
+}

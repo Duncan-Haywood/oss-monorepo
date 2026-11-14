@@ -79,8 +79,8 @@ TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no emb
 gets its proxy and its scores from a half-size development instead of failing. Since
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
-2026-11-14 a Sony ARW and a Nikon NEF the same way ("Sony ARW" and "Nikon NEF" below). Other RAW
-formats (CR3, ORF, RAF, RW2, ...) are still scored from their preview but stop at the grade
+2026-11-14 a Sony ARW, a Nikon NEF and an Olympus ORF the same way ("Sony ARW", "Nikon NEF" and
+"Olympus ORF" below). Other RAW formats (CR3, RAF, RW2, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -916,7 +916,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG, and Canon CR2, Sony ARW and Nikon NEF with a `.dcp` profile (CR2 since 2026-11-12, ARW and NEF since 2026-11-14, "Sony ARW" and "Nikon NEF" below; convert CR3 with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF and Olympus ORF with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF and ORF since 2026-11-14, "Sony ARW", "Nikon NEF" and "Olympus ORF" below; convert CR3 with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1135,6 +1135,40 @@ Not done: colour is only as good as the profile you supply (no profile ships her
 (LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
 Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
 applied, and Sony's lens name in the maker note is not read yet.
+
+## Olympus ORF (2026-11-14)
+
+Olympus and OM System raw files no longer need Adobe's DNG Converter. `shootflow develop
+P1010001.ORF --dcp PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for CR2, ARW and NEF)
+reads the ORF itself, and the pipeline's grade stage develops ORF stills with the workspace's
+`color/camera-profiles/` (`src/shootflow/orf.py`).
+
+What it reads: Olympus's compressed ORF, which every E-system, PEN, OM-D, OM System and Tough body
+in the test set writes (the E-30 of 2008 to the OM-1 and TG-7). It is one bit stream per frame with
+an adaptive bit width per column parity, a unary escape, and an edge or median-style prediction from
+left, up and up-left. It also reads the older compacts' 12-bit packed, interlaced ORF (even rows,
+then odd rows from the next 2048-byte boundary). Black level, as-shot balance and the camera's crop
+come from the maker note's ImageProcessing IFD; the older compacts' balance comes from the main
+note, and the CFA from EXIF. The crop becomes the DNG DefaultCrop, which leaves out the masked or
+dim columns several bodies store at the right edge. The decode runs in C through the same optional
+ctypes library as the NEF and lossless-JPEG readers (0.2-0.5 s per file), with a pure-Python
+reference that gives the same sensels (9-19 s).
+
+Like a CR2, ARW or NEF, an ORF carries no colour matrix the DNG colour model can use, so it needs the
+camera's `.dcp` (e.g. `Olympus E-M10 Adobe Standard.dcp` from Adobe's free DNG Converter).
+
+How it was checked (`tools/orf_libraw_check.py`, `eval/olympus-orf-reader-2026-11-14.md`): 18 real
+ORFs from 18 bodies, from the public metadata-extractor-images collection (14 compressed, 4 packed
+and interlaced). Against LibRaw 0.22 through rawpy, every one of 219.6 M sensels is equal on both
+decoders, and so are the as-shot white balance, the black level at each CFA position and the CFA
+pattern on all 18. `tests/test_orf.py` (9 tests) writes ORFs with an encoder of its own, including
+the escape field, the run counter and an interlaced compact with its extra row, and runs both
+decoders, the profile chooser, the crop and the CLI.
+
+Not done: colour is only as good as the profile you supply. The white level is 4095, where LibRaw
+lowers it on four of the 18 bodies from a per-model table (E-30: 4028). The E-1/E-300-era layouts
+(12-bit packed without interlace, 16-bit unpacked) and high-res composites are refused for want of
+a test file.
 
 ## Nikon NEF (2026-11-14)
 

@@ -19,7 +19,9 @@ as in the Python reader. An invalid code returns -1 and the caller raises.
 
 The same library carries ``shootflow_nikon_run``, the whole Nikon NEF decode
 (Huffman pass, prediction and linearisation curve) of ``shootflow.nef``, whose
-pure-Python decoder stays the reference (``tests/test_nef.py`` runs both).
+pure-Python decoder stays the reference (``tests/test_nef.py`` runs both), and
+``shootflow_olympus_run``, the whole Olympus ORF decode of ``shootflow.orf``
+(``tests/test_orf.py`` runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -287,6 +289,76 @@ long shootflow_nikon_run(const uint8_t *d, long len, long width, long height,
     }
     return 0;
 }
+
+/* The whole Olympus ORF decode of shootflow.orf._decode_python: one MSB-first stream
+   from byte 7, no stuffing, past the end reading as zeros; per row and column parity a
+   running magnitude, smoothed difference and run of small magnitudes; a unary count of
+   leading zeros (twelve escape to a 16 - nbits field); then the edge or median-style
+   prediction from left, up and up-left. Returns 0. Runs without the GIL (ctypes). */
+long shootflow_olympus_run(const uint8_t *d, long len, long width, long height, uint16_t *out)
+{
+    uint64_t acc = 0;
+    int nb = 0;
+    long p = 7;
+#define OLY_NEED(k) while (nb < (k)) { acc = (acc << 8) | (p < len ? d[p] : 0); p++; nb += 8; }
+    for (long row = 0; row < height; row++) {
+        int carry[2][3] = {{0, 0, 0}, {0, 0, 0}};
+        uint16_t *o = out + row * width;
+        for (long col = 0; col < width; col++) {
+            int *c = carry[col & 1];
+            int i = c[2] < 3 ? 2 : 0;
+            int nbits = 2 + i;
+            while (((unsigned)(uint16_t)c[0]) >> (nbits + i)) nbits++;
+            OLY_NEED(3);
+            nb -= 3;
+            int s = (int)((acc >> nb) & 7);
+            int low = s & 3, sign = (s & 4) ? -1 : 0;
+            OLY_NEED(12);
+            unsigned peek = (unsigned)((acc >> (nb - 12)) & 0xFFF);
+            int high;
+            if (!peek) {
+                nb -= 12;
+                int k = 16 - nbits;
+                high = 0;
+                if (k > 0) {
+                    OLY_NEED(k);
+                    nb -= k;
+                    high = (int)((acc >> nb) & ((1u << k) - 1)) >> 1;
+                }
+            } else {
+                int top = 11;
+                while (!(peek >> top)) top--;
+                high = 11 - top;
+                nb -= high + 1;
+            }
+            int lowbits = 0;
+            if (nbits > 0) {
+                OLY_NEED(nbits);
+                nb -= nbits;
+                lowbits = (int)((acc >> nb) & ((1u << nbits) - 1));
+            }
+            c[0] = (high << nbits) | lowbits;
+            int diff = (c[0] ^ sign) + c[1];
+            c[1] = (diff * 3 + c[1]) >> 5;
+            c[2] = c[0] > 16 ? 0 : c[2] + 1;
+            int pred;
+            if (row < 2 && col < 2) pred = 0;
+            else if (row < 2) pred = o[col - 2];
+            else if (col < 2) pred = o[col - 2 * width];
+            else {
+                int w = o[col - 2], n = o[col - 2 * width], nw = o[col - 2 * width - 2];
+                int dw = w > nw ? w - nw : nw - w, dn = n > nw ? n - nw : nw - n;
+                if ((w < nw && nw < n) || (n < nw && nw < w))
+                    pred = (dw > 32 || dn > 32) ? w + n - nw : (w + n) >> 1;
+                else
+                    pred = dw > dn ? w : n;
+            }
+            o[col] = (uint16_t)(pred + (int)((unsigned)diff << 2 | (unsigned)low));
+        }
+    }
+#undef OLY_NEED
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -392,6 +464,10 @@ def _load():
         ctypes.c_long
     ] + [ctypes.c_void_p] * 3
     _STATE["nikon"] = nikon
+    olympus = lib.shootflow_olympus_run
+    olympus.restype = ctypes.c_long
+    olympus.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
+    _STATE["olympus"] = olympus
     return fn
 
 
@@ -568,6 +644,22 @@ def nikon_run(data: bytes, width: int, height: int, lut: array, lut2: array | No
     )
     if got < 0:
         return None
+    if width * height == 0:
+        del out[:]
+    return out
+
+
+def olympus_run(data: bytes, width: int, height: int) -> array | None:
+    """``shootflow.orf._decode_python`` in C: an ``array('H')`` of sensels, row-major, or None without the
+    native library."""
+
+    fn: Any = _STATE.get("olympus") if reader() is not None else None
+    if fn is None:
+        return None
+    if not isinstance(data, bytes):
+        data = bytes(data)
+    out = array("H", [0]) * max(1, width * height)
+    fn(data, len(data), width, height, out.buffer_info()[0])
     if width * height == 0:
         del out[:]
     return out
