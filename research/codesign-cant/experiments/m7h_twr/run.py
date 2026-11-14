@@ -69,8 +69,22 @@ def margin_rho(x12, twr):
     return np.maximum(S.worst_radius(dp, 1.0, "integ"), S.worst_radius(q, 1.0, "integ"))
 
 
+CACHE = os.path.join(HERE, ".cache_smoke" if SMOKE else ".cache")   # one file per finished CMA-ES run, so a stopped job resumes
+
+
 def one(args):
     geom, s, k = args
+    f = os.path.join(CACHE, f"{geom}_{s}_{k}.json")
+    if os.path.exists(f):
+        return tuple(json.load(open(f)))
+    out = train_one(geom, s, k)
+    os.makedirs(CACHE, exist_ok=True)
+    json.dump(list(out), open(f + ".tmp", "w")); os.replace(f + ".tmp", f)
+    print(f"trained {geom} seed {s} start {k}: best {out[3]:.3f}", flush=True)
+    return out
+
+
+def train_one(geom, s, k):
     x0 = [0.5] * 13; x0[2] = M6.STARTS[k]; x0[12] = (A.TWR - A.TWR_RANGE[0]) / (A.TWR_RANGE[1] - A.TWR_RANGE[0])
     es = cma.CMAEvolutionStrategy(x0, 0.25, {"bounds": [0, 1], "seed": 100 * (s + 1) + k, "popsize": 16, "verbose": -9})
     best, bx, n, ninf = -1e9, None, 0, 0
