@@ -54,7 +54,7 @@
     "docs/posts/2026-11-14-is-136-a-wall-a-faster-refill-search.md"
   ],
   "goal": "flagship deepening",
-  "notes": "eval/refill-search.c (C refill search with annealed budget, kicks, restarts). 12 teams: 631 climbs, none below 136 (5 at 136). 14 teams: 210 found in 2 of 8 runs; stored as TIMETABLES[14].even; page single round robin carry-over-only 212/32 -> 210/26 on seeds 1-3, other settings unchanged (eval/stored-14.txt). 18 teams from circle: 356 (starter 318). Local checks: node --test starter.test.mjs carryover.test.mjs: 40/40 pass. Full venture suite and venture-preflight results in PR body.",
+  "notes": "eval/refill-search.c (C refill search with annealed budget, kicks, restarts). 12 teams: 631 climbs, none below 136 (5 at 136). 14 teams: 210 found in 2 of 8 runs; stored as TIMETABLES[14].even; page single round robin carry-over-only 212/32 -> 210/26 on seeds 1-3, other settings unchanged (eval/stored-14.txt). 18 teams from circle: 356 (starter 318). Local checks: run_venture_tests.py league-schedule-generator: first run 514 pass / 2 fail (orient.test.mjs pinned two seeded 14-team MaxSAT-checked seasons that the new start changed, each to a better score on its own weight); fixtures now rebuilt without the stored start; second run 1 suite, 0 failed. venture-preflight.mjs league-schedule-generator: clean.",
   "corrections": [],
   "redteam": null
 }
