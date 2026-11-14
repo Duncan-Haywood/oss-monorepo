@@ -1,8 +1,8 @@
 ---
 title: "Missouri and New York pay you to file sales tax on time. The worksheet now takes it off."
-seo_title: "Missouri 2% timely payment allowance and New York vendor collection credit, checked on the states' pages"
+seo_title: "Missouri and New York sales tax timely-filing discounts, checked"
 date: 2026-11-14
-description: "ai-bookkeeper's sales tax worksheet now applies Missouri's 2% allowance and New York's 5%-up-to-$200 credit, both read on the states' own pages, and confirms MO, NY, OH and TN due dates."
+description: "The sales tax worksheet now applies Missouri's 2% allowance and New York's 5%-up-to-$200 credit, read on the states' own pages."
 tags: [ai-bookkeeper, sales-tax, small-business, verification]
 ---
 
