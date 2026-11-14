@@ -1,5 +1,15 @@
 # capture-sync research log
 
+## 2026-11-14 · Step 2b outcome: on the real phones the threshold model is refuted (41/94 cells within x2), right at 0.5 s and up to x5 pessimistic at 2-4 s
+- **Ran as planned**, no code changed. zenodo.org reachable; the phone channels of 200_0S and 800_0S fetched by range requests (one rename race from two fetches started by mistake into the same directory; the rerun skipped the complete files and fetched none). 96,000 windows, 4 gammas, 38 min on 4 cores.
+- **(a) Replay: held.** All 96 raw-bin miss rates equal step 1's.
+- **(b) H4 on real devices: failed.** 41 of 94 scored cells (44%) within x2 under the cells model, 39/94 under Rice's. H4 is refuted by the proposal's criterion (more than a quarter outside x2).
+- **(c) Runs low: failed.** It runs high: median predicted/observed 2.23, 53 cells over x2 and none under x0.5.
+- **(d) 800 ms room agrees at least as often: held** (24/46 against 17/48).
+- **(e) Raw-bin PHAT worse than smooth-weight PHAT at -10 dB: held**, 4/4 window lengths in both rooms.
+- **Post hoc, not predicted:** the error is a function of window length, for every gamma: 0.5 s 24/24 agree (median ratio 0.98), 1 s 14/24, 2 s 1/24, 4 s 2/22 (ratio 5.0). At 2-4 s PHAT agrees in 3/12 cells and the other weightings in 0/34.
+- **What it changes.** The model is usable as a miss-rate estimate for sub-second windows and as a pessimistic bound beyond. Step 2a's simulated rooms hid this, so the step 2a calibration does not transfer to real devices. Next: keep per-window outputs and find what the true-lag peak's L-scaling misses (speech activity, a segment-wise variance).
+
 ## 2026-11-14 · Step 2b plan (threshold theory on the real LibriWASN phones), written before the run
 - **Why now.** Step 2a tested H4 on real speech with simulated rooms and delays because zenodo.org was refused; this session's proxy reaches it (HTTP 200 on the record page), so H4 proper can run on the phones of step 1: real clocks, real rooms, real delays.
 - **Design, fixed in advance by `experiments/threshold/libriwasn.py`** (unchanged since step 2a merged). Replays step 1 exactly: 200_0S and 800_0S, 10 sessions each, 10 pairs, 40 seeded window times, prior error uniform in +-1 s, noise as recorded and independent white at 0 and -10 dB, windows 0.5/1/2/4 s. For gamma 1, 0.5, 0.25 and 0 it records step 1's raw-bin GCC, the smooth-weight GCC the model describes, and the cells and Rice predictions from Welch spectra of the two windows aligned at the reference line. A cell (room x noise x window x gamma) is scored if it has at least 10 observed failures; "agrees" means predicted/observed in [0.5, 2].
