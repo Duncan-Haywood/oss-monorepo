@@ -7,14 +7,16 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T01:39:20Z",
   "ended": "2026-11-14T01:42:16Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 4.03,
+  "tokens_in": 3362196,
+  "tokens_out": 15868,
+  "cost_usd": 1.5447,
+  "tool_calls": 41,
   "task": "Creative track: podcast episode for the 2026-11-13 SPC control-charts post, with audio, plus a post deriving the moving-range false-alarm rate",
   "projects": [
     "podcast",
@@ -61,5 +63,81 @@
   "goal": null,
   "notes": "Project: the writing podcast; piece: 2026-11-13-a-stable-process-fails-its-first-control-chart-often (1,249-word script, Kokoro af_heart, model files from the kokoro-onnx GitHub release route; huggingface.co also answered). Picked the podcast because its last episode (#15639) was the oldest creative landing of the last 15. Verification: re-ran ventures/spc-control-charts bench (node bench/false-alarms.mjs 20000, 9.5 s): dispersion-chart rate 0.5753, matching the committed JSON. Napkin derivation: MR limit 3.267*2/sqrt(pi) = 3.686 sigma, per-point 2*Phi(-2.607) = 0.914%, 1-(1-p)^99 = 59.7% vs 57.5% simulated; 3-sigma 1-(1-0.0027)^100 = 23.7% vs 23.4%. Checks run locally: check_post_frontmatter.py (fixed a 161-char description and 80-char seo_title), check_post_links.py, check_md_links.py, platform/pages podcast.test.mjs all pass. No agent doc: nothing new for the next run beyond the friction already recorded. Audio: 414 s (6.9 min), 2.5 MB, rendered in about 2 minutes on four cores; podcast_tts.py --check clean after; podcast.test.mjs 10/10 pass.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "39c6967e-5468-54b4-98cd-d4d19206783b",
+    "transcripts": 1,
+    "first": "2026-11-14T01:39:20Z",
+    "last": "2026-11-14T01:43:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 82,
+        "output": 15868,
+        "thinking": 2450,
+        "cache_read": 3291007,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71107,
+        "api_equivalent_usd": 1.5447,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 82,
+      "output": 15868,
+      "thinking": 2450,
+      "cache_read": 3291007,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71107,
+      "api_equivalent_usd": 1.5447,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 36,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.03,
+      "active_minutes": 3.84,
+      "model_minutes": 2.75,
+      "tool_minutes": 1.09,
+      "waiting_on_human_minutes": 0.18,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "draft a 1,250-word episode script, voice it, derive and check the napkin numbers, write the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 194.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
