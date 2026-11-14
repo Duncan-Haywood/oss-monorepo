@@ -3,6 +3,10 @@
 // tables. README "A backward table".
 //
 //   node eval/minplus-bench.mjs [--against path] [--reps 400]
+//
+// Since 2026-11-14 minPlusStep runs in WebAssembly where it can (README "minPlusStep in WebAssembly").
+// To time it against the JS loop, pass --against a module that sets process.env.MINPLUS_JS = "1"
+// and then imports orient.mjs under another URL (e.g. "../orient.mjs?js"), or run with MINPLUS_JS=1.
 import { minPlusStep } from "../orient.mjs";
 import { mulberry32 } from "../calc.mjs";
 import { pathToFileURL } from "node:url";

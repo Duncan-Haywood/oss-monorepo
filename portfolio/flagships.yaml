@@ -268,25 +268,24 @@ flagships:
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
-      (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
-      duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
-      squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor, three-round re-deals,
-      balanced least priced, faster break floor, exact home-and-away breaks, backward table, blackout fit:
-      README 2026-11-11 to 2026-11-14 sections). 2026-11-14 latest: least carry-over 94 at 10 teams, and
-      at 12 none below 124 (eval/carryover-bnb.c with a per-round matching bound and round 1 per cycle
-      type; the page says so); refill search in C (eval/refill-search.c): 14 teams 210 (starter 212), stored
-      and on the page; 631 climbs at 12 found nothing below 136. Next, most valuable first: the rest of the
-      20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now 2.1x cheaper again,
-      README "A backward table"; or a starter family climbed with the floor as its score); 24 and 25 teams
-      in the page (54-184 s since the predecessor cache and backward table; the step over wide spans is
-      ~94%: moves span 15 of 23 rounds, so narrower moves, or a step in WebAssembly); home-and-away breaks
-      exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT; eval/pair-exact.txt): next,
-      a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
-      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c, 2026-11-14 latest; two other C
-      searches stopped at 136): below 132, or 124-130 ruled out (~4 h on 4 cores; round reversal ~2x); 18 teams:
-      refill from the climbed starter (356 from circle, starter 318); close 24-40 (tabu, the literature's starters); a
-      real league's travel and blackout list; printed sheets on a real printer and paper.
+      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/ (multi-
+      division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs, duty rota,
+      team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker, squeezes, MaxSAT
+      proof that the gaps are timetable-bound, exact break floor, three-round re-deals, balanced least priced,
+      faster break floor, exact home-and-away breaks, backward table, blackout fit, WebAssembly step: README
+      2026-11-11 to 2026-11-14 sections). 2026-11-14 latest: minPlusStep's kernel in WebAssembly
+      (wasm/minplus.c, SIMD, same seasons, 903 s to 218 s over 11 page runs, eval/wasm-step.txt), so 23 to 25
+      teams now run the floor-priced step in the page (16-50 s); least carry-over 94 at 10 teams, at 12 none
+      below 124; refill search in C: 14 teams 210, stored. Next, most valuable first: the rest of the 20-team
+      gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter family
+      climbed with the floor as its score); 26 to 30 teams in the page (the kernel is 62% of a 24-team run,
+      the balanced walk 11%: a layout with the eliminated bit on top needs no SIMD shuffle; or narrower moves,
+      which span 15 of 23 rounds); home-and-away breaks exact since 2026-11-13 (pairLeastBreaks, eval/pair-
+      exact.txt): a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
+      PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled
+      out; 18 teams: refill from the climbed starter (356 from circle, starter 318); close 24-40 (tabu, the
+      literature's starters); a real league's travel and blackout list; printed sheets on a real printer and
+      paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

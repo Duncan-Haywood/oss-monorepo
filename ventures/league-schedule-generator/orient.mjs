@@ -30,6 +30,28 @@
 // functions, no DOM, seeded.
 
 import { mulberry32 } from "./calc.mjs";
+import { MINPLUS_WASM } from "./wasm/minplus-wasm.mjs";
+
+// minPlusStep's elimination steps in WebAssembly (wasm/minplus.c, README "minPlusStep in
+// WebAssembly"): the same table, bit for bit, 0.80 -> 0.15 ms a step at 12 matches. Null when WebAssembly or
+// SIMD is unavailable (old browsers), and then the JS loop below runs. MINPLUS_JS = 1 in the
+// environment forces the JS loop (eval/minplus-bench.mjs compares the two).
+const MP = (() => {
+  try {
+    if (typeof process !== "undefined" && process.env && process.env.MINPLUS_JS === "1") return null;
+    if (typeof WebAssembly !== "object") return null;
+    const bin = typeof atob === "function" ? Uint8Array.from(atob(MINPLUS_WASM), (c) => c.charCodeAt(0)) : null;
+    if (!bin || !WebAssembly.validate(bin)) return null;
+    const ex = new WebAssembly.Instance(new WebAssembly.Module(bin), {}).exports;
+    const buf = ex.memory.buffer, cap = ex.cap(), io = ex.io();
+    return {
+      cap, io, lut: new Int32Array(buf, ex.lut(), 64 + 1024),
+      i32: { step: ex.step_i32, inp: ex.in_i32, out: ex.out_i32, io: new Int32Array(buf, ex.pi(), io) },
+      f64: { step: ex.step_f64, inp: ex.in_f64, out: ex.out_f64, io: new Float64Array(buf, ex.pf(), io) },
+    };
+  } catch { return null; }
+})();
+export const MINPLUS_WASM_ON = !!MP;
 
 /** Largest number of matches in a round the exact programme takes (2^12 states, 24 or 25 teams). */
 export const ORIENT_MAX_MATCHES = 12;
@@ -54,12 +76,14 @@ function roundMatches(opp, n) {
 
 /** Bitmask of the teams at home for every host choice x of one round's matches (bit k: lower hosts). */
 function homeMasks(ms) {
-  const S = 1 << ms.length, H = new Uint32Array(S);
-  for (let x = 0; x < S; x++) {
-    let h = 0;
-    for (let k = 0; k < ms.length; k++) h |= 1 << ((x >>> k) & 1 ? ms[k][0] : ms[k][1]);
-    H[x] = h >>> 0;
-  }
+  // one entry from another: x differs from x without its lowest set bit k only in match k's host,
+  // so a table costs one xor an entry, not a loop over the matches (once minPlusStep ran in
+  // WebAssembly this loop was as slow as the step itself; README "minPlusStep in WebAssembly")
+  const S = 1 << ms.length, H = new Uint32Array(S), sw = new Int32Array(ms.length);
+  let h0 = 0;
+  for (let k = 0; k < ms.length; k++) { h0 |= 1 << ms[k][1]; sw[k] = (1 << ms[k][0]) ^ (1 << ms[k][1]); }
+  H[0] = h0 >>> 0;
+  for (let x = 1; x < S; x++) { const lb = x & -x; H[x] = (H[x ^ lb] ^ sw[31 - Math.clz32(lb)]) >>> 0; }
   return H;
 }
 
@@ -112,8 +136,44 @@ export function minPlusStep(fr, A, B) {
   };
   const xPos = new Int32Array(kA);
   for (let p = 0; p < kA; p++) xPos[order[p]] = p;
-  const xz = perm(xPos, kA);
   const Arr = fr.constructor; // Int32Array for whole breaks, Float64Array for priced host bits
+  if (MP && (Arr === Int32Array || Arr === Float64Array)) {
+    // the same steps in WebAssembly: plan every step's sizes and edge bits first, so a table too big
+    // for the module's buffers falls back to JS before anything is written
+    const plan = [], yp = new Int32Array(kB).fill(-1);
+    let lx0 = kA, ly0 = 0, fits = (1 << kA) <= MP.cap;
+    for (let p = 0; p < kA && fits; p++) {
+      const e = edges[order[p]];
+      let add = 0;
+      for (const [j] of e) if (yp[j] < 0) yp[j] = ly0 + add++;
+      const lx = lx0 - 1, ly = ly0 + add;
+      if ((1 << (lx + ly)) > MP.cap) fits = false;
+      plan.push([lx, ly, ly0, e.length > 0 ? yp[e[0][0]] : 0, e.length > 0 ? e[0][1] : 0, e.length > 0 ? 1 : 0,
+        e.length > 1 ? yp[e[1][0]] : 0, e.length > 1 ? e[1][1] : 0, e.length > 1 ? 1 : 0]);
+      lx0 = lx; ly0 = ly;
+    }
+    if (fits && (1 << kA) <= MP.io && (1 << kB) <= MP.io) {
+      const w = Arr === Float64Array ? MP.f64 : MP.i32;
+      // the permutations run in the module too, from the same two lookups perm builds
+      const lut = (pos, k) => {
+        const L = MP.lut;
+        L.fill(0);
+        for (let v = 0; v < 64; v++) { let z = 0; for (let p = 0; p < Math.min(k, 6); p++) z |= ((v >>> p) & 1) << pos[p]; L[v] = z; }
+        for (let v = 0; v < 1 << Math.max(0, k - 6); v++) { let z = 0; for (let p = 6; p < k; p++) z |= ((v >>> (p - 6)) & 1) << pos[p]; L[64 + v] = z; }
+      };
+      w.io.set(fr);
+      lut(xPos, kA);
+      w.inp(kA);
+      let swap = 0;
+      for (const q of plan) { w.step(swap, ...q); swap ^= 1; }
+      const tm = (1 << (lx0 + ly0)) - 1; // the last table's size, as T.length - 1 below
+      for (let j = 0; j < kB; j++) if (yp[j] < 0) yp[j] = ly0++;
+      lut(yp, kB);
+      w.out(kB, swap, tm);
+      return w.io.slice(0, 1 << kB);
+    }
+  }
+  const xz = perm(xPos, kA);
   let T = new Arr(1 << kA);
   for (let x = 0; x < T.length; x++) T[xz(x)] = fr[x];
   const yPos = new Int32Array(kB).fill(-1);
