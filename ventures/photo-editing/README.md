@@ -1498,6 +1498,12 @@ thread counts. On the Leica T frame and four CPUs, reading the file takes 0.23 s
 read plus full default develop takes 3.7 s (was 8.8 s); an unwarped develop takes 1.1 s (was 2.2 s).
 Not yet threaded: the lossless-JPEG decode of compressed DNGs and CR2s.
 
+Since 2026-11-14 the last serial stage, sensor normalisation (`_normalised_plane`: linearise, black,
+scale, clamp, clip count), runs in the same bands too (`eval/normalised-plane-bands-2026-11-14.md`):
+0.24 s to 0.05 s on four CPUs on the Leica T frame, same bytes, so an unwarped develop takes 0.70 s
+(was 0.93 s) and the half-size review still 0.74 s (was 1.14 s). GainMap opcodes still run once on the
+whole plane between two banded passes.
+
 ## A phone's lossless-JPEG DNG, sensel for sensel, and its tiles on every CPU (2026-11-13)
 
 The first camera-written lossless-JPEG DNG ShootFlow has read: a Google Pixel 3 XL raw (4032 x
