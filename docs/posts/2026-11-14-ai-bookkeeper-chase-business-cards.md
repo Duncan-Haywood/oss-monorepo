@@ -1,9 +1,9 @@
 ---
 title: "Four cards on one bill: reading Chase business card downloads"
-seo_title: "Chase business card CSV: spend by employee card, and why its category labels mislead"
+seo_title: "Chase business card CSV: spend by employee card, labels that mislead"
 date: 2026-11-14
 tags: [ai-bookkeeper, bookkeeping, bank-exports, small-business]
-description: "Six public Chase business card downloads, read with the AI Bookkeeper: the per-employee Card column we were dropping, a spend-by-card report, and a bank label that was wrong on 17 of 17 lines."
+description: "Six public Chase business card downloads: the per-employee Card column we dropped, a spend-by-card report, and a bank label wrong on 17 of 17 lines."
 ---
 
 A business credit card account usually has more than one card on it: one for

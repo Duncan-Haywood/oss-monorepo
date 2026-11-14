@@ -106,3 +106,9 @@ test("cli: cards prints spend per card and --csv the lines", () => {
   const csv = execFileSync(process.execPath, ["cli.mjs", "cards", "--books", b, "--csv", "--card", "3333"], { cwd: import.meta.dirname, encoding: "utf8" });
   assert.equal(csv.trim().split("\n").length, 2);
 });
+
+test("the per-card CSV does not let a description run as a spreadsheet formula", () => {
+  const books = importStatement(newBooks(), "Card,Transaction Date,Post Date,Description,Category,Type,Amount,Memo\n4444,03/01/2026,03/02/2026,=HYPERLINK(1),Shopping,Sale,-1.00,", "2000").books;
+  const line = cardLinesCsv(books).trim().split("\n")[1];
+  assert.match(line, /^4444,2026-03-01,'=HYPERLINK\(1\),1\.00,,waiting$/);
+});

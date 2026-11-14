@@ -16,6 +16,7 @@
 // Money is in cents. `spend` is money out (charges, fees), `refunds` money back
 // that is not a payment of the card; transfers (paying the card off) are left out.
 import { accountMap } from "./ledger.mjs";
+// q() is the formula-injection guard: a description starting with = + - @ gets a leading apostrophe (csvq.mjs).
 import { q } from "./csvq.mjs";
 
 const isPayment = (t) => t.status === "transfer" || (t.cents > 0 && /\b(payment thank you|autopay|automatic payment|payment received|online payment)\b/i.test(t.desc));
