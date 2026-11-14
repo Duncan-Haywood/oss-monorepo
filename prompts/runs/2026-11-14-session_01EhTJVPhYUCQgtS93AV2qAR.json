@@ -42,7 +42,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Critique mode: backlog had only owner rows (P056 blocked). Fixed pick_track track_programmes (Builds-on globs; 13->19 of 25 tracks mapped, test added, 52/52) and check_post_frontmatter silent success (29/29). main_health 73/73. No backlog ids touched.",
+  "notes": "Critique mode: backlog had only owner rows (P056 blocked). Fixed pick_track track_programmes (Builds-on globs; 13->19 of 25 tracks mapped, test added, 52/52) and check_post_frontmatter silent success (29/29). main_health 73/73. No backlog ids touched. The check_post_frontmatter change collided with a sibling's identical fix on main; kept main's version, dropped mine.",
   "corrections": [],
   "redteam": null
 }

@@ -405,5 +405,27 @@ class Elsewhere(unittest.TestCase):
         self.assertIn("pyenv.py pytest", out)
 
 
+class Skipped(unittest.TestCase):
+    """A suite that skips for want of a package says so on its ok line."""
+
+    def test_unittest_verbose_counts_and_reason(self):
+        out = ("test_a ... skipped 'build123d not installed'\n"
+               "test_b ... skipped 'build123d not installed'\n"
+               "test_c ... skipped 'slow'\n----\nRan 96 tests in 1.0s\n\nOK (skipped=3)\n")
+        self.assertEqual(rvt.skipped(out), (3, "build123d not installed"))
+        self.assertEqual(rvt.skipped_note(out), "; 3 tests skipped (most: 'build123d not installed')")
+
+    def test_tap_and_pytest_totals_add_up(self):
+        out = ("ok 1 - draws # SKIP no browser\n# tests 4\n# skipped 1\n"
+               "======= 5 passed, 2 skipped in 1.20s =======\n")
+        self.assertEqual(rvt.skipped(out), (3, "no browser"))
+
+    def test_nothing_skipped_says_nothing(self):
+        self.assertEqual(rvt.skipped_note("# tests 3\n# skipped 0\nRan 4 tests\n\nOK\n"), "")
+
+    def test_failed_run_still_counts_skips(self):
+        self.assertEqual(rvt.skipped("FAILED (failures=1, skipped=2)\n")[0], 2)
+
+
 if __name__ == "__main__":
     unittest.main()

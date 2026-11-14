@@ -44,10 +44,3 @@ programme, and the draw still says so; that is a true answer now.
 A test pins the qual, eda, accel and mimic cases on a fixture table, plus
 one check against the live table.
 
-## A smaller one
-
-`platform/ci/check_post_frontmatter.py` printed nothing when every post
-passed, so the tail of a clean run looked the same as a run that never
-started. It now ends with `ok: N file(s) pass the front-matter check`. The
-venture preflight reads its exit code, not its output, so nothing that
-calls it changes.

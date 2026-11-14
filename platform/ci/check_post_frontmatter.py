@@ -267,9 +267,12 @@ def main(argv=None):
     if own:  # a post's own field failed: show every cap, so one rewrite fixes them all
         print(limits_line())
     if not bad:
-        # Silent success read the same as a run that never started (doc friction 2026-11-14).
-        checked = len(named) + len(reports) if args.posts else len(texts)
-        print(f"ok: {checked} file(s) pass the front-matter check")
+        # A clean pass printed nothing, so in a tail it looked like a run that
+        # never started (run-record doc friction, 2026-11-14; one re-run).
+        n = len(named) if args.posts else len(texts)
+        what = [f"{n} post{'s' if n != 1 else ''}"] if n or not reports else []
+        what += [f"{len(reports)} report{'s' if len(reports) != 1 else ''}"] if reports else []
+        print(f"ok: front matter clean on {' and '.join(what)}")
     return 1 if bad else 0
 
 
