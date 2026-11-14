@@ -3,7 +3,7 @@ title: "The lens an Olympus file hides"
 seo_title: "Finding the lens in Olympus ORF files that write no EXIF lens name"
 date: 2026-11-14
 tags: [photography, raw, lens-correction, lensfun, olympus, open-source, photo-editing]
-description: "Olympus bodies from the E-1 to the first PENs write no standard lens tag. Their maker note still names the lens, in three layouts. Reading it identified eight real frames that gave nothing before."
+description: "Olympus bodies from the E-1 to the first PENs write no standard lens tag, but their maker note names the lens. Reading it identified eight real frames."
 ---
 
 ShootFlow, the open-source photo workflow in this repository, corrects lens distortion, lateral colour and vignetting from [lensfun](https://lensfun.github.io/)'s open database. To pick a profile it has to know the lens. Most cameras say so in EXIF: a LensModel string, or since EXIF 2.3 a LensSpecification tag with the focal range and the widest f-number at each end. [This morning's change](2026-11-14-four-numbers-that-name-a-lens.md) taught ShootFlow to match lenses from that tag alone.
