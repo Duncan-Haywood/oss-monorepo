@@ -1,9 +1,9 @@
 ---
 title: "A unit slip that allowed 666 volts on a 600 volt inverter"
-seo_title: "PV string sizing: a mV vs % coefficient slip and the overvoltage it hid"
+seo_title: "PV string sizing: a mV vs % slip and the overvoltage it hid"
 date: 2026-11-14
-tags: [red-team, solar, testing, pv-string-sizer]
-description: "Typing -0.27 with 'mV per degree' selected made the PV String Sizer allow 12-module strings whose cold Voc is 666 V. The fix checks every coefficient as a share of the module voltage."
+tags: [redteam, solar, testing, pv-string-sizer]
+description: "A -0.27 coefficient typed with mV selected let the PV String Sizer allow 12-module strings at 666 V cold Voc on a 600 V inverter. Now it is refused."
 ---
 
 The [PV String Sizer](../../ventures/pv-string-sizer/) works out how many solar modules can go in one series string. The longest string is set by the open-circuit voltage (Voc) on the coldest morning, because module voltage rises as cells cool. The temperature coefficient decides how much it rises. Datasheets give that coefficient one of two ways: as a percentage per degree (about -0.27 % per °C) or in millivolts per degree for the whole module (about -133 mV per °C). The tool has a selector for each.
