@@ -82,7 +82,7 @@
     <label for="teams">One team per line</label>
     <textarea id="teams" rows="8" placeholder="Net Ninjas&#10;Dink Dynasty&#10;Kitchen Kings&#10;Lob Squad&#10;Spin Doctors"></textarea>
     <div class="check"><input type="checkbox" id="double"><label for="double" style="display:inline;margin:0;font-weight:400">Double round robin (everyone plays everyone twice, once at each home)</label></div>
-    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs twelve searches in the background, side by side on your device's cores: a few seconds, up to about 35 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first; either kind then squeezes four more seasons into the gaps between them and tries fewer back-to-back games on each season's own fixtures, about 2 to 7 more seconds); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
+    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs twelve searches in the background, side by side on your device's cores: a few seconds, up to about 35 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first; either kind then squeezes four more seasons into the gaps between them and tries fewer back-to-back games on each season's own fixtures, about 3 to 9 more seconds); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
     <input type="hidden" id="carryOverKeep" value="" aria-label="Season picked from the frontier list">
     <div><label for="carryOverPick">When spreading, run the searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">fewer back-to-back home or away games</option><option value="fewest">the fewest back-to-back home or away games possible, then the most even carry-over</option></select></div>
 
@@ -389,7 +389,7 @@
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
-    import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced } from "./carryover.mjs";
+    import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -478,7 +478,7 @@
         : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
       const co = s.stats.carryOver;
       $("#carry-line").textContent = co && s.teams.length >= 4
-        ? `Carry-over: ${co.value} (lower is fairer; ${co.lowerBound} is the floor for this many games${co.proven && co.proven.least > co.lowerBound ? `, but no ${s.teams.length}-team round robin can go below ${co.proven.least}${co.proven.exact ? ", which is reachable" : ""}; a SAT solver proved it` : ""}). At worst, ${co.max} different team(s) meet the same opponent straight after the same other team${co.pairs ? ` (${co.pairs} such pair(s) repeat)` : ""}.${s.config.carryOver ? (s.carryOverSearch ? ` ${s.carryOverSearch.kept ? "Picked from" : "Best of"} ${s.carryOverSearch.tries} searches for an even carry-over${carryOverDistinct(s.carryOverSearch.candidates) < s.carryOverSearch.tries ? `, ${carryOverDistinct(s.carryOverSearch.candidates)} different results` : ""} (carry-over / back-to-back home or away: ${carryOverCandidatesText(s.carryOverSearch.candidates)}; kept ${s.carryOverSearch.coe}/${s.carryOverSearch.breaks}).` : " Rounds searched for an even carry-over.") : co.max > 2 ? " Tick \u201cSpread who you meet next\u201d to even it out." : ""}`
+        ? `Carry-over: ${co.value} (lower is fairer; ${co.lowerBound} is the floor for this many games${co.proven && co.proven.least > co.lowerBound ? `, but no ${s.teams.length}-team round robin can go below ${co.proven.least}${co.proven.exact ? (co.value === co.proven.least ? ", and this schedule reaches it" : ", which is reachable") : ""}; an exhaustive search proved it` : ""}). At worst, ${co.max} different team(s) meet the same opponent straight after the same other team${co.pairs ? ` (${co.pairs} such pair(s) repeat)` : ""}.${s.config.carryOver ? (s.carryOverSearch ? ` ${s.carryOverSearch.kept ? "Picked from" : "Best of"} ${s.carryOverSearch.tries} searches for an even carry-over${carryOverDistinct(s.carryOverSearch.candidates) < s.carryOverSearch.tries ? `, ${carryOverDistinct(s.carryOverSearch.candidates)} different results` : ""} (carry-over / back-to-back home or away: ${carryOverCandidatesText(s.carryOverSearch.candidates)}; kept ${s.carryOverSearch.coe}/${s.carryOverSearch.breaks}).` : " Rounds searched for an even carry-over.") : co.max > 2 ? " Tick \u201cSpread who you meet next\u201d to even it out." : ""}`
         : "";
       showFrontier(s);
       $("#off-th").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official !== undefined));
@@ -591,7 +591,8 @@
     function planFrom(results, spec) {
       const n = spec.teams.length;
       const keep = carryOverKeepIndex(spec.carryOverKeep, { n, double: spec.double, seed: spec.seed, tries: results.length });
-      const b = combineCarryOverTries(results, spec.carryOverPick, { among: CARRY_CHOICE, keep });
+      // "the most even carry-over" (pick 0) looks at every season, the carry-over-only one included
+      const b = combineCarryOverTries(results, spec.carryOverPick, { among: spec.carryOverPick === 0 ? Infinity : CARRY_CHOICE, keep });
       return { teams: n, double: spec.double, rounds: b.rounds, summary: carryOverSummary(b) };
     }
     // Either kind of season then runs CARRY_OVER_SQUEEZE squeezes (carryOverSqueeze) on one more
@@ -600,7 +601,8 @@
     // the list, so the four choices are unchanged. Then up to CARRY_OVER_POLISH frontier seasons
     // are regrounded with fewer breaks on the same timetable (carryOverPolish), joining the list too.
     // A single round robin then gets up to CARRY_OVER_FLOOR_PRICED seasons whose timetables were
-    // searched on their proved break floor into the widest gap left (carryOverFloorPriced).
+    // searched on their proved break floor into the widest gap left (carryOverFloorPriced), and last
+    // one season searched on carry-over alone (carryOverPure, 2026-11-14).
     function squeezeCarryOver(n, spec, results, done) {
       const base = [...results].sort((a, b) => a.index - b.index);
       const onMain = () => later(() => {
@@ -608,6 +610,7 @@
         try { for (let j = 0; j < CARRY_OVER_SQUEEZE; j++) { const t = carryOverSqueeze(n, out, { seed: spec.seed }); if (!t) break; out.push(t); } } catch { /* the tries alone */ }
         try { out.push(...carryOverPolish(n, out, { seed: spec.seed, count: CARRY_OVER_POLISH })); } catch { /* without polished seasons */ }
         try { out.push(...carryOverFloorPriced(n, out, { seed: spec.seed, count: CARRY_OVER_FLOOR_PRICED })); } catch { /* without floor-priced seasons */ }
+        try { out.push(...carryOverPure(n, out, { seed: spec.seed })); } catch { /* without the carry-over-only season */ }
         done(out);
       });
       status.textContent = `Searching for an even carry-over: ${CARRY_TRIES} searches done; squeezing ${CARRY_OVER_SQUEEZE} more seasons into the gaps and regrounding the best...`;
@@ -626,7 +629,7 @@
         else fall();
       };
       w.onerror = (e) => { e.preventDefault(); fall(); };
-      w.postMessage({ squeeze: CARRY_OVER_SQUEEZE, polish: CARRY_OVER_POLISH, floorPriced: CARRY_OVER_FLOOR_PRICED, n, seed: spec.seed, results: base });
+      w.postMessage({ squeeze: CARRY_OVER_SQUEEZE, polish: CARRY_OVER_POLISH, floorPriced: CARRY_OVER_FLOOR_PRICED, pure: true, n, seed: spec.seed, results: base });
     }
     function searchCarryOver(key, spec, then) {
       const n = spec.teams.length;

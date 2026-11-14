@@ -1,0 +1,5 @@
+Carry-over: 94 (lower is fairer; 80 is the floor for this many games, but no 10-team round robin can go below 94, and this schedule reaches it; an exhaustive search proved it). At worst, 2 different team(s) meet the same opponent straight after the same other team (7 such pair(s) repeat). Best of 18 searches for an even carry-over, 9 different results (carry-over / back-to-back home or away: 108/10 ×4, 106/10 ×4, 106/12 ×2, 116/10, 134/8 ×2, 104/16, 102/18, 102/14 ×2, 94/14; kept 94/14).
+ok   the 10-team search keeps 94
+ok   the line says 94 is the least and reached
+ok   no page errors
+

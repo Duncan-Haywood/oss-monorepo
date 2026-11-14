@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmSjykbm2gxv8WXNBt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:18:12Z",
+  "ended": "2026-11-14T00:50:05Z",
+  "wall_minutes": 40.38,
+  "tokens_in": 13742630,
+  "tokens_out": 51489,
+  "cost_usd": 4.9243,
+  "tool_calls": 117,
+  "task": "Deepen flagship league-schedule-generator (allocate.py row 7): the open 10/12-team least carry-over question",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15664",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First browser check timed out twice: the sample league's 2 courts x 2 slots could not fit 5 matches a round, and the build was slow while four 12-team searches held every core; cleared courts/times and ran it after.",
+    "README/post first said the 12-team runs were stopped after 50 min (their timeout); they were stopped at 23 min to free CPU, and the text was corrected before commit.",
+    "venture-preflight failed once: check.mjs has no MIME type for .c; added '.c', '.h' to NON_WEB_EXTENSIONS in platform/pages/build.mjs (like '.rs'), preflight then clean."
+  ],
+  "integrity_issues": [
+    "Caught before merge: the README first claimed the page reaches 94 at 10 teams because lowCarryOverRounds does; the browser check showed the page kept 106 (no try searches carry-over alone). Fixed the page (carryOverPure) rather than the claim, and the browser check now reads 94."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Literature hosts (ajol.info, orion.journals.ac.za, comp.nus.edu.sg, arxiv.org, lirias.kuleuven.be) all fail from the cloud session; the flagship item 'check against published literature' cannot be done here, worth saying in the flagship next: so runs don't probe again."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Long CPU-bound background jobs (here 4 search processes) slow the venture test suite and browser checks sharply on a 4-core container; a note to finish or stop background compute before running the suite would have saved two timeouts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The next: list's first items (20-team gap, 24-25 teams in the page) are incremental speed/heuristic work; the 10-team least value was an open, closable question with a direct page payoff.",
+      "did": "Took the 'lower bound at 10/12 teams' item, wrote a C branch and bound instead of more SAT runs.",
+      "result": "10 teams proved at 94 in under 5 min total; 12 teams still open."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-ten-teams-cannot-beat-94.md",
+    "ventures/league-schedule-generator/README.md (The least carry-over at 10 teams is 94)"
+  ],
+  "goal": "Depth over calculators: an exact algorithmic result in a flagship, shipped to the page.",
+  "notes": "Verification, this container: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (299.3s), 1 suite, 0 failed; after the last edits node --test page.test.mjs carryover.test.mjs -> 72 pass, 0 fail; node platform/pages/venture-preflight.mjs league-schedule-generator -> preflight clean; node eval/browser-proved-least.mjs -> Carry-over: 94 ... kept 94/14, 3 ok (eval/browser-proved-least.txt). Exact search: eval/carryover-bnb.txt (10 teams none <= 92 in 145 s, 94 found in 2 s; 6 and 8 and 10<=88 match earlier enumeration/SAT). Pure season: bestCarryOverRounds most-even 9 teams 89->69, 10 teams 106->94, 12 teams 168->136; balanced choice unchanged at all three.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "88512167-6da4-557e-8954-1c099abb5a00",
+    "transcripts": 1,
+    "first": "2026-11-14T00:18:12Z",
+    "last": "2026-11-14T00:58:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 111,
+        "input": 215,
+        "output": 51489,
+        "thinking": 14284,
+        "cache_read": 13595593,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146822,
+        "api_equivalent_usd": 4.9243,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 111,
+      "input": 215,
+      "output": 51489,
+      "thinking": 14284,
+      "cache_read": 13595593,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146822,
+      "api_equivalent_usd": 4.9243,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 117,
+    "tools": {
+      "Bash": 106,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 40.38,
+      "active_minutes": 40.38,
+      "model_minutes": 9.36,
+      "tool_minutes": 31.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an OR engineer writing and validating an exact branch-and-bound for carry-over, plus the page change and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 324.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST } from "./carryover.mjs";
+import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST, bestCarryOverRounds, carryOverPure } from "./carryover.mjs";
 import { roundRobin, buildSchedule, validateSchedule, countBreaks, readSpec, encodeFields, decodeFields } from "./calc.mjs";
 
 const teams = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
@@ -290,4 +290,34 @@ test("proved least carry-over: only on single non-cyclic round robins, and never
   assert.equal(carryOverFromOpponents(opps(circleOpp(12), 12)).proven, null, "12 teams: nothing proved yet");
   // 8 teams: the proved least is the floor itself (the search above reaches it)
   assert.equal(carryOverFromOpponents(opps(circleOpp(8), 8)).lowerBound, PROVEN_LEAST[8].least);
+});
+
+test("10 teams: the least is 94 (eval/carryover-bnb.c), its timetable scores 94, and the page's search reaches it", () => {
+  // The first timetable eval/carryover-bnb.c finds at E <= 7 (eval/carryover-bnb.txt); none exists at 92.
+  const found = [[1, 0, 3, 2, 5, 4, 7, 6, 9, 8], [2, 3, 0, 1, 6, 8, 4, 9, 5, 7], [4, 6, 5, 9, 0, 2, 1, 8, 7, 3],
+    [5, 2, 1, 7, 9, 0, 8, 3, 6, 4], [3, 8, 4, 0, 2, 7, 9, 5, 1, 6], [8, 5, 9, 6, 7, 1, 3, 4, 0, 2],
+    [6, 9, 7, 5, 8, 3, 0, 2, 4, 1], [7, 4, 6, 8, 1, 9, 2, 0, 3, 5], [9, 7, 8, 4, 3, 6, 5, 1, 2, 0]];
+  const n = 10;
+  for (const row of found) for (let t = 0; t < n; t++) assert.equal(row[row[t]], t);
+  const opp = Array.from({ length: n }, (_, t) => found.map((row) => row[t]));
+  for (let t = 0; t < n; t++) assert.equal(new Set(opp[t]).size, n - 1, "every team meets every other once");
+  const c = carryOverFromOpponents(opp);
+  assert.equal(c.value, 94);
+  assert.deepEqual(c.proven, { least: 94, exact: true });
+  assert.equal(lowCarryOverRounds(n, { seed: 1, effort: 0.3 }).coe, PROVEN_LEAST[n].least);
+});
+
+test("the carry-over-only season: 'the most even carry-over' reaches the proved 94 at 10 teams, the other choices are unchanged", () => {
+  const opts = { tries: 8, capped: 2, effort: 0.5 };
+  const fair = bestCarryOverRounds(10, { ...opts, pick: 0, pure: true });
+  assert.equal(fair.coe, PROVEN_LEAST[10].least, "kept the proved least");
+  assert.ok(fair.tries.length === 11 && fair.chosen === 10, "the pure season is numbered last and kept");
+  assert.ok(bestCarryOverRounds(10, { ...opts, pick: 0 }).coe > fair.coe, "without it the weighted tries stop above 94");
+  for (const pick of [10, 40]) {
+    const a = bestCarryOverRounds(10, { ...opts, pick, pure: true }), b = bestCarryOverRounds(10, { ...opts, pick });
+    assert.deepEqual([a.coe, a.breaks, a.chosen], [b.coe, b.breaks, b.chosen], `pick ${pick} keeps what it kept`);
+    assert.ok(a.frontier.some((f) => f.coe === 94), "but the list offers the 94 season");
+  }
+  // nothing new: an earlier season at or under the pure one's carry-over means no extra season
+  assert.deepEqual(carryOverPure(10, [{ ...fair, pure: undefined, index: 0 }]), []);
 });

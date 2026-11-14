@@ -484,6 +484,8 @@ const NON_WEB_EXTENSIONS = new Set([
   '.jsonl',
   // Rust sources (dupehound): the page loads the compiled .wasm, never the source.
   '.rs',
+  // C sources (league-schedule-generator's eval/carryover-bnb.c, an offline proof search): never loaded by a page.
+  '.c', '.h',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.

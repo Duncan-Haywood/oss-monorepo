@@ -1,0 +1,20 @@
+# eval/carryover-bnb.c (cc -O3 -march=native), one core each, this container, 2026-11-14.
+# ./carryover-bnb N EMAX asks for non-cyclic carry-over <= N(N-2) + 2 EMAX. Last line of each run.
+## 6 teams (floor 24; the enumeration's least is 42)
+NONE: no 6-team round robin has non-cyclic carry-over <= 40 (E <= 8); 54 nodes, 0.0 s
+FOUND value 42 (E 9), largest cell 3
+## 8 teams (floor 48)
+FOUND value 48 (E 0), largest cell 1
+## 10 teams (floor 80; CaDiCaL: UNSAT to 88 in 0.9 to 1,302 s, no answer at 90 in 69 min or 92 in 98 min)
+NONE: no 10-team round robin has non-cyclic carry-over <= 80 (E <= 0); 1626439 nodes, 0.2 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 82 (E <= 1); 8447743 nodes, 1.3 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 84 (E <= 2); 33189269 nodes, 4.7 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 86 (E <= 3); 98263173 nodes, 13.2 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 88 (E <= 4); 246093831 nodes, 33.5 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 90 (E <= 5); 539874891 nodes, 72.8 s
+NONE: no 10-team round robin has non-cyclic carry-over <= 92 (E <= 6); 1068775063 nodes, 145.1 s
+FOUND value 94 (E 7), largest cell 2
+[[1, 0, 3, 2, 5, 4, 7, 6, 9, 8], [2, 3, 0, 1, 6, 8, 4, 9, 5, 7], [4, 6, 5, 9, 0, 2, 1, 8, 7, 3], [5, 2, 1, 7, 9, 0, 8, 3, 6, 4], [3, 8, 4, 0, 2, 7, 9, 5, 1, 6], [8, 5, 9, 6, 7, 1, 3, 4, 0, 2], [6, 9, 7, 5, 8, 3, 0, 2, 4, 1], [7, 4, 6, 8, 1, 9, 2, 0, 3, 5], [9, 7, 8, 4, 3, 6, 5, 1, 2, 0]]
+14608706 nodes, 2.0 s
+## 12 teams (floor 120): ./carryover-bnb 12 0 P 4 for P = 0..3, one core each (shared with other work)
+no answer from any part; stopped after 1,388 s (23 min)

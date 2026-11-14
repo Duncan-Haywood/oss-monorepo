@@ -840,6 +840,67 @@ at or under V. SAT returns a timetable; UNSAT is a proof that none exists.
 - Not claimed: the cyclic value (Russell's definition) was not run; none of this has been checked
   against the published optimisation literature on carry-over, which this run did not read.
 
+## The least carry-over at 10 teams is 94: an exact search (2026-11-14)
+
+The SAT section above left 10 teams open: no round robin at 88 or under, the refill search's best at
+94, and CaDiCaL silent after 69 minutes at 90 and 98 at 92. `eval/carryover-bnb.c` (plain C, no
+dependencies) settles it by depth-first search over the timetable itself.
+
+- **Search.** Rounds are filled in order and, inside a round, the lowest unplaced team takes a
+  partner. Team t meeting u in round r adds one to two carry-over cells (t's last opponent -> u and
+  u's last opponent -> t), and a cell already holding c costs c more of E (value = n(n - 2) + 2E, as
+  in the SAT encoding), so a branch is cut the moment E passes the bound. A round where some unplaced
+  team has no unused unplaced partner is cut too.
+- **Symmetry.** Relabelling teams keeps the value, so round 0 is fixed to (0 1)(2 3)...; in round 1
+  team 0 meets team 2 (the relabellings that keep round 0 and team 0 reach any other choice) and
+  team 1 meets team 3 or 4 (the same argument with team 2 fixed). Round reversal is not used.
+- **Checked against what was already known** (`eval/carryover-bnb.txt`): 6 teams, none at 40 and a
+  42 found (the enumeration's least); 8 teams, the floor 48 found; 10 teams, none at 80, 82, 84, 86
+  and 88, the same answers CaDiCaL gave, in 0.2 to 34 s against its 0.9 to 1,302 s.
+- **10 teams** (one core each, this container):
+
+  | Asked: value <= | Answer | Nodes | Time |
+  |---|---|---|---|
+  | 88 | none | 246 M | 34 s |
+  | 90 | none | 540 M | 73 s |
+  | 92 | none | 1,069 M | 145 s |
+  | 94 | found (largest cell 2) | 15 M | 2 s |
+
+  So **94 is the least non-cyclic carry-over of any 10-team round robin**, and the refill search had
+  already found it. `PROVEN_LEAST[10]` is now `{ least: 94, exact: true }`.
+- **On the page: a carry-over-only season.** Checking the page showed it did not reach 94. Every one of
+  its tries weighs breaks against carry-over (break weights 10 to 80, or a cap on breaks), and at 10
+  teams the ten tries' best was 106 (the squeezed and regrounded seasons after them reached 102, but the
+  choices only look at the ten); with "the most even carry-over" chosen it kept 106 / 10
+  (`eval/browser-proved-least.mjs`, before). The plain search with no break weight
+  (`lowCarryOverRounds`) reaches 94 at seeds 1 to 3. So the page now adds one more season after the
+  squeezes, polishes and floor-priced seasons, searched on carry-over alone (`carryOverPure`, at the
+  base seed; nothing is added when an earlier season already has that carry-over or less), and "the
+  most even carry-over" chooses among every season instead of the first ten. The other three choices
+  look at the same ten tries as before and keep the same season; the new one joins the list a person
+  can pick from. At 10 teams "the most even carry-over" now keeps 94 / 14 instead of 106 / 10, and the
+  report says "80 is the floor for this many games, but no 10-team round robin can go below 94, and
+  this schedule reaches it; an exhaustive search proved it". The same holds wherever the stored
+  timetables and starters beat the weighted tries (`bestCarryOverRounds`, 8 weighted + 2 capped tries,
+  seed 1, carry-over / breaks kept by "the most even carry-over"): 9 teams 89 / 5 to **69 / 12**, 10
+  teams 106 / 10 to **94 / 14**, 12 teams 168 / 14 to **136 / 20**; with a break weight of 10 the kept
+  season is the same with and without it at all three. It costs one more search after the others: at
+  20 teams 0.9 s for a single round robin (360 / 52) and 1.6 s for a home-and-away season (1,460 / 126),
+  measured in Node on a busy container. `bestCarryOverRounds` takes `pure: true`
+  for the same on the command line (off by default, so earlier results are unchanged).
+- Tests (`carryover.test.mjs`): the timetable the search found is a round robin and scores 94; the
+  plain search at seed 1 reaches it; with `pure` "the most even carry-over" keeps 94 and the other
+  choices keep what they kept. `eval/browser-proved-least.mjs` builds the 10-team league in Chromium
+  and reads the line.
+- **12 teams.** The same search does not finish: asked only whether the floor (120) is reachable,
+  four parts (`./carryover-bnb 12 0 P 4`) on four shared cores were stopped after 23 minutes with no answer (`eval/carryover-bnb.txt`).
+  Each step of 2 cost about 2x at 10 teams, so the 12-team tree is the problem, not the bound. Next:
+  a lower bound on the carry-over the remaining rounds must add (each team's remaining opponents
+  are known), which would cut far higher in the tree.
+- Not claimed: this is the non-cyclic value used throughout this README; Russell's cyclic value
+  (last round to first) was not searched, and nothing here was compared with published tables,
+  which were not reachable from this session.
+
 ## Starters picked with their breaks (2026-11-11, latest)
 
 The open item above was "pick the start by carry-over + weight x breaks when a weight is set". Two
