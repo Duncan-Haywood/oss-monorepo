@@ -1,9 +1,9 @@
 ---
 title: "One curve, three gear pump makers: the efficiency at which a fixed pump beats load-sensing"
-seo_title: "Gear pump efficiency threshold: when a fixed pump beats load-sensing on excavator fuel"
+seo_title: "Gear pump efficiency at which a fixed pump beats load-sensing"
 date: 2026-11-14
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, excavator, gear-pump, paper]
-description: "Fitted on any two makers' curves, one logistic curve in pump efficiency predicts the third maker's crossing within 0.012. The paper's 870-word abstract is now 272 words built on it."
+description: "Fitted on two makers' curves, one curve in gear-pump efficiency predicts the third maker's crossing within 0.012. The paper abstract now leads with it."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
