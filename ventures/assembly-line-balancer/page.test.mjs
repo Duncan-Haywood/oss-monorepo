@@ -82,3 +82,17 @@ test('CLI: example, stations mode, takt, JSON, errors, and the disclaimer', () =
   assert.match(run(parseArgs(['--frobnicate'])).error, /unknown option/);
   assert.match(run(parseArgs(['x.json', '--cycle', '5']), () => '{oops').error, /could not read x\.json/);
 });
+
+test('the launch post quotes the committed benchmark output', () => {
+  const post = readFileSync(new URL('../../docs/posts/2026-11-14-a-line-balancer-that-says-when-it-has-proved-it.md', import.meta.url), 'utf8');
+  const get = (f) => {
+    const b = read(f);
+    return [/Same value as the published optimum: (\d+)/, /Proved optimal by this engine within the limits: (\d+)/, /Worse than the published best: (\d+)/].map((r) => r.exec(b)[1]);
+  };
+  const [a1, p1, w1] = get('bench/salbp1.md');
+  const [a2, p2, w2] = get('bench/salbp2.md');
+  assert.ok(post.includes(`| Same answer as the published optimum | ${a1} | ${a2} |`));
+  assert.ok(post.includes(`| Proved optimal by this engine | ${p1} | ${p2} |`));
+  assert.ok(post.includes(`| Worse than the published optimum | ${w1} | ${w2} |`));
+  assert.ok(post.includes(`optimum on ${a1} of 269`));
+});

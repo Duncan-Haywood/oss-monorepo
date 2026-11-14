@@ -3,7 +3,7 @@ title: "A line balancer that says when it has proved the answer, checked on Scho
 seo_title: "Free exact assembly line balancing tool, benchmarked"
 date: 2026-11-14
 tags: [assembly-line-balancer, ventures, manufacturing, operations-research, research-algorithms]
-description: "A free browser line balancer with an exact search. It matched the published optimum on B1AGREE of 269 Scholl problems at 4 s each and says which answers it proved."
+description: "A free browser line balancer with an exact search. It matched the published optimum on 258 of 269 Scholl problems at 4 s each and says which answers it proved."
 ---
 
 Balancing an assembly line is a weekly job in many plants and a set exercise in every industrial engineering course. You have a list of tasks, each with a time and the tasks that must come before it, and a takt time from demand. The question is how few stations, and so how few operators, the line can run on. The method most people are taught is a priority rule such as ranked positional weight: fill each station with the heaviest ready task that fits, then open the next one. It is quick, often right, and sometimes a station or two over, and nothing tells you which case you are in.
@@ -22,9 +22,9 @@ Armin Scholl's 1993 data set is the standard test: 269 type 1 problems on 25 pre
 
 | At 4 s per problem | Type 1 (269) | Type 2 (302) |
 |---|---:|---:|
-| Same answer as the published optimum | B1AGREE | B2AGREE |
-| Proved optimal by this engine | B1PROVED | B2PROVED |
-| Worse than the published optimum | B1WORSE | B2WORSE |
+| Same answer as the published optimum | 258 | 256 |
+| Proved optimal by this engine | 249 | 251 |
+| Worse than the published optimum | 10 | 42 |
 | Better than the published optimum | 0 | 0 |
 
 The misses are on the hard graphs: Scholl's own 297-task line, Barthol2 and Wee-Mag. On every miss the page says "best found" and gives the proved bound rather than claiming an optimum. One Wee-Mag problem is still listed as open in the literature, between 32 and 33 stations; the engine finds 33 and cannot close it either. Published exact methods do better on those graphs. What matters for a user is that the tool is honest about which answers are proved.
