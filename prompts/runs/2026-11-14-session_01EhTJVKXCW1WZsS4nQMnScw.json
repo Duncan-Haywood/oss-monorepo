@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVKXCW1WZsS4nQMnScw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "190a6f12e1e74c8d866f70b0c4646410776f6d1e6fa6213ce83b266467659830",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T03:05:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aerolog-scaling milestone 11p: sized simulation guard and combined disclosure orders",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": 15704,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "The scheduled routine's prompt asks for revenue-generating venture work, but the master prompt's weighted draw routed this run to research; I followed the router as the owner's system for allocating runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/guard_noise.py",
+      "why": "Added a post-hoc noise diagnostic, not pre-registered, because layout 22's 100k guard result looked inconsistent with the fresh scoring run; labelled post hoc in LOG, README and post.",
+      "did": "ten 200k and one hundred 20k runs for two candidate splits in two layouts",
+      "result": "no short-run bias; the fresh 200k scoring run overstated layout 22's gap (4.3% vs about 2%), so per-layout differences under about 2% are within scoring noise"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-drone-layers-a-longer-check-did-not-help.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 11p of aerolog-scaling. Predictions committed in 8a8e26e6e before running. sized_guard.py 73 s, 4 of 7 predictions held (P3 by the letter). Local checks: pytest research/aerolog-scaling/tests 104 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post frontmatter, links and similarity ok; cite_check unchanged (no new citations).",
+  "corrections": [],
+  "redteam": null
+}
