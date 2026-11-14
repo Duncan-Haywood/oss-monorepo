@@ -165,46 +165,61 @@ export function energyDP(load, on, price, h, capF, capP, bat, stepsPerKw = 10) {
  * limits, so the dispatch billed is always physically valid.
  */
 export function jointLP(load, on, price, h, bat, rateF, rateP) {
+  const L = newLP();
+  const m = addMonthBlock(L, load, on, price, h, bat, rateF > 0, rateP > 0);
+  if (m.fRows.length) L.cols.push({ rows: m.fRows, vals: m.fRows.map(() => -1), cost: rateF, upper: Infinity, dense: true });
+  if (m.pRows.length) L.cols.push({ rows: m.pRows, vals: m.pRows.map(() => -1), cost: rateP, upper: Infinity, dense: true });
+  const sol = solveBandedLP({ nRows: L.nRows, b: Float64Array.from(L.b), cols: L.cols });
+  return { ok: sol.ok, iterations: sol.iterations, ...simulate(sol.x, m, load, h, bat) };
+}
+
+const newLP = () => ({ nRows: 0, b: [], cols: [] });
+
+// One month's rows and columns appended to an LP under construction: per
+// interval, in time order, storage, balance, [facility cap], [on-peak cap]
+// rows. The cap columns themselves are left to the caller (returned as the
+// rows they must cover, with coefficient -1), so a month can be priced alone
+// (jointLP) or tied to other months by the ratchet (yearLP).
+function addMonthBlock(L, load, on, price, h, bat, useF, wantP) {
   const n = load.length, eta = Math.sqrt(bat.roundTrip), E = bat.kwh, P = bat.kw;
   const minPrice = Math.min(...price);
-  const useF = rateF > 0, useP = rateP > 0 && on.some(Boolean);
-  // rows per interval, in time order: storage, balance, [facility cap], [on-peak cap]
+  const useP = wantP && on.some(Boolean);
   const rowOf = [];
-  let nRows = 0;
+  const row = (v) => { L.b.push(v); return L.nRows++; };
   for (let t = 0; t < n; t++) {
-    const r = { st: nRows++, bl: nRows++ };
-    if (useF) r.cf = nRows++;
-    if (useP && on[t]) r.cp = nRows++;
+    const r = { st: row(t === 0 ? E : 0), bl: row(load[t]) };
+    if (useF) r.cf = row(0);
+    if (useP && on[t]) r.cp = row(0);
     rowOf.push(r);
   }
-  const b = new Float64Array(nRows);
-  const cols = [];
-  const idx = { c: [], d: [], s: [], g: [] };
-  const fRows = [], fVals = [], pRows = [], pVals = [];
+  const cols = L.cols;
+  const idx = { c: [], d: [] };
+  const fRows = [], pRows = [];
   for (let t = 0; t < n; t++) {
     const R = rowOf[t];
-    b[R.st] = t === 0 ? E : 0;
-    b[R.bl] = load[t];
     idx.c.push(cols.length); cols.push({ rows: [R.st, R.bl], vals: [-h * eta, -1], cost: 0, upper: P });
     idx.d.push(cols.length); cols.push({ rows: [R.st, R.bl], vals: [h / eta, 1], cost: 0, upper: P });
     const sRows = [R.st], sVals = [1];
     if (t + 1 < n) { sRows.push(rowOf[t + 1].st); sVals.push(-1); }
-    idx.s.push(cols.length); cols.push({ rows: sRows, vals: sVals, cost: t === n - 1 ? -minPrice / eta : 0, upper: E });
+    cols.push({ rows: sRows, vals: sVals, cost: t === n - 1 ? -minPrice / eta : 0, upper: E });
     const gRows = [R.bl], gVals = [1];
     if (R.cf !== undefined) { gRows.push(R.cf); gVals.push(1); }
     if (R.cp !== undefined) { gRows.push(R.cp); gVals.push(1); }
-    idx.g.push(cols.length); cols.push({ rows: gRows, vals: gVals, cost: h * price[t], upper: Infinity });
-    if (R.cf !== undefined) { cols.push({ rows: [R.cf], vals: [1], cost: 0, upper: Infinity }); fRows.push(R.cf); fVals.push(-1); }
-    if (R.cp !== undefined) { cols.push({ rows: [R.cp], vals: [1], cost: 0, upper: Infinity }); pRows.push(R.cp); pVals.push(-1); }
+    cols.push({ rows: gRows, vals: gVals, cost: h * price[t], upper: Infinity });
+    if (R.cf !== undefined) { cols.push({ rows: [R.cf], vals: [1], cost: 0, upper: Infinity }); fRows.push(R.cf); }
+    if (R.cp !== undefined) { cols.push({ rows: [R.cp], vals: [1], cost: 0, upper: Infinity }); pRows.push(R.cp); }
   }
-  if (useF) cols.push({ rows: fRows, vals: fVals, cost: rateF, upper: Infinity, dense: true });
-  if (useP) cols.push({ rows: pRows, vals: pVals, cost: rateP, upper: Infinity, dense: true });
-  const sol = solveBandedLP({ nRows, b, cols });
-  // Forward simulation: net the interval's charge and discharge, clip to the inverter and the stored energy.
+  return { idx, fRows, pRows };
+}
+
+// Forward simulation: net the interval's charge and discharge, clip to the
+// inverter and the stored energy, so the dispatch billed is always physical.
+function simulate(x, m, load, h, bat) {
+  const n = load.length, eta = Math.sqrt(bat.roundTrip), E = bat.kwh, P = bat.kw;
   const grid = new Array(n);
   let soc = E;
   for (let t = 0; t < n; t++) {
-    const net = sol.x[idx.c[t]] - sol.x[idx.d[t]]; // + charging (grid side), - discharging (delivered)
+    const net = x[m.idx.c[t]] - x[m.idx.d[t]]; // + charging (grid side), - discharging (delivered)
     let p;
     if (net >= 0) p = Math.min(net, P, (E - soc) / h / eta);
     else p = -Math.min(-net, P, load[t], (soc * eta) / h);
@@ -212,7 +227,53 @@ export function jointLP(load, on, price, h, bat, rateF, rateP) {
     soc = Math.min(E, Math.max(0, soc));
     grid[t] = load[t] + p;
   }
-  return { ok: sol.ok, grid, endKwh: soc, iterations: sol.iterations };
+  return { grid, endKwh: soc };
+}
+
+/**
+ * The whole data period as one linear programme, with the ratchet inside it
+ * (2026-11-14). months: [{load, on, price}] in billing order. Each month is
+ * the jointLP block (battery full at its start, refill paid at its end); the
+ * months are tied only through the facility demand they are billed for:
+ *   billed_m >= Cf_m,   billed_m >= ratchet x Cf_k  for the 11 months k before m,
+ * with rateF on billed_m and nothing on Cf_m. So a month that the ratchet
+ * floor already bills does not spend its battery on facility peak it cannot
+ * be paid for, and a month whose peak sets later floors values each kW it
+ * shaves at every month that peak would have billed. Cf_m, Cp_m and billed_m
+ * are dense columns (3 per month at most) folded in by Woodbury, so a year of
+ * 15-minute data is about 120,000 rows with a band of 4.
+ * Returns {ok, iterations, plans: [{grid, endKwh}]} per month.
+ */
+export function yearLP(months, h, bat, rateF, rateP, ratchetPct) {
+  const L = newLP();
+  const r = ratchetPct / 100;
+  const blocks = months.map((mo) => addMonthBlock(L, mo.load, mo.on, mo.price, h, bat, rateF > 0, rateP > 0));
+  const useF = rateF > 0;
+  // Ratchet rows at the end: link(m, k) is billed_m - coef x Cf_k - slack = 0.
+  const fLinks = blocks.map(() => ({ rows: [], vals: [] })); // extra entries on Cf_k
+  const bLinks = blocks.map(() => ({ rows: [], vals: [] })); // entries on billed_m
+  if (useF) {
+    blocks.forEach((_, m) => {
+      for (let k = Math.max(0, m - 11); k <= m; k++) {
+        const coef = k === m ? 1 : r;
+        if (!(coef > 0)) continue;
+        const i = L.nRows++; L.b.push(0);
+        bLinks[m].rows.push(i); bLinks[m].vals.push(1);
+        fLinks[k].rows.push(i); fLinks[k].vals.push(-coef);
+        L.cols.push({ rows: [i], vals: [-1], cost: 0, upper: Infinity });
+      }
+    });
+  }
+  blocks.forEach((m, j) => {
+    if (useF && m.fRows.length) {
+      L.cols.push({ rows: [...m.fRows, ...fLinks[j].rows], vals: [...m.fRows.map(() => -1), ...fLinks[j].vals], cost: 0, upper: Infinity, dense: true });
+      L.cols.push({ rows: bLinks[j].rows, vals: bLinks[j].vals, cost: rateF, upper: Infinity, dense: true });
+    }
+    if (m.pRows.length) L.cols.push({ rows: m.pRows, vals: m.pRows.map(() => -1), cost: rateP, upper: Infinity, dense: true });
+  });
+  const sol = solveBandedLP({ nRows: L.nRows, b: Float64Array.from(L.b), cols: L.cols });
+  const plans = blocks.map((m, j) => simulate(sol.x, m, months[j].load, h, bat));
+  return { ok: sol.ok, iterations: sol.iterations, relGap: sol.relGap, primalRes: sol.primalRes, dualRes: sol.dualRes, objective: sol.obj, plans };
 }
 
 /** Bill pieces for one month's grid draw (facility peak before ratchet). */
@@ -265,22 +326,54 @@ export function planMonth(load, on, price, h, bat, rateF, rateP, { joint = true 
  * a: analyze() result (its rate is the facility $/kW and its ratchet applies to facility demand).
  * tariff: {onStart, onEnd, weekdaysOnly, onDemandRate, onPrice, offPrice, facilityRate (optional, overrides a.rate)}; bat: {kw, kwh usable, roundTrip}.
  */
-export function touBattery(a, tariff, bat) {
+export function touBattery(a, tariff, bat, { yearPlan = true } = {}) {
   const h = a.intervalMin / 60;
   const rateF = tariff.facilityRate ?? a.rate, rateP = tariff.onDemandRate || 0;
-  const per = a.months.map((m) => {
+  const inputs = a.months.map((m) => {
     const load = m.list.map((p) => p.kw);
     const on = onPeakFlags(m.list.map((p) => p.t), tariff);
     const price = on.map((x) => (x ? tariff.onPrice : tariff.offPrice));
+    return { load, on, price };
+  });
+  const per = a.months.map((m, i) => {
+    const { load, on, price } = inputs[i];
     const plan = planMonth(load, on, price, h, bat, rateF, rateP);
     return { month: m.month, complete: m.complete, ...plan };
   });
-  const ratchetBill = (key) => per.map((p, i) => {
+  const ratchetBill = (bills) => bills.map((b, i) => {
     let prior = 0;
-    for (let j = Math.max(0, i - 11); j < i; j++) prior = Math.max(prior, per[j][key].facKw);
-    return Math.max(per[i][key].facKw, (a.ratchet / 100) * prior);
+    for (let j = Math.max(0, i - 11); j < i; j++) prior = Math.max(prior, bills[j].facKw);
+    return Math.max(b.facKw, (a.ratchet / 100) * prior);
   });
-  const fb = ratchetBill("before"), fa = ratchetBill("after");
+  const total = (bills) => {
+    const f = ratchetBill(bills);
+    let s = 0;
+    bills.forEach((b, i) => { if (per[i].complete) s += f[i] * rateF + b.onDemand + b.energy; });
+    return s;
+  };
+  // With a ratchet, months are not independent: plan the whole period as one
+  // programme too and keep whichever bills less over the period.
+  // Shortcut, exact: the year's bill is at least the sum of each month's
+  // best bill alone (billed demand >= the month's own peak), and the
+  // month-by-month plan reaches that sum whenever no ratchet floor binds in
+  // it. Only when one does can planning the period together do better.
+  let yearly = null;
+  const floorBinds = ratchetBill(per.map((p) => p.after)).some((f, i) => f > per[i].after.facKw + 1e-9);
+  if (yearPlan && a.ratchet > 0 && rateF > 0 && bat.kw > 0 && bat.kwh > 0 && per.length > 1 && !floorBinds) {
+    yearly = { skipped: true, used: false, reason: "no ratchet floor binds in the month-by-month plan, so it is already optimal for the period" };
+  } else if (yearPlan && a.ratchet > 0 && rateF > 0 && bat.kw > 0 && bat.kwh > 0 && per.length > 1) {
+    const eta = Math.sqrt(bat.roundTrip);
+    const yp = yearLP(inputs, h, bat, rateF, rateP, a.ratchet);
+    const bills = yp.plans.map((pl, i) => {
+      const { on, price } = inputs[i];
+      return monthBill(pl.grid, on, price, h, rateP, (bat.kwh - pl.endKwh) / eta, Math.min(...price));
+    });
+    const monthByMonth = total(per.map((p) => p.after));
+    const whole = total(bills);
+    yearly = { ok: yp.ok, iterations: yp.iterations, monthByMonth, wholePeriod: whole, used: whole < monthByMonth - 1e-6 };
+    if (yearly.used) per.forEach((p, i) => { p.after = bills[i]; p.method = "whole-period optimum (ratchet)"; p.caps = null; });
+  }
+  const fb = ratchetBill(per.map((p) => p.before)), fa = ratchetBill(per.map((p) => p.after));
   const tot = { before: { facility: 0, onDemand: 0, energy: 0 }, after: { facility: 0, onDemand: 0, energy: 0 } };
   per.forEach((p, i) => {
     p.before.facBilled = fb[i]; p.after.facBilled = fa[i];
@@ -298,5 +391,5 @@ export function touBattery(a, tariff, bat) {
   const sum = (o) => o.facility + o.onDemand + o.energy;
   const demandSaving = tot.before.facility + tot.before.onDemand - tot.after.facility - tot.after.onDemand;
   const energySaving = tot.before.energy - tot.after.energy;
-  return { months: per, yearly: tot, yearlyBefore: sum(tot.before), yearlyAfter: sum(tot.after), demandSaving, energySaving, saving: sum(tot.before) - sum(tot.after) };
+  return { months: per, yearly: tot, yearlyBefore: sum(tot.before), yearlyAfter: sum(tot.after), demandSaving, energySaving, saving: sum(tot.before) - sum(tot.after), ratchetPlan: yearly };
 }
