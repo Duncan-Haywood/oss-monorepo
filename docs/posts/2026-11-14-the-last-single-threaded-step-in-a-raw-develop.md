@@ -1,9 +1,9 @@
 ---
 title: "The last single-threaded step in a raw develop"
-seo_title: "Threading sensor normalisation in a numpy raw developer: 0.24 s to 0.05 s, same bytes"
+seo_title: "Threading raw sensor normalisation in numpy: 5x faster, same bytes"
 date: 2026-11-14
 tags: [photography, raw-processing, dng, numpy, performance, open-source, photo-editing]
-description: "ShootFlow's DNG developer already ran demosaic, colour and encode on every core. The step before them, turning sensor counts into 0-to-1 light, was still on one thread. Banding it made it five times faster without changing a byte."
+description: "ShootFlow's DNG developer threaded everything but its first step, turning sensor counts into light. Banding it made it 5x faster, same bytes."
 ---
 
 ShootFlow is the open-source photo pipeline in this repository: ingest, cull, a DNG and Canon CR2 developer, grading. Its developer has two engines, pure Python and numpy, and a test that holds them to the same output byte for byte. Yesterday's work put the numpy engine's demosaic, colour and encode on a thread pool in 256-row bands. One stage was left out, and it was the first one: sensor normalisation.
