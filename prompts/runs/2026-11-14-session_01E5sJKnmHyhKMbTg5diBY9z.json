@@ -53,7 +53,7 @@
     "docs/posts/2026-11-14-a-2000-character-list-edited-as-text.md"
   ],
   "goal": null,
-  "notes": "Backlog: no agent-owned rows (none touched). Evidence: 7 doc_friction entries 2026-11-13/14 on flagships.yaml next: editing. Verification: test_allocate 101 OK, validate.py OK, main_health 66/66, promptctl validate OK, unittest discover -s prompts OK. Metric for a later Verify: count of flagships.yaml next:-editing friction entries in the week after merge vs 7 in the two days before.",
+  "notes": "Backlog: no agent-owned rows (none touched). Evidence: 7 doc_friction entries 2026-11-13/14 on flagships.yaml next: editing. Verification: test_allocate 101 OK, validate.py OK, main_health 66/66, promptctl validate OK, unittest discover -s prompts OK. Metric for a later Verify: count of flagships.yaml next:-editing friction entries in the week after merge vs 7 in the two days before. CI: no check runs appeared on the PR after ~20 min (starved). Local run_workflow_locally --for-changes: 8 workflows, no failure; portfolio-validate 90/90 run steps passed (20 unrun on the 300 s budget: decision queue, egress, unrelated to router), portfolio-pages 6/6 (site-builder test and artifact check unrun on budget).",
   "corrections": [],
   "redteam": null,
   "usage": {
