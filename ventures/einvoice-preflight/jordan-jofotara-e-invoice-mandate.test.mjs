@@ -54,3 +54,19 @@ test("links to a neighbour and the hub and the sitemap entry is its own url bloc
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*jordan-jofotara-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("keeps the facts read from Regulation No. 34 of 2019 and its instructions (2026-11-14)", () => {
+  const hub = fs.readFileSync(new URL("./e-invoicing-mandates-by-country.html", import.meta.url), "utf8");
+  assert.match(html, /Official Gazette 5572, 1 May 2019/);
+  assert.match(html, /Regulation No\. 13 of 2023 \(Official Gazette 5851, 16 April 2023\)/);
+  assert.match(html, /worth at least JOD 1/);
+  assert.match(html, /under JOD 75,000/);
+  assert.match(html, /bread-only bakeries under JOD 150,000/);
+  assert.match(html, /kept four years/);
+  // The old claim that buyer details are not required below JOD 10,000 misread the text.
+  assert.doesNotMatch(html, /not required on invoices below JOD 10,000/);
+  assert.match(html, /Above JOD 10,000 the seller must prove the buyer received it/);
+  // Regulation No. 2 of 2025 was not found: still marked as reported.
+  assert.match(html, /Reported, not read/);
+  assert.doesNotMatch(hub, /ISTD unread/);
+});
