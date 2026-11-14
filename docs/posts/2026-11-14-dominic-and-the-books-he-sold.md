@@ -1,6 +1,6 @@
 ---
 title: "Little Lamps: Saint Dominic and the books he sold"
-seo_title: "Saint Dominic bedtime story: the student who sold his books to feed the hungry"
+seo_title: "Saint Dominic bedtime story: the student who sold his books"
 date: 2026-11-14
 tags: [fiction, little-lamps, bedtime-story, saints]
 description: "A new Little Lamps bedtime story: Saint Dominic, who sold his annotated books in a famine and sat up all night talking kindly with an innkeeper at Toulouse."
