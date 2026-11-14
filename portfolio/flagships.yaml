@@ -185,22 +185,22 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git. Open: ZATCA rules on a real sandbox invoice and
-      credit or debit note; FatturaPA tolerances and SdI codes read from spec 1.9
-      (2026-11-13, eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection
-      receipt; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though
-      AMA's rules admit them: which validator does AT run?); Poland's FA(3): receipt
+      History: README and git (latest: Peppol BIS 3.0.22, 1,048/1,048 unit asserts).
+      Open: ZATCA rules on a real sandbox invoice and credit or debit note;
+      FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
+      eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
+      Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's
+      rules admit them: which validator does AT run?); Poland's FA(3): receipt
       checks landed (README); open: a real KSeF rejection, a real correction,
       advance or settlement file; the rules and a repair on a real ERP or Factur-X
       export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
-      Dutch file; India's INV-01 check on a real IRP payload; primary-source mandate
-      dates: IL (gov.il 403); LV, DK, CZ done (README); TW, OM read from the law
-      (README); PK, NG, JO, TH read (README): open: NRS notice (CAPTCHA), SRO 1852,
-      Jordan Reg. 2/2025; Mexico CFDI 4.0, complements, Carta Porte 3.1 landed:
-      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a
-      real payroll or export file, a PAC rejection compared; postal codes (MX-080)
-      landed (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
+      Dutch file; India's INV-01 check on a real IRP payload; mandate texts read
+      (README); open: IL (gov.il 403), ES, SK (hosts blocked 2026-11-14), NRS notice
+      (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed: open: SAT's
+      CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
+      payroll or export file, a PAC rejection compared; postal codes (MX-080) landed
+      (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
       (BR-053..057, NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and
       cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
       112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
