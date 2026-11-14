@@ -534,3 +534,32 @@ test("eight more states' due dates match their own pages, read 2026-11-14", asyn
   assert.deepEqual(stateDiscounts("GA")["GA state"].tiers, [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }]);
   for (const st of ["GA", "IL", "MN", "NC", "NV", "SC", "VA", "WA"]) assert.match(STATE_SOURCES[st].url, /^https:\/\/[a-z.]*\.(gov|us)\//);
 });
+
+// Second 2026-11-14 batch (eval/state-pages-2026-11-14b.md quotes the sentences): MO, NY, OH, TN read on their own pages or statute.
+test("MO, NY, OH and TN match their own pages (read 2026-11-14), with Missouri's 2% and New York's vendor collection credit", async () => {
+  const { STATE_SOURCES, stateSourceRead, stateDiscounts, salesTaxReturn } = await import("./salestaxreturn.mjs");
+  const cases = [
+    ["MO", "monthly", "2026-10", "2026-11-30"], ["MO", "quarterly", "2026-Q1", "2026-04-30"], ["MO", "annual", "2026", "2027-01-31"],
+    ["NY", "monthly", "2026-10", "2026-11-20"], ["NY", "annual", "2026-02", "2026-03-20"], // ST-101 covers Mar 1 - Feb 28 (period labelled by its end month), "due by March 20"
+    ["OH", "monthly", "2026-10", "2026-11-23"], // R.C. 5739.12(A)(1): "on or before the twenty-third day of each month"
+    ["TN", "monthly", "2026-10", "2026-11-20"], ["TN", "quarterly", "2026-Q3", "2026-10-20"], ["TN", "annual", "2026", "2027-01-20"],
+  ];
+  for (const [st, f, period, due] of cases) assert.equal(dueDate(period, stateDueDay(st, f)), due, `${st} ${f} ${period}`);
+  for (const st of ["MO", "NY", "OH", "TN"]) { assert.equal(stateSourceRead(st), "2026-11-14", st); assert.match(STATE_SOURCES[st].url, /^https:\/\/[a-z.]*\.gov\//); }
+  assert.match(stateFilingNote("TN", "semiannual"), /Tennessee's own page lists monthly, quarterly, annual sales tax filing, not semiannual/);
+  assert.equal(stateFilingNote("MO", "quarterly"), null);
+  // Missouri: 2% of the tax due, no cap printed
+  assert.deepEqual(stateDiscounts("mo"), { "MO state": { rate: 0.02 } });
+  // New York: 5% up to $200 per quarterly or annual return; monthly (part-quarterly) filers get none
+  assert.deepEqual(stateDiscounts("NY", "quarterly"), { "NY state": { rate: 0.05, cap: 20000 } });
+  assert.deepEqual(stateDiscounts("NY", "annual"), { "NY state": { rate: 0.05, cap: 20000 } });
+  assert.deepEqual(stateDiscounts("NY", "monthly"), {});
+  const mk = (label, dollars) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-04-10,,A Co,10000.00,4000,Goods\ninvoice,1,2026-04-10,,A Co,${dollars}.00,2100,${label}\n`).books;
+  const row = (st, dollars, frequency) => salesTaxReturn(mk(`${st} state`, dollars), { frequency, endMonth: stateEndMonth(st, frequency), discounts: stateDiscounts(st, frequency) }).periods[0].rows.find((x) => x.jurisdiction === `${st} state`);
+  assert.equal(row("NY", 1000, "quarterly").discount, 5000);   // $1,000 x 5% = $50
+  assert.equal(row("NY", 10000, "quarterly").discount, 20000); // $500, capped at $200
+  assert.equal(row("NY", 10000, "monthly").discount, 0);
+  assert.equal(row("MO", 10000, "monthly").discount, 20000);   // $10,000 x 2% = $200, uncapped
+  assert.equal(row("MO", 100, "monthly").payable, 9800);       // the FAQ's own example: $100 less $2 is $98
+});
