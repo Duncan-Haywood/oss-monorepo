@@ -11,6 +11,15 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Alternatives: an abrupt switch puts H = 32 at one end (refutes iii, may still hold i and ii by a hair); a non-monotone effect in H (e.g. omega 7 above +0.022) refutes i.
 - Not tested: other widths, a compressor other than rand-k, omega 3 at H = 32, the delta-norm mechanism check (left for its own step).
 
+### Outcome of 6t (`experiments/gpt_scale/knee32_6t.py`, `knee32_6t.txt`, `run_knee32.out`; 8 runs, about 19 to 20 min each, 4 cores in parallel, torch 2.15.0+cpu)
+- Paired excess at H = 32 (nats, se): omega 7 **+0.0111** (0.0074; per seed -0.003, +0.029, +0.001, +0.018), omega 15 +0.0431 (0.0038, 6 seeds, from 6k), omega 31 **+0.1085** (0.0084; +0.096, +0.122, +0.092, +0.124). No run diverged.
+- **H6t-i held:** omega 7 at H = 32 (+0.011) is between H = 16 (+0.022) and H = 64 (-0.002). **H6t-ii held:** omega 31 (+0.109) is between +0.098 and +0.132. **H6t-iii held:** the cells are +0.1 se and -0.8 se from the log-H midpoint (+0.010, +0.115).
+- How strong a test this was: weaker than planned. The H = 32 seeds are about twice as noisy as the H = 16 and H = 64 cells (se 0.0074 and 0.0084 against 0.0016 to 0.0041). The omega-7 cell is 1.5 se from the H = 16 value and 1.7 se from the H = 64 value, so on its own it does not exclude either end; the omega-31 cell is 1.2 se from H = 16 and 2.8 se from H = 64. The holding of H6t-i and H6t-iii is consistent with a smooth change, not proof of it.
+- Shape at H = 32 (three cells, omega 7, 15, 31): hinge chi-square 0.01 (w0 4.25, slope 0.0040), power 0.59 (exponent 1.25), line through the origin 5.02 (1 parameter more constrained; about 2 dof, p near 0.08). Hinge w0 bootstrap (2.5/50/97.5): H = 16 0.0/0.5/1.5, H = 32 0.75/4.25/7.0, H = 64 6.5/7.75/9.0. The fitted knee rises by about 3.6 units of omega per doubling of H, but the H = 32 interval overlaps both neighbours and has no omega-3 cell, so the trend is a reading of three medians, not a fitted law.
+- Practical reading for this model: interpolating the excess linearly in log2 H between measured sync intervals predicted both new cells within 1 se. A practitioner who has the curve at two H values can estimate the cost at the H between them; extrapolating beyond the measured H is untested.
+- Limits: four seeds per new cell and noisier seeds at H = 32 (no reason found; the uncompressed H = 32 baseline has six seeds from runs under an unrecorded torch version, the new cells used 2.15); one width; one compressor; three H values.
+- Next: the delta-norm mechanism check (per-round worker-delta norms against the rand-k noise variance at H = 16, 32, 64), and two more seeds at H = 32 omega 7 to shrink its se below 0.005 if the knee's growth with H is to be a claim.
+
 ## 2026-11-14 · Milestone 6s (H6 scale-up): does the knee move with H? Keep 1/8 and 1/32 at H = 16, four seeds (planned before running)
 
 - Why: 6r's "Next". The size-2 hinge (zero up to omega about 8, then 0.0057 nats per unit of omega) was fitted at one H. If the knee or slope depends on H, a practitioner cannot carry a keep level chosen at one sync interval to another.
