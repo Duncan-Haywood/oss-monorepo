@@ -356,7 +356,8 @@
       {
         "file": "ventures/*/*.html (58 pages)",
         "issue": "165 bare `localStorage` reads outside try remain in non-usage helpers (saveBid/clearBid x50 each, drafts, scenarios, handoffs): each is a control that throws for a visitor blocking site data. Measure: for each tracked ventures html, run check_storage_guard.unguarded_reads over each inline <script> body. Fix: route through a guarded getter like usageStorage()/companyStorage(), then extend bare_storage_args (or unguarded_reads over inline scripts) to pages generally with a zero baseline.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15774"
       }
     ]
   },

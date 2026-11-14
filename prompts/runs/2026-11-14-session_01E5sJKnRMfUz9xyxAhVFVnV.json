@@ -1,0 +1,423 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKnRMfUz9xyxAhVFVnV",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T07:24:29Z",
+  "ended": "2026-11-14T07:27:29Z",
+  "wall_minutes": 26.4,
+  "tokens_in": 18763012,
+  "tokens_out": 67268,
+  "cost_usd": 6.5318,
+  "tool_calls": 137,
+  "task": "redteam: blocked-storage page scripts, form-method clobbering, invalid.mjs mutation gaps",
+  "projects": [
+    "platform/ci",
+    "platform/pages",
+    "ventures (45 pages/modules)"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15774",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First Playwright repro used file:// URLs; module imports fail there, so blocked pages looked fine",
+      "fix": "served ventures/ over a local http server; blocked_storage_pages.mjs does the same"
+    },
+    {
+      "what": "Lint regex matched `form.reset()` inside the comment explaining the fix",
+      "fix": "check_form_clobbering strips comments and strings with check_storage_guard._strip"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 13 entries, 12 of them control-plane workflow edits no ordinary run can land; the one non-control-plane entry took the whole run. The prompt says 'fix them first' but has no advice for a list that is mostly owner-gated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 2 suggests a third of the run on reading the campaign target; the open entry (blocked storage) had a much larger, user-visible blast radius, so the hunt went there, measured behaviourally across all 3,820 pages",
+      "did": "Chromium sweep of every venture page with a throwing localStorage getter, then a form-method clobbering scan",
+      "result": "38 pages that stopped at load fixed (0 of 3,820 after), 15 handler reads fixed, 3 broken reset buttons found and fixed, two lints added"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-safety-check-that-stopped-the-page.md"
+  ],
+  "goal": null,
+  "notes": "Guards added or tightened: check_storage_guard.py (already in portfolio-validate.yml) now flags `typeof localStorage` outside try in every page script and module, default parameters reading the global, and any inline-script read outside try (zero baseline; safe(() => ...) accepted only when safe is a try wrapper); first run on the old tree flagged all 21 probes and 18 defaults. New platform/ci/check_form_clobbering.py + test (run by unwired_checks.py, no workflow edit): flags a form control named reset/submit/requestSubmit/checkValidity/reportValidity when a script calls that method; flagged 3 on the old tree. New platform/ci/blocked_storage_pages.mjs: behavioural sweep, 38 of 3,820 pages threw before, 0 after (full run 2026-11-14). Campaigns: check_storage_guard.py 8/8 caught; platform/pages/invalid.mjs 5/8 caught before, 8/8 after three gap tests. Verification: check_storage_guard.py and check_form_clobbering.py green; 41 + 9 unit tests OK; run_venture_tests.py over all 31 touched ventures green; unwired_checks 100/115 pass, 15 named skips (no pytest); run_workflow_locally --for-changes result in the PR. Step 0: entry #5 of 2026-11-14-session_01AcxTtGsXXSCs6Vm5XzsPzX set patched. The other 12 open entries are control-plane workflow edits and stay open.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_storage_guard.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_storage_guard  (in platform/ci)",
+        "seed": 756794987,
+        "commit": "d544d474e",
+        "sites": 59,
+        "baseline_seconds": 4.7,
+        "mutants": [
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 63,
+            "col": 99,
+            "operator": "plus-to-minus",
+            "before": "elif code.startswith(\"try\", i) and not (_IDENT.match(code[i - 1:i]) or _IDENT.match(code[i + 3:i + 4])):",
+            "after": "elif code.startswith(\"try\", i) and not (_IDENT.match(code[i - 1:i]) or _IDENT.match(code[i - 3:i + 4])):",
+            "line_text": "        elif code.startswith(\"try\", i) and not (_IDENT.match(code[i - 1:i]) or _IDENT.match(code[i + 3:i + 4])):",
+            "caught": true,
+            "seconds": 5.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 64,
+            "col": 26,
+            "operator": "true-to-false",
+            "before": "pending_try = True",
+            "after": "pending_try = False",
+            "line_text": "            pending_try = True",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 93,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "nxt = \"\\n\".join(lines[i + 1:i + 5])",
+            "after": "nxt = \"\\n\".join(lines[i + 2:i + 5])",
+            "line_text": "        nxt = \"\\n\".join(lines[i + 1:i + 5])",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 115,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "names = [n.split(\" as \")[-1].strip() for n in m.group(1).split(\",\")]",
+            "after": "names = [n.split(\" as \")[-1].strip() for n in m.group(2).split(\",\")]",
+            "line_text": "    names = [n.split(\" as \")[-1].strip() for n in m.group(1).split(\",\")]",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 120,
+            "col": 65,
+            "operator": "plus-to-minus",
+            "before": "call = re.compile(r\"\\b(?:\" + \"|\".join(map(re.escape, names)) + r\")\\(\\s*(?:(?:window|globalThis)\\.)?localStorage\\b\")",
+            "after": "call = re.compile(r\"\\b(?:\" + \"|\".join(map(re.escape, names)) - r\")\\(\\s*(?:(?:window|globalThis)\\.)?localStorage\\b\")",
+            "line_text": "    call = re.compile(r\"\\b(?:\" + \"|\".join(map(re.escape, names)) + r\")\\(\\s*(?:(?:window|globalThis)\\.)?localStorage\\b\")",
+            "caught": true,
+            "seconds": 2.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 169,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "status = 0",
+            "after": "status = 1",
+            "line_text": "    status = 0",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 172,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "status = 1",
+            "after": "status = 2",
+            "line_text": "        status = 1",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_storage_guard.py",
+            "line": 175,
+            "col": 18,
+            "operator": "or-to-and",
+            "before": "return status or (1 if code else 0)",
+            "after": "return status and (1 if code else 0)",
+            "line_text": "    return status or (1 if code else 0)",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/pages/invalid.mjs",
+        "test": "node --test platform/pages/invalid.test.mjs  (in .)",
+        "seed": 598527144,
+        "commit": "d544d474e",
+        "sites": 146,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 140,
+            "col": 44,
+            "operator": "and-to-or",
+            "before": "if (word.length > 3 && word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);",
+            "after": "if (word.length > 3 && word.endsWith('s') || !word.endsWith('ss')) return word.slice(0, -1);",
+            "line_text": "  if (word.length > 3 && word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 197,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "if (colon > 0) {",
+            "after": "if (colon > 1) {",
+            "line_text": "  if (colon > 0) {",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: a one-letter row prefix ('A: ...') is a real shape; test added"
+          },
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 222,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "if (subjectWords.length === 0 || labelList.length === 0) return 0;",
+            "after": "if (subjectWords.length === 0 || labelList.length === 0) return 1;",
+            "line_text": "  if (subjectWords.length === 0 || labelList.length === 0) return 0;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 307,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "for (var i = 0; i < names.length; i += 1) {",
+            "after": "for (var i = 0; i <= names.length; i += 1) {",
+            "line_text": "    for (var i = 0; i < names.length; i += 1) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 356,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": "var text = labelWords(row.textContent || '').join(' ');",
+            "after": "var text = labelWords(row.textContent && '').join(' ');",
+            "line_text": "  var text = labelWords(row.textContent || '').join(' ');",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the only row test used select pickers, so the row's own caption text was never exercised; test added"
+          },
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 358,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (var i = 0; i < selects.length; i += 1) {",
+            "after": "for (var i = 1; i < selects.length; i += 1) {",
+            "line_text": "  for (var i = 0; i < selects.length; i += 1) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 360,
+            "col": 28,
+            "operator": "plus-to-minus",
+            "before": "if (picked) text += ' ' + labelWords(picked.textContent || '').join(' ');",
+            "after": "if (picked) text += ' ' - labelWords(picked.textContent || '').join(' ');",
+            "line_text": "    if (picked) text += ' ' + labelWords(picked.textContent || '').join(' ');",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/invalid.mjs",
+            "line": 400,
+            "col": 14,
+            "operator": "gt-to-ge",
+            "before": "if (score > bestScore) { bestScore = score; best = node; }",
+            "after": "if (score >= bestScore) { bestScore = score; best = node; }",
+            "line_text": "    if (score > bestScore) { bestScore = score; best = node; }",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: tie-break by document order was untested; test added"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/*/index.html, */app.js, */app.mjs (21 files)",
+        "issue": "A preference-restoring snippet opened the page script with `if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;`. With site data blocked, `typeof localStorage` throws SecurityError, so the page's whole script stopped at load. Reproduced in Chromium with a throwing getter. Fixed by putting the probe in try; check_storage_guard.unguarded_typeof guards it.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15774"
+      },
+      {
+        "file": "8 page modules (amazon-fba scenarios, clothing-design-studio bom/launchbrief, revenue-target-lead-planner history, shop-rates, shopify-a11y quote/theme-areas, shopify-permission-drift capture)",
+        "issue": "18 exported functions defaulted `storage = globalThis.localStorage`, which is read outside any try when the page calls them with no argument, so 9 pages (7 clothing studio, revenue planner, shopify capture) stopped at load with site data blocked. Fixed with a guarded browserStorage() default; check_storage_guard.default_param_reads guards it.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15774"
+      },
+      {
+        "file": "8 venture pages (amazon-fba, change-order, chargeback, cut-list, locksmith, retainage, shop-rate, subcontractor)",
+        "issue": "A bare `localStorage` read or pass at start-up stopped the page with site data blocked; chargeback's getEvents also threw on bad JSON. Fixed (guarded getter or try); inline_reads holds inline scripts at zero; blocked_storage_pages.mjs: 0 of 3,820 pages throw after the fix (38 before).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15774"
+      },
+      {
+        "file": "12 venture pages (handlers)",
+        "issue": "Bare reads in click/change handlers (clear draft, reset, save draft, opt-out, backup, usage counts on download/copy) threw for visitors blocking site data, breaking that control. All wrapped or routed through a guarded getter; vendor-rate-break-even now says 'Not saved' instead of failing silently.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15774"
+      },
+      {
+        "file": "ventures/{childcare-tuition-calculator,music-lesson-break-even}/index.html, ventures/cash-runway-planner/app.mjs",
+        "issue": "DOM clobbering: <button id=\"reset\"> inside the form made form.reset that button, so the 'Reset saved inputs' / reset button threw 'form.reset is not a function' for every visitor. A Chromium scan of all 3,820 pages found 7 forms with reset shadowed; these 3 call it. cash-runway-planner's wire test passed because its fake form had a working reset(); the fake now models the shadowing. Fixed with HTMLFormElement.prototype.reset.call(form); guarded by the new platform/ci/check_form_clobbering.py (run by unwired_checks).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15774"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9576b4d1-af83-53a6-874e-bb1cec571f3c",
+    "transcripts": 1,
+    "first": "2026-11-14T07:24:29Z",
+    "last": "2026-11-14T07:50:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 134,
+        "input": 257,
+        "output": 67268,
+        "thinking": 13780,
+        "cache_read": 18579061,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183694,
+        "api_equivalent_usd": 6.5318,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 134,
+      "input": 257,
+      "output": 67268,
+      "thinking": 13780,
+      "cache_read": 18579061,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183694,
+      "api_equivalent_usd": 6.5318,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 137,
+    "tools": {
+      "Bash": 128,
+      "Write": 4,
+      "Monitor": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.4,
+      "active_minutes": 25.67,
+      "model_minutes": 14.4,
+      "tool_minutes": 11.27,
+      "waiting_on_human_minutes": 0.72,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior front-end engineer: reproduce blocked-storage failure, sweep 3,820 pages, patch 45 files, two lints with tests, mutation gaps (~10 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 153.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
