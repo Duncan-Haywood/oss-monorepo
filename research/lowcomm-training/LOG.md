@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 6t (H6 scale-up): is the H = 32 curve between H = 16's line and H = 64's hinge? Keep 1/8 and 1/32 at H = 32, four seeds (planned before running)
+
+- Why: 6s's "Next". At H = 16 the cost is a line through the origin (0.0031 nats per unit of omega); at H = 64 it is a hinge (free to omega about 8, then 0.0057 per omega). The two cross near omega 15, where H = 32 already sits at +0.043. If the shape changes smoothly with H, a practitioner can interpolate a keep level between sync intervals; if H = 32 looks like one end, the switch is abrupt and the pair (H, keep) has to be measured.
+- Run: `scale.py run knee32`, size 2, H = 32, keep 1/8 (omega 7) and keep 1/32 (omega 31), seeds 0 to 3; 8 runs, paired with the six uncompressed H = 32 seeds. Analysis: `experiments/gpt_scale/knee32_6t.py`, written before the runs.
+- Measured ends (paired excess, se): omega 7: H 16 +0.0220 (0.0016), H 64 -0.0016 (0.0038). Omega 31: H 16 +0.0984 (0.0030), H 64 +0.1321 (0.0041). H = 32 is the log2 midpoint, where linear-in-log-H interpolation gives +0.0102 (omega 7) and +0.1153 (omega 31).
+- **H6t-i** (prior 60%): the omega-7 excess at H = 32 is strictly between the two ends (-0.0016 and +0.0220). **H6t-ii** (prior 55%): the omega-31 excess at H = 32 is strictly between +0.0984 and +0.1321. **H6t-iii** (prior 40%): both cells are within 2 se of the log-H midpoint (se combines the H = 32 cell with half the end cells' se). Each is refuted if it fails as stated; a diverged run counts against all three and is reported.
+- Alternatives: an abrupt switch puts H = 32 at one end (refutes iii, may still hold i and ii by a hair); a non-monotone effect in H (e.g. omega 7 above +0.022) refutes i.
+- Not tested: other widths, a compressor other than rand-k, omega 3 at H = 32, the delta-norm mechanism check (left for its own step).
+
 ## 2026-11-14 · Milestone 6s (H6 scale-up): does the knee move with H? Keep 1/8 and 1/32 at H = 16, four seeds (planned before running)
 
 - Why: 6r's "Next". The size-2 hinge (zero up to omega about 8, then 0.0057 nats per unit of omega) was fitted at one H. If the knee or slope depends on H, a practitioner cannot carry a keep level chosen at one sync interval to another.
