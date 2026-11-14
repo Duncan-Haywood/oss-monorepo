@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 7 started: the paper draft, with the stability section written and every quoted number checked
+
+- Why: milestone 7f's third next step ("the paper's stability section with this curve as its figure"); the programme has eight milestones of results and no paper. A sibling run holds milestone 7g (lever-2 divergence, PR #15752); this run took the draft so the two do not collide.
+- Built: `paper/DRAFT.md` (abstract, sections I–V and VII–VIII outlined, section VI on the feed-forward's stability written in full with Table VI-1 from milestone 7f), `paper/references.bib` (21 entries; 18 DOIs and arXiv ids `ok*` from `cite_check.json`, Bartlett et al. 1988 not machine-checked: the proxy refused Crossref and doi.org), `paper/check_numbers.py` (34 checks of quoted text against regular expressions on the results files) and `tests/test_paper_numbers.py`.
+- Found while writing: the tilt-command limit the simulator uses (20°) is the minimum PX4 allows for `MPC_TILTMAX_AIR`, whose default is 45°; ArduPilot's `ANGLE_MAX` defaults to 30°. Read from `multicopter_position_control_limits_params.yaml` (PX4-Autopilot, main) and `AC_AttitudeControl.cpp` (ArduPilot, master) on 2026-11-14. So milestones 7d–7f's 45° rows are the stock PX4 condition, and their headline (13 of 384 diverged without the margin, 0 with it) is the deployment-relevant one. Not a new experiment; a reading of existing results against a sourced setting.
+- Limits: no new numbers; the draft inherits every limit in `README.md`. Six seeds per arm where the proposal asks ten for paper figures.
+- Next: score milestones 6–7f's designs at 30° (ArduPilot's default) too; write sections I–V out; ten seeds and bootstrap intervals for the paper figures; LaTeX in the RA-L template.
+
 ## 2026-11-13 · Milestone 7f: sweep the linear stability margin used as a training constraint (predictions written and committed before `experiments/m7f_sweep/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7e's first next step. 7e tested one margin (ki <= 0.8x the linear ceiling, M = 1.25) and found it costs about 0.7% of held-out cost and removes every divergence a 45° tilt limit exposes. A builder needs the curve, not one point: how much margin is enough, and what does more cost?
