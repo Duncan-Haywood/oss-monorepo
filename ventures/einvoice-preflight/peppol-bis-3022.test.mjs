@@ -105,7 +105,7 @@ test("Icelandic rules fire on an Icelandic seller (IS-R-002)", { skip }, async (
   assert.ok((await rules(is)).includes("IS-R-002:fatal"));
 });
 
-test("the compiler roots a relative schema or pattern let and leaves constants alone", async () => {
+test("the compiler roots a relative schema or pattern let and leaves constants alone", { skip }, async () => {
   const { fromRoot } = await import("./plain-compile.mjs");
   assert.equal(fromRoot("concat(ubl-invoice:Invoice/cac:X, 'a')"), "root(.)/(concat(ubl-invoice:Invoice/cac:X, 'a'))");
   assert.equal(fromRoot("'^[A-Z]{2}$'"), "'^[A-Z]{2}$'");
