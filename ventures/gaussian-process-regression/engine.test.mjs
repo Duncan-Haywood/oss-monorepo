@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   KERNELS, PAPERS, kernelLayout, kernelAt, logMarginal, predict, predictLinearMean, leaveOneOut, fitKernel,
-  minimizeBox, cholesky, decimalYear, formatDate, parseCsv, analyze, toCsv, csvCell, olsLine, rng,
+  minimizeBox, cholesky, inverseFromCholesky, decimalYear, formatDate, parseCsv, analyze, toCsv, csvCell, olsLine, rng,
 } from "./engine.mjs";
 import { scoreKernel } from "./eval/holdout.mjs";
 
@@ -238,4 +238,74 @@ test("CSV export guards against spreadsheet formulas", () => {
 test("the papers carry what was implemented and how we deviate", () => {
   assert.ok(PAPERS.length >= 3);
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.title}: ${k}`);
+});
+
+test("blocked Cholesky and inverse are bit-for-bit the plain one-row loops (every n mod 4)", () => {
+  // The plain loops the blocked ones replaced (2026-11-14 perf pass).
+  const plainCholesky = (A, n) => {
+    for (let j = 0; j < n; j++) {
+      let s = A[j * n + j];
+      for (let k = 0; k < j; k++) s -= A[j * n + k] * A[j * n + k];
+      if (!(s > 0)) return false;
+      const d = Math.sqrt(s);
+      A[j * n + j] = d;
+      for (let i = j + 1; i < n; i++) {
+        let t = A[i * n + j];
+        for (let k = 0; k < j; k++) t -= A[i * n + k] * A[j * n + k];
+        A[i * n + j] = t / d;
+      }
+      for (let k = j + 1; k < n; k++) A[j * n + k] = 0;
+    }
+    return true;
+  };
+  const plainInverse = (L, n) => {
+    const T = new Float64Array(n * n);
+    for (let j = 0; j < n; j++) {
+      T[j * n + j] = 1 / L[j * n + j];
+      for (let i = j + 1; i < n; i++) {
+        let s = 0;
+        for (let k = j; k < i; k++) s -= L[i * n + k] * T[j * n + k];
+        T[j * n + i] = s / L[i * n + i];
+      }
+    }
+    const inv = new Float64Array(n * n);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j <= i; j++) {
+        let s = 0;
+        for (let k = i; k < n; k++) s += T[i * n + k] * T[j * n + k];
+        inv[i * n + j] = s;
+        inv[j * n + i] = s;
+      }
+    }
+    return inv;
+  };
+  const rand = rng(7);
+  for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 37, 64]) {
+    const x = Array.from({ length: n }, () => 10 * rand());
+    const A = new Float64Array(n * n);
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) A[i * n + j] = Math.exp(-((x[i] - x[j]) ** 2) / 8) + (i === j ? 0.05 : 0);
+    const a = A.slice(), b = A.slice();
+    assert.equal(cholesky(a, n), true);
+    assert.equal(plainCholesky(b, n), true);
+    assert.deepEqual(a, b, `Cholesky factor, n=${n}`);
+    assert.deepEqual(inverseFromCholesky(a, n), plainInverse(b, n), `inverse, n=${n}`);
+  }
+});
+
+test("a regular grid (repeated distances) gives the same likelihood and gradient as a jittered-off grid, to rounding", () => {
+  // The evaluation over distinct distances must be the per-pair evaluation: on a monthly
+  // grid nearly every distance repeats (79 distinct of 1,176 pairs); moving each x by
+  // under 1e-9 makes most of them distinct (the per-pair path) and changes the numbers
+  // only far below the tolerance.
+  const n = 48;
+  const grid = Array.from({ length: n }, (_, i) => 2000 + i / 12);
+  const off = grid.map((v, i) => v + 1e-9 * (((i * i * 7919) % 101) / 101));
+  const y = grid.map((v) => Math.sin(2 * Math.PI * v) + 0.3 * (v - 2002));
+  for (const name of Object.keys(KERNELS)) {
+    const theta = kernelLayout(name).map((p) => (p.kind === "period" ? 1 : p.kind === "noise" ? 0.05 : 0.8));
+    const a = logMarginal(name, theta, grid, y, { grad: true });
+    const b = logMarginal(name, theta, off, y, { grad: true });
+    assert.ok(Math.abs(a.lml - b.lml) < 1e-6 * Math.abs(b.lml), `${name} lml ${a.lml} vs ${b.lml}`);
+    a.grad.forEach((g, i) => assert.ok(Math.abs(g - b.grad[i]) < 1e-6 * (1 + Math.abs(b.grad[i])), `${name} grad[${i}] ${g} vs ${b.grad[i]}`));
+  }
 });

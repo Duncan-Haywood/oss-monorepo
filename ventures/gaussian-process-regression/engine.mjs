@@ -209,21 +209,43 @@ export function kernelAt(name, theta, r, withGrad = false) {
 
 // ---------- linear algebra (row-major Float64Array) ----------
 
-/** In-place lower Cholesky factor of a symmetric n x n matrix; returns false if not positive definite. */
+/**
+ * In-place lower Cholesky factor of a symmetric n x n matrix; returns false if
+ * not positive definite. Below the diagonal, four rows are updated per pass so
+ * each load of row j serves four dot products; every entry still subtracts its
+ * products in the same k order, so the factor is bit-for-bit the one-row loop's.
+ */
 export function cholesky(A, n) {
   for (let j = 0; j < n; j++) {
-    let s = A[j * n + j];
-    for (let k = 0; k < j; k++) s -= A[j * n + k] * A[j * n + k];
+    const rj = j * n;
+    let s = A[rj + j];
+    for (let k = 0; k < j; k++) s -= A[rj + k] * A[rj + k];
     if (!(s > 0) || !Number.isFinite(s)) return false;
     const d = Math.sqrt(s);
-    A[j * n + j] = d;
-    for (let i = j + 1; i < n; i++) {
-      let t = A[i * n + j];
-      const ri = i * n, rj = j * n;
-      for (let k = 0; k < j; k++) t -= A[ri + k] * A[rj + k];
-      A[i * n + j] = t / d;
+    A[rj + j] = d;
+    let i = j + 1;
+    for (; i + 3 < n; i += 4) {
+      const r0 = i * n, r1 = r0 + n, r2 = r1 + n, r3 = r2 + n;
+      let t0 = A[r0 + j], t1 = A[r1 + j], t2 = A[r2 + j], t3 = A[r3 + j];
+      for (let k = 0; k < j; k++) {
+        const a = A[rj + k];
+        t0 -= A[r0 + k] * a;
+        t1 -= A[r1 + k] * a;
+        t2 -= A[r2 + k] * a;
+        t3 -= A[r3 + k] * a;
+      }
+      A[r0 + j] = t0 / d;
+      A[r1 + j] = t1 / d;
+      A[r2 + j] = t2 / d;
+      A[r3 + j] = t3 / d;
     }
-    for (let k = j + 1; k < n; k++) A[j * n + k] = 0;
+    for (; i < n; i++) {
+      const ri = i * n;
+      let t = A[ri + j];
+      for (let k = 0; k < j; k++) t -= A[ri + k] * A[rj + k];
+      A[ri + j] = t / d;
+    }
+    for (let k = j + 1; k < n; k++) A[rj + k] = 0;
   }
   return true;
 }
@@ -248,23 +270,74 @@ function backward(L, n, b) {
   return x;
 }
 
-/** K^-1 from its Cholesky factor: (L^-1)' L^-1, with L^-1 stored transposed so every inner loop reads a row. */
-function inverseFromCholesky(L, n) {
+/**
+ * K^-1 from its Cholesky factor: (L^-1)' L^-1, with L^-1 stored transposed so
+ * every inner loop reads a row. Both passes work four rows at a time so each
+ * load is shared by four sums; every sum still runs over k in the same order
+ * from the same start, so the result is bit-for-bit the one-row loop's.
+ */
+export function inverseFromCholesky(L, n) {
   const T = new Float64Array(n * n); // T[j][k] = (L^-1)[k][j], nonzero for k >= j
-  for (let j = 0; j < n; j++) {
+  // One row of T, entries i in [j, iEnd): the plain recurrence.
+  const rowPrefix = (j, iEnd) => {
     const rj = j * n;
     T[rj + j] = 1 / L[rj + j];
-    for (let i = j + 1; i < n; i++) {
+    for (let i = j + 1; i < iEnd; i++) {
       const ri = i * n;
       let s = 0;
       for (let k = j; k < i; k++) s -= L[ri + k] * T[rj + k];
       T[rj + i] = s / L[ri + i];
     }
+  };
+  let j = 0;
+  for (; j + 3 < n; j += 4) {
+    const j3 = j + 3;
+    for (let a = 0; a < 4; a++) rowPrefix(j + a, j3 + 1);
+    const r0 = j * n, r1 = r0 + n, r2 = r1 + n, r3 = r2 + n;
+    for (let i = j3 + 1; i < n; i++) {
+      const ri = i * n;
+      let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+      s0 -= L[ri + j] * T[r0 + j];
+      s0 -= L[ri + j + 1] * T[r0 + j + 1];
+      s1 -= L[ri + j + 1] * T[r1 + j + 1];
+      s0 -= L[ri + j + 2] * T[r0 + j + 2];
+      s1 -= L[ri + j + 2] * T[r1 + j + 2];
+      s2 -= L[ri + j + 2] * T[r2 + j + 2];
+      for (let k = j3; k < i; k++) {
+        const l = L[ri + k];
+        s0 -= l * T[r0 + k];
+        s1 -= l * T[r1 + k];
+        s2 -= l * T[r2 + k];
+        s3 -= l * T[r3 + k];
+      }
+      const d = L[ri + i];
+      T[r0 + i] = s0 / d;
+      T[r1 + i] = s1 / d;
+      T[r2 + i] = s2 / d;
+      T[r3 + i] = s3 / d;
+    }
   }
+  for (; j < n; j++) rowPrefix(j, n);
   const inv = new Float64Array(n * n);
   for (let i = 0; i < n; i++) {
     const ri = i * n;
-    for (let j = 0; j <= i; j++) {
+    let j = 0;
+    for (; j + 3 <= i; j += 4) {
+      const r0 = j * n, r1 = r0 + n, r2 = r1 + n, r3 = r2 + n;
+      let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+      for (let k = i; k < n; k++) {
+        const t = T[ri + k];
+        s0 += t * T[r0 + k];
+        s1 += t * T[r1 + k];
+        s2 += t * T[r2 + k];
+        s3 += t * T[r3 + k];
+      }
+      inv[ri + j] = s0; inv[r0 + i] = s0;
+      inv[ri + j + 1] = s1; inv[r1 + i] = s1;
+      inv[ri + j + 2] = s2; inv[r2 + i] = s2;
+      inv[ri + j + 3] = s3; inv[r3 + i] = s3;
+    }
+    for (; j <= i; j++) {
       const rj = j * n;
       let s = 0;
       for (let k = i; k < n; k++) s += T[ri + k] * T[rj + k];
@@ -287,16 +360,50 @@ function pairDistances(x) {
 }
 
 /**
+ * The distinct values of a packed distance array and, for each pair, the
+ * index of its value, or null when fewer than half the pairs repeat a value.
+ * Data on a regular grid (monthly dates, integer steps) has about n distinct
+ * distances among n(n+1)/2 pairs (the 201-month example: 333 of 20,301), so
+ * each factor is evaluated once per distinct distance and gathered, which
+ * gives the same numbers as evaluating every pair. Memoised per array, since
+ * a fit reuses one D for every evaluation.
+ */
+const distinctCache = new WeakMap();
+function distinctDistances(D) {
+  if (distinctCache.has(D)) return distinctCache.get(D);
+  const m = D.length;
+  const pos = new Map();
+  const idx = new Uint32Array(m);
+  const u = [];
+  let out = null;
+  for (let q = 0; q < m; q++) {
+    let k = pos.get(D[q]);
+    if (k === undefined) {
+      k = u.length;
+      if (2 * k >= m) break;
+      pos.set(D[q], k);
+      u.push(D[q]);
+    }
+    idx[q] = k;
+    if (q === m - 1) out = { u: Float64Array.from(u), idx };
+  }
+  distinctCache.set(D, out);
+  return out;
+}
+
+/**
  * The kernel (without noise) on every pair, and, when asked, its derivative
  * with respect to each log hyperparameter except noise. One pass per factor
- * over a packed lower triangle, so a fit allocates a handful of arrays per
- * evaluation instead of one per pair.
+ * over a packed lower triangle (or over its distinct distances, then
+ * gathered), so a fit allocates a handful of arrays per evaluation instead of
+ * one per pair.
  */
 function kernelPairs(name, theta, D, withGrad) {
   const m = D.length;
   const { terms } = splitTheta(name, theta);
   const K = new Float64Array(m);
   const grads = [];
+  const dd = distinctDistances(D);
   for (const term of terms) {
     const vals = term.fs.map(() => new Float64Array(m));
     const ders = term.fs.map((f) => factorOf(f.type).params.map(() => (withGrad ? new Float64Array(m) : null)));
@@ -304,6 +411,19 @@ function kernelPairs(name, theta, D, withGrad) {
       const fn = factorOf(f.type).eval;
       const v = vals[j], dj = ders[j], np = dj.length;
       const g = [0, 0];
+      if (dd) {
+        const { u, idx } = dd;
+        const nu = u.length;
+        const uv = new Float64Array(nu);
+        const ud = withGrad ? dj.map(() => new Float64Array(nu)) : null;
+        for (let k = 0; k < nu; k++) {
+          uv[k] = fn(u[k], f.ps, g);
+          if (withGrad) for (let t = 0; t < np; t++) ud[t][k] = g[t];
+        }
+        for (let q = 0; q < m; q++) v[q] = uv[idx[q]];
+        if (withGrad) for (let t = 0; t < np; t++) { const a = dj[t], b = ud[t]; for (let q = 0; q < m; q++) a[q] = b[idx[q]]; }
+        return;
+      }
       for (let q = 0; q < m; q++) {
         v[q] = fn(D[q], f.ps, g);
         if (withGrad) for (let t = 0; t < np; t++) dj[t][q] = g[t];
