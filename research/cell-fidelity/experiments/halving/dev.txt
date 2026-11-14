@@ -1,0 +1,90 @@
+cell-fidelity milestone 5m, development (27 conditions seen by milestones 5b to 5l; resumed runs charged k/100 of each DFN@100 run's time)
+
+Ai2020@0.25x: n 51; Spearman(cycle-k Wh/kg, DFN@100): 5 -0.14, 10 +0.08, 20 +0.41, 50 +0.93; cycle 5 ~ cycle 10 +0.94, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.216, picked [34, 6, 52], best 34
+  fixed DFN@10 top 3 0.0716 (0.156); fixed DFN@20 top 3 0.0000 (0.251); halving 10->16, 20->3 0.0000 (0.185) (all resumed)
+Ai2020@0.375x: n 62; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.45, 10 +0.58, 20 +0.74, 50 +0.96; cycle 5 ~ cycle 10 +0.97, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.194, picked [18, 23, 6], best 18
+  fixed DFN@10 top 3 0.0597 (0.147); fixed DFN@20 top 3 0.0204 (0.242); halving 10->16, 20->3 0.0204 (0.169) (all resumed)
+Ai2020@0.5x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.83, 10 +0.89, 20 +0.95, 50 +0.99; cycle 5 ~ cycle 10 +0.98, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.192, picked [5, 63, 35], best 5
+  fixed DFN@10 top 3 0.0236 (0.146); fixed DFN@20 top 3 0.0000 (0.241); halving 10->16, 20->3 0.0000 (0.167) (all resumed)
+Ai2020@0.625x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.95, 10 +0.97, 20 +0.99, 50 +1.00; cycle 5 ~ cycle 10 +0.99, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.195, picked [24, 3, 6], best 3
+  fixed DFN@10 top 3 0.0000 (0.147); fixed DFN@20 top 3 0.0000 (0.243); halving 10->16, 20->3 0.0000 (0.170) (all resumed)
+Ai2020@0.75x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.93, 10 +0.96, 20 +0.99, 50 +0.99; cycle 5 ~ cycle 10 +0.99, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.196, picked [51, 23, 47], best 51
+  fixed DFN@10 top 3 0.0000 (0.148); fixed DFN@20 top 3 0.0000 (0.243); halving 10->16, 20->3 0.0000 (0.170) (all resumed)
+Ai2020@1x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.93, 10 +0.94, 20 +0.96, 50 +0.99; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.195, picked [45, 49, 9], best 45
+  fixed DFN@10 top 3 0.0000 (0.148); fixed DFN@20 top 3 0.0000 (0.243); halving 10->16, 20->3 0.0000 (0.170) (all resumed)
+Chen2020@0.5x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.97, 10 +0.98, 20 +0.99, 50 +1.00; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.197, picked [3, 39, 31], best 3
+  fixed DFN@10 top 3 0.0000 (0.149); fixed DFN@20 top 3 0.0000 (0.244); halving 10->16, 20->3 0.0000 (0.171) (all resumed)
+Chen2020@1.5x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.90, 10 +0.93, 20 +0.95, 50 +0.98; cycle 5 ~ cycle 10 +0.99, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.176, picked [31, 35, 52], best 31
+  fixed DFN@10 top 3 0.0000 (0.136); fixed DFN@20 top 3 0.0000 (0.233); halving 10->16, 20->3 0.0000 (0.155) (all resumed)
+Chen2020@1x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.98, 10 +0.98, 20 +0.98, 50 +0.99; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.195, picked [11, 16, 23], best 11
+  fixed DFN@10 top 3 0.0000 (0.148); fixed DFN@20 top 3 0.0000 (0.243); halving 10->16, 20->3 0.0000 (0.169) (all resumed)
+Chen2020@2x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.83, 10 +0.90, 20 +0.95, 50 +0.98; cycle 5 ~ cycle 10 +0.97, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.165, picked [5, 35, 55], best 5
+  fixed DFN@10 top 3 0.0000 (0.133); fixed DFN@20 top 3 0.0000 (0.231); halving 10->16, 20->3 0.0000 (0.149) (all resumed)
+Ecker2015@0.5x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.89, 10 +0.90, 20 +0.92, 50 +0.96; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.200, picked [32, 48, 40], best 48
+  fixed DFN@10 top 3 0.0235 (0.148); fixed DFN@20 top 3 0.0235 (0.243); halving 10->16, 20->3 0.0235 (0.170) (all resumed)
+Ecker2015@1.5x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.99, 10 +0.99, 20 +0.99, 50 +0.99; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.184, picked [40, 54, 27], best 40
+  fixed DFN@10 top 3 0.0000 (0.142); fixed DFN@20 top 3 0.0000 (0.237); halving 10->16, 20->3 0.0000 (0.162) (all resumed)
+Ecker2015@1x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.96, 10 +0.96, 20 +0.97, 50 +0.99; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.192, picked [25, 50, 14], best 14
+  fixed DFN@10 top 3 0.0000 (0.148); fixed DFN@20 top 3 0.0000 (0.243); halving 10->16, 20->3 0.0000 (0.168) (all resumed)
+Ecker2015@2x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.99, 10 +1.00, 20 +1.00, 50 +1.00; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.188, picked [7, 21, 35], best 7
+  fixed DFN@10 top 3 0.0000 (0.143); fixed DFN@20 top 3 0.0000 (0.238); halving 10->16, 20->3 0.0000 (0.163) (all resumed)
+Marquis2019@1x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.99, 10 +0.99, 20 +0.99, 50 +1.00; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.202, picked [40, 24, 0], best 40
+  fixed DFN@10 top 3 0.0000 (0.152); fixed DFN@20 top 3 0.0000 (0.246); halving 10->16, 20->3 0.0000 (0.175) (all resumed)
+Marquis2019@2x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +1.00, 10 +1.00, 20 +1.00, 50 +1.00; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.194, picked [11, 52, 27], best 11
+  fixed DFN@10 top 3 0.0000 (0.146); fixed DFN@20 top 3 0.0000 (0.241); halving 10->16, 20->3 0.0000 (0.168) (all resumed)
+Mohtat2020@1x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +1.00, 10 +1.00, 20 +1.00, 50 +1.00; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.199, picked [11, 59, 3], best 11
+  fixed DFN@10 top 3 0.0000 (0.150); fixed DFN@20 top 3 0.0000 (0.245); halving 10->16, 20->3 0.0000 (0.173) (all resumed)
+Mohtat2020@2x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +1.00, 10 +1.00, 20 +1.00, 50 +1.00; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.197, picked [36, 4, 52], best 36
+  fixed DFN@10 top 3 0.0000 (0.151); fixed DFN@20 top 3 0.0000 (0.245); halving 10->16, 20->3 0.0000 (0.173) (all resumed)
+Mohtat2020@3x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +1.00, 10 +1.00, 20 +1.00, 50 +1.00; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.193, picked [12, 27, 16], best 12
+  fixed DFN@10 top 3 0.0000 (0.144); fixed DFN@20 top 3 0.0000 (0.239); halving 10->16, 20->3 0.0000 (0.166) (all resumed)
+NCA_Kim2011@0.5x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.85, 10 +0.85, 20 +0.90, 50 +0.96; cycle 5 ~ cycle 10 +0.98, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.184, picked [57, 29, 34], best 29
+  fixed DFN@10 top 3 0.0000 (0.142); fixed DFN@20 top 3 0.0000 (0.237); halving 10->16, 20->3 0.0000 (0.161) (all resumed)
+NCA_Kim2011@0.75x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.92, 10 +0.95, 20 +0.97, 50 +0.99; cycle 5 ~ cycle 10 +0.97, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.173, picked [18, 45, 60], best 45
+  fixed DFN@10 top 3 0.0000 (0.138); fixed DFN@20 top 3 0.0000 (0.234); halving 10->16, 20->3 0.0000 (0.155) (all resumed)
+NCA_Kim2011@1x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.93, 10 +0.96, 20 +0.99, 50 +1.00; cycle 5 ~ cycle 10 +0.99, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0023, wall / all-DFN@100 0.166, picked [6, 42, 18], best 34
+  fixed DFN@10 top 3 0.0037 (0.133); fixed DFN@20 top 3 0.0023 (0.229); halving 10->16, 20->3 0.0023 (0.149) (all resumed)
+OKane2022@1.25x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.91, 10 +0.93, 20 +0.95, 50 +0.98; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.199, picked [47, 52, 11], best 52
+  fixed DFN@10 top 3 0.0000 (0.150); fixed DFN@20 top 3 0.0000 (0.249); halving 10->16, 20->3 0.0000 (0.177) (all resumed)
+OKane2022@1.5x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.89, 10 +0.91, 20 +0.94, 50 +0.97; cycle 5 ~ cycle 10 +0.99, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.189, picked [47, 57, 51], best 47
+  fixed DFN@10 top 3 0.0000 (0.144); fixed DFN@20 top 3 0.0000 (0.239); halving 10->16, 20->3 0.0000 (0.164) (all resumed)
+OKane2022@1.75x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.87, 10 +0.92, 20 +0.94, 50 +0.98; cycle 5 ~ cycle 10 +0.98, top-3 set unchanged 5->10: True
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.195, picked [24, 12, 4], best 24
+  fixed DFN@10 top 3 0.0000 (0.146); fixed DFN@20 top 3 0.0000 (0.242); halving 10->16, 20->3 0.0000 (0.168) (all resumed)
+OKane2022@1x: n 128; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.96, 10 +0.96, 20 +0.97, 50 +0.99; cycle 5 ~ cycle 10 +1.00, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.150, picked [12, 72, 84], best 12
+  fixed DFN@10 top 3 0.0000 (0.124); fixed DFN@20 top 3 0.0000 (0.221); halving 10->16, 20->3 0.0000 (0.136) (all resumed)
+OKane2022@2x: n 64; Spearman(cycle-k Wh/kg, DFN@100): 5 +0.83, 10 +0.90, 20 +0.94, 50 +0.98; cycle 5 ~ cycle 10 +0.97, top-3 set unchanged 5->10: False
+  halving 10->16, 20->8, 50->3: gap 0.0000, wall / all-DFN@100 0.186, picked [5, 55, 35], best 5
+  fixed DFN@10 top 3 0.0000 (0.143); fixed DFN@20 top 3 0.0000 (0.239); halving 10->16, 20->3 0.0000 (0.164) (all resumed)
+
+Pooled over conditions (median, max, exact):
+  gap: 0.0000, 0.0023, 26 of 27
+  t_ratio: 0.1941, 0.2160, 0 of 27
+  fixed10_gap: 0.0000, 0.0716, 22 of 27
+  fixed20_gap: 0.0000, 0.0235, 24 of 27
+  half_10_20_gap: 0.0000, 0.0235, 24 of 27
