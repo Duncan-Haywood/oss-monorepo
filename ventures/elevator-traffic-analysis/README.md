@@ -28,7 +28,8 @@ R. D. Peters, "Improvements to the Up Peak Round Trip Time Calculation",
   as EN 81-20 counts them) and a capacity factor;
 - probable stops S and highest reversal floor H for unequal floor populations
   (eqs 3, 4);
-- jerk-limited flight times in all three regimes (eqs 13 to 15), unequal floor
+- jerk-limited flight times in all three regimes (eqs 13 to 15), with the peak
+  acceleration capped at sqrt(vj) for slow lifts (v < a^2/j), unequal floor
   heights (eq 17), the stop-time correction for lifts that do not reach rated
   speed between stops (eq 18) and an express zone (eq 20);
 - interval, handling capacity and % population (eqs 10 to 12).

@@ -11,7 +11,7 @@ Free and open source (MIT). Results are estimates, not engineering advice; a qua
 
 ## How to use the engine
 
-- `engine.mjs` exports `upPeak(input)` (rtt, interval, handling, pctPop, S, H, ts, components), `flightTime(d, {speed, acceleration, jerk, startDelay})`, `reversalAndStops(populations, P)`, `searchDesigns(input, {maxInterval, minPctPop})`, `personsFromLoad(kg)`, `EXAMPLE`.
+- `engine.mjs` exports `upPeak(input)` (rtt, interval, handling, pctPop, S, H, ts, components), `flightTime(d, {speed, acceleration, jerk, startDelay})` (peak acceleration capped at sqrt(vj) for slow lifts), `ratedSpeedDistance({speed, acceleration, jerk})`, `reversalAndStops(populations, P)`, `searchDesigns(input, {maxInterval, minPctPop})`, `personsFromLoad(kg)`, `EXAMPLE`.
 - `sim.mjs` exports `tripSample(input)`, `simulate(input, {demandPct, dwell, duration, seed})`, `demandSweep(input)`.
 - `cli.mjs`: `node cli.mjs building.json --interval 30 --pct 12 --search --simulate --json`.
 
