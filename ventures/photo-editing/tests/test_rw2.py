@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from shootflow import camera_profiles, ljpeg_native, raw_preview, rw2
+from shootflow import camera_profiles, lens_profiles, ljpeg_native, raw_preview, rw2
 from shootflow import raw_develop as rd
 from shootflow.cli import main
 from test_arw import make_profile
@@ -183,8 +183,9 @@ def _encodable(seed, width, height):
 
 
 def make_rw2(*, width=W, height=H, cfa=2, black=(128, 129, 130), wb=(662, 256, 370), model="DMC-GF7",
-             borders=(2, 4, 8, 32), linearity=4095, values=None, raw_format=4):
-    """An RW2: (file bytes, expected sensels). ``borders`` = (top, left, bottom, right)."""
+             borders=(2, 4, 8, 32), linearity=4095, values=None, raw_format=4, jpeg=None):
+    """An RW2: (file bytes, expected sensels). ``borders`` = (top, left, bottom, right); ``jpeg`` is the
+    embedded JpgFromRaw (tag 0x2E), when given."""
 
     if values is None:
         expected, (payload, _) = _encodable(5, width, height)
@@ -205,11 +206,125 @@ def make_rw2(*, width=W, height=H, cfa=2, black=(128, 129, 130), wb=(662, 256, 3
             e += [(0x1C, 3, (black[0],)), (0x1D, 3, (black[1],)), (0x1E, 3, (black[2],))]
         if wb:
             e += [(0x24, 3, (wb[0],)), (0x25, 3, (wb[1],)), (0x26, 3, (wb[2],))]
+        if jpeg is not None:
+            e.append((0x2E, 7, tuple(jpeg)))
         return e
 
     head_len = 8 + len(_ifd_bytes(ifd0(0), 8))
     blob = b"IIU\0" + struct.pack("<I", 8) + _ifd_bytes(ifd0(head_len), 8) + payload
     return blob, expected
+
+
+def make_jpeg(lens_type=b"LUMIX G 20/F1.7", serial=b"00FG3102554", lens_model=None, magic=b"Panasonic\0\0\0",
+              focal=20.0):
+    """A JPEG head as a Lumix body embeds it: SOI, APP0, then APP1 "Exif" holding IFD0 -> EXIF IFD with
+    FocalLength and a maker note ("Panasonic\\0\\0\\0", then an IFD whose offsets count from the EXIF's
+    TIFF header) naming the lens in 0x51 and its serial in 0x52; then SOS and EOI (no picture data)."""
+
+    exif_at = 8 + 2 + 12 + 4
+
+    def exif_entries(note_bytes):
+        e = [(0x920A, 5, (focal,)), (0x927C, 7, tuple(note_bytes))]
+        if lens_model is not None:
+            e.append((0xA434, 2, tuple(lens_model + b"\0")))
+        return e
+
+    def note_ifd(at):
+        e = []
+        if lens_type is not None:
+            e.append((0x51, 2, tuple(lens_type + b"\0")))
+        if serial is not None:
+            e.append((0x52, 2, tuple(serial + b"\0")))
+        return _ifd_bytes(e, at)
+
+    # The note's place: after the EXIF IFD and the payloads _ifd_bytes puts before it (FocalLength's
+    # 8 bytes; LensModel, tag 0xA434, sorts after the note and comes later).
+    n = len(exif_entries(b""))
+    note_at = exif_at + 2 + 12 * n + 4 + 8
+    note = magic + note_ifd(note_at + len(magic))
+    tiff = b"II*\0" + struct.pack("<I", 8) + _ifd_bytes([(0x8769, 4, (exif_at,))], 8)
+    tiff += _ifd_bytes(exif_entries(note), exif_at)
+    assert tiff[note_at : note_at + len(magic)] == magic
+    app1 = b"Exif\0\0" + tiff
+    app0 = b"JFIF\0\1\1\0\0\1\0\1\0\0"
+    return (b"\xff\xd8" + b"\xff\xe0" + struct.pack(">H", len(app0) + 2) + app0
+            + b"\xff\xe1" + struct.pack(">H", len(app1) + 2) + app1 + b"\xff\xda\x00\x02\xff\xd9")
+
+
+LENS_XML = """<lensdatabase version="2">
+    <mount><name>Micro 4/3 System</name></mount>
+    <camera><maker>Panasonic</maker><model>DMC-GF7</model><mount>Micro 4/3 System</mount><cropfactor>2.0</cropfactor></camera>
+    <lens>
+        <maker>Panasonic</maker>
+        <model>Lumix G 20mm f/1.7 Asph.</model>
+        <mount>Micro 4/3 System</mount>
+        <cropfactor>2.0</cropfactor>
+        <calibration><distortion model="ptlens" focal="20" a="0.01" b="-0.03" c="0.002"/></calibration>
+    </lens>
+    <lens>
+        <maker>Panasonic</maker>
+        <model>Lumix G Vario 12-32mm f/3.5-5.6 Asph. Mega OIS</model>
+        <mount>Micro 4/3 System</mount>
+        <cropfactor>2.0</cropfactor>
+        <calibration><distortion model="ptlens" focal="12" a="0.02" b="-0.05" c="0.004"/></calibration>
+    </lens>
+</lensdatabase>
+"""
+
+
+class LensTests(unittest.TestCase):
+    """The lens an RW2 names only in its embedded JPEG's maker note (no lensfun data copied: made-up XML).
+    The four real RW2s against metadata-extractor and lensfun 0.3.4: ``tools/rw2_lens_check.py``,
+    ``eval/panasonic-rw2-lens-2026-11-14.md``."""
+
+    def parse(self, **jpeg):
+        blob, _ = make_rw2(jpeg=make_jpeg(**jpeg))
+        return rw2.parse_rw2(blob)
+
+    def test_lens_type_becomes_lens_model(self):
+        raw = self.parse()
+        self.assertEqual(rw2._text(raw.exif.get(rw2.TAG_LENS_MODEL)), "LUMIX G 20/F1.7")
+        self.assertIn("RW2: lens 'LUMIX G 20/F1.7' from the embedded JPEG's Panasonic maker note (LensType)",
+                      raw.notes)
+        info = lens_profiles.shot_info(raw.ifd0, raw.exif)
+        self.assertEqual((info.make, info.model, info.lens, info.focal), ("Panasonic", "DMC-GF7", "LUMIX G 20/F1.7", 20.0))
+        blob, _ = make_rw2(jpeg=make_jpeg())
+        reader = rd._Reader(blob)
+        _, note = rw2.embedded_exif(blob, rd._all_ifds(reader)[0])
+        self.assertEqual(rw2._text(note.get(rw2.PANA_NOTE_LENS_SERIAL)), "00FG3102554")
+
+    def test_embedded_lens_model_wins_and_maker_note_stays_out(self):
+        raw = self.parse(lens_model=b"LUMIX G VARIO 12-32/F3.5-5.6")
+        self.assertEqual(rw2._text(raw.exif.get(rw2.TAG_LENS_MODEL)), "LUMIX G VARIO 12-32/F3.5-5.6")
+        self.assertTrue(any("from the embedded JPEG's EXIF" in n for n in raw.notes))
+        self.assertNotIn(rw2.TAG_EXIF_MAKER_NOTE, raw.exif.entries)
+
+    def test_no_jpeg_no_lens_and_odd_notes_ignored(self):
+        blob, _ = make_rw2()
+        raw = rw2.parse_rw2(blob)
+        self.assertIsNone(raw.exif)
+        self.assertFalse(any("lens" in n for n in raw.notes))
+        for kw in ({"magic": b"LEICA\0\0\0\0\0\0\0"}, {"lens_type": None}, {"lens_type": b"   "}):
+            raw = self.parse(**kw)
+            self.assertIsNone(raw.exif.get(rw2.TAG_LENS_MODEL), kw)
+            self.assertEqual(raw.exif.get(0x920A), (20.0,))  # the JPEG's other EXIF tags still fill in
+        for bad in (b"", b"\xff\xd8", b"\xff\xd8\xff\xe1\x00\x01", b"\xff\xd8\xff\xe1\x00\x10Exif\0\0II*\0\xff\xff\xff\x7f",
+                    b"not a jpeg at all"):
+            blob, _ = make_rw2(jpeg=bad)
+            self.assertIsNone(rw2.parse_rw2(blob).exif, bad)
+
+    def test_lensfun_picks_the_lens_from_the_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "m43.xml"
+            path.write_text(LENS_XML)
+            db = lens_profiles.load_db([str(path)])
+            for lens_type, focal, want in ((b"LUMIX G 20/F1.7", 20.0, "Lumix G 20mm f/1.7 Asph."),
+                                           (b"LUMIX G VARIO 12-32/F3.5-5.6", 12.0,
+                                            "Lumix G Vario 12-32mm f/3.5-5.6 Asph. Mega OIS")):
+                raw = self.parse(lens_type=lens_type, focal=focal)
+                corr = lens_profiles.correction_for(db, lens_profiles.shot_info(raw.ifd0, raw.exif), 400, 300,
+                                                    vignetting=False)
+                self.assertEqual(corr.lens.name, want)
 
 
 def engines():
