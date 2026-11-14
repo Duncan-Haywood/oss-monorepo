@@ -139,6 +139,7 @@ function findColumns(header) {
 }
 
 const DAY = 86400000;
+const CHARGE_FIELDS = ["commission", "delivery", "marketing", "ads", "errors"];
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 
 export function platformFromText(s) {
@@ -148,9 +149,14 @@ export function platformFromText(s) {
 
 // Returns { orders, skipped, cancelledCount, columns, dmy, platformSource, error }.
 // An order is { line, id, platform, store, t, hasTime, hour, cancelled, gross,
-// commission, delivery, marketing, ads, errors, payout }. Charges are read as
-// positive costs whatever their sign in the file (exports show fees as
-// negatives); payout is null when the file has no payout column.
+// commission, delivery, marketing, ads, errors, payout, refund }. Each charge
+// column's sign convention is read from the file: when most of its non-zero
+// values are negative (the usual export, fees shown as deductions) a cost is
+// the negated value, otherwise the value itself, so a reversal of the other
+// sign is a credit (a negative cost), not a second charge. Food sales keep
+// their sign: a row with negative food sales is a refund, which reduces sales
+// and is not counted as an order. payout is null when the file has no payout
+// column.
 // opts.platform: "auto" | "doordash" | "ubereats" | "grubhub" | "other".
 // opts.hint: text (a file name) used to name the platform when auto finds none.
 export function normalizeRows(table, { decimalComma = false, platform = "auto", hint = "" } = {}) {
@@ -173,7 +179,7 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
   else if (platformFromText(hint)) { fileKey = platformFromText(hint); platformSource = "filename"; }
   else if (cols.commission !== undefined && /marketplace fee/i.test(headerText)) { fileKey = "ubereats"; platformSource = "header"; }
 
-  const orders = [], skipped = [];
+  const orders = [], skipped = [], parsed = [];
   let cancelledCount = 0;
   const num = (line, f) => {
     if (cols[f] === undefined || isBlank(get(line, f))) return { v: null };
@@ -202,11 +208,31 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
     if (cancelled) cancelledCount += 1;
     const rowKey = cols.platform !== undefined ? platformFromText(get(line, "platform")) : null;
     const key = rowKey || fileKey || "other";
+    parsed.push({ lineNo, line, when, cancelled, key, f });
+  }
+  // Per charge column: -1 when costs are shown as negatives, +1 when positive.
+  // A tied column (one charge and its reversal) takes the file's pooled
+  // majority, since an export uses one convention for its fee columns.
+  const sign = {}, tally = {};
+  let negAll = 0, posAll = 0;
+  for (const k of CHARGE_FIELDS) {
+    let neg = 0, pos = 0;
+    for (const p of parsed) { const v = p.f[k]; if (v < 0) neg += 1; else if (v > 0) pos += 1; }
+    tally[k] = [neg, pos]; negAll += neg; posAll += pos;
+  }
+  for (const k of CHARGE_FIELDS) {
+    const [neg, pos] = tally[k];
+    sign[k] = neg > pos ? -1 : pos > neg ? 1 : negAll >= posAll ? -1 : 1;
+  }
+  const cost = (v, k) => (v == null || v === 0 ? 0 : sign[k] * v);
+  for (const { lineNo, line, when, cancelled, key, f } of parsed) {
+    const gross = f.gross ?? 0;
     orders.push({
       line: lineNo, id: get(line, "id"), platform: key, store: get(line, "store"),
       t: when.t, hasTime: when.hasTime, hour: when.hasTime ? new Date(when.t).getUTCHours() : null, cancelled,
-      gross: Math.abs(f.gross ?? 0), commission: Math.abs(f.commission ?? 0), delivery: Math.abs(f.delivery ?? 0),
-      marketing: Math.abs(f.marketing ?? 0), ads: Math.abs(f.ads ?? 0), errors: Math.abs(f.errors ?? 0),
+      refund: gross < 0,
+      gross, commission: cost(f.commission, "commission"), delivery: cost(f.delivery, "delivery"),
+      marketing: cost(f.marketing, "marketing"), ads: cost(f.ads, "ads"), errors: cost(f.errors, "errors"),
       payout: f.payout,
     });
   }
@@ -270,7 +296,7 @@ export function analyze(orders, opts = {}) {
   let dropped = 0;
   const list = inRange.filter((x) => {
     const charged = x.commission + x.delivery + x.marketing + x.ads + x.errors;
-    if (x.cancelled && !(x.gross > 0) && !(charged > 0)) { dropped += 1; return false; }
+    if (x.cancelled && !x.gross && !charged) { dropped += 1; return false; }
     return true;
   });
   if (!list.length) return { invalid: "Every order in that range was cancelled with no amounts." };
@@ -279,22 +305,25 @@ export function analyze(orders, opts = {}) {
   const plats = new Map(), weekdays = new Map(), dayparts = new Map();
   const get = (map, key, label) => { if (!map.has(key)) map.set(key, blank(key, label)); return map.get(key); };
   const add = (b, r) => {
-    b.records += 1; if (!r.cancelled) b.orders += 1;
+    b.records += 1; if (r.counted) b.orders += 1;
     for (const k of ["gross", "commission", "delivery", "marketing", "ads", "errors", "charges", "net", "foodCost", "packaging", "netAfter", "base"]) b[k] += r[k];
     if (r.payout !== null) { b.payout += r.payout; b.payoutRows += 1; }
   };
   for (const x of list) {
-    const rented = !x.cancelled;
+    // A counted order sold food; cancelled rows, refunds (negative food
+    // sales) and adjustment rows with no food sales stay in the money totals
+    // but are not orders and get no food cost or packaging.
+    const counted = !x.cancelled && x.gross > 0;
     const charges = x.commission + x.delivery + x.marketing + x.ads + x.errors;
     const net = x.gross - charges;
-    const base = rented ? x.gross / (1 + markupNow) : 0;
+    const base = counted ? x.gross / (1 + markupNow) : 0;
     const foodCost = base * (foodPct / 100);
-    const pack = rented ? packaging : 0;
-    const r = { ...x, charges, net, base, foodCost, packaging: pack, netAfter: net - foodCost - pack };
+    const pack = counted ? packaging : 0;
+    const r = { ...x, counted, charges, net, base, foodCost, packaging: pack, netAfter: net - foodCost - pack };
     r.takeRate = x.gross > 0 ? charges / x.gross : null;
     rows.push(r);
     add(get(plats, x.platform, PLATFORM_LABELS[x.platform] || x.platform), r);
-    if (rented) {
+    if (counted) {
       const d = new Date(x.t).getUTCDay();
       add(get(weekdays, d, WEEKDAYS[d]), r);
       if (x.hour !== null) { const dp = DAYPARTS.find((p) => x.hour >= p.from && x.hour < p.to); add(get(dayparts, dp.key, dp.label), r); }
@@ -315,12 +344,13 @@ export function analyze(orders, opts = {}) {
     cancelledDropped: dropped, cancelledKept: rows.filter((r) => r.cancelled).length,
     from: Math.floor(Math.min(...list.map((x) => x.t)) / DAY) * DAY, to: Math.floor(Math.max(...list.map((x) => x.t)) / DAY) * DAY,
     costsEntered: foodPct > 0 || packaging > 0,
-    lossOrders: rows.filter((r) => !r.cancelled && r.netAfter < 0).length,
+    lossOrders: rows.filter((r) => r.counted && r.netAfter < 0).length,
+    refunds: rows.filter((r) => r.refund).length, refundTotal: rows.filter((r) => r.refund).reduce((t, r) => t + r.gross, 0),
     payoutGap: total.payoutRows === total.records && total.records > 0 ? total.payout - total.net : null,
     payoutRows: total.payoutRows, foodPct, packaging, markupNow, directPct, directFlat,
   };
 
-  const live = rows.filter((r) => !r.cancelled);
+  const live = rows.filter((r) => r.counted);
   const spendRows = live.filter((r) => r.marketing + r.ads > 0);
   const promo = (() => {
     const spend = spendRows.reduce((s, r) => s + r.marketing + r.ads, 0);
@@ -405,6 +435,9 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   }
   if (s.payoutGap !== null && s.gross > 0 && Math.abs(s.payoutGap) > Math.max(1, s.gross * 0.01)) {
     out.push({ severity: "medium", title: `The file's payout column differs from food sales minus charges by ${usd(s.payoutGap)}`, detail: "Usually sales tax, tips and adjustments that the export pays out or withholds but this tool does not read. Net cash here is computed from the charge columns only, so check it against your deposits." });
+  }
+  if (s.refunds) {
+    out.push({ severity: "info", title: `${s.refunds} refund row${s.refunds === 1 ? "" : "s"} took ${usd(-s.refundTotal)} off food sales`, detail: "Rows with negative food sales are read as refunds: they reduce food sales and net cash, and are not counted as orders or given food cost or packaging." });
   }
   if (s.cancelledDropped || s.cancelledKept) {
     const n = s.cancelledDropped + s.cancelledKept;

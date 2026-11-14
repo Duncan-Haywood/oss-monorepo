@@ -39,7 +39,7 @@ Open `index.html` through any static server. Tests: `node --test`.
 ## Known gaps (quality audit, 2026-11-13)
 
 From `portfolio/quality/audits/2026-11-13-restaurant-delivery-commission-analyzer.json`:
-- Every amount goes through `Math.abs` (`calc.mjs:208`), so a credit counts as a cost and a refund as a sale: a $6 error charge and its +$6 reversal count as $12 of charges, and a refund row with subtotal -15 adds $15 of food sales and an order. The page discloses "charges are read as costs whatever their sign", but any month with adjustments or refunds is wrong. Fixing it needs per-column sign detection and refund rows kept apart.
+- ~~Every amount went through `Math.abs`~~ fixed 2026-11-14: each charge column's sign convention is read from the file (a reversal is a credit), and rows with negative food sales are refunds that reduce sales and are not orders (`calc.test.mjs`, the two tests citing this audit). A later quality round re-audits.
 - Fee columns that match no alias are ignored without a notice, so a fee column under an unexpected name lowers the take rate silently.
 - Pickup and delivery orders are blended into one rate per platform, though DoorDash prices pickup at 6% and Uber Eats at about 7%.
 - Three seeded threshold changes survived the tests (payout-gap 1%, the end of the lunch daypart, the 30% take-rate severity boundary).

@@ -31,7 +31,7 @@ def main():
     series = [(f"m={k} of 16", [p[0] for p in rows[k]], [p[1] for p in rows[k]]) for k in (4, 8, 16) if k in rows]
     if not series:
         raise SystemExit("no rows parsed for E3")
-    lines("Replay-memory: forgetting against replay rate", "Line plot of total forgetting as a fraction of no replay against the Bernoulli replay rate q for dimension 128 and 16 stored examples, with 4, 8 or all 16 examples replayed: replaying all 16 at q equals 0.5 cuts forgetting to 17 percent of no replay, replaying 4 only to 60 percent", "replay rate q", "forgetting / no replay", series, "forgetting.svg")
+    lines("Replay-memory: forgetting against replay rate", "Line plot of total forgetting as a fraction of no replay against the Bernoulli replay rate q for dimension 128 and 16 stored examples, with a fixed buffer of 4, 8 or all 16 examples replayed: replaying all 16 at q equals 0.5 cuts forgetting to 17 percent of no replay, a buffer of 4 only to 79 percent", "replay rate q", "forgetting / no replay", series, "forgetting.svg")
 
 
 def lines(title, alt, xlabel, ylabel, series, fname, logx=False, logy=False, hline=None):

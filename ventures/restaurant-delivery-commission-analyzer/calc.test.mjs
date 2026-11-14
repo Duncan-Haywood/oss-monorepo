@@ -209,3 +209,43 @@ test("calc.mjs makes no network calls", () => {
   const src = readFileSync(new URL("./calc.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
 });
+
+// Quality audit 2026-11-13 (portfolio/quality/audits/2026-11-13-restaurant-delivery-commission-analyzer.json,
+// defect 0): every amount went through Math.abs, so a reversal doubled a charge
+// and a refund row added food sales and an order.
+test("a charge reversal is a credit and a refund row reduces sales without adding an order", () => {
+  const n = load(
+    "A,DoorDash,2026-06-01 12:00,Delivered,40,-10,0,0,0,-6,24\n" +
+    "B,DoorDash,2026-06-02 12:00,Delivered,30,-6,0,0,0,0,24\n" +
+    "A-adj,DoorDash,2026-06-03 12:00,Adjustment,0,0,0,0,0,6,6\n" +
+    "R1,DoorDash,2026-06-04 12:00,Delivered,-15,3,0,0,0,0,-12\n");
+  const o = n.orders;
+  assert.equal(o[2].errors, -6, "a +6 reversal in a column of negative charges is a $6 credit");
+  assert.equal(o[3].refund, true);
+  assert.equal(o[3].commission, -3, "commission handed back on a refund is a credit");
+  const r = analyze(o, { foodPct: 30, packaging: 1 });
+  // Sales 40 + 30 - 15 = 55; charges 10 + 6 + 6 - 6 - 3 = 13; net 42.
+  near(r.summary.gross, 55);
+  near(r.summary.errors, 0);
+  near(r.summary.charges, 13);
+  near(r.summary.net, 42);
+  assert.equal(r.summary.orders, 2, "the adjustment and refund rows are not orders");
+  near(r.byPlatform[0].packaging, 2); // summary.packaging is the typed per-order cost
+  near(r.summary.foodCost, 21, 0.01); // 30% of 70, the two real orders only
+  assert.equal(r.summary.refunds, 1);
+  near(r.summary.payoutGap, 0);
+  assert.ok(r.findings.some((f) => /1 refund row took \$15\.00 off food sales/.test(f.title)));
+});
+
+test("a file that shows charges as positive numbers reads a negative one as a credit", () => {
+  const n = load(
+    "A,Uber Eats,2026-06-01 12:00,Delivered,40,12,2,0,0,0,26\n" +
+    "B,Uber Eats,2026-06-02 12:00,Delivered,20,6,0,0,0,3,11\n" +
+    "C,Uber Eats,2026-06-03 12:00,Delivered,0,0,0,0,0,-3,3\n");
+  assert.deepEqual(n.orders.map((x) => x.errors), [0, 3, -3]);
+  assert.equal(n.orders[0].commission, 12);
+  const r = analyze(n.orders, {});
+  near(r.summary.charges, 20);
+  near(r.summary.net, 40);
+  near(r.summary.takeRate, 20 / 60);
+});
