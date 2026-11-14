@@ -59,3 +59,8 @@ test("robots, sitemap and llms.txt are present", () => {
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("llms.txt"), /spc-control-charts/);
 });
+
+test("links one hop to the assembly line balancer, so crawlers reach it", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/assembly-line-balancer\/"/);
+});

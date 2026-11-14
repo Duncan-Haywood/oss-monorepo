@@ -1,0 +1,48 @@
+name: assembly-line-balancer
+description: >-
+  Free browser tool and CLI for manufacturing, industrial and lean engineers: simple assembly line balancing, fewest
+  stations at a takt time (SALBP-1) or shortest cycle on a number of stations (SALBP-2), solved by an exact branch,
+  bound and remember search that proves optimality or a range, with priority-rule heuristics, efficiency, idle time and a
+  station chart. Benchmarked against all 269 of Scholl's SALBP-1 problems. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-14 in an explore-track session. slug_dupe.py: no duplicate. duplicate_check.py: nothing >= 0.45 (top
+# 0.06). The portfolio had production-mix-optimizer and bakery-production-scheduler but no line balancing.
+#
+# Why this niche: balancing a line is a weekly job in assembly plants and a set exercise in every industrial
+# engineering course, still done on sticky notes, spreadsheets or with a heuristic by hand; exact solvers live in
+# research code and paid line-design suites. A free exact balancer that says when it has proved the answer is new.
+#
+# First visitor: searches for "assembly line balancing calculator", "line balancing tool", "takt time workstation
+# calculator", "ranked positional weight method"; IE students with a textbook problem. Volume not measured.
+#
+# Liability boundary: a planning estimate from typed times; not engineering advice (every page says so).
+#
+# Path to revenue (payment rails stay off): donations; later a paid tier for mixed-model lines, zoning and
+# ergonomics constraints, or a hosted API.
+
+hypotheses:
+  - claim: >-
+      Industrial engineers and students will use a free exact line balancer that proves when its answer is optimal.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a balance this tool calls optimal that a better balance beats on the same inputs.
+
+links:
+  production: https://marisstella.app/assembly-line-balancer/
+  analytics: null
