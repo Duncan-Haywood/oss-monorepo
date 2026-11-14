@@ -1,0 +1,50 @@
+{
+ "mul2w": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 159,
+  "amount_gates": 2098,
+  "mux_share": 0.3059,
+  "shift_width": 128
+ },
+ "mul3n": {
+  "amount_cells": 3,
+  "amount_depth": 3,
+  "amount_gate_depth": 166,
+  "amount_gates": 954,
+  "mux_share": 0.4465,
+  "shift_width": 128
+ },
+ "wsum3w": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 118,
+  "amount_gates": 404,
+  "mux_share": 0.6336,
+  "shift_width": 128
+ },
+ "wsum4n": {
+  "amount_cells": 3,
+  "amount_depth": 3,
+  "amount_gate_depth": 43,
+  "amount_gates": 147,
+  "mux_share": 0.6752,
+  "shift_width": 128
+ },
+ "xor4": {
+  "amount_cells": 3,
+  "amount_depth": 3,
+  "amount_gate_depth": 7,
+  "amount_gates": 105,
+  "mux_share": 0.8188,
+  "shift_width": 128
+ },
+ "xor8": {
+  "amount_cells": 7,
+  "amount_depth": 7,
+  "amount_gate_depth": 15,
+  "amount_gates": 168,
+  "mux_share": 0.7965,
+  "shift_width": 128
+ }
+}
