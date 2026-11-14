@@ -49,7 +49,7 @@
     "ventures/ai-bookkeeper/README.md: Chase business cards and a US Bank checking download (2026-11-14, third batch)"
   ],
   "goal": null,
-  "notes": "Flagship row 1 (ai-bookkeeper), item (2). The sales tax item was blocked because the state hosts refused the connection. GitHub code search found 15 new public files: 6 Chase business card files and 9 US Bank files. eval/us-bank-exports.mjs: 63 files, 5,767 rows, 63/63 named, 0 unexplained skips, 0 sign wrong. Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (27.1s), 1 suite, 0 failed; node --test chase-business-card.test.mjs 8/8. The first venture-preflight run failed on two things: check_csv_formula_guard (cards.mjs exported through csvq.q, which does guard, but the file never says so; a comment and a test were added) and the post's seo_title and description lengths (both shortened). The rerun result is below.",
+  "notes": "Flagship row 1 (ai-bookkeeper), item (2). The sales tax item was blocked because the state hosts refused the connection. GitHub code search found 15 new public files: 6 Chase business card files and 9 US Bank files. eval/us-bank-exports.mjs: 63 files, 5,767 rows, 63/63 named, 0 unexplained skips, 0 sign wrong. Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (27.1s), 1 suite, 0 failed; node --test chase-business-card.test.mjs 8/8. The first venture-preflight run failed on two things: check_csv_formula_guard (cards.mjs exported through csvq.q, which does guard, but the file never says so; a comment and a test were added) and the post's seo_title and description lengths (both shortened). Rerun: 'preflight clean for ai-bookkeeper', exit 0.",
   "corrections": [],
   "redteam": null,
   "usage": {
