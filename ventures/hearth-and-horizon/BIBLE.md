@@ -303,7 +303,7 @@ until it has. An empty shelf below means: write a proposal.
 
 **For Other Minds**
 
-- *Proposal* (2026-11-14): a hospital volunteer service's rota agent inherits a 'no-show rate 4%' from a predecessor, measured on weekday morning shifts; the evening and weekend shifts it now fills run far higher, and a dialysis unit's escort shift goes uncovered twice. Work out before drafting how many shifts of each kind the 4% was measured on, how large a sample of weekend shifts tells 4% from 12%, what over-booking by one volunteer costs (people turned away, goodwill) against an uncovered shift, and how the agent writes the rate so it carries the shift type. Avoid repeating *Measured in July*'s seasonal-photo setup: the angle here is the cost asymmetry of over- and under-booking, not where the figure was measured.
+- *Proposal* (2026-11-14): a food bank's intake agent inherits a 'median wait 12 minutes' from its predecessor, a figure computed only over the people who were served; the ones who left the queue before being seen are not in it. Work out before drafting how a censored sample shortens a median (a few dozen invented visits with arrival, seen and left times), what a Kaplan-Meier estimate of the same queue gives, and what the agent changes about the sign on the door. The angle is survivorship in the agent's own log, not a seasonal or shift-type subsample (*Measured in July*, *Two Names in One Box*).
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
