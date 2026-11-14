@@ -253,8 +253,9 @@
     const tr = new Map(t.rows.map((r) => [r.item, r]));
     const range = (lo, hi) => (lo === hi ? `${lo}` : `${lo}&ndash;${hi}`);
     const agree = c.agreement;
-    // tau is read low by the Laplace fit (true 2 reads 0.6-0.9, docs/RANK-PAGE.md "Team ranges"), so words, not the number.
-    const tauWords = t.tau < 0.2 ? "about the same likes" : t.tau < 0.5 ? "somewhat different likes" : "clearly different likes";
+    // Since the Laplace fix tau reads near its true value (true 0 reads 0.2-0.33, 0.5 reads 0.4-0.7, 1 reads 0.97-1.2,
+    // 2 reads 2.0-2.3; docs/RANK-PAGE.md "Team ranges", "Laplace, not PQL"). Words, because logits mean nothing to a reader.
+    const tauWords = t.tau < 0.4 ? "about the same likes" : t.tau < 0.8 ? "somewhat different likes" : "clearly different likes";
     $("#team-out").innerHTML = `<p>${c.people} people. Agreement between their orders: <strong>${agree.toFixed(2)}</strong> (1 = identical, 0 = unrelated, negative = opposite). Read as a model, their picks fit people with <strong>${tauWords}</strong>.</p>
       <div class="scroll-x"><table><thead><tr><th class="num">#</th><th>Option</th><th class="num" title="People who ranked it first">1st</th><th class="num" title="Best to worst place across people">Places</th><th class="num" title="90% rank range for this group">Group</th><th class="num" title="90% rank range for people like you">Wider</th></tr></thead><tbody>${
       c.order.map((r) => { const x = tr.get(r.item); return `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td><td class="num">${range(x.low, x.high)}</td><td class="num">${range(x.popLow, x.popHigh)}</td></tr>`; }).join("")}</tbody></table></div>

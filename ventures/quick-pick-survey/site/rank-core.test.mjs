@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import {
   parseList, listId, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, order,
   nextPair, rankTable, sampleRanks, resultsCsv, combine, chanceAbove, suggestedMax, orderConfidence, stopCheck, STOP_CONFIDENCE, MAX_ITEMS,
-  personInfo, groupFit, populationFit, populationAt, teamRanges,
+  personInfo, groupFit, populationFit, populationAt, teamRanges, linearize,
 } from "./rank-core.mjs";
 import { buildEngineFile, ENGINE_FILES } from "../scripts/build-rank-engine.mjs";
 
@@ -366,4 +366,39 @@ test("team ranges: at tau = 0 the population read is close to one refit of every
   const pooled = fit(5, [...a, ...b]);
   const r = populationAt(5, [personInfo(5, a), personInfo(5, b)], 0);
   for (let i = 0; i < 5; i++) assert.ok(Math.abs(r.mu[i] - pooled.mu[i]) < 0.25, `item ${i}: ${r.mu[i]} vs ${pooled.mu[i]}`);
+});
+
+test("team ranges: tau is read near its true value (Laplace keeps the expansion constant; PQL read 2 as 0.6-0.9)", () => {
+  // 10 simulated people whose likes differ from the group's by N(0, 2^2) per option, 24 picks each at 8 options.
+  let a = 0x7a11 >>> 0;
+  const r = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
+  const n = 8, theta = Array.from({ length: n }, (_, i) => 4 * (0.5 - i / (n - 1)));
+  const read = [];
+  for (let rep = 0; rep < 3; rep++) {
+    const people = [];
+    for (let p = 0; p < 10; p++) {
+      const b = theta.map((x) => x + 2 * gauss());
+      const answers = [];
+      for (let k = 0; k < 24; k++) {
+        const [i, j] = nextPair(fit(n, answers), answers, { seed: rep * 31 + p + 1 });
+        answers.push(r() < 1 / (1 + Math.exp(-(b[i] - b[j]))) ? [i, j, false] : [j, i, false]);
+      }
+      people.push(personInfo(n, answers));
+    }
+    read.push(populationFit(n, people).tau);
+  }
+  const mean = read.reduce((x, y) => x + y, 0) / read.length;
+  assert.ok(mean > 1.4 && mean < 3, `tau read ${read.map((x) => x.toFixed(2)).join(", ")}`);
+});
+
+test("team ranges: linearize's constant makes the quadratic equal the log likelihood at the expansion point", () => {
+  const answers = [[0, 1, false], [1, 2, false], [2, 0, false], [0, 1, true], [3, 2, false]];
+  const c = [0.4, -0.3, 1.1, -0.9];
+  const { J, h, k } = linearize(4, answers, c);
+  let q = k;
+  for (let i = 0; i < 4; i++) { q += h[i] * c[i]; for (let j = 0; j < 4; j++) q -= 0.5 * c[i] * J[i * 4 + j] * c[j]; }
+  let ll = 0;
+  for (const [w, l, t] of answers) { const p = 1 / (1 + Math.exp(-(c[w] - c[l]))); ll += t ? 0.5 * Math.log(p) + 0.5 * Math.log(1 - p) : Math.log(p); }
+  assert.ok(Math.abs(q - ll) < 1e-10, `${q} vs ${ll}`);
 });
