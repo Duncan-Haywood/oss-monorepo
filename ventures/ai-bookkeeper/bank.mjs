@@ -452,7 +452,8 @@ function inferHeaderless(rows) {
 export function sniffBank(rows) {
   { const h = headerlessLayout(rows); if (h) return h.bank; }
   for (const r of rows.slice(0, 12)) {
-    const h = r.map(norm).join("|");
+    // A file saved back out of pandas or R carries an unnamed index column first (",Details,Posting Date,...").
+    const h = r.map(norm).join("|").replace(/^\|(?=[a-z])/, "");
     if (/^details\|posting date\|description\|amount\|type\|balance/.test(h)) return "chase-checking";
     if (/^transaction date\|post date\|description\|category\|type\|amount/.test(h)) return "chase-card";
     if (/^account type\|account number\|transaction date\|cheque number\|description 1\|description 2\|cad\$/.test(h)) return "rbc";
@@ -529,12 +530,30 @@ export function sniffBank(rows) {
 // Card exports disagree on which sign is a charge (Amex lists charges as
 // positive, Chase as negative). The payment rows settle it: a payment lowers
 // what is owed, so charges carry the opposite sign.
+// +1 for a word that says money in, -1 for money out, 0 for anything else ("Sale", "Payment", "Fee").
+function sideWord(v) {
+  const w = String(v ?? "").trim().toLowerCase();
+  if (/^(deposit|credit|cr)$/.test(w)) return 1;
+  if (/^(withdrawal|debit|dr)$/.test(w)) return -1;
+  return 0;
+}
+
+// The type column's side words agree with the amounts' signs on at least 95% of at least five rows.
+function sidesAgree(out, sides) {
+  if (sides.size < 5) return false;
+  let ok = 0;
+  for (const [ix, w] of sides) if (Math.sign(out[ix].cents) === w) ok++;
+  return ok >= sides.size * 0.95;
+}
+
 function chargesArePositive(rows) {
   // "Payment thank you" style rows only appear on card statements. "Autopay"
   // and "online payment" also name a checking account's outgoing bill
   // payments, so they count only when most rows are positive, as a card
   // export with positive charges would be.
-  const strong = rows.filter((r) => /payment.*thank you|payment received|directpay|ach deposit internet transfer/i.test(r.desc));
+  // "DIRECTPAY" opens Discover's payment row ("DIRECTPAY FULL BALANCE"); inside a description it is a
+  // utility's bill-pay name on a checking account ("LIPA DIRECTPAY~ Future Amount", Ally, 2026-11-14).
+  const strong = rows.filter((r) => /payment.*thank you|payment received|^directpay|ach deposit internet transfer/i.test(r.desc));
   const weak = rows.filter((r) => /autopay|automatic payment|online payment|^(card |statement )?payment$/i.test(r.desc));
   let pay = strong;
   if (pay.length === 0 && weak.length > 0 && rows.filter((r) => r.cents > 0).length >= rows.length * 0.7) pay = weak;
@@ -1039,6 +1058,10 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // ICICI credit-card CSV: every amount is unsigned and BillingAmountSign says "CR" on a credit; blank is a charge.
   const billSignCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("billingamountsign") : -1;
   const actionCol = bank === "schwab-brokerage" || bank === "fidelity" ? hdr.indexOf("action") : -1;
+  // A type column that names the side of each row (Ally's "Withdrawal"/"Deposit"): when it agrees with
+  // the signs, the signs are the bank's own and no inference may flip them.
+  const typeSideCol = columns.amount !== -1 ? ["type", "transaction type"].map((n) => hdr.indexOf(n)).find((ix) => ix !== -1 && ix !== columns.desc) ?? -1 : -1;
+  const sides = new Map();
   let tradesSkipped = 0, subtotals = 0;
   for (let i = first; i < rows.length; i++) {
     let r = rows[i];
@@ -1175,6 +1198,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
     const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
     const mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
+    if (typeSideCol !== -1) { const w = sideWord(r[typeSideCol]); if (w) sides.set(out.length, w); }
     out.push({ line: lineOf(i), date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}), ...(mcc ? { mcc } : {}) });
   }
   if (tradesSkipped) problems.push(`${tradesSkipped} brokerage buy/sell line${tradesSkipped === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest, fees and transfers in the file are booked.`);
@@ -1186,7 +1210,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     problems.push("This looks like a payment processor's export (Gross, Fee and Net columns). Imported as a bank statement it books the Net only, so sales are understated and fees are missing. Use `payouts FILE` (the page's payout box) to book sales and fees separately.");
   let inferred = null;
   let flip = !!invert;
-  if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
+  if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1 && drcrCol === -1 && !sidesAgree(out, sides)) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
     const pos = chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
