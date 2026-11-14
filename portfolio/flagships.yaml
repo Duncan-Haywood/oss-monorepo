@@ -329,16 +329,16 @@ flagships:
       earlier fast turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run
       that starts after a fast turn (read without the wander bar) is cut from the
       turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to
-      +0.0045, over d9 where the run follows the speed-up; flags nobody new. Since
-      2026-11-14 site/rank.html ranks a list in the browser on the same refit, with
-      team codes (docs/RANK-PAGE.md); its stop rule rechecks at the person's own EB
-      prior (docs/RANK-PAGE.md "Noisy answerers"); some coin-flippers still stop
-      early. Since 2026-11-14 team combine shows two 90% rank ranges, this group and
-      the wider group (random effects, iterated Laplace; simulated cover 0.90-1.00,
-      docs/RANK-PAGE.md "Team ranges"); tau read low (PQL dropped the expansion
-      constant); since 2026-11-14 later it is the Laplace read (true 2 reads
-      2.0-2.3, Wider cover 0.955-1.00, docs/RANK-PAGE.md "Laplace, not PQL"). Next,
-      most valuable first: (r) get the rank page in front of people, then (c) the
+      +0.0045, over d9 where the run follows the speed-up; flags nobody new.
+      site/rank.html ranks a list in the browser on the same refit, with team codes;
+      its stop rule rechecks at the person's own EB prior (docs/RANK-PAGE.md "Noisy
+      answerers"). Team combine shows two 90% rank ranges, this group and the wider
+      group (random effects, Laplace; Wider cover 0.955-1.00, docs/RANK-PAGE.md
+      "Team ranges", "Laplace, not PQL"). Since 2026-11-14 the picks a list takes
+      are measured on the page's own loop (site/how-many-pairwise-comparisons.html,
+      RANK-PAGE.md "How many picks it takes": 20 options 93 picks vs 190 for every
+      pair, Spearman 0.94 vs 0.95). Next, most valuable first: (r) get the rank page
+      in front of people (more answer pages for real search questions), then (c) the
       first real survey's answers: msToAnswer against the answer-time model,
       panelWalkRatio on real times, whether times depend on which slot is clicked
       (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
