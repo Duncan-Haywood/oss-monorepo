@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNMA6AtdiaJRyxhmPA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T19:08:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder flagship 6: LP guide for the day sweeps when the pay floor is skipped",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15947",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The bare route drew process although the scheduled brief asks for ventures; route --task picked ventures. Same report as several runs today."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here pick (quick-pick-survey) had landed 0.1 h earlier; the '24 h' filter counts opened PRs, not merges, so a just-merged flagship is still offered first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Took row 4 shift-roster-builder instead of the start-here row 6 quick-pick-survey: quick-pick-survey's buildable items were simulation-only and it had just landed; shift-roster's 'pay floor on by default' item was buildable here.",
+      "did": "shift-roster-builder slice",
+      "result": "landed: 1-2 fewer open hours on 2 of 10 bench weeks, none worse"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-shift-roster-a-cheaper-guide.md"
+  ],
+  "goal": "deepen a flagship (owner, 2026-10-20)",
+  "notes": "Verification: node --test day-lns.test.mjs 6/6; run_venture_tests.py shift-roster-builder ok (163 s); validate.py all VENTURE.yaml valid; eval/guide-open.out.txt (10 weeks x 2 configs, default 20 s budget). main_health.py at start: 210/210 green. venture-preflight.mjs shift-roster-builder: preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null
+}
