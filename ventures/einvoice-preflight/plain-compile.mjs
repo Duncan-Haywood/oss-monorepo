@@ -5,7 +5,13 @@
 // What it handles, because the four rule sets need exactly this and no more:
 //   - <include href> (the XRechnung common.sch of global <let>s);
 //   - <let> at schema, pattern and rule level, by substituting the value for
-//     $name in later lets, contexts and tests (no variable binding at run time);
+//     $name in later lets, contexts and tests (no variable binding at run time).
+//     A schema or pattern <let> is evaluated once with the document node as its
+//     context (it compiles to a global xsl:variable), so a value with a relative
+//     path is substituted as root(.)/(value): pasted bare into a rule, its path
+//     would start from the rule's node instead. Until 2026-11-14 it was pasted
+//     bare, and Peppol's DK-R-* and IS-R-* rules, whose country lets read
+//     ubl-invoice:Invoice/..., never fired (eval/peppol-unit-tests.mjs);
 //   - <xsl:function> bodies (Peppol's checksum functions), rewritten as XQuery
 //     `declare function` so fontoxpath can run them.
 // It throws on anything else (abstract patterns, <diagnostics>, xsl:for-each in
@@ -39,6 +45,15 @@ function expandIncludes(parent, file) {
       expandIncludes(child, file);
     }
   }
+}
+
+// A value that reads the document by a relative path (a prefixed step that is not a
+// function call, e.g. ubl-invoice:Invoice/cac:...). Constants and absolute paths
+// mean the same from any node and are left alone.
+const RELATIVE_STEP = /(?<![\w.$'"-])[A-Za-z_][\w.-]*:[A-Za-z_][\w.-]*(?![\w.-]*\s*\()/;
+export function fromRoot(value) {
+  const bare = value.replace(/'[^']*'|"[^"]*"/g, "''");
+  return RELATIVE_STEP.test(bare) && !/^\s*\//.test(value) ? `root(.)/(${value})` : value;
 }
 
 function substitute(text, lets) {
@@ -150,10 +165,11 @@ export function compileSchematron(file) {
   // Globals may refer to earlier globals.
   const resolvedGlobals = [];
   for (const [name, value] of globalLets) resolvedGlobals.push([name, substitute(value, resolvedGlobals)]);
+  const rootedGlobals = resolvedGlobals.map(([name, value]) => [name, fromRoot(value)]);
 
   const out = patterns.map((p) => {
-    const inPattern = [...resolvedGlobals];
-    for (const [name, value] of p.lets) inPattern.push([name, substitute(value, inPattern)]);
+    const inPattern = [...rootedGlobals];
+    for (const [name, value] of p.lets) inPattern.push([name, fromRoot(substitute(value, inPattern))]);
     return {
       id: p.id,
       rules: p.rules.map((r) => {

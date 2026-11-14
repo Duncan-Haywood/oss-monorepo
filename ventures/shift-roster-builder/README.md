@@ -1865,3 +1865,46 @@ weeks, one machine; site wages and paid trips are covered by the argument, not b
 on week 0 is not split between the LP's looseness and a better roster the search misses. Next: run it before column generation
 on 60-copy-plus weeks, where on week 1 it would prove the roster in 1.7 s instead of 6-7 s, if the incumbent is already within
 the tolerance; branch on its fractional columns to close the $30.
+
+## Re-solving one day at a time (2026-11-14)
+
+After the pay floor landed, the 60 x 168 week 0 of `eval/end-to-end.mjs` was left $30.11 above its bound, and the README asked
+whether that was the LP's looseness or a cheaper roster the search missed. **It was the search.** `eval/score-floor-milp.mjs`
+dumps the priced clique model and `eval/score-floor-milp.py` solves it as an integer program with HiGHS (scipy 1.18.1): its
+optimum, 30,019,980.99, is only $0.78 above the LP, so branching on the LP could close at most that. HiGHS's roster is valid under
+every rule of the engine (`eval/score-floor-milp-check.mjs`) and scores 30,019,981.35: $28.97 less than the posted roster and $0.36
+above the integer program's bound, so it is proven best to within the default $0.50 tolerance (`eval/score-floor-milp.out.txt`).
+The two rosters differ on 166 of 245 shift copies: mostly equal shifts traded between people, with a few hours moved from
+$18-20 staff to $10-16 staff through several swaps at once, which the single moves and swaps of the pay polish cannot make.
+
+**What landed:** `dayReassign` (calc.mjs). Every person's shifts on other days stay put and one day is re-solved exactly. When
+each person holds at most one shift that day, the score splits into one term per (person, shift), the person's score with that
+shift less their score without it, plus 100,000 per hour for a shift left open, so the cheapest way to staff the day is an
+assignment problem; `assignRows` solves it (the Hungarian method). Days are swept until a sweep changes nothing. In `buildRoster`
+it runs only when the exact check left the roster unproven (`dayLNS`): exact sweeps, then kicks, each re-solving one random day
+with costs jittered by a third of the average wage and then sweeping exactly again, keeping a roster only when it scores less.
+It gets 2 s of its own (`dayLNSMs`), past the time budget when that is spent; `dayLNS: false` turns it off and
+`optimality.dayLNS` reports what it did.
+
+| 60 x 168 week 0, 20 s budget (`eval/day-lns.out.txt`) | score above the pay floor | total time |
+|---|---|---|
+| off (as before) | $30.11 | 18.5 s |
+| 0.5 s | $10.46 (31 kicks) | 19.2 s |
+| 2 s, the default | **$7.04** (124 kicks) | 21.1 s |
+| 5 s | $7.04 (366 kicks) | 22.7 s |
+
+On the bigger bench weeks, where coverage is not proven in the budget, the pass also covers more (`eval/day-lns-big.out.txt`,
+measured with the test suite running beside it, so the earlier passes' budget-cut results can differ run to run): the three
+80 x 224 weeks leave 260, 333 and 288 open hours instead of 261, 336 and 293; the two 100 x 280 weeks 385 and 354 instead of 388
+and 354 (the second $42 cheaper). Week 1 of 60 x 168, proven by column generation, does not run it.
+
+Tried and dropped: rounding the priced LP's own solution (take person-shifts by LP value, fill what is left greedily, polish).
+210 of its 308 nonzero person-shifts are fractional, and the rounded roster left 30-43 more hours open than the posted one; the
+day sweeps from it reached $17.92 above the floor on week 0, worse than from the posted roster.
+
+Tests: `day-lns.test.mjs` (assignRows matches brute force on 400 small cost matrices with forbidden cells; on 120 seeded
+three-person weeks across rest gaps, daily caps, last week's finishes, minimum hours, fairness, avoid and prefer windows and
+overtime, dayReassign keeps every rule, never raises the score, and leaves no day that brute force over that day's staffing can
+do better; a week the exact check proves does not run the pass). The full suite passes. Not claimed: seeded synthetic weeks and
+one cloud machine; $7.04 is still open on week 0 against a roster HiGHS shows exists $0.36 above the floor; a person holding two
+shifts on one day sits that day out of the re-solve.

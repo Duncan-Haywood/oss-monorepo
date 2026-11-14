@@ -203,6 +203,26 @@ test("a result code naming an option outside the list is refused", () => {
   }
 });
 
+test("a result code whose payload is not an object is refused, not thrown", () => {
+  // A hand-edited or truncated code can decode to JSON null; d.l on null threw
+  // inside the Combine handler, so the whole team box silently did nothing.
+  const items = ["a", "b", "c"];
+  for (const payload of ["null", "[]", "7", '"x"', "true"]) {
+    const code = "QP1." + Buffer.from(payload).toString("base64url");
+    const d = decodeAnswers(code, items);
+    assert.ok(d.error, payload);
+  }
+});
+
+test("nextPair's repeat penalty counts repeats: a pair never asked beats pairs already asked twice", () => {
+  // 0 > 1 > 2, each link asked twice, last pair 0 vs 1. Without the penalty
+  // the picker asks 1 vs 2 a third time; with it, 0 vs 2 (never asked).
+  const answers = [[0, 1, false], [1, 2, false], [1, 2, false], [0, 1, false]];
+  for (const seed of [1, 2, 3]) {
+    assert.deepEqual([...nextPair(fit(3, answers), answers, { seed })].sort(), [0, 2], `seed ${seed}`);
+  }
+});
+
 test("chanceAbove is the normal CDF of the mean difference over its standard deviation", () => {
   const f = { n: 3, mu: [1, 0, 0], cov: [1, 0, 0, 0, 1, 0, 0, 0, 1] };
   // var(mu0 - mu1) = 2, z = 1/sqrt(2), Phi(z) = 0.76025

@@ -185,22 +185,22 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git. Open: ZATCA rules on a real sandbox invoice and
-      credit or debit note; FatturaPA tolerances and SdI codes read from spec 1.9
-      (2026-11-13, eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection
-      receipt; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though
-      AMA's rules admit them: which validator does AT run?); Poland's FA(3): receipt
+      History: README and git (latest: Peppol BIS 3.0.22, 1,048/1,048 unit asserts).
+      Open: ZATCA rules on a real sandbox invoice and credit or debit note;
+      FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
+      eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
+      Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's
+      rules admit them: which validator does AT run?); Poland's FA(3): receipt
       checks landed (README); open: a real KSeF rejection, a real correction,
       advance or settlement file; the rules and a repair on a real ERP or Factur-X
       export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
-      Dutch file; India's INV-01 check on a real IRP payload; primary-source mandate
-      dates: IL (gov.il 403); LV, DK, CZ done (README); TW, OM read from the law
-      (README); PK, NG, JO, TH read (README): open: NRS notice (CAPTCHA), SRO 1852,
-      Jordan Reg. 2/2025; Mexico CFDI 4.0, complements, Carta Porte 3.1 landed:
-      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a
-      real payroll or export file, a PAC rejection compared; postal codes (MX-080)
-      landed (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
+      Dutch file; India's INV-01 check on a real IRP payload; mandate texts read
+      (README); open: IL (gov.il 403), ES, SK (hosts blocked 2026-11-14), NRS notice
+      (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed: open: SAT's
+      CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
+      payroll or export file, a PAC rejection compared; postal codes (MX-080) landed
+      (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
       (BR-053..057, NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and
       cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
       112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
@@ -229,21 +229,22 @@ flagships:
       (README "A whole week of call-outs at a real roster's rates", 2026-11-13):
       kept reissues cut changes 56-66%, open hours path-dependent both ways. Next:
       whether a real manager would set keepShift above 1; close the 100-person gaps
-      (tree, not bound: README same section); cuts or branching that move the score
-      LP on the 60-person pay week ($1.22 open); week 0 pay $30 open (README "A pay
-      floor for big weeks"); re-run the keep-usual-shifts sweep on real dated leave
-      records; a manager's read on whether the steadier plan is the one they would
-      post; a real 7shifts account through --import-7shifts (README "Reading 7shifts
-      directly"); a real When I Work account or response through --import-wheniwork
-      (README "Reading When I Work directly"); Homebase (docs need an account);
-      --cover-price moves two shifts together (README "Moving two shifts together":
-      20-person week exposure 113 to 68 h for $35.27); second call-outs priced
-      (README "A second call-out in the same week", off by default); next: fewer
-      capped pairs, pair price past 120 copies; a real two-site export and staff
-      list (README "Staff shared between sites"); own and site rates read from staff
-      CSVs and 7shifts (README "Per-location pay from an export"); next a real wages
-      export, real trip times; whether the priced cut's r = 1 default suits a real
-      manager; a manager's real task list for the fixed minutes.
+      (tree, not bound: README same section); week 0 pay $7.04 open, a roster $0.36
+      above the floor exists (README "Re-solving one day at a time": day sweeps;
+      next two-day or person-pair moves); re-run the keep-usual-shifts sweep on real
+      dated leave records; a manager's read on whether the steadier plan is the one
+      they would post; a real 7shifts account through --import-7shifts (README
+      "Reading 7shifts directly"); a real When I Work account or response through
+      --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
+      need an account); --cover-price moves two shifts together (README "Moving two
+      shifts together": 20-person week exposure 113 to 68 h for $35.27); second
+      call-outs priced (README "A second call-out in the same week", off by
+      default); next: fewer capped pairs, pair price past 120 copies; a real
+      two-site export and staff list (README "Staff shared between sites"); own and
+      site rates read from staff CSVs and 7shifts (README "Per-location pay from an
+      export"); next a real wages export, real trip times; whether the priced cut's
+      r = 1 default suits a real manager; a manager's real task list for the fixed
+      minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -266,19 +267,21 @@ flagships:
       metadata-extractor names it); converted DNGs' maker notes from DNGPrivateData
       MakN (Canon, Nikon, Olympus) since 2026-11-14
       (eval/dng-maker-note-2026-11-14.md: ExifTool's real 350D DNG read as ExifTool
-      decodes it); next: Pentax lens numbers and its 'PENTAX' private data, a real
-      converted Nikon or Olympus DNG; the whole numpy develop runs in threaded bands
-      and packed raws unpack in numpy since 2026-11-13
-      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
-      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
-      (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
-      of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
-      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
-      table, prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs,
-      eval/native-destuff-2026-11-13.md; tiles are placed on the decode threads with
-      one numpy copy since 2026-11-13 (4-thread read 1.3-1.4x faster,
-      eval/parallel-tile-placing-2026-11-13.md); point-transform scans predict in C
-      and the plane is one buffer since 2026-11-14,
+      decodes it); Pentax lens numbers (AOC/PENTAX/RICOH notes, Pentax DNG private
+      data) and --lens-memory since 2026-11-14
+      (eval/pentax-lens-memory-2026-11-14.md: K10D matches ExifTool; next: a real
+      K-5 or K-30 file for the 91/80-byte LensInfo, a real converted Nikon or
+      Olympus DNG); the whole numpy develop runs in threaded bands and packed raws
+      unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same
+      bytes at every thread count and band height); lossless-JPEG DNG tiles decode
+      on a thread pool since 2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a
+      real Pixel 3 XL lossless DNG, 0 of 12.2 M sensels differ from LibRaw; read
+      0.33 s to 0.21 s on 4 CPUs; since 2026-11-13 later the whole tile decode
+      (de-stuffing, restart walk, 12-bit table, prediction) runs in C, read 0.21 s
+      to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md; tiles are placed on
+      the decode threads with one numpy copy since 2026-11-13 (4-thread read
+      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform
+      scans predict in C and the plane is one buffer since 2026-11-14,
       eval/point-transform-c-2026-11-14.md), and sensor normalisation runs in bands
       since 2026-11-14 (0.24 s to 0.05 s on 4 CPUs,
       eval/normalised-plane-bands-2026-11-14.md); MapTable and ScalePerRow/Column

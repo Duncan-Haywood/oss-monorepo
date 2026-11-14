@@ -10,6 +10,22 @@ const XRECHNUNG_SPEC = /^urn:cen\.eu:en16931:2017#(?:compliant|conformant)#urn:x
 
 const PEPPOL_SPEC = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0";
 const PEPPOL_PROCESS = "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0";
+// The business processes PEPPOL-EN16931-R007 admits since Peppol BIS Billing 3.0.21
+// (mandatory 2026-08-17; 3.0.22 hotfix 2026-11-04): profile 01, France's two temporary
+// profiles and profile 02, billing with response (which needs its own SMP registration).
+// Before 3.0.21 the rule took any urn:fdc:peppol.eu:2017:poacc:billing:NN:1.0.
+export const PEPPOL_PROCESSES = [
+  PEPPOL_PROCESS,
+  "urn:peppol:france:billing:regulated",
+  "urn:peppol:france:billing:non-regulated",
+  "urn:peppol:bis:billing_with_response",
+];
+// PEPPOL-EN16931-R004 since 3.0.21: BT-24 starts with the Peppol id and carries no
+// version suffix after a double colon (e.g. "...billing:3.0::2.1" is refused).
+export function isPeppolSpecification(value) {
+  const spec = typeof value === "string" ? value.trim() : "";
+  return spec.startsWith(PEPPOL_SPEC) && !spec.includes("::");
+}
 
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
@@ -179,20 +195,22 @@ export function inspectPeppolProfile(invoice) {
   const findings = [];
 
   const process = str(invoice.profile_id);
-  if (process !== PEPPOL_PROCESS) {
+  if (!PEPPOL_PROCESSES.includes(process)) {
     findings.push(finding(
       "PP-001",
-      process ? "Business process (BT-23) is not the Peppol billing process." : "Business process (BT-23) is missing.",
-      `Set the business process to ${PEPPOL_PROCESS} (UBL cbc:ProfileID, CII BusinessProcessSpecifiedDocumentContextParameter).`,
+      process ? "Business process (BT-23) is not a Peppol billing process." : "Business process (BT-23) is missing.",
+      `Set the business process to ${PEPPOL_PROCESS} (UBL cbc:ProfileID, CII BusinessProcessSpecifiedDocumentContextParameter). Since Peppol BIS 3.0.21 the only others accepted are France's urn:peppol:france:billing:regulated and :non-regulated and urn:peppol:bis:billing_with_response.`,
       "/profile_id",
     ));
   }
 
   const spec = str(invoice.specification_id);
-  if (spec !== PEPPOL_SPEC) {
+  if (!isPeppolSpecification(spec)) {
     findings.push(finding(
       "PP-002",
-      spec ? "Specification identifier (BT-24) does not name Peppol BIS Billing 3.0." : "Specification identifier (BT-24) is missing.",
+      !spec ? "Specification identifier (BT-24) is missing."
+        : spec.startsWith(PEPPOL_SPEC) ? "Specification identifier (BT-24) carries a version suffix after '::', which Peppol BIS 3.0.21 refuses."
+        : "Specification identifier (BT-24) does not name Peppol BIS Billing 3.0.",
       `Set it to ${PEPPOL_SPEC}. An XRechnung identifier is only right for German buyers.`,
       "/specification_id",
     ));
