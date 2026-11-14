@@ -14,12 +14,14 @@ Run: OMP_NUM_THREADS=1 python3 run.py   (numpy + scikit-learn; about 6 minutes o
 import importlib.util
 import json
 import os
+import sys
 
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location("m82_run", os.path.join(HERE, "..", "harm_weighted_sampling", "run.py"))
 m82 = importlib.util.module_from_spec(_spec)
+sys.modules["m82_run"] = m82
 _spec.loader.exec_module(m82)
 
 T, S, N = m82.T, m82.S, m82.N
@@ -47,12 +49,20 @@ m82_sched = m82.lr_sched
 m82.lr_sched = lr_sched  # m82.test_job / cal_job look the schedule up in their module's globals
 
 
+def test_job(args):
+    return m82.test_job(args)
+
+
+def cal_job(args):
+    return m82.cal_job(args)
+
+
 def main():
     from multiprocessing import Pool
     procs = int(os.environ.get("PROCS", 4))
     with Pool(procs) as pool:
-        tests = pool.map(m82.test_job, [(sd, sc) for sc in SCHEDULES for sd in m82.TEST_SEEDS])
-        cals = pool.map(m82.cal_job, [(sd, sc) for sc in SCHEDULES for sd in m82.CAL_SEEDS])
+        tests = pool.map(test_job, [(sd, sc) for sc in SCHEDULES for sd in m82.TEST_SEEDS])
+        cals = pool.map(cal_job, [(sd, sc) for sc in SCHEDULES for sd in m82.CAL_SEEDS])
     res = {"T": T, "S": S, "N": N, "schedules": {}}
     for sc in SCHEDULES:
         lrs = lr_sched(sc)
