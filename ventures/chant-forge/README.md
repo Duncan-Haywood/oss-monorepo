@@ -854,7 +854,30 @@ squares. Details, the measurements and the crops' verdicts: `eval/quilisma-strok
 The same pieces were a clean test of the untouched rhombus rule: 417 of 420 rhombi, but 14 of
 2,641 squares called rhombi, more than before (looked at: next section).
 
-### Staff lines at their own thickness (2026-11-14, latest)
+### Tilted pages straightened (2026-11-14, latest)
+
+```sh
+node ventures/chant-forge/eval/deskew-synthetic.mjs   # drawn pages, no network
+node ventures/chant-forge/eval/deskew-check.mjs       # every page scanned so far; needs archive.org
+```
+
+A page scanned a little turned prints its staff lines at a slope, and a line that drifts more
+than its own thickness across the staff stops being one band of rows: leaf 424 of the 1908
+Graduale shows 2 of its 9 staves. `readPage` now finds the slope (`estimateSkew`: shear the ink by
+trial slopes within 3 degrees, keep the sharpest row profile) and moves each column up or down a
+whole number of pixels (`shearColumns`, no resampling) before it looks for staves. Note `y` is
+given back on the page as scanned, each staff carries its `skew`, and `{ deskew: false }` reads
+square. A page is straightened only if the slope moves a line 10 px or more across it
+(`DESKEW_MIN_DRIFT`, 0.29 degrees at 2000 px), so pages that read square are read as before.
+
+On drawn pages (nine staves, 99 heads) the square reader holds to 0.3 to 0.4 degrees, reads 1
+or 36 heads at 0.5 and 4 at most from 0.8; straightened, all 99 from 0.3 to 2.5 degrees, the slope
+found to 0.01 degrees. **Not yet checked on a real page:** archive.org refused this session, so
+leaf 424 and the 185 pages already scanned wait for `eval/deskew-check.mjs`. Details, the
+threshold and the one cost found (specks touching a line once the mask is tight again):
+`eval/deskew-check.md`.
+
+### Staff lines at their own thickness (2026-11-14)
 
 ```sh
 node ventures/chant-forge/eval/thick-line-check.mjs   # same scans and cache as scan-check
