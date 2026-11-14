@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfcnQEXjJ9gEMFKQ81",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T07:58:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research track draw -> track 20 -> buildbot-sheathing milestone 17 (Weiss's tested wall and its anchorage)",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15776",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First run of run.py printed stud lift divided by the inch constant (a units slip in a print only); fixed and the whole experiment rerun before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/README.md",
+      "issue": "Milestones 14-16 said Weiss's thesis host does not resolve and only the abstract was read; the WSU Esploro page is a JavaScript app, so curl gets an empty shell, but Playwright renders it and the PDF downloads from rex.libraries.wsu.edu/view/pdfCoverPage?...&download=true. Three earlier milestones guessed at a set-up that was one rendered page away."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CLAIM CHECK flagged both open programmes of track 20 as touched in the last 6h; it does not say whether the touch was a finished milestone (safe to take the next one) or an open claim, so the reader has to open LOG.md to tell."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (H75 as registered)",
+      "why": "H75 was registered against a rotation-free top plate, but milestone 15's Frame has no such mode.",
+      "did": "Checked the new LP against Frame in its free and slide-only top-plate modes (8 cases) instead, and said so in results.txt and LOG.md.",
+      "result": "Exact agreement (0.0 relative difference); the rotation-free mode differs from those only by one equality row on the top plate's rotation, so it is not independently checked against Frame."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-decayed-shear-wall-slides-on-its-sill-nails.md",
+    "research/buildbot-sheathing/LOG.md (milestone 17 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Read Weiss (2017) in full (open access, WSU) for the first time in the programme: 8x8 ft two-sheet walls, hold-downs only at the wall ends; tested decay kept 57% (6-12) and 34% (3-12). New wall_lp.py (multi-sheet limit analysis). H75, H76, H80 held; H77-H79 refuted (80% and 63% kept at NDS joints). Post hoc: end nails at 0.47 x NDS fit both groups, because the decayed wall slides on its sill. Checks run here: project pytest 89 passed / 8 skipped; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; cite_check ok; run_workflow_locally --for-changes (see PR).",
+  "corrections": [],
+  "redteam": null
+}
