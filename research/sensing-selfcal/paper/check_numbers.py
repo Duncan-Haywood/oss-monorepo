@@ -207,6 +207,20 @@ CHECKS = [
     ("log", "±2% at k = 6 in 34.7%, false alarms 1.59% / 0.35%", "| 1.59% / 0.35% |"),
     ("log", "±4% at k = 6: 81.2–84.7%", "| 81.2–84.7% |"),
     ("log", "9,600 cold-start nonlinear solves", "On 9,600 cold-start nonlinear solves"),
+    # Section 7, milestone 4j (TUM RGB-D fr1 and fr3)
+    ("json", "m4j_tum/summary.json", "hypotheses/H63/fr3_rel", -0.64, 2, pct, "within 0.64% of TUM's"),
+    ("json", "m4j_tum/summary.json", "hypotheses/H63/fr1_rel_unscored", 1.85, 2, pct, "is 1.85% high"),
+    ("log", "fr1 3.27% at k = 4, 0.80% at 5, 0.76% at 6", "0.80% / 0.76% (fr1)"),
+    ("log", "fr3 4.73%, 0.62%, 0.06%", "0.62% / 0.06% (fr3)"),
+    ("log", "fr1 3.27% at k = 4", "but on 3.27% and 4.73% at 4"),
+    ("json", "m4j_tum/summary.json", "converged/fr3/3/0", 237, 0, None, "12 and 49 of 286 three-view sets"),
+    ("json", "m4j_tum/summary.json", "converged/fr1/3/0", 274, 0, None, "12 and 49 of 286 three-view sets"),
+    ("json", "m4j_tum/summary.json", "hypotheses/H66/R_geom_pm2_k6", 10.0, 1, pct, "caught in 10.0% of splits"),
+    ("json", "m4j_tum/summary.json", "swap/fr1/rel", 1.40, 2, pct, "focal lengths differ by 1.40%"),
+    ("json", "m4j_tum/summary.json", "hypotheses/H67/fr1", 6.3, 1, pct, "6.3% / 7.9% of splits"),
+    ("json", "m4j_tum/summary.json", "hypotheses/H67/fr3", 7.9, 1, pct, "6.3% / 7.9% of splits"),
+    ("log", "0.73% of f (fr1) and 0.51% (fr3), against 0.51% and 0.30%", "0.73% / 0.51% of f, against 0.51% / 0.30%"),
+    ("log", "8 of 1,709 (fr1, up to f = 9,289 px) and 30 of 1,716 (fr3)", "5% away on 8 and 30"),
 ]
 
 

@@ -1,16 +1,19 @@
 """Milestone 4j: load a TUM RGB-D unit's 13 stored views and point selfcal at its 8x6 board.
 
 selfcal.py was written for OpenCV's 9x6 board; its solver works for any number of corners, but
-board_points, planarity and robust_sf's grid code default to that pattern. Importing this module
-re-points those defaults at the TUM board (8x6 inner corners), so the unchanged solver runs here.
+board_points, planarity and robust_sf's grid code default to that pattern. This module loads its own
+copy of selfcal.py (`sc`, not the shared `selfcal` module, so other milestones' code in the same
+process keeps the 9x6 board) and re-points those defaults at the TUM board (8x6 inner corners), so
+the unchanged solver runs here.
 """
-import json, os, sys
+import importlib.util, json, os
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-sys.path.insert(0, os.path.join(ROOT, "src"))
-import selfcal as sc  # noqa: E402
+_spec = importlib.util.spec_from_file_location("selfcal_tum", os.path.join(ROOT, "src", "selfcal.py"))
+sc = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(sc)
 
 PATTERN = (8, 6)
 NPT = PATTERN[0] * PATTERN[1]

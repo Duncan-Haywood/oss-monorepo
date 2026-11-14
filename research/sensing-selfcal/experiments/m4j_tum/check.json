@@ -1,0 +1,108 @@
+{
+ "H64": {
+  "fr1": [
+   NaN,
+   1.0020578339365995,
+   1.0023299155099181,
+   2.6132703573718286
+  ],
+  "fr3": [
+   1.0035107158174847,
+   1.0006887790020966,
+   1.0005625983839095,
+   1.0006073579270123
+  ],
+  "holds": false
+ },
+ "summary": {
+  "fr1/iidx1/n4": {
+   "sd_ratio_median": NaN,
+   "sd_ratio_range": [
+    1.0118841516240065,
+    1.076795445365333
+   ],
+   "corr_median": NaN,
+   "far_from_linear": 0,
+   "not_converged": 40,
+   "draws": 160
+  },
+  "fr1/iidx1/n5": {
+   "sd_ratio_median": 1.0020578339365995,
+   "sd_ratio_range": [
+    0.9921549718166796,
+    1.0071999189692404
+   ],
+   "corr_median": 0.9990335603073023,
+   "far_from_linear": 0,
+   "not_converged": 0,
+   "draws": 160
+  },
+  "fr1/iidx1/n6": {
+   "sd_ratio_median": 1.0023299155099181,
+   "sd_ratio_range": [
+    0.9964839630351149,
+    1.0033387939217688
+   ],
+   "corr_median": 0.9996993796432836,
+   "far_from_linear": 0,
+   "not_converged": 0,
+   "draws": 160
+  },
+  "fr1/iidx1/n7": {
+   "sd_ratio_median": 2.6132703573718286,
+   "sd_ratio_range": [
+    1.0028151386959303,
+    9.642317943309326
+   ],
+   "corr_median": 0.5698053416616526,
+   "far_from_linear": 24,
+   "not_converged": 0,
+   "draws": 160
+  },
+  "fr3/iidx1/n4": {
+   "sd_ratio_median": 1.0035107158174847,
+   "sd_ratio_range": [
+    0.987375318392732,
+    1.0581669550633952
+   ],
+   "corr_median": 0.9931511708617042,
+   "far_from_linear": 0,
+   "not_converged": 0,
+   "draws": 160
+  },
+  "fr3/iidx1/n5": {
+   "sd_ratio_median": 1.0006887790020966,
+   "sd_ratio_range": [
+    0.9791644522216216,
+    1.004912559497597
+   ],
+   "corr_median": 0.9983770273408411,
+   "far_from_linear": 0,
+   "not_converged": 0,
+   "draws": 160
+  },
+  "fr3/iidx1/n6": {
+   "sd_ratio_median": 1.0005625983839095,
+   "sd_ratio_range": [
+    1.000394028444364,
+    1.001719034312251
+   ],
+   "corr_median": 0.9996918743812524,
+   "far_from_linear": 0,
+   "not_converged": 0,
+   "draws": 160
+  },
+  "fr3/iidx1/n7": {
+   "sd_ratio_median": 1.0006073579270123,
+   "sd_ratio_range": [
+    0.9911259305672052,
+    1.0064120249385948
+   ],
+   "corr_median": 0.9996129899122658,
+   "far_from_linear": 0,
+   "not_converged": 0,
+   "draws": 160
+  }
+ },
+ "seed": 202611145
+}
