@@ -232,6 +232,25 @@ class ChangesSinceTest(unittest.TestCase):
         self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake(""))["status"], "untouched")
         self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake("", has_ref=False))["status"], "unknown")
 
+    def test_deepen_fetches_back_to_the_oldest_audit_once(self):
+        calls = []
+        git = self.fake("", "2026-11-13", shallow=self.shallow_file("b0"))
+        note = m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=git, git_run=lambda c: calls.append(c) or 0)
+        self.assertEqual(calls, [["git", "fetch", "-q", "--shallow-since=2026-11-07", "origin", "main"]])
+        self.assertIn("fetched main since 2026-11-07", note)
+
+    def test_deepen_skips_complete_or_deep_enough_history_and_old_audits(self):
+        never = lambda c: self.fail("fetched")
+        self.assertEqual(m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=self.fake(""), git_run=never), "")
+        deep = self.fake("", "2026-11-01", shallow=self.shallow_file("b0"))
+        self.assertEqual(m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=deep, git_run=never), "")
+        late = self.fake("", "2026-11-13", shallow=self.shallow_file("b0"))
+        self.assertIn("not fetching", m.deepen_for("2026-09-01", m.dt.date(2026, 11, 14), git=late, git_run=never))
+
+    def test_deepen_reports_a_failed_fetch(self):
+        late = self.fake("", "2026-11-13", shallow=self.shallow_file("b0"))
+        self.assertIn("failed", m.deepen_for("2026-11-07", m.dt.date(2026, 11, 14), git=late, git_run=lambda c: 128))
+
 
 if __name__ == "__main__":
     unittest.main()
