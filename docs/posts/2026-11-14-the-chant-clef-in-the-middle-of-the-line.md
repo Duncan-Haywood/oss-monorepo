@@ -3,7 +3,7 @@ title: "The chant clef in the middle of the line"
 seo_title: "Reading mid-staff clef changes off Gregorian chant scans by machine"
 date: 2026-11-14
 tags: [music, gregorian-chant, optical-music-recognition, open-source, chant-forge]
-description: "One missing rule made Chant Forge's scan reader misread whole verses of chant. Written from one page and tested on fourteen it had never seen, it cut note differences from 129 to 13, and turned up a transcription slip."
+description: "A clef printed mid-line made Chant Forge misread whole chant verses. A rule tested on 14 unseen pieces cut differences from 129 to 13 and found a slip."
 ---
 
 Chant Forge turns public-domain Gregorian chant (GABC files from GregoBase) into MIDI for a men's choir. Every note it plays comes from a volunteer's transcription, so the project checks those files against scans of the books they came from, mostly the 1908 Vatican Graduale on archive.org. A small reader with no dependencies (`scan.mjs`) finds the staves, picks out the note heads and gives each one a pitch relative to the clef. An alignment then lines those notes up against the GABC and lists every place where the two disagree.
