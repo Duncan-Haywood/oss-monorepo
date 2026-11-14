@@ -1,0 +1,9 @@
+milestone 3d post hoc: 3c's lowest-energy 2.5 mm state carried to the 1.875 mm lattice
+case: DC folds energy_J lam_min converged steps
+D 1896 2.5 mm seed 0 rerun (3c solver): 0.5807 7 -1.71113038e-03 1.66e-08 True
+D 1896 transferred to 1.875 mm: 0.5848 7 -1.70180269e-03 7.68e-09 True 100 (139 nodes outside the 2.5 mm hull)
+   1.875 mm seeds: lowest energy -1.68911531e-03 (seed 3, 8 folds, DC 0.6011); transferred minus that: -1.269e-05 J; rank among seeds plus transfer: 1 of 8
+A 369 2.5 mm seed 6 rerun (3c solver): 0.1586 10 -1.52427828e-03 1.53e-07 True
+A 369 transferred to 1.875 mm: 0.1638 10 -1.49943225e-03 9.66e-08 True 126 (139 nodes outside the 2.5 mm hull)
+   1.875 mm seeds: lowest energy -1.52171999e-03 (seed 0, 12 folds, DC 0.1650); transferred minus that: +2.229e-05 J; rank among seeds plus transfer: 8 of 8
+DONE
