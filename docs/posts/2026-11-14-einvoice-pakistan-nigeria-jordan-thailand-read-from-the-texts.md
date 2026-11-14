@@ -1,9 +1,9 @@
 ---
 title: "Four e-invoicing pages rewritten from the tax authorities' own texts: Pakistan, Nigeria, Jordan, Thailand"
-seo_title: "Pakistan, Nigeria, Jordan and Thailand e-invoicing rules read from the source"
+seo_title: "Pakistan, Nigeria, Jordan, Thailand e-invoicing rules from the source"
 date: 2026-11-14
 tags: [einvoice-preflight, ventures]
-description: "Pakistan covers every sales tax registered person, Thailand's e-Tax Invoice is a choice, Jordan's regulation sets no date, and Nigeria's portal names UBL, not Peppol."
+description: "Pakistan covers every sales tax registrant, Thailand's e-Tax Invoice is a choice, Jordan's regulation sets no date, and Nigeria's portal names UBL, not Peppol."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) has a page on each country's e-invoicing rules. Four of them, Pakistan, Nigeria, Jordan and Thailand, were written from vendor blogs and search summaries. Today we went looking for each tax authority's own documents. Three of them answered from a cloud runner and one half answered. Here is what changed.
