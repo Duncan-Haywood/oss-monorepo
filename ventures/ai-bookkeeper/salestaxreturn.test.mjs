@@ -732,3 +732,91 @@ test("from alone (no to) leaves out tax payments dated before it (red team 2026-
   assert.equal(salesTaxReturn(books2, { from: "2026-04-01" }).totals.paid, 1200); // the March payment drops out
   assert.equal(salesTaxReturn(books2, { to: "2026-03-31" }).totals.paid, 900);    // and with to alone, the April one
 });
+
+// Fifth 2026-11-14 batch (eval/state-pages-2026-11-14e.md quotes each sentence): AR rules GR-77/GR-84, NJ's filing page, the RI, ME and MA
+// statutes, and Indiana's bulletins #83 (allowance) and #102 (due day), whose bands are worked out from the book's own past tax.
+test("AR's 2% prompt-payment discount is capped at $1,000 for each month of the return (rule GR-84)", async () => {
+  const { stateDiscounts, stateDiscountNote, salesTaxReturn } = await import("./salestaxreturn.mjs");
+  const mk = (dollars) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-04-10,,A Co,900000.00,4000,Goods\ninvoice,1,2026-04-10,,A Co,${dollars}.00,2100,AR state\n`).books;
+  const row = (dollars, frequency) => salesTaxReturn(mk(dollars), { frequency, discounts: stateDiscounts("AR", frequency) }).periods[0].rows[0];
+  assert.equal(row(10000, "monthly").discount, 20000);      // 2% of $10,000 = $200
+  assert.equal(row(80000, "monthly").discount, 100000);     // $1,600 capped at $1,000 a month
+  assert.equal(row(80000, "quarterly").discount, 160000);   // a quarter's cap is three months, $3,000, so $1,600 stands
+  assert.equal(row(200000, "quarterly").discount, 300000);  // $4,000 capped at $3,000
+  assert.match(stateDiscountNote("AR"), /City and county tax gets 2% with no cap/);
+});
+
+test("NJ, RI, ME, MA and AR notes come from the pages read on 2026-11-14", async () => {
+  const { stateDiscountNote, stateDiscounts, stateSourceRead, STATE_SOURCES } = await import("./salestaxreturn.mjs");
+  assert.match(stateFilingNote("NJ", "monthly"), /more than \$30,000.*payments, not returns/);
+  assert.match(stateFilingNote("NJ", "annual"), /lists quarterly sales tax filing, not annual/);
+  assert.equal(stateFilingNote("NJ", "quarterly"), null);
+  assert.match(stateFilingNote("RI", "quarterly"), /written authorization.*\$600/);
+  assert.equal(stateFilingNote("RI", "monthly"), null);
+  assert.match(stateFilingNote("AR", "quarterly"), /until then, file monthly/);
+  assert.match(stateFilingNote("AR", "annual"), /January 20/);
+  for (const st of ["NJ", "RI", "ME", "MA"]) {
+    assert.deepEqual(stateDiscounts(st, "monthly"), {}, st);
+    assert.match(stateDiscountNote(st), /no vendor discount/, st);
+    assert.equal(stateSourceRead(st), "2026-11-14", st);
+  }
+  assert.equal(stateSourceRead("AR"), "2026-11-14");
+  assert.match(STATE_SOURCES.IN.url, /gb102\.pdf$/);
+  // dates the statutes and rules print: ME the 15th, RI the 20th and last day of the month after a quarter, AR the 20th, MA 30 days after
+  assert.equal(dueDate("2026-09", stateDueDay("ME", "monthly")), "2026-10-15");
+  assert.equal(dueDate("2026-Q2", stateDueDay("RI", "quarterly")), "2026-07-31");
+  assert.equal(dueDate("2026", stateDueDay("AR", "annual")), "2027-01-20");
+  assert.equal(dueDate("2026-Q3", stateDueDay("AR", "quarterly")), "2026-10-20");
+  assert.equal(dueDate("2026-08", stateDueDay("MA", "monthly")), "2026-09-30");
+});
+
+test("Indiana's allowance band and due day are worked out from the book's own past tax (Bulletins #83 and #102)", async () => {
+  const { stateHistoryPresets, salesTaxReturn, monthlyTaxByLabel } = await import("./salestaxreturn.mjs");
+  // one invoice a month from `start` for `n` months, `dollars` of "IN state" tax each
+  const mk = (start, n, dollarsFor) => {
+    const lines = ["type,number,date,due,party,amount,account,description"];
+    let [y, m] = start.split("-").map(Number);
+    for (let i = 0; i < n; i++) {
+      const d = `${y}-${String(m).padStart(2, "0")}-10`, tax = dollarsFor(y, m);
+      lines.push(`invoice,${i + 1},${d},,A Co,${(tax * 14).toFixed(2)},4000,Goods`, `invoice,${i + 1},${d},,A Co,${tax.toFixed(2)},2100,IN state`);
+      m += 1; if (m > 12) { m = 1; y += 1; }
+    }
+    return addDocuments(importStatement(newBooks(), `Date,Description,Amount\n${start}-01,X,1.00\n`, "1000").books, lines.join("\n") + "\n").books;
+  };
+  // July 2024 to December 2026 at $4,000 a month: $48,000 in Jul 2024-Jun 2025 (0.73% for 2026), $48,000 a year, $4,000 a month (> $1,000: the 20th)
+  const b = mk("2024-07", 30, () => 4000);
+  const h = stateHistoryPresets("IN", b, "monthly", { from: "2026-01-01" });
+  assert.deepEqual(h.discounts, { "IN state": { rate: 0, byYear: { 2026: 0.0073 } } });
+  assert.deepEqual(h.dueDay, { byYear: { 2026: 20 }, otherwise: 30 });
+  assert.match(h.notes.join(" "), /0\.73% collection allowance, from \$48,000\.00 of "IN state" tax in July 2024 to June 2025/);
+  assert.match(h.notes.join(" "), /due the 20th, from an average of \$4,000\.00 a month/);
+  const t = salesTaxReturn(b, { frequency: "monthly", from: "2026-01-01", dueDay: h.dueDay, discounts: h.discounts, rollover: false });
+  const jan = t.periods.find((p) => p.period === "2026-01").rows[0];
+  assert.equal(jan.discount, 2920);   // 0.73% of $4,000 = $29.20
+  assert.equal(jan.due, "2026-02-20");
+  // $6,000 a month: $72,000 in the look-back year is over $60,000, so 0.53%
+  const hi = stateHistoryPresets("IN", mk("2024-07", 30, () => 6000), "monthly", { from: "2026-01-01" });
+  assert.equal(hi.discounts["IN state"].byYear[2026], 0.0053);
+  // $600,000.01 and up: 0.26%; exactly $60,000 stays in the 0.73% band
+  assert.equal(stateHistoryPresets("IN", mk("2024-07", 30, () => 50001), "annual", { from: "2026-01-01" }).discounts["IN state"].byYear[2026], 0.0026);
+  assert.equal(stateHistoryPresets("IN", mk("2024-07", 30, () => 5000), "annual", { from: "2026-01-01" }).discounts["IN state"].byYear[2026], 0.0073);
+  // $900 a month in 2025 is not over $1,000: the 30th, clamped to February's last day
+  const small = stateHistoryPresets("IN", mk("2024-07", 30, () => 900), "monthly", { from: "2026-01-01" });
+  assert.deepEqual(small.dueDay, { byYear: { 2026: 30 }, otherwise: 30 });
+  assert.equal(dueDate("2026-01", small.dueDay), "2026-02-28");
+  // a book that starts in 2026 holds no look-back months: no allowance, the 30th, and a note naming what is missing
+  const fresh = stateHistoryPresets("IN", mk("2026-01", 6, () => 4000), "monthly");
+  assert.deepEqual(fresh.discounts, {});
+  assert.equal(fresh.dueDay, null);
+  assert.match(fresh.notes.join(" "), /2026's allowance needs July 2024 to June 2025; 2026's due day needs all of 2025/);
+  // credit notes reduce the look-back tax; other states and labels are untouched
+  assert.deepEqual(stateHistoryPresets("OH", b, "monthly"), { discounts: {}, dueDay: null, notes: [] });
+  assert.equal(monthlyTaxByLabel(b, "IN state").months["2025-03"], 400000);
+  const cn = addDocuments(b, "type,number,date,due,party,amount,account,description\ncredit note,C1,2025-03-20,,A Co,14000.00,4000,Return\ncredit note,C1,2025-03-20,,A Co,1000.00,2100,IN state\n").books;
+  assert.equal(monthlyTaxByLabel(cn, "IN state").months["2025-03"], 300000);
+  assert.match(stateHistoryPresets("IN", cn, "monthly", { from: "2026-01-01" }).notes.join(" "), /from \$47,000\.00 of "IN state" tax/);
+  // a bad per-year rate or due day is refused like any other
+  assert.throws(() => salesTaxReturn(b, { discounts: { "IN state": { rate: 0, byYear: { 2026: 2 } } } }), /discount for "IN state"/);
+  assert.throws(() => salesTaxReturn(b, { dueDay: { byYear: { 2026: 40 }, otherwise: 30 } }), /due day/);
+});
