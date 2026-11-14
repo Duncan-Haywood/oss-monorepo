@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First PAPERS-count test failure (expected 3, got 4) after adding the MSTL citation; fixed the test."
+    "First PAPERS-count test failure (expected 3, got 4) after adding the MSTL citation; fixed the test.",
+    "run_workflow_locally --for-changes: check_thousands_split flagged the comma-split period list (real: '8,760' is a plausible hourly-yearly period). Fixed with parseNumberList, which reads a grouped token as one number only when it is below half the series length, plus a note; tests added."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,7 +50,7 @@
     "ventures/stl-decomposition/README.md (MSTL section with real-data findings)"
   ],
   "goal": null,
-  "notes": "Explore idea: MSTL (Bandara, Hyndman & Bergmeir 2021) as a mode of stl-decomposition, from the research-tools candidate list. 7 statsmodels 0.15.0 MSTL reference cases agree within 9e-9. Side finding: loess tricube via `** 3` was the hot spot; multiplication made plain STL 7-14x faster in Node 22. Findings: hourly AEP load, STL-24 flags 14 hours, 13 on Sun/Mon (weekly cycle leak); MSTL 24+168 flags Memorial Day instead. Births: STL-7 flags 182 days, MSTL 7+365 88; all Thanksgivings and Labor Days remain. Local checks: run_venture_tests stl-decomposition pass; Chromium 1100/390 clean; post front matter and links clean. No agent doc: README carries the findings.",
+  "notes": "Explore idea: MSTL (Bandara, Hyndman & Bergmeir 2021) as a mode of stl-decomposition, from the research-tools candidate list. 7 statsmodels 0.15.0 MSTL reference cases agree within 9e-9. Side finding: loess tricube via `** 3` was the hot spot; multiplication made plain STL 7-14x faster in Node 22. Findings: hourly AEP load, STL-24 flags 14 hours, 13 on Sun/Mon (weekly cycle leak); MSTL 24+168 flags Memorial Day instead. Births: STL-7 flags 182 days, MSTL 7+365 88; all Thanksgivings and Labor Days remain. Local checks: run_venture_tests stl-decomposition pass; Chromium 1100/390 clean; post front matter and links clean. No agent doc: README carries the findings. run_workflow_locally --for-changes: 12/14 workflows passed; ventures-tests failed on check_thousands_split, then fixed (7 suites, 0 failed; guard 0 offenders); pages.yml no verdict locally because the site build step was skipped (its later checks need _site).",
   "corrections": [],
   "redteam": null,
   "usage": {
