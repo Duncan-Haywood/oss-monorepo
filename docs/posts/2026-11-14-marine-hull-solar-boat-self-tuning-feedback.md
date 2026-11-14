@@ -3,7 +3,7 @@ title: "A solar boat that checks its own sun forecast wins in 46 of 56 cases"
 seo_title: "Self-tuning solar USV battery feedback from a harvest ratio"
 date: 2026-11-14
 tags: [research, marine-hull]
-description: "A solar survey boat that compares its last 60 days of harvest with its sun climatology, and sets its battery feedback from the ratio, beats the plain 7-day rule in 46 of 56 biased-climatology cases."
+description: "A solar boat that sets its battery feedback from its own harvest-to-climatology ratio beats the plain 7-day rule in 46 of 56 biased-sun cases."
 ---
 
 The [last step](2026-11-14-marine-hull-solar-boat-climatology-bias-window.md) found a catch in a solar boat's speed rule. The boat plans each day's speed from a blend of two sun estimates: the average sun for that day of the year (the climatology) and its own last week of harvest. It closes any gap to its battery target over a set number of days, the feedback time. That blended rule beats the plain 7-day rule only when the climatology is roughly right. The best feedback time depended on how wrong the climatology was: about 60 days if it understates the sun, 30 if it is honest, 20 or 10 if it overstates it.
