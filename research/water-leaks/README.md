@@ -30,6 +30,10 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on leak 
 
 ![Cumulative localisation error, 32 oracle-timed leaks, four signature variants](experiments/step12-timesize/localisation_error.svg)
 
+**Step 13 (2026-11-14): the published SICAMS detector, reimplemented and chance-corrected.** SICAMS (Melnikov 2025: Hotelling's T&sup2; on whitened sensor vectors, PELT change points, a hysteresis filter) reports the best 2019 detection of any L-Town paper with per-leak times: 14 of 19 new leaks (70% true-positive rate, 1 false alarm). **Replaying the paper's own published detection times on this harness, the count beats random alarms only thinly: 13 of 19 at 27 alarms (chance median 10, P = 0.057), or 14 at P = 0.026 when its one stated false alarm is added** (under the 30-day match, that alarm happens to land in another leak's window). Its timeliness is real: 9 of 19 within 72 h against a chance median of 2 (P &lt; 0.001). An **automatic reimplementation** (training hours and settings chosen by rule on 2018, no hand retraining) finds **13 of 19 with 26 false alarms, P = 0.82**: one 2018 false alarm at the chosen setting becomes 26 in 2019, as the statistic's daily swing grows with the year's pile-up of leaks. Its alarming sensor is within 300 m for 5 of the 13 (chance median 0, P &lt; 0.001). All four pre-registered predictions held, (b) only under its primary specification ([step 13](#step-13-sicams-reimplemented-and-its-published-times-chance-corrected-srcwater_leakssicamspy-experimentsstep13-sicams)).
+
+![SICAMS-auto's statistic over 2019 with its alarms and the leak onsets](experiments/step13-sicams/sicams_2019.svg)
+
 We also found that **the released LILA identification code is not a blind detector**: its notebook writes in, for each known 2019 leak, the pipe, its most affected sensor and the calibration windows, and then dates that one leak (it prints a 0 h delay for p523). Our automatic version runs LILA's identification over a whole year without those inputs; we know of no earlier such run.
 
 ![D1 and automatic LILA against random alarms on the 2019 new leaks](experiments/step2-lila/lila_vs_chance.svg)
@@ -246,6 +250,29 @@ Plan, set before any new signature or localisation was computed: [`LOG.md`](LOG.
 - **Why** (after-the-run diagnostic, `diag_switch.txt`). In the nominal model PUMP_1 switches on tank T1's level. A leak at any of 92 junctions shifts the switch by an hour, which puts up to 0.87 m on sensor n54 at hour 17 even for a 1 m³/h leak (every other hour: at most 0.10 m). Leaving hours 15 to 17 out lowers B's and D's median errors to 581 and 563 m but not their 300 m hits (10 and 12). The rest is demand timing: the real network's hours do not follow the nominal patterns, and the 24 h mean averages that mismatch out.
 - **Scoring fix.** Junction n111's signature is a uniform shift at every sensor, so its Pearson score is undefined, and float32 rounding (~1e-5 m) decided it. `localise.scores` now scores signatures below 1e-4 m RMS as 0. Step 11 reruns with every count unchanged; only its D1-F stability-in-q line moves (23% to 31%). The first run is kept as `results_firstrun.txt`.
 
+## Step 13: SICAMS reimplemented, and its published times chance-corrected (`src/water_leaks/sicams.py`, `experiments/step13-sicams/`)
+
+Plan, set before any SICAMS statistic was computed: [`LOG.md`](LOG.md), 2026-11-14 (step 13). Milestone 2's second half; arXiv was unreachable in earlier sessions.
+
+**Question.** Melnikov (2025, [arXiv:2512.15685](https://arxiv.org/abs/2512.15685)) reports SICAMS at 69.6% true positives and 1 false alarm on BattLeDIM 2019, the best of the entries with per-leak times. How much of that is above chance, and what does the method score when the choices the paper made by hand (training periods, area C retraining, PELT penalty) are made by rule?
+
+**Method.** From the paper's sections 3.2 to 3.5: per temporal cluster (hour of day in area A, 2-hour blocks in C, one in B) the training mean and covariance, and Hotelling's T&sup2; rescaled to F (eqs. 9, 10). Area A: 29 pressures, flows p227 and p235, tank T1 (s = 32), trained on the 1,682 hours of 2018 when only p257 and p427 leak (the paper's rule); PELT on the 12 h moving average, then Algorithm 2's paired t-tests label change points "anomaly start" (an alarm) or "end". Areas B (n215) and C (n1, n4, n31, T1): Algorithm 1's hysteresis filter with the F-quantile threshold (eq. 13). The alarm's sensor is the one with the largest mean z&sup2;, which is where the paper's Laplacian pre-localisation peaks (its section 5.2). PELT penalty, slope threshold and filter &alpha; (8 &times; 3 &times; 4) were chosen on 2018 by step 2's rule. Hourly means; offline PELT per year, as the paper ran it and as BattLeDIM was scored. Separately, the paper's Table 1 detection times were scored as alarms on the same harness.
+
+**Results** (`experiments/step13-sicams/results.txt`, `alarms.tsv`; deterministic apart from the seeded chance draws):
+
+| 2019, 19 new leaks | alarms (2018-19) | detected | chance median (95%) | P(chance &ge;) | within 72 h (P) | sensor &le; 300 m (P) | 2019 false alarms |
+|---|---|---|---|---|---|---|---|
+| published SICAMS times, Table 1 | 27 | 13 | 10 (6 to 13) | 0.057 | 9 (&lt; 0.001) | n/a (no sensor given) | 1 |
+| published, plus its stated false alarm | 28 | 14 | 10 (6 to 14) | 0.026 | 9 (&lt; 0.001) | n/a | 1 |
+| **SICAMS-auto (primary)**: c = 100, no retraining | 48 | **13** | 14 (11 to 17) | **0.82** | 9 (0.001) | 5 (&lt; 0.001) | **26** |
+| SICAMS-auto, B and C re-anchored after alarms | 53 | 13 | 15 (11 to 18) | 0.93 | 9 (0.009) | 4 (&lt; 0.001) | 28 |
+
+- **The paper's own times sit at the edge of chance on the detection-only count.** Under our 30-day greedy match they give 13 of 19, not the paper's 14: the p721 alarm (19-08-21) is credited to p800 (onset 08-16, later), and the p800 alarm (09-07) falls outside p721's 30-day window and counts as the one false alarm. Adding the paper's stated 2019 false alarm (p426, mislocalised) as one more alarm turns it into a hit on p762 (onset 10-10, inside the window). One alarm moves P across 0.05. Timeliness is the robust part: 9 within 72 h, P &lt; 0.001.
+- **SICAMS-auto is no better than random on the detection count**, though it detects the abrupt leaks fast (p523, p827, p514, p142 at +5 to +9 h, each with its alarming sensor within 300 m) and finds p123 and p762, which the paper missed. Its 26 false alarms are PELT "starts" at 02:00 to 04:00 every few days from September: the T&sup2; series' daily swing grows with the leak load (figure), and a penalty tuned on 2018 (1 false alarm) does not hold for a year with more concurrent leaks. Across the grid, no setting's detection count beats chance (P from 0.107 at 16 alarms to 0.99); every setting's location count does (P &le; 0.01).
+- **Pre-registered predictions.** (a) SICAMS-auto detects fewer than the paper's 14: **held** (13). (b) The published times beat chance at P &lt; 0.05: **held under the primary specification** (with the stated false alarm, P = 0.026), not on Table 1's times alone (P = 0.057). (c) SICAMS-auto's location count beats chance at P &lt; 0.01: **held** (P &lt; 0.001). (d) SICAMS-auto's detection count does not beat chance: **held** (P = 0.82).
+- **For H1:** a third method, and the first published entry's own times, confirm the restated claim: detection-only counts on L-Town sit at or near chance, and location and timeliness carry the signal. For H2: a false-alarm rate tuned on 2018 does not transfer to 2019 (1 to 26 here), which is the case for a rate certified on leak-free operation.
+- **Not reproduced:** the paper's manual retraining of area C before p31 and p277, its hand-picked training intervals beyond the stated rule, its 5-minute resolution, and Algorithm 2's unstated &alpha; and &delta; (fixed here at 0.05 and a grid). p680's detection time is misprinted in the paper's Table 1 (before onset); its &Delta;t (2 h) was used.
+
 ## Reproduce
 
 ```bash
@@ -273,6 +300,9 @@ python experiments/step11-localise/figure.py                 # experiments/step1
 PYTHONPATH=src python experiments/step12-timesize/run.py     # 4,692 EPANET runs, about 4 min on 4 cores (cached after)
 PYTHONPATH=src python experiments/step12-timesize/diag_switch.py  # after-the-run pump-switch diagnostic
 python experiments/step12-timesize/figure.py                 # experiments/step12-timesize/localisation_error.svg
+pip install scipy                                            # step 13
+PYTHONPATH=src python experiments/step13-sicams/run.py       # SICAMS-auto grid and the published times; about 2 min
+PYTHONPATH=src python experiments/step13-sicams/figure.py    # experiments/step13-sicams/sicams_2019.svg
 ```
 
 ## Limitations
@@ -286,6 +316,6 @@ python experiments/step12-timesize/figure.py                 # experiments/step1
 
 ## Next steps
 
-H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 continues with SICAMS (Melnikov 2025; arXiv was unreachable from earlier sessions). Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
+H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 is done (step 13: SICAMS reimplemented and its published times chance-corrected); next for SICAMS, an online (causal) PELT and retraining after each declared leak, and its 2018 FP rate measured on leak-free simulated years. Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
 
 AI-assisted research (Claude); no affiliation with the BattLeDIM organisers is implied. Code MIT; BattLeDIM data CC-BY-4.0 (Vrachimis et al.), not redistributed here.
