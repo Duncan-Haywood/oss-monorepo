@@ -70,7 +70,7 @@ test("several periods run MSTL: text, --csv columns and list parsing", () => {
   assert.equal(csv.length, 2017);
   const j = JSON.parse(run([HOURLY, "--period", "24, 168", "--json"]).out);
   assert.deepEqual(j.params.periods, [24, 168]);
-  assert.deepEqual(parseArgs(["--period", "7,365"]).period, [7, 365]);
+  assert.equal(parseArgs(["--period", "7,365"]).period, "7,365");
   assert.throws(() => parseArgs(["--period", "7,year"]), /comma-separated/);
   assert.match(HELP, /Bandara, Hyndman & Bergmeir/);
 });

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { stl, mstl, defaultMstlWindows, analyze, csvCell, parseDate, inferPeriod, defaultTrend, defaultLowPass, strengths, PAPERS, DEFAULTS } from "./engine.mjs";
+import { stl, mstl, defaultMstlWindows, parseNumberList, analyze, csvCell, parseDate, inferPeriod, defaultTrend, defaultLowPass, strengths, PAPERS, DEFAULTS } from "./engine.mjs";
 
 const ref = JSON.parse(readFileSync(new URL("./eval/reference.json", import.meta.url), "utf8"));
 const KEYS = { period: "period", seasonal: "seasonal", trend: "trend", low_pass: "lowPass", seasonal_deg: "seasonalDeg", trend_deg: "trendDeg", low_pass_deg: "lowPassDeg", seasonal_jump: "seasonalJump", trend_jump: "trendJump", low_pass_jump: "lowPassJump", robust: "robust" };
@@ -321,4 +321,24 @@ test("analyze: MSTL settings, dropped periods and bad lists", () => {
   assert.ok(dropped.warnings.some((w) => /1200 is at least half the series length/.test(w)));
   assert.match(analyze({ csv: HOURLY, period: "24, x" }).error, /whole number of at least 2/);
   assert.match(analyze({ csv: HOURLY, period: "24, 24" }).error, /listed twice/);
+});
+
+test("period lists: '24,168' is two periods on short data, '8,760' one period when it fits", () => {
+  assert.deepEqual(parseNumberList("24, 168").values, [24, 168]);
+  assert.deepEqual(parseNumberList("24 168;7").values, [24, 168, 7]);
+  assert.deepEqual(parseNumberList("24,168", 1008).values, [24, 168]);
+  assert.deepEqual(parseNumberList("24,168", 30000).values, [24168]);
+  assert.deepEqual(parseNumberList("8,760, 24", 20000), { values: [8760, 24], grouped: ["8,760"] });
+  assert.deepEqual(parseNumberList("13,21").values, [13, 21]);
+  assert.deepEqual(parseNumberList([168, 24]).values, [168, 24]);
+  // On the 2,016-hour example "24,168" cannot be one period of 24,168, so it is two.
+  const r = analyze({ csv: HOURLY, period: "24,168" });
+  assert.deepEqual(r.periods, [24, 168]);
+  assert.ok(!r.warnings.some((w) => /read as one number/.test(w)));
+  // A grouped single number becomes plain STL with a note.
+  const vals = Array.from({ length: 2600 }, (_, i) => Math.sin((2 * Math.PI * i) / 1200) + 0.001 * i);
+  const one = analyze({ values: vals, period: "1,200" });
+  assert.equal(one.method, "STL");
+  assert.equal(one.period, 1200);
+  assert.ok(one.warnings.some((w) => /"1,200" was read as one number, 1200/.test(w)));
 });

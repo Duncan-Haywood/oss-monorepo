@@ -84,9 +84,9 @@ export function parseArgs(argv) {
       }
       const key = FLAGS[name];
       if (LISTS.has(key) && /[,;\s]/.test(String(v).trim())) {
-        const parts = String(v).split(/[,;\s]+/).filter(Boolean);
-        if (!parts.length || parts.some((x) => !Number.isFinite(Number(x)))) throw new Error(`${name} needs a number or a comma-separated list of numbers, got "${v}"`);
-        o[key] = parts.map(Number);
+        // Kept as text: the engine reads it (parseNumberList), deciding "8,760" vs "24,168" from the series length.
+        if (!/^[\d\s,;]+$/.test(String(v).trim())) throw new Error(`${name} needs a number or a comma-separated list of numbers, got "${v}"`);
+        o[key] = String(v).trim();
         continue;
       }
       if (NUMERIC.has(key) && !Number.isFinite(Number(v))) throw new Error(`${name} needs a number, got "${v}"`);

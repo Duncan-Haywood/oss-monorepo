@@ -562,6 +562,35 @@ export function mstl(values, opts = {}) {
   };
 }
 
+const GROUPED = /^\d{1,3}(,\d{3})+$/;
+
+/**
+ * Read a list of periods or windows typed as text: "24, 168", "24 168",
+ * "7;365". A token such as "8,760" is ambiguous (the hours in a year, or the
+ * periods 8 and 760); it is read as one number when that number is below
+ * `limit` (for periods, half the series length, so it could be fitted) and
+ * the two-period reading otherwise, so "24,168" on 12 weeks of hourly data is
+ * two periods and "8,760" on three years of it is one. Returns
+ * { values, grouped } where grouped lists the tokens read as one number.
+ */
+export function parseNumberList(v, limit = Infinity) {
+  if (Array.isArray(v)) return { values: v.map(Number), grouped: [] };
+  const values = [];
+  const grouped = [];
+  for (const raw of String(v ?? "").split(/[\s;+]+/)) {
+    const tok = raw.replace(/^,+|,+$/g, "");
+    if (!tok) continue;
+    const whole = Number(tok.replace(/,/g, ""));
+    if (GROUPED.test(tok) && whole < limit) {
+      values.push(whole);
+      grouped.push(tok);
+      continue;
+    }
+    for (const part of tok.split(",")) values.push(part === "" ? NaN : Number(part));
+  }
+  return { values, grouped };
+}
+
 const toInt = (v) => (v === undefined || v === null || v === "" ? undefined : Number(v));
 
 /**
@@ -642,8 +671,18 @@ export function analyze(input = {}) {
   const hasDates = times.length > 0 && times.every((t) => t !== null);
   const guess = hasDates ? inferPeriod(times) : null;
   // Several periods ("24, 168" or an array) switch to MSTL.
-  const listOf = (v) => (Array.isArray(v) ? v : String(v ?? "").trim() === "" ? [] : String(v).split(/[\s,;+]+/).filter(Boolean)).map(Number);
-  const periodList = input.periods !== undefined ? listOf(input.periods) : /[\s,;+]/.test(String(input.period ?? "").trim()) ? listOf(input.period) : null;
+  const listOf = (v, limit) => {
+    const r = parseNumberList(v, limit);
+    for (const g of r.grouped) warnings.push(`"${g}" was read as one number, ${g.replace(/,/g, "")}. For separate periods, put a space after the comma.`);
+    return r.values;
+  };
+  const periodText = input.periods !== undefined ? input.periods : /[\s,;+]/.test(String(input.period ?? "").trim()) ? input.period : null;
+  let periodList = periodText === null ? null : listOf(periodText, raw.length / 2);
+  if (periodList && periodList.length === 1) {
+    // One number after all (e.g. "8,760"): plain STL.
+    input = { ...input, period: periodList[0] };
+    periodList = null;
+  }
   if (periodList && periodList.some((p) => !Number.isInteger(p) || p < 2)) return { error: "Each period must be a whole number of at least 2, separated by commas (for hourly data: 24, 168)." };
   const multi = periodList !== null && periodList.length > 1;
   let period = periodList ? periodList[0] : toInt(input.period);
