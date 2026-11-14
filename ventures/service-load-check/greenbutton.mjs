@@ -265,6 +265,9 @@ export function espiToCsv(xml) {
   const r = espiRows(xml);
   if (!r.rows.length) return { csv: "", unit: null, notes: r.notes };
   const lines = [r.unit === "kw" ? "Interval start (local),Demand (kW)" : "Interval start (local),Usage (kWh)"];
-  for (const x of r.rows) lines.push(`${fmt(x.t)},${+x.v.toFixed(6)}`);
+  // Cells are a formatted date and a parsed number, but the file could be opened in a spreadsheet:
+  // keep the formula-injection guard anyway, with the number exemption anchored at both ends.
+  const cell = (v) => { const c = String(v); return /^[=+\-@\t\r]/.test(c) && !/^-?\d+(\.\d+)?$/.test(c) ? "'" + c : c; };
+  for (const x of r.rows) lines.push(`${cell(fmt(x.t))},${cell(+x.v.toFixed(6))}`);
   return { csv: lines.join("\n"), unit: r.unit, notes: r.notes };
 }
