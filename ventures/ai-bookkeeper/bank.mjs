@@ -206,23 +206,48 @@ export function parseDate(v, dayFirst = false) {
   return dt.toISOString().slice(0, 10);
 }
 
+// alias -> [[key, its first position in that key's list], ...], built on first use.
+let ALIAS_RANKS = null;
+function aliasRanks() {
+  const m = new Map();
+  for (const [k, list] of Object.entries(ALIASES)) list.forEach((a, rank) => {
+    const hits = m.get(a) ?? [];
+    if (!hits.some(([key]) => key === k)) hits.push([k, rank]);
+    m.set(a, hits);
+  });
+  return m;
+}
+
+// Each key takes the cell holding its earliest-listed alias, at that cell's first position:
+// what scanning the normalised row for each alias in turn (h.indexOf) finds, in one pass
+// over the cells. Exported with ALIASES for the test that pins the two together.
+export function aliasColumns(h) {
+  ALIAS_RANKS ??= aliasRanks();
+  const best = Object.fromEntries(Object.keys(ALIASES).map((k) => [k, [Infinity, -1]]));
+  for (let i = 0; i < h.length; i++) {
+    const hits = ALIAS_RANKS.get(h[i]);
+    if (hits) for (const [k, rank] of hits) if (rank < best[k][0]) best[k] = [rank, i];
+  }
+  return Object.fromEntries(Object.keys(ALIASES).map((k) => [k, best[k][1]]));
+}
+export { ALIASES as COLUMN_ALIASES };
+
 const norm = (h) => String(h).trim().toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").replace(/^"|"$/g, "").replace(/^#/, "");
 
 export function detectColumns(header) {
   const h = header.map(norm);
-  const find = (key) => {
-    for (const a of ALIASES[key]) { const i = h.indexOf(a); if (i !== -1) return i; }
-    return -1;
-  };
-  const cols = Object.fromEntries(Object.keys(ALIASES).map((k) => [k, find(k)]));
+  const cols = aliasColumns(h);
   // A currency code after the column name ("Amount USD", "Betrag EUR",
   // "Balance GBP", "Debit CAD") names the same column as the bare word.
   // Also "Amount in EUR", "Betrag in EUR", "Amount, EUR" and "Amount - EUR".
   const CCY = /^(.+?)[\s,:\-–]*(?:\bin\b\s*)?[(\[]?\s*(?:in\s+)?[a-z]{3}\s*[)\]]?$/;
+  // The pattern is matched once per cell, not once per cell per key.
+  let ccy = null;
   for (const k of ["amount", "debit", "credit", "balance"]) {
     if (cols[k] !== -1) continue;
+    ccy ??= h.map((x) => CCY.exec(x));
     cols[k] = h.findIndex((x, i) => {
-      const m = CCY.exec(x);
+      const m = ccy[i];
       // "Paid In (GBP)", "Money in GBP": the pattern's optional "in" ate the name's own last word
       return m && (ALIASES[k].includes(m[1]) || ALIASES[k].includes(m[1] + " in")) && !Object.values(cols).includes(i);
     });
@@ -953,20 +978,28 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       return { rows: [], problems: ["This is a crypto account history (Timestamp, Balance, Amount and Currency columns holding coins such as BTC), not a cash statement: the amounts are coin units, not dollars. Export the transaction report with USD totals or the bank's own file instead."], columns: null };
   }
   // A header-less file with a few lines of account summary above the data: drop leading rows until the rest has a layout.
-  const hasHeader = (r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); };
+  // Whether a row names a date and an amount column, worked out once per row: a file with no
+  // header asks it of every row three times below (nothing changes a row's cells in between).
+  const namesMemo = new Map();
+  const namesColumns = (r) => {
+    let v = namesMemo.get(r);
+    if (v === undefined) { const c = detectColumns(r); v = c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); namesMemo.set(r, v); }
+    return v;
+  };
+  const hasHeader = (r) => r.length >= 2 && namesColumns(r);
   if (!rows.some(hasHeader) && !headerlessLayout(rows)) {
     for (let k = 1; k <= Math.min(10, rows.length - 2); k++) {
       if (headerlessLayout(rows.slice(k))) { rows.splice(0, k); problems.push(`${k} line${k === 1 ? "" : "s"} above the first transaction ${k === 1 ? "was" : "were"} skipped as a preamble.`); break; }
     }
   }
-  if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && !headerlessLayout(rows)) {
+  if (!rows.some(hasHeader) && !headerlessLayout(rows)) {
     const t = readStatementText(text, { dayFirst, decimalComma, year });
     if (t.rows.length) { if (invert === true) for (const x of t.rows) x.cents = -x.cents; return t; }
     if (t.problems.length) return t;
   }
   if (rows.length < 2 && !(rows.length === 1 && headerlessLayout(rows))) return { rows: [], problems: ["The file has no data rows."], columns: null };
   const bank = sniffBank(rows);
-  let headerAt = rows.findIndex((r) => { const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); });
+  let headerAt = rows.findIndex(namesColumns);
   let columns, first;
   // A header wider than every data row (Danske's Lithuanian export names 12 columns and writes 10):
   // the header's positions are wrong, so drop it and find the columns from the cells.
