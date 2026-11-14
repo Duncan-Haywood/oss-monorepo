@@ -1,6 +1,6 @@
 ---
 title: "Virginia's Statute Says 4%. Its Sales Tax Form Says 1.116%."
-seo_title: "Virginia Dealer Discount and Michigan Sales Tax Discount, Worked From the 2026 Forms"
+seo_title: "Virginia and Michigan Sales Tax Discounts From the 2026 Forms"
 date: 2026-11-14
 tags: [ai-bookkeeper, sales-tax, small-business]
 description: "Virginia's dealer discount and Michigan's timely-filing discount, read from the states' current forms and added to ai-bookkeeper's sales tax worksheet."
