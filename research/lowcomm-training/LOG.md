@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 6s (H6 scale-up): does the knee move with H? Keep 1/8 and 1/32 at H = 16, four seeds (planned before running)
+
+- Why: 6r's "Next". The size-2 hinge (zero up to omega about 8, then 0.0057 nats per unit of omega) was fitted at one H. If the knee or slope depends on H, a practitioner cannot carry a keep level chosen at one sync interval to another.
+- What is already known at H = 16 (`scale.jsonl`, paired with uncompressed seeds): omega 3 +0.0056 (2 seeds, se 0.0069), omega 15 +0.0452 (6 seeds, se 0.0047). The omega-15 excess is flat in H: +0.045 (H 16), +0.043 (32), +0.044 (64), +0.051 (128). That flatness is why the H-independent reading is the favourite, not a settled fact.
+- Run: `scale.py run knee16`, size 2, H = 16, keep 1/8 (omega 7) and keep 1/32 (omega 31), seeds 0 to 3, plus keep 1/4 seeds 2 and 3 (to bring omega 3 to four seeds); 10 runs, paired with the uncompressed H = 16 seeds. Analysis: `experiments/gpt_scale/knee16_6s.py`, written before the runs.
+- **H6s-i** (prior 60%): the H = 16 excess at omega 31 is within 0.030 of the H = 64 value (+0.132), i.e. +0.102 to +0.162. **H6s-ii** (prior 65%): the H = 16 excess at omega 7 is within 2 se of zero (the knee is not below omega 7 at H = 16 either). **H6s-iii** (prior 60%): the hinge w0 bootstrap intervals (2.5 to 97.5 percentiles, 4,000 draws) at H = 16 and H = 64 overlap. Each is refuted if it fails as stated; a diverged run counts against H6s-i and is reported, not dropped.
+- Alternative that would refute H6s-i: more rounds at H = 16 (240 vs 60) means 4 times as many compressed syncs, so if the per-sync compression noise accumulates the omega-31 cost should be larger at H = 16; if the cost scales with the drift per round it should be smaller.
+- Not tested: other widths, a compressor other than rand-k, H other than 16 and 64 at omega 7 and 31.
+
 ## 2026-11-13 · Milestone 6r (H6 scale-up): refit on four keep levels, then keep 1/32 (omega 31) at H = 64, four seeds (planned before running)
 
 - Why: 6q's "Next". With omega 11 measured, refit the three 6p forms on four cells (analysis only), then run the cell that separates them most: keep 1/32, where the fitted forms disagree by a factor of four or more.
