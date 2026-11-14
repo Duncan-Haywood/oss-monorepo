@@ -3,7 +3,7 @@ title: "The job shop scheduler waited 300 ms on shops it could solve in 9"
 seo_title: "Exact search first: faster job shop scheduling on small shops"
 date: 2026-11-14
 tags: [job-shop-scheduler, ventures, performance, operations-research]
-description: "Running a capped branch and bound before tabu search cut the job shop scheduler's example from 305 ms to 9 ms and its test suite from 11.4 s to 0.6 s, with the same answers."
+description: "A capped exact search before tabu cut the job shop scheduler's example from 305 ms to 9 ms and its tests from 11.4 s to 0.6 s, same answers."
 ---
 
 The [job shop scheduler](https://marisstella.app/job-shop-scheduler/) landed this morning with two searches. A tabu search finds good schedules fast. On shops of up to 64 operations, an exact branch and bound then proves the best one. Tabu went first, and it stopped early only when the schedule met the lower bound. On small shops the bound is often a little loose, so tabu kept going for its full 300 ms. Then the exact search finished in a few hundred steps.
