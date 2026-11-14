@@ -791,7 +791,7 @@ the annealing search from both starts. `eval/round-refill.mjs` searches all roun
   bye) tied the circle search at 115. 14 teams stopped at 220 from the circle start, worse than the
   starter's 212. Past 12 teams the refill DFS has many more splits per move, so it needs a longer
   run or a starter start.
-- Open: 12 teams at 136 against 120 (a lower bound, or a 12-team timetable below 136); the refill
+- Open: 12 teams at 136 against a proved 124 (2026-11-14, below; a 12-team timetable below 136, or 124 to 134 ruled out); the refill
   from the climbed starters at 14 to 18 teams; refilling the second leg of a season.
 
 ## SAT bounds: 10 teams cannot go below 90 (2026-11-12)
@@ -900,6 +900,36 @@ dependencies) settles it by depth-first search over the timetable itself.
 - Not claimed: this is the non-cyclic value used throughout this README; Russell's cyclic value
   (last round to first) was not searched, and nothing here was compared with published tables,
   which were not reachable from this session.
+
+## 12 teams cannot reach 122: a matching bound and a symmetry cut (2026-11-14, later)
+
+The exact search above did not finish at 12 teams even when asked only about the floor. Two changes
+to `eval/carryover-bnb.c` make it finish there, and they keep every answer it gave at 6, 8 and 10.
+
+- **A bound that is exact for the rest of a round.** Inside one round every team is met once, so each
+  carry-over column (the team being met) gains exactly one entry, and the costs of a round's pairs add
+  without interacting. The least E the teams still unpaired in a round can add is therefore a min-cost
+  perfect matching. `can_pair` answers "is there one within the remaining budget" by depth-first search
+  with failures remembered per round start, and a branch is cut when there is not, at every node and
+  when each round starts. Alone it cuts nodes 2.6x but saves only a fifth of the time.
+- **Round 1 once per cycle type.** Rounds 0 and 1 together are disjoint alternating cycles of length 4
+  or more, and the relabellings that keep round 0 take any round 1 to any other with the same cycle
+  lengths. So round 1 is placed once per partition of the n / 2 pairs into cycles (at 12 teams four
+  ways: 12, 8 + 4, 6 + 6, 4 + 4 + 4), where the first version fixed only two teams' round-1 opponents.
+- **Measured at 10 teams** (`eval/carryover-bnb.txt`; asked value <= 88, every run "none"): first
+  version 246 M nodes, 33.5 s; bound alone 94 M, 26.8 s; symmetry alone 28 M, 3.9 s; both 10.5 M,
+  3.0 s. The proof that 94 is the least now takes 13 s at 92 instead of 145 s.
+- **12 teams** (four parts on four cores): none at 120 (about 3 min each, 1.8 billion nodes in all),
+  none at 122 (about 25 min each, 15.2 billion nodes). So **no 12-team round robin has non-cyclic
+  carry-over below 124**, and the best known timetable is 136 (README "Refilled rounds"). 124 itself
+  was not asked: each step of 2 cost about 9x, about 4 hours on four cores.
+- **On the page.** `PROVEN_LEAST[12]` is `{ least: 124, exact: false }`, so a 12-team single round
+  robin's report now says "120 is the floor for this many games, but no 12-team round robin can go
+  below 124; an exhaustive search proved it", and does not claim a schedule reaches it. Tests
+  (`carryover.test.mjs`): the circle method and the plain search at 12 teams stay at or above 124, and
+  14 teams have nothing proved.
+- Not claimed: the gap from 124 to 136 is open. Round reversal is still unused (about 2x), and so is
+  any bound across rounds; nothing here was compared with published carry-over tables.
 
 ## Starters picked with their breaks (2026-11-11, latest)
 
