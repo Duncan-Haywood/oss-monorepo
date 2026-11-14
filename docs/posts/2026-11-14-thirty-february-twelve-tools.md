@@ -1,9 +1,9 @@
 ---
 title: "Twelve Free Tools Read 30 February as 2 March. Now They Refuse It."
-seo_title: "Why JavaScript Date.UTC Turns 30 February into 2 March, and How to Refuse It"
+seo_title: "Why JavaScript Date.UTC Turns 30 February into 2 March"
 date: 2026-11-14
 tags: [redteam, testing, dates, javascript]
-description: "A lint for impossible dates missed the most common way to write the check. Widening it found 12 tools that moved a 30 February row into March, including a final-paycheck deadline."
+description: "A lint for impossible dates missed the usual way to write the check. Widening it found 12 tools that moved 30 February into March, one a paycheck deadline."
 ---
 
 JavaScript's `Date.UTC(2026, 1, 30)` doesn't fail. It returns 2 March 2026, because 30 February is two days past the end of February. Any parser that checks "month 1 to 12, day 1 to 31" and then calls `Date.UTC` quietly moves an impossible date into the next month.

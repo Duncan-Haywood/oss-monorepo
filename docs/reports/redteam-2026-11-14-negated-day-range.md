@@ -1,7 +1,7 @@
 ---
 kind: note
 date: 2026-11-14
-topics: [redteam, ci, dates]
+topics: [redteam, ci]
 ---
 # Negated day range; Date.UTC on raw regex groups (redteam, 2026-11-14)
 
