@@ -779,9 +779,39 @@ stacked pair). The two misses: a quilisma stacked under the next note, narrow en
 rhombus test first, and one with no visible teeth in the scan. On the same nine pieces the
 rhombus rule, untouched, read 243 of 245 rhombi and called none of 1,604 squares a rhombus.
 
-**Not done:** liquescents (25 in the fresh GABC, none paired). Pairing is also the limit for
+**Not done** (then): liquescents (25 in the fresh GABC, none paired; done 2026-11-14, next section). Pairing is also the limit for
 quilismas: 22 of the 39 fresh ones are not paired by pitch, so a GABC that drops a quilisma's
 `w` is only caught where the reader and the alignment both find the note.
+
+### Liquescent (2026-11-14)
+
+```sh
+node ventures/chant-forge/eval/shape-check.mjs    # same scans and cache as scan-check
+```
+
+A liquescent in the 1908 type is a small note hung off the head before it on a short, thick
+stem at the head's right edge: a small head above (epiphonus, `gh~`) or a hook below
+(cephalicus, `fe~`). It is under the reader's minimum head height, so until now it was never
+read. `liquescentTail` in `scan.mjs` follows the ink up and down from each head's right-hand
+columns and calls it a liquescent when the tail runs 0.6-2.4 spaces from the head's centre,
+ends on no other head, is thicker than a virga's stem and ends 0.2-0.4 spaces wide; the
+small note's pitch is read 0.25 spaces in from the tail's end, and the note is read straight
+after its head. Thresholds were set on the 21 pieces already scanned (51 of 57 liquescents at
+the right pitch, 2 of 4,524 other heads given a tail), then frozen and run on eleven more
+GregoBase pieces listed and scanned only afterwards (`eval/liquescent-fresh-pages.json`):
+
+| set | GABC liquescents | read as liquescent at their pitch | other heads called liquescent |
+|---|---|---|---|
+| set on (21 pieces) | 60 | 54 | 2 of 4,584 |
+| held out (11 pieces) | 26 | 20 | 1 of 1,622, plus 1 added note that pairs with nothing |
+
+With the small notes read, `scan-check.mjs` checks 33 more notes against the book with no
+new disagreement (Te Deum 633 of 634 agree, Salve Regina 219, the GregoBase pieces 1,196).
+The same eleven pieces also test the older rules: rhombi 180 of 182, 5 of 1,428 squares
+called rhombi; quilismas 10 of 12, 17 of 1,631 other heads called quilismas (more than
+before, not looked at yet). Details and the false calls, looked at on the scan:
+`eval/liquescent-check-report.md`. **Not done:** epiphonus and cephalicus are told apart only
+by direction, `<` and `>` are not, and a liquescent after a porrectus end is not looked for.
 
 ## Not checked yet
 

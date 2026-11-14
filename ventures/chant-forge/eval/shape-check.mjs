@@ -37,15 +37,19 @@ function page(item, leaf, width = 2000) {
 
 const manifest = JSON.parse(readFileSync(join(here, 'scan-pages.json'), 'utf8'));
 const fresh = JSON.parse(readFileSync(join(here, 'shape-fresh-pages.json'), 'utf8')).pieces.map((p) => ({ ...p, fresh: true }));
+const liqFresh = JSON.parse(readFileSync(join(here, 'liquescent-fresh-pages.json'), 'utf8')).pieces.map((p) => ({ ...p, liqFresh: true }))
+  .filter(() => !args.includes('--without-liquescent-fresh'));
 const SHAPES = ['punctum', 'virga', 'rhombus', 'quilisma', 'liquescent', 'oriscus', 'stropha'];
-const empty = () => Object.fromEntries(SHAPES.map((k) => [k, { inGabc: 0, paired: 0, rhombus: 0, quilisma: 0, square: 0, none: 0 }]));
-const SETS = { tuned: 'tuned on', held: 'held out', fresh: 'fresh' };
-const sets = { tuned: empty(), held: empty(), fresh: empty() };
+const empty = () => Object.fromEntries(SHAPES.map((k) => [k, { inGabc: 0, paired: 0, rhombus: 0, quilisma: 0, liquescent: 0, square: 0, none: 0 }]));
+const SETS = { tuned: 'tuned on', held: 'held out', fresh: 'fresh', liq: 'liquescent fresh' };
+const sets = { tuned: empty(), held: empty(), fresh: empty(), liq: empty() };
+const liqOnly = { tuned: 0, held: 0, fresh: 0, liq: 0 }; // liquescent notes the reader adds that pair with no GABC note
+const oddL = [];
 const oddQ = [];
 const perPiece = [];
 const odd = [];
-[...manifest.pieces, ...fresh].forEach((piece, idx) => {
-  const set = piece.fresh ? 'fresh' : idx < TUNED ? 'tuned' : 'held';
+[...manifest.pieces, ...fresh, ...liqFresh].forEach((piece, idx) => {
+  const set = piece.liqFresh ? 'liq' : piece.fresh ? 'fresh' : idx < TUNED ? 'tuned' : 'held';
   const g = gabcSteps(readFileSync(join(root, piece.gabc), 'utf8'));
   const scan = [];
   for (const p of piece.pages) {
@@ -57,11 +61,19 @@ const odd = [];
   const t = empty();
   for (let q = r.startJ; q < r.endJ; q++) { t[g[q].shape].inGabc++; sets[set][g[q].shape].inGabc++; }
   for (const [p, q] of r.pairs) {
+    const where = p === null ? '' : `p. ${scan[p].page} (leaf ${scan[p].leaf}), staff ${scan[p].staff}, x ${scan[p].x}`;
+    if (p !== null && scan[p].shape === 'liquescent' && (q === null || scan[p].rel !== g[q].rel)) {
+      liqOnly[set]++;
+      oddL.push(`| ${piece.name} | ${SETS[set]} | ${q === null ? '(none)' : g[q].text || '?'} | ${q === null ? '' : g[q].group} | ${q === null ? 'no note' : 'other pitch'} | liquescent | ${where} |`);
+    }
     if (p === null || q === null || scan[p].rel !== g[q].rel) continue;
     const want = g[q].shape, saw = scan[p].shape || 'none';
     for (const c of [t[want], sets[set][want]]) { c.paired++; c[saw]++; }
     if ((want === 'rhombus') !== (saw === 'rhombus') && saw !== 'none' && ['punctum', 'rhombus'].includes(want)) {
       odd.push(`| ${piece.name} | ${SETS[set]} | ${g[q].text || '?'} | ${g[q].group} | ${want} | ${saw} | p. ${scan[p].page} (leaf ${scan[p].leaf}), staff ${scan[p].staff}, x ${scan[p].x} |`);
+    }
+    if ((want === 'liquescent') !== (saw === 'liquescent') && saw !== 'none') {
+      oddL.push(`| ${piece.name} | ${SETS[set]} | ${g[q].text || '?'} | ${g[q].group} | ${want} | ${saw} | ${where} |`);
     }
     if ((want === 'quilisma') !== (saw === 'quilisma') && saw !== 'none') {
       oddQ.push(`| ${piece.name} | ${SETS[set]} | ${g[q].text || '?'} | ${g[q].group} | ${want} | ${saw} | p. ${scan[p].page} (leaf ${scan[p].leaf}), staff ${scan[p].staff}, x ${scan[p].x} |`);
@@ -92,14 +104,20 @@ const L = [
   'quilisma recall on it is (the added rule can only remove calls). The eye check of the fresh calls',
   'is in `quilisma-eye-check.md`.',
   '',
-  '| set | GABC shape | in the GABC span | paired by pitch | read as rhombus | read as quilisma | read as square |',
-  '|---|---|---|---|---|---|---|',
+  '**Liquescents (2026-11-14).** The reader now hangs a liquescent\'s small note off its head',
+  '(`liquescentTail`). Its thresholds were set on all 21 pieces above (tuned, held out and fresh),',
+  'so on those sets the liquescent figures are not held out. "Liquescent fresh" is the eleven pieces',
+  'in `liquescent-fresh-pages.json`, listed and first scanned after those thresholds were frozen.',
+  'Liquescent figures in more detail: `liquescent-check-report.md`.',
+  '',
+  '| set | GABC shape | in the GABC span | paired by pitch | read as rhombus | read as quilisma | read as liquescent | read as square |',
+  '|---|---|---|---|---|---|---|---|',
 ];
 for (const set of Object.keys(SETS)) {
   for (const k of SHAPES) {
     const c = sets[set][k];
     if (!c.inGabc) continue;
-    L.push(`| ${SETS[set]} | ${k} | ${c.inGabc} | ${c.paired} | ${pct(c.rhombus, c.paired)} | ${pct(c.quilisma, c.paired)} | ${pct(c.square, c.paired)} |`);
+    L.push(`| ${SETS[set]} | ${k} | ${c.inGabc} | ${c.paired} | ${pct(c.rhombus, c.paired)} | ${pct(c.quilisma, c.paired)} | ${pct(c.liquescent, c.paired)} | ${pct(c.square, c.paired)} |`);
   }
 }
 L.push('', '## Per piece', '', '| piece | set | rhombi in GABC | paired | read as rhombus | quilismas in GABC | paired | read as quilisma | squares (punctum, virga) paired | read as rhombus | read as quilisma |', '|---|---|---|---|---|---|---|---|---|---|---|');
@@ -114,12 +132,18 @@ else L.push('None.');
 L.push('', '## Quilisma disagreements to look at', '');
 if (oddQ.length) L.push(...head, ...oddQ);
 else L.push('None.');
+L.push('', '## Liquescent disagreements to look at', '', 'A GABC liquescent the reader saw as another shape, a head read as a liquescent, or a liquescent note the reader added that pairs with no GABC note of its pitch.', '');
+if (oddL.length) L.push(...head, ...oddL);
+else L.push('None.');
 L.push('');
 writeFileSync(out, L.join('\n'));
 for (const set of Object.keys(SETS)) {
   const c = sets[set];
   const other = SHAPES.filter((k) => k !== 'quilisma').reduce((n, k) => n + c[k].quilisma, 0);
   const otherPaired = SHAPES.filter((k) => k !== 'quilisma').reduce((n, k) => n + c[k].paired, 0);
+  const otherL = SHAPES.filter((k) => k !== 'liquescent').reduce((n, k) => n + c[k].liquescent, 0);
+  const otherPairedL = SHAPES.filter((k) => k !== 'liquescent').reduce((n, k) => n + c[k].paired, 0);
+  console.log(`${set}: liquescents ${c.liquescent.liquescent}/${c.liquescent.inGabc} in GABC read as liquescent at their pitch; other heads called liquescent ${otherL}/${otherPairedL}; added liquescents with no GABC note at their pitch ${liqOnly[set]}`);
   console.log(`${set}: rhombi ${c.rhombus.rhombus}/${c.rhombus.paired} read as rhombus; squares called rhombus ${c.punctum.rhombus + c.virga.rhombus}/${c.punctum.paired + c.virga.paired}; quilismas ${c.quilisma.quilisma}/${c.quilisma.paired} read as quilisma (${c.quilisma.inGabc} in GABC); other heads called quilisma ${other}/${otherPaired}; liquescents paired ${c.liquescent.paired}/${c.liquescent.inGabc}`);
 }
-console.log(`${odd.length} rhombus and ${oddQ.length} quilisma disagreement(s); wrote ${out}`);
+console.log(`${odd.length} rhombus, ${oddQ.length} quilisma and ${oddL.length} liquescent disagreement(s); wrote ${out}`);

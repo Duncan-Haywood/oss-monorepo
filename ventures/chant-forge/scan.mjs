@@ -9,7 +9,9 @@
 // shows only part of a piece is placed where it belongs.
 //
 // A porrectus stroke is read as its two ends. Each head is also called a
-// rhombus, a quilisma or a square (headShape). What it does not read: the clef's type (c or f is taken from the GABC), accidentals, rhythmic
+// rhombus, a quilisma or a square (headShape), and a liquescent's small
+// note, hung off its head on a short stem, is read too (liquescentTail).
+// What it does not read: the clef's type (c or f is taken from the GABC), accidentals, rhythmic
 // signs and the text. Those come out as gaps in the alignment, which is why
 // the report gives the disagreements to look at by eye rather than a verdict.
 // No dependencies: the page comes in as a binary PGM (ffmpeg or ImageMagick
@@ -236,6 +238,12 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     if (!o.feat) continue;
     o.feat.afterStroke = out.some((t) => t !== o && t.x0 < o.x0 && t.x1 - t.x0 + 1 > 0.8 * s && o.x0 - t.x1 <= 0.2 * s && Math.abs(t.y - o.y) <= 0.8 * s);
   }
+  // a liquescent's small note hangs off its head on a short stem
+  // (liquescentTail); it is kept on the head and read after it (readPage)
+  for (const o of out) {
+    const t = liquescentTail(isInk, o, out, staff, y0, y1);
+    if (t) o.liq = t;
+  }
   // reading order: left to right; heads sharing columns are read bottom-up
   out.sort((p, q) => p.x - q.x);
   const ordered = [];
@@ -319,13 +327,78 @@ export function notchRows(bin, x0, x1, c, s) {
 // of 951 squares): eval/shape-check-report.md. A head with three or more
 // notched rows (notchRows) is a quilisma: set on the same five pieces (6 of
 // 6 quilismas, 3 of 1,538 other heads), checked on pieces that played no
-// part in it (same report). Liquescents are not told apart from squares.
+// part in it (same report). Liquescents are found separately (liquescentTail).
 export const QUILISMA_ROWS = 3;
 export function headShape(f) {
   if (!f) return null;
   if (f.w < 0.42 && f.taper < 0.8) return 'rhombus';
   if (f.notch >= QUILISMA_ROWS && !f.afterStroke) return 'quilisma';
   return 'square';
+}
+
+// A liquescent in the 1908 type is a small note joined to the head before
+// it by a short stem at the head's right edge: the epiphonus (gh~) is a
+// head with a stem rising to a small head above it, the cephalicus (fe~) a
+// head with a hook hanging below its right edge. The small note is under
+// the reader's minimum head height, so readStaff never finds it as a head.
+// liquescentTail follows the ink up and down from the head's centre in its
+// right-hand columns (gaps up to 0.2 staff spaces bridged, for breaks in
+// the print and the staff lines), and calls it a liquescent tail when:
+//   - it runs 0.6 to 2.4 spaces from the centre (a head's own half height
+//     is about 0.3),
+//   - no other head sits at its end (that is a podatus or a clivis),
+//   - it is thick, 0.1 spaces or more on average past the head's edge (a
+//     virga's stem is thinner), and
+//   - its last 0.3 spaces are 0.2 to 0.4 spaces wide at the median row (a
+//     small head or hook; a full head beside an unread note is wider).
+// The small note's pitch is the staff position 0.25 spaces in from the
+// tail's end. Thresholds set on the 21 pieces of eval/scan-pages.json and
+// eval/shape-fresh-pages.json (51 of 57 liquescents found at the right
+// pitch, 2 of 4,524 other heads given a tail) and then tested on pieces
+// scanned only after they were frozen: eval/liquescent-check-report.md.
+export const LIQ = { minLen: 0.6, maxLen: 2.4, gap: 0.2, minThick: 0.1, minEnd: 0.2, maxEnd: 0.4 };
+export function liquescentTail(isInk, h, heads, staff, y0, y1) {
+  const s = staff.space;
+  const c = Math.round(h.y);
+  const k = Math.max(1, Math.round(0.12 * s));
+  const across = (x, y) => {
+    let a = x, b = x;
+    while (a - 1 > x - s && isInk(a - 1, y)) a--;
+    while (b + 1 < x + s && isInk(b + 1, y)) b++;
+    return b - a + 1;
+  };
+  let best = null;
+  for (const dir of [-1, 1]) {
+    let len = 0, bx = h.x1;
+    for (let x = h.x1 - k; x <= h.x1 + 1; x++) {
+      let y = c, gap = 0, end = c;
+      while (Math.abs(y - c) < 3 * s) {
+        y += dir;
+        if (y < y0 || y > y1) break;
+        if (isInk(x, y)) { end = y; gap = 0; } else if (++gap > LIQ.gap * s) break;
+      }
+      if (Math.abs(end - c) > len) { len = Math.abs(end - c); bx = x; }
+    }
+    if (len <= LIQ.minLen * s || len >= LIQ.maxLen * s) continue;
+    const yE = c + dir * len;
+    let thick = 0, nt = 0;
+    for (let y = c + dir * Math.round(0.4 * s); dir * (yE - y) > 0.05 * s; y += dir) {
+      if (!isInk(bx, y)) continue;
+      thick += across(bx, y); nt++;
+    }
+    if (!nt || thick / nt < LIQ.minThick * s) continue;
+    const ws = [];
+    for (let d = 0; d <= Math.round(0.3 * s); d++) if (isInk(bx, yE - dir * d)) ws.push(across(bx, yE - dir * d));
+    ws.sort((p, q) => p - q);
+    const endW = ws.length ? ws[Math.floor(ws.length / 2)] : 0;
+    if (endW < LIQ.minEnd * s || endW >= LIQ.maxEnd * s) continue;
+    const y = yE - dir * 0.25 * s;
+    const hit = heads.some((o) => o !== h && Math.sign(o.y - h.y) === dir && Math.abs(o.y - h.y) > 0.3 * s &&
+      Math.abs(o.y - y) < 0.4 * s && o.x0 <= bx + 0.6 * s && o.x1 >= bx - 0.3 * s);
+    if (hit) continue;
+    if (!best || len > best.len) best = { len, x: bx, y, pos: Math.round((staff.bottom - y) / (s / 2)) };
+  }
+  return best && { x: best.x, y: best.y, pos: best.pos };
 }
 
 // The clef is the first glyph on the staff: its two blocks sit either side
@@ -373,12 +446,14 @@ export function readPage(img, opts = {}) {
     let notes = clef ? heads.filter((h) => h.x0 > clef.x1) : heads;
     const last = notes[notes.length - 1];
     if (last && last.x1 > staff.right - 0.9 * staff.space) notes = notes.slice(0, -1);
+    // a liquescent's small note is read straight after its head
+    notes = notes.flatMap((h) => (h.liq ? [h, { ...h.liq, liquescent: true }] : [h]));
     return {
       staff: k + 1,
       top: staff.top,
       space: staff.space,
       clefPos: clef ? clef.pos : null,
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null, shape: headShape(h.feat) })),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(h.y), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat) })),
     };
   });
 }
