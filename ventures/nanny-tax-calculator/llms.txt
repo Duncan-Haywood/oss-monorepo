@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it answers
+
+In 2026 a household employer owes Social Security and Medicare tax once one employee's cash wages reach $3,000 for the year: 7.65% withheld from the employee and 7.65% from you, with Social Security stopping at $184,500. Federal unemployment (FUTA) tax applies once you pay $1,000 in cash wages in any calendar quarter: 6% of the first $7,000 per employee, usually 0.6% after the credit for state unemployment tax. Source: IRS Publication 926 (2026). As of 2026-11-14.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/nanny-tax-calculator/)
