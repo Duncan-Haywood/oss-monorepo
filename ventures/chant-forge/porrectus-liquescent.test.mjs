@@ -25,10 +25,9 @@ test('torculus, separated notes, rhombi, virgas and plain porrectus are not', ()
   assert.deepEqual(flagsOf('hfg'), [false, false, false]);
 });
 
-test('one flag per gabcSteps note on every corpus file', () => {
-  const dir = join(here, 'corpus', 'gregobase-1908');
+test('one flag per gabcSteps note on every 1908 GregoBase file', () => {
   let porr = 0;
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.gabc'))) {
+  for (const dir of ['gregobase-1908', 'gregobase-1908-checked'].map((d) => join(here, 'corpus', d))) for (const f of readdirSync(dir).filter((x) => x.endsWith('.gabc'))) {
     const src = readFileSync(join(dir, f), 'utf8');
     const flags = porrectusLiquescents(src);
     assert.equal(flags.length, gabcSteps(src).length, f);

@@ -92,3 +92,14 @@ Rules:
   here before copying any of them (done for GregoBase above).
 - **Every piece must pass** `node ../cli.mjs piece.gabc`'s mode/final check, or
   the file must say why it doesn't (for example, a transposed final).
+
+## Scan-checked additions from the 1908 Graduale (added 2026-11-14)
+
+`gregobase-1908-checked/` holds twelve more unmodified GregoBase downloads (ids 3462, 3486, 3497,
+3523, 3606, 3650, 3727, 3831, 3905, 3912, 3948, 3949; transcriber Andrew Hinkley, CC0 per the
+GregoBase FAQ). They are every piece citing the 1908 Graduale among ids 3461-3999 with a
+liquescent ending a porrectus, fetched for `../eval/porrectus-liquescent-check.md`. Each was read
+against its page of the 1908 scan with `../eval/scan-check.mjs --manifest`: 2,030 notes agree, 5
+differ (not yet looked at). They sit in their own folder so the arrangement figures counted over
+`gregobase-1908/` (split, choir, three- and four-section reports) stay as published; a later
+session can fold them in and restate those figures together.

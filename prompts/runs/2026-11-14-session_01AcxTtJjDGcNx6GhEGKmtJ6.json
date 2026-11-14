@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJjDGcNx6GhEGKmtJ6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T17:22:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 11 chant-forge (allocator row 9): liquescents after a porrectus end",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15918",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Adding the twelve new GABC files to corpus/gregobase-1908/ broke six split.test.mjs tests that pin corpus-wide counts (68 files)",
+      "fix": "moved them to corpus/gregobase-1908-checked/ so the published arrangement figures stay valid; noted in corpus/README.md"
+    },
+    {
+      "what": "First post front matter: description 177 chars, seo_title 88",
+      "fix": "shortened; check_post_frontmatter.py clean"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/liquescent-check-report.md",
+      "issue": "'Not done' said liquescents after a porrectus end were not looked for, implying a stroke-shaped glyph; the 1908 type prints two heads with an epiphonus-like tail and the existing detector already read 16 of 19. Counting and cropping first took about 20 minutes and avoided building a detector for a glyph the book doesn't print."
+    },
+    {
+      "file": "ventures/chant-forge/split.test.mjs",
+      "issue": "corpus-wide counts are pinned over every file in corpus/gregobase-1908/, so adding any GABC there forces restating figures in several eval reports and the README; not documented in corpus/README.md (now noted there)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`git checkout -b <branch>` failed because the harness had already created the work branch; harmless, but the land-your-work steps could say the branch may already exist."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed item (build detection for porrectus-end liquescents) turned out to rest on a wrong guess about the print; building it would have added nothing",
+      "did": "measured it (tuning and held-out lists committed before reading), left the rule unchanged after a sweep showed loosening adds false calls, and replaced the item in next: with the real remaining gap (one-step hook ending on a staff line)",
+      "result": "16 of 19 read, 8 of 10 held out; 12 more pieces checked note by note against the book (2,030 agree, 5 differ)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-chant-gap-that-was-not-there.md",
+    "ventures/chant-forge/eval/porrectus-liquescent-check.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test on chant-forge (porrectus-liquescent, split, choir, batch, chant-forge tests pass); full run_venture_tests.py chant-forge and venture-preflight rerun after the corpus move (see PR). Scan evals run here: porrectus-liquescent-check (tuning 6/6, held out 8/10, 1 of 1,060 false), shape-check baseline unchanged, maxEnd sweep 0.43/0.46 (+2/+10 false calls, 0 gained), scan-check --manifest on 12 new pieces (2,030 agree, 5 differ, planted errors caught 196-200/200). GregoBase and archive.org both answered from the cloud proxy.",
+  "corrections": [],
+  "redteam": null
+}

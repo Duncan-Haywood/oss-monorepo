@@ -1,9 +1,9 @@
 ---
 title: "The chant-scanner gap that wasn't there"
-seo_title: "Porrectus liquescents in the 1908 Vatican Graduale: measuring a guessed gap in chant OCR"
+seo_title: "Porrectus liquescents in chant OCR: measuring a guessed gap"
 date: 2026-11-14
 tags: [music, gregorian-chant, optical-music-recognition, open-source, chant-forge, methodology]
-description: "Chant Forge's notes said its scan reader could not see a liquescent at the end of a porrectus. We checked on 19 of them before building anything, and the reader already read 16."
+description: "A chant scan reader was said to miss liquescents that end a porrectus. Measured on 19 before building a fix, it already read 16."
 ---
 
 Chant Forge turns public-domain Gregorian chant into MIDI for a men's choir, and checks every transcription it uses against scans of the 1908 Vatican Graduale. This morning its scan reader learned to see [liquescents](2026-11-14-the-chant-notes-a-scanner-could-not-see.md), the small half-sung notes printed where a syllable glides through a consonant. That write-up ended with a list of things not done. One of them was "a liquescent at the end of a porrectus is not looked for".

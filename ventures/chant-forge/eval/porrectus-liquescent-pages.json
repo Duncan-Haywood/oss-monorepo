@@ -3,7 +3,7 @@
   "pieces": [
     {
       "name": "GregoBase 3462 (Ipse est directus)",
-      "gabc": "corpus/gregobase-1908/3462.gabc",
+      "gabc": "corpus/gregobase-1908-checked/3462.gabc",
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "local": true,
@@ -24,7 +24,7 @@
     },
     {
       "name": "GregoBase 3486 (Adducentur)",
-      "gabc": "corpus/gregobase-1908/3486.gabc",
+      "gabc": "corpus/gregobase-1908-checked/3486.gabc",
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "local": true,
@@ -45,7 +45,7 @@
     },
     {
       "name": "GregoBase 3497 (Afferentur... post eam)",
-      "gabc": "corpus/gregobase-1908/3497.gabc",
+      "gabc": "corpus/gregobase-1908-checked/3497.gabc",
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "local": true,
@@ -66,7 +66,7 @@
     },
     {
       "name": "GregoBase 3523 (Qui posuit fines)",
-      "gabc": "corpus/gregobase-1908/3523.gabc",
+      "gabc": "corpus/gregobase-1908-checked/3523.gabc",
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "local": true,
@@ -87,7 +87,7 @@
     },
     {
       "name": "GregoBase 3606 (Ego autem)",
-      "gabc": "corpus/gregobase-1908/3606.gabc",
+      "gabc": "corpus/gregobase-1908-checked/3606.gabc",
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "local": true,
@@ -108,7 +108,7 @@
     },
     {
       "name": "GregoBase 3650 (De ventre matris)",
-      "gabc": "corpus/gregobase-1908/3650.gabc",
+      "gabc": "corpus/gregobase-1908-checked/3650.gabc",
       "book": "Graduale Romanum, Vatican 1908",
       "archive": "gradualesacrosan0000cath",
       "local": true,

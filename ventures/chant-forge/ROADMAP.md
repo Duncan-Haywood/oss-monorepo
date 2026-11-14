@@ -144,7 +144,7 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   epiphonus-like tail, not as a stroke, so the existing detector reads them: 8 of 9 on the tuning pieces, 8 of 10 on
   six pieces listed and committed before their pages were read, 1 of 1,060 other heads called liquescent. A looser
   end-width cap added false calls and gained nothing, so the rule is unchanged. Twelve more GregoBase 1908 pieces in
-  `corpus/gregobase-1908/`; on them 2,030 notes agree with the book, 5 differ (not looked at).
+  `corpus/gregobase-1908-checked/`; on them 2,030 notes agree with the book, 5 differ (not looked at).
 
 ## Next
 

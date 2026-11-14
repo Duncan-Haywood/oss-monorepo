@@ -23,7 +23,9 @@ sixteen such notes; `porrectusLiquescents` in `porrectus-liquescent-check.mjs` f
 (`porrectus-liquescent-fresh-pages.json`). Both lists were committed (commit "list porrectus
 liquescent tuning and held-out pieces before scanning") before any of their pages was read. Three
 more porrectus liquescents were already in pieces scanned by earlier sessions (GregoBase 3444, 3457,
-3458). The twelve GABC files are unmodified GregoBase downloads, added to `corpus/gregobase-1908/`.
+3458). The twelve GABC files are unmodified GregoBase downloads, added to `corpus/gregobase-1908-checked/`, apart from
+`corpus/gregobase-1908/`, so the arrangement figures counted over that folder (split, choir and
+section reports) stay as published.
 
 ## Results
 
