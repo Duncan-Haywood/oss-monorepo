@@ -42,6 +42,20 @@
     footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
     .scroll { overflow-x: auto; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.grid:has(#p1_term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); } }
+    @media (min-width: 500px) { div.grid:has(#p2_term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); } }
+    @media (min-width: 500px) { div.grid:has(#p3_term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); } }
+    @media (min-width: 500px) { div.grid:has(#p4_term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); } }
+    @media (min-width: 500px) { div.grid:has(#p5_term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); } }
+    @media (min-width: 500px) { div.grid:has(#p6_term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

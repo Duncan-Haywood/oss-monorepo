@@ -29,6 +29,15 @@
     .err { color: #a3191f; font-weight: 600; }
   </style>
 <style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 420px) { div.cols:has(#tz) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 293px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <main>
