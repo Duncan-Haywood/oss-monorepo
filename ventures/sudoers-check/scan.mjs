@@ -831,7 +831,8 @@ export function scanFiles(files) {
   const parsed = parseStatements(ordered, notes);
   const entries = analyse(parsed, mainName, findings, notes);
   const order = new Map(files.map((f, i) => [f.name || "sudoers", i]));
-  findings.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || (order.get(a.file) ?? 0) - (order.get(b.file) ?? 0) || a.line - b.line || a.type.localeCompare(b.type));
+  const rank = (sev) => (Object.hasOwn(SEVERITY_ORDER, sev) ? SEVERITY_ORDER[sev] : 3);
+  findings.sort((a, b) => rank(a.severity) - rank(b.severity) || (order.get(a.file) ?? 0) - (order.get(b.file) ?? 0) || a.line - b.line || a.type.localeCompare(b.type));
   const rootPaths = rootPathsFrom(findings, entries);
   return { findings, notes, rootPaths };
 }
