@@ -23,6 +23,7 @@
     label { display: block; font-size: .82rem; font-weight: 600; color: #3d4f5f; }
     input, select, textarea { width: 100%; box-sizing: border-box; margin-top: 3px; font: inherit; font-size: .95rem; padding: 8px; border: 1px solid #9aabbb; border-radius: 6px; background: #fff; }
     .lines { width: 100%; border-collapse: collapse; }
+    .lines-scroll { overflow-x: auto; max-width: 100%; }
     .lines td { padding: 3px; vertical-align: top; }
     .lines th { font-size: .75rem; text-align: left; color: #52606d; }
     button { background: #0b5f8a; color: #fff; border: 0; border-radius: 8px; padding: 10px 14px; font: inherit; font-weight: 700; cursor: pointer; }
@@ -48,7 +49,7 @@
     <h2>Document</h2>
     <div class="grid">
       <label>Format <select id="format"><option value="ubl">UBL 2.1 XML</option><option value="cii">UN/CEFACT CII XML</option><option value="facturx">Factur-X / ZUGFeRD PDF (PDF/A-3, CII inside)</option></select></label>
-      <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option></select></label>
+      <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option><option value="hr">HR-CIUS 2025 (Croatia, Fiskalizacija 2.0)</option></select></label>
       <label>Type <select id="document_type"><option value="invoice">Invoice</option><option value="credit_note">Credit note</option></select></label>
       <label>Invoice number <input id="number" value="RE-2026-001"></label>
       <label>Issue date <input id="issue_date" type="date"></label>
@@ -60,8 +61,21 @@
       <label>Buyer reference (Leitweg-ID) <input id="buyer_reference"></label>
       <label>Order reference <input id="order_reference"></label>
       <label>Original invoice (credit notes) <input id="original_invoice"></label>
+      <label>Original invoice date <input id="original_invoice_date" type="date"></label>
+      <label>Deliver-to country (ISO; K defaults to the buyer's) <input id="delivery_country" maxlength="2"></label>
       <label>Already paid (prepaid) <input id="prepaid" type="number" step="0.01" min="0" value="0"></label>
       <label>Payment terms text <input id="terms" value="Payable within 30 days"></label>
+    </div>
+  </section>
+
+  <section id="hrSection" hidden>
+    <h2>Croatia (HR-CIUS 2025)</h2>
+    <p class="muted" style="font-size:.85rem">Fiskalizacija 2.0 adds these to every domestic B2B invoice. Give each line a KPD 2025 class (e.g. 62.20.30) in the lines table. An exempt (E) line makes the creator add the HR extension (HRFISK20Data) that HR-BR-26 requires. Seller and buyer e-addresses default to scheme 9934 and the OIB from the VAT ID.</p>
+    <div class="grid">
+      <label>Issue time (hh:mm:ss) <input id="issue_time" value="12:00:00" pattern="\d{2}:\d{2}:\d{2}"></label>
+      <label>Business process (P1 to P12) <input id="process" value="P1"></label>
+      <label>Operator name (who issues it) <input id="operator_name"></label>
+      <label>Operator OIB (11 digits) <input id="operator_oib" inputmode="numeric" maxlength="11"></label>
     </div>
   </section>
 
@@ -102,7 +116,7 @@
 
   <section>
     <h2>Lines</h2>
-    <table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th></th></tr></thead><tbody id="lines"></tbody></table>
+    <div class="lines-scroll"><table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>KPD (HR)</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
     <div class="actions"><button type="button" class="secondary" id="addLine">+ Add line</button></div>
     <p class="muted" style="font-size:.85rem">0% needs a category: <b>Z</b> zero-rated, <b>E</b> exempt (e.g. Kleinunternehmer § 19 UStG), <b>AE</b> reverse charge, <b>K</b> intra-EU supply, <b>G</b> export, <b>O</b> outside scope. All but Z need a reason.</p>
     <div class="totals" id="totals"></div>
@@ -151,7 +165,7 @@
         <td><select data-f="unit" aria-label="Unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
         <td><input data-f="unit_price" aria-label="Unit price (net)" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" aria-label="VAT percent" type="number" step="any" value="19" style="width:4.5em"></td>
         <td><select data-f="tax_category" aria-label="VAT category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
-        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
+        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><input data-f="kpd" aria-label="KPD 2025 class (Croatia)" placeholder="62.20.30" style="width:6.5em"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
       for (const [k, v] of Object.entries(l)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
       tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
       tr.addEventListener("input", showTotals);
@@ -169,7 +183,9 @@
         buyer_reference: g("buyer_reference"), order_reference: g("order_reference"), original_invoice: g("original_invoice"),
         prepaid: g("prepaid") || 0, terms: g("terms"), seller: party("seller"), buyer: party("buyer"), lines: lines(),
         delivery_date: g("delivery_date"), period: { start: g("period_start"), end: g("period_end") },
+        original_invoice_date: g("original_invoice_date"), delivery_country: g("delivery_country"),
       };
+      if ($("profile").value === "hr") Object.assign(d, { issue_time: g("issue_time"), process: g("process"), operator: { name: g("operator_name"), oib: g("operator_oib") } });
       const pay = {}; document.querySelectorAll("#payment [data-k]").forEach((el) => { pay[el.dataset.k] = el.value.trim(); });
       d.payment = pay;
       return d;
@@ -230,7 +246,10 @@
       a.href = URL.createObjectURL(lastBlob || new Blob([lastXml], { type: "application/xml" })); a.download = lastName; a.click();
       URL.revokeObjectURL(a.href);
     };
+    const showHr = () => { $("hrSection").hidden = $("profile").value !== "hr"; };
+    $("profile").addEventListener("change", showHr);
     $("example").onclick = () => {
+      if ($("profile").value === "hr") return croatianExample();
       const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
       set("seller", { name: "Muster Software GmbH", street: "Hauptstrasse 1", postal_code: "10115", city: "Berlin", country: "DE", vat_id: "DE136695976", endpoint_scheme: "EM", endpoint_id: "billing@muster.example", contact_name: "Erika Muster", contact_phone: "+49 30 123456", contact_email: "billing@muster.example" });
       set("buyer", { name: "Kunde AG", street: "Marktplatz 2", postal_code: "20095", city: "Hamburg", country: "DE", endpoint_scheme: "EM", endpoint_id: "ap@kunde.example" });
@@ -242,7 +261,24 @@
       lineRow({ description: "Printed handbook", quantity: 3, unit: "C62", unit_price: 50, tax_percent: 7 });
       showTotals();
     };
+    // Made-up companies and operator; the OIB check digits are valid. The third line is exempt,
+    // so the file carries the HR extension.
+    function croatianExample() {
+      const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
+      set("seller", { name: "Primjer Usluge d.o.o.", street: "Ilica 1", postal_code: "10000", city: "Zagreb", country: "HR", vat_id: "HR12345678903", endpoint_scheme: "", endpoint_id: "" });
+      set("buyer", { name: "Kupac Primjer d.d.", street: "Riva 5", postal_code: "21000", city: "Split", country: "HR", vat_id: "HR98765432106", endpoint_scheme: "", endpoint_id: "" });
+      set("payment", { iban: "HR1210010051863000160", bic: "", account_name: "Primjer Usluge d.o.o." });
+      $("currency").value = "EUR"; $("number").value = "42-1-1"; $("buyer_reference").value = "";
+      if (!$("due_date").value) $("due_date").value = new Date(Date.parse($("issue_date").value) + 30 * 864e5).toISOString().slice(0, 10);
+      $("issue_time").value = "09:30:00"; $("process").value = "P1"; $("operator_name").value = "Ana Operater"; $("operator_oib").value = "55556666775";
+      $("lines").innerHTML = "";
+      lineRow({ description: "IT podrška", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 25, kpd: "62.20.30" });
+      lineRow({ description: "Priručnik (tiskani)", quantity: 3, unit: "C62", unit_price: 20, tax_percent: 5, kpd: "58.11.11" });
+      lineRow({ description: "Tečaj", quantity: 1, unit: "C62", unit_price: 150, tax_percent: 0, tax_category: "E", tax_reason: "Oslobođeno PDV-a prema čl. 39. Zakona o PDV-u", kpd: "85.59.09" });
+      showTotals();
+    }
     $("addLine").onclick = () => lineRow();
+    showHr();
     $("issue_date").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     lineRow();
     showTotals();

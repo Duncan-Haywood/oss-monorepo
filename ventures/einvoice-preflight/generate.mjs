@@ -30,7 +30,27 @@ export const PROFILES = {
     customization: "urn:cen.eu:en16931:2017",
     profileId: "",
   },
+  hr: {
+    label: "HR-CIUS 2025 with the HR extension (Croatia, Fiskalizacija 2.0)",
+    customization: "urn:cen.eu:en16931:2017#compliant#urn:mfin.gov.hr:cius-2025:1.0#conformant#urn:mfin.gov.hr:ext-2025:1.0",
+    profileId: "P1", // the business process (HR-BR-34); a draft's `process` replaces it
+  },
 };
+
+// Croatia (HR-CIUS 2025). The OIB is 11 digits with an ISO 7064 MOD 11,10 check digit (HR-BR-53, -9).
+export function oibOk(value) {
+  const s = String(value ?? "").replace(/^HR/i, "");
+  if (!/^\d{11}$/.test(s)) return false;
+  let a = 10;
+  for (const c of s.slice(0, 10)) { a = (a + +c) % 10 || 10; a = (a * 2) % 11; }
+  return (11 - a) % 10 === +s[10];
+}
+// HR-TB-2 labels (HR-BR-CL-1) for the categories this creator writes. Standard rate: 25, 13 or 5 %.
+const HR_LABEL = { Z: "HR:Z", E: "HR:E", AE: "HR:AE", K: "HR:K", G: "HR:G", O: "HR:O" };
+const hrLabel = (category, percent) => category === "S" ? `HR:PDV${percent}` : HR_LABEL[category];
+const HR_RATES = new Set([25, 13, 5]);
+// Invoice type codes on which a line may go without a KPD class (HR-BR-25): advance invoices and credit notes.
+const HR_NO_KPD = new Set(["386", "81", "83", "261", "262", "296", "308", "381", "396", "420", "458", "532"]);
 
 const NEEDS_REASON = new Set(["E", "AE", "K", "G", "O"]);
 const CATEGORIES = new Set(["S", "Z", ...NEEDS_REASON]);
@@ -102,7 +122,8 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   const warn = (path, message) => warnings.push({ path, message });
 
   const d = draft && typeof draft === "object" ? draft : {};
-  if (!PROFILES[profile]) err("profile", `Unknown profile "${profile}". Use xrechnung, peppol or en16931.`);
+  if (!PROFILES[profile]) err("profile", `Unknown profile "${profile}". Use xrechnung, peppol, en16931 or hr.`);
+  const hr = profile === "hr";
 
   const kind = /credit/i.test(text(d.document_type)) ? "credit_note" : "invoice";
   const currency = (text(d.currency) || "EUR").toUpperCase();
@@ -146,10 +167,10 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   if (profile === "peppol" && !text(d.buyer_reference) && !text(d.order_reference)) {
     warn("buyer_reference", "Peppol BIS requires a buyer reference or an order reference (PEPPOL-EN16931-R003).");
   }
-  if (profile !== "en16931" && !seller.endpoint) {
+  if (profile !== "en16931" && !hr && !seller.endpoint) {
     warn("seller.endpoint", "Peppol and XRechnung require the seller's electronic address (BT-34), e.g. {\"scheme\":\"EM\",\"id\":\"billing@you.example\"}.");
   }
-  if (profile !== "en16931" && !buyer.endpoint) {
+  if (profile !== "en16931" && !hr && !buyer.endpoint) {
     warn("buyer.endpoint", "Peppol and XRechnung require the buyer's electronic address (BT-49), e.g. {\"scheme\":\"EM\",\"id\":\"ap@them.example\"}.");
   }
 
@@ -176,6 +197,12 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     if (category === "S" && percent === 0) err(`${path}.tax_percent`, "Standard-rated (S) needs a rate above 0. For 0% pick Z, E, AE, K, G or O.");
     if (category !== "S" && percent > 0) err(`${path}.tax_percent`, `Category ${category} is a 0% category; set tax_percent to 0.`);
     const reason = text(l.tax_reason);
+    if (hr && category === "S" && percent !== null && percent > 0 && !HR_RATES.has(percent)) {
+      err(`${path}.tax_percent`, "Croatia's standard-rate labels are HR:PDV25, HR:PDV13 and HR:PDV5 (HR-BR-CL-1): use 25, 13 or 5.");
+    }
+    if (hr && text(l.kpd) && !/^\d{2}\.\d{2}\.\d{2}$/.test(text(l.kpd))) {
+      err(`${path}.kpd`, "KPD 2025 class as six digits in pairs, e.g. 62.20.30 (HR-BR-25, HR-BR-CL-2).");
+    }
     if (NEEDS_REASON.has(category) && !reason) {
       err(`${path}.tax_reason`, `Category ${category} needs an exemption reason, e.g. "Reverse charge" (AE), "Intra-community supply" (K), "Kleinunternehmer § 19 UStG" (E).`);
     }
@@ -183,7 +210,7 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     const net = cents(quantity * price);
     lines.push({
       id: String(i + 1), description, quantity, unit, unit_price: price, net,
-      category, percent, reason, note: text(l.note),
+      category, percent, reason, note: text(l.note), kpd: text(l.kpd),
     });
   });
 
@@ -213,6 +240,9 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   if (kind === "credit_note" && !text(d.original_invoice)) {
     warn("original_invoice", "A credit note should name the invoice it corrects (BT-25).");
   }
+  const originalDate = text(d.original_invoice_date);
+  if (originalDate && !dateOk(originalDate)) err("original_invoice_date", "The original invoice's date must be a real date as YYYY-MM-DD.");
+  if (hr && text(d.original_invoice) && !originalDate) err("original_invoice_date", "Croatia requires the referenced invoice's issue date (BT-26, HR-BR-6).");
   const period = d.period && typeof d.period === "object" ? d.period : null;
   if (period && (period.start || period.end)) {
     if ((period.start && !dateOk(text(period.start))) || (period.end && !dateOk(text(period.end)))) {
@@ -225,6 +255,60 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
   if (delivery && !dateOk(delivery)) err("delivery_date", "Delivery date must be a real date as YYYY-MM-DD.");
   if (profile === "xrechnung" && !delivery && !(period && (period.start || period.end))) {
     warn("delivery_date", "XRechnung asks for the date of supply: an actual delivery date (BT-72) or an invoicing period (BG-14) (BR-DE-TMP-32). German law (§14 (4) no. 6 UStG) also requires it on the invoice.");
+  }
+
+  // Not subject to VAT (O) stands alone: no other category (BR-O-11, -12) and no VAT IDs (BR-O-02).
+  const hasO = lines.some((l) => l.category === "O");
+  if (hasO && lines.some((l) => l.category !== "O")) err("lines", "A line not subject to VAT (O) cannot share an invoice with lines in other VAT categories (BR-O-11, BR-O-12): put them on separate invoices.");
+  if (hasO && !hr) {
+    for (const p of [seller, buyer]) if (p.vat_id) err(`${p.role}.vat_id`, `An invoice whose lines are not subject to VAT (O) must not carry the ${p.role}'s VAT ID (BR-O-02).${p.role === "seller" ? " Give a company registration number (company_id) instead." : ""}`);
+    if (!seller.company_id) err("seller.company_id", "With no VAT ID (category O), identify the seller by a company registration or other seller identifier (company_id, BR-CO-26).");
+  }
+  // Intra-community supply (K) needs the date of supply and the country the goods go to (BR-IC-11, -12).
+  const hasK = lines.some((l) => l.category === "K");
+  const deliveryCountry = text(d.delivery_country).toUpperCase() || (hasK ? buyer.country : "");
+  if (deliveryCountry && !/^[A-Z]{2}$/.test(deliveryCountry)) err("delivery_country", "Deliver-to country must be a 2-letter ISO code (BT-80).");
+  if (hasK && !delivery && !(period && (period.start || period.end))) err("delivery_date", "An intra-community supply (K) needs the delivery date or the invoicing period (BR-IC-11).");
+
+  // Croatia: the fields HR-CIUS 2025 makes compulsory, checked here so the file is not
+  // written only to fail the Porezna uprava's rules, and the HR extension (HRFISK20Data).
+  let hrData = null, time = "", hrProcess = "";
+  if (hr) {
+    time = text(d.issue_time);
+    if (!/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time)) err("issue_time", "Croatia requires the issue time as hh:mm:ss, e.g. 09:30:00 (HR-BR-2).");
+    hrProcess = text(d.process) || "P1";
+    if (!/^(P([1-9]|1[0-2])|P99:.+)$/.test(hrProcess)) err("process", "Business process P1 to P12, or P99:<your own id> (HR-BR-34). P1 is an invoice for goods or services under a contract.");
+    if (dateOk(issue) && issue < "2026-01-01") err("issue_date", "HR-CIUS 2025 applies to invoices issued from 1 January 2026 (HR-BR-40).");
+    if (kind === "invoice" && !due) err("due_date", "Croatia requires a due date on an invoice (HR-CIUS 2025, BT-9).");
+    if (currency !== "EUR") warn("currency", "Croatia's rules assume EUR; an invoice in another currency also needs the VAT total in EUR (BT-6, BT-111), which this creator does not write.");
+    const op = d.operator && typeof d.operator === "object" ? d.operator : {};
+    const operator = { name: text(op.name), oib: text(op.oib).replace(/\s+/g, "") };
+    if (!operator.name) err("operator.name", "Croatia requires the operator's name, the person issuing the invoice (HR-BR-37).");
+    if (!oibOk(operator.oib) || /^HR/i.test(operator.oib)) err("operator.oib", "The operator's OIB: 11 digits with a valid check digit, no HR prefix (HR-BR-9).");
+    for (const p of [seller, buyer]) {
+      if (p.country === "HR" && p.vat_id && (!/^HR\d{11}$/.test(p.vat_id) || !oibOk(p.vat_id))) {
+        err(`${p.role}.vat_id`, `The ${p.role}'s VAT ID must be HR plus a valid 11-digit OIB (HR-BR-53).`);
+      }
+      if (!p.endpoint && /^HR\d{11}$/.test(p.vat_id)) p.endpoint = { scheme: "9934", id: p.vat_id.slice(2) };
+      if (!p.endpoint) err(`${p.role}.endpoint`, `Croatia requires the ${p.role}'s electronic address (BT-${p.role === "seller" ? 34 : 49}); with a Croatian VAT ID it defaults to scheme 9934 and the OIB.`);
+    }
+    if (seller.country === "HR" && !/^HR\d{11}$/.test(seller.vat_id)) err("seller.vat_id", "A Croatian seller needs its VAT ID as HR plus the OIB (HR-BR-53).");
+    if (!buyer.vat_id && lines.some((l) => ["S", "Z", "E", "AE"].includes(l.category))) {
+      err("buyer.vat_id", "Croatia requires the buyer's VAT ID (BT-48) on an invoice with an S, Z, E or AE line.");
+    }
+    if (hasO) err("lines", "On a Croatian invoice use E with the reason (the Porezna uprava's own sample for a seller outside the VAT system writes E, HR:E, \"Nije u sustavu PDV-a\"): category O would forbid the VAT IDs that HR-CIUS requires (BR-O-02).");
+    const typeCode = kind === "credit_note" ? "381" : "380";
+    lines.forEach((l, i) => {
+      if (!l.kpd && !HR_NO_KPD.has(typeCode)) err(`lines[${i}].kpd`, "Croatia requires a KPD 2025 class on every invoice line, e.g. 62.20.30 for IT services (HR-BR-25).");
+    });
+    // HRFISK20Data: compulsory when a line is exempt (HR-BR-26). Its breakdown carries the HR
+    // labels; amounts outside the tax base (category O) go to OutOfScopeOfVATAmount (HR-BR-32)
+    // and leave the HR tax base (HR-BR-27).
+    if (lines.some((l) => l.category === "E" || l.category === "O")) {
+      const outOfScope = breakdown.filter((g) => g.category === "O").reduce((s, g) => s + g.taxable, 0);
+      hrData = { taxExclusive: netTotal - outOfScope, outOfScope };
+    }
+    seller.operator = operator;
   }
 
   const pay = d.payment && typeof d.payment === "object" ? d.payment : {};
@@ -245,10 +329,11 @@ export function buildInvoice(draft, { profile = "xrechnung" } = {}) {
     doc: {
       profile, kind, number, issue_date: issue, due_date: due, currency,
       buyer_reference: text(d.buyer_reference), order_reference: text(d.order_reference),
-      original_invoice: text(d.original_invoice), note: text(d.note),
+      original_invoice: text(d.original_invoice), original_invoice_date: originalDate && dateOk(originalDate) ? originalDate : "", note: text(d.note),
       period: period && (period.start || period.end) ? { start: text(period.start), end: text(period.end) } : null,
-      delivery_date: delivery && dateOk(delivery) ? delivery : "",
+      delivery_date: delivery && dateOk(delivery) ? delivery : "", delivery_country: deliveryCountry,
       seller, buyer, lines, breakdown, payment,
+      issue_time: time, process: hrProcess, hr_extension: hrData,
       totals: { net: netTotal, tax: taxTotal, gross, prepaid, due: due_amount },
     },
   };
@@ -289,10 +374,38 @@ function ublParty(p) {
 const amt = (name, value, cur, indent = "    ") => `${indent}<cbc:${name} currencyID="${esc(cur)}">${fixed(value)}</cbc:${name}>`;
 
 function taxCategoryXml(category, percent, reason, indent) {
-  const lines = [`${indent}<cac:TaxCategory>`, `${indent}  <cbc:ID>${category}</cbc:ID>`, `${indent}  <cbc:Percent>${percent}</cbc:Percent>`];
+  const lines = [`${indent}<cac:TaxCategory>`, `${indent}  <cbc:ID>${category}</cbc:ID>`];
+  if (category !== "O") lines.push(`${indent}  <cbc:Percent>${percent}</cbc:Percent>`); // BR-O-05: no rate when not subject to VAT
   if (reason) lines.push(`${indent}  <cbc:TaxExemptionReason>${esc(reason)}</cbc:TaxExemptionReason>`);
   lines.push(`${indent}  <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>`, `${indent}</cac:TaxCategory>`);
   return lines.join("\n");
+}
+
+// The HR extension (HRFISK20Data, HRExtensionAggregateComponents-1.xsd): the VAT breakdown
+// again with the HR labels, and the HR totals. Element order follows the XSD.
+function hrExtensionXml(doc) {
+  const cur = doc.currency;
+  const x = doc.hr_extension;
+  const o = [`  <ext:UBLExtensions>`, `    <ext:UBLExtension>`, `      <ext:ExtensionContent>`, `        <hrextac:HRFISK20Data>`, `          <hrextac:HRTaxTotal>`];
+  o.push(amt("TaxAmount", doc.totals.tax, cur, "            "));
+  for (const g of doc.breakdown) {
+    o.push(`            <hrextac:HRTaxSubtotal>`);
+    o.push(amt("TaxableAmount", g.taxable, cur, "              "));
+    o.push(amt("TaxAmount", g.tax, cur, "              "));
+    o.push(`              <hrextac:HRTaxCategory>`);
+    o.push(`                <cbc:ID>${g.category}</cbc:ID>`);
+    o.push(`                <cbc:Name>${hrLabel(g.category, g.percent)}</cbc:Name>`);
+    if (g.category !== "O") o.push(`                <cbc:Percent>${g.percent}</cbc:Percent>`);
+    if (g.reason) o.push(`                <cbc:TaxExemptionReason>${esc(g.reason)}</cbc:TaxExemptionReason>`);
+    o.push(`                <hrextac:HRTaxScheme><cbc:ID>VAT</cbc:ID></hrextac:HRTaxScheme>`);
+    o.push(`              </hrextac:HRTaxCategory>`);
+    o.push(`            </hrextac:HRTaxSubtotal>`);
+  }
+  o.push(`          </hrextac:HRTaxTotal>`, `          <hrextac:HRLegalMonetaryTotal>`);
+  o.push(amt("TaxExclusiveAmount", x.taxExclusive, cur, "            "));
+  o.push(`            <hrextac:OutOfScopeOfVATAmount currencyID="${esc(cur)}">${fixed(x.outOfScope)}</hrextac:OutOfScopeOfVATAmount>`);
+  o.push(`          </hrextac:HRLegalMonetaryTotal>`, `        </hrextac:HRFISK20Data>`, `      </ext:ExtensionContent>`, `    </ext:UBLExtension>`, `  </ext:UBLExtensions>`);
+  return o.join("\n");
 }
 
 export function toUbl(doc) {
@@ -304,11 +417,20 @@ export function toUbl(doc) {
   o.push(`<?xml version="1.0" encoding="UTF-8"?>`);
   o.push(`<${root} xmlns="urn:oasis:names:specification:ubl:schema:xsd:${root}-2"`);
   o.push(`    xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"`);
+  const hr = doc.profile === "hr";
+  const ext = hr && doc.hr_extension;
+  if (ext) {
+    o.push(`    xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"`);
+    o.push(`    xmlns:hrextac="urn:mfin.gov.hr:schema:xsd:HRExtensionAggregateComponents-1"`);
+  }
   o.push(`    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">`);
+  if (ext) o.push(hrExtensionXml(doc));
   o.push(`  <cbc:CustomizationID>${esc(prof.customization)}</cbc:CustomizationID>`);
-  if (prof.profileId) o.push(`  <cbc:ProfileID>${esc(prof.profileId)}</cbc:ProfileID>`);
+  const profileId = hr ? doc.process : prof.profileId;
+  if (profileId) o.push(`  <cbc:ProfileID>${esc(profileId)}</cbc:ProfileID>`);
   o.push(`  <cbc:ID>${esc(doc.number)}</cbc:ID>`);
   o.push(`  <cbc:IssueDate>${doc.issue_date}</cbc:IssueDate>`);
+  if (hr && doc.issue_time) o.push(`  <cbc:IssueTime>${doc.issue_time}</cbc:IssueTime>`);
   if (!credit && doc.due_date) o.push(`  <cbc:DueDate>${doc.due_date}</cbc:DueDate>`);
   o.push(`  <cbc:${credit ? "CreditNoteTypeCode>381</cbc:CreditNoteTypeCode" : "InvoiceTypeCode>380</cbc:InvoiceTypeCode"}>`);
   if (doc.note) o.push(`  <cbc:Note>${esc(doc.note)}</cbc:Note>`);
@@ -322,11 +444,19 @@ export function toUbl(doc) {
   }
   if (doc.order_reference) o.push(`  <cac:OrderReference><cbc:ID>${esc(doc.order_reference)}</cbc:ID></cac:OrderReference>`);
   if (doc.original_invoice) {
-    o.push(`  <cac:BillingReference><cac:InvoiceDocumentReference><cbc:ID>${esc(doc.original_invoice)}</cbc:ID></cac:InvoiceDocumentReference></cac:BillingReference>`);
+    const when = doc.original_invoice_date ? `<cbc:IssueDate>${doc.original_invoice_date}</cbc:IssueDate>` : "";
+    o.push(`  <cac:BillingReference><cac:InvoiceDocumentReference><cbc:ID>${esc(doc.original_invoice)}</cbc:ID>${when}</cac:InvoiceDocumentReference></cac:BillingReference>`);
   }
-  o.push(`  <cac:AccountingSupplierParty>\n    <cac:Party>\n${ublParty(doc.seller)}\n    </cac:Party>\n  </cac:AccountingSupplierParty>`);
+  const operator = hr && doc.seller.operator
+    ? `\n    <cac:SellerContact>\n      <cbc:ID>${esc(doc.seller.operator.oib)}</cbc:ID>\n      <cbc:Name>${esc(doc.seller.operator.name)}</cbc:Name>\n    </cac:SellerContact>`
+    : "";
+  o.push(`  <cac:AccountingSupplierParty>\n    <cac:Party>\n${ublParty(doc.seller)}\n    </cac:Party>${operator}\n  </cac:AccountingSupplierParty>`);
   o.push(`  <cac:AccountingCustomerParty>\n    <cac:Party>\n${ublParty(doc.buyer)}\n    </cac:Party>\n  </cac:AccountingCustomerParty>`);
-  if (doc.delivery_date) o.push(`  <cac:Delivery><cbc:ActualDeliveryDate>${doc.delivery_date}</cbc:ActualDeliveryDate></cac:Delivery>`);
+  if (doc.delivery_date || doc.delivery_country) {
+    const when = doc.delivery_date ? `<cbc:ActualDeliveryDate>${doc.delivery_date}</cbc:ActualDeliveryDate>` : "";
+    const where = doc.delivery_country ? `<cac:DeliveryLocation><cac:Address><cac:Country><cbc:IdentificationCode>${esc(doc.delivery_country)}</cbc:IdentificationCode></cac:Country></cac:Address></cac:DeliveryLocation>` : "";
+    o.push(`  <cac:Delivery>${when}${where}</cac:Delivery>`);
+  }
 
   const p = doc.payment;
   if (p.means) {
@@ -373,9 +503,12 @@ export function toUbl(doc) {
     o.push(amt("LineExtensionAmount", l.net, cur));
     o.push(`    <cac:Item>`);
     o.push(`      <cbc:Name>${esc(l.description)}</cbc:Name>`);
+    if (hr && l.kpd) o.push(`      <cac:CommodityClassification><cbc:ItemClassificationCode listID="CG">${esc(l.kpd)}</cbc:ItemClassificationCode></cac:CommodityClassification>`);
     o.push(`      <cac:ClassifiedTaxCategory>`);
     o.push(`        <cbc:ID>${l.category}</cbc:ID>`);
-    o.push(`        <cbc:Percent>${l.percent}</cbc:Percent>`);
+    if (hr) o.push(`        <cbc:Name>${hrLabel(l.category, l.percent)}</cbc:Name>`);
+    if (l.category !== "O") o.push(`        <cbc:Percent>${l.percent}</cbc:Percent>`);
+    if (hr && l.reason) o.push(`        <cbc:TaxExemptionReason>${esc(l.reason)}</cbc:TaxExemptionReason>`);
     o.push(`        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>`);
     o.push(`      </cac:ClassifiedTaxCategory>`);
     o.push(`    </cac:Item>`);
@@ -443,7 +576,7 @@ export function toCii(doc) {
     o.push(`      <ram:SpecifiedLineTradeAgreement><ram:NetPriceProductTradePrice><ram:ChargeAmount>${l.unit_price}</ram:ChargeAmount></ram:NetPriceProductTradePrice></ram:SpecifiedLineTradeAgreement>`);
     o.push(`      <ram:SpecifiedLineTradeDelivery><ram:BilledQuantity unitCode="${l.unit}">${l.quantity}</ram:BilledQuantity></ram:SpecifiedLineTradeDelivery>`);
     o.push(`      <ram:SpecifiedLineTradeSettlement>`);
-    o.push(`        <ram:ApplicableTradeTax><ram:TypeCode>VAT</ram:TypeCode><ram:CategoryCode>${l.category}</ram:CategoryCode><ram:RateApplicablePercent>${l.percent}</ram:RateApplicablePercent></ram:ApplicableTradeTax>`);
+    o.push(`        <ram:ApplicableTradeTax><ram:TypeCode>VAT</ram:TypeCode><ram:CategoryCode>${l.category}</ram:CategoryCode>${l.category === "O" ? "" : `<ram:RateApplicablePercent>${l.percent}</ram:RateApplicablePercent>`}</ram:ApplicableTradeTax>`);
     o.push(`        <ram:SpecifiedTradeSettlementLineMonetarySummation><ram:LineTotalAmount>${fixed(l.net)}</ram:LineTotalAmount></ram:SpecifiedTradeSettlementLineMonetarySummation>`);
     o.push(`      </ram:SpecifiedLineTradeSettlement>`);
     o.push(`    </ram:IncludedSupplyChainTradeLineItem>`);
@@ -456,9 +589,10 @@ export function toCii(doc) {
   o.push(`    </ram:ApplicableHeaderTradeAgreement>`);
   // ApplicableHeaderTradeDelivery is mandatory in the CII schema; empty only when
   // there is nothing to put in it (PEPPOL-EN16931-R008 then warns, as Mustang does).
-  if (doc.delivery_date) {
+  if (doc.delivery_date || doc.delivery_country) {
     o.push(`    <ram:ApplicableHeaderTradeDelivery>`);
-    o.push(`      <ram:ActualDeliverySupplyChainEvent><ram:OccurrenceDateTime>\n  ${ciiDate(doc.delivery_date)}\n      </ram:OccurrenceDateTime></ram:ActualDeliverySupplyChainEvent>`);
+    if (doc.delivery_country) o.push(`      <ram:ShipToTradeParty><ram:PostalTradeAddress><ram:CountryID>${esc(doc.delivery_country)}</ram:CountryID></ram:PostalTradeAddress></ram:ShipToTradeParty>`);
+    if (doc.delivery_date) o.push(`      <ram:ActualDeliverySupplyChainEvent><ram:OccurrenceDateTime>\n  ${ciiDate(doc.delivery_date)}\n      </ram:OccurrenceDateTime></ram:ActualDeliverySupplyChainEvent>`);
     o.push(`    </ram:ApplicableHeaderTradeDelivery>`);
   } else {
     o.push(`    <ram:ApplicableHeaderTradeDelivery/>`);
@@ -483,7 +617,7 @@ export function toCii(doc) {
     if (g.reason) o.push(`        <ram:ExemptionReason>${esc(g.reason)}</ram:ExemptionReason>`);
     o.push(`        <ram:BasisAmount>${fixed(g.taxable)}</ram:BasisAmount>`);
     o.push(`        <ram:CategoryCode>${g.category}</ram:CategoryCode>`);
-    o.push(`        <ram:RateApplicablePercent>${g.percent}</ram:RateApplicablePercent>`);
+    if (g.category !== "O") o.push(`        <ram:RateApplicablePercent>${g.percent}</ram:RateApplicablePercent>`);
     o.push(`      </ram:ApplicableTradeTax>`);
   }
   if (doc.period) {
@@ -521,6 +655,10 @@ export function generateInvoice(draft, { format = "ubl", profile = "xrechnung" }
   if (format !== "ubl" && format !== "cii") {
     result.ok = false;
     result.errors = [...result.errors, { path: "format", message: 'Format must be "ubl" or "cii".' }];
+  }
+  if (profile === "hr" && format !== "ubl") {
+    result.ok = false;
+    result.errors = [...result.errors, { path: "format", message: "HR-CIUS 2025 is published for UBL 2.1 only: pick UBL." }];
   }
   if (!result.ok) return result;
   const t = built.doc.totals;

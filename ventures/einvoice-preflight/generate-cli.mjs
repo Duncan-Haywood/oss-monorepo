@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// node generate-cli.mjs draft.json [--format ubl|cii|facturx] [--profile xrechnung|peppol|en16931] [-o out.xml]
+// node generate-cli.mjs draft.json [--format ubl|cii|facturx] [--profile xrechnung|peppol|en16931|hr] [-o out.xml]
 // Reads a draft (see examples/draft-invoice.json), writes the e-invoice XML to
 // -o (or stdout), prints errors and warnings to stderr. Exit 0 written, 1 draft
 // has errors, 2 usage.
@@ -21,7 +21,7 @@ const profile = flag("--profile", "-p") || (facturx ? "en16931" : "xrechnung");
 const out = flag("--output", "-o");
 const file = args.find((a) => !a.startsWith("-"));
 if (!file) {
-  console.error("usage: node generate-cli.mjs draft.json [--format ubl|cii|facturx] [--profile xrechnung|peppol|en16931] [-o out.xml]");
+  console.error("usage: node generate-cli.mjs draft.json [--format ubl|cii|facturx] [--profile xrechnung|peppol|en16931|hr] [-o out.xml]");
   process.exit(2);
 }
 let draft;
