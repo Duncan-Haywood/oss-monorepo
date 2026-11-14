@@ -16,8 +16,8 @@ import math
 from dataclasses import dataclass, field
 
 
-def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
-    """(length mm, peak curvature 1/mm, flattest slope deg) of a planar cubic Bezier through control points `pts`."""
+def _bezier_length(pts: tuple, n: int = 24) -> float:
+    """Length (mm) of a planar cubic Bezier through control points `pts`, as `n` chords."""
     def at(t):
         u = 1 - t
         return tuple(u**3 * pts[0][i] + 3 * u * u * t * pts[1][i] + 3 * u * t * t * pts[2][i] + t**3 * pts[3][i] for i in (0, 1))
@@ -27,6 +27,12 @@ def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
         q = at(k / n)
         length += math.dist(prev, q)
         prev = q
+    return length
+
+
+def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
+    """(length mm, peak curvature 1/mm, flattest slope deg) of a planar cubic Bezier through control points `pts`."""
+    length = _bezier_length(pts, n)
     kmax, smin = 0.0, 90.0
     for k in range(n + 1):
         t = k / n
@@ -49,17 +55,47 @@ def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: floa
     """Shortest and longest hose (mm) that leaves the outlet straight down and enters the socket mouth along
     the column axis (tilted `tilt_rad` with the head), as a cubic Bezier with handle lengths from `step` to 900 mm,
     never bending tighter than `r_min` and never flatter than `slope_min` degrees. None if no such curve exists."""
+    # The same test as `_bezier_stats(pts)` followed by `kmax <= 1 / r_min and smin >= slope_min`, bit for bit
+    # (2026-11-14, perf): the bend and fall are checked point by point and the first failing point rejects the curve,
+    # the t-only coefficients are hoisted, and the length is only measured for curves that fit. Every float is formed
+    # by the same operations in the same order as in `_bezier_stats`, so the range is identical
+    # (tests/test_cad.py, "matches the reference"; docs/history/ci-perf-2026-11-14-open-tennis-hose-curve.md).
+    nseg = 24
+    ts = [k / nseg for k in range(nseg + 1)]
+    deriv = [(3 * (1 - t) * (1 - t), 6 * (1 - t) * t, 3 * t * t, 6 * (1 - t), 6 * t) for t in ts]
+    cap = 1 / r_min
+    if not (0.0 <= cap and 90.0 >= slope_min):      # kmax starts at 0 and smin at 90 in `_bezier_stats`
+        return None
+    st, ct = math.sin(tilt_rad), math.cos(tilt_rad)
     lo = hi = None
     n = int(900 / step)
     for i in range(1, n + 1):
         l0 = i * step
+        p1z = oz - l0
         for j in range(1, n + 1):
             l1 = j * step
-            pts = ((ox, oz), (ox, oz - l0), (mx - l1 * math.sin(tilt_rad), mz + l1 * math.cos(tilt_rad)), (mx, mz))
-            length, kmax, smin = _bezier_stats(pts)
-            if kmax <= 1 / r_min and smin >= slope_min:
-                lo = length if lo is None else min(lo, length)
-                hi = length if hi is None else max(hi, length)
+            pts = ((ox, oz), (ox, p1z), (mx - l1 * st, mz + l1 * ct), (mx, mz))
+            (x0, z0), (x1, z1), (x2, z2), (x3, z3) = pts
+            dx01, dx12, dx23 = x1 - x0, x2 - x1, x3 - x2
+            dz01, dz12, dz23 = z1 - z0, z2 - z1, z3 - z2
+            sx0, sx1 = x2 - 2 * x1 + x0, x3 - 2 * x2 + x1
+            sz0, sz1 = z2 - 2 * z1 + z0, z3 - 2 * z2 + z1
+            ok = True
+            for c0, c1, c2, e0, e1 in deriv:
+                ax = c0 * dx01 + c1 * dx12 + c2 * dx23
+                az = c0 * dz01 + c1 * dz12 + c2 * dz23
+                sp = math.hypot(ax, az)
+                if sp > 1e-9:
+                    bx = e0 * sx0 + e1 * sx1
+                    bz = e0 * sz0 + e1 * sz1
+                    if abs(ax * bz - az * bx) / sp ** 3 > cap or math.degrees(math.atan2(abs(az), abs(ax))) < slope_min:
+                        ok = False
+                        break
+            if not ok:
+                continue
+            length = _bezier_length(pts, nseg)
+            lo = length if lo is None else min(lo, length)
+            hi = length if hi is None else max(hi, length)
     return None if lo is None else (lo, hi)
 
 
@@ -70,46 +106,54 @@ def _hose_curve_range_3d(o: tuple, m: tuple, u: tuple, r_min: float, slope_min: 
     mouth `m` along the unit column axis `u` (pointing out of the socket, up the column), which need not lie in the
     x-z plane once the head turns in azimuth. Same Bezier family, bend limit and fall limit; the fall is measured
     from the horizontal plane (tangent's z against its horizontal length). Shortest and longest fitting hose, or None."""
+    # 2026-11-14 (perf): the per-t coefficients are hoisted and the 3-vectors unrolled. Each float is formed by the same
+    # operations in the same order as before (e.g. 3 * w * w * d is (3 * w * w) * d), so the range is bit-identical.
     kcap = 1 / r_min
     tan_min = math.tan(math.radians(slope_min))
     ts = [k / n for k in range(n + 1)]
+    deriv = [(3 * (1 - t) * (1 - t), 6 * (1 - t) * t, 3 * t * t, 6 * (1 - t), 6 * t) for t in ts]
+    place = [((1 - t) ** 3, 3 * (1 - t) * (1 - t) * t, 3 * (1 - t) * t * t, t ** 3) for t in ts[1:]]
+    ox, oy, oz = o
+    mx, my, mz = m
+    ux, uy, uz = u
     lo = hi = None
     cnt = int(900 / step)
     for i in range(1, cnt + 1):
         l0 = i * step
-        p0 = o
-        p1 = (o[0], o[1], o[2] - l0)
+        p1x, p1y, p1z = ox, oy, oz - l0
         for j in range(1, cnt + 1):
             l1 = j * step
-            p2 = (m[0] + l1 * u[0], m[1] + l1 * u[1], m[2] + l1 * u[2])
-            p3 = m
-            d01 = [p1[c] - p0[c] for c in range(3)]
-            d12 = [p2[c] - p1[c] for c in range(3)]
-            d23 = [p3[c] - p2[c] for c in range(3)]
-            s0 = [p2[c] - 2 * p1[c] + p0[c] for c in range(3)]
-            s1 = [p3[c] - 2 * p2[c] + p1[c] for c in range(3)]
+            p2x, p2y, p2z = mx + l1 * ux, my + l1 * uy, mz + l1 * uz
+            d01x, d01y, d01z = p1x - ox, p1y - oy, p1z - oz
+            d12x, d12y, d12z = p2x - p1x, p2y - p1y, p2z - p1z
+            d23x, d23y, d23z = mx - p2x, my - p2y, mz - p2z
+            s0x, s0y, s0z = p2x - 2 * p1x + ox, p2y - 2 * p1y + oy, p2z - 2 * p1z + oz
+            s1x, s1y, s1z = mx - 2 * p2x + p1x, my - 2 * p2y + p1y, mz - 2 * p2z + p1z
             ok = True
-            for t in ts:
-                w = 1 - t
-                a = [3 * w * w * d01[c] + 6 * w * t * d12[c] + 3 * t * t * d23[c] for c in range(3)]
-                h = math.hypot(a[0], a[1])
-                if abs(a[2]) < tan_min * h - 1e-12:      # flatter than the fall limit
+            for c0, c1, c2, e0, e1 in deriv:
+                a0 = c0 * d01x + c1 * d12x + c2 * d23x
+                a1 = c0 * d01y + c1 * d12y + c2 * d23y
+                a2 = c0 * d01z + c1 * d12z + c2 * d23z
+                h = math.hypot(a0, a1)
+                if abs(a2) < tan_min * h - 1e-12:      # flatter than the fall limit
                     ok = False
                     break
-                b = [6 * w * s0[c] + 6 * t * s1[c] for c in range(3)]
-                cx = a[1] * b[2] - a[2] * b[1]
-                cy = a[2] * b[0] - a[0] * b[2]
-                cz = a[0] * b[1] - a[1] * b[0]
-                sp = math.sqrt(a[0] ** 2 + a[1] ** 2 + a[2] ** 2)
+                b0 = e0 * s0x + e1 * s1x
+                b1 = e0 * s0y + e1 * s1y
+                b2 = e0 * s0z + e1 * s1z
+                cx = a1 * b2 - a2 * b1
+                cy = a2 * b0 - a0 * b2
+                cz = a0 * b1 - a1 * b0
+                sp = math.sqrt(a0 ** 2 + a1 ** 2 + a2 ** 2)
                 if sp > 1e-9 and math.sqrt(cx * cx + cy * cy + cz * cz) > kcap * sp ** 3:
                     ok = False
                     break
             if not ok:
                 continue
-            length, prev = 0.0, p0
-            for t in ts[1:]:
-                w = 1 - t
-                q = tuple(w ** 3 * p0[c] + 3 * w * w * t * p1[c] + 3 * w * t * t * p2[c] + t ** 3 * p3[c] for c in range(3))
+            length, prev = 0.0, o
+            for k0, k1, k2, k3 in place:
+                q = (k0 * ox + k1 * p1x + k2 * p2x + k3 * mx, k0 * oy + k1 * p1y + k2 * p2y + k3 * my,
+                     k0 * oz + k1 * p1z + k2 * p2z + k3 * mz)
                 length += math.dist(prev, q)
                 prev = q
             lo = length if lo is None else min(lo, length)
