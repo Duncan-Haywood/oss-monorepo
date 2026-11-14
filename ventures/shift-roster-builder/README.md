@@ -1823,3 +1823,45 @@ real week; three or more call-outs are only in the played weeks, not the check; 
 pair hours there are an upper bound. The pair price may be buying moves that clear only capped pairs. Next: a budget or an order that
 leaves fewer pairs capped; the 40- and 60-person weeks' played result with the pair price; whether $1 suits a real
 manager's week.
+
+## A pay floor for big weeks (2026-11-14)
+
+On the 60 x 168 week 0 of `eval/end-to-end.mjs`, the clique LP proved the 300 open hours least (README "The 60-person week's
+300 open hours are the least"), but the whole-score column generation's root did not converge in the budget, so the only score
+bound left was 100,000 x 300: every dollar of the $19,119 pay bill counted as open, and the page reported a **$20,010 gap**.
+
+**What landed:** `cliqueScoreFloor` (calc.mjs) solves the same compact clique LP with costs. Open shifts cost 100,000 per hour,
+as in the score. Each column "person p holds shift s" costs a linear floor on what that shift adds to p's score: paid hours at
+p's rate there (site rates included) plus differential hours, times the burden and `min(1, otMult, dtMult)`; the hours in p's
+`avoid:` window; the linear part of the tough-shift penalty (`n^2 + 2 x before x n >= (1 + 2 x before) x n` for whole n); minus
+the `prefer:` and keep bonuses, which are linear and exact. Overtime premiums, split premiums and trip pay only add, so they
+are left out. Fairness and shortfall depend on a person's weekly hours alone and are convex in them, so each person gets one
+column per hour level (every quarter hour up to their cap, plus their minimum) with a convexity row and a row tying the levels
+to the hours held, both written with a right-hand side of 1 as the engine's simplex needs. Each level costs the penalty there
+minus c x D^2 / 4 (c the fairness weight, D the widest step), which keeps the interpolated line under the parabola. The value
+taken is the dual bound, as for the open-hours floor, so simplex rounding cannot lift it above the LP.
+
+In `buildRoster` it runs only when the clique LP ran and nothing proved the roster; under a time budget only when the time
+left covers about 4 s x (copies / 245)^4.5. It raises the score's lower bound and marks the roster proven if it comes within the
+tolerance. `optimality.scoreFloor` reports it; `scoreFloor: false` turns it off.
+
+| 60 x 168 week 0 (`eval/score-floor.out.txt`) | before | after |
+|---|---|---|
+| 20 s budget | 15.7 s, coverage proven, gap **$20,010** | 19.1 s, coverage proven, gap **$30.11** |
+| no budget | 38.7 s, gap $20,010 | 41.1 s, gap $30.11 |
+| week 1, 20 s budget (proven by column generation) | 8.5-10.5 s in earlier runs, proven | 8.5 s, proven, same roster (the LP is not run) |
+
+The LP alone, beside the open-hours LP, on the bench weeks (one cloud machine): 60 x 168 week 0, 4.0 s, 30,019,980.21; week 1,
+1.7 s, 30,819,981.32, which is $0.43 under the 30,819,981.75 column generation proves in 6-7 s, so inside the default $0.50
+tolerance; the three 80 x 224 weeks, 7-13 s. So $30.11 of a $19,119 bill (0.16%) is what is still open on week 0, against
+the whole bill before.
+
+Tests: `score-floor.test.mjs` checks the floor never exceeds the brute-force best score on 160 seeded three-person weeks
+across rest gaps, daily caps, last week's finishes, minimum hours, fairness weights 0-100, tough-shift balance, avoid and
+prefer windows, burden, weekly and daily overtime (including an overtime multiplier under 1), meal breaks, differentials and
+split premiums (within $0.50 on 38, median gap $12; the largest gaps are open hours the LP leaves fractional), that it is never
+under 100,000 x the open-hours LP when no bonus applies, and the two 60 x 168 values above. Not claimed: seeded synthetic
+weeks, one machine; site wages and paid trips are covered by the argument, not by the brute-force test; the remaining $30.11
+on week 0 is not split between the LP's looseness and a better roster the search misses. Next: run it before column generation
+on 60-copy-plus weeks, where on week 1 it would prove the roster in 1.7 s instead of 6-7 s, if the incumbent is already within
+the tolerance; branch on its fractional columns to close the $30.
