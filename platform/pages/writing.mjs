@@ -350,12 +350,13 @@ const STYLE = `
   #count { margin:0; font-size:.85rem; color:var(--muted); }
   .topic { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--accent); color:var(--accent); }
   .meta a.tag, .meta a.topic { text-decoration:none; }
-  /* A post's byline row: the topic pill, then date and reading time, then Source, each kept whole when the row wraps; tags on a row of their own. */
-  .post-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px .35em; line-height:1.5; }
-  .post-meta .topic { margin-right:.3em; }
+  /* A post's byline: the topic pill with date and reading time (kept whole), then a row of tags with Source at its right end, so no separator dot is ever left at the start of a wrapped line. */
+  .post-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px .65em; line-height:1.5; }
   .post-meta .when, .post-meta .src { white-space:nowrap; }
-  .post-meta .tags { flex-basis:100%; display:flex; flex-wrap:wrap; gap:6px; }
+  .post-meta .tail { flex-basis:100%; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; }
+  .post-meta .tags { display:flex; flex-wrap:wrap; gap:6px; }
   .post-meta .tag { margin:0; }
+  .post-meta .src { margin-left:auto; }
   .pager { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:2em 0 0; font-size:.92rem; }
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
@@ -864,7 +865,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
     },
     hero: `<h1>${esc(post.title)}</h1>
 <p class="dek">${esc(post.description)}</p>
-<p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="src"><span aria-hidden="true">·</span> <a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span>${tags ? ` <span class="tags">${tags}</span>` : ''}</p>`,
+<p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="tail">${tags ? `<span class="tags">${tags}</span> ` : ''}<span class="src"><a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span></span></p>`,
     body: `<article>
 ${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), toRoot)}
 </article>

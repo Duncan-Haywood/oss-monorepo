@@ -1110,7 +1110,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // ---- Entities escaped twice in menus, titles and headings ----------------
   //
   // `&amp;rsquo;` shows a visitor the literal text "&rsquo;". The custom-
-  // development direction picker printed 17 such choices until 2026-11-14,
+  // development direction picker printed 50 such choices until 2026-11-14,
   // because research titles arrive as HTML and were escaped again. Prose is
   // left alone: posts about entities show them on purpose.
   for (const relative of servedPages) {

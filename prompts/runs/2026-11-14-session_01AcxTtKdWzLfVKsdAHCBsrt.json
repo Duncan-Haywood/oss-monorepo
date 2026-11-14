@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKdWzLfVKsdAHCBsrt",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T16:06:25Z",
+  "ended": "2026-11-14T16:18:58Z",
+  "wall_minutes": 14.89,
+  "tokens_in": 7682019,
+  "tokens_out": 31480,
+  "cost_usd": 2.9928,
+  "tool_calls": 85,
+  "task": "polish: double-escaped entities in the custom-development research menu; blog post byline row",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15905",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Wrote a 191-character post description; six platform/pages tests failed on it (limit 160)",
+      "fix": "shortened it; reran the four failing test files green"
+    },
+    {
+      "what": "First fix left '&gamma;' undecoded: the shared entity table lacked it; the new check caught it on the rebuilt site",
+      "fix": "added the remaining Greek letters to NAMED_ENTITIES"
+    },
+    {
+      "what": "Commit message and first comments said 17 affected choices before counting; real count 50 of 1,080",
+      "fix": "corrected comments, PR text and report"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "No way to rebuild only the blog or one page: each visual iteration costs a 7-10 minute full build, so I patched one dist page by hand to preview a CSS tweak."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Python PIL in the container is broken (_imaging import fails); cropped screenshots with Playwright instead. Worth a line in cloud-session.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot the hub, a flagship, research and Stories pages before choosing; the previous polish reports' 'still weakest' lists plus an entity sweep pointed at two concrete defects",
+      "did": "picked the carried-over blog byline item and the product-side entity sweep from the last report",
+      "result": "found a visitor-facing bug on the Get it built form (50 menu choices) that no report had named"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-get-it-built-menu-showed-entity-names.md",
+    "docs/reports/polish-2026-11-14-byline-and-direction-menu.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test 'platform/pages/*.test.mjs' 1664 tests, 6 failures all from my post's description length; after fixing, the 4 affected files (67 tests) pass. check.mjs on the build before the &gamma; fix: 6 problems, all the new check on the six custom-development pages, nothing else. Final rebuild: node platform/pages/check.mjs exit 0, \"looks publishable: 1363 products, 45 category pages, 9708 pages, no dead links\"; the menu reads \"market\u2019s price\" and \"a \u03b3-fold capital\".",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5cbdb8c3-1012-554e-ad50-e5131e6ce5e0",
+    "transcripts": 1,
+    "first": "2026-11-14T16:06:25Z",
+    "last": "2026-11-14T16:21:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 145,
+        "output": 31480,
+        "thinking": 5248,
+        "cache_read": 7575943,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105931,
+        "api_equivalent_usd": 2.9928,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 145,
+      "output": 31480,
+      "thinking": 5248,
+      "cache_read": 7575943,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105931,
+      "api_equivalent_usd": 2.9928,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 72,
+      "Read": 8,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.89,
+      "active_minutes": 14.89,
+      "model_minutes": 7.53,
+      "tool_minutes": 7.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "front-end dev: find and fix the escaping bug, write the site-wide check, restyle the byline, screenshots and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 100.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
