@@ -3317,7 +3317,7 @@ function buildRosterOnce(staff, slots, options = {}) {
   };
   if (!deferCover) { runClique(); coverPasses(); }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
-  let optimality = null;
+  let optimality = null, cgShare = null;
   if (exactOn && !over()) {
     const annealScore = best.score;
     // Whole-score branch-and-price first (scoreColumnGeneration: the Dantzig-Wolfe LP costed at each person's score, solved by
@@ -3342,9 +3342,10 @@ function buildRosterOnce(staff, slots, options = {}) {
     // proved nothing and left a root bound of 294 h, while the clique LP then bounds 358 h and guides the day sweeps: 385 to 376
     // and 353 to 350 open hours (eval/clique-room.out.txt). `cliqueRoom: false` keeps the plain half.
     const cgHalf = scoreCGBudgetMs(budgetMs - (Date.now() - tStart), ctx.S, o);
+    cgShare = o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? cgHalf : Infinity);
     if (o.scoreCG !== false) {
       try {
-        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, openFloor: early?.floor || 0, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? cgHalf : Infinity), maxNodes: o.scoreCGPricingNodes ?? 200000 });
+        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, openFloor: early?.floor || 0, nodeLimit: o.scoreCGNodes ?? 20000, ms: cgShare, maxNodes: o.scoreCGPricingNodes ?? 200000, hardStop: o.scoreCGHardStop !== false });
       } catch { cg = null; } // a solver failure leaves the exact search to do the work alone
       mark("scoreCG");
       if (cg?.roster) {
@@ -3467,7 +3468,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       forcedOpenHours: ex.proven ? Math.floor(best.score / BIG + 1e-9) : Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)),
       coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
       tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes, treeSkipped: !!ex.skipped,
-      scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
+      scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms, lpMs: cg.stats.lpMs, maxLpMs: cg.stats.maxLpMs, pricingMs: cg.stats.pricingMs, maxPricingMs: cg.stats.maxPricingMs, rounds: cg.stats.rounds, pricingCalls: cg.stats.pricingCalls, stoppedMidRound: cg.stats.stoppedMidRound || 0, shareMs: Number.isFinite(cgShare) ? cgShare : null } : null,
       earlyFloor: early,
       cliqueFloor: clique ? { floor: clique.floor, lp: clique.lp, rows: clique.rows, columns: clique.cols, pivots: clique.pivots, ms: clique.ms } : null,
       dayLNS,

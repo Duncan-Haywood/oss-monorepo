@@ -229,18 +229,18 @@ flagships:
       a whole week at the Deputy file's rates (README "A whole week of call-outs at
       a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open
       hours path-dependent both ways. Next: whether a real manager would set
-      keepShift above 1; 100-person gaps: 376/351 h at 20 s vs 359/347 (README "Room
-      for the clique LP"); day sweeps LP-guided, by the open-hours LP when the pay
-      floor is skipped (README "A guide when the pay floor is skipped"); warm start
-      landed (README 2026-11-14), next a warm-sized gate; re-run the
-      keep-usual-shifts sweep on real dated leave records; a manager's read on
-      whether the steadier plan is the one they would post; a real 7shifts account
-      through --import-7shifts (README "Reading 7shifts directly"); a real When I
-      Work account or response through --import-wheniwork (README "Reading When I
-      Work directly"); Homebase (docs need an account); --cover-price moves two
-      shifts together (README "Moving two shifts together": 20-person week exposure
-      113 to 68 h for $35.27); second call-outs priced (README "A second call-out in
-      the same week", off by default); next: fewer capped pairs, pair price past 120
+      keepShift above 1; 350+ copies: clique LP vs cover passes (README "keeps to
+      its share"); day sweeps LP-guided, by the open-hours LP when the pay floor is
+      skipped (README "A guide when the pay floor is skipped"); warm start landed
+      (README 2026-11-14), next a warm-sized gate; re-run the keep-usual-shifts
+      sweep on real dated leave records; a manager's read on whether the steadier
+      plan is the one they would post; a real 7shifts account through
+      --import-7shifts (README "Reading 7shifts directly"); a real When I Work
+      account or response through --import-wheniwork (README "Reading When I Work
+      directly"); Homebase (docs need an account); --cover-price moves two shifts
+      together (README "Moving two shifts together": 20-person week exposure 113 to
+      68 h for $35.27); second call-outs priced (README "A second call-out in the
+      same week", off by default); next: fewer capped pairs, pair price past 120
       copies; a real two-site export and staff list (README "Staff shared between
       sites"); own and site rates read from staff CSVs and 7shifts (README
       "Per-location pay from an export"); next a real wages export, real trip times;

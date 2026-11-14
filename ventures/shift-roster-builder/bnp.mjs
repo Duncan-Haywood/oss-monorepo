@@ -272,7 +272,7 @@ export function branchAndPriceOpen(sets, len, { incumbentOpen = Infinity, nodeLi
 // (scaled to a right-hand side of 1, with a surplus column). Without it the LP may leave 3/8 of an 8 h shift open where a whole
 // 3 h lunch must stay open, and the whole-score bound sits one open hour (100,000) below the roster it should prove. The row is
 // valid for every roster, so every bound stays valid; it touches only the open-shift columns, so the pricing oracle is unchanged.
-export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0, diveBacktrack = null, openFloor = 0 } = {}) {
+export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0, diveBacktrack = null, openFloor = 0, hardStop = true } = {}) {
   const S = len.length;
   const knap = openFloor > 1e-9 ? S + P : -1; // row index of the open-hours row, -1 when there is none
   const M = S + P + (knap >= 0 ? 1 : 0);
@@ -287,7 +287,14 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   const unit = unitOpt ?? hourUnit(len);
   const t0 = Date.now();
   const timeUp = () => Date.now() - t0 > ms;
-  const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, maxPricingNodes: 0, pricingMs: 0, classes: copies.size };
+  // Hard stop (2026-11-14, README "Column generation keeps to its share"): the time limit was checked only between rounds, and on
+  // 350-400 copy weeks one round (an LP solve of up to 1.5 s and ~90 pricing calls) carried column generation 1-1.5 s past its
+  // share, enough to push the clique LP out of its time gate. Now the LP solves stop at the limit (solveLP's deadline) and the
+  // pricing loop checks it before each call. A stopped solve ends the node with the bound it had, as a pivot limit does.
+  // `hardStop: false` keeps the old between-rounds check.
+  const stopAt = hardStop && Number.isFinite(ms) ? t0 + ms : Infinity;
+  const stopped = (e) => String(e?.message).includes("simplex deadline");
+  const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, maxPricingNodes: 0, pricingMs: 0, maxPricingMs: 0, lpMs: 0, maxLpMs: 0, classes: copies.size };
   const pool = [], seen = new Set();
   const addCol = (p, set, cost = 0) => {
     const f = [...set].sort((a, b) => a - b);
@@ -353,13 +360,15 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
       try {
         // Within a node the pool only grows at the end and `fits` does not change, so last round's basis is still a feasible
         // basis of this round's LP: start from it (warm) rather than from the artificials. A failed warm solve retries cold.
-        try { lp = solveLP(M, cols, cost, init, { warm: warm ? prevBasis : null, bigM, vals }); }
-        catch (e) { if (!warm || !prevBasis) throw e; lp = solveLP(M, cols, cost, init, { bigM, vals }); }
+        const tl = Date.now();
+        try { lp = solveLP(M, cols, cost, init, { warm: warm ? prevBasis : null, bigM, vals, deadline: stopAt }); }
+        catch (e) { if (!warm || !prevBasis || stopped(e)) throw e; lp = solveLP(M, cols, cost, init, { bigM, vals, deadline: stopAt }); }
+        finally { const d = Date.now() - tl; stats.lpMs += d; if (d > stats.maxLpMs) stats.maxLpMs = d; }
         prevBasis = lp.basis;
       } catch (e) {
         // A solver failure (pivot limit, singular basis) stops this node with the bound it already has, which is still valid;
         // the search then reports the floor unproven instead of throwing out of buildRoster.
-        stats.lpFailures = (stats.lpFailures || 0) + 1;
+        if (stopped(e)) stats.stoppedMidRound = (stats.stoppedMidRound || 0) + 1; else stats.lpFailures = (stats.lpFailures || 0) + 1;
         return { fix, bound: lb, pick: -1, settled: false, solved: false };
       }
       stats.pivots += lp.pivots;
@@ -377,12 +386,15 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
           if (rc < 0) lagr += rc;
           continue;
         }
+        // Out of time part-way through a round: stop pricing. The round is then inexact, so its Lagrangian value is not taken as a
+        // bound (lb keeps the last complete round's), and the columns already found stay in the pool.
+        if (hardStop && timeUp()) { exact = false; stats.stoppedMidRound = (stats.stoppedMidRound || 0) + 1; break; }
         stats.pricingCalls++;
         // A needed class is held through its highest-priced copy: copies are interchangeable for p, so that copy is p's best.
         const need = needCls[p].map((k) => copies.get(k).reduce((a, s) => (w[s] > w[a] ? s : a)));
         const tp = Date.now();
         const r = price(p, w, need, ban[p]);
-        stats.pricingMs += Date.now() - tp;
+        { const d = Date.now() - tp; stats.pricingMs += d; if (d > stats.maxPricingMs) stats.maxPricingMs = d; }
         if (r.nodes > stats.maxPricingNodes) stats.maxPricingNodes = r.nodes;
         if (!r.exact) { exact = false; stats.inexactPricing++; }
         if (!r.set) { lagr = Infinity; continue; }
