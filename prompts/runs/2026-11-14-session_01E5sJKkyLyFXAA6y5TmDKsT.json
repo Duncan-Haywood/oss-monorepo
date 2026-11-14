@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKkyLyFXAA6y5TmDKsT",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T01:18:10Z",
+  "ended": "2026-11-14T01:31:01Z",
+  "wall_minutes": 13.13,
+  "tokens_in": 7401093,
+  "tokens_out": 46685,
+  "cost_usd": 3.5602,
+  "tool_calls": 62,
+  "task": "water-leaks step 12: time-resolved and flow-balance-sized leak signatures (H3), pre-registered",
+  "projects": [
+    "water-leaks"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15679",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First run of step 12 failed its own reproduction gate (4 of 59 rows): float32 rounding decided Pearson scores for a junction whose signature is a uniform shift (n111), plus two exact ties; fixed with a 1e-4 m RMS floor in localise.scores and a tie tolerance in the gate; first run kept as results_firstrun.txt"
+  ],
+  "integrity_issues": [
+    "The scoring fix was made after the first run's localisation counts had been printed and seen; it is mechanical (changes no setting), disclosed in LOG.md, README and results_firstrun.txt is kept. The same defect had affected one line of step 11's committed output (D1-F stability in q, 23% -> 31%); step 11 rerun and corrected in this PR, no hit counts changed.",
+    "diag_switch.py is an after-the-run diagnostic, labelled as such."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/water-leaks/src/water_leaks/data.py",
+      "issue": "dataset_configuration.yaml is unreachable from Zenodo and absent from both GitHub mirrors, so a setup loop over all listed files fails at the end; nothing in steps 1-12 needs it, but the SHA table suggests it is required"
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Claim step asks for a search of open PRs; `gh api search/issues` printed nothing (unauthenticated in this container) rather than an error, so an empty result is indistinguishable from 'no PRs'; pick_track's CLAIM CHECK via git log was what actually worked"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-richer-leak-signatures-made-localisation-worse.md",
+    "research/water-leaks/LOG.md (step 12 plan and outcome)"
+  ],
+  "goal": "Advance the water-leaks programme's milestone 3 (H3, localisation) with step 11's named next step",
+  "notes": "Routed research/0 (draw), track 21, programme water-leaks. Security queue empty, IDEAS.md and website requests empty. Result: oracle-timed 32 leaks within 300 m: A (step 11) 15, B time-resolved 11, C size-matched 14, D primary 12, most-affected sensor 13; H3 refuted under D (23%, 29%). Verification: pytest 31 passed (/usr/bin/python3.13), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, post front matter/links/similarity ok, cite_check ok (offline-confirmed ids). Step 11 rerun byte-identical before the fix; after the fix two lines change (documented).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c68c11ee-07da-5b50-a4b0-c74d2bf7a5bc",
+    "transcripts": 1,
+    "first": "2026-11-14T01:18:10Z",
+    "last": "2026-11-14T01:31:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 115,
+        "output": 46685,
+        "thinking": 13388,
+        "cache_read": 7254079,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146899,
+        "api_equivalent_usd": 3.5602,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 115,
+      "output": 46685,
+      "thinking": 13388,
+      "cache_read": 7254079,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146899,
+      "api_equivalent_usd": 3.5602,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 58,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.13,
+      "active_minutes": 13.13,
+      "model_minutes": 7.56,
+      "tool_minutes": 5.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a water-network researcher scripting 4,692 EPANET runs, a four-way localisation comparison with a reproduction gate, a diagnosis of a scoring defect and the write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 337.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
