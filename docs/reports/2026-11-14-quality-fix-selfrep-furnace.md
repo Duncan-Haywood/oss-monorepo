@@ -1,5 +1,5 @@
 ---
-kind: analysis
+kind: note
 subjects: [selfrep-recyclers]
 date: 2026-11-14
 tagged: auto

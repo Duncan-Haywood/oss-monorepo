@@ -396,13 +396,13 @@ flagships:
       sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
       --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
       real singers; the release kit against a distributor's real form; the Te Deum
-      correction. master-cli passed EBU Tech 3341 built from its text (69/69,
-      eval/ebu-tech3341-2026-11-14.md); open: the EBU's own WAVs (403), loudness
-      range, Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
-      liquescents (latest: rhombus height floor, eval/rhombus-height-check.md);
-      next: four tall false rhombi, a fresh worn-page set (new GABC needed),
-      stacked-pes seams, mottled squares, liquescents after a porrectus end;
-      --split-voices (by phrase or at a word, --split-words,
+      correction. master-cli passed EBU Tech 3341 and 3342 (LRA) built from their
+      text (eval/ebu-tech3341-2026-11-14.md, eval/ebu-tech3342-2026-11-14.md); open:
+      the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi,
+      quilismas, liquescents (latest: rhombus height floor,
+      eval/rhombus-height-check.md); next: four tall false rhombi, a fresh worn-page
+      set (new GABC needed), stacked-pes seams, mottled squares, liquescents after a
+      porrectus end; --split-voices (by phrase or at a word, --split-words,
       eval/word-split-report.md) and --overlap (both sections sing the seam note at
       a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
       ranges, of a mid-phrase handoff against a whole phrase and of a one-note
