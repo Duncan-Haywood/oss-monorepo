@@ -31,6 +31,7 @@ import json
 import random
 import re
 import statistics
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -356,7 +357,14 @@ def deepen_for(oldest: str, today: dt.date, git=_git, git_run=None) -> str:
         return (f"(shallow clone starts {start}; oldest audit {oldest} is over {FETCH_MAX_DAYS} days old, "
                 f"so not fetching: run `git fetch --shallow-since={oldest} origin main` in the background)")
     cmd = ["git", "fetch", "-q", f"--shallow-since={oldest}", "origin", "main"]
-    run = git_run or (lambda c: subprocess.run(c, capture_output=True, timeout=FETCH_TIMEOUT_S, cwd=ROOT).returncode)
+
+    def default_run(c):
+        # shallow_repair drops the bogus .git/shallow entry an earlier --shallow-since fetch can
+        # leave; without it this fetch failed every time in a clone that had run one (2026-11-14).
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import shallow_repair
+        return shallow_repair.fetch(c[2:], cwd=ROOT, timeout=FETCH_TIMEOUT_S).returncode
+    run = git_run or default_run
     try:
         ok = run(cmd) == 0
     except (OSError, subprocess.SubprocessError):
