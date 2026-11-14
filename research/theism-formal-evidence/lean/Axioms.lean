@@ -72,3 +72,9 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AndersonK.Transient.fails
 #print axioms TheismFormal.AndersonK.essential_a4_iff
 #print axioms TheismFormal.AndersonK.essential_a4_iff_III
+#print axioms TheismFormal.AndersonK.Horn.god_z
+#print axioms TheismFormal.AndersonK.Horn.model
+#print axioms TheismFormal.AndersonK.Horn.model_A1a
+#print axioms TheismFormal.AndersonK.Horn.fails
+#print axioms TheismFormal.AndersonK.essential_back_iff
+#print axioms TheismFormal.AndersonK.essential_back_iff_III

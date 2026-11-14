@@ -1785,6 +1785,24 @@ f-number tags through the whole pipeline (master equal to `develop --lens-db` an
 uncorrected develop, the note, notes beside raws only), an unknown lens, no folder, a broken XML, the
 cache and the symlink rules. `shootflow develop`'s JSON now carries `lens` and `lens_notes` too.
 
+### Canon lenses with no name: found from the maker note's focal range (2026-11-14)
+
+A Canon 350D writes no lens name at all, and bodies write a third-party lens as "105mm" or
+"10-17mm", so `--lens-db` refused those files. Their maker note still says the lens's focal range
+and its widest f-number at the focal length shot (CameraSettings, read on five real bodies). When
+the file names no lens, ShootFlow now looks for the lenses in lensfun whose names state that exact
+range and an f-number range holding that aperture, on the body's mount or an adapted mount of the
+same maker. If exactly one fits, it corrects with it and says so in the report ("pass --lens if it
+is not"). If several fit, it refuses and lists them. A real name in the file, or `--lens`, wins.
+
+On a real 70D frame named only "105mm" it now finds the Sigma 105mm f/2.8 EX DG OS HSM Macro and
+corrects distortion, lateral colour and vignetting. The 350D's 28-200 mm and the 7D's 10-17 mm stay
+refused, because lensfun has no Canon-mount lens with either range, and the note now says that.
+Across lensfun's 366 Canon-mount lenses, the range alone picks one lens in 38% of cases. The rest
+are ties, mostly versions of one lens (IS, IS II). The true lens is never dropped. "Alone" means
+alone in lensfun, so a lens lensfun lacks can be taken for one it has with the same range; the note
+names the lens it used. Details: `eval/canon-lens-from-range-2026-11-14.md`.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its

@@ -214,9 +214,9 @@ flagships:
       7shifts directly"); a real When I Work account or response through
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
       need an account); --cover-price moves two shifts together (README "Moving two
-      shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it,
-      a second call-out in one week (README "The caller can take a later shift":
-      café exposure down, week-long open hours up), pairs past 200 copies; a real
+      shifts together": 20-person week exposure 113 to 68 h for $35.27); second
+      call-outs priced (README "A second call-out in the same week", off by
+      default); next: fewer capped pairs, pair price past 120 copies; a real
       two-site export and staff list (README "Staff shared between sites"); own and
       site rates read from staff CSVs and 7shifts (README "Per-location pay from an
       export"); next a real wages export, real trip times; whether the priced cut's
@@ -232,11 +232,12 @@ flagships:
       memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
       liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
       the SSE path (four-component float32 images through lensfunpy, if it allows
-      them) and a 16-bit fixed-point output check; Canon's maker-note lens number
-      (CameraSettings index 22) mapped to a name for CR2s whose maker note gives no
-      usable name (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095
-      are read since 2026-11-13); the whole numpy develop runs in threaded bands and
-      packed raws unpack in numpy since 2026-11-13
+      them) and a 16-bit fixed-point output check; CR2s with no lens name are
+      matched by the maker note's focal range and aperture since 2026-11-14
+      (eval/canon-lens-from-range-2026-11-14.md: one lens in 38% of lensfun's
+      Canon-mount cases, the rest refused as ties); next: the same fields from
+      Nikon's LensData or Sony's maker note; the whole numpy develop runs in
+      threaded bands and packed raws unpack in numpy since 2026-11-13
       (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
       band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
@@ -396,13 +397,13 @@ flagships:
       sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
       --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
       real singers; the release kit against a distributor's real form; the Te Deum
-      correction. master-cli passed EBU Tech 3341 built from its text (69/69,
-      eval/ebu-tech3341-2026-11-14.md); open: the EBU's own WAVs (403), loudness
-      range, Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
-      liquescents (latest: rhombus height floor, eval/rhombus-height-check.md);
-      next: four tall false rhombi, a fresh worn-page set (new GABC needed),
-      stacked-pes seams, mottled squares, liquescents after a porrectus end;
-      --split-voices (by phrase or at a word, --split-words,
+      correction. master-cli passed EBU Tech 3341 and 3342 (LRA) built from their
+      text (eval/ebu-tech3341-2026-11-14.md, eval/ebu-tech3342-2026-11-14.md); open:
+      the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi,
+      quilismas, liquescents (latest: rhombus height floor,
+      eval/rhombus-height-check.md); next: four tall false rhombi, a fresh worn-page
+      set (new GABC needed), stacked-pes seams, mottled squares, liquescents after a
+      porrectus end; --split-voices (by phrase or at a word, --split-words,
       eval/word-split-report.md) and --overlap (both sections sing the seam note at
       a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
       ranges, of a mid-phrase handoff against a whole phrase and of a one-note

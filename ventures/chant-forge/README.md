@@ -660,8 +660,28 @@ momentary (400 ms) and short-term (3 s) window, found over every sample offset
 `master.mjs` too (`truePeakAnnex2`): inside tolerance, but 0.2-0.3 dB under on
 cases 15 and 17, so the windowed sinc stays the true peak. Cases 20-23 depend on
 an anti-aliasing filter the table does not give (here a 20 kHz cut, which itself
-leaves the peak at -0.24 dBTP); not run: 5.0 channels, the authentic programme
-files and loudness range.
+leaves the peak at -0.24 dBTP); not run: 5.0 channels and the authentic programme
+files.
+
+### Loudness range, EBU Tech 3342 (2026-11-14)
+
+```sh
+node ventures/chant-forge/eval/ebu-tech3342.mjs      # Table 1 cases 1-4, exit 0 when all pass
+node ventures/chant-forge/eval/ffmpeg-lra-check.mjs  # against ffmpeg's ebur128 (needs ffmpeg)
+```
+
+`master-cli.mjs` now prints the loudness range (LRA): how far the 3 s loudness moves,
+95th minus 10th percentile, after a -70 LUFS and a -20 LU gate, as Tech 3342 (2023)
+defines it, with its MATLAB listing's percentile ranks. Cases 1-4 of its Table 1,
+built from the text, read 10.000, 5.000, 20.000 and 15.000 LU (wanted +/-1), the same
+when repeated two and three times and with 1.5 s of trailing silence; with
+BS.1770's -10 LU gate instead, case 3 reads 1.33, so the cases test the gate. Against
+ffmpeg, 11 of 12 signals (tones, pink noise with steps, a fade and a quiet bed, and
+four of this tool's own preview renders) agree within 0.2 LU; the 12th is 0.45 apart
+because the two meters pick a different rank among 100 widely spaced windows
+(eval/ebu-tech3342-2026-11-14.md). The renders read 0.8 LU (metal, steady) to 5.0 LU
+(EDM with `--sections`). No service sets an LRA limit, so it is reported, not checked.
+Open: the EBU's own WAVs (cases 5 and 6, programme material) and a real mix.
 
 ## Real Gregorio files (2026-11-03)
 

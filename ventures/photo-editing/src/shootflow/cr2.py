@@ -68,6 +68,9 @@ TAG_MAKE = 271
 TAG_MODEL = 272
 TAG_CR2_SLICES = 0xC640
 CANON_SENSOR_INFO = 0x00E0
+CANON_CAMERA_SETTINGS = 0x0001  # maker note: an array of shorts; index 0 is its own length in bytes
+# CameraSettings indexes (as ExifTool and Exiv2 number them, Exiv2's canonmn_int.cpp read 2026-11-14):
+CS_LENS_TYPE, CS_LONG_FOCAL, CS_SHORT_FOCAL, CS_FOCAL_UNITS, CS_MAX_APERTURE = 22, 23, 24, 25, 26
 CANON_COLOR_DATA = 0x4001
 
 # ColorData version by array length -> index of WB_RGGBLevelsAsShot.
@@ -524,7 +527,45 @@ def parse_cr2(data: bytes, cfa: str | None = None) -> rd.RawImage:
         synth.entries[rd.TAG_AS_SHOT_NEUTRAL] = tuple(1.0 / v for v in as_shot)
     head = rd.Ifd(entries=dict(ifd0.entries), byte_order=reader.end)
     head.entries[rd.TAG_UNIQUE_CAMERA_MODEL] = tuple(unique.encode("latin-1")) + (0,)
-    return rd.RawImage(width, height, 1, values, synth, head, source="cr2", notes=notes, exif=_exif_with_lens(reader, ifd0))
+    return rd.RawImage(width, height, 1, values, synth, head, source="cr2", notes=notes, exif=_exif_with_lens(reader, ifd0),
+                         lens_hint=lens_hint(reader, ifd0))
+
+
+def canon_ev(value: int) -> float:
+    """Canon's exposure-value code: 32 to a stop, with 0x0C and 0x14 in the low five bits meaning 1/3 and 2/3."""
+
+    sign = -1 if value < 0 else 1
+    value = abs(value)
+    frac = value & 0x1F
+    whole = value - frac
+    part = {0x0C: 32 / 3, 0x14: 64 / 3}.get(frac, float(frac))
+    return sign * (whole + part) / 32.0
+
+
+def lens_hint(reader: rd._Reader, ifd0: rd.Ifd) -> rd.LensHint | None:
+    """The lens's focal range and its widest f-number at the shot's focal length, from CameraSettings.
+
+    Checked on five real bodies (eval/canon-lens-from-range-2026-11-14.md): a 28-200 mm zoom at 182 mm reports
+    f/5.6, a 10-17 mm at 13 mm f/4, the EF100-400mm f/4.5-5.6L at 100 mm f/4.5, the EF50mm f/1.2L f/1.2, so the
+    aperture is the one at the focal length shot, not the lens's widest at its short end.
+    """
+
+    note = _maker_note(reader, ifd0)
+    cs = note.get(CANON_CAMERA_SETTINGS) if note is not None else None
+    if not cs or len(cs) <= CS_MAX_APERTURE:
+        return None
+    units = cs[CS_FOCAL_UNITS]
+    long_f, short_f = cs[CS_LONG_FOCAL], cs[CS_SHORT_FOCAL]
+    if not units or units >= 0x8000 or not long_f or not short_f or short_f > long_f:
+        return None
+    raw_ap = cs[CS_MAX_APERTURE]
+    raw_ap = raw_ap - 0x10000 if raw_ap >= 0x8000 else raw_ap
+    aperture = None
+    if 0 < raw_ap < 0x7FFF:
+        aperture = round(2.0 ** (canon_ev(raw_ap) / 2.0), 2)
+    lens_type = cs[CS_LENS_TYPE]
+    return rd.LensHint(short_f / units, long_f / units, aperture,
+                       None if lens_type in (0, 0xFFFF) else int(lens_type))
 
 
 def _exif_with_lens(reader: rd._Reader, ifd0: rd.Ifd) -> rd.Ifd | None:

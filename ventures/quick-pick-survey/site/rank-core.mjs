@@ -15,12 +15,20 @@ export const MAX_ITEM_LENGTH = 120;
 export const STOP_CONFIDENCE = 0.9;
 export const RANK_DRAWS = 1500;
 
-/** One option per line; blank lines, list bullets and repeats dropped. */
+/**
+ * One option per line; blank lines, list bullets and repeats dropped.
+ * Idempotent (parseList(parseList(x).join("\n")) is parseList(x)): a shared
+ * link is parsed again on the respondent's side, and any change there gives
+ * a different listId, so the creator would refuse every respondent's code.
+ * Hence every leading bullet goes, the cut is by code point (no half emoji)
+ * and the trim comes after the cut.
+ */
 export function parseList(text) {
   const seen = new Set();
   const items = [];
   for (const raw of String(text).split(/\r?\n/)) {
-    const line = raw.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim().slice(0, MAX_ITEM_LENGTH);
+    const stripped = raw.replace(/^\s*(?:(?:[-*•]|\d+[.)])\s+)+/, "").trim();
+    const line = Array.from(stripped).slice(0, MAX_ITEM_LENGTH).join("").trim();
     if (!line) continue;
     const key = line.toLowerCase();
     if (seen.has(key)) continue;
