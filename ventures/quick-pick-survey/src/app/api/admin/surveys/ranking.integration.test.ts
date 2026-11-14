@@ -115,7 +115,7 @@ describe("admin survey ranking", () => {
     expect(rho).toBeGreaterThan(0.8);
     // Every participant answered ANSWERS_EACH pairs, and the route reads that from answered trials.
     expect(body.coverage.options).toBe(n);
-    expect(body.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(body.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(body.agreement.advice).toBe("");
   });
 
@@ -166,7 +166,7 @@ describe("admin survey ranking", () => {
     const all = await (await get(SURVEY)).json();
     expect(all.pace).toMatchObject({ checked: 7, fast: 2, lowAndFast: 2, typicalSeconds: 3 });
     expect(all.pace.advice).toMatch(/^2 respondents of 7 answered in under half the typical time per pick/);
-    expect(all.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(all.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(Math.max(...all.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
 
     const without = await (await get(SURVEY, "?drop=fast")).json();
@@ -188,7 +188,7 @@ describe("admin survey ranking", () => {
     setCookie(ADMIN_COOKIE_NAME, createSessionToken());
     const all = await (await get(SURVEY)).json();
     const replayed = await (await get(SURVEY, "?drop=fast-answers")).json();
-    expect(replayed.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(replayed.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     // Same answers, replayed in answer order through the same update: the same ranking (the pool sums rows in another order, so to 1e-6, not the last bit).
     type Row = { itemId: string; rank: number; bestRank: number; worstRank: number; respondents: number; rating: number; low: number; high: number };
     const shape = (r: Row[]) => r.map(({ itemId, rank, bestRank, worstRank, respondents }) => ({ itemId, rank, bestRank, worstRank, respondents }));
@@ -260,6 +260,34 @@ describe("admin survey ranking", () => {
     const none = await (await get(SURVEY, "?drop=fast-blocks")).json();
     expect(none.leftOut).toMatchObject({ fastBlocks: 0 });
     expect(none.leftOut.advice).toMatch(/^Nobody turned unusually quick partway through/);
+  });
+
+  it("leaves out a weak one-position lean from where the person turned quick, which the slot run test alone misses", async () => {
+    await runRespondents(5, 60);
+    // Two respondents who answer on the options for 30 picks, then turn quick and pick the top slot on 23 of their last 30
+    // (the bottom slot on every fourth from the third): 77%, too weak for a run tested at every start (and about 65% over the whole
+    // session, under slotClickers' bar), strong for one named in advance.
+    let k = 0;
+    const bored = await runRespondents(2, 60, (a, b) => {
+      const i = k++ % 60;
+      return i < 30 ? (a < b ? "A" : "B") : (i - 30) % 4 === 2 ? "B" : "A";
+    });
+    const all = await prisma.trial.findMany({ where: { result: { not: null } }, orderBy: [{ answeredAt: "asc" }, { id: "asc" }], select: { id: true, participantId: true } });
+    const seen = new Map<string, number>();
+    for (const t of all) {
+      const i = seen.get(t.participantId) ?? 0;
+      seen.set(t.participantId, i + 1);
+      await prisma.trial.update({ where: { id: t.id }, data: { msToAnswer: bored.includes(t.participantId) && i >= 30 ? 750 : 3000 } });
+    }
+    setCookie(ADMIN_COOKIE_NAME, createSessionToken());
+    const body = await (await get(SURVEY)).json();
+    expect(body.leftOut).toMatchObject({ slotClickers: 0, slotBlocks: 2, slotBlocksAtTurns: 2, slotBlockAnswers: 60, fastBlocks: 0 });
+    expect(Math.max(...body.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
+
+    // At an even pace there is no turn to name, and the lean alone is left in.
+    await prisma.trial.updateMany({ where: { participantId: { in: bored } }, data: { msToAnswer: 3000 } });
+    const even = await (await get(SURVEY)).json();
+    expect(even.leftOut).toMatchObject({ slotClickers: 0, slotBlocks: 0, slotBlocksAtTurns: 0, slotBlockAnswers: 0 });
   });
 
   it("downloads the same ranking as CSV, one row per option", async () => {
