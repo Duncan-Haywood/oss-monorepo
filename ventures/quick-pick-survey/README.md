@@ -221,10 +221,14 @@ random (one walk-to-noise ratio fitted to everyone's times at once), a turn must
 wandering pace would not make, scored against the panel's own slow turns: with everyone's pace
 wandering 0.08 log per answer, honest flags fell from 17% to 3.4%; where nobody wanders the test
 stays off (96% of the harm recovered against 97%). Under such wander it also finds fewer of the
-careless, so timing alone stays weak there. A comparison for now (same file, "Carelessness that starts
+careless, so timing alone stays weak there. Since later that day the picks help: a turn that fails
+the wander test still counts when the person's picks from it on agree with the rest of the panel
+much less than their earlier picks did (2.5 standard errors, allowing for the closer pairs shown
+late in a session). Under the same wander it finds 24% of the careless instead of 18% and recovers
+27% of the harm instead of 19%, for 3.9% of honest people flagged against 3.4%. A comparison for now (same file, "Carelessness that starts
 mid-session", "A panel curve the careless cannot drag down", "A threshold from the panel's own
 slow turns", "A later-pass curve that drift cannot lift", "A step net of the person's own trend"
-and "A step a wandering pace cannot make").
+"A step a wandering pace cannot make" and "A block's picks as well as its times").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once

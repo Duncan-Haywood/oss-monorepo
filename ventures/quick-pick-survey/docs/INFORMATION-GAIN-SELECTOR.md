@@ -3617,7 +3617,7 @@ Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --net-share
 salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (a few
 minutes on 4 CPUs).
 
-## A step a wandering pace cannot make (2026-11-14, latest; shipped)
+## A step a wandering pace cannot make (2026-11-14; shipped)
 
 Item (d6) on the flagship list. Under each person's own pace wandering as a
 random walk of N(0, 0.08) log per answer (`--person-walk 0.08`),
@@ -3720,3 +3720,96 @@ Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --walk
 0.9:0:0.008 --surveys 40 --items 15,30 --person-walk 0.08 --patterns
 salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (about
 ten minutes on one CPU).
+
+## A block's picks as well as its times (2026-11-14, latest; shipped)
+
+Item (d7) on the flagship list. Under a pace that wanders (walk 0.08 log per
+answer), the wander bar above cut honest flags from 17% to 3.4%, but it also
+cut the careless found from 0.47 to 0.18. Timing alone cannot do better there,
+because a walk can hold a step as large as a bored person's. A bored person
+also changes *what* they pick: their picks stop following the panel. A
+wandering pace changes nothing about the picks.
+
+**The test.** `blockAgreementDrop(answers, at, rating)` takes the rest of the
+panel's pooled rating for each item, with the person left out (the same
+random-effects pool `groupRanking` uses, over everyone else's replayed ratings).
+It scores each of the person's decided answers as *agree* (1 if they picked the
+panel's higher-rated item) minus the chance of agreeing that the panel's own gap
+implies, 1 / (1 + 10^(-|gap| / 400)). The staged selector shows closer pairs
+late in a session, so raw agreement falls for everyone as a session goes on. The
+expected chance absorbs that. The score is the earlier side's mean residual
+minus the later side's, divided by the binomial standard error of the two means.
+
+**Where it applies.** In `fastBlockStarts`, only once the wander bar is engaged
+(`panelWalkRatio` >= 0.008), and only when the answers carry their items and
+results. The ranking route has always passed both, so it applies there. A
+timing split that passes every earlier test but fails the wander bar still
+counts when its pick score reaches `agreeZ` (`FAST_BLOCK_AGREE_Z`, mode "or").
+Mode "only" drops the wander bar and uses the pick test alone once engaged.
+Where nobody wanders, nothing changes.
+
+**Grid.** `scripts/answer-time-sweep.ts --agree 1.5,2,2.5,2:only` adds a
+`shift-drop-azNN[-only]` scheme per value. The cells are those of the last
+section at walk 0 (no wander, no drift), 0.04 and 0.08: salience and random
+patterns, 25% and 40% careless at 0.6x with onsets 0.25, 0.5 and 0.75, and cost
+cells with nobody careless or a 25-40% camp with a second taste (ratio 1). Panels
+of 20 on 15 and 30 items, 4 answers per item, 40 surveys per cell, 90 cells.
+Raw rows: `docs/fast-blocks-agree-2026-11-14.jsonl`. In that file, `shift-drop`
+is the shipped rule given times only, which is the rule before this change.
+"Ceiling" here is the summed Spearman gain over the summed gain from leaving out
+exactly the careless answers. That is why the "before" column at walk 0 reads
+93% where the last section's cells read 96%.
+
+| cells | before | z 1.5 | z 2 | **z 2.5 (shipped)** | z 2, only |
+|---|---|---|---|---|---|
+| careless, no wander (24): ceiling, found, honest mean / worst | 93%, 0.89, 0.0 / 0.2% | 94%, 0.90, 0.0 / 0.2% | 93%, 0.90, 0.0 / 0.2% | **93%, 0.89, 0.0 / 0.2%** | 90%, 0.85, 0.0 / 0.0% |
+| nobody careless or a camp, no wander (6): Spearman change, honest | 0.0000, 0.0 / 0.1% | same | same | **same** | same |
+| careless, walk 0.04 (24) | 46%, 0.48, 2.3 / 4.0% | 54%, 0.55, 2.8 / 4.8% | 53%, 0.53, 2.6 / 4.8% | **51%, 0.51, 2.5 / 4.3%** | 39%, 0.38, 1.0 / 3.2% |
+| same, walk 0.04 (6) | -0.0016, 4.6 / 7.0% | -0.0016, 4.6 / 7.0% | -0.0016, 4.6 / 7.0% | **-0.0016, 4.6 / 7.0%** | -0.0014, 3.9 / 5.4% |
+| careless, walk 0.08 (24) | 19%, 0.18, 3.4 / 4.7% | 31%, 0.32, 5.0 / 8.0% | 30%, 0.27, 4.3 / 6.3% | **27%, 0.24, 3.9 / 5.7%** | 16%, 0.15, 0.9 / 1.5% |
+| same, walk 0.08 (6) | -0.0018, 4.1 / 4.5% | -0.0027, 5.7 / 6.8% | -0.0022, 4.7 / 5.7% | **-0.0019, 4.3 / 4.6%** | -0.0007, 1.3 / 2.5% |
+
+What it shows:
+
+- **The picks add something under wander.** At walk 0.08 the shipped bar finds
+  a third more of the careless (0.18 to 0.24) and recovers 27% of the harm
+  instead of 19%. Honest flags go from 3.4% to 3.9%. In a panel of 20 with a
+  third careless, that is about 0.07 more honest people named per survey
+  against 0.4 more careless people found, roughly five to one.
+- **The bar is a trade, and 2.5 keeps it cheap.** At 1.5 the most careless are
+  found (0.32), but honest flags reach 5.0% (8.0% in the worst cell) and an
+  honest panel's cost grows by half (0.0018 to 0.0027 Spearman). At 2.5 the
+  honest panel's cost is 0.0019 against 0.0018.
+- **Picks alone are weaker than picks plus times.** "Only" flags almost no one
+  honest (0.9%), but it finds fewer of the careless than the wander bar alone did
+  (0.15). Most true blocks fail it. At 30 to 45 answers after a split, the
+  agreement gap between a coin flip and an honest pick is small, because the
+  staged selector's late pairs sit near 50/50 for an honest person too. One
+  pick there says little about the person, so the test has little power.
+- **Where nobody wanders, no change**, as designed: the test is not engaged.
+  Under walk 0.04 the bar is often not engaged at 60 answers, so the gain is
+  smaller (46% to 51%).
+
+**Decision.** `FAST_BLOCK_AGREE_Z = 2.5` in mode "or" ships as the default of
+`fastBlockStarts`. A list of times alone (no items or results) skips the test,
+so every earlier scheme in the sweep reproduces. Two new unit tests cover it.
+One pins `blockAgreementDrop` to its closed form on a hand-built sequence: 0.8
+against 0.5 agreeing gives 0.3 over the binomial standard error, and ties,
+unrated items and short sides are skipped. The other is a seeded panel of 20 by
+60 answers in which everyone's pace wanders 0.08 and four turn quick and pick at
+random at answer 30. Without the wander bar, two careless and three honest
+people are flagged. With it on times alone, one careless person is flagged. The
+default flags both careless people and no one honest. The test fails with
+`FAST_BLOCK_AGREE_Z` set to 0. The view stays a comparison, not the default
+ranking.
+
+**Next (d8).** The pick signal is weak because adaptive pairs are hard pairs.
+A few easy check pairs, far apart in the panel's ranking, could carry much more
+per answer. The anchor-pair work (2026-11-11 and 2026-11-13) measured them as a
+lapse detector. Whether they help a block test is open. Whether real people's
+pace wanders at all is still for the first real survey (item c).
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --agree
+1.5,2,2.5,2:only --surveys 40 --items 15,30 --person-walk 0.08 --patterns
+salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (about
+fifteen minutes on one CPU).

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtLsnFyxaWMWFm7UZXB",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T02:06:37Z",
+  "ended": "2026-11-14T02:19:58Z",
+  "wall_minutes": 13.62,
+  "tokens_in": 6892897,
+  "tokens_out": 37504,
+  "cost_usd": 3.1105,
+  "tool_calls": 63,
+  "task": "Deepen flagship 8 (quick-pick-survey), item d7: a block test that reads picks as well as times under a wandering pace",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15690",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First blockAgreementDrop unit test asserted > 2.5 where the closed form is 2.34; replaced with an exact pin.",
+    "First draft of the doc's per-honest-flag ratio said three to one; recomputed as about five to one before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Says venture-preflight takes over 5 min; fine, but nothing says whether a library-only change (no page change) needs it. I ran it anyway."
+    },
+    {
+      "file": "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md",
+      "issue": "The earlier sections' 'ceiling' percentages don't say whether they are a mean of per-cell ratios or a ratio of sums. The two differ by 2-4 points here, so the shipped column did not reproduce exactly until I chose one. The new section says which it uses."
+    },
+    {
+      "file": "ventures/quick-pick-survey (vitest config)",
+      "issue": "console.log from a throwaway vitest probe does not reach the terminal; a tsx script worked instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-when-timing-cannot-tell-read-the-picks.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (new section 'A block's picks as well as its times')"
+  ],
+  "goal": "Flagship depth: a measured improvement to the careless-block detector, shipped as the default of fastBlockStarts",
+  "notes": "Answer-time sweep, 90 cells x 40 surveys (walk 0, 0.04, 0.08; careless and cost cells); raw rows docs/fast-blocks-agree-2026-11-14.jsonl. Shipped z 2.5 in 'or' mode: walk 0.08 careless found 0.18 -> 0.24, ceiling 19% -> 27%, honest 3.4% -> 3.9%; no-wander unchanged. npm run verify: typecheck, lint, 556 tests, build all pass; the new tests fail with FAST_BLOCK_AGREE_Z = 0. venture-preflight run in background, result in PR body if it finishes before merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "683ba039-a8e7-59af-85dc-832cecdf3a3a",
+    "transcripts": 1,
+    "first": "2026-11-14T02:06:37Z",
+    "last": "2026-11-14T02:20:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 117,
+        "output": 37504,
+        "thinking": 9370,
+        "cache_read": 6766960,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125820,
+        "api_equivalent_usd": 3.1105,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 117,
+      "output": 37504,
+      "thinking": 9370,
+      "cache_read": 6766960,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125820,
+      "api_equivalent_usd": 3.1105,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 59,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.62,
+      "active_minutes": 13.62,
+      "model_minutes": 6.97,
+      "tool_minutes": 6.65,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design of a pick-agreement statistic, a 90-cell simulation sweep, tests and write-up by a statistician-engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 321.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

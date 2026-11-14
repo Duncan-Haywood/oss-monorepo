@@ -587,6 +587,70 @@ export const FAST_BLOCK_WALK_FLOOR = 0;
  */
 export const FAST_BLOCK_WALK_ENGAGE = 0.008;
 
+/**
+ * Once the wander bar is engaged (FAST_BLOCK_WALK_ENGAGE), a split that fails it still counts when the person's picks
+ * from the split on agree with the rest of the panel at least this many standard errors less than their earlier picks
+ * did (blockAgreementDrop); 0 turns the test off. Timing alone is weak under a wandering pace; a careless block also
+ * changes what is picked, which a wandering pace does not. In the answer-time sweep with each person's pace wandering
+ * N(0, 0.08) log per answer, 2.5 raised the share of the ceiling from 19% to 27% and the careless found from 0.18 to
+ * 0.24, for honest flags of 3.9% against 3.4% (4.3% against 4.1% with nobody careless, Spearman cost 0.0019 against
+ * 0.0018); at walk 0.04, 51% against 46%; where nobody wanders, no change (docs/INFORMATION-GAIN-SELECTOR.md, "A block's
+ * picks as well as its times", 2026-11-14). 2.0 and 1.5 found more and flagged more honest people. Needs the answers'
+ * items and results; answers given as times only skip it.
+ */
+export const FAST_BLOCK_AGREE_Z = 2.5;
+
+/**
+ * How much less a person's picks from answer `at` on agree with the panel than their picks before it did, in standard
+ * errors (positive: the later picks agree less). `rating` holds the rest of the panel's pooled rating for each item
+ * (leave the person out). Each decided answer whose two items both have a rating scores agree (1 if the pick is the
+ * panel's higher-rated item) minus the chance of agreeing the panel's own gap implies, 1 / (1 + 10^(-|gap| / 400)), so
+ * the harder, closer pairs an adaptive selector shows late in a session do not read as a drop; the two sides' mean
+ * residuals are compared with the binomial variances of those chances. Ties (EQUAL) and pairs the panel rates level are
+ * skipped. 0 when either side has fewer than FAST_BLOCK_MIN_SEG scored answers.
+ */
+export function blockAgreementDrop(answers: { itemAId: string; itemBId: string; result: string }[], at: number, rating: Map<string, number>): number {
+  const side = [{ e: 0, v: 0, n: 0 }, { e: 0, v: 0, n: 0 }];
+  answers.forEach((a, i) => {
+    if (a.result !== "A" && a.result !== "B") return;
+    const ra = rating.get(a.itemAId), rb = rating.get(a.itemBId);
+    if (ra === undefined || rb === undefined || ra === rb) return;
+    const gap = (a.result === "A" ? ra - rb : rb - ra);
+    const p = 1 / (1 + Math.pow(10, -Math.abs(gap) / 400));
+    const s = side[i < at ? 0 : 1];
+    s.e += (gap > 0 ? 1 : 0) - p;
+    s.v += p * (1 - p);
+    s.n++;
+  });
+  const [b, l] = side;
+  if (b.n < FAST_BLOCK_MIN_SEG || l.n < FAST_BLOCK_MIN_SEG) return 0;
+  const se = Math.sqrt(b.v / (b.n * b.n) + l.v / (l.n * l.n));
+  return se > 0 ? (b.e / b.n - l.e / l.n) / se : 0;
+}
+
+/**
+ * Each respondent's rest-of-panel pooled rating per item (the pool of everyone else's replayed ratings for it, as
+ * groupRanking pools them), for blockAgreementDrop. Built lazily per respondent.
+ */
+function leaveOneOutRatings(answers: ReplayAnswer[]): (participantId: string) => Map<string, number> {
+  const rows = ratingsWithoutAnswers(answers, () => false).rows.filter((r) => r.rd < DEFAULT_RD - 1e-9);
+  const byItem = new Map<string, ParticipantRatingRow[]>();
+  for (const r of rows) (byItem.get(r.itemId) ?? byItem.set(r.itemId, []).get(r.itemId)!).push(r);
+  const cache = new Map<string, Map<string, number>>();
+  return (participantId) => {
+    let m = cache.get(participantId);
+    if (!m) {
+      m = new Map();
+      for (const [itemId, list] of byItem) {
+        const others = list.filter((r) => r.participantId !== participantId);
+        if (others.length) m.set(itemId, pool(others).rating);
+      }
+      cache.set(participantId, m);
+    }
+    return m;
+  };
+}
+
 /** Passes over the panel's curve in fastBlockStarts (each leaves out the blocks the last found). */
 export const FAST_BLOCK_PASSES = 3;
 
@@ -881,12 +945,26 @@ export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q
  * of the panel's own slow turns' scores (`walkQ`, autoWalkMin). Under a 0.08-log-per-answer walk honest flags fell from
  * 17% to 3.4%; where nobody wanders the test is not engaged.
  *
+ * Since 2026-11-14 (later), when the answers carry their items and results (the ranking route passes them), a split
+ * that fails the wander bar still counts when the person's picks from it on agree with the rest of the panel at least
+ * `agreeZ` (FAST_BLOCK_AGREE_Z) standard errors less than before it (blockAgreementDrop; `agreeMode` "only" drops the
+ * wander bar for the pick test, which was measured and found weaker). Under a 0.08 walk the careless found rose from
+ * 0.18 to 0.24 for honest flags of 3.9% against 3.4%.
+ *
  * Needs AGREEMENT_MIN_RESPONDENTS respondents with timed answers; otherwise
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q, netShare = FAST_BLOCK_NET_SHARE, walkQ = FAST_BLOCK_WALK_Q, walkFloor = FAST_BLOCK_WALK_FLOOR, walkEngage = FAST_BLOCK_WALK_ENGAGE): Map<string, number> {
+export function fastBlockStarts(answers: (AnswerTime & Partial<Omit<ReplayAnswer, "participantId" | "ms">>)[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q, netShare = FAST_BLOCK_NET_SHARE, walkQ = FAST_BLOCK_WALK_Q, walkFloor = FAST_BLOCK_WALK_FLOOR, walkEngage = FAST_BLOCK_WALK_ENGAGE, agreeZ = FAST_BLOCK_AGREE_Z, agreeMode: "or" | "only" = "or"): Map<string, number> {
   if (!(walkQ >= 0 && walkQ <= 1)) throw new Error(`walkQ must be between 0 and 1, got ${walkQ}`);
+  if (!(agreeZ >= 0)) throw new Error(`agreeZ must be 0 or more, got ${agreeZ}`);
+  if (agreeMode !== "or" && agreeMode !== "only") throw new Error(`agreeMode must be "or" or "only", got ${JSON.stringify(agreeMode)}`);
+  // The pick test needs every answer's items and result; a list of times alone skips it.
+  const withPicks = agreeZ > 0 && answers.length > 0 && answers.every((a) => typeof a.itemAId === "string" && typeof a.itemBId === "string" && typeof a.result === "string");
+  const replayable = withPicks ? (answers as ReplayAnswer[]) : [];
+  const ownAnswers = new Map<string, ReplayAnswer[]>();
+  for (const a of replayable) (ownAnswers.get(a.participantId) ?? ownAnswers.set(a.participantId, []).get(a.participantId)!).push(a);
+  const looRatings = withPicks ? leaveOneOutRatings(replayable) : null;
   if (!(netShare >= 0)) throw new Error(`netShare must be 0 or more, got ${netShare}`);
   if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
   if (!(laterQ > 0 && laterQ < 1)) throw new Error(`laterQ must be between 0 and 1, got ${laterQ}`);
@@ -917,9 +995,17 @@ export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE
     const gapMin = minLog === "auto" ? (autoFastBlockMinLog(residuals) ?? FAST_BLOCK_MIN_LOG) : minLog;
     const walkMin = walkQ > 0 ? (autoWalkMin(residuals, walkQ, walkFloor, walkEngage) ?? 0) : 0;
     const next = new Map<string, number>();
-    people.forEach(([participantId], j) => {
-      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF, netShare, walkMin);
-      if (split !== null) next.set(participantId, split);
+    people.forEach(([participantId, list], j) => {
+      if (!looRatings || walkMin <= 0) {
+        const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF, netShare, walkMin);
+        if (split !== null) next.set(participantId, split);
+        return;
+      }
+      // Wander engaged and picks available: the timing candidate, then the walk bar or the pick test.
+      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF, netShare, 0);
+      if (split === null) return;
+      const walkOk = agreeMode === "or" && stepOverWalk(residuals[j], split) >= walkMin;
+      if (walkOk || blockAgreementDrop(ownAnswers.get(participantId) ?? [], list[split].index, looRatings(participantId)) >= agreeZ) next.set(participantId, split);
     });
     const same = next.size === splits.size && [...next].every(([id, k]) => splits.get(id) === k);
     splits.clear();

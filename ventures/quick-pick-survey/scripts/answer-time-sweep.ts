@@ -90,6 +90,8 @@
  *   shift-drop-nNN `--net-share 0.NN`: the shipped reading whose split must also leave a step net of the person's own line (stepNetOfTrend) of at least 0.NN x the gap threshold
  *   (since 2026-11-14 shift-drop includes the wander test, FAST_BLOCK_WALK_Q; the qNN, tfNN, lNN and nNN schemes run without it, so their rows reproduce)
  *   shift-drop-wQQ-fFF[-eEEE] `--walk 0.QQ:FF[:engage]`: the shipped reading whose split must also reach the 0.QQ quantile (at least FF) of the panel's slow-turn stepOverWalk scores
+ *   shift-drop-azZZ[-only] `--agree z[:only]`: the shipped reading given the picks too, with agreeZ z (z = 2.5 is the default
+ *     since 2026-11-14, so shift-drop-az25 is what the ranking route does; shift-drop itself passes times only)
  *   `--person-walk sd`: each person's pace also wanders as a random walk, N(0, sd) log per answer
  *
  * `--onset-spread s` (2026-11-13): each careless person's onset is drawn
@@ -158,12 +160,17 @@ const netShares = nums(opt("--net-share", "")).filter((x) => x >= 0);
 // `--walk q:floor,...` (2026-11-14, flagship item d6): a shift-drop-wQQ-fFF scheme per pair, the shipped reading whose split
 // must also reach the q quantile (at least floor) of the panel's slow-turn stepOverWalk scores (autoWalkMin); `q:floor:engage` sets no bar unless the panel's walk ratio (panelWalkRatio) reaches engage.
 const walks = opt("--walk", "").split(",").filter(Boolean).map((t) => { const [q, f = 0, e = 0] = t.split(":").map(Number); return { q, f, e, key: `shift-drop-w${Math.round(q * 100)}-f${Math.round(f)}${e ? `-e${Math.round(e * 1000)}` : ""}` }; }).filter((w) => w.q > 0 && w.q <= 1 && w.f >= 0);
+// `--agree z[:only],...` (2026-11-14, flagship item d7): a shift-drop-azNN[-only] scheme per value, the shipped reading
+// (wander bar on) where, once the bar is engaged, a timing split that fails it still counts when the person's later picks
+// agree with the rest of the panel z standard errors less than their earlier ones (blockAgreementDrop); `only` drops the
+// walk bar and uses the pick test alone once engaged.
+const agrees = opt("--agree", "").split(",").filter(Boolean).map((t) => { const [z, m] = t.split(":"); const mode = m === "only" ? "only" as const : "or" as const; return { z: Number(z), mode, key: `shift-drop-az${Math.round(Number(z) * 10)}${mode === "only" ? "-only" : ""}` }; }).filter((a) => a.z > 0);
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
 const ownBlockStart = (ms: number[]) => fastBlockSplit(ms.map((v) => Math.log(v)), minSeg, shiftMin, shiftT);
 
-const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`), ...laterQs.map((lq) => `shift-drop-l${Math.round(lq * 100)}`), ...netShares.map((ns) => `shift-drop-n${Math.round(ns * 100)}`), ...walks.map((w) => w.key)];
+const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`), ...laterQs.map((lq) => `shift-drop-l${Math.round(lq * 100)}`), ...netShares.map((ns) => `shift-drop-n${Math.round(ns * 100)}`), ...walks.map((w) => w.key), ...agrees.map((a) => a.key)];
 
 /**
  * fastBlockStarts with a per-survey gap threshold, for people who all answered in order with every answer timed (as
@@ -374,6 +381,11 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 for (const w of walks) {
                   const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, w.q, w.f, w.e);
                   people.forEach((p, i) => (p.qBlockAt[w.key] = st.get(`p${i}`) ?? null));
+                }
+                for (const ag of agrees) {
+                  const withPicks = people.flatMap((p, i) => p.shown.map((s, k) => ({ participantId: `p${i}`, ms: s.ms, itemAId: s.a, itemBId: s.b, result: p.answers[k].picked === s.a ? "A" : "B" })));
+                  const st = fastBlockStarts(withPicks, FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_WALK_Q, FAST_BLOCK_WALK_FLOOR, FAST_BLOCK_WALK_ENGAGE, ag.z, ag.mode);
+                  people.forEach((p, i) => (p.qBlockAt[ag.key] = st.get(`p${i}`) ?? null));
                 }
                 for (const a of autos) {
                   const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f, a.c, a.tf);
