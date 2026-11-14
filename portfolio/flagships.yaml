@@ -253,11 +253,12 @@ flagships:
       there. Latest (2026-11-14, "Clicking one position from partway through"; docs/slot-blocks-2026-11-14.jsonl):
       slot runs that start partway (d3) are cut by default (slotBlockStarts: exact binomial tail, Bonferroni over
       starts, alpha 0.01; honest flags 0.01-0.16%); the answers before the run count; matched the oracle ceiling in
-      every cell. Next, most valuable first: (c) the first real survey's answers: msToAnswer against the answer-time
-      model, panelWalkRatio on real times (decides whether fast-blocks is worth offering), whether real people have
-      warm-ups, blocks, slot runs or spread-out carelessness, and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d9) weak slot runs (a 60% or lower lean after the onset)
-      are mostly missed: a run test that pools slot and time evidence?; (d8) a stronger pick signal under wander
+      every cell; weak runs are missed but cost nothing measurable. Next, most valuable first: (c) the first real
+      survey's answers: msToAnswer against the answer-time model, panelWalkRatio on real times (decides whether
+      fast-blocks is worth offering), whether real people have warm-ups, blocks, slot runs or spread-out
+      carelessness, and how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d9) a
+      slot run and a fast block in the same person: does either test find it sooner when the other has?; (d8) a
+      stronger pick signal under wander
       (staged pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1
       but taxes a camp by up to 0.030: decide on a real panel's times.
 
