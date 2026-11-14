@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVLaoaKd6Zk9Goub14Z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T16:14:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship open-tennis-robots: azimuth stepper driver ENABLE held off until the contactor closes; contact bounce",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 15899,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/test_pins.py",
+      "issue": "Every non-strapping ESP32 GPIO on the feeder is now taken; the last two free pins (5, 15) are strapping pins, so the pin-map rule was widened (STRAP_HIGH_OUT, STRAP_IN). The next new feeder signal needs an I/O expander or a freed pin."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-tennis-feeder-learns-when-its-power-is-really-on.md"
+  ],
+  "goal": null,
+  "notes": "Landed: Feeder.contactor_bounce + check (enable delay vs pull-in+bounce; bounce re-close vs make rating); stepper_holds_at_power_up now False; firmware controller.PowerGate, StepperAxis.unpowered, Controller hook hw.bus_tick, FeederHw EN on GPIO 5 (pull-up, starts high) and coil sense on GPIO 15; protocol FLAG_BUS_OFF=1024; host waits for it at connect and aborts on it; feeder_sim models the coil (wired e-stop and a wireless fob). Numbers (assumed): contactor make 44.6 A -> 19.6 A at defaults; sweep 28-66 A (4/27 fail) -> 12-29 A (0/27); 10 ms bounce re-close 5-21 A idle, 11-44 A if enabled. Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots -> ok (72.6 s); CAD suite with build123d 0.13.0 in a venv (python -m unittest discover -s tests in cad/), output in PR; manufacturing/feeder regenerated with python -m otr_cad feeder (only manifest, README.txt, BOM and zip changed).",
+  "corrections": [],
+  "redteam": null
+}

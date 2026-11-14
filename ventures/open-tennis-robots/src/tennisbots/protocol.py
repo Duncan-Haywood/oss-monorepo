@@ -48,6 +48,7 @@ FLAG_AZ_UNHOMED = 64     # azimuth stepper has no position yet (homing, or lost 
 FLAG_AIM_SETTLING = 128  # elevation or azimuth not yet at its goal (or homing): the feed gate waits for it
 FLAG_ELEV_FAULT = 256    # elevation actuator stopped: feedback lost or stalled; power-cycle the board to retry
 FLAG_WHEELS_SETTLING = 512  # launcher wheels not yet held within 3% of target for 150 ms (or stopped): the gate waits
+FLAG_BUS_OFF = 1024       # switched bus not up (contactor open, or closed under CONTACTOR_SETTLE_MS ago): motors unpowered
 
 
 def crc8(data):

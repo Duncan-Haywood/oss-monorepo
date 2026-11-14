@@ -7,7 +7,8 @@ turntable follows the step pulses exactly (no lost steps), and the elevation act
 (timed) or reports its true stroke through the pot (pot). The feed shuttle moves toward the end its servo pulse
 asks for at the CAD's loaded stroke times (`SHUTTLE_OUT_S`, `SHUTTLE_BACK_S`, from cad `Feeder.shuttle_drive`), and a
 ball is released when it reaches the wheels with a ball in its pocket; the pocket refills after it has sat under the
-column for `SHUTTLE_DROP_S`. The serial line is two byte queues.
+column for `SHUTTLE_DROP_S`. The serial line is two byte queues. The contactor's coil (sensed on GPIO 15 since
+2026-11-14) is on unless the wired e-stop is pressed or the wireless fob has cut it (`fob_cut`).
 """
 
 import importlib.util
@@ -36,6 +37,7 @@ class SimFeeder:
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
         self.estop_button = False
+        self.fob_cut = False           # wireless e-stop: drops the contactor's coil, the board sees no switch (2026-11-14)
         self.drop_cmd = None           # set to a command byte to lose the next such frame on the wire
         self.pot_broken = False
         state = self
@@ -51,6 +53,8 @@ class SimFeeder:
                 if v is None:
                     if self.n == 4:
                         return 1 if sim.estop_button else 0
+                    if self.n == 15:           # contactor coil sense, low while energised: the wired e-stop and the
+                        return 1 if sim.estop_button or sim.fob_cut else 0   # wireless fob are both in its series
                     return self.v
                 self.v = v
 
