@@ -46,7 +46,10 @@ Options:
                             Waiting for two columns to agree does not fix it: sensors that move together (two
                             accelerometers, two temperatures) agree on noise too, so the normal run still sent 2.7
                             messages per 100 checks, and 9 of 33 faults seen by one column alone were missed
-                            (README "Round 13"; not offered).
+                            (README "Round 13"; not offered). A floor per column read off the normal run (--min-shift,
+                            below) cut false lines out of sample from 6.3 to 2.3 per 100 checks but lost 5 of 33 faults:
+                            set the floor by hand on the loud columns that do not matter, not on the one that sees the
+                            faults (README "Round 14"; the automatic version is not offered).
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
@@ -75,6 +78,10 @@ Options:
                             (default since round 5: record it as held, not alerted)
   --persist <k>             2 (the default since round 7): alert only on a change also found at the previous check, one
                             check later; 1: alert at once. Both are flicker guards: README, "Round 5" and "Round 7".
+  --min-shift <x|col=x,...> the smallest move to alert on, in the column's own units: a detection whose level moved by
+                            less is dropped at every check (it is sent later if more points show it larger). A number
+                            applies to every watched column; temperature=0.5,flow=2 sets it per column (--columns).
+                            README, "Round 14".
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)
@@ -87,7 +94,7 @@ Statistical analysis of data you supply, not advice. MIT licence.`;
 export async function main(argv, { out = (s) => process.stdout.write(s), env = process.env, fetchImpl = globalThis.fetch } = {}) {
   const o = {};
   let src = null, statePath = null, json = false, failOnAlert = false, dry = false, hookEnv = null;
-  let suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null;
+  let suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null, floorSpec = null;
   const num = (s, name) => { const v = Number(s); if (!(v > 0) || !Number.isInteger(v)) throw new Error(`${name} takes a whole number above 0.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -112,6 +119,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--window') o.window = num(argv[++i], '--window');
     else if (a === '--alert-old-history') o.holdHistory = false;
     else if (a === '--persist') { o.persist = num(argv[++i], '--persist'); if (o.persist > 2) throw new Error('--persist takes 1 or 2.'); }
+    else if (a === '--min-shift') floorSpec = parseMinShift(argv[++i]);
     else if (a === '--webhook-env') hookEnv = argv[++i];
     else if (a === '--fail-on-alert') failOnAlert = true;
     else if (a === '--dry-run') dry = true;
@@ -135,8 +143,9 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   } else csv = await readFile(src, 'utf8');
   if (columnsSpec) {
     if (o.column != null) throw new Error('Give --column or --columns, not both.');
-    return watchColumns({ csv, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl });
+    return watchColumns({ csv, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec });
   }
+  if (floorSpec?.byColumn) throw new Error('--min-shift column=x,... is for --columns; with one column give a number.');
   const { labels, values, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   const { column: _c, labelColumn: _l, alertHistory: _h, ...detOpts } = o;
@@ -159,6 +168,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
       detOpts.detector = c.detector;
     }
   }
+  if (floorSpec?.all) detOpts.minShift = floorSpec.all;
   const changes = detectChanges(values, labels, detOpts);
   const res = advance(state, changes, values.length, labels, o);
   const textOpts = { column, model: o.model || 'mean', confirm: o.confirm };
@@ -204,10 +214,31 @@ export function columnSpecs(csv, spec, labelColumn = null) {
   return specs;
 }
 
+/**
+ * `--min-shift`: the smallest move to alert on, in the column's own units (README "Round 14"). A number applies to
+ * every watched column; "column=x,column=y" sets it per column (names case-insensitive, or 0-based indexes) and leaves
+ * the others without one. Returns { all } or { byColumn: Map(lowercased name -> x) }.
+ */
+export function parseMinShift(spec) {
+  const s = String(spec ?? '').trim();
+  const pos = (t, what) => { const v = Number(t); if (!(v > 0) || !Number.isFinite(v)) throw new Error(`--min-shift: ${what} takes a number above 0, got "${t}".`); return v; };
+  if (!s || s.startsWith('-')) throw new Error('--min-shift takes a number (0.5) or column=number pairs (temperature=0.5,flow=2).');
+  if (!s.includes('=')) return { all: pos(s, 'the floor') };
+  const byColumn = new Map();
+  for (const part of s.split(',').map((t) => t.trim()).filter(Boolean)) {
+    const i = part.lastIndexOf('=');
+    const name = part.slice(0, i).trim().toLowerCase();
+    if (i < 0 || !name) throw new Error(`--min-shift: "${part}" is not column=number.`);
+    if (byColumn.has(name)) throw new Error(`--min-shift: "${name}" is given twice.`);
+    byColumn.set(name, pos(part.slice(i + 1).trim(), name));
+  }
+  return { byColumn };
+}
+
 /** The record for several columns: { version, columns: { <name>: <one column's state> } }. */
 export function emptyMultiState() { return { version: 1, columns: {} }; }
 
-async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl }) {
+async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec = null }) {
   const k = specs.length;
   // Each column is picked against the whole budget, as a one-column watch would be. Splitting it (1/k each) was
   // pre-registered and failed (eval/watch-columns.mjs): on 5 noise columns the unsplit picks already sent 1.33 alerts per
@@ -220,6 +251,14 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
     if (values.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${values.length}.`);
     return { ...s, column: String(column), labels, values, opts: { ...base, ...(s.model ? { model: s.model } : {}) } };
   });
+  if (floorSpec?.byColumn) {
+    const watched = new Map(series.map((c) => [c.column.toLowerCase(), c]));
+    for (const [name, x] of floorSpec.byColumn) {
+      const c = watched.get(name) ?? (/^\d+$/.test(name) ? series.find((t) => t.column === String(parseColumns(csv, null, labelColumn ?? null).names[Number(name)])) : null);
+      if (!c) throw new Error(`--min-shift: "${name}" is not one of the watched columns (${series.map((t) => t.column).join(', ')}).`);
+      c.opts.minShift = x;
+    }
+  } else if (floorSpec?.all) for (const c of series) c.opts.minShift = floorSpec.all;
   if (suggest) {
     const rows = series.map((c) => {
       if (c.values.length < 10) throw new Error(`--suggest needs at least 10 points; ${c.column} has ${c.values.length}.`);

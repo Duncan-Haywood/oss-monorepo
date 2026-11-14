@@ -4374,3 +4374,59 @@ named by the person who sets the watch up), or a per-column rate cap from the no
 Tests: `watch-agree.test.mjs` (7: agreement on made-up lines, k = 1 as one message per change, order and argument
 checks, the round's window, T9 on made-up totals, the seeded noise, and the committed output's verdict with the help
 and page texts).
+
+## Round 14: a smallest-move floor per column from the normal history (2026-11-14, pre-registered on a seen set; fails, `auto` not offered; hand-set `--min-shift` ships)
+
+Rounds 12 and 13 left the many-column watch over budget on SKAB's normal run, and neither eagerness, a budget split nor
+agreement between columns fixed it. An operator's own answer to a loud sensor is "don't tell me about moves smaller than
+X". This round tested that answer with X read off the normal history, so the person sets nothing by hand. For each
+column, replay Quiet on the anomaly-free run and take the size (|level after - level before|, the move the alert message
+states) of every line it sent. Then set the column's floor so that at most m = 4 of those lines clear it, its equal
+share of the whole-watch budget (2 per 100 of 1,861 checks, over 8 columns). The floor sits in the watch
+(`minShift`, `aboveFloor` in watch-core.mjs): a detection under it is dropped at every check, before the guards, so a
+change too small at first can clear it a few points later and is then sent. The fault runs were replayed with the floor
+in the watch, not filtered afterwards. The out-of-sample null is each fault run's stretch before its fault (SKAB marks
+it normal; 2,997 checks over the 33 runs, recorded on other days than the normal run): every line sent before the
+fault's window opens is false. `sh eval/skab-fetch.sh skab-data && node eval/watch-skab-floor.mjs skab-data` (output
+`eval/watch-skab-floor.out.txt`, 800 s on 4 cores). The rule, design, predictions and the `minShift` code were committed
+in this PR's second commit, before any scored run.
+
+Floors read off the normal run: accelerometers 0.0050 and 0.0043, temperature 0.45, thermocouple 0.79, flow rate 1.67;
+current, pressure and voltage sent 4 or fewer lines there and got no floor.
+
+| every column on Quiet (33 fault runs, 123 marks) | lines | at a mark | per 1,000 checks | marks reached | faults caught | median delay | pre-fault, per 100 checks | normal run, per 100 (F in-sample) |
+|---|---|---|---|---|---|---|---|---|
+| Q, no floor | 457 | 36.8% | 69.4 | 97 | 33/33 | 30 s | 6.34 (190) | 8.54 |
+| **F, floor in the watch** | 198 | **46.5%** | 30.1 | 74 | **28/33** | 52.5 s | **2.27** (68) | 1.93 |
+| P, Q's lines with the floor applied after the fact | 165 | 46.1% | 25.1 | 62 | 22/33 | 27.5 s | 2.00 (60) | 1.34 |
+
+- **T10 fails on two of three parts.** (a) Pre-fault false lines 2.27 per 100 checks, over the budget of 2 (Q: 6.34);
+  (b) F caught 28 faults against Q's 33 (the rule allowed losing 2); (c) its share at a mark rose, 46.5% against 36.8%.
+  As pre-registered, `--min-shift auto` does not ship. The hand-set `--min-shift <x>` (or `column=x,...` with
+  `--columns`) ships either way, as the rule said: it is the person's own threshold, not a claim this round tested.
+
+**Predictions, scored.** (a) I predicted Q's pre-fault rate near 8.5 and F's about 1.5: Q was 6.34, F 2.27, a fail by
+0.27. (b) I predicted 31 or more caught: wrong, 28. Flow rate's floor (1.67) was set by its own normal-run moves and cut
+the column's fault catches from 29 alone to 18; the inlet-valve folder went from 16 of 16 to 13. (c) I predicted about
+45% against 36.8%: 46.5%.
+
+**What the round says (deciding nothing).** The floor is the best whole-watch rule tried so far on this set: of rounds
+12-14 it is the only one that cut the false lines by about two thirds out of sample (190 to 68) while keeping most
+faults, and the lines it keeps sit at a mark half again as often (46.5% against 36.8%). Agreement (round 13) cut fewer
+false lines and lost more faults (22 of 33). The two misses were near the line and have one cause: an equal split of the
+budget gives every loud column the same 4 lines, so flow rate, the column that sees the faults, was floored as hard as
+the thermocouple, which sees almost none. Temperature shows the other side: its floor (0.45) held on the normal run
+(27 lines to 7), but the fault runs were recorded on other days and it still sent 67 lines there, 21% at a mark. A floor
+read off one normal day does not carry to every other day. Putting the floor in the watch beat applying it afterwards
+(28 faults against 22): a fault's move is often small for the first few points and clears the floor a check or two
+later. That is also why F's median delay grew from 30 s to 52.5 s.
+
+So for a loud many-column watch the advice is now concrete: set `--min-shift` by hand on the loud columns that do not
+matter (here the two temperatures), and leave the column that sees the faults alone. A rule that picks floors by how
+much each column matters needs labelled faults, which a person setting up a watch rarely has. Open: an unequal split
+(floors on the columns whose normal-run lines are not followed by any labelled event), or floors re-read on a rolling
+normal window so a new day's temperature level does not trip them. Neither is pre-registered.
+
+Tests: `watch-floor.test.mjs` (8: the floor on made-up changes, a replay with and without a floor, `--min-shift`
+parsing and refusals, the CLI with a per-column floor, the round's floor rule, pre-fault counting, T10 on made-up
+totals, and the committed output's verdict with the help and page texts).
