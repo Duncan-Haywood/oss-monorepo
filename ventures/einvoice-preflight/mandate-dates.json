@@ -221,6 +221,13 @@
   },
   {
    "date": "2025-01-01",
+   "country": "Taiwan",
+   "page": "taiwan-gui-e-invoice-mandate.html",
+   "note": "Issued e-invoices reach the platform within 7 days (B2B) or 2 days (B2C), with a fine for late transmission from 1 Jan 2025 (Art. 32-1 and 48-2, read)",
+   "status": "In force (electronic optional)"
+  },
+  {
+   "date": "2025-01-01",
    "country": "Zambia",
    "page": "zambia-smart-invoice-e-invoice-mandate.html",
    "note": "input VAT tied to it from 1 January 2025 (vendor guides and press, ZRA notices unread)",
@@ -447,8 +454,8 @@
    "date": "2026-08-01",
    "country": "Oman",
    "page": "oman-fawtara-e-invoice-mandate.html",
-   "note": "pilot of about 100 large taxpayers from 1 August 2026 (secondary sources, Gazette text unread)",
-   "status": "Pilot; mandate reported for 2027"
+   "note": "Fawtara on Peppol (five-corner, PINT-OM) and a pilot of about 100 large taxpayers from 1 August 2026 are reported (secondary sources)",
+   "status": "Mandate set for 2027; pilot reported"
   },
   {
    "date": "2026-09-01",
@@ -657,8 +664,8 @@
    "date": "2027-04-01",
    "country": "Oman",
    "page": "oman-fawtara-e-invoice-mandate.html",
-   "note": "Decision 189/2026 reported to set 1 April 2027 (annual supplies above OMR 5 million)",
-   "status": "Pilot; mandate reported for 2027"
+   "note": "Decision 189/2026 (Official Gazette 1660, read): electronic tax invoices from 1 April 2027 (annual supplies above OMR 5 million)",
+   "status": "Mandate set for 2027; pilot reported"
   },
   {
    "date": "2027-07-01",
@@ -693,7 +700,7 @@
    "country": "Oman",
    "page": "oman-fawtara-e-invoice-mandate.html",
    "note": "1 October 2027 (others)",
-   "status": "Pilot; mandate reported for 2027"
+   "status": "Mandate set for 2027; pilot reported"
   },
   {
    "date": "2027-10-06",
