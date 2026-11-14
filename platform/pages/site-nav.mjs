@@ -521,6 +521,8 @@ footer .pfs-exceptions{margin:-4px 0 16px;font-size:14px;line-height:1.6}
 footer .pfs-exceptions summary{cursor:pointer;color:var(--pfs-accent);width:fit-content;max-width:100%}
 footer .pfs-exceptions summary:focus-visible{outline:2px solid var(--pfs-accent);outline-offset:3px;border-radius:2px}
 footer .pfs-exceptions p{margin:8px 0 0;color:var(--soft)}
+footer .pfs-counted{margin:0 0 16px;padding-left:1.2em;line-height:1.6}
+footer .pfs-counted li+li{margin-top:6px}
 `;
 
 /**
