@@ -15,6 +15,13 @@ test('the block goes just before </head> and spans each item', () => {
   assert.match(out, /<!-- select-span:end -->\n<\/head>/);
 });
 
+test('a </head> sharing its line with </style> keeps the style closed first', () => {
+  const tight = '<head><style>a{}\n</style></head>\n<body></body>\n';
+  const out = applyBlock(tight, renderBlock(['#a']));
+  assert.ok(out.indexOf('</style></head>') === -1 && out.indexOf('</style>\n  <!-- select-span:start -->') > 0, out);
+  assert.equal(applyBlock(out, renderBlock(['#a'])), out);
+});
+
 test('re-running replaces the block instead of stacking a second one', () => {
   const once = applyBlock(page, renderBlock(['#a']));
   const twice = applyBlock(once, renderBlock(['#b']));

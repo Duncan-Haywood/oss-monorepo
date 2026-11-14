@@ -94,6 +94,8 @@ export function applyBlock(html, block) {
   const h = html.indexOf('</head>');
   if (h === -1) throw new Error('no </head>');
   const at = html.lastIndexOf('\n', h) + 1;
+  // `</style></head>` on one line: the block goes between them, never before the `</style>`.
+  if (html.slice(at, h).trim()) return `${html.slice(0, h)}\n${block}${html.slice(h)}`;
   return html.slice(0, at) + block + html.slice(at);
 }
 

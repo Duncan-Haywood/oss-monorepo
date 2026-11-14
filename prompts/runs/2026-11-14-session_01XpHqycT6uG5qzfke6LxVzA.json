@@ -28,13 +28,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
-  "tests_added": 6,
+  "tests_added": 7,
   "outcome": "success",
   "errors": [
     "First --write pass used a sibling-based 'repeated row' heuristic that also matched cards with two .fields blocks, so most pages were silently skipped; caught by re-measuring (74 -> 14 instead of -> 4), replaced with the rows-reserve empty-host definition.",
-    "Stashed the venture changes and then ran the dist patch script, which read block-less sources; reverted dist with an unpatch script before taking 'before' screenshots."
+    "Stashed the venture changes and then ran the dist patch script, which read block-less sources; reverted dist with an unpatch script before taking 'before' screenshots.",
+    "CI changed-ventures/page-integrity caught two real faults: applyBlock inserted before a '</style></head>' line on patreon-fee-calculator (stray </style>; fixed: insert at </head> when it shares a line, with a test), and the report lacked doc_index front matter (added)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,10 @@
     {
       "file": "platform/pages/select-clip.mjs",
       "issue": "Measures only the default option; a tool that decides layout has to measure every option, so select-span re-implements the measure rather than reusing it."
+    },
+    {
+      "file": "docs/reports/README.md",
+      "issue": "Report front matter (`kind`) is required by doc_index.py, which no pull-request check names until changed-ventures runs it; copying an earlier report's header would have avoided it."
     }
   ],
   "deviations": [

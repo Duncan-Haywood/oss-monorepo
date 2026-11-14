@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-14
+---
 # Polish 2026-11-14: drop-downs longer than their column take the whole row (84 tools)
 
 Picked from `polish-2026-11-14-row-cards.md`, "Still weakest" item 3 ("the other bid calculators
