@@ -2738,7 +2738,7 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false }
   }
   // modelOnly (eval/score-floor-milp.mjs): the model itself, so an outside solver can take it as an integer program. Columns
   // 0..nx-1 are x[p,s] (xcol gives [p, s]), then the lam columns, then open[s], then one slack per inequality row.
-  if (modelOnly) return { m, cols, vals, cost, eqRows: [...eqRows], nx, nLam: lamCols.length, S, xcol, len };
+  if (modelOnly) return { m, cols, vals, cost, eqRows: [...eqRows], nx, nLam: lamCols.length, S, xcol, len, init };
   // The priced LP's artificials must cost more than any column: open shifts cost BIG per hour.
   const bigM = priced ? Math.max(1e6, 10 * BIG * Math.max(...len)) : 1e6;
   let res;
@@ -4993,7 +4993,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
