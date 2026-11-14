@@ -47,6 +47,12 @@ class T(unittest.TestCase):
         c = cost_paybacks("lm8uu", RL)["shredder+extruder"][3]
         self.assertNotAlmostEqual(m, c, delta=1.0)
 
+    def test_furnace_cost_payback_by_hand(self):
+        # 84.0 of vitamins / (0.020 kg / 0.70 bar stock * 6.0 per kg) = 490 copies; the furnace
+        # cannot replace sheet, so the sheet offcuts earn nothing (selfrep-recyclers fix 2026-11-14)
+        n = cost_paybacks("lm8uu", "printer+cnc+laser+casting")["furnace"][3]
+        self.assertAlmostEqual(n, 84.0 / (0.020 / 0.70 * 6.0), places=6)
+
 
 if __name__ == "__main__":
     unittest.main()

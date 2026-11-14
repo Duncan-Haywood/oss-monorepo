@@ -12,7 +12,7 @@ from dataclasses import dataclass, replace
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "selfrep-recyclers", "src"))
 from selfrep_recyclers.machines import (MACHINES, PLASTIC_PAIR, SHOPS, Params, balance,  # noqa: E402,F401
-                                        makeable, with_params)
+                                        furnace_saving_kg, makeable, with_params)
 
 # ASSUMED price per kg of each imported feedstock (currency units / kg).
 FEEDSTOCK_PRICE = {"filament": 20.0, "filament (virgin)": 20.0, "MDF sheet": 3.0,
@@ -60,7 +60,8 @@ def saving_cost_per_copy(variant, processes, prm=Params(), pr=Prices()):
     off = balance(variant, processes, prm, recycle=False)["imports_kg"]
     on = balance(variant, processes, prm, recycle=True)["imports_kg"]
     pl = (off.get("filament (virgin)", 0.0) - on.get("filament (virgin)", 0.0)) * pr.filament
-    al = sum(off[k] - on[k] for k in off if k.startswith("aluminium")) * pr.aluminium
+    # remelt replaces only castable bar stock, not sheet (selfrep-recyclers, furnace_saving_kg)
+    al = furnace_saving_kg(variant, processes, prm) * pr.aluminium
     return pl, al
 
 
