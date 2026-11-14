@@ -46,7 +46,11 @@ export function achCompact(desc) {
 // "MARATHON PETRO13 MONROE6537"), which would split one merchant into one payee per store.
 // Shorter runs, glued dates ("JAN29") and mixed tokens ("2K3", "IBEXHSDFR2", "PB1") are still dropped: on the 63 real US
 // exports (eval/us-bank-exports.mjs) the mixed ones are random references.
-const GLUED = /^(?:([a-z&]{3,})\d{2,}|\d{2,}([a-z&]{3,}))$/;
+// American Express writes some merchants as name, reference and web address in one run: "HOTELSCOM72791059909HOTELS.COM"
+// (a real business card in a Rocket Money export, eval/aggregator-exports.mjs, 2026-11-14). Letters after the
+// digits are allowed there when the digit run is six or more long, and the leading letters are kept; a short
+// one ("OPE879BQLW", "OPETLTG42G" on a US bank's recurring-payment line) is a reference and still dropped.
+const GLUED = /^(?:([a-z&]{3,})(?:\d{6,}[a-z&]{3,}|\d{2,})|\d{2,}([a-z&]{3,}))$/;
 // "Pending DEBIT PURCHASE Jan29 05:21p" (a Mint export of a Citi line): a glued date is not a payee.
 const DATE_WORD = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december|mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)$/;
 const keep = (t) => t.length >= 2 && !NOISE.has(t) && !/^x+$/.test(t);
@@ -680,6 +684,14 @@ export const BUILT_IN = [
   ["6160", "out", /united dairy farmers|\bcountrymark\b|\bsheetz\b|buc-?ee|\bcircle k\b|\bthorntons\b|kwik (trip|star)|love'?s travel|flying j|pilot travel|\bparkmobile\b|\bpaybyphone\b|\bspothero\b|^raceway \d|^tom thumb #/],
   ["6060", "out", /disney ?(\+|plus)|\bhulu\b|paramount ?\+|\bpeacock\b/],
   ["6120", "out", /disney resorts|\bhyatt\b|holiday inn|best western|hampton inn|courtyard by|la quinta/],
+  // A Rocket Money export of a firm's Amex card and a Monarch export (eval/aggregator-exports.mjs, 2026-11-14), written
+  // after the held-out reading, so tuned on them. Convenience stores that also sell fuel (Wawa, Sheetz, 7-Eleven) stay
+  // meals: the same store name is fuel on one line and snacks on the next in those books. A bare "resorts" was tried
+  // and dropped: on the Mint exports it sent a pet resort (boarding) to travel.
+  ["6120", "out", /hotels ?\.?com|\bhotelscom\b|amextravel|\blimousine\b/],
+  ["6160", "out", /\bprk meter\b|\bparking meter\b|\bauto wash\b|\btexaco\b/],
+  ["6140", "out", /natural ?gas/],
+  ["6030", "out", /\bliability insuranc/],
   // Labelled books (eval/opencollective-labelled.mjs, 2026-11-10): the words people type on an expense or invoice
   // ("web hosting", "legal services", "printing", "supplies"), written from two fiscal hosts' misses and checked on three
   // hosts no rule was written from. Last in the list, so a vendor name above always wins. "Gas", "maintenance" and a
@@ -860,12 +872,14 @@ export const BANK_CATEGORY = [
   // Mercury's merchant category for its own foreign-transaction fees: 45 of 45 lines were filed to
   // Bank Fees by the owner on a real LLC download (2026-11-14, tuned on that file).
   ["6010", /^financialinstitutionsandfees$/i],
-  ["6130", /^(food (&|and) drink|restaurants?|dining|dining out|coffee shops?|fast food|food & dining)$/i],
-  ["6120", /^(travel|other travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car|carrental$)/i],
-  ["6160", /^(gas|gasoline|gas\/automotive|gas & fuel|fuel|automotive|auto & transport|parking)$/i],
-  ["6140", /^(utilities|bills & utilities|internet|phone|phone\/cable|mobile phone|telephone)$/i],
+  // Monarch ("Restaurants & Bars", "Gas & Electric", "Parking & Tolls") and Rocket Money ("Dining & Drinks",
+  // "Software & Tech", "Travel & Vacation") name their categories this way (two real exports, 2026-11-14).
+  ["6130", /^(food (&|and) drink|restaurants?|dining|dining out|coffee shops?|fast food|food & dining|restaurants (&|and) bars|dining (&|and) drinks)$/i],
+  ["6120", /^(travel|other travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car|carrental$|travel (&|and) vacation$)/i],
+  ["6160", /^(gas|gasoline|gas\/automotive|gas & fuel|fuel|automotive|auto & transport|parking|parking (&|and) tolls|auto maintenance)$/i],
+  ["6140", /^(utilities|bills & utilities|internet|phone|phone\/cable|mobile phone|telephone|gas (&|and) electric|internet (&|and) cable|water)$/i],
   ["6030", /^insurance$/i],
-  ["6060", /^(software|subscriptions?|software & subscriptions)$/i],
+  ["6060", /^(software|subscriptions?|software & subscriptions|software (&|and) tech)$/i],
   ["6000", /^(advertising|marketing)$/i],
   // Not "Professional Services": on six real Chase business card downloads (2026-11-14) that label held
   // GitHub, Vercel, data APIs, AI tools, Upwork and a rent payment, and none of its 17 label-only lines

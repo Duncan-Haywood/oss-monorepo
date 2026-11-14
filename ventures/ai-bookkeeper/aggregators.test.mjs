@@ -18,9 +18,10 @@ test("Mint export: labelled, debit/credit signs applied", () => {
   assert.deepEqual(r.rows.map((x) => x.desc), ["Starbucks", "Paycheck"]);
 });
 
-test("Monarch export: labelled, signed amounts kept", () => {
+test("Monarch export: labelled, signed amounts kept, the bank's own text read", () => {
   const r = readStatement(monarch);
   assert.equal(r.bank, "monarch");
   assert.deepEqual(r.rows.map((x) => x.cents), [-450, 250000]);
-  assert.deepEqual(r.rows.map((x) => x.desc), ["Starbucks", "Acme"]);
+  // Original Statement, not Monarch's cleaned Merchant (2026-11-14, eval/aggregator-exports.mjs).
+  assert.deepEqual(r.rows.map((x) => x.desc), ["STARBUCKS #1234", "ACME PAYROLL"]);
 });
