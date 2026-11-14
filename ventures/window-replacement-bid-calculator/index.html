@@ -154,9 +154,31 @@
       .opening-row label { font-size: .78rem; gap: 5px; }
     }
   </style>
+  <!-- row-cards:start -->
+  <style>
+    /* Rows as wrapping cards at every width. As a table, these rows put 5 to 8 controls in the
+     form column, so a select showed 25 to 40 px of its choice ("Lo", "Ins") at 1,280 px. Here each
+     control takes the width its longest option needs and the row wraps instead
+     (docs/reports/polish-2026-11-14-row-cards.md; measure with platform/pages/select-clip.mjs). */
+    .opening-row { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: flex-end; }
+    .opening-row > label { flex: 1 1 auto; min-width: 0; gap: 4px; font-size: .8rem; }
+    .opening-row > label:has(> input[type=text]) { flex: 2 1 12rem; }
+    .opening-row > label:has(> input[type=number]):not(:has(select)) { flex: 1 1 6.5rem; }
+    .opening-row > label:has(> input[type=checkbox]) { flex: 0 0 auto; }
+    .opening-row select { max-width: 100%; }
+    .opening-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+    .opening-row > .remove .lbl { font: inherit; letter-spacing: normal; text-transform: none; color: inherit; }
+    .opening-row > .remove { flex: 0 0 auto; margin-left: auto; padding: 6px 10px; font-size: .8rem; }
+    .opening-head { display: none; }
+  </style>
+  <!-- row-cards:end -->
   <!-- rows-reserve:start -->
-  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #openings:empty{min-height:1744px}}
-@media (scripting:enabled) and (min-width:984px){html:not(.pf-rows-ready) #openings:empty{min-height:884px}}</style>
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #openings:empty{min-height:2044px}}
+@media (scripting:enabled) and (min-width:380px){html:not(.pf-rows-ready) #openings:empty{min-height:1792px}}
+@media (scripting:enabled) and (min-width:468px){html:not(.pf-rows-ready) #openings:empty{min-height:1392px}}
+@media (scripting:enabled) and (min-width:548px){html:not(.pf-rows-ready) #openings:empty{min-height:1028px}}
+@media (scripting:enabled) and (min-width:720px){html:not(.pf-rows-ready) #openings:empty{min-height:620px}}
+@media (scripting:enabled) and (min-width:984px){html:not(.pf-rows-ready) #openings:empty{min-height:620px}}</style>
   <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
   <!-- rows-reserve:end -->
 </head>

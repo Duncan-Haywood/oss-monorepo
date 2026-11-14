@@ -119,9 +119,35 @@
       @page { margin: 16mm; }
     }
   </style>
+  <!-- row-cards:start -->
+  <style>
+    /* Rows as wrapping cards at every width. As a table, these rows put 5 to 8 controls in the
+     form column, so a select showed 25 to 40 px of its choice ("Lo", "Ins") at 1,280 px. Here each
+     control takes the width its longest option needs and the row wraps instead
+     (docs/reports/polish-2026-11-14-row-cards.md; measure with platform/pages/select-clip.mjs). */
+    .section-row, .stair-row { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: flex-end; border: 1px solid #e6dccb; border-radius: 9px; padding: 11px; margin-bottom: 10px; }
+    .section-row > label, .stair-row > label { flex: 1 1 auto; min-width: 0; gap: 4px; font-size: .8rem; }
+    .section-row > label:has(> input[type=text]), .stair-row > label:has(> input[type=text]) { flex: 2 1 12rem; }
+    .section-row > label:has(> input[type=number]):not(:has(select)), .stair-row > label:has(> input[type=number]):not(:has(select)) { flex: 1 1 6.5rem; }
+    .section-row > label:has(> input[type=checkbox]), .stair-row > label:has(> input[type=checkbox]) { flex: 0 0 auto; }
+    .section-row select, .stair-row select { max-width: 100%; }
+    .section-row .lbl, .stair-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+    .section-row > .remove .lbl, .stair-row > .remove .lbl { font: inherit; letter-spacing: normal; text-transform: none; color: inherit; }
+    .section-row > .remove, .stair-row > .remove { flex: 0 0 auto; margin-left: auto; padding: 6px 10px; font-size: .8rem; }
+    .row-head { display: none; }
+  </style>
+  <!-- row-cards:end -->
   <!-- rows-reserve:start -->
-  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #sections:empty{min-height:548px}html:not(.pf-rows-ready) #stairs:empty{min-height:267px}}
-@media (scripting:enabled) and (min-width:824px){html:not(.pf-rows-ready) #sections:empty{min-height:94px}html:not(.pf-rows-ready) #stairs:empty{min-height:42px}}</style>
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #sections:empty{min-height:632px}html:not(.pf-rows-ready) #stairs:empty{min-height:245px}}
+@media (scripting:enabled) and (min-width:348px){html:not(.pf-rows-ready) #stairs:empty{min-height:181px}}
+@media (scripting:enabled) and (min-width:396px){html:not(.pf-rows-ready) #sections:empty{min-height:504px}}
+@media (scripting:enabled) and (min-width:444px){html:not(.pf-rows-ready) #sections:empty{min-height:376px}}
+@media (scripting:enabled) and (min-width:460px){html:not(.pf-rows-ready) #stairs:empty{min-height:117px}}
+@media (scripting:enabled) and (min-width:556px){html:not(.pf-rows-ready) #sections:empty{min-height:302px}}
+@media (scripting:enabled) and (min-width:776px){html:not(.pf-rows-ready) #stairs:empty{min-height:80px}}
+@media (scripting:enabled) and (min-width:824px){html:not(.pf-rows-ready) #sections:empty{min-height:302px}html:not(.pf-rows-ready) #stairs:empty{min-height:80px}}
+@media (scripting:enabled) and (min-width:948px){html:not(.pf-rows-ready) #sections:empty{min-height:302px}}
+@media (scripting:enabled) and (min-width:1088px){html:not(.pf-rows-ready) #stairs:empty{min-height:117px}}</style>
   <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
   <!-- rows-reserve:end -->
 </head>
