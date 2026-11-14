@@ -12,7 +12,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Headline (`experiments/m7j_lever0/results.txt`, `posthoc.txt`, `offset.txt`; simulated; 10 predictions committed first).**
 
-- **It is the opening transient, not the wind.** All 24 retrained `above` crashes at 45° are tip-overs past 60°, all before the 3 s wind step (median 0.39 s). The episodes start up to 0.5 m off the hold point; with that offset at 0.25 m or 0, nothing crashes in either geometry.
+- **It is the opening transient, not the wind.** All 24 retrained `above` crashes at 45° are tip-overs past 60°, all before the 3 s wind step (0.16-0.79 s, median 0.39 s). The episodes start up to 0.5 m off the hold point; with that offset at 0.25 m or 0, nothing crashes in either geometry.
 - **The tilt limit was hiding it.** Every design's position kp sits at the top of its search box (10 s⁻²), so a 0.5 m offset asks for a lean near 27° per axis. The 20° limit used in training clips that; 45° lets it through, and in the crashing flights the mixer scales roll/pitch on 74-84% of steps (0% in survivors).
 - **Any slack removes it.** Pooled count 24: ideal mixer 0, position gains ×0.5 0, side force off 1, feed-forward off 2, motors 10% faster 8, 85° bound 23 (a real tip-over, not a scoring artefact). The retrained designs have stiffer attitude loops (kp 2.33-2.41 against 7e's 2.13) and crash most on slow-motor plants.
 - **For a builder:** tune at the tilt limit you will fly, or fly at the limit you tuned at; ArduPilot's 30° default leaves 1 of 1,152 here.
