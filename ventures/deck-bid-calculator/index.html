@@ -681,7 +681,7 @@
       copyShare().catch(error => { el('summaryStatus').textContent = error.message; });
     });
     el('usageOptOut').addEventListener('change', () => {
-      if (el('usageOptOut').checked) localStorage.removeItem('deck-bid-usage');
+      if (el('usageOptOut').checked) { try { localStorage.removeItem('deck-bid-usage'); } catch { /* site data blocked: nothing stored */ } }
     });
 
     // ---- Customer-facing proposal -------------------------------------------

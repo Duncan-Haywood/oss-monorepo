@@ -1,3 +1,10 @@
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 // On-device history: the one thing that makes the planner worth reopening.
 // Saving is opt-in and stays in this browser's localStorage; nothing is sent.
 const KEY = "revenue-target-lead-planner-history";
@@ -20,7 +27,7 @@ export function appendPeriod(text, { period, leads, won, revenue }) {
   return { text: (base ? base + "\n" : "") + [label, l, w, r].join(",") };
 }
 
-export function loadHistory(store = globalThis.localStorage) {
+export function loadHistory(store = browserStorage()) {
   try {
     const v = JSON.parse(store.getItem(KEY) || "null");
     return v && typeof v.rows === "string" ? { rows: v.rows, target: String(v.target ?? ""), planned: String(v.planned ?? "") } : null;
@@ -29,10 +36,10 @@ export function loadHistory(store = globalThis.localStorage) {
   }
 }
 
-export function saveHistory(h, store = globalThis.localStorage) {
+export function saveHistory(h, store = browserStorage()) {
   try { store.setItem(KEY, JSON.stringify({ rows: h.rows, target: h.target, planned: h.planned })); return true; } catch { return false; }
 }
 
-export function forgetHistory(store = globalThis.localStorage) {
+export function forgetHistory(store = browserStorage()) {
   try { store.removeItem(KEY); } catch { /* blocked store: nothing was saved */ }
 }

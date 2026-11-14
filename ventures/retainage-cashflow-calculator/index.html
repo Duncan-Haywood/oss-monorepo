@@ -52,8 +52,9 @@
       $('reportContext').innerHTML=`<strong>${$('project').value.trim()||'Unnamed project'}</strong> · ${$('payer').value.trim()||'Payer / GC not provided'}<br>${$('invoice').value.trim()||'Invoice reference not provided'} · Due ${$('due').value.trim()||'date not provided'}`;
     }
     function rememberDraft(){
-      if(!$('remember').checked){localStorage.removeItem(draftKey);return;}
-      localStorage.setItem(draftKey,JSON.stringify(currentInputs()));
+      // Inside try: reading the global throws when the visitor blocks site data.
+      if(!$('remember').checked){try{localStorage.removeItem(draftKey)}catch{}return;}
+      try{localStorage.setItem(draftKey,JSON.stringify(currentInputs()))}catch{return;}
       count('retainage-cashflow:draft-saved');
     }
     function applyInputs(values){
@@ -140,7 +141,7 @@
         applyInputs(draft);
         $('remember').checked=true;
         return true;
-      }catch{localStorage.removeItem(draftKey);return false;}
+      }catch{try{localStorage.removeItem(draftKey)}catch{}return false;}
     }
     $('form').addEventListener('submit',event=>{event.preventDefault();calculate({record:true,showErrors:true});});
     NUMBER_FIELD_IDS.forEach(id=>$(id).addEventListener('input',()=>calculate()));

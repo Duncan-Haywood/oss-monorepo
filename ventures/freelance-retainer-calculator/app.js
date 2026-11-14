@@ -16,7 +16,9 @@ import { buildShareUrl, decodeInputs, FIELD_IDS } from './share.mjs';
   const usagePreference = 'freelance-retainer-calculator-usage-preference';
   // A few ventures import this file under `node --test`, with no DOM or a
   // stub one. Remembering a preference must not be what breaks that.
-  if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document === 'undefined') return;
+  // Even `typeof localStorage` throws when the visitor blocks site data.
+  try { if (typeof localStorage === 'undefined') return; } catch { return; }
   if (typeof document.getElementById !== 'function') return;
   const usageControl = document.getElementById('optOut');
   if (!usageControl || typeof usageControl.addEventListener !== 'function') return;

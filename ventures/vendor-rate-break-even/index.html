@@ -178,13 +178,21 @@ $('add').onclick = () => {
   }
 };
 $('save').onclick = () => {
-  localStorage.setItem('vendor-rate-break-even-draft', JSON.stringify({
-    scenarios,
-    jobs: $('jobs').value,
-    revenue: $('revenue').value,
-    baseFixed: $('baseFixed').value,
-    baseVariable: $('baseVariable').value,
-  }));
+  // Inside try: reading the global throws when the visitor blocks site data,
+  // and a full store throws on write. Say so rather than fail silently.
+  try {
+    localStorage.setItem('vendor-rate-break-even-draft', JSON.stringify({
+      scenarios,
+      jobs: $('jobs').value,
+      revenue: $('revenue').value,
+      baseFixed: $('baseFixed').value,
+      baseVariable: $('baseVariable').value,
+    }));
+  } catch {
+    $('save').textContent = 'Not saved: browser storage is blocked or full';
+    setTimeout(() => { $('save').textContent = 'Save draft'; }, 2500);
+    return;
+  }
   recordUsage('draft_saved');
   $('save').textContent = 'Saved';
   setTimeout(() => { $('save').textContent = 'Save draft'; }, 1000);
