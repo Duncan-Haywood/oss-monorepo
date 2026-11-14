@@ -236,3 +236,12 @@ test('plan validation names the problem', () => {
   assert.throws(() => normalisePlan({ tou: [{ start: 5, end: 5, cents: 1 }] }), /time-of-use/);
   assert.throws(() => monthBill({ energy: [{ cents: 1 }] }, -1), /non-negative/);
 });
+
+// Red team 2026-11-14: "[\d,]+" read a "1,,0" usage line as 10 kWh and "," as a 0 kWh month.
+test('usage lines with a malformed kWh figure are errors, not silent wrong months', () => {
+  assert.throws(() => parseUsage('1200\n1,,0'), /could not read/);
+  assert.throws(() => parseUsage('2025-01, 1,,200'), /could not read/);
+  assert.throws(() => parseUsage('Jan, 1.2.3'), /could not read/);
+  assert.deepEqual(parseUsage('2025-01, 1,200\n2025-02,1100,150.25\nMar 2025 980').months.map((m) => m.kwh), [1200, 1100, 980]);
+  assert.deepEqual(parseUsage('1,234\n987.5').months.map((m) => m.kwh), [1234, 987.5]);
+});
