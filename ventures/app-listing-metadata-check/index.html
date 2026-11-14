@@ -115,7 +115,7 @@ node check.mjs fastlane/metadata --json</pre>
 
   <script type="module">
     import { checkListing, LIMITS, FIELD_LABELS } from './engine.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const $ = (sel) => document.querySelector(sel);
     const longFields = new Set(['description', 'full_description', 'promotional_text', 'release_notes']);
@@ -166,7 +166,7 @@ node check.mjs fastlane/metadata --json</pre>
       if (!any) { $('#status').innerHTML = '<span class="error">Paste at least one field first (or load the worked example).</span>'; return; }
       $('#status').textContent = '';
       render();
-      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), $('#usageOptOut')?.checked ?? false, 'check_run');
     });
     $('#load-example').addEventListener('click', () => {
       $('#store').value = 'ios';
@@ -174,7 +174,7 @@ node check.mjs fastlane/metadata --json</pre>
       fill({ name: 'Streakly: Best Habit Tracker', subtitle: 'Habit tracker', keywords: 'habit, tracker,routine,routines,app,free,goal', description: 'Streakly is the habit tracker for everyone. Lorem ipsum dolor sit amet. Also on Android.' });
       render();
       $('#status').textContent = 'Worked example: a promotional name, a subtitle that repeats it, and a keyword field with spaces, repeats and generic words.';
-      recordUsage(localStorage, $('#usageOptOut')?.checked ?? false, 'example_loaded');
+      recordUsage(usageStorage(), $('#usageOptOut')?.checked ?? false, 'example_loaded');
     });
     $('#clear').addEventListener('click', () => { buildFields(); $('#avoid').value = ''; $('#report-card').hidden = true; $('#status').textContent = ''; });
 
@@ -182,8 +182,8 @@ node check.mjs fastlane/metadata --json</pre>
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

@@ -573,7 +573,7 @@
     import { comparisonCsv } from "./export.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
     import { handoffsForResults, quickCompareUrl } from "./handoff.mjs";
-    import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
+    import { readOptOut, recordUsage, writeOptOut, usageStorage } from "./usage.mjs";
 
     const SHARED_FIELDS = [
       "price", "shippingCharged", "shippingCost", "itemCost",
@@ -737,7 +737,7 @@
           const eventName = event.target.dataset.key === "expectedMonthlySales"
             ? "channel_volume_edited"
             : "channel_rates_edited";
-          recordUsage(localStorage, optedOut(), eventName);
+          recordUsage(usageStorage(), optedOut(), eventName);
           save();
         });
       }
@@ -755,7 +755,7 @@
             if (el) el.open = true;
           }
           update();
-          recordUsage(localStorage, optedOut(), "channel_toggled");
+          recordUsage(usageStorage(), optedOut(), "channel_toggled");
           save();
         });
       }
@@ -839,7 +839,7 @@
         // name and the day, never the item. It is what will say whether this
         // link is worth keeping once the site is public.
         link.addEventListener("click", () => {
-          recordUsage(localStorage, optedOut(), `handoff_${offer.channel}`);
+          recordUsage(usageStorage(), optedOut(), `handoff_${offer.channel}`);
         });
         item.appendChild(link);
         list.appendChild(item);
@@ -1005,31 +1005,31 @@
     for (const id of SHARED_FIELDS) {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, optedOut(), SHELF_FIELDS.has(id) ? "shelf_time_compared" : "comparison_calculated");
+        recordUsage(usageStorage(), optedOut(), SHELF_FIELDS.has(id) ? "shelf_time_compared" : "comparison_calculated");
         save();
       });
     }
     document.getElementById("buyTarget").addEventListener("input", renderSourcing);
-    document.getElementById("buyTarget").addEventListener("change", () => recordUsage(localStorage, optedOut(), "max_buy_price_checked"));
+    document.getElementById("buyTarget").addEventListener("change", () => recordUsage(usageStorage(), optedOut(), "max_buy_price_checked"));
     for (const radio of document.querySelectorAll('input[name="rankBy"]')) {
       radio.addEventListener("change", () => {
         update();
-        recordUsage(localStorage, optedOut(), "ranked_by_speed");
+        recordUsage(usageStorage(), optedOut(), "ranked_by_speed");
         save();
       });
     }
     document.getElementById("includeSubscription").addEventListener("change", () => {
       update();
-      recordUsage(localStorage, optedOut(), "subscription_toggled");
+      recordUsage(usageStorage(), optedOut(), "subscription_toggled");
       save();
     });
     document.getElementById("includeReturns").addEventListener("change", () => {
       update();
-      recordUsage(localStorage, optedOut(), "returns_compared");
+      recordUsage(usageStorage(), optedOut(), "returns_compared");
       save();
     });
     document.getElementById("usageOptOut").addEventListener("change", (event) => {
-      writeOptOut(localStorage, event.target.checked);
+      writeOptOut(usageStorage(), event.target.checked);
     });
     function fallbackCopy(text) {
       const textarea = document.createElement("textarea");
@@ -1068,7 +1068,7 @@
           fallbackCopy(url.href);
           status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
         }
-        recordUsage(localStorage, optedOut(), "share_link_copied");
+        recordUsage(usageStorage(), optedOut(), "share_link_copied");
       } catch (error) {
         status.textContent = error.message || "Fix the inputs before creating a share link.";
       }
@@ -1084,7 +1084,7 @@
         link.download = "where-to-sell-comparison.csv";
         link.click();
         setTimeout(() => URL.revokeObjectURL(url), 0);
-        recordUsage(localStorage, optedOut(), "comparison_csv_downloaded");
+        recordUsage(usageStorage(), optedOut(), "comparison_csv_downloaded");
         status.textContent = "Comparison CSV downloaded. It contains calculated results, not usage data.";
       } catch (error) {
         status.textContent = error.message || "Fix the inputs before downloading a comparison.";
@@ -1111,7 +1111,7 @@
       update();
     });
 
-    document.getElementById("usageOptOut").checked = readOptOut(localStorage);
+    document.getElementById("usageOptOut").checked = readOptOut(usageStorage());
     restore();
     restoreSharedLink();
     renderPanels();

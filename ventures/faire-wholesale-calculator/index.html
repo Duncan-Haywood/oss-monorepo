@@ -407,7 +407,7 @@
   </footer>
   <script type="module">
     import { REGION_PRESETS, PAYOUT_PRESETS, compareBrandScenarios, compareFairePayNow, compareFairePromoted, compareFaireReturn, compareOpenHouse, comparePayoutSpeedsAfterFloat, compareRetailerLifetime, faireReturnNote, openHouseNote, payNowNote, promotedNote, summarizePayoutFloat, wholesaleForMargin } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { encodeInputs, decodeInputs, FIELD_IDS } from "./share.mjs";
 
     const INPUTS_KEY = "faire-wholesale-brand-inputs";
@@ -641,8 +641,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

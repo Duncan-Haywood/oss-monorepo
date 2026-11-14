@@ -127,7 +127,7 @@ test('every page promises, and keeps, that nothing is uploaded', () => {
 
 test('the usage counter is opt-out-able and never records a figure', () => {
   assert.match(index, /id="usageOptOut"/);
-  assert.match(index, /recordUsage\(localStorage, optedOut\(\)/);
+  assert.match(index, /recordUsage\(usageStorage\(\), optedOut\(\)/);
   const events = [...index.matchAll(/count\('([a-z_]+)'\)/g)].map((m) => m[1]);
   assert.deepEqual(new Set(events), new Set(['pool_checked', 'pool_rejected', 'example_cleared', 'link_copied']));
 });

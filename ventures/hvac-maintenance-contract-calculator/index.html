@@ -44,7 +44,7 @@
   <p class="disclaimer">Pricing a one-off HVAC repair call instead? The <a href="../hvac-repair-tier-price-calculator/">HVAC repair price calculator</a> prices Good, Better and Best options, a diagnostic fee and what an average call earns &mdash; nothing uploaded.</p>
   <p class="disclaimer support">Free and open source. If it helped you price the next maintenance contract, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   <script type="module">
-    import { calculatePlan, formatPlanSummary } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeShare, decodeShare } from './share.mjs';
+    import { calculatePlan, formatPlanSummary } from './calc.mjs'; import { recordUsage, usageStorage } from './usage.mjs'; import { encodeShare, decodeShare } from './share.mjs';
     const ids = ['visits','hours','rate','travel','parts','callbacks','callbackHours','callbackCost','overhead','margin','proposed','pullThrough','cancelMonths']; const $ = id => document.getElementById(id); let latest;
     const money = (value) => {
       const format = (value) => `$${value.toFixed(2)}`;
@@ -61,7 +61,7 @@
       $("ptFloor").textContent=money(latest.breakEvenMonthlyPriceWithPullThrough); $("ptProfit").textContent=money(latest.totalAnnualProfit);
       const cancelNote=$("cancelNote"); const c=latest.proposed?.cancellation??latest.cancellation;
       cancelNote.hidden=!c; cancelNote.textContent=c?`Cancelled after month ${c.months}: ${c.visitsDelivered} visit(s) already delivered, ${money(c.revenueCollected)} collected against ${money(c.costIncurred)} of cost — ${c.net<0?`a ${money(Math.abs(c.net))} loss`:`${money(c.net)} kept`}.`:'';
-      $("summary").textContent=formatPlanSummary(latest); const warning=$("warning"); warning.hidden=!latest.proposed?.belowBreakEven; warning.textContent=latest.proposed?.belowBreakEven?'The proposed price is below the break-even floor. Check the scope, reserve, or price before agreeing to it.':''; recordUsage(localStorage,false,'plan_calculated'); } catch(error){
+      $("summary").textContent=formatPlanSummary(latest); const warning=$("warning"); warning.hidden=!latest.proposed?.belowBreakEven; warning.textContent=latest.proposed?.belowBreakEven?'The proposed price is below the break-even floor. Check the scope, reserve, or price before agreeing to it.':''; recordUsage(usageStorage(),false,'plan_calculated'); } catch(error){
       // A rejected input (a negative number, non-numeric text) must not leave
       // the last valid plan on screen next to an easy-to-miss error -- that
       // reads as if the stale metrics, summary, and break-even warning still
@@ -70,8 +70,8 @@
       // break-even warning banner with a sentence.
       errorsEl.textContent=error.message; errorsEl.hidden=false; $("monthly").textContent=''; $("floor").textContent=''; $("annual").textContent=''; $("techHours").textContent=''; $("cost").textContent=''; $("effective").textContent=''; $("payback").textContent=''; $("ptFloor").textContent=''; $("ptProfit").textContent=''; $("ptFloorMetric").hidden=true; $("ptProfitMetric").hidden=true; const cancelNote=$("cancelNote"); cancelNote.hidden=true; cancelNote.textContent=''; $("summary").textContent=''; const warning=$("warning"); warning.hidden=true; warning.textContent='';
     } }
-    $("calculate").addEventListener('click',calculate); $("copy").addEventListener('click',async()=>{if(latest){await navigator.clipboard.writeText(formatPlanSummary(latest)); recordUsage(localStorage,false,'summary_copied'); $("copy").textContent='Summary copied'; setTimeout(()=>$("copy").textContent='Copy plan summary',1500)}});
-    async function copyShare(){ const payload={}; ids.forEach(id=>{payload[id]=$(id).value;}); const hash=encodeShare(payload); await navigator.clipboard.writeText(`${location.href.split('#')[0]}#${hash}`); recordUsage(localStorage,false,'share_copied'); $("copyShare").textContent='Share link copied'; setTimeout(()=>$("copyShare").textContent='Copy share link',1500); }
+    $("calculate").addEventListener('click',calculate); $("copy").addEventListener('click',async()=>{if(latest){await navigator.clipboard.writeText(formatPlanSummary(latest)); recordUsage(usageStorage(),false,'summary_copied'); $("copy").textContent='Summary copied'; setTimeout(()=>$("copy").textContent='Copy plan summary',1500)}});
+    async function copyShare(){ const payload={}; ids.forEach(id=>{payload[id]=$(id).value;}); const hash=encodeShare(payload); await navigator.clipboard.writeText(`${location.href.split('#')[0]}#${hash}`); recordUsage(usageStorage(),false,'share_copied'); $("copyShare").textContent='Share link copied'; setTimeout(()=>$("copyShare").textContent='Copy share link',1500); }
     $("copyShare").addEventListener('click',()=>{ copyShare().catch(()=>{ $("copyShare").textContent='Copy failed'; setTimeout(()=>$("copyShare").textContent='Copy share link',1500); }); });
     // There is no <form> here, so a number input's own Enter key does nothing
     // by default. Without this, editing a field and pressing Enter (the

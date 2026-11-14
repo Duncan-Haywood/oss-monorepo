@@ -149,7 +149,7 @@
   </footer>
   <script type="module">
     import { compareReturns, returnsSummary } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, usageStorage } from "./usage.mjs";
 
     const ids = [
       "salePrice", "referralRate", "costOfGoods", "inboundPerUnit",
@@ -198,7 +198,7 @@
     ids.forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, false, "return_rate_calculated");
+        recordUsage(usageStorage(), false, "return_rate_calculated");
       });
     });
     update();

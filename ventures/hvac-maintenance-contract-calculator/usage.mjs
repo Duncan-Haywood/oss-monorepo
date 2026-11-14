@@ -1,3 +1,16 @@
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function honorsBrowserSignal() {
   try {
     return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;
@@ -6,7 +19,7 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'plan_calculated') {
+export function recordUsage(storage = usageStorage(), optedOut = false, event = 'plan_calculated') {
   if (optedOut || !storage || honorsBrowserSignal()) return;
   // Usage is optional telemetry. This call sits inside the same try block that
   // renders the priced plan (calculate() in index.html), so a blocked, full,

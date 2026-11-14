@@ -145,7 +145,7 @@
 
   <script type="module">
     import { compareLeaseVsBuy, toCsv, encodeState, decodeState } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const FIELDS = ['price','salesTaxPct','downPaymentPct','loanAprPct','loanTermMonths','leaseMonthlyPayment','leaseTermMonths','leaseDueAtSigning','leaseEndBuyout','resaleValue','depreciation','taxRatePct','discountRatePct'];
     const $ = (id) => document.getElementById(id);
@@ -232,8 +232,8 @@
     {
       const control = $('usageOptOut');
       try {
-        control.checked = readOptOut(localStorage);
-        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+        control.checked = readOptOut(usageStorage());
+        control.addEventListener('change', () => writeOptOut(usageStorage(), control.checked));
       } catch { /* storage blocked: counting stays off the persisted path */ }
     }
     render(false);

@@ -202,7 +202,7 @@
 
   <script type="module">
     import { calculateSession } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { toLogEntry, byWeek, byWeekday, extremes, parseLog, toCsv } from './log.mjs';
 
@@ -225,7 +225,7 @@
     }
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function clearOutputs(message) {
@@ -409,8 +409,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 

@@ -226,7 +226,7 @@
 
   <script type="module">
     import { calculatePlacement, markupToMargin, ALL_INPUT_IDS } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const el = (id) => document.getElementById(id);
@@ -241,7 +241,7 @@
     const pct = (value) => `${value.toFixed(1)}%`;
 
     const optedOut = () => el('usageOptOut').checked;
-    const count = (event) => recordUsage(localStorage, optedOut(), event);
+    const count = (event) => recordUsage(usageStorage(), optedOut(), event);
 
     function readInput() {
       const raw = { compExcludesOtPremium: el('compExcludesOtPremium').checked };
@@ -474,8 +474,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

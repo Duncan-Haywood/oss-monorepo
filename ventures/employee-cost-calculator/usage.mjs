@@ -3,6 +3,19 @@
 // a rate, or any figure the visitor typed — a business's own payroll numbers
 // are exactly the sort of thing that must not be transmitted anywhere.
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 const STORAGE_KEY = 'employee-cost-usage';
 
 function honorsBrowserSignal() {
@@ -13,7 +26,7 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'cost_compared') {
+export function recordUsage(storage = usageStorage(), optedOut = false, event = 'cost_compared') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -30,7 +43,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
 // The opt-out choice is kept in its own key, not in the counters: opting out
 // *removes* the counters, so a flag stored inside them would be deleted by
 // the very act it records.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem(`${STORAGE_KEY}-opt-out`) === '1';
   } catch {
@@ -38,7 +51,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   if (optedOut) {
     try { storage.removeItem(STORAGE_KEY); } catch { /* storage is optional */ }
