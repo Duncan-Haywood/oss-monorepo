@@ -1,0 +1,113 @@
+[
+ {
+  "case": "case300_ieee",
+  "kind": "typ",
+  "nbus": 300,
+  "ref_moved": null,
+  "ref": "PIPS",
+  "ac": 565219.99224243,
+  "start_rule": "DC+ang",
+  "cold_pf_dc": false,
+  "file_pf": false,
+  "lam": 0.0,
+  "n_pf": 2,
+  "dispatch_gap_mw": 14967.975933868893,
+  "hom_secs": 2.864908456802368,
+  "secs": 2.8649191856384277
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "typ",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 1402500.0,
+  "start_rule": "DC+ang",
+  "cold_pf_dc": false,
+  "file_pf": false,
+  "lam": 0.0,
+  "n_pf": 2,
+  "dispatch_gap_mw": 29455.234999860382,
+  "hom_secs": 2.3660240173339844,
+  "secs": 2.3660497665405273
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "api",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2019700.0,
+  "start_rule": "DC, no ang",
+  "cold_pf_dc": false,
+  "file_pf": false,
+  "lam": 0.0,
+  "n_pf": 2,
+  "dispatch_gap_mw": 40629.9904168552,
+  "hom_secs": 5.688847541809082,
+  "secs": 5.688880205154419
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "sad",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 1413900.0,
+  "start_rule": "DC+ang",
+  "cold_pf_dc": false,
+  "file_pf": false,
+  "lam": 0.0,
+  "n_pf": 2,
+  "dispatch_gap_mw": 29455.23499989871,
+  "hom_secs": 3.337458610534668,
+  "secs": 3.337479591369629
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "typ",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2085600.0,
+  "start_rule": "DC+ang",
+  "cold_pf_dc": false,
+  "file_pf": false,
+  "lam": 0.0,
+  "n_pf": 2,
+  "dispatch_gap_mw": 34916.1449999571,
+  "hom_secs": 3.9881486892700195,
+  "secs": 3.988165855407715
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "sad",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2092400.0,
+  "start_rule": "DC, no ang",
+  "cold_pf_dc": false,
+  "file_pf": false,
+  "lam": 0.0,
+  "n_pf": 2,
+  "dispatch_gap_mw": 34916.14499991078,
+  "hom_secs": 5.149398326873779,
+  "secs": 5.149428129196167
+ }
+]

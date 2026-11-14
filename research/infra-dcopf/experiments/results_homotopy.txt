@@ -1,0 +1,20 @@
+Dispatch-homotopy start (research/grid-linopf, milestone 6 Next (1); plan in LOG.md 2026-11-14).
+PG(lam) = (1-lam) PG_file + lam PG_DC at the file's voltage setpoints; H = frozen J-m-a, 20 rounds, from
+PG(lam*), warm-started power flows; H+R = reactive stage on H's best point. Cost reference: PIPS AC
+optimum (case300) or PGLib's published IPOPT objective (RTE).
+
+case           kind      start coldDC file    lam*  PFs  H0 nOv/ang/V/Q    H  H+R  H best: nOv maxLd% slkMW nAng V Q       cost  H+R cost     s
+case300_ieee   typ      DC+ang      n    n  0.0000    2               -   no    -  no checked round                           -         -     3
+case1888_rte   typ      DC+ang      n    n  0.0000    2               -   no    -  no checked round                           -         -     2
+case1888_rte   api  DC, no ang      n    n  0.0000    2               -   no    -  no checked round                           -         -     6
+case1888_rte   sad      DC+ang      n    n  0.0000    2               -   no    -  no checked round                           -         -     3
+case1951_rte   typ      DC+ang      n    n  0.0000    2               -   no    -  no checked round                           -         -     4
+case1951_rte   sad  DC, no ang      n    n  0.0000    2               -   no    -  no checked round                           -         -     5
+
+
+Scored cases: 6 of 6
+Q1 file dispatch has a cold PF on all: 0/6 -> REFUTED
+Q2 path reaches lam = 1 on >= 3: 0/6 -> REFUTED
+Q3 H fully clean in 20 rounds on >= 2: 0/6 -> REFUTED
+Q4 H or H+R fully clean on >= 3: 0/6 -> REFUTED
+Q5 not testable (no clean point)
