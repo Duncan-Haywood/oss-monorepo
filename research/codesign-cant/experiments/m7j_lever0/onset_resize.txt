@@ -1,0 +1,44 @@
+Milestone 7j addendum: the 48 designs of milestone 7i, 64 held-out episodes (seed 9999), integrator feed-forward, side force on.
+dead = diverged flights summed over the 6 seeds of a set (of 384), per seed in brackets.
+
+[above] base runs: dead by tilt-command limit and lever
+  lever 0, 7e: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 0 [0, 0, 0, 0, 0, 0]; 40 deg 0 [0, 0, 0, 0, 0, 0]; 45 deg 0 [0, 0, 0, 0, 0, 0]
+  lever 0, 7h free: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 4 [3, 1, 0, 0, 0, 0]; 40 deg 9 [4, 2, 0, 0, 2, 1]; 45 deg 9 [4, 2, 0, 0, 2, 1]
+  lever 0, aware TWR=2.0: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 0 [0, 0, 0, 0, 0, 0]; 40 deg 2 [0, 0, 1, 0, 1, 0]; 45 deg 3 [1, 0, 1, 0, 1, 0]
+  lever 0, aware TWR free: 30 deg 1 [0, 0, 0, 0, 1, 0]; 35 deg 7 [3, 0, 0, 0, 4, 0]; 40 deg 12 [3, 0, 1, 0, 7, 1]; 45 deg 12 [3, 0, 1, 0, 7, 1]
+  lever 1, 7e: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 0 [0, 0, 0, 0, 0, 0]; 40 deg 0 [0, 0, 0, 0, 0, 0]; 45 deg 0 [0, 0, 0, 0, 0, 0]
+  lever 1, 7h free: 30 deg 1 [1, 0, 0, 0, 0, 0]; 35 deg 4 [3, 1, 0, 0, 0, 0]; 40 deg 9 [5, 2, 0, 0, 1, 1]; 45 deg 10 [5, 3, 0, 0, 1, 1]
+  lever 1, aware TWR=2.0: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 0 [0, 0, 0, 0, 0, 0]; 40 deg 0 [0, 0, 0, 0, 0, 0]; 45 deg 0 [0, 0, 0, 0, 0, 0]
+  lever 1, aware TWR free: 30 deg 1 [0, 0, 0, 0, 1, 0]; 35 deg 6 [2, 0, 0, 0, 4, 0]; 40 deg 10 [3, 0, 0, 0, 7, 0]; 45 deg 10 [3, 0, 0, 0, 7, 0]
+[above] probes at 45 deg, lever 0 (one change from base)
+  7e: base 0; dead85 0; ideal mixer 0; side force off 0; ff off 0; pos gains x0.5 0; lag x0.9 0; resized TWR 2.0 0
+  7h free: base 9; dead85 9; ideal mixer 0; side force off 0; ff off 0; pos gains x0.5 0; lag x0.9 2; resized TWR 2.0 9
+  aware TWR=2.0: base 3; dead85 2; ideal mixer 0; side force off 0; ff off 0; pos gains x0.5 0; lag x0.9 0; resized TWR 2.0 3
+  aware TWR free: base 12; dead85 12; ideal mixer 0; side force off 1; ff off 2; pos gains x0.5 0; lag x0.9 6; resized TWR 2.0 12
+  7h free diagnosis: why tilt 9 / pos 0; death time s median 0.39 (range 0.19-0.75); mix D 0.836 S 0.003; tilt-limit D 0.200 S 0.000; integ clip D 0.000 S 0.000; ffi clip D 0.000 S 0.000
+      plant of diverged flights: torque scale 0.82 (all 0.83), mass 1.10 (1.05), lag 1.91 (1.59); episodes [28, 38, 51, 53]
+  aware TWR=2.0 diagnosis: why tilt 3 / pos 0; death time s median 0.39 (range 0.39-0.42); mix D 0.742 S 0.002; tilt-limit D 0.051 S 0.000; integ clip D 0.000 S 0.000; ffi clip D 0.000 S 0.000
+      plant of diverged flights: torque scale 0.88 (all 0.83), mass 1.23 (1.05), lag 1.91 (1.59); episodes [38]
+  aware TWR free diagnosis: why tilt 12 / pos 0; death time s median 0.38 (range 0.16-0.79); mix D 0.834 S 0.003; tilt-limit D 0.190 S 0.000; integ clip D 0.000 S 0.000; ffi clip D 0.000 S 0.000
+      plant of diverged flights: torque scale 0.81 (all 0.83), mass 1.16 (1.05), lag 1.91 (1.59); episodes [5, 25, 28, 30, 38, 51, 53]
+
+[below] base runs: dead by tilt-command limit and lever
+  lever 0, 7e: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 1 [0, 1, 0, 0, 0, 0]; 40 deg 1 [0, 1, 0, 0, 0, 0]; 45 deg 1 [0, 1, 0, 0, 0, 0]
+  lever 0, 7h free: 30 deg 2 [0, 2, 0, 0, 0, 0]; 35 deg 2 [0, 2, 0, 0, 0, 0]; 40 deg 2 [0, 2, 0, 0, 0, 0]; 45 deg 2 [0, 2, 0, 0, 0, 0]
+  lever 0, aware TWR=2.0: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 0 [0, 0, 0, 0, 0, 0]; 40 deg 0 [0, 0, 0, 0, 0, 0]; 45 deg 0 [0, 0, 0, 0, 0, 0]
+  lever 0, aware TWR free: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 0 [0, 0, 0, 0, 0, 0]; 40 deg 0 [0, 0, 0, 0, 0, 0]; 45 deg 0 [0, 0, 0, 0, 0, 0]
+  lever 1, 7e: 30 deg 5 [1, 1, 1, 1, 0, 1]; 35 deg 6 [1, 2, 1, 1, 0, 1]; 40 deg 6 [1, 2, 1, 1, 0, 1]; 45 deg 6 [1, 2, 1, 1, 0, 1]
+  lever 1, 7h free: 30 deg 3 [1, 2, 0, 0, 0, 0]; 35 deg 3 [1, 2, 0, 0, 0, 0]; 40 deg 3 [1, 2, 0, 0, 0, 0]; 45 deg 3 [1, 2, 0, 0, 0, 0]
+  lever 1, aware TWR=2.0: 30 deg 0 [0, 0, 0, 0, 0, 0]; 35 deg 1 [0, 0, 1, 0, 0, 0]; 40 deg 1 [0, 0, 1, 0, 0, 0]; 45 deg 1 [0, 0, 1, 0, 0, 0]
+  lever 1, aware TWR free: 30 deg 2 [1, 1, 0, 0, 0, 0]; 35 deg 3 [1, 1, 0, 0, 1, 0]; 40 deg 4 [1, 1, 0, 0, 1, 1]; 45 deg 4 [1, 1, 0, 0, 1, 1]
+[below] probes at 45 deg, lever 0 (one change from base)
+  7e: base 1; dead85 1; ideal mixer 0; side force off 0; ff off 0; pos gains x0.5 0; lag x0.9 0; resized TWR 2.0 1
+  7h free: base 2; dead85 2; ideal mixer 0; side force off 1; ff off 1; pos gains x0.5 0; lag x0.9 0; resized TWR 2.0 1
+  aware TWR=2.0: base 0; dead85 0; ideal mixer 0; side force off 0; ff off 0; pos gains x0.5 0; lag x0.9 0; resized TWR 2.0 0
+  aware TWR free: base 0; dead85 0; ideal mixer 0; side force off 0; ff off 0; pos gains x0.5 0; lag x0.9 0; resized TWR 2.0 0
+  7e diagnosis: why tilt 1 / pos 0; death time s median 1.47 (range 1.47-1.47); mix D 0.728 S 0.000; tilt-limit D 0.000 S 0.000; integ clip D 0.000 S 0.000; ffi clip D 0.000 S 0.000
+      plant of diverged flights: torque scale 0.88 (all 0.83), mass 1.23 (1.05), lag 1.91 (1.59); episodes [38]
+  7h free diagnosis: why tilt 2 / pos 0; death time s median 0.78 (range 0.53-1.03); mix D 0.768 S 0.000; tilt-limit D 0.000 S 0.000; integ clip D 0.000 S 0.000; ffi clip D 0.000 S 0.000
+      plant of diverged flights: torque scale 0.74 (all 0.83), mass 1.03 (1.05), lag 1.92 (1.59); episodes [51, 53]
+
+wall time 59 s

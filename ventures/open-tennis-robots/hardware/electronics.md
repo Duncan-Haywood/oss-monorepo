@@ -15,6 +15,8 @@ independently of any software.
  24 V LiFePO4 --[30 A]--+--[e-stop contactor]--+--[fuse block]--+-- ESCs / H-bridge --+
                         |                       |
                         +--[relay]--[4.7 ohm]---+   precharge (2026-11-14)
+                        |                       |
+                        +-----------|<|---------+   regen return Schottky (2026-11-14)
                                                              +-- lift, agitator, stepper driver
                                                              +-- shuttle servo (via 6 V buck) ---+
 ```
@@ -203,9 +205,27 @@ never thinner than 20 AWG.
   A 10 ms contact bounce re-closes onto under 1 V (about 12 A), because the
   precharge relay holds the bus while the contacts are open. The coil sense
   also catches a wireless e-stop the board would otherwise not see.
-- **Not modelled:** regenerative current from braking ESCs, and every load's
-  real current. Log the battery current on the first build with an inline
-  meter.
+- **Regenerative braking (2026-11-14, `Feeder.regen_braking`, the manifest's
+  "regen" line).** The firmware lowers a wheel's speed at the same 100 W it
+  spins up with, and most ESCs follow a lower throttle by braking, which
+  puts up to about 170 W back on the bus (6 A for both wheels). Into the
+  pack that is fine. Into a bus the pack is not taking it is not: if the
+  e-stop opens the contactor mid-brake, the ESCs keep braking for tens of
+  milliseconds (until their next 50 Hz pulse), and about 6 J into the bus's
+  2,300 uF passes the H-bridge's 30 V rating in under 1 ms. So fit a
+  **Schottky diode (45 V 20 A class) across the contactor and the precharge
+  relay**, anode on the switched bus, cathode between the main fuse and the
+  contactor. It returns braking current to the pack with the contacts open
+  (the bus stays near 28.4 V) and cannot power the bus from the pack, so the
+  e-stop still cuts every motor. A full pack refuses charge too: braking at
+  29.2 V would lift the highest cell past an assumed 3.65 V BMS cut, so the
+  firmware coasts instead of braking when the battery reads above 27.6 V
+  (`REGEN_BRAKE_MAX_MV`). If your BMS blocks charging when cold, set
+  `WHEEL_BRAKE = False` so the wheels always coast. Set the ESCs' brake at
+  zero throttle off.
+- **Not modelled:** every load's real current, and how hard your ESC really
+  brakes. Log the battery current on the first build with an inline meter,
+  and scope the bus on a 20% slow-down.
 - Common ground between the Pi, ESP32, ESCs and drivers; run the UART on a
   short twisted pair.
 - ESCs: calibrate the throttle range once, with the wheels removed.

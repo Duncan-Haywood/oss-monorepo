@@ -236,14 +236,23 @@ class SpinupRamp:
     k = P / I (60 / 2 pi)^2. Lowering a target is ramped the same way (an ESC that brakes would push the energy back
     into the pack). A zero target is not ramped: stopping stays immediate. After a stop the ramp starts from the
     wheel's measured speed, so a wheel still coasting is not braked down to restart from rest.
+
+    `brake=False` (2026-11-14, cad: Feeder.regen_braking) lets the wheel coast down instead: while the wheel is faster
+    than its new target, `coasting` is set and the board sends zero throttle (a throttle that matches the wheel's
+    speed would hold it there against drag, and anything lower is what an ESC brakes on), and the target follows the
+    measured speed down so the loop takes over where the wheel arrives. The board passes it when the pack reads above
+    REGEN_BRAKE_MAX_MV (braking into a nearly full pack lifts a cell to the BMS's cut, the BMS stops charging, and the
+    braking energy lifts the bus past the H-bridge's 30 V in about a millisecond) or when WHEEL_BRAKE is False.
     """
 
     def __init__(self, power_w, inertia_kgm2, max_rpm_s):
         self.k = power_w / inertia_kgm2 * (60 / (2 * math.pi)) ** 2
         self.max = max_rpm_s
         self.rpm = 0.0
+        self.coasting = False
 
-    def update(self, target, measured, dt_ms):
+    def update(self, target, measured, dt_ms, brake=True):
+        self.coasting = False
         if target <= 0:
             self.rpm = 0.0
             return 0
@@ -253,6 +262,9 @@ class SpinupRamp:
         r = self.rpm
         if target > r:
             r = min(r + self.max * dt, math.sqrt(r * r + 2 * self.k * dt), target)
+        elif target < r and not brake:
+            r = max(min(r, float(measured)), target)                   # follow the coasting wheel down
+            self.coasting = measured > target
         elif target < r:
             r = max(r - self.max * dt, math.sqrt(max(r * r - 2 * self.k * dt, 0.0)), target)
         self.rpm = r

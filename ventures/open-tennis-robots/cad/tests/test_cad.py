@@ -1410,6 +1410,65 @@ class PowerParamsTest(unittest.TestCase):
         self.assertTrue(any("BMS" in r for r in Feeder(wheel_spinup_w=200.0).check()))
 
 
+class RegenTest(unittest.TestCase):
+    """Regenerative braking (2026-11-14): the bus with the pack, with the contactor open, and the coast-down bound."""
+
+    def test_defaults_pass_and_the_build_runs_it(self):
+        import inspect
+        p = Feeder()
+        self.assertEqual(p.check_regen(), [])
+        self.assertIn("self.check_regen()", inspect.getsource(Feeder.check))
+        d = p.regen_braking()
+        self.assertAlmostEqual(d["bus_w"], 2 * p.wheel_spinup_w * p.regen_eff)
+        self.assertLess(d["diode_bus_v"], p.switched_v_max)
+
+    def test_isolated_bus_against_brute_force(self):
+        p = Feeder()
+        d = p.regen_braking()
+        c, P = d["c_f"], d["bus_w"]
+        for case in d["estop"].values():
+            v, t, dt = case["v0"], 0.0, 1e-6
+            crossed = None
+            while t < case["window_ms"] / 1e3 - 1e-12:
+                v += P / v / c * dt
+                t += dt
+                if crossed is None and v >= p.switched_v_max:
+                    crossed = t
+            self.assertAlmostEqual(v, case["peak_v"], delta=0.02 * case["peak_v"])
+            self.assertAlmostEqual(crossed * 1e3, case["to_limit_ms"], delta=0.05 * case["to_limit_ms"] + 0.01)
+
+    def test_failing_designs_are_named(self):
+        no_diode = Feeder(regen_diode=False).check_regen()
+        self.assertTrue(any("isolated bus" in r and "regen_diode" in r for r in no_diode))
+        unguarded = Feeder(regen_brake_max_v=29.2).check_regen()
+        self.assertTrue(any("REGEN_BRAKE_MAX_MV" in r for r in unguarded))
+        self.assertTrue(any("charge limit" in r for r in Feeder(bms_charge_a=5.0).check_regen()))
+        self.assertTrue(any("reverse rating" in r for r in Feeder(regen_diode_vr=30.0).check_regen()))
+        self.assertTrue(any("regen diode" in r for r in Feeder(regen_diode_a=10.0).check_regen()))
+
+    def test_coast_is_a_lower_bound(self):
+        """Drag torque rising with speed (bearings plus air), equal to launch_drag_w at the top speed: integrated, it
+        takes at least as long as coast_s's constant-torque bound, from the top speed and from 80% of it."""
+        p = Feeder()
+        w0 = max(p.launch_rpm) * 2 * math.pi / 60
+        tau0 = p.launch_drag_w / w0
+        inertia = p.launch_wheel_kgm2
+        for air in (0.0, 0.5, 0.9):
+            a, b = (1 - air) * tau0, air * tau0 / (w0 * w0)
+            for start, end in ((1.0, 0.8), (0.8, 0.3)):
+                w, t, dt = start * w0, 0.0, 1e-3
+                while w > end * w0:
+                    w -= (a + b * w * w) / inertia * dt
+                    t += dt
+                bound = p.coast_s(start * max(p.launch_rpm), end * max(p.launch_rpm))
+                self.assertGreaterEqual(t + dt, bound)
+                if air == 0.0:
+                    self.assertAlmostEqual(t, bound, delta=0.01 * bound)
+        d = p.regen_braking()
+        self.assertLess(d["slow_20pct"]["brake_s"], d["slow_20pct"]["coast_s"])
+        self.assertAlmostEqual(d["wheel_j"] / p.launch_drag_w * 2 / d["coast_to_rest_s"], 1.0, places=6)
+
+
 class InrushTest(unittest.TestCase):
     """Contactor inrush and precharge (2026-11-14): the closed-form R-L-C against brute force, and the checks."""
 
