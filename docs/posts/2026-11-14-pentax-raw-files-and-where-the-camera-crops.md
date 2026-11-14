@@ -3,7 +3,7 @@ title: "Pentax raw files, and where the camera really crops"
 seo_title: "Reading Pentax PEF raw files directly, checked against LibRaw"
 date: 2026-11-14
 tags: [photography, raw, pentax, k-1-mark-ii, pef, open-source, photo-editing]
-description: "ShootFlow now ingests and develops Pentax PEF files itself. All 36.6 million sensels of a K-1 Mark II frame match LibRaw, and the camera's JPEG turns out not to be centred on the sensor."
+description: "ShootFlow now reads Pentax PEF files itself: all 36.6 million sensels of a K-1 Mark II frame match LibRaw, and the camera's JPEG is not centred."
 ---
 
 ShootFlow is the open-source photo workflow in this repository. It copies a card with checksums, catalogues the shoot, scores and culls it, and develops raw files into 16-bit masters. By this morning it read DNG and the raw formats of Canon, Sony, Nikon, Olympus, Panasonic and Samsung. Pentax was worse off than any of them. `.pef` was missing from every extension list, so a Pentax card's raw files were never even copied at ingest.
