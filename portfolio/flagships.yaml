@@ -196,9 +196,10 @@ flagships:
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
       need an account); --cover-price moves two shifts together (README "Moving two
       shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it,
-      the café's 23 flagged vs 11 open days, pairs past 200 copies; a real two-site
-      export and staff list (README "Staff shared between sites"); own and site
-      rates read from staff CSVs and 7shifts (README "Per-location pay from an
+      a second call-out in one week (README "The caller can take a later shift":
+      café exposure down, week-long open hours up), pairs past 200 copies; a real
+      two-site export and staff list (README "Staff shared between sites"); own and
+      site rates read from staff CSVs and 7shifts (README "Per-location pay from an
       export"); next a real wages export, real trip times; whether the priced cut's
       r = 1 default suits a real manager; a manager's real task list for the fixed
       minutes.
