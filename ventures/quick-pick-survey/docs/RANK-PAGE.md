@@ -329,6 +329,26 @@ item: search entry points for intents the generic page does not name.
 Checked in Chromium at 390 px: no horizontal scroll, and each link opens the
 ranker on its own question and list.
 
+### Six more, and a hub (2026-11-14, later)
+
+Six more ready-list pages, each aimed at a question people search where a
+pairwise ranking is a better answer than the usual one: `use-team-goals`
+(quarterly goals or OKRs), `use-customer-pain-points` (the forced choice of a
+paid MaxDiff module, free, for a handful to a few dozen respondents who paste
+codes back; the page says it is not a panel), `use-wedding-priorities`,
+`use-home-must-haves`, `use-book-club-next-read` and `use-todo-priorities`
+(an Eisenhower-matrix alternative). Each names the alternatives and what it
+does not do. `site/ready-lists.html` is a generated hub (CollectionPage
+JSON-LD) that links all ten; every use page links back to it and the landing
+page, rank page and picks page link it, so search engines reach all ten from
+any one. `use-pages.test.mjs` fails if the hub is stale, misses a page, or a
+page or the landing page drops its link (checked red with the hub file
+removed). The use pages' footer now says they count a page view as well as a
+start, which they always did. Checked in Chromium at 390 px: no horizontal
+scroll on the seven new pages, and the pain-points link opens the ranker on
+its own question. No visitor count yet: the pages are entry points, and
+whether search sends anyone is item (r)'s open measurement.
+
 ## How many picks it takes (2026-11-14)
 
 The ranker's status line said "Lists of n usually take n log2 n to 1.5 n

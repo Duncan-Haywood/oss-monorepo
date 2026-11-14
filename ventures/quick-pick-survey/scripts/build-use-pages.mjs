@@ -77,9 +77,105 @@ export const USE_PAGES = [
     caveat: "It ranks what people would rather do, not what fits the budget or the dates. Take the clear losers off the list first if money or time rules them out.",
     alternatives: "Polls in a group chat, shared spreadsheets, or trip-planning apps with voting. A poll picks a winner but hides how much people care. Pairwise picks give an order and show where people disagree.",
   },
+  {
+    slug: "use-team-goals",
+    title: "Prioritise team goals or OKRs by picking pairs",
+    description: "Too many objectives for one quarter? Each person answers 'which matters more this quarter?' between two goals at a time, then you combine the picks into one order with the contested goals flagged. Free.",
+    lede: "A planning meeting with twelve candidate objectives usually ends with eight of them \"top priority\". Choosing between two goals at a time forces the trade-off the meeting avoided, and the team's order falls out of everyone's answers.",
+    question: "Which goal matters more this quarter?",
+    items: ["Cut churn", "Launch in a new market", "Ship the self-serve plan", "Reduce support backlog", "Hire two engineers", "Improve onboarding", "Raise prices", "Pay down tech debt", "Win three enterprise deals", "Improve site speed", "Start a partner programme", "Get SOC 2 ready"],
+    why: [
+      "Each person answers alone before the meeting, so the plan starts from everyone's view rather than the first person to speak.",
+      "The team table shows each goal's 90% rank range two ways: for these people, and for the wider group they stand for. A goal whose range runs from 2nd to 10th is one the team has not agreed on yet.",
+      "The agreement score (0 to 1) and each goal's best-to-worst place across people show whether you have one plan or two camps.",
+    ],
+    caveat: "It ranks what people think matters, not what is feasible. Size the work separately, and put hard commitments (a contract, a legal deadline) outside the list rather than letting a vote rank them.",
+    alternatives: "Dot voting on a whiteboard, a shared spreadsheet with 1 to 5 scores, or a paid planning tool. Scores cluster at the top and dot votes follow whoever goes first; pairwise picks give a full order and show the disagreement instead of averaging it away.",
+  },
+  {
+    slug: "use-customer-pain-points",
+    title: "Rank customer pain points by picking pairs: a free MaxDiff alternative",
+    description: "Ask a handful of customers 'which is the bigger problem for you?' between two pain points at a time, then combine their result codes into one ranked list with rank ranges. Free, nothing uploaded.",
+    lede: "\"How much of a problem is this, 1 to 5?\" gets you a column of 4s. MaxDiff surveys fix that by making people choose, but the tools cost money. Asking which of two problems is bigger makes the same trade-off, and a few customers' answers give an order.",
+    question: "Which is the bigger problem for you?",
+    items: ["Setup takes too long", "Too expensive for what it does", "Reports are hard to read", "Missing integrations", "Slow customer support", "Hard to train new staff", "Data export is clunky", "Mobile app is limited", "Too many notifications", "Unclear pricing tiers"],
+    why: [
+      "Send the link to the customers you interview. Each answers on their own phone and sends you back a short result code; paste the codes in to combine them.",
+      "The \"wider\" rank range estimates the order for the customers your respondents stand for, not just these people, so you can see how much a handful of answers settles.",
+      "Nothing about the respondents is collected: no names, emails or accounts. You get only the codes they choose to send.",
+    ],
+    caveat: "It is built for a handful to a few dozen respondents who paste codes back, not a panel of thousands, and it is not a market-research sample. Write each pain point in the customer's words, or you rank your own framing.",
+    alternatives: "MaxDiff modules in paid survey tools, 1 to 5 rating questions in a free form builder, or reading interview notes. Ratings don't force a choice; paid MaxDiff does but costs a subscription. This asks the same kind of forced choice for free.",
+  },
+  {
+    slug: "use-wedding-priorities",
+    title: "Decide your wedding priorities together, two at a time",
+    description: "Before you set the budget, each of you answers 'which matters more for our wedding?' between two things at a time, then compare codes to see where you agree and where you differ. Free, private, no sign-up.",
+    lede: "Wedding budgets go wrong when every line feels essential. Picking which of two things matters more is quick, and doing it separately shows each of you what the other actually cares about before the deposits go down.",
+    question: "Which matters more for our wedding?",
+    items: ["The venue", "Photography", "Food and drink", "Inviting everyone we want", "Music or a band", "Flowers and decor", "The dress or suit", "A honeymoon", "Video", "The date we want", "Staying within budget", "Guests' travel being easy"],
+    why: [
+      "You each answer alone on your own phone, then paste each other's result codes to see one combined order and the items you rank far apart.",
+      "Each item's best-to-worst place across the two of you points straight at the conversation to have.",
+      "Nothing is uploaded: the list travels in the link and your answers stay in your browser.",
+    ],
+    caveat: "It ranks what you care about, not what things cost. Use the order to decide where the money goes, then price it.",
+    alternatives: "Wedding budget worksheets, planning apps with checklists, or a long talk. A worksheet starts from costs; this starts from what each of you would give up first.",
+  },
+  {
+    slug: "use-home-must-haves",
+    title: "Rank your house-hunting must-haves before you start viewing",
+    description: "Answer 'which matters more in our next home?' between two features at a time, alone or with a partner, and get a ranked list of must-haves with how settled each place is. Free, in the browser.",
+    lede: "Everyone's list of must-haves is longer than any house. Deciding which of two matters more (a shorter commute or a bigger garden?) tells you what to hold out for and what to give up when the right house is missing something.",
+    question: "Which matters more in our next home?",
+    items: ["Short commute", "Good schools nearby", "A garden or yard", "Off-street parking", "An extra bedroom", "A home office", "Walkable shops and cafes", "Quiet street", "Move-in ready, no renovation", "Lower price", "Natural light", "Close to family"],
+    why: [
+      "Edit the list first: add the features you are actually weighing and remove the ones you don't care about.",
+      "If you are buying with someone, each answers alone and you combine codes; the table shows the features you split on.",
+      "The rank range says which places your answers settle and which are close calls, so you know where you are flexible.",
+    ],
+    caveat: "It is a way to sort out preferences, not financial or property advice. Price, survey results and what you can borrow come first.",
+    alternatives: "Checklists from property sites and house-hunting worksheets. A checklist treats every item as yes or no; ranking pairs tells you which yes to trade away.",
+  },
+  {
+    slug: "use-book-club-next-read",
+    title: "Pick your book club's next read: rank the shortlist together",
+    description: "Send the shortlist to the club. Everyone answers 'which would you rather read next?' between two books at a time, then paste the codes back for one order. Free, no accounts, works on any phone.",
+    lede: "A show of hands picks the book with the loudest fan. Ranking pairs gives everyone the same weight, and the combined order tells you the next two or three reads, not just one.",
+    question: "Which would you rather read next?",
+    items: ["Middlemarch", "The Remains of the Day", "Beloved", "Pride and Prejudice", "One Hundred Years of Solitude", "The Left Hand of Darkness", "Rebecca", "Things Fall Apart", "The Count of Monte Cristo", "Frankenstein"],
+    why: [
+      "Each member weighs the same however many questions they answered, so nobody's enthusiasm counts twice.",
+      "The agreement score says whether the club wants the same kind of book or is split, and the best-to-worst column marks the divisive picks.",
+      "Swap in your own shortlist: titles, genres or themes all work.",
+    ],
+    caveat: "It ranks what people would rather read, not what is available at the library or in paperback. Drop titles that are hard to get first.",
+    alternatives: "Polls in a group chat or a reading app's poll. A poll gives each person one vote and hides second choices; pairwise picks use everyone's whole order.",
+  },
+  {
+    slug: "use-todo-priorities",
+    title: "Prioritise a to-do list when everything feels urgent",
+    description: "Stuck on a long to-do list? Answer 'which should I do first?' between two tasks at a time and get an ordered list with the close calls marked. An Eisenhower matrix alternative, free and private.",
+    lede: "When every task feels important, sorting the whole list is paralysing. Choosing which of two to do first takes a second each, and a few dozen of those choices give you an order you can start on.",
+    question: "Which should I do first?",
+    items: ["Reply to the overdue emails", "Finish the quarterly report", "Book the dentist", "File expense receipts", "Prepare for Monday's meeting", "Fix the leaking tap", "Call the bank about the fee", "Update my CV", "Plan next week's meals", "Clear the inbox", "Renew the car insurance", "Back up my laptop"],
+    why: [
+      "Replace the starter tasks with your own; paste a list straight from your notes app, one task per line (bullets are stripped).",
+      "\"Be sure of the favourite\" mode spends its questions on the front-runners when you only need to know what to start on.",
+      "Nothing leaves your browser, so work and personal tasks can share the list.",
+    ],
+    caveat: "It orders the tasks by what you judge more pressing in each pair; it does not know your deadlines. Put tasks with a fixed date first yourself.",
+    alternatives: "An Eisenhower matrix, numbering tasks 1 to 3, or a task app's priority flags. Those ask you to label each task in isolation; comparing two at a time is easier when everything feels like a 1.",
+  },
 ];
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+export const HUB_SLUG = "ready-lists";
+export const HUB = {
+  title: "Ready lists to rank by picking pairs",
+  description: "Starter lists that open a free pairwise ranker already filled in: a backlog, team goals, customer pain points, values, names, trips, a wedding, a house hunt, a book club pick, a to-do list.",
+};
 
 export function rankLink(page) {
   return `rank.html#l=${encodeList({ title: page.question, items: parseList(page.items.join("\n")) })}`;
@@ -144,12 +240,12 @@ export function renderUsePage(page) {
     <p class="muted">Under the hood: a Bradley-Terry model refit after every answer, an adaptive question picker, and a stop rule checked against simulated respondents, including ones whose picks are close calls. <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/quick-pick-survey/docs/RANK-PAGE.md">The method and its measurements</a>.</p>
   </section>
 
-  <p class="muted">More ready lists: ${others}</p>
+  <p class="muted">More ready lists: ${others} &middot; <a href="${HUB_SLUG}.html">all ready lists</a></p>
 
   <footer>
     <p><strong>Disclaimer.</strong> A ranking inferred from a limited number of picks is a statistical estimate, not a fact. Don't use it as the sole basis for a hiring, financial, medical or relationship decision.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, medical or professional advice. You are responsible for reviewing its output before relying on it. MIT licensed (<a href="LICENSE">licence</a>).</p>
-    <p>This page counts one anonymous event in your browser's local storage when you start a list (nothing about you or the list; off with Do Not Track, Global Privacy Control, or the switch on the <a href="rank.html">ranker</a>).</p>
+    <p>This page counts anonymous events in your browser's local storage: a view of the page and, if you click through, a start (nothing about you or the list; off with Do Not Track, Global Privacy Control, or the switch on the <a href="rank.html">ranker</a>).</p>
     <p><a href="./">About Quick Pick</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the creator</a></p>
   </footer>
 </main>
@@ -163,8 +259,50 @@ export function renderUsePage(page) {
 `;
 }
 
+export function renderHub() {
+  const ld = JSON.stringify({ "@context": "https://schema.org", "@type": "CollectionPage", name: HUB.title, description: HUB.description, url: `${BASE}${HUB_SLUG}.html`, hasPart: USE_PAGES.map((p) => ({ "@type": "WebPage", name: p.title, url: `${BASE}${p.slug}.html` })) });
+  const page = renderUsePage(USE_PAGES[0]);
+  const head = page.slice(page.indexOf("  <style>"), page.indexOf("</head>"));
+  const foot = page.slice(page.indexOf("  <footer>"), page.indexOf("</main>"));
+  return `<!doctype html>
+<!-- GENERATED by scripts/build-use-pages.mjs. Edit the lists there, then run it. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${esc(HUB.title)} | Quick Pick</title>
+  <meta name="description" content="${esc(HUB.description)}">
+  <link rel="canonical" href="${BASE}${HUB_SLUG}.html">
+  <meta property="og:title" content="${esc(HUB.title)}">
+  <meta property="og:description" content="${esc(HUB.description)}">
+  <script type="application/ld+json">${ld.replace(/</g, "\\u003c")}</script>
+${head}</head>
+<body>
+<main>
+  <p class="muted"><a href="./">Quick Pick</a> / <a href="rank.html">rank a list</a> / ready lists</p>
+  <h1>${esc(HUB.title)}</h1>
+  <p class="lede">Each page opens the free ranker with a starter list already filled in. Edit the list to fit, answer "this or that?" a few dozen times, and send the link to anyone whose picks you want combined.</p>
+${USE_PAGES.map((p) => `  <section>
+    <h2><a href="${p.slug}.html">${esc(p.title)}</a></h2>
+    <p>${esc(p.description)}</p>
+    <p class="muted">Question: "${esc(p.question)}" &middot; ${parseList(p.items.join("\n")).length} starter options &middot; <a href="${esc(rankLink(p))}">start now &rarr;</a></p>
+  </section>`).join("\n")}
+
+  <p class="muted">Or <a href="rank.html">paste your own list</a>. <a href="how-many-pairwise-comparisons.html">How many pairwise comparisons does a list take?</a></p>
+
+${foot}</main>
+<script type="module">
+  import { record } from "./usage.mjs";
+  record("use_page_viewed:${HUB_SLUG}");
+</script>
+</body>
+</html>
+`;
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const page of USE_PAGES) writeFileSync(join(SITE, `${page.slug}.html`), renderUsePage(page));
-  console.log(`wrote ${USE_PAGES.length} pages`);
+  writeFileSync(join(SITE, `${HUB_SLUG}.html`), renderHub());
+  console.log(`wrote ${USE_PAGES.length} pages and ${HUB_SLUG}.html`);
 }
 export { SITE };
