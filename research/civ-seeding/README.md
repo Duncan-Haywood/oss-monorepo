@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Third step (milestone 3): the estimation cannot reliably tell the
+through village leaders. **Latest step (milestone 3b): the real villages cluster their adopters far more than the simple model allows, and a village random effect does not fix it; a threshold cascade model does.** Letting each village's base adoption rate vary (a random effect fitted to how much take-up varies between villages) adds nothing: the fitted spread is zero for all three models, because word of mouth alone already makes take-up vary as much between simulated villages as between real ones. The real held-out error (0.181) stays far above every synthetic dataset from the simple model (5&ndash;95%: 0.044&ndash;0.068), and 57% of it is one moment that measures adopters next to adopters' neighbours. A threshold model, where a household adopts once half its neighbours have, produces that clustering: 19% of its synthetic datasets reach the real error, and it now predicts held-out villages best (0.169 against 0.181 for the simple model and 0.210 for reinforcement). **Third step (milestone 3): the estimation cannot reliably tell the
 models apart, and the real villages fit none of them.** On 200 synthetic datasets per model,
 simulated on the real networks, the in-sample criterion picks the reinforcement model for 85%
 of datasets made by the simple model; leaving one village out recovers the true model 58.5%
@@ -179,6 +179,52 @@ anything optimistic. Plan logged before the run.
   than the simple-against-complex difference itself, so the next step adds village-level
   heterogeneity before any seeding comparison.
 
+## Milestone 3b: is it village heterogeneity? (`experiments/m3b_hetero/`)
+
+Milestone 3 found the real villages' held-out errors two to four times larger than any fitted
+model's own synthetic data. The obvious suspect was village-level heterogeneity in the base
+adoption rate, so every family gained &sigma;, the SD of a per-village, per-run shift of every
+household's logit, identified by a ninth moment (the squared non-leader take-up rate, which pins
+the cross-village variance of take-up). I and T also gained the intercept shift &delta; that
+R&delta; already had. Grid of 8,100 points; fit on nine moments, held-out loss on milestone 3's
+eight; 200 synthetic datasets from each family's real-data fit. Plan and hypotheses logged
+before the run; a per-moment breakdown was added after a smoke run on a tiny grid, and is
+labelled as such.
+
+![held-out squared error by moment, real villages against two models' synthetic villages](experiments/m3b_hetero/misfit_by_moment.svg)
+
+| | information (I) | threshold (T) | reinforcement (R&delta;) |
+|---|---|---|---|
+| in-sample fit, nine moments | q<sub>N</sub> 0.05, q<sub>P</sub> 0.3, &sigma; 0 | &theta; 0.50, &delta; &minus;0.25, &sigma; 0 | &gamma; 0.10, &delta; &minus;0.25, &sigma; 0 |
+| &sigma;-hat = 0 in bootstrap draws | 20.1% | 73.6% | 70.9% |
+| real held-out loss | 0.181 | 0.169 | 0.210 |
+| that model's synthetic held-out loss of I, 5&ndash;95% | 0.044&ndash;0.068 | 0.062&ndash;0.369 | 0.050&ndash;0.087 |
+| synthetic datasets reaching the real I loss | 0% | 19% | 0% |
+| recovered, leave one village out (milestone 3) | 37.0% (58.5%) | 77.5% (82.0%) | 49.5% (55.5%) |
+
+- **H6 refuted: there is no base-rate heterogeneity to find.** &sigma;-hat is 0 in every
+  family. With &sigma; = 0 the simple model already matches the mean squared village take-up
+  rate (residual &minus;0.0004): in a village of about 200 households, whether the news happens
+  to spread gives as much village-to-village variation in take-up as the data show.
+- **H7 refuted for the simple model:** no synthetic dataset from it, or from reinforcement,
+  reaches the real held-out loss. **The threshold model reaches it** (reported, not tested):
+  its outcomes are close to all-or-nothing village by village, and 19% of its datasets are as
+  far from the fit as the real villages are.
+- **Where the misfit is.** The real error is above the simple model's band in all nine moments,
+  and 57% of it is moment 5 (own adoption times second-neighbour adopters, divided by degree,
+  as the authors' `moments.m` computes it): 0.103 against 0.012&ndash;0.027. Moments 4 and 8
+  (adopters next to adopters; take-up with three or more adopting neighbours) are next. The
+  villages are not over-dispersed in how many households adopt but in *where* adoption sits.
+  The threshold band covers the real value in seven of nine moments.
+- **Identification gets worse, not better.** With &sigma; and &delta; free, leave-one-out
+  recovers the simple model in 37% of its datasets (calling it reinforcement 39% of the time),
+  and in sample still picks the bigger model. &sigma; itself is poorly recovered: with true
+  &sigma; = 0, the simple model's fit returns 0.25 or 0.5 in 58% of datasets.
+- Caveats: beta stays at the real-data leader logit and ignores the random effect; the
+  threshold model is the only one of three that fits the dispersion, and homophily (similar
+  households befriending each other) would also cluster adopters; moment 5's scale, a quirk
+  kept for faithfulness, dominates the identity-weighted criterion.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -196,7 +242,7 @@ villages. Adoption is observed once, not over time, so homophily and contagion a
 
 ```
 python3 data/build_dataset.py "<mirror>/datav4.0/Matlab Replication"   # optional, rebuilds the data
-python3 -m pytest -q tests                                                # 19 tests, about 5 s
+python3 -m pytest -q tests                                                # 20 tests, about 5 s
 python3 experiments/m1_reproduce/run.py      # about 2 minutes on 4 cores, writes results.txt
 python3 experiments/m1_reproduce/twostep.py  # seconds, needs run.py's dgrid.npz
 python3 experiments/m1_reproduce/periods.py  # about 12 minutes, periods.txt
@@ -206,18 +252,20 @@ python3 experiments/m2_complex/refine.py     # about 4 minutes, refine.txt (post
 python3 experiments/m2_complex/figure.py
 python3 experiments/m3_identify/run.py       # about 2 minutes on 4 cores, results.txt
 python3 experiments/m3_identify/figure.py
+OMP_NUM_THREADS=1 python3 experiments/m3b_hetero/run.py   # about 16 minutes on 4 cores, results.txt
+python3 experiments/m3b_hetero/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Village-level heterogeneity first: a random effect on the base adoption rate (and on q) per
-village, fitted by the same simulated method of moments, then milestones 2 and 3 again with it,
-checking that real held-out losses fall inside the synthetic spread. A moment that separates
-reinforcement from homophily (take-up by adopting neighbours within degree bands) is the next
-candidate. Then seeding rules under every model the data cannot reject (milestone 4), which on
-this evidence should be scored as a robust rule rather than under one chosen model.
+Milestone 3b rules out base-rate heterogeneity and points at clustering. Next: standardise the
+moments by their synthetic SD (or drop moment 5's quirk) and check that the threshold model's
+lead survives; a degree-band take-up moment to separate a threshold cascade from homophily,
+which also clusters adopters; then seeding rules (milestone 4) under the threshold and simple
+models, the two the data reject least, scored as a robust rule rather than under one chosen
+model.
 
 ## References
 
