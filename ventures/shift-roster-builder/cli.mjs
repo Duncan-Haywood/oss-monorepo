@@ -565,7 +565,8 @@ export function siteWageText(r) {
   const sw = r.siteWage;
   const rate = (v) => `$${Math.abs(v).toFixed(2).replace(/\.00$/, "")}/h`;
   const rule = (x) => [x.add ? `${x.add > 0 ? "+" : "-"}${rate(x.add)}` : "", x.pct ? `${x.pct > 0 ? "+" : ""}${num(x.pct)}%` : "", x.min ? `at least ${rate(x.min)}` : ""].filter(Boolean).join(", ");
-  const parts = sw.sites.filter((x) => x.hours > 0).map((x) => `${x.site} (${rule(x)}) ${num(x.hours)} h, ${x.extra >= 0 ? "+" : "-"}${money(Math.abs(x.extra))}`);
+  const how = (x) => [rule(x), x.ownRates ? `own rate: ${x.ownRates.join(", ")}` : ""].filter(Boolean).join("; ");
+  const parts = sw.sites.filter((x) => x.hours > 0).map((x) => `${x.site} (${how(x)}) ${num(x.hours)} h, ${x.extra >= 0 ? "+" : "-"}${money(Math.abs(x.extra))}`);
   return `Wages by site: ${parts.length ? parts.join("; ") : "no hours at the priced sites"}. Payroll ${sw.extra >= 0 ? "above" : "below"} everyone's own wage: ${money(Math.abs(sw.extra))}, overtime on the week's average rate included.`;
 }
 
