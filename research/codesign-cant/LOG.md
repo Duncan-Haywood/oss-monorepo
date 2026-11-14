@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 7i: a lever-aware objective, train on levers 0-2 with thrust-to-weight fixed and free (predictions written and committed before `experiments/m7i_aware/run.py` was run at full budget; outcome below)
+
+- Why: milestone 7h's first next step. 7h found that a tuner given thrust-to-weight as a free coordinate buys a little (2.05-2.55) and spends it on efficiency, and is no more robust at twice the trained lever: nothing in an objective trained at lever 1 asks for robustness to an uncertain centre of pressure. Does putting levers 0-2 in the objective make the co-design buy authority, and does that remove the lever-2 tilt-overs 7g diagnosed?
+- Plan (`experiments/m7i_aware/run.py`): training score = mean of `poshold.score` at levers 0, 1, 2, 6 episodes each (18 per candidate against 7e/7h's 16 at lever 1; same training seed per lever). Otherwise milestone 7e/7h's training exactly (integ feed-forward, ki <= ceiling / 1.25 as a constraint, 3200 evaluations, 6 seeds, 2 starts, both rigid geometries). Arms: `aware TWR=2.0` (12 coordinates) and `aware TWR free` (13th coordinate on 1.5-4, start 2.0). Baselines re-scored by the same function: 7e's constrained designs (`7e`) and 7h's `free` designs (`7h free`). Held-out: 64 episodes (seed 9999), levers 0, 1, 2 and 3 (3 is outside every arm's training), tilt-command limits 20°, 30° (ArduPilot `ANGLE_MAX` default) and 45° (PX4 `MPC_TILTMAX_AIR` default).
+- Looked at before writing these: one smoke run (64 evaluations, 2 seeds, 2 episodes per lever, scored on seed 4242, not the held-out seed): too short to converge, its numbers are not evidence; it checked the script runs end to end and timed it.
+- Predictions ("diverged" = held-out flights of 384 per set; 7e's lever-2 counts: `above` 4 at 20°, 12 at 45°; `below` 45, 55):
+  - A1 (prior 85%): both lever-aware arms diverge on fewer lever-2 flights than 7e at 20° in both geometries.
+  - A2 (prior 50%): `aware TWR=2.0` cuts the lever-2 count at least in half at both 20° and 45° in both geometries (7g says gains cannot fix it at thrust-to-weight 2, but the frame geometry, which sets gust torque against torque authority, is still free).
+  - A3 (prior 65%): `aware TWR free` picks a higher mean thrust-to-weight than `7h free` in both geometries (7h: 2.24 `above`, 2.28 `below`).
+  - A4 (prior 55%): `aware TWR free` diverges on 0 lever-2 flights at 20° in both geometries.
+  - A5 (prior 75%): both lever-aware arms pay for it at lever 0, 20°: paired held-out J against 7e below 0 in both geometries.
+  - A6 (prior 50%): that price is smaller than the retrofit's in 7h: `aware TWR free` minus 7e at lever 0, 20° above -0.128 in both geometries (7h's `retrofit max`: -0.144 `above`, -0.128 `below`).
+  - A7 (prior 40%): at lever 3 (outside all training), `aware TWR free` diverges on at most half 7e's count at 20° in both geometries.
+  - A8 (prior 70%): for every set, the lever-2 count at 30° lies between its counts at 20° and 45° (inclusive).
+- Analysis: paired per-seed differences against 7e (mean, se, sign count), divergence counts per set and condition; thrust-to-weight, torque limit per newton of weight, geometry. No test beyond counts with six seeds.
+
 ## 2026-11-14 · Milestone 7h: thrust-to-weight as a design variable, scored at twice the trained lever (predictions written and committed before `experiments/m7h_twr/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7g's first next step. 7g found the residual lever-2 divergence is a tilt-over that starts in the mixer: the gust torque outgrows the differential thrust the hover polytope allows, and about 25% more roll/pitch authority removes it. Its advice to a builder was "buy thrust headroom (thrust-to-weight above 2)". Every design so far was sized at thrust-to-weight 2 (`aero.TWR`). Does the co-design choose headroom when it may, and can a builder add it after the fact?
