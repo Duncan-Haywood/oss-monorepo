@@ -24,13 +24,6 @@
    "status": "In force (start year disputed)"
   },
   {
-   "date": "2016-10-01",
-   "country": "Czech Republic",
-   "page": "czech-republic-e-invoice-mandate.html",
-   "note": "B2G acceptance since 1 Oct 2016",
-   "status": "B2G in force; B2B not enacted"
-  },
-  {
    "date": "2017-01-01",
    "country": "Azerbaijan",
    "page": "azerbaijan-e-qaime-e-invoice-mandate.html",
@@ -45,6 +38,13 @@
    "status": "In force (start date disputed)"
   },
   {
+   "date": "2019-04-01",
+   "country": "Czech Republic",
+   "page": "czech-republic-e-invoice-mandate.html",
+   "note": "B2G acceptance (Act 134/2016 § 221) from 1 Apr 2019 for the state",
+   "status": "B2G in force; B2B not enacted"
+  },
+  {
    "date": "2019-07-01",
    "country": "Estonia",
    "page": "estonia-e-invoice-mandate.html",
@@ -57,6 +57,13 @@
    "page": "uzbekistan-soliq-e-invoice-mandate.html",
    "note": "B2B and B2G reported from 1 January 2020, B2C from 2021",
    "status": "In force (2026 changes disputed)"
+  },
+  {
+   "date": "2020-04-01",
+   "country": "Czech Republic",
+   "page": "czech-republic-e-invoice-mandate.html",
+   "note": "from 1 Apr 2020 for other contracting authorities (our count from § 279(5))",
+   "status": "B2G in force; B2B not enacted"
   },
   {
    "date": "2020-04-18",
@@ -305,6 +312,13 @@
   },
   {
    "date": "2026-01-01",
+   "country": "Latvia",
+   "page": "latvia-e-invoice-mandate.html",
+   "note": "data to the State Revenue Service from 1 Jan 2026",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2026-01-01",
    "country": "Panama",
    "page": "panama-dgi-sfep-e-invoice-mandate.html",
    "note": "Resolution 201-6299 (29 July 2025) reported in force 1 January 2026",
@@ -419,14 +433,14 @@
    "date": "2026-07-17",
    "country": "Luxembourg",
    "page": "luxembourg-e-invoice-mandate.html",
-   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, not yet law): receive from 1 Jan 2028",
+   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, in committee and not yet law at the dossier's October 2026 update): receive from 1 Jan 2028",
    "status": "Upcoming"
   },
   {
    "date": "2026-07-30",
    "country": "Luxembourg",
    "page": "luxembourg-e-invoice-mandate.html",
-   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, not yet law): receive from 1 Jan 2028",
+   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, in committee and not yet law at the dossier's October 2026 update): receive from 1 Jan 2028",
    "status": "Upcoming"
   },
   {
@@ -470,6 +484,13 @@
    "page": "rwanda-eis-e-invoice-mandate.html",
    "note": "Ministerial Order No 006/26/10/TC of 24 September 2026 reported (Gazette and RRA notices unread; start 2013 or 2021 in different sources)",
    "status": "In force (2026 order reported, unconfirmed)"
+  },
+  {
+   "date": "2026-09-29",
+   "country": "Denmark",
+   "page": "denmark-e-invoice-mandate.html",
+   "note": "registered bookkeeping systems send and receive e-invoices from 29 Sep 2026",
+   "status": "Upcoming"
   },
   {
    "date": "2026-09-29",
@@ -564,13 +585,6 @@
   },
   {
    "date": "2027-01-01",
-   "country": "Denmark",
-   "page": "denmark-e-invoice-mandate.html",
-   "note": "Bookkeeping Act systems, SAF-T 2.0 from 1 Jan 2027, default NemHandel registration reported for 2027 (secondary sources, partly draft)",
-   "status": "Upcoming"
-  },
-  {
-   "date": "2027-01-01",
    "country": "Germany",
    "page": "germany-e-invoice-mandate.html",
    "note": "issue from 1 Jan 2027 (prior-year turnover above EUR 800,000)",
@@ -631,6 +645,13 @@
    "page": "saudi-arabia-zatca-e-invoice-mandate.html",
    "note": "Wave 25 (taxable turnover above SAR 187,500) due 1 Feb 2027",
    "status": "In force, in waves"
+  },
+  {
+   "date": "2027-03-01",
+   "country": "Denmark",
+   "page": "denmark-e-invoice-mandate.html",
+   "note": "MitID checks and default NemHandel enrolment from 1 Mar 2027",
+   "status": "Upcoming"
   },
   {
    "date": "2027-04-01",
@@ -697,6 +718,13 @@
   },
   {
    "date": "2028-01-01",
+   "country": "Denmark",
+   "page": "denmark-e-invoice-mandate.html",
+   "note": "sender master data from 1 Jan 2028 (BEK nr 811, read 2026-11-14)",
+   "status": "Upcoming"
+  },
+  {
+   "date": "2028-01-01",
    "country": "Germany",
    "page": "germany-e-invoice-mandate.html",
    "note": "1 Jan 2028 (everyone)",
@@ -706,14 +734,14 @@
    "date": "2028-01-01",
    "country": "Latvia",
    "page": "latvia-e-invoice-mandate.html",
-   "note": "domestic B2B postponed to 1 Jan 2028 (vendor guides)",
+   "note": "domestic B2B and its data from 1 Jan 2028 (Law on Accounting, read 2026-11-14)",
    "status": "Upcoming"
   },
   {
    "date": "2028-01-01",
    "country": "Luxembourg",
    "page": "luxembourg-e-invoice-mandate.html",
-   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, not yet law): receive from 1 Jan 2028",
+   "note": "Draft law No. 8815 (approved by the Government Council 17 Jul 2026, filed 30 Jul 2026, in committee and not yet law at the dossier's October 2026 update): receive from 1 Jan 2028",
    "status": "Upcoming"
   },
   {
