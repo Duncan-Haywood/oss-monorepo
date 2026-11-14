@@ -1,9 +1,9 @@
 ---
 title: "A result code that decoded to null, and a repeat penalty nothing tested. Red-teaming Quick Pick's team ranges"
-seo_title: "Fuzzing shared-link decoders with JSON null: one crash in Quick Pick, 205 decoders checked"
+seo_title: "Fuzzing shared-link decoders with JSON null: a rank page crash"
 date: 2026-11-14
 tags: [testing, mutation-testing, javascript, url-state, redteam]
-description: "10 faults seeded into the Quick Pick rank engine, 5 caught, 4 of the rest equivalent. A hand-made result code made the team box do nothing, so every shared-link decoder in the repository now gets fed JSON null on each venture PR."
+description: "10 faults seeded into Quick Pick's rank engine, 5 caught. A result code of JSON null broke the team box, so 205 link decoders now get fuzzed on every PR."
 ---
 
 Today's red-team run aimed at `ventures/quick-pick-survey/site/rank-core.mjs`,
