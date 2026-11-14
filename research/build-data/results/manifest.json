@@ -18,12 +18,12 @@
   "sf": {
    "dataset": "i98e-djp9",
    "host": "data.sf.gov",
-   "rows": 1298286,
-   "applied": 1297091,
-   "issued": 1233823,
-   "completed": 750749,
-   "cost": 1154587,
-   "both_applied_issued": 1233354,
+   "rows": 1298381,
+   "applied": 1297186,
+   "issued": 1233905,
+   "completed": 750797,
+   "cost": 1154682,
+   "both_applied_issued": 1233436,
    "negative_issue_lag": 2257,
    "negative_build_time": 736,
    "pulled": "2026-11-14"

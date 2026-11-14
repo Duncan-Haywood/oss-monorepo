@@ -126,6 +126,45 @@ def summarise(rounds_path, res_dir, held=("austin", "sf", "seattle"), years=(202
     return out
 
 
+def ipcw_summary(path, held=("austin", "sf", "seattle"), years=(2021, 2022)):
+    """Session 88: per cell, each variant's cascade2 test loss change against full (days; q0.5, q0.9), the q0.9
+    rounds (mean of seeds), the share of cut_only's q0.9 cost the weights recover, and predictions G1 to G5."""
+    R = json.load(open(path))
+    cells = []
+    for h in held:
+        for Y in years:
+            if f"{h} {Y} full" not in R:
+                continue
+            f = R[f"{h} {Y} full"]["test_loss"]
+            row = dict(held=h, year=Y, full={t: f[t] for t in ("0.5", "0.9")}, change={}, q90_rounds={})
+            for v in VARIANTS:
+                k = f"{h} {Y} {v}"
+                if k not in R:
+                    continue
+                row["change"][v] = {t: R[k]["test_loss"][t] - f[t] for t in ("0.5", "0.9")}
+                row["q90_rounds"][v] = float(np.mean([r["0.9"] for r in R[k]["rounds"].values()]))
+                if "weights" in R[k]:
+                    row.setdefault("weights", {})[v] = R[k]["weights"]
+            c = row["change"]
+            if "cut_only" in c and "ipcw_cut" in c and c["cut_only"]["0.9"] > 0:
+                row["ipcw_cut_recovered_share_q90"] = 1 - c["ipcw_cut"]["0.9"] / c["cut_only"]["0.9"]
+            cells.append(row)
+    sw = [c for c in cells if c["held"] in ("sf", "seattle")]
+    au = [c for c in cells if c["held"] == "austin"]
+    g = dict(
+        G1=sum(abs(c["change"]["ipcw_cut"]["0.9"]) <= 1 for c in sw),
+        G2=sum(c.get("ipcw_cut_recovered_share_q90", 0) >= 0.5 for c in sw),
+        G3=sum(c["change"]["ipcw_es3"]["0.9"] < c["change"]["es3"]["0.9"] for c in sw),
+        G4=sum(c["change"]["ipcw_cut"]["0.9"] > c["change"]["cut_only"]["0.9"] for c in au),
+        G5=sum(abs(c["change"]["ipcw_cut"]["0.5"]) <= 0.5 for c in cells))
+    verdict = dict(G1=g["G1"] >= 3, G2=g["G2"] >= 3, G3=g["G3"] >= 3, G4=g["G4"] == len(au) == 2, G5=g["G5"] == len(cells) == 6)
+    mean = {v: {t: float(np.mean([c["change"][v][t] for c in cells if v in c["change"]])) for t in ("0.5", "0.9")}
+            for v in VARIANTS if all(v in c["change"] for c in cells)}
+    return dict(note="cascade2 transfer model; change = variant's mean pinball loss on all test-year rows minus full's, "
+                     "days (negative = better); 3 seeds; SF and Seattle counts are of 4 city-years, Austin of 2",
+                cells=cells, mean_change=mean, counts=g, held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -136,9 +175,18 @@ if __name__ == "__main__":
     ap.add_argument("--floor", type=float, default=0.05, help="IPCW weight floor on G (ipcw_* variants)")
     ap.add_argument("--out-name", help="results file name (default rounds_[score_]i2c.json)")
     ap.add_argument("--score", action="store_true", help="also score cascade2 on the held-out test year")
+    ap.add_argument("--summarise-ipcw", help="write results/<name>_summary.json from this results file (session 88)")
     ap.add_argument("--summarise", action="store_true", help="write results/rounds_summary.json from saved files")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_ipcw:
+        s = ipcw_summary(a.summarise_ipcw)
+        json.dump(s, open(a.summarise_ipcw.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_change"], counts=s["counts"], held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], {v: {t: round(x, 2) for t, x in d.items()} for v, d in c["change"].items()},
+                  {v: round(x, 1) for v, x in c["q90_rounds"].items()}, round(c.get("ipcw_cut_recovered_share_q90", float("nan")), 2))
+        sys.exit()
     if a.summarise:
         s = summarise(os.path.join(res_dir, "rounds_i2c.json"), res_dir)
         json.dump(s, open(os.path.join(res_dir, "rounds_summary.json"), "w"), indent=1)
