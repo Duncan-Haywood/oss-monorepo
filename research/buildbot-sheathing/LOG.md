@@ -1,5 +1,19 @@
 # buildbot-sheathing research log
 
+## 2026-11-14 · Milestone 21 planned: Weiss's wall with nails that lose strength as they dissipate energy
+
+Written before any milestone-21 wall load was computed (only the single-nail calibration below was run). Inputs: milestone 20's wall, nails, rods, CUREE history and Δ (`experiments/m20_cyclic/results.json`).
+
+- **Why.** Milestone 20 found that SAWS pinching alone leaves the decayed 3 in wall at 70.6% kept under the CUREE history (tested 34%). SAWS has no term for damage that grows with cycles (nail fatigue, tear-out), which Anderson et al. (2007) and Gatto and Uang (2003) saw. This step adds the standard energy-based strength degradation and asks how much of it the 34% would need, and whether that much is compatible with the intact walls.
+- **Model.** `wall_cyclic.Saws(gamma=...)`: every spring's envelope and pinching lines are scaled by s = 1 − E/E_t, E the work done on the spring from its first reversal after yielding (a monotonic push is never degraded), E_t = γ FU Δu of that spring. This is the c = 1 continuous form of Rahnama and Krawinkler (1993)'s rule as used in the Ibarra, Medina and Krawinkler (2005) model. Unloading and reloading stiffness are not degraded. γ is **not sourced** (no calibrated value for nails in OSB was found this session): it is swept over ∞, 100, 50, 20, 10, 5. Calibration on one Anderson nail through the CUREE history at Δ = 2Δu (work 13.8 FU Δu in all): its envelope peak falls to 0.96, 0.91, 0.81, 0.73 and 0.61 of the undegraded peak at γ 100, 50, 20, 10, 5.
+- **H98 (code check: reduces to milestone 20).** γ = ∞ reproduces milestone 20's `Saws` exactly (0 difference) on the single-spring CUREE trace and milestone 20's registered-point wall peaks to 1e-9; at any γ a monotonic push is unchanged.
+- **H99 (code check: the rule).** On a single spring, whenever it is on its envelope, its force equals s × the undegraded envelope with s recomputed from its own force–displacement history, to 1e-9 FU.
+- **H100 (moderate damage does not take the 3 in wall to 34%).** At the registered point (m 1, λ 1, gap 1/16 in, cap 2.55 FU), the decayed 3-12 wall keeps at least 50% for every γ ≥ 10.
+- **H101 (damage scales intact and decayed walls alike).** At the registered point, for every γ in the grid, each decayed share moves by at most 10 points from its γ = ∞ value.
+- **H102 (no fit near code strength).** Over m ∈ {0.25, 0.47, 1.0}, λ 1, gap 1/16 in, and the γ grid, no point with m ≥ 0.75 puts both decayed shares within 10 points of the tested 56.5% and 33.9%.
+- **Also reported, not scored:** the intact walls' cyclic peaks against their monotonic peaks at each γ (an intact wall far below its monotonic peak is a sign γ is too low for Weiss's materials), the intact ratio 3-12/6-12 (tested 1.87), the best fit at each γ.
+- **Limits known in advance.** γ is swept, not sourced; one rule for every spring (sheathing nails and end-nail joints alike); damage is spread over the spring, not tied to a failure mode (tear-out at the unsupported bottom edge would hit the bottom nails first); Anderson's nail envelope was itself fitted to cyclic tests, so part of a nail's cyclic damage is already in it and any γ here is extra damage.
+
 ## 2026-11-14 · Milestone 20 result: under the CUREE protocol with pinching nails Weiss's wall keeps what it keeps when pushed once; cyclic loading does not explain the 3 in wall
 
 `experiments/m20_cyclic/` (run.py, ops_check.py, results.txt, results.json, loops.json, figure.py, figure.png); `src/buildbot_sheathing/wall_cyclic.py`; `tests/test_wall_cyclic.py` (7 tests, one against an OpenSees trace in `tests/data/`). About 70 min on four CPUs (112 monotonic pushes, 8 radial, 120 CUREE runs of 2,500–13,300 steps).
