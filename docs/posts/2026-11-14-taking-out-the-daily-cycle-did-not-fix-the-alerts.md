@@ -2,7 +2,7 @@
 title: "Taking out the daily cycle did not make the alerts point at anomalies"
 seo_title: "Seasonal adjustment in a metric watch: a pre-registered test on NAB"
 date: 2026-11-14
-description: "On NAB's 47 real hourly series, removing the daily cycle left the change detector's alerts near chance. A drift model is still the one whose alerts land on anomalies."
+description: "On NAB's 47 real hourly series, removing the daily cycle left the change watch's alerts near chance. A drift model still points at anomalies best."
 tags: [changepoint-detector, anomaly-detection, seasonality, pre-registration, NAB]
 ---
 
