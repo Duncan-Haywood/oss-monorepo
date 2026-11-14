@@ -102,6 +102,11 @@ function result(findings, records, headers) {
   return { findings, summary: { errors, warnings, transactions: records.length, types } };
 }
 
+// A month 1-12 and a day that month has in that year (Date.UTC would roll 02/30 over to 03/02).
+function realDay(y, mo, da) {
+  return mo >= 1 && mo <= 12 && da >= 1 && new Date(Date.UTC(y, mo - 1, da)).getUTCDate() === da;
+}
+
 export function validate(text, opts = {}) {
   const findings = [];
   const add = (severity, title, detail, line = 0, fixable = false) => findings.push({ severity, title, detail, line, fixable });
@@ -129,7 +134,7 @@ export function validate(text, opts = {}) {
       if (!d) add("error", "Date not readable", `"${f.D}" is not a date like 12/31/2024, 31/12/2024 or 12/31'24.`, r.lines.D);
       else {
         const [mo, da] = order === "dmy" ? [d.b, d.a] : [d.a, d.b];
-        if (order !== "unknown" && order !== "mixed" && (mo < 1 || mo > 12 || da < 1 || da > 31)) add("error", "Impossible date", `"${f.D}" has a day or month out of range for the order this file uses.`, r.lines.D);
+        if (order !== "unknown" && order !== "mixed" && !realDay(d.y, mo, da)) add("error", "Impossible date", `"${f.D}" has a day or month out of range for the order this file uses.`, r.lines.D);
         else if (order === "unknown" && (d.a === 0 || d.b === 0 || d.a > 31 || d.b > 31)) add("error", "Impossible date", `"${f.D}" has a day or month out of range.`, r.lines.D);
         if (d.twoDigit) add("info", "Two-digit year", `"${f.D}" — the importer guesses the century.`, r.lines.D);
         if (order === "dmy" || order === "mdy") {
@@ -199,7 +204,7 @@ export function repair(text, opts = {}) {
       const d = r.fields.D !== undefined && qifDateParts(r.fields.D);
       if (!d) continue;
       const [mo, da] = order === "dmy" ? [d.b, d.a] : [d.a, d.b];
-      if (mo < 1 || mo > 12 || da < 1 || da > 31) continue;
+      if (!realDay(d.y, mo, da)) continue;
       const out = opts.convertDates === "dmy" ? `${String(da).padStart(2, "0")}/${String(mo).padStart(2, "0")}/${d.y}` : `${String(mo).padStart(2, "0")}/${String(da).padStart(2, "0")}/${d.y}`;
       if (lines[r.lines.D - 1] !== "D" + out) { lines[r.lines.D - 1] = "D" + out; n++; }
     }

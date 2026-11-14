@@ -138,3 +138,14 @@ test("normalizeAmount never strips stray letters as if they were a currency", ()
   assert.equal(normalizeAmount("DR12.50"), null); // a debit marker must not silently drop the sign
   assert.equal(normalizeAmount("USD 12.50").value, 12.5);
 });
+
+test("an impossible calendar day such as 02/30/2026 is flagged, and date conversion leaves it alone", () => {
+  const text = "!Type:Bank\nD01/15/2026\nT-1.00\n^\nD02/30/2026\nT-2.00\n^\nD03/31/2026\nT-3.00\n^\nD12/25/2025\nT-1\n^\n";
+  const r = validate(text);
+  const bad = r.findings.filter((f) => f.title === "Impossible date");
+  assert.equal(bad.length, 1);
+  assert.equal(bad[0].line, 5);
+  const out = repair(text, { convertDates: "dmy" }).text;
+  assert.match(out, /^D02\/30\/2026$/m);
+  assert.match(out, /^D31\/03\/2026$/m);
+});

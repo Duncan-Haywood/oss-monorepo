@@ -30,12 +30,18 @@ const money_num = (s) => {
   return Number(t);
 };
 
+// Date.UTC rolls a day the month does not have into the next month (30 February -> 2 March): refuse it.
+const realUtc = (y, mo, d, h = 0, mi = 0) => {
+  const t = Date.UTC(y, mo - 1, d, h, mi);
+  const back = new Date(t);
+  return back.getUTCMonth() === mo - 1 && back.getUTCDate() === d ? t : NaN;
+};
 export function parseDate(s) {
   const t = String(s).trim();
   let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  if (m) return realUtc(+m[1], +m[2], +m[3]);
   m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m) return Date.UTC(+m[3], +m[1] - 1, +m[2]);
+  if (m) return realUtc(+m[3], +m[1], +m[2]);
   const d = Date.parse(t);
   return Number.isFinite(d) ? Math.floor(d / 86400000) * 86400000 : NaN;
 }

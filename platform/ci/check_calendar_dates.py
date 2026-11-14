@@ -13,9 +13,12 @@ isNaN(new Date(...).getTime()), and does not round-trip it (toISOString().slice(
 getUTCDate or getUTCMonth) on the same line.
 
 The second pattern is the hand-rolled range check: a line that tests a month
-(`<= 12` or `< 12`) and a day with `d >= 1 && d <= 31`, and no calendar check
+(`<= 12`, `< 12` or `> 12`) and a day with `d >= 1 && d <= 31` or its negation
+`d < 1 || d > 31` (added 2026-11-14, when 31 copies of the negated form had
+gone unchecked and seven of them accepted 30 February), and no calendar check
 (a Date.UTC round trip, a month-length table, a realDay/calDate helper) on that
-line or the four after it. Every month then has 31 days. The red-team run of
+line or the twelve after it (four until 2026-11-14; parsers that read a time of
+day first put the round trip about ten lines down). Every month then has 31 days. The red-team run of
 2026-11-12 found it in the bank-statement converter (02/30 exported as
 2026-02-30) and five import checkers and categorizers. Exit 1 lists each hit.
 Usage: python3 platform/ci/check_calendar_dates.py [root ...]
@@ -28,22 +31,24 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SHAPE = re.compile(r"\\d\{4\}-\\d\{2\}-\\d\{2\}|T00:00:00Z")
 NAN_CHECK = re.compile(r"isNaN\((?:Date\.parse\(|new Date\()")
 ROUND_TRIP = re.compile(r"toISOString\(\)\.slice\(0, ?10\)|getUTCDate\(\)|getUTCMonth\(\)")
-DAY_RANGE = re.compile(r"([\w.+\[\]]+) >= 1 && \1 <= 31\b")
-MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b")
-CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|calDate\(|validDate\(")
-WINDOW = 4
+DAY_RANGE = re.compile(r"([\w.+\[\]]+) >= 1 && \1 <= 31\b|([\w.+\[\]]+) < 1 \|\| \2 > 31\b")
+MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b|> ?12\b|monthOk")
+CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|getUTCMonth\(\)|getMonth\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|"
+                      r"realDate\(|calDate\(|validDate\(|[cC]hecked\(")
+WINDOW = 12
 SUFFIXES = {".mjs", ".js", ".cjs", ".ts"}
 SKIP_PARTS = {"node_modules", ".next", "dist", "build", "vendor"}
 
 
 def scan_text(text):
     """Line numbers (1-based) of validators that accept a rolled-over day."""
-    # Literal prefilters, exact: NAN_CHECK cannot match without "isNaN(" and
-    # DAY_RANGE cannot match without " <= 31", so a file (or line) lacking
-    # them cannot hit. Most files lack both, which skips ~2M regex searches
-    # over the tree (docs/history/ci-perf-2026-11-14-calendar-dates-prefilter.md).
+    # Literal prefilters, exact: NAN_CHECK cannot match without "isNaN(" and neither
+    # DAY_RANGE spelling (" <= 31", " > 31") can match without " 31", so a file or line
+    # lacking them cannot hit. Most files lack both, which skips ~2M regex searches over the
+    # tree (docs/history/ci-perf-2026-11-14-calendar-dates-prefilter.md; " <= 31" there until
+    # the negated spelling was added the same day).
     nan_file = "isNaN(" in text
-    range_file = " <= 31" in text
+    range_file = " 31" in text
     if not nan_file and not range_file:
         return []
     lines = text.splitlines()
@@ -52,7 +57,7 @@ def scan_text(text):
         if nan_file and "isNaN(" in line and SHAPE.search(line) and NAN_CHECK.search(line) \
                 and not ROUND_TRIP.search(line):
             hits.append(i)
-        elif range_file and " <= 31" in line and DAY_RANGE.search(line) and MONTH_RANGE.search(line) \
+        elif range_file and " 31" in line and DAY_RANGE.search(line) and MONTH_RANGE.search(line) \
                 and not CALENDAR.search("\n".join(lines[i - 1:i + WINDOW])):
             hits.append(i)
     return hits

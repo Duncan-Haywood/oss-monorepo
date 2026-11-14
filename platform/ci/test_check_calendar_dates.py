@@ -1,6 +1,7 @@
 import pathlib
 import subprocess
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -40,6 +41,45 @@ class CalendarDates(unittest.TestCase):
             'if (!(daysOpen >= 1 && daysOpen <= 31)) errors.push("Days open per month must be 1 to 31.");',
         ]:
             self.assertEqual(c.scan_text(text), [], text)
+
+    def test_flags_the_negated_day_range(self):
+        for text in [
+            'if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;\nreturn Date.UTC(y, mo - 1, d);',
+            'const iso = (y, m, d) => {\n  if (m < 1 || m > 12 || d < 1 || d > 31) return null;\n  return `${y}-${m}-${d}`;\n};',
+            'if (!monthOk || day < 1 || day > 31) return false;',
+        ]:
+            self.assertEqual(c.scan_text(text), [text.count("\n", 0, text.index("31")) + 1], text)
+
+    def test_accepts_the_negated_range_with_a_round_trip(self):
+        for text in [
+            'if (mo < 1 || mo > 12 || d < 1 || d > 31) return NaN;\nconst back = new Date(Date.UTC(y, mo - 1, d));\nif (back.getUTCMonth() !== mo - 1) return NaN;',
+            'if (month < 1 || month > 12 || day < 1 || day > 31) return NaN;\nreturn utcChecked(year, month, day);',
+            'if (pay < 1 || pay > 31) errors.push("Pay-run day must be 1 to 31.");',
+        ]:
+            self.assertEqual(c.scan_text(text), [], text)
+
+    def test_the_calendar_check_must_sit_within_the_window(self):
+        head = 'if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;\n'
+        inside = head + "x;\n" * (c.WINDOW - 1) + "return t.getUTCDate() === d;"
+        outside = head + "x;\n" * c.WINDOW + "return t.getUTCDate() === d;"
+        self.assertEqual(c.WINDOW, 12)
+        self.assertEqual(c.scan_text(inside), [])
+        self.assertEqual(c.scan_text(outside), [1])
+
+    def test_root_is_the_repository(self):
+        self.assertTrue((c.ROOT / "platform" / "ci" / "check_calendar_dates.py").is_file())
+
+    def test_cli_exit_codes_and_root_argument(self):
+        script = pathlib.Path(c.__file__)
+        with tempfile.TemporaryDirectory() as bad, tempfile.TemporaryDirectory() as clean:
+            pathlib.Path(bad, "parse.mjs").write_text("if (m < 1 || m > 12 || d < 1 || d > 31) return null;\n")
+            pathlib.Path(clean, "ok.mjs").write_text("export const x = 1;\n")
+            hit = subprocess.run([sys.executable, str(script), bad], capture_output=True, text=True)
+            self.assertEqual(hit.returncode, 1, hit.stdout + hit.stderr)
+            self.assertIn("parse.mjs:1", hit.stdout)
+            ok = subprocess.run([sys.executable, str(script), clean], capture_output=True, text=True)
+            self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
+            self.assertIn("no YYYY-MM-DD validator", ok.stdout)
 
     def test_the_pattern_it_guards_is_real(self):
         out = subprocess.run(["node", "-e", 'process.stdout.write(String(Number.isNaN(Date.parse("2026-02-30"))))'],

@@ -220,3 +220,9 @@ test("200,000 orders summarise and build cohorts without a stack overflow", () =
   assert.equal(rows.length, 40000);
   assert.ok(cohortRetention(orders));
 });
+
+test("parseDay refuses a day the month does not have instead of rolling it into the next month", () => {
+  assert.ok(Number.isNaN(parseDay("2026-02-30")));
+  assert.ok(Number.isNaN(parseDay("4/31/2026")));
+  assert.equal(dayToIso(parseDay("2024-02-29")), "2024-02-29");
+});

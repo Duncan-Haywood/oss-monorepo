@@ -137,3 +137,10 @@ test('the sample file reads cleanly and puts at least one state over and one nea
   assert.equal(toEntries(a).length, a.rows.length);
   assert.match(planToCsv(a), /^state,sales_12mo/);
 });
+
+test('parseDate refuses 30 February instead of counting the order in March', () => {
+  assert.equal(parseDate('2026-02-30'), null);
+  assert.equal(parseDate('02/30/2026'), null);
+  assert.equal(parseDate('2026-13-01'), null);
+  assert.equal(parseDate('2024-02-29'), Date.UTC(2024, 1, 29));
+});

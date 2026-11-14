@@ -249,3 +249,10 @@ test("formatting helpers", () => {
   assert.equal(money(-1234.5), "-$1,235");
   assert.equal(num(NaN), "n/a");
 });
+
+test("a sales row dated 30 February is skipped, not counted in the week of 2 March", () => {
+  const s = parseSales("date,price,units\n2026-02-30,10,5\n02/30/2026,10,5\n2026-03-02,10,5\n");
+  assert.equal(s.weeks.length, 1);
+  assert.equal(s.weeks[0].units, 5);
+  assert.equal(parseSales("date,price,units\n2024-02-29,10,5\n").weeks.length, 1);
+});

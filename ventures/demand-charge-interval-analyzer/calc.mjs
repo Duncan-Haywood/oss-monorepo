@@ -47,10 +47,16 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 
+// Date.UTC rolls a day the month does not have into the next month (30 February -> 2 March): refuse it.
+const realUtc = (y, mo, d, h = 0, mi = 0) => {
+  const t = Date.UTC(y, mo - 1, d, h, mi);
+  const back = new Date(t);
+  return back.getUTCMonth() === mo - 1 && back.getUTCDate() === d ? t : NaN;
+};
 export function parseTimestamp(s) {
   const str = String(s ?? "").trim().replace(/^"|"$/g, "");
   let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2}))?/);
-  if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+  if (m) return realUtc(+m[1], +m[2], +m[3], +(m[4] || 0), +(m[5] || 0));
   m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?)?/i);
   if (m) {
     let y = +m[3];
@@ -59,7 +65,7 @@ export function parseTimestamp(s) {
     const ap = (m[6] || "").toUpperCase();
     if (ap === "PM" && h < 12) h += 12;
     if (ap === "AM" && h === 12) h = 0;
-    return Date.UTC(y, +m[1] - 1, +m[2], h, +(m[5] || 0));
+    return realUtc(y, +m[1], +m[2], h, +(m[5] || 0));
   }
   return NaN;
 }
