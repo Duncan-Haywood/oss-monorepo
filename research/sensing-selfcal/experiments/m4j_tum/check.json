@@ -96,9 +96,9 @@
    "sd_ratio_median": 1.0006073579270123,
    "sd_ratio_range": [
     0.9911259305672052,
-    1.0064120249385948
+    1.0064120249385946
    ],
-   "corr_median": 0.9996129899122658,
+   "corr_median": 0.9996129899122657,
    "far_from_linear": 0,
    "not_converged": 0,
    "draws": 160
