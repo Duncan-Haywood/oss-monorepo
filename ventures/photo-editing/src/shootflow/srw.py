@@ -480,7 +480,8 @@ def decrypted(note: rd.Ifd | None, tag: int) -> tuple[int, int, int, int] | None
     key, values = note.get(MN_KEY), note.get(tag)
     if not key or len(key) < 4 or not values or len(values) < 4:
         return None
-    return tuple(_signed(int(values[c])) - _signed(int(key[c])) for c in range(4))
+    r, g1, g2, b = (_signed(int(values[c])) - _signed(int(key[c])) for c in range(4))
+    return r, g1, g2, b
 
 
 def picture_crop(note: rd.Ifd | None, width: int, height: int) -> tuple[int, int, int, int] | None:
@@ -521,7 +522,7 @@ def parse_srw(data: bytes, engine: str = "auto") -> rd.RawImage:
     note = maker_note(data, reader, ifd0)
     black_rggb = decrypted(note, MN_BLACK)
     if black_rggb is None:
-        black = (0.0,) * 4
+        black: tuple[float, ...] = (0.0,) * 4
         notes.append("no Samsung black level (maker note 0xA028): 0 assumed")
     else:
         # R, G, G, B onto the 2x2 positions: the first green where the pattern's first green is.

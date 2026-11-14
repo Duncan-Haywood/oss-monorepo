@@ -19,7 +19,6 @@ import struct
 import sys
 import tempfile
 import unittest
-from array import array
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -197,7 +196,6 @@ def encode_blocks(values: list[int], width: int, height: int, *, opt: int, init:
     out[12:14] = struct.pack("<H", init)
     for row in range(height):
         w = _Bits()
-        mag = 0
         pmode = 7
         lent = [[7, 7], [7, 7], [7, 7]] if row < 2 else [[4, 4], [4, 4], [4, 4]]
         lens = [0, 0, 0, 0]
