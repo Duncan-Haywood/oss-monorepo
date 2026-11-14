@@ -1,9 +1,9 @@
 ---
 title: "A UAE credit note that must not name its invoice"
-seo_title: "PINT AE volume discount credit note (VD): no BillingReference, ibr-055-ae"
+seo_title: "PINT AE volume discount credit note (VD): no BillingReference"
 date: 2026-11-14
 tags: [einvoice-preflight, ventures]
-description: "Under PINT AE, a credit note for a volume discount (reason code VD) must not reference a preceding invoice. Our checker demanded one. It now reads the reason code."
+description: "Under PINT AE, a volume-discount credit note (reason VD) must not reference an invoice. Our checker demanded one. It now reads the reason code."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks an e-invoice before it is sent. One of its oldest built-in rules, INV-033, says a credit note should name the invoice it corrects. In the EU that is sound advice: EN 16931 has BT-25 (the preceding invoice reference), and a receiver matching a credit to an open invoice needs it.
