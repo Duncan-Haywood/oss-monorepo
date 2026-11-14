@@ -565,6 +565,44 @@ export function findClef(bin, staff) {
   return { pos, x0: x, x1 };
 }
 
+// A C clef printed inside a staff, where a verse or a new piece changes the
+// clef (`(z0::c3)` in GABC, after a double bar). findClef only looks at the
+// staff's start, so before 2026-11-14 such a clef's two blocks were read as
+// a podatus and every note after it was read against the old clef, two or
+// more steps out (GregoBase 3437, *Adhaesi*: 16 of its 17 differences,
+// eval/clef-change-check.md). The 1908 type's C clef is two blocks a third
+// apart, one in each space either side of its line, joined by a curve on
+// their LEFT; a podatus's two heads are joined by a stem on their RIGHT. So
+// a pair of heads one above the other (centres within 0.3 spaces
+// across), two steps apart, sitting in spaces (odd positions), with ink
+// running unbroken from one block to the other at their left edge and not
+// at their right edge, is a clef on the line between them. F clefs inside a
+// staff are not read.
+export function findClefChanges(bin, staff, heads) {
+  const { width, ink } = bin;
+  const s = staff.space;
+  const joined = (x, a, b) => {
+    if (x < 0 || x >= width) return false;
+    for (let y = Math.round(a); y <= Math.round(b); y++) if (!ink[y * width + x]) return false;
+    return true;
+  };
+  const out = [];
+  for (const L of heads) {
+    if (L.pos % 2 === 0 || L.liquescent) continue;
+    for (const U of heads) {
+      if (U === L || U.pos - L.pos !== 2 || Math.abs(U.x - L.x) > 0.3 * s) continue;
+      const a = U.y + 0.2 * s, b = L.y - 0.2 * s; // over the gap between the blocks
+      const x0 = Math.min(U.x0, L.x0), x1 = Math.max(U.x1, L.x1);
+      const e = Math.round(0.25 * s);
+      let left = false, right = false;
+      for (let x = x0 - 3; x <= x0 + e && !left; x++) left = joined(x, a, b);
+      for (let x = x1 - e; x <= x1 + 3 && !right; x++) right = joined(x, a, b);
+      if (left && !right) out.push({ x0, x1, pos: L.pos + 1, blocks: [L, U] });
+    }
+  }
+  return out.sort((p, q) => p.x0 - q.x0);
+}
+
 // A page photographed or scanned a little turned prints its staff lines
 // at a slope. findStaves takes a line as rows that each hold a fifth of the
 // page width in ink, so a line that drifts several of its own thicknesses
@@ -656,6 +694,20 @@ export function readPage(img, opts = {}) {
     const heads = readStaff(bin, staff, opts);
     const clef = findClef(bin, staff);
     let notes = clef ? heads.filter((h) => h.x0 > clef.x1) : heads;
+    // a clef printed inside the staff: its blocks are not notes, and the
+    // notes after it are read against it (findClefChanges)
+    const changes = clef && opts.clefChange !== false ? findClefChanges(bin, staff, notes) : [];
+    if (changes.length) {
+      const blocks = new Set(changes.flatMap((c) => c.blocks));
+      notes = notes.filter((h) => !blocks.has(h));
+    }
+    const clefAt = (x) => { let p = clef ? clef.pos : null; for (const c of changes) if (x > c.x1) p = c.pos; return p; };
+    // the custos before a clef change shows the next note in the new clef
+    for (const c of changes) {
+      const before = notes.filter((h) => h.x1 < c.x0);
+      const cu = before[before.length - 1];
+      if (cu && c.x0 - cu.x1 < 2.5 * staff.space && cu.x1 - cu.x0 < 0.45 * staff.space) notes = notes.filter((h) => h !== cu);
+    }
     const last = notes[notes.length - 1];
     if (last && last.x1 > staff.right - 0.9 * staff.space) notes = notes.slice(0, -1);
     // a liquescent's small note is read straight after its head
@@ -666,7 +718,8 @@ export function readPage(img, opts = {}) {
       space: staff.space,
       skew: t ? Math.round(Math.atan(t) * 18000 / Math.PI) / 100 : 0,
       clefPos: clef ? clef.pos : null,
-      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clef.pos : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
+      ...(changes.length ? { clefChanges: changes.map((c) => ({ x: Math.round((c.x0 + c.x1) / 2), pos: c.pos })) } : {}),
+      notes: notes.map((h) => ({ x: Math.round(h.x), y: Math.round(back(h.x, h.y)), rel: clef ? h.pos - clefAt(h.x0) : null, shape: h.liquescent ? 'liquescent' : headShape(h.feat), ...(opts.features && !h.liquescent ? { feat: h.feat } : {}) })),
     };
   });
 }
@@ -700,7 +753,7 @@ export function gabcSteps(src) {
       // skip letters that are not pitches: custos (x+), accidentals (fx fy f#)
       if (g[i + 1] === '+') continue;
       if (g[i + 1] && 'xy#'.includes(g[i + 1])) { i++; continue; }
-      const note = { rel: 'abcdefghijklm'.indexOf(lower) - clefLine, text, group: m[2], shape: gabcShape(g, i) };
+      const note = { rel: 'abcdefghijklm'.indexOf(lower) - clefLine, clefLine, text, group: m[2], shape: gabcShape(g, i) };
       out.push(note);
       // gvv / gvvv / gss / gsss: a bivirga, trivirga, distropha or tristropha
       // prints one head per shape letter, so each further letter is a note
