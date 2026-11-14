@@ -12,7 +12,7 @@ did not sample it.
 Method: (1) rerun 3c's seed-0 D chain at 2.5 mm with 3c's own solver (the coloured Hessian,
 deterministic, so it should land in 3c's 7-fold row: DC 0.5807 at 1896 N/m); (2) interpolate that
 end state's positions onto the 1.875 mm rest nodes (piecewise linear on the 2.5 mm rest mesh,
-nearest node outside its hull), and solve at 1896 N/m with the local-Hessian Newton; (3) compare
+of the displacement, nearest node's displacement outside its hull), and solve at 1896 N/m with the local-Hessian Newton; (3) compare
 DC, folds, energy and smallest eigenvalue with the 1.875 mm rows in results.json.
 (4) The same transfer for 3c's 2.5 mm jersey state with the lowest energy (A seed 6, 369 N/m).
 """
@@ -45,11 +45,14 @@ def job(spec):
     src = m3c.record(sp, nw, w, X, info, f=f, a=0.0025, seed=seed, ea=ea)
     # transfer
     tg = m3.Disc(f, ea, 0.001875, "kes")
-    lin = LinearNDInterpolator(sp.P, X)
-    near = NearestNDInterpolator(sp.P, X)
-    Y = lin(tg.P)
-    bad = np.isnan(Y).any(1)
-    Y[bad] = near(tg.P[bad])
+    np.savez_compressed(Path("/tmp") / f"m3d_posthoc_state_{f}.npz", P=sp.P, X=X)   # scratch, not committed
+    U = X - sp.X0                                    # interpolate displacements, not positions, so
+    lin = LinearNDInterpolator(sp.P, U)              # nodes outside the coarse hull keep their rest
+    near = NearestNDInterpolator(sp.P, U)            # offsets instead of collapsing onto one node
+    D = lin(tg.P)
+    bad = np.isnan(D).any(1)
+    D[bad] = near(tg.P[bad])
+    Y = tg.X0 + D
     Y[tg.fixed] = tg.X0[tg.fixed]
     nw2, w2 = localhess.LocalNewton(tg, Y), fem.GRAV * tg.mass.max()
     Y, info2 = m3c.stage(tg, nw2, w2, Y)

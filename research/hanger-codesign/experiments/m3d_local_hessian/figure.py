@@ -28,8 +28,8 @@ def pick(f, ea, a, how):
 
 xs = [3.75, 2.5, 1.875]
 series = []
-for f, ea, lab in (("D", 1896.0, "suiting D"), ("A", 369.0, "jersey A")):
-    for how, name in (("mean", "seed mean"), ("low", "lowest energy")):
+for f, ea, lab in (("D", 1896.0, "D 1896"), ("A", 369.0, "A 369")):
+    for how, name in (("mean", "mean"), ("low", "lowest E")):
         ys = [pick(f, ea, a, how) for a in (0.00375, 0.0025, 0.001875)]
         series.append((f"{lab}, {name}", xs, [y - ys[0] for y in ys]))
 write_lines(HERE, "dc_rule_vs_mesh.svg",
