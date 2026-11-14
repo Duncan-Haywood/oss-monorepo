@@ -63,6 +63,7 @@ test('the explainer quotes the committed benchmark output, not hand-typed number
 
 test('links one hop to its sibling tool, so crawlers reach both', () => {
   assert.match(markup, /href="\.\.\/spc-control-charts\/"/);
+  assert.match(markup, /href="\.\.\/job-shop-scheduler\/"/);
 });
 
 test('CLI: example, stations mode, takt, JSON, errors, and the disclaimer', () => {

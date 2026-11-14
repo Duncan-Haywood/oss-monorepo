@@ -1,0 +1,50 @@
+name: job-shop-scheduler
+description: >-
+  Free browser tool and CLI for production planners, machine shops, operations engineers and students: job shop
+  scheduling to the shortest makespan (J||Cmax), by Giffler-Thompson dispatch rules and tabu search on the
+  Nowicki-Smutnicki N5 neighbourhood, with a proved one-machine lower bound, an exact branch and bound on small shops,
+  a Gantt chart, machine use and job waiting times. Benchmarked on all 162 JSPLIB instances. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-14 in an explore-track session. slug_dupe.py: no duplicate. duplicate_check.py: nothing >= 0.45 (top
+# 0.13). The portfolio had assembly-line-balancer (flow lines), bakery-production-scheduler and
+# brewery-tank-schedule-optimizer (single-industry), but no general job shop scheduler.
+#
+# Why this niche: sequencing jobs through shared machines is the daily planning problem in every job shop, and the
+# set exercise in every operations research and production course. Small shops do it on whiteboards or with a
+# dispatch rule; good metaheuristics live in research code and paid APS suites. A free one that shows a proved bound
+# next to its answer, so the planner knows how far off it can be, is new here.
+#
+# First visitor: searches for "job shop scheduling calculator", "job shop scheduling solver online", "makespan
+# calculator gantt", "Giffler Thompson algorithm"; OR students with a textbook instance. Volume not measured.
+#
+# Liability boundary: a planning estimate from typed routings; not engineering or operations advice (every page says so).
+#
+# Path to revenue (payment rails stay off): donations; later a paid tier for setup times, due dates and tardiness,
+# parallel machines (flexible job shop) or a hosted API.
+
+hypotheses:
+  - claim: >-
+      Production planners and OR students will use a free job shop scheduler that shows a proved bound next to its answer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a schedule this tool calls optimal that a shorter valid schedule beats on the same inputs.
+
+links:
+  production: https://marisstella.app/job-shop-scheduler/
+  analytics: null
