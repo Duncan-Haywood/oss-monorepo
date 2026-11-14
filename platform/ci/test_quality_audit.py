@@ -172,5 +172,22 @@ class PostLimits(unittest.TestCase):
         self.assertIn("description 60 to 160", q.post_limits())
 
 
+class ModeNote(unittest.TestCase):
+    def test_sample_says_when_today_is_another_mode(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_metrics as qm
+        real = qm.mode_for
+        try:
+            qm.mode_for = lambda *a, **k: {"mode": "fix", "why": "w"}
+            note = q.mode_note("2026-11-14", [])
+            self.assertIn("`fix`", note)
+            self.assertIn("Four modes", note)
+            qm.mode_for = lambda *a, **k: {"mode": "sample", "why": "w"}
+            self.assertIsNone(q.mode_note("2026-11-14", []))
+        finally:
+            qm.mode_for = real
+
+
 if __name__ == "__main__":
     unittest.main()

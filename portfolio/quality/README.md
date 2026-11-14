@@ -41,6 +41,10 @@ the audit.
 | `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`; a later round re-audits the subject in a new file. `queue` flags rows whose subject has commits since the audit: check those first, since a fix may have landed unrecorded (PR #14329 did) | `queue --severity high` |
 | `reflect` | read the corpus and the process, write `reflections/<date>-<slug>.md`: where quality drops, why, and process fixes with the metric each should move | `metrics --md` |
 
+`sample` prints a NOTE first when today's mode is another one. The track
+prompt's step 5 (the `quality-audit-round-<n>` post) is for a sample round; a
+fix session names its post for the fix instead (`2026-11-14-quality-fix-*`).
+
 Census audits use stratum `venture`, `research` or `platform` like sampled
 ones, and the full rubric, and set `"drawn_by": "census"` (a fix-mode
 re-audit sets `"fix"`). They are not uniform draws, so `summary` shows them in
