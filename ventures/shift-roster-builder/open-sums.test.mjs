@@ -38,7 +38,11 @@ test("call-out week with Cleo off Saturday: coverage proven at 3 h open (2 h flo
   const slots = parseShifts(sampleShifts()).slots;
   const text = WITH_SPARE().split("\n").map((l) => (l.startsWith("Cleo,") ? `${l}, off: Sat` : l)).join("\n").replace("min hours, availability", "min hours, availability, off");
   const staff = parseStaff(text).staff;
-  const on = buildRoster(staff, slots, { exactMs: 1500 });
+  // scoreCG proves this week in about 0.25 s, but its budget defaults to exactMs (1.5 s), and on a loaded runner (four suites at
+  // once, each running test files in parallel) it ran out at 1.5 s and the week ended "bounded" (main, 2026-11-14; 3 of 48 runs
+  // at 12 processes on 4 cores). Its own budget keeps the 1.5 s exact search the test is about; a proven week stops early anyway.
+  const CG = { exactMs: 1500, scoreCGMs: 10000 };
+  const on = buildRoster(staff, slots, CG);
   assert.equal(on.unfilledHours, 3);
   assert.equal(on.optimality.forcedOpenHours, 3);
   assert.equal(on.optimality.coverageProven, true);
@@ -51,7 +55,7 @@ test("call-out week with Cleo off Saturday: coverage proven at 3 h open (2 h flo
   assert.equal(on.optimality.scoreCG?.proven, true);
   assert.equal(on.optimality.openRow, null);
   // Without it, the late row (fed by the exact search) still proves the week.
-  const late = buildRoster(staff, slots, { exactMs: 1500, earlyFloor: false });
+  const late = buildRoster(staff, slots, { ...CG, earlyFloor: false });
   assert.equal(late.unfilledHours, 3);
   assert.equal(late.optimality.earlyFloor, null);
   assert.equal(late.optimality.openRow?.openFloor, 3);

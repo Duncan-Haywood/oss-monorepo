@@ -95,23 +95,23 @@ flagships:
       on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140,
       14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model);
       split-category plurality measured, off; next: a hosted model (needs a key),
-      real bank text; (2) bank readers: 63 public US exports, Chase business cards
-      (README); glued payees (README); open: other banks' business files; (3)
-      Adyen's sample read (README); open: a real merchant's payout export, a real
-      1099-K; (4) a real supplier's terms letter checked against the fee and
-      discount rules, and one named lender's own schedule against the loan register
-      (`loan check`); (5) receipts through real OCR (page SROIE 83.4%, CORD 50.5%,
-      US 68.4%; CLI 4-pass 80.5%, 66.8%; next: curled slips, full-size photos); (6)
-      payroll (README; journal layout 11-14): a real Gusto or ADP report; (7) IRIS
-      NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real
-      upload, TY2026 template; (8) `salestax return` (page card; no-sales-tax states
-      warn): 34 states read on their own pages (README; HI, IA fixed); open: IN's
-      day, MD, NJ, NY, TN, OH, MO + 6 refused; a real return layout; (8b)
-      `annualized` (Schedule AI): penalty both ways, box D, 2026 draft read
-      (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025 EIC
-      Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
-      2,000 characters.
+      real bank text; (2) bank readers: 63 public US exports, Chase business cards,
+      glued payees, scanned PDFs by OCR (README); open: other banks' business files,
+      a real bank scan; (3) Adyen's sample read (README); open: a real merchant's
+      payout export, a real 1099-K; (4) a real supplier's terms letter checked
+      against the fee and discount rules, and one named lender's own schedule
+      against the loan register (`loan check`); (5) receipts through real OCR (page
+      SROIE 83.4%, CORD 50.5%, US 68.4%; CLI 4-pass 80.5%, 66.8%; next: curled
+      slips, full-size photos); (6) payroll (README; journal layout 11-14): a real
+      Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
+      return` (page card; no-sales-tax states warn): 34 states read on their own
+      pages (README; HI, IA fixed); open: IN's day, MD, NJ, NY, TN, OH, MO + 6
+      refused; a real return layout; (8b) `annualized` (Schedule AI): penalty both
+      ways, box D, 2026 draft read (README); open: line 9b once the 2026
+      instructions print; (9) EITC: 2025 EIC Table matched on all 10,992 cells
+      (HISTORY); open: the 2026 table once printed. A run that lands a slice
+      replaces its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -195,23 +195,22 @@ flagships:
       export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
       business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
       Dutch file; India's INV-01 check on a real IRP payload; primary-source mandate
-      dates: IL (gov.il 403); LV, DK, CZ done (README); Nigeria, Thailand, Taiwan,
-      Oman, Pakistan and Jordan pages (excerpts; Taiwan, Oman dates disagree);
-      Mexico CFDI 4.0, complements, Carta Porte 3.1 landed: open: SAT's CP error
-      matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or
-      export file, a PAC rejection compared; postal codes (MX-080) landed (README);
-      Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table (BR-053..057,
-      NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and cClassTrib at
-      IT 1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001)
-      landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real
-      reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a
-      cClassTrib; national NFS-e landed: open: a national rejection compared,
-      municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on
-      a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio,
-      BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a real
-      Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft passes. A
-      run that lands a slice replaces its item here; keep this under 2,000
-      characters.
+      dates: IL (gov.il 403); LV, DK, CZ done (README); TW, OM read from the law
+      (README); Nigeria, Thailand, Pakistan and Jordan pages (excerpts); Mexico CFDI
+      4.0, complements, Carta Porte 3.1 landed: open: SAT's CP error matrix to map
+      MX-070..080 to CP codes (omawww blocked), a real payroll or export file, a PAC
+      rejection compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
+      PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
+      2026-11-13) landed (README); cCredPres rules and cClassTrib at IT 1.71 landed
+      (README): RTC events (211110, 12 others incl. 112120, 110001) landed, 211120
+      (removed in v1.40) flagged (README): open: a real event; a real reform NF-e
+      from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib;
+      national NFS-e landed: open: a national rejection compared, municipal rates;
+      ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a real file,
+      city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba,
+      ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF
+      reply; refresh the Bulgaria page when its draft passes. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -237,9 +236,9 @@ flagships:
       7shifts directly"); a real When I Work account or response through
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
       need an account); --cover-price moves two shifts together (README "Moving two
-      shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it,
-      a second call-out in one week (README "The caller can take a later shift":
-      café exposure down, week-long open hours up), pairs past 200 copies; a real
+      shifts together": 20-person week exposure 113 to 68 h for $35.27); second
+      call-outs priced (README "A second call-out in the same week", off by
+      default); next: fewer capped pairs, pair price past 120 copies; a real
       two-site export and staff list (README "Staff shared between sites"); own and
       site rates read from staff CSVs and 7shifts (README "Per-location pay from an
       export"); next a real wages export, real trip times; whether the priced cut's
@@ -255,13 +254,17 @@ flagships:
       memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
       liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
       the SSE path (four-component float32 images through lensfunpy, if it allows
-      them) and a 16-bit fixed-point output check; Canon's maker-note lens number
-      (CameraSettings index 22) mapped to a name for CR2s whose maker note gives no
-      usable name (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095
-      are read since 2026-11-13); the whole numpy develop runs in threaded bands and
-      packed raws unpack in numpy since 2026-11-13
-      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
-      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
+      them) and a 16-bit fixed-point output check; CR2s with no lens name are
+      matched by the maker note's focal range and aperture since 2026-11-14
+      (eval/canon-lens-from-range-2026-11-14.md: one lens in 38% of lensfun's
+      Canon-mount cases, the rest refused as ties); any maker's LensSpecification,
+      DNG LensInfo and Nikon's maker-note lens tag are matched the same way, both
+      f-numbers, since 2026-11-14 (eval/lens-specification-2026-11-14.md: 50% of
+      lensfun's ranged lenses alone); next: Olympus's Equipment IFD (ORF magic) and
+      Pentax lens numbers; the whole numpy develop runs in threaded bands and packed
+      raws unpack in numpy since 2026-11-13 (eval/threaded-develop-2026-11-13.md:
+      same bytes at every thread count and band height); lossless-JPEG DNG tiles
+      decode on a thread pool since 2026-11-13
       (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
       of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
       2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
@@ -324,14 +327,15 @@ flagships:
       from the turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up
       to +0.0045, over d9 where the run follows the speed-up; flags nobody new.
       Since 2026-11-14 site/rank.html ranks a list in the browser on the same refit,
-      with team codes (docs/RANK-PAGE.md); its stop rule overstates certainty for
-      very noisy answerers. Next, most valuable first: (r) get the rank page in
-      front of people, then (c) the first real survey's answers: msToAnswer against
-      the answer-time model, panelWalkRatio on real times, whether times depend on
-      which slot is clicked (the d9 bound assumes not), whether real people have
-      warm-ups, blocks, slot runs or spread-out carelessness, and how noisy real
-      pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11)
-      the d10 turn is still a split search: score one candidate from the run's start
+      with team codes (docs/RANK-PAGE.md); its stop rule rechecks at the person's
+      own EB prior (docs/RANK-PAGE.md "Noisy answerers"); some coin-flippers still
+      stop early. Next, most valuable first: (r) get the rank page in front of
+      people, then (c) the first real survey's answers: msToAnswer against the
+      answer-time model, panelWalkRatio on real times, whether times depend on which
+      slot is clicked (the d9 bound assumes not), whether real people have warm-ups,
+      blocks, slot runs or spread-out carelessness, and how noisy real pairwise
+      answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) the d10
+      turn is still a split search: score one candidate from the run's start
       backwards so a wander step's chance of moving a cut is bounded; (d8) a
       stronger pick signal under wander (staged pairs are near 50/50 late in a
       session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes
@@ -419,18 +423,18 @@ flagships:
       sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
       --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
       real singers; the release kit against a distributor's real form; the Te Deum
-      correction. master-cli passed EBU Tech 3341 built from its text (69/69,
-      eval/ebu-tech3341-2026-11-14.md); open: the EBU's own WAVs (403), loudness
-      range, Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
-      liquescents (latest: rhombus height floor, eval/rhombus-height-check.md);
-      next: four tall false rhombi, a fresh worn-page set (new GABC needed),
-      stacked-pes seams, mottled squares, liquescents after a porrectus end;
-      --split-voices (by phrase or at a word, --split-words,
-      eval/word-split-report.md) and --overlap (both sections sing the seam note at
-      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
-      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
-      overlap against a clean handoff; --baritones, --entrance-cost N and
-      --second-tenors (TTBB; README) need the same check. --choir presets, --singers
-      (a choir's range test CSV) and --sit-out N (README "Letting a singer sit a
-      note out") landed. Next: a real choir's range test through --singers, and a
-      director's word on --sit-out (N, the quarter warning).
+      correction. master-cli passed EBU Tech 3341/3342 from their text; open: the
+      EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
+      liquescents, lines at true thickness; tilted pages straightened, drawn pages
+      only (eval/deskew-check.md); next: eval/deskew-check.mjs on leaf 424 and the
+      185 pages (archive.org 403 here), a fresh worn-page set (new GABC needed),
+      mottled squares, liquescents after a porrectus end; --split-voices (by phrase
+      or at a word, --split-words, eval/word-split-report.md) and --overlap (both
+      sections sing the seam note at a direct tenor/bass swap,
+      eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase
+      handoff against a whole phrase and of a one-note overlap against a clean
+      handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README)
+      need the same check. --choir presets, --singers (a choir's range test CSV) and
+      --sit-out N (README "Letting a singer sit a note out") landed. Next: a real
+      choir's range test through --singers, and a director's word on --sit-out (N,
+      the quarter warning).

@@ -5,6 +5,7 @@ import { createServer } from "node:http";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { decide, applySent, handleInbound, checkConfig, DEFAULTS } from "./engine.mjs";
 import { validSignature, twiml, sendSms } from "./twilio.mjs";
+import { pathToFileURL } from "node:url";
 
 export function configFromEnv(env = process.env) {
   const hours = env.OPEN_HOURS_JSON ? JSON.parse(env.OPEN_HOURS_JSON) : DEFAULTS.hours;
@@ -73,7 +74,7 @@ export function createApp({ config, env = process.env, now = () => Date.now(), s
   return { handler, onCall, onSms, flush, get state() { return state; }, get queue() { return queue; }, live };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const config = configFromEnv(), problems = checkConfig(config);
   if (problems.length) { console.error("Fix the settings first:\n- " + problems.join("\n- ")); process.exit(1); }
   const file = process.env.STATE_FILE || "state.json";

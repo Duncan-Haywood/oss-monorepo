@@ -13,6 +13,7 @@
 
 import fs from "node:fs/promises";
 import { auditRobots, validateLlmsTxt, KNOWN_BOTS } from "./audit.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { paths: ["/"], json: false, failIfBlocked: [], failIfAllowed: [] };
@@ -165,7 +166,7 @@ export async function run(argv, { fetchTextImpl = fetchText, readFile = (p) => f
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

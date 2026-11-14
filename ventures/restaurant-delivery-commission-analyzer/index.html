@@ -163,7 +163,7 @@
       let cancelled = 0;
       for (const src of sources) {
         const delim = detectDelimiter(src.text);
-        const n = normalizeRows(parseCsv(src.text, delim), { decimalComma: delim === ";", platform: $("#platform").value, hint: src.name });
+        const n = normalizeRows(parseCsv(src.text, delim), { decimalComma: "auto", delimiter: delim, platform: $("#platform").value, hint: src.name });
         const tag = sources.length > 1 ? `${src.name}: ` : "";
         if (n.error) { status.textContent = tag + n.error; report.hidden = true; return false; }
         orders.push(...n.orders);

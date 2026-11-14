@@ -15,6 +15,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { scanFiles, hasRisk, summaryLine } from "./scan.mjs";
+import { pathToFileURL } from "node:url";
 
 const SKIP_DIRS = new Set([".git", "node_modules", "dist", "build", ".venv", "venv", "__pycache__"]);
 
@@ -89,6 +90,6 @@ export function main(argv) {
   return failOnRisk && hasRisk(findings) ? 2 : 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("check.mjs")) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href || process.argv[1]?.endsWith("check.mjs")) {
   process.exitCode = main(process.argv.slice(2));
 }

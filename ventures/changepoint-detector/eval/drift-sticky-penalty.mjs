@@ -32,6 +32,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { driftLevelChanges, stickyCheck } from '../drift-level.mjs';
 import { fMeasure, covering } from './tcpd-metrics.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const STICKY_TCPD = ['bank', 'children_per_woman', 'ratner_stock', 'scanline_42049'];
 export const MULTS = [2, 3, 4];
@@ -72,7 +73,7 @@ export function frozenJuice() {
   return { price, freezes, score };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const DIR = process.argv[2] || 'tcpd-data';
   const clean = (cps, n) => [...new Set(cps)].filter((c) => c >= 1 && c < n - 1).sort((a, b) => a - b);
   const r3 = (v) => v.toFixed(3);

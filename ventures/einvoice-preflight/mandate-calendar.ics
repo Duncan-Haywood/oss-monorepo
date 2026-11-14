@@ -472,6 +472,22 @@ URL:https://example.invalid/einvoice-preflight/latvia-e-invoice-mandate.h
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:d5907dd0a5692499@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20250101
+DTEND;VALUE=DATE:20250102
+SUMMARY:Taiwan: Issued e-invoices reach the platform within 7 days (B2B) 
+ or 2 days (B2C)\, with a fine f...
+DESCRIPTION:Taiwan (In force (electronic optional)). Issued e-invoices re
+ ach the platform within 7 days (B2B) or 2 days (B2C)\, with a fine for l
+ ate transmission from 1 Jan 2025 (Art. 32-1 and 48-2\, read). Detail and
+  sources: https://example.invalid/einvoice-preflight/taiwan-gui-e-invoic
+ e-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/taiwan-gui-e-invoice-manda
+ te.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:4972d88acc47f1e1@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20250101
@@ -947,16 +963,17 @@ URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:b9ed6f9d040c0299@einvoice-preflight
+UID:9a10ac4a61b91c2a@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260801
 DTEND;VALUE=DATE:20260802
-SUMMARY:Oman: pilot of about 100 large taxpayers from 1 August 2026 (seco
- ndary sources\, Gazette text ...
-DESCRIPTION:Oman (Pilot\; mandate reported for 2027). pilot of about 100 
- large taxpayers from 1 August 2026 (secondary sources\, Gazette text unr
- ead). Detail and sources: https://example.invalid/einvoice-preflight/oma
- n-fawtara-e-invoice-mandate.html. Not legal or tax advice.
+SUMMARY:Oman: Fawtara on Peppol (five-corner\, PINT-OM) and a pilot of ab
+ out 100 large taxpayers from ...
+DESCRIPTION:Oman (Mandate set for 2027\; pilot reported). Fawtara on Pepp
+ ol (five-corner\, PINT-OM) and a pilot of about 100 large taxpayers from
+  1 August 2026 are reported (secondary sources). Detail and sources: htt
+ ps://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-mandate.h
+ tml. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -1406,16 +1423,17 @@ URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:4756f9052d82344b@einvoice-preflight
+UID:3aebe6fbe60daf9a@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20270401
 DTEND;VALUE=DATE:20270402
-SUMMARY:Oman: Decision 189/2026 reported to set 1 April 2027 (annual supp
- lies above OMR 5 million)
-DESCRIPTION:Oman (Pilot\; mandate reported for 2027). Decision 189/2026 r
- eported to set 1 April 2027 (annual supplies above OMR 5 million). Detai
- l and sources: https://example.invalid/einvoice-preflight/oman-fawtara-e
- -invoice-mandate.html. Not legal or tax advice.
+SUMMARY:Oman: Decision 189/2026 (Official Gazette 1660\, read): electroni
+ c tax invoices from 1 April 2...
+DESCRIPTION:Oman (Mandate set for 2027\; pilot reported). Decision 189/20
+ 26 (Official Gazette 1660\, read): electronic tax invoices from 1 April 
+ 2027 (annual supplies above OMR 5 million). Detail and sources: https://
+ example.invalid/einvoice-preflight/oman-fawtara-e-invoice-mandate.html. 
+ Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -1481,9 +1499,9 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20271001
 DTEND;VALUE=DATE:20271002
 SUMMARY:Oman: 1 October 2027 (others)
-DESCRIPTION:Oman (Pilot\; mandate reported for 2027). 1 October 2027 (oth
- ers). Detail and sources: https://example.invalid/einvoice-preflight/oma
- n-fawtara-e-invoice-mandate.html. Not legal or tax advice.
+DESCRIPTION:Oman (Mandate set for 2027\; pilot reported). 1 October 2027 
+ (others). Detail and sources: https://example.invalid/einvoice-preflight
+ /oman-fawtara-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
  date.html
 TRANSP:TRANSPARENT

@@ -15,6 +15,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkListing, hasBlocking, SPEC_REVIEWED } from './engine.mjs';
+import { pathToFileURL } from 'node:url';
 
 const FILES = {
   name: 'name.txt', subtitle: 'subtitle.txt', keywords: 'keywords.txt', promotional_text: 'promotional_text.txt',
@@ -81,4 +82,4 @@ export function run(argv, log = console.log) {
   return hasBlocking(all) || (args.strict && all.length) ? 1 : 0;
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) process.exit(run(process.argv.slice(2)));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exit(run(process.argv.slice(2)));

@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfij5zjXzEF2v8dtR4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T09:38:34Z",
+  "ended": "2026-11-14T10:01:23Z",
+  "wall_minutes": 23.07,
+  "tokens_in": 10215265,
+  "tokens_out": 53847,
+  "cost_usd": 4.5068,
+  "tool_calls": 82,
+  "task": "Deepen (flagship 11): chant-forge scan reader; started on the four tall false rhombi left by the rhombus height floor",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15805",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First trim threshold (25% of the band's best long-run row) regressed Te Deum, 3426 (an off-final ending note) and 3403 by shaving faint line edge rows; caught by the before/after scan-check and lowered to 2% plus one row of padding.",
+    "Line trimming moved one line on tilted leaf 582 and the staff was lost; fixed by also testing the outer pair's spacing, which then let a text-row 'staff' through on leaf 424, fixed by a median-spacing filter."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/rhombus-height-check.md",
+      "issue": "Its account of the worn squares (flecks only) was partly a reader fault (oversized line mask); noted at the top of the file and in thick-line-check.md."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge next: was 1988 of 2000 characters, so the landed item had to be shortened in place twice to fit the validator cap."
+    },
+    {
+      "file": "platform/ci/doc_index.py",
+      "issue": "No pull-request workflow runs doc_index check on its own, so a report without front matter reached main (PR #15807) and turned the next PRs' changed-ventures job red."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (chant-forge next:)",
+      "why": "The listed item was 'four tall false rhombi'; looking at them showed they were correct reads and led to a bigger reader fault (line thickness), so the run fixed that instead of a rhombus rule.",
+      "did": "Fixed staff-line detection; the four heads are explained in eval/thick-line-check.md",
+      "result": "staves 1,361 to 1,384, notes read +1,785, no per-piece regressions"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-staff-line-nineteen-pixels-thick.md",
+    "ventures/chant-forge/eval/thick-line-check.md"
+  ],
+  "goal": "Deepen the chant-forge flagship: the scan reader that checks GABC transcriptions against the printed book",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge ok (28.3s); the 2 new scan.test.mjs tests fail on the old reader and pass on the new. Evals (scan-check, shape-check, rhombus-check --held-out --sweep, thick-line-check) run on a clean copy of main and on the branch over the same 185 archive.org pages (archive.org reachable from the cloud session). Not held out: thresholds set on the same pages. CI changed-ventures went red on a report merged to main by PR #15807 (docs/reports/2026-11-14-quality-fix-selfrep-materials-stl.md, no front matter); fixed forward here with doc_index.py backfill --write. venture-preflight chant-forge clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e9781843-752c-5fba-9314-2f3ad9c0f65f",
+    "transcripts": 1,
+    "first": "2026-11-14T09:38:34Z",
+    "last": "2026-11-14T10:01:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 142,
+        "output": 53847,
+        "thinking": 18166,
+        "cache_read": 10037401,
+        "cache_write_5m": 0,
+        "cache_write_1h": 177722,
+        "api_equivalent_usd": 4.5068,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 142,
+      "output": 53847,
+      "thinking": 18166,
+      "cache_read": 10037401,
+      "cache_write_5m": 0,
+      "cache_write_1h": 177722,
+      "api_equivalent_usd": 4.5068,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 66,
+      "Read": 6,
+      "Edit": 4,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.07,
+      "active_minutes": 23.07,
+      "model_minutes": 9.3,
+      "tool_minutes": 13.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer diagnosing a staff-detection fault in an OMR reader, fixing it, and rerunning four corpus evals with a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 133.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -7,6 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { analyze, renderMarkdown } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export function readDir(dir, base) {
   const out = [];
@@ -61,4 +62,4 @@ export async function main(argv, io = { log: console.log, err: console.error }) 
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(await main(process.argv.slice(2)));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exit(await main(process.argv.slice(2)));

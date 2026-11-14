@@ -19,6 +19,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { suggest, trainClassifier, buildMemory, trainNewPayee, historyRecord, payeeKey } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 // [set, repo, commit, path]. "tune": rules may be written looking at these; "held": never.
 export const FILES = [
@@ -125,7 +126,7 @@ const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");
 export const line = (o) => `n=${o.n} right ${pct(o.right, o.n)} wrong ${pct(o.wrong, o.n)} (right of suggested ${pct(o.right, o.right + o.wrong)}) auto ${pct(o.auto, o.n)} (wrong ${o.autoWrong})`;
 const add = (a, b) => { for (const k of Object.keys(a)) a[k] += b[k]; };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const set = arg("--set", "all"), dir = arg("--cache", join(tmpdir(), "mint-labelled"));
   const tot = { cold: blank(), coldFirst: blank(), online: blank(), first: blank(), repeat: blank() }, misses = [];

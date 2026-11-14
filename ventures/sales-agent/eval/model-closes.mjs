@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import { triage, stripQuoted } from "../engine.mjs";
 import { mergeTriage } from "../ai.mjs";
 import { replyKey } from "./model.mjs";
+import { pathToFileURL } from "node:url";
 
 const CLOSES = new Set(["not_interested", "left_company"]);
 const NOT_LIVE = new Set(["not_interested", "left_company", "unsubscribe", "bounce", "out_of_office"]);
@@ -32,7 +33,7 @@ export function closeFlags(rows, answers, today = "2026-10-21") {
   return t;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const [cache, ...rest] = args.filter((a) => !a.startsWith("--"));
   const rows = rest.flatMap((f) => readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)));

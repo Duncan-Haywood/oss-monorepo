@@ -9,8 +9,9 @@ reported blocked too (review prompt, cloud-session.md). Start the job with
     python3 platform/ci/wait_for.py out.log --timeout 540   # up to 9 min: give the tool call timeout 600000
     python3 platform/ci/wait_for.py out.log --marker END --timeout 60   # --pattern works too
 
-On a timeout it says how big the log is, how long since it was written and its
-last line, so a live job is told apart from a stuck or silent one.
+On a timeout it says how big the log is, how long since it was written, its
+last line, and which process still has it open (none: the job exited without
+its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
@@ -127,14 +128,54 @@ def wait_pid(pid, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sl
     return True
 
 
-def progress(path, now=time.time):
+def holders(path, proc="/proc"):
+    """[(pid, command)] of the processes that have `path` open; None when /proc can't say.
+
+    The log's age alone could not tell a quiet job from a dead one: a job that
+    prints only when it ends (an 18-minute benchmark, a `cmd > log` whose marker
+    comes last) read "may be stuck" on every wait (two run records, 2026-11-14),
+    and one that died before its `&& echo DONE` waited out the whole timeout.
+    The shell redirect running a job holds its log open until the job exits, so
+    an open file descriptor is the liveness signal `pgrep -f` can't give here.
+    """
+    try:
+        target = os.path.realpath(path)
+        pids = [d for d in os.listdir(proc) if d.isdigit()]
+    except OSError:
+        return None
+    me, found = os.getpid(), []
+    for pid in pids:
+        if int(pid) == me:
+            continue
+        fd_dir = os.path.join(proc, pid, "fd")
+        try:
+            fds = os.listdir(fd_dir)
+        except OSError:
+            continue
+        for fd in fds:
+            try:
+                if os.readlink(os.path.join(fd_dir, fd)) != target:
+                    continue
+            except OSError:
+                continue
+            try:
+                with open(os.path.join(proc, pid, "cmdline"), "rb") as f:
+                    cmd = f.read().replace(b"\0", b" ").decode(errors="replace").strip()
+            except OSError:
+                cmd = ""
+            found.append((int(pid), cmd or "?"))
+            break
+    return found
+
+
+def progress(path, now=time.time, who=holders):
     """What a timed-out wait can say about the job, so "call again" is not a guess.
 
     A bare "still running? call again" after 100 s was read as no progress, and
     once as a 10-minute interval that went into a README (friction 2026-11-11).
-    Say how big the log is, how long since it was written and its last line:
-    a log written seconds ago is a live job; one silent for many minutes may
-    be stuck, or buffering its output until the end (also reported).
+    Say how big the log is, how long since it was written, its last line, and
+    whether a process still has it open (alive, if quiet) or none does (the job
+    has exited without its marker: read the log rather than wait again).
     """
     try:
         st = os.stat(path)
@@ -144,8 +185,20 @@ def progress(path, now=time.time):
         lines = [l for l in f.read().splitlines() if l.strip()]
     idle = max(0, now() - st.st_mtime)
     last = (lines[-1][:120] if lines else "(empty)")
-    hint = ("still being written: call again" if idle < 60 else
-            "silent for a while: the job may be stuck, or buffering its output (python3 -u); call again or check it")
+    open_by = who(path)
+    if open_by:
+        pid, cmd = max(open_by)  # the newest holder is the job itself, not the shell that started it
+        hint = (f"pid {pid} ({cmd[:60]!r}) still has it open, so the job is running"
+                + ("" if idle < 60 else ", quietly (it may print only at the end, or buffer: python3 -u)")
+                + "; call again")
+    elif open_by is not None:
+        hint = ("no process has it open any more, so the job has most likely exited without printing the marker "
+                "(a failed `&&` before `echo DONE`?): read the log instead of waiting again, unless the job "
+                "reopens it for each line (`>>` in a loop)")
+    elif idle < 60:
+        hint = "still being written: call again"
+    else:
+        hint = "silent for a while: the job may be stuck, or buffering its output (python3 -u); call again or check it"
     return f"log is {st.st_size} bytes, last written {idle:.0f}s ago, last line: {last!r}; {hint}"
 
 

@@ -6,6 +6,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual, createHmac } from "node:crypto";
 import * as E from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const readBody = (req, max = 200_000) => new Promise((resolve, reject) => {
@@ -96,7 +97,7 @@ export function handler(cfg) {
 
 export function loadState(file) { try { return { ...E.newState(), ...JSON.parse(fs.readFileSync(file, "utf8")) }; } catch { return E.newState(); } }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const k of ["INGEST_KEY", "ADMIN_KEY"]) if (!env[k] || env[k].length < 16) { console.error(`Set ${k} (16+ characters).`); process.exit(1); }
   if (env.INGEST_KEY === env.ADMIN_KEY) { console.error("INGEST_KEY ships in your front end; ADMIN_KEY must be a different secret."); process.exit(1); }
   const file = env.STATE || "/tmp/state.json", state = loadState(file), read = (n) => fs.readFileSync(new URL(n, import.meta.url), "utf8");

@@ -29,6 +29,7 @@ import { runPrep } from "../prep.mjs";
 import { runFollowUp } from "../followup.mjs";
 import { crmFromEnv } from "./crm.mjs";
 import { buildInvite } from "../invite.mjs";
+import { pathToFileURL } from "node:url";
 
 // IMAP SEARCH date: 07-Nov-2026 (RFC 3501 date: 1*2DIGIT "-" month "-" 4DIGIT, English month names).
 const imapDate = (ms) => new Date(ms).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).replace(/ /g, "-").replace("Sept", "Sep");
@@ -427,7 +428,7 @@ if(TTS){$("cd-read").hidden=false;$("cd-read").onclick=()=>{if(TTS.speaking){TTS
 </script></html>`;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const a = createAgent();
   const port = Number(process.env.PORT || 8787), host = process.env.HOST || "127.0.0.1";
   a.server.listen(port, host, () => console.log(`Sales Agent approval queue on http://${host}:${port}/?token=… (mailbox read-only; ${process.env.SMTP_HOST ? "sends only on your click" : "sending is off"})`));

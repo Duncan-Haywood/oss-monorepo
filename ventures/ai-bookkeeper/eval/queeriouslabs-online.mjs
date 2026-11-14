@@ -10,6 +10,7 @@
 import { readFileSync } from "node:fs";
 import { suggest, trainClassifier, buildMemory, historyRecord } from "../categorize.mjs";
 import { parseRows, MAP, INCOME } from "./queeriouslabs-bank.mjs";
+import { pathToFileURL } from "node:url";
 
 const isoDate = (s) => { const [m, d, y] = s.split("/"); return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`; };
 
@@ -43,7 +44,7 @@ export function replay(rows, { learn = true } = {}) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dir = process.argv[2] ?? "/tmp/qd";
   const rows = [];
   for (const y of [2019, 2020, 2021, 2022, 2023]) { try { rows.push(...parseDated(readFileSync(`${dir}/${y}.csv`, "utf8"))); } catch {} }

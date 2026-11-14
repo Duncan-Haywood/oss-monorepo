@@ -80,6 +80,7 @@ for the browser-extension, iOS and Android packagers.
 | [`isolation-forest`](../../ventures/isolation-forest/) | Liu, Ting & Zhou 2008, 2012 | Which rows of this table are unusual across all their numeric columns at once, how unusual, and which columns make each one stand out? |
 | [`gaussian-process-regression`](../../ventures/gaussian-process-regression/) | Rasmussen & Williams 2006; Liu & Nocedal 1989; MacKay 1998 | What smooth curve runs through these points, how sure is it at each x, what are its length scale, period and noise in my units, which kernel do the data favour, and how honest is the band? |
 | [`wasserstein-distance`](../../ventures/wasserstein-distance/) | Cuturi 2013; Altschuler, Weed & Rigollet 2017; Peyré & Cuturi 2019; Székely & Rizzo 2013 | How far apart are two groups' distributions in my units, what moved up and what moved down, and across several columns, how far by optimal transport, with a certified range on the exact value? |
+| [`ranked-ballot-counter`](../../ventures/ranked-ballot-counter/) | Schulze 2011; Droop 1881 | Who won our ranked-choice vote: by instant runoff, by STV for several seats, and by Schulze, and is there a candidate who beats every other head to head? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the

@@ -7,6 +7,7 @@
 //   node eval/hcb-memos.mjs [--from 40 --to 100] [--orgpage 1] [--hits 40] [--misses 60]
 // --orgpage N reads the Nth page of 100 organisations (held-out reading: page 2 or later).
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i < 0 ? d : Number(process.argv[i + 1]); };
 const get = async (u) => { const r = await fetch(u); if (!r.ok) throw new Error(`${r.status} ${u}`); return r.json(); };
@@ -23,7 +24,7 @@ export function coverage(rows) {
   return { n: rows.length, suggested: sum(hits), hits, misses };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const orgs = (await get(`https://hcb.hackclub.com/api/v3/organizations?per_page=100&page=${arg("orgpage", 1)}`)).filter((o) => o.transparent).slice(arg("from", 0), arg("to", 40));
   const rows = [];
   for (const o of orgs) {

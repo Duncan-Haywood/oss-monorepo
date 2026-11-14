@@ -19,6 +19,7 @@
 //   node eval/cover-risk-joint.mjs           SETS=cafe,spare,salon,retail,clinic  SEEDED=3
 import { parseStaff, parseShifts, buildContext, buildRoster, calloutExposure, coverRisk } from "../calc.mjs";
 import { sets } from "./real-rate-week.mjs";
+import { pathToFileURL } from "node:url";
 
 const BASE = { minRestHours: 10 };
 const NO = { callerTakes: false };
@@ -60,7 +61,7 @@ function seeded(seed) {
   return [staff.join("\n"), shifts.join("\n")];
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const all = sets();
   const pick = (process.env.SETS || Object.keys(all).join(",")).split(",").filter(Boolean);
   const nSeeded = Number(process.env.SEEDED ?? 3);

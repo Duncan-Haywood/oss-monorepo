@@ -16,6 +16,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
 import { analyze, planSale, idRecord, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toTurboTaxCsv, turboTaxSkipped, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
 
@@ -265,4 +266,4 @@ export async function main(argv) {
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exitCode = await main(process.argv.slice(2));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exitCode = await main(process.argv.slice(2));

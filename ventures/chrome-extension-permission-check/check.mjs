@@ -15,6 +15,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { detectApiUsage, parseManifest, buildReport } from './scan.mjs';
+import { pathToFileURL } from 'node:url';
 
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx']);
 const MANIFEST_NAME = 'manifest.json';
@@ -202,6 +203,6 @@ function main() {
   process.exit(result.report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }
