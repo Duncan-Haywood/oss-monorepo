@@ -3,7 +3,7 @@ title: "The tennis feeder's position sensor was picking up its own motor"
 seo_title: "Actuator pot noise from H-bridge PWM: sizing the ESP32 ADC capacitor"
 date: 2026-11-14
 tags: [open-tennis-robots, hardware, firmware, esp32, electronics]
-description: "The pot wires share a 1.39 m lead with the motor pair. With no capacitor, 8% of readings land at the rail. ESP-IDF's suggested 100 nF still leaves 0.55 mm of error. 1 uF leaves 0.055 mm."
+description: "The pot wires share a 1.39 m lead with the motor pair. No capacitor: 8% of readings at the rail. 100 nF: 0.55 mm off. 1 uF: 0.055 mm."
 ---
 
 The open tennis-ball feeder tilts its launcher head with a linear actuator.
