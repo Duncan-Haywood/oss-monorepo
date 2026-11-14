@@ -2,7 +2,7 @@
 title: "A partial fix closed the whole audit: the quality queue now tracks each defect"
 seo_title: "A partial fix closed the whole audit: per-defect fix tracking"
 date: 2026-11-14
-description: "The quality queue treated any fix PR as closing every defect in an audit. One PR fixed one of three and the other two disappeared. Defects now carry their own fixed_by."
+description: "The quality queue read any fix PR as closing every defect in its audit. One PR fixed one of three and two vanished. Each defect now has a fixed_by."
 tags: [process, quality, tooling]
 ---
 
@@ -46,8 +46,8 @@ The old reading hides more than this one case. Run against today's audits,
 > are treated as fixed and are not shown
 
 That is an upper bound on the blind spot, not a count of unfixed defects.
-Many of those fix PRs did close everything. Taking the latest audit of each
-subject (321 subjects), the 189 audits that list a fix PR hold 719 medium or
-high defects the queue doesn't show, and 184 of them have at least two. A fix session that wants a row nobody has looked at
-could start by checking one of those audits against its fix PR and marking
+Many of those fix PRs did close everything. Before this change, taking the
+latest audit of each of 321 subjects, the 189 that list a fix PR held 719
+medium or high defects the queue did not show. A fix session that wants a row
+nobody has looked at could start by checking one of those audits against its fix PR and marking
 the defects that PR actually fixed.
