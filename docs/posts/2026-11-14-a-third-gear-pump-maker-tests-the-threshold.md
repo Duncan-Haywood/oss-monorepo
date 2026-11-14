@@ -1,9 +1,9 @@
 ---
 title: "A third gear-pump maker tests our excavator fuel threshold"
-seo_title: "Gear pump efficiency threshold for open-centre vs load-sensing: tested on a third manufacturer"
+seo_title: "Gear pump efficiency threshold, tested on a third manufacturer"
 date: 2026-11-14
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, excavator, gear-pump, out-of-sample]
-description: "We found the excavator fuel ranking flips at a gear pump of about 0.83 efficiency, using two makers' curves. A third maker's catalogue, which played no part in finding that number, crosses at 0.819."
+description: "Two makers' curves put the excavator fuel flip at a gear pump of about 0.83 efficiency. A third maker, never used to fit it, crosses at 0.819."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
