@@ -1,6 +1,6 @@
 ---
 title: "Drone layers: counting conflicts without simulating launch times"
-seo_title: "Exact-timing estimator for drone conflict counts: 7% closed-form bias, same layer split"
+seo_title: "Drone conflict counts with launch timing integrated out exactly"
 date: 2026-11-14
 tags: [research, robotics, autonomy, utm, drones, airspace, simulation, statistics, monte-carlo]
 description: "Integrating Poisson launch times out of a drone conflict simulator exactly gave an unbiased estimator, only 1.5x faster, and showed the closed form is 7% low but picks the right split."
