@@ -142,7 +142,7 @@
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeBank, parseRules, parseBusinessRules, analyze, reportCsv, summaryText, sampleCsv, money, CATEGORIES } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeBank, parseRules, parseBusinessRules, analyze, reportCsv, summaryText, sampleCsv, money, CATEGORIES, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -155,7 +155,7 @@
 
     function run(text) {
       const d = detectDelimiter(text);
-      const b = normalizeBank(parseCsv(text, d), { decimalComma: d === ";", invertSign: $("#invert").checked, dayFirst: $("#dayfirst").checked });
+      const b = normalizeBank(parseCsv(text, d), { decimalComma: detectDecimalComma(parseCsv(text, d), d), invertSign: $("#invert").checked, dayFirst: $("#dayfirst").checked });
       if (b.error) { status.textContent = b.error; report.hidden = true; return false; }
       const rules = parseRules($("#rules").value), props = parseBusinessRules($("#props").value);
       const a = analyze(b.txns, { userRules: rules.rules, businessRules: props.rules, safeHarbor: num("#safe", 2500), year: num("#year", NaN) });

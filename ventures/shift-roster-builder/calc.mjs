@@ -2672,8 +2672,19 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
 }
 // Subgradient loop behind priceScoreBound. `fixed[i]` (when given) marks shifts a branch has already decided (held by a named person
 // or left open); their price is pinned at 0 and `constant` carries any open cost already paid, so the bound is for the sub-problem.
+// The sets are flattened once per call into one Int32Array per person (start offsets in `off`): the loop over sets runs every round,
+// and walking typed offsets instead of one small array per set ran 1.7x as many sets per millisecond on the call-out week
+// (docs/history/ci-perf-2026-11-14-shift-roster-flat-sets.md). Same order of subtraction, so the same floating-point sums.
+function flatSets(fs) {
+  const off = new Int32Array(fs.length + 1);
+  for (let k = 0; k < fs.length; k++) off[k + 1] = off[k] + fs[k].length;
+  const idx = new Int32Array(off[fs.length]);
+  for (let k = 0, t = 0; k < fs.length; k++) for (const i of fs[k]) idx[t++] = i;
+  return { off, idx };
+}
 function scoreDualCore(P, S, sets, vals, cap, fixed, constant, lam0, incumbent, rounds) {
   const lam = lam0.slice();
+  const flat = sets.map(flatSets);
   let best = -Infinity, theta = 1, stale = 0, bestLam = lam.slice();
   for (let r = 0; r < rounds; r++) {
     let L = constant;
@@ -2686,15 +2697,15 @@ function scoreDualCore(P, S, sets, vals, cap, fixed, constant, lam0, incumbent, 
     }
     for (let p = 0; p < P; p++) {
       let bestV = Infinity, bestK = -1;
-      const fs = sets[p], vp = vals[p];
-      for (let k = 0; k < fs.length; k++) {
+      const { off, idx } = flat[p], vp = vals[p], n = vp.length;
+      for (let k = 0; k < n; k++) {
         let v = vp[k];
-        for (const i of fs[k]) v -= lam[i];
+        for (let t = off[k], e = off[k + 1]; t < e; t++) v -= lam[idx[t]];
         if (v < bestV) { bestV = v; bestK = k; }
       }
       if (bestK < 0) return { best: Infinity, bestLam: lam.slice(), gr }; // a person with no valid set: this branch is infeasible
       L += bestV;
-      for (const i of fs[bestK]) if (!fixed || fixed[i] === -2) gr[i]--;
+      for (const i of sets[p][bestK]) if (!fixed || fixed[i] === -2) gr[i]--;
     }
     if (L > best + 1e-9) { best = L; stale = 0; bestLam = lam.slice(); } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
     let norm = 0;

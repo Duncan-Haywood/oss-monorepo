@@ -152,7 +152,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeSales, normalizeLabor, parseRoleList, analyze, reportCsv, summaryText, sampleCsv, money } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeSales, normalizeLabor, parseRoleList, analyze, reportCsv, summaryText, sampleCsv, money, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -167,9 +167,9 @@
 
     function run(salesText, laborText) {
       const sd = detectDelimiter(salesText), ld = detectDelimiter(laborText);
-      const s = normalizeSales(parseCsv(salesText, sd), { decimalComma: sd === ";" });
+      const s = normalizeSales(parseCsv(salesText, sd), { decimalComma: detectDecimalComma(parseCsv(salesText, sd), sd) });
       if (s.error) { status.textContent = s.error; report.hidden = true; return false; }
-      const l = normalizeLabor(parseCsv(laborText, ld), { decimalComma: ld === ";" });
+      const l = normalizeLabor(parseCsv(laborText, ld), { decimalComma: detectDecimalComma(parseCsv(laborText, ld), ld) });
       if (l.error) { status.textContent = l.error; report.hidden = true; return false; }
       const a = analyze(s.rows, l, { targetPct: num("#target", 30), burdenPct: num("#burden", 12), minCrew: num("#crew", 2), defaultWage: num("#wage", NaN), dayStartHour: num("#daystart", 4), excludeRoles: parseRoleList($("#exclude").value), dayparts: $("#dayparts").value });
       if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }

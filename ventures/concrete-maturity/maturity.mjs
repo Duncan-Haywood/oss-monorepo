@@ -139,8 +139,8 @@ export function parseLoggerCsv(text, { unit = 'auto', dayFirst = false } = {}) {
   const lines = String(text ?? '').replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim() !== '');
   if (lines.length < 2) return { sensors: [], start: null, notes, errors: ['The file needs a header row and at least one reading.'] };
   const delim = detectDelimiter(lines);
-  const decimalComma = delim === ';';
   const rows = lines.map(l => splitRow(l, delim));
+  const decimalComma = detectDecimalComma(rows, delim);
 
   // A data row has a parseable time in some column and at least one number elsewhere.
   const isTimeCell = c => Number.isFinite(parseTimestamp(c, { dayFirst })) || Number.isFinite(toNumber(c, decimalComma));
@@ -563,3 +563,23 @@ export function exampleCsv() {
 
 /** Made-up lab breaks for the demo: two cylinders at each age, psi, moist-cured at 23 deg C. */
 export const EXAMPLE_CALIBRATION = '1, 1180\n1, 1240\n3, 2510\n3, 2440\n7, 3420\n7, 3510\n14, 4120\n14, 4060\n28, 4580\n28, 4650\n';
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}

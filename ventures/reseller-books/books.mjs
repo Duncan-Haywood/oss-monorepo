@@ -241,7 +241,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
   let skipped = 0;
   for (const f of files) {
     const delim = engine.detectDelimiter(f.text);
-    const n = engine.normalizeRows(engine.parseCsv(f.text, delim), { decimalComma: delim === ";", feeMode });
+    const n = engine.normalizeRows(engine.parseCsv(f.text, delim), { decimalComma: engine.detectDecimalComma(engine.parseCsv(f.text, delim), delim), feeMode });
     if (n.error) return { error: `${f.name}: ${n.error}` };
     items.push(...n.items);
     skipped += (n.skipped || []).length;

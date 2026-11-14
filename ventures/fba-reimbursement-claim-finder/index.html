@@ -154,7 +154,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeLedger, normalizeReimbursements, normalizeShipments, analyzeInbound, inboundClaimText, analyze, claimText, summaryText, sampleCsv, money, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeLedger, normalizeReimbursements, normalizeShipments, analyzeInbound, inboundClaimText, analyze, claimText, summaryText, sampleCsv, money, dateStr, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -162,7 +162,7 @@
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
 
-    const table = (text, norm) => { const d = detectDelimiter(text); return norm(parseCsv(text, d), { decimalComma: d === ";" }); };
+    const table = (text, norm) => { const d = detectDelimiter(text); return norm(parseCsv(text, d), { decimalComma: detectDecimalComma(parseCsv(text, d), d) }); };
     const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
 
     function run(ledgerText, reimbText, shipText = "") {

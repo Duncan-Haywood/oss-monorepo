@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [selfrep-materials]
+date: 2026-11-14
+tagged: auto
+---
 # Quality fix: selfrep-materials sourced part list (2026-11-14)
 
 For the next run that touches the self-replication track (`research/selfrep-*`).

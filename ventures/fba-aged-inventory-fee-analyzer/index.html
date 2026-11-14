@@ -145,7 +145,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeAge, analyze, summaryText, sampleCsv, actionLine, money } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeAge, analyze, summaryText, sampleCsv, actionLine, money, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -156,7 +156,7 @@
 
     function run(text) {
       const d = detectDelimiter(text);
-      const n = normalizeAge(parseCsv(text, d), { decimalComma: d === ";" });
+      const n = normalizeAge(parseCsv(text, d), { decimalComma: detectDecimalComma(parseCsv(text, d), d) });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const a = analyze(n.items, { asOf: Date.now(), unitCost: num("#unit-cost", 8), fulfilmentFee: num("#fulfilment", 4), referralPct: num("#referral", 15), cubicFeetPerUnit: num("#cuft", 0.1), storageRate: num("#storage", 0.87), storageRatePeak: num("#peak", 2.4), removalFee: num("#removal", 0.8), removeAgeDays: num("#remove-age", 271), horizonMonths: num("#horizon", 6), elasticity: num("#elasticity", 2), salvagePct: num("#salvage", 0), ais: $("#ais").value });
       if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }

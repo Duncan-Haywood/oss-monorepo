@@ -20,13 +20,13 @@ check would catch.
 | Pange lingua (verse 1) | Graduale Romanum, Vatican 1908 | 123* | 53 | 53 | 0 | 0 | 0 | 100.0% of 53 GABC notes | 197 of 200 |
 | Te Deum (Roman tone, 1908) | Graduale Romanum, Vatican 1908 | 118*, 119*, 120*, 121* | 634 | 633 | 0 | 1 | 1 | 99.8% of 634 GABC notes | 200 of 200 |
 | Salve Regina (solemn tone) | Antiphonale Romanum, Vatican 1912 | 56, 57 | 219 | 219 | 0 | 12 | 0 | 94.8% of 231 GABC notes | 195 of 200 |
-| GregoBase 3434 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 353, leaf 354, 329, leaf 356 | 1269 | 217 | 0 | 12 | 1 | 94.8% of 229 GABC notes | 192 of 200 |
-| GregoBase 3407 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 420, leaf 421, 396, leaf 423 | 1291 | 207 | 0 | 12 | 0 | 94.5% of 219 GABC notes | 197 of 200 |
-| GregoBase 3426 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 424, leaf 425, 400, leaf 427 | 873 | 160 | 0 | 0 | 0 | 100.0% of 160 GABC notes | 199 of 200 |
-| GregoBase 3403 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 512, leaf 513, 488, leaf 515 | 823 | 113 | 1 | 1 | 0 | 98.3% of 115 GABC notes | 198 of 200 |
-| GregoBase 3453 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 537, leaf 538, 513, leaf 540 | 802 | 137 | 0 | 5 | 0 | 96.5% of 142 GABC notes | 200 of 200 |
-| GregoBase 3418 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 579, leaf 580, 555, leaf 582 | 613 | 154 | 0 | 13 | 0 | 92.2% of 167 GABC notes | 196 of 200 |
-| GregoBase 3429 (off-final ending) | Graduale Romanum, Vatican 1908 | 82*, leaf 874 | 574 | 208 | 0 | 2 | 1 | 99.0% of 210 GABC notes | 196 of 200 |
+| GregoBase 3434 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 353, leaf 354, 329, leaf 356 | 1288 | 217 | 0 | 12 | 1 | 94.8% of 229 GABC notes | 192 of 200 |
+| GregoBase 3407 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 420, leaf 421, 396, leaf 423 | 1367 | 216 | 0 | 3 | 1 | 98.6% of 219 GABC notes | 199 of 200 |
+| GregoBase 3426 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 424, leaf 425, 400, leaf 427 | 908 | 160 | 0 | 0 | 0 | 100.0% of 160 GABC notes | 199 of 200 |
+| GregoBase 3403 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 512, leaf 513, 488, leaf 515 | 824 | 113 | 1 | 1 | 0 | 98.3% of 115 GABC notes | 198 of 200 |
+| GregoBase 3453 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 537, leaf 538, 513, leaf 540 | 896 | 137 | 0 | 5 | 0 | 96.5% of 142 GABC notes | 200 of 200 |
+| GregoBase 3418 (off-final ending) | Graduale Romanum, Vatican 1908 | leaf 579, leaf 580, 555, leaf 582 | 624 | 154 | 0 | 13 | 0 | 92.2% of 167 GABC notes | 196 of 200 |
+| GregoBase 3429 (off-final ending) | Graduale Romanum, Vatican 1908 | 82*, leaf 874 | 626 | 286 | 1 | 0 | 2 | 99.7% of 287 GABC notes | 199 of 200 |
 
 ## Dies irae
 
@@ -126,16 +126,8 @@ Ending, GABC/scan (· = not read or not on these pages): g/g f/f f/f d/d e/e d/d
 |---|---|---|---|---|
 | Be | cd!ewff | e | - | not read; near p. leaf 421 (leaf 421), staff 4, x 367 |
 | De | ixf!gwh!iv | g | - | not read; near p. leaf 421 (leaf 421), staff 4, x 961 |
-| me | gf | f | - | not read; near p. leaf 421 (leaf 421), staff 6, x 1746 |
-| os | f | f | - | not read; near p. leaf 421 (leaf 421), staff 6, x 1746 |
-| ad | f | f | - | not read; near p. leaf 421 (leaf 421), staff 6, x 1765 |
-| bel | ff/gf/hgh | f | - | not read; near p. leaf 421 (leaf 421), staff 7, x 595 |
-| ? | hg/hvFD/gfffvEC//ggf/ghddc/da | f | - | not read; near p. leaf 421 (leaf 421), staff 7, x 905 |
-| ? | hg/hvFD/gfffvEC//ggf/ghddc/da | f | - | not read; near p. leaf 421 (leaf 421), staff 7, x 992 |
-| ? | hg/hvFD/gfffvEC//ggf/ghddc/da | f | - | not read; near p. leaf 421 (leaf 421), staff 7, x 992 |
-| ? | hg/hvFD/gfffvEC//ggf/ghddc/da | f | - | not read; near p. leaf 421 (leaf 421), staff 7, x 1095 |
 | ? | hg/hvFD/gfffvEC//ggf/ghddc/da | c | - | not read; near p. leaf 421 (leaf 421), staff 7, x 1095 |
-| ? | cd!fvvDCd!ff/gff/ded | f | - | not read; near p. leaf 421 (leaf 421), staff 7, x 1445 |
+| ? |  | - | f | p. leaf 421 (leaf 421), staff 7, x 1461 |
 
 ## GregoBase 3426 (off-final ending)
 
@@ -183,7 +175,7 @@ Ending, GABC/scan (· = not read or not on these pages): f/f f/f d/d c/c d/d f/�
 | cu | fg | f | - | not read; near p. leaf 580 (leaf 580), staff 3, x 153 |
 | láu | g/hjHG | h | - | not read; near p. leaf 580 (leaf 580), staff 3, x 1513 |
 | láu | g/hjHG | g | - | not read; near p. leaf 580 (leaf 580), staff 4, x 154 |
-| De | d!ewfef | f | - | not read; near p. leaf 580 (leaf 580), staff 4, x 703 |
+| De | d!ewfef | f | - | not read; near p. leaf 580 (leaf 580), staff 4, x 704 |
 | sul | gh | h | - | not read; near p. leaf 580 (leaf 580), staff 4, x 996 |
 | no: | gh | h | - | not read; near p. leaf 580 (leaf 580), staff 4, x 1562 |
 | re | gf | f | - | not read; near p. leaf 580 (leaf 580), staff 5, x 155 |
@@ -196,10 +188,10 @@ Ending, GABC/scan (· = not read or not on these pages): f/f f/f d/d c/c d/d f/�
 
 corpus/gregobase-1908/3429.gabc, 287 GABC notes; scan of Graduale Romanum, Vatican 1908 (archive.org item `gradualesacrosan0000cath`).
 
-Ending, GABC/scan (· = not read or not on these pages): h/h g/g f/f g/g h/h f/f; GABC notes covered 78-287 of 287.
+Ending, GABC/scan (· = not read or not on these pages): h/h g/g f/f g/g h/h f/f; GABC notes covered 1-287 of 287.
 
 | syllable | GABC group | GABC note | scan | where |
 |---|---|---|---|---|
-| a | fhFEfhhf//hvvGFheed | h | - | not read; near p. 82* (leaf 873), staff 1, x 1716 |
-| a | fhFEfhhf//hvvGFheed | f | - | not read; near p. 82* (leaf 873), staff 2, x 275 |
-| la |  | - | h | p. 82* (leaf 873), staff 5, x 1050 |
+| ne: |  | - | h | p. 82* (leaf 873), staff 2, x 437 |
+| a | fhFEfhhf//hvvGFheed | f | h | p. 82* (leaf 873), staff 3, x 275 |
+| la |  | - | h | p. 82* (leaf 873), staff 6, x 1050 |
