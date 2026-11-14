@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rank a list by picking pairs | Quick Pick</title>
+  <meta name="description" content="Paste a list, answer 'this or that?' a few dozen times, and get a ranked order with a rank range for each option. Share the list with a team and combine everyone's picks. Free, runs in your browser, nothing uploaded.">
+  <link rel="canonical" href="https://marisstella.app/quick-pick-survey/rank.html">
+  <meta property="og:title" content="Rank a list by picking pairs">
+  <meta property="og:description" content="Answer 'this or that?' and get a ranked order with honest rank ranges. Combine a team's picks. Runs in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Quick Pick: rank a list by picking pairs","applicationCategory":"BusinessApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Pairwise-comparison ranking in the browser: a Bradley-Terry model with an adaptive question picker, rank ranges, and team aggregation from shareable result codes."}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8;--bg:#f5f1e8;--good:#2f6b3a;color:var(--ink);background:var(--bg)}
+    @media (prefers-color-scheme: dark){:root{--ink:#ece7dd;--muted:#b4aca0;--line:#4a443b;--accent:#f0a183;--panel:#26231f;--bg:#1a1815;--good:#8fd19b}}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg)}
+    main{max-width:860px;margin:auto;padding:2rem 1rem 3rem}
+    h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.1;margin:0 0 .75rem}
+    p.lede{font-size:1.1rem;color:var(--muted);margin-top:0}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.25rem 0}
+    h2{margin:0 0 .5rem;font-size:1.25rem}
+    textarea,input[type=text]{width:100%;font:inherit;padding:.6rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+    textarea{min-height:11rem}
+    button{font:inherit;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+    button.secondary{background:transparent;color:var(--accent)}
+    button:disabled{opacity:.5;cursor:default}
+    .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+    .pair{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0}
+    .pick{min-height:7rem;font-size:1.15rem;background:var(--bg);color:var(--ink);border:2px solid var(--line);white-space:normal;word-break:break-word}
+    .pick:hover,.pick:focus-visible{border-color:var(--accent)}
+    @media (max-width:520px){.pair{grid-template-columns:1fr}}
+    .bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}.bar>div{height:100%;background:var(--good);width:0}
+    .muted{color:var(--muted);font-size:.9rem}
+    table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{text-align:left;padding:.4rem .3rem;border-bottom:1px solid var(--line);vertical-align:top}
+    td.num,th.num{text-align:right;white-space:nowrap}
+    code.share{display:block;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.5rem;font-size:.8rem}
+    .hidden{display:none}
+    .err{color:#b3261e}
+    a{color:var(--accent)}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
+    label.inline{display:inline-flex;gap:.35rem;align-items:center}
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted"><a href="./">Quick Pick</a> / rank a list</p>
+  <h1>Rank a list by picking pairs</h1>
+  <p class="lede">Ranking twenty things at once is hard. Choosing between two is easy. Paste your options, answer "this or that?" a few dozen times, and get an order with an honest range for each place. Send the list to your team and combine everyone's picks.</p>
+
+  <section id="setup">
+    <h2>1. Your options</h2>
+    <label for="title" class="muted">The question (optional), e.g. "Which feature should we build next?"</label>
+    <input type="text" id="title" maxlength="200" placeholder="Which of these matters most?">
+    <p></p>
+    <label for="list" class="muted">One option per line, 3 to 60.</label>
+    <textarea id="list" placeholder="Dark mode&#10;CSV export&#10;Faster search&#10;Mobile app&#10;Team accounts&#10;Calendar sync"></textarea>
+    <div class="row">
+      <label class="inline"><input type="radio" name="mode" value="order" checked> Full order</label>
+      <label class="inline"><input type="radio" name="mode" value="favourite"> Be sure of the favourite (more questions on the front-runners; the rest of the order stays rough)</label>
+    </div>
+    <div class="row">
+      <button id="start">Start picking</button>
+      <button class="secondary" id="example">Try an example</button>
+      <span id="setup-err" class="err"></span>
+    </div>
+  </section>
+
+  <section id="ask" class="hidden">
+    <h2 id="ask-title">Which do you prefer?</h2>
+    <div class="pair">
+      <button class="pick" id="left"></button>
+      <button class="pick" id="right"></button>
+    </div>
+    <div class="row">
+      <button class="secondary" id="tie">About equal</button>
+      <button class="secondary" id="undo">Undo</button>
+      <button class="secondary" id="finish">Show results now</button>
+    </div>
+    <p></p>
+    <div class="bar" aria-hidden="true"><div id="bar"></div></div>
+    <p class="muted" id="status"></p>
+    <p class="muted">Keys: &larr; left, &rarr; right, &#8595; about equal, U undo.</p>
+  </section>
+
+  <section id="results" class="hidden">
+    <h2>Your order</h2>
+    <p id="verdict"></p>
+    <table>
+      <thead><tr><th class="num">#</th><th>Option</th><th class="num" title="90% of plausible orders put the option in this range">Rank range</th><th class="num" title="Chance this option is the favourite">Top pick</th></tr></thead>
+      <tbody id="table"></tbody>
+    </table>
+    <p class="muted">The rank range is where 90% of the orders consistent with your answers put the option. A wide range means your picks have not separated it from its neighbours yet: answer more to narrow it.</p>
+    <div class="row">
+      <button id="more">Answer more</button>
+      <button class="secondary" id="csv">Download CSV</button>
+      <button class="secondary" id="restart">New list</button>
+    </div>
+  </section>
+
+  <section id="share" class="hidden">
+    <h2>2. Ask your team</h2>
+    <p>Send this link. Everyone answers on their own device, then sends you their result code. Nothing goes through a server: the list lives in the link after the <code>#</code>, which browsers never send.</p>
+    <code class="share" id="share-link"></code>
+    <div class="row"><button class="secondary" id="copy-link">Copy link</button></div>
+    <h3>Your result code</h3>
+    <label for="name" class="muted">Your name, so the person combining knows whose code it is (optional)</label>
+    <input type="text" id="name" maxlength="60">
+    <code class="share" id="code"></code>
+    <div class="row"><button class="secondary" id="copy-code">Copy result code</button></div>
+  </section>
+
+  <section id="team" class="hidden">
+    <h2>3. Combine the team's picks</h2>
+    <label for="codes" class="muted">Paste result codes, one per line (your own is included).</label>
+    <textarea id="codes" placeholder="QP1.eyJsIjoi..."></textarea>
+    <div class="row"><button id="combine">Combine</button><span id="team-err" class="err"></span></div>
+    <div id="team-out"></div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <ul>
+      <li><strong>The model</strong> is Bradley-Terry: each option has a hidden score, and the chance you pick A over B rises with the gap between their scores. After every answer the page refits all your answers at once (Newton's method, with a Laplace approximation for the uncertainty), the same code the Quick Pick survey app runs.</li>
+      <li><strong>The next question</strong> is the pair whose answer is expected to tell the most about the order: two options the model cannot yet separate. Which side each appears on is random, so screen position cannot creep into the result.</li>
+      <li><strong>When to stop:</strong> "settled" is how closely the orders your answers still allow agree with the order shown (the average Spearman correlation over draws from the model). It stops at 90%. On simulated respondents who answer with ordinary noise, the order shown at that point matched their real order with a Spearman correlation of about 0.94. Two options you find genuinely close may never separate; the rank range shows that, and you can stop at any time.</li>
+      <li><strong>Full order or favourite?</strong> Full order spreads questions across the list and stops when the whole order is 90% settled; that can leave the top two close. "Be sure of the favourite" asks only among options that could still be the favourite and stops when one has a 90% chance. In simulation it took about a third more questions and named the right favourite 12 times out of 12, against 6 to 8 for the full-order stop.</li>
+      <li><strong>Team results</strong> refit each person separately, then average their centred scores, so someone who answered 80 questions counts the same as someone who answered 30. The page shows how much people agree and where they split.</li>
+    </ul>
+    <p class="muted">Running a survey with many respondents, demographic splits and an admin view? The full app is open source: <a href="./">deploy your own copy</a>.</p>
+  </section>
+
+  <section>
+    <h2>Privacy and usage counting</h2>
+    <p>Everything runs in your browser. Your list and answers are never uploaded; we have no accounts, tracking cookies or analytics vendor. Your progress is kept in this browser's local storage so a reload does not lose it. The page counts anonymous events in local storage (lists started, picks made, results shown, codes copied, team combines), nothing about who you are or what you ranked, and the site counts one page view per load without any identifier.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  </section>
+
+  <footer>
+    <p><strong>Disclaimer.</strong> A ranking inferred from a limited number of picks is a statistical estimate, not a fact. Don't use it as the sole basis for a hiring, financial, medical or relationship decision.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, medical or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. MIT licensed (<a href="LICENSE">licence</a>).</p>
+    <p><a href="./">About Quick Pick</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the creator</a></p>
+  </footer>
+</main>
+<script type="module">
+  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, orderConfidence, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, listId, MIN_ITEMS } from "./rank-core.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const show = (id, on = true) => $(id).classList.toggle("hidden", !on);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const EXAMPLE = { title: "Which feature should we build next?", items: ["Dark mode", "CSV export", "Faster search", "Mobile app", "Team accounts", "Calendar sync", "Offline mode", "Single sign-on"] };
+
+  let state = null; // { title, items, mode, answers, seed }
+  let current = null, f = null;
+
+  const storeKey = (items) => `quick-pick-rank:${listId(items)}`;
+  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode })); } catch {} };
+  const load = (items) => { try { return JSON.parse(localStorage.getItem(storeKey(items)) || "null"); } catch { return null; } };
+
+  function begin(title, items, mode, fromLink = false) {
+    const saved = load(items);
+    state = { title, items, mode: saved?.mode || mode, answers: Array.isArray(saved?.answers) ? saved.answers : [], seed: (Math.random() * 1e9) >>> 0 };
+    $("#title").value = title; $("#list").value = items.join("\n");
+    history.replaceState(null, "", "#" + encodeList({ title, items }));
+    record(fromLink ? "shared_list_opened" : "list_started");
+    show("#setup", false); show("#results", false); show("#share", false); show("#team", false);
+    ask();
+  }
+
+  function ask() {
+    f = fit(state.items.length, state.answers);
+    const n = state.items.length, cap = suggestedMax(n);
+    const p = state.answers.length ? orderConfidence(f) : 0;
+    const done = state.mode === "favourite" ? rankTable(f, { draws: 600 })[0].favourite >= 0.9 : p >= STOP_CONFIDENCE;
+    if (state.until ? state.answers.length >= state.until : done || state.answers.length >= cap) return results(done);
+    current = nextPair(f, state.answers, { mode: state.mode, seed: state.seed });
+    $("#ask-title").textContent = state.title || "Which do you prefer?";
+    $("#left").textContent = state.items[current[0]];
+    $("#right").textContent = state.items[current[1]];
+    $("#bar").style.width = `${Math.round(Math.max(0, Math.min(1, state.mode === "favourite" ? state.answers.length / Math.max(6, n) : p / STOP_CONFIDENCE)) * 100)}%`;
+    $("#status").textContent = `${state.answers.length} answered${state.mode === "order" ? `; order ${Math.round(Math.max(0, p) * 100)}% settled (stops at ${Math.round(STOP_CONFIDENCE * 100)}%)` : ""}. Lists of ${n} usually take ${Math.ceil(n * Math.log2(n))} to ${Math.ceil(1.5 * n * Math.log2(n))} picks; stop whenever you like.`;
+    $("#undo").disabled = state.answers.length === 0;
+    show("#ask");
+    $("#left").focus({ preventScroll: true });
+  }
+
+  function answer(kind) {
+    if (!current || $("#ask").classList.contains("hidden")) return;
+    const [a, b] = current;
+    state.answers.push(kind === "right" ? [b, a, false] : [a, b, kind === "tie"]);
+    record("pick");
+    save(); ask();
+  }
+
+  function results(settled) {
+    f = fit(state.items.length, state.answers);
+    const table = rankTable(f);
+    const top = table[0];
+    $("#verdict").innerHTML = state.answers.length === 0 ? "No answers yet." :
+      `After ${state.answers.length} picks, <strong>${esc(state.items[top.item])}</strong> is your top pick with a ${Math.round(top.favourite * 100)}% chance of being the true favourite${settled ? "." : ". Some places are still close: answer more to separate them."}`;
+    $("#table").innerHTML = table.map((r) => `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.low === r.high ? r.low : `${r.low}&ndash;${r.high}`}</td><td class="num">${r.favourite >= 0.005 ? Math.round(r.favourite * 100) + "%" : "&lt;1%"}</td></tr>`).join("");
+    show("#ask", false); show("#results"); show("#share"); show("#team");
+    $("#share-link").textContent = location.href;
+    refreshCode();
+    record("results_shown");
+  }
+
+  function refreshCode() { $("#code").textContent = encodeAnswers({ items: state.items, answers: state.answers, name: $("#name").value }); }
+
+  async function copy(text, button, event) {
+    try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; } catch { button.textContent = "Select and copy the text above"; }
+    record(event);
+  }
+
+  $("#start").addEventListener("click", () => {
+    const items = parseList($("#list").value);
+    if (items.length < MIN_ITEMS) { $("#setup-err").textContent = `Add at least ${MIN_ITEMS} different options, one per line.`; return; }
+    $("#setup-err").textContent = "";
+    begin($("#title").value.trim(), items, document.querySelector("input[name=mode]:checked").value);
+  });
+  $("#example").addEventListener("click", () => { $("#title").value = EXAMPLE.title; $("#list").value = EXAMPLE.items.join("\n"); record("example_loaded"); });
+  $("#left").addEventListener("click", () => answer("left"));
+  $("#right").addEventListener("click", () => answer("right"));
+  $("#tie").addEventListener("click", () => answer("tie"));
+  $("#undo").addEventListener("click", () => { state.answers.pop(); save(); ask(); });
+  $("#finish").addEventListener("click", () => results(false));
+  // "Answer more" asks one more round of n questions in full-order mode, whatever the stop rule says.
+  $("#more").addEventListener("click", () => { state.mode = "order"; state.until = state.answers.length + state.items.length; show("#results", false); show("#share", false); show("#team", false); ask(); });
+  $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
+  $("#csv").addEventListener("click", () => {
+    const blob = new Blob([resultsCsv(state.items, f, rankTable(f))], { type: "text/csv" });
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "quick-pick-ranking.csv" });
+    a.click(); URL.revokeObjectURL(a.href); record("csv_downloaded");
+  });
+  $("#name").addEventListener("input", refreshCode);
+  $("#copy-link").addEventListener("click", (e) => copy(location.href, e.target, "link_copied"));
+  $("#copy-code").addEventListener("click", (e) => copy($("#code").textContent, e.target, "code_copied"));
+  $("#combine").addEventListener("click", () => {
+    const people = [{ name: $("#name").value || "You", answers: state.answers }];
+    const errors = [];
+    $("#codes").value.split(/\s+/).filter(Boolean).forEach((code, k) => {
+      const d = decodeAnswers(code, state.items);
+      if (d.error) errors.push(`Code ${k + 1}: ${d.error}.`);
+      else if (d.answers.length) people.push({ name: d.name || `Person ${people.length + 1}`, answers: d.answers });
+    });
+    $("#team-err").textContent = errors.join(" ");
+    if (people.length < 2) { $("#team-out").innerHTML = "<p>Paste at least one other person's code.</p>"; return; }
+    const c = combine(state.items, people);
+    const agree = c.agreement;
+    $("#team-out").innerHTML = `<p>${c.people} people. Agreement between their orders: <strong>${agree.toFixed(2)}</strong> (1 = identical, 0 = unrelated, negative = opposite).</p>
+      <table><thead><tr><th class="num">#</th><th>Option</th><th class="num">Ranked first by</th><th class="num">Best&ndash;worst place</th></tr></thead><tbody>${
+      c.order.map((r) => `<tr><td class="num">${r.rank}</td><td>${esc(state.items[r.item])}</td><td class="num">${r.firsts}</td><td class="num">${r.best}&ndash;${r.worst}</td></tr>`).join("")}</tbody></table>
+      <p class="muted">A wide best&ndash;worst spread marks an option the team splits on: worth a conversation before a vote.</p>`;
+    record("team_combined");
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, textarea")) return;
+    if (e.key === "ArrowLeft") answer("left"); else if (e.key === "ArrowRight") answer("right");
+    else if (e.key === "ArrowDown") { e.preventDefault(); answer("tie"); }
+    else if (e.key === "u" || e.key === "U") { if (state?.answers.length && !$("#ask").classList.contains("hidden")) $("#undo").click(); }
+  });
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+
+  const linked = location.hash.length > 1 ? decodeList(location.hash) : null;
+  if (linked) begin(linked.title, linked.items, "order", true);
+</script>
+</body>
+</html>

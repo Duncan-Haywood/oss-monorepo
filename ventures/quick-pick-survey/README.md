@@ -6,6 +6,11 @@ couldn't state directly if asked.
 
 **Live page:** https://marisstella.app/quick-pick-survey/
 
+**Use it now, no install:** [rank a list by picking pairs](https://marisstella.app/quick-pick-survey/rank.html)
+runs the same Bradley-Terry refit in your browser, shows a 90% rank range per
+option, and combines a team's picks from shareable result codes. Nothing is
+uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
+
 ## Deploy your own copy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo&root-directory=ventures%2Fquick-pick-survey&env=ADMIN_KEY%2CADMIN_SESSION_SECRET&envDescription=Two%20long%20random%20strings%20you%20make%20up%3A%20ADMIN_KEY%20is%20your%20admin%20password%2C%20ADMIN_SESSION_SECRET%20signs%20admin%20cookies.%20Generate%20each%20with%20%60openssl%20rand%20-hex%2032%60.&envLink=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo%2Ftree%2Fmain%2Fventures%2Fquick-pick-survey%23deploy-your-own-copy&project-name=quick-pick-survey&stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D)
