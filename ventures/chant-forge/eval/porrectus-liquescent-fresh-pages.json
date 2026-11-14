@@ -1,0 +1,131 @@
+{
+  "note": "Held out for the porrectus liquescent check: listed 2026-11-14 with the tuning set in porrectus-liquescent-pages.json, before any rule change and before these pieces' reading was looked at. Leaves 365-366 were already in the scan cache for GregoBase 3444, but no reading of these pieces on them had been made. Same leaf rules as the tuning file.",
+  "pieces": [
+    {
+      "name": "GregoBase 3727 (Venite post me)",
+      "gabc": "corpus/gregobase-1908-checked/3727.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 365",
+          "leaf": 365
+        },
+        {
+          "page": "340",
+          "leaf": 366
+        },
+        {
+          "page": "leaf 367",
+          "leaf": 367
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3831 (Mihi autem nimis (Off.))",
+      "gabc": "corpus/gregobase-1908-checked/3831.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 365",
+          "leaf": 365
+        },
+        {
+          "page": "340",
+          "leaf": 366
+        },
+        {
+          "page": "leaf 367",
+          "leaf": 367
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3905 (Amen dico vobis quidquid)",
+      "gabc": "corpus/gregobase-1908-checked/3905.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 360",
+          "leaf": 360
+        },
+        {
+          "page": "335",
+          "leaf": 361
+        },
+        {
+          "page": "leaf 362",
+          "leaf": 362
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3912 (Hic est qui venit)",
+      "gabc": "corpus/gregobase-1908-checked/3912.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 497",
+          "leaf": 497
+        },
+        {
+          "page": "472",
+          "leaf": 498
+        },
+        {
+          "page": "leaf 499",
+          "leaf": 499
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3948 (Beata es Virgo)",
+      "gabc": "corpus/gregobase-1908-checked/3948.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 671",
+          "leaf": 671
+        },
+        {
+          "page": "[87]",
+          "leaf": 672
+        },
+        {
+          "page": "leaf 673",
+          "leaf": 673
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3949 (Stetit Angelus (Off))",
+      "gabc": "corpus/gregobase-1908-checked/3949.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 563",
+          "leaf": 563
+        },
+        {
+          "page": "538",
+          "leaf": 564
+        },
+        {
+          "page": "leaf 565",
+          "leaf": 565
+        }
+      ]
+    }
+  ]
+}

@@ -139,6 +139,13 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   them. 10 of 10 remaining off-final endings are the book's (eval/offfinal-supplement-report.md,
   eval/scan-check-verdicts.md). `scan-check.mjs --manifest FILE` reads another piece list.
 
+- 2026-11-14, latest: liquescents that end a porrectus checked (`eval/porrectus-liquescent-check.mjs`,
+  `eval/porrectus-liquescent-check.md`, `porrectus-liquescent.test.mjs`). The 1908 type prints them as two heads with an
+  epiphonus-like tail, not as a stroke, so the existing detector reads them: 8 of 9 on the tuning pieces, 8 of 10 on
+  six pieces listed and committed before their pages were read, 1 of 1,060 other heads called liquescent. A looser
+  end-width cap added false calls and gained nothing, so the rule is unchanged. Twelve more GregoBase 1908 pieces in
+  `corpus/gregobase-1908-checked/`; on them 2,030 notes agree with the book, 5 differ (not looked at).
+
 ## Next
 
 1. **Corpus hardening:** add the remaining verses of Pange lingua and Veni
