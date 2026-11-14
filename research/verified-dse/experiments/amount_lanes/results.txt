@@ -1,0 +1,19 @@
+# Milestone 125: SWG(32) tested blind at 28 to 36 gates, and 64-bit multi-lane shifters
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 125.
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | SWG(32) flags | SWG(36) flags | SWD(3) flags
+lane4k1 | 64 | 2 | 25 | 41 | 0.791 | True | True | True
+pmul3 | 128 | 1 | 28 | 88 | 0.728 | True | True | True
+avg5 | 128 | 2 | 31 | 65 | 0.747 | True | True | True
+sel64 | 128 | 2 | 33 | 378 | 0.634 | False | True | True
+avg6 | 128 | 2 | 35 | 77 | 0.750 | False | True | True
+pmul4 | 128 | 1 | 36 | 130 | 0.675 | False | False | True
+lane2k2 | 64 | 4 | 48 | 84 | 0.736 | False | False | False
+lane4k2 | 64 | 4 | 48 | 84 | 0.772 | False | False | False
+
+seen mean regret % (milestones 119 to 124, 74 cells): SWC 5.03, SWG(32) 3.29, SWG(36) 3.57, SWD(3) 4.08, random 5.39
+
+## Blind test: no table yet
