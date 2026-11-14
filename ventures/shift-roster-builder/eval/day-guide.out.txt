@@ -1,0 +1,40 @@
+# eval/day-guide.mjs, 2026-11-14, one cloud machine (single runs; test suite not running beside them).
+# {} in these lines was the first schedule tried, lams [4,2,1,0.5,0.25]; the shipped default is [8,4,2,1,0.5,0.25,0.12].
+# 'guide' lists [lam, score above the lower bound after that lam's biased + exact sweeps].
+# dayGuideChain (start each lam from the last biased roster) was tried and dropped: $3.39 vs $3.46 on the first week.
+# On a week marked "improved" the proof closed before the pass; its "gap" is what the exact check gained over the anneal.
+
+## SEED=20261022 node eval/day-guide.mjs 60 168 {0,1}  (default timeBudgetMs 20000)
+seed 20261022: 60 x 168 week 0 {"dayGuide":false}: score 30019987.25, bound 30019980.21, gap $7.04, bounded; pass 30020010.32 -> 30019987.25, 130 kicks, 2001 ms; guide []; 21048 ms
+seed 20261022: 60 x 168 week 0 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 30019983.67, bound 30019980.21, gap $3.46, bounded; pass 30020010.32 -> 30019983.67, 102 kicks, 2001 ms; guide [[8,8.37],[4,8.37],[2,8.37],[1,8.29],[0.5,5.34],[0.25,6.55],[0.12,5.49]]; 21587 ms
+seed 20261022: 60 x 168 week 0 {chain variant, dropped}: score 30019983.60, bound 30019980.21, gap $3.39, bounded; pass 30020010.32 -> 30019983.60, 110 kicks, 2000 ms; guide [[8,8.37],[4,8.37],[2,8.37],[1,9.91],[0.5,5.49],[0.25,6.62],[0.12,6.7]]; 20439 ms
+seed 20261022: 60 x 168 week 1 {"dayGuide":false}: score 30819981.75, bound 30819981.75, gap $2099784.42, improved; 8743 ms
+seed 20261022: 60 x 168 week 1 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 30819981.75, bound 30819981.75, gap $2099784.42, improved; 8748 ms
+seed 20261022: 60 x 168 week 1 {chain variant, dropped}: score 30819981.75, bound 30819981.75, gap $2099784.42, improved; 8600 ms
+
+## SEED={1,2,3,4} OPTS='{"timeBudgetMs":20000,"cliqueFloor":true,"scoreFloor":true}' node eval/day-guide.mjs 60 168 {0,1}
+## (the LPs forced on: under the default gating they are skipped on these weeks, so the guide does not run)
+seed 1: 60 x 168 week 0 {"dayGuide":false}: score 21020171.13, bound 20520222.46, gap $499948.68, bounded; pass 21720106.62 -> 21020171.13, 162 kicks, 2001 ms; guide []; 25284 ms
+seed 1: 60 x 168 week 0 {}: score 20820188.78, bound 20520222.46, gap $299966.32, bounded; pass 21720106.62 -> 20820188.78, 120 kicks, 2001 ms; guide [[4,399958.29],[2,399952.43],[1,399952.43],[0.5,399952.43],[0.25,399952.31]]; 25473 ms
+seed 1: 60 x 168 week 0 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 20820176.30, bound 20520222.46, gap $299953.84, bounded; pass 21720106.62 -> 20820176.30, 117 kicks, 2001 ms; guide [[8,399938.44],[4,399944.3],[2,399938.44],[1,399938.44],[0.5,399938.44],[0.25,399938.32],[0.12,399937.85]]; 24765 ms
+seed 1: 60 x 168 week 1 {"dayGuide":false}: score 23218751.76, bound 21718928.61, gap $1499823.15, bounded; pass 23618712.91 -> 23218751.76, 185 kicks, 2001 ms; guide []; 23404 ms
+seed 1: 60 x 168 week 1 {}: score 22718809.64, bound 21718928.61, gap $999881.03, bounded; pass 23618712.91 -> 22718809.64, 178 kicks, 2001 ms; guide [[4,1199851.11],[2,1199851.11],[1,1199851.11],[0.5,1199851.11],[0.25,1199851.1]]; 24229 ms
+seed 1: 60 x 168 week 1 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 22718809.64, bound 21718928.61, gap $999881.03, bounded; pass 23618712.91 -> 22718809.64, 184 kicks, 2001 ms; guide [[8,1199851.11],[4,1199851.11],[2,1199851.11],[1,1199851.11],[0.5,1199851.11],[0.25,1199851.1],[0.12,1199851.1]]; 23106 ms
+seed 2: 60 x 168 week 0 {"dayGuide":false}: score 28320987.52, bound 28320987.52, gap $2099826.85, improved; 14781 ms
+seed 2: 60 x 168 week 0 {}: score 28320987.52, bound 28320987.52, gap $2099826.85, improved; 14315 ms
+seed 2: 60 x 168 week 0 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 28320987.52, bound 28320987.52, gap $2099826.85, improved; 14410 ms
+seed 2: 60 x 168 week 1 {"dayGuide":false}: score 17620906.77, bound 17520910.10, gap $99996.67, bounded; pass 17620926.23 -> 17620906.77, 123 kicks, 2001 ms; guide []; 24511 ms
+seed 2: 60 x 168 week 1 {}: score 17620895.32, bound 17520910.10, gap $99985.22, bounded; pass 17620926.23 -> 17620895.32, 101 kicks, 2001 ms; guide [[4,99987.76],[2,99987.5],[1,99987.5],[0.5,99986.48],[0.25,99985.22]]; 24143 ms
+seed 2: 60 x 168 week 1 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 17620895.31, bound 17520910.10, gap $99985.21, bounded; pass 17620926.23 -> 17620895.31, 108 kicks, 2001 ms; guide [[8,99992.71],[4,99989.73],[2,99985.98],[1,99985.98],[0.5,99985.21],[0.25,99985.74],[0.12,99985.51]]; 25447 ms
+seed 3: 60 x 168 week 0 {"dayGuide":false}: score 21721808.25, bound 21221856.09, gap $499952.17, bounded; pass 21921787.19 -> 21721808.25, 129 kicks, 2001 ms; guide []; 23548 ms
+seed 3: 60 x 168 week 0 {}: score 21721776.02, bound 21221856.09, gap $499919.93, bounded; pass 21921787.19 -> 21721776.02, 137 kicks, 2001 ms; guide [[4,499928.78],[2,499926.55],[1,499926.96],[0.5,499927.55],[0.25,499921.93]]; 23888 ms
+seed 3: 60 x 168 week 0 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 21721775.02, bound 21221856.09, gap $499918.94, bounded; pass 21921787.19 -> 21721775.02, 107 kicks, 2001 ms; guide [[8,499925.96],[4,499926.55],[2,499926.55],[1,499926.96],[0.5,499925.96],[0.25,499920.34],[0.12,499920.54]]; 23552 ms
+seed 3: 60 x 168 week 1 {"dayGuide":false}: score 27022182.02, bound 27022170.57, gap $11.45, bounded; pass 27122182.41 -> 27022182.02, 97 kicks, 2001 ms; guide []; 24363 ms
+seed 3: 60 x 168 week 1 {}: score 27022175.58, bound 27022170.57, gap $5.00, bounded; pass 27122182.41 -> 27022175.58, 100 kicks, 2002 ms; guide [[4,6.06],[2,6.06],[1,8.52],[0.5,7.46],[0.25,6.82]]; 23883 ms
+seed 3: 60 x 168 week 1 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 27022174.85, bound 27022170.57, gap $4.28, bounded; pass 27122182.41 -> 27022174.85, 100 kicks, 2001 ms; guide [[8,5.44],[4,6.06],[2,6.06],[1,8.52],[0.5,7.46],[0.25,5.65],[0.12,5.44]]; 24031 ms
+seed 4: 60 x 168 week 0 {"dayGuide":false}: score 21621547.49, bound 20821647.78, gap $799899.71, bounded; pass 21721547.58 -> 21621547.49, 135 kicks, 2002 ms; guide []; 24419 ms
+seed 4: 60 x 168 week 0 {}: score 21421564.12, bound 20821647.78, gap $599916.34, bounded; pass 21721547.58 -> 21421564.12, 124 kicks, 2001 ms; guide [[4,699904.52],[2,699903.73],[1,699903.73],[0.5,699899.97],[0.25,699899.97]]; 24355 ms
+seed 4: 60 x 168 week 0 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 21421564.12, bound 20821647.78, gap $599916.34, bounded; pass 21721547.58 -> 21421564.12, 124 kicks, 2001 ms; guide [[8,699904.52],[4,699904.52],[2,699903.73],[1,699903.73],[0.5,699899.97],[0.25,699899.97],[0.12,699899.97]]; 24782 ms
+seed 4: 60 x 168 week 1 {"dayGuide":false}: score 25521004.41, bound 25520988.08, gap $16.34, bounded; pass 25521040.48 -> 25521004.41, 117 kicks, 2002 ms; guide []; 21098 ms
+seed 4: 60 x 168 week 1 {}: score 25520995.10, bound 25520988.08, gap $7.02, bounded; pass 25521040.48 -> 25520995.10, 115 kicks, 2002 ms; guide [[4,11.85],[2,11.85],[1,10.22],[0.5,10.22],[0.25,9.42]]; 20261 ms
+seed 4: 60 x 168 week 1 {"dayGuideWeights":[8,4,2,1,0.5,0.25,0.12] (shipped default)}: score 25520995.29, bound 25520988.08, gap $7.21, bounded; pass 25521040.48 -> 25520995.29, 60 kicks, 2000 ms; guide [[8,11.85],[4,11.85],[2,11.85],[1,10.22],[0.5,10.22],[0.25,9.42],[0.12,9.24]]; 21036 ms

@@ -116,3 +116,36 @@ test("buildRoster does not run the pass on a week the exact check proves", () =>
   assert.equal(r.optimality.status === "optimal" || r.optimality.status === "improved", true);
   assert.equal(r.optimality.dayLNS, null);
 });
+
+// LP-guided descent (buildRoster dayLNS, `dayGuide`; README "Steering the day sweeps with the pay floor's LP"): the guide only
+// shifts the day's assignment costs, so whatever it pulls toward, the roster must keep every rule; and buildRoster keeps a guided
+// roster only when it scores less on the true score.
+test("dayReassign with a guide keeps every rule, whatever the guide's values", () => {
+  let changed = 0;
+  for (let seed = 1; seed < 61; seed++) {
+    const { staff, slots } = seededWeek(seed * 7919, 3, 6, { daily: seed % 2 === 0, prev: seed % 3 === 0, soft: seed % 4 < 2, mins: seed % 3 !== 1 });
+    const ctx = buildContext(staff, slots, { minRestHours: [0, 8, 12][seed % 3], balance: [0, 25][seed % 2] });
+    let g = seed;
+    const rnd = () => { g = (g * 1103515245 + 12345) & 0x7fffffff; return (g >> 8) / 8388608; };
+    const guide = Float64Array.from({ length: ctx.P * ctx.S }, () => (rnd() < 0.5 ? 0 : rnd()));
+    const start = dayReassign(ctx, new Array(ctx.S).fill(-1), { rounds: 50 });
+    const out = dayReassign(ctx, start, { rounds: 50, guide, guideWeight: 4 * ctx.avgWage });
+    assert.ok(ownerValid(ctx, out), `seed ${seed}: invalid roster under the guide`);
+    if (out.some((p, i) => p !== start[i])) changed++;
+  }
+  assert.ok(changed >= 10, `the guide moved only ${changed} rosters`);
+});
+
+test("buildRoster's guided pass never leaves a worse roster than the unguided pass started from", () => {
+  let guided = 0;
+  for (let seed = 1; seed < 9; seed++) {
+    const { staff, slots } = seededWeek(seed * 104729, 8, 24, { mins: true, soft: seed % 2 === 0 });
+    const r = buildRoster(staff, slots, { exact: true, scoreCG: false, exactMs: 1, exactNodes: 1, cliqueFloor: true, scoreFloor: true, dayLNSMs: 200, seed });
+    const d = r.optimality.dayLNS;
+    if (!d) continue; // proven before the pass
+    assert.ok(d.after <= d.before + 1e-6, `seed ${seed}: ${d.after} > ${d.before}`);
+    for (const [, q] of d.guide) assert.ok(Number.isFinite(q));
+    if (d.guide.length) guided++;
+  }
+  assert.ok(guided >= 1, "no week ran the guided descent");
+});

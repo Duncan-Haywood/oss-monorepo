@@ -1950,3 +1950,45 @@ Not claimed: one generated week each, single runs on one cloud machine; the prob
 engine. Next: column generation on the whole score started from the posted roster's columns and the priced clique LP's duals
 (the 60 x 168 week 0 root did not converge in the budget, README "A pay floor for big weeks"), or a branch-and-bound that
 branches on a person's hours rather than single pairs.
+
+## Steering the day sweeps with the pay floor's LP (2026-11-14)
+
+The gap left on the 60 x 168 week 0 was one trade through 52 people on all five days, which no move of a few people or days
+reaches, while an LP dive toward the pay floor's solution got within $4.24 of the floor (README "Past the day sweeps"). That LP
+is already solved by the time the day sweeps run, so its solution is free to use. **What landed:** before its kicks, `dayLNS`
+now sweeps every day with each person-shift's cost lowered by lam x the average wage x that pair's value in the pay floor's LP,
+for lam = 8, 4, 2, 1, 0.5, 0.25, 0.12; after each lam it sweeps again on the true score and keeps the roster only if it scores
+less. The kicks then run as before on what is left of the 2 s. It needs the pay floor (`cliqueScoreFloor`, which now also
+returns its person-shift values); `dayGuide: false` turns it off, `dayGuideWeights` sets the lams, `optimality.dayLNS.guide`
+lists each lam's result.
+
+The generated weeks are short-staffed on purpose, so most hours open are forced; the bound column shows how many open hours the
+clique LP proves unavoidable. "Rest" is the score past the open hours (pay and penalties).
+
+| 60 x 168 (`eval/day-guide.out.txt`) | open hours (bound) | guide off: open, rest | guide on (default lams): open, rest |
+|---|---|---|---|
+| week 0 (the bench week) | 300 (300.2) | 300, $19,987.25 ($7.04 above the bound) | 300, **$19,983.67 ($3.46)** |
+| seed 3 week 1 | 270 (270.2) | 270, $22,182.02 ($11.45 above) | 270, **$22,174.85 ($4.28)** |
+| seed 4 week 1 | 255 (255.2) | 255, $21,004.41 ($16.33 above) | 255, **$20,995.29 ($7.21)** |
+| seed 2 week 1 | 175.2 | 176, $20,906.77 | 176, **$20,895.31** |
+| seed 3 week 0 | 212.2 | 217, $21,808.25 | 217, **$21,775.02** |
+| seed 1 week 0 | 205.2 | 210 | **208** |
+| seed 1 week 1 | 217.2 | 232 | **227** |
+| seed 4 week 0 | 208.2 | 216 | **214** |
+
+Seeds 1-4 were run with `cliqueFloor: true, scoreFloor: true` beside the 20 s budget: under the default gating those LPs do not
+fit the budget on these weeks, so the guide does not run there (the bench week is the one where it runs by default). Total time
+was within a second of the unguided run on each week. Two weeks were proven before the pass and are unchanged. On the weeks
+with open hours the open-hours row is what moved: the biased sweeps fill shifts the plain sweeps cannot reach, because covering
+them takes several people's weeks to shift at once, which is what the LP's values point to.
+
+Tried and dropped: kicking one day at a time toward the LP (each kick's day re-solved with the LP pull, in half or all of the
+kicks, pull 1x or 3x the average wage) gave $8.82-11.41 on week 0, worse than the $7.04 with no pull: the next exact sweep undoes a
+one-day pull. Starting each lam from the last biased roster instead of the best one gave $3.39 against $3.46, which is noise.
+
+Tests: `day-lns.test.mjs` adds that `dayReassign` keeps every rule under 60 random guides on seeded three-person weeks (the
+guide only shifts costs), and that `buildRoster`'s guided pass never ends above where it started, on seeded eight-person weeks
+with the proof cut short so the pass runs. Not claimed: single runs on one cloud machine, nine generated weeks, and the LP forced
+on for eight of them; the HiGHS roster on week 0 is still $2.32 below what the engine posts. Next: run the pay floor (or the
+cheaper open-hours clique LP's solution as the guide) by default on 60-copy-plus weeks when the time budget allows, now that
+it fills open hours as well as proving them; the guide from the posted roster's column generation.
