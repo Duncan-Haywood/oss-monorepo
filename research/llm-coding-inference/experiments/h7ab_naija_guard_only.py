@@ -18,9 +18,9 @@ RULES = (("pooled", 2.0, 0, 0), ("shipped default", A.TAU_6AM, A.GUARD_6AM, A.NE
 
 
 def one(f, human, n, truth, rr, tau, guard, ng):
-    pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE * n))
+    pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE_PRE7AR * n))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, n, tau=tau, guard=guard, neg_guard=ng, width_margin=None)
+    plan = A.plan_audit_pre7ar(f, labels, n, tau=tau, guard=guard, neg_guard=ng, width_margin=None)
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]

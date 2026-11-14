@@ -120,10 +120,10 @@ def run(c, reps, rules=RULES):
             if c["part"] == "goemo":
                 pilot, sb = pilots[d], random.Random(c["seed"] + 7 * d)
             else:
-                pilot, sb = rr.sample(range(N), round(A.PILOT_SHARE * n)), rr
+                pilot, sb = rr.sample(range(N), round(A.PILOT_SHARE_PRE7AR * n)), rr
             labels = {i: h[i] for i in pilot}
             passed = sum(1 for i in pilot if h[i] and not f[i]) >= A.NEG_GUARD
-            plan = A.plan_audit(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=0.0, pseudo=a,
+            plan = A.plan_audit_pre7ar(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=0.0, pseudo=a,
                                 fallback_pseudo=fb, two_phase=tp, fallback_two_phase=ftp)
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb.sample([i for i in cell if i not in labels], t):

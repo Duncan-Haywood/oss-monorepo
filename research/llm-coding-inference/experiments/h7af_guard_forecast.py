@@ -110,7 +110,7 @@ def cells():
             if x[1] == "neg_guard=3 alone":
                 n = int(x[0])
                 pooled = next(y for y in rs if y[0] == x[0] and y[1] == "pooled")
-                out.append((study, f"naija {'natural' if prev is None else prev}", h, f, len(h), round(A.PILOT_SHARE * n),
+                out.append((study, f"naija {'natural' if prev is None else prev}", h, f, len(h), round(A.PILOT_SHARE_PRE7AR * n),
                             n, len(h), reps, float(x[2]), float(x[4]) / float(pooled[4])))
     return out
 
