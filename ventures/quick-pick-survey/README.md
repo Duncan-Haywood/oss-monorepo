@@ -22,6 +22,9 @@ uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE
 (since 2026-11-14) is a weighted decision matrix with nothing typed: it asks
 "which matters more?" and "on this criterion, which is better?", fits both with
 the same refit and shows rank ranges that include doubt about the weights.
+Each pick says "much better" or "a bit better", read with an ordinal model:
+on 300 simulated people it named the true best 182 to 203 times against 165
+for plain picks.
 Model, simulations and what is still open: [docs/DECIDE-PAGE.md](docs/DECIDE-PAGE.md).
 
 ## Deploy your own copy

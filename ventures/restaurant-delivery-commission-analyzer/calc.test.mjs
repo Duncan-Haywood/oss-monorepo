@@ -465,3 +465,13 @@ test("percentages print to one decimal", () => {
   assert.equal(pct(0.1234), "12.3%");
   assert.equal(pct(null), "–");
 });
+
+test("a weekday with exactly MIN_ORDERS orders counts; the example's dates are plain minutes", () => {
+  const rows = [];
+  for (let i = 0; i < MIN_ORDERS; i++) rows.push(`L${i},DoorDash,2026-06-01 12:00,Delivered,30,-6,0,0,0,0,24`);
+  for (let i = 0; i < MIN_ORDERS; i++) rows.push(`D${i},DoorDash,2026-06-05 19:00,Delivered,30,-12,0,0,0,0,18`);
+  const r = analyze(load(rows.join("\n") + "\n").orders, { foodPct: 30 });
+  assert.ok(r.findings.some((f) => /Monday orders left the most; Friday the least/.test(f.title)), "five orders is enough, not under five");
+  const dates = sampleCsv().trim().split("\n").slice(1).map((l) => l.split(",")[2]);
+  assert.ok(dates.length > 0 && dates.every((d) => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(d)), dates.find((d) => !/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(d)));
+});

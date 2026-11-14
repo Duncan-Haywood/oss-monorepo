@@ -122,3 +122,25 @@ test("parseTimestamp refuses 30 February instead of reading it as 2 March", () =
   assert.ok(Number.isNaN(parseTimestamp("04/31/2026 10:00")));
   assert.equal(parseTimestamp("2024-02-29 10:00"), Date.UTC(2024, 1, 29, 10, 0));
 });
+
+test("Green Button XML: daylight saving from the file's rules, and only the delivered series", async () => {
+  const { readFileSync } = await import("node:fs");
+  const mine = readFileSync(new URL("./greenbutton.mjs", import.meta.url), "utf8");
+  const sibling = readFileSync(new URL("../demand-charge-interval-analyzer/greenbutton.mjs", import.meta.url), "utf8");
+  assert.equal(mine, sibling, "greenbutton.mjs differs from the demand-charge-interval-analyzer copy; keep them in sync");
+  const r = (s, v) => `<espi:IntervalReading><espi:timePeriod><espi:duration>900</espi:duration><espi:start>${s}</espi:start></espi:timePeriod><espi:value>${v}</espi:value></espi:IntervalReading>`;
+  const t = Date.UTC(2025, 6, 1, 4) / 1000; // midnight EDT
+  const xml = `<feed>
+  <entry><link rel="self" href="x/LocalTimeParameters/1"/><content><espi:LocalTimeParameters><espi:dstEndRule>B40E2000</espi:dstEndRule><espi:dstOffset>3600</espi:dstOffset><espi:dstStartRule>360E2000</espi:dstStartRule><espi:tzOffset>-18000</espi:tzOffset></espi:LocalTimeParameters></content></entry>
+  <entry><link rel="self" href="x/ReadingType/1"/><content><espi:ReadingType><espi:flowDirection>1</espi:flowDirection><espi:uom>72</espi:uom></espi:ReadingType></content></entry>
+  <entry><link rel="self" href="x/ReadingType/2"/><content><espi:ReadingType><espi:flowDirection>19</espi:flowDirection><espi:uom>72</espi:uom></espi:ReadingType></content></entry>
+  <entry><link rel="self" href="x/UsagePoint/1/MeterReading/1"/><link rel="related" href="x/ReadingType/1"/><content><espi:MeterReading/></content></entry>
+  <entry><link rel="self" href="x/UsagePoint/1/MeterReading/2"/><link rel="related" href="x/ReadingType/2"/><content><espi:MeterReading/></content></entry>
+  <entry><link rel="self" href="x/UsagePoint/1/MeterReading/2/IntervalBlock/1"/><content><espi:IntervalBlock>${r(t, 5000)}</espi:IntervalBlock></content></entry>
+  <entry><link rel="self" href="x/UsagePoint/1/MeterReading/1/IntervalBlock/1"/><content><espi:IntervalBlock>${r(t, 1000)}${r(t + 900, 2000)}</espi:IntervalBlock></content></entry></feed>`;
+  const p = parseUsage(xml);
+  assert.equal(p.rows.length, 2);
+  assert.equal(p.rows[0].t, Date.UTC(2025, 6, 1, 0, 0));
+  assert.equal(p.rows[0].kwh, 1); // the received 5 kWh is not merged in as a "larger reading"
+  assert.equal(p.rows[1].kwh, 2);
+});

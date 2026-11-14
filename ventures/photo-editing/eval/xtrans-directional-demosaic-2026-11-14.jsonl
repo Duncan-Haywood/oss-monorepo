@@ -1,0 +1,44 @@
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4", "method": "ours bilinear", "cpsnr": 34.83, "lpsnr": 39.91, "chroma_mean": 18.733, "chroma_p99": 116.15, "s": 0.15}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4", "method": "ours directional, no median", "cpsnr": 36.38, "lpsnr": 40.46, "chroma_mean": 16.349, "chroma_p99": 87.84, "s": 0.54}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4", "method": "ours directional (default: one pass, one median)", "cpsnr": 36.6, "lpsnr": 40.54, "chroma_mean": 15.769, "chroma_p99": 85.07, "s": 0.6}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4", "method": "ours directional, three passes", "cpsnr": 34.54, "lpsnr": 38.31, "chroma_mean": 19.402, "chroma_p99": 106.72, "s": 1.53}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4", "method": "libraw linear", "cpsnr": 35.31, "lpsnr": 40.54, "chroma_mean": 17.252, "chroma_p99": 112.12, "s": 0.55}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4", "method": "libraw markesteijn 1-pass", "cpsnr": 37.48, "lpsnr": 41.99, "chroma_mean": 14.648, "chroma_p99": 81.36, "s": 1.21}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4", "method": "libraw markesteijn 3-pass", "cpsnr": 39.28, "lpsnr": 44.65, "chroma_mean": 12.599, "chroma_p99": 65.39, "s": 1.79}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4, half size", "method": "ours bilinear", "cpsnr": 38.93, "lpsnr": 44.56, "chroma_mean": 11.678, "chroma_p99": 74.58}
+{"file": "XE1.raf", "truth": "XE1.raf binned 4x4, half size", "method": "ours directional", "cpsnr": 40.07, "lpsnr": 48.39, "chroma_mean": 12.532, "chroma_p99": 69.26}
+{"file": "XE1.raf", "truth": "synthetic sheet", "method": "ours bilinear", "cpsnr": 20.25, "lpsnr": 23.83, "chroma_mean": 89.931, "chroma_p99": 539.07, "s": 0.16}
+{"file": "XE1.raf", "truth": "synthetic sheet", "method": "ours directional, no median", "cpsnr": 30.75, "lpsnr": 32.9, "chroma_mean": 26.202, "chroma_p99": 175.54, "s": 0.51}
+{"file": "XE1.raf", "truth": "synthetic sheet", "method": "ours directional (default: one pass, one median)", "cpsnr": 33.51, "lpsnr": 36.92, "chroma_mean": 18.446, "chroma_p99": 133.59, "s": 0.62}
+{"file": "XE1.raf", "truth": "synthetic sheet", "method": "ours directional, three passes", "cpsnr": 35.84, "lpsnr": 39.55, "chroma_mean": 8.975, "chroma_p99": 86.96, "s": 1.79}
+{"file": "XE1.raf", "truth": "synthetic sheet", "method": "libraw linear", "cpsnr": 20.59, "lpsnr": 24.53, "chroma_mean": 89.651, "chroma_p99": 485.18, "s": 0.66}
+{"file": "XE1.raf", "truth": "synthetic sheet", "method": "libraw markesteijn 1-pass", "cpsnr": 25.89, "lpsnr": 31.66, "chroma_mean": 49.398, "chroma_p99": 338.63, "s": 1.19}
+{"file": "XE1.raf", "truth": "synthetic sheet", "method": "libraw markesteijn 3-pass", "cpsnr": 39.37, "lpsnr": 42.5, "chroma_mean": 5.943, "chroma_p99": 68.4, "s": 1.8}
+{"file": "XE1.raf", "truth": "synthetic sheet, half size", "method": "ours bilinear", "cpsnr": 23.97, "lpsnr": 27.98, "chroma_mean": 53.391, "chroma_p99": 343.91}
+{"file": "XE1.raf", "truth": "synthetic sheet, half size", "method": "ours directional", "cpsnr": 37.36, "lpsnr": 44.6, "chroma_mean": 15.533, "chroma_p99": 111.34}
+{"file": "XE1.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours bilinear", "cpsnr": 45.53, "lpsnr": 51.22, "chroma_mean": 6.738, "chroma_p99": 27.98, "s": 1.59}
+{"file": "XE1.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours directional, no median", "cpsnr": 45.66, "lpsnr": 47.72, "chroma_mean": 5.949, "chroma_p99": 24.01, "s": 5.57}
+{"file": "XE1.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours directional (default: one pass, one median)", "cpsnr": 45.72, "lpsnr": 47.41, "chroma_mean": 5.744, "chroma_p99": 23.52, "s": 6.94}
+{"file": "XE1.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours directional, three passes", "cpsnr": 44.36, "lpsnr": 46.11, "chroma_mean": 6.754, "chroma_p99": 27.37, "s": 23.73}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4", "method": "ours bilinear", "cpsnr": 41.95, "lpsnr": 45.56, "chroma_mean": 7.458, "chroma_p99": 53.91, "s": 0.18}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4", "method": "ours directional, no median", "cpsnr": 46.38, "lpsnr": 49.42, "chroma_mean": 5.206, "chroma_p99": 29.17, "s": 0.54}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4", "method": "ours directional (default: one pass, one median)", "cpsnr": 47.88, "lpsnr": 51.47, "chroma_mean": 4.689, "chroma_p99": 24.29, "s": 0.56}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4", "method": "ours directional, three passes", "cpsnr": 48.58, "lpsnr": 52.1, "chroma_mean": 4.385, "chroma_p99": 20.5, "s": 1.54}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4", "method": "libraw linear", "cpsnr": 42.47, "lpsnr": 46.31, "chroma_mean": 7.027, "chroma_p99": 51.57, "s": 0.66}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4", "method": "libraw markesteijn 1-pass", "cpsnr": 46.45, "lpsnr": 51.09, "chroma_mean": 5.403, "chroma_p99": 31.94, "s": 1.2}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4", "method": "libraw markesteijn 3-pass", "cpsnr": 49.89, "lpsnr": 53.91, "chroma_mean": 4.063, "chroma_p99": 16.74, "s": 1.75}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4, half size", "method": "ours bilinear", "cpsnr": 46.46, "lpsnr": 51.08, "chroma_mean": 4.596, "chroma_p99": 33.56}
+{"file": "XE2.raf", "truth": "XE2.raf binned 4x4, half size", "method": "ours directional", "cpsnr": 52.14, "lpsnr": 58.45, "chroma_mean": 3.194, "chroma_p99": 18.92}
+{"file": "XE2.raf", "truth": "synthetic sheet", "method": "ours bilinear", "cpsnr": 20.26, "lpsnr": 23.82, "chroma_mean": 89.79, "chroma_p99": 537.56, "s": 0.16}
+{"file": "XE2.raf", "truth": "synthetic sheet", "method": "ours directional, no median", "cpsnr": 30.76, "lpsnr": 32.92, "chroma_mean": 26.124, "chroma_p99": 176.36, "s": 0.53}
+{"file": "XE2.raf", "truth": "synthetic sheet", "method": "ours directional (default: one pass, one median)", "cpsnr": 33.52, "lpsnr": 36.93, "chroma_mean": 18.453, "chroma_p99": 134.64, "s": 0.61}
+{"file": "XE2.raf", "truth": "synthetic sheet", "method": "ours directional, three passes", "cpsnr": 35.9, "lpsnr": 39.59, "chroma_mean": 8.939, "chroma_p99": 85.96, "s": 1.6}
+{"file": "XE2.raf", "truth": "synthetic sheet", "method": "libraw linear", "cpsnr": 20.6, "lpsnr": 24.52, "chroma_mean": 89.518, "chroma_p99": 484.25, "s": 0.52}
+{"file": "XE2.raf", "truth": "synthetic sheet", "method": "libraw markesteijn 1-pass", "cpsnr": 25.92, "lpsnr": 31.67, "chroma_mean": 49.389, "chroma_p99": 337.76, "s": 1.19}
+{"file": "XE2.raf", "truth": "synthetic sheet", "method": "libraw markesteijn 3-pass", "cpsnr": 39.44, "lpsnr": 42.6, "chroma_mean": 5.863, "chroma_p99": 68.28, "s": 1.67}
+{"file": "XE2.raf", "truth": "synthetic sheet, half size", "method": "ours bilinear", "cpsnr": 23.98, "lpsnr": 27.98, "chroma_mean": 53.332, "chroma_p99": 342.53}
+{"file": "XE2.raf", "truth": "synthetic sheet, half size", "method": "ours directional", "cpsnr": 37.38, "lpsnr": 44.64, "chroma_mean": 15.523, "chroma_p99": 114.3}
+{"file": "XE2.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours bilinear", "cpsnr": 54.09, "lpsnr": 59.33, "chroma_mean": 2.564, "chroma_p99": 9.79, "s": 1.89}
+{"file": "XE2.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours directional, no median", "cpsnr": 54.18, "lpsnr": 56.25, "chroma_mean": 2.251, "chroma_p99": 8.54, "s": 7.31}
+{"file": "XE2.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours directional (default: one pass, one median)", "cpsnr": 54.41, "lpsnr": 56.32, "chroma_mean": 2.167, "chroma_p99": 8.26, "s": 7.06}
+{"file": "XE2.raf", "against": "libraw markesteijn 3-pass (real sensor data)", "method": "ours directional, three passes", "cpsnr": 53.47, "lpsnr": 55.33, "chroma_mean": 2.442, "chroma_p99": 9.11, "s": 22.62}

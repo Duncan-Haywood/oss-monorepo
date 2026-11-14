@@ -50,6 +50,21 @@ class CalendarDates(unittest.TestCase):
         ]:
             self.assertEqual(c.scan_text(text), [text.count("\n", 0, text.index("31")) + 1], text)
 
+    def test_flags_the_one_sided_reject_in_a_chain(self):
+        for text in [
+            'if (Number.isNaN(t) || +mo > 12 || +d > 31 || +h > 23) return null;',
+            'if (x > 12 && y > 12 || x < 1 || y < 1 || x > 31 || y > 31) add("error");',
+        ]:
+            self.assertEqual(c.scan_text(text), [1], text)
+
+    def test_accepts_the_one_sided_reject_with_a_round_trip_or_an_accept_range(self):
+        for text in [
+            'if (Number.isNaN(t) || +mo > 12 || +d > 31) return null;\nif (day.getUTCDate() !== +d) return null;',
+            'if (a >= 1 && a <= 12 && b > 12 && b <= 31) return `${MON_NAME[a - 1]} ${b}`;',
+            'if (hours > 12 || days > 31) warn();\nconst n = daysInMonth(m);',
+        ]:
+            self.assertEqual(c.scan_text(text), [], text)
+
     def test_accepts_the_negated_range_with_a_round_trip(self):
         for text in [
             'if (mo < 1 || mo > 12 || d < 1 || d > 31) return NaN;\nconst back = new Date(Date.UTC(y, mo - 1, d));\nif (back.getUTCMonth() !== mo - 1) return NaN;',

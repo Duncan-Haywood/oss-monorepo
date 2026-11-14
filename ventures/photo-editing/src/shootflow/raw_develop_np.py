@@ -260,13 +260,26 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
     return out
 
 
-def _half_linear(norm, w, h, pat, mults, hi, threads=None):
+def _directional(norm, w, h, pat, mults, hi):
+    """The directional X-Trans demosaic (``xtrans_demosaic``) on the white-balanced plane, clipped as
+    ``_encode`` clips: the same (h, w, 3) linear image the bilinear path's ``sink`` receives."""
+
+    from shootflow.xtrans_demosaic import colour_map, directional
+
+    gains = np.asarray(mults, dtype=np.float64)[colour_map(pat, h, w)]
+    return _clip(directional(np.asarray(norm).reshape(h, w) * gains, pat, scale=hi), hi)
+
+
+def _half_linear(norm, w, h, pat, mults, hi, threads=None, demosaic="bilinear"):
     """Half size for an X-Trans CFA (``raw_develop._half_from_full``): full-size demosaic, clipped and
     white-balanced, then each 2x2 block summed in row order from 0.0 and divided by 4."""
 
     ow, oh = w // 2, h // 2
-    full = np.empty((h, w, 3), dtype=np.float64)
-    _bilinear(norm, w, h, pat, mults, hi, None, None, None, None, sink=full, threads=threads)
+    if demosaic == "directional":
+        full = _directional(norm, w, h, pat, mults, hi)
+    else:
+        full = np.empty((h, w, 3), dtype=np.float64)
+        _bilinear(norm, w, h, pat, mults, hi, None, None, None, None, sink=full, threads=threads)
     t = 0.0 + full[0 : 2 * oh : 2, 0 : 2 * ow : 2]
     t = t + full[0 : 2 * oh : 2, 1 : 2 * ow : 2]
     t = t + full[1 : 2 * oh : 2, 0 : 2 * ow : 2]
@@ -274,10 +287,11 @@ def _half_linear(norm, w, h, pat, mults, hi, threads=None):
     return t / 4.0
 
 
-def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None):
+def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None, demosaic="bilinear"):
     ow, oh = w // 2, h // 2
     if len(pat) != 4:
-        return _encode_image(_half_linear(norm, w, h, pat, mults, hi, threads), hi, m, curve, lut_size, look, threads=threads)
+        lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic)
+        return _encode_image(lin, hi, m, curve, lut_size, look, threads=threads)
     out = np.empty((oh, ow, 3), dtype=np.uint16)
 
     def band(y0, y1):
@@ -300,12 +314,13 @@ def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=None):
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
     linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(), warps=(), warp_kernel="bilinear",
-    threads=None,
+    threads=None, demosaic="bilinear",
 ):
     """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``.
 
     Demosaic and encode run in bands on ``threads`` threads (``SHOOTFLOW_THREADS`` or every CPU when None), as
-    the warp does; the thread count never changes the output.
+    the warp does; the thread count never changes the output. ``demosaic`` is "bilinear" (the pure path's
+    method, byte for byte) or "directional" (``xtrans_demosaic``; numpy only, X-Trans).
     """
 
     norm, clipped = _normalised_plane(
@@ -319,7 +334,7 @@ def render(
             ow, oh = w, h
         elif half and len(pat) != 4:
             ow, oh = w // 2, h // 2
-            lin = _half_linear(norm, w, h, pat, mults, hi, threads)
+            lin = _half_linear(norm, w, h, pat, mults, hi, threads, demosaic)
         elif half:
             ow, oh = w // 2, h // 2
             acc = [np.zeros((oh, ow), dtype=np.float64) for _ in range(3)]
@@ -330,6 +345,9 @@ def render(
                     acc[c] = acc[c] + norm[dy : 2 * oh : 2, dx : 2 * ow : 2]
                     cnt[c] += 1
             lin = np.stack([_clip(acc[i] / cnt[i] * mults[i], hi) for i in range(3)], axis=-1)
+        elif demosaic == "directional":
+            ow, oh = w, h
+            lin = _directional(norm, w, h, pat, mults, hi)
         else:
             ow, oh = w, h
             lin = np.empty((h, w, 3), dtype=np.float64)
@@ -340,8 +358,12 @@ def render(
         out = _encode_image(norm.reshape(h, w, 3), hi, m, curve, lut_size, look, mults=mults, threads=threads)
         return out, w, h, clipped
     if half:
-        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads)
+        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads, demosaic=demosaic)
         return out, w // 2, h // 2, clipped
+    if demosaic == "directional":
+        lin = _directional(norm, w, h, pat, mults, hi)
+        del norm
+        return _encode_image(lin, hi, m, curve, lut_size, look, threads=threads), w, h, clipped
     return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, threads=threads), w, h, clipped
 
 

@@ -104,3 +104,13 @@ test("findings CSV round-trips and COLUMNS are all default fields", () => {
   assert.match(csv, /^severity,line,code,title,detail/);
   for (const c of COLUMNS) assert.ok(sampleFile().split("\r\n")[0].includes(c), c);
 });
+
+test("birthday: a day the month does not have is an error either way round; 29 February is fine", () => {
+  const head = ["Email Address", "Birthday"];
+  for (const bd of ["02/30", "30/02", "04/31", "31/04", "11/31", "00/10", "13/13"]) {
+    assert.ok(codes(validate(file(head, ["a@example.com", bd]))).includes("birthday"), bd);
+  }
+  for (const bd of ["02/29", "29/02", "12/31", "31/12", "03/04"]) {
+    assert.ok(!codes(validate(file(head, ["a@example.com", bd]))).includes("birthday"), bd);
+  }
+});
