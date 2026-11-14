@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2337306b'/%3E%3Cpath%20d='M5%2024%20Q10%206%2014%2024Z'%20fill='%23fff'/%3E%3Cpath%20d='M17%2024%20Q22%206%2027%2024Z'%20fill='%23f2a93b'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wasserstein Distance Calculator — earth mover's distance between two groups, free</title>
+  <meta name="description" content="Free online Wasserstein distance (earth mover's distance) calculator. Paste a CSV with a group column and get, per column, the exact W1 and W2 in your units, how much mass moved up and down, quantile shifts and a permutation p-value; across several columns at once, optimal transport by Sinkhorn with a certified range for the exact distance. Checked against POT and SciPy. Runs in your browser.">
+  <meta property="og:title" content="Wasserstein distance in your browser: how far apart are these two distributions, and where did the mass move?">
+  <meta property="og:description" content="Earth mover's distance between two groups of rows, exact for one column and certified for several, with what moved up, what moved down and whether it is more than chance. Checked against POT and SciPy.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wasserstein Distance: earth mover's distance between two groups in a CSV", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a CSV with a group column and numeric columns. Computes the exact one-dimensional Wasserstein distances W1 and W2 per column, mass moved up and down, quantile shifts and a permutation test, and the several-column optimal transport distance by log-stabilised Sinkhorn iterations (Cuturi 2013) with a certified bracket on the exact value. Runs in your browser.", "featureList": "Wasserstein distance calculator, earth mover's distance, optimal transport, Sinkhorn algorithm, W1, W2, quantile shift, distribution shift, two-sample permutation test, energy distance, certified bounds, CSV upload, CSV download", "citation": ["https://arxiv.org/abs/1306.0895", "https://arxiv.org/abs/1705.09634", "https://doi.org/10.1561/2200000073", "https://doi.org/10.1016/j.jspi.2013.03.018"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Wasserstein distance?", "acceptedAnswer": {"@type": "Answer", "text": "It is the least work needed to turn one distribution into the other, where work is the amount of mass moved times how far it moves. Pile up the values of one group as earth and dig them into the shape of the other group's pile: the cheapest way to do it costs W1, which is why it is also called the earth mover's distance. It is measured in the data's own units."}}, {"@type": "Question", "name": "How do I read W1 for one column?", "acceptedAnswer": {"@type": "Answer", "text": "As an average distance moved, in the column's units. W1 = 0.79 degrees means that, matching the coldest night of one period with the coldest of the other, the second coldest with the second coldest and so on, the nights are 0.79 degrees apart on average. It is never smaller than the difference in means, and it equals it only when every quantile moved the same way."}}, {"@type": "Question", "name": "What do moved up and moved down mean?", "acceptedAnswer": {"@type": "Answer", "text": "They split W1 by direction. Moved up is the part of the work done raising values, moved down the part lowering them. Their sum is W1 and their difference is the change in the mean. A mean shift of zero with a large W1 means the distribution changed shape, for example spreading out, without moving on average."}}, {"@type": "Question", "name": "Why is the distance across several columns a range?", "acceptedAnswer": {"@type": "Answer", "text": "Because the exact problem is solved approximately and then checked. Sinkhorn's algorithm solves a slightly blurred version of optimal transport quickly. The tool turns its answer into a real transport plan, whose cost is an upper bound, and into a dual certificate, whose value is a lower bound. The exact distance is guaranteed to lie between the two. A smaller blur narrows the range and takes longer."}}, {"@type": "Question", "name": "Should I scale my columns before comparing several at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes when the columns are in different units, such as kilograms and dollars, or the column with the biggest numbers decides everything. The default divides each column by its pooled standard deviation. When every column is in the same unit, such as two temperatures, choose no scaling so the distance stays in that unit."}}, {"@type": "Question", "name": "Does a large distance mean the groups really differ?", "acceptedAnswer": {"@type": "Answer", "text": "Not by itself. Two samples from the same population are never identical, so the tool also shuffles the group labels hundreds of times and counts how often chance alone gives a distance as large. That share is the permutation p-value. A small p says the difference is more than chance; the distance says how big it is."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and compared by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1b2f; background: #f3f2f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3d3480; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2a2459; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2a2459; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #514d66; }
+    .card { background: #fff; border: 1px solid #d9d6e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2a245910; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    fieldset { border: 1px solid #d9d6e8; border-radius: 9px; margin: 14px 0 0; padding: 8px 12px 12px; }
+    legend { font-weight: 600; padding: 0 4px; }
+    #features label { display: inline-flex; align-items: center; font-weight: 500; margin: 6px 14px 0 0; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3d3480; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e9e6f5; color: #2a2459; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe9f3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #514d66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d6e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f4f2fa; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2a2459; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #514d66; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f5f4fa; border: 1px solid #e0ddec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WASSERSTEIN DISTANCE · EARTH MOVER'S DISTANCE · OPTIMAL TRANSPORT · SINKHORN · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How far apart are these two distributions, and where did the mass move?</h1>
+    <p>Paste a table with a column that says which group each row is in: before and after, this year and last, site A and site B, control and variant. For each numeric column you get the <strong>Wasserstein distance</strong> (the earth mover's distance) in the column's own units, exactly: how much of it is values moving up and how much moving down, how each quantile shifted, and whether the difference is more than chance. Across several columns at once you get the <strong>optimal transport</strong> distance, from Sinkhorn's algorithm (Cuturi 2013), with a certified range that the exact value is guaranteed to lie in, and a map of where each point's mass went.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row, a group column and one or more numeric columns (comma, tab or semicolon separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="period,delivery_days,order_value&#10;before,3.5,82.10&#10;after,2.0,79.40&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: Central Park July days, 1951-1980 against 1991-2020 (NOAA)</button>
+    <p class="note" id="data-status">Rows missing a value in a chosen column are left out.</p>
+
+    <div class="grid">
+      <div><label for="group-col">Group column</label><select id="group-col"></select></div>
+      <div><label for="group-a">Baseline group (A)</label><select id="group-a"></select></div>
+      <div><label for="group-b">Compared group (B)</label><select id="group-b"></select></div>
+    </div>
+    <fieldset>
+      <legend>Numeric columns to compare</legend>
+      <div id="features"><span class="note">Paste data to choose columns.</span></div>
+    </fieldset>
+    <div class="grid">
+      <div><label for="cost">Several columns: distance</label><select id="cost"><option value="euclidean" selected>W1 (earth mover's)</option><option value="sqeuclidean">W2 (squared)</option></select></div>
+      <div><label for="scale">Several columns: scaling</label><select id="scale"><option value="auto" selected>Divide by pooled SD (different units)</option><option value="none">None (same units)</option></select></div>
+      <div><label for="blur">Sinkhorn blur (smaller = tighter range, slower)</label><select id="blur"><option value="0.05">0.05 (fast, wide range)</option><option value="0.02">0.02</option><option value="0.01" selected>0.01 (default)</option><option value="0.005">0.005 (tight, slow)</option></select></div>
+      <div><label for="perms">Shuffles for the p-values</label><select id="perms"><option value="199">199 (quick)</option><option value="999" selected>999</option><option value="4999">4,999</option></select></div>
+      <div><label for="seed">Random seed</label><input id="seed" inputmode="numeric" value="42"></div>
+    </div>
+    <button type="button" id="analyze">Compare the two groups</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>One column at a time (exact)</h3>
+    <div class="scroll">
+      <table id="col-table">
+        <thead><tr><th>Column</th><th class="n">W1</th><th class="n">Mean shift</th><th class="n">Moved up</th><th class="n">Moved down</th><th class="n">W2</th><th>W2² is mostly</th><th class="n">p (W1)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">All distances in the column's units, B minus A. Moved up + moved down = W1; moved up − moved down = the mean shift. W2² splits exactly into location (mean shift²), spread ((SD_A − SD_B)²) and shape (the rest). p: share of label shuffles giving a W1 at least this large.</p>
+    <h3>Where the difference is</h3>
+    <div class="grid">
+      <div><label for="cdf-col">Column</label><select id="cdf-col"></select></div>
+    </div>
+    <p class="note"><span class="key" style="background:#6d64b3"></span>A <span class="key" style="background:#e2852b"></span>B. The two cumulative distributions; the shaded area between them is W1.</p>
+    <div id="cdf" role="img" aria-label="Cumulative distribution of the chosen column in both groups with the area between them shaded"></div>
+    <div class="scroll">
+      <table id="q-table">
+        <thead><tr><th>Quantile</th><th class="n">A</th><th class="n">B</th><th class="n">Shift</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="multi-block" hidden>
+      <h3>All the columns at once</h3>
+      <p class="note" id="multi-note"></p>
+      <div class="grid">
+        <div><label for="x-col">Across</label><select id="x-col"></select></div>
+        <div><label for="y-col">Up</label><select id="y-col"></select></div>
+      </div>
+      <div id="map" role="img" aria-label="Scatter plot of two columns with group A in purple, group B in orange and lines from each A point to where the optimal plan sends its mass"></div>
+      <p class="note">Each line runs from a row of A to the average place the optimal plan sends its mass in B (up to 400 lines drawn). Rows with identical values overlap.</p>
+    </div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download the per-column table (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>One column.</strong> Sort both groups. The Wasserstein-<em>p</em> distance on the line has a closed form: <code>W_p^p = ∫₀¹ |F⁻¹(t) − G⁻¹(t)|^p dt</code>, the average gap between the two quantile functions, and <code>W1</code> is also the area between the two cumulative distributions (Peyré &amp; Cuturi 2019). Both are computed exactly by walking the two step functions together. Splitting the integral by the sign of the gap gives the mass moved up and moved down. <code>W2²</code> splits exactly into <code>(μ_B − μ_A)² + (σ_A − σ_B)² + 2σ_Aσ_B(1 − ρ)</code>, where ρ is the correlation of the two quantile functions; the three terms are reported as location, spread and shape. The p-value shuffles the group labels and recomputes W1 each time.</p>
+    <p><strong>Several columns.</strong> The cost of moving a row of A to a row of B is their Euclidean distance (W1) or its square (W2), after the scaling you choose. Exact optimal transport is a linear programme; Sinkhorn's algorithm (Cuturi 2013) instead solves it with an entropy penalty of weight ε, which turns it into alternately rescaling the rows and columns of the matrix <code>exp(−C/ε)</code>. Here ε is the blur times the mean cost, the iterations run on log-domain potentials with the kernel rebuilt around them so a small ε cannot underflow, and ε is lowered in stages from the largest cost. The answer is then <em>certified</em>: Altschuler, Weed &amp; Rigollet's (2017) rounding makes the plan exactly feasible, so its cost is an upper bound on the exact distance, and two c-transforms of Sinkhorn's dual potential give a feasible dual solution, whose value is a lower bound (Peyré &amp; Cuturi 2019). The p-value for several columns is the energy distance permutation test (Székely &amp; Rizzo 2013). The share of movement per column is each column's part of the plan's squared displacement.</p>
+    <p>Verified by tests in the source against <strong>POT 0.9.7</strong> (Python Optimal Transport) and <strong>SciPy 1.17.1</strong>: W1 and W2 on the line match <code>scipy.stats.wasserstein_distance</code> and <code>ot.wasserstein_1d</code> to 1e-12, with and without weights; the Sinkhorn plan matches <code>ot.sinkhorn</code> entry by entry to 1e-10; and the certified range always contains the exact cost from <code>ot.emd2</code>'s network simplex, including on this page's example (exact 0.8747 °C for W1 with no scaling; the default blur gives 0.843 to 0.891). The energy statistic matches SciPy's energy distance.</p>
+    <h3>BibTeX</h3>
+    <pre>@inproceedings{cuturi2013sinkhorn,
+  author    = {Cuturi, Marco},
+  title     = {Sinkhorn Distances: Lightspeed Computation of Optimal Transport},
+  booktitle = {Advances in Neural Information Processing Systems 26},
+  pages     = {2292--2300}, year = {2013}
+}
+@inproceedings{altschuler2017near,
+  author    = {Altschuler, Jason and Weed, Jonathan and Rigollet, Philippe},
+  title     = {Near-linear time approximation algorithms for optimal transport via {S}inkhorn iteration},
+  booktitle = {Advances in Neural Information Processing Systems 30},
+  pages     = {1964--1974}, year = {2017}
+}
+@article{peyre2019computational,
+  author  = {Peyr{\'e}, Gabriel and Cuturi, Marco},
+  title   = {Computational Optimal Transport},
+  journal = {Foundations and Trends in Machine Learning},
+  volume  = {11}, number = {5-6}, pages = {355--607}, year = {2019},
+  doi     = {10.1561/2200000073}
+}
+@article{szekely2013energy,
+  author  = {Sz{\'e}kely, G{\'a}bor J. and Rizzo, Maria L.},
+  title   = {Energy statistics: A class of statistics based on distances},
+  journal = {Journal of Statistical Planning and Inference},
+  volume  = {143}, number = {8}, pages = {1249--1272}, year = {2013},
+  doi     = {10.1016/j.jspi.2013.03.018}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Distance is not significance, and significance is not cause.</strong> A distance says how big the difference is; the p-value says whether chance could produce it; neither says why the groups differ.</li>
+      <li><strong>Rows are treated as independent.</strong> The shuffles assume any row could have been in either group. Days in a row of weather, repeated visits by one customer or batches from one machine are correlated, so the p-values are too small for such data.</li>
+      <li><strong>Units decide the several-column answer.</strong> Without scaling, the column with the largest numbers dominates the cost. With scaling, the distance is in pooled standard deviations.</li>
+      <li><strong>Size.</strong> The several-column problem stores a cost matrix of A rows × B rows, so above 1,200 rows per group it uses a seeded random subsample; the one-column results always use every row.</li>
+      <li><strong>Range, not a point.</strong> The several-column value shown is the cost of a real transport plan, the upper end of the range; the exact optimum lies in the range, not necessarily at its middle.</li>
+      <li>Not modelled: weights per row, unbalanced transport (groups of different total mass), the debiased Sinkhorn divergence, more than two groups at once, and a time order (for one series over time, use the <a href="../changepoint-detector/">changepoint detector</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is the Wasserstein distance?</h3>
+    <p>It is the least work needed to turn one distribution into the other, where work is the amount of mass moved times how far it moves. Pile up the values of one group as earth and dig them into the shape of the other group's pile: the cheapest way to do it costs W1, which is why it is also called the earth mover's distance. It is measured in the data's own units.</p>
+    <h3>How do I read W1 for one column?</h3>
+    <p>As an average distance moved, in the column's units. W1 = 0.79 degrees means that, matching the coldest night of one period with the coldest of the other, the second coldest with the second coldest and so on, the nights are 0.79 degrees apart on average. It is never smaller than the difference in means, and it equals it only when every quantile moved the same way.</p>
+    <h3>What do moved up and moved down mean?</h3>
+    <p>They split W1 by direction. Moved up is the part of the work done raising values, moved down the part lowering them. Their sum is W1 and their difference is the change in the mean. A mean shift of zero with a large W1 means the distribution changed shape, for example spreading out, without moving on average.</p>
+    <h3>Why is the distance across several columns a range?</h3>
+    <p>Because the exact problem is solved approximately and then checked. Sinkhorn's algorithm solves a slightly blurred version of optimal transport quickly. The tool turns its answer into a real transport plan, whose cost is an upper bound, and into a dual certificate, whose value is a lower bound. The exact distance is guaranteed to lie between the two. A smaller blur narrows the range and takes longer.</p>
+    <h3>Should I scale my columns before comparing several at once?</h3>
+    <p>Yes when the columns are in different units, such as kilograms and dollars, or the column with the biggest numbers decides everything. The default divides each column by its pooled standard deviation. When every column is in the same unit, such as two temperatures, choose no scaling so the distance stays in that unit.</p>
+    <h3>Does a large distance mean the groups really differ?</h3>
+    <p>Not by itself. Two samples from the same population are never identical, so the tool also shuffles the group labels hundreds of times and counts how often chance alone gives a distance as large. That share is the permutation p-value. A small p says the difference is more than chance; the distance says how big it is.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and compared by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: daily maximum and minimum temperature at New York Central Park for every July day of 1951-1980 and of 1991-2020, from NOAA's Global Historical Climatology Network - Daily (Menne et al. 2012, <a href="https://doi.org/10.7289/V5D21VHZ" rel="noopener">doi:10.7289/V5D21VHZ</a>), station USW00094728, a US Government work in the public domain, retrieved 2026-11-14. The station records whole degrees Fahrenheit, so the Celsius values move in steps of about 0.6 °C. July days are correlated with their neighbours, so read the example's p-values as rough.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; a distance or a p-value is not proof of a cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, NOAA, the POT or SciPy projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --group period</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wasserstein-distance" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns in a series, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, <a href="../synthetic-control/">synthetic control</a> asks whether an intervention changed one unit's outcome, <a href="../stl-decomposition/">STL decomposition</a> separates trend from season, <a href="../fuzzy-dedupe/">fuzzy dedupe</a> finds rows that are the same person, <a href="../spc-control-charts/">control charts</a> tell a process change from noise, the <a href="../isolation-forest/">isolation forest</a> finds unusual rows, and <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a curve with an honest uncertainty band.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, guessGroupColumn, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fp = (p) => (p === null ? "" : p < 0.001 ? "&lt;0.001" : p.toFixed(3));
+    let last = null;
+    let parsed = null;
+
+    function groupValues(col) {
+      const j = parsed.columns.indexOf(col);
+      const out = [];
+      for (const r of parsed.rows) { const v = r[j]; if (v !== "" && !out.includes(v)) out.push(v); }
+      return out;
+    }
+
+    function refreshGroups() {
+      const vals = parsed ? groupValues($("#group-col").value) : [];
+      const opts = vals.slice(0, 50).map((v) => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      $("#group-a").innerHTML = opts;
+      $("#group-b").innerHTML = opts;
+      if (vals.length > 1) { $("#group-a").value = vals[0]; $("#group-b").value = vals[1]; }
+      const g = $("#group-col").value;
+      document.querySelectorAll("#features input").forEach((el) => { if (el.dataset.col === g) { el.checked = false; el.disabled = true; } else if (el.dataset.numeric === "1") el.disabled = false; });
+    }
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) {
+        parsed = null;
+        $("#features").innerHTML = `<span class="note">Paste data to choose columns.</span>`;
+        $("#group-col").innerHTML = "";
+        $("#group-a").innerHTML = "";
+        $("#group-b").innerHTML = "";
+        $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a table or load the example.";
+        return;
+      }
+      parsed = p;
+      const prof = profileColumns(p);
+      const guess = guessGroupColumn(p);
+      $("#features").innerHTML = prof.map((c) => {
+        const on = c.numeric && c.name !== guess && c.distinct > 1;
+        return `<label><input type="checkbox" data-col="${esc(c.name)}" data-numeric="${c.numeric ? 1 : 0}"${on ? " checked" : ""}${c.numeric ? "" : " disabled"}>${esc(c.name)}${c.numeric ? "" : " (text)"}</label>`;
+      }).join("");
+      $("#group-col").innerHTML = p.columns.map((c) => `<option value="${esc(c)}"${c === guess ? " selected" : ""}>${esc(c)}</option>`).join("");
+      refreshGroups();
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.columns.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#group-col").addEventListener("change", refreshGroups);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      const cols = [...document.querySelectorAll("#features input:checked")].map((el) => el.dataset.col);
+      const perms = Number($("#perms").value);
+      return {
+        csv: $("#csv").value,
+        group: $("#group-col").value || undefined,
+        groups: $("#group-a").value && $("#group-b").value ? [$("#group-a").value, $("#group-b").value] : undefined,
+        columns: cols.length ? cols : undefined,
+        cost: $("#cost").value,
+        scale: $("#scale").value,
+        blur: Number($("#blur").value),
+        permutations: perms,
+        energyPermutations: Math.min(perms, 199),
+        seed: $("#seed").value.trim() === "" ? 42 : Number($("#seed").value),
+      };
+    }
+
+    function cdfChart(r) {
+      const k = r.features.indexOf($("#cdf-col").value);
+      if (k < 0) return "";
+      const W = 920, H = 300, L = 52, R = 14, T = 12, B = 40;
+      const xa = r.points[0].map((p) => p[k]).sort((a, b) => a - b), xb = r.points[1].map((p) => p[k]).sort((a, b) => a - b);
+      let lo = Math.min(xa[0], xb[0]), hi = Math.max(xa[xa.length - 1], xb[xb.length - 1]);
+      if (hi === lo) { lo -= 1; hi += 1; }
+      const pad = (hi - lo) * 0.03;
+      lo -= pad; hi += pad;
+      const sx = (v) => L + ((v - lo) / (hi - lo)) * (W - L - R);
+      const sy = (u) => T + (1 - u) * (H - T - B);
+      const z = [...new Set([...xa, ...xb])].sort((a, b) => a - b);
+      const F = (xs) => { let i = 0; return z.map((v) => { while (i < xs.length && xs[i] <= v) i++; return i / xs.length; }); };
+      const fa = F(xa), fb = F(xb);
+      const stepPath = (f) => { let d = `M${sx(lo).toFixed(1)},${sy(0).toFixed(1)}`; z.forEach((v, i) => { d += `H${sx(v).toFixed(1)}V${sy(f[i]).toFixed(1)}`; }); return d + `H${sx(hi).toFixed(1)}`; };
+      let area = "";
+      for (let i = 0; i < z.length - 1; i++) {
+        if (fa[i] === fb[i]) continue;
+        const y0 = sy(Math.max(fa[i], fb[i])), y1 = sy(Math.min(fa[i], fb[i]));
+        area += `<rect x="${sx(z[i]).toFixed(1)}" y="${y0.toFixed(1)}" width="${(sx(z[i + 1]) - sx(z[i])).toFixed(2)}" height="${(y1 - y0).toFixed(1)}" fill="${fa[i] > fb[i] ? "#f6d2ad" : "#d6d2ef"}"/>`;
+      }
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += area;
+      out += `<line x1="${L}" x2="${W - R}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9e9ab4"/>`;
+      for (const u of [0, 0.5, 1]) out += `<text x="${L - 6}" y="${sy(u) + 4}" text-anchor="end" font-size="11" fill="#514d66">${u}</text>`;
+      for (let t = 0; t <= 4; t++) { const v = lo + ((hi - lo) * t) / 4; out += `<text x="${sx(v).toFixed(1)}" y="${H - 22}" text-anchor="middle" font-size="11" fill="#514d66">${esc(fmt(v))}</text>`; }
+      out += `<path d="${stepPath(fa)}" fill="none" stroke="#6d64b3" stroke-width="2"/>`;
+      out += `<path d="${stepPath(fb)}" fill="none" stroke="#e2852b" stroke-width="2"/>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 5}" text-anchor="middle" font-size="12" fill="#514d66">${esc(r.features[k])} · share of rows at or below (shaded: W1 = ${esc(fmt(r.columns[k].w1))}; orange shading where B is higher)</text>`;
+      return out + "</svg>";
+    }
+
+    function mapChart(r) {
+      const m = r.multi;
+      const xi = r.features.indexOf($("#x-col").value), yi = r.features.indexOf($("#y-col").value);
+      if (!m || xi < 0 || yi < 0) return "";
+      const W = 920, H = 440, L = 70, R = 14, T = 14, B = 44;
+      const all = [...r.points[0], ...r.points[1]];
+      let x0 = Math.min(...all.map((p) => p[xi])), x1 = Math.max(...all.map((p) => p[xi])), y0 = Math.min(...all.map((p) => p[yi])), y1 = Math.max(...all.map((p) => p[yi]));
+      if (x1 === x0) { x0 -= 1; x1 += 1; }
+      if (y1 === y0) { y0 -= 1; y1 += 1; }
+      const sx = (v) => L + ((v - x0) / (x1 - x0)) * (W - L - R);
+      const sy = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#e3e0ef"/>`;
+      for (const v of [y0, y1]) out += `<text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#514d66">${esc(fmt(v))}</text>`;
+      for (const v of [x0, x1]) out += `<text x="${sx(v)}" y="${H - 26}" text-anchor="${v === x0 ? "start" : "end"}" font-size="11" fill="#514d66">${esc(fmt(v))}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="#514d66">${esc(r.features[xi])} → · ${esc(r.features[yi])} ↑ · purple: ${esc(r.groups[0])}, orange: ${esc(r.groups[1])}</text>`;
+      for (const p of r.points[1]) out += `<circle cx="${sx(p[xi]).toFixed(1)}" cy="${sy(p[yi]).toFixed(1)}" r="3" fill="#e2852b" opacity=".45"/>`;
+      for (const p of r.points[0]) out += `<circle cx="${sx(p[xi]).toFixed(1)}" cy="${sy(p[yi]).toFixed(1)}" r="3" fill="#6d64b3" opacity=".45"/>`;
+      const step = Math.max(1, Math.ceil(m.arrows.length / 400));
+      for (let i = 0; i < m.arrows.length; i += step) {
+        const a = m.arrows[i];
+        out += `<line x1="${sx(a.from[xi]).toFixed(1)}" y1="${sy(a.from[yi]).toFixed(1)}" x2="${sx(a.to[xi]).toFixed(1)}" y2="${sy(a.to[yi]).toFixed(1)}" stroke="#2a2459" stroke-width=".8" opacity=".55"/>`;
+      }
+      return out + "</svg>";
+    }
+
+    function showColumn(r) {
+      const c = r.columns[r.features.indexOf($("#cdf-col").value)];
+      if (!c) return;
+      $("#cdf").innerHTML = cdfChart(r);
+      $("#q-table tbody").innerHTML = c.quantiles.map((q) => `<tr><td>${Math.round(q.p * 100)}th percentile</td><td class="n">${esc(fmt(q.a))}</td><td class="n">${esc(fmt(q.b))}</td><td class="n">${q.shift > 0 ? "+" : ""}${esc(fmt(q.shift))}</td></tr>`).join("");
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const stat = (v, l) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`;
+      const lead = r.columns.slice().sort((p, q) => q.w1 / (q.sd[0] + q.sd[1] || 1) - p.w1 / (p.sd[0] + p.sd[1] || 1))[0];
+      let stats = stat(`${r.n[0].toLocaleString("en-US")} / ${r.n[1].toLocaleString("en-US")}`, `rows in ${r.groups[0]} / ${r.groups[1]}`) + stat(fmt(lead.w1), `W1 for ${lead.column}, its largest relative change`);
+      if (r.multi) stats += stat(`${fmt(r.multi.lower)} to ${fmt(r.multi.upper)}`, `${r.multi.metric} for all ${r.features.length} columns, certified range (${r.multi.scaled ? "pooled SDs" : "own units"})`) + (r.multi.energy ? stat(r.multi.energy.pValue < 0.001 ? "< 0.001" : r.multi.energy.pValue.toFixed(3), `energy test p (${r.multi.energy.permutations} shuffles)`) : "");
+      $("#stats").innerHTML = stats;
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#col-table tbody").innerHTML = r.columns.map((c) => {
+        const t = c.w2 ** 2;
+        const parts = [["location", c.w2Parts.location], ["spread", c.w2Parts.spread], ["shape", c.w2Parts.shape]].sort((a, b) => b[1] - a[1]);
+        const mostly = t > 0 ? `${parts[0][0]} (${Math.round((100 * parts[0][1]) / t)}%)` : "no difference";
+        return `<tr><td>${esc(c.column)}</td><td class="n">${esc(fmt(c.w1))}</td><td class="n">${c.meanShift > 0 ? "+" : ""}${esc(fmt(c.meanShift))}</td><td class="n">${esc(fmt(c.movedUp))}</td><td class="n">${esc(fmt(c.movedDown))}</td><td class="n">${esc(fmt(c.w2))}</td><td>${mostly}</td><td class="n">${fp(c.pValue)}</td></tr>`;
+      }).join("");
+      const opts = r.features.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+      const keepC = $("#cdf-col").value;
+      $("#cdf-col").innerHTML = opts;
+      $("#cdf-col").value = r.features.includes(keepC) ? keepC : lead.column;
+      showColumn(r);
+      $("#multi-block").hidden = !r.multi;
+      if (r.multi) {
+        const m = r.multi;
+        const keepX = $("#x-col").value, keepY = $("#y-col").value;
+        $("#x-col").innerHTML = opts;
+        $("#y-col").innerHTML = opts;
+        $("#x-col").value = r.features.includes(keepX) ? keepX : r.features[0];
+        $("#y-col").value = r.features.includes(keepY) ? keepY : r.features[1];
+        $("#multi-note").textContent = `${m.metric} between the groups across ${r.features.join(", ")}: the exact value lies between ${fmt(m.lower)} and ${fmt(m.upper)} ${m.units}. Share of the movement: ${m.columnShare.map((s) => `${s.column} ${Math.round(s.share * 100)}%`).join(", ")}.`;
+        $("#map").innerHTML = mapChart(r);
+      }
+      const p = r.params;
+      $("#settings-line").textContent = `${r.groups[1]} (B) against ${r.groups[0]} (A), grouped by ${r.group}. ${p.permutations} shuffles per column, seed ${p.seed}.` + (r.multi ? ` Several columns: ${r.multi.cost} cost, ${r.multi.scaled ? "divided by pooled SD" : "unscaled"}, blur ${r.multi.blur} (eps ${fmt(r.multi.eps)}), ${r.multi.iterations} Sinkhorn iterations.` : "");
+    }
+
+    function run() {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Comparing… several columns at once can take a few seconds.";
+      setTimeout(() => {
+        try {
+          const r = analyze(inputs());
+          if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+          $("#status").textContent = "";
+          last = r;
+          show(r);
+          record("analysis_run");
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 30);
+    }
+
+    $("#analyze").addEventListener("click", () => { if (!parsed) refreshColumns(); run(); });
+    $("#cdf-col").addEventListener("change", () => { if (last) showColumn(last); });
+    $("#x-col").addEventListener("change", () => { if (last) $("#map").innerHTML = mapChart(last); });
+    $("#y-col").addEventListener("change", () => { if (last) $("#map").innerHTML = mapChart(last); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#scale").value = "none";
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "wasserstein-distance.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
