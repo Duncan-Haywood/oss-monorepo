@@ -1,0 +1,58 @@
+# Milestone 16: softening nails, pushed over (buildbot-sheathing)
+milestone 14's kinematics (pinned framing, rigid sheet, full anchorage); each nail a spring along its slip, rising to Fp at dp, 0.8 Fp at du, zero at dp + 5 (du - dp). Pushover to 150 mm in 0.25 mm steps.
+backbone (Shameli Derakshan et al. 2019, 8d common, 7/16 in OSB, SPF): Fp 0.972 kN, K at 0.4 Fp 0.496 kN/mm, du 28.7 mm monotonic, 20.6 mm cyclic; base dp 12 mm -> n = 7.56, initial stiffness 0.613 kN/mm
+
+## A. Elastic-perfectly-plastic nails yielding at 0.01 mm against milestone 14's rigid-plastic capacity
+three-read cell reproduced: clean 0.4253, missed 1.095 (milestone 14: 0.4253, 1.095)
+intact: 10.1202 against 10.1202 F (per unit F); Weiss: 8.0588 against 8.0588; 200 patterns: max |error| 0.000%, mean 0.000%
+H70 (within 0.5% for all 202): max 0.000%: held
+
+## B. Intact sheet against edge spacing (field 12 in), base backbone, vs SDPWS Table 4.3A ratios
+edge in   nails   peak kN   drift at peak mm   ratio   table   ratio/table   rigid-plastic ratio (m14)
+      6      62      9.80               55.8   1.000   1.000         1.000   1.000
+      4      86     14.15               55.2   1.444   1.536         0.940   1.442
+      3     110     18.50               55.2   1.888   1.964         0.961   1.884
+      2     158     27.20               55.0   2.775   2.607         1.065   2.769
+absolute, 6 in: 9.80 kN a 4 ft sheet = 8.04 kN/m = 551 plf at the tested Fp, against SDPWS's 280 plf allowable (560 plf nominal) for the heavier 15/32 in Structural I panel: 0.98 of nominal (not a like-for-like check)
+H71 (4, 3 and 2 in within 10% of the table's ratios): held
+
+## C. Every nail below 12 in omitted (Weiss 2017), across the backbone sweep
+du        dp mm   n      intact kN  drift mm   Weiss kN  drift mm   loss    (z <= 12 in)   nails past dp at peak (intact | Weiss)   unloaded before peak (intact | Weiss)
+monotonic     6    3.65       9.64      33.8       7.71      34.5    20.1%  ( 23.4%)        0.61 | 0.59                              0.00 | 0.00
+monotonic     9    5.61       9.75      43.5       7.77      45.8    20.3%  ( 23.7%)        0.19 | 0.16                              0.00 | 0.00
+monotonic    12    7.56       9.80      55.8       7.80      56.0    20.4%  ( 23.8%)        0.13 | 0.08                              0.00 | 0.00
+monotonic    15    9.52       9.82      68.0       7.82      66.5    20.4%  ( 23.8%)        0.00 | 0.04                              0.00 | 0.00
+cyclic        6    3.65       9.62      30.5       7.69      33.0    20.1%  ( 23.4%)        0.52 | 0.35                              0.00 | 0.00
+cyclic        9    5.61       9.75      42.8       7.77      43.8    20.3%  ( 23.7%)        0.19 | 0.12                              0.00 | 0.00
+cyclic       12    7.56       9.80      54.5       7.80      54.8    20.4%  ( 23.8%)        0.06 | 0.04                              0.00 | 0.00
+cyclic       15    9.52       9.82      68.0       7.82      66.2    20.4%  ( 23.8%)        0.00 | 0.00                              0.00 | 0.00
+rigid-plastic (milestone 14): loss 20.4%
+H72 (loss >= 40% at every backbone): range 20.1% to 20.4%: refuted
+sheet's centre of rotation at peak (base backbone), in from bottom-left: intact (24.0, -11.8), Weiss (24.0, -24.9)
+largest Newton residual over the sweep: 9.9e-10 Fp
+
+## D. One nail missed alone, base backbone: peak lost
+left joint edge  : mean 2.12%, min 2.05%, max 2.23% (milestone 14 mean 2.08%)
+right joint edge : mean 2.12%, min 2.05%, max 2.23% (milestone 14 mean 2.08%)
+field stud 1     : mean 0.85%, min 0.70%, max 1.02% (milestone 14 mean 0.85%)
+field stud 2     : mean 0.85%, min 0.70%, max 1.02% (milestone 14 mean 0.85%)
+bottom plate     : mean 1.43%, min 1.04%, max 1.85% (milestone 14 mean 1.42%)
+top plate        : mean 1.43%, min 1.04%, max 1.85% (milestone 14 mean 1.42%)
+sum of the 62 single losses: 1.040 (milestone 14: 1.024)
+
+## E. Every miss escapes, three reads on measured studs (20,000 sheets, seed 7), base backbone
+2261 distinct patterns; mean loss 2.39% (milestone 14: 2.34%), 99th-percentile loss 11.80% (11.49%), P(cap < 0.95) 0.1338 (0.1338), 4-sheet wall p1 0.9318 (0.9340); per miss 2.19%
+H73 (mean and p99 loss each within 1 point of milestone 14's): held
+cyclic du (20.6 mm): mean loss 2.40%, 99th-percentile loss 11.81%
+
+## F. Joint edges at 4 in (25 a side), every miss escapes, base backbone
+intact 4 in-joint sheet 1.320 of the 6 in sheet (milestone 14: 1.318); misses 1.572 a sheet; with misses mean 1.2866, p1 1.1591, min 0.8536
+H74 (>= the intact 6 in sheet in 99% of sheets): P = 0.9998: held
+
+## G. Post hoc, not registered: how unequal the nails' slips are at the sheet's peak, and brittle nails
+intact: nail slip at the sheet's peak min 3.7, median 11.0, max 12.3 mm; CV 0.33; within 20% of the median: 0.61
+Weiss : nail slip at the sheet's peak min 3.3, median 9.8, max 12.7 mm; CV 0.30; within 20% of the median: 0.63
+brittle nails (Fp at dp = 12 mm, falling to 0.8 Fp 1 mm later and to zero 5 mm after the peak):
+  intact 9.80 kN at 54.4 mm, Weiss 7.80 kN at 53.0 mm: loss 20.4%
+
+1411.5 s

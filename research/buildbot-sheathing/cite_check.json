@@ -43,6 +43,10 @@
   "checked": "2026-11-13",
   "title": "Plastic models for analysis of fully anchored light-frame timber shear walls (2009)"
  },
+ "doi:10.1061/(ASCE)0733-9445(2001)127:4(433)": {
+  "checked": "2026-11-14",
+  "title": "Cyclic Analysis of Wood Shear Walls (2001)"
+ },
  "doi:10.1109/IROS.2012.6386109": {
   "checked": "2026-11-12",
   "title": "MuJoCo: A physics engine for model-based control (2012)"

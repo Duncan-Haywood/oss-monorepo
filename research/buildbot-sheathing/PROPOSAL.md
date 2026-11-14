@@ -273,6 +273,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    ratio, or no hold-downs (64–100%). A lone sheet whose top plate can tilt loses 7% intact and 16.7% at
    the escaped-miss tail; a sliding top plate restores milestone 14's numbers; 4 in joint edges carry the
    misses either way. Still open: Weiss's anchorage, and ultimate (not design) joint and nail strengths.
+16. **Softening nails** (done 2026-11-14, `experiments/m16_soft_nails/`): milestone 14's sheet pushed over
+   with each nail on the tested backbone of an 8d common nail in 7/16 in OSB (Shameli Derakshan et al.
+   2019). It reduces to milestone 14 for rigid-plastic nails (0.000%) and tracks SDPWS's spacing ratios
+   within 6%; the unnailed bottom foot costs 20.1–20.4% at every slip-at-peak from 6 to 15 mm (rigid-plastic
+   20.4%), because the perimeter nails slip almost equally. Escaped misses: 2.39% mean, 11.8% at the 99th
+   percentile; 4 in joint edges carry them. Still open: the anchorage (hold-down and sill stiffness, uplift).
 
 ## Target venue
 

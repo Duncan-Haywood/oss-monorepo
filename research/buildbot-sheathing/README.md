@@ -268,6 +268,20 @@ restores milestone 14's figures, and **4 in joint edges** carry the misses under
 
 ![Capacity lost with the bottom foot unnailed against stud-joint strength; escaped-miss capacity with finite and rigid joints](experiments/m15_frame_joints/figure.png)
 
+**Milestone 16: do softening nails explain the gap instead? No: in a racking sheet the perimeter nails
+all slip about the same.** With every nail a spring on the tested backbone of an 8d common nail through
+7/16 in OSB (Shameli Derakshan et al. 2019: 0.97 kN peak, 0.5 kN/mm, 0.8 Fp at 29 mm) and the sheet
+pushed over, the intact sheet peaks at **9.8 kN (551 plf) at 2.3% drift**, and omitting every nail below
+12 in still costs **20.1–20.4%** at every slip-at-peak from 6 to 15 mm, monotonic or cyclic, and 20.4% for a
+nail that drops to 0.8 Fp a millimetre past its peak; rigid-plastic gave 20.4%. At the sheet's peak the
+perimeter nails slip 11–12 mm and only the field nails near the centre of rotation lag (3–4 mm), so no
+nail is far past its peak while others are short of theirs. The escaped-miss figures stand (mean loss
+2.39%, 99th percentile 11.8%, against 2.34% and 11.5%), and 4 in joint edges still carry the misses in
+99.98% of sheets. Of milestone 15's three candidates for Weiss's 50% loss, softening nails are now ruled
+out alongside code-strength framing joints; the anchorage is what is left.
+
+![Pushover of the intact and bottom-foot-unnailed sheet with softening nails; loss against the slip at peak](experiments/m16_soft_nails/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -638,11 +652,31 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 - **Checks.** Rigid joints against milestone 14 over 200 three-read miss patterns (H65); the NDS 16d
   value against Table 12N's 141 lb (`tests/test_frame_lp.py`).
 
+## Milestone 16 method (`src/buildbot_sheathing/softnail.py`)
+- **Question.** Milestones 14 and 15 gave every nail a rigid-plastic capacity. Real nails peak at some
+  millimetres of slip and then soften, so the nails that slip most may be past their peak before the
+  rest reach theirs. Does that explain the gap to Weiss's walls, and does it change an escaped miss's cost?
+- **Model.** Milestone 14's kinematics (pinned framing, rigid sheet, full anchorage) with each nail a
+  nonlinear spring along its slip (the oriented-spring idealisation behind CASHEW; Folz and Filiatrault
+  2001, [doi:10.1061/(ASCE)0733-9445(2001)127:4(433)](https://doi.org/10.1061/(ASCE)0733-9445(2001)127:4(433))):
+  P = Fp(1 − (1 − δ/δp)^n) up to the slip at peak δp, then a straight fall through 0.8 Fp at Δu to zero at
+  δp + 5(Δu − δp). The top plate is pushed to 150 mm in 0.25 mm steps; at each step the sheet's (u, v, θ)
+  minimises the springs' energy (damped Newton from the last step; residual under 1e-9 Fp), and the load
+  is dE/dΔ. Loading is taken as path-independent; no nail's slip fell before the sheet's peak in any case.
+- **Backbone, sourced.** 8d common nails through 7/16 in OSB into SPF, Table 2 of Shameli Derakshan, Zhou
+  and Ni (2019, [MOC Summit](https://journalofindustrializedconstruction.com/index.php/mocs/article/download/127/125/125);
+  six replicates a group): Fp the mean of the monotonic groups (0.972 kN); the secant stiffness at 0.4 Fp
+  the mean of the cyclic groups (0.496 kN/mm; the authors call the monotonic values unreliable), which sets
+  n; Δu 28.7 mm (monotonic) or 20.6 mm (cyclic). δp is not tabulated: swept 6–15 mm.
+- **Checks.** An elastic-perfectly-plastic backbone yielding at 0.01 mm against milestone 14's capacity
+  on 202 patterns (H70); SDPWS's spacing ratios (H71); energy derivative, symmetry and backbone points in
+  `tests/test_softnail.py`.
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 98 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, five scipy
+python -m pytest -q tests                                    # 103 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake, five scipy
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -680,6 +714,8 @@ python experiments/m14_escaped/figure.py
 pip install scipy                                            # milestone 15; results made with scipy's HiGHS
 python experiments/m15_frame_joints/run.py > experiments/m15_frame_joints/results.txt # ~11 min (about 4,000 LPs), seed 7
 python experiments/m15_frame_joints/figure.py
+python experiments/m16_soft_nails/run.py > experiments/m16_soft_nails/results.txt   # ~25 min (about 7,000 pushovers), seed 7
+python experiments/m16_soft_nails/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -1029,7 +1065,29 @@ python paper/check_numbers.py                                # every number the 
 - **4 in joint edges** (H69 held): 99.89% of sheets at or above the intact 6 in sheet (99.98% with a
   sliding top plate).
 
+## Milestone 16 results (`experiments/m16_soft_nails/results.txt`)
+
+- **Reduces to milestone 14** (H70 held): an elastic-perfectly-plastic nail yielding at 0.01 mm gives
+  milestone 14's capacity to 0.000% on the intact sheet, the Weiss pattern and 200 miss patterns.
+- **Spacing table** (H71 held): 4, 3 and 2 in edge spacing at 1.444, 1.888 and 2.775 of 6 in, against
+  SDPWS's 1.536, 1.964 and 2.607 (−6%, −4%, +6%; milestone 14: 1.442, 1.884, 2.769). Peak drift
+  55–56 mm (2.3%) at every spacing. Absolute: 9.80 kN a sheet, 8.04 kN/m (551 plf) at the tested Fp,
+  beside 560 plf nominal for the heavier 15/32 in Structural I panel (not like for like).
+- **Weiss's pattern** (H72 refuted): 20.1–20.4% lost over δp 6–15 mm and both Δu (23.4–23.8% with
+  z ≤ 12 in); a near-brittle nail (0.8 Fp 1 mm past its peak) 20.4%. At the peak the perimeter nails slip
+  11–12 mm (median 11.0, max 12.3) and only field nails near the centre of rotation lag (min 3.7 mm);
+  0–61% of nails are past δp at the sheet's peak, and no nail unloads before it. Omitting the bottom foot
+  moves the centre of rotation from 11.8 to 24.9 in below the sheet's bottom edge.
+- **One nail alone:** joint edge 2.12% (milestone 14: 2.08%), field 0.85%, plates 1.43%; sum 1.040.
+- **Escaped misses, three reads** (H73 held): mean loss 2.39%, 99th percentile 11.80%, 4-sheet wall 1st
+  percentile 0.932 (milestone 14: 2.34%, 11.49%, 0.934); the cyclic Δu gives 2.40% and 11.81%.
+- **4 in joint edges** (H74 held): intact 1.320 of the 6 in sheet; with 1.572 misses a sheet left in, 99.98%
+  at or above the intact 6 in sheet (minimum 0.854).
+
 ## Limitations
+- **Softening nails (milestone 16).** Monotonic loading only (no cyclic strength degradation, pinching
+  or unloading branch; most shear-wall tests are cyclic); one nail-joint study, SPF framing; the slip at
+  peak is swept, not measured; milestone 14's kinematics (pinned framing, rigid sheet, full anchorage).
 - **Framed-sheet model (milestone 15).** Joint strengths are NDS design-level (yield-limit) ratios, not
   tested ultimates; joints and nails are rigid-plastic, with no softening; bearing friction and hold-down
   shear are ignored. One sheet with its own four studs; Weiss's set-up was not read.
@@ -1133,7 +1191,10 @@ clustered) and found 4 in joint nailing carries them; a racking test of sheets w
 simulated positions would check the model where it is weakest, clustered misses. Milestone 15 found that
 stud-to-plate joints at code strength do not close the gap to Weiss's tests; the next inputs are
 Weiss's anchorage and wall size (the thesis full text), and tested ultimate strengths of end-nailed
-joints and sheathing nails in place of design ratios, or a softening fastener model. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+joints and sheathing nails in place of design ratios, or a softening fastener model. Milestone 16 ran the softening fastener on a tested backbone and found
+it changes nothing (20.1–20.4% against 20.4%), because a racking sheet slips its perimeter nails almost
+equally; what is left is the anchorage, so the next step is a model with hold-down and sill-plate
+stiffness and uplift (or Weiss's full text, to read her set-up). The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
