@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyeFLYQUZjehXgPUBVB",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T03:38:50Z",
+  "ended": "2026-11-14T03:58:30Z",
+  "wall_minutes": 19.91,
+  "tokens_in": 8839202,
+  "tokens_out": 95595,
+  "cost_usd": 5.1096,
+  "tool_calls": 67,
+  "task": "Explore: Sinkhorn optimal transport (research-tools candidate) as venture wasserstein-distance",
+  "projects": [
+    "wasserstein-distance"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15719",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 43,
+  "outcome": "success",
+  "errors": [
+    "First engine ran Sinkhorn fully in the log domain: 85 s on the 930x930 example; rewritten as kernel-rebuild stabilised scaling (2-5 s)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "Candidates list does not say which candidates another open PR has claimed; had to search PR titles by keyword to check."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-central-park-july-nights-warmed-days-did-not.md",
+    "ventures/wasserstein-distance/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: Sinkhorn optimal transport (Cuturi 2013) as the twelfth research-algorithms tool, wasserstein-distance. Exact 1-D W1/W2 with moved-up/moved-down split and W2^2 location/spread/shape; several columns by stabilised Sinkhorn with a certified bracket on the exact cost (AWR 2017 rounding above, double c-transform dual below); energy permutation test. Verified vs POT 0.9.7/SciPy 1.17.1: 1-D to 1e-12, plan to 1e-10, bracket contains ot.emd2 on all cases. Finding: Central Park July nights 1991-2020 vs 1951-1980 up 0.789 C at every quantile (p 0.001), days unchanged (p 0.445); 2-D W1 bracket 0.843-0.891 contains exact 0.8747. No agent doc: nothing the next run needs beyond the README and research-tools candidate list (updated).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2b0e490f-46bf-534b-8eeb-db4cb57b016a",
+    "transcripts": 1,
+    "first": "2026-11-14T03:38:50Z",
+    "last": "2026-11-14T03:58:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 125,
+        "output": 95595,
+        "thinking": 18006,
+        "cache_read": 8655821,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183256,
+        "api_equivalent_usd": 5.1096,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 125,
+      "output": 95595,
+      "thinking": 18006,
+      "cache_read": 8655821,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183256,
+      "api_equivalent_usd": 5.1096,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 60,
+      "Write": 4,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.91,
+      "active_minutes": 19.91,
+      "model_minutes": 13.63,
+      "tool_minutes": 6.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior data scientist: OT engine with certificates, POT reference suite, page, CLI, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 469.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
