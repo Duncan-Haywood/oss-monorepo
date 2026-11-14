@@ -18,7 +18,9 @@ loss, damage or injury arising from its use.
   robot. On the feeder the same switch also feeds the precharge relay and the
   contactor's on-delay timer, so pressing it drops all three
   (`electronics.md`, 2026-11-14). Add a wireless e-stop fob (a latching relay remote in series)
-  before you use the feeder alone.
+  before you use the feeder alone. Since 2026-11-14 the feeder's ESP32 also
+  senses the contactor's coil (GPIO 15), so a fob that drops it halts the
+  board and clears its feed queue even though the button was never pressed.
 - **Watchdog**: the ESP32 stops every motor if the Pi sends nothing for
   300 ms (`firmware/esp32/controller.py`).
 - **Feed interlock**: a ball is released only when both launcher wheels

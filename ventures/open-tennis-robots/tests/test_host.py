@@ -84,6 +84,30 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         self.assertEqual(sim.hw.lift_pwm.duty, 0)        # e-stop stops the lift too
         self.assertEqual(sim.hw.agit_pwm.duty, 0)        # and the hopper agitator
 
+    def test_wireless_estop_mid_drill_aborts_and_no_more_balls(self):
+        # 2026-11-14: the fob cuts the contactor's coil and the board sees no switch. The coil sense drops the stepper's
+        # ENABLE, halts the board (the queued FEED included) and telemetry's FLAG_BUS_OFF aborts the drill.
+        sim = SimFeeder()
+        shots = drill()
+        link = host.FeederLink(sim, sim.clock)
+
+        def sleep(s):
+            if len(sim.released) == 2:
+                sim.fob_cut = True
+            sim.sleep(s)
+
+        res = host.run_drill(link, shots, sleep)
+        self.assertFalse(res.ok)
+        self.assertIn("switched bus off", res.aborted)
+        self.assertNotIn("reports e-stop", res.aborted)     # the wired switch was never pressed
+        self.assertEqual(len(sim.released), 2)
+        self.assertEqual(sim.hw.az_enable.v, 1)
+        self.assertFalse(sim.hw.azim.homed)
+        self.assertEqual(sim.hw.feeding, 0)
+        sim.fob_cut = False                               # fob released: the bus returns, but nothing was queued
+        sim.run_ms(2000)
+        self.assertEqual(len(sim.released), 2)
+
     def test_lost_feed_frame_aborts_and_drops_the_queued_ball(self):
         sim = SimFeeder()
         sim.drop_cmd = P.FEED

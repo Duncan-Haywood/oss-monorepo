@@ -102,6 +102,22 @@ test("POST /v1/generate writes UBL that passes its own preflight", async () => {
   await s.close();
 });
 
+test("POST /v1/generate with format facturx returns a Factur-X PDF that passes its own preflight", async () => {
+  const s = await start();
+  const draft = JSON.parse((await ex("draft-invoice.json")).toString());
+  const r = await fetch(`${s.base}/v1/generate`, { method: "POST", body: JSON.stringify({ draft, format: "facturx" }) });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.equal(j.ok, true);
+  assert.equal(j.filename, "RE-2026-001.pdf");
+  assert.equal(Buffer.from(j.pdf_base64, "base64").subarray(0, 8).toString("latin1"), "%PDF-1.7");
+  assert.match(j.xml, /CrossIndustryInvoice/);
+  assert.equal(j.preflight.status, "pass");
+  const peppol = await fetch(`${s.base}/v1/generate`, { method: "POST", body: JSON.stringify({ draft, format: "facturx", profile: "peppol" }) });
+  assert.equal(peppol.status, 422);
+  await s.close();
+});
+
 test("POST /v1/generate returns 422 with errors for an incomplete draft", async () => {
   const s = await start();
   const r = await fetch(`${s.base}/v1/generate`, { method: "POST", body: JSON.stringify({ draft: { lines: [] } }) });

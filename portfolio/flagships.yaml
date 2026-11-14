@@ -157,11 +157,11 @@ flagships:
       / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
       (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
       box and "Wandering level" (drift) shipped; Rounds 10-12 (NAB; SKAB, 33 pump
-      faults, 8 sensors): every rule failed; on SKAB Quiet was most precise (36.8%
-      at a mark, chance 23.1%), drift's NAB lead did not carry, 8 columns sent 8.5
-      false lines per 100 checks on a normal run; next a whole-watch budget or a
-      column screen; a real deployer's repository on GitHub Actions (the emulated
-      run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data
+      faults, 8 sensors): every rule failed; 8 SKAB columns sent 8.5 false lines per
+      100 checks on a normal run; Round 13 (two columns agree) failed: coupled
+      sensors agree on noise (2.69/100), 22 of 33 faults vs 31; next a budget by
+      sensor group; a real deployer's repository on GitHub Actions (the emulated run
+      is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data
       (0.564 on TCPD's 3, a lead), a season and a trend term per column (README
       "Wide sets in print"); (b) sticky series on a drifting level: four repeat
       treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc
@@ -192,26 +192,26 @@ flagships:
       Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's
       rules admit them: which validator does AT run?); Poland's FA(3): receipt
       checks landed (README); open: a real KSeF rejection, a real correction,
-      advance or settlement file; repair incl. CII header allowances landed
-      (README): open: veraPDF; PINT JP/MY/AE/OM rules and repair landed (README);
-      open: a real business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS
-      on a real Dutch file; India's INV-01 check on a real IRP payload; mandate
-      texts read (README); open: IL (gov.il 403), ES, SK (hosts blocked 2026-11-14),
-      NRS notice (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI 4.0 landed:
-      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a
-      real payroll or export file, a PAC rejection compared; postal codes (MX-080)
-      landed (README); Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table
-      (BR-053..057, NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and
-      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
-      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
-      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
-      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
-      compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS
-      retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file
-      1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a
-      real Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft
-      passes. A run that lands a slice replaces its item here; keep this under 2,000
-      characters.
+      advance or settlement file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b
+      writer landed: open: Mustang on it; PINT JP/MY/AE/OM rules and repair landed
+      (README); open: a real business's PINT file; open: RO_CIUS on a real ANAF
+      file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP payload;
+      mandate texts read (README); open: IL (gov.il 403), ES, SK (hosts blocked
+      2026-11-14), NRS notice (CAPTCHA), SRO 1852, Jordan Reg. 2/2025; Mexico CFDI
+      4.0 landed: open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww
+      blocked), a real payroll or export file, a PAC rejection compared; postal
+      codes (MX-080) landed (README); Brazil NF-e 4.00, PL_010 reform sums and the
+      cClassTrib table (BR-053..057, NFSE-034..036, 2026-11-13) landed (README);
+      cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110,
+      12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged
+      (README): open: a real event; a real reform NF-e from a SEFAZ test
+      environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed:
+      open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04
+      landed (README): open: ISS retained on a real file, city provider schemas,
+      1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README):
+      open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh the
+      Bulgaria page when its draft passes. A run that lands a slice replaces its
+      item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -382,13 +382,10 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
       venv, about 2 min): the elevation actuator's short lead from the gland to its
-      motor and pot; wire the azimuth stepper driver's ENABLE to a pin held off
-      until the contactor has closed (its holding draw during the precharge makes
-      the contactor take 28 to 66 A, over an assumed 60 A with a 20 mOhm pack:
-      cad/README.md "Start-up loads during the precharge", 2026-11-14); contact
-      bounce on the contactor after the precharge; regenerative current from braking
-      ESCs; the lift flight as a printed part and the top pulley's tensioner if PR
-      15456 has not landed.
+      motor and pot; regenerative current from braking ESCs (the bus with the
+      contactor open is now sensed, cad/README.md "Stepper ENABLE after the
+      contactor"); several bounces in a row on the contactor; the lift flight as a
+      printed part and the top pulley's tensioner if PR 15456 has not landed.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -413,11 +410,11 @@ flagships:
       on the shuttle and the servo's loaded stroke time and stall current; click the
       home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
       stop with a scale; hang a real hose from a tube; bend a built cable loop
-      through the actuator's travel. Buildable: the stepper driver's ENABLE pin
-      (start-up loads during the precharge landed 2026-11-14: the servo is unpulsed
-      until a FEED, which cut the contactor's make from 136-328 A to 28-66 A in the
-      sweep); the flight as a printed part and the tensioner (PR 15456); the
-      actuator's lead from the gland; contact bounce.
+      through the actuator's travel. Stepper ENABLE on GPIO 5 after an opto on the
+      contactor's coil (GPIO 15) landed 2026-11-14: contactor makes 12-29 A in the
+      sweep, a 10 ms bounce re-closes at 5-21 A; scope a real contactor's pull-in
+      and bounce. Buildable: regenerative braking current; the flight as a printed
+      part and the tensioner (PR 15456); the actuator's lead from the gland.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

@@ -25,13 +25,19 @@ INPUT_ONLY = {34, 35, 36, 37, 38, 39}  # no output driver
 # ESP32 boots; 0 and 5 are pulled up, 15 is pulled up and prints boot messages, 12 must stay low (flash voltage).
 STRAP_LOW_AT_BOOT = {2, 12}
 STRAPPING = {0, 2, 5, 12, 15}
+# Since 2026-11-14 two more: GPIO 5 drives the stepper driver's active-low ENABLE, held high (driver off) by a pull-up
+# through reset, which is also the level the strap wants, and it must start high when claimed; GPIO 15 reads the
+# contactor's coil through an opto, low only once the coil is on, long after reset (low at reset only silences the log).
+STRAP_HIGH_OUT = {5}
+STRAP_IN = {15}
 
 
 class _Stop(Exception):
     pass
 
 
-def _fake_machine(claims):
+def _fake_machine(claims, initial=None):
+    initial = {} if initial is None else initial
     m = types.ModuleType("machine")
 
     class Pin:
@@ -41,6 +47,8 @@ def _fake_machine(claims):
             self.n = n
             if mode is not None:      # a bare Pin(n) is only a handle (for PWM or ADC, or a second read of an input)
                 claims.append((n, {Pin.IN: "in", Pin.OUT: "out"}[mode]))
+                if mode == Pin.OUT:
+                    initial[n] = value
 
         def irq(self, *a, **k):
             pass
@@ -87,15 +95,16 @@ def _fake_time():
     return t
 
 
-def role_claims(role: str) -> dict[int, list[str]]:
-    """{gpio: [mode, ...]} for every claim `role`'s hardware layer and UART make, in order."""
+def role_claims(role: str, initial: dict | None = None) -> dict[int, list[str]]:
+    """{gpio: [mode, ...]} for every claim `role`'s hardware layer and UART make, in order; `initial`, if given, gets
+    each output Pin's starting value."""
     claims: list[tuple[int, str]] = []
     cfg = types.ModuleType("config")
     import config as real  # noqa: E402  (firmware/esp32/config.py)
     cfg.__dict__.update({k: v for k, v in vars(real).items() if not k.startswith("__")})
     cfg.ROLE = role
     saved = {k: sys.modules.get(k) for k in ("machine", "time", "config")}
-    sys.modules.update(machine=_fake_machine(claims), time=_fake_time(), config=cfg)
+    sys.modules.update(machine=_fake_machine(claims, initial), time=_fake_time(), config=cfg)
     try:
         src = open(os.path.join(FW, "main.py")).read()
         ns = {"__name__": "main_under_test"}
@@ -117,7 +126,8 @@ def role_claims(role: str) -> dict[int, list[str]]:
 
 class PinMapTest(unittest.TestCase):
     def _check(self, role):
-        pins = role_claims(role)
+        initial: dict = {}
+        pins = role_claims(role, initial)
         self.assertGreater(len(pins), 10, f"{role}: the fake board saw too few pins; did main.py change shape?")
         for n, modes in pins.items():
             with self.subTest(role=role, gpio=n):
@@ -126,8 +136,14 @@ class PinMapTest(unittest.TestCase):
                 if modes[0] == "out":
                     self.assertNotIn(n, INPUT_ONLY, f"{role}: GPIO {n} is input-only but drives an output")
                 if n in STRAPPING:
-                    self.assertIn(n, STRAP_LOW_AT_BOOT, f"{role}: GPIO {n} is a strapping pin that is not low at boot")
-                    self.assertEqual(modes[0], "out")
+                    if n in STRAP_IN:
+                        self.assertEqual(modes[0], "in")
+                    elif n in STRAP_HIGH_OUT:
+                        self.assertEqual(modes[0], "out")
+                        self.assertEqual(initial.get(n), 1, f"{role}: GPIO {n} must start high (driver off)")
+                    else:
+                        self.assertIn(n, STRAP_LOW_AT_BOOT, f"{role}: GPIO {n} is a strapping pin that is not low at boot")
+                        self.assertEqual(modes[0], "out")
         return pins
 
     def test_feeder_pins_unique_and_safe(self):

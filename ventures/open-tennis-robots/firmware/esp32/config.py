@@ -17,6 +17,9 @@ AZ_MICROSTEPS = 4               # azimuth driver's microstep setting (match its 
 AZ_RATIO = 10.0                 # 150-tooth sector over the 15-tooth pinion
 AZ_VMAX_DEG_S = 60.0            # peak turntable speed: 30 deg in 1 s, triangular (cad: Feeder.azimuth_drive)
 AZ_ACCEL_DEG_S2 = 120.0
+# The stepper driver's ENABLE is held off until the contactor's coil has been on this long (cad: Feeder.contactor_bounce,
+# stepper_enable_after_ms): longer than the contactor's pull-in plus its bounce (assumed 50 + 10 ms; read yours).
+CONTACTOR_SETTLE_MS = 150
 AZ_HOME_DEG = -32.0             # where the home switch closes turning negative (cad: Feeder.home_switch_design; its
 #   cam holds it closed below this, so homing backs off first when it starts closed); calibrate it from your build
 # Elevation actuator (cad: Feeder.elevation_drive). Mode: "rc" (actuator with its own servo input, L16-R class),

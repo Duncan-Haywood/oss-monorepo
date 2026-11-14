@@ -1504,7 +1504,7 @@ class PrechargeStartupTest(unittest.TestCase):
     def test_a_constant_power_load_settles_on_the_quadratic_root(self):
         # V (Vp - V) / R - idle V = P, the upper root, once the delay is long
         for vp in (24.0, 29.2):
-            p = Feeder(precharge_delay_s=2.0)
+            p = Feeder(precharge_delay_s=2.0, stepper_holds_at_power_up=True)
             b = p.precharge_bus(vp)
             rp = p.precharge_ohm + p.contactor_inrush()["r_ohm"]
             w = b["loads"][0]["w"]
@@ -1514,7 +1514,7 @@ class PrechargeStartupTest(unittest.TestCase):
             self.assertLess(w, b["max_w"])
 
     def test_the_old_servo_gate_fails_and_the_new_one_passes(self):
-        old = Feeder(servo_pulse_at_rest=True)
+        old = Feeder(servo_pulse_at_rest=True, stepper_holds_at_power_up=True)   # the firmware and wiring before 2026-11-14
         bad = old.check_inrush()
         self.assertTrue(any("bus held" in r and "shuttle servo seeking home" in r for r in bad), bad)
         low = old.contactor_inrush()["startup"]["low"]
@@ -1522,13 +1522,58 @@ class PrechargeStartupTest(unittest.TestCase):
         self.assertGreater(sum(x["w"] for x in low["loads"]), low["max_w"] - old.bus_idle_a * old.battery_v_min)
         self.assertGreater(low["loads"][0]["starts"], 10)
         self.assertGreater(low["close"]["peak_a"], 3 * old.contactor_make_a)
-        new = Feeder()
+        self.assertEqual(Feeder().check_inrush(), [])
+        new = Feeder(stepper_holds_at_power_up=True)   # the servo gate alone, ENABLE still tied to GND
         self.assertEqual(new.check_inrush(), [])
         d = new.contactor_inrush()
-        plain = Feeder(stepper_holds_at_power_up=False).contactor_inrush()["closing"]["peak_a"]
+        plain = Feeder().contactor_inrush()["closing"]["peak_a"]
         # the stepper's holding current alone doubles what the contactor makes, still under its assumed limit
         self.assertGreater(d["closing"]["peak_a"], 2 * plain)
         self.assertLess(d["closing"]["peak_a"], new.contactor_make_a)
+
+    def test_enable_held_off_is_the_closed_form(self):
+        # with the driver held off nothing starts during the precharge: the closing is the idle-load closed form
+        p = Feeder()
+        d = p.contactor_inrush()
+        self.assertEqual(p.startup_loads(p.battery_v_min), [])
+        self.assertAlmostEqual(d["closing"]["peak_a"], d["precharge"]["close"]["peak_a"], places=9)
+
+    def test_the_20_mohm_pack_cases_pass_once_enable_is_wired(self):
+        for kw in ({"pack_ohm": 0.02, "esc_cap_uf": 470.0, "loop_uh_per_m": 1.0},
+                   {"pack_ohm": 0.02, "esc_cap_uf": 2000.0, "loop_uh_per_m": 0.3}):
+            tied = Feeder(stepper_holds_at_power_up=True, **kw)
+            gated = Feeder(**kw)
+            self.assertGreater(tied.contactor_inrush()["closing"]["peak_a"],
+                               gated.contactor_inrush()["closing"]["peak_a"], kw)
+            self.assertEqual(gated.check_inrush(), [], kw)
+
+    def test_bounce_gap_is_the_precharge_relaxation(self):
+        p = Feeder()
+        b = p.contactor_bounce()
+        d = p.contactor_inrush()
+        rp = p.precharge_ohm + d["r_ohm"]
+        want = p.bus_idle_a * rp * (1 - math.exp(-p.contactor_bounce_ms / 1e3 / (rp * d["c_f"])))
+        self.assertAlmostEqual(b["idle"]["gap_v"], want, places=9)
+        # a bounce far longer than the time constant leaves the full I x R gap, the precharge's own residual
+        long = Feeder(contactor_bounce_ms=1000.0).contactor_bounce()
+        self.assertAlmostEqual(long["idle"]["gap_v"], d["precharge"]["residual_v"], delta=1e-6)
+        self.assertGreater(b["stepper enabled"]["peak_a"], b["idle"]["peak_a"])
+        self.assertLess(b["stepper enabled"]["peak_a"], p.contactor_make_a)
+
+    def test_enable_delay_shorter_than_pull_in_and_bounce_fails(self):
+        bad = Feeder(stepper_enable_after_ms=40.0).check_inrush()
+        self.assertTrue(any("CONTACTOR_SETTLE_MS" in r for r in bad), bad)
+        self.assertEqual(Feeder(stepper_enable_after_ms=60.0).check_inrush(), [])
+        bad = Feeder(contactor_bounce_ms=200.0, stepper_enable_after_ms=300.0, bus_idle_a=3.0).check_inrush()
+        self.assertTrue(any("bounce" in r for r in bad), bad)
+
+    def test_firmware_holds_the_driver_off_until_the_contactor(self):
+        fw = Path(__file__).resolve().parents[2] / "firmware" / "esp32"
+        src = (fw / "main.py").read_text()
+        self.assertIn("Pin(AZ_EN_PIN, Pin.OUT, value=1)", src)
+        self.assertIn("if not self.power.enabled:", src)
+        cfg = (fw / "config.py").read_text()
+        self.assertIn(f"CONTACTOR_SETTLE_MS = {Feeder.stepper_enable_after_ms:g}", cfg)
 
     def test_firmware_gives_the_servo_no_pulse_before_a_feed(self):
         src = (Path(__file__).resolve().parents[2] / "firmware" / "esp32" / "main.py").read_text()

@@ -46,6 +46,8 @@ button released *and* a `CLEAR_ESTOP` command.
 | 39 | Elevation feedback pot wiper (`pot`; input-only, ADC1, 0-3.3 V: power the pot from 3.3 V; 100k wiper to GND) |
 | 14 / 21 | Azimuth stepper driver STEP / DIR (NEMA 17, 10:1 gear sector) |
 | 22 | Azimuth home switch (to GND, pull-up: low = at home, about -32 deg) |
+| 5 | Azimuth stepper driver EN (active low; 4.7k pull-up to 3.3 V keeps the driver off through reset; low only once the contactor is closed) |
+| 15 | Contactor coil sense (PC817 across the coil through 10k, transistor to GND, pull-up: low = coil energised) |
 | 13 | Feed gate servo |
 | 32 / 33 | Base motor driver PWM / DIR (both driven wheels on one channel) |
 | 18 / 19 | Base encoder A / B |
@@ -112,7 +114,7 @@ Measure your build with an inline power meter and update this table.
   and up into the axis clamp (`cad/README.md`, "Deck-side cables"). Cut the
   head's wires 789 mm from their deck terminals to the clamp. The azimuth
   stepper's StepStick driver sits on a printed carrier on the deck's M3 grid
-  (STEP/DIR on GPIO 14/21, EN to GND, 100 uF across 24 V); its coils run
+  (STEP/DIR on GPIO 14/21, EN on GPIO 5 with a 4.7k pull-up to 3.3 V, 100 uF across 24 V; see "Stepper ENABLE after the contactor" below); its coils run
   874 mm of 22 AWG with the home switch's 26 AWG pair. The lift gearmotor's
   lead is 916 mm of 20 AWG. Twist each tachometer pair: they share the
   bundle with the launcher phases.
@@ -184,11 +186,23 @@ never thinner than 20 AWG.
   bus charged: at 24 V that held the bus near 8 V and the contactor would make
   about 223 A (136 to 328 A across the sweep). Since 2026-11-14 the servo gets
   no pulse until a FEED, and rests unpowered at the crank's dead centres. The
-  azimuth stepper driver still holds from power-up (its ENABLE is not wired):
-  about 8 W, so the contactor makes about 45 A at 24 V (28 to 66 A across the
-  sweep, over an assumed 60 A with a 20 mOhm pack). Wiring the driver's
-  ENABLE to a pin the firmware holds off until the contactor has closed is the
-  next step.
+  azimuth stepper driver held from power-up while its ENABLE was tied to GND:
+  about 8 W, so the contactor made about 45 A at 24 V (28 to 66 A across the
+  sweep, over an assumed 60 A with a 20 mOhm pack).
+- **Stepper ENABLE after the contactor (2026-11-14, `Feeder.contactor_bounce`,
+  firmware `controller.PowerGate`).** The driver's EN goes to GPIO 5 with a
+  4.7k pull-up to 3.3 V (off through reset; remove any pull-down the driver
+  board puts on EN). A PC817 optocoupler's LED goes across the contactor's
+  coil through a 10k resistor, its transistor from GPIO 15 to GND. The
+  firmware pulls EN low only once the coil has been on for 150 ms
+  (`CONTACTOR_SETTLE_MS`, longer than an assumed 50 ms pull-in and 10 ms
+  bounce), and lets it go the moment the coil drops; a dropped coil also halts
+  the board, clears the feed queue and makes the azimuth home again, and
+  telemetry sets `FLAG_BUS_OFF` (1024). With nothing starting during the
+  precharge the contactor makes about 20 A (12 to 29 A across the sweep).
+  A 10 ms contact bounce re-closes onto under 1 V (about 12 A), because the
+  precharge relay holds the bus while the contacts are open. The coil sense
+  also catches a wireless e-stop the board would otherwise not see.
 - **Not modelled:** regenerative current from braking ESCs, and every load's
   real current. Log the battery current on the first build with an inline
   meter.

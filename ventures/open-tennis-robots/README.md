@@ -258,9 +258,20 @@ shuttle servo from power-up, so after an e-stop mid-stroke it would seek home
 at stall during the precharge: on assumed figures that holds the bus near 8 V
 and the contactor makes about 223 A. The servo now gets no pulse until the
 first FEED, which runs a back stroke first, and rests unpowered at the crank's
-dead centres between feeds. The stepper driver still holds from power-up, so
-the contactor makes about 45 A; wiring its ENABLE is next (`cad/README.md`,
-"Start-up loads during the precharge").
+dead centres between feeds (`cad/README.md`, "Start-up loads during the
+precharge").
+
+The stepper driver held its current from power-up too, because its ENABLE was
+tied to ground, and that alone made the contactor take about 45 A. Since
+2026-11-14 its ENABLE is on a pin with a pull-up, and an optocoupler across
+the contactor's coil tells the ESP32 when the coil is on; the firmware enables
+the driver only after the coil has been on for 150 ms, longer than the
+contactor's assumed pull-in and bounce. The contactor now makes about 20 A
+(12 to 29 A across the sweep, none over the assumed 60 A). The same sense line
+catches a wireless e-stop the board could not see before: the board halts,
+drops any queued ball and re-homes the azimuth, and the Pi's drill runner
+aborts on the new `FLAG_BUS_OFF` (`cad/README.md`, "Stepper ENABLE after the
+contactor, and contact bounce").
 
 Also fixed: `launcher.aim` crashed with `AttributeError` on a shot too fast to
 land on its target (80 m/s), because its bisection closed on the jump between
