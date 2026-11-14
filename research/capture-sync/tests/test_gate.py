@@ -66,3 +66,36 @@ def test_sparse_top_scores_do_not_end_the_sequence():
     bad[:100] = True  # 0.5% failures, all at moderate scores
     lam = ltt_threshold(s, bad, np.geomspace(2, 400, 241), 0.01, 0.1)
     assert lam < 60
+
+
+def test_blind_snr_falls_with_added_noise():
+    from capture_sync.gate import blind_snr_db
+    rng = np.random.default_rng(0)
+    t = np.arange(32000) / 16000
+    speechy = np.sin(2 * np.pi * 300 * t) * (np.sin(2 * np.pi * 2 * t) > 0)  # on/off bursts
+    clean = blind_snr_db(speechy + 1e-3 * rng.standard_normal(len(t)))
+    noisy = blind_snr_db(speechy + 0.5 * rng.standard_normal(len(t)))
+    assert clean > 30 and noisy < 10 and clean > noisy
+
+
+def test_mondrian_refuses_out_of_support_and_controls_each_bin():
+    from capture_sync.gate import mondrian_ltt, mondrian_accept
+    rng = np.random.default_rng(1)
+    n = 200_000
+    feat = rng.uniform(0, 30, n)  # noise feature: low = noisy
+    s = rng.exponential(10.0, n)
+    p_bad = np.clip(0.4 * np.exp(-s / 5) * np.exp(-feat / 10), 0, 1)
+    bad = rng.random(n) < p_bad
+    grid = np.geomspace(0.5, 100, 200)
+    floor, inner, lams = mondrian_ltt(s, bad, feat, grid, 0.01, 0.1)
+    assert len(lams) == 4 and lams[0] >= lams[-1]  # noisier bin needs a stricter threshold
+    ft = rng.uniform(-10, 30, n)  # test reaches below the calibration's support
+    st = rng.exponential(10.0, n)
+    bt = rng.random(n) < np.clip(0.4 * np.exp(-st / 5) * np.exp(-ft / 10), 0, 1)
+    acc = mondrian_accept(st, ft, floor, inner, lams)
+    assert not acc[ft < floor].any()
+    for k in range(4):
+        lo = floor if k == 0 else inner[k - 1]
+        hi = inner[k] if k < 3 else np.inf
+        m = acc & (ft >= lo) & (ft < hi)
+        assert bt[m].mean() <= 0.012

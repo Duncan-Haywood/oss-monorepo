@@ -89,3 +89,50 @@ def apply_gate(score, bad, lam):
     keep = score >= lam
     n = int(keep.sum())
     return float(n / max(len(score), 1)), (float(bad[keep].mean()) if n else float("nan")), n
+
+
+# ---- Step 3b: a noise-aware gate --------------------------------------------------------------------------
+
+def blind_snr_db(x, frame=512):
+    """A window's own SNR estimate, needing no clean reference: the spread of its 32 ms frame energies,
+    10 log10(90th / 10th percentile). Speech over a quiet floor spans tens of dB; under strong stationary
+    noise the quiet frames fill up and the ratio falls towards 0 dB. A ranking of noise levels, not a
+    calibrated SNR."""
+    x = np.asarray(x, float)
+    n = len(x) // frame
+    if n < 2:
+        raise ValueError("window shorter than two frames")
+    e = np.mean(x[:n * frame].reshape(n, frame) ** 2, axis=1) + 1e-20
+    return float(10 * np.log10(np.percentile(e, 90) / np.percentile(e, 10)))
+
+
+def mondrian_edges(feature, n_bins=4, support_q=0.01):
+    """Bin edges for a Mondrian (group-conditional) gate, from calibration features only (no labels):
+    the calibration quantiles at 1/n_bins ... and a support floor at quantile support_q, below which a
+    test window lies outside what the calibration saw and is refused."""
+    f = np.asarray(feature, float)
+    inner = np.quantile(f, np.arange(1, n_bins) / n_bins)
+    return float(np.quantile(f, support_q)), inner
+
+
+def mondrian_ltt(score, bad, feature, grid, alpha=0.01, delta=0.1, n_bins=4, support_q=0.01):
+    """One Learn-then-Test threshold per feature bin. Returns (floor, inner edges, thresholds per bin).
+    Each bin's test is valid for its own windows when calibration and test are exchangeable within the bin,
+    so failure among accepted is controlled bin by bin (hence also pooled) under a shift that moves
+    windows between bins but not within one."""
+    score = np.asarray(score, float)
+    bad = np.asarray(bad, bool)
+    feature = np.asarray(feature, float)
+    floor, inner = mondrian_edges(feature, n_bins, support_q)
+    b = np.digitize(feature, inner)
+    lams = [ltt_threshold(score[b == k], bad[b == k], grid, alpha, delta) for k in range(n_bins)]
+    return floor, inner, lams
+
+
+def mondrian_accept(score, feature, floor, inner, lams):
+    """Boolean accept mask for test windows under a Mondrian gate (refused below the support floor)."""
+    score = np.asarray(score, float)
+    feature = np.asarray(feature, float)
+    b = np.digitize(feature, inner)
+    lam = np.asarray(lams, float)[b]
+    return (feature >= floor) & (score >= lam)
