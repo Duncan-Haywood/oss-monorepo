@@ -162,7 +162,7 @@ top pick's chance.
 
 - A real person's answers: none yet. The page counts anonymous local events
   only (`site/usage.mjs`); site page views come from the shared beacon.
-- Team combine's ranges (below) read tau low; see "Team ranges".
+- Team combine's tau read low until the Laplace fix; see "Team ranges", "Laplace, not PQL".
 - `orderConfidence` overstates certainty for very noisy respondents on short
   lists (table above); a lapse-aware prior or the app's `lapseEstimate` could
   correct it.
@@ -193,10 +193,10 @@ The same formula on Gaussian pseudo-data with the same curvatures recovered
 tau, so the formula was right and the expansion point wrong: the refit's
 prior pulls every score toward 0, so p(1 - p) and the curvature come out too
 high and each person looks surer than they are. Relinearising fixed the
-direction. tau is still read low (true 2 reads 0.6-0.9), the usual Laplace
-bias for a variance component with binary answers, so the page states it in
-words ("about the same / somewhat different / clearly different likes"), not
-as a number.
+direction. tau was still read low (true 2 read 0.6-0.9); the cause was a
+second bug, fixed the same day (below, "Laplace, not PQL"). The page states
+tau in words ("about the same / somewhat different / clearly different
+likes"), because logits mean nothing to a reader.
 
 **Measured** (`node scripts/team-ranges-calibration.mjs --runs 40`, every
 cell in `docs/team-ranges-2026-11-14.jsonl`): group true scores spread over 4
@@ -242,6 +242,65 @@ group's. "Naive" is the Group range read as if it were the Wider one;
   (its Spearman with the members' and the wider group's true orders match
   `groupFit`'s and `populationFit`'s to 0.01).
 
+The table above is the PQL read, kept as the record of what shipped first.
+The Wider and tau columns after the fix are in the next section.
+
+### Laplace, not PQL (2026-11-14, later)
+
+The low tau was not the "usual Laplace bias". The marginal likelihood
+dropped each person's quadratic constant k = l(c) - grad'c - c'Jc/2 as "a
+constant that does not depend on tau". It does: the expansion point c is each
+person's mode given the group and tau, so it moves with tau. Without k the
+read is penalised quasi-likelihood (PQL), whose downward bias on variance
+components with binary answers is well known (Breslow and Clayton 1993;
+Rodriguez and Goldman 1995). Keeping k makes it the Laplace approximation at
+the joint mode. `linearize` now returns k; `populationFromInfos` adds it (the
+`laplace: false` option restores the old read, for comparison only). k also
+made tau = 0 and tau > 0 comparable: the two branches expand at different
+points, so their log likelihoods differed by unrelated constants before.
+
+Measured with the same script and seeds (`node
+scripts/team-ranges-calibration.mjs --runs 40`, every cell in
+`docs/team-ranges-laplace-2026-11-14.jsonl`; Group, naive and tau = 0 columns
+are unchanged, as they do not use the fitted tau):
+
+| options | people | true tau | Wider: cover / width (PQL) | Wider: cover / width (Laplace) | tau read (PQL) | tau read (Laplace) |
+|---|---|---|---|---|---|---|
+| 8 | 3 | 0 | 0.997 / 3.4 | 0.997 / 3.6 | 0.17 | 0.34 |
+| 8 | 3 | 1 | 0.950 / 4.0 | 0.969 / 4.5 | 0.45 | 1.02 |
+| 8 | 3 | 2 | 0.953 / 5.1 | 0.978 / 6.1 | 0.81 | 2.17 |
+| 8 | 5 | 0 | 1.000 / 2.8 | 1.000 / 2.9 | 0.13 | 0.23 |
+| 8 | 5 | 1 | 0.969 / 3.6 | 0.981 / 4.0 | 0.45 | 1.07 |
+| 8 | 5 | 2 | 0.956 / 4.4 | 0.984 / 5.4 | 0.71 | 1.99 |
+| 8 | 10 | 0 | 0.997 / 2.2 | 0.997 / 2.2 | 0.10 | 0.20 |
+| 8 | 10 | 1 | 0.972 / 2.8 | 0.994 / 3.2 | 0.39 | 0.97 |
+| 8 | 10 | 2 | 0.959 / 4.0 | 0.991 / 4.8 | 0.67 | 2.03 |
+| 15 | 3 | 0 | 0.965 / 5.5 | 0.965 / 5.7 | 0.16 | 0.30 |
+| 15 | 3 | 1 | 0.928 / 7.3 | 0.962 / 8.4 | 0.49 | 1.14 |
+| 15 | 3 | 2 | 0.903 / 9.0 | 0.955 / 10.9 | 0.85 | 2.27 |
+| 15 | 5 | 0 | 0.973 / 4.6 | 0.977 / 4.8 | 0.15 | 0.31 |
+| 15 | 5 | 1 | 0.943 / 6.2 | 0.965 / 7.1 | 0.45 | 1.20 |
+| 15 | 5 | 2 | 0.920 / 8.5 | 0.968 / 10.1 | 0.75 | 2.27 |
+| 15 | 10 | 0 | 0.985 / 3.6 | 0.985 / 3.6 | 0.06 | 0.15 |
+| 15 | 10 | 1 | 0.960 / 4.9 | 0.985 / 5.4 | 0.36 | 0.98 |
+| 15 | 10 | 2 | 0.955 / 6.9 | 0.980 / 8.1 | 0.61 | 2.08 |
+
+- tau now reads within 0.15 of the truth at 8 options and within 0.3 at 15
+  (true 0.5 reads 0.40-0.72), against 30-60% of it before. At true 0 it reads
+  0.15-0.34: tau is bounded below, and a few noisy answers look like spread.
+- The Wider range covers 0.955-1.00 in every cell (0.90-1.00 before) and is
+  wider by 0.1-2 places: at 15 options and 3 strongly different people, 10.9
+  places of 15. That width is the honest answer; the PQL range was too narrow
+  for the claim at 15 x 3 x tau 2 (0.903) and only just held.
+- The page's word thresholds moved with it: under 0.4 "about the same", under
+  0.8 "somewhat different", else "clearly different" (were 0.2 and 0.5, set
+  for the low read).
+- Cost is the same order: 0.18 s at 25 options x 5 people, 0.9 s at 60 x 5,
+  2.0 s at 60 x 10 (this container). Pinned by two more tests in
+  `site/rank-core.test.mjs`: tau = 2 over 10 people reads 1.4-3 (the PQL read,
+  0.57-0.84, fails it; checked), and the quadratic with k equals the log
+  likelihood at its expansion point, ties included.
+
 Cost in Node: 0.2 s at 25 options x 5 people, 0.8 s at 60 x 5, 1.2 s at
 60 x 10, run once per Combine click. Pinned by four tests in
 `site/rank-core.test.mjs`; the disagreement one fails with tau forced to 0
@@ -249,8 +308,8 @@ Cost in Node: 0.2 s at 25 options x 5 people, 0.8 s at 60 x 5, 1.2 s at
 Group ranges 1-2 ... 5-6, Wider 1-3 ... 4-6, no horizontal scroll, no console
 errors.
 
-Open: tau's low bias (an importance-sampled marginal or a moment estimator
-could correct it); the Wider range assumes the members are a random draw
+Open: tau's slight high read at true 0 (0.15-0.34; a REML-style or
+bias-corrected read could pull it down); the Wider range assumes the members are a random draw
 from the wider group, which a team that picked itself is not.
 
 ## Ready-list pages (2026-11-14)

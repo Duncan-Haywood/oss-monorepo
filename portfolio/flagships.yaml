@@ -336,17 +336,18 @@ flagships:
       prior (docs/RANK-PAGE.md "Noisy answerers"); some coin-flippers still stop
       early. Since 2026-11-14 team combine shows two 90% rank ranges, this group and
       the wider group (random effects, iterated Laplace; simulated cover 0.90-1.00,
-      docs/RANK-PAGE.md "Team ranges"); tau reads low (2 as 0.6-0.9). Next, most
-      valuable first: (r) get the rank page in front of people, then (c) the first
-      real survey's answers: msToAnswer against the answer-time model,
+      docs/RANK-PAGE.md "Team ranges"); tau read low (PQL dropped the expansion
+      constant); since 2026-11-14 later it is the Laplace read (true 2 reads
+      2.0-2.3, Wider cover 0.955-1.00, docs/RANK-PAGE.md "Laplace, not PQL"). Next,
+      most valuable first: (r) get the rank page in front of people, then (c) the
+      first real survey's answers: msToAnswer against the answer-time model,
       panelWalkRatio on real times, whether times depend on which slot is clicked
       (the d9 bound assumes not), whether real people have warm-ups, blocks, slot
       runs or spread-out carelessness, and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (t) correct the team tau's
-      low bias; (d11) bound the d10 turn's split search; (d8) a stronger pick signal
-      under wander (staged pairs are near 50/50 late in a session; anchor pairs?);
-      (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to 0.030:
-      decide on a real panel's times.
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the d10 turn's
+      split search; (d8) a stronger pick signal under wander (staged pairs are near
+      50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at
+      q = 1 but taxes a camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
