@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycT6uG5qzfke6LxVzA",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T01:38:27Z",
+  "ended": "2026-11-14T01:57:06Z",
+  "wall_minutes": 19.42,
+  "tokens_in": 5757806,
+  "tokens_out": 34666,
+  "cost_usd": 2.6571,
+  "tool_calls": 66,
+  "task": "Polish: two-column-form drop-downs whose choices were cut at laptop widths (row-cards report, 'Still weakest' item 3)",
+  "projects": [
+    "platform/pages",
+    "bid-calculators"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15686",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First --write pass used a sibling-based 'repeated row' heuristic that also matched cards with two .fields blocks, so most pages were silently skipped; caught by re-measuring (74 -> 14 instead of -> 4), replaced with the rows-reserve empty-host definition.",
+    "Stashed the venture changes and then ran the dist patch script, which read block-less sources; reverted dist with an unpatch script before taking 'before' screenshots."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-14-row-cards.md",
+      "issue": "Item 3 guessed the other bid calculators shared the row-table layout; a select-clip run showed their cut selects are in the main two-column .fields grid instead, a different fix."
+    },
+    {
+      "file": "platform/pages/select-clip.mjs",
+      "issue": "Measures only the default option; a tool that decides layout has to measure every option, so select-span re-implements the measure rather than reusing it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot the hub, a research page, Stories and a blog post before picking; the previous polish run's report named a measured next item and select-clip quantified it (74 cut on 47 pages).",
+      "did": "Picked from the report and measured before and after on the built site.",
+      "result": "83 -> 2 cut choices at 1,280 px on the 84 pages changed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-drop-downs-that-needed-the-whole-row.md",
+    "docs/reports/polish-2026-11-14-select-span.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: node --test platform/pages/select-span.test.mjs 6/6; each of the 84 changed ventures' own *.test.mjs suites exit 0; select-clip on built dist (84 pages) 1280px 83->2, 768px 5->2, 390px 45->44, 320px 119->119; repo-wide DIST=ventures 1280px 308->229, no newly clipped select at any width; no sideways scroll at 320/390/1280 before or after; median +74 px page height at 1280. Site build suite (node --test 'platform/pages/*.test.mjs') : 1643 tests, 1617 pass, 0 fail (rest skipped), exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "38a53ef1-5547-5bc0-a1b6-f9c10357e005",
+    "transcripts": 1,
+    "first": "2026-11-14T01:38:27Z",
+    "last": "2026-11-14T01:57:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 115,
+        "output": 34666,
+        "thinking": 8913,
+        "cache_read": 5653621,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104070,
+        "api_equivalent_usd": 2.6571,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 115,
+      "output": 34666,
+      "thinking": 8913,
+      "cache_read": 5653621,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104070,
+      "api_equivalent_usd": 2.6571,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 57,
+      "Write": 3,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.42,
+      "active_minutes": 19.42,
+      "model_minutes": 5.78,
+      "tool_minutes": 13.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "front-end dev: measuring script, 84-page layout change, before/after measurement, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 301.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
