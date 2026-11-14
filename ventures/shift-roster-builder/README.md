@@ -1542,3 +1542,29 @@ The section above left "Keep people on their usual shifts" (the page's default) 
 Open hours and pay are identical to the old planner in every row (the tried variant also matched open hours, but paid slightly less and moved more). On the 61 drawn four-week plans (`node eval/plan-lookahead.mjs`, `eval/plan-lookahead.out.txt`) the keep plans are unchanged (1,084 open hours, $713,982, 394 changes) and take 28.8 s against 37.6 s. So the page's default plan is 1.3-1.8x faster with nothing else moved. On the guide page's café plan the four weeks are the same rosters (`plan-lookahead.test.mjs`, "keep usual shifts").
 
 Not claimed: invented teams with swept or drawn time off, one 4-core machine; times include the usual-week build. Whether a manager notices or prefers the steadier plan is still unmeasured.
+
+## Staff shared between sites (2026-11-14)
+
+Until today a business with two shops planned each one separately (`--each-location` gave one plan per site, and the builder took one staff list per run), so a person who works at both had to be split by hand and the weekly hour limit could not hold across the two plans.
+
+**What changed.** A shift row takes `site: Harbour` and a person's row takes `sites: Main | Harbour` (`site:`, `location:`, `shop:` and `store:` read the same; no cell means the person can work anywhere). One build then plans every site from one staff list: the weekly and daily hour limits, the rest rule, days in a row and no double-booking hold across the sites, and a person is offered only shifts at sites their row lists. Names match with case and punctuation ignored (`Main St.` = `main st`). The rest is carried through:
+
+- The report gains a **By site** table (`siteSplit` in `calc.mjs`): shifts, hours, covered and open hours, payroll and headcount per site, and who works at more than one site with their hours at each. Overtime is earned on the week, not at one shop, so each person's pay is shared between sites by their hours there; the per-site payroll adds back to the roster's total. The CLI prints the same table under the roster (`siteSplitText`) and `--json` gains `sites` and a `site` on each assignment.
+- An open shift at a site nobody lists says `nobody listed works at "Harbour"`.
+- The roster CSV gains a `site` column only when some shift names a site, so one-shop files stay byte-identical. Reissues hold a started shift for whoever had it **at that site** (`pinStarted`), and last week's shifts earn the keep bonus only at their own site (`slotKey` adds the site); a file with no site column matches any site, as before.
+- `--from-sales --each-location` now tags every shift line with `site: <name>`, so its whole output pastes into one build: forecast each shop from the till export, list everyone once with their `sites:`, build.
+- The page reads the same cells and shows the By site table under the roster.
+
+**Measured** (`node eval/shared-staff-sites.mjs`, `eval/shared-staff-sites.out.txt`): 40 seeded, made-up weeks, a seven-day "Main" (two openers and two closers a day, 224 h) and a smaller "Harbour" (one person Mon-Thu, two Fri-Sun, 11-7, 80 h), 7 and 3 people with 1-3 random days off, 24-40 h caps and $15-22 wages. Same engine, same seeds; f is the share of each site's people allowed at both:
+
+| plan | open hours (40 weeks) | payroll | weeks with fewer open hours than separate |
+|---|---|---|---|
+| each site separately | 1,040 | $204,560 | |
+| one build, f = 0 | 1,040 | $204,568 | 0 (and 0 with more) |
+| one build, f = 0.25 | 728 (-30%) | $210,184 | 22 of 40 |
+| one build, f = 0.5 | 608 (-42%) | $212,424 | 29 of 40 |
+| one build, everyone at both | 464 (-55%) | $215,144 | 34 of 40 |
+
+With f = 0 the joint build equals the separate builds in open hours on every seed (the script stops if not), which checks that the site rule keeps two staff lists apart; the $8 payroll difference is the fairness term, which now spreads over one team. Pooling never left more hours open. Payroll rises because more hours are covered, not because the hours cost more. The script also checks every roster: nobody is placed at a site their row does not list. Checked in `sites.test.mjs` (8 tests: parsing, the site rule and a cross-site hour cap, the open-shift reason, the split adding back to payroll, the CSV column, the site-aware reissue pin and keep, and the CLI from a two-site Square-header sales file to one joint roster), and a headless-Chromium run of a two-site week on the page showed the table with no page errors.
+
+Not claimed: invented teams and shops; no real multi-site business's staff list has been read. No travel time between sites is modelled: the rest rule (10 h by default) already keeps any two shifts of one person apart, so it matters only when rest is set below the trip; with rest set to 0 a person could close one shop at 3pm and open the other at 3pm. The "people a week work at both" count in the eval includes tied rosters where a cross-site shift buys nothing. Sites are not yet priced differently (a per-site wage or a travel allowance).

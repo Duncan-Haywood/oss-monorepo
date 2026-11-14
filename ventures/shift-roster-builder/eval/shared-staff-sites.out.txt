@@ -1,0 +1,52 @@
+Shared staff between two shops, 40 made-up weeks (Main: 2 open + 2 close daily, 224 h; Harbour: 1-2 on 11-7, 80 h; 7 + 3 people).
+Same seeds, same engine (buildRoster, exact check "auto"); f = share of each site's people allowed at both sites.
+
+seed  1  separate  32 h open $ 5128 | f=0:  32 h $ 5128 0 shared | f=0.25:   8 h $ 5608 2 shared | f=0.5:   8 h $ 5592 5 shared | f=1:   8 h $ 5592 7 shared
+seed  2  separate  32 h open $ 5200 | f=0:  32 h $ 5192 0 shared | f=0.25:  32 h $ 5192 1 shared | f=0.5:  24 h $ 5368 4 shared | f=1:  24 h $ 5368 5 shared
+seed  3  separate  24 h open $ 5240 | f=0:  24 h $ 5240 0 shared | f=0.25:  24 h $ 5240 0 shared | f=0.5:   8 h $ 5544 2 shared | f=1:   8 h $ 5544 6 shared
+seed  4  separate  48 h open $ 4880 | f=0:  48 h $ 4880 0 shared | f=0.25:  48 h $ 4880 0 shared | f=0.5:  24 h $ 5320 2 shared | f=1:  24 h $ 5320 5 shared
+seed  5  separate  16 h open $ 5296 | f=0:  16 h $ 5296 0 shared | f=0.25:   8 h $ 5440 2 shared | f=0.5:   8 h $ 5440 5 shared | f=1:   8 h $ 5440 7 shared
+seed  6  separate  32 h open $ 5144 | f=0:  32 h $ 5144 0 shared | f=0.25:  16 h $ 5432 2 shared | f=0.5:   0 h $ 5776 4 shared | f=1:   0 h $ 5776 7 shared
+seed  7  separate  32 h open $ 5064 | f=0:  32 h $ 5064 0 shared | f=0.25:  16 h $ 5392 1 shared | f=0.5:  16 h $ 5392 2 shared | f=1:   8 h $ 5560 7 shared
+seed  8  separate  32 h open $ 4800 | f=0:  32 h $ 4800 0 shared | f=0.25:  32 h $ 4800 2 shared | f=0.5:  32 h $ 4800 6 shared | f=1:  32 h $ 4800 8 shared
+seed  9  separate  56 h open $ 4544 | f=0:  56 h $ 4544 0 shared | f=0.25:  56 h $ 4552 1 shared | f=0.5:  56 h $ 4552 1 shared | f=1:  24 h $ 5176 7 shared
+seed 10  separate  24 h open $ 5360 | f=0:  24 h $ 5360 0 shared | f=0.25:  16 h $ 5504 4 shared | f=0.5:  16 h $ 5504 3 shared | f=1:  16 h $ 5504 6 shared
+seed 11  separate  32 h open $ 4912 | f=0:  32 h $ 4912 0 shared | f=0.25:  16 h $ 5200 4 shared | f=0.5:  16 h $ 5144 3 shared | f=1:  16 h $ 5144 5 shared
+seed 12  separate  56 h open $ 4728 | f=0:  56 h $ 4728 0 shared | f=0.25:  40 h $ 5000 1 shared | f=0.5:  40 h $ 5000 2 shared | f=1:  40 h $ 5000 4 shared
+seed 13  separate  48 h open $ 4712 | f=0:  48 h $ 4712 0 shared | f=0.25:  40 h $ 4888 2 shared | f=0.5:  40 h $ 4888 2 shared | f=1:  40 h $ 4888 5 shared
+seed 14  separate   0 h open $ 5432 | f=0:   0 h $ 5432 0 shared | f=0.25:   0 h $ 5432 0 shared | f=0.5:   0 h $ 5392 3 shared | f=1:   0 h $ 5392 8 shared
+seed 15  separate  32 h open $ 4800 | f=0:  32 h $ 4800 0 shared | f=0.25:  32 h $ 4800 0 shared | f=0.5:  32 h $ 4800 0 shared | f=1:   8 h $ 5248 8 shared
+seed 16  separate  32 h open $ 4888 | f=0:  32 h $ 4888 0 shared | f=0.25:  32 h $ 4888 0 shared | f=0.5:  16 h $ 5184 2 shared | f=1:  16 h $ 5184 7 shared
+seed 17  separate   8 h open $ 5336 | f=0:   8 h $ 5336 0 shared | f=0.25:   8 h $ 5320 1 shared | f=0.5:   8 h $ 5320 1 shared | f=1:   0 h $ 5472 8 shared
+seed 18  separate  24 h open $ 5280 | f=0:  24 h $ 5280 0 shared | f=0.25:  16 h $ 5416 2 shared | f=0.5:   8 h $ 5592 3 shared | f=1:   8 h $ 5592 5 shared
+seed 19  separate  16 h open $ 5208 | f=0:  16 h $ 5208 0 shared | f=0.25:  16 h $ 5208 1 shared | f=0.5:  16 h $ 5208 1 shared | f=1:   0 h $ 5408 8 shared
+seed 20  separate  48 h open $ 4792 | f=0:  48 h $ 4792 0 shared | f=0.25:  24 h $ 5272 2 shared | f=0.5:  24 h $ 5272 2 shared | f=1:  16 h $ 5440 7 shared
+seed 21  separate  32 h open $ 4600 | f=0:  32 h $ 4600 0 shared | f=0.25:   8 h $ 4984 1 shared | f=0.5:   8 h $ 4984 2 shared | f=1:   8 h $ 4984 7 shared
+seed 22  separate  24 h open $ 4984 | f=0:  24 h $ 4984 0 shared | f=0.25:   8 h $ 5256 2 shared | f=0.5:   8 h $ 5248 6 shared | f=1:   8 h $ 5248 6 shared
+seed 23  separate  16 h open $ 5400 | f=0:  16 h $ 5400 0 shared | f=0.25:   8 h $ 5528 2 shared | f=0.5:   8 h $ 5528 2 shared | f=1:   8 h $ 5528 7 shared
+seed 24  separate   8 h open $ 5848 | f=0:   8 h $ 5848 0 shared | f=0.25:   0 h $ 6016 1 shared | f=0.5:   0 h $ 6016 6 shared | f=1:   0 h $ 6016 5 shared
+seed 25  separate   8 h open $ 5344 | f=0:   8 h $ 5344 0 shared | f=0.25:   8 h $ 5328 5 shared | f=0.5:   8 h $ 5328 3 shared | f=1:   8 h $ 5328 9 shared
+seed 26  separate  16 h open $ 5496 | f=0:  16 h $ 5496 0 shared | f=0.25:  16 h $ 5496 3 shared | f=0.5:  16 h $ 5496 3 shared | f=1:  16 h $ 5496 7 shared
+seed 27  separate  24 h open $ 5080 | f=0:  24 h $ 5080 0 shared | f=0.25:  24 h $ 5080 3 shared | f=0.5:  24 h $ 5080 4 shared | f=1:  24 h $ 5080 5 shared
+seed 28  separate  40 h open $ 5288 | f=0:  40 h $ 5288 0 shared | f=0.25:  24 h $ 5600 2 shared | f=0.5:  16 h $ 5752 4 shared | f=1:  16 h $ 5752 6 shared
+seed 29  separate  48 h open $ 4520 | f=0:  48 h $ 4520 0 shared | f=0.25:  16 h $ 5088 0 shared | f=0.5:  16 h $ 5088 3 shared | f=1:   0 h $ 5384 7 shared
+seed 30  separate  16 h open $ 5264 | f=0:  16 h $ 5264 0 shared | f=0.25:  16 h $ 5264 0 shared | f=0.5:   8 h $ 5400 6 shared | f=1:   8 h $ 5400 6 shared
+seed 31  separate  32 h open $ 5024 | f=0:  32 h $ 5040 0 shared | f=0.25:  24 h $ 5168 1 shared | f=0.5:  24 h $ 5168 2 shared | f=1:  24 h $ 5224 6 shared
+seed 32  separate  24 h open $ 5200 | f=0:  24 h $ 5200 0 shared | f=0.25:  16 h $ 5352 2 shared | f=0.5:  16 h $ 5352 2 shared | f=1:   8 h $ 5504 7 shared
+seed 33  separate  16 h open $ 5288 | f=0:  16 h $ 5288 0 shared | f=0.25:  16 h $ 5288 0 shared | f=0.5:  16 h $ 5288 0 shared | f=1:   8 h $ 5472 8 shared
+seed 34  separate  16 h open $ 4952 | f=0:  16 h $ 4952 0 shared | f=0.25:  16 h $ 4952 0 shared | f=0.5:   8 h $ 5120 5 shared | f=1:   8 h $ 5120 6 shared
+seed 35  separate  16 h open $ 5048 | f=0:  16 h $ 5048 0 shared | f=0.25:   0 h $ 5288 3 shared | f=0.5:   0 h $ 5288 2 shared | f=1:   0 h $ 5288 8 shared
+seed 36  separate   8 h open $ 5296 | f=0:   8 h $ 5296 0 shared | f=0.25:   0 h $ 5456 2 shared | f=0.5:   0 h $ 5456 3 shared | f=1:   0 h $ 5448 7 shared
+seed 37  separate  32 h open $ 5040 | f=0:  32 h $ 5040 0 shared | f=0.25:  24 h $ 5192 1 shared | f=0.5:  24 h $ 5192 2 shared | f=1:   8 h $ 5472 4 shared
+seed 38  separate  24 h open $ 5512 | f=0:  24 h $ 5512 0 shared | f=0.25:  24 h $ 5496 2 shared | f=0.5:  16 h $ 5664 2 shared | f=1:  16 h $ 5664 6 shared
+seed 39  separate  16 h open $ 5304 | f=0:  16 h $ 5304 0 shared | f=0.25:   0 h $ 5608 1 shared | f=0.5:   0 h $ 5608 2 shared | f=1:   0 h $ 5608 7 shared
+seed 40  separate   0 h open $ 5328 | f=0:   0 h $ 5328 0 shared | f=0.25:   0 h $ 5280 2 shared | f=0.5:   0 h $ 5280 2 shared | f=1:   0 h $ 5280 7 shared
+
+Totals over 40 weeks:
+  separate builds          open 1040 h, payroll $204560
+  one build, f = 0        open 1040 h (+0), payroll $204568 (+$8); fewer open hours in 0 weeks, more in 0; 0.0 people a week work at both
+  one build, f = 0.25     open 728 h (-312), payroll $210184 (+$5624); fewer open hours in 22 weeks, more in 0; 1.5 people a week work at both
+  one build, f = 0.5      open 608 h (-432), payroll $212424 (+$7864); fewer open hours in 29 weeks, more in 0; 2.9 people a week work at both
+  one build, f = 1        open 464 h (-576), payroll $215144 (+$10584); fewer open hours in 34 weeks, more in 0; 6.5 people a week work at both
+
+(20 s; payroll covers the hours that get filled, so filling more can cost more.)
