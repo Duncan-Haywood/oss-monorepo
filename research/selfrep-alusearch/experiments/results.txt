@@ -14,12 +14,12 @@ budget  joint-search  | old redesign (wood 0.9)  | joint choice
 == objective: cost closure, printer+router+laser shop
 budget  joint-search  | old redesign (wood 0.9)  | joint choice
   0.0     15.9%      |   15.9%                  | steel rods; -
-  0.5     35.6%      |   33.6%                  | aluminium 12 mm; printed-m8-nuts
-  1.0     42.1%      |   41.2%                  | aluminium 12 mm; printed-m8-nuts, printed-m3-nuts
-  1.5     44.9%      |   43.9%                  | aluminium 12 mm; printed-bushings, printed-m8-nuts, printed-m3-nuts
-  2.0     46.1%      |   44.9%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts
-  3.0     47.1%      |   46.1%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive
-  4.0     47.7%      |   47.7%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive, printed-hobbed-bolt
+  0.5     19.2%      |   17.4%                  | aluminium 12 mm; printed-m8-nuts
+  1.0     20.8%      |   18.9%                  | aluminium 12 mm; printed-bushings, printed-m8-nuts
+  1.5     21.6%      |   19.9%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts
+  2.0     22.4%      |   21.2%                  | aluminium 12 mm; printed-bushings, printed-m8-nuts, printed-belt-drive
+  3.0     23.7%      |   23.2%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-belt-drive, printed-hobbed-bolt
+  4.0     24.0%      |   24.0%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive, printed-hobbed-bolt
 
 == objective: lines closure, printer+router+laser shop
 budget  joint-search  | old redesign (wood 0.9)  | joint choice
