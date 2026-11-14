@@ -1,6 +1,6 @@
 ---
 title: "Two gear-pump makers, opposite answers, one number: 0.83"
-seo_title: "Gear pump efficiency at 150 bar: when a fixed pump beats load-sensing on an excavator"
+seo_title: "Gear pump efficiency at 150 bar: fixed pump vs load-sensing"
 date: 2026-11-14
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, excavator, gear-pump, fuel]
 description: "Casappa's curves say load-sensing wins, Danfoss's say a smaller fixed pump does. On one efficiency axis both flip at about 0.83 overall at 150 bar."
