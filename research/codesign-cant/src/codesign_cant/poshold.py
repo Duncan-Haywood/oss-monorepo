@@ -69,7 +69,7 @@ def reference(episodes, seed, steps=None):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, mixer=True):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -92,6 +92,10 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     clip. diag, if a dict, receives per (design, episode) shares of alive steps with the roll/pitch integrator at its clip
     ("integ_at_clip"), the integrator feed-forward at its clip ("ffi_at_clip"), the tilt command at TILT_CMD_MAX ("tilt_at_clip")
     and the mixer scaling roll/pitch ("mix_rp"), and the step each episode died at ("t_dead", -1 if alive).
+    Milestone 7g adds to diag the share of alive steps with the roll/pitch request at the torque limit ("req_at_clip", |u| >= 1)
+    and with the gust torque larger than the plant's torque limit on that axis ("dist_over"), and whether each dead episode died
+    by the 60 deg tilt test ("dead_tilt", True) rather than the 5 m position test. mixer=False (a probe) bypasses the
+    attitude-priority mixer: the clipped request goes to the motors per axis, as the box mixer of milestones 0-1 did.
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
     if steps is None:
@@ -130,8 +134,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     n_steps = steps
     alive = np.ones((N, E), bool)
     if diag is not None:
-        dg = {k: np.zeros((N, E)) for k in ("integ_at_clip", "ffi_at_clip", "tilt_at_clip", "mix_rp")}; n_alive = np.zeros((N, E))
-        t_dead = np.full((N, E), -1)
+        dg = {k: np.zeros((N, E)) for k in ("integ_at_clip", "ffi_at_clip", "tilt_at_clip", "mix_rp", "req_at_clip", "dist_over")}; n_alive = np.zeros((N, E))
+        t_dead = np.full((N, E), -1); dead_tilt = np.zeros((N, E), bool)
     for t in range(n_steps):
         m_t = gust_mean if t < k_step else mean_after
         v = a * v + (1 - a) * m_t + gust_std * np.sqrt(1 - a * a) * gust_n[:, :, t][None]
@@ -162,8 +166,11 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         u = kp * e - kd * gy + ki * integ
         req = np.clip(u, -1, 1) * tmax_nom[:, None, :]
         mixed, s_rp, s_y = mix_priority(req, *mix_args, mode="hover")
+        if not mixer:
+            mixed = req
         if diag is not None:
             dg["mix_rp"] += alive * (s_rp < 1 - 1e-9)
+            dg["req_at_clip"] += alive * (np.abs(u[:, :, :2]) >= 1.0).any(-1)
         if sat is not None:
             sat[:, 0] += (s_rp < 1 - 1e-9).mean(axis=1) / n_steps
             sat[:, 1] += (s_y < 1 - 1e-9).mean(axis=1) / n_steps
@@ -174,6 +181,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         tq = np.clip(tq, -tmax, tmax)
         om_prev, th_prev = om, th
         dist = np.zeros((N, E, 3)); dist[:, :, :2] = dsg * kg * v * np.abs(v)
+        if diag is not None:
+            dg["dist_over"] += alive * (np.abs(dist[:, :, :2]) > tmax[:, :, :2]).any(-1)
         om = om + (tq + dist - np.cross(om, I * om)) / I * A.DT
         phi, tht, psi = th[:, :, 0], th[:, :, 1], th[:, :, 2]
         p, q, r = om[:, :, 0], om[:, :, 1], om[:, :, 2]
@@ -187,7 +196,10 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         wind = kf * v * np.abs(v) / mass[:, :, None]
         vel = vel + np.stack([ax + wind[:, :, 1], ay + wind[:, :, 0]], -1) * A.DT
         pos = pos + vel * A.DT
-        alive &= (np.abs(phi) < np.deg2rad(60.0)) & (np.abs(tht) < np.deg2rad(60.0)) & (np.abs(pos).max(axis=2) < DEAD_POS)
+        tilt_ok = (np.abs(phi) < np.deg2rad(60.0)) & (np.abs(tht) < np.deg2rad(60.0))
+        if diag is not None:
+            dead_tilt |= alive & ~tilt_ok
+        alive &= tilt_ok & (np.abs(pos).max(axis=2) < DEAD_POS)
         dead = ~alive
         if diag is not None:
             t_dead = np.where(dead & (t_dead < 0), t, t_dead)
@@ -200,7 +212,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         s_yaw += np.where(dead, np.deg2rad(60.0) ** 2, (yaw_ref[:, t][None] - th[:, :, 2]) ** 2)
         s_att += np.where(dead, np.deg2rad(60.0) ** 2, ((rp_ref - th[:, :, :2]) ** 2).mean(axis=2))
     if diag is not None:
-        diag.update({k: v / np.maximum(n_alive, 1) for k, v in dg.items()}); diag["t_dead"] = t_dead
+        diag.update({k: v / np.maximum(n_alive, 1) for k, v in dg.items()}); diag["t_dead"] = t_dead; diag["dead_tilt"] = dead_tilt
     return dict(pos=np.sqrt(s_pos / n_steps).mean(1), pos_late=np.sqrt(s_late / (n_steps - k_step)).mean(1),
                 yaw=np.rad2deg(np.sqrt(s_yaw / n_steps)).mean(1), att=np.rad2deg(np.sqrt(s_att / n_steps)).mean(1), dead=(~alive).mean(1), dead_ep=~alive, pos_ep=np.sqrt(s_pos / n_steps),
                 late_x=np.sqrt(s_ax[:, :, 0] / (n_steps - k_step)).mean(1), late_y=np.sqrt(s_ax[:, :, 1] / (n_steps - k_step)).mean(1))

@@ -171,6 +171,22 @@ def test_milestone_7d_probes_leave_the_default_rollout_unchanged():
     assert ((diag["t_dead"] >= 0) == b["dead_ep"]).all()
 
 
+def test_milestone_7g_probes_leave_the_default_rollout_unchanged_and_mixer_off_differs():
+    """mixer=True and the new diag keys reproduce the default rollout; mixer=False changes it; dead_tilt implies dead."""
+    r = _m7b_above_design(); sz, g, kap = _sz_gains(r["x"])
+    kw = dict(dist_sign=poshold.cop_signs(1.0), ff=1.0, ff_mode="integ", lever_scale=2.0)
+    a = poshold.rollout(sz, g, kap, 8, 5, **kw)
+    diag = {}
+    b = poshold.rollout(sz, g, kap, 8, 5, diag=diag, mixer=True, **kw)
+    for k in ("pos", "yaw", "att", "dead", "pos_ep"):
+        assert np.array_equal(a[k], b[k]), k
+    for k in ("req_at_clip", "dist_over"):
+        assert diag[k].shape == (1, 8) and (diag[k] >= 0).all() and (diag[k] <= 1).all()
+    assert not (diag["dead_tilt"] & ~b["dead_ep"]).any()
+    c = poshold.rollout(sz, g, kap, 8, 5, mixer=False, **kw)
+    assert not np.array_equal(a["pos_ep"], c["pos_ep"])
+
+
 def test_longer_episode_keeps_the_first_draws_and_four_yaw_segments():
     y6, *_ = poshold.reference(4, 3)
     y18, *rest = poshold.reference(4, 3, 3 * poshold.STEPS)

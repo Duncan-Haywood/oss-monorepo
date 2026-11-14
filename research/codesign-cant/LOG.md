@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-14 · Milestone 7g: what drives the residual divergence at a doubled centre-of-pressure lever? (predictions written and committed before `experiments/m7g_lever2/run.py` was run)
+
+- Why: milestone 7f's first next step. Every design trained inside a ki margin of 0.8x or tighter still diverges on 12-13 of 384 held-out flights at lever 2 (outside training) with a 45° tilt-command limit, and tightening the margin to 0.6x moves nothing. 7f named three candidates: saturation in the mixer, the 60° tilt bound, the outer position loop. A fourth it did not name: the doubled gust torque may simply exceed the motors' torque on some plant draws, which no controller can fix.
+- Built: `poshold.rollout` gets a `mixer=False` probe (bypass the attitude-priority mixer, per-axis clip only) and three diagnostics (`req_at_clip`: roll/pitch request at the torque limit; `dist_over`: gust torque above the plant's torque limit; `dead_tilt`: died by the 60° test rather than 5 m). Defaults are bit-for-bit unchanged (`tests/test_poshold.py`).
+- Setup (`experiments/m7g_lever2/run.py`): 7f's 18 margin-trained designs (M = 1.25, 1.43, 1.67; 6 seeds each) and its 6 unconstrained ones, 64 held-out flights (seed 9999), lever 2, 45°, side force on, arms: `base`; `nocouple` (no side force; an ablation, not a buildable vehicle); `noff` (feed-forward off, same gains); `nomixer`; `cap20` (20° limit). Per flight: plant draw, wind-step signs, cause and time of death, saturation shares, and the steady post-step gust torque over the plant's torque limit.
+- Looked at before writing these: an import check that lists 24 designs. No 7g number.
+- Predictions (constrained designs, `base`, unless stated):
+  - G0 (reproduction, prior 95%): `base` reproduces 7f's counts (M = 1.25 / 1.43 / 1.67: 12 / 13 / 12; unconstrained 45) and `cap20` 7f's 4 / 4 / 4 and 15.
+  - G1 (prior 60%): at least 75% of the deaths are by the 60° tilt test, not by drifting 5 m.
+  - G2 (prior 55%): authority: the median share of alive steps with the gust torque above the plant's limit is at least twice as high in dying flights as in surviving ones.
+  - G3 (prior 50%): removing the side force (`nocouple`) cuts the deaths by at most a third.
+  - G4 (prior 40%): bypassing the mixer changes the total by at most 3.
+  - G5 (prior 55%): turning the feed-forward off does not cut the deaths by more than a third.
+  - G6 (prior 65%): the deaths are the flight's, not the design's: at least half the dead (design, flight) pairs are in flights that kill at least 3 of the 18 designs.
+  - G7 (prior 70%): at least 90% of the dead pairs are flights whose wind steps up (to 6 m/s) on at least one axis.
+- Analysis: counts and medians; no test beyond the counts.
+
 ## 2026-11-13 · Milestone 7f: sweep the linear stability margin used as a training constraint (predictions written and committed before `experiments/m7f_sweep/run.py` was run at full budget; outcome below)
 
 - Why: milestone 7e's first next step. 7e tested one margin (ki <= 0.8x the linear ceiling, M = 1.25) and found it costs about 0.7% of held-out cost and removes every divergence a 45° tilt limit exposes. A builder needs the curve, not one point: how much margin is enough, and what does more cost?
