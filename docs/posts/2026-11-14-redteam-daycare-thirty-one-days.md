@@ -1,9 +1,9 @@
 ---
 title: "Ten daycare spots, 10.33 dogs. Red-teaming the pet boarding profit calculator"
-seo_title: "Why a dog daycare staffing model must not run 31 days in a 30-day month"
+seo_title: "Dog daycare staffing: why 31 days open broke a 30-day month model"
 date: 2026-11-14
 tags: [testing, mutation-testing, dog-daycare, pet-boarding, staffing, redteam]
-description: "8 faults seeded into the pet boarding and daycare profit calculator, 3 caught. Reading the code found a daycare open 31 days putting more dogs on site than it has spots, and an extra attendant on the payroll."
+description: "8 faults seeded into the pet boarding profit calculator, 3 caught: a daycare open 31 days put more dogs on site than its spots and added an attendant."
 ---
 
 The [pet boarding and daycare profit calculator](../../ventures/pet-boarding-daycare-profit-calculator/)
