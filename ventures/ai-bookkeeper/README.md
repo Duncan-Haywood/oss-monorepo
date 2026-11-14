@@ -1263,7 +1263,89 @@ from a two-column statement, or one where the extractor reorders columns, is not
 covered. Scanned (image) PDFs have no text to copy; the CLI reads them by OCR
 (next section).
 
-<!-- SCANNED -->
+### Scanned statements (image-only PDFs and page photos, 2026-11-14)
+
+Some banks, and most paper statements, give a scan: a PDF with no text layer, or a
+photo of the page. `import scan.pdf --account 1000` (also `.png`, `.jpg`, `.tif`)
+now reads it by OCR on your own machine (`readStatementFile` in `ocr.mjs`):
+`pdftoppm` draws each page at 300 dpi in grey, `tesseract --psm 6` reads it as one
+block (one statement row per line), the digit look-alikes OCR leaves (`4.5O`) are
+repaired, and the text goes to the pasted-statement reader above. Nothing is
+uploaded. `STATEMENT_OCR_CMD` swaps in another OCR command (`myocr {file}`).
+
+OCR misreads digits, and a statement is the rare document that carries its own
+checksum, so the reading is checked against it:
+
+- **Running balance.** When a row's amount does not take the previous balance to
+  the printed one, the row is repaired only on two-sided evidence: the printed
+  balance is confirmed by the next row (or the closing balance), so the amount was
+  misread and becomes the balance's change; or the next row chains only from the
+  previous balance plus this amount, so the printed balance was misread. A row
+  whose amount OCR mangled (`1.22e,00`), leaving the balance to be read as the
+  amount, is put back the same way. Each repair is printed with the old and new
+  figure ("check it on the page"); the first row is never repaired against the
+  opening balance alone, since the opening may be the misread figure. Pasted or
+  text-layer statements are never repaired, only checked.
+- **Opening to closing.** Opening plus the rows must reach the closing balance
+  (`check` on the reader's result; a card statement's previous and new balance,
+  where the balance is what is owed, run the other way). A miss is printed with
+  the gap.
+- **A second reading.** When a check still fails, the pages are read again as one
+  column (`--psm 4`) and the reading with fewer faults is kept, the way a receipt
+  photo is read twice.
+
+Reader fixes found on the way, which apply to pasted text too: a card statement
+with no section headings that prints payments with a minus (`PAYMENT THANK YOU
+-1,238.92`) read every row as money out; now, when the header says card and no
+row has a running balance, minus rows are payments and credits. A dated "Balance
+brought forward" line (UK style) was not taken as the opening, so the first row's
+direction was guessed. A summary line holding both balances ("Beginning balance
+8,379.39 Ending balance 14,354.60") was read as an opening of 14,354.60. "New
+Balance" is a closing balance.
+
+Measured: `node eval/scanned-statements.mjs` (needs playwright, tesseract,
+poppler and ImageMagick) draws 40 made-up statements in four layouts (withdrawal,
+deposit and balance columns; Chase-style sections with no balance column; a card
+statement, half with a previous/new balance summary; a UK current account with
+day-first dates and balance brought forward), photographs them at 200 dpi,
+degrades them like a scan (skew up to 1.2 degrees, seeded noise, blur, JPEG
+quality 45 to 85), wraps each as an image-only PDF and reads it back. Same 40
+images both ways (seed 7, tesseract 5.3.4):
+
+| 40 scanned statements, 703 rows (same images) | one reading, no repair | repair + second reading |
+|---|---|---|
+| rows right (date, amount, direction) | 691 (98.3%) | 694 (98.7%) |
+| wrong direction | 1 | 0 |
+| wrong amount | 4 | 4 |
+| rows missing | 7 | 5 |
+| statements read perfectly | 32 | 36 |
+| imperfect, and a balance check says so | 7 | 3 |
+| imperfect and silent | 1 | 1 |
+
+Both columns include the reader fixes above. Before them (an earlier run of the
+benchmark on slightly different images: unseeded noise, and a generator bug that
+printed negative balances without the minus) 27 of 40 were perfect and 8 imperfect
+statements were silent: three UK statements whose first row's direction was guessed
+(the brought-forward fault), one hit by the generator bug, and four where OCR lost
+or mangled an amount (the card-minus fault was fixed before that run). By
+layout, with every fix: sections 10 of 10 perfect, UK 9 of 10, card 9 of 10,
+columns 8 of 10 (5 with one reading and no repair). A second reading ran on 9
+statements and was kept on 2. The one silent miss is a card statement with no
+previous/new balance, where a row went missing and nothing could tell. The 3
+flagged ones lost a row or misread figures on two rows in a row, where the repair,
+needing two-sided evidence, does not guess.
+
+These are synthetic statements typeset in Arial, so they measure the route and
+the checks, not accuracy on any real bank's scan, a phone photo of a curled page,
+or a statement in another language; a real scanned statement is the next input
+wanted. The check matters more than the reading rate: a statement whose rows do
+not add up is reported, so the remaining risk is a statement that carries no
+balance at all (a card statement with no summary). Not yet on the web page, which
+reads text-layer PDFs only. Tests: `scanned-statement.test.mjs` (stubbed tools,
+plus one real ImageMagick, pdftoppm and tesseract run when installed). OCR is
+slow, about 5 s a page on 4 cores, and two tesseract processes at once on the same
+cores slowed to minutes a page here (OpenMP threads competing; `OMP_THREAD_LIMIT=1`
+is tesseract's advice for running several at once).
 
 ## Switching from QuickBooks or Xero
 

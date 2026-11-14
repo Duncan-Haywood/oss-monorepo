@@ -163,19 +163,25 @@ export function readStatementFile(path, { run = spawnSync, env = process.env, da
   } finally { if (dir) rmSync(dir, { recursive: true, force: true }); }
 }
 
-// How far a statement reading is from adding up: running-balance breaks, plus one
-// if opening plus the rows misses the closing balance, plus one per unreadable
-// amount. 0 means every check it carries passes; null means it carries no check
+// How far a statement reading is from adding up, read the way an OCR reading is
+// (rows repaired from the running balance where the evidence is two-sided):
+// running-balance breaks, plus one if opening plus the rows misses the closing
+// balance, plus one per unreadable amount, plus a half per repaired row. 0 means every check it carries passes; null means it carries no check
 // (no running balance, no opening and closing), so nothing can be judged.
 export function statementScore(text, opts = {}) {
-  const r = readStatement(text, opts);
+  const r = readStatement(text, { ...opts, ocr: true });
   if (!r.rows?.length) return null;
   const bc = checkRunningBalance(r.rows);
   const flipped = bc.checked ? checkRunningBalance(r.rows.map((x) => ({ ...x, balance: x.balance === null ? null : -x.balance }))) : null;
-  const breaks = bc.checked ? Math.min(bc.breaks.length, flipped.breaks.length) : null;
+  // most rows carry a balance and some lost theirs: each one that lost it is a fault
+  const withBal = r.rows.filter((x) => x.balance !== null).length;
+  const lost = withBal >= r.rows.length / 2 && withBal < r.rows.length ? r.rows.length - withBal : 0;
+  const breaks = bc.checked ? Math.min(bc.breaks.length, flipped.breaks.length) : lost || null;
   const total = r.check ? (r.check.ok ? 0 : 1) : null;
   if (breaks === null && total === null) return null;
-  return (breaks ?? 0) + (total ?? 0) + (r.problems ?? []).filter((p) => /unreadable amount/.test(p)).length;
+  // a row put back from the running balance (statementtext.mjs repairByBalance) is
+  // half a fault: a reading that needed no repair beats one that did
+  return (breaks ?? 0) + (total ?? 0) + (r.problems ?? []).filter((p) => /unreadable amount/.test(p)).length + 0.5 * (r.repaired?.length ?? 0);
 }
 
 function ocrPage(file, command, run) {

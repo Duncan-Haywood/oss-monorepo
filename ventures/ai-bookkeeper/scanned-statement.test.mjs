@@ -61,7 +61,7 @@ test("a reading that does not add up is read again as one column, and the one th
 test("statementScore counts running-balance breaks and a missed closing balance; null with nothing to check", () => {
   const head = "Statement period March 2026\nBeginning Balance 1,000.00\nEnding Balance 1,240.00\n";
   assert.equal(statementScore(head + "03/02 DEPOSIT 300.00 1,300.00\n03/05 FUEL 60.00 1,240.00\n"), 0);
-  assert.equal(statementScore(head + "03/02 DEPOSIT 300.00 1,300.00\n03/05 FUEL 80.00 1,240.00\n"), 2);
+  assert.equal(statementScore(head + "03/02 DEPOSIT 300.00 1,300.00\n03/05 FUEL 80.00 1,240.00\n"), 0.5); // repaired from the balance: half a fault
   assert.equal(statementScore("Statement March 2026\n03/02 A 5.00\n03/03 B 6.00\n"), null);
 });
 
@@ -119,3 +119,63 @@ test("a real scan: an image-only PDF drawn by ImageMagick reads back through pdf
     const r = readStatement(text);
     assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2026-03-02", 125000], ["2026-03-09", -8625], ["2026-03-17", -2500]]);
   });
+
+test("OCR repair: a misread amount is put back from a running balance the next line confirms", () => {
+  const t = "Statement period: Sep 1, 2026 through Sep 30, 2026\nBeginning Balance 18,258.10\n09/22 SQUARE INC DEPOSIT 646.94 18,905.04\n09/24 ZELLE FROM J RIVERA 1,222.15 20,127.79\n09/25 DELI 44 MARKET 215.31 19,912.48\n";
+  const plain = readStatementText(t);
+  assert.equal(plain.repaired, undefined); // pasted text is never changed
+  const r = readStatementText(t, { ocr: true });
+  assert.deepEqual(r.rows.map((x) => x.cents), [64694, 122275, -21531]);
+  assert.equal(r.repaired.length, 1);
+  assert.equal(r.repaired[0].field, "amount");
+  assert.match(r.problems.join(" "), /1,222\.15.*1,222\.75/);
+});
+
+test("OCR repair: a misread balance is put back when the next line chains from the amount", () => {
+  const t = "Statement March 2026\nBeginning Balance 1,005.00\n03/01 COFFEE 5.00 1,000.00\n03/02 DEPOSIT 300.00 1,800.00\n03/05 FUEL 60.00 1,240.00\n";
+  const r = readStatementText(t, { ocr: true });
+  assert.deepEqual(r.rows.map((x) => [x.cents, x.balance]), [[-500, 100000], [30000, 130000], [-6000, 124000]]);
+  assert.equal(r.repaired[0].field, "balance");
+});
+
+test("OCR repair: a row whose amount was lost (the balance read as the amount) gets it back", () => {
+  const t = "Statement March 2026\nBeginning Balance 1,005.00\n03/01 COFFEE 5.00 1,000.00\n03/02 DEPOSIT 1.3e,00 1,300.00\n03/05 FUEL 60.00 1,240.00\n";
+  const r = readStatementText(t, { ocr: true });
+  assert.deepEqual(r.rows.map((x) => x.cents), [-500, 30000, -6000]);
+});
+
+test("OCR repair leaves a break it cannot settle from both sides, and a reading with no balances", () => {
+  // the amount and both balances disagree: two faults in a row, no confirmation
+  const t = "Statement March 2026\nBeginning Balance 1,000.00\n03/02 DEPOSIT 300.00 1,350.00\n03/05 FUEL 60.00 1,250.00\n";
+  const r = readStatementText(t, { ocr: true });
+  assert.equal(r.repaired, undefined);
+  assert.equal(readStatementText("Statement March 2026\n03/02 A 5.00\n03/03 B 6.00\n", { ocr: true }).repaired, undefined);
+});
+
+test("a dated 'Balance brought forward' line is the opening balance, so the first row gets its sign", () => {
+  const t = "Statement period: 1 Aug 2026 to 31 Aug 2026\n01 Aug Balance brought forward 11,663.15\n01 Aug DEPOSIT 1,248.96 12,912.11\n05 Aug FUEL 6.06 12,906.05\n";
+  const r = readStatementText(t, { dayFirst: true });
+  assert.deepEqual(r.rows.map((x) => x.cents), [124896, -606]);
+  assert.equal(r.inferred, null);
+});
+
+test("a card statement's previous and new balance (owed, positive) check its rows", () => {
+  const t = "Summit Rewards Card\nStatement period: Jul 1, 2026 through Jul 31, 2026\nPrevious Balance $1,000.00\nNew Balance $415.74\n07/01 07/02 PAYMENT THANK YOU -1,000.00\n07/03 07/04 FUEL STOP 19 251.21\n07/08 07/09 HOTEL HARBORVIEW 164.53\n";
+  const c = readStatementText(t).check;
+  assert.equal(c.ok, true);
+  assert.equal(c.owed, true);
+  const bad = readStatementText(t.replace("164.53", "184.53")).check;
+  assert.equal(bad.ok, false);
+  assert.equal(bad.off, -2000);
+});
+
+test("a summary line with both balances gives the opening and the closing; the first row is not repaired against the opening", () => {
+  const t = "Statement period: Jan 1, 2026 through Jan 31, 2026\nBeginning balance 8,379.39 Ending balance 7,319.77\n01/08 CLOUD STORAGE PLAN 1,034.26 7,345.13\n01/10 DELI 44 MARKET 25.36 7,319.77\n";
+  const r = readStatementText(t, { ocr: true });
+  assert.deepEqual(r.check, { opening: 837939, closing: 731977, rowsTotal: -105962, ok: true });
+  assert.deepEqual(r.rows.map((x) => x.cents), [-103426, -2536]);
+  // opening misread: the first row is left alone (the balance check flags it)
+  const m = readStatementText(t.replace("8,379.39", "8,879.39"), { ocr: true });
+  assert.equal(m.repaired, undefined);
+  assert.deepEqual(m.rows.map((x) => x.cents), [-103426, -2536]);
+});

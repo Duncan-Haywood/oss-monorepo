@@ -223,7 +223,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "import") {
   if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
   const read = readStatementFile(rest[0], opts);
-  const r = importStatement(books, read.text, account, opts);
+  const r = importStatement(books, read.text, account, { ...opts, ocr: !!read.ocr });
   books = r.books;
   save();
   for (const p of r.problems) console.error(p);
@@ -231,8 +231,8 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const o = read.ocr;
     console.log(`Read by OCR (${o.tool}, ${o.pages} page${o.pages === 1 ? "" : "s"}${o.passes > 1 ? `, read twice${o.chose ? ` and the ${o.chose} reading kept` : ""}` : ""}): ${o.score === 0 ? "the statement's own balances agree with the rows read." : o.score === null ? "the statement carries no running balance or opening and closing balance, so no row could be checked; compare the rows with the page." : `${o.score} balance check${o.score === 1 ? "" : "s"} still fail${o.score === 1 ? "s" : ""}, so a digit was probably misread; compare the flagged rows with the page.`}`);
   }
-  const total = readStatement(read.text, opts).check;
-  if (total && !total.ok) console.log(`Opening ${fmt(total.opening)} plus the rows read (${fmt(total.rowsTotal)}) misses the closing balance ${fmt(total.closing)} by ${fmt(total.off)}: a row is missing, doubled or misread.`);
+  const total = readStatement(read.text, { ...opts, ocr: !!read.ocr }).check;
+  if (total && !total.ok) console.log(`Opening ${fmt(total.opening)} and the rows read (${fmt(total.rowsTotal)}${total.owed ? ", on a card where the balance is what is owed" : ""}) miss the closing balance ${fmt(total.closing)} by ${fmt(total.off)}: a row is missing, doubled or misread.`);
   const s = status(books);
   console.log(`${r.added} lines added, ${r.skipped} already in the books. ${s.auto} posted by rule or memory, ${s.transfer} transfer lines paired, ${s.review} waiting for review.`);
   if (r.balanceCheck?.checked) console.log(r.balanceCheck.breaks.length ? `The running balance breaks at ${r.balanceCheck.breaks.length} line(s), first at line ${r.balanceCheck.breaks[0].line}: a row may be missing or doubled.` : "The statement's running balance agrees with every row.");

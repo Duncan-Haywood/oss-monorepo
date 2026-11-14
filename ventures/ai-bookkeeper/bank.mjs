@@ -916,7 +916,7 @@ function tradeSignsAgree(out, rows, hdr) {
   return agree > 0;
 }
 
-export function readStatement(text, { dayFirst, decimalComma, invert, year, onlyAccount } = {}) {
+export function readStatement(text, { dayFirst, decimalComma, invert, year, onlyAccount, ocr } = {}) {
   // Classic-Mac files end lines with a bare CR; the line-based readers split on \n.
   text = String(text ?? "").replace(/\r(?!\n)/g, "\n");
   const dfGiven = dayFirst !== undefined, dcGiven = decimalComma !== undefined;
@@ -960,7 +960,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     }
   }
   if (!rows.some((r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); }) && !headerlessLayout(rows)) {
-    const t = readStatementText(text, { dayFirst, decimalComma, year });
+    const t = readStatementText(text, { dayFirst, decimalComma, year, ocr });
     if (t.rows.length) { if (invert === true) for (const x of t.rows) x.cents = -x.cents; return t; }
     if (t.problems.length) return t;
   }

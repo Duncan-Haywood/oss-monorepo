@@ -5,7 +5,7 @@
 // `readStatementFile` (pdftoppm + tesseract, ocr.mjs) and the pasted-statement
 // reader. Every row is compared with the statement it was drawn from.
 //
-//   node eval/scanned-statements.mjs [--n 40] [--seed 7] [--keep DIR] [--json] [--one-pass]
+//   node eval/scanned-statements.mjs [--n 40] [--seed 7] [--keep DIR] [--json] [--one-pass] [--no-repair] [--only 3,7 --debug]
 //
 // The statements are synthetic (seeded, made-up payees), so this measures the OCR
 // route's wiring and its error rate on clean-ish typeset pages, not on any real
@@ -23,6 +23,8 @@ const { readStatement } = await import(join(here, "..", "bank.mjs"));
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const N = +arg("--n", 40), SEED = +arg("--seed", 7), KEEP = arg("--keep", null), JSON_OUT = process.argv.includes("--json"), ONE_PASS = process.argv.includes("--one-pass");
+const NO_REPAIR = process.argv.includes("--no-repair");
+const ONLY = arg("--only", null)?.split(",").map(Number) ?? null, DEBUG = process.argv.includes("--debug");
 
 for (const [cmd, a] of [["tesseract", ["--version"]], ["pdftoppm", ["-v"]], ["convert", ["-version"]]]) {
   if (spawnSync(cmd, a).error) { console.log(`skipped: ${cmd} not installed`); process.exit(0); }
@@ -40,6 +42,8 @@ const OUT_PAYEES = ["CORNER HARDWARE #112", "BLUE DOOR COFFEE", "CITY WATER UTIL
 const IN_PAYEES = ["DEPOSIT", "MOBILE DEPOSIT", "ACH CREDIT CLIENT PMT", "STRIPE TRANSFER", "SQUARE INC DEPOSIT", "ZELLE FROM J RIVERA", "WIRE IN HARBOR LTD", "INTEREST PAYMENT"];
 const CARD_PAYEES = ["BLUE DOOR COFFEE", "AIRLINE TICKET 0042", "HOTEL HARBORVIEW", "OFFICE CHAIR STORE", "SOFTWARE ANNUAL", "TAXI 7781", "RESTAURANT PINE", "ONLINE ADS", "FUEL STOP 19", "BOOKSHOP ON 5TH"];
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const signed = (c) => (c < 0 ? "-" : "") + money(c);
+const dollars = (c) => (c < 0 ? "-$" : "$") + money(c);
 const money = (c) => (Math.abs(c) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function makeStatement(r, k) {
@@ -62,7 +66,7 @@ function makeStatement(r, k) {
   const opening = Math.round((1000 + r() * 20000) * 100);
   let bal = opening;
   for (const x of rows) { bal += x.cents; x.balance = bal; }
-  return { layout, month, year, days, rows, opening, closing: bal };
+  return { k, layout, month, year, days, rows, opening, closing: bal };
 }
 
 const CSS = `body{font-family:Arial,Helvetica,sans-serif;font-size:11px;margin:48px;color:#111}
@@ -75,27 +79,30 @@ function html(s) {
   const md = (x) => `${String(s.month + 1).padStart(2, "0")}/${String(x.day).padStart(2, "0")}`;
   const head = `<h1>Riverbend Community Bank</h1><div>Business Checking &middot; Account ending 4417</div><div>Statement period: ${per}</div>`;
   if (s.layout === "columns") {
-    const tr = s.rows.map((x) => `<tr><td>${md(x)}</td><td>${x.desc}</td><td class=n>${x.cents < 0 ? money(x.cents) : ""}</td><td class=n>${x.cents > 0 ? money(x.cents) : ""}</td><td class=n>${money(x.balance)}</td></tr>`).join("");
-    return `${head}<div class=box>Beginning balance ${money(s.opening)} &nbsp; Ending balance ${money(s.closing)}</div>
+    const tr = s.rows.map((x) => `<tr><td>${md(x)}</td><td>${x.desc}</td><td class=n>${x.cents < 0 ? money(x.cents) : ""}</td><td class=n>${x.cents > 0 ? money(x.cents) : ""}</td><td class=n>${signed(x.balance)}</td></tr>`).join("");
+    return `${head}<div class=box>Beginning balance ${signed(s.opening)} &nbsp; Ending balance ${signed(s.closing)}</div>
 <table><tr><th>Date</th><th>Description</th><th class=n>Withdrawals</th><th class=n>Deposits</th><th class=n>Balance</th></tr>
-<tr><td></td><td>Beginning Balance</td><td></td><td></td><td class=n>${money(s.opening)}</td></tr>${tr}</table>`;
+<tr><td></td><td>Beginning Balance</td><td></td><td></td><td class=n>${signed(s.opening)}</td></tr>${tr}</table>`;
   }
   if (s.layout === "sections") {
     const sec = (rows) => rows.map((x) => `<tr><td>${md(x)}</td><td>${x.desc}</td><td class=n>$${money(x.cents)}</td></tr>`).join("");
     const ins = s.rows.filter((x) => x.cents > 0), outs = s.rows.filter((x) => x.cents < 0);
-    return `${head}<div class=box><table><tr><td>Beginning Balance</td><td class=n>$${money(s.opening)}</td></tr><tr><td>Ending Balance</td><td class=n>$${money(s.closing)}</td></tr></table></div>
+    return `${head}<div class=box><table><tr><td>Beginning Balance</td><td class=n>${dollars(s.opening)}</td></tr><tr><td>Ending Balance</td><td class=n>${dollars(s.closing)}</td></tr></table></div>
 <h2>Deposits and Additions</h2><table><tr><th>Date</th><th>Description</th><th class=n>Amount</th></tr>${sec(ins)}</table>
 <h2>Electronic Withdrawals</h2><table><tr><th>Date</th><th>Description</th><th class=n>Amount</th></tr>${sec(outs)}</table>`;
   }
   if (s.layout === "card") {
     const tr = s.rows.map((x) => `<tr><td>${md(x)}</td><td>${md({ day: Math.min(s.days, x.day + 1) })}</td><td>${x.desc}</td><td class=n>${x.cents > 0 ? "-" : ""}${money(x.cents)}</td></tr>`).join("");
-    return `<h1>Summit Rewards Card</h1><div>Account ending 9031 &middot; Statement period: ${per}</div>
+    // half the card statements print a summary (owed is positive: new = previous + purchases - payments), half print none
+    const owed = s.opening - s.rows.reduce((a, x) => a + x.cents, 0);
+    const summary = s.k % 8 === 2 ? "" : `<div class=box><div>Previous Balance ${dollars(s.opening)}</div><div>New Balance ${dollars(owed)}</div></div>`;
+    return `<h1>Summit Rewards Card</h1><div>Account ending 9031 &middot; Statement period: ${per}</div>${summary}
 <table><tr><th>Trans</th><th>Post</th><th>Description</th><th class=n>Amount</th></tr>${tr}</table>`;
   }
-  const tr = s.rows.map((x) => `<tr><td>${String(x.day).padStart(2, "0")} ${MON[s.month]}</td><td>${x.desc}</td><td class=n>${x.cents < 0 ? money(x.cents) : ""}</td><td class=n>${x.cents > 0 ? money(x.cents) : ""}</td><td class=n>${money(x.balance)}</td></tr>`).join("");
+  const tr = s.rows.map((x) => `<tr><td>${String(x.day).padStart(2, "0")} ${MON[s.month]}</td><td>${x.desc}</td><td class=n>${x.cents < 0 ? money(x.cents) : ""}</td><td class=n>${x.cents > 0 ? money(x.cents) : ""}</td><td class=n>${signed(x.balance)}</td></tr>`).join("");
   return `<h1>Harbour Mutual</h1><div>Business Current Account</div><div>Statement period: 1 ${MON[s.month]} ${s.year} to ${s.days} ${MON[s.month]} ${s.year}</div>
 <table><tr><th>Date</th><th>Details</th><th class=n>Paid out</th><th class=n>Paid in</th><th class=n>Balance</th></tr>
-<tr><td>01 ${MON[s.month]}</td><td>Balance brought forward</td><td></td><td></td><td class=n>${money(s.opening)}</td></tr>${tr}</table>`;
+<tr><td>01 ${MON[s.month]}</td><td>Balance brought forward</td><td></td><td></td><td class=n>${signed(s.opening)}</td></tr>${tr}</table>`;
 }
 
 const r = rng(SEED);
@@ -107,11 +114,12 @@ const details = [];
 for (let k = 0; k < N; k++) {
   const s = makeStatement(r, k);
   const tilt = ((r() - 0.5) * 2.4).toFixed(2), noise = (0.1 + r() * 0.4).toFixed(2), blur = (0.3 + r() * 0.5).toFixed(2), q = 45 + Math.floor(r() * 40);
+  if (ONLY && !ONLY.includes(k)) continue;
   await page.setContent(`<style>${CSS}</style>${html(s)}`);
   const png = join(work, `s${k}.png`), jpg = join(work, `s${k}.jpg`), pdf = join(work, `s${k}.pdf`);
   await page.screenshot({ path: png, fullPage: true });
   // a scan: grey, skewed, a little noise and blur, JPEG, then an image-only PDF at 200 dpi
-  spawnSync("convert", [png, "-colorspace", "Gray", "-background", "white", "-rotate", tilt, "-attenuate", noise, "+noise", "Gaussian", "-blur", `0x${blur}`, "-quality", String(q), jpg]);
+  spawnSync("convert", [png, "-seed", String(SEED * 1000 + k), "-colorspace", "Gray", "-background", "white", "-rotate", tilt, "-attenuate", noise, "+noise", "Gaussian", "-blur", `0x${blur}`, "-quality", String(q), jpg]);
   spawnSync("convert", [jpg, "-density", "200", "-units", "PixelsPerInch", pdf]);
   let got, score = null;
   try {
@@ -120,7 +128,7 @@ for (let k = 0; k < N; k++) {
     if (ocr.passes > 1) sum.secondPass++;
     if (ocr.chose) sum.secondKept++;
     if (!ocr) throw new Error("expected the OCR route");
-    got = readStatement(text, { dayFirst: s.layout === "uk" });
+    got = readStatement(text, { dayFirst: s.layout === "uk", ocr: !NO_REPAIR });
   } catch (e) { got = { rows: [], problems: [String(e.message)] }; }
   const truth = s.rows.map((x) => ({ ...x }));
   const used = new Set();
@@ -139,6 +147,7 @@ for (let k = 0; k < N; k++) {
     if (!dateOk) wd++;
   }
   const extra = got.rows.length - used.size;
+  if (DEBUG) { console.error(`--- s${k} ${s.layout} score ${score}`); for (const t of truth) console.error(`truth ${t.date} ${t.cents} ${t.desc}`); for (const g of got.rows) console.error(`read  ${g.date} ${g.cents} ${g.desc}`); }
   const perfect = ok === truth.length && extra === 0;
   // would the reader have told the user? statementScore > 0: a running balance
   // that breaks, or the rows not adding up from opening to closing
