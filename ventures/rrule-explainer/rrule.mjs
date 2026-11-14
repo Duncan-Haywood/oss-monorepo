@@ -882,9 +882,14 @@ const LEVEL = { error: 0, warning: 1, info: 2 };
 const rank = (l) => (Object.hasOwn(LEVEL, l) ? LEVEL[l] : 3);
 const sortFindings = (fs) => fs.slice().sort((a, b) => rank(a.level) - rank(b.level));
 
+/** Spreadsheet formula-injection guard: a cell starting =, +, -, @, tab or CR (an offset like -05:00 included) gets an apostrophe. */
+export function csvSafe(s) {
+  return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+}
+
 /** CSV of the listed occurrences. */
 export function reportCsv(result) {
-  const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const q = (s) => `"${csvSafe(String(s ?? "")).replace(/"/g, '""')}"`;
   const rows = [["date", "weekday", "utc", "offset", "source", "note"].join(",")];
   for (const o of result.occurrences) rows.push([q(o.date), q(o.weekday), q(o.utc ?? ""), q(o.offset ?? ""), q(o.source), q(o.zone === "gap" ? `clock skips this time; happens at ${o.actualLocal}` : o.zone === "overlap" ? "time happens twice; first one" : "")].join(","));
   return rows.join("\n") + "\n";

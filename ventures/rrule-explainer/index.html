@@ -108,7 +108,7 @@
       <li>Every other week on Tuesday and Thursday: <code>FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,TH;WKST=MO</code> (write WKST; it decides which weeks pair up)</li>
       <li>US Thanksgiving: <code>FREQ=YEARLY;BYMONTH=11;BYDAY=4TH</code></li>
     </ul>
-    <p class="note">Checking a whole .ics file for import errors (missing UID, bad line folding, wrong value types)? Use the <a href="../ics-calendar-check/">ICS calendar checker</a>. Guide: <a href="why-recurring-event-skips-months.html">why a recurring event skips months, or shows up twice</a>.</p>
+    <p class="note">Checking a whole .ics file for import errors (missing UID, bad line folding, wrong value types)? Use the <a href="../ics-calendar-check/">ICS calendar checker</a>. Guide: <a href="why-recurring-event-skips-months.html">why a recurring event skips months, or shows up twice</a>. Scheduling a cron job across a clock change instead? The <a href="../cron-dst-drift-check/">cron DST drift check</a> shows which runs a DST change skips or doubles.</p>
   </section>
 
   <section class="card">

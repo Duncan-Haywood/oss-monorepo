@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { dayNumber, civil, weekday, weekOf, parseRule, parseInput, expand, analyze, wallToInstant, describe, reportCsv } from "./rrule.mjs";
+import { csvSafe, dayNumber, civil, weekday, weekOf, parseRule, parseInput, expand, analyze, wallToInstant, describe, reportCsv } from "./rrule.mjs";
 
 const dates = (text, opts = {}) => {
   const r = analyze({ text, limit: 40, ...opts });
@@ -165,6 +165,12 @@ test("CSV quotes every field and notes clock changes", () => {
   const csv = reportCsv(analyze({ text: "DTSTART;TZID=America/New_York:20260307T023000\nRRULE:FREQ=DAILY;COUNT=2" }));
   assert.match(csv, /^date,weekday,utc,offset,source,note\n/);
   assert.match(csv, /clock skips this time; happens at 2026-03-08 03:30/);
+  assert.match(csv, /"'-05:00"/); // a leading minus is guarded like a formula
+});
+
+test("csvSafe guards formula starts and leaves dates alone", () => {
+  assert.equal(csvSafe("=HYPERLINK(1)"), "'=HYPERLINK(1)");
+  assert.equal(csvSafe("2026-01-05 09:00"), "2026-01-05 09:00");
 });
 
 test("expand() honours limit and reports truncation", () => {

@@ -45,6 +45,11 @@ test("index links to at least one sibling drift-check venture", async () => {
   );
 });
 
+test("index links the RRULE Explainer, the calendar-event side of the same DST question", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\.\/rrule-explainer\/"/);
+});
+
 test("index has SoftwareApplication and FAQPage JSON-LD", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /"@type":"SoftwareApplication"/);

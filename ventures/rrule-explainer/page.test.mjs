@@ -106,6 +106,8 @@ test("the example loads with findings to show", () => {
 test("links: sibling, guide, robots, sitemap, README, llms.txt, LICENSE and VENTURE.yaml", () => {
   const html = page("index.html");
   assert.match(html, /href="\.\.\/ics-calendar-check\/"/);
+  assert.match(html, /href="\.\.\/cron-dst-drift-check\/"/);
+  assert.ok(readFileSync(new URL("../cron-dst-drift-check/index.html", import.meta.url), "utf8").includes('href="../rrule-explainer/"'));
   assert.ok(readFileSync(new URL("../ics-calendar-check/index.html", import.meta.url)));
   assert.match(html, /href="why-recurring-event-skips-months\.html"/);
   assert.match(page("robots.txt"), /Allow: \//);
