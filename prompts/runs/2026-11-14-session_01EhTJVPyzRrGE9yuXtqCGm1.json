@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 14,
   "outcome": "success",
@@ -41,6 +41,10 @@
     {
       "what": "Blog post first draft said the Pentax reader landed 'yesterday'; it landed the same day",
       "fix": "corrected before commit"
+    },
+    {
+      "what": "CI lint (mypy, no numpy) failed: an `np: Any` annotation before `import numpy as np` is a no-redef error there, though clean locally with numpy",
+      "fix": "import numpy then assign np; checked mypy in a numpy-free venv as CI runs it"
     }
   ],
   "integrity_issues": [],
@@ -60,7 +64,7 @@
     "ventures/photo-editing/eval/fujifilm-raf-reader-2026-11-14.md"
   ],
   "goal": "Deepen the top unclaimed flagship (photo-editing) with a hard engineering slice: a new raw format and a new CFA geometry, checked against LibRaw on real files.",
-  "notes": "Verification: tools/raf_libraw_check.py on the 3 public RAFs (X-E1, X-E2, S5500): 0 of 37,297,152 sensels differ from LibRaw 0.22.2; WB, 36/4 blacks, white, CFA equal (eval/fujifilm-raf-libraw-2026-11-14.jsonl). Header 0x0131 is stored backwards (r=1.000 vs 0.087 against WB-predicted per-position means, X-E2). JPEG alignment: header picture area centred on the camera JPEG to within 1 px on all three (eval/fujifilm-raf-jpeg-alignment-2026-11-14.jsonl). Pure vs numpy engines byte-identical on a 600x402 window of the real X-E1, full and half. pytest (venv with numpy) whole photo-editing suite: 1075 passed, 8 skipped. ruff clean; mypy: only the pre-existing dng_opcodes.py:1000 error with numpy present. Stdlib unittest (no numpy, as CI): see final commit message / PR. flagships.yaml next rewritten (1992/2000).",
+  "notes": "Verification: tools/raf_libraw_check.py on the 3 public RAFs (X-E1, X-E2, S5500): 0 of 37,297,152 sensels differ from LibRaw 0.22.2; WB, 36/4 blacks, white, CFA equal (eval/fujifilm-raf-libraw-2026-11-14.jsonl). Header 0x0131 is stored backwards (r=1.000 vs 0.087 against WB-predicted per-position means, X-E2). JPEG alignment: header picture area centred on the camera JPEG to within 1 px on all three (eval/fujifilm-raf-jpeg-alignment-2026-11-14.jsonl). Pure vs numpy engines byte-identical on a 600x402 window of the real X-E1, full and half. pytest (venv with numpy) whole photo-editing suite: 1075 passed, 8 skipped. ruff clean; mypy: only the pre-existing dng_opcodes.py:1000 error with numpy present. Stdlib unittest with system python (no numpy): 1083 tests, 1 error in untouched test_real_photo_calibration from this container's broken system Pillow (_imaging import); CI's photo-editing test job is green. venture-preflight photo-editing: clean. flagships.yaml next rewritten (1992/2000).",
   "corrections": [],
   "redteam": null
 }

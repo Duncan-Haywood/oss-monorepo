@@ -173,7 +173,9 @@ def unpack12_le(buf: bytes, count: int) -> array:
     out = array("H", [0]) * count
     np: Any
     try:
-        import numpy as np
+        import numpy
+
+        np = numpy
     except ImportError:
         np = None
     if np is not None:
