@@ -2536,21 +2536,64 @@ function earlyOpenFloor(ctx, incumbentScore, o = {}) {
 // of whole shift lengths at or above the dual bound (openSumLift) when the lengths are quarter hours.
 export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {}) {
   const t0 = Date.now();
+  const r = cliqueLP(ctx, { maxPivots });
+  if (!r) return null;
+  const floor = Number.isFinite(upTo) ? openSumLift(r.len, upTo + 1)(r.bound) : r.bound;
+  return { floor, lp: r.obj, bound: r.bound, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+}
+// Score floor from the same clique LP, priced (2026-11-14). The open-hours floor above says nothing about pay: once it proves
+// coverage on a big week, the score bound buildRoster can report is BIG x the floor, which counts every dollar of pay as open
+// (the 60 x 168 week 0 of eval/end-to-end.mjs: coverage proven at 300 h, gap $20,010 on a $19,119 pay bill). Here each column
+// x[p,s] costs a linear lower bound on what shift s adds to p's score, and open[s] costs BIG x its hours, as the score does:
+//   pay: (1 + burden) x (the shift's paid hours at p's rate there + its differential hours) x min(1, otMult, dtMult); overtime
+//     premiums, split premiums, paid trips and trip allowances only add, so they are left out;
+//   avoid: hours in p's avoid: window at avoidValue x wage (linear, exact); prefer and keep bonuses: subtracted (linear, exact);
+//   tough shifts: (w/100) x avgWage x (n^2 + 2 x before x n) >= (w/100) x avgWage x (1 + 2 x before) x n for whole n;
+//   fairness and shortfall, which depend on p's weekly hours h alone and are convex in h: one more set of columns per person,
+//     lam[p,k] for hour levels H_k (every quarter hour to p's cap, and p's minimum), with   sum_k lam[p,k] = 1   and
+//     sum_s len[s] x[p,s] + sum_k (1 - H_k) lam[p,k] = 1   (that is, h = sum_k H_k lam[p,k], written with a right-hand side of
+//     1 as solveLP needs). Column lam[p,k] costs f_p(H_k) - c x D^2 / 4, where c is the fairness weight and D the widest step:
+//     the line between two levels lies at most c x D^2 / 4 above the parabola, so the interpolant stays below f_p everywhere
+//     (the shortfall's kink is one of the levels, so its part is interpolated exactly).
+// Every person's score is at least the sum of these terms over the shifts held, so the LP is a lower bound on every roster's
+// score; the value used is a dual bound as above, so it holds whatever rounding the simplex leaves. Rules the LP drops (days in a
+// row, keep sets, weekly overtime) only lower it. Returns { bound, lp, open, rows, cols, pivots, ms } or null.
+export function cliqueScoreFloor(ctx, { maxPivots = 400000 } = {}) {
+  const t0 = Date.now();
+  const r = cliqueLP(ctx, { maxPivots, priced: true });
+  if (!r) return null;
+  return { bound: r.bound, lp: r.obj, open: r.open, rows: r.rows, cols: r.cols, people: r.people, pivots: r.pivots, ms: Date.now() - t0 };
+}
+// Linear lower bound on what shift i adds to person p's score, apart from fairness and shortfall (cliqueScoreFloor).
+function shiftCostFloor(ctx, p, i) {
+  const { o, staff, slots, rates } = ctx;
+  const w = staff[p].wage;
+  const h = paidMinutes(o, slots[i]) / 60;
+  const mult = Math.min(1, o.otMult, o.dtMult);
+  let pay = (rates ? rates.at[p][i] : w) * h * Math.max(0, mult);
+  if (ctx.diffMin.length) pay += (ctx.diffMin[i] / 60) * (o.diffPerHour + (w * o.diffPct) / 100);
+  return Math.max(0, 1 + o.burdenPct / 100) * pay + toughPenalty(ctx, p, [i]) + avoidPenalty(ctx, p, [i]) - preferBonus(ctx, p, [i]);
+}
+function cliqueLP(ctx, { maxPivots = 200000, priced = false } = {}) {
   const { P, S, slots, elig, staff, restMin } = ctx;
   if (!S) return null;
   const len = slots.map((s) => (s.end - s.start) / 60);
   const cols = [], cost = [], vals = [], init = [];
-  // rows 0..S-1: shift copies. Further rows are appended as they are made; each gets a slack column (cost 0) that starts the basis.
+  // rows 0..S-1: shift copies. Further rows are appended as they are made; each gets a slack column (cost 0) that starts the basis,
+  // except the priced LP's two equality rows per person, which start on an artificial.
   let m = S;
   const holds = Array.from({ length: S }, () => []); // per shift: column ids of x[., s], filled below
   const xcol = [];                                    // column id -> [p, s]
   const pending = []; // [colId, row, coefficient] entries added after each x column exists
+  const eqRows = new Set();
+  const lamCols = [];  // [p, rows [convexity, link], coefficients, cost]
+  const fairC = (o) => (o.balance / 100) * ctx.avgWage * 0.1;
   for (let p = 0; p < P; p++) {
     const ss = [];
     for (let i = 0; i < S; i++) if (elig[p][i] && validList(ctx, p, [i])) ss.push(i);
     if (!ss.length) continue;
     const ids = new Map();
-    for (const i of ss) { const j = cols.length; cols.push([i]); vals.push([1]); cost.push(0); ids.set(i, j); holds[i].push(j); xcol.push([p, i]); }
+    for (const i of ss) { const j = cols.length; cols.push([i]); vals.push([1]); cost.push(priced ? shiftCostFloor(ctx, p, i) : 0); ids.set(i, j); holds[i].push(j); xcol.push([p, i]); }
     const knap = (list, capMin) => {
       const tot = list.reduce((a, i) => a + slots[i].end - slots[i].start, 0);
       if (!(capMin < tot - 1e-9)) return;
@@ -2578,22 +2621,46 @@ export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {
       const r = m++;
       for (const i of alive) pending.push([ids.get(i), r, 1]);
     }
+    if (priced) {
+      // Hour levels: every quarter hour from 0 to the most p can hold (cap, and the sum of p's shifts), plus p's minimum.
+      const o = ctx.o, c = fairC(o), tp = ctx.target[p], mn = staff[p].minHours || 0;
+      const top = Math.min(staff[p].maxHours, ss.reduce((a, i) => a + len[i], 0));
+      const lv = new Set();
+      for (let k = 0; k * 0.25 < top - 1e-9; k++) lv.add(k * 0.25);
+      lv.add(top);
+      if (mn > 0 && mn < top) lv.add(mn);
+      const H = [...lv].sort((a, b) => a - b);
+      let D = 0;
+      for (let k = 1; k < H.length; k++) D = Math.max(D, H[k] - H[k - 1]);
+      const f = (h) => Math.max(0, mn - h) * o.shortfallValue + c * (h - tp) ** 2;
+      const conv = m++, link = m++;
+      eqRows.add(conv); eqRows.add(link);
+      for (const i of ss) pending.push([ids.get(i), link, len[i]]);
+      for (const h of H) lamCols.push([[conv, link], [1, 1 - h], f(h) - (c * D * D) / 4]);
+    }
   }
   for (const [j, r, a] of pending) { cols[j].push(r); vals[j].push(a); }
   const nx = cols.length;
+  for (const [rows, v, c] of lamCols) { cols.push(rows); vals.push(v); cost.push(c); }
   // open[s]
-  for (let i = 0; i < S; i++) { init[i] = cols.length; cols.push([i]); vals.push([1]); cost.push(len[i]); }
-  for (let r = S; r < m; r++) { init[r] = cols.length; cols.push([r]); vals.push([1]); cost.push(0); }
+  for (let i = 0; i < S; i++) { init[i] = cols.length; cols.push([i]); vals.push([1]); cost.push(priced ? BIG * len[i] : len[i]); }
+  for (let r = S; r < m; r++) {
+    if (eqRows.has(r)) { init[r] = -1; continue; }
+    init[r] = cols.length; cols.push([r]); vals.push([1]); cost.push(0);
+  }
   for (let j = 0; j < cols.length; j++) {
     // Rows in increasing order with their coefficients; a column of ones is passed as plain rows.
     const ord = cols[j].map((r, t) => [r, vals[j][t]]).sort((a, b) => a[0] - b[0]);
     cols[j] = ord.map((e) => e[0]);
     vals[j] = ord.every((e) => e[1] === 1) ? null : ord.map((e) => e[1]);
   }
+  // The priced LP's artificials must cost more than any column: open shifts cost BIG per hour.
+  const bigM = priced ? Math.max(1e6, 10 * BIG * Math.max(...len)) : 1e6;
   let res;
-  try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM: 1e6 }); } catch { return null; }
+  try { res = solveLP(m, cols, cost, init, { maxPivots, vals, bigM }); } catch { return null; }
   if (res.infeasible) return null;
-  // Dual bound: for any y, sum_r y_r + sum_j min(0, c_j - y.A_j) <= the LP's least value, because every column is at most 1.
+  // Dual bound: for any y, sum_r y_r + sum_j min(0, c_j - y.A_j) <= the LP's least value, because every column is at most 1
+  // (x, open and lam lie in [0, 1]; a slack is at most 1 because its row's other coefficients are not negative).
   let bound = 0;
   for (let r = 0; r < m; r++) bound += res.y[r];
   for (let j = 0; j < cols.length; j++) {
@@ -2602,9 +2669,10 @@ export function cliqueOpenFloor(ctx, { upTo = Infinity, maxPivots = 200000 } = {
     for (let t = 0; t < rows.length; t++) rc -= res.y[rows[t]] * (v ? v[t] : 1);
     if (rc < 0) bound += rc;
   }
-  bound = Math.max(0, bound - 1e-7);
-  const floor = Number.isFinite(upTo) ? openSumLift(len, upTo + 1)(bound) : bound;
-  return { floor, lp: res.obj, bound, rows: m, cols: cols.length, people: nx, pivots: res.pivots, ms: Date.now() - t0 };
+  bound = priced ? bound - 1e-9 * Math.max(1, Math.abs(bound)) : Math.max(0, bound - 1e-7);
+  let open = null;
+  if (priced && res.x) { open = 0; for (let i = 0; i < S; i++) open += (res.x[nx + lamCols.length + i] || 0) * len[i]; }
+  return { bound, obj: res.obj, open, len, rows: m, cols: cols.length, people: nx, pivots: res.pivots };
 }
 function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, chainBound = true, ...cfg } = {}) {
   const len = ctx.slots.map((s) => (s.end - s.start) / 60);
@@ -3145,6 +3213,22 @@ function buildRosterOnce(staff, slots, options = {}) {
       const bonuses = ctx.staff.some((q) => q.prefer) || (ctx.keep && ctx.keep.some((k) => k && k.size));
       if (!bonuses) ex.rootBound = Math.max(ex.rootBound, BIG * clique.floor);
     }
+    // The pay floor (cliqueScoreFloor, 2026-11-14): the same clique LP with each person-shift costed at a floor of what it adds to
+    // the score, so the bound counts pay instead of treating the whole bill as open. Runs only when the clique LP ran and nothing
+    // proved the roster; under a time budget only when the time left covers its expected cost (about 4 s x (copies / 245)^4.5,
+    // from 1.9-3.9 s on the 60 x 168 weeks, eval/score-floor.out.txt). On the 60 x 168 week 0 it takes the gap from $20,010 to
+    // about $30. `scoreFloor: false` turns it off, `true` runs it whatever the time left.
+    let priced = null;
+    if (clique && !ex.proven && o.scoreFloor !== false && !over() &&
+        (o.scoreFloor === true || !(budgetMs > 0) || budgetMs - (Date.now() - tStart) >= 4000 * Math.pow(ctx.S / 245, 4.5))) {
+      priced = cliqueScoreFloor(ctx);
+      mark("scoreFloor");
+      if (priced && priced.bound > ex.rootBound) {
+        ex.rootBound = priced.bound;
+        if (priced.bound >= best.score - o.exactTolerance - 1e-9) ex.proven = true;
+        ex.coverOpen = Math.max(ex.coverOpen, Math.floor(clique.floor + 1e-9));
+      }
+    }
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
     optimality = {
@@ -3156,6 +3240,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
       earlyFloor: early,
       cliqueFloor: clique ? { floor: clique.floor, lp: clique.lp, rows: clique.rows, columns: clique.cols, pivots: clique.pivots, ms: clique.ms } : null,
+      scoreFloor: priced ? { bound: priced.bound, lp: priced.lp, rows: priced.rows, columns: priced.cols, pivots: priced.pivots, ms: priced.ms } : null,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
@@ -4798,7 +4883,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, keptStart, BIG, memoKey };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, keptStart, BIG, memoKey };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
