@@ -75,6 +75,24 @@ export const SOURCES = [
   { bank: "credit-union", kind: "layout", path: "MattFox1388/BudgetMobileClient/HEAD/resources/checkings.csv" },
   { bank: "credit-union", kind: "layout", path: "lonesome-polecat/budgetbee/HEAD/tests/bank1_sample_transactions.csv" },
   { bank: "credit-union", kind: "layout", path: "Mitchellscot/CashTrack/HEAD/tests/CashTrack.Tests/Files/test-bank-import.csv" },
+  // Added 2026-11-14, third batch (README "Chase business cards and a US Bank checking download"): Chase's
+  // business card download, which names each employee's card in a first "Card" column, and the US Bank
+  // checking download the earlier batches lacked.
+  { bank: "chase-business-card", kind: "download", card: true, business: true, path: "Delta-Compute/DeltaCFOAgent/HEAD/Chase4774_Q12025.CSV" },
+  { bank: "chase-business-card", kind: "download", card: true, business: true, path: "avibanerjee/aiPersonalFinance/HEAD/ChaseStatements/UnitedBusiness.CSV" },
+  { bank: "chase-business-card", kind: "download", card: true, business: true, path: "baldemar1979-beep/Jeskor-PnL/HEAD/Chase0162_Activity_20260811.csv" },
+  { bank: "chase-business-card", kind: "download", card: true, business: true, path: "link2dawood/resturantbackend/HEAD/docs/docs/Chase8741_Activity20260206_20260305_20260316.CSV" },
+  { bank: "chase-business-card", kind: "layout", card: true, business: true, path: "MinYenYimYinYen/sg-monti-com/HEAD/src/app/qbo/planning/sampleData/Chase%20Sample.csv" },
+  { bank: "chase-business-card", kind: "layout", card: true, path: "bdmckean/code_off/HEAD/data/chase_transactions.csv" },
+  { bank: "us-bank", kind: "download", path: "Ledger-Software/Ledger/HEAD/src/test/resources/USBankSample.csv" },
+  { bank: "us-bank", kind: "download", card: true, path: "baoquang98/Monthly_Finance/HEAD/USBank.csv" },
+  { bank: "us-bank", kind: "download", card: true, path: "daquino/usbank-es-loader/HEAD/doc/sample.csv" },
+  { bank: "us-bank", kind: "layout", path: "BaileyPillon/buildable/HEAD/fixtures/statements/usbank.csv" },
+  { bank: "us-bank", kind: "layout", path: "raishish/fin-manager/HEAD/testdata/bank-exports/data/us_bank/checking_2026.csv" },
+  { bank: "us-bank", kind: "layout", card: true, path: "velicanu/expenses/HEAD/sample-data/usbank.csv" },
+  { bank: "us-bank", kind: "layout", path: "Izzy-Gottz/aggregate-finance/HEAD/packages/connectors/files/fixtures/redacted/usbank.csv" },
+  { bank: "us-bank", kind: "layout", path: "cubic1M/Jane/HEAD/src/data-sources/csv/__fixtures__/us-bank.csv" },
+  { bank: "us-bank", kind: "layout", path: "mikebean233/finance_tool/HEAD/src/main/resources/dataExample/transaction.csv" },
 ];
 
 const PAY_IN_CARD = /\b(payment|thank you|autopay|auto pay|directpay)\b/i;
@@ -87,7 +105,7 @@ export function analyse(text, src) {
   const skipped = [];
   // Lines after the header row that hold something but were not read.
   const headerAt = lines.findIndex((l) => /date/i.test(l) && /,/.test(l));
-  for (let i = headerAt + 1; i < lines.length; i++) if (lines[i].replace(/[,\s"]/g, "") && !got.has(i + 1)) skipped.push({ line: i + 1, why: /,0\.00,|,"?0\.00"?,?$|,,"?0\.00"?$/.test(lines[i]) ? "zero amount" : /beginning balance|ending balance/i.test(lines[i]) ? "balance line" : "other" });
+  for (let i = headerAt + 1; i < lines.length; i++) if (lines[i].replace(/[,\s"]/g, "") && !got.has(i + 1)) skipped.push({ line: i + 1, why: /,"?-?0\.0{2,4}"?,|,"?-?0\.0{2,4}"?,?$|,,"?0\.00"?$/.test(lines[i]) ? "zero amount" : /beginning balance|ending balance/i.test(lines[i]) ? "balance line" : "other" });
   // As importStatement does: a card file may print what is owed as positive, so try both signs.
   const asIs = checkRunningBalance(r.rows);
   const flipped = checkRunningBalance(r.rows.map((x) => ({ ...x, balance: x.balance === null ? null : -x.balance })));
@@ -99,13 +117,13 @@ export function analyse(text, src) {
     // ("PAYMENT ID" on a Venmo row of a checking file) is why checking uses its own list.
     // "Ext Credit Card Debit ATT* BILL PAYMENT" is a purchase from AT&T (the credit-union card file says
     // "Credit Card Debit" on every purchase), not a payment to the card.
-    if (re.test(x.desc) && !/\b(fee|interest charge|plan fee)\b/i.test(x.desc) && !/credit card debit/i.test(x.desc) && x.cents < 0) signWrong.push({ line: x.line, cents: x.cents });
+    if (re.test(x.desc) && !/\b(fee|interest charge|plan fee)\b/i.test(x.desc) && !/credit card debit|\*bill payment/i.test(x.desc) && x.cents < 0) signWrong.push({ line: x.line, cents: x.cents });
   }
   return {
     bank: r.bank ?? null, rows: r.rows.length, skipped,
     otherSkipped: skipped.filter((s) => s.why === "other").length,
     problems: r.problems ?? [], balance: bal.checked ? { breaks: bal.breaks.length, reordered: !!bal.reordered } : null,
-    signWrong, inferred: r.inferred ?? null, mcc: r.rows.filter((x) => x.mcc).length,
+    signWrong, inferred: r.inferred ?? null, mcc: r.rows.filter((x) => x.mcc).length, cards: new Set(r.rows.map((x) => x.card).filter(Boolean)).size,
   };
 }
 
@@ -125,7 +143,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const a = analyse(readFileSync(f, "utf8").replace(/^﻿/, ""), src);
     files++; rows += a.rows; other += a.otherSkipped; wrongSign += a.signWrong.length; if (a.bank === src.bank) named++;
     const bal = a.balance ? (a.balance.breaks ? `balance ${a.balance.breaks} breaks` : "balance chains") : "no balance";
-    console.log(`${src.bank.padEnd(16)} ${src.kind.padEnd(8)} named ${String(a.bank).padEnd(16)} rows ${String(a.rows).padStart(4)}  skipped ${a.skipped.length} (${a.otherSkipped} unexplained)  ${bal}  sign wrong ${a.signWrong.length}  problems ${a.problems.length}`);
+    console.log(`${src.bank.padEnd(16)} ${src.kind.padEnd(8)} named ${String(a.bank).padEnd(16)} rows ${String(a.rows).padStart(4)}  skipped ${a.skipped.length} (${a.otherSkipped} unexplained)  ${bal}  sign wrong ${a.signWrong.length}  problems ${a.problems.length}${a.cards ? `  cards ${a.cards}` : ""}`);
     if (process.argv.includes("--show")) { for (const s of a.skipped) console.log(`    skipped line ${s.line}: ${s.why}`); for (const p of a.problems) console.log(`    problem: ${p.slice(0, 160)}`); for (const s of a.signWrong) console.log(`    sign line ${s.line}: ${s.cents}`); }
   }
   console.log(`\n${files} files (${fetched} fetched now), ${rows} rows read; named right ${named}/${files}; unexplained skips ${other}; payment/deposit rows with the wrong sign ${wrongSign}`);

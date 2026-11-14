@@ -54,6 +54,7 @@ import { reminders } from "./collections.mjs";
 import { planBills } from "./billpay.mjs";
 import { taxPack } from "./taxpack.mjs";
 import { renderStatement, customers } from "./statement.mjs";
+import { cardSpend, cardLinesCsv, cardMoney } from "./cards.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
 
@@ -89,6 +90,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   rental accounts | add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B) | untag (same) | list   rental properties; tag bank lines to a property
   project add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B|--docs INV-1,BILL-2) | untag (same) | list   projects (jobs, classes): tag bank lines and invoices to one
   projects [--from D --to D] [--csv|--json]  profit and loss per project: revenue, cost, net and margin, with what is untagged
+  cards [--account CODE] [--card 1234] [--from D --to D] [--csv|--json]   spend by card on a business card account (the "Card" column of
+                         Chase's business download, Brex "Card Last Four"): each cardholder's spend, refunds, where it is filed, what still waits, top merchants; --csv lists the lines
   schedulee [--from D --to D] [--csv|--json]  the books on US Schedule E Part I lines, one column per property (a worksheet, not a filing)
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   retirement [--year Y] [--months N] [--age N] [--wages $] [--json]  most a sole proprietor can put in a SEP-IRA or solo 401(k) this year (worksheet)
@@ -800,6 +803,19 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       if (!(books.projects ?? []).length) console.log("  No projects. project add kitchen Kitchen reno");
     } else throw new Error("project add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "cards") {
+  const card = flag("--card");
+  const r = cardSpend(books, { from, to, account, card });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(cardLinesCsv(books, { from, to, account, card })); process.exit(0); }
+  console.log(`SPEND BY CARD${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
+  for (const c of r.cards) {
+    console.log(`  ${c.accountName}, card ${c.card}: ${c.lines} lines, spend ${cardMoney(c.spend)}, refunds ${cardMoney(c.refunds)}, net ${cardMoney(c.net)}`);
+    for (const a of c.filed) console.log(`      ${cardMoney(a.cents).padStart(12)}  ${a.code} ${a.name}`);
+    if (c.waiting.lines) console.log(`      ${cardMoney(c.waiting.cents).padStart(12)}  waiting (${c.waiting.lines} lines; suggested: ${c.waiting.suggested.slice(0, 3).map((a) => `${a.name} ${cardMoney(a.cents)}`).join(", ")})`);
+    console.log(`      top merchants: ${c.merchants.map((m) => `${m.name} ${cardMoney(m.cents)}`).join("; ")}`);
+  }
+  for (const w of r.warnings) console.log(`  ! ${w}`);
 } else if (cmd === "projects") {
   const r = projectReport(books, { from, to });
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
