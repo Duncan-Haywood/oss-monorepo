@@ -21,7 +21,8 @@ The same library carries ``shootflow_nikon_run``, the whole Nikon NEF decode
 (Huffman pass, prediction and linearisation curve) of ``shootflow.nef``, whose
 pure-Python decoder stays the reference (``tests/test_nef.py`` runs both), and
 ``shootflow_olympus_run``, the whole Olympus ORF decode of ``shootflow.orf``
-(``tests/test_orf.py`` runs both).
+(``tests/test_orf.py`` runs both), and ``shootflow_panasonic_run``, the whole
+Panasonic RW2 decode of ``shootflow.rw2`` (``tests/test_rw2.py`` runs both).
 
 Nothing here downloads or runs anything but the system compiler on the
 source below. ``SHOOTFLOW_NATIVE=0`` turns it off.
@@ -359,6 +360,49 @@ long shootflow_olympus_run(const uint8_t *d, long len, long width, long height, 
 #undef OLY_NEED
     return 0;
 }
+
+/* The whole Panasonic RW2 (RawFormat 4) decode of shootflow.rw2._decode_python. d holds the
+   sensor data with each 0x4000-byte block already rotated (shootflow.rw2.rotated_blocks), len a
+   multiple of 0x4000. Bits come from the top of each block downward in 17-bit positions; runs of
+   14 sensels reset two predictions; a 2-bit shift every third sensel. Returns 0. */
+long shootflow_panasonic_run(const uint8_t *d, long len, long width, long height, uint16_t *out)
+{
+    long base = 0;
+    unsigned vbits = 0;
+    int first = 1;
+#define PANA_BITS(n, dst) do { \
+        if (!vbits) { if (first) first = 0; else base += 0x4000; } \
+        vbits = (vbits - (n)) & 0x1FFFF; \
+        long at_ = base + (long)((vbits >> 3) ^ 0x3FF0); \
+        unsigned w_ = at_ + 1 < len ? (unsigned)d[at_] | ((unsigned)d[at_ + 1] << 8) : (at_ < len ? d[at_] : 0); \
+        (dst) = (int)((w_ >> (vbits & 7)) & ((1u << (n)) - 1)); \
+    } while (0)
+    long k = 0;
+    for (long row = 0; row < height; row++) {
+        int pred[2] = {0, 0}, nonz[2] = {0, 0}, sh = 0;
+        for (long col = 0; col < width; col++) {
+            int i = (int)(col % 14), v;
+            if (i == 0) pred[0] = pred[1] = nonz[0] = nonz[1] = 0;
+            if (i % 3 == 2) { PANA_BITS(2, v); sh = 4 >> (3 - v); }
+            int p = i & 1;
+            if (nonz[p]) {
+                int j;
+                PANA_BITS(8, j);
+                if (j) {
+                    pred[p] -= 0x80 << sh;
+                    if (pred[p] < 0 || sh == 4) pred[p] &= ~(-1 << sh);
+                    pred[p] += j << sh;
+                }
+            } else {
+                PANA_BITS(8, nonz[p]);
+                if (nonz[p] || i > 11) { PANA_BITS(4, v); pred[p] = nonz[p] << 4 | v; }
+            }
+            out[k++] = (uint16_t)pred[col & 1];
+        }
+    }
+#undef PANA_BITS
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -468,6 +512,10 @@ def _load():
     olympus.restype = ctypes.c_long
     olympus.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
     _STATE["olympus"] = olympus
+    panasonic = lib.shootflow_panasonic_run
+    panasonic.restype = ctypes.c_long
+    panasonic.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
+    _STATE["panasonic"] = panasonic
     return fn
 
 
@@ -654,6 +702,22 @@ def olympus_run(data: bytes, width: int, height: int) -> array | None:
     native library."""
 
     fn: Any = _STATE.get("olympus") if reader() is not None else None
+    if fn is None:
+        return None
+    if not isinstance(data, bytes):
+        data = bytes(data)
+    out = array("H", [0]) * max(1, width * height)
+    fn(data, len(data), width, height, out.buffer_info()[0])
+    if width * height == 0:
+        del out[:]
+    return out
+
+
+def panasonic_run(data: bytes, width: int, height: int) -> array | None:
+    """``shootflow.rw2._decode_python`` in C, given the already rotated blocks: an ``array('H')`` of sensels,
+    row-major, or None without the native library."""
+
+    fn: Any = _STATE.get("panasonic") if reader() is not None else None
     if fn is None:
         return None
     if not isinstance(data, bytes):
