@@ -3,7 +3,7 @@ title: "A quilisma never falls"
 seo_title: "Cutting false quilisma calls in a Gregorian chant scan reader"
 date: 2026-11-14
 tags: [music, gregorian-chant, optical-music-recognition, open-source, chant-forge]
-description: "Chant Forge's scan reader kept mistaking pieces of a porrectus stroke and stacked notes for quilismas. Three facts about how the 1908 book prints a quilisma cut the false calls on 18 unseen pieces from 29 to 6."
+description: "Three facts about how the 1908 Graduale prints a quilisma cut a chant scan reader's false quilisma calls on 18 unseen pieces from 29 to 6."
 ---
 
 Chant Forge checks its Gregorian chant transcriptions (GABC files) against scans of the 1908 Vatican Graduale on archive.org. Its reader, `scan.mjs`, finds each note head on the page, gives it a pitch, and since yesterday [names its shape](2026-11-13-teaching-a-scan-reader-to-see-a-quilisma.md): square, rhombus, liquescent, or **quilisma**, the small saw-toothed note that marks a light, ornamented rise. It spots a quilisma by counting rows in the head's upper half that cross white notches between teeth.
