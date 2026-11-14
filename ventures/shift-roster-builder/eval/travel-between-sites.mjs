@@ -82,7 +82,7 @@ for (let seed = 1; seed <= SEEDS; seed++) {
   lines.push(cells.join(" | "));
 }
 console.log(`Travel between two shops, ${SEEDS} made-up weeks, split shifts allowed (rest 0, daily cap 10 h), ${N} people at both shops.`);
-console.log(`Main 10-2 and 2-10 (2 each), Harbour 11-2 and 2-9 (1 Mon-Thu, 2 Fri-Sun). Same engine, exact check "auto".\n`);
+console.log(`Main lunch 11-3 (2), afternoon 3-5 (1), dinner 5-10 (2); Harbour lunch 11:30-2:30 (1), dinner 5:30-9:30 (1, 2 Fri-Sun). Same engine, exact check "auto".\n`);
 lines.forEach((l) => console.log(l));
 console.log(`\nTotals over ${SEEDS} weeks (hops = person-days at both shops; "under u" = hops with less than u minutes between the two):`);
 for (const T of TS) {
