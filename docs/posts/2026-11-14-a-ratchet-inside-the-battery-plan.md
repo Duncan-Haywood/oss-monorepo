@@ -3,7 +3,7 @@ title: "A ratchet inside the battery plan: worth 0.8% of the saving, and now exa
 seo_title: "Demand ratchet and battery dispatch: whole-year LP vs month by month"
 date: 2026-11-14
 tags: [demand-charges, batteries, optimisation, energy]
-description: "Planning a battery month by month under an 80% demand ratchet left up to $660 a year on the table. One whole-year linear programme closes the gap to within $2.29 of HiGHS on 72 building-years."
+description: "Planning a battery month by month under an 80% ratchet left up to $660 a year unclaimed; one whole-year LP gets within $2.29 of HiGHS on 72 building-years."
 ---
 
 The [Demand Charge Interval Analyzer](https://marisstella.app/demand-charge-interval-analyzer/) plans a battery against your own 15-minute meter data. Until today it planned each month alone and applied the demand ratchet afterwards. A ratchet bills at least a set share, often 80%, of the highest peak in the previous 11 months. That makes the months depend on each other, and planning them one at a time misses two things.
