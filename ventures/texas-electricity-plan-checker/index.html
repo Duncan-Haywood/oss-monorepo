@@ -53,6 +53,7 @@
     .pass { color: var(--ok); font-weight: 700; }
     .fail { color: var(--warn); font-weight: 700; }
     svg { width: 100%; height: auto; display: block; }
+    .faq h3 { margin-top: 16px; }
     footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
     footer a, header a { color: var(--accent2); }
     @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
@@ -133,6 +134,18 @@
       </section>
     </div>
   </main>
+
+  <section class="faq">
+    <h2>Questions</h2>
+    <h3>Why is the 1,000 kWh price on a plan list not what I pay?</h3>
+    <p>The average price on an Electricity Facts Label is computed at exactly 500, 1,000 and 2,000 kWh. A plan with a bill credit that pays only between 1,000 and 2,000 kWh can show a very low 1,000 kWh price and cost much more in months you use 900 or 2,100 kWh. Billing your own months on the plan's terms gives your price.</p>
+    <h3>How does the tool know my label was read correctly?</h3>
+    <p>It recomputes the label's own three average prices from the terms it read. The label rounds to a tenth of a cent, so correct terms land within about 0.05 cents of each. A mismatch means a term was missed or misread, and the tool says so instead of ranking the plan silently.</p>
+    <h3>Where do I get my usage?</h3>
+    <p>Smart Meter Texas lets you download your 15-minute interval or daily usage as a CSV after you register with your ESI ID and meter number. Monthly kWh from your bills also works, but free-nights and free-weekends plans need interval data or an assumed share of use in those hours.</p>
+    <h3>Is my usage uploaded?</h3>
+    <p>No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a comparison ran and the day.</p>
+  </section>
 
   <footer>
     <p><strong>No warranty. This is an estimate, not financial or legal advice, and not a bill.</strong> It applies the terms you paste or type, described on <a href="./how-it-works.html">how it works</a>, to the usage you give it. Taxes, the PUC assessment and other charges a label leaves out, billing cycles that do not match calendar months, TDU rate changes during a contract, and terms the label prints that are not read here are not counted. Read the full EFL, Terms of Service and Your Rights as a Customer before you sign.</p>

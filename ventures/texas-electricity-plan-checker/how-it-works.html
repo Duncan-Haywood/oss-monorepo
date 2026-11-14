@@ -9,6 +9,7 @@
   <meta property="og:description" content="On 200 simulated Texas homes, the example plan with the lowest 1,000 kWh price was the cheapest for 54 and the dearest for 138. How the checker works and when to use something else.">
   <meta property="og:type" content="article">
   <link rel="canonical" href="./how-it-works.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the checker know today's prices?","acceptedAnswer":{"@type":"Answer","text":"No. It stores no provider's prices. Every number comes from the label you paste or type, including the TDU delivery charges, which change twice a year and are printed on every label."}},{"@type":"Question","name":"Can it use my Smart Meter Texas file directly?","acceptedAnswer":{"@type":"Answer","text":"Yes. Download your 15-minute or daily usage as a CSV and choose the file; rows marked as surplus generation are left out, and months with fewer than 90% of their days are flagged."}},{"@type":"Question","name":"What does a label mismatch mean?","acceptedAnswer":{"@type":"Answer","text":"The terms the checker has do not reproduce the label's own average price at 500, 1,000 or 2,000 kWh to within about 0.05 cents. Usually a credit, tier or fee was missed or misread; correct the plan's fields until the check passes."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d1a17; background: #f6f1ea; --accent: #a33a12; --accent2: #7c2a0b; --ink2: #5a5048; --line: #ddd2c4; --panel: #fffdfa; }
     body { max-width: 780px; margin: 0 auto; padding: 32px 16px; }
@@ -84,6 +85,13 @@
     <li><strong>A dispute about a bill already sent:</strong> your provider, then the PUCT's complaint process.</li>
   </ul>
 
+  <h2>Questions</h2>
+  <h3>Does the checker know today's prices?</h3>
+  <p>No. It stores no provider's prices. Every number comes from the label you paste or type, including the TDU delivery charges, which change twice a year and are printed on every label.</p>
+  <h3>Can it use my Smart Meter Texas file directly?</h3>
+  <p>Yes. Download your 15-minute or daily usage as a CSV and choose the file; rows marked as surplus generation are left out, and months with fewer than 90% of their days are flagged.</p>
+  <h3>What does a label mismatch mean?</h3>
+  <p>The terms the checker has do not reproduce the label's own average price at 500, 1,000 or 2,000 kWh to within about 0.05 cents. Usually a credit, tier or fee was missed or misread; correct the plan's fields until the check passes.</p>
   </main>
 
   <footer>
