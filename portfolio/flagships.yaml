@@ -254,15 +254,16 @@ flagships:
       docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list length, the closed pooled-prior
       work, the sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time salience (b),
       mid-session blocks (d), the upper-quantile panel curve, the per-survey threshold with the step test, the
-      later-pass median curve (d4) and the net-step test (d5) are written up there. Latest (2026-11-14, "A step a
-      wandering pace cannot make"; docs/fast-blocks-walk-2026-11-14.jsonl): when panelWalkRatio >= 0.008 a block
-      must beat a random-walk level (stepOverWalk) at the 0.9 quantile of the panel's slow turns; walk 0.08:
-      honest flags 17.1% to 3.4%, careless found 0.47 to 0.18; no wander 96% vs 97%. Next, most valuable first:
+      later-pass median curve (d4), the net-step test (d5) and the wander bar (d6) are written up there. Latest
+      (2026-11-14, "A block's picks as well as its times"; docs/fast-blocks-agree-2026-11-14.jsonl): once the wander
+      bar is engaged, a timing split that fails it still counts when blockAgreementDrop >= 2.5 (later picks agree
+      with the leave-one-out panel less than earlier ones); walk 0.08: found 0.18 to 0.24, ceiling 19% to 27%,
+      honest 3.4% to 3.9%; no wander unchanged; the pick test alone ("only") was weaker. Next, most valuable first:
       (c) the first real survey's answers: msToAnswer against the answer-time model, panelWalkRatio on real times
       (decides whether fast-blocks is worth offering), whether real people have warm-ups, blocks or spread-out
       carelessness, and how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d3)
-      position bias that starts mid-session; (d7) under wander, a block test that reads answers as well as times
-      (a block's picks agree less with the panel); (h) share-drop beat both pace cuts at q = 1 but taxes a camp by
+      position bias that starts mid-session; (d8) a stronger pick signal under wander (staged pairs
+      are near 50/50 late in a session, so one pick says little; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes a camp by
       up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator

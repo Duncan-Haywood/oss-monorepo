@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -383,6 +383,35 @@ describe("stepNetOfTrend", () => {
   });
 });
 
+describe("blockAgreementDrop", () => {
+  // Ten items rated 1500 + 40i by the rest of the panel; pairs are neighbours, so the panel's gap is 40 every time and the
+  // chance of agreeing it implies is 1 / (1 + 10^-0.1), about 0.557.
+  const rating = new Map(Array.from({ length: 10 }, (_, i) => [`i${i}`, 1500 + 40 * i]));
+  const pair = (k: number, agree: boolean) => { const lo = `i${k % 9}`, hi = `i${(k % 9) + 1}`; return { itemAId: lo, itemBId: hi, result: agree ? "B" : "A" }; };
+  it("is large when the picks from the split on stop agreeing with the panel, and near zero when they agree as before", () => {
+    const before = Array.from({ length: 30 }, (_, k) => pair(k, k % 5 !== 0)); // 80% agree
+    const flips = Array.from({ length: 30 }, (_, k) => pair(k, k % 2 === 0)); // 50% agree
+    const same = Array.from({ length: 30 }, (_, k) => pair(k, k % 5 !== 1)); // 80% agree
+    const drop = blockAgreementDrop([...before, ...flips], 30, rating);
+    // 0.8 against 0.5 agreeing: 0.3 over the binomial standard error of the gap's chance on 30 answers a side.
+    const chance = 1 / (1 + 10 ** -0.1);
+    expect(drop).toBeCloseTo(0.3 / Math.sqrt((2 * chance * (1 - chance)) / 30), 9);
+    expect(Math.abs(blockAgreementDrop([...before, ...same], 30, rating))).toBeLessThan(1e-9);
+    // Agreeing more after the split reads negative, not as a drop.
+    expect(blockAgreementDrop([...flips, ...before], 30, rating)).toBeCloseTo(-drop, 9);
+  });
+  it("skips ties, pairs the panel rates level and items it has not rated, and needs enough scored answers on each side", () => {
+    const before = Array.from({ length: 30 }, (_, k) => pair(k, true));
+    const after = Array.from({ length: 30 }, (_, k) => pair(k, k % 2 === 0));
+    const noise = [{ itemAId: "i1", itemBId: "i2", result: "EQUAL" }, { itemAId: "i1", itemBId: "zz", result: "A" }];
+    const base = blockAgreementDrop([...before, ...after], 30, rating);
+    // Two extra unscored answers at the start shift the split by two and change nothing else.
+    expect(blockAgreementDrop([...noise, ...before, ...after], 32, rating)).toBeCloseTo(base, 9);
+    expect(blockAgreementDrop([...before.slice(0, 7), ...after], 7, rating)).toBe(0);
+    expect(blockAgreementDrop([...before, ...after], 30, new Map([["i1", 1500], ["i2", 1500]]))).toBe(0);
+  });
+});
+
 describe("stepOverWalk", () => {
   // Seeded draws, so the counts below are fixed.
   const draws = (seed: number) => { let s = seed >>> 0; const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 2 ** 32; }; return () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u()); };
@@ -521,6 +550,29 @@ describe("fastBlockStarts", () => {
     expect(flagged(blocks, 0)).toEqual(["p0", "p1", "p2"]);
     expect(flagged(blocks)).toEqual(["p0", "p1", "p2"]);
     expect(() => fastBlockStarts(wander, undefined, "auto", undefined, undefined, undefined, 1.5)).toThrow();
+  });
+  it("under a wandering pace, also counts a block whose picks stop agreeing with the panel (picks given)", () => {
+    // Twenty people, 60 answers on random pairs of 12 items, everyone's pace wandering N(0, 0.08) log per answer (seeded).
+    // p0 to p3 turn 0.6x quick at answer 30 and pick at random from then on. Without the wander bar (walkQ 0) p1, p2 and
+    // three honest people are flagged; with it on times alone (as before 2026-11-14, later) only p2; with the picks the
+    // default also finds p1, whose later picks agree with the panel far less than their earlier ones, and no one honest.
+    const draws = (seed: number) => { let s = seed >>> 0; const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 2 ** 32; }; return { u, z: () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u()) }; };
+    const per = Array.from({ length: 20 }, (_, k) => { const { u, z } = draws(700 + k); let l = 0; return Array.from({ length: 60 }, (_, i) => {
+      if (i) l += 0.08 * z();
+      const careless = k < 4 && i >= 30;
+      const a = Math.floor(u() * 12); let b = Math.floor(u() * 11); if (b >= a) b++;
+      const pickA = careless ? u() < 0.5 : u() < 1 / (1 + Math.exp(-(a - b) * 0.5));
+      return { participantId: `p${k}`, ms: 3000 * Math.exp(l + 0.35 * z() - (careless ? 0.5 : 0)), itemAId: `i${a}`, itemBId: `i${b}`, result: pickA ? "A" : "B" };
+    }); });
+    const answers = Array.from({ length: 60 }, (_, i) => per.map((p) => p[i])).flat();
+    const keys = (m: Map<string, number>) => [...m.keys()].sort();
+    expect(keys(fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, 0))).toEqual(["p1", "p10", "p16", "p2", "p8"]);
+    expect(keys(fastBlockStarts(answers.map(({ participantId, ms }) => ({ participantId, ms }))))).toEqual(["p2"]);
+    expect(keys(fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, 0))).toEqual(["p2"]);
+    expect(keys(fastBlockStarts(answers))).toEqual(["p1", "p2"]);
+    expect(fastBlockStarts(answers).get("p1")).toBeGreaterThanOrEqual(22);
+    expect(() => fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, -1)).toThrow();
+    expect(() => fastBlockStarts(answers, undefined, "auto", undefined, undefined, undefined, undefined, undefined, undefined, 2, "and" as "or")).toThrow();
   });
   it("does not take one person's steady speed-up over the whole session for a block", () => {
     // p0 gets steadily quicker, to 0.3x by the last answer: a split finds a gap over 0.5 with a large t, but a line fits
