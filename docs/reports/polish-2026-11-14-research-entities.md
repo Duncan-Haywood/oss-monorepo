@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-14
+---
 # Polish 2026-11-14: research pages' double-escaped entities and raw emphasis
 
 Track: polish/0. Picked from item 1 of `polish-2026-11-14-footer-link-contrast.md` (raw
