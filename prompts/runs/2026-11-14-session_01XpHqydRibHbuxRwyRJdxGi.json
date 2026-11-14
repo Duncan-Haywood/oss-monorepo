@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydRibHbuxRwyRJdxGi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T20:39:32Z",
+  "ended": "2026-11-14T20:53:21Z",
+  "wall_minutes": 26.69,
+  "tokens_in": 12511663,
+  "tokens_out": 60281,
+  "cost_usd": 5.0471,
+  "tool_calls": 96,
+  "task": "open-tennis-robots flagship (allocate.py row 8): the elevation pot wires' pickup from the actuator's PWM in the shared lead",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15973",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first firmware fix stopped the drive on a lost pot reading, which reset the stall timer every other tick so a jammed actuator never faulted (no capacitor, readings locked to a PWM edge)",
+      "fix": "found by the new tests/pot_pickup_sweep.py before commit; lost ticks now hold the last duty and count toward the stall time; regression test added"
+    },
+    {
+      "what": "first jam test ran at full duty, where sign-magnitude PWM has no edges, so it could not show pickup",
+      "fix": "jam moved 3 mm short of the goal, where the loop runs at min duty"
+    },
+    {
+      "what": "post seo_title 90 chars and description 186 chars, over the 70/160 limits",
+      "fix": "shortened; check_post_frontmatter.py clean"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "cad/README.md (open-tennis-robots), 'The elevation actuator's lead'",
+      "issue": "suggested 'twist the motor pair' against the pot's PWM noise; with sign-magnitude drive only one wire toggles, so twisting does not cancel the electric field at the wiper"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "says a bare python3 often lacks pytest; platform/ci/pyenv.py installed it to /usr/bin/python3.13 in about a minute, worked as documented"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-the-tennis-feeder-pot-reads-its-own-motor.md",
+    "ventures/open-tennis-robots/cad/README.md section 'The pot's pickup from the motor pair'"
+  ],
+  "goal": null,
+  "notes": "Model: closed-form steady-state RC node error per PWM edge (checked against edge-by-edge stepping). No cap: 11 V steps, 8% of readings at rail; 100 nF: 0.55 mm; 1 uF: 0.055 mm, lag 0.054 mm; 220 nF to 2.3 uF passes at defaults. Firmware: 8 reads trimmed mean, lost_ticks=3. Verification: ventures/open-tennis-robots tests/ 103 passed (python3.13 pytest); cad/tests 116 passed with build123d 0.13.0 in a venv (feeder package rebuilt: only manifest.json/README.txt text changed); node --test 21 passed. No agent doc in docs/reports: the cad README section and flagships next carry what the next run needs. venture-preflight: clean (first run failed only on the post's front matter lengths and the unfilled record; fixed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d81a737b-d92d-54c1-bdf9-38fbe90751b1",
+    "transcripts": 1,
+    "first": "2026-11-14T20:39:32Z",
+    "last": "2026-11-14T21:06:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 176,
+        "output": 60281,
+        "thinking": 17949,
+        "cache_read": 12339889,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171598,
+        "api_equivalent_usd": 5.0471,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 176,
+      "output": 60281,
+      "thinking": 17949,
+      "cache_read": 12339889,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171598,
+      "api_equivalent_usd": 5.0471,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 86,
+      "Edit": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.69,
+      "active_minutes": 23.52,
+      "model_minutes": 9.93,
+      "tool_minutes": 13.59,
+      "waiting_on_human_minutes": 3.18,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an electronics/firmware engineer modelling PWM crosstalk into a pot ADC, simulating the loop and fixing the firmware, with tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 198.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

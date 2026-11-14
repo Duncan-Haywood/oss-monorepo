@@ -253,6 +253,21 @@
     "elev_lead_out_mm": 10.0,
     "elev_lead_hole_dx": 0.0,
     "elev_lead_hole_d": 10.0,
+    "elev_pwm_hz": 20000.0,
+    "elev_pot_ohm": 10000.0,
+    "elev_pot_pulldown_ohm": 100000.0,
+    "elev_pot_supply_v": 3.3,
+    "elev_lead_mutual_pf_m": 30.0,
+    "elev_lead_self_pf_m": 40.0,
+    "elev_adc_pin_pf": 10.0,
+    "elev_act_l_h": 0.001,
+    "elev_lead_mutual_nh_m": 50.0,
+    "elev_pot_filter_nf": 1000.0,
+    "elev_deadband_mm": 0.5,
+    "elev_fw_speed_mm_s": 22.0,
+    "elev_stall_mm": 0.5,
+    "elev_pot_err_frac": 0.5,
+    "elev_pot_lag_frac": 0.25,
     "stepper_wires": [
       [
         "azimuth stepper coils",
@@ -594,7 +609,7 @@
     "levelling_foot": 0.0
   },
   "files": {
-    "README.txt": "fda00c42c74ab694beb205e0d5fa710c03195ffc62a584a3e8251558f8a792b6",
+    "README.txt": "b38d9d2dcb73a70ee2e67fd5b05e190e57fd43d4220288aa84084e1782053281",
     "bom.csv": "886adfe7b5c5faf102d8c16e3b4b588310a0d33266c8a84dc74bd3547c168785",
     "cut_list.csv": "a2b718b388db887626e387116c24a47df043fbf15afa1169b9e556306748c3db",
     "drawings/assembly_front.svg": "b58072ad4c208e92f3fb0b18d526e2d2da60c77caa55f5db732e5bc238703228",

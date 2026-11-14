@@ -88,6 +88,17 @@ Pick what your actuator can report with `ELEV_MODE` in `config.py`:
   A reading more than 1% of the span outside them counts as a broken wire, so put
   a 100k resistor from the wiper to GND (a loose wiper then reads 0) and check
   that neither end reads within about 2% of 0 or 65535, or the check cannot tell.
+  Fit a 1 uF ceramic capacitor from GPIO 39 to GND at the board: the pot wires
+  share a 1.39 m lead with the motor pair, and every PWM edge on the toggling
+  motor wire pushes charge onto the wiper. With no capacitor a reading caught
+  on an edge is at the rail (the old firmware called that a broken wire); with
+  ESP-IDF's example 100 nF a reading is still up to 0.55 mm off, over the
+  deadband (`cad/README.md`, "The pot's pickup from the motor pair"). Each tick
+  takes `ELEV_POT_READS` (8) readings, drops the two highest and two lowest and
+  averages the rest; a reading outside the span stops nothing on its own: the
+  last duty is held and the axis faults on the third such tick in a row (30 ms),
+  and those ticks still count toward the stall time. `tests/pot_pickup_sweep.py`
+  runs this firmware against the pickup model.
 - **timed**: at power-up it retracts for 1.25x the full-stroke time plus 0.5 s
   and calls that stroke 0, which is past +45 deg. With the actuator the CAD first
   drew (240 mm retracted) that is +48.8 deg, and the head plates cut into the

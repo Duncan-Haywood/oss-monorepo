@@ -2115,7 +2115,18 @@ def elev_lead_line(p: Feeder) -> str:
             f"{p.cable_clear_mm:g} mm off the plate, cheek, feet and actuator, at most {p.elev_lead_out_mm:g} mm outboard "
             f"of the actuator: {lo:.0f} to {hi:.0f} mm fits every pose (shortest at {loose:+.1f} deg, longest at "
             f"{tight:+.1f} deg), cut {d['cut_mm']:.0f} mm. Motor pair {d['motor_awg']} AWG over {d['run_m']:.2f} m from "
-            f"the H-bridge: {d['stall_drop_v']:.2f} V ({d['stall_drop_frac']:.1%}) at the {p.elev_act_stall_a:g} A stall")
+            f"the H-bridge: {d['stall_drop_v']:.2f} V ({d['stall_drop_frac']:.1%}) at the {p.elev_act_stall_a:g} A stall"
+            + pot_pickup_text(p))
+
+
+def pot_pickup_text(p: Feeder) -> str:
+    d, none = p.elev_pot_pickup(), p.elev_pot_pickup(filter_nf=0.0)
+    if d is None:
+        return ""
+    return (f". Pot pickup: each PWM edge on the toggling motor wire steps the wiper by {none['step_v']:.1f} V with no "
+            f"filter (assumed {d['cm_pf']:.0f} pF wire to wire), so {none['bad_read_frac']:.0%} of single readings are "
+            f"lost; {p.elev_pot_filter_nf:g} nF on GPIO 39 leaves {d['err_v'] * 1e3:.1f} mV ({d['err_mm']:.2f} mm of "
+            f"stroke; deadband {p.elev_deadband_mm:g} mm) and lags {d['lag_mm']:.2f} mm at {p.elev_fw_speed_mm_s:g} mm/s")
 
 
 def deck_cable_line(p: Feeder) -> str:
