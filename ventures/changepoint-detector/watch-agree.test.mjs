@@ -48,3 +48,12 @@ test('the synthetic noise is seeded and standard', () => {
   const m = x.reduce((a, b) => a + b, 0) / x.length, s = Math.sqrt(x.reduce((a, b) => a + (b - m) ** 2, 0) / x.length);
   assert.ok(Math.abs(m) < 0.03 && Math.abs(s - 1) < 0.03);
 });
+
+test('round 13 as run: T9 fails on the normal run and on faults caught, and the --columns help and the page say so', async () => {
+  const { readFileSync } = await import('node:fs');
+  const out = readFileSync(new URL('./eval/watch-skab-agree.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /T9 A2 vs A1, Quiet: \(a\) normal run 2\.69 per 100 checks vs 2 FAIL; \(b\) 22 vs 31 - 2 FAIL; \(c\) 37\.2% vs 31\.5% PASS\. FAILS\./);
+  assert.match(out, /16 \|\s+8\s+Accelerometer1RMS \+ Accelerometer2RMS/);
+  assert.match(readFileSync(new URL('./watch.mjs', import.meta.url), 'utf8'), /Waiting for two columns to agree does not fix it/);
+  assert.match(readFileSync(new URL('./watch-a-metric-for-changes.html', import.meta.url), 'utf8'), /Asking for two columns to agree before an alert was tested on the same testbed and does not ship/);
+});

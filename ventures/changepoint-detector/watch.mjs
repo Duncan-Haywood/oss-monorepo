@@ -43,6 +43,10 @@ Options:
                             Every column is one more chance for noise: on the normal run of an 8-sensor pump testbed
                             (SKAB), Quiet on all 8 columns sent 8.5 alert lines per 100 checks, over 4 times the
                             default budget (README "Round 12"). Replay with --suggest first and drop the loud columns.
+                            Waiting for two columns to agree does not fix it: sensors that move together (two
+                            accelerometers, two temperatures) agree on noise too, so the normal run still sent 2.7
+                            messages per 100 checks, and 9 of 33 faults seen by one column alone were missed
+                            (README "Round 13"; not offered).
   --model mean|meanvar|poisson   change in level, in level and volatility, or in the rate of counts (default: mean)
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
