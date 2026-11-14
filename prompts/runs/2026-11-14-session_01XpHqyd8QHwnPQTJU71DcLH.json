@@ -1,0 +1,272 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyd8QHwnPQTJU71DcLH",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T04:39:06Z",
+  "ended": "2026-11-14T04:40:16Z",
+  "wall_minutes": 15.25,
+  "tokens_in": 4398460,
+  "tokens_out": 18132,
+  "cost_usd": 2.0027,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15731",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First post draft had a description of 208 chars and an seo_title of 71; the pre-push hook and writing-backlog.mjs rejected it; shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The local branch claude/gracious-ptolemy-pzymt9 already existed with a stale origin tracking ref but no remote branch, so `git push --force-with-lease` was refused as stale info; a plain push worked. Not documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard. The defect had one instance: no other venture accepts 31 days inside a 30-day model (six validators accept 31, all for calendar dates or pay periods), so a lint would guard an empty class.",
+      "did": "Left targeted tests in the venture suite, which CI already runs, and noted the sweep in the post.",
+      "result": "No new CI guard. The tests catch a repeat in this file."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 12 open entries are control-plane workflow edits, each already with an open owner-approval PR; a duplicate PR would add noise.",
+      "did": "Checked the open PR list and moved on to seeding.",
+      "result": "No step-0 changes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-daycare-thirty-one-days.md"
+  ],
+  "goal": null,
+  "notes": "Target drawn by redteam.py campaign (random file, probe <20s). 3/8 caught before, 8/8 after. Real defect: daysOpen <= 31 with a 30-day model month (10 full spots gave 10.33 dogs on site and 3 attendants at 5:1); patched to <= 30. Venture suite 31/31 pass. run_workflow_locally --for-changes: ventures-tests 5/5 run steps pass; post front-matter fails were from my first draft and are fixed; site-builder tests went green in PR CI (portfolio-pages test job, run 43558482327); all 21 check runs on PR #15731 succeeded or were skipped by design.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+        "test": "node --test ventures/pet-boarding-daycare-profit-calculator/**/*.test.mjs  (in .)",
+        "seed": 719459464,
+        "commit": "b03218fac",
+        "sites": 406,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 36,
+            "col": 166,
+            "operator": "const-plus-one",
+            "before": "const buildoutPerRun = opt(raw.buildoutPerRun, 0), equipmentTotal = opt(raw.equipmentTotal, 0), launch = opt(raw.launch, 0), depositMonths = opt(raw.depositMonths, 0), contingencyPct = opt(raw.contingencyPct, 0);",
+            "after": "const buildoutPerRun = opt(raw.buildoutPerRun, 0), equipmentTotal = opt(raw.equipmentTotal, 0), launch = opt(raw.launch, 0), depositMonths = opt(raw.depositMonths, 1), contingencyPct = opt(raw.contingencyPct, 0);",
+            "line_text": "  const buildoutPerRun = opt(raw.buildoutPerRun, 0), equipmentTotal = opt(raw.equipmentTotal, 0), launch = opt(raw.launch, 0), depositMonths = opt(raw.depositMonths, 0), contingencyPct = opt(raw.contingencyPct, 0);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default deposit months 0 untested; new 'blank optional fields' test"
+          },
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 54,
+            "col": 19,
+            "operator": "ge-to-gt",
+            "before": "if (!(payrollPct >= 0 && payrollPct <= 60)) errors.push(\"Payroll tax and benefits must be 0 to 60 percent of wages.\");",
+            "after": "if (!(payrollPct > 0 && payrollPct <= 60)) errors.push(\"Payroll tax and benefits must be 0 to 60 percent of wages.\");",
+            "line_text": "  if (!(payrollPct >= 0 && payrollPct <= 60)) errors.push(\"Payroll tax and benefits must be 0 to 60 percent of wages.\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 60,
+            "col": 38,
+            "operator": "le-to-lt",
+            "before": "if (!(rampMonths >= 0 && rampMonths <= 60 && Number.isInteger(rampMonths))) errors.push(\"Ramp-up months must be a whole number from 0 to 60.\");",
+            "after": "if (!(rampMonths >= 0 && rampMonths < 60 && Number.isInteger(rampMonths))) errors.push(\"Ramp-up months must be a whole number from 0 to 60.\");",
+            "line_text": "  if (!(rampMonths >= 0 && rampMonths <= 60 && Number.isInteger(rampMonths))) errors.push(\"Ramp-up months must be a whole number from 0 to 60.\");",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "ramp-up upper bound 60 untested; new boundary test"
+          },
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 88,
+            "col": 90,
+            "operator": "const-plus-one",
+            "before": "const fixed = p.rentMonthly + p.utilitiesMonthly + p.managerMonthly + p.insuranceYear / 12 + p.otherMonthly;",
+            "after": "const fixed = p.rentMonthly + p.utilitiesMonthly + p.managerMonthly + p.insuranceYear / 13 + p.otherMonthly;",
+            "line_text": "  const fixed = p.rentMonthly + p.utilitiesMonthly + p.managerMonthly + p.insuranceYear / 12 + p.otherMonthly;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "insurance /12 untested; new fixed-cost test"
+          },
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 95,
+            "col": 146,
+            "operator": "plus-to-minus",
+            "before": "return { buildout, equipment: p.equipmentTotal, deposit, launch: p.launch, contingency, total: buildout + p.equipmentTotal + deposit + p.launch + contingency };",
+            "after": "return { buildout, equipment: p.equipmentTotal, deposit, launch: p.launch, contingency, total: buildout + p.equipmentTotal + deposit + p.launch - contingency };",
+            "line_text": "  return { buildout, equipment: p.equipmentTotal, deposit, launch: p.launch, contingency, total: buildout + p.equipmentTotal + deposit + p.launch + contingency };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 109,
+            "col": 98,
+            "operator": "times-to-div",
+            "before": "const capped = (p, s) => month(p, Math.min(1, p.occPct / 100 * s), Math.min(1, p.dayFillPct / 100 * s));",
+            "after": "const capped = (p, s) => month(p, Math.min(1, p.occPct / 100 * s), Math.min(1, p.dayFillPct / 100 / s));",
+            "line_text": "const capped = (p, s) => month(p, Math.min(1, p.occPct / 100 * s), Math.min(1, p.dayFillPct / 100 * s));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "daycare fill scaling in demand sweep untested; new sweep test"
+          },
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 133,
+            "col": 27,
+            "operator": "div-to-times",
+            "before": "const m = p.targetMargin / 100, v = p.feesPct / 100;",
+            "after": "const m = p.targetMargin * 100, v = p.feesPct / 100;",
+            "line_text": "  const m = p.targetMargin / 100, v = p.feesPct / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+            "line": 158,
+            "col": 107,
+            "operator": "div-to-times",
+            "before": "const s = month(p, Math.min(1, p.occPct / 100), Math.min(1, p.dayFillPct / 100), { priceScale: 1 + pct / 100 });",
+            "after": "const s = month(p, Math.min(1, p.occPct / 100), Math.min(1, p.dayFillPct / 100), { priceScale: 1 + pct * 100 });",
+            "line_text": "    const s = month(p, Math.min(1, p.occPct / 100), Math.min(1, p.dayFillPct / 100), { priceScale: 1 + pct / 100 });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "price sweep scale untested; new price sweep test"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs",
+        "issue": "Daycare days open per month accepted 31, but the model month is 30 days (boarding nights, labour). Daycare dogs on site = spots x fill x daysOpen / 30, so 10 spots always full at 31 days gave 10.33 dogs and 3 attendants at a 5:1 ratio instead of 2, and 3.3% more daycare revenue than the month holds. Fix: limit to 1..30 with a message saying the page models a 30-day month; label says '(of 30)'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dfdde128-e94c-5269-bee1-cc6a9dcb0942",
+    "transcripts": 1,
+    "first": "2026-11-14T04:39:06Z",
+    "last": "2026-11-14T04:54:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 90,
+        "output": 18132,
+        "thinking": 4830,
+        "cache_read": 4300929,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97441,
+        "api_equivalent_usd": 2.0027,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 90,
+      "output": 18132,
+      "thinking": 4830,
+      "cache_read": 4300929,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97441,
+      "api_equivalent_usd": 2.0027,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 2,
+      "TaskStop": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.25,
+      "active_minutes": 15.25,
+      "model_minutes": 3.21,
+      "tool_minutes": 12.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "senior engineer: mutation triage, five tests, one validation fix and a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 99.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
