@@ -160,7 +160,7 @@ export function parseRule(text) {
     rule.given.add(name);
     const upper = value.toUpperCase();
     if (name === "FREQ") {
-      if (FREQ_RANK[upper] === undefined) findings.push(finding("error", "bad-freq", `FREQ=${value} is not a frequency`, `Use one of ${FREQS.join(", ")}.`));
+      if (!Object.hasOwn(FREQ_RANK, upper)) findings.push(finding("error", "bad-freq", `FREQ=${value} is not a frequency`, `Use one of ${FREQS.join(", ")}.`));
       else rule.freq = upper;
     } else if (name === "INTERVAL" || name === "COUNT") {
       if (!/^\d+$/.test(value) || +value < 1) findings.push(finding("error", `bad-${name.toLowerCase()}`, `${name}=${value} is not a positive whole number`, name === "COUNT" ? "COUNT is how many occurrences the rule has; it is ignored here." : "INTERVAL defaults to 1; the bad value is ignored."));
@@ -647,7 +647,7 @@ const UNIT = { YEARLY: "year", MONTHLY: "month", WEEKLY: "week", DAILY: "day", H
 /** A plain-English reading of a rule with its DTSTART. */
 export function describe(rule, start, tzid = null) {
   const r = normalize(rule, start);
-  const unit = UNIT[r.freq];
+  const unit = Object.hasOwn(UNIT, r.freq) ? UNIT[r.freq] : "period";
   const bits = [r.interval === 1 ? `Every ${unit}` : `Every ${r.interval} ${unit}s`];
   if (r.byweekno.length) bits.push(`in week${r.byweekno.length > 1 ? "s" : ""} ${list(r.byweekno.map((w) => (w < 0 ? ord(w) : String(w))))} of the year`);
   if (r.byyearday.length) bits.push(`on day ${list(r.byyearday.map((d) => (d < 0 ? ord(d) : String(d))))} of the year`);
@@ -879,7 +879,8 @@ export function analyze(input = {}) {
 
 const fmtOffset = (s) => `${s < 0 ? "-" : "+"}${pad(Math.floor(Math.abs(s) / 3600))}:${pad(Math.floor((Math.abs(s) % 3600) / 60))}`;
 const LEVEL = { error: 0, warning: 1, info: 2 };
-const sortFindings = (fs) => fs.slice().sort((a, b) => LEVEL[a.level] - LEVEL[b.level]);
+const rank = (l) => (Object.hasOwn(LEVEL, l) ? LEVEL[l] : 3);
+const sortFindings = (fs) => fs.slice().sort((a, b) => rank(a.level) - rank(b.level));
 
 /** CSV of the listed occurrences. */
 export function reportCsv(result) {
