@@ -127,6 +127,80 @@ const SITE_CELL = /^(site|location|shop|store)\s*:/i;
 const SITES_CELL = /^(sites|locations|shops|stores)\s*:/i;
 export const siteKey = (x) => String(x || "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const parseSites = (cell) => cell.replace(SITES_CELL, "").replace(SITE_CELL, "").split(/[|/&+;]/).map(siteKey).filter(Boolean);
+// Travel between sites (2026-11-14): "30" = every pair of named sites is 30 minutes apart; "Main to Airport 60" sets one pair
+// (either direction); items are separated by ";" or ",". Durations take "45", "45 min" or "1.5h". A person's two shifts at
+// different named sites then need max(rest, travel) between the end of one and the start of the next, so with the rest rule
+// lowered for split shifts nobody closes one shop at 3pm and opens the other at 3pm. Returns { all, pairs, errors }.
+const travelDur = (t) => {
+  const m = /^(\d+(?:\.\d+)?)\s*(h|hr|hrs|hours?|m|min|mins|minutes?)?$/i.exec(String(t).trim());
+  if (!m) return null;
+  return /^h/i.test(m[2] || "") ? Number(m[1]) * 60 : Number(m[1]);
+};
+export function parseTravel(spec) {
+  const out = { all: 0, pairs: [], errors: [] };
+  if (spec === undefined || spec === null || spec === "") return out;
+  if (typeof spec === "number") { if (spec >= 0 && Number.isFinite(spec)) out.all = spec; else out.errors.push("travel minutes must be 0 or more"); return out; }
+  for (const raw of String(spec).split(/[;,\n]/)) {
+    const item = raw.trim();
+    if (!item) continue;
+    const d = travelDur(item);
+    if (d !== null) { out.all = d; continue; }
+    const m = /^(.+?)\s+(?:to|<->|<>|and)\s+(.+?)\s+(\d+(?:\.\d+)?\s*[a-z]*)$/i.exec(item);
+    const mins = m ? travelDur(m[3]) : null;
+    if (!m || mins === null || !siteKey(m[1]) || !siteKey(m[2])) { out.errors.push(`travel: could not read "${item}"; write "30" (minutes between any two sites) or "Main to Airport 45"`); continue; }
+    if (siteKey(m[1]) === siteKey(m[2])) { out.errors.push(`travel: "${item}" names the same site twice`); continue; }
+    out.pairs.push([siteKey(m[1]), siteKey(m[2]), mins]);
+  }
+  return out;
+}
+
+// Per-ctx travel table: site index per shift (-1 = no site) and an n x n minute matrix, or null when no pair needs more than
+// the rest rule already gives (then every check below is skipped and builds are byte-identical to before).
+function travelTable(o, slots, restMin) {
+  const tv = parseTravel(o.travel);
+  if (!tv.all && !tv.pairs.length) return null;
+  const names = [...new Set(slots.filter((s) => s.site).map((s) => siteKey(s.site)))].sort();
+  if (names.length < 2) return null;
+  const n = names.length, id = new Map(names.map((x, k) => [x, k]));
+  const T = new Float64Array(n * n);
+  for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) T[a * n + b] = a === b ? 0 : tv.all;
+  for (const [x, y, m] of tv.pairs) {
+    if (!id.has(x) || !id.has(y)) continue;
+    T[id.get(x) * n + id.get(y)] = m; T[id.get(y) * n + id.get(x)] = m;
+  }
+  if (!T.some((v) => v > restMin)) return null;
+  const site = Int32Array.from(slots, (s) => (s.site ? id.get(siteKey(s.site)) : -1));
+  return { n, names, T, site, endBy: new Float64Array(n) };
+}
+
+// The travel rule on one person's list ordered by start (buf may be a typed array; only its first m entries are read).
+function travelOk(ctx, buf, m = buf.length) {
+  const tt = ctx.travel;
+  if (!tt) return true;
+  const { n, T, site, endBy } = tt, slots = ctx.slots;
+  endBy.fill(-Infinity);
+  for (let k = 0; k < m; k++) {
+    const x = buf[k], sx = site[x];
+    if (sx < 0) continue;
+    const st = slots[x].start;
+    for (let y = 0; y < n; y++) if (y !== sx && st < endBy[y] + T[y * n + sx]) return false;
+    if (slots[x].end > endBy[sx]) endBy[sx] = slots[x].end;
+  }
+  return true;
+}
+
+// Does putting shift i on a person who already has `base` break the travel rule (and not the rest rule)?
+function travelClash(ctx, base, i) {
+  const tt = ctx.travel;
+  if (!tt || tt.site[i] < 0) return false;
+  const s = ctx.slots[i], a = tt.site[i];
+  return base.some((k) => {
+    const b = tt.site[k];
+    if (b < 0 || b === a) return false;
+    const gap = Math.max(ctx.restMin, tt.T[a * tt.n + b]), o = ctx.slots[k];
+    return s.start < o.end + gap && o.start < s.end + gap;
+  });
+}
 const parseRoles = (cell) => cell.replace(ROLE_CELL, "").split(/[|/&+]/).map((r) => r.trim().toLowerCase()).filter(Boolean);
 
 // "prev: Sun 10pm" = when this person's last shift LAST week ended, so the rest rule also holds across the week boundary.
@@ -437,7 +511,8 @@ export function buildContext(staff, slots, options = {}) {
   const capSum = caps.reduce((a, b) => a + b, 0) || 1;
   const target = staff.map((_, i) => (totalHours * caps[i]) / capSum);
   const avgWage = staff.length ? staff.reduce((t, p) => t + p.wage, 0) / staff.length : 0;
-  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin: Math.max(0, o.minRestHours) * 60, diffMin: differentialMinutes(o, slots), keep: keepSets(o, staff, slots) };
+  const restMin = Math.max(0, o.minRestHours) * 60;
+  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin, travel: travelTable(o, slots, restMin), diffMin: differentialMinutes(o, slots), keep: keepSets(o, staff, slots) };
 }
 
 // "Keep last week's shifts": `keep` maps a person's name (any case) to the shifts they worked before, each written as
@@ -530,7 +605,7 @@ function validList(ctx, p, list) {
     if (run > o.maxConsecDays) return false;
     prev = d;
   }
-  return true;
+  return !ctx.travel || travelOk(ctx, list);
 }
 
 let MERGE = new Int32Array(64);
@@ -604,7 +679,7 @@ function validWith(ctx, p, list, i, skip = -1) {
     if (run > o.maxConsecDays) return false;
     prev = d;
   }
-  return true;
+  return !ctx.travel || travelOk(ctx, buf, m);
 }
 
 function validListSlow(ctx, p, list) {
@@ -628,7 +703,7 @@ function validListSlow(ctx, p, list) {
     if (run > o.maxConsecDays) return false;
     prev = d;
   }
-  return true;
+  return !ctx.travel || travelOk(ctx, list);
 }
 
 function hoursOf(ctx, list) {
@@ -2502,7 +2577,7 @@ function whyUnfilled(ctx, owner, i) {
   const slot = ctx.slots[i];
   const lists = Array.from({ length: ctx.P }, () => []);
   owner.forEach((p, k) => { if (p >= 0) lists[p].push(k); });
-  const why = { free: 0, hours: 0, rest: 0, days: 0, overlap: 0, daily: 0 };
+  const why = { free: 0, hours: 0, rest: 0, days: 0, overlap: 0, daily: 0, travel: 0 };
   for (let p = 0; p < ctx.P; p++) {
     if (!ctx.elig[p][i]) continue;
     why.free++;
@@ -2515,7 +2590,7 @@ function whyUnfilled(ctx, owner, i) {
     if (overDaily(ctx, p, nl)) { why.daily++; continue; }
     const gapBad = slot.start < (ctx.staff[p].prevEnd ?? -Infinity) + ctx.restMin
       || base.some((k) => slot.start < ctx.slots[k].end + ctx.restMin && ctx.slots[k].start < slot.end + ctx.restMin);
-    if (gapBad) why.rest++; else why.days++;
+    if (gapBad) why.rest++; else if (travelClash(ctx, base, i)) why.travel++; else why.days++;
   }
   let text;
   const skilled = slot.role ? ctx.staff.filter((p) => qualified(p, slot)).length : ctx.P;
@@ -2528,6 +2603,7 @@ function whyUnfilled(ctx, owner, i) {
     const bits = [];
     if (why.overlap) bits.push(`${why.overlap} already on another shift`);
     if (why.rest) bits.push(`${why.rest} would break the rest rule`);
+    if (why.travel) bits.push(`${why.travel} would have no time to travel from another site`);
     if (why.hours) bits.push(`${why.hours} at their weekly hour limit`);
     if (why.daily) bits.push(`${why.daily} at their daily hour limit`);
     if (why.days) bits.push(`${why.days} at the consecutive-days limit`);
@@ -2879,6 +2955,12 @@ function buildRosterOnce(staff, slots, options = {}) {
   res.people.forEach((p) => {
     if (p.short > 0.01) warnings.push(`${p.name} gets ${num(p.hours)} hours, ${num(p.short)} under their minimum of ${num(p.minHours)}.`);
   });
+  if (options.travel !== undefined && options.travel !== null && options.travel !== "") {
+    const tv = parseTravel(options.travel), named = new Set(slots.filter((s) => s.site).map((s) => siteKey(s.site)));
+    for (const e of tv.errors) warnings.push(e);
+    for (const [x, y] of tv.pairs) for (const z of [x, y]) if (!named.has(z)) warnings.push(`travel: no shift is at a site called "${z}", so its travel time is not used.`);
+    if (ctx.travel === null && !tv.errors.length && named.size > 1) warnings.push(`travel: every trip between sites is within the ${num(ctx.restMin / 60)} hour rest rule, so it changes nothing; lower the rest rule to allow split shifts across sites.`);
+  }
   if (slots.some((s) => s.endMin > 1440 && s.day === 6) && staff.every((p) => p.prevEnd == null)) warnings.push("A Sunday-night shift runs into Monday; the rest rule is checked inside this one week only. To carry it into next week, add \"prev: Sun 10pm\" to each person next week.");
 
   const assignments = slots.map((s, i) => ({ slot: s, person: res.owner[i] >= 0 ? staff[res.owner[i]].name : null }));
@@ -2907,6 +2989,7 @@ function blockReason(ctx, staff, slots, p, base, nl, slotIndex) {
   if (overDaily(ctx, p, nl)) return "would go over their daily hour limit";
   if (slot.start < (staff[p].prevEnd ?? -Infinity) + ctx.restMin
     || base.some((k) => slot.start < slots[k].end + ctx.restMin && slots[k].start < slot.end + ctx.restMin)) return "would break the rest rule";
+  if (travelClash(ctx, base, slotIndex)) return "would have no time to travel from their shift at another site";
   return "would break the days-in-a-row limit";
 }
 
