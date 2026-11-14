@@ -175,24 +175,38 @@ export function suggestGain(lufs, truePeakDb, targets = TARGETS) {
   const want = targets.lufs - lufs, room = targets.truePeakMax - truePeakDb;
   return +Math.min(want, room).toFixed(2);
 }
-// What each service's loudness normalisation would do to this track. Targets
-// are commonly reported figures written from memory, NOT read from the
-// services' current help pages: check them before relying on them. `up` says
-// whether the service also raises quiet tracks (otherwise it only turns down).
+// What each service's loudness normalisation would do to this track.
+// Read 2026-11-14 (eval/playback-targets-2026-11-14.md). Only Spotify's own page
+// ("Loudness normalization", support.spotify.com) gives figures: tracks go to
+// -14 LUFS (ITU 1770), quiet ones are lifted only while 1 dB of true-peak
+// headroom remains ("-20 dB LUFS ... True Peak maximum is -5 dB FS, we only lift
+// the track up to -16 dB LUFS"). Apple's mastering guide (Apple Digital Masters
+// PDF), YouTube's "Stable volume" help and Deezer's "Volume Normalization" help
+// describe the feature with no level; Amazon's help page and Tidal's support site
+// answered 403. Their figures below are the commonly reported ones, marked
+// `published: false`. `up` says whether the service also raises quiet tracks;
+// `headroomDb` caps that lift so the true peak stays that far under 0 dBTP.
 export const PLATFORMS = [
-  { name: 'Spotify', lufs: -14, up: true },
-  { name: 'Apple Music', lufs: -16, up: true },
-  { name: 'YouTube', lufs: -14, up: false },
-  { name: 'Amazon Music', lufs: -14, up: false },
-  { name: 'Tidal', lufs: -14, up: false },
-  { name: 'Deezer', lufs: -15, up: false },
+  { name: 'Spotify', lufs: -14, up: true, headroomDb: 1, published: true },
+  { name: 'Apple Music', lufs: -16, up: true, published: false },
+  { name: 'YouTube', lufs: -14, up: false, published: false },
+  { name: 'Amazon Music', lufs: -14, up: false, published: false },
+  { name: 'Tidal', lufs: -14, up: false, published: false },
+  { name: 'Deezer', lufs: -15, up: false, published: false },
 ];
-export function platformPlayback(lufs, platforms = PLATFORMS) {
+// Spotify's mastering tips, same page: "If your master is louder than -14dB
+// integrated LUFS, keep True Peak below -2dB".
+export const SPOTIFY_LOUD_TRUE_PEAK_MAX = -2;
+export function platformPlayback(lufs, platforms = PLATFORMS, truePeakDb = null) {
   if (!Number.isFinite(lufs)) return null;
   return platforms.map((p) => {
-    const raw = p.lufs - lufs;
-    const gainDb = +(raw > 0 && !p.up ? 0 : raw).toFixed(1);
-    return { name: p.name, target: p.lufs, gainDb };
+    let raw = p.lufs - lufs;
+    if (raw > 0 && !p.up) raw = 0;
+    let capped = false;
+    if (raw > 0 && p.headroomDb !== undefined && Number.isFinite(truePeakDb) && truePeakDb + raw > -p.headroomDb) {
+      raw = Math.max(0, -p.headroomDb - truePeakDb); capped = true;
+    }
+    return { name: p.name, target: p.lufs, gainDb: +raw.toFixed(1), published: p.published, capped };
   });
 }
 export function analyze({ rate, channels }, targets = TARGETS) {
@@ -213,14 +227,124 @@ export function analyze({ rate, channels }, targets = TARGETS) {
   const r = {
     seconds: n / rate, rate, channels: channels.length,
     lufs, truePeakDb: db(tp), monoLossDb: mono, correlation: corr, clipRuns: clips,
+    // loudest 400 ms and 3 s windows (EBU Tech 3341 momentary and short-term max)
+    maxMomentaryLufs: maxWindowLoudness(channels, rate, 0.4), maxShortTermLufs: maxWindowLoudness(channels, rate, 3),
+    // EBU Tech 3342 loudness range: how far the short-term level moves (LU); reported, not checked
+    loudnessRange: loudnessRange(channels, rate).lra,
   };
-  r.platforms = platformPlayback(lufs);
+  r.platforms = platformPlayback(lufs, PLATFORMS, r.truePeakDb);
   r.suggestedGainDb = suggestGain(lufs, r.truePeakDb, targets);
   const checks = [];
   checks.push({ name: 'loudness', ok: Number.isFinite(lufs) && Math.abs(lufs - targets.lufs) <= targets.lufsTolerance,
     note: `${lufs.toFixed(1)} LUFS integrated; aim ${targets.lufs} +/- ${targets.lufsTolerance}${r.suggestedGainDb !== null && Math.abs(r.suggestedGainDb) >= 0.1 ? `; suggested gain ${r.suggestedGainDb > 0 ? '+' : ''}${r.suggestedGainDb} dB` : ''}` });
-  checks.push({ name: 'true peak', ok: r.truePeakDb <= targets.truePeakMax, note: `${r.truePeakDb.toFixed(2)} dBTP; ceiling ${targets.truePeakMax}` });
+  // a master louder than the target gets Spotify's tighter ceiling (rounded to the 0.1 LU the report prints)
+  const loud = Number.isFinite(lufs) && +lufs.toFixed(1) > targets.lufs;
+  const ceiling = loud ? Math.min(targets.truePeakMax, SPOTIFY_LOUD_TRUE_PEAK_MAX) : targets.truePeakMax;
+  checks.push({ name: 'true peak', ok: r.truePeakDb <= ceiling, note: `${r.truePeakDb.toFixed(2)} dBTP; ceiling ${ceiling}${loud && ceiling < targets.truePeakMax ? ` (louder than ${targets.lufs} LUFS: Spotify asks for under ${SPOTIFY_LOUD_TRUE_PEAK_MAX} dBTP)` : ''}` });
   if (mono !== null) checks.push({ name: 'mono compatibility', ok: -mono <= targets.monoLossMax, note: `${mono.toFixed(1)} dB summed to mono vs stereo power; correlation ${corr === null ? 'n/a' : corr.toFixed(2)}` });
   checks.push({ name: 'clipping', ok: clips === 0, note: `${clips} run(s) of ${targets.clipRunMin}+ samples at full scale` });
   return { ...r, checks, pass: checks.every((c) => c.ok) };
+}
+
+// ITU-R BS.1770-5 Annex 2: "one set of filter coefficients (for the order 48,
+// 4-phase, FIR interpolating)", copied from the 2023 text (pp. 18-19). Each row is
+// one phase's 12 taps; phase p's output for input index n is
+// sum_j ANNEX2_PHASES[p][j] * x[n - j].
+export const ANNEX2_PHASES = [
+  [0.0017089843750, 0.0109863281250, -0.0196533203125, 0.0332031250000, -0.0594482421875, 0.1373291015625, 0.9721679687500, -0.1022949218750, 0.0476074218750, -0.0266113281250, 0.0148925781250, -0.0083007812500],
+  [-0.0291748046875, 0.0292968750000, -0.0517578125000, 0.0891113281250, -0.1665039062500, 0.4650878906250, 0.7797851562500, -0.2003173828125, 0.1015625000000, -0.0582275390625, 0.0330810546875, -0.0189208984375],
+  [-0.0189208984375, 0.0330810546875, -0.0582275390625, 0.1015625000000, -0.2003173828125, 0.7797851562500, 0.4650878906250, -0.1665039062500, 0.0891113281250, -0.0517578125000, 0.0292968750000, -0.0291748046875],
+  [-0.0083007812500, 0.0148925781250, -0.0266113281250, 0.0476074218750, -0.1022949218750, 0.9721679687500, 0.1373291015625, -0.0594482421875, 0.0332031250000, -0.0196533203125, 0.0109863281250, 0.0017089843750],
+];
+
+// True peak exactly as Annex 2 describes it: the 4-phase FIR above, absolute
+// value, maximum (in floating point, so the 12.04 dB attenuate-and-restore step
+// is a no-op). Only the filter outputs count, not the raw samples: phase 0 is a
+// filter too (its taps sum to 1.0016, phases 1 and 2 to 0.9730), so this can read a little under or over
+// the sample peak. Inputs before the start count as silence; the last 11 outputs
+// past the end are read as well, so a peak in the final samples is not missed.
+export function truePeakAnnex2(x) {
+  const n = x.length, taps = ANNEX2_PHASES, L = taps[0].length;
+  let peak = 0;
+  for (let i = 0; i < n + L - 1; i++) {
+    for (let p = 0; p < 4; p++) {
+      const h = taps[p];
+      let s = 0;
+      for (let j = 0; j < L; j++) { const k = i - j; if (k >= 0 && k < n) s += h[j] * x[k]; }
+      const a = Math.abs(s);
+      if (a > peak || Number.isNaN(a)) peak = a;
+    }
+  }
+  return peak;
+}
+
+// The loudest window of `seconds` (0.4 = momentary, 3 = short-term; EBU Tech 3341
+// 2.3) over every window start, one sample apart, not on a 100 ms grid: a file
+// meter knows the whole signal, and Tech 3341 cases 10 and 13 put a 3 s or 400 ms
+// tone at offsets of 150 ms and 20 ms that a 100 ms grid would straddle (up to
+// -0.58 dB on case 13). Ungated, channels summed with weight 1 (stereo).
+// Returns -Infinity for silence or a signal shorter than the window.
+export function maxWindowLoudness(channels, fs, seconds) {
+  const n = channels[0].length, w = Math.round(seconds * fs);
+  if (n < w || w < 1) return -Infinity;
+  const cum = channels.map((c) => kWeightedEnergy(c, fs));
+  let best = 0;
+  for (let s = 0; s + w <= n; s++) {
+    let e = 0;
+    for (const c of cum) e += c[s + w] - c[s];
+    if (e > best) best = e;
+  }
+  return best > 0 ? -0.691 + 10 * Math.log10(best / w) : -Infinity;
+}
+
+// Window loudness at every `hop` samples from `from` seconds on, for checking that
+// a signal reads constant (Tech 3341 cases 9 and 12). Returns { min, max } in LUFS.
+export function windowLoudnessRange(channels, fs, seconds, from = 0, hop = 1) {
+  const n = channels[0].length, w = Math.round(seconds * fs);
+  const cum = channels.map((c) => kWeightedEnergy(c, fs));
+  let lo = Infinity, hi = -Infinity;
+  for (let end = Math.max(w, Math.round(from * fs)); end <= n; end += hop) {
+    let e = 0;
+    for (const c of cum) e += c[end] - c[end - w];
+    const l = -0.691 + 10 * Math.log10(e / w);
+    if (l < lo) lo = l;
+    if (l > hi) hi = l;
+  }
+  return { min: lo, max: hi };
+}
+
+// Loudness range (LRA, EBU Tech 3342, November 2023, read from
+// tech.ebu.ch/docs/tech/tech3342.pdf on 2026-11-14). Input: ungated short-term
+// (3 s) loudness every `hopSeconds` (the text asks for at least 10 Hz, i.e. 2.9 s
+// of overlap; 0.1 s here, as in libebur128 and ffmpeg). Gates: -70 LUFS absolute,
+// then -20 LU under the power mean of what passed (not BS.1770's -10). LRA is the
+// 95th minus the 10th percentile, taken as the 3342 MATLAB listing does:
+// sorted(round((n - 1) * p / 100 + 1)), 1-based. Windows run from 0 to the last
+// full 3 s window; `tailSeconds` pads silence after the end first (the listing's
+// "followed by at least 1.5 s of silence" note is for a live meter's latency; 0 by
+// default, eval/ebu-tech3342-2026-11-14.md shows both). Returns
+// { lra, low, high, windows, kept, levels }: levels is the gated short-term loudness,
+// sorted; lra is null when nothing passes the -70 gate.
+// `relativeGateLu` exists to show the gate matters: with BS.1770's -10 LU, Tech 3342
+// case 3 drops its -40 dBFS tone (eval/ebu-tech3342.mjs).
+export function loudnessRange(channels, fs, { hopSeconds = 0.1, tailSeconds = 0, relativeGateLu = -20 } = {}) {
+  const pad = Math.round(tailSeconds * fs);
+  const src = pad > 0 ? channels.map((c) => { const y = new Float64Array(c.length + pad); y.set(c); return y; }) : channels;
+  const n = src[0].length, w = Math.round(3 * fs), hop = Math.max(1, Math.round(hopSeconds * fs));
+  const st = [];
+  if (n >= w) {
+    const cum = src.map((c) => kWeightedEnergy(c, fs));
+    for (let s = 0; s + w <= n; s += hop) {
+      let e = 0;
+      for (const c of cum) e += c[s + w] - c[s];
+      st.push(e > 0 ? -0.691 + 10 * Math.log10(e / w) : -Infinity);
+    }
+  }
+  const abs = st.filter((l) => l >= -70);
+  if (!abs.length) return { lra: null, low: null, high: null, windows: st.length, kept: 0, levels: [] };
+  const mean = 10 * Math.log10(abs.reduce((t, l) => t + 10 ** (l / 10), 0) / abs.length);
+  const kept = abs.filter((l) => l >= mean + relativeGateLu).sort((a, b) => a - b);
+  const pick = (p) => kept[Math.round((kept.length - 1) * p / 100 + 1) - 1];
+  const low = pick(10), high = pick(95);
+  return { lra: high - low, low, high, windows: st.length, kept: kept.length, levels: kept };
 }

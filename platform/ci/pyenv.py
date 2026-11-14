@@ -6,6 +6,16 @@ them into that same interpreter if none can.
     PY=$(python3 platform/ci/pyenv.py pytest -r requirements.txt)   # a project's whole list
     PY=$(python3 platform/ci/pyenv.py --for research/marine-hull)   # what its .py files import
     PY=$(python3 platform/ci/pyenv.py -r research/infra-dcopf/pyproject.toml)  # declared deps
+    python3 platform/ci/pyenv.py --for research/marine-hull -- -m pytest research/marine-hull
+
+Everything after `--` is run with the interpreter found, in the same call
+(`os.execv`, so its exit code and output are the command's own). Use it when
+your shell does not keep variables between commands, as in cloud agent
+sessions: `PY=$(...)` set in one tool call is empty in the next, and
+`"$PY" script.py` then fails or, inside a heredoc, silently runs nothing
+(doc friction 2026-11-13/14, research/CLAUDE.md). Repeating the lookup per call
+costs about 3 s when an interpreter already has the modules (2026-11-14:
+`pytest numpy -- -c pass` took 3.3 s in a cloud session).
 
 `--for DIR` reads every .py file under DIR and asks for the third-party modules
 they import (stdlib, relative imports, imports inside `try:` and modules the
@@ -475,8 +485,17 @@ def expand_args(args):
     return out
 
 
-def main(argv=None):
-    modules = expand_args(argv if argv is not None else sys.argv[1:]) or ["pytest"]
+def split_command(argv):
+    """(pyenv args, command args): what follows the first `--` is the command."""
+    if "--" in argv:
+        i = argv.index("--")
+        return argv[:i], argv[i + 1:]
+    return argv, None
+
+
+def main(argv=None, execv=os.execv):
+    argv, command = split_command(list(argv if argv is not None else sys.argv[1:]))
+    modules = expand_args(argv) or ["pytest"]
     if any(m.startswith("-") for m in modules):
         print(__doc__, file=sys.stderr)
         return 2
@@ -488,7 +507,7 @@ def main(argv=None):
     # 2026-11-07: two overlapping calls made the second wait for nothing).
     py = next((c for c in cands if imports(c, modules)), None)
     if py:
-        return report(py)
+        return report(py, command, execv)
     # One install at a time: a second call waits here, then finds the first's
     # result importable instead of starting a duplicate pip.
     lock = open(os.path.join(os.path.dirname(venv_dir) or ".", ".pyenv.lock"), "w") if os.path.isdir(os.path.dirname(venv_dir)) else None
@@ -505,14 +524,23 @@ def main(argv=None):
         print(f"pyenv: no interpreter imports {', '.join(modules)} after pip and apt; "
               f"tried {cands}", file=sys.stderr)
         return 1
-    return report(py)
+    return report(py, command, execv)
 
 
-def report(py):
+def report(py, command=None, execv=os.execv):
+    if command is not None:
+        # Run it now: no path to capture, so no shell variable to lose.
+        print(f"pyenv: running {py} {' '.join(command)}", file=sys.stderr)
+        sys.stdout.flush()
+        sys.stderr.flush()
+        execv(py, [py, *command])
+        return 0  # only reached when execv is a test double
     default = shutil.which("python3")
     if default and os.path.realpath(default) == os.path.realpath(py):
         print(f"pyenv: interpreter {py} (also the default python3, so plain python3 imports them too); "
               "stdout carries this path, capture it with PY=$(...)", file=sys.stderr)
+    print("pyenv: shell variables not kept between commands? add `-- <args>` to run "
+          "them with this interpreter in the same call", file=sys.stderr)
     print(py)
     return 0
 

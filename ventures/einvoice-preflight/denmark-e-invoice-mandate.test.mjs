@@ -63,3 +63,11 @@ test("every other country page links to the Denmark page", () => {
     assert.match(page, /href="denmark-e-invoice-mandate\.html"/, f);
   }
 });
+
+test("dates read from BEK nr 811 and 915 (2026-11-14)", () => {
+  assert.match(html, /29 Sep 2026/);
+  assert.match(html, /BEK nr 811/);
+  assert.match(html, /BEK nr 915/);
+  assert.match(html, /opt out within four weeks/);
+  assert.doesNotMatch(html, /the order text itself (was not read|is still unread)/);
+});

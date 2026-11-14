@@ -25,6 +25,11 @@
   <h1>Ask two options at a time. Learn what people really want.</h1>
   <p class="lede">Quick Pick shows a respondent two options and asks them to pick one. After enough picks it knows their preference ordering, including trade-offs they could not have stated if you had asked directly.</p>
   <section>
+    <h2>Try it now: rank your own list</h2>
+    <p>Paste up to 60 options, answer "this or that?", and get an order with a 90% rank range for each place. Share the list with your team by link and combine everyone's picks into one order that shows where people split. It runs in your browser and uploads nothing.</p>
+    <p><a href="rank.html"><strong>Rank a list by picking pairs &rarr;</strong></a></p>
+  </section>
+  <section>
     <h2>How it works</h2>
     <ul>
       <li><strong>Discrete items</strong> (activities, professions) are rated with Glicko-2. Each item carries a rating and a rating deviation, so every ranking comes with a confidence interval. Ratings are stored per respondent, so one person's answers never move another's ranking.</li>
@@ -35,7 +40,7 @@
   </section>
   <section>
     <h2>Status</h2>
-    <p>Prototype. It is a Next.js and Postgres app that you run yourself; this page is a description, not a hosted demo, and no hosted instance is promised. No outside user has run a real survey with it yet, and nothing here is a measured result.</p>
+    <p>Prototype. The full survey app (many respondents, admin view, demographic splits) is a Next.js and Postgres app that you run yourself, and no hosted instance of it is promised. The <a href="rank.html">list ranker</a> is the same model running in your browser, for one person or a small team. No outside user has run a real survey with it yet, and nothing here is a measured result.</p>
   </section>
   <section>
     <h2>For handing results on</h2>
@@ -70,7 +75,7 @@ npm run dev</pre>
   </section>
   <section>
     <h2>Privacy and usage</h2>
-    <p>This page has no scripts, cookies or analytics, and records nothing about you. When you self-host the app, what it stores about a respondent is documented in <code>docs/DATA-COLLECTION.md</code>.</p>
+    <p>This page has no scripts, cookies or analytics, and records nothing about you (the list ranker's own privacy note says what it counts). When you self-host the app, what it stores about a respondent is documented in <code>docs/DATA-COLLECTION.md</code>.</p>
   </section>
   <section>
     <h2>Disclaimer</h2>

@@ -80,7 +80,10 @@ export function binarize(img, t = threshold(img)) {
 
 // Staff lines: rows whose ink covers at least `minCover` of the page width,
 // merged into lines, then grouped four at a time with even spacing.
-export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
+// `staffV1: true` gives the finder as it was before 2026-11-14 (no line
+// trimming, no outer-pair spacing, no median-spacing check), for
+// eval/thick-line-check.mjs.
+export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4, staffV1 = false } = {}) {
   const { width, height, ink } = bin;
   const rowInk = new Array(height).fill(0);
   for (let y = 0; y < height; y++) {
@@ -93,7 +96,8 @@ export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
     if (rowInk[y] < minCover * width) continue;
     const start = y;
     while (y + 1 < height && rowInk[y + 1] >= minCover * width) y++;
-    lines.push({ top: start, bottom: y, y: (start + y) / 2 });
+    const [top, bottom] = staffV1 ? [start, y] : trimLine(bin, start, y);
+    lines.push({ top, bottom, y: (top + bottom) / 2 });
   }
   // A staff is `linesPerStaff` lines at an even spacing. Other ink-heavy
   // rows (a page rule, a heavy line of text) may sit between candidates,
@@ -105,15 +109,28 @@ export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
     for (let j = i + 1; j < lines.length; j++) {
       const d = lines[j].y - lines[i].y;
       if (d < 6) continue;
-      if (d > 120) break;
+      if (d > 120 * (linesPerStaff - 1)) break;
       const idx = [i, j];
-      for (let k = 2; k < linesPerStaff; k++) {
+      for (let k = 2; k < linesPerStaff && d <= 120; k++) {
         const tol = Math.max(2, 0.12 * d);
         const m = lines.findIndex((l) => Math.abs(l.y - (lines[i].y + k * d)) <= tol);
         if (m < 0) break;
         idx.push(m);
       }
-      if (idx.length === linesPerStaff) cands.push({ idx, d });
+      if (idx.length === linesPerStaff && d <= 120) cands.push({ idx, d });
+      // the same test with i and j as the outer lines: on a tilted page one
+      // line's centre can sit a few pixels off, and the spacing taken from
+      // the outer pair is three times less sensitive to it than the
+      // first pair's (eval/thick-line-check.md, leaf 582)
+      const D = d / (linesPerStaff - 1);
+      if (staffV1 || D < 6) continue;
+      const o = [i];
+      for (let k = 1; k < linesPerStaff - 1; k++) {
+        const m = lines.findIndex((l) => Math.abs(l.y - (lines[i].y + k * D)) <= Math.max(2, 0.12 * D));
+        if (m < 0) break;
+        o.push(m);
+      }
+      if (o.length === linesPerStaff - 1) cands.push({ idx: [...o, j], d: D });
     }
   }
   // tightest spacing first: real staves beat chance alignments of a page
@@ -129,7 +146,48 @@ export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4 } = {}) {
     staves.push({ lines: group, space: mean, top: group[0].y, bottom: group[linesPerStaff - 1].y, ...extent });
   }
   staves.sort((p, q) => p.top - q.top);
-  return staves;
+  // one page prints one size of staff: a "staff" far tighter than the
+  // page's median is rows of text that happen to be evenly spaced
+  const sp = staves.map((s) => s.space).sort((p, q) => p - q);
+  const median = sp[Math.floor(sp.length / 2)];
+  return staffV1 ? staves : staves.filter((s) => s.space >= 0.7 * median);
+}
+
+// A staff line crowded with heads (a long recitation on one line) has rows
+// just above and below it where the heads alone cover a fifth of the page,
+// so findStaves took them as part of the line: on leaf 747 of the 1908
+// Graduale a 6 px line came out 19 px thick, and readStaff, which drops line
+// rows unless ink crosses them, wiped out every head sitting on it
+// (eval/thick-line-check.md). A head is at most a staff space wide; a line
+// row is ink in runs of hundreds of pixels. So the band is trimmed from
+// both ends to the rows whose ink in runs of LINE_MIN_RUN of the page width
+// or longer is at least LINE_TRIM of the band's best row, plus one row. Head-only rows
+// have none; a line's faint edge rows have 5% or more of its best row, and
+// must stay in the line, or descending rhombi touching it join up.
+export const LINE_MIN_RUN = 0.04;
+export const LINE_TRIM = 0.02;
+export function trimLine(bin, top, bottom) {
+  const { width, ink } = bin;
+  const minRun = Math.max(8, Math.round(LINE_MIN_RUN * width));
+  const long = [];
+  for (let y = top; y <= bottom; y++) {
+    let c = 0, run = 0;
+    for (let x = 0; x <= width; x++) {
+      if (x < width && ink[y * width + x]) { run++; continue; }
+      if (run >= minRun) c += run;
+      run = 0;
+    }
+    long.push(c);
+  }
+  const best = Math.max(...long);
+  if (!best) return [top, bottom];
+  let a = 0, b = long.length - 1;
+  while (a < b && long[a] < LINE_TRIM * best) a++;
+  while (b > a && long[b] < LINE_TRIM * best) b--;
+  // one row more each side, inside the band: a worn line's edge row can be
+  // ink in short pieces only (leaf 425 staff 2), and masking one head row
+  // costs nothing (a head on the line keeps ink above and below the mask)
+  return [top + Math.max(0, a - 1), top + Math.min(long.length - 1, b + 1)];
 }
 
 function staffExtent(bin, lines) {

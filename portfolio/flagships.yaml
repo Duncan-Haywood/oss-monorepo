@@ -163,25 +163,32 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git. Open: ZATCA rules on a real sandbox invoice and
-      credit or debit note;
-      FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
-      eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
-      Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though
-      AMA's rules admit them: which validator does AT run?); Poland's FA(3) on
-      a KSeF test-environment file and a real correction, advance or
-      settlement file; the rules and a repair on a real ERP or Factur-X
-      export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real business's PINT file; open: RO_CIUS on a real ANAF
-      file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP
-      payload; primary-source mandate dates (IL, DK, CZ, LV, LU); Nigeria,
-      Thailand, Taiwan, Oman, Pakistan and Jordan pages (excerpts; Taiwan,
-      Oman dates disagree); Mexico CFDI 4.0, complements, Carta Porte 3.1 landed: open: SAT's CP error matrix to map MX-070..080 to CP
-      codes (omawww blocked), a real payroll or export file, a PAC rejection
-      compared; postal codes (MX-080) landed (README); Brazil NF-e 4.00,
-      PL_010 reform sums and the cClassTrib table (BR-053..057, NFSE-034..036,
-      2026-11-13) landed (README); cCredPres rules and cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a cClassTrib; national NFS-e landed: open: a national rejection compared, municipal rates; ABRASF NFS-e 2.00-2.04 landed (README):
-      open: ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio, BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a real Ginfes, Betha or DSF reply; refresh
-      the Bulgaria page when its draft passes. A run that lands a slice
-      replaces its item here; keep this under 2,000 characters.
+      credit or debit note; FatturaPA tolerances and SdI codes read from spec 1.9
+      (2026-11-13, eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection
+      receipt; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though
+      AMA's rules admit them: which validator does AT run?); Poland's FA(3): receipt
+      checks landed (README); open: a real KSeF rejection, a real correction,
+      advance or settlement file; the rules and a repair on a real ERP or Factur-X
+      export; PINT JP/MY/AE/OM rules and repair landed (README); open: a real
+      business's PINT file; open: RO_CIUS on a real ANAF file; NLCIUS on a real
+      Dutch file; India's INV-01 check on a real IRP payload; primary-source mandate
+      dates: IL (gov.il 403); LV, DK, CZ done (README); Nigeria, Thailand, Taiwan,
+      Oman, Pakistan and Jordan pages (excerpts; Taiwan, Oman dates disagree);
+      Mexico CFDI 4.0, complements, Carta Porte 3.1 landed: open: SAT's CP error
+      matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or
+      export file, a PAC rejection compared; postal codes (MX-080) landed (README);
+      Brazil NF-e 4.00, PL_010 reform sums and the cClassTrib table (BR-053..057,
+      NFSE-034..036, 2026-11-13) landed (README); cCredPres rules and cClassTrib at
+      IT 1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001)
+      landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real
+      reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a
+      cClassTrib; national NFS-e landed: open: a national rejection compared,
+      municipal rates; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on
+      a real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio,
+      BH, Curitiba, ...) landed (README): open: a DSF 1.00/Abaco file; a real
+      Ginfes, Betha or DSF reply; refresh the Bulgaria page when its draft passes. A
+      run that lands a slice replaces its item here; keep this under 2,000
+      characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -207,10 +214,11 @@ flagships:
       7shifts directly"); a real When I Work account or response through
       --import-wheniwork (README "Reading When I Work directly"); Homebase (docs
       need an account); --cover-price moves two shifts together (README "Moving two
-      shifts together": 20-person week exposure 113 to 68 h for $35.27); next on it,
-      the café's 23 flagged vs 11 open days, pairs past 200 copies; a real two-site
-      export and staff list (README "Staff shared between sites"); own and site
-      rates read from staff CSVs and 7shifts (README "Per-location pay from an
+      shifts together": 20-person week exposure 113 to 68 h for $35.27); second
+      call-outs priced (README "A second call-out in the same week", off by
+      default); next: fewer capped pairs, pair price past 120 copies; a real
+      two-site export and staff list (README "Staff shared between sites"); own and
+      site rates read from staff CSVs and 7shifts (README "Per-location pay from an
       export"); next a real wages export, real trip times; whether the priced cut's
       r = 1 default suits a real manager; a manager's real task list for the fixed
       minutes.
@@ -223,25 +231,29 @@ flagships:
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
       memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
       liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
-      the SSE path (four-component float32 images through lensfunpy, if it allows them)
-      and a 16-bit fixed-point output check; Canon's maker-note lens number (CameraSettings
-      index 22) mapped to a name for CR2s whose maker note gives no usable name
-      (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
-      since 2026-11-13);
-      the whole numpy develop runs in threaded bands and packed raws unpack in numpy
-      since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same bytes at every thread
-      count and band height); lossless-JPEG DNG tiles decode on a thread pool since
-      2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG,
-      0 of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
-      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit table,
-      prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md;
-      tiles are placed on the decode threads with one numpy copy since 2026-11-13 (4-thread read
-      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); point-transform scans
-      predict in C and the plane is one buffer since 2026-11-14, eval/point-transform-c-2026-11-14.md), and the serial
-      _normalised_plane (about 0.2-0.4 s);
-      MapTable and ScalePerRow/Column run in OpcodeList1 since 2026-11-13 (spec's
-      integer range; eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial
-      there still need a unit the text does not give, or a real file.
+      the SSE path (four-component float32 images through lensfunpy, if it allows
+      them) and a 16-bit fixed-point output check; CR2s with no lens name are
+      matched by the maker note's focal range and aperture since 2026-11-14
+      (eval/canon-lens-from-range-2026-11-14.md: one lens in 38% of lensfun's
+      Canon-mount cases, the rest refused as ties); next: the same fields from
+      Nikon's LensData or Sony's maker note; the whole numpy develop runs in
+      threaded bands and packed raws unpack in numpy since 2026-11-13
+      (eval/threaded-develop-2026-11-13.md: same bytes at every thread count and
+      band height); lossless-JPEG DNG tiles decode on a thread pool since 2026-11-13
+      (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG, 0
+      of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
+      2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit
+      table, prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs,
+      eval/native-destuff-2026-11-13.md; tiles are placed on the decode threads with
+      one numpy copy since 2026-11-13 (4-thread read 1.3-1.4x faster,
+      eval/parallel-tile-placing-2026-11-13.md); point-transform scans predict in C
+      and the plane is one buffer since 2026-11-14,
+      eval/point-transform-c-2026-11-14.md), and sensor normalisation runs in bands
+      since 2026-11-14 (0.24 s to 0.05 s on 4 CPUs,
+      eval/normalised-plane-bands-2026-11-14.md); MapTable and ScalePerRow/Column
+      run in OpcodeList1 since 2026-11-13 (spec's integer range;
+      eval/list1-table-scale-2026-11-13.md); Delta and MapPolynomial there still
+      need a unit the text does not give, or a real file.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -280,27 +292,28 @@ flagships:
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen,
       staged-by-default at every list length, the closed pooled-prior work, the
-      sparse long-list overclaim (f), the uncapped weighted schemes (g),
-      half-time salience (b), mid-session blocks (d), the panel curve,
-      per-survey threshold and step test, the later-pass curve (d4), the
-      net-step test (d5), the wander bar (d6), the picks test (d7), partway slot
-      runs (d3) and the slot-at-turn test (d9) are written up there. Latest
-      (2026-11-14, "A slot run's cut moved back to an earlier fast turn";
-      docs/slot-turn-back-2026-11-14.jsonl): (d10) a slot run that starts after
-      a fast turn (read without the wander bar) is cut from the turn
-      (slotBlocksBackToTurns, default): under wander +0.0008 mean, up to
-      +0.0045, over d9 where the run follows the speed-up; flags nobody new.
-      Next, most valuable first: (c) the first real survey's answers: msToAnswer
-      against the answer-time model, panelWalkRatio on real times, whether times
-      depend on which slot is clicked (the d9 bound assumes not), whether real
-      people have warm-ups, blocks, slot runs or spread-out carelessness, and
-      how noisy real pairwise answers are (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d11) the d10 turn is still a split search: score one
-      candidate from the run's start backwards so a wander step's chance of
-      moving a cut is bounded; (d8) a stronger pick signal under wander (staged
-      pairs are near 50/50 late in a session; anchor pairs?); (h) share-drop
-      beat both pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a
-      real panel's times.
+      sparse long-list overclaim (f), the uncapped weighted schemes (g), half-time
+      salience (b), mid-session blocks (d), the panel curve, per-survey threshold
+      and step test, the later-pass curve (d4), the net-step test (d5), the wander
+      bar (d6), the picks test (d7), partway slot runs (d3) and the slot-at-turn
+      test (d9) are written up there. Latest (2026-11-14, "A slot run's cut moved
+      back to an earlier fast turn"; docs/slot-turn-back-2026-11-14.jsonl): (d10) a
+      slot run that starts after a fast turn (read without the wander bar) is cut
+      from the turn (slotBlocksBackToTurns, default): under wander +0.0008 mean, up
+      to +0.0045, over d9 where the run follows the speed-up; flags nobody new.
+      Since 2026-11-14 site/rank.html ranks a list in the browser on the same refit,
+      with team codes (docs/RANK-PAGE.md); its stop rule overstates certainty for
+      very noisy answerers. Next, most valuable first: (r) get the rank page in
+      front of people, then (c) the first real survey's answers: msToAnswer against
+      the answer-time model, panelWalkRatio on real times, whether times depend on
+      which slot is clicked (the d9 bound assumes not), whether real people have
+      warm-ups, blocks, slot runs or spread-out carelessness, and how noisy real
+      pairwise answers are (scripts/coin-flip-gate-real.ts --honest-lapse); (d11)
+      the d10 turn is still a split search: score one candidate from the run's start
+      backwards so a wander step's chance of moving a cut is bounded; (d8) a
+      stronger pick signal under wander (staged pairs are near 50/50 late in a
+      session; anchor pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes
+      a camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
@@ -372,4 +385,30 @@ flagships:
       men's-choir lines with Latin lyrics, then genre templates, voices,
       mastering checks and a release kit for streaming distribution.
     next: >-
-      History and every measurement: README and ROADMAP.md (studio page, CLI options, scan-checked corpus, 2,129 notes read by eye incl. the 1908 Te Deum, strophic hymns, song sections, breakdown and riser; --a-cappella first verse and a range-checked --key-lift N, eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-13 latest: the studio page downloads the cue sheet, LRC, markers MIDI and a stems ZIP, byte-equal to the CLI's, eval/browser-e2e.mjs). Open checks that need a person: listen to the studio page, the options (--stretch, --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella verse and whether the key lift sounds like a lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit against a distributor's real form; master-cli against EBU test files; the per-service playback targets (from memory) against the services' pages; the Te Deum correction. scan.mjs reads rhombi, quilismas, liquescents (latest: rhombus height floor, eval/rhombus-height-check.md); next: four tall false rhombi, a fresh worn-page set (new GABC needed), stacked-pes seams, mottled squares, liquescents after a porrectus end; --split-voices (by phrase or at a word, --split-words, eval/word-split-report.md) and --overlap (both sections sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the ranges, of a mid-phrase handoff against a whole phrase and of a one-note overlap against a clean handoff; --baritones, --entrance-cost N and --second-tenors (TTBB; README) need the same check. --choir presets, --singers (a choir's range test CSV) and --sit-out N (README "Letting a singer sit a note out") landed. Next: a real choir's range test through --singers, and a director's word on --sit-out (N, the quarter warning).
+      History and every measurement: README and ROADMAP.md (studio page, CLI
+      options, scan-checked corpus, 2,129 notes read by eye incl. the 1908 Te Deum,
+      strophic hymns, song sections, breakdown and riser; --a-cappella first verse
+      and a range-checked --key-lift N, eval/key-lift-check.md; per-section singer
+      guidance in --cues; 2026-11-13 latest: the studio page downloads the cue
+      sheet, LRC, markers MIDI and a stems ZIP, byte-equal to the CLI's,
+      eval/browser-e2e.mjs). Open checks that need a person: listen to the studio
+      page, the options (--stretch, --halftime, --fills, --limit pumping, stems,
+      sections, breakdown, riser, the a cappella verse and whether the key lift
+      sounds like a lift); --lrc in a real player and --markers/--stems in a DAW;
+      --cues (and its section lines), RECORDING-GUIDE.md and the E2-E4 range with
+      real singers; the release kit against a distributor's real form; the Te Deum
+      correction. master-cli passed EBU Tech 3341 and 3342 (LRA) built from their
+      text (eval/ebu-tech3341-2026-11-14.md, eval/ebu-tech3342-2026-11-14.md); open:
+      the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi,
+      quilismas, liquescents; staff lines at true thickness
+      (eval/thick-line-check.md); next: deskew tilted pages (leaf 424), a fresh
+      worn-page set (new GABC needed), mottled squares, liquescents after a
+      porrectus end; --split-voices (by phrase or at a word, --split-words,
+      eval/word-split-report.md) and --overlap (both sections sing the seam note at
+      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
+      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
+      overlap against a clean handoff; --baritones, --entrance-cost N and
+      --second-tenors (TTBB; README) need the same check. --choir presets, --singers
+      (a choir's range test CSV) and --sit-out N (README "Letting a singer sit a
+      note out") landed. Next: a real choir's range test through --singers, and a
+      director's word on --sit-out (N, the quarter warning).

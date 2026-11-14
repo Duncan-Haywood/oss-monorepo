@@ -176,7 +176,7 @@ Teddy listened to the whole of it without interrupting: the beat on All Souls', 
 
 "Turn her?"
 
-"A quarter turn on the yoke. Eight years the clapper hits the same two places. In Europe, old bells, when they mend them, they turn them, so the clapper hits fresh iron. Then she rings another eight years before you have to think about it again. Another forty, maybe."
+"A quarter turn on the yoke. Seven years the clapper hits the same two places. In Europe, old bells, when they mend them, they turn them, so the clapper hits fresh iron. Then she rings another seven years before you have to think about it again. Another forty, maybe."
 
 "Teddy," said Wanjiru. "Selin won't give us the oven. It's making bricks till March."
 
@@ -188,7 +188,7 @@ Teddy listened to the whole of it without interrupting: the beat on All Souls', 
 
 Quarry Nine had already looked.
 
-"The heating elements in the sinter oven are replaced every two thousand hours of running," it said. "The next change is due on Sunday the eighteenth. The oven is cooled from eleven hundred degrees to room temperature over five days for the technicians to go in, because the lining cracks if it is cooled any faster. On the way down it passes through six hundred degrees on the first afternoon. It stays above five hundred for about thirty hours. Then it falls very slowly, which is what you want."
+"The heating elements in the sinter oven are replaced every two thousand hours of running," it said. "The next change is due on Sunday the eighteenth. The oven is cooled from eleven hundred degrees to room temperature over five days for the technicians to go in, because the lining cracks if it is cooled any faster. On the way down it passes through six hundred degrees on the second afternoon. It stays above five hundred for about thirty hours. Then it falls very slowly, which is what you want."
 
 Teddy began to laugh, and coughed, and laughed again.
 

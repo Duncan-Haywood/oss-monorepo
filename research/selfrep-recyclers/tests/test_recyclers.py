@@ -1,7 +1,7 @@
 import os, sys, unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-from selfrep_recyclers.machines import (MACHINES, PLASTIC_PAIR, machine_import_kg, machine_mass_kg, paybacks,
-                                        per_copy_saving, with_params)
+from selfrep_recyclers.machines import (CASTABLE_AL, MACHINES, PLASTIC_PAIR, balance_credit_kg, furnace_saving_kg,
+                                        machine_import_kg, machine_mass_kg, paybacks, per_copy_saving, with_params)
 from selfrep_recyclers.machines import SHOPS
 
 
@@ -34,7 +34,8 @@ class T(unittest.TestCase):
     def test_saving_matches_materials_text(self):
         pl, me = per_copy_saving("lm8uu", SHOPS["printer+cnc+laser+casting"])
         self.assertAlmostEqual(pl, 0.10, delta=0.02)   # 1.22 -> 1.12 kg of filament
-        self.assertAlmostEqual(me, 0.06, delta=0.03)   # about 0.06 kg of aluminium
+        # the furnace can only stand in for bar stock: 0.020 kg of pulleys / 0.70 yield
+        self.assertAlmostEqual(me, 0.020 / 0.70, places=9)
 
     def test_payback_shrinks_with_retired_plastic(self):
         a = paybacks("lm8uu", "printer+cnc+laser")["shredder+extruder"][2]
@@ -44,6 +45,31 @@ class T(unittest.TestCase):
     def test_furnace_only_with_casting(self):
         self.assertNotIn("furnace", paybacks("lm8uu", "printer+cnc+laser"))
         self.assertIn("furnace", paybacks("lm8uu", "printer+cnc+laser+casting"))
+
+    def test_remelt_cannot_replace_sheet(self):
+        # quality audit 2026-11-08: the balance credited remelt against sheet a crucible cannot make
+        cast = SHOPS["printer+cnc+laser+casting"]
+        self.assertEqual(CASTABLE_AL, ("aluminium bar",))
+        self.assertLess(furnace_saving_kg("lm8uu", cast), balance_credit_kg("lm8uu", cast))
+        self.assertAlmostEqual(balance_credit_kg("lm8uu", cast), 0.069, places=6)
+
+    def test_melt_loss_binds_only_when_pool_short(self):
+        cast = SHOPS["printer+cnc+laser+casting"]
+        self.assertAlmostEqual(furnace_saving_kg("lm8uu", cast, with_params(m_loss=0.4)), 0.020 / 0.70)
+        # pool (0.2214 - 0.155 + 0.02857 - 0.020) * 0.3 = 0.0225 < bar stock
+        self.assertAlmostEqual(furnace_saving_kg("lm8uu", cast, with_params(m_loss=0.7)), 0.0225, places=6)
+
+    def test_no_furnace_saving_without_casting(self):
+        self.assertEqual(furnace_saving_kg("lm8uu", SHOPS["printer+cnc+laser"]), 0.0)
+
+    def test_headline_paybacks_by_hand(self):
+        # plastic: (3.448 + 1.52 vitamins) + (3.0 + 1.0)/0.7 MDF + 0.6/0.9 filament = 11.349 kg;
+        # saving 1.2222 - 1.1244 = 0.0978 kg/copy. Furnace: 6.5 kg / (0.02/0.7) = 227.5 copies.
+        pb = paybacks("lm8uu", "printer+cnc+laser+casting")
+        imp, sav, n = pb["shredder+extruder"]
+        self.assertAlmostEqual(imp, 3.448 + 1.52 + 4.0 / 0.7 + 0.6 / 0.9, places=6)
+        self.assertAlmostEqual(n, 116.07, delta=0.01)
+        self.assertAlmostEqual(pb["furnace"][2], 227.5, places=6)
 
 
 if __name__ == "__main__":

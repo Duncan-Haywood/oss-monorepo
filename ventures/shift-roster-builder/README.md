@@ -1666,3 +1666,160 @@ So both imports reproduce the typed cells exactly: the same rate on every shift 
 
 Not claimed: invented teams and exports in the shape of the API definition and of common CSV layouts; no real 7shifts account, wages response or multi-location payroll export has been read. Whether 7shifts' `/wages` answers a manager-level token, and how real companies spread one person's role rates within a location, are open. Salaried people at wage 0 attract hours in the search (the note says so). A planning aid, not legal or payroll advice.
 
+
+## The caller can take a later shift (2026-11-14)
+
+The priced pass (`--cover-price`) counts a person-day "at risk" when, if that person called out, nobody else could take
+their shifts that day, even through up to two hand-over passes ("Counting call-out risk with hand-over chains" above). On
+the sample café that count flagged 23 person-days where the slow measurement (`calloutExposure`: a 5pm-before call-out and a
+kept rebuild) found 11 that really open. The sections above put the gap down to rebuilds that "move many shifts".
+
+**What the rebuilds actually did.** `node eval/cover-risk-gap.mjs` rebuilds each flagged café day and lists what moved. Most
+of the moves are two copies of the same shift trading holders (noise); with those netted out, the rebuilds that covered a
+day were mostly one move the cheap check had ruled out: **the caller takes a stand-in's later shift.** Dev calls out on
+Saturday; Gus, at his hours cap, takes Dev's Saturday and hands Gus's Sunday to Dev. The rebuild has always been allowed to
+do that (it empties the caller's call-out day and nothing else), but the check's chains never gave the caller a shift.
+
+**The change.** `coverRisk` now takes the caller's call-out-day shifts off their list for the search and lets a chain hand
+the caller a shift on any later day (`callerTakes`, on by default; `coverCallerTakes: false` in the options gives the old
+count). The count stays an upper bound: it only finds cover the rebuild could also find.
+
+**Does it pick out the days that open?** `node eval/cover-risk-joint.mjs` (`eval/cover-risk-joint.out.txt`), the same 202
+person-days (five templates, three seeded 20-person weeks), of which 49 really open on today's rosters (the café's posted
+roster has changed since that section was measured: 12 of its 23 days open now, exposure 100 h):
+
+| check | person-days flagged | of them really open | missed | hours flagged |
+|---|---|---|---|---|
+| two passes, caller never takes a shift (before) | 72 | 68.1% | 0 | 532 |
+| **two passes, caller may take a later shift (default)** | **66** | **74.2%** | 0 | **486** |
+| three passes, caller may take a later shift | 62 | 79.0% | 0 | 454 |
+
+Per team, the default count now flags exactly the days that open on retail (4 of 4, was 5) and the clinic (6 of 6, was 7);
+the café falls from 23 to 20 flagged (12 open) and the spare-part-timer café from 27 to 26 (17 open); the salon is
+unchanged. The café's remaining 8 false flags need three or more net moves. Three passes would catch 3 more on the café, but
+on the 60-person week the pass at three passes took 389 s against 14 s at two (`eval/cover-chain-cost.out.txt`), so the
+default stays at two; `--cover-chain 3` is there for small teams.
+
+**What the price buys now** (`node eval/cover-price.mjs`, `eval/cover-price.out.txt`, $25 to $400 an hour at risk, the
+same at every price):
+
+| team | risk hours before → after | moves, score paid | exposure before → after |
+|---|---|---|---|
+| café | 164 → 108 h (13 of 23 days) | **3, $0.00** (none before at any price) | **100 → 92 h** |
+| spare-part-timer café | 192 → 167 h | 2, $18.34 (the same roster as before) | 54 → 54 h |
+| retail | 36 → 0 h | 1, $5.82 (the same) | 24 → 0 h |
+| salon, clinic | 56 h, 38 h | none | 56 h, 30 h |
+
+On the café the stricter count makes three hand-overs that cost nothing (ties at the same score) and cut the single
+call-out exposure by 8 h. **Played through whole weeks of call-outs it is a trade, not a win** (corrected 2026-11-14: at 200 seeds the priced café roster wins at both rates; see "A second call-out in the same week") (the same seeded weeks as the
+sections above, 20 seeds, kept reissues):
+
+| café, rate | open hours added, default → priced | changes to others | premiums |
+|---|---|---|---|
+| 1.0% sick-only (6 disrupted weeks) | 8 → **16** | 24 → **8** | $425 → **$149** |
+| 8.4% all-leave (20 disrupted weeks) | 155 → **188** | 77 → **63** | $1,392 → **$1,116** |
+
+Fewer people are moved and less premium is paid, but more hours end up open: one call-out at a time the priced roster is
+less exposed, while a week with several call-outs lands worse. The café is short-staffed (15 h open before anyone calls
+out), so cover found for one call-out is often the same slack the next one needed. Exposure scores call-outs one at a time,
+and this is where that model and a real week part. The price stays off by default, and the result is the manager's call.
+
+**Cost.** On seeded 40- and 60-person weeks the pass found the same moves with and without the change, in the same time
+(`CHAINS=2n,2 node eval/cover-chain-cost.mjs`, `eval/cover-caller-takes-ab.out.txt`: 2.1 vs 2.2 s, 2.1 vs 2.3 s,
+0.39 vs 0.37 s, 14.1 vs 13.6 s). On the templates the build with the pass takes about what it did (café 1.7 s at
+the first price, 318 candidate moves against 335). The 60-person pass at 14 s does not match the 3.5 s quoted in "Counting call-out
+risk" above; the A/B shows it is not this change, and it was not chased in this run.
+
+Tests (`cover-price.test.mjs`): Ana calls out Tuesday, Bo (4 h a week) holds Wednesday: he takes Tuesday and hands
+Wednesday to Ana, so the day is safe; the old count called it at risk; the reverse roster (Bo's shift already worked) stays
+at risk; the roster is left as found; and on whichever roster the build posts, the risky days are exactly those
+`calloutExposure` finds open.
+
+Not claimed: invented teams and seeded weeks; exposure is a model (one call-out at a time, 5pm notice, kept rebuild), and
+on the café the whole-week play disagrees with it. Next: price the risk of a second call-out in the same week, which is
+what the café's played weeks say the one-at-a-time count leaves out.
+
+## A second call-out in the same week (2026-11-14)
+
+The section above ended on a puzzle: on the café, the roster `--cover-price` posts is less exposed to any one call-out
+(100 → 92 h), yet in 20 seeded weeks of call-outs it lost more hours (155 → 188 at 8.4%). The guess was that cover found
+for one call-out uses up the slack a second one needs. This run built a check for that, measured it, and found the puzzle
+was mostly too few weeks.
+
+**The check.** `coverPairRisk` (in `calc.mjs`) takes every pair of person-days that are each safe alone (coverRisk does
+not flag either) and asks whether both callers' shifts can be covered *at once*, with the same rules as the single
+check: each caller off only on their own day, free to take a stand-in's later shift; up to two hand-over passes per shift;
+500 checks per pair, and a pair past that counts as clashing. Pairs on the same day count too (two people off sick
+together). A clashing pair is charged the shorter caller's hours.
+
+**Does it find the pairs that really open?** `node eval/cover-pair-exposure.mjs` (`eval/cover-pair-exposure.out.txt`)
+plays every pair of safe person-days the way the product handles them: the earlier call-out at 5pm the day before, a kept
+reissue, then the later one on the reissued roster. Over the five templates' default and priced rosters, 337 pairs:
+
+| | pairs | flagged | really open | precision | recall |
+|---|---|---|---|---|---|
+| all five templates, both rosters | 337 | 186 | 118 | 58.1% | 91.5% (10 missed) |
+
+The misses are pairs the joint search can cover only by knowing both call-outs in advance. In play, the first reissue
+picks its cover without knowing the second call-out, and the slack it spends is gone by the time the second one comes.
+
+**A yardstick with no draw in it.** The played weeks draw call-outs per person-day *worked in each roster*, so two
+rosters face different call-outs and 20 weeks is a small sample. `ALL=1` plays **every** pair of worked person-days, risky
+ones included, and sums the hours each pair adds (`eval/cover-pair-exposure-all.out.txt`):
+
+| team | default | `--cover-price 25` | + `--second-callout-price 1` | + 5 | + 25 |
+|---|---|---|---|---|---|
+| café | 2,218 h | **2,023 h** | 2,023 h (same roster) | 2,023 h | 2,218 h |
+| spare-part-timer café | 1,775 h | 1,751 h | **1,367 h** | 1,721 h | 1,775 h |
+| retail | 342 h | 210 h | 210 h (same roster) | **195 h** | 450 h |
+| salon, clinic | 872 h, 394 h | the same | the same | the same | the same |
+
+**The café's played weeks again, at 200 seeds** (`eval/cover-price-200-cafe.out.txt`):
+
+| café | open hours added, default → priced | changes to others | premiums |
+|---|---|---|---|
+| 1.0% sick-only (69 disrupted weeks) | 262 → **208** | 94 → **66** | $1,687 → **$1,212** |
+| 8.4% all-leave (198 disrupted weeks) | 1,824 → **1,727** | 709 → **595** | $12,587 → **$10,577** |
+
+With ten times the weeks, the priced café roster loses fewer hours at both rates, as the pair yardstick said. The reversal
+at 20 seeds was sampling noise. **The section above was wrong to call it "a trade, not a win" on the café.**
+
+**`--second-callout-price <$>`** (`coverPairPrice`; the page's "Also pay for a second call-out in the same week") adds the
+clashing-pair hours to the priced pass's objective. A move must then pay for the pair hours it adds, or it can earn its
+keep by clearing them. Played over 200 seeded weeks (`eval/cover-price-200-*.out.txt`):
+
+| team, rate | default | `--cover-price 25` | + `--second-callout-price` |
+|---|---|---|---|
+| spare café, 1.0% | 108 h, 118 changes, $2,018 | 119 h, 117, $1,909 | **$1: 73 h, 84, $1,316** |
+| spare café, 8.4% | 1,205 h, 1,252 changes, $20,766 | 1,192 h, 1,275, $20,776 | **$1: 1,148 h, 821, $13,005** |
+| retail, 1.0% | 66 h | 18 h | $5: 18 h |
+| retail, 8.4% | 354 h | 249 h | $5: 261 h |
+
+On the spare-part-timer café, $1 an hour bought 10 moves for $30.01 of score ($22 of payroll). In played weeks it cut the
+open hours call-outs added by 5-35%, the people moved by 29-36% and the premiums paid by 31-37% against the priced roster.
+`--cover-price` alone had bought almost nothing there. On retail, $5 was a wash in play (the pair yardstick had it 7%
+better) and $25 made things worse (450 h against 342 h unpriced): it trades single-call-out risk for pair hours.
+
+**Cost** (`node eval/cover-pair-cost.mjs`, `eval/cover-pair-cost.out.txt`): the pair walk takes 0-56 ms per roster on
+seeded 20- and 40-person weeks, but the pass runs it on every candidate that passes the single-risk test. On the 20-person
+week 2 the pass went from 0.4 s to 4.3 s and took 6 moves instead of 4. Clashing-pair hours fell from 3,119 to 1,127, and
+the score was $9.42 *lower* (better) than the priced roster's. On the 40-person week 0 (149 copies) the pass went from
+3.1 s to 43.6 s for 29 moves, clashing-pair hours 123 → 16, at $11.69 of score. Weeks 1 and 2 took 2.7 → 4.8 s and 0.7 → 13.9 s. On week 2, clashing-pair hours went 2,854 → 4, but
+all 521 of the priced roster's clashing pairs were budget-capped, not proven to clash. So the price runs only up to 120 shift
+copies by default (`coverPairPriceSlots` moves the cap). Above that it is skipped, and the slack line says so.
+
+**Defaults.** The second-call-out price stays off. $1 was never worse on the five templates and was the big win on the
+spare café. But it changed only one template's roster in play, and the evidence is invented teams. A manager who already
+uses the slack price and sees one spare person covering everyone is who it is for.
+
+Tests (`cover-pair-risk.test.mjs`): Ana (Tue) and Bo (Wed) with Cy able to stand in for either but capped at 8 h. Each
+day is safe alone, the pair clashes for 8 h, and the played week opens 8 h. With Cy at 16 h nothing clashes or opens.
+Risky days are left to the single count. A caller off Tuesday may take Wednesday's shift for the second call-out
+(`callerTakes: false` makes it clash). The CLI flag, the slack line's wording, and the page's select and usage event.
+
+Not claimed: invented teams and seeded weeks; exposure and play are the product's model (5pm notice, kept rebuild), not a
+real week; three or more call-outs are only in the played weeks, not the check; on the bigger rosters many clashing pairs are
+"capped", meaning the budget ran out (49% on the priced café, 72-100% on the spare café and the seeded weeks), so the
+pair hours there are an upper bound. The pair price may be buying moves that clear only capped pairs. Next: a budget or an order that
+leaves fewer pairs capped; the 40- and 60-person weeks' played result with the pair price; whether $1 suits a real
+manager's week.

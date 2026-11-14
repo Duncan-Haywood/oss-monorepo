@@ -149,6 +149,7 @@
       <div><label for="keep">Keep people on their usual shifts when someone is off (plans of several weeks; one week after "Carry over last week")</label><select id="keep"><option value="0.1">Yes (never leaves a shift open to do it)</option><option value="0.25">Yes, firmly (may cost a little more pay)</option><option value="0">No</option></select></div>
       <div><label for="steady">When several rosters tie at the best score</label><select id="steady"><option value="">Post the first one found</option><option value="1">Post the one a call-out hurts least (slower: rebuilds the week for each call-out)</option></select></div>
       <div><label for="coverprice">Pay for call-out slack (per hour at risk)</label><select id="coverprice"><option value="">No (post the best-scoring roster)</option><option value="25">Up to $25 an hour at risk</option><option value="100">Up to $100 an hour at risk</option><option value="400">Up to $400 an hour at risk</option></select><span class="note">A day is "at risk" when others could not take all of that person's shifts that day, even by passing on up to two of their own. Unlike the tie-break above this gives something up: it will move a shift when the pay or fairness it costs is under the price you set here. Fresh weeks only.</span></div>
+      <div><label for="pairprice">Also pay for a second call-out in the same week</label><select id="pairprice"><option value="">No</option><option value="1">Up to $1 an hour</option><option value="5">Up to $5 an hour</option></select><span class="note">Only with call-out slack above. Charges for pairs of call-outs that could each be covered alone but not both, because the first one's cover uses the spare person the second needed. On the spare-part-timer sample, $1 cut the open hours whole weeks of call-outs added and the premiums paid; on the other samples it changed nothing or little. It can take a few seconds longer.</span></div>
     </div>
     <button type="button" id="analyze">Build the roster</button> <button type="button" id="build-stop" class="secondary" hidden>Stop</button>
     <div style="margin:12px 0"><label for="planweeks">Plan several weeks in a row</label> <input id="planweeks" inputmode="numeric" value="4" style="width:4em" aria-label="Number of weeks">
@@ -503,6 +504,7 @@
         ...($("#steady").value === "1" && !postedCsv ? { steady: true } : {}),
         // Call-out slack priced into the build (2026-11-13): a fresh week only, so a reissue never pays to move a posted shift.
         ...(Number($("#coverprice").value) > 0 && !postedCsv ? { coverPrice: Number($("#coverprice").value) } : {}),
+        ...(Number($("#coverprice").value) > 0 && Number($("#pairprice").value) > 0 && !postedCsv ? { coverPairPrice: Number($("#pairprice").value) } : {}),
       });
       if (!built) return false; // stopped, or replaced by a newer build
       // The worker's copies of the staff and shifts travel in the same message as the roster, so their shared
@@ -612,7 +614,7 @@
       const p = OT_PRESETS[$("#otrule").value] || [0, 0];
       $("#dotafter").value = String(p[0]); $("#ddtafter").value = String(p[1]); persist();
     });
-    $("#analyze").addEventListener("click", async () => { if (await run()) { record("roster_built"); if (last && last.steady) record("steady_check_run"); if (last && last.coverSlack) record("cover_price_used"); noteWeek(); } });
+    $("#analyze").addEventListener("click", async () => { if (await run()) { record("roster_built"); if (last && last.steady) record("steady_check_run"); if (last && last.coverSlack) record("cover_price_used"); if (last && last.coverSlack && last.coverSlack.pairPrice > 0) record("second_callout_price_used"); noteWeek(); } });
     $("#template-pick").insertAdjacentHTML("beforeend", Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}">${esc(t.label)}</option>`).join(""));
     $("#template-pick").addEventListener("change", async (e) => {
       const t = TEMPLATES[e.target.value]; if (!t) return;

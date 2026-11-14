@@ -30,9 +30,17 @@ under unittest and exit 5; Python 3.11, in cloud sessions, calls that OK. A
 suite with no TestCase now runs under pytest, and a suite that needs pytest or
 a package the interpreter lacks (yaml on the runner) is a named skip, never a
 pass. `doc_index.py check` (EXTRA) runs too, while no workflow names it.
+
+And (2026-11-14) every `platform/**/*.test.mjs` node suite no workflow runs at
+all, resolved from each `node --test` line's globs and working directory: 34
+suites in platform/devlog, platform/distribution and platform/proposal, one of
+them red on main (term-ids.test.mjs). About 30 s more at six at a time;
+NODE_SLOW names the ones too slow for every pull request.
 """
 import argparse
+import glob
 import re
+import shlex
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -145,6 +153,97 @@ def skipped(results):
     return [(n, out) for n, rc, out in results if rc == 0 and out.startswith(SKIPPED)]
 
 
+# Node suites under platform/ that no workflow runs (2026-11-14). Every
+# `platform/ci` suite above was covered, but 35 `*.test.mjs` suites elsewhere in
+# platform/ ran nowhere: platform/proposal/term-ids.test.mjs had been red on main
+# since PR #15774 wrapped localStorage, and platform/devlog's suite let half of
+# a red-team campaign's mutants through unseen. Coverage counts any workflow,
+# not only pull-request ones: the platform/pages suites gate every deploy, so a
+# red one shows within hours, while a suite no workflow names is never run.
+ROOT = HERE.parents[1]
+NODE_TIMEOUT = 120
+# Suites too slow for every pull request: named skips, never passes.
+NODE_SLOW = {
+    "platform/distribution/ios.test.mjs": "its catalogue-wide plan test takes over 120 s",
+}
+
+_NODE_TEST = re.compile(r"node\s+--test\b([^\n;&|]*)")
+_CD = re.compile(r"\bcd\s+(\S+)\s*&&\s*node\s+--test\b")
+_STEP = re.compile(r"^(\s*)- ")
+_WD = re.compile(r"^\s*(?:-\s+)?working-directory:\s*['\"]?([^'\"\s#]+)")
+
+
+def _step_bounds(lines, i):
+    """(start, end) line indices of the workflow step holding line i."""
+    start = i
+    while start > 0 and not _STEP.match(lines[start]):
+        start -= 1
+    m = _STEP.match(lines[start])
+    indent = len(m.group(1)) if m else 0
+    end = i + 1
+    while end < len(lines):
+        n = _STEP.match(lines[end])
+        if n and len(n.group(1)) <= indent:
+            break
+        if lines[end].strip() and len(lines[end]) - len(lines[end].lstrip()) < indent:
+            break
+        end += 1
+    return start, end
+
+
+def node_tests_run(text, root=ROOT):
+    """Resolved paths of the files a workflow's `node --test` lines run: each
+    argument globbed from the step's working-directory (written before or after
+    `run:`) or from a `cd <dir> &&` in front of it."""
+    lines = text.splitlines()
+    out = set()
+    for i, line in enumerate(lines):
+        for m in _NODE_TEST.finditer(line):
+            start, end = _step_bounds(lines, i)
+            wd = next((w.group(1) for w in map(_WD.match, lines[start:end]) if w), ".")
+            cd = _CD.search(line[:m.end()])
+            base = root / wd / (cd.group(1) if cd else "")
+            try:
+                args = shlex.split(m.group(1))
+            except ValueError:
+                args = m.group(1).split()
+            for a in args:
+                if a.startswith("-") or "$" in a:
+                    continue
+                out.update(Path(f).resolve() for f in glob.glob(str(base / a)))
+    return out
+
+
+def unwired_node_suites(root=ROOT, workflows=WORKFLOWS):
+    """platform/**/*.test.mjs (outside node_modules) that no workflow runs."""
+    ran = set()
+    for p in sorted(workflows.glob("*.y*ml")):
+        ran |= node_tests_run(p.read_text(encoding="utf-8", errors="replace"), root)
+    return [p for p in sorted((root / "platform").rglob("*.test.mjs"))
+            if "node_modules" not in p.parts and p.resolve() not in ran]
+
+
+def node_name(path, root=ROOT):
+    return Path(path).resolve().relative_to(root.resolve()).as_posix()
+
+
+def run_node_suite(path, timeout=NODE_TIMEOUT, root=ROOT):
+    """(repo-relative name, rc, output) for one `node --test` file, run from its
+    own directory the way the workflows run them."""
+    path = Path(path)
+    name = node_name(path, root)
+    if name in NODE_SLOW:
+        return name, 0, f"{SKIPPED} {NODE_SLOW[name]}"
+    try:
+        r = subprocess.run(["node", "--test", path.name], cwd=path.parent,
+                           capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return name, main_health.TIMED_OUT, f"timed out after {timeout} s"
+    except FileNotFoundError:
+        return name, 0, f"{SKIPPED} no node on this machine"
+    return name, r.returncode, (r.stdout + r.stderr).strip()
+
+
 def unwired_extra(here=HERE, workflows=WORKFLOWS):
     """EXTRA's (path, *args) jobs whose script no workflow names."""
     text = workflow_text(workflows)
@@ -156,6 +255,7 @@ def run_everything(checks_only=False):
     results = run_all(unwired())
     if not checks_only:
         results += run_all(unwired_tests(), runner=run_suite)
+        results += run_all(unwired_node_suites(), runner=run_node_suite)
         results += run_all(unwired_extra(), runner=lambda p, *a: main_health.run(p, *a))
     return sorted(results)
 
@@ -183,6 +283,9 @@ TAIL = 8
 
 
 def reproduce(name):
+    if name.endswith(".test.mjs"):
+        d, _, f = name.rpartition("/")
+        return f"cd {d} && node --test {f}"
     if name.startswith("test_"):
         return f"cd platform/ci && python3 -m unittest {name[:-3]}  (or pytest {name})"
     args = dict((n, a) for n, *a in EXTRA).get(name, [])
@@ -197,13 +300,17 @@ def main(argv=None):
     args = ap.parse_args(argv)
     if args.list:
         paths, suites, extra = unwired(), unwired_tests(), unwired_extra()
+        nodes = unwired_node_suites()
         for p in paths + suites:
             print(p.name)
+        for p in nodes:
+            print(node_name(p))
         for p, *a in extra:
             print(" ".join([p.name, *a]))
         print(f"{len(paths)} check(s) no workflow names, "
               f"{len(suites)} test suite(s) no pull-request workflow names, "
-              f"{len(extra)} other check(s)")
+              f"{len(extra)} other check(s), "
+              f"{len(nodes)} platform node suite(s) no workflow runs")
         return 0
     results = run_everything(args.checks_only)
     bad = report(results)

@@ -16,13 +16,13 @@ Follow-up to `selfrep-recyclers` in the self-replicating manufacturing track (`P
 ## Reproduce
 ```bash
 cd research/selfrep-costpayback
-python3 -m unittest discover -s tests -v     # 8 tests, standard library only (needs ../selfrep-closure, ../selfrep-materials, ../selfrep-recyclers)
+python3 -m unittest discover -s tests -v     # 9 tests, standard library only (needs ../selfrep-closure, ../selfrep-materials, ../selfrep-recyclers)
 python3 experiments/run.py                   # writes experiments/results.txt
 ```
 
 ## Results (from `experiments/results.txt`; all prices and part lists assumed)
 - **Pricing barely moves the plastic pair**: 111 copies by cost against 99 by mass for the printer alone, and 98 against 116 for the shop with router and laser. Median over price draws is 99 copies (5–95%: 45 to 235). The plastic recyclers do not pay back on the shop's own scrap in any sensible time, as in `selfrep-recyclers`.
-- **The furnace gets worse**: 203 copies by cost against 94 by mass (median 202, 5–95%: 80 to 510), because aluminium is cheap per kilogram and the furnace is all vitamins (84 units of cost for 0.41 units saved per copy).
+- **The furnace gets worse**: 490 copies by cost against 227 by mass (median 487, 5–95%: 193 to 1231), because aluminium is cheap per kilogram and the furnace is all vitamins (84 units of cost for 0.17 units saved per copy). *Corrected 2026-11-14*: the first version credited remelted offcuts against imported aluminium sheet, which a crucible furnace cannot make, and reported 203 by cost against 94 by mass. Remelt now replaces only castable bar stock (`selfrep-recyclers`, `furnace_saving_kg`; [quality audit](../../portfolio/quality/audits/2026-11-08-selfrep-recyclers.json)).
 - **Retired plastic still decides it**: with one machine's worth of printed plastic retired per copy, payback is 26 copies at `phi`=0.3 and 10 at `phi`=0.8 (median 27 over price draws, 12 to 62).
 - **Break-even**: with `eol`=0 the plastic pair repays in 50 copies only if filament costs about 42 per kg (twice the assumed 20), and in 20 copies at about 138 per kg.
 - Combined message: the mass-based conclusion survives pricing. The recyclers are a second-order saving for a small shop; the result depends on prices only through the saving per copy, which is small whatever the price.

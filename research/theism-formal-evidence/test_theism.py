@@ -352,6 +352,21 @@ def test_e22_transient_countermodel_is_an_e19_model():
     r = e22.check([0b011, 0b010, 0b001], 3, 2, 0)
     assert not r["e"] and not r["b"]
 
+
+def test_e23_horn_countermodel_definition_level():
+    """H27: the Lean Horn-closed countermodel checked from AndersonK's definitions (stage I, III-noA4)."""
+    e23 = _load("e23_horn_countermodel")
+    # 2 -> 0, 0 -> {0, 1}, 1 -> 1: E21's example miss (no block-algebra model fails at 2)
+    R = (0b011, 0b010, 0b001)
+    assert not e23.back(R, 3, 2, 0)
+    r = e23.check(R, 3, 2, 0)
+    assert all(v for k, v in r.items() if k != "block") and not r["block"]
+    # negative control: with 2 -> 1 instead, u = 1 is a back witness and the model cannot fail
+    R2 = (0b011, 0b010, 0b010)
+    assert e23.back(R2, 3, 2, 1)
+    assert not e23.check(R2, 3, 2, 1)["d_fails"]
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

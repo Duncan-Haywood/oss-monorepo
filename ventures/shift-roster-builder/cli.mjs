@@ -72,6 +72,8 @@ Options:
   --cover-price <$>  pay up to $ per hour at risk for call-out slack: a day is at risk when others could not take all of that
                       person's shifts that day, even passing on up to two of their own. Unlike --steady this gives up score
   --cover-chain <n>   hand-over passes the risk check allows per shift (0-3, default 2; 0 is the first, looser check)
+  --second-callout-price <$>  with --cover-price, also charge $ per hour for pairs of call-outs that are each covered alone
+                      but not together (the slack one call-out's cover uses up that a second one in the week needed)
   --no-cover-pairs    with --cover-price, try only moves of the at-risk person's own shifts (no relief, trade or relay)
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
@@ -315,6 +317,11 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!Number.isFinite(v) || v < 0) throw new Error("--cover-price needs a number of dollars per hour at risk");
       o.options.coverPrice = v;
+    }
+    else if (a === "--second-callout-price") {
+      const v = Number(argv[++i]);
+      if (!Number.isFinite(v) || v < 0) throw new Error("--second-callout-price needs a number of dollars per clashing-pair hour");
+      o.options.coverPairPrice = v;
     }
     else if (a === "--no-cover-pairs") o.options.coverPairs = false;
     else if (a === "--cover-chain") {

@@ -9,6 +9,9 @@
 //   chainN   joint, plus hand-over chains: a stand-in may pass one of their own shifts (call-out day or later) to a third
 //            person, who may pass one on, up to N passes per shift (calloutExposure tries chains of up to 3 moves); no budget
 //   chain2cap  two passes with the default budget of 500 checks per person-day (a day past it counts at risk): the default
+//              until 2026-11-14
+//   takeN    chainN, but the caller, off for the call-out day only, may take a stand-in's shift on a later day (a swap);
+//            take2cap (two passes, the budget) is the default since 2026-11-14
 // For each mode: person-days flagged, of them how many calloutExposure also finds open (added > 0), and how many it misses
 // (exposure > 0, mode says safe), the hours flagged, and the time. Exposure is the reference, not the truth: it rebuilds
 // with the roster kept, 5pm notice, started shifts pinned (README "Which of the tied best rosters holds up to a call-out?").
@@ -18,7 +21,10 @@ import { parseStaff, parseShifts, buildContext, buildRoster, calloutExposure, co
 import { sets } from "./real-rate-week.mjs";
 
 const BASE = { minRestHours: 10 };
-const MODES = { each: { joint: false, chain: 0 }, joint: { joint: true, chain: 0 }, chain1: { joint: true, chain: 1, budget: Infinity }, chain2: { joint: true, chain: 2, budget: Infinity }, chain2cap: { joint: true, chain: 2 }, chain3: { joint: true, chain: 3, budget: Infinity } };
+const NO = { callerTakes: false };
+const MODES = { each: { joint: false, chain: 0 }, joint: { joint: true, chain: 0, ...NO }, chain1: { joint: true, chain: 1, budget: Infinity, ...NO }, chain2: { joint: true, chain: 2, budget: Infinity, ...NO }, chain2cap: { joint: true, chain: 2, ...NO }, chain3: { joint: true, chain: 3, budget: Infinity, ...NO },
+  // 2026-11-14: the caller may take a stand-in's later shift (README "The caller can take a later shift"); take2cap is the default
+  take1: { chain: 1, budget: Infinity }, take2: { chain: 2, budget: Infinity }, take2cap: { chain: 2 }, take3: { chain: 3, budget: Infinity } };
 
 export function compare(staff, slots, opts = BASE) {
   const r = buildRoster(staff, slots, opts);
@@ -66,7 +72,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const staff = parseStaff(stf).staff, slots = parseShifts(shf).slots;
     const c = compare(staff, slots);
     realOpen += c.realOpen; pd += c.personDays;
-    const line = Object.entries(c.modes).map(([m, v]) => `${m} ${v.flagged} flagged (${v.hit} open, ${v.miss} missed, ${v.hours} h${m.startsWith("chain") ? `, ${v.chained} by chain` : ""}, ${v.ms.toFixed(1)} ms)`).join("; ");
+    const line = Object.entries(c.modes).map(([m, v]) => `${m} ${v.flagged} flagged (${v.hit} open, ${v.miss} missed, ${v.hours} h${/^(chain|take)/.test(m) ? `, ${v.chained} by chain` : ""}, ${v.ms.toFixed(1)} ms)`).join("; ");
     console.log(`${name}: ${c.personDays} person-days, ${c.realOpen} open a call-out (exposure ${c.exposure} h); ${line}`);
     for (const m of Object.keys(MODES)) for (const f of ["flagged", "hit", "miss", "hours", "ms"]) tot[m][f] += c.modes[m][f];
   }
