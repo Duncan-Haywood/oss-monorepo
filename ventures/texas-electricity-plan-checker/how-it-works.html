@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a33a12'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%C2%A2%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why the 1,000 kWh Price Misleads | Texas Electricity Plan Checker</title>
+  <meta name="description" content="How the Texas electricity plan checker bills your own months on each plan's EFL terms, checks every label against its own 500, 1,000 and 2,000 kWh prices, and what billing 200 simulated Texas homes showed about bill-credit plans and free nights.">
+  <meta property="og:title" content="Why the 1,000 kWh price misleads">
+  <meta property="og:description" content="On 200 simulated Texas homes, the example plan with the lowest 1,000 kWh price was the cheapest for 54 and the dearest for 138. How the checker works and when to use something else.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="./how-it-works.html">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d1a17; background: #f6f1ea; --accent: #a33a12; --accent2: #7c2a0b; --ink2: #5a5048; --line: #ddd2c4; --panel: #fffdfa; }
+    body { max-width: 780px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; letter-spacing: -.03em; margin: 0 0 12px; }
+    h2 { font-size: 1.2rem; margin: 30px 0 8px; }
+    p, li { line-height: 1.55; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .cta { display: inline-block; background: var(--accent); color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    .cta:hover { background: var(--accent2); }
+    .box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; }
+    th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    code { font-size: .88em; }
+    a { color: var(--accent2); }
+    footer { margin-top: 32px; font-size: .82rem; color: var(--ink2); }
+  </style>
+</head>
+<body>
+  <main>
+  <p class="eyebrow">TEXAS ELECTRICITY PLAN CHECKER &middot; HOW IT WORKS</p>
+  <h1>Why the 1,000 kWh price misleads, and how to get your own</h1>
+  <p>Every plan in the competitive Texas market has an Electricity Facts Label with three average prices: at 500, 1,000 and 2,000 kWh a month. Plan lists sort by the 1,000 kWh one. A plan can be built to look cheap at exactly that point, with a bill credit that pays only between 1,000 and 2,000 kWh, and cost more than its neighbours in the months you use 900 or 2,300. Your price depends on your months.</p>
+  <p><a class="cta" href="./">Open the checker</a></p>
+
+  <h2>Who it is for</h2>
+  <ul>
+    <li>Households in Oncor, CenterPoint, AEP Texas, TNMP and other competitive areas choosing or renewing a plan.</li>
+    <li>Anyone who has asked "why was my bill so high when my plan was 9 cents?" &mdash; usually a month that missed the credit.</li>
+    <li>People weighing a free-nights or free-weekends plan who want to know whether their own use pattern pays.</li>
+  </ul>
+
+  <h2>What you do</h2>
+  <ol>
+    <li>Download your usage from Smart Meter Texas (15-minute or daily CSV), or type twelve months of kWh from your bills.</li>
+    <li>For each plan you are considering, open its EFL PDF, select all, copy, and paste it into the checker. It reads the base charge, energy charge and tiers, TDU delivery charges, bill credits, minimum-usage fees and time-of-use hours into a small form you can correct.</li>
+    <li>Press compare. Each plan is billed on each of your months, ranked by the total, with your own cents per kWh beside the label's 1,000 kWh price.</li>
+  </ol>
+
+  <h2>The label checks itself</h2>
+  <p>Reading a PDF's text is fragile, so the checker never trusts its reading silently. From the terms it has, it recomputes the label's own three average prices. The label rounds to a tenth of a cent, so correct terms land within about 0.05 cents of each; anything further off is shown as a mismatch beside the plan and in the ranking, with which kWh level disagrees and by how much. A credit read as $100 when it is $125 misses the 1,000 kWh price by 2.5 cents and is caught.</p>
+
+  <h2>The bill, step by step</h2>
+  <div class="box">
+    <p>Month's bill = base charge + TDU fixed charge + energy charge + TDU per-kWh charge &times; kWh &minus; each credit whose kWh band the month falls in + each minimum-usage fee whose condition it meets.</p>
+    <p>Energy tiers are marginal: "8.2&cent; to 1,000 kWh, 12.9&cent; above" charges the 1,001st kWh at 12.9&cent;, not the whole month. Credit bands include both ends. A time-of-use window prices the kWh inside it (from your 15-minute data, binned by weekday or weekend and hour) at its own rate. Taxes and charges the label excludes are left out, and calendar months stand in for billing cycles.</p>
+  </div>
+
+  <h2>Only have the three prices?</h2>
+  <p>A plan with no credit or tier costs a fixed amount plus a rate per kWh, so its three label points sit on one straight line. Draw the line through the 500 and 2,000 kWh bills and see where 1,000 kWh falls. Our example plan B shows 21.0&cent;, 8.1&cent; and 14.1&cent;: the line predicts $164.00 at 1,000 kWh, the label says $81.00, and the $83 gap says something pays out near 1,000 kWh. For a credit that stops before 2,000 kWh the gap is exactly the credit; B's still pays at 2,000 kWh, which lowers that point too, so the gap understates its $125.</p>
+
+  <h2>What billing 200 Texas homes showed</h2>
+  <p>We took 200 homes from NREL's End-Use Load Profiles (ResStock, 2018 weather; building simulations calibrated to the housing stock, not meter readings) in Harris, Fort Bend, Dallas, Tarrant and Collin counties, and billed each home's year on the checker's three example plans. The plans are invented, in label shape, with the same placeholder delivery charges. By the 1,000 kWh price the order is B (8.1&cent;), C (14.2&cent;), A (16.0&cent;).</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Example plan</th><th>Label 1,000 kWh</th><th>Cheapest for</th><th>Dearest for</th></tr></thead>
+    <tbody>
+      <tr><td>A: flat 9.1&cent; + $9.95 base</td><td>16.0&cent;</td><td>89 homes</td><td>44</td></tr>
+      <tr><td>B: 14.6&cent;, $125 credit at 1,000&ndash;2,000 kWh</td><td>8.1&cent;</td><td>54 homes</td><td>138</td></tr>
+      <tr><td>C: 8.2&cent; to 1,000 kWh, 12.9&cent; above, $9.95 under 1,000</td><td>14.2&cent;</td><td>57 homes</td><td>18</td></tr>
+    </tbody>
+  </table></div>
+  <p>The plan that looks cheapest by half was the cheapest of the three for 54 of the 200 homes and the dearest for 138. Its credit band caught 37.5% of all home-months: 44.9% were under 1,000 kWh and 17.5% over 2,000, because Texas homes swing from mild-month lows to August highs. The median home collected it in 4.5 of 12 months. Picking B by its label price cost a home a median $241 a year against the cheapest of the three on its own usage, and $649 at the 90th percentile. Multiplying the 1,000 kWh price by a year's kWh underestimated B's true cost by a median $1,178.</p>
+  <p>Free nights: the median home used 30.8% of its electricity between 9 p.m. and 6 a.m. (10th to 90th percentile 26.9% to 35.0%). With the same base and delivery charges, a free-nights plan beats a flat 9.1&cent; energy rate only if its daytime rate is under 9.1 / (1 &minus; night share): 13.2&cent; for the median home. The full output, and the scripts that fetch the homes and bill them, are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/texas-electricity-plan-checker/check">check folder</a>.</p>
+  <p>What this does and does not show: it measures how much three label prices leave out for a realistic spread of Texas usage. It says nothing about any real plan's price, and simulated homes are not your meter: run your own year.</p>
+
+  <h2>When to use something else</h2>
+  <ul>
+    <li><strong>Variable or indexed plans:</strong> the checker bills the label as printed; the price can change after you sign.</li>
+    <li><strong>Rooftop solar:</strong> buyback credits and net-metering terms are not modelled; export rows are dropped from your usage.</li>
+    <li><strong>Searching the whole market:</strong> the PUCT's Power to Choose site lists every plan; use it to find candidates, then check them here on your usage.</li>
+    <li><strong>A business meter with a demand charge:</strong> use the <a href="../demand-charge-interval-analyzer/">demand charge interval analyzer</a>.</li>
+    <li><strong>A dispute about a bill already sent:</strong> your provider, then the PUCT's complaint process.</li>
+  </ul>
+
+  </main>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not financial or legal advice, and not a bill.</strong> It applies the terms you paste or type to the usage you give it. Taxes and charges a label leaves out, billing cycles, TDU rate changes during a contract and terms not read here are not counted. Read the full EFL, Terms of Service and Your Rights as a Customer before you sign. Not affiliated with any retail electric provider, Power to Choose, Smart Meter Texas or the PUCT.</p>
+    <p>Home data: NREL End-Use Load Profiles for the U.S. Building Stock, ResStock AMY2018 release 2, CC BY 4.0. Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/texas-electricity-plan-checker">Source and README</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work</a>. <a href="./">Back to the checker</a>.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a33a12'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%C2%A2%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Texas Electricity Plan Checker | Compare EFLs on Your Own Usage</title>
+  <meta name="description" content="Free Texas electricity plan checker: paste each plan's Electricity Facts Label and your Smart Meter Texas usage, and see what every plan would have cost you month by month. Bill credits, tiers, minimum-usage fees, free nights and TDU charges, each label checked against its own 500, 1,000 and 2,000 kWh prices. Runs in your browser.">
+  <meta property="og:title" content="Texas Electricity Plan Checker">
+  <meta property="og:description" content="The 1,000 kWh price on a plan list is not your price. Paste the EFLs and a year of your usage and see what each plan would really have cost you. Free, open source, nothing uploaded.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Texas Electricity Plan Checker","applicationCategory":"UtilitiesApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads Electricity Facts Label text (base charge, energy tiers, TDU delivery charges, bill credits, minimum-usage fees, time-of-use windows, term and cancellation fee); checks the terms against the label's own 500, 1,000 and 2,000 kWh average prices; reads Smart Meter Texas interval CSVs or monthly kWh; bills every month on every plan; ranks plans on your usage; price curves with credit cliffs; reads a bill credit from the three label prices alone; CLI"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is the 1,000 kWh price on a plan list not what I pay?","acceptedAnswer":{"@type":"Answer","text":"The average price on an Electricity Facts Label is computed at exactly 500, 1,000 and 2,000 kWh. A plan with a bill credit that pays only between 1,000 and 2,000 kWh can show a very low 1,000 kWh price and cost much more in months you use 900 or 2,100 kWh. Billing your own months on the plan's terms gives your price."}},{"@type":"Question","name":"How does the tool know my label was read correctly?","acceptedAnswer":{"@type":"Answer","text":"It recomputes the label's own three average prices from the terms it read. The label rounds to a tenth of a cent, so correct terms land within about 0.05 cents of each. A mismatch means a term was missed or misread, and the tool says so instead of ranking the plan silently."}},{"@type":"Question","name":"Where do I get my usage?","acceptedAnswer":{"@type":"Answer","text":"Smart Meter Texas lets you download your 15-minute interval or daily usage as a CSV after you register with your ESI ID and meter number. Monthly kWh from your bills also works, but free-nights and free-weekends plans need interval data or an assumed share of use in those hours."}},{"@type":"Question","name":"Is my usage uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a comparison ran and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d1a17; background: #f6f1ea; --accent: #a33a12; --accent2: #7c2a0b; --ink2: #5a5048; --line: #ddd2c4; --panel: #fffdfa; --warn: #a14a00; --ok: #166534; }
+    body { max-width: 1200px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 840px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.035em; }
+    h3 { font-size: 1rem; margin: 14px 0 4px; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 18px; align-items: start; }
+    .layout > div { min-width: 0; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .fields .wide { grid-column: span 3; }
+    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; min-width: 0; }
+    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #b9ab99; border-radius: 7px; padding: 6px; font: inherit; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    input[type=file] { max-width: 100%; min-width: 0; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; min-height: 130px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b9ab99; background: #efe7dc; padding: 8px 12px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e4d9ca; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent2); }
+    .small { padding: 4px 8px; font-size: .8rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .check { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+    fieldset.plan { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0 0 12px; background: #fff; min-width: 0; }
+    fieldset.plan legend { font-weight: 750; padding: 0 4px; }
+    .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .tile .big { font-size: 1.5rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: var(--accent2); }
+    .tile .lbl { font-size: .78rem; color: var(--ink2); font-weight: 650; }
+    .error { color: #b91c1c; font-weight: 650; }
+    .notes { font-size: .83rem; color: var(--warn); margin: 6px 0 0; padding-left: 18px; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    th, td { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; white-space: normal; }
+    .pass { color: var(--ok); font-weight: 700; }
+    .fail { color: var(--warn); font-weight: 700; }
+    svg { width: 100%; height: auto; display: block; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a { color: var(--accent2); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .fields, .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fields .wide { grid-column: span 2; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">TEXAS ELECTRICITY &middot; FREE &middot; NOTHING UPLOADED</p>
+    <h1>Texas electricity plan checker</h1>
+    <p>The 1,000 kWh price on a plan list is not your price. Paste each plan's Electricity Facts Label and a year of your own usage, and see what every plan would have cost you, month by month: bill credits, tiers, minimum-usage fees, free nights and TDU delivery charges. Each label is checked against its own 500, 1,000 and 2,000 kWh prices, so a misread term shows up instead of a wrong ranking. <a href="./how-it-works.html">How it works and when to use something else</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Your usage</h2>
+        <p class="hint">A Smart Meter Texas CSV (15-minute or daily), or one month per line ("Jan 2025, 1243"), or twelve numbers. A full year compares plans fairly.</p>
+        <textarea id="usage" aria-label="Usage, one month per line or a CSV" spellcheck="false"></textarea>
+        <div class="actions">
+          <label class="check">CSV file <input type="file" id="usageFile" accept=".csv,.txt,text/csv"></label>
+          <button type="button" id="example" class="small">Load the example</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Plans</h2>
+        <p class="hint">Copy all the text of an EFL (open the PDF, select all, copy) and paste it here, then read it into a plan. Check the fields against the label, or type a plan in by hand.</p>
+        <textarea id="efl" aria-label="Electricity Facts Label text" spellcheck="false" placeholder="Paste the text of an Electricity Facts Label"></textarea>
+        <div class="actions">
+          <button type="button" id="readEfl" class="small">Read label into a new plan</button>
+          <button type="button" id="addPlan" class="small">Add a blank plan</button>
+        </div>
+        <p id="eflNotes" class="hint" role="status"></p>
+        <div id="plans"></div>
+        <p class="hint">Energy: cents, or tiers like <code>8.2 to 1000, 12.9</code>. Credits: <code>125 at 1000-2000; 15 at 2000+</code>. Fees: <code>9.95 under 1000</code>. Time of use: <code>0 all 21-6</code> (cents, all/weekdays/weekends, hours). Label: the three average prices.</p>
+      </section>
+
+      <section>
+        <h2>Only have a plan list?</h2>
+        <p class="hint">Plan lists show just the three average prices. Type them to see whether something pays out near 1,000 kWh.</p>
+        <div class="fields">
+          <label>500 kWh (&cent;) <input id="q500" inputmode="decimal" value="21.0"></label>
+          <label>1,000 kWh (&cent;) <input id="q1000" inputmode="decimal" value="8.1"></label>
+          <label>2,000 kWh (&cent;) <input id="q2000" inputmode="decimal" value="14.1"></label>
+        </div>
+        <p id="shape" role="status"></p>
+      </section>
+    </div>
+
+    <div>
+      <section>
+        <div class="actions" style="margin-top:0">
+          <button type="button" id="run" class="primary">Compare plans on my usage</button>
+          <button type="button" id="download" class="small">Download results (CSV)</button>
+        </div>
+        <p id="error" class="error" role="alert"></p>
+        <ul id="warnings" class="notes"></ul>
+        <div class="tiles">
+          <div class="tile"><div class="lbl">Cheapest on your usage</div><div class="big" id="bestName" style="font-size:1.05rem">&ndash;</div></div>
+          <div class="tile"><div class="lbl">Its cost over your months</div><div class="big" id="bestCost">&ndash;</div></div>
+          <div class="tile"><div class="lbl">Dearest plan costs more by</div><div class="big" id="spread">&ndash;</div></div>
+        </div>
+      </section>
+      <section>
+        <h2>Ranking</h2>
+        <div class="scroll"><table id="rank" aria-label="Plans ranked by cost on your usage"><thead><tr><th>Plan</th><th>Total</th><th>Your &cent;/kWh</th><th>Label 1,000</th><th>vs cheapest</th><th>Credit months</th><th>Label check</th></tr></thead><tbody></tbody></table></div>
+      </section>
+      <section>
+        <h2>Price per kWh by monthly use</h2>
+        <p class="hint">Each plan's average price at every monthly use from 200 to 3,000 kWh; ticks along the bottom are your months. Drops and jumps are credits starting or stopping.</p>
+        <svg id="chart" viewBox="0 0 640 300" role="img" aria-label="Average price per kWh against monthly use for each plan"></svg>
+        <p id="legend" class="hint"></p>
+      </section>
+      <section>
+        <h2>Month by month</h2>
+        <div class="scroll"><table id="months" aria-label="Each month's bill on each plan"><thead></thead><tbody></tbody></table></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not financial or legal advice, and not a bill.</strong> It applies the terms you paste or type, described on <a href="./how-it-works.html">how it works</a>, to the usage you give it. Taxes, the PUC assessment and other charges a label leaves out, billing cycles that do not match calendar months, TDU rate changes during a contract, and terms the label prints that are not read here are not counted. Read the full EFL, Terms of Service and Your Rights as a Customer before you sign.</p>
+    <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
+    <p>Paying a demand charge on a business meter? The <a href="../demand-charge-interval-analyzer/">demand charge interval analyzer</a> reads 15-minute data and sizes a peak-shaving battery &mdash; nothing uploaded.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/texas-electricity-plan-checker">Source, CLI and README</a>. Not affiliated with any retail electric provider, Power to Choose, Smart Meter Texas or the PUCT. If it saved you money, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+  <script type="module">
+    import { parseUsage, parseEFL, compare, curve, shapeFromLabel, labelCheck, EXAMPLE } from './engine.mjs';
+    import { planToFields, fieldsToPlan } from './form.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const NUMS = ['q500', 'q1000', 'q2000'];
+    const FIELDS = [
+      ['name', 'Name', 'wide'], ['base', 'Base charge ($/month)'], ['energy', 'Energy charge (¢/kWh)'], ['label', 'Label prices (¢)'],
+      ['tduFixed', 'TDU fixed ($/month)'], ['tduCents', 'TDU per kWh (¢)'], ['credits', 'Bill credits'],
+      ['fees', 'Minimum-usage fees'], ['tou', 'Time-of-use windows'], ['touShare', 'Share in windows (%), if no interval data'],
+      ['termMonths', 'Term (months)'], ['etf', 'Cancellation fee ($)'],
+    ];
+    const money = (x) => (x < 0 ? '-$' : '$') + Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const COLORS = ['#a33a12', '#1f6f8b', '#5b8c2a', '#7a3e9d', '#c28f00', '#444'];
+    let last = null;
+
+    function setText(node, t) { node.textContent = t; }
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+    function addRow(tbody, cells, tag = 'td') {
+      const tr = document.createElement('tr');
+      for (const c of cells) {
+        const td = document.createElement(tag);
+        if (c && typeof c === 'object') { td.textContent = c.text; if (c.cls) td.className = c.cls; } else td.textContent = c;
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+
+    function addPlan(plan) {
+      const f = planToFields(plan);
+      const fs = document.createElement('fieldset');
+      fs.className = 'plan';
+      const lg = document.createElement('legend');
+      lg.textContent = f.name || 'Plan';
+      fs.appendChild(lg);
+      const grid = document.createElement('div');
+      grid.className = 'fields';
+      for (const [key, text, cls] of FIELDS) {
+        const lab = document.createElement('label');
+        if (cls) lab.className = cls;
+        lab.appendChild(document.createTextNode(text));
+        const inp = document.createElement('input');
+        inp.dataset.key = key;
+        inp.value = f[key];
+        if (key === 'name') inp.addEventListener('input', () => { lg.textContent = inp.value || 'Plan'; });
+        lab.appendChild(inp);
+        grid.appendChild(lab);
+      }
+      fs.appendChild(grid);
+      const row = document.createElement('div');
+      row.className = 'actions';
+      const rm = document.createElement('button');
+      rm.type = 'button'; rm.className = 'small'; rm.textContent = 'Remove';
+      rm.addEventListener('click', () => fs.remove());
+      const chk = document.createElement('span');
+      chk.className = 'hint';
+      row.append(rm, chk);
+      fs.appendChild(row);
+      el('plans').appendChild(fs);
+      const showCheck = () => {
+        try {
+          const c = labelCheck(readPlan(fs));
+          chk.className = c.status === 'match' ? 'pass' : c.status === 'mismatch' ? 'fail' : 'hint';
+          chk.textContent = c.status === 'match' ? 'Terms reproduce the label’s three prices.'
+            : c.status === 'mismatch' ? 'Terms do not reproduce the label: ' + c.rows.map((r) => `${r.kwh} kWh ${r.model.toFixed(2)}¢ vs ${r.stated}¢`).join(', ')
+            : c.status === 'needs-share' ? 'Time-of-use plan: give the label’s assumed share to check it.' : 'No label prices to check against.';
+        } catch (e) { chk.className = 'error'; chk.textContent = e.message; }
+      };
+      fs.addEventListener('input', showCheck);
+      showCheck();
+    }
+
+    function readPlan(fs) {
+      const f = {};
+      for (const inp of fs.querySelectorAll('input[data-key]')) f[inp.dataset.key] = inp.value;
+      return fieldsToPlan(f);
+    }
+
+    function updateShape() {
+      try {
+        const s = shapeFromLabel({ 500: el('q500').value, 1000: el('q1000').value, 2000: el('q2000').value });
+        const base = `A straight line through the 500 and 2,000 kWh prices is about ${money(s.fixedPerMonth)} a month plus ${s.centsPerKwh.toFixed(1)}¢/kWh, which predicts ${money(s.lineAt1000)} at 1,000 kWh; the label says ${money(s.billAt[1])}.`;
+        setText(el('shape'), s.flag === 'dip'
+          ? `${base} The ${money(s.dip)} gap means something pays out near 1,000 kWh: a bill credit, or an energy charge that rises above it. In months well under or over that usage you pay more than the 1,000 kWh price suggests. Read the EFL.`
+          : s.flag === 'bump' ? `${base} The 1,000 kWh price sits ${money(-s.dip)} above the line: a fee or charge near that usage. Read the EFL.`
+          : `${base} The three prices lie close to one line: no sign of a credit or tier between 500 and 2,000 kWh.`);
+      } catch (e) { setText(el('shape'), e.message); }
+    }
+
+    function drawChart(results, months) {
+      const svg = el('chart');
+      clear(svg);
+      const NS = 'http://www.w3.org/2000/svg';
+      const W = 640, H = 300, L = 44, R = 10, T = 10, B = 34;
+      const curves = results.filter((r) => !r.error).map((r) => curve(r.plan, { from: 200, to: 3000, step: 10 }));
+      const ys = curves.flat().map((p) => p.cents);
+      if (!ys.length) return;
+      const ymin = Math.max(0, Math.floor(Math.min(...ys) - 1)), ymax = Math.ceil(Math.max(...ys) + 1);
+      const x = (k) => L + ((k - 200) / 2800) * (W - L - R);
+      const y = (c) => T + (1 - (c - ymin) / (ymax - ymin)) * (H - T - B);
+      const mk = (tag, attrs, text) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text != null) n.textContent = text; svg.appendChild(n); return n; };
+      for (let k = 500; k <= 3000; k += 500) { mk('line', { x1: x(k), x2: x(k), y1: T, y2: H - B, stroke: '#e6dccf' }); mk('text', { x: x(k), y: H - B + 14, 'font-size': 10, 'text-anchor': 'middle', fill: '#5a5048' }, k.toLocaleString('en-US')); }
+      const step = Math.max(1, Math.ceil((ymax - ymin) / 6));
+      for (let c = ymin; c <= ymax; c += step) { mk('line', { x1: L, x2: W - R, y1: y(c), y2: y(c), stroke: '#efe7dc' }); mk('text', { x: L - 6, y: y(c) + 3, 'font-size': 10, 'text-anchor': 'end', fill: '#5a5048' }, c + '¢'); }
+      mk('text', { x: (L + W) / 2, y: H - 4, 'font-size': 10, 'text-anchor': 'middle', fill: '#5a5048' }, 'kWh in the month');
+      curves.forEach((pts, i) => {
+        // Break the line where the bill jumps, so a credit cliff reads as a step.
+        let d = '';
+        pts.forEach((p, j) => { const jump = j && Math.abs(p.cents - pts[j - 1].cents) > 0.4; d += `${j === 0 || jump ? 'M' : 'L'}${x(p.kwh).toFixed(1)},${y(p.cents).toFixed(1)}`; });
+        mk('path', { d, fill: 'none', stroke: COLORS[i % COLORS.length], 'stroke-width': 2 });
+      });
+      for (const m of months) if (m.kwh >= 200 && m.kwh <= 3000) mk('line', { x1: x(m.kwh), x2: x(m.kwh), y1: H - B - 8, y2: H - B, stroke: '#1d1a17', 'stroke-width': 1.5 });
+      const leg = el('legend');
+      clear(leg);
+      results.filter((r) => !r.error).forEach((r, i) => {
+        const sw = document.createElement('span');
+        sw.style.color = COLORS[i % COLORS.length];
+        sw.textContent = '\u25a0 ';
+        leg.append(sw, document.createTextNode(r.plan.name + '   '));
+      });
+    }
+
+    function run(count = true) {
+      setText(el('error'), '');
+      clear(el('warnings'));
+      try {
+        const usage = parseUsage(el('usage').value);
+        const plans = [...el('plans').querySelectorAll('fieldset.plan')].map(readPlan);
+        if (!plans.length) throw new Error('add at least one plan');
+        const results = compare(plans, usage.months);
+        last = { results, usage };
+        for (const w of usage.warnings) { const li = document.createElement('li'); li.textContent = w; el('warnings').appendChild(li); }
+        for (const r of results) if (r.error) { const li = document.createElement('li'); li.textContent = `${r.plan.name}: ${r.error}`; el('warnings').appendChild(li); }
+        const ok = results.filter((r) => !r.error);
+        if (ok.length) {
+          setText(el('bestName'), ok[0].plan.name);
+          setText(el('bestCost'), `${money(ok[0].total)} / ${usage.months.length} mo`);
+          setText(el('spread'), ok.length > 1 ? money(ok[ok.length - 1].total - ok[0].total) : '–');
+        }
+        const tb = el('rank').querySelector('tbody');
+        clear(tb);
+        for (const r of ok) {
+          const st = r.check.status;
+          addRow(tb, [r.plan.name, money(r.total), r.cents.toFixed(2) + '¢', r.advertised1000 != null ? r.advertised1000 + '¢' : '–', r.extra ? '+' + money(r.extra) : 'cheapest',
+            r.plan.credits.length ? `${r.creditMonths} of ${r.rows.length}` : '–',
+            { text: st === 'match' ? 'matches' : st === 'mismatch' ? 'MISMATCH' : st === 'needs-share' ? 'needs share' : 'no label', cls: st === 'match' ? 'pass' : st === 'mismatch' ? 'fail' : '' }]);
+        }
+        const mt = el('months');
+        clear(mt.querySelector('thead')); clear(mt.querySelector('tbody'));
+        addRow(mt.querySelector('thead'), ['Month', 'kWh', ...ok.map((r) => r.plan.name)], 'th');
+        usage.months.forEach((m, i) => addRow(mt.querySelector('tbody'), [m.month, Math.round(m.kwh).toLocaleString('en-US'), ...ok.map((r) => money(r.rows[i].total) + (r.rows[i].credits ? ' ✓' : ''))]));
+        drawChart(results, usage.months);
+        if (count) recordUsage(localStorage, el('optOut').checked, 'analysis_run');
+      } catch (e) { setText(el('error'), e.message); }
+    }
+
+    function download() {
+      if (!last) run(false);
+      if (!last) return;
+      const ok = last.results.filter((r) => !r.error);
+      const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+      const lines = [['month', 'kwh', ...ok.map((r) => r.plan.name)].map(q).join(',')];
+      last.usage.months.forEach((m, i) => lines.push([q(m.month), m.kwh.toFixed(3), ...ok.map((r) => r.rows[i].total.toFixed(2))].join(',')));
+      lines.push([q('total'), last.usage.months.reduce((s, m) => s + m.kwh, 0).toFixed(3), ...ok.map((r) => r.total.toFixed(2))].join(','));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([lines.join('\n') + '\n'], { type: 'text/csv' }));
+      a.download = 'electricity-plan-comparison.csv';
+      a.click();
+      recordUsage(localStorage, el('optOut').checked, 'report_downloaded');
+    }
+
+    function loadExample(count = true) {
+      el('usage').value = EXAMPLE.usage;
+      clear(el('plans'));
+      for (const p of EXAMPLE.plans) addPlan(p);
+      if (count) recordUsage(localStorage, el('optOut').checked, 'example_loaded');
+      run(false);
+    }
+
+    el('readEfl').addEventListener('click', () => {
+      const { plan, notes } = parseEFL(el('efl').value);
+      addPlan(plan);
+      setText(el('eflNotes'), notes.length ? 'Check by hand: ' + notes.join('; ') + '.' : 'Read. Check the fields against the label.');
+      recordUsage(localStorage, el('optOut').checked, 'label_read');
+    });
+    el('addPlan').addEventListener('click', () => addPlan({ name: 'New plan', energy: [{ upTo: null, cents: 0 }] }));
+    el('example').addEventListener('click', () => loadExample());
+    el('run').addEventListener('click', () => run());
+    el('download').addEventListener('click', download);
+    el('usageFile').addEventListener('change', async (ev) => { const f = ev.target.files[0]; if (f) { el('usage').value = await f.text(); run(); } });
+    for (const id of NUMS) el(id).addEventListener('input', updateShape);
+    el('optOut').checked = readOptOut(localStorage);
+    el('optOut').addEventListener('change', () => writeOptOut(localStorage, el('optOut').checked));
+    updateShape();
+    loadExample(false);
+  </script>
+</body>
+</html>

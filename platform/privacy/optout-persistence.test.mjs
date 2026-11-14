@@ -1745,7 +1745,7 @@ const RELATIVE_SELF = relative(
 // +1: `gaussian-process-regression` graduated.
 // +1: `rrule-explainer` graduated.
 // +1: `wasserstein-distance` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1329;
+const SWITCHES_IN_THE_CATALOGUE = 1330;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
