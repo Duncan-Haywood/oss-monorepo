@@ -72,6 +72,8 @@ const PILOTS = {
   'auto-loan-interest-deduction-calculator': async (m) => [m.QPVLI_CAP, m.PHASEOUT_THRESHOLD_OTHER, m.PHASEOUT_THRESHOLD_JOINT],
   'charitable-deduction-calculator': async (m) => [m.NON_ITEMIZER_CAP.single, m.NON_ITEMIZER_CAP.mfj],
   'gambling-loss-deduction-calculator': async (m) => [10000, 10000 * m.LOSS_CAP_RATE, 10000 * (1 - m.LOSS_CAP_RATE)].map(Math.round), // worked example: $10,000 won and lost
+  'nanny-tax-calculator': async (m) => [m.DEFAULTS.householdThreshold, m.DEFAULTS.ssWageBase, m.FUTA_QUARTER_TEST, m.DEFAULTS.futaWageBase], // IRS Pub 926 (2026)
+  'employer-payroll-tax-cost-calculator': async (m) => [m.FED.ssBase, m.FED.futaBase, Math.round(m.FED.futaBase * (m.FED.futaGross - m.FED.futaCredit))], // IRS Pub 15 (2026); $42 = net FUTA on the wage base
 };
 
 // slugs whose engine is not calc.mjs
@@ -371,4 +373,35 @@ test(`every answer lead is at most ${MAX_LEAD_WORDS} words`, () => {
   }
   assert.ok(seen >= 50, `found only ${seen} leads; did the marker change?`);
   assert.deepEqual(long, [], 'move how-to-use text or detail out of the lead');
+});
+
+// Mileage lead (rates in cents, no dollar figures): both 2026 half-year rates must be the calculator's own.
+test('mileage-deduction-method-calculator: lead is sourced, dated and matches the 2026 rates', async () => {
+  const slug = 'mileage-deduction-method-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { RATES_2026: R } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/([\d.]+) cents/g)].map((x) => Number(x[1]) / 100);
+  assert.deepEqual(stated, [R.businessFirstHalf, R.businessSecondHalf]);
+});
+
+// EU OSS lead: the euro threshold it states must be the calculator's, and the due date it names must be the one periodDueDate models.
+test('eu-vat-oss-calculator: lead is sourced, dated and matches the threshold and due date', async () => {
+  const slug = 'eu-vat-oss-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { THRESHOLD_EUR, periodDueDate } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/EUR ([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [THRESHOLD_EUR]);
+  assert.match(text, /end of the month after the quarter/);
+  assert.equal(periodDueDate('2026-Q1'), '2026-04-30');
+  assert.equal(periodDueDate('2026-Q4'), '2027-01-31');
 });
