@@ -1,8 +1,8 @@
 ---
 title: "Your team, or people like your team? Two rank ranges for one combined ranking"
-seo_title: "Combining pairwise rankings from a team: group vs population rank ranges"
+seo_title: "Combining a team's pairwise rankings: group vs population ranges"
 date: 2026-11-14
-description: "A combined team ranking needs two uncertainty ranges: one for these people, one for the group they stand for. Read the first as the second and 90% ranges hold 74%."
+description: "A combined team ranking needs two ranges: one for these people, one for the group they stand for. Read the first as the second and 90% ranges can hold 74%."
 tags: [quick-pick-survey, pairwise-comparison, bradley-terry, random-effects, statistics, product]
 ---
 
