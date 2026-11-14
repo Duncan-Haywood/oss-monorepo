@@ -3899,7 +3899,7 @@ their first 20 answers; before, `slotClickers` caught one of the two whole and
 let the other's clicks count. Still synthetic: whether real respondents do this
 waits for item (c).
 
-## A slot run and a fast block in the same person (2026-11-14, last; shipped as the default)
+## A slot run and a fast block in the same person (2026-11-14, later still; shipped as the default)
 
 Item (d9) on the flagship list: a bored respondent often turns quick *and*
 clicks one screen position. The default ranking reads only the slots
@@ -3986,3 +3986,68 @@ the simulation cannot see: if real people's *times* depend on which slot they
 click (the top one faster, say), the turn is no longer independent of the
 slots and the bound is no longer exact. Item (c), the first real survey,
 checks it: compare times on top-slot and bottom-slot picks.
+
+## A slot run's cut moved back to an earlier fast turn (2026-11-14, final; shipped as the default)
+
+Item (d10) on the flagship list, the other direction from (d9). A bored
+respondent who turns quick often answers on a coin for a while before they
+settle on one screen position. The slot run test (`slotBlockStarts`) sees only
+the run, so the coin-flip answers between the speed-up and the run stayed in
+the ranking. d9 covered this when a fast turn was found, but the turns it reads
+pass `fastBlockStarts`' wander bar, and under a wandering pace that bar throws
+most real turns out (its job is to stop the times alone cutting an honest
+person).
+
+**The idea.** When the slot run test has already flagged someone from answer
+`t_s`, a fast turn `t_f < t_s` read *without* the wander bar (`looseFastTurns`:
+`fastBlockStarts` with `walkQ` 0, every other bar as the default) moves their
+cut back to `t_f` (`slotBlocksBackToTurns`). Nobody is flagged who was not
+already, so honest people are exposed only at the run test's own rate
+(0.01-0.16%); what it risks is cutting some of a careless person's honest
+answers when the turn is really a wander step.
+
+A second variant was measured alongside: `loose`, d9's slot-at-turn test
+(`slotRunsAtTurns`) run at the loose turns too. Its honest bound holds however
+wrong the turn is, so the wander bar is not needed there either.
+
+**The sweep** (`scripts/slot-turn-back-sweep.ts`; raw rows
+`docs/slot-turn-back-2026-11-14.jsonl`, 110 cells; d9's panels, careless model
+and seeds: panels of 20, a quarter or 40% careless from half-way at 0.4x or
+0.7x pace, a slot run from `lag` of the session after the speed-up on a share
+`q` of answers, the rest of their careless answers a coin; 30 surveys per cell,
+100 for the honest panels; seed bases 9100 and 51000). Paired Spearman
+difference from today's default (`gated`, d9):
+
+| case (wander 0.08-0.12 log per answer) | cells | `back` mean (min, max) | cells above / below by 2 SE | `loose` mean (min, max) |
+|---|---|---|---|---|
+| slot run after the speed-up (lag 0.25) | 40 | +0.0008 (-0.0010, +0.0045) | 7 / 0 | +0.0003 (-0.0007, +0.0034) |
+| run starts with the speed-up (lag 0) | 24 | +0.0000 (-0.0011, +0.0009) | 2 / 0 | +0.0003 (-0.0010, +0.0019) |
+| run starts before the speed-up (lag -0.25) | 16 | -0.0001 (-0.0011, +0.0002) | 0 / 0 | -0.0000 (-0.0005, +0.0002) |
+| no wander (lag 0 and 0.25) | 24 | +0.0000 (-0.0008, +0.0008) | 0 / 0 | 0 (the bar is not engaged) |
+
+The largest gains are where d9 lost most to wander: 30-item lists with a strong
+run after a speed-up, e.g. wander 0.08, 0.7x pace, 40% careless: +0.0045 ± 0.0013
+(the oracle is +0.0138 above the default there); 0.4x pace, a quarter careless:
++0.0009 and +0.0014 on the two seed sets (30 items); wander 0.12: +0.0023 ± 0.0007.
+Where the run followed the speed-up and the cut moved, it took out 11-29 more
+careless answers per person and 0.1-10 honest ones (a turn read too early,
+mostly at 0.7x pace). Where the run started with or before the speed-up there
+were no coin-flip answers to recover and a moved cut only cost honest answers
+(up to 18 per person), but it moved for at most 25% of the careless, so the cost
+stayed within 0.0011.
+
+Honest people: `back` moved the cut of 0-0.2% (people the run test flagged
+anyway); `loose` added 0.1-0.4% honest flags on the honest panels (2,000 people
+per cell at wander 0.08 and 0.12, 15-60 items), inside its 1% bound. `back`
+never falls below the default before d9 (`slot`) by more than 0.0008 in any
+cell (`loose`: 0.0013).
+
+**Decision.** `back` ships as the default on the ranking route (`leftOut.
+slotBlocksMovedBack` counts the people whose cut moved; they are also counted
+in `slotBlocks`). `loose` does not: on the second seed set it was as often
+below the default as above it, and with `back` on it adds +0.00004 on average
+for honest flags `back` never makes. What is still open (d10's text named it):
+a turn read from the slot run's start backwards is still a search over splits;
+a turn scored only against the run's own start (one candidate, as d9 does for
+slots) would bound the wander step's chance of moving the cut, and real answer
+times (item c) will say how often wander steps happen at all.

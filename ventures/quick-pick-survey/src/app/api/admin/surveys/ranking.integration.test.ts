@@ -115,7 +115,7 @@ describe("admin survey ranking", () => {
     expect(rho).toBeGreaterThan(0.8);
     // Every participant answered ANSWERS_EACH pairs, and the route reads that from answered trials.
     expect(body.coverage.options).toBe(n);
-    expect(body.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(body.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, slotBlocksMovedBack: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(body.agreement.advice).toBe("");
   });
 
@@ -166,7 +166,7 @@ describe("admin survey ranking", () => {
     const all = await (await get(SURVEY)).json();
     expect(all.pace).toMatchObject({ checked: 7, fast: 2, lowAndFast: 2, typicalSeconds: 3 });
     expect(all.pace.advice).toMatch(/^2 respondents of 7 answered in under half the typical time per pick/);
-    expect(all.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(all.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, slotBlocksMovedBack: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(Math.max(...all.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
 
     const without = await (await get(SURVEY, "?drop=fast")).json();
@@ -188,7 +188,7 @@ describe("admin survey ranking", () => {
     setCookie(ADMIN_COOKIE_NAME, createSessionToken());
     const all = await (await get(SURVEY)).json();
     const replayed = await (await get(SURVEY, "?drop=fast-answers")).json();
-    expect(replayed.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
+    expect(replayed.leftOut).toEqual({ slotClickers: 0, slotBlocks: 0, slotBlockAnswers: 0, slotBlocksAtTurns: 0, slotBlocksMovedBack: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     // Same answers, replayed in answer order through the same update: the same ranking (the pool sums rows in another order, so to 1e-6, not the last bit).
     type Row = { itemId: string; rank: number; bestRank: number; worstRank: number; respondents: number; rating: number; low: number; high: number };
     const shape = (r: Row[]) => r.map(({ itemId, rank, bestRank, worstRank, respondents }) => ({ itemId, rank, bestRank, worstRank, respondents }));
