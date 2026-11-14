@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycexY16JARjo2mnU8s",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T19:38:19Z",
+  "ended": "2026-11-14T20:03:21Z",
+  "wall_minutes": 25.28,
+  "tokens_in": 6783866,
+  "tokens_out": 38705,
+  "cost_usd": 3.2047,
+  "tool_calls": 57,
+  "task": "civ-seeding milestone 3b: village random effect on the base adoption rate (programme next step)",
+  "projects": [
+    "research/civ-seeding"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15957",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first smoke run hung in ProcessPoolExecutor (BLAS thread oversubscription across 4 workers)",
+      "fix": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1; documented in the README run line"
+    },
+    {
+      "what": "wrote a wrong explanation of a 4th-digit sanity-check difference in LOG.md",
+      "fix": "corrected before commit: float32 storage of per-household means, not the classification route"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "the OMP_NUM_THREADS=1 trap is stated for GP/BLAS experiments only; any numpy matmul under ProcessPoolExecutor hangs or crawls the same way (cost one 110 s timeout plus a 60 s faulthandler run)"
+    },
+    {
+      "file": "research/civ-seeding/README.md",
+      "issue": "m3_identify/run.py has no OMP_NUM_THREADS note though it uses the same 4-process pool; the run line now carries it for m3b"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Landing work step 2 (land open research PRs first): the only open research PRs (#15955, #15956 codesign-cant) were updated minutes earlier by live sibling sessions, and #8764/#8720 are weeks-old marriage-divorce-evidence PRs outside this run's scope",
+      "did": "left them alone and advanced the drawn programme",
+      "result": "no collision; claim check clear"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-village-adopters-cluster-more-than-word-of-mouth-allows.md",
+    "research/civ-seeding/LOG.md (milestone 3b plan and outcome)"
+  ],
+  "goal": "advance an open PhD-level programme by one pre-registered step",
+  "notes": "Pre-registered H6 (sigma-hat > 0) and H7 (random effect closes the real-vs-synthetic held-out gap) both refuted on an 8,100-point grid (931 s on 4 cores). Threshold process with free intercept reaches the real loss in 19% of synthetic datasets and predicts held-out villages best (0.169 vs I 0.181, R 0.210), reported not tested. 57% of the real held-out loss is BCDJ moment 5. Checks run locally: pytest 20 passed; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; programme_check ok; check_post_frontmatter ok; post_similarity 0 pairs. No agent doc in docs/reports: LOG.md and README Next steps carry the hand-off.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "19006ea7-80b1-5118-b7ea-1a02eae387ca",
+    "transcripts": 1,
+    "first": "2026-11-14T19:38:19Z",
+    "last": "2026-11-14T20:03:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 105,
+        "output": 38705,
+        "thinking": 11126,
+        "cache_read": 6646140,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137621,
+        "api_equivalent_usd": 3.2047,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 105,
+      "output": 38705,
+      "thinking": 11126,
+      "cache_read": 6646140,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137621,
+      "api_equivalent_usd": 3.2047,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 49,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.28,
+      "active_minutes": 25.28,
+      "model_minutes": 6.24,
+      "tool_minutes": 19.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student extending an SMM estimation with a random effect, an 8,100-point grid, a synthetic calibration study and the write-up: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 499.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -25,14 +25,18 @@ from . import bcdj
 
 def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
              gamma: float = 0.0, theta: float | None = None, seeds=None,
-             return_informed: bool = False, delta: float = 0.0):
+             return_informed: bool = False, delta: float = 0.0, shift=None):
     """S runs; returns an n x S 0/1 adoption matrix (and informed matrix if asked).
 
     seeds: optional bool n-vector of initially informed households (default: leaders).
     delta: shift of the logit intercept (a reinforcement model with gamma > 0 needs a lower
-    intrinsic rate to match the same final take-up as the leader logit)."""
+    intrinsic rate to match the same final take-up as the leader logit).
+    shift: optional length-S array added to every household's logit in that simulation, a
+    village-level random effect on the base adoption rate (one draw per village and run)."""
     n = v.n
     base = beta[0] + delta + v.Z @ beta[1:]
+    if shift is not None:
+        base = base[:, None] + np.asarray(shift, float)[None, :]
     U = rng.random((n, S))
     seed_mask = v.leader if seeds is None else np.asarray(seeds, bool)
     contagious = np.repeat(seed_mask[:, None], S, 1)
@@ -45,10 +49,11 @@ def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
         informed |= contagious
         if gamma != 0.0 or use_theta:
             k = v.A @ adopted
+        b2 = base if base.ndim == 2 else base[:, None]
         if gamma != 0.0:
-            p = 1 / (1 + np.exp(-(base[:, None] + gamma * k)))
+            p = 1 / (1 + np.exp(-(b2 + gamma * k)))
         else:
-            p = (1 / (1 + np.exp(-base)))[:, None]
+            p = 1 / (1 + np.exp(-b2))
         new = informed & ~adopted & (U < p)
         if use_theta:
             new |= informed & ~adopted & (k / deg >= theta - 1e-12)
