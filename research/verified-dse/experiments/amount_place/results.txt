@@ -1,0 +1,18 @@
+# Milestone 124: placing the gate-depth threshold inside (30, 41] blind, and a width twin
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 124.
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | SWG(36) flags | SWD(3) flags
+sad1b8 | 128 | 2 | 31 | 97 | 0.605 | True | True
+max3b5 | 128 | 4 | 33 | 71 | 0.865 | True | False
+sat1b9 | 128 | 2 | 35 | 68 | 0.631 | True | True
+max3b6 | 128 | 4 | 36 | 92 | 0.838 | False | False
+max3b6n | 64 | 4 | 36 | 92 | 0.712 | False | False
+sad2b5 | 128 | 3 | 40 | 187 | 0.795 | False | False
+sat2b5 | 128 | 4 | 41 | 66 | 0.853 | False | False
+
+seen mean regret % (milestones 119 to 123, 60 cells): SWC 5.56, SWG(36) 3.74, SWD(3) 4.54, random 4.75
+
+## Blind test: no table yet

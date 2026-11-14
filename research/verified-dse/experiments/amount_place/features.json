@@ -1,0 +1,58 @@
+{
+ "max3b5": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 33,
+  "amount_gates": 71,
+  "mux_share": 0.8651,
+  "shift_width": 128
+ },
+ "max3b6": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 36,
+  "amount_gates": 92,
+  "mux_share": 0.8381,
+  "shift_width": 128
+ },
+ "max3b6n": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 36,
+  "amount_gates": 92,
+  "mux_share": 0.712,
+  "shift_width": 64
+ },
+ "sad1b8": {
+  "amount_cells": 4,
+  "amount_depth": 2,
+  "amount_gate_depth": 31,
+  "amount_gates": 97,
+  "mux_share": 0.6052,
+  "shift_width": 128
+ },
+ "sad2b5": {
+  "amount_cells": 9,
+  "amount_depth": 3,
+  "amount_gate_depth": 40,
+  "amount_gates": 187,
+  "mux_share": 0.7951,
+  "shift_width": 128
+ },
+ "sat1b9": {
+  "amount_cells": 2,
+  "amount_depth": 2,
+  "amount_gate_depth": 35,
+  "amount_gates": 68,
+  "mux_share": 0.6314,
+  "shift_width": 128
+ },
+ "sat2b5": {
+  "amount_cells": 4,
+  "amount_depth": 4,
+  "amount_gate_depth": 41,
+  "amount_gates": 66,
+  "mux_share": 0.8528,
+  "shift_width": 128
+ }
+}
