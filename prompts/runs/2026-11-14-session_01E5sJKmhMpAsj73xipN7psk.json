@@ -43,6 +43,10 @@
     {
       "what": "page overflowed a 390px phone (482px) from long rule strings in FAQ text",
       "fix": "overflow-wrap:anywhere on p/li, nowrap code in table cells inside the scroller"
+    },
+    {
+      "what": "first local sweep found three gates the new venture had not met: no CSV formula guard, no sibling linking it (sibling-links budget 0), no launched.json date",
+      "fix": "csvSafe in reportCsv; paired with cron-dst-drift-check both ways with tests; launched.mjs --write"
     }
   ],
   "integrity_issues": [],
@@ -50,6 +54,10 @@
     {
       "file": "platform/privacy/optout-persistence.test.mjs",
       "issue": "A new venture with an opt-out needs a hand bump of SWITCHES_IN_THE_CATALOGUE plus a comment line; nothing in AGENTS.md or the playbook says so, found only by running the test."
+    },
+    {
+      "file": "AGENTS.md",
+      "issue": "A new venture must also pass the CSV formula guard, the sibling-link orphan budget and launched.json; none of these is on a new-venture checklist I read, each surfaced only in run_workflow_locally --for-changes."
     }
   ],
   "deviations": [
@@ -66,7 +74,7 @@
     "ventures/rrule-explainer/why-recurring-event-skips-months.html"
   ],
   "goal": null,
-  "notes": "Explore idea: rrule-explainer, an RFC 5545 RRULE expander (BYSETPOS, BYWEEKNO under WKST, DST gap/overlap per 3.3.5, DTSTART counted per 3.8.5.3) with English text and findings (skipped short months + fixed rule, never-fires proved over 400y*INTERVAL, DTSTART not in rule, WKST sensitivity, mixed BYDAY). Differential test vs python-dateutil 4.0.0 via committed fixtures (gen_fixtures.py, seed 20261114): flavor 'dateutil' identical on 1,500/1,500 RFC-valid random rules and 100/100 mixed-BYDAY rules; RFC reading differs only in 3 documented places (DTSTART, mixed BYDAY intersect, WEEKLY first-week BYSETPOS: 1 of 1,500). dateutil returned no dates for 92 of 100 mixed MO,2TU-style rules. Page checked in Playwright at 1100 and 390 px, no console errors. Local checks: node --test on the venture (41 pass), optout-persistence test, check_post_links, check_post_frontmatter, run_workflow_locally --for-changes (see PR). Next: read VTIMEZONE from pasted files; diff two rules (series edit impact).",
+  "notes": "Explore idea: rrule-explainer, an RFC 5545 RRULE expander (BYSETPOS, BYWEEKNO under WKST, DST gap/overlap per 3.3.5, DTSTART counted per 3.8.5.3) with English text and findings (skipped short months + fixed rule, never-fires proved over 400y*INTERVAL, DTSTART not in rule, WKST sensitivity, mixed BYDAY). Differential test vs python-dateutil 4.0.0 via committed fixtures (gen_fixtures.py, seed 20261114): flavor 'dateutil' identical on 1,500/1,500 RFC-valid random rules and 100/100 mixed-BYDAY rules; RFC reading differs only in 3 documented places (DTSTART, mixed BYDAY intersect, WEEKLY first-week BYSETPOS: 1 of 1,500). dateutil returned no dates for 92 of 100 mixed MO,2TU-style rules. Page checked in Playwright at 1100 and 390 px, no console errors. Local checks: node --test on the venture (41 pass), optout-persistence test, check_post_links, check_post_frontmatter, run_workflow_locally --for-changes (see PR). Next: read VTIMEZONE from pasted files; diff two rules (series edit impact). Local verification (GitHub runners queued): run_workflow_locally --for-changes then reruns on a stable tree: sibling-links 2/2, ventures-tests 5/5, portfolio-validate 100/100, platform/pages suite 1,623 tests with 0 failures after the launched.json fix, plus duplicate-symbols, page-integrity, link-contrast, control-plane, conflict-markers, doc-refs green.",
   "corrections": [],
   "redteam": null,
   "usage": {
