@@ -144,15 +144,19 @@ export function extract(body, { description = '', points = 4, limits = 2 } = {})
   }
   const usable = all.filter((x) => x.score > -2);
   const descKey = norm(description);
-  const isDup = (a, b) => { const x = norm(a); const y = norm(b); if (!x || !y) return false; return x === y || (x.length > 30 && (x.includes(y) || y.includes(x))); };
+  // Each sentence is normalised once (x.n), not once per comparison: norm() was
+  // the top self-time function in the hub tests. norm is idempotent, so
+  // comparing against descKey as is matches the old norm(descKey).
+  for (const x of usable) x.n = norm(x.s);
+  const isDup = (x, y) => { if (!x || !y) return false; return x === y || (x.length > 30 && (x.includes(y) || y.includes(x))); };
 
   const lead = usable.find((x) => x.lead && !HOUSEKEEPING.test(x.s))?.s || usable[0]?.s || description;
-  const ranked = [...usable].filter((x) => x.s !== lead && !isDup(x.s, descKey)).sort((a, b) => b.score - a.score || a.i - b.i);
+  const ranked = [...usable].filter((x) => x.s !== lead && !isDup(x.n, descKey)).sort((a, b) => b.score - a.score || a.i - b.i);
   const keys = [];
   for (const x of ranked) {
     if (keys.length >= points) break;
     if (x.score < 0.5) break;
-    if (keys.some((k) => isDup(k.s, x.s))) continue;
+    if (keys.some((k) => isDup(k.n, x.n))) continue;
     keys.push(x);
   }
   const lim = usable
