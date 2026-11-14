@@ -22,6 +22,13 @@ found tournament-pairing-manager's `ratingsCsv` and `standingsCsv` writing
 player names unguarded, both invisible to the old test) and the baseline was
 rewritten once to take in the exporters it newly sees.
 
+A guard can also be present and still leak. On 2026-11-14 a red-team run found
+wash-sale-checker exempting any cell that *starts* with a number
+(`!/^-?\\d/.test(s)`), so a ticker typed as `-1+CMD|...` was written raw and a
+spreadsheet ran it. So any number exemption next to the formula test must be
+anchored at both ends (`!/^-?\\d+(\\.\\d+)?$/`); an unanchored one fails
+on any venture file, with no baseline.
+
     python3 platform/ci/check_csv_formula_guard.py [--root DIR] [--write-baseline]
 """
 import argparse
@@ -35,6 +42,8 @@ EXPORTER = re.compile(
     r"(function\s+toCsv\b|\btoCsv\s*=\s*(\(|function|async)"
     r"|export\s+(async\s+)?function\s+(?!parse|split|read|load|import|sample|example)[a-z]\w*Csv\s*\()")
 GUARD = re.compile(r"/\^\[=|\^\[=@\]|\^\[=\+|formula[- ]injection|csv[- ]injection", re.I)
+# The formula test followed by a negated exemption regex: `/^[=+\-@\t\r]/.test(s) && !/^-?\d+$/.test(s)`.
+EXEMPTION = re.compile(r"/\^\[=[^\]]*\]/\.test\([^)]*\)\s*&&\s*!\s*/(\^(?:\\/|[^/])*)/[a-z]*\.test\(")
 SKIP_PARTS = {"node_modules", ".next", "dist", "build", ".git", "vendor"}
 
 
@@ -44,6 +53,29 @@ def is_exporter(text):
 
 def is_guarded(text):
     return GUARD.search(text) is not None
+
+
+def weak_exemptions(text):
+    """Number exemptions beside a formula guard that are not anchored with `$`, so "-1+cmd" slips past."""
+    return [m.group(1) for m in EXEMPTION.finditer(text) if not m.group(1).endswith("$")]
+
+
+def scan_weak(root):
+    """Return sorted 'path:line' entries for unanchored number exemptions under root/ventures."""
+    out = []
+    for pat in ("*.mjs", "*.js", "*.html"):
+        for p in (root / "ventures").rglob(pat):
+            rel = p.relative_to(root)
+            if SKIP_PARTS & set(rel.parts) or ".test." in p.name:
+                continue
+            try:
+                lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+            except OSError:
+                continue
+            for n, line in enumerate(lines, 1):
+                if weak_exemptions(line):
+                    out.append(f"{rel.as_posix()}:{n}")
+    return sorted(out)
 
 
 def scan(root):
@@ -93,7 +125,11 @@ def main(argv=None):
               "=, +, -, @, tab or CR with an apostrophe (see ventures/ucr-fee-calculator/calc.mjs csvCell).")
     for f in stale:
         print(f"{f}: listed in {a.baseline.name} but now guarded or gone; delete its line.")
-    if new or stale:
+    weak = scan_weak(a.root)
+    for f in weak:
+        print(f"{f}: the number exemption beside the formula guard is not anchored with $, so a cell such as "
+              "-1+CMD|... passes as a number; use !/^-?\\d+(\\.\\d+)?$/.")
+    if new or stale or weak:
         return 1
     print(f"csv formula guard: ok ({len(found)} unguarded exporters still on the baseline)")
     return 0
