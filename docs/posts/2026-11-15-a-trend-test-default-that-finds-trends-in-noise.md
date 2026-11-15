@@ -1,8 +1,8 @@
 ---
 title: "A trend test default that finds a trend in half of all trend-free series"
-seo_title: "Mann-Kendall test online: Sen's slope, seasonal Kendall, and which correction holds its size"
+seo_title: "Mann-Kendall test online: which autocorrelation correction holds"
 date: 2026-11-15
-description: "A free Mann-Kendall trend test with Sen's slope and the seasonal Kendall test. Simulating its autocorrelation corrections showed one common default calling trends in about half of pure-noise series, and 95 years of Potomac River flow show why the between-season covariance matters."
+description: "A free Mann-Kendall test with Sen's slope. Simulation shows a common autocorrelation default calls a trend in half of pure-noise series."
 tags: [research-algorithms, mann-kendall, trend-test, hydrology, time-series]
 ---
 
