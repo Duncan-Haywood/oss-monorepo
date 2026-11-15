@@ -166,19 +166,19 @@ flagships:
       term per column (README "Wide sets in print"); (b) sticky series on a drifting
       level: four repeat treatments failed the frozen-juice bar; 3 log n led on all
       TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled
-      data; update-rate check: date a documented collection change. Stale feeds: LR
-      failed (README); next trim + t-step M0. Next: apple's volume in
-      several-columns mode; joint drift (measured, not offered) and its 2x penalty
-      on fresh multi-column labelled data; long labelled series from outside TCPD
-      (none over 991 points). Open: (0) drift model: t-walk increments, biweight on
-      fresh data, why it absorbs seat belts and quality control 4, its AR(1) term;
-      (1) slope breaks: `--hinge-test` on more series, a guard on both rhos
-      (hinge-only failed 11-15), a second hinge; a real step inside a cycle, a cycle
-      check not tied to rho, real documented ramps and close steps; (2) steep-bump
-      clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one
-      pre-registered line (README "Heavy tails in the GARCH search"): re-test
-      scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks;
-      (5) holiday list: wanted a shop's counts or a yearly term.
+      data; update-rate check: date a documented collection change. Stale feeds:
+      t-step LR shipped; next clumped (T3). Next: apple's volume in several-columns
+      mode; joint drift (measured, not offered) and its 2x penalty on fresh
+      multi-column labelled data; long labelled series from outside TCPD (none over
+      991 points). Open: (0) drift model: t-walk increments, biweight on fresh data,
+      why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope
+      breaks: `--hinge-test` on more series, a guard on both rhos (hinge-only failed
+      11-15), a second hinge; a real step inside a cycle, a cycle check not tied to
+      rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell
+      under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line
+      (README "Heavy tails in the GARCH search"): re-test scoring breaks with false
+      alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a
+      shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
