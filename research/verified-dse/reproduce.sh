@@ -54,3 +54,4 @@ $PY experiments/amount_lanes/analyse.py   # milestone 125 (no flow; about 30 s; 
 $PY experiments/pilot_rank/analyse.py   # milestone 126 (no flow; about 20 s)
 $PY experiments/top_probe/analyse.py   # milestone 127 (no flow; about 20 s)
 $PY experiments/staged_probe/analyse.py   # milestone 128 (no flow; about 30 s)
+$PY experiments/blind_probe/analyse.py   # milestone 132 (no flow; about 10 s; features.py and check_designs.py need yosys, run.py re-runs the 1,440-point flow, about 50 min on 4 cores)

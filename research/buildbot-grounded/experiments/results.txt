@@ -6,13 +6,13 @@ A. simulated carry slowdown (robot-h per labourer-h), buildbot-carry grid: step 
     vs a one-stud labourer: 36 cells, slowdown min 0.41, median 0.85, max 1.70; share of cells below s* = 92% / 72% / 58%
     vs a four-stud labourer: 36 cells, slowdown min 1.63, median 3.38, max 6.82; share of cells below s* = 0% / 0% / 0%
   G1 ownership $4.3/h; s* = 4.70 / 2.42 / 1.63
-    vs a one-stud labourer: 36 cells, slowdown min 0.90, median 1.08, max 1.64; share of cells below s* = 100% / 100% / 97%
-    vs a four-stud labourer: 36 cells, slowdown min 3.59, median 4.34, max 6.57; share of cells below s* = 64% / 0% / 0%
+    vs a one-stud labourer: 36 cells, slowdown min 0.98, median 1.16, max 1.81; share of cells below s* = 100% / 100% / 92%
+    vs a four-stud labourer: 36 cells, slowdown min 3.92, median 4.65, max 7.23; share of cells below s* = 53% / 0% / 0%
   The taskbook's carry rate (F2, 0.3 min a piece) is 3.3 pieces/min: between the one-stud (0.5-3.5/min) and bundle (2-14/min) labourer rates.
   Taskbook mass: mean piece 5.81 kg. The carry model's G1 limit is 3.8 kg (one stud) and 0 pieces at two studs: the G1 cannot take F2 as booked.
 
 B. nails of a 62-nail sheet reachable from one stance (buildbot-fasten coverage), push needed 20 / 100 N, mu 0.6
-  G1: 29% (18 of 62) / 13%
+  G1: 29% (18 of 62) / 3%
   H1: 58% (36 of 62) / 55%
 
 C. what the simulation rules in, per house on the taskbook's hours (scenario A, supervision 0.3, wage $37.86)

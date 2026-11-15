@@ -123,6 +123,45 @@ class NeverCompleted(unittest.TestCase):
         self.assertEqual(len(kept), 3)  # only the 2014 permit (open 2,191 days > 1,826) goes
         self.assertEqual(len(transfer.completed_by(d, D)), 1)
 
+    def test_stale_thresholds_are_nested(self):
+        import datetime, tempfile, boosted, rounds
+        with tempfile.TemporaryDirectory() as tmp:
+            d, _ = boosted.load_frame(self._csv(tmp), "i2c", keep_open=True)
+        D = datetime.date(2020, 1, 1)
+        n = {v: len(rounds.stale_drop(d, D, k)) for v, k in rounds.STALE.items()}
+        self.assertEqual(rounds.STALE["cpin_es3_nc5"], rounds.STALE_DAYS)
+        self.assertEqual(n["cpin_es3_nc2"], 3)  # the 2018 permit's window is exactly 730 days: kept (strict >)
+        self.assertEqual(n["cpin_es3_nc8"], 4)  # 2,191 days < 2,922: nothing goes
+        self.assertLessEqual(n["cpin_es3_nc3"], n["cpin_es3_nc5"])
+
+    def test_sweep_summary_picks_lowest_selection_loss(self):
+        import json, tempfile, os, rounds
+        def cell(q90, sel):
+            return dict(test_loss={"0.5": 10.0, "0.9": q90}, test_closs_all={"0.5": 1.0, "0.9": 1.0},
+                        sel_closs={"0.5": 1.0, "0.9": sel}, rounds={"0": {"0.5": 5, "0.9": 7}},
+                        n_train_never_completed=1, n_train_open=2, n_es_open=3)
+        R, B, S = {}, {}, {}
+        for h in ("sf", "seattle"):
+            for Y in (2021, 2022):
+                B[f"{h} {Y} full"] = {"test_loss": {"0.5": 10.0, "0.9": 100.0}}
+                S[f"{h} {Y} cpin_es3"] = {"test_loss": {"0.9": 101.0}}
+                S[f"{h} {Y} cpin_es3_nc5"] = {"test_loss": {"0.9": 99.0}}
+                for v, q, sel in (("cpin_es3_nc2", 103, 50), ("cpin_es3_nc3", 98, 40),
+                                  ("cpin_es3_nc5", 99, 45), ("cpin_es3_nc8", 104, 60)):
+                    R[f"{h} {Y} {v}"] = cell(float(q), float(sel))
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = []
+            for name, obj in (("r", R), ("b", B), ("s", S)):
+                paths.append(os.path.join(tmp, name + ".json"))
+                json.dump(obj, open(paths[-1], "w"))
+            out = rounds.sweep_summary(*paths)
+        self.assertEqual(out["n_cells"], 4)
+        self.assertTrue(all(c["selected"] == c["oracle"] == "cpin_es3_nc3" for c in out["cells"]))
+        self.assertAlmostEqual(out["mean_change"]["selected"]["0.9"], -2.0)
+        self.assertEqual(out["mean_regret_q90"], 0.0)
+        self.assertTrue(out["held"]["S2"] and out["held"]["S3"] and out["held"]["S4"] and out["held"]["S5"])
+        self.assertFalse(out["held"]["S1"])  # Seattle: nc3 is best, so S1's Seattle half fails
+
 
 if __name__ == "__main__":
     unittest.main()

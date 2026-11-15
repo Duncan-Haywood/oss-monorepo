@@ -182,12 +182,12 @@ any already in `episodes/`). Mark one you finish `- *(Done: episode N,
 Title.)*` at the start of its line, then run `node list_done.mjs` to move it
 to DONE.md (`node --test` fails while one is left here):
 
-- Next up, suggestions: Timothy and the cloak left at Troas, Paul's last letter from a harder prison, "only Luke is with me", Mark sent for after all (Second Timothy, chapter four, by tradition the second Roman imprisonment; a sequel to episode 124); Egeria at Sinai, the climb straight up as if up a wall and the burning bush still growing (Travels, chapters 1-5, a prequel to episode 120); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
+- Next up, suggestions: Egeria at Sinai, the climb straight up as if up a wall and the burning bush still growing (Travels, chapters 1-5, a prequel to episode 120); Titus left in Crete, the Cretans are always liars quoted against a Cretan poet and the elders in every town (Letter to Titus, a companion to episode 125); Onesiphorus searching Rome for a prisoner (Second Timothy, chapter one, told from the searcher's side); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 19 of 124 episodes, numbers 1 to 19 (27 to 53 minutes each). Text only: episodes 20 to 124.
+Audio: 19 of 125 episodes, numbers 1 to 19 (27 to 53 minutes each). Text only: episodes 20 to 125.
 <!-- /audio-status -->
 
 New episodes stay text only while the audio folders sit near the creative prompt's 400 MB line (run its `du` for the current figure). The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.

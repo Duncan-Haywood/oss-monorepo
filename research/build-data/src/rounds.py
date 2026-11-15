@@ -31,6 +31,11 @@ candidate) under the variants that early-stop, and records the round each quanti
                in training and in the Y-3 early-stopping set: a deployment on D sees them open too (session 91)
   cpin_es3_nc5 cpin_es3_nc with a staleness rule a deployment can apply: any source permit open at D for more
                than STALE_DAYS (5 years) is presumed abandoned and dropped (session 91)
+  cpin_es3_nc2, _nc3, _nc8  the same rule at 2, 3 and 8 years (session 92's sweep, STALE)
+Session 92: every _nc variant is also scored on a selection set a deployment has on D, the same for every
+threshold: all the sources' Y-3 permits (never-completed ones included, none dropped), open ones with their
+window at D, by the censored loss (sel_closs). sweep_summary picks the threshold with the lowest q0.9 sel_closs
+per held city-year.
 With a frame loaded keep_open (the _nc variants), --score also reports the censored test loss: the held-out
 year's never-completed permits enter cpin.closs with their window at the pull date (session 91).
 
@@ -50,8 +55,10 @@ import boosted, transfer  # noqa: E402
 
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
-            "cpin_es3_nc", "cpin_es3_nc5")
+            "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
+# session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
+STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922}
 
 
 def stale_drop(d, decision, days=STALE_DAYS):
@@ -119,10 +126,12 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         tr, ca = cat(lambda d: (d.year <= Y - 4) | (d.year == Y - 2)), cat(lambda d: d.year == Y - 3)
         if variant == "cpin_es3_done":
             tr, ca = transfer.completed_by(tr, D), transfer.completed_by(ca, D)
-        if variant == "cpin_es3_nc5":
-            tr, ca = stale_drop(tr, D), stale_drop(ca, D)
+        sel = ca  # session 92: the common selection set, before any staleness drop
+        if variant in STALE:
+            tr, ca = stale_drop(tr, D, STALE[variant]), stale_drop(ca, D, STALE[variant])
         ytr, otr = cpin.censor(tr, D)
         yca, oca = cpin.censor(ca, D)
+        ysel, osel = cpin.censor(sel, D)
     te = frames[held][frames[held].year == Y]
     te_all = frames_all[held][frames_all[held].year == Y]
     has_open = bool(np.isinf(te_all.y.to_numpy(float)).any())
@@ -130,6 +139,10 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         yta, ota = cpin.censor(te_all, pulled)
     Xtr, Xca = transfer.feats(tr), transfer.feats(ca)
     Xte = transfer.feats(te_all if has_open else te) if score else Xca.iloc[:1]
+    n_te = len(Xte)
+    if nc:  # session 92: predict the selection set in the same call (one model, two row sets)
+        Xte = pd.concat([Xte, transfer.feats(sel)])
+    sel_loss = {t: [] for t in (0.5, 0.9)}
     done_te = np.isfinite(te_all.y.to_numpy(float)) if has_open else np.ones(len(te), bool)
     taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
     out, loss, preds, closs_te = {}, {t: [] for t in taus}, {}, {t: [] for t in taus}
@@ -138,6 +151,9 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         for t in taus:
             t0 = time.time()
             pr, r[t] = cpin.fit_one(Xtr, ytr, otr, Xca, yca, oca, Xte, t, seed=s)
+            if nc:
+                sel_loss[t].append(float(cpin.closs(ysel, pr[n_te:], osel, t).mean()))
+                pr = pr[:n_te]
             print(f"  {held} {Y} {variant} seed {s} tau {t}: {r[t]} rounds, {time.time() - t0:.0f} s", flush=True)
             if score:
                 loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr[done_te], t).mean()))
@@ -149,6 +165,10 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
     res["n_train_never_completed"] = int(np.isinf(tr.y.to_numpy(float)).sum())
     res["n_es_never_completed"] = int(np.isinf(ca.y.to_numpy(float)).sum())
+    if nc:
+        res["n_sel"], res["n_sel_open"] = len(sel), int(osel.sum())
+        res["sel_closs"] = {str(t): sum(v) / len(v) for t, v in sel_loss.items()}
+        res["sel_closs_per_seed"] = {str(t): v for t, v in sel_loss.items()}
     if score:
         res["n_test"] = len(te)
         res["test_loss_per_seed"] = {str(t): v for t, v in loss.items()}
@@ -401,6 +421,61 @@ def nc_summary(path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
                 cells=cells, n_cells=len(cells), mean_change=mean, counts=g, held=verdict)
 
 
+SWEEP = ("cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc5", "cpin_es3_nc8")
+
+
+def sweep_summary(path, base_path, s91_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 92: the staleness sweep (this file) against session 88's full (base_path). Per cell: each
+    threshold's q0.5 / q0.9 loss change against full on completed test rows, its censored loss over all test rows,
+    its q0.9 selection loss (sel_closs, Y-3 as seen on D), the threshold the selection loss picks, and the per-cell
+    oracle. Predictions S1 to S5 (S5 against session 91's s91_path)."""
+    B, R, S91 = json.load(open(base_path)), json.load(open(path)), json.load(open(s91_path))
+    cells = []
+    for h in held:
+        for Y in years:
+            if not all(f"{h} {Y} {v}" in R for v in SWEEP):
+                continue
+            f = B[f"{h} {Y} full"]["test_loss"]
+            row = dict(held=h, year=Y, change={}, closs_all={}, sel_q90={}, q90_rounds={}, kept_open={})
+            for v in SWEEP:
+                r = R[f"{h} {Y} {v}"]
+                row["change"][v] = {t: r["test_loss"][t] - f[t] for t in ("0.5", "0.9")}
+                row["closs_all"][v] = r["test_closs_all"]
+                row["sel_q90"][v] = r["sel_closs"]["0.9"]
+                row["q90_rounds"][v] = float(np.mean([x["0.9"] for x in r["rounds"].values()]))
+                row["kept_open"][v] = dict(train_never_completed=r["n_train_never_completed"],
+                                           train_open=r["n_train_open"], es_open=r["n_es_open"])
+            row["selected"] = min(SWEEP, key=lambda v: row["sel_q90"][v])
+            row["oracle"] = min(SWEEP, key=lambda v: row["change"][v]["0.9"])
+            row["selected_change"] = row["change"][row["selected"]]
+            row["regret_q90"] = row["change"][row["selected"]]["0.9"] - row["change"][row["oracle"]]["0.9"]
+            row["s91_nc5_q90"] = S91.get(f"{h} {Y} cpin_es3_nc5", {}).get("test_loss", {}).get("0.9")
+            s91 = S91.get(f"{h} {Y} cpin_es3")
+            row["s91_cpin_es3_change_q90"] = s91["test_loss"]["0.9"] - f["0.9"] if s91 else None
+            cells.append(row)
+    mean = {v: {t: float(np.mean([c["change"][v][t] for c in cells])) for t in ("0.5", "0.9")} for v in SWEEP}
+    mean["selected"] = {t: float(np.mean([c["selected_change"][t] for c in cells])) for t in ("0.5", "0.9")}
+    ch = lambda c, v: c["change"][v]["0.9"]  # noqa: E731
+    sf = [c for c in cells if c["held"] == "sf"]
+    se = [c for c in cells if c["held"] == "seattle"]
+    best_fixed = min(SWEEP, key=lambda v: mean[v]["0.9"])
+    verdict = dict(
+        S1=all(ch(c, "cpin_es3_nc3") < ch(c, "cpin_es3_nc5") for c in sf)
+        and all(min(ch(c, "cpin_es3_nc5"), ch(c, "cpin_es3_nc8")) < ch(c, "cpin_es3_nc3") for c in se),
+        S2=mean["cpin_es3_nc8"]["0.9"] - mean["cpin_es3_nc5"]["0.9"] > 1,
+        S3=float(np.mean([c["regret_q90"] for c in cells])) <= 1,
+        S4=mean["selected"]["0.9"] <= 0,
+        S5=len(cells) == 4 and len(se) == 2 and all(c["s91_nc5_q90"] is not None and
+                                    abs(R[f"{c['held']} {c['year']} cpin_es3_nc5"]["test_loss"]["0.9"] - c["s91_nc5_q90"]) <= 0.3
+                                    for c in cells))
+    return dict(note="cascade2 transfer model; change = mean pinball loss on completed test-year rows minus session "
+                     "88's full, days, negative = better; sel_q90 = q0.9 censored loss on all source Y-3 rows as seen on "
+                     "D (the deployable selection score); 3 seeds",
+                cells=cells, n_cells=len(cells), mean_change=mean, best_fixed_q90=best_fixed,
+                mean_regret_q90=float(np.mean([c["regret_q90"] for c in cells])) if cells else None,
+                held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -420,8 +495,18 @@ if __name__ == "__main__":
     ap.add_argument("--keep-open", action="store_true", help="session 91: load never-completed permits (cpin_* only)")
     ap.add_argument("--pulled", default=datetime.date.today().isoformat(), help="pull date (censored test windows)")
     ap.add_argument("--summarise-nc", help="session 91: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-sweep", help="session 92: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_sweep:
+        s = sweep_summary(a.summarise_sweep, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"),
+                          os.path.join(res_dir, "rounds_score_nc_i2c.json"))
+        json.dump(s, open(a.summarise_sweep.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(s["mean_change"], indent=1), s["best_fixed_q90"], s["mean_regret_q90"], s["held"])
+        for c in s["cells"]:
+            print(c["held"], c["year"], c["selected"], c["oracle"], round(c["regret_q90"], 2),
+                  {v: round(x["0.9"], 2) for v, x in c["change"].items()}, {v: round(x, 1) for v, x in c["sel_q90"].items()})
+        sys.exit()
     if a.summarise_nc:
         s = nc_summary(a.summarise_nc, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
         json.dump(s, open(a.summarise_nc.replace(".json", "_summary.json"), "w"), indent=1)

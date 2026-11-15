@@ -18,6 +18,8 @@ HEIGHT = {"g1": [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6], "h1": [0.2, 0.4, 0.6, 
 MUS = [0.3, 0.6]                   # rubber on concrete spans about this range; swept, not chosen
 NEED = [20, 50, 100]               # push needed to seat the tool (N); no maker figure found, swept
 DEG = math.pi / 180
+WALL = 0.3                         # tool nose ahead of the grip (m): the wall plane; no maker figure found
+WALLS = [None, 0.15, 0.45]         # sensitivity at mu 0.6; None = no wall (the model before 2026-11-15)
 
 
 def fmt(v):
@@ -30,7 +32,7 @@ def main():
     robots = {n: P.load(n) for n in fetch.ROBOTS}
     d0 = {n: P.standing(r) for n, r in robots.items()}
     nails = F.schedule()
-    out = {"menagerie_commit": fetch.COMMIT, "tool_kg": TOOL_KG, "nails": len(nails), "push": {}, "tip": {}, "coverage": {}}
+    out = {"menagerie_commit": fetch.COMMIT, "tool_kg": TOOL_KG, "nails": len(nails), "wall_m": WALL, "push": {}, "push_wall": {}, "tip": {}, "coverage": {}}
     by = {}
     for nl in nails:
         by.setdefault((nl.cls, nl.axis, round(nl.half * 1000, 2)), 0)
@@ -58,10 +60,10 @@ def main():
             rows = []
             for z in HEIGHT[n]:
                 for x in REACH:
-                    f, why = F.push_limit(r, d0[n], (x, z), TOOL_KG, mu)
+                    f, why = F.push_limit(r, d0[n], (x, z), TOOL_KG, mu, wall=WALL)
                     rows.append({"z": z, "x": x, "N": f, "limit": why})
             out["push"][f"{n}-mu{mu}"] = rows
-            print(f"B. {n} mu={mu}: largest horizontal push (N) by tool height (rows, m) and reach (cols, m); '-' infeasible")
+            print(f"B. {n} mu={mu}, wall {WALL} m ahead of the hands: largest horizontal push (N) by tool height (rows, m) and reach (cols, m); '-' infeasible")
             print("   z \\ x " + "".join(f"{x:>7.1f}" for x in REACH))
             for z in HEIGHT[n]:
                 print(f"   {z:>5.1f} " + "".join(f"{fmt(c['N']):>7}" for c in rows if c["z"] == z))
@@ -71,6 +73,23 @@ def main():
                     lim[c["limit"]] = lim.get(c["limit"], 0) + 1
             print("   binding limit (cells): " + ", ".join(f"{k} {v}" for k, v in sorted(lim.items(), key=lambda t: -t[1])))
             print()
+        # B'. how the envelope moves with the wall distance (mu 0.6); None is the old wall-less model
+        for w in WALLS:
+            rows = []
+            for z in HEIGHT[n]:
+                for x in REACH:
+                    f, why = F.push_limit(r, d0[n], (x, z), TOOL_KG, 0.6, wall=w)
+                    rows.append({"z": z, "x": x, "N": f, "limit": why})
+            out["push_wall"][f"{n}-wall{w}"] = rows
+            vals = [c["N"] for c in rows if c["N"] is not None]
+            lim = {}
+            for c in rows:
+                if c["N"] is not None:
+                    lim[c["limit"]] = lim.get(c["limit"], 0) + 1
+            name = "no wall" if w is None else f"wall {w} m"
+            print(f"B'. {n} mu=0.6, {name}: {len(vals)} cells push, {min(vals):.0f} to {max(vals):.0f} N, median {sorted(vals)[len(vals) // 2]:.0f} N; "
+                  + ", ".join(f"{k} {v}" for k, v in sorted(lim.items(), key=lambda t: -t[1])))
+        print()
         # C. tip sensitivity (no push; tool pose)
         rows = []
         for z in HEIGHT[n]:
