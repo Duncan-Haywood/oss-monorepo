@@ -13,7 +13,7 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
 import { renderMidi, parseMidi, tickToSeconds } from '../render.mjs';
-import { latinOnset, onsetLength } from '../sing.mjs';
+import { latinOnset, latinCoda, onsetLength } from '../sing.mjs';
 import { readOnset, expectedRead } from '../onsets.mjs';
 
 const args = process.argv.slice(2);
@@ -34,8 +34,12 @@ function choir(midiBytes, sing) {
 // The window: from 150 ms before the beat (the consonant is sung ahead of it, as choirs do) to the
 // vowel, taken 60 ms after the beat plus whatever of the consonant spills past it; where that
 // lands is the one thing taken from the renderer (onsetLength), never what it sang.
-const readAt = (x, n, on, prevT0 = -1) => {
-  const from = Math.max(n.t0 - 0.15, prevT0 >= 0 ? (prevT0 + n.t0) / 2 : 0), dur = n.t1 - n.t0;
+// Since final consonants are sung (2026-11-15, eval/coda-check.md) the syllable before may close on
+// one just before this onset; then the window starts where this syllable's own consonant does, by the
+// renderer's lead rule (its full length, at most half the previous note and any gap), not 150 ms early.
+const readAt = (x, n, on, prevT0 = -1, prev = null) => {
+  let from = Math.max(n.t0 - 0.15, prevT0 >= 0 ? (prevT0 + n.t0) / 2 : 0); const dur = n.t1 - n.t0;
+  if (prev && prev.syl !== n.syl && latinCoda(prev.lyric).length) from = Math.max(from, n.t0 - (on.length ? Math.min(onsetLength(on), 0.5 * (prev.t1 - prev.t0) + Math.max(0, n.t0 - prev.t1)) : 0));
   const spill = on.length ? Math.max(0, Math.min(onsetLength(on), 0.15 + 0.3 * dur) - 0.15) : 0;
   return readOnset(x, rate, from, n.t0 + spill + 0.06, { window: 1 });
 };
@@ -91,7 +95,7 @@ for (const p of PIECES) {
     seen.add(n.syl);
     if (n.t1 - n.t0 < 0.2 || k === 0) return; // the opening note has no note before it
     const on = latinOnset(n.lyric), want = expectedRead(on[0]);
-    const got = readAt(sungR.x, n, on, sungR.notes[k - 1].t0), gotC = readAt(ctlR.x, ctlR.notes[k], [], ctlR.notes[k - 1].t0);
+    const got = readAt(sungR.x, n, on, sungR.notes[k - 1].t0, sungR.notes[k - 1]), gotC = readAt(ctlR.x, ctlR.notes[k], [], ctlR.notes[k - 1].t0);
     if (!on.length) { bare[1]++; if (got.cls === 'none') bare[0]++; return; }
     all++; cAll++;
     const ok = match(want, got);
