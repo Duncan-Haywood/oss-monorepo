@@ -26,8 +26,8 @@ entirely historical.
   executable map: which premise or number each conclusion depends on, and by how much. Changing
   your mind, or seeing why the other side has not, becomes a matter of editing one entry.
 - Philosophy of religion gets a check on its published calculations: whether they reproduce,
-  and how sensitive they are (one input in Swinburne's calculation is reported to move the result
-  from 0.97 to 0.33; NDPR and critics).
+  and how sensitive they are (Swinburne's 0.97 rests on a likelihood ratio of 100 and falls below 1/2 if one
+  input moves thirty-fold, E25; an earlier "0.97 to 0.33" attribution to NDPR was not in the review and is withdrawn).
 - Formal methods get a non-toy domain where the hard part is not proof search but finding
   which claims carry the weight, the same problem assurance cases have.
 
