@@ -430,6 +430,46 @@ def nc_summary(path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
                 cells=cells, n_cells=len(cells), mean_change=mean, counts=g, held=verdict)
 
 
+def stale_summary(path, nc_path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 92: the staleness sweep (this file: cpin_es3_nc2, _nc3, _nc8, _ncq) with session 91's cpin_es3,
+    cpin_es3_nc and cpin_es3_nc5 (nc_path, same pull date), against session 88's full (base_path): per cell the
+    q0.5 / q0.9 loss change on completed test rows, the censored all-row loss, the thresholds, and S1 to S4."""
+    B, R, N = json.load(open(base_path)), json.load(open(path)), json.load(open(nc_path))
+    vs = ("cpin_es3", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc5", "cpin_es3_nc8", "cpin_es3_nc", "cpin_es3_ncq")
+    cells = []
+    for h in held:
+        for Y in years:
+            got = {v: R.get(f"{h} {Y} {v}") or N.get(f"{h} {Y} {v}") for v in vs}
+            if not all(got.values()):
+                continue
+            f = B[f"{h} {Y} full"]["test_loss"]
+            row = dict(held=h, year=Y, change={}, closs_all={}, q90_seed_range={}, n_train_open={},
+                       ncq_threshold_days=got["cpin_es3_ncq"].get("stale_threshold_days"))
+            for v, r in got.items():
+                row["change"][v] = {t: r["test_loss"][t] - f[t] for t in ("0.5", "0.9")}
+                row["closs_all"][v] = r.get("test_closs_all")
+                ps = r.get("test_loss_per_seed", {}).get("0.9")
+                row["q90_seed_range"][v] = (max(ps) - min(ps)) if ps else None
+                row["n_train_open"][v] = r["n_train_open"]
+            cells.append(row)
+    mean = {v: {t: float(np.mean([c["change"][v][t] for c in cells])) for t in ("0.5", "0.9")} for v in vs}
+    C = lambda c, v: c["change"][v]["0.9"]  # noqa: E731
+    fixed = ("cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc5", "cpin_es3_nc8")
+    best = [min(fixed, key=lambda v: C(c, v)) for c in cells]
+    sf_mean = lambda v: float(np.mean([C(c, v) for c in cells if c["held"] == "sf"]))  # noqa: E731
+    thr = [x for c in cells for x in (c["ncq_threshold_days"] or {}).values()]
+    verdict = dict(S1=mean["cpin_es3_nc8"]["0.9"] > mean["cpin_es3_nc5"]["0.9"] + 5,
+                   S2=sf_mean("cpin_es3_nc2") < sf_mean("cpin_es3_nc5"),
+                   S3=bool(thr) and all(730 <= x <= 1826 for x in thr)
+                   and mean["cpin_es3_ncq"]["0.9"] <= mean["cpin_es3_nc5"]["0.9"] + 0.5,
+                   S4=len(set(best)) > 1)
+    return dict(note="cascade2 transfer model; change = mean pinball loss on completed test-year rows minus session "
+                     "88's full, days, negative = better; closs_all = censored pinball loss over all test-year rows; "
+                     "cpin_es3, cpin_es3_nc, cpin_es3_nc5 from session 91 (same pull date and row counts); 3 seeds",
+                cells=cells, n_cells=len(cells), mean_change=mean, best_fixed_q90=best,
+                sf_q90_mean={v: sf_mean(v) for v in vs}, ncq_thresholds_days=thr, held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -449,8 +489,19 @@ if __name__ == "__main__":
     ap.add_argument("--keep-open", action="store_true", help="session 91: load never-completed permits (cpin_* only)")
     ap.add_argument("--pulled", default=datetime.date.today().isoformat(), help="pull date (censored test windows)")
     ap.add_argument("--summarise-nc", help="session 91: write results/<name>_summary.json from this file")
+    ap.add_argument("--summarise-stale", help="session 92: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_stale:
+        s = stale_summary(a.summarise_stale, os.path.join(res_dir, "rounds_score_nc_i2c.json"),
+                          os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
+        json.dump(s, open(a.summarise_stale.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_change"], sf=s["sf_q90_mean"], best=s["best_fixed_q90"],
+                              thr=s["ncq_thresholds_days"], held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], {v: {t: round(x, 2) for t, x in d.items()} for v, d in c["change"].items()},
+                  {v: round(d["0.9"], 1) for v, d in c["closs_all"].items() if d})
+        sys.exit()
     if a.summarise_nc:
         s = nc_summary(a.summarise_nc, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
         json.dump(s, open(a.summarise_nc.replace(".json", "_summary.json"), "w"), indent=1)
