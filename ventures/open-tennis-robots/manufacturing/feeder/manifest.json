@@ -555,6 +555,12 @@
       5.0
     ],
     "lift_coupler_zeta": 0.06,
+    "lift_belt_zeta": 0.05,
+    "lift_belt_cspec_sweep": [
+      0.5,
+      1.0,
+      2.0
+    ],
     "lift_coupler_hub_l": 10.5,
     "lift_shaft_clear": 1.5,
     "lift_shaft_allow_mpa": 80.0,

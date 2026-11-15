@@ -1171,6 +1171,10 @@ class Feeder:
     lift_coupler_backlash_deg: float = 1.0   # total free play at the output: a used spider (assumption; 0 new, preloaded)
     lift_coupler_backlash_sweep: tuple = (0.0, 1.0, 3.0, 5.0)   # 5: a worn spider plus the gearbox's own play
     lift_coupler_zeta: float = 0.06   # the spider's damping ratio (relative damping about 0.75, polyurethane; assumption)
+    # The belt as a spring (2026-11-15; cad/README.md "Lift belt stretch"; `lift_belt_model`): each strand is c_spec / centre
+    # stiff, the two in parallel while the slack strand keeps tension; part of the belt's mass rides on that spring.
+    lift_belt_zeta: float = 0.05      # the belt mode's damping ratio (PU on steel cords, small; assumption)
+    lift_belt_cspec_sweep: tuple = (0.5, 1.0, 2.0)   # c_spec as a share of `lift_belt_cspec_n`: the sheet's figure is unread
     lift_coupler_hub_l: float = 10.5  # each aluminium hub's length (the bore length above)
     lift_shaft_clear: float = 1.5     # coupling to the bearing's flange, and to the gearmotor's face at least
     lift_shaft_allow_mpa: float = 80.0  # stainless D shaft in rotating bending at the running load (fatigue; assumption)
@@ -4227,6 +4231,48 @@ class Feeder:
         return {"j_motor": j_m, "j_shaft": j_s, "j_belt": j_b, "parts": parts, "k_nm_rad": k,
                 "backlash_rad": math.radians(self.lift_coupler_backlash_deg), "zeta": self.lift_coupler_zeta,
                 "f_stuck_hz": stuck, "f_sliding_hz": sliding}
+
+    def lift_belt_model(self, cspec_factor: float = 1.0) -> dict:
+        """The belt's stretch as a fourth inertia (2026-11-15; cad/README.md "Lift belt stretch"; tests/lift_jam_sweep.py).
+
+        The belt loop leaves the drive pulley on the up (tight) strand and comes back to it on the down (slack) strand,
+        so the drive pulley holds both ends. Each strand, `centre_mm` long, is c_spec / centre stiff along its length.
+        Turning the pulley by x (at its pitch radius) against the rest of the loop pulls the tight strand by x and pays
+        the slack one out by x: tensions T0 + k x and T0 - k x, each floored at zero (the slack strand goes slack once
+        k x passes T0, and then only the tight one holds). T0 is the static tension `lift_tension_design` sets.
+
+        Mass: the loop's moving mass M (belt, caps, balls; `lift_motor_model`) as a bar fixed at both ends to the pulley,
+        2 x centre long. Its first mode is matched by a lumped mass 4 M / pi^2 at the loop's middle (the top pulley) on
+        the two strands in parallel; the rest, (1 - 4 / pi^2) M, moves with the drive pulley, so the total inertia is
+        kept. The balls ride the up strand only, so this spreads them evenly round the loop: an assumption, like the
+        belt's c_spec, which is swept (`lift_belt_cspec_sweep`).
+
+        Modes with the hub stuck: the rotor (j_motor), the jaw coupling, the shaft side and pulley (j_shaft + j_pulley),
+        the belt's spring (2 k r^2 as a torsional stiffness at the pulley), the belt's mass (j_mass). `f_belt_hz` is the
+        belt mass on its spring with the pulley held; `f_stuck_hz` and `f_upper_hz` the chain's two modes."""
+        d = self.lift_design()
+        m = self.lift_motor_model()
+        cm = self.lift_coupler_model()
+        r = m["r_m"]
+        k_strand = self.lift_belt_cspec_n * cspec_factor / (d["centre_mm"] / 1000)
+        share = 4 / math.pi ** 2
+        mass = m["moving_kg"]
+        j_mass = share * mass * r * r
+        j_pulley = (1 - share) * mass * r * r
+        k_t = 2 * k_strand * r * r
+        j1, j2, j3 = cm["j_motor"], cm["j_shaft"] + j_pulley, j_mass
+        k1 = cm["k_nm_rad"]
+        b = k1 * (1 / j1 + 1 / j2) + k_t * (1 / j2 + 1 / j3)
+        c = k1 * k_t * (j1 + j2 + j3) / (j1 * j2 * j3)
+        disc = math.sqrt(b * b - 4 * c)
+        lo, hi = (b - disc) / 2, (b + disc) / 2
+        t = self.lift_tension_design()
+        return {"k_strand_n_m": k_strand, "k_torsion_nm_rad": k_t, "mass_kg": mass, "mass_share": share,
+                "j_mass": j_mass, "j_pulley": j_pulley, "t0_n": t["t0_n"], "zeta": self.lift_belt_zeta,
+                "slack_at_n": 2 * t["t0_n"],               # net belt force at which the slack strand goes slack
+                "f_belt_hz": math.sqrt(k_t / j_mass) / (2 * math.pi),
+                "f_stuck_hz": math.sqrt(lo) / (2 * math.pi), "f_upper_hz": math.sqrt(hi) / (2 * math.pi),
+                "f_rigid_hz": cm["f_stuck_hz"]}
 
     def lift_shaft_geometry(self) -> dict:
         """Positions along y for `lift_shaft_design` (geometry only, so the cable route can use it without the motor

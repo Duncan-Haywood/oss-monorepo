@@ -16,8 +16,9 @@
 // Formant targets are the men's averages of Peterson & Barney (1952), "Control methods
 // used in a study of the vowels", JASA 24(2), Table II: ecclesiastical Latin's five
 // vowels taken as /a ɛ i ɔ u/ (the Liber Usualis's pronunciation notes give open e and
-// o). F4 and F5 are fixed at typical adult male values. Singers move formants with
-// pitch (raising F1 on high notes); this does not, which `eval/vowel-check.md` measures.
+// o). F4 and F5 are fixed at typical adult male values. On high notes F1 is raised to at least
+// 1.1 x f0 (tuneF1, SING_DEFAULTS.f1Tune), as singers raise it, so a tenor's G4 /i/ is not 16 dB
+// under his /a/ (eval/f1-tune-check-report.md).
 
 export const FORMANTS = {
   a: [730, 1090, 2440], // /ɑ/
@@ -136,7 +137,13 @@ function blep(t, dt) {
   return 0;
 }
 
-export const SING_DEFAULTS = { detunes: [-12, -4, 0, 5, 13], vibratoCents: 14, attack: 0.08, release: 0.25, breath: 0.03, glideFrom: 0.6, onsetShare: 0.4, codaShare: 0.35 };
+export const SING_DEFAULTS = { f1Tune: 1.1, detunes: [-12, -4, 0, 5, 13], vibratoCents: 14, attack: 0.08, release: 0.25, breath: 0.03, glideFrom: 0.6, onsetShare: 0.4, codaShare: 0.35 };
+
+// Formant tuning on high notes: a vowel's F1 raised to at least `ratio` times f0 (0: off), so the
+// first harmonic is not left above the first resonance. F2 and F3 stay. See tuneF1's note in the README.
+export function tuneF1(V, f0, ratio) {
+  return ratio > 0 && V[0] < ratio * f0 ? [ratio * f0, V[1], V[2]] : V;
+}
 
 // How each consonant is made. A source-filter recipe, not a recording: each phone is a span of
 // time with a voicing gain (0 = the voices stop, as in a voiceless closure), a formant target,
@@ -355,6 +362,11 @@ function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share) {
   if (first.F === undefined) for (let i = Math.max(0, ic - ramp); i < ic; i++) av[i] = Math.min(av[i], 1 - (1 - av[ic]) * ((i - (ic - ramp)) / ramp));
   const ie = Math.round(last.t1 * rate);
   const after = last.F === undefined ? 0 : last.kind === 'tap' ? 0.6 : last.av;
+  // a final nasal hums on through the nose: its murmur's 10 ms ramp-out (paintSeg) is held at 1, or the
+  // low-pass and antiformant lifted for 10 ms between murmur and hum, a blip of bare vowel (+12-19 dB above
+  // 1 kHz, 45 ms into every final -m and -n; README "Final consonants, third round")
+  const i0h = last.kind === 'nasal' ? Math.max(0, ie - Math.round(0.01 * rate)) : ie;
+  for (let i = i0h; i < ie && i < total; i++) { nas[i] = 1; nas.z[i] = last.Z; }
   for (let i = ie; i < total; i++) { av[i] = after; if (last.bw) bwm[i] = last.bw; if (last.kind === 'nasal') { nas[i] = 1; nas.z[i] = last.Z; } }
   const formantsAt = (t) => {
     if (t < keys[0][0]) return null;
@@ -395,7 +407,7 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   const nv = o.detunes.length;
   for (let i = 0; i < total; i++) src[i] = src[i] / nv + o.breath * rand();
   // formant track: the vowel, gliding to `glide` from glideFrom of the sung length
-  const from = FORMANTS[vowel] || FORMANTS.a, to = glide ? FORMANTS[glide] : from;
+  const from = tuneF1(FORMANTS[vowel] || FORMANTS.a, f, o.f1Tune), to = glide ? tuneF1(FORMANTS[glide], f, o.f1Tune) : from;
   const on = onset.length ? onsetTracks(onset, dur, total, rate, from, rng(seed ^ 0x5bd1e995), rawRms(rate), o.onsetShare, room) : null;
   const coda = o.coda || [];
   const cd = coda.length ? codaTracks(coda, dur, lead + dur, total, rate, to, rng(seed ^ 0x27d4eb2f), rawRms(rate), o.codaShare) : null;

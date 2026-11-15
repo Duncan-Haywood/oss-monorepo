@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVN7AxzBi8TvpWdJs82",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "23807fdb69c209052f68cab1714c2eeba34532960894a2ed83cd4fea6f3467bd",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T16:04:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: belt stretch as a fourth inertia in tests/lift_jam_sweep.py",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16265",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The first route without --task drew research; the scheduled brief is the ventures brief, so re-routed with --task as prompt.md says for a session whose starting message names its work.",
+      "did": "routed --task, took allocate.py's start-here row (open-tennis-robots)",
+      "result": "ventures/1 followed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-tennis-lifts-belt-is-a-spring-too.md"
+  ],
+  "goal": "Answer the flagship's BUILDABLE HERE question: does belt stretch move the lift's 49 Hz stuck mode or a jam's flight load?",
+  "notes": "Lumped belt mass (4/pi^2 of the belt side) on both strands with a slack floor at zero tension. Findings: 49 Hz stuck mode splits to 38/78 Hz; flight peaks 74-88 N vs 80-82 rigid (plate 156 N); soft-started starts no longer slip at 80 N m/rad 5 deg; every hood jam slackens the down strand 0.34-0.60 s with 56-89 N on the tight strand (tooth-jump check now the buildable next item). Verified here: run_venture_tests.py open-tennis-robots with build123d 0.13.0 installed ran 135 tests, 1 failure (test_committed_package_is_current: the two new params missing from the committed manifest); regenerated with `python -m otr_cad feeder --out ../manufacturing/feeder` (only manifest.json and the zip changed, 6 added lines of params) and that test then passed (1 test, 123 s). venture-preflight.mjs open-tennis-robots: 'preflight clean'. promptctl validate ok.",
+  "corrections": [],
+  "redteam": null
+}

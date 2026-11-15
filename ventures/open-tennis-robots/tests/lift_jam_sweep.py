@@ -1,6 +1,7 @@
 """The lift's jam cutoff on the simulated feeder (2026-11-15; cad/README.md "Lift jam cutoff").
 
-    PYTHONPATH=src python3 tests/lift_jam_sweep.py
+    PYTHONPATH=src python3 tests/lift_jam_sweep.py           # everything
+    PYTHONPATH=src python3 tests/lift_jam_sweep.py --belt    # belt stretch only
 
 The real firmware (main.py's FeederHw and controller.LiftRun, through tests/feeder_sim.py) drives the lift's MOSFET
 and reads the comparator on GPIO 0 every 10 ms tick. Between its 1 ms steps this file integrates the plant at 0.1 ms:
@@ -24,6 +25,11 @@ and belt. The mechanics step at 12.5 us there, since the light shaft against the
 belt at rest sits on the coupling's drive face; an empty one is put on the far face, so a start crosses the whole gap.
 The firmware's soft start (config LIFT_RAMP_MS) is on; `_ramped(0)` switches it off. `coupler=None` gives the
 two-inertia plant as first landed, and `slip=None` with it the rigid drive before the slip hub.
+
+Since 2026-11-15 later (cad/README.md "Lift belt stretch") `belt=` adds the belt's stretch as a fourth inertia: the
+pulley keeps part of the belt's inertia, the rest is a lumped mass on the two strands (`Feeder.lift_belt_model`), the
+slack strand can go slack, a hood jam presses that mass and a boot jam the pulley. `belt=None`, the default, keeps the
+belt rigid; `--belt` prints only that comparison.
 
 Reported: for a start with every flight loaded, whether it tripped and how long the comparator stayed on; for a jam,
 the time from the ball's contact to the motor's cut, the peak force on the flight, the energy put into the winding
@@ -58,7 +64,8 @@ class Plant:
     """`slip`: None for a rigid drive (the pulley keyed to the gearmotor's shaft, as before 2026-11-15), or "lo", "nom"
     or "hi" for the slip hub at the low end, middle or high end of its set torque (`Feeder.lift_slip_design`)."""
 
-    def __init__(self, p: Feeder, volts, rise_k, j_factor=1.0, trip="lo", loaded=True, slip="nom", coupler="nom"):
+    def __init__(self, p: Feeder, volts, rise_k, j_factor=1.0, trip="lo", loaded=True, slip="nom", coupler="nom",
+                 belt=None):
         m = p.lift_motor_model()
         c = p.lift_jam_cutoff()
         self.p, self.m = p, m
@@ -111,6 +118,25 @@ class Plant:
             self.phi = self.half_gap if loaded else -self.half_gap
             self.ws = 0.0
             self._face = 1 if loaded else -1      # the face the jaws last touched
+        # The belt's stretch (2026-11-15, `Feeder.lift_belt_model`): None keeps the belt rigid; a number is c_spec as a
+        # share of `lift_belt_cspec_n` (1.0 the assumed figure). Needs the coupling. The pulley side keeps
+        # (1 - 4/pi^2) of the belt's inertia; the rest is a lumped mass on the two strands, which start stretched to
+        # carry the belt's load (a loaded strand's weight holds it there at rest).
+        self.elastic = belt is not None
+        self.belt_n = 0.0              # largest net pull the strands put on the belt's mass
+        self.slack_ms = 0.0            # time with the slack strand at zero tension
+        if self.elastic:
+            assert self.coupled, "belt stretch needs the coupling's plant"
+            bm = p.lift_belt_model(belt)
+            self.bm = bm
+            self.ks, self.t0 = bm["k_strand_n_m"], bm["t0_n"]
+            self.j_b = bm["j_pulley"]                 # the hub's belt side is now the pulley's share alone
+            self.j_v = bm["j_mass"]
+            m_v = self.j_v / self.rp ** 2
+            self.cb = 2 * bm["zeta"] * math.sqrt(2 * self.ks * m_v)
+            self.e = self.t_load / self.rp / (2 * self.ks)   # stretch, m: the two strands share the load
+            self.wv = 0.0
+            self.sv = 0.0
 
     def coupler_torque(self):
         """Torque the coupling passes from the rotor to the shaft: the spider's spring past the gap, its damping only
@@ -124,14 +150,22 @@ class Plant:
 
     def jam(self, where):
         k_ball = self.p.ball_k_n_m
-        if where == "boot":
+        self.where = where
+        if where == "boot" or self.elastic:      # with the belt elastic, its stretch to the hood is in the plant
             k = k_ball
         else:
             k_belt = self.p.lift_belt_cspec_n / (self.p.lift_design()["centre_mm"] / 1000)
             k = 1 / (1 / k_ball + 1 / k_belt)
         self.k = k
         self.c_damp = 2 * BALL_ZETA * math.sqrt(k * self.j / self.rp ** 2)
-        self.s_jam = self.s
+        self.s_jam = self.sv if (self.elastic and where == "hood") else self.s
+
+    def belt_force(self):
+        """Net pull of the two strands on the belt's mass: T0 + k e on the tight one less T0 - k e on the slack one,
+        each floored at zero, plus the belt's own damping on the stretch rate."""
+        tight = max(0.0, self.t0 + self.ks * self.e)
+        slack = max(0.0, self.t0 - self.ks * self.e)
+        return tight - slack + self.cb * (self.wb - self.wv) * self.rp, slack == 0.0
 
     def step(self, duty):
         on = duty > 0
@@ -145,7 +179,7 @@ class Plant:
             self.i = max(0.0, (self.i + DT / self.l * (-DIODE_V - self.ke * self.w)) / (1 + DT * r_loop / self.l))
         self.winding_j += self.i * self.i * self.r_w * DT
         f = 0.0
-        if self.s_jam is not None and self.s > self.s_jam:
+        if self.s_jam is not None and self.s > self.s_jam and not self.coupled:   # coupled: per sub-step below
             f = max(0.0, self.k * (self.s - self.s_jam) + self.c_damp * self.wb * self.rp)
         self.force = f
         t_m = self.kt * self.i                    # the motor's torque at the gearbox's output
@@ -193,12 +227,24 @@ class Plant:
         Semi-implicit Euler at DT / MECH_SUB: speeds from the torques, then the twist and the belt from the new speeds.
         The ball's force is recomputed every sub-step from the belt's travel."""
         h = DT / MECH_SUB
+        el = self.elastic
         for _ in range(MECH_SUB):
             f = 0.0
-            if self.s_jam is not None and self.s > self.s_jam:
-                f = max(0.0, self.k * (self.s - self.s_jam) + self.c_damp * self.wb * self.rp)
+            hood = el and self.s_jam is not None and self.where == "hood"
+            s_at, w_at = (self.sv, self.wv) if hood else (self.s, self.wb)
+            if self.s_jam is not None and s_at > self.s_jam:
+                f = max(0.0, self.k * (s_at - self.s_jam) + self.c_damp * w_at * self.rp)
             self.force = max(self.force, f)
-            t_b = -self.t_load - f * self.rp
+            if el:
+                fb, slack = self.belt_force()
+                self.belt_n = max(self.belt_n, fb)
+                if slack:
+                    self.slack_ms += h * 1000
+                t_v = fb * self.rp - self.t_load - (f * self.rp if hood else 0.0)   # on the belt's mass
+                t_b = -fb * self.rp - (0.0 if hood else f * self.rp)                # on the pulley
+                self.wv += t_v / self.j_v * h
+            else:
+                t_b = -self.t_load - f * self.rp
             tc = self.coupler_torque()
             self.coupler_nm = max(self.coupler_nm, abs(tc))
             dm = t_m - tc
@@ -228,6 +274,9 @@ class Plant:
                     self.locked = True
             self.phi += (self.w - self.ws) * h
             self.s += self.wb * self.rp * h
+            if el:
+                self.e += (self.wb - self.wv) * self.rp * h
+                self.sv += self.wv * self.rp * h
             face = 1 if self.phi > self.half_gap else (-1 if self.phi < -self.half_gap else 0)
             if face == 0:
                 self.free_ms += h * 1000
@@ -261,11 +310,11 @@ def _run(sim, plant, ms, on_ms=None):
             on_ms(t, plant, duty)
 
 
-def start(volts, rise_k, j_factor, trip, loaded=True, slip="lo", coupler="nom"):
+def start(volts, rise_k, j_factor, trip, loaded=True, slip="lo", coupler="nom", belt=None):
     """Kick the lift from rest. (tripped, ms the comparator was on, speed reached as a share of no-load); the plant's
     `slid_ms` says whether the hub slipped."""
     p = Feeder()
-    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, loaded, slip, coupler)
+    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, loaded, slip, coupler, belt)
     start.plant = plant
     sim.hw.lift.kick(sim.us // 1000)
     over = [0]
@@ -273,11 +322,11 @@ def start(volts, rise_k, j_factor, trip, loaded=True, slip="lo", coupler="nom"):
     return sim.hw.lift.trips > 0 or sim.hw.lift.jammed, over[0], plant.w / plant.m["noload_rad_s"]
 
 
-def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000, slip="nom", coupler="nom"):
+def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000, slip="nom", coupler="nom", belt=None):
     """Run 1 s, then a ball jams. Returns a dict: ms from contact to the first cut (None: never), peak force on the
     flight before that cut and over the whole run, joules in the winding after contact, ms to FLAG_LIFT_JAM."""
     p = Feeder()
-    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, slip=slip, coupler=coupler)
+    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, slip=slip, coupler=coupler, belt=belt)
     hw = sim.hw
     if not cutoff:
         hw.lift.blank_ms = 10 ** 9
@@ -302,6 +351,7 @@ def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000, slip="
     out["winding_j"] = plant.winding_j
     out["slid_ms"], out["slide_j"] = plant.slid_ms, plant.slide_j
     out["coupler_nm"], out["reversals"] = plant.coupler_nm, plant.reversals
+    out["belt_n"], out["slack_ms"] = plant.belt_n, plant.slack_ms
     return out
 
 
@@ -366,6 +416,61 @@ def coupler_jams(case):
     return out
 
 
+BELTS = (None, 0.5, 1.0, 2.0)       # rigid, then c_spec at half, one and two times the assumed figure
+
+
+def _belt_label(b):
+    return "rigid" if b is None else f"{b:g}x"
+
+
+def belt_report():
+    """Belt stretch as a fourth inertia (2026-11-15; cad/README.md "Lift belt stretch"): the drive's modes, then starts
+    and jams with the belt rigid and at each c_spec. Printed alone by `--belt`."""
+    p = Feeder()
+    print("Belt stretch (each strand c_spec / centre; 4/pi^2 of the belt's mass on the strands, the rest on the pulley):")
+    for b in BELTS[1:]:
+        bm = p.lift_belt_model(b)
+        print(f"  c_spec {b:g}x ({p.lift_belt_cspec_n * b:.0f} N): strand {bm['k_strand_n_m']:.0f} N/m, belt mass alone "
+              f"{bm['f_belt_hz']:.0f} Hz; hub stuck {bm['f_stuck_hz']:.0f} and {bm['f_upper_hz']:.0f} Hz (rigid belt "
+              f"{bm['f_rigid_hz']:.0f} Hz); slack strand goes slack past {bm['slack_at_n']:.0f} N net")
+    print("\nStarts, hub at its lowest, trip lo (2 packs x 3 rotors): largest coupling torque, starts that slipped the hub "
+          "of 6, largest net belt pull; columns " + ", ".join(_belt_label(b) for b in BELTS))
+    global _sim
+    try:
+        for ramp in (0, p.lift_ramp_ms):
+            _sim = _ramped(ramp)
+            for cp in ("nom", (max(p.lift_coupler_k_sweep), 3.0), (max(p.lift_coupler_k_sweep), 5.0)):
+                for label, loaded in LOADS:
+                    cells = []
+                    for b in BELTS:
+                        worst = slips = pull = 0
+                        tripped = False
+                        for _, v, rise in CORNERS:
+                            for jf in INERTIAS:
+                                t, _, _ = start(v, rise, jf, "lo", loaded=loaded, slip="lo", coupler=cp, belt=b)
+                                pl = start.plant
+                                worst, pull = max(worst, pl.coupler_nm), max(pull, pl.belt_n)
+                                slips += pl.slid_ms > 0
+                                tripped = tripped or t
+                        cells.append(f"{worst:4.2f} N m s{slips} {pull:3.0f} N{' TRIP' if tripped else ''}")
+                    spider = "nominal" if cp == "nom" else f"{cp[0]:g} N m/rad {cp[1]:g} deg"
+                    ramp_s = "switched" if ramp == 0 else f"{ramp:g} ms ramp"
+                    print(f"  {ramp_s:11} {spider:20} {label:6} " + " | ".join(cells))
+    finally:
+        _sim = _sim0
+    print("\nJams, rotor 1x, nominal coupling: peak N on a flight, ms to the cut, ms to give up, largest net belt pull, ms "
+          "the slack strand spent slack")
+    for where in WHERE:
+        for name, v, rise in CORNERS:
+            for case, slip, trip in CASES[:2]:
+                cells = []
+                for b in BELTS:
+                    r = jam(v, rise, 1.0, trip, where, slip=slip, belt=b)
+                    cells.append(f"{r['peak_n']:3.0f} N cut {r['cut_ms']:3d} gave {r['jammed_ms']:4d} belt {r['belt_n']:3.0f} N "
+                                 f"slack {r['slack_ms']:3.0f}")
+                print(f"  {where:4} {name:11} {case:15} " + " | ".join(cells))
+
+
 def main():
     p = Feeder()
     c = p.lift_jam_cutoff()
@@ -422,6 +527,12 @@ def main():
             print(f"{where:5} {name:12} peak {r['peak_n']:5.0f} N, winding {r['winding_j']:5.0f} J, "
                   f"hub {r['slide_j']:5.0f} J, coupler {r['coupler_nm']:4.2f} N m")
 
+    print()
+    belt_report()
+
 
 if __name__ == "__main__":
-    main()
+    if "--belt" in sys.argv[1:]:
+        belt_report()
+    else:
+        main()

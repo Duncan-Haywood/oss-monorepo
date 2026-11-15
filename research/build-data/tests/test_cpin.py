@@ -80,5 +80,49 @@ class FitOne(unittest.TestCase):
         self.assertLessEqual(pr.max(), 1.1 * max(yy.max(), 40.0))
 
 
+@unittest.skipIf(cpin is None, "needs numpy and lightgbm")
+class NeverCompleted(unittest.TestCase):
+    """Session 91: permits never completed by the pull enter as open rows with their window at D."""
+
+    def _csv(self, tmp):
+        import csv
+        rows = [dict(issued="2018-01-01", completed="2018-03-02"),   # done in 60 days
+                dict(issued="2018-01-01", completed=""),             # never completed
+                dict(issued="2014-01-01", completed=""),             # never completed, stale at D = 2020
+                dict(issued="", completed="2018-02-01"),             # no start: dropped either way
+                dict(issued="2019-12-01", completed="2020-06-01")]   # open at D = 2020-01-01, completed later
+        path = os.path.join(tmp, "x.csv")
+        with open(path, "w", newline="") as f:
+            w = csv.DictWriter(f, ["applied", "issued", "completed", "estimated_cost", "description_len"])
+            w.writeheader()
+            for r in rows:
+                w.writerow(dict(applied="", estimated_cost="1000", description_len="10", **r))
+        return path
+
+    def test_load_frame_keep_open(self):
+        import tempfile, boosted
+        with tempfile.TemporaryDirectory() as tmp:
+            p = self._csv(tmp)
+            a, _ = boosted.load_frame(p, "i2c")
+            b, _ = boosted.load_frame(p, "i2c", keep_open=True)
+        self.assertEqual(len(a), 2)
+        self.assertEqual(len(b), 4)
+        self.assertEqual(int(np.isinf(b.y).sum()), 2)
+        self.assertEqual(sorted(a.y.tolist()), sorted(b.y[np.isfinite(b.y)].tolist()))
+
+    def test_censor_and_stale_drop(self):
+        import datetime, tempfile, boosted, rounds, transfer
+        with tempfile.TemporaryDirectory() as tmp:
+            d, _ = boosted.load_frame(self._csv(tmp), "i2c", keep_open=True)
+        D = datetime.date(2020, 1, 1)
+        y, o = cpin.censor(d, D)
+        self.assertEqual(o.tolist(), [False, True, True, True])
+        self.assertEqual(y[1], (D - datetime.date(2018, 1, 1)).days)
+        self.assertEqual(y[3], 31.0)  # completed after D: open, window 31 days
+        kept = rounds.stale_drop(d, D)
+        self.assertEqual(len(kept), 3)  # only the 2014 permit (open 2,191 days > 1,826) goes
+        self.assertEqual(len(transfer.completed_by(d, D)), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

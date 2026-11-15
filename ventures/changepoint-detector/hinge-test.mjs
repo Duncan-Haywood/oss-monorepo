@@ -23,7 +23,8 @@
 // guard 'line' is the old rule (refuse on the line's rho alone); 'hinge' (failed its bars) is kept for evaluation.
 //
 // What it does not cover: non-Gaussian noise, dependence beyond AR(1) (long memory makes it over-reject), more than
-// one hinge (it tests "one hinge against none"), and steps (a level jump can pass for a hinge). Size and power:
+// one hinge (it tests "one hinge against none"), and steps (a level jump can pass for a hinge; `stepOrBend`, which
+// compares the two, failed its pre-registered bend bar, eval/hinge-step-or-bend-prereg-2026-11-15.md). Size and power:
 // eval/hinge-test-sim.mjs; real series: eval/hinge-test-real.mjs.
 
 function mulberry(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -147,6 +148,35 @@ export function hingeTest(x, { margin = 0.15, reps = 499, seed = 1, rhoMax = 0.9
   return {
     refused: false, index: st.k, f: st.f, p: (1 + ge) / (1 + reps), bar95: nulls[Math.floor(0.95 * (reps - 1))],
     rho, rhoLine: rhoLineC, rhoHinge: rhoHingeC, guard, ...(guard === 'cut' ? { admittedByCut, cutBar } : {}), slopeBefore: alt[1], slopeAfter: alt[1] + alt[2], reps, n,
+  };
+}
+
+// Step or bend? (eval/hinge-step-or-bend-prereg-2026-11-15.md) With the test's rho and the same knot range, the best
+// hinge (a + b t + c (t - k)+) against the best level step on the same line (a + b t + d 1{t > k}). Both have three
+// coefficients and one knot, so the smaller transformed residual sum of squares names the better kind.
+// Failed its pre-registered bend bar (README, "Step or bend?"): at rho 0.5 it calls most real bends steps, so it is
+// not in hingeTest's output, the CLI or the page; it is kept for evaluation.
+export function stepOrBend(x, rho, margin = 0.15) {
+  x = Array.from(x, Number);
+  const n = x.length, one = pw(new Float64Array(n).fill(1), rho), tt = pw(Float64Array.from({ length: n }, (_, t) => t), rho);
+  const y = pw(x, rho), null0 = resid2(y, one, tt), trim = trimOf(n, margin), col = new Float64Array(n);
+  const best = (make) => {
+    let b = null;
+    for (let k = trim; k <= n - 1 - trim; k++) {
+      for (let t = 0; t < n; t++) col[t] = make(t, k);
+      const z = resid2(pw(col, rho), one, tt).e;
+      let ez = 0, zz = 0;
+      for (let t = 0; t < n; t++) { ez += null0.e[t] * z[t]; zz += z[t] * z[t]; }
+      if (!(zz > 0)) continue;
+      const rss = null0.ss - ez * ez / zz;
+      if (!b || rss < b.rss) b = { k, rss, coef: ez / zz };
+    }
+    return b;
+  };
+  const bend = best((t, k) => Math.max(0, t - k)), step = best((t, k) => (t > k ? 1 : 0));
+  return {
+    better: step.rss < bend.rss ? 'step' : 'bend', stepIndex: step.k, stepSize: step.coef, bendIndex: bend.k,
+    rssStep: step.rss, rssBend: bend.rss, ratio: step.rss / bend.rss,
   };
 }
 

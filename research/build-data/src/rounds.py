@@ -27,6 +27,12 @@ candidate) under the variants that early-stop, and records the round each quanti
   cpin_es3     es3's years with the open permits kept the same way, in training and in the Y-3 early-stopping
                set, which is scored by the censored loss (session 90: the deployable version)
   cpin_es3_done  es3's rows (completed by D only) through the same custom loop: checks the loop against es3
+  cpin_es3_nc  cpin_es3 with the source permits never completed by the pull put back as open rows (window at D),
+               in training and in the Y-3 early-stopping set: a deployment on D sees them open too (session 91)
+  cpin_es3_nc5 cpin_es3_nc with a staleness rule a deployment can apply: any source permit open at D for more
+               than STALE_DAYS (5 years) is presumed abandoned and dropped (session 91)
+With a frame loaded keep_open (the _nc variants), --score also reports the censored test loss: the held-out
+year's never-completed permits enter cpin.closs with their window at the pull date (session 91).
 
 --score also scores cascade2's transfer predictions on the held-out city's test year (all rows; mean
 pinball loss over the 3 seeds, as select_deploy's test_loss) and writes results/rounds_score_i2c.json.
@@ -43,7 +49,16 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import boosted, transfer  # noqa: E402
 
 VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "cens_cut", "cens_es3",
-            "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done")
+            "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
+            "cpin_es3_nc", "cpin_es3_nc5")
+STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
+
+
+def stale_drop(d, decision, days=STALE_DAYS):
+    """Session 91: drop rows of d still open on `decision` whose window exceeds `days` (completed rows stay)."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    return d[~((d.y.to_numpy(float) > win) & (win > days))]
 
 
 def splits(frames, held, Y, variant, floor=0.05):
@@ -84,10 +99,16 @@ def splits(frames, held, Y, variant, floor=0.05):
     return tr, (transfer.completed_by(ca, D) if variant == "es_truncate" else ca), None, None
 
 
-def cpin_rounds(frames, held, Y, variant, seeds, score=False):
-    """Session 90: the cpin_* variants (censored pinball loss, src/cpin.py)."""
+def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
+    """Session 90: the cpin_* variants (censored pinball loss, src/cpin.py). Session 91: frames may hold
+    never-completed rows (y = inf, transfer.frame(keep_open=True)); the non-_nc variants then drop them from the
+    sources, and the test year is scored on its completed rows as before, plus a censored test loss over all its
+    rows (never-completed ones with their window at `pulled`, a datetime.date)."""
     import cpin
     D = datetime.date(Y, 1, 1)
+    nc = variant.startswith("cpin_es3_nc")
+    frames_all = frames
+    frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
     if variant == "cpin_cut":
@@ -98,13 +119,20 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False):
         tr, ca = cat(lambda d: (d.year <= Y - 4) | (d.year == Y - 2)), cat(lambda d: d.year == Y - 3)
         if variant == "cpin_es3_done":
             tr, ca = transfer.completed_by(tr, D), transfer.completed_by(ca, D)
+        if variant == "cpin_es3_nc5":
+            tr, ca = stale_drop(tr, D), stale_drop(ca, D)
         ytr, otr = cpin.censor(tr, D)
         yca, oca = cpin.censor(ca, D)
     te = frames[held][frames[held].year == Y]
+    te_all = frames_all[held][frames_all[held].year == Y]
+    has_open = bool(np.isinf(te_all.y.to_numpy(float)).any())
+    if score and has_open:
+        yta, ota = cpin.censor(te_all, pulled)
     Xtr, Xca = transfer.feats(tr), transfer.feats(ca)
-    Xte = transfer.feats(te) if score else Xca.iloc[:1]
+    Xte = transfer.feats(te_all if has_open else te) if score else Xca.iloc[:1]
+    done_te = np.isfinite(te_all.y.to_numpy(float)) if has_open else np.ones(len(te), bool)
     taus = (0.5, 0.9)  # q0.1 is untouched by open permits and costs most rounds (300 in es3); skipped for time
-    out, loss, preds = {}, {t: [] for t in taus}, {}
+    out, loss, preds, closs_te = {}, {t: [] for t in taus}, {}, {t: [] for t in taus}
     for s in range(seeds):
         r = {}
         for t in taus:
@@ -112,21 +140,30 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False):
             pr, r[t] = cpin.fit_one(Xtr, ytr, otr, Xca, yca, oca, Xte, t, seed=s)
             print(f"  {held} {Y} {variant} seed {s} tau {t}: {r[t]} rounds, {time.time() - t0:.0f} s", flush=True)
             if score:
-                loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr, t).mean()))
+                loss[t].append(float(boosted.pin(te.y.to_numpy(float), pr[done_te], t).mean()))
+                if has_open:
+                    closs_te[t].append(float(cpin.closs(yta, pr, ota, t).mean()))
                 if t == 0.9:
-                    preds[str(s)] = dict(max=float(pr.max()), share_above_3650=float((pr > 3650).mean()))
+                    preds[str(s)] = dict(max=float(pr[done_te].max()), share_above_3650=float((pr[done_te] > 3650).mean()))
         out[str(s)] = {str(t): int(v) for t, v in r.items()}
     res = dict(n_train=len(tr), n_es=len(ca), n_train_open=int(otr.sum()), n_es_open=int(oca.sum()), rounds=out)
+    res["n_train_never_completed"] = int(np.isinf(tr.y.to_numpy(float)).sum())
+    res["n_es_never_completed"] = int(np.isinf(ca.y.to_numpy(float)).sum())
     if score:
         res["n_test"] = len(te)
+        res["test_loss_per_seed"] = {str(t): v for t, v in loss.items()}
+        if has_open:
+            res["n_test_never_completed"] = int(ota.sum())
+            res["test_closs_all"] = {str(t): sum(v) / len(v) for t, v in closs_te.items()}
+            res["test_closs_all_per_seed"] = {str(t): v for t, v in closs_te.items()}
         res["test_loss"] = {str(t): sum(v) / len(v) for t, v in loss.items()}
         res["test_pred_q90"] = preds
     return res
 
 
-def rounds(frames, held, Y, variant, seeds, score=False, floor=0.05):
+def rounds(frames, held, Y, variant, seeds, score=False, floor=0.05, pulled=None):
     if variant.startswith("cpin_"):
-        return cpin_rounds(frames, held, Y, variant, seeds, score)
+        return cpin_rounds(frames, held, Y, variant, seeds, score, pulled)
     tr, ca, w, wca = splits(frames, held, Y, variant, floor)
     te = frames[held][frames[held].year == Y]
     xt = transfer.feats(te) if score else transfer.feats(ca.iloc[:1])
@@ -321,6 +358,49 @@ def cpin_summary(path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
                 cells=cells, n_cells=len(cells), mean_change=sw, counts=g, held=verdict)
 
 
+def nc_summary(path, base_path, held=("sf", "seattle"), years=(2021, 2022)):
+    """Session 91: cpin_es3, cpin_es3_nc, cpin_es3_nc5 (this file) against session 88's full (base_path): per cell
+    the q0.5 / q0.9 loss change against full on completed test rows, the censored test loss over all test rows,
+    the q0.9 rounds and prediction maxima, the never-completed row counts, and predictions N1 to N5 (N5 against
+    session 90's results/rounds_score_cpin_i2c.json)."""
+    B = json.load(open(base_path))
+    R = json.load(open(path))
+    s90 = json.load(open(os.path.join(os.path.dirname(path), "rounds_score_cpin_i2c.json")))
+    vs = ("cpin_es3", "cpin_es3_nc", "cpin_es3_nc5")
+    cells = []
+    for h in held:
+        for Y in years:
+            if not all(f"{h} {Y} {v}" in R for v in vs):
+                continue
+            f = B[f"{h} {Y} full"]["test_loss"]
+            row = dict(held=h, year=Y, full={t: f[t] for t in ("0.5", "0.9")}, loss={}, change={}, closs_all={},
+                       q90_rounds={}, q90_pred_max={}, n_never_completed={})
+            for v in vs:
+                r = R[f"{h} {Y} {v}"]
+                row["loss"][v] = {t: r["test_loss"][t] for t in ("0.5", "0.9")}
+                row["change"][v] = {t: r["test_loss"][t] - f[t] for t in ("0.5", "0.9")}
+                row["closs_all"][v] = r.get("test_closs_all")
+                row["q90_rounds"][v] = float(np.mean([x["0.9"] for x in r["rounds"].values()]))
+                row["q90_pred_max"][v] = max(p["max"] for p in r["test_pred_q90"].values())
+                row["n_never_completed"][v] = dict(train=r["n_train_never_completed"], es=r["n_es_never_completed"],
+                                                   train_open=r["n_train_open"], n_train=r["n_train"],
+                                                   test=r.get("n_test_never_completed"), n_test=r["n_test"])
+            row["s90_cpin_es3_q90"] = s90.get(f"{h} {Y} cpin_es3", {}).get("test_loss", {}).get("0.9")
+            cells.append(row)
+    mean = {v: {t: float(np.mean([c["change"][v][t] for c in cells])) for t in ("0.5", "0.9")} for v in vs}
+    L = lambda c, v, t="0.9": c["loss"][v][t]  # noqa: E731
+    g = dict(N1=sum(L(c, "cpin_es3_nc") > L(c, "cpin_es3") for c in cells),
+             N3=sum(c["closs_all"]["cpin_es3_nc"]["0.9"] < c["closs_all"]["cpin_es3"]["0.9"] for c in cells),
+             N5=sum(c["s90_cpin_es3_q90"] is not None and abs(L(c, "cpin_es3") - c["s90_cpin_es3_q90"]) <= 0.3
+                    for c in cells))
+    verdict = dict(N1=g["N1"] >= 3, N2=abs(mean["cpin_es3_nc5"]["0.9"] - mean["cpin_es3"]["0.9"]) <= 1, N3=g["N3"] >= 3,
+                   N4=mean["cpin_es3_nc"]["0.5"] - mean["cpin_es3"]["0.5"] <= 1, N5=g["N5"] == len(cells) == 4)
+    return dict(note="cascade2 transfer model; change = mean pinball loss on completed test-year rows minus session "
+                     "88's full, days, negative = better; closs_all = mean censored pinball loss over all test-year "
+                     "rows, never-completed ones with their window at the pull date; 3 seeds",
+                cells=cells, n_cells=len(cells), mean_change=mean, counts=g, held=verdict)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
@@ -337,8 +417,20 @@ if __name__ == "__main__":
     ap.add_argument("--summarise", action="store_true", help="write results/rounds_summary.json from saved files")
     ap.add_argument("--summarise-cpin", help="session 90: write results/<name>_summary.json from this file and "
                     "results/rounds_score_ipcw_i2c.json")
+    ap.add_argument("--keep-open", action="store_true", help="session 91: load never-completed permits (cpin_* only)")
+    ap.add_argument("--pulled", default=datetime.date.today().isoformat(), help="pull date (censored test windows)")
+    ap.add_argument("--summarise-nc", help="session 91: write results/<name>_summary.json from this file")
     a = ap.parse_args()
     res_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+    if a.summarise_nc:
+        s = nc_summary(a.summarise_nc, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
+        json.dump(s, open(a.summarise_nc.replace(".json", "_summary.json"), "w"), indent=1)
+        print(json.dumps(dict(mean=s["mean_change"], counts=s["counts"], held=s["held"]), indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], {v: {t: round(x, 2) for t, x in d.items()} for v, d in c["change"].items()},
+                  {v: {t: round(x, 1) for t, x in (d or {}).items()} for v, d in c["closs_all"].items()},
+                  {v: round(x, 1) for v, x in c["q90_rounds"].items()}, {v: round(x) for v, x in c["q90_pred_max"].items()})
+        sys.exit()
     if a.summarise_cpin:
         s = cpin_summary(a.summarise_cpin, os.path.join(res_dir, "rounds_score_ipcw_i2c.json"))
         json.dump(s, open(a.summarise_cpin.replace(".json", "_summary.json"), "w"), indent=1)
@@ -372,13 +464,16 @@ if __name__ == "__main__":
             print(c)
         sys.exit()
     cities = [c for c in transfer.CITIES if c != "chicago" and os.path.exists(os.path.join(a.data_dir, f"{c}.csv"))]
-    frames = {c: transfer.frame(os.path.join(a.data_dir, f"{c}.csv"), "i2c", "cascade2")[0] for c in cities}
+    keep_open = any(v.startswith("cpin_") for v in a.variants) and a.keep_open
+    frames = {c: transfer.frame(os.path.join(a.data_dir, f"{c}.csv"), "i2c", "cascade2", keep_open=keep_open)[0]
+              for c in cities}
+    pulled = datetime.date.fromisoformat(a.pulled)
     out_path = os.path.join(res_dir, a.out_name or ("rounds_score_i2c.json" if a.score else "rounds_i2c.json"))
     res = json.load(open(out_path)) if os.path.exists(out_path) else {}
     for h in a.held:
         for Y in a.test_years:
             for v in a.variants:
-                res[f"{h} {Y} {v}"] = rounds(frames, h, Y, v, a.seeds, a.score, a.floor)
+                res[f"{h} {Y} {v}"] = rounds(frames, h, Y, v, a.seeds, a.score, a.floor, pulled)
                 print(h, Y, v, res[f"{h} {Y} {v}"], flush=True)
                 json.dump(res, open(out_path, "w"), indent=1)
 

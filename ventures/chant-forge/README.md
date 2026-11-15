@@ -311,8 +311,8 @@ replaces it with a small source-filter singing synthesiser in `sing.mjs`:
   cascade branch) at the men's averages of Peterson and Barney (1952): /ɑ/ 730/1090/2440, /ɛ/
   530/1840/2480, /i/ 270/2290/3010, /ɔ/ 570/840/2410, /u/ 300/870/2240 Hz. Consecutive notes cross-fade
   in 50 ms instead of the pad's 0.25 s release, since the same singers go straight on.
-- **Not:** consonants, words, a soloist, formant tuning on high notes (real singers raise F1 as they go
-  up), or any listener's judgement. It is a vocalise on the right vowels, for hearing which syllables land
+- **Not:** consonants, words, a soloist (formant tuning on high notes and consonants came later the same
+  day, below), or any listener's judgement. It is a vocalise on the right vowels, for hearing which syllables land
   on which notes and beats; it is not a release voice (`RECORDING-GUIDE.md`).
 
 Checked from the audio, never from the synthesiser's settings (`eval/vowel-check.mjs`, report in
@@ -441,7 +441,7 @@ vowel coming back (a vibrato swing on a high note looks like one too); a brief d
 release after an obstruent, and *as et ad an er a* on D3 read back from the MIDI path (and as none from the
 vowel-only choir). Nobody has listened to it.
 
-#### Final consonants, second round: *x* and the nasals (2026-11-15, latest)
+#### Final consonants, second round: *x* and the nasals (2026-11-15)
 
 The first round's misses were mostly two things: *x* (k s, as in *lux*, *dex*, *Rex*) read as a plain s
 (3 of 13 corpus velars right), and final /m/ and /n/ read as nothing (22 of 42). Before changing anything,
@@ -497,6 +497,87 @@ more of a short note, so 874 of 920 (95.0%, was 895) read right; ending the wind
 consonant's transition starts, 695 of the 714 notes left with 0.1 s (97.3%). `sing.test.mjs` gains a test
 (12 in all): the murmur 5-9 dB under /a/ and /u/ on E2, D3, A3 and E4 with one voice, and *dex* read as
 a voiceless velar stop on 0.24 and 0.5 s notes.
+
+#### Final consonants, third round: /m/ after /u/, and a blip in every final nasal (2026-11-15, latest)
+
+The second round left most final /m/ after a dark vowel unread (*-um*, *-num*, *-rum*: B read 20 of 39
+nasals). Before changing anything a second held-out set was fixed (part E of `eval/coda-check-report.md`:
+every sixth file of `corpus/gregobase-1908` from the fourth, 3403 to 3459, ten more Graduale pieces, none
+in D) and scored: 71 of 86 closings (82.6%), nasals 14 of 22. Its misses were not read.
+
+- **What the reader saw** (part A's *um*, *u*, *a*, frame by frame): after /u/ nearly all the vowel's
+  energy is already under 500 Hz, so its murmur is the vowel 10-13 dB down and only 8-12 dB darker above
+  1 kHz, not the 15 the reader asks for (a vowel's fade into its release darkens by up to 12, so the
+  bar cannot simply drop). What a fade does not do is step: the lips shut in 10 ms and the murmur holds
+  its level, while a release falls 1-3 dB per 10 ms. A first version of the rule (a step in the overall
+  level) called 13 of 30 vowel-only A2 fades nasals, the same trap as the looser rule dropped in the first
+  round: an open vowel's release on A2 loses its upper formants first while its band under 500 Hz holds
+  within 3 dB. So the rule asks for the step under 500 Hz.
+- **The new cue** (`readCoda` in `onsets.mjs`): a run 6 dB or more under the vowel below 500 Hz and 7 dB
+  darker above 1 kHz, entered by a drop of 5 dB or more there within 20 ms and holding within 4 dB for
+  45 ms, is a nasal, alongside the old 15 dB rule (the earlier of the two wins).
+- **A synthesiser bug it turned up** (`codaTracks` in `sing.mjs`): reading B's *num,* and *num.* frame by
+  frame showed a 10-20 ms burst of bright sound (+12-19 dB above 1 kHz) about 45 ms into the murmur, at
+  the same place every time. `paintSeg` ramps a nasal's weight down over its last 10 ms, then the hum after
+  the note sets it back to 1, so between murmur and hum the nose's low-pass and antiformant were lifted:
+  every final *-m* and *-n* since the first round had a 10 ms blip of bare vowel in it, the kind of click
+  a listener would hear. The ramp-out of a final nasal is now held at 1. `sing.test.mjs` checks it with
+  one voice on /u/ and /a/ at A2, D3 and A3 (it fails on the old code with a 10.2 dB blip).
+
+Results (`eval/coda-check-report.md`; vowel-only controls unchanged in every part):
+
+| set | before | after | synth fix alone | reader rule alone |
+|---|---|---|---|---|
+| E, held out, fixed this round (10 more Graduale pieces) | 71 of 86 (82.6%) | 75 of 86 (87.2%) | 71 | - |
+| E: nasals | 14 of 22 | 18 of 22 | 14 | - |
+| D, held out last round (printed four times now) | 63 of 70 (90.0%) | 66 of 70 (94.3%) | 63 | - |
+| B, the five pieces (misses read) | 134 of 162 (82.7%) | 142 of 162 (87.7%) | 135 | 139 |
+| B: nasals | 20 of 39 | 28 of 39 | 21 | 25 |
+| A, syllables before a rest (tuning set) | 134 of 180 (74.4%) | 137 of 180 (76.1%) | 135 | 136 |
+| vowel-only control, A / B / D / E | 174, 160, 68, 84 | unchanged | | |
+
+The two changes help each other: the blip broke the plateau the new cue looks for. E was printed three
+times (baseline, after, and the synth-only ablation); nothing was changed after its second print.
+Openings (742 of 934) and vowels (874 of 920) are unchanged. Left: B's *-num* and *-rum* before a pause
+enter the murmur through a 40 ms formant transition rather than a step and still read as nothing (10 of
+39), and *-unt*/*-unc* still read on their stop. Nobody has listened to it, so the blip fix is the part of
+this round most worth an ear: a final *-um* should now hum without a click.
+
+#### Formant tuning on high notes (2026-11-15, latest)
+
+The vowels were fixed at Peterson and Barney's spoken values at every pitch. That is fine for basses, but
+a tenor's G4 is 392 Hz and A4 440 Hz, above the first formant of /i/ (270 Hz) and /u/ (300 Hz): every
+harmonic then sits on the falling side of the first resonance and the vowel loses most of its strength.
+Trained singers avoid this by opening the jaw on high notes so F1 rises with the pitch, the "formant
+tuning" Sundberg describes (*The Science of the Singing Voice*, 1987), at the price of /i/ drifting
+toward /e/. `sing.mjs` now does the same: `tuneF1` raises a vowel's F1 (for a diphthong, both ends;
+the consonants' transitions follow the tuned vowel) to at least 1.1 x f0, and leaves F2, F3 and every
+vowel whose F1 is already higher alone (`SING_DEFAULTS.f1Tune`, 0 turns it off). The ratio 1.1 is an
+assumption (F1 just above the first harmonic), not fitted to singers.
+
+Pre-registered in the header of `eval/f1-tune-check.mjs` before its first run, with the ratio fixed:
+(1) at G4 and A4, /i/ and /u/ gain 2 dB or more against /a/ at the same pitch; (2) the vowel reader gets
+no fewer of the held notes right from E2 to A4; (3) the corpus vowels, openings and codas at final D3
+stay within 0.5 points. Results (held 2 s notes, five seeds each, `eval/f1-tune-check-report.md`):
+
+| | off | on |
+|---|---|---|
+| /i/ against /a/, E4 / G4 / A4 (dB) | -9.1 / -16.5 / -14.8 | -2.5 / -3.7 / +0.9 |
+| /u/ against /a/, E4 / G4 / A4 (dB) | -3.6 / -11.6 / -9.8 | -1.5 / -1.9 / +3.5 |
+| line 1: mean gain, /i/ /u/ at G4 A4 | | 12.9 dB (holds) |
+| line 2: held vowels read right, E2-A4 | 179 of 200 | 180 of 200 (holds) |
+| line 3: corpus vowels (`vowel-check`, C) | 1,497 of 1,571 | identical |
+| line 3: corpus openings (`consonant-check`) | 742 of 934 | 743 of 934 |
+| line 3: closings (`coda-check`, A, B, D, E) | | identical |
+
+Nothing moves below B3: 1.1 x f0 first passes /i/'s 270 Hz at 245 Hz and /u/'s 300 Hz at 273 Hz, and
+never reaches /e/, /o/ or /a/ under A4. So basses sound as before, the top of the default E2-E4 unison
+range changes a little (E4 /i/ -9.1 to -2.5 dB), and the main gain is for tenors in `--split-voices`,
+`--second-tenors` and `--choir` arrangements. The tuning set of the consonant check loses one (E4 *bi*'s b read voiceless).
+What the reader cannot say: at G4 and A4 the LPC reader finds F1 at about f0 whether or not the filter
+was tuned (only 1 of 5 /i/ at G4 and none at A4 read as /i/ either way), so line 2 shows the change does
+no harm to what it can measure, not that the tuned /i/ sounds like /i/. That, and whether 1.1 is the right
+ratio, is a question for a listener.
 
 ### A score for the choir: `--musicxml` (2026-11-14)
 

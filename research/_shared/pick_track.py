@@ -530,6 +530,18 @@ def session_draw(new=False, ttl=12 * 3600):
     return r
 
 
+def post_limits_line():
+    """The blog post front-matter caps, printed at the end of the draw: nine research
+    sessions in three days (friction_rank.py --live, 2026-11-12..15) met the 160-character
+    description cap only when CI or the pre-push hook refused a first draft."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:  # a sparse checkout without platform/ci
+        return "post front matter: python3 platform/ci/check_post_frontmatter.py --limits"
+    return "post " + limits_line()
+
+
 if __name__ == "__main__":
     new = "--new" in sys.argv[1:]
     fetch = "--no-fetch" not in sys.argv[1:]
@@ -567,6 +579,7 @@ if __name__ == "__main__":
             print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
         for line in claim_check(slug):
             print(line)
+        print(post_limits_line())
         sys.exit(0)
     t = pick(r)
     focus = t != "free" and PREFIX[t - 1] in FOCUS
@@ -629,3 +642,4 @@ if __name__ == "__main__":
             if not free:
                 for name in newest[:3]:
                     print(f"  {name}: {next_steps(name) or '(no Next steps section)'}")
+    print(post_limits_line())

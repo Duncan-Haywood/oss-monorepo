@@ -20,7 +20,9 @@ import struct
 import sys
 import tempfile
 import unittest
+from array import array
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -307,6 +309,56 @@ class DevelopTests(unittest.TestCase):
         self.assertTrue((self.dir / "m" / "DSC_0001.tif").exists())
         self.assertIn("Nikon D810 Adobe Standard.dcp", out.getvalue())
 
+
+def _frame(width=300, height=64, masked=0, pad=0, pad_value=16382, left_masked=0, seed=3):
+    """A sensor frame: picture (smooth across columns, varying down the rows), then masked and padding columns."""
+
+    rng = random.Random(seed)
+    rows = [3000 + 2500 * ((r * 7919) % 97) / 97 for r in range(height)]
+    out = array("H")
+    for r in range(height):
+        for c in range(width):
+            if c < left_masked or width - pad - masked <= c < width - pad:
+                v = 600 + rng.randint(-4, 4)
+            elif c >= width - pad:
+                v = pad_value
+            else:
+                v = int(rows[r] * (0.8 + 0.4 * c / width)) + rng.randint(-20, 20)
+            out.append(max(0, min(16383, v)))
+    return out
+
+
+class VisibleAreaTests(unittest.TestCase):
+    """``nef.masked_margins``: real files against LibRaw in eval/nikon-nef-visible-area-2026-11-15.md."""
+
+    def test_masked_and_padding_columns_on_the_right(self):
+        self.assertEqual(nef.masked_margins(_frame(masked=14, pad=32), 300, 64, 16383), (0, 46))
+
+    def test_padding_at_white_is_not_a_clipped_edge(self):
+        self.assertEqual(nef.masked_margins(_frame(pad=8, pad_value=16383), 300, 64, 16383), (0, 8))
+
+    def test_picture_only_is_left_whole(self):
+        self.assertEqual(nef.masked_margins(_frame(), 300, 64, 16383), (0, 0))
+
+    def test_odd_left_margin_rounds_up_to_keep_the_cfa_phase(self):
+        self.assertEqual(nef.masked_margins(_frame(left_masked=1, masked=3), 300, 64, 16383), (2, 3))
+
+    def test_flat_frame_and_narrow_frame_are_left_whole(self):
+        flat = array("H", [600] * (300 * 64))
+        self.assertEqual(nef.masked_margins(flat, 300, 64, 16383), (0, 0))
+        self.assertEqual(nef.masked_margins(_frame(width=100, masked=4), 100, 64, 16383), (0, 0))
+
+    def test_no_picture_column_within_the_search_leaves_that_side_whole(self):
+        self.assertEqual(nef.masked_margins(_frame(masked=80), 300, 64, 16383), (0, 0))
+
+    def test_parse_nef_sets_the_active_area_and_a_note(self):
+        data, _ = make_nef("plain")
+        raw = nef.parse_nef(data)
+        self.assertEqual(raw.ifd.entries[rd.TAG_ACTIVE_AREA], (0, 0, H, W))  # 40 wide: too narrow to search
+        with mock.patch.object(nef, "masked_margins", return_value=(2, 5)):
+            raw = nef.parse_nef(data)
+        self.assertEqual(raw.ifd.entries[rd.TAG_ACTIVE_AREA], (0, 2, H, W - 5))
+        self.assertTrue(any("7 edge columns hold no picture" in n for n in raw.notes), raw.notes)
 
 if __name__ == "__main__":
     unittest.main()

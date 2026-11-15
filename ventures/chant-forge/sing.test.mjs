@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, singNote, FORMANTS } from './sing.mjs';
+import { tuneF1, latinVowel, latinOnset, latinCoda, codaPlan, onsetLength, singNote, FORMANTS } from './sing.mjs';
 import { readOnset, readCoda } from './onsets.mjs';
 import { estimateFormants, nearestVowel, polyRoots } from './formants.mjs';
 import { eventsToMidi } from './midi.mjs';
@@ -192,5 +192,44 @@ test('a final nasal hums about 7 dB under its vowel at any pitch (one voice), an
     const w = singNote(146.83, dur, rate, { vowel: 'e', coda: latinCoda('dex'), release: 0.25 });
     const got = readCoda(w, rate, 0.05, dur);
     assert.deepEqual([got.cls, got.voiced, got.place], ['stop', false, 'vel'], `dex at ${dur} s: ${JSON.stringify(got)}`);
+  }
+});
+
+test('a final nasal hums on through the nose with no blip of bare vowel, and -um after a dark vowel reads as its murmur', async () => {
+  const { frameFeatures } = await import('./onsets.mjs');
+  // one voice, so the voices' beating does not hide it: before the fix the low-pass lifted for 10 ms between
+  // murmur and hum, +12-19 dB above 1 kHz (README "Final consonants, third round")
+  for (const vowel of ['u', 'a']) for (const midi of [45, 50, 57]) {
+    const f = 440 * 2 ** ((midi - 69) / 12), dur = 0.5;
+    const w = singNote(f, dur, rate, { vowel, coda: ['m'], release: 0.3, detunes: [0], vibratoCents: 0, breath: 0 });
+    const hiShare = (t) => { const q = frameFeatures(w, Math.round(t * rate), rate); return 10 * Math.log10((q.hi1 + 1e-20) / (q.tot + 1e-20)); };
+    const murmur = hiShare(dur - 0.045);
+    for (let t = dur - 0.04; t < dur + 0.04; t += 0.0025) assert.ok(hiShare(t) < murmur + 6, `${vowel} on ${midi} at ${(t - dur).toFixed(4)} s: ${(hiShare(t) - murmur).toFixed(1)} dB brighter than the murmur`);
+  }
+  // through the MIDI path on D3, where the murmur after /u/ is only 8-12 dB darker than the vowel
+  const ev = [];
+  for (const s of ['um', 'u', 'a']) ev.push({ type: 'note', midi: 50, pulses: 4, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 120 });
+  const m = parseMidi(mid), sec = (t) => tickToSeconds(t, m.division, m.tempos);
+  const notes = m.notes.filter((n) => n.ch === 0).sort((a, b) => a.tick - b.tick);
+  for (const sing of [true, 'vowels']) {
+    const x = renderMidi(mid, { stems: true, sing }).stems.choir.channels[0];
+    ['um', 'u', 'a'].forEach((s, j) => {
+      const got = readCoda(x, rate, sec(notes[j].tick) + 0.1, sec(notes[j].end) + 0.25).cls;
+      assert.equal(got, sing === true && s === 'um' ? 'nasal' : 'none', `${s} (${sing}): ${got}`);
+    });
+  }
+});
+
+test('high /i/ and /u/ keep their level: F1 raised to 1.1 x f0 (tuneF1)', () => {
+  assert.deepEqual(tuneF1(FORMANTS.a, 440, 1.1), FORMANTS.a); // /a/ F1 730 is above 484
+  assert.deepEqual(tuneF1(FORMANTS.i, 440, 1.1).map(Math.round), [484, 2290, 3010]);
+  assert.deepEqual(tuneF1(FORMANTS.i, 440, 0), FORMANTS.i); // off
+  const db = (w) => { let s = 0; const a = Math.round(0.4 * rate), b = Math.round(1.9 * rate); for (let i = a; i < b; i++) s += w[i] * w[i]; return 10 * Math.log10(s / (b - a)); };
+  for (const v of ['i', 'u']) {
+    const rel = (f1Tune) => db(singNote(392, 2, rate, { vowel: v, seed: 3, f1Tune })) - db(singNote(392, 2, rate, { vowel: 'a', seed: 3, f1Tune }));
+    // untuned, G4's first harmonic sits above /i/'s and /u/'s F1 and the vowel drops 10-16 dB under /a/
+    assert.ok(rel(1.1) - rel(0) > 6, `${v}: ${rel(0).toFixed(1)} -> ${rel(1.1).toFixed(1)} dB`);
+    assert.ok(rel(1.1) > -6, `${v} tuned at G4: ${rel(1.1).toFixed(1)} dB against /a/`);
   }
 });

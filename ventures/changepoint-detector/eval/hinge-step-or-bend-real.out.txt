@@ -1,0 +1,18 @@
+Bar R
+Nile (1871-1970, n 100): knot 1913, F 12.5 (bar 8.7), p 0.017, rho 0.24, slope -8.12 -> 0.693 per step | step or bend: step (best step after 1898, size -284; step RSS / bend RSS 0.902; post hoc, OLS: step, step after 1898) | predicted: step, if tested
+GCAG (1880-2024, n 145): knot 1976, F 72.0 (bar 11.7), p 0.001, rho 0.49, slope 0.00439 -> 0.0203 per step | step or bend: bend (best step after 2000, size 0.383; step RSS / bend RSS 1.163; post hoc, OLS: bend, step after 1996) | predicted: bend
+GISTEMP (1880-2024, n 145): knot 1976, F 85.6 (bar 13.2), p 0.001, rho 0.52, slope 0.00355 -> 0.0212 per step | step or bend: bend (best step after 2000, size 0.407; step RSS / bend RSS 1.220; post hoc, OLS: bend, step after 2000) | predicted: bend
+GCAG (1850-2024, n 175): knot 1976, F 93.1 (bar 13.0), p 0.001, rho 0.56, slope 0.00303 -> 0.0216 per step | step or bend: bend (best step after 1996, size 0.454; step RSS / bend RSS 1.179; post hoc, OLS: bend, step after 1996) | predicted: bend
+GCAG (1930-2024, n 95): knot 1974, F 94.6 (bar 12.9), p 0.001, rho 0.31 (admitted by the cut), slope -0.0000363 -> 0.0208 per step | step or bend: bend (best step after 1953, size -0.420; step RSS / bend RSS 1.250; post hoc, OLS: bend, step after 1953) | predicted: bend
+
+Predictions
+P1 Australian gas, annual totals (1956-1994, n 39): REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.97 (bias-corrected), above 0.7, and the best hinge cuts it to 0.83, still above the guard: too close to a unit root for a level test; use the test on differences (slopeBreaks)) | predicted: tested, p <= 0.05, knot 1966-1973, bend
+P2 US electricity, annual totals (1973-2012, n 40): REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.82 (bias-corrected), above 0.7, and the best hinge cuts it to 0.72, still above the guard: too close to a unit root for a level test; use the test on differences (slopeBreaks)) | predicted: tested, p <= 0.05, knot 1998-2008
+P3 US female murder rate (1950-2004, n 55): REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.97 (bias-corrected), above 0.7, and the best hinge cuts it to 0.80, still above the guard: too close to a unit root for a level test; use the test on differences (slopeBreaks)) | predicted: tested, p <= 0.05, knot 1975-1995, bend
+P4 Lake Huron (1875-1972, n 98): REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.80 (bias-corrected), above 0.7, and the best hinge cuts it to 0.75, still above the guard: too close to a unit root for a level test; use the test on differences (slopeBreaks)) | predicted: p > 0.05
+P5 UK gas, annual totals (1960-1986, n 27): REFUSED (needs 30 or more points (got 27)) | predicted: refused (under 30 points)
+
+No prediction
+Canada fertility (1931-1968, n 38): REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.92 (bias-corrected), above 0.7, and the best hinge cuts it to 0.77, still above the guard: too close to a unit root for a level test; use the test on differences (slopeBreaks)) | predicted: none
+Michigan-Huron (1918-2009, n 92): REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.87 (bias-corrected), above 0.7, and the best hinge cuts it to 0.80, still above the guard: too close to a unit root for a level test; use the test on differences (slopeBreaks)) | predicted: none
+CO2 annual means (1959-2025, n 67): REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.97 (bias-corrected), above 0.7, and the best hinge cuts it to 0.92, still above the guard: too close to a unit root for a level test; use the test on differences (slopeBreaks)) | predicted: none (a smooth acceleration)

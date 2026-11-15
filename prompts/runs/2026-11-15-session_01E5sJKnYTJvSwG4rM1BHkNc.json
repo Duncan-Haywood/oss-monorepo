@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKnYTJvSwG4rM1BHkNc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T16:18:07Z",
+  "ended": "2026-11-15T16:30:10Z",
+  "wall_minutes": 15.12,
+  "tokens_in": 5304552,
+  "tokens_out": 28987,
+  "cost_usd": 2.5496,
+  "tool_calls": 51,
+  "task": "Deepen (flagship 2): changepoint-detector, item (1) --hinge-test on more series",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16271",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Backgrounded `cd X && (A) & (B) &`: the cd ran only in the first background subshell, so the preflight and two foreground commands ran from the venture dir and failed with file-not-found; reran from the repo root.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: sits at 1943 of 2000 chars, so landing one item means compressing its replacement into a terse fragment; my first, clearer wording was rejected at 2053."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions opened changepoint-detector claim PRs 2 s apart (#16271, #16272), even though the row is picked by session id; claim_check resolved it, but the pick still collides."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-a-bend-in-the-nile-that-is-really-a-step.md",
+    "ventures/changepoint-detector/README.md (Step or bend?)"
+  ],
+  "goal": "Pre-registered step-or-bend check beside --hinge-test and the test on 8 fresh real series",
+  "notes": "Pre-registration committed before the code. Bar R held (Nile -> step 1898 while the hinge test rejects with knot 1913, p 0.017; GCAG/GISTEMP -> bend). SS held; SB failed (bend 0.08 rho 0.5: 44.2% right; rho 0: 82.0%), so stepOrBend is an evaluation-only export. P1-P4 failed by refusal; P5 held; 7 of 8 real series under 100 points refused. Shipped: the report note with the measured step false-bend rate, a page hint, llms.txt, and the flagship next:. node --test hinge-test.test.mjs: 12/12 pass. run_venture_tests.py changepoint-detector: ok, 736 tests, 199 s. venture-preflight.mjs changepoint-detector: preflight clean, exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f0333ad7-0a85-5ebf-a99f-581b36361edf",
+    "transcripts": 1,
+    "first": "2026-11-15T16:18:07Z",
+    "last": "2026-11-15T16:33:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 28987,
+        "thinking": 7175,
+        "cache_read": 5187974,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116485,
+        "api_equivalent_usd": 2.5496,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 28987,
+      "thinking": 7175,
+      "cache_read": 5187974,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116485,
+      "api_equivalent_usd": 2.5496,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.12,
+      "active_minutes": 15.12,
+      "model_minutes": 5.32,
+      "tool_minutes": 9.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, pre-registering and running a model-comparison check with a 1,800-series simulation and 13 real series, plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 392.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

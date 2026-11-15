@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { hingeTest, randomWalkCutBar } from './hinge-test.mjs';
+import { hingeTest, randomWalkCutBar, stepOrBend } from './hinge-test.mjs';
 import { analyze } from './engine.mjs';
 import { main } from './cli.mjs';
 
@@ -104,4 +104,34 @@ test('the CLI says when a sticky series was admitted by the cut', async () => {
   await main([f, '--hinge-test'], { out: (s) => { out += s; } });
   assert.match(out, /best knot 1974/);
   assert.match(out, /more than 99% of random walks/);
+});
+
+test('step or bend (eval/hinge-step-or-bend-prereg-2026-11-15.md): the Nile rejects as a hinge but fits as the 1898 step; temperature fits as a bend; not in the output', () => {
+  const nile = load('nile.csv');
+  const h = hingeTest(nile.x, { reps: 199, seed: 1 });
+  assert.equal(h.refused, false);
+  assert.ok(h.p <= 0.05, `Nile hinge p ${h.p}`);
+  assert.equal(nile.labels[h.index], '1913');
+  assert.equal(h.stepOrBend, undefined, 'failed its bend bar, so not in hingeTest output');
+  const s = stepOrBend(nile.x, h.rho);
+  assert.equal(s.better, 'step');
+  assert.equal(nile.labels[s.stepIndex], '1898');
+  assert.ok(s.ratio < 0.95 && s.stepSize < -200);
+  const g = load('global-temp-annual.csv'), hg = hingeTest(g.x, { reps: 49, seed: 1 });
+  const sg = stepOrBend(g.x, hg.rho);
+  assert.equal(sg.better, 'bend');
+  assert.ok(sg.ratio > 1.1);
+});
+
+test('fresh real series under 100 points are refused (eval/hinge-step-or-bend-real.out.txt)', () => {
+  for (const f of ['us-female-murder-rate.csv', 'lake-huron.csv', 'canada-fertility.csv', 'michigan-huron.csv']) {
+    assert.equal(hingeTest(load(f).x, { reps: 9, seed: 1 }).refused, true, f);
+  }
+});
+
+test('the report note says a level step can pass for a hinge', async () => {
+  const nile = load('nile.csv');
+  const r = analyze({ csv: 'year,v\n' + nile.labels.map((l, i) => `${l},${nile.x[i]}`).join('\n'), hingeTest: { reps: 49 } });
+  assert.match(r.hingeTest.note, /level step can pass for a hinge/);
+  assert.match(r.hingeTest.note, /1898/);
 });

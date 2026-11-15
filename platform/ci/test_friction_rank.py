@@ -76,6 +76,61 @@ def test_changes_drops_shallow_boundary(tmp_path):
     assert edge == "2026-11-09T00:00:00+00:00"
 
 
+class _Done:
+    def __init__(self, out="", code=0):
+        self.stdout, self.returncode = out, code
+
+
+def test_revs_adds_origin_main_only_when_it_exists():
+    assert fr.revs(run=lambda cmd, **_: _Done()) == ["HEAD", "origin/main"]
+    assert fr.revs(run=lambda cmd, **_: _Done(code=1)) == ["HEAD"]
+
+
+def test_changes_reads_the_union_of_revs(tmp_path):
+    seen = []
+
+    def run(cmd, **_):
+        seen.append(cmd)
+        return _Done()
+    fr.changes("2026-11-10", ["HEAD", "origin/main"], root=tmp_path, run=run)
+    assert seen[0][3:6] == ["log", "HEAD", "origin/main"]
+
+
+def test_deepen_fetches_a_day_before_the_report_capped(tmp_path):
+    seen = []
+
+    def run(cmd, **kw):
+        seen.append(cmd)
+        return _Done()
+    today = dt.date(2026, 11, 15)
+    assert fr.deepen("2026-11-10T08:00:00Z", root=tmp_path, run=run, today=today)
+    assert "--shallow-since=2026-11-09" in seen[-1] and seen[-1][-2:] == ["origin", "main"]
+    fr.deepen("2026-01-01", root=tmp_path, run=run, today=today)  # --days 0: never the full history
+    assert f"--shallow-since={today - dt.timedelta(days=fr.DEEPEN_MAX_DAYS)}" in seen[-1]
+    assert fr.deepen("2026-11-10", root=tmp_path, run=lambda *a, **k: _Done(code=128), today=today) is False
+
+    def boom(*a, **k):
+        raise fr.subprocess.TimeoutExpired("git", 1)
+    assert fr.deepen("2026-11-10", root=tmp_path, run=boom, today=today) is False
+
+
+def test_main_deepens_only_when_reports_predate_the_edge(tmp_path, monkeypatch):
+    write(tmp_path, "r1.json", "2026-11-01", [{"file": "x.py", "issue": "flag is easy to skip"}])
+    write(tmp_path, "r2.json", "2026-11-01", [{"file": "x.py", "issue": "the flag is easy to skip again"}])
+    calls = []
+    edges = iter(["2026-11-05T00:00:00+00:00", "2026-10-30T00:00:00+00:00"])
+    monkeypatch.setattr(fr, "revs", lambda: ["HEAD"])
+    monkeypatch.setattr(fr, "basename_counts", lambda: {})
+    monkeypatch.setattr(fr, "changes", lambda since, rev: ([], next(edges)))
+    monkeypatch.setattr(fr, "deepen", lambda since: calls.append(since) or True)
+    assert fr.main(["--runs", str(tmp_path), "--days", "0", "--no-prs", "--json"]) == 0
+    assert calls == ["2026-11-01T00:00:00Z"]
+    calls.clear()
+    edges = iter(["2026-11-05T00:00:00+00:00"])
+    assert fr.main(["--runs", str(tmp_path), "--days", "0", "--no-prs", "--json", "--no-fetch"]) == 0
+    assert calls == []
+
+
 def test_annotate_marks_only_later_unambiguous_touches():
     commits = [("2026-11-13T12:00:00+00:00", "abc", "fix pyenv", ["platform/ci/pyenv.py"]),
                ("2026-11-13T11:00:00+00:00", "def", "figure", ["research/x/figure.py"])]
