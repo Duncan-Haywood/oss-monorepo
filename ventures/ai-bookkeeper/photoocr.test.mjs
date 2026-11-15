@@ -113,3 +113,37 @@ test("a big photo's shrunk grey copy is read first, so its text is the block and
   assert.equal(r.text, "KEDAI MAJU\n05/03/2018\nTotal 18.20");
   assert.deepEqual(r.notes, []);
 });
+
+// Unevenly lit photos are read with SHADED_PASSES: block mode, global then local
+// threshold, on the photo and the grey copy (README, "Shaded photos: a local threshold").
+test("an engine that measures a photo as unevenly lit reads it with the local threshold; an evenly lit one as before", async () => {
+  const { SHADED_PASSES, SHADED_CUT } = await import("./photoocr.mjs");
+  assert.deepEqual(SHADED_PASSES, ["6", { psm: "6", threshold: "2" }, { psm: "6", grow: 2000 }, { psm: "6", grow: 2000, threshold: "2" }]);
+  const seen = [];
+  const e = {
+    shading: async (f) => (f.name === "shadow.jpg" ? SHADED_CUT + 0.1 : 0.04),
+    recognize: async (f, { psm, grow, threshold }) => { seen.push(`${f.name}:${psm}${grow ? "g" : ""}${threshold ? `t${threshold}` : ""}`); return "KEDAI MAJU\nTotal 31.00"; },
+    close() {},
+  };
+  const r = await readPhotos([{ name: "shadow.jpg", type: "image/jpeg" }, { name: "scan.jpg", type: "image/jpeg" }], { loadEngine: async () => e });
+  assert.deepEqual(seen, ["shadow.jpg:6", "shadow.jpg:6t2", "shadow.jpg:6g", "shadow.jpg:6gt2", "scan.jpg:6", "scan.jpg:4", "scan.jpg:6g", "scan.jpg:4g"]);
+  assert.equal(r.shaded, 1);
+  // a measurement that fails reads the photo as before
+  seen.length = 0;
+  await readPhotos([{ name: "x.jpg", type: "image/jpeg" }], { loadEngine: async () => ({ ...e, shading: async () => { throw new Error("no canvas"); } }) });
+  assert.deepEqual(seen, ["x.jpg:6", "x.jpg:4", "x.jpg:6g", "x.jpg:4g"]);
+});
+
+// The engine wrapper sets the threshold on every reading, so a Sauvola reading
+// never leaks into the next reading (a stub worker).
+test("loadEngine sets the threshold method on every reading, back to Otsu when a pass names none", async () => {
+  const { loadEngine } = await import("./photoocr.mjs");
+  const set = [];
+  const had = globalThis.Tesseract;
+  globalThis.Tesseract = { createWorker: async () => ({ setParameters: async (p) => set.push(p), recognize: async () => ({ data: { text: "TOTAL 1.00" } }), terminate: async () => {} }) };
+  try {
+    const e = await loadEngine();
+    for (const pass of ["6", { psm: "6", threshold: "2" }, "4"]) await e.recognize("photo", typeof pass === "string" ? { psm: pass } : pass);
+    assert.deepEqual(set, [{ tessedit_pageseg_mode: "6", thresholding_method: "0" }, { tessedit_pageseg_mode: "6", thresholding_method: "2" }, { tessedit_pageseg_mode: "4", thresholding_method: "0" }]);
+  } finally { globalThis.Tesseract = had; }
+});

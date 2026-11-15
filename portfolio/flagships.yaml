@@ -102,9 +102,9 @@ flagships:
       sample read (README); open: a real merchant's payout export, a real 1099-K;
       (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
       up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE ~84.8%, US 68.4%; CLI 82.2%, CORD 50.5%; big photos done; next:
-      curled slips); (6) payroll (README): two journal layouts read; open: a real
-      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      (page SROIE 84.6%, US 74.0%; CLI US 74.5%; shaded: Sauvola; next: CORD, vote
+      picks 145 of 169); (6) payroll (README): two journal layouts read; open: a
+      real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
       guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
       return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
       discounts, IN's band and day from the book (README); open: AR statutes, a real

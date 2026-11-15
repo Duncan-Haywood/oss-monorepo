@@ -12,6 +12,7 @@ import { decodeBytes } from "./textcodec.mjs";
 import { xlsxToCsvSync, looksLikeXlsx } from "./xlsx.mjs";
 import { xlsToCsv, looksLikeXls } from "./xls.mjs";
 import { readStatement, checkRunningBalance } from "./bank.mjs";
+import { lightSpread, SHADED_CUT, SHADE_SIDE } from "./photoocr.mjs";
 
 export { cleanOcr };
 
@@ -49,20 +50,29 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env, 
 // A photo read twice, for parseReceiptPasses: the OCR command as configured, then
 // the same tesseract command with `--psm 4` (one column of text of varying sizes,
 // which is what a till slip is). Where the two readings disagree on the total,
-// the receipt's own arithmetic picks one (receipts.mjs). Text and PDF files, and
-// an OCR command that is not tesseract, have one reading. A second pass that
-// fails is dropped, not an error.
+// the receipt's own arithmetic picks one (receipts.mjs). An unevenly lit photo
+// (photoocr.mjs lightSpread of ImageMagick's 32 x 32 grey thumbnail at or over
+// SHADED_CUT: a shadow, a dim room, a slip held in the hand) gets tesseract's local
+// (Sauvola) threshold for the second reading instead, `-c thresholding_method=2`,
+// which keeps the print on the dark side: on ExpressExpense's 196 US receipt photos
+// `--two-pass` went from 113 to 120 totals right and `--four-pass` from 131 to 146
+// (README, "Shaded photos: a local threshold"). Without ImageMagick it stays
+// `--psm 4`. Text and PDF files, and an OCR command that is not tesseract, have one
+// reading. A second pass that fails is dropped, not an error.
+export const LOCAL_THRESHOLD = "-c thresholding_method=2";
 export function receiptPassesFromFile(path, { run = spawnSync, env = process.env, grow = 0 } = {}) {
   const first = receiptTextFromFile(path, { run, env });
   if (!IMAGE.has(extname(path).toLowerCase())) return [first];
   const base = env.RECEIPT_OCR_CMD || DEFAULT_OCR;
-  if (!/^\S*tesseract\b/.test(base) || /--psm\s+4\b/.test(base)) return [first];
-  const second = /--psm\s+\d+/.test(base) ? base.replace(/--psm\s+\d+/, "--psm 4") : `${base} --psm 4`;
+  if (!/^\S*tesseract\b/.test(base) || /--psm\s+4\b/.test(base) || /thresholding_method/.test(base)) return [first];
+  const spread = photoSpread(path, run);
+  const second = spread !== null && spread >= SHADED_CUT ? `${base} ${LOCAL_THRESHOLD}`
+    : /--psm\s+\d+/.test(base) ? base.replace(/--psm\s+\d+/, "--psm 4") : `${base} --psm 4`;
   let out;
   try { out = [first, receiptTextFromFile(path, { run, env: { ...env, RECEIPT_OCR_CMD: second } })]; } catch { out = [first]; }
   if (!grow) return out;
   // --four-pass: the photo is also read as a grey copy with its long side at `grow`
-  // pixels (ImageMagick), in both modes, and the readings vote (receipts.mjs
+  // pixels (ImageMagick), the same two ways, and the readings vote (receipts.mjs
   // voteTotal), as the page does (photoocr.mjs PASSES). A photo under `grow` is
   // enlarged and read after the original. A bigger one (a full-size phone photo, a
   // flatbed scan) is shrunk, and the copy is read first: on SROIE's 189 scans over
@@ -89,6 +99,18 @@ export function greyCopyFile(path, side, run = spawnSync) {
   if (!size || long === side) return null;
   const copy = magickCopy(path, ["-colorspace", "Gray", "-resize", `${side}x${side}`], "grey.png", size.tool, run);
   return copy && { ...copy, shrunk: long > side };
+}
+
+// photoocr.mjs lightSpread of the photo's 32 x 32 grey thumbnail (ImageMagick, each
+// pixel the average of its patch, aspect ignored, as the page's canvas draws it), or
+// null without ImageMagick.
+export function photoSpread(path, run = spawnSync) {
+  for (const tool of ["magick", "convert"]) {
+    const r = run(tool, [`${path}[0]`, "-colorspace", "Gray", "-resize", `${SHADE_SIDE}x${SHADE_SIDE}!`, "-depth", "8", "gray:-"], { maxBuffer: 1 << 20 });
+    if (r.error || r.status !== 0 || !r.stdout || r.stdout.length !== SHADE_SIDE * SHADE_SIDE) continue;
+    return lightSpread(r.stdout);
+  }
+  return null;
 }
 
 // A plain PNG copy of a photo, made by ImageMagick; null without it.
