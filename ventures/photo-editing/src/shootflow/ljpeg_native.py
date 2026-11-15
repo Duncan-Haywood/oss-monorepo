@@ -1267,6 +1267,67 @@ done:
     free(rows_lo); free(rows_hi); free(scratch); free(cur);
     return rc;
 }
+/* Panasonic RW2 RawFormat 8 (shootflow.rw2._c8_tile_python): one tile of Huffman-coded 2x2 blocks.
+   lookup: symbol for each value of the next 16 bits (17 = none). meta: lengths[17], shifts[17],
+   initial[4] (TL, TR, BL, BR), top. Decodes min(pairs, height / 2) row pairs into out (width a row).
+   Returns 0, or -2 on a code that matches no symbol. Bytes are read from their lowest bit. */
+long shootflow_panasonic_c8_tile(const uint8_t *d, long len, long width, long height, long pairs,
+                                 const uint8_t *lookup, const int32_t *meta, uint16_t *out)
+{
+    static uint8_t rev[256];
+    static int rev_ready = 0;
+    if (!rev_ready) {
+        for (int b = 0; b < 256; b++) {
+            int r = 0;
+            for (int k = 0; k < 8; k++) if (b >> k & 1) r |= 0x80 >> k;
+            rev[b] = (uint8_t)r;
+        }
+        rev_ready = 1;
+    }
+    const int32_t *lengths = meta, *shifts = meta + 17, *initial = meta + 34;
+    int32_t top = meta[38];
+    static const int order[4] = {0, 2, 1, 3};
+    long rows = height / 2;
+    if (pairs >= 0 && pairs < rows) rows = pairs;
+    uint64_t acc = 0;
+    int have = 0;
+    long p = 0;
+    int32_t first[4] = {initial[0], initial[1], initial[2], initial[3]};
+    for (long pair = 0; pair < rows; pair++) {
+        int32_t base[4] = {first[0], first[1], first[2], first[3]};
+        uint16_t *o0 = out + 2 * pair * width, *o1 = o0 + width;
+        for (long col = 0; col < width; col += 2) {
+            int32_t block[4];
+            for (int k = 0; k < 4; k++) {
+                int slot = order[k];
+                while (have <= 56) { acc = acc << 8 | (p < len ? rev[d[p]] : 0); p++; have += 8; }
+                int sym = lookup[(acc >> (have - 16)) & 0xFFFF];
+                if (sym >= 17) return -2;
+                have -= lengths[sym];
+                int s = shifts[sym];
+                int extra = sym - s;
+                int32_t step;
+                if (extra > 0) {
+                    have -= extra;
+                    int32_t raw = (int32_t)((acc >> have) & ((1u << extra) - 1));
+                    step = (raw >> (extra - 1)) ? raw << s : (raw << s) - (1 << sym) + (s ? 0 : 1);
+                } else if (sym && !((acc >> (have - 1)) & 1)) {
+                    step = -(1 << sym);
+                } else {
+                    step = 0;
+                }
+                if (s) step += 1 << (s - 1);
+                int32_t v = base[slot] + step;
+                block[slot] = v < 0 ? 0 : v > top ? top : v;
+            }
+            base[0] = block[0]; base[1] = block[1]; base[2] = block[2]; base[3] = block[3];
+            if (col == 0) { first[0] = block[0]; first[1] = block[1]; first[2] = block[2]; first[3] = block[3]; }
+            o0[col] = (uint16_t)block[0]; o0[col + 1] = (uint16_t)block[1];
+            o1[col] = (uint16_t)block[2]; o1[col + 1] = (uint16_t)block[3];
+        }
+    }
+    return 0;
+}
 """
 
 _STATE: dict[str, object] = {}
@@ -1388,6 +1449,11 @@ def _load():
     c6.restype = ctypes.c_long
     c6.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_void_p]
     _STATE["panasonic_c6"] = c6
+    c8 = lib.shootflow_panasonic_c8_tile
+    c8.restype = ctypes.c_long
+    c8.argtypes = [ctypes.c_char_p, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_long, ctypes.c_char_p,
+                   ctypes.c_void_p, ctypes.c_void_p]
+    _STATE["panasonic_c8"] = c8
     for name, args in (
         ("samsung_rows", [ctypes.c_char_p] + [ctypes.c_long] * 5 + [ctypes.c_void_p]),
         ("samsung_huffman", [ctypes.c_char_p] + [ctypes.c_long] * 3 + [ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p]),
@@ -1656,6 +1722,26 @@ def panasonic_c6_run(data: bytes, width: int, height: int) -> array | None:
 
         raise DevelopError("RW2: the sensor data is cut short")
     del out[width * height :]
+    return out
+
+
+def panasonic_c8_tile(data: bytes, params, width: int, height: int, pairs: int | None = None) -> array | None:
+    """``shootflow.rw2._c8_tile_python`` (RawFormat 8, one tile) in C: an ``array('H')`` of
+    ``width`` x (2 x row pairs) sensels, or None without the native library."""
+
+    fn: Any = _STATE.get("panasonic_c8") if reader() is not None else None
+    if fn is None:
+        return None
+    data = data if isinstance(data, bytes) else bytes(data)
+    rows = height // 2 if pairs is None else min(height // 2, pairs)
+    meta = array("i", list(params.lengths) + list(params.shifts) + list(params.initial) + [params.top])
+    out = array("H", [0]) * max(1, width * rows * 2)
+    if fn(data, len(data), width, height, -1 if pairs is None else pairs, params.lookup, meta.buffer_info()[0],
+          out.buffer_info()[0]) < 0:
+        from shootflow.raw_develop import DevelopError
+
+        raise DevelopError("RW2 RawFormat 8: a code matches no symbol (corrupt data)")
+    del out[width * rows * 2 :]
     return out
 
 

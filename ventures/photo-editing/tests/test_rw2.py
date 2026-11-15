@@ -438,7 +438,8 @@ class ReadTests(unittest.TestCase):
     def test_other_raw_formats_are_refused(self):
         with self.assertRaisesRegex(rd.DevelopError, "RawFormat 3.*not supported"):
             rw2.parse_rw2(make_rw2(raw_format=3)[0])
-        with self.assertRaisesRegex(rd.DevelopError, "RawFormat 8 .*not read yet"):
+        # RawFormat 8 is read (tests/test_rw2_c8.py), but needs its code table.
+        with self.assertRaisesRegex(rd.DevelopError, "RawFormat 8: tag 0x40 is missing"):
             rw2.parse_rw2(make_rw2(raw_format=8)[0])
         with self.assertRaisesRegex(rd.DevelopError, "not supported"):
             rw2.parse_rw2(make_rw2(raw_format=6, bits=12, payload=bytes(16 * 40))[0])

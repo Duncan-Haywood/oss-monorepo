@@ -270,18 +270,18 @@ flagships:
       NEF, ORF, RW2, SRW, PEF, RAF (X-Trans, directional; lossless and lossy
       compressed 2026-11-15, eval/fujifilm-*-raf-2026-11-15.md) read directly since
       2026-11-14 (eval/*-reader-*.md); RW2, ARW, SRW lenses from maker notes
-      (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-7 2026-11-15. Bayer demosaic
-      directional 2026-11-15 (eval/bayer-directional-*). Next: RW2 RawFormat 8
-      (raw.pixls.us, proxy-refused 2026-11-15); a real NEF split row; Sony's
-      vignetting table vs an evenly lit frame; a real DNG and a
-      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
-      lit frame shot wide open (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
-      synthetic files so far, or the SDK to check them; lateral colour measured on a
-      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a tiled CR3; the DJI Phantom 4 DNG's vignette lift against DJI's own
-      render (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag
-      bit 1 set; a phone DNG with its own JPEG of the frame (corrected corners); a
+      (eval/*-lens-2026-11-14.md); RW2 RawFormat 5-8 2026-11-15. Bayer demosaic
+      directional 2026-11-15 (eval/bayer-directional-*). Next: an RW2 RawFormat 8
+      with a tone curve (0x39/0x3A); a real NEF split row; Sony's vignetting table
+      vs an evenly lit frame; a real DNG and a vignetting-calibrated lens through
+      the pipeline's lens stage; a real evenly lit frame shot wide open (corners
+      level after lensfun's vignetting?); a second maker-against-lensfun DNG pair; a
+      real DNG carrying any opcode run only on synthetic files so far, or the SDK to
+      check them; lateral colour measured on a real frame with sharp corner edges; a
+      real Adobe `.dcp` through the profile chooser; a tiled CR3; the DJI Phantom 4
+      DNG's vignette lift against DJI's own render
+      (eval/opcode-quality-flag-2026-11-13.md); a real DNG with opcode flag bit 1
+      set; a phone DNG with its own JPEG of the frame (corrected corners); a
       tungsten-lit colour chart to say which colour model is closer (the 70D frame,
       4,700 K and green-tinted, is where they part most; the Nexus 5X carries
       ForwardMatrix); an Adobe render of a known frame (settles
