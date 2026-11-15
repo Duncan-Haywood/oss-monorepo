@@ -2,6 +2,7 @@
 // the receipt reader cannot drift apart: node build-sdi-codes-page.mjs
 // sdi-codes-page.test.mjs fails when the committed page is not what this writes.
 import { writeFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { SDI_CODES } from "./sdi-receipt.mjs";
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -69,7 +70,7 @@ ${FAQ.map(([q, a]) => `<h3>${q}</h3>\n<p>${a}</p>`).join("\n")}
 `;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   writeFileSync(new URL("./sdi-error-codes.html", import.meta.url), renderPage());
   console.log("wrote sdi-error-codes.html");
 }
