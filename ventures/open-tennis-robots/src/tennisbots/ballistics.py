@@ -124,6 +124,64 @@ def _rk4(pos: Vec, vel: Vec, spin: Vec, dt: float, ball: BallModel) -> tuple[Vec
     return new_pos, new_vel
 
 
+def _stepper(spin: Vec, dt: float, ball: BallModel):
+    """`_rk4` for a fixed spin and step, as one function of scalars.
+
+    Spin is constant between bounces, so its norm, the drag and lift constants
+    and the step fractions are worked out once here instead of in each of the
+    four `acceleration` calls per step. Every float operation runs in the same
+    order as `acceleration`/`_rk4` (including the `0.0 +` of the gravity
+    vector), so the result is bit-for-bit the same; `test_physics` pins that.
+    This is the hot loop of `simulate` (perf note 2026-11-15).
+    """
+    g = ball.gravity
+    gz = -g
+    k = 0.5 * ball.air_density * ball.area / ball.mass
+    nkc = -k * ball.drag_coeff
+    sx, sy, sz = spin
+    w = math.sqrt(sx * sx + sy * sy + sz * sz)
+    rw = ball.radius * w
+    h = dt / 2
+    sixth = dt / 6
+    sqrt = math.sqrt
+
+    def acc(vx, vy, vz):
+        v = sqrt(vx * vx + vy * vy + vz * vz)
+        if v == 0:
+            return 0.0, 0.0, gz
+        c = nkc * v
+        dx, dy, dz = vx * c, vy * c, vz * c
+        if w == 0:
+            return 0.0 + dx, 0.0 + dy, gz + dz
+        cx = sy * vz - sz * vy
+        cy = sz * vx - sx * vz
+        cz = sx * vy - sy * vx
+        m = sqrt(cx * cx + cy * cy + cz * cz)
+        if m == 0:
+            return 0.0 + dx, 0.0 + dy, gz + dz
+        f = k * (1.0 / (2.0 + v / rw)) * v * v / m  # lift_coeff(v, w); v, w > 0 here
+        return (0.0 + dx) + cx * f, (0.0 + dy) + cy * f, (gz + dz) + cz * f
+
+    def step(pos: Vec, vel: Vec) -> tuple[Vec, Vec]:
+        px, py, pz = pos
+        vx, vy, vz = vel
+        a1x, a1y, a1z = acc(vx, vy, vz)
+        v2x, v2y, v2z = vx + a1x * h, vy + a1y * h, vz + a1z * h
+        a2x, a2y, a2z = acc(v2x, v2y, v2z)
+        v3x, v3y, v3z = vx + a2x * h, vy + a2y * h, vz + a2z * h
+        a3x, a3y, a3z = acc(v3x, v3y, v3z)
+        v4x, v4y, v4z = vx + a3x * dt, vy + a3y * dt, vz + a3z * dt
+        a4x, a4y, a4z = acc(v4x, v4y, v4z)
+        return ((px + ((vx + v2x * 2) + (v3x * 2 + v4x)) * sixth,
+                 py + ((vy + v2y * 2) + (v3y * 2 + v4y)) * sixth,
+                 pz + ((vz + v2z * 2) + (v3z * 2 + v4z)) * sixth),
+                (vx + ((a1x + a2x * 2) + (a3x * 2 + a4x)) * sixth,
+                 vy + ((a1y + a2y * 2) + (a3y * 2 + a4y)) * sixth,
+                 vz + ((a1z + a2z * 2) + (a3z * 2 + a4z)) * sixth))
+
+    return step
+
+
 def bounce(vel: Vec, spin: Vec, ball: BallModel = DEFAULT_BALL) -> tuple[Vec, Vec]:
     """Velocity and spin just after a bounce on a flat court.
 
@@ -189,8 +247,11 @@ def simulate(pos: Vec, vel: Vec, spin: Vec = (0.0, 0.0, 0.0), *, ball: BallModel
     st = State(0.0, pos, vel, spin)
     flight.states.append(st)
     r = ball.radius
+    step, step_spin = _stepper(spin, dt, ball), spin
     while st.t < max_time:
-        p, v = _rk4(st.pos, st.vel, st.spin, dt, ball)
+        if st.spin is not step_spin:  # a bounce changed the spin
+            step, step_spin = _stepper(st.spin, dt, ball), st.spin
+        p, v = step(st.pos, st.vel)
         s = st.spin
         t = st.t + dt
         # Net plane crossing.

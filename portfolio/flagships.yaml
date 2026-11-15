@@ -87,10 +87,10 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable first: (0)
-      built-in keywords on real exports (HISTORY); OSM chains (README): Durham cold
-      28.2 to 29.6%, name clash fixed; Open Collective books (README): 63-87% right
-      from memos, 43-65% from payees; new-payee guess (README): first-time payees
-      5-21% to 20-65% right; Mint held out 68.7% first-seen; YNAB +2 pts; Copilot
+      keywords on real exports (HISTORY); Oklahoma cards (README): MCC names 65-70%,
+      keywords agree 93% held out; Open Collective books (README): 63-87% right from
+      memos, 43-65% from payees; new-payee guess (README): first-time payees 5-21%
+      to 20-65% right; Mint held out 68.7% first-seen; YNAB +2 pts; Copilot
       (README): signs fixed; card MCC (README): first-seen right 41% to 66%
       (Scotland), 61% to 75% (Toronto), 53% to 88% (Durham, held out); LLC labels:
       Mercury 90%, Rocket Money Amex 94% (README); (1) AI layer on real lines
@@ -331,26 +331,23 @@ flagships:
       Swiss formats, with a self-hosted league page.
     next: >-
       Landed work and every measurement are in
-      ventures/league-schedule-generator/README.md and eval/ (multi-division
-      scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
-      CSVs, duty rota, team sheets; carry-over on 20 real seasons; starters, capped
-      breaks, frontier picker, squeezes, MaxSAT proof that the gaps are
-      timetable-bound, exact break floor, three-round re-deals, balanced least
-      priced, faster break floor, exact home-and-away breaks, backward table,
-      blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-14 sections).
-      2026-11-15 latest: balance-guided walk and a start under the gap, so 28 teams
-      join the floor-priced step (47-55 s, 2 seasons a seed; no run worse over 14,
-      eval/under-start.txt, eval/walk-guide.txt). Doubleheaders (nights.mjs):
-      2-game nights wait-free, 17 of 18 feasible. Before: every starter enumerated
-      (eval/starter-exhaust.txt); int16 SIMD step; least
+      ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
+      rainouts, standings, officials, duty rota, team sheets; carry-over and break
+      floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
+      2026-11-15 sections). 2026-11-15 latest: 3-game nights
+      (eval/three-game-nights.txt): designed round robins (halves + cyclic cross at
+      12k teams, XOR at 2^k): 12-48 teams on 6 slots to 0 waits; 8 on 2x6 impossible
+      (full grid); 28 teams in the floor-priced step (eval/under-start.txt). Before:
+      every starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
       carry-over 94 at 10 teams, at 12 none below 124; refill search in C: 14 teams
-      210, stored. Next, most valuable first: 3-game nights wait-free; the rest of
-      the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 29-30 teams in the page (15
-      matches: profile 30 first; 27 teams add nothing on seed 1, README "Starting
-      under the gap"); the walk's last heavy tail (22 teams: 20 of 280 walks out of
-      budget either way, eval/walk-guide.txt); home-and-away breaks
+      210, stored. Next, most valuable first: 6-slot 3-game nights at 14, 18, 20, 28
+      teams (20 on 5x6: two closed tens a night; annealing stops at 2 crossing),
+      3-session designs, and odd leagues by groups; the rest of the 20-team gap (40
+      to 44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or
+      a starter family climbed with the floor as its score); 29-30 teams in the page
+      (15 matches: profile 30 first; 27 teams add nothing on seed 1, README
+      "Starting under the gap"); the walk's last heavy tail (22 teams: 20 of 280
+      walks out of budget either way, eval/walk-guide.txt); home-and-away breaks
       exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
       home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
       PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
@@ -361,12 +358,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the lift's jam impact (cad/README.md "Lift jam cutoff"):
-      the cutoff stops a held stall, but the gearmotor rotor's inertia (18 kg at the
-      belt, assumed) puts 149-172 N on one flight cap in a boot jam at a full pack,
-      over the cap's 156 N. A torque-limiting slip coupling between the gearmotor
-      and the drive pulley (its CAD, slip torque over the full belt's 0.13 N m), or
-      a soft-start retry; rerun tests/lift_jam_sweep.py with it.
+      venv, about 2 min): the lift's drive shaft landed 2026-11-15 (cad/README.md
+      "Lift drive shaft": own D shaft in two F626 bearings, jaw coupling in a
+      printed spacer). Next: tests/lift_jam_sweep.py as a three-inertia plant with
+      the jaw coupling's torsional stiffness and spider backlash between the rotor
+      and the slip hub (assumed figures, swept); a printable test ring for the F626
+      press fit in PETG (bore steps 0.00-0.15 mm over) in the manufacturing package.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -388,17 +385,16 @@ flagships:
       home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
       stop with a scale; hang a real hose from a tube; bend a built cable loop
       through the actuator's travel. Stepper ENABLE after the contactor landed
-      2026-11-14: scope a real contactor's pull-in and bounce. Regen, then brakes
-      and bounces in a row (700 mV guard band), landed 2026-11-14 (cad/README.md):
-      scope the bus on a 20% slow-down; log a real ESC braking and the battery
-      reading noise. Lift tensioner, flight caps and jam cutoff landed 2026-11-13/15
-      (cad/README.md): weigh a real belt, pluck a strand; drag a capped cleat over a
-      strip; scope the lift shunt on a start and a held stall; read the real
-      gearmotor's rotor inertia. Pot pickup from the PWM landed 2026-11-14 (1 uF on
-      GPIO 39, trimmed reads): scope GPIO 39 at part duty. Actuator's lead landed
-      2026-11-14 (cad/README.md "The elevation actuator's lead"): cut 220 mm,
-      209-231 fits; find where a real actuator's cable leaves its housing and bend a
-      built lead through the travel.
+      2026-11-14: scope a real contactor's pull-in and bounce. Regen
+      (cad/README.md): scope the bus on a 20% slow-down; log a real ESC braking and
+      the battery reading noise. Lift (cad/README.md): weigh a belt, pluck a strand;
+      drag a capped cleat over a strip; scope the lift shunt on a start and a stall;
+      read the gearmotor's rotor inertia; set a built slip hub with a scale, hold a
+      flight, watch it slip and trip; measure the lift gearmotor's shaft and body
+      (75 mm face to back at most) and press an F626 into a printed boot. Scope GPIO
+      39 at part duty. Actuator's lead landed 2026-11-14 (cad/README.md "The
+      elevation actuator's lead"): cut 220 mm, 209-231 fits; find where a real
+      actuator's cable leaves its housing and bend a built lead through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
@@ -413,25 +409,26 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-15
-      latest: --sing sings each syllable's vowel, opening and final consonants,
-      79.8% of openings and 75.9% of closings read back (eval/coda-check-report.md);
-      next: F1 tuning on high notes, k s clusters on short notes, l vs nasal codas).
-      Open checks that need a person: listen to the studio page, --sing, the options
-      (--stretch, --halftime, --fills, --limit pumping, stems, sections, breakdown,
-      riser, the a cappella verse and whether the key lift sounds like a lift);
-      --lrc in a real player and --markers/--stems in a DAW; --cues (and its section
-      lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the release
-      kit against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
-      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
-      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
-      eval/word-split-report.md) and --overlap (both sections sing the seam note at
-      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
-      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
-      overlap against a clean handoff; --baritones, --entrance-cost N and
-      --second-tenors (TTBB; README) need the same check. Next: a real choir's range
-      test; a director on --sit-out N, the --musicxml parts and the --learn tracks.
+      latest: --sing codas round 2, x as k s, nasal murmur 7 dB under its vowel;
+      held-out closings 82.9% to 90.0% (eval/coda-check-report.md part D); next: /m/
+      after /u/ (reader asks 15 dB), onsets on the new murmur, F1 on high notes, l
+      codas). Open checks that need a person: listen to the studio page, --sing, the
+      options (--stretch, --halftime, --fills, --limit pumping, stems, sections,
+      breakdown, riser, the a cappella verse and whether the key lift sounds like a
+      lift); --lrc in a real player and --markers/--stems in a DAW; --cues (and its
+      section lines), RECORDING-GUIDE.md and the E2-E4 range with real singers; the
+      release kit against a distributor's real form; the Te Deum/3427/3912/3775
+      fixes (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from
+      their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs
+      reads rhombi, quilismas, liquescents, lines at true thickness; tilted pages,
+      curled staves straightened (eval/staff-curl-check.md); 3506/3679 fixed
+      2026-11-15 (eval/broken-stroke-check.md); next: worn pages (new GABC needed),
+      mottled squares, a liquescent hook ending on a line (held-out misses), 3408's
+      strokes, 3464's cephalicus; --split-voices (by phrase or at a word,
+      --split-words, eval/word-split-report.md) and --overlap (both sections sing
+      the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
+      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
+      and of a one-note overlap against a clean handoff; --baritones,
+      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
+      Next: a real choir's range test; a director on --sit-out N, the --musicxml
+      parts and the --learn tracks.

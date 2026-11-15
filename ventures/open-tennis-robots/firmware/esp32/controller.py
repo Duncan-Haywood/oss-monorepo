@@ -582,7 +582,7 @@ class LiftRun:
     not clear it: the Pi reconnecting must not drive the belt into the same jam. A run-on that ends untripped resets
     the retry count."""
 
-    def __init__(self, run_on_ms, duty=1.0, blank_ms=300, trip_ms=10, rest_ms=2000, retries=1):
+    def __init__(self, run_on_ms, duty=1.0, blank_ms=400, trip_ms=10, rest_ms=2000, retries=1):
         self.run_on_ms = run_on_ms
         self.duty = duty
         self.blank_ms, self.trip_ms, self.rest_ms, self.retries = blank_ms, trip_ms, rest_ms, retries

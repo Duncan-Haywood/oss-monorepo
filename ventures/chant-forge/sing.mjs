@@ -161,9 +161,9 @@ export const PHONES = {
   s: { kind: 'fricative', voiced: false, place: 'alv', fric: [6500, 3000, -12], len: 0.09 },
   z: { kind: 'fricative', voiced: true, place: 'alv', fric: [6500, 3000, -14], len: 0.07 },
   S: { kind: 'fricative', voiced: false, place: 'pal', fric: [3000, 1800, -10], len: 0.09 },
-  m: { kind: 'nasal', F: [300, 1100, 2300], av: 0.5, len: 0.07, bw: 3 },
-  n: { kind: 'nasal', F: [300, 1500, 2500], av: 0.5, len: 0.07, bw: 3 },
-  N: { kind: 'nasal', F: [300, 2000, 2800], av: 0.5, len: 0.07, bw: 3 },
+  m: { kind: 'nasal', F: [300, 1100, 2300], av: 0.5, len: 0.07, bw: 3, Z: 1000, place: 'lab' },
+  n: { kind: 'nasal', F: [300, 1500, 2500], av: 0.5, len: 0.07, bw: 3, Z: 1800, place: 'alv' },
+  N: { kind: 'nasal', F: [300, 2000, 2800], av: 0.5, len: 0.07, bw: 3, Z: 2200, place: 'pal' },
   l: { kind: 'lateral', F: [400, 1250, 2700], av: 1.4, len: 0.05 },
   r: { kind: 'tap', F: [450, 1400, 2500], av: 0.08, len: 0.045 },
   j: { kind: 'glide', F: [270, 2290, 3010], av: 1.2, len: 0.04 },
@@ -171,7 +171,23 @@ export const PHONES = {
 };
 const VOICE_BAR = 0.08; // voicing left in a voiced closure or under a voiced fricative's noise: a low murmur
 const VOICED_FRIC = 0.3;
-const NASAL_GAIN = 1.2; // the low-passed murmur sits about 5 dB under the vowel on /a/ at D3 (Fujimura 1962: murmurs run 5-10 dB down)
+// The murmur's level: NASAL_DB under the vowel it leaves (or, in an opening, goes to), the middle of
+// Fujimura's (1962) 5-10 dB. A fixed gain (the first version's) left it 9 to 27 dB down depending on the
+// vowel and the pitch, as the low-pass and the nasal's resonance pass more or less of the harmonics, and
+// /m/ after /u/ was at times nothing to hear. So the gain is worked out per note (nasalGain): the
+// harmonics' power through the vowel's resonators against their power through the murmur's path.
+// Each nasal also has its antiformant, the side branch's zero (Fujimura 1962: /m/ 750-1250 Hz,
+// /n/ 1450-2200 Hz; Z in PHONES), which takes out the band just above the murmur that the low-pass leaves.
+const NASAL_DB = 7;
+// Openings keep the first version's murmur for now (a fixed gain, no antiformant, a vowel-width F1): the
+// opening reader's thresholds were set on it, and the coda murmur cost openings 21 of 934 reads
+// (eval/consonant-check-report.md) before any listener has compared the two.
+const ONSET_NASAL_GAIN = 1.2;
+const NASAL_ZBW = 200;
+// The murmur's low resonance is broad (Fujimura 1962 measured nasal-murmur bandwidths of 100-300 Hz and
+// more), not a vowel F1's 80 Hz: with 80 Hz the murmur's level swung 18 dB with pitch as harmonics hit
+// or missed it. 3.5 x 80 = 280 Hz.
+const NASAL_BW1 = 3.5;
 const TRANSITION = 0.045; // formants move from the consonant to the vowel over this long
 
 function phoneLen(ph) { const c = PHONES[ph]; return (c.closure || 0) + (c.len || 0) + (c.burst ? c.blen || 0.012 : 0); }
@@ -256,17 +272,20 @@ function paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas) {
       if (sg.bw) for (let i = i0; i < i1; i++) bwm[i] = sg.bw; // a nasal's damped upper formants (the side branch's losses)
       // and its murmur: the sound leaves by the nose, which passes little above a few hundred hertz,
       // so the source is low-passed in (10 ms ramps); without it /m/ after /u/ was the vowel 4 dB down
-      if (sg.kind === 'nasal' && nas) { const r = Math.max(1, Math.round(0.01 * rate)); for (let i = i0; i < i1 && i < total; i++) nas[i] = Math.max(nas[i], Math.min(1, (i - i0) / r, (i1 - i) / r)); }
+      if (sg.kind === 'nasal' && nas) { const r = Math.max(1, Math.round(0.01 * rate)); for (let i = i0; i < i1 && i < total; i++) { nas[i] = Math.max(nas[i], Math.min(1, (i - i0) / r, (i1 - i) / r)); nas.z[i] = sg.Z; } }
       keys.push([sg.t0, sg.F], [sg.t1, sg.F]);
     }
 }
+
+// a nasal's per-sample weight (0..1) and its antiformant's frequency (nas.z)
+function nasTrack(total) { const t = new Float64Array(total); t.z = new Float64Array(total); return t; }
 
 // Per-sample voicing gain, frication noise and formant targets for a note's onset.
 function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
   const plan = onsetPlan(onset, dur, share, room);
   const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
   const keys = []; // [t, F] formant keypoints before the vowel
-  const nas = new Float64Array(total);
+  const nas = nasTrack(total);
   for (const sg of plan.segs) paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas);
   // voicing ramps back in over 10 ms after an obstruent instead of switching on
   const ramp = Math.round(0.01 * rate), iv = Math.round(plan.vowelAt * rate);
@@ -283,15 +302,39 @@ function onsetTracks(onset, dur, total, rate, V, rand, refRms, share, room) {
 }
 
 // Lay a coda out in time, ending at `end` (seconds from the wave's start): the consonants take their
-// own length where `share` of the note (with the formant transition into them) allows, shortened in
-// proportion when it does not. Choirs hold the vowel and close it late, so the coda sits at the end.
+// own length where `share` of the note (with the formant transition into them) allows, shortened when
+// it does not. Choirs hold the vowel and close it late, so the coda sits at the end. Shortening keeps
+// each phone above a floor a listener needs (CODA_FLOOR: a 45 ms closure and a 10 ms burst, 35 ms of
+// frication, 40 ms of murmur): what is cut is each phone's length above its floor, in proportion. When
+// the floors need more than `share` (a cluster such as the k s of "lux" on a short note), the coda takes
+// up to CLUSTER_SHARE of the note; only past that is everything shortened in proportion.
+export const CODA_FLOOR = { closure: 0.045, burst: 0.01, fricative: 0.035, nasal: 0.06, other: 0.03 };
+const CLUSTER_SHARE = 0.5;
+function phoneParts(ph) { // [floor, full] for each part of a phone: a stop or affricate has a closure and a release
+  const c = PHONES[ph], F = CODA_FLOOR;
+  if (c.kind === 'stop') return [[F.closure, c.closure], [F.burst, c.blen || 0.012]];
+  if (c.kind === 'affricate') return [[F.closure, c.closure], [F.fricative, c.len]];
+  const full = c.len || 0, fl = c.kind === 'fricative' ? F.fricative : c.kind === 'nasal' ? F.nasal : F.other;
+  return [[Math.min(fl, full), full]];
+}
 export function codaPlan(coda, dur, end, share = SING_DEFAULTS.codaShare) {
   const want = onsetLength(coda);
   if (!want) return { segs: [], codaAt: end, scale: 1 };
-  const k = Math.min(1, (share * dur) / (want + TRANSITION));
-  let t = end - want * k; const codaAt = t, segs = [];
-  for (const ph of coda) { const L = phoneLen(ph) * k; segs.push({ ph, ...PHONES[ph], t0: t, t1: t + L, k }); t += L; }
-  return { segs, codaAt, scale: k };
+  const parts = coda.map(phoneParts), floors = parts.flat().reduce((a, [f]) => a + f, 0);
+  const room = (sh) => Math.min(want, (sh * dur * want) / (want + TRANSITION));
+  let T = room(share);
+  if (T < floors) T = Math.min(floors, room(Math.max(share, CLUSTER_SHARE)));
+  // u: the share of each part's length above its floor that is kept; below the floors, all scale by v
+  const u = want > floors ? Math.max(0, Math.min(1, (T - floors) / (want - floors))) : 1, v = Math.min(1, T / floors);
+  const len = ([f, full]) => (T >= floors ? f + (full - f) * u : f * v);
+  let t = end - T; const codaAt = t, segs = [];
+  coda.forEach((ph, j) => {
+    const ls = parts[j].map(len), L = ls.reduce((a, b) => a + b, 0), c = PHONES[ph];
+    // paintSeg ends a closure at closure * k: k is set so it ends where this plan puts it
+    segs.push({ ph, ...c, t0: t, t1: t + L, k: c.closure ? ls[0] / c.closure : L / Math.max(1e-9, phoneLen(ph)) });
+    t += L;
+  });
+  return { segs, codaAt, scale: T / want };
 }
 
 // Per-sample tracks for a coda (see onsetTracks). The vowel's formants move to the first
@@ -300,15 +343,19 @@ export function codaPlan(coda, dur, end, share = SING_DEFAULTS.codaShare) {
 function codaTracks(coda, dur, end, total, rate, V, rand, refRms, share) {
   const plan = codaPlan(coda, dur, end, share);
   const av = new Float64Array(total).fill(1), fr = new Float64Array(total), bwm = new Float64Array(total).fill(1);
-  const keys = [[plan.codaAt - TRANSITION * plan.scale, V]], nas = new Float64Array(total);
+  const keys = [[plan.codaAt - TRANSITION * plan.scale, V]], nas = nasTrack(total);
   for (const sg of plan.segs) paintSeg(sg, V, rate, total, av, fr, bwm, keys, rand, refRms, nas);
   const first = plan.segs[0], last = plan.segs[plan.segs.length - 1];
+  // into a nasal the vowel's formants move toward the place's locus while the mouth closes, as into a
+  // stop, and the murmur's own resonances start at the closure: moving them to the murmur's F2 instead
+  // made /u/ brighter (F2 870 to 1100 Hz, +14 dB above 1 kHz) just before an /m/
+  if (first.kind === 'nasal') keys.splice(1, 0, [first.t0 - 0.002, obstruentF(first, V)]);
   // the voices fade out over 10 ms into an obstruent rather than switching off
   const ramp = Math.round(0.01 * rate), ic = Math.round(first.t0 * rate);
   if (first.F === undefined) for (let i = Math.max(0, ic - ramp); i < ic; i++) av[i] = Math.min(av[i], 1 - (1 - av[ic]) * ((i - (ic - ramp)) / ramp));
   const ie = Math.round(last.t1 * rate);
   const after = last.F === undefined ? 0 : last.kind === 'tap' ? 0.6 : last.av;
-  for (let i = ie; i < total; i++) { av[i] = after; if (last.bw) bwm[i] = last.bw; if (last.kind === 'nasal') nas[i] = 1; }
+  for (let i = ie; i < total; i++) { av[i] = after; if (last.bw) bwm[i] = last.bw; if (last.kind === 'nasal') { nas[i] = 1; nas.z[i] = last.Z; } }
   const formantsAt = (t) => {
     if (t < keys[0][0]) return null;
     if (t >= keys[keys.length - 1][0]) return keys[keys.length - 1][1];
@@ -355,7 +402,13 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   // a diphthong reaches its second vowel by the coda (or the note's end)
   const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator
-  let co = null, lp = 0, lp2 = 0;
+  let co = null, lp = 0, lp2 = 0, az = null, zx1 = 0, zx2 = 0;
+  // the murmur's gain against the vowel it leaves (or, in an opening, the one it goes to)
+  const gains = new Map(), gainOf = (z, V) => { // per nasal (its zero) and vowel
+    const key = `${z}`;
+    if (!gains.has(key)) { const c = Object.values(PHONES).find((q) => q.Z === z); gains.set(key, nasalGain(f, rate, V, c)); }
+    return gains.get(key);
+  };
   const NASAL_LP = 1 - Math.exp((-2 * Math.PI * 400) / rate); // two one-pole low-passes at 400 Hz
   for (let i = 0; i < total; i++) {
     if ((i & 63) === 0) {
@@ -364,12 +417,17 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
       const c = (cd && cd.formantsAt(i / rate)) || (on && on.formantsAt(i / rate));
       const fs = [...(c || from.map((x, k) => x + (to[k] - x) * w)), ...F45];
       const bm = (on ? on.bwm[i] : 1) * (cd ? cd.bwm[i] : 1);
-      co = fs.map((fk, k) => reson(fk, BW[k] * (k > 0 ? bm : 1), rate));
+      const b1 = 1 + (NASAL_BW1 - 1) * (cd ? cd.nas[i] : 0); // a final nasal's broad low resonance
+      co = fs.map((fk, k) => reson(fk, BW[k] * (k > 0 ? bm : b1), rate));
     }
     let x = src[i] * (on ? on.av[i] : 1) * (cd ? cd.av[i] : 1);
-    const nz = Math.max(on ? on.nas[i] : 0, cd ? cd.nas[i] : 0);
+    const nOn = on ? on.nas[i] : 0, nCd = cd ? cd.nas[i] : 0, nz = Math.max(nOn, nCd);
     lp += NASAL_LP * (x - lp); lp2 += NASAL_LP * (lp - lp2);
-    if (nz) x = x * (1 - nz) + lp2 * nz * NASAL_GAIN;
+    // the antiformant: an inverse resonator (Klatt's antiresonator, unity gain at 0 Hz) on the murmur
+    const zf = cd && cd.nas.z[i];
+    if (zf && (!az || az.f !== zf)) { const [A, B, C] = reson(zf, NASAL_ZBW, rate); az = { f: zf, a: 1 / A, b: -B / A, c: -C / A }; }
+    const zy = az ? az.a * lp2 + az.b * zx1 + az.c * zx2 : lp2; zx2 = zx1; zx1 = lp2;
+    if (nz) x = nCd >= nOn ? x * (1 - nz) + zy * nz * gainOf(zf, to) : x * (1 - nz) + lp2 * nz * ONSET_NASAL_GAIN;
     for (let k = 0; k < 5; k++) {
       const [A, B, C] = co[k];
       const y = A * x + B * st[2 * k] + C * st[2 * k + 1];
@@ -401,6 +459,30 @@ function rawRms(rate) {
   return rmsCache.get(rate);
 }
 const scaleFor = (rate, level) => level / rawRms(rate);
+// |H(e^jw)|^2 of a Klatt resonator at frequency hz
+function resonPow(hz, f, bw, rate) {
+  const [A, B, C] = reson(f, bw, rate), w = (2 * Math.PI * hz) / rate;
+  const re = 1 - B * Math.cos(w) - C * Math.cos(2 * w), im = B * Math.sin(w) + C * Math.sin(2 * w);
+  return (A * A) / (re * re + im * im);
+}
+// The murmur path's gain that puts a nasal NASAL_DB under the vowel V ([F1, F2, F3]) on f0: the power of
+// the sawtooth's harmonics (amplitude 1/h, up to 5 kHz) through the vowel's five resonators, against their
+// power through the murmur's path (voicing c.av, the two 400 Hz low-passes, the antiformant, and the
+// nasal's own resonators with their wider bandwidths). Steady state; vibrato and detuning ignored.
+function nasalGain(f0, rate, V, c) {
+  const a = 1 - Math.exp((-2 * Math.PI * 400) / rate);
+  const vf = [...V, ...F45], nf = [...c.F, ...F45];
+  let pv = 0, pm = 0;
+  for (let h = 1; h * f0 < 5000; h++) {
+    const hz = h * f0, w = (2 * Math.PI * hz) / rate, amp = 1 / (h * h);
+    let gv = amp, gm = amp * c.av * c.av;
+    for (let k = 0; k < 5; k++) { gv *= resonPow(hz, vf[k], BW[k], rate); gm *= resonPow(hz, nf[k], BW[k] * (k > 0 ? c.bw || 1 : NASAL_BW1), rate); }
+    const lp = (a * a) / (1 - 2 * (1 - a) * Math.cos(w) + (1 - a) * (1 - a)); // one pole, squared magnitude
+    gm *= lp * lp / resonPow(hz, c.Z, NASAL_ZBW, rate);
+    pv += gv; pm += gm;
+  }
+  return pm > 0 ? 10 ** (-NASAL_DB / 20) * Math.sqrt(pv / pm) : 0;
+}
 
 // f: Hz; dur: s; returns Float64Array of lead + dur + release seconds. `onset`: the syllable's
 // consonants (latinOnset), sung before the vowel: by default inside the note, or with `lead`

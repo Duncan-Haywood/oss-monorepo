@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKiWkFXMQzqb85Yrk63",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T12:17:52Z",
+  "ended": "2026-11-15T12:40:56Z",
+  "wall_minutes": 23.72,
+  "tokens_in": 12558921,
+  "tokens_out": 63601,
+  "cost_usd": 5.2681,
+  "tool_calls": 87,
+  "task": "chant-forge flagship (row 8 of allocate.py): final consonants round 2 -- x (k s) clusters and nasal codas",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16210",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Murmur gain via a cached per-vowel render recursed (rawSing -> vowelRms -> rawSing) and hit the stack limit; replaced by an analytic per-note spectrum ratio (nasalGain).",
+    "First nasal-gain change also moved openings 745 to 724 of 934; openings put back on the old murmur (ONSET_NASAL_GAIN), now 742."
+  ],
+  "integrity_issues": [
+    "Part D (held out) total was printed once mid-work (61 of 70, after the x fix) because one grep matched every '| all' row; its misses were not read and nothing was kept or dropped on it. Stated in the README and post.",
+    "Part B (five pieces) had already been read for misses by the first round and was read again here; it is reported as a development score, not held out.",
+    "The vowel-check window was changed (ends before the coda's transition) after the change lowered vowels 895 to 874; both numbers are reported, the old-window number in the main table."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/sing.mjs",
+      "issue": "The NASAL_GAIN comment said the murmur sat 5 dB under /a/ at D3; measured steady it was 9-27 dB under across vowels and pitches (calibration reference taken during the vowel's attack). Comment replaced."
+    },
+    {
+      "file": "ventures/chant-forge/eval/coda-check-report.md",
+      "issue": "Report had no held-out set: B had been read for misses, so the next improvement had nothing clean to be scored on. Added part D before changing anything."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Brief favours new revenue products; the router's flagship pick (chant-forge) was followed instead, as the same prompt's 'Deepen a flagship by default' says.",
+      "did": "Deepened chant-forge's synthesiser and reader.",
+      "result": "Held-out closings 82.9% to 90.0%."
+    },
+    {
+      "file": "ventures/chant-forge/sing.mjs",
+      "why": "The new nasal murmur, applied to openings too, lowered the opening reader's score; rather than tune the 7 dB target to the reader's -7 dB threshold, openings keep the old murmur for now.",
+      "did": "ONSET_NASAL_GAIN for openings; new murmur in codas only.",
+      "result": "Openings 742 of 934 (was 745)."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs not run: no new page, route or venture metadata change; only synthesis code, evals and docs. The venture test suite (247 tests) and the browser e2e were run instead.",
+      "did": "run_venture_tests.py chant-forge and eval/browser-e2e.mjs",
+      "result": "See notes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-k-in-lux-and-the-m-nobody-could-hear.md",
+    "ventures/chant-forge/README.md (Final consonants, second round)"
+  ],
+  "goal": "Deepen a flagship: chant-forge's sung final consonants, measured on a held-out set",
+  "notes": "Coda check (eval/coda-check-report.md): A 129->134 of 180; B 123->134 of 162 (k 3->12 of 13, nasals 22->21 of 42); D held out 58->63 of 70 (k s 0->3 of 3, nasals 6->8 of 12); vowel-only controls unchanged (D 68/70, B 160/162). Openings 745->742 of 934. Vowels 895->874 of 920 with the old window, 695 of 714 (97.3%) with the window ending before the coda. Local: python3 platform/ci/run_venture_tests.py chant-forge -> ok, 247 tests, 0 failed. Browser: node eval/browser-e2e.mjs -> all 115 checks passed (114 before; browser WAVs equal the CLI's).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ff6e53e2-14f9-5798-8831-3607449d2b61",
+    "transcripts": 1,
+    "first": "2026-11-15T12:17:52Z",
+    "last": "2026-11-15T12:41:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 160,
+        "output": 63601,
+        "thinking": 24238,
+        "cache_read": 12368541,
+        "cache_write_5m": 0,
+        "cache_write_1h": 190220,
+        "api_equivalent_usd": 5.2681,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 160,
+      "output": 63601,
+      "thinking": 24238,
+      "cache_read": 12368541,
+      "cache_write_5m": 0,
+      "cache_write_1h": 190220,
+      "api_equivalent_usd": 5.2681,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 84,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.72,
+      "active_minutes": 23.72,
+      "model_minutes": 13.04,
+      "tool_minutes": 10.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a DSP engineer diagnosing the k s and nasal faults, a held-out eval, synthesis and reader changes, and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 227.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

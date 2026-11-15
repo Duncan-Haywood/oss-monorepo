@@ -764,6 +764,37 @@ prove the charges are negative. All 78 real files now read every line with the r
 sign, the code on every line, and totals to the penny. Tests: `durham-pcard.test.mjs`
 (7, made-up rows under the real header).
 
+### Oklahoma's purchasing cards: a US buyer, category names only (2026-11-15)
+
+The State of Oklahoma publishes every state purchasing-card line, a month per file, with the merchant as the bank printed it and the card network's merchant category *name* cut to 40 characters ("STATIONERY,OFFICE SUPPLIES,PRINTING AND"); its counties publish a combined report for 2022 to 2024 (`node eval/oklahoma-pcard.mjs read|names --dir <folder>`, fetch command in the file; State of Oklahoma open data, not copied here; cardholder names are in the files and never read). Fiscal 2017 (416,812 charges) was read to write the changes; fiscal 2018 (407,011) and the county report (30 files, 7,797 lines) were held out. The files carry no account the state filed each line to, so there is no answer key: what is measured is whether the importer reads them, how often the category name gives an account, and how often the name-only layers agree with it.
+
+**Found on the way, fixed: the county report booked every charge as money in.** 24 of its 30 monthly files spell the category column "MCC_DESCRPTION", which was not a known heading, so the card-file sign rule (Durham, above) never saw a category column. Now it is. The months also use " Amount ", "$425.60 ", "MERCHANT_NAME", "Purchase Date", CR-only line ends and two Excel 97 workbooks; all of those already read. After the fix all 30 county files and all 24 state files (858,879 lines in all) read every line, every charge as money out, the category on every line and totals to the penny against a separate plain reading of the Amount column (before: 6 of 30 county files).
+
+**The category names the rules missed.** On fiscal 2017, 35% of charges had a category name that gave no account. Most of that is catch-alls that should say nothing (grocery stores, "business services", direct marketers, discount stores). But some was the rules' fault: the patterns ended in a word boundary, so stems never matched ("TRAVEL AGENCIES", "LANDSCAPE AND HORTICULTURAL SERVICES", "DISINFECTING AND EXTERMINATING SERVICES", "TOLLS, ROAD AND BRIDGE FEES"); hotel names are plural ("HOLIDAY INNS", "COMFORT INNS", "EMBASSY SUITES"); and codes 3000-3999 are named after one airline, car-hire firm or hotel chain each ("DELTA", "HERTZ CORPORATION", "WYNDHAM", "LUFTHANSA"). Each fix maps a name to the account its code already gets in `MCC_RANGES`, so a file with names now gets what a file with codes got. All 59 names that changed were read by eye and all are right.
+
+| | fiscal 2017 (read) | fiscal 2018 (held out) | county 2022-24 (held out) |
+|---|---|---|---|
+| charges | 416,812 | 407,011 | 7,404 (1,705 before the header fix) |
+| category name gives an account, before | 64.5% | 65.1% | 54.2% of 1,705 |
+| after | 69.3% | 69.7% | 70.4% |
+
+**The built-in keywords, checked against the category.** From empty books with the merchant name only, the keywords and the chain list spoke on about 35% of charges. Where the category also gave an account they agreed 90.4% of the time on the held-out year (scored against the new name rules in both columns). Reading fiscal 2017's disagreements turned up keyword faults, fixed in `categorize.mjs`: electrical supply houses ("CBI WHOLESALE ELECTRIC", "WHITE ELECTRICAL SUPPLY") and electricians filed as utilities through "electric"; "XEROX" filed as software through "xero"; "BRENNTAG SOUTHWEST" and "SOUTHWEST PARK AND REC" as the airline; "DOMINO EQUIPMENT" as the pizza chain; "PHILLIPS 66 - CRUISE AVIA" (an airport fuel stop) as a cruise; "HERTZ EQUIPMENT" as car hire; FedEx Office (a copy shop, by its category) as shipping. Then fiscal 2018's misses were read and two more fixed: "SPECTRUM PAINT" as the cable company and "PIKEPASS REBILLS" (Oklahoma's toll tag) as a utility through "ebill".
+
+| agreement with the category where both speak | fiscal 2017 (read) | fiscal 2018 (held out) | county (held out) |
+|---|---|---|---|
+| keywords before | 90.6% (11,815 disagree) | 90.4% (12,130) | 89.3% (189) |
+| after the fiscal-2017 fixes | 92.7% (9,099) | 92.8% (9,008) | 89.5% (186) |
+| after reading fiscal 2018 too | 93.0% (8,708) | 93.1% (8,611) | 89.5% (186) |
+
+What it says, with care:
+
+- **Agreement is not correctness.** The category says what the merchant sells, not why the state bought it. The largest remaining disagreement is deliberate: NAPA and O'Reilly are filed as supplies by the keywords (the trades fixtures wanted parts as job materials), while their category says vehicle costs. That is a judgment the labelled sets made and this set cannot overrule.
+- **The held-out gain is real but modest:** about 3,100 fewer disagreements in 127,000 lines where both spoke. The county set is too small and too local (feed stores, county road suppliers) for the keyword changes to show.
+- **No change on the labelled sets:** the ten Mint exports (2,926 lines, keywords alone and the learning loop), the three YNAB registers (633) and Durham County Council's 151,437 card lines (keywords alone) read the same to the line before and after.
+- **Left open:** the chain list files "SANTA CRUZ BIOTECHNOLOGY" and "NOVUS BIOLOGICALS" as food shops (OpenStreetMap lists chains by those names; 126 to 188 lines a year), and "NORTHEAST OKLAHOMA PUB", a public utility cut at 24 characters, as a pub. They need the chain-list builder (place names) and a rule for truncated names, not one more exception.
+
+Pinned in `oklahoma-pcard.test.mjs` (6 tests: made-up rows under the real county and state headers, CR-only line ends, the eval's plain reading against the importer, the category names and the keyword cases).
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.

@@ -56,14 +56,14 @@ The first note of every syllable that opens on a consonant, 0.2 s or more, after
 
 | piece | syllables | singing: read exactly as written | vowel-only control: read as none |
 |---|---|---|---|
-| dies-irae | 387 | 303 of 387 (78.3%) | 290 of 387 (74.9%) |
-| pange-lingua | 37 | 28 of 37 (75.7%) | 32 of 37 (86.5%) |
+| dies-irae | 387 | 301 of 387 (77.8%) | 290 of 387 (74.9%) |
+| pange-lingua | 37 | 27 of 37 (73.0%) | 32 of 37 (86.5%) |
 | veni-creator | 26 | 21 of 26 (80.8%) | 21 of 26 (80.8%) |
 | te-deum | 391 | 312 of 391 (79.8%) | 276 of 391 (70.6%) |
 | salve-regina | 93 | 81 of 93 (87.1%) | 79 of 93 (84.9%) |
-| all | 934 | 745 of 934 (79.8%) | 698 of 934 (74.7%) |
+| all | 934 | 742 of 934 (79.4%) | 698 of 934 (74.7%) |
 
-By class alone: 778 of 934 (83.3%). The vowel-only control "reads" the written consonant exactly on 63 of 934 (6.7%) of the same notes (the chance level: what a pitch step or a vowel change at the beat looks like to the reader); its reads: stop 58, affricate 0, fricative 44, nasal 124, tap 10, none 698. Syllables that open on their vowel (after another note): 142 of 186 (76.3%) read as no consonant.
+By class alone: 775 of 934 (83.0%). The vowel-only control "reads" the written consonant exactly on 63 of 934 (6.7%) of the same notes (the chance level: what a pitch step or a vowel change at the beat looks like to the reader); its reads: stop 58, affricate 0, fricative 44, nasal 124, tap 10, none 698. Syllables that open on their vowel (after another note): 141 of 186 (75.8%) read as no consonant.
 
 By written consonant:
 
@@ -74,14 +74,14 @@ By written consonant:
 | fricative s | 115 of 121 (95.0%) |
 | voiceless vel stop | 94 of 103 (91.3%) |
 | tap | 61 of 95 (64.2%) |
-| voiced alv stop | 50 of 82 (61.0%) |
+| voiced alv stop | 49 of 82 (59.8%) |
 | none | 51 of 61 (83.6%) |
 | voiceless lab stop | 44 of 49 (89.8%) |
-| fricative voiced | 33 of 37 (89.2%) |
+| fricative voiced | 32 of 37 (86.5%) |
 | voiced lab stop | 17 of 27 (63.0%) |
 | fricative f | 14 of 26 (53.8%) |
 | voiced vel stop | 11 of 18 (61.1%) |
-| voiced affricate | 10 of 15 (66.7%) |
+| voiced affricate | 9 of 15 (60.0%) |
 | voiceless affricate | 15 of 15 (100.0%) |
 | fricative S | 1 of 1 (100.0%) |
 
@@ -89,11 +89,11 @@ Class written (rows) against class read (columns):
 
 | written | stop | affricate | fricative | nasal | tap | none |
 |---|---|---|---|---|---|---|
-| stop | 371 | 1 | 6 | 12 | 1 | 23 |
-| affricate | 0 | 25 | 3 | 2 | 0 | 0 |
-| fricative | 2 | 2 | 174 | 5 | 0 | 2 |
+| stop | 370 | 1 | 6 | 12 | 1 | 24 |
+| affricate | 0 | 24 | 4 | 2 | 0 | 0 |
+| fricative | 2 | 2 | 173 | 5 | 0 | 3 |
 | nasal | 2 | 0 | 4 | 96 | 0 | 47 |
-| tap | 0 | 0 | 1 | 10 | 61 | 23 |
+| tap | 0 | 0 | 1 | 11 | 61 | 22 |
 | none | 2 | 0 | 2 | 6 | 0 | 51 |
 
 ## C. Opening consonants in the corpus

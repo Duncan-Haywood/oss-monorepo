@@ -468,7 +468,7 @@ class LiftJamTest(unittest.TestCase):
         hw = sim.hw
         hw.lift.kick(sim.us // 1000)
         sim.lift_over = True                         # stalled from the start: a ball wedged in the boot
-        self._beat(sim, 200)
+        self._beat(sim, 300)
         self.assertEqual(hw.lift_pwm.duty, 65535)    # blanked
         self._beat(sim, 200)
         self.assertEqual(hw.lift_pwm.duty, 0)        # cut
@@ -509,11 +509,30 @@ class LiftJamTest(unittest.TestCase):
             self.assertFalse(tripped, name)
             self.assertLess(over_ms, _feeder().lift_jam_blank_ms / 2, name)
             for where in sweep.WHERE:
-                r = sweep.jam(v, rise, 1.0, "hi", where)                  # the highest trip
+                r = sweep.jam(v, rise, 1.0, "hi", where, slip="lo")      # the highest trip, the hub sliding lowest
                 self.assertIsNotNone(r["cut_ms"], (name, where))
-                self.assertLess(r["cut_ms"], 100, (name, where))
+                self.assertLess(r["cut_ms"], 150, (name, where))
                 self.assertIsNotNone(r["jammed_ms"], (name, where))
                 self.assertLess(r["jammed_ms"], 3000, (name, where))
                 off = sweep.jam(v, rise, 1.0, "hi", where, cutoff=False)
                 self.assertLess(r["winding_j"], off["winding_j"] / 10, (name, where))
                 self.assertLess(r["peak_n"], _feeder().lift_jam_cutoff()["weld_allow_n"], (name, where))
+
+    def test_slip_hub_keeps_a_jam_under_the_cap_plate(self):
+        # 2026-11-15, cad/README.md "Lift slip coupling": rigid, the rotor's inertia put up to 214 N on a flight (the
+        # plate allows 156 N) before any cut; with the hub at the top of its torque and the cutoff at its lowest trip the
+        # peak stays under the plate's allowance at every corner, the twice-assumed rotor included, and a start with
+        # the hub at its lowest never slips it.
+        import lift_jam_sweep as sweep
+        allow = _feeder().lift_jam_cutoff()["plate_allow_n"]
+        for name, v, rise in sweep.CORNERS:
+            sweep.start(v, rise, 0.5, "lo", slip="lo")              # the lightest rotor puts the most torque on the hub
+            self.assertEqual(sweep.start.plant.slid_ms, 0.0, name)
+            for where in sweep.WHERE:
+                for jf in sweep.INERTIAS:
+                    r = sweep.jam(v, rise, jf, "lo", where, slip="hi")
+                    self.assertLess(r["peak_n"], allow, (name, where, jf))
+                    self.assertGreater(r["slid_ms"], 0.0, (name, where, jf))
+                    self.assertIsNotNone(r["jammed_ms"], (name, where, jf))
+            rigid = sweep.jam(v, rise, 2.0, "lo", "boot", slip=None)
+            self.assertGreater(rigid["peak_n"], r["peak_n"], name)

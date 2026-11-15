@@ -21,6 +21,10 @@ PILOT_SHARE = 0.7  # suggested pilot share (no function reads it). LOG.md 7ar (p
 PILOT_SHARE_PRE7AR = 0.3  # the suggested share before 7ar; experiments before 7ar read it so each replays as committed
 BUDGET_CAP = True  # plan_audit's default: a cells plan never labels more than n items (`cap_to_budget`; LOG.md 7ar found an
 #                   uncapped plan up to 20% over budget at a 0.7n pilot). Experiments before 7ar call `plan_audit_pre7ar`.
+RARE_FALLBACK = 3  # audit_interval's default rare_fallback (LOG.md 7aw, pre-registered): a pooled plan whose labels hold
+# fewer than 3 human positives is closed by a Wilson interval on the labels alone. It covered 93.6% or more in all 47
+# cells under 1% prevalence or at n 200 / 300, and kept 97.0% of the shipped rule's width gain where its interval was
+# valid. Experiments before 7aw set A.RARE_FALLBACK = None so each replays as committed.
 NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7w); the default since 7w, neg_guard=0 turns it off
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)
 WIDTH_MARGIN = 0.0  # keep cells only if the pilot's `predicted_ratio` <= 1 - WIDTH_MARGIN (LOG.md 7ak: removed all 7 cells
@@ -320,7 +324,7 @@ def plan_audit_pre7ar(*args, **kw):
     return plan_audit(*args, **kw)
 
 
-def audit_interval(plan, f_all, labels, z=1.959964, rare_fallback=None):
+def audit_interval(plan, f_all, labels, z=1.959964, rare_fallback="default"):
     """The interval that closes `plan_audit`: (estimate, low, high) for the corpus prevalence. labels: {item index:
     human 0/1} for the pilot plus the items drawn from `to_label`. Estimator of 6ac and 6ad: one control-variate weight
     lambda = cov(y, f) / var(f) clipped to [0, 1], pooled over the audited items, applied in every cell; the stratified
@@ -334,10 +338,14 @@ def audit_interval(plan, f_all, labels, z=1.959964, rare_fallback=None):
     7av decision rule kept it off because it costs 4% of the width gain where the interval was already valid) closes a
     pooled plan whose labels hold fewer than m positives with a Wilson interval on the labels alone (x of a, no coder,
     no finite-population correction), point estimate unchanged; m = 5 covered 93.6% or more in all 21 cells under 1%
-    prevalence. Use it whenever the audit may hold under about 5 positives."""
+    prevalence. 7aw (pre-registered, 139 cells, 22 fresh at n 200 and 300): m = 3 kept validity in all 47 rare or
+    fresh cells (lowest 93.6%) and 97.0% of the gain where the shipped interval was valid (m = 5: 90.6%), so it is now
+    the default (`RARE_FALLBACK`); pass rare_fallback=None for the bare control-variate interval, or 5 for more margin."""
     import math
+    if rare_fallback == "default":
+        rare_fallback = RARE_FALLBACK
     if rare_fallback and not plan.get("two_phase") and len(plan["cells"]) == 1:
-        est, lo, hi = audit_interval(plan, f_all, labels, z)
+        est, lo, hi = audit_interval(plan, f_all, labels, z, rare_fallback=None)
         y = [labels[i] for i in plan["cells"][0] if i in labels]
         x, a = sum(y), len(y)
         if x < rare_fallback:

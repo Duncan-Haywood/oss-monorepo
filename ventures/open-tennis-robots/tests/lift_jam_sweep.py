@@ -44,7 +44,10 @@ WHERE = ("boot", "hood")
 
 
 class Plant:
-    def __init__(self, p: Feeder, volts, rise_k, j_factor=1.0, trip="lo", loaded=True):
+    """`slip`: None for a rigid drive (the pulley keyed to the gearmotor's shaft, as before 2026-11-15), or "lo", "nom"
+    or "hi" for the slip hub at the low end, middle or high end of its set torque (`Feeder.lift_slip_design`)."""
+
+    def __init__(self, p: Feeder, volts, rise_k, j_factor=1.0, trip="lo", loaded=True, slip="nom"):
         m = p.lift_motor_model()
         c = p.lift_jam_cutoff()
         self.p, self.m = p, m
@@ -54,8 +57,19 @@ class Plant:
         self.l = m["l_h"]
         self.kt, self.ke = m["kt"], m["ke"]
         self.t_f = m["kt"] * p.lift_motor_noload_a                     # no-load loss as friction at the output
-        self.j = p.lift_rotor_kgm2 * j_factor * p.lift_gear_ratio ** 2 + m["moving_kg"] * m["r_m"] ** 2
+        self.j_m = p.lift_rotor_kgm2 * j_factor * p.lift_gear_ratio ** 2
+        self.j_b = m["moving_kg"] * m["r_m"] ** 2
+        self.j = self.j_m + self.j_b
         self.rp = m["r_m"]
+        if slip is None:
+            self.t_stick = self.t_slide = math.inf
+        else:
+            t = p.lift_slip_nm * {"lo": 1 - p.lift_slip_tol, "nom": 1.0, "hi": 1 + p.lift_slip_tol}[slip]
+            self.t_stick, self.t_slide = t, t * p.lift_slip_kinetic
+        self.locked = True
+        self.wb = 0.0                # belt side's speed (the same as the motor side's, w, while the hub is stuck)
+        self.slid_ms = 0.0
+        self.slide_j = 0.0
         d = p.lift_design()
         self.t_load = (d["pull_n"] if loaded else 0.1 * d["pull_n"]) * self.rp
         self.trip_v = c["trip_lo_a" if trip == "lo" else "trip_hi_a"] * p.lift_shunt_ohm
@@ -91,15 +105,40 @@ class Plant:
         self.winding_j += self.i * self.i * self.r_w * DT
         f = 0.0
         if self.s_jam is not None and self.s > self.s_jam:
-            f = max(0.0, self.k * (self.s - self.s_jam) + self.c_damp * self.w * self.rp)
+            f = max(0.0, self.k * (self.s - self.s_jam) + self.c_damp * self.wb * self.rp)
         self.force = f
-        drive = self.kt * self.i - self.t_load - f * self.rp
-        if abs(self.w) < 1e-3 and abs(drive) <= self.t_f:
-            self.w = 0.0
-        else:
-            sign = 1.0 if (self.w > 0 or (self.w == 0 and drive > 0)) else -1.0
-            self.w += (drive - self.t_f * sign) / self.j * DT
-        self.s += self.w * self.rp * DT
+        t_m = self.kt * self.i                    # the motor's torque at the gearbox's output
+        t_b = -self.t_load - f * self.rp          # what the belt side has on it besides the hub
+        if self.locked:
+            drive = t_m + t_b
+            if abs(self.w) < 1e-3 and abs(drive) <= self.t_f:
+                a = -self.w / DT
+            else:
+                sign = 1.0 if (self.w > 0 or (self.w == 0 and drive > 0)) else -1.0
+                a = (drive - self.t_f * sign) / self.j
+            t_hub = self.j_b * a - t_b            # what the hub must pass to keep the belt side with the motor
+            if abs(t_hub) <= self.t_stick:
+                self.w = self.wb = self.w + a * DT
+            else:
+                self.locked = False
+                self._slide_dir = 1.0 if t_hub > 0 else -1.0
+        if not self.locked:
+            rel = self.w - self.wb
+            d = (1.0 if rel > 0 else -1.0) if abs(rel) > 1e-9 else self._slide_dir
+            t_hub = self.t_slide * d
+            dm = t_m - t_hub
+            if abs(self.w) < 1e-3 and abs(dm) <= self.t_f:
+                self.w = 0.0
+            else:
+                sign = 1.0 if (self.w > 0 or (self.w == 0 and dm > 0)) else -1.0
+                self.w += (dm - self.t_f * sign) / self.j_m * DT
+            self.wb += (t_hub + t_b) / self.j_b * DT
+            self.slid_ms += DT * 1000
+            self.slide_j += abs(t_hub * (self.w - self.wb)) * DT
+            if (self.w - self.wb) * d <= 0:       # the speeds met: stuck again, sharing momentum
+                self.w = self.wb = (self.j_m * self.w + self.j_b * self.wb) / self.j
+                self.locked = True
+        self.s += self.wb * self.rp * DT
         shunt = self.i * self.p.lift_shunt_ohm * duty if on else 0.0
         self.vf += (shunt - self.vf) * DT / self.rc
         return self.vf > self.trip_v
@@ -129,21 +168,23 @@ def _run(sim, plant, ms, on_ms=None):
             on_ms(t, plant, duty)
 
 
-def start(volts, rise_k, j_factor, trip, loaded=True):
-    """Kick the lift from rest. (tripped, ms the comparator was on, speed reached as a share of no-load)."""
+def start(volts, rise_k, j_factor, trip, loaded=True, slip="lo"):
+    """Kick the lift from rest. (tripped, ms the comparator was on, speed reached as a share of no-load); the plant's
+    `slid_ms` says whether the hub slipped."""
     p = Feeder()
-    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, loaded)
+    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, loaded, slip)
+    start.plant = plant
     sim.hw.lift.kick(sim.us // 1000)
     over = [0]
     _run(sim, plant, 1500, lambda t, pl, d: over.__setitem__(0, over[0] + (1 if sim.lift_over else 0)))
     return sim.hw.lift.trips > 0 or sim.hw.lift.jammed, over[0], plant.w / plant.m["noload_rad_s"]
 
 
-def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000):
+def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000, slip="nom"):
     """Run 1 s, then a ball jams. Returns a dict: ms from contact to the first cut (None: never), peak force on the
     flight before that cut and over the whole run, joules in the winding after contact, ms to FLAG_LIFT_JAM."""
     p = Feeder()
-    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip)
+    sim, plant = _sim(), Plant(p, volts, rise_k, j_factor, trip, slip=slip)
     hw = sim.hw
     if not cutoff:
         hw.lift.blank_ms = 10 ** 9
@@ -166,36 +207,44 @@ def jam(volts, rise_k, j_factor, trip, where, cutoff=True, after_ms=6000):
 
     _run(sim, plant, after_ms, watch)
     out["winding_j"] = plant.winding_j
+    out["slid_ms"], out["slide_j"] = plant.slid_ms, plant.slide_j
     return out
+
+
+CASES = (("hub lo, trip hi", "lo", "hi"), ("hub hi, trip lo", "hi", "lo"), ("rigid, trip lo", None, "lo"))
 
 
 def main():
     p = Feeder()
     c = p.lift_jam_cutoff()
+    h = p.lift_slip_design()
     print(f"trip {c['trip_a']:.2f} A ({c['trip_lo_a']:.2f}-{c['trip_hi_a']:.2f}), blanking {p.lift_jam_blank_ms:g} ms, "
           f"plate allows {c['plate_allow_n']:.0f} N, weld {c['weld_allow_n']:.0f} N")
-    print("\nStart, every flight loaded (1.5 s):")
-    print(f"{'corner':12} {'J x':>4} {'trip':>4} {'tripped':>8} {'over ms':>8} {'speed':>6}")
+    print(f"slip hub {p.lift_slip_nm:g} N m set ({h['stick_lo_nm']:.2f}-{h['stick_hi_nm']:.2f} sticking, "
+          f"{h['slide_lo_nm']:.2f}-{h['slide_hi_nm']:.2f} sliding; {h['slide_lo_a']:.2f} A sliding at the lowest)")
+    print("\nStart, every flight loaded, hub at its lowest (1.5 s):")
+    print(f"{'corner':12} {'J x':>4} {'trip':>4} {'tripped':>8} {'over ms':>8} {'speed':>6} {'slid ms':>8}")
     for name, v, rise in CORNERS:
         for jf in INERTIAS:
             for trip in TRIPS:
                 tripped, over, speed = start(v, rise, jf, trip)
-                print(f"{name:12} {jf:4g} {trip:>4} {str(tripped):>8} {over:8d} {speed:6.0%}")
+                print(f"{name:12} {jf:4g} {trip:>4} {str(tripped):>8} {over:8d} {speed:6.0%} {start.plant.slid_ms:8.1f}")
     print("\nJam after 1 s at speed, a ball fed every second (6 s):")
-    print(f"{'where':5} {'corner':12} {'J x':>4} {'trip':>4} {'cut ms':>7} {'first N':>8} {'peak N':>7} {'winding J':>10} "
-          f"{'gave up ms':>10}")
+    print(f"{'where':5} {'corner':12} {'J x':>4} {'case':16} {'cut ms':>7} {'first N':>8} {'peak N':>7} {'winding J':>10} "
+          f"{'hub J':>6} {'gave up ms':>10}")
     for where in WHERE:
         for name, v, rise in CORNERS:
             for jf in INERTIAS:
-                for trip in TRIPS:
-                    r = jam(v, rise, jf, trip, where)
-                    print(f"{where:5} {name:12} {jf:4g} {trip:>4} {str(r['cut_ms']):>7} {r['first_peak_n']:8.0f} "
-                          f"{r['peak_n']:7.0f} {r['winding_j']:10.0f} {str(r['jammed_ms']):>10}")
-    print("\nThe same jam with no cutoff (6 s; the run-on is 16 s and restarts with every ball):")
+                for case, slip, trip in CASES:
+                    r = jam(v, rise, jf, trip, where, slip=slip)
+                    print(f"{where:5} {name:12} {jf:4g} {case:16} {str(r['cut_ms']):>7} {r['first_peak_n']:8.0f} "
+                          f"{r['peak_n']:7.0f} {r['winding_j']:10.0f} {r['slide_j']:6.1f} {str(r['jammed_ms']):>10}")
+    print("\nThe same jam with no cutoff, hub at its set torque (6 s; the run-on is 16 s and restarts with every ball):")
     for where in WHERE:
         for name, v, rise in CORNERS:
             r = jam(v, rise, 1.0, "lo", where, cutoff=False)
-            print(f"{where:5} {name:12} peak {r['peak_n']:5.0f} N, winding {r['winding_j']:5.0f} J")
+            print(f"{where:5} {name:12} peak {r['peak_n']:5.0f} N, winding {r['winding_j']:5.0f} J, "
+                  f"hub {r['slide_j']:5.0f} J")
 
 
 if __name__ == "__main__":

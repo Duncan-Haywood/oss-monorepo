@@ -654,6 +654,23 @@ class FeederGeometryTest(unittest.TestCase):
         for z in contacts.values():
             self.assertAlmostEqual(z, 0.0, places=2)
 
+    def test_lift_shaft_cuts_bite_solid_boot(self):
+        # 2026-11-15: the bearing pockets and the spacer's insert holes must cut printed material, not a cavity, and a
+        # gearmotor as long as the base drive's must meet the drive bracket once the spacer sets it out
+        from unittest import mock
+        from build123d import Box, Location
+        from otr_cad.package import collisions
+        F, p = self.F, self.p
+        far = lambda _p: Box(0.1, 0.1, 0.1).moved(Location((0, -5000, 0)))
+        with mock.patch.object(F, "lift_bearing_pockets", far), mock.patch.object(F, "lift_spacer_inserts", far):
+            bare = F.lift_boot(p).placed()[0]
+        ins, pk = F.lift_spacer_inserts(p), F.lift_bearing_pockets(p)
+        self.assertAlmostEqual((ins & bare).volume, ins.volume, delta=1.0)
+        shaft_hole = math.pi * 4.0 ** 2 * 2 * p.lift_bearing_w      # the old 8 mm shaft hole runs through both
+        self.assertAlmostEqual((pk & bare).volume, pk.volume - shaft_hole, delta=0.02 * pk.volume)
+        long_gm = Feeder(lift_gm_len=100.0)
+        self.assertTrue(any("drive_bracket" in c and "lift_motor" in c for c in collisions(F.all_parts(long_gm))))
+
     def test_elevation_sweep_can_fail(self):
         from otr_cad.package import elevation_sweep
         bad = Feeder(mast_top_z=700.0)  # turntable raised into the head's path
@@ -1309,7 +1326,7 @@ class LiftParamsTest(unittest.TestCase):
         p = Feeder()
         self.assertEqual(p.check_lift_jam(), [])
         c = p.lift_jam_cutoff()
-        self.assertAlmostEqual(c["trip_a"], 3.3 * 3.9 / 103.9 / 0.05, places=6)
+        self.assertAlmostEqual(c["trip_a"], 3.3 * 2.7 / 102.7 / 0.05, places=6)
         self.assertLess(c["trip_lo_a"], c["trip_a"])
         self.assertLess(c["trip_a"], c["trip_hi_a"])
         self.assertGreater(c["stall_hot_a"], c["trip_hi_a"])
@@ -1325,6 +1342,60 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("shunt takes" in r for r in Feeder(lift_shunt_w=1.0).check_lift_jam()))
         self.assertTrue(any("two ticks" in r for r in Feeder(lift_jam_trip_ms=0.0).check_lift_jam()))
         self.assertTrue(any("never trip" in r for r in Feeder(lift_duty=0.6).check_lift_jam()))
+
+    def test_lift_slip_hub_numbers_and_rules(self):
+        # 2026-11-15, cad/README.md "Lift slip coupling"
+        p = Feeder()
+        self.assertEqual(p.check_lift_slip(), [])
+        s = p.lift_slip_design()
+        c = p.lift_jam_cutoff()
+        self.assertGreater(s["slide_lo_a"], c["trip_hi_a"])           # sliding is still seen by the cutoff
+        self.assertLess(s["peak_n"], c["plate_allow_n"])
+        self.assertGreater(s["stick_lo_nm"], s["start_nm"])
+        self.assertAlmostEqual(s["set_n"], p.lift_slip_nm / (p.lift_pd / 2000))
+        self.assertLess(s["belt_share"], 0.2)
+        self.assertGreater(s["shaft_mm"], s["rigid_shaft_mm"])
+        # each rule fires
+        self.assertTrue(any("slip on a start" in r for r in Feeder(lift_slip_nm=0.25).check_lift_slip()))
+        self.assertTrue(any("slide unseen" in r for r in Feeder(lift_sense_r2=3.9e3).check_lift_slip()))
+        self.assertTrue(any("flight cap" in r for r in Feeder(lift_slip_nm=1.6, lift_sense_r2=3.9e3).check_lift_slip()))
+        self.assertTrue(any("spring" in r for r in Feeder(lift_slip_spring_n=100.0).check_lift_slip()))
+        self.assertTrue(any("boot's wall" in r for r in Feeder(lift_slip_collar_w=20.0).check_lift_slip()))
+
+    def test_lift_drive_shaft_numbers_and_rules(self):
+        # 2026-11-15, cad/README.md "Lift drive shaft"
+        p = Feeder()
+        self.assertEqual(p.check_lift_shaft(), [])
+        d = p.lift_shaft_design()
+        s = p.lift_slip_design()
+        # the D section: no flat gives the round's figures; a flat lowers them
+        r0 = Feeder.d_shaft_section(6.0, 0.0)
+        self.assertAlmostEqual(r0["i_min"], math.pi * 6.0 ** 4 / 64, delta=0.05)
+        self.assertAlmostEqual(r0["z_min"], math.pi * 6.0 ** 3 / 32, delta=0.05)
+        self.assertLess(d["section"]["i_min"], r0["i_min"])
+        # the shaft reaches the far end of the slip hub's stack and the pocket is between the bearings
+        sh0, sh1 = d["shaft_y"]
+        self.assertLess(sh0, -(s["half_pulley_mm"] + s["far_side_mm"]))
+        self.assertGreater(sh1, s["half_pulley_mm"] + s["motor_side_mm"])
+        self.assertAlmostEqual(d["near_n"] + d["far_n"], d["f_jam_n"])
+        # past 2 T0 r the slack strand goes slack: the jam load is the hub's highest torque over the radius
+        self.assertAlmostEqual(d["f_jam_n"], s["stick_hi_nm"] / (p.lift_pd / 2000))
+        self.assertGreater(d["f_jam_n"], d["f_run_n"])
+        # the old layout's moment on the gearbox is what this removes
+        self.assertGreater(d["old_gm_ratio"], 1.0)
+        self.assertEqual(d["motor_face_y"], d["coupler_y"][1] + d["motor_gap_mm"])
+        self.assertLessEqual(p.lift_y + d["motor_face_y"] + p.lift_gm_len, p.base_half_w - p.lift_gm_bracket_clear)
+        # each rule fires
+        self.assertTrue(any("enters the coupling" in r for r in Feeder(gm_shaft_len=6.0).check_lift_shaft()))
+        self.assertTrue(any("coupling's" in r for r in Feeder(lift_coupler_nm=1.0).check_lift_shaft()))
+        self.assertTrue(any("running" in r for r in Feeder(lift_shaft_allow_mpa=10.0).check_lift_shaft()))
+        self.assertTrue(any("at a jam" in r for r in Feeder(lift_shaft_static_mpa=50.0).check_lift_shaft()))
+        self.assertTrue(any("sags" in r for r in Feeder(lift_shaft_defl_mm=0.005).check_lift_shaft()))
+        self.assertTrue(any("static rating" in r for r in Feeder(lift_bearing_c0_n=100.0).check_lift_shaft()))
+        self.assertTrue(any("pocket" in r for r in Feeder(lift_bearing_w=12.0).check_lift_shaft()))
+        self.assertTrue(any("drive bracket" in r for r in Feeder(lift_gm_len=100.0).check_lift_shaft()))
+        self.assertTrue(any("spacer's bore" in r for r in Feeder(lift_coupler_d=30.0).check_lift_shaft()))
+        self.assertIn(Feeder(lift_coupler_nm=1.0).check_lift_shaft()[0], Feeder(lift_coupler_nm=1.0).check())
 
     def test_lift_rules_catch_bad_changes(self):
         self.assertTrue(any("inlet falls" in r for r in Feeder(lift_finger_l=26.0).check_lift()))

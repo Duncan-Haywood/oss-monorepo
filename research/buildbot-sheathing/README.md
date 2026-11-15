@@ -1496,7 +1496,7 @@ tested 16d end-nail ultimate, and a degrading (cumulative-damage) nail model or 
 unsupported panel edge, to test fatigue and tear-out. Milestone 21 added energy-based strength degradation to every nail: it lowers intact
 and decayed walls together and lifts the decayed shares by up to 2.9 points, so spread damage is ruled out. Next:
 a local failure model for the nails left along the unnailed bottom edge (edge distance and cycle count, from
-tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14). Milestone 23 builds the draft into Elsevier's `elsarticle` template (`paper/build_latex.py`, a 27-page PDF with every citation resolved), completes two references and cuts the highlights to Elsevier's five bullets of 85 characters.
+tested curves of nails at an unsupported panel edge), the middle stud splitting, and a tested 16d end-nail ultimate. Milestone 22 wrote milestones 14 to 21 into the paper draft (sections 4.9–4.10, 5.13–5.14). Milestone 23 builds the draft into Elsevier's `elsarticle` template (`paper/build_latex.py`, a 27-page PDF with every citation resolved), completes two references and cuts the highlights to Elsevier's five bullets of 85 characters. Milestone 24 cuts the abstract from 469 words to the journal's 150 (26 pages, 24 works cited) and makes the build fail on a longer abstract, a single-author citation left as plain text and an unused reference.
 The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 

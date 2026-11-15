@@ -1,0 +1,227 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyd9psjJgcSoLh2Z1uG",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T12:39:18Z",
+  "ended": "2026-11-15T12:39:45Z",
+  "wall_minutes": 5.37,
+  "tokens_in": 2045637,
+  "tokens_out": 14859,
+  "cost_usd": 1.16,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16215",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 3 says run rerun before any refactor, but a target with no tests and import-time side effects (build-browser.mjs) cannot be tested without refactoring first, so every mutant came back 'line changed' and was re-applied by hand. A note that untestable-by-construction targets go straight to hand triage would save the rerun round."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 8 open entries are control-plane fixes (workflows, prompts/, control_plane_guard) that need their own owner-approved PRs; several already have one waiting.",
+      "did": "Left them open and spent the run on seeding and the defect found.",
+      "result": "Open list unchanged at 8."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a class-wide automated guard. A grep found ~20 scripts that curl without a hash, but nearly all fetch data or versioned Maven Central jars (immutable); a lint would mostly flag false positives.",
+      "did": "Kept the fix scoped to the one mutable-URL, browser-JS download; the new test fails if the pin or check is removed.",
+      "result": "No platform/ci lint added this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-einvoice-saxon-runtime-download-pinned.md"
+  ],
+  "goal": null,
+  "notes": "Target drawn at random: ventures/einvoice-preflight/build-browser.mjs. 5 mutants, 0 caught; after fix 5/5 (hand re-applied). Venture suite: ok, 2503 tests, 15.7s. Real build with live download verified end-to-end with the pin.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/build-browser.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 958619301,
+        "commit": "65d56ace8",
+        "sites": 5,
+        "baseline_seconds": 14.0,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/build-browser.mjs",
+            "line": 16,
+            "col": 41,
+            "operator": "or-to-and",
+            "before": "const src = process.env.EINVOICE_SEF_DIR || join(here, \"schematron\");",
+            "after": "const src = process.env.EINVOICE_SEF_DIR && join(here, \"schematron\");",
+            "line_text": "const src = process.env.EINVOICE_SEF_DIR || join(here, \"schematron\");",
+            "caught": false,
+            "seconds": 14.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: build-browser.mjs had no test at all and ran its build on import. build-browser.test.mjs (this run) tests the exported helpers offline. rerun reported line changed (refactor re-indented/rewrote the lines), so the mutant was re-applied by hand to the new line and the test failed: caught."
+          },
+          {
+            "file": "ventures/einvoice-preflight/build-browser.mjs",
+            "line": 21,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "if (!sefs.includes(\"ubl.sef.json\") || !sefs.includes(\"cii.sef.json\")) {",
+            "after": "if (!sefs.includes(\"ubl.sef.json\") && !sefs.includes(\"cii.sef.json\")) {",
+            "line_text": "if (!sefs.includes(\"ubl.sef.json\") || !sefs.includes(\"cii.sef.json\")) {",
+            "caught": false,
+            "seconds": 14.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: build-browser.mjs had no test at all and ran its build on import. build-browser.test.mjs (this run) tests the exported helpers offline. rerun reported line changed (refactor re-indented/rewrote the lines), so the mutant was re-applied by hand to the new line and the test failed: caught."
+          },
+          {
+            "file": "ventures/einvoice-preflight/build-browser.mjs",
+            "line": 24,
+            "col": 28,
+            "operator": "true-to-false",
+            "before": "mkdirSync(out, { recursive: true });",
+            "after": "mkdirSync(out, { recursive: false });",
+            "line_text": "mkdirSync(out, { recursive: true });",
+            "caught": false,
+            "seconds": 15.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: build-browser.mjs had no test at all and ran its build on import. build-browser.test.mjs (this run) tests the exported helpers offline. rerun reported line changed (refactor re-indented/rewrote the lines), so the mutant was re-applied by hand to the new line and the test failed: caught."
+          },
+          {
+            "file": "ventures/einvoice-preflight/build-browser.mjs",
+            "line": 31,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "writeFileSync(join(out, \"manifest.json\"), JSON.stringify({ files: sefs.sort() }, null, 2) + \"\\n\");",
+            "after": "writeFileSync(join(out, \"manifest.json\"), JSON.stringify({ files: sefs.sort() }, null, 3) + \"\\n\");",
+            "line_text": "writeFileSync(join(out, \"manifest.json\"), JSON.stringify({ files: sefs.sort() }, null, 2) + \"\\n\");",
+            "caught": false,
+            "seconds": 13.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: build-browser.mjs had no test at all and ran its build on import. build-browser.test.mjs (this run) tests the exported helpers offline. rerun reported line changed (refactor re-indented/rewrote the lines), so the mutant was re-applied by hand to the new line and the test failed: caught."
+          },
+          {
+            "file": "ventures/einvoice-preflight/build-browser.mjs",
+            "line": 31,
+            "col": 90,
+            "operator": "plus-to-minus",
+            "before": "writeFileSync(join(out, \"manifest.json\"), JSON.stringify({ files: sefs.sort() }, null, 2) + \"\\n\");",
+            "after": "writeFileSync(join(out, \"manifest.json\"), JSON.stringify({ files: sefs.sort() }, null, 2) - \"\\n\");",
+            "line_text": "writeFileSync(join(out, \"manifest.json\"), JSON.stringify({ files: sefs.sort() }, null, 2) + \"\\n\");",
+            "caught": false,
+            "seconds": 14.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: build-browser.mjs had no test at all and ran its build on import. build-browser.test.mjs (this run) tests the exported helpers offline. rerun reported line changed (refactor re-indented/rewrote the lines), so the mutant was re-applied by hand to the new line and the test failed: caught."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/build-browser.mjs",
+        "issue": "Downloaded the Saxon-JS browser runtime (JavaScript served to visitors of a self-hosted page) from a mutable vendor URL with no integrity check; a replaced zip would be served unchecked. Reproduced by reading the code: no hash, no signature. Fixed: SHA-256 pinned, mismatch refused before unzip, failing-first test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16215"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da4a4143-abdf-5a2a-9eb5-fc1f4f6b7251",
+    "transcripts": 1,
+    "first": "2026-11-15T12:39:18Z",
+    "last": "2026-11-15T12:44:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 29,
+        "input": 58,
+        "output": 14859,
+        "thinking": 2364,
+        "cache_read": 1987440,
+        "cache_write_5m": 0,
+        "cache_write_1h": 58139,
+        "api_equivalent_usd": 1.16,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 58,
+      "output": 14859,
+      "thinking": 2364,
+      "cache_read": 1987440,
+      "cache_write_5m": 0,
+      "cache_write_1h": 58139,
+      "api_equivalent_usd": 1.16,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.37,
+      "active_minutes": 5.37,
+      "model_minutes": 2.49,
+      "tool_minutes": 2.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read script, pin hash, refactor for tests, write tests and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 172.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
