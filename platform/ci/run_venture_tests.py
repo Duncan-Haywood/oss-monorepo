@@ -11,6 +11,14 @@ runner would report (docs/history/ci-local-first-2026-10-29.md).
                                                              # uncommitted edits included
     python3 platform/ci/run_venture_tests.py --since BASE    # ventures BASE..HEAD touched (CI)
     python3 platform/ci/run_venture_tests.py --slowest 30    # also end with the 30 slowest suites
+    python3 platform/ci/run_venture_tests.py --write-times   # every venture, saving each suite's time
+    python3 platform/ci/run_venture_tests.py --times 30      # the 30 slowest from that file, no run
+
+Suite times live in platform/ci/venture_suite_times.json (TIMES_FILE), so a
+perf run can pick its target without a full run: perf runs timed suites by
+hand, ranked by test bytes, a poor proxy (doc friction 2026-11-14 21:53 and
+22:13, prompts/perf/prompt-0.md). `--write-times` with no slugs refreshes the
+whole file; with slugs it updates just those rows.
 
 --changed and --since also run each venture whose code reaches into a changed
 one as `../<slug>/` (with_dependents), since a change there can break it.
@@ -72,6 +80,7 @@ NULL_SHA = "0" * 40
 # The slowest real suite, changepoint-detector, took over 10 minutes on a
 # loaded 4-core container (2026-10-29), so the cap sits well above it.
 SUITE_TIMEOUT = 1200
+TIMES_FILE = ROOT / "platform" / "ci" / "venture_suite_times.json"
 ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
 
 
@@ -540,6 +549,41 @@ def slowest_table(times, n):
                       *(f"| {slug} | {secs:.1f} |" for slug, secs in rows)])
 
 
+def load_times(path=None):
+    import json
+    try:
+        return json.loads(Path(path or TIMES_FILE).read_text())
+    except FileNotFoundError:
+        return {"seconds": {}}
+
+
+def write_times(times, failed, jobs, path=None, full=False):
+    """Save suite times (seconds, one decimal) with when and how they were taken.
+    A full run replaces every row; a named run updates only its own."""
+    import json
+    import datetime
+    path = Path(path or TIMES_FILE)
+    prev = {} if full else load_times(path)
+    old = prev.get("seconds", {})
+    kept_failed = set(prev.get("failed", [])) - set(times)
+    rows = {**old, **{s: round(t, 1) for s, t in times.items()}}
+    try:
+        commit = git("rev-parse", "--short", "HEAD").strip()
+    except subprocess.CalledProcessError:
+        commit = None
+    data = {
+        "about": "Wall seconds per venture test suite, from run_venture_tests.py --write-times. "
+                 "Times taken with `jobs` suites in parallel on `cpus` cores, so they are "
+                 "relative, not a single-suite benchmark.",
+        "taken": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+        "commit": commit, "cpus": os.cpu_count(), "jobs": jobs,
+        "failed": sorted(set(failed) | kept_failed),
+        "seconds": dict(sorted(rows.items(), key=lambda kv: (-kv[1], kv[0]))),
+    }
+    path.write_text(json.dumps(data, indent=1) + "\n")
+    return path
+
+
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("slugs", nargs="*")
@@ -548,12 +592,25 @@ def main(argv):
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 2)
     ap.add_argument("--slowest", type=int, default=0, metavar="N",
                     help="end with the N slowest suites, slowest first")
+    ap.add_argument("--write-times", action="store_true",
+                    help="save each suite's time to platform/ci/venture_suite_times.json")
+    ap.add_argument("--times", type=int, default=0, metavar="N",
+                    help="print the N slowest suites from that file and exit (no run)")
     ap.add_argument("--no-elsewhere", action="store_true",
                     help="skip the Python test steps a named venture's own workflow runs")
     ap.add_argument("--no-unwired", action="store_true",
                     help="with --since, skip the check_*.py scripts, unit tests and doc_index check "
                     "no workflow runs (unwired_checks.py)")
     args = ap.parse_args(argv)
+    if args.times:
+        data = load_times()
+        if not data["seconds"]:
+            print(f"no times recorded yet: run with --write-times")
+            return 1
+        print(f"{len(data['seconds'])} suites timed {data.get('taken')} at {data.get('commit')} "
+              f"({data.get('jobs')} jobs on {data.get('cpus')} cores)")
+        print(slowest_table(data["seconds"], args.times))
+        return 0
 
     if args.since is not None and args.since.strip("0 "):
         slugs = since_slugs(args.since)
@@ -616,6 +673,9 @@ def main(argv):
                     print(failures(out))
     if args.slowest:
         print(slowest_table(times, args.slowest))
+    if args.write_times:
+        out = write_times(times, failed, args.jobs, full=not named)
+        print(f"suite times written to {out}")
     print(f"{len(slugs)} suites run, {len(failed)} failed"
           + (f": {' '.join(sorted(failed))}" if failed else "")
           + (f"; {len(partial)} only partly run (own-workflow Python steps need PyYAML): "
