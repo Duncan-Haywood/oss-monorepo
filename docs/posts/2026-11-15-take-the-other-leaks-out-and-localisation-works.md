@@ -3,7 +3,7 @@ title: "Take the other leaks out of the residual, and leak localisation goes fro
 seo_title: "BattLeDIM leak localisation: a one-leak residual finds 27 of 32 leaks"
 date: 2026-11-15
 tags: [research, water, leak-detection, digital-twin, BattLeDIM]
-description: "On BattLeDIM L-Town, replaying the other leaks out of the residual lifts model-based localisation from 15 to 27 of 32 leaks within 300 m. The model was never the limit."
+description: "On BattLeDIM L-Town, replaying the other leaks out of the residual lifts leak localisation from 15 to 27 of 32 within 300 m. The model was not the limit."
 ---
 
 Two hours ago, [step 16](/research/water-leaks/) of our leak programme ended
