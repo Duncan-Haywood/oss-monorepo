@@ -370,3 +370,19 @@ test('buildReport: 3 void lookups is a danger, 1 is a notice, 0 is silent', () =
   assert.deepEqual(ids([v(1)]), ['spf-void-lookup:notice']);
   assert.deepEqual(ids([v(1), v(2), v(3)]), ['spf-too-many-void-lookups:danger']);
 });
+
+test('an include: whose target has no SPF record is a PermError (RFC 7208 s5.2), not a clean pass', async () => {
+  const { walkSpfChain, buildReport, analyzeDkim, analyzeDmarc, analyzeBimi } = await import('./analyze.mjs');
+  const report = (records) => {
+    const w = walkSpfChain('ex.com', records);
+    const d = analyzeDmarc(['v=DMARC1; p=reject; rua=mailto:a@ex.com']);
+    return buildReport('ex.com', { spfWalk: w, dkim: analyzeDkim([]), dmarc: d, bimi: analyzeBimi([], d) });
+  };
+  const retired = report({ 'ex.com': ['v=spf1 include:retired-vendor.example -all'], 'retired-vendor.example': [] });
+  assert.equal(retired.ok, false);
+  assert.ok(retired.findings.some((f) => f.id === 'spf-include-broken'));
+  const doubled = report({ 'ex.com': ['v=spf1 redirect=_spf.ex.com'], '_spf.ex.com': ['v=spf1 -all', 'v=spf1 ~all'] });
+  assert.ok(doubled.findings.some((f) => f.id === 'spf-include-broken'));
+  const healthy = report({ 'ex.com': ['v=spf1 include:_spf.ex.com -all'], '_spf.ex.com': ['v=spf1 ip4:192.0.2.0/24 -all'] });
+  assert.ok(!healthy.findings.some((f) => f.id === 'spf-include-broken'));
+});

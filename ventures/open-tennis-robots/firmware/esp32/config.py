@@ -66,6 +66,10 @@ LIFT_JAM_BLANK_MS = 400
 LIFT_JAM_TRIP_MS = 10
 LIFT_JAM_REST_MS = 2000
 LIFT_JAM_RETRIES = 1
+# Lift soft start (cad: Feeder.lift_ramp_ms; cad/README.md "Lift coupling dynamics"): each start ramps the duty up over
+# this long, so the rotor does not cross the jaw coupling's free play at speed and ring the drive into the slip hub.
+# It must end well inside LIFT_JAM_BLANK_MS; 0 switches straight to LIFT_DUTY.
+LIFT_RAMP_MS = 100
 # Hopper agitator (cad: Feeder.agitator_design): its gearmotor on a MOSFET from GPIO 2 stirs the outlet while balls
 # are queued or on their way, and this long after, for two more passes of its arms (manifest "hopper agitator" line).
 AGIT_RUN_ON_MS = 3000

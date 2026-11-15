@@ -536,3 +536,56 @@ class LiftJamTest(unittest.TestCase):
                     self.assertIsNotNone(r["jammed_ms"], (name, where, jf))
             rigid = sweep.jam(v, rise, 2.0, "lo", "boot", slip=None)
             self.assertGreater(rigid["peak_n"], r["peak_n"], name)
+
+    def test_jaw_coupling_soft_start_keeps_starts_off_the_hub(self):
+        # 2026-11-15, cad/README.md "Lift coupling dynamics": with the jaw coupling as a spring with free play between
+        # the rotor and the shaft, a switched start rings the drive's 49 Hz mode, and with a hard, worn spider an empty
+        # belt's start crosses the play at speed and slips the hub at its lowest. The firmware's soft start keeps every
+        # start, loaded or empty, at the stiffest spider and 3 degrees of play, off the hub with the margin the hub's
+        # start rule asks for loaded, and never trips the cutoff.
+        import lift_jam_sweep as sweep
+        p = _feeder()
+        lo = p.lift_slip_design()["stick_lo_nm"]
+        hard_worn = (max(p.lift_coupler_k_sweep), 3.0)
+        switched = sweep._sim
+        try:
+            sweep._sim = sweep._ramped(0)
+            sweep.start(29.2, 0.0, 0.5, "lo", loaded=False, slip="lo", coupler=hard_worn)
+            self.assertGreater(sweep.start.plant.slid_ms, 0.0)             # what the soft start is for
+            self.assertGreater(sweep.start.plant.reversals, 0)
+        finally:
+            sweep._sim = switched
+        for name, v, rise in sweep.CORNERS:
+            for jf in sweep.INERTIAS:
+                for loaded in (True, False):
+                    tripped, _, _ = sweep.start(v, rise, jf, "lo", loaded=loaded, slip="lo", coupler=hard_worn)
+                    pl = sweep.start.plant
+                    self.assertFalse(tripped, (name, jf, loaded))
+                    self.assertEqual(pl.slid_ms, 0.0, (name, jf, loaded))
+                    if loaded:
+                        self.assertLess(pl.coupler_nm * p.lift_slip_start_factor, lo, (name, jf))
+
+    def test_jaw_coupling_jams_stay_under_the_plate_and_the_coupling_rating(self):
+        # the slip hub still bounds a jam with the coupling's spring and play in the drive: the flight's peak stays
+        # under the cap plate, the coupling never passes more than its rating, and the cutoff still trips
+        import lift_jam_sweep as sweep
+        p = _feeder()
+        allow = p.lift_jam_cutoff()["plate_allow_n"]
+        for k in (min(p.lift_coupler_k_sweep), max(p.lift_coupler_k_sweep)):
+            for where in sweep.WHERE:
+                r = sweep.jam(29.2, 0.0, 1.0, "lo", where, slip="hi", coupler=(k, 3.0))
+                self.assertLess(r["peak_n"], allow, (k, where))
+                self.assertLess(r["coupler_nm"], p.lift_coupler_nm, (k, where))
+                self.assertIsNotNone(r["jammed_ms"], (k, where))
+                r = sweep.jam(24.0, 80.0, 1.0, "hi", where, slip="lo", coupler=(k, 3.0))
+                self.assertIsNotNone(r["cut_ms"], (k, where))
+                self.assertLess(r["cut_ms"], 200, (k, where))
+
+    def test_coupling_model_parts_and_modes(self):
+        p = _feeder()
+        cm = p.lift_coupler_model()
+        self.assertAlmostEqual(cm["j_shaft"], sum(cm["parts"].values()))
+        self.assertLess(cm["j_shaft"], cm["j_belt"] / 50)          # the shaft side is light: it rings fast when sliding
+        self.assertGreater(cm["f_sliding_hz"], 10 * cm["f_stuck_hz"])
+        stiffer = type(p)(lift_coupler_k_nm_rad=4 * p.lift_coupler_k_nm_rad).lift_coupler_model()
+        self.assertAlmostEqual(stiffer["f_stuck_hz"], 2 * cm["f_stuck_hz"], places=6)

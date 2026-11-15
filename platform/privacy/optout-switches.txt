@@ -670,6 +670,7 @@ ventures/lockfile-license-check/usage.mjs
 ventures/locksmith-bid-calculator/usage.mjs
 ventures/locum-tenens-vs-employed-calculator/usage.mjs
 ventures/log-management-pricing-calculator/usage.mjs
+ventures/lomb-scargle-periodogram/usage.mjs
 ventures/lot-split-calculator/usage.mjs
 ventures/ltl-freight-class-estimator/usage.mjs
 ventures/lumper-fee-reimbursement-calculator/usage.mjs

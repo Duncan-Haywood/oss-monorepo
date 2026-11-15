@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtGm1NCqEdsEEKeGxdf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T14:07:17Z",
+  "ended": "2026-11-15T14:21:24Z",
+  "wall_minutes": 15.47,
+  "tokens_in": 8810205,
+  "tokens_out": 49679,
+  "cost_usd": 3.9872,
+  "tool_calls": 70,
+  "task": "Deepen flagship open-tennis-robots: tests/lift_jam_sweep.py as a three-inertia plant with the jaw coupling's stiffness and backlash (flagships.yaml buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16237",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First coupled start sweep put a loaded belt's coupling on the far face, so the belt rolled back through the gap and slipped the hub; a soft start then looked useless. Fixed the initial condition (loaded belt rests on the drive face, empty on the far face) before drawing conclusions.",
+    "Post description was 173 characters; venture preflight's front-matter check caught it (160 max).",
+    "CI cad job failed test_committed_package_is_current: the new params (lift_ramp_ms, coupler fields) changed manufacturing/feeder/manifest.json, which only a build123d run regenerates; local runs had skipped those tests. Installed build123d in a venv, regenerated the feeder package, cad suite 130/130 OK."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says venture suites can outlast the 120 s timeout; open-tennis-robots took 116 s for 268 tests, right at the edge, so background was the right call."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight runs front-matter and run-record checks that fail on an unfilled record by design; running it before filling the record costs one rerun. Saying 'fill the run record first' would save a pass."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/README.md",
+      "issue": "Any new Feeder field changes the committed manifest's params; run_venture_tests skips the build123d tests that catch it, so a params-only change looks green locally. Worth a line: 'changed params.py? regenerate manufacturing/feeder'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Skipped the website-request queue: ideas.py listed none from outside; allocate.py's flagship pick stood.",
+      "did": "Took the allocator's row 7 (open-tennis-robots) buildable item.",
+      "result": "Landed the slice plus a firmware fix the sweep showed was needed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-jaw-couplings-play-rings-the-tennis-lift.md",
+    "ventures/open-tennis-robots/cad/README.md (Lift coupling dynamics)",
+    "ventures/open-tennis-robots/eval/lift-coupling-sweep-2026-11-15.txt"
+  ],
+  "goal": "Deepen a flagship (owner 2026-10-20)",
+  "notes": "Three-inertia lift plant (rotor - jaw coupling spring with gap and damping - shaft side 1.24e-6 kg m^2 - slip hub - belt), mechanics at 12.5 us. Switched starts ring the 49 Hz mode: loaded 0.43-0.61 N m through the hub vs 0.26 assumed; empty with stiff worn spider slips the hub. Firmware LIFT_RAMP_MS=100 soft start restores 0.24-0.26 N m loaded and no slips except 5 deg at 80 N m/rad (1/6). Jams unchanged: coupling capped at hub's 1.08 N m (rated 2.0), flights 46-90 N. Verification: run_venture_tests.py open-tennis-robots: 268 tests, 0 failed, 53 skipped (build123d); page.test.mjs pass; venture-preflight first run failed only on post description length and the unfilled record, rerun after fixes. cad CI failed once on the stale committed manifest; regenerated with build123d 0.13.0 in a venv (feeder only changed manifest.json + zip), cad unittest 130 OK locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "55463391-4e2e-5552-af2e-4dbb999cb1d1",
+    "transcripts": 1,
+    "first": "2026-11-15T14:07:17Z",
+    "last": "2026-11-15T14:22:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 136,
+        "output": 49679,
+        "thinking": 16208,
+        "cache_read": 8652245,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157824,
+        "api_equivalent_usd": 3.9872,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 136,
+      "output": 49679,
+      "thinking": 16208,
+      "cache_read": 8652245,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157824,
+      "api_equivalent_usd": 3.9872,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.47,
+      "active_minutes": 15.47,
+      "model_minutes": 9.67,
+      "tool_minutes": 5.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer extending a stick-slip drivetrain sim with a backlash coupling, sweeping it, adding a firmware soft start with tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 250.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

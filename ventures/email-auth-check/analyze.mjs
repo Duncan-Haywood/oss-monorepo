@@ -467,6 +467,21 @@ function spfFindings(walk, transportError) {
     ));
   }
 
+  // RFC 7208 s5.2 (include) and s6.1 (redirect): a target with no SPF record,
+  // more than one, or a record that does not parse is a PermError for the
+  // whole evaluation, not only for that branch. A retired vendor's include
+  // left in the record is the usual real-world cause.
+  const brokenTargets = walk.chain.slice(1).filter(
+    (c) => c.note !== 'loop' && c.found !== null && (c.found === false || c.multiple || (c.malformed && c.malformed.length)),
+  );
+  if (brokenTargets.length) {
+    findings.push(finding(
+      'spf-include-broken', 'danger', `An include: or redirect= target has no usable SPF record (${brokenTargets.length})`,
+      `${walk.domain}'s SPF record points at ${brokenTargets.map((c) => c.domain).join(', ')}, which ${brokenTargets.length === 1 ? 'does' : 'do'} not publish exactly one valid "v=spf1" record. RFC 7208 (s5.2 for include:, s6.1 for redirect=) makes that a permanent error (PermError) for the whole check, so SPF fails for messages that reach that term. Remove the reference if the vendor is retired, or fix the record it points at.`,
+      brokenTargets.map((c) => `${c.domain} (via ${c.via}): ${c.found === false ? 'no v=spf1 record' : c.multiple ? 'multiple v=spf1 records' : c.malformed.join('; ')}`).join('; '),
+    ));
+  }
+
   if (walk.exceedsLookupLimit) {
     findings.push(finding(
       'spf-too-many-lookups', 'danger', `SPF exceeds the 10-lookup limit (${walk.totalLookups} found)`,

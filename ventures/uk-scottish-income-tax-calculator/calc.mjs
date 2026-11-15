@@ -4,7 +4,7 @@
 // starter 19%, basic 20%, intermediate 21%, higher 42%, advanced 45%, top 48%. Band tops as income with a full personal allowance of GBP 12,570: 16,537 / 29,526 / 43,662 / 75,000 / 125,140.
 // Applied here to taxable income (income less personal allowance), which is how the bands work when the allowance is tapered above GBP 100,000.
 // Employee National Insurance is not devolved and is the same as the rest of the UK (8% between GBP 12,570 and GBP 50,270, 2% above); the student loan and postgraduate loan
-// thresholds are the 2025/26 figures and move each April. Annual figures, standard tax code (S1257L), one job, whole year at this pay, no benefits, no other income.
+// thresholds are the 2026/27 figures (GOV.UK, "Rates and thresholds for employers 2026 to 2027") and move each April. Annual figures, standard tax code (S1257L), one job, whole year at this pay, no benefits, no other income.
 // NOT modelled: Scottish bands for any other year, tax codes other than the standard one, second jobs, taxable benefits, Marriage Allowance, Gift Aid, childcare schemes, employer
 // NI and employer pension. The rest-of-UK figure is shown for comparison only. Every result names its source to verify.
 
@@ -29,9 +29,9 @@ export const RUK_BANDS = [
 export const NI = { primary: 12570, upper: 50270, main: 0.08, above: 0.02 };
 export const PLANS = {
   none: { label: "No student loan", threshold: 0, rate: 0 },
-  1: { label: "Plan 1", threshold: 26065, rate: 0.09 },
-  2: { label: "Plan 2", threshold: 28470, rate: 0.09 },
-  4: { label: "Plan 4 (Scotland)", threshold: 32745, rate: 0.09 },
+  1: { label: "Plan 1", threshold: 26900, rate: 0.09 },
+  2: { label: "Plan 2", threshold: 29385, rate: 0.09 },
+  4: { label: "Plan 4 (Scotland)", threshold: 33795, rate: 0.09 },
   5: { label: "Plan 5", threshold: 25000, rate: 0.09 },
 };
 export const PGL = { threshold: 21000, rate: 0.06 };
@@ -116,7 +116,7 @@ export function compute(input) {
   if (salary > ADDITIONAL_THRESHOLD) findings.push({ severity: "info", title: `Income above ${money(ADDITIONAL_THRESHOLD)} is taxed at the 48% top rate in Scotland, against 45% elsewhere in the UK, and you have no personal allowance.` });
   if (marginal >= 60) findings.push({ severity: "high", title: `If you earned GBP 1,000 more you would keep about ${money(1000 - marginal * 10)}: a marginal rate of ${marginal}%.` });
   else findings.push({ severity: "info", title: `If you earned GBP 1,000 more you would keep about ${money(1000 - marginal * 10)}: a marginal rate of ${marginal}% including National Insurance and any loan.` });
-  if (plan !== "none" && a.sl > 0) findings.push({ severity: "info", title: `${PLANS[plan].label} takes ${+(PLANS[plan].rate * 100).toFixed(4)}% of pay over ${money(PLANS[plan].threshold)} (2025/26 threshold; it changes each April). It is collected through payroll but is a loan repayment, and the balance is written off at the end of its term.` });
+  if (plan !== "none" && a.sl > 0) findings.push({ severity: "info", title: `${PLANS[plan].label} takes ${+(PLANS[plan].rate * 100).toFixed(4)}% of pay over ${money(PLANS[plan].threshold)} (2026/27 threshold; it changes each April). It is collected through payroll but is a loan repayment, and the balance is written off at the end of its term.` });
   if (method === "sacrifice") findings.push({ severity: "medium", title: "Salary sacrifice cuts your contractual pay. That saves tax and National Insurance, but it can lower mortgage affordability figures and statutory pay, and your employer must keep you above the National Minimum Wage. A cap on the NI saving has been announced for later years; check the current rules." });
   if (method === "ras") findings.push({ severity: "medium", title: "With relief at source your pension provider claims 20% basic rate relief. In Scotland that is the relief rate even though your starter and basic bands are 19% and 20%; any extra relief at 21% or more is claimed through Self Assessment, so cash arrives later." });
   if (method === "netpay") findings.push({ severity: "info", title: "A net pay arrangement takes the contribution before tax but after National Insurance, so you get income tax relief at your top Scottish rate but no NI saving." });

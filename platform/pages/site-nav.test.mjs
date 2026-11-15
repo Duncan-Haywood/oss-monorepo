@@ -110,6 +110,15 @@ test('a long middle crumb is marked to give way on a phone, a short one is not',
   assert.match(phone, /\.pfs-crumbs>\[aria-current\]\{flex:0 1 auto;min-width:0/);
 });
 
+test('a last crumb that repeats the h1 is hidden on a phone, separator and all', () => {
+  const html = renderSiteHeader({ crumbs: [{ label: 'Topic', href: 't/' }, { label: 'A <b> title', echo: true }] });
+  assert.match(html, /<a href="t\/">Topic<\/a><span class="pfs-sep pfs-echo" aria-hidden="true">›<\/span><span aria-current="page" class="pfs-echo">A &lt;b&gt; title<\/span><\/span>/);
+  assert.doesNotMatch(renderSiteHeader({ crumbs: [{ label: 'Page' }] }), /pfs-echo/, 'unmarked by default');
+  const phone = SITE_HEADER_CSS.slice(SITE_HEADER_CSS.indexOf('@media (max-width:600px)'));
+  assert.match(phone, /\.pfs-crumbs>\.pfs-echo\{display:none\}/);
+  assert.doesNotMatch(SITE_HEADER_CSS.slice(0, SITE_HEADER_CSS.indexOf('@media (max-width:600px)')), /pfs-echo/, 'desktop keeps the full trail');
+});
+
 test('a venture header opens with the exact tag rates.mjs and jobs.mjs look for', () => {
   const html = renderSiteHeader({ toRoot: '../', extraClass: 'pf-chrome pf-chrome-top' });
   assert.ok(html.startsWith('<nav class="pf-chrome pf-chrome-top" aria-label="Site"'));
@@ -187,7 +196,9 @@ test('research topic and project pages get the breadcrumb variants of the same h
   assert.match(template.project_header, /href="\{\{ROOT\}\}research\/">Research<\/a>/);
   // Marked to give way on a phone though the placeholder is short: the topic names are not.
   assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/" class="pfs-mid">\{\{TOPIC\}\}<\/a>/);
-  assert.match(template.project_header, /<span aria-current="page">\{\{TITLE\}\}<\/span>/);
+  // The project page's h1 is the title, so a phone hides the repeat (2026-11-15); the topic is not marked.
+  assert.match(template.project_header, /<span class="pfs-sep pfs-echo" aria-hidden="true">›<\/span><span aria-current="page" class="pfs-echo">\{\{TITLE\}\}<\/span>/);
+  assert.doesNotMatch(template.topic_header, /pfs-echo/);
   assert.match(template.topic_header, /<span aria-current="page">\{\{TOPIC\}\}<\/span>/);
 });
 
