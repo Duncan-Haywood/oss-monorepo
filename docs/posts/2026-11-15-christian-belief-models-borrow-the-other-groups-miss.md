@@ -2,7 +2,7 @@
 title: "Which subgroup is the model getting wrong? Ask the other subgroups"
 seo_title: "Small-area shrinkage toward other groups' bias: GSS religion subgroups"
 date: 2026-11-15
-description: "Shrinking toward the other traditions' miss on the same item cuts 2016–24 subgroup error to 0.26 of a zero prior's, matching an oracle; it fails for immigrant generations"
+description: "Shrinking toward the other traditions' miss cuts 2016–24 subgroup error to 0.26 of a zero prior's, matching an oracle; it fails for immigrant generations"
 tags: [research, christian-belief-models, small-area-estimation, empirical-bayes, survey-imputation, GSS]
 ---
 
