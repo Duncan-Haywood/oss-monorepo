@@ -9,14 +9,15 @@
 // structure rules (ES-018..022) come from the published XSDs (facturae-xsd.mjs).
 // A check that depends on something this reader does not model is skipped and
 // named in `skipped`, never counted as a pass. This is an offline observation,
-// not FACe's acceptance, not a signature check (Facturae must be signed with
-// XAdES; the signature is not verified here) and not tax advice. Findings never
+// not FACe's acceptance and not tax advice. A signed file's XAdES signature is
+// checked by facturae-signature.mjs (ES-SIG-nn); the certificate chain is not. Findings never
 // repeat a tax number or an amount.
 
 import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 import { checkFacturaeSchema, tableForNamespace, FACTURAE_VERSIONS } from "./facturae-xsd.mjs";
 import { inspectPartyVat } from "./vat.mjs";
+import { checkFacturaeSignature } from "./facturae-signature.mjs";
 
 const TOLERANCE = 0.01;
 
@@ -323,7 +324,7 @@ function madridToday() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 }
 
-/** @returns {{findings: object[], skipped: object[], version: string}} */
+/** @returns {{findings: object[], skipped: object[], version: string, signature: object|null}} */
 export function checkFacturae(source, { today = madridToday() } = {}) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
   const findings = [];
@@ -382,10 +383,16 @@ export function checkFacturae(source, { today = madridToday() } = {}) {
   batchSum("total", "TotalInvoicesAmount", "ES-004", "InvoiceTotal");
   batchSum("toa", "TotalOutstandingAmount", "ES-005", "TotalOutstandingAmount");
   batchSum("tea", "TotalExecutableAmount", "ES-006", "TotalExecutableAmount");
+  let signature = null;
   if (!child(root, "Signature")) {
     skipped.push({ rule: "signature", path: "/Facturae/Signature", reason: "The file carries no XAdES signature. FACe and most hubs need a signed file; signing happens after this check." });
   } else {
-    skipped.push({ rule: "signature", path: "/Facturae/Signature", reason: "A signature is present; it is not verified here (certificate, XAdES policy and digest are out of scope)." });
+    // ES-SIG-nn: digests, SignatureValue and the XAdES-EPES properties (facturae-signature.mjs).
+    const sig = checkFacturaeSignature(text);
+    findings.push(...sig.findings);
+    skipped.push(...sig.skipped);
+    signature = sig.summary;
   }
+  return { findings, skipped, version, signature };
   return { findings, skipped, version };
 }
