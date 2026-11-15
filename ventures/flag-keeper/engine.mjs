@@ -24,7 +24,20 @@ const semver = (s) => { const m = String(s).trim().replace(/^v/i, "").match(/^(\
 function cmpSemver(a, b) {
   const x = semver(a), y = semver(b); if (!x || !y) return null;
   for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
-  if (x[3] === y[3]) return 0; if (!x[3]) return 1; if (!y[3]) return -1; return x[3] < y[3] ? -1 : 1; // a prerelease sorts before the release
+  if (x[3] === y[3]) return 0; if (!x[3]) return 1; if (!y[3]) return -1; // a prerelease sorts before the release
+  return cmpPre(x[3], y[3]);
+}
+// SemVer 2.0.0 section 11: compare dot-separated identifiers left to right; numeric ones numerically and
+// below alphanumeric ones; a shorter list sorts first when all earlier identifiers are equal (rc.2 < rc.10).
+function cmpPre(a, b) {
+  const p = a.split("."), q = b.split(".");
+  for (let i = 0; i < Math.min(p.length, q.length); i++) {
+    const m = /^\d+$/.test(p[i]), n = /^\d+$/.test(q[i]);
+    if (m && n) { const d = Number(p[i]) - Number(q[i]); if (d) return d < 0 ? -1 : 1; continue; }
+    if (m !== n) return m ? -1 : 1;
+    if (p[i] !== q[i]) return p[i] < q[i] ? -1 : 1;
+  }
+  return p.length === q.length ? 0 : p.length < q.length ? -1 : 1;
 }
 const num = (v) => (typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN);
 const time = (v) => (typeof v === "number" ? v : Date.parse(v));
@@ -140,6 +153,9 @@ export function validateConfig(config) {
   if (!isObj(segments)) errs.push("segments must be an object keyed by segment key");
   for (const [sk, s] of Object.entries(isObj(segments) ? segments : {})) {
     if (!KEY_RE.test(sk)) errs.push(`segment "${sk}": key must be letters, digits, . _ - (max 64)`);
+    if (!isObj(s)) { errs.push(`segment "${sk}": must be an object`); continue; }
+    for (const f of ["include", "exclude", "conditions"]) if (s[f] !== undefined && !Array.isArray(s[f])) errs.push(`segment "${sk}": ${f} must be a list`);
+    if (s.conditions !== undefined && !Array.isArray(s.conditions)) continue;
     for (const [i, c] of (s.conditions || []).entries()) validateCondition(c, `segment ${sk} condition ${i + 1}`, segments, errs);
   }
   for (const [k, f] of Object.entries(flags)) {

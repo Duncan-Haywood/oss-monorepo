@@ -1,0 +1,279 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/flag-keeper",
+ "stratum": "venture",
+ "seed": "2026-11-15-efb6",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior platform / release engineer who has run LaunchDarkly or Unleash for a product team. They would check first: that percentage bucketing is uniform, sticky and monotonic when widened and independent across flags; that version targeting orders versions exactly as SemVer 2.0.0 says (app-version gating is the commonest rule); that a bad flag or segment edit can never take evaluation down for every client (the 'validated whole' and 'SDK never throws' promises); that the client key cannot read rules; and that a killed prerequisite turns its dependants off",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write (script: scratchpad fk/checks.mjs, node 22.23.4). Pass: (1) hash() equals an independent BigInt implementation of FNV-1a-32 followed by the MurmurHash3 fmix32 finaliser on 20,000/20,000 strings; (2) bucket uniformity over 200,000 users in 100 cells chi2 = 97.1 (df 99, 95% critical 123.2); (3) a 10/90 rollout serves on to 0.100315 of 200,000 users (binomial sd 0.00067); (4) two 50% flags: P(a and b) 0.2512 vs P(a)P(b) 0.2503, independent; (5) server impact for 10% -> 30% over 10,000 users = 2,013 off->on (20.1%, expected 20%) plus 1 on->off that is user-1001, a beta-tester whose staff rule the proposal deleted (correct); (6) the README curl example returns exactly {variant off, value false, reason fallthrough}. Fail: (a) SemVer 2.0.0 section 11 precedence chain checked pairwise against npm's semver package (/opt/node22/lib/node_modules/npm/node_modules/semver): 1.0.0-beta.2 vs 1.0.0-beta.11 and 2.0.0-rc.2 vs 2.0.0-rc.10 are reversed, because cmpSemver compares prerelease strings lexically (engine.mjs:27) instead of identifier by identifier with numeric identifiers compared numerically; (b) a segment whose include is a string (\"include\": \"user-1001\") passes validateConfig and PUT /v1/admin/segments, after which every POST /v1/evaluate of a flag using it and every POST /v1/evaluate-all returns 500 ((s.include || []).map is not a function, engine.mjs:67-68), and the local-mode SDK's isOn throws into the app. Correct core, two wrong outputs, one of them an outage: 2.",
+  "completeness": "README features run end to end on a live server (node server.mjs with FLAGS_FILE=examples/flags.json, port 18087): seeding from FLAGS_FILE; POST /v1/evaluate (client key, 200); staff segment rule (ruleId staff); client key on GET /v1/config 401; ETag \"1\" and 304 on If-None-Match; toggle kill switch with X-Actor then evaluate reason off; bad weight sum refused 400 with message; POST /v1/admin/impact; GET /v1/admin/audit with before/after; /sdk.mjs and /engine.mjs served 200. SDK local mode exercised with a stub fetch. Browser simulator not loaded here (marisstella.app returns proxy 403 from this container); page.test.mjs checks its configs and imports. Honest-limits list (no dashboard, no SSO, one instance) matches the code. No stubs or TODOs found. 3.",
+  "verification": "node --test '*.test.mjs' in ventures/flag-keeper: 39 tests, 39 pass, 0.27 s (bare `node --test` also 39/39). Seeded 7 mutations with platform/ci/quality_mutate.py: caught 4 (bucket edge < -> <=, client key allowed on /v1/config, segment exclude deleted, prerequisite cycle guard deleted); survived 3 (prerelease comparison inverted at engine.mjs:27, weight-sum tolerance 1e-9 -> 1 at engine.mjs:133, a disabled prerequisite treated as satisfied at engine.mjs:100). Also: when the server-scope mutant made the assertion at server.test.mjs:23 fail, the test run hung instead of exiting (the HTTP server is not closed on assertion failure) and had to be killed. 4/7 with gaps on the exact semver and validation paths: 2.",
+  "craft": "Read engine.mjs (206 lines), server.mjs (169), sdk.mjs (38), usage.mjs, the four test files. Zero dependencies, pure engine shared by browser and server, timingSafeEqual on keys, atomic state save (write .tmp then rename), body size limit, validation before every write. Defects: validateConfig never checks segment shape (include/exclude arrays, segment object non-null), so PUT /v1/admin/segments/z with body null returns 500 and a string include is stored; PUT /v1/admin/flags/y with body \"hello\" returns 500 (assigning f.key on a primitive in strict mode); `in` used for variant membership so a variant named toString or constructor validates and serves value null (engine.mjs:125); evaluate(config, flag, null) throws despite 'never throws'; the limiter clears every IP's count once 10,000 IPs are seen (server.mjs:26); many 150-250 character one-line statements. Compact and mostly sound; the validation hole is the one a reviewer must catch: 3.",
+  "claims": "Checked: 'Every edit is validated whole before it is saved ... return 400 with the reason and change nothing' (README:117) is false for segments (string include saved, then evaluation 500s); 'Always returns a result; never throws on bad config' (engine.mjs:91) false for that config and for ctx null; page FAQ 'the SDK never throws' (index.html:264 and the FAQPage JSON-LD) false in local mode for that config; 'semverGte \"2.10.0\" knows 2.9 < 2.10 and that 2.0.0-rc.1 sorts before 2.0.0' (README:67) true as stated, but rc.2 vs rc.10 is wrong; 'about 600,000 checks a second' backed (measured 866,000/s for new-checkout here); 'raising on from 10 to 30 only adds users' backed (impact run); client key cannot read rules backed (401); disclaimer, privacy line and usage opt-out present on the page (page.test.mjs). The hash comment calls it 'murmur3' though it is FNV-1a with a murmur3 finaliser. llms.txt links the old github.io host; the Pages build rewrites hosts (source-only, not filed). Two user-facing reliability promises are contradicted by a run: 2.",
+  "fitness": "Job walked through: seed flags from a JSON file in git, roll new-checkout to staff then 10%, check impact of widening to 30% (2,013 users flip, all off->on), widen, kill a feature with one request, read the audit log, evaluate in a backend with the local SDK. All of it worked. A small team could ship with it within the stated limits (no dashboard, three shared keys, one instance, JSON state). The outage risk from an unvalidated segment edit and the prerelease ordering for app versions like 3.2.0-rc.10 are the things that would bite in month one. 3.",
+  "domain": "Compared with LaunchDarkly and Unleash practice: hashing salt.flag.key into fixed buckets with ordered fill (stickiness, monotonic widening, per-flag independence, bucketBy account) matches industry design (LaunchDarkly uses SHA-1 into 100,000 buckets, Unleash murmur3 into 100; flag-keeper's 10,000 with 0.01% resolution is fine); rule order, targets-before-rules, kill switch and prerequisite chains match. Departures: SemVer 2.0.0 section 11 prerelease precedence (numeric identifiers compared lexically); a disabled prerequisite serves its off variant and a dependant requiring 'off' is then satisfied, whereas LaunchDarkly's evaluators treat any prerequisite that is off as failed (recalled from its open-source SDK evaluator, not fetched in this session); neq/notIn/notContains match users missing the attribute, where LaunchDarkly's clauses never match a missing attribute (a defensible but undocumented choice). A senior release engineer would sign off on the method with these noted: 3."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "bucketing hash",
+   "method": "independent BigInt implementation of FNV-1a-32 + MurmurHash3 fmix32 (constants 0x85ebca6b, 0xc2b2ae35)",
+   "command": "node scratchpad/fk/checks.mjs",
+   "expected": "0 mismatches over 20,000 strings",
+   "observed": "0 mismatches; hash('') = 2872998923 both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "bucket uniformity",
+   "method": "Pearson chi-square, 200,000 keys in 100 equal cells, df 99",
+   "command": "node scratchpad/fk/checks.mjs",
+   "expected": "chi2 < 123.2 (95% critical)",
+   "observed": "97.1",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "10% rollout share and independence across flags",
+   "method": "binomial expectation; P(a and b) = P(a)P(b) for two 50% flags",
+   "command": "node scratchpad/fk/checks.mjs",
+   "expected": "0.100 +/- 0.0013; 0.25 vs 0.25",
+   "observed": "0.100315; 0.2512 vs 0.2503",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "SemVer precedence chain 1.0.0-alpha < alpha.1 < alpha.beta < beta < beta.2 < beta.11 < rc.1 < 1.0.0",
+   "method": "SemVer 2.0.0 section 11 and npm's semver package (semver.lt) pairwise",
+   "command": "node scratchpad/fk/checks.mjs  (matchCondition semverLt)",
+   "expected": "beta.2 < beta.11 true; rc.2 < rc.10 true",
+   "observed": "beta.2 < beta.11 false; rc.2 < rc.10 false (54 other pairs agree)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "widening 10% -> 30% via the server impact endpoint",
+   "method": "expected 20% of synthetic users move off->on; hand-traced the one on->off (user-1001 in beta-testers, staff rule removed by the proposal)",
+   "command": "curl -X POST localhost:18087/v1/admin/impact -d '{flag:new-checkout, proposed: 30/70, rules: []}'",
+   "expected": "about 2,000 off->on",
+   "observed": "2,013 off->on, 1 on->off (user-1001)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "a validated config never crashes evaluation",
+   "method": "README:117 and engine.mjs:91 promises, tested on a segment with include as a string",
+   "command": "curl -X PUT localhost:18087/v1/admin/segments/beta-testers -H 'Authorization: Bearer $ADMIN' -d '{\"include\":\"user-1001\"}'; then POST /v1/evaluate-all",
+   "expected": "PUT refused 400, or evaluation still 200",
+   "observed": "PUT 200 and saved; evaluate and evaluate-all 500 'server error'; log: (s.include || []).map is not a function",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "README curl example output",
+   "method": "README:89 quoted output vs live server",
+   "command": "curl -X POST localhost:18087/v1/evaluate -H 'Authorization: Bearer $CLIENT' -d '{\"flag\":\"new-checkout\",\"context\":{\"key\":\"user-42\",\"plan\":\"pro\"}}'",
+   "expected": "variant off, value false, reason fallthrough",
+   "observed": "variant off, value false, reason fallthrough",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "page FAQ: 'the SDK never throws'",
+   "method": "SDK local mode with a stub fetch serving the string-include segment config",
+   "command": "node scratchpad/fk/sdk.mjs",
+   "expected": "isOn returns the fallback",
+   "observed": "isOn throws TypeError into the caller",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "client key cannot read rules",
+   "method": "live server key scopes",
+   "command": "curl localhost:18087/v1/config -H 'Authorization: Bearer $CLIENT'",
+   "expected": "401",
+   "observed": "401",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'about 600,000 checks a second' in-process",
+   "method": "timed 600,000 evaluate() calls on examples/flags.json",
+   "command": "node scratchpad/fk/perf.mjs",
+   "expected": "order of 600,000/s",
+   "observed": "866,241/s (new-checkout), 1,155,150/s (ai-summaries)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "ETag polling and kill switch",
+   "method": "live server",
+   "command": "curl -D - /v1/config (SERVER key); If-None-Match \"1\"; POST /v1/admin/flags/kill-switch-exports/toggle {enabled:false}",
+   "expected": "etag \"1\", 304, then reason off",
+   "observed": "etag \"1\", 304, reason off",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "malformed admin bodies",
+   "method": "PUT a primitive flag body and a null segment body",
+   "command": "curl -X PUT /v1/admin/flags/y -d '\"hello\"'; curl -X PUT /v1/admin/segments/z -d 'null'",
+   "expected": "400 with a reason",
+   "observed": "500 server error both",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "disabled prerequisite",
+   "method": "LaunchDarkly evaluator semantics (prerequisite off = not met), recalled",
+   "command": "node scratchpad/fk/checks.mjs (base disabled, dep requires base=off)",
+   "expected": "dep prerequisite_failed",
+   "observed": "dep serves on (fallthrough)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/flag-keeper && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "39/39 pass in 0.27 s",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:27",
+   "change": "return x[3] < y[3] ? -1 : 1; -> return x[3] < y[3] ? 1 : -1;",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:81",
+   "change": "if (b < edge) return r.variant; -> if (b <= edge) return r.variant;",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:133",
+   "change": "if (Math.abs(sum - 100) > 1e-9) -> if (Math.abs(sum - 100) > 1)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:100",
+   "change": "if (r.variant !== p.variant) return -> if (r.variant !== p.variant && r.reason !== \"off\") return",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "server.mjs:80",
+   "change": "bearerOk(req, cfg.serverKey, cfg.adminKey) -> bearerOk(req, cfg.clientKey, cfg.serverKey, cfg.adminKey) on /v1/config",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs (assertion at server.test.mjs:23 failed, then the run hung until killed)"
+  },
+  {
+   "where": "engine.mjs:67",
+   "change": "segment exclude check deleted",
+   "caught": true,
+   "test_cmd": "timeout 60 node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:97",
+   "change": "prerequisite_cycle guard deleted",
+   "caught": true,
+   "test_cmd": "timeout 60 node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "validateConfig does not check segment shape, so a segment with include or exclude as a string (or a null segment) is accepted and saved; afterwards every evaluation of a flag that uses the segment, and every /v1/evaluate-all, returns 500, and the local-mode SDK's isOn throws into the app. Contradicts 'validated whole ... change nothing' (README:117), 'never throws on bad config' (engine.mjs:91) and the page FAQ 'the SDK never throws' (index.html:264).",
+   "where": "ventures/flag-keeper/engine.mjs:141",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "SemVer prerelease precedence compares the whole prerelease string lexically, so 1.0.0-beta.11 sorts before 1.0.0-beta.2 and 2.0.0-rc.10 before 2.0.0-rc.2 (SemVer 2.0.0 section 11 compares dot-separated identifiers, numeric ones numerically). A semverLt/semverGte rule on app versions misroutes rc.10+ builds. No test covers prerelease-vs-prerelease (mutation inverting it survives).",
+   "where": "ventures/flag-keeper/engine.mjs:27",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "medium",
+   "what": "The local-mode SDK calls evaluate() without try/catch, so any engine exception (bad segment shape, context null) propagates out of isOn/value/detail, while the remote path catches and returns the fallback.",
+   "where": "ventures/flag-keeper/sdk.mjs:21",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+  },
+  {
+   "severity": "low",
+   "what": "A disabled prerequisite serves its off variant, so a dependant that requires variant 'off' is satisfied when the prerequisite is killed; LaunchDarkly treats an off prerequisite as not met. Undocumented and untested (mutation survives).",
+   "where": "ventures/flag-keeper/engine.mjs:100",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Weight-sum tolerance is untested: loosening 1e-9 to 1 leaves every test green, so a 99.5% rollout could slip through after a refactor.",
+   "where": "ventures/flag-keeper/engine.mjs:133",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "PUT /v1/admin/flags/:key with a primitive JSON body and PUT /v1/admin/segments/:key with null return 500 instead of a 400 with a reason.",
+   "where": "ventures/flag-keeper/server.mjs:112",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Variant membership uses the `in` operator, so variants named toString or constructor pass validation and serve value null.",
+   "where": "ventures/flag-keeper/engine.mjs:125",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Server tests do not close the HTTP server when an assertion fails, so a failing key-scope test hangs the run instead of reporting red (seen with the server.mjs:80 mutant).",
+   "where": "ventures/flag-keeper/server.test.mjs:23",
+   "category": "code-craft",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "The hash is described as '32-bit murmur3' but is FNV-1a with a murmur3 fmix32 finaliser (distribution is fine; the label is wrong for anyone porting it to another language SDK).",
+   "where": "ventures/flag-keeper/engine.mjs:12",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "The rate limiter clears every IP's counter once 10,000 distinct IPs are tracked, which resets limits for all clients mid-window.",
+   "where": "ventures/flag-keeper/server.mjs:26",
+   "category": "logic-error",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16234"
+ ],
+ "verdict": "Flag Keeper is a compact, mostly correct self-hosted flag server: the bucketing hash matches an independent implementation, buckets are uniform (chi2 97.1, df 99), a 10% rollout serves 10.03%, flags bucket independently, widening 10% to 30% flips exactly the expected 20% one way, key scopes hold, and every README endpoint worked on a live server. It does not meet the bar: an unvalidated segment shape (include as a string) is accepted by the 'validated whole' admin API and then 500s every evaluate-all and throws inside the local SDK, contradicting the README and page promises that bad config never breaks evaluation; SemVer prerelease ordering is lexical (rc.10 before rc.2); and 3 of 7 seeded mutations survive, on exactly those paths. Finished (completeness 3); correctness, claims and verification at 2."
+}
