@@ -336,6 +336,15 @@ in the quarter it rates lowest. The twin's sd of f<sub>new</sub> − f<sub>old</
 views the ranking fails on the Kinect (AUC 0.42). A unit can therefore use its twin to choose when to test,
 not to promise a detection rate.
 
+**Waiting for better views (milestone 4m, pre-registered).** Choosing a split chooses its old set too,
+which a robot cannot do. Holding each old set fixed and letting the twin pick among the disjoint candidate
+new sets, its pick catches ±2% in 9.7% of old sets on the TUM cameras against 7.3% for a blind pick
+(×1.33, 7 candidates at 6 + 6) and ×1.63 among 28 candidates (5 + 6); on OpenCV's cameras ×1.17. The
+chosen splits' false alarms stay at 0.06–1.40%. The twin's predicted gain matches the real one within
+0.11 on 7 of 8 unit-designs, though its level is high, and the sd rule does as well. Some candidate would
+have caught the change in 19.2–55.1% of old sets, so most of what makes one new set luckier than another
+is not foreseeable from the twin.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -390,8 +399,9 @@ were found after a pre-registered prediction failed and are labelled so in the l
   calibration of the same camera.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
   views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
-  Choosing view sets by the twin's predicted power works as a ranking (milestone 4l); still needed: the
-  gain for a robot that holds one old set and waits for new views (more than 13 views per unit), and a twin that models the right camera's extra spread (a per-view offset
+  Choosing view sets by the twin's predicted power works as a ranking (milestone 4l), and with the old set
+  held fixed it gains ×1.33–1.63 on the TUM cameras (milestone 4m); still needed: a stopping rule over
+  a longer stream of views (more than 13 per unit), and a twin that models the right camera's extra spread (a per-view offset
   term fitted to the unit's own jackknife) to bring that camera up to 1%.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%
