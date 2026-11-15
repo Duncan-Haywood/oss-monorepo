@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [ci, software-for-routine]
+date: 2026-11-15
+---
 # Thousands-separator sweep, 2026-11-15
 
 Tool: `platform/ci/check_thousands_input.mjs` (test: `platform/ci/test_check_thousands_input.mjs`).
