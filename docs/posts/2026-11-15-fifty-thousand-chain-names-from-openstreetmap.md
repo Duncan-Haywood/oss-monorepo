@@ -1,8 +1,8 @@
 ---
 title: "Fifty thousand chain names from OpenStreetMap, tried on bank lines"
-seo_title: "Categorizing bank transactions with OpenStreetMap's name-suggestion-index"
+seo_title: "Categorizing bank lines with OpenStreetMap chain names"
 date: 2026-11-15
-description: "An open-source bookkeeper borrowed OpenStreetMap's list of chain stores to guess what a new merchant is. Right on 91% of the lines it spoke on for one council, held out; a Scottish file showed where it goes wrong."
+description: "OpenStreetMap's list of 50,000 chains as a hint for new merchants in an open-source bookkeeper: 91% right where it spoke on one held-out council."
 tags: [ai-bookkeeper, evaluation, open-data, categorization]
 ---
 

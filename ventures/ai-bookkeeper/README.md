@@ -1446,6 +1446,56 @@ What it says, with care:
 
 Pinned in `uk-merchants.test.mjs` (5 tests: descriptions in the shapes UK card reports print, amounts made up, and the South Lakeland reader on made-up rows under the real header).
 
+### Chain names from OpenStreetMap (2026-11-15)
+
+The built-in keywords know the big names. A new user's first import is mostly the rest: Heron Foods, Wolseley, Scotmid, Cava, Blake's Lotaburger. OpenStreetMap's name-suggestion-index (NSI, BSD 3-Clause) lists about 50,000 chains worldwide with the kind of place each one is (`shop=supermarket`, `amenity=fuel`, `tourism=hotel`). `brands-build.mjs` turns release 8.0.20261101 into `brands.mjs` (6,555 chain names that suggest an account and 71 that only block, 105 KB, the NSI notice kept in its header); `suggest` tries it after the keywords, the card code and the bank's own category, before the new-payee guess. Money out only, confidence 0.5, review only (`source: "brand"`, reason `"heron foods" is a chain listed by OpenStreetMap as a food shop, cafe or restaurant`).
+
+How it was built, before any bank line was scored:
+
+- **`CATEGORY_MAP`**, NSI kind of place to account, following what `BUILT_IN` already does with the same merchants: supermarkets, convenience stores, cafes and restaurants as meals (as Kroger and Tesco), hotels, car hire and travel agents as travel, fuel, tyres and car repair as vehicle, DIY, hardware and trade counters as supplies, stationers, copy shops and post offices as office and postage, telecoms as utilities, insurers, coworking and self-storage. Kinds that fit two accounts (clothes, department and variety stores, pharmacies, electronics, furniture, banks, parking) are unmapped.
+- **Longest name wins, and an unmapped longer name blocks a shorter mapped one**: "Total" is fuel, "Total Wine" is an off-licence, so "TOTAL WINE" gets nothing. A name listed under two accounts says nothing.
+- **One-word names that are common English words are dropped** (SCOWL sizes 10-50 through `wordlist-english`, MIT, read at build time only): Access, Bell, Advantage, Shell, Target, Express. The famous ones are already in `BUILT_IN`, which runs first. Parcel lockers were left out because their names are the retailers (Amazon, AliExpress).
+- Names `BUILT_IN` measured and dropped (Halfords, NCP, DVSA) are excluded. This was the one change made after the development sets (South Lakeland and the Mint tuning half) were read.
+
+Held out, from empty books with the merchant name only, right / wrong (`node eval/uk-card-keywords.mjs ... [--skip brand]`, `node eval/mint-labelled.mjs --set tune|held [--skip brand]`):
+
+| set | lines | layer off | on | lines it spoke on (right) |
+|---|---|---|---|---|
+| South Lakeland (development) | 3,311 | 39.4% / 5.3% | 39.9% / 5.4% | 19 (16) |
+| Mint, tuning half (development) | 2,159 | 57.5% / 3.8% | 59.1% / 3.8% | |
+| Durham County Council (held out) | 151,437 | 28.2% / 2.8% | 29.6% / 2.9% | 2,210 (2,022) |
+| Scottish Government (held out) | 11,087 | 11.8% / 6.5% | 12.3% / 7.1% | 134 (61) |
+| Mint, six held-out files | 767 | 54.6% / 1.8% | 58.5% / 1.8% | |
+
+On 63 real US exports with no labels (`node eval/brand-lines.mjs --cache DIR`, 4,927 lines out), the layer changed 48 lines from no suggestion to one, and all 48 read by eye as the right kind of place (Arby's, Cava, Peet's, Vons, Harris Teeter, Sprouts, Smashburger, Candlewood Suites, O'Reilly Auto Parts, Hobby Lobby as supplies).
+
+Two changes came from reading held-out misses; the figures above include both, and together they moved the Durham and Scottish totals by at most 0.1 point:
+
+- `BUILT_IN` knew "Iceland Travel" is not the grocer, and the chain list undid that. When the keywords know a chain's bare name, they now decide on the cleaned payee (`www.iceland.co.uk` is still the grocer; "Iceland Travel" gets nothing).
+- The test suite's probe 6 caught "JOHN DEERE FINANCIAL" filed as supplies. A chain's name followed by "financial", "finance", "credit", "bank", "loan", "lease", "insurance" or "mortgage" now gets nothing.
+
+In the learning loop (books filed a day at a time, first-seen merchants right / wrong):
+
+| books | first-seen lines | card code off: layer off | on | card code on (default): layer off | on |
+|---|---|---|---|---|---|
+| Durham Resources | 933 | 43.1% / 24.9% | 43.3% / 25.1% | 75.3% / 20.4% | 75.3% / 20.4% |
+| Durham Adult and Health Services | 306 | 52.6% / 36.9% | 52.6% / 36.9% | 75.8% / 20.6% | 75.8% / 20.6% |
+| Durham Dedicated Schools Grant | 285 | 62.8% / 32.6% | 62.8% / 33.3% | 70.2% / 27.7% | 70.2% / 28.4% |
+| Durham Transformation and Partnerships | 92 | 62.0% / 23.9% | 62.0% / 23.9% | 75.0% / 18.5% | 75.0% / 18.5% |
+| Mint, six held-out files | 403 | 69.2% / 15.4% | 69.7% / 15.4% | | |
+| YNAB, three households (`eval/ynab-registers.mjs`) | 219 | 74.9% / 11.9% | 74.4% / 12.3% | | |
+
+The YNAB loss is two lines read after the run: "The Hampton Social" (a restaurant) matched Hampton, the hotel chain, and a payee called "Albert" matched Albert, a Czech supermarket. A first name or a surname that is also a chain is the layer's known weakness.
+
+What it says, with care:
+
+- **It is a first-import layer.** Once a book has filed a merchant its own memory takes over, and on card files with a merchant category code that layer places nearly every new merchant first, so the learning-loop figures barely move.
+- **Where it speaks it is mostly right on the UK council and the US exports** (91.5% on Durham, 48 of 48 by eye), but the average gain is small: most lines are big names the keywords already know, or local firms no chain list has.
+- **The Scottish Government's file got worse** (61 right, 73 wrong where it spoke). That file lists only lines over £500, and at that size a Malmaison, Crowne Plaza or Novotel line is a venue the government hired, filed as rent or hire, not travel. Baxter Storey, a caterer, matched Baxter, a car-service chain (26 lines). A name that is also a surname is the layer's known weakness.
+- Labels are three councils', one government's and some households'; the map from their categories to a small business's chart is a judgment.
+
+Pinned in `brands.test.mjs` (7 tests: descriptions in the shapes real exports print, amounts made up, and the builder on a made-up index). To rebuild: the commands at the top of `brands-build.mjs`.
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.

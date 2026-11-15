@@ -1039,7 +1039,7 @@ export function suggest(txn, model) {
     // if they file it, nothing if their exception holds.
     const kw = (t) => BUILT_IN.find(([a, rd, re]) => a !== "transfer" && (rd === "any" || rd === "out") && re.test(t));
     if (b && kw(b.name)) { const k = kw(payeeTokens(txn.desc).join(" ")); b.account = k?.[0] ?? null; }
-    if (b?.account && (model.codes?.has(b.account) ?? true)) return { account: b.account, confidence: BRAND.confidence, source: "brand", reason: `"${b.name}" is a chain listed by OpenStreetMap as ${BRAND_LABEL[b.account] ?? "this kind of place"}`, alternatives: ranked.slice(0, 2) };
+    if (b?.account && (model.codes?.has(b.account) ?? true)) return { account: b.account, confidence: BRAND.confidence, source: "brand", reason: `"${b.name}" is a chain listed by OpenStreetMap as ${Object.hasOwn(BRAND_LABEL, b.account) ? BRAND_LABEL[b.account] : "this kind of place"}`, alternatives: ranked.slice(0, 2) };
   }
   // A split category: enough earlier lines but no majority, so mccSuggest said nothing.
   // Its commonest account beat the new-payee guess on the 140 Toronto lines the AI layer
