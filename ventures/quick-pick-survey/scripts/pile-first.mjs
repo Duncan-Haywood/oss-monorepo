@@ -16,6 +16,7 @@
 // suggestedMax. Each row: picks, hit cap, true Spearman of the shown order,
 // whether the shown top is the true top, and the stop-time confidence.
 import { writeFileSync, readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { fit, pairFit, nextPair, order, orderConfidence, suggestedMax, stopCheck } from "../site/rank-core.mjs";
 import { spearmanWithTruth } from "./picks-needed.mjs";
 
@@ -85,7 +86,7 @@ export function runLoop(truth, piles, pickSeed, { extra = 0 } = {}) {
   return { ...stop, curve };
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const FROM = opt("--from", null);
   const rows = FROM ? FROM.split(",").flatMap((f) => readFileSync(f, "utf8").trim().split("\n").map((l) => JSON.parse(l))) : [];
   if (!FROM) for (const spread of SPREADS) for (const n of SIZES) for (let r = 0; r < RUNS; r++) {

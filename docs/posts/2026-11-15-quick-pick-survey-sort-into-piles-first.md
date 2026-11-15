@@ -1,8 +1,8 @@
 ---
 title: "Sort first, then compare: when a rough three-pile sort saves pairwise questions"
-seo_title: "Does a rough sort before pairwise comparison save questions? A simulation"
+seo_title: "Does a rough sort before pairwise comparison save questions?"
 date: 2026-11-15
-description: "A one-tap-per-option sort before pairwise picks cut 20 options from 93 actions to 64 for careful sorters. Careless sorters paid 120. Two bugs we fixed on the way."
+description: "A one-tap-per-option sort before pairwise picks cut 20 options from 93 actions to 64 for careful sorters; careless ones paid 120. Two bugs fixed on the way."
 tags: [quick-pick-survey, pairwise-comparison, ranking, prioritisation, simulation, product]
 ---
 
