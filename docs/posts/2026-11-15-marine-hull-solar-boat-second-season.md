@@ -1,5 +1,5 @@
 ---
-title: "What a second season of a solar boat's log buys: a floor, not a better average"
+title: "What a second season of a solar boat's log buys: the rules converge and the floor rises"
 seo_title: "Solar USV seasonal correction from two seasons of log, all year pairs"
 date: 2026-11-15
 tags: [research, marine-hull]
@@ -12,7 +12,7 @@ Every earlier two-year count in the programme learned from one pair of years, th
 
 What came out:
 
-- **On average, the rules stop mattering.** The five rules that fit a yearly cosine to the error, whether shrunk or not, all land between 151.2 and 152.1 of 168 cases. A second season adds 12 cases to the unshrunk fit but only 5 to the band pool, because the band pool had already taken most of the gain from one season.
+- **On average, the choice of rule stops mattering.** The five rules that fit a yearly cosine to the error, whether shrunk or not, all land between 151.2 and 152.1 of 168 cases. A second season adds 12 cases to the unshrunk fit but only 5 to the band pool, because the band pool had already taken most of the gain from one season.
 - **The worst case still differs.** Over the ten pairs the band pool never falls below 145. The unshrunk cosine falls to 137 on one pair, below no correction. The raw month-by-month ratios range from 116 to 155.
 - **The old pair was unlucky again.** It ranks 8th to 10th of ten for every rule.
 - **High latitude stays the exception.** At the nine points with the largest seasonal error, the raw ratios win 92 of 168 cases on average, against 54 to 59 for the pooled rules and 25 for no correction. Any pair that includes one particular year roughly halves every rule's count there, and a second year dilutes that year's damage without cancelling it.
