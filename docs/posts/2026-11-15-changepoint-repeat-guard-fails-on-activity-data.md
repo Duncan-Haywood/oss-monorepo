@@ -1,9 +1,9 @@
 ---
 title: "A guard against repeating waveforms that fixed one benchmark and broke on fresh activity data"
-seo_title: "Changepoint guard for repeating patterns: fixed TSSB, failed on HAS 2023"
+seo_title: "A changepoint guard for repeating patterns: fixed TSSB, failed HAS"
 date: 2026-11-15
 tags: [changepoint-detection, statistics, pre-registration, negative-result, benchmarks]
-description: "Pre-registered: hiding many evenly spread agreed changes repaired TSSB (0.344 to 0.403) but cost covering on 250 fresh activity recordings. The headline itself beat no-change there, +0.175."
+description: "Pre-registered: a guard for repeating waveforms repaired TSSB but cost covering on 250 fresh activity recordings, where the headline beat no-change by 0.175."
 ---
 
 The [changepoint detector](https://marisstella.app/changepoint-detector/) leads with the changes that all six of its settings agree on. Earlier today that headline failed a test on TSSB, a benchmark of 75 long series made of repeating waveforms such as heartbeats, eye movements and gestures. All six settings cut the same peaks of each cycle, so they agreed on dozens of "changes" that were really the cycle repeating. On that benchmark the headline scored below simply reporting no change (covering 0.344 against 0.401).
