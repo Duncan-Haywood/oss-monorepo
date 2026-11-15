@@ -60,3 +60,7 @@ None for this simulation.
 
 ## Outside dependencies
 numpy and pytest. Nothing else; the scene is analytic and the learner is written in numpy.
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-capture-learngate.json)): the warp, the gates and the feature values are untested (a near-hole feature built from the wrong mask and a soft gate without its grow step both leave every test green; the stereo depth now has a test); learned and heuristic per-pixel blend weights are established practice (Buehler et al. 2001; Hedman et al. 2018, Deep Blending; Riegler & Koltun 2020) and are not yet cited or compared; the target is the exact midpoint, so "nearest camera" is a tie, and the binary oracle picks by L1 but is scored by L2, so it is not a strict bound; the result is PSNR on one synthetic scene.
