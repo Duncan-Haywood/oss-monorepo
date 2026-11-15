@@ -17,6 +17,9 @@ middle 8 m; lane order in 30 cm bins on frames with at least 4 walkers each way;
 over 1 s lags. Only walkers that entered after the start count (the initial placement is
 random and would otherwise leak into the statistics).
 
+Milestone 4 adds a second operational model, JuPedSim's AnticipationVelocityModel (`model="avm"`),
+under the same steering stage, and the exit position as a parameter (`exit_frac`).
+
 Needs numpy and jupedsim (`python3 platform/ci/pyenv.py jupedsim numpy`).
 """
 from __future__ import annotations
@@ -37,6 +40,8 @@ TARGET_AHEAD = 2.0   # m: steering target this far ahead
 CLEARANCE = 0.55     # m: free space needed to enter
 RADIUS = 0.25        # m: lower end of the 0.5-0.7 m diameters of Helbing et al. (2000); the
                      # JuPedSim default 0.3 m cannot pack to the 3.8/m2 measured in BaSiGo b_08
+AVM_RADIUS = 0.2     # m: JuPedSim 1.4.2 default for the anticipation velocity model
+MODELS = ("sf", "avm")
 
 
 def desired_speeds(rng, n, mean=1.34, sd=0.26, lo=0.6, hi=2.0):
@@ -44,7 +49,7 @@ def desired_speeds(rng, n, mean=1.34, sd=0.26, lo=0.6, hi=2.0):
     return np.clip(rng.normal(mean, sd, n), lo, hi)
 
 
-def steer_targets(pos, dirs, goal_y, beta, width, length):
+def steer_targets(pos, dirs, goal_y, beta, width, length, radius=RADIUS):
     """Steering target per walker (vectorised).
 
     pos: (n, 2); dirs: (n,) +1 heading +x, -1 heading -x; goal_y: (n,) lateral goal or nan.
@@ -68,7 +73,7 @@ def steer_targets(pos, dirs, goal_y, beta, width, length):
         oncoming = (opp & (dx > 0) & (dx <= LOOK_AHEAD) & (dy < LATERAL_GAP)).any(axis=1)
         ty = ty + np.where(oncoming, -dirs * beta * TARGET_AHEAD, 0.0)
     tx = np.clip(tx, -1.4, length + 1.4)
-    ty = np.clip(ty, RADIUS + 0.05, width - RADIUS - 0.05)
+    ty = np.clip(ty, radius + 0.05, width - radius - 0.05)
     return tx, ty
 
 
@@ -79,14 +84,25 @@ def right_offset(y, d, width):
 
 
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
-             warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1):
-    """Run one closed-loop corridor. Returns per-run statistics (dict)."""
+             warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1,
+             model="sf", exit_frac=0.25):
+    """Run one closed-loop corridor. Returns per-run statistics (dict).
+
+    model: "sf" (JuPedSim SocialForceModel, Helbing et al. 2000 defaults, radius 0.25 m) or
+    "avm" (JuPedSim AnticipationVelocityModel, Xu, Chraibi and Seyfried 2021, JuPedSim
+    defaults). exit_frac: with goals, an assigned walker aims at the far end at this fraction
+    of the width from the left or the right wall (50/50).
+    """
     import jupedsim as jps
 
+    if model not in MODELS:
+        raise ValueError(f"model must be one of {MODELS}")
+    radius = RADIUS if model == "sf" else AVM_RADIUS
     rng = np.random.default_rng(seed)
     # walkable area runs 1.5 m past each end so leaving walkers are not held by an end wall
     area = [(-1.5, 0), (length + 1.5, 0), (length + 1.5, width), (-1.5, width)]
-    sim = jps.Simulation(model=jps.SocialForceModel(), geometry=area, dt=dt)
+    op = jps.SocialForceModel() if model == "sf" else jps.AnticipationVelocityModel(rng_seed=int(seed))
+    sim = jps.Simulation(model=op, geometry=area, dt=dt)
     stage = sim.add_direct_steering_stage()
     journey = sim.add_journey(jps.JourneyDescription([stage]))
     agents = {}  # id -> [dir, goal_y, born_after_start]
@@ -94,12 +110,18 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     def goal_for(d):
         if not goals:
             return math.nan
-        return width * (0.25 if rng.random() < 0.5 else 0.75)
+        return width * (exit_frac if rng.random() < 0.5 else 1.0 - exit_frac)
 
     def add(x, y, d, v0, new):
-        aid = sim.add_agent(jps.SocialForceModelAgentParameters(
-            journey_id=journey, stage_id=stage, position=(float(x), float(y)),
-            orientation=(float(d), 0.0), desired_speed=float(v0), radius=RADIUS))
+        if model == "sf":
+            par = jps.SocialForceModelAgentParameters(
+                journey_id=journey, stage_id=stage, position=(float(x), float(y)),
+                orientation=(float(d), 0.0), desired_speed=float(v0), radius=radius)
+        else:
+            par = jps.AnticipationVelocityModelAgentParameters(
+                journey_id=journey, stage_id=stage, position=(float(x), float(y)),
+                desired_speed=float(v0), radius=radius)
+        aid = sim.add_agent(par)
         agents[aid] = [d, goal_for(d), new]
 
     # initial placement: a jittered lattice over the whole corridor, half each way
@@ -110,17 +132,20 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
     rng.shuffle(cells)
     placed = []
     for i, j in cells[:n_walkers]:
-        jx, jy = max(0.0, gx / 2 - RADIUS), max(0.0, gy / 2 - RADIUS)
+        jx, jy = max(0.0, gx / 2 - radius), max(0.0, gy / 2 - radius)
         x = (i + 0.5) * gx + rng.uniform(-jx, jx)
-        y = min(max((j + 0.5) * gy + rng.uniform(-jy, jy), RADIUS + 0.05), width - RADIUS - 0.05)
+        y = min(max((j + 0.5) * gy + rng.uniform(-jy, jy), radius + 0.05), width - radius - 0.05)
         placed.append((x, y))
     v0s = desired_speeds(rng, len(placed))
-    for k, p in enumerate(placed):
-        add(p[0], p[1], 1 if k % 2 == 0 else -1, v0s[k], False)
-
     queue = {1: 0, -1: 0}
-    e_lo = max(RADIUS + 0.05, width / 2 - entrance / 2)
-    e_hi = min(width - RADIUS - 0.05, width / 2 + entrance / 2)
+    for k, p in enumerate(placed):
+        d0 = 1 if k % 2 == 0 else -1
+        try:
+            add(p[0], p[1], d0, v0s[k], False)
+        except RuntimeError:  # AVM refuses overlapping placement: the walker enters later instead
+            queue[d0] += 1
+    e_lo = max(radius + 0.05, width / 2 - entrance / 2)
+    e_hi = min(width - radius - 0.05, width / 2 + entrance / 2)
     steer_n = max(1, round(steer_every / dt))
     rec_n = max(1, round(record_every / dt))
     lo_x, hi_x = length / 2 - SECTION_HALF, length / 2 + SECTION_HALF
@@ -144,7 +169,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                 keep = ~leaving
                 ids = [a for a, kk in zip(ids, keep) if kk]
                 pos, d, g = pos[keep], d[keep], g[keep]
-                tx, ty = steer_targets(pos, d, g, beta, width, length)
+                tx, ty = steer_targets(pos, d, g, beta, width, length, radius)
                 for a, xx, yy in zip(ids, tx, ty):
                     sim.agent(a).target = (float(xx), float(yy))
             for dd in (1, -1):
@@ -153,7 +178,12 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
                     y0 = rng.uniform(e_lo, e_hi) if e_hi > e_lo else width / 2
                     if len(pos) and np.min((pos[:, 0] - x0) ** 2 + (pos[:, 1] - y0) ** 2) < CLEARANCE ** 2:
                         break
-                    add(x0, y0, dd, desired_speeds(rng, 1)[0], True)
+                    try:
+                        add(x0, y0, dd, desired_speeds(rng, 1)[0], True)
+                    except RuntimeError:
+                        # AVM checks contact on entry; a walker marked for removal is still
+                        # present until the next step, so wait for room (SF never raises here)
+                        break
                     queue[dd] -= 1
                     pos = np.vstack([pos, [x0, y0]]) if len(pos) else np.array([[x0, y0]])
         if it % rec_n == 0 and t >= warmup:
