@@ -4,6 +4,7 @@
 // Node-style (req, res) pair; hub-worker.mjs adapts a fetch Request to that shape.
 import { parseStaff, parseShifts, buildRoster, rosterFromOwner, rosterIcs, rosterFeedIcs, rosterMessages, coverOptions, checkTrade, parseAvailabilityReply, mergeAvailabilityReplies, parseTimeOffRequest, addTimeOff, scheduleFlags, fmtClock, money, num, DAYS, sampleStaff, sampleShifts } from "./calc.mjs";
 import { punch, addPunch, removePunch, onTheClock, timesheet, timesheetCsv, zoneOf, localParts, clock } from "./timeclock.mjs";
+import { readPayEnv, payForTimesheet } from "./payrules.mjs";
 
 const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 100, MAX_CLAIMS = 100, MAX_OFFS = 100;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -278,6 +279,22 @@ export function weeksOf(state) {
   const p = state.published;
   return [...(p && p.weekStart ? [p] : []), ...[...(state.history || [])].reverse()].filter((w) => w.weekStart);
 }
+// Each person's wage from the published week's staff list (or the current one): name -> hourly rate.
+export function wagesOf(state) {
+  const text = state.published && typeof state.published.staffText === "string" ? state.published.staffText : state.staff;
+  const m = new Map();
+  try { for (const p of parseStaff(text || "").staff || []) if (Number.isFinite(Number(p.wage)) && Number(p.wage) > 0) m.set(p.name, Number(p.wage)); } catch { /* no wages */ }
+  return m;
+}
+const RULE_NAME = { federal: "federal (over 40 a week)", california: "California (daily, double time, seventh day, meal periods)", alaska: "Alaska (over 8 a day or 40 a week)", colorado: "Colorado (over 12 a day, 12 in a row or 40 a week)" };
+const cents = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export function payTable(rows, pay) {
+  const h = (x) => x.toFixed(2);
+  const body = rows.map((r) => `<tr><td><strong>${esc(r.name)}</strong></td><td>${h(r.regularH)}</td><td>${h(r.overtimeH)}</td><td>${h(r.doubleH)}</td><td>${r.mealPremiumDays || ""}</td><td>${r.regularRate == null ? "" : esc(cents(r.regularRate))}</td><td>${r.gross == null ? "" : esc(cents(r.gross))}</td><td>${esc([...r.flags, ...r.notes, pay.roundMin && r.roundNetMin ? `rounding ${r.roundNetMin > 0 ? "+" : ""}${Math.round(r.roundNetMin)} min` : ""].filter(Boolean).join("; "))}</td></tr>`).join("");
+  const tot = rows.reduce((t, r) => t + (r.gross || 0), 0);
+  return `<h2>Pay estimate: ${esc(RULE_NAME[pay.rules])}</h2><p class="note">Set PAY_RULES to federal, california, alaska or colorado${pay.rules === "california" ? "" : `, PUNCH_ROUND_MIN to 5, 6 or 15 to round punches (now ${pay.roundMin || "off"})`}. ${pay.notes.map(esc).join(" ")} Wages from the published staff list; overtime at the regular rate's 1.5x, double time 2x${pay.rules === "california" ? ", one extra hour for a day with a missed meal break (a break is a clock-out of 30 min or more)" : ""}. An estimate to check before payroll: tips, bonuses, differentials, local ordinances and union rules are not in it.</p>
+<table><thead><tr><th>Person</th><th>Regular h</th><th>Overtime h (1.5x)</th><th>Double h (2x)</th><th>Meal premium days</th><th>Regular rate</th><th>Est. gross</th><th>Check</th></tr></thead><tbody>${body || `<tr><td colspan="8">No closed stretches this week.</td></tr>`}</tbody><tfoot><tr><td colspan="6">Total</td><td>${esc(cents(tot))}</td><td></td></tr></tfoot></table>`;
+}
 function timesheetPage(state, key, tc, weekStart, note = "") {
   const k = esc(key), weeks = weeksOf(state), week = weeks.find((w) => w.weekStart === weekStart) || weeks[0];
   if (!week) return page("Timesheet", `${note}<p>Set the week's Monday and publish it first; the timesheet reads punches against the published week.</p><p><a href="/admin?key=${k}">Back to admin</a></p>`);
@@ -291,9 +308,10 @@ function timesheetPage(state, key, tc, weekStart, note = "") {
   ]).join("");
   const names = [...new Set([...(state.published ? state.published.people.map((q) => q.name) : []), ...ts.people.map((x) => x.name)])];
   const recent = [...(state.punches || [])].sort((a, b) => b.at - a.at).slice(0, 30).map((x) => { const t = ts.local(x.at); return `<tr><td>${esc(x.person)}</td><td>${x.kind === "in" ? "in" : "out"}</td><td>${esc(t.date)} ${esc(t.time)}</td><td>${x.by === "manager" ? "manager" : "staff"}</td><td><form method="post" action="/admin/punch-remove?key=${k}"><input type="hidden" name="id" value="${x.id}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><button>Remove</button></form></td></tr>`; }).join("");
-  return page(`Timesheet, week of ${week.weekStart}`, `${note}${pick}<p class="note">Times are ${esc(ts.tz)} (set TIMEZONE to your site's zone, for example America/Chicago). Late and early flags allow ${ts.graceMin} min (TIME_GRACE_MIN). Hours over ${ts.overtimeAfter} are a number to check, not an overtime calculation: daily overtime, breaks and rounding depend on where you are.</p>
+  return page(`Timesheet, week of ${week.weekStart}`, `${note}${pick}<p class="note">Times are ${esc(ts.tz)} (set TIMEZONE to your site's zone, for example America/Chicago). Late and early flags allow ${ts.graceMin} min (TIME_GRACE_MIN). The pay estimate below applies the PAY_RULES you set; check it against your own state's rules before paying.</p>
 <table><thead><tr><th>Person</th><th>Worked h</th><th>Scheduled h</th><th>Difference</th><th>Check</th></tr></thead><tbody>${sum || `<tr><td colspan="5">No punches or shifts this week.</td></tr>`}</tbody></table>
 <p><a href="/admin/timesheet.csv?key=${k}&amp;week=${esc(week.weekStart)}">Download CSV for payroll</a> · <a href="/admin?key=${k}">Back to admin</a></p>
+${tc.pay ? payTable(payForTimesheet(ts, wagesOf(state), tc.pay), tc.pay) : ""}
 <h2>Every stretch worked</h2><table><thead><tr><th>Person</th><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Scheduled shift</th><th>Flags</th></tr></thead><tbody>${det}</tbody></table>
 <h2>Add a missed punch</h2><form method="post" action="/admin/punch-add?key=${k}"><input type="hidden" name="week" value="${esc(week.weekStart)}"><label>Person<select name="name" required>${names.map((n) => `<option>${esc(n)}</option>`).join("")}</select></label><label>Date<input type="date" name="date" required></label><label>Time (HH:MM, ${esc(ts.tz)})<input name="time" required placeholder="09:00" maxlength="5"></label><button name="kind" value="in">Add clock-in</button><button name="kind" value="out">Add clock-out</button></form><p class="note">Added punches are marked "added by manager" here and in the CSV, so the record shows what was typed in later.</p>
 <h2>Latest punches</h2><table><thead><tr><th>Person</th><th></th><th>When</th><th>By</th><th></th></tr></thead><tbody>${recent}</tbody></table>`);
@@ -303,7 +321,8 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
   const adminKey = env.ADMIN_KEY || "", teamToken = env.TEAM_TOKEN || "", browserBuild = !!env.BUILD_IN_BROWSER;
   const clockOn = String(env.TIME_CLOCK ?? "1") !== "0", tz = zoneOf(env.TIMEZONE);
   const grace = Math.max(0, Math.min(60, Number(env.TIME_GRACE_MIN ?? 5) || 0));
-  const tcNow = () => ({ tz, grace, now: now() });
+  const pay = readPayEnv(env);
+  const tcNow = () => ({ tz, grace, now: now(), pay });
   const notify = notifier(env, fetchImpl);
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
@@ -428,7 +447,8 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
       const weeks = weeksOf(state), w = weeks.find((x) => x.weekStart === url.searchParams.get("week")) || weeks[0];
       if (!w) return send(404, "no published week\n", "text/plain");
       const c = tcNow();
-      return send(200, timesheetCsv(timesheet(state.punches, w, { tz: c.tz, nowMs: c.now, graceMin: c.grace })), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="timesheet-${w.weekStart}.csv"` });
+      const tsw = timesheet(state.punches, w, { tz: c.tz, nowMs: c.now, graceMin: c.grace });
+      return send(200, timesheetCsv(tsw, payForTimesheet(tsw, wagesOf(state), c.pay)), "text/csv; charset=utf-8", { "content-disposition": `attachment; filename="timesheet-${w.weekStart}.csv"` });
     }
     const sheet = `/admin/timesheet?key=${encodeURIComponent(adminKey)}&week=${encodeURIComponent(String(form.get("week") || ""))}`;
     if (clockOn && req.method === "POST" && url.pathname === "/admin/punch-add") {
