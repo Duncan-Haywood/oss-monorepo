@@ -69,6 +69,7 @@ HERE = Path(__file__).resolve().parent
 ARGS, sys.argv = sys.argv[1:], sys.argv[:1]
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
 import h7am_pseudo_guard as M  # noqa: E402
 import h7an_guard_first as G  # noqa: E402
 
