@@ -3,7 +3,7 @@ title: "Mixing census residents and jobs to predict drone conflicts: the level, 
 seo_title: "Census residents vs jobs as a proxy for drone delivery demand"
 date: 2026-11-15
 tags: [research, uav, airspace, census, calibration]
-description: "A mix of about 89% jobs and 11% residents brings census-based drone conflict estimates to 0.98 of exact out of sample, but it does no better per layout than one scale factor."
+description: "A mix of about 89% jobs and 11% residents brings census drone conflict estimates to 0.98 of exact out of sample, but no closer per layout than one scale factor."
 ---
 
 A planner who has to split several drone delivery operators across altitude
