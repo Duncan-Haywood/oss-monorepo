@@ -4,6 +4,7 @@
 import { refitRatings, cholesky, cholSolve, cholInverse, empiricalPriorPhi, REFIT_PRIOR_PHI, EB_PHI_MIN } from "./engine/btRefit.mjs";
 import { favouriteSet } from "./engine/favouriteSet.mjs";
 import { isSetAnswer, setAnswerError, setFitAt, setPriorPhi, answerTerms } from "./best-worst.mjs";
+import { timeToken, parseTimes, alignedTimes } from "./answer-time.mjs";
 
 export const MAX_ITEMS = 60;
 export const MIN_ITEMS = 3;
@@ -121,9 +122,12 @@ function answerToken(a) {
   const [w, l, t] = a;
   return `${w.toString(36)}.${l.toString(36)}${t ? "=" : ""}`;
 }
-export function encodeAnswers({ items, answers, name = "", piles }) {
+export function encodeAnswers({ items, answers, name = "", piles, times }) {
   const a = answers.map(answerToken).join(",");
   const d = { l: listId(items), n: Array.from(String(name)).slice(0, 60).join(""), a };
+  // Answer times (site/answer-time.mjs), one per answer in tenths of a second, "-" where unknown; only when they line up.
+  const t = alignedTimes(answers, times);
+  if (t) d.t = t.map(timeToken).join(",");
   // Pile placements (sort into piles first), one character per option: 0 top, 1 middle, 2 bottom, - not sorted.
   if (pilePrior(piles)) d.p = piles.map((x) => (x === 0 || x === 1 || x === 2 ? String(x) : "-")).join("");
   return "QP1." + toBase64Url(JSON.stringify(d));
@@ -160,6 +164,11 @@ export function decodeAnswers(code, items) {
     // Rejected, not guessed at: a pile string of the wrong length would shift every placement onto the wrong option.
     if (typeof d.p !== "string" || d.p.length !== items.length || !/^[012-]+$/.test(d.p)) return { error: "the code is damaged (copy it again in full)" };
     out.piles = Array.from(d.p, (c) => (c === "-" ? null : Number(c)));
+  }
+  if (d.t !== undefined) {
+    const t = parseTimes(d.t, answers.length);
+    if (t.error) return { error: "the code is damaged (copy it again in full)" };
+    out.times = t.times;
   }
   return out;
 }
