@@ -58,3 +58,13 @@ test('analyze and the CLI report it', async () => {
   await main([new URL('./data/global-temp-annual.csv', import.meta.url).pathname, '--column', 'anomaly', '--hinge-test'], { out: (s) => { out += s; } });
   assert.match(out, /One change of slope, tested on the levels:\n {2}A change of slope: best knot 1976/);
 });
+
+test('hinge-residual guard (eval/hinge-guard-prereg-2026-11-15.md): admits GCAG 1930-2024, which the shipped line guard refuses; not the default', () => {
+  const g = load('global-temp-annual.csv'), i = g.labels.indexOf('1930'), x = g.x.slice(i), labels = g.labels.slice(i);
+  assert.equal(hingeTest(x, { reps: 19 }).refused, true); // default stays 'line': the hinge guard failed bar S2
+  const h = hingeTest(x, { reps: 199, guard: 'hinge' });
+  assert.equal(h.refused, false);
+  assert.equal(labels[h.index], '1974');
+  assert.equal(h.p, 1 / 200);
+  assert.equal(hingeTest(load('us-real-gdp.csv').x.map(Math.log), { reps: 19, guard: 'hinge' }).refused, true);
+});

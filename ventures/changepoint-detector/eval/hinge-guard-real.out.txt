@@ -1,0 +1,12 @@
+GCAG 1930-2024 [line]: REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.76 (bias-corrected), above 0.7: too close to a unit root for a level test; use the test on differences (slopeBreaks))
+GCAG 1930-2024 [hinge]: n 95, knot 1974, F 94.6 (bar 12.9), p 0.001, rho 0.31 (line 0.76, hinge 0.33), slope -0.00 -> 2.08 per 100 steps
+GCAG 1880-2024 [line]: n 145, knot 1976, F 72.0 (bar 11.7), p 0.001, rho 0.49 (line 0.76, hinge 0.51), slope 0.44 -> 2.03 per 100 steps
+GCAG 1880-2024 [hinge]: n 145, knot 1976, F 72.0 (bar 11.7), p 0.001, rho 0.49 (line 0.76, hinge 0.51), slope 0.44 -> 2.03 per 100 steps
+GISTEMP 1880-2024 [line]: n 145, knot 1976, F 85.6 (bar 13.2), p 0.001, rho 0.52 (line 0.80, hinge 0.54), slope 0.35 -> 2.12 per 100 steps
+GISTEMP 1880-2024 [hinge]: n 145, knot 1976, F 85.6 (bar 13.2), p 0.001, rho 0.52 (line 0.80, hinge 0.54), slope 0.35 -> 2.12 per 100 steps
+GCAG 1850-2024 [line]: n 175, knot 1976, F 93.1 (bar 13.0), p 0.001, rho 0.56 (line 0.83, hinge 0.58), slope 0.30 -> 2.16 per 100 steps
+GCAG 1850-2024 [hinge]: n 175, knot 1976, F 93.1 (bar 13.0), p 0.001, rho 0.56 (line 0.83, hinge 0.58), slope 0.30 -> 2.16 per 100 steps
+log US real GDP [line]: REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.97 (bias-corrected), above 0.9: too close to a unit root for a level test; use the test on differences (slopeBreaks))
+log US real GDP [hinge]: REFUSED (the residuals about the best hinge have lag-1 autocorrelation 0.95 (bias-corrected), above 0.9: too close to a unit root for a level test; use the test on differences (slopeBreaks))
+log US labour productivity [line]: REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.98 (bias-corrected), above 0.9: too close to a unit root for a level test; use the test on differences (slopeBreaks))
+log US labour productivity [hinge]: REFUSED (the residuals about the best hinge have lag-1 autocorrelation 0.96 (bias-corrected), above 0.9: too close to a unit root for a level test; use the test on differences (slopeBreaks))
