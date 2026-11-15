@@ -361,12 +361,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the lift's drive shaft (cad/README.md "Lift slip
-      coupling"): the slip hub's stack needs 63 mm of 6 mm D shaft past the
-      gearmotor's face (53 mm to reach the pulley before), likely more than a stock
-      shaft: a rigid coupler to a 6 mm D extension carried in a bearing in the
-      boot's -y wall (its CAD; overhung belt load on the gearmotor's output
-      bearing), or a narrower pulley and stack; rerun the collision checks.
+      venv, about 2 min): the lift's drive shaft landed 2026-11-15 (cad/README.md
+      "Lift drive shaft": own D shaft in two F626 bearings, jaw coupling in a
+      printed spacer). Next: tests/lift_jam_sweep.py as a three-inertia plant with
+      the jaw coupling's torsional stiffness and spider backlash between the rotor
+      and the slip hub (assumed figures, swept); a printable test ring for the F626
+      press fit in PETG (bore steps 0.00-0.15 mm over) in the manufacturing package.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -393,11 +393,11 @@ flagships:
       the battery reading noise. Lift (cad/README.md): weigh a belt, pluck a strand;
       drag a capped cleat over a strip; scope the lift shunt on a start and a stall;
       read the gearmotor's rotor inertia; set a built slip hub with a scale, hold a
-      flight, watch it slip and trip. Pot pickup from the PWM landed 2026-11-14 (1
-      uF on GPIO 39, trimmed reads): scope GPIO 39 at part duty. Actuator's lead
-      landed 2026-11-14 (cad/README.md "The elevation actuator's lead"): cut 220 mm,
-      209-231 fits; find where a real actuator's cable leaves its housing and bend a
-      built lead through the travel.
+      flight, watch it slip and trip; measure the lift gearmotor's shaft and body
+      (75 mm face to back at most) and press an F626 into a printed boot. Scope GPIO
+      39 at part duty. Actuator's lead landed 2026-11-14 (cad/README.md "The
+      elevation actuator's lead"): cut 220 mm, 209-231 fits; find where a real
+      actuator's cable leaves its housing and bend a built lead through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

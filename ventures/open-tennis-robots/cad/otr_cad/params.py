@@ -1116,6 +1116,37 @@ class Feeder:
     lift_slip_start_factor: float = 1.5  # lowest sticking torque over what a cold start passes through the hub
     lift_slip_trip_margin: float = 1.1   # motor's current while the hub slides at its lowest, over the highest trip
     lift_slip_spring_n: float = 400.0    # disc spring's flat load (6.2 x 12.5 x 0.7 class, assumption: read yours)
+    # Lift drive shaft (2026-11-15, `lift_shaft_design`, `check_lift_shaft`; cad `lift_shaft_parts`, `lift_motor_spacer`).
+    # The slip hub's stack needs 63 mm of 6 mm D shaft past the gearmotor's face, and a stock 37 mm gearmotor has
+    # about 15. So the pulley rides a separate 6 mm D shaft carried in a flanged bearing in each of the boot's +-y walls,
+    # and a jaw coupling inside a printed spacer joins it to the gearmotor's own shaft. The bearings take the belt's
+    # load; the coupling passes torque and forgives the spacer's print error, so the gearmotor's output bearing
+    # carries nothing sideways (it carried the whole belt load 38 mm out before).
+    gm_shaft_len: float = 15.0        # 37 mm gearmotor's 6 mm D output shaft past its face (assumption: read yours)
+    lift_gm_len: float = 75.0         # the lift's gearmotor, face to back: a 37 mm, 520-motor class with no encoder
+                                      # (the lift needs none; assumption: measure yours). The base drive's 100 mm
+                                      # (`gearmotor_len`, encoder included) would put its back into the +y drive
+                                      # bracket at y = 450 once the spacer sets it out
+    lift_gm_bracket_clear: float = 3.0  # its back end short of the +y drive bracket's inner face
+    gm_radial_n: float = 50.0         # its output's allowed side load at gm_radial_at mm from the face (assumption: read yours)
+    gm_radial_at: float = 10.0
+    lift_bearing_od: float = 19.0     # F626-2Z flanged ball bearing, 6 x 19 x 6 mm, flange 22 x 1.5
+    lift_bearing_w: float = 6.0
+    lift_bearing_flange_d: float = 22.0
+    lift_bearing_flange_t: float = 1.5
+    lift_bearing_c0_n: float = 1000.0  # its static load rating (626 class about 1 kN, assumption: read yours)
+    lift_coupler_d: float = 20.0      # jaw (spider) coupling, 6 to 6 mm bores, 20 mm OD x 25 mm, clamp or set-screw hubs
+    lift_coupler_l: float = 25.0
+    lift_coupler_spider: float = 4.0  # the spider's gap between the two hubs' bores
+    lift_coupler_nm: float = 2.0      # its rated torque (20 mm aluminium jaw class, assumption: read yours)
+    lift_coupler_factor: float = 1.5  # rated torque over the slip hub's highest sticking torque
+    lift_shaft_clear: float = 1.5     # coupling to the bearing's flange, and to the gearmotor's face at least
+    lift_shaft_allow_mpa: float = 80.0  # stainless D shaft in rotating bending at the running load (fatigue; assumption)
+    lift_shaft_static_mpa: float = 120.0  # at a jam's load: a few turns while the hub slides, so against yield
+                                      # (303/304 about 205 MPa, assumption) over 1.7, not fatigue
+    lift_shaft_E_mpa: float = 193000.0  # stainless steel
+    lift_shaft_defl_mm: float = 0.05  # largest sag at the pulley under the worst belt load
+    lift_spacer_end: float = 4.0      # printed spacer: the gearmotor end's thickness (the motor's M3s seat on it)
 
     # Hopper agitator (2026-11-13): balls piled over a 75 mm outlet for 67 mm balls bridge it (two or three on the floor
     # round the hole, each held in by the others), and the feed column then runs dry. A printed two-arm stirrer turns
@@ -1600,6 +1631,7 @@ class Feeder:
         bad += self.check_lift()
         bad += self.check_lift_jam()
         bad += self.check_lift_slip()
+        bad += self.check_lift_shaft()
         bad += self.check_agitator()
         return bad
 
@@ -2593,13 +2625,14 @@ class Feeder:
         sy = self.az_centre_dist
         stepper = ((sx, sy, self.mast_top_z - self.stepper_body_mm - 2.0), (sx, sy, zl), (post_x + 6.0, sy, zl))
         rl = self.bundle_od(self.lift_wires) / 2
-        ly = self.lift_y + self.lift_depth / 2 + self.lift_wall + self.gearmotor_len      # gearmotor's back end
+        ly = self.lift_y + self.lift_shaft_geometry()["motor_face_y"] + self.lift_gm_len  # gearmotor's back end
         lx = self.lift_x_pulley
+        yb = (ly + self.base_half_w) / 2                     # between its back and the +y drive bracket
         xg = post_x - self.rail_w / 2 - 10.0                  # the gap between the deck's front edge and the rear mast rail
         y_turn = self.base_half_w - self.rail_w - 20.0        # inside the side rail
         z_motor = self.lift_z_bottom
         lift = ((post_x - 60.0, y, dt + rl), (post_x - 60.0, y_turn, dt + rl), (xg, y_turn, dt + rl), (xg, y_turn, z_motor),
-                (xg, ly + 10.0, z_motor), (lx, ly + 10.0, z_motor))
+                (xg, yb, z_motor), (lx, yb, z_motor))
         return {"main": main, "stepper": stepper, "lift": lift}
 
     @staticmethod
@@ -4005,6 +4038,142 @@ class Feeder:
         if s["spring_n"] > self.lift_slip_spring_n:
             bad.append(f"lift slip hub needs {s['spring_n']:.0f} N of spring, over the disc spring's "
                        f"{self.lift_slip_spring_n:g} N flat: a bigger facing or a stiffer spring")
+        return bad
+
+    @staticmethod
+    def d_shaft_section(d: float = 6.0, flat: float = 0.5, n: int = 720) -> dict:
+        """Section of a D shaft (diameter d, flat cut `flat` deep): area, the least second moment about any axis
+        through the centroid, the section modulus about that axis to the farthest fibre, and a torsion modulus
+        taken from the round of the across-flat size (conservative)."""
+        r = d / 2
+        xf = r - flat
+        pts = []
+        for k in range(n):
+            a = 2 * math.pi * k / n
+            x, y = r * math.cos(a), r * math.sin(a)
+            pts.append((min(x, xf), y if x <= xf else math.copysign(math.sqrt(max(r * r - xf * xf, 0.0)), y)))
+        A = cx = cy = 0.0
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:] + pts[:1]):
+            c = x0 * y1 - x1 * y0
+            A += c / 2
+            cx += (x0 + x1) * c / 6
+            cy += (y0 + y1) * c / 6
+        cx, cy = cx / A, cy / A
+        ixx = iyy = 0.0
+        q = [(x - cx, y - cy) for x, y in pts]
+        for (x0, y0), (x1, y1) in zip(q, q[1:] + q[:1]):
+            c = x0 * y1 - x1 * y0
+            ixx += (y0 * y0 + y0 * y1 + y1 * y1) * c / 12      # about the x axis (bending that puts the flat in y)
+            iyy += (x0 * x0 + x0 * x1 + x1 * x1) * c / 12
+        z_x = ixx / max(abs(y) for _, y in q)
+        z_y = iyy / max(abs(x) for x, _ in q)
+        d_flat = r + xf
+        return {"area": A, "i_min": min(ixx, iyy), "z_min": min(z_x, z_y), "zp": math.pi * d_flat ** 3 / 16,
+                "centroid_x": cx}
+
+    def lift_shaft_design(self) -> dict:
+        """The lift's drive shaft (2026-11-15; cad/README.md "Lift drive shaft").
+
+        Along y from the ball line (+y is the gearmotor's side): the boot's motor face is recessed to the channel's
+        wall, y_out = depth / 2. A flanged bearing sits in a counterbored pocket just inside it, and another in the
+        -y wall with its flange flush with that wall's outer face. The jaw coupling starts `lift_shaft_clear` past the
+        near flange; the gearmotor's face is set so its shaft fills the coupling's hub but stops `lift_shaft_clear`
+        short of the spider at least, and the printed spacer between the boot and the motor is that long. The D shaft
+        runs from 0.5 mm short of the spider to 0.5 mm inside the far bearing's outer face.
+
+        Loads: the belt's two strands both pull up on the drive pulley. Taut, they sum to 2 T0 whatever the torque;
+        past T = 2 T0 r the slack strand goes slack and the sum is T / r. The largest torque the pulley can pass is the
+        slip hub's highest sticking torque (past it the hub slides), so the worst belt load is max(2 T0, T_hi / r).
+        The shaft is simply supported by the two bearings with that load at the pulley, plus the torque, combined by
+        von Mises on the D section's weakest axis. Running, 2 T0 turns with the shaft as fully reversed bending for
+        every revolution of its life: a fatigue allowance. A jam's T_hi / r lasts a few revolutions (the hub slides
+        and the cutoff stops the motor in 49-179 ms, tests/lift_jam_sweep.py): a static allowance. The sag that
+        matters for the belt is the running one.
+        Before this the pulley sat on the gearmotor's own shaft, so the whole load sat `rigid_arm_mm` out from the
+        gearbox's face: `old_gm_moment_nm` against the assumed allowance `gm_radial_n` at `gm_radial_at`."""
+        g = self.lift_shaft_geometry()
+        s = self.lift_slip_design()
+        t = self.lift_tension_design()
+        r = self.lift_pd / 2000
+        yn, yf = g["bearing_y"]
+        f_run = 2 * t["t0_n"]
+        f_jam = max(f_run, s["stick_hi_nm"] / r)
+        a, b = yn, -yf
+        span = a + b
+        sec = self.d_shaft_section()
+        m_nmm = f_jam * a * b / span
+        sigma = m_nmm / sec["z_min"]
+        tau = s["stick_hi_nm"] * 1000 / sec["zp"]
+        vm = math.sqrt(sigma ** 2 + 3 * tau ** 2)
+        t_run = self.lift_design()["torque_nm"]
+        sig_run = f_run * a * b / span / sec["z_min"]
+        vm_run = math.sqrt(sig_run ** 2 + 3 * (t_run * 1000 / sec["zp"]) ** 2)
+        k = 3 * self.lift_shaft_E_mpa * sec["i_min"] * span
+        rigid_arm = self.lift_depth / 2 + self.lift_wall     # the pulley's centre from the gearmotor's face before
+        return {
+            **g, "f_run_n": f_run, "f_jam_n": f_jam, "near_n": f_jam * b / span, "far_n": f_jam * a / span,
+            "span_mm": span, "moment_nmm": m_nmm, "bend_mpa": sigma, "shear_mpa": tau, "vm_mpa": vm,
+            "vm_run_mpa": vm_run, "defl_mm": f_run * a * a * b * b / k, "defl_jam_mm": f_jam * a * a * b * b / k,
+            "section": sec, "coupler_factor": self.lift_coupler_nm / s["stick_hi_nm"],
+            "rigid_arm_mm": rigid_arm, "old_gm_moment_nm": f_jam * rigid_arm / 1000,
+            "gm_allow_nm": self.gm_radial_n * self.gm_radial_at / 1000,
+            "old_gm_ratio": f_jam * rigid_arm / (self.gm_radial_n * self.gm_radial_at),
+        }
+
+    def lift_shaft_geometry(self) -> dict:
+        """Positions along y for `lift_shaft_design` (geometry only, so the cable route can use it without the motor
+        model, which itself reads the cable route)."""
+        dep, w, B = self.lift_depth, self.lift_wall, self.lift_bearing_w
+        y_out = dep / 2
+        y_far = -(dep / 2 + w)
+        yn = y_out - B / 2                                   # bearing centres
+        yf = y_far + B / 2
+        half = (self.lift_belt_w + 5.0) / 2                  # as lift_slip_design: the pulley, then the far stack
+        far_side = self.lift_slip_facing_t + self.lift_slip_plate_t + self.lift_slip_collar_w + self.lift_slip_spring_t
+        pocket = half + far_side + 1.0                       # the boot's slip-hub pocket reaches this far each way
+        bore = (self.lift_coupler_l - self.lift_coupler_spider) / 2
+        gap = max(self.lift_shaft_clear, self.gm_shaft_len - bore)
+        c0 = y_out + self.lift_shaft_clear                   # coupling's near end
+        c1 = c0 + self.lift_coupler_l
+        face = c1 + gap
+        sh0, sh1 = y_far + 0.5, c0 + bore - 0.5
+        return {
+            "bearing_y": (yn, yf), "coupler_y": (c0, c1), "coupler_bore_mm": bore, "motor_gap_mm": gap,
+            "motor_face_y": face, "spacer_mm": face - y_out, "engage_mm": min(bore, self.gm_shaft_len - gap),
+            "shaft_y": (sh0, sh1), "shaft_mm": sh1 - sh0, "near_web_mm": yn - B / 2 - pocket,
+            "far_web_mm": -pocket - (yf + B / 2),
+        }
+
+    def check_lift_shaft(self) -> list[str]:
+        bad = []
+        d = self.lift_shaft_design()
+        if d["engage_mm"] < 0.6 * d["coupler_bore_mm"]:
+            bad.append(f"lift gearmotor's shaft enters the coupling only {d['engage_mm']:.1f} mm of its "
+                       f"{d['coupler_bore_mm']:.1f} mm hub (60% wanted): a longer gm_shaft_len or a shorter coupling")
+        if d["coupler_factor"] < self.lift_coupler_factor:
+            bad.append(f"lift coupling's {self.lift_coupler_nm:g} N m is {d['coupler_factor']:.2f}x the slip hub's highest "
+                       f"sticking torque ({self.lift_coupler_factor:g}x wanted): a bigger coupling")
+        if d["vm_run_mpa"] > self.lift_shaft_allow_mpa:
+            bad.append(f"lift drive shaft sees {d['vm_run_mpa']:.0f} MPa running under {d['f_run_n']:.0f} N "
+                       f"(fatigue allow {self.lift_shaft_allow_mpa:g}): bearings closer together or a larger shaft")
+        if d["vm_mpa"] > self.lift_shaft_static_mpa:
+            bad.append(f"lift drive shaft sees {d['vm_mpa']:.0f} MPa at a jam's {d['f_jam_n']:.0f} N "
+                       f"(allow {self.lift_shaft_static_mpa:g}): bearings closer together or a larger shaft")
+        if d["defl_mm"] > self.lift_shaft_defl_mm:
+            bad.append(f"lift drive shaft sags {d['defl_mm']:.3f} mm at the pulley ({self.lift_shaft_defl_mm:g} allowed)")
+        if max(d["near_n"], d["far_n"]) > self.lift_bearing_c0_n / 4:
+            bad.append(f"lift shaft bearing carries {max(d['near_n'], d['far_n']):.0f} N, over a quarter of its "
+                       f"{self.lift_bearing_c0_n:g} N static rating")
+        if min(d["near_web_mm"], d["far_web_mm"]) < 1.5:
+            bad.append(f"lift shaft bearing pocket leaves {min(d['near_web_mm'], d['far_web_mm']):.1f} mm to the slip "
+                       f"hub's pocket (1.5 mm wanted)")
+        back = self.lift_y + d["motor_face_y"] + self.lift_gm_len
+        if back > self.base_half_w - self.lift_gm_bracket_clear:
+            bad.append(f"lift gearmotor's back end at y = {back:.1f} is within {self.lift_gm_bracket_clear:g} mm of the "
+                       f"drive bracket's inner face ({self.base_half_w:.1f}): a shorter gearmotor (lift_gm_len) "
+                       f"or a shorter coupling")
+        if self.lift_coupler_d + 2.0 > self.gearmotor_d - 2 * 3.0:
+            bad.append("lift motor spacer's bore (coupling + 2 mm) leaves under 3 mm of wall inside the motor's diameter")
         return bad
 
     # ---- hopper agitator (2026-11-13) ------------------------------------------

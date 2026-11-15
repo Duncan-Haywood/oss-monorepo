@@ -1455,7 +1455,8 @@ def trough_sump(p: Feeder) -> Part:
 
 LIFT_PARTS = ("lift_boot", "lift_base_plate", "lift_spine", "lift_belt", "lift_pulley", "lift_motor", "lift_rod",
               "lift_clip", "lift_head", "lift_jack_screw", "lift_chute", "lift_strut", "lift_flight_cap",
-              "lift_slip_plate", "lift_slip_facing", "lift_slip_spring", "lift_slip_collar")
+              "lift_slip_plate", "lift_slip_facing", "lift_slip_spring", "lift_slip_collar", "lift_shaft",
+              "lift_shaft_bearing", "lift_shaft_coupler", "lift_motor_spacer")
 
 
 def _stadium(p: Feeder, r: float, z0: float, z1: float, half_w: float, x: float | None = None):
@@ -1522,6 +1523,7 @@ def lift_boot(p: Feeder) -> Part:
         Location((p.lift_x_pulley, p.lift_y, zb), (90, 0, 0)))
     mp = p.lift_y + dep / 2 + w
     blk = blk - Box(40.0, 2 * w, 40.0).moved(Location((p.lift_x_pulley, mp, zb))).moved(Location((0, 0, 0)))
+    blk = blk - lift_bearing_pockets(p) - lift_spacer_inserts(p)
     return Part("lift_boot", "print", "PETG", 1, blk, [Location((0, 0, 0))],
                 notes=f"Hangs under the lift base plate between the mast rails (four M5 up through the plate); the spine's "
                       f"foot sits in its slot. The bottom pulley's 6 mm D shaft is the gearmotor's, through the +y wall; the "
@@ -1632,18 +1634,20 @@ def lift_flight_cap(p: Feeder) -> Part:
 def lift_pulleys(p: Feeder) -> list[Part]:
     r = p.lift_r_in - 0.3
     w = p.lift_belt_w + 5.0
-    cyl = Cylinder(r, w).moved(Location((0, 0, 0), (90, 0, 0)))
+    cyl = (Cylinder(r, w) - Cylinder(4.0, w + 1)).moved(Location((0, 0, 0), (90, 0, 0)))   # bore: the shafts pass
     return [Part("lift_pulley", "cots", "", 2, cyl,
                  [Location((p.lift_x_pulley, p.lift_y, z)) for z in (p.lift_z_bottom, p.lift_z_top)],
                  spec=f"AT5 timing pulley, {p.lift_pulley_teeth} teeth (pitch diameter {p.lift_pd:.1f} mm), flanged, for "
                       f"{p.lift_belt_w:g} mm belt: one with a plain 6 mm bore and no grub screws (the gearmotor's, driven "
-                      f"through the slip hub), one with 8 mm bearings on an axle "
+                      f"through the slip hub on the lift's drive shaft), one with 8 mm bearings on an axle "
                       f"(drawn at the belt's tooth-tip circle)"),
             Part("lift_motor", "cots", "", 1,
-                 Cylinder(p.gearmotor_d / 2, p.gearmotor_len).moved(Location((0, 0, 0), (90, 0, 0))),
-                 [Location((p.lift_x_pulley, p.lift_y + p.lift_depth / 2 + p.lift_wall + p.gearmotor_len / 2, p.lift_z_bottom))],
+                 Cylinder(p.gearmotor_d / 2, p.lift_gm_len).moved(Location((0, 0, 0), (90, 0, 0))),
+                 [Location((p.lift_x_pulley, p.lift_y + p.lift_shaft_geometry()["motor_face_y"] + p.lift_gm_len / 2,
+                            p.lift_z_bottom))],
                  spec=f"37 mm gearmotor, 24 V, ~{p.lift_motor_rpm:g} rpm, 6 mm D shaft (the base drive's class; "
-                      f"{p.lift_motor_nm:g} N m rated assumed), on a MOSFET from GPIO 12")]
+                      f"{p.lift_motor_nm:g} N m rated assumed), no encoder, at most {p.lift_gm_len:g} mm face to back "
+                      f"(the spacer sets it out; a longer one meets the drive bracket), on a MOSFET from GPIO 12")]
 
 
 def lift_slip_plate_face(p: Feeder):
@@ -1693,6 +1697,115 @@ def lift_slip_hub(p: Feeder) -> list[Part]:
                   f"hub needs about {s['spring_n']:.0f} N)"),
         Part("lift_slip_collar", "cots", "", 2, disc(p.lift_slip_collar_d / 2, 3.0, cw), collars,
              spec=f"Shaft collar, 6 mm bore, {p.lift_slip_collar_d:g} mm OD x {cw:g} mm, M3 set screw onto the shaft's flat"),
+    ]
+
+
+# The lift's drive shaft (2026-11-15, `Feeder.lift_shaft_design`; cad/README.md "Lift drive shaft"). Every y below
+# is from the ball line, +y the gearmotor's side.
+SPACER_EAR_Z = 27.0          # the spacer's two ear screws, above and below the shaft
+SPACER_TUBE_OD, SPACER_TUBE_ID = 44.0, 38.0
+GM_SCREW_R, GM_BOSS_D = 15.5, 13.0   # 37 mm gearmotor: six M3 on a 31 mm circle round a 12 mm boss (read yours)
+
+
+def _axle_cyl(r: float, y0: float, y1: float, p: Feeder):
+    """A cylinder on the drive pulley's axis covering y0..y1 (from the ball line)."""
+    return Cylinder(r, y1 - y0).moved(Location((p.lift_x_pulley, p.lift_y + (y0 + y1) / 2, p.lift_z_bottom), (90, 0, 0)))
+
+
+def lift_bearing_pockets(p: Feeder):
+    """The two flanged bearings' seats: each a 0.05 mm-over bore and a counterbore that takes the flange flush with
+    the face it is pressed in from (the motor recess's floor on +y, the boot's outer wall on -y)."""
+    d = p.lift_shaft_design()
+    dep, w, B, ft = p.lift_depth, p.lift_wall, p.lift_bearing_w, p.lift_bearing_flange_t
+    y_out, y_far = dep / 2, -(dep / 2 + w)
+    rb, rf = p.lift_bearing_od / 2 + 0.05, p.lift_bearing_flange_d / 2 + 0.2
+    near = _axle_cyl(rb, y_out - B, y_out + 0.01, p) + _axle_cyl(rf, y_out - ft, y_out + 0.01, p)
+    far = _axle_cyl(rb, y_far - 0.01, y_far + B, p) + _axle_cyl(rf, y_far - 0.01, y_far + ft, p)
+    assert d["near_web_mm"] > 0 and d["far_web_mm"] > 0
+    return near + far
+
+
+def lift_spacer_inserts(p: Feeder):
+    """Two M3 heat-set insert holes (4.0 mm x 6 mm) in the boot's +y face, above and below the shaft."""
+    y1 = p.lift_depth / 2 + p.lift_wall
+    holes = None
+    for dz in (-SPACER_EAR_Z, SPACER_EAR_Z):
+        h = Cylinder(2.0, 6.0).moved(Location((p.lift_x_pulley, p.lift_y + y1 - 3.0, p.lift_z_bottom + dz), (90, 0, 0)))
+        holes = h if holes is None else holes + h
+    return holes
+
+
+def lift_motor_spacer_solid(p: Feeder):
+    """Printed spacer in place (y from the ball line): a 40 x 40 plug in the boot's motor recess that holds the near
+    bearing's flange in, a 40 x 64 flange on the boot's face with an ear screw above and below, then a tube to the
+    gearmotor's face, whose end wall takes the motor's six M3s from inside. A window on top reaches the coupling's
+    set screws."""
+    d = p.lift_shaft_design()
+    w = p.lift_wall
+    y_out = p.lift_depth / 2
+    y1 = y_out + w
+    yf = d["motor_face_y"]
+    x, y0, z = p.lift_x_pulley, p.lift_y, p.lift_z_bottom
+    plug = Box(40.0 - 0.4, w, 40.0 - 0.4).moved(Location((x, y0 + y_out + w / 2, z)))
+    flange = Box(40.0, 3.0, 2 * SPACER_EAR_Z + 10.0).moved(Location((x, y0 + y1 + 1.5, z)))
+    tube = _axle_cyl(SPACER_TUBE_OD / 2, y1 + 3.0, yf, p)
+    body = plug + flange + tube
+    body = body - _axle_cyl(p.lift_coupler_d / 2 + 1.0, y_out - 1, y1 + 3.0 + 0.01, p)
+    body = body - _axle_cyl(SPACER_TUBE_ID / 2, y1 + 3.0 - 0.01, yf - p.lift_spacer_end, p)
+    body = body - _axle_cyl(GM_BOSS_D / 2, yf - p.lift_spacer_end - 0.01, yf + 0.01, p)
+    for k in range(6):
+        a = math.radians(30 + 60 * k)
+        body = body - Cylinder(1.7, p.lift_spacer_end + 0.02).moved(
+            Location((x + GM_SCREW_R * math.cos(a), y0 + yf - p.lift_spacer_end / 2, z + GM_SCREW_R * math.sin(a)), (90, 0, 0)))
+    for dz in (-SPACER_EAR_Z, SPACER_EAR_Z):
+        body = body - Cylinder(1.7, 3.02).moved(Location((x, y0 + y1 + 1.5, z + dz), (90, 0, 0)))
+    c0, c1 = d["coupler_y"]
+    body = body - Box(12.0, c1 - c0, 30.0).moved(Location((x, y0 + (c0 + c1) / 2, z + 15.0)))   # set-screw window, top
+    return body
+
+
+def lift_motor_spacer(p: Feeder) -> Part:
+    d = p.lift_shaft_design()
+    return Part("lift_motor_spacer", "print", "PETG", 1, lift_motor_spacer_solid(p), [Location((0, 0, 0))],
+                notes=f"Holds the lift gearmotor {d['spacer_mm']:.1f} mm out from the boot's motor recess so the jaw "
+                      f"coupling fits between them. Screw the gearmotor's face to the end wall first (six M3 x 6 from inside, "
+                      f"through the open end), push the coupling's motor hub on the motor's shaft through the top window "
+                      f"(shaft fills the hub; tighten onto the flat), then slide the spacer's plug into the recess over the "
+                      f"drive shaft's end and the spider and fix the ears with two M3 x 10 into heat-set inserts. The plug "
+                      f"holds the near bearing's flange in. Print flange down, 5 walls, 40% infill.")
+
+
+def lift_shaft_parts(p: Feeder) -> list[Part]:
+    """The drive shaft, its two flanged bearings and the jaw coupling, drawn in place."""
+    d = p.lift_shaft_design()
+    x, y0, z = p.lift_x_pulley, p.lift_y, p.lift_z_bottom
+    sh0, sh1 = d["shaft_y"]
+    c0, c1 = d["coupler_y"]
+    B, ft = p.lift_bearing_w, p.lift_bearing_flange_t
+    dep, w = p.lift_depth, p.lift_wall
+    y_out, y_far = dep / 2, -(dep / 2 + w)
+    shaft = extrude(Circle(3.0) & Pos(-0.25, 0) * Rectangle(5.5, 6.0), sh1 - sh0)
+    brg = (Cylinder(p.lift_bearing_od / 2, B) + Cylinder(p.lift_bearing_flange_d / 2, ft).moved(Location((0, 0, (B - ft) / 2)))
+           - Cylinder(3.0, B + 1))
+    return [
+        Part("lift_shaft", "stock", "stainless steel 6 mm D shaft", 1, shaft,
+             [Location((x, y0 + sh1, z), (90, 0, 0))],
+             spec=f"6 mm D shaft (0.5 mm flat), stainless, cut {d['shaft_mm']:.0f} mm; deburr both ends",
+             notes=f"The lift's drive shaft: from inside the jaw coupling ({d['engage_mm']:.1f} mm of the motor hub's "
+                   f"{d['coupler_bore_mm']:.1f} mm is the gearmotor's own shaft) through the near bearing, the slip hub "
+                   f"and the pulley, to 0.5 mm inside the far bearing's outer face. Its D flat keys the slip hub's plates "
+                   f"and collars and takes the coupling's set screws."),
+        Part("lift_shaft_bearing", "cots", "", 2, brg,
+             [Location((x, y0 + y_out - B / 2, z), (-90, 0, 0)), Location((x, y0 + y_far + B / 2, z), (90, 0, 0))],
+             spec=f"Flanged ball bearing F626-2Z, 6 x {p.lift_bearing_od:g} x {B:g} mm, flange {p.lift_bearing_flange_d:g} "
+                  f"x {ft:g} mm (static rating about {p.lift_bearing_c0_n:g} N assumed)",
+             notes="Press one into the boot's motor recess and one into the -y wall from outside, flanges flush (a drop of "
+                   "retaining compound on the -y one; the spacer's plug holds the +y one)."),
+        Part("lift_shaft_coupler", "cots", "", 1,
+             Cylinder(p.lift_coupler_d / 2, p.lift_coupler_l) - Cylinder(3.0, p.lift_coupler_l + 1),
+             [Location((x, y0 + (c0 + c1) / 2, z), (90, 0, 0))],
+             spec=f"Jaw (spider) shaft coupling, 6 mm to 6 mm, {p.lift_coupler_d:g} mm OD x {p.lift_coupler_l:g} mm, "
+                  f"set-screw or clamp hubs (rated {p.lift_coupler_nm:g} N m or more)"),
     ]
 
 
@@ -1872,7 +1985,8 @@ def lift_strut(p: Feeder) -> Part:
 
 def lift_parts(p: Feeder) -> list[Part]:
     return [lift_boot(p), lift_base_plate(p), lift_spine(p), lift_belt(p), *lift_pulleys(p), lift_rods(p), lift_clips(p),
-            lift_head(p), *lift_tensioner_parts(p), lift_chute(p), lift_strut(p), lift_flight_cap(p), *lift_slip_hub(p)]
+            lift_head(p), *lift_tensioner_parts(p), lift_chute(p), lift_strut(p), lift_flight_cap(p), *lift_slip_hub(p),
+            *lift_shaft_parts(p), lift_motor_spacer(p)]
 
 
 _ALL_PARTS_CACHE: list[tuple[Feeder, list[Part]]] = []
@@ -2122,7 +2236,8 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M5 x 12 button head + T-nut (lift)", 4 + 4 + 2 * len(p.lift_clip_z()) + 4, "lift base plate to the mast rails and boot; rod clips and head to the spine"),
         ("2040 corner bracket with M5 screws and T-nuts (lift)", 2, "spine to the lift base plate"),
         ("2020 corner bracket with M5 screws and T-nuts (lift)", 2, "lift strut to the spine and the hopper post"),
-        ("M3 x 8 screw (lift)", 4, "lift gearmotor's face to the boot"),
+        ("M3 x 6 screw (lift)", 6, "lift gearmotor's face to its spacer, from inside the spacer before it goes on the boot"),
+        ("M3 x 10 socket cap screw + M3 heat-set insert (lift)", 2, "lift motor spacer's ears to the boot"),
         ("8 mm axle, 60 mm, + two 608 bearings + e-clips", 1, "lift's top pulley in the head"),
         ("PU cleat welding by the belt supplier (flights)", p.lift_design()["flights"], "cleats on the belt's back at the flight pitch (lift_belt spec)"),
         ("M3 x 12 countersunk screw + nut (flight caps)", 2 * p.lift_design()["flights"], "each flight cap through its cleat"),
@@ -2267,9 +2382,24 @@ def lift_slip_line(p: Feeder) -> str:
             f"{s['belt_share']:.0%} of the inertia); sliding at its lowest the motor draws {s['slide_lo_a']:.2f} A, "
             f"{s['trip_margin']:.2f}x the cutoff's highest trip, so a jam is still cut and flagged. A jam's estimated "
             f"peak on a flight is {s['peak_n']:.0f} N against the plate's {c['plate_allow_n']:.0f} N (rigid: up to "
-            f"214 N on tests/lift_jam_sweep.py, where the hub gives 51-88 N). The stack needs {s['shaft_mm']:.0f} mm of "
-            f"6 mm D shaft past the gearmotor's face ({s['rigid_shaft_mm']:.0f} mm reached the pulley's far face "
-            f"before): check yours, or add a 6 mm D extension (friction and spring figures assumed; set on the bench)")
+            f"214 N on tests/lift_jam_sweep.py, where the hub gives 51-88 N). It rides the lift's own drive shaft "
+            f"(lift shaft line), not the gearmotor's (friction and spring figures assumed; set on the bench)")
+
+
+def lift_shaft_line(p: Feeder) -> str:
+    d = p.lift_shaft_design()
+    return (f"lift shaft: the slip hub needs {p.lift_slip_design()['shaft_mm']:.0f} mm of 6 mm D shaft past the "
+            f"gearmotor's face and a stock one has about {p.gm_shaft_len:g}, so the pulley rides a {d['shaft_mm']:.0f} mm "
+            f"stainless D shaft in two F626 flanged bearings {d['span_mm']:.0f} mm apart in the boot's walls, joined to "
+            f"the gearmotor by a {p.lift_coupler_d:g} x {p.lift_coupler_l:g} mm jaw coupling inside a {d['spacer_mm']:.0f} mm "
+            f"printed spacer (motor shaft {d['engage_mm']:.1f} mm into its hub). Belt load {d['f_run_n']:.0f} N running "
+            f"(2 T0), {d['f_jam_n']:.0f} N at a jam (the hub's highest torque over the radius): shaft "
+            f"{d['vm_run_mpa']:.0f} MPa running (allow {p.lift_shaft_allow_mpa:g}) and {d['vm_mpa']:.0f} MPa at a jam "
+            f"(allow {p.lift_shaft_static_mpa:g}), sag {d['defl_mm'] * 1000:.0f} um running, bearings "
+            f"{max(d['near_n'], d['far_n']):.0f} N at most. The gearbox now carries torque only; with the pulley on its "
+            f"own shaft the jam load sat {d['rigid_arm_mm']:.0f} mm out, {d['old_gm_moment_nm']:.1f} N m against an "
+            f"assumed {d['gm_allow_nm']:.1f} N m. The gearmotor must be at most {p.lift_gm_len:g} mm face to back (no "
+            f"encoder) to clear the drive bracket (shaft length, bearing, coupling and allowance figures assumed)")
 
 
 def agitator_line(p: Feeder) -> str:
@@ -2581,6 +2711,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     checks.insert(-3, lift_line(p))
     checks.insert(-3, lift_jam_line(p))
     checks.insert(-3, lift_slip_line(p))
+    checks.insert(-3, lift_shaft_line(p))
     checks.insert(-3, agitator_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
