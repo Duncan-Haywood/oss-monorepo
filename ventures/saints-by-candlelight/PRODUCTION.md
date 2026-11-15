@@ -153,6 +153,9 @@ list.
 
 ## Making an episode
 
+Which creative project is due, and whether audio fits under the 400 MB cap:
+`python3 platform/ci/creative_due.py` from the repository root.
+
 ```
 cd ventures/saints-by-candlelight
 # 1. write episodes/<NNN>-<slug>.md following this file
