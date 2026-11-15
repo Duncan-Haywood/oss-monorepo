@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight 120: Egeria and the Friend at the Shrine of Thecla"
-seo_title: "Egeria the pilgrim and Marthana at Saint Thecla's shrine: a bedtime story"
+seo_title: "Egeria and Marthana at Saint Thecla's shrine: a bedtime story"
 date: 2026-11-15
 tags: [fiction, saints-by-candlelight, bedtime-story, saints, pilgrimage]
 description: "Episode 120 of the bedtime saints podcast: a curious pilgrim goes three days out of her way to Seleucia and finds a friend from Jerusalem waiting."
