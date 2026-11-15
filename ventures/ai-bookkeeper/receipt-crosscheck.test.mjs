@@ -3,7 +3,7 @@
 // scans through tesseract (eval/sroie-receipts.mjs --ocr); receipt text below is made up.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseReceipt, parseReceiptPasses, oneDigitApart } from "./receipts.mjs";
+import { parseReceipt, parseReceiptPasses, oneDigitApart, GUESS_VOTE } from "./receipts.mjs";
 
 test("one digit apart: same length, exactly one digit differs", () => {
   assert.equal(oneDigitApart(900, 960), true);
@@ -112,6 +112,23 @@ test("with four readings the total printed on a total line by most readings wins
   assert.equal(parseReceiptPasses([lost, misread, read, read]).cents, 5658); // two lines and subtotal plus tax
   // a tie goes to the earlier reading
   assert.equal(parseReceiptPasses(["Total 12.00", "Total 13.00", "Total 13.00", "Total 12.00"]).cents, 1200);
+});
+
+// A reading with no total line whose total is only the largest amount counts half
+// (GUESS_VOTE; eval/srd 1123: 19.75 guessed three times against one "Total 21.76").
+test("readings that only guessed the largest amount count half in the vote", () => {
+  assert.equal(GUESS_VOTE, 0.5);
+  const guess = "CAFE ROMA\nServer: Ann\nCash 19.75";   // TOTAL line lost
+  const read = "CAFE ROMA\nServer: Ann\nTotal 21.76";
+  assert.match(parseReceipt(guess).notes.join(";"), /took the largest amount/);
+  // three guesses (1.5) against one total line (2): the total line wins
+  assert.equal(parseReceiptPasses([guess, guess, read, guess]).cents, 2176);
+  // two guesses (1) against one total line (2), the line read last: it still wins
+  assert.equal(parseReceiptPasses([guess, guess, guess, read]).cents, 2176);
+  // with no total line anywhere, guesses still vote among themselves
+  assert.equal(parseReceiptPasses([guess, "CAFE ROMA\nCash 30.00", guess, guess]).cents, 1975);
+  // a total line read by one reading against two others that printed theirs on total lines: most lines win
+  assert.equal(parseReceiptPasses(["Total 13.00", read, "Total 13.00", guess]).cents, 1300);
 });
 
 // --four-pass (CLI): the photo twice and an ImageMagick grey copy at 2,000 px twice.
