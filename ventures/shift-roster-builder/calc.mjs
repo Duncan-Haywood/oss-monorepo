@@ -1282,6 +1282,59 @@ function openHoursFloor(ctx) {
   return Math.max(0, total - flow) / 60;
 }
 
+// Least open hours a repair neighbourhood can leave (2026-11-15): openHoursFloor's max flow on the free shifts and the chosen people
+// only, with everyone else fixed. A free shift reaches a chosen person's day when the person may take it alongside what they hold
+// (can[c][d]); each day carries at most its longest rest-respecting chain of those shifts and the daily cap less what the person
+// already works that day; each person at most the weekly hours they have left. Every rule only relaxes, so no assignment of the
+// neighbourhood covers more minutes than the flow, and the floor is never overstated. Non-integer minutes return 0 (no floor).
+function neighbourhoodFloor(ctx, people, free, lists, can) {
+  const { slots, staff, restMin } = ctx;
+  if (free.some((i) => !Number.isInteger(slots[i].start) || !Number.isInteger(slots[i].end))) return 0;
+  const head = [], to = [], cap = [], next = [];
+  const add = (u, v, c) => { to.push(v, u); cap.push(c, 0); next.push(head[u] ?? -1, head[v] ?? -1); head[u] = to.length - 2; head[v] = to.length - 1; };
+  const F = free.length;
+  let n = 2 + F, total = 0;
+  for (let d = 0; d < F; d++) { const m = slots[free[d]].end - slots[free[d]].start; total += m; add(0, 2 + d, m); }
+  people.forEach((q, c) => {
+    const pn = n++;
+    const held = lists[q].reduce((t, j) => t + slots[j].end - slots[j].start, 0);
+    add(pn, 1, Math.max(0, Math.floor(staff[q].maxHours * 60 + 1e-9) - held));
+    const dcap = dailyCapMin(ctx, q), byDay = new Map(), heldDay = new Map();
+    for (const j of lists[q]) heldDay.set(slots[j].day, (heldDay.get(slots[j].day) || 0) + slots[j].end - slots[j].start);
+    for (let d = 0; d < F; d++) if (can[c][d]) { const dy = slots[free[d]].day; (byDay.get(dy) || byDay.set(dy, []).get(dy)).push(d); }
+    for (const [dy, list] of byDay) {
+      const iv = list.map((d) => { const s = slots[free[d]]; return [s.start, s.end + restMin, s.end - s.start]; }).sort((x, y) => x[1] - y[1]);
+      const best = [0];
+      for (let k = 0; k < iv.length; k++) {
+        let lo = 0, hi = k;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (iv[m][1] <= iv[k][0]) lo = m + 1; else hi = m; }
+        best.push(Math.max(best[k], best[lo] + iv[k][2]));
+      }
+      const u = n++;
+      add(u, pn, Math.max(0, Math.min(best[iv.length], Math.floor(dcap - (heldDay.get(dy) || 0) + 1e-9))));
+      for (const d of list) add(2 + d, u, slots[free[d]].end - slots[free[d]].start);
+    }
+  });
+  const level = new Int32Array(n), it = new Int32Array(n);
+  const bfs = () => {
+    level.fill(-1); level[0] = 0;
+    const qu = [0];
+    for (let h = 0; h < qu.length; h++) for (let e = head[qu[h]] ?? -1; e >= 0; e = next[e]) if (cap[e] > 0 && level[to[e]] < 0) { level[to[e]] = level[qu[h]] + 1; qu.push(to[e]); }
+    return level[1] >= 0;
+  };
+  const dfs = (u, f) => {
+    if (u === 1) return f;
+    for (; it[u] >= 0; it[u] = next[it[u]]) {
+      const e = it[u], v = to[e];
+      if (cap[e] > 0 && level[v] === level[u] + 1) { const g = dfs(v, Math.min(f, cap[e])); if (g > 0) { cap[e] -= g; cap[e ^ 1] += g; return g; } }
+    }
+    return 0;
+  };
+  let flow = 0;
+  while (bfs()) { for (let u = 0; u < n; u++) it[u] = head[u] ?? -1; for (let f; (f = dfs(0, Infinity)) > 0;) flow += f; }
+  return Math.max(0, total - flow) / 60;
+}
+
 // Exact repair of the open hours (large-neighbourhood search). Pick k people, release every shift they hold, and solve the
 // released shifts plus the open ones exactly for fewest open hours with everyone else fixed (depth-first, longest shift first,
 // pruned on the open hours so far). A walk of single moves cannot reach a gain that needs three people to change at once; this
@@ -1294,7 +1347,13 @@ function openHoursFloor(ctx) {
 // LP gives mostly to someone else, and that someone (drawn by value), and so on; a chain that runs dry is filled at random. The
 // exact search inside the neighbourhood is unchanged, so the guide only chooses where to look and can never make a roster worse
 // or invalid. Returns `guidedRounds` and `gains` (rounds that cut open hours, guided ones counted in `guidedGains`).
-function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6, guide = null, guideProb = 0.5 } = {}) {
+// bound "flow" (the default since 2026-11-15, README "The repair's neighbourhood under a flow bound"): each round first takes
+// neighbourhoodFloor's max flow; a round that cannot beat its own open hours is skipped without a search and, up to skipRounds of
+// them, does not count as a round; the search stops once it reaches the floor, and shifts no chosen person can still take are
+// counted open at once. On 24 fixed starts of the 80-100 person weeks it closed 484 open hours against the depth-first search's 217
+// at the same node budget, fewer open on all 24 (eval/repair-flow.out.txt). bound "dfs" is the search before it. The floor skip and
+// stop compare hours only, so the open-shift count's tie-break no longer moves a roster whose hours cannot fall.
+function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6, guide = null, guideProb = 0.5, bound = "flow", skipRounds = 4 * rounds } = {}) {
   const { P, S, slots, elig } = ctx;
   const rng = mulberry32(seed);
   const hrs = (i) => (slots[i].end - slots[i].start) / 60;
@@ -1336,7 +1395,7 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
     }
     return pick;
   };
-  let guidedRounds = 0, gains = 0, guidedGains = 0;
+  let guidedRounds = 0, gains = 0, guidedGains = 0, floors = 0, skipped = 0, reached = 0;
   const TIE = shiftWeight; // hours-equivalent cost of one open shift; the default is a count term far below one minute (fewest open shifts at equal open hours)
   const openOf = (o) => o.reduce((t, p, i) => t + (p < 0 ? hrs(i) + TIE : 0), 0);
   let open = openOf(owner);
@@ -1372,6 +1431,54 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
     for (const v of room.values()) roomLeft += Math.max(0, v);
     let best = curVal, bestAssign = null, nodes = 0;
     const cur = new Array(free.length).fill(-1);
+    if (bound === "flow") {
+      // The flow-bounded search (2026-11-15, README "The repair's neighbourhood under a flow bound"). can[c][d]: chosen person c
+      // may still take free[d] given the shifts c holds now. Every rule only tightens as a list grows, so once a shift is closed
+      // to every chosen person it stays open whatever the search does below that node: its hours (deadH) are counted in the bound
+      // at once instead of after it is reached. The round first asks a max flow how few hours the neighbourhood can leave open;
+      // a round that cannot beat its own value costs no nodes, and the search stops as soon as it reaches that floor.
+      const F = free.length, C = people.length;
+      const can = people.map((q) => { const row = new Uint8Array(F); for (let d = 0; d < F; d++) row[d] = elig[q][free[d]] && validWith(ctx, q, lists[q], free[d]) ? 1 : 0; return row; });
+      const cnt = new Int32Array(F);
+      let deadH = 0, deadN = 0;
+      for (let d = 0; d < F; d++) { for (let c = 0; c < C; c++) cnt[d] += can[c][d]; if (!cnt[d]) { deadH += hrs(free[d]); deadN++; } }
+      const floorH = neighbourhoodFloor(ctx, people, free, lists, can);
+      floors++;
+      const curH = free.reduce((t, i) => t + (owner[i] < 0 ? hrs(i) : 0), 0);
+      // A skipped round cost one flow, not a search, so it does not use up a round, up to skipRounds of them in all.
+      if (floorH >= curH - 1e-9) { skipped++; if (skipped <= skipRounds) r--; continue; }
+      const stopAt = floorH + 1e-9; // open hours (without the count term) no assignment can go below
+      const undo = [];
+      let done = false;
+      const dfs = (d, o) => {
+        if (done) return;
+        if (o + deadH + TIE * deadN + Math.max(0, tail[d] - deadH - roomLeft) >= best - 1e-9 || nodes++ > nodeLimit) return;
+        if (d === F) { best = o; bestAssign = cur.slice(); if (o - TIE * cur.reduce((t, q) => t + (q < 0 ? 1 : 0), 0) <= stopAt) done = true; return; }
+        const i = free[d], h = hrs(i);
+        if (!cnt[d]) { deadH -= h; deadN--; dfs(d + 1, o + h + TIE); deadH += h; deadN++; return; }
+        for (let c = 0; c < C; c++) {
+          if (!can[c][d]) continue;
+          const q = people[c], nl = insertSorted(ctx, lists[q], i);
+          const old = lists[q], r0 = room.get(q), mark = undo.length, row = can[c];
+          for (let e = d + 1; e < F; e++) {
+            if (!row[e] || validWith(ctx, q, nl, free[e])) continue;
+            row[e] = 0; undo.push(e);
+            if (--cnt[e] === 0) { deadH += hrs(free[e]); deadN++; }
+          }
+          lists[q] = nl; cur[d] = q; room.set(q, r0 - h);
+          roomLeft += Math.max(0, r0 - h) - Math.max(0, r0);
+          dfs(d + 1, o);
+          roomLeft -= Math.max(0, r0 - h) - Math.max(0, r0);
+          lists[q] = old; room.set(q, r0);
+          while (undo.length > mark) { const e = undo.pop(); row[e] = 1; if (cnt[e]++ === 0) { deadH -= hrs(free[e]); deadN--; } }
+          if (done) { cur[d] = -1; return; }
+        }
+        cur[d] = -1;
+        dfs(d + 1, o + h + TIE);
+      };
+      dfs(0, 0);
+      if (done) reached++;
+    } else {
     const dfs = (d, o) => {
       if (o + Math.max(0, tail[d] - roomLeft) >= best - 1e-9 || nodes++ > nodeLimit) return;
       if (d === free.length) { best = o; bestAssign = cur.slice(); return; }
@@ -1391,6 +1498,7 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
       dfs(d + 1, o + h + TIE);
     };
     dfs(0, 0);
+    }
     spent += nodes;
     if (bestAssign && best < curVal - 1e-9) {
       free.forEach((i, d) => { owner[i] = bestAssign[d]; });
@@ -1400,7 +1508,7 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
     }
   }
   const shifts = owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
-  return { owner, open: open - TIE * shifts, openShifts: shifts, guidedRounds, gains, guidedGains };
+  return { owner, open: open - TIE * shifts, openShifts: shifts, guidedRounds, gains, guidedGains, floors, skipped, reached };
 }
 
 // A starting roster from the keep map (2026-11-12): in start order, each shift goes to someone who held it before when the hard
@@ -3709,8 +3817,8 @@ function buildRosterOnce(staff, slots, options = {}) {
       }
       mark("coverPass");
       if ((o.coverRepair ?? (exactOn || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
-        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === true ? clique?.xs ?? null : null, guideProb: o.repairGuideProb ?? 0.5 });
-        repairStats = { guided: rp.guidedRounds > 0, guidedRounds: rp.guidedRounds, gains: rp.gains, guidedGains: rp.guidedGains };
+        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: Math.min(o.coverRepairMs ?? 60000, budgetMs > 0 ? Math.max(200, budgetMs - (Date.now() - tStart)) : Infinity), shiftWeight: o.openShiftWeight ?? 1e-6, guide: o.repairGuide === true ? clique?.xs ?? null : null, guideProb: o.repairGuideProb ?? 0.5, bound: o.coverRepairBound ?? "flow" });
+        repairStats = { guided: rp.guidedRounds > 0, guidedRounds: rp.guidedRounds, gains: rp.gains, guidedGains: rp.guidedGains, floorSkipped: rp.skipped, floorReached: rp.reached };
         const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
         const w = o.openShiftWeight ?? 1e-6;
         const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
@@ -5565,7 +5673,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, coverPass, coverRepair, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
+export const _internals = { buildContext, coverPass, coverRepair, neighbourhoodFloor, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, cliqueOpenFloor, cliqueScoreFloor, cliqueLP, dayReassign, assignRows, keptStart, BIG, memoKey, personScore, validWith, insertSorted, scoreCGBudgetMs, cliqueCostMs, coverGroupsFree, coverGroupsJoint };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
