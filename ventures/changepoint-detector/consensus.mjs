@@ -84,6 +84,26 @@ export function levelRunFromMain(opts, r) {
   return { name: PANEL[0].name, opts: PANEL[0].opts, labels: r.labels, cuts: r.pelt.changepoints.map((c) => ({ index: c.index, shift: c.shift })) };
 }
 
+// Many agreed changes spread through the whole series (pre-registered 2026-11-15,
+// eval/repeat-guard-prereg-2026-11-15.md; measured in eval/repeat-guard.mjs). On TSSB's long
+// repeating waveforms every setting cuts the same peaks, so they agree, and agreement is no
+// evidence of a change. Fires on 15 or more every-setting changes that fall in at least 8 of the
+// 10 equal tenths of the series. Reads only the agreed indexes and n. Returns null or a note.
+export const REPEAT_GUARD = { minCount: 15, minTenths: 8 };
+export function repeatGuard(indexes, n) {
+  const k = indexes.length;
+  if (!(n > 0) || k < REPEAT_GUARD.minCount) return null;
+  const tenths = new Set(indexes.map((i) => Math.min(9, Math.floor((10 * i) / n)))).size;
+  if (tenths < REPEAT_GUARD.minTenths) return null;
+  const s = [...indexes].sort((a, z) => a - z);
+  const gaps = s.slice(1).map((v, i) => v - s[i]).sort((a, z) => a - z);
+  const gap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : null;
+  return {
+    count: k, tenths, medianGap: gap,
+    text: `All settings agree on ${k} changes spread through ${tenths} of the series' 10 tenths${gap ? `, about every ${gap} points` : ''}. That is what a repeating pattern produces (each setting cuts the same peaks), not evidence of ${k} changes: on 75 long labelled series of repeating waveforms (TSSB) such agreed changes scored below reporting no change at all. Treat them as candidates; a shape-aware method (ClaSP) suits a change of pattern.`,
+  };
+}
+
 export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
   return mergeConsensus(panel.map((p) => runSetting(base, p)), { tolerance });
 }
@@ -123,8 +143,9 @@ export function mergeConsensus(runs, { tolerance = null } = {}) {
   changes.sort((a, z) => z.support - a.support || a.index - z.index);
   const tier = (c) => (c.support === c.of ? 'all' : c.support >= Math.ceil(c.of / 2) ? 'most' : 'few');
   for (const c of changes) c.tier = tier(c);
+  const repeatWarning = repeatGuard(changes.filter((c) => c.tier === 'all').map((c) => c.index), n);
   return {
-    n, tolerance: tol, settings: ok.map((r) => ({ name: r.name, changes: r.cuts.length })),
+    n, tolerance: tol, repeatWarning, settings: ok.map((r) => ({ name: r.name, changes: r.cuts.length })),
     skipped: runs.filter((r) => r.error).map((r) => ({ name: r.name, error: r.error })),
     changes,
     note: 'Agreement among settings that share one likelihood family, not a probability: a change every setting finds is the one to trust, a change one setting finds is a candidate. No setting is told which series it is.',
