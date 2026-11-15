@@ -43,6 +43,11 @@
     .pick.img{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.4rem;font-size:.85rem}
     .pick.img img{display:block;width:100%;height:auto;max-height:min(48vh,380px);object-fit:contain;border-radius:6px}
     .pick.img .cap{color:var(--muted);overflow-wrap:anywhere}
+    .pile-item{min-height:5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.6rem;margin:1rem 0;font-size:1.15rem;border:2px solid var(--line);border-radius:8px;text-align:center;word-break:break-word}
+    .pile-item img{display:block;width:100%;height:auto;max-height:min(40vh,320px);object-fit:contain;border-radius:6px}
+    .pile-item .cap{color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
+    .piles{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+    .piles button{white-space:normal}
     td img.thumb{width:56px;height:56px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:.5rem;background:var(--bg)}
     .notice{border-left:4px solid var(--accent);padding:.25rem .75rem}
   </style>
@@ -79,6 +84,23 @@
     <p id="attach-why">This list is pictures. They never travel in the link, so choose the same files on this device (all at once is fine; they are matched by file name).</p>
     <p><input type="file" id="attach-files" accept="image/*" multiple aria-label="Attach the pictures for this list"></p>
     <p id="attach-note" class="muted"></p>
+  </section>
+
+  <section id="piles" class="hidden">
+    <h2>Sort first: one tap each</h2>
+    <p class="muted" id="piles-why">A long list takes many picks. Put each option in a rough pile first and the picks go mostly to options in the same pile. Aim for about a third in each; it does not need to be exact.</p>
+    <div class="pile-item" id="pile-item" aria-live="polite"></div>
+    <div class="piles">
+      <button id="pile-0">Near the top</button>
+      <button id="pile-1">In the middle</button>
+      <button id="pile-2">Near the bottom</button>
+    </div>
+    <div class="row">
+      <button class="secondary" id="pile-back">Back</button>
+      <button class="secondary" id="pile-skip">Skip sorting, go to pairs</button>
+    </div>
+    <p class="muted" id="pile-status"></p>
+    <p class="muted">Keys: 1 top, 2 middle, 3 bottom, U back.</p>
   </section>
 
   <section id="ask" class="hidden">
@@ -166,7 +188,7 @@
 </main>
 <script type="module">
   import { picksGuide, topPicksGuide } from "./picks-measured.mjs";
-  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS } from "./rank-core.mjs";
+  import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS, PILE_MIN_ITEMS } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   import { imageList, matchImages, itemKey, UNDRAWABLE_EXT } from "./image-items.mjs";
 
@@ -176,7 +198,10 @@
   const RANK_SHORTLIST_DRAWS = 1500;
   const EXAMPLE = { title: "Which feature should we build next?", items: ["Dark mode", "CSV export", "Faster search", "Mobile app", "Team accounts", "Calendar sync", "Offline mode", "Single sign-on"] };
 
-  let state = null; // { title, items, mode, k, answers, seed }
+  let state = null; // { title, items, mode, k, answers, seed, piles }
+  // piles: undefined = not offered yet, null = skipped (or a short list), else one entry per option: 0 top, 1 middle, 2 bottom, null not sorted.
+  const myPiles = () => (Array.isArray(state.piles) ? state.piles : undefined);
+  const fitNow = () => fit(state.items.length, state.answers, myPiles());
   let current = null, f = null, lastSettled = false;
 
   // Pictures: item key -> object URL of a file on this device. Nothing here is uploaded or stored.
@@ -202,7 +227,7 @@
   }
 
   const storeKey = (items) => `quick-pick-rank:${listId(items)}`;
-  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode, k: state.k })); } catch {} };
+  const save = () => { try { localStorage.setItem(storeKey(state.items), JSON.stringify({ answers: state.answers, mode: state.mode, k: state.k, piles: state.piles ?? null, pilesDecided: state.piles !== undefined, pileAt: state.pileAt ?? null })); } catch {} };
   const load = (items) => { try { return JSON.parse(localStorage.getItem(storeKey(items)) || "null"); } catch { return null; } };
 
   // The shortlist size: a whole number from 2 to one less than the list, else null (the mode needs options left out).
@@ -211,6 +236,10 @@
   function begin(title, items, mode, fromLink = false, k = 3, note = "", images = false) {
     const saved = load(items);
     state = { title, items, images, mode: saved?.mode || mode, k: shortlistSize(saved?.k, items.length) ?? shortlistSize(k, items.length) ?? Math.min(3, items.length - 1), answers: Array.isArray(saved?.answers) ? saved.answers : [], seed: (Math.random() * 1e9) >>> 0 };
+    // Piles from an earlier visit are kept only if they still fit the list; anything else is read as not sorted.
+    const sp = saved?.piles;
+    state.pileAt = Array.isArray(sp) && Number.isInteger(saved?.pileAt) ? saved.pileAt : undefined;
+    state.piles = Array.isArray(sp) && sp.length === items.length ? sp.map((x) => (x === 0 || x === 1 || x === 2 ? x : null)) : saved?.pilesDecided || state.answers.length || items.length < PILE_MIN_ITEMS ? null : undefined;
     if (state.mode === "top" && !shortlistSize(state.k, items.length)) state.mode = "order";
     state.linkMode = state.mode; state.linkK = state.k;
     $("#title").value = title; $("#list").value = items.join("\n");
@@ -221,7 +250,25 @@
     if (!fromLink) record(`mode:${state.mode}`);
     show("#setup", false); show("#results", false); show("#share", false); show("#team", false);
     refreshAttach();
-    ask();
+    if (state.piles === undefined) { state.piles = new Array(items.length).fill(null); state.pileAt = 0; record("piles_started"); save(); }
+    if (Array.isArray(state.piles) && !state.answers.length && state.pileAt !== undefined && state.pileAt < items.length) pileStep();
+    else ask();
+  }
+
+  // Sort into piles first (lists of PILE_MIN_ITEMS or more): one option at a time, in list order.
+  function pileStep() {
+    const n = state.items.length, i = state.pileAt;
+    if (i >= n) { show("#piles", false); record("piles_done"); state.pileAt = undefined; save(); return ask(); }
+    renderPick($("#pile-item"), i);
+    const c = [0, 1, 2].map((p) => state.piles.filter((x) => x === p).length);
+    $("#pile-status").textContent = `${i + 1} of ${n}. So far: ${c[0]} near the top, ${c[1]} in the middle, ${c[2]} near the bottom.`;
+    $("#pile-back").disabled = i === 0;
+    show("#ask", false); show("#piles");
+    $("#pile-0").focus({ preventScroll: true });
+  }
+  function pileAnswer(p) {
+    if (!state || $("#piles").classList.contains("hidden")) return;
+    state.piles[state.pileAt] = p; state.pileAt++; record("pile_tap"); save(); pileStep();
   }
 
   // Measured on simulated people running this page's own picker and stop rule (how-many-pairwise-comparisons.html).
@@ -237,11 +284,11 @@
   }
 
   function ask() {
-    f = fit(state.items.length, state.answers);
+    f = fitNow();
     const n = state.items.length, cap = suggestedMax(n);
     // Full order: stopCheck refits at the person's own prior once the fixed-prior read passes, so a list of close calls is not called settled too soon.
     // Top k: the same two-step check on the shortlist (the mean share of the shown k that a plausible order also puts in its top k).
-    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f }) : state.mode === "top" ? topStopCheck(n, state.answers, state.k, { fixedFit: f }) : null;
+    const sc = state.mode === "order" ? stopCheck(n, state.answers, { fixedFit: f, piles: myPiles() }) : state.mode === "top" ? topStopCheck(n, state.answers, state.k, { fixedFit: f, piles: myPiles() }) : null;
     const p = sc ? sc.confidence : 0;
     const done = state.mode === "favourite" ? rankTable(f, { draws: 600 })[0].favourite >= 0.9 : sc.done;
     if (state.until ? state.answers.length >= state.until : done || state.answers.length >= cap) return results(done);
@@ -272,7 +319,7 @@
 
   function results(settled, quiet = false) {
     lastSettled = settled;
-    f = fit(state.items.length, state.answers);
+    f = fitNow();
     const table = rankTable(f);
     const top = table[0];
     const shortlist = () => {
@@ -291,7 +338,7 @@
     if (!quiet) record("results_shown");
   }
 
-  function refreshCode() { $("#code").textContent = encodeAnswers({ items: state.items, answers: state.answers, name: $("#name").value }); }
+  function refreshCode() { $("#code").textContent = encodeAnswers({ items: state.items, answers: state.answers, name: $("#name").value, piles: myPiles() }); }
 
   async function copy(text, button, event) {
     try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; } catch { button.textContent = "Select and copy the text above"; }
@@ -331,6 +378,10 @@
     if (got) record("pictures_attached");
   });
   $("#example").addEventListener("click", () => { $("#title").value = EXAMPLE.title; $("#list").value = EXAMPLE.items.join("\n"); record("example_loaded"); });
+  [0, 1, 2].forEach((p) => $(`#pile-${p}`).addEventListener("click", () => pileAnswer(p)));
+  $("#pile-back").addEventListener("click", () => { if (state.pileAt > 0) { state.pileAt--; state.piles[state.pileAt] = null; save(); pileStep(); } });
+  // Skipping keeps what is sorted so far (unsorted options keep the plain prior); skipping at the first option is no piles at all.
+  $("#pile-skip").addEventListener("click", () => { if (state.pileAt === 0) state.piles = null; state.pileAt = undefined; record("piles_skipped"); save(); show("#piles", false); ask(); });
   $("#left").addEventListener("click", () => answer("left"));
   $("#right").addEventListener("click", () => answer("right"));
   $("#tie").addEventListener("click", () => answer("tie"));
@@ -338,7 +389,7 @@
   $("#finish").addEventListener("click", () => results(false));
   // "Answer more" asks one more round of n questions in full-order mode, whatever the stop rule says.
   $("#more").addEventListener("click", () => { state.mode = "order"; state.until = state.answers.length + state.items.length; show("#results", false); show("#share", false); show("#team", false); ask(); });
-  $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; clearPictures(); $("#images").value = ""; $("#images-note").textContent = ""; show("#attach", false); history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
+  $("#restart").addEventListener("click", () => { try { localStorage.removeItem(storeKey(state.items)); } catch {} state = null; clearPictures(); $("#images").value = ""; $("#images-note").textContent = ""; show("#attach", false); show("#piles", false); history.replaceState(null, "", location.pathname); show("#results", false); show("#share", false); show("#team", false); show("#setup"); });
   $("#csv").addEventListener("click", () => {
     const blob = new Blob([resultsCsv(state.items, f, rankTable(f))], { type: "text/csv" });
     const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "quick-pick-ranking.csv" });
@@ -348,12 +399,12 @@
   $("#copy-link").addEventListener("click", (e) => copy(location.href, e.target, "link_copied"));
   $("#copy-code").addEventListener("click", (e) => copy($("#code").textContent, e.target, "code_copied"));
   $("#combine").addEventListener("click", () => {
-    const people = [{ name: $("#name").value || "You", answers: state.answers }];
+    const people = [{ name: $("#name").value || "You", answers: state.answers, piles: myPiles() }];
     const errors = [];
     $("#codes").value.split(/\s+/).filter(Boolean).forEach((code, k) => {
       const d = decodeAnswers(code, state.items);
       if (d.error) errors.push(`Code ${k + 1}: ${d.error}.`);
-      else if (d.answers.length) people.push({ name: d.name || `Person ${people.length + 1}`, answers: d.answers });
+      else if (d.answers.length || d.piles) people.push({ name: d.name || `Person ${people.length + 1}`, answers: d.answers, piles: d.piles });
     });
     $("#team-err").textContent = errors.join(" ");
     if (people.length < 2) { $("#team-out").innerHTML = "<p>Paste at least one other person's code.</p>"; return; }
@@ -381,6 +432,11 @@
   });
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea")) return;
+    if (!$("#piles").classList.contains("hidden")) {
+      if (e.key === "1" || e.key === "2" || e.key === "3") pileAnswer(Number(e.key) - 1);
+      else if ((e.key === "u" || e.key === "U") && state.pileAt > 0) $("#pile-back").click();
+      return;
+    }
     if (e.key === "ArrowLeft") answer("left"); else if (e.key === "ArrowRight") answer("right");
     else if (e.key === "ArrowDown") { e.preventDefault(); answer("tie"); }
     else if (e.key === "u" || e.key === "U") { if (state?.answers.length && !$("#ask").classList.contains("hidden")) $("#undo").click(); }
