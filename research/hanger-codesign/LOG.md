@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-15 · Milestone 3e: a pooled cross-mesh lowest-energy rule on one solver (predictions in `experiments/m3e_pooled/run.py`'s docstring, committed before the first full run)
+- Why: 3d's Next (a2). 3d's registered rule (lowest-energy of seven seeds) failed on the suiting (+0.0205 from 2.5 to 1.875 mm) because no 1.875 mm seed found the 7-fold pattern; post hoc, that pattern transferred onto 1.875 mm was the lowest state there. 3d's 2.5 mm column was also 3c's solver, so its mesh changes mixed mesh and solver.
+- Plan: phase 1, seeds 0 to 6 on 3.75, 2.5 and 1.875 mm with 3d's local-Hessian Newton (the 1.875 mm suiting reruns seeds 0 to 2 only; 3d's seeds 3 to 6 there duplicate their energies); phase 2, every distinct garment-load end state (A 369, D 1896 N/m) of each lattice transferred to each other lattice (3d post hoc's displacement interpolation) and re-solved. Rule (registered): on each lattice, the DC of the lowest-energy converged state among its own seeds and every state transferred onto it.
+- Predictions: T1 the rerun 3.75 and 1.875 mm chains reproduce 3d's rows in all chains but at most one; T2 (acceptance) pooled DC moves < 0.01 from 2.5 to 1.875 mm at A 369 and D 1896; T3 also < 0.01 from 3.75 to 2.5 mm; T4 D's pooled lowest has 7 folds on 2.5 and 1.875 mm (not blind); T5 ≥ 75% of transfers keep their source fold count; T6 the pooled lowest is a transferred state in ≥ 2 of the 6 fabric-lattice cells; T7 one-solver seed mean moves < 0.01 from 2.5 to 1.875 mm at both.
+- Outcome: pending.
+
 ## 2026-11-14 · Milestone 3d: an element-local Hessian, and a third lattice (1.875 mm) for the lowest-energy selection rule (predictions in `experiments/m3d_local_hessian/run.py`'s docstring, committed before the first full run)
 - Why: 3c's Next (a). 3c's lowest-energy reading was post hoc; a registered selection rule needs a third lattice, and at 3c's cost (5.1 s per Newton step at 2.5 mm, 85% of it the coloured finite-difference Hessian's 120 gradient calls) 1.875 mm was a 5 to 6 hour job.
 - Built before the run (`localhess.py`): the Hessian from element blocks, membrane exact (directional derivative of P = F S), hinges by central differences of the local hinge gradient. Matches 3a's coloured Hessian to 2e-10 (7.5 mm) and 8e-10 (2.5 mm) relative Frobenius norm; 0.75 s against 4.3 s per assembly at 2.5 mm.
