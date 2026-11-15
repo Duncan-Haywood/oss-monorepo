@@ -1,9 +1,9 @@
 ---
 title: "One comma, one share at $0: how an unquoted 1,000 broke three free tools"
-seo_title: "Unquoted thousands separators in CSV imports: a wash-sale and bookkeeping bug"
+seo_title: "Unquoted thousands separators in CSV imports: a silent wash-sale bug"
 date: 2026-11-15
 tags: [redteam, testing, csv, wash-sale, bookkeeping, open-source]
-description: "A red-team run found three tools that misread a row like buy,1,000,150.00 without saying so, fixed them, and added a check that probes every journal converter the same way."
+description: "Three free tools misread a CSV row like buy,1,000,150.00 without a warning. The fix, and a check that probes every journal converter the same way."
 ---
 
 Spreadsheets write the number one thousand as `1,000`. Save that sheet as a
