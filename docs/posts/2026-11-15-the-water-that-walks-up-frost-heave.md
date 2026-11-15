@@ -3,7 +3,7 @@ title: "Hearth & Horizon: frost heave, ice lenses, and a bell frame on the wrong
 seo_title: "Frost heave story: The Water That Walks Up"
 date: 2026-11-15
 tags: [fiction, hearth-and-horizon, science-fiction, frost-heave, ice-lenses, foundation, soil-mechanics]
-description: "A new Hearth & Horizon story: four 50 cm pads in lake silt, a frost line near a metre down, and why the ground lifts because water arrives, not because it expands."
+description: "A new Hearth & Horizon story: 50 cm pads in lake silt, frost near a metre down, and why ground lifts because water arrives, not because it expands."
 ---
 
 [The Water That Walks Up](../../ventures/hearth-and-horizon/stories/the-water-that-walks-up.md)
