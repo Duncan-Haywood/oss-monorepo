@@ -48,14 +48,14 @@ const binom2 = (k, n) => {
   for (let i = 0; i <= lo; i++) p += c(n, i) / 2 ** n;
   return Math.min(1, 2 * p);
 };
-function paired(d) {
+export function paired(d) {
   const boots = [];
   for (let i = 0; i < 10000; i++) { let t = 0; for (let j = 0; j < d.length; j++) t += d[Math.floor(rnd() * d.length)]; boots.push(t / d.length); }
   boots.sort((x, y) => x - y);
   const pos = d.filter((v) => v > 1e-12).length, neg = d.filter((v) => v < -1e-12).length;
   return { mean: mean(d), lo: boots[249], hi: boots[9749], pos, neg, p: binom2(pos, pos + neg) };
 }
-const fmt = (x) => `mean ${x.mean >= 0 ? '+' : ''}${r3(x.mean)} [95% ${r3(x.lo)}, ${r3(x.hi)}]; better on ${x.pos}, worse on ${x.neg}, sign test p ${x.p.toFixed(3)}`;
+export const fmt = (x) => `mean ${x.mean >= 0 ? '+' : ''}${r3(x.mean)} [95% ${r3(x.lo)}, ${r3(x.hi)}]; better on ${x.pos}, worse on ${x.neg}, sign test p ${x.p.toFixed(3)}`;
 
 // rows: { name, n, cps (one annotator), every (cleaned indexes), cover per setting }
 function scoreSet(rows) {
@@ -71,7 +71,7 @@ function scoreSet(rows) {
   return rows;
 }
 
-async function loadHas(DIR) {
+export async function loadHas(DIR) {
   const SER = join(DIR, 'series');
   mkdirSync(SER, { recursive: true });
   const index = join(SER, 'index.json');
@@ -154,7 +154,7 @@ async function main() {
       const values = j.series[0].raw.map((v) => { if (v == null || !Number.isFinite(Number(v))) return last; last = Number(v); return last; });
       const c = consensus({ values });
       const every = clean(c.changes.filter((x) => x.tier === 'all').map((x) => x.index), values.length);
-      tcpd.push({ name, sub, n: values.length, every, guard: c.repeatWarning, count: countOnly(every), f1: fMeasure(ann[name], every, 5).F, cover: covering(ann[name], every, values.length) });
+      tcpd.push({ name, sub, n: values.length, every, guard: repeatGuard(every, values.length), count: countOnly(every), f1: fMeasure(ann[name], every, 5).F, cover: covering(ann[name], every, values.length) });
     }
   }
   const tFired = tcpd.filter((r) => r.guard);

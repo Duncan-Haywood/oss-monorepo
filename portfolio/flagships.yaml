@@ -26,6 +26,13 @@
 # need no key, account or person; drop or rewrite it when they land. validate.py
 # caps it at 600 characters (FLAGSHIP_BUILDABLE_MAX): it is not a history log.
 #
+# `hosts: [<url>, ...]` (optional) lists the hosts those items need.
+# `allocate.py --venture <slug>` probes each one (and any host name the row's
+# prose names) and prints which answer from this session now. Write no
+# "X answers 403" or "X serves files" in the prose: reachability changes
+# between sessions, and such notes went stale within a day (13 run reports,
+# 2026-11-13..15).
+#
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
@@ -102,17 +109,17 @@ flagships:
       sample read (README); open: a real merchant's payout export, a real 1099-K;
       (4) loans: LendingClub rounds payments up (99.97% of 445k, README), `--round
       up`; open: a lender's full table, a supplier's terms letter; (5) receipts OCR
-      (page SROIE 84.6%, US totals 79.6%, tax 73.5%; CLI 75.0%; open: lost 2nd tax
-      lines); (6) payroll (README): two journal layouts read; open: a real Gusto or
-      ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines
-      (HISTORY): open: a real upload, TY2026 template; (8) `salestax return`: the
-      last six listed states read (eval/state-pages-2026-11-14e.md); 23 discounts,
-      IN's band and day from the book (README); open: AR statutes, a real return
-      layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule, 2026
-      draft (README); open: line 9b once the 2026 instructions print; (9) EITC: 2025
-      EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table once
-      printed. A run that lands a slice replaces its item here; keep this under
-      2,000 characters.
+      (page SROIE 84.6%, US totals 79.6%, tax 74.6% with 2-3 tax lines added; CLI
+      75.0%; open: tax OCR-bound); (6) payroll (README): two journal layouts read;
+      open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS
+      TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8)
+      `salestax return`: the last six listed states read
+      (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from the
+      book (README); open: AR statutes, a real return layout; (8b) `annualized`
+      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
+      once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
+      10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -169,19 +176,19 @@ flagships:
       on the 34 non-sticky), test it on fresh labelled data; update-rate check: date
       a documented collection change. Stale feeds: clumped LR shipped; next a real
       documented carry-forward. joint drift (measured, not offered) and its 2x
-      penalty on fresh multi-column labelled data; TSSB/HAS (README): count guard
-      failed; next a shape-repeat check. Open: (0) drift model: t-walk increments,
-      biweight on fresh data, why it absorbs seat belts and quality control 4, its
-      AR(1) term; (1) slope breaks: hinge test: logs fail (size ok at n 40), try 2
-      hinges; step/bend bootstrap tests (README "Step or bend, as two tests") fail:
-      walks called bend, use the cut guard; nulls rho low; a second hinge; a real
-      step inside a cycle, a cycle check not tied to rho, real documented ramps and
-      close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3)
-      `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the
-      GARCH search"): re-test scoring breaks with false alarms, new seeds; (4)
-      driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a
-      yearly term.
+      penalty on fresh multi-column labelled data; TSSB/HAS/UTSA (README): count,
+      shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
+      model: t-walk increments, biweight on fresh data, why it absorbs seat belts
+      and quality control 4, its AR(1) term; (1) slope breaks: hinge test: logs fail
+      (size ok at n 40), try 2 hinges; step/bend bootstrap tests (README "Step or
+      bend, as two tests") fail: walks called bend, use the cut guard; nulls rho
+      low; a second hinge; a real step inside a cycle, a cycle check not tied to
+      rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell
+      under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line
+      (README "Heavy tails in the GARCH search"): re-test scoring breaks with false
+      alarms, new seeds; (4) driftWarning on real shocks. More open items: NEXT.md.
   - venture: einvoice-preflight
+    hosts: [https://omawww.sat.gob.mx/]
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
@@ -247,13 +254,14 @@ flagships:
       export, real trip times; whether the priced cut's r = 1 default suits a real
       manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
+    hosts: [https://raw.pixls.us/, https://github.com/]
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
       Public samples, no key: github.com/drewnoakes/metadata-extractor-images
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
-      eval/*-reader-*.md); raw.pixls.us (CC0) serves files with `curl -L`. Tiled
+      eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`). Tiled
       C-RAW: re-tile a real R8 for LibRaw (eval/canon-cr3-tiled-*); Bayer demosaic:
       aliased luma, noise (eval/bayer-*). X-Trans demosaic: real frames 0.5-0.7 dB
       short of LibRaw's three-pass, level under noise, sheet 4.4 (zone-plate rings;
@@ -360,12 +368,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): duty held to the battery landed 2026-11-15 (cad/README.md
-      "Lift duty follows the battery"). Next: rerun the jam sweep on
-      `lift_belt_axial_modes`' distributed belt (stuck 34-41 Hz, not 38); then a
-      duty-independent lift current sense (high-side amp, INA186 class, shunt inside
-      the motor-diode loop) in params, BOM and the sweep, so the trip stops moving
-      with the duty (slide now 1.14x the trip, 1.1 wanted).
+      venv, about 2 min): jam sweep on the belt as a chain landed 2026-11-15
+      (cad/README.md "Lift belt as a chain": cuts unchanged; the up strand goes
+      slack up to 108 ms on starts). Next: a duty-independent lift current sense
+      (high-side amp, INA186 class, shunt inside the motor-diode loop) in params,
+      BOM and the sweep, so the trip stops moving with the duty (slide now 1.14x the
+      trip, 1.1 wanted).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -403,6 +411,7 @@ flagships:
   # "would be fun to make as a long term project. also being able to publish to
   # spotify etc." Placed last so it does not displace the construction programme.
   - venture: chant-forge
+    hosts: [https://archive.org/]
     why: >-
       Long-term music production programme: public-domain chant (GABC) to MIDI
       men's-choir lines with Latin lyrics, then genre templates, voices,
@@ -412,19 +421,19 @@ flagships:
       options, scan-checked corpus, 2,129 notes read by eye, hymns, song sections,
       breakdown, riser; --a-cappella first verse and a range-checked --key-lift N,
       eval/key-lift-check.md; per-section singer guidance in --cues; 2026-11-15
-      latest: openings sing the coda murmur, read with the tilt rule (held-out G
-      78.0 to 79.6%, false nasals halved; README); next: unread sung nasals (G 118
-      of 404), short -um's level beats with 5 voices, opening l level). Open checks
-      that need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift); --lrc in a real
-      player and --markers/--stems in a DAW; --cues (and its section lines),
-      RECORDING-GUIDE.md and the E2-E4 range with real singers; the release kit
-      against a distributor's real form; the Te Deum/3427/3912/3775 fixes
-      (eval/scan-check-verdicts.md). master-cli passed EBU Tech 3341/3342 from their
-      text; open: the EBU's WAVs (403), Apple/Amazon/Tidal levels. scan.mjs reads
-      rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
-      staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      latest: nasal openings close the mouth, read by darkness (held-out G 79.6 to
+      83.4%, nasals 347 of 404; README); next: short -um's level beats with 5
+      voices, opening l level, G control false nasals 44). Open checks that need a
+      person: listen to the studio page, --sing, the options (--stretch, --halftime,
+      --fills, --limit pumping, stems, sections, breakdown, riser, the a cappella
+      verse and whether the key lift sounds like a lift); --lrc in a real player and
+      --markers/--stems in a DAW; --cues (and its section lines), RECORDING-GUIDE.md
+      and the E2-E4 range with real singers; the release kit against a distributor's
+      real form; the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
+      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
+      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
+      liquescents, lines at true thickness; tilted pages, curled staves straightened
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
       squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
       3464's cephalicus; --split-voices (by phrase or at a word, --split-words,

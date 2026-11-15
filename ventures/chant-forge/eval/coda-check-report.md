@@ -71,7 +71,7 @@ The last note of every syllable that closes on a consonant, 0.2 s or more, with 
 | salve-regina | 16 | 13 of 16 (81.3%) | 15 of 16 (93.8%) |
 | all | 162 | 147 of 162 (90.7%) | 160 of 162 (98.8%) |
 
-By class alone: 148 of 162 (91.4%). Before a syllable that opens on a consonant: 70 of 79 (88.6%); before a vowel or a rest: 77 of 83 (92.8%). Syllables that close on their vowel: 210 of 220 (95.5%) read as no consonant (vowel-only choir: 207 of 220 (94.1%)). Too short for a steady vowel before the coda, skipped: 743.
+By class alone: 148 of 162 (91.4%). Before a syllable that opens on a consonant: 70 of 79 (88.6%); before a vowel or a rest: 77 of 83 (92.8%). Syllables that close on their vowel: 211 of 220 (95.9%) read as no consonant (vowel-only choir: 207 of 220 (94.1%)). Too short for a steady vowel before the coda, skipped: 743.
 
 By written consonant (a cluster scored on its first phone is listed apart):
 

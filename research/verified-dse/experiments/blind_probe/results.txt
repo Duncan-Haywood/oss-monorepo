@@ -1,0 +1,68 @@
+# Milestone 132: SWP(32) and SWG(32) tested blind on six new 128-bit shifters (flow run)
+
+theta = 3, alpha = 1.25; 200 draws per cell for SWP; design bootstrap 2000 resamples, seed 132.
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | SWG(32) flags
+gray0 | 128 | 6 | 24 | 18 | 0.828 | True
+mod8 | 128 | 1 | 27 | 51 | 0.783 | True
+gray1 | 128 | 7 | 43 | 83 | 0.757 | False
+lut1 | 128 | 3 | 51 | 1948 | 0.811 | False
+mod10 | 128 | 1 | 55 | 99 | 0.642 | False
+mod12 | 128 | 1 | 80 | 170 | 0.539 | False
+
+## Blind test (milestone 132 flow run): 12 cells
+
+clock | design | amount_gate_depth | routed/r2 | routed delay/period | random % | SWC % | SWG(32) % | SWP(32) % | SWP distrust | SWP same | SWP routed
+relaxed | gray0 | 24 | 3.89 | 0.682 | 0.39 | 9.99 | 0.39 | 6.69 | 0.33 | 1.00 | 15.9
+tight | gray0 | 24 | 4.47 | 0.967 | 0.23 | 7.36 | 0.23 | 5.85 | 0.20 | 0.96 | 12.1
+relaxed | mod8 | 27 | 2.20 | 0.351 | 2.91 | 2.91 | 2.91 | 2.91 | - | - | -
+tight | mod8 | 27 | 2.20 | 0.532 | 3.01 | 3.01 | 3.01 | 3.01 | - | - | -
+relaxed | gray1 | 43 | 4.03 | 0.263 | 3.26 | 0.00 | 0.00 | 0.13 | 0.01 | 0.97 | 8.2
+tight | gray1 | 43 | 4.08 | 0.395 | 2.79 | 0.00 | 0.00 | 0.39 | 0.04 | 0.97 | 9.0
+relaxed | lut1 | 51 | 3.92 | 0.342 | 1.38 | 0.50 | 0.50 | 0.72 | 0.07 | 0.96 | 9.7
+tight | lut1 | 51 | 3.87 | 0.514 | 5.11 | 12.66 | 12.66 | 9.07 | 0.41 | 0.92 | 17.7
+relaxed | mod10 | 55 | 2.14 | 0.412 | 2.16 | 2.16 | 2.16 | 2.16 | - | - | -
+tight | mod10 | 55 | 2.15 | 0.624 | 2.57 | 2.57 | 2.57 | 2.57 | - | - | -
+relaxed | mod12 | 80 | 2.17 | 0.359 | 1.47 | 1.47 | 1.47 | 1.47 | - | - | -
+tight | mod12 | 80 | 2.21 | 0.536 | 1.16 | 1.16 | 1.16 | 1.16 | - | - | -
+
+blind mean regret %: SWC 3.65, SWG(32) 2.25, SWP(32) 3.01, SWGP(32) 2.02, random 2.20
+ladder-branch cells only (6): SWC 5.08, SWG(32) 2.30, SWP(32) 3.81, SWGP(32) 1.82, random 2.19
+cells where SWC loses to random by > 1 point (3): SWC 10.00, SWG(32) 4.43, SWP(32) 7.20, SWGP(32) 3.23, random 1.91
+cells where SWC <= 0.5% (3): SWC 0.17, SWG(32) 0.17, SWP(32) 0.41, SWGP(32) 0.41, random 2.48
+
+blind SWP(32) vs SWC: better 3, worse 3, tied 6; sign p = 1.000; design bootstrap 95% interval of mean (SWP(32) - SWC) -1.48 to +0.09 points
+blind SWP(32) vs SWG(32): better 1, worse 5, tied 6; sign p = 0.219; design bootstrap 95% interval of mean (SWP(32) - SWG(32)) -0.80 to +2.98 points
+blind SWP(32) vs random: better 3, worse 3, tied 6; sign p = 1.000; design bootstrap 95% interval of mean (SWP(32) - random) -1.11 to +3.26 points
+blind SWG(32) vs random: better 3, worse 1, tied 8; sign p = 0.625; design bootstrap 95% interval of mean (SWG(32) - random) -1.51 to +1.67 points
+blind SWGP(32) vs random: better 3, worse 1, tied 8; sign p = 0.625; design bootstrap 95% interval of mean (SWGP(32) - random) -1.38 to +0.83 points
+
+## Per design along gate depth (descriptive)
+
+design | amount_gate_depth | cells on ladder branch | SWC % | SWP(32) % | random % | SWC - random (points)
+gray0 | 24 | 2 | 8.67 | 6.27 | 0.31 | +8.37
+mod8 | 27 | 0 | 2.96 | 2.96 | 2.96 | +0.00
+gray1 | 43 | 2 | 0.00 | 0.26 | 3.03 | -3.03
+lut1 | 51 | 2 | 6.58 | 4.90 | 3.24 | +3.34
+mod10 | 55 | 0 | 2.37 | 2.37 | 2.37 | +0.00
+mod12 | 80 | 0 | 1.32 | 1.32 | 1.32 | +0.00
+
+## Every blind set SWG(32) has faced: milestones 125 and 132 (28 cells, 14 designs)
+
+mean regret %: SWC 3.60, SWG(32) 4.85, random 4.19
+
+SWG(32) vs random: better 11, worse 3, tied 14; sign p = 0.057; design bootstrap 95% interval of mean (SWG(32) - random) -1.46 to +3.78 points
+SWG(32) vs SWC: better 2, worse 6, tied 20; sign p = 0.289; design bootstrap 95% interval of mean (SWG(32) - SWC) -1.12 to +3.65 points
+
+## Predictions
+
+(1) SWP(32) below SWC: True (3.01% against 3.65%)
+(2) SWG(32) below SWP(32): True (2.25% against 3.01%)
+(3) SWP(32) below random: False (3.01% against 2.20%)
+(4) SWG(32) below random: False (2.25% against 2.20%)
+(5) gray0 and mod8 (4 cells), SWC above random: True (5.82% against 1.63%)
+(6) gray1, lut1, mod10 and mod12 (8 cells), SWC below random: False (2.57% against 2.49%)
+(7) SWP(32) distrust share higher where SWC loses by > 1 point than where SWC <= 0.5%: True (3 cells 0.31 against 3 cells 0.04)
+(8) design-bootstrap 95% interval of mean (SWP(32) - SWG(32)) contains 0: True (-0.80 to +2.98 points)
