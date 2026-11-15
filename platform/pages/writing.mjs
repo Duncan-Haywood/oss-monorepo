@@ -373,6 +373,15 @@ const STYLE = `
   .chips button { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
   .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:var(--bg); }
   .chips button span { margin-left:4px; font-variant-numeric:tabular-nums; }
+  /* On a phone the topics are one swipeable row, not six wrapped rows above the first post: it bleeds to the panel's edges, and a fade marks whichever end has more chips (data-fade, set by the script). */
+  @media (max-width:639px) {
+    .chips { flex-wrap:nowrap; overflow-x:auto; overscroll-behavior-x:contain; margin:8px -16px 0; padding:4px 16px; scroll-padding-inline:16px; scrollbar-width:thin; }
+    .chips button { flex:none; white-space:nowrap; min-height:32px; }
+    .chips[data-fade=end] { -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); }
+    .chips[data-fade=start] { -webkit-mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); }
+    .chips[data-fade=both] { -webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); }
+  }
+  @media (max-width:639px) and (pointer:coarse) { .chips { scrollbar-width:none; } .chips::-webkit-scrollbar { display:none; } }
   .finder .foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 0; }
   .finder #clear { font:inherit; font-size:.8rem; min-height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; flex:none; }
   .posts h3 { font-size:1.12rem; margin:0 0 .3em; line-height:1.3; } .posts h3 a { color:inherit; text-decoration:none; } .posts h3 a:hover { color:var(--accent); }
@@ -573,9 +582,27 @@ const FINDER_SCRIPT = `(() => {
   tag.addEventListener('change', apply);
   sort.addEventListener('change', apply);
   chips.forEach((c) => c.addEventListener('click', () => { topic = c.dataset.topicChip; apply(); }));
+  // The phone layout scrolls the chip row sideways: fade the end that has more, and bring a topic
+  // chosen from the URL into view without moving the page.
+  const row = chips.length ? chips[0].parentElement : null;
+  function fade() {
+    const more = row.scrollWidth - row.clientWidth;
+    const atStart = row.scrollLeft <= 1, atEnd = row.scrollLeft >= more - 1;
+    if (more <= 1) row.removeAttribute('data-fade');
+    else row.dataset.fade = atStart ? 'end' : atEnd ? 'start' : 'both';
+  }
+  if (row) {
+    row.addEventListener('scroll', fade, { passive: true });
+    addEventListener('resize', fade);
+  }
   document.getElementById('clear').addEventListener('click', () => { q.value = ''; tag.value = ''; topic = ''; sort.value = 'new'; apply(); q.focus(); });
   document.getElementById('finder').hidden = false;
   apply();
+  if (row) {
+    const on = chips.find((c) => c.dataset.topicChip === topic);
+    if (topic && on && row.scrollWidth > row.clientWidth) row.scrollLeft = on.offsetLeft - row.offsetLeft - (row.clientWidth - on.offsetWidth) / 2;
+    fade();
+  }
 })();`;
 
 /** Search box, topic chips, tag and sort menus. Hidden until the script runs, so a reader without JavaScript sees the plain list. */

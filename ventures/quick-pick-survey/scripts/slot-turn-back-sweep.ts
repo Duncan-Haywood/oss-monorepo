@@ -14,6 +14,13 @@
  *   back        gated, and a slot run found by slotBlockStarts is cut from the loose turn
  *               when that turn comes before the run (the speed-up named as the run's start)
  *   looseBack   loose and back together
+ *   pinned      gated, and a slot run's cut moves back to a turn scored against the run's own start
+ *               (pinnedTurnsBeforeRuns, item d11): a Bonferroni-bounded test of one more step under a
+ *               wandering-pace model, instead of looseFastTurns' unbounded split search
+ *   pinned05    the same at alpha 0.05 (it moves only an already-flagged person's cut)
+ *
+ * The null rows (nullLooseMoved, nullPinMoved): each honest person not flagged is given a made-up
+ * run from 3/4 of the session; how often would each rule move that cut back to a turn?
  *   oracle      leave out exactly what the careless answered carelessly
  *
  * `loose` adds at most alpha honest flags by d9's argument. `back` moves the cut
@@ -27,7 +34,7 @@
  */
 import { selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
-import { FAST_BLOCK_CURVE_Q, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_TREND_F, fastBlockStarts, groupRanking, ratingsWithoutAnswers, slotFlags, slotRunsAtTurns, type ParticipantRatingRow, type ReplayAnswer } from "../src/lib/groupRanking";
+import { FAST_BLOCK_CURVE_Q, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_TREND_F, fastBlockStarts, groupRanking, pinnedTurnsBeforeRuns, ratingsWithoutAnswers, slotFlags, slotRunsAtTurns, type ParticipantRatingRow, type ReplayAnswer } from "../src/lib/groupRanking";
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
@@ -78,9 +85,10 @@ for (const walk of walks) for (const q of qs) for (const ratio of ratios) for (c
     const budget = items * k;
     const nCareless = Math.round(share * nResp);
     const acc: Record<string, number[]> = {};
-    const det = { n: 0, hn: 0, slot: 0, gated: 0, loose: 0, hLooseAdded: 0, hGatedAdded: 0, backMoved: 0, backWrong: 0, hBackMoved: 0 };
+    const det = { n: 0, hn: 0, slot: 0, gated: 0, loose: 0, hLooseAdded: 0, hGatedAdded: 0, backMoved: 0, backWrong: 0, hBackMoved: 0, pinMoved: 0, pinWrong: 0, hNull: 0, hNullLoose: 0, hNullPin: 0, hNullPin05: 0 };
     const backGain: number[] = []; // careless answers newly cut by back, per person whose cut moved
     const backLoss: number[] = []; // honest answers (before the true onset) newly cut, same people
+    const pinGain: number[] = [], pinLoss: number[] = [];
     for (let sv = 0; sv < nSurveys; sv++) {
       const svSeed = seedBase + sv * 104729 + items * 31 + k;
       const sr = mulberry32(svSeed);
@@ -133,6 +141,19 @@ for (const walk of walks) for (const q of qs) for (const ratio of ratios) for (c
       const atLoose = slotRunsAtTurns(kept, looseTurns);
       const backFrom = new Map<string, number>();
       for (const [id, at] of flags.from) { const t = looseTurns.get(id); if (t !== undefined && t < at) backFrom.set(id, t); }
+      const pinnedFrom = pinnedTurnsBeforeRuns(kept, flags.from);
+      const pinned05From = pinnedTurnsBeforeRuns(kept, flags.from, 0.05);
+      // The null: an honest person given a made-up run from 3/4 of their session. How often does each rule move the cut?
+      const nullRun = new Map<string, number>();
+      for (let r = nCareless; r < nResp; r++) if (!flags.whole.has(`p${r}`) && !flags.from.has(`p${r}`)) nullRun.set(`p${r}`, Math.round(0.75 * budget));
+      for (const [pid, at] of nullRun) {
+        det.hNull++;
+        const t = looseTurns.get(pid);
+        if (t !== undefined && t < at) det.hNullLoose++;
+        const nullPin = pinnedTurnsBeforeRuns(kept, new Map([...flags.from, [pid, at]]), 0.05);
+        if (nullPin.has(pid)) det.hNullPin05++;
+        if (nullPin.has(pid) && pinnedTurnsBeforeRuns(kept, new Map([...flags.from, [pid, at]])).has(pid)) det.hNullPin++;
+      }
       const cutAt = (...maps: Map<string, number>[]) => (a: ReplayAnswer, i: number) => maps.some((m) => i >= (m.get(a.participantId) ?? Infinity));
       const play = (list: ReplayAnswer[], drop: (a: ReplayAnswer, i: number) => boolean) => ratingsWithoutAnswers(list, drop).rows;
       const add = (name: string, rows: ParticipantRatingRow[]) => (acc[name] ??= []).push(rank(ids, rows, common));
@@ -141,6 +162,8 @@ for (const walk of walks) for (const q of qs) for (const ratio of ratios) for (c
       add("loose", play(kept, cutAt(flags.from, atLoose)));
       add("back", play(kept, cutAt(flags.from, atTurn, backFrom)));
       add("looseBack", play(kept, cutAt(flags.from, atLoose, backFrom)));
+      add("pinned", play(kept, cutAt(flags.from, atTurn, pinnedFrom)));
+      add("pinned05", play(kept, cutAt(flags.from, atTurn, pinned05From)));
       add("oracle", play(answers, cutAt(carelessFrom)));
       for (let r = 0; r < nResp; r++) {
         const pid = `p${r}`;
@@ -156,6 +179,13 @@ for (const walk of walks) for (const q of qs) for (const ratio of ratios) for (c
             if (from < on) det.backWrong++;
             backGain.push(Math.max(0, was - Math.max(from, on)));
             backLoss.push(Math.max(0, Math.min(on, was) - from));
+          }
+          if (pinnedFrom.has(pid)) {
+            det.pinMoved++;
+            const on = carelessFrom.get(pid)!, from = pinnedFrom.get(pid)!, was = flags.from.get(pid)!;
+            if (from < on) det.pinWrong++;
+            pinGain.push(Math.max(0, was - Math.max(from, on)));
+            pinLoss.push(Math.max(0, Math.min(on, was) - from));
           }
         } else {
           det.hn++;
@@ -180,6 +210,9 @@ for (const walk of walks) for (const q of qs) for (const ratio of ratios) for (c
       carelessSlot: r3(det.slot, det.n), carelessGated: r3(det.gated, det.n), carelessLoose: r3(det.loose, det.n),
       backMoved: r3(det.backMoved, det.n), backBeforeOnset: r3(det.backWrong, det.backMoved),
       backGain: backGain.length ? Number(mean(backGain).toFixed(1)) : null, backLoss: backLoss.length ? Number(mean(backLoss).toFixed(1)) : null,
+      pinMoved: r3(det.pinMoved, det.n), pinBeforeOnset: r3(det.pinWrong, det.pinMoved),
+      pinGain: pinGain.length ? Number(mean(pinGain).toFixed(1)) : null, pinLoss: pinLoss.length ? Number(mean(pinLoss).toFixed(1)) : null,
+      nullLooseMoved: r3(det.hNullLoose, det.hNull), nullPinMoved: r3(det.hNullPin, det.hNull), nullPin05Moved: r3(det.hNullPin05, det.hNull), nullPeople: det.hNull,
       honestGatedAdded: r3(det.hGatedAdded, det.hn), honestLooseAdded: r3(det.hLooseAdded, det.hn), honestBackMoved: r3(det.hBackMoved, det.hn), honestPeople: det.hn,
     };
     console.log(JSON.stringify(cell));

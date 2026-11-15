@@ -73,3 +73,22 @@ test("the shipped list: built from a pinned release, every account in the defaul
   assert.equal(brandAccount("Halfords 123"), null);
   assert.equal(BRAND.version, BRANDS_VERSION);
 });
+
+test("a chain name that is also a person's name needs a store number after it", async () => {
+  const { BRAND_PERSON_NAMES } = await import("./brands.mjs");
+  for (const n of ["albert", "baxter", "hampton", "michaels", "krystal", "oreilly"]) assert.ok(BRAND_PERSON_NAMES.includes(n), n);
+  // People, independent firms and places that share a chain's one-word name.
+  for (const desc of ["Albert", "Baxter Storey", "The Hampton Social", "Hampton Chutney", "Michael's Phone", "Alex Forbes & Son", "SANTA BARBARA Santa Barbara CA"])
+    assert.notEqual(out(desc).source, "brand", desc);
+  // The chain's card line, with its store number, or its longer name.
+  for (const [desc, account] of [["KRYSTAL #0412 CHATTANOOGA TN", "6130"], ["MICHAELS #1234", "6100"], ["O'REILLY 1938", "6160"], ["ALBERT HEIJN 1234 AMSTERDAM", "6130"]])
+    assert.equal(out(desc).account, account, desc);
+  // Switched off, the bare name speaks again.
+  assert.equal(out("Baxter Storey", { ...empty, skip: new Set(["brand-names"]) }).source, "brand");
+});
+
+test("the builder lists one-word mapped names that are people's names, and only those", async () => {
+  const { personNames } = await import("./brands-build.mjs");
+  const m = new Map([["albert", "6130"], ["albert heijn", "6130"], ["heron foods", "6130"], ["dennis", ""], ["wolseley", "6100"]]);
+  assert.deepEqual(personNames(m, new Set(["albert", "dennis", "heijn"])), ["albert"]);
+});

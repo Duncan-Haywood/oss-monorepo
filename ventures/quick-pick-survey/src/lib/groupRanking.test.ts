@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, SLOT_BLOCK_ALPHA, SLOT_BLOCK_MIN, fairCoinTail, slotBlockAdvice, slotBlockStarts, slotFlags, SLOT_BLOCK_MIN_KEPT, slotRunsAtTurns, slotBlocksBackToTurns, looseFastTurns, SLOT_AT_TURN_MIN, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, AGREEMENT_MIN_RESPONDENTS, agreementSummary, blockAgreementDrop, autoFastBlockMinLog, autoWalkMin, bestFastSplit, panelWalkRatio, stepOverWalk, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, SLOT_BLOCK_ALPHA, SLOT_BLOCK_MIN, fairCoinTail, slotBlockAdvice, slotBlockStarts, slotFlags, SLOT_BLOCK_MIN_KEPT, slotRunsAtTurns, slotBlocksBackToTurns, looseFastTurns, pinnedTurnsBeforeRuns, chiSq1Tail, SLOT_AT_TURN_MIN, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -651,6 +651,55 @@ describe("fastBlockStarts", () => {
     expect(fastBlockStarts(wander).size).toBe(0);
     expect([...looseFastTurns(wander).keys()].sort()).toEqual(["p11", "p18", "p3"]);
     expect([...looseFastTurns(blocks)]).toEqual([...fastBlockStarts(blocks)]);
+  });
+  it("pinnedTurnsBeforeRuns moves a run's cut back only to a turn a wandering pace would not make", () => {
+    // The same seeded panels. Under wander, looseFastTurns names three honest people's wander steps as turns; given a
+    // made-up slot run from answer 50, the pinned test (scored against the run's start, at the panel's walk ratio,
+    // Bonferroni over the splits) moves one of them at the default alpha 0.01, and all three at 0.05: these are the
+    // panel's largest wander steps, picked out by the split search, so the worst case (on a pure walk 1.5% of made-up
+    // runs move at 0.05, next test). With nobody wandering and three people 0.6 log quicker from answer 30, a run from
+    // 45 moves back to 30 for two of them; an honest person's made-up run does not move.
+    const draws = (seed: number) => { let s = seed >>> 0; const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 2 ** 32; }; return () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u()); };
+    const seqs = (sd: number, blocks: number) => Array.from({ length: 20 }, (_, k) => { const z = draws(400 + k); let l = 0; return Array.from({ length: 60 }, (_, i) => { if (i) l += sd * z(); return 3000 * Math.exp(l + 0.35 * z() - (k < blocks && i >= 30 ? 0.6 : 0)); }); });
+    const answers = (q: number[][]): AnswerTime[] => Array.from({ length: 60 }, (_, i) => q.map((x, p) => ({ participantId: `p${p}`, ms: x[i] }))).flat();
+    const wander = answers(seqs(0.08, 0)), blocks = answers(seqs(0, 3));
+    expect([...looseFastTurns(wander)].sort()).toEqual([["p11", 47], ["p18", 14], ["p3", 13]]);
+    const made = new Map([["p11", 50], ["p18", 50], ["p3", 50]]);
+    expect([...pinnedTurnsBeforeRuns(wander, made)]).toEqual([["p18", 12]]);
+    expect([...pinnedTurnsBeforeRuns(wander, made, 0.05)].sort()).toEqual([["p11", 27], ["p18", 12], ["p3", 13]]);
+    expect([...pinnedTurnsBeforeRuns(blocks, new Map([["p0", 45], ["p1", 45], ["p2", 45], ["p5", 45]]))].sort()).toEqual([["p1", 30], ["p2", 30]]);
+    // Nobody is named who was not in `from`, and a run too early to leave FAST_BLOCK_MIN_SEG answers before it stays put.
+    expect(pinnedTurnsBeforeRuns(blocks, new Map()).size).toBe(0);
+    expect(pinnedTurnsBeforeRuns(blocks, new Map([["p1", FAST_BLOCK_MIN_SEG]])).size).toBe(0);
+    // Fewer than AGREEMENT_MIN_RESPONDENTS timed people: no curve, no move.
+    expect(pinnedTurnsBeforeRuns(blocks.filter((a) => Number(a.participantId.slice(1)) < AGREEMENT_MIN_RESPONDENTS - 1), new Map([["p1", 45]])).size).toBe(0);
+    expect(() => pinnedTurnsBeforeRuns(blocks, new Map(), 0)).toThrow();
+    expect(() => pinnedTurnsBeforeRuns(blocks, new Map(), 0.01, 1)).toThrow();
+  });
+  it("pinnedTurnsBeforeRuns moves at most about alpha of made-up runs on a pace that only wanders", () => {
+    // 20 panels of 20 people, 120 answers, 0.35 log noise and a 0.08 log-per-answer walk; each person in turn is given a
+    // run from answer 90. At the default alpha 0.01, 2 of 400 move; at 0.05, 6 (looseFastTurns' split search moved
+    // 11-32% of made-up runs in the sweep).
+    let s = 7;
+    const u = () => ((s = (s * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+    const z = () => Math.sqrt(-2 * Math.log(1 - u())) * Math.cos(2 * Math.PI * u());
+    let moved = 0, strict = 0;
+    for (let rep = 0; rep < 20; rep++) {
+      const a: AnswerTime[] = [];
+      for (let p = 0; p < 20; p++) { let w = 0; for (let i = 0; i < 120; i++) { if (i) w += 0.08 * z(); a.push({ participantId: `p${p}`, ms: 2500 * Math.exp(0.35 * z() + w) }); } }
+      for (let p = 0; p < 20; p++) {
+        moved += pinnedTurnsBeforeRuns(a, new Map([[`p${p}`, 90]]), 0.05).size;
+        strict += pinnedTurnsBeforeRuns(a, new Map([[`p${p}`, 90]])).size;
+      }
+    }
+    expect(strict).toBeLessThanOrEqual(4);
+    expect(moved).toBeLessThanOrEqual(0.05 * 400);
+  });
+  it("chiSq1Tail is the chi-square(1) upper tail", () => {
+    expect(chiSq1Tail(3.841459)).toBeCloseTo(0.05, 6);
+    expect(chiSq1Tail(6.634897)).toBeCloseTo(0.01, 6);
+    expect(chiSq1Tail(0)).toBe(1);
+    expect(chiSq1Tail(-1)).toBe(1);
   });
   it("under a wandering pace, also counts a block whose picks stop agreeing with the panel (picks given)", () => {
     // Twenty people, 60 answers on random pairs of 12 items, everyone's pace wandering N(0, 0.08) log per answer (seeded).

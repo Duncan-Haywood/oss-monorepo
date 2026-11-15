@@ -453,6 +453,19 @@ stopping and +84.9 in the deployable model (IPCW: +2.53). Putting the upper pseu
 completed build instead roughly halves that (+21.8, +14.5), but the feeds record completed builds of 12 to 60
 years, and q0.9 predictions still reach 25,600 days. Censored rows can enter a boosted quantile model only
 through a loss that never sets a leaf from their position: a censored-pinball objective without leaf renewal.
+Session 90 (`../src/cpin.py`; `../results/rounds_score_cpin_i2c_summary.json`; seven predictions written before
+the run) wrote that objective, keeping leaf renewal but taking it from the censored loss itself. An open permit
+with window c is charged tau * max(c - q, 0), only while the prediction is below its window; each LightGBM tree is
+grown on that loss's gradient and its leaves are then set to the loss's minimiser over their rows, a weighted
+percentile in which an open row sits at its window with weight tau. With no open rows this is LightGBM's own
+quantile update (on San Francisco 2021, 73.27 days at q0.9 against 73.17). With the open permits in training and
+in the censored early-stopping year, the deployable model's q0.9 cost in San Francisco and Seattle falls to +1.63
+days against the complete-label model (IPCW +2.53, unweighted +4.74; lower than IPCW in 4 of 4 city-years) and its
+q0.5 cost to -0.15. With complete-label early stopping the same loss recovers 47 to 89% of what dropping the open
+permits costs, within a day of the complete-label model in 3 of 4 city-years. Its q0.9 predictions still exceed
+ten years in 3 of 24 runs, on at most three test permits. Held out Austin, whose builds are shorter than its
+sources', loses part of the gain it had from dropping the long builds (q0.9 -2.6 and -7.7 days against IPCW's -7.5
+and -10.2): the censored loss lengthens the borrowed tail, which helps only where the new city's tail is as long.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
