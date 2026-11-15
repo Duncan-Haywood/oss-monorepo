@@ -1,7 +1,7 @@
 // node --test site/image-items.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { imageList, matchImages, itemName, isImageFile, UNDRAWABLE_EXT } from "./image-items.mjs";
+import { imageList, matchImages, itemName, isImageFile, UNDRAWABLE_EXT, fitSize, pairLayout, STACK_GAIN, zoomOrigin } from "./image-items.mjs";
 import { parseList, listId, encodeList, decodeList, MAX_ITEMS } from "./rank-core.mjs";
 
 const files = (...names) => names.map((name) => ({ name, type: /\.(txt|pdf)$/.test(name) ? "text/plain" : "" }));
@@ -71,4 +71,39 @@ test("the picture landing page carries the disclaimer, canonical URL and usage c
   const rank = readFileSync(new URL("rank.html", here), "utf8");
   assert.match(rank, /from "\.\/image-items\.mjs"/);
   assert.match(rank, /id="images" accept="image\/\*" multiple/);
+});
+
+test("fitSize draws a picture inside its box without cropping", () => {
+  assert.deepEqual(fitSize(1.5, 300, 300), { w: 300, h: 200 });
+  assert.deepEqual(fitSize(2 / 3, 300, 300), { w: 200, h: 300 });
+  assert.deepEqual(fitSize(0, 300, 300), { w: 0, h: 0 });
+  assert.deepEqual(fitSize(NaN, 300, 300), { w: 0, h: 0 });
+});
+
+test("a pair of landscape photos stacks on a phone and stays side by side on a desktop", () => {
+  // Boxes as rank.html sizes them: a phone 390x844 and a desktop 1280x900.
+  const phone = { side: { w: 137, h: Math.min(0.48 * 844, 380) }, stack: { w: 300, h: Math.min(0.3 * 844, 300) } };
+  const desk = { side: { w: 370, h: 380 }, stack: { w: 760, h: 270 } };
+  const land = [1.5, 1.5];
+  const p = pairLayout(land, phone.side, phone.stack);
+  assert.equal(p.layout, "stack");
+  assert.ok(p.gain > 4, `phone landscape gain ${p.gain}`);
+  const d = pairLayout(land, desk.side, desk.stack);
+  assert.equal(d.layout, "side");
+  assert.ok(d.gain < STACK_GAIN);
+  // A tall pair gains less from stacking; a 9:16 phone screenshot pair stays side by side even on a phone.
+  assert.equal(pairLayout([9 / 16, 9 / 16], phone.side, phone.stack).layout, "side");
+  // The smaller picture decides: one landscape and one portrait.
+  const mixed = pairLayout([1.5, 2 / 3], phone.side, phone.stack);
+  assert.equal(mixed.side, Math.min(fitSize(1.5, 137, 380).w * fitSize(1.5, 137, 380).h, fitSize(2 / 3, 137, 380).w * fitSize(2 / 3, 137, 380).h));
+  // Unknown sizes (a picture not drawn yet) never stack.
+  assert.equal(pairLayout([0, 1.5], phone.side, phone.stack).layout, "side");
+});
+
+test("zoomOrigin turns a tap into the same relative point on either picture", () => {
+  const rect = { left: 10, top: 20, width: 200, height: 100 };
+  assert.deepEqual(zoomOrigin(110, 70, rect), { x: 50, y: 50 });
+  assert.deepEqual(zoomOrigin(10, 20, rect), { x: 0, y: 0 });
+  assert.deepEqual(zoomOrigin(-50, 500, rect), { x: 0, y: 100 });
+  assert.deepEqual(zoomOrigin(5, 5, { left: 0, top: 0, width: 0, height: 0 }), { x: 50, y: 50 });
 });

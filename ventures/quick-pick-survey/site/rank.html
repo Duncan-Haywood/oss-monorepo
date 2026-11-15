@@ -43,6 +43,17 @@
     .pick.img{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.4rem;font-size:.85rem}
     .pick.img img{display:block;width:100%;height:auto;max-height:min(48vh,380px);object-fit:contain;border-radius:6px}
     .pick.img .cap{color:var(--muted);overflow-wrap:anywhere}
+    .pair.images.stack{grid-template-columns:1fr}
+    .pair.images.stack .pick.img img{max-height:min(30vh,300px)}
+    .closer{position:fixed;inset:0;z-index:10;background:#111;color:#eee;display:flex;flex-direction:column;padding:.5rem}
+    .closer.hidden{display:none}
+    .closer .stage{flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+    .closer .stage img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .15s ease-out;cursor:zoom-in}
+    .closer .stage img.zoomed{cursor:zoom-out}
+    .closer .which{margin:.25rem 0;font-size:.95rem;overflow-wrap:anywhere}
+    .closer .row{margin-top:.4rem}
+    .closer button.secondary{color:#f0a183;border-color:#f0a183}
+    .closer .keys{color:#b4aca0;font-size:.8rem;margin:.3rem 0 0}
     .pile-item{min-height:5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.6rem;margin:1rem 0;font-size:1.15rem;border:2px solid var(--line);border-radius:8px;text-align:center;word-break:break-word}
     .pile-item img{display:block;width:100%;height:auto;max-height:min(40vh,320px);object-fit:contain;border-radius:6px}
     .pile-item .cap{color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
@@ -114,13 +125,26 @@
       <button class="secondary" id="tie">About equal</button>
       <button class="secondary" id="undo">Undo</button>
       <button class="secondary" id="finish">Show results now</button>
+      <button class="secondary hidden" id="closer-open">Look closer</button>
     </div>
     <p></p>
     <div class="bar" aria-hidden="true"><div id="bar"></div></div>
     <p class="muted" id="status"></p>
     <p class="muted"><a href="how-many-pairwise-comparisons.html">How many picks a list takes, measured</a></p>
-    <p class="muted">Keys: &larr; left, &rarr; right, &#8595; about equal, U undo.</p>
+    <p class="muted">Keys: &larr; left, &rarr; right, &#8595; about equal, U undo<span id="closer-key" class="hidden">, F look closer</span>.</p>
   </section>
+
+  <div class="closer hidden" id="closer" role="dialog" aria-modal="true" aria-labelledby="closer-which">
+    <p class="which" id="closer-which"></p>
+    <div class="stage" id="closer-stage"><img id="closer-img" alt=""></div>
+    <div class="row">
+      <button id="closer-flip">Flip to the other</button>
+      <button id="closer-pick">Choose this one</button>
+      <button class="secondary" id="closer-tie">About equal</button>
+      <button class="secondary" id="closer-close">Close</button>
+    </div>
+    <p class="keys">Tap the picture to zoom into that spot; flipping keeps the zoom, so you compare the same part of both. Keys: Space flip, &larr; / &rarr; show left / right, Enter choose, &#8595; about equal, Z zoom, Esc close.</p>
+  </div>
 
   <section id="results" class="hidden">
     <h2>Your order</h2>
@@ -191,7 +215,7 @@
   import { picksGuide, topPicksGuide } from "./picks-measured.mjs";
   import { parseList, encodeList, decodeList, encodeAnswers, decodeAnswers, fit, nextPair, stopCheck, topStopCheck, topKChances, STOP_CONFIDENCE, suggestedMax, rankTable, resultsCsv, combine, teamRanges, listId, MIN_ITEMS, PILE_MIN_ITEMS, PILE_NOISE, pairFit } from "./rank-core.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-  import { imageList, matchImages, itemKey, UNDRAWABLE_EXT } from "./image-items.mjs";
+  import { imageList, matchImages, itemKey, UNDRAWABLE_EXT, pairLayout, zoomOrigin } from "./image-items.mjs";
 
   const $ = (s) => document.querySelector(s);
   const show = (id, on = true) => $(id).classList.toggle("hidden", !on);
@@ -308,8 +332,68 @@
   function renderPair() {
     if (!current) return;
     renderPick($("#left"), current[0]); renderPick($("#right"), current[1]);
+    const both = !!(picture(current[0]) && picture(current[1]));
     $("#pair").classList.toggle("images", !!(picture(current[0]) || picture(current[1])));
+    $("#pair").classList.remove("stack");
+    show("#closer-open", both); show("#closer-key", both);
+    if (both) layoutPair();
+    if (closer.open) { if (both) closerShow(closer.side); else closerClose(); }
   }
+
+  // Side by side, or one above the other when that draws the smaller picture at least 1.5 times larger
+  // (a pair of landscape photos on a phone; docs/RANK-PAGE.md "Pictures on a phone"). The boxes mirror the CSS above.
+  function layoutPair() {
+    const imgs = [...document.querySelectorAll("#pair img")];
+    const decide = () => {
+      if (!imgs.every((im) => im.complete && im.naturalWidth)) return;
+      const pairW = $("#pair").clientWidth, gap = 12, pad = 17, vh = window.innerHeight;
+      const side = { w: (pairW - gap) / 2 - pad, h: Math.min(0.48 * vh, 380) };
+      const stack = { w: pairW - pad, h: Math.min(0.3 * vh, 300) };
+      const l = pairLayout(imgs.map((im) => im.naturalWidth / im.naturalHeight), side, stack);
+      $("#pair").classList.toggle("stack", l.layout === "stack");
+      // Both pictures on screen at once: a pair cut off at the top or bottom is scrolled into view.
+      const r = $("#pair").getBoundingClientRect();
+      if (r.top < 0 || r.bottom > vh) $("#pair").scrollIntoView({ block: r.height < vh ? "center" : "start" });
+    };
+    imgs.forEach((im) => { if (!im.complete) im.addEventListener("load", decide, { once: true }); });
+    decide();
+  }
+  window.addEventListener("resize", () => { if (current && !$("#ask").classList.contains("hidden") && picture(current[0]) && picture(current[1])) layoutPair(); });
+
+  // Look closer: one picture at a time, full screen, flipping in place between the two. Flipping in the same spot
+  // shows differences in focus, expression or detail that side by side hides; a tap zooms, and the zoom carries over.
+  const closer = { open: false, side: 0, zoom: null };
+  function closerShow(side) {
+    closer.side = side;
+    const i = current[side];
+    $("#closer-img").src = picture(i);
+    $("#closer-img").alt = state.items[i];
+    $("#closer-which").textContent = `${side === 0 ? "Left" : "Right"}: ${state.items[i]} (${state.answers.length + 1}${state.title ? `, ${state.title}` : ""})`;
+    applyZoom();
+  }
+  function applyZoom() {
+    const img = $("#closer-img");
+    img.classList.toggle("zoomed", !!closer.zoom);
+    img.style.transformOrigin = closer.zoom ? `${closer.zoom.x}% ${closer.zoom.y}%` : "";
+    img.style.transform = closer.zoom ? "scale(3)" : "";
+  }
+  function closerOpen() {
+    if (!current || !picture(current[0]) || !picture(current[1])) return;
+    closer.open = true; closer.zoom = null;
+    show("#closer"); closerShow(0); $("#closer-flip").focus({ preventScroll: true });
+    record("closer_opened");
+  }
+  function closerClose() { closer.open = false; closer.zoom = null; show("#closer", false); if (!$("#ask").classList.contains("hidden")) $("#closer-open").focus({ preventScroll: true }); }
+  $("#closer-open").addEventListener("click", closerOpen);
+  $("#closer-flip").addEventListener("click", () => closerShow(1 - closer.side));
+  $("#closer-close").addEventListener("click", closerClose);
+  // Choosing keeps the view open on the next pair, so a cull can run full screen; it closes when the pairs end.
+  $("#closer-pick").addEventListener("click", () => { record("closer_pick"); closer.zoom = null; answer(closer.side === 0 ? "left" : "right"); if (closer.open && $("#ask").classList.contains("hidden")) closerClose(); });
+  $("#closer-tie").addEventListener("click", () => { record("closer_pick"); closer.zoom = null; answer("tie"); if (closer.open && $("#ask").classList.contains("hidden")) closerClose(); });
+  $("#closer-img").addEventListener("click", (e) => {
+    closer.zoom = closer.zoom ? null : zoomOrigin(e.clientX, e.clientY, e.target.getBoundingClientRect());
+    applyZoom();
+  });
 
   function answer(kind) {
     if (!current || $("#ask").classList.contains("hidden")) return;
@@ -434,6 +518,17 @@
   });
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea")) return;
+    if (closer.open) {
+      if (e.key === " " || e.key === "f" || e.key === "F") { e.preventDefault(); closerShow(1 - closer.side); }
+      else if (e.key === "ArrowLeft") closerShow(0); else if (e.key === "ArrowRight") closerShow(1);
+      else if (e.key === "Enter") { e.preventDefault(); $("#closer-pick").click(); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); $("#closer-tie").click(); }
+      else if (e.key === "z" || e.key === "Z") { closer.zoom = closer.zoom ? null : { x: 50, y: 50 }; applyZoom(); }
+      else if (e.key === "Escape") closerClose();
+      else if (e.key === "Tab") { const b = [...document.querySelectorAll("#closer button")]; const at = b.indexOf(document.activeElement); e.preventDefault(); b[(at + (e.shiftKey ? b.length - 1 : 1)) % b.length].focus(); }
+      return;
+    }
+    if ((e.key === "f" || e.key === "F") && !$("#ask").classList.contains("hidden") && !$("#closer-open").classList.contains("hidden")) { closerOpen(); return; }
     if (!$("#piles").classList.contains("hidden")) {
       if (e.key === "1" || e.key === "2" || e.key === "3") pileAnswer(Number(e.key) - 1);
       else if ((e.key === "u" || e.key === "U") && state.pileAt > 0) $("#pile-back").click();
