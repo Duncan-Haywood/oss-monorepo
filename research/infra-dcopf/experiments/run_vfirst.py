@@ -107,6 +107,8 @@ def _run_case(name, kind, t0):
         ts = time.time()
         rs = reactive_stage(scaled(ppc, mu), of(mu))
         st["rs_secs"] = time.time() - ts
+        print(f"  {name}/{kind} V stage {k} at mu {mu:.4f}: reactive {'ok' if rs else 'none'} "
+              f"({st['rs_secs']:.0f}s, {time.time() - t0:.0f}s total)", flush=True)
         if rs is None:
             st["stop"] = "reactive stage has no solution"
             break
@@ -275,8 +277,19 @@ def main():
     stem = "results_vfirst_ipopt" if IPOPT else "results_vfirst"
     jpath = HERE / f"{stem}.json"
     only = [tuple(a.split("/")) for a in sys.argv[1:] if not a.startswith("--")]
+    parts = HERE / f"{stem}_parts"
     if "--summary" in sys.argv:
         rows = json.loads(jpath.read_text())
+    elif "--merge" in sys.argv:  # combine the per-case files written by --part runs
+        rows = [json.loads((parts / f"{c}_{k}.json").read_text()) for c, k in CASES]
+        jpath.write_text(json.dumps(rows, indent=1, default=float))
+    elif "--part" in sys.argv:  # one case per process, written as soon as it finishes (a run can outlive a job limit)
+        parts.mkdir(exist_ok=True)
+        for job in only:
+            r = run_case(job)
+            (parts / f"{job[0]}_{job[1]}.json").write_text(json.dumps(r, indent=1, default=float))
+            print(f"done {r['case']}/{r['kind']} in {r.get('secs', 0):.0f}s {r.get('error', '')}", flush=True)
+        return
     else:
         jobs = only or CASES
         with Pool(min(len(jobs), 4)) as pool:
