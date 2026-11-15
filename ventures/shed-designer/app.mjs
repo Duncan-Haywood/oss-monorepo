@@ -991,7 +991,7 @@ function wire() {
   $('#save-model').addEventListener('click', async () => {
     if (!lastShed) return;
     const { shedGlb } = await import('./gltf.mjs');
-    const blob = new Blob([shedGlb(lastShed, { name: design().name })], { type: 'model/gltf-binary' });
+    const blob = new Blob([/** @type {BlobPart} */ (shedGlb(lastShed, { name: design().name }))], { type: 'model/gltf-binary' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `${slug()}.glb`;

@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 13,
   "outcome": "success",
   "errors": [
     "First three.js check: the second file timed out because a hash change does not reload the page; one file was enough, so I did not rerun it.",
-    "Post description was 161 characters; check_post_frontmatter caught it and I fixed it."
+    "Post description was 161 characters; check_post_frontmatter caught it and I fixed it.",
+    "ventures-tests tsc step: Uint8Array<ArrayBufferLike> is not assignable to BlobPart (app.mjs, the glb Blob). Caught by run_workflow_locally --for-changes; fixed with a BlobPart cast, and typecheck.mjs shed-designer now reports 0 diagnostics."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -47,7 +48,7 @@
     "docs/posts/2026-11-15-shed-designer-3d-model-download.md"
   ],
   "goal": null,
-  "notes": "Idea: let people take Shed Designer's model out of the page, since it is the tool page with the most real visits (site-visits.json). Built gltf.mjs, a binary glTF 2.0 writer with no library: every piece is a named node grouped by layer, in metres, Y up. Added a lazy-loaded button, the usage event models-saved, unit tests on all 9 presets, and a browser download test. Khronos glTF Validator 2.0.0-dev.3.10 (npm, in the scratchpad, not a dependency) found 0 errors and 0 warnings on all 9 presets. three.js loaded the 8x12 and rendered it: 3.76 m long, nine layer groups. Verification: node --test gltf.test.mjs gave 12/12; browser.test.mjs '3D model downloads' and 'Save picture' passed; run_venture_tests.py shed-designer: 530 tests, 0 failed (3 skipped for lack of axe-core), 215 s. Next if used: IFC (typed framing members) or USDZ for AR.",
+  "notes": "Idea: let people take Shed Designer's model out of the page, since it is the tool page with the most real visits (site-visits.json). Built gltf.mjs, a binary glTF 2.0 writer with no library: every piece is a named node grouped by layer, in metres, Y up. Added a lazy-loaded button, the usage event models-saved, unit tests on all 9 presets, and a browser download test. Khronos glTF Validator 2.0.0-dev.3.10 (npm, in the scratchpad, not a dependency) found 0 errors and 0 warnings on all 9 presets. three.js loaded the 8x12 and rendered it: 3.76 m long, nine layer groups. Verification: node --test gltf.test.mjs gave 12/12; browser.test.mjs '3D model downloads' and 'Save picture' passed; run_venture_tests.py shed-designer: 530 tests, 0 failed (3 skipped for lack of axe-core), 215 s. Next if used: IFC (typed framing members) or USDZ for AR. run_workflow_locally --for-changes: 13 of 14 workflows passed locally. ventures-tests failed only on the tsc step, which is now fixed. agent-cross-review has no runnable steps, and the deploy jobs did not run locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
