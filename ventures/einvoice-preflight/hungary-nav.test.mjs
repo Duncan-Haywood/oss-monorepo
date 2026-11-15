@@ -138,8 +138,9 @@ test("a summary row's VAT is checked against its rate and against its lines", ()
   // The 27% row says 4000.00 VAT; 27% of 16120.00 is 4352.40 and the two 27% lines add up to 4352.40.
   const xml = foreign.replace("<vatRateVatAmount>4352.40<", "<vatRateVatAmount>4000.00<");
   const msgs = checkNavInvoice(xml).findings.map((f) => f.message);
-  assert.ok(msgs.some((m) => /27% of 16120\.00 is 4352\.40/.test(m) && /VAT_RATE_VAT_AMOUNT\)/.test(m)), "row VAT vs its rate");
-  assert.ok(msgs.some((m) => /says VAT 4000\.00 but its lines add up to 4352\.40/.test(m) && /VAT_RATE_VAT_AMOUNT_LINE\)/.test(m)), "row VAT vs its lines");
+  assert.ok(msgs.some((m) => /27% of 16120\.00 is 4352\.40/.test(m) && /VAT_RATE_VAT_AMOUNT_SUMMARY\)/.test(m)), "row VAT vs its rate (Annex I 890)");
+  // Annex I has no row-VAT-against-lines warning: the check stays, and says it is ours.
+  assert.ok(msgs.some((m) => /says VAT 4000\.00 but its lines add up to 4352\.40/.test(m) && /own check/.test(m)), "row VAT vs its lines");
 });
 
 test("an amount exactly 1% off sits inside NAV's tolerance, float noise included", () => {
