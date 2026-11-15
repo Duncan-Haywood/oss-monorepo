@@ -1,9 +1,9 @@
 ---
 title: "Seeding a village rollout without a fitted model or a full network census"
-seo_title: "Cheap seeding rules for village rollouts: degree discount, surveys, nominations"
+seo_title: "Cheap seeding rules for village rollouts, without a fitted model"
 date: 2026-11-15
 tags: [research, networks, diffusion, seeding]
-description: "On 43 Karnataka village networks, degree discount comes within 1.4% of the best seeding rule under every fitted model. A 25% household survey gives up 4.5%, and friend nomination 6.2%."
+description: "On 43 village networks, degree discount seeds within 1.4% of the best rule under every fitted model; a 25% survey gives up 4.5%, friend nomination 6.2%."
 ---
 
 Yesterday's step of the `civ-seeding` programme found that one seeding rule, greedy search under a threshold contagion model, loses at most 0.5% of adopters against the best rule whichever of three fitted models is right. The work uses the 43 Karnataka villages where a lender introduced microfinance through village leaders (Banerjee, Chandrasekhar, Duflo and Jackson, 2013). The catch is that greedy search needs the whole network and a fitted model of how adoption spreads, and a rollout of solar lamps or cookstoves rarely has either. So this run asked how much a rollout gives up with less.
