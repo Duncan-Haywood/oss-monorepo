@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqycpKcWRn4vF3YtByCk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T17:38:58Z",
+  "ended": "2026-11-15T17:55:53Z",
+  "wall_minutes": 17.28,
+  "tokens_in": 8337041,
+  "tokens_out": 44903,
+  "cost_usd": 3.6827,
+  "tool_calls": 75,
+  "task": "photo-editing flagship: a real NEF split row",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16290",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First batch run of the checker reported 11,153 differing J5 sensels after a fresh-process run reported 0 in the same rows",
+      "cause": "LibRaw leaves rows past its per-model height unwritten (leftover memory after earlier files), so an 'all zero' test was fragile",
+      "fix": "compare only rows LibRaw decodes, report the rest"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/nikon-nef-visible-area-2026-11-15.md",
+      "issue": "Said the edge rule 'cut nothing' and failures were 'a margin kept, never picture cut'; true for its seven files, wrong on the first busy 12/14-bit lossy frames (D3400, D5600). Corrected in README and the new eval."
+    },
+    {
+      "file": "ventures/photo-editing/eval/nikon-nef-reader-2026-11-14.md",
+      "issue": "Black level from 0x003D was checked only on 14-bit files; the 12-bit scaling was unknown and every 12-bit NEF since ~2014 developed nearly black. The test set's bit depth gap is worth naming when a reader is called checked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-twelve-bit-nikon-raw-files-developed-nearly-black.md",
+    "ventures/photo-editing/eval/nikon-nef-split-row-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Routed ventures/1; allocate.py picked photo-editing (row 5). Probed 235 raw.pixls.us NEFs by HTTP range request, 11 with split rows. Split rows decoded right; fixed Z 6II 0x44 0x40, 12-bit black scale, edge-rule bar. Verification: tools/nef_libraw_check.py on 18 real NEFs exit 0 (native), Python reference 6 of 6; stress 53/54 picture-only whole; run_venture_tests.py photo-editing 1190 tests OK; post front matter/link/similarity checks clean; venture-preflight.mjs photo-editing: clean (exit 0). RW2 tone-curve item probed first: the RawFormat 8 files of three bodies not checked before (S1R II x3, S1 II ES, S5 IIX) carry identity curves in 0x39/0x3A, and the G97 file is RawFormat 4, so no file with a tone curve was found.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "16abbb83-466d-5b84-b3eb-4b915283b5dc",
+    "transcripts": 1,
+    "first": "2026-11-15T17:38:58Z",
+    "last": "2026-11-15T17:56:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 137,
+        "output": 44903,
+        "thinking": 12651,
+        "cache_read": 8193739,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143165,
+        "api_equivalent_usd": 3.6827,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 137,
+      "output": 44903,
+      "thinking": 12651,
+      "cache_read": 8193739,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143165,
+      "api_equivalent_usd": 3.6827,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 70,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.28,
+      "active_minutes": 17.28,
+      "model_minutes": 7.24,
+      "tool_minutes": 10.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "probe 235 files, debug three decoder faults against LibRaw, tests, eval and post: about 1.5 days of a raw-format engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 271.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
