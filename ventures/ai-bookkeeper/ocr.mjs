@@ -61,27 +61,34 @@ export function receiptPassesFromFile(path, { run = spawnSync, env = process.env
   let out;
   try { out = [first, receiptTextFromFile(path, { run, env: { ...env, RECEIPT_OCR_CMD: second } })]; } catch { out = [first]; }
   if (!grow) return out;
-  // --four-pass: a photo under `grow` pixels on its long side is also read as a grey
-  // copy enlarged to `grow` (ImageMagick), in both modes, and the readings vote
-  // (receipts.mjs voteTotal), as the page does (photoocr.mjs PASSES). A missing
-  // ImageMagick, or a photo already that big, leaves the two readings.
+  // --four-pass: the photo is also read as a grey copy with its long side at `grow`
+  // pixels (ImageMagick), in both modes, and the readings vote (receipts.mjs
+  // voteTotal), as the page does (photoocr.mjs PASSES). A photo under `grow` is
+  // enlarged and read after the original. A bigger one (a full-size phone photo, a
+  // flatbed scan) is shrunk, and the copy is read first: on SROIE's 189 scans over
+  // 2,000 px that took the total from 144 to 155 right and the date from 149 to 152
+  // (README, "Full-size photos"). A missing ImageMagick leaves the two readings.
   const copy = greyCopyFile(path, grow, run);
   if (!copy) return out;
+  const more = [];
   try {
     for (const cmd of [base, second]) {
-      try { out.push(receiptTextFromFile(copy.file, { run, env: { ...env, RECEIPT_OCR_CMD: cmd } })); } catch {}
+      try { more.push(receiptTextFromFile(copy.file, { run, env: { ...env, RECEIPT_OCR_CMD: cmd } })); } catch {}
     }
   } finally { copy.done(); }
-  return out;
+  return copy.shrunk ? [...more, ...out] : [...out, ...more];
 }
 
 // The grey copy the page draws (photoocr.mjs greyCopy), made with ImageMagick:
-// grey, enlarged so the long side is `side` pixels. Null when the photo is already
-// that big, or when ImageMagick (`magick`, or the older `convert`) is not there.
+// grey, resized so the long side is `side` pixels, enlarged or shrunk (`shrunk`
+// says which). Null when the photo is exactly that size, or when ImageMagick
+// (`magick`, or the older `convert`) is not there.
 export function greyCopyFile(path, side, run = spawnSync) {
   const size = imageSize(path, run);
-  if (!size || Math.max(size.w, size.h) >= side) return null;
-  return magickCopy(path, ["-colorspace", "Gray", "-resize", `${side}x${side}`], "grey.png", size.tool, run);
+  const long = size ? Math.max(size.w, size.h) : 0;
+  if (!size || long === side) return null;
+  const copy = magickCopy(path, ["-colorspace", "Gray", "-resize", `${side}x${side}`], "grey.png", size.tool, run);
+  return copy && { ...copy, shrunk: long > side };
 }
 
 // A plain PNG copy of a photo, made by ImageMagick; null without it.

@@ -73,3 +73,42 @@ export function matchImages(items, fileList) {
   });
   return { files, missing: items.filter((_, i) => files[i] === -1), extra };
 }
+
+/**
+ * The size a picture of aspect `r` (width / height) is drawn at inside a box
+ * of `w` by `h` with object-fit: contain.
+ */
+export function fitSize(r, w, h) {
+  if (!(r > 0) || !(w > 0) || !(h > 0)) return { w: 0, h: 0 };
+  const width = Math.min(w, h * r);
+  return { w: width, h: width / r };
+}
+
+/** Stacking must show the smaller picture at least this many times larger, because side by side is easier to compare at a glance. */
+export const STACK_GAIN = 1.5;
+
+/**
+ * Side by side or one above the other for a pair of pictures. `aspects` are
+ * the two pictures' width / height; `side` and `stack` are the box each
+ * picture gets in either layout ({ w, h }, as the page's CSS sizes them).
+ * Picks the layout whose smaller picture is drawn larger, and stacks only
+ * when that gain is at least STACK_GAIN. Returns { layout, side, stack, gain }
+ * with the smaller picture's drawn area in each layout.
+ */
+export function pairLayout(aspects, side, stack) {
+  const minArea = (box) => Math.min(...aspects.map((r) => { const s = fitSize(r, box.w, box.h); return s.w * s.h; }));
+  const a = minArea(side), b = minArea(stack);
+  const gain = a > 0 ? b / a : b > 0 ? Infinity : 1;
+  return { layout: gain >= STACK_GAIN ? "stack" : "side", side: a, stack: b, gain };
+}
+
+/**
+ * Where a tap on a picture zooms in, as CSS transform-origin percentages of
+ * the drawn picture, clamped to 0-100. Flipping to the other picture keeps the
+ * same percentages, so the same part of both pictures is compared (exactly the
+ * same part when they share an aspect ratio, as frames from one camera do).
+ */
+export function zoomOrigin(x, y, rect) {
+  const pct = (v, lo, size) => (size > 0 ? Math.max(0, Math.min(100, ((v - lo) / size) * 100)) : 50);
+  return { x: pct(x, rect.left, rect.width), y: pct(y, rect.top, rect.height) };
+}

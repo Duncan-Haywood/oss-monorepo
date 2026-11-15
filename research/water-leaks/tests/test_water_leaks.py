@@ -478,3 +478,24 @@ def test_realsig_rank_and_near_ties():
     assert realsig.rank_of(s, [3]) == 1 and realsig.rank_of(s, [0, 2]) == 3
     far = np.array([True, True, True, False, True])
     assert realsig.near_ties(s, far) == 1 and realsig.near_ties(s, far, tol=1e-5) == 0
+
+
+def test_replay_splits_the_pipe_and_draws_the_flow_at_its_midpoint(tmp_path):
+    """Step 17's leak replay: a leak on P2 (1 km, J1 to J2) drawn at its midpoint lowers J1 by the
+    Hazen-Williams loss over P1 and J2 (downstream of the midpoint, no flow beyond it) by 1.5 times
+    that; the flow is reset every 5 minutes, so a leak starting at step 144 shows from step 144."""
+    import pytest
+    pytest.importorskip("wntr")
+    from water_leaks import realsig, replay
+    inp = tmp_path / "tank.inp"
+    inp.write_text(TANK_INP)
+    r = replay.Replay(inp, ["J1", "J2"], ["P2"])
+    fl = np.zeros((realsig.DAY_STEPS, 1))
+    fl[144:] = 36.0
+    out = r.run(0, 3.0, False, fl)
+    hl = 10.67 * 1000 * (36 / 3600) ** 1.852 / (100 ** 1.852 * 0.3 ** 4.87)
+    assert np.allclose(out[:144], 103.0, atol=1e-3)
+    assert abs(out[200, 0] - (103 - hl)) < 0.01
+    assert abs(out[200, 1] - (103 - 1.5 * hl)) < 0.01
+    none = replay.Replay(inp, ["J1", "J2"], []).run(0, 3.0, False, np.zeros((realsig.DAY_STEPS, 0)))
+    assert np.allclose(none, 103.0, atol=1e-3)
