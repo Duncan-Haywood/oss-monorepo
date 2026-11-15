@@ -41,12 +41,32 @@ export async function loadEngine(onProgress = () => {}) {
     // shrunk (null when the photo is exactly that size: the reading is skipped, see
     // PASSES). A shrunk copy's reading comes back as { text, shrunk: true }, and
     // readPhotos puts it before the photo's own readings.
-    recognize: async (file, { psm, grow } = {}) => {
+    // threshold: tesseract's thresholding_method for this reading, "2" (Sauvola,
+    // a threshold set from each pixel's neighbourhood) or the default "0" (Otsu, one
+    // threshold for the whole image). Set on every reading, so one reading's choice
+    // never carries over to the next.
+    recognize: async (file, { psm, grow, threshold = "0" } = {}) => {
       const copy = grow ? await greyCopy(file, grow) : null;
       if (grow && !copy) return null;
-      if (psm) await worker.setParameters({ tessedit_pageseg_mode: psm });
+      await worker.setParameters({ ...(psm ? { tessedit_pageseg_mode: psm } : {}), thresholding_method: threshold });
       const text = (await worker.recognize(copy ? copy.canvas : file)).data.text;
       return copy?.shrunk ? { text, shrunk: true } : text;
+    },
+    // how unevenly the photo is lit (lightSpread of a 32 x 32 grey thumbnail), so
+    // readPhotos can pick the passes
+    shading: async (file) => {
+      const bmp = await createImageBitmap(file);
+      const c = document.createElement("canvas");
+      c.width = SHADE_SIDE; c.height = SHADE_SIDE;
+      const g = c.getContext("2d", { willReadFrequently: true });
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+      g.filter = "grayscale(1)";
+      g.drawImage(bmp, 0, 0, SHADE_SIDE, SHADE_SIDE);
+      bmp.close?.();
+      const d = g.getImageData(0, 0, SHADE_SIDE, SHADE_SIDE).data;
+      const grey = new Uint8Array(SHADE_SIDE * SHADE_SIDE);
+      for (let i = 0; i < grey.length; i++) grey[i] = d[i * 4];
+      return lightSpread(grey);
     },
     close: () => worker.terminate(),
   };
@@ -78,6 +98,35 @@ async function greyCopy(file, side) {
 // bigger photo (a full-size phone photo, a flatbed scan) is drawn shrunk to 2,000
 // and that copy is read first (README, "Full-size photos").
 export const PASSES = ["6", "4", { psm: "6", grow: 2000 }, { psm: "4", grow: 2000 }];
+
+// An unevenly lit photo (a shadow across the slip, a dim room, a slip held in the
+// hand) is read with block mode twice instead, once with tesseract's global Otsu
+// threshold and once with Sauvola's local one (threshold "2"), which keeps the print
+// on the dark side that one threshold for the whole image loses. Only when
+// lightSpread >= SHADED_CUT: on evenly lit flatbed scans the Sauvola readings cost
+// more totals than they find. Measured (README, "Shaded photos: a local
+// threshold"): ExpressExpense's US photos 134 to 145 of 196, held-out half 67 to 73;
+// SROIE's scans 530 to 529 of 625, held-out half 268 to 268.
+export const SHADED_PASSES = ["6", { psm: "6", threshold: "2" }, { psm: "6", grow: 2000 }, { psm: "6", grow: 2000, threshold: "2" }];
+export const SHADED_CUT = 0.13;
+export const SHADE_SIDE = 32;
+
+// How unevenly a photo is lit: the coefficient of variation (standard deviation
+// over mean) of a SHADE_SIDE x SHADE_SIDE grey thumbnail's pixels (0-255), each
+// pixel the average of its patch of the photo. A flatbed scan of a white slip is
+// near 0.05; a slip on a dark table or under a shadow is 0.2 or more. The CLI
+// computes it from ImageMagick's thumbnail (ocr.mjs).
+export function lightSpread(grey) {
+  const n = grey.length;
+  if (!n) return 0;
+  let sum = 0;
+  for (const v of grey) sum += v;
+  const mean = sum / n;
+  if (!mean) return 0;
+  let sq = 0;
+  for (const v of grey) sq += (v - mean) ** 2;
+  return Math.sqrt(sq / n) / mean;
+}
 
 const tidy = (raw) => cleanOcr(String(raw || "")).split(/\r?\n/).map((l) => l.trimEnd()).filter((l) => l.trim()).join("\n");
 
@@ -128,14 +177,14 @@ function settleTotals(readings) {
 // Photos that are not images, or that read as empty, come back in `skipped`.
 // Each photo is read once per mode in `passes` and the readings settled
 // (settleReadings); `notes` lists, per photo, where the readings disagreed.
-export async function readPhotos(files, { loadEngine: load = loadEngine, onProgress = () => {}, passes = PASSES } = {}) {
+export async function readPhotos(files, { loadEngine: load = loadEngine, onProgress = () => {}, passes = null } = {}) {
   const list = [...files];
   const images = list.filter((f) => IMAGE_TYPES.test(f.type || ""));
   const skipped = list.filter((f) => !images.includes(f)).map((f) => ({ name: f.name, why: "not a PNG, JPEG, WebP, BMP or GIF image" }));
   if (!images.length) return { text: "", read: 0, skipped, notes: [] };
   const engine = await load(onProgress);
   const blocks = [], notes = [];
-  let readingsDone = 0;
+  let readingsDone = 0, shaded = 0;
   try {
     for (const [i, f] of images.entries()) {
       onProgress({ status: "reading", index: i, total: images.length, name: f.name });
@@ -143,7 +192,15 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
       // one photo the reader cannot open is skipped; the others are still read
       try {
         const first = [];
-        for (const pass of passes) {
+        // the passes for this photo: as given, or by how evenly it is lit (an engine
+        // that cannot tell reads every photo with PASSES)
+        let use = passes;
+        if (!use) {
+          const spread = engine.shading ? await Promise.resolve().then(() => engine.shading(f)).catch(() => null) : null;
+          use = spread != null && spread >= SHADED_CUT ? SHADED_PASSES : PASSES;
+          if (use === SHADED_PASSES) shaded++;
+        }
+        for (const pass of use) {
           const t = await engine.recognize(f, typeof pass === "string" ? { psm: pass } : pass);
           if (t == null) continue;
           if (typeof t === "object") (t.shrunk ? first : readings).push(t.text); else readings.push(t);
@@ -157,5 +214,5 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
   } finally { await engine.close?.(); }
-  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, skipped, notes };
+  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes };
 }
