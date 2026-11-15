@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVMtxFgU4sjZHQUb4KH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled)",
+  "input_sha256": "bb43d82b9757fc82463ef49d791bc140ccc92439446128a33b51cc5c4ab220bb",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T16:05:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7): photo-editing -- NEF masked/padding edge columns found from the sensels",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16264",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "raw.pixls.us CONNECT refused 403 by the proxy; used the github metadata-extractor-images clone instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing BUILDABLE HERE names raw.pixls.us as reachable with curl -L; through this session's proxy it answered 403 to CONNECT"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-the-columns-a-nikon-stores-that-arent-picture.md",
+    "ventures/photo-editing/eval/nikon-nef-visible-area-2026-11-15.md"
+  ],
+  "goal": "Developed NEFs no longer carry masked/padding stripes at the right edge, without a per-model table",
+  "notes": "nef.masked_margins: picture column = variation >= 0.1x middle-of-frame and corr >= 0.8 with same-colour column two in (or >=90% white and not constant). tools/nef_libraw_check.py --engines native,python on 7 real NEFs (D70, D200, D300, D90, D5100, D800E, D810; LibRaw 0.22.2): exit 0, visible area equal on 7/7, sensels equal. Stress: picture-only crops at 0/3/6 stops under left whole 21/21. End-to-end develop: D800E 3712->3689 px wide at half size, stripe gone. tests/test_nef.py 18 tests OK.",
+  "corrections": [],
+  "redteam": null
+}
