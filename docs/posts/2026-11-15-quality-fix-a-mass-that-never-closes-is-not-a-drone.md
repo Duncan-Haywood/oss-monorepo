@@ -1,7 +1,7 @@
 ---
 title: "Quality fix: a battery mass that never closes is not a drone"
 date: 2026-11-15
-tags: [quality-audit, research, codesign, uav]
+tags: [quality-audit, research, co-design, uav]
 description: "A quadrotor co-design study's best airframe had no feasible battery. After the fix, joint design still beats design-first, but barely beats a frozen controller."
 ---
 

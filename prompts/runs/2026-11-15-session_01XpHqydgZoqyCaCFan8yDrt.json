@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydgZoqyCaCFan8yDrt",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T11:37:51Z",
+  "ended": "2026-11-15T12:00:11Z",
+  "wall_minutes": 22.63,
+  "tokens_in": 7696995,
+  "tokens_out": 38502,
+  "cost_usd": 3.2853,
+  "tool_calls": 70,
+  "task": "quality fix mode: research/codesign-aero high defect #0 (unclosed mass closure scored feasible)",
+  "projects": [
+    "research/codesign-aero"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16198",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "post tagged `codesign` while 15 posts use `co-design`; check_post_frontmatter failed the pages build",
+      "fix": "retagged co-design"
+    },
+    {
+      "what": "first fix used 200 closure iterations, which wrongly rejected 4 slow near-fold designs; caught by comparing 200/1000/3000 iterations before the final re-run",
+      "fix": "1000 iterations plus a test pinning a slow design"
+    },
+    {
+      "what": "first sibling-exposure probe used rounded README airframe values and flagged L 0.162 in codesign-aero-seeds as unclosed; at its exact grid value 0.1625 it closes",
+      "fix": "rechecked at exact grid values before writing the README note"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "the tag-spelling check only runs in CI/the long local workflow; `quality_audit.py sample` prints front-matter rules but not tag normalisation, so a new tag spelling surfaced as a red pages build"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "fix mode suggests fix then re-audit; I fixed only the parent and documented (not fixed) the same defect in 13 copied codesign-aero-* projects, because porting is trivial but each needs its experiments re-run (minutes to hours each)",
+      "did": "dated Limitations bullet in each of the 13 READMEs, with per-project exposure checked at exact grid values where quoted",
+      "result": "defect visible on every affected page; the copies remain to be fixed and re-run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-fix-a-mass-that-never-closes-is-not-a-drone.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode; 3 high defects open). Seed drawn but not used: 2026-11-15-c-1f10 (round 74 not run). Subject: research/codesign-aero, audit 2026-11-15-codesign-aero.json defect #0 marked fixed_by PR 16198; open highs 3 -> 2. Fix: size() requires a closed mass (rel residual <1e-4 after 1000 damped steps). Tests 9 -> 14; 3 seeded mutants (drop gate, loosen tol, 200 iters) all caught via quality_mutate.py. Re-run (3m09s): grid optimum 5.39 deg at L 0.102 D 0.097 (was 5.25 at unclosed L 0.146); joint 5.42 vs design-first 7.05 (10/10), frozen 5.52 (6/10, was 9/10); transfer 41% -> 15% of cells but sensitive to one CMA-ES tuning run (1e-7 mass change moved reference J 5.91 -> 5.85). Copies: 13 codesign-aero-* projects carry the old size(); 36/1071 feasible 40x40 points have no fixed point; codesign-aero-seeds 3 of 6 replicate winners affected. Local checks: run_workflow_locally --for-changes, only failure the front-matter tag (fixed; check_post_frontmatter clean on 4824 posts); pytest-only probe steps UNRUN (untouched areas). Share meeting the bar: not measured this run (fix mode). Fix PRs: 16198.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a9e6cdac-85bf-5f43-b1d7-456d1785d149",
+    "transcripts": 1,
+    "first": "2026-11-15T11:37:51Z",
+    "last": "2026-11-15T12:00:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 131,
+        "output": 38502,
+        "thinking": 9346,
+        "cache_read": 7571821,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125043,
+        "api_equivalent_usd": 3.2853,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 131,
+      "output": 38502,
+      "thinking": 9346,
+      "cache_read": 7571821,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125043,
+      "api_equivalent_usd": 3.2853,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 63,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.63,
+      "active_minutes": 22.63,
+      "model_minutes": 6.27,
+      "tool_minutes": 16.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researcher: diagnose closure, fix, re-run, propagate notes to 13 copies, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 182.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
