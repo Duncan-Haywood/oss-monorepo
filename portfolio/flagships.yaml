@@ -87,32 +87,31 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable first: (0)
-      built-in keywords on real bank and card exports (HISTORY); Open Collective
-      books (README): 63-87% right from memos, 43-65% from payees; new-payee guess
-      (README): first-time payees 5-21% to 20-65% right; Mint (six held out):
-      first-seen 68.7%/15.6%; YNAB, two held out: first-seen +1.6-2.1 pts (README);
-      card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75%
-      (Toronto), 53% to 88% (Durham, held out); LLC labels: Mercury 90%, Rocket
-      Money Amex 94% (README); (1) AI layer on real lines (README "A year of
-      Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules
-      43; fill keeps the guess (48 either model); split-category plurality measured,
-      off; next: a hosted model (needs a key), real bank text; (2) bank readers: 63
-      US exports, Mercury, Monarch, Bluevine lines, card payments, scans (README);
-      open: Relay, a bank scan; (3) Adyen's sample read (README); open: a real
-      merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
-      checked against the fee and discount rules, and one named lender's own
-      schedule against the loan register (`loan check`); (5) receipts through real
-      OCR (page SROIE 83.4%, CORD 50.5%, US 68.4%; CLI 4-pass 80.5%, 66.8%; next:
-      curled slips, full-size photos); (6) payroll (README; journal layout 11-14): a
-      real Gusto or ADP report; (7) IRIS NEC and MISC rents files on IRS TY2025
-      guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
-      return`: the last six listed states read (eval/state-pages-2026-11-14e.md); 23
-      discounts, IN's band and day from the book (README); open: AR statutes, a real
-      return layout; (8b) `annualized` (Schedule AI): penalty, box D, Jan 31 rule,
-      2026 draft (README); open: line 9b once the 2026 instructions print; (9) EITC:
-      2025 EIC Table matched on all 10,992 cells (HISTORY); open: the 2026 table
-      once printed. A run that lands a slice replaces its item here; keep this under
-      2,000 characters.
+      built-in keywords on real exports (HISTORY); UK chains, cold: Durham 11% to
+      28% right, held out (README); Open Collective books (README): 63-87% right
+      from memos, 43-65% from payees; new-payee guess (README): first-time payees
+      5-21% to 20-65% right; Mint held out: first-seen 68.7%; YNAB: +2 pts; card MCC
+      (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto), 53% to
+      88% (Durham, held out); LLC labels: Mercury 90%, Rocket Money Amex 94%
+      (README); (1) AI layer on real lines (README "A year of Toronto"): local Qwen
+      7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess
+      (48 either model); split-category plurality measured, off; next: a hosted
+      model (needs a key), real bank text; (2) bank readers: 63 US exports, Mercury,
+      Monarch, Bluevine lines, card payments, scans (README); open: Relay, a bank
+      scan; (3) Adyen's sample read (README); open: a real merchant's payout export,
+      a real 1099-K; (4) a real supplier's terms letter checked against the fee and
+      discount rules, and one named lender's own schedule against the loan register
+      (`loan check`); (5) receipts through real OCR (page SROIE 83.4%, CORD 50.5%,
+      US 68.4%; CLI 4-pass 80.5%, 66.8%; next: curled slips, full-size photos); (6)
+      payroll (README; journal layout 11-14): a real Gusto or ADP report; (7) IRIS
+      NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real
+      upload, TY2026 template; (8) `salestax return`: the last six listed states
+      read (eval/state-pages-2026-11-14e.md); 23 discounts, IN's band and day from
+      the book (README); open: AR statutes, a real return layout; (8b) `annualized`
+      (Schedule AI): penalty, box D, Jan 31 rule, 2026 draft (README); open: line 9b
+      once the 2026 instructions print; (9) EITC: 2025 EIC Table matched on all
+      10,992 cells (HISTORY); open: the 2026 table once printed. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -308,17 +307,16 @@ flagships:
       carries the mode and k (RANK-PAGE.md "Shortlist links"), the picks page tables
       it, 3 ready lists link top 3. Graded answers: DECIDE-PAGE.md "Graded answers".
       Decide: checkpoint then 3x, "Rank them all", long-run level (DECIDE-PAGE.md).
-      Next: (m4) decide guard at tau 0.5 (0.86; estimateTau reads high); (r) get the
-      rank page seen: 10 ready lists + hub landed (RANK-PAGE.md "Six more"); next,
-      read which draw visits, then (c) the first real survey's answers: msToAnswer
-      against the answer-time model, panelWalkRatio on real times, whether times
-      depend on which slot is clicked (the d9 bound assumes not), whether real
-      people have warm-ups, blocks, slot runs or spread-out carelessness, and how
-      noisy real pairwise answers are (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d11) bound the d10 turn's split search; (d8) a stronger pick
-      signal under wander (staged pairs are near 50/50 late in a session; anchor
-      pairs?); (h) share-drop beat both pace cuts at q = 1 but taxes a camp by up to
-      0.030: decide on a real panel's times.
+      tau 0.5 guard: plain picks (0.91). Next: (r) get the rank page seen: 10 ready
+      lists + hub landed (RANK-PAGE.md "Six more"); next, read which draw visits,
+      then (c) the first real survey's answers: msToAnswer against the answer-time
+      model, panelWalkRatio on real times, whether times depend on which slot is
+      clicked (the d9 bound assumes not), whether real people have warm-ups, blocks,
+      slot runs or spread-out carelessness, and how noisy real pairwise answers are
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d11) bound the d10 turn's
+      split search; (d8) a stronger pick signal under wander (staged pairs are near
+      50/50 late in a session; anchor pairs?); (h) share-drop beat both pace cuts at
+      q = 1 but taxes a camp by up to 0.030: decide on a real panel's times.
 
   - venture: league-schedule-generator
     why: >-
@@ -416,15 +414,14 @@ flagships:
       Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
       levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
       thickness; tilted pages, curled staves straightened
-      (eval/staff-curl-check.md); next: left-stem cephalicus (3506), worn pages (new
-      GABC needed), mottled squares, a liquescent hook ending on a line (held-out
-      misses), broken-up strokes (3403, 3408); --split-voices (by phrase or at a
-      word, --split-words, eval/word-split-report.md) and --overlap (both sections
-      sing the seam note at a direct tenor/bass swap, eval/overlap-report.md) need a
-      singer's check of the ranges, of a mid-phrase handoff against a whole phrase
-      and of a one-note overlap against a clean handoff; --baritones,
-      --entrance-cost N and --second-tenors (TTBB; README) need the same check.
-      --choir presets, --singers (a choir's range test CSV) and --sit-out N (README
-      "Letting a singer sit a note out") landed. --learn rehearsal tracks
-      (2026-11-15) landed. Next: a real choir's range test; a director on --sit-out
-      N, the --musicxml parts and the --learn tracks.
+      (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
+      (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
+      squares, a liquescent hook ending on a line (held-out misses), 3408's strokes,
+      3464's cephalicus; --split-voices (by phrase or at a word, --split-words,
+      eval/word-split-report.md) and --overlap (both sections sing the seam note at
+      a direct tenor/bass swap, eval/overlap-report.md) need a singer's check of the
+      ranges, of a mid-phrase handoff against a whole phrase and of a one-note
+      overlap against a clean handoff; --baritones, --entrance-cost N and
+      --second-tenors (TTBB; README) need the same check. --choir, --singers,
+      --sit-out N and --learn landed (README). Next: a real choir's range test; a
+      director on --sit-out N, the --musicxml parts and the --learn tracks.

@@ -96,6 +96,28 @@ export const BUILT_IN = [
   // "AMEX PAYMENT" stays for review as before (saas-gaps.test.mjs); Amex counts only with ACH PMT, E-PAYMENT or AUTOPAY.
   ["transfer", "in", /\bpayment\b[\s,-]*(received[\s-]*)?thank\b/],
   ["transfer", "any", /\bchase credit crd\b|\b(american ?express|amex)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt)\b|\b(discover|apple ?card|citi ?(card|autopay)?|capital one|barclaycard|synchrony( bank)?|wells fargo card)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt|pmt|pymt|payment|crcardpmt|cc pymt)\b|\b(e-?payment|epay|ccpymt|payment)\b.{0,12}\b(discover|citi card|wells fargo card)\b/],
+  // UK merchants (2026-11-15, eval/southlakeland-pcard.mjs and eval/uk-card-keywords.mjs). The table was
+  // written from US exports: on three UK public buyers' card lines it said nothing on 85-90% of them,
+  // Trainline, Travelodge, Ryanair, Screwfix and Tesco included. Written from South Lakeland District
+  // Council's blank list and the UK chains each account's US twin already covers (Kroger and Aldi are
+  // meals, Home Depot and Best Buy supplies, USPS postage, parking vehicle); Durham County Council's and
+  // the Scottish Government's lines were scored first and then read for its misses (filling stations,
+  // Asda's George clothing, Iceland Travel; Halfords, NCP and DVSA dropped as mostly wrong there). Discount and
+  // department stores (Argos, Home Bargains, Poundland, B&M, M&S) stay blank as Walmart and Target do;
+  // HMRC stays blank because a payment to it is usually VAT or PAYE owed, not an expense. DVLA (road tax)
+  // is a vehicle cost, as HMRC's own self-employed expense list files it; a US DMV fee stays a licence.
+  ["6120", "out", /\b(the ?)?train ?line\b|\bvirgin ?(trains?|rail)\b|\bnorthern ?rail(ways?)?\b|\bwest coast trains\b|\bavanti west coast\b|\btrans ?pennine\b|\btp ?express\b|\bftpe\b|\blner\b|\bgreat western rail|\bgwr\b|\bcross ?country trains\b|\bscotrail\b|\bthameslink\b|\bchiltern railways?\b|\beurostar\b|\bnational rail\b|\bnw trains\b|\bkeolis\b|\btfl travel\b|\bnational express\b|\btrav?ell?odge\b|\bryanair\b|\beasy ?jet\b|\bjet2\b|\bflybe\b|\bbritish airways\b|\bloganair\b|\bwizz ?air\b/],
+  ["6170", "out", /\bcipfa\b|\bcieh\b|\birrv\b|\bcipd\b|\bcips\b|\bcipp\b|\baat\b|\brics\b|\brtpi\b|\bicaew\b|\biosh\b|\bcima\b|\bciob\b|\bcilex\b|\bchart(ered)? inst(itute)?\b|\binst(itute)? of payroll\b/],
+  // A supermarket's filling station prints the grocer's name: "TESCO PFS 4088", "ASDA PETROL", "TESCO PAY AT PUMP".
+  ["6160", "out", /\bdvla\b|\b(tesco|asda|sainsbury'?s?|morrisons?|co-?op)\b.*\b(pfs|petrol|fuel|pay at pump|filling station)\b/],
+  ["6100", "out", /\basda george\b|\bgeorge at asda\b/],
+  ["6110", "out", /\bcompanies house\b|\binformation commissioner|\bico data protection\b/],
+  ["6050", "out", /\bmoney ?claim\b|\bhm courts\b|\bhmcts\b/],
+  ["6100", "out", /\bscrewfix\b|\btoolstation\b|\btravis perkins\b|\bjewson\b|\bwickes\b|\bb ?& ?q\b|\bb and q\b|\brs components\b|\bselco builders\b|\bbuildbase\b|\bhuws gray\b|\bcurrys\b|\blaptops direct\b|\bbunnings\b/],
+  ["6070", "out", /\brym[ae]ns?\b|\bw ?h ?smiths?\b|\bviking ?direct\b|\bofficeworks\b|\broyal mail\b/],
+  ["6180", "out", /\bparcel ?force\b|\bevri\b|\bmyhermes\b|\bhermes parcel|\byodel\b|\bparcel2go\b|\bdpd (uk|group|local)\b/],
+  ["6140", "out", /\be\.?on( energy| next)?\b|\bbritish gas\b|\bbt business\b|\bbt group\b/],
+  ["6130", "out", /\btesco'?s?\b(?! ?mobile)|\bsainsbury'?s?\b|\basda\b(?! ?mobile)|\bmorrisons?\b|\bwaitrose\b|\blidl\b|\be ?h booths?\b|^booths\b(?! ?(hire|rental))|^iceland\b(?!air| travel)|\biceland foods\b|\bco-?op(erative)? food\b|\bgreggs\b|\bpret( a)? manger\b|\bnando'?s\b|\b(jd )?wetherspoons?\b|\bwagamama\b/],
   // Gap probe 39 (2026-11-10, eval/probe39.mjs): pool service, personal trainers, wedding DJs, upholsterers, farriers.
   ["6110", "out", /upholstery shop license/],
   ["6170", "out", /pool and spa alliance|national strength trainers|american disc jockey|upholsterers international|american farriers/],

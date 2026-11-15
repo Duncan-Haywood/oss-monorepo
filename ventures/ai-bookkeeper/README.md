@@ -1416,6 +1416,36 @@ Replayed in date order against the owner's labels (money out to an expense the d
 
 What it says, with care: one small firm, a handful of recurring vendors, 227 scored lines; the loop was already near the top because the payees repeat monthly. The five first-seen lines still wrong are the new-payee guess sending a grocer, a fuel stop, a tutoring marketplace and a coworking charge to software (this book is almost all software, so its prior says software), and USPS suggested as postage where the owner filed a government fee. No change on the Mint (2,926 lines), Monarch, Rocket Money or Mercury replays, whose scored lines exclude transfers. Pinned in `card-payments.test.mjs` (5 tests: descriptions under the real wording, amounts made up, and the hledger reader).
 
+### UK merchants in the built-in keywords: a fourth card buyer (2026-11-15)
+
+The built-in keywords were written from US exports. On three UK public buyers' card lines, read from empty books with the merchant name only, they said nothing on 85-90% of lines: Trainline, Travelodge, Ryanair, Screwfix, Royal Mail and Tesco were all blank, while Kroger, Home Depot and USPS were not.
+
+The new buyer is South Lakeland District Council (England, `node eval/southlakeland-pcard.mjs --dir <folder>`, fetch command in the file; Open Government Licence v3.0, not copied here): 54 monthly reports, July 2014 to November 2019, 8,182 lines. 5,029 carry the council's procurement class ("Public Transport", "Accommodation", "Stationery"), and 3,311 of those name a chart account (`CLASS_MAP`, written from the class names before the first scored run). The report has no merchant category code, so this is the first card buyer here where only the bank-line layers can speak. Its purpose column ("Train to Birmingham for planning event") would give the answer away and is not read.
+
+A UK block now sits at the top of `BUILT_IN` (`categorize.mjs`), written from South Lakeland's blank list and from the UK twins of chains the table already filed: rail, coach and airlines and Travelodge as travel; Tesco, Sainsbury's, Asda, Morrisons, Waitrose, Lidl, Booths, Iceland, Greggs, Pret, Nando's and Wetherspoon as meals (as Kroger and Aldi already were); Screwfix, Toolstation, Travis Perkins, Jewson, Wickes, B&Q, Currys and RS Components as supplies; Ryman, WH Smith, Viking and Royal Mail as office and postage; Parcelforce, Evri and Yodel as shipping; CIPFA, CIEH, IRRV, CIPD, AAT, RICS and the chartered institutes as dues; Companies House as a licence; Money Claim and HM Courts as legal fees; E.ON and British Gas as utilities; DVLA (road tax) as a vehicle cost, the way HMRC's list of allowable expenses for the self-employed files it. General and department stores (Argos, Home Bargains, Poundland, B&M, M&S) stay blank, as Walmart and Target do, and HMRC stays blank because a payment to it is usually VAT or PAYE owed.
+
+Keywords alone from empty books, right / wrong (`node eval/uk-card-keywords.mjs --sl <dir> --durham <dir> --scot <dir>`):
+
+| buyer | lines | before | first block | after reading the misses |
+|---|---|---|---|---|
+| South Lakeland (written from) | 3,311 | 8.7% / 1.5% | 39.7% / 5.7% | 39.4% / 5.3% |
+| Durham County Council (held out for the first block) | 151,437 | 10.6% / 2.1% | 28.1% / 3.0% | 28.2% / 2.8% |
+| Scottish Government (held out for the first block) | 11,087 | 8.5% / 6.2% | 11.8% / 6.5% | 11.8% / 6.5% |
+
+The middle column is the held-out reading: Durham's and the Scottish Government's lines were scored before the block was written and not looked at until it had run. Then their misses were read and the block changed: supermarket filling stations print the grocer's name ("TESCO PFS 4088", "ASDA PETROL", "TESCO PAY AT PUMP") and now go to vehicle and fuel; Asda's George clothing goes to supplies; "Iceland Travel" is no longer the grocer; Halfords (Durham right 26, wrong 87), NCP car parks (Durham 0 and 11, South Lakeland 2 and 6) and DVSA (Durham 0 and 55) were dropped as more often wrong than right. The last column is fitted to all three.
+
+In the learning loop (books filed a day at a time, first-seen merchants right / wrong): South Lakeland 34.2% / 17.5% to 39.6% / 17.1%; Durham with the merchant code layer off 53.4% / 34.6% to 54.2% / 34.1%, and with it on unchanged at 87.8% (wrong 11.7% to 11.6%); the Scottish Government with the code layer off 42.6% / 45.5% to 42.8% / 45.4%, with it on unchanged at 64.8%.
+
+What it says, with care:
+
+- **The gain is on a new user's first import, not on books that have history.** From empty books a UK user now gets a suggestion on about three lines in ten instead of one in ten. Once a book has filed a merchant, its own memory does the work, and when the card file carries a merchant code that layer already covers almost every first-seen line, so the learning-loop figures barely move.
+- **Most of the held-out gain is a few big names.** Tesco, Asda, Sainsbury's, Screwfix, Travelodge and DVLA are most of Durham's 26,000 newly right lines; counted once per merchant name, Durham moved from 7.3% to 8.9% right. The long tail of local firms is still the books' own job.
+- **The Scottish Government's file barely moves** because it lists only lines over £500, few of them at chains.
+- **Wrong went up on South Lakeland** (1.5% to 5.3%): the council filed some Trainline and Virgin Trains lines as accountancy or insurance, Sainsbury's mostly as consumables, and DVLA as vehicle maintenance. Those count as misses here; the labels are one council's.
+- **No change on the US sets:** the YNAB, Mint, Monarch, Rocket Money, Mercury and software-LLC replays and the 63 US exports read the same or a line better (Mint first-seen 47.1% to 47.2%).
+
+Pinned in `uk-merchants.test.mjs` (5 tests: descriptions in the shapes UK card reports print, amounts made up, and the South Lakeland reader on made-up rows under the real header).
+
 ### PNC CSV (2026-10-22)
 
 `bank.mjs` labels a `Date, Description, Withdrawals, Deposits, Balance` export as PNC. The columns already read through the generic Debit/Credit matching; the fixture `pnc-checking.csv` (made-up rows, header from memory of PNC's layout, no real download tried) is tested in `neobank.test.mjs` with the running-balance chain.

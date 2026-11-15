@@ -312,6 +312,18 @@ scaled focal lengths: a real change behaves like a scaled one of the same size. 
 failed (only the anchor held), and they failed in a useful direction: the false-alarm rate transfers at
 5–6 new views, the power does not.
 
+**The far solves are the data (milestone 4k, pre-registered).** We re-ran all 11,442 TUM subset solves
+from the fleet's spec focal length (527.1 px, the mean of TUM's two published values) instead of 1.3× the
+Zhang estimate, expecting the far minima to vanish and the power to recover. All five predictions failed.
+Every one of the 38 far 6-view solves came back at the same focal length, and on the Xtion they fit their
+corners as well as the 13-view solve (median rms 0.071 px against 0.075 px): those view sets leave f
+nearly free. On the Kinect the spec start was worse: its 13-view solve stopped at f 508.88 px with rms
+0.483 px, and the cold start reached a lower cost on 89 of the 6-view sets and the warm start on none. A
+basin check that drops any solve more than 10% from the spec raised the false alarms at 4 new views to
+4.36% and 20.09% (fr1 / fr3), because it removes the wide delete-one values that the robust jackknife
+needs when a set is near-degenerate; the power at ±2% stayed at 10.6%. The TUM cameras' lower power is a
+property of their views, not of the solver.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -337,8 +349,9 @@ failed (only the anchor held), and they failed in a useful direction: the false-
    tail from 4 + 3 split-halves of a 7-view old set is not enough either: it overstates the spread 3–5×.
 5. **Collect at least 6 new views before testing, and about 10 before trusting a jackknife σ.** Below
    6 views the solver's σ is 4–6× too small and the jackknife's 2–8× too large, and with 4 new views the
-   twin reference over-alarms (3.3–4.7% on the TUM cameras). Guard every subset solve against far minima
-   (warm start or a basin check): on hand-held captures they decide much of the test's behaviour.
+   twin reference over-alarms (3.3–4.7% on the TUM cameras). Keep the lowest-cost solve over several
+   starts, but never clip f to a window around the spec: far solves of near-degenerate sets are true
+   minima, and dropping them pushed false alarms at 4 new views to 20% on one TUM camera.
 
 ## 9. Limitations
 
@@ -360,8 +373,8 @@ were found after a pre-registered prediction failed and are labelled so in the l
 - Natural-feature correspondences (milestone 3b) on an openly licensed multi-view set with a target
   calibration of the same camera.
 - Done for two units (Section 7, TUM RGB-D): the twin reference stays at or below nominal at 5–6 new
-  views. Still needed: the same after warm-started subset solves, which should remove the far minima that
-  cost most of the power there, and a twin that models the right camera's extra spread (a per-view offset
+  views. Warm-started subset solves do not recover the power (milestone 4k: the far minima are real).
+  Still needed: choosing or weighting view sets by how well they pin f (the twin's gain norm), and a twin that models the right camera's extra spread (a per-view offset
   term fitted to the unit's own jackknife) to bring that camera up to 1%.
 - The robust-jackknife test (Section 7) pre-registered on a second unit's views, with both references:
   the model reference to confirm it stays conservative, and χ²<sub>1</sub> to see whether its 2–3%

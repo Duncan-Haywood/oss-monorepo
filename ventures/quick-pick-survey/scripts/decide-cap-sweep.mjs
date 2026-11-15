@@ -24,6 +24,11 @@ const RULE = FOCUS === "order" ? "order" : "winner";
 // --long-run none|level|tau [--power p]: the stop past the checkpoint (site/decide-core.mjs longRunLevel; none = the page on 2026-11-15).
 const LONG_RUN = args["long-run"] || "none";
 const POWER = Number(args.power || 1);
+// --guard auto|plain|switch|<tau> [--guard-scale k] [--switch-below t]: the graded guard (auto = min(1, k x estimateTau), the page).
+const GUARD = !args.guard || ["auto", "plain", "switch"].includes(args.guard) ? (args.guard || "auto") : Number(args.guard);
+const GUARD_SCALE = Number(args["guard-scale"] || 1);
+// --switch-below t: with --guard switch, the plain guard runs when estimateTau < t (site/decide-core.mjs PLAIN_GUARD_BELOW).
+const SWITCH_BELOW = Number(args["switch-below"] || 1.25);
 
 function mulberry32(seed) {
   let a = seed >>> 0;
@@ -82,7 +87,7 @@ for (const { n, C, spread } of pick) {
     };
     for (let t = 0; t <= max; t++) {
       const table = decisionTable(df, { draws: 400 });
-      const done = decisionDoneGraded(n, C, answers, table, { rule: RULE, longRun: LONG_RUN, power: POWER }).done;
+      const done = decisionDoneGraded(n, C, answers, table, { rule: RULE, longRun: LONG_RUN, power: POWER, guardTau: GUARD, guardScale: GUARD_SCALE, switchBelow: SWITCH_BELOW }).done;
       if (done) { selfStop = snap(t, true, table); break; }
       caps.forEach((cap, k) => { if (t === cap) stops[SCALES[k]] = snap(t, false, table); });
       if (t === max) break;
@@ -91,6 +96,6 @@ for (const { n, C, spread } of pick) {
     }
     // A run that stopped on its own before a cap has that stop under the cap.
     SCALES.forEach((s) => { if (!stops[s]) stops[s] = selfStop; });
-    console.log(JSON.stringify({ n, C, spread, run, seed: 1000 + run, tauTrue: TAU_TRUE, focus: FOCUS, rule: RULE, longRun: LONG_RUN, power: POWER, base, caps, stops }));
+    console.log(JSON.stringify({ n, C, spread, run, seed: 1000 + run, tauTrue: TAU_TRUE, focus: FOCUS, rule: RULE, longRun: LONG_RUN, power: POWER, guard: GUARD, guardScale: GUARD_SCALE, ...(GUARD === "switch" ? { switchBelow: SWITCH_BELOW } : {}), base, caps, stops }));
   }
 }
