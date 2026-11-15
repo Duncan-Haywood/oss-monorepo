@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-15
+---
 # Polish 2026-11-15: a windowed pager on the blog and topic pages
 
 Track: polish/0. Picked from `polish-2026-11-15-topic-pages.md`, "Still weakest" item 3 (the blog
