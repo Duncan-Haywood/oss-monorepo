@@ -6,7 +6,7 @@ import {
   teamSchedule, restReport, applyRainouts, applyLateTeams, seasonGrid, scheduleText, parseDate,
 } from "./calc.mjs";
 import { lowCarryOverRounds } from "./carryover.mjs";
-import { nightLayout, nightComponents, waitFreePossible, waitFreeNights, planWaitCost } from "./nights.mjs";
+import { nightLayout, nightComponents, waitFreePossible, waitFreeNights, planWaitCost, nightRowsExact, rowsWaitFree, sessionBlocks, sessionNights, designedRounds, designedNights } from "./nights.mjs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
 const times = (k) => Array.from({ length: k }, (_, i) => `${18 + i}:00`);
@@ -173,4 +173,95 @@ test("blackouts still go to makeup rounds and the season stays valid", () => {
   assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
   perNight(s);
   assert.ok(!s.rounds.some((r) => r.day === parseDate("2026-01-13") && r.matches.some((m) => m.home === 0 || m.away === 0)));
+});
+
+test("waitFreePossible counts an odd league's shorter windows and needs an even number of teams per row", () => {
+  // 9 teams, 3 games, 3 courts x 4 times: 12 matches fill all 12 slots; six 3-game and three
+  // 2-game windows cannot share the rows (the old bound, full teams only, said yes)
+  assert.equal(waitFreePossible(6, 3, 3, 4), true);
+  assert.equal(waitFreePossible(6, 3, 3, 4, 3), false);
+  assert.equal(waitFreePossible(6, 3, 4, 4, 3), true);
+  // 7 teams on 2 courts x 5 times: the counts fit but one row would hold an odd number of teams
+  assert.equal(waitFreePossible(4, 3, 2, 5, 3), false);
+  assert.equal(waitFreePossible(4, 3, 3, 5, 3), true);
+  const s = build(9, 3, 4, 3);
+  assert.ok(s.notices.some((x) => /at least 4 courts/.test(x)), s.notices.join(" | "));
+});
+
+test("nightRowsExact lays out a night match by match, or says it cannot", () => {
+  // K4 on teams 0-3 in three rounds: one component, two matches a row, needs 2 courts x 3 rows
+  const k4 = [[0, 1, 0], [2, 3, 0], [0, 2, 1], [1, 3, 1], [0, 3, 2], [1, 2, 2]];
+  const row = nightRowsExact(k4, 2, 3);
+  assert.ok(row && rowsWaitFree(k4, row));
+  assert.equal(nightRowsExact(k4, 1, 6), null); // one court: a team's three games need three rows, its opponents' too
+  // a team with games in rows 0 and 2 waits
+  assert.equal(rowsWaitFree([[0, 1, 0], [0, 2, 1]], [0, 2]), false);
+  assert.equal(rowsWaitFree([[0, 1, 0], [0, 2, 1]], [1, 2]), true);
+});
+
+test("nightLayout no longer calls a night wait-free when a team skips the middle round", () => {
+  // odd-league night: team 4 sits out round 1, plays rounds 0 and 2
+  const edges = [[0, 1, 0], [2, 4, 0], [0, 2, 1], [1, 3, 1], [3, 4, 2], [1, 2, 2]];
+  const lay = nightLayout(edges, 3, 2, 4, null, { exact: 0 });
+  if (lay.unplaced === 0) assert.ok(rowsWaitFree(edges, lay.row));
+});
+
+test("sessionBlocks: closed blocks for two sessions a night", () => {
+  assert.deepEqual(sessionBlocks(12, 3, 3, 6), [6, 6]);
+  assert.deepEqual(sessionBlocks(10, 3, 3, 6), [6, 4]);
+  assert.equal(sessionBlocks(12, 3, 6, 6), null); // one session holds everyone
+  assert.equal(sessionBlocks(11, 3, 3, 6), null); // odd league
+  assert.equal(sessionBlocks(12, 3, 3, 5), null); // one session of three rows only
+});
+
+test("12 teams, 3 games on 3 courts x 6 times: every night two closed groups of six, nobody waits", () => {
+  // every slot is booked, so each night must split into two groups of six that only play each other
+  const s = build(12, 3, 6, 3);
+  assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
+  perNight(s);
+  assert.equal(nightWaits(s).idle, 0);
+  for (let t = 0; t < 12; t++) assert.equal(teamSchedule(s, t).filter((r) => !r.bye).length, 11);
+  // and with the search off the circle method leaves waits
+  assert.ok(nightWaits(build(12, 3, 6, 3, { waitFree: false })).idle > 0);
+});
+
+test("12 teams, 2 games on 3 courts x 4 times is wait-free (the last two-game gap of the eval)", () => {
+  const s = build(12, 3, 4, 2);
+  assert.ok(validateSchedule(s).ok);
+  assert.equal(nightWaits(s).idle, 0);
+});
+
+test("designedRounds: a one-factorisation whose nights of three split into small closed groups", () => {
+  for (const n of [8, 12, 16, 24, 32, 36, 48]) {
+    const d = designedRounds(n, 3, 2);
+    assert.equal(d.length, n - 1, `${n}: n - 1 rounds`);
+    const seen = new Set();
+    for (const r of d) {
+      const inRound = new Set(r.flat());
+      assert.equal(inRound.size, n, `${n}: every team once a round`);
+      for (const [a, b] of r) { const k = Math.min(a, b) * 100 + Math.max(a, b); assert.ok(!seen.has(k), `${n}: a pair meets once`); seen.add(k); }
+    }
+    assert.equal(seen.size, (n * (n - 1)) / 2);
+  }
+  assert.equal(designedRounds(20, 3), null); // no design known: the search's job
+  assert.equal(designedRounds(12, 2), null);
+  // 16 teams: five nights, each four groups of four (an affine plane's parallel classes)
+  const d = designedRounds(16, 3, 1);
+  for (let i = 0; i < 15; i += 3) {
+    const adj = new Map();
+    for (const r of d.slice(i, i + 3)) for (const [a, b] of r) { (adj.get(a) || adj.set(a, new Set()).get(a)).add(b); (adj.get(b) || adj.set(b, new Set()).get(b)).add(a); }
+    for (const [t, ns] of adj) for (const u of ns) for (const v of ns) if (u !== v) assert.ok(adj.get(u).has(v) || u === t, "a night's opponents of a team all meet each other: K4 groups");
+  }
+});
+
+test("24 teams, 3 games on 6 courts x 6 times: the designed round robin is wait-free where the search was not", () => {
+  assert.ok(designedNights(24, 3, 6, 6, 1));
+  assert.equal(designedNights(24, 3, 4, 9, 1), null); // three sessions: no design, falls back to the search
+  const s = build(24, 6, 6, 3);
+  assert.ok(validateSchedule(s).ok, validateSchedule(s).errors.join("; "));
+  perNight(s);
+  assert.equal(nightWaits(s).idle, 0);
+  for (let t = 0; t < 24; t++) assert.equal(teamSchedule(s, t).filter((r) => !r.bye).length, 23);
+  // every seed, not only seed 1
+  for (const seed of [2, 3]) assert.equal(nightWaits(build(24, 6, 6, 3, { seed })).idle, 0);
 });

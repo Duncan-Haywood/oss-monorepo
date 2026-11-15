@@ -682,10 +682,14 @@ def test_j_lower_bound_of_7at():
     assert W.j_lower([0] * 50, [1] * 5 + [0] * 45, 1.0) == -1.0
 
 
-def test_rare_fallback_is_off_by_default_and_is_wilson_on_the_labels():
+def test_rare_fallback_is_wilson_on_the_labels_and_defaults_to_three():
     """LOG.md 7av: rare_fallback=m closes a pooled plan with under m audited positives by a Wilson interval on the
-    labels alone; off by default, so the shipped interval is unchanged."""
-    from llmci import audit_design as S
+    labels alone. LOG.md 7aw: the default is m = RARE_FALLBACK = 3; None gives the bare control-variate interval."""
+    import importlib.util
+    # a private copy: experiment modules imported by other tests set the shared module's RARE_FALLBACK to None
+    spec = importlib.util.spec_from_file_location("audit_design_fresh", Path(__file__).resolve().parent / "llmci" / "audit_design.py")
+    S = importlib.util.module_from_spec(spec); spec.loader.exec_module(S)
+    assert S.RARE_FALLBACK == 3
     rng = random.Random(7)
     y, f = corpus(4000, 0.003, 0.6, 0.97, rng)
     plan = {"design": "pooled", "cells": [list(range(4000))]}
@@ -694,8 +698,10 @@ def test_rare_fallback_is_off_by_default_and_is_wilson_on_the_labels():
         aud = random.Random(seed).sample(range(4000), 400)
         labels = {i: y[i] for i in aud}
         x, a = sum(labels.values()), 400
-        base = S.audit_interval(plan, f, labels)
-        assert S.audit_interval(plan, f, labels, rare_fallback=None) == base
+        base = S.audit_interval(plan, f, labels, rare_fallback=None)
+        assert S.audit_interval(plan, f, labels) == S.audit_interval(plan, f, labels, rare_fallback=3)
+        if x >= 3:
+            assert S.audit_interval(plan, f, labels) == base
         est, lo, hi = S.audit_interval(plan, f, labels, rare_fallback=5)
         assert est == base[0]
         if x < 5:

@@ -331,26 +331,23 @@ flagships:
       Swiss formats, with a self-hosted league page.
     next: >-
       Landed work and every measurement are in
-      ventures/league-schedule-generator/README.md and eval/ (multi-division
-      scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
-      CSVs, duty rota, team sheets; carry-over on 20 real seasons; starters, capped
-      breaks, frontier picker, squeezes, MaxSAT proof that the gaps are
-      timetable-bound, exact break floor, three-round re-deals, balanced least
-      priced, faster break floor, exact home-and-away breaks, backward table,
-      blackout fit, WebAssembly step: README 2026-11-11 to 2026-11-14 sections).
-      2026-11-15 latest: balance-guided walk and a start under the gap, so 28 teams
-      join the floor-priced step (47-55 s, 2 seasons a seed; no run worse over 14,
-      eval/under-start.txt, eval/walk-guide.txt). Doubleheaders (nights.mjs):
-      2-game nights wait-free, 17 of 18 feasible. Before: every starter enumerated
-      (eval/starter-exhaust.txt); int16 SIMD step; least
+      ventures/league-schedule-generator/README.md and eval/ (divisions, venues,
+      rainouts, standings, officials, duty rota, team sheets; carry-over and break
+      floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
+      2026-11-15 sections). 2026-11-15 latest: 3-game nights
+      (eval/three-game-nights.txt): designed round robins (halves + cyclic cross at
+      12k teams, XOR at 2^k): 12-48 teams on 6 slots to 0 waits; 8 on 2x6 impossible
+      (full grid); 28 teams in the floor-priced step (eval/under-start.txt). Before:
+      every starter enumerated (eval/starter-exhaust.txt); int16 SIMD step; least
       carry-over 94 at 10 teams, at 12 none below 124; refill search in C: 14 teams
-      210, stored. Next, most valuable first: 3-game nights wait-free; the rest of
-      the 20-team gap (40 to 44 still
-      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
-      family climbed with the floor as its score); 29-30 teams in the page (15
-      matches: profile 30 first; 27 teams add nothing on seed 1, README "Starting
-      under the gap"); the walk's last heavy tail (22 teams: 20 of 280 walks out of
-      budget either way, eval/walk-guide.txt); home-and-away breaks
+      210, stored. Next, most valuable first: 6-slot 3-game nights at 14, 18, 20, 28
+      teams (20 on 5x6: two closed tens a night; annealing stops at 2 crossing),
+      3-session designs, and odd leagues by groups; the rest of the 20-team gap (40
+      to 44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or
+      a starter family climbed with the floor as its score); 29-30 teams in the page
+      (15 matches: profile 30 first; 27 teams add nothing on seed 1, README
+      "Starting under the gap"); the walk's last heavy tail (22 teams: 20 of 280
+      walks out of budget either way, eval/walk-guide.txt); home-and-away breaks
       exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced
       home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s,
       PAIR_EXACT_NODES) cut; 12 teams 124-132 open (132 by eval/window-refill.c):
@@ -361,12 +358,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the lift's drive shaft (cad/README.md "Lift slip
-      coupling"): the slip hub's stack needs 63 mm of 6 mm D shaft past the
-      gearmotor's face (53 mm to reach the pulley before), likely more than a stock
-      shaft: a rigid coupler to a 6 mm D extension carried in a bearing in the
-      boot's -y wall (its CAD; overhung belt load on the gearmotor's output
-      bearing), or a narrower pulley and stack; rerun the collision checks.
+      venv, about 2 min): the lift's drive shaft landed 2026-11-15 (cad/README.md
+      "Lift drive shaft": own D shaft in two F626 bearings, jaw coupling in a
+      printed spacer). Next: tests/lift_jam_sweep.py as a three-inertia plant with
+      the jaw coupling's torsional stiffness and spider backlash between the rotor
+      and the slip hub (assumed figures, swept); a printable test ring for the F626
+      press fit in PETG (bore steps 0.00-0.15 mm over) in the manufacturing package.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -393,11 +390,11 @@ flagships:
       the battery reading noise. Lift (cad/README.md): weigh a belt, pluck a strand;
       drag a capped cleat over a strip; scope the lift shunt on a start and a stall;
       read the gearmotor's rotor inertia; set a built slip hub with a scale, hold a
-      flight, watch it slip and trip. Pot pickup from the PWM landed 2026-11-14 (1
-      uF on GPIO 39, trimmed reads): scope GPIO 39 at part duty. Actuator's lead
-      landed 2026-11-14 (cad/README.md "The elevation actuator's lead"): cut 220 mm,
-      209-231 fits; find where a real actuator's cable leaves its housing and bend a
-      built lead through the travel.
+      flight, watch it slip and trip; measure the lift gearmotor's shaft and body
+      (75 mm face to back at most) and press an F626 into a printed boot. Scope GPIO
+      39 at part duty. Actuator's lead landed 2026-11-14 (cad/README.md "The
+      elevation actuator's lead"): cut 220 mm, 209-231 fits; find where a real
+      actuator's cable leaves its housing and bend a built lead through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

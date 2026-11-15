@@ -6,7 +6,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from energy_store_flip import diff, flip_multiplier, win_share, variance_split, CASES, YEARS  # noqa: E402
+from energy_store_flip import (diff, diff_real, deflator, flip_multiplier, joint_flip, win_share, variance_split,  # noqa: E402
+                              CASES, YEARS)
 
 
 def fmt(x):
@@ -39,3 +40,25 @@ for scale in ("house", "district"):
         for h in (0.10, 0.25):
             b, w, g = variance_split(scale, case, h)
             print("%-9s %-9s %5.2f %+9.4f %9.4f %9.4f %9.2f" % (scale, case[3], h, g, b ** .5, w ** .5, b / (b + w)))
+print()
+print("E. One currency. Sections A to D set 2025-euro capex (head_2030 currency_year) against nominal 2015-2019 prices.")
+print("   Here every capex row is deflated to the price year's euros with Eurostat HICP, all items, annual average")
+print("   (prc_hicp_aind, data/hicp_annual.csv): factor HICP(year)/HICP(2025). Germany (DE) is the main basis, euro area (EA20) a check.")
+print("   deflator DE:   " + " ".join("%.4f" % deflator(y) for y in YEARS))
+print("   deflator EA20: " + " ".join("%.4f" % deflator(y, "EA20") for y in YEARS))
+print("   joint flip = common multiplier on all capex at which store and pump tie; the store wins above it (capex is a larger part of the pump's cost of heat).")
+print("%-9s %-9s %-5s %9s %9s %9s %8s" % ("scale", "case", "year", "nominal", "real_DE", "real_EA20", "joint"))
+for scale in ("house", "district"):
+    for case in CASES[:2]:
+        for y in YEARS:
+            print("%-9s %-9s %-5d %+9.4f %+9.4f %+9.4f %s" % (scale, case[3], y, diff(y, scale, case), diff_real(y, scale, case),
+                                                              diff_real(y, scale, case, "EA20"), fmt(joint_flip(y, scale, case))))
+print("   store wins (real_DE < 0), of five years:")
+for scale in ("house", "district"):
+    print("   %-9s " % scale + "  ".join("%s %d (nominal %d)" % (c[3], sum(diff_real(y, scale, c) < 0 for y in YEARS),
+                                                               sum(diff(y, scale, c) < 0 for y in YEARS)) for c in CASES))
+print("   store-win share of draws, weekly house, real_DE basis, m_store and m_hp uniform on 1 +/- h (ASSUMED range):")
+print("%-6s" % "   h" + "".join(" %6d" % y for y in YEARS))
+for h in (0.10, 0.25):
+    print("   %-3.2f" % h + "".join(" %6.2f" % win_share_real for win_share_real in
+                                  (win_share(y, "house", CASES[1], h, n=1000, scale_all=deflator(y)) for y in YEARS)))

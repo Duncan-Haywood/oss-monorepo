@@ -136,3 +136,75 @@ def mondrian_accept(score, feature, floor, inner, lams):
     b = np.digitize(feature, inner)
     lam = np.asarray(lams, float)[b]
     return (feature >= floor) & (score >= lam)
+
+
+# ---- Step 3d: a noise-class gate --------------------------------------------------------------------------
+
+def frame_kurtosis(x, frame=512):
+    """Impulsiveness of a window: log10 of the kurtosis (m4 / m2^2, about the mean) of its 32 ms frame
+    energies. A steady noise floor gives frames of nearly equal energy (low kurtosis); keystrokes, bites and
+    door slams put most of the energy in a few frames (high kurtosis). Needs no clean reference."""
+    x = np.asarray(x, float)
+    n = len(x) // frame
+    if n < 4:
+        raise ValueError("window shorter than four frames")
+    e = np.mean(x[:n * frame].reshape(n, frame) ** 2, axis=1)
+    c = e - e.mean()
+    m2 = np.mean(c ** 2)
+    if m2 <= 0:
+        return 0.0
+    return float(np.log10(np.mean(c ** 4) / m2 ** 2))
+
+
+def spectral_flatness_db(x, fs=16000, nper=512, band=(100.0, 4000.0)):
+    """Wiener entropy of the window's Welch spectrum in the GCC band, in dB (0 dB for white noise, very
+    negative for tonal or strongly coloured sound). Hann windows of nper samples, half overlap."""
+    x = np.asarray(x, float)
+    hop = nper // 2
+    n = (len(x) - nper) // hop + 1
+    if n < 1:
+        raise ValueError("window shorter than one segment")
+    w = np.hanning(nper)
+    idx = np.arange(nper)[None, :] + hop * np.arange(n)[:, None]
+    p = np.mean(np.abs(np.fft.rfft(x[idx] * w, axis=1)) ** 2, axis=0)
+    f = np.fft.rfftfreq(nper, 1.0 / fs)
+    p = p[(f >= band[0]) & (f <= band[1])] + 1e-30
+    return float(10 * np.log10(np.exp(np.mean(np.log(p))) / np.mean(p)))
+
+
+class Novelty:
+    """Conformal novelty refusal (split conformal outlier test, Bates et al. 2023, arXiv:2104.08279).
+    Features are scaled by the calibration median and interquartile range; the novelty score of a window is
+    its distance to the k-th nearest window of a reference half of the calibration set; the refusal
+    threshold is the (1 - q) empirical quantile (finite-sample corrected) of the scores of the other half.
+    A window from the calibration distribution is then refused with probability at most about q."""
+
+    def __init__(self, feats, ref_mask, k=5, q=0.01):
+        from scipy.spatial import cKDTree
+        f = np.asarray(feats, float)
+        ref_mask = np.asarray(ref_mask, bool)
+        self.med = np.median(f, axis=0)
+        iqr = np.subtract(*np.percentile(f, [75, 25], axis=0))
+        self.scale = np.where(iqr > 0, iqr, 1.0)
+        self.k = k
+        self.tree = cKDTree((f[ref_mask] - self.med) / self.scale)
+        s = np.sort(self.score(f[~ref_mask]))
+        m = len(s)
+        j = min(m - 1, int(np.ceil((1 - q) * (m + 1))) - 1)
+        self.thr = float(s[j])
+
+    def score(self, feats):
+        z = (np.asarray(feats, float) - self.med) / self.scale
+        d, _ = self.tree.query(z, k=self.k)
+        return d[:, -1] if self.k > 1 else d
+
+    def inside(self, feats):
+        return self.score(feats) <= self.thr
+
+
+def binned_ltt(score, bad, bins, n_bins, grid, alpha=0.01, delta=0.1):
+    """One Learn-then-Test threshold per bin label 0..n_bins-1 (bins computed from features only)."""
+    score = np.asarray(score, float)
+    bad = np.asarray(bad, bool)
+    bins = np.asarray(bins, int)
+    return [ltt_threshold(score[bins == k], bad[bins == k], grid, alpha, delta) for k in range(n_bins)]

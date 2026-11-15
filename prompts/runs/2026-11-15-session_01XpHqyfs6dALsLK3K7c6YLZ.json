@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfs6dALsLK3K7c6YLZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T12:39:19Z",
+  "ended": "2026-11-15T13:05:28Z",
+  "wall_minutes": 26.39,
+  "tokens_in": 8345594,
+  "tokens_out": 63352,
+  "cost_usd": 4.0961,
+  "tool_calls": 68,
+  "task": "Flagship row 6 (league-schedule-generator): top next item, 3-game nights wait-free",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16214",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First hill-climb integration ran nightRowsExact (3000 nodes) on every move: 9 teams/3 games took 30 s a build; moved the exact layout out of the climb (cheap layout only) and kept it for the final count and the season layout."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "The doubleheader section said '7 of 7 three-game settings that pass the bound keep their waits'; 4 of the 7 were never possible (the bound ignored an odd league's shorter windows and row parity), so the open item pointed at impossible targets."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-three-games-a-night-and-a-search-that-cannot-get-there.md",
+    "ventures/league-schedule-generator/README.md (Three games a night, 2026-11-15, later)"
+  ],
+  "goal": "Deepen flagship 9 with a working slice of its top next item",
+  "notes": "Checks run here: node --test doubleheader.test.mjs 20 pass; python3 platform/ci/run_venture_tests.py league-schedule-generator: ok, 541 tests (222 s); node eval/three-game-nights.mjs and eval/doubleheader.mjs regenerated (all seasons valid). Results: wait-free bound corrected (odd-league g-1 windows, even teams per row; 7 teams 3 games 2x5 impossible by exhaustion over 32,970 nights); match-by-match exact layout; two-session closed-group annealing run from circle and carry-over starts (circle start stuck at exactly 14 crossing on every seed: Kempe-class invariant). 2-game settings: 18 of 18 feasible wait-free (12 on 3x4 30->0). 3-game at 6 slots: 10 teams 36->0, 16 teams 125->0, 12 teams 64->22, 14 teams 54->33, 18-24 unchanged. Small regression in impossible settings (11 teams 3 games 4x4: 28->30 waits). Agent doc: none beyond the README section and flagships next:, which carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e7bb9a56-fc86-58f3-8992-a5fb5b3a75cf",
+    "transcripts": 1,
+    "first": "2026-11-15T12:39:19Z",
+    "last": "2026-11-15T13:05:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 126,
+        "output": 63352,
+        "thinking": 27538,
+        "cache_read": 8196824,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148644,
+        "api_equivalent_usd": 4.0961,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 126,
+      "output": 63352,
+      "thinking": 27538,
+      "cache_read": 8196824,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148644,
+      "api_equivalent_usd": 4.0961,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.39,
+      "active_minutes": 26.39,
+      "model_minutes": 10.42,
+      "tool_minutes": 15.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior engineer: diagnose bound, prove 7-team case, exact layout solver, block annealing, evals and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 390.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

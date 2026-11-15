@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjgRT6bXiLnNSuqoji",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T13:18:05Z",
+  "ended": "2026-11-15T13:32:19Z",
+  "wall_minutes": 14.55,
+  "tokens_in": 5398872,
+  "tokens_out": 41471,
+  "cost_usd": 2.8262,
+  "tool_calls": 50,
+  "task": "league-schedule-generator flagship (allocate.py row 6): designed round robins for three-game, two-session nights",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16225",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "started venture-preflight.mjs from the venture directory (cwd carried over), MODULE_NOT_FOUND; reran from the repo root"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "the preflight command is repo-root relative but the session's cwd moves into the venture dir after a cd; a one-line 'from the repo root' would have saved a rerun"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-three-games-a-night-written-down-not-searched-for.md",
+    "ventures/league-schedule-generator/README.md (Designed round robins for two sessions a night)"
+  ],
+  "goal": null,
+  "notes": "nights.mjs designedRounds/designedNights (halves + cyclic cross at multiples of 12; XOR with partial-spread K4 nights at powers of two), tried first in waitFreeNights with two+ sessions. eval/three-game-nights.txt: 24 teams 6x6 254->0 waits, 12 teams 3x6 22->0 (6/6 seeds), 16 teams 1.2s->0.4s; part 4: 32/36/48 to 0, 28 no design (360). Part 3: 8 teams on 2x6 impossible (full grid forces two K4s a night; 0 of 35 split pairs edge-disjoint). Annealing from the halves design at 20 teams, 8M moves x 4 seeds: stops at 2-4 crossing. Local checks: run_venture_tests.py league-schedule-generator ok (543 tests, 206 s); venture-preflight.mjs league-schedule-generator: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f4ffeda8-4129-51ca-b242-ae31db6eccdb",
+    "transcripts": 1,
+    "first": "2026-11-15T13:18:05Z",
+    "last": "2026-11-15T13:32:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 95,
+        "output": 41471,
+        "thinking": 21564,
+        "cache_read": 5281261,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117516,
+        "api_equivalent_usd": 2.8262,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 95,
+      "output": 41471,
+      "thinking": 21564,
+      "cache_read": 5281261,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117516,
+      "api_equivalent_usd": 2.8262,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.55,
+      "active_minutes": 14.55,
+      "model_minutes": 8.52,
+      "tool_minutes": 6.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design and prove two round-robin constructions, code, tests, eval rerun, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 212.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

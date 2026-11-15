@@ -49,10 +49,23 @@ def test_draft_numbering_highlights_and_keys():
     _, highlights, abstract, _, body, _ = b.split_draft(b.DRAFT.read_text(encoding="utf-8"))
     assert b.check_numbering(body) == []
     assert b.check_highlights(highlights) == []
+    assert b.check_abstract(abstract) == []
     converted = b.convert_citations(b.prepare_body(body)) + b.convert_citations(abstract)
     assert b.leftover_citations(converted) == []
     assert set(b.cited_keys(converted)) <= set(b.bib_keys())
     assert set(b.NOCITE) <= set(b.bib_keys())
+
+
+def test_single_author_citation_left_as_text_is_caught():
+    b = _load()
+    assert b.leftover_citations("as tabulated by Nobody (2031)")
+    assert b.leftover_citations(b.convert_citations("as tabulated by Ghazinader (2024)")) == []
+
+
+def test_long_abstract_is_caught():
+    b = _load()
+    assert b.check_abstract("word " * 151)
+    assert b.check_abstract("word " * 150) == []
 
 
 def test_long_highlight_is_caught():

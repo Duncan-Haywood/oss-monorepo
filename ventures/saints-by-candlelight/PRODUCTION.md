@@ -182,11 +182,11 @@ any already in `episodes/`). Mark one you finish `- *(Done: episode N,
 Title.)*` at the start of its line, then run `node list_done.mjs` to move it
 to DONE.md (`node --test` fails while one is left here):
 
-- Next up, suggestions: Paul before Festus and King Agrippa and Bernice, I appeal to Caesar and almost you persuade me (Acts 25-26, a sequel to episode 122); Egeria at Sinai, the climb straight up as if up a wall and the burning bush still growing (Travels, chapters 1-5, a prequel to episode 120); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
+- Next up, suggestions: Paul in Rome, the Jewish leaders called to his lodging and two whole years in his own rented house welcoming all who came (Acts 28:16-31, a sequel to episode 123); Egeria at Sinai, the climb straight up as if up a wall and the burning bush still growing (Travels, chapters 1-5, a prequel to episode 120); more saints' lives (Saint Theognius or Saint John the Hesychast, Cyril's other desert lives; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
 
 ## Audio status
 
-Episodes 1 to 19 have audio (episodes 20 to 121 are text only: the audio folders sit near the creative prompt's 400 MB line; run its `du` for the current figure) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episodes 20 to 123 are text only: the audio folders sit near the creative prompt's 400 MB line; run its `du` for the current figure) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 

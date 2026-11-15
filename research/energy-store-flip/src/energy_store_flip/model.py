@@ -4,6 +4,7 @@ Cost model and prices are those of energy-thermal-real, imported unchanged. `m_s
 charger capex, `m_hp` the heat pump's capex. Stdlib only.
 """
 import copy
+import csv
 import random
 import sys
 from pathlib import Path
@@ -25,7 +26,42 @@ SCALES = {"house": 1.0e4, "district": 5.0e6}
 HP_KEY = {"house": "decentral air-sourced heat pump", "district": "central air-sourced heat pump"}
 CASES = [(1, 300, 365, "daily"), (7, 52, 52, "weekly"), (30, 12, 12, "monthly"), (120, 1, 1, "seasonal")]
 TD = load("head_2030")
+TD_CURRENCY_YEAR = 2025  # every capex row scaled here is in 2025 euros (energy-thermal-cost/data/params.csv, currency_year)
+HICP = Path(__file__).resolve().parents[2] / "data" / "hicp_annual.csv"
 _PRICES = {}
+
+
+def hicp(geo="DE"):
+    """{year: Eurostat HICP annual average index, 2015 = 100} for `geo` (data/hicp_annual.csv, prc_hicp_aind)."""
+    with open(HICP) as f:
+        return {int(r["year"]): float(r["hicp_2015_100"]) for r in csv.DictReader(f) if r["geo"] == geo}
+
+
+def deflator(year, geo="DE", base=TD_CURRENCY_YEAR):
+    """Factor that turns `base`-year euros into `year` euros: HICP(year) / HICP(base)."""
+    h = hicp(geo)
+    return h[year] / h[base]
+
+
+def diff_real(year, scale, case, geo="DE", m_store=1.0, m_hp=1.0, frac=0.25):
+    """`diff` with every capex row deflated from 2025 euros to the price year's euros, so costs and prices share a currency."""
+    d = deflator(year, geo)
+    return diff(year, scale, case, m_store * d, m_hp * d, frac)
+
+
+def joint_flip(year, scale, case, lo=0.05, hi=20.0):
+    """Common multiplier on all capex (store, charger, heat pump) at which the diff is zero; None if no sign change."""
+    f = lambda m: diff(year, scale, case, m, m)  # noqa: E731
+    a, b = f(lo), f(hi)
+    if a * b > 0:
+        return None
+    for _ in range(60):
+        mid = (lo * hi) ** 0.5
+        if f(mid) * a > 0:
+            lo = mid
+        else:
+            hi = mid
+    return (lo * hi) ** 0.5
 
 
 def prices(year):
@@ -74,12 +110,16 @@ def flip_multiplier(year, scale, case, which="store", lo=0.05, hi=20.0):
     return (lo * hi) ** 0.5
 
 
-def win_share(year, scale, case, half_width, n=2000, seed=20261023):
-    """Share of draws in which the store wins, m_store and m_hp independent uniform on [1-h, 1+h] (assumed range)."""
+def win_share(year, scale, case, half_width, n=2000, seed=20261023, scale_all=1.0):
+    """Share of draws in which the store wins, m_store and m_hp independent uniform on [1-h, 1+h] (assumed range).
+
+    `scale_all` multiplies both draws (pass `deflator(year)` for the one-currency basis of section E).
+    """
     rng = random.Random(seed)
     wins = 0
     for _ in range(n):
-        wins += diff(year, scale, case, rng.uniform(1 - half_width, 1 + half_width), rng.uniform(1 - half_width, 1 + half_width)) < 0
+        a, b = rng.uniform(1 - half_width, 1 + half_width), rng.uniform(1 - half_width, 1 + half_width)
+        wins += diff(year, scale, case, a * scale_all, b * scale_all) < 0
     return wins / n
 
 
