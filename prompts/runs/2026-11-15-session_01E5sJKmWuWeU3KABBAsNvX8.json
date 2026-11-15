@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmWuWeU3KABBAsNvX8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T00:18:38Z",
+  "ended": "2026-11-15T00:32:29Z",
+  "wall_minutes": 27.63,
+  "tokens_in": 8187331,
+  "tokens_out": 51185,
+  "cost_usd": 3.7597,
+  "tool_calls": 66,
+  "task": "Deepen (flagship 10) open-tennis-robots: land stalled PR 15456's top pulley tensioner, then the lift flight as a printed part",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16029",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots' buildable item said 'the tensioner if PR 15456 has not landed' while that PR sat as a two-day-old draft; allocate.py listed it as an older open PR but nothing said whether a run may take it over, so I read land-your-work's stalled-PR rule and carried its commits over by cherry-pick."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "preflight runs main_health, which fails on the session's own unfilled run record; the prompt says record before merge and preflight before merge without ordering them, so the first preflight run (5+ min) was spent finding that out."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "PR 15456 (another session's draft, idle two days) held the same row's work; rather than wait or duplicate it, its two commits were cherry-picked onto current main with conflicts resolved, and this PR supersedes it.",
+      "did": "cherry-pick + conflict resolution in cad/README.md, llms.txt and flagships.yaml; PR 15456 to be closed as superseded after this merges",
+      "result": "tensioner landed with its tests passing on current main"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-flight-that-lifts-off-the-belt.md",
+    "docs/posts/2026-11-13-tensioning-a-belt-you-can-count.md (carried over from PR 15456)",
+    "ventures/open-tennis-robots/cad/README.md 'Flight caps on welded cleats'"
+  ],
+  "goal": "Deepen a flagship with a real engineering slice",
+  "notes": "Found: the lift's load model still used a 30 mm flight base plate that the welded-cleat change removed (and that could not wrap a 16-tooth pulley); a cleat alone would raise per-ball pull 0.70 to 1.30 N, full-belt 10.5 to 19.4 N. Built a printed cap with a loose trailing pad (arm 15.0 mm derived, pad length set by the pulley sweep), jam and weld checks, a CAD part (STL in the package), and a test turning it round both pulleys. Verification: cad tests 126 passed (397 s, build123d 0.13.0 venv); run_venture_tests.py open-tennis-robots ok (426.6 s); feeder package regenerated, manifest collisions [] and design_rules []; venture-preflight rerun after the record.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5fde40c8-03ae-5f0b-9b95-695b42df3495",
+    "transcripts": 1,
+    "first": "2026-11-15T00:18:38Z",
+    "last": "2026-11-15T00:46:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 130,
+        "output": 51185,
+        "thinking": 23772,
+        "cache_read": 8046423,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140778,
+        "api_equivalent_usd": 3.7597,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 130,
+      "output": 51185,
+      "thinking": 23772,
+      "cache_read": 8046423,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140778,
+      "api_equivalent_usd": 3.7597,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.63,
+      "active_minutes": 27.63,
+      "model_minutes": 9.73,
+      "tool_minutes": 17.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a mechanical engineer modelling the flight cap, its pulley clearance and jam loads in CAD, plus porting the tensioner PR: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 266.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

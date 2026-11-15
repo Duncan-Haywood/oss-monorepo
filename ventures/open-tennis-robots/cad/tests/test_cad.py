@@ -1315,6 +1315,65 @@ class LiftParamsTest(unittest.TestCase):
         self.assertTrue(any("hood" in r for r in Feeder(lift_hood_deg=80.0).check_lift()))
         self.assertIn(Feeder(lift_motor_nm=0.2).check_lift()[0], Feeder(lift_motor_nm=0.2).check())
 
+    def test_lift_tensioner_numbers(self):
+        p = Feeder()
+        d, t = p.lift_design(), p.lift_tension_design()
+        self.assertAlmostEqual(t["t0_n"], p.lift_tension_factor * d["pull_n"])
+        self.assertGreater(t["slack_n"], 0)
+        self.assertAlmostEqual(t["tight_n"] - t["slack_n"], d["pull_n"])
+        # the free centre is the belt's own length; the 959-tooth belt rounds up, so it sits a little long
+        self.assertAlmostEqual(2 * t["free_centre_mm"] + math.pi * p.lift_pd, d["belt_mm"])
+        self.assertGreater(t["free_centre_mm"], d["centre_mm"])
+        # travel spans both length tolerances, the stretch and the slack to put the belt on
+        self.assertAlmostEqual(t["travel_mm"], p.lift_belt_len_tol_mm + t["stretch_mm"] / 2 + p.lift_install_mm)
+        self.assertLess(t["off_lo_mm"], -p.lift_tooth_h)
+        self.assertTrue(t["off_lo_mm"] < t["off_set_mm"] < t["off_hi_mm"])
+        # the setting figures: a taut string's fundamental and a mid-span push
+        span = d["centre_mm"] / 1000
+        self.assertAlmostEqual(t["ring_hz"], math.sqrt(t["t0_n"] / p.lift_belt_kg_m) / (2 * span))
+        self.assertAlmostEqual(t["push_1n_mm"], span * 1000 / (4 * t["t0_n"]))
+        self.assertGreater(t["ring_hz_top"], t["ring_hz"])
+        self.assertAlmostEqual(t["jack_n"], 2 * (t["t0_n"] + t["strand_weight_n"]) + p.lift_top_kg * 9.81)
+        # the top clip sits under the head's lowest position; the spine stops under the lowered pulley's teeth
+        self.assertAlmostEqual(p.lift_clip_z()[-1] + 12.0, p.lift_head_z0 + t["off_lo_mm"] - p.LIFT_JACK_K - 1.0)
+        self.assertAlmostEqual(p.lift_spine_top_z, p.lift_z_top + t["off_lo_mm"] - p.lift_r_in - 3.0)
+        # the upper spine bolt's T-nut stays on the spine at the head's highest
+        self.assertLess(p.lift_head_z0 + t["off_hi_mm"] + max(p.LIFT_HEAD_BOLT_Z) + 2.5 + 6.0, p.lift_spine_top_z)
+
+    def test_lift_tensioner_rules_catch_bad_changes(self):
+        self.assertTrue(any("goes slack" in r for r in Feeder(lift_tension_factor=0.4).check_lift()))
+        self.assertTrue(any("come down far enough" in r
+                            for r in Feeder(lift_install_mm=0.0, lift_belt_len_tol_mm=0.0).check_lift()))
+        self.assertTrue(any("printed nut" in r for r in Feeder(lift_jack_nut_n=10.0).check_lift()))
+        self.assertTrue(any("T-nuts hold" in r for r in Feeder(lift_clip_slip_n=10.0).check_lift()))
+
+    def test_lift_flight_cap_numbers(self):
+        p = Feeder()
+        f, d = p.lift_flight_design(), p.lift_design()
+        w = p.ball_g / 1000 * 9.81
+        # the pad's far corner, a tangent off the belt's back, turns just inside the finger tips' sweep
+        self.assertAlmostEqual(f["pad_corner_r"], p.lift_r_sweep - p.lift_cap_sweep_clear)
+        # the couple: pad push x arm = ball weight x finger length; the cleat alone takes it over half its foot
+        self.assertAlmostEqual(f["pad_push_n"] * f["arm_mm"], w * p.lift_finger_l)
+        self.assertAlmostEqual(f["cleat_push_n"] * p.lift_cleat_foot / 2, w * p.lift_finger_l)
+        self.assertGreater(f["cleat_push_n"], 5 * f["pad_push_n"])
+        # the lift's sliding term uses the cap's arm (about the 30 mm base plate's 15 mm it replaced)
+        per = w * (1 + p.lift_crr_wall * d["rod_load_ratio"] + p.lift_mu_back * p.lift_finger_l / f["arm_mm"])
+        self.assertAlmostEqual(d["per_ball_n"], per)
+        self.assertAlmostEqual(f["arm_mm"], 15.0, delta=0.1)
+        # a stalled jam on one plate: the motor's stall pull, the plate's bending and the weld's peel
+        self.assertAlmostEqual(f["jam_n"], p.lift_motor_nm * p.lift_stall_factor / (p.lift_pd / 2000))
+        self.assertLess(f["jam_mpa"], p.lift_cap_allow_mpa)
+        self.assertLess(f["jam_peel_n"], p.lift_cleat_weld_n)
+        self.assertGreater(f["pad_gap_mm"], 0)
+
+    def test_lift_flight_cap_rules_catch_bad_changes(self):
+        self.assertTrue(any("pad" in r and "gap" in r for r in Feeder(lift_cap_pad_t=2.8).check_lift()))
+        self.assertTrue(any("nuts" in r for r in Feeder(lift_cap_pin_x=4.5).check_lift()))
+        self.assertTrue(any("cleat's top" in r for r in Feeder(lift_cap_pin_x=9.5).check_lift()))
+        self.assertTrue(any("MPa" in r for r in Feeder(lift_stall_factor=6.0).check_lift()))
+        self.assertTrue(any("peels" in r for r in Feeder(lift_cleat_weld_n=100.0).check_lift()))
+        self.assertTrue(any("width" in r for r in Feeder(lift_cap_pin_y=10.0).check_lift()))
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class LiftCadTest(unittest.TestCase):
@@ -1397,6 +1456,66 @@ class LiftCadTest(unittest.TestCase):
                 self.assertLess((belt & s).volume, 1.0, n)
         bb = belt.bounding_box()
         self.assertGreaterEqual(bb.min.Z - self.p.lift_wall, self.p.lift_ground_mm - 1e-6)
+
+    def test_flight_caps_turn_round_both_pulleys_clear(self):
+        """A cap rides rigid on its cleat, so round a pulley its loose pad stays a tangent off the belt's back. Start
+        it with its plate at the up strand's end (the pad's corner at its furthest out) and turn it about each pulley's
+        axis the way the belt goes: it stays inside the belt's envelope and clear of the boot, the head, the pulleys,
+        the spine and the base plate. On the straight it sits on the belt's back and inside the envelope."""
+        from build123d import Location
+        p = self.p
+        cap = self.F.lift_flight_cap_solid(p)
+        env = self.F.lift_belt_envelope(p)
+        others = [(n, s) for n in ("lift_boot", "lift_head", "lift_pulley", "lift_spine", "lift_base_plate", "lift_clip",
+                                   "lift_rod") for s in self._solids(n)]
+        placed = self._solids("lift_flight_cap")[0]
+        self.assertAlmostEqual((placed & env).volume, placed.volume, delta=1.0)
+        self.assertAlmostEqual(placed.bounding_box().min.X, p.lift_x_belt, places=3)     # the pad on the belt's back
+        for zc, sign in ((p.lift_z_bottom, 1), (p.lift_z_top, -1)):
+            ax = (p.lift_x_pulley, p.lift_y, zc)
+            for deg in range(0, 181, 15):
+                loc = (Location(ax) * Location((0, 0, 0), (0, sign * deg, 0)) * Location((-ax[0], -ax[1], -ax[2]))
+                       * Location((p.lift_x_belt, p.lift_y, zc)))
+                c = cap.moved(loc)
+                # the envelope's radius is the finger tip's middle; the plate's tip corners reach
+                # hypot(r_sweep, finger_t / 2), 0.1 mm further: a sliver of at most W (2/3) h^3 / r_sweep (about
+                # 10 mm^3; the boot and head are checked below)
+                h = p.lift_finger_t / 2
+                sliver = p.lift_finger_w * 2 / 3 * h ** 3 / p.lift_r_sweep
+                self.assertLess(c.volume - (c & env).volume, 1.1 * sliver + 0.5, (zc, deg))
+                for n, s in others:
+                    self.assertLess((c & s).volume, 1.0, (zc, deg, n))
+
+    def test_head_travels_its_whole_take_up_on_the_spine(self):
+        """Head (with the top pulley) moved to each end of its travel: clear of the spine, the top clip and the rods,
+        the rods still seated, and the four side bolts (they slide with the head in the spine's slots) still in the
+        spine."""
+        from build123d import Cylinder, Location
+        p = self.p
+        t = p.lift_tension_design()
+        head = self._solids("lift_head")[0]
+        pulley_top = max(self._solids("lift_pulley"), key=lambda s: s.bounding_box().max.Z)
+        spine = self._solids("lift_spine")[0]
+        clip = max(self._solids("lift_clip"), key=lambda s: s.bounding_box().max.Z)
+        rods = self._solids("lift_rod")
+        y_in, y_out = 20.0, p.lift_depth / 2 + p.lift_wall + 1.0
+        bolts = [Cylinder(2.5, y_out - y_in).moved(Location(
+            (p.lift_x_pulley, p.lift_y + s * (y_in + y_out) / 2, p.lift_head_z0 + zb), (90, 0, 0)))
+            for s in (1, -1) for zb in p.LIFT_HEAD_BOLT_Z]
+        for off in (t["off_lo_mm"], t["off_hi_mm"]):
+            h = head.moved(Location((0, 0, off)))
+            pu = pulley_top.moved(Location((0, 0, off)))
+            for name, s in [("spine", spine), ("clip", clip)] + [(f"rod{i}", r) for i, r in enumerate(rods)]:
+                self.assertLess((h & s).volume, 1.0, (off, name))
+            self.assertLess((pu & spine).volume, 1.0, off)
+            for i, b in enumerate(bolts):
+                b = b.moved(Location((0, 0, off)))
+                self.assertLess((h & b).volume, 1.0, (off, i))
+                self.assertLess(b.bounding_box().max.Z + 6.0, spine.bounding_box().max.Z, (off, i))   # T-nut on the spine
+            for r in rods:
+                self.assertGreater(r.bounding_box().max.Z - (p.lift_head_z0 + off), 10.0)
+            # jack screws: the head never comes down onto their hex heads
+            self.assertGreaterEqual(p.lift_head_z0 + off - p.LIFT_JACK_K - p.lift_clip_top_z, 1.0 - 1e-6)
 
     def test_lift_stands_outside_the_head_and_turntable_at_every_pose(self):
         from otr_cad.package import clashes

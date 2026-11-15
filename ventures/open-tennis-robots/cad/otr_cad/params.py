@@ -1018,9 +1018,8 @@ class Feeder:
     lift_belt_w: float = 25.0
     lift_finger_l: float = 16.0       # flight fingers stick out this far from the belt's back
     lift_finger_t: float = 5.0        # finger thickness (along the belt)
-    lift_finger_w: float = 30.0       # a flight's two fingers span this across the belt
+    lift_finger_w: float = 30.0       # a flight's plate spans this across the belt (the two fingers joined: see the caps)
     lift_flight_pitch: float = 150.0  # target spacing; rounded so a whole number of flights fit the belt
-    lift_flight_base: float = 30.0    # a flight's base plate along the belt (it takes the finger's moment on the spine)
     lift_finger_clear: float = 1.5    # a finger's top passes this far under the boot floor before it meets a ball
     lift_ground_mm: float = 30.0      # boot's underside above the court (the wheel brackets come down to 30)
     lift_wall: float = 3.0            # printed walls of the boot and head
@@ -1037,6 +1036,37 @@ class Feeder:
     chute_slope_deg: float = 8.0      # chute from the head to the tub (a bought tube, the take-up sleeve's size)
     chute_target: tuple = (-360.0, 120.0)  # plan point over the tub where the chute ends
     lift_strut_z: float = 1700.0      # 2020 strut from the spine to the +y front hopper post
+    # Top pulley's tensioner (2026-11-13): the head slides on the spine in vertical slots and two M5 jack screws in it
+    # push down on the top rod clip, so the head can be lowered to put the belt on and raised to tension it
+    # (`lift_tension_design`). Belt stiffness, mass and length tolerance are assumptions: read your belt's sheet.
+    lift_belt_kg_m: float = 0.085     # AT5 25 mm PU belt with steel cords, kg per metre (assumption)
+    lift_belt_cspec_n: float = 60000.0  # its force per unit strain (assumption: the sheet's c_spec x width)
+    lift_belt_len_tol_mm: float = 2.0  # welded endless length, +- this (assumption: ask the welder)
+    lift_tooth_h: float = 1.2         # AT5 tooth height
+    lift_install_mm: float = 5.0      # head lowered this far under the shortest belt's free length to slip the belt on
+    lift_tension_factor: float = 1.0  # static tension at the drive pulley over the lift's pull: the slack strand keeps half
+    lift_top_kg: float = 0.65         # head (0.51 kg of PETG at the package's infill), top pulley, axle and bearings
+    lift_jack_y: float = 28.0         # jack screws stand this far either side of the ball line, in the head's side walls
+    lift_jack_nut_n: float = 200.0    # load one captive M5 nut in a printed PETG pocket takes (assumption)
+    lift_clip_slip_n: float = 150.0   # load one M5 + T-nut holds a clip on the spine by friction (assumption)
+    # Flight caps (2026-11-15): a flight is a PU cleat the belt supplier welds to the belt's back (a screw through the
+    # belt does not fit an AT5 tooth) with a printed cap screwed to its leading face. The cap is the finger plate a ball
+    # sits on, two cheeks round the cleat's ends and a pad that lies on the belt's back behind the cleat, not bonded to
+    # it: on the straight the pad takes the plate's moment as a couple over a long arm, and round a pulley the belt
+    # falls away under it, so the pad never stops the belt wrapping (`lift_flight_design`). A cleat alone would take
+    # the moment across its own few-mm foot, pressing the belt into the spine's strip with several times the force.
+    lift_cleat_h: float = 12.0        # welded cleat's height off the belt's back (a stock straight PU cleat, cut to width)
+    lift_cleat_t: float = 3.0         # its thickness along the belt
+    lift_cleat_foot: float = 5.0      # its welded foot along the belt (assumption: ask the welder)
+    lift_cleat_weld_n: float = 300.0  # pull one cleat's weld takes before it peels (assumption: ask the welder)
+    lift_cap_gap: float = 0.5         # cap's plate and cheeks stand this far off the belt's back
+    lift_cap_pad_t: float = 2.0       # pad's thickness: it passes under a waiting ball, inside the channel's gap
+    lift_cap_cheek: float = 2.25      # cheeks outside the cleat's ends, inside the 30 mm plate
+    lift_cap_sweep_clear: float = 1.0  # pad's far corner turns this far inside the finger tips' sweep round a pulley
+    lift_cap_pin_x: float = 7.5       # the two M3 through the plate and the cleat, this far off the belt's back
+    lift_cap_pin_y: float = 7.0       # and this far either side of the ball line
+    lift_stall_factor: float = 2.5    # gearmotor's stall torque over its rated (assumption: read yours); a jam meets it
+    lift_cap_allow_mpa: float = 20.0  # bending stress allowed in a printed PETG plate printed flat (assumption)
 
     # Hopper agitator (2026-11-13): balls piled over a 75 mm outlet for 67 mm balls bridge it (two or three on the floor
     # round the hole, each held in by the others), and the feed column then runs dry. A printed two-arm stirrer turns
@@ -3504,9 +3534,26 @@ class Feeder:
     def lift_clip_z(self) -> list[float]:
         """Rod clips' bottom faces: one on the base plate, then evenly up to just under the head."""
         z0 = self.rail_top + self.plate_t
-        z1 = self.lift_head_z0 - 12.0
+        z1 = self.lift_clip_top_z - 12.0                                # the top one: the jack screws stand on it
         n = max(1, math.ceil((z1 - z0) / self.lift_clip_max_mm))
         return [z0 + k * (z1 - z0) / n for k in range(n + 1)]
+
+    LIFT_JACK_K = 3.5                  # M5 hex head's height: it sits between the top clip and the head
+    LIFT_HEAD_BOLT_Z = (45.0, 62.0)    # head's M5s into the spine's +-y slots, above the head's underside
+
+    @property
+    def lift_clip_top_z(self) -> float:
+        """Top face of the top rod clip: under the head's lowest position by a jack screw's head and 1 mm."""
+        return self.lift_head_z0 + self.lift_head_lowest() - self.LIFT_JACK_K - 1.0
+
+    @property
+    def lift_spine_top_z(self) -> float:
+        """The spine stops under the top pulley's tooth tips with the head at its lowest."""
+        return self.lift_z_top + self.lift_head_lowest() - self.lift_r_in - 3.0
+
+    def lift_head_lowest(self) -> float:
+        """How far below its CAD position the head must come down to put the belt on (negative)."""
+        return self.lift_tension_design()["off_lo_mm"]
 
     @property
     def lift_head_z0(self) -> float:
@@ -3527,7 +3574,7 @@ class Feeder:
         Load: every flight on the up strand carrying a ball (the belt runs on after a burst). Per ball: its weight;
         rolling up the front rod, which the finger pushes it against (the finger holds the ball off centre, so the rod
         takes weight x offset / height of the contact); and the belt's sliding on the spine's strip, where the finger's
-        moment is taken as a couple over the flight's base plate.
+        moment is taken as a couple over the cap's pad (`lift_flight_design`).
         """
         r = self.ball_d / 2
         w = self.ball_g / 1000 * 9.81
@@ -3547,7 +3594,7 @@ class Feeder:
         off = self.lift_gap + r - self.lift_finger_l
         dz = math.sqrt(max(r * r - off * off, 1e-9))
         n_wall = off / dz
-        per_ball = w * (1 + self.lift_crr_wall * n_wall + self.lift_mu_back * 2 * self.lift_finger_l / self.lift_flight_base)
+        per_ball = w * (1 + self.lift_crr_wall * n_wall + self.lift_mu_back * self.lift_finger_l / self.lift_flight_design()["arm_mm"])
         up = int(c // pitch)
         pull = up * per_ball
         torque = pull * self.lift_pd / 2 / 1000
@@ -3569,6 +3616,98 @@ class Feeder:
             "head_top_z": self.lift_z_top + self.lift_r_out + self.lift_depth + self.lift_wall,
             # balls still on their way when the last one is fed: the far end of the trough plus the lift
             "run_on_s": self.trough_design()["run_time_s"] + transit + 2.0,
+        }
+
+    def lift_tension_design(self) -> dict:
+        """Tension, take-up travel and setting figures for the top pulley.
+
+        Tension: the bottom pulley drives, so the down strand is the slack one there. With a static tension T0 at the
+        drive pulley the strands carry T0 +- pull / 2; `lift_tension_factor` = 1 keeps half the pull in the slack strand
+        (a 16-tooth pulley has only 8 teeth in mesh, so it must not go slack). Each strand also hangs its own weight from
+        the top pulley, so the top pulley carries 2 (T0 + strand weight).
+
+        Travel (head offsets from the CAD position, + up): the belt's free centre distance is (length - pi d) / 2 for
+        its welded length +- `lift_belt_len_tol_mm`; the tension stretches it by length x mean tension / c_spec, which
+        adds half that to the centre distance. The head must come down to the shortest belt's free centre less
+        `lift_install_mm` (the belt slips on with the head there) and up to the longest belt's tensioned centre.
+
+        Setting it: a strand of length L, mass m per metre and tension T rings at f = sqrt(T / m) / (2 L); pushed
+        sideways at mid-span with a force P it moves P L / (4 T).
+        """
+        d = self.lift_design()
+        g = 9.81
+        pull = d["pull_n"]
+        t0 = self.lift_tension_factor * pull
+        span = d["centre_mm"] / 1000
+        w_strand = self.lift_belt_kg_m * span * g
+        t_mean = t0 + w_strand / 2                       # mean along a strand, tight and slack averaged
+        stretch_mm = d["belt_mm"] * t_mean / self.lift_belt_cspec_n
+        c_free = (d["belt_mm"] - math.pi * self.lift_pd) / 2
+        tol = self.lift_belt_len_tol_mm / 2
+        off_lo = c_free - tol - d["centre_mm"] - self.lift_install_mm
+        off_hi = c_free + tol + stretch_mm / 2 - d["centre_mm"]
+        off_set = c_free + stretch_mm / 2 - d["centre_mm"]        # the belt as ordered, tensioned
+        top_n = 2 * (t0 + w_strand)
+        jack_n = top_n + self.lift_top_kg * g                     # the two jack screws hold the head up off the clip
+        t_top = t0 + w_strand                                     # tension at the top of a strand (it hangs from there)
+        return {
+            "t0_n": t0, "slack_n": t0 - pull / 2, "tight_n": t0 + pull / 2, "strand_weight_n": w_strand,
+            "stretch_mm": stretch_mm, "free_centre_mm": c_free, "off_lo_mm": off_lo, "off_hi_mm": off_hi,
+            "off_set_mm": off_set, "travel_mm": off_hi - off_lo, "top_load_n": top_n, "jack_n": jack_n,
+            "jack_each_n": jack_n / 2, "clip_n": jack_n,
+            "ring_hz": math.sqrt(t0 / self.lift_belt_kg_m) / (2 * span),
+            "ring_hz_top": math.sqrt(t_top / self.lift_belt_kg_m) / (2 * span),
+            "push_1n_mm": 1.0 * span * 1000 / (4 * t0),
+        }
+
+    M3_NUT_AC = 6.4                    # M3 nut across corners
+    M3_HOLE = 3.4
+
+    def lift_flight_design(self) -> dict:
+        """A flight's printed cap on its welded cleat, in the flight's own frame: x off the belt's back, z along the
+        travel with z = 0 the middle of the finger plate (the plate spans +-finger_t/2, the leading face up), the
+        cleat behind it and the pad behind that.
+
+        Moment: a ball's weight W sits on the plate up to finger_l out, so the plate puts a moment W finger_l into the
+        belt. It tips the plate's tip back, so the pad presses into the belt (and the belt into the spine's strip) while
+        the cleat's foot pulls the belt off it. The pad's pressure is taken as rising linearly from its near end (the
+        cap pivots on the cleat's foot), so the push acts two thirds of the way along the pad. `lift_design` uses
+        that arm for the belt's sliding on the strip. With no cap the couple is across the cleat's foot, taken as half
+        the foot.
+
+        The pad's length: round a pulley the pad stays a tangent while the belt wraps away under it, so its far corner
+        swings out to sqrt(r_out^2 + L^2) from the pulley's axis; that must stay inside the finger tips' sweep, which
+        the boot, the hood and the belt's envelope are drawn round.
+
+        Jam: a ball caught between a plate and the boot or the hood stops the belt, and the gearmotor's stall torque
+        then pushes on one plate: its root bending stress and the weld's peel are checked at that pull.
+        """
+        r_out, sweep = self.lift_r_out, self.lift_r_sweep
+        h = self.lift_finger_t / 2
+        z_cleat0, z_cleat1 = -h - self.lift_cleat_t, -h                 # cleat's trailing and leading faces
+        z_pad0 = z_cleat0 - 0.5                                          # pad starts just behind the cleat
+        reach = math.sqrt(max((sweep - self.lift_cap_sweep_clear) ** 2 - r_out ** 2, 0.0))
+        z_pad1 = -reach                                                  # far end, measured from the plate's middle
+        pad_l = z_pad0 - z_pad1
+        z_foot = (z_cleat0 + z_cleat1) / 2
+        arm = (z_foot - z_pad0) + 2 * pad_l / 3
+        arm_cleat = self.lift_cleat_foot / 2
+        w = self.ball_g / 1000 * 9.81
+        n_pad = w * self.lift_finger_l / arm
+        n_cleat = w * self.lift_finger_l / arm_cleat
+        jam_n = self.lift_motor_nm * self.lift_stall_factor / (self.lift_pd / 2000)
+        z_plate = self.lift_finger_w * self.lift_finger_t ** 2 / 6
+        jam_mpa = jam_n * self.lift_finger_l / z_plate
+        jam_peel_n = jam_n * self.lift_finger_l / arm
+        nut_low = self.lift_cap_pin_x - self.M3_NUT_AC / 2
+        return {
+            "pad_mm": pad_l, "pad_z": (z_pad1, z_pad0), "cleat_z": (z_cleat0, z_cleat1), "arm_mm": arm,
+            "arm_cleat_mm": arm_cleat, "pad_push_n": n_pad, "cleat_push_n": n_cleat,
+            "pad_corner_r": math.sqrt(r_out ** 2 + reach ** 2), "jam_n": jam_n, "jam_mpa": jam_mpa,
+            "jam_peel_n": jam_peel_n, "nut_clear_mm": nut_low - self.lift_cap_pad_t,
+            "pin_edge_mm": self.lift_cleat_h - self.lift_cap_pin_x - self.M3_HOLE / 2,
+            "pad_gap_mm": self.lift_gap - self.lift_cap_pad_t,
+            "cap_len_mm": h - z_pad1,
         }
 
     def check_lift(self) -> list[str]:
@@ -3603,6 +3742,35 @@ class Feeder:
             bad.append("lift head's drop floor is too flat to turn a finger's push toward the chute")
         if self.chute_slope_deg < math.degrees(math.atan(self.trough_slope_factor * self.trough_crr)):
             bad.append("chute is too flat for a stopped ball to start again")
+        t = self.lift_tension_design()
+        if t["slack_n"] <= 0:
+            bad.append(f"lift belt's slack strand goes slack ({t['slack_n']:.1f} N): raise lift_tension_factor over 0.5")
+        if t["off_lo_mm"] > -self.lift_tooth_h:
+            bad.append("lift head cannot come down far enough to slip the belt over the top pulley's teeth")
+        if t["jack_each_n"] > self.lift_jack_nut_n:
+            bad.append(f"lift tensioner's jack screws take {t['jack_each_n']:.0f} N each, over a printed nut's "
+                       f"{self.lift_jack_nut_n:g} N")
+        if t["clip_n"] > 2 * self.lift_clip_slip_n:
+            bad.append(f"lift tensioner pushes the top clip down with {t['clip_n']:.0f} N, more than its two T-nuts hold")
+        f = self.lift_flight_design()
+        if f["pad_mm"] < 5.0:
+            bad.append("lift flight caps have no room for a pad behind the cleat inside the fingers' sweep")
+        if f["pad_gap_mm"] < 0.5:
+            bad.append("lift flight caps' pads are too thick to pass under a waiting ball in the channel's gap")
+        if f["nut_clear_mm"] < 0.5:
+            bad.append("lift flight caps' M3 nuts sit on the pad: raise lift_cap_pin_x")
+        if f["pin_edge_mm"] < 1.5:
+            bad.append("lift flight caps' M3 holes are too near the cleat's top")
+        if f["jam_mpa"] > self.lift_cap_allow_mpa:
+            bad.append(f"lift flight plate takes {f['jam_mpa']:.0f} MPa when a jam stalls the motor, over "
+                       f"{self.lift_cap_allow_mpa:g} MPa")
+        if f["jam_peel_n"] > self.lift_cleat_weld_n:
+            bad.append(f"lift cleat's weld peels at a stalled jam ({f['jam_peel_n']:.0f} N over "
+                       f"{self.lift_cleat_weld_n:g} N)")
+        if self.lift_cap_pin_y + self.M3_NUT_AC / 2 > self.lift_belt_w / 2 or self.lift_cap_cheek < 1.5:
+            bad.append("lift flight caps' screws or cheeks do not fit the cleat's width")
+        if self.lift_belt_w / 2 + self.lift_cap_cheek > self.lift_finger_w / 2 + 1e-9:
+            bad.append("lift flight caps' cheeks stand outside the plate")
         return bad
 
     # ---- hopper agitator (2026-11-13) ------------------------------------------
