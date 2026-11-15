@@ -1,4 +1,5 @@
 // node scripts/pile-first.mjs [--runs 24] [--sizes 8,12,15,20,30,40] [--spreads 6,3] [--taus 0,1.28,3.85] [--out docs/pile-first-2026-11-15.jsonl]
+// node scripts/pile-first.mjs --from a.jsonl,b.jsonl   summarise saved rows (shards run in parallel)
 //
 // Does "sort into piles first" (site/rank.html) save picks, and what does it
 // cost the order? For each simulated person the page's own loop runs twice on
@@ -14,8 +15,8 @@
 // spaced over `spread` logits, shuffled; picks logistic; stopCheck at 0.9; cap
 // suggestedMax. Each row: picks, hit cap, true Spearman of the shown order,
 // whether the shown top is the true top, and the stop-time confidence.
-import { writeFileSync } from "node:fs";
-import { fit, nextPair, order, orderConfidence, suggestedMax, stopCheck } from "../site/rank-core.mjs";
+import { writeFileSync, readFileSync } from "node:fs";
+import { fit, pairFit, nextPair, order, orderConfidence, suggestedMax, stopCheck } from "../site/rank-core.mjs";
 import { spearmanWithTruth } from "./picks-needed.mjs";
 
 const args = process.argv.slice(2);
@@ -68,7 +69,7 @@ export function runLoop(truth, piles, pickSeed, { extra = 0 } = {}) {
   const top = truth.indexOf(Math.max(...truth));
   while (answers.length < Math.max(cap, extra)) {
     if (stop && answers.length >= extra) break;
-    const [a, b] = nextPair(f, answers, { seed: pickSeed });
+    const [a, b] = nextPair(pairFit(n, answers, pp, f), answers, { seed: pickSeed });
     const p = 1 / (1 + Math.exp(-(truth[a] - truth[b])));
     answers.push(coin() < p ? [a, b, false] : [b, a, false]);
     f = fit(n, answers, pp);
@@ -85,8 +86,9 @@ export function runLoop(truth, piles, pickSeed, { extra = 0 } = {}) {
 }
 
 if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
-  const rows = [];
-  for (const spread of SPREADS) for (const n of SIZES) for (let r = 0; r < RUNS; r++) {
+  const FROM = opt("--from", null);
+  const rows = FROM ? FROM.split(",").flatMap((f) => readFileSync(f, "utf8").trim().split("\n").map((l) => JSON.parse(l))) : [];
+  if (!FROM) for (const spread of SPREADS) for (const n of SIZES) for (let r = 0; r < RUNS; r++) {
     const seed = SEED0 + 7919 * r + 104729 * n + 13 * spread;
     const rand = mulberry32(seed);
     const truth = Array.from({ length: n }, (_, i) => -spread / 2 + (spread * i) / (n - 1));

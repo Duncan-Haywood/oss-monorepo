@@ -6,8 +6,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import {
-  pilePrior, pileTerms, pilePriorPhi, normalQuantile, PILE_NOISE, PILE_MIN_ITEMS, fit, fitAt, order, encodeAnswers, decodeAnswers,
-  modeAround, groupFit, personInfo, teamRanges, stopCheck, orderConfidence, nextPair, suggestedMax,
+  pilePrior, pileTerms, pilePriorPhi, pilePriorFit, PILE_TAU_GRID, normalQuantile, PILE_NOISE, PILE_MIN_ITEMS, fit, fitAt, order, encodeAnswers, decodeAnswers,
+  pairFit, PILE_AUDIT_EVERY, modeAround, groupFit, personInfo, teamRanges, stopCheck, orderConfidence, nextPair, suggestedMax,
 } from "./rank-core.mjs";
 import { refitRatings, REFIT_PRIOR_PHI, empiricalPriorPhi } from "./engine/btRefit.mjs";
 
@@ -114,7 +114,7 @@ function run(piles, truth, seed) {
   const n = truth.length, coin = mulberry32(seed), answers = [];
   let f = fit(n, answers, piles);
   while (answers.length < suggestedMax(n)) {
-    const [a, b] = nextPair(f, answers, { seed });
+    const [a, b] = nextPair(pairFit(n, answers, piles, f), answers, { seed });
     answers.push(coin() < 1 / (1 + Math.exp(-(truth[a] - truth[b]))) ? [a, b, false] : [b, a, false]);
     f = fit(n, answers, piles);
     if (stopCheck(n, answers, { fixedFit: f, fixedConfidence: orderConfidence(f), piles }).done) break;
@@ -138,6 +138,26 @@ test("with right piles the stop rule's own-prior check is not fooled into a floo
   assert.ok(withPiles < 0.7 * without, `picks with piles ${withPiles} vs without ${without}`);
 });
 
+test("the person's own picks read their pile noise: right piles read careful, reversed piles read near no information", () => {
+  const n = 15, truth = Array.from({ length: n }, (_, i) => 3 - (6 * i) / (n - 1));
+  const right = truth.map((_, i) => Math.min(2, Math.floor((3 * i) / n)));
+  const reversed = right.map((p) => 2 - p);
+  const answers = run(right, truth, 21);
+  assert.ok(pilePriorFit(n, answers, right).tau <= PILE_TAU_GRID[1], "right piles");
+  assert.equal(pilePriorFit(n, answers, reversed).tau, PILE_TAU_GRID.at(-1), "reversed piles");
+});
+
+test("every PILE_AUDIT_EVERY-th pair is chosen without the piles, and only when there are piles", () => {
+  const n = 6, piles = [0, 0, 1, 1, 2, 2], f = fit(n, [], piles);
+  const answers = [];
+  for (let k = 0; k < 2 * PILE_AUDIT_EVERY; k++) {
+    const g = pairFit(n, answers, piles, f);
+    assert.equal(g === f, k % PILE_AUDIT_EVERY !== PILE_AUDIT_EVERY - 1, `turn ${k}`);
+    assert.equal(pairFit(n, answers, undefined, f), f);
+    answers.push([0, 1, false]);
+  }
+});
+
 test("fitAt passes the piles through at another prior sd", () => {
   const piles = [0, 1, 2, null];
   const a = fitAt(4, [], 1, piles), pp = pilePrior(piles, { phi: 1 });
@@ -147,6 +167,6 @@ test("fitAt passes the piles through at another prior sd", () => {
 test("the rank page offers the pile step on long lists, passes piles to the stop rule and the code, and says how to skip", () => {
   const html = readFileSync(join(here, "rank.html"), "utf8");
   assert.ok(PILE_MIN_ITEMS >= 8 && PILE_MIN_ITEMS <= 20);
-  for (const s of ['id="piles"', 'id="pile-skip"', "PILE_MIN_ITEMS", "piles: myPiles()", "fitNow()", "piles_started", "piles_skipped"]) assert.ok(html.includes(s), s);
+  for (const s of ['id="piles"', 'id="pile-skip"', "PILE_MIN_ITEMS", "piles: myPiles()", "fitNow()", "pairFit(n, state.answers, myPiles(), f)", "piles_started", "piles_skipped"]) assert.ok(html.includes(s), s);
   assert.ok(!/fit\(state\.items\.length, state\.answers\)/.test(html), "every fit on the page goes through fitNow");
 });

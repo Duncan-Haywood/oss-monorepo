@@ -153,9 +153,9 @@ export function fit(n, answers, piles) {
 }
 
 /** The same refit at another prior sd (internal logit scale; the fixed one is REFIT_PRIOR_PHI, 2.01). */
-export function fitAt(n, answers, priorPhi, piles) {
+export function fitAt(n, answers, priorPhi, piles, tau = PILE_NOISE) {
   const opts = { priorPhi };
-  const pp = piles ? pilePrior(piles, { phi: priorPhi }) : null;
+  const pp = piles ? pilePrior(piles, { phi: priorPhi, tau }) : null;
   if (pp) Object.assign(opts, { priorMean: pp.mean, priorScale: pp.scale });
   const r = refitRatings(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), opts);
   return { mu: r.mu, cov: r.cov, n };
@@ -202,8 +202,25 @@ export function pileTerms(piles, { phi = REFIT_PRIOR_PHI } = {}) {
   };
 }
 
-/** Lists shorter than this skip the pile step: below it a pile tap saves less than it costs (doc table). */
-export const PILE_MIN_ITEMS = 12;
+/**
+ * Every PILE_AUDIT_EVERY-th pair is chosen as if there were no piles. The
+ * pile prior is self-confirming otherwise: it calls pairs from different
+ * piles settled, so the picker never asks one and nothing tests a misplaced
+ * option. On 24 simulated close-call people (20 options, piles at the
+ * assumed noise) the order shown at the stop had a true Spearman of 0.79
+ * while the stop claimed 0.90 (0.86 with no piles); with a check pair every
+ * 4th pick it was 0.86, claimed 0.88, for 122 picks instead of 99
+ * (docs/RANK-PAGE.md, "Sort into piles first").
+ */
+export const PILE_AUDIT_EVERY = 4;
+
+/** The fit nextPair should read: the piles' fit `f`, or on a check turn the fit without them. */
+export function pairFit(n, answers, piles, f) {
+  return pilePrior(piles) && answers.length % PILE_AUDIT_EVERY === PILE_AUDIT_EVERY - 1 ? fit(n, answers) : f;
+}
+
+/** Lists shorter than this skip the pile step: three piles of two or three say little, and lists under 8 were not measured (doc table: 8 options already save a fifth of the actions). */
+export const PILE_MIN_ITEMS = 8;
 
 const stdPdf = (z) => Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
 /** Inverse standard normal CDF (Acklam's rational approximation, relative error under 1.2e-9). */
@@ -271,9 +288,9 @@ export function pilePrior(piles, { phi = REFIT_PRIOR_PHI, tau = PILE_NOISE } = {
  * half of perfectly sorted 15-option runs hit the cap). This one scores the
  * piles and the picks together.
  */
-export function pileEvidence(n, answers, piles, phi) {
-  const pp = pilePrior(piles, { phi });
-  const f = fitAt(n, answers, phi, piles);
+export function pileEvidence(n, answers, piles, phi, tau = PILE_NOISE) {
+  const pp = pilePrior(piles, { phi, tau });
+  const f = fitAt(n, answers, phi, piles, tau);
   let s = 0;
   for (let i = 0; i < n; i++) {
     const z = (f.mu[i] - pp.mean[i]) / pp.scale[i];
@@ -289,11 +306,29 @@ export function pileEvidence(n, answers, piles, phi) {
   return s + 0.5 * n * Math.log(2 * Math.PI) + 0.5 * logDetCov;
 }
 
+/**
+ * Misplacement noise values the stop rule's second read tries for a person's
+ * piles (logits): careful, the assumed PILE_NOISE, careless, and close to
+ * no information. Their own picks pick one, by the same evidence.
+ */
+export const PILE_TAU_GRID = [0.5, PILE_NOISE, 3, 8];
+
+/** The person's own prior sd and pile noise: for each tau in the grid, golden-section on log phi; the best evidence wins. */
+export function pilePriorFit(n, answers, piles, { steps = STOP_EB_STEPS, taus = PILE_TAU_GRID } = {}) {
+  let best = null;
+  for (const tau of taus) {
+    const phi = pilePriorPhi(n, answers, piles, { steps, tau });
+    const ev = pileEvidence(n, answers, piles, phi, tau);
+    if (!best || ev > best.ev) best = { phi, tau, ev };
+  }
+  return { phi: best.phi, tau: best.tau };
+}
+
 /** The person's own prior sd with their piles in the model: golden-section on log phi over [EB_PHI_MIN, REFIT_PRIOR_PHI]. */
-export function pilePriorPhi(n, answers, piles, { steps = STOP_EB_STEPS } = {}) {
+export function pilePriorPhi(n, answers, piles, { steps = STOP_EB_STEPS, tau = PILE_NOISE } = {}) {
   const g = (Math.sqrt(5) - 1) / 2;
   let a = Math.log(EB_PHI_MIN), b = Math.log(REFIT_PRIOR_PHI);
-  const ev = (x) => pileEvidence(n, answers, piles, Math.exp(x));
+  const ev = (x) => pileEvidence(n, answers, piles, Math.exp(x), tau);
   let c = b - g * (b - a), d = a + g * (b - a), fc = ev(c), fd = ev(d);
   for (let i = 0; i < steps; i++) {
     if (fc > fd) { b = d; d = c; fd = fc; c = b - g * (b - a); fc = ev(c); }
@@ -302,6 +337,12 @@ export function pilePriorPhi(n, answers, piles, { steps = STOP_EB_STEPS } = {}) 
   // The ends are candidates too: a consistent person's best phi is the ceiling.
   const cands = [[Math.log(REFIT_PRIOR_PHI), ev(Math.log(REFIT_PRIOR_PHI))], [(a + b) / 2, ev((a + b) / 2)]];
   return Math.exp(cands.sort((x, y) => y[1] - x[1])[0][0]);
+}
+
+/** The stop rules' second read: the person's own prior sd, and with piles their own pile noise too. */
+function ownPrior(n, answers, piles, steps) {
+  if (pilePrior(piles)) return pilePriorFit(n, answers, piles, { steps });
+  return { phi: empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps }), tau: PILE_NOISE };
 }
 
 /** Golden-section steps for the stop rule's prior search; 8 is the insights route's (phi within about 4.5%). */
@@ -328,10 +369,10 @@ export function stopCheck(n, answers, { fixedFit, fixedConfidence, force = false
   const f = fixedFit || fit(n, answers, piles);
   const cf = fixedConfidence ?? (answers.length ? orderConfidence(f) : 0);
   if (!answers.length || (!force && cf < STOP_CONFIDENCE)) return { done: false, confidence: cf, phi: null };
-  const phi = pilePrior(piles) ? pilePriorPhi(n, answers, piles, { steps }) : empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps });
-  const ce = phi >= REFIT_PRIOR_PHI * 0.999 ? cf : orderConfidence(fitAt(n, answers, phi, piles));
+  const { phi, tau } = ownPrior(n, answers, piles, steps);
+  const ce = phi >= REFIT_PRIOR_PHI * 0.999 && tau === PILE_NOISE ? cf : orderConfidence(fitAt(n, answers, phi, piles, tau));
   const confidence = Math.min(cf, ce);
-  return { done: confidence >= STOP_CONFIDENCE, confidence, phi };
+  return { done: confidence >= STOP_CONFIDENCE, confidence, phi, tau: pilePrior(piles) ? tau : null };
 }
 
 const normalCdf = (z) => {
@@ -458,8 +499,8 @@ export function topStopCheck(n, answers, k, { fixedFit, force = false, steps = S
   const f = fixedFit || fit(n, answers, piles);
   const cf = answers.length ? topSetConfidence(f, k, { measure }) : 0;
   if (!answers.length || (!force && cf < level)) return { done: false, confidence: cf, phi: null };
-  const phi = pilePrior(piles) ? pilePriorPhi(n, answers, piles, { steps }) : empiricalPriorPhi(ids(n), answers.map(([w, l, t]) => ({ winner: String(w), loser: String(l), tie: !!t })), { steps });
-  const ce = phi >= REFIT_PRIOR_PHI * 0.999 ? cf : topSetConfidence(fitAt(n, answers, phi, piles), k, { measure });
+  const { phi, tau } = ownPrior(n, answers, piles, steps);
+  const ce = phi >= REFIT_PRIOR_PHI * 0.999 && tau === PILE_NOISE ? cf : topSetConfidence(fitAt(n, answers, phi, piles, tau), k, { measure });
   const confidence = Math.min(cf, ce);
   return { done: confidence >= level, confidence, phi };
 }
