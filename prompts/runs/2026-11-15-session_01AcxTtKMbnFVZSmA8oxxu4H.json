@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKMbnFVZSmA8oxxu4H",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T14:06:26Z",
+  "ended": "2026-11-15T14:19:38Z",
+  "wall_minutes": 13.52,
+  "tokens_in": 9185658,
+  "tokens_out": 57021,
+  "cost_usd": 4.3235,
+  "tool_calls": 75,
+  "task": "Flagship 7 photo-editing (allocate.py row 5): RW2 RawFormat 8, the top next: item",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16235",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": false,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "tests/test_rw2_c8.py helper _counted wrote the item count, not the pair count, for (len, code) arrays: 7 tests failed on first run, fixed in the helper",
+    "first hand-worked shift test assumed short inverted-canonical codes start with a 0 bit; they start with 1. Rewrote the example around the real codes"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing next: said RawFormat 8 downloads were proxy-refused on 2026-11-15; this run the same raw.pixls.us files came through with curl -L (27-156 MB). A refusal noted as a blocker was transient, so the next run should probe before skipping an item"
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "the buildable field is at its 600-char cap, so a landed item cannot be named there without cutting another; left unchanged"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-every-current-lumix-raw-reads-without-a-dng-converter.md",
+    "ventures/photo-editing/eval/panasonic-rw2-format8-2026-11-15.md"
+  ],
+  "goal": "Deepen a flagship: every current Lumix body's raw files develop without a DNG converter",
+  "notes": "Read LibRaw 0.22 pana8.cpp/tiff.cpp to learn the RawFormat 8 layout and wrote an independent Python reference and C port. Python matched LibRaw on 16 rows of every tile of all 10 files at the first try, then the C path matched on all 464,600,640 sensels. The white level differed on 12/14-bit files (LibRaw 4079/16319). Counting the top levels showed 474,477 blown sensels at 16381-16382 on the S1 II 96 MP frame, so LibRaw's margin was adopted. Verification: tools/rw2_libraw_check.py on 10 files, exit 0 (rows in eval jsonl); python3 platform/ci/run_venture_tests.py photo-editing: 1175 tests, 0 failed; shootflow develop on a GH7 file wrote a master in 4.6 s. The venture preflight result is recorded in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "81b872d6-58be-5e4e-9e7b-45912c798dc7",
+    "transcripts": 1,
+    "first": "2026-11-15T14:06:26Z",
+    "last": "2026-11-15T14:19:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 134,
+        "output": 57021,
+        "thinking": 17584,
+        "cache_read": 9013029,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172495,
+        "api_equivalent_usd": 4.3235,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 134,
+      "output": 57021,
+      "thinking": 17584,
+      "cache_read": 9013029,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172495,
+      "api_equivalent_usd": 4.3235,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 69,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.52,
+      "active_minutes": 13.52,
+      "model_minutes": 10.3,
+      "tool_minutes": 3.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior raw-format engineer: learn a Huffman tiled layout from a reference decoder, write Python and C decoders, an encoder for tests, validate on 10 real files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 370.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
