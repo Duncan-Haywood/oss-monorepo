@@ -4249,6 +4249,14 @@ export async function finishPagesInOneWalk(outDir, { baseUrl, siteName, siteCard
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
 const NOSCRIPT_CONTROL_RE = /<(?:input|select|button|textarea)\b/i;
 const BODY_OPEN_RE = /<body\b[^>]*>/i;
+// Controls the site itself adds to every page: the "Embed this tool" box
+// (embed.mjs, `pf-embed-offer`) and the chrome's search form (site-nav.mjs,
+// a plain GET form that works with scripts off). Measured 2026-11-15: five
+// venture pages with no script and no field of their own (ShootFlow,
+// quick-pick-survey, photos-import-tools, vendor-watch, the Garmin watch
+// face) told visitors "This tool needs JavaScript to calculate" because the
+// embed box's textarea and copy button counted as the page's controls.
+const SITE_OWNED_CONTROLS_RE = /<details class="pf-chrome pf-embed-offer"[\s\S]*?<\/details>|<form class="pfs-search"[\s\S]*?<\/form>/gi;
 export const NOSCRIPT_NOTICE =
   '<noscript><p role="note" style="margin:0;padding:12px 16px;background:#fff4d6;color:#4a3300;'
   + 'border-bottom:1px solid #d9b45a;font:600 15px/1.4 system-ui,sans-serif">'
@@ -4267,7 +4275,7 @@ export const NOSCRIPT_NOTICE =
  */
 export function addNoscriptNotice(html) {
   if (/<noscript\b/i.test(html)) return html;
-  if (!NOSCRIPT_SCRIPT_RE.test(html) || !NOSCRIPT_CONTROL_RE.test(html)) return html;
+  if (!NOSCRIPT_SCRIPT_RE.test(html) || !NOSCRIPT_CONTROL_RE.test(html.replace(SITE_OWNED_CONTROLS_RE, ''))) return html;
   const body = BODY_OPEN_RE.exec(html);
   if (!body) return html;
   const at = body.index + body[0].length;
