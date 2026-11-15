@@ -62,6 +62,15 @@ test('buildReport flags a Does Not Support row with only whitespace remarks', ()
   assert.ok(issue, 'whitespace-only remarks must not count as present');
 });
 
+test('every Level A or AA row left Not Evaluated is an issue, because the VPAT terms reserve it for AAA', () => {
+  const report = buildReport({});
+  const ne = report.issues.filter((i) => i.kind === 'not-evaluated-a-aa');
+  assert.equal(ne.length, 50);
+  assert.doesNotMatch(reportAsText(report), /No completeness issues found/);
+  const one = buildReport({ rows: { '1.4.10': { level: 'not-evaluated', remarks: 'later' } } });
+  assert.ok(one.issues.some((i) => i.criterionId === '1.4.10' && i.kind === 'not-evaluated-a-aa'));
+});
+
 test('buildReport does not require remarks on Supports, Not Applicable, or Not Evaluated rows', () => {
   const report = buildReport({
     rows: {
@@ -70,7 +79,7 @@ test('buildReport does not require remarks on Supports, Not Applicable, or Not E
       '2.1.1': { level: 'not-evaluated', remarks: '' },
     },
   });
-  const flagged = report.issues.map((i) => i.criterionId);
+  const flagged = report.issues.filter((i) => i.kind === 'remarks-required').map((i) => i.criterionId);
   assert.ok(!flagged.includes('1.1.1'));
   assert.ok(!flagged.includes('1.2.4'));
   assert.ok(!flagged.includes('2.1.1'));
