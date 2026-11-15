@@ -1,4 +1,4 @@
-"""Milestone 6zzl data: ERA5 daily surface shortwave radiation (shortwave_radiation_sum, MJ/m2/day) for 2005 to 2024 at
+"""Milestone 6zzm data: ERA5 daily surface shortwave radiation (shortwave_radiation_sum, MJ/m2/day) for 2005 to 2024 at
 the nine high-amplitude points of 6zza (the same coordinates as the NASA POWER series the programme uses), as an
 independent check on whether the NASA POWER months that make the lag-3 learning years (2007 and 2012) fail are real
 weather or an artefact of the satellite product.
