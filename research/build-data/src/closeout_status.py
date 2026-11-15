@@ -58,6 +58,17 @@ def summarise(rows, status_key):
     return dict(total=tot, share={k: v / tot for k, v in sorted(out.items(), key=lambda kv: -kv[1])})
 
 
+def by_year(rows, status_key):
+    """Per issue year: the never-completed count and each status's share (lower-cased)."""
+    out = {}
+    for r in rows:
+        y, k = str(int(float(r["y"]))), str(r.get(status_key, "")).strip().lower() or "(blank)"
+        out.setdefault(y, {})
+        out[y][k] = out[y].get(k, 0) + int(r["n"])
+    return {y: dict(n=sum(v.values()), share={k: x / sum(v.values()) for k, x in sorted(v.items(), key=lambda kv: -kv[1])})
+            for y, v in sorted(out.items())}
+
+
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     res = dict(note=__doc__.strip().split("\n")[0],
@@ -70,6 +81,7 @@ if __name__ == "__main__":
             out["results"][k] = get(url(f, q))
         out["never_completed"] = summarise(out["results"]["by_status_never_completed"], f["status"])
         out["completed"] = summarise(out["results"]["by_status_completed"], f["status"])
+        out["never_completed_by_year"] = by_year(out["results"]["by_year_status_never"], f["status"])
         res["cities"][c] = out
         print(c, out["never_completed"]["total"], {k: round(v, 3) for k, v in list(out["never_completed"]["share"].items())[:6]},
               "| completed:", {k: round(v, 3) for k, v in list(out["completed"]["share"].items())[:4]}, flush=True)
