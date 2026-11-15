@@ -358,10 +358,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the lift's jaw coupling as a spring with play landed
-      2026-11-15 (cad/README.md "Lift coupling dynamics": three-inertia sweep, 100
-      ms soft start). Next: a printable test ring for the F626 press fit in PETG
-      (bore steps 0.00-0.15 mm over) in the manufacturing package.
+      venv, about 2 min): the F626 fit test ring landed 2026-11-15 (cad/README.md
+      "Bearing fit test ring": 7 discs 0-0.15 mm a side over, lift_bearing_fit_mm
+      sets the boot's pockets, Lame push and hoop stress). Next: belt stretch as a
+      fourth inertia in tests/lift_jam_sweep.py (the belt's span stiffness from its
+      modulus, assumed; does the 49 Hz stuck mode or a jam's flight load move?).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -389,11 +390,10 @@ flagships:
       start and a stall; read the gearmotor's rotor inertia; set a built slip hub
       with a scale, hold a flight, watch it slip and trip; twist a jaw coupling with
       a lever and a scale for its stiffness and play; measure the lift gearmotor's
-      shaft and body (75 mm face to back at most) and press an F626 into a printed
-      boot. Scope GPIO 39 at part duty. Actuator's lead landed 2026-11-14
-      (cad/README.md "The elevation actuator's lead"): cut 220 mm, 209-231 fits;
-      find where a real actuator's cable leaves its housing and bend a built lead
-      through the travel.
+      shaft and body (75 mm face to back at most) and press F626s into the printed
+      fit ring (lift_bearing_fit_ring) and set lift_bearing_fit_mm. Scope GPIO 39 at
+      part duty. Actuator's lead: cut 220 mm, 209-231 fits; find where a real
+      actuator's cable leaves its housing and bend a built lead through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

@@ -1456,7 +1456,8 @@ def trough_sump(p: Feeder) -> Part:
 LIFT_PARTS = ("lift_boot", "lift_base_plate", "lift_spine", "lift_belt", "lift_pulley", "lift_motor", "lift_rod",
               "lift_clip", "lift_head", "lift_jack_screw", "lift_chute", "lift_strut", "lift_flight_cap",
               "lift_slip_plate", "lift_slip_facing", "lift_slip_spring", "lift_slip_collar", "lift_shaft",
-              "lift_shaft_bearing", "lift_shaft_coupler", "lift_motor_spacer")
+              "lift_shaft_bearing", "lift_shaft_coupler", "lift_motor_spacer",
+              "lift_bearing_fit_ring")
 
 
 def _stadium(p: Feeder, r: float, z0: float, z1: float, half_w: float, x: float | None = None):
@@ -1713,12 +1714,13 @@ def _axle_cyl(r: float, y0: float, y1: float, p: Feeder):
 
 
 def lift_bearing_pockets(p: Feeder):
-    """The two flanged bearings' seats: each a 0.05 mm-over bore and a counterbore that takes the flange flush with
-    the face it is pressed in from (the motor recess's floor on +y, the boot's outer wall on -y)."""
+    """The two flanged bearings' seats: each a bore `lift_bearing_fit_mm` over the bearing's radius (0.05 by default;
+    read yours off the printed `lift_bearing_fit_ring`) and a counterbore that takes the flange flush with the face it
+    is pressed in from (the motor recess's floor on +y, the boot's outer wall on -y)."""
     d = p.lift_shaft_design()
     dep, w, B, ft = p.lift_depth, p.lift_wall, p.lift_bearing_w, p.lift_bearing_flange_t
     y_out, y_far = dep / 2, -(dep / 2 + w)
-    rb, rf = p.lift_bearing_od / 2 + 0.05, p.lift_bearing_flange_d / 2 + 0.2
+    rb, rf = p.lift_bearing_od / 2 + p.lift_bearing_fit_mm, p.lift_bearing_flange_d / 2 + 0.2
     near = _axle_cyl(rb, y_out - B, y_out + 0.01, p) + _axle_cyl(rf, y_out - ft, y_out + 0.01, p)
     far = _axle_cyl(rb, y_far - 0.01, y_far + B, p) + _axle_cyl(rf, y_far - 0.01, y_far + ft, p)
     assert d["near_web_mm"] > 0 and d["far_web_mm"] > 0
@@ -1773,6 +1775,58 @@ def lift_motor_spacer(p: Feeder) -> Part:
                       f"(shaft fills the hub; tighten onto the flat), then slide the spacer's plug into the recess over the "
                       f"drive shaft's end and the spider and fix the ears with two M3 x 10 into heat-set inserts. The plug "
                       f"holds the near bearing's flange in. Print flange down, 5 walls, 40% infill.")
+
+
+RING_DOT_R, RING_DOT_D, RING_DOT_DEPTH = 15.5, 1.6, 0.6   # the step marks on each test disc's top face
+
+
+def bearing_fit_ring_solid(p: Feeder):
+    """The F626 fit test ring (2026-11-15; `Feeder.bearing_fit_ring_design`): one disc per step of `bearing_ring_steps`,
+    each `bearing_ring_od` across and as thick as the bearing, with the boot pocket's bore (the bearing's radius plus
+    that step) and the same flange counterbore from the top. Disc k (from 0) carries k + 1 dots on its top face. The
+    discs sit on a grid four wide, 2 mm apart, joined by 1 mm-thick bridges at the bed that snap off, so each disc is
+    pressed on its own and its wall stays whole round the bore. Laid out flat on the bed, z = 0 the print surface."""
+    B, ft = p.lift_bearing_w, p.lift_bearing_flange_t
+    R = p.bearing_ring_od / 2
+    rf = p.lift_bearing_flange_d / 2 + 0.2
+    pitch = 2 * R + 2.0
+    body = None
+    centres = []
+    for k, step in enumerate(p.bearing_ring_steps):
+        cx, cy = (k % 4) * pitch, -(k // 4) * pitch
+        centres.append((cx, cy))
+        disc = Cylinder(R, B).moved(Location((cx, cy, B / 2)))
+        disc = disc - Cylinder(p.lift_bearing_od / 2 + step, B + 0.02).moved(Location((cx, cy, B / 2)))
+        disc = disc - Cylinder(rf, ft + 0.01).moved(Location((cx, cy, B - ft / 2 + 0.005)))
+        for j in range(k + 1):
+            a = math.radians(90 + 360 * j / (k + 1))
+            disc = disc - Cylinder(RING_DOT_D / 2, RING_DOT_DEPTH + 0.01).moved(
+                Location((cx + RING_DOT_R * math.cos(a), cy + RING_DOT_R * math.sin(a), B - RING_DOT_DEPTH / 2 + 0.005)))
+        body = disc if body is None else body + disc
+    for k in range(1, len(centres)):
+        (x0, y0), (x1, y1) = centres[k - 1], centres[k]
+        if y0 != y1:   # the next row starts under the row's first disc
+            (x0, y0) = centres[k - 4]
+        mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+        along_x = y0 == y1
+        body = body + Box(4.0 if along_x else 3.0, 3.0 if along_x else 4.0, 1.0).moved(Location((mx, my, 0.5)))
+    return body
+
+
+def lift_bearing_fit_ring(p: Feeder) -> Part:
+    d = p.bearing_fit_ring_design()
+    steps = ", ".join(f"{k + 1} dot{'s' if k else ''} {s:g}" for k, s in enumerate(p.bearing_ring_steps))
+    return Part("lift_bearing_fit_ring", "print", "PETG", 1, bearing_fit_ring_solid(p), [],
+                notes=f"Print before the lift boot, with the boot's settings (layers, walls, infill, the same spool), flat "
+                      f"on the bed. Not part of the machine. Each disc's bore is the F626's {p.lift_bearing_od:g} mm OD plus "
+                      f"twice its step (mm over a side: {steps}). Snap the discs apart, press one F626 into each from the "
+                      f"counterbore side between flat vise jaws (or a socket and a bolt) until the flange sits flush. The "
+                      f"right step is the loosest one that still needs the vise to seat and holds the bearing when the disc "
+                      f"is turned over and tapped on the bench; no white stress marks or split at the bore. Set "
+                      f"lift_bearing_fit_mm to it and rebuild the package so the boot's two pockets match. Holes "
+                      f"that print {p.print_hole_under_mm:g} mm small (assumed) would make step "
+                      f"{d['first_clear_step_mm']} the first slip fit; the steps cover printers whose holes come out "
+                      f"{d['under_lo_mm']:g}-{d['under_hi_mm']:g} mm small.")
 
 
 def lift_shaft_parts(p: Feeder) -> list[Part]:
@@ -1986,7 +2040,7 @@ def lift_strut(p: Feeder) -> Part:
 def lift_parts(p: Feeder) -> list[Part]:
     return [lift_boot(p), lift_base_plate(p), lift_spine(p), lift_belt(p), *lift_pulleys(p), lift_rods(p), lift_clips(p),
             lift_head(p), *lift_tensioner_parts(p), lift_chute(p), lift_strut(p), lift_flight_cap(p), *lift_slip_hub(p),
-            *lift_shaft_parts(p), lift_motor_spacer(p)]
+            *lift_shaft_parts(p), lift_motor_spacer(p), lift_bearing_fit_ring(p)]
 
 
 _ALL_PARTS_CACHE: list[tuple[Feeder, list[Part]]] = []
@@ -2402,6 +2456,19 @@ def lift_shaft_line(p: Feeder) -> str:
             f"encoder) to clear the drive bracket (shaft length, bearing, coupling and allowance figures assumed)")
 
 
+def bearing_fit_line(p: Feeder) -> str:
+    d = p.bearing_fit_ring_design()
+    rows = "; ".join(f"{r['step_mm']:g} mm: {r['push_n']:.0f} N, {r['hoop_mpa']:.1f} MPa" for r in d["rows"] if r["push_n"] > 0)
+    return (f"bearing fit: the boot's F626 pockets are cut {p.lift_bearing_fit_mm:g} mm a side over the bearing "
+            f"(lift_bearing_fit_mm). Print lift_bearing_fit_ring first: {len(p.bearing_ring_steps)} discs "
+            f"{p.bearing_ring_od:g} mm across, {p.bearing_ring_steps[0]:g}-{p.bearing_ring_steps[-1]:g} mm a side over, which "
+            f"brackets printers whose holes come out {d['under_lo_mm']:g}-{d['under_hi_mm']:g} mm small. At an assumed "
+            f"{p.print_hole_under_mm:g} mm (solid PETG, E {p.petg_e_mpa:g} MPa, mu {p.petg_steel_mu:g}; Lame, the bearing "
+            f"rigid) the push to seat and the bore's hoop stress are {rows}; step {d['first_clear_step_mm']} and up slip in. "
+            f"Infill makes a real disc softer than solid, and PETG creeps, so the pushes are upper bounds and a press fit "
+            f"loosens with time: a drop of retaining compound on both")
+
+
 def agitator_line(p: Feeder) -> str:
     d = p.agitator_design()
     lo, hi = d["arm_band_mm"]
@@ -2712,6 +2779,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     checks.insert(-3, lift_jam_line(p))
     checks.insert(-3, lift_slip_line(p))
     checks.insert(-3, lift_shaft_line(p))
+    checks.insert(-3, bearing_fit_line(p))
     checks.insert(-3, agitator_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
