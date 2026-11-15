@@ -55,3 +55,12 @@ test('UTSA names carry window and labels', () => {
   assert.deepEqual(parseUtsaName('WalkJogRun1_80_3800_6800.txt'), { name: 'WalkJogRun1', window: 80, cps: [3800, 6800] });
   assert.equal(parseUtsaName('UCR_semantic segmentation_2017.ppt'), null);
 });
+
+test('the committed round: S1 fails, S2 to S4 met, so the check is measured, not offered', () => {
+  const out = readFileSync(new URL('./eval/shape-repeat.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /S1 TSSB shape-filtered covering 0\.365 >= zero 0\.401 - 0\.02 = 0\.381: NOT MET/);
+  assert.match(out, /S2 TCPD .*: MET/);
+  assert.match(out, /S3 HAS .*: MET/);
+  assert.match(out, /S4 UTSA shape-filtered minus every-setting mean \+0\.064 \(bar 0\); where it drops \(5\): better on 5, worse on 0: MET/);
+  assert.ok(existsSync(new URL('./eval/shape-repeat-prereg-2026-11-15.md', import.meta.url)));
+});
