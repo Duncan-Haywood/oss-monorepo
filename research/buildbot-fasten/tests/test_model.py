@@ -23,6 +23,17 @@ def test_schedule_counts_and_windows():
     assert field.half > 4 * joint.half
 
 
+def test_plate_windows_from_first_principles():
+    # bottom: 1.5 in plate, flush edge: (1.5 - 0.0655 - 0.375) / 2 in; top: 3 in double plate
+    n = F.schedule()
+    bottom = next(x for x in n if x.cls == "bottom plate")
+    top = next(x for x in n if x.cls == "top plate")
+    assert bottom.half * 1000 == pytest.approx((1.5 - 0.0655 - 0.375) / 2 * 25.4, rel=1e-9)
+    assert top.half * 1000 == pytest.approx((3.0 - 0.0655 - 0.375) / 2 * 25.4, rel=1e-9)
+    assert bottom.axis == top.axis == "z"
+    assert F.required_sigma(n, 0.95) * 1000 == pytest.approx(1.24, abs=0.005)
+
+
 def test_nails_sit_inside_the_sheet_and_on_a_member():
     w, h = F.SHEET
     for x in F.schedule():
