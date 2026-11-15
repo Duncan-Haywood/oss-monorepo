@@ -24,11 +24,40 @@ function erfc(x) {
 }
 const Phi = (x) => 0.5 * erfc(-x * SQRT1_2);
 
-function kernel(s, G) {
+function kernel(s, G, nu = Infinity, maxCells = Infinity) {
+  if (Number.isFinite(nu)) return tKernel(s, G, nu, maxCells);
   const K = Math.max(1, Math.ceil(6 * s * G)), w = new Float64Array(2 * K + 1);
   let tot = 0;
   for (let d = -K; d <= K; d++) { const v = Phi(((d + 0.5) / G) / s) - Phi(((d - 0.5) / G) / s); w[d + K] = v; tot += v; }
   for (let i = 0; i < w.length; i++) w[i] /= tot;
+  return { w, K };
+}
+
+// Lanczos log-gamma (g 7, 9 terms), relative error under 1e-13 for x > 0.5.
+const LG = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+export function lgamma(x) {
+  x -= 1;
+  let a = LG[0];
+  const t = x + 7.5;
+  for (let i = 1; i < 9; i++) a += LG[i] / (x + i);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+
+// Round four (README "One-tick stale feeds: a heavy-tailed walk"): Student t steps with nu degrees of
+// freedom and scale s ticks. Cell masses by an 8-point midpoint rule on the density. The kernel reaches
+// out to the point where the tail mass is about 1e-7, or to `maxCells` (the largest move in the stretch
+// plus 3 ticks, set by the caller) if that is nearer; it is not renormalised, so a jump past the reach
+// counts as impossible, which changes a likelihood only by the tail mass beyond the largest seen move.
+function tKernel(s, G, nu, maxCells) {
+  const reach = Math.ceil(s * G * Math.pow(1e7, 1 / nu));
+  const K = Math.max(1, Math.ceil(6 * s * G), Math.min(reach, maxCells));
+  const logc = lgamma((nu + 1) / 2) - lgamma(nu / 2) - 0.5 * Math.log(nu * Math.PI) - Math.log(s);
+  const e = -(nu + 1) / 2, w = new Float64Array(2 * K + 1), h = 1 / (8 * G);
+  for (let d = -K; d <= K; d++) {
+    let v = 0;
+    for (let i = 0; i < 8; i++) { const x = ((d - 0.5) / G + (i + 0.5) * h) / s; v += Math.exp(logc + e * Math.log1p(x * x / nu)); }
+    w[d + K] = v * h;
+  }
   return { w, K };
 }
 
@@ -47,13 +76,18 @@ export function toTicks(values, from, to, tick) {
 
 /**
  * Log likelihood of integer ticks k (conditioned on k[0]) under the hidden walk with step sd s ticks,
- * recorded rounded, each step carried forward with probability p. G grid cells per tick.
+ * recorded rounded, each step carried forward with probability p. G grid cells per tick. With a finite
+ * nu the steps are Student t with nu degrees of freedom and scale s (round four); Infinity is Gaussian.
  */
-export function roundedWalkLogLik(k, s, p, G = 10) {
+export function roundedWalkLogLik(k, s, p, G = 10, nu = Infinity) {
   if (k.length < 2) return 0;
-  let mn = Infinity, mx = -Infinity;
-  for (const v of k) { if (v < mn) mn = v; if (v > mx) mx = v; }
-  const { w, K } = kernel(s, G);
+  let mn = Infinity, mx = -Infinity, big = 0;
+  for (let t = 0; t < k.length; t++) {
+    const v = k[t];
+    if (v < mn) mn = v; if (v > mx) mx = v;
+    if (t > 0) big = Math.max(big, Math.abs(v - k[t - 1]));
+  }
+  const { w, K } = kernel(s, G, nu, (big + 3) * G);
   // Cells c in [0, M): cell c covers hidden values [(c + c0) / G - 0.5, (c + c0 + 1) / G - 0.5) ticks,
   // so tick y owns cells (y - mn + pad) * G .. + G - 1. While carried forward the hidden value can wander
   // from the record; the pad covers 8 sd over 400 steps or the range, whichever is larger.
@@ -115,6 +149,7 @@ export const STALE_LR = { G: 10, sMin: 0.15, sMax: 6, pMax: 0.95, iters: 18, rou
 export function staleLikelihoodRatio(k, opts = {}) {
   const o = { ...STALE_LR, ...opts };
   if (k.length - 1 < o.minSteps || k.length - 1 > o.maxSteps) return null;
+  if (o.nus) return staleLRHeavy(k, o);
   const L = (s, p) => roundedWalkLogLik(k, s, p, o.G);
   const ls = [Math.log(o.sMin), Math.log(o.sMax)];
   const m0 = golden((x) => L(Math.exp(x), 0), ls[0], ls[1], o.iters);
@@ -128,6 +163,33 @@ export function staleLikelihoodRatio(k, opts = {}) {
   }
   return { lr: Math.max(0, 2 * (l1 - m0.f)), s0: Math.exp(m0.x), s1: s, p, l0: m0.f, l1, steps: k.length - 1 };
 }
+
+// Round four: both models get Student t steps, with nu profiled over the grid `o.nus` (Infinity is the
+// Gaussian walk, so round three's M0 is inside M0 here). For each nu, M0 is fitted over s and M1 by
+// coordinate ascent from that fit; l0 and l1 are each the best over nu, so l1 >= l0 still holds. Under
+// M0 nu is a nuisance shared by both models, so the boundary mix and its 1% point 5.41 are unchanged.
+export const STALE_LR_HEAVY = { nus: [2, 4, 10, Infinity] };
+function staleLRHeavy(k, o) {
+  const ls = [Math.log(o.sMin), Math.log(o.sMax)];
+  let best0 = null, best1 = null;
+  for (const nu of o.nus) {
+    const L = (s, p) => roundedWalkLogLik(k, s, p, o.G, nu);
+    const m0 = golden((x) => L(Math.exp(x), 0), ls[0], ls[1], o.iters);
+    let s = Math.exp(m0.x), p = 0, l1 = m0.f;
+    for (let r = 0; r < o.rounds; r++) {
+      const bp = golden((q) => L(s, q), 0, o.pMax, o.iters);
+      if (bp.f > l1) { p = bp.x; l1 = bp.f; }
+      const bs = golden((x) => L(Math.exp(x), p), ls[0], ls[1], o.iters);
+      if (bs.f > l1) { s = Math.exp(bs.x); l1 = bs.f; }
+    }
+    if (!best0 || m0.f > best0.l) best0 = { l: m0.f, s: Math.exp(m0.x), nu };
+    if (!best1 || l1 > best1.l) best1 = { l: l1, s, p, nu };
+  }
+  return { lr: Math.max(0, 2 * (best1.l - best0.l)), s0: best0.s, s1: best1.s, p: best1.p, nu0: best0.nu, nu1: best1.nu, l0: best0.l, l1: best1.l, steps: k.length - 1 };
+}
+
+/** Round four's test on a stretch of values: t steps, nu profiled (STALE_LR_HEAVY). */
+export function staleTestHeavy(values, from, to, tick, opts = {}) { return staleLikelihoodRatio(toTicks(values, from, to, tick), { ...STALE_LR_HEAVY, ...opts }); }
 
 /** The test on a stretch of values (value indexes from..to), for update-rate.mjs `catchUp.test`. */
 export function staleTest(values, from, to, tick, opts = {}) { return staleLikelihoodRatio(toTicks(values, from, to, tick), opts); }

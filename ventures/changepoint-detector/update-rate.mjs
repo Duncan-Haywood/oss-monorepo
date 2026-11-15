@@ -197,7 +197,7 @@ export function updateRateChanges(values, opts = {}) {
       // README "Repeats from rounding": in the stickier stretch, at least half the moves are one tick,
       // unless the move after a run of repeats grows with the run, as a stale feed's catch-up does
       // (README "One-tick stale feeds: the catch-up check").
-      ...roundingVerdict(sticky, cu, values), tick: sticky.tick,
+      ...roundingVerdict(sticky, cu, values, trimmed(stretches, ranges, less ? k + 1 : k, cu)), tick: sticky.tick,
     };
   });
   return { changes, stretches, repeats: total, steps: z.length, penalty, setting: o };
@@ -270,11 +270,22 @@ export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, 
 // chi-square mix). It runs only on stretches that already pass the one-tick test. Not offered (round
 // three failed K1, eval/update-rate-stale-lr.out.txt), so the test is passed in as `cu.test` (rounded-walk.mjs
 // `staleTest`) and this file keeps no imports: the page and its worker load it on its own.
-function roundingVerdict(sticky, cu = CATCHUP, values = null) {
+// Round four (README "One-tick stale feeds: a heavy-tailed walk"): with `trim: 'range'`, the likelihood
+// sees the sticky stretch only inside the date ranges of its cuts (cutRanges): it starts after the
+// latest date its left cut could have, and ends before the earliest its right cut could have, so a cut
+// that lands a few steps late does not hand it the other regime's moves.
+function trimmed(stretches, ranges, j, cu) {
+  const st = stretches[j];
+  if (cu.trim !== 'range') return { from: st.from, to: st.to };
+  const from = j > 0 ? Math.max(st.from, ranges[j - 1][1] + 1) : st.from;
+  const to = j < ranges.length ? Math.min(st.to, ranges[j][0]) : st.to;
+  return to - from >= 1 ? { from, to } : { from: st.from, to: st.to };
+}
+function roundingVerdict(sticky, cu = CATCHUP, values = null, span = sticky) {
   const oneTick = sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS;
   const r = sticky.catchUp && sticky.catchUp.ratio;
   if (cu.method === 'lr') {
-    const t = oneTick && values && cu.test ? cu.test(values, sticky.from - 1, sticky.to, sticky.tick) : null;
+    const t = oneTick && values && cu.test ? cu.test(values, span.from - 1, span.to, sticky.tick) : null;
     const catchUp = !!(t && t.lr >= (cu.lr ?? 5.41));
     return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null, staleLR: t ? t.lr : null, staleP: t ? t.p : null };
   }
