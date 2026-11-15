@@ -322,7 +322,7 @@ const CLUSTER_SHARE = 0.5;
 // A final r is its contact and then the voice open again for a moment, [floor, full] seconds each: sung on
 // the note's last 45 ms, as an opening's tap is, its contact sat 15-25 ms from the next sound, with no
 // voice after it inside the note to tell a tap from the sound simply stopping (README "Final consonants,
-// fourth round"). The tail's length is an assumption, not fitted to recordings of singers.
+// fifth round"). The tail's length is an assumption, not fitted to recordings of singers.
 export const CODA_TAP = { contact: [0.04, 0.045], tail: [0.03, 0.035] };
 function phoneParts(ph, last = false) { // [floor, full] for each part of a phone: a stop or affricate has a closure and a release
   const c = PHONES[ph], F = CODA_FLOOR;

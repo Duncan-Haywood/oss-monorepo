@@ -235,7 +235,7 @@ test('high /i/ and /u/ keep their level: F1 raised to 1.1 x f0 (tuneF1)', () => 
 });
 
 test('a final r taps and then opens again before the note ends, and reads as a tap right up to the next sound', () => {
-  // README "Final consonants, fourth round": sung on the note's last 45 ms, the contact sat 15-25 ms from
+  // README "Final consonants, fifth round": sung on the note's last 45 ms, the contact sat 15-25 ms from
   // the next sound with no voice after it inside the note, and after /u/ and /o/ it read as nothing
   for (const dur of [0.197, 0.242, 0.5]) {
     const [r] = codaPlan(['r'], dur, dur).segs, contactEnd = r.t0 + (r.t1 - r.t0) * r.cw;
@@ -247,5 +247,24 @@ test('a final r taps and then opens again before the note ends, and reads as a t
     const w = singNote(146.83, dur, rate, { vowel, coda: ['r'], release: 0.015 });
     const got = readCoda(w, rate, 0.05, dur);
     assert.equal(got.cls, 'tap', `${vowel}r at ${dur} s: ${JSON.stringify(got)}`);
+  }
+});
+
+test('a final l is not a murmur: al and el read as no consonant, am and um as nasals, and the tilt separates them', async () => {
+  const { frameFeatures, MURMUR_TILT } = await import('./onsets.mjs');
+  const dur = 0.5, tilt = (w) => { // energy above 1 kHz against the band under 500 Hz, over the coda's steady part
+    let hi = 0, lo = 0; for (let t = dur - 0.04; t < dur - 0.02; t += 0.005) { const f = frameFeatures(w, Math.round(t * rate), rate); hi += f.hi1; lo += f.low; }
+    return 10 * Math.log10(hi / lo);
+  };
+  for (const f of [110, 146.83, 261.63]) {
+    for (const [syl, cls] of [['al', 'none'], ['el', 'none'], ['am', 'nasal'], ['um', 'nasal']]) {
+      const r = latinVowel(syl), w = singNote(f, dur, rate, { vowel: r.vowel, coda: latinCoda(syl) });
+      const k = tilt(w);
+      if (cls === 'none') assert.ok(k > -MURMUR_TILT + 3, `${syl} on ${f} Hz: /l/ tilt ${k.toFixed(1)} dB`);
+      else assert.ok(k < -MURMUR_TILT - 3, `${syl} on ${f} Hz: murmur tilt ${k.toFixed(1)} dB`);
+      if (!(syl === 'um' && f > 200)) assert.equal(readCoda(w, rate, 0.1, dur + 0.25).cls, cls, `${syl} on ${f} Hz`);
+      // and without the rule al reads as a nasal (eval/coda-check-report.md part A, before)
+      if (syl === 'al') assert.equal(readCoda(w, rate, 0.1, dur + 0.25, { murmurTilt: 0 }).cls, 'nasal', `al on ${f} Hz, rule off`);
+    }
   }
 });

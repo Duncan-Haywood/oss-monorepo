@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" font-family="sans-serif" font-size="12">
+<rect width="720" height="220" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-weight="bold">Ranking 100-cycle DFN energy from ten cycles, fresh NCA and two NMC811 (LG M50) pools, seed 16, held out</text>
+<line x1="200.0" y1="70" x2="200.0" y2="180" stroke="#ddd"/>
+<text x="200.0" y="194" text-anchor="middle">-1</text>
+<line x1="322.5" y1="70" x2="322.5" y2="180" stroke="#ddd"/>
+<text x="322.5" y="194" text-anchor="middle">-0.5</text>
+<line x1="445.0" y1="70" x2="445.0" y2="180" stroke="#ddd"/>
+<text x="445.0" y="194" text-anchor="middle">0</text>
+<line x1="567.5" y1="70" x2="567.5" y2="180" stroke="#ddd"/>
+<text x="567.5" y="194" text-anchor="middle">0.5</text>
+<line x1="690.0" y1="70" x2="690.0" y2="180" stroke="#ddd"/>
+<text x="690.0" y="194" text-anchor="middle">1</text>
+<text x="445.0" y="212" text-anchor="middle">Spearman with DFN Wh/kg at cycle 100</text>
+<circle cx="14" cy="48" r="5" fill="#adb5bd"/>
+<text x="23" y="52">raw cycle 10</text>
+<circle cx="115" cy="48" r="5" fill="#495057"/>
+<text x="124" y="52">5n sqrt fit</text>
+<circle cx="216" cy="48" r="5" fill="#d9480f"/>
+<text x="225" y="52">map, law</text>
+<circle cx="317" cy="48" r="5" fill="#f08c00"/>
+<text x="326" y="52">5v frozen</text>
+<circle cx="418" cy="48" r="5" fill="#2a6fdb"/>
+<text x="427" y="52">A recalibrated</text>
+<circle cx="519" cy="48" r="5" fill="#ae3ec9"/>
+<text x="528" y="52">A, S refit</text>
+<circle cx="620" cy="48" r="5" fill="#2f9e44"/>
+<text x="629" y="52">map, true loss</text>
+<text x="192" y="99.0" text-anchor="end">NCA_Kim2011@0.875x (n = 56)</text>
+<line x1="319.9377990430622" y1="95.0" x2="681.1411483253589" y2="95.0" stroke="#bbb"/>
+<circle cx="680.0" cy="95.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="342.0" cy="95.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="319.9" cy="95.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="641.9" cy="95.0" r="5" fill="#f08c00" fill-opacity="0.85"/>
+<circle cx="630.8" cy="95.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="644.2" cy="95.0" r="5" fill="#ae3ec9" fill-opacity="0.85"/>
+<circle cx="681.1" cy="95.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<text x="192" y="129.0" text-anchor="end">Chen2020@1.5x (n = 56)</text>
+<line x1="640.0454545454545" y1="125.0" x2="674.9784688995215" y2="125.0" stroke="#bbb"/>
+<circle cx="673.4" cy="125.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="640.0" cy="125.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="664.7" cy="125.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="674.1" cy="125.0" r="5" fill="#f08c00" fill-opacity="0.85"/>
+<circle cx="675.0" cy="125.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="670.2" cy="125.0" r="5" fill="#ae3ec9" fill-opacity="0.85"/>
+<circle cx="671.0" cy="125.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<text x="192" y="159.0" text-anchor="end">OKane2022@1.5x (n = 56)</text>
+<line x1="641.3181818181819" y1="155.0" x2="674.3421052631579" y2="155.0" stroke="#bbb"/>
+<circle cx="672.1" cy="155.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="641.3" cy="155.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="664.8" cy="155.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="673.4" cy="155.0" r="5" fill="#f08c00" fill-opacity="0.85"/>
+<circle cx="674.3" cy="155.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="669.6" cy="155.0" r="5" fill="#ae3ec9" fill-opacity="0.85"/>
+<circle cx="669.7" cy="155.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+</svg>

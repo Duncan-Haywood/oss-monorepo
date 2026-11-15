@@ -42,6 +42,10 @@
     {
       "file": "ventures/chant-forge/eval/vowel-check.mjs",
       "issue": "planned the coda on the uncut note while render.mjs plans it on the cut one; fixed here (one more note measurable)"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "PR #16286 (chant-forge, final /l/) merged at 17:39Z, a minute before this run claimed chant-forge from a checkout fetched earlier; allocate and claim_check had no way to show the just-landed round, so this run worked the same readCoda rule on stale code and had to merge and re-measure (cost about 10 minutes)"
     }
   ],
   "deviations": [],
@@ -50,7 +54,7 @@
     "ventures/chant-forge/README.md (Final consonants, fourth round)"
   ],
   "goal": null,
-  "notes": "Held-out discipline: part F (20 Graduale pieces, files 1 and 4 of every six) fixed and scored with misses hidden before any change: 117/134, r 3/7. Dev set G and B read for misses. After: F 120/134, r 6/7; E 75->81/86; D 66->68/70; B 142->147/162; final r across D+E+F 14->25 of 27. Ablations on B/G: synthesis alone B r 13/14, dip rule alone 9/14. Vowel-only controls, bare-vowel syllables, openings (742/934) unchanged; vowels before the coda 97.3%; whole-note vowel window 874->865/920 (longer r). Verification: venture-preflight.mjs chant-forge clean; run_venture_tests.py chant-forge ok (250 tests); sing.test.mjs 15/15 (new test fails on old code); check_post_frontmatter/links/similarity clean. Not listened to by a person. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "notes": "Held-out discipline: part H (renamed from F after merging main; 20 Graduale pieces, files 1 and 4 of every six) fixed and scored with misses hidden before any change: 117/134, r 3/7. Dev set G and B read for misses. After: F 120/134, r 6/7; E 75->81/86; D 66->68/70; B 142->147/162; final r across D+E+F 14->25 of 27. Ablations on B/G: synthesis alone B r 13/14, dip rule alone 9/14. Vowel-only controls, bare-vowel syllables, openings (742/934) unchanged; vowels before the coda 97.3%; whole-note vowel window 874->865/920 (longer r). Verification: venture-preflight.mjs chant-forge clean; run_venture_tests.py chant-forge ok (250 tests); sing.test.mjs 15/15 (new test fails on old code); check_post_frontmatter/links/similarity clean. Not listened to by a person. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs. Merge: PR #16286 (final /l/ murmur-tilt rule, README round 4) landed on main mid-run and conflicted in onsets.mjs (same nasal rule), sing.test.mjs, ROADMAP, llms.txt, flagships.yaml and the report; both rules kept, this round renamed fifth, sets renamed H/I (their report already had an F), all evals rerun on the merged code. Against main (with the /l/ rule): H 118->121/134, r 4->7/7; held-out r D+E+H 16->26 of 27; B 142->147; A 157 unchanged; their part F unchanged.",
   "corrections": [],
   "redteam": null,
   "usage": {

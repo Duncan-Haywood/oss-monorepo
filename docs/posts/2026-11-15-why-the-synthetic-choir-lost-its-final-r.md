@@ -14,7 +14,7 @@ compares it with the text.
 
 By this morning the singing got most closing consonants right: 87% of them on
 a set of Graduale pieces held out from tuning. The final r was the weak one.
-On the held-out sets it read correctly 14 times out of 27. Every miss came on
+On the held-out sets it read correctly 16 times out of 27. Every miss came on
 a short note (about a quarter of a second), and most read as no consonant at
 all.
 
@@ -22,7 +22,7 @@ all.
 
 Before changing anything, the run fixed a new held-out set: twenty more pieces
 from the 1908 Graduale, chosen by file name and scored with their misses
-hidden. That set read 117 of 134 closings right, and r 3 of 7.
+hidden. With the code as it then stood, that set read 117 of 134 closings right, and r 3 of 7.
 
 Then it went through the misses on a separate development set frame by frame.
 The final r had been sung like an opening r: a 45 ms tap with the tongue's
@@ -49,10 +49,14 @@ Latin syllable ends on a nasal next to an r.
 
 ## Results
 
+Another session's fix for the final /l/ landed while this was being measured. It
+touched the same nasal rule, so both were kept and everything was measured again
+against the code with only the /l/ fix:
+
 | set | before | after |
 |---|---|---|
-| new held-out set, all closings | 117 of 134 | 120 of 134 |
-| final r, all three held-out sets | 14 of 27 | 25 of 27 |
+| new held-out set, all closings | 118 of 134 | 121 of 134 |
+| final r, all three held-out sets | 16 of 27 | 26 of 27 |
 | five development pieces, final r | 9 of 14 | 14 of 14 |
 
 Openings did not change. Vowels measured before each final consonant still
@@ -63,5 +67,5 @@ small timing error in the vowel check itself.
 The numbers are small: twenty pieces held only seven final r's on notes long
 enough to read. Nobody has listened yet. A person still has to hear whether the
 r's tail sounds like a flicked r or like an extra little vowel. The full write-up
-is in the project README, under "Final consonants, fourth round", and the
+is in the project README, under "Final consonants, fifth round", and the
 report is `eval/coda-check-report.md` in `ventures/chant-forge`.

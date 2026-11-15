@@ -11,6 +11,15 @@
 //    data: its first run's misses (60.5%) showed the reader's window cut off bursts at the next sound
 //    and that /m/ after /u/ was barely a murmur, and both were fixed before the run reported here.
 // C. Every syllable in the corpus: how often each closing consonant occurs.
+// F. Fourth round (2026-11-15): final /l/ and the murmur's own tilt. Pre-registered here before the
+//    first run with the change, its threshold fixed: a coda's murmur (both nasal rules in readCoda) must
+//    be dark in itself, its energy above 1 kHz a median 28 dB or more under its band under 500 Hz
+//    (`murmurTilt`). Set from held 0.5 s syllables measured with sing.mjs outside this script, E2-E4:
+//    the sung /l/ 12-25 dB, /m/ and /n/ 38-54 dB, after every vowel. Predictions: (1) A's *al* and *el*
+//    read as none on 11 or more of 12 (2 of 12 before); (2) no part's nasals read exactly less often;
+//    (3) A, B, D and E totals no lower, vowel-only controls no lower; (4) F, the 51 files of the four
+//    other gregobase-1908-* folders, never scored before: its /l/ codas read as a nasal on 10% or fewer,
+//    its nasal codas read exactly no less often than with the rule off (`murmurTilt: 0`, printed beside).
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -20,9 +29,9 @@ import { readCoda, expectedRead } from '../onsets.mjs';
 
 const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
-// --parts ABDEFGC (default all): which parts to run; --hide-misses F: print a part's score without its misses
+// --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEFGC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFC';
 const HIDE = args.includes('--hide-misses') ? args[args.indexOf('--hide-misses') + 1] : '';
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
@@ -151,20 +160,61 @@ if (PARTS.includes('E')) lines.push('## E. Held out, second set: ten more Gradua
   `${HELD2.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name and scored before the third round's changes (README "Final consonants, third round"), then once after them; its misses were not read in between.`, '',
   ...scorePieces(HELD2, HIDE.includes('E')));
 
-// Held out, third set (2026-11-15, fourth round: final r): every other Graduale piece D and E do not take
-// (files 1 and 4 of every six, 20 pieces), fixed and scored before the fourth round's changes with its misses
-// hidden (--hide-misses F), so the round's tap changes have a clean score with enough r to count (E has 11).
+// Held out, third set (2026-11-15, fifth round: final r): every other Graduale piece D and E do not take
+// (files 1 and 4 of every six, 20 pieces), fixed and scored before the fifth round's changes with its misses
+// hidden (--hide-misses H), so the round's tap changes have a clean score with enough r to count (E has 11).
 const GRAD = readdirSync(new URL('gregobase-1908/', corpus)).filter((f) => f.endsWith('.gabc')).sort();
 const HELD3 = GRAD.filter((_, i) => i % 6 === 1 || i % 6 === 4).map((f) => `gregobase-1908/${f.slice(0, -5)}`);
-if (PARTS.includes('F')) lines.push('## F. Held out, third set: twenty more Graduale pieces (files 1 and 4 of every six)', '',
-  `${HELD3.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name and scored before the fourth round's changes (README "Final consonants, fourth round") with its misses hidden.`, '',
-  ...scorePieces(HELD3, HIDE.includes('F')));
-// The fourth round's development set: the remaining Graduale pieces (files 2 and 5 of every six), read for
+if (PARTS.includes('H')) lines.push('## H. Held out, third set: twenty more Graduale pieces (files 1 and 4 of every six)', '',
+  `${HELD3.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Chosen by file name and scored before the fifth round's changes (README "Final consonants, fifth round") with its misses hidden.`, '',
+  ...scorePieces(HELD3, HIDE.includes('H')));
+// The fifth round's development set: the remaining Graduale pieces (files 2 and 5 of every six), read for
 // misses alongside B while tuning the final r. Not held out.
 const DEV = GRAD.filter((_, i) => i % 6 === 2 || i % 6 === 5).map((f) => `gregobase-1908/${f.slice(0, -5)}`);
-if (PARTS.includes('G')) lines.push('## G. Development set: the other twenty Graduale pieces (files 2 and 5 of every six)', '',
-  `${DEV.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Read for misses while tuning the fourth round (final r); not held out.`, '',
-  ...scorePieces(DEV, HIDE.includes('G')));
+if (PARTS.includes('I')) lines.push('## I. Development set: the other twenty Graduale pieces (files 2 and 5 of every six)', '',
+  `${DEV.map((h) => h.split('/')[1]).join(', ')}; same settings and rules as B. Read for misses while tuning the fifth round (final r); not held out.`, '',
+  ...scorePieces(DEV, HIDE.includes('I')));
+
+// ---- F ----
+// The 51 files of the other gregobase-1908-* folders (scan-check sets), never scored here before: their
+// final /l/ and nasal codas, read with the murmur-tilt rule and without it.
+const OTHER = !PARTS.includes('F') ? [] : readdirSync(corpus).filter((d) => d.startsWith('gregobase-1908-')).sort()
+  .flatMap((d) => readdirSync(new URL(`${d}/`, corpus)).filter((f) => f.endsWith('.gabc')).sort().map((f) => `${d}/${f.slice(0, -5)}`));
+{
+  const tally = { l: { on: [0, 0, 0], off: [0, 0, 0] }, nasal: { on: [0, 0], off: [0, 0] } }, lMiss = [], nMiss = [];
+  for (const p of OTHER) {
+    const src = parseGabc(readFileSync(new URL(`${p}.gabc`, corpus), 'utf8'));
+    const mid = eventsToMidi(fitToBars(transposeToFinal(src.events, 50), 8), { bpm: 124, title: p });
+    const sungR = choir(mid, true);
+    const firstOf = new Set(), lastOf = new Map();
+    for (const n of sungR.notes) if (n.syl) { if (![...firstOf].some((f) => f.syl === n.syl)) firstOf.add(n); lastOf.set(n.syl, n); }
+    sungR.notes.forEach((n, k) => {
+      if (!n.syl || lastOf.get(n.syl) !== n || n.t1 - n.t0 < 0.2) return;
+      const cd = latinCoda(n.lyric);
+      if (!cd.length || !(cd[0] === 'l' || 'mnN'.includes(cd[0]))) return;
+      const on = firstOf.has(n) ? latinOnset(n.lyric) : [], vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
+      if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) return;
+      for (const [mode, tilt] of [['on', undefined], ['off', 0]]) {
+        const got = readCoda(sungR.x, rate, vAt, tEnd, { murmurTilt: tilt });
+        if (cd[0] === 'l') {
+          const t = tally.l[mode]; t[2]++; if (got.cls === 'none') t[0]++; if (got.cls === 'nasal') t[1]++;
+          if (mode === 'on' && got.cls !== 'none') lMiss.push(`${p} *${n.lyric}*: read as ${label(got)}`);
+        } else {
+          const t = tally.nasal[mode]; t[1]++; if (got.cls === 'nasal') t[0]++;
+          if (mode === 'on' && got.cls !== 'nasal') nMiss.push(`${p} *${n.lyric}*: read as ${label(got)}`);
+        }
+      }
+    });
+  }
+  const L = tally.l, M = tally.nasal;
+  if (PARTS.includes('F')) lines.push('## F. Final /l/ against the nasals: the 51 files of the other gregobase-1908-* folders', '',
+    `${OTHER.length} files, none scored by this check before (the scan-check sets); same settings and filters as B. Pre-registered in this script's header before its first run: the murmur's own tilt (readCoda \`murmurTilt\`, 28 dB) against the same reader without it.`, '',
+    '| final consonant | read with the tilt rule | without it |', '|---|---|---|',
+    `| /l/ (should read as none) | none ${pct(L.on[0], L.on[2])}, nasal ${pct(L.on[1], L.on[2])} | none ${pct(L.off[0], L.off[2])}, nasal ${pct(L.off[1], L.off[2])} |`,
+    `| m, n, gn (should read as nasal) | ${pct(...M.on)} | ${pct(...M.off)} |`, '',
+    '/l/ not read as none (with the rule):', '', ...(lMiss.length ? lMiss.map((m) => `- ${m}`) : ['- none']), '',
+    'Nasals not read as nasal (with the rule):', '', ...(nMiss.length ? nMiss.map((m) => `- ${m}`) : ['- none']), '');
+}
 
 // ---- C ----
 if (PARTS.includes('C')) {
