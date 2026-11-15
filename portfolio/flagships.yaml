@@ -226,7 +226,7 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      History: README, eval/*. Hub, time clock, PAY_RULES pay (README 2026-11-15):
+      History: README, eval/*. Hub, time clock, PAY_RULES (Nevada, 13 meal states):
       next live deploy, real punches. Exact side: branch-and-price and column
       generation prove 20-80 person weeks; the exact check is on by default at every
       size. Forecast side (--from-sales, eight real files,
