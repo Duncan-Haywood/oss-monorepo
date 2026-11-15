@@ -813,6 +813,24 @@ export function planReceiptSplit(books, receiptId, { other = null, fix = {} } = 
   if (!r.items?.length) throw new Error(`receipt ${receiptId} has no line items that add up to its total`);
   const line = r.matched ? books.transactions.find((t) => t.id === r.matched) : null;
   if (!line) throw new Error(`receipt ${receiptId} is not matched to a bank line yet (receipts attach ${receiptId} LINEID)`);
+  // One bank line paying several receipts (matchReceipts' second pass): split by
+  // every receipt's items, or the others' totals would land on one account as a "tip".
+  let group = null;
+  if (r.group) {
+    const members = books.receipts.filter((x) => x.group && x.matched === line.id);
+    const bare = members.find((x) => !x.items?.length);
+    if (bare) throw new Error(`receipt ${receiptId} shares bank line ${line.id} with ${members.length - 1} other receipt${members.length === 2 ? "" : "s"}, and ${bare.id} has no line items that add up to its total, so the line cannot be split by items`);
+    group = members.map((x) => x.id);
+    r = {
+      ...r,
+      items: members.flatMap((x) => x.items),
+      cents: members.reduce((s, x) => s + x.cents, 0),
+      // tax printed inside the item prices is already in them; only tax added on top is shared out
+      taxCents: members.reduce((s, x) => s + (x.taxIncluded ? 0 : x.taxCents ?? 0), 0),
+      taxIncluded: undefined,
+      printedTipCents: members.reduce((s, x) => s + (x.printedTipCents ?? 0), 0) || undefined,
+    };
+  }
   // a foreign receipt is split in the books' currency: items and tax scaled by
   // the rate the bank line implies; any cent of rounding lands on the biggest part
   if (r.currency && r.fxRate) {
@@ -851,7 +869,7 @@ export function planReceiptSplit(books, receiptId, { other = null, fix = {} } = 
     if (rest) { parts[0].extraCents = rest; parts[0].cents += rest; }
   }
   const sign = line.cents < 0 ? -1 : 1;
-  return { receipt: r, line, parts: parts.map((p) => ({ ...p, cents: sign * p.cents })), unfiled, single: parts.length === 1 && !unfiled.length ? parts[0].account : null };
+  return { receipt: r, line, ...(group ? { group } : {}), parts: parts.map((p) => ({ ...p, cents: sign * p.cents })), unfiled, single: parts.length === 1 && !unfiled.length ? parts[0].account : null };
 }
 
 // Post the split. Needs every item to have an account, so pass `other` when the
