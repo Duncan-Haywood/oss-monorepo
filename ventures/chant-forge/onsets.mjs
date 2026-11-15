@@ -80,6 +80,8 @@ export function frameFeatures(x, i0, rate, len = 0.02) {
 export const MURMUR_TILT = 28;
 // readOnset's nasal: how much darker than its neighbours a murmur is (chosen on eval/consonant-check.mjs A and B)
 export const DARK_BY = 10;
+// readCoda's murmur against the vowel just before it (see its note); chosen on eval/coda-check.mjs A, B and I
+export const NEAR = { dark: 8, lo: -18, hi: 0, hold: 4 };
 const db = (a, b) => 10 * Math.log10((a + 1e-20) / (b + 1e-20));
 const median = (v) => { const s = [...v].sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : NaN; };
 
@@ -199,7 +201,7 @@ export function expectedRead(ph) {
 // keeps its F2 and F3. Measured on the sung syllables E2-E4 (README "Final consonants, fourth round"):
 // /l/ 12-25 dB, /m/ and /n/ 38-54 dB. Without it every final *al* read as a nasal (its F1 falls under
 // 500 Hz, which brightens the low band against the vowel's). `murmurTilt: 0` turns the check off.
-export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT } = {}) {
+export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT, nearVowel = true, nearOpts = {} } = {}) {
   const hop = Math.round(0.005 * rate), a = Math.round((vowelAt + 0.06) * rate), z = Math.round((tEnd - 0.02) * rate), zEnd = Math.round(tEnd * rate);
   const ref = [];
   for (let i = Math.round(vowelAt * rate); i < a; i += hop) ref.push(frameFeatures(x, i, rate));
@@ -290,7 +292,30 @@ export function readCoda(x, rate, vowelAt, tEnd, { murmurTilt = MURMUR_TILT } = 
   // formants (F1 450 Hz) are darker than /a/'s, so after /a/ it met the murmur rule for 30 ms and more, and
   // no Latin coda puts a nasal next to an r (README "Final consonants, fifth round").
   const intoTap = (r) => tap && r[0] <= tap[1] && r[1] >= tap[0] - 2;
-  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step]
+  // Against the vowel just before it (2026-11-15, README "A short final -um against the vowel just before
+  // it"): five detuned voices beat, and a murmur passes only their lowest harmonics, so its level against
+  // the reference 60 ms at the note's start swung from 4 to 15 dB under (D3, the same -um); the vowel's
+  // own level drifts with the same beat. So a run also counts as a murmur when, against the vowel 25-45
+  // ms before it (NEAR), each frame is NEAR.dark dB or more darker, its level from NEAR.lo to NEAR.hi dB
+  // of it, holding within NEAR.hold dB for 45 ms (a fade falls 1-3 dB per 10 ms) and dark in itself.
+  const NR = { ...NEAR, ...nearOpts };
+  const tiltOf = (f) => db(f.hi1, f.low);
+  const nearRun = () => {
+    if (!nearVowel) return null;
+    const out = [];
+    for (let k = 9; k < fr.length; k++) {
+      const pre = fr.slice(k - 9, k - 4), pl = median(pre.map((f) => f.lvl)), pt = median(pre.map(tiltOf));
+      const ok = (f) => tiltOf(f) <= pt - NR.dark && f.lvl - pl >= NR.lo && f.lvl - pl <= NR.hi && tiltOf(f) <= -murmurTilt;
+      let e = k; while (e < fr.length && ok(fr[e])) e++;
+      if (msOf([k, e - 1]) < 45 || e === k) continue;
+      const held = fr.slice(k, k + 6).map((f) => f.lvl);
+      if (Math.max(...held) - Math.min(...held) > NR.hold) continue;
+      out.push([k, e - 1]); break;
+    }
+    return out.find((r) => !vowelAgain(r)) || null;
+  };
+  const near = nearRun();
+  const nas = [runs(nasal, 30).find((r) => (msOf(r) >= 45 || !next.some((k) => k >= r[1] && k - r[1] <= 3)) && !vowelAgain(r) && murmur(r)), step, near]
     .filter((r) => r && !intoTap(r)).sort((p, q) => p[0] - q[0])[0];
   const cands = [['closure', stopRun], ['fricative', fric], ['vfricative', vfric], ['nasal', nas], ['tap', tap]]
     .filter(([, r]) => r).sort((p, q) => p[1][0] - q[1][0]);
