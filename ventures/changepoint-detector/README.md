@@ -431,6 +431,9 @@ series, 40 each, in `engine.test.mjs`):
 Steps by default: a gradual drift is approximated by several steps unless you choose `--model trend` (a line per segment, no curvature). Seasonality is
 removed with `--period` (`--drift` follows a changing shape with a running median; no full STL). A changepoint describes the data, not its cause.
 Up to 100,000 points; the Bayesian pass is the slow part on long series.
+A change of **shape** at an unchanged level and spread (one waveform giving way to another) is outside what it models: on
+TSSB's 75 such series the agreed changes scored below reporting none, and on long repeating waveforms (heartbeats, gestures) all
+six settings can agree on the cycle's own peaks. For that job use a shape method such as ClaSP ("Long series from outside TCPD").
 
 ## Disclaimer
 
@@ -4875,3 +4878,57 @@ finding is the one worth testing on the other 25 machines with the null, if anyo
 
 Tests: `watch-smd-10min.test.mjs` (4: the round's constants, a machine in 10-minute buckets with its windows and
 baseline, D19 and D19' on made-up totals including the tie, and the committed output's verdicts).
+
+## Long series from outside TCPD: TSSB's 75 labelled series (2026-11-15, pre-registered; the headline fails off its domain)
+
+Every default here was chosen on TCPD, whose series are 15 to 991 points. The flagship asked for long labelled series
+from outside it. The Time Series Segmentation Benchmark (TSSB; Ermshaus, Schäfer and Leser 2023, Data Mining and
+Knowledge Discovery, doi 10.1007/s10618-023-00923-x; BSD-3 code, pinned commit e0c7a1f) has 75 series of 240 to 20,700
+points (359,497 in all, 190 annotated changes) and publishes each method's per-series covering. Each TSSB series is
+UCR classification instances grouped by class, **each instance z-scored**, and concatenated, so a labelled change is
+mostly a change of **shape** at an unchanged level and spread: outside what this detector models. The round therefore
+asks whether the shipped settings stay quiet off their domain. The lines, settings (exactly `eval/tcpd-heldout.mjs`'s)
+and predictions were committed before any run (`eval/tssb-prereg-2026-11-15.md`).
+`sh eval/tssb-fetch.sh tssb-data && node eval/tssb.mjs tssb-data` (output `eval/tssb.out.txt`, 2.4 min on 4 cores; the
+data is not committed). The metric port is checked against the published sheet: on all 75 series a published method
+that cut nothing scores exactly this port's "zero" covering.
+
+| 75 series | cover | F1 margin 5 | cuts per 1,000 points |
+|---|---|---|---|
+| ClaSP (published, a shape method) | 0.855 | | |
+| PELT / BinSeg as TSSB ran them (published) | 0.581 / 0.575 | | |
+| zero (no change) | **0.401** | 0.513 | 0 |
+| **every-setting consensus (the page's "Agreed changes")** | **0.344** | 0.414 | 1.6 |
+| level following the over-cut warning | 0.304 | 0.349 | 9.2 |
+| level+volatility | 0.235 | 0.189 | 26.9 |
+| BOCPD detections | 0.165 | 0.119 | 31.4 |
+| consensus, half or more | 0.156 | 0.139 | 7.2 |
+| level (plain) | 0.094 | 0.086 | 123.5 |
+
+- **T1 fails: the agreed changes do harm here.** Every-setting covering 0.344 against zero's 0.401 (bar 0.381):
+  -0.057, 95% bootstrap interval -0.099 to -0.022, worse on 15 series and better on 1. 59 of 75 series get no agreed
+  change at all (so they score exactly zero's), but 16 get 579, of which 7 (1%) are within one TSSB window of a
+  labelled change. Most of those 16 are repeating waveforms (ECG, EOG, gun-point and trace gestures, freezer and
+  olive-oil spectra): all six settings cut the same peaks, so they agree, and agreement is no evidence of a change. Two
+  of them (UMD, DodgerLoopDay) have no labelled change and get 31 and 23.
+- **T2 holds:** the over-cut warning fires on 61 of 75. **T3 holds:** following it beats the plain level model on 59 of
+  those 61 (+0.258 covering, interval 0.199 to 0.320), as on TCPD; it still loses to zero (-0.097).
+- **T4 fails:** the consensus is 0.237 below published PELT, not within 0.05. The pre-registration assumed TSSB's PELT
+  scored near "no change"; it scores 0.18 above it (on Crop 0.987), so TSSB's runs found shape changes a mean-shift
+  cost does not see (the paper gives its competitors' settings; they are not re-run here).
+- **Predictions, scored:** T1 met: wrong. T2, T3 met: right. T4 met: wrong (the assumption above). Consensus near zero:
+  wrong by 0.057. No setting within 0.15 of ClaSP: right. Plain level worst, under 0.35: right (0.094). BOCPD over-cuts
+  and scores below zero: right (0.165).
+
+**The existing cycle warning does not mark these series** (`node eval/tssb-cycle.mjs tssb-data`, output
+`eval/tssb-cycle.out.txt`, run after the verdicts, deciding nothing): of the 15 series with 10 or more agreed
+changes it fires on 3. What does mark them is the count. TCPD's 31 shipped series got 59 agreed changes between them
+and the 7 held-out at most 12 on one series; here 14 series get 23 to 50, near the panel's ceiling (changes are merged
+within 2% of the length, so about 50 at most). A guard on "many agreed changes, evenly spread" is the candidate for a
+next, separately pre-registered round, to be checked on TCPD (where it must stay quiet) and a fresh set.
+
+**What changes now.** As pre-registered, this round only measures; no default moves. The limits (here, on the page and
+in `llms.txt`) now say that a change of shape at an unchanged level and spread is outside what this detector finds,
+that on long repeating waveforms the agreed changes can be the cycle itself, and name a shape method (ClaSP) for that
+job. Tests: `tssb.test.mjs` (5: desc parsing, the pinned round, single-annotator covering, every setting on a made-up
+step, and the committed output's four verdicts).
