@@ -514,7 +514,8 @@ def next_task(v: Venture) -> str:
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
-            f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks)."
+            f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
+            "`--park ITEM` moves an open item to the venture's NEXT.md when there is no room)."
         )
     if not v.measured:
         claim = v.untested_hypothesis
