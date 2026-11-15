@@ -10284,6 +10284,13 @@ nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-gap]{margin-bottom:16px}
 /* Where a bar still sits straight under the band (the three tools whose h1 is
  * not in a header: toolHeadingEnd), the bar's own top padding is the space. */
 nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-gap]:has(+ .pf-rates, + .pf-jobs){margin-bottom:0}
+/* A venture whose body has no side padding (it pads main or a wrapper; the
+ * build marks the band data-pfs-inset, bodySidePadded) put the brand, Search
+ * and the trail flush against the screen edges on a phone: 61 tool pages at
+ * 390px on 2026-11-15. The rows take a 16px gutter while the band is narrower
+ * than the 1,120px column plus 32px, tapering to none above that, so a desktop
+ * row stays where it was. Percentages here are of the band's width. */
+.pf-chrome-top[data-pfs-inset] :is(.pfs-bar,.pfs-crumbs){padding-left:clamp(0px,calc(576px - 50%),16px);padding-right:clamp(0px,calc(576px - 50%),16px)}
 
 /* Site chrome is not part of anything a visitor prints.
  *
@@ -11047,6 +11054,27 @@ function spliceAt(html, index, text) {
 }
 
 /**
+ * Each `padding` / `padding-*` declaration on a rule whose selector is the
+ * page's `body` (by default `body`, `html body`, or the bare-tool base style's
+ * `:where(body)`; `body` narrows it), in any `<style>` block of `html`, at any media width.
+ * Yields `[property suffix, value]`, e.g. `['-top', '24px']` or `['', '0 16px']`.
+ */
+function* bodyPaddingDecls(html, body = /^(?:html )?(?:body|:where\(body\))$/) {
+  for (const block of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)) {
+    const css = block[1].replace(/\/\*[\s\S]*?\*\//g, '');
+    for (const rule of css.matchAll(/([^{};]+)\{([^{}]*)\}/g)) {
+      const selectors = rule[1].split(',').map((s) => s.trim().replace(/\s+/g, ' '));
+      if (!selectors.some((s) => body.test(s))) continue;
+      for (const decl of rule[2].matchAll(/(?:^|;)\s*padding(-[a-z-]+)?\s*:\s*([^;!]+)/gi)) {
+        yield [(decl[1] ?? '').toLowerCase(), decl[2].trim()];
+      }
+    }
+  }
+}
+
+const ZERO_LENGTH = /^[-+]?0*\.?0*(px|r?em|%|vh|vw)?$/i;
+
+/**
  * True when the venture's own inline CSS gives `body` a top padding.
  *
  * The chrome stylesheet zeroes the body's top padding so the site band meets
@@ -11061,20 +11089,63 @@ function spliceAt(html, index, text) {
  *
  * Reads `body { padding }` / `padding-top` in any inline `<style>`, at any
  * media width: a body padded only on phones still lost that space there.
+ * (Only `body` and `html body`, as before 2026-11-15; `bodySidePadded` also
+ * reads `:where(body)`.)
  */
 export function bodyTopPadded(html) {
-  for (const block of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)) {
-    const css = block[1].replace(/\/\*[\s\S]*?\*\//g, '');
-    for (const rule of css.matchAll(/([^{};]+)\{([^{}]*)\}/g)) {
-      const selectors = rule[1].split(',').map((s) => s.trim().replace(/\s+/g, ' '));
-      if (!selectors.some((s) => s === 'body' || s === 'html body')) continue;
-      for (const decl of rule[2].matchAll(/(?:^|;)\s*padding(-top)?\s*:\s*([^;!]+)/gi)) {
-        const top = decl[2].trim().split(/\s+/)[0];
-        if (!/^[-+]?0*\.?0*(px|r?em|%|vh|vw)?$/i.test(top)) return true;
-      }
-    }
+  for (const [side, value] of bodyPaddingDecls(html, /^(?:html )?body$/)) {
+    if (side !== '' && side !== '-top') continue;
+    if (!ZERO_LENGTH.test(value.split(/\s+/)[0])) return true;
   }
   return false;
+}
+
+/**
+ * True when the venture's CSS (inline `<style>` blocks plus `css`, the text of
+ * its own linked stylesheets) gives `body` a left padding at some width.
+ *
+ * The site band is the body's first child, so its row starts where the body's
+ * content box does, and at desktop widths the row is a centred 1,120px column
+ * with no side padding of its own. A venture that pads `main` or a wrapper
+ * instead of `body` put the brand, the Search pill and the breadcrumb flush
+ * against both screen edges on a phone: 61 of 1,366 tool pages at 390px on
+ * 2026-11-15 (1099-vendor-tracker, agent-workroom, card-processing-fee-audit,
+ * ...), while every other tool page has a 12 to 32px gutter. Pages that are not
+ * padded get `data-pfs-inset` on the band, and the band's rows take a 16px
+ * gutter of their own wherever the band is narrower than the column plus that
+ * gutter (`renderChromeStyle`).
+ *
+ * Checked against a browser on the 2026-11-15 build: it marks exactly the 61
+ * pages whose brand sat under 8px from the edge, and none of the other 1,305.
+ */
+export function bodySidePadded(html, css = '') {
+  for (const [side, value] of bodyPaddingDecls(`${html}<style>${css}</style>`)) {
+    const parts = value.split(/\s+/);
+    let left;
+    if (side === '') left = parts[parts.length === 4 ? 3 : parts.length === 1 ? 0 : 1];
+    else if (side === '-left' || side === '-inline' || side === '-inline-start') left = parts[0];
+    else continue;
+    if (!ZERO_LENGTH.test(left)) return true;
+  }
+  return false;
+}
+
+/**
+ * The text of the stylesheets a venture page links from its own folder
+ * (`style.css`, `css/app.css`), for `bodySidePadded`. Links that leave the
+ * folder (`../pf-chrome.css`, the site's own) or the site (`https:`, `/`) are
+ * skipped; a missing file reads as empty. `cache` is shared across a tool's pages.
+ */
+async function ownStylesheets(html, dir, cache) {
+  let css = '';
+  for (const m of html.matchAll(/<link\b[^>]*\brel=["']?stylesheet\b[^>]*>/gi)) {
+    const href = /\bhref=["']?([^"'\s>#?]+)/i.exec(m[0])?.[1];
+    if (!href || /^(?:[a-z][a-z0-9+.-]*:|\/|\.\.\/)/i.test(href)) continue;
+    const file = path.join(dir, href);
+    if (!cache.has(file)) cache.set(file, fs.readFile(file, 'utf8').catch(() => ''));
+    css += `\n${await cache.get(file)}`;
+  }
+  return css;
 }
 
 /**
@@ -11115,7 +11186,7 @@ function crumbShort(name) {
   return head.length >= 3 ? head : name;
 }
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [] }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '' }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -11208,7 +11279,10 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     search: 'link',
     crumbs,
     extraClass: 'pf-chrome pf-chrome-top',
-  }).replace(`${HEADER_MARKER}>`, bodyTopPadded(html) ? `${HEADER_MARKER} data-pfs-gap>` : `${HEADER_MARKER}>`);
+  }).replace(
+    `${HEADER_MARKER}>`,
+    `${HEADER_MARKER}${bodyTopPadded(html) ? ' data-pfs-gap' : ''}${bodySidePadded(html, linkedCss) ? '' : ' data-pfs-inset'}>`,
+  );
 
   const links = related
     .map(
@@ -11384,6 +11458,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
     const crumbName = named(surface).title;
     // Read once per venture; several pages in a directory load the same script.
     const scriptCache = new Map();
+    const styleCache = new Map();
 
     for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
       const relative = path.relative(outDir, file);
@@ -11409,6 +11484,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         isEntry: url === `${surface.slug}/index.html`,
         externalCallHosts: surface.externalFetchHosts,
         audiences: audiencesFor(surface.slug, audiencePages),
+        linkedCss: await ownStylesheets(html, path.dirname(file), styleCache),
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
