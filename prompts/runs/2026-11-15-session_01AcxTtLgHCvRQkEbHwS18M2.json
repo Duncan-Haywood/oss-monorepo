@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtLgHCvRQkEbHwS18M2",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:06:26Z",
+  "ended": "2026-11-15T05:37:54Z",
+  "wall_minutes": 31.7,
+  "tokens_in": 5991801,
+  "tokens_out": 37373,
+  "cost_usd": 3.0485,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16101",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First full m6 run scored randomised rules on one shared simulated run per village (inherited from m5's scoring path); noisy means inflated every rule's tail. Fixed with simulate_batch(independent=True), rerun; first output kept as results_shared_runs.txt.",
+    "Post description over 160 chars failed check_post_frontmatter; shortened."
+  ],
+  "integrity_issues": [
+    "Found and disclosed that milestone 5's survey-rule regrets (H7a 'held narrowly', 4.5%) relied on shared-run scoring; with independent runs they are 5.0-5.1%, at the bar. Correction written into LOG.md, README and the post; m5's merged text left as history."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Playwright screenshot of a bare file:// SVG timed out after 'fonts loaded'; setContent with the SVG inlined in HTML worked. Not documented anywhere I read."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/civ-seeding/LOG.md (milestone 6 plan)",
+      "why": "Changed the scoring of randomised rules after the first full run because it was a measurement bug, not a result I disliked",
+      "did": "Gave each randomised draw an independent run and added two diagnostics labelled post hoc; hypotheses and every other setting unchanged; both outputs kept",
+      "result": "Tails shrank to plausible sizes (greedy-T 95th pct 8.8% -> 2.4%); H8 and H9 held under both runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-seeding-rule-that-survives-uncertain-fits.md",
+    "research/civ-seeding/LOG.md (milestone 6 entry)",
+    "research/civ-seeding/README.md (milestone 6 section)"
+  ],
+  "goal": null,
+  "notes": "Programme civ-seeding milestone 6 (drawn by pick_track.py). 500-draw joint bootstrap refitting I/T/R on a 5,400-point grid; 205 distinct processes scored. H8 held (degree discount median worst-case 1.0% [0.3,1.6], beats degree in 500/500), H9 held (p 0.01-0.15 gives 0.9-1.2%). Local checks: 53 tests pass, build.py ok, check_md_links ok, research_live_links ok, cite_check ok, run_workflow_locally --for-changes: only failure was the post description length, fixed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "eb6e6a54-678e-56b4-bc15-8f92d88ce8cd",
+    "transcripts": 1,
+    "first": "2026-11-15T05:06:26Z",
+    "last": "2026-11-15T05:38:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 37373,
+        "thinking": 8924,
+        "cache_read": 5850378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141327,
+        "api_equivalent_usd": 3.0485,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 37373,
+      "thinking": 8924,
+      "cache_read": 5850378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141327,
+      "api_equivalent_usd": 3.0485,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 46,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.7,
+      "active_minutes": 31.7,
+      "model_minutes": 6.66,
+      "tool_minutes": 25.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a research assistant implementing the joint bootstrap, rerunning after the scoring bug and writing up: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 787.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
