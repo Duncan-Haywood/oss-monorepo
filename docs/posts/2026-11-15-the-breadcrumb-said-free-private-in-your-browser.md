@@ -3,7 +3,7 @@ title: "1,068 tool breadcrumbs ended in a sales line or a question"
 seo_title: "Why a breadcrumb should use the product's name, not its search title"
 date: 2026-11-15
 tags: [polish, seo, design, platform]
-description: "The trail at the top of 1,068 of 1,350 tool pages ended in the page's search title, so it read 'Wall Framing Takeoff — free, private, in your browser'. It now uses the name each tool already declares in its structured data."
+description: "The trail on 1,068 tool pages ended in a search title like '— free, private, in your browser'. It now uses the name each tool declares."
 ---
 
 Every tool page on the site opens with a breadcrumb under the header: Home › category › tool. On a phone the last crumb is cut off with an ellipsis, so it has about 20 characters to say which tool you are on. On Wall Framing Takeoff, the top flagship, those characters read "Wall Framing Takeof…". At full width the crumb said "Wall Framing Takeoff — free, private, in your browser".
