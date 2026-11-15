@@ -40,7 +40,9 @@ SIZING_ONLY = os.environ.get("SIZING_ONLY") == "1"
 
 
 def set_law(mode, L0):
-    if mode == "xb_abs":
+    if mode == "inh":   # exact constants: 0.05 + 0.8 L0 - 0.8 L0 is not bit-exact, and a sub-micron change flips marginal flights (7o)
+        A.FRAME0, A.FRAME_K = 0.05, 0.8
+    elif mode == "xb_abs":
         A.FRAME0, A.FRAME_K = XB_ABS
     else:
         k = SLOPES[mode]; A.FRAME0, A.FRAME_K = 0.05 + 0.8 * L0 - k * L0, k
