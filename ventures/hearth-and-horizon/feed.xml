@@ -116,6 +116,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>Toss It Again</title>
+      <link>https://example.invalid/hearth-and-horizon/toss-it-again.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/toss-it-again.html</guid>
+      <pubDate>Sun, 15 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A Catholic schools trust's results agent tests each of its six schools against the other five in twenty GCSE subjects and flags the three departments that came out significantly below at p &lt; 0.05, and one head of department rewrites his Year 11 course over the weekend. Then the head of maths at his school asks how many flags you would expect if every department were exactly average, and the answer is three. A story about multiple comparisons, Bonferroni, Holm and Benjamini-Hochberg corrections, the overcorrection that throws out a real result, and writing down next year's test before next year's results. Setting: The central office of a Catholic academy trust of six secondary schools (invented), east Lancashire, England, Thursday 9 September to Friday 17 September 2049. Read the full text at https://example.invalid/hearth-and-horizon/toss-it-again.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Catholic schools trust's results agent tests each of its six schools against the other five in twenty GCSE subjects and flags the three departments that came out significantly below at p &lt; 0.05, and one head of department rewrites his Year 11 course over the weekend. Then the head of maths at his school asks how many flags you would expect if every department were exactly average, and the answer is three. A story about multiple comparisons, Bonferroni, Holm and Benjamini-Hochberg corrections, the overcorrection that throws out a real result, and writing down next year's test before next year's results.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>What the Rain Carries</title>
       <link>https://example.invalid/hearth-and-horizon/what-the-rain-carries.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/what-the-rain-carries.html</guid>
