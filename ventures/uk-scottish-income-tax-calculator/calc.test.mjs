@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compute, summaryText, SAMPLE, VERIFY, parse, annual, taxOn, SCOT_BANDS } from "./calc.mjs";
+import { compute, summaryText, SAMPLE, VERIFY, parse, annual, taxOn, SCOT_BANDS, PLANS } from "./calc.mjs";
 
 const plain = (salary, extra = {}) => compute({ salary, pensionPct: 0, method: "none", plan: "none", pgl: "no", ...extra });
 
@@ -69,7 +69,7 @@ test("a pension percentage with no method changes nothing", () => {
 });
 
 test("student loan Plan 4 and postgraduate loan", () => {
-  assert.equal(plain(40000, { plan: "4" }).sl, 652.95);
+  assert.equal(plain(40000, { plan: "4" }).sl, 558.45); // (40,000 - 33,795) x 9%, 2026/27
   assert.equal(plain(40000, { pgl: "yes" }).pg, 1140);
   assert.equal(plain(20000, { plan: "4" }).sl, 0);
 });
@@ -96,4 +96,14 @@ test("summary names the source, the comparison and the disclaimer", () => {
   assert.match(s, /rest of the UK/);
   assert.match(s, /Not tax advice\. No warranty\./);
   assert.match(s, /Starter rate 19%/);
+});
+
+test("student loan thresholds are the 2026/27 figures (GOV.UK, Rates and thresholds for employers 2026 to 2027)", () => {
+  assert.equal(PLANS[1].threshold, 26900);
+  assert.equal(PLANS[2].threshold, 29385);
+  assert.equal(PLANS[4].threshold, 33795);
+  assert.equal(PLANS[5].threshold, 25000);
+  // GBP 45,000 with 5% salary sacrifice on Plan 4: (42,750 - 33,795) x 9% = 805.95
+  const r = compute({ salary: 45000, pensionPct: 5, method: "sacrifice", plan: "4", pgl: "no" });
+  assert.equal(Math.round(r.sl * 100) / 100, 805.95);
 });

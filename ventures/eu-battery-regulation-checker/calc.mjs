@@ -37,14 +37,14 @@ export const OBLIGATIONS = [
   { id: "epr", label: "Registered as a producer for each EU country you sell into; an authorised representative appointed there if you sell from abroad; take-back and recycling financed", article: "Art 56 and following", from: "2025-08-18", categories: ALL, roles: ["manufacturer", "importer", "distance"], done: "epr" },
   { id: "label", label: "General information label: manufacturer, type, date of manufacture, capacity, hazard and separate-collection symbol", article: "Art 13(1)", from: "2026-08-18", categories: ALL, roles: ["manufacturer", "importer"], done: "label" },
   { id: "removable", label: "A portable battery in an appliance can be removed and replaced by the user; an e-bike or e-scooter battery by an independent professional", article: "Art 11", from: "2027-02-18", categories: ["portable", "lmt"], roles: ["manufacturer", "importer"], done: "removable" },
-  { id: "qr", label: "QR code printed or engraved on the battery, linking to its digital record", article: "Art 13(6)", from: "2027-02-18", categories: NONPORTABLE, roles: ["manufacturer", "importer"], done: "passport" },
+  { id: "qr", label: "QR code printed or engraved on the battery, linking to its required information (and to its battery passport where one is required); applies to every category, portable included", article: "Art 13(6)", from: "2027-02-18", categories: ALL, roles: ["manufacturer", "importer"], done: "qr" },
   { id: "passport", label: "Digital battery passport for the battery, with the data fields the Regulation lists", article: "Art 77", from: "2027-02-18", categories: ["lmt", "industrial-big", "ev"], roles: ["manufacturer", "importer"], done: "passport" },
   { id: "diligence", label: "Supply-chain due-diligence policy for cobalt, natural graphite, lithium and nickel, with third-party verification (not for micro, small and medium firms)", article: "Arts 48 to 52", from: "2027-08-18", categories: ALL, roles: ["manufacturer", "importer"], done: "diligence", notSme: true },
   { id: "recycled", label: "Documentation of recycled content for cobalt, lead, lithium and nickel in the battery", article: "Art 8", from: "2028-08-18", categories: ["ev", "industrial-big", "sli"], roles: ["manufacturer", "importer"], done: "recycled" },
   { id: "carbon", label: "Carbon-footprint declaration and performance class", article: "Art 7", from: null, categories: ["ev", "industrial-big", "lmt"], roles: ["manufacturer", "importer"], done: "carbon" },
 ];
 
-export const DONE_KEYS = ["substances", "conformity", "epr", "label", "removable", "passport", "diligence", "recycled", "carbon"];
+export const DONE_KEYS = ["substances", "conformity", "epr", "label", "removable", "qr", "passport", "diligence", "recycled", "carbon"];
 
 function opt(raw, allowed, fallback) {
   return allowed.includes(raw) ? raw : fallback;
@@ -132,7 +132,7 @@ export function compute(input) {
   return { input: p, category: p.category, role: p.role, location: p.location, verdict, responsible: rp, timeline: rows, open, overdue, findings };
 }
 
-export const SAMPLE = { category: "lmt", role: "importer", location: "noneu", sellsEu: "yes", euOperator: "no", sme: "yes", today: "", substances: "", conformity: "1", epr: "", label: "", removable: "", passport: "", diligence: "", recycled: "", carbon: "" };
+export const SAMPLE = { category: "lmt", role: "importer", location: "noneu", sellsEu: "yes", euOperator: "no", sme: "yes", today: "", substances: "", conformity: "1", epr: "", label: "", removable: "", qr: "", passport: "", diligence: "", recycled: "", carbon: "" };
 
 const STATE_TEXT = { applies: "applies now", soon: "applies within a year", later: "applies later", pending: "date not yet set" };
 const RP_TEXT = { self: "you can carry the operator's duties", covered: "covered by an EU operator", check: "check who is named", gap: "gap: no EU operator", unknown: "not confirmed" };
