@@ -109,9 +109,13 @@ function cleanText(value, fallback = '') {
 /**
  * Assemble a vendor's per-criterion answers plus header fields into a
  * structured report, and list every completeness issue found. Unanswered
- * criteria default to 'not-evaluated' -- one of the VPAT's own four
- * conformance values, and the honest label for a row nobody has filled in
- * yet, rather than silently dropping it from the document.
+ * criteria default to 'not-evaluated' so the row stays in the document
+ * instead of being dropped, and every Level A or AA row left there is listed
+ * as an issue: the VPAT 2.x terms reserve Not Evaluated for Level AAA
+ * criteria only ("This can only be used in WCAG Level AAA criteria", ITI
+ * VPAT 2.5 terms, also in GSA OpenACR's VPAT catalogs). Quality audit
+ * 2026-11-15 found the old code printed "No completeness issues found" with
+ * all 50 rows Not Evaluated.
  *
  * @param {object} input
  * @param {string} [input.productName]
@@ -138,6 +142,14 @@ export function buildReport(input = {}) {
 
   const issues = [];
   for (const c of criteria) {
+    if (c.level === 'not-evaluated' && (c.wcagLevel === 'A' || c.wcagLevel === 'AA')) {
+      issues.push({
+        criterionId: c.id,
+        criterionName: c.name,
+        kind: 'not-evaluated-a-aa',
+        message: `${c.id} ${c.name}: Not Evaluated. The VPAT terms allow Not Evaluated only for Level AAA criteria; a Level ${c.wcagLevel} row needs a tested answer (Supports, Partially Supports, Does Not Support or Not Applicable, with remarks where required).`,
+      });
+    }
     if (REMARKS_REQUIRED_LEVELS.has(c.level) && !c.remarks) {
       issues.push({
         criterionId: c.id,

@@ -133,6 +133,7 @@ export function analyze(costs, opexItems, options = {}) {
   o.holdYears = Math.round(o.holdYears);
   if (o.holdYears < 1 || o.holdYears > 40) return { error: "Hold period must be between 1 and 40 years." };
   if (o.loanYears > 40) return { error: "Loan term cannot exceed 40 years." };
+  if (o.loanPct > 0 && Math.round(o.loanYears * 12) < 1) return { error: "Loan term must be at least one month when part of the cost is financed." };
 
   const warnings = [];
   const hard = costs.reduce((s, c) => s + c.amount, 0);
